@@ -2,7 +2,7 @@
 
 ## [Unreleased]
 
-## [0.1.4]
+## [0.1.4] - 2026-09-25
 
 Blob-storage billing validation and gateway primitives extracted from Canic,
 plus provider-interface evidence. Persistent workflows, provider execution and
