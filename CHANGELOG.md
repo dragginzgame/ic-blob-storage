@@ -2,7 +2,7 @@
 
 ## [Unreleased]
 
-## [0.1.3]
+## [0.1.3] - 2026-09-25
 
 Release-test reliability and documentation cleanup; storage-service scope is unchanged.
 
