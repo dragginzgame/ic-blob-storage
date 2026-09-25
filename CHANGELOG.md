@@ -2,6 +2,18 @@
 
 ## [Unreleased]
 
+## [0.1.2]
+
+Release and publication tooling fixes; storage-service scope is unchanged.
+
+### Changed
+
+- Release and publication commands retain build artifacts; cleanup is available
+  only through an explicit `make clean`.
+- Enabled crates.io publication and removed the B1 ownership/readiness blocker.
+  Publication still validates the clean tagged release and its source receipt.
+- Added the public repository URL to the crate's published metadata.
+
 ## [0.1.1] - 2026-09-25
 
 Content-verification and billing-policy foundations. Storage workflows and

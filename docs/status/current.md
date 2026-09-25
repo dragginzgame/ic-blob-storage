@@ -4,33 +4,56 @@ Date: 2026-09-25
 
 ## Latest continuation
 
-The maintainer requested continuation through 0.1.1. Its named, undated
-[changelog draft](../../CHANGELOG.md) now groups the content identities,
-incremental verification, pure billing policy, registry evidence and release
-helper fix. Changes are additive relative to the API-free 0.1.0 scaffold; no
-existing public API or semantic contract is removed by this patch candidate.
+The maintainer requested continuation on 0.1.2. The cleanup/publication fixes
+are now grouped in the named, undated [0.1.2 changelog draft](../../CHANGELOG.md),
+with empty Unreleased. The crate also inherits the verified public repository
+URL from workspace metadata. This is a compatible tooling/metadata patch;
+the service API and functionality are unchanged.
 
-Release preparation uncovered and fixed a helper bug: undated historical 0.1.0
-notes were incorrectly treated as a competing draft. The helper now preserves
-undated entries at/below the current package version and rejects other future
-drafts using numeric version order. Regression tests cover both Unreleased and
-named-target preparation and byte-for-byte preservation of historical notes.
-The real 0.1.0 notes remain unchanged.
+The full `make release-verify` gate passes for this candidate: shell/helper
+checks, formatting, native compilation, strict Clippy, docs, native tests and
+doctests, Wasm compilation and offline package verification. The package builds
+without the previous missing-repository metadata warning. The build cache is
+retained. Changelog preflight and the effect-free exact-version plan accept
+0.1.2. No registry upload, cleanup, commit, tag or push ran.
 
-`make release-verify` passes on the implementation candidate: shell/helper
-checks, formatting, compilation, strict Clippy, docs, native tests/doctests,
-Wasm and real offline package verification. This is the full current repository
-gate, not provider/service qualification. Publication metadata warnings remain
-expected while package ownership/publication are unsettled.
+Version preparation is authorized for 0.1.2, but the candidate is still
+uncommitted. Cargo/lockfile remain at 0.1.1 and the prior release receipt/tag are
+unchanged. The maintainer must commit this batch before the clean-source
+precondition can pass; agents must not create that commit. Then the maintainer
+can use `make release-patch`, or the agent can run the already-authorized
+`make bump-x VERSION=0.1.2` preparation. Publication remains the separate
+`make publish` action after a valid tagged release; this continuation did not
+authorize an agent upload.
 
-`make bump-x VERSION=0.1.1` stops at its clean-source check because this batch is
-uncommitted. Cargo and the lockfile remain at 0.1.0, and no release receipt was
-generated. The next required action is the maintainer's source commit of this
-reviewable batch. Agents must not create that commit. After the tree is clean,
-the already-authorized exact preparation command can run, revalidate committed
-source, bump Cargo/lockfile, date the draft and generate `docs/release.json`.
-No additional version-approval question is needed; no tag/push, registry upload,
-deployment, paid provider effect or Canic removal was performed.
+## Previous release and publication fix
+
+The maintainer completed `make release-patch`: source commit `8c315f6`, release
+commit `8b714c1`, annotated tag `v0.1.1`, Cargo/lockfile 0.1.1 and a generated
+release receipt. Local main matched origin/main and was clean at continuation
+start; the supplied push output confirms main/tag publication to GitHub. The
+subsequent `make publish` stopped before Cargo upload at the B1 publication
+guard. The Git release succeeded; that command did not publish to crates.io.
+
+The maintainer then explicitly requested removal of automatic cleanup and the
+B1 ownership publication blocker. The release helper now retains build output,
+including after push failure/retry; only explicit `make clean` removes it.
+Cargo now permits crates.io publication and the custom B1 check is removed.
+Clean-tree, annotated-tag and release-receipt checks remain. This change removes
+the library-publication gate, not the unfinished service/provider acceptance.
+
+Shell syntax, ShellCheck, Perl syntax and focused release-helper regressions
+pass. Substituted Cargo/Git checks cover successful and failed/retried releases,
+explicit publication and dry-run forwarding, cache retention, and rejection
+before publication for dirty, untagged or tampered releases. No real upload,
+cleanup, Git commit/tag/push or Rust compilation ran in this tooling batch.
+
+The fix is now in the 0.1.2 draft above. Cargo remains 0.1.1 and the existing
+release receipt is historical; do not rewrite it or move v0.1.1. After committing this batch,
+the maintainer can run `make release-patch` and then `make publish` for a newly
+validated/tagged package containing the corrected manifest. Agents still must
+not create commits. The latest continuation authorizes 0.1.2 preparation as
+recorded above.
 
 The maintainer pushed the setup/changelog as commit `14d5972` (`0.1.0`);
 the checkout was clean and main matched origin/main at continuation start.
@@ -51,12 +74,12 @@ is now implemented: distinct raw SHA-256/provider-root types, strict canonical
 parsing, validated numeric limits, full-request reserve checks, typed balance
 failures, blockers/warnings and recovery-fence reporting. These are domain values
 and diagnostics, not upload or payment authority. Provider calls/bindings,
-persisted workflows, publication and Canic removal remain gated.
+persisted workflows and Canic removal remain gated. Library publication was
+subsequently enabled as recorded above.
 
 [Core evidence](../evidence/core-primitives.md) retains exact source hashes,
 test references and passing targeted native/Clippy/Wasm/documentation checks.
-The notes are now grouped in the named 0.1.1 draft above; no version change or
-commit was made.
+Those notes were released by the maintainer in 0.1.1.
 
 The next continuation extends the approved content-identity slice with
 `ContentVerifier`: incremental SHA-256 verification against a fixed digest and
@@ -177,11 +200,11 @@ unassigned. Do not infer private byte delivery from tenant authorization.
   registry publication commands. Effect-free release-plan is available.
 - Release preparation validates clean committed input, updates Cargo/lockfile
   and changelog, and generates a source-bound record with release-file hashes.
-  Failed preparation restores its inputs. One-shot success ends with cargo clean.
+  Failed preparation restores its inputs. Release/publish retain build output.
 
-The package remains version 0.1.0 and publish=false. GitHub repository setup
-and the maintainer's initial commit/push are separate from service or registry
-publication. No version transaction or service publication has run.
+The package is version 0.1.1, with crates.io publication enabled in this working
+tree. The maintainer's Git release is separate from registry publication and
+service qualification.
 Commit-producing targets remain human-only; agents must never execute them.
 
 ## Validation
@@ -192,14 +215,13 @@ tests for version selection, first-release handling, changelog finalization,
 dirty/tagged-source rejection, failed validation, concurrent source changes,
 failed lockfile/metadata updates, rollback, staging and receipt tampering.
 Substituted Git/Cargo/validation commands also prove one-shot ordering, exact
-atomic push selection, success cleanup and failed-push continuation. These
+atomic push selection, retained build cache and failed-push continuation. These
 tests create no real commits or network effects.
 
 Make help, release previews and dry-run command graphs resolve. Real offline
-Cargo packaging and package compilation pass; Cargo reports the expected
-missing repository/homepage/documentation metadata while those publication
-locations remain unassigned. That earlier setup did not run the full gate;
-the current 0.1.1 preparation has now passed `make release-verify` as above.
+Cargo packaging and package compilation pass. The 0.1.2 candidate's repository
+metadata resolves the earlier package metadata warning. Both the earlier 0.1.1
+candidate and the current 0.1.2 candidate passed `make release-verify`.
 That earlier evidence establishes scaffold/tooling behavior only. The new
 core evidence additionally establishes the bounded native behavior above,
 without claiming service or provider qualification.
@@ -218,8 +240,8 @@ inventories, and actual-provider evidence. Freeze the
 identity, accounting, restore and retirement. Canic removal remains B3 work
 after qualified service publication.
 
-Before enabling registry publication, assign ownership/package metadata
-and extend release-verify with the implemented service's actual PocketIC and
-recovery qualification. Read [the release guide](../releasing.md) before using
+Library publication is enabled. Service qualification still requires the
+implemented service's actual PocketIC/provider/recovery evidence.
+Read [the release guide](../releasing.md) before using
 the installed maintainer commands. Content types and pure policy are available;
 service workflows, provider effects and canister endpoints are not implemented.

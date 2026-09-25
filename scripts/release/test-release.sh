@@ -20,7 +20,7 @@ members = []
 [workspace.package]
 version = "0.1.0"
 edition = "2024"
-publish = false
+publish = ["crates-io"]
 TOML
     cat > Cargo.lock <<'LOCK'
 version = 4
@@ -38,6 +38,8 @@ LOCK
 NOTES
     rm -f docs/release.json target/mock-head target/mock-tag target/mock-staged target/gate-ran
     : > "$TEST_LOG"
+    mkdir -p target/debug
+    printf 'retained build artifact\n' > target/debug/cache-sentinel
     unset TEST_DIRTY TEST_TAG_EXISTS TEST_GATE_FAIL TEST_UPDATE_FAIL TEST_GATE_DIRTY TEST_GATE_HEAD TEST_METADATA_FAIL TEST_PUSH_FAIL
 }
 
@@ -55,6 +57,10 @@ fingerprint() {
 assert_unchanged() {
     [[ "$(fingerprint)" == "$before" ]]
     [[ ! -e docs/release.json ]]
+}
+
+assert_cache_retained() {
+    [[ "$(cat target/debug/cache-sentinel)" == 'retained build artifact' ]]
 }
 
 # These substitutes exercise local sequencing and failure handling without
@@ -129,7 +135,9 @@ case "$*" in
         [[ "${TEST_METADATA_FAIL:-0}" != 1 ]]
         echo '{}'
         ;;
-    clean) ;;
+    'publish --locked --registry crates-io -p ic-blob-storage' | \
+    'publish --locked --registry crates-io -p ic-blob-storage --dry-run') ;;
+    clean) rm -rf target/debug ;;
     *) echo "unexpected Cargo command: $*" >&2; exit 1 ;;
 esac
 MOCK
@@ -263,20 +271,65 @@ bash scripts/release/release.sh release minor
 perl -e '
     local $/; my $log = <>;
     die "incorrect one-shot order\n" unless
-        $log =~ /make --no-print-directory release-verify.*git add --.*git commit -m Release 0\.2\.0.*git tag -a v0\.2\.0.*git push --atomic origin HEAD:refs\/heads\/main refs\/tags\/v0\.2\.0.*cargo clean/s;
+        $log =~ /make --no-print-directory release-verify.*git add --.*git commit -m Release 0\.2\.0.*git tag -a v0\.2\.0.*git push --atomic origin HEAD:refs\/heads\/main refs\/tags\/v0\.2\.0/s;
 ' "$TEST_LOG"
-echo "PASS one-shot ordering, exact atomic push and post-release cleanup (substitutes)"
+assert_cache_retained
+if rg -q '^cargo publish' "$TEST_LOG"; then
+    echo "Git release unexpectedly published to a registry" >&2
+    exit 1
+fi
+echo "PASS one-shot ordering, exact atomic push and retained build cache (substitutes)"
+
+# Publication remains a separate, explicit command. Exercise both modes through
+# the real helper and substituted Cargo; no registry request is made.
+for mode in dry-run upload; do
+    : > "$TEST_LOG"
+    before="$(fingerprint)"
+    if [[ "$mode" == dry-run ]]; then
+        bash scripts/release/release.sh publish --dry-run
+        expected='cargo publish --locked --registry crates-io -p ic-blob-storage --dry-run'
+    else
+        bash scripts/release/release.sh publish
+        expected='cargo publish --locked --registry crates-io -p ic-blob-storage'
+    fi
+    [[ "$(rg '^cargo publish' "$TEST_LOG")" == "$expected" ]]
+    [[ "$(fingerprint)" == "$before" ]]
+    perl "$DATA" verify
+    assert_cache_retained
+done
+
+for invalid in dirty missing-tag changed-release; do
+    : > "$TEST_LOG"
+    case "$invalid" in
+        dirty) export TEST_DIRTY=1 ;;
+        missing-tag) mv target/mock-tag target/saved-tag ;;
+        changed-release)
+            cp CHANGELOG.md target/saved-changelog
+            printf '\n- Changed after release.\n' >> CHANGELOG.md
+            ;;
+    esac
+    expect_failure bash scripts/release/release.sh publish
+    if rg -q '^cargo publish' "$TEST_LOG"; then
+        echo "invalid release reached registry publication" >&2
+        exit 1
+    fi
+    case "$invalid" in
+        dirty) unset TEST_DIRTY ;;
+        missing-tag) mv target/saved-tag target/mock-tag ;;
+        changed-release) mv target/saved-changelog CHANGELOG.md ;;
+    esac
+    assert_cache_retained
+done
+echo "PASS explicit publish/dry-run forwarding, release validation and retained cache (substitutes)"
 
 reset_fixture
 export TEST_PUSH_FAIL=1
 expect_failure bash scripts/release/release.sh release patch
 [[ -f target/mock-head && -f target/mock-tag ]]
 perl "$DATA" verify
-if rg -q '^cargo clean$' "$TEST_LOG"; then
-    echo "cleanup ran after failed push" >&2
-    exit 1
-fi
+assert_cache_retained
 unset TEST_PUSH_FAIL
 bash scripts/release/release.sh push
+assert_cache_retained
 echo "PASS failed-push recovery retains the prepared release (substitutes)"
 echo "Release helper tests passed (substituted Git/Cargo/validation commands)."

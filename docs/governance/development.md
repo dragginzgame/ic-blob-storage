@@ -62,9 +62,10 @@ Release staging/commit reject unrelated changes. Push requires a clean main
 branch, annotated current-version tag at HEAD and the validated source as its
 direct parent. Push exactly main and that tag atomically without force.
 
-A successful one-shot release finishes with cargo clean. Registry publication
-is separate and remains blocked by publish=false at bootstrap.
-The gate currently proves library buildability and release-tool behavior only.
-Before service publication is enabled, B1 ownership and acceptance must close
-and the gate must include the actual service's PocketIC/recovery evidence.
-Do not invent a passing substitute for evidence that has not been implemented.
+Release and publication preserve build artifacts on success, failure and retry.
+Cleanup is a separate explicit `make clean` action. Registry publication is
+enabled for crates.io and remains separate from the Git release.
+The maintainer removed B1 ownership/readiness as a library-publication gate.
+The validation gate proves the implemented native behavior and release tooling;
+service qualification still requires its actual PocketIC/provider/recovery
+evidence. Publication does not establish those guarantees.

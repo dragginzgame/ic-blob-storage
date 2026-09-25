@@ -164,16 +164,8 @@ push_release() {
 publish() {
     case "${1:-}" in "" | --dry-run) ;; *) fail "expected publish [--dry-run]" ;; esac
     tag_check
-    # Cargo remains authoritative for publish=false and registry eligibility.
-    local metadata
-    metadata="$(cargo metadata --offline --locked --no-deps --format-version 1)"
-    printf '%s' "$metadata" | perl -MJSON::PP -e '
-        local $/; my $m = decode_json(<>);
-        my ($p) = grep { $_->{name} eq "ic-blob-storage" } @{$m->{packages}};
-        die "missing service package\n" unless $p;
-        die "publishing disabled; settle B1 ownership and release readiness first\n"
-            if defined $p->{publish} && !grep { $_ eq "crates-io" } @{$p->{publish}};
-    '
+    # Cargo owns registry eligibility and authentication. Service qualification
+    # is tracked separately from publishing the current library package.
     cargo publish --locked --registry crates-io -p ic-blob-storage ${1:+"$1"}
 }
 
@@ -186,7 +178,7 @@ case "$command" in
         echo "Current: $(version)"
         echo "Target:  $next"
         echo "Bump: clean source -> release-verify -> Cargo/lockfile/changelog/receipt"
-        echo "One-shot: bump -> stage -> commit -> annotated tag -> atomic push -> cargo clean"
+        echo "One-shot: bump -> stage -> commit -> annotated tag -> atomic push"
         echo "Registry publication is a separate command; no effects performed."
         ;;
     ensure-clean) ensure_clean ;;
@@ -203,7 +195,6 @@ case "$command" in
         stage
         commit_release
         push_release
-        cargo clean
         ;;
     *) fail "expected version, plan, ensure-clean, bump, stage, commit, tag-check, push, publish, or release" ;;
 esac

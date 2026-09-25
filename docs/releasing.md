@@ -1,9 +1,9 @@
 # Releasing
 
 The command family follows the sibling ic-timers/ic-memory libraries.
-The package is unpublished with registry publishing disabled. Its native content
-and billing primitives do not yet qualify the storage service. The commands
-prepare and record repository releases independently of registry publication.
+The package permits publication to crates.io. Its native content and billing
+primitives do not yet qualify the storage service. The commands prepare and
+record repository releases independently of registry publication.
 
 ## Preview and prepare
 
@@ -16,9 +16,10 @@ is rejected after any version tag or generated release record exists.
 The initial 0.1.0 changelog is undated history. Preparation preserves undated
 entries at or below the current package version; any other undated future
 version remains a competing draft. A named target must follow empty Unreleased.
-Drafting 0.1.1 notes does not bump Cargo or create a release receipt: commit the
-implementation and draft first, then run `make bump-x VERSION=0.1.1` from clean
-source. Agents can prepare the draft and validate it; commits remain human-only.
+Drafting notes does not bump Cargo or create a release receipt: commit the
+implementation and draft first, then run `make patch` or the exact-version
+preparation command from clean source. Agents can prepare the draft and validate
+it; commits remain human-only.
 
 Preparation checks the changelog before running make release-verify. That gate
 currently includes shell/helper checks, Rust formatting, native compilation,
@@ -44,7 +45,9 @@ From committed, clean main with the intended origin configured:
 - make release-x VERSION=x.y.z
 
 Each runs preparation, exact release-file staging, a release commit, an
-annotated version tag, an atomic push of main and that tag, and cargo clean.
+annotated version tag, and an atomic push of main and that tag. Build artifacts
+are retained after success, failure and retry. `make clean` is an explicit,
+separate cleanup command; release and publication never invoke it.
 These are human-operated commands: agents must not create commits even
 indirectly. Creating these commands is not permission to run them.
 
@@ -58,18 +61,23 @@ fails, retain the prepared files and resume the individual step; do not bump
 again. If commit succeeds but tag creation fails, inspect HEAD and the
 generated record, then have the maintainer create the exact annotated tag
 before make release-push. If atomic push fails, retain the local commit/tag,
-resolve the remote conflict without force and retry release-push; run make
-clean after the successful retry. Never rerun the entire one-shot command
+resolve the remote conflict without force and retry release-push. Never rerun the entire one-shot command
 merely to recover a failed push.
 
 ## Registry publication
 
 Make publish-dry-run checks a registry upload without publishing; make publish
 uploads to crates.io. Both require the current release tag at clean HEAD and
-the generated release record. Neither bypasses Cargo's publish=false.
-Publication needs its own explicit maintainer instruction and registry access.
+the generated release record. Cargo checks registry eligibility and credentials.
+Publication needs its own explicit maintainer instruction and registry access;
+it is not part of `make release-patch` and does not clean build artifacts.
 
-Before enabling publication, assign the service/package owner, registry and
-remote, close the B1 contract, complete service evidence and extend the release
-gate to cover its real guarantees. See [development governance](governance/development.md)
-and [the service contract](service-contract.md).
+The maintainer removed the B1 ownership/readiness publication gate. Publishing
+the current library does not imply that provider integration, service acceptance
+or Canic replacement is complete; those are tracked in the
+[service contract](service-contract.md).
+
+The already-pushed v0.1.1 contains the old publication restriction. Commit the
+publication/cleanup fix, run `make release-patch` to produce the next tagged
+release, then `make publish` (or `make publish-dry-run` first). Keep the existing
+tag and receipt unchanged: the corrected manifest belongs to the new release.

@@ -31,9 +31,11 @@ This file is normative for automated contributors.
 - Read [the release guide](docs/releasing.md) before version or publication work.
   Agents may inspect plans and test helpers, but must not execute
   release-commit or commit-producing release-* targets.
-- Publication remains disabled until service/package ownership, B1 acceptance
-  and the release evidence plan are settled. Buildable scaffolding is not a
-  qualified service.
+- Registry publication is enabled for crates.io and remains an explicit
+  maintainer action. B1 ownership and service qualification do not gate library
+  publication; publishing the package does not qualify the service.
+- Release and publication commands preserve build artifacts. Run cleanup only
+  when explicitly requested; never append cargo clean to a release/deployment.
 
 ## Pre-1.0 hard cuts
 

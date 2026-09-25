@@ -57,8 +57,9 @@ These names are a proposal for the contract freeze, not reserved registry names:
 
 Keep provider request/callback definitions under one service-owned module;
 clients use the service contract and must not duplicate provider authority.
-Do not add a backend plugin framework. Fix package artifact/Candid provenance
-and registry access before publication; `publish=false` remains in force.
+Do not add a backend plugin framework. Retain package artifact/Candid provenance
+and registry access. Library publication to crates.io is now enabled by explicit
+maintainer direction; it does not close provider or service qualification.
 
 The maintainer's full-functionality requirement is expanded in the
 [Canic parity contract](canic-parity.md), including operator and diagnostic

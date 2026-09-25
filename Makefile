@@ -19,6 +19,7 @@ help:
 	@echo "deps                         Fetch locked Rust dependencies (network)"
 	@echo "fmt / fmt-check              Format Rust or check formatting"
 	@echo "check / clippy / test         Compile, lint, or test the library"
+	@echo "clean                        Explicitly remove build artifacts"
 	@echo "docs-check / wasm-check       Check docs or the Wasm library build"
 	@echo "ci / validate                Run the current repository validation gate"
 	@echo "release-check                Test release tooling without publication"

@@ -39,8 +39,9 @@ Canic; neither adapter may duplicate storage workflows or tenant policy.
 - [Agent instructions](AGENTS.md): repository boundaries and workflow.
 
 Only the core package is scaffolded. Protocol, client and adapter package names
-will be fixed during B1. The local `0.1.0` version is an unpublished scaffold,
-and Cargo publishing is disabled. The public repository is
+will be fixed during B1. Cargo permits publication of the implemented library
+to crates.io through the explicit maintainer release/publication workflow.
+Library publication does not establish service qualification. The public repository is
 [dragginzgame/ic-blob-storage](https://github.com/dragginzgame/ic-blob-storage).
 
 ## Local development
@@ -55,6 +56,8 @@ Run `make check` for compilation, `make fmt-check` for formatting and
 `make clippy` for strict library linting. The Makefile
 uses this repository's own `target/`; validation runs Cargo offline. No provider calls
 or canister deployments are part of these checks.
+Release and publication retain build artifacts. Run `make clean` only when you
+intend to remove them.
 
 The familiar maintainer release commands are available: `make patch`,
 `make minor`, `make release-patch` and `make release-minor`, plus major

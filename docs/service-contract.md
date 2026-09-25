@@ -8,8 +8,10 @@ The bootstrap package name does not decide the final package split.
 On 2026-09-25 the maintainer explicitly approved implementing content identities,
 hash parsing and pure funding/readiness policy with native tests before B1
 closes. This exception includes local implementation and its evidence only;
-provider bindings/effects, persisted workflows, publication and Canic removal
-remain gated. [Core evidence](evidence/core-primitives.md) records the resulting
+provider bindings/effects, persisted workflows and Canic removal remain gated.
+The maintainer subsequently removed B1 ownership/readiness as a library
+publication gate; crates.io publication follows the separate release workflow.
+[Core evidence](evidence/core-primitives.md) records the resulting
 scope. It does not settle tenant authority, provider identity, configuration
 persistence, recovery reconciliation or overall service readiness.
 
