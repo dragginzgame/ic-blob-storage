@@ -2,6 +2,73 @@
 
 Date: 2026-09-25
 
+## Latest continuation
+
+The maintainer requested continuation through 0.1.1. Its named, undated
+[changelog draft](../../CHANGELOG.md) now groups the content identities,
+incremental verification, pure billing policy, registry evidence and release
+helper fix. Changes are additive relative to the API-free 0.1.0 scaffold; no
+existing public API or semantic contract is removed by this patch candidate.
+
+Release preparation uncovered and fixed a helper bug: undated historical 0.1.0
+notes were incorrectly treated as a competing draft. The helper now preserves
+undated entries at/below the current package version and rejects other future
+drafts using numeric version order. Regression tests cover both Unreleased and
+named-target preparation and byte-for-byte preservation of historical notes.
+The real 0.1.0 notes remain unchanged.
+
+`make release-verify` passes on the implementation candidate: shell/helper
+checks, formatting, compilation, strict Clippy, docs, native tests/doctests,
+Wasm and real offline package verification. This is the full current repository
+gate, not provider/service qualification. Publication metadata warnings remain
+expected while package ownership/publication are unsettled.
+
+`make bump-x VERSION=0.1.1` stops at its clean-source check because this batch is
+uncommitted. Cargo and the lockfile remain at 0.1.0, and no release receipt was
+generated. The next required action is the maintainer's source commit of this
+reviewable batch. Agents must not create that commit. After the tree is clean,
+the already-authorized exact preparation command can run, revalidate committed
+source, bump Cargo/lockfile, date the draft and generate `docs/release.json`.
+No additional version-approval question is needed; no tag/push, registry upload,
+deployment, paid provider effect or Canic removal was performed.
+
+The maintainer pushed the setup/changelog as commit `14d5972` (`0.1.0`);
+the checkout was clean and main matched origin/main at continuation start.
+No version or publication transaction was run by the agent.
+
+Anonymous query calls to the official Mops registry now confirm backend
+`caffeineai-object-storage` 1.1.1 as the highest published version. The
+manifest and both backend source-file hashes match the pinned Caffeine source.
+The [registry evidence](../evidence/caffeine-mops-verification.json) retains
+responses, hashes, query identity/network and exact registry source provenance.
+This closes the package-publication gap only; deployed gateway/Cashier and
+recovery/economic evidence remain missing. No update or paid provider call ran.
+
+The maintainer answered the scoped implementation question with “yes please
+keep going”, explicitly authorizing content identities/hash parsing and pure
+funding/readiness policy with native tests before B1 closes. That bounded slice
+is now implemented: distinct raw SHA-256/provider-root types, strict canonical
+parsing, validated numeric limits, full-request reserve checks, typed balance
+failures, blockers/warnings and recovery-fence reporting. These are domain values
+and diagnostics, not upload or payment authority. Provider calls/bindings,
+persisted workflows, publication and Canic removal remain gated.
+
+[Core evidence](../evidence/core-primitives.md) retains exact source hashes,
+test references and passing targeted native/Clippy/Wasm/documentation checks.
+The notes are now grouped in the named 0.1.1 draft above; no version change or
+commit was made.
+
+The next continuation extends the approved content-identity slice with
+`ContentVerifier`: incremental SHA-256 verification against a fixed digest and
+declared byte length. Exact offsets reject replayed/skipped chunks; oversized
+chunks leave hash/count unchanged; completion rejects truncation and corruption.
+Memory use does not grow with object size. The SHA-256 length bound is enforced,
+but service object/session limits remain separate. Native tests include a fixed
+million-byte vector, varied chunk boundaries and rejection/recovery cases.
+Native tests, strict Clippy, Wasm, docs and formatting pass. This is transient
+raw-byte verification, not persisted resume, provider-tree computation or proof
+of storage. No provider integration or B1 scope expansion was made.
+
 The maintainer authorized creating and setting up
 `/home/adam/projects/ic-blob-storage`, sibling-style AGENTS/release tooling,
 and a public `dragginzgame/ic-blob-storage` remote. The initial maintainer
@@ -18,9 +85,10 @@ removal there. The [parity contract](../canic-parity.md) and structured
 [capability inventory](../canic-capabilities.json) now map all public blob API
 methods and emitted endpoints, plus lifecycle, operator, target-resolution,
 diagnostic and declaration capabilities to replacement boundaries and source
-tests. Every replacement evidence list is still empty. Operator functionality
-is explicitly in scope; acceptance A11/A12 cover operator parity and removal
-readiness. No Canic mutation or removal is authorized.
+tests. BLOB-01 now has native identity evidence; BLOB-08/BLOB-11/BLOB-12 have
+partial numeric/pure-policy evidence. Other replacement lists remain empty.
+Operator functionality is explicitly in scope; acceptance A11/A12 cover operator
+parity and removal readiness. No Canic mutation or removal is authorized.
 
 The inventory exposes an evidence limit: Canic's scripted operator loop is a
 substitute, and its installed-CLI blob proof expects a Coordinator-routing
@@ -35,7 +103,8 @@ required cycle-account/deletion/restore proof. The missing authoritative
 deployment/source facts are listed in
 [the provider evidence request](../provider-evidence-request.md). An async
 question to the maintainer requests that reference; no external message was
-sent and no paid provider effects occurred. B1 remains open and still gates B2.
+sent and no paid provider effects occurred. B1 remains open and gates work beyond
+the explicitly authorized core slice.
 
 The latest maintainer direction requires the latest official Caffeine storage
 integration, because Canic may have drifted. The
@@ -43,7 +112,8 @@ integration, because Canic may have drifted. The
 `latest` client 1.1.2 and current official backend source manifest 1.1.1 at
 `e5cacdfe5ce55e939edb02980fca800c0c13f421`. Registry archive SHA-512 integrity
 passes; the published client file matches the reviewed artifact's SHA-256.
-Latest Mops publication and deployed gateway/Cashier versions are not verified.
+Latest Mops publication is now verified by the evidence above; deployed
+gateway/Cashier versions remain unverified.
 Use upstream as the integration authority; Canic bindings are historical
 extraction evidence. Recheck upstream before implementation and qualification,
 then update exact pins and affected evidence together. No moving latest tag
@@ -89,9 +159,9 @@ This is dependency preparation, not B2 service implementation.
   An isolated client hashing check records distinct raw/provider hashes,
   metadata-dependent roots and the pinned client's empty-tree rejection.
 
-Human 0.110 acceptance is resolved for work here. B1 is still open, so no B2
-service implementation has begun. Caffeine is not qualified. The next useful
-work is obtaining the intended deployed provider interface and authoritative
+Human 0.110 acceptance is resolved for work here. B1 is still open; only the
+bounded core exception above is implemented. Caffeine is not qualified. The next
+useful work is obtaining the intended deployed provider interface and authoritative
 retry/deletion/billing evidence, then freezing bounds, recovery and owners.
 The first proposed journey uses public assets; the concrete consumer is still
 unassigned. Do not infer private byte delivery from tenant authorization.
@@ -128,8 +198,11 @@ tests create no real commits or network effects.
 Make help, release previews and dry-run command graphs resolve. Real offline
 Cargo packaging and package compilation pass; Cargo reports the expected
 missing repository/homepage/documentation metadata while those publication
-locations remain unassigned. Full CI/release validation was not run.
-All evidence establishes scaffold/tooling behavior only.
+locations remain unassigned. That earlier setup did not run the full gate;
+the current 0.1.1 preparation has now passed `make release-verify` as above.
+That earlier evidence establishes scaffold/tooling behavior only. The new
+core evidence additionally establishes the bounded native behavior above,
+without claiming service or provider qualification.
 
 The extraction-planning batch additionally checks local document links, source
 inventory hashes, whitespace and the pinned client's isolated hashing behavior.
@@ -148,5 +221,5 @@ after qualified service publication.
 Before enabling registry publication, assign ownership/package metadata
 and extend release-verify with the implemented service's actual PocketIC and
 recovery qualification. Read [the release guide](../releasing.md) before using
-the installed maintainer commands. No service API, provider effects or
-canister endpoints are implemented.
+the installed maintainer commands. Content types and pure policy are available;
+service workflows, provider effects and canister endpoints are not implemented.

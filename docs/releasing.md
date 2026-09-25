@@ -1,8 +1,9 @@
 # Releasing
 
 The command family follows the sibling ic-timers/ic-memory libraries.
-The package is currently an unpublished scaffold with publishing disabled.
-The commands are installed for future maintainer use; none has released it.
+The package is unpublished with registry publishing disabled. Its native content
+and billing primitives do not yet qualify the storage service. The commands
+prepare and record repository releases independently of registry publication.
 
 ## Preview and prepare
 
@@ -12,10 +13,17 @@ then prepare the next version. Make bump-x VERSION=x.y.z selects an exact
 version. The first release can retain 0.1.0 using bump-x or release-x; equality
 is rejected after any version tag or generated release record exists.
 
+The initial 0.1.0 changelog is undated history. Preparation preserves undated
+entries at or below the current package version; any other undated future
+version remains a competing draft. A named target must follow empty Unreleased.
+Drafting 0.1.1 notes does not bump Cargo or create a release receipt: commit the
+implementation and draft first, then run `make bump-x VERSION=0.1.1` from clean
+source. Agents can prepare the draft and validate it; commits remain human-only.
+
 Preparation checks the changelog before running make release-verify. That gate
 currently includes shell/helper checks, Rust formatting, native compilation,
 strict Clippy, docs, native tests, Wasm compilation and package verification.
-It is scaffold validation, not service qualification. Install the pinned Rust
+It validates tooling and native primitives, not service qualification. Install the pinned Rust
 toolchain, rustfmt, Clippy, wasm32-unknown-unknown target, ShellCheck, Perl (with
 core JSON::PP and Digest::SHA), ripgrep, Bash, flock, Git and Make beforehand.
 Library validation uses offline Cargo commands; future dependency changes

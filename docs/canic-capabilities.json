@@ -4,7 +4,7 @@
   "canic_commit": "10d00c6d9494a45b30e66f84d1bd886c8acdd45c",
   "source_hash_inventory": "canic-source-inventory.tsv",
   "scope": "Maintained Canic blob API, emitted endpoints, storage lifecycle, operator commands and diagnostics. Behavior preservation with required safety corrections; not source/API compatibility.",
-  "evidence_semantics": "Source test references identify reviewed tests or assertion helpers, not tests executed here. Empty replacement_evidence means no replacement qualification has been retained. This inventory is not an executable release gate.",
+  "evidence_semantics": "Source test references identify reviewed tests or assertion helpers, not tests executed here. Replacement evidence records bounded executed coverage and its remaining gaps; a nonempty list is not full capability qualification. Empty replacement_evidence means no replacement qualification has been retained. This inventory is not an executable release gate.",
   "capabilities": [
     {
       "id": "BLOB-01",
@@ -32,7 +32,24 @@
           "symbol": "malformed_root_hash_maps_to_public_invalid_input"
         }
       ],
-      "replacement_evidence": []
+      "replacement_evidence": [
+        {
+          "kind": "native_core",
+          "record": "evidence/core-primitives.md",
+          "source_hashes": "evidence/core-primitives.sha256",
+          "source": "crates/ic-blob-storage/src/model/identity/mod.rs",
+          "coverage": "Raw content SHA-256; distinct provider root type; canonical text and binary root conversion; typed malformed-input errors.",
+          "remaining": "Provider tree/checkpoint computation, endpoint integration and verified upload/read journey."
+        },
+        {
+          "kind": "native_core_partial",
+          "record": "evidence/core-primitives.md",
+          "source_hashes": "evidence/core-primitives.sha256",
+          "source": "crates/ic-blob-storage/src/model/identity/verification/mod.rs",
+          "coverage": "Incremental raw-content digest and exact-length verification; ordered byte offsets; unchanged state after chunk rejection; corruption/truncation errors; constant-size hash state.",
+          "remaining": "Trusted expected-digest provenance, provider tree/chunk proofs, persisted checkpoints and actual upload/read workflow."
+        }
+      ]
     },
     {
       "id": "BLOB-02",
@@ -243,7 +260,16 @@
           "symbol": "configure_billing_rejects_oversized_nat_fields_without_replacing_current_config"
         }
       ],
-      "replacement_evidence": []
+      "replacement_evidence": [
+        {
+          "kind": "native_core_partial",
+          "record": "evidence/core-primitives.md",
+          "source_hashes": "evidence/core-primitives.sha256",
+          "source": "crates/ic-blob-storage/src/model/billing/mod.rs",
+          "coverage": "Positive reserve/minimum/target and ordered thresholds, including u128 boundaries.",
+          "remaining": "Provider identity, gateway limits, boundary conversion, authorized configuration workflow and persistence."
+        }
+      ]
     },
     {
       "id": "BLOB-09",
@@ -338,7 +364,16 @@
           "symbol": "funding_in_progress_maps_to_conflict_code"
         }
       ],
-      "replacement_evidence": []
+      "replacement_evidence": [
+        {
+          "kind": "native_core_partial",
+          "record": "evidence/core-primitives.md",
+          "source_hashes": "evidence/core-primitives.sha256",
+          "source": "crates/ic-blob-storage/src/policy/billing/mod.rs",
+          "coverage": "Full-request reserve arithmetic; no partial funding; positive amount type; cycle conservation at small and extreme boundaries.",
+          "remaining": "Authorization, durable intent/liabilities, exact operation identity, provider effect and uncertain-result reconciliation."
+        }
+      ]
     },
     {
       "id": "BLOB-12",
@@ -367,7 +402,16 @@
           "symbol": "assert_status_request_does_not_sync_gateways_after_upgrade"
         }
       ],
-      "replacement_evidence": []
+      "replacement_evidence": [
+        {
+          "kind": "native_core_partial",
+          "record": "evidence/core-primitives.md",
+          "source_hashes": "evidence/core-primitives.sha256",
+          "source": "crates/ic-blob-storage/src/policy/billing/mod.rs",
+          "coverage": "Pure billing diagnosis with typed balance failures, thresholds, blockers, warnings and recovery fences.",
+          "remaining": "Trusted provider observations, recovery reconciliation, shared service status workflow and operator transport."
+        }
+      ]
     },
     {
       "id": "BLOB-13",

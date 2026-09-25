@@ -1,7 +1,8 @@
 # ic-blob-storage
 
 An independent blob-storage service library for Internet Computer canisters.
-This repository is bootstrapped; storage behavior is not implemented yet.
+The core provides content identities, incremental raw-content verification and
+pure billing policy. Storage workflows and provider effects are not implemented yet.
 
 The service will own application data, tenant authorization, content identities
 and references, quotas, provider access, billing, retention and deletion.
@@ -18,8 +19,11 @@ Canic; neither adapter may duplicate storage workflows or tenant policy.
 
 ## Current layout
 
-- `crates/ic-blob-storage`: library scaffold with foundational Rust dependencies;
-  no exported API.
+- `crates/ic-blob-storage`: validated content/provider hash types, chunked raw-byte
+  verification, numeric funding limits, and pure funding/readiness policy,
+  with native tests.
+- [Core evidence](docs/evidence/core-primitives.md): implemented boundaries,
+  test references and remaining service coverage.
 - [Dependencies](docs/dependencies.md): pinned libraries and local setup.
 - [Service contract](docs/service-contract.md): B1 decisions and acceptance map.
 - [Extraction readiness](docs/extraction-readiness.md): source inventory,
@@ -58,8 +62,9 @@ and exact-version variants. Use `make release-plan VERSION=minor` to preview
 without effects. See [the release guide](docs/releasing.md) and
 [development governance](docs/governance/development.md).
 
-Behavioral tests will accompany implementation. Canister and lifecycle tests
-must use PocketIC. Passing scaffold checks establishes buildability only.
+Run `make test` for native behavior and documentation tests. Canister and
+lifecycle tests must use PocketIC; none are implemented yet. Native billing
+diagnostics do not establish upload authority or deployed provider guarantees.
 
 ## Extraction boundary
 
@@ -71,7 +76,9 @@ balances and ongoing billing before their local obligation records are erased.
 The [Canic 0.111 design](../canic/docs/design/0.111-standalone-blob-service-extraction/0.111-design.md)
 is the extraction coordination authority in the sibling checkout. Human 0.110
 acceptance is recorded in this repository's handoff. The B1 contract remains
-open; B2 implementation depends on its provider evidence and remaining decisions.
+open. The maintainer authorized the bounded identity/pure-policy slice before
+B1 closure; service workflows and provider integration still depend on its
+remaining evidence and decisions.
 
 ## License
 

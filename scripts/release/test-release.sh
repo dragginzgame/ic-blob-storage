@@ -171,6 +171,57 @@ printf '# Changelog\n\n## [Unreleased]\n' > CHANGELOG.md
 expect_failure perl "$DATA" changelog-check 0.1.1 2026-09-25
 echo "PASS named drafts, empty notes, duplicate headings and repeat finalization"
 
+# The repository's initial release was recorded without a date. Preserve that
+# history while allowing both Unreleased notes and an explicitly named next draft.
+for notes in unreleased named; do
+    reset_fixture
+    if [[ "$notes" == named ]]; then
+        cat > CHANGELOG.md <<'NOTES'
+# Changelog
+
+## [Unreleased]
+
+## [0.1.1]
+
+- Named patch release.
+NOTES
+    fi
+    cat >> CHANGELOG.md <<'NOTES'
+
+## [0.1.0]
+
+- Initial undated release; keep these bytes unchanged.
+
+## [0.0.9]
+
+- Earlier imported history.
+NOTES
+    sed -n '/^## \[0.1.0\]$/,$p' CHANGELOG.md > target/historical-notes
+    before="$(fingerprint)"
+    perl "$DATA" changelog-check 0.1.1 2026-09-25
+    assert_unchanged
+    bash scripts/release/release.sh bump 0.1.1
+    perl "$DATA" verify
+    cmp target/historical-notes <(sed -n '/^## \[0.1.0\]$/,$p' CHANGELOG.md)
+done
+
+reset_fixture
+perl "$DATA" set-version 0.9.0
+cat >> CHANGELOG.md <<'NOTES'
+
+## [0.10.0]
+
+- A different future draft must still block this patch.
+
+## [0.9.0]
+
+- Current undated release.
+NOTES
+before="$(fingerprint)"
+expect_failure perl "$DATA" changelog-check 0.9.1 2026-09-25
+assert_unchanged
+echo "PASS undated historical notes, named patch preparation and numeric draft ordering"
+
 for failure in TEST_DIRTY TEST_TAG_EXISTS TEST_GATE_FAIL TEST_UPDATE_FAIL TEST_GATE_DIRTY TEST_GATE_HEAD TEST_METADATA_FAIL; do
     reset_fixture
     rm -f target/gate-ran

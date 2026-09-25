@@ -1,7 +1,11 @@
 # Service acceptance plan — proposed B1 assignments
 
-These cases specify observable acceptance for the bounded journey. They are
-not implemented tests or passing evidence. Named owners, bounds and provider
+These cases specify observable acceptance for the bounded journey. None is
+fully qualified. The authorized core slice provides native identity and billing
+arithmetic evidence toward A02/A04/A08/A11, including incremental raw-byte
+length/digest verification and rejection recovery toward A02, recorded in
+[core evidence](evidence/core-primitives.md); it does not execute the service
+journeys below. Named owners, bounds and provider
 evidence are still required by the [service contract](service-contract.md).
 Run the same service cases through standalone and managed deployments; only
 managed lifecycle integration belongs to Canic. Both adapters live here.

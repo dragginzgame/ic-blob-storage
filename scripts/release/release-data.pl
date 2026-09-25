@@ -51,6 +51,17 @@ sub next_version {
     return $next;
 }
 
+sub compare_versions {
+    my ($left, $right) = @_;
+    my @left = parts($left);
+    my @right = parts($right);
+    for my $i (0..2) {
+        my $order = $left[$i] <=> $right[$i];
+        return $order if $order;
+    }
+    return 0;
+}
+
 sub changelog {
     my ($target, $date) = @_;
     parts($target);
@@ -69,10 +80,11 @@ sub changelog {
     my $notes = $1;
     die "release is already dated\n"
         if $text =~ /^## \[\Q$target\E\] - /m;
-    # A named draft must be the sole undated numbered section.
+    # Imported history can be undated. Only versions newer than the current
+    # package are competing drafts; never rewrite historical release notes.
     my @drafts = $text =~ /^## \[([0-9.]+)\]$/mg;
     die "another numbered release draft is open\n"
-        if grep { $_ ne $target } @drafts;
+        if grep { $_ ne $target && compare_versions($_, version()) > 0 } @drafts;
     if ($text =~ /^## \[\Q$target\E\]\n(.*?)(?=^## \[|\z)/ms) {
         die "named release must immediately follow Unreleased\n"
             unless @sections > 1 && $sections[1] eq $target;

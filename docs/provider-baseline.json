@@ -30,14 +30,16 @@
       "packages/object-storage/backend/src/Mixin.mo",
       "packages/object-storage/backend/src/Storage.mo"
     ],
-    "basis": "Current official source at the pinned commit; reference for the Rust integration, not an installed Motoko dependency.",
-    "mops_latest_verified": false
+    "basis": "Latest Mops publication 1.1.1 observed through the official registry; manifest and both backend source files match the pinned official source. Reference for the Rust integration, not an installed Motoko dependency.",
+    "mops_latest_verified": true,
+    "mops_verification": "evidence/caffeine-mops-verification.json"
   },
   "qualification": {
     "deployed_gateway_version_verified": false,
     "deployed_cashier_version_verified": false,
     "provider_recovery_and_billing_guarantees_verified": false,
-    "service_implementation_started": false
+    "service_implementation_started": true,
+    "implementation_scope": "Maintainer-authorized content identities/hash parsing and pure funding/readiness policy only; no provider bindings/effects or persisted service workflows. See evidence/core-primitives.md."
   },
   "refresh_policy": "Recheck official source and registry latest before provider implementation and qualification. Update exact pins, contract evidence and affected checks together; do not resolve moving latest tags at build time."
 }

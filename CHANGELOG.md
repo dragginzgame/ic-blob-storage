@@ -2,6 +2,31 @@
 
 ## [Unreleased]
 
+## [0.1.1]
+
+Content-verification and billing-policy foundations. Storage workflows and
+provider integration remain pending.
+
+### Added
+
+- Separate raw SHA-256 content digests and Caffeine provider root identities,
+  with canonical hash parsing, typed malformed-input errors and byte conversion.
+- Incremental raw-content verification with exact offsets, declared-length and
+  digest checks, bounded memory, and unchanged state after rejected chunks.
+- Validated funding limits and pure reserve-protected funding decisions that
+  never substitute a partial top-up.
+- Read-only billing readiness with typed balance failures, blockers, warnings
+  and recovery-fence reporting.
+- Native boundary/vector tests and source-bound evidence for the first core
+  primitives; service workflows and provider qualification remain pending.
+- Official Mops registry evidence confirming backend package 1.1.1 and matching
+  source hashes for the pinned Caffeine integration.
+
+### Fixed
+
+- Release preparation now preserves undated historical changelog entries while
+  rejecting competing future drafts, allowing 0.1.1 after the recorded 0.1.0.
+
 ## [0.1.0]
 
 Initial repository scaffold, dependency setup and extraction planning.

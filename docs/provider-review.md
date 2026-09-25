@@ -20,10 +20,32 @@ apply to this file in the latest published package, including the empty-tree
 failure; they do not establish whole-package or server behavior.
 
 Official `main` still resolves to the commit below. Its backend manifest
-declares `caffeineai-object-storage` 1.1.1. That is a current-source observation;
-the latest Mops publication was not independently verified. The Rust service
-does not install the Motoko package. Gateway/Cashier deployment versions remain
+declares `caffeineai-object-storage` 1.1.1. A subsequent anonymous query to the
+official Mops registry confirms 1.1.1 as its highest published version. The
+registry's hashes for `mops.toml`, `src/Mixin.mo` and `src/Storage.mo` match the
+pinned official source. See [the retained registry evidence](evidence/caffeine-mops-verification.json).
+The Rust service does not install the Motoko package. Gateway/Cashier deployment versions remain
 unverified and must not be inferred from either package number.
+
+The registry address and query schema come from
+[Mops network configuration](https://github.com/caffeinelabs/mops/blob/ad36ae3b51616b3c39140674c19ad36481301f59/cli/api/network.ts)
+and [its Candid interface](https://github.com/caffeinelabs/mops/blob/ad36ae3b51616b3c39140674c19ad36481301f59/cli/declarations/main/main.did).
+Reproduction uses ICP CLI 1.6.0 with that downloaded interface:
+
+```sh
+icp canister call oknww-riaaa-aaaam-qaf6a-cai getHighestVersion \
+  '("caffeineai-object-storage")' --query --identity anonymous \
+  --network https://icp-api.io --root-key mainnet \
+  --candid /path/to/main.did --output candid
+icp canister call oknww-riaaa-aaaam-qaf6a-cai getFileHashesQuery \
+  '("caffeineai-object-storage", "1.1.1")' --query --identity anonymous \
+  --network https://icp-api.io --root-key mainnet \
+  --candid /path/to/main.did --output candid
+```
+
+Retained query responses are observations, not portable certified-state proofs.
+The checks issue no update calls or paid provider operations. This closes the
+backend publication-version gap, not any deployed-provider safety requirement.
 
 Before provider implementation and qualification, recheck the official source
 and registry latest, and update this exact baseline plus affected evidence

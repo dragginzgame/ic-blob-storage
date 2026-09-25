@@ -1,13 +1,22 @@
 # Service contract — B1 draft
 
-This is an unresolved contract checklist, not an implemented API or provider
-suitability verdict. Freeze the decisions and evidence before B2 implementation.
+This is an unresolved contract checklist, not a frozen service API or provider
+suitability verdict. Freeze the decisions and evidence before B2 implementation,
+subject to the explicit bounded exception below.
 The bootstrap package name does not decide the final package split.
+
+On 2026-09-25 the maintainer explicitly approved implementing content identities,
+hash parsing and pure funding/readiness policy with native tests before B1
+closes. This exception includes local implementation and its evidence only;
+provider bindings/effects, persisted workflows, publication and Canic removal
+remain gated. [Core evidence](evidence/core-primitives.md) records the resulting
+scope. It does not settle tenant authority, provider identity, configuration
+persistence, recovery reconciliation or overall service readiness.
 
 The [extraction readiness review](extraction-readiness.md) records the current
 Canic source inventory, preserved behavior, required safety corrections and
 provider evidence gaps. The [acceptance plan](acceptance-plan.md) supplies
-concrete proposed cases A01–A10. These are B1 working inputs, not a frozen
+concrete proposed cases A01–A12. These are B1 working inputs, not a frozen
 contract or executed qualification. The repository is now
 `dragginzgame/ic-blob-storage`; accountable maintainers and registry ownership
 remain to be assigned.

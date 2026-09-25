@@ -2,8 +2,9 @@
 
 The maintainer requires Canic's blob functionality to be ready here before
 removing it from Canic. This includes operator workflows and diagnostics as
-well as storage and billing. No functionality is qualified here yet; installed
-dependencies, plans and source inventories do not establish parity.
+well as storage and billing. The first native core primitives are implemented;
+no end-to-end service capability is qualified here yet. Installed dependencies,
+plans and source inventories do not establish parity.
 
 [The capability inventory](canic-capabilities.json) maps every public method in
 Canic's blob API and every emitted blob endpoint at commit
@@ -15,8 +16,13 @@ Source file hashes are retained in [the source inventory](canic-source-inventory
 
 ## Required replacements
 
-Every row remains unimplemented. Boundaries below are implementation destinations,
-not claims that modules or packages already exist.
+BLOB-01 has native parsing/canonicalization and incremental raw-byte verification
+evidence. BLOB-08, BLOB-11 and
+BLOB-12 have partial numeric validation and pure-policy evidence, recorded in
+[core evidence](evidence/core-primitives.md) and the capability inventory.
+Provider bindings, configuration persistence, actual funding, status workflows
+and the other capabilities remain unimplemented. The boundaries below describe
+the complete replacement requirements, not qualification claims.
 
 | Capability | Required behavior here | Necessary correction or boundary |
 | --- | --- | --- |

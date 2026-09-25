@@ -45,7 +45,8 @@ Maintain CHANGELOG.md for meaningful behavior and maintained tooling changes.
 Group work in Unreleased until a target is named, then use one undated
 numbered section immediately below the empty Unreleased section. The release
 helper dates that section, or promotes populated Unreleased notes,
-automatically. Historical release notes remain immutable.
+automatically. Historical release notes remain immutable, including imported
+undated entries at or below the current package version.
 
 Repository-only work normally joins the next coherent release. An explicit
 maintainer version/release request may choose a repository-only release.
