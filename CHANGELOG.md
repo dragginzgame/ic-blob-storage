@@ -2,6 +2,20 @@
 
 ## [Unreleased]
 
+## [0.1.3]
+
+Release-test reliability and documentation cleanup; storage-service scope is unchanged.
+
+### Changed
+
+- Release-helper tests now show a clearly labeled fixture notice and one success
+  summary, with case diagnostics and retained logs on failure.
+- Isolated release-test cases, consolidated overlapping preparation checks, and
+  replaced permissive log matching with exact release-effect assertions.
+- Corrected Make help to reflect that releases preserve the build cache.
+- Consolidated duplicate extraction/provider planning documents and replaced
+  accumulated handoff history with current status, preserving source evidence.
+
 ## [0.1.2] - 2026-09-25
 
 Release and publication tooling fixes; storage-service scope is unchanged.

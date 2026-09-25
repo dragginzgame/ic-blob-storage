@@ -26,7 +26,7 @@ help:
 	@echo "release-plan VERSION=minor   Preview patch/minor/major or an exact version"
 	@echo "patch / minor / major         Validate and update release files for review"
 	@echo "bump-x VERSION=x.y.z          Prepare an exact release (including the first)"
-	@echo "release-{patch,minor,major}   Maintainer: prepare, commit, tag, push, clean"
+	@echo "release-{patch,minor,major}   Maintainer: prepare, commit, tag, push"
 	@echo "release-x VERSION=x.y.z       Maintainer: release an exact version"
 	@echo "release-stage / release-commit / release-push   Individual release steps"
 	@echo "publish / publish-dry-run     Separately publish or verify registry upload"

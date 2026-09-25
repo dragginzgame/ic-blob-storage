@@ -15,9 +15,9 @@ publication gate; crates.io publication follows the separate release workflow.
 scope. It does not settle tenant authority, provider identity, configuration
 persistence, recovery reconciliation or overall service readiness.
 
-The [extraction readiness review](extraction-readiness.md) records the current
+The [Canic parity review](canic-parity.md) records the captured
 Canic source inventory, preserved behavior, required safety corrections and
-provider evidence gaps. The [acceptance plan](acceptance-plan.md) supplies
+removal obligations. The [acceptance plan](acceptance-plan.md) supplies
 concrete proposed cases A01–A12. These are B1 working inputs, not a frozen
 contract or executed qualification. The repository is now
 `dragginzgame/ic-blob-storage`; accountable maintainers and registry ownership
@@ -33,6 +33,12 @@ qualified; deployed-contract and recovery/economic evidence still must close
 before provider bindings and effects are implemented.
 
 ## Acceptance target
+
+The proposed package roles are core, passive service protocol, upload/read
+client, standalone canister, thin Canic adapter and operator CLI. Only the core
+exists; final names and package split remain open. Both adapters belong here,
+and only the managed adapter may depend on Canic. One internal provider module
+owns request/callback definitions; clients use the service protocol.
 
 The maintainer explicitly requires all Canic blob functionality to be ready
 here before Canic removal. The [parity contract](canic-parity.md) and
@@ -51,8 +57,14 @@ Canic-managed deployments with the same blob API and tenant rules.
 Classify each behavior as existing behavior preserved, a safety correction
 required for extraction, or a new capability deferred. B2 is bounded by this
 journey and necessary corrections; optional ambitions do not gate extraction.
+Shared cross-tenant deduplication, generic provider plugins, cross-release
+migration, multi-Fleet indexing and new confidentiality guarantees are deferred.
 
 ## Decisions and evidence required
+
+Freeze maximum object/chunk sizes, tenant/global byte and count limits,
+concurrency, session and receipt bounds, and supported interruption/restore
+horizons. Assign the acceptance cases to accountable owners.
 
 | Contract | Owner role to assign | Decision and acceptance evidence |
 | --- | --- | --- |

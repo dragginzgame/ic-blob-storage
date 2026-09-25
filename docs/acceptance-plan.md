@@ -41,7 +41,7 @@ Retain exact source revision, tool/provider versions, artifact/Candid hashes,
 commands and results for executed cases. Record substitutes separately from
 actual provider observations. A07's Canic-owned replacement fixture evidence
 does not authorize changes in that repository. Passing service tests alone
-does not close provider suitability, installation retirement or publication.
+does not close provider suitability, installation retirement or Canic removal.
 
 [The Canic parity contract](canic-parity.md) expands the preservation requirement
 into concrete runtime, operator and diagnostic capabilities. Its source-test

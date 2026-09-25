@@ -14,6 +14,31 @@ Some references are assertion helpers inside larger tests. They identify
 behavior to reproduce, not checks run or passed in this repository.
 Source file hashes are retained in [the source inventory](canic-source-inventory.tsv).
 
+## Source checkpoint
+
+The inventory captures Canic commit
+`10d00c6d9494a45b30e66f84d1bd886c8acdd45c`, whose tracked worktree was clean.
+Coordination follows Canic's
+[0.111 design](../../canic/docs/design/0.111-standalone-blob-service-extraction/0.111-design.md)
+and [tracker](../../canic/docs/design/0.111-standalone-blob-service-extraction/status.md).
+
+The TSV records SHA-256 hashes for tracked, case-insensitive matches to
+`blob.storage|immutableObjectStorage|caffeine|cashier` in crates, canisters,
+scripts, `.github`, root manifests/Makefile/README and maintained feature,
+operation and contract docs, plus the design, tracker and reviewed fixture build
+scripts. This is a discovery baseline, not a list of files to delete wholesale.
+Refresh it before removal; shared dependencies and generic coverage need review,
+and historical measurements/design/audit/changelog evidence stays historical.
+
+Earlier provider protocol evidence lives in Canic's
+[gateway inventory](../../canic/docs/contracts/BLOB_STORAGE_INVENTORY.md),
+[Cashier inventory](../../canic/docs/contracts/BLOB_STORAGE_CASHIER_INVENTORY.md)
+and `crates/canic/tests/fixtures/blob_storage_{gateway,cashier}.did`.
+Their Toko checkpoint `9ca150b396a2bde42f2b8977a04a7ca2c6172b56` is historical;
+that application was not re-inspected or selected as this service's consumer.
+Canic informs extraction behavior; the [provider review](provider-review.md)
+owns the current integration target and deployment evidence gaps.
+
 ## Required replacements
 
 BLOB-01 has native parsing/canonicalization and incremental raw-byte verification
@@ -105,3 +130,49 @@ qualification must execute behavior and bind artifacts/results to source;
 checking a row, file existence or a manually edited completion flag cannot
 establish readiness. No Canic capability may disappear merely because its
 replacement is inconvenient or the older implementation's evidence was weak.
+
+## Canic removal inventory and coverage transfer
+
+All removal remains Canic-owned B3 work. The TSV expands the following groups
+into concrete files; matches in shared files need selective edits, not deletion
+of the whole file.
+
+| Surface | Reviewed ownership and B3 disposition |
+| --- | --- |
+| Runtime/core | Remove blob API, domain, DTO, model, policy, ops, Cashier, view, workflow and stable modules; update each module registration and protocol constants |
+| Stable allocations | Remove IDs 55 (roots), 56 (pending deletions), 57 (gateway principals), 58 (billing) from `role_contract/allocation.rs`, plus catalog/state-contract ownership; no old-state reader |
+| Runtime inspection | Remove `RuntimeBlobStorageStatusSummary` and blob feature reporting from runtime DTO/API; propagate current runtime Candid/consumer expectations |
+| Facade | Remove `blob-storage`/`blob-storage-billing`, endpoint macros, API/protocol re-exports and blob Candid fixtures; retain generic endpoint-generation coverage |
+| Host/CLI | Remove `canic-cli/src/blob_storage`, Medic blob diagnostics, command/help/inspect wiring and blob-specific assertions in host package/descriptor/state-manifest tests |
+| Fixtures/testing | Retire `blob_storage_probe`, `blob_storage_cashier_mock`, `pic_blob_storage` and dedicated macro tests; transfer generic lifecycle, guards, role allocation and endpoint coverage before removal |
+| Build/tooling | Reconcile workspace/features/lockfile, Make targets, installed-CLI proofs, protocol gates, serial test inventory/runner and artifact measurement lists; do not rewrite historical measured evidence |
+| Maintained docs | Update feature/operation docs and crate/root READMEs; keep historical protocol provenance distinct from the extracted service's current contract |
+
+`pic_blob_storage.rs` currently covers gateway authorization/lifecycle,
+mock-Cashier wrappers, readiness blockers and stable state across upgrades.
+The substitute demonstrates the modeled callback/billing contract only.
+Map its generic controller guard, synchronous restore and Component allocation
+coverage to a generic maintained fixture in Canic; map blob behavior to A01,
+A03, A04, A06 and A07 here. Exact replacement test ownership is open until
+the Canic runtime/host/testing owners are named and qualify that mapping.
+
+## Installation obligations
+
+No installation inventory or no-obligation evidence was supplied. The local
+service scaffold's lack of provider state says nothing about existing Canic
+installations. Do not record an empty inventory as proof of no liabilities.
+
+For each affected installation the operator must supply:
+
+- Network, canister/service identity, provider namespace/account, operator and
+  authorized reconciliation/settlement principal.
+- Exported object roots, pending deletions, uploads and uncertain paid effects,
+  linked to provider records; retain record provenance and collection time.
+- Cashier/provider balances, charges, billing status and funding responsibility.
+- Evidence location surviving any reset, stop-admission fence and reconciliation
+  status, deletion proof, independent billing-stop proof and balance disposition.
+- Final no-obligation or completed decommission decision; any reviewed residual
+  disposition must preserve records, authority and funded ownership elsewhere.
+
+Source removal closes no installation obligation. Unknown outcomes stay fenced.
+No reset is authorized by this document.

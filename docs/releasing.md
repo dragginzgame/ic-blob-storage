@@ -30,6 +30,15 @@ core JSON::PP and Digest::SHA), ripgrep, Bash, flock, Git and Make beforehand.
 Library validation uses offline Cargo commands; future dependency changes
 must populate the local Cargo cache before release.
 
+`make release-check` tests the release helpers using isolated fixtures and
+substituted Git/Cargo/validation commands. Successful runs print a fixture
+notice and one summary; simulated version changes are captured, not printed as
+real release progress. On failure, the runner identifies the case, shows its
+diagnostics and command trace, and retains the fixture/logs under `target/` at
+the printed path. Successful runs remove only their own temporary fixtures.
+The initial-version and imported-history cases exercise supported release
+behavior; their fixture versions are independent of this repository's version.
+
 After validation, preparation updates Cargo.toml and Cargo.lock, finalizes
 CHANGELOG.md and writes docs/release.json with the source commit, release
 version/date and release-file hashes. Failures restore the original files.
@@ -76,8 +85,3 @@ The maintainer removed the B1 ownership/readiness publication gate. Publishing
 the current library does not imply that provider integration, service acceptance
 or Canic replacement is complete; those are tracked in the
 [service contract](service-contract.md).
-
-The already-pushed v0.1.1 contains the old publication restriction. Commit the
-publication/cleanup fix, run `make release-patch` to produce the next tagged
-release, then `make publish` (or `make publish-dry-run` first). Keep the existing
-tag and receipt unchanged: the corrected manifest belongs to the new release.
