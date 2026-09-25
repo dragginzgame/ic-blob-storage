@@ -2,7 +2,7 @@
 
 ## [Unreleased]
 
-## [0.1.1]
+## [0.1.1] - 2026-09-25
 
 Content-verification and billing-policy foundations. Storage workflows and
 provider integration remain pending.

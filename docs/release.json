@@ -1,0 +1,12 @@
+{
+   "date" : "2026-09-25",
+   "files" : {
+      "CHANGELOG.md" : "2c475191adefc8bb46e3ecb72ebc831f5d4418f75c359b8b96b7a8449d4add03",
+      "Cargo.lock" : "f281fb2b98047b2e1628913281843e43686469ce009483554ed951fff41b24e1",
+      "Cargo.toml" : "be1893e197086f6cce84c28c8f8544a223fc743681be1c7f0eea44c7611add44"
+   },
+   "gate" : "release-verify",
+   "schema" : 1,
+   "source" : "8c315f63833be251a7c0da6d32ada69bbe7c271a",
+   "version" : "0.1.1"
+}
