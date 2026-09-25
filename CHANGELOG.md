@@ -2,7 +2,7 @@
 
 ## [Unreleased]
 
-## [0.1.2]
+## [0.1.2] - 2026-09-25
 
 Release and publication tooling fixes; storage-service scope is unchanged.
 
