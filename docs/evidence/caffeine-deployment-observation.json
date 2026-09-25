@@ -1,0 +1,91 @@
+{
+  "schema_version": 1,
+  "observed_on": "2026-09-25",
+  "locator": {
+    "source_repository": "dragginzgame/toko",
+    "indexed_branch": "development",
+    "source_commit": "6519b72d2a420564dabaf700fc55f7b8603d9fd3",
+    "files": [
+      {
+        "url": "https://github.com/dragginzgame/toko/blob/6519b72d2a420564dabaf700fc55f7b8603d9fd3/fleets/toko/project/instance/src/ops/immutable_storage.rs",
+        "git_blob_sha": "a664dafea888502d69a7c16b1a7aedb273772b6a"
+      },
+      {
+        "url": "https://github.com/dragginzgame/toko/blob/6519b72d2a420564dabaf700fc55f7b8603d9fd3/frontend/src/lib/storage/storage-client.ts",
+        "git_blob_sha": "5a5319ece1edf70a8b05009938b9a3957c28962a"
+      },
+      {
+        "url": "https://github.com/dragginzgame/toko/blob/6519b72d2a420564dabaf700fc55f7b8603d9fd3/frontend/src/lib/icp/cashier-idl.ts",
+        "git_blob_sha": "1359b1077271bb15d2a7b70281d24630734528f8"
+      },
+      {
+        "url": "https://github.com/dragginzgame/toko/blob/6519b72d2a420564dabaf700fc55f7b8603d9fd3/frontend/src/data/api/cashier.api.ts",
+        "git_blob_sha": "67e7bc899c7c81b2ebf6ec61f57cd48fbc20b756"
+      }
+    ],
+    "gateway_origin": "https://blob.caffeine.ai",
+    "cashier_canister": "72ch2-fiaaa-aaaar-qbsvq-cai",
+    "scope": "Source defaults, not confirmation of every Toko deployment override or a selected service account. Toko backend delegates blob storage to Canic at this checkpoint."
+  },
+  "network": {
+    "host": "https://icp-api.io",
+    "root_key": "mainnet",
+    "identity": "anonymous",
+    "client": "icp 1.6.0"
+  },
+  "interface": {
+    "method": "canister metadata candid:service",
+    "file": "caffeine-cashier.did",
+    "sha256": "232b08e4514048d4de48d6d1bf4387f577bfb64c7e2e2ded699a5e52d475d76f",
+    "server_source_revision": null,
+    "server_package_version": null
+  },
+  "queries": [
+    {
+      "method": "storage_gateway_list_v1",
+      "arguments": "()",
+      "mode": "query",
+      "response": "caffeine-cashier-gateways.did",
+      "sha256": "50ccf5ff98440892079f485f8c216302049c0c68747e561e2fffa8e4ce2b6fc6"
+    },
+    {
+      "method": "pricelist_v1",
+      "arguments": "()",
+      "mode": "query",
+      "response": "caffeine-cashier-pricelist.did",
+      "sha256": "e26629bd9aee2c546958735358dfc5597e33f3e18abef438d1b2d9fe120788ca"
+    }
+  ],
+  "interface_findings": {
+    "gateway_methods": [
+      "storage_gateway_list_v1",
+      "storage_gateway_principal_list_v1"
+    ],
+    "gateway_method_modes": "Both advertised as query; only storage_gateway_list_v1 was queried.",
+    "balance_method_mode": "account_balance_get_v1 is advertised as query; no account balance was requested.",
+    "top_up": "account_top_up_v1 accepts opt {target_balance: opt nat; account: opt principal} and returns AccountTopUpResult. No update/top-up call was made.",
+    "recovery": "Payment-account audit-log and usage-ledger query methods exist. Their mere presence does not establish exact transfer correlation, retention, refund authority or object-specific billing cessation; no private account data was queried."
+  },
+  "compatibility": {
+    "tool": "didc 0.5.4",
+    "command": [
+      "didc",
+      "subtype",
+      "func (opt AccountTopUpRequest) -> (AccountTopUpResult)",
+      "func (record { account : principal }) -> ()",
+      "--defs",
+      "docs/evidence/caffeine-cashier.did"
+    ],
+    "exit_status": 0,
+    "scope": "Top-up Candid function subtyping only. The wrapper's empty result discards structured success/error information. This is not executed funding or recovery proof.",
+    "call_modes": "A whole-service subtype comparison rejects the wrapper's update declaration versus deployed query mode. IC permits query methods to be called through replicated update/inter-canister calls; mode annotation mismatch alone does not establish runtime incompatibility.",
+    "call_modes_source": "https://docs.internetcomputer.org/guides/security/data-integrity-and-authenticity/"
+  },
+  "gateway_observation": {
+    "request": "HEAD https://blob.caffeine.ai/",
+    "status": 400,
+    "content_type": "text/plain",
+    "scope": "Public host responded; no blob bytes, upload, deletion, provider version or API semantics were verified. Session cookie deliberately not retained."
+  },
+  "limitations": "Metadata fetched with the CLI configured for the mainnet root key; retained text is not a portable certified-state proof. Gateway/pricing responses are query observations, not immutable financial guarantees. No paid effect, account creation, balance lookup, update call, provider-source verification, retry/retention/deletion/billing qualification, or sibling repository mutation occurred."
+}

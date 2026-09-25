@@ -9,4 +9,5 @@
 //! contract is frozen.
 
 pub mod model;
+pub mod ops;
 pub mod policy;

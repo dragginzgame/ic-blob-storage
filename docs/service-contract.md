@@ -15,6 +15,15 @@ publication gate; crates.io publication follows the separate release workflow.
 scope. It does not settle tenant authority, provider identity, configuration
 persistence, recovery reconciliation or overall service readiness.
 
+The continuing local port includes billing input/configuration validation and
+transient gateway-list validation and membership operations. These values add no provider interface,
+persisted workflow or callback authority; the remaining implementation gates
+below still apply.
+
+Pure funding policy now also assesses admission of a new intent from supplied
+recovery/activity observations. This is part of the local policy exception;
+it neither establishes those observations nor persists or executes an intent.
+
 The [Canic parity review](canic-parity.md) records the captured
 Canic source inventory, preserved behavior, required safety corrections and
 removal obligations. The [acceptance plan](acceptance-plan.md) supplies

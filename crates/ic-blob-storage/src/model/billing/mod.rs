@@ -2,6 +2,9 @@
 
 use thiserror::Error;
 
+pub mod balance;
+pub mod configuration;
+
 /// Positive reserve and upload-balance thresholds, with minimum <= target.
 ///
 /// These limits contain no provider identity, credentials or persisted state.

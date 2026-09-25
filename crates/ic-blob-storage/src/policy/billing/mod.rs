@@ -1,5 +1,7 @@
 //! Billing arithmetic and diagnostic readiness, never authority to execute effects.
 
+pub mod admission;
+
 use std::num::NonZeroU128;
 
 use crate::model::billing::FundingLimits;

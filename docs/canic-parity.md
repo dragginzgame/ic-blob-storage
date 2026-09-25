@@ -35,7 +35,8 @@ Earlier provider protocol evidence lives in Canic's
 [Cashier inventory](../../canic/docs/contracts/BLOB_STORAGE_CASHIER_INVENTORY.md)
 and `crates/canic/tests/fixtures/blob_storage_{gateway,cashier}.did`.
 Their Toko checkpoint `9ca150b396a2bde42f2b8977a04a7ca2c6172b56` is historical;
-that application was not re-inspected or selected as this service's consumer.
+the provider review records a newer Toko source inspection for deployment
+locators, without selecting that application as this service's consumer.
 Canic informs extraction behavior; the [provider review](provider-review.md)
 owns the current integration target and deployment evidence gaps.
 
@@ -43,8 +44,20 @@ owns the current integration target and deployment evidence gaps.
 
 BLOB-01 has native parsing/canonicalization and incremental raw-byte verification
 evidence. BLOB-08, BLOB-11 and
-BLOB-12 have partial numeric validation and pure-policy evidence, recorded in
+BLOB-12 have partial numeric validation and pure-policy evidence. BLOB-09 and
+BLOB-15 now have bounded signed-balance conversion and operator amount parsing
+evidence. BLOB-09 validates all four numeric balance components before use,
+preserving typed field failures without defining a provider DTO.
+The billing input port also extends BLOB-08/11, recorded in
 [core evidence](evidence/core-primitives.md) and the capability inventory.
+BLOB-07/10 have partial transient gateway-list validation/replacement evidence,
+including raw/distinct bounds and unchanged membership after rejected input.
+BLOB-07 now also has idempotent individual add/remove and empty-membership
+behavior; empty provider sync input remains rejected.
+BLOB-08 also has complete local configuration-candidate validation for Cashier
+principal, funding thresholds and gateway limits representable on 32-bit Wasm.
+BLOB-11 also has pure new-intent admission rejecting recovery fences and
+outstanding/uncertain funding activity; durable exclusion is still unimplemented.
 Provider bindings, configuration persistence, actual funding, status workflows
 and the other capabilities remain unimplemented. The boundaries below describe
 the complete replacement requirements, not qualification claims.

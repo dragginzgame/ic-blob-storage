@@ -1,8 +1,8 @@
 # Caffeine provider review — 2026-09-25
 
-Verdict: Caffeine remains unqualified for the required service journey. Newly
-located official integration source improves the protocol evidence, but does
-not establish the deployed gateway/Cashier version or paid-effect guarantees.
+Verdict: Caffeine remains unqualified for the required service journey. The
+Cashier's deployed Candid and public gateway/pricing queries are now observed;
+server revision, paid-effect recovery and final billing guarantees remain open.
 
 ## Selected integration baseline
 
@@ -69,8 +69,8 @@ Reviewed public repository: `caffeinelabs/skills`, commit
   `@caffeineai/object-storage` 1.1.2.
 
 These are official application integration/client sources, not the gateway or
-Cashier server implementation. No package was installed, no upstream repository
-was edited, and no provider request was issued. The repository's skill files
+Cashier server implementation. That source inspection installed no package,
+edited no upstream repository and issued no provider request. The repository's skill files
 were not installed or adopted as instructions.
 
 ## Differences from Canic's captured contract
@@ -86,11 +86,39 @@ Comparison baseline: the Canic revision and Candid/source hashes recorded in
 | Refill callback | `_immutableObjectStorageFundFromProjectCycles` emitted by Canic billing adapter | `_immutableObjectStorageRefillCashier`, authorized against the configured Cashier principal |
 | Liveness/deletion state | Explicit stable root/pending records | Motoko runtime `Prim.isStorageBlobLive`, `Prim.getDeadBlobs`, `Prim.pruneConfirmedDeadBlobs` and GC |
 
-These differences establish interface differences between inspected sources. They do
-not establish which interface any deployed provider accepts, or justify dual
-readers/compatibility branches. Freeze one selected, verified contract before
-writing Rust bindings. The Motoko runtime's blob/GC integration is not a Rust
-storage lifecycle implementation that can simply be copied.
+These are differences between inspected sources, not necessarily incompatible
+wire contracts. The deployed observations below resolve part of that question.
+Use one selected contract, without compatibility fallbacks. Motoko's blob/GC
+integration still is not a Rust lifecycle implementation that can simply be copied.
+
+## Toko locator and deployed Cashier observations
+
+Toko's indexed `development` commit `6519b72d2a420564dabaf700fc55f7b8603d9fd3`
+defaults to `https://blob.caffeine.ai` and Cashier
+`72ch2-fiaaa-aaaar-qbsvq-cai`; its backend delegates to Canic. These are source
+defaults, not verified deployment overrides or this service's account selection.
+Exact source links, blob hashes, commands and observations are retained in
+[deployment evidence](evidence/caffeine-deployment-observation.json).
+
+Anonymous metadata retrieval obtained the [deployed Candid](evidence/caffeine-cashier.did).
+Both gateway-list names are advertised as queries. `account_balance_get_v1` is
+also a query; top-up retains Canic's optional request and structured result.
+The newer `storage_gateway_list_v1` and `pricelist_v1` queries both succeeded.
+No private account lookup, update or payment was performed.
+
+`didc` confirms that the deployed top-up function is a subtype of the newer
+Motoko wrapper's required-record/empty-result declaration. Thus that difference
+does not establish a wire break; the wrapper discards structured result data.
+Whole-service subtyping detects different query/update annotations, but the IC
+supports calling query methods through replicated calls; see
+[replicated query guidance](https://docs.internetcomputer.org/guides/security/data-integrity-and-authenticity/).
+Neither check proves a successful funding operation or safe retry.
+
+The interface also advertises audit-log and usage-ledger queries; their presence
+does not establish retention or operation-specific reconciliation. The gateway
+responded to an HTTP HEAD request with 400, which establishes reachability only.
+Server source/version, upload completion, deletion and billing-stop evidence
+remain unresolved. Retained query text is not a portable certified-state proof.
 
 ## Client algorithm and completion observations
 
@@ -177,8 +205,8 @@ need an authoritative server contract and deployment evidence.
 
 | Area | Exact information needed | Why it gates this service |
 | --- | --- | --- |
-| Deployment | Intended gateway origin, network, Cashier principal, account/project/bucket namespace and accountable operator; exact server/interface version or source revision | Bind credentials, callbacks, paid effects and observations to the same provider installation |
-| Wire contract | Current gateway HTTP schema and error/status definitions; current Cashier Candid including balance, gateway list, top-up and settlement; required callback Candid | Resolve the observed differences from Canic and verify full balance/readiness/funding functionality |
+| Deployment | Confirm the discovered gateway/Cashier as the service target; select account/project/bucket namespace and accountable operator; obtain exact server version/source revision | Bind credentials, callbacks, paid effects and observations to the same provider installation |
+| Wire contract | Gateway HTTP schema/error definitions, required callback Candid, and server behavior behind the retrieved Cashier Candid | Verify upload, balance/readiness/funding and settlement behavior beyond advertised signatures |
 | Upload identity | Which fields define the exact paid operation, when charging occurs, how duplicate requests are handled, and which callers/instances can use the namespace | Prevent retry, stale-instance and older-backup identity reuse |
 | Completion | Authoritative upload/transfer result lookup, incomplete-object behavior and retained receipt fields; distinguish durable completion from HTTP success | Recover lost responses without a second uncertain charge |
 | Retention | Numeric provider evidence-retention bounds and behavior after expiry; evidence available after local backup restoration | Freeze supported receipt/retry/restore horizons and non-repeat protection |
@@ -194,11 +222,11 @@ Evidence from official integration code, server source, deployed observations
 and PocketIC substitutes must be distinguished. A method's presence in Candid
 does not prove its idempotency, retention or economics.
 
-The older Canic Cashier principal and Toko consumer evidence are historical
-references, not confirmation of the intended current deployment. Do not issue
-top-ups, uploads or deletion experiments against a guessed deployment. Read-only
-interface inspection can continue once its identity is known; effectful provider
-qualification needs its own explicit authority and bounded test resources.
+Toko's source defaults now identify a reachable candidate deployment and its
+Cashier interface. The service account, intended deployment bindings and
+operator ownership still need selection; paid qualification requires explicit
+authority and bounded test resources. Do not infer those decisions from the
+read-only observations above.
 
 No missing field can be closed by adding local retry logic. If the provider
 cannot support a required capability, record a supported narrower contract or

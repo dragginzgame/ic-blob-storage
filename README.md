@@ -2,8 +2,9 @@
 
 An independent blob-storage service library for Internet Computer canisters.
 The core currently provides content identities, incremental raw-content
-verification and pure billing policy with native tests. Storage workflows,
-provider integration, clients and canister adapters are not implemented yet.
+verification, billing/configuration validation, bounded gateway membership and pure billing
+policy with native tests. Storage workflows, provider integration, clients and
+canister adapters are not implemented yet.
 
 The planned service owns tenant authorization, references, quotas, provider
 access, billing, retention and deletion. This repository will own standalone

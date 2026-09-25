@@ -1,0 +1,730 @@
+type AccountBalanceGetError = variant { AccountNotFound; InternalError : text };
+type AccountBalanceGetResponse = record {
+  account_cycle_balances : AccountCycleBalances;
+  account : principal;
+};
+type AccountBalanceGetResult = variant {
+  Ok : AccountBalanceGetResponse;
+  Err : AccountBalanceGetError;
+};
+type AccountCycleBalances = record {
+  total : int;
+  cycles_prepaid : int;
+  cycles_promo : int;
+  debt_target : DebtTarget;
+  cycles_ledger : int;
+};
+type AccountDelegateListReceivedResponse = record {
+  accounts : vec record { principal; Delegation };
+};
+type AccountDelegateListReceivedResult = variant {
+  Ok : AccountDelegateListReceivedResponse;
+  Err : DelegationError;
+};
+type AccountDelegateListResponse = record { delegations : vec Delegation };
+type AccountDelegateListResult = variant {
+  Ok : AccountDelegateListResponse;
+  Err : DelegationError;
+};
+type AccountDelegateRemoveRequest = record {
+  delegate : principal;
+  account : opt principal;
+};
+type AccountDelegateSetRequest = record {
+  permissions : vec DelegationPermission;
+  delegate : principal;
+  valid_until : opt nat64;
+  account : opt principal;
+};
+type AccountGetRequest = record { account : principal };
+type AccountInfoGetResult = variant {
+  Ok : UserAccount;
+  Err : CashierInternalError;
+};
+type AccountSettings = record {
+  overdraft_limit : nat;
+  target_balance : opt int;
+};
+type AccountSettingsGetResult = variant {
+  Ok : AccountSettings;
+  Err : CashierInternalError;
+};
+type AccountSettingsUpdateError = variant {
+  AccountNotFound;
+  InvalidTargetBalance : text;
+  NotAuthorized : principal;
+  InvalidOverdraftLimit : text;
+};
+type AccountSettingsUpdateRequest = record {
+  overdraft_limit : opt nat;
+  target_balance : opt opt int;
+  account : principal;
+};
+type AccountSettingsUpdateResponse = record {
+  settings : AccountSettings;
+  account : principal;
+};
+type AccountSettingsUpdateResult = variant {
+  Ok : AccountSettingsUpdateResponse;
+  Err : AccountSettingsUpdateError;
+};
+type AccountTopUpError = variant {
+  NotAuthorized : principal;
+  AccountBalanceOverflow;
+  InternalError : text;
+  TopUpWithoutCycles;
+};
+type AccountTopUpRequest = record {
+  target_balance : opt nat;
+  account : opt principal;
+};
+type AccountTopUpResponse = record {
+  balance : AccountCycleBalances;
+  message : text;
+};
+type AccountTopUpResult = variant {
+  Ok : AccountTopUpResponse;
+  Err : AccountTopUpError;
+};
+type AccountsListPagedRequest = record {
+  continuation_token : opt principal;
+  max_results : opt nat32;
+};
+type AccountsListPagedResponse = record {
+  accounts : vec UserAccount;
+  next_continuation_token : opt principal;
+};
+type AccountsListPagedResult = variant {
+  Ok : AccountsListPagedResponse;
+  Err : CashierInternalError;
+};
+type AccountsLowBalanceListResult = variant {
+  Ok : vec UserAccount;
+  Err : CashierInternalError;
+};
+type AdminGatewayMetaListResult = variant {
+  Ok : vec GatewayMetadata;
+  Err : AdminPrincipalListError;
+};
+type AdminPrincipalAddError = variant {
+  NotAuthorized : principal;
+  InternalError : text;
+};
+type AdminPrincipalAddRequest = record { admin_principal : principal };
+type AdminPrincipalAddResponse = record {
+  message : text;
+  admin_principal : principal;
+};
+type AdminPrincipalAddResult = variant {
+  Ok : AdminPrincipalAddResponse;
+  Err : AdminPrincipalAddError;
+};
+type AdminPrincipalListError = variant {
+  NotAuthorized : principal;
+  InternalError : text;
+};
+type AdminPrincipalListResponse = record {
+  message : text;
+  admin_principals : vec principal;
+};
+type AdminPrincipalListResult = variant {
+  Ok : AdminPrincipalListResponse;
+  Err : AdminPrincipalAddError;
+};
+type AuditEventType = variant {
+  Spend;
+  RelationshipAdd;
+  RelationshipUpdate;
+  LedgerDeposit;
+  TopUp;
+  RelationshipRemove;
+  UnitCharge;
+};
+type AuditLogContinuationToken = record {
+  account : opt principal;
+  sequence : nat64;
+};
+type AuditLogDownloadRequest = record {
+  continuation_token : opt AuditLogContinuationToken;
+  max_entries : opt nat64;
+  account : opt principal;
+  event_type : opt AuditEventType;
+};
+type AuditLogDownloadResponse = record {
+  continuation_token : opt AuditLogContinuationToken;
+  csv_content : text;
+  num_returned_entries : nat64;
+  has_more : bool;
+};
+type AuditLogDownloadResult = variant {
+  Ok : AuditLogDownloadResponse;
+  Err : AuditLogError;
+};
+type AuditLogError = variant {
+  NotAuthorized : principal;
+  InvalidRequest : text;
+  InternalError : text;
+};
+type BalanceHistogram = record { sum : int; buckets : vec nat64 };
+type BalanceHistogramError = variant { NotAuthorized : principal };
+type BalanceHistogramResult = variant {
+  Ok : BalanceHistogram;
+  Err : BalanceHistogramError;
+};
+type BudgetCheckRequest = record {
+  owner : principal;
+  units : vec record { text; Rational };
+};
+type BudgetCheckResponse = record {
+  available_budget : int;
+  approved : bool;
+  estimated_cost : Rational;
+};
+type BudgetCheckResult = variant {
+  Ok : BudgetCheckResponse;
+  Err : PricingError;
+};
+type CashierArgs = record {
+  overdraft_limit : opt nat;
+  gateway_principals : opt vec principal;
+};
+type CashierInternalError = variant {
+  AccountNotFound;
+  OperationFailed : text;
+  InsufficientBalance : record { needed : nat; available : int };
+  InsufficientCycles : record {
+    description : text;
+    available : int;
+    required : int;
+  };
+  NotAuthorized : principal;
+  InvalidArgument : text;
+  AccountBalanceOverflow;
+  TopUpWithoutCycles;
+};
+type ChargeUnitsResponse = record {
+  remaining_operations : opt Rational;
+  charged_cost : Rational;
+};
+type ChargeUnitsResult = variant {
+  Ok : ChargeUnitsResponse;
+  Err : PricingError;
+};
+type CyclesLedgerDepositSubaccountRequest = record { sender : principal };
+type CyclesLedgerDepositSubaccountResponse = record { subaccount : blob };
+type DebtTarget = variant { Prepaid; Ledger };
+type Delegation = record {
+  permissions : vec DelegationPermission;
+  delegate : principal;
+  created_at : nat64;
+  valid_until : opt nat64;
+};
+type DelegationError = variant {
+  DelegationNotFound : principal;
+  NotAuthorized : principal;
+  InvalidRequest : text;
+  InternalError : text;
+};
+type DelegationOperationResult = variant { Ok; Err : DelegationError };
+type DelegationPermission = variant { ReadOnly; FullAccess };
+type Factor = variant { G; K; M; T; U; Gi; Ki; Mi; Ti };
+type GatewayBudget = record { available_credit : int };
+type GatewayDiscoverRequest = record {
+  tags : opt vec text;
+  gateway_type : opt GatewayType;
+};
+type GatewayDiscoverResponse = record { gateways : vec GatewayInfo };
+type GatewayId = record { "principal" : principal; name : opt text };
+type GatewayInfo = record {
+  "principal" : principal;
+  tags : vec text;
+  gateway_type : GatewayType;
+};
+type GatewayMetadata = record {
+  last_seen_ns : opt nat64;
+  gateway_id : GatewayId;
+  active_since_last_garbage_collection : bool;
+};
+type GatewayTagsError = variant {
+  InvalidInput : text;
+  NotAuthorized : principal;
+  GatewayNotFound : principal;
+  InternalError : text;
+};
+type GatewayTagsGetResult = variant { Ok : vec text; Err : GatewayTagsError };
+type GatewayTagsSetRequest = record {
+  gateway_principal : principal;
+  tags : vec text;
+};
+type GatewayType = variant { Email; Storage };
+type GaugeHistograms = record {
+  chunk_size_bytes : Histogram;
+  chunk_count : Histogram;
+  blob_count : Histogram;
+  blob_size_bytes : Histogram;
+};
+type GetBudgetError = variant { GatewayNotFound : GatewayId; OwnerNotFound };
+type GetBudgetRequestV1 = record {
+  gateway_id : opt GatewayId;
+  owner_id : principal;
+};
+type GetBudgetResponseV1 = record {
+  usage : UsageCounters;
+  budget : GatewayBudget;
+};
+type GetBudgetResult = variant {
+  Ok : GetBudgetResponseV1;
+  Err : GetBudgetError;
+};
+type Histogram = record {
+  name : text;
+  labels : vec text;
+  sums : vec nat;
+  bounds : vec nat64;
+  counts : vec nat64;
+};
+type LevelPrices = record { bytes_stored : PricePerBillingUnit };
+type NotificationConfig = record {
+  webhook_url : opt text;
+  last_notified_low_at : opt nat64;
+  low_balance_threshold_cycles : opt int;
+  critical_balance_threshold_cycles : opt int;
+  webhook_format : WebhookFormat;
+  last_notified_critical_at : opt nat64;
+};
+type NotificationConfigError = variant {
+  AccountNotFound;
+  NotAuthorized : principal;
+  InvalidRequest : text;
+  InternalError : text;
+};
+type NotificationConfigListResponse = record {
+  configs : vec record { principal; NotificationConfig };
+  next_cursor : opt principal;
+};
+type NotificationConfigListResult = variant {
+  Ok : NotificationConfigListResponse;
+  Err : NotificationConfigError;
+};
+type NotificationConfigMarkNotifiedRequest = record {
+  critical_accounts : vec principal;
+  resolved_accounts : vec principal;
+  low_accounts : vec principal;
+};
+type NotificationConfigMarkNotifiedResponse = record { updated : nat32 };
+type NotificationConfigMarkNotifiedResult = variant {
+  Ok : NotificationConfigMarkNotifiedResponse;
+  Err : NotificationConfigError;
+};
+type NotificationConfigResult = variant {
+  Ok : NotificationConfig;
+  Err : NotificationConfigError;
+};
+type NotificationConfigSetRequest = record {
+  webhook_url : opt text;
+  clear : opt bool;
+  low_balance_threshold_cycles : opt int;
+  account : opt principal;
+  critical_balance_threshold_cycles : opt int;
+  webhook_format : opt WebhookFormat;
+};
+type NotifyCyclesLedgerDepositError = variant {
+  SweepFailed : record { message : text };
+  NothingToDeposit;
+  InternalError : record { message : text };
+  DepositTooSmall : record { fee : nat; balance : nat };
+};
+type NotifyCyclesLedgerDepositRequest = record { account : opt principal };
+type NotifyCyclesLedgerDepositResponse = record {
+  balance : AccountCycleBalances;
+  ledger_block_index : nat;
+  credited : nat;
+};
+type NotifyCyclesLedgerDepositResult = variant {
+  Ok : NotifyCyclesLedgerDepositResponse;
+  Err : NotifyCyclesLedgerDepositError;
+};
+type PayRelSyncSnapshotEntry = record {
+  key : principal;
+  value : PaymentRelationship;
+  entry_id : nat64;
+};
+type PayRelSyncSnapshotResponse = record {
+  entries : vec PayRelSyncSnapshotEntry;
+  current_seq : nat64;
+};
+type PayRelSyncValueEntry = record {
+  value : PaymentRelationship;
+  entry_id : nat64;
+};
+type PayRelSyncValuesResponse = record { values : vec PayRelSyncValueEntry };
+type PaymentAccountCanisterAddRequest = record {
+  spending_limit_per_day : int;
+  paid_canister : principal;
+  expiration_timestamp : opt nat64;
+  payment_account : opt principal;
+};
+type PaymentAccountCanisterGetRequest = record { canister : principal };
+type PaymentAccountCanisterGetResponse = record {
+  relationship : opt PaymentRelationship;
+};
+type PaymentAccountCanisterGetResult = variant {
+  Ok : PaymentAccountCanisterGetResponse;
+  Err : PaymentAccountError;
+};
+type PaymentAccountCanisterListRequest = record {
+  continuation_token : opt principal;
+  max_results : opt nat32;
+  payment_account : opt principal;
+};
+type PaymentAccountCanisterListResponse = record {
+  next_continuation_token : opt principal;
+  relationships : vec PaymentRelationship;
+};
+type PaymentAccountCanisterListResult = variant {
+  Ok : PaymentAccountCanisterListResponse;
+  Err : PaymentAccountError;
+};
+type PaymentAccountCanisterRemoveRequest = record {
+  paid_canister : principal;
+  payment_account : opt principal;
+};
+type PaymentAccountCanisterUpdateRequest = record {
+  spending_limit_per_day : opt int;
+  paid_canister : principal;
+  expiration_timestamp : opt opt nat64;
+  payment_account : opt principal;
+};
+type PaymentAccountError = variant {
+  RelationshipNotFound : principal;
+  NotAuthorized : principal;
+  InvalidRequest : text;
+  InternalError : text;
+};
+type PaymentAccountListResponse = record { payment_accounts : vec principal };
+type PaymentAccountListResult = variant {
+  Ok : PaymentAccountListResponse;
+  Err : PaymentAccountError;
+};
+type PaymentAccountOperationResult = variant { Ok; Err : PaymentAccountError };
+type PaymentRelationship = record {
+  added_timestamp : nat64;
+  spending_limit_per_day : int;
+  paid_canister : principal;
+  bandwidth_baseline_downloaded : nat;
+  expiration_timestamp : opt nat64;
+  current_period_spent : int;
+  current_period_start : nat64;
+  bandwidth_baseline_ts_ns : nat64;
+  payment_account : principal;
+  bandwidth_baseline_uploaded : nat;
+};
+type PricePerBillingUnit = record { per : Factor; cost : int };
+type Pricelist = record { gauges : LevelPrices; counters : UsagePrices };
+type PricelistGetResponse = record { units : vec record { text; PricingUnit } };
+type PricelistGetResult = variant {
+  Ok : PricelistGetResponse;
+  Err : PricingError;
+};
+type PricelistRemoveRequest = record { key : text };
+type PricelistRemoveResult = variant { Ok; Err : PricingError };
+type PricelistSetRequest = record { key : text; unit : PricingUnit };
+type PricelistSetResult = variant { Ok : text; Err : PricingError };
+type PricingConversion = variant {
+  Unit : record { rate : Rational; target : text };
+  Terminal;
+};
+type PricingError = variant {
+  UnitNotFound : text;
+  AccountNotFound;
+  InvalidQuantity : text;
+  UnitInUse : text;
+  TerminalUnit : text;
+  BrokenChain : text;
+  NotAuthorized;
+  InvalidRate : text;
+  ChainTooDeep;
+  InvalidUnitName : text;
+  InternalError : text;
+  UnitMismatch : record { left : text; right : text };
+};
+type PricingUnit = record {
+  description : text;
+  conversion : PricingConversion;
+};
+type Rational = record { numerator : int; denominator : int };
+type ServiceGatewayAddRequest = record {
+  gateway_principal : principal;
+  gateway_type : GatewayType;
+};
+type ServiceGatewayAddResponse = record {
+  gateway_principal : principal;
+  message : text;
+};
+type ServiceGatewayAddResult = variant {
+  Ok : ServiceGatewayAddResponse;
+  Err : AdminPrincipalAddError;
+};
+type ServiceGatewayListRequest = record { gateway_type : opt GatewayType };
+type ServiceGatewayRemoveRequest = record { gateway_principal : principal };
+type SimulateConsumptionResult = variant { Ok; Err : text };
+type StorageGatewayAddRequest = record { gateway_principal : principal };
+type StorageSetCanisterApiVersionError = variant {
+  NotAuthorized : principal;
+  InvalidVersion : nat8;
+};
+type StorageSetCanisterApiVersionRequest = record {
+  versions : vec record { principal; nat8 };
+};
+type StorageSetCanisterApiVersionResult = variant {
+  Ok;
+  Err : StorageSetCanisterApiVersionError;
+};
+type StorageSetGaugesError = variant {
+  NotAuthorized : principal;
+  InternalError : text;
+};
+type StorageSetGaugesRequest = record {
+  gauges : vec record { principal; UsageGauges };
+};
+type StorageSetGaugesResult = variant { Ok; Err : StorageSetGaugesError };
+type StorageSetUsageBatchRequest = record {
+  gateway_id : GatewayId;
+  counters : vec StorageSetUsageRequest;
+};
+type StorageSetUsageBatchResponse = record {
+  budgets : vec record { principal; GatewayBudget };
+};
+type StorageSetUsageBatchResult = variant {
+  Ok : StorageSetUsageBatchResponse;
+  Err : StorageSetUsageError;
+};
+type StorageSetUsageError = variant {
+  NotAuthorized : principal;
+  InternalError : text;
+};
+type StorageSetUsageRequest = record {
+  owner : principal;
+  usage : UsageCounters;
+};
+type SyncChange = variant {
+  Delete : record { key : principal; entry_id : nat64 };
+  Upsert : record { key : principal; entry_id : nat64 };
+};
+type SyncChangesRequest = record { since_seq : nat64; limit : nat64 };
+type SyncChangesResponse = record {
+  next_seq : nat64;
+  changes : vec SyncChange;
+};
+type SyncSnapshotRequest = record { limit : nat64; after_key : opt principal };
+type SyncValuesRequest = record { entry_ids : vec nat64 };
+type SyntheticAuditLogRequest = record { seed : opt nat64; weeks : opt nat32 };
+type SyntheticAuditLogResponse = record {
+  bob : principal;
+  eve : principal;
+  alice : principal;
+  carol : principal;
+  dave : principal;
+  weeks : nat32;
+  entries_generated : nat32;
+};
+type SyntheticAuditLogResult = variant {
+  Ok : SyntheticAuditLogResponse;
+  Err : text;
+};
+type UsageCounters = record {
+  bytes_downloaded : nat;
+  bytes_uploaded : nat;
+  write_requests : nat64;
+  read_requests : nat64;
+};
+type UsageGauges = record {
+  chunk_size_bytes : nat64;
+  chunk_count : nat64;
+  blob_count : nat64;
+  blob_size_bytes : nat64;
+};
+type UsageLedgerGetRequest = record { owner : principal };
+type UsageLedgerGetResponse = record {
+  entries : vec record { text; UsageLedgerValue };
+};
+type UsageLedgerGetResult = variant {
+  Ok : UsageLedgerGetResponse;
+  Err : PricingError;
+};
+type UsageLedgerValue = record { quantity : Rational; cached_cost : Rational };
+type UsagePrices = record {
+  read_request_price : PricePerBillingUnit;
+  bytes_downloaded_price : PricePerBillingUnit;
+  bytes_uploaded_price : PricePerBillingUnit;
+  write_request_price : PricePerBillingUnit;
+};
+type UserAccount = record {
+  account_owner_id : principal;
+  overdraft_limit : nat;
+  top_up_without_attached_cycles_sum : nat;
+  account_cycle_balance : AccountCycleBalances;
+  last_top_up_ts_ns : nat64;
+  relationship_removed_at_ns : opt nat64;
+  past_counters : opt UsageCounters;
+  creation_ts_ns : nat64;
+  top_up_sum : nat;
+  canister_api_version : opt nat8;
+  target_balance : opt int;
+  cycle_balance : int;
+  gateways : opt vec record { GatewayId; UserGateway };
+  storage_usage : UsageGauges;
+  relationship_last_payment_account : opt principal;
+  last_charge_ts_ns : nat64;
+  last_top_up_without_attached_cycles_ts_ns : nat64;
+};
+type UserGateway = record {
+  last_update_ns : nat64;
+  usage_counters : opt UsageCounters;
+};
+type WebhookFormat = variant { Slack; Generic; PagerDuty };
+type Whoami = record {
+  id : text;
+  account_cycle_balance : opt AccountCycleBalances;
+  am_gateway : bool;
+  am_admin : bool;
+  cashier_principal : principal;
+  am_anonymous : bool;
+  caller_principal : principal;
+};
+service : {
+  account_balance_get_v1 : (AccountGetRequest) -> (
+      AccountBalanceGetResult,
+    ) query;
+  account_delegate_list_received_v1 : (opt principal) -> (
+      AccountDelegateListReceivedResult,
+    ) query;
+  account_delegate_list_v1 : (opt principal) -> (
+      AccountDelegateListResult,
+    ) query;
+  account_delegate_remove_v1 : (AccountDelegateRemoveRequest) -> (
+      DelegationOperationResult,
+    );
+  account_delegate_set_v1 : (AccountDelegateSetRequest) -> (
+      DelegationOperationResult,
+    );
+  account_info_get_v1 : (AccountGetRequest) -> (AccountInfoGetResult) query;
+  account_settings_get_v1 : (AccountGetRequest) -> (
+      AccountSettingsGetResult,
+    ) query;
+  account_settings_update_v1 : (AccountSettingsUpdateRequest) -> (
+      AccountSettingsUpdateResult,
+    );
+  account_top_up_v1 : (opt AccountTopUpRequest) -> (AccountTopUpResult);
+  accounts_list_v1 : (opt AccountsListPagedRequest) -> (
+      AccountsListPagedResult,
+    ) query;
+  accounts_low_balance_list_v1 : () -> (AccountsLowBalanceListResult) query;
+  admin_gateway_meta_list_v1 : () -> (AdminGatewayMetaListResult) query;
+  admin_principal_add_v1 : (AdminPrincipalAddRequest) -> (
+      AdminPrincipalAddResult,
+    );
+  admin_principal_list_v1 : () -> (AdminPrincipalListResult) query;
+  admin_principal_remove_v1 : (AdminPrincipalAddRequest) -> (
+      AdminPrincipalAddResult,
+    );
+  balance_histogram_v1 : () -> (BalanceHistogramResult) query;
+  budget_check_v1 : (BudgetCheckRequest) -> (BudgetCheckResult) query;
+  budget_get_v1 : (GetBudgetRequestV1) -> (GetBudgetResult) query;
+  cached_balance_histogram_v1 : () -> (BalanceHistogramResult) query;
+  charge_units_v1 : (BudgetCheckRequest) -> (ChargeUnitsResult);
+  cycles_ledger_deposit_notify_v1 : (NotifyCyclesLedgerDepositRequest) -> (
+      NotifyCyclesLedgerDepositResult,
+    );
+  cycles_ledger_deposit_subaccount_v1 : (
+      CyclesLedgerDepositSubaccountRequest,
+    ) -> (CyclesLedgerDepositSubaccountResponse) query;
+  gateway_discover_v1 : (GatewayDiscoverRequest) -> (
+      GatewayDiscoverResponse,
+    ) query;
+  gateway_tags_get_v1 : (principal) -> (GatewayTagsGetResult) query;
+  gateway_tags_set_v1 : (GatewayTagsSetRequest) -> (GatewayTagsGetResult);
+  gauge_histograms_compute_v1 : () -> (GaugeHistograms) query;
+  gauge_histograms_set_v1 : () -> (GaugeHistograms);
+  gauge_histograms_v1 : () -> (opt GaugeHistograms) query;
+  notification_config_get_v1 : (AccountGetRequest) -> (
+      NotificationConfigResult,
+    ) query;
+  notification_config_mark_notified_v1 : (
+      NotificationConfigMarkNotifiedRequest,
+    ) -> (NotificationConfigMarkNotifiedResult);
+  notification_config_set_v1 : (NotificationConfigSetRequest) -> (
+      NotificationConfigResult,
+    );
+  notification_configs_list_v1 : (opt principal, opt nat32) -> (
+      NotificationConfigListResult,
+    ) query;
+  payment_account_audit_log_get_v1 : (AuditLogDownloadRequest) -> (
+      AuditLogDownloadResult,
+    ) query;
+  payment_account_canister_add_v1 : (PaymentAccountCanisterAddRequest) -> (
+      PaymentAccountOperationResult,
+    );
+  payment_account_canister_get_v1 : (PaymentAccountCanisterGetRequest) -> (
+      PaymentAccountCanisterGetResult,
+    ) query;
+  payment_account_canister_list_v1 : (
+      opt PaymentAccountCanisterListRequest,
+    ) -> (PaymentAccountCanisterListResult) query;
+  payment_account_canister_remove_v1 : (
+      PaymentAccountCanisterRemoveRequest,
+    ) -> (PaymentAccountOperationResult);
+  payment_account_canister_update_v1 : (
+      PaymentAccountCanisterUpdateRequest,
+    ) -> (PaymentAccountOperationResult);
+  payment_account_list_accessible_v1 : () -> (PaymentAccountListResult) query;
+  payment_relationships_sync_changes_v1 : (SyncChangesRequest) -> (
+      opt SyncChangesResponse,
+    ) query;
+  payment_relationships_sync_seq_v1 : () -> (nat64) query;
+  payment_relationships_sync_snapshot_v1 : (SyncSnapshotRequest) -> (
+      PayRelSyncSnapshotResponse,
+    ) query;
+  payment_relationships_sync_values_v1 : (SyncValuesRequest) -> (
+      PayRelSyncValuesResponse,
+    ) query;
+  pricelist_get_v1 : () -> (PricelistGetResult) query;
+  pricelist_remove_v1 : (PricelistRemoveRequest) -> (PricelistRemoveResult);
+  pricelist_set_v1 : (PricelistSetRequest) -> (PricelistSetResult);
+  pricelist_v1 : () -> (Pricelist) query;
+  service_gateway_add_v1 : (ServiceGatewayAddRequest) -> (
+      ServiceGatewayAddResult,
+    );
+  service_gateway_list_v1 : (ServiceGatewayListRequest) -> (
+      vec principal,
+    ) query;
+  service_gateway_remove_v1 : (ServiceGatewayRemoveRequest) -> (
+      ServiceGatewayAddResult,
+    );
+  storage_canister_api_version_get_v1 : (PaymentAccountCanisterGetRequest) -> (
+      opt nat8,
+    ) query;
+  storage_canister_api_version_set_v1 : (
+      StorageSetCanisterApiVersionRequest,
+    ) -> (StorageSetCanisterApiVersionResult);
+  storage_gateway_add_v1 : (StorageGatewayAddRequest) -> (
+      ServiceGatewayAddResult,
+    );
+  storage_gateway_list_v1 : () -> (vec principal) query;
+  storage_gateway_principal_list_v1 : () -> (vec principal) query;
+  storage_gateway_remove_v1 : (StorageGatewayAddRequest) -> (
+      ServiceGatewayAddResult,
+    );
+  storage_gauges_set_v1 : (StorageSetGaugesRequest) -> (StorageSetGaugesResult);
+  storage_usage_set_batch_v1 : (StorageSetUsageBatchRequest) -> (
+      StorageSetUsageBatchResult,
+    );
+  usage_ledger_get_v1 : (UsageLedgerGetRequest) -> (UsageLedgerGetResult) query;
+  whoami : () -> (Whoami) query;
+  zz_generate_synthetic_audit_log_v1 : (SyntheticAuditLogRequest) -> (
+      SyntheticAuditLogResult,
+    );
+  zz_simulate_consumption_v1 : (principal, nat) -> (SimulateConsumptionResult);
+  zz_top_up_promo_cycles_v1 : (principal, nat) -> (AccountTopUpResult);
+  zz_trigger_auto_topup_v1 : () -> (text);
+}

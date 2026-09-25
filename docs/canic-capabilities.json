@@ -231,7 +231,16 @@
           "symbol": "assert_gateway_principal_removal_revokes_scrubber_access"
         }
       ],
-      "replacement_evidence": []
+      "replacement_evidence": [
+        {
+          "kind": "native_core_partial",
+          "record": "evidence/core-primitives.md",
+          "source_hashes": "evidence/gateway-list.sha256",
+          "source": "crates/ic-blob-storage/src/model/gateway/membership/mod.rs",
+          "coverage": "Bounded transient membership: idempotent add at capacity, removal through empty state, nonempty ordered/deduplicated sync replacement and unchanged state on invalid/oversized input. Membership alone grants no authority.",
+          "remaining": "Operator authentication, service/provider namespace binding, persistent membership, stale-response exclusion after revocation and callback authorization."
+        }
+      ]
     },
     {
       "id": "BLOB-08",
@@ -268,6 +277,14 @@
           "source": "crates/ic-blob-storage/src/model/billing/mod.rs",
           "coverage": "Positive reserve/minimum/target and ordered thresholds, including u128 boundaries.",
           "remaining": "Provider identity, gateway limits, boundary conversion, authorized configuration workflow and persistence."
+        },
+        {
+          "kind": "native_core_partial",
+          "record": "evidence/core-primitives.md",
+          "source_hashes": "evidence/billing-inputs.sha256",
+          "source": "crates/ic-blob-storage/src/ops/billing/configuration/mod.rs",
+          "coverage": "Complete local configuration candidate: bounded Candid funding numbers, model reserve/minimum/target invariants, non-special Cashier principal, positive raw/distinct gateway limits representable on 32-bit Wasm, and native composition with gateway/funding/readiness behavior.",
+          "remaining": "Verified provider/service/account namespace identity, configured resource budgets, authorized configuration installation/change fences, persistence and endpoint/restart behavior."
         }
       ]
     },
@@ -298,7 +315,24 @@
           "symbol": "assert_billing_status_reports_cashier_balance_malformed"
         }
       ],
-      "replacement_evidence": []
+      "replacement_evidence": [
+        {
+          "kind": "native_core_partial",
+          "record": "evidence/core-primitives.md",
+          "source_hashes": "evidence/billing-inputs.sha256",
+          "source": "crates/ic-blob-storage/src/ops/billing/mod.rs",
+          "coverage": "Signed Candid balance-component conversion across the full u128 range; negative and oversized values reject rather than become zero.",
+          "remaining": "Current provider balance wire contract, authenticated observations, complete balance-record conversion, read-only workflow and error recovery."
+        },
+        {
+          "kind": "native_core_partial",
+          "record": "evidence/core-primitives.md",
+          "source_hashes": "evidence/billing-inputs.sha256",
+          "source": "crates/ic-blob-storage/src/ops/billing/balance/mod.rs",
+          "coverage": "All-or-nothing conversion of total, prepaid, promotional and ledger amounts with typed per-field failures; malformed components block readiness despite a valid total.",
+          "remaining": "Provider wire binding and account/debt-mode semantics, trusted observations, freshness and real balance/status workflows."
+        }
+      ]
     },
     {
       "id": "BLOB-10",
@@ -329,7 +363,16 @@
           "symbol": "assert_failed_gateway_sync_preserves_state"
         }
       ],
-      "replacement_evidence": []
+      "replacement_evidence": [
+        {
+          "kind": "native_core_partial",
+          "record": "evidence/core-primitives.md",
+          "source_hashes": "evidence/gateway-list.sha256",
+          "source": "crates/ic-blob-storage/src/model/gateway/membership/mod.rs",
+          "coverage": "Bounded transient membership: idempotent add at capacity, removal through empty state, nonempty ordered/deduplicated sync replacement and unchanged state on invalid/oversized input. Membership alone grants no authority.",
+          "remaining": "Authenticated provider fetch, response identity/stale-result fencing, persistent replacement/sync timestamp, failed-call recovery and shared operator workflow."
+        }
+      ]
     },
     {
       "id": "BLOB-11",
@@ -372,6 +415,22 @@
           "source": "crates/ic-blob-storage/src/policy/billing/mod.rs",
           "coverage": "Full-request reserve arithmetic; no partial funding; positive amount type; cycle conservation at small and extreme boundaries.",
           "remaining": "Authorization, durable intent/liabilities, exact operation identity, provider effect and uncertain-result reconciliation."
+        },
+        {
+          "kind": "native_core_partial",
+          "record": "evidence/core-primitives.md",
+          "source_hashes": "evidence/billing-inputs.sha256",
+          "source": "crates/ic-blob-storage/src/ops/billing/mod.rs",
+          "coverage": "Positive Candid and decimal funding amounts; native Candid composition with unchanged full-request reserve policy.",
+          "remaining": "Authorization, durable intent/liabilities, exact operation identity, provider effect and uncertain-result reconciliation."
+        },
+        {
+          "kind": "native_core_partial",
+          "record": "evidence/core-primitives.md",
+          "source_hashes": "evidence/billing-inputs.sha256",
+          "source": "crates/ic-blob-storage/src/policy/billing/admission/mod.rs",
+          "coverage": "Pure new-intent admission rejects recovery fences, in-progress/uncertain effects, missing configuration and reserve violations; diagnostic funding arithmetic cannot bypass it.",
+          "remaining": "Authoritative bound observations, atomic reservation/exclusion, durable intent/liabilities, exact operation identity, provider effects and uncertain-result reconciliation."
         }
       ]
     },
@@ -494,7 +553,16 @@
           "symbol": "mutating_commands_warn_when_post_status_diagnostic_fails"
         }
       ],
-      "replacement_evidence": []
+      "replacement_evidence": [
+        {
+          "kind": "native_core_partial",
+          "record": "evidence/core-primitives.md",
+          "source_hashes": "evidence/billing-inputs.sha256",
+          "source": "crates/ic-blob-storage/src/ops/billing/mod.rs",
+          "coverage": "Strict ASCII decimal funding input with typed errors; leading-zero compatibility, zero/overflow rejection and native Candid roundtrip.",
+          "remaining": "Command parsing/transport, dry-run previews, targeting, status/sync/funding workflows, structured output and both PocketIC deployments."
+        }
+      ]
     },
     {
       "id": "BLOB-16",

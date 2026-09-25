@@ -2,6 +2,32 @@
 
 ## [Unreleased]
 
+## [0.1.4]
+
+Blob-storage billing validation and gateway primitives extracted from Canic,
+plus provider-interface evidence. Persistent workflows, provider execution and
+canister adapters remain pending.
+
+### Added
+
+- Safe conversion of billing amounts from Candid `nat`/`int` values into Rust
+  cycle amounts, plus strict positive decimal funding input. Typed errors reject
+  malformed or out-of-range total, prepaid, promotional and ledger amounts.
+- Validated billing-configuration candidates combining Cashier principal,
+  funding thresholds and gateway bounds that fit 32-bit Wasm on every host.
+- Bounded gateway lists and transient membership: ordered deduplication, separate
+  raw/distinct limits, idempotent add/remove and all-or-nothing sync replacement.
+- Pure funding-intent admission that rejects recovery fences, outstanding or
+  uncertain payments, missing configuration and full-request reserve violations.
+- Native boundary, rejection/recovery and Candid composition tests connecting
+  validated inputs to gateway limits, funding admission and readiness diagnostics.
+
+### Changed
+
+- Recorded Toko's provider defaults, the deployed Cashier's Candid interface and anonymous
+  gateway/pricing observations. Corrected the compatibility review: both gateway
+  names are advertised and the newer top-up wrapper is Candid-compatible.
+
 ## [0.1.3] - 2026-09-25
 
 Release-test reliability and documentation cleanup; storage-service scope is unchanged.

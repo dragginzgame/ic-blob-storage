@@ -39,7 +39,9 @@
     "deployed_cashier_version_verified": false,
     "provider_recovery_and_billing_guarantees_verified": false,
     "service_implementation_started": true,
-    "implementation_scope": "Maintainer-authorized content identities/hash parsing and pure funding/readiness policy only; no provider bindings/effects or persisted service workflows. See evidence/core-primitives.md."
+    "implementation_scope": "Local content/billing/configuration and transient gateway membership primitives; no provider bindings/effects or persisted service workflows. Anonymous deployed metadata/gateway/pricing evidence is separate from implementation qualification.",
+    "deployed_cashier_interface_observed": true
   },
-  "refresh_policy": "Recheck official source and registry latest before provider implementation and qualification. Update exact pins, contract evidence and affected checks together; do not resolve moving latest tags at build time."
+  "refresh_policy": "Recheck official source and registry latest before provider implementation and qualification. Update exact pins, contract evidence and affected checks together; do not resolve moving latest tags at build time.",
+  "deployment_observation": "evidence/caffeine-deployment-observation.json"
 }

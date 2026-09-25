@@ -1,5 +1,8 @@
 # Content and billing primitives — native evidence
 
+The original core candidate is recorded below; subsequent local ports have
+separate source hashes in their sections.
+
 Date: 2026-09-25. The maintainer explicitly approved this bounded implementation
 before B1 closure. It implements domain values and pure policy only. It adds no
 provider calls, persisted state, serialization, endpoints, lifecycle ownership or Canic
@@ -80,3 +83,115 @@ a receipt. Cargo remains 0.1.0 until that transaction.
 No PocketIC server, deployment or live provider effect ran.
 These results do not qualify A01–A12 journeys, actual provider economics or
 backup/restore. The parity inventory remains partial and Canic removal gated.
+
+## Billing input port after 0.1.3
+
+The [billing ops module](../../crates/ic-blob-storage/src/ops/billing/mod.rs)
+ports numeric conversions from Canic's `ops/blob_storage/conversion.rs` and
+`ops/cashier/conversion.rs`, plus strict decimal funding input from
+`canic-cli/src/blob_storage/options.rs`. Configuration validation also follows
+`domain/policy/pure/blob_storage/mod.rs` and the validation portion of
+`workflow/blob_storage/billing/mod.rs`. Re-inspected at Canic HEAD
+`3f825aa223e663a562a7cb1cca72e57b5703e0e9`; these files still match the
+historical [source inventory](../canic-source-inventory.tsv). Other dirty Canic
+work was neither incorporated nor changed.
+
+Unsigned/signed Candid values must fit `u128`; negative balances never become
+zero. Numeric configuration conversion delegates to `FundingLimits` invariants.
+Both Candid and operator funding return positive amounts accepted by existing
+policy. Decimal input accepts leading zeros and rejects signs, whitespace,
+separators, non-ASCII digits, overflow and zero. Errors identify the numeric field
+or invalid byte offset without retaining the supplied input. Conversion borrows
+big integers; request/decoder limits remain the caller's responsibility.
+
+[Whole-balance conversion](../../crates/ic-blob-storage/src/ops/billing/balance/mod.rs)
+also validates total, prepaid, promotional and ledger amounts before exposing
+the [bounded values](../../crates/ic-blob-storage/src/model/billing/balance/mod.rs).
+Each negative or oversized component rejects with its own typed field, even
+when the total is valid. Amounts remain independent: no sum rule, debt-mode
+interpretation, provider DTO or completion proof is introduced. Tests cover
+every component's rejection, full-width values and Candid-to-readiness composition
+where a malformed ledger blocks an otherwise sufficient total. This preserves
+Canic's complete numeric validation; its source conversion hash still matches
+the captured inventory.
+
+[Configuration conversion](../../crates/ic-blob-storage/src/ops/billing/configuration/mod.rs)
+builds a [validated candidate](../../crates/ic-blob-storage/src/model/billing/configuration/mod.rs)
+combining Cashier principal, funding limits and gateway bounds. Anonymous and
+management Cashier principals reject. Both gateway limits must be positive and
+fit 32-bit Wasm indexes even on the host; this ceiling is not a recommended
+resource budget. No deployment defaults, account binding, persisted configuration
+or provider proof are implied. Tests exercise both bound fields at zero, maximum
+and overflow, identity rejection, typed conversion errors, and composition with
+gateway normalization and funding/readiness policy.
+
+Unit tests cover each invalid configuration field, signed/unsigned extremes and
+operator syntax. [Native composition tests](../../crates/ic-blob-storage/tests/billing_inputs.rs)
+pass real Candid encoding/decoding through the conversion API and funding policy;
+they prove full-request reserve behavior and rejection of wire-valid oversized
+numbers. They do not simulate canisters or provider payments.
+
+`make test`, `make clippy`, `make wasm-check`, `make docs-check` and formatting
+pass with the pinned toolchain and offline dependencies. The source batch is
+based on release `8d4e228` (0.1.3); verify its exact code/dependencies with
+`sha256sum -c docs/evidence/billing-inputs.sha256`. Historical core hashes above
+remain unchanged. No provider DTO, persisted workflow, endpoint, operator
+transport, dependency update, release or sibling edit is included.
+
+### Funding admission correction
+
+The [admission policy](../../crates/ic-blob-storage/src/policy/billing/admission/mod.rs)
+adds a pure decision about preparing a new funding intent. This is a required
+safety correction to Canic's transient-only `ops/blob_storage/funding.rs` guard,
+not a port of that guard or a completed durable replacement. That source and
+`workflow/blob_storage/billing/mod.rs` still match the historical source inventory.
+
+Recovery fencing, outstanding funding activity, missing configuration and reserve
+violations reject in that order. In-progress and uncertain effects remain blocked
+despite changing requested amounts, available funds or configuration. There is
+no expiry-based release. A successful decision preserves the full request and
+only proposes intent preparation. Authorization, account/namespace binding,
+atomic admission/reservation, durable intent and exact retry identity remain
+workflow obligations; supplied observations do not prove any of those facts.
+
+Unit tests cover fence precedence, outstanding effects across changed inputs,
+missing configuration, exact reserve boundaries and full-width arithmetic.
+The native composition test `diagnostic_top_up_does_not_bypass_funding_admission`
+demonstrates that readiness can report a top-up fitting the reserve while admission
+rejects it. Native tests, Clippy, Wasm, rustdoc and formatting pass. These tests
+evaluate supplied observations; they do not prove interruption recovery,
+concurrency exclusion, evidence retention or provider payments. Source hashes
+join `billing-inputs.sha256` above.
+
+## Gateway list port after 0.1.3
+
+The [gateway model](../../crates/ic-blob-storage/src/model/gateway/mod.rs) ports
+Canic's `CashierConversionOps::normalize_gateway_principals`. The source at
+Canic HEAD `3f825aa223e663a562a7cb1cca72e57b5703e0e9` still matches the captured
+inventory hash. Empty, anonymous and management entries reject; deduplication
+preserves first-occurrence order. Positive limits bound both raw entries and
+distinct members, with no deployment defaults. The raw bound is an extraction
+correction: duplicate-heavy lists must not bypass processing limits. Decoder
+allocation limits remain separate. Ordered-set deduplication avoids quadratic
+search through the growing output.
+
+`GatewayList::replace` validates the entire candidate before replacing the
+transient value with its original limits. Unit tests cover exact bounds,
+duplicate floods, invalid trailing entries, unchanged membership/order/limits
+after every rejection class, successful recovery and repeat replacement.
+
+[Gateway membership](../../crates/ic-blob-storage/src/model/gateway/membership/mod.rs)
+ports individual add/remove and complete replacement behavior from Canic's
+`ops/blob_storage/lifecycle.rs`. Existing members remain idempotent at capacity;
+removal frees capacity and may empty the set. Empty provider sync input still
+rejects, preserving prior membership. Tests cover repeat/unknown removals,
+invalid additions, capacity recovery and failed/successful sync replacement.
+
+Membership is not authority: provider/service binding, trusted synchronization,
+stale-response exclusion after revocation, durable state and callback workflows
+remain unimplemented. Only local membership changes are implemented here.
+
+Native tests, strict Clippy, Wasm compilation, docs and formatting pass. Verify
+the source/dependency hashes with
+`sha256sum -c docs/evidence/gateway-list.sha256`. No PocketIC/provider effects,
+release, dependency update or sibling mutation ran.
