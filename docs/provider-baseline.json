@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "verified_on": "2026-09-25",
+  "selection": "Latest official Caffeine integration; Canic bindings are historical extraction evidence, not the provider specification.",
+  "status": "integration_target_only",
+  "upstream": {
+    "repository": "https://github.com/caffeinelabs/skills",
+    "branch_observed": "main",
+    "commit": "e5cacdfe5ce55e939edb02980fca800c0c13f421",
+    "commit_date": "2026-09-25T08:42:13Z"
+  },
+  "frontend": {
+    "package": "@caffeineai/object-storage",
+    "version": "1.1.2",
+    "registry": "https://registry.npmjs.org/@caffeineai%2fobject-storage",
+    "dist_tag_observed": "latest",
+    "published_at": "2026-09-17T16:43:38.006Z",
+    "tarball": "https://registry.npmjs.org/@caffeineai/object-storage/-/object-storage-1.1.2.tgz",
+    "integrity": "sha512-JAmoHT6E8M18DEbW4rkHinAOw0A8yNbz+rj8F56VAvr8Hf0TxQSK0ZdMrkwwT7BsiOLvtFK/YcLtoaWBc9x2xQ==",
+    "archive_integrity_verified": true,
+    "client_path_in_archive": "package/dist/StorageClient.js",
+    "client_sha256": "6eb7f5b424f02476c9096e4684d8e520121c21b2b2f6f29f3c9a25e0c07cad57",
+    "matches_reviewed_upstream_client": true
+  },
+  "backend_reference": {
+    "package": "caffeineai-object-storage",
+    "manifest_version": "1.1.1",
+    "manifest_path": "packages/object-storage/backend/mops.toml",
+    "source_paths": [
+      "packages/object-storage/backend/src/Mixin.mo",
+      "packages/object-storage/backend/src/Storage.mo"
+    ],
+    "basis": "Current official source at the pinned commit; reference for the Rust integration, not an installed Motoko dependency.",
+    "mops_latest_verified": false
+  },
+  "qualification": {
+    "deployed_gateway_version_verified": false,
+    "deployed_cashier_version_verified": false,
+    "provider_recovery_and_billing_guarantees_verified": false,
+    "service_implementation_started": false
+  },
+  "refresh_policy": "Recheck official source and registry latest before provider implementation and qualification. Update exact pins, contract evidence and affected checks together; do not resolve moving latest tags at build time."
+}

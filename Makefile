@@ -3,17 +3,20 @@ SHELL := /bin/bash
 
 # Keep all builds in this repository, including calls from another workspace.
 export CARGO_TARGET_DIR := $(CURDIR)/target
+# Explicit path prevents PocketIC from downloading a server during tests.
+export POCKET_IC_BIN ?= $(CURDIR)/.tmp/tools/pocket-ic-16.0.0/pocket-ic
 VERSION ?=
 RELEASE := bash scripts/release/release.sh
 CI_TARGETS := shell-check release-check fmt-check check clippy docs-check test wasm-check package
 
-.PHONY: help version fmt fmt-check check clippy docs-check test wasm-check \
+.PHONY: help version deps fmt fmt-check check clippy docs-check test wasm-check \
 	build package clean shell-check release-check ci validate release-verify \
 	release-plan ensure-clean patch minor major bump-x release-patch \
 	release-minor release-major release-x release-stage release-commit \
 	release-tag-check release-push publish publish-dry-run
 
 help:
+	@echo "deps                         Fetch locked Rust dependencies (network)"
 	@echo "fmt / fmt-check              Format Rust or check formatting"
 	@echo "check / clippy / test         Compile, lint, or test the library"
 	@echo "docs-check / wasm-check       Check docs or the Wasm library build"
@@ -29,6 +32,9 @@ help:
 
 version:
 	@$(RELEASE) version
+
+deps:
+	cargo fetch --locked
 
 fmt:
 	cargo fmt --all

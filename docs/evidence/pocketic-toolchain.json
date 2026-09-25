@@ -1,0 +1,14 @@
+{
+  "verified_on": "2026-09-25",
+  "client_version": "16.0.0",
+  "server_version": "16.0.0",
+  "platform": "x86_64-linux",
+  "release": "https://github.com/dfinity/pocketic/releases/tag/16.0.0",
+  "archive_url": "https://github.com/dfinity/pocketic/releases/download/16.0.0/pocket-ic-x86_64-linux.gz",
+  "release_asset_sha256": "268ba79ec7fe9a563a575adf4983c69627093cce2711d142e476cdc7ad04249e",
+  "archive_digest_verified": true,
+  "executable_sha256": "69e324bdb68d32d878b7a9504b1379f08f8d1921272bacb065b0fabb3d0f3792",
+  "local_path": ".tmp/tools/pocket-ic-16.0.0/pocket-ic",
+  "observed_version_output": "pocket-ic-server 16.0.0",
+  "scope": "Local tool installation and version check only. No server instance, canister install or service journey was run."
+}

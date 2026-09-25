@@ -18,23 +18,38 @@ Canic; neither adapter may duplicate storage workflows or tenant policy.
 
 ## Current layout
 
-- `crates/ic-blob-storage`: dependency-free library scaffold; no exported API.
+- `crates/ic-blob-storage`: library scaffold with foundational Rust dependencies;
+  no exported API.
+- [Dependencies](docs/dependencies.md): pinned libraries and local setup.
 - [Service contract](docs/service-contract.md): B1 decisions and acceptance map.
+- [Extraction readiness](docs/extraction-readiness.md): source inventory,
+  required safety corrections and provider evidence gaps.
+- [Acceptance plan](docs/acceptance-plan.md): proposed observable service cases.
+- [Canic parity](docs/canic-parity.md): runtime, operator and diagnostic
+  capabilities required here before Canic removal.
+- [Provider review](docs/provider-review.md): pinned Caffeine source findings
+  and unresolved deployed-contract evidence.
+- [Provider baseline](docs/provider-baseline.json): verified latest upstream
+  integration target; Canic's historical bindings do not define this contract.
 - [Current status](docs/status/current.md): scope, gates and next work.
 - [Agent instructions](AGENTS.md): repository boundaries and workflow.
 
 Only the core package is scaffolded. Protocol, client and adapter package names
 will be fixed during B1. The local `0.1.0` version is an unpublished scaffold,
-and Cargo publishing is disabled. No remote repository is configured.
+and Cargo publishing is disabled. The public repository is
+[dragginzgame/ic-blob-storage](https://github.com/dragginzgame/ic-blob-storage).
 
 ## Local development
 
 Rust 1.98.1 and edition 2024 are pinned for the bootstrap. A lower supported
 Rust version has not been qualified.
 
+Run `make deps` once to download the locked Rust dependencies. The toolchain
+file also installs the Wasm target, rustfmt and Clippy through rustup.
+
 Run `make check` for compilation, `make fmt-check` for formatting and
 `make clippy` for strict library linting. The Makefile
-uses this repository's own `target/` and runs Cargo offline. No provider calls
+uses this repository's own `target/`; validation runs Cargo offline. No provider calls
 or canister deployments are part of these checks.
 
 The familiar maintainer release commands are available: `make patch`,
@@ -54,9 +69,9 @@ Existing installations must account for external objects, pending effects,
 balances and ongoing billing before their local obligation records are erased.
 
 The [Canic 0.111 design](../canic/docs/design/0.111-standalone-blob-service-extraction/0.111-design.md)
-is the extraction coordination authority in the sibling checkout. Its B1
-contract remains open; bootstrap authorization does not accept the 0.110
-closeout or begin B2 implementation.
+is the extraction coordination authority in the sibling checkout. Human 0.110
+acceptance is recorded in this repository's handoff. The B1 contract remains
+open; B2 implementation depends on its provider evidence and remaining decisions.
 
 ## License
 

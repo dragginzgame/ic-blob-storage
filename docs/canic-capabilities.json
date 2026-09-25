@@ -1,0 +1,568 @@
+{
+  "schema_version": 1,
+  "reviewed_on": "2026-09-25",
+  "canic_commit": "10d00c6d9494a45b30e66f84d1bd886c8acdd45c",
+  "source_hash_inventory": "canic-source-inventory.tsv",
+  "scope": "Maintained Canic blob API, emitted endpoints, storage lifecycle, operator commands and diagnostics. Behavior preservation with required safety corrections; not source/API compatibility.",
+  "evidence_semantics": "Source test references identify reviewed tests or assertion helpers, not tests executed here. Empty replacement_evidence means no replacement qualification has been retained. This inventory is not an executable release gate.",
+  "capabilities": [
+    {
+      "id": "BLOB-01",
+      "capability": "Provider root parsing and canonicalization",
+      "source_api": [
+        {
+          "path": "crates/canic-core/src/api/blob_storage/hash.rs",
+          "symbols": [
+            "canonical_root_hash_text",
+            "canonical_root_hash_bytes"
+          ]
+        }
+      ],
+      "replacement_boundary": "core model and boundary conversion",
+      "acceptance_cases": [
+        "A02"
+      ],
+      "source_test_references": [
+        {
+          "path": "crates/canic-core/src/api/blob_storage/tests.rs",
+          "symbol": "canonical_root_hash_text_normalizes_toko_hashes"
+        },
+        {
+          "path": "crates/canic-core/src/api/blob_storage/tests.rs",
+          "symbol": "malformed_root_hash_maps_to_public_invalid_input"
+        }
+      ],
+      "replacement_evidence": []
+    },
+    {
+      "id": "BLOB-02",
+      "capability": "Registration and upload certificate admission",
+      "source_api": [
+        {
+          "path": "crates/canic-core/src/api/blob_storage/lifecycle.rs",
+          "symbols": [
+            "register_live",
+            "create_certificate"
+          ]
+        }
+      ],
+      "replacement_boundary": "shared tenant-authorized upload workflow and provider callback adapter",
+      "acceptance_cases": [
+        "A01",
+        "A03"
+      ],
+      "source_test_references": [
+        {
+          "path": "crates/canic-core/src/api/blob_storage/tests.rs",
+          "symbol": "repeated_create_certificate_is_canonical_idempotent"
+        },
+        {
+          "path": "crates/canic-core/src/api/blob_storage/tests.rs",
+          "symbol": "malformed_api_inputs_do_not_mutate_blob_state"
+        }
+      ],
+      "replacement_evidence": []
+    },
+    {
+      "id": "BLOB-03",
+      "capability": "Liveness and consumer reference checks",
+      "source_api": [
+        {
+          "path": "crates/canic-core/src/api/blob_storage/lifecycle.rs",
+          "symbols": [
+            "blobs_are_live",
+            "is_live",
+            "require_live"
+          ]
+        }
+      ],
+      "replacement_boundary": "shared reference model and liveness workflow",
+      "acceptance_cases": [
+        "A01",
+        "A06"
+      ],
+      "source_test_references": [
+        {
+          "path": "crates/canic-tests/tests/pic_blob_storage.rs",
+          "symbol": "assert_liveness_ordering_and_duplicates"
+        },
+        {
+          "path": "crates/canic-core/src/api/blob_storage/tests.rs",
+          "symbol": "live_blob_lifecycle_maps_to_public_api"
+        }
+      ],
+      "replacement_evidence": []
+    },
+    {
+      "id": "BLOB-04",
+      "capability": "Logical release and pending deletion enumeration",
+      "source_api": [
+        {
+          "path": "crates/canic-core/src/api/blob_storage/lifecycle.rs",
+          "symbols": [
+            "mark_pending_delete",
+            "pending_deletion_hashes"
+          ]
+        }
+      ],
+      "replacement_boundary": "shared release workflow with bounded pending work",
+      "acceptance_cases": [
+        "A06",
+        "A08"
+      ],
+      "source_test_references": [
+        {
+          "path": "crates/canic-tests/tests/pic_blob_storage.rs",
+          "symbol": "assert_pending_deletion_is_gateway_filtered"
+        },
+        {
+          "path": "crates/canic-core/src/api/blob_storage/tests.rs",
+          "symbol": "live_blob_lifecycle_maps_to_public_api"
+        }
+      ],
+      "replacement_evidence": []
+    },
+    {
+      "id": "BLOB-05",
+      "capability": "Gateway deletion authority and confirmations",
+      "source_api": [
+        {
+          "path": "crates/canic-core/src/api/blob_storage/gateway.rs",
+          "symbols": [
+            "pending_deletion_hashes_for_gateway",
+            "confirm_deleted_by_gateway_hash_bytes_batch"
+          ]
+        },
+        {
+          "path": "crates/canic-core/src/api/blob_storage/lifecycle.rs",
+          "symbols": [
+            "confirm_deleted_by_gateway_hash_bytes"
+          ]
+        }
+      ],
+      "replacement_boundary": "provider callback adapter and deletion reconciliation workflow",
+      "acceptance_cases": [
+        "A01",
+        "A06",
+        "A08"
+      ],
+      "source_test_references": [
+        {
+          "path": "crates/canic-tests/tests/pic_blob_storage.rs",
+          "symbol": "assert_gateway_confirm_deletion_removes_live_blob"
+        },
+        {
+          "path": "crates/canic-core/src/api/blob_storage/tests.rs",
+          "symbol": "gateway_endpoint_helpers_match_toko_malformed_input_behavior"
+        }
+      ],
+      "replacement_evidence": []
+    },
+    {
+      "id": "BLOB-06",
+      "capability": "Local operational counters",
+      "source_api": [
+        {
+          "path": "crates/canic-core/src/api/blob_storage/lifecycle.rs",
+          "symbols": [
+            "stored_blob_count",
+            "pending_deletion_count",
+            "local_counters"
+          ]
+        }
+      ],
+      "replacement_boundary": "service-owned read-only status views",
+      "acceptance_cases": [
+        "A04",
+        "A06"
+      ],
+      "source_test_references": [
+        {
+          "path": "crates/canic-tests/tests/pic_blob_storage.rs",
+          "symbol": "assert_probe_counts"
+        }
+      ],
+      "replacement_evidence": []
+    },
+    {
+      "id": "BLOB-07",
+      "capability": "Gateway principal administration",
+      "source_api": [
+        {
+          "path": "crates/canic-core/src/api/blob_storage/gateway.rs",
+          "symbols": [
+            "upsert_gateway_principal",
+            "replace_gateway_principals",
+            "remove_gateway_principal",
+            "gateway_principal_count",
+            "is_gateway_principal"
+          ]
+        }
+      ],
+      "replacement_boundary": "service-owned operator authority and gateway state",
+      "acceptance_cases": [
+        "A01",
+        "A04"
+      ],
+      "source_test_references": [
+        {
+          "path": "crates/canic-core/src/api/blob_storage/tests.rs",
+          "symbol": "gateway_principal_api_is_idempotent"
+        },
+        {
+          "path": "crates/canic-tests/tests/pic_blob_storage.rs",
+          "symbol": "assert_gateway_principal_removal_revokes_scrubber_access"
+        }
+      ],
+      "replacement_evidence": []
+    },
+    {
+      "id": "BLOB-08",
+      "capability": "Billing configuration",
+      "source_api": [
+        {
+          "path": "crates/canic-core/src/api/blob_storage/billing.rs",
+          "symbols": [
+            "configure_billing",
+            "billing_config"
+          ]
+        }
+      ],
+      "replacement_boundary": "shared configuration workflow, model and pure policy",
+      "acceptance_cases": [
+        "A04",
+        "A08"
+      ],
+      "source_test_references": [
+        {
+          "path": "crates/canic-core/src/api/blob_storage/tests.rs",
+          "symbol": "configure_billing_rejects_invalid_config_without_replacing_current_config"
+        },
+        {
+          "path": "crates/canic-core/src/api/blob_storage/tests.rs",
+          "symbol": "configure_billing_rejects_oversized_nat_fields_without_replacing_current_config"
+        }
+      ],
+      "replacement_evidence": []
+    },
+    {
+      "id": "BLOB-09",
+      "capability": "Cashier balance observation and conversion",
+      "source_api": [
+        {
+          "path": "crates/canic-core/src/api/blob_storage/billing.rs",
+          "symbols": [
+            "cashier_account_balance_get",
+            "cashier_account_total_balance"
+          ]
+        }
+      ],
+      "replacement_boundary": "single provider ops owner and read-only balance workflow",
+      "acceptance_cases": [
+        "A08",
+        "A11"
+      ],
+      "source_test_references": [
+        {
+          "path": "crates/canic-tests/tests/pic_blob_storage.rs",
+          "symbol": "assert_billing_status_recovers_after_cashier_balance_failures"
+        },
+        {
+          "path": "crates/canic-tests/tests/pic_blob_storage.rs",
+          "symbol": "assert_billing_status_reports_cashier_balance_malformed"
+        }
+      ],
+      "replacement_evidence": []
+    },
+    {
+      "id": "BLOB-10",
+      "capability": "Explicit Cashier gateway synchronization",
+      "source_api": [
+        {
+          "path": "crates/canic-core/src/api/blob_storage/billing.rs",
+          "symbols": [
+            "sync_gateway_principals_from_cashier",
+            "sync_gateway_principals_from_configured_cashier",
+            "last_gateway_principal_sync_at_ns"
+          ]
+        }
+      ],
+      "replacement_boundary": "shared operator workflow using the verified current registry interface",
+      "acceptance_cases": [
+        "A01",
+        "A04",
+        "A11"
+      ],
+      "source_test_references": [
+        {
+          "path": "crates/canic-tests/tests/pic_blob_storage.rs",
+          "symbol": "assert_gateway_sync_rejects_invalid_cashier_list_without_mutation"
+        },
+        {
+          "path": "crates/canic-tests/tests/pic_blob_storage.rs",
+          "symbol": "assert_failed_gateway_sync_preserves_state"
+        }
+      ],
+      "replacement_evidence": []
+    },
+    {
+      "id": "BLOB-11",
+      "capability": "Reserve-protected funding and typed funding reports",
+      "source_api": [
+        {
+          "path": "crates/canic-core/src/api/blob_storage/billing.rs",
+          "symbols": [
+            "cashier_account_top_up",
+            "fund_from_project_cycles"
+          ]
+        }
+      ],
+      "replacement_boundary": "pure funding policy, durable intent workflow and single provider ops owner",
+      "acceptance_cases": [
+        "A03",
+        "A05",
+        "A08",
+        "A11"
+      ],
+      "source_test_references": [
+        {
+          "path": "crates/canic-tests/tests/pic_blob_storage.rs",
+          "symbol": "assert_reserve_violation_does_not_partially_top_up"
+        },
+        {
+          "path": "crates/canic-tests/tests/pic_blob_storage.rs",
+          "symbol": "assert_final_successful_funding_records_top_up"
+        },
+        {
+          "path": "crates/canic-core/src/api/blob_storage/tests.rs",
+          "symbol": "funding_in_progress_maps_to_conflict_code"
+        }
+      ],
+      "replacement_evidence": []
+    },
+    {
+      "id": "BLOB-12",
+      "capability": "Read-only readiness, blockers and warnings",
+      "source_api": [
+        {
+          "path": "crates/canic-core/src/api/blob_storage/billing.rs",
+          "symbols": [
+            "status"
+          ]
+        }
+      ],
+      "replacement_boundary": "shared readiness policy and status workflow",
+      "acceptance_cases": [
+        "A04",
+        "A08",
+        "A11"
+      ],
+      "source_test_references": [
+        {
+          "path": "crates/canic-tests/tests/pic_blob_storage.rs",
+          "symbol": "blob_storage_billing_status_matrix_reports_readiness_blockers_under_pocketic"
+        },
+        {
+          "path": "crates/canic-tests/tests/pic_blob_storage.rs",
+          "symbol": "assert_status_request_does_not_sync_gateways_after_upgrade"
+        }
+      ],
+      "replacement_evidence": []
+    },
+    {
+      "id": "BLOB-13",
+      "capability": "Stable lifecycle and configuration restoration",
+      "source_api": [],
+      "replacement_boundary": "core persisted records plus standalone and managed lifecycle adapters",
+      "acceptance_cases": [
+        "A05",
+        "A07",
+        "A09"
+      ],
+      "source_test_references": [
+        {
+          "path": "crates/canic-tests/tests/pic_blob_storage.rs",
+          "symbol": "blob_storage_billing_state_survives_upgrade_under_pocketic"
+        },
+        {
+          "path": "crates/canic-tests/tests/pic_blob_storage.rs",
+          "symbol": "blob_storage_missing_billing_config_status_survives_upgrade_under_pocketic"
+        },
+        {
+          "path": "crates/canic-tests/tests/pic_blob_storage.rs",
+          "symbol": "assert_stable_state_survives_upgrade"
+        }
+      ],
+      "replacement_evidence": []
+    },
+    {
+      "id": "BLOB-14",
+      "capability": "Explicit endpoint composition and separate guards",
+      "source_api": [],
+      "replacement_boundary": "thin standalone and managed adapters with one shared service API",
+      "acceptance_cases": [
+        "A01",
+        "A07"
+      ],
+      "source_test_references": [
+        {
+          "path": "crates/canic/tests/blob_storage_endpoint_macro.rs",
+          "symbol": "blob_storage_endpoint_macro_accepts_host_guard"
+        },
+        {
+          "path": "crates/canic-tests/tests/pic_blob_storage.rs",
+          "symbol": "assert_billing_endpoints_require_controller"
+        }
+      ],
+      "replacement_evidence": []
+    },
+    {
+      "id": "BLOB-15",
+      "capability": "Operator status, sync and funding commands",
+      "source_api": [],
+      "replacement_boundary": "service-owned operator client/CLI",
+      "acceptance_cases": [
+        "A11"
+      ],
+      "source_test_references": [
+        {
+          "path": "crates/canic-cli/src/blob_storage/tests.rs",
+          "symbol": "scripted_operator_loop_proves_status_sync_fund_and_recheck_sequence"
+        },
+        {
+          "path": "crates/canic-cli/src/blob_storage/tests.rs",
+          "symbol": "renders_sync_gateways_dry_run_json_shape"
+        },
+        {
+          "path": "crates/canic-cli/src/blob_storage/tests.rs",
+          "symbol": "renders_fund_dry_run_plain_text"
+        },
+        {
+          "path": "crates/canic-cli/src/blob_storage/tests.rs",
+          "symbol": "status_check_ready_fails_with_exit_4_when_upload_not_ready"
+        },
+        {
+          "path": "crates/canic-cli/src/blob_storage/tests.rs",
+          "symbol": "json_error_codes_distinguish_candid_and_transport_failures"
+        },
+        {
+          "path": "crates/canic-cli/src/blob_storage/tests.rs",
+          "symbol": "mutating_commands_warn_when_post_status_diagnostic_fails"
+        }
+      ],
+      "replacement_evidence": []
+    },
+    {
+      "id": "BLOB-16",
+      "capability": "Exact operator target, network and method-mode binding",
+      "source_api": [],
+      "replacement_boundary": "standalone explicit target configuration and thin generic managed target discovery",
+      "acceptance_cases": [
+        "A01",
+        "A07",
+        "A11"
+      ],
+      "source_test_references": [
+        {
+          "path": "crates/canic-cli/src/blob_storage/target.rs",
+          "symbol": "unregistered_principal_cannot_match_a_role_shaped_name"
+        },
+        {
+          "path": "crates/canic-cli/src/blob_storage/target.rs",
+          "symbol": "method_mode_comes_from_candid_metadata"
+        }
+      ],
+      "replacement_evidence": []
+    },
+    {
+      "id": "BLOB-17",
+      "capability": "Passive discovery and selected-target diagnostics",
+      "source_api": [],
+      "replacement_boundary": "service-owned diagnostic client and generic Canic discovery integration",
+      "acceptance_cases": [
+        "A07",
+        "A11"
+      ],
+      "source_test_references": [
+        {
+          "path": "crates/canic-cli/src/medic/tests.rs",
+          "symbol": "passive_blob_storage_hint_uses_local_candid_only"
+        },
+        {
+          "path": "crates/canic-cli/src/medic/tests.rs",
+          "symbol": "blob_storage_passive_detection_rejects_partial_or_unrelated_candid"
+        },
+        {
+          "path": "crates/canic-cli/src/medic/tests.rs",
+          "symbol": "renders_blob_storage_medic_summary"
+        }
+      ],
+      "replacement_evidence": []
+    },
+    {
+      "id": "BLOB-18",
+      "capability": "Feature, protocol and allocation declarations",
+      "source_api": [],
+      "replacement_boundary": "service-owned package/Candid metadata; Canic retains generic Component declarations",
+      "acceptance_cases": [
+        "A07",
+        "A12"
+      ],
+      "source_test_references": [
+        {
+          "path": "crates/canic-core/src/api/runtime/mod.rs",
+          "symbol": "runtime_status_reports_auth_and_blob_storage_feature_summaries"
+        },
+        {
+          "path": "crates/canic-host/src/state_manifest/mod.rs",
+          "symbol": "exact_blob_role_resolution_materializes_blob_allocations"
+        }
+      ],
+      "replacement_evidence": []
+    }
+  ],
+  "source_endpoints": [
+    {
+      "method": "_immutableObjectStorageBlobsAreLive",
+      "mode": "query",
+      "capability": "BLOB-03",
+      "source_path": "crates/canic/src/macros/endpoints/blob_storage.rs"
+    },
+    {
+      "method": "_immutableObjectStorageBlobsToDelete",
+      "mode": "query",
+      "capability": "BLOB-04",
+      "source_path": "crates/canic/src/macros/endpoints/blob_storage.rs"
+    },
+    {
+      "method": "_immutableObjectStorageConfirmBlobDeletion",
+      "mode": "update",
+      "capability": "BLOB-05",
+      "source_path": "crates/canic/src/macros/endpoints/blob_storage.rs"
+    },
+    {
+      "method": "_immutableObjectStorageCreateCertificate",
+      "mode": "update",
+      "capability": "BLOB-02",
+      "source_path": "crates/canic/src/macros/endpoints/blob_storage.rs"
+    },
+    {
+      "method": "_immutableObjectStorageUpdateGatewayPrincipals",
+      "mode": "update",
+      "capability": "BLOB-10",
+      "source_path": "crates/canic/src/macros/endpoints/blob_storage_billing.rs"
+    },
+    {
+      "method": "_immutableObjectStorageFundFromProjectCycles",
+      "mode": "update",
+      "capability": "BLOB-11",
+      "source_path": "crates/canic/src/macros/endpoints/blob_storage_billing.rs"
+    },
+    {
+      "method": "get_blob_storage_status",
+      "mode": "update",
+      "capability": "BLOB-12",
+      "source_path": "crates/canic/src/macros/endpoints/blob_storage_billing.rs"
+    }
+  ]
+}

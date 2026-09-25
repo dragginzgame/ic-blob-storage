@@ -4,7 +4,32 @@ This is an unresolved contract checklist, not an implemented API or provider
 suitability verdict. Freeze the decisions and evidence before B2 implementation.
 The bootstrap package name does not decide the final package split.
 
+The [extraction readiness review](extraction-readiness.md) records the current
+Canic source inventory, preserved behavior, required safety corrections and
+provider evidence gaps. The [acceptance plan](acceptance-plan.md) supplies
+concrete proposed cases A01–A10. These are B1 working inputs, not a frozen
+contract or executed qualification. The repository is now
+`dragginzgame/ic-blob-storage`; accountable maintainers and registry ownership
+remain to be assigned.
+
+The maintainer selected the latest official Caffeine integration as the target.
+The [provider baseline](provider-baseline.json) pins the verified latest npm
+client and current official backend source; the [provider review](provider-review.md)
+records verification and differences from Canic's snapshots. Canic supplies
+extraction history, not authority for the provider contract. Refresh the exact
+upstream baseline before implementation and qualification. Caffeine is not yet
+qualified; deployed-contract and recovery/economic evidence still must close
+before provider bindings and effects are implemented.
+
 ## Acceptance target
+
+The maintainer explicitly requires all Canic blob functionality to be ready
+here before Canic removal. The [parity contract](canic-parity.md) and
+[capability inventory](canic-capabilities.json) include lifecycle, gateway,
+billing, status, operator commands and diagnostics. Operator replacement is
+part of this extraction, with A11/A12 acceptance alongside the service journey.
+Preserve capabilities using the current provider contract and required safety
+corrections; do not preserve superseded APIs or unsafe behavior as aliases.
 
 Name one concrete application and accountable consumer owner. Its journey is:
 an authorized tenant uploads a bounded object, resumes after interruption,
@@ -29,7 +54,7 @@ journey and necessary corrections; optional ambitions do not gate extraction.
 | Existing obligations | Each affected installation operator; Canic owner inventories allocations | External objects, uploads, uncertain paid effects, balances and billing inventory; no-obligation evidence or completed owned decommission/disposition before reset |
 | Canic removal and generic coverage | Canic runtime/facade, host/CLI and testing owners | Complete removal inventory and replacement evidence for surviving generic fixture coverage; changes occur only under separate Canic work |
 
-Caffeine is a candidate, not a selected or qualified backend. Missing exact
+Caffeine is the selected integration target but is not yet qualified. Missing exact
 retry binding, authoritative completion evidence, adequate evidence retention,
 a safe uncertain-result disposition, or required deletion/billing-cessation
 proof disqualifies the provider for the required contract. Provider evidence

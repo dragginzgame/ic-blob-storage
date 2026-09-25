@@ -9,6 +9,16 @@ rust-version = "1.98.1"
 license = "MIT"
 publish = false
 
+[workspace.dependencies]
+candid = "=0.10.36"
+ic-cdk = "=0.20.3"
+ic-stable-structures = "=0.7.2"
+pocket-ic = "=16.0.0"
+serde = { version = "=1.0.229", features = ["derive"] }
+sha2 = { version = "=0.11.0", default-features = false }
+# PocketIC 16 requires this exact compatible release.
+thiserror = "=2.0.18"
+
 [workspace.lints.rust]
 missing_docs = "deny"
 unsafe_code = "forbid"

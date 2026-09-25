@@ -1,0 +1,20 @@
+{
+  "date": "2026-09-25",
+  "source_commit": "e5cacdfe5ce55e939edb02980fca800c0c13f421",
+  "source_path": "packages/object-storage/frontend/dist/StorageClient.js",
+  "source_sha256": "6eb7f5b424f02476c9096e4684d8e520121c21b2b2f6f29f3c9a25e0c07cad57",
+  "runtime": "v18.19.1",
+  "method": "Execute only constants/helpers/YHash/BlobHashTree from pinned published JavaScript in a VM with crypto, TextEncoder and Uint8Array; no imports, gateway client, network or provider calls.",
+  "input_utf8": "abc",
+  "raw_sha256": "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad",
+  "chunk_root": "sha256:b5b435d47a4cce7dfec493b1e020c5308d9c7fe90add1aff510f9c2a9c4ea8e7",
+  "no_metadata_root": "sha256:b5b435d47a4cce7dfec493b1e020c5308d9c7fe90add1aff510f9c2a9c4ea8e7",
+  "text_metadata_root": "sha256:0e9afaf413b048e40834d5b0e737d80fbf304af2045c7564d96ad8aebaf74dfd",
+  "binary_metadata_root": "sha256:0d93b90e52440d738cac5504a2e46163b6b6f725ff881d59d3ac07871003ecfa",
+  "empty_tree": {
+    "outcome": "rejected",
+    "observed_error_name": "Error",
+    "observed_message": "YHash must be exactly 32 bytes, got 64"
+  },
+  "limitations": "Client algorithm observations only; not deployed provider compatibility, complete client execution or service qualification."
+}
