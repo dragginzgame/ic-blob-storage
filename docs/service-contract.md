@@ -127,10 +127,15 @@ It exposes fixed test cases only; no production read API, input-size qualificati
 provider transport or durable state is established by this experiment.
 
 The [independent deployment review](provider-review.md#independent-deployment-support)
-also requires a supported Caffeine onboarding/namespace arrangement for this
-service. Public integration packages and Toko's source defaults do not establish
-that arrangement. The current candidate remains Caffeine; its platform guidance
-alone is not a decision to change providers or drop standalone deployment.
+now identifies DFINITY's explicit Rust onboarding guide and payment-account
+linking example. Caffeine is the sole provider target. Exact installation
+bindings, deployed interoperability and recovery/economic behavior still
+need qualification; lack of general Rust integration guidance is no longer a
+blocker. The example does not replace tenant policy, host memory ownership or
+restore fencing. Target the current package's `vec blob` deletion list, without
+the older example's text fallback. Executed callback-refund and same-release
+upgrade experiments are platform evidence with fixture-owned ic-memory journals,
+not authorization for production provider effects or frozen service schemas.
 
 ## Design inputs and assumptions
 

@@ -1,0 +1,143 @@
+{
+  "schema_version": 1,
+  "reviewed_on": "2026-09-26",
+  "repository_baseline": "806407e",
+  "scope": "Provider-contract review after 0.1.12. Read-only source, public documentation, anonymous canister metadata and Mops version query; no provider effects or account queries.",
+  "upstream": {
+    "head_url": "https://api.github.com/repos/caffeinelabs/skills/commits/main",
+    "commit": "e5cacdfe5ce55e939edb02980fca800c0c13f421",
+    "commit_date": "2026-09-25T08:42:13Z",
+    "source_url_prefix": "https://raw.githubusercontent.com/caffeinelabs/skills/e5cacdfe5ce55e939edb02980fca800c0c13f421/",
+    "files": [
+      { "path": "packages/object-storage/backend/src/Storage.mo", "sha256": "0c757f4cb30ebe8e30b42a59b130a1662b47e403b9664f44e98d14b08b20af42" },
+      { "path": "packages/object-storage/backend/src/Mixin.mo", "sha256": "175c6b98672a83054fc08855062d1a7b7f2bd3713bf11a60d5319ac5afefe2b3" },
+      { "path": "packages/object-storage/frontend/src/StorageClient.ts", "sha256": "a0a3ee3bb74ecca133bc6f68a024821b3319c7ccd4886940c31d179b9f85f557" },
+      { "path": "packages/object-storage/backend/README.md", "sha256": "cec7c399f7f9dee04709ba8e6610fe380e887ef667b9981082dac06eeb9c36fc" },
+      { "path": "packages/object-storage/frontend/README.md", "sha256": "b58a643213d49271ebcd0fb204e3f1e2015e04483dc116c86740a823f188922e" },
+      { "path": "skills/extension-object-storage/SKILL.md", "sha256": "7818a7b1ff0e33e58140700a5bb558255deaa4d0679bc833e13c15e424f40682" }
+    ],
+    "npm": {
+      "url": "https://registry.npmjs.org/@caffeineai%2fobject-storage/latest",
+      "version": "1.1.2",
+      "integrity": "sha512-JAmoHT6E8M18DEbW4rkHinAOw0A8yNbz+rj8F56VAvr8Hf0TxQSK0ZdMrkwwT7BsiOLvtFK/YcLtoaWBc9x2xQ==",
+      "unchanged": true,
+      "archive_redownloaded": false
+    },
+    "search_scope": "Public caffeinelabs repositories (25 results with per_page=100), recursive pinned skills tree, package READMEs, official object-storage integration instructions, broader web/forum and GitHub code searches. Found DFINITY's Rust/Motoko integration example, Rabbithole code and Toko's public Canic announcement. No gateway/Cashier server implementation identified in this bounded search."
+  },
+  "anonymous_observations": {
+    "client": "icp 1.6.0",
+    "network": "https://icp-api.io",
+    "root_key": "mainnet",
+    "cashier_command": "icp canister metadata 72ch2-fiaaa-aaaar-qbsvq-cai candid:service --identity anonymous --network https://icp-api.io --root-key mainnet",
+    "cashier_sha256": "232b08e4514048d4de48d6d1bf4387f577bfb64c7e2e2ded699a5e52d475d76f",
+    "cashier_matches_retained_interface": "caffeine-cashier.did",
+    "mops_command": "icp canister call oknww-riaaa-aaaam-qaf6a-cai getHighestVersion '(\"caffeineai-object-storage\")' --query --identity anonymous --network https://icp-api.io --root-key mainnet --candid .tmp/design-refresh/mops.did --output candid",
+    "mops_interface_sha256": "064b091b247405dc4825f6aa7511afeda35de184b77de2c24db82d3a342d4da6",
+    "mops_response": "(variant { ok = \"1.1.1\" })",
+    "limitations": "Retained observations are not portable certified-state proofs. Mops file hashes, gateway membership and pricing were not queried again; no balance, audit, ledger, upload, download, deletion or funding operation was called."
+  },
+  "consumer_sources": {
+    "toko_branch": "development",
+    "toko_commit": "6519b72d2a420564dabaf700fc55f7b8603d9fd3",
+    "toko_files": [
+      { "path": "frontend/src/lib/storage/storage-client.ts", "git_blob_sha": "5a5319ece1edf70a8b05009938b9a3957c28962a" },
+      { "path": "frontend/src/lib/storage/project-storage-context.ts", "git_blob_sha": "4281ad908896858ad07787053f94faf71e6b02b1" },
+      { "path": "fleets/toko/project/instance/src/ops/immutable_storage.rs", "git_blob_sha": "a664dafea888502d69a7c16b1a7aedb273772b6a" }
+    ],
+    "canic_local_commit": "3f825aa223e663a562a7cb1cca72e57b5703e0e9",
+    "canic_billing_path": "crates/canic-core/src/workflow/blob_storage/billing/mod.rs",
+    "facts": [
+      "Toko uses its configured project canister as certificate source, upload owner and download owner_id. Canic top-up uses IcOps::canister_self() as account.",
+      "Toko accepts VITE_CAFFEINE_PROJECT_ID or a zero-like default and defaults bucketName to default-bucket. These source defaults are not provisioning or deployment observations.",
+      "Toko parses existing_chunks from the blob-tree response and skips matching chunk hashes. The pinned official client ignores the blob-tree response body; neither source supplies an authoritative lookup or retention/charging contract.",
+      "Official certificate result contains method and blob_hash; deletion callback arguments contain only root blobs. No tenant, service operation ID or object incarnation is supplied in those payloads."
+    ]
+  },
+  "independent_integration": {
+    "repository": "https://github.com/rabbithole-app/v2",
+    "commit": "baa4d86314822711735cc9860220c109210b1ce9",
+    "documentation": "https://docs.rabbithole.app/how-it-works/storage/blob-storage.html",
+    "files": [
+      { "path": "apps/backend/src/BlobStorage/CashierAccount.mo", "sha256": "40bf257d0738948149ff146dd745aeb9a396f71b1fb13205c02120117c7356df" },
+      { "path": "apps/backend/src/EncryptedStorageCanister.mo", "sha256": "e728b69af0df508ab223a223164e7f32a057b5930e54de6f8acaa087d0197b24" },
+      { "path": "apps/backend/src/StorageEnvironment.mo", "sha256": "2f53f825df246181d06c6a361b401f185b0d4aaf162cebc121d4e26c103becf1" },
+      { "path": "libs/encrypted-storage/src/lib/blob-storage/gateway-client.ts", "sha256": "0483ba92f2d3f365c91de1457498ea270db723958eb36ac3f55a4f80e33239a7" }
+    ],
+    "facts": [
+      "Consumer documentation identifies Caffeine as default byte storage. The adapter includes the official Motoko mixin; this is not a second Rust implementation.",
+      "CashierAccount performs current-canister balance checks, cycle-funded account_top_up_v1, bootstrap balance setup and explicit delegation management. Cashier principal comes through the official Storage module/environment.",
+      "Gateway client uses the canister as owner, default-bucket and the same zero-like project fallback as Toko. It implements GET /v1/blob-tree/ by root, owner and project as a metadata read.",
+      "Transient upload reservations can expire; gateway writes retry; refill reports offered cycles on Ok. These consumer choices do not establish server recovery, exact accepted funding or safe retry guarantees."
+    ],
+    "toko_announcement": "https://forum.dfinity.org/t/blob-storage-just-got-more-accessible/74685",
+    "limitations": "Read-only source/documentation review, not a deployment observation or provider endorsement. No account bootstrap, gateway request or paid operation executed. Default project values are not proof of namespace authority."
+  },
+  "dfinity_integration_example": {
+    "repository": "https://github.com/dfinity/immutable-object-storage-example",
+    "commit": "ef29e8a6e8063c6fe654cac53a3497cab585fefa",
+    "commit_date": "2026-04-10T08:14:01Z",
+    "files": [
+      { "path": "README.md", "git_blob_sha": "a7b952ef70d0b403035cc4e08a488f8b78b8ed7e" },
+      { "path": "rust-backend/src/storage.rs", "git_blob_sha": "8a54b5dafae043ea351c6c941109f20d4dfa9ec4" },
+      { "path": "rust-backend/src/lib.rs", "git_blob_sha": "4e39dcf177aba22e5e53f09daf0fe0d44d1c3c7c" },
+      { "path": "frontend/src/storage-client.ts", "git_blob_sha": "7dd1eb9037d4ce8abf507bedc961445d57a0d9bc" }
+    ],
+    "findings": [
+      "Explicit Rust/Motoko integration and onboarding through funded payment-account linkage with daily spending limit. General independent Rust integration is documented.",
+      "Documents existing_chunks, chunk_check_errors and chunk_already_exists; does not define operation receipts, duplicate charging or recovery retention.",
+      "April guide states 30-day storage prepayment and deletion after 30 days at zero balance. These cycle-storage terms differ from app-credit help guidance and are not freshly observed deployment semantics.",
+      "Rust deletion list returns vec text; current official Motoko mixin returns vec blob. Rust liveness is unauthenticated, certificate issuance clears pending deletion, confirmation erases roots without a pending check, and Cashier configuration is init-only heap state. Do not copy demo safety/lifecycle behavior."
+    ],
+    "linked_server_source": "https://github.com/caffeinelabs/object-storage returned HTTP 404; https://caffeinelabs.github.io/object-storage/ returned an empty HTML page. No server implementation obtained.",
+    "execution": "Source inspection only; no CLI download/execution, deployment, payment-account change or gateway request."
+  },
+  "funding_transport_review": {
+    "platform_source": "https://docs.internetcomputer.org/references/message-execution-properties/",
+    "system_api_source": "https://docs.internetcomputer.org/references/ic-interface-spec/canister-interface/",
+    "canic_source": "https://github.com/dragginzgame/canic/blob/3f825aa223e663a562a7cb1cca72e57b5703e0e9/crates/canic-core/src/ops/cashier/client.rs",
+    "cdk_version_inspected": "0.20.3",
+    "findings": [
+      "Canic attaches cycles using bounded_wait. IC properties 9-11 permit lost actual responses and lost attached/refunded cycles on SYS_UNKNOWN.",
+      "Unbounded calls conserve attached cycles as accepted plus refunded; bounded calls do too for responses other than SYS_UNKNOWN. Transport acceptance is not proof of Cashier account credit.",
+      "Locked ic-cdk Response contains reply bytes rather than a saved refund field. Exact callback-context capture needs PocketIC evidence before production use."
+    ],
+    "proposal": "Production direction: durable exact intent, bounded attachments/concurrency, unbounded funding call, call-specific refund capture before further await, separately retained decoded result and uncertainty. No production transport or persistence implemented.",
+    "local_experiment": "Unpublished funding_probe and PocketIC funding tests passed with real cycle acceptance/refunds, independent receiver observations and callback rollback. Receiver traps roll back acceptance and receipts with a full refund. Host-owned ic-memory journals restore synchronously across same-release upgrades, preserving exact attempts, receipts, authority bindings, unresolved-payment blocking and lifetime limits; failed post_upgrade hooks preserve usable journals and blocking before a subsequent successful upgrade. No live Cashier, bounded timeout, old-backup recovery, production persistence or credited-account guarantee.",
+    "evidence": "core-primitives.md#funding-callback-experiment"
+  },
+  "latest_version_confirmation": {
+    "reviewed_on": "2026-09-26",
+    "github_main": "e5cacdfe5ce55e939edb02980fca800c0c13f421",
+    "npm_latest": "1.1.2",
+    "npm_integrity_matches_baseline": true,
+    "mops_highest": "1.1.1",
+    "cashier_metadata_sha256": "232b08e4514048d4de48d6d1bf4387f577bfb64c7e2e2ded699a5e52d475d76f",
+    "decision": "Maintainer requires latest integration. Current package vec blob deletion-list shape takes precedence over April example vec text. No legacy fallback; live gateway interoperability remains unqualified.",
+    "limitations": "Registry metadata and anonymous Mops/Cashier queries refreshed. No new archive download, gateway server revision or paid provider trial."
+  },
+  "official_guidance": [
+    {
+      "url": "https://help.caffeine.ai/hc/en-us/articles/46899843980692-GitHub-Integration-Overview",
+      "page_updated": "2026-09-10",
+      "finding": "General Caffeine app-export guidance calls for replacement file storage. It does not establish external integration is unavailable; concrete Canic/Toko and Rabbithole integration evidence must be considered separately."
+    },
+    {
+      "url": "https://help.caffeine.ai/hc/en-us/articles/49362898986644-File-Storage-Costs",
+      "page_updated": "2026-09-17",
+      "finding": "Retail upload, storage and bandwidth charges are separate; storage can continue accruing without credits. This is not the Cashier cycles contract or per-object final settlement evidence."
+    },
+    {
+      "url": "https://help.caffeine.ai/hc/en-us/articles/46899784111380-File-Storage-Troubleshooting",
+      "page_updated": "2026-09-01",
+      "finding": "Direct URL serving is public, signed/expiring URLs unsupported, and deletion asynchronous. No operation-specific receipt/retention contract supplied."
+    }
+  ],
+  "decision": {
+    "provider_selection": "Caffeine is the sole provider target, explicitly confirmed by the maintainer; alternative-provider question superseded",
+    "production_provider_transport_ready": false,
+    "persisted_workflow_contract_frozen": false,
+    "next_required_evidence": "Apply documented onboarding to exact installation bindings; resolve deletion-list Candid discrepancy. Verify call-specific refunds in PocketIC and provider credit separately. Obtain operation reconciliation/retention, duplicate charging, final billing and restore-surviving authority; do not reopen general Rust support or provider selection.",
+    "scope_limit": "No production code change, paid qualification, contact message, sibling edit or provider substitution."
+  }
+}

@@ -1,0 +1,19 @@
+[package]
+name = "blob-funding-probe"
+version = "0.0.0"
+edition.workspace = true
+rust-version.workspace = true
+publish = false
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+candid.workspace = true
+serde.workspace = true
+ic-cdk.workspace = true
+ic-blob-storage = { path = "../../../crates/ic-blob-storage" }
+blob-test-protocol = { path = "../../../tests/protocol" }
+
+[lints]
+workspace = true

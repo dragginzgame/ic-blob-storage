@@ -1,5 +1,5 @@
 [workspace]
-members = ["crates/ic-blob-storage", "canisters/test/authority_probe", "canisters/test/gateway_source", "tests/protocol", "tests/pocketic"]
+members = ["crates/ic-blob-storage", "canisters/test/authority_probe", "canisters/test/gateway_source", "canisters/test/funding_probe", "tests/protocol", "tests/pocketic"]
 resolver = "3"
 
 [workspace.package]

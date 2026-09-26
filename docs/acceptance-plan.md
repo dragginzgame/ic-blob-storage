@@ -141,3 +141,87 @@ does not close provider suitability, installation retirement or Canic removal.
 [The Canic parity contract](canic-parity.md) expands the preservation requirement
 into concrete runtime, operator and diagnostic capabilities. Its source-test
 references are not replacement test results.
+
+## Provider qualification sequence after 0.1.12
+
+This is an execution proposal for the selected provider, not an executed test or
+authorization to create an account, transfer cycles, upload, delete or deploy.
+It makes the [four provider questions](provider-review.md#focused-provider-questions--prepared-not-sent)
+actionable. Keep source-contract review, PocketIC substitutes and actual-provider
+results distinct. Do not build a provider emulator from guessed server semantics.
+
+The investigation now supplies DFINITY's documented Rust onboarding and linked
+payment-account flow; see the [implementation findings](provider-review.md#findings-that-change-the-implementation-plan).
+Before production funding, a targeted PocketIC substitute must demonstrate
+call-specific refunds under partial cycle acceptance, application errors,
+malformed replies and callback traps. Record offered, refunded, transport-accepted
+and provider-credited amounts separately. SYS_UNKNOWN cannot establish acceptance
+from a zero refund. Compare wait strategies without claiming the substitute
+proves Cashier's credit, retry or audit behavior. The unbounded-call subset now
+passes, including callback rollback; see [funding evidence](evidence/core-primitives.md#funding-callback-experiment).
+Same-release fixture upgrades preserve journals and uncertainty through ic-memory;
+timeout/SYS_UNKNOWN and old-backup recovery were not exercised. Select the latest
+backend's blob deletion list; qualify deployed interoperability before freezing
+the wire adapter, without implementing the older example's text fallback.
+
+### Inputs required before execution
+
+Record the approved service/consumer canister principals, network, gateway,
+Cashier, provider project/bucket, billed account and callback authority together.
+The provider must establish the relationship between these fields. Toko's current
+project-canister owner cannot silently become the new service principal; identify
+existing-object/balance disposition separately from a fresh test installation.
+
+Also record exact source/interface revisions, authoritative lookup methods and
+receipt fields, numeric evidence-retention and maximum reconciliation intervals,
+supported restart/restore boundary and an operator responsible for unresolved
+charges. Set explicit total spend, offered-cycle, object/session/request and
+elapsed-time caps before running. Missing values block execution; neither fixture
+limits nor retail credit pricing supply a production or Cashier-cycle budget.
+
+Proposed byte fixtures are UTF-8 `abc` (3 bytes), a deterministic sequence
+`byte[i] = i mod 251` of 1,048,593 bytes (one 1 MiB chunk plus 17 bytes), and an
+empty object only if the provider contract qualifies it. Use explicit MIME and
+length metadata, independently calculated raw digests and provider roots. These
+are test inputs for review, not new supported size defaults. If the provider's
+bounds or empty-object behavior differ, resolve that contract decision before
+execution. A fixture's expected bytes cannot substitute for provider completion.
+
+### Order and required observations
+
+| Step | Exercise | Evidence required to advance |
+| --- | --- | --- |
+| 1 — bindings | Review the supported independent-canister arrangement and existing installation inventory | Exact ownership/payment/callback relationship; no placeholder project or inferred account; source revision and accountable operator |
+| 2 — protocol | Map certificate issuance, tree/chunk upload, completion lookup, deletion and funding to documented server operations | Request identity, reply/error meanings, retry charging, retention and settlement semantics; Candid method existence alone is insufficient |
+| 3 — local composition | Once the contract is frozen, implement host-owned memory, shared handlers and both adapters; run the same failure cuts below in PocketIC | Intent, root claim and reservations commit before effect exposure; restoration precedes deferred work; typed denials and observable accounting agree across adapters |
+| 4 — approved provider trial | On the explicitly authorized isolated namespace, upload and verify the byte fixtures; exercise documented lost-response lookup without automatically repeating the write | Independently correlated completion and read bytes, exact observed request count, account charges and retained operation evidence |
+| 5 — obligations | Release references, observe physical deletion, then reconcile final billing; separately exercise one approved funding operation and its documented lookup | Distinct logical/physical/economic completion, exact payment/refund amounts, no unresolved balance erased at teardown |
+| 6 — disposition | Review every operation, object, receipt and residual balance from the trial | Proven closure or preserved evidence, authority and funded reconciliation ownership; hitting a test limit must stop new effects, never clear outstanding records |
+
+### Failure cuts for the shared journey
+
+For each case, record the immutable request and provider identity, starting and
+ending reservations/byte obligations, observed external calls, original receipt
+and current state. Keep the raw provider evidence necessary for correlation;
+the final service decision must be reproducible from it. A client `blob_complete`
+status, `existing_chunks` hint, successful decode or changed balance alone is
+insufficient for the transitions below.
+
+| Cut or race | Required result |
+| --- | --- |
+| Before any authority escapes | A known unexposed reservation may cancel once; exact retry preserves history and cannot issue a second intent |
+| After certificate/effect exposure, before completion is known | Retain conservative capacity; transport failure does not reset to unexposed or authorize another paid write |
+| Provider completed, response lost | Use documented lookup for the original operation; correlate completion or retain uncertainty, without a blind repeat |
+| Completion received, before local completion is durable | Recover the same operation; applying its evidence transfers accounting once and does not reactivate released references |
+| Receipt retention expires | Keep the unresolved obligation fenced; expiry is not evidence of failure, refund or safe identity reuse |
+| Restore an older backup after an effect | Surviving authority must account for effects missing from the backup and exclude stale/concurrent instances before admission resumes |
+| Release while upload is unresolved | Preserve the pending root and capacity until the qualified provider outcome determines the next lifecycle transition |
+| Duplicate or delayed root-only deletion callback | Authenticate current gateway/namespace authority and correlate original ownership; never fill the binding from a newer incarnation |
+| Physical deletion confirmed, billing continues | Release physical capacity only; keep economic obligations until their distinct authoritative evidence arrives |
+| Funding or post-action status reply lost | Keep exact payment intent unresolved or return its established result; a failed diagnostic read never resubmits the payment |
+
+This sequence does not close the provider contract. Caffeine is the sole provider
+target. Use the published Canic/Toko and Rabbithole integration patterns recorded
+in the provider review to investigate each row; consumer source is not a server
+guarantee. Report specific unsupported capabilities before changing scope, and
+continue to preserve Canic's removal gate.

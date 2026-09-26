@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "verified_on": "2026-09-25",
-  "selection": "Latest official Caffeine integration; Canic bindings are historical extraction evidence, not the provider specification.",
+  "verified_on": "2026-09-26",
+  "selection": "Latest official Caffeine integration is the sole target. Current package sources take precedence over older integration examples; Canic bindings are extraction evidence, not the provider specification.",
   "status": "integration_target_only",
   "upstream": {
     "repository": "https://github.com/caffeinelabs/skills",
@@ -43,5 +43,7 @@
     "deployed_cashier_interface_observed": true
   },
   "refresh_policy": "Recheck official source and registry latest before provider implementation and qualification. Update exact pins, contract evidence and affected checks together; do not resolve moving latest tags at build time.",
-  "deployment_observation": "evidence/caffeine-deployment-observation.json"
+  "source_priority": "September 2026 packages remain npm 1.1.2 and Mops 1.1.1. Target the current backend deletion-list vec blob shape; the April DFINITY vec text example is background, not a fallback. Actual deployed gateway interoperability remains to be qualified.",
+  "deployment_observation": "evidence/caffeine-deployment-observation.json",
+  "contract_refresh": "evidence/caffeine-contract-refresh.json"
 }

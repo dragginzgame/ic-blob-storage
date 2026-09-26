@@ -124,10 +124,14 @@ Other platforms must use the corresponding official 16.0.0 release asset and
 verify its published digest before setting `POCKET_IC_BIN`. `make deps` fetches
 Cargo packages only; it does not provision this binary.
 
-`make test-pocketic` builds `blob-authority-probe` and `blob-gateway-source` into
+`make test-pocketic` builds `blob-authority-probe`, `blob-gateway-source` and
+`blob-funding-probe` into
 this repository's Wasm release target, then runs the unpublished host harness.
-The latter canister deliberately calls back before returning its old list, so
+The gateway source deliberately calls back before returning its old list, so
 race tests rely on actual inter-canister calls rather than sleeps or tick counts.
+The funding probe runs as a sender and controlled receiver to measure real cycle
+acceptance, refunds and callback rollback, with host-owned ic-memory journals for
+same-release upgrade recovery; it does not implement a Cashier service.
 The shared `tests/protocol` package owns passive fixture controls and typed outcomes;
 it is not a production service or provider interface. Testkit starts the exact
 `POCKET_IC_BIN` with a bounded startup deadline and an owned server handle; the

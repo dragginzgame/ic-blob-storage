@@ -5,6 +5,8 @@ Cashier's deployed Candid and public gateway/pricing queries are now observed;
 server revision, paid-effect recovery and final billing guarantees remain open.
 Local response decoding and immutable root claims now address the source-level
 false-success/reassociation paths; their production prerequisites remain below.
+The [post-0.1.12 decision](#contract-decision-after-0112) records the latest
+refresh and the ownership/billing consequence of extracting a separate service.
 
 ## Selected integration baseline
 
@@ -287,22 +289,115 @@ that documentation.
 
 ## Independent deployment support
 
-On 2026-09-26, Caffeine's official
-[GitHub export guidance](https://help.caffeine.ai/hc/en-us/articles/46899843980692-GitHub-Integration-Overview)
-(page updated 2026-09-10) states that its file-storage integration depends on
-managed Caffeine infrastructure and independently deployed apps need another
-storage solution. This is platform guidance, not a gateway protocol specification
-or evidence that a separately arranged integration cannot work. Toko's checked
-source defaults do not establish its onboarding/support arrangement.
+The maintainer confirmed Caffeine as the sole target. The broader investigation
+found DFINITY's [Caffeine integration example](https://github.com/dfinity/immutable-object-storage-example/blob/ef29e8a6e8063c6fe654cac53a3497cab585fefa/README.md),
+whose current main is `ef29e8a6e8063c6fe654cac53a3497cab585fefa` (2026-04-10).
+It explicitly supplies Rust and Motoko backends and an external onboarding path:
+fund a payment account, deploy the owner canister, refresh gateway principals,
+then link the canister to that account with a daily spending limit. It identifies
+the same production gateway/Cashier already selected here. Independent Rust
+integration is documented; lack of an onboarding example is no longer a blocker.
 
-The resulting open question is whether Caffeine supports an independently
-deployed Rust service under the selected account/project/bucket, and how that
-namespace, billing and callback authority are provisioned. Public client packages,
-compatible Candid and reachable query endpoints do not answer it. Obtain the
-supported deployment contract alongside the operation/recovery evidence below.
-Do not change provider selection or claim technical impossibility from this
-general guidance alone. A provider contact/source-access question is pending;
-no message has been sent to Caffeine.
+The guide also documents `existing_chunks`, `chunk_check_errors` and
+`chunk_already_exists`. Resume support is therefore more than a Toko-specific
+guess. It does not specify duplicate-request charges or an operation receipt.
+Its storage terms describe 30-day prepayment and deletion after 30 days at zero
+balance, differing from Caffeine app-credit help pages. Retain the context and
+revision of each; neither establishes today's deployed terms by itself.
+
+General [app-export guidance](https://help.caffeine.ai/hc/en-us/articles/46899843980692-GitHub-Integration-Overview)
+does not override this explicit integration guide. The guide's linked
+`caffeinelabs/object-storage` repository returned HTTP 404; its public site root
+contained an empty page. No server implementation was obtained from those links.
+
+Additional consumer evidence corroborates the integration pattern:
+
+- [Rabbithole's own documentation](https://docs.rabbithole.app/how-it-works/storage/blob-storage.html)
+  identifies Caffeine as its default byte-storage service, with gateway, Cashier
+  and cleanup roles. This is the consumer's description, not a provider guarantee.
+- Its public source at `baa4d86314822711735cc9860220c109210b1ce9` includes
+  [Cashier account setup](https://github.com/rabbithole-app/v2/blob/baa4d86314822711735cc9860220c109210b1ce9/apps/backend/src/BlobStorage/CashierAccount.mo):
+  balance checks, cycle-funded `account_top_up_v1` for the current canister,
+  bootstrap funding and explicit account-delegation management. Its
+  [canister adapter](https://github.com/rabbithole-app/v2/blob/baa4d86314822711735cc9860220c109210b1ce9/apps/backend/src/EncryptedStorageCanister.mo)
+  includes the official Motoko mixin and exposes authenticated readiness setup.
+- Its [gateway client](https://github.com/rabbithole-app/v2/blob/baa4d86314822711735cc9860220c109210b1ce9/libs/encrypted-storage/src/lib/blob-storage/gateway-client.ts)
+  uses the canister ID as owner and the same zero-like project/default-bucket
+  defaults as Toko. It also implements `GET /v1/blob-tree/` with root, owner and
+  project parameters. That is a metadata-read lead, not proof of complete bytes,
+  an operation receipt or final charges. No gateway request was executed here.
+- [Toko's July 2026 announcement](https://forum.dfinity.org/t/blob-storage-just-got-more-accessible/74685)
+  describes its Canic blob integration for developers and canister-cycle funding.
+  Canic remains the direct Rust integration reference; Rabbithole is Motoko.
+
+These sources establish published integration patterns without establishing this
+service's deployed bindings or all server semantics. Do not copy Rabbithole's
+reservation expiry, automatic write retries or offered-amount-as-funded reporting
+as recovery guarantees. The official Caffeine integration instructions also
+distinguish a missing Cashier account from malformed certificate payloads, but
+their redeployment advice describes Caffeine-managed registration, not a Rust
+onboarding protocol. Review exact account/bootstrap behavior alongside the
+operation/recovery evidence below. No provider message has been sent.
+
+### Findings that change the implementation plan
+
+The DFINITY example is integration evidence, not production code to copy. Its
+[Rust protocol implementation](https://github.com/dfinity/immutable-object-storage-example/blob/ef29e8a6e8063c6fe654cac53a3497cab585fefa/rust-backend/src/storage.rs)
+returns deletion candidates as `vec text`; the September Caffeine Motoko mixin
+returns `vec blob`. Its liveness query is unauthenticated despite broader README
+wording about gateway authorization. Certificate issuance removes pending
+deletion, and confirmation removes a root without checking it is still pending.
+Copying those transitions would permit a delayed confirmation to erase a newly
+retained root. Keep this repository's immutable root claims and tenant admission.
+The example's [entry module](https://github.com/dfinity/immutable-object-storage-example/blob/ef29e8a6e8063c6fe654cac53a3497cab585fefa/rust-backend/src/lib.rs)
+sets Cashier configuration only in init, with no post-upgrade restoration of its
+heap value. Keep host-owned ic-memory and synchronous restore requirements.
+
+The retained [Cashier Candid](evidence/caffeine-cashier.did) distinguishes:
+
+| Surface | What it supplies | Consequence |
+| --- | --- | --- |
+| `account_delegate_*` | ReadOnly/FullAccess account permissions | Operator account access is separate from tenant authority |
+| `payment_account_canister_*` | Payer/paid-canister relationship, daily limit, expiry and observed period spend | A payer can differ from the blob owner; linking payment does not move objects or change callback authority |
+| `account_top_up_v1` | Optional account/target balance, typed result and resulting balance | No caller operation key or exact credited amount; do not infer credited cycles from offered cycles |
+| `payment_account_audit_log_get_v1` | Event filtering and sequenced CSV pages | Useful reconciliation lead; column schema, correlation and retention still need evidence |
+| `storage_gauges_set_v1`, `storage_usage_set_batch_v1` | Per-owner storage gauges and per-gateway usage counters | Advertised accounting is aggregated; no per-root final-billing receipt appears in these signatures |
+
+There is also a concrete funding risk in Canic's current
+`ops/cashier/client.rs`: it uses bounded wait while attaching cycles.
+The IC's [message-execution properties](https://docs.internetcomputer.org/references/message-execution-properties/)
+state that `SYS_UNKNOWN` can discard the actual response and lose attached
+cycles, including refunds. For unbounded calls, accepted plus refunded cycles
+equals the attachment; this also holds for bounded calls with a non-SYS_UNKNOWN
+response. Therefore a zero refund after SYS_UNKNOWN does not prove acceptance.
+Unbounded wait avoids that particular ambiguity but can stall stopping/upgrades;
+it does not prove account credit or recover an old backup.
+
+Proposed funding direction: persist exact intent, bound the attachment and
+concurrency, use an unbounded call to the configured Cashier, and capture the
+platform refund in that call's callback before any further await. Persist this
+transport evidence separately from decoded Cashier success, including malformed
+or error replies. The locked ic-cdk 0.20.3 Response contains reply bytes, not a
+stored refund field; a future ops adapter needs PocketIC evidence that refund
+capture stays associated with the correct callback. This is a design proposal,
+not an implemented transport or a decision to replace the direct funding route
+with ledger transfers. Unknown outcomes remain fenced.
+
+The [PocketIC funding experiment](evidence/core-primitives.md#funding-callback-experiment)
+now verifies exact refunds on zero/partial/full acceptance, typed error,
+malformed reply and explicit rejection. A real callback trap leaves the sender's
+admitted attempt unresolved while receiver acceptance survives, and another
+payment is denied. Host-owned ic-memory journals also preserve these observations,
+authority bindings and lifetime limits across same-release fixture upgrades.
+This does not qualify old-backup recovery, production persistence or live Cashier.
+
+At the maintainer's instruction, current package source takes precedence over
+the older DFINITY example: target the September backend's `vec blob` deletion
+list, without a text fallback. npm latest 1.1.2, Mops highest 1.1.1, official
+main and deployed Cashier Candid were rechecked and remain unchanged. This
+selects the current reference; deployed gateway interoperability, completion
+lookup, duplicate charges, final billing and restore evidence remain open.
+Do not repeat the generic question of whether Rust can integrate.
 
 ## Evidence needed to freeze B1
 
@@ -314,7 +409,7 @@ need an authoritative server contract and deployment evidence.
 
 | Area | Exact information needed | Why it gates this service |
 | --- | --- | --- |
-| Deployment | Confirm support/onboarding for the independent Rust service; confirm gateway/Cashier target, account/project/bucket namespace and accountable operator; obtain exact server version/source revision | Establish a supported independent deployment and bind credentials, callbacks, paid effects and observations to the same provider installation |
+| Deployment | Apply the documented Rust onboarding path to exact service owner, payer relationship, project/bucket and operator; obtain deployed protocol revision | Bind credentials, callbacks, paid effects and observations to the same installation; general Rust onboarding is documented |
 | Wire contract | Gateway HTTP schema/error definitions, required callback Candid, and server behavior behind the retrieved Cashier Candid | Verify upload, balance/readiness/funding and settlement behavior beyond advertised signatures |
 | Upload identity | Which fields define the exact paid operation, when charging occurs, how duplicate requests are handled, and which callers/instances can use the namespace | Prevent retry, stale-instance and older-backup identity reuse |
 | Completion | Authoritative upload/transfer result lookup, incomplete-object behavior and retained receipt fields; distinguish durable completion from HTTP success | Recover lost responses without a second uncertain charge |
@@ -339,7 +434,7 @@ read-only observations above.
 
 No missing field can be closed by adding local retry logic. If the provider
 cannot support a required capability, record a supported narrower contract or
-another provider decision. Under the maintainer's parity requirement, dropping
+an explicit scope decision within the Caffeine integration. Under the maintainer's parity requirement, dropping
 an existing capability also leaves Canic removal blocked until explicitly
 resolved.
 
@@ -358,11 +453,78 @@ and [storage costs](https://help.caffeine.ai/hc/en-us/articles/49362898986644-Fi
 found no new independent-onboarding, lost-reply completion lookup or final-charge
 receipt definition. Canic's current integration guide still describes local root
 registration and gateway deletion bookkeeping, not those server guarantees.
-These are bounded review findings, not proof no private supported contract exists.
-The earlier provider contact/source question remains open.
+That search was limited: the later DFINITY example review above supplies explicit
+Rust onboarding and resume documentation. Remaining questions concern exact
+deployment bindings and recovery guarantees, not general integration availability.
 
 The resulting local admission model keeps possibly exposed uploads reserved
 until an exact independently authenticated completion fact arrives. It does not
 implement a provider lookup, expire uncertainty, release reservations from a
 client-reported status or treat storage-byte limits as a monetary cap. The open
 server requirements above still block provider effects and durable workflows.
+
+## Contract decision after 0.1.12
+
+The [refresh record](evidence/caffeine-contract-refresh.json) binds the public
+source and anonymous observations collected after release 0.1.12. Official
+main, backend hashes, npm latest 1.1.2/integrity, Mops highest 1.1.1 and Cashier
+Candid remain unchanged. No archive, Mops file-hash, price or gateway-list
+requalification is implied. Toko development and local Canic HEAD also match
+the reviewed commits. Public repo/tree and targeted web searches found no server
+contract resolving the open requirements in their bounded search scope.
+
+### Ownership is an extraction decision
+
+Toko's [client](https://github.com/dragginzgame/toko/blob/6519b72d2a420564dabaf700fc55f7b8603d9fd3/frontend/src/lib/storage/storage-client.ts)
+uses its configured project canister for the upload certificate, gateway owner
+and download `owner_id`. Its
+[project context](https://github.com/dragginzgame/toko/blob/6519b72d2a420564dabaf700fc55f7b8603d9fd3/frontend/src/lib/storage/project-storage-context.ts)
+selects that canister. Canic's inspected billing workflow funds
+`IcOps::canister_self()`. Thus a separate service canister changes these identities
+under the observed client pattern; preserving old object ownership or payment
+relationships requires an explicit supported arrangement. Repointing a URL or
+copying a Cashier ID does not establish that arrangement. A library hosted in the
+same canister has a different identity boundary from a separate service.
+
+Toko's zero-like project-ID fallback and `default-bucket` are source defaults,
+not proof of an assigned exclusive namespace. Its custom client also parses
+`existing_chunks` and skips matching hashes; the current official client's
+blob-tree method ignores the response body. This application optimization does
+not specify whether a repeated tree/chunk request is free, complete or safe
+after a lost reply. Neither behavior closes authoritative reconciliation.
+
+### Consequences for persistence and retry
+
+| Boundary | Evidence available | Decision for this repository |
+| --- | --- | --- |
+| Independent onboarding | DFINITY documents Rust onboarding through a linked payment account; Canic and Rabbithole also show self-account funding | Caffeine is the sole target. Map the exact owner/payer/callback arrangement without conflating the two funding patterns |
+| Certificate authority | Official result binds `method` and `blob_hash`; caller executes a canister update | Durably admit the exact local request before certificate exposure. Do not treat that certificate as upload completion or assume it binds every local field |
+| Upload resume/completion | DFINITY documents chunk-existence responses; no reviewed operation lookup/retention or duplicate charging contract | Use documented resume information only within qualified bounds; preserve uncertain reservations and distinguish chunk existence from blob completion |
+| Funding | Typed top-up outcomes; ledger route advertises block index/credited amount; audit payload is CSV | Preserve exact offered/accepted/refunded evidence and unresolved intent. Do not infer payment completion from balance changes or switch routes as a retry workaround |
+| Deletion/billing | Root-only callback; general asynchronous deletion and retail billing guidance | Keep immutable root history and separate physical/economic obligations. Callback correlation and final billing proof still need a server contract |
+| Restore | Local IDs and counters only; no reviewed external fence/receipt horizon | A restored instance stays fenced. Copying an old counter or expiring uncertain history cannot authorize fresh effects |
+
+These are constraints on the eventual design, not approval of a persisted schema
+or a new production workflow. `ic-memory` solves allocation composition; it does
+not supply provider evidence, economic atomicity or authority surviving rollback.
+No local retry implementation can manufacture the missing server facts.
+
+### Focused provider questions — prepared, not sent
+
+1. Confirm the exact owner/project/bucket/payment/callback arrangement for this
+   Rust service against the published integration patterns, including how existing
+   Toko-owned objects and balances remain accounted during extraction.
+2. What identifies an upload/tree/chunk operation, what is charged on retry, and
+   how is completion recovered after a lost reply? Supply lookup fields, numeric
+   receipt retention and incomplete-object handling, including `existing_chunks`.
+3. How can a specific uncertain top-up or ledger deposit be reconciled to exact
+   accepted/refunded amounts? Supply audit schema, correlation and retention.
+4. What proves deletion and final billing cessation for one object, and what
+   prevents stale callbacks or restored instances acting on a newer lifetime?
+
+Continue source review using the independent integration leads above; remaining
+server semantics require authoritative evidence and bounded qualification on an
+explicitly authorized account. Caffeine is the sole target. Report specific
+unsupported capabilities without silently dropping Canic parity or reopening
+provider selection. No external message, account query, payment, deployment or
+sibling mutation ran in this review.

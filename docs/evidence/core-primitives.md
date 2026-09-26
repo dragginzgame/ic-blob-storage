@@ -904,3 +904,58 @@ Authority-probe Wasm SHA-256:
 `871b1f4963ce50aeb98ffd089a7f18fc11386ffd878b1d10fa00f7bb6019c9f3`.
 This is partial BLOB-06 evidence; no persistence, provider effect, deployment,
 version mutation or full CI/release gate ran.
+
+## Funding callback experiment
+
+After 0.1.12, the unpublished [funding probe](../../canisters/test/funding_probe/src/lib.rs)
+and [PocketIC cases](../../tests/pocketic/tests/funding.rs) exercise real
+unbounded inter-canister cycle transfers. The sender captures the system refund
+immediately in the call continuation, before decoding or another await. The
+receiver independently records available and accepted cycles. Existing Cashier
+reply fixtures feed the production bounded decoder; no second provider schema
+is declared by the fixture.
+
+The cases verify zero, partial and full acceptance, typed InternalError,
+malformed replies and explicit reject after partial acceptance. Refunds remain
+correct across successive calls with different amounts. Decoded success is not
+treated as the credited amount: even zero acceptance can accompany the controlled
+success reply. Completed identities cannot send again. Driver/peer checks and
+amount bounds reject before effects, and journals are private to the driver.
+A receiver trap after accepting and journaling cycles rolls back both changes;
+the sender observes a full refund and zero transport acceptance. The receiver's
+previous receipts remain exact before and after upgrade, and a later independent
+payment adds only its own receipt.
+
+A deliberate sender callback trap rolls back the recorded completion while the
+receiver's acceptance survives. The sender still observes its original pending
+attempt, rejects its repeated identity and blocks a new operation. Both journals
+write through host-owned ic-memory before returning from each mutation and
+restore synchronously in post_upgrade. Same-release upgrades of both canisters
+preserve exact attempts, receipts, driver/peer bindings and lifetime capacity.
+Completed IDs remain rejected even with changed parameters; new identities can
+proceed after observed completion while capacity remains. A trapped callback's
+unresolved intent still blocks another payment after upgrade, and a full journal
+remains full. Deliberate post_upgrade traps after synchronous restore on each
+canister leave the previous executable and exact journals usable, with new
+payments still blocked by unresolved intent; subsequent upgrades succeed.
+The fixture owns this bounded experiment schema, not a production
+service schema. Old backups, snapshot rollback, enqueue failure and bounded-wait
+SYS_UNKNOWN were not exercised. No deployed Caffeine behavior or actual account
+credit is established.
+
+Validation: targeted native check, strict Clippy for fixture/protocol/harness,
+format check, Wasm build and the funding integration target passed. PocketIC
+16.0.0 is accessed through ic-testkit 0.10.0; localhost binding required sandbox
+escalation. No additional external dependency or library API change was made.
+The [source inventory](funding-callback.sha256) binds this experiment at Cargo
+0.1.12. Funding-probe Wasm SHA-256:
+`14d68ac2a156b7712aad055734d76e857c30bddc47828b28fcfe0e416998fb3b`.
+
+Targeted reproduction after the fixture build:
+
+```sh
+cargo build --offline --locked --release --target wasm32-unknown-unknown -p blob-funding-probe --lib
+POCKET_IC_BIN="$PWD/.tmp/tools/pocket-ic-16.0.0/pocket-ic" \
+BLOB_FUNDING_PROBE_WASM="$PWD/target/wasm32-unknown-unknown/release/blob_funding_probe.wasm" \
+cargo test --offline --locked -p ic-blob-storage-pocketic-tests --test funding
+```

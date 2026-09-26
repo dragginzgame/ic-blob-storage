@@ -5,6 +5,7 @@ use candid::{CandidType, Principal};
 use serde::Deserialize;
 
 pub mod content;
+pub mod funding;
 pub mod obligations;
 pub mod uploads;
 

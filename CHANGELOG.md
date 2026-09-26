@@ -2,6 +2,20 @@
 
 ## [Unreleased]
 
+## [0.1.13]
+
+### Added
+
+- Local PocketIC funding experiments capture exact call refunds separately from
+  Caffeine reply decoding, covering zero/partial/full acceptance, provider errors,
+  malformed replies and rejects. Callback traps retain unresolved intent and
+  block another payment. Host-owned ic-memory journals restore synchronously
+  across same-release upgrades, preserving payment identities, receipts and
+  lifetime limits. Receiver traps roll back acceptance and receipts with a full
+  refund; failed upgrades preserve journals and unresolved-payment blocking.
+  The bounded unpublished fixture uses ic-testkit's PocketIC
+  export; it does not qualify live Cashier credit or recovery from old backups.
+
 ## [0.1.12] - 2026-09-26
 
 ### Changed

@@ -142,6 +142,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "blob-funding-probe"
+version = "0.0.0"
+dependencies = [
+ "blob-test-protocol",
+ "candid",
+ "ic-blob-storage",
+ "ic-cdk",
+ "serde",
+]
+
+[[package]]
 name = "blob-gateway-source"
 version = "0.0.0"
 dependencies = [
