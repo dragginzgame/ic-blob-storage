@@ -1,0 +1,114 @@
+{
+  "schema_version": 1,
+  "reviewed_on": "2026-09-26",
+  "sources": {
+    "repository": "https://github.com/caffeinelabs/skills",
+    "commit": "e5cacdfe5ce55e939edb02980fca800c0c13f421",
+    "main_rechecked_via": "https://api.github.com/repos/caffeinelabs/skills/commits/main",
+    "main_unchanged": true,
+    "files": [
+      {
+        "path": "packages/object-storage/frontend/dist/StorageClient.js",
+        "sha256": "6eb7f5b424f02476c9096e4684d8e520121c21b2b2f6f29f3c9a25e0c07cad57"
+      },
+      {
+        "path": "packages/object-storage/backend/src/Mixin.mo",
+        "sha256": "175c6b98672a83054fc08855062d1a7b7f2bd3713bf11a60d5319ac5afefe2b3"
+      },
+      {
+        "path": "packages/object-storage/backend/src/Storage.mo",
+        "sha256": "0c757f4cb30ebe8e30b42a59b130a1662b47e403b9664f44e98d14b08b20af42"
+      }
+    ],
+    "npm_latest": {
+      "url": "https://registry.npmjs.org/@caffeineai%2fobject-storage/latest",
+      "version": "1.1.2",
+      "integrity": "sha512-JAmoHT6E8M18DEbW4rkHinAOw0A8yNbz+rj8F56VAvr8Hf0TxQSK0ZdMrkwwT7BsiOLvtFK/YcLtoaWBc9x2xQ==",
+      "matches_previous_registry_observation": true
+    },
+    "cashier_interface": {
+      "file": "caffeine-cashier.did",
+      "sha256": "232b08e4514048d4de48d6d1bf4387f577bfb64c7e2e2ded699a5e52d475d76f",
+      "observed_on": "2026-09-25",
+      "refetched_in_this_review": true,
+      "refetched_on": "2026-09-26"
+    },
+    "mops_registry_requeried": true
+  },
+  "client_completion_probe": {
+    "runtime": "Node v18.19.1",
+    "method": "Verify the artifact SHA-256. In a fresh Node VM, evaluate the artifact from const MAXIMUM_CONCURRENT_UPLOADS onward, replacing export class StorageClient with class StorageClient and exposing that class. Supply WebCrypto, TextEncoder, Uint8Array, Blob and URLSearchParams. Stub resolveBlobContentType to application/octet-stream and formatBlobContentDisposition to undefined. Replace getCertificate with Uint8Array([1]); no agent runs. Stub fetch with ok:true and json returning the case's status, recording method/path; unexpected retries fail. Call putFile with UTF-8 abc and record progress. Repeat in a fresh VM for each case.",
+    "substitutes": "All HTTP responses, certificate bytes and MIME/disposition helpers. fixture_not_complete is an invented negative control, not an observed gateway status. No real certificate validation or provider call.",
+    "input_utf8": "abc",
+    "cases": [
+      {
+        "chunk_response_status": "blob_complete",
+        "returned_hash": "sha256:0d93b90e52440d738cac5504a2e46163b6b6f725ff881d59d3ac07871003ecfa",
+        "final_progress_percent": 100
+      },
+      {
+        "chunk_response_status": "fixture_not_complete",
+        "returned_hash": "sha256:0d93b90e52440d738cac5504a2e46163b6b6f725ff881d59d3ac07871003ecfa",
+        "final_progress_percent": 100
+      }
+    ],
+    "requests_in_each_case": [
+      {
+        "method": "PUT",
+        "path": "/v1/blob-tree/"
+      },
+      {
+        "method": "PUT",
+        "path": "/v1/chunk/"
+      }
+    ],
+    "conclusion": "The pinned client's returned hash and 100% progress do not require a blob_complete response. Even a positive flag still needs authoritative provider completion semantics."
+  },
+  "funding_result_probe": {
+    "tool": "didc 0.5.4",
+    "encode_command": "didc encode '(variant { Err = variant { TopUpWithoutCycles } })' --types '(AccountTopUpResult)' --defs docs/evidence/caffeine-cashier.did",
+    "typed_decode_command": "didc decode --types '(AccountTopUpResult)' --defs docs/evidence/caffeine-cashier.did",
+    "typed_decode_result": "(variant { Err = variant { TopUpWithoutCycles } })",
+    "wrapper_decode_command": "didc decode --types '()'",
+    "wrapper_decode_result": "()",
+    "method": "Pipe the same encoded hex into each decoder; both succeed. The reply is synthesized, not obtained from an actual top-up.",
+    "source_observation": "Storage.refillCashier declares an empty account_top_up_v1 result, then reports success=true and topped_up_amount=cyclesToSend after the await. It does not inspect structured Cashier errors or an accepted-cycle amount.",
+    "conclusion": "Wire compatibility does not make the wrapper's reported success or amount a validated provider outcome. Retain typed results and separately reconcile accepted/refunded amounts."
+  },
+  "callback_identity_review": {
+    "source": "packages/object-storage/backend/src/Mixin.mo",
+    "method": "_immutableObjectStorageConfirmBlobDeletion",
+    "arguments": "blobs : [Blob]",
+    "authority_observed": "Caller membership in the integration's authorized gateway principals.",
+    "fields_absent_from_callback_arguments": [
+      "project",
+      "bucket",
+      "tenant",
+      "operation",
+      "object incarnation"
+    ],
+    "conclusion": "A root-only callback cannot by itself distinguish an old deletion from a newer object using the same root. A local incarnation must not be filled from whichever object is current. Provider namespace exclusivity, root non-reuse or stronger authoritative correlation must be qualified before binding callbacks."
+  },
+  "cashier_recovery_review": {
+    "direct_top_up": "AccountTopUpRequest contains only optional account and target_balance; AccountTopUpResponse contains balance and text message. No typed caller operation ID or operation receipt is advertised by these types.",
+    "audit": "AuditLogDownloadResponse returns csv_content plus pagination. Candid does not specify the CSV columns, exact top-up correlation, completeness or retention.",
+    "ledger_alternative": "NotifyCyclesLedgerDepositResponse includes ledger_block_index and credited, but the request contains only optional account. LedgerDeposit/TopUp audit event names and a block index do not prove an exactly-once sweep/credit contract after a lost response. This route remains a research candidate, not selected funding behavior.",
+    "conclusion": "No automatic retry after an uncertain payment can be justified from these signatures or balance differences alone. Server semantics and evidence retention remain required."
+  },
+  "limitations": "Source inspection, public GitHub/npm reads and isolated substitute/codec experiments only. No update call, payment, account lookup, gateway upload/deletion or PocketIC journey. This does not qualify Caffeine, freeze the service contract or establish that missing guarantees are impossible.",
+  "local_resolution_refresh": {
+    "date": "2026-09-26",
+    "identity": "anonymous",
+    "network": "https://icp-api.io",
+    "root_key": "mainnet",
+    "client": "icp 1.6.0",
+    "cashier_metadata_command": "icp canister metadata 72ch2-fiaaa-aaaar-qbsvq-cai candid:service --identity anonymous --network https://icp-api.io --root-key mainnet",
+    "cashier_sha256_unchanged": true,
+    "mops_method": "getHighestVersion",
+    "mops_canister": "oknww-riaaa-aaaam-qaf6a-cai",
+    "mops_arguments": "(\"caffeineai-object-storage\")",
+    "mops_interface_sha256": "064b091b247405dc4825f6aa7511afeda35de184b77de2c24db82d3a342d4da6",
+    "mops_response": "(variant { ok = \"1.1.1\" })",
+    "limitations": "Metadata and version query only; no paid effect, account lookup, retention or settlement evidence."
+  }
+}

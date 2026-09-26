@@ -3,3 +3,4 @@
 pub mod billing;
 pub mod gateway;
 pub mod identity;
+pub mod lifecycle;

@@ -1,6 +1,7 @@
 //! Independent blob-storage service library for Internet Computer canisters.
 //!
-//! Content identities and pure billing policy are available. Storage workflows,
+//! Content identities, pure policy, transient lifecycle models and bounded
+//! Caffeine reply decoders are available. Storage workflows,
 //! provider effects, canister endpoints, and lifecycle hooks are not implemented.
 //!
 //! The intended service owns tenant authorization, content references, quotas,

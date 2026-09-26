@@ -3,8 +3,12 @@
 An independent blob-storage service library for Internet Computer canisters.
 The core currently provides content identities, incremental raw-content
 verification, billing/configuration validation, bounded gateway membership and pure billing
-policy with native tests. Storage workflows, provider integration, clients and
-canister adapters are not implemented yet.
+policy with native tests. A transient lifecycle model binds references, deletion
+and settlement to specific tenants and object incarnations, with bounded request
+receipts and a pure access check for direct tenant callers. Bounded Caffeine
+reply decoders preserve funding failures and distinguish completion reports from
+verified storage; immutable local root claims prevent reassignment. Persisted
+workflows, provider transports, clients and canister adapters are not implemented yet.
 
 The planned service owns tenant authorization, references, quotas, provider
 access, billing, retention and deletion. This repository will own standalone

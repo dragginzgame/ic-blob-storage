@@ -1,0 +1,8 @@
+d539ca51e9f9e8910738f8d80bb8e88ff7d953c3a2a0a7f917e4ceaa26f69bb2  Cargo.toml
+dbda1da6d8daeac13336cef9642f3259f6504a3e5f52a09c5980186a68d8fa36  Cargo.lock
+04ab0c8ee214f246c7c53bdfba7ba80a93dad65da5b8455edf17c5ec226d5b20  rust-toolchain.toml
+4316f569adcf1b771893f210b549c76b071ee07e60fea77bc8e27fec9c051724  crates/ic-blob-storage/Cargo.toml
+1d613f8027737902f0d3c42f73bfee9a7df3a6d338d25de9d6e11f50cce85b7f  crates/ic-blob-storage/src/lib.rs
+2fb7184bede85f9d0c7f4040523c575a6433926fd29d9a93e9cade58780403a2  crates/ic-blob-storage/src/model/mod.rs
+ba4089fe557f64f18c7045e64b6097c1f5bfcaa320f984cd90dea886a6274ce9  crates/ic-blob-storage/src/model/identity/mod.rs
+2a2308afd73643f86a2dbe86a1eeda08f2651e824365e4cf0e7200cb51a5f5de  crates/ic-blob-storage/src/model/identity/batch/mod.rs

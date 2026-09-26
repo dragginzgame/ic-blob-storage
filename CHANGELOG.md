@@ -2,6 +2,44 @@
 
 ## [Unreleased]
 
+## [0.1.5]
+
+Local blob lifecycle, ownership bindings and request replay handling.
+Persistence, endpoint authentication and provider execution remain pending.
+
+### Added
+
+- Bounded binary-root batch parsing for future liveness requests. Input order,
+  duplicates and per-entry errors are preserved; raw entry and byte limits
+  reject oversized batches before allocating results. No liveness lookup or
+  callback endpoint is implemented by this parser.
+- A transient confirmed-object lifecycle model with bounded, idempotent reference
+  bookkeeping. Final release, physical deletion and billing settlement advance
+  separately; premature confirmations and reference reuse reject without mutation.
+  Native transition tests cover accounting and rejection without mutation.
+- Explicit service/tenant/namespace/object/incarnation bindings on lifecycle
+  references and confirmations, with rejection before mutation or replay handling.
+  Added pure direct-tenant access checks and native cross-scope denial tests.
+- Bounded local request receipts for reference mutations: exact retries return
+  original success/failure, conflicting request-ID reuse rejects, and receipt
+  reservations preserve capacity to release every active reference. Receipt
+  replay still requires the caller's current access check; durability is pending.
+- Bounded Caffeine response decoding that preserves structured funding errors
+  and separates upload completion reports from verified storage. Added private
+  wire types, independent Candid fixtures and malformed/over-budget reply tests.
+- Immutable, bounded root claims that reject reassignment across tenants,
+  namespaces and incarnations, retaining original associations after settlement.
+  Native composition verifies delayed confirmations cannot delete a newer object.
+
+### Changed
+
+- Reviewed Canic's lifecycle design independently and documented the proposed
+  persistence boundaries, separating logical release, physical deletion and
+  continuing billing obligations. Provider qualification remains open.
+- Added source-bound provider recovery probes and integration requirements for
+  upload completion, structured funding errors and delayed root-only deletion
+  callbacks. Client/codec substitutes do not qualify the deployed provider.
+
 ## [0.1.4] - 2026-09-25
 
 Blob-storage billing validation and gateway primitives extracted from Canic,

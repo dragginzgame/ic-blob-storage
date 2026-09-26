@@ -1,8 +1,10 @@
-# Caffeine provider review — 2026-09-25
+# Caffeine provider review — 2026-09-26
 
 Verdict: Caffeine remains unqualified for the required service journey. The
 Cashier's deployed Candid and public gateway/pricing queries are now observed;
 server revision, paid-effect recovery and final billing guarantees remain open.
+Local response decoding and immutable root claims now address the source-level
+false-success/reassociation paths; their production prerequisites remain below.
 
 ## Selected integration baseline
 
@@ -158,6 +160,68 @@ its SHA-256 against the JSON, and evaluate the slice beginning at
 `BlobHashTree.build` with the JSON input, no headers, or `Content-Length: 3`
 plus the recorded content types. The empty case uses no chunks or headers.
 This bounded experiment adds no maintained JavaScript tooling to the project.
+
+## Recovery findings — 2026-09-26
+
+[Source-bound probes and reproduction details](evidence/caffeine-recovery-review.json)
+now turn the earlier concerns into specific integration constraints. Official
+GitHub `main` still resolves to the pinned commit; npm still reports 1.1.2 with
+the same integrity value. A subsequent anonymous refresh on 2026-09-26 confirmed
+Mops still reports 1.1.1 and Cashier's Candid has the identical retained SHA-256.
+This refresh did not call top-up, upload or deletion methods.
+
+| Path | Finding | Required integration behavior |
+| --- | --- | --- |
+| Upload completion | Running the pinned client with substituted HTTP responses returns the same root and 100% progress for both `blob_complete` and an invented non-complete status | Neither the returned hash nor progress may mark an upload confirmed. Obtain authoritative completion evidence and a lost-response lookup contract |
+| Funding outcome | A synthesized Cashier `Err(TopUpWithoutCycles)` decodes successfully as the wrapper's empty result; the inspected wrapper reports success and the offered amount after its await | Preserve typed provider outcomes; establish accepted/refunded amounts separately. Successful transport/decoding does not prove successful credit |
+| Deletion identity | The official callback supplies only root blobs and authenticates gateway membership; it supplies no object incarnation or operation ID | Never attach the current local incarnation to an otherwise ambiguous callback. Qualify namespace/root association and delayed callback handling first |
+| Funding reconciliation | Direct top-up has no typed caller operation ID; the audit query exposes CSV with no column or retention contract in Candid | Balance changes and method presence cannot resolve a specific uncertain payment. Obtain exact server correlation and retention evidence before automatic retry |
+
+The callback constraint matters even with perfect local binding checks: upload
+root R, release it, then upload the same root under a newer incarnation. An old
+confirmation for R can be indistinguishable from a new one. Blocking live-object
+deletion alone is insufficient if the new incarnation is also deletion-pending.
+Permanent root non-reuse in an exclusive namespace is one candidate restriction,
+and the local claim model now enforces non-reassignment across a service's entire
+root history. Its use in a deployed provider contract still requires bounded
+durable history that survives the supported restore boundary and verified
+namespace exclusivity.
+
+The advertised cycles-ledger deposit route returns a block index and credited
+amount. It is worth investigating, but a lost sweep/credit response still needs
+server evidence linking that transfer to the credited account exactly once.
+Switching payment routes alone would not close the recovery gate.
+
+These findings qualify source/client behavior only. The HTTP/certificate inputs
+and Cashier error were substitutes, not live provider outcomes. They identify
+the next server-contract questions without proving the provider cannot meet them.
+
+### Local fixes and remaining provider evidence
+
+The maintainer requested resolution of these findings. The library now owns
+bounded [response decoders](../crates/ic-blob-storage/src/ops/caffeine/mod.rs):
+JSON chunk status never treats progress or a hash as completion, and the complete
+Cashier result retains all four advertised error categories. Missing, malformed,
+unknown-variant or over-budget funding replies reject; they never become success
+or proof of a refund. A valid `Ok` yields a validated balance report with no
+invented credited amount. Private provider DTOs prevent clients from becoming
+an independent owner of the wire contract. `CompletionReported` is deliberately
+an observation; it cannot itself construct a confirmed object.
+
+[Immutable root claims](../crates/ic-blob-storage/src/model/lifecycle/roots/mod.rs)
+bind a root to its original service/tenant/namespace/object/incarnation. Exact
+claim replay does not authorize another upload, and settlement never frees that
+root for a newer object. Native composition exercises a delayed confirmation
+against a newer deletion-pending incarnation. The
+[core evidence](evidence/core-primitives.md#provider-response-and-root-correlation-fixes)
+records tests and independent Candid fixture provenance.
+
+These close the local parsing and reassignment defects. Authoritative completion
+lookup, server-side retry/retention behavior, namespace exclusivity, durable
+claim/intent storage and final billing evidence remain unresolved. No transport,
+endpoint or upstream package was changed; do not describe the existing Caffeine
+client as patched. No extra HTTP success check or local map can establish those
+remaining provider facts. The service still cannot execute the full journey.
 
 ## Serving and deletion evidence
 

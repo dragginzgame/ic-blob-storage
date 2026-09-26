@@ -7,6 +7,12 @@ length/digest verification and rejection recovery toward A02, recorded in
 [core evidence](evidence/core-primitives.md); it does not execute the service
 journeys below. Named owners, bounds and provider
 evidence are still required by the [service contract](service-contract.md).
+Local lifecycle binding and direct-tenant policy tests now provide partial A01
+evidence over supplied values; they do not authenticate endpoint callers or prove
+durable isolation, delegated access or provider confirmation authority.
+Local reference receipts additionally provide partial A03/A04/A06 evidence for
+exact retries and reserved release capacity. No interruption/restore or paid
+provider retry case has been executed by those native tests.
 Run the same service cases through standalone and managed deployments; only
 managed lifecycle integration belongs to Canic. Both adapters live here.
 
@@ -36,6 +42,22 @@ typed outcomes and observation points. Tests must observe no unintended effects
 as well as returned results. Do not assert error prose, aggregate test counts
 or removed schema forms. Keep unit tests beside maintained code; use `tests/`
 and PocketIC for canister/install/lifecycle/inter-canister behavior.
+
+The [provider recovery findings](provider-review.md#recovery-findings--2026-09-26)
+make three cases explicit: A02 must not confirm upload from client progress or
+a returned hash alone; A06 must reject an old root-only callback even when a
+newer incarnation is also deletion-pending; A08 must distinguish a structured
+Cashier error from transport success and reconcile an uncertain payment before
+retry. The retained client/codec probes are partial source evidence, not executed
+service or provider acceptance cases.
+
+The local reply decoders now have native tests for A02/A08: missing/duplicate
+upload status, all advertised funding error variants and malformed/over-budget
+replies. A06 additionally has immutable-root-claim and lifecycle composition
+coverage, including a newer deletion-pending object and retained claims after
+settlement. These establish local rejection behavior; authoritative upload
+completion, persisted claims, callback authentication and actual provider
+recovery/settlement remain unqualified.
 
 Retain exact source revision, tool/provider versions, artifact/Candid hashes,
 commands and results for executed cases. Record substitutes separately from

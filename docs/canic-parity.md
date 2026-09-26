@@ -6,6 +6,11 @@ well as storage and billing. The first native core primitives are implemented;
 no end-to-end service capability is qualified here yet. Installed dependencies,
 plans and source inventories do not establish parity.
 
+The maintainer explicitly requires a fresh model review: Canic identifies existing
+capabilities, not design decisions to preserve automatically. The
+[lifecycle design](service-contract.md#lifecycle-design-under-independent-review)
+records the rationale for reference ownership and separate release obligations.
+
 [The capability inventory](canic-capabilities.json) maps every public method in
 Canic's blob API and every emitted blob endpoint at commit
 `10d00c6d9494a45b30e66f84d1bd886c8acdd45c`. It also identifies the CLI, diagnostic,
@@ -43,7 +48,18 @@ owns the current integration target and deployment evidence gaps.
 ## Required replacements
 
 BLOB-01 has native parsing/canonicalization and incremental raw-byte verification
-evidence. BLOB-08, BLOB-11 and
+evidence. BLOB-03 has bounded binary-root batch parsing that preserves order,
+duplicates and per-entry errors; liveness lookup itself remains unimplemented.
+BLOB-04/05/06 now have partial native lifecycle-transition evidence for confirmed
+objects, including bounded reference receipts and separate logical/physical/
+economic projections. Authenticated callbacks and persisted counters remain absent.
+Lifecycle mutations now check complete object/reference bindings; pure direct-tenant
+policy adds partial A01/BLOB-14 evidence. Endpoint actor authentication, delegation
+and durable scope enforcement remain outstanding.
+Local reference request receipts add exact actor/payload replay checks and reserve
+receipt capacity for each active reference's release. These are native bounds and
+replay semantics, not durable request recovery or provider retry evidence.
+BLOB-08, BLOB-11 and
 BLOB-12 have partial numeric validation and pure-policy evidence. BLOB-09 and
 BLOB-15 now have bounded signed-balance conversion and operator amount parsing
 evidence. BLOB-09 validates all four numeric balance components before use,
@@ -58,7 +74,11 @@ BLOB-08 also has complete local configuration-candidate validation for Cashier
 principal, funding thresholds and gateway limits representable on 32-bit Wasm.
 BLOB-11 also has pure new-intent admission rejecting recovery fences and
 outstanding/uncertain funding activity; durable exclusion is still unimplemented.
-Provider bindings, configuration persistence, actual funding, status workflows
+BLOB-02 now also has bounded chunk-status decoding and lifetime root claims;
+BLOB-05 has native delayed-root-correlation rejection after settlement. BLOB-11
+has bounded Candid result decoding that retains structured provider failures.
+These add local safeguards, not persisted upload/callback/payment workflows.
+Provider transports, configuration persistence, actual funding, status workflows
 and the other capabilities remain unimplemented. The boundaries below describe
 the complete replacement requirements, not qualification claims.
 

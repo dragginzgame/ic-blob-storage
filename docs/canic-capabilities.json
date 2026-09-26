@@ -78,7 +78,24 @@
           "symbol": "malformed_api_inputs_do_not_mutate_blob_state"
         }
       ],
-      "replacement_evidence": []
+      "replacement_evidence": [
+        {
+          "kind": "native_core_partial",
+          "record": "evidence/core-primitives.md",
+          "source_hashes": "evidence/provider-boundaries.sha256",
+          "source": "crates/ic-blob-storage/src/ops/caffeine/upload/mod.rs",
+          "coverage": "Bounded chunk reply status decoding; progress/root fields cannot substitute for completion, malformed or duplicate status rejects.",
+          "remaining": "Authenticated certificate/upload workflow, authoritative completion and provider recovery evidence."
+        },
+        {
+          "kind": "native_core_partial",
+          "record": "evidence/core-primitives.md",
+          "source_hashes": "evidence/lifecycle-model.sha256",
+          "source": "crates/ic-blob-storage/src/model/lifecycle/roots/mod.rs",
+          "coverage": "Bounded immutable service-wide root claims reject reassignment or multiple roots for one object.",
+          "remaining": "Durable atomic claim/intent reservation before certificate exposure, namespace exclusivity, capacity selection and restore safety."
+        }
+      ]
     },
     {
       "id": "BLOB-03",
@@ -108,7 +125,16 @@
           "symbol": "live_blob_lifecycle_maps_to_public_api"
         }
       ],
-      "replacement_evidence": []
+      "replacement_evidence": [
+        {
+          "kind": "native_core_partial",
+          "record": "evidence/core-primitives.md",
+          "source_hashes": "evidence/root-batch.sha256",
+          "source": "crates/ic-blob-storage/src/model/identity/batch/mod.rs",
+          "coverage": "Bounded binary-root parsing preserves order, duplicates, empty batches and individual malformed-entry positions; entry/byte limits reject before result allocation.",
+          "remaining": "Authenticated liveness lookup, tenant/reference bindings, provider callback integration and real service journeys."
+        }
+      ]
     },
     {
       "id": "BLOB-04",
@@ -137,7 +163,24 @@
           "symbol": "live_blob_lifecycle_maps_to_public_api"
         }
       ],
-      "replacement_evidence": []
+      "replacement_evidence": [
+        {
+          "kind": "native_core_partial",
+          "record": "evidence/core-primitives.md",
+          "source_hashes": "evidence/lifecycle-model.sha256",
+          "source": "crates/ic-blob-storage/src/model/lifecycle/mod.rs",
+          "coverage": "Native confirmed-object reference release is idempotent; last release queues deletion; logical bytes release separately from physical and financial obligations. Immutable service/tenant/namespace/object/incarnation bindings reject mismatched reference mutations and confirmations before replay.",
+          "remaining": "Trusted stored bindings and authenticated execution context, delegated/per-reference authority, exact provider operation evidence, persisted references/receipts, atomic global accounting and provider/PocketIC journeys."
+        },
+        {
+          "kind": "native_core_partial",
+          "record": "evidence/core-primitives.md",
+          "source_hashes": "evidence/lifecycle-model.sha256",
+          "source": "crates/ic-blob-storage/src/model/lifecycle/requests/mod.rs",
+          "coverage": "Local exact actor/operation/reference receipts replay original success/failure; conflicts reject unchanged; bounded receipt admission reserves one release receipt per active reference.",
+          "remaining": "Durable atomic receipts/accounting, restart/restore safety, trusted endpoint context, global/tenant capacity and provider-effect reconciliation."
+        }
+      ]
     },
     {
       "id": "BLOB-05",
@@ -173,7 +216,24 @@
           "symbol": "gateway_endpoint_helpers_match_toko_malformed_input_behavior"
         }
       ],
-      "replacement_evidence": []
+      "replacement_evidence": [
+        {
+          "kind": "native_core_partial",
+          "record": "evidence/core-primitives.md",
+          "source_hashes": "evidence/lifecycle-model.sha256",
+          "source": "crates/ic-blob-storage/src/model/lifecycle/mod.rs",
+          "coverage": "Local deletion transition rejects live references; repeated confirmations are harmless; billing settlement is a separate fact. Confirmation authority is not implemented. Immutable service/tenant/namespace/object/incarnation bindings reject mismatched reference mutations and confirmations before replay.",
+          "remaining": "Trusted stored bindings and authenticated execution context, delegated/per-reference authority, exact provider operation evidence, persisted references/receipts, atomic global accounting and provider/PocketIC journeys."
+        },
+        {
+          "kind": "native_core_partial",
+          "record": "evidence/core-primitives.md",
+          "source_hashes": "evidence/lifecycle-model.sha256",
+          "source": "crates/ic-blob-storage/src/model/lifecycle/roots/mod.rs",
+          "coverage": "Original root/object association retained after settlement; native composition rejects delayed correlation to a newer deletion-pending object.",
+          "remaining": "Endpoint gateway/namespace authorization, persisted history, actual provider deletion proof and billing cessation."
+        }
+      ]
     },
     {
       "id": "BLOB-06",
@@ -199,7 +259,24 @@
           "symbol": "assert_probe_counts"
         }
       ],
-      "replacement_evidence": []
+      "replacement_evidence": [
+        {
+          "kind": "native_core_partial",
+          "record": "evidence/core-primitives.md",
+          "source_hashes": "evidence/lifecycle-model.sha256",
+          "source": "crates/ic-blob-storage/src/model/lifecycle/mod.rs",
+          "coverage": "Per-object logical/physical/liability byte projections and bounded active/released reference slots; zero bytes do not establish settlement. Immutable service/tenant/namespace/object/incarnation bindings reject mismatched reference mutations and confirmations before replay.",
+          "remaining": "Trusted stored bindings and authenticated execution context, delegated/per-reference authority, exact provider operation evidence, persisted references/receipts, atomic global accounting and provider/PocketIC journeys."
+        },
+        {
+          "kind": "native_core_partial",
+          "record": "evidence/core-primitives.md",
+          "source_hashes": "evidence/lifecycle-model.sha256",
+          "source": "crates/ic-blob-storage/src/model/lifecycle/requests/mod.rs",
+          "coverage": "Local exact actor/operation/reference receipts replay original success/failure; conflicts reject unchanged; bounded receipt admission reserves one release receipt per active reference.",
+          "remaining": "Durable atomic receipts/accounting, restart/restore safety, trusted endpoint context, global/tenant capacity and provider-effect reconciliation."
+        }
+      ]
     },
     {
       "id": "BLOB-07",
@@ -431,6 +508,14 @@
           "source": "crates/ic-blob-storage/src/policy/billing/admission/mod.rs",
           "coverage": "Pure new-intent admission rejects recovery fences, in-progress/uncertain effects, missing configuration and reserve violations; diagnostic funding arithmetic cannot bypass it.",
           "remaining": "Authoritative bound observations, atomic reservation/exclusion, durable intent/liabilities, exact operation identity, provider effects and uncertain-result reconciliation."
+        },
+        {
+          "kind": "native_core_partial",
+          "record": "evidence/core-primitives.md",
+          "source_hashes": "evidence/provider-boundaries.sha256",
+          "source": "crates/ic-blob-storage/src/ops/caffeine/funding/mod.rs",
+          "coverage": "Bounded full Cashier reply decoding preserves all advertised error categories; independent Candid fixtures; missing/malformed/over-budget replies cannot become success.",
+          "remaining": "Transport identity/intent binding, accepted/refunded cycles accounting, durable exclusion and exact uncertain-payment reconciliation."
         }
       ]
     },
@@ -517,7 +602,16 @@
           "symbol": "assert_billing_endpoints_require_controller"
         }
       ],
-      "replacement_evidence": []
+      "replacement_evidence": [
+        {
+          "kind": "native_core_partial",
+          "record": "evidence/core-primitives.md",
+          "source_hashes": "evidence/lifecycle-model.sha256",
+          "source": "crates/ic-blob-storage/src/policy/tenant/mod.rs",
+          "coverage": "Pure direct-tenant access predicate requires expected service and tenant actor from trusted execution context; native denial tests include anonymous, management and non-tenant actors.",
+          "remaining": "Actual endpoint authentication, delegated actor/per-reference authority, trusted stored bindings, shared handler adapters and real deployment journeys."
+        }
+      ]
     },
     {
       "id": "BLOB-15",

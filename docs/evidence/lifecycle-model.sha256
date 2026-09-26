@@ -1,0 +1,13 @@
+d539ca51e9f9e8910738f8d80bb8e88ff7d953c3a2a0a7f917e4ceaa26f69bb2  Cargo.toml
+dbda1da6d8daeac13336cef9642f3259f6504a3e5f52a09c5980186a68d8fa36  Cargo.lock
+04ab0c8ee214f246c7c53bdfba7ba80a93dad65da5b8455edf17c5ec226d5b20  rust-toolchain.toml
+4316f569adcf1b771893f210b549c76b071ee07e60fea77bc8e27fec9c051724  crates/ic-blob-storage/Cargo.toml
+1d613f8027737902f0d3c42f73bfee9a7df3a6d338d25de9d6e11f50cce85b7f  crates/ic-blob-storage/src/lib.rs
+2fb7184bede85f9d0c7f4040523c575a6433926fd29d9a93e9cade58780403a2  crates/ic-blob-storage/src/model/mod.rs
+76ec1963bb72a2bccbdfcd5ab2af57fff51d240e95908cb07c9eed83e4df068a  crates/ic-blob-storage/src/model/lifecycle/mod.rs
+cc61a2eefd35d74685caa3612af2deebe7dcc6a9c92b100d52b284e7b1eee5b3  crates/ic-blob-storage/src/model/lifecycle/binding/mod.rs
+5d0dbfb766c74a862e43ad91a00175011097d95a5fe8c80eed2b6cbf126ea168  crates/ic-blob-storage/src/policy/mod.rs
+0c05ae4be93c94914dfd99fff3dd6341162d87cbaad6c92ab9c63a9ec22e114f  crates/ic-blob-storage/src/policy/tenant/mod.rs
+7dddd0ddc6adb9c0eb049ccadec0ca7e3c1f4d7f295c5766a32774d57661f22b  crates/ic-blob-storage/tests/lifecycle_binding.rs
+5758432f3b87bbe842080c4b8f9c0e0782810cb635b84fa89454d8a3f1bc63cf  crates/ic-blob-storage/src/model/lifecycle/requests/mod.rs
+f6cdf4b91f887d0dd01c0a3948a5ba5f281fe3259fe1763d33e8b7aad034f1e5  crates/ic-blob-storage/src/model/lifecycle/roots/mod.rs

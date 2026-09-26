@@ -2,20 +2,22 @@
 
 The root `Cargo.toml` owns exact direct dependency versions. The library inherits
 them, and `Cargo.lock` locks the transitive graph. Versions were checked against
-crates.io on 2026-09-25. This prepares the scaffold; it introduces no provider
-bindings, service workflows or canister endpoints.
+crates.io on 2026-09-25. On 2026-09-26, `serde_json` became a direct dependency
+at its existing locked version for bounded provider reply parsing. Dependency
+availability does not establish provider qualification or service readiness.
 
 | Dependency | Version | Purpose |
 | --- | --- | --- |
 | `candid` | 0.10.36 | IC boundary encoding and principal types |
 | `serde` | 1.0.229 | Serialization derives for explicit boundary/record schemas |
+| `serde_json` | 1.0.151 | Bounded Caffeine chunk-status JSON decoding; reused the existing lockfile version |
 | `sha2` | 0.11.0 | SHA-256; optional allocation/OID features disabled |
 | `thiserror` | 2.0.18 | Typed error derives; matches PocketIC's exact requirement |
 | `ic-cdk` | 0.20.3 | IC platform operations for the ops layer |
 | `ic-stable-structures` | 0.7.2 | Stable-memory storage primitives |
 | `pocket-ic` | 16.0.0 | Native integration-test dependency only |
 
-These are current stable releases except `thiserror`, where PocketIC 16 pins
+At the initial registry check, the selected releases were current except `thiserror`, where PocketIC 16 pins
 2.0.18 and prevents selecting 2.0.21 in this graph. All selected versions compile
 with the repository's Rust 1.98.1 toolchain. SHA-256 byte hashing does not by
 itself implement or qualify Caffeine's provider-specific hash tree.

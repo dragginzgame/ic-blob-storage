@@ -24,6 +24,17 @@ Pure funding policy now also assesses admission of a new intent from supplied
 recovery/activity observations. This is part of the local policy exception;
 it neither establishes those observations nor persists or executes an intent.
 
+The maintainer subsequently requested the persistence contract and lifecycle
+model, and explicitly directed a fresh design review of Canic's decisions.
+That local scope includes the transient confirmed-object lifecycle model below.
+It does not close provider qualification or authorize persisted workflows/effects.
+
+On 2026-09-26 the maintainer explicitly requested resolving the upload-completion,
+funding-error and stale-deletion findings. That scope now includes bounded local
+Caffeine reply decoding with one private wire owner, and a transient immutable
+root-claim model. It does not authorize paid tests, deployed adapters or a claim
+that source-level response checks establish the missing server guarantees.
+
 The [Canic parity review](canic-parity.md) records the captured
 Canic source inventory, preserved behavior, required safety corrections and
 removal obligations. The [acceptance plan](acceptance-plan.md) supplies
@@ -68,6 +79,143 @@ required for extraction, or a new capability deferred. B2 is bounded by this
 journey and necessary corrections; optional ambitions do not gate extraction.
 Shared cross-tenant deduplication, generic provider plugins, cross-release
 migration, multi-Fleet indexing and new confidentiality guarantees are deferred.
+
+## Lifecycle design under independent review
+
+Canic is a capability inventory and source of counterexamples, not the target
+data model. The maintainer explicitly requested reassessing its choices. Existing
+capabilities remain required; preserving them does not require copying root-keyed
+ownership, automatic liveness on registration, transient funding locks or deletion
+of all state after a gateway callback. Each design choice needs its own rationale
+and rejection/recovery evidence.
+
+The local [lifecycle model](../crates/ic-blob-storage/src/model/lifecycle/mod.rs)
+now implements the confirmed-object part of this design. It is transient and
+starts only after independently verified completion. It now carries an immutable
+service/tenant/namespace/object/incarnation binding and checks it on every mutation,
+before even idempotent replay. Anonymous and management service/tenant principals
+reject; the opaque namespace ID still needs a trusted provider configuration.
+IDs do not prove fresh allocation or survive old backups by themselves.
+
+The pure direct-tenant access rule requires the actual service instance to match
+that trusted binding and the authenticated actor to equal its tenant principal.
+It grants no special controller or digest-based access. Execution context and
+expected binding must come from trusted state/platform inputs, not request claims.
+Delegated actors and per-user permissions need their own reviewed rule; the
+current rule does not implement them. Upload admission, sessions, persistence,
+endpoint authentication and provider evidence validation remain outside this model.
+
+The local `ReferenceRequests` value now owns a lifecycle and its exact-request
+receipts. IDs are scoped to that object incarnation; each admitted ID binds the
+authenticated actor, operation kind and complete reference arguments. Exact
+replay returns the original typed success or lifecycle failure without applying
+the operation again. Scope errors, ID conflicts and receipt-capacity rejection
+leave both lifecycle and receipts unchanged. These rejected admissions consume
+no ID; recorded lifecycle failures require a fresh ID for re-evaluation.
+
+Each active reference reserves one future release receipt. Admission enforces
+`retained receipts + active references <= receipt limit` after staging the
+operation, so receipt pressure cannot consume the capacity needed for final
+release. Exact retries still work at capacity. No receipt eviction or timeout
+exists. The workflow must authenticate before receipt access as well as mutation;
+an original success response does not imply the object is still live today.
+This is transient local bookkeeping: it does not survive restart, reconcile a
+paid effect or permit clearing history through reconstruction. Durable atomic
+storage, request allocation and global limits remain open.
+
+| Local decision | Reason and consequence |
+| --- | --- |
+| Distinct reference identities; count object bytes once while any reference remains | Releasing one consumer use must not delete another; reference counts are charged separately from bytes |
+| Retain released reference identities within an explicit lifetime slot bound | Duplicate release is harmless; a released ID cannot be reused. Released slots are not silently recycled, so sustained churn eventually rejects new references until a separately proven retirement path exists |
+| Final release queues deletion; new retains then reject | A new reference must not race an already exposed deletion request; cancellation would require a provider guarantee not currently established |
+| Physical deletion and billing settlement are separate transitions | Tenant quota release cannot erase global storage or economic liabilities |
+| Reject deletion confirmation while references remain | A valid gateway caller still must not delete a live object |
+| Settlement is explicit even for zero bytes | Request fees, minimum charges and uncertain effects are not represented by byte counts; zero counters never prove retirement safe |
+
+The maintained transition order is below. Every confirmation presupposes exact
+authority and operation/incarnation correlation; these methods do not verify that
+evidence. If financial evidence arrives before deletion evidence, the future
+workflow must retain it without prematurely settling this lifecycle.
+
+| Transition | Tenant logical bytes | Global physical bytes | Unsettled liability |
+| --- | --- | --- | --- |
+| Confirmed upload with first reference -> Live | Retained | Retained | Retained |
+| Release a non-final reference -> Live | Retained | Retained | Retained |
+| Final reference release -> DeletionPending | Released | Retained | Retained |
+| Exact physical deletion evidence -> ProviderDeleted | Released | Released | Retained |
+| Exact final billing evidence -> Settled | Released | Released | Cleared for this object only |
+
+Settled does not erase reference receipts or authorize reset. Account balances,
+fees and obligations outside this object still require retirement evidence.
+The byte projections in the model are inputs to future aggregate accounting,
+not a complete monetary ledger or proof that Caffeine supplies these facts.
+
+The [provider recovery review](provider-review.md#recovery-findings--2026-09-26)
+identifies a concrete adapter constraint: Caffeine's reviewed deletion callback
+carries roots, not local incarnations. Resolving a root to the current object
+and supplying that object's binding would defeat stale-confirmation protection.
+The provider association must establish which deletion the callback confirms,
+including when a repeated root's newer incarnation is already deletion-pending.
+The local `RootClaims` model now enforces one lifetime object binding per root
+across the entire service, including all tenants and namespaces. Claims survive
+local deletion/settlement and cannot be removed or reassigned; a full lifetime
+bound rejects new claims but preserves old lookup and exact claim replay. This
+deliberately rejects re-uploading the same root as a new object, including another
+tenant's identical content. It introduces no automatic content sharing.
+
+Production adoption still requires an exclusive provider namespace with no
+unaccounted previous root usage, claims durably reserved with upload intent
+before certificate/effect exposure, and fenced recovery of the complete claim
+history. Constructing a new empty map is never a safe restore. A root lookup
+supplies the original binding, not gateway authorization or deletion proof;
+authenticated callbacks must still pass the namespace and lifecycle checks.
+Numeric lifetime budgets and retirement remain B1 decisions. Root non-reuse
+does not establish billing cessation or fix loss of history after an old backup.
+
+### Candidate persisted boundaries
+
+These are proposed schema responsibilities for v1, not installed records or a
+frozen wire format. Keep them independent of Canic's memory IDs and store layout.
+
+- Object identity: an allocated object incarnation bound to service, tenant and
+  provider namespace, with provider root, content digest and declared length as
+  data. A root or digest is never the ownership key. Initial design has no
+  automatic deduplication; explicitly retaining the same tenant-owned object is
+  distinct from merging independently uploaded objects. Provider-side identity
+  collisions/sharing must be resolved before creating separate object records.
+- References: bind each reference ID to its object and authorized actor or
+  consumer use. Persist the request identity/payload binding and release result;
+  same request with different arguments rejects. The local model binds references
+  to their owning object and the pure policy covers direct tenant callers; neither
+  implements per-reference delegated authority. Exact local receipts now bind
+  reference-operation payloads; persistent receipts and provider-effect identities
+  still require their own implementation.
+- Upload/effect intents: persist namespace, incarnation, exact operation ID,
+  input fingerprint, reservation and unresolved outcome before any effect.
+  Registration and upload certificates never alone establish completed storage.
+- Accounting: tenant logical bytes/references, global physical bytes/objects,
+  sessions, receipts and monetary liabilities have separate bounds. One ops
+  transaction applies model changes, receipts and counter deltas together;
+  orchestration must not await between admission and durable reservation.
+- Recovery state: restore synchronously into a fence before scheduling work.
+  In-place same-release restart preserves unresolved intents. Older-backup restore
+  additionally needs surviving identity/accounting authority and concurrent-instance
+  exclusion; a restored local counter cannot release the fence. No automatic
+  timeout or reinstall may erase uncertain effects or continuing costs.
+
+Installation must explicitly supply positive limits for object/chunk size,
+tenant/global bytes and object/reference counts, outstanding sessions/effects,
+receipt storage and liability capacity. The lifetime reference bound counts
+released IDs too. Reject inconsistent profiles before admission, with no inferred
+production defaults from Canic. Numeric deployment budgets and supported evidence/
+restore horizons remain open until a concrete consumer and provider guarantees
+are selected; the model's native fixtures are not production limits.
+
+Toko's inspected asset helper delegates root liveness and deletion to Canic; it
+provides a consumer behavior example, not authority for this design. Its exact
+source is already recorded in [deployment evidence](evidence/caffeine-deployment-observation.json).
+The next persistence step needs the unresolved provider identity/evidence and
+restore decisions below; native transition tests cannot establish those guarantees.
 
 ## Decisions and evidence required
 
