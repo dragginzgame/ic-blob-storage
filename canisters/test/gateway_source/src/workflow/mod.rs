@@ -11,11 +11,18 @@ pub(crate) fn initialize(service: Principal, gateway: Principal, driver: Princip
 }
 
 pub(crate) fn configure(caller: Principal, mode: SourceMode) -> bool {
-    if !ops::read(|state| state.driver == caller && !state.fenced) {
+    if !ops::read(|state| state.driver == caller && !state.fenced && state.sync.held.is_none()) {
         return false;
     }
     ops::configure(mode);
     true
+}
+
+pub(crate) fn resume_sync(caller: Principal) -> bool {
+    if !ops::read(|state| state.driver == caller && !state.fenced) {
+        return false;
+    }
+    ops::sync_hold::resume()
 }
 
 pub(crate) fn observation(caller: Principal) -> Option<SourceObservation> {
@@ -51,6 +58,15 @@ pub(crate) async fn reply(caller: Principal) {
     }
     let (service, gateway, mode) = ops::receive();
     match mode {
+        SourceMode::Hold => {
+            let token = ops::sync_hold::begin(gateway);
+            let ready = ops::sync_hold::wait(token).await;
+            ops::sync_hold::finish(token);
+            if !ready {
+                ops::reject();
+                return;
+            }
+        }
         SourceMode::Reject => {
             ops::reject();
             return;
@@ -94,4 +110,42 @@ pub(crate) fn recovery(
     caller: Principal,
 ) -> Option<blob_test_protocol::source::SourceRecoveryView> {
     ops::read(|state| state.driver == caller).then(ops::recovery)
+}
+
+pub(crate) fn configure_balance(
+    caller: Principal,
+    config: blob_test_protocol::balance::BalanceSourceConfig,
+) -> bool {
+    if !ops::read(|s| s.driver == caller && !s.fenced) {
+        return false;
+    }
+    ops::balance::configure(config)
+}
+pub(crate) fn resume_balance(caller: Principal) -> bool {
+    if !ops::read(|s| s.driver == caller && !s.fenced) {
+        return false;
+    }
+    ops::balance::resume()
+}
+pub(crate) fn balance_observation(
+    caller: Principal,
+) -> Option<blob_test_protocol::balance::BalanceSourceView> {
+    ops::read(|s| s.driver == caller).then(ops::balance::view)
+}
+pub(crate) async fn balance_reply(caller: Principal, account: Principal) {
+    if !ops::read(|s| s.service == caller && !s.fenced) {
+        ops::reject();
+        return;
+    }
+    let Some(reply) = ops::balance::begin(account) else {
+        ops::reject();
+        return;
+    };
+    let ready = ops::balance::wait().await;
+    ops::balance::finish();
+    if !ready || reply.reject {
+        ops::reject();
+    } else {
+        ops::reply(reply.bytes);
+    }
 }

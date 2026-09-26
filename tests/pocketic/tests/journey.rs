@@ -26,6 +26,7 @@ struct Fixture {
     first: Principal,
     second: Principal,
     operator: Principal,
+    authority_operator: Principal,
 }
 
 impl Fixture {
@@ -47,16 +48,12 @@ impl Fixture {
             }),
         );
         let gateway = pic.create_canister();
+        let authority_operator = if source_operator { gateway } else { operator };
         pic.install_canister(
             service,
             std::fs::read(fixture_path("BLOB_AUTHORITY_PROBE_WASM")).expect("service Wasm"),
-            candid::encode_args((
-                first,
-                second,
-                gateway,
-                if source_operator { gateway } else { operator },
-            ))
-            .expect("service init"),
+            candid::encode_args((first, second, gateway, authority_operator))
+                .expect("service init"),
             Some(operator),
         );
         pic.install_canister(
@@ -72,6 +69,7 @@ impl Fixture {
             first,
             second,
             operator,
+            authority_operator,
         }
     }
 

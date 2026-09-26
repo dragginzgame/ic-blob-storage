@@ -2,6 +2,48 @@
 
 ## [Unreleased]
 
+## [0.1.16]
+
+### Added
+
+- Exact-release Caffeine verification checkpoints bind manifests, content digests,
+  lengths and streaming hash state. Reconstruction validates counters, leaf
+  boundaries, canonical buffering and an accidental-damage checksum. Protected
+  checkpoints remain private; they grant no freshness or provider authority.
+- Shared operator diagnosis preserves recovery/provider blockers, unknown or
+  uncertain funding and outstanding work. Complete funding-history assessment
+  keeps transport acceptance separate from provider credit; later refunds cannot
+  clear older obligations.
+- Shared balance-threshold assessment reports exact shortfalls without inventing
+  spendable funds. Operator diagnosis explicitly blocks unknown spendability.
+  The existing complete reserve API retains its signatures and behavior.
+- Unpublished `blob-fixture-status` client queries explicitly selected local
+  PocketIC instances. JSON preserves unknown values, exact decimal amounts,
+  separate catalog charges and recovery fences. Blocker checks and typed read
+  failures have distinct exit codes; queries cannot fall back to updates.
+- Scoped local balance observations persist exact service/namespace/source/account
+  intents and bounded response history. The shared Caffeine decoder distinguishes
+  zero, malformed amounts, mismatched accounts and provider failures. Revision
+  changes, dispatch-based expiry and restoration prevent stale use. Validated
+  diagnostic billing limits remain bound to their original configuration revision.
+
+### Changed
+
+- Authority, controlled-source and funding fixtures restore into permanent
+  inspection-only fences. Validation retains catalog identities, receipts,
+  reservations, private verification state, byte charges and pending operations.
+  Old journals and late callbacks cannot resume uploads or payments. Restored
+  funding receivers reject cycles before acceptance.
+- PocketIC coverage now includes held gateway/balance replies, older in-flight
+  journals, callback/upgrade rollback, repeated restores, lifetime capacity and
+  separate physical/billing release. Actual CLI subprocesses prove passive reads,
+  caller/target checks, update-only method rejection and configured diagnosis with
+  unknown spendability. Fixture schemas are hard cuts with reinstall across releases.
+
+Production provider integration, both service adapters, operational recovery and
+whole-canister snapshot safety remain unqualified. These local fixtures and
+read-only diagnostics do not establish Canic removal readiness.
+
 ## [0.1.15] - 2026-09-26
 
 ### Added

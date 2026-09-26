@@ -1,6 +1,9 @@
 //! Fixture state and individual platform effects; no production provider contract.
+pub(crate) mod balance;
 pub(crate) mod readback;
+mod scheduling;
 mod storage;
+pub(crate) mod sync_hold;
 
 use crate::model::{ActionRecord, SourceJournalRecord};
 use blob_test_protocol::{
@@ -66,6 +69,13 @@ pub(crate) fn recovery() -> SourceRecoveryView {
         gateway: state.gateway,
         driver: state.driver,
         mode: state.mode,
+        held_sync: state.sync.held.as_ref().map(|held| {
+            blob_test_protocol::source::SourceHeldSyncView {
+                sequence: held.sequence,
+                gateway: held.gateway,
+                ready: held.ready,
+            }
+        }),
         read: state.read.config.as_ref().map(readback::config_view),
         read_pending: state.read.pending,
         read_ready: state.read.ready,
@@ -93,6 +103,7 @@ pub(crate) fn configure(mode: SourceMode) {
 
 pub(crate) fn receive() -> (Principal, Principal, SourceMode) {
     mutate(|state| {
+        assert!(state.sync.held.is_none(), "one held list reply");
         state.requests = state
             .requests
             .checked_add(1)

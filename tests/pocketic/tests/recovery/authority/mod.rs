@@ -1,4 +1,9 @@
 //! Atomic stable inspection records, without pretending to resume authority.
+mod capacity;
+mod checkpoint;
+mod restore;
+mod status;
+mod sync;
 use super::*;
 use blob_test_protocol::{
     SourceMode, SyncFailure,
@@ -8,11 +13,16 @@ use blob_test_protocol::{
 use ic_testkit::pocket_ic::common::rest::BlobCompression;
 
 impl Fixture {
-    fn archive(&self) -> AuthorityArchiveView {
+    pub(super) fn archive(&self) -> AuthorityArchiveView {
         let result: Option<AuthorityArchiveView> = self
             .harness
             .pic
-            .query_candid_as(self.service, self.operator, "authority_archive", ())
+            .query_candid_as(
+                self.service,
+                self.authority_operator,
+                "authority_archive",
+                (),
+            )
             .expect("stable archive query");
         result.expect("explicit operator")
     }
@@ -22,7 +32,7 @@ impl Fixture {
             .pic
             .update_candid_as(
                 self.service,
-                self.operator,
+                self.authority_operator,
                 "confirm_obligation",
                 (1_u8, fact),
             )
@@ -45,7 +55,7 @@ impl Fixture {
             .pic
             .update_candid_as(
                 self.service,
-                self.operator,
+                self.authority_operator,
                 "probe_content",
                 (blob_test_protocol::content::ContentProbeCase::UnicodeMetadata,),
             )
@@ -135,8 +145,6 @@ fn archive_preserves_all_catalogs_partial_progress_and_byte_free_history() {
         ArchivePhase::Cancelled
     );
     assert_archive_usage(&f, &archive);
-    f.reject_upgrade(f.service);
-    f.upgrade_skipping_outgoing_hook(f.service, false);
     f.restart(f.service);
     assert_eq!(f.archive(), archive);
     f.sample_fact(ObligationProbeFact::BillingStopped);
@@ -161,6 +169,11 @@ fn archive_preserves_all_catalogs_partial_progress_and_byte_free_history() {
             (ArchivePhase::Settled, 0, 0, 0, Some(true))
         );
     }
+    let mut retained = f.archive();
+    f.upgrade_authority();
+    retained.fenced = true;
+    assert_eq!(f.archive(), retained);
+    f.assert_authority_fenced(partial.upload);
 }
 
 #[test]
@@ -352,6 +365,10 @@ fn terminal_digest_failure_and_full_lifetime_root_history_are_archived() {
     let full = f.archive();
     let next = upload(5, b"full");
     assert_eq!(f.reserve(f.first, next), Err(JourneyFailure::Limit));
+    assert_eq!(f.archive(), full);
+    let mut full = full;
+    f.upgrade_authority();
+    full.fenced = true;
     assert_eq!(f.archive(), full);
 }
 

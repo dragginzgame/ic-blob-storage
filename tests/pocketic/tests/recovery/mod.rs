@@ -1,4 +1,4 @@
-//! Authority containment and source-only fenced journal restoration on the IC.
+//! Authority and source journal recovery with permanent restore fences on the IC.
 mod authority;
 mod source;
 use super::*;
@@ -40,7 +40,7 @@ impl Fixture {
                 candid::encode_args(()).expect("no args"),
                 self.controller(canister),
             )
-            .expect_err("unimplemented restore must reject before discarding state");
+            .expect_err("busy or invalid restoration must reject atomically");
         assert_eq!(rejected.reject_code, RejectCode::CanisterError);
     }
 
@@ -73,7 +73,7 @@ impl Fixture {
             candid::encode_args(()).expect("no args"),
         );
         if succeeds {
-            result.expect("source restores synchronously with outgoing hook skipped");
+            result.expect("journal restores synchronously with outgoing hook skipped");
         } else {
             assert_eq!(
                 result.expect_err("unsupported restore").reject_code,
@@ -154,7 +154,7 @@ fn stop_start_retains_verified_prefix_exposure_and_unchanged_accounting() {
 }
 
 #[test]
-fn rejected_upgrades_keep_uncertain_roots_cancelled_history_and_continuing_billing() {
+fn upgrade_retains_uncertain_roots_cancelled_history_and_continuing_billing() {
     let f = Fixture::new();
     let deleted = chunks::vector("abc-binary", 1);
     f.confirm_bytes(&deleted);
@@ -175,7 +175,7 @@ fn rejected_upgrades_keep_uncertain_roots_cancelled_history_and_continuing_billi
     assert_eq!(f.reserve(f.first, cancelled), Ok(()));
     assert_eq!(f.control(f.first, "journey_cancel", cancelled), Ok(()));
     assert_eq!(f.usage(f.first), Ok(usage(3, 3, 6)));
-    f.reject_upgrade(f.service);
+    f.restart(f.service);
     assert_eq!(f.usage(f.first), Ok(usage(3, 3, 6)));
     assert_eq!(
         f.reserve_manifest(f.first, exposed.upload, exposed.manifest.clone()),
@@ -213,26 +213,24 @@ fn rejected_upgrades_keep_uncertain_roots_cancelled_history_and_continuing_billi
             .bytes,
         exposed.bytes
     );
+    let mut retained = f.archive();
+    f.upgrade_authority();
+    retained.fenced = true;
+    assert_eq!(f.archive(), retained);
+    f.assert_authority_fenced(exposed.upload);
 }
 
 #[test]
-fn skipping_pre_upgrade_still_rejects_and_rolls_back_to_the_usable_instance() {
+fn skipping_pre_upgrade_restores_only_fenced_inspection() {
     let f = Fixture::new();
     let v = chunks::vector("abc-text", 1);
     f.confirm_bytes(&v);
     f.source_config(v.upload, 0, &v.bytes, ReadSourceMode::Valid, false);
-    f.upgrade_skipping_outgoing_hook(f.service, false);
-    assert_eq!(f.usage(f.first), Ok(usage(3, 3, 3)));
-    assert_eq!(
-        f.certificate(f.first, v.upload.root),
-        Err(RejectCode::CanisterError)
-    );
-    assert_eq!(
-        f.read_chunk(f.first, v.upload, 0)
-            .expect("retained object and source bytes")
-            .bytes,
-        v.bytes
-    );
+    let mut retained = f.archive();
+    f.upgrade_skipping_outgoing_hook(f.service, true);
+    retained.fenced = true;
+    assert_eq!(f.archive(), retained);
+    f.assert_authority_fenced(v.upload);
 }
 
 #[test]

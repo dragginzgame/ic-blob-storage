@@ -8,7 +8,10 @@ use blob_test_protocol::{
 use ic_testkit::pocket_ic::common::rest::BlobCompression;
 
 impl Fixture {
-    fn source_recovery(&self, caller: Principal) -> Option<SourceRecoveryView> {
+    pub(in crate::recovery) fn source_recovery(
+        &self,
+        caller: Principal,
+    ) -> Option<SourceRecoveryView> {
         self.harness
             .pic
             .query_candid_as(self.gateway, caller, "recovery_observation", ())

@@ -61,6 +61,11 @@ fn resume_read() -> bool {
     workflow::readback::resume(ic_cdk::api::msg_caller())
 }
 
+#[ic_cdk::update]
+fn resume_sync() -> bool {
+    workflow::resume_sync(ic_cdk::api::msg_caller())
+}
+
 #[ic_cdk::update(manual_reply = true)]
 async fn fixture_chunk(root: Vec<u8>, index: u64) -> PhantomData<Vec<u8>> {
     workflow::readback::reply(ic_cdk::api::msg_caller(), &root, index).await;
@@ -76,4 +81,22 @@ async fn fixture_gateways() -> PhantomData<Vec<Principal>> {
 #[ic_cdk::query]
 fn recovery_observation() -> Option<blob_test_protocol::source::SourceRecoveryView> {
     workflow::recovery(ic_cdk::api::msg_caller())
+}
+
+#[ic_cdk::update]
+fn configure_balance(config: blob_test_protocol::balance::BalanceSourceConfig) -> bool {
+    workflow::configure_balance(ic_cdk::api::msg_caller(), config)
+}
+#[ic_cdk::update]
+fn resume_balance() -> bool {
+    workflow::resume_balance(ic_cdk::api::msg_caller())
+}
+#[ic_cdk::query]
+fn balance_observation() -> Option<blob_test_protocol::balance::BalanceSourceView> {
+    workflow::balance_observation(ic_cdk::api::msg_caller())
+}
+#[ic_cdk::update(manual_reply = true)]
+async fn fixture_balance(account: Principal) -> PhantomData<()> {
+    workflow::balance_reply(ic_cdk::api::msg_caller(), account).await;
+    PhantomData
 }

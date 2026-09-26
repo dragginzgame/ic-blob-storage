@@ -1,5 +1,6 @@
 //! Bounded fixture journals and single platform effects for a local-only experiment.
 
+pub(crate) mod status;
 mod storage;
 
 use std::{
@@ -10,7 +11,7 @@ use std::{
 use crate::model::FundingJournalRecord;
 use blob_test_protocol::funding::{
     FundingAttemptRecord, FundingFailure, FundingObservation, FundingOutcome, FundingReceiptRecord,
-    FundingReplyMode, FundingRequest,
+    FundingReconciliationView, FundingReplyMode, FundingRequest,
 };
 use candid::Principal;
 use ic_blob_storage::model::billing::transfer::FundingTransfer;
@@ -39,16 +40,41 @@ fn mutate<T>(f: impl FnOnce(&mut FundingJournalRecord) -> T) -> T {
 pub(crate) fn initialize(peer: Principal, driver: Principal) {
     storage::open();
     STATE.with_borrow_mut(|state| {
-        let initial = FundingJournalRecord::new(peer, driver);
+        let initial = FundingJournalRecord::new(ic_cdk::api::canister_self(), peer, driver);
         storage::save(&initial);
         *state = Some(initial);
     });
 }
 
-pub(crate) fn restore() {
+pub(crate) fn load() -> FundingJournalRecord {
     storage::open();
     let recovered = storage::load();
-    recovered.validate();
+    recovered
+        .validate(ic_cdk::api::canister_self())
+        .expect("bound consistent journal");
+    recovered
+}
+
+pub(crate) fn restored_reconciliations(
+    record: &FundingJournalRecord,
+) -> Vec<(FundingTransfer, FundingReconciliationView)> {
+    record
+        .all_attempts()
+        .iter()
+        .filter_map(|entry| {
+            entry.observation.map(|observation| {
+                (
+                    crate::model::checked_transfer(entry).expect("validated restored transfer"),
+                    observation.reconciliation,
+                )
+            })
+        })
+        .collect()
+}
+
+pub(crate) fn restore_fenced(mut recovered: FundingJournalRecord) {
+    recovered.fence();
+    storage::save(&recovered);
     STATE.with_borrow_mut(|state| *state = Some(recovered));
 }
 
@@ -56,11 +82,18 @@ pub(crate) fn admit(
     caller: Principal,
     request: FundingRequest,
 ) -> Result<Principal, FundingFailure> {
-    mutate(|state| state.admit(caller, request))
+    STATE.with_borrow_mut(|state| {
+        let state = state.as_mut().expect("initialized fixture");
+        let result = state.admit(caller, request);
+        if result.is_ok() {
+            storage::save(state);
+        }
+        result
+    })
 }
 
-pub(crate) fn complete(id: u64, observation: FundingObservation) {
-    mutate(|state| state.complete(id, observation));
+pub(crate) fn complete(request: FundingRequest, observation: FundingObservation) {
+    mutate(|state| state.complete(request, observation));
 }
 
 pub(crate) fn attempts(caller: Principal) -> Option<Vec<FundingAttemptRecord>> {
@@ -124,8 +157,8 @@ fn classify(bytes: &[u8]) -> FundingOutcome {
 }
 
 pub(crate) fn accept(caller: Principal, request: FundingRequest) {
-    read(|state| state.check_receive(caller));
     let available = ic_cdk::api::msg_cycles_available();
+    read(|state| state.check_receive(caller, request, available));
     let accepted = ic_cdk::api::msg_cycles_accept(request.accept);
     mutate(|state| {
         state.record_acceptance(FundingReceiptRecord {
@@ -136,10 +169,29 @@ pub(crate) fn accept(caller: Principal, request: FundingRequest) {
     });
 }
 
+pub(crate) async fn delay_reply(mode: FundingReplyMode) {
+    if mode == FundingReplyMode::DelayedSuccess {
+        // Local scheduling only: commit the receiver's acceptance and let the
+        // test capture real outstanding journals before returning the reply.
+        for _ in 0..8 {
+            read(|state| {
+                assert!(
+                    !state.fenced(),
+                    "restored receiver cannot resume scheduling"
+                );
+            });
+            Call::unbounded_wait(Principal::management_canister(), "raw_rand")
+                .await
+                .expect("bounded fixture scheduling round");
+        }
+    }
+}
+
 pub(crate) fn reply(mode: FundingReplyMode) {
+    read(|state| assert!(!state.fenced(), "restored receiver cannot resume a reply"));
     // Reuse source-backed wire bytes, rather than defining another Cashier schema.
     let hex = match mode {
-        FundingReplyMode::Success => include_str!(
+        FundingReplyMode::Success | FundingReplyMode::DelayedSuccess => include_str!(
             "../../../../../crates/ic-blob-storage/tests/fixtures/caffeine-top-up/success.hex"
         ),
         FundingReplyMode::ProviderError => include_str!(

@@ -10,6 +10,7 @@ pub mod funding;
 pub mod journey;
 pub mod obligations;
 pub mod source;
+pub mod status;
 pub mod uploads;
 
 /// Deliberate source behavior for one local gateway-list experiment.
@@ -17,6 +18,8 @@ pub mod uploads;
 pub enum SourceMode {
     /// Return the configured member.
     Valid,
+    /// Hold one captured gateway-list reply until the driver releases it.
+    Hold,
     /// Return bytes that cannot decode as a principal list.
     Malformed,
     /// Exceed the probe's explicit reply byte budget.
@@ -60,3 +63,7 @@ pub struct SourceObservation {
     /// Result of the most recent deliberate reentrant sync, if any.
     pub nested_sync: Option<Result<(), SyncFailure>>,
 }
+
+pub mod balance;
+
+pub mod billing;

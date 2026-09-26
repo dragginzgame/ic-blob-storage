@@ -1,99 +1,67 @@
 # Service acceptance plan — proposed B1 assignments
 
-These cases specify observable acceptance for the bounded journey. None is
-fully qualified. The authorized core slice provides native identity and billing
-arithmetic evidence toward A02/A04/A08/A11, including incremental raw-byte
-length/digest verification and rejection recovery toward A02, recorded in
-[core evidence](evidence/core-primitives.md); it does not execute the service
-journeys below. Named owners, bounds and provider
-evidence are still required by the [service contract](service-contract.md).
-Local lifecycle binding and direct-tenant policy tests now provide partial A01
-evidence over supplied values; they do not authenticate endpoint callers or prove
-durable isolation, delegated access or provider confirmation authority.
-The test-only [PocketIC probe](evidence/core-primitives.md#pocketic-authority-probe-after-018)
-adds actual caller/controller A01 and release/revocation A06 evidence over sample
-transient objects. Forged tenant/service fields grant no access; owner release and
-replay preserve the other tenant's usage; revoked gateways lose pending-list access.
-This does not qualify either production adapter, persistence or provider behavior.
-The same fixture now adds actual inter-canister A01/A06 sync interleavings:
-an old reply cannot undo revocation or overwrite a completed newer sync; an
-overlapping attempt sends no second source request. Malformed/oversized/empty
-replies and transport rejection preserve membership and perform no automatic retry.
-The controlled source is a substitute, not Cashier behavior or provider qualification.
-Local streaming Caffeine-tree verification adds partial A02 evidence from
-independent current-client vectors: chunk boundaries, uneven trees, metadata
-ordering and rejection/continuation after invalid input. It computes both raw
-digest and provider root without buffering the object. Empty provider objects,
-trusted expected identities, serving policy, persisted checkpoints and actual
-upload/read completion remain unqualified.
-Root-bound chunk manifests additionally provide native A02/A03 evidence for
-out-of-order leaf verification, retry after corruption and rejection of changed
-chunk order, metadata, position or length. This is stateless byte verification;
-it does not execute an interrupted download or persist resume progress.
-An in-memory chunk verifier adds unique-position A02/A03 evidence: duplicates
-cannot fill a missing position, corrupt retries preserve coverage, and exact
-partial-chunk lengths determine byte progress. It retains observations only;
-destination writes, interrupted downloads and durable resume remain unqualified.
-Ordered composition additionally checks each leaf before advancing a whole-file
-raw verifier. Corrupt chunks can be retried at the same position, while skipped
-or replayed chunks reject. Full input still requires the separately expected raw
-digest at finalization; matching manifest leaves alone cannot bypass that check.
-Bounded missing-chunk pages add A03/A04 local scheduling evidence: independent
-scan/result limits, exact partial ranges, continuation through empty filtered pages
-and current coverage after intervening checks. Pages neither reserve in-flight
-reads nor prove completion, and do not establish a provider range-read protocol.
-The local PocketIC probe now executes A02/A03 byte checks in actual Wasm using
-full-leaf, partial-final-leaf and metadata vectors, corruption retries and typed
-wrong-digest/truncated failures. The ordered append has a fixture instruction
-budget; this does not qualify ingress handling, production throughput or providers.
-Native consumer-reference reads add A01/A06 coverage for tenant checks before
-status disclosure, bounded ordered batches and inactive released references
-while sibling references stay live. They preserve physical/billing obligations
-and do not qualify gateway liveness or provider deletion.
-Native multi-object catalog composition adds partial A04/A06/A08 evidence for
-atomic local admission, tenant quota, separate global physical/billing-byte caps,
-zero-byte obligations and retained receipt/root history. Bounded deletion-page
-and root-observation tests add A01/A06 coverage for namespace filtering, caller
-revocation between pages and explicit unknown results. They do not execute paid
-uploads, monetary accounting, persisted transactions or restore recovery.
-Local reference receipts additionally provide partial A03/A04/A06 evidence for
-exact retries and reserved release capacity. No interruption/restore or paid
-provider retry case has been executed by those native tests.
-Tenant catalog reads add native A01/A03/A06 coverage across multiple objects:
-ownership checks precede supplied bindings; unknown/foreign roots reject alike;
-mixed batches disclose no partial statuses. Exact receipt queries preserve old
-successes/failures while current liveness changes, including settlement/capacity,
-without recording or reapplying requests. Absent local receipts do not qualify
-provider retry or restore recovery.
-The scoped gateway registry adds native A01/A06 coverage for membership revocation
-racing a previously started sync: stale replies cannot restore revoked membership,
-and current callback policy continues to reject that caller. Wrong service,
-namespace and Cashier context reject before decoding. Bounded Candid reply
-composition preserves membership and the pending attempt on malformed, over-budget
-or invalid lists. These tests compose local values only; provider transport and
-durable revocation remain unqualified.
-Account-balance reply/policy composition adds partial A08/A11 coverage: provider
-errors and invalid/wrong-account replies cannot become a zero-balance funding
-suggestion, later valid observations recover diagnosis, and recovery fences
-remain blockers. This is native codec/policy evidence, not a real status workflow.
-Run the same service cases through standalone and managed deployments; only
-managed lifecycle integration belongs to Canic. Both adapters live here.
+No acceptance case below is fully qualified. The shared library has native
+identity, manifest/checkpoint, quota/reference, gateway, reply-codec and funding
+policy evidence. The [core evidence](evidence/core-primitives.md) and
+[capability inventory](canic-capabilities.json) record scoped coverage; source test
+references and nonempty evidence lists are not completion claims.
 
-Provider compatibility cases must target the latest official integration pinned
-in [the baseline record](provider-baseline.json), refreshed before implementation
-and qualification. Test vectors and interface expectations must trace to that
-upstream source/release and the verified deployment, not Canic's historical
-snapshots. Package currency does not establish paid-effect or restore safety.
+The connected PocketIC fixtures provide partial evidence for:
 
-The transient upload owner adds partial native A01/A03/A04/A06 evidence: full
-tenant/request binding, shared pending/confirmed quotas, bounded concurrent and
-lifetime operations, cancellation before exposure, retained uncertain capacity,
-and exact completion transfer/replay. These tests substitute trusted provider
-facts. Bounded tenant pages/usage and gateway root observations include pending
-uploads; native cases cover scope, budgets and intervening transitions. PocketIC
-checks actual caller/controller isolation, cancellation replay and revocation.
-These do not execute certificates, provider pending-upload liveness,
-interruption/restore or provider reconciliation; those cases remain open.
+- A01/A02/A06: actual caller/controller separation, byte verification, admission,
+  release/deletion callbacks and revoked/stale gateway rejection. Completion,
+  stored bytes and final billing facts remain controlled substitutes.
+- A03/A04/A05: committed intents, exact replay, callback rollback, retained
+  capacity and lifetime history, private verification checkpoints and same-release
+  inspection-only recovery. Captured in-flight read/sync journals remain fenced
+  even when restored after their newer live calls completed. Missing/corrupt
+  journals reject atomically. Large histories can exceed active byte limits while
+  still retaining cancelled/settled identities and receipts.
+- A08: actual local cycle transfer/refund and insufficient-cycles behavior,
+  callback uncertainty and journal restoration. Accepted transport cycles do not
+  prove Cashier account credit; physical deletion does not prove billing stopped.
+  Funding status diagnoses all retained attempts without effects; later no-transfer
+  results cannot hide older unverified credit. Missing recovery authority remains
+  explicit; successful restoration permanently fences both cycle sending and
+  acceptance. Old journals, actual in-flight intents and late replies stay fenced;
+  missing/corrupt/foreign journals and failed hooks preserve the previous owner.
+- A04/A05/A11: a read-only operator status query reports separate retained byte
+  obligations, lifetime history and pending callbacks, including fenced restores.
+  Queries preserve journals and source history. Missing economics stay unknown;
+  native policy tests retain malformed/unavailable balances and uncertain funding.
+- A11: actual `blob-fixture-status` subprocesses query explicitly bound local
+  instances, preserve exact JSON amounts/unknowns and signal blockers separately
+  from read failures. Denied/wrong bindings, missing and update-only methods reject
+  without mutation; successful and fenced reads preserve journals and instance
+  ownership. This is a simulator transport with a simulated caller.
+- A05/A08/A11: scoped balance-read intents and bounded history survive fenced
+  restoration. Actual controlled-source calls cover malformed/rejected/misbound
+  replies, dispatch-based expiry, reconfiguration during a held read and upgrades
+  while callbacks are live. Passive status/CLI reads preserve both journals;
+  provider credit, spendable funds and production billing remain unqualified.
+- A08/A11: validated local billing limits remain bound to the observation revision.
+  Shared threshold diagnosis and the actual CLI preserve unknown spendability,
+  malformed/unavailable/expired observations and restore fences. Limit updates and
+  status reads do not refresh, fund or clear uncertainty. The released complete
+  reserve API retains its behavior; this adds no production funding authority.
+
+See [current recovery evidence](evidence/core-primitives.md#verification-checkpoints-after-0115)
+and [funding evidence](evidence/core-primitives.md#funding-callback-experiment).
+These experiments neither qualify deployed Caffeine behavior nor resume service
+operations after restore. Snapshot loads can bypass lifecycle hooks. Independent
+recovery authority, paid-effect retention/idempotency, production bounds and named
+owners remain requirements of the [service contract](service-contract.md).
+
+Run the final service cases through standalone and managed deployments using the
+same handlers. Both adapters and the operator client belong here; Canic supplies
+generic managed lifecycle/discovery. The current fixture client does not
+qualify production operator transport, configured provider observations or either adapter,
+and does not close A07/A11/A12.
+
+Provider compatibility cases must use the current selected integration in the
+[baseline record](provider-baseline.json), refreshed before provider implementation
+and qualification. The current local recovery batch did not refresh upstream or
+contact a paid provider. Package currency alone establishes no recovery guarantee.
 
 | ID | Trigger and observable result | Evidence owner and method |
 | --- | --- | --- |

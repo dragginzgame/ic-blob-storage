@@ -1,5 +1,5 @@
 //! Test-only IC authority probe. Sample objects are supplied facts, not uploads.
-//! Stable inspection archives, but no resumable state or deployed provider transport.
+//! Same-release archive recovery always fences service and provider authority.
 
 #![expect(
     clippy::needless_pass_by_value,
@@ -21,6 +21,11 @@ use candid::Principal;
 use ic_blob_storage::policy::tenant::TenantAccessContext;
 
 fn context() -> TenantAccessContext {
+    ops::archive::recovery::require_active();
+    inspection_context()
+}
+
+fn inspection_context() -> TenantAccessContext {
     TenantAccessContext {
         service: ic_cdk::api::canister_self(),
         actor: ic_cdk::api::msg_caller(),
@@ -40,15 +45,12 @@ fn init(first: Principal, second: Principal, gateway: Principal, operator: Princ
 
 #[ic_cdk::pre_upgrade]
 fn pre_upgrade() {
-    // This transient fixture has no lossless restore path. Preserve its current
-    // heap/journals rather than allowing an upgrade to discard obligations.
-    ic_cdk::trap("authority fixture upgrades require a qualified restore path");
+    ops::archive::recovery::prepare();
 }
 
 #[ic_cdk::post_upgrade]
 fn post_upgrade() {
-    // Also reject an incoming upgrade that skipped the outgoing hook.
-    ic_cdk::trap("authority fixture cannot restore an upload/read journal");
+    ops::archive::recovery::restore(ic_cdk::api::canister_self());
 }
 
 #[ic_cdk::query]
@@ -191,5 +193,36 @@ fn confirm_deletion(roots: Vec<Vec<u8>>) {
 
 #[ic_cdk::query]
 fn authority_archive() -> Option<blob_test_protocol::authority::AuthorityArchiveView> {
-    workflow::archive(context())
+    workflow::archive(inspection_context())
+}
+
+#[ic_cdk::query]
+fn operator_status() -> Option<blob_test_protocol::status::OperatorStatusView> {
+    workflow::operator_status(inspection_context())
+}
+
+#[ic_cdk::query]
+fn probe_checkpoint(
+    input: blob_test_protocol::authority::CheckpointProbeInput,
+) -> Result<JourneyProgress, blob_test_protocol::authority::CheckpointProbeFailure> {
+    workflow::probe_checkpoint(inspection_context(), &input)
+}
+
+#[ic_cdk::update]
+fn configure_balance(
+    scope: blob_test_protocol::balance::BalanceScope,
+) -> Result<(), blob_test_protocol::balance::BalanceFailure> {
+    workflow::balance::configure(inspection_context(), scope)
+}
+
+#[ic_cdk::update]
+async fn refresh_balance() -> Result<(), blob_test_protocol::balance::BalanceFailure> {
+    workflow::balance::refresh(inspection_context()).await
+}
+
+#[ic_cdk::update]
+fn configure_billing_limits(
+    input: blob_test_protocol::billing::BillingLimitsInput,
+) -> Result<(), blob_test_protocol::balance::BalanceFailure> {
+    workflow::balance::configure_limits(inspection_context(), input)
 }

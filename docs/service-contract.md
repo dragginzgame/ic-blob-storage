@@ -42,26 +42,59 @@ gateway authority before and after the call, and checks bytes against the
 admitted manifest before disclosure. Revocation/successful gateway sync invalidate
 pending reads; re-addition cannot validate an old reply. This does not specify a
 production HTTP transport, range protocol, read-session recovery or provider SLA.
-The transient authority fixture rejects upgrades in both pre_upgrade and
-post_upgrade because no lossless upload journal restoration exists. PocketIC proves
-ordinary stop/start continuity, atomic rollback of rejected upgrades (including
-skip_pre_upgrade), and retention of uncertainty, root history, billing and held
-callbacks. An operator-armed read callback trap rolls back attempted slot cleanup;
+The authority fixture restores synchronously into an inspection-only fence.
+PocketIC proves ordinary stop/start continuity, same-release upgrades, atomic
+rollback of invalid incoming journals, and retention of uncertainty, root history,
+billing and held callbacks. An operator-armed read callback trap rolls back attempted slot cleanup;
 that slot stays blocked through stop/start and elapsed time. No reset/unfence
 endpoint is provided. The local source has a fixture-only ic-memory journal for
 bindings, retained bytes/read state and bounded lifetime call history. Intents
 precede dispatch. Synchronous restoration always fences operational endpoints;
 only the original driver can inspect the retained journal. Unresolved work rejects
 ordinary upgrades, while skipping the outgoing hook still restores behind the
-fence. Missing journals reject restoration. This does not restore upload state,
-qualify snapshot loads/reinstall, or supply authority surviving an old backup.
+fence. Missing journals reject restoration. These hooks do not qualify snapshot
+loads/reinstall or supply independent authority surviving an old backup.
 The authority fixture additionally writes a bounded inspection archive in the
 same IC message as every mutation. It covers sample confirmed objects, sample
 uploads and the connected journey, including immutable identities, release
 receipts, accounting, manifests/progress and exact pending read intent. Only its
-explicit operator may inspect it. The archive lacks resumable streaming-hash
-state and does not reconstruct an operational registry/catalog; upgrades remain
-rejected. Old archive bytes never feed admission or overwrite the active owner.
+explicit operator may inspect it. The archive now retains private exact-release
+streaming-hash checkpoints. A test-only probe can reconstruct and advance a copy;
+its result never updates live progress, catalog state or certificate eligibility.
+Hash-state bytes can contain a short plaintext buffer and are omitted from public
+inspection views. Their checksum detects damage, not forgery or rollback.
+Incoming archives bind the workspace release/dependency selection through the
+Cargo.lock digest, including when all content is terminal. Disposable catalogs
+validate all records through shared transitions and exact comparison before the
+complete frozen archive becomes the inspection owner. Pending read/sync identities
+remain evidence; restoration never mints callable tokens from them. Busy active
+instances reject ordinary upgrades; forced restoration retains uncertainty under
+the fence. All operational endpoints, including gateway liveness/deletion queries,
+reject after restoration. No unfence/reset path is provided. Older archives cannot
+authorize renewed admission; full snapshot loads remain outside this evidence.
+An operator-only status query projects the current active or frozen owner into
+separate catalog phase/receipt counts and logical, physical and billing bytes.
+Shared pure diagnosis composes existing billing blockers with recovery/provider
+qualification and funding-journal uncertainty; outstanding read/sync/upload/delete
+work remains visible separately. Validated diagnostic billing limits may now be
+installed for an exact balance scope/revision. Shared threshold assessment reports
+shortfalls without reserve arithmetic when spendable funds are unknown, preserving
+an explicit spendability blocker. Funding activity remains unobserved. Its
+separately configured local balance-read scope now binds service, namespace, source
+and account to each persisted intent. The shared decoder validates independent
+reply bytes; status retains history and only exposes a current total within the
+fixture's dispatch-based age bound and current configuration revision. Restoration
+always invalidates current use. No query refreshes, credits or funds an account.
+Gross canister cycles never stand in for spendable funds.
+Status is neither an archive-integrity audit nor operational admission authority.
+Queries cannot sync, fund, replay work or clear fences, and older/missing stable
+evidence cannot replace live status before an actual restore.
+An unpublished local operator client now consumes authority/funding status through
+ic-testkit's PocketIC transport. Target server/instance/canister/caller and expected
+namespace/peer are explicit; the caller is simulated, not production authentication.
+Only the fixed query is callable. Structured blocker checks never grant effects,
+and failed reads cannot trigger an update fallback. Real subprocess tests cover
+permission/binding failures, method mode and unchanged journals after restoration.
 Its controlled local source canister additionally exercises gateway sync across
 real awaits, including reentrant revocation and replacement. No provider binding
 or deployed Cashier transport is implemented by these test-only calls.
@@ -79,6 +112,9 @@ It accepts supplied bytes and trusted context; no provider fetch is implemented.
 Local account-balance reply decoding likewise binds successful reports to a
 supplied requested account and rejects unusable amounts. It does not establish
 transport identity, account ownership, observation freshness or payment outcomes.
+The controlled-source workflow now supplies explicit IC target/caller and exact
+attempt correlation, with one pending read and sixteen lifetime attempts. This
+tests local orchestration, not deployed Cashier authority or certified freshness.
 
 Pure funding policy now also assesses admission of a new intent from supplied
 recovery/activity observations. This is part of the local policy exception;
@@ -89,6 +125,23 @@ policy diagnoses no transfer, accepted cycles requiring credit evidence, or an
 unknown transfer with the full attachment unresolved. Its result neither clears
 account-wide activity nor permits a retry. Service/provider/account/operation
 bindings and authoritative credit reconciliation remain workflow obligations.
+Shared activity diagnosis now examines all uncredited attempts, so a later refund
+or unsent call cannot hide older credit requirements. The funding fixture exposes
+that diagnosis in a driver-only query bound to its actual canister and retained
+local peer. Incoming acceptance receipts remain separate from outgoing attempts;
+neither establishes provider credit. Active experiments report recovery as unknown;
+restored instances report an enforced permanent fence. Restoration checks the actual
+service and Cargo.lock release binding, bounded unique operation/receipt identities,
+exact refund arithmetic and retained shared reconciliation before installing the
+inspection owner. The sender rejects all new/reused payment intents; the receiver
+rejects before cycle acceptance. Late callbacks cannot complete restored intents.
+Unknown transfers and uncredited acceptance remain inspectable through repeated
+upgrades. Missing/corrupt/foreign journals and failed hooks reject atomically.
+The changed fixture schema is reinstall-only, with no older reader or reset/unfence.
+Whole-canister snapshots can bypass hooks and remain unqualified. Missing billing
+configuration, balance and spendable reservations remain unknown. Queries preserve
+journals and make no calls. Before restore, experimental admission still allows
+distinct completed transport cases; this is not a production funding workflow.
 Local Cashier audit decoding now covers its verified Candid response envelope,
 with bounded opaque CSV and reported pagination fields. No row schema, request
 transport, automatic pagination, complete-history proof or credit matching is

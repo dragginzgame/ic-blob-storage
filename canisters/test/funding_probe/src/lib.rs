@@ -5,8 +5,8 @@ mod ops;
 mod workflow;
 
 use blob_test_protocol::funding::{
-    FundingAttemptRecord, FundingFailure, FundingObservation, FundingReceiptRecord, FundingRequest,
-    FundingUpgradeArgs,
+    FundingAttemptRecord, FundingFailure, FundingObservation, FundingOperatorStatusView,
+    FundingReceiptRecord, FundingRequest, FundingUpgradeArgs,
 };
 use candid::Principal;
 
@@ -18,7 +18,7 @@ fn init(peer: Principal, driver: Principal) {
 #[ic_cdk::post_upgrade]
 fn post_upgrade(args: FundingUpgradeArgs) {
     // Restore before exposing endpoints; no deferred task can reset unresolved work.
-    ops::restore();
+    workflow::restore();
     if args.trap_after_restore {
         ic_cdk::trap("deliberate fixture restore failure");
     }
@@ -30,8 +30,8 @@ async fn fund(request: FundingRequest) -> Result<FundingObservation, FundingFail
 }
 
 #[ic_cdk::update(manual_reply = true)]
-fn receive(request: FundingRequest) {
-    workflow::receive(ic_cdk::api::msg_caller(), request);
+async fn receive(request: FundingRequest) {
+    workflow::receive(ic_cdk::api::msg_caller(), request).await;
 }
 
 #[ic_cdk::query]
@@ -42,4 +42,9 @@ fn attempts() -> Option<Vec<FundingAttemptRecord>> {
 #[ic_cdk::query]
 fn receipts() -> Option<Vec<FundingReceiptRecord>> {
     ops::receipts(ic_cdk::api::msg_caller())
+}
+
+#[ic_cdk::query]
+fn operator_status() -> Option<FundingOperatorStatusView> {
+    workflow::operator_status(ic_cdk::api::canister_self(), ic_cdk::api::msg_caller())
 }

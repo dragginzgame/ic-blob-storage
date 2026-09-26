@@ -136,11 +136,10 @@ pub(crate) fn lookup(root: ProviderRootHash) -> Result<UploadRequest, JourneyFai
     })
 }
 
-pub(crate) fn reserve(
-    actor: Principal,
+pub(super) fn manifest(
     request: UploadRequest,
     input: &JourneyManifest,
-) -> Result<(), JourneyFailure> {
+) -> Result<CaffeineChunkManifest, JourneyFailure> {
     // Bound conversion work before allocating intermediate boundary values.
     if input.chunks.len() > 6 || input.headers.len() > 8 {
         return Err(JourneyFailure::InvalidInput);
@@ -168,6 +167,15 @@ pub(crate) fn reserve(
         },
     )
     .map_err(|_| JourneyFailure::InvalidInput)?;
+    Ok(manifest)
+}
+
+pub(crate) fn reserve(
+    actor: Principal,
+    request: UploadRequest,
+    input: &JourneyManifest,
+) -> Result<(), JourneyFailure> {
+    let manifest = manifest(request, input)?;
     mutate(|state| {
         if state
             .requests

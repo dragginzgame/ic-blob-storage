@@ -1,10 +1,10 @@
 //! Inspection-only local archive; never a resumable service checkpoint.
 use crate::journey::{JourneyManifest, JourneyProgress};
 use candid::{CandidType, Principal};
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 /// Catalogs remain separate owners within the test fixture.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, Serialize)]
 pub enum ArchiveCatalog {
     /// Two initial confirmed sample objects.
     Samples,
@@ -15,7 +15,7 @@ pub enum ArchiveCatalog {
 }
 
 /// Local lifecycle, including byte-free history that must not disappear.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, Serialize)]
 pub enum ArchivePhase {
     /// Reserved before certificate exposure.
     Reserved,
@@ -61,7 +61,7 @@ pub struct ArchivedObjectView {
     pub release_receipt: Option<bool>,
     /// Original admitted journey manifest; absent for supplied sample uploads.
     pub manifest: Option<JourneyManifest>,
-    /// Last observed verification prefix/verdict, without resumable SHA state.
+    /// Last observed prefix/verdict; protected SHA state is omitted from this view.
     pub progress: Option<JourneyProgress>,
 }
 
@@ -87,6 +87,8 @@ pub struct ArchivedReadView {
 /// No method consumes this view to resume work or grant authority.
 #[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize)]
 pub struct AuthorityArchiveView {
+    /// Restored inspection-only instance; no operational endpoint can act.
+    pub fenced: bool,
     /// Bound service instance.
     pub service: Principal,
     /// Explicit archive inspection authority, independent of controller status.
@@ -115,4 +117,29 @@ pub struct AuthorityArchiveView {
     pub trap_read_token: Option<u64>,
     /// All lifetime objects/operations, including cancelled and settled history.
     pub objects: Vec<ArchivedObjectView>,
+}
+
+/// One mathematical continuation against protected archived verifier state.
+/// The probe discards its copy and never changes admission, progress or authority.
+#[derive(Clone, Debug, CandidType, Deserialize)]
+pub struct CheckpointProbeInput {
+    /// Existing journey root whose stored declaration is used.
+    pub root: [u8; 32],
+    /// Leaf index to check in the reconstructed copy.
+    pub index: u64,
+    /// At most one bounded manifest leaf.
+    pub bytes: Vec<u8>,
+}
+
+/// Failed isolated checkpoint experiment, with no operational mutation.
+#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+pub enum CheckpointProbeFailure {
+    /// Caller lacks explicit operator authority.
+    Denied,
+    /// No journey entry exists for this root.
+    Unknown,
+    /// Archived declaration, checkpoint or redundant progress is invalid.
+    InvalidCheckpoint,
+    /// Supplied chunk failed the ordinary verifier checks.
+    Chunk(crate::journey::JourneyFailure),
 }

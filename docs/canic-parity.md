@@ -2,8 +2,8 @@
 
 The maintainer requires Canic's blob functionality to be ready here before
 removing it from Canic. This includes operator workflows and diagnostics as
-well as storage and billing. The first native core primitives are implemented;
-no end-to-end service capability is qualified here yet. Installed dependencies,
+well as storage and billing. Shared core primitives and local IC recovery journeys
+are implemented; no end-to-end service capability is qualified here yet. Installed dependencies,
 plans and source inventories do not establish parity.
 
 The maintainer explicitly requires a fresh model review: Canic identifies existing
@@ -47,60 +47,65 @@ owns the current integration target and deployment evidence gaps.
 
 ## Required replacements
 
-BLOB-01 has native parsing/canonicalization and incremental raw-byte verification
-evidence. BLOB-03 has bounded binary-root batch parsing that preserves order,
-duplicates and per-entry errors. Local consumer-reference reads now check the
-tenant and complete binding, distinguish released references from live siblings,
-and bound ordered batch results. Provider-facing gateway liveness responses,
-persisted state access and endpoints remain unimplemented.
-BLOB-04/05/06 now have partial native lifecycle-transition evidence for confirmed
-objects, including bounded reference receipts and separate logical/physical/
-economic projections. Authenticated callbacks and persisted counters remain absent.
-Lifecycle mutations now check complete object/reference bindings; pure direct-tenant
-policy adds partial A01/BLOB-14 evidence. Endpoint actor authentication, delegation
-and durable scope enforcement remain outstanding.
-Local reference request receipts add exact actor/payload replay checks and reserve
-receipt capacity for each active reference's release. These are native bounds and
-replay semantics, not durable request recovery or provider retry evidence.
-The transient catalog now owns multiple confirmed objects and their journals,
-with tenant logical quota, global physical/billing-byte limits and derived usage
-counters. Bounded pending-deletion scans and current-gateway read checks add local
-BLOB-03/04/05/06 evidence. Root observations preserve unknown/malformed/foreign
-namespace statuses; the provider boolean mapping remains unspecified. No persisted
-lookup, durable upload reservation or provider operation is implemented here.
-BLOB-08, BLOB-11 and
-BLOB-12 have partial numeric validation and pure-policy evidence. BLOB-09 and
-BLOB-15 now have bounded signed-balance conversion and operator amount parsing
-evidence. BLOB-09 validates all four numeric balance components before use,
-preserving typed field failures without defining a provider DTO.
-The billing input port also extends BLOB-08/11, recorded in
-[core evidence](evidence/core-primitives.md) and the capability inventory.
-BLOB-07/10 have partial transient gateway-list validation/replacement evidence,
-including raw/distinct bounds and unchanged membership after rejected input.
-BLOB-07 now also has idempotent individual add/remove and empty-membership
-behavior; empty provider sync input remains rejected.
-The scoped gateway registry adds one pending local sync identity, invalidation
-on operator edits and rejection of stale/cancelled/replayed results. Native
-callback-policy composition checks service/namespace and current membership,
-including continued denial after revocation and a delayed sync result. This is
-partial BLOB-05/07/10/14 coverage, not transport or restart/restore evidence.
-Bounded Cashier gateway-list Candid decoding now feeds the same registry: scope
-and stale attempts reject before parsing; invalid replies leave membership and
-the pending attempt unchanged. This extends local BLOB-10 evidence only.
-Account-balance reply decoding adds local BLOB-09/12 coverage for requested-account
-checks, structured failures, bounded full-balance conversion and readiness
-composition. It performs no query and does not prove source or freshness.
-BLOB-08 also has complete local configuration-candidate validation for Cashier
-principal, funding thresholds and gateway limits representable on 32-bit Wasm.
-BLOB-11 also has pure new-intent admission rejecting recovery fences and
-outstanding/uncertain funding activity; durable exclusion is still unimplemented.
-BLOB-02 now also has bounded chunk-status decoding and lifetime root claims;
-BLOB-05 has native delayed-root-correlation rejection after settlement. BLOB-11
-has bounded Candid result decoding that retains structured provider failures.
-These add local safeguards, not persisted upload/callback/payment workflows.
-Provider transports, configuration persistence, actual funding, status workflows
-and the other capabilities remain unimplemented. The boundaries below describe
-the complete replacement requirements, not qualification claims.
+The shared library implements identities and streaming verification, bounded
+catalogs/reservations/reference receipts, tenant and gateway policy, reply decoding
+and funding/readiness arithmetic. The [core evidence](evidence/core-primitives.md)
+records the limits of each native primitive. Linking the library exports no
+endpoints or lifecycle hooks.
+
+The [connected PocketIC journey](evidence/core-primitives.md#connected-upload-and-deletion-journey-after-0114)
+adds actual callers, certificate-shaped admission, chunk verification/readback,
+revocation, deletion callbacks and separate billing cessation over local substitutes
+(BLOB-01–07/10/14). Completion, source bytes and billing facts are not deployed
+Caffeine evidence. Provider certificate verification and HTTP transport remain open.
+
+The [checkpoint/recovery batch](evidence/core-primitives.md#verification-checkpoints-after-0115)
+adds protected hash checkpoints and atomic fixture journals for identities, charges,
+receipts, verification and pending calls (BLOB-01/06/10/13). Same-release restoration
+is inspection-only and permanently fenced. Tests cover actual held sync/read
+schedules, older journals, failed upgrades, large-object capacity reuse and retained
+billing/history. This does not resume production operations, make old counters fresh
+or qualify snapshot loads, reinstalls or independent recovery authority.
+
+[Funding fixtures](evidence/core-primitives.md#funding-callback-experiment) exercise
+actual local cycle transfers, callback traps, refunds, enqueue failure and journal
+recovery. Shared reconciliation keeps transport acceptance separate from provider
+credit. Balance and audit codecs preserve typed failures; no deployed credit or
+CSV-row reconciliation contract is inferred (BLOB-08/09/11/12).
+Driver-only funding status now diagnoses complete retained outgoing history and
+separately reports incoming local receipts. PocketIC proves no query effects through
+callback traps and upgrades; credit, balances and recovery authority stay unverified.
+Funding restoration now validates service/release bindings and journal consistency,
+then permanently fences sending, acceptance and callback completion. Actual older
+and in-flight journals remain inspection-only; malformed/foreign journals reject
+atomically (partial BLOB-11/12/13). Snapshot loads and production recovery remain open.
+
+Production transports, durable service configuration, operational reconciliation,
+both adapters and production operator workflows remain outstanding.
+Shared operator diagnosis now composes billing policy and retained obligations.
+The operator-only fixture query preserves unknown economics, pending work and
+restore blockers; PocketIC checks isolation and unchanged journals/source history.
+It reads the current active or frozen owner, not an independently replaced old
+archive. This adds partial BLOB-06/12/17 evidence; configured billing observations,
+the final operator client and both production adapters remain outstanding.
+The unpublished `blob-fixture-status` now exercises actual read-only transport
+against explicitly selected local PocketIC instances and simulated callers.
+Its fixed query mode rejects missing/update-only methods without effects; JSON
+and exit codes retain diagnosis, unknowns and binding/read failures. Subprocess
+tests preserve journals and instance ownership, including fenced restores.
+This adds partial BLOB-12/15/16/17 and A11 evidence, without production identity,
+managed discovery, sync/funding commands or provider qualification.
+Scoped balance reads now exercise the shared Caffeine decoder over actual calls
+to a controlled source (partial BLOB-09/12/13/17 and A05/A08/A11). Persisted intent,
+configuration revisions, dispatch-based expiry and fenced restoration prevent
+using stale reports. Failures never become zero and retained reports never become
+spendable reservations or payment credit. Production billing remains outstanding.
+Local diagnostic billing limits now bind to the observation scope/revision. Shared
+balance-threshold assessment composes with operator diagnosis while unknown local
+spendability remains an explicit blocker. Native and actual CLI/PocketIC tests cover
+thresholds, invalid limits, stale scope, observation failures and fenced restoration
+(partial BLOB-08/12/17). No live account or complete service readiness is inferred.
+The boundaries below describe full replacement requirements, not completed gates.
 
 | Capability | Required behavior here | Necessary correction or boundary |
 | --- | --- | --- |
@@ -134,8 +139,9 @@ Tenant obligation pages add local BLOB-06 evidence: bounded tenant-only scans
 retain physically deleted and zero-byte obligations until billing settlement,
 without exposing other tenants through results or cursors. PocketIC observes
 separate release/deletion/billing phases with actual callers and explicitly
-substituted confirmation facts. Persisted accounting and provider settlement
-evidence remain outstanding; see [core evidence](evidence/core-primitives.md).
+substituted confirmation facts. Fixture archives retain that accounting through
+fenced upgrades; production persistence and provider settlement evidence remain
+outstanding. See [core evidence](evidence/core-primitives.md).
 
 The operator client/CLI is an explicit extraction deliverable owned here. Its
 final package name is a B1 decision. It must support the standalone service and

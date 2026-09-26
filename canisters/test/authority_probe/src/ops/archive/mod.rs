@@ -1,4 +1,5 @@
-//! Atomic inspection archive derived from every fixture owner, never replayed.
+//! Atomic archive capture and inspection-only same-release restoration.
+pub(crate) mod recovery;
 mod storage;
 use super::{State, number};
 use crate::model::{
@@ -35,9 +36,27 @@ pub(super) fn save(state: &State) {
 }
 
 pub(crate) fn inspect(service: Principal, actor: Principal) -> Option<AuthorityArchiveView> {
-    // Authorize using the current running instance before opening old evidence.
-    if !super::read(|state| state.catalog.service() == service && state.operator == actor) {
+    load(service, actor).map(view)
+}
+
+/// Status describes the current owner, not independently injected older stable
+/// evidence. A restored owner can only supply its validated frozen journal.
+pub(crate) fn current(service: Principal, actor: Principal) -> Option<AuthorityArchiveRecord> {
+    if !recovery::inspection_allowed(service, actor) {
         return None;
+    }
+    Some(recovery::retained().unwrap_or_else(|| super::read(capture)))
+}
+
+fn load(service: Principal, actor: Principal) -> Option<AuthorityArchiveRecord> {
+    // Authorize using the current running instance before opening old evidence.
+    if !recovery::inspection_allowed(service, actor) {
+        return None;
+    }
+    // Once restored, inspection reads the validated frozen owner. Subsequent
+    // external stable-memory replacement is not a live-state input.
+    if let Some(record) = recovery::retained() {
+        return Some(record);
     }
     // Reopen from stable memory, avoiding the live Cell's cached bytes. A query's
     // temporary host/runtime replacement cannot change the running update heap.
@@ -47,7 +66,7 @@ pub(crate) fn inspect(service: Principal, actor: Principal) -> Option<AuthorityA
     if record.service != service || record.operator != actor {
         return None;
     }
-    Some(view(record))
+    Some(record)
 }
 
 fn capture(state: &State) -> AuthorityArchiveRecord {
@@ -103,6 +122,7 @@ fn capture(state: &State) -> AuthorityArchiveRecord {
         );
         let (next_chunk, verified_bytes, verdict) = entry.content.progress();
         record.content = Some(ContentRecord {
+            checkpoint: entry.content.checkpoint(),
             chunks: entry.manifest_input.chunks.clone(),
             headers: entry.manifest_input.headers.clone(),
             next_chunk,
@@ -130,6 +150,9 @@ fn capture(state: &State) -> AuthorityArchiveRecord {
     });
     assert_eq!(pending.is_some(), state.journey.read_intent.is_some());
     AuthorityArchiveRecord {
+        release: crate::model::archive::release_binding(),
+        balance: state.balance.clone(),
+        fenced: false,
         service: state.catalog.service(),
         operator: state.operator,
         tenants: state.journey.tenants,
@@ -245,6 +268,7 @@ fn confirmed(record: &mut ObjectRecord, owner: &BlobCatalog) {
 
 fn view(record: AuthorityArchiveRecord) -> AuthorityArchiveView {
     AuthorityArchiveView {
+        fenced: record.fenced,
         service: record.service,
         operator: record.operator,
         tenants: record.tenants,
@@ -301,4 +325,58 @@ fn view(record: AuthorityArchiveRecord) -> AuthorityArchiveView {
             })
             .collect(),
     }
+}
+
+pub(crate) fn probe(
+    service: Principal,
+    actor: Principal,
+    input: &blob_test_protocol::authority::CheckpointProbeInput,
+) -> Result<JourneyProgress, blob_test_protocol::authority::CheckpointProbeFailure> {
+    use crate::model::content::{ContentError, ContentSession};
+    use blob_test_protocol::authority::CheckpointProbeFailure as Failure;
+    use blob_test_protocol::journey::{JourneyFailure, JourneyUpload};
+    let record = load(service, actor).ok_or(Failure::Denied)?;
+    let object = record
+        .objects
+        .iter()
+        .find(|object| object.catalog == ArchiveCatalog::Journey && object.root == input.root)
+        .ok_or(Failure::Unknown)?;
+    let content = object.content.as_ref().ok_or(Failure::InvalidCheckpoint)?;
+    let request = super::journey::request(
+        service,
+        object.tenant,
+        JourneyUpload {
+            id: object.id,
+            root: object.root,
+            digest: object.digest.ok_or(Failure::InvalidCheckpoint)?,
+            bytes: object.bytes,
+        },
+    )
+    .map_err(|_| Failure::InvalidCheckpoint)?;
+    let manifest = super::journey::manifest(
+        request,
+        &JourneyManifest {
+            chunks: content.chunks.clone(),
+            headers: content.headers.clone(),
+        },
+    )
+    .map_err(|_| Failure::InvalidCheckpoint)?;
+    let mut copy = ContentSession::from_record(manifest, request.content, content)
+        .ok_or(Failure::InvalidCheckpoint)?;
+    copy.append(input.index, &input.bytes).map_err(|error| {
+        Failure::Chunk(match error {
+            ContentError::OutOfOrder => JourneyFailure::OutOfOrder,
+            ContentError::Mismatch => JourneyFailure::ContentMismatch,
+        })
+    })?;
+    let (next_chunk, verified_bytes, verdict) = copy.progress();
+    Ok(JourneyProgress {
+        next_chunk,
+        verified_bytes,
+        verification: match verdict {
+            ContentVerdict::Pending => JourneyVerification::Pending,
+            ContentVerdict::Verified => JourneyVerification::Verified,
+            ContentVerdict::Rejected => JourneyVerification::Rejected,
+        },
+    })
 }

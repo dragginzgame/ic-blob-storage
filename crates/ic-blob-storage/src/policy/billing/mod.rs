@@ -1,6 +1,7 @@
 //! Billing arithmetic and diagnostic readiness, never authority to execute effects.
 
 pub mod admission;
+pub mod balance;
 pub mod reconciliation;
 
 use std::num::NonZeroU128;
@@ -169,61 +170,40 @@ impl BillingReadiness {
 /// Absent limits produce `NotConfigured`; provider observations are not trusted
 /// in that case. Recovery fencing is reported regardless of configuration.
 #[must_use]
-#[expect(
-    clippy::missing_panics_doc,
-    reason = "validated FundingLimits and the balance guard prove target >= minimum > balance"
-)]
 pub fn assess_readiness(
     limits: Option<FundingLimits>,
     observation: BillingObservation,
 ) -> BillingReadiness {
-    let mut result = BillingReadiness {
-        funding: FundingStatus::NotConfigured,
-        blockers: Vec::new(),
-        warnings: Vec::new(),
-    };
-    if observation.recovery == RecoveryState::Fenced {
-        result.blockers.push(BillingBlocker::RecoveryFenced);
-    }
-    let Some(limits) = limits else {
-        result.blockers.push(BillingBlocker::NotConfigured);
-        return result;
-    };
-    if observation.gateway_count == 0 {
-        result
-            .blockers
-            .push(BillingBlocker::GatewayPrincipalsMissing);
-        result
-            .warnings
-            .push(BillingWarning::GatewayPrincipalSetEmpty);
-    }
-    result.funding = match observation.balance {
-        BalanceObservation::Unavailable => {
-            result.blockers.push(BillingBlocker::BalanceUnavailable);
-            result.warnings.push(BillingWarning::BalanceUnavailable);
-            FundingStatus::BalanceUnavailable
-        }
-        BalanceObservation::Malformed => {
-            result.blockers.push(BillingBlocker::BalanceMalformed);
-            result.warnings.push(BillingWarning::BalanceMalformed);
-            FundingStatus::BalanceMalformed
-        }
-        BalanceObservation::Available(balance) if balance >= limits.minimum_balance() => {
-            FundingStatus::NotNeeded
-        }
-        BalanceObservation::Available(balance) => {
-            result.blockers.push(BillingBlocker::InsufficientBalance);
-            // Validated target >= minimum > balance: subtraction is positive and safe.
-            let requested = NonZeroU128::new(limits.target_balance() - balance)
-                .expect("target exceeds a balance below minimum");
+    let diagnosis = balance::assess_balance(
+        limits,
+        balance::BalanceContext {
+            gateway_count: observation.gateway_count,
+            balance: observation.balance,
+            recovery: observation.recovery,
+        },
+    );
+    let mut blockers = diagnosis.blockers;
+    let funding = match diagnosis.funding {
+        balance::FundingNeed::NotConfigured => FundingStatus::NotConfigured,
+        balance::FundingNeed::NotNeeded => FundingStatus::NotNeeded,
+        balance::FundingNeed::BalanceUnavailable => FundingStatus::BalanceUnavailable,
+        balance::FundingNeed::BalanceMalformed => FundingStatus::BalanceMalformed,
+        balance::FundingNeed::TopUp(requested) => {
+            let Some(limits) = limits else {
+                unreachable!("a shortfall requires configured limits")
+            };
             let decision = assess_funding(limits, requested, observation.available_cycles);
             if matches!(decision, FundingDecision::ReserveWouldBeViolated { .. }) {
-                result.blockers.push(BillingBlocker::ReserveWouldBeViolated);
+                blockers.push(BillingBlocker::ReserveWouldBeViolated);
             }
             FundingStatus::TopUp(decision)
         }
     };
-    result
+    BillingReadiness {
+        funding,
+        blockers,
+        warnings: diagnosis.warnings,
+    }
 }
 
 #[cfg(test)]

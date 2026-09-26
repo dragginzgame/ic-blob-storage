@@ -1,7 +1,10 @@
 //! Ordered verification of both manifest leaves and the expected raw file digest.
 //!
 //! Corrupt chunks reject before entering the whole-file hash. No content bytes,
-//! destination writes, provider calls or restart checkpoints are owned here.
+//! destination writes or provider calls are owned here. Trusted exact-release
+//! checkpoints preserve verification state; hosts own persistence and fencing.
+
+pub mod checkpoint;
 
 use thiserror::Error;
 
@@ -28,7 +31,8 @@ mod tests;
 /// content or coverage bitmap is allocated. A call hashes at most one 1 MiB leaf
 /// twice, once for its domain-separated identity and once for the raw digest.
 /// Root/length/digest provenance and tenant authority are external requirements.
-/// This instance cannot resume after restart or establish destination durability.
+/// A trusted checkpoint can reconstruct verification state, but does not establish
+/// restore authority, checkpoint freshness or destination durability.
 pub struct CaffeineOrderedChunkVerifier {
     manifest: CaffeineChunkManifest,
     raw: ContentVerifier,

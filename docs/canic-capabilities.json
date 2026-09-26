@@ -72,6 +72,14 @@
           "source": "tests/pocketic/tests/content.rs",
           "coverage": "Actual Wasm execution of pinned full-leaf, partial-final-leaf and Unicode metadata vectors; reverse-order coverage, duplicate accounting, missing-page continuation, corrupt ordered retries, replay rejection and typed wrong-digest/truncated failures. A broad local instruction budget covers each valid ordered append.",
           "remaining": "Production input handling and throughput, trusted consumer identities, destination writes, persistent resume, both adapters and actual provider/service journeys. Fixed fixture data and instruction intervals do not qualify those boundaries."
+        },
+        {
+          "kind": "native_and_pocketic_partial",
+          "record": "evidence/core-primitives.md#verification-checkpoints-after-0115",
+          "source_hashes": "evidence/verification-checkpoints.sha256",
+          "source": "crates/ic-blob-storage/src/model/identity/caffeine/manifest/verification/ordered/checkpoint/mod.rs",
+          "coverage": "Exact-release ordered hash checkpoints validate manifest/digest/length bindings and internal counters; PocketIC reconstructs protected partial verification without granting live authority.",
+          "remaining": "Trusted provider completion, gateway certificate verification, production upload/read transport and operational recovery."
         }
       ]
     },
@@ -427,6 +435,14 @@
           "source": "crates/ic-blob-storage/tests/tenant_obligations.rs",
           "coverage": "Bounded tenant-only unsettled-object pages retain physically deleted and zero-byte billing obligations, preserve separate byte projections, reject foreign cursors and observe current state. Private confirmed-root indexing excludes foreign history from scans/cursors and shares tenant usage. PocketIC verifies caller/controller isolation and separate release/deletion/billing observations using substituted facts.",
           "remaining": "Durable index/accounting invariants, pending-upload reconciliation, production pagination bounds and adapters, exact provider completion/settlement evidence and restore fences."
+        },
+        {
+          "kind": "pocketic_fixture_partial",
+          "record": "evidence/core-primitives.md#verification-checkpoints-after-0115",
+          "source_hashes": "evidence/verification-checkpoints.sha256",
+          "source": "tests/pocketic/tests/recovery/authority/capacity/mod.rs",
+          "coverage": "Large-object capacity reuse preserves lifetime identities, receipts and exact accounting through fenced upgrades. Physical deletion does not release billing liability; older records cannot authorize new admission.",
+          "remaining": "Production bounds, monetary reconciliation, shared operator diagnostics and both service adapters."
         }
       ]
     },
@@ -522,7 +538,16 @@
           "source": "crates/ic-blob-storage/src/ops/billing/configuration/mod.rs",
           "coverage": "Complete local configuration candidate: bounded Candid funding numbers, model reserve/minimum/target invariants, non-special Cashier principal, positive raw/distinct gateway limits representable on 32-bit Wasm, and native composition with gateway/funding/readiness behavior.",
           "remaining": "Verified provider/service/account namespace identity, configured resource budgets, authorized configuration installation/change fences, persistence and endpoint/restart behavior."
+        },
+        {
+          "kind": "native_and_pocketic_partial",
+          "record": "evidence/core-primitives.md#configured-diagnostic-billing-for-0116",
+          "source_hashes": "evidence/verification-checkpoints.sha256",
+          "source": "tests/pocketic/tests/operator_balance/billing/mod.rs",
+          "coverage": "Validated local billing limits retain exact observation scope/revision. Shared balance-threshold policy separates shortfall from reserve feasibility and keeps unknown spendability explicit. Native and actual CLI/PocketIC cases preserve malformed/unavailable/expired distinctions, stale configuration, recovery fences, other blockers and passive status. Released complete reserve behavior is unchanged.",
+          "remaining": "Production spendable accounting, provider/account authority and reconciliation, operator mutation workflows and both service adapters. Diagnostic configuration never grants effect authority or service qualification."
         }
+
       ]
     },
     {
@@ -576,7 +601,16 @@
           "source": "crates/ic-blob-storage/src/ops/caffeine/balance/mod.rs",
           "coverage": "Bounded account-balance Candid replies bind successful reports to the requested account, validate every amount and preserve provider failures. Independent fixtures and native readiness composition distinguish errors from zero and retain recovery fences.",
           "remaining": "Authenticated provider queries, service/namespace/account authority, attempt correlation and freshness, shared status workflow and real deployment evidence."
+        },
+        {
+          "kind": "native_and_pocketic_partial",
+          "record": "evidence/core-primitives.md#scoped-fixture-balance-observations-after-0115",
+          "source_hashes": "evidence/verification-checkpoints.sha256",
+          "source": "tests/pocketic/tests/operator_balance/mod.rs",
+          "coverage": "Explicit service/namespace/source/account intents persist before actual local reads. Shared decoder validates independent reply bytes; bounded history retains failures and valid zero separately. Configuration revisions, dispatch-based expiry and fenced restore prevent stale use. Actual CLI remains passive; held callbacks, old journals, forced upgrades and capacity limits preserve evidence and unknown spendability/credit.",
+          "remaining": "Configured billing-policy composition with unknown accounting, deployed provider/account authority and freshness, production recovery and both service adapters. Controlled-source balances never establish provider credit or effect authority."
         }
+
       ]
     },
     {
@@ -640,6 +674,14 @@
           "source": "tests/pocketic/tests/gateway_sync.rs",
           "coverage": "Actual local inter-canister calls exercise pending sync exclusion, revocation before an old response, and a completed newer sync before the original callback. Malformed/oversized/empty replies and transport rejection preserve membership; observations prove no automatic retry and successful later explicit retry.",
           "remaining": "Production operator/service handlers and both adapters, actual Cashier transport and identity qualification, persisted membership/attempts and restore fencing. Controlled source holds operator authority only to force test interleavings."
+        },
+        {
+          "kind": "pocketic_fixture_partial",
+          "record": "evidence/core-primitives.md#verification-checkpoints-after-0115",
+          "source_hashes": "evidence/verification-checkpoints.sha256",
+          "source": "tests/pocketic/tests/recovery/authority/sync/mod.rs",
+          "coverage": "Actual held inter-canister syncs reject overlap and busy upgrades; delayed replies cannot undo revocation. Both journals retain pending identities under old-archive fencing. Bounded local hold failure sends no automatic retry.",
+          "remaining": "Deployed Cashier integration, successful-sync timestamps, production persistence, reconciliation and operator transport."
         }
       ]
     },
@@ -708,6 +750,14 @@
           "source": "crates/ic-blob-storage/src/ops/caffeine/funding/mod.rs",
           "coverage": "Bounded full Cashier reply decoding preserves all advertised error categories; independent Candid fixtures; missing/malformed/over-budget replies cannot become success.",
           "remaining": "Transport identity/intent binding, accepted/refunded cycles accounting, durable exclusion and exact uncertain-payment reconciliation."
+        },
+        {
+          "kind": "native_and_pocketic_partial",
+          "record": "evidence/core-primitives.md#fenced-funding-restoration-after-0115",
+          "source_hashes": "evidence/verification-checkpoints.sha256",
+          "source": "tests/pocketic/tests/funding.rs",
+          "coverage": "Driver-only status preserves all retained uncredited/unknown transfers. Same-release restoration validates service/release and journal consistency, then permanently fences sending, acceptance and callback completion. PocketIC covers older journals, live reply races on both sides, exact refunds and failed-upgrade rollback.",
+          "remaining": "Independent recovery authority, snapshot-load safety, exact deployed account credit evidence, production funding workflow/adapters and operator transport."
         }
       ]
     },
@@ -754,7 +804,41 @@
           "source": "crates/ic-blob-storage/src/ops/caffeine/balance/mod.rs",
           "coverage": "Bounded account-balance Candid replies bind successful reports to the requested account, validate every amount and preserve provider failures. Independent fixtures and native readiness composition distinguish errors from zero and retain recovery fences.",
           "remaining": "Authenticated provider queries, service/namespace/account authority, attempt correlation and freshness, shared status workflow and real deployment evidence."
+        },
+        {
+          "kind": "native_and_pocketic_partial",
+          "record": "evidence/core-primitives.md#read-only-operator-diagnosis-after-0115",
+          "source_hashes": "evidence/verification-checkpoints.sha256",
+          "source": "crates/ic-blob-storage/src/policy/diagnostics/mod.rs",
+          "coverage": "Shared diagnosis retains billing failures, unknown recovery or established fences, provider blockers, unresolved funding and outstanding work. Operator-only authority queries preserve separate byte obligations and pending callbacks. Funding queries diagnose all retained attempts without credit inference or journal effects, including after traps and upgrades.",
+          "remaining": "Scoped configured provider observations, independent recovery authority and snapshot safety, production service handlers/adapters and the final operator client. Diagnosis never supplies effect authority."
+        },
+        {
+          "kind": "native_and_pocketic_partial",
+          "record": "evidence/core-primitives.md#read-only-fixture-client-after-0115",
+          "source_hashes": "evidence/verification-checkpoints.sha256",
+          "source": "tests/pocketic/tests/operator.rs",
+          "coverage": "Actual unpublished CLI subprocesses use fixed query transport with explicit local instance, canister, simulated caller and namespace/peer bindings. JSON preserves unknowns, exact amounts and fences; blocker and typed read failures have distinct exit codes. Denied, misbound, missing/update-only methods reject without journal effects; attached instance ownership survives exit.",
+          "remaining": "Production identity/transport and managed discovery, scoped configured provider observations, sync/funding commands and both service adapters. Simulator calls do not qualify provider economics or service readiness."
+        },
+        {
+          "kind": "native_and_pocketic_partial",
+          "record": "evidence/core-primitives.md#scoped-fixture-balance-observations-after-0115",
+          "source_hashes": "evidence/verification-checkpoints.sha256",
+          "source": "tests/pocketic/tests/operator_balance/mod.rs",
+          "coverage": "Explicit service/namespace/source/account intents persist before actual local reads. Shared decoder validates independent reply bytes; bounded history retains failures and valid zero separately. Configuration revisions, dispatch-based expiry and fenced restore prevent stale use. Actual CLI remains passive; held callbacks, old journals, forced upgrades and capacity limits preserve evidence and unknown spendability/credit.",
+          "remaining": "Configured billing-policy composition with unknown accounting, deployed provider/account authority and freshness, production recovery and both service adapters. Controlled-source balances never establish provider credit or effect authority."
         }
+,
+        {
+          "kind": "native_and_pocketic_partial",
+          "record": "evidence/core-primitives.md#configured-diagnostic-billing-for-0116",
+          "source_hashes": "evidence/verification-checkpoints.sha256",
+          "source": "tests/pocketic/tests/operator_balance/billing/mod.rs",
+          "coverage": "Validated local billing limits retain exact observation scope/revision. Shared balance-threshold policy separates shortfall from reserve feasibility and keeps unknown spendability explicit. Native and actual CLI/PocketIC cases preserve malformed/unavailable/expired distinctions, stale configuration, recovery fences, other blockers and passive status. Released complete reserve behavior is unchanged.",
+          "remaining": "Production spendable accounting, provider/account authority and reconciliation, operator mutation workflows and both service adapters. Diagnostic configuration never grants effect authority or service qualification."
+        }
+
       ]
     },
     {
@@ -781,7 +865,33 @@
           "symbol": "assert_stable_state_survives_upgrade"
         }
       ],
-      "replacement_evidence": []
+      "replacement_evidence": [
+        {
+          "kind": "pocketic_fixture_partial",
+          "record": "evidence/core-primitives.md#verification-checkpoints-after-0115",
+          "source_hashes": "evidence/verification-checkpoints.sha256",
+          "source": "canisters/test/authority_probe/src/ops/archive/recovery/mod.rs",
+          "coverage": "Synchronous same-release fixture restore validates complete catalogs, receipts, charges, verification and pending read/sync evidence; malformed or missing journals reject atomically. Restored authority and source remain inspection-only and permanently fenced.",
+          "remaining": "Production service/configuration schemas, independent authority surviving backups, safe operational resumption, snapshot-load safety, and standalone/Canic lifecycle adapters."
+        },
+        {
+          "kind": "native_and_pocketic_partial",
+          "record": "evidence/core-primitives.md#fenced-funding-restoration-after-0115",
+          "source_hashes": "evidence/verification-checkpoints.sha256",
+          "source": "tests/pocketic/tests/funding_recovery/mod.rs",
+          "coverage": "Bounded funding journals restore synchronously into a permanent fence after binding, arithmetic and shared reconciliation checks. Older and actual in-flight journals cannot resume paid work; invalid journals and failed hooks roll back. Sender/receiver upgrades during outstanding replies preserve uncertainty and exact accepted/refunded amounts.",
+          "remaining": "Production journals/adapters, independent authority surviving the supported restore boundary, snapshot-load safety, provider credit and operational reconciliation."
+        },
+        {
+          "kind": "native_and_pocketic_partial",
+          "record": "evidence/core-primitives.md#scoped-fixture-balance-observations-after-0115",
+          "source_hashes": "evidence/verification-checkpoints.sha256",
+          "source": "tests/pocketic/tests/operator_balance/mod.rs",
+          "coverage": "Explicit service/namespace/source/account intents persist before actual local reads. Shared decoder validates independent reply bytes; bounded history retains failures and valid zero separately. Configuration revisions, dispatch-based expiry and fenced restore prevent stale use. Actual CLI remains passive; held callbacks, old journals, forced upgrades and capacity limits preserve evidence and unknown spendability/credit.",
+          "remaining": "Configured billing-policy composition with unknown accounting, deployed provider/account authority and freshness, production recovery and both service adapters. Controlled-source balances never establish provider credit or effect authority."
+        }
+
+      ]
     },
     {
       "id": "BLOB-14",
@@ -863,6 +973,14 @@
           "source": "crates/ic-blob-storage/src/ops/billing/mod.rs",
           "coverage": "Strict ASCII decimal funding input with typed errors; leading-zero compatibility, zero/overflow rejection and native Candid roundtrip.",
           "remaining": "Command parsing/transport, dry-run previews, targeting, status/sync/funding workflows, structured output and both PocketIC deployments."
+        },
+        {
+          "kind": "native_and_pocketic_partial",
+          "record": "evidence/core-primitives.md#read-only-fixture-client-after-0115",
+          "source_hashes": "evidence/verification-checkpoints.sha256",
+          "source": "tests/pocketic/tests/operator.rs",
+          "coverage": "Actual unpublished CLI subprocesses use fixed query transport with explicit local instance, canister, simulated caller and namespace/peer bindings. JSON preserves unknowns, exact amounts and fences; blocker and typed read failures have distinct exit codes. Denied, misbound, missing/update-only methods reject without journal effects; attached instance ownership survives exit.",
+          "remaining": "Production identity/transport and managed discovery, scoped configured provider observations, sync/funding commands and both service adapters. Simulator calls do not qualify provider economics or service readiness."
         }
       ]
     },
@@ -886,7 +1004,16 @@
           "symbol": "method_mode_comes_from_candid_metadata"
         }
       ],
-      "replacement_evidence": []
+      "replacement_evidence": [
+        {
+          "kind": "native_and_pocketic_partial",
+          "record": "evidence/core-primitives.md#read-only-fixture-client-after-0115",
+          "source_hashes": "evidence/verification-checkpoints.sha256",
+          "source": "tests/pocketic/tests/operator.rs",
+          "coverage": "Actual unpublished CLI subprocesses use fixed query transport with explicit local instance, canister, simulated caller and namespace/peer bindings. JSON preserves unknowns, exact amounts and fences; blocker and typed read failures have distinct exit codes. Denied, misbound, missing/update-only methods reject without journal effects; attached instance ownership survives exit.",
+          "remaining": "Production identity/transport and managed discovery, scoped configured provider observations, sync/funding commands and both service adapters. Simulator calls do not qualify provider economics or service readiness."
+        }
+      ]
     },
     {
       "id": "BLOB-17",
@@ -911,7 +1038,42 @@
           "symbol": "renders_blob_storage_medic_summary"
         }
       ],
-      "replacement_evidence": []
+      "replacement_evidence": [
+        {
+          "kind": "pocketic_fixture_partial",
+          "record": "evidence/core-primitives.md#read-only-operator-diagnosis-after-0115",
+          "source_hashes": "evidence/verification-checkpoints.sha256",
+          "source": "tests/pocketic/tests/recovery/authority/status/mod.rs",
+          "coverage": "Explicit authority and funding fixture queries perform no sync, funding, retry or journal mutation. They deny controller-only access and retain unknown economics. Funding status preserves unverified credit, reports active recovery as unknown and reports the enforced inspection-only fence after restore.",
+          "remaining": "Passive discovery, packaged diagnostics client, exact target/network/method-mode selection, configured economic observations and both production adapters. No overall readiness is claimed."
+        },
+        {
+          "kind": "native_and_pocketic_partial",
+          "record": "evidence/core-primitives.md#read-only-fixture-client-after-0115",
+          "source_hashes": "evidence/verification-checkpoints.sha256",
+          "source": "tests/pocketic/tests/operator.rs",
+          "coverage": "Actual unpublished CLI subprocesses use fixed query transport with explicit local instance, canister, simulated caller and namespace/peer bindings. JSON preserves unknowns, exact amounts and fences; blocker and typed read failures have distinct exit codes. Denied, misbound, missing/update-only methods reject without journal effects; attached instance ownership survives exit.",
+          "remaining": "Production identity/transport and managed discovery, scoped configured provider observations, sync/funding commands and both service adapters. Simulator calls do not qualify provider economics or service readiness."
+        },
+        {
+          "kind": "native_and_pocketic_partial",
+          "record": "evidence/core-primitives.md#scoped-fixture-balance-observations-after-0115",
+          "source_hashes": "evidence/verification-checkpoints.sha256",
+          "source": "tests/pocketic/tests/operator_balance/mod.rs",
+          "coverage": "Explicit service/namespace/source/account intents persist before actual local reads. Shared decoder validates independent reply bytes; bounded history retains failures and valid zero separately. Configuration revisions, dispatch-based expiry and fenced restore prevent stale use. Actual CLI remains passive; held callbacks, old journals, forced upgrades and capacity limits preserve evidence and unknown spendability/credit.",
+          "remaining": "Configured billing-policy composition with unknown accounting, deployed provider/account authority and freshness, production recovery and both service adapters. Controlled-source balances never establish provider credit or effect authority."
+        }
+,
+        {
+          "kind": "native_and_pocketic_partial",
+          "record": "evidence/core-primitives.md#configured-diagnostic-billing-for-0116",
+          "source_hashes": "evidence/verification-checkpoints.sha256",
+          "source": "tests/pocketic/tests/operator_balance/billing/mod.rs",
+          "coverage": "Validated local billing limits retain exact observation scope/revision. Shared balance-threshold policy separates shortfall from reserve feasibility and keeps unknown spendability explicit. Native and actual CLI/PocketIC cases preserve malformed/unavailable/expired distinctions, stale configuration, recovery fences, other blockers and passive status. Released complete reserve behavior is unchanged.",
+          "remaining": "Production spendable accounting, provider/account authority and reconciliation, operator mutation workflows and both service adapters. Diagnostic configuration never grants effect authority or service qualification."
+        }
+
+      ]
     },
     {
       "id": "BLOB-18",

@@ -4,6 +4,7 @@
 
 use sha2::{Digest, Sha256};
 use thiserror::Error;
+pub(crate) mod checkpoint;
 
 use super::ContentDigest;
 
@@ -17,7 +18,8 @@ use super::ContentDigest;
 /// The caller must separately enforce service object/session limits and supply
 /// a trusted expected digest. A digest from the same untrusted source as the
 /// bytes only establishes consistency, not authenticity or tenant authority.
-/// This transient state cannot resume after process/canister restart.
+/// Ordered verification additionally provides a host-owned trusted checkpoint;
+/// this raw verifier exposes no standalone persistence API.
 ///
 /// ```
 /// use ic_blob_storage::model::identity::{ContentDigest, verification::ContentVerifier};

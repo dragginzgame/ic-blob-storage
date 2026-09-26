@@ -37,6 +37,8 @@ pub struct SourceRecoveryView {
     pub driver: Principal,
     /// Retained gateway-list response mode.
     pub mode: SourceMode,
+    /// Captured list reply waiting across IC rounds, including its exact identity.
+    pub held_sync: Option<SourceHeldSyncView>,
     /// At most one retained 1 MiB leaf, not a provider object archive.
     pub read: Option<ReadSourceConfig>,
     /// Whether an admitted read had not finished at the recorded boundary.
@@ -45,4 +47,15 @@ pub struct SourceRecoveryView {
     pub read_ready: bool,
     /// Bounded lifetime history, including unresolved actions.
     pub effects: Vec<SourceEffectView>,
+}
+
+/// Retained local gateway-list schedule; never a deployed provider receipt.
+#[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize)]
+pub struct SourceHeldSyncView {
+    /// Source request counter assigned before waiting.
+    pub sequence: u64,
+    /// Gateway captured when the list request arrived.
+    pub gateway: Principal,
+    /// Whether the driver released the wait.
+    pub ready: bool,
 }

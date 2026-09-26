@@ -3,7 +3,6 @@ use crate::model::{CHUNK, LeafRecord};
 use blob_test_protocol::journey::readback::{
     ReadSourceConfig, ReadSourceMode, ReadSourceObservation,
 };
-use ic_cdk::call::Call;
 
 pub(super) fn config_view(leaf: &LeafRecord) -> ReadSourceConfig {
     ReadSourceConfig {
@@ -69,21 +68,7 @@ pub(crate) fn ready() -> bool {
 }
 
 pub(crate) async fn wait() -> bool {
-    // Retain the original IC call context while yielding to new rounds. Local
-    // raw_rand callbacks provide scheduling only; their random bytes are unused.
-    // Self-calls can all drain in one round before the driver gets to resume.
-    for _ in 0..128 {
-        if ready() {
-            return true;
-        }
-        if Call::unbounded_wait(candid::Principal::management_canister(), "raw_rand")
-            .await
-            .is_err()
-        {
-            break;
-        }
-    }
-    false
+    super::scheduling::wait(ready).await
 }
 
 pub(crate) fn resume() -> bool {

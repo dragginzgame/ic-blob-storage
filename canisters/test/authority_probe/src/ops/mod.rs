@@ -1,9 +1,11 @@
 //! State access, sample construction and local mutations for the test fixture.
 
 pub(crate) mod archive;
+pub(crate) mod balance;
 pub(crate) mod content;
 pub(crate) mod journey;
 pub(crate) mod obligations;
+pub(crate) mod status;
 pub(crate) mod sync;
 pub(crate) mod uploads;
 
@@ -36,6 +38,7 @@ thread_local! {
 
 pub(crate) struct State {
     pub catalog: BlobCatalog,
+    pub balance: crate::model::balance::BalanceJournalRecord,
     pub uploads: uploads::Uploads,
     pub journey: journey::Journey,
     pub registry: GatewayRegistry,
@@ -83,6 +86,21 @@ pub(crate) fn initialize(
     gateway: Principal,
     operator: Principal,
 ) {
+    archive::open();
+    STATE.with_borrow_mut(|state| {
+        *state = Some(fresh(service, first, second, gateway, operator));
+        archive::save(state.as_ref().expect("initialized"));
+    });
+}
+
+// Also used for disposable reconstruction checks; never installs restored authority.
+fn fresh(
+    service: Principal,
+    first: Principal,
+    second: Principal,
+    gateway: Principal,
+    operator: Principal,
+) -> State {
     let mut catalog = BlobCatalog::new(
         service,
         CatalogLimits {
@@ -115,21 +133,19 @@ pub(crate) fn initialize(
         GatewayScope::new(service, number(1), operator).expect("fixture scope"),
         membership,
     );
-    archive::open();
-    STATE.with_borrow_mut(|state| {
-        *state = Some(State {
-            catalog,
-            uploads: uploads::initialize(service, first, second),
-            journey: journey::initialize(service, first, second),
-            registry,
-            operator,
-            gateway,
-        });
-        archive::save(state.as_ref().expect("initialized"));
-    });
+    State {
+        balance: crate::model::balance::BalanceJournalRecord::new(),
+        catalog,
+        uploads: uploads::initialize(service, first, second),
+        journey: journey::initialize(service, first, second),
+        registry,
+        operator,
+        gateway,
+    }
 }
 
 pub(crate) fn read<T>(f: impl FnOnce(&State) -> T) -> T {
+    archive::recovery::require_active();
     STATE.with_borrow(|state| f(state.as_ref().expect("initialized fixture")))
 }
 
@@ -174,6 +190,7 @@ pub(crate) fn revoke_gateway() {
 /// Commit the inspection archive in the same IC message as its owning mutation.
 /// Error-valued outcomes can still record terminal verification/receipt state.
 pub(crate) fn mutate<T>(f: impl FnOnce(&mut State) -> T) -> T {
+    archive::recovery::require_active();
     STATE.with_borrow_mut(|state| {
         let state = state.as_mut().expect("initialized fixture");
         let result = f(state);

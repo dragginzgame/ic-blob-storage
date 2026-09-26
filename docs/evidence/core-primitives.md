@@ -1196,3 +1196,396 @@ chunk-completion flag; no gateway verifier or completion lookup was established.
 The certificate-shaped
 reply is not tested against gateway verification. Provider HTTP behavior, durable
 upload recovery, external deletion atomicity and old-backup safety remain open.
+
+## Verification checkpoints after 0.1.15
+
+The [ordered verifier checkpoint](../../crates/ic-blob-storage/src/model/identity/caffeine/manifest/verification/ordered/checkpoint/mod.rs)
+adds a 256-byte, exact-library-release record for trusted host storage. It binds
+format v1, release, manifest root, expected raw digest/length, accepted byte count
+and the pinned SHA-256 state. A SHA-256 checksum detects accidental damage; it
+cannot authenticate, establish freshness or prevent deliberate forgery/rollback.
+Restoration requires a separately retained, validated manifest and expected digest.
+Root equality cannot replace the independent length check. No method creates
+service/tenant authority, a provider receipt or a fresh operation identity.
+
+The implementation uses the checked local sha2 0.11.0 `SerializableState` API
+(digest 0.11.3, block-buffer 0.12.1 from Cargo.lock). Its 104-byte state comprises
+32 chaining bytes, an eight-byte little-endian block counter and a 64-byte eager
+buffer encoding. Decode validates canonical buffer state, checked block/byte
+arithmetic, the SHA length limit and whole-leaf prefix alignment (or complete
+content). Up to 63 plaintext bytes can be buffered: checkpoint Debug is redacted,
+and the authority's inspection DTO omits the private checkpoint bytes entirely.
+This representation has no cross-release reader or migration path.
+
+The authority fixture stores the private checkpoint beside each pending session's
+manifest/progress in the same atomic archive write. Terminal verified/rejected
+sessions have no pending hash bytes. `ContentSession::from_record` cross-checks
+checkpoint progress and terminal invariants. An operator-only query reconstructs
+an isolated copy using the same manifest validation as admission, checks one
+supplied chunk and discards the copy. It cannot advance live progress, accounting,
+certificate eligibility or external effects. This probe establishes bounded
+mathematical reconstruction from stable memory independently of lifecycle recovery.
+
+The authority now restores the full archive synchronously into a permanently
+fenced inspection owner. The archive binds the workspace Cargo.lock digest,
+covering release/dependency selection even without pending hash state. Disposable
+catalogs validate all three catalogs through the shared transitions and compare
+every identity, receipt, phase, charge, manifest and checkpoint. Completed history
+is rebuilt before charged entries to avoid transient capacity conflicts; the
+original journal ordering is retained. These disposable models are discarded,
+and no operational catalog/registry is installed. Read/sync identities, invalidation
+and fault plans remain evidence rather than reusable tokens. The restored owner
+serves inspection from its validated record. All operational endpoints reject,
+including provider liveness/deletion queries and callback entry points.
+
+Ordinary upgrades reject active pending reads/syncs. Forced upgrades still validate
+and fence the entire archive; repeated upgrades cannot clear that fence. PocketIC
+covers partial verification after normal/repeat/skipped-hook upgrades, retained
+sample/journey receipts and billing, full lifetime history, old archives, missing
+journal rollback, corrupt-checkpoint rollback and controller/operator separation.
+Actual trapped read intents remain exact through forced restoration with no source
+replay. Native tests additionally reject contradictory records and check retained
+sync counter limits.
+
+The current source additionally persists a required `SyncRecord` containing the
+exact held gateway-list sequence, captured gateway and driver-release state. Its
+bounded management-call schedule is shared with held chunk reads; random bytes
+are discarded. PocketIC captures both journals during an actual pending sync,
+rejects busy upgrades/overlap and unauthorized release, completes the live call,
+then restores the older journals. Authority and source remain fenced with the
+pending identities and unresolved outgoing effect intact. A delayed held reply
+cannot undo revocation. Exhausting the local hold clears only the read-only
+attempt; no automatic retry occurs. This is controlled local scheduling, not
+Caffeine latency, retry or retention evidence.
+
+Large-vector cases retain cancelled/settled identity history exceeding the 12 MiB
+active byte budget, fill both tenants' lifetime slots and recover exact charges,
+receipts, manifests and verification checkpoints. Root reuse and new lifetime
+admission still reject before restore. Another case releases physical capacity
+while retaining billing liability: new admission fails until settlement, and an
+older journal restores with those liabilities and a permanent fence. The journey
+and gateway-sync targets, strict affected-package Clippy and Wasm builds pass.
+No checksum authenticates external facts or proves freshness. Snapshot loads can
+bypass lifecycle hooks; independent recovery authority and production operational
+restoration remain unimplemented. Fixture archives hard-cut the previous form;
+there is no compatibility reader, public catalog-import API or unfence endpoint.
+
+Native tests reconstruct at SHA block/padding boundaries and at every leaf of
+independent client vectors, including metadata and non-aligned final buffers.
+They reject format/release/checksum damage, malformed/counter-inconsistent state,
+changed declarations and wrong raw digests. PocketIC probes complete one-byte
+and metadata-bearing tails from protected stable state, reject corruption and
+wrong digests, preserve live authority, and deny controller-only access. Existing
+journey, content, authority, uploads, obligations and gateway-sync targets also
+pass. The targeted identity unit tests, strict affected-package Clippy, rustdoc
+with warnings denied, both fixture Wasm builds and formatting pass.
+
+The [current source inventory](verification-checkpoints.sha256) covers this work
+at Cargo 0.1.15. The released upload-deletion inventory remains unchanged and
+matches source `481fe67` (Cargo 0.1.14). Pre-balance-follow-up Wasm SHA-256:
+
+- authority probe: `7a517f9daf81134a7b63361926ed726694e01398e2841374b242873cd39c7f66`
+- gateway source: `189d9bd02eaac02df4ba13d52789d7db5b13d17b97b8bb7c5447748796838e1e`
+
+## Read-only operator diagnosis after 0.1.15
+
+The additive shared `policy::diagnostics` composes existing billing results with
+independently supplied recovery/provider state, funding-journal observations and
+pending upload/read/sync/delete work. Missing billing observations or funding
+history remain blockers rather than zero balances or clear activity. A stricter
+billing recovery fence is retained, with duplicate recovery/gateway blockers
+merged. Outstanding work remains visible as warnings independently of global
+blockers. The result is not overall service readiness or an effect permit.
+Native cases cover unavailable/malformed balances, reserve violations, simultaneous
+blockers, uncertain funding despite healthy balances and non-mutating composition.
+
+The unpublished authority fixture adds an explicit `operator_status` query.
+It snapshots the current active owner or the validated frozen inspection owner;
+older/missing stable evidence does not replace live status before restoration.
+It reports three independent catalog summaries (phases, release receipts and
+logical/physical/billing-liability bytes), gateway membership and exact pending
+read/sync observations. It exposes no hash-state checkpoint bytes. Billing
+configuration is absent; provider balance, spendable funding cycles and funding
+activity are unobserved. Gross canister cycles are not spendable-accounting proof.
+The fixture remains provider-unqualified, and restored instances report the fence.
+Status is not a stable-journal integrity check, recovery action or provider call.
+
+Actual PocketIC queries deny tenant/controller-only callers and preserve both
+stable journals and the source's effect history. They retain separately released
+physical/billing charges and settled receipts, expose held and invalidated reads
+while syncs are pending, and preserve those observations under old-journal restore.
+Targeted native policy tests, affected-package strict Clippy, warning-free rustdoc,
+both Wasm builds and journey/content/authority/uploads/obligations/gateway-sync
+PocketIC targets pass. No live provider observation or paid qualification was added.
+Sources are bound by the current checkpoint inventory above; the latest Wasm
+hashes are in the scoped-balance follow-up below. Released inventories remain unchanged. This adds partial BLOB-06/12/17 and
+A04/A05/A11 evidence; configured economic observations,
+the final operator client and both production adapters remain follow-up work.
+
+## Funding operator diagnosis after 0.1.15
+
+The funding fixture's driver-only `operator_status` reads its current journal,
+bound to the answering canister and retained local peer. It reconstructs shared
+`FundingTransfer` facts from each exact original attachment and callback refund or
+proven enqueue failure, then applies shared reconciliation. Contradictory transport
+facts stay unknown; a stored derived label cannot override the retained facts.
+Shared `assess_uncredited_activity` considers the entire outgoing history: a later
+no-transfer result cannot erase earlier unknown transfers or unverified credit.
+Incoming local acceptance receipts are separately reported, never credited amounts.
+
+Provider qualification/configuration, balance and spendable reservations are absent.
+The peer is not a validated storage gateway. The shared operator diagnosis now
+accepts missing recovery assessment as an explicit blocker for the active experiment.
+The restoration follow-up below now enforces an inspection-only fence; it does not
+assert reconciliation. Before restore this remains an experiment that can admit
+distinct completed transport cases, not a production funding workflow. No status
+result grants a retry.
+
+PocketIC exercises the query alongside zero/partial/full acceptance, provider errors,
+malformed/rejected replies, actual sender callback rollback, receiver rollback and
+insufficient-cycle enqueue failure. Sender uncertainty persists despite independently
+visible receiver acceptance, successful/failed upgrades and elapsed time. Positive
+acceptance still requires provider credit after later full refunds or unsent calls.
+Lifetime history survives upgrades. Controller/peer/unrelated callers cannot inspect
+status; repeated driver queries leave both stable journals and histories unchanged.
+
+Targeted checks passed: shared policy unit tests, fixture conversion unit test,
+affected-package strict Clippy, warning-free library rustdoc, three fixture Wasm
+builds, the funding PocketIC target and authority operator-status regression cases.
+This is partial BLOB-11/12/17 and A08/A11 evidence, not deployed credit reconciliation,
+old-backup safety, a production adapter or the final operator client. The current
+[source inventory](verification-checkpoints.sha256) includes these additions;
+released funding inventories remain unchanged. Funding fixture Wasm SHA-256:
+`08fc94562543eb14c2a6b5dd2b809077cc90da82909080a167c6b679e74a7af4`.
+
+## Fenced funding restoration after 0.1.15
+
+The unpublished funding journal now requires actual service, Cargo.lock release
+binding and a persisted fence. This hard-cuts the prior fixture schema without a
+migration/dual reader. Before restoration, model validation checks principal/release
+bindings, lifetime capacities, unique outgoing/incoming identities, positive bounded
+attachments, conserved refunds/acceptance, consistent receipts and at most one final
+unresolved intent. A callback configured to trap cannot have a retained completion.
+Workflow compares retained reconciliation with shared policy before ops commits the
+permanent fence and installs the inspection owner synchronously.
+
+All sending and receiver acceptance are denied after restore. Completion requires
+an active owner and the exact admitted request, so a late callback cannot turn the
+restored journal active or clear uncertainty. Authorized inspection retains intents,
+refunds and incoming receipts; active owners still report recovery as unknown and
+restored owners report the enforced fence. No old local counter, receipt, provider
+balance or transport success grants reactivation. No reset/unfence endpoint exists.
+
+Actual PocketIC cases exercise:
+
+- Older empty sender journals after payment, with surviving receiver receipts,
+  reject both reused and new identities through repeat/skip-hook upgrades and restart.
+- Older receiver journals reject a real attached-cycle call before acceptance;
+  the active sender records the full refund separately from earlier unverified credit.
+- Captured real in-flight journals restore as unknown after the live call completes.
+  A delayed-success substitute commits acceptance before bounded management-canister
+  scheduling calls; it changes no provider protocol or claimed provider behavior.
+- Upgrading the sender while its reply is outstanding leaves the intent unresolved
+  when the actual late callback arrives. No transfer is repeated.
+- Upgrading the receiver after acceptance but before reply retains its receipt;
+  the sender observes the exact remaining refund and still needs provider credit.
+- Missing, corrupt, foreign-service and wrong-release journals reject atomically;
+  failed post-upgrade hooks roll back the attempted fence. Original active owners
+  remain usable, with their previous obligations intact.
+
+Existing exact refund, enqueue-failure, callback/receiver-trap, caller-isolation and
+lifetime-history cases pass under the maintained inspection-only restore contract.
+Native validation/conversion tests, strict affected-package Clippy, warning-free
+fixture/protocol rustdoc and three fixture Wasm builds pass. The authority/source
+Wasm hashes above are unchanged; funding uses the updated hash above. The current
+[inventory](verification-checkpoints.sha256) includes all new source and tests;
+released evidence remains historical. This adds partial BLOB-11/12/13 and A05/A08/A11
+coverage. It does not qualify whole-canister snapshot loads that bypass hooks,
+independent recovery authority, production account credit or either service adapter.
+
+## Read-only fixture client after 0.1.15
+
+`blob-fixture-status` is a host-only, unpublished binary in the existing PocketIC
+package. It reuses ic-testkit 0.10.0's exported PocketIC 16.0.0; no dependency or
+production provider interface was added. Local Canic CLI/medic source at
+`3f825aa223e663a562a7cb1cca72e57b5703e0e9` was inspected read-only. Its metadata-based
+query/update selection and method-name discovery are capability inputs, not
+permission to invoke updates during inspection.
+
+The client requires a literal loopback socket, explicit instance, canister and
+simulated caller, plus expected authority namespace or funding peer. It attaches
+without owning the instance. Its only method is the `operator_status` query; no
+method override, update fallback or application-level retry exists. The SDK may
+poll/busy-retry its read request. Its 10-second request-processing setting does not
+bound a stalled HTTP socket, and reply-byte limits apply after SDK reception.
+This is a local harness tool, not production authentication or hardened networking.
+
+Candid inspection rejects replies over 65,536 bytes, with decoding/skipping quotas
+of 1,000,000/10,000 and type-table length 64. Answering service and namespace/peer
+must match the selection. JSON reports label simulator scope and unassessed service
+qualification. Full-width counters, bytes and cycles are decimal strings; absent
+observations remain null. Catalog byte charges remain separate; funding acceptance
+never becomes provider credit. Shared server diagnosis is projected without
+recomputing admission policy. `status` succeeds on a valid report even if blocked;
+`check` exits 4 when its typed report contains blockers. Invalid arguments exit 2;
+transport/query/permission/decode/binding errors exit 3 with stable error tags.
+
+The actual binary runs as subprocesses in `tests/pocketic/tests/operator.rs`:
+
+- Authorized status/check preserve authority, source and funding stable journals,
+  and dropping the attached client leaves the parent's instance usable.
+- An explicit controller without operator authority is denied. Wrong namespace or
+  funding peer, missing methods and invalid instances produce failure signals.
+- A tiny real Wasm exports only an update named `operator_status`. Client inspection
+  rejects without changing stable memory. An explicit control update then grows
+  memory, proving the witness actually has a callable mutation.
+- An accepted local transfer remains uncredited and uncertain, with exact operation
+  identity/refund/acceptance visible through the binary and after fenced restoration.
+- Authority restoration remains visible as an enforced fence; inspection does not
+  change retained journals or reactivate operations.
+
+Native cases cover ambiguous/missing/remote inputs, full-width Candid-to-JSON values,
+unknowns, truncated/oversized replies and service/peer mismatch. Targeted native tests,
+strict protocol/client Clippy, warning-free rustdoc, host-client Wasm checks, all three
+fixture Wasm builds and the operator PocketIC target pass. The normal
+`make test-pocketic` package selection includes these cases; it was not run as a
+full suite for this slice. The current [source inventory](verification-checkpoints.sha256)
+includes all client/test sources; released inventories are unchanged. Client-slice
+artifacts before the scoped-balance follow-up below:
+
+- authority: `7a517f9daf81134a7b63361926ed726694e01398e2841374b242873cd39c7f66`
+- gateway source: `189d9bd02eaac02df4ba13d52789d7db5b13d17b97b8bb7c5447748796838e1e`
+- funding: `08fc94562543eb14c2a6b5dd2b809077cc90da82909080a167c6b679e74a7af4`
+
+This supplies partial BLOB-12/15/16/17 and A11 evidence. Production transport,
+identity/discovery, configured observations, sync/funding commands and both adapters
+remain open; neither fixture success nor an empty blocker list qualifies the service.
+
+## Scoped fixture balance observations after 0.1.15
+
+The authority fixture now explicitly configures a local balance-read scope containing
+service, namespace, source canister and requested account. This is separate from
+billing limits and funding-account authority. `refresh_balance` admits one pending
+read, persists intent before dispatch and attaches no cycles. Sixteen lifetime attempts
+retain their exact scope, configuration revision, dispatch time and terminal result;
+there is no reset or recycling. Reconfiguring even the same scope invalidates older
+replies without freeing an outstanding slot. Callback completion matches the exact
+slot/scope and current revision. Only the explicit operator can configure or refresh.
+
+The source's `fixture_balance` method is a deliberate local substitute. It checks the
+calling authority and explicit account, returns driver-configured independent fixture
+bytes, and can reject or hold a reply across bounded IC scheduling rounds. It permits
+one pending reply, 64 lifetime receives and at most 4,097 configured bytes. Its existing
+ic-memory journal now retains this state. No production Cashier request/interface was
+recreated, and no upstream currency refresh or live provider call occurred in this slice.
+
+The maintained `decode_balance_reply` owns the response contract: 4,096 reply bytes,
+100,000 decoding work, 1,000 skipping work and 32 type entries. Independent existing
+Candid vectors prove total/prepaid/promotional/ledger conversion, valid zero, negative
+components, provider errors and account mismatch. Rejected, malformed and oversized
+reads produce distinct retained failures, never synthetic zero. Transport buffering
+is governed separately by the IC and is not bounded by this post-receive decoder.
+
+Passive status/CLI projection retains all attempts. A current displayed total requires
+the latest configuration and successful latest reply, an unfenced owner, and local age
+at most 30 seconds from dispatch. Receipt after a long delay cannot freshen a report;
+a clock before dispatch/receipt is unusable. Expiry changes only the view, retaining
+history. This local observation-age rule cannot prove provider freshness. Unknown
+spendable funds and funding activity remain unknown, billing limits remain absent and
+shared operator diagnosis retains its blockers. No report supplies provider credit,
+funding permission, a readiness claim or an automatic refresh.
+
+Both fixture records require the added fields under v1: a pre-1.0 hard cut, without
+migration or fallback. Incoming authority validation checks all retained scopes,
+revisions, bounds, pending-slot placement and outcome consistency. Ordinary busy
+upgrades reject; forced and older-journal restores remain permanently fenced. Actual
+callbacks can trap after a forced upgrade clears their async heap; the unresolved
+intent remains durable and inspection-only. Source restoration likewise prevents
+replying/resuming and preserves the captured pending request.
+
+Native journal cases cover exact identity, repeated configuration, clock bounds,
+full-width totals, lifetime capacity and invalid records. Actual PocketIC/CLI cases
+in `tests/pocketic/tests/operator_balance/mod.rs` cover:
+
+- Passive inspection before/after refresh leaves all journals and source request
+  counts unchanged; JSON exposes exact independent components and unknown economics.
+- Provider-shaped errors, malformed bytes/amounts, account mismatch and actual reject
+  preserve prior history and never become zero; an independent valid zero remains zero.
+- Held replies cannot overlap or apply after configuration revision changes. Slow
+  replies expire from dispatch; a separately explicit refresh can observe again.
+- Captured old pending journals restore fenced on both sides after the newer live
+  call completed. Repeat restoration neither sends nor completes an attempt.
+- Forced upgrades during live authority/source callbacks preserve pending evidence
+  and prevent stale completion. Ordinary busy upgrades reject atomically.
+- Explicit controller denial and wrong namespace fail before calls. Lifetime capacity
+  rejects without changing history; full status fits the client decoder and restores.
+
+Targeted authority/client unit tests, affected-package strict Clippy, warning-free
+rustdoc, host-client Wasm checks, three fixture Wasm builds and operator/journey/
+gateway-sync PocketIC targets pass. The current [source inventory](verification-checkpoints.sha256)
+includes these additions and the independent balance vectors; released inventories
+remain unchanged. Current Wasm SHA-256 for this slice:
+
+- authority: `bbefbf02cc57d55292eebd138e77af05147e6129786363f17c4ec45ddf52bf5d`
+- gateway source: `bb089ade0904825b30c2b186801f338ce339ec35581a82ceb837b0dce95511b0`
+- funding: `183da9c2626589709487e58d4da045d0368d0666a322264cab0c9058b019a845`
+
+This adds partial BLOB-09/12/13/17 and A05/A08/A11 coverage. Configured billing-policy
+composition with unknown spendability, actual provider/account authority, production
+freshness/reconciliation and both adapters remain open. No acceptance case is closed.
+
+## Configured diagnostic billing for 0.1.16
+
+Shared `policy::billing::balance::assess_balance` diagnoses configuration, gateway,
+recovery and balance thresholds without requiring local spendable funds. It reports
+the exact target shortfall independently of reserve feasibility. The released
+`assess_readiness` API uses this same threshold logic, then performs reserve arithmetic
+only with its explicitly supplied known funds. Released signatures, enum variants,
+blocker ordering and behavior are unchanged; this is an additive library API.
+
+The current unpublished operator diagnosis can consume balance-only evidence. It
+adds `SpendabilityUnknown` for configured observations even when the minimum is met,
+and retains independent provider, funding and recovery blockers. Missing accounting
+never becomes zero, a reserve violation, available gross canister cycles or permission
+to transfer. Unknown/fenced recovery and uncertain funding cannot be cleared by a
+balance report. Diagnosis remains pure and grants no effect authority.
+
+The authority fixture validates numeric limits through `FundingLimits` and retains
+service/namespace/source/account scope and the exact observation revision. A required
+BillingRecord wraps the optional configuration, preserving the pre-1.0 fixture hard
+cut. Invalid/stale/unauthorized updates change no journal. Reconfiguring balance scope
+invalidates current use of old limits, including when reinstalling the same scope;
+retained limits stay inspectable until explicitly replaced. Restoration validates
+numeric and scope/revision consistency before entering the existing permanent fence.
+
+Passive status and actual CLI reports expose retained/current limits and the shared
+threshold result with exact decimal amounts. Local spendability remains null. Current
+malformed/account-mismatched/oversized replies diagnose malformed balance; missing,
+rejected, expired, invalidated or fenced observations diagnose unavailable balance.
+No query refreshes, funds or clears uncertainty; limits do not qualify a provider.
+
+Checks passed:
+
+- Existing billing unit tests and public balance-readiness/billing-input integration
+  cases retain reserve behavior; new policy tests cover extreme shortfalls and unknown
+  spendability together with uncertain funding, unknown recovery and enforced fences.
+- Native fixture validation checks exact revision retention and malformed restored limits.
+- Actual PocketIC/CLI cases exercise low/sufficient balances, extreme decimal amounts,
+  failed/expired observations, stale scopes, denied/invalid limit changes and restoration.
+  Check exits remain blocked with unknown spendability; journals/source counts do not
+  change on diagnosis. Existing operator, funding and journey targets also pass.
+- Strict affected-package Clippy, warning-free rustdoc, three fixture Wasm builds,
+  targeted library/client Wasm checks, formatting and source-inventory verification pass.
+
+The [current inventory](verification-checkpoints.sha256) covers these sources. Earlier
+artifact hashes above describe their earlier slices; current Wasm SHA-256:
+
+- authority: `231d1cc23f1187ff4d14735be17f67cd77135f35f1b960a7af66776d784d4629`
+- gateway source: `5dcef1b08627a204dfeb2ca77ef2f7b1a1e654c33358f387eb7fc18a2eb06f1e`
+- funding: `c7d2b3ee9ce58c7561554c6e6aafe5cf56c34ace00133fb05f40b2c68ac0b472`
+
+This adds partial BLOB-08/12/17 and A08/A11 evidence. The 0.1.16 changelog draft is
+undated; Cargo/receipt remain 0.1.15. An effect-free exact-version release preview
+selects 0.1.16. Full CI/release verification remains the maintainer workflow's next
+step after committing clean source; targeted results do not claim that gate passed.
+No version preparation, commit, tag, push, publication or live provider operation ran.

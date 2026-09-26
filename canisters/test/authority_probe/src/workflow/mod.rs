@@ -1,5 +1,6 @@
 //! Test-only orchestration using shared library policy and fixture state access.
 
+pub(crate) mod balance;
 pub(crate) mod journey;
 
 use blob_test_protocol::SyncFailure;
@@ -227,4 +228,29 @@ pub(crate) fn archive(
     context: TenantAccessContext,
 ) -> Option<blob_test_protocol::authority::AuthorityArchiveView> {
     ops::archive::inspect(context.service, context.actor)
+}
+
+pub(crate) fn operator_status(
+    context: TenantAccessContext,
+) -> Option<blob_test_protocol::status::OperatorStatusView> {
+    let snapshot = ops::archive::current(context.service, context.actor)?;
+    let input = ops::status::billing::snapshot(&snapshot);
+    let billing =
+        ic_blob_storage::policy::billing::balance::assess_balance(input.limits, input.context);
+    let diagnosis = ic_blob_storage::policy::diagnostics::assess_operator(
+        ops::status::observation(&snapshot, &billing),
+    );
+    Some(ops::status::view(
+        &snapshot, &diagnosis, &billing, input.now,
+    ))
+}
+
+pub(crate) fn probe_checkpoint(
+    context: TenantAccessContext,
+    input: &blob_test_protocol::authority::CheckpointProbeInput,
+) -> Result<
+    blob_test_protocol::journey::JourneyProgress,
+    blob_test_protocol::authority::CheckpointProbeFailure,
+> {
+    ops::archive::probe(context.service, context.actor, input)
 }
