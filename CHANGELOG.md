@@ -2,6 +2,34 @@
 
 ## [Unreleased]
 
+## [0.1.12]
+
+### Changed
+
+- Replaced the direct `ic-stable-structures` dependency with `ic-memory` 0.14.3,
+  matching Canic and IcyDB. The crate re-exports `ic_memory`, including its exact
+  stable-structures substrate. Memory bootstrap, allocation grants and bucket
+  configuration remain owned by the integrating host; no blob stores are declared.
+- Tenant upload usage reads now scan only that tenant's ordered operation range,
+  avoiding full service history scans while retaining all reservation and liability
+  accounting. No cached counters or additional upload index are introduced.
+
+### Added
+
+- Bounded tenant pages for unsettled confirmed objects, including physically
+  deleted and zero-byte objects whose billing obligations remain unresolved.
+  Tenant-owned root indexing prevents other tenants from consuming scan budgets
+  or appearing in cursor metadata; usage reads share the same index.
+- Native pagination, accounting and upload-transfer checks plus a PocketIC
+  release/deletion/billing observation journey with real caller isolation.
+  Provider confirmation facts remain explicitly substituted by the fixture.
+- Native memory composition checks for passive library linking and host-owned
+  handles shared through the re-export, with isolated cells and preserved host
+  configuration. These do not implement or qualify blob persistence or recovery.
+- `scripts/dev/cloc.sh`, copied from Canic and adapted to this repository's crate
+  names, plus `make cloc`. Reports Rust runtime/test file LOC and test function
+  counts under `crates/`; requires optional developer tools `cloc` and `jq`.
+
 ## [0.1.11] - 2026-09-26
 
 ### Added

@@ -329,6 +329,10 @@ does not establish billing cessation or fix loss of history after an old backup.
 
 These are proposed schema responsibilities for v1, not installed records or a
 frozen wire format. Keep them independent of Canic's memory IDs and store layout.
+The maintainer selected `ic-memory` as the allocation owner aligned with Canic
+and IcyDB. Future core stores use its re-exported stable collections, and the
+integrating host owns bootstrap, policy, grants and bucket profile. This dependency decision
+does not freeze blob schemas/keys/IDs or close the provider and recovery gates.
 
 - Object identity: an allocated object incarnation bound to service, tenant and
   provider namespace, with provider root, content digest and declared length as

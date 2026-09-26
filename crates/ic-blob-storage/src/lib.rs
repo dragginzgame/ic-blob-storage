@@ -12,3 +12,11 @@
 pub mod model;
 pub mod ops;
 pub mod policy;
+
+/// Shared allocation governance and its exact stable-structures substrate.
+///
+/// The integrating host owns memory bootstrap, policy, bucket configuration and
+/// allocation grants. Linking this crate does not register stores, initialize a
+/// memory manager or export lifecycle hooks. Access stable collections through
+/// `ic_memory::ic_stable_structures` to preserve the runtime's type identity.
+pub use ic_memory;

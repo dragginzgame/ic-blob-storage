@@ -14,6 +14,9 @@ capacity before exposure, retains exact operation history and keeps uncertain
 uploads accounted. Confirmation transfers the reservation into the same catalog.
 Authorized tenant pages list active uploads within explicit work/result limits;
 gateway observations include pending roots without granting deletion permission.
+Separate bounded tenant pages list unsettled confirmed objects, retaining deleted
+and zero-byte objects until billing stops. Tenant indexing keeps other tenants'
+objects out of scan budgets and cursor metadata.
 Native tests cover rejection/replay; a test-only PocketIC
 fixture exercises actual IC caller checks and gateway revocation. A controlled
 source canister tests stale sync replies and reentrant membership changes.
@@ -30,6 +33,11 @@ access, billing, retention and deletion. This repository will own standalone
 and Canic-managed adapters using the same handlers and blob API. The core
 builds without Canic; Canic owns generic deployment and lifecycle.
 
+Memory dependencies align through the re-exported `ic_memory` crate and its
+`ic_stable_structures` substrate. The host owns bootstrap and allocation policy;
+linking this library declares no stores or memory IDs. See
+[memory composition](docs/dependencies.md#memory-composition-with-canic-and-icydb).
+
 ## Local development
 
 Rust 1.98.1 and edition 2024 are pinned. Run `make deps` to fetch locked
@@ -44,6 +52,7 @@ See [dependency setup](docs/dependencies.md) for PocketIC provisioning.
 | `make test-native` | Native core tests and doctests |
 | `make test-pocketic` | Build and run the local authority and sync fixtures |
 | `make test` | Both suites, sequentially |
+| `make cloc` | Rust runtime/test file LOC and test function counts under `crates/` |
 
 Validation uses offline Cargo and this repository's `target/`. These checks
 make no provider calls or network deployments. PocketIC installs a test-only
@@ -55,6 +64,11 @@ Library publication to crates.io is enabled through the maintainer's
 [release workflow](docs/releasing.md); it does not establish service readiness.
 See [development governance](docs/governance/development.md) for command and
 validation authority.
+
+The optional LOC helper requires `cloc` and `jq`, and also works when invoked
+outside the repository. Classification is by file path: inline test LOC remains
+in `runtime_loc`, while `inline_fns` reports those test functions separately.
+Canister fixtures and the harness outside `crates/` are excluded from this report.
 
 ## Documentation
 

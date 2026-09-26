@@ -13,12 +13,13 @@
 
 pub mod admission;
 pub mod pending;
+pub mod tenant;
 
 #[cfg(test)]
 mod tests;
 
 use std::{
-    collections::BTreeMap,
+    collections::{BTreeMap, BTreeSet},
     num::{NonZeroU128, NonZeroUsize},
 };
 
@@ -99,12 +100,17 @@ struct Entry {
 /// Settled entries remain counted against lifetime capacity. No remove/reset API
 /// erases the only root or receipt evidence. Derived usage avoids independently
 /// mutable counters drifting from object state. Scans are bounded by `max_objects`.
+/// A private tenant index holds one root per confirmed entry, bounded by the same
+/// lifetime limits, and is maintained only by successful object insertion.
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct BlobCatalog {
     service: Principal,
     limits: CatalogLimits,
     claims: RootClaims,
     entries: BTreeMap<ProviderRootHash, Entry>,
+    // Exactly one root per confirmed entry; retained through settlement. This
+    // derived index bounds tenant scans without inspecting another tenant's rows.
+    tenant_roots: BTreeMap<Principal, BTreeSet<ProviderRootHash>>,
 }
 
 impl BlobCatalog {
@@ -117,6 +123,7 @@ impl BlobCatalog {
             limits,
             claims: RootClaims::new(service, limits.max_objects)?,
             entries: BTreeMap::new(),
+            tenant_roots: BTreeMap::new(),
         })
     }
 
@@ -190,6 +197,10 @@ impl BlobCatalog {
                 requests,
             },
         );
+        self.tenant_roots
+            .entry(input.first.object().tenant())
+            .or_default()
+            .insert(input.root);
         Ok(CatalogInsertOutcome::Inserted)
     }
 
@@ -257,12 +268,17 @@ impl BlobCatalog {
     }
 
     /// Local tenant usage across namespaces; this accessor is not authorization.
+    /// # Panics
+    /// Panics if the private tenant index references a missing confirmed entry,
+    /// indicating an internal invariant violation, not rejected caller input.
     #[must_use]
     pub fn tenant_usage(&self, tenant: Principal) -> CatalogUsage {
         usage(
-            self.entries
-                .values()
-                .filter(|entry| entry.original.first.object().tenant() == tenant),
+            self.tenant_roots
+                .get(&tenant)
+                .into_iter()
+                .flatten()
+                .map(|root| self.entries.get(root).expect("indexed confirmed object")),
         )
     }
 

@@ -6,6 +6,7 @@ mod workflow;
 
 use blob_test_protocol::SyncFailure;
 use blob_test_protocol::content::{ContentProbeCase, ContentProbeFailure, ContentProbeReport};
+use blob_test_protocol::obligations::{ObligationProbeFact, ObligationProbeView};
 use candid::Principal;
 use ic_blob_storage::policy::tenant::TenantAccessContext;
 
@@ -30,6 +31,16 @@ fn init(first: Principal, second: Principal, gateway: Principal, operator: Princ
 #[ic_cdk::query]
 fn usage() -> Option<u128> {
     workflow::usage(context())
+}
+
+#[ic_cdk::query]
+fn unsettled_objects() -> Option<Vec<ObligationProbeView>> {
+    workflow::unsettled_objects(context())
+}
+
+#[ic_cdk::update]
+fn confirm_obligation(root: u8, fact: ObligationProbeFact) -> bool {
+    workflow::confirm_obligation(context(), root, fact)
 }
 
 #[ic_cdk::query]

@@ -14,7 +14,8 @@ availability does not establish provider qualification or service readiness.
 | `sha2` | 0.11.0 | SHA-256; optional allocation/OID features disabled |
 | `thiserror` | 2.0.18 | Typed error derives; matches PocketIC's exact requirement |
 | `ic-cdk` | 0.20.3 | IC platform operations for the ops layer |
-| `ic-stable-structures` | 0.7.2 | Stable-memory storage primitives |
+| `ic-memory` | 0.14.3 | Allocation governance; direct dependency aligned with Canic and IcyDB |
+| `ic-stable-structures` | 0.7.2 | Exact transitive substrate owned/re-exported by `ic-memory` |
 | `ic-testkit` | 0.10.0 | Native dev dependency of the unpublished PocketIC harness; shared helpers and full re-export |
 | `pocket-ic` | 16.0.0 | Transitive through `ic-testkit`; no direct dependency |
 
@@ -40,6 +41,42 @@ excludes it; testkit is owned by `tests/pocketic/Cargo.toml`.
 The unpublished `tests/pocketic` harness uses these exports. This shares version
 selection and harness helpers, rather than reducing the total transitive package
 count: testkit also brings host-side artifact/locking utilities.
+
+## Memory composition with Canic and IcyDB
+
+The 0.1.12 work uses the published `ic-memory` 0.14.3 package already selected by
+Canic 0.110.42 and IcyDB 0.261.11. A combined dependency-resolution check of this
+crate, `canic-core` and `icydb-core` resolves one `ic-memory` 0.14.3 and one
+`ic-stable-structures` 0.7.2. Those two framework crates are not dependencies of
+the blob core; the combined graph is a compatibility check, not an adapter build.
+The lockfile retains existing versions and adds ic-memory's missing dependencies.
+
+Use the shared public path for storage types:
+
+```rust
+use ic_blob_storage::ic_memory::{
+    RuntimeMemory,
+    ic_stable_structures::{Cell, DefaultMemoryImpl},
+};
+
+type BlobCell = Cell<u64, RuntimeMemory<DefaultMemoryImpl>>;
+```
+
+The integrating host owns one runtime/bootstrap for its backing memory, explicit
+allocation grants, bucket profile and policy. Future blob stores must participate
+in that host's committed allocation authority and open by stable key, alongside
+IcyDB. A managed adapter must adopt Canic's runtime rather than bootstrap a second
+manager or replace host policy with the generic default. A standalone adapter
+must explicitly own bootstrap itself. This crate currently declares no stores,
+IDs, ranges or lifecycle hooks. No raw manager, stable-save path or inferred
+allocation layout is introduced by this dependency change.
+
+Native tests check the re-export's type compatibility with host handles, isolated
+cells and unchanged host configuration, and that ordinary library use does not
+bootstrap or declare memory. They do not prove blob schema transactions,
+same-release interruption/restore or deployed Canic/IcyDB adapter behavior.
+`ic-memory` governs allocation ownership; the service must still implement its
+own intent/accounting/recovery invariants once the provider contract is settled.
 
 ## Setup and checks
 

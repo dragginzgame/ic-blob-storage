@@ -130,6 +130,13 @@ current [upstream baseline](provider-baseline.json) owns provider compatibility.
 Raw Cashier helpers belong to one internal provider owner; they must not become
 public arbitrary-provider/payment entrypoints in the new service.
 
+Tenant obligation pages add local BLOB-06 evidence: bounded tenant-only scans
+retain physically deleted and zero-byte obligations until billing settlement,
+without exposing other tenants through results or cursors. PocketIC observes
+separate release/deletion/billing phases with actual callers and explicitly
+substituted confirmation facts. Persisted accounting and provider settlement
+evidence remain outstanding; see [core evidence](evidence/core-primitives.md).
+
 The operator client/CLI is an explicit extraction deliverable owned here. Its
 final package name is a B1 decision. It must support the standalone service and
 managed deployment using the same service API. Preserve automation behavior:

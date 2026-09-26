@@ -628,3 +628,122 @@ fn zero_bytes_still_consume_tenant_slots_and_wide_totals_are_exact() {
     assert_eq!(owner.usage().physical_bytes, 2 * u128::from(u64::MAX));
     assert_eq!(owner.tenant_usage(p(2)).operations, 2);
 }
+
+fn owner_with_mixed_tenant_history() -> UploadCatalog {
+    let mut owner = UploadCatalog::new(
+        p(1),
+        CatalogLimits {
+            max_objects: bound(12),
+            max_tenant_objects: bound(8),
+            ..limits()
+        },
+        uploads(),
+    )
+    .expect("owner");
+    for id in 1..=7 {
+        let mut input = request(id, 3, u64::from(id) * 10);
+        input.id = match id {
+            1 => UploadRequestId::new(NonZeroU128::MIN),
+            7 => UploadRequestId::new(NonZeroU128::MAX),
+            _ => input.id,
+        };
+        // Include another provider namespace in the same tenant's total.
+        if id == 2 {
+            let object = input.object.first.object();
+            input.object.first = ReferenceKey::new(
+                ObjectBinding::new(
+                    object.service(),
+                    object.tenant(),
+                    ObjectIdentity {
+                        namespace: n(2),
+                        ..object.identity()
+                    },
+                )
+                .expect("second namespace"),
+                input.object.first.reference(),
+            );
+        }
+        owner.reserve(p(3), input).expect("reserve");
+        match id {
+            1 => {}
+            2 => {
+                owner.mark_exposure_possible(p(3), input).expect("exposure");
+            }
+            7 => {
+                owner.cancel(p(3), input).expect("cancel");
+            }
+            _ => {
+                confirm(&mut owner, input);
+                if id >= 4 {
+                    release(&mut owner, input);
+                }
+                if id >= 5 {
+                    owner
+                        .confirm_provider_deleted(input.object.root, input.object.first.object())
+                        .expect("deletion fact");
+                }
+                if id == 6 {
+                    owner
+                        .confirm_billing_stopped(input.object.root, input.object.first.object())
+                        .expect("billing fact");
+                }
+            }
+        }
+    }
+    owner
+}
+
+#[test]
+fn tenant_usage_includes_boundary_ids_and_all_phases_without_foreign_charges() {
+    let mut owner = owner_with_mixed_tenant_history();
+    let expected = UploadUsage {
+        operations: 7,
+        active_reservations: 2,
+        reserved_bytes: 30,
+        logical_bytes: 60,
+        physical_bytes: 100,
+        liability_bytes: 150,
+    };
+    assert_eq!(owner.tenant_usage(p(3)), expected);
+    assert_eq!(owner.usage(), expected);
+    for (root, tenant, id, bytes) in [(8, 2, NonZeroU128::MIN, 200), (9, 4, NonZeroU128::MAX, 300)]
+    {
+        let input = UploadRequest {
+            id: UploadRequestId::new(id),
+            ..request(root, tenant, bytes)
+        };
+        owner
+            .reserve(p(tenant), input)
+            .expect("foreign reservation");
+    }
+    let before = snapshot(&owner);
+    assert_eq!(owner.tenant_usage(p(3)), expected);
+    for absent in [1, 5] {
+        assert_eq!(owner.tenant_usage(p(absent)), UploadUsage::default());
+    }
+    for (tenant, bytes) in [(2, 200), (4, 300)] {
+        assert_eq!(
+            owner.tenant_usage(p(tenant)),
+            UploadUsage {
+                operations: 1,
+                active_reservations: 1,
+                reserved_bytes: bytes,
+                logical_bytes: bytes,
+                physical_bytes: bytes,
+                liability_bytes: bytes,
+            }
+        );
+    }
+    assert_eq!(
+        owner.usage(),
+        UploadUsage {
+            operations: 9,
+            active_reservations: 4,
+            reserved_bytes: 530,
+            logical_bytes: 560,
+            physical_bytes: 600,
+            liability_bytes: 650,
+        }
+    );
+    assert_eq!(snapshot(&owner), before);
+}

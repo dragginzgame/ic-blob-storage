@@ -11,7 +11,13 @@ use thiserror::Error;
 
 use crate::{
     model::{
-        catalog::{BlobCatalog, CatalogReferenceKey},
+        catalog::{
+            BlobCatalog, CatalogReferenceKey,
+            tenant::{
+                TenantObjectCursor, TenantObjectCursorError, TenantObjectPageLimits,
+                UnsettledObjectPage,
+            },
+        },
         identity::ProviderRootHash,
         lifecycle::{
             binding::ObjectBindingMismatch,
@@ -96,6 +102,35 @@ fn owned_journal(
         .get(root)
         .filter(|journal| journal.lifecycle().binding().tenant() == context.actor)
         .ok_or(CatalogTenantReadError::Unavailable)
+}
+
+/// List only the actual tenant caller's unsettled confirmed objects across namespaces.
+///
+/// Rechecks execution context on every page. A cursor grants no authority and
+/// controller/operator status grants no tenant override. This read changes no
+/// references, receipts or accounting and performs no provider effects. Pending
+/// upload reservations are reported separately by the upload policy views.
+/// # Errors
+/// Rejects ineligible caller or wrong running service before checking cursor scope.
+pub fn assess_tenant_unsettled_objects(
+    catalog: &BlobCatalog,
+    context: TenantAccessContext,
+    cursor: Option<TenantObjectCursor>,
+    limits: TenantObjectPageLimits,
+) -> Result<UnsettledObjectPage, TenantObjectReadError> {
+    super::check_tenant(catalog, context)?;
+    Ok(catalog.tenant_unsettled_objects(context.actor, cursor, limits)?)
+}
+
+/// Unsettled-object enumeration rejected before disclosing object or cursor data.
+#[derive(Clone, Copy, Debug, Eq, Error, PartialEq)]
+pub enum TenantObjectReadError {
+    /// Actual execution service/caller is not eligible for direct tenant access.
+    #[error(transparent)]
+    Access(#[from] TenantAccessError),
+    /// Continuation belongs to another service or tenant.
+    #[error(transparent)]
+    Cursor(#[from] TenantObjectCursorError),
 }
 
 /// Tenant catalog read rejection, with no partial values or state changes.

@@ -10,7 +10,8 @@ pub mod read;
 mod tests;
 
 use super::{
-    BlobCatalog, CatalogCapacity, CatalogError, CatalogLimits, ConfirmedObject, check_bytes,
+    BlobCatalog, CatalogCapacity, CatalogError, CatalogLimits, CatalogUsage, ConfirmedObject,
+    check_bytes,
 };
 use crate::model::{
     identity::{ContentDigest, ProviderRootHash},
@@ -334,29 +335,35 @@ impl UploadCatalog {
     /// Aggregate charged capacity, including reserved and possibly exposed uploads.
     #[must_use]
     pub fn usage(&self) -> UploadUsage {
-        self.scoped_usage(None)
+        Self::usage_with_operations(self.catalog.usage(), self.operations.values())
     }
 
     /// Aggregate charged tenant capacity across namespaces; not authorization.
+    /// Only this tenant's operation range and confirmed-object index are visited.
+    /// No aggregate counters or additional mutable upload index are maintained.
     #[must_use]
     pub fn tenant_usage(&self, tenant: Principal) -> UploadUsage {
-        self.scoped_usage(Some(tenant))
+        let operations = self.operations.range(
+            (tenant, UploadRequestId::new(NonZeroU128::MIN))
+                ..=(tenant, UploadRequestId::new(NonZeroU128::MAX)),
+        );
+        Self::usage_with_operations(
+            self.catalog.tenant_usage(tenant),
+            operations.map(|(_, operation)| operation),
+        )
     }
 
-    fn scoped_usage(&self, tenant: Option<Principal>) -> UploadUsage {
-        let confirmed = tenant.map_or_else(
-            || self.catalog.usage(),
-            |tenant| self.catalog.tenant_usage(tenant),
-        );
+    fn usage_with_operations<'a>(
+        confirmed: CatalogUsage,
+        operations: impl Iterator<Item = &'a Operation>,
+    ) -> UploadUsage {
         let mut usage = UploadUsage {
             logical_bytes: confirmed.logical_bytes,
             physical_bytes: confirmed.physical_bytes,
             liability_bytes: confirmed.liability_bytes,
             ..UploadUsage::default()
         };
-        for operation in self.operations.values().filter(|op| {
-            tenant.is_none_or(|tenant| op.request.object.first.object().tenant() == tenant)
-        }) {
+        for operation in operations {
             usage.operations += 1;
             if operation.phase.active() {
                 usage.active_reservations += 1;

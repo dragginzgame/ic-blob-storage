@@ -798,3 +798,109 @@ provider protocol. The owner cannot be cloned/imported/serialized; creating it
 fresh does not restore an existing installation. Byte liabilities are not a
 currency bound. Independent provider qualification, restore fencing and durable
 intent-before-effect storage still precede actual certificates or paid uploads.
+
+## Memory dependency alignment after 0.1.11
+
+The [core manifest](../../crates/ic-blob-storage/Cargo.toml) now depends on
+`ic-memory` 0.14.3 instead of directly on stable-structures. The
+[library export](../../crates/ic-blob-storage/src/lib.rs) exposes the same runtime,
+collections and traits through `ic_blob_storage::ic_memory`. The published
+package checksum is `b9368f37df84f896d04da5b980e0e038302c4da24892f89e00124c6d7cb953c7`.
+Cargo resolved the cached registry package offline; a separate crates.io API
+fetch returned HTTP 403, so this is not a fresh registry-latest claim.
+
+Read-only source review found the same 0.14.3 requirement in Canic at
+`3f825aa223e663a562a7cb1cca72e57b5703e0e9` and IcyDB at
+`b6111f5f7185136b56860ee35287b206d9debafa`. Their published core package manifests
+also specify it. An isolated Cargo graph with this local crate, canic-core
+`=0.110.42` and icydb-core `=0.261.11` (both default features disabled) resolves:
+
+```text
+ic-stable-structures 0.7.2
+└── ic-memory 0.14.3
+    ├── canic-core 0.110.42
+    ├── ic-blob-storage 0.1.11
+    └── icydb-core 0.261.11
+```
+
+Reproduction inputs and `cargo tree --offline --locked -i ic-memory` / inverse
+substrate output are retained under ignored `.tmp/memory-alignment/composition`.
+This proves dependency resolution, not compilation or lifecycle qualification of
+both frameworks together. Neither framework was added to the core dependency graph.
+Canic's memory module owns configured bootstrap; IcyDB resolves IDs from committed
+allocation authority. Future blob persistence must compose with that host, not
+initialize an independent manager or override its policy/grants/bucket profile.
+
+[Native composition tests](../../crates/ic-blob-storage/tests/memory_composition.rs)
+exercise the public re-export: ordinary library use leaves linked store declarations
+empty and memory unbootstrapped. Test-only host grants open distinct cells through
+shared runtime handle types, retain separate values and preserve the host's bucket
+configuration/capability. These keys/IDs are fixtures, not a selected blob schema.
+No actual blob persistence, migration, canister restart or backup recovery is tested.
+
+Native tests, workspace Clippy/Wasm, rustdoc, existing PocketIC regressions,
+formatting and offline package verification pass. The
+[source inventory](memory-alignment.sha256) binds this local batch at Cargo 0.1.11.
+Released upload-admission hashes were verified against `3b5ab64` and remain unchanged.
+No full CI, release action, provider effect or sibling edit ran.
+
+The LOC helper was copied from Canic's `scripts/dev/cloc.sh` (source SHA-256
+`d2198d05bf7f363c6b891f9112ce4ea4be9c11f5cbb54f816f084762ace12dcd`), replacing
+its canic-specific directory filter with manifest-bearing `crates/*`. Bash syntax,
+ShellCheck and real invocations from the repo and `/tmp` pass. Its path-based
+classification counts inline test LOC in runtime files; the separate inline test
+function count makes that limitation visible. No fixed LOC/count assertions or
+extra CI dependency on cloc/jq were introduced.
+
+## Tenant obligation views after 0.1.11
+
+The [tenant object model](../../crates/ic-blob-storage/src/model/catalog/tenant/mod.rs)
+adds bounded current pages of unsettled confirmed objects across a tenant's
+namespaces. Live, DeletionPending and ProviderDeleted remain visible, including
+zero-byte objects. Only explicit billing settlement removes an object from these
+results; root claims, reference receipts and lifetime history remain retained.
+Each result carries its complete binding and separate logical, physical and
+liability bytes. These bytes are capacity units, not a measured currency amount.
+
+A private per-tenant root index holds exactly one root per confirmed catalog
+entry. It changes only on successful insertion and is bounded by the existing
+global/per-tenant lifetime object limits. Exact replay and rejected registration
+leave it unchanged. Tenant usage shares this index. Upload tenant usage also
+selects the tenant's inclusive minimum/maximum request-ID range in the existing
+operation map, avoiding foreign history scans without another index or cached
+counters. Global usage continues to include every tenant. Pagination inspects at most
+its scan budget and returns at most its result budget; foreign rows do not enter
+the scan, count or cursor. Settled rows count toward scanning and can produce an
+empty page with continuation. Each lookup observes current state, so a fresh sweep
+is required for roots inserted behind a cursor. Pages prove no restore safety or
+installation retirement condition, and exclude pending upload reservations.
+
+The [tenant policy](../../crates/ic-blob-storage/src/policy/catalog/tenant/mod.rs)
+checks actual caller/service context before cursor scope on every page. There
+is no requested tenant or controller override. [Native tests](../../crates/ic-blob-storage/tests/tenant_obligations.rs)
+cover budget combinations, sparse history, exact bindings, zero bytes, byte
+projections, scope rejection, interleaved settlement, minimum/maximum roots,
+confirmed index consistency and transfer from pending upload reservations.
+Reads leave the catalog and receipts unchanged.
+
+The admission module's mixed-phase unit test checks tenant/global totals for
+reserved, exposed, live, deletion-pending, physically deleted, settled and
+cancelled operations, including boundary request IDs, multiple namespaces and
+neighboring tenants. Targeted admission and read regressions pass after the
+tenant-range optimization; workspace Clippy/Wasm, rustdoc and PocketIC were rerun.
+
+The [PocketIC case](../../tests/pocketic/tests/obligations.rs) runs actual caller
+isolation and a release/deletion/billing sequence. A real controller receives no
+foreign tenant view; an explicitly configured fixture operator can supply local
+confirmation facts. Physical deletion empties the deletion queue while the tenant
+still observes billing liability; only the separate settlement fact removes that
+obligation. These operator facts substitute external evidence and do not model
+an authenticated provider callback contract. The fixture remains transient.
+
+Native tests, workspace Clippy/Wasm, rustdoc and PocketIC regressions pass.
+The [source inventory](tenant-obligations.sha256) binds the changed model/policy,
+native checks and fixture code with maintained dependencies at Cargo 0.1.11.
+Authority-probe Wasm SHA-256:
+`871b1f4963ce50aeb98ffd089a7f18fc11386ffd878b1d10fa00f7bb6019c9f3`.
+This is partial BLOB-06 evidence; no persistence, provider effect, deployment,
+version mutation or full CI/release gate ran.

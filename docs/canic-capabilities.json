@@ -419,6 +419,14 @@
           "source": "crates/ic-blob-storage/tests/upload_reads.rs",
           "coverage": "Tenant usage includes pending reservations and confirmed obligations. Bounded active-upload pages validate cursor scope and current caller, preserve empty-page continuation and observe intervening transitions. PocketIC verifies caller-isolated usage/pages and cancellation accounting.",
           "remaining": "Persistent aggregate accounting, production query bounds, operator views and service/provider recovery journeys."
+        },
+        {
+          "kind": "native_and_pocketic_fixture_partial",
+          "record": "evidence/core-primitives.md",
+          "source_hashes": "evidence/tenant-obligations.sha256",
+          "source": "crates/ic-blob-storage/tests/tenant_obligations.rs",
+          "coverage": "Bounded tenant-only unsettled-object pages retain physically deleted and zero-byte billing obligations, preserve separate byte projections, reject foreign cursors and observe current state. Private confirmed-root indexing excludes foreign history from scans/cursors and shares tenant usage. PocketIC verifies caller/controller isolation and separate release/deletion/billing observations using substituted facts.",
+          "remaining": "Durable index/accounting invariants, pending-upload reconciliation, production pagination bounds and adapters, exact provider completion/settlement evidence and restore fences."
         }
       ]
     },

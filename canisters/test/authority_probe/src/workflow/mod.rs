@@ -2,14 +2,18 @@
 
 use blob_test_protocol::SyncFailure;
 use blob_test_protocol::content::{ContentProbeCase, ContentProbeFailure, ContentProbeReport};
+use blob_test_protocol::obligations::{ObligationProbeFact, ObligationProbeView};
 use blob_test_protocol::uploads::UploadProbeState;
 use candid::Principal;
 use ic_blob_storage::{
-    model::catalog::{admission::read::UploadPageLimits, pending::PendingPageLimits},
+    model::catalog::{
+        admission::read::UploadPageLimits, pending::PendingPageLimits,
+        tenant::TenantObjectPageLimits,
+    },
     policy::{
         catalog::{
             assess_gateway_pending, assess_tenant_usage,
-            tenant::assess_tenant_references,
+            tenant::{assess_tenant_references, assess_tenant_unsettled_objects},
             upload::{
                 assess_gateway_upload_roots, assess_tenant_active_uploads,
                 assess_tenant_upload_usage,
@@ -21,6 +25,38 @@ use ic_blob_storage::{
 };
 
 use crate::ops;
+
+pub(crate) fn unsettled_objects(context: TenantAccessContext) -> Option<Vec<ObligationProbeView>> {
+    ops::read(|state| {
+        assess_tenant_unsettled_objects(
+            &state.catalog,
+            context,
+            None,
+            TenantObjectPageLimits {
+                max_scan: ops::bound(2),
+                max_results: ops::bound(2),
+            },
+        )
+        .ok()
+        .map(|page| {
+            page.entries
+                .into_iter()
+                .map(ops::obligations::view)
+                .collect()
+        })
+    })
+}
+
+pub(crate) fn confirm_obligation(
+    context: TenantAccessContext,
+    root: u8,
+    fact: ObligationProbeFact,
+) -> bool {
+    if !is_operator(context) {
+        return false;
+    }
+    ops::obligations::confirm(root, fact)
+}
 
 pub(crate) fn upload_usage(context: TenantAccessContext) -> Option<u128> {
     ops::read(|state| {

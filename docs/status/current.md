@@ -4,8 +4,8 @@ Date: 2026-09-26
 
 ## Released baseline
 
-The maintainer reports 0.1.10 live. Local release/tag is `27c9b6b`, from source
-`aaa50572ee9d787c1786486ad679c919f0ac62f3`; Cargo and the receipt are 0.1.10.
+The maintainer reports 0.1.11 pushed. Local release/tag is `b1d5595`, from source
+`3b5ab645e579e8193c951c7b47b649cd921abe65`; Cargo and the receipt are 0.1.11.
 `make release-tag-check` passed after release. Registry publication was not
 independently queried. Release/publication preserve artifacts; cleanup requires
 an explicit request. See [release guidance](../releasing.md).
@@ -33,55 +33,71 @@ Released source inventories remain historical: 0.1.5 matches `6bd0d45` (Cargo
 (Cargo 0.1.8). The 0.1.10 chunk-verification inventory was verified against Git
 source `aaa5057` (Cargo 0.1.9). Do not rotate these for later source/version changes.
 
-## Current follow-up — 0.1.11
+The 0.1.11 upload-admission inventory also matches released source `3b5ab64`
+(Cargo 0.1.10), verified against Git after release. It remains historical.
+That release adds transient upload reservations, exact retries, uncertainty
+retention and transfer into confirmed accounting; bounded tenant pages and
+single-scan gateway batches include pending state. PocketIC covers actual
+caller/controller isolation, cancellation replay and gateway revocation.
 
-The maintainer approved the proposed upload admission/reservation batch and
-provider-gap review. Cargo remains 0.1.10; completed changes have an undated
-0.1.11 changelog draft.
+## Current follow-up — 0.1.12
 
-`model::catalog::admission::UploadCatalog` now owns an initially empty catalog
-and bounded upload operation history together. Tenant-scoped IDs bind exact raw
-content digest, provider root, length, first reference and full service/tenant/
-namespace/object/incarnation identity. The caller must supply the authenticated
-tenant principal; delegated actors are unsupported. Root claims have one owner.
-There is no catalog import, mutable escape, serialization or owner clone.
+The maintainer requested continuation, Canic's cloc helper, and alignment through
+ic-memory with Canic and IcyDB. Cargo stays 0.1.11; completed changes are grouped
+in the undated 0.1.12 changelog draft.
 
-Every admitted operation reserves global/per-tenant lifetime slots, concurrent
-upload slots, byte capacities and eventual first-reference/release-receipt
-capacity. Exact retries return current state without another allocation. Cancel
-only before exposure: byte/concurrent capacity is freed, history/root claims are
-retained. `ExposurePossible` deliberately covers all unresolved outcomes and has
-no expiry/reset/retry permission. Independently authenticated exact completion
-transfers capacity into the catalog without double counting. Completion replay
-never reactivates references after release/settlement. Physical deletion and
-billing cessation still free separate capacities.
+Replaced the unused direct stable-structures dependency with published ic-memory
+0.14.3 and re-exported it. Stable collections come through
+`ic_blob_storage::ic_memory::ic_stable_structures`. A combined graph with
+canic-core 0.110.42 and icydb-core 0.261.11 resolves one ic-memory 0.14.3 and one
+stable-structures 0.7.2. The core does not depend on either framework. New lockfile
+entries are ic-memory and its missing transitives; existing versions are retained.
 
-The local read boundary now includes bounded tenant active-upload pages and
-aggregate reserved/confirmed usage. Cursors bind service/tenant, never authority;
-terminal history consumes scan budget, empty pages can continue, and new earlier
-IDs require a new sweep. Gateway root observations distinguish reserved,
-possibly exposed, cancelled and confirmed lifecycle states after membership and
-namespace checks. These are local observations, not provider deletion permission.
-Gateway batches resolve distinct roots together and share at most one bounded
-history scan, stopping after the last needed pending/cancelled root. Confirmed,
-unknown and malformed inputs need no history scan. Duplicates reuse results;
-temporary maps are bounded by batch length and no second persistent index exists.
-Native regressions check scan counts, mixed states and fresh reads after transitions.
+Native composition tests verify no implicit allocation declarations/bootstrap,
+shared host handle types, isolated cells and preserved host bucket configuration.
+The host owns bootstrap/policy/grants; no blob schemas, keys, IDs, stable stores,
+raw manager or recovery workflow are added. See
+[memory composition](../dependencies.md#memory-composition-with-canic-and-icydb).
 
-Native core tests/doctests, strict workspace Clippy, workspace Wasm, formatting,
-rustdoc, offline package verification and source inventory checks pass. The expanded PocketIC probe covers
-real tenant/controller isolation, cancellation/replay, retained uncertain capacity
-and revocation over fixed upload facts. Existing authority/content/sync cases
-also pass. See [core evidence](../evidence/core-primitives.md#transient-upload-admission-after-0110).
-No provider/persistence/recovery qualification is claimed. No full CI, version
-mutation, commit, publication, paid effect or sibling edit ran.
+Copied `scripts/dev/cloc.sh` from Canic and changed its canic-name filter to
+manifest-bearing directories under crates/. `make cloc` runs it; cloc/jq are
+optional developer tools, while shell syntax/lint joins shell-check. File-based
+LOC classification retains inline tests in runtime LOC and reports their function
+count separately. Canister fixtures/host tests outside crates/ are excluded.
 
-The next integration work needs durable intent/reservation ownership and recovery
-fences, provider mapping/protection of pending roots, exact reconciliation, shared
-service handlers and both adapters. The current model consumes trusted completion
-facts supplied by future ops; a chunk status/hash or client progress cannot supply
-that fact. Byte liabilities are not a currency spending cap. Resolve the gates
-below before provider transports or persisted workflows.
+Native suite, memory composition tests, workspace Clippy, Wasm, rustdoc, PocketIC
+regressions, formatting and package verification pass. The cloc helper passes
+Bash/ShellCheck and runs from the repo and /tmp. Evidence is in
+[core primitives](../evidence/core-primitives.md#memory-dependency-alignment-after-0111).
+No full CI, version mutation, commit, publication or sibling edit ran.
+
+Continued 0.1.12 with bounded tenant pages for unsettled confirmed objects. These
+include Live, DeletionPending and ProviderDeleted, including zero-byte objects;
+Settled entries keep history slots but leave results. Each result exposes its
+full binding and separate logical/physical/liability bytes. A private root index
+holds one entry per confirmed object, bounds tenant-only scans and also serves
+tenant usage. Pending upload reservations remain in the existing upload views.
+Upload tenant usage now ranges over that tenant's existing ordered operation
+keys rather than filtering global history. Global totals still include all
+tenants; no cached counters or second upload index were added. A targeted mixed
+phase test includes minimum/maximum IDs, multiple namespaces and neighboring
+tenants. Admission/read tests, Clippy, Wasm, rustdoc and PocketIC regressions pass.
+
+Native tests cover independent scan/result limits, sparse settled history,
+scope rejection, replay/rejection/index consistency, upload confirmation transfer,
+intervening settlement and newly inserted lower roots. PocketIC verifies actual
+caller isolation and observes release, physical deletion and billing cessation
+separately using explicit operator-supplied substitute facts. Native, Clippy,
+Wasm, rustdoc and PocketIC regressions pass. See
+[obligation evidence](../evidence/core-primitives.md#tenant-obligation-views-after-0111).
+These reads are transient; no provider transport, stable schema or recovery
+authority is introduced.
+
+The next integration work remains durable intent/reservation ownership and
+recovery fences, provider mapping/protection of pending roots, exact provider
+reconciliation, shared handlers and both adapters. Memory allocation governance
+does not establish transaction atomicity or resolve uncertain paid effects.
+Resolve the gates below before provider transports or persisted workflows.
 
 ## Provider evidence and next work
 

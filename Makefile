@@ -11,7 +11,7 @@ VERSION ?=
 RELEASE := bash scripts/release/release.sh
 CI_TARGETS := shell-check release-check fmt-check check clippy docs-check test wasm-check package
 
-.PHONY: help version deps fmt fmt-check check clippy docs-check test test-native test-pocketic test-fixture wasm-check \
+.PHONY: help version deps cloc fmt fmt-check check clippy docs-check test test-native test-pocketic test-fixture wasm-check \
 	build package clean shell-check release-check ci validate release-verify \
 	release-plan ensure-clean patch minor major bump-x release-patch \
 	release-minor release-major release-x release-stage release-commit \
@@ -19,6 +19,7 @@ CI_TARGETS := shell-check release-check fmt-check check clippy docs-check test w
 
 help:
 	@echo "deps                         Fetch locked Rust dependencies (network)"
+	@echo "cloc                         Rust runtime/test file counts under crates/"
 	@echo "fmt / fmt-check              Format Rust or check formatting"
 	@echo "check / clippy / test         Compile, lint, or test the workspace"
 	@echo "test-native / test-pocketic   Native core tests or local IC fixtures"
@@ -39,6 +40,9 @@ version:
 
 deps:
 	cargo fetch --locked
+
+cloc:
+	bash scripts/dev/cloc.sh
 
 fmt:
 	cargo fmt --all
@@ -83,7 +87,8 @@ clean:
 
 shell-check:
 	bash -n scripts/release/*.sh
-	shellcheck scripts/release/*.sh
+	bash -n scripts/dev/cloc.sh
+	shellcheck scripts/release/*.sh scripts/dev/cloc.sh
 	perl -c scripts/release/release-data.pl
 
 release-check:
