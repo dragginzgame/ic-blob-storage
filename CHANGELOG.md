@@ -2,7 +2,7 @@
 
 ## [Unreleased]
 
-## [0.1.5]
+## [0.1.5] - 2026-09-26
 
 Local blob lifecycle, ownership bindings and request replay handling.
 Persistence, endpoint authentication and provider execution remain pending.
