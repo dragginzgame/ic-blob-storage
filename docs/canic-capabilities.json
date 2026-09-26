@@ -133,6 +133,30 @@
           "source": "crates/ic-blob-storage/src/model/identity/batch/mod.rs",
           "coverage": "Bounded binary-root parsing preserves order, duplicates, empty batches and individual malformed-entry positions; entry/byte limits reject before result allocation.",
           "remaining": "Authenticated liveness lookup, tenant/reference bindings, provider callback integration and real service journeys."
+        },
+        {
+          "kind": "native_core_partial",
+          "record": "evidence/core-primitives.md",
+          "source_hashes": "evidence/reference-liveness.sha256",
+          "source": "crates/ic-blob-storage/src/policy/liveness/mod.rs",
+          "coverage": "Direct-tenant consumer reference reads with complete binding checks and bounded ordered batches; released references stay inactive while live siblings preserve the object. Native tests preserve physical/billing obligations and reject root possession as authority.",
+          "remaining": "Authenticated endpoints, trusted persisted lookup, recovery fencing, gateway root-liveness integration and real service journeys."
+        },
+        {
+          "kind": "native_core_partial",
+          "record": "evidence/core-primitives.md",
+          "source_hashes": "evidence/catalog.sha256",
+          "source": "crates/ic-blob-storage/src/policy/catalog/mod.rs",
+          "coverage": "Current-gateway ordered root observations over a bounded catalog; duplicates and malformed/unknown/foreign-namespace outcomes remain explicit, with native multi-object coverage.",
+          "remaining": "Authenticated endpoints, trusted persisted catalog and recovery fences, durable upload reservations, monetary accounting, actual provider protocol/evidence and service journeys."
+        },
+        {
+          "kind": "native_core_partial",
+          "record": "evidence/core-primitives.md",
+          "source_hashes": "evidence/catalog.sha256",
+          "source": "crates/ic-blob-storage/src/policy/catalog/tenant/mod.rs",
+          "coverage": "Bounded direct-tenant reference reads across owned objects/namespaces; ownership precedes supplied bindings, unknown/foreign roots reject alike, ordered duplicates are retained and mixed unauthorized batches return no partial statuses.",
+          "remaining": "Authenticated endpoints, current persisted state, restore fencing, delegated authority and real service journeys."
         }
       ]
     },
@@ -179,6 +203,22 @@
           "source": "crates/ic-blob-storage/src/model/lifecycle/requests/mod.rs",
           "coverage": "Local exact actor/operation/reference receipts replay original success/failure; conflicts reject unchanged; bounded receipt admission reserves one release receipt per active reference.",
           "remaining": "Durable atomic receipts/accounting, restart/restore safety, trusted endpoint context, global/tenant capacity and provider-effect reconciliation."
+        },
+        {
+          "kind": "native_core_partial",
+          "record": "evidence/core-primitives.md",
+          "source_hashes": "evidence/catalog.sha256",
+          "source": "crates/ic-blob-storage/src/model/catalog/pending/mod.rs",
+          "coverage": "Bounded pending-deletion pages with independent scan/result budgets, scoped forward cursors, empty-page progress and rescan semantics; release retains physical and billing obligations.",
+          "remaining": "Authenticated endpoints, trusted persisted catalog and recovery fences, durable upload reservations, monetary accounting, actual provider protocol/evidence and service journeys."
+        },
+        {
+          "kind": "native_core_partial",
+          "record": "evidence/core-primitives.md",
+          "source_hashes": "evidence/catalog.sha256",
+          "source": "crates/ic-blob-storage/src/model/lifecycle/requests/mod.rs",
+          "coverage": "Effect-free exact receipt lookup shares replay identity checks, preserves original success/failure after lifecycle changes and works at capacity/settlement; tenant catalog policy rejects foreign roots before receipt details.",
+          "remaining": "Persisted atomic receipts and authenticated query transport; absent local receipts do not qualify uncertain paid-effect retries or recovery after restore."
         }
       ]
     },
@@ -240,6 +280,14 @@
           "source": "crates/ic-blob-storage/src/policy/gateway/mod.rs",
           "coverage": "Current gateway membership, service and object namespace checks; native composition preserves callback denial after revocation and a stale sync result.",
           "remaining": "Endpoint authentication, trusted provider transport, persisted membership/attempt identities, restore fencing and actual callback/deletion evidence."
+        },
+        {
+          "kind": "native_core_partial",
+          "record": "evidence/core-primitives.md",
+          "source_hashes": "evidence/catalog.sha256",
+          "source": "crates/ic-blob-storage/src/policy/catalog/mod.rs",
+          "coverage": "Current gateway authorization and namespace filtering for every pending page/root read; revocation invalidates continuing access, and cursors grant no authority.",
+          "remaining": "Authenticated endpoints, trusted persisted catalog and recovery fences, durable upload reservations, monetary accounting, actual provider protocol/evidence and service journeys."
         }
       ]
     },
@@ -283,6 +331,14 @@
           "source": "crates/ic-blob-storage/src/model/lifecycle/requests/mod.rs",
           "coverage": "Local exact actor/operation/reference receipts replay original success/failure; conflicts reject unchanged; bounded receipt admission reserves one release receipt per active reference.",
           "remaining": "Durable atomic receipts/accounting, restart/restore safety, trusted endpoint context, global/tenant capacity and provider-effect reconciliation."
+        },
+        {
+          "kind": "native_core_partial",
+          "record": "evidence/core-primitives.md",
+          "source_hashes": "evidence/catalog.sha256",
+          "source": "crates/ic-blob-storage/src/model/catalog/mod.rs",
+          "coverage": "Derived global/tenant usage over owned confirmed lifecycles and journals; separate logical, physical and liability bytes, zero-byte obligation counts, global/per-tenant lifetime object bounds, per-object metadata bounds and atomic local admission.",
+          "remaining": "Authenticated endpoints, trusted persisted catalog and recovery fences, durable upload reservations, monetary accounting, actual provider protocol/evidence and service journeys."
         }
       ]
     },

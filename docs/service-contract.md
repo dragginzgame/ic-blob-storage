@@ -72,6 +72,46 @@ service. Public integration packages and Toko's source defaults do not establish
 that arrangement. The current candidate remains Caffeine; its platform guidance
 alone is not a decision to change providers or drop standalone deployment.
 
+## Design inputs and assumptions
+
+The maintainer requested a fresh review on 2026-09-26, including choices made
+here. Canic supplies the capability/removal checklist; Toko supplies concrete
+consumer scenarios; current authoritative provider contracts define provider
+behavior. Neither application's implementation automatically specifies this
+service. Refresh dated source pins before implementing an external boundary.
+
+Toko's [asset operations](https://github.com/dragginzgame/toko/blob/6519b72d2a420564dabaf700fc55f7b8603d9fd3/fleets/toko/project/instance/src/ops/asset.rs)
+check root liveness during creation without an explicit root-uniqueness check in
+that path. Deletion checks token and generator references across awaits. This
+supports reviewing repeated-content and reference-ownership scenarios; it does
+not establish a final sharing requirement or atomic cross-canister exclusion.
+
+Resolve these assumptions before freezing the production contract:
+
+- Lifetime root non-reuse is a conservative response to ambiguous deletion
+  callbacks, not an established consumer requirement. Review repeated uploads,
+  multiple assets using one root and delete/re-upload against provider-supported
+  operation identity. Retain the current safety restriction until a replacement
+  proves delayed callbacks cannot affect a newer object.
+- Cross-canister reference acquisition/release needs explicit coordination.
+  Sequential reference reads around awaits do not establish deletion exclusion.
+- Reserve capacity before provider effects. Bound tenant object metadata as well
+  as bytes, retaining capacity for release receipts. Zero-byte and settled history
+  must not bypass limits or erase physical/billing obligations.
+- Qualify lifetime history/churn limits and catalog-wide scans against workload
+  and instruction budgets before choosing production indexes or retirement bounds.
+  Billing-byte totals are not monetary accounting.
+- Establish project/browser/service authority explicitly. Direct download URLs
+  do not establish confidentiality; qualify serving, MIME handling, integrity,
+  empty objects and chunk limits against actual consumer scenarios.
+
+Use current ICP guidance on [inter-canister calls](https://docs.internetcomputer.org/guides/security/inter-canister-calls/),
+[idempotency](https://docs.internetcomputer.org/guides/canister-calls/idempotency/)
+and [storage bounds](https://docs.internetcomputer.org/guides/security/data-storage/):
+persist intent before effects, reconcile uncertain outcomes, revalidate across
+awaits and prevent one tenant exhausting shared storage. Recovery requirements
+apply within the frozen release; pre-1.0 cross-release transitions remain reinstall-only.
+
 ## Acceptance target
 
 The proposed package roles are core, passive service protocol, upload/read
@@ -151,6 +191,38 @@ storage, request allocation and global limits remain open.
 | Physical deletion and billing settlement are separate transitions | Tenant quota release cannot erase global storage or economic liabilities |
 | Reject deletion confirmation while references remain | A valid gateway caller still must not delete a live object |
 | Settlement is explicit even for zero bytes | Request fees, minimum charges and uncertain effects are not represented by byte counts; zero counters never prove retirement safe |
+
+Local consumer liveness reads use full reference keys after direct-tenant
+authorization. Unknown/released references are inactive even if a sibling keeps
+the object live. Batches are bounded and preserve input order/duplicates; a wrong
+binding rejects the complete batch. These pure reads change no accounting and
+are not gateway root-liveness/deletion responses. The eventual workflow must
+authenticate callers, resolve current state and fence unreconciled restoration.
+
+The local model also composes confirmed lifecycles, immutable root claims and
+reference journals in a bounded transient catalog. Limits cover global and
+per-tenant lifetime object slots, per-object metadata, tenant logical bytes across
+namespaces, and separate global physical/billing-byte totals. Object counts retain zero-byte
+obligations. Exact registration replay never revives released references; no
+settlement path deletes history or frees lifetime slots. Derived counters avoid
+an independently mutable accounting ledger.
+
+Tenant catalog reads now resolve ownership before inspecting supplied reference
+bindings. Bounded cross-object batches preserve order/duplicates and reject
+unknown or foreign roots identically, with no partial statuses. Exact request
+receipt queries authenticate independently, returning the original result without
+reapplying it or consuming capacity. An absent receipt only describes the supplied
+local journal; it never proves an uncertain provider effect did not execute or
+releases a restore fence. These remain pure reads, not network query guarantees.
+
+Local pending-deletion enumeration bounds scanned entries and returned results,
+with service/namespace cursors and current-gateway checks on every page. Pages
+are not snapshots; each sweep restarts to catch newly pending earlier roots.
+Root observations preserve unknown/malformed/foreign-namespace states rather
+than equating them to deletion permission. These are internal model/policy views,
+not a new provider wire contract. This extends the transient local exception;
+production still needs atomic durable reservations/claims before upload effects,
+authenticated endpoints, monetary accounting, provider evidence and restore fencing.
 
 The maintained transition order is below. Every confirmation presupposes exact
 authority and operation/incarnation correlation; these methods do not verify that

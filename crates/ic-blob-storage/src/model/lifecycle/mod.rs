@@ -207,6 +207,21 @@ impl BlobLifecycle {
         self.active_references
     }
 
+    /// Read the logical liveness of one fully bound reference.
+    ///
+    /// Unknown and released references return false even when another reference
+    /// keeps the object live. This does not authenticate a reader, verify provider
+    /// availability or authorize deletion; physical/billing obligations are separate.
+    /// # Errors
+    /// Rejects a different service, tenant, namespace, object or incarnation.
+    pub fn reference_is_live(&self, key: ReferenceKey) -> Result<bool, ObjectBindingMismatch> {
+        self.binding.check(key.object())?;
+        Ok(matches!(
+            self.references.get(&key.reference()),
+            Some(ReferenceState::Active)
+        ))
+    }
+
     /// Slots occupied by live references and retained released identities.
     #[must_use]
     pub fn reference_slots(&self) -> usize {

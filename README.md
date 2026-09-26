@@ -1,18 +1,15 @@
 # ic-blob-storage
 
 An independent blob-storage service library for Internet Computer canisters.
-The core currently provides content identities, incremental raw-content
-verification, billing/configuration validation, bounded gateway membership and pure billing
-policy with native tests. A transient lifecycle model binds references, deletion
-and settlement to specific tenants and object incarnations, with bounded request
-receipts and a pure access check for direct tenant callers. Bounded Caffeine
-reply decoders check balance-account identity, preserve provider failures and
-distinguish completion reports from verified storage; immutable local root claims
-prevent reassignment. Scoped gateway
-registries accept bounded Cashier gateway-list replies and reject stale sync
-results after membership edits. Pure callback policy checks current
-service/namespace membership. Persisted
-workflows, provider transports, clients and canister adapters are not implemented yet.
+The core provides content verification, billing validation and bounded Caffeine
+reply decoding. A transient multi-object catalog owns lifecycle, root claims and
+request receipts, with tenant quotas, separate physical/billing accounting and
+bounded deletion pages. Pure tenant/gateway policy protects local reads and
+preserves revocation; native tests cover rejection and replay behavior.
+
+Persisted workflows, upload reservations, provider transports, clients and canister
+adapters are not implemented yet. Local bookkeeping and decoded provider reports
+do not establish a qualified storage service.
 
 The planned service owns tenant authorization, references, quotas, provider
 access, billing, retention and deletion. This repository will own standalone

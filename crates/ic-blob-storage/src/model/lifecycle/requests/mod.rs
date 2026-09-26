@@ -73,6 +73,16 @@ pub enum ReferenceRequestOutcome {
     },
 }
 
+/// Read-only original result for an exactly matched local reference request.
+///
+/// This is retained bookkeeping, not the reference's current liveness or proof
+/// of a durable transaction, provider effect or safe recovery after restore.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub struct ReferenceReceiptView {
+    /// The recorded transition result, including an admitted lifecycle rejection.
+    pub result: Result<LifecycleChange, LifecycleError>,
+}
+
 #[derive(Clone, Debug, Eq, PartialEq)]
 struct ReferenceReceipt {
     actor: Principal,
@@ -134,13 +144,7 @@ impl ReferenceRequests {
         actor: Principal,
         request: ReferenceRequest,
     ) -> Result<ReferenceRequestOutcome, ReferenceRequestError> {
-        self.lifecycle
-            .binding()
-            .check(request.operation.key().object())?;
-        if let Some(receipt) = self.receipts.get(&request.id) {
-            if receipt.actor != actor || receipt.operation != request.operation {
-                return Err(ReferenceRequestError::RequestConflict);
-            }
+        if let Some(receipt) = self.receipt(actor, request)? {
             return Ok(ReferenceRequestOutcome::Replayed {
                 result: receipt.result,
             });
@@ -169,6 +173,35 @@ impl ReferenceRequests {
         );
         self.lifecycle = candidate;
         Ok(ReferenceRequestOutcome::Recorded { result })
+    }
+
+    /// Read the original result without applying a request or allocating a receipt.
+    ///
+    /// Authenticate the caller before lookup, just as for mutation or replay.
+    /// Matching includes the complete object binding, actor and operation payload.
+    /// Reads work at capacity and after settlement. `None` means no receipt in
+    /// this supplied journal, not permission to retry an uncertain provider effect
+    /// or proof that another/stale/restored instance never accepted the request.
+    /// # Errors
+    /// Rejects a wrong object binding even for an absent ID, or changed actor or
+    /// operation for a recorded ID. No result is disclosed on conflict.
+    pub fn receipt(
+        &self,
+        actor: Principal,
+        request: ReferenceRequest,
+    ) -> Result<Option<ReferenceReceiptView>, ReferenceRequestError> {
+        self.lifecycle
+            .binding()
+            .check(request.operation.key().object())?;
+        let Some(receipt) = self.receipts.get(&request.id) else {
+            return Ok(None);
+        };
+        if receipt.actor != actor || receipt.operation != request.operation {
+            return Err(ReferenceRequestError::RequestConflict);
+        }
+        Ok(Some(ReferenceReceiptView {
+            result: receipt.result,
+        }))
     }
 
     /// Apply already validated physical deletion evidence without erasing receipts.
@@ -296,11 +329,19 @@ mod tests {
             ReferenceOperation::Retain(key(3)),
         ] {
             assert_eq!(
+                state.receipt(actor(), request(1, operation)),
+                Err(ReferenceRequestError::RequestConflict)
+            );
+            assert_eq!(
                 state.apply(actor(), request(1, operation)),
                 Err(ReferenceRequestError::RequestConflict)
             );
             assert_eq!(state, before);
         }
+        assert_eq!(
+            state.receipt(Principal::from_slice(&[3, 1]), original),
+            Err(ReferenceRequestError::RequestConflict)
+        );
         assert_eq!(
             state.apply(Principal::from_slice(&[3, 1]), original),
             Err(ReferenceRequestError::RequestConflict)
@@ -343,6 +384,12 @@ mod tests {
             .apply(actor(), request(2, ReferenceOperation::Retain(key(2))))
             .expect("later retain");
         let before = state.clone();
+        assert_eq!(
+            state.receipt(actor(), release),
+            Ok(Some(ReferenceReceiptView {
+                result: Err(LifecycleError::UnknownReference)
+            }))
+        );
         assert_eq!(
             state.apply(actor(), release),
             Ok(ReferenceRequestOutcome::Replayed {
@@ -391,6 +438,16 @@ mod tests {
         state.confirm_provider_deleted(object()).expect("deletion");
         state.confirm_billing_stopped(object()).expect("billing");
         let settled = state.clone();
+        assert_eq!(
+            state.receipt(actor(), retained),
+            Ok(Some(ReferenceReceiptView {
+                result: Ok(LifecycleChange::Changed)
+            }))
+        );
+        assert_eq!(
+            state.receipt(actor(), request(5, ReferenceOperation::Release(key(1)))),
+            Ok(None)
+        );
         assert_eq!(
             state.apply(actor(), retained),
             Ok(ReferenceRequestOutcome::Replayed {

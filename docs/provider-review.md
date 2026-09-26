@@ -13,6 +13,18 @@ integration rather than inherit Canic's potentially drifted bindings.
 [The baseline record](provider-baseline.json) pins the verified target and
 separates release/source observations from deployed-provider qualification.
 
+A fresh design review on 2026-09-26 reconfirmed official `main`
+`e5cacdfe5ce55e939edb02980fca800c0c13f421`, npm latest 1.1.2 with the same
+registry integrity, Mops highest version 1.1.1 and the deployed Cashier interface
+SHA-256 `232b08e4514048d4de48d6d1bf4387f577bfb64c7e2e2ded699a5e52d475d76f`.
+Toko's development head remains `6519b72d2a420564dabaf700fc55f7b8603d9fd3`.
+Canic's local HEAD is `3f825aa223e663a562a7cb1cca72e57b5703e0e9`; a scoped
+committed diff of blob-storage/immutable paths against the inventory baseline
+found no changes. This is not a remote-head or unrelated-worktree audit.
+No account lookup or paid effect ran. The refreshed
+[design assumptions](service-contract.md#design-inputs-and-assumptions) separate
+consumer needs from inherited implementation choices and local restrictions.
+
 On 2026-09-25 the [npm registry](https://registry.npmjs.org/@caffeineai%2fobject-storage)
 reports `latest` as `@caffeineai/object-storage` 1.1.2, published
 2026-09-17. The downloaded package archive passes its registry SHA-512 integrity

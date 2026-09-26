@@ -7,6 +7,10 @@ The billing/gateway inventories describe the 0.1.4 source candidate `f0cabb5`,
 whose Cargo version was still 0.1.3. Audit those hashes against that source commit;
 release `3aef138` changes version files. They remain historical and are not rotated.
 
+The 0.1.6 gateway-registry and balance-replies inventories match source `d3ca8c4`
+(Cargo 0.1.5), checked against Git after release `0992929`. They are historical
+too; use that source commit rather than checking them against a newer worktree.
+
 Date: 2026-09-25. The maintainer explicitly approved this bounded implementation
 before B1 closure. It implements domain values and pure policy only. It adds no
 provider calls, persisted state, serialization, endpoints, lifecycle ownership or Canic
@@ -424,3 +428,89 @@ remain unchanged. No live account query, provider effect or dependency change
 occurred. The eventual workflow must establish source, service/namespace/account
 authority, current-attempt correlation and freshness before using observations.
 These reports cannot reconcile an uncertain payment or establish billing cessation.
+
+## Consumer reference liveness after 0.1.6
+
+Based on release `0992929`, the [lifecycle model](../../crates/ic-blob-storage/src/model/lifecycle/mod.rs)
+can read a fully bound reference without mutation. Unknown/released references
+return false, including while another reference keeps the object live.
+[Pure liveness policy](../../crates/ic-blob-storage/src/policy/liveness/mod.rs)
+checks direct-tenant authority against the trusted object before key details.
+Batch reads enforce an explicit raw count bound, validate all bindings before
+allocating results, and preserve input order and duplicate positions. Empty
+batches still require authority; malformed scope never returns partial statuses.
+
+Unit tests cover unknown/released/live entries, duplicates, empty input, exact
+bounds and duplicate floods, all binding dimensions, unauthorized principals
+and unchanged model state. [Native lifecycle composition](../../crates/ic-blob-storage/tests/lifecycle_binding.rs)
+shows that a known root grants no read authority; reads remain inactive after
+final release while physical bytes and billing obligations discharge separately.
+Released-reference tombstones and immutable root claims remain intact.
+
+`make test`, strict Clippy, Wasm, rustdoc and formatting pass. Source hashes:
+`sha256sum -c docs/evidence/reference-liveness.sha256`. These are supplied-value
+model/policy tests, not IC authentication, persisted lookup or provider evidence.
+The eventual workflow must supply current trusted state and fence unreconciled
+restores. Consumer reference inactivity is not a gateway deletion instruction or
+proof that the object no longer exists at the provider.
+
+## Transient catalog after 0.1.6
+
+The [catalog model](../../crates/ic-blob-storage/src/model/catalog/mod.rs) composes
+confirmed-object lifecycles, immutable service-wide root claims and exact reference
+receipts under one mutable owner. There is no mutable journal escape or history
+removal. Limits bound global/per-tenant lifetime objects and per-object metadata, tenant logical
+bytes across namespaces, global physical bytes and unresolved billing bytes.
+Logical release, physical deletion and final settlement free separate capacities;
+settlement never frees lifetime identity slots. Derived counters retain zero-byte
+obligation counts and use u128 byte/metadata totals on supported 32/64-bit targets.
+
+[Pending pages](../../crates/ic-blob-storage/src/model/catalog/pending/mod.rs)
+have separate scan/result budgets and service/namespace cursors. Empty filtered
+pages advance; root order is stable. These are current views, not snapshots:
+another sweep is required for objects that become pending behind a cursor.
+[Catalog read policy](../../crates/ic-blob-storage/src/policy/catalog/mod.rs)
+checks current gateway membership on every page/root batch and exposes tenant
+usage only for the supplied authenticated caller. Root observations retain
+order, duplicates and explicit unknown/malformed/wrong-namespace outcomes;
+no provider deletion boolean is inferred from missing local data.
+
+[Unit tests](../../crates/ic-blob-storage/src/model/catalog/tests/mod.rs) cover
+atomic rejected admissions, immutable registration identity, exact retries at
+capacity/after settlement, separate capacity recovery, receipt exhaustion with
+reserved release capacity, zero-byte liabilities, totals above u64, scoped
+pagination and rescanning after concurrent logical changes. Per-tenant object
+quota tests retain zero-byte/settled history across namespaces, reject new
+registrations atomically at capacity, accept exact retries and leave unused
+global slots available to another tenant.
+[Native composition](../../crates/ic-blob-storage/tests/catalog_journey.rs)
+adds multi-tenant/multi-namespace accounting, reference replay through settlement,
+cross-object rejection, revocation between pages and ordered root observations.
+
+The [tenant catalog policy](../../crates/ic-blob-storage/src/policy/catalog/tenant/mod.rs)
+adds bounded cross-object reference reads: context, raw count, ownership of every
+root and full bindings are checked before allocating statuses. Unknown/foreign
+roots share one typed rejection; duplicates and namespace-spanning owned reads
+preserve order. Native tests cover every binding dimension, missing/foreign roots,
+mixed batches, empty/oversized input and denial before receipt details.
+
+Read-only exact receipt lookup shares its binding/actor/payload predicate with
+mutation replay. Journal tests prove reads work at capacity and after settlement;
+native composition separates recorded failure/success from current reference
+liveness and proves all reads leave the complete catalog unchanged. Missing
+receipts stay absent and consume no slot. These tests do not prove network query
+authenticity or that missing local evidence makes an uncertain effect safe to retry.
+
+All native tests, strict Clippy, Wasm, rustdoc and formatting pass. Verify with
+`sha256sum -c docs/evidence/catalog.sha256`. The existing Unreleased reference-read
+inventory was refreshed for shared module exports; released inventories are unchanged.
+The named 0.1.7 draft also passes `make ci`, including release-helper fixtures and
+offline package verification at the unchanged Cargo version 0.1.6. The release
+plan selects 0.1.7 without mutating release files; no commit or publication ran.
+
+This catalog records independently confirmed objects. It is not an upload
+admission/reservation workflow: production must reserve durable capacity and root
+history before provider authority/effects, not discover a full catalog afterward.
+No provider call, new dependency, endpoint, stable schema or restoration was added.
+Native confirmation tests supply evidence facts; they do not authenticate provider
+deletion/billing reports or prove safe recovery after a restart.

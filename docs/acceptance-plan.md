@@ -10,9 +10,25 @@ evidence are still required by the [service contract](service-contract.md).
 Local lifecycle binding and direct-tenant policy tests now provide partial A01
 evidence over supplied values; they do not authenticate endpoint callers or prove
 durable isolation, delegated access or provider confirmation authority.
+Native consumer-reference reads add A01/A06 coverage for tenant checks before
+status disclosure, bounded ordered batches and inactive released references
+while sibling references stay live. They preserve physical/billing obligations
+and do not qualify gateway liveness or provider deletion.
+Native multi-object catalog composition adds partial A04/A06/A08 evidence for
+atomic local admission, tenant quota, separate global physical/billing-byte caps,
+zero-byte obligations and retained receipt/root history. Bounded deletion-page
+and root-observation tests add A01/A06 coverage for namespace filtering, caller
+revocation between pages and explicit unknown results. They do not execute paid
+uploads, monetary accounting, persisted transactions or restore recovery.
 Local reference receipts additionally provide partial A03/A04/A06 evidence for
 exact retries and reserved release capacity. No interruption/restore or paid
 provider retry case has been executed by those native tests.
+Tenant catalog reads add native A01/A03/A06 coverage across multiple objects:
+ownership checks precede supplied bindings; unknown/foreign roots reject alike;
+mixed batches disclose no partial statuses. Exact receipt queries preserve old
+successes/failures while current liveness changes, including settlement/capacity,
+without recording or reapplying requests. Absent local receipts do not qualify
+provider retry or restore recovery.
 The scoped gateway registry adds native A01/A06 coverage for membership revocation
 racing a previously started sync: stale replies cannot restore revoked membership,
 and current callback policy continues to reject that caller. Wrong service,

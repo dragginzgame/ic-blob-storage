@@ -2,6 +2,46 @@
 
 ## [Unreleased]
 
+## [0.1.7]
+
+Bounded local catalog, tenant reference reads and exact request-result lookup.
+Persistence, provider execution and canister adapters remain pending.
+
+### Added
+
+- Tenant-checked reference liveness reads, individually or in bounded batches.
+  Released and unknown references report inactive even while another reference
+  keeps the object live. Batches preserve order/duplicates and reject unauthorized,
+  oversized or mismatched-scope requests without returning partial results.
+  Native tests keep physical and billing obligations intact after logical release.
+- A bounded transient catalog joining confirmed objects, immutable root claims
+  and exact reference receipts. Added lifetime object/reference/receipt limits,
+  per-tenant logical quota, separate physical and billing-byte caps, and derived
+  service/tenant usage counters. Rejected admissions are atomic; exact registration
+  retries cannot reactivate released objects or erase settled history.
+- Pending-deletion pagination with independent scan/result budgets and scoped
+  forward cursors. Added current-gateway checks on every page and ordered root
+  observations that keep unknown, malformed and foreign-namespace inputs explicit.
+  Native multi-object tests cover capacity recovery, zero-byte liabilities,
+  receipt exhaustion, cross-tenant denial, revocation and late replay. This remains
+  local bookkeeping; durable upload reservations and provider execution are pending.
+- Per-tenant lifetime object limits across namespaces, including zero-byte and
+  settled entries, so byte-free history cannot consume all shared object slots.
+  Exact registration replay remains valid at capacity.
+- Bounded tenant reference reads across catalog objects and namespaces, preserving
+  order and duplicates. Unknown and foreign roots share one rejection; mixed
+  unauthorized batches return no partial results or object-binding details.
+- Read-only lookup of exact reference-request receipts, including recorded failures
+  and results retained after settlement or at capacity. Queries never reapply a
+  request or allocate a receipt; original outcomes remain distinct from current
+  reference liveness. Shared lookup rules keep mutation replay checks consistent.
+
+### Changed
+
+- Refreshed Canic, Toko and upstream provider evidence and design assumptions.
+  Recorded root reuse, reference coordination, history churn and scan costs as
+  decisions requiring consumer/provider evidence before production implementation.
+
 ## [0.1.6] - 2026-09-26
 
 ### Added

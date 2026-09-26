@@ -49,7 +49,10 @@ owns the current integration target and deployment evidence gaps.
 
 BLOB-01 has native parsing/canonicalization and incremental raw-byte verification
 evidence. BLOB-03 has bounded binary-root batch parsing that preserves order,
-duplicates and per-entry errors; liveness lookup itself remains unimplemented.
+duplicates and per-entry errors. Local consumer-reference reads now check the
+tenant and complete binding, distinguish released references from live siblings,
+and bound ordered batch results. Provider-facing gateway liveness responses,
+persisted state access and endpoints remain unimplemented.
 BLOB-04/05/06 now have partial native lifecycle-transition evidence for confirmed
 objects, including bounded reference receipts and separate logical/physical/
 economic projections. Authenticated callbacks and persisted counters remain absent.
@@ -59,6 +62,12 @@ and durable scope enforcement remain outstanding.
 Local reference request receipts add exact actor/payload replay checks and reserve
 receipt capacity for each active reference's release. These are native bounds and
 replay semantics, not durable request recovery or provider retry evidence.
+The transient catalog now owns multiple confirmed objects and their journals,
+with tenant logical quota, global physical/billing-byte limits and derived usage
+counters. Bounded pending-deletion scans and current-gateway read checks add local
+BLOB-03/04/05/06 evidence. Root observations preserve unknown/malformed/foreign
+namespace statuses; the provider boolean mapping remains unspecified. No persisted
+lookup, durable upload reservation or provider operation is implemented here.
 BLOB-08, BLOB-11 and
 BLOB-12 have partial numeric validation and pure-policy evidence. BLOB-09 and
 BLOB-15 now have bounded signed-balance conversion and operator amount parsing

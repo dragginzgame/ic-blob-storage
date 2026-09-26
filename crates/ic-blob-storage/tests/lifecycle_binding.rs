@@ -45,6 +45,95 @@ fn blob() -> BlobLifecycle {
 }
 
 #[test]
+fn reference_liveness_tracks_release_without_erasing_provider_obligations() {
+    use ic_blob_storage::{
+        model::{identity::ProviderRootHash, lifecycle::LifecyclePhase},
+        policy::liveness::{
+            ReferenceLivenessError, assess_reference_liveness, assess_reference_liveness_batch,
+        },
+    };
+
+    let first = key(binding());
+    let second = ReferenceKey::new(binding(), ReferenceId::new(number(2)));
+    let tenant = TenantAccessContext {
+        service: p(1),
+        actor: p(2),
+    };
+    let limit = NonZeroUsize::new(2).expect("read bound");
+    let mut lifecycle = blob();
+    let root = ProviderRootHash::try_from([7; 32].as_slice()).expect("root");
+    let mut claims = RootClaims::new(p(1), limit).expect("service");
+    claims.claim(root, binding()).expect("root binding");
+    lifecycle.retain(second).expect("second reference");
+    assert_eq!(
+        assess_reference_liveness_batch(&lifecycle, &[first, second], tenant, limit),
+        Ok(vec![true, true])
+    );
+
+    // Resolving a known root does not authorize another actor to read its references.
+    let resolved = ReferenceKey::new(
+        claims.resolve(root).expect("original object"),
+        first.reference(),
+    );
+    assert_eq!(
+        assess_reference_liveness(
+            &lifecycle,
+            resolved,
+            TenantAccessContext {
+                actor: p(3),
+                ..tenant
+            }
+        ),
+        Err(ReferenceLivenessError::Access(TenantAccessError::NotTenant))
+    );
+    lifecycle.release(first).expect("release first");
+    assert_eq!(
+        assess_reference_liveness_batch(
+            &lifecycle,
+            &[first, second, first],
+            tenant,
+            NonZeroUsize::new(3).expect("read bound")
+        ),
+        Ok(vec![false, true, false])
+    );
+    assert_eq!(lifecycle.phase(), LifecyclePhase::Live);
+    assert_eq!(lifecycle.physical_bytes(), 100);
+
+    lifecycle.release(second).expect("last reference");
+    for (phase, physical, liability) in [
+        (LifecyclePhase::DeletionPending, 100, 100),
+        (LifecyclePhase::ProviderDeleted, 0, 100),
+        (LifecyclePhase::Settled, 0, 0),
+    ] {
+        match phase {
+            LifecyclePhase::ProviderDeleted => {
+                lifecycle
+                    .confirm_provider_deleted(binding())
+                    .expect("supplied deletion evidence");
+            }
+            LifecyclePhase::Settled => {
+                lifecycle
+                    .confirm_billing_stopped(binding())
+                    .expect("supplied billing evidence");
+            }
+            LifecyclePhase::DeletionPending => {}
+            LifecyclePhase::Live => unreachable!("release already completed"),
+        }
+        let before = lifecycle.clone();
+        assert_eq!(
+            assess_reference_liveness_batch(&lifecycle, &[second, first], tenant, limit),
+            Ok(vec![false, false])
+        );
+        assert_eq!(lifecycle, before);
+        assert_eq!(lifecycle.phase(), phase);
+        assert_eq!(lifecycle.logical_bytes(), 0);
+        assert_eq!(lifecycle.physical_bytes(), physical);
+        assert_eq!(lifecycle.liability_bytes(), liability);
+        assert_eq!(claims.resolve(root), Ok(binding()));
+    }
+}
+
+#[test]
 fn delayed_root_callback_cannot_be_rebound_to_a_newer_pending_deletion() {
     use ic_blob_storage::model::identity::ProviderRootHash;
 
