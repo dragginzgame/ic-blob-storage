@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.1.17] - 2026-09-26
+
 ### Added
 
 - Unpublished local `blob-fixture-refresh` command with passive dry-run and an
