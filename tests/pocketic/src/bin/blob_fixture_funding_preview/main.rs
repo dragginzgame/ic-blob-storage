@@ -1,0 +1,12 @@
+//! Passive admission preview for a local `PocketIC` funding journal.
+#[cfg(not(target_family = "wasm"))]
+fn main() -> std::process::ExitCode {
+    std::panic::set_hook(Box::new(|_| {}));
+    let result = ic_blob_storage_pocketic_tests::operator::run_funding_preview(
+        &std::env::args().skip(1).collect::<Vec<_>>(),
+    );
+    println!("{}", result.output);
+    std::process::ExitCode::from(result.exit_code)
+}
+#[cfg(target_family = "wasm")]
+fn main() {}

@@ -144,7 +144,7 @@ fn limits_do_not_follow_a_new_scope_revision_and_restore_cannot_clear_blockers()
     f.configure_limits(10, 50);
     f.source_balance(bytes("success"), false, false);
     f.refresh_balance().unwrap();
-    f.upgrade_balance(f.authority, false);
+    f.upgrade_fixture(f.authority, false);
     let status = f.balance_status();
     assert!(status.billing.current);
     assert_eq!(

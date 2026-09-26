@@ -399,7 +399,7 @@ fn successful_and_reentrant_syncs_archive_sequences_and_current_membership() {
         let result: Result<(), SyncFailure> = f
             .harness
             .pic
-            .update_candid_as(f.gateway, f.operator, "run_sync", ())
+            .update_candid_as(f.gateway, f.operator, "run_sync", (f.sync_request(),))
             .unwrap();
         assert_eq!(result, expected);
     }

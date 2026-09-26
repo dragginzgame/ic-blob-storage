@@ -1,7 +1,12 @@
-//! Read-only local-fixture diagnostics. No production transport or effect authority.
+//! Local-fixture tools with separate passive diagnosis and explicit observation commands.
 
+mod action;
+mod funding_preview;
 mod model;
 mod ops;
+pub use funding_preview::run as run_funding_preview;
+
+pub use action::{run_refresh, run_sync};
 
 use model::Command;
 use serde_json::json;

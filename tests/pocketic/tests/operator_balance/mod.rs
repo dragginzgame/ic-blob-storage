@@ -1,4 +1,5 @@
 //! Actual balance reads with independently encoded bytes and adversarial schedules.
+mod refresh;
 use super::*;
 use blob_test_protocol::{
     balance::*,
@@ -64,8 +65,21 @@ impl Fixture {
     fn refresh_balance(&self) -> Result<(), BalanceFailure> {
         self.harness
             .pic
-            .update_candid_as(self.authority, self.driver, "refresh_balance", ())
+            .update_candid_as(
+                self.authority,
+                self.driver,
+                "refresh_balance",
+                (self.refresh_request(),),
+            )
             .unwrap()
+    }
+    fn refresh_request(&self) -> BalanceRefreshRequest {
+        let balance = self.balance_status().balance_observation;
+        BalanceRefreshRequest {
+            scope: balance.configured.unwrap_or_else(|| self.balance_scope()),
+            revision: balance.revision,
+            sequence: balance.attempts.len() as u64 + 1,
+        }
     }
     fn balance_status(&self) -> OperatorStatusView {
         let status: Option<OperatorStatusView> = self
@@ -103,7 +117,7 @@ impl Fixture {
                 self.authority,
                 self.driver,
                 "refresh_balance",
-                candid::encode_args(()).unwrap(),
+                candid::encode_one(self.refresh_request()).unwrap(),
             )
             .unwrap();
         for _ in 0..30 {
@@ -123,7 +137,7 @@ impl Fixture {
         assert!(resumed);
         candid::decode_one(&self.harness.pic.await_call(id).unwrap()).unwrap()
     }
-    fn upgrade_balance(&self, canister: Principal, skip: bool) {
+    pub(super) fn upgrade_fixture(&self, canister: Principal, skip: bool) {
         let pic = &self.harness.pic;
         let variable = if canister == self.authority {
             "BLOB_AUTHORITY_PROBE_WASM"
@@ -307,8 +321,8 @@ fn old_pending_journals_restore_fenced_without_replay_or_fresh_balances() {
     assert_eq!(f.resume_balance(id), Ok(()));
     pic.set_stable_memory(f.authority, authority, BlobCompression::NoCompression);
     pic.set_stable_memory(f.gateway, source, BlobCompression::NoCompression);
-    f.upgrade_balance(f.authority, true);
-    f.upgrade_balance(f.gateway, true);
+    f.upgrade_fixture(f.authority, true);
+    f.upgrade_fixture(f.gateway, true);
     let status = f.balance_status();
     assert_eq!(status.balance_observation.attempts, pending);
     assert_eq!(
@@ -324,7 +338,7 @@ fn old_pending_journals_restore_fenced_without_replay_or_fresh_balances() {
     assert_eq!(f.balance_source_status().pending, Some(account()));
     assert_eq!(f.balance_source_status().requests, 1);
     f.balance_cli();
-    f.upgrade_balance(f.authority, true);
+    f.upgrade_fixture(f.authority, true);
     assert_eq!(f.balance_status().balance_observation.attempts, pending);
 }
 
@@ -334,7 +348,7 @@ fn forced_upgrade_while_callback_is_live_cannot_complete_the_restored_intent() {
     f.configure_balance(f.balance_scope()).unwrap();
     let id = f.hold_balance();
     let pending = f.balance_status().balance_observation.attempts;
-    f.upgrade_balance(f.authority, true);
+    f.upgrade_fixture(f.authority, true);
     let resumed: bool = f
         .harness
         .pic
@@ -391,7 +405,7 @@ fn authority_and_capacity_checks_happen_before_any_source_call() {
     assert_eq!(f.balance_status(), full);
     assert_eq!(f.balance_source_status().requests, 16);
     f.balance_cli(); // Maximum retained history fits the client decoder's bounds.
-    f.upgrade_balance(f.authority, false);
+    f.upgrade_fixture(f.authority, false);
     assert_eq!(
         f.balance_status().balance_observation.attempts,
         full.balance_observation.attempts
@@ -411,7 +425,7 @@ fn delayed_reply_ages_from_dispatch_and_restored_source_cannot_answer() {
     );
     assert_eq!(f.balance_status().provider_balance, None);
     let id = f.hold_balance();
-    f.upgrade_balance(f.gateway, true);
+    f.upgrade_fixture(f.gateway, true);
     assert_eq!(f.balance_source_status().pending, Some(account()));
     // The suspended source callback observes its fence before returning configured bytes.
     let result: Result<(), BalanceFailure> =

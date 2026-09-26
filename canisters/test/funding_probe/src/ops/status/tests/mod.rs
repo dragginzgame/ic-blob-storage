@@ -23,6 +23,8 @@ fn inconsistent_transport_facts_stay_unknown() {
         (None, Some(0), FundingOutcome::Rejected(5)),
         (None, Some(50), FundingOutcome::NotEnqueued),
         (Some(100), Some(0), FundingOutcome::NotEnqueued),
+        (Some(100), Some(0), FundingOutcome::LiquidityBlocked),
+        (None, Some(1), FundingOutcome::LiquidityBlocked),
     ] {
         entry.observation = Some(FundingObservation {
             refunded,

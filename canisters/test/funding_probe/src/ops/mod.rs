@@ -1,12 +1,11 @@
 //! Bounded fixture journals and single platform effects for a local-only experiment.
 
+pub(crate) mod liquidity;
+pub(crate) mod preview;
 pub(crate) mod status;
 mod storage;
 
-use std::{
-    cell::RefCell,
-    num::{NonZeroU128, NonZeroUsize},
-};
+use std::{cell::RefCell, num::NonZeroUsize};
 
 use crate::model::FundingJournalRecord;
 use blob_test_protocol::funding::{
@@ -37,10 +36,21 @@ fn mutate<T>(f: impl FnOnce(&mut FundingJournalRecord) -> T) -> T {
     })
 }
 
-pub(crate) fn initialize(peer: Principal, driver: Principal) {
+pub(crate) fn initialize(
+    peer: Principal,
+    driver: Principal,
+    input: blob_test_protocol::funding::budget::FundingBudgetInput,
+) {
     storage::open();
     STATE.with_borrow_mut(|state| {
-        let initial = FundingJournalRecord::new(ic_cdk::api::canister_self(), peer, driver);
+        let budget = crate::model::budget::FundingBudgetRecord::new(
+            input.allocated,
+            input.reserve,
+            input.operating_reserve,
+            input.other_liabilities,
+        )
+        .expect("valid explicit attachment budget");
+        let initial = FundingJournalRecord::new(ic_cdk::api::canister_self(), peer, driver, budget);
         storage::save(&initial);
         *state = Some(initial);
     });
@@ -110,11 +120,9 @@ pub(crate) struct ObservedFundingCall {
     pub(crate) outcome: FundingOutcome,
 }
 
-pub(crate) async fn transfer(peer: Principal, request: FundingRequest) -> ObservedFundingCall {
-    let result = Call::unbounded_wait(peer, "receive")
-        .with_arg(request)
-        .with_cycles(request.offered)
-        .await;
+pub(crate) async fn transfer(prepared: liquidity::PreparedFundingCall) -> ObservedFundingCall {
+    let offered = prepared.offered;
+    let result = prepared.call.await;
     // Capture in this call's continuation, before decoding, further awaits or spawning.
     // An enqueue failure runs without a response callback: never sample its ambient refund.
     let refunded = match &result {
@@ -123,7 +131,6 @@ pub(crate) async fn transfer(peer: Principal, request: FundingRequest) -> Observ
             None
         }
     };
-    let offered = NonZeroU128::new(request.offered).expect("admitted positive attachment");
     let transfer = match refunded {
         Some(refund) => FundingTransfer::unbounded_callback(offered, refund)
             .expect("call-specific refund within attachment"),

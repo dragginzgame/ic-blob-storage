@@ -1589,3 +1589,316 @@ undated; Cargo/receipt remain 0.1.15. An effect-free exact-version release previ
 selects 0.1.16. Full CI/release verification remains the maintainer workflow's next
 step after committing clean source; targeted results do not claim that gate passed.
 No version preparation, commit, tag, push, publication or live provider operation ran.
+
+## Explicit local operator refresh after 0.1.16
+
+The maintainer released 0.1.16 at `4a3aaa6` from source
+`d084112e811866682f8c9374ab46ac9c329624ff`. The earlier checkpoint inventory's
+151 source hashes match that source (Cargo 0.1.15); it remains historical.
+This batch uses [operator-actions.sha256](operator-actions.sha256), with Cargo
+0.1.16. No published library API or production adapter changed.
+
+The separate unpublished `blob-fixture-refresh` binary requires explicit loopback
+server, instance, canister, simulated caller, namespace, source, account, revision
+and next lifetime attempt. Dry-run calls only `preview_balance_refresh`. Its shared
+model admission predicate checks the currently configured binding and revision,
+next sequence, pending exclusion and bounded capacity. Workflow authority/fence
+checks apply to both preview and refresh. Preview does not reserve an attempt.
+Refresh rechecks atomically and persists intent before its controlled-source call.
+A completed or failed observation consumes its sequence; repeated requests cannot
+start another call. There is no reset, compatibility endpoint or restore reactivation.
+
+Refresh performs one application-level update invocation, then a distinct passive
+status query. JSON and exit status preserve acknowledged completion even when that
+query fails. Transport/decoding failure remains an uncertain action outcome and does
+not infer completion from the later status. Typed failures may have consumed an
+attempt; their history stays visible. Neither status errors nor action errors cause
+application retries or automatic sequence allocation. The SDK handles instance-busy
+responses and polls accepted operations; this is not a claim of one HTTP request.
+As with the status client, the SDK polling budget is not a stalled-socket deadline,
+and reply byte limits apply after reception. This is a trusted local harness tool,
+not a hardened network client. Refresh advances simulator rounds and carries no
+provider payment. Caller identity remains simulated.
+
+Checks passed:
+
+- Native model admission tests cover exact scope/revision/next attempt, pending
+  exclusion and consumed identities after failed transport. Existing balance model
+  and client parsing/bounded-status-decoding tests pass.
+- Actual operator subprocess/PocketIC tests cover passive previews, successful
+  refresh, repeated request rejection, changed revision after preview, wrong account
+  or namespace, denied callers, failed observations, permanent restore fences and
+  held source calls. Journals and source-call counts prove no extra dispatch.
+- A tiny actual IC Wasm witness grows stable memory for each update and acknowledges
+  completion while providing no status method. CLI output retains completion with
+  a separate failed post-status, and exactly one growth proves no replay. A malformed
+  acknowledgement stays uncertain with one growth. An update-only preview method
+  is rejected by dry-run without growth. These witnesses prove transport control
+  flow, not balance/provider semantics.
+- Strict Clippy for authority/protocol/client targets, warning-free protocol/client
+  rustdoc, three fixture Wasm builds, client Wasm check and formatting pass. The full
+  existing operator target passed; additional held-call and preview-mode cases passed
+  in the focused refresh target. Full CI/release verification was not requested.
+
+Fixture Wasm SHA-256 for this source:
+
+- authority: `b276f6aca2a67f3398a78f895025b44a67b53e8090e4d2dec61fc6f0054e268c`
+- gateway source: `ba24dfab3aaebb3a87f1d6699fe13349e9fad824e3964788ca56c6baa65de8d2`
+- funding: `64ce70c0f3930a69ee6f05cfa8359423b8062173f1f2242e7338e9551ad20f64`
+
+This adds partial BLOB-15/16/17 and A11 evidence. Production Caffeine transport,
+namespace/account authority, gateway sync/funding commands, independent recovery,
+managed discovery and both service adapters remain unqualified. No production
+calls, paid operations, commits or release actions were performed in this batch.
+
+## Explicit local gateway sync after 0.1.16
+
+The current [operator inventory](operator-actions.sha256) now also covers
+`blob-fixture-sync`. Balance refresh and sync share parsing primitives, fixed
+query/update transport and the action/post-status result flow; each operation
+retains its own typed request and reply. No published library API changed.
+
+The fixture's required v1 SyncControlRecord retains an operator-edit revision.
+Every revocation advances it, including removal of an absent member. Exhaustion
+permanently blocks new syncs while allowing revocation. Requests bind exact service,
+namespace, controlled source, revision and next sequence before allocating a token
+and saving intent. Preview uses the same admission checks without mutation. The
+existing GatewayRegistry still owns membership, exact callback correlation and
+stale-token rejection. The archive/status retain source, edit revision and sync
+counters; restoration is permanently fenced. No removed no-argument endpoint or
+old archive reader remains. Cross-release fixtures require reinstall.
+
+The controlled-source protocol now carries the explicit request for deliberate
+reentrant schedules. Replacement explicitly advances the revision/sequence after
+its own revocation; overlap reuses the captured request and is rejected. These are
+local fixture controls, not an invented Caffeine request schema. The source canister
+is the explicitly installed operator in these scenarios; CLI callers are simulated.
+
+Targeted validation passed:
+
+- Native fixture records and client checks; strict authority/source/protocol/client
+  Clippy; warning-free client/protocol rustdoc; fixture Wasm builds and client Wasm check.
+- Full gateway-sync, journey/recovery and operator PocketIC targets. Existing balance
+  commands retain behavior after sharing the action runner. Actual subprocesses prove
+  passive previews, stale/repeated request rejection, denied/misbound callers,
+  source failures, no-op revocation and re-addition only through a later explicit sync.
+- Held source calls retain revocation. Existing reentrant replacement and old-archive
+  tests retain newer membership or fenced evidence. The additional live-callback
+  upgrade case passes: after forced restoration, the old callback traps at the IC
+  boundary and cannot update membership or clear the frozen pending intent.
+- Real Wasm update witnesses preserve completed/uncertain action output despite failed
+  post-status with exactly one stable-memory growth. An update-only preview method
+  cannot mutate. No application retry or sequence advance follows diagnosis failure.
+
+Current Wasm SHA-256 (earlier balance-only hashes above identify its earlier slice):
+
+- authority: `800e68da5817458291f9bb989d42ce39731449df7a3542350f4f52bb2d13bc7b`
+- gateway source: `4c7ec9acaa5c8b235ed5fef44aafe413f1cdbaf7d0159b1c90fbba59eb61f395`
+- funding: `3fc392e0b73d3fbe28113bf51d2a2c82090d1c7c27a8f6437b8b2c7f94497287`
+
+This adds partial BLOB-10/15/16/17 and A05/A11 evidence. Production identity,
+Cashier transport, sync freshness, independent recovery, funding operator admission
+and both adapters remain open. No paid provider call or release action occurred;
+full CI/release validation was not requested.
+
+## Passive funding admission preview after 0.1.16
+
+Review found that the raw funding fixture intentionally exercises transfers without
+production spendable accounting, reserve configuration or qualified provider bindings.
+Its completed callback records transport acceptance, not provider credit. It cannot
+be exposed as a reserve-protected operator funding action on that evidence.
+
+The additive library `policy::billing::admission::evidence` module diagnoses optional
+recovery, spendability and complete activity observations. All independent blockers
+remain visible; known reserve arithmetic runs only with validated limits and known
+funds. The exact full request is preserved. Native tests compare complete evidence
+with the maintained const admission API and cover missing inputs alongside uncertain
+payments and fences. No existing public signature, enum or behavior changed.
+
+The local `preview_funding` query checks driver authority, actual sender/peer, exact
+proposed ID and positive amount before projecting used identity and journal-capacity
+facts. It observes the full uncredited transfer journal and uses shared reconciliation
+and admission policy. Missing recovery remains unknown until an actual restored fence
+is enforced; spendability and billing limits remain absent. Provider qualification
+is explicitly blocked. The view includes independent reasons and never consumes an
+ID, reserves cycles, changes history or calls the receiver.
+
+`blob-fixture-funding-preview` supports only `dry-run` with an explicit local target,
+simulated caller, peer, ID and amount. It shares the fixed query transport used by
+status, validates every echoed request field, bounds Candid decoding and emits exact
+decimal values. Exit 4 reports a valid blocked preview; read/authority/binding failures
+use 3 and invalid arguments 2. No method override, accounting override, update fallback
+or transfer/retry path exists. The raw fixture `fund` method remains a test control,
+not an operator workflow. None of these local observations qualify Caffeine credit.
+
+Targeted checks passed:
+
+- Native existing/new funding admission, funding journal/conversion and CLI decode
+  checks; strict library/funding/protocol/client Clippy; warning-free rustdoc; three
+  fixture Wasm builds and library/client Wasm checks.
+- Complete funding and operator PocketIC targets. Actual subprocess previews remain
+  passive before any transfer, after partial acceptance and later full refund, after
+  a real callback trap, at journal capacity and after fenced restore. Reusing an ID
+  with a different amount remains blocked. Adding gross canister cycles does not
+  establish spendability or create a synthetic reserve result.
+- Native reply checks reject wrong service/peer/id/amount and oversized/malformed
+  responses, retaining full u128 reserve values as decimal strings. Actual PocketIC
+  query mode rejects an update-only preview witness without growing stable memory.
+
+The [current operator inventory](operator-actions.sha256) covers this slice. Current
+Wasm SHA-256 (earlier hashes above remain evidence of their earlier slices):
+
+- authority: `38b25d9253869b7353596a8e9fd79ada21ea78acbf1e36907af3fab3b0032070`
+- gateway source: `9b5cca8c699071a595a2971ba3c08e2031e863f6532447a7b94d647109ca993a`
+- funding: `4f810eb9071a4505cecd9265403c4c4b811b768b2170f2c77e4b5ff5524245fa`
+
+Partial BLOB-11/15/17 and A08/A11 evidence only. Atomic spendable reservations,
+provider/account qualification, exact credit reconciliation, independent recovery
+and both production adapters remain open. No live provider calls, release/version
+changes or full CI/release gate ran in this continuation.
+
+## Local attachment budget after 0.1.16
+
+The funding fixture now requires an explicit installed allocation and positive
+reserve. Its required v1 budget record is an unpublished hard cut, with reinstall
+across releases. Accounting derives from the bounded original transfer journal;
+there are no independently mutable balance counters or replenishment operations.
+Admission checks the full offer against remaining allocation before appending and
+persisting its exact intent. Each intent reserves its full offer until a terminal
+observation. Accepted cycles stay charged, exact callback refunds release returned
+attachments, and proven enqueue failures have their own unsent category. Missing
+callbacks retain the full reservation, including after callback rollback or restore.
+Validation also checks that each historical offer fitted before its own refund.
+
+Status and preview expose a separately labelled local attachment budget. Revisions
+count admissions and terminal observations, so even a full refund invalidates an
+old preview. The query binds the supplied revision and reports local reserve
+violations alongside missing production evidence. Incoming receipts and actual
+gross cycle top-ups cannot change the installed allocation. Execution fees and
+other operating liabilities are outside this envelope: top-level spendability
+remains unknown. No provider credit, independent recovery or operator funding
+action is inferred. Restored owners remain permanently fenced.
+
+Targeted validation passed:
+
+- Native model checks cover exact reservations/returns, historical over-budget
+  offers, invalid reserve, full-width allocation arithmetic and retained unknowns.
+  Client checks preserve decimal budget values and bind the echoed revision.
+- Complete funding and operator PocketIC targets pass. Actual IC transfers prove
+  atomic reserve rejection with unchanged stable journals, partial acceptance,
+  full refunds, distinct enqueue failures and no replenishment from incoming or
+  added gross cycles. Callback traps and real upgrades retain full reservations;
+  old archives and live callbacks retain their existing recovery fences.
+- Actual preview subprocesses reject a stale revision after a full refund despite
+  unchanged available allocation. Query-only behavior and unknown production
+  spendability remain intact. Existing enqueue-failure coverage was extended rather
+  than adding a duplicate transfer schedule.
+- Strict funding/protocol/client Clippy, warning-free rustdoc, all three fixture
+  Wasm builds, client Wasm check, formatting and diff checks pass.
+
+The [current operator inventory](operator-actions.sha256) includes these sources.
+Wasm SHA-256 for this slice (earlier hashes remain historical observations):
+
+- authority: `edfe318db30714df456b52f18dd3a757e934f616213e47b596553332ebded24d`
+- gateway source: `8df2e383c83cc31e0f75f228c27409c419d513915386650f524d08561975f451`
+- funding: `f6c9692ee918dd3c14248d2787f2ca7058374d2fee95856914cba4f855ad4195`
+
+This advances partial BLOB-11/15/17 and A08/A11 evidence. Production spendability
+including execution fees and other liabilities, complete update admission, deployed
+provider/account credit reconciliation, independent recovery and both adapters
+remain open. Cargo/release receipt remain 0.1.16. No live paid effect, release action
+or full CI/release gate ran.
+
+## Funding liquidity guard after 0.1.16
+
+The [IC system API](https://docs.internetcomputer.org/references/ic-interface-spec/canister-interface/#cycle-cost-calculation)
+provides a call-cost bound including request transmission and maximum response and
+callback reservations. Its liquid-balance API accounts for platform restrictions;
+memory growth can change the amount available. The pinned ic-cdk 0.20.3
+`Call::get_cost` includes attached cycles, so this fixture samples it before adding
+the attachment. No pricing constants or gross-balance estimates were introduced.
+
+The additive pure `policy::billing::liquidity` API subtracts known call cost,
+positive operating slack and additional liabilities from supplied liquid funds.
+Sequential subtraction avoids overflow even when the combined holds exceed u128.
+The full positive request either fits or is refused; no smaller payment is proposed.
+Unknown costs/liabilities must not be converted to zero to construct this complete
+input. Already deducted transfers/platform reservations must not be deducted twice.
+
+The required local budget record now retains explicit operating slack and other
+liabilities, with no default/reset/replenishment path. It remains v1 and requires
+reinstall across releases. The workflow persists intent first, prepares the exact
+controlled `receive` call, samples platform cost/liquidity, and applies shared
+policy before awaiting it. Dropping a refused call sends nothing. Its completed
+LiquidityBlocked observation retains the identity with zero acceptance and no
+callback refund, releasing only the unsent attachment allocation. The earlier
+insufficient-cycles test now asserts this earlier refusal; historical CDK enqueue
+failure evidence remains historical. Actual CDK failures still use NotEnqueued.
+
+Passive previews show separately labelled liquidity/cost figures and full-width
+operating holds. Their cost payload bounds all valid acceptance/reply controls;
+update dispatch uses its own actual encoding. A same-query PocketIC observation
+remained unchanged after an administrative cycle top-up, including after a tick;
+a distinct proposed operation observed the changed funds. Tests do not assume
+query freshness. The update rechecks current resources, and neither queries nor
+added cycles change installed allocation/revision. No production credit, complete
+liability accounting or independent recovery is inferred from these local holds.
+
+Targeted checks passed:
+
+- Native policy boundary/extreme-value arithmetic; native fixture record validation,
+  bounded preview payloads and invalid no-transfer observations; client decoding
+  retains exact decimal liquidity/cost/hold amounts and bound requests.
+- Complete funding and operator PocketIC targets: fee-only refusal even when the
+  attachment fits liquid balance, explicit liabilities blocking dispatch, unsent
+  identities/refunds, changed liquidity without a budget revision, successful
+  controlled transfers, rollback, live callback upgrades and permanent restore fences.
+- Strict library/funding/protocol/client Clippy, warning-free rustdoc, three fixture
+  Wasm builds, library/client Wasm checks and formatting/diff checks.
+
+The [current operator inventory](operator-actions.sha256) includes these sources.
+Current fixture Wasm SHA-256:
+
+- authority: `28f002c59ebdba43c8bdf055f1194a8df928ff1c676946bc6afa5ce01a0b1ace`
+- gateway source: `6aa184e0cc40d9aaa26695755da64f5473c6c93f75e0717a469e707ce9a56f98`
+- funding: `e71f052e6169c090b9c48df66f7c635692279a0e3e79751d4f5c4486ac19794d`
+
+This advances partial BLOB-11/15/17 and A08/A11. Production operating bounds,
+complete funding admission, Caffeine account/credit reconciliation, independent
+recovery and both adapters remain open. No paid provider call, release action or
+full CI/release gate ran; Cargo and the release receipt remain 0.1.16.
+
+## Funding refusal recovery after 0.1.16
+
+A new PocketIC regression first reproduced a liquidity refusal executing the
+fixture's callback trap control without an actual callback. That synchronous trap
+rolled back the whole ingress message, including the retained refusal and identity.
+The workflow now applies this control only when a callback refund observation
+exists. Model validation likewise permits terminal unsent records with the control
+set, while rejecting completed records that should have trapped in a real callback.
+No callback is fabricated for liquidity refusal or CDK enqueue failure.
+
+Actual PocketIC tests fill the bounded journal with unsent attempts under different
+receiver/callback controls. Refusals retain their identities without receipts or
+refunds, exhaust lifetime capacity, and preserve records/allocation through fenced
+restore. Separate real zero-refund and full-refund callback traps both retain the
+full attachment as uncertain and block further payments. Native checks also cover
+restoration of both kinds of unsent terminal record.
+
+Preview now exposes AmountLimitExceeded using the model's same maximum attachment
+as update admission. Actual CLI/query tests cover the exact limit, one above it and
+u128::MAX; oversized updates return typed Limit without changing journals. Client
+JSON preserves the maximum as a decimal string alongside other independent blockers.
+
+Targeted native, strict funding/protocol/client Clippy, warning-free rustdoc, three
+fixture Wasm builds, client Wasm check and complete funding/operator PocketIC targets
+pass. Formatting, diff and the current operator source inventory checks pass.
+Current Wasm SHA-256 (earlier slice hashes above remain historical observations):
+
+- authority: `fc52e1dd94bd41e6af790602b29f87b598295d5b2a5e7ef35418ce83bdd0f7db`
+- gateway source: `6aa184e0cc40d9aaa26695755da64f5473c6c93f75e0717a469e707ce9a56f98`
+- funding: `2e7ab2862340298dc6d89109ff619f3a10357c250d9de44221d4b589214c911f`
+
+This strengthens the existing partial funding/recovery evidence; no production
+provider credit or recovery qualification changed. Cargo/release receipt remain
+0.1.16. No paid provider call, release action or full CI/release gate ran.

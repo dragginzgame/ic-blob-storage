@@ -289,7 +289,7 @@ fn revoked_and_readded_gateway_cannot_validate_its_old_held_reply() {
         let result: Result<(), SyncFailure> = f
             .harness
             .pic
-            .update_candid_as(f.gateway, f.operator, "run_sync", ())
+            .update_candid_as(f.gateway, f.operator, "run_sync", (f.sync_request(),))
             .expect("sync response");
         assert_eq!(result, expected);
     }

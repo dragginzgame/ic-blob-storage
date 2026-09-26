@@ -95,6 +95,16 @@ namespace/peer are explicit; the caller is simulated, not production authenticat
 Only the fixed query is callable. Structured blocker checks never grant effects,
 and failed reads cannot trigger an update fallback. Real subprocess tests cover
 permission/binding failures, method mode and unchanged journals after restoration.
+The separate local refresh tool queries an admission preview or explicitly requests
+a controlled balance read. The fixture atomically checks caller, fence, full scope,
+revision and next attempt before intent/dispatch. Preview cannot reserve admission;
+repeating a consumed request cannot dispatch again. Post-status has a separate JSON
+outcome and never triggers action replay. Malformed or missing acknowledgements
+remain uncertain. These fixture commands establish no production account authority.
+The local sync command shares that client flow. Required fixture edit revisions
+invalidate previews on every revocation, while the existing registry owns callback
+correlation and membership. Exhausted revisions block sync but never revocation.
+Source/revision/sequence status is inspection data, not token or restore authority.
 Its controlled local source canister additionally exercises gateway sync across
 real awaits, including reentrant revocation and replacement. No provider binding
 or deployed Cashier transport is implemented by these test-only calls.
@@ -119,6 +129,30 @@ tests local orchestration, not deployed Cashier authority or certified freshness
 Pure funding policy now also assesses admission of a new intent from supplied
 recovery/activity observations. This is part of the local policy exception;
 it neither establishes those observations nor persists or executes an intent.
+An additive incomplete-evidence assessment retains unknown spendability, recovery
+and activity alongside known blockers. Reserve arithmetic never replaces missing
+funds with zero. The local funding-preview query binds sender/peer/id/amount and
+checks identity reuse/capacity without consuming an intent. Its raw transfer
+experiment remains separate from operator admission; no funding action is exposed
+through the preview CLI. Gross cycles and transport acceptance supply neither
+authoritative spendability nor provider credit.
+The local fixture now requires an installed attachment allocation and positive
+reserve. Its bounded journal derives accounting from original intents and exact
+terminal observations; admission persists the full reservation before dispatch.
+Known refunds and unsent attachments release only their allocation. Accepted and
+unresolved attachments remain charged, including through a permanent restore
+fence. Preview requests bind the budget revision, which changes even after a full
+refund. This is an attachment envelope, not production spendability: execution
+fees and other liabilities are outside it, and incoming cycles cannot replenish it.
+An additional local liquidity guard now samples the platform balance and exact
+call-cost bound after intent persistence. It preserves separately installed
+positive operating slack and explicit other liabilities. A refused dispatch is
+recorded as unsent with zero acceptance and no callback refund; its identity stays
+consumed. Callback failure controls apply only to real callbacks, preserving
+unsent refusals through restore. Preview amount limits match update admission.
+Query observations can be cached or become stale without any journal
+revision change, so the update rechecks them. These local resource inputs do not
+establish complete production accounting, independent recovery or provider credit.
 Shared transfer values now validate exact unbounded-call refund arithmetic and
 distinguish proven enqueue failure from missing evidence. Pure reconciliation
 policy diagnoses no transfer, accepted cycles requiring credit evidence, or an

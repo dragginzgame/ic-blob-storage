@@ -23,7 +23,7 @@ impl Fixture {
                 self.gateway,
                 self.operator,
                 "run_sync",
-                candid::encode_args(()).unwrap(),
+                candid::encode_one(self.sync_request()).unwrap(),
             )
             .unwrap();
         for _ in 0..30 {
@@ -86,7 +86,7 @@ fn actual_pending_sync_rejects_upgrade_and_old_journal_restores_only_as_evidence
     let overlap: Result<(), SyncFailure> = f
         .harness
         .pic
-        .update_candid_as(f.service, f.gateway, "sync_gateway", ())
+        .update_candid_as(f.service, f.gateway, "sync_gateway", (f.sync_request(),))
         .unwrap();
     assert_eq!(overlap, Err(SyncFailure::InProgress));
     assert_eq!(f.list_observation().requests, 1);
@@ -126,7 +126,7 @@ fn actual_pending_sync_rejects_upgrade_and_old_journal_restores_only_as_evidence
     let retry: Result<(), SyncFailure> = f
         .harness
         .pic
-        .update_candid_as(f.gateway, f.operator, "run_sync", ())
+        .update_candid_as(f.gateway, f.operator, "run_sync", (f.sync_request(),))
         .unwrap();
     assert_eq!(retry, Err(SyncFailure::Denied));
     assert_eq!(f.source_recovery(f.operator).unwrap(), source);
@@ -199,7 +199,7 @@ fn exhausted_local_hold_releases_exact_read_only_attempt_without_automatic_retry
     let explicit: Result<(), SyncFailure> = f
         .harness
         .pic
-        .update_candid_as(f.gateway, f.operator, "run_sync", ())
+        .update_candid_as(f.gateway, f.operator, "run_sync", (f.sync_request(),))
         .unwrap();
     assert_eq!(explicit, Ok(()));
     assert_eq!((f.archive().last_sync, f.archive().pending_sync), (2, None));

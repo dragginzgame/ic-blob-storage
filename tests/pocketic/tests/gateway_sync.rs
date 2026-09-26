@@ -4,6 +4,7 @@
 #![cfg(not(target_family = "wasm"))]
 
 mod support;
+mod sync_request;
 
 use blob_test_protocol::{SourceMode, SourceObservation, SyncFailure};
 use candid::Principal;
@@ -79,7 +80,12 @@ impl Fixture {
 
     fn sync(&self) -> Result<(), SyncFailure> {
         self.pic()
-            .update_candid_as(self.source, self.driver, "run_sync", ())
+            .update_candid_as(
+                self.source,
+                self.driver,
+                "run_sync",
+                (sync_request::read(self.pic(), self.service, self.source),),
+            )
             .expect("drive actual source-to-probe call")
     }
 
@@ -110,7 +116,16 @@ fn denied_and_failed_syncs_do_not_change_membership_or_automatically_retry() {
     ] {
         let result: Result<(), SyncFailure> = fixture
             .pic()
-            .update_candid_as(fixture.service, caller, "sync_gateway", ())
+            .update_candid_as(
+                fixture.service,
+                caller,
+                "sync_gateway",
+                (sync_request::read(
+                    fixture.pic(),
+                    fixture.service,
+                    fixture.source,
+                ),),
+            )
             .expect("sync denial");
         assert_eq!(result, Err(SyncFailure::Denied));
     }

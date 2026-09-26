@@ -2,8 +2,11 @@
 #![cfg(not(target_family = "wasm"))]
 
 mod operator_balance;
+mod operator_funding_preview;
 mod operator_method_mode;
+mod operator_sync;
 mod support;
+mod sync_request;
 
 use blob_test_protocol::funding::{
     FundingFailure, FundingObservation, FundingReplyMode, FundingRequest, FundingUpgradeArgs,
@@ -25,6 +28,10 @@ struct Fixture {
 
 impl Fixture {
     fn new() -> Self {
+        Self::with_source_operator(false)
+    }
+
+    fn with_source_operator(source_operator: bool) -> Self {
         let harness = Harness::new();
         let pic = &harness.pic;
         let create = || {
@@ -45,7 +52,13 @@ impl Fixture {
         pic.install_canister(
             authority,
             std::fs::read(fixture_path("BLOB_AUTHORITY_PROBE_WASM")).unwrap(),
-            candid::encode_args((Fake::principal(1), Fake::principal(2), gateway, driver)).unwrap(),
+            candid::encode_args((
+                Fake::principal(1),
+                Fake::principal(2),
+                gateway,
+                if source_operator { gateway } else { driver },
+            ))
+            .unwrap(),
             None,
         );
         pic.install_canister(
@@ -59,7 +72,17 @@ impl Fixture {
             pic.install_canister(
                 canister,
                 funding.clone(),
-                candid::encode_args((peer, driver)).unwrap(),
+                candid::encode_args((
+                    peer,
+                    driver,
+                    blob_test_protocol::funding::budget::FundingBudgetInput {
+                        operating_reserve: 1_000_000_000,
+                        other_liabilities: 0,
+                        allocated: 100_000_000_000_000,
+                        reserve: 1_000_000_000_000,
+                    },
+                ))
+                .unwrap(),
                 None,
             );
         }

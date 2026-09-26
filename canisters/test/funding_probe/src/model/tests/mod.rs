@@ -18,7 +18,12 @@ fn request(id: u64) -> FundingRequest {
 }
 
 fn journal() -> FundingJournalRecord {
-    let mut journal = FundingJournalRecord::new(principal(1), principal(2), principal(3));
+    let mut journal = FundingJournalRecord::new(
+        principal(1),
+        principal(2),
+        principal(3),
+        budget::FundingBudgetRecord::new(1000, 100, 1, 0).unwrap(),
+    );
     journal.admit(principal(3), request(1)).unwrap();
     journal.complete(
         request(1),
@@ -126,4 +131,37 @@ fn unknown_attempt_must_be_last_and_fence_never_discards_it() {
     assert_eq!(journal.attempts(principal(3)), before);
     journal.attempts.swap(0, 1);
     assert_eq!(journal.validate(principal(1)), Err(JournalFailure::Pending));
+}
+
+#[test]
+fn callback_control_allows_only_unsent_terminal_records_to_restore() {
+    for outcome in [
+        FundingOutcome::NotEnqueued,
+        FundingOutcome::LiquidityBlocked,
+    ] {
+        let mut journal = journal();
+        let attempt = FundingRequest {
+            trap_callback: true,
+            ..request(2)
+        };
+        journal.admit(principal(3), attempt).unwrap();
+        journal.complete(
+            attempt,
+            FundingObservation {
+                refunded: None,
+                transport_accepted: Some(0),
+                outcome,
+                reconciliation: FundingReconciliationView::NoTransfer,
+            },
+        );
+        assert_eq!(journal.validate(principal(1)), Ok(()));
+        let retained = journal.budget();
+        journal.fence();
+        assert_eq!(journal.validate(principal(1)), Ok(()));
+        assert_eq!(journal.budget(), retained);
+        assert_eq!(
+            journal.admit(principal(3), attempt),
+            Err(FundingFailure::Fenced)
+        );
+    }
 }

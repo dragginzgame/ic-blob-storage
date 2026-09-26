@@ -682,7 +682,16 @@
           "source": "tests/pocketic/tests/recovery/authority/sync/mod.rs",
           "coverage": "Actual held inter-canister syncs reject overlap and busy upgrades; delayed replies cannot undo revocation. Both journals retain pending identities under old-archive fencing. Bounded local hold failure sends no automatic retry.",
           "remaining": "Deployed Cashier integration, successful-sync timestamps, production persistence, reconciliation and operator transport."
+        },
+        {
+          "kind": "native_and_pocketic_partial",
+          "record": "evidence/core-primitives.md#explicit-local-gateway-sync-after-0116",
+          "source_hashes": "evidence/operator-actions.sha256",
+          "source": "tests/pocketic/tests/operator_sync/mod.rs",
+          "coverage": "Local sync CLI shares action/post-status reporting with balance refresh. Exact scope, edit revision and next sequence bind admission; even no-op revocation invalidates previews. Actual subprocesses, held/reentrant calls and live-callback upgrades preserve membership or fenced pending evidence. Failed diagnosis never replays an acknowledged update.",
+          "remaining": "Production identity and Cashier transport, sync freshness, independent recovery, funding operator admission, managed discovery and both service adapters. Fixture requests and simulated callers do not qualify Caffeine behavior."
         }
+
       ]
     },
     {
@@ -758,6 +767,30 @@
           "source": "tests/pocketic/tests/funding.rs",
           "coverage": "Driver-only status preserves all retained uncredited/unknown transfers. Same-release restoration validates service/release and journal consistency, then permanently fences sending, acceptance and callback completion. PocketIC covers older journals, live reply races on both sides, exact refunds and failed-upgrade rollback.",
           "remaining": "Independent recovery authority, snapshot-load safety, exact deployed account credit evidence, production funding workflow/adapters and operator transport."
+        },
+        {
+          "kind": "native_and_pocketic_partial",
+          "record": "evidence/core-primitives.md#passive-funding-admission-preview-after-0116",
+          "source_hashes": "evidence/operator-actions.sha256",
+          "source": "tests/pocketic/tests/operator_funding_preview/mod.rs",
+          "coverage": "Additive incomplete-evidence admission preserves independent unknowns and full-request reserve arithmetic. Query-only local CLI binds sender/peer/id/amount, reports used identities and capacity, and keeps uncredited acceptance or unknown transfers blocking through later refunds and restore. Actual previews preserve journals; added gross cycles do not establish spendability and update-only methods cannot mutate.",
+          "remaining": "Authoritative spendable accounting and atomic reservations, operator funding action, qualified provider/account bindings and credit reconciliation, independent recovery and both service adapters. Raw transfer experiments are not reserve-protected operator admission."
+        },
+        {
+           "coverage" : "Installed local attachment allocation and positive reserve; full intent reservation before dispatch; exact refund and distinct unsent accounting. Native and actual IC checks retain accepted/uncertain charges, reject over-budget requests atomically, preserve reservations through callback rollback and fenced restore, reject stale previews after full refunds and prevent replenishment by incoming or gross cycles.",
+           "kind" : "native_and_pocketic_partial",
+           "record" : "evidence/core-primitives.md#local-attachment-budget-after-0116",
+           "remaining" : "Execution fees and other liabilities, authoritative production spendability, complete operator funding admission, deployed provider/account credit reconciliation, independent recovery and both service adapters. The attachment envelope does not establish production funds or provider credit.",
+           "source" : "tests/pocketic/tests/funding_budget/mod.rs",
+           "source_hashes" : "evidence/operator-actions.sha256"
+        },
+        {
+           "coverage" : "Additive full-request liquidity policy and post-persistence local transfer guard use platform call costs, liquid balance, positive operating slack and explicit liabilities. Actual IC tests prove fee-only refusal, retained unsent identities without fabricated refunds, changed liquidity without an allocation revision and retained holds through fenced restore. Passive previews cannot supply dispatch freshness. Unsent refusals retain identities and lifetime capacity despite callback controls, including after fenced restore; actual zero/full-refund callbacks retain uncertainty. Preview and update enforce the same amount limit.",
+           "kind" : "native_and_pocketic_partial",
+           "record" : "evidence/core-primitives.md#funding-liquidity-guard-after-0116",
+           "remaining" : "Complete production liability accounting and operating bounds, operator funding admission, exact Caffeine account/credit reconciliation, independent recovery and both service adapters. Local resource protection does not qualify the provider or authorize operator funding.",
+           "source" : "tests/pocketic/tests/funding_budget/mod.rs",
+           "source_hashes" : "evidence/operator-actions.sha256"
         }
       ]
     },
@@ -981,6 +1014,46 @@
           "source": "tests/pocketic/tests/operator.rs",
           "coverage": "Actual unpublished CLI subprocesses use fixed query transport with explicit local instance, canister, simulated caller and namespace/peer bindings. JSON preserves unknowns, exact amounts and fences; blocker and typed read failures have distinct exit codes. Denied, misbound, missing/update-only methods reject without journal effects; attached instance ownership survives exit.",
           "remaining": "Production identity/transport and managed discovery, scoped configured provider observations, sync/funding commands and both service adapters. Simulator calls do not qualify provider economics or service readiness."
+        },
+        {
+          "kind": "native_and_pocketic_partial",
+          "record": "evidence/core-primitives.md#explicit-local-operator-refresh-after-0116",
+          "source_hashes": "evidence/operator-actions.sha256",
+          "source": "tests/pocketic/tests/operator_balance/refresh/mod.rs",
+          "coverage": "Separate local refresh CLI offers passive admission preview and atomically bound scope/revision/next-attempt updates. Actual subprocesses reject stale previews, repeats, busy/fenced owners and denied callers. A completed update with failed post-status is retained without replay; malformed acknowledgement stays uncertain and update-only preview cannot mutate.",
+          "remaining": "Production identity and Caffeine transport, gateway sync/funding commands, independent recovery, managed discovery and both service adapters. Local observation does not establish provider credit or service qualification."
+        },
+        {
+          "kind": "native_and_pocketic_partial",
+          "record": "evidence/core-primitives.md#explicit-local-gateway-sync-after-0116",
+          "source_hashes": "evidence/operator-actions.sha256",
+          "source": "tests/pocketic/tests/operator_sync/mod.rs",
+          "coverage": "Local sync CLI shares action/post-status reporting with balance refresh. Exact scope, edit revision and next sequence bind admission; even no-op revocation invalidates previews. Actual subprocesses, held/reentrant calls and live-callback upgrades preserve membership or fenced pending evidence. Failed diagnosis never replays an acknowledged update.",
+          "remaining": "Production identity and Cashier transport, sync freshness, independent recovery, funding operator admission, managed discovery and both service adapters. Fixture requests and simulated callers do not qualify Caffeine behavior."
+        },
+        {
+          "kind": "native_and_pocketic_partial",
+          "record": "evidence/core-primitives.md#passive-funding-admission-preview-after-0116",
+          "source_hashes": "evidence/operator-actions.sha256",
+          "source": "tests/pocketic/tests/operator_funding_preview/mod.rs",
+          "coverage": "Additive incomplete-evidence admission preserves independent unknowns and full-request reserve arithmetic. Query-only local CLI binds sender/peer/id/amount, reports used identities and capacity, and keeps uncredited acceptance or unknown transfers blocking through later refunds and restore. Actual previews preserve journals; added gross cycles do not establish spendability and update-only methods cannot mutate.",
+          "remaining": "Authoritative spendable accounting and atomic reservations, operator funding action, qualified provider/account bindings and credit reconciliation, independent recovery and both service adapters. Raw transfer experiments are not reserve-protected operator admission."
+        },
+        {
+           "coverage" : "Installed local attachment allocation and positive reserve; full intent reservation before dispatch; exact refund and distinct unsent accounting. Native and actual IC checks retain accepted/uncertain charges, reject over-budget requests atomically, preserve reservations through callback rollback and fenced restore, reject stale previews after full refunds and prevent replenishment by incoming or gross cycles.",
+           "kind" : "native_and_pocketic_partial",
+           "record" : "evidence/core-primitives.md#local-attachment-budget-after-0116",
+           "remaining" : "Execution fees and other liabilities, authoritative production spendability, complete operator funding admission, deployed provider/account credit reconciliation, independent recovery and both service adapters. The attachment envelope does not establish production funds or provider credit.",
+           "source" : "tests/pocketic/tests/funding_budget/mod.rs",
+           "source_hashes" : "evidence/operator-actions.sha256"
+        },
+        {
+           "coverage" : "Additive full-request liquidity policy and post-persistence local transfer guard use platform call costs, liquid balance, positive operating slack and explicit liabilities. Actual IC tests prove fee-only refusal, retained unsent identities without fabricated refunds, changed liquidity without an allocation revision and retained holds through fenced restore. Passive previews cannot supply dispatch freshness. Unsent refusals retain identities and lifetime capacity despite callback controls, including after fenced restore; actual zero/full-refund callbacks retain uncertainty. Preview and update enforce the same amount limit.",
+           "kind" : "native_and_pocketic_partial",
+           "record" : "evidence/core-primitives.md#funding-liquidity-guard-after-0116",
+           "remaining" : "Complete production liability accounting and operating bounds, operator funding admission, exact Caffeine account/credit reconciliation, independent recovery and both service adapters. Local resource protection does not qualify the provider or authorize operator funding.",
+           "source" : "tests/pocketic/tests/funding_budget/mod.rs",
+           "source_hashes" : "evidence/operator-actions.sha256"
         }
       ]
     },
@@ -1012,7 +1085,24 @@
           "source": "tests/pocketic/tests/operator.rs",
           "coverage": "Actual unpublished CLI subprocesses use fixed query transport with explicit local instance, canister, simulated caller and namespace/peer bindings. JSON preserves unknowns, exact amounts and fences; blocker and typed read failures have distinct exit codes. Denied, misbound, missing/update-only methods reject without journal effects; attached instance ownership survives exit.",
           "remaining": "Production identity/transport and managed discovery, scoped configured provider observations, sync/funding commands and both service adapters. Simulator calls do not qualify provider economics or service readiness."
+        },
+        {
+          "kind": "native_and_pocketic_partial",
+          "record": "evidence/core-primitives.md#explicit-local-operator-refresh-after-0116",
+          "source_hashes": "evidence/operator-actions.sha256",
+          "source": "tests/pocketic/tests/operator_balance/refresh/mod.rs",
+          "coverage": "Separate local refresh CLI offers passive admission preview and atomically bound scope/revision/next-attempt updates. Actual subprocesses reject stale previews, repeats, busy/fenced owners and denied callers. A completed update with failed post-status is retained without replay; malformed acknowledgement stays uncertain and update-only preview cannot mutate.",
+          "remaining": "Production identity and Caffeine transport, gateway sync/funding commands, independent recovery, managed discovery and both service adapters. Local observation does not establish provider credit or service qualification."
+        },
+        {
+          "kind": "native_and_pocketic_partial",
+          "record": "evidence/core-primitives.md#explicit-local-gateway-sync-after-0116",
+          "source_hashes": "evidence/operator-actions.sha256",
+          "source": "tests/pocketic/tests/operator_sync/mod.rs",
+          "coverage": "Local sync CLI shares action/post-status reporting with balance refresh. Exact scope, edit revision and next sequence bind admission; even no-op revocation invalidates previews. Actual subprocesses, held/reentrant calls and live-callback upgrades preserve membership or fenced pending evidence. Failed diagnosis never replays an acknowledged update.",
+          "remaining": "Production identity and Cashier transport, sync freshness, independent recovery, funding operator admission, managed discovery and both service adapters. Fixture requests and simulated callers do not qualify Caffeine behavior."
         }
+
       ]
     },
     {
@@ -1071,8 +1161,47 @@
           "source": "tests/pocketic/tests/operator_balance/billing/mod.rs",
           "coverage": "Validated local billing limits retain exact observation scope/revision. Shared balance-threshold policy separates shortfall from reserve feasibility and keeps unknown spendability explicit. Native and actual CLI/PocketIC cases preserve malformed/unavailable/expired distinctions, stale configuration, recovery fences, other blockers and passive status. Released complete reserve behavior is unchanged.",
           "remaining": "Production spendable accounting, provider/account authority and reconciliation, operator mutation workflows and both service adapters. Diagnostic configuration never grants effect authority or service qualification."
+        },
+        {
+          "kind": "native_and_pocketic_partial",
+          "record": "evidence/core-primitives.md#explicit-local-operator-refresh-after-0116",
+          "source_hashes": "evidence/operator-actions.sha256",
+          "source": "tests/pocketic/tests/operator_balance/refresh/mod.rs",
+          "coverage": "Separate local refresh CLI offers passive admission preview and atomically bound scope/revision/next-attempt updates. Actual subprocesses reject stale previews, repeats, busy/fenced owners and denied callers. A completed update with failed post-status is retained without replay; malformed acknowledgement stays uncertain and update-only preview cannot mutate.",
+          "remaining": "Production identity and Caffeine transport, gateway sync/funding commands, independent recovery, managed discovery and both service adapters. Local observation does not establish provider credit or service qualification."
+        },
+        {
+          "kind": "native_and_pocketic_partial",
+          "record": "evidence/core-primitives.md#explicit-local-gateway-sync-after-0116",
+          "source_hashes": "evidence/operator-actions.sha256",
+          "source": "tests/pocketic/tests/operator_sync/mod.rs",
+          "coverage": "Local sync CLI shares action/post-status reporting with balance refresh. Exact scope, edit revision and next sequence bind admission; even no-op revocation invalidates previews. Actual subprocesses, held/reentrant calls and live-callback upgrades preserve membership or fenced pending evidence. Failed diagnosis never replays an acknowledged update.",
+          "remaining": "Production identity and Cashier transport, sync freshness, independent recovery, funding operator admission, managed discovery and both service adapters. Fixture requests and simulated callers do not qualify Caffeine behavior."
+        },
+        {
+          "kind": "native_and_pocketic_partial",
+          "record": "evidence/core-primitives.md#passive-funding-admission-preview-after-0116",
+          "source_hashes": "evidence/operator-actions.sha256",
+          "source": "tests/pocketic/tests/operator_funding_preview/mod.rs",
+          "coverage": "Additive incomplete-evidence admission preserves independent unknowns and full-request reserve arithmetic. Query-only local CLI binds sender/peer/id/amount, reports used identities and capacity, and keeps uncredited acceptance or unknown transfers blocking through later refunds and restore. Actual previews preserve journals; added gross cycles do not establish spendability and update-only methods cannot mutate.",
+          "remaining": "Authoritative spendable accounting and atomic reservations, operator funding action, qualified provider/account bindings and credit reconciliation, independent recovery and both service adapters. Raw transfer experiments are not reserve-protected operator admission."
+        },
+        {
+           "coverage" : "Installed local attachment allocation and positive reserve; full intent reservation before dispatch; exact refund and distinct unsent accounting. Native and actual IC checks retain accepted/uncertain charges, reject over-budget requests atomically, preserve reservations through callback rollback and fenced restore, reject stale previews after full refunds and prevent replenishment by incoming or gross cycles.",
+           "kind" : "native_and_pocketic_partial",
+           "record" : "evidence/core-primitives.md#local-attachment-budget-after-0116",
+           "remaining" : "Execution fees and other liabilities, authoritative production spendability, complete operator funding admission, deployed provider/account credit reconciliation, independent recovery and both service adapters. The attachment envelope does not establish production funds or provider credit.",
+           "source" : "tests/pocketic/tests/funding_budget/mod.rs",
+           "source_hashes" : "evidence/operator-actions.sha256"
+        },
+        {
+           "coverage" : "Additive full-request liquidity policy and post-persistence local transfer guard use platform call costs, liquid balance, positive operating slack and explicit liabilities. Actual IC tests prove fee-only refusal, retained unsent identities without fabricated refunds, changed liquidity without an allocation revision and retained holds through fenced restore. Passive previews cannot supply dispatch freshness. Unsent refusals retain identities and lifetime capacity despite callback controls, including after fenced restore; actual zero/full-refund callbacks retain uncertainty. Preview and update enforce the same amount limit.",
+           "kind" : "native_and_pocketic_partial",
+           "record" : "evidence/core-primitives.md#funding-liquidity-guard-after-0116",
+           "remaining" : "Complete production liability accounting and operating bounds, operator funding admission, exact Caffeine account/credit reconciliation, independent recovery and both service adapters. Local resource protection does not qualify the provider or authorize operator funding.",
+           "source" : "tests/pocketic/tests/funding_budget/mod.rs",
+           "source_hashes" : "evidence/operator-actions.sha256"
         }
-
       ]
     },
     {

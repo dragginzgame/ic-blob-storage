@@ -107,6 +107,8 @@ pub struct AuthorityArchiveView {
     pub last_sync: u64,
     /// Pending sync sequence, if any.
     pub pending_sync: Option<u64>,
+    /// Operator-edit revision; absent means exhausted and permanently blocked.
+    pub sync_revision: Option<u64>,
     /// Last allocated read sequence, including completed reads.
     pub last_read: u64,
     /// Exact pending read, if any.

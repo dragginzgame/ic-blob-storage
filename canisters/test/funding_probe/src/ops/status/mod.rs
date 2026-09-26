@@ -28,6 +28,7 @@ use ic_blob_storage::{
 };
 
 pub(crate) struct FundingSnapshot {
+    budget: crate::model::budget::FundingBudgetSnapshot,
     peer: Principal,
     fenced: bool,
     attempts: Vec<FundingAttemptRecord>,
@@ -37,6 +38,7 @@ pub(crate) struct FundingSnapshot {
 pub(crate) fn snapshot(caller: Principal) -> Option<FundingSnapshot> {
     super::read(|state| {
         Some(FundingSnapshot {
+            budget: state.budget(),
             peer: state.peer(),
             fenced: state.fenced(),
             attempts: state.attempts(caller)?,
@@ -49,7 +51,7 @@ pub(crate) fn transfers(snapshot: &FundingSnapshot) -> Vec<FundingTransfer> {
     snapshot.attempts.iter().map(transfer).collect()
 }
 
-fn transfer(entry: &FundingAttemptRecord) -> FundingTransfer {
+pub(super) fn transfer(entry: &FundingAttemptRecord) -> FundingTransfer {
     let offered = NonZeroU128::new(entry.request.offered).expect("admitted positive attachment");
     crate::model::checked_transfer(entry).unwrap_or_else(|_| FundingTransfer::unknown(offered))
 }
@@ -91,6 +93,7 @@ pub(crate) fn view(
         billing_configured: false,
         provider_balance: None,
         available_funding_cycles: None,
+        budget: super::preview::budget_view(&snapshot.budget),
         funding_activity: match activity {
             FundingActivity::Clear => FundingActivityView::Clear,
             FundingActivity::InProgress => FundingActivityView::InProgress,

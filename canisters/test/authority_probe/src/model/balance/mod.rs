@@ -93,13 +93,7 @@ impl BalanceJournalRecord {
     }
 
     pub fn begin(&mut self, now: u64) -> Result<(usize, ScopeRecord), Failure> {
-        let scope = self.configured.ok_or(Failure::NotConfigured)?;
-        if self.busy() {
-            return Err(Failure::Busy);
-        }
-        if self.attempts.len() == MAX_ATTEMPTS {
-            return Err(Failure::Limit);
-        }
+        let scope = self.admit()?;
         let id = self.attempts.len();
         self.attempts.push(AttemptRecord {
             revision: self.revision,
@@ -108,6 +102,33 @@ impl BalanceJournalRecord {
             outcome: None,
         });
         Ok((id, scope))
+    }
+
+    pub fn check_refresh(
+        &self,
+        scope: ScopeRecord,
+        revision: u64,
+        sequence: u64,
+    ) -> Result<(), Failure> {
+        let configured = self.admit()?;
+        if scope != configured {
+            return Err(Failure::Binding);
+        }
+        if revision != self.revision || sequence != self.attempts.len() as u64 + 1 {
+            return Err(Failure::Stale);
+        }
+        Ok(())
+    }
+
+    fn admit(&self) -> Result<ScopeRecord, Failure> {
+        let scope = self.configured.ok_or(Failure::NotConfigured)?;
+        if self.busy() {
+            return Err(Failure::Busy);
+        }
+        if self.attempts.len() == MAX_ATTEMPTS {
+            return Err(Failure::Limit);
+        }
+        Ok(scope)
     }
 
     pub fn complete(

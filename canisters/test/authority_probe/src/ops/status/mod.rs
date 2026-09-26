@@ -62,6 +62,9 @@ pub(crate) fn view(
         funding_activity: None,
         gateways: record.gateways.clone(),
         pending_sync: record.pending_sync,
+        sync_source: record.sync_source,
+        last_sync: record.last_sync,
+        sync_revision: record.sync_control.revision,
         pending_read: record.pending_read.as_ref().map(|read| ArchivedReadView {
             token: read.token,
             valid: read.valid,

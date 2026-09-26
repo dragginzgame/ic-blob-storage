@@ -115,6 +115,85 @@ are `null`; full-width amounts and counters are decimal strings. The client call
 only the `operator_status` query, leaves the instance running and never falls back
 to an update. It supplies no production authentication, discovery or provider access.
 
+The separate `blob-fixture-refresh` tool previews or requests one controlled-source
+balance read. Take the current revision and next lifetime attempt number from the
+fixture status, and explicitly supply the configured source and account:
+
+```sh
+cargo run --offline --locked -p ic-blob-storage-pocketic-tests --bin blob-fixture-refresh -- \
+  dry-run --server "$FIXTURE_SERVER" --instance "$FIXTURE_INSTANCE" \
+  --canister "$FIXTURE_CANISTER" --caller "$FIXTURE_OPERATOR" \
+  --kind authority --namespace 1 --source "$FIXTURE_SOURCE" \
+  --account "$FIXTURE_ACCOUNT" --revision "$FIXTURE_REVISION" --sequence "$FIXTURE_NEXT_ATTEMPT"
+```
+
+Replace `dry-run` with `refresh` to request the local read. Preview grants no future
+admission: the update checks the same bindings, revision, next sequence, capacity,
+pending work and restore fence before persisting intent. Repeating a consumed
+request cannot dispatch again. Both commands leave the existing instance running.
+Refresh may advance simulator rounds; it attaches no provider cycles and never funds.
+
+JSON separates `action` from `post_status`. Exit 0 means eligible preview or completed
+refresh, 2 invalid arguments, 5 a typed operation failure, 6 unknown/uncertain outcome,
+and 7 completed refresh with failed post-status. A typed failed observation may have
+consumed its attempt; inspect status. No outcome triggers an automatic retry or a new
+sequence. Failed/malformed update acknowledgements remain uncertain even if the
+subsequent status read succeeds. Dry-run only queries `preview_balance_refresh`;
+the existing status/check tool remains query-only. These are local test transports,
+not production credentials or evidence of deployed Caffeine behavior.
+
+Gateway synchronization uses `--bin blob-fixture-sync -- dry-run` (or `sync`) with
+the same explicit target flags, `--source`, `--revision` and `--sequence`, and no
+`--account`. Read `sync_source`, `sync_revision` and `last_sync` from status; the
+requested sequence is `last_sync + 1`. Sync revisions begin at 0. A null revision
+means exhausted admission, not revision zero. Each revocation invalidates previous
+previews, including when the member was already absent. Only a later explicit sync
+may re-add it. Both action tools share the JSON/exit behavior described above.
+The local reentrant fixture assigns its source canister the operator role; the CLI
+must name that simulated caller explicitly. This is not a production role binding.
+
+Funding has a passive preview only:
+
+```sh
+cargo run --offline --locked -p ic-blob-storage-pocketic-tests --bin blob-fixture-funding-preview -- \
+  dry-run --server "$FIXTURE_SERVER" --instance "$FIXTURE_INSTANCE" \
+  --canister "$FIXTURE_SENDER" --caller "$FIXTURE_DRIVER" \
+  --kind funding --peer "$FIXTURE_RECEIVER" --id 1 --amount 1000000 \
+  --revision "$FIXTURE_BUDGET_REVISION"
+```
+
+Read `budget.revision` from funding status for `FIXTURE_BUDGET_REVISION` (initially
+0). It changes on intent admission and completion, including full refunds. The
+preview checks that revision, exact identity, protocol amount limit and full
+amount without reserving or transferring cycles.
+Exit 4 means a valid blocked preview; 2 means invalid arguments and 3 a read,
+permission or binding failure. Exit 0 would mean unblocked observations, never
+effect authority. The current fixture always reports missing funding prerequisites:
+gross cycles are not authoritative spendability and transport acceptance is not
+provider credit. Existing identities remain used even after full refunds. This
+command cannot invoke the raw transfer experiment, override missing accounting
+with flags or fall back to an update.
+
+The funding fixture requires `(peer, driver, FundingBudgetInput { allocated,
+reserve, operating_reserve, other_liabilities })` at installation. Its positive
+`reserve` limits transfer attachments;
+status and preview label this `budget.scope = "local_attachment_budget"`. Available
+allocation excludes accepted cycles and full unresolved attachments. Callback
+refunds and proven unsent offers are reported separately. Incoming receipts or
+added gross cycles never increase it. Separately, the transfer guard uses current
+platform liquid cycles and call costs, preserving positive `operating_reserve`
+slack and explicit `other_liabilities`. These holds cannot be reset or released by
+a refund. Costs are sampled after intent persistence and before dispatch. A
+`LiquidityBlocked` outcome consumes the identity, releases the unsent attachment
+and reports no callback refund.
+Callback trap controls apply only to actual callbacks; they cannot erase an unsent
+refusal. Such refusals still consume the bounded journal's lifetime capacity.
+
+Preview `liquidity` figures are observations, possibly cached, and can change
+without a budget revision. The update rechecks its own exact encoded call. These
+local installed holds do not prove complete production liabilities, provider credit
+or recovery; top-level spendability remains unknown. Restored owners stay fenced.
+
 Release/publication preserve build output. Only explicit
 `make clean` removes it.
 

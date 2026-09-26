@@ -1,5 +1,7 @@
 //! Persisted experiment schema and bounded journal invariants, not a service model.
 
+pub(crate) mod budget;
+
 use blob_test_protocol::funding::{
     FundingAttemptRecord, FundingFailure, FundingObservation, FundingOutcome, FundingReceiptRecord,
     FundingRequest,
@@ -10,9 +12,13 @@ use serde::Deserialize;
 use std::{collections::BTreeSet, num::NonZeroU128};
 
 const MAX_ATTEMPTS: usize = 16;
-// Permit a local attempt larger than the test sender's balance to exercise an
-// actual CDK enqueue failure. This is not a production attachment budget.
-const MAX_OFFERED: u128 = 10_000_000_000_000;
+// Bound the maintained local protocol independently of allocation and liquidity.
+pub(crate) const MAX_OFFERED: u128 = 10_000_000_000_000;
+
+pub(crate) struct FundingIdentityView {
+    pub already_admitted: bool,
+    pub journal_full: bool,
+}
 
 #[derive(CandidType, Deserialize)]
 pub(crate) struct FundingJournalRecord {
@@ -23,9 +29,31 @@ pub(crate) struct FundingJournalRecord {
     driver: Principal,
     attempts: Vec<FundingAttemptRecord>,
     receipts: Vec<FundingReceiptRecord>,
+    budget: budget::FundingBudgetRecord,
 }
 
 impl FundingJournalRecord {
+    pub(crate) fn preview_identity(
+        &self,
+        service: Principal,
+        caller: Principal,
+        peer: Principal,
+        id: u64,
+    ) -> Result<FundingIdentityView, blob_test_protocol::funding::preview::FundingPreviewFailure>
+    {
+        use blob_test_protocol::funding::preview::FundingPreviewFailure;
+        if caller != self.driver {
+            return Err(FundingPreviewFailure::Denied);
+        }
+        if service != self.service || peer != self.peer {
+            return Err(FundingPreviewFailure::Binding);
+        }
+        Ok(FundingIdentityView {
+            already_admitted: self.attempts.iter().any(|entry| entry.request.id == id),
+            journal_full: self.attempts.len() == MAX_ATTEMPTS,
+        })
+    }
+
     pub(crate) const fn peer(&self) -> Principal {
         self.peer
     }
@@ -42,7 +70,12 @@ impl FundingJournalRecord {
         &self.attempts
     }
 
-    pub(crate) fn new(service: Principal, peer: Principal, driver: Principal) -> Self {
+    pub(crate) fn new(
+        service: Principal,
+        peer: Principal,
+        driver: Principal,
+        budget: budget::FundingBudgetRecord,
+    ) -> Self {
         let record = Self {
             service,
             release: release_binding(),
@@ -51,6 +84,7 @@ impl FundingJournalRecord {
             driver,
             attempts: Vec::new(),
             receipts: Vec::new(),
+            budget,
         };
         record
             .validate(service)
@@ -82,7 +116,11 @@ impl FundingJournalRecord {
             if entry.observation.is_none() && index + 1 != self.attempts.len() {
                 return Err(JournalFailure::Pending);
             }
-            if entry.request.trap_callback && entry.observation.is_some() {
+            if entry.request.trap_callback
+                && entry
+                    .observation
+                    .is_some_and(|observation| observation.refunded.is_some())
+            {
                 return Err(JournalFailure::Callback);
             }
         }
@@ -95,7 +133,14 @@ impl FundingJournalRecord {
                 return Err(JournalFailure::Receipt);
             }
         }
+        self.budget.snapshot(&self.attempts)?;
         Ok(())
+    }
+
+    pub(crate) fn budget(&self) -> budget::FundingBudgetSnapshot {
+        self.budget
+            .snapshot(&self.attempts)
+            .expect("valid bounded attachment journal")
     }
 
     pub(crate) fn admit(
@@ -125,6 +170,9 @@ impl FundingJournalRecord {
         }
         if !valid_request(request) || self.attempts.len() == MAX_ATTEMPTS {
             return Err(FundingFailure::Limit);
+        }
+        if request.offered > self.budget().transferable() {
+            return Err(FundingFailure::ReserveWouldBeViolated);
         }
         self.attempts.push(FundingAttemptRecord {
             request,
@@ -211,7 +259,10 @@ pub(crate) fn checked_transfer(
     let Some(observation) = entry.observation else {
         return Ok(FundingTransfer::unknown(offered));
     };
-    let transfer = if observation.outcome == FundingOutcome::NotEnqueued {
+    let transfer = if matches!(
+        observation.outcome,
+        FundingOutcome::NotEnqueued | FundingOutcome::LiquidityBlocked
+    ) {
         if observation.refunded.is_some() {
             return Err(JournalFailure::Transfer);
         }
@@ -233,6 +284,7 @@ pub(crate) fn checked_transfer(
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub(crate) enum JournalFailure {
+    Budget,
     Binding,
     Release,
     Capacity,

@@ -107,6 +107,33 @@ thresholds, invalid limits, stale scope, observation failures and fenced restora
 (partial BLOB-08/12/17). No live account or complete service readiness is inferred.
 The boundaries below describe full replacement requirements, not completed gates.
 
+The separate unpublished refresh CLI adds passive admission preview, atomic exact
+scope/revision/sequence checks and independent post-action diagnostics. PocketIC
+subprocesses prove stale/repeated requests do not dispatch again and failed status
+does not replay an acknowledged update (partial BLOB-15/16/17 and A11). Unknown
+acknowledgements stay uncertain. See [operator evidence](evidence/core-primitives.md#explicit-local-operator-refresh-after-0116).
+This remains local balance observation; production sync/funding and both adapters
+are still outstanding.
+
+Local gateway-sync commands now share that action/diagnosis workflow, with explicit
+edit revisions and next sequences. Revocation invalidates previews even without a
+membership change; held replies and forced restores cannot regain authority.
+This adds partial BLOB-10/15/16/17 evidence, not production sync qualification.
+
+Passive funding previews now combine exact identity/capacity checks with additive
+incomplete-evidence admission policy. Unknown spendability and unverified credit
+remain blockers through refunds and restores (partial BLOB-11/15/17, A08/A11).
+This does not expose the raw transfer experiment as an operator funding command.
+The transfer experiment now atomically reserves the full attachment against an
+explicit installed budget. Actual IC tests retain accepted/uncertain charges,
+distinguish exact refunds from unsent calls and preserve accounting through fenced
+restore. Preview revisions reject stale observations even after a full refund.
+The post-persistence liquidity guard additionally accounts for the exact platform
+call-cost bound, installed operating slack and other local liabilities. Unsent
+refusals consume identities without inventing refunds; query freshness is never
+dispatch authority. This adds local BLOB-11/15/17 evidence; complete production
+spendability, provider credit and safe operator funding admission remain open.
+
 | Capability | Required behavior here | Necessary correction or boundary |
 | --- | --- | --- |
 | BLOB-01: identities | Canonical provider root parsing and 32-byte conversion with typed malformed-input rejection | Keep provider identity distinct from a raw-content digest; verify current upstream vectors |

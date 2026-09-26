@@ -109,8 +109,13 @@ fn revoke_gateway() -> bool {
 }
 
 #[ic_cdk::update]
-async fn sync_gateway() -> Result<(), SyncFailure> {
-    workflow::sync_gateway(context()).await
+async fn sync_gateway(input: blob_test_protocol::GatewaySyncRequest) -> Result<(), SyncFailure> {
+    workflow::sync_gateway(inspection_context(), input).await
+}
+
+#[ic_cdk::query]
+fn preview_gateway_sync(input: blob_test_protocol::GatewaySyncRequest) -> Result<(), SyncFailure> {
+    workflow::preview_gateway_sync(inspection_context(), input)
 }
 
 #[ic_cdk::update]
@@ -216,8 +221,17 @@ fn configure_balance(
 }
 
 #[ic_cdk::update]
-async fn refresh_balance() -> Result<(), blob_test_protocol::balance::BalanceFailure> {
-    workflow::balance::refresh(inspection_context()).await
+async fn refresh_balance(
+    input: blob_test_protocol::balance::BalanceRefreshRequest,
+) -> Result<(), blob_test_protocol::balance::BalanceFailure> {
+    workflow::balance::refresh(inspection_context(), input).await
+}
+
+#[ic_cdk::query]
+fn preview_balance_refresh(
+    input: blob_test_protocol::balance::BalanceRefreshRequest,
+) -> Result<(), blob_test_protocol::balance::BalanceFailure> {
+    workflow::balance::preview(inspection_context(), input)
 }
 
 #[ic_cdk::update]

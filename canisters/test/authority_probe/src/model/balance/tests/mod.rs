@@ -11,6 +11,39 @@ fn scope() -> ScopeRecord {
 }
 
 #[test]
+fn refresh_admission_binds_exact_scope_revision_and_next_sequence() {
+    let scope = scope();
+    let mut journal = BalanceJournalRecord::new();
+    assert_eq!(
+        journal.check_refresh(scope, 1, 1),
+        Err(Failure::NotConfigured)
+    );
+    journal.configure(scope).unwrap();
+    for (revision, sequence) in [(0, 1), (2, 1), (1, 0), (1, 2), (1, u64::MAX)] {
+        assert_eq!(
+            journal.check_refresh(scope, revision, sequence),
+            Err(Failure::Stale)
+        );
+    }
+    let mut wrong = scope;
+    wrong.source = Principal::from_slice(&[4]);
+    assert_eq!(journal.check_refresh(wrong, 1, 1), Err(Failure::Binding));
+    assert_eq!(journal.check_refresh(scope, 1, 1), Ok(()));
+    assert!(journal.attempts.is_empty());
+    let (id, _) = journal.begin(10).unwrap();
+    assert_eq!(journal.check_refresh(scope, 1, 1), Err(Failure::Busy));
+    assert_eq!(
+        journal.complete(id, scope, Err(Failure::Transport), 11),
+        Err(Failure::Transport)
+    );
+    assert_eq!(journal.check_refresh(scope, 1, 1), Err(Failure::Stale));
+    assert_eq!(journal.check_refresh(scope, 1, 2), Ok(()));
+    journal.configure(scope).unwrap();
+    assert_eq!(journal.check_refresh(scope, 1, 2), Err(Failure::Stale));
+    assert_eq!(journal.check_refresh(scope, 2, 2), Ok(()));
+}
+
+#[test]
 fn exact_pending_identity_and_revision_prevent_rebinding_and_reuse() {
     let scope = scope();
     let mut journal = BalanceJournalRecord::new();

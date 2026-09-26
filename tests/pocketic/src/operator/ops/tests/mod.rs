@@ -25,6 +25,18 @@ fn status() -> FundingOperatorStatusView {
         billing_configured: false,
         provider_balance: Some(u128::MAX),
         available_funding_cycles: None,
+        budget: blob_test_protocol::funding::budget::FundingBudgetView {
+            operating_reserve: 1_000_000_000,
+            other_liabilities: 0,
+            allocated: u128::MAX,
+            reserve: 1,
+            revision: 1,
+            available: 1,
+            accepted: 0,
+            refunded: 0,
+            not_enqueued: 0,
+            reserved_or_uncertain: u128::MAX - 1,
+        },
         funding_activity: FundingActivityView::Uncertain,
         attempts: vec![FundingAttemptStatusView {
             id: u64::MAX,

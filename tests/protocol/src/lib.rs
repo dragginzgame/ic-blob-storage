@@ -2,7 +2,7 @@
 //! These are not a production service API or an independently defined provider contract.
 
 use candid::{CandidType, Principal};
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 pub mod authority;
 pub mod content;
@@ -37,7 +37,7 @@ pub enum SourceMode {
 }
 
 /// Typed outcomes of the test-only sync orchestration.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, Serialize)]
 pub enum SyncFailure {
     /// Caller lacks the explicit fixture operator role.
     Denied,
@@ -53,6 +53,25 @@ pub enum SyncFailure {
     Transport,
     /// Internal scope or sequence admission rejected the attempt.
     Admission,
+    /// Inspection-only restoration prohibits new syncs and callbacks.
+    Fenced,
+    /// Expected service, namespace or source differs from this registry.
+    Binding,
+}
+
+/// Explicit local sync admission; this is not a reusable registry token.
+#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+pub struct GatewaySyncRequest {
+    /// Authority fixture owning membership.
+    pub service: Principal,
+    /// Exact fixture namespace.
+    pub namespace: u128,
+    /// Controlled source of the gateway list.
+    pub source: Principal,
+    /// Expected operator-edit revision, including no-op revocations.
+    pub revision: u64,
+    /// Expected next lifetime sync sequence.
+    pub sequence: u64,
 }
 
 /// Bounded observations of calls made to the controlled source.

@@ -65,7 +65,7 @@ impl Command {
     }
 }
 
-fn decimal<T: FromStr>(value: &str) -> Result<T, Failure> {
+pub(super) fn decimal<T: FromStr>(value: &str) -> Result<T, Failure> {
     if value.is_empty()
         || !value.bytes().all(|b| b.is_ascii_digit())
         || (value.len() > 1 && value.starts_with('0'))
@@ -75,7 +75,7 @@ fn decimal<T: FromStr>(value: &str) -> Result<T, Failure> {
     value.parse().map_err(|_| Failure::Arguments)
 }
 
-fn canister(value: &str) -> Result<Principal, Failure> {
+pub(super) fn canister(value: &str) -> Result<Principal, Failure> {
     let principal = Principal::from_text(value).map_err(|_| Failure::Arguments)?;
     if principal == Principal::anonymous() || principal == Principal::management_canister() {
         return Err(Failure::Arguments);

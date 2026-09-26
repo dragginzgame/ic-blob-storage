@@ -21,6 +21,9 @@ pub(super) fn authority(status: &OperatorStatusView) -> Value {
         "funding_activity":status.funding_activity,
         "gateways":status.gateways.iter().map(candid::Principal::to_text).collect::<Vec<_>>(),
         "pending_sync":status.pending_sync.map(|v| v.to_string()),
+        "sync_source":status.sync_source.to_text(),
+        "last_sync":status.last_sync.to_string(),
+        "sync_revision":status.sync_revision.map(|v| v.to_string()),
         "pending_read":status.pending_read.as_ref().map(|read| json!({
             "token":read.token.to_string(), "valid":read.valid, "tenant":read.tenant.to_text(),
             "root":read.root, "index":read.index.to_string(), "gateway":read.gateway.to_text(),
@@ -45,6 +48,7 @@ pub(super) fn funding(status: &FundingOperatorStatusView) -> Value {
         "billing_configured":status.billing_configured,
         "provider_balance":amount(status.provider_balance),
         "available_funding_cycles":amount(status.available_funding_cycles),
+        "budget":budget(&status.budget),
         "funding_activity":status.funding_activity,
         "attempts":status.attempts.iter().map(|attempt| json!({
             "id":attempt.id.to_string(), "offered":attempt.offered.to_string(),
@@ -62,6 +66,16 @@ pub(super) fn funding(status: &FundingOperatorStatusView) -> Value {
         })).collect::<Vec<_>>(),
         "blockers":status.blockers, "warnings":status.warnings,
     })
+}
+
+pub(in crate::operator) fn budget(
+    view: &blob_test_protocol::funding::budget::FundingBudgetView,
+) -> Value {
+    json!({"scope":"local_attachment_budget", "allocated":view.allocated.to_string(), "reserve":view.reserve.to_string(),
+        "operating_reserve":view.operating_reserve.to_string(), "other_liabilities":view.other_liabilities.to_string(),
+        "revision":view.revision.to_string(), "available":view.available.to_string(),
+        "accepted":view.accepted.to_string(), "refunded":view.refunded.to_string(),
+        "not_enqueued":view.not_enqueued.to_string(), "reserved_or_uncertain":view.reserved_or_uncertain.to_string()})
 }
 
 pub(in crate::operator) fn target(target: &crate::operator::model::Target) -> Value {

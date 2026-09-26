@@ -78,7 +78,12 @@ impl Fixture {
         let sync: Result<(), SyncFailure> = self
             .harness
             .pic
-            .update_candid_as(self.gateway, self.operator, "run_sync", ())
+            .update_candid_as(
+                self.gateway,
+                self.operator,
+                "run_sync",
+                (self.sync_request(),),
+            )
             .expect("fenced outgoing sync");
         assert_eq!(sync, Err(SyncFailure::Denied));
         let deletion = self
@@ -99,7 +104,7 @@ impl Fixture {
                 self.gateway,
                 self.service,
                 "fixture_gateways",
-                candid::encode_args(()).expect("list input"),
+                candid::encode_one(self.sync_request()).expect("list input"),
             )
             .expect_err("fenced list response");
         assert_eq!(list.reject_code, RejectCode::CanisterReject);
@@ -123,7 +128,7 @@ fn source_restores_maximum_leaf_and_history_but_all_effects_stay_fenced() {
     let result: Result<(), SyncFailure> = f
         .harness
         .pic
-        .update_candid_as(f.gateway, f.operator, "run_sync", ())
+        .update_candid_as(f.gateway, f.operator, "run_sync", (f.sync_request(),))
         .expect("actual source sync");
     assert_eq!(result, Ok(()));
     assert_eq!(f.delete(vec![]), Ok(()));
@@ -264,6 +269,7 @@ fn unresolved_source_call_survives_a_forced_fenced_restore() {
     let v = chunks::vector("abc-text", 1);
     f.confirm_bytes(&v);
     f.source_config(v.upload, 0, &v.bytes, ReadSourceMode::Valid, false);
+    let request = f.sync_request();
     f.harness
         .pic
         .stop_canister(f.service, Some(f.operator))
@@ -275,7 +281,7 @@ fn unresolved_source_call_survives_a_forced_fenced_restore() {
             f.gateway,
             f.operator,
             "run_sync",
-            candid::encode_args(()).unwrap(),
+            candid::encode_one(request).unwrap(),
         )
         .expect_err("real failed call traps source callback");
     assert_eq!(failure.reject_code, RejectCode::CanisterError);

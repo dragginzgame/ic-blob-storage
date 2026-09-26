@@ -11,8 +11,12 @@ use blob_test_protocol::funding::{
 use candid::Principal;
 
 #[ic_cdk::init]
-fn init(peer: Principal, driver: Principal) {
-    ops::initialize(peer, driver);
+fn init(
+    peer: Principal,
+    driver: Principal,
+    budget: blob_test_protocol::funding::budget::FundingBudgetInput,
+) {
+    ops::initialize(peer, driver, budget);
 }
 
 #[ic_cdk::post_upgrade]
@@ -47,4 +51,18 @@ fn receipts() -> Option<Vec<FundingReceiptRecord>> {
 #[ic_cdk::query]
 fn operator_status() -> Option<FundingOperatorStatusView> {
     workflow::operator_status(ic_cdk::api::canister_self(), ic_cdk::api::msg_caller())
+}
+
+#[ic_cdk::query]
+fn preview_funding(
+    request: blob_test_protocol::funding::preview::FundingPreviewRequest,
+) -> Result<
+    blob_test_protocol::funding::preview::FundingPreviewView,
+    blob_test_protocol::funding::preview::FundingPreviewFailure,
+> {
+    workflow::preview::preview(
+        ic_cdk::api::canister_self(),
+        ic_cdk::api::msg_caller(),
+        request,
+    )
 }

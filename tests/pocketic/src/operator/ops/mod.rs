@@ -18,9 +18,22 @@ pub(super) struct Report {
     pub value: Value,
 }
 
+pub(super) use render::budget as budget_json;
 pub(super) use render::target as target_json;
 
 pub(super) fn query(target: &Target) -> Result<Vec<u8>, Failure> {
+    query_method(
+        target,
+        "operator_status",
+        candid::encode_args(()).expect("empty arguments"),
+    )
+}
+
+pub(super) fn query_method(
+    target: &Target,
+    method: &str,
+    args: Vec<u8>,
+) -> Result<Vec<u8>, Failure> {
     // PocketIC's public SDK panics on HTTP/API failures. Keep that boundary distinct
     // from canister rejection; never turn either outcome into an update or retry.
     catch_unwind(AssertUnwindSafe(|| {
@@ -28,13 +41,8 @@ pub(super) fn query(target: &Target) -> Result<Vec<u8>, Failure> {
             .parse()
             .expect("validated socket URL");
         let pic = PocketIc::new_from_existing_instance(url, target.instance, Some(10_000));
-        pic.query_call(
-            target.canister,
-            target.caller,
-            "operator_status",
-            candid::encode_args(()).expect("empty arguments"),
-        )
-        .map_err(|_| Failure::QueryRejected)
+        pic.query_call(target.canister, target.caller, method, args)
+            .map_err(|_| Failure::QueryRejected)
         // The attached SDK owns neither this instance nor an HTTP gateway.
     }))
     .map_err(|_| Failure::Transport)?

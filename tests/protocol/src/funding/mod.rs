@@ -1,5 +1,8 @@
 //! Local cycle-transfer controls; these are not Cashier request DTOs.
 
+pub mod budget;
+pub mod preview;
+
 use crate::status::{FundingActivityView, OperatorBlockerView, OperatorWarningView};
 use candid::{CandidType, Principal};
 use serde::{Deserialize, Serialize};
@@ -22,6 +25,8 @@ pub struct FundingOperatorStatusView {
     pub provider_balance: Option<u128>,
     /// Unobserved; gross canister cycles do not establish spendable reservations.
     pub available_funding_cycles: Option<u128>,
+    /// Separate installed local envelope; does not supply production spendability.
+    pub budget: budget::FundingBudgetView,
     /// Complete outgoing journal diagnosis, independent of callback completion.
     pub funding_activity: FundingActivityView,
     /// Bounded lifetime attempts, including no-transfer and unresolved history.
@@ -105,6 +110,8 @@ pub enum FundingOutcome {
     Rejected(u32),
     /// The CDK did not enqueue a call, so there is no callback refund.
     NotEnqueued,
+    /// The post-persistence liquidity guard refused dispatch; no callback exists.
+    LiquidityBlocked,
 }
 
 /// Original call facts; enqueue failure has no callback refund to capture.
@@ -164,4 +171,6 @@ pub enum FundingFailure {
     InProgress,
     /// Invalid amount or exhausted lifetime journal capacity.
     Limit,
+    /// The entire attachment cannot preserve the installed local budget reserve.
+    ReserveWouldBeViolated,
 }

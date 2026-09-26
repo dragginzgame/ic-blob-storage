@@ -17,6 +17,17 @@ impl Fixture {
     pub(in crate::recovery) fn assert_authority_fenced(&self, upload: JourneyUpload) {
         let before = self.archive();
         assert!(before.fenced);
+        let sync: Result<(), SyncFailure> = self
+            .harness
+            .pic
+            .update_candid_as(
+                self.service,
+                self.authority_operator,
+                "sync_gateway",
+                (self.sync_request(),),
+            )
+            .unwrap();
+        assert_eq!(sync, Err(SyncFailure::Fenced));
         let args = |root: [u8; 32]| candid::encode_args((root.to_vec(),)).unwrap();
         let updates = [
             (
@@ -67,11 +78,6 @@ impl Fixture {
                 self.authority_operator,
                 "journey_arm_read_callback_trap",
                 args(upload.root),
-            ),
-            (
-                self.authority_operator,
-                "sync_gateway",
-                candid::encode_args(()).unwrap(),
             ),
             (
                 self.authority_operator,

@@ -60,6 +60,12 @@ pub struct OperatorStatusView {
     pub gateways: Vec<Principal>,
     /// Exact pending list sequence, without a reusable token.
     pub pending_sync: Option<u64>,
+    /// Controlled local list source, not a deployed Cashier binding.
+    pub sync_source: Principal,
+    /// Last allocated sync sequence, including failed attempts.
+    pub last_sync: u64,
+    /// Operator-edit revision; absent means exhausted and permanently blocked.
+    pub sync_revision: Option<u64>,
     /// Exact pending read, including stale authority and trapped callbacks.
     pub pending_read: Option<ArchivedReadView>,
     /// The three separately bounded fixture catalogs.

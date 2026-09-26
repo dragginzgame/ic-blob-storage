@@ -26,6 +26,7 @@ pub(crate) struct AuthorityArchiveRecord {
     pub gateways: Vec<Principal>,
     pub last_sync: u64,
     pub pending_sync: Option<u64>,
+    pub sync_control: super::sync::SyncControlRecord,
     pub last_read: u64,
     pub pending_read: Option<ReadRecord>,
     pub armed_read_trap: Option<[u8; 32]>,

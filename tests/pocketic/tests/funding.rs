@@ -3,6 +3,7 @@
 
 #![cfg(not(target_family = "wasm"))]
 
+mod funding_budget;
 mod funding_recovery;
 mod support;
 
@@ -29,6 +30,15 @@ struct Fixture {
 
 impl Fixture {
     fn new() -> Self {
+        Self::with_budget(blob_test_protocol::funding::budget::FundingBudgetInput {
+            operating_reserve: 1_000_000_000,
+            other_liabilities: 0,
+            allocated: 100_000_000_000_000,
+            reserve: 1_000_000_000_000,
+        })
+    }
+
+    fn with_budget(budget: blob_test_protocol::funding::budget::FundingBudgetInput) -> Self {
         let harness = Harness::new();
         let pic = &harness.pic;
         let driver = Fake::principal(11);
@@ -49,7 +59,7 @@ impl Fixture {
             pic.install_canister(
                 canister,
                 wasm.clone(),
-                candid::encode_args((peer, driver)).expect("fixture init"),
+                candid::encode_args((peer, driver, budget)).expect("fixture init"),
                 None,
             );
         }
@@ -214,6 +224,13 @@ impl Fixture {
     }
 
     fn assert_unknown_status(&self, request: FundingRequest) -> FundingOperatorStatusView {
+        let budget = self.status_as(self.sender, self.driver).unwrap().budget;
+        assert_eq!(budget.reserved_or_uncertain, request.offered);
+        assert_eq!(budget.available, budget.allocated - request.offered);
+        assert_eq!(
+            (budget.accepted, budget.refunded, budget.not_enqueued),
+            (0, 0, 0)
+        );
         let status = self.status_unchanged();
         assert_eq!(status.funding_activity, FundingActivityView::Uncertain);
         assert!(
@@ -547,24 +564,25 @@ fn lifetime_journal_capacity_survives_upgrade_without_forgetting_payments() {
 }
 
 #[test]
-fn enqueue_failure_has_no_callback_refund_and_preserves_exact_unsent_history() {
+fn liquidity_rejection_has_no_callback_refund_and_preserves_exact_unsent_history() {
     let fixture = Fixture::new();
     let prior = request(1, 13_000_001, FundingReplyMode::Success);
     fixture
         .fund(fixture.driver, prior)
         .expect("prior refunded call");
+    let budget_before = fixture.status_unchanged().budget;
     let receipts = fixture.receipts();
     let mut unsent = request(2, 1, FundingReplyMode::Success);
     unsent.offered = fixture.harness.pic.cycle_balance(fixture.sender) + 1;
     let observation = fixture
         .fund(fixture.driver, unsent)
-        .expect("local enqueue failure observed");
+        .expect("local liquidity refusal observed");
     assert_eq!(
         observation,
         FundingObservation {
             refunded: None,
             transport_accepted: Some(0),
-            outcome: FundingOutcome::NotEnqueued,
+            outcome: FundingOutcome::LiquidityBlocked,
             reconciliation: FundingReconciliationView::NoTransfer,
         }
     );
@@ -577,7 +595,15 @@ fn enqueue_failure_has_no_callback_refund_and_preserves_exact_unsent_history() {
         })
     );
     assert_eq!(fixture.receipts(), receipts);
+    let budget_after = fixture.status_unchanged().budget;
+    assert_eq!(budget_after.available, budget_before.available);
+    assert_eq!(budget_after.accepted, budget_before.accepted);
+    assert_eq!(budget_after.refunded, budget_before.refunded);
+    assert_eq!(budget_after.not_enqueued, unsent.offered);
+    assert_eq!(budget_after.reserved_or_uncertain, 0);
+    assert_eq!(budget_after.revision, budget_before.revision + 2);
     fixture.upgrade_both();
+    assert_eq!(fixture.status_unchanged().budget, budget_after);
     assert_eq!(fixture.attempts(), attempts);
     assert_eq!(fixture.receipts(), receipts);
     // Changed parameters do not turn the already admitted identity into a retry.
@@ -590,7 +616,7 @@ fn enqueue_failure_has_no_callback_refund_and_preserves_exact_unsent_history() {
             offered: unsent.offered,
             refunded: None,
             transport_accepted: Some(0),
-            outcome: Some(FundingOutcome::NotEnqueued),
+            outcome: Some(FundingOutcome::LiquidityBlocked),
             provider_credit: None,
             reconciliation: FundingReconciliationView::NoTransfer,
         })

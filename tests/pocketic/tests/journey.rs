@@ -5,6 +5,7 @@ mod chunks;
 mod readback;
 mod recovery;
 mod support;
+mod sync_request;
 use blob_test_protocol::journey::{
     JourneyCertificate, JourneyFailure, JourneyManifest, JourneyProgress, JourneyReservation,
     JourneyUpload, JourneyUsage, JourneyVerification,
@@ -30,6 +31,10 @@ struct Fixture {
 }
 
 impl Fixture {
+    fn sync_request(&self) -> blob_test_protocol::GatewaySyncRequest {
+        sync_request::read(&self.harness.pic, self.service, self.authority_operator)
+    }
+
     fn new() -> Self {
         Self::with_source_operator(false)
     }

@@ -2,24 +2,100 @@
 
 Date: 2026-09-26
 
-## 0.1.16 draft
+## Current batch — local operator actions and funding resource guards
 
-The maintainer wants to push 0.1.16 soon. The coherent batch is now summarized in
-the undated 0.1.16 changelog draft with empty Unreleased. Cargo, Cargo.lock and the
-release receipt remain 0.1.15. The effect-free release plan selects 0.1.16.
-Published-library additions are compatible; the existing complete billing/reserve
-API retains its signatures, enum variants and tested behavior. Fixture schema
-changes are unpublished hard cuts requiring reinstall across releases.
-Targeted validation is recorded below. Full CI/release verification was not run
-under this continuation; the maintainer's release workflow runs that gate after
-committing clean source. No commits, version changes, tags, push or publication
-were performed. Finish this release batch before expanding implementation scope.
+The unpublished `blob-fixture-refresh` command now offers passive dry-run and an
+explicit refresh with separate post-status diagnostics. Exact service, namespace,
+source, account, configuration revision and next attempt are checked before intent
+and dispatch. Old previews and consumed requests cannot launch another read. Busy
+and restored owners remain blocked. JSON preserves completion or uncertainty even
+if the following query fails; there is no application retry or automatic sequence
+advance. The existing status client remains query-only.
+
+`blob-fixture-sync` now uses the same action/diagnosis client workflow. Its exact
+request includes the controlled source, operator-edit revision and next sync
+sequence. The fixture retains a required SyncControlRecord in its v1 archive;
+every revocation invalidates previews, even for an already absent member. Revision
+exhaustion blocks new syncs while preserving revocation. Status exposes source,
+revision and last sequence without granting a reusable token. The published
+GatewayRegistry API is unchanged. Reentrant source scenarios now carry explicit
+requests, including the deliberately authorized replacement after revocation.
+
+The raw `fund` endpoint remains a controlled transfer experiment, separate from
+production operator admission. It now requires an explicit installed attachment
+allocation and positive reserve. A full offer is reserved atomically with its
+original intent before dispatch. Accounting derives from the bounded journal:
+accepted cycles remain charged, exact callback refunds and proven unsent offers
+release their allocation separately, and missing callbacks retain the full offer.
+There is no replenishment from gross cycle top-ups or incoming receipts. Required
+budget state is a v1 fixture hard cut; cross-release fixtures require reinstall.
+
+The query-only `blob-fixture-funding-preview` checks exact service/peer/id/amount
+and budget revision, used identities and journal capacity, then composes all
+uncredited history with shared admission
+evidence policy. Unknown recovery/spendability and absent limits remain blockers;
+positive transport acceptance never proves credit. Later refunds cannot hide
+older unresolved payments. The preview cannot transfer, reserve, retry or consume
+an identity, including after restore. No accounting/provider overrides are accepted.
+Budget revision advances on each admission and terminal observation, including full
+refunds. Local reserve violations are distinct from production spendability: the
+attachment envelope excludes execution fees and other operating liabilities.
+
+The fixture now also requires positive operating slack and explicit other local
+liabilities. Shared additive liquidity policy checks the complete offer against
+platform liquid cycles minus those holds and the call-cost bound. The workflow
+samples its exact encoded call after persisting intent, before dispatch; a refusal
+retains the consumed identity with a LiquidityBlocked/no-transfer observation and
+no fabricated callback refund. Accepted/uncertain charges and restore fences remain.
+Preview cost bounds cover all valid local reply controls. Its liquid figures may
+be cached and can change without a budget revision, so updates never reuse them.
+These local holds do not establish complete production liabilities or credit.
+
+Admission review found and fixed a same-message rollback bug: the callback trap
+control ran even after a liquidity refusal with no callback. Unsent attempts now
+commit their consumed identities, and restoration accepts those no-callback records.
+Actual zero/full-refund callback traps still retain the entire uncertain offer.
+Preview diagnosis also reports the same maximum attachment bound as update admission.
+Native, strict Clippy, Wasm/rustdoc and full affected funding/operator PocketIC checks
+pass, including refusal-capacity exhaustion and fenced restore. See
+[refusal evidence](../evidence/core-primitives.md#funding-refusal-recovery-after-0116).
+
+The additive library `assess_funding_evidence` API preserves independent missing
+and known unsafe facts. Reserve arithmetic runs only with known spendability and
+validated limits, without reducing the request. Complete observations retain the
+existing admission API's behavior. The fixture supplies no artificial positive
+funding evidence and always reports blocked admission.
+
+Native admission tests, strict affected-package Clippy, warning-free client/protocol
+rustdoc, fixture Wasm builds, client Wasm check and actual operator PocketIC tests
+pass, including held reads and an update witness whose post-status method is absent.
+See [operator action evidence](../evidence/core-primitives.md#explicit-local-operator-refresh-after-0116).
+Changes are in Unreleased. Cargo and the release receipt remain 0.1.16. Published
+library additions are compatible; both unpublished action endpoints require exact requests.
+Gateway-sync and full journey/recovery targets also pass. The additional actual
+live-sync callback upgrade retains a fenced pending intent; old replies cannot
+change membership or free it. See [sync evidence](../evidence/core-primitives.md#explicit-local-gateway-sync-after-0116).
+Funding admission native tests, strict affected Clippy, warning-free rustdoc,
+library/client Wasm checks, fixture builds and complete funding/operator PocketIC
+targets pass. Preview tests cover credit uncertainty, later refunds, callback traps,
+capacity, restore, added gross cycles and unchanged journals. See
+[funding preview evidence](../evidence/core-primitives.md#passive-funding-admission-preview-after-0116).
+The attachment-budget native and actual funding/operator PocketIC checks pass,
+including atomic rejection, incoming-cycle isolation, full-refund stale previews,
+callback rollback and retained reservations through fenced restore. See
+[budget evidence](../evidence/core-primitives.md#local-attachment-budget-after-0116).
+Native liquidity, fixture and client checks, strict affected Clippy, warning-free
+rustdoc, fixture Wasm builds, library/client Wasm checks and complete funding/operator
+PocketIC targets pass. Tests cover fee-only refusal, operating liabilities, consumed
+unsent identities, added funds without an allocation revision and fenced restoration.
+See [liquidity evidence](../evidence/core-primitives.md#funding-liquidity-guard-after-0116).
+Full CI/release validation was not run under this continuation.
 
 ## Released baseline
 
-The maintainer pushed 0.1.15. Local main, origin/main and annotated tag v0.1.15
-point to `83e1a5c`, from source `481fe6722d2d9b16d3c1d0f923b90297de92b985`.
-Cargo and the release receipt are 0.1.15; the worktree was clean when this release
+The maintainer pushed 0.1.16. Local main, origin/main and annotated tag v0.1.16
+point to `4a3aaa6`, from source `d084112e811866682f8c9374ab46ac9c329624ff`.
+Cargo and the release receipt are 0.1.16; the worktree was clean when this release
 was checked. Registry publication was not queried.
 Release/publication preserve artifacts; cleanup requires an explicit request.
 See [release guidance](../releasing.md).
@@ -55,7 +131,9 @@ The 0.1.14 funding-reconciliation and cashier-audit inventories match source
 `3f73703` (Cargo 0.1.13); preserve them as historical evidence.
 The 0.1.15 upload-deletion journey inventory was verified against source
 `481fe67` (Cargo 0.1.14). Preserve it and its protocol selection as historical
-evidence; current checkpoint work has a separate inventory.
+evidence. The released 0.1.16 verification-checkpoints inventory was verified
+against source `d084112` (Cargo 0.1.15); all 151 entries match. Preserve it unchanged.
+Current operator actions use a separate operator-actions inventory.
 
 ## Current follow-up — provider contract review
 
@@ -439,10 +517,19 @@ Native billing/diagnosis and fixture record checks, strict affected-package Clip
 warning-free rustdoc, Wasm builds/checks and operator/funding/journey PocketIC targets
 pass. See [configured billing evidence](../evidence/core-primitives.md#configured-diagnostic-billing-for-0116).
 
-After the release, the next local operator slice can add explicit refresh/dry-run
-and post-action diagnostics against the existing fixture workflow. Keep target and
-method authority explicit, status passive, and prove failed post-status reads never
-repeat a completed action. Keep the transport simulator-only until production
+Balance refresh and gateway sync have explicit commands and independent post-status
+outcomes. Funding now has a passive admission preview and an installed local
+attachment envelope with atomic reservations, exact-return accounting and a
+post-persistence liquidity guard for call costs and installed operating holds.
+Next, compose complete admission evidence at the operator funding update boundary,
+including exact provider/account credit reconciliation and independent recovery.
+First revisit the maintained Caffeine reconciliation inputs: local resource checks
+cannot supply those missing provider facts. The raw transfer experiment remains
+a test control. Keep unknown recovery, provider credit and spendability
+blocking; do not invent positive observations to enable a local funding command.
+Gross canister cycles cannot supply missing accounting evidence. Independent
+recovery and production provider/account authority remain separate prerequisites.
+Keep transport simulator-only until production
 bindings are settled. No admission, automatic funding, provider credit inference
 or production schema follows from a diagnostic result.
 Production namespace/account arrangements and both adapters remain unqualified.

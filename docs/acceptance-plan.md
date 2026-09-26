@@ -34,6 +34,31 @@ The connected PocketIC fixtures provide partial evidence for:
   from read failures. Denied/wrong bindings, missing and update-only methods reject
   without mutation; successful and fenced reads preserve journals and instance
   ownership. This is a simulator transport with a simulated caller.
+- A11: the separate local refresh command has an effect-free admission preview.
+  Atomic update checks bind revision, next attempt and all account/source scope.
+  Actual subprocess tests reject stale previews, consumed requests, busy/fenced
+  owners and denied callers. A completed update with failed post-status is retained
+  as completed without replay; malformed acknowledgement stays uncertain. Production
+  sync/funding commands, identity and both adapters remain outstanding.
+- A05/A11: local gateway-sync commands bind edit revision and next sequence;
+  no-op revocations invalidate previews. Held replies, reentrant replacement,
+  failed post-status and live callback upgrades retain current membership or
+  fenced pending evidence without command replay. Production sync remains open.
+- A08/A11: passive funding preview binds identity and full amount, preserving
+  missing spendability and uncredited/unknown transfers. Actual queries and CLI
+  subprocesses leave attempts/receipts unchanged across refunds, callback traps,
+  capacity exhaustion and restore. No operator funding action is qualified.
+- A08/A11: the installed local attachment budget reserves each full original offer
+  before dispatch. Actual IC tests prove atomic reserve rejection, exact refund
+  release, distinct unsent calls, no replenishment by incoming/gross cycles and
+  retained uncertainty after callback rollback and restore. A full refund changes
+  preview revision despite leaving allocation unchanged. The additional liquidity
+  guard checks exact platform call costs and installed operating/liability holds
+  after persistence. PocketIC proves fee-only rejection and independent liquidity
+  changes without a budget revision. Production spendability, recovery and provider
+  credit remain unqualified; cached previews cannot authorize a transfer.
+  Refused unsent operations retain identities/capacity even with callback trap
+  controls set; actual zero/full-refund callback failures remain uncertain.
 - A05/A08/A11: scoped balance-read intents and bounded history survive fenced
   restoration. Actual controlled-source calls cover malformed/rejected/misbound
   replies, dispatch-based expiry, reconfiguration during a held read and upgrades

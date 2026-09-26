@@ -5,18 +5,28 @@ use blob_test_protocol::funding::{
 };
 use candid::Principal;
 use ic_blob_storage::policy::{
-    billing::reconciliation::{assess_funding_reconciliation, assess_uncredited_activity},
+    billing::{
+        liquidity::{FundingLiquidityDecision, assess_funding_liquidity},
+        reconciliation::{assess_funding_reconciliation, assess_uncredited_activity},
+    },
     diagnostics::assess_operator,
 };
 
 use crate::ops;
+pub(crate) mod preview;
 
 pub(crate) async fn fund(
     caller: Principal,
     request: FundingRequest,
 ) -> Result<FundingObservation, FundingFailure> {
     let peer = ops::admit(caller, request)?;
-    let call = ops::transfer(peer, request).await;
+    // Persist the attachment intent before observing costs: stable-memory growth
+    // changes the platform's liquid balance. Never reuse the query's observation.
+    let prepared = ops::liquidity::prepare(peer, request);
+    let call = match assess_funding_liquidity(prepared.offered, prepared.liquidity) {
+        FundingLiquidityDecision::Fits => ops::transfer(prepared).await,
+        FundingLiquidityDecision::Insufficient { .. } => ops::liquidity::blocked(prepared),
+    };
     let reconciliation = ops::status::reconciliation(assess_funding_reconciliation(call.transfer));
     let observation = FundingObservation {
         refunded: call.transfer.refunded(),
@@ -25,8 +35,9 @@ pub(crate) async fn fund(
         reconciliation,
     };
     ops::complete(request, observation);
-    if request.trap_callback {
+    if request.trap_callback && observation.refunded.is_some() {
         // The actual IC rolls back complete() while the receiver's acceptance survives.
+        // An unsent call has no callback: its refusal must commit in this message.
         ic_cdk::trap("deliberate fixture callback failure");
     }
     Ok(observation)

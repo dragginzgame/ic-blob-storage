@@ -32,8 +32,8 @@ fn configure(mode: SourceMode) -> bool {
 }
 
 #[ic_cdk::update]
-async fn run_sync() -> Result<(), SyncFailure> {
-    workflow::run_sync(ic_cdk::api::msg_caller()).await
+async fn run_sync(input: blob_test_protocol::GatewaySyncRequest) -> Result<(), SyncFailure> {
+    workflow::run_sync(ic_cdk::api::msg_caller(), input).await
 }
 
 #[ic_cdk::query]
@@ -73,8 +73,10 @@ async fn fixture_chunk(root: Vec<u8>, index: u64) -> PhantomData<Vec<u8>> {
 }
 
 #[ic_cdk::update(manual_reply = true)]
-async fn fixture_gateways() -> PhantomData<Vec<Principal>> {
-    workflow::reply(ic_cdk::api::msg_caller()).await;
+async fn fixture_gateways(
+    input: blob_test_protocol::GatewaySyncRequest,
+) -> PhantomData<Vec<Principal>> {
+    workflow::reply(ic_cdk::api::msg_caller(), input).await;
     PhantomData
 }
 

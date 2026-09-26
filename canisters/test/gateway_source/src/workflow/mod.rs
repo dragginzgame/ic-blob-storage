@@ -29,13 +29,19 @@ pub(crate) fn observation(caller: Principal) -> Option<SourceObservation> {
     ops::read(|state| state.driver == caller).then(ops::observation)
 }
 
-pub(crate) async fn run_sync(caller: Principal) -> Result<(), SyncFailure> {
+pub(crate) async fn run_sync(
+    caller: Principal,
+    input: blob_test_protocol::GatewaySyncRequest,
+) -> Result<(), SyncFailure> {
     let service = ops::read(|state| {
         (state.driver == caller && !state.fenced)
             .then_some(state.service)
             .ok_or(SyncFailure::Denied)
     })?;
-    ops::sync(service).await
+    if input.service != service {
+        return Err(SyncFailure::Binding);
+    }
+    ops::sync(service, input).await
 }
 
 pub(crate) async fn run_deletion(caller: Principal, roots: Vec<Vec<u8>>) -> Result<(), u32> {
@@ -51,7 +57,7 @@ pub(crate) async fn run_deletion(caller: Principal, roots: Vec<Vec<u8>>) -> Resu
     ops::confirm_deletion(service, roots).await
 }
 
-pub(crate) async fn reply(caller: Principal) {
+pub(crate) async fn reply(caller: Principal, input: blob_test_protocol::GatewaySyncRequest) {
     if !ops::read(|state| state.service == caller && !state.fenced) {
         ops::reject();
         return;
@@ -84,14 +90,17 @@ pub(crate) async fn reply(caller: Principal) {
             return;
         }
         SourceMode::Overlap => {
-            let result = ops::sync(service).await;
+            let result = ops::sync(service, input).await;
             ops::record_nested(result);
         }
         SourceMode::Revoke => ops::revoke(service).await,
         SourceMode::Replace(next) => {
             ops::revoke(service).await;
             ops::replace(next);
-            let result = ops::sync(service).await;
+            // This deliberate scenario explicitly authorizes a new sync after
+            // its own revocation; it is not a retry of the original request.
+            let next_request = ops::next_sync_request(input);
+            let result = ops::sync(service, next_request).await;
             ops::record_nested(result);
         }
         SourceMode::Valid => {}

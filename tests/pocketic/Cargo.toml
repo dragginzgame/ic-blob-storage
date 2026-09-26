@@ -7,8 +7,20 @@ publish = false
 autobins = false
 
 [[bin]]
+name = "blob-fixture-funding-preview"
+path = "src/bin/blob_fixture_funding_preview/main.rs"
+
+[[bin]]
 name = "blob-fixture-status"
 path = "src/bin/blob_fixture_status/main.rs"
+
+[[bin]]
+name = "blob-fixture-refresh"
+path = "src/bin/blob_fixture_refresh/main.rs"
+
+[[bin]]
+name = "blob-fixture-sync"
+path = "src/bin/blob_fixture_sync/main.rs"
 
 [target.'cfg(not(target_family = "wasm"))'.dependencies]
 ic-testkit.workspace = true

@@ -123,9 +123,29 @@ pub(crate) fn record_nested(result: Result<(), SyncFailure>) {
     mutate(|state| state.nested_sync = Some(result));
 }
 
-pub(crate) async fn sync(service: Principal) -> Result<(), SyncFailure> {
+pub(crate) fn next_sync_request(
+    input: blob_test_protocol::GatewaySyncRequest,
+) -> blob_test_protocol::GatewaySyncRequest {
+    blob_test_protocol::GatewaySyncRequest {
+        revision: input
+            .revision
+            .checked_add(1)
+            .expect("fixture edit revision"),
+        sequence: input
+            .sequence
+            .checked_add(1)
+            .expect("fixture sync sequence"),
+        ..input
+    }
+}
+
+pub(crate) async fn sync(
+    service: Principal,
+    input: blob_test_protocol::GatewaySyncRequest,
+) -> Result<(), SyncFailure> {
     let id = mutate(|state| state.begin_effect(ActionRecord::Sync));
     let result: Result<(), SyncFailure> = Call::bounded_wait(service, "sync_gateway")
+        .with_arg(input)
         .await
         .expect("local probe sync transport")
         .candid()

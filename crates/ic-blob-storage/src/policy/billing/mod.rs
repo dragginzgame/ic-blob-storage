@@ -2,6 +2,7 @@
 
 pub mod admission;
 pub mod balance;
+pub mod liquidity;
 pub mod reconciliation;
 
 use std::num::NonZeroU128;

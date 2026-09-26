@@ -2,6 +2,53 @@
 
 ## [Unreleased]
 
+### Added
+
+- Unpublished local `blob-fixture-refresh` command with passive dry-run and an
+  explicit balance refresh. Requests bind service, namespace, source, account,
+  configuration revision and next attempt; stale or consumed requests cannot
+  dispatch another read. This is a PocketIC tool, not a production provider client.
+- Separate JSON action and post-status outcomes: a failed diagnosis cannot replay
+  the action or erase an acknowledged completion. Actual subprocess/IC tests cover
+  stale previews, pending reads, rejected callers, failed observations, fenced
+  restores, malformed acknowledgements and query-only dry-run enforcement.
+- Local `blob-fixture-sync` command with passive preview and exact service,
+  namespace, source, edit revision and next-sequence admission. Revocations,
+  including absent-member revocations, invalidate old previews; consumed requests
+  cannot dispatch again. Balance refresh and sync share action/status reporting.
+  PocketIC covers held replies, reentrant replacement, old archives and live
+  callback upgrades without restoring authority or repeating a completed action.
+- Additive funding admission assessment preserves missing recovery, spendability
+  and activity alongside known blockers. Reserve arithmetic requires known funds
+  and retains the complete request; existing admission API behavior is unchanged.
+- Passive `blob-fixture-funding-preview` command binds sender, peer, operation ID
+  and amount. It reports identity reuse, journal capacity, unknown spendability,
+  unverified credit and restore fences without consuming an intent or transferring
+  cycles. PocketIC covers refunds, callback traps, exhausted history, added gross
+  cycles and update-only method rejection. No operator funding action is exposed.
+- Explicit installed attachment budgets for the local funding fixture. Original
+  intents reserve the full offer atomically; exact refunds and proven enqueue
+  failures release only the corresponding allocation. Accepted or unresolved
+  attachments remain charged through restore. Preview revisions change even after
+  full refunds. Gross cycle top-ups and incoming receipts cannot replenish this
+  budget; execution fees, provider credit and production spendability remain separate.
+- Additive liquidity policy checks the full attachment against platform liquid
+  cycles, call costs, positive operating slack and explicit other liabilities.
+  The local funding fixture rechecks after intent persistence and records liquidity
+  refusals as unsent operations, without fabricated refunds or reusable identities.
+  Passive previews expose cost/liquidity observations but cannot authorize dispatch;
+  PocketIC covers fee-only rejection, operating holds and changed funds with an
+  unchanged allocation revision. Production credit and recovery remain unqualified.
+
+### Fixed
+
+- Local funding refusals no longer execute callback trap controls when no call
+  was sent. Their consumed identities and released attachment allocations survive
+  restore; genuine callback traps still retain the full uncertain attachment.
+  PocketIC covers refusal-history exhaustion and zero/full-refund callbacks.
+- Funding previews now report the same maximum attachment bound enforced by
+  update admission, independently of resource and provider blockers.
+
 ## [0.1.16] - 2026-09-26
 
 ### Added

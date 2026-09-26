@@ -42,6 +42,7 @@ pub(crate) struct State {
     pub uploads: uploads::Uploads,
     pub journey: journey::Journey,
     pub registry: GatewayRegistry,
+    pub sync_control: crate::model::sync::SyncControlRecord,
     pub operator: Principal,
     gateway: Principal,
 }
@@ -139,6 +140,7 @@ fn fresh(
         uploads: uploads::initialize(service, first, second),
         journey: journey::initialize(service, first, second),
         registry,
+        sync_control: crate::model::sync::SyncControlRecord::new(),
         operator,
         gateway,
     }
@@ -183,6 +185,7 @@ pub(crate) fn release(value: u8, actor: Principal) -> bool {
 pub(crate) fn revoke_gateway() {
     mutate(|state| {
         state.registry.remove(state.gateway);
+        state.sync_control.revoke();
         state.journey.reads.invalidate();
     });
 }

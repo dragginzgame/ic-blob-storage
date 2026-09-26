@@ -207,12 +207,21 @@ pub(crate) fn probe_content(
     ops::content::run(case)
 }
 
-pub(crate) async fn sync_gateway(context: TenantAccessContext) -> Result<(), SyncFailure> {
-    if !is_operator(context) {
-        return Err(SyncFailure::Denied);
-    }
-    let (token, scope) = ops::sync::begin()?;
-    let outcome = match ops::sync::fetch(scope).await {
+pub(crate) fn preview_gateway_sync(
+    context: TenantAccessContext,
+    input: blob_test_protocol::GatewaySyncRequest,
+) -> Result<(), SyncFailure> {
+    ops::sync::authorize(context.service, context.actor)?;
+    ops::sync::preview(context.service, context.actor, input)
+}
+
+pub(crate) async fn sync_gateway(
+    context: TenantAccessContext,
+    input: blob_test_protocol::GatewaySyncRequest,
+) -> Result<(), SyncFailure> {
+    ops::sync::authorize(context.service, context.actor)?;
+    let (token, scope) = ops::sync::begin(input)?;
+    let outcome = match ops::sync::fetch(scope, input).await {
         Ok(bytes) => ops::sync::apply(token, scope, &bytes),
         Err(error) => Err(error),
     };

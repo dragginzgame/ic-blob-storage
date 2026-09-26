@@ -162,6 +162,7 @@ fn capture(state: &State) -> AuthorityArchiveRecord {
         gateways: state.registry.gateways().principals().to_vec(),
         last_sync: sync.last_sequence,
         pending_sync: sync.pending_sequence,
+        sync_control: state.sync_control.clone(),
         last_read,
         pending_read,
         armed_read_trap: state.journey.armed_read_trap.map(|root| *root.as_bytes()),
@@ -278,6 +279,7 @@ fn view(record: AuthorityArchiveRecord) -> AuthorityArchiveView {
         gateways: record.gateways,
         last_sync: record.last_sync,
         pending_sync: record.pending_sync,
+        sync_revision: record.sync_control.revision,
         last_read: record.last_read,
         pending_read: record.pending_read.map(|read| ArchivedReadView {
             token: read.token,

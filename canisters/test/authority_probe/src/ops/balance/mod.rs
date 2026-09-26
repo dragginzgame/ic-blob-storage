@@ -5,7 +5,7 @@ use crate::model::{
 };
 use blob_test_protocol::balance::{
     BalanceAmountsView, BalanceAttemptView, BalanceFailure as Failure, BalanceOutcomeView,
-    BalanceScope, BalanceStatusView,
+    BalanceRefreshRequest, BalanceScope, BalanceStatusView,
 };
 use candid::Principal;
 use ic_blob_storage::ops::caffeine::balance::{
@@ -32,8 +32,34 @@ pub(crate) fn configure(scope: BalanceScope) -> Result<(), Failure> {
     })
 }
 
-pub(crate) fn begin() -> Result<(usize, ScopeRecord), Failure> {
-    super::mutate(|state| state.balance.begin(ic_cdk::api::time()))
+fn expected_scope(input: BalanceRefreshRequest) -> Result<ScopeRecord, Failure> {
+    ScopeRecord::new(
+        input.scope.service,
+        input.scope.namespace,
+        input.scope.source,
+        input.scope.account,
+    )
+}
+
+pub(crate) fn preview(
+    service: Principal,
+    actor: Principal,
+    input: BalanceRefreshRequest,
+) -> Result<(), Failure> {
+    let snapshot = super::archive::current(service, actor).ok_or(Failure::Denied)?;
+    snapshot
+        .balance
+        .check_refresh(expected_scope(input)?, input.revision, input.sequence)
+}
+
+pub(crate) fn begin(input: BalanceRefreshRequest) -> Result<(usize, ScopeRecord), Failure> {
+    let scope = expected_scope(input)?;
+    super::mutate(|state| {
+        state
+            .balance
+            .check_refresh(scope, input.revision, input.sequence)?;
+        state.balance.begin(ic_cdk::api::time())
+    })
 }
 
 pub(crate) async fn fetch(scope: ScopeRecord) -> Result<Vec<u8>, Failure> {

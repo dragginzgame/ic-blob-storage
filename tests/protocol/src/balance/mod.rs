@@ -15,6 +15,17 @@ pub struct BalanceScope {
     pub account: Principal,
 }
 
+/// Exact local read admission. Reusing a consumed sequence cannot dispatch again.
+#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+pub struct BalanceRefreshRequest {
+    /// All expected observation bindings.
+    pub scope: BalanceScope,
+    /// Exact current configuration revision.
+    pub revision: u64,
+    /// Expected next lifetime attempt number, starting at one.
+    pub sequence: u64,
+}
+
 /// Admission or observation failure; errors never stand in for zero cycles.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, Serialize)]
 pub enum BalanceFailure {
@@ -44,7 +55,7 @@ pub enum BalanceFailure {
     AccountNotFound,
     /// Structured internal failure from the substitute.
     ProviderInternal,
-    /// Configuration changed before this exact callback completed.
+    /// Expected revision/sequence is stale, or configuration changed during the call.
     Stale,
 }
 
