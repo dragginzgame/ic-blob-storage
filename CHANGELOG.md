@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.1.15] - 2026-09-26
+
 ### Added
 
 - A connected local PocketIC upload/deletion journey uses shared tenant policy,
