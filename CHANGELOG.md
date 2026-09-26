@@ -2,6 +2,22 @@
 
 ## [Unreleased]
 
+### Added
+
+- Bounded streaming Caffeine content hashing and verification: raw SHA-256 and
+  the provider's metadata-dependent root in one pass, with 1 MiB provider chunks
+  independent of append boundaries. A fixed hash frontier avoids buffering whole
+  files or trees; explicit content, append and metadata budgets bound processing.
+- Independent client vectors covering exact chunk edges, uneven multi-level trees
+  and ECMAScript metadata normalization/order. Tests reject corrupt/truncated bytes,
+  metadata mismatch and invalid appends without advancing hash state. Empty provider
+  objects remain explicitly unqualified; matching roots do not prove upload completion.
+- Bounded Caffeine chunk manifests checked against an expected root, with distinct
+  chunk-hash identities and exact per-index byte verification. Individual chunks
+  can be checked out of order or retried without changing state. Independent client
+  leaf vectors cover reordered/tampered manifests, wrong positions, short/oversized
+  chunks and corruption; a valid manifest is not proof of storage or whole-file completion.
+
 ## [0.1.7] - 2026-09-26
 
 Bounded local catalog, tenant reference reads and exact request-result lookup.

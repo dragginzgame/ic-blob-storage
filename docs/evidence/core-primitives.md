@@ -514,3 +514,65 @@ history before provider authority/effects, not discover a full catalog afterward
 No provider call, new dependency, endpoint, stable schema or restoration was added.
 Native confirmation tests supply evidence facts; they do not authenticate provider
 deletion/billing reports or prove safe recovery after a restart.
+
+## Streaming Caffeine identities after 0.1.7
+
+The [streaming model](../../crates/ic-blob-storage/src/model/identity/caffeine/mod.rs)
+computes raw SHA-256 and the nonempty provider root in one pass. Appends are
+rechunked at 1 MiB; a fixed frontier folds domain-separated leaf/node hashes,
+padding an uneven right subtree with the client's `UNBALANCED` marker at each
+missing level. No content, full chunk or full tree is retained. Metadata lines
+are bounded before allocation, trimmed with ECMAScript whitespace, framed and
+sorted by UTF-16 code units before UTF-8 hashing. Original duplicate names reject;
+upstream object entries cannot represent them. This is not HTTP validation or
+header inference. Metadata setup allocates within explicit count/byte budgets;
+stream state is fixed-size, independent of content length.
+
+[Independent vectors](../../crates/ic-blob-storage/tests/fixtures/caffeine-hashing/vectors.json)
+record source SHA-256, runtime and content recipes. Official `main` and npm
+latest/integrity were refreshed on 2026-09-26 and remain at the pinned client
+1.1.2 baseline. Generate vectors using the unmodified `YHash`/`BlobHashTree`
+classes and isolated VM method in [provider review](../provider-review.md#client-algorithm-and-completion-observations):
+create each recorded byte sequence, split at 1 MiB, call `YHash.fromChunk`, then
+`BlobHashTree.build` with `Object.fromEntries` of the listed headers. Record the
+root, ordered chunk hashes and Node crypto's raw SHA-256. No imports, gateway, certificate substitute
+or provider call enters this experiment. Unusual Unicode headers check algorithm
+compatibility only. The normalization follows ECMAScript
+[whitespace](https://tc39.es/ecma262/multipage/ecmascript-language-lexical-grammar.html#sec-white-space)
+and [string sorting](https://tc39.es/ecma262/multipage/indexed-collections.html#sec-comparearrayelements).
+
+[Native tests](../../crates/ic-blob-storage/tests/caffeine_hashing.rs) stream those
+vectors with prime-sized and multi-chunk appends, reversing metadata input order.
+They cover exact chunk boundaries and uneven trees through 18 leaves, including
+rejected replay after complete leaves followed by correct continuation. Unit tests
+cover every budget, algorithm length maximum without large allocation, duplicate
+headers, offsets, truncation, corruption and metadata mismatch. All tests, strict
+Clippy, Wasm, rustdoc and formatting pass. Verify current source with
+`sha256sum -c docs/evidence/caffeine-hashing.sha256`; released inventories stay historical.
+
+The [chunk manifest](../../crates/ic-blob-storage/src/model/identity/caffeine/manifest/mod.rs)
+checks an explicitly bounded list of chunk-hash values against one
+expected root, using the same length, metadata and tree implementation. It
+retains only the ordered hashes and declared length. Construction validates
+consistency, not stored content. Individual leaf checks enforce index, exact
+full/final length and domain-separated digest, hashing at most 1 MiB per call.
+They are read-only: repeat/out-of-order verification never changes completion
+state, because no completion bitmap or resume checkpoint is maintained.
+
+The client-generated vectors now include leaf hashes, with previous roots and
+raw digests unchanged. Native composition verifies every chunk in reverse order,
+rejects corruption after a successful check, then accepts correct retry bytes.
+Changed leaf/order/metadata and wrong indices/lengths reject with typed errors.
+An independent repeated-content vector preserves identical leaf hashes at their
+separate positions; neither manifest construction nor verification deduplicates them.
+Unit tests include count/length budgets and show why an otherwise consistent
+one-leaf tree does not authenticate declared length by itself. The caller still
+needs trusted length and root provenance; future recovery must durably bind both.
+Tests, strict Clippy, Wasm, rustdoc and formatting pass for the combined work.
+
+This computes local consistency only. Expected identities need trusted provenance;
+matching roots do not prove provider presence, durable upload or caller authority.
+Empty provider objects reject as unqualified rather than inheriting the client's
+empty-tree bug or inventing a root. No upload tree/proof, persisted checkpoint,
+HTTP policy, endpoint or provider effect was added. The raw verifier's empty-byte
+support and all released APIs remain unchanged.

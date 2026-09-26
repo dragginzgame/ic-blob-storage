@@ -173,6 +173,20 @@ its SHA-256 against the JSON, and evaluate the slice beginning at
 plus the recorded content types. The empty case uses no chunks or headers.
 This bounded experiment adds no maintained JavaScript tooling to the project.
 
+After 0.1.7, local Rust streaming hashing now matches independent vectors from
+these unmodified client classes. Official `main` and npm latest/integrity were
+rechecked on 2026-09-26 and remain at the pinned baseline. No archive redownload
+or deployed-provider qualification is implied by that metadata refresh.
+The [vectors](../crates/ic-blob-storage/tests/fixtures/caffeine-hashing/vectors.json)
+cover 1 MiB chunk boundaries and uneven trees through 18 leaves, metadata order,
+ECMAScript trim and UTF-16 sorting. Unicode header cases establish hash behavior,
+not header validity. See [implementation evidence](evidence/core-primitives.md#streaming-caffeine-identities-after-017).
+Those vectors now also retain the client's ordered leaf hashes. A local bounded
+manifest shares the same tree/metadata algorithm and verifies chunk bytes by
+index, including reverse-order reads and corruption recovery. This is not the
+gateway's wire tree or a source of upload authority. The official source head was
+reconfirmed unchanged for this follow-up; no provider operation was issued.
+
 ## Recovery findings — 2026-09-26
 
 [Source-bound probes and reproduction details](evidence/caffeine-recovery-review.json)

@@ -1,0 +1,14 @@
+edc1b6701117a5c886e674a0abb5f3928d8eaca5a3210460c6d182827ab87034  Cargo.toml
+c5d5467926bcb1b66209813961900644f3900582ae61aad14a795ab14d05ab42  Cargo.lock
+04ab0c8ee214f246c7c53bdfba7ba80a93dad65da5b8455edf17c5ec226d5b20  rust-toolchain.toml
+4316f569adcf1b771893f210b549c76b071ee07e60fea77bc8e27fec9c051724  crates/ic-blob-storage/Cargo.toml
+1d613f8027737902f0d3c42f73bfee9a7df3a6d338d25de9d6e11f50cce85b7f  crates/ic-blob-storage/src/lib.rs
+b9ea73615e5bbd82faa4f7872e9a152ea00751f1ba0670f56798b6e52e845b65  crates/ic-blob-storage/src/model/identity/mod.rs
+d9c3073141aae488205f78932b4726462da8e5937510b4978d20cdd8f376e245  crates/ic-blob-storage/src/model/identity/verification/mod.rs
+e32ddf83ce8d85ace774de47159d07c6c11b3c1a78a7dcb3b7ebd4adcb82bd95  crates/ic-blob-storage/src/model/identity/caffeine/mod.rs
+aa24873d3a5ab2951885d15acf7fec059046e4abd809a482c81fbcb9c5fe1781  crates/ic-blob-storage/src/model/identity/caffeine/metadata/mod.rs
+2a6d7e737485e0a117b4e35348039d49bb4c38e2571148e355444c0e3254a24b  crates/ic-blob-storage/src/model/identity/caffeine/tests/mod.rs
+1ad8438d39131f88c0f3803a80afb15cc386c52d9b46d4f7e4c40952cb8b4c1a  crates/ic-blob-storage/tests/caffeine_hashing.rs
+411844c2c2ced1436f3426ccfd0eee590fb2ebaf345fefacf945857c647d9b33  crates/ic-blob-storage/tests/fixtures/caffeine-hashing/vectors.json
+97ebde3be5e982b705c05f18f8d6d5b22e5ea7a722777f32f306e4da835fcb6b  crates/ic-blob-storage/src/model/identity/caffeine/manifest/mod.rs
+b39c6d45285ef2d81c69f673bfd1fec841189139e28d11e4aed8fd3eae3e3683  crates/ic-blob-storage/src/model/identity/caffeine/manifest/tests/mod.rs

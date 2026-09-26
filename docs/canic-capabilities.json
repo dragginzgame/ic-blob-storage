@@ -48,6 +48,14 @@
           "source": "crates/ic-blob-storage/src/model/identity/verification/mod.rs",
           "coverage": "Incremental raw-content digest and exact-length verification; ordered byte offsets; unchanged state after chunk rejection; corruption/truncation errors; constant-size hash state.",
           "remaining": "Trusted expected-digest provenance, provider tree/chunk proofs, persisted checkpoints and actual upload/read workflow."
+        },
+        {
+          "kind": "native_core_partial",
+          "record": "evidence/core-primitives.md",
+          "source_hashes": "evidence/caffeine-hashing.sha256",
+          "source": "crates/ic-blob-storage/src/model/identity/caffeine/mod.rs",
+          "coverage": "Bounded streaming raw-content/provider-tree computation and comparison for nonempty content; root-bound ordered chunk manifests verify leaves independently by exact index/length. Independent client vectors cover chunk edges, uneven trees, metadata, reverse-order verification, corrupted/reordered manifests and retry after corruption. No completion state changes on reads.",
+          "remaining": "Empty-provider-object contract, trusted root/length/tenant provenance, HTTP/serving policy, upload wire tree/proofs/certificates, persisted checkpoints and real upload/read journeys. Matching roots or leaves do not establish provider completion."
         }
       ]
     },

@@ -1,8 +1,9 @@
 # ic-blob-storage
 
 An independent blob-storage service library for Internet Computer canisters.
-The core provides content verification, billing validation and bounded Caffeine
-reply decoding. A transient multi-object catalog owns lifecycle, root claims and
+The core provides streaming raw-content/Caffeine-tree verification, billing
+validation and bounded Caffeine reply decoding. A transient multi-object catalog
+owns lifecycle, root claims and
 request receipts, with tenant quotas, separate physical/billing accounting and
 bounded deletion pages. Pure tenant/gateway policy protects local reads and
 preserves revocation; native tests cover rejection and replay behavior.

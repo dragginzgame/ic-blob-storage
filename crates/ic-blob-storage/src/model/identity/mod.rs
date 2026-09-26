@@ -1,6 +1,7 @@
 //! Distinct raw-content and provider identities. Neither confers tenant authority.
 
 pub mod batch;
+pub mod caffeine;
 pub mod verification;
 
 use std::{fmt, str::FromStr};

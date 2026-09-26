@@ -10,6 +10,16 @@ evidence are still required by the [service contract](service-contract.md).
 Local lifecycle binding and direct-tenant policy tests now provide partial A01
 evidence over supplied values; they do not authenticate endpoint callers or prove
 durable isolation, delegated access or provider confirmation authority.
+Local streaming Caffeine-tree verification adds partial A02 evidence from
+independent current-client vectors: chunk boundaries, uneven trees, metadata
+ordering and rejection/continuation after invalid input. It computes both raw
+digest and provider root without buffering the object. Empty provider objects,
+trusted expected identities, serving policy, persisted checkpoints and actual
+upload/read completion remain unqualified.
+Root-bound chunk manifests additionally provide native A02/A03 evidence for
+out-of-order leaf verification, retry after corruption and rejection of changed
+chunk order, metadata, position or length. This is stateless byte verification;
+it does not execute an interrupted download or persist resume progress.
 Native consumer-reference reads add A01/A06 coverage for tenant checks before
 status disclosure, bounded ordered batches and inactive released references
 while sibling references stay live. They preserve physical/billing obligations

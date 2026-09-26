@@ -4,89 +4,79 @@ Date: 2026-09-26
 
 ## Released baseline
 
-The maintainer reports 0.1.6 pushed. Local release/tag is `0992929`, from source
-`d3ca8c472cacca2715543eeb033446eb8ca2bfed`; Cargo and the receipt are 0.1.6.
-`make release-tag-check` passes. Registry publication was not independently
-queried. Release/publication preserve artifacts; only explicit `make clean`
-removes them. See [release guidance](../releasing.md).
+The maintainer reports 0.1.7 pushed. Local release/tag is `83ad5d7`, from source
+`600315eeb669de337bab15d49ef8b43d78173623`; Cargo and the receipt are 0.1.7.
+`make release-tag-check` passes. Registry publication was not independently queried.
+Release/publication preserve artifacts; cleanup requires an explicit request.
+See [release guidance](../releasing.md).
 
-The library provides content/provider identities, incremental raw-byte
-verification, bounded root batches, billing/configuration validation and pure
-funding/readiness/tenant policy. Its transient lifecycle separates reference
-release, physical deletion and billing settlement, with explicit ownership
-bindings and bounded exact-request receipts reserving capacity for release.
-Immutable service-wide root claims reject reassignment even after settlement.
+The library provides content/provider identities, raw-byte verification, bounded
+root batches and Caffeine reply decoding, billing/configuration validation and
+pure funding/readiness policy. Scoped gateway synchronization rejects stale
+replies and preserves revocation. Balance replies check account/amounts without
+turning provider failures into zero balances or clearing recovery fences.
 
-0.1.6 adds scoped gateway sync correlation, revocation-safe membership edits and
-pure callback policy. Bounded gateway-list replies apply only to the exact pending
-attempt; invalid/stale replies cannot replace membership. Balance replies check
-the requested account and every amount, retaining distinct provider errors.
-Balance/top-up decoding shares one private schema. No error substitutes zero;
-valid reports cannot clear a recovery fence. Chunk completion and balance replies
-remain observations, not proof of durable upload or credited/settled amounts.
+0.1.7 adds transient catalog ownership of confirmed-object lifecycles, immutable
+root claims and exact reference receipts. Global/per-tenant object, byte and
+metadata bounds retain zero-byte/settled history. Logical release, physical
+deletion and billing cessation free separate capacities. Tenant reads validate
+ownership and full bindings before disclosure; exact receipt reads never repeat
+mutations. Gateway pages bound scanning/results and recheck authority per page.
+These local models do not implement upload reservations or persistence.
 
 Provider transports, persisted workflows, clients, endpoints and both deployment
 adapters remain unimplemented. No end-to-end service capability is qualified.
 [Core evidence](../evidence/core-primitives.md) and
-[the capability inventory](../canic-capabilities.json) record partial native coverage.
+[capability inventory](../canic-capabilities.json) record partial native coverage.
 
-Source inventories are historical: 0.1.5 root-batch/lifecycle-model/provider-boundaries
-match source `6bd0d45` (Cargo 0.1.4); 0.1.6 gateway-registry/balance-replies match
-source `d3ca8c4` (Cargo 0.1.5), not their version-mutated release commits. The two
-0.1.6 inventories were checked against Git after release. Do not rotate them.
+Released source inventories remain historical: 0.1.5 inventories match source
+`6bd0d45` (Cargo 0.1.4); 0.1.6 gateway-registry/balance-replies match `d3ca8c4`
+(Cargo 0.1.5); 0.1.7 reference-liveness/catalog match `600315e` (Cargo 0.1.6).
+The 0.1.7 inventories were verified against Git after release; do not rotate them
+for the version bump or subsequent implementation.
 
-## Current follow-up — 0.1.7 draft
+## Current follow-up
 
-The maintainer requested continued work for 0.1.7. CHANGELOG.md now has an undated
-0.1.7 draft after empty Unreleased. Cargo/receipt remain 0.1.6; version preparation,
-commits and publication have not run. The new APIs are additive to the released
-library. Continue reviewing Canic's choices independently, including our own
-local restrictions; parity does not require preserving its internal design.
+The maintainer requested continued progress and the next milestone. Changes go
+in Unreleased; Cargo remains 0.1.7. Continue reassessing Canic and local choices
+against current consumer/provider evidence, as recorded in
+[design inputs](../service-contract.md#design-inputs-and-assumptions).
 
-The draft joins local reference liveness, bounded multi-object catalog ownership
-and consumer/gateway reads. Confirmed entries own lifecycle, immutable root claims
-and exact reference receipts. Bounds cover global/per-tenant lifetime objects,
-references/receipts per object, tenant logical bytes, global physical bytes and
-unsettled billing bytes. Zero-byte and settled history still consume object slots.
-Usage derives from entries; failed admissions leave claims/state intact. Exact
-replay works at capacity and after settlement without reactivating references.
+The new `CaffeineContentHasher` streams raw SHA-256 and the reviewed client's
+metadata-dependent root in one pass. Appends can split anywhere; provider leaves
+remain 1 MiB. Fixed hash states/frontier replace whole-file/tree buffering.
+Explicit object, append, header-count and raw metadata-byte budgets bound work;
+invalid offsets/lengths/budgets leave stream state unchanged. Completion verifies
+exact byte length; comparison distinguishes raw corruption from root mismatch.
 
-Consumer reads check direct-tenant authority and complete bindings. Cross-object
-batches check context and raw count, then ownership of every root before supplied
-bindings and result allocation. Unknown/foreign roots reject alike; no partial
-statuses are returned. Released/unknown references in owned objects are inactive,
-including while sibling references keep those objects live. Ordered duplicates
-and multiple owned namespaces are supported within the configured entry budget.
+Independent vectors generated from the pinned unmodified client cover chunk
+edges, uneven tree heights through 18 leaves, metadata order, ECMAScript trimming
+and UTF-16 sorting. Tests also cover rejection/continuation after completed leaves,
+truncation, corruption and metadata changes. Empty provider objects explicitly
+remain unqualified; raw empty-content hashing still works separately. This does
+not validate HTTP headers, generate upload proofs/certificates, persist resumable
+checkpoints or establish upload completion.
 
-Read-only exact receipt lookup shares its actor/payload/binding check with replay.
-It preserves recorded success/failure, changes no state, and works at capacity and
-after settlement. A receipt result differs from current liveness. An absent local
-receipt is not proof that an uncertain paid effect never ran or that stale state
-is safe. Native tests cover scope/conflict denial, mixed batches and unchanged
-catalog state across reads, release and settlement.
+The follow-up now also validates bounded chunk manifests against an expected root,
+sharing tree, length and metadata checks with the streaming hasher. Distinct
+chunk-hash identities retain their order; each leaf can be verified independently
+at its exact index/length, with at most 1 MiB hashed per call. Independent client
+leaf vectors prove reverse-order reads, repeat verification, rejection of changed
+metadata/leaves/order, invalid indices/lengths and retry after corruption. A valid
+manifest does not imply verified bytes or provider presence; declarations still
+need trusted length/tenant binding. No resume bitmap or persisted checkpoint is
+created. See
+[hashing evidence](../evidence/core-primitives.md#streaming-caffeine-identities-after-017).
 
-Gateway pending pages bound scanned objects and returned results; continuations
-are scope-bound positions, not authority or snapshots. Membership is rechecked on
-every page. Root observations retain explicit unknown/malformed/foreign-namespace
-outcomes. Tests cover sparse pages, revocation, separate capacity recovery, totals
-above u64, reserved release slots and late replay. The catalog begins with already
-confirmed objects; it does not reserve upload capacity before effects or persist
-state. See [current evidence](../evidence/core-primitives.md#transient-catalog-after-016).
+Official upstream main and npm latest/integrity were refreshed and remain at the
+reviewed client baseline. Tests, strict Clippy, Wasm, rustdoc and formatting pass.
+No full release gate, dependency change, provider effect, version mutation or
+sibling edit ran. Unrelated worktree files remain untouched.
 
-The [source refresh](../provider-review.md#selected-integration-baseline) found no
-provider baseline change. [Design inputs](../service-contract.md#design-inputs-and-assumptions)
-separate capabilities, consumer scenarios and provider guarantees. Root non-reuse
-remains a conservative local restriction, not a frozen consumer requirement;
-repeated content, cross-canister references, history churn, scan costs and serving
-authority need evidence before production decisions. No dependency change,
-provider effect or sibling edit was made.
-
-`make ci` passes for this draft: release-helper fixtures, shell checks, formatting,
-native compilation, strict Clippy, rustdoc, tests, Wasm and package verification.
-The effect-free `make release-plan VERSION=0.1.7` resolves the intended patch.
-Current catalog/reference-liveness inventories verify; historical inventories
-remain source-bound and unchanged. The maintainer must commit the implementation
-and draft before running the release flow from clean source.
+The next major milestone is durable upload admission and interruption recovery,
+followed by shared service handlers and both adapters. The local hash primitive
+removes one byte-integrity gap; it does not remove the provider gates below.
+Do not implement paid retries or persisted workflows by assuming those guarantees.
 
 ## Provider evidence and next work
 

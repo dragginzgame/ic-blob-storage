@@ -66,6 +66,21 @@ upstream baseline before implementation and qualification. Caffeine is not yet
 qualified; deployed-contract and recovery/economic evidence still must close
 before provider bindings and effects are implemented.
 
+The local content-identity exception now includes bounded streaming computation
+of the reviewed Caffeine client's nonempty content tree and raw digest. Explicit
+metadata is hashed with the client's normalization and ordering; no MIME or header
+inference occurs. This is local hashing, not an upload tree/certificate, chunk proof,
+HTTP-header validator, completion observation or persisted checkpoint. Independent
+client vectors provide algorithm evidence only. Empty provider objects remain
+unqualified rather than inheriting the client's failing empty-tree branch.
+The same local algorithm now validates bounded ordered chunk manifests against
+an expected root and verifies exact bytes at any chunk index. These are immutable
+local identities, not provider wire manifests or certificates. Construction
+checks consistency only; verified bytes, trusted length, tenant binding, provider
+availability and durable resume progress remain separate requirements. In
+particular, a root without trusted length metadata cannot alone authenticate the
+declared final-chunk length.
+
 The [independent deployment review](provider-review.md#independent-deployment-support)
 also requires a supported Caffeine onboarding/namespace arrangement for this
 service. Public integration packages and Toko's source defaults do not establish
