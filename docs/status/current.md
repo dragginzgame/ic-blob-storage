@@ -4,10 +4,10 @@ Date: 2026-09-26
 
 ## Released baseline
 
-The maintainer pushed 0.1.12. Local main, origin/main and annotated tag v0.1.12
-point to `806407e`, from source `e125fb803d28b8215e7ec0ed294043f925eb82f0`.
-Cargo and the release receipt are 0.1.12; `make release-tag-check` passes and
-source was clean before the review below. Registry publication was not queried.
+The maintainer pushed 0.1.13. Local main, origin/main and annotated tag v0.1.13
+point to `a1f586f`, from source `ab7552339a7c18ee7d5b5d5426078a57ae698c8a`.
+Cargo and the release receipt are 0.1.13; the worktree was clean before the
+follow-up below. Registry publication was not queried.
 Release/publication preserve artifacts; cleanup requires an explicit request.
 See [release guidance](../releasing.md).
 
@@ -37,6 +37,7 @@ Released source inventories remain historical: 0.1.5 matches `6bd0d45` (Cargo
 (Cargo 0.1.10). The 0.1.12 memory-alignment and tenant-obligations inventories
 were verified against Git source `e125fb8` (Cargo 0.1.11) after release. Do not
 rotate historical inventories for later source/version changes.
+The released funding-callback inventory matches source `ab75523` (Cargo 0.1.12).
 
 ## Current follow-up — provider contract review
 
@@ -44,9 +45,8 @@ The maintainer requested the provider review as the next batch. The completed
 [contract decision](../provider-review.md#contract-decision-after-0112) and
 [refresh record](../evidence/caffeine-contract-refresh.json) distinguish current
 source facts, anonymous deployment observations and unresolved server semantics.
-The investigation is now accompanied by an unpublished funding fixture and
-targeted PocketIC evidence, recorded in the 0.1.13 changelog draft. Cargo and the
-release receipt remain 0.1.12; no release operation has run.
+The investigation and unpublished funding fixture shipped in repository release
+0.1.13. The fixture is never a production provider implementation.
 The subsequent continuation produced a concrete
 [qualification sequence](../acceptance-plan.md#provider-qualification-sequence-after-0112):
 required bindings/budgets, proposed byte fixtures, source review before adapter
@@ -118,11 +118,31 @@ unimplemented.
 
 ## Next work and gates
 
-Provider questions in the review were narrowed by the new primary source; none
-was sent. The targeted funding experiment passes. Next incorporate its separated
-transport/refund observations into the funding contract, preserving uncertainty
-after callback loss, and qualify the selected current wire contract. Remaining
-provider gaps are:
+The post-0.1.13 follow-up adds shared `FundingTransfer` values and pure funding
+reconciliation policy. Known callback refunds, proven enqueue failure and unknown
+effects remain distinct; positive transport acceptance always requires separate
+provider credit evidence. This is additive local arithmetic/policy, without a
+production journal, paid call, retry or frozen service schema. The fixture now
+uses the shared implementation and explicit initial cycle budgets. Native tests
+cover extreme amounts and invalid/missing evidence. PocketIC additionally proves
+an actual insufficient-cycles enqueue failure has no callback refund or receiver
+receipt, retains history through upgrade, and cannot reuse its identity.
+Targeted native tests, strict Clippy, rustdoc, Wasm and funding PocketIC checks
+pass; see [current evidence](../evidence/core-primitives.md#shared-funding-reconciliation-after-0113).
+The maintainer named 0.1.14 for this batch. Its undated changelog draft contains
+the shared funding accounting and audit decoder; Cargo/receipt remain 0.1.13.
+
+The next continuation refreshed anonymous Cashier metadata; its Candid hash still
+matches `232b08e4514048d4de48d6d1bf4387f577bfb64c7e2e2ded699a5e52d475d76f`.
+A bounded audit-response decoder now retains opaque CSV, counts and cursors while
+preserving typed provider failures. Independent didc fixtures and targeted native,
+Clippy, rustdoc and Wasm checks pass; see [audit evidence](../evidence/core-primitives.md#cashier-audit-response-decoding).
+No live account audit was requested. The search did not establish CSV columns,
+cursor semantics, operation matching or retention. No audit page clears uncertainty.
+
+Next qualify the selected wire contract and exact provider reconciliation inputs;
+do not add ledger decoding or audit-row interpretation from an assumed schema.
+Remaining gaps are:
 
 1. Apply documented self-account/linked-payer patterns to the exact installation
    and existing Toko obligations. Verify the current blob deletion-list Candid

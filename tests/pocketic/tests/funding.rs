@@ -7,10 +7,14 @@ mod support;
 
 use blob_test_protocol::funding::{
     FundingAttemptRecord, FundingFailure, FundingObservation, FundingOutcome, FundingReceiptRecord,
-    FundingReplyMode, FundingRequest, FundingUpgradeArgs,
+    FundingReconciliationView, FundingReplyMode, FundingRequest, FundingUpgradeArgs,
 };
 use candid::Principal;
-use ic_testkit::{Fake, pic::CandidCallExt, pocket_ic::RejectCode};
+use ic_testkit::{
+    Fake,
+    pic::CandidCallExt,
+    pocket_ic::{CreateCanisterParams, RejectCode},
+};
 use support::{Harness, fixture_path};
 
 struct Fixture {
@@ -25,11 +29,20 @@ impl Fixture {
         let harness = Harness::new();
         let pic = &harness.pic;
         let driver = Fake::principal(11);
-        let sender = pic.create_canister();
-        let receiver = pic.create_canister();
+        let create = || {
+            pic.create_canister_with_params(
+                None,
+                CreateCanisterParams {
+                    cycles: Some(2_000_000_000_000),
+                    ..CreateCanisterParams::default()
+                },
+            )
+            .expect("explicit fixture cycle budget")
+        };
+        let sender = create();
+        let receiver = create();
         let wasm = std::fs::read(fixture_path("BLOB_FUNDING_PROBE_WASM")).expect("funding Wasm");
         for (canister, peer) in [(sender, receiver), (receiver, sender)] {
-            pic.add_cycles(canister, 2_000_000_000_000);
             pic.install_canister(
                 canister,
                 wasm.clone(),
@@ -148,6 +161,11 @@ fn refunds_are_call_specific_and_independent_of_cashier_reply_decoding() {
                 refunded: Some(request.offered - accept),
                 transport_accepted: Some(accept),
                 outcome,
+                reconciliation: if accept == 0 {
+                    FundingReconciliationView::NoTransfer
+                } else {
+                    FundingReconciliationView::CreditRequired(accept)
+                },
             }
         );
         assert_eq!(
@@ -297,6 +315,7 @@ fn receiver_trap_rolls_back_acceptance_and_receipt_before_refunding_the_sender()
             refunded: Some(trapped.offered),
             transport_accepted: Some(0),
             outcome: FundingOutcome::Rejected(RejectCode::CanisterError as u32),
+            reconciliation: FundingReconciliationView::NoTransfer,
         }
     );
     let attempts = fixture.attempts();
@@ -366,6 +385,62 @@ fn lifetime_journal_capacity_survives_upgrade_without_forgetting_payments() {
 }
 
 #[test]
+fn enqueue_failure_has_no_callback_refund_and_preserves_exact_unsent_history() {
+    let fixture = Fixture::new();
+    let prior = request(1, 13_000_001, FundingReplyMode::Success);
+    fixture
+        .fund(fixture.driver, prior)
+        .expect("prior refunded call");
+    let receipts = fixture.receipts();
+    let mut unsent = request(2, 1, FundingReplyMode::Success);
+    unsent.offered = fixture.harness.pic.cycle_balance(fixture.sender) + 1;
+    let observation = fixture
+        .fund(fixture.driver, unsent)
+        .expect("local enqueue failure observed");
+    assert_eq!(
+        observation,
+        FundingObservation {
+            refunded: None,
+            transport_accepted: Some(0),
+            outcome: FundingOutcome::NotEnqueued,
+            reconciliation: FundingReconciliationView::NoTransfer,
+        }
+    );
+    let attempts = fixture.attempts();
+    assert_eq!(
+        attempts.last(),
+        Some(&FundingAttemptRecord {
+            request: unsent,
+            observation: Some(observation),
+        })
+    );
+    assert_eq!(fixture.receipts(), receipts);
+    fixture.upgrade_both();
+    assert_eq!(fixture.attempts(), attempts);
+    assert_eq!(fixture.receipts(), receipts);
+    // Changed parameters do not turn the already admitted identity into a retry.
+    let changed = request(unsent.id, 1, FundingReplyMode::Success);
+    assert_eq!(
+        fixture.fund(fixture.driver, changed),
+        Err(FundingFailure::AlreadyAdmitted)
+    );
+    let next = request(3, 19_000_003, FundingReplyMode::Success);
+    let observation = fixture.fund(fixture.driver, next).expect("new experiment");
+    assert_eq!(observation.transport_accepted, Some(next.accept));
+    assert_eq!(
+        observation.reconciliation,
+        FundingReconciliationView::CreditRequired(next.accept),
+    );
+    let mut expected = receipts;
+    expected.push(FundingReceiptRecord {
+        id: next.id,
+        available: next.offered,
+        accepted: next.accept,
+    });
+    assert_eq!(fixture.receipts(), expected);
+}
+
+#[test]
 fn denied_and_invalid_requests_cannot_offer_cycles_or_inspect_journals() {
     let fixture = Fixture::new();
     let mut request = request(1, 1, FundingReplyMode::Success);
@@ -373,7 +448,7 @@ fn denied_and_invalid_requests_cannot_offer_cycles_or_inspect_journals() {
         fixture.fund(Principal::anonymous(), request),
         Err(FundingFailure::Denied)
     );
-    for (offered, accept) in [(0, 0), (1_000_000_001, 0), (10, 11)] {
+    for (offered, accept) in [(0, 0), (u128::MAX, 0), (10, 11)] {
         request.offered = offered;
         request.accept = accept;
         assert_eq!(

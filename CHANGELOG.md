@@ -2,6 +2,24 @@
 
 ## [Unreleased]
 
+## [0.1.14]
+
+### Added
+
+- Shared funding-transfer accounting distinguishes exact unbounded-call refunds,
+  proven enqueue failures and unknown outcomes. Pure reconciliation policy keeps
+  accepted cycles separate from provider credit and retains the full attachment
+  when transfer evidence is missing. Invalid refunds are rejected without clamping.
+- The local funding fixture now uses the shared model and policy. PocketIC covers
+  a real insufficient-cycles enqueue failure with no callback refund, retained
+  history across upgrades and rejection of reused identities. Fixture starting
+  balances are explicit; live Caffeine credit reconciliation remains unqualified.
+- Bounded decoding of Cashier audit-download responses using the refreshed deployed
+  Candid interface. Opaque CSV, reported counts and optional cursors are preserved;
+  provider errors stay distinct from empty pages. Independent wire fixtures cover
+  resource bounds and malformed pagination. Audit rows do not yet establish credit
+  or authorize retries.
+
 ## [0.1.13] - 2026-09-26
 
 ### Added

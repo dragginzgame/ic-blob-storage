@@ -4,6 +4,7 @@
 //! not authority to create a confirmed object, settle a payment or retry it.
 //! Callers must bind transport responses to their persisted operation and provider.
 
+pub mod audit;
 pub mod balance;
 pub mod funding;
 pub mod gateway;

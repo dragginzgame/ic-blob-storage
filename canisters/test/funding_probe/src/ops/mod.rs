@@ -2,7 +2,10 @@
 
 mod storage;
 
-use std::{cell::RefCell, num::NonZeroUsize};
+use std::{
+    cell::RefCell,
+    num::{NonZeroU128, NonZeroUsize},
+};
 
 use crate::model::FundingJournalRecord;
 use blob_test_protocol::funding::{
@@ -10,6 +13,7 @@ use blob_test_protocol::funding::{
     FundingReplyMode, FundingRequest,
 };
 use candid::Principal;
+use ic_blob_storage::model::billing::transfer::FundingTransfer;
 use ic_blob_storage::ops::caffeine::funding::{
     TopUpProviderError, TopUpReply, TopUpReplyLimits, decode_top_up_reply,
 };
@@ -67,7 +71,13 @@ pub(crate) fn receipts(caller: Principal) -> Option<Vec<FundingReceiptRecord>> {
     read(|state| state.receipts(caller))
 }
 
-pub(crate) async fn transfer(peer: Principal, request: FundingRequest) -> FundingObservation {
+/// Local domain facts before workflow policy and passive view conversion.
+pub(crate) struct ObservedFundingCall {
+    pub(crate) transfer: FundingTransfer,
+    pub(crate) outcome: FundingOutcome,
+}
+
+pub(crate) async fn transfer(peer: Principal, request: FundingRequest) -> ObservedFundingCall {
     let result = Call::unbounded_wait(peer, "receive")
         .with_arg(request)
         .with_cycles(request.offered)
@@ -76,19 +86,24 @@ pub(crate) async fn transfer(peer: Principal, request: FundingRequest) -> Fundin
     // An enqueue failure runs without a response callback: never sample its ambient refund.
     let refunded = match &result {
         Ok(_) | Err(CallFailed::CallRejected(_)) => Some(ic_cdk::api::msg_cycles_refunded()),
-        Err(_) => None,
+        Err(CallFailed::InsufficientLiquidCycleBalance(_) | CallFailed::CallPerformFailed(_)) => {
+            None
+        }
+    };
+    let offered = NonZeroU128::new(request.offered).expect("admitted positive attachment");
+    let transfer = match refunded {
+        Some(refund) => FundingTransfer::unbounded_callback(offered, refund)
+            .expect("call-specific refund within attachment"),
+        None => FundingTransfer::not_enqueued(offered),
     };
     let outcome = match result {
         Ok(response) => classify(&response.into_bytes()),
         Err(CallFailed::CallRejected(error)) => FundingOutcome::Rejected(error.raw_reject_code()),
-        Err(_) => FundingOutcome::NotEnqueued,
+        Err(CallFailed::InsufficientLiquidCycleBalance(_) | CallFailed::CallPerformFailed(_)) => {
+            FundingOutcome::NotEnqueued
+        }
     };
-    FundingObservation {
-        refunded,
-        transport_accepted: refunded
-            .map(|refund| request.offered.checked_sub(refund).expect("refund bound")),
-        outcome,
-    }
+    ObservedFundingCall { transfer, outcome }
 }
 
 fn classify(bytes: &[u8]) -> FundingOutcome {

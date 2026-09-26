@@ -959,3 +959,66 @@ POCKET_IC_BIN="$PWD/.tmp/tools/pocket-ic-16.0.0/pocket-ic" \
 BLOB_FUNDING_PROBE_WASM="$PWD/target/wasm32-unknown-unknown/release/blob_funding_probe.wasm" \
 cargo test --offline --locked -p ic-blob-storage-pocketic-tests --test funding
 ```
+
+## Shared funding reconciliation after 0.1.13
+
+The shared [transfer model](../../crates/ic-blob-storage/src/model/billing/transfer/mod.rs)
+and [reconciliation policy](../../crates/ic-blob-storage/src/policy/billing/reconciliation/mod.rs)
+now supply the fixture's transport arithmetic and diagnosis. A proven enqueue
+failure has no callback refund and zero transfer; missing evidence keeps transfer
+unknown. Valid unbounded refunds establish exact transport acceptance, independent
+of reply decoding. Positive acceptance requires separate credit reconciliation,
+and none of these diagnostics authorizes retry or clears account-wide activity.
+Native cases cover full-range amounts, impossible refunds and retained uncertainty.
+
+The local PocketIC fixture verifies these diagnoses against independent receiver
+receipts for success, provider error, malformed replies, rejection and traps.
+Its new enqueue-failure case requests more than the sender's observed balance,
+within the fixture's explicit test-only attachment bound. The CDK cannot send it:
+no callback refund is sampled, no receiver receipt appears, and exact unsent
+history survives upgrades. A changed request cannot reuse that identity; a new
+independent experiment still succeeds. Both fixture canisters now start with
+explicit 2-trillion-cycle budgets instead of PocketIC's default allocation.
+Previous callback/receiver rollback, failed upgrade and lifetime-limit cases pass.
+
+Validation: targeted native billing tests, strict Clippy for the affected packages,
+rustdoc with warnings denied, formatting, fixture Wasm build and the funding
+PocketIC target passed. Reproduction uses the commands above. The current
+[source inventory](funding-reconciliation.sha256) is at Cargo 0.1.13; the earlier
+funding-callback inventory remains historical at `ab75523`. Current Wasm SHA-256:
+`40f854068f2c2997838dd7a4d628a80a8653d11c2070833c5ecac2a794b65844`.
+
+This is local transfer/policy evidence. Bounded timeout behavior, old-backup
+fencing, production persistence and deployed Caffeine credit remain unqualified.
+
+## Cashier audit response decoding
+
+The [audit decoder](../../crates/ic-blob-storage/src/ops/caffeine/audit/mod.rs)
+implements only `payment_account_audit_log_get_v1`'s advertised Candid response.
+Anonymous metadata was refreshed on 2026-09-26 with
+`icp canister metadata 72ch2-fiaaa-aaaar-qbsvq-cai candid:service --identity anonymous --network https://icp-api.io --root-key mainnet`;
+its SHA-256 still matches the retained [interface](caffeine-cashier.did):
+`232b08e4514048d4de48d6d1bf4387f577bfb64c7e2e2ded699a5e52d475d76f`.
+No account, audit, ledger or paid provider call was made.
+
+Supplied bytes and Candid work/type budgets are bounded before a report is exposed.
+Separate limits cap retained UTF-8 CSV bytes and the provider-reported count.
+Missing continuation while `has_more` is true rejects without a partial page.
+Optional accounts, full-range sequences, terminal flags, CRLF and quoted/non-ASCII
+text remain diagnostic data. CSV rows are not parsed or counted; no defaults,
+sequence ordering, complete-history claim or retry authority are inferred.
+
+Independent didc 0.5.4 fixtures come from the retained interface rather than Rust
+serialization. [Fixture inputs](../../crates/ic-blob-storage/tests/fixtures/caffeine-audit/cases.json)
+record the exact generator, source hash and synthetic values, including all three
+provider errors. CSV column names are arbitrary test text, not a claimed provider
+schema. Native cases additionally cover malformed/truncated/unknown replies,
+byte/count/work/type/skip budgets, exact limits and UTF-8 byte accounting.
+
+Targeted `cargo test --offline --locked -p ic-blob-storage --lib ops::caffeine::audit`,
+strict library Clippy, rustdoc with warnings denied, formatting and the Wasm target
+check pass. All stored fixtures reproduce byte-for-byte through didc.
+The [source inventory](cashier-audit.sha256) binds the decoder and independent
+fixtures at Cargo 0.1.13. Binding an authenticated transport response to its exact
+service/account/filter/operation, interpreting CSV, cursor progression, retention
+and deployed credit reconciliation remain unqualified.

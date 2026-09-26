@@ -1,0 +1,35 @@
+{
+  "generator": "didc 0.5.4 encode --defs docs/evidence/caffeine-cashier.did --types '(AuditLogDownloadResult)'",
+  "source_sha256": "232b08e4514048d4de48d6d1bf4387f577bfb64c7e2e2ded699a5e52d475d76f",
+  "scope": "Synthetic outer response values, independently encoded from deployed Candid. CSV columns are arbitrary test text, not the provider's row schema or real account history.",
+  "cases": [
+    {
+      "file": "page.hex",
+      "candid": "(variant { Ok = record { continuation_token = opt record { account = opt principal \"rrkah-fqaaa-aaaaa-aaaaq-cai\"; sequence = 7 : nat64 }; csv_content = \"kind,value\\0asynthetic,1\\0asynthetic,2\\0a\"; num_returned_entries = 2 : nat64; has_more = true } })"
+    },
+    {
+      "file": "empty.hex",
+      "candid": "(variant { Ok = record { continuation_token = null; csv_content = \"\"; num_returned_entries = 0 : nat64; has_more = false } })"
+    },
+    {
+      "file": "optional-account.hex",
+      "candid": "(variant { Ok = record { continuation_token = opt record { account = null; sequence = 18446744073709551615 : nat64 }; csv_content = \"header\\0a\"; num_returned_entries = 0 : nat64; has_more = true } })"
+    },
+    {
+      "file": "missing-continuation.hex",
+      "candid": "(variant { Ok = record { continuation_token = null; csv_content = \"\"; num_returned_entries = 0 : nat64; has_more = true } })"
+    },
+    {
+      "file": "unauthorized.hex",
+      "candid": "(variant { Err = variant { NotAuthorized = principal \"rrkah-fqaaa-aaaaa-aaaaq-cai\" } })"
+    },
+    {
+      "file": "invalid-request.hex",
+      "candid": "(variant { Err = variant { InvalidRequest = \"synthetic private diagnostic\" } })"
+    },
+    {
+      "file": "internal.hex",
+      "candid": "(variant { Err = variant { InternalError = \"synthetic private diagnostic\" } })"
+    }
+  ]
+}

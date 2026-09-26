@@ -1,6 +1,7 @@
 //! Billing arithmetic and diagnostic readiness, never authority to execute effects.
 
 pub mod admission;
+pub mod reconciliation;
 
 use std::num::NonZeroU128;
 

@@ -4,6 +4,7 @@ use thiserror::Error;
 
 pub mod balance;
 pub mod configuration;
+pub mod transfer;
 
 /// Positive reserve and upload-balance thresholds, with minimum <= target.
 ///

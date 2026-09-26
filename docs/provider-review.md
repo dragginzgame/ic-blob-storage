@@ -363,6 +363,15 @@ The retained [Cashier Candid](evidence/caffeine-cashier.did) distinguishes:
 | `payment_account_audit_log_get_v1` | Event filtering and sequenced CSV pages | Useful reconciliation lead; column schema, correlation and retention still need evidence |
 | `storage_gauges_set_v1`, `storage_usage_set_batch_v1` | Per-owner storage gauges and per-gateway usage counters | Advertised accounting is aggregated; no per-root final-billing receipt appears in these signatures |
 
+After 0.1.13, anonymous Cashier metadata was refreshed and still matches the
+retained Candid hash. [Local audit decoding](evidence/core-primitives.md#cashier-audit-response-decoding)
+now validates the advertised outer response with explicit resource bounds.
+It preserves opaque CSV and optional cursor fields, without interpreting account
+defaults, cursor ordering or rows as operation receipts. Targeted searches and
+the inspected official integration material did not supply the CSV schema or
+retention/correlation contract. No account audit was fetched, and no provider
+credit or retry guarantee follows from the new decoder.
+
 There is also a concrete funding risk in Canic's current
 `ops/cashier/client.rs`: it uses bounded wait while attaching cycles.
 The IC's [message-execution properties](https://docs.internetcomputer.org/references/message-execution-properties/)

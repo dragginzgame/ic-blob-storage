@@ -55,15 +55,28 @@ pub enum FundingOutcome {
     NotEnqueued,
 }
 
-/// Facts captured immediately in the original call's callback.
+/// Original call facts; enqueue failure has no callback refund to capture.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
 pub struct FundingObservation {
     /// Exact platform refund, absent when no call was enqueued.
     pub refunded: Option<u128>,
-    /// Attachment less refund for an unbounded call; not account credit.
+    /// Known transport acceptance, zero for proven enqueue failure; never credit.
     pub transport_accepted: Option<u128>,
     /// Independent interpretation of the response bytes or transport failure.
     pub outcome: FundingOutcome,
+    /// Shared policy's diagnosis; no variant authorizes another payment.
+    pub reconciliation: FundingReconciliationView,
+}
+
+/// Passive projection of shared reconciliation policy for the experiment.
+#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+pub enum FundingReconciliationView {
+    /// No attached cycles were transferred; execution fees remain separate.
+    NoTransfer,
+    /// Exact accepted amount still needs provider credit evidence.
+    CreditRequired(u128),
+    /// The full attachment remains potentially spent.
+    TransferUnknown(u128),
 }
 
 /// Persisted local experiment entry; not a production service schema.

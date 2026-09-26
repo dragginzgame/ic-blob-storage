@@ -4,7 +4,8 @@ An independent blob-storage service library for Internet Computer canisters.
 The core verifies raw-content and Caffeine-tree identities, tracks checked chunks,
 and lists missing chunks within explicit work limits. Ordered reads check each
 leaf before final raw-digest verification. It also validates billing inputs and
-decodes bounded Caffeine replies.
+decodes bounded Caffeine replies, including opaque audit pages for inspection.
+Audit rows are not interpreted as proof of funding credit.
 
 A transient multi-object catalog owns lifecycle, root claims and request receipts,
 with tenant quotas, separate physical/billing accounting and
@@ -23,6 +24,10 @@ source canister tests stale sync replies and reentrant membership changes.
 The same local harness executes byte-verification vectors inside Wasm and checks
 an explicit instruction budget for ordered chunk appends.
 Upload fixtures also check real caller isolation, cancellation and retained uncertainty.
+Shared funding accounting separates callback refunds, proven enqueue failure and
+unknown transfers. Its reconciliation policy never treats accepted cycles as
+provider credit. PocketIC funding fixtures exercise actual transfers, enqueue
+failure, callback rollback and same-release journal upgrades through ic-memory.
 
 Persisted workflows, provider transports, clients and canister
 adapters are not implemented yet. Local bookkeeping and decoded provider reports
@@ -50,7 +55,7 @@ See [dependency setup](docs/dependencies.md) for PocketIC provisioning.
 | `make fmt-check` | Formatting |
 | `make clippy` | Strict workspace linting |
 | `make test-native` | Native core tests and doctests |
-| `make test-pocketic` | Build and run the local authority and sync fixtures |
+| `make test-pocketic` | Build and run the local authority, sync and funding fixtures |
 | `make test` | Both suites, sequentially |
 | `make cloc` | Rust runtime/test file LOC and test function counts under `crates/` |
 

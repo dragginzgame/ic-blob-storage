@@ -7,7 +7,9 @@ use candid::{CandidType, Principal};
 use serde::Deserialize;
 
 const MAX_ATTEMPTS: usize = 16;
-const MAX_OFFERED: u128 = 1_000_000_000;
+// Permit a local attempt larger than the test sender's balance to exercise an
+// actual CDK enqueue failure. This is not a production attachment budget.
+const MAX_OFFERED: u128 = 10_000_000_000_000;
 
 #[derive(CandidType, Deserialize)]
 pub(crate) struct FundingJournalRecord {

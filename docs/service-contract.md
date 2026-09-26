@@ -45,6 +45,16 @@ transport identity, account ownership, observation freshness or payment outcomes
 Pure funding policy now also assesses admission of a new intent from supplied
 recovery/activity observations. This is part of the local policy exception;
 it neither establishes those observations nor persists or executes an intent.
+Shared transfer values now validate exact unbounded-call refund arithmetic and
+distinguish proven enqueue failure from missing evidence. Pure reconciliation
+policy diagnoses no transfer, accepted cycles requiring credit evidence, or an
+unknown transfer with the full attachment unresolved. Its result neither clears
+account-wide activity nor permits a retry. Service/provider/account/operation
+bindings and authoritative credit reconciliation remain workflow obligations.
+Local Cashier audit decoding now covers its verified Candid response envelope,
+with bounded opaque CSV and reported pagination fields. No row schema, request
+transport, automatic pagination, complete-history proof or credit matching is
+implemented; provider errors and unusable pages cannot settle funding.
 
 The maintainer subsequently requested the persistence contract and lifecycle
 model, and explicitly directed a fresh design review of Canic's decisions.
