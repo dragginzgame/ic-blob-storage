@@ -9,6 +9,7 @@ publish = false
 ic-testkit.workspace = true
 candid.workspace = true
 blob-test-protocol = { path = "../protocol" }
+serde_json.workspace = true
 
 [lints]
 workspace = true

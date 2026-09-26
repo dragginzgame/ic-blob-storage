@@ -56,6 +56,22 @@
           "source": "crates/ic-blob-storage/src/model/identity/caffeine/mod.rs",
           "coverage": "Bounded streaming raw-content/provider-tree computation and comparison for nonempty content; root-bound ordered chunk manifests verify leaves independently by exact index/length. Independent client vectors cover chunk edges, uneven trees, metadata, reverse-order verification, corrupted/reordered manifests and retry after corruption. No completion state changes on reads.",
           "remaining": "Empty-provider-object contract, trusted root/length/tenant provenance, HTTP/serving policy, upload wire tree/proofs/certificates, persisted checkpoints and real upload/read journeys. Matching roots or leaves do not establish provider completion."
+        },
+        {
+          "kind": "native_core_partial",
+          "record": "evidence/core-primitives.md",
+          "source_hashes": "evidence/chunk-verification.sha256",
+          "source": "crates/ic-blob-storage/src/model/identity/caffeine/manifest/verification/mod.rs",
+          "coverage": "Bounded in-memory unique-position coverage over a validated manifest. Independent client vectors show out-of-order delivery, missing-position recovery, equal hashes at distinct indices, retry without double credit and exact byte accounting. Corrupt/invalid input never advances coverage; even prior successes are checked again. The ordered variant checks leaves before advancing a raw-content hash, rejects skips/replays without mutation and returns both identities only after complete length and the independent raw digest match. Client vectors exercise corrupt retries at each position; a conflicting raw digest rejects despite valid manifest bytes. Missing-chunk enumeration supplies exact local byte ranges under independent scan/result budgets, progresses through empty filtered pages, and observes intervening verification without reserving or marking ranges. Client-vector tests cover budget combinations and partial final chunks.",
+          "remaining": "Trusted root/length/digest/tenant provenance, destination storage and write coordination, persisted resume checkpoints and actual provider/service read completion. Unordered coverage alone does not verify a whole-file raw digest. Local byte ranges do not establish provider HTTP range support or in-flight read reservations."
+        },
+        {
+          "kind": "pocketic_fixture_partial",
+          "record": "evidence/core-primitives.md",
+          "source_hashes": "evidence/chunk-verification.sha256",
+          "source": "tests/pocketic/tests/content.rs",
+          "coverage": "Actual Wasm execution of pinned full-leaf, partial-final-leaf and Unicode metadata vectors; reverse-order coverage, duplicate accounting, missing-page continuation, corrupt ordered retries, replay rejection and typed wrong-digest/truncated failures. A broad local instruction budget covers each valid ordered append.",
+          "remaining": "Production input handling and throughput, trusted consumer identities, destination writes, persistent resume, both adapters and actual provider/service journeys. Fixed fixture data and instruction intervals do not qualify those boundaries."
         }
       ]
     },

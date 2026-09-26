@@ -30,6 +30,22 @@ Root-bound chunk manifests additionally provide native A02/A03 evidence for
 out-of-order leaf verification, retry after corruption and rejection of changed
 chunk order, metadata, position or length. This is stateless byte verification;
 it does not execute an interrupted download or persist resume progress.
+An in-memory chunk verifier adds unique-position A02/A03 evidence: duplicates
+cannot fill a missing position, corrupt retries preserve coverage, and exact
+partial-chunk lengths determine byte progress. It retains observations only;
+destination writes, interrupted downloads and durable resume remain unqualified.
+Ordered composition additionally checks each leaf before advancing a whole-file
+raw verifier. Corrupt chunks can be retried at the same position, while skipped
+or replayed chunks reject. Full input still requires the separately expected raw
+digest at finalization; matching manifest leaves alone cannot bypass that check.
+Bounded missing-chunk pages add A03/A04 local scheduling evidence: independent
+scan/result limits, exact partial ranges, continuation through empty filtered pages
+and current coverage after intervening checks. Pages neither reserve in-flight
+reads nor prove completion, and do not establish a provider range-read protocol.
+The local PocketIC probe now executes A02/A03 byte checks in actual Wasm using
+full-leaf, partial-final-leaf and metadata vectors, corruption retries and typed
+wrong-digest/truncated failures. The ordered append has a fixture instruction
+budget; this does not qualify ingress handling, production throughput or providers.
 Native consumer-reference reads add A01/A06 coverage for tenant checks before
 status disclosure, bounded ordered batches and inactive released references
 while sibling references stay live. They preserve physical/billing obligations

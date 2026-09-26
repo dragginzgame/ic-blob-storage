@@ -585,8 +585,9 @@ and [host harness](../../tests/pocketic/tests/authority.rs) passed `make test-po
 The harness creates and installs actual Wasm with an explicit controller. Endpoints
 capture `msg_caller` and `canister_self`, then use shared library policies/catalog
 through test-only workflow and ops modules. No production endpoints are exported
-by linking the core. Source is based on release `572a777` plus the changes bound by
-`sha256sum -c docs/evidence/pocketic-authority.sha256`.
+by linking the core. The historical inventory `docs/evidence/pocketic-authority.sha256`
+matches `832b364` (Cargo 0.1.8), the validated source parent of release 0.1.9.
+It was verified against that Git revision after release; later changes do not rotate it.
 
 Two supplied confirmed objects occupy 100 and 200 bytes in namespace 1. Bounds
 are two lifetime objects, one per tenant, 300 physical/liability bytes, 200 logical
@@ -639,3 +640,80 @@ No full CI or release preparation ran. Sample objects substitute provider facts;
 this partial A01/A06 evidence does not qualify upload, restore, production adapters,
 provider callbacks, physical deletion or billing cessation. No persistence exists
 in the fixture, and no upgrade/restart recovery is claimed.
+
+## Transient chunk coverage after 0.1.9
+
+The [chunk verifier](../../crates/ic-blob-storage/src/model/identity/caffeine/manifest/verification/mod.rs)
+consumes a validated immutable manifest and allocates one bit per chunk, rounded
+to bytes. Its manifest budgets bound lifetime memory; retries allocate no receipts
+or retained content. Every call verifies exact index/length/hash before crediting
+an unseen position, with at most 1 MiB hashed and constant-time bookkeeping.
+Queries expose per-position status and exact unique chunk/byte totals. No bitmap
+can be imported, and a fresh instance starts at zero.
+
+[Independent client vectors](../../crates/ic-blob-storage/tests/caffeine_hashing.rs)
+cover reverse-order reads leaving a middle gap, bitmap-byte boundaries, identical
+hashes at different positions and partial final chunks. Repeated good chunks leave
+progress unchanged; corrupt gap bytes reject before valid retry finishes coverage.
+Adjacent unit tests cover invalid and maximum indices, short/oversized/corrupt
+bytes before and after success, duplicate checks and fresh-instance reset.
+
+On 2026-09-26, targeted verifier unit tests, the client-vector integration suite,
+workspace Clippy, Wasm, rustdoc, formatting and offline package verification pass.
+Source is release `2cacb1e` plus changes bound by
+`sha256sum -c docs/evidence/chunk-verification.sha256`. No provider call, core dependency
+change, full CI, version mutation or persisted workflow was introduced.
+Coverage means successful observations only: it neither retains destination bytes
+nor proves writes, durable resume, raw whole-file digest or provider completion.
+A rejected duplicate does not erase a prior successful observation, but the new
+bytes still return an error. Expected root/length and tenant provenance remain
+external; current provider algorithms and serving semantics are not requalified.
+
+The [ordered verifier](../../crates/ic-blob-storage/src/model/identity/caffeine/manifest/verification/ordered/mod.rs)
+composes the same immutable manifest with the raw-content verifier. It admits only
+the next exact leaf and checks bytes before advancing raw hash state. Each call
+hashes at most 1 MiB twice and retains no file bytes or bitmap. Finalization consumes
+the instance and returns both identities only after complete length and raw digest
+match. Client-vector tests inject corrupt chunks before valid retries at every
+position, reject skips/replays, and finalize the independent raw/root pair. Unit
+cases reject incomplete input and an inconsistent expected raw digest despite
+valid manifest bytes, plus invalid-length/index and post-completion appends.
+The same targeted tests, Clippy, Wasm, rustdoc and package checks pass for the
+combined addition; this source inventory includes both verification variants.
+
+The [missing-chunk view](../../crates/ic-blob-storage/src/model/identity/caffeine/manifest/verification/missing/mod.rs)
+adds independently bounded scans and result lists. Exact ranges come from the
+manifest after index validation, including partial final chunks. Empty filtered
+pages retain forward progress; a later call skips positions verified in between.
+Client vectors exercise scan/result budgets (1/2, 3/1, 4/2); a sparse-gap case
+crosses bitmap-byte boundaries and verifies an upcoming position between pages.
+Unit cases show that range selection and scan exhaustion do not change coverage,
+exact end positions return empty pages, and oversized indices reject before
+offset multiplication. The same targeted validation passes. These are local
+locations, not HTTP semantics, read reservations or persistent resume cursors.
+
+On 2026-09-26, [PocketIC content cases](../../tests/pocketic/tests/content.rs)
+executed the library's release Wasm through the unpublished probe. Fixed enum
+requests select compiled independent vectors, with a maximum 1,048,577-byte
+object, two leaves, eight headers and 1024 metadata bytes. The fixture generates
+one leaf at a time from the recorded recipe; expected digests/roots remain those
+of the pinned client. Reverse-order coverage, duplicates, empty-page continuation,
+corrupt ordered retries and replay rejection pass. Wrong raw digest and truncated
+finalization return their expected typed failures. Non-operator calls are denied.
+
+`make test-pocketic RUST_TEST_NOCAPTURE=1` passes authority, content and sync cases.
+Peak valid ordered-append instructions were 162,109,843 for both the full-1-MiB
+and 1-MiB-plus-one-byte vectors, and 6352 for the three-byte Unicode metadata case.
+The test budget is one billion instructions per valid ordered append, not an exact
+count assertion. The measured interval excludes fixture byte generation, manifest
+construction, metadata processing, Candid handling, earlier failed attempts and
+other coverage checks. It is not a production throughput, ingress or pricing claim.
+
+Observed authority-probe Wasm SHA-256:
+`399be3259baf924ab1c8a6cea33afd93aaf541194f36e9f33d1e6e3c115dbc4e`.
+The explicit PocketIC 16.0.0 server SHA-256 remains
+`69e324bdb68d32d878b7a9504b1379f08f8d1921272bacb065b0fabb3d0f3792`.
+The chunk-verification inventory now also binds the fixture, protocol and harness
+sources. Workspace Clippy, Wasm, formatting and offline packaging pass; test-only
+serde/JSON dependency edges reuse existing versions and leave the core graph
+unchanged. No provider, persistence or production adapter was exercised.

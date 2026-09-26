@@ -2,6 +2,31 @@
 
 ## [Unreleased]
 
+## [0.1.10]
+
+### Added
+
+- Bounded in-memory chunk verification progress over an immutable Caffeine
+  manifest. Out-of-order reads credit each position once; duplicates cannot
+  inflate verified bytes or hide a missing chunk. Every supplied chunk is checked,
+  including retries after prior success, and rejected input leaves coverage intact.
+  The tracker retains one bit per chunk and no content or retry history; it does
+  not claim destination durability, persisted resume or provider completion.
+- Independent client-vector coverage for missing-position recovery, repeated
+  content, reverse-order delivery and exact partial-chunk byte accounting.
+- Ordered manifest-and-raw-digest verification: a chunk must pass its exact leaf
+  check before entering the whole-file hash, so corrupt chunks can be retried
+  without losing the verified prefix. Finalization requires full length and the
+  expected raw digest; skipped/replayed chunks reject without advancing state.
+- Bounded missing-chunk pages with independent scan/result limits and exact local
+  byte ranges. Empty filtered pages retain continuation, and later pages skip
+  chunks verified between calls. Enumeration neither reserves reads nor grants
+  completion; tests cover end positions, oversized indices and partial final chunks.
+- Actual PocketIC Wasm execution of full-chunk, partial-final-chunk and Unicode
+  metadata vectors, including corruption recovery, replay denial, wrong-digest
+  and truncated-read rejection. The local fixture measures ordered-append
+  instructions against an explicit regression budget; no provider is contacted.
+
 ## [0.1.9] - 2026-09-26
 
 ### Added

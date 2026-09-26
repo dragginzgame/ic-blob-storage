@@ -88,6 +88,22 @@ checks consistency only; verified bytes, trusted length, tenant binding, provide
 availability and durable resume progress remain separate requirements. In
 particular, a root without trusted length metadata cannot alone authenticate the
 declared final-chunk length.
+The local byte-verification scope also includes bounded in-memory coverage of
+unique chunk positions in one manifest. This tracks successful observations only;
+it neither owns destination bytes nor serializes resume state. All-chunks-verified
+is separate from successful writes, durable completion and provider availability.
+An ordered variant composes exact manifest leaf checks with raw-content hashing:
+bad chunks reject before advancing the hash, and finalization checks the full
+declared length and separately supplied raw digest. Its successful identity pair
+still makes no destination-write, persistence or provider-completion claim.
+Missing-chunk enumeration is also local: positive scan/result limits bound each
+page, and byte ranges follow the immutable manifest's declared length. Scans use
+current coverage, confer no reservation/authority and are not durable checkpoints
+or evidence that the provider supports any HTTP range protocol.
+The unpublished PocketIC fixture exercises these local byte algorithms in Wasm
+using compiled independent vectors and measures ordered-append instructions.
+It exposes fixed test cases only; no production read API, input-size qualification,
+provider transport or durable state is established by this experiment.
 
 The [independent deployment review](provider-review.md#independent-deployment-support)
 also requires a supported Caffeine onboarding/namespace arrangement for this

@@ -13,6 +13,8 @@ candid.workspace = true
 ic-cdk.workspace = true
 ic-blob-storage = { path = "../../../crates/ic-blob-storage" }
 blob-test-protocol = { path = "../../../tests/protocol" }
+serde.workspace = true
+serde_json.workspace = true
 
 [lints]
 workspace = true

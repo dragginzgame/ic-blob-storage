@@ -8,6 +8,11 @@ use ic_blob_storage::model::identity::caffeine::{
     CaffeineHashLimits, CaffeineHeader,
     manifest::{
         CaffeineChunkHash, CaffeineChunkManifest, CaffeineManifestError, CaffeineManifestLimits,
+        verification::{
+            CaffeineChunkVerifier,
+            missing::MissingChunkPageLimits,
+            ordered::{CaffeineOrderedChunkVerifier, CaffeineOrderedVerificationError},
+        },
     },
 };
 use serde::Deserialize;
@@ -155,6 +160,18 @@ fn headers(vector: &Vector) -> Vec<CaffeineHeader<'_>> {
         .collect()
 }
 
+fn vector_chunk(vector: &Vector, index: usize) -> Vec<u8> {
+    let offset = index * CAFFEINE_CHUNK_BYTES;
+    let length = (vector.bytes - offset).min(CAFFEINE_CHUNK_BYTES);
+    (offset..offset + length)
+        .map(|at| match vector.pattern {
+            Pattern::Abc => b"abc"[at],
+            Pattern::Zeroes => 0,
+            Pattern::LinearMod251 => u8::try_from((at * 31 + 7) % 251).expect("pattern"),
+        })
+        .collect()
+}
+
 #[test]
 fn independent_client_manifests_verify_chunks_in_reverse_order_with_effect_free_retries() {
     for vector in fixture().vectors {
@@ -175,13 +192,7 @@ fn independent_client_manifests_verify_chunks_in_reverse_order_with_effect_free_
             let offset = index * CAFFEINE_CHUNK_BYTES;
             let expected_length = (vector.bytes - offset).min(CAFFEINE_CHUNK_BYTES);
             assert_eq!(manifest.chunk_bytes(index64), Ok(expected_length));
-            let mut bytes: Vec<_> = (offset..offset + expected_length)
-                .map(|at| match vector.pattern {
-                    Pattern::Abc => b"abc"[at],
-                    Pattern::Zeroes => 0,
-                    Pattern::LinearMod251 => u8::try_from((at * 31 + 7) % 251).expect("pattern"),
-                })
-                .collect();
+            let mut bytes = vector_chunk(&vector, index);
             assert_eq!(
                 manifest.verify_chunk(index64, &bytes),
                 Ok(()),
@@ -259,4 +270,278 @@ fn client_manifest_root_binds_chunk_order_and_metadata_not_just_leaf_membership(
         }
         assert!(create(&leaves, &metadata).is_ok());
     }
+}
+
+#[test]
+fn unique_chunk_coverage_requires_the_missing_position_despite_retries_and_equal_hashes() {
+    for vector in fixture().vectors {
+        let leaves = chunk_hashes(&vector);
+        let manifest = CaffeineChunkManifest::new(
+            vector.provider_root.parse().expect("root"),
+            u64::try_from(vector.bytes).expect("length"),
+            &leaves,
+            &headers(&vector),
+            manifest_limits(),
+        )
+        .expect("independent manifest");
+        let mut verifier = CaffeineChunkVerifier::new(manifest);
+        let missing = leaves.len() / 2;
+        let missing64 = u64::try_from(missing).expect("index");
+        assert_eq!(verifier.progress().verified_chunks, 0);
+        assert_eq!(verifier.progress().verified_bytes, 0);
+        // Reverse order crosses bitmap-byte boundaries and retains a deliberate gap.
+        // The repeated-content vector proves that identity equality does not merge positions.
+        for index in (0..leaves.len()).rev().filter(|index| *index != missing) {
+            let index64 = u64::try_from(index).expect("index");
+            let bytes = vector_chunk(&vector, index);
+            let before = verifier.progress();
+            assert_eq!(verifier.is_verified(index64), Ok(false));
+            let after = verifier.verify_chunk(index64, &bytes).expect("valid leaf");
+            assert_eq!(after.verified_chunks, before.verified_chunks + 1);
+            assert_eq!(
+                after.verified_bytes,
+                before.verified_bytes + u64::try_from(bytes.len()).expect("length")
+            );
+            assert_eq!(verifier.is_verified(index64), Ok(true));
+            assert_eq!(verifier.verify_chunk(index64, &bytes), Ok(after));
+            assert!(!after.all_chunks_verified());
+            assert_eq!(verifier.is_verified(missing64), Ok(false));
+        }
+        let before = verifier.progress();
+        let mut bytes = vector_chunk(&vector, missing);
+        bytes[0] ^= 1;
+        assert_eq!(
+            verifier.verify_chunk(missing64, &bytes),
+            Err(CaffeineManifestError::ChunkHashMismatch)
+        );
+        assert_eq!(verifier.progress(), before);
+        bytes[0] ^= 1;
+        let finished = verifier
+            .verify_chunk(missing64, &bytes)
+            .expect("missing leaf retry");
+        assert!(finished.all_chunks_verified(), "{}", vector.name);
+        assert_eq!(finished.verified_chunks, leaves.len());
+        assert_eq!(
+            finished.verified_bytes,
+            u64::try_from(vector.bytes).expect("length")
+        );
+        for index in 0..leaves.len() {
+            assert_eq!(
+                verifier.is_verified(u64::try_from(index).expect("index")),
+                Ok(true)
+            );
+        }
+        assert_eq!(verifier.verify_chunk(missing64, &bytes), Ok(finished));
+        assert_eq!(verifier.manifest().root().to_string(), vector.provider_root);
+    }
+}
+
+#[test]
+fn ordered_leaf_checks_allow_corrupt_retry_and_finalize_both_independent_identities() {
+    for vector in fixture().vectors {
+        let expected = CaffeineContentHashes {
+            content_digest: vector.raw_digest.parse().expect("independent raw digest"),
+            provider_root: vector.provider_root.parse().expect("independent tree root"),
+        };
+        let length = u64::try_from(vector.bytes).expect("length");
+        let leaves = chunk_hashes(&vector);
+        let manifest = CaffeineChunkManifest::new(
+            expected.provider_root,
+            length,
+            &leaves,
+            &headers(&vector),
+            manifest_limits(),
+        )
+        .expect("independent manifest");
+        let mut verifier = CaffeineOrderedChunkVerifier::new(manifest, expected.content_digest);
+        for index in 0..leaves.len() {
+            let index64 = u64::try_from(index).expect("index");
+            let mut bytes = vector_chunk(&vector, index);
+            let prefix = u64::try_from(index * CAFFEINE_CHUNK_BYTES).expect("prefix");
+            assert_eq!(verifier.next_chunk(), index64);
+            assert_eq!(verifier.verified_bytes(), prefix);
+            assert_eq!(verifier.remaining_bytes(), length - prefix);
+            // Reject order before hashing, even when content repeats across positions.
+            assert_eq!(
+                verifier.append_chunk(index64 + 1, &bytes),
+                Err(CaffeineOrderedVerificationError::UnexpectedChunk {
+                    expected: index64,
+                    actual: index64 + 1
+                })
+            );
+            bytes[0] ^= 1;
+            assert_eq!(
+                verifier.append_chunk(index64, &bytes),
+                Err(CaffeineOrderedVerificationError::Manifest(
+                    CaffeineManifestError::ChunkHashMismatch
+                ))
+            );
+            assert_eq!(verifier.verified_bytes(), prefix);
+            assert_eq!(verifier.next_chunk(), index64);
+            bytes[0] ^= 1;
+            verifier
+                .append_chunk(index64, &bytes)
+                .expect("correct retry");
+            assert_eq!(
+                verifier.verified_bytes(),
+                prefix + u64::try_from(bytes.len()).expect("chunk length")
+            );
+            assert_eq!(
+                verifier.append_chunk(index64, &bytes),
+                Err(CaffeineOrderedVerificationError::UnexpectedChunk {
+                    expected: index64 + 1,
+                    actual: index64
+                })
+            );
+        }
+        assert_eq!(verifier.remaining_bytes(), 0);
+        assert_eq!(verifier.finish(), Ok(expected), "{}", vector.name);
+    }
+}
+
+fn vector_manifest(vector: &Vector) -> CaffeineChunkManifest {
+    CaffeineChunkManifest::new(
+        vector.provider_root.parse().expect("root"),
+        u64::try_from(vector.bytes).expect("length"),
+        &chunk_hashes(vector),
+        &headers(vector),
+        manifest_limits(),
+    )
+    .expect("independent manifest")
+}
+
+fn verify_missing_pages(vector: &Vector, limits: MissingChunkPageLimits) {
+    let mut verifier = CaffeineChunkVerifier::new(vector_manifest(vector));
+    let count = vector.chunk_hashes.len();
+    for index in (0..count).step_by(2) {
+        verifier
+            .verify_chunk(
+                u64::try_from(index).expect("index"),
+                &vector_chunk(vector, index),
+            )
+            .expect("even positions already verified");
+    }
+    let mut next = Some(0);
+    let mut observed = Vec::new();
+    while let Some(start) = next {
+        let before = verifier.progress();
+        let page = verifier
+            .missing_chunks(start, limits)
+            .expect("bounded page");
+        assert_eq!(verifier.progress(), before);
+        assert_eq!(verifier.missing_chunks(start, limits), Ok(page.clone()));
+        assert!(page.scanned <= limits.max_scan.get());
+        assert!(page.chunks.len() <= limits.max_results.get());
+        if let Some(index) = page.next_index {
+            assert!(index > start);
+            assert_eq!(
+                index,
+                start + u64::try_from(page.scanned).expect("scan count")
+            );
+        }
+        for range in page.chunks {
+            let index = usize::try_from(range.index).expect("index");
+            let bytes = vector_chunk(vector, index);
+            assert_eq!(
+                range.offset,
+                range.index * u64::try_from(CAFFEINE_CHUNK_BYTES).expect("size")
+            );
+            assert_eq!(range.bytes, bytes.len());
+            assert_eq!(verifier.is_verified(range.index), Ok(false));
+            verifier
+                .verify_chunk(range.index, &bytes)
+                .expect("selected bytes");
+            observed.push(index);
+        }
+        next = page.next_index;
+    }
+    assert_eq!(observed, (1..count).step_by(2).collect::<Vec<_>>());
+    assert!(verifier.progress().all_chunks_verified());
+    assert_eq!(
+        verifier.progress().verified_bytes,
+        u64::try_from(vector.bytes).expect("length")
+    );
+}
+
+#[test]
+fn missing_pages_obey_independent_scan_and_result_budgets_with_exact_ranges() {
+    for vector in fixture().vectors {
+        for (scan, results) in [(1, 2), (3, 1), (4, 2)] {
+            verify_missing_pages(
+                &vector,
+                MissingChunkPageLimits {
+                    max_scan: bound(scan),
+                    max_results: bound(results),
+                },
+            );
+        }
+    }
+}
+
+#[test]
+fn empty_pages_advance_and_later_pages_observe_intervening_verification() {
+    let vector = fixture()
+        .vectors
+        .into_iter()
+        .find(|vector| vector.chunk_hashes.len() > 16)
+        .expect("vector spanning bitmap bytes");
+    let mut verifier = CaffeineChunkVerifier::new(vector_manifest(&vector));
+    for index in 0..vector.chunk_hashes.len() {
+        if ![0, 8, 16].contains(&index) {
+            verifier
+                .verify_chunk(
+                    u64::try_from(index).expect("index"),
+                    &vector_chunk(&vector, index),
+                )
+                .expect("prefill");
+        }
+    }
+    let limits = MissingChunkPageLimits {
+        max_scan: bound(8),
+        max_results: bound(1),
+    };
+    let first = verifier.missing_chunks(0, limits).expect("first");
+    assert_eq!(
+        first
+            .chunks
+            .iter()
+            .map(|chunk| chunk.index)
+            .collect::<Vec<_>>(),
+        vec![0]
+    );
+    assert_eq!(first.next_index, Some(1));
+    assert_eq!(first.scanned, 1);
+    // Another reader verifies an upcoming position before the continuation is used.
+    for index in [0, 8] {
+        verifier
+            .verify_chunk(
+                u64::try_from(index).expect("index"),
+                &vector_chunk(&vector, index),
+            )
+            .expect("arrived bytes");
+    }
+    let middle = verifier
+        .missing_chunks(first.next_index.expect("continuation"), limits)
+        .expect("middle");
+    assert!(middle.chunks.is_empty());
+    assert_eq!(middle.scanned, 8);
+    assert_eq!(middle.next_index, Some(9));
+    assert!(!verifier.progress().all_chunks_verified());
+    let last = verifier
+        .missing_chunks(middle.next_index.expect("continue empty page"), limits)
+        .expect("last gap");
+    assert_eq!(
+        last.chunks
+            .iter()
+            .map(|chunk| chunk.index)
+            .collect::<Vec<_>>(),
+        vec![16]
+    );
+    verifier
+        .verify_chunk(16, &vector_chunk(&vector, 16))
+        .expect("last bytes");
+    assert!(verifier.progress().all_chunks_verified());
+    let rescanned = verifier.missing_chunks(0, limits).expect("new sweep");
+    assert!(rescanned.chunks.is_empty());
+    assert_eq!(rescanned.next_index, Some(8));
 }

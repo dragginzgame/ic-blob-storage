@@ -5,6 +5,7 @@ mod ops;
 mod workflow;
 
 use blob_test_protocol::SyncFailure;
+use blob_test_protocol::content::{ContentProbeCase, ContentProbeFailure, ContentProbeReport};
 use candid::Principal;
 use ic_blob_storage::policy::tenant::TenantAccessContext;
 
@@ -54,4 +55,9 @@ fn revoke_gateway() -> bool {
 #[ic_cdk::update]
 async fn sync_gateway() -> Result<(), SyncFailure> {
     workflow::sync_gateway(context()).await
+}
+
+#[ic_cdk::update]
+fn probe_content(case: ContentProbeCase) -> Result<ContentProbeReport, ContentProbeFailure> {
+    workflow::probe_content(context(), case)
 }

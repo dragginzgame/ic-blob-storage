@@ -1,6 +1,7 @@
 //! Test-only orchestration using shared library policy and fixture state access.
 
 use blob_test_protocol::SyncFailure;
+use blob_test_protocol::content::{ContentProbeCase, ContentProbeFailure, ContentProbeReport};
 use candid::Principal;
 use ic_blob_storage::{
     model::catalog::pending::PendingPageLimits,
@@ -93,6 +94,16 @@ pub(crate) fn revoke_gateway(context: TenantAccessContext) -> bool {
 
 fn is_operator(context: TenantAccessContext) -> bool {
     ops::read(|state| context.actor == state.operator && context.service == state.catalog.service())
+}
+
+pub(crate) fn probe_content(
+    context: TenantAccessContext,
+    case: ContentProbeCase,
+) -> Result<ContentProbeReport, ContentProbeFailure> {
+    if !is_operator(context) {
+        return Err(ContentProbeFailure::Denied);
+    }
+    ops::content::run(case)
 }
 
 pub(crate) async fn sync_gateway(context: TenantAccessContext) -> Result<(), SyncFailure> {

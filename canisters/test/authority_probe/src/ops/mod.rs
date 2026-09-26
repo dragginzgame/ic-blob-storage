@@ -1,5 +1,6 @@
 //! State access, sample construction and local mutations for the test fixture.
 
+pub(crate) mod content;
 pub(crate) mod sync;
 
 use std::{

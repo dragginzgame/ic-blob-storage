@@ -137,6 +137,8 @@ dependencies = [
  "candid",
  "ic-blob-storage",
  "ic-cdk",
+ "serde",
+ "serde_json",
 ]
 
 [[package]]
@@ -810,6 +812,7 @@ dependencies = [
  "blob-test-protocol",
  "candid",
  "ic-testkit",
+ "serde_json",
 ]
 
 [[package]]

@@ -1,14 +1,19 @@
 # ic-blob-storage
 
 An independent blob-storage service library for Internet Computer canisters.
-The core provides streaming raw-content/Caffeine-tree verification, billing
-validation and bounded Caffeine reply decoding. A transient multi-object catalog
-owns lifecycle, root claims and
-request receipts, with tenant quotas, separate physical/billing accounting and
+The core verifies raw-content and Caffeine-tree identities, tracks checked chunks,
+and lists missing chunks within explicit work limits. Ordered reads check each
+leaf before final raw-digest verification. It also validates billing inputs and
+decodes bounded Caffeine replies.
+
+A transient multi-object catalog owns lifecycle, root claims and request receipts,
+with tenant quotas, separate physical/billing accounting and
 bounded deletion pages. Pure tenant/gateway policy protects local reads and
 preserves revocation. Native tests cover rejection/replay; a test-only PocketIC
 fixture exercises actual IC caller checks and gateway revocation. A controlled
 source canister tests stale sync replies and reentrant membership changes.
+The same local harness executes byte-verification vectors inside Wasm and checks
+an explicit instruction budget for ordered chunk appends.
 
 Persisted workflows, upload reservations, provider transports, clients and canister
 adapters are not implemented yet. Local bookkeeping and decoded provider reports

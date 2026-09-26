@@ -4,6 +4,8 @@
 //! checkpoint. Matching a supplied root establishes consistency only. Its trusted
 //! provenance, tenant binding, availability and exact length remain external.
 
+pub mod verification;
+
 #[cfg(test)]
 mod tests;
 
@@ -75,6 +77,20 @@ pub struct CaffeineManifestLimits {
     pub max_headers: NonZeroUsize,
     /// Raw UTF-8 name/value bytes plus three framing bytes per entry.
     pub max_header_bytes: NonZeroUsize,
+}
+
+/// Exact location of one complete manifest leaf in the declared content.
+///
+/// This is a local byte range, not an HTTP request, proof of provider range
+/// support, caller authority or a reservation for an in-flight read.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub struct CaffeineChunkRange {
+    /// Zero-based position in this manifest's ordered leaves.
+    pub index: u64,
+    /// Byte offset from the start of the content.
+    pub offset: u64,
+    /// Exact leaf length, including the final partial chunk.
+    pub bytes: usize,
 }
 
 /// Immutable ordered chunk hashes checked against one expected provider root.
@@ -161,6 +177,19 @@ impl CaffeineChunkManifest {
     pub fn chunk_bytes(&self, index: u64) -> Result<usize, CaffeineManifestError> {
         self.chunk(index)?;
         Ok(chunk_length(self.content_bytes, index))
+    }
+
+    /// Exact offset and length for one complete leaf, without inspecting content.
+    /// # Errors
+    /// Rejects an out-of-range index before multiplying it by the chunk size.
+    pub fn chunk_range(&self, index: u64) -> Result<CaffeineChunkRange, CaffeineManifestError> {
+        let bytes = self.chunk_bytes(index)?;
+        // Index validation and the manifest's SHA-256 length bound prove this fits.
+        Ok(CaffeineChunkRange {
+            index,
+            offset: index * CAFFEINE_CHUNK_BYTES as u64,
+            bytes,
+        })
     }
 
     /// Verify exact bytes for one index without changing the manifest or other chunks.

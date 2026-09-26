@@ -99,6 +99,9 @@ or provider transport is used. A sandbox must permit local loopback binding for
 the server. `make test-native` requires no server; `make test` runs both suites
 sequentially. The fixture owns sample transient state and exports only test
 endpoints; fixtures, protocol and harness are excluded from the published library.
+The probe and host harness also reuse the existing serde/JSON packages to read
+the pinned content vectors. `make test-pocketic RUST_TEST_NOCAPTURE=1` prints the
+measured Wasm ordered-append instruction observations as well as test results.
 
 The existing core has no Canic dependency. Move boundary dependencies into
 their owning protocol/client/adapter packages when that split is implemented;
