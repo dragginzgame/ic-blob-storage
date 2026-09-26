@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.1.8] - 2026-09-26
+
 ### Added
 
 - Bounded streaming Caffeine content hashing and verification: raw SHA-256 and

@@ -765,7 +765,7 @@ dependencies = [
 
 [[package]]
 name = "ic-blob-storage"
-version = "0.1.7"
+version = "0.1.8"
 dependencies = [
  "candid",
  "ic-cdk",
