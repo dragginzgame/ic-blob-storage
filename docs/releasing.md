@@ -23,8 +23,10 @@ it; commits remain human-only.
 
 Preparation checks the changelog before running make release-verify. That gate
 currently includes shell/helper checks, Rust formatting, native compilation,
-strict Clippy, docs, native tests, Wasm compilation and package verification.
-It validates tooling and native primitives, not service qualification. Install the pinned Rust
+strict Clippy, docs, native and local PocketIC tests, Wasm compilation and package verification.
+It validates tooling, native primitives and test-fixture composition, not service
+qualification. PocketIC requires the explicitly provisioned server and local
+loopback access; see [dependency setup](dependencies.md). Install the pinned Rust
 toolchain, rustfmt, Clippy, wasm32-unknown-unknown target, ShellCheck, Perl (with
 core JSON::PP and Digest::SHA), ripgrep, Bash, flock, Git and Make beforehand.
 Library validation uses offline Cargo commands; future dependency changes

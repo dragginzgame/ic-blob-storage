@@ -165,6 +165,14 @@
           "source": "crates/ic-blob-storage/src/policy/catalog/tenant/mod.rs",
           "coverage": "Bounded direct-tenant reference reads across owned objects/namespaces; ownership precedes supplied bindings, unknown/foreign roots reject alike, ordered duplicates are retained and mixed unauthorized batches return no partial statuses.",
           "remaining": "Authenticated endpoints, current persisted state, restore fencing, delegated authority and real service journeys."
+        },
+        {
+          "kind": "pocketic_fixture_partial",
+          "record": "evidence/core-primitives.md",
+          "source_hashes": "evidence/pocketic-authority.sha256",
+          "source": "tests/pocketic/tests/authority.rs",
+          "coverage": "Real PocketIC callers exercise direct-tenant reference reads over sample confirmed objects: foreign tenants, anonymous callers and the actual controller are denied; forged tenant/service fields grant no access.",
+          "remaining": "Production endpoints and both adapters, persisted state and restore fencing, provider transport, authenticated completion/deletion/billing evidence and full service journeys."
         }
       ]
     },
@@ -227,6 +235,14 @@
           "source": "crates/ic-blob-storage/src/model/lifecycle/requests/mod.rs",
           "coverage": "Effect-free exact receipt lookup shares replay identity checks, preserves original success/failure after lifecycle changes and works at capacity/settlement; tenant catalog policy rejects foreign roots before receipt details.",
           "remaining": "Persisted atomic receipts and authenticated query transport; absent local receipts do not qualify uncertain paid-effect retries or recovery after restore."
+        },
+        {
+          "kind": "pocketic_fixture_partial",
+          "record": "evidence/core-primitives.md",
+          "source_hashes": "evidence/pocketic-authority.sha256",
+          "source": "tests/pocketic/tests/authority.rs",
+          "coverage": "Real PocketIC owner release and exact replay change only the owner logical usage and queue its root; pending reads require current gateway membership.",
+          "remaining": "Production endpoints and both adapters, persisted state and restore fencing, provider transport, authenticated completion/deletion/billing evidence and full service journeys."
         }
       ]
     },
@@ -296,6 +312,14 @@
           "source": "crates/ic-blob-storage/src/policy/catalog/mod.rs",
           "coverage": "Current gateway authorization and namespace filtering for every pending page/root read; revocation invalidates continuing access, and cursors grant no authority.",
           "remaining": "Authenticated endpoints, trusted persisted catalog and recovery fences, durable upload reservations, monetary accounting, actual provider protocol/evidence and service journeys."
+        },
+        {
+          "kind": "pocketic_fixture_partial",
+          "record": "evidence/core-primitives.md",
+          "source_hashes": "evidence/pocketic-authority.sha256",
+          "source": "tests/pocketic/tests/authority.rs",
+          "coverage": "Real PocketIC pending-deletion reads reject non-gateways and immediately reject a gateway after explicit operator revocation. No deletion confirmation is exercised.",
+          "remaining": "Production endpoints and both adapters, persisted state and restore fencing, provider transport, authenticated completion/deletion/billing evidence and full service journeys."
         }
       ]
     },
@@ -552,6 +576,14 @@
           "source": "crates/ic-blob-storage/src/ops/caffeine/gateway/mod.rs",
           "coverage": "Bounded Cashier gateway-list Candid decoding composed with scoped replacement; correlation rejects before parsing; malformed/over-budget/invalid candidates preserve the entire registry. Independent didc fixture and native reply-to-callback revocation coverage.",
           "remaining": "Authenticated provider transport, persisted membership/attempt identities, sync timestamp, restore fencing and shared operator workflow."
+        },
+        {
+          "kind": "pocketic_fixture_partial",
+          "record": "evidence/core-primitives.md",
+          "source_hashes": "evidence/pocketic-authority.sha256",
+          "source": "tests/pocketic/tests/gateway_sync.rs",
+          "coverage": "Actual local inter-canister calls exercise pending sync exclusion, revocation before an old response, and a completed newer sync before the original callback. Malformed/oversized/empty replies and transport rejection preserve membership; observations prove no automatic retry and successful later explicit retry.",
+          "remaining": "Production operator/service handlers and both adapters, actual Cashier transport and identity qualification, persisted membership/attempts and restore fencing. Controlled source holds operator authority only to force test interleavings."
         }
       ]
     },

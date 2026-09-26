@@ -6,7 +6,9 @@ validation and bounded Caffeine reply decoding. A transient multi-object catalog
 owns lifecycle, root claims and
 request receipts, with tenant quotas, separate physical/billing accounting and
 bounded deletion pages. Pure tenant/gateway policy protects local reads and
-preserves revocation; native tests cover rejection and replay behavior.
+preserves revocation. Native tests cover rejection/replay; a test-only PocketIC
+fixture exercises actual IC caller checks and gateway revocation. A controlled
+source canister tests stale sync replies and reentrant membership changes.
 
 Persisted workflows, upload reservations, provider transports, clients and canister
 adapters are not implemented yet. Local bookkeeping and decoded provider reports
@@ -27,12 +29,15 @@ See [dependency setup](docs/dependencies.md) for PocketIC provisioning.
 | --- | --- |
 | `make check` | Compilation |
 | `make fmt-check` | Formatting |
-| `make clippy` | Strict library linting |
-| `make test` | Native tests and doctests |
+| `make clippy` | Strict workspace linting |
+| `make test-native` | Native core tests and doctests |
+| `make test-pocketic` | Build and run the local authority and sync fixtures |
+| `make test` | Both suites, sequentially |
 
 Validation uses offline Cargo and this repository's `target/`. These checks
-make no provider calls or canister deployments; PocketIC service tests are
-not implemented yet. Release/publication preserve build output. Only explicit
+make no provider calls or network deployments. PocketIC installs a test-only
+local canister; production service journeys remain unimplemented.
+Release/publication preserve build output. Only explicit
 `make clean` removes it.
 
 Library publication to crates.io is enabled through the maintainer's

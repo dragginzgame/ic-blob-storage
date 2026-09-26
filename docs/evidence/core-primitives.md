@@ -547,8 +547,9 @@ They cover exact chunk boundaries and uneven trees through 18 leaves, including
 rejected replay after complete leaves followed by correct continuation. Unit tests
 cover every budget, algorithm length maximum without large allocation, duplicate
 headers, offsets, truncation, corruption and metadata mismatch. All tests, strict
-Clippy, Wasm, rustdoc and formatting pass. Verify current source with
-`sha256sum -c docs/evidence/caffeine-hashing.sha256`; released inventories stay historical.
+Clippy, Wasm, rustdoc and formatting pass. The source inventory
+`docs/evidence/caffeine-hashing.sha256` is now historical: it matches `20ec33d`,
+the validated source parent of release 0.1.8, rather than subsequent workspace edits.
 
 The [chunk manifest](../../crates/ic-blob-storage/src/model/identity/caffeine/manifest/mod.rs)
 checks an explicitly bounded list of chunk-hash values against one
@@ -576,3 +577,65 @@ Empty provider objects reject as unqualified rather than inheriting the client's
 empty-tree bug or inventing a root. No upload tree/proof, persisted checkpoint,
 HTTP policy, endpoint or provider effect was added. The raw verifier's empty-byte
 support and all released APIs remain unchanged.
+
+## PocketIC authority probe after 0.1.8
+
+On 2026-09-26, the unpublished [test canister](../../canisters/test/authority_probe/src/lib.rs)
+and [host harness](../../tests/pocketic/tests/authority.rs) passed `make test-pocketic`.
+The harness creates and installs actual Wasm with an explicit controller. Endpoints
+capture `msg_caller` and `canister_self`, then use shared library policies/catalog
+through test-only workflow and ops modules. No production endpoints are exported
+by linking the core. Source is based on release `572a777` plus the changes bound by
+`sha256sum -c docs/evidence/pocketic-authority.sha256`.
+
+Two supplied confirmed objects occupy 100 and 200 bytes in namespace 1. Bounds
+are two lifetime objects, one per tenant, 300 physical/liability bytes, 200 logical
+bytes per tenant, one reference and two receipt slots per object. Tests observe:
+
+- Owners read their own usage/liveness. Other tenants, anonymous callers, the
+  gateway and the actual controller cannot read or release the first reference.
+  Forged tenant/service fields and unknown roots do not grant access.
+- Owner release and exact replay leave its usage at zero, the other tenant at
+  200 and only the released root pending. Denied calls preserve live state.
+- Only current gateways read pending deletion. Unauthorized revocation leaves
+  access intact; the explicit operator revokes membership and the next read fails.
+  Operator authority comes from installation configuration, not controller status.
+
+The [sync integration cases](../../tests/pocketic/tests/gateway_sync.rs) install a
+second [controlled source](../../canisters/test/gateway_source/src/lib.rs). For
+deterministic scheduling only, that source is also the explicit fixture operator:
+it calls back into the probe before returning its captured list. This is not a
+Cashier implementation or a product decision to trust providers as operators.
+No sleeps, fixed tick counts or simulated platform callbacks determine the race.
+Tests prove overlap rejects before another source request, revocation invalidates
+an old response, and a completed newer sync survives the stale original callback.
+The old gateway remains denied while the replacement can read pending deletion.
+Malformed bytes, 4097-byte replies, empty membership and transport rejection each
+preserve membership; observed request counts prove no automatic retry. A later
+explicit valid sync succeeds after each failure. Probe decoding bounds are 4096
+bytes, 100,000 decoding work, 1000 skipping work and 32 type entries; membership
+is bounded to one raw/unique principal. These bounds do not limit IC transport buffering.
+The private [fixture protocol](../../tests/protocol/src/lib.rs) owns controls and
+typed test results. The source uses the CDK's documented
+[manual reply mechanism](https://docs.rs/ic-cdk/0.20.3/ic_cdk/attr.update.html)
+to return deliberately malformed bytes, without changing production codec code.
+
+The host harness uses `ic-testkit` 0.10.0's full PocketIC re-export and explicitly
+starts the provisioned PocketIC 16.0.0 binary. A managed server outlives its instance
+and is dropped on success or panic. Sandbox loopback binding was denied; the
+approved run with local socket permission passed. No external provider call ran.
+Rust was `1.98.1 (48a229cea 2026-09-01)`; SHA-256 of observed artifacts:
+
+- Authority Wasm: `bc5624296880e14ec8d4a9672cc20534ea82127a933563806515d5c76163d895`.
+- Source Wasm: `1f980d554be5063445d2edcd270a8be41386880a123367ca60f0b9eaa1f8a9ba`.
+- Server: `69e324bdb68d32d878b7a9504b1379f08f8d1921272bacb065b0fabb3d0f3792`.
+
+Targeted `make check`, `make clippy`, `make test-native`, `make wasm-check`,
+`make fmt-check`, `make package` and `make release-check` pass. The core normal/dev
+graph excludes the simulator; the published archive excludes fixtures, protocol
+and harness. `make test`
+runs native and PocketIC targets sequentially; server provisioning stays explicit.
+No full CI or release preparation ran. Sample objects substitute provider facts;
+this partial A01/A06 evidence does not qualify upload, restore, production adapters,
+provider callbacks, physical deletion or billing cessation. No persistence exists
+in the fixture, and no upgrade/restart recovery is claimed.

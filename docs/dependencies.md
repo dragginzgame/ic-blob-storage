@@ -15,7 +15,7 @@ availability does not establish provider qualification or service readiness.
 | `thiserror` | 2.0.18 | Typed error derives; matches PocketIC's exact requirement |
 | `ic-cdk` | 0.20.3 | IC platform operations for the ops layer |
 | `ic-stable-structures` | 0.7.2 | Stable-memory storage primitives |
-| `ic-testkit` | 0.10.0 | Native-only dev dependency; shared test helpers and full PocketIC re-export |
+| `ic-testkit` | 0.10.0 | Native dev dependency of the unpublished PocketIC harness; shared helpers and full re-export |
 | `pocket-ic` | 16.0.0 | Transitive through `ic-testkit`; no direct dependency |
 
 At the initial registry check, the selected releases were current except `thiserror`, where PocketIC 16 pins
@@ -35,7 +35,9 @@ use ic_testkit::pic::{CandidCallExt, CanisterInstallExt};
 The [published export](https://docs.rs/ic-testkit/0.10.0/ic_testkit/index.html)
 exposes the complete PocketIC crate. Keep the dependency under native dev
 dependencies; neither the production library nor its Wasm build needs testkit.
-There are currently no PocketIC test imports to migrate. This shares version
+With the dedicated harness in place, the core package's native dev graph also
+excludes it; testkit is owned by `tests/pocketic/Cargo.toml`.
+The unpublished `tests/pocketic` harness uses these exports. This shares version
 selection and harness helpers, rather than reducing the total transitive package
 count: testkit also brings host-side artifact/locking utilities.
 
@@ -56,12 +58,14 @@ requires an intentional manifest/lockfile change; normal setup does not select
 new versions. `make ci` remains a separately authorized full validation gate.
 
 Testkit and PocketIC are excluded from the production/Wasm graph. Their Rust
-libraries are fetched and compiled by the native check. Canister tests will additionally need a compatible
+libraries are fetched and compiled by the native check. The local canister test additionally needs a compatible
 PocketIC server: this library accepts >=16.0.0,<17 and defaults to 16.0.0.
 The checksum-verified Linux x86_64 server is installed locally at
 `.tmp/tools/pocket-ic-16.0.0/pocket-ic`; its
 [provenance record](evidence/pocketic-toolchain.json) includes archive and binary
-hashes. Its version check passes. No service test or canister was run.
+hashes. The original record covers tool installation only; the later
+[authority fixture evidence](evidence/core-primitives.md#pocketic-authority-probe-after-018)
+records actual local canister execution.
 
 Make exports that path as the default `POCKET_IC_BIN`, preventing automatic
 server downloads during tests. A caller-supplied `POCKET_IC_BIN` overrides it.
@@ -82,6 +86,19 @@ chmod u+x .tmp/tools/pocket-ic-16.0.0/pocket-ic
 Other platforms must use the corresponding official 16.0.0 release asset and
 verify its published digest before setting `POCKET_IC_BIN`. `make deps` fetches
 Cargo packages only; it does not provision this binary.
+
+`make test-pocketic` builds `blob-authority-probe` and `blob-gateway-source` into
+this repository's Wasm release target, then runs the unpublished host harness.
+The latter canister deliberately calls back before returning its old list, so
+race tests rely on actual inter-canister calls rather than sleeps or tick counts.
+The shared `tests/protocol` package owns passive fixture controls and typed outcomes;
+it is not a production service or provider interface. Testkit starts the exact
+`POCKET_IC_BIN` with a bounded startup deadline and an owned server handle; the
+handle shuts the child down after the instance is dropped. No binary downloader
+or provider transport is used. A sandbox must permit local loopback binding for
+the server. `make test-native` requires no server; `make test` runs both suites
+sequentially. The fixture owns sample transient state and exports only test
+endpoints; fixtures, protocol and harness are excluded from the published library.
 
 The existing core has no Canic dependency. Move boundary dependencies into
 their owning protocol/client/adapter packages when that split is implemented;

@@ -130,6 +130,33 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3ded4057c258ba199e2d26386d3af3780957ecaee6c4ef4041c6b4b8b97c0b06"
 
 [[package]]
+name = "blob-authority-probe"
+version = "0.0.0"
+dependencies = [
+ "blob-test-protocol",
+ "candid",
+ "ic-blob-storage",
+ "ic-cdk",
+]
+
+[[package]]
+name = "blob-gateway-source"
+version = "0.0.0"
+dependencies = [
+ "blob-test-protocol",
+ "candid",
+ "ic-cdk",
+]
+
+[[package]]
+name = "blob-test-protocol"
+version = "0.0.0"
+dependencies = [
+ "candid",
+ "serde",
+]
+
+[[package]]
 name = "block-buffer"
 version = "0.10.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -770,11 +797,19 @@ dependencies = [
  "candid",
  "ic-cdk",
  "ic-stable-structures",
- "ic-testkit",
  "serde",
  "serde_json",
  "sha2 0.11.0",
  "thiserror 2.0.18",
+]
+
+[[package]]
+name = "ic-blob-storage-pocketic-tests"
+version = "0.0.0"
+dependencies = [
+ "blob-test-protocol",
+ "candid",
+ "ic-testkit",
 ]
 
 [[package]]

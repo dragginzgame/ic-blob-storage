@@ -2,6 +2,30 @@
 
 ## [Unreleased]
 
+## [0.1.9]
+
+### Added
+
+- A test-only Wasm authority probe and unpublished PocketIC harness using
+  `ic-testkit`. Real IC caller/controller checks cover tenant reads and release,
+  forged bindings, exact release replay and gateway revocation between calls.
+  Sample object facts are local substitutes; no provider or persistence is qualified.
+- Real inter-canister gateway-sync tests with a controlled local source: overlapping
+  attempts reject before effects, revocation survives an old reply, and a completed
+  newer sync cannot be overwritten by the earlier response. Malformed, oversized,
+  empty-list and rejected replies preserve membership and require explicit retry.
+  Shared unpublished fixture types keep host/canister controls in one place.
+- `make test-pocketic` builds the fixture and runs it against the explicitly
+  provisioned server under managed startup/cleanup. `make test-native` retains
+  the core-only suite; `make test` runs both sequentially. Checks/lints now cover
+  all workspace packages, with build artifacts retained.
+
+### Changed
+
+- Moved the testkit dev dependency into the actual PocketIC host harness. The
+  published core package and its native-only tests no longer pull the simulator
+  stack into their dependency graph.
+
 ## [0.1.8] - 2026-09-26
 
 ### Added

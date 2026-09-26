@@ -4,8 +4,8 @@ Date: 2026-09-26
 
 ## Released baseline
 
-The maintainer reports 0.1.7 pushed. Local release/tag is `83ad5d7`, from source
-`600315eeb669de337bab15d49ef8b43d78173623`; Cargo and the receipt are 0.1.7.
+The maintainer reports 0.1.8 pushed. Local release/tag is `572a777`, from source
+`20ec33d1dc82c7ee47db83b11559a2b9f68bab1e`; Cargo and the receipt are 0.1.8.
 `make release-tag-check` passes. Registry publication was not independently queried.
 Release/publication preserve artifacts; cleanup requires an explicit request.
 See [release guidance](../releasing.md).
@@ -24,71 +24,68 @@ ownership and full bindings before disclosure; exact receipt reads never repeat
 mutations. Gateway pages bound scanning/results and recheck authority per page.
 These local models do not implement upload reservations or persistence.
 
-Provider transports, persisted workflows, clients, endpoints and both deployment
+0.1.8 adds bounded streaming raw/Caffeine hashing and root-bound chunk manifests
+with independent current-client vectors. These establish local byte consistency,
+not provider presence, upload completion or durable resume progress. Testkit
+provides the full PocketIC re-export for host testing.
+
+Provider transports, persisted workflows, clients, production endpoints and both deployment
 adapters remain unimplemented. No end-to-end service capability is qualified.
 [Core evidence](../evidence/core-primitives.md) and
-[capability inventory](../canic-capabilities.json) record partial native coverage.
+[capability inventory](../canic-capabilities.json) record partial native and test-fixture coverage.
 
 Released source inventories remain historical: 0.1.5 inventories match source
 `6bd0d45` (Cargo 0.1.4); 0.1.6 gateway-registry/balance-replies match `d3ca8c4`
 (Cargo 0.1.5); 0.1.7 reference-liveness/catalog match `600315e` (Cargo 0.1.6).
-The 0.1.7 inventories were verified against Git after release; do not rotate them
-for the version bump or subsequent implementation.
+The 0.1.8 caffeine-hashing inventory matches source `20ec33d` (Cargo 0.1.7),
+verified against Git after release. Do not rotate released inventories for version
+bumps or subsequent implementation.
 
 ## Current follow-up
 
-The maintainer requested continued progress and the next milestone. Changes go
-in Unreleased; Cargo remains 0.1.7. Continue reassessing Canic and local choices
-against current consumer/provider evidence, as recorded in
+The maintainer named 0.1.9 as the next target. Changes are grouped in its undated
+changelog draft; Cargo remains 0.1.8. Continue reassessing Canic and local
+choices against current consumer/provider evidence, as recorded in
 [design inputs](../service-contract.md#design-inputs-and-assumptions).
 
-The new `CaffeineContentHasher` streams raw SHA-256 and the reviewed client's
-metadata-dependent root in one pass. Appends can split anywhere; provider leaves
-remain 1 MiB. Fixed hash states/frontier replace whole-file/tree buffering.
-Explicit object, append, header-count and raw metadata-byte budgets bound work;
-invalid offsets/lengths/budgets leave stream state unchanged. Completion verifies
-exact byte length; comparison distinguishes raw corruption from root mismatch.
+An unpublished PocketIC authority probe now installs a real Wasm canister and
+uses actual IC caller/service context with the shared library policies/catalog.
+It proves tenant isolation from other tenants, anonymous callers and the actual
+controller; forged service/tenant fields cannot authorize access. Owner release
+and exact replay preserve the other tenant's usage. Pending deletion reads require
+current gateway membership, and explicit operator revocation denies the next call.
 
-Independent vectors generated from the pinned unmodified client cover chunk
-edges, uneven tree heights through 18 leaves, metadata order, ECMAScript trimming
-and UTF-16 sorting. Tests also cover rejection/continuation after completed leaves,
-truncation, corruption and metadata changes. Empty provider objects explicitly
-remain unqualified; raw empty-content hashing still works separately. This does
-not validate HTTP headers, generate upload proofs/certificates, persist resumable
-checkpoints or establish upload completion.
+A second local canister now returns controlled gateway lists across real awaits.
+Reentrant overlap rejects before a second source call; revocation invalidates an
+old reply; a completed newer sync cannot be overwritten by the earlier response.
+Malformed/oversized/empty replies and transport rejection preserve membership,
+abandon only the exact read-only attempt and require explicit retry. The source
+has an explicit operator role solely to force deterministic test interleavings;
+this does not define provider authority in the product. Shared passive fixture
+types live in an unpublished protocol package, not the service API.
 
-The follow-up now also validates bounded chunk manifests against an expected root,
-sharing tree, length and metadata checks with the streaming hasher. Distinct
-chunk-hash identities retain their order; each leaf can be verified independently
-at its exact index/length, with at most 1 MiB hashed per call. Independent client
-leaf vectors prove reverse-order reads, repeat verification, rejection of changed
-metadata/leaves/order, invalid indices/lengths and retry after corruption. A valid
-manifest does not imply verified bytes or provider presence; declarations still
-need trusted length/tenant binding. No resume bitmap or persisted checkpoint is
-created. See
-[hashing evidence](../evidence/core-primitives.md#streaming-caffeine-identities-after-017).
+The probe owns only sample transient confirmed-object facts. It is not a production
+adapter, production provider protocol, persistence implementation or upload journey.
+No service capability is fully qualified. See
+[fixture evidence](../evidence/core-primitives.md#pocketic-authority-probe-after-018).
 
-Official upstream main and npm latest/integrity were refreshed and remain at the
-reviewed client baseline. Tests, strict Clippy, Wasm, rustdoc and formatting pass.
-No full release gate, provider effect, version mutation or sibling edit ran.
-Unrelated worktree files remain untouched.
+The unpublished host harness owns native ic-testkit 0.10.0 and uses its full
+PocketIC re-export. The core's normal and dev dependency graphs exclude the
+simulator. Make targets test-native and test-pocketic run core tests and the local
+IC fixtures respectively; test runs both sequentially. The explicitly provisioned
+PocketIC 16.0.0 server is managed and cleaned up even on test failure. There is no
+implicit server download. Local sandbox execution required loopback permission;
+the approved local run passed without external provider calls.
 
-The maintainer subsequently requested consolidating PocketIC through testkit.
-Native dev dependencies now use published `ic-testkit` 0.10.0, whose full
-`ic_testkit::pocket_ic` export supplies PocketIC 16.0.0. The direct PocketIC
-dependency was removed; no existing canister-test imports required migration.
-The lockfile adds testkit's host utilities without changing existing resolved
-versions. Production/Wasm graphs exclude both crates. Server provisioning stays
-explicit and unchanged; see [dependencies](../dependencies.md). The maintainer's
-other dependency version-requirement edits are preserved.
-Native all-target compilation, tests, strict Clippy and Wasm checks pass with the
-locked graph. No server was started; this validates dependency integration, not
-canister/service behavior.
+Targeted compilation, strict Clippy, native tests, PocketIC, Wasm, formatting and
+offline package verification pass. Release-helper fixtures also pass; no full
+CI/release gate or version mutation ran.
+The changelog, acceptance plan and capability inventory record this partial scope.
 
-The next major milestone is durable upload admission and interruption recovery,
-followed by shared service handlers and both adapters. The local hash primitive
-removes one byte-integrity gap; it does not remove the provider gates below.
-Do not implement paid retries or persisted workflows by assuming those guarantees.
+The next major milestone remains durable upload admission and interruption
+recovery, followed by shared service handlers and both adapters. Resolve the
+provider gates below before implementing paid retries or persisted workflows;
+the fixture makes no new assumption about those guarantees.
 
 ## Provider evidence and next work
 

@@ -5,11 +5,13 @@ SHELL := /bin/bash
 export CARGO_TARGET_DIR := $(CURDIR)/target
 # Explicit path prevents PocketIC from downloading a server during tests.
 export POCKET_IC_BIN ?= $(CURDIR)/.tmp/tools/pocket-ic-16.0.0/pocket-ic
+export BLOB_AUTHORITY_PROBE_WASM := $(CARGO_TARGET_DIR)/wasm32-unknown-unknown/release/blob_authority_probe.wasm
+export BLOB_GATEWAY_SOURCE_WASM := $(CARGO_TARGET_DIR)/wasm32-unknown-unknown/release/blob_gateway_source.wasm
 VERSION ?=
 RELEASE := bash scripts/release/release.sh
 CI_TARGETS := shell-check release-check fmt-check check clippy docs-check test wasm-check package
 
-.PHONY: help version deps fmt fmt-check check clippy docs-check test wasm-check \
+.PHONY: help version deps fmt fmt-check check clippy docs-check test test-native test-pocketic test-fixture wasm-check \
 	build package clean shell-check release-check ci validate release-verify \
 	release-plan ensure-clean patch minor major bump-x release-patch \
 	release-minor release-major release-x release-stage release-commit \
@@ -18,7 +20,8 @@ CI_TARGETS := shell-check release-check fmt-check check clippy docs-check test w
 help:
 	@echo "deps                         Fetch locked Rust dependencies (network)"
 	@echo "fmt / fmt-check              Format Rust or check formatting"
-	@echo "check / clippy / test         Compile, lint, or test the library"
+	@echo "check / clippy / test         Compile, lint, or test the workspace"
+	@echo "test-native / test-pocketic   Native core tests or local IC fixtures"
 	@echo "clean                        Explicitly remove build artifacts"
 	@echo "docs-check / wasm-check       Check docs or the Wasm library build"
 	@echo "ci / validate                Run the current repository validation gate"
@@ -44,19 +47,30 @@ fmt-check:
 	cargo fmt --all -- --check
 
 check:
-	cargo check --offline --locked -p ic-blob-storage --all-targets --all-features
+	cargo check --offline --locked --workspace --all-targets --all-features
 
 clippy:
-	cargo clippy --offline --locked -p ic-blob-storage --all-targets --all-features -- -D warnings
+	cargo clippy --offline --locked --workspace --all-targets --all-features -- -D warnings
 
 docs-check:
 	RUSTDOCFLAGS="-D warnings" cargo doc --offline --locked -p ic-blob-storage --all-features --no-deps
 
 test:
+	+$(MAKE) --no-print-directory test-native
+	+$(MAKE) --no-print-directory test-pocketic
+
+test-native:
 	cargo test --offline --locked -p ic-blob-storage --all-features
 
+test-fixture:
+	cargo build --offline --locked --release --target wasm32-unknown-unknown -p blob-authority-probe -p blob-gateway-source --lib
+
+test-pocketic:
+	+$(MAKE) --no-print-directory test-fixture
+	cargo test --offline --locked -p ic-blob-storage-pocketic-tests
+
 wasm-check:
-	cargo check --offline --locked -p ic-blob-storage --all-features --target wasm32-unknown-unknown
+	cargo check --offline --locked --workspace --all-features --target wasm32-unknown-unknown
 
 build:
 	cargo build --offline --locked -p ic-blob-storage --all-features

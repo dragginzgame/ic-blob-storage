@@ -19,6 +19,14 @@ The continuing local port includes billing input/configuration validation and
 transient gateway-list validation and membership operations. These values add no provider interface,
 persisted workflow or callback authority; the remaining implementation gates
 below still apply.
+The local test scope also includes an unpublished PocketIC authority probe over
+sample transient objects. Actual IC caller/service context reaches the shared
+library policies and catalog; caller isolation, release replay and gateway
+revocation have [partial evidence](evidence/core-primitives.md#pocketic-authority-probe-after-018).
+This fixture does not select a production API or establish provider/persistence guarantees.
+Its controlled local source canister additionally exercises gateway sync across
+real awaits, including reentrant revocation and replacement. No provider binding
+or deployed Cashier transport is implemented by these test-only calls.
 
 The transient gateway model now correlates one pending sync to its exact local
 attempt and immutable service/namespace/Cashier scope. Operator edits invalidate
@@ -131,7 +139,8 @@ apply within the frozen release; pre-1.0 cross-release transitions remain reinst
 
 The proposed package roles are core, passive service protocol, upload/read
 client, standalone canister, thin Canic adapter and operator CLI. Only the core
-exists; final names and package split remain open. Both adapters belong here,
+exists as a product package; the test canister and host harness are unpublished
+fixtures. Final product names and package split remain open. Both adapters belong here,
 and only the managed adapter may depend on Canic. One internal provider module
 owns request/callback definitions; clients use the service protocol.
 

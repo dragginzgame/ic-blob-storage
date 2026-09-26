@@ -10,6 +10,16 @@ evidence are still required by the [service contract](service-contract.md).
 Local lifecycle binding and direct-tenant policy tests now provide partial A01
 evidence over supplied values; they do not authenticate endpoint callers or prove
 durable isolation, delegated access or provider confirmation authority.
+The test-only [PocketIC probe](evidence/core-primitives.md#pocketic-authority-probe-after-018)
+adds actual caller/controller A01 and release/revocation A06 evidence over sample
+transient objects. Forged tenant/service fields grant no access; owner release and
+replay preserve the other tenant's usage; revoked gateways lose pending-list access.
+This does not qualify either production adapter, persistence or provider behavior.
+The same fixture now adds actual inter-canister A01/A06 sync interleavings:
+an old reply cannot undo revocation or overwrite a completed newer sync; an
+overlapping attempt sends no second source request. Malformed/oversized/empty
+replies and transport rejection preserve membership and perform no automatic retry.
+The controlled source is a substitute, not Cashier behavior or provider qualification.
 Local streaming Caffeine-tree verification adds partial A02 evidence from
 independent current-client vectors: chunk boundaries, uneven trees, metadata
 ordering and rejection/continuation after invalid input. It computes both raw
