@@ -259,6 +259,25 @@ final-charge/deletion receipt or identify the Cashier cycle-account contract.
 Do not map retail credits to canister cycles or invent retention guarantees from
 that documentation.
 
+## Independent deployment support
+
+On 2026-09-26, Caffeine's official
+[GitHub export guidance](https://help.caffeine.ai/hc/en-us/articles/46899843980692-GitHub-Integration-Overview)
+(page updated 2026-09-10) states that its file-storage integration depends on
+managed Caffeine infrastructure and independently deployed apps need another
+storage solution. This is platform guidance, not a gateway protocol specification
+or evidence that a separately arranged integration cannot work. Toko's checked
+source defaults do not establish its onboarding/support arrangement.
+
+The resulting open question is whether Caffeine supports an independently
+deployed Rust service under the selected account/project/bucket, and how that
+namespace, billing and callback authority are provisioned. Public client packages,
+compatible Candid and reachable query endpoints do not answer it. Obtain the
+supported deployment contract alongside the operation/recovery evidence below.
+Do not change provider selection or claim technical impossibility from this
+general guidance alone. A provider contact/source-access question is pending;
+no message has been sent to Caffeine.
+
 ## Evidence needed to freeze B1
 
 Target: latest official Caffeine integration pinned in
@@ -269,7 +288,7 @@ need an authoritative server contract and deployment evidence.
 
 | Area | Exact information needed | Why it gates this service |
 | --- | --- | --- |
-| Deployment | Confirm the discovered gateway/Cashier as the service target; select account/project/bucket namespace and accountable operator; obtain exact server version/source revision | Bind credentials, callbacks, paid effects and observations to the same provider installation |
+| Deployment | Confirm support/onboarding for the independent Rust service; confirm gateway/Cashier target, account/project/bucket namespace and accountable operator; obtain exact server version/source revision | Establish a supported independent deployment and bind credentials, callbacks, paid effects and observations to the same provider installation |
 | Wire contract | Gateway HTTP schema/error definitions, required callback Candid, and server behavior behind the retrieved Cashier Candid | Verify upload, balance/readiness/funding and settlement behavior beyond advertised signatures |
 | Upload identity | Which fields define the exact paid operation, when charging occurs, how duplicate requests are handled, and which callers/instances can use the namespace | Prevent retry, stale-instance and older-backup identity reuse |
 | Completion | Authoritative upload/transfer result lookup, incomplete-object behavior and retained receipt fields; distinguish durable completion from HTTP success | Recover lost responses without a second uncertain charge |

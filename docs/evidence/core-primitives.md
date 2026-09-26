@@ -332,3 +332,95 @@ historical. Persistence, actual HTTP/IC transports, namespace exclusivity,
 provider completion/retention, billing cessation and restart/restore qualification
 remain unimplemented or unproved. No full release gate, PocketIC journey or paid
 effect ran for this local fix.
+
+## Gateway sync and revocation after 0.1.5
+
+Based on release `0e08c44`, the [scoped registry](../../crates/ic-blob-storage/src/model/gateway/registry/mod.rs)
+owns bounded membership and one pending sync. Each new attempt receives a strictly
+increasing local identity; scope includes service, provider namespace and Cashier.
+Membership edits invalidate an earlier attempt even when the requested member
+was absent/already present. Validation failures preserve membership and pending
+state; explicit cancellation rejects later arrival of that result. A fresh sync
+is a new authorized decision and may re-add a previously removed principal.
+
+Unit tests cover cancellation/new attempt ordering, duplicate replies, exact
+service/namespace/Cashier mismatch, invalid complete candidates, failed edits,
+idempotent edits invalidating stale results, and sequence exhaustion without
+losing the ability to revoke. Sequences are not reused and no wrapping/reset
+operation exists. The counter does not claim safety across old backups or clones.
+
+[Pure gateway policy](../../crates/ic-blob-storage/src/policy/gateway/mod.rs)
+requires the object's service and namespace to match current registry/context,
+then checks current membership. [Native composition](../../crates/ic-blob-storage/tests/gateway_binding.rs)
+demonstrates that a stale sync cannot restore callback access after revocation;
+tenant, service, Cashier and anonymous principals gain no implicit bypass.
+No test simulates IC authentication or claims a callback proves deletion.
+
+[Gateway reply ops](../../crates/ic-blob-storage/src/ops/caffeine/gateway/mod.rs)
+decodes the selected `storage_gateway_list_v1` result (`vec principal`) and
+applies it through the registry. Scope and pending-token checks precede parsing;
+byte, decoding-work, skipping-work and type-table bounds constrain the parser.
+Raw/distinct membership bounds apply after decoding, before replacement; they
+do not prevent decoder allocations or bound future transport buffering.
+Unit tests cover missing, truncated, incompatible and trailing data, each
+decoder limit, duplicate normalization/order and complete candidate rejection.
+Every failure leaves the full registry, including its pending attempt, unchanged;
+a later valid reply may apply, or the caller may explicitly cancel the attempt.
+The native callback test now passes actual Candid bytes through this operation.
+
+The [independent fixture](../../crates/ic-blob-storage/tests/fixtures/caffeine-gateway/observed.hex)
+was generated with didc 0.5.4 from the retained public
+[gateway observation](caffeine-cashier-gateways.did):
+`didc encode --types '(vec principal)' < docs/evidence/caffeine-cashier-gateways.did`.
+An anonymous metadata read on 2026-09-26 reconfirmed byte-for-byte equality with
+the retained [Cashier interface](caffeine-cashier.did), SHA-256
+`232b08e4514048d4de48d6d1bf4387f577bfb64c7e2e2ded699a5e52d475d76f`.
+This proves local codec compatibility with that schema, not the freshness or
+authenticity of supplied replies. No new gateway query or provider effect ran.
+
+`make test`, `make clippy`, `make wasm-check`, `make docs-check` and formatting
+pass. Verify this new batch with `sha256sum -c docs/evidence/gateway-registry.sha256`.
+Earlier 0.1.5 source inventories remain unchanged. These are native model/policy/codec
+results only. The owning workflow must authorize edits, supply trusted response
+context, recheck membership after awaits, maintain one authoritative registry,
+persist identity/history and fence restoration before exposing actual endpoints.
+
+## Account balance replies after 0.1.5
+
+[Balance reply ops](../../crates/ic-blob-storage/src/ops/caffeine/balance/mod.rs)
+decodes the retained Cashier `account_balance_get_v1` schema under explicit
+byte, decoding-work, skipping-work and type-table limits. A successful report
+must name the requested account and every amount must fit unsigned `u128`.
+The reported total is preserved independently; no component sum or spendability
+rule is invented. `AccountNotFound` and `InternalError` remain distinct provider
+failures, never zero balances. Funding and query decoders now share one private
+`AccountCycleBalances` schema; the released funding API is unchanged.
+
+Unit tests cover all failure categories, account mismatch, special requested
+principals, every negative/overflowing field and malformed/over-budget replies.
+[Native readiness composition](../../crates/ic-blob-storage/tests/balance_readiness.rs)
+keeps failed reads out of top-up arithmetic, distinguishes a genuine zero,
+recovers diagnosis with later valid input and retains recovery fences.
+
+The synthesized fixtures in `tests/fixtures/caffeine-balance/` within the crate
+use didc 0.5.4 and the retained [Cashier interface](caffeine-cashier.did), whose
+hash was reconfirmed during the preceding gateway work. They are not live account
+observations. Reproduce with `didc encode '<value>' --types
+'(AccountBalanceGetResult)' --defs docs/evidence/caffeine-cashier.did`:
+
+| Fixture | Value |
+| --- | --- |
+| `success.hex` | `(variant { Ok = record { account = principal "rrkah-fqaaa-aaaaa-aaaaq-cai"; account_cycle_balances = record { total = 100 : int; cycles_prepaid = 80 : int; cycles_promo = 10 : int; cycles_ledger = 0 : int; debt_target = variant { Prepaid } } } })` |
+| `zero.hex` | Same success value with all amounts zero and `debt_target = variant { Ledger }` |
+| `negative-ledger.hex` | Same success value with `cycles_ledger = -1 : int` and `debt_target = variant { Ledger }` |
+| `not-found.hex` | `(variant { Err = variant { AccountNotFound } })` |
+| `internal.hex` | `(variant { Err = variant { InternalError = "fixture diagnostic" } })` |
+| `unknown-error.hex` | `(variant { Err = variant { FutureError } })`, encoded without `--types`/`--defs` |
+
+Native tests (including the existing funding fixtures), strict Clippy, Wasm,
+rustdoc and formatting pass. Verify with
+`sha256sum -c docs/evidence/balance-replies.sha256`; historical 0.1.5 inventories
+remain unchanged. No live account query, provider effect or dependency change
+occurred. The eventual workflow must establish source, service/namespace/account
+authority, current-attempt correlation and freshness before using observations.
+These reports cannot reconcile an uncertain payment or establish billing cessation.

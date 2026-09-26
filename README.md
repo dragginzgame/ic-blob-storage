@@ -6,8 +6,12 @@ verification, billing/configuration validation, bounded gateway membership and p
 policy with native tests. A transient lifecycle model binds references, deletion
 and settlement to specific tenants and object incarnations, with bounded request
 receipts and a pure access check for direct tenant callers. Bounded Caffeine
-reply decoders preserve funding failures and distinguish completion reports from
-verified storage; immutable local root claims prevent reassignment. Persisted
+reply decoders check balance-account identity, preserve provider failures and
+distinguish completion reports from verified storage; immutable local root claims
+prevent reassignment. Scoped gateway
+registries accept bounded Cashier gateway-list replies and reject stale sync
+results after membership edits. Pure callback policy checks current
+service/namespace membership. Persisted
 workflows, provider transports, clients and canister adapters are not implemented yet.
 
 The planned service owns tenant authorization, references, quotas, provider

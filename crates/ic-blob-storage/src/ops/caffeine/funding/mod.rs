@@ -6,7 +6,7 @@
 
 use std::num::NonZeroUsize;
 
-use candid::{CandidType, Int, Principal, de::DecoderConfig, decode_one_with_config};
+use candid::{CandidType, Principal, de::DecoderConfig, decode_one_with_config};
 use serde::Deserialize;
 use thiserror::Error;
 
@@ -121,7 +121,8 @@ pub enum TopUpReplyError {
 // Provider DTOs stay private and passive. Both adapters must use this decoder;
 // exposing these types would allow another owner to silently discard outcomes.
 mod wire {
-    use super::{CandidType, Deserialize, Int, Principal};
+    use super::super::wire::AccountCycleBalances;
+    use super::{CandidType, Deserialize, Principal};
 
     pub(super) type AccountTopUpResult = Result<AccountTopUpResponse, AccountTopUpError>;
 
@@ -129,21 +130,6 @@ mod wire {
     pub(super) struct AccountTopUpResponse {
         pub balance: AccountCycleBalances,
         pub message: String,
-    }
-
-    #[derive(CandidType, Deserialize)]
-    pub(super) struct AccountCycleBalances {
-        pub total: Int,
-        pub cycles_prepaid: Int,
-        pub cycles_promo: Int,
-        pub debt_target: DebtTarget,
-        pub cycles_ledger: Int,
-    }
-
-    #[derive(CandidType, Deserialize)]
-    pub(super) enum DebtTarget {
-        Prepaid,
-        Ledger,
     }
 
     #[derive(CandidType, Deserialize)]

@@ -4,124 +4,132 @@ Date: 2026-09-26
 
 ## Released baseline
 
-The maintainer reports 0.1.4 live. Local Git release is `3aef138`, from source
-`f0cabb5`; Cargo and the receipt are 0.1.4. Registry publication was not independently
-queried. Release/publication retain build artifacts; only explicit `make clean`
+The maintainer reports 0.1.5 pushed. Local release/tag is `0e08c44`, from source
+`6bd0d451469273a46ed17223de82249150f7081e`; Cargo and the receipt are 0.1.5.
+`make release-tag-check` passes. Registry publication was not independently
+queried. Release/publication preserve artifacts; only explicit `make clean`
 removes them. See [release guidance](../releasing.md).
 
-The released core provides distinct content/provider identities, incremental
-raw-byte verification, numeric billing/configuration validation, bounded transient
-gateway membership and pure funding/admission/readiness policy. Whole-balance
-conversion rejects malformed components even when the total is valid.
-Provider bindings, persisted workflows, clients, endpoints and adapters remain
-unimplemented. These native primitives do not qualify the complete service.
+The released library provides content/provider identities, incremental raw-byte
+verification, bounded root batches, billing/configuration validation, transient
+gateway membership and pure funding/readiness/tenant policy. Its transient
+lifecycle separates reference release, physical deletion and billing settlement,
+with explicit ownership bindings and bounded exact-request receipts reserving
+capacity for release. Immutable service-wide root claims reject reassignment,
+including after settlement; this deliberately denies fresh objects with a
+previously claimed root, including another tenant's identical content.
 
-## Current implementation batch
-
-The maintainer requested continued Canic replication after 0.1.4.
-`ProviderRootBatch` now parses bounded binary-root batches while preserving input
-order, duplicates and typed errors at each malformed position. Empty batches are
-accepted, matching Canic's input shape. Raw entry and combined byte budgets are
-checked before result allocation; invalid roots count at their actual byte length.
-Decoder allocation limits remain separate. No root is declared live or dead here.
-
-This is the input-parsing portion of BLOB-03, within the local hash-validation
-scope. Authenticated liveness lookup, persisted references and provider callbacks remain
-unimplemented. Canic's `api/blob_storage/lifecycle.rs` still matches the captured
-source hash. That parser slice added no provider calls or dependencies. No sibling
-changes or version operations were made. Native behavior tests, Clippy, Wasm, docs
-and formatting validate this local scope; no full release gate or PocketIC ran.
-
-The maintainer then requested the persistence contract/lifecycle model and
-explicitly directed a fresh review of Canic's choices. The
-[independent lifecycle design](../service-contract.md#lifecycle-design-under-independent-review)
-records concrete local invariants and proposed persisted boundaries without
-claiming provider suitability or freezing deployment budgets. A transient
-`BlobLifecycle` now tracks confirmed-object references with bounded retained
-release IDs. Final release, physical deletion and economic settlement advance
-separately; live-object deletion, reused IDs and new retains after deletion queues
-reject. Zero bytes do not imply settled obligations. Native transition tests,
-Clippy, Wasm, docs and formatting pass; no persistence or endpoint authentication
-or provider calls are implied. Continue evaluating each Canic choice on its merits.
-
-The local lifecycle now carries an immutable service/tenant/provider-namespace/
-object/incarnation binding. Reference mutation and supplied confirmations reject
-every scope mismatch before replay handling. A pure direct-tenant policy checks
-actual service and authenticated actor against trusted object ownership; matching
-request IDs never grant access. Native tests cover every mismatch through live,
-pending, deleted and settled phases. Endpoint authentication, delegation, trusted
-namespace resolution, ID allocation/restore safety and exact provider operation
-evidence are still unimplemented. The unbound draft lifecycle signatures were
-replaced before release; no compatibility wrappers were introduced.
-
-`ReferenceRequests` now owns the local lifecycle plus bounded exact-request
-receipts. Replays return original typed results, including failures, without
-reapplying a mutation. Changed actors/payloads reject conflicting IDs. Each live
-reference reserves one release-receipt slot, so receipt pressure cannot block
-cleanup of already admitted references. Tests cover capacity, original-failure
-replay after state changes, no reactivation and access checks before replay.
-All targeted native/lint/Wasm/docs checks pass. This is transient bookkeeping;
-persistent receipts, provider-effect retries and restore recovery remain pending.
+Bounded Caffeine reply decoders retain typed Cashier failures and expose chunk
+completion only as a report. They do not prove durable upload or credited amounts.
+Provider transports, persisted workflows, clients, endpoints and both deployment
+adapters remain unimplemented. No end-to-end service capability is qualified.
 
 [Core evidence](../evidence/core-primitives.md) and
-[the capability inventory](../canic-capabilities.json) record the partial coverage.
-The new batch has [separate hashes](../evidence/root-batch.sha256); prior inventories
-remain historical. Changes are collected in the undated
-[0.1.5 changelog draft](../../CHANGELOG.md); Cargo and the release receipt remain
-0.1.4 until the maintainer's release flow.
+[the capability inventory](../canic-capabilities.json) record partial native
+coverage. The 0.1.5 root-batch, lifecycle-model and provider-boundaries hash files
+are now historical: they match source `6bd0d45`, including its 0.1.4 manifests,
+not the version-mutated release commit. All three were checked against that Git
+source after release. Do not rotate them to match newer work.
+
+## Current follow-up
+
+The maintainer requested continued work for 0.1.6 after pushing 0.1.5. The next priority
+is the provider contract needed for a complete upload/read/release journey.
+The earlier local fixes do not close the server-side completion, retry,
+namespace and final billing gaps. Continue reviewing Canic's choices independently;
+capability parity does not require preserving its internal design.
+
+Continued local work now adds `GatewayRegistry`, composing the existing bounded
+membership value with trusted service/namespace/Cashier scope and one pending
+sync token. Authorized membership edits invalidate earlier syncs, including
+no-op removals. Failed edits/replies leave state intact; cancellation, out-of-order
+results and duplicate replies cannot replace newer membership. The attempt
+counter never wraps, and exhaustion cannot prevent revocation. A fresh explicit
+sync may re-add members; this is not a permanent provider-side denylist.
+
+Pure callback policy checks the running service, object's namespace and current
+gateway membership. Native composition proves a revoked gateway remains denied
+after its old sync result arrives. This extends the permitted transient gateway
+model/policy scope; there are no endpoints, provider calls or persisted records.
+Tokens are local correlation only: one authoritative instance and future durable
+restore fencing are required. Tests, strict Clippy, Wasm, rustdoc and formatting
+pass. Changes are in the undated 0.1.6 draft; Cargo stays 0.1.5. See
+[gateway evidence](../evidence/core-primitives.md#gateway-sync-and-revocation-after-015).
+
+Gateway reply ops now composes bounded Candid decoding with this registry.
+Scope/stale-attempt checks happen before parsing. Decoder and candidate-validation
+failures preserve membership and the exact pending attempt; success replaces
+membership and consumes the token. Tests include independent didc bytes, malformed
+and over-budget replies, raw/distinct limits, and reply-to-callback revocation
+composition. A fresh anonymous metadata read matched the retained Cashier Candid;
+there is still no transport or provider effect. No dependencies changed.
+
+Account-balance reply decoding now covers Cashier's `account_balance_get_v1`:
+byte/work/type limits, requested-account equality, all four unsigned amount
+checks and distinct `AccountNotFound`/`InternalError` reports. It shares the
+private balance schema with top-up decoding. Independent Candid fixtures and
+native readiness composition prove that failed reads never substitute zero and
+valid reports cannot clear a recovery fence. No live account query was made;
+source/freshness/attempt binding and payment reconciliation remain external.
+See [balance reply evidence](../evidence/core-primitives.md#account-balance-replies-after-015).
+
+A further public-source review found Caffeine's current export guidance says
+independently hosted apps must replace its managed file-storage integration.
+See [independent deployment support](../provider-review.md#independent-deployment-support).
+This does not prove a separately arranged integration is impossible or identify
+Toko's actual arrangements. It adds a concrete support/onboarding question;
+public packages and reachable endpoints alone cannot settle it. Caffeine remains
+the selected candidate, not a qualified provider or a rejected backend.
+
+An asynchronous question asks whether the maintainer has a Caffeine engineering
+contact or access to the gateway/Cashier server source. No answer is recorded yet;
+no external message was sent. Provider-side work depends on authoritative
+answers, not another locally invented retry or completion rule.
 
 ## Provider evidence and next work
 
-Toko indexed commit `6519b72d2a420564dabaf700fc55f7b8603d9fd3` supplies defaults
+Toko indexed source `6519b72d2a420564dabaf700fc55f7b8603d9fd3` supplies defaults
 `https://blob.caffeine.ai` and Cashier `72ch2-fiaaa-aaaar-qbsvq-cai`. Retained
-[deployment evidence](../evidence/caffeine-deployment-observation.json) records
-successful anonymous metadata, gateway-list and pricing queries. Both gateway
-method names are advertised; the newer top-up wrapper is Candid-compatible with
-the deployed signature. No update, payment or private account lookup ran.
+[deployment evidence](../evidence/caffeine-deployment-observation.json) includes
+public metadata, gateway-list and pricing observations; no private account lookup
+or payment ran. These are locators, not a selected service account or proof of
+independent deployment support.
 
-The [provider baseline](../provider-baseline.json) records client 1.1.2 and
-backend 1.1.1, verified on 2026-09-25. Server revision, account binding and
-retry/retention/deletion/billing guarantees remain unresolved in the
-[provider review](../provider-review.md). Qualify these guarantees and freeze the
-consumer, owners, resource bounds and restore contract before provider transports
-or persisted workflows, as required by the [service contract](../service-contract.md).
-Recheck upstream before that implementation. Caffeine remains unqualified.
+The [provider baseline](../provider-baseline.json) pins client 1.1.2 and backend
+reference 1.1.1. On 2026-09-26 the [recovery review](../provider-review.md#recovery-findings--2026-09-26)
+reconfirmed unchanged official GitHub main, npm latest/integrity, Mops highest
+version and deployed Cashier Candid hash. Deployed server revision and provider
+recovery/economic semantics remain unverified. Refresh pins before implementation.
 
-The 2026-09-26 [recovery review](../provider-review.md#recovery-findings--2026-09-26)
-rechecked unchanged official GitHub main and npm 1.1.2. Isolated probes confirm
-that the client returns a hash/100% without requiring a complete response and
-that an empty funding result discards a structured Cashier error. The root-only
-deletion callback cannot itself distinguish reused-root incarnations. Recorded
-source hashes, controls and reproduction details are in
-[recovery evidence](../evidence/caffeine-recovery-review.json).
+Resolve these concrete questions before provider transports or persisted workflows:
 
-The maintainer then explicitly requested resolving those findings. Local Caffeine
-reply decoders now preserve typed top-up failures, reject unusable funding
-responses under byte/work/type bounds, and expose upload completion only as a
-reported status. Provider DTOs have one private owner; neither decoder performs
-effects or establishes completion/credit. `serde_json` 1.0.151 became a direct
-dependency at its existing lockfile version. Anonymous refreshes confirm the
-Cashier Candid hash and Mops backend 1.1.1 remain unchanged on 2026-09-26.
+1. Supported onboarding for this independently deployed Rust canister, with exact
+   account/project/bucket ownership and exclusive namespace/callback authority.
+2. Authoritative upload completion lookup tied to the original operation, including
+   lost replies, incomplete objects and evidence-retention bounds.
+3. Exact top-up outcome/accepted-refunded amount reconciliation after a lost reply;
+   typed errors and account balances alone do not settle a particular payment.
+4. Object-specific deletion and final billing evidence, plus durable intent/root
+   history and surviving authority for the selected same-release restore boundary.
 
-`RootClaims` now keeps a bounded lifetime association from each root to its
-original complete object binding across the whole service. It rejects reuse
-after settlement and preserves lookup/replay at capacity. The native delayed-
-confirmation test rejects correlation to a newer deletion-pending incarnation.
-This conservative local policy denies fresh objects with a previously claimed
-root, including identical content under another tenant. It is not yet persisted
-or exposed through an endpoint. Tests, strict Clippy, Wasm, docs and formatting
-pass; [implementation evidence](../evidence/core-primitives.md#provider-response-and-root-correlation-fixes)
-records the local scope. No paid operation or full release gate ran.
+The [service contract](../service-contract.md) also needs the concrete consumer,
+accountable owners and numeric resource bounds. The local implementation exceptions
+remain in force, but generic continuation does not waive the remaining gates.
+Paid qualification needs its own explicit authority and bounded resources.
 
-The three local parsing/reassociation paths are addressed, but the full journey
-remains gated. Next obtain authoritative upload completion/reconciliation and
-funding retention/settlement semantics; qualify exclusive provider namespaces,
-then freeze bounds and durable intent/root-claim restore handling before adding
-transports. Do not clear these gates merely because local rejection tests pass.
+## Ownership and validation
+
+The local 0.1.5 fixes passed native tests, strict Clippy, Wasm, rustdoc and
+formatting; its release receipt records `release-verify` on the committed source.
+This follow-up checked release provenance and provider documentation, then ran
+targeted native/lint/Wasm/docs checks for the gateway registry, policy and
+gateway/balance reply ops. It did not change dependencies or run a new full
+release gate.
 
 The maintainer confirmed Canic's 0.110 human acceptance for work here without
-changing Canic's handoff. Local primitive work does not close the remaining
-service gates. Library publication is separately enabled. Agents must not create
-commits; sibling repositories remain read-only. All Canic blob capabilities,
-including operator workflows and both deployment journeys, must work here before
-removal there; see [parity](../canic-parity.md) and [acceptance](../acceptance-plan.md).
+changing Canic's handoff. Library publication remains separately enabled;
+it does not establish service qualification. Agents must not create commits,
+change versions or infer publication/deployment authority from continuation.
+Sibling repositories remain read-only. All Canic blob capabilities must work
+here before removal there, with installation retirement handled separately;
+see [parity](../canic-parity.md) and [acceptance](../acceptance-plan.md).

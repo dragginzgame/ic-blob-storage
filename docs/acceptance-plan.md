@@ -13,6 +13,17 @@ durable isolation, delegated access or provider confirmation authority.
 Local reference receipts additionally provide partial A03/A04/A06 evidence for
 exact retries and reserved release capacity. No interruption/restore or paid
 provider retry case has been executed by those native tests.
+The scoped gateway registry adds native A01/A06 coverage for membership revocation
+racing a previously started sync: stale replies cannot restore revoked membership,
+and current callback policy continues to reject that caller. Wrong service,
+namespace and Cashier context reject before decoding. Bounded Candid reply
+composition preserves membership and the pending attempt on malformed, over-budget
+or invalid lists. These tests compose local values only; provider transport and
+durable revocation remain unqualified.
+Account-balance reply/policy composition adds partial A08/A11 coverage: provider
+errors and invalid/wrong-account replies cannot become a zero-balance funding
+suggestion, later valid observations recover diagnosis, and recovery fences
+remain blockers. This is native codec/policy evidence, not a real status workflow.
 Run the same service cases through standalone and managed deployments; only
 managed lifecycle integration belongs to Canic. Both adapters live here.
 

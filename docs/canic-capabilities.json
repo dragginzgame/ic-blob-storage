@@ -232,6 +232,14 @@
           "source": "crates/ic-blob-storage/src/model/lifecycle/roots/mod.rs",
           "coverage": "Original root/object association retained after settlement; native composition rejects delayed correlation to a newer deletion-pending object.",
           "remaining": "Endpoint gateway/namespace authorization, persisted history, actual provider deletion proof and billing cessation."
+        },
+        {
+          "kind": "native_core_partial",
+          "record": "evidence/core-primitives.md",
+          "source_hashes": "evidence/gateway-registry.sha256",
+          "source": "crates/ic-blob-storage/src/policy/gateway/mod.rs",
+          "coverage": "Current gateway membership, service and object namespace checks; native composition preserves callback denial after revocation and a stale sync result.",
+          "remaining": "Endpoint authentication, trusted provider transport, persisted membership/attempt identities, restore fencing and actual callback/deletion evidence."
         }
       ]
     },
@@ -316,6 +324,14 @@
           "source": "crates/ic-blob-storage/src/model/gateway/membership/mod.rs",
           "coverage": "Bounded transient membership: idempotent add at capacity, removal through empty state, nonempty ordered/deduplicated sync replacement and unchanged state on invalid/oversized input. Membership alone grants no authority.",
           "remaining": "Operator authentication, service/provider namespace binding, persistent membership, stale-response exclusion after revocation and callback authorization."
+        },
+        {
+          "kind": "native_core_partial",
+          "record": "evidence/core-primitives.md",
+          "source_hashes": "evidence/gateway-registry.sha256",
+          "source": "crates/ic-blob-storage/src/model/gateway/registry/mod.rs",
+          "coverage": "One pending scoped sync; operator edits invalidate prior attempts; cancelled/replayed/out-of-order/wrong-scope replies reject; counter exhaustion preserves revocation.",
+          "remaining": "Endpoint authentication, trusted provider transport, persisted membership/attempt identities, restore fencing and actual callback/deletion evidence."
         }
       ]
     },
@@ -408,6 +424,14 @@
           "source": "crates/ic-blob-storage/src/ops/billing/balance/mod.rs",
           "coverage": "All-or-nothing conversion of total, prepaid, promotional and ledger amounts with typed per-field failures; malformed components block readiness despite a valid total.",
           "remaining": "Provider wire binding and account/debt-mode semantics, trusted observations, freshness and real balance/status workflows."
+        },
+        {
+          "kind": "native_core_partial",
+          "record": "evidence/core-primitives.md",
+          "source_hashes": "evidence/balance-replies.sha256",
+          "source": "crates/ic-blob-storage/src/ops/caffeine/balance/mod.rs",
+          "coverage": "Bounded account-balance Candid replies bind successful reports to the requested account, validate every amount and preserve provider failures. Independent fixtures and native readiness composition distinguish errors from zero and retain recovery fences.",
+          "remaining": "Authenticated provider queries, service/namespace/account authority, attempt correlation and freshness, shared status workflow and real deployment evidence."
         }
       ]
     },
@@ -448,6 +472,22 @@
           "source": "crates/ic-blob-storage/src/model/gateway/membership/mod.rs",
           "coverage": "Bounded transient membership: idempotent add at capacity, removal through empty state, nonempty ordered/deduplicated sync replacement and unchanged state on invalid/oversized input. Membership alone grants no authority.",
           "remaining": "Authenticated provider fetch, response identity/stale-result fencing, persistent replacement/sync timestamp, failed-call recovery and shared operator workflow."
+        },
+        {
+          "kind": "native_core_partial",
+          "record": "evidence/core-primitives.md",
+          "source_hashes": "evidence/gateway-registry.sha256",
+          "source": "crates/ic-blob-storage/src/model/gateway/registry/mod.rs",
+          "coverage": "One pending scoped sync; operator edits invalidate prior attempts; cancelled/replayed/out-of-order/wrong-scope replies reject; counter exhaustion preserves revocation.",
+          "remaining": "Endpoint authentication, trusted provider transport, persisted membership/attempt identities, restore fencing and actual callback/deletion evidence."
+        },
+        {
+          "kind": "native_core_partial",
+          "record": "evidence/core-primitives.md",
+          "source_hashes": "evidence/gateway-registry.sha256",
+          "source": "crates/ic-blob-storage/src/ops/caffeine/gateway/mod.rs",
+          "coverage": "Bounded Cashier gateway-list Candid decoding composed with scoped replacement; correlation rejects before parsing; malformed/over-budget/invalid candidates preserve the entire registry. Independent didc fixture and native reply-to-callback revocation coverage.",
+          "remaining": "Authenticated provider transport, persisted membership/attempt identities, sync timestamp, restore fencing and shared operator workflow."
         }
       ]
     },
@@ -554,6 +594,14 @@
           "source": "crates/ic-blob-storage/src/policy/billing/mod.rs",
           "coverage": "Pure billing diagnosis with typed balance failures, thresholds, blockers, warnings and recovery fences.",
           "remaining": "Trusted provider observations, recovery reconciliation, shared service status workflow and operator transport."
+        },
+        {
+          "kind": "native_core_partial",
+          "record": "evidence/core-primitives.md",
+          "source_hashes": "evidence/balance-replies.sha256",
+          "source": "crates/ic-blob-storage/src/ops/caffeine/balance/mod.rs",
+          "coverage": "Bounded account-balance Candid replies bind successful reports to the requested account, validate every amount and preserve provider failures. Independent fixtures and native readiness composition distinguish errors from zero and retain recovery fences.",
+          "remaining": "Authenticated provider queries, service/namespace/account authority, attempt correlation and freshness, shared status workflow and real deployment evidence."
         }
       ]
     },
@@ -610,6 +658,14 @@
           "source": "crates/ic-blob-storage/src/policy/tenant/mod.rs",
           "coverage": "Pure direct-tenant access predicate requires expected service and tenant actor from trusted execution context; native denial tests include anonymous, management and non-tenant actors.",
           "remaining": "Actual endpoint authentication, delegated actor/per-reference authority, trusted stored bindings, shared handler adapters and real deployment journeys."
+        },
+        {
+          "kind": "native_core_partial",
+          "record": "evidence/core-primitives.md",
+          "source_hashes": "evidence/gateway-registry.sha256",
+          "source": "crates/ic-blob-storage/src/policy/gateway/mod.rs",
+          "coverage": "Current gateway membership, service and object namespace checks; native composition preserves callback denial after revocation and a stale sync result.",
+          "remaining": "Endpoint authentication, trusted provider transport, persisted membership/attempt identities, restore fencing and actual callback/deletion evidence."
         }
       ]
     },

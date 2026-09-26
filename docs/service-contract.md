@@ -20,6 +20,20 @@ transient gateway-list validation and membership operations. These values add no
 persisted workflow or callback authority; the remaining implementation gates
 below still apply.
 
+The transient gateway model now correlates one pending sync to its exact local
+attempt and immutable service/namespace/Cashier scope. Operator edits invalidate
+older syncs; malformed responses preserve current state. Pure callback policy
+checks current membership against the trusted object and execution context.
+These local rules do not establish endpoint authentication, provider revocation,
+durable freshness or a restore-safe sequence allocator. Operators can explicitly
+start a later sync that re-adds a member; no permanent denylist is implied.
+Bounded local Candid decoding now applies gateway-list replies through that
+registry, checking correlation before parsing and preserving state on failure.
+It accepts supplied bytes and trusted context; no provider fetch is implemented.
+Local account-balance reply decoding likewise binds successful reports to a
+supplied requested account and rejects unusable amounts. It does not establish
+transport identity, account ownership, observation freshness or payment outcomes.
+
 Pure funding policy now also assesses admission of a new intent from supplied
 recovery/activity observations. This is part of the local policy exception;
 it neither establishes those observations nor persists or executes an intent.
@@ -51,6 +65,12 @@ extraction history, not authority for the provider contract. Refresh the exact
 upstream baseline before implementation and qualification. Caffeine is not yet
 qualified; deployed-contract and recovery/economic evidence still must close
 before provider bindings and effects are implemented.
+
+The [independent deployment review](provider-review.md#independent-deployment-support)
+also requires a supported Caffeine onboarding/namespace arrangement for this
+service. Public integration packages and Toko's source defaults do not establish
+that arrangement. The current candidate remains Caffeine; its platform guidance
+alone is not a decision to change providers or drop standalone deployment.
 
 ## Acceptance target
 

@@ -10,6 +10,7 @@ use candid::Principal;
 use thiserror::Error;
 
 pub mod membership;
+pub mod registry;
 
 /// Explicit processing and membership limits; no deployment defaults are chosen.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]

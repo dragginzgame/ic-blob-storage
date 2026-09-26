@@ -2,6 +2,31 @@
 
 ## [Unreleased]
 
+## [0.1.6]
+
+### Added
+
+- Scoped gateway registries that reject stale, cancelled and replayed sync
+  responses. Operator membership edits invalidate earlier syncs, including
+  revocation of a currently absent gateway; counter exhaustion never blocks
+  revocation. Added pure callback checks for current service/namespace membership
+  and native revocation/race tests. Persistence and endpoints remain pending.
+- Bounded Cashier gateway-list reply decoding connected to the scoped registry.
+  Wrong-scope and stale attempts reject before parsing; malformed, over-budget
+  and invalid lists preserve membership and pending state. Added an independent
+  Candid fixture and native reply-to-callback revocation coverage.
+- Bounded Cashier account-balance reply decoding with requested-account checks,
+  validation of every amount and distinct provider failures. Independent Candid
+  fixtures and native readiness tests distinguish failed reads from a real zero
+  balance and preserve recovery fences. Funding and balance replies share one
+  private balance schema; live queries remain pending.
+
+### Changed
+
+- Recorded Caffeine's independent-deployment support question and the concrete
+  provider evidence still needed for the full service journey. Updated the
+  handoff to the verified 0.1.5 release and preserved its source-bound evidence.
+
 ## [0.1.5] - 2026-09-26
 
 Local blob lifecycle, ownership bindings and request replay handling.

@@ -70,6 +70,17 @@ BLOB-07/10 have partial transient gateway-list validation/replacement evidence,
 including raw/distinct bounds and unchanged membership after rejected input.
 BLOB-07 now also has idempotent individual add/remove and empty-membership
 behavior; empty provider sync input remains rejected.
+The scoped gateway registry adds one pending local sync identity, invalidation
+on operator edits and rejection of stale/cancelled/replayed results. Native
+callback-policy composition checks service/namespace and current membership,
+including continued denial after revocation and a delayed sync result. This is
+partial BLOB-05/07/10/14 coverage, not transport or restart/restore evidence.
+Bounded Cashier gateway-list Candid decoding now feeds the same registry: scope
+and stale attempts reject before parsing; invalid replies leave membership and
+the pending attempt unchanged. This extends local BLOB-10 evidence only.
+Account-balance reply decoding adds local BLOB-09/12 coverage for requested-account
+checks, structured failures, bounded full-balance conversion and readiness
+composition. It performs no query and does not prove source or freshness.
 BLOB-08 also has complete local configuration-candidate validation for Cashier
 principal, funding thresholds and gateway limits representable on 32-bit Wasm.
 BLOB-11 also has pure new-intent admission rejecting recovery fences and
