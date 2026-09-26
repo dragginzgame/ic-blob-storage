@@ -1,7 +1,7 @@
 # Dependency setup
 
-The root `Cargo.toml` owns exact direct dependency versions. The library inherits
-them, and `Cargo.lock` locks the transitive graph. Versions were checked against
+The root `Cargo.toml` owns direct dependency version requirements. The library
+inherits them, and `Cargo.lock` locks the resolved graph. Versions were checked against
 crates.io on 2026-09-25. On 2026-09-26, `serde_json` became a direct dependency
 at its existing locked version for bounded provider reply parsing. Dependency
 availability does not establish provider qualification or service readiness.
@@ -15,12 +15,29 @@ availability does not establish provider qualification or service readiness.
 | `thiserror` | 2.0.18 | Typed error derives; matches PocketIC's exact requirement |
 | `ic-cdk` | 0.20.3 | IC platform operations for the ops layer |
 | `ic-stable-structures` | 0.7.2 | Stable-memory storage primitives |
-| `pocket-ic` | 16.0.0 | Native integration-test dependency only |
+| `ic-testkit` | 0.10.0 | Native-only dev dependency; shared test helpers and full PocketIC re-export |
+| `pocket-ic` | 16.0.0 | Transitive through `ic-testkit`; no direct dependency |
 
 At the initial registry check, the selected releases were current except `thiserror`, where PocketIC 16 pins
 2.0.18 and prevents selecting 2.0.21 in this graph. All selected versions compile
 with the repository's Rust 1.98.1 toolchain. SHA-256 byte hashing does not by
 itself implement or qualify Caffeine's provider-specific hash tree.
+
+The test dependency was consolidated through the published `ic-testkit` 0.10.0
+package on 2026-09-26. Tests should import upstream types through
+`ic_testkit::pocket_ic`, and opt into helpers through `ic_testkit::pic`:
+
+```rust
+use ic_testkit::pocket_ic::{PocketIc, PocketIcBuilder};
+use ic_testkit::pic::{CandidCallExt, CanisterInstallExt};
+```
+
+The [published export](https://docs.rs/ic-testkit/0.10.0/ic_testkit/index.html)
+exposes the complete PocketIC crate. Keep the dependency under native dev
+dependencies; neither the production library nor its Wasm build needs testkit.
+There are currently no PocketIC test imports to migrate. This shares version
+selection and harness helpers, rather than reducing the total transitive package
+count: testkit also brings host-side artifact/locking utilities.
 
 ## Setup and checks
 
@@ -38,8 +55,8 @@ uses `--offline --locked` and this repository's `target/`. Updating a dependency
 requires an intentional manifest/lockfile change; normal setup does not select
 new versions. `make ci` remains a separately authorized full validation gate.
 
-PocketIC is excluded from the Wasm graph. Its Rust library is fetched and
-compiled by the native check. Canister tests will additionally need a compatible
+Testkit and PocketIC are excluded from the production/Wasm graph. Their Rust
+libraries are fetched and compiled by the native check. Canister tests will additionally need a compatible
 PocketIC server: this library accepts >=16.0.0,<17 and defaults to 16.0.0.
 The checksum-verified Linux x86_64 server is installed locally at
 `.tmp/tools/pocket-ic-16.0.0/pocket-ic`; its

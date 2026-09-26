@@ -18,6 +18,13 @@
   leaf vectors cover reordered/tampered manifests, wrong positions, short/oversized
   chunks and corruption; a valid manifest is not proof of storage or whole-file completion.
 
+### Changed
+
+- Replaced the direct native PocketIC dev dependency with `ic-testkit` 0.10.0.
+  Tests use its full `ic_testkit::pocket_ic` re-export and shared harness helpers;
+  the locked PocketIC client/server remains 16.0.0. Testkit stays outside the
+  production/Wasm dependency graph.
+
 ## [0.1.7] - 2026-09-26
 
 Bounded local catalog, tenant reference reads and exact request-result lookup.

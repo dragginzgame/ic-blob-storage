@@ -70,8 +70,20 @@ created. See
 
 Official upstream main and npm latest/integrity were refreshed and remain at the
 reviewed client baseline. Tests, strict Clippy, Wasm, rustdoc and formatting pass.
-No full release gate, dependency change, provider effect, version mutation or
-sibling edit ran. Unrelated worktree files remain untouched.
+No full release gate, provider effect, version mutation or sibling edit ran.
+Unrelated worktree files remain untouched.
+
+The maintainer subsequently requested consolidating PocketIC through testkit.
+Native dev dependencies now use published `ic-testkit` 0.10.0, whose full
+`ic_testkit::pocket_ic` export supplies PocketIC 16.0.0. The direct PocketIC
+dependency was removed; no existing canister-test imports required migration.
+The lockfile adds testkit's host utilities without changing existing resolved
+versions. Production/Wasm graphs exclude both crates. Server provisioning stays
+explicit and unchanged; see [dependencies](../dependencies.md). The maintainer's
+other dependency version-requirement edits are preserved.
+Native all-target compilation, tests, strict Clippy and Wasm checks pass with the
+locked graph. No server was started; this validates dependency integration, not
+canister/service behavior.
 
 The next major milestone is durable upload admission and interruption recovery,
 followed by shared service handlers and both adapters. The local hash primitive
