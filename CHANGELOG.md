@@ -2,6 +2,36 @@
 
 ## [Unreleased]
 
+## [0.1.11]
+
+### Added
+
+- Transient upload admission sharing one owner's catalog, root history and
+  tenant/global capacity. Reservations bind exact request IDs, service, tenant,
+  namespace, object incarnation, first reference, raw digest, root and length.
+  Concurrent upload limits are separate from retained lifetime history.
+- Exact retries return current state without another allocation. Cancellation
+  frees byte capacity only before exposure; possibly exposed uploads retain
+  reservations until independently confirmed. Confirmation transfers capacity
+  into the catalog without double counting or resurrecting released references.
+- Native coverage for competing tenants, exhausted bounds, conflicting requests,
+  cancellation, uncertain outcomes, completion replay, zero-byte uploads and
+  wide byte totals. Logical release, physical deletion and billing cessation
+  continue to free separate capacities. No provider effect or persistence is added.
+- Tenant-authorized usage and bounded active-upload pages include pending
+  reservations. Pages recheck caller/cursor scope, retain continuation through
+  terminal history and observe intervening cancellation or completion.
+- Gateway root observations distinguish reservations, possible exposure,
+  cancellation and confirmed lifecycle state. Namespace isolation and current
+  membership apply before disclosure; no observation grants deletion permission.
+  Batch reads resolve distinct roots together and scan operation history at most
+  once, stopping when all pending roots are found. Duplicates reuse observations;
+  confirmed/unknown/malformed-only batches skip history scanning. Temporary maps
+  stay bounded by input length and do not add a persistent index.
+- PocketIC upload fixtures verify actual tenant/controller isolation, cancellation
+  replay, retained uncertain capacity and immediate gateway revocation. Native
+  read tests cover page budgets, cross-scope cursors and changing state between pages.
+
 ## [0.1.10] - 2026-09-26
 
 ### Added

@@ -342,3 +342,27 @@ cannot support a required capability, record a supported narrower contract or
 another provider decision. Under the maintainer's parity requirement, dropping
 an existing capability also leaves Canic removal blocked until explicitly
 resolved.
+
+## Upload admission follow-up — 2026-09-26
+
+The 0.1.11 review refreshed official GitHub `main`, the pinned `Storage.mo` and
+`Mixin.mo`, and npm latest/version/integrity. All match the retained
+[recovery evidence](evidence/caffeine-recovery-review.json). Mops and deployed
+Cashier were not queried again in this follow-up. The backend still selects the
+Cashier from its environment, credits the current canister principal, and accepts
+deletion confirmations as root arrays; this does not establish independent
+namespace ownership or an operation-specific recovery/settlement contract.
+
+Re-reading the official [export guidance](https://help.caffeine.ai/hc/en-us/articles/46899843980692-GitHub-Integration-Overview)
+and [storage costs](https://help.caffeine.ai/hc/en-us/articles/49362898986644-File-Storage-Costs)
+found no new independent-onboarding, lost-reply completion lookup or final-charge
+receipt definition. Canic's current integration guide still describes local root
+registration and gateway deletion bookkeeping, not those server guarantees.
+These are bounded review findings, not proof no private supported contract exists.
+The earlier provider contact/source question remains open.
+
+The resulting local admission model keeps possibly exposed uploads reserved
+until an exact independently authenticated completion fact arrives. It does not
+implement a provider lookup, expire uncertainty, release reservations from a
+client-reported status or treat storage-byte limits as a monetary cap. The open
+server requirements above still block provider effects and durable workflows.

@@ -33,6 +33,26 @@ fn usage() -> Option<u128> {
 }
 
 #[ic_cdk::query]
+fn upload_usage() -> Option<u128> {
+    workflow::upload_usage(context())
+}
+
+#[ic_cdk::query]
+fn active_uploads() -> Option<Vec<u8>> {
+    workflow::active_uploads(context())
+}
+
+#[ic_cdk::query]
+fn upload_roots() -> Option<Vec<blob_test_protocol::uploads::UploadProbeState>> {
+    workflow::upload_roots(context())
+}
+
+#[ic_cdk::update]
+fn cancel_upload(root: u8) -> bool {
+    workflow::cancel_upload(context(), root)
+}
+
+#[ic_cdk::query]
 fn reference_live(root: u8, claimed_service: Principal, claimed_tenant: Principal) -> Option<bool> {
     workflow::reference_live(context(), root, claimed_service, claimed_tenant)
 }

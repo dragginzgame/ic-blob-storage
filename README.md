@@ -9,13 +9,19 @@ decodes bounded Caffeine replies.
 A transient multi-object catalog owns lifecycle, root claims and request receipts,
 with tenant quotas, separate physical/billing accounting and
 bounded deletion pages. Pure tenant/gateway policy protects local reads and
-preserves revocation. Native tests cover rejection/replay; a test-only PocketIC
+preserves revocation. A transient upload owner reserves shared tenant/global
+capacity before exposure, retains exact operation history and keeps uncertain
+uploads accounted. Confirmation transfers the reservation into the same catalog.
+Authorized tenant pages list active uploads within explicit work/result limits;
+gateway observations include pending roots without granting deletion permission.
+Native tests cover rejection/replay; a test-only PocketIC
 fixture exercises actual IC caller checks and gateway revocation. A controlled
 source canister tests stale sync replies and reentrant membership changes.
 The same local harness executes byte-verification vectors inside Wasm and checks
 an explicit instruction budget for ordered chunk appends.
+Upload fixtures also check real caller isolation, cancellation and retained uncertainty.
 
-Persisted workflows, upload reservations, provider transports, clients and canister
+Persisted workflows, provider transports, clients and canister
 adapters are not implemented yet. Local bookkeeping and decoded provider reports
 do not establish a qualified storage service.
 

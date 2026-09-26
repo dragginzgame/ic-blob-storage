@@ -4,155 +4,126 @@ Date: 2026-09-26
 
 ## Released baseline
 
-The maintainer reports 0.1.9 pushed. Local release/tag is `2cacb1e`, from source
-`832b36455e2fe50a859e1c209b44bdd345d4dca6`; Cargo and the receipt are 0.1.9.
-`make release-tag-check` passes. Registry publication was not independently queried.
-Release/publication preserve artifacts; cleanup requires an explicit request.
-See [release guidance](../releasing.md).
+The maintainer reports 0.1.10 live. Local release/tag is `27c9b6b`, from source
+`aaa50572ee9d787c1786486ad679c919f0ac62f3`; Cargo and the receipt are 0.1.10.
+`make release-tag-check` passed after release. Registry publication was not
+independently queried. Release/publication preserve artifacts; cleanup requires
+an explicit request. See [release guidance](../releasing.md).
 
-The library provides content/provider identities, raw-byte verification, bounded
-root batches and Caffeine reply decoding, billing/configuration validation and
-pure funding/readiness policy. Scoped gateway synchronization rejects stale
-replies and preserves revocation. Balance replies check account/amounts without
-turning provider failures into zero balances or clearing recovery fences.
+The library provides content/provider identities, streaming Caffeine hashing,
+root-bound manifests, chunk verification/coverage and bounded missing-chunk pages.
+It also provides billing/configuration validation, bounded provider reply codecs,
+pure funding/readiness policy and scoped gateway synchronization with stale-reply
+rejection. None establishes provider completion or durable recovery.
 
-0.1.7 adds transient catalog ownership of confirmed-object lifecycles, immutable
-root claims and exact reference receipts. Global/per-tenant object, byte and
-metadata bounds retain zero-byte/settled history. Logical release, physical
-deletion and billing cessation free separate capacities. Tenant reads validate
-ownership and full bindings before disclosure; exact receipt reads never repeat
-mutations. Gateway pages bound scanning/results and recheck authority per page.
-These local models do not implement upload reservations or persistence.
+The transient catalog owns confirmed-object lifecycles, immutable root claims,
+exact reference receipts and bounded deletion pages. It separates logical,
+physical and liability capacity; zero-byte/settled objects retain lifetime slots.
+Tenant/gateway policy checks full bindings and current authority on reads.
 
-0.1.8 adds bounded streaming raw/Caffeine hashing and root-bound chunk manifests
-with independent current-client vectors. These establish local byte consistency,
-not provider presence, upload completion or durable resume progress. Testkit
-provides the full PocketIC re-export for host testing.
+PocketIC fixtures exercise actual caller/controller isolation, reference replay,
+gateway revocation and inter-canister sync races. Fixed content vectors run in
+Wasm with an ordered-append instruction budget. Fixtures substitute provider facts,
+have no persistence and do not qualify production endpoints or restore safety.
+The unpublished host harness owns testkit; the core package excludes PocketIC.
 
-0.1.9 adds real PocketIC caller/controller checks and inter-canister sync races.
-Local fixtures prove release replay, revocation, stale reply rejection and explicit
-retry after malformed/failed replies. A controlled source holds operator authority
-only to force reentrant test schedules; this is not a production provider contract.
-The host harness owns testkit; the published core and its native tests exclude it.
+Released source inventories remain historical: 0.1.5 matches `6bd0d45` (Cargo
+0.1.4), 0.1.6 matches `d3ca8c4` (Cargo 0.1.5), 0.1.7 matches `600315e` (Cargo
+0.1.6), 0.1.8 matches `20ec33d` (Cargo 0.1.7), and 0.1.9 matches `832b364`
+(Cargo 0.1.8). The 0.1.10 chunk-verification inventory was verified against Git
+source `aaa5057` (Cargo 0.1.9). Do not rotate these for later source/version changes.
 
-Provider transports, persisted workflows, clients, production endpoints and both deployment
-adapters remain unimplemented. No end-to-end service capability is qualified.
-[Core evidence](../evidence/core-primitives.md) and
-[capability inventory](../canic-capabilities.json) record partial native and test-fixture coverage.
+## Current follow-up — 0.1.11
 
-Released source inventories remain historical: 0.1.5 inventories match source
-`6bd0d45` (Cargo 0.1.4); 0.1.6 gateway-registry/balance-replies match `d3ca8c4`
-(Cargo 0.1.5); 0.1.7 reference-liveness/catalog match `600315e` (Cargo 0.1.6).
-The 0.1.8 caffeine-hashing inventory matches source `20ec33d` (Cargo 0.1.7),
-verified against Git after release. Do not rotate released inventories for version
-bumps or subsequent implementation. The 0.1.9 PocketIC authority inventory
-likewise matches source `832b364` (Cargo 0.1.8), verified against Git after release.
+The maintainer approved the proposed upload admission/reservation batch and
+provider-gap review. Cargo remains 0.1.10; completed changes have an undated
+0.1.11 changelog draft.
 
-## Current follow-up
+`model::catalog::admission::UploadCatalog` now owns an initially empty catalog
+and bounded upload operation history together. Tenant-scoped IDs bind exact raw
+content digest, provider root, length, first reference and full service/tenant/
+namespace/object/incarnation identity. The caller must supply the authenticated
+tenant principal; delegated actors are unsupported. Root claims have one owner.
+There is no catalog import, mutable escape, serialization or owner clone.
 
-The maintainer selected 0.1.10; related changes are grouped in its undated draft.
-Cargo remains 0.1.9. Continue reassessing choices against
-[consumer/provider evidence](../service-contract.md#design-inputs-and-assumptions).
+Every admitted operation reserves global/per-tenant lifetime slots, concurrent
+upload slots, byte capacities and eventual first-reference/release-receipt
+capacity. Exact retries return current state without another allocation. Cancel
+only before exposure: byte/concurrent capacity is freed, history/root claims are
+retained. `ExposurePossible` deliberately covers all unresolved outcomes and has
+no expiry/reset/retry permission. Independently authenticated exact completion
+transfers capacity into the catalog without double counting. Completion replay
+never reactivates references after release/settlement. Physical deletion and
+billing cessation still free separate capacities.
 
-The new CaffeineChunkVerifier owns a validated immutable manifest and one bit per
-chunk. It credits each successfully verified position once, reports exact verified
-bytes/chunks, and checks duplicate deliveries again. Invalid indices, lengths or
-corrupt bytes leave coverage unchanged. A fresh verifier begins at zero; there is
-no imported bitmap, serialized checkpoint, content buffer or growing retry history.
+The local read boundary now includes bounded tenant active-upload pages and
+aggregate reserved/confirmed usage. Cursors bind service/tenant, never authority;
+terminal history consumes scan budget, empty pages can continue, and new earlier
+IDs require a new sweep. Gateway root observations distinguish reserved,
+possibly exposed, cancelled and confirmed lifecycle states after membership and
+namespace checks. These are local observations, not provider deletion permission.
+Gateway batches resolve distinct roots together and share at most one bounded
+history scan, stopping after the last needed pending/cancelled root. Confirmed,
+unknown and malformed inputs need no history scan. Duplicates reuse results;
+temporary maps are bounded by batch length and no second persistent index exists.
+Native regressions check scan counts, mixed states and fresh reads after transitions.
 
-Independent client vectors exercise reverse-order delivery with a deliberately
-missing middle position, identical chunk hashes at distinct positions, bitmap-byte
-boundaries, partial final chunks and corrupted-gap recovery. Unit tests check
-rejections before/after success, large indices and repeated valid verification.
-The additive API retains the existing stateless manifest contract. All-chunks-
-verified means past checks in this instance; it does not establish retained bytes,
-successful writes, raw whole-file digest, tenant authority or provider completion.
-See [coverage evidence](../evidence/core-primitives.md#transient-chunk-coverage-after-019).
+Native core tests/doctests, strict workspace Clippy, workspace Wasm, formatting,
+rustdoc, offline package verification and source inventory checks pass. The expanded PocketIC probe covers
+real tenant/controller isolation, cancellation/replay, retained uncertain capacity
+and revocation over fixed upload facts. Existing authority/content/sync cases
+also pass. See [core evidence](../evidence/core-primitives.md#transient-upload-admission-after-0110).
+No provider/persistence/recovery qualification is claimed. No full CI, version
+mutation, commit, publication, paid effect or sibling edit ran.
 
-The companion CaffeineOrderedChunkVerifier now checks exact leaves before feeding
-an ordered raw-content verifier. Corrupt chunks leave the prefix/hash intact for
-retry; skipped/replayed chunks reject. Finalization consumes the verifier and
-requires complete length plus the expected raw digest before returning both
-identities. Independent vectors exercise rejection/retry at each position through
-multi-chunk and metadata-bearing files; unit cases reject incomplete content and
-a conflicting raw digest despite valid manifest bytes. Neither variant owns
-destination writes, provider transport or persisted read recovery.
-
-Bounded missing-chunk pages now provide exact local index/offset/length ranges.
-Independent scan/result limits bound work even across verified prefixes; empty
-filtered pages can continue. Calls observe current coverage, skip positions
-verified between pages and never mark or reserve selected chunks. Scan completion
-does not imply byte verification, and starting a new instance requires a new sweep.
-Tests cover budget combinations across client vectors, partial final chunks,
-intervening verification, repeated reads and invalid/end positions. These ranges
-do not define HTTP requests or assume provider support for range reads.
-
-The local PocketIC probe now executes pinned content vectors inside Wasm: full
-1 MiB, one-byte final leaf and ECMAScript metadata cases. It checks reverse-order
-coverage, duplicate accounting, empty-page continuation, corrupt ordered retries,
-replay rejection and typed wrong-digest/truncated finalization. Fixed enum inputs
-select compiled fixture data; this is not a production read endpoint. Measured
-peak valid ordered append was 162,109,843 instructions against a local one-billion
-regression budget, excluding input generation, manifest setup and Candid handling.
-All PocketIC authority/content/sync cases pass using the explicit local server.
-
-Targeted verifier unit/client-vector tests, workspace Clippy, Wasm, rustdoc,
-formatting and offline package verification pass. The unpublished probe/harness
-reuse existing serde/JSON packages without changing registry versions or core
-dependencies. No full CI, provider effect, version mutation or sibling edit ran. Released inventories remain
-historical; the new source inventory records this local addition separately.
-
-The next major milestone remains durable upload admission and interruption
-recovery, followed by shared service handlers and both adapters. Resolve the
-provider gates below before implementing paid retries or persisted workflows;
-local verification coverage does not settle those guarantees.
+The next integration work needs durable intent/reservation ownership and recovery
+fences, provider mapping/protection of pending roots, exact reconciliation, shared
+service handlers and both adapters. The current model consumes trusted completion
+facts supplied by future ops; a chunk status/hash or client progress cannot supply
+that fact. Byte liabilities are not a currency spending cap. Resolve the gates
+below before provider transports or persisted workflows.
 
 ## Provider evidence and next work
 
-The main path still needs the provider contract for upload/read/release.
-Toko indexed source `6519b72d2a420564dabaf700fc55f7b8603d9fd3` supplies defaults
-`https://blob.caffeine.ai` and Cashier `72ch2-fiaaa-aaaar-qbsvq-cai`. Retained
-[deployment evidence](../evidence/caffeine-deployment-observation.json) includes
-public metadata, gateway-list and pricing observations; no private account lookup
-or payment ran. Locators are not a selected service account or deployment authority.
+The public-source follow-up rechecked Caffeine GitHub main at
+`e5cacdfe5ce55e939edb02980fca800c0c13f421`, backend Storage/Mixin hashes and npm
+latest 1.1.2/integrity; all match retained evidence. The current export and storage
+cost guidance still supplies no exact upload/deletion/final-charge receipt
+contract. This follow-up did not re-query Mops or deployed Cashier. See
+[provider review](../provider-review.md#upload-admission-follow-up--2026-09-26).
 
-The [provider baseline](../provider-baseline.json) pins client 1.1.2 and backend
-reference 1.1.1. On 2026-09-26 the [recovery review](../provider-review.md#recovery-findings--2026-09-26)
-reconfirmed unchanged official GitHub main, npm latest/integrity, Mops highest
-version and deployed Cashier Candid hash. Gateway work subsequently rechecked
-that interface. Deployed server revision and recovery/economic semantics remain
-unverified. Refresh pins before provider implementation and qualification.
-
-Caffeine's [export guidance](../provider-review.md#independent-deployment-support)
-says independently hosted apps must replace its managed file-storage integration.
-That does not rule out a separately arranged integration or establish Toko's
-arrangements. Caffeine remains the selected candidate, not a qualified provider.
-An asynchronous question about a Caffeine engineering contact/private server
-source remains unanswered; no external message was sent. Do not replace missing
-provider guarantees with locally invented retry or completion rules.
+Toko's retained source `6519b72d2a420564dabaf700fc55f7b8603d9fd3` supplies
+`https://blob.caffeine.ai` and Cashier `72ch2-fiaaa-aaaar-qbsvq-cai`.
+[Deployment observations](../evidence/caffeine-deployment-observation.json)
+identify a reachable candidate, not an owned account or deployment authorization.
+Caffeine remains selected but unqualified. Its independent-export guidance says
+managed file storage needs replacement; a separately supported arrangement is
+not established. The earlier provider-contact/private-source question remains
+unanswered; no message was sent externally.
 
 Resolve before provider transports or persisted workflows:
 
 1. Supported independent onboarding and exact account/project/bucket ownership,
-   with exclusive namespace/callback authority.
-2. Authoritative completion lookup tied to the original upload operation,
-   including lost replies, incomplete objects and evidence-retention bounds.
-3. Exact top-up outcome and accepted/refunded amounts after a lost reply;
-   typed errors/account balances alone do not settle a particular payment.
-4. Object-specific deletion/final billing evidence, durable intent/root history
-   and surviving authority across the selected same-release restore boundary.
+   including exclusive namespace/callback authority.
+2. Authoritative completion lookup tied to the original operation, including
+   lost replies, incomplete objects and numeric evidence-retention bounds.
+3. Exact top-up accepted/refunded amounts after a lost reply; balances and typed
+   errors do not settle a particular payment.
+4. Object-specific deletion/final-billing evidence, durable root/intent history
+   and surviving authority across the same-release restore boundary.
 
-The [service contract](../service-contract.md) also needs the concrete consumer,
-accountable owners and numeric resource bounds. Existing local implementation
-exceptions remain in force; generic continuation does not waive remaining gates.
-Paid qualification needs separate explicit authority and bounded resources.
+The [service contract](../service-contract.md) also needs a concrete consumer,
+accountable owners and production resource bounds. Local exceptions remain in
+force; this batch does not waive provider or persistence gates. Refresh provider
+pins before boundary implementation. Paid qualification needs explicit authority
+and bounded resources. No end-to-end service capability is qualified.
 
 ## Ownership
 
-The maintainer confirmed Canic's 0.110 human acceptance for work here without
-changing Canic's handoff. Library publication is separately enabled and does not
-establish service qualification. Agents must not commit, change versions or infer
-publication/deployment authority from continuation. Sibling repositories remain
-read-only. All Canic blob capabilities must work here before removal there, with
-installation retirement handled separately; see [parity](../canic-parity.md) and
-[acceptance](../acceptance-plan.md).
+The maintainer confirmed Canic's 0.110 acceptance for work here without changing
+Canic's handoff. Agents must not commit, change versions or infer deployment/
+publication authority from continuation. Siblings remain read-only. All Canic
+blob capabilities must work here before removal there, with installation
+retirement handled separately; see [parity](../canic-parity.md) and
+[acceptance](../acceptance-plan.md). Library publication is separately enabled
+and does not establish service qualification.

@@ -118,6 +118,22 @@
           "source": "crates/ic-blob-storage/src/model/lifecycle/roots/mod.rs",
           "coverage": "Bounded immutable service-wide root claims reject reassignment or multiple roots for one object.",
           "remaining": "Durable atomic claim/intent reservation before certificate exposure, namespace exclusivity, capacity selection and restore safety."
+        },
+        {
+          "kind": "native_core_partial",
+          "record": "evidence/core-primitives.md",
+          "source_hashes": "evidence/upload-admission.sha256",
+          "source": "crates/ic-blob-storage/src/model/catalog/admission/mod.rs",
+          "coverage": "Transient tenant-bound upload reservations share catalog/root history and global/tenant byte capacity. Exact operation replay, conflicting arguments, concurrent/lifetime limits, cancellation before exposure, retained uncertain outcomes and accounting transfer on completion are tested. Settlement does not reopen an operation or root.",
+          "remaining": "Durable intent-before-effect admission, pending-upload gateway liveness, actual certificate/upload transport, independent namespace ownership, operation-specific completion lookup and same-release recovery/restore."
+        },
+        {
+          "kind": "pocketic_fixture_partial",
+          "record": "evidence/core-primitives.md",
+          "source_hashes": "evidence/upload-admission.sha256",
+          "source": "tests/pocketic/tests/uploads.rs",
+          "coverage": "Real IC callers/controllers cannot cancel another tenant's reservation; even the owner cannot cancel possible exposure. Exact cancellation replay does not double-free bytes. Fixed fixture facts substitute uploads/completion.",
+          "remaining": "Actual certificate/upload workflow, provider evidence, durable intent/recovery, restore fences and both production adapters."
         }
       ]
     },
@@ -189,6 +205,14 @@
           "source": "tests/pocketic/tests/authority.rs",
           "coverage": "Real PocketIC callers exercise direct-tenant reference reads over sample confirmed objects: foreign tenants, anonymous callers and the actual controller are denied; forged tenant/service fields grant no access.",
           "remaining": "Production endpoints and both adapters, persisted state and restore fencing, provider transport, authenticated completion/deletion/billing evidence and full service journeys."
+        },
+        {
+          "kind": "native_and_pocketic_fixture_partial",
+          "record": "evidence/core-primitives.md",
+          "source_hashes": "evidence/upload-admission.sha256",
+          "source": "crates/ic-blob-storage/src/policy/catalog/upload/mod.rs",
+          "coverage": "Gateway observations distinguish reserved, possibly exposed, cancelled and confirmed root states. Native tests retain malformed/duplicate positions and hide other namespaces. PocketIC checks actual gateway callers and immediate revocation. Batch reads deduplicate lookup work, share at most one early-ending history scan, preserve every input position and retain no cross-call cache. Native regressions measure inspected rows and skip scans for confirmed/unknown/malformed-only batches.",
+          "remaining": "Provider wire liveness/deletion mapping, actual protection of pending uploads, durable state, namespace ownership, provider reconciliation and production adapters."
         }
       ]
     },
@@ -387,6 +411,14 @@
           "source": "crates/ic-blob-storage/src/model/catalog/mod.rs",
           "coverage": "Derived global/tenant usage over owned confirmed lifecycles and journals; separate logical, physical and liability bytes, zero-byte obligation counts, global/per-tenant lifetime object bounds, per-object metadata bounds and atomic local admission.",
           "remaining": "Authenticated endpoints, trusted persisted catalog and recovery fences, durable upload reservations, monetary accounting, actual provider protocol/evidence and service journeys."
+        },
+        {
+          "kind": "native_and_pocketic_fixture_partial",
+          "record": "evidence/core-primitives.md",
+          "source_hashes": "evidence/upload-admission.sha256",
+          "source": "crates/ic-blob-storage/tests/upload_reads.rs",
+          "coverage": "Tenant usage includes pending reservations and confirmed obligations. Bounded active-upload pages validate cursor scope and current caller, preserve empty-page continuation and observe intervening transitions. PocketIC verifies caller-isolated usage/pages and cancellation accounting.",
+          "remaining": "Persistent aggregate accounting, production query bounds, operator views and service/provider recovery journeys."
         }
       ]
     },

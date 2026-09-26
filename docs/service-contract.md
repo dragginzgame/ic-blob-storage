@@ -51,6 +51,27 @@ model, and explicitly directed a fresh design review of Canic's decisions.
 That local scope includes the transient confirmed-object lifecycle model below.
 It does not close provider qualification or authorize persisted workflows/effects.
 
+The 0.1.11 continuation also authorizes local upload admission/reservation work.
+`UploadCatalog` owns its confirmed catalog and operation history together, using
+the same root claims and aggregate byte bounds. Exact tenant-scoped operations
+reserve lifetime history, concurrent slots and bytes before possible exposure.
+Cancellation is allowed only before exposure; unknown outcomes retain capacity.
+Confirmation consumes an independently authenticated exact fact and transfers
+the reservation without allocating a second object. Cancelled/settled history
+and root claims are retained. This transient model has no certificates, provider
+transport, timeout, serialization, restore or automatic uncertain-effect retry.
+Byte liabilities do not bound monetary costs. Pending-upload gateway liveness,
+provider reconciliation and durable admission remain integration work.
+Local read policy now includes tenant-scoped active-upload pages and aggregate
+reserved/confirmed usage. Scope-bound cursors convey no authority or snapshot;
+scan/result budgets come from configuration. Gateway observations cover pending,
+cancelled and confirmed root history with current membership and namespace checks.
+These typed observations deliberately define no provider liveness/deletion boolean.
+Gateway batches use temporary input-bounded maps and at most one shared history
+scan; duplicates do not multiply scans, and no read cache persists between calls.
+Native tests and fixed PocketIC caller/cancellation/revocation fixtures cover this
+read boundary; pending-root protection in the actual protocol remains unqualified.
+
 On 2026-09-26 the maintainer explicitly requested resolving the upload-completion,
 funding-error and stale-deletion findings. That scope now includes bounded local
 Caffeine reply decoding with one private wire owner, and a transient immutable

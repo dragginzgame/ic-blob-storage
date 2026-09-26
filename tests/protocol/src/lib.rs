@@ -5,6 +5,7 @@ use candid::{CandidType, Principal};
 use serde::Deserialize;
 
 pub mod content;
+pub mod uploads;
 
 /// Deliberate source behavior for one local gateway-list experiment.
 #[derive(Clone, Copy, Debug, CandidType, Deserialize)]

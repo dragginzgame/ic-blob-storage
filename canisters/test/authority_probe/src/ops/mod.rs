@@ -2,6 +2,7 @@
 
 pub(crate) mod content;
 pub(crate) mod sync;
+pub(crate) mod uploads;
 
 use std::{
     cell::RefCell,
@@ -32,6 +33,7 @@ thread_local! {
 
 pub(crate) struct State {
     pub catalog: BlobCatalog,
+    pub uploads: uploads::Uploads,
     pub registry: GatewayRegistry,
     pub operator: Principal,
     gateway: Principal,
@@ -112,6 +114,7 @@ pub(crate) fn initialize(
     STATE.with_borrow_mut(|state| {
         *state = Some(State {
             catalog,
+            uploads: uploads::initialize(service, first, second),
             registry,
             operator,
             gateway,

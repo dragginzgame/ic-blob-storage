@@ -717,3 +717,84 @@ The chunk-verification inventory now also binds the fixture, protocol and harnes
 sources. Workspace Clippy, Wasm, formatting and offline packaging pass; test-only
 serde/JSON dependency edges reuse existing versions and leave the core graph
 unchanged. No provider, persistence or production adapter was exercised.
+
+## Transient upload admission after 0.1.10
+
+The [admission owner](../../crates/ic-blob-storage/src/model/catalog/admission/mod.rs)
+combines pending operations and its private confirmed catalog under the existing
+byte/object bounds plus explicit concurrent-upload bounds. One shared root-claim
+map prevents admission through another operation, including after cancellation.
+An admitted operation permanently consumes a lifetime slot; no rejected request
+leaks a claim. Every pending operation reserves its declared bytes in tenant
+logical, global physical and global liability totals. Confirmed-object metadata
+bounds reserve the first reference's eventual release receipt.
+
+Exact tenant-scoped request IDs bind full object/first-reference identity, raw
+digest, provider root and length. `reserve`, `phase`, exposure and cancellation
+check the supplied authenticated tenant before looking up/replaying an operation.
+Cancellation only releases bytes/concurrent slots while still Reserved. Once
+ExposurePossible, neither cancellation, retries nor unrelated deletion/billing
+observations free those reservations. There is no timeout/reset API. Completion
+consumes a separately authenticated exact fact and transfers capacity into the
+same catalog; replay after settlement cannot restore a reference or liability.
+
+[Native tests](../../crates/ic-blob-storage/src/model/catalog/admission/tests/mod.rs)
+exercise competing tenants and identical tenant-local IDs, each independent
+capacity bound, exact/rejected retries, immutable service/namespace/incarnation/
+reference/content inputs, root/object reuse rejection, cancellation, unresolved
+exposure, out-of-order completion at capacity and separate logical/physical/
+financial release. Zero-byte operations retain slots and totals above u64 remain
+exact. Snapshots cover operation history, root claims and confirmed state on
+rejection. Tests supply completion/deletion/billing facts as local substitutes.
+
+The [read model](../../crates/ic-blob-storage/src/model/catalog/admission/read/mod.rs)
+adds tenant-bounded operation scans with separate scan/result budgets. Terminal
+history consumes scan work, empty filtered pages can continue, and cursors bind
+service/tenant without granting access or a snapshot. The
+[read policy](../../crates/ic-blob-storage/src/policy/catalog/upload/mod.rs) checks
+the actual context on each page and includes reservations in tenant usage.
+Gateway batches preserve input order, duplicates and malformed entries, report
+reserved/uncertain/cancelled/confirmed state, and hide other namespaces. They
+recheck current membership even for empty batches. No state maps to a provider
+deletion boolean. Batch reads resolve unique roots through existing claim/catalog
+lookups, then share one history scan for remaining pending/cancelled roots. The
+scan stops as soon as all are found; batches with no such roots skip it entirely.
+Temporary maps are bounded by unique valid input count, with no persistent index
+or cross-call cache. Duplicates retain their output positions without repeating
+history scans. The model's batch view reports actual scanned operation rows,
+excluding tree lookups; policy does not disclose that global count to gateways.
+
+[Read integration cases](../../crates/ic-blob-storage/tests/upload_reads.rs)
+exercise budget combinations, sparse terminal history, cancellation/completion
+between pages, new lower IDs, maximum IDs, tenant ID collisions, scope rejection
+and phase/accounting consistency. Duplicate-heavy mixed batches match individual
+root observations, visit history at most once, stop early and observe later
+confirmation without stale results. Confirmed/unknown/malformed-only and empty
+batches inspect no history rows. These views do not mutate operations or usage.
+The [PocketIC upload case](../../tests/pocketic/tests/uploads.rs) executes four
+fixed local upload facts: reserved/exposed roots for tenant A, confirmed/cancelled
+roots for tenant B. Actual callers observe only their own uploads/usage; a real
+controller has no tenant override. Foreign cancellation and owner cancellation
+after exposure reject. Repeated pre-exposure cancellation frees capacity once,
+and revocation immediately blocks the gateway observation. The fixture protocol
+and initialization supply no provider transport or persisted state.
+
+The [source inventory](upload-admission.sha256) binds the new implementation,
+maintained dependencies, native tests and expanded fixtures at Cargo 0.1.10.
+Targeted admission/read tests, `make test-native`, workspace Clippy, Wasm checks,
+formatting, rustdoc and offline package verification pass; the archive includes
+the new model/policy modules and native integration cases. `make test-pocketic`
+passes the new upload case and
+existing authority/content/sync cases using the explicit local server. Observed
+authority-probe Wasm SHA-256 is
+`9f15a6eb3ad3dac2e0797932018a768e6fdaa3379b81be4c06350ba70fc9ab42`;
+the retained PocketIC 16.0.0 server is unchanged. No full CI/release gate ran.
+The 0.1.10 chunk-verification inventory separately matches released source
+`aaa5057`; it remains unchanged.
+
+This is partial A01/A03/A04/A06 evidence, not production upload authority,
+persistence, same-release recovery, provider liveness for pending uploads or a
+provider protocol. The owner cannot be cloned/imported/serialized; creating it
+fresh does not restore an existing installation. Byte liabilities are not a
+currency bound. Independent provider qualification, restore fencing and durable
+intent-before-effect storage still precede actual certificates or paid uploads.

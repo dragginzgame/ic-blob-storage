@@ -2,17 +2,79 @@
 
 use blob_test_protocol::SyncFailure;
 use blob_test_protocol::content::{ContentProbeCase, ContentProbeFailure, ContentProbeReport};
+use blob_test_protocol::uploads::UploadProbeState;
 use candid::Principal;
 use ic_blob_storage::{
-    model::catalog::pending::PendingPageLimits,
+    model::catalog::{admission::read::UploadPageLimits, pending::PendingPageLimits},
     policy::{
-        catalog::{assess_gateway_pending, assess_tenant_usage, tenant::assess_tenant_references},
+        catalog::{
+            assess_gateway_pending, assess_tenant_usage,
+            tenant::assess_tenant_references,
+            upload::{
+                assess_gateway_upload_roots, assess_tenant_active_uploads,
+                assess_tenant_upload_usage,
+            },
+        },
         gateway::GatewayCallbackContext,
         tenant::{TenantAccessContext, assess_tenant_access},
     },
 };
 
 use crate::ops;
+
+pub(crate) fn upload_usage(context: TenantAccessContext) -> Option<u128> {
+    ops::read(|state| {
+        assess_tenant_upload_usage(&state.uploads.catalog, context)
+            .ok()
+            .map(|usage| usage.logical_bytes)
+    })
+}
+
+pub(crate) fn active_uploads(context: TenantAccessContext) -> Option<Vec<u8>> {
+    ops::read(|state| {
+        assess_tenant_active_uploads(
+            &state.uploads.catalog,
+            context,
+            None,
+            UploadPageLimits {
+                max_scan: ops::bound(4),
+                max_results: ops::bound(4),
+            },
+        )
+        .ok()
+        .map(|page| {
+            page.entries
+                .iter()
+                .map(|entry| entry.request.object.root.as_bytes()[0])
+                .collect()
+        })
+    })
+}
+
+pub(crate) fn upload_roots(context: TenantAccessContext) -> Option<Vec<UploadProbeState>> {
+    ops::read(|state| {
+        assess_gateway_upload_roots(
+            &state.uploads.catalog,
+            &state.registry,
+            GatewayCallbackContext {
+                service: context.service,
+                actor: context.actor,
+            },
+            &ops::uploads::roots(),
+        )
+        .ok()?
+        .into_iter()
+        .map(ops::uploads::status)
+        .collect()
+    })
+}
+
+pub(crate) fn cancel_upload(context: TenantAccessContext, root: u8) -> bool {
+    if !ops::read(|state| context.service == state.uploads.catalog.confirmed().service()) {
+        return false;
+    }
+    ops::uploads::cancel(context.actor, root)
+}
 
 pub(crate) fn initialize(
     service: Principal,

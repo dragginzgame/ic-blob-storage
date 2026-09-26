@@ -6,7 +6,12 @@
 //! exposed; discovering a full catalog after uploading is not safe admission.
 //! One authoritative instance must own this state. Cloning/reconstruction does
 //! not establish restore safety, fresh identities or permission to discard history.
+//!
+//! [`admission::UploadCatalog`] additionally owns transient pending reservations
+//! and shares this catalog's capacity and root claims. Its confirmed-only view
+//! must not be used as the aggregate usage or liveness of pending uploads.
 
+pub mod admission;
 pub mod pending;
 
 #[cfg(test)]

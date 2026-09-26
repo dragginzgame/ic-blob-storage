@@ -4,6 +4,7 @@
 //! caller must fence stale/restored state and supply actual execution context.
 
 pub mod tenant;
+pub mod upload;
 
 use candid::Principal;
 use thiserror::Error;

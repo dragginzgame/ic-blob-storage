@@ -85,6 +85,16 @@ and qualification. Test vectors and interface expectations must trace to that
 upstream source/release and the verified deployment, not Canic's historical
 snapshots. Package currency does not establish paid-effect or restore safety.
 
+The transient upload owner adds partial native A01/A03/A04/A06 evidence: full
+tenant/request binding, shared pending/confirmed quotas, bounded concurrent and
+lifetime operations, cancellation before exposure, retained uncertain capacity,
+and exact completion transfer/replay. These tests substitute trusted provider
+facts. Bounded tenant pages/usage and gateway root observations include pending
+uploads; native cases cover scope, budgets and intervening transitions. PocketIC
+checks actual caller/controller isolation, cancellation replay and revocation.
+These do not execute certificates, provider pending-upload liveness,
+interruption/restore or provider reconciliation; those cases remain open.
+
 | ID | Trigger and observable result | Evidence owner and method |
 | --- | --- | --- |
 | A01 — authority | Tenant A uploads; tenant B and an otherwise privileged Canic controller cannot resume, access restricted service metadata or release A's reference. Wrong service, provider namespace, actor or epoch rejects without changing reservations, references or invoking provider effects. Public provider URLs convey no byte confidentiality; A10 records that boundary | Service/consumer owners, unassigned; native authority predicates plus PocketIC endpoint cases for both adapters |
