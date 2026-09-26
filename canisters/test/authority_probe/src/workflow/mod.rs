@@ -1,5 +1,7 @@
 //! Test-only orchestration using shared library policy and fixture state access.
 
+pub(crate) mod journey;
+
 use blob_test_protocol::SyncFailure;
 use blob_test_protocol::content::{ContentProbeCase, ContentProbeFailure, ContentProbeReport};
 use blob_test_protocol::obligations::{ObligationProbeFact, ObligationProbeView};
@@ -215,8 +217,14 @@ pub(crate) async fn sync_gateway(context: TenantAccessContext) -> Result<(), Syn
     };
     if outcome.is_err() {
         // This local read-only attempt is abandoned explicitly. No automatic
-        // retry, paid effect, persistence or provider completion rule is implied.
+        // retry, paid effect or provider completion rule is implied.
         ops::sync::cancel(token);
     }
     outcome
+}
+
+pub(crate) fn archive(
+    context: TenantAccessContext,
+) -> Option<blob_test_protocol::authority::AuthorityArchiveView> {
+    ops::archive::inspect(context.service, context.actor)
 }

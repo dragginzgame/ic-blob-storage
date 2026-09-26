@@ -91,6 +91,15 @@ pub struct GatewaySyncToken {
     sequence: u64,
 }
 
+/// Read-only attempt counters, without a reusable token or recovery authority.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub struct GatewaySyncView {
+    /// Last allocated sequence, including completed and invalidated attempts.
+    pub last_sequence: u64,
+    /// Exact currently pending sequence, if any.
+    pub pending_sequence: Option<u64>,
+}
+
 /// Membership and at most one outstanding sync, owned together.
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct GatewayRegistry {
@@ -215,6 +224,18 @@ impl GatewayRegistry {
         &self.gateways
     }
 
+    /// Inspect correlation history without minting tokens or authorizing restore.
+    #[must_use]
+    pub const fn sync_view(&self) -> GatewaySyncView {
+        GatewaySyncView {
+            last_sequence: self.last_sequence,
+            pending_sequence: match self.pending {
+                Some(token) => Some(token.sequence),
+                None => None,
+            },
+        }
+    }
+
     fn check_token(&self, token: GatewaySyncToken) -> Result<(), GatewaySyncError> {
         if token.scope != self.scope {
             return Err(GatewaySyncError::WrongScope);
@@ -277,10 +298,24 @@ mod tests {
     fn cancelled_and_replayed_responses_cannot_replace_newer_membership() {
         let mut registry = registry();
         let old = registry.begin_sync().expect("old attempt");
+        assert_eq!(
+            registry.sync_view(),
+            GatewaySyncView {
+                last_sequence: 1,
+                pending_sequence: Some(1),
+            }
+        );
         let before = registry.clone();
         assert_eq!(registry.begin_sync(), Err(GatewaySyncError::SyncInProgress));
         assert_eq!(registry, before);
         registry.cancel_sync(old).expect("cancel old read");
+        assert_eq!(
+            registry.sync_view(),
+            GatewaySyncView {
+                last_sequence: 1,
+                pending_sequence: None,
+            }
+        );
         let current = registry.begin_sync().expect("new attempt");
         assert_ne!(old, current);
         let before = registry.clone();
@@ -295,6 +330,13 @@ mod tests {
             .expect("current valid reply");
         assert_eq!(registry.gateways().principals(), &[p(5), p(4)]);
         let completed = registry.clone();
+        assert_eq!(
+            registry.sync_view(),
+            GatewaySyncView {
+                last_sequence: 2,
+                pending_sequence: None,
+            }
+        );
         assert_eq!(
             registry.apply_sync(current, registry.scope(), &[p(3)]),
             Err(GatewaySyncError::StaleSync)

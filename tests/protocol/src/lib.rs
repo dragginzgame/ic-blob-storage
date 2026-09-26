@@ -4,13 +4,16 @@
 use candid::{CandidType, Principal};
 use serde::Deserialize;
 
+pub mod authority;
 pub mod content;
 pub mod funding;
+pub mod journey;
 pub mod obligations;
+pub mod source;
 pub mod uploads;
 
 /// Deliberate source behavior for one local gateway-list experiment.
-#[derive(Clone, Copy, Debug, CandidType, Deserialize)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
 pub enum SourceMode {
     /// Return the configured member.
     Valid,

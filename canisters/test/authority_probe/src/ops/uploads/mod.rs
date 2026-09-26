@@ -1,4 +1,4 @@
-//! Fixed upload facts for IC caller tests; no provider effects or stable state.
+//! Fixed upload facts for IC caller tests; archived by the enclosing state owner.
 
 use super::{bound, number, reference};
 use blob_test_protocol::uploads::UploadProbeState;
@@ -22,7 +22,7 @@ use ic_blob_storage::{
 
 pub(crate) struct Uploads {
     pub catalog: UploadCatalog,
-    requests: [UploadRequest; 4],
+    pub(super) requests: [UploadRequest; 4],
 }
 
 pub(crate) fn initialize(service: Principal, first: Principal, second: Principal) -> Uploads {
@@ -76,8 +76,8 @@ pub(crate) fn initialize(service: Principal, first: Principal, second: Principal
 }
 
 pub(crate) fn cancel(actor: Principal, root: u8) -> bool {
-    super::STATE.with_borrow_mut(|state| {
-        let uploads = &mut state.as_mut().expect("initialized").uploads;
+    super::mutate(|state| {
+        let uploads = &mut state.uploads;
         let Some(request) = uploads
             .requests
             .iter()

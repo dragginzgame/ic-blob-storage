@@ -11,6 +11,8 @@ crate-type = ["cdylib"]
 [dependencies]
 candid.workspace = true
 ic-cdk.workspace = true
+ic-blob-storage = { path = "../../../crates/ic-blob-storage" }
+serde.workspace = true
 blob-test-protocol = { path = "../../../tests/protocol" }
 
 [lints]

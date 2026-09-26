@@ -7,11 +7,11 @@ use ic_blob_storage::{
 };
 use ic_cdk::call::Call;
 
-use super::{STATE, bound};
+use super::{bound, mutate};
 
 pub(crate) fn begin() -> Result<(GatewaySyncToken, GatewayScope), SyncFailure> {
-    STATE.with_borrow_mut(|state| {
-        let registry = &mut state.as_mut().expect("initialized fixture").registry;
+    mutate(|state| {
+        let registry = &mut state.registry;
         let token = registry.begin_sync().map_err(sync_error)?;
         Ok((token, registry.scope()))
     })
@@ -29,9 +29,9 @@ pub(crate) fn apply(
     scope: GatewayScope,
     bytes: &[u8],
 ) -> Result<(), SyncFailure> {
-    STATE.with_borrow_mut(|state| {
-        apply_gateway_sync_reply(
-            &mut state.as_mut().expect("initialized fixture").registry,
+    mutate(|state| {
+        let result = apply_gateway_sync_reply(
+            &mut state.registry,
             token,
             scope,
             bytes,
@@ -46,19 +46,19 @@ pub(crate) fn apply(
             GatewayReplyError::ReplyTooLarge => SyncFailure::ReplyTooLarge,
             GatewayReplyError::InvalidReply => SyncFailure::InvalidReply,
             GatewayReplyError::Sync(error) => sync_error(error),
-        })
+        });
+        if result.is_ok() {
+            state.journey.reads.invalidate();
+        }
+        result
     })
 }
 
 pub(crate) fn cancel(token: GatewaySyncToken) {
-    STATE.with_borrow_mut(|state| {
+    mutate(|state| {
         // A stale callback must never cancel a newer attempt. Exact cancellation
         // intentionally does nothing when revocation/replacement consumed this token.
-        let _ = state
-            .as_mut()
-            .expect("initialized fixture")
-            .registry
-            .cancel_sync(token);
+        let _ = state.registry.cancel_sync(token);
     });
 }
 

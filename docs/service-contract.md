@@ -24,6 +24,44 @@ sample transient objects. Actual IC caller/service context reaches the shared
 library policies and catalog; caller isolation, release replay and gateway
 revocation have [partial evidence](evidence/core-primitives.md#pocketic-authority-probe-after-018).
 This fixture does not select a production API or establish provider/persistence guarantees.
+After 0.1.14, the maintainer approved a connected local upload/deletion journey.
+The fixture uses the current source's certificate/liveness/deletion method shapes
+with shared catalog/policy checks. Tenant-only certificate admission, conservative
+protection of unknown/pending roots and gateway-only liveness are local proposed
+semantics. Local bytes must match the reserved manifest and raw digest before
+certificate exposure. This fixture accepts nonempty files up to 6 MiB in six
+chunks, with eight headers and 1 KiB of framed header input. It retains bounded
+manifest/hash state across messages, discards checked bytes, and does not select
+a production upload architecture or restore format. Tenant progress and exact
+chunk retries preserve the verified prefix; a final raw-digest mismatch is
+terminal for that declaration. Real IC callback rollback is exercised; gateway certificate
+validation, provider storage, completion and billing cessation remain unqualified.
+The same local journey reads individual chunks from a driver-controlled source
+canister. It requires the bound tenant's live confirmed reference and current
+gateway authority before and after the call, and checks bytes against the
+admitted manifest before disclosure. Revocation/successful gateway sync invalidate
+pending reads; re-addition cannot validate an old reply. This does not specify a
+production HTTP transport, range protocol, read-session recovery or provider SLA.
+The transient authority fixture rejects upgrades in both pre_upgrade and
+post_upgrade because no lossless upload journal restoration exists. PocketIC proves
+ordinary stop/start continuity, atomic rollback of rejected upgrades (including
+skip_pre_upgrade), and retention of uncertainty, root history, billing and held
+callbacks. An operator-armed read callback trap rolls back attempted slot cleanup;
+that slot stays blocked through stop/start and elapsed time. No reset/unfence
+endpoint is provided. The local source has a fixture-only ic-memory journal for
+bindings, retained bytes/read state and bounded lifetime call history. Intents
+precede dispatch. Synchronous restoration always fences operational endpoints;
+only the original driver can inspect the retained journal. Unresolved work rejects
+ordinary upgrades, while skipping the outgoing hook still restores behind the
+fence. Missing journals reject restoration. This does not restore upload state,
+qualify snapshot loads/reinstall, or supply authority surviving an old backup.
+The authority fixture additionally writes a bounded inspection archive in the
+same IC message as every mutation. It covers sample confirmed objects, sample
+uploads and the connected journey, including immutable identities, release
+receipts, accounting, manifests/progress and exact pending read intent. Only its
+explicit operator may inspect it. The archive lacks resumable streaming-hash
+state and does not reconstruct an operational registry/catalog; upgrades remain
+rejected. Old archive bytes never feed admission or overwrite the active owner.
 Its controlled local source canister additionally exercises gateway sync across
 real awaits, including reentrant revocation and replacement. No provider binding
 or deployed Cashier transport is implemented by these test-only calls.

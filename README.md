@@ -24,6 +24,19 @@ source canister tests stale sync replies and reentrant membership changes.
 The same local harness executes byte-verification vectors inside Wasm and checks
 an explicit instruction budget for ordered chunk appends.
 Upload fixtures also check real caller isolation, cancellation and retained uncertainty.
+A connected local journey now covers certificate admission through deletion and
+separate billing cessation, including actual inter-canister callbacks and rollback.
+Its bounded files, explicit metadata and chunks are verified across messages
+before certificate admission, with tenant-only progress and checked retries;
+provider completion and billing remain supplied facts, without live uploads.
+Local readback verifies chunks returned by a controlled canister and rechecks
+tenant/reference/gateway authority after the await, including held stale replies.
+Stop/start preserves these fixture journals; unsupported upgrades are rejected.
+A trapped read callback retains its pending slot instead of silently retrying.
+The local source restores its bounded ic-memory journal into an inspection-only
+fence; upload authority still has no supported journal restoration.
+The authority now atomically archives all three catalogs and pending read intent
+for operator inspection; this archive does not resume streaming verification.
 Shared funding accounting separates callback refunds, proven enqueue failure and
 unknown transfers. Its reconciliation policy never treats accepted cycles as
 provider credit. PocketIC funding fixtures exercise actual transfers, enqueue

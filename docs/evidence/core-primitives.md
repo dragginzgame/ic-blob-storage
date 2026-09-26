@@ -1022,3 +1022,177 @@ The [source inventory](cashier-audit.sha256) binds the decoder and independent
 fixtures at Cargo 0.1.13. Binding an authenticated transport response to its exact
 service/account/filter/operation, interpreting CSV, cursor progression, retention
 and deployed credit reconciliation remain unqualified.
+
+## Connected upload and deletion journey after 0.1.14
+
+The [journey test](../../tests/pocketic/tests/journey.rs) drives an initially empty
+shared UploadCatalog inside the authority fixture. Current source selection and
+explicit local semantic differences are recorded in the
+[protocol snapshot](upload-deletion-protocol.json). The four source method names,
+argument/reply shapes and query/update modes are used directly by the harness.
+
+Admission binds the actual tenant to an exact immutable request and reserves
+logical, physical and liability capacity. Actual content must pass the shared
+manifest and ordered verifier against the reserved root, length and raw digest
+before a certificate response. This fixture accepts nonempty files up to 6 MiB
+in at most six 1 MiB chunks, plus at most eight headers/1 KiB of framed header
+input. It discards checked bytes, retaining only bounded manifest and hash state
+across messages. The transient fixture model composes the shared ordered verifier
+with exact old-chunk checking; no production model or checkpoint format changes.
+The independent `abc`, partial-final-chunk and uneven-tree-with-metadata vectors
+drive actual installed Wasm. Truncated, extra, corrupt and mismatched-digest bytes reject without
+issuing authority or releasing reservations. Only the bound tenant can verify;
+exact chunk/re-reservation retries preserve the verified prefix and never feed
+the raw hash twice. Tenant-only progress separates checked leaf bytes from the
+final raw-digest verdict. Final digest failure is terminal for the declaration;
+replaying admission cannot reset it. Changed metadata, excessive header/chunk
+inputs and skipped indices reject; canonically equivalent reordered headers
+preserve progress. A changed digest cannot replace the reservation, and verification alone cannot confirm
+provider storage. Certificate responses mark possible
+exposure before returning; repeats cannot issue fresh authority. An interrupted
+upload remains protected and charged, cannot be cancelled/released/deleted, and
+requires a separate supplied completion fact. Exact replay leaves accounting
+unchanged; conflicting parameters, cross-tenant roots and excessive amounts reject.
+
+After completion, logical release leaves physical and billing obligations. A real
+second canister delivers binary-root deletion batches. If a later root is still
+live, the actual IC rolls back earlier changes in the same callback message.
+Duplicate and delayed callbacks cannot reactivate objects or affect a newer root;
+revoked gateways cannot apply even empty callbacks. Physical deletion frees only
+physical capacity; a separate operator-supplied billing fact releases liability.
+Malformed/oversized batches, unauthorized controller/tenant/gateway use, and
+pre-exposure cancellation also have observable rejection/accounting checks.
+Partial files remain charged until cancellation; cancelling before exposure frees
+capacity without allowing the retained identity or prefix to issue authority.
+Two tenants can interleave work without resetting or observing each other's
+prefixes. Lifetime session/object bounds remain eight global/four per tenant;
+global physical/liability capacity is 12 MiB and tenant logical capacity 6 MiB.
+
+The [readback cases](../../tests/pocketic/tests/readback/mod.rs) fetch individual
+leaves through real calls to the controlled source canister. Before and after
+the await, shared tenant/reference liveness and gateway policy check the complete
+admitted binding. Exact manifest length/hash checks precede returning any bytes.
+Reads may select leaves out of order and repeat them; they neither advance upload
+progress nor release accounting. This verifies individual returned chunks, not
+a new whole-file observation, provider durability or a billing/completion receipt.
+
+One service read slot admits at most one pending call. Revocation and successful
+gateway synchronization invalidate it without releasing capacity early; only its
+exact callback frees the slot. Native tests additionally reject an old callback
+against a newer slot. An encoded reply is capped at 1 MiB + 64 bytes before Candid
+decoding, with work/skip/type budgets of 10,000,000/64/8. These application bounds
+do not cap the platform's earlier reply buffering or prove remote work stopped
+after a transport failure. No automatic retry occurs.
+
+The source retains one driver-configured leaf of at most 1 MiB and captures one
+reply while held. A bounded chain of up to 128 local raw_rand callbacks yields
+across rounds; random bytes are unused. This is fixture scheduling, not a
+provider protocol. PocketIC proves no disclosure after release while awaiting a
+reply, or after gateway revocation followed by re-addition. Corrupt/truncated,
+wrong-file, oversized, malformed and rejected responses return no bytes; a later
+explicit valid read still works. Source controls remain driver-only and the source
+read endpoint accepts only the installed service. No live HTTP read was performed.
+
+The [lifecycle cases](../../tests/pocketic/tests/recovery/mod.rs) define the narrow
+supported boundary of these transient fixtures. Ordinary IC stop/start retains
+chunk progress, exposed reservations and accounting; verified prefixes continue
+without rehashing duplicate chunks. The authority rejects upgrades in pre_upgrade
+and post_upgrade. Actual authority upgrades, including chunked installation with the
+outgoing hook skipped, reject with typed canister errors and leave the original
+instance usable. Tests retain cancelled root claims, unresolved upload exposure,
+billing after physical deletion and a held read that still rejects after release.
+
+An operator-only fault control binds a deliberate callback trap to the next read
+of a named admitted root. The trap runs after attempted slot release. Actual IC
+rollback preserves the admission from before the source call, while the source's
+request observation survives. No further source read occurs; stop/start and a
+simulated day passing cannot clear the blocked slot or its accounting. This is
+failure-containment evidence, not successful read recovery. No persisted upload
+journal, unfence command, snapshot-load protection or surviving recovery
+authority was added. Controller reinstall and old-snapshot loads are outside this
+supported boundary; lifecycle-hook rejection must not be described as fencing them.
+
+The controlled source now has a same-release journal in its host-owned ic-memory
+cell (`fixture.source.journal.v1`, granted memory ID 120). It retains explicit
+service/gateway/driver bindings, source configuration, observations, one leaf up
+to 1 MiB, pending/ready read flags and at most 64 lifetime outgoing actions. Exact
+sync/revoke/delete intent is committed before dispatch; deletion payloads retain
+up to eight roots. Callback observations never recycle history and do not establish
+provider effects. A callback trap leaves its action unresolved. Journal encoding
+is bounded to 1,114,112 bytes and decoding has work/skip/type budgets of
+30,000,000/10,000/64. These are local experiment limits and a small full-cell
+checkpoint strategy, not a production storage recommendation.
+
+Source post_upgrade synchronously loads/validates the journal and permanently
+fences operational endpoints before returning. The original driver may inspect
+retained bytes/history; controllers and tenants gain no such authority. There is
+no unfence/reset/retry control. Ordinary upgrades reject a pending read or unknown
+effect. A forced skip-pre_upgrade restoration still retains and fences them.
+PocketIC covers the maximum leaf together with full action history, exhausted
+capacity, successful and rejected call results, unresolved callback intent,
+missing stable data with failed-upgrade rollback, repeated upgrades, and older
+stable bytes whose request counter predates an observed read. None authorizes new
+effects. Restoring a journal captured during a held read preserves the pending
+marker and denies resume/reconfiguration without releasing it. This stable-memory
+injection experiment is not a whole-canister snapshot
+load: restoring an old heap can bypass post_upgrade entirely. Upload journals and
+independent recovery authority remain unimplemented.
+
+The authority's [inspection archive](../../canisters/test/authority_probe/src/ops/archive/mod.rs)
+now records all three fixture owners in a separate host-owned ic-memory cell
+(`fixture.authority.archive.v1`, memory ID 120). The encoded archive is capped at
+65,536 bytes; Candid work/skip/type budgets are 2,000,000/10,000/64. It retains
+the two confirmed samples, four sample uploads and at most eight journey uploads,
+including cancelled/settled identities, declared lengths/digests, release request
+1's original result and charged logical/physical/liability bytes. Namespace,
+incarnation and reference identity remain the fixture's explicit fixed values.
+Coverage assertions reject mutations if the fixture grows histories the archive
+does not represent. Manifests retain original accepted headers/leaf hashes; each
+verification prefix and independent terminal digest verdict is recorded without
+retaining file bytes or serializing the streaming hash state.
+
+All state mutations share an archive commit in the same IC message, including
+error-valued terminal digest failure. Admission/exposure and exact read intent
+are saved before replies or source effects. Read intent includes tenant, root,
+index, gateway and token; revocation records invalidation without clearing it.
+Gateway scope, current members and last/pending sync sequences are retained too.
+The shared registry's additive `sync_view` exposes observations only, never tokens.
+PocketIC proves stable rollback alongside live state after a mixed invalid
+deletion batch and an actual read callback trap. It also covers full lifetime
+history, sample and journey billing, partial verification, settled receipts,
+reentrant syncs and inspection by the operator independently of controller status.
+
+Inspection reopens stable memory, with bounded decoding and no empty fallback.
+Direct PocketIC injection of old or missing stable data is followed by an existing
+stateless update so the IC query cache cannot mask the fault. Old data is observed
+as old evidence, missing data rejects inspection, and neither feeds active
+admission or changes accounting. This is an atomic inspection archive, not a
+lossless operational checkpoint: authority pre/post_upgrade still reject, since
+streaming SHA state and supported reconstruction are not implemented. Snapshot
+loads and independent restore authority remain outside the demonstrated boundary.
+
+Strict Clippy for the affected fixture/protocol/harness packages, formatting and
+both fixture Wasm builds pass. Targeted native raw-identity tests cover the additive
+32-byte raw-digest parser and typed length errors. PocketIC journey, content,
+authority, uploads, obligations
+and gateway-sync targets pass with ic-testkit's exported PocketIC 16.0.0. Run the
+journey target with the existing `POCKET_IC_BIN`, `BLOB_AUTHORITY_PROBE_WASM` and
+`BLOB_GATEWAY_SOURCE_WASM` environment variables after building the fixtures.
+The [source inventory](upload-deletion-journey.sha256) binds the selected sources
+at Cargo 0.1.14. Wasm SHA-256:
+
+- authority probe: `6e29a589f95d3b927bc964737cc9d1196863ece8c0f2bd31d77d27fc329b90dd`
+- gateway source: `584b5ebd120855239721fb4d03f7b45e7bd068cdaf1668ddf26b0ec2a9e720d4`
+
+This is a transient local composition experiment. File roots and digests
+are checked against actual bytes; upload completion and final billing facts
+are substitutes. This does not select a production service-mediated upload
+architecture or qualify the client's HTTP upload path. Metadata hashing is
+checked locally; headers are not interpreted as HTTP behavior. Progress survives
+messages and stop/start, not successful upgrades or restore, and is never a
+provider receipt.
+The refreshed source snapshot records the V4 certificate forwarding and discarded
+chunk-completion flag; no gateway verifier or completion lookup was established.
+The certificate-shaped
+reply is not tested against gateway verification. Provider HTTP behavior, durable
+upload recovery, external deletion atomicity and old-backup safety remain open.

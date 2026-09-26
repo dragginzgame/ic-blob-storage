@@ -20,8 +20,7 @@ pub(crate) fn view(value: UnsettledObjectView) -> ObligationProbeView {
 }
 
 pub(crate) fn confirm(value: u8, fact: ObligationProbeFact) -> bool {
-    super::STATE.with_borrow_mut(|state| {
-        let state = state.as_mut().expect("initialized fixture");
+    super::mutate(|state| {
         let root = super::root(value);
         let Some(journal) = state.catalog.get(root) else {
             return false;

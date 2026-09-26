@@ -2,6 +2,53 @@
 
 ## [Unreleased]
 
+### Added
+
+- A connected local PocketIC upload/deletion journey uses shared tenant policy,
+  upload reservations and lifecycle accounting with current Caffeine method shapes.
+  It covers certificate admission before possible exposure, interrupted uploads,
+  exact request replay, cross-tenant rejection, logical release, real inter-canister
+  deletion callbacks and separate billing cessation. Mixed invalid deletion batches
+  roll back on the IC; revoked gateways cannot apply delayed confirmations.
+  Upload completion and final billing evidence remain explicit local substitutes.
+- The local journey now binds certificate admission to actual content verified
+  against its reserved Caffeine manifest and raw digest. Corrupt/truncated bytes,
+  digest replacement, unauthorized verification and pre-exposure completion are
+  rejected without releasing reservations. Explicit metadata and up to six 1 MiB
+  chunks are verified across separate messages with tenant-only progress. Exact
+  chunk retries do not advance hashing twice; rejected chunks preserve the prefix,
+  and a final raw-digest mismatch cannot be reset by replaying admission. Bounds
+  are local fixture limits, not production upload limits or restart guarantees.
+- Local readback now fetches one chunk through a real inter-canister call and
+  verifies its exact length/hash against the admitted manifest before returning
+  bytes. Tenant/reference/gateway checks run before and after the await. Held
+  replies are rejected after release or gateway revocation/re-addition; corrupt,
+  truncated, oversized and malformed replies return no bytes. One bounded read
+  slot prevents overlap, with exact callback cleanup and no automatic retry.
+  The controlled source is a provider substitute, not a Caffeine HTTP adapter.
+- The transient authority fixture rejects unsupported upgrades in both lifecycle
+  hooks, preserving obligations instead of discarding heap journals. PocketIC
+  covers stop/start continuity, rejected upgrades (including skipped outgoing
+  hooks), held callbacks and retained billing/root history. An actual read-callback
+  trap rolls back slot cleanup and leaves further reads blocked through stop/start
+  and elapsed time. Upload journal restoration and old-snapshot safety remain open.
+- The local gateway source persists a bounded journal through host-owned ic-memory:
+  bindings, one retained leaf, read state and lifetime call intents/results. It
+  restores synchronously into a permanent inspection-only fence. PocketIC covers
+  maximum retained data, exhausted history, missing/older stable journals, skipped
+  outgoing hooks and unresolved callbacks. No restored counter authorizes new
+  effects; this is fixture evidence, not provider or production recovery.
+- Raw content digests can be parsed from exact 32-byte boundary inputs, with
+  typed length errors and no implied content verification or tenant authority.
+- The authority fixture atomically archives all three catalogs through ic-memory,
+  retaining cancelled/settled roots, reservations, release receipts, byte liabilities,
+  original manifests and observed verification progress. Exact read intent is
+  recorded before dispatch; callback traps and rejected deletion batches roll back
+  archive writes with live state. Operator-only inspection reads stable memory.
+  The archive cannot resume hashing or authority; unsupported upgrades still reject.
+- Gateway registries expose read-only allocated/pending sync sequence observations,
+  without exposing reusable tokens or granting reconstruction authority.
+
 ## [0.1.14] - 2026-09-26
 
 ### Added

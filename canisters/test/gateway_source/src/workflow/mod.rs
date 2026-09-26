@@ -4,13 +4,14 @@ use blob_test_protocol::{SourceMode, SourceObservation, SyncFailure};
 use candid::Principal;
 
 use crate::ops;
+pub(crate) mod readback;
 
 pub(crate) fn initialize(service: Principal, gateway: Principal, driver: Principal) {
     ops::initialize(service, gateway, driver);
 }
 
 pub(crate) fn configure(caller: Principal, mode: SourceMode) -> bool {
-    if !ops::read(|state| state.driver == caller) {
+    if !ops::read(|state| state.driver == caller && !state.fenced) {
         return false;
     }
     ops::configure(mode);
@@ -18,20 +19,33 @@ pub(crate) fn configure(caller: Principal, mode: SourceMode) -> bool {
 }
 
 pub(crate) fn observation(caller: Principal) -> Option<SourceObservation> {
-    ops::read(|state| (state.driver == caller).then_some(state.observation))
+    ops::read(|state| state.driver == caller).then(ops::observation)
 }
 
 pub(crate) async fn run_sync(caller: Principal) -> Result<(), SyncFailure> {
     let service = ops::read(|state| {
-        (state.driver == caller)
+        (state.driver == caller && !state.fenced)
             .then_some(state.service)
             .ok_or(SyncFailure::Denied)
     })?;
     ops::sync(service).await
 }
 
+pub(crate) async fn run_deletion(caller: Principal, roots: Vec<Vec<u8>>) -> Result<(), u32> {
+    let service = ops::read(|state| {
+        assert_eq!(state.driver, caller, "fixture driver only");
+        assert!(!state.fenced, "restored source is fenced");
+        state.service
+    });
+    assert!(
+        roots.len() <= 8 && roots.iter().all(|root| root.len() == 32),
+        "bounded fixture roots"
+    );
+    ops::confirm_deletion(service, roots).await
+}
+
 pub(crate) async fn reply(caller: Principal) {
-    if !ops::read(|state| state.service == caller) {
+    if !ops::read(|state| state.service == caller && !state.fenced) {
         ops::reject();
         return;
     }
@@ -68,4 +82,16 @@ pub(crate) async fn reply(caller: Principal) {
     }
     // Deliberately return the captured OLD list after the reentrant mutation.
     ops::reply_list(gateway);
+}
+
+pub(crate) fn prepare_upgrade() {
+    ops::prepare_upgrade();
+}
+pub(crate) fn restore() {
+    ops::restore();
+}
+pub(crate) fn recovery(
+    caller: Principal,
+) -> Option<blob_test_protocol::source::SourceRecoveryView> {
+    ops::read(|state| state.driver == caller).then(ops::recovery)
 }

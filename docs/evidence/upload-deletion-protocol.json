@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "reviewed_on": "2026-09-26",
+  "upstream_commit": "e5cacdfe5ce55e939edb02980fca800c0c13f421",
+  "upstream_commit_date": "2026-09-25T08:42:13Z",
+  "head_url": "https://api.github.com/repos/caffeinelabs/skills/commits/main",
+  "files": [
+    {
+      "url": "https://raw.githubusercontent.com/caffeinelabs/skills/e5cacdfe5ce55e939edb02980fca800c0c13f421/packages/object-storage/backend/src/Mixin.mo",
+      "sha256": "175c6b98672a83054fc08855062d1a7b7f2bd3713bf11a60d5319ac5afefe2b3"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/caffeinelabs/skills/e5cacdfe5ce55e939edb02980fca800c0c13f421/packages/object-storage/backend/src/Storage.mo",
+      "sha256": "0c757f4cb30ebe8e30b42a59b130a1662b47e403b9664f44e98d14b08b20af42"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/caffeinelabs/skills/e5cacdfe5ce55e939edb02980fca800c0c13f421/packages/object-storage/frontend/src/StorageClient.ts",
+      "sha256": "a0a3ee3bb74ecca133bc6f68a024821b3319c7ccd4886940c31d179b9f85f557"
+    }
+  ],
+  "method_shapes": [
+    "_immutableObjectStorageCreateCertificate : (text) -> (record { method : text; blob_hash : text })",
+    "_immutableObjectStorageBlobsAreLive : (vec blob) -> (vec bool) query",
+    "_immutableObjectStorageBlobsToDelete : () -> (vec blob) query",
+    "_immutableObjectStorageConfirmBlobDeletion : (vec blob) -> ()"
+  ],
+  "local_semantics": [
+    "Only configured tenants may reserve/append/read progress and receive certificate responses. Chunk bytes must match the reserved root, length, explicit metadata and raw digest through the shared manifest and ordered verifier. Across messages, exact old chunks are checked without advancing the prefix twice. Final raw-digest rejection is terminal for that declaration. Progress is not storage proof or a restart checkpoint. Exposure is marked before returning; uncertain certificate replay is rejected.",
+    "Gateway membership is checked for all liveness and deletion calls, including empty batches. Source Mixin liveness is public; this stricter local choice is not deployed interoperability evidence.",
+    "The fixture conservatively protects reserved, uncertain, cancelled and unknown roots. Only known confirmed objects whose references are released return false. These booleans do not prove uploaded bytes.",
+    "Root list and confirmation shapes use current binary roots. Deletion callbacks apply physical deletion only, with final billing cessation supplied through a separate fixture control.",
+    "A rejected callback traps the whole IC message, rolling back preceding local mutations in that batch. This says nothing about atomicity of external provider deletions."
+  ],
+  "limits": "Local fixtures only: two tenants, eight lifetime objects/sessions, four per tenant, 12 MiB global physical/liability and 6 MiB tenant logical bytes. Each nonempty file is at most 6 MiB/six chunks, with at most eight headers and 1 KiB of raw framed metadata; one append checks at most one 1 MiB chunk. Callback batches contain at most eight 32-byte roots. These are not production budgets.",
+  "limitations": "Real local bytes and hashes, but completion and final billing are supplied facts. No HTTP uploads, gateway IC certificate-chain verification, deployed provider calls, stable upload schemas or old-backup fencing. Official main and current backend/frontend source reviewed; npm/Mops, gateway server version and Cashier were not queried in this continuation.",
+  "client_observations": [
+    "getCertificate uses agent.call and forwards the V4 response certificate bytes. Its visible handling decodes request-status rejection fields; the Candid method/blob_hash record alone is not the IC certificate.",
+    "uploadBlobTree sends these bytes as auth.OwnerEgressSignature alongside owner/project/bucket/tree/length. This source does not establish gateway-side certificate verification, freshness or replay rules.",
+    "uploadChunk maps JSON status blob_complete to isComplete, but parallelUpload discards the return value and putFile returns the root when requests finish. The reviewed path supplies no authoritative lost-reply completion lookup.",
+    "The reviewed putFile path supplies Content-Type and Content-Length metadata, with optional Content-Disposition. The local journey verifies explicit metadata-bearing manifests using retained independent vectors; it does not qualify the entire HTTP/client path."
+  ],
+  "local_readback": {
+    "contract": "Local fixture methods and driver-supplied bytes only, not Caffeine HTTP/range or persistence semantics.",
+    "authority": "Admitted tenant/object/reference and current gateway membership are checked before and after the actual call. Revocation and successful membership sync invalidate a held read; re-addition does not validate its old reply.",
+    "verification": "Each returned complete leaf must match its stored manifest length/hash. Individual verified chunks do not establish a new whole-file read, provider durability, billing settlement or completion.",
+    "bounds": "One pending service read. Encoded reply <= 1 MiB + 64 bytes before decoding, with Candid work/skip/type budgets 10000000/64/8. Platform reply buffering is separate. Source retains one leaf <= 1 MiB and captures at most one held reply; hold scheduling uses at most 128 local raw_rand callbacks. No automatic retry.",
+    "recovery": "Only exact callbacks free their slot. A real callback trap rolls back attempted cleanup and leaves reads blocked through stop/start and elapsed time. No reset or unfence endpoint exists. No upload/read restore format or old-backup authority is implemented."
+  },
+  "local_lifecycle": {
+    "supported": "Ordinary IC stop/start of the current instance retains heap journals and does not rerun init. PocketIC checks chunk-prefix continuation, exposure/accounting retention and blocked read slots.",
+    "rejected": "The authority fixture traps pre_upgrade and post_upgrade. Actual authority upgrades and skip_pre_upgrade chunked upgrades reject atomically. The source rejects ordinary upgrades while reads or outgoing effects are unresolved; missing journals also reject restoration.",
+    "source_journal": "The controlled source uses host-owned ic-memory ID 120 with a 1114112-byte journal bound and Candid work/skip/type budgets 30000000/10000/64. It retains bindings, one leaf, read flags and at most 64 lifetime sync/revoke/delete intents and callback observations. Each deletion action holds at most eight roots. Intent precedes dispatch; history is never recycled. Synchronous post_upgrade always fences operations and leaves only original-driver inspection. Older stable bytes and skip-pre upgrades cannot re-enable effects through this restore path.",
+    "limitations": "Local source restoration is not upload reconstruction or production recovery. No unfence control, reinstall safety, whole-canister snapshot protection or independent authority surviving an old backup is qualified. Snapshot loads can bypass post_upgrade and restore an old heap. Library lifecycle ownership is unchanged.",
+    "authority_archive": {
+      "key": "fixture.authority.archive.v1",
+      "memory_id": 120,
+      "max_encoded_bytes": 65536,
+      "decoding_quota": 2000000,
+      "skipping_quota": 10000,
+      "max_type_entries": 64,
+      "lifetime_objects": {
+        "samples": 2,
+        "uploads": 4,
+        "journey": 8
+      },
+      "contract": "Atomic inspection projections of all three catalogs, immutable identities, receipts, accounting, manifests and verification progress; scoped gateway membership/sequences and exact pending read intent. Explicit operator inspection reopens stable memory; no query feeds active authority.",
+      "limitations": "Not a resumable checkpoint: streaming SHA state and operational reconstruction remain absent. Authority upgrades still reject in both hooks. Old or missing archive data cannot reset live state; whole-canister snapshot loads are outside this evidence."
+    }
+  }
+}

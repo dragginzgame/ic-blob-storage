@@ -41,6 +41,21 @@ impl FromStr for ContentDigest {
     }
 }
 
+/// Validate the binary representation of an expected raw digest.
+/// This neither hashes content nor establishes the digest's trusted provenance.
+impl TryFrom<&[u8]> for ContentDigest {
+    type Error = HashParseError;
+
+    fn try_from(bytes: &[u8]) -> Result<Self, Self::Error> {
+        bytes
+            .try_into()
+            .map(Self)
+            .map_err(|_| HashParseError::InvalidByteLength {
+                actual: bytes.len(),
+            })
+    }
+}
+
 impl fmt::Display for ContentDigest {
     fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
         format_hash(&self.0, formatter)
@@ -185,6 +200,10 @@ mod tests {
             let digest = ContentDigest::compute(content);
             assert_eq!(digest.to_string(), format!("sha256:{expected}"));
             assert_eq!(digest.to_string().parse(), Ok(digest));
+            assert_eq!(
+                ContentDigest::try_from(digest.as_bytes().as_slice()),
+                Ok(digest)
+            );
         }
         assert_ne!(
             ContentDigest::compute(b"abc"),
@@ -247,6 +266,10 @@ mod tests {
             assert_eq!(input.parse::<ContentDigest>(), Err(error));
         }
         for len in [0, 1, 31, 33, 64] {
+            assert_eq!(
+                ContentDigest::try_from(vec![0; len].as_slice()),
+                Err(HashParseError::InvalidByteLength { actual: len })
+            );
             assert_eq!(
                 ProviderRootHash::try_from(vec![0; len].as_slice()),
                 Err(HashParseError::InvalidByteLength { actual: len })

@@ -1,6 +1,8 @@
 //! State access, sample construction and local mutations for the test fixture.
 
+pub(crate) mod archive;
 pub(crate) mod content;
+pub(crate) mod journey;
 pub(crate) mod obligations;
 pub(crate) mod sync;
 pub(crate) mod uploads;
@@ -35,6 +37,7 @@ thread_local! {
 pub(crate) struct State {
     pub catalog: BlobCatalog,
     pub uploads: uploads::Uploads,
+    pub journey: journey::Journey,
     pub registry: GatewayRegistry,
     pub operator: Principal,
     gateway: Principal,
@@ -112,14 +115,17 @@ pub(crate) fn initialize(
         GatewayScope::new(service, number(1), operator).expect("fixture scope"),
         membership,
     );
+    archive::open();
     STATE.with_borrow_mut(|state| {
         *state = Some(State {
             catalog,
             uploads: uploads::initialize(service, first, second),
+            journey: journey::initialize(service, first, second),
             registry,
             operator,
             gateway,
         });
+        archive::save(state.as_ref().expect("initialized"));
     });
 }
 
@@ -137,8 +143,7 @@ pub(crate) fn binding(value: u8) -> Option<ObjectBinding> {
 }
 
 pub(crate) fn release(value: u8, actor: Principal) -> bool {
-    STATE.with_borrow_mut(|state| {
-        let state = state.as_mut().expect("initialized fixture");
+    mutate(|state| {
         let Some(journal) = state.catalog.get(root(value)) else {
             return false;
         };
@@ -160,8 +165,19 @@ pub(crate) fn release(value: u8, actor: Principal) -> bool {
 }
 
 pub(crate) fn revoke_gateway() {
+    mutate(|state| {
+        state.registry.remove(state.gateway);
+        state.journey.reads.invalidate();
+    });
+}
+
+/// Commit the inspection archive in the same IC message as its owning mutation.
+/// Error-valued outcomes can still record terminal verification/receipt state.
+pub(crate) fn mutate<T>(f: impl FnOnce(&mut State) -> T) -> T {
     STATE.with_borrow_mut(|state| {
         let state = state.as_mut().expect("initialized fixture");
-        state.registry.remove(state.gateway);
-    });
+        let result = f(state);
+        archive::save(state);
+        result
+    })
 }

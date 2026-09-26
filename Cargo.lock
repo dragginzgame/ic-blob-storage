@@ -158,7 +158,9 @@ version = "0.0.0"
 dependencies = [
  "blob-test-protocol",
  "candid",
+ "ic-blob-storage",
  "ic-cdk",
+ "serde",
 ]
 
 [[package]]
@@ -878,6 +880,7 @@ dependencies = [
  "candid",
  "ic-testkit",
  "serde_json",
+ "sha2 0.11.0",
 ]
 
 [[package]]
