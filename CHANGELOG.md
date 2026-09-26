@@ -2,7 +2,7 @@
 
 ## [Unreleased]
 
-## [0.1.7]
+## [0.1.7] - 2026-09-26
 
 Bounded local catalog, tenant reference reads and exact request-result lookup.
 Persistence, provider execution and canister adapters remain pending.
