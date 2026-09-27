@@ -7,6 +7,10 @@ publish = false
 autobins = false
 
 [[bin]]
+name = "blob-fixture-reference"
+path = "src/bin/blob_fixture_reference/main.rs"
+
+[[bin]]
 name = "blob-fixture-inventory"
 path = "src/bin/blob_fixture_inventory/main.rs"
 
@@ -37,10 +41,8 @@ blob-test-protocol = { path = "../protocol" }
 serde_json.workspace = true
 serde.workspace = true
 ic-blob-storage = { path = "../../crates/ic-blob-storage" }
-
-[target.'cfg(not(target_family = "wasm"))'.dev-dependencies]
-sha2.workspace = true
 tempfile.workspace = true
+sha2.workspace = true
 
 [lints]
 workspace = true

@@ -74,15 +74,7 @@ impl UploadAdmissions {
         context: UploadContext,
         input: ContentLookup,
     ) -> Result<Option<TenantContentView>, UploadAdmissionError> {
-        if context.service != self.config.bindings().service {
-            return Err(UploadAdmissionError::WrongService);
-        }
-        if input.namespace != self.config.bindings().namespace {
-            return Err(UploadAdmissionError::WrongNamespace);
-        }
-        if context.actor != input.tenant {
-            return Err(UploadAdmissionError::NotProject);
-        }
+        super::validation::tenant(&self.config, context, input.tenant, input.namespace)?;
         let Some(permission_key) = self.permission_roots.get(&input.root) else {
             return Ok(None);
         };

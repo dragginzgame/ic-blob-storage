@@ -2944,3 +2944,275 @@ operations. Completion/cleanup remain operator substitutes. Strict host-tool
 all-target Clippy, formatting and diff checks pass. Existing locked dependencies
 are reused by the unpublished client only. No full CI, provider call, production
 authentication, body reverification or historical resource refresh ran.
+
+## Exact reference receipt inspection
+
+`UploadAdmissions::reference_receipt` reads the original result of an exact tenant
+operation through the same authority and payload checks used by mutation replay.
+Unknown roots and changed identities remain errors; absent receipts allocate
+nothing. Retained successes and typed lifecycle failures survive suspension,
+full receipt history and settlement. Historical success does not assert current
+reference liveness. The private query also validates the original upload size.
+
+The local `blob-fixture-reference` executable journals explicit bounded intents
+without replacing existing records and queries the exact receipt. It never
+allocates IDs or dispatches mutations. Its record includes the service, tenant,
+namespace, upload/object/lifetime, root, declared bytes and exact reference action.
+The identity-derived filename binds changed payloads to the same slot, where they
+conflict. An exclusive OS file lock serializes cooperating writers; syncing file
+contents and the directory precedes acknowledgment. Exact retries revalidate and
+sync the original record even when its success output was lost. The 4,096-entry
+limit includes staging residue; full journals retain exact recovery. Symlinked
+records/locks and corrupt records fail without replacement. No automatic cleanup
+or identity allocation is implemented.
+
+The receipt step passed 37 upload model cases. Latest validation passes 26
+host-tool cases (nine reference cases), one subprocess recovery case and three
+updated executable/query PocketIC cases. Coverage includes full-width IDs,
+no-clobber files and symlinks, invalid bounded inputs/replies, absent and failed
+receipts, changed actions, caller isolation, full history, release, settlement and
+stop/start. A client with only its saved intent recovers an existing receipt; this
+does not simulate a dropped transport response or an operational restore.
+Completion, deletion and settlement remain explicit operator substitutes.
+
+The subprocess case holds the actual OS lock in a separate process, verifies a
+competing executable fails busy, kills the holder, then saves successfully. After
+discarding success output, another process recovers the same record; a changed
+action conflicts and preserves the original bytes. Its ignored helper test runs
+only as that controlled subprocess. This is process-interruption evidence on
+Linux local storage, not a hardware power-loss test. Durability depends on an
+existing durable directory and filesystem sync semantics. Caller-controlled files
+remain mutable; directory copies/rollbacks have no independent freshness or
+restored-writer authority. Dispatch and consumer coordination remain open.
+
+Release admission Wasm and warning-free core rustdoc passed for the unchanged
+receipt implementation. Strict host-tool all-target Clippy, formatting and diff
+checks pass for the journal follow-up. Existing locked tempfile and sha2 are
+reused by the unpublished executable; library dependencies and allocator are unchanged.
+No full CI, provider effect or historical resource measurement refresh ran.
+
+## Shared stable tenant enrollment
+
+`StableTenantEnrollments` starts shared canister storage with a host-granted
+`ic-memory` stable map. Bounded v1 records retain enrollment generation and active
+state; reserved metadata binds service, operator, namespace and lifetime count.
+The stable store and existing heap owner call the same model transition, covering
+compare-and-set updates, suspension and generation exhaustion. Each mutation
+reads/writes an individual tenant record. Reopening validates the metadata and
+all enrollments in one pass before returning an enforced mutation fence.
+
+Native evidence passes 55 service tests, including seven new storage cases and
+two record-codec cases. A host tears down and reopens its actual `MemoryRuntime`
+over retained `VectorMemory` and sees the original suspended state. Restored
+mutation fails. Tests compare stable/heap transition results, preserve bytes on
+authority/binding failures, reject stale preconditions, exercise full lifetime capacity and
+generation exhaustion, and reject invalid records or unrecognized memory without
+seeding replacement data. Maximum-width records round-trip within the 256-byte
+encoded bound; malformed encodings fail. Two existing memory-composition cases
+also pass, including absence of implicit allocation from library linking.
+
+Strict core all-target Clippy, Wasm target compilation, warning-free rustdoc,
+formatting and diff checks pass. Dependencies and allocator are unchanged.
+These are native storage and compile checks, not canister install/upgrade,
+trap-rollback, snapshot or resource measurements. The admission probe remains
+transient and rejects upgrades. The stable enrollment component is not wired to
+that owner; upload permissions, manifests, root claims, reference receipts,
+accounting and the complete durable transaction remain next. The host must check
+installation/release identity independently; reopening grants no restored-instance
+or provider authority. No full CI or provider effect ran.
+
+## Shared stable root claims and IC transaction evidence
+
+`StableRootClaims` stores immutable root/object pairs and a reverse object index
+in two host-granted `ic-memory` maps. The shared model owns uniqueness/replay and
+lifetime-capacity decisions. Normal claims touch individual tree paths; reopening
+checks every forward record against the reverse index and validates equal counts.
+Missing, conflicting or orphaned entries reject without repair. Full history still
+permits exact replay before restoration. Reopened stores always fence mutation.
+
+Five new native record/store cases cover maximum-width identities, heap/stable
+agreement, changed scopes/callers, byte-preserving rejection, missing memories and
+inconsistent index pairs. All 83 targeted catalog/service/root cases pass.
+
+In the preceding component batch, two PocketIC cases used enrollment and root stores through an
+unpublished storage probe. Its memory wrapper deliberately traps during a reverse
+index write, after the forward insert. The IC rolls back stable writes and heap
+counts; the same root can then bind a different object, and the original object
+can bind another root. Full capacity preserves exact replay and rejects conflicts.
+The other case retains suspension and a full-width object ID through same-release
+upgrade, validates the original claim, rejects all restored mutations and keeps
+the fence through stop/start. A mismatched-operator upgrade traps and leaves the
+old instance intact. Controller/operator roles do not grant tenant claim authority.
+
+Release storage Wasm, strict affected all-target Clippy, warning-free core rustdoc,
+formatting and diff checks pass. Make's fixture target includes the new unpublished
+probe. External dependency versions and allocator are unchanged. Those cases did
+not persist upload permissions, manifests, references, receipts or byte accounting,
+and the probe does not run enrollment/quota admission or call a provider. The
+complete upload transaction, snapshot safety, operational recovery and resource
+envelope remain open. No full CI or historical resource-pin refresh ran.
+
+## Durable pending upload transaction
+
+The preceding pending-state batch replaced the independent component controls
+with an owner then named `StablePendingUploads`. That owner held six host-granted maps:
+enrollment, forward/reverse root claims, permissions, maintained totals and
+immutable manifests. Shared model checks enforce exact admission, metadata/root
+validation, uploader/generation/time rules and global/tenant reservation limits.
+Unexposed cancellation releases bytes but retains operation/root/leaf capacity;
+exposure followed by revocation retains uncertain bytes in every accounting view.
+
+Seven native owner cases plus three codec cases cover heap/stable agreement,
+exact retries, rejection before charging/claiming, suspension/reactivation,
+original headers after reordered retries, exposure uncertainty, missing or altered
+manifests and counters, configuration mismatch, full-width identifiers and
+malformed records. A near-64 KiB declaration survives bounded decoding/reopening;
+a candidate exceeding the codec envelope rejects before memory allocation. The
+manifest map uses variable-size pages with a separately enforced 64 KiB codec
+limit; a one-leaf declaration stays within a 128 KiB native stable-memory ceiling.
+That ceiling is a local regression bound, not a production resource qualification.
+All 93 targeted catalog/service/root native cases pass.
+
+Four PocketIC cases use actual caller/time, the default allocator and the shared
+pending owner. A fixture-only memory wrapper traps at reverse-root, permission
+and accounting writes during admission; all earlier writes and cached state roll
+back. Failed roots and object/operation identities can be independently reused.
+Manifest preparation faults roll back both the declaration and permission flag.
+A cancellation fault retains the original permission and byte reservation until
+an exact successful retry. Exposure then revocation keeps all uncertain bytes.
+
+The upgrade case retains a maximum-width operation/object identity, exposed and
+revoked state, prepared cancellation history, enrollment suspension and exact
+totals. A changed operator traps restoration and leaves the previous instance
+unchanged. Valid same-release restoration validates all records without repair,
+permits authenticated inspection and fences enrollment/admission/preparation/
+exposure/revocation through stop/start. No test-only behavior is in production
+code. The earlier raw-claim fixture endpoints were removed in this unpublished
+batch; the underlying component native tests remain.
+
+Release storage Wasm, strict affected all-target Clippy, warning-free core rustdoc,
+formatting and diff checks pass. No dependency version or allocator change, full
+CI, resource benchmark refresh, certificate, provider call or paid effect ran.
+That pending-only component could not confirm an upload or mutate references. Confirmed lifecycle,
+reference receipts, deletion/billing obligations, snapshot freshness and
+operational recovery remain open; inspection-only upgrade does not close M2.
+
+## Durable confirmed lifecycles and exact reference receipts
+
+The current `ops::service::uploads::StableUploads` replaces the earlier unpublished
+pending-only owner. It adds three host-granted memories for confirmed metadata,
+individual reference identities and individual exact receipts. The nine-map owner
+has no independent mutable escape. Confirmation commits the first reference,
+permission phase and reservation-to-confirmed accounting together. Reference
+mutations use the same constant-size transition decisions as `BlobLifecycle`;
+both owners reserve one receipt for every active reference's eventual release.
+No full object/reference/receipt history is cloned or loaded for a mutation.
+
+Six added owner cases compare stable and heap accounting through settlement, check
+cleanup headroom and suspension, preserve a recorded failure after the reference
+later becomes live, restore every lifecycle phase, reject missing/orphaned records
+without repair, and reject unexposed/changed completion without releasing quota.
+Two codec cases cover maximum-width IDs/principals, all reference result variants,
+retained counts and malformed/oversized receipt rejection. All 113 targeted
+catalog/service/lifecycle native cases pass. Historical retain success is distinct
+from current liveness, and settlement never permits reference reactivation.
+
+The storage PocketIC suite now has seven cases. Its three added cases exercise:
+
+- Completion traps at initial-reference, permission and accounting writes. The
+  reservation and exposure phase survive with no leaked confirmed reference.
+- Reference/receipt/metadata write failures and last-release accounting failure.
+  The IC rolls back earlier writes; retries consume exactly one receipt. Reserved
+  release capacity survives failed requests and tenant suspension. Deletion and
+  settlement accounting traps preserve the previous obligation until exact retry.
+- Same-release upgrade in Live, DeletionPending, ProviderDeleted and Settled phases.
+  Charged totals, reference liveness and exact receipts survive. Read authority and
+  the permanent restored mutation fence remain enforced through stop/start.
+
+The fixture authenticates its configured operator before supplying any upload,
+physical deletion or billing cessation fact. These are labelled local substitutes;
+neither controller status nor a tenant call grants this test authority. Core
+confirmation methods consume facts authenticated/correlated independently by the
+host and perform no provider calls. These tests do not qualify deployed Caffeine.
+
+Release storage Wasm, strict affected all-target Clippy, warning-free core rustdoc,
+formatting and diff checks pass. Dependencies and the default allocator are
+unchanged; no full CI, resource-pin refresh or paid/provider action ran. Durable
+reference-qualified descriptors/traversal, provider-call intents, read sessions,
+provider economics and operational recovery remain incomplete. All restored
+mutation remains fenced; persisted counters do not establish freshness authority.
+
+## Durable indexed discovery and bounded read traversal
+
+The ten-memory `StableUploads` owner now retains root-to-request identity separately
+from immutable object identity. The new index commits in admission and must agree
+with every permission on reopen; missing, changed and orphaned index entries reject
+without repair. Root discovery uses tree lookups and never assumes the upload ID
+is the object ID. A maximum-width request with a different object ID is covered.
+
+Descriptor reads copy original headers from one bounded manifest record, not file
+bytes or other objects' manifests. Reference-qualified reads require confirmed
+completion and the exact live reference in the same synchronous owner observation.
+Another live reference or an old retain success cannot substitute. Suspension and
+the restored fence preserve tenant inspection; queries confer no provider locator,
+certified serving, publication coordination or fresh mutation authority.
+
+Traversal restricts tenant ranges before inspecting rows; cross-tenant scans require
+configured operator authority. Scan and result budgets are independent host inputs.
+Cursors bind service, namespace, scope, filter and last inspected tenant/request ID.
+Filtered empty pages advance; new sweeps are required for changes behind a cursor.
+Outstanding results include physically deleted objects while billing is unresolved.
+The private fixture fixes both budgets to one instead of accepting caller limits.
+
+Seven new native cases cover independent identity/index corruption, exact-reference
+metadata, tenant range isolation, empty pages and phase changes behind a cursor,
+independent limits, full-width endpoints, and continuing billing after deletion.
+All 120 targeted catalog/service/lifecycle cases pass. The storage PocketIC suite
+now passes nine cases: its admission rollback case additionally traps at the new
+index write; two added cases check caller/descriptor isolation through upgrade and
+cursor rejection, empty-page continuation and fresh cleanup sweeps on the IC.
+These reads leave accounting and receipt history unchanged.
+
+Release storage Wasm, strict affected all-target Clippy, warning-free core rustdoc,
+formatting and diff checks pass. Default allocator and dependency versions remain
+unchanged. No full CI, resource benchmark refresh or provider effect ran. Capacity
+planning, provider reconciliation views and intents, durable read sessions and
+operational recovery remain incomplete; inspection after upgrade remains fenced.
+
+## Durable capacity and operator root reconciliation
+
+`StableUploads::admission_capacity` reads enrollment and maintained global/tenant
+counters. `reference_capacity` resolves the original request by root, then reads
+one bounded confirmed record; it does not load reference/receipt history. Both
+owners use shared model arithmetic. Lifetime slots and leaves remain consumed
+through cancellation/settlement, active references retain release receipt slots,
+and byte headroom remains limited by continuing billing after physical deletion.
+Suspension/fencing preserve inspection without allowing fresh work.
+
+`observe_roots` checks actual service, explicit namespace and configured operator
+before indexed reads, including empty input. Ordered results retain duplicates,
+malformed positions, exact request identities and every pending/confirmed phase.
+There is no full-history scan or metadata load. This is an operator observation,
+not a gateway callback contract, liveness boolean, provider completion proof or
+permission to delete/retry. Hosts select trusted batch bounds and decoder limits.
+The probe fixes processing limits to eight entries and 256 raw bytes; these tiny
+fixture limits do not establish a production resource envelope.
+
+All 122 targeted catalog/service/lifecycle native cases pass. Existing heap/stable
+journeys now compare capacity through admission, cancellation, reference replay,
+release, physical deletion and settlement. New cases cover scope, suspension,
+restored inspection, malformed/duplicate batches and all retained root phases.
+Shared global contention is observed without revealing other tenants' identities.
+
+All eleven storage PocketIC cases pass. The two added cases exercise actual caller
+and namespace/service checks, cleanup receipt headroom, continuing billing,
+count/byte rejection, ordered root results, unchanged accounting and same-release
+upgrade into the enforced mutation fence. Provider facts remain labelled operator
+substitutes. No call to deployed Caffeine or paid effect ran.
+
+Release storage-probe Wasm, strict affected all-target Clippy and warning-free core
+rustdoc pass, alongside formatting and diff checks. No dependency version or
+allocator change, full CI or resource benchmark refresh ran. This completes the
+current durable planning/read batch; provider intents, callback authority, read
+sessions, adapters and operational recovery remain open. Release/version/commit
+and publication remain maintainer actions.

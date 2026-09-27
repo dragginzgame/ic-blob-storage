@@ -6,10 +6,11 @@ use super::{
 };
 use blob_test_protocol::admission::{
     ContentLookup, Failure, Outcome,
+    input::{ReferenceInput, ReferenceReceipt},
     release::{LifecycleCommand, ReferenceCapacity, ReferenceFailure},
 };
 use ic_blob_storage::model::{
-    catalog::CatalogError,
+    catalog::{CatalogError, admission::UploadRequest},
     identity::ProviderRootHash,
     lifecycle::{
         LifecycleChange, LifecycleError, ReferenceId,
@@ -34,19 +35,12 @@ pub(crate) fn execute(
         retain,
     } = command
     {
-        let object = request(object)?;
-        let reference = ReferenceKey::new(
-            object.object.first.object(),
-            ReferenceId::new(number(reference)?),
-        );
-        let operation = ReferenceRequest {
-            id: ReferenceRequestId::new(number(operation)?),
-            operation: if retain {
-                ReferenceOperation::Retain(reference)
-            } else {
-                ReferenceOperation::Release(reference)
-            },
-        };
+        let (object, operation) = reference_request(ReferenceInput {
+            object,
+            reference,
+            operation,
+            retain,
+        })?;
         let result = mutate(|owner| owner.apply_reference(context, object.object.root, operation))
             .map_err(reference_error)?;
         let (replayed, result) = match result {
@@ -107,6 +101,53 @@ pub(crate) fn execute(
         };
         result.map(changed)
     })
+}
+
+pub(crate) fn receipt(
+    context: UploadContext,
+    input: ReferenceInput,
+) -> Result<Option<ReferenceReceipt>, Failure> {
+    let (object, operation) = reference_request(input)?;
+    STATE.with_borrow(|state| {
+        let owner = &state.as_ref().expect("initialized probe").owner;
+        // Keep every field of the original upload bound, including its declared
+        // length; the fixture's reference input contains that full request.
+        let receipt = owner
+            .reference_receipt(context, object.object.root, operation)
+            .map_err(|error| match error {
+                UploadAdmissionError::Reference(CatalogError::Request(
+                    ReferenceRequestError::RequestConflict,
+                )) => Failure::Conflict,
+                other => reference_error(other),
+            })?;
+        owner.lookup(context, object).map_err(failure)?;
+        Ok(receipt.map(|receipt| ReferenceReceipt {
+            request: input,
+            result: receipt
+                .result
+                .map(|change| change == LifecycleChange::Changed)
+                .map_err(lifecycle_error),
+        }))
+    })
+}
+
+fn reference_request(input: ReferenceInput) -> Result<(UploadRequest, ReferenceRequest), Failure> {
+    let object = request(input.object)?;
+    let reference = ReferenceKey::new(
+        object.object.first.object(),
+        ReferenceId::new(number(input.reference)?),
+    );
+    Ok((
+        object,
+        ReferenceRequest {
+            id: ReferenceRequestId::new(number(input.operation)?),
+            operation: if input.retain {
+                ReferenceOperation::Retain(reference)
+            } else {
+                ReferenceOperation::Release(reference)
+            },
+        },
+    ))
 }
 
 fn number(n: u128) -> Result<NonZeroU128, Failure> {

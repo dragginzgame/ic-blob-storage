@@ -38,6 +38,13 @@ pub(crate) fn inspect(context: UploadContext, request: Request) -> Result<Observ
     ops::inspect(context, request)
 }
 
+pub(crate) fn reference_receipt(
+    context: UploadContext,
+    input: blob_test_protocol::admission::input::ReferenceInput,
+) -> Result<Option<blob_test_protocol::admission::input::ReferenceReceipt>, Failure> {
+    ops::release::receipt(context, input)
+}
+
 pub(crate) fn lookup_content(
     context: UploadContext,
     input: ContentLookup,

@@ -8,6 +8,7 @@
 pub mod binding;
 pub mod requests;
 pub mod roots;
+pub(crate) mod transition;
 
 use std::{
     collections::BTreeMap,
@@ -27,6 +28,12 @@ impl ReferenceId {
     #[must_use]
     pub const fn new(value: NonZeroU128) -> Self {
         Self(value)
+    }
+
+    /// Exact original identity for storage/boundary encoding, not fresh allocation.
+    #[must_use]
+    pub const fn get(self) -> NonZeroU128 {
+        self.0
     }
 }
 
@@ -53,7 +60,7 @@ pub enum LifecycleChange {
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
-enum ReferenceState {
+pub(crate) enum ReferenceState {
     Active,
     Released,
 }
@@ -61,10 +68,10 @@ enum ReferenceState {
 // Private, constant-size transition. The owner checks it and publishes it
 // synchronously, with no await or intervening lifecycle mutation. It cannot be
 // exported, persisted or replayed as authority against another lifecycle.
-struct ReferenceMutation {
-    reference: ReferenceId,
-    state: ReferenceState,
-    active_references: usize,
+pub(crate) struct ReferenceMutation {
+    pub(crate) reference: ReferenceId,
+    pub(crate) state: ReferenceState,
+    pub(crate) active_references: usize,
 }
 
 /// Bounded reference bookkeeping and release phases for one confirmed object.
@@ -117,24 +124,18 @@ impl BlobLifecycle {
     }
 
     fn plan_retain(&self, key: ReferenceKey) -> Result<Option<ReferenceMutation>, LifecycleError> {
-        self.binding.check(key.object())?;
-        let reference = key.reference();
-        match self.references.get(&reference) {
-            Some(ReferenceState::Active) => return Ok(None),
-            Some(ReferenceState::Released) => return Err(LifecycleError::ReferenceReleased),
-            None => {}
+        self.reference_view()
+            .plan(true, self.references.get(&key.reference()).copied(), key)
+    }
+
+    fn reference_view(&self) -> transition::ReferenceStateView {
+        transition::ReferenceStateView {
+            binding: self.binding,
+            phase: self.phase,
+            slots: self.references.len(),
+            active: self.active_references,
+            limit: self.reference_limit.get(),
         }
-        if self.phase != LifecyclePhase::Live {
-            return Err(LifecycleError::DeletionAlreadyQueued);
-        }
-        if self.references.len() >= self.reference_limit.get() {
-            return Err(LifecycleError::ReferenceLimitReached);
-        }
-        Ok(Some(ReferenceMutation {
-            reference,
-            state: ReferenceState::Active,
-            active_references: self.active_references + 1,
-        }))
     }
 
     /// Release exactly one known reference, queuing deletion only after the last.
@@ -148,20 +149,8 @@ impl BlobLifecycle {
     }
 
     fn plan_release(&self, key: ReferenceKey) -> Result<Option<ReferenceMutation>, LifecycleError> {
-        self.binding.check(key.object())?;
-        let reference = key.reference();
-        let state = self
-            .references
-            .get(&reference)
-            .ok_or(LifecycleError::UnknownReference)?;
-        if *state == ReferenceState::Released {
-            return Ok(None);
-        }
-        Ok(Some(ReferenceMutation {
-            reference,
-            state: ReferenceState::Released,
-            active_references: self.active_references - 1,
-        }))
+        self.reference_view()
+            .plan(false, self.references.get(&key.reference()).copied(), key)
     }
 
     fn commit_reference(&mut self, mutation: Option<ReferenceMutation>) -> LifecycleChange {
@@ -186,16 +175,9 @@ impl BlobLifecycle {
         object: ObjectBinding,
     ) -> Result<LifecycleChange, LifecycleError> {
         self.binding.check(object)?;
-        match self.phase {
-            LifecyclePhase::Live => Err(LifecycleError::LiveReferencesRemain),
-            LifecyclePhase::DeletionPending => {
-                self.phase = LifecyclePhase::ProviderDeleted;
-                Ok(LifecycleChange::Changed)
-            }
-            LifecyclePhase::ProviderDeleted | LifecyclePhase::Settled => {
-                Ok(LifecycleChange::Unchanged)
-            }
-        }
+        let (phase, change) = transition::deleted(self.phase)?;
+        self.phase = phase;
+        Ok(change)
     }
 
     /// Apply exact evidence of final charge settlement and future billing cessation.
@@ -209,16 +191,9 @@ impl BlobLifecycle {
         object: ObjectBinding,
     ) -> Result<LifecycleChange, LifecycleError> {
         self.binding.check(object)?;
-        match self.phase {
-            LifecyclePhase::Live | LifecyclePhase::DeletionPending => {
-                Err(LifecycleError::DeletionNotConfirmed)
-            }
-            LifecyclePhase::ProviderDeleted => {
-                self.phase = LifecyclePhase::Settled;
-                Ok(LifecycleChange::Changed)
-            }
-            LifecyclePhase::Settled => Ok(LifecycleChange::Unchanged),
-        }
+        let (phase, change) = transition::settled(self.phase)?;
+        self.phase = phase;
+        Ok(change)
     }
 
     /// Immutable service, tenant, namespace and object-incarnation binding.

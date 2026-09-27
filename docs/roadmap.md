@@ -34,13 +34,28 @@ The [review record](evidence/toko-0.2-review.json) pins source paths and hashes.
 | Milestone | Deliverable | Completion evidence | Current state |
 | --- | --- | --- | --- |
 | M1 — contract | Toko asset journey, uploader/tenant/operator bindings, resource envelope, provider and recovery decisions | Resolved decision list below, concrete acceptance inputs and authoritative provider evidence for promised guarantees | In progress: configuration, enrollment and upload-permission models implemented; consumer coordination contract specified; provider/recovery evidence still open |
-| M2 — durable standalone journey | One production owner of configuration, upload/reference/deletion journals and shared handlers; standalone adapter | Actual PocketIC install, upload/admission, verification, interruption, accounting and supported recovery, including the 10 MiB media boundary | Not implemented |
+| M2 — durable standalone journey | One production owner of configuration, upload/reference/deletion journals and shared handlers; standalone adapter | Actual PocketIC install, upload/admission, verification, interruption, accounting and supported recovery, including the 10 MiB media boundary | In progress: durable upload/reference/settlement bookkeeping with IC rollback/upgrade evidence; provider-call journals, read sessions and operational recovery outstanding |
 | M3 — Caffeine and operator integration | Provider transport, verified completion/readback, explicit funding/reconciliation, production CLI and client | Exact source/interface provenance, client tests and bounded explicitly authorized provider trial; no inference of credit or billing cessation | Not implemented |
 | M4 — managed parity and acceptance | Thin Canic adapter, same API/tenant rules and real consumer composition | Same journey/operator cases through both deployments; all BLOB-01–18 replacement obligations resolved; removal readiness handoff | Not implemented |
 
 M2 depends on M1's applicable decisions, not just a milestone label. M2 may use
 explicitly labeled local provider substitutes for IC failure cuts; M3 must supply
 the actual provider evidence. A release is not proof that a milestone passed.
+
+The maintainer directed the next implementation toward canister service storage;
+the local filesystem journal remains optional test/operator tooling. Shared stable
+components now form one upload/lifecycle owner through host-granted `ic-memory`,
+reusing existing model checks. Enrollment, root claims, exact permissions,
+manifests, confirmed objects, individual references/receipts and charged totals
+commit in synchronous IC updates. Per-record writes avoid serializing entire
+histories. PocketIC covers partial-write rollback through settlement, uncertain
+bytes and same-release upgrade into an inspection-only fence. Indexed discovery,
+exact-reference descriptors and bounded tenant/operator cleanup traversal now use
+this owner too. Admission/reference capacity and bounded operator root observations
+now use maintained counters/indexes, including during fenced inspection. Next,
+implement durable provider-call intent storage and exact outcome correlation,
+followed by read sessions and complete operational lifecycle. Gateway callback
+authority and deployed-provider semantics remain separate qualification work.
 The original B1/B2/B3 extraction gates are project gates, not crate version numbers.
 Starting 0.2 does not waive the [service contract](service-contract.md).
 
@@ -150,6 +165,17 @@ demand and separates not-visible, pending, live and retired roots. Sequential
 observations reserve nothing and do not prove global absence or fresh admission.
 Production authentication, new-object reference sizing and persisted exact
 operation identities remain outstanding; no upload or funding occurs here.
+
+Reference recovery now has a shared `reference_receipt` read used by both passive
+inspection and mutation replay. `blob-fixture-reference` can journal a bounded exact
+fixture intent without replacement and query it later, including after release or
+settlement. It preserves historical typed results without allocating a new request
+or reference. Caller-supplied IDs still need a surviving allocation authority;
+local writes now use an identity-keyed, bounded journal with an exclusive OS lock
+and file/directory sync before acknowledgment. Exact retries recover the same
+record; changed payloads conflict. This protects cooperating writers of one local
+directory, not copies or rollbacks. It is not a registration outbox or
+restored-instance fence. Upload/provider intents and actual dispatch remain open.
 
 ## Decisions to finish M1
 
@@ -450,8 +476,8 @@ The implemented local rules in `model::service::upload` are:
 1. An independently enrolled project authorizes its user and submits the exact
    upload request, uploader principal and exclusive issuance deadline. The service
    admits only the actual project caller and its configured service/namespace,
-   checks the object limit and reserves the shared catalog capacity. Permission
-   and reservation must eventually be persisted in the same transaction.
+   checks the object limit and reserves the shared catalog capacity. The durable
+   pending owner commits permission, root claims and reservation totals together.
 2. The root-only certificate request resolves the original retained operation.
    Only its exact uploader may move an unexposed reservation to possible exposure,
    before the deadline and after admission time. First, that uploader prepares a
@@ -487,8 +513,9 @@ have one bounded lifetime slot per catalog operation. A prepared operation retai
 one configured leaf array and no streaming file-hash state;
 root resolution uses a retained index to the original tenant/operation and then
 rechecks the full permission. Failed admission never installs a lookup entry.
-No production persistence,
-certificate bytes or substitute provider endpoints were added. Production host
+The separate storage probe now checks durable pending-state transactions and
+fenced inspection after upgrade. Neither probe supplies certificate bytes or
+provider effects; complete service persistence is still unfinished. Production host
 authentication, consumer outbox atomicity, instruction budgets and recovery remain open.
 The provider's accepted certificate lifetime/replay and project/bucket enforcement
 are unknown; a local deadline cannot establish those guarantees.

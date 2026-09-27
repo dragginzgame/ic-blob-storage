@@ -32,6 +32,12 @@ pub(crate) fn request(bytes: Vec<u8>) -> Request {
     decode(&bytes, SMALL_BYTES, 32 * 1024)
 }
 
+pub(crate) fn reference_receipt(
+    bytes: Vec<u8>,
+) -> blob_test_protocol::admission::input::ReferenceInput {
+    decode(&bytes, SMALL_BYTES, 32 * 1024)
+}
+
 pub(crate) fn content(bytes: Vec<u8>) -> ContentLookup {
     decode(&bytes, SMALL_BYTES, 32 * 1024)
 }

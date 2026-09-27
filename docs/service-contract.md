@@ -568,6 +568,16 @@ receipts too; exact retries do not. The shared service owner authenticates the
 tenant before disclosure, including after suspension. Counts are current history
 headroom, not enrollment permission, a reservation or a provider guarantee.
 
+`reference_receipt` exposes the original exact operation result through the same
+service/tenant/namespace/object and payload checks used by mutation replay. It
+never applies a request or consumes a receipt, including when the result is
+absent. Suspension, history exhaustion and settlement preserve inspection. A
+recorded lifecycle failure remains a failure, and historical retain success is
+not current liveness. Unknown roots and conflicting identities are errors, never
+absent receipts. The local saved-intent tool demonstrates this query path without
+dispatch; its mutable filesystem artifact supplies neither fresh allocation nor
+surviving operational recovery authority.
+
 For fresh uploads, `admission_capacity` observes the tighter tenant/global
 headroom in each independent dimension: lifetime operation/root slots, concurrent
 reservations, lifetime manifest leaves and bytes. Byte headroom is the minimum of
@@ -628,12 +638,110 @@ does not establish billing cessation or fix loss of history after an old backup.
 
 ### Candidate persisted boundaries
 
-These are proposed schema responsibilities for v1, not installed records or a
-frozen wire format. Keep them independent of Canic's memory IDs and store layout.
+Most boundaries below remain proposed v1 responsibilities rather than installed
+records or a frozen wire format. Keep them independent of Canic's memory IDs and store layout.
 The maintainer selected `ic-memory` as the allocation owner aligned with Canic
 and IcyDB. Future core stores use its re-exported stable collections, and the
 integrating host owns bootstrap, policy, grants and bucket profile. This dependency decision
 does not freeze blob schemas/keys/IDs or close the provider and recovery gates.
+
+The first implemented component is `StableTenantEnrollments`. A host supplies one
+exclusive granted memory and a validated service configuration. A reserved map
+entry binds schema v1, service, operator, namespace and lifetime tenant limit;
+individual bounded v1 enrollment records retain activation generation and active
+state. Only these enrollment-specific configuration fields are persisted here.
+The host must validate the installation/release and every other store before
+service startup. No implicit memory grant, lifecycle export or endpoint is added.
+
+Fresh installation requires unallocated memory. Reopening uses load-only stable
+collection access, validates all retained enrollments within the configured
+count, and fences every mutation. Missing/corrupt storage never becomes a fresh
+owner. Binary corruption or storage exhaustion traps; a canister host must
+propagate that trap for IC message rollback. The upload owner below incorporates
+this store together with pending and confirmed lifecycle bookkeeping.
+
+`StableRootClaims` uses two distinct host-granted memories for immutable root
+claims and their reverse object index. Metadata binds service, namespace and the
+lifetime root count; bounded v1 records preserve full-width identities. Claim
+rules are shared with the heap model. Exact replay at capacity allocates nothing;
+there is no deletion/reassignment API. Reopen validates the forward/reverse
+bijection without rebuilding missing entries, then fences all mutations. Tenant
+lookup hides foreign roots. Enrollment and byte-quota admission belong to the
+enclosing workflow, not this index component.
+
+`StableUploads` exclusively owns these components plus permission, manifest,
+charged-total, confirmed-lifecycle, reference, receipt and root/request index maps in ten distinct
+host-granted memories. Admission binds
+the exact permission and root while charging global and tenant totals; manifest
+preparation retains original validated headers and leaves. Exposure bookkeeping
+requires a prepared manifest and current uploader authority. Revocation releases
+only unexposed reservation bytes; cancelled identities and leaf capacity remain
+retained, and possible exposure remains charged. Each mutation is synchronous:
+hosts must propagate traps so all writes roll back in the same IC update.
+
+Completion transfers the existing reservation to a confirmed object and initial
+reference without dropping charged bytes. Reference transitions and exact receipts
+commit with maintained counts and byte totals. One receipt per live reference
+remains reserved for cleanup, and every released identity/result remains retained.
+Last release removes logical bytes; authenticated physical deletion removes
+physical bytes; final settlement removes liability bytes. These transitions share
+the heap model's rules and never scan/copy the full reference history on mutation.
+
+Bounded v1 codecs retain configuration, permissions, totals, manifests and individual
+lifecycle/reference/receipt rows. The
+manifest codec permits at most 64 KiB and uses variable-size B-tree pages to avoid
+maximum-value node allocations for small declarations. Installation rejects a
+candidate whose per-object manifest envelope cannot fit. Reopen checks all upload
+configuration fields, enrollment/claim/permission/manifest relationships,
+confirmed states, reference/receipt counts and recomputed totals without repairing
+storage, then fences every mutation. The host
+still owns release identity and billing/provider configuration validation.
+
+Root discovery resolves the separately persisted original upload ID, never assuming
+it equals the object ID. The root/request index commits during admission and is
+validated against every permission on reopen without repair. Tenant-authorized
+descriptor queries copy one bounded manifest's original headers; unknown/foreign
+roots remain indistinguishable. Reference-qualified descriptors additionally
+require confirmed completion and the exact currently live reference, regardless
+of another live reference or a historical successful retain receipt.
+
+`scan` bounds inspected operation rows and returned results independently, with
+trusted host-selected limits. Tenant scans restrict the storage range to that
+tenant; service-wide scans require the configured operator. Cursors bind service,
+namespace, scope, filter and last inspected tenant/request ID. Empty filtered
+pages still advance. Results include all history, active uploads, pending physical
+deletion or outstanding obligations, depending on filter. Physical deletion alone
+does not remove continuing billing from the outstanding view. These queries work
+while suspended or fenced but grant no effect/recovery authority. Start a new sweep
+for insertions or phase changes behind a cursor; no snapshot/completion is implied.
+
+`admission_capacity` and `reference_capacity` use maintained counters and indexed
+identity reads, without loading reference/receipt histories or manifests. Heap and
+stable owners share headroom arithmetic. Admission observes the tighter global/tenant
+operation, active-upload, leaf and byte dimensions. Cancellation/settlement never
+refund lifetime history; physical deletion alone cannot refund continuing billing.
+Reference headroom reserves one release receipt per active reference and two slots
+per additional retain/release pair. Unknown, foreign and unconfirmed roots expose no
+reference capacity. Retired confirmed objects have zero fresh retains. Suspension
+and restoration allow inspection, not fresh admission or removal of the fence.
+
+`observe_roots` requires the configured operator plus the actual service and explicit
+installed namespace, even for empty input. The host must construct `ProviderRootBatch`
+under trusted count/byte limits and separately bound decoding. Each valid position
+uses indexed reads; no operation-history scan or manifest load occurs. Results keep
+input order, duplicates and typed malformed-root positions. Known roots include the
+exact original request and reserved, possibly exposed, cancelled or confirmed phase.
+This operator view is distinct from a gateway callback: unknown/cancelled/settled
+observations never authorize provider deletion, retry or allocation, and local
+completion/settlement observations do not supply independent provider evidence.
+
+The private storage probe exercises interrupted writes from admission through
+completion, references and settlement, then same-release upgrade in every phase.
+Changed-operator restoration fails without changing the old instance. Completion,
+deletion and settlement APIs consume facts already authenticated by the trusted
+host; the probe supplies explicit operator-only substitutes. No real certificate,
+provider call or evidence qualification follows. Durable provider-call journals,
+read sessions, operational recovery and resource qualification remain required.
 
 - Object identity: an allocated object incarnation bound to service, tenant and
   provider namespace, with provider root and declared length as data, distinct

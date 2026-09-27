@@ -2,6 +2,57 @@
 
 ## [Unreleased]
 
+## [0.2.3]
+
+### Added
+
+- `StableUploads` persists tenant enrollment, root claims, exact upload permissions,
+  manifests, confirmed lifecycles, individual references/receipts and maintained
+  quota totals through host-granted `ic-memory`. Synchronous IC updates commit
+  related writes together. Heap and stable owners share admission, reference,
+  cleanup capacity and settlement rules. Completion preserves charged bytes;
+  logical release, physical deletion and billing cessation remain separate.
+  Reference mutations touch individual rows without copying complete histories;
+  bounded manifest records use variable-size pages.
+- `StableTenantEnrollments` preserves activation generations and suspension;
+  `StableRootClaims` maintains immutable root/object bindings and a reverse index.
+  Both are incorporated into the durable upload owner. Fresh installation rejects
+  allocated memory. Reopening validates configuration, records, indexes and totals
+  without repair, then fences mutations. Retained local state alone cannot authorize
+  operational recovery.
+- Durable indexed content discovery preserves independent upload/object identities
+  and original metadata. Reference-qualified descriptors require the consumer's
+  exact live reference. Tenant and operator history/cleanup scans enforce separate
+  scan/result bounds and scope-bound cursors; empty filtered pages advance, and
+  continuing billing remains visible after physical deletion.
+- Durable admission/reference capacity queries use maintained counters and shared
+  model arithmetic, preserving lifetime history and reserved cleanup receipts.
+  Bounded operator root observations retain exact identities, pending/retired states,
+  duplicate positions and malformed inputs. Suspended/restored reads remain
+  available without granting provider callback, deletion, retry or mutation authority.
+- `reference_receipt` inspects an exact tenant reference operation without
+  applying it. Reads share mutation authority/payload checks and preserve original
+  success or typed failure through suspension, full history and settlement.
+  Historical success is distinct from current reference liveness.
+- `blob-fixture-reference` saves bounded, explicit reference intents in a locked,
+  identity-keyed local journal, then inspects their exact receipt on a selected
+  local probe. Writes sync the file and directory before acknowledgment; exact
+  retries recover the same record and changed payloads conflict. Full journals
+  preserve recovery, and interrupted files are never automatically discarded.
+  Native and executable/PocketIC cases cover writer termination, lost local
+  acknowledgment, missing receipts, failures, release, settlement and stop/start.
+  The tool sends no mutations, allocates no identities and grants no restore
+  authority; local filesystem persistence is not production service recovery.
+- An unpublished storage probe exercises the shared durable owner through actual
+  IC callers. PocketIC cases cover partial-write rollback from admission through
+  settlement, caller isolation, bounded reads, capacity and same-release upgrades
+  into the mutation fence. Native cases additionally cover heap/stable agreement,
+  corrupt or missing records, full-width identities and retained history.
+
+Real Caffeine integration, durable provider-call intents, read sessions and
+operational recovery remain unfinished. Provider facts in the probe are labelled
+substitutes; this release does not qualify the service or Canic retirement.
+
 ## [0.2.2] - 2026-09-27
 
 ### Added

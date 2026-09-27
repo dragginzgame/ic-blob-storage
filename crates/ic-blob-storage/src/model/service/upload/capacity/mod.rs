@@ -37,8 +37,7 @@ impl UploadAdmissions {
             .get(&tenant)
             .copied()
             .unwrap_or(0);
-        (limits.max_chunks.get() as u64 - self.manifest_accounting.global)
-            .min(limits.max_tenant_chunks.get() as u64 - own)
+        remaining(limits, self.manifest_accounting.global, own)
     }
 
     pub(super) fn check_manifest_capacity(
@@ -46,32 +45,47 @@ impl UploadAdmissions {
         tenant: Principal,
         bytes: u64,
     ) -> Result<(), UploadAdmissionError> {
-        let requested = chunks(bytes);
-        // Admission alone consumes slots; cancellation and settlement keep them.
-        // Totals change only after the catalog and permission insert succeed.
-        let global = self.manifest_accounting.global + requested;
-        let own = self
-            .manifest_accounting
-            .tenants
-            .get(&tenant)
-            .copied()
-            .unwrap_or(0)
-            + requested;
-        let limits = self.config.limits().manifests;
-        if own > limits.max_tenant_chunks.get() as u64 {
-            return Err(UploadAdmissionError::ManifestCapacity(
-                UploadManifestLimit::Tenant,
-            ));
-        }
-        if global > limits.max_chunks.get() as u64 {
-            return Err(UploadAdmissionError::ManifestCapacity(
-                UploadManifestLimit::Global,
-            ));
-        }
-        Ok(())
+        check(
+            self.config.limits().manifests,
+            self.manifest_accounting.global,
+            self.manifest_accounting
+                .tenants
+                .get(&tenant)
+                .copied()
+                .unwrap_or(0),
+            bytes,
+        )
     }
 }
 
 fn chunks(bytes: u64) -> u64 {
     bytes.div_ceil(CAFFEINE_CHUNK_BYTES as u64)
+}
+
+pub(crate) fn remaining(
+    limits: crate::model::service::configuration::ServiceManifestLimits,
+    global: u64,
+    tenant: u64,
+) -> u64 {
+    (limits.max_chunks.get() as u64 - global).min(limits.max_tenant_chunks.get() as u64 - tenant)
+}
+
+pub(crate) fn check(
+    limits: crate::model::service::configuration::ServiceManifestLimits,
+    global: u64,
+    tenant: u64,
+    bytes: u64,
+) -> Result<(), UploadAdmissionError> {
+    let requested = chunks(bytes);
+    if tenant + requested > limits.max_tenant_chunks.get() as u64 {
+        return Err(UploadAdmissionError::ManifestCapacity(
+            UploadManifestLimit::Tenant,
+        ));
+    }
+    if global + requested > limits.max_chunks.get() as u64 {
+        return Err(UploadAdmissionError::ManifestCapacity(
+            UploadManifestLimit::Global,
+        ));
+    }
+    Ok(())
 }

@@ -1,6 +1,6 @@
 # ic-blob-storage
 
-0.2.1 is the released library baseline. The [0.2 delivery plan](docs/roadmap.md) tracks
+0.2.2 is the released library baseline. The [0.2 delivery plan](docs/roadmap.md) tracks
 the remaining work to a usable service; [current status](docs/status/current.md)
 separates implemented behavior from outstanding milestones.
 
@@ -32,6 +32,29 @@ It checks root-only certificate requests against retained permissions and keeps
 possibly exposed uploads charged after expiry, revocation or failed asset creation.
 Operator-managed tenant enrollment gates fresh work; suspension preserves cleanup
 and accounting, and reactivation cannot renew older uploader permissions.
+`ops::service::tenant::StableTenantEnrollments` begins the durable layer with
+individual bounded enrollment records in a host-granted `ic-memory` stable map.
+It shares the heap model's transitions, preserves generations and suspension, and
+reopens into an enforced mutation fence. The host owns memory grants, installation
+identity and lifecycle; linking the library installs nothing. `StableRootClaims`
+adds immutable root/object claims with a checked reverse index.
+`ops::service::uploads::StableUploads` owns both stores together with exact upload
+permissions, immutable manifests, confirmed lifecycles, individual reference
+receipts and maintained logical/physical/liability totals. Heap and stable owners
+share lifecycle rules. A local PocketIC probe checks partial-write rollback and
+same-release upgrade into an inspection-only fence. Completion, deletion and
+settlement require independently authenticated facts from the integrating host;
+the probe uses labelled substitutes. Real provider integration, durable provider
+call journals, read sessions and operational recovery remain unfinished.
+The durable owner also supports indexed tenant discovery, original metadata and
+exact-live-reference descriptors. Tenant and operator traversal bound scanned rows
+and results separately; empty filtered pages retain continuation. These are current
+observations, including while fenced, not provider capabilities or completed cleanup
+proofs. A new sweep is required for changes behind a saved cursor.
+Admission/reference headroom comes from maintained counters, sharing the heap
+model's quota and reserved-cleanup arithmetic. Bounded operator root observations
+preserve pending and retired states for reconciliation. They grant no provider
+callback or deletion authority and do not release the restore fence.
 The service uses bounded manifest authorization for direct browser-to-Caffeine
 upload. No file chunks or whole-file raw digest are required by service admission.
 Manifest consistency, possible exposure and independently confirmed provider
@@ -241,6 +264,66 @@ reserved, and file bytes are not reverified. Exit 0 means a complete observation
 with no observed blocker, 4 reports blockers, 2 rejects arguments, and 3 reports
 input/query/reply failures without partial results. Production authentication,
 provider transport and operation persistence remain outstanding.
+
+For an already-selected reference operation, `blob-fixture-reference` can preserve
+an exact local intent and inspect its historical receipt without applying it:
+
+```sh
+mkdir -m 700 reference-journal
+cargo run --offline --locked -p ic-blob-storage-pocketic-tests \
+  --bin blob-fixture-reference -- save --intent request.json --journal reference-journal
+# Use the returned "saved" path as INTENT.json below.
+cargo run --offline --locked -p ic-blob-storage-pocketic-tests \
+  --bin blob-fixture-reference -- inspect --intent INTENT.json \
+  --server 127.0.0.1:PORT --instance INSTANCE --canister SERVICE --caller TENANT
+```
+
+The strict JSON file (at most 16 KiB) has this shape; supply actual principals,
+root and identities rather than the placeholders:
+
+```json
+{
+  "schema": 1, "scope": "pocketic_fixture", "asset": "image-a",
+  "service": "SERVICE", "tenant": "TENANT", "namespace": "1",
+  "upload": "1", "object": "1", "incarnation": "1",
+  "root": "sha256:ROOT_HEX", "bytes": 3,
+  "reference": "2", "operation": "1", "retain": true
+}
+```
+
+IDs are positive canonical decimal strings, preserving their full width. The
+probe fixes object ID to upload ID and incarnation to one; the file records both
+explicitly. `retain: false` names a release. The tool does not allocate IDs or
+prove freshness. Saving requires an existing, durably created, caller-controlled
+local directory. A filename derived from scope/object/lifetime/operation binds one
+exact intent. Changing the root, reference, action, size or asset label conflicts;
+an exact retry returns the same record, even after its success output was lost.
+The tool never overwrites existing records or follows record/lock symlinks.
+
+The writer holds an OS file lock, syncs its private file (0600 on Unix), installs
+it without replacing a destination, then syncs the journal directory before
+acknowledgment. Concurrent writers fail with `journal_busy`. Never delete or
+replace `.writer.lock`, including after a crash: the OS releases the held lock
+when the process exits. The journal permits at most 4,096 entries besides the lock;
+interrupted staging files count too. Full journals still permit exact recovery.
+There is no automatic eviction or residue cleanup.
+
+This path is tested on Linux local storage. Unsupported locking/directory syncing
+fails; a storage error can leave a complete record without acknowledgment, so
+preserve the directory and retry the exact intent. Files remain mutable and a
+copied or rolled-back journal has no freshness or restored-writer authority.
+Power-loss behavior depends on the filesystem honoring sync operations; these
+tests cover process interruption, not hardware failure. Dispatch, ID allocation
+and consumer outbox coordination remain unimplemented.
+
+Inspection checks the selected service and simulated tenant against the file,
+then queries only `reference_receipt`. Exit 0 means historical success, 4 means
+an absent receipt or recorded lifecycle failure, 2 rejects arguments and 3 reports
+storage, lock contention, capacity, binding, conflict or query failures. An old
+successful retain can describe
+a reference that has since been released. Neither success nor absence authorizes
+publication or an uncertain effect; current liveness and consumer coordination
+remain separate requirements.
 
 To save the exact hashed bytes for later use, add an existing, caller-controlled
 destination directory:

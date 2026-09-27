@@ -1,7 +1,13 @@
 //! Passive tenant admission headroom from the same accounting used by mutations.
 
 use super::{UploadAdmissionError, UploadAdmissions, UploadContext};
-use crate::model::service::tenant::{TenantEnrollmentView, TenantError};
+use crate::model::{
+    catalog::admission::UploadUsage,
+    service::{
+        configuration::ServiceLimits,
+        tenant::{TenantEnrollmentView, TenantError},
+    },
+};
 use candid::Principal;
 use std::num::NonZeroU128;
 
@@ -59,36 +65,41 @@ impl UploadAdmissions {
         context: UploadContext,
         input: AdmissionCapacityLookup,
     ) -> Result<AdmissionCapacityView, UploadAdmissionError> {
-        if context.service != self.config.bindings().service {
-            return Err(UploadAdmissionError::WrongService);
-        }
-        if input.namespace != self.config.bindings().namespace {
-            return Err(UploadAdmissionError::WrongNamespace);
-        }
-        if context.actor != input.tenant {
-            return Err(UploadAdmissionError::NotProject);
-        }
+        super::validation::tenant(&self.config, context, input.tenant, input.namespace)?;
         let enrollment = self
             .tenants
             .get(input.tenant)
             .ok_or(TenantError::NotEnrolled)?;
-        let limits = self.config.limits();
-        let global = self.catalog.usage();
-        let tenant = self.catalog.tenant_usage(input.tenant);
-        Ok(AdmissionCapacityView {
+        Ok(headroom(
+            self.config.limits(),
             enrollment,
-            max_object_bytes: limits.max_object_bytes.get(),
-            max_headers: limits.max_headers.get(),
-            max_header_bytes: limits.max_header_bytes.get(),
-            remaining_objects: (limits.catalog.max_objects.get() - global.operations)
-                .min(limits.catalog.max_tenant_objects.get() - tenant.operations),
-            remaining_active_uploads: (limits.uploads.max_active.get()
-                - global.active_reservations)
-                .min(limits.uploads.max_tenant_active.get() - tenant.active_reservations),
-            remaining_manifest_chunks: self.remaining_manifest_chunks(input.tenant),
-            remaining_bytes: (limits.catalog.max_tenant_logical_bytes.get() - tenant.logical_bytes)
-                .min(limits.catalog.max_physical_bytes.get() - global.physical_bytes)
-                .min(limits.catalog.max_liability_bytes.get() - global.liability_bytes),
-        })
+            self.catalog.usage(),
+            self.catalog.tenant_usage(input.tenant),
+            self.remaining_manifest_chunks(input.tenant),
+        ))
+    }
+}
+
+/// Shared arithmetic over validated maintained totals, never an admission promise.
+pub(crate) fn headroom(
+    limits: ServiceLimits,
+    enrollment: TenantEnrollmentView,
+    global: UploadUsage,
+    tenant: UploadUsage,
+    remaining_manifest_chunks: u64,
+) -> AdmissionCapacityView {
+    AdmissionCapacityView {
+        enrollment,
+        max_object_bytes: limits.max_object_bytes.get(),
+        max_headers: limits.max_headers.get(),
+        max_header_bytes: limits.max_header_bytes.get(),
+        remaining_objects: (limits.catalog.max_objects.get() - global.operations)
+            .min(limits.catalog.max_tenant_objects.get() - tenant.operations),
+        remaining_active_uploads: (limits.uploads.max_active.get() - global.active_reservations)
+            .min(limits.uploads.max_tenant_active.get() - tenant.active_reservations),
+        remaining_manifest_chunks,
+        remaining_bytes: (limits.catalog.max_tenant_logical_bytes.get() - tenant.logical_bytes)
+            .min(limits.catalog.max_physical_bytes.get() - global.physical_bytes)
+            .min(limits.catalog.max_liability_bytes.get() - global.liability_bytes),
     }
 }

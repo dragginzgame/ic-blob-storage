@@ -1,4 +1,4 @@
-//! Transient service models; no installed authority or persisted schema.
+//! Service models and records; no implicit installation or lifecycle authority.
 
 pub mod configuration;
 pub mod tenant;

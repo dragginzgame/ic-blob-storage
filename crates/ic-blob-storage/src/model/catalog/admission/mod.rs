@@ -5,6 +5,7 @@
 //! A fresh instance is not recovery. No timeout or retry releases uncertain bytes.
 
 mod accounting;
+pub(crate) mod capacity;
 pub mod read;
 use accounting::ReservationAccounting;
 
@@ -172,38 +173,12 @@ impl UploadCatalog {
         if self.catalog.claims.resolve(request.object.root).is_ok() {
             return Err(UploadError::Root(RootClaimError::RootAlreadyClaimed));
         }
-        let usage = self.usage();
-        let tenant = self.tenant_usage(key.0);
-        let bounds = self.catalog.limits;
-        if usage.operations >= bounds.max_objects.get() {
-            return Err(CatalogError::Capacity(CatalogCapacity::Objects).into());
-        }
-        if tenant.operations >= bounds.max_tenant_objects.get() {
-            return Err(CatalogError::Capacity(CatalogCapacity::TenantObjects).into());
-        }
-        if usage.active_reservations >= self.limits.max_active.get() {
-            return Err(UploadError::ActiveLimit);
-        }
-        if tenant.active_reservations >= self.limits.max_tenant_active.get() {
-            return Err(UploadError::TenantActiveLimit);
-        }
-        check_bytes(
-            usage.physical_bytes,
+        capacity::check(
+            self.usage(),
+            self.tenant_usage(key.0),
+            self.catalog.limits,
+            self.limits,
             request.object.bytes,
-            bounds.max_physical_bytes,
-            CatalogCapacity::PhysicalBytes,
-        )?;
-        check_bytes(
-            usage.liability_bytes,
-            request.object.bytes,
-            bounds.max_liability_bytes,
-            CatalogCapacity::LiabilityBytes,
-        )?;
-        check_bytes(
-            tenant.logical_bytes,
-            request.object.bytes,
-            bounds.max_tenant_logical_bytes,
-            CatalogCapacity::TenantLogicalBytes,
         )?;
         // One first reference and its reserved release receipt always fit the
         // positive per-object bounds. Root claim is the last fallible mutation.

@@ -18,6 +18,8 @@ use crate::model::identity::ProviderRootHash;
 
 use super::binding::{ObjectBinding, ObjectBindingError};
 
+pub(crate) mod record;
+
 /// One service's lifetime root-to-object claims; not callback authentication.
 ///
 /// Retired claims consume capacity permanently. Filling the bound rejects fresh
@@ -83,22 +85,16 @@ impl RootClaims {
         root: ProviderRootHash,
         object: ObjectBinding,
     ) -> Result<RootClaimOutcome, RootClaimError> {
-        if object.service() != self.service {
-            return Err(RootClaimError::WrongService);
-        }
-        if let Some(existing) = self.claims.get(&root) {
-            return if *existing == object {
-                Ok(RootClaimOutcome::Existing)
-            } else {
-                Err(RootClaimError::RootAlreadyClaimed)
-            };
-        }
         let object_key = ObjectKey::from(object);
-        if self.objects.contains(&object_key) {
-            return Err(RootClaimError::ObjectAlreadyClaimed);
-        }
-        if self.claims.len() >= self.limit.get() {
-            return Err(RootClaimError::LimitReached);
+        let outcome = plan_claim(
+            self.service,
+            object,
+            self.claims.get(&root).copied(),
+            self.objects.contains(&object_key),
+            self.claims.len() < self.limit.get(),
+        )?;
+        if outcome == RootClaimOutcome::Existing {
+            return Ok(outcome);
         }
         self.claims.insert(root, object);
         self.objects.insert(object_key);
@@ -125,6 +121,34 @@ impl RootClaims {
     pub fn slots(&self) -> usize {
         self.claims.len()
     }
+}
+
+// Shared by the heap and stable owners; neither storage path redefines uniqueness
+// or changes error/replay precedence at full lifetime capacity.
+pub(crate) fn plan_claim(
+    service: Principal,
+    object: ObjectBinding,
+    existing: Option<ObjectBinding>,
+    object_claimed: bool,
+    has_slot: bool,
+) -> Result<RootClaimOutcome, RootClaimError> {
+    if object.service() != service {
+        return Err(RootClaimError::WrongService);
+    }
+    if let Some(existing) = existing {
+        return if existing == object {
+            Ok(RootClaimOutcome::Existing)
+        } else {
+            Err(RootClaimError::RootAlreadyClaimed)
+        };
+    }
+    if object_claimed {
+        return Err(RootClaimError::ObjectAlreadyClaimed);
+    }
+    if !has_slot {
+        return Err(RootClaimError::LimitReached);
+    }
+    Ok(RootClaimOutcome::Claimed)
 }
 
 /// Whether a claim was newly allocated or was an exact local replay.

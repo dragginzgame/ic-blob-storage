@@ -30,6 +30,12 @@ impl ReferenceRequestId {
     pub const fn new(value: NonZeroU128) -> Self {
         Self(value)
     }
+
+    /// Exact retained identity for encoding; this allocates no fresh operation.
+    #[must_use]
+    pub const fn get(self) -> NonZeroU128 {
+        self.0
+    }
 }
 
 /// Exact operation and reference arguments bound to a request ID.
@@ -42,7 +48,7 @@ pub enum ReferenceOperation {
 }
 
 impl ReferenceOperation {
-    const fn key(self) -> ReferenceKey {
+    pub(crate) const fn key(self) -> ReferenceKey {
         match self {
             Self::Retain(key) | Self::Release(key) => key,
         }
@@ -178,9 +184,7 @@ impl ReferenceRequests {
             Ok(None) | Err(_) => self.lifecycle.active_references(),
         };
         // Subtract the new receipt before comparing the reserved release slots.
-        if active_after > available - 1 {
-            return Err(ReferenceRequestError::ReceiptLimitReached);
-        }
+        admit_receipt(available, active_after)?;
         let result = match &planned {
             Ok(Some(_)) => Ok(LifecycleChange::Changed),
             Ok(None) => Ok(LifecycleChange::Unchanged),
@@ -269,22 +273,44 @@ impl ReferenceRequests {
     /// before the next retain. Hosts must authorize disclosure and recheck on mutation.
     #[must_use]
     pub fn capacity(&self) -> ReferenceCapacityView {
-        let reference_slots = self.lifecycle.remaining_reference_slots();
-        let release_reserved_receipts = self.lifecycle.active_references();
-        let unreserved_receipts =
-            self.receipt_limit.get() - self.receipts.len() - release_reserved_receipts;
-        let fresh_retains = if self.lifecycle.phase() == super::LifecyclePhase::Live {
-            reference_slots.min(unreserved_receipts / 2)
-        } else {
-            0
-        };
-        ReferenceCapacityView {
-            reference_slots,
-            unreserved_receipts,
-            release_reserved_receipts,
-            fresh_retains,
-        }
+        reference_headroom(
+            self.lifecycle.phase(),
+            self.lifecycle.remaining_reference_slots(),
+            self.lifecycle.active_references(),
+            self.receipt_limit.get() - self.receipts.len(),
+        )
     }
+}
+
+/// Shared accounting over validated counts; active references retain cleanup slots.
+pub(crate) fn reference_headroom(
+    phase: super::LifecyclePhase,
+    reference_slots: usize,
+    release_reserved_receipts: usize,
+    remaining_receipts: usize,
+) -> ReferenceCapacityView {
+    let unreserved_receipts = remaining_receipts - release_reserved_receipts;
+    let fresh_retains = if phase == super::LifecyclePhase::Live {
+        reference_slots.min(unreserved_receipts / 2)
+    } else {
+        0
+    };
+    ReferenceCapacityView {
+        reference_slots,
+        unreserved_receipts,
+        release_reserved_receipts,
+        fresh_retains,
+    }
+}
+
+pub(crate) fn admit_receipt(
+    available: usize,
+    active_after: usize,
+) -> Result<(), ReferenceRequestError> {
+    if available == 0 || active_after > available - 1 {
+        return Err(ReferenceRequestError::ReceiptLimitReached);
+    }
+    Ok(())
 }
 
 /// Request admission failure; no new receipt or lifecycle mutation occurs.

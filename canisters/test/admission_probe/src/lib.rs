@@ -92,6 +92,13 @@ fn inspect(request: Request) -> Result<Observation, Failure> {
     workflow::inspect(context(), request)
 }
 
+#[ic_cdk::query(decode_with = "ops::decode::reference_receipt")]
+fn reference_receipt(
+    input: blob_test_protocol::admission::input::ReferenceInput,
+) -> Result<Option<blob_test_protocol::admission::input::ReferenceReceipt>, Failure> {
+    workflow::reference_receipt(context(), input)
+}
+
 #[ic_cdk::query(decode_with = "ops::decode::content")]
 fn lookup_content(input: ContentLookup) -> Result<Option<ContentObservation>, Failure> {
     workflow::lookup_content(context(), input)

@@ -1,4 +1,4 @@
-//! Bounded enrollment owned by the shared service model, without persistence.
+//! Shared enrollment transitions and bounded records for heap and stable stores.
 
 use std::{
     collections::BTreeMap,
@@ -7,6 +7,8 @@ use std::{
 
 use candid::Principal;
 use thiserror::Error;
+
+pub(crate) mod record;
 
 /// Passive enrollment observation, also used as the exact update precondition.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -58,45 +60,58 @@ impl TenantEnrollments {
         &mut self,
         update: TenantUpdate,
     ) -> Result<TenantEnrollmentView, TenantError> {
-        if update.tenant == Principal::anonymous()
-            || update.tenant == Principal::management_canister()
-        {
-            return Err(TenantError::InvalidTenant);
-        }
-        let current = self.get(update.tenant);
-        if current != update.expected {
-            return Err(TenantError::Conflict);
-        }
-        let next = match current {
-            None => {
-                if self.entries.len() >= self.limit.get() {
-                    return Err(TenantError::Capacity);
-                }
-                TenantEnrollmentView {
-                    generation: NonZeroU64::MIN,
-                    active: update.active,
-                }
-            }
-            Some(current) => {
-                // Suspension must work even at the largest generation. Increment
-                // only on reactivation, so old upload permissions stay invalid.
-                let generation = if !current.active && update.active {
-                    current
-                        .generation
-                        .checked_add(1)
-                        .ok_or(TenantError::GenerationExhausted)?
-                } else {
-                    current.generation
-                };
-                TenantEnrollmentView {
-                    generation,
-                    active: update.active,
-                }
-            }
-        };
+        let next = next_enrollment(
+            update,
+            self.get(update.tenant),
+            self.entries.len() < self.limit.get(),
+        )?;
         self.entries.insert(update.tenant, next);
         Ok(next)
     }
+}
+
+// Both heap and stable stores use this transition. Storage mechanics must never
+// change suspension, compare-and-set or activation-generation semantics.
+pub(crate) fn next_enrollment(
+    update: TenantUpdate,
+    current: Option<TenantEnrollmentView>,
+    has_new_slot: bool,
+) -> Result<TenantEnrollmentView, TenantError> {
+    if update.tenant == Principal::anonymous() || update.tenant == Principal::management_canister()
+    {
+        return Err(TenantError::InvalidTenant);
+    }
+    if current != update.expected {
+        return Err(TenantError::Conflict);
+    }
+    let next = match current {
+        None => {
+            if !has_new_slot {
+                return Err(TenantError::Capacity);
+            }
+            TenantEnrollmentView {
+                generation: NonZeroU64::MIN,
+                active: update.active,
+            }
+        }
+        Some(current) => {
+            // Suspension must work even at the largest generation. Increment
+            // only on reactivation, so old upload permissions stay invalid.
+            let generation = if !current.active && update.active {
+                current
+                    .generation
+                    .checked_add(1)
+                    .ok_or(TenantError::GenerationExhausted)?
+            } else {
+                current.generation
+            };
+            TenantEnrollmentView {
+                generation,
+                active: update.active,
+            }
+        }
+    };
+    Ok(next)
 }
 
 /// Enrollment rejection; it never releases a reservation, reference or liability.

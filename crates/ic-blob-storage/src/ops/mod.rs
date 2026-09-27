@@ -2,3 +2,4 @@
 
 pub mod billing;
 pub mod caffeine;
+pub mod service;

@@ -7,9 +7,11 @@ use std::{collections::BTreeMap, num::NonZeroU64};
 use candid::Principal;
 use thiserror::Error;
 
-mod capacity;
+pub(crate) mod capacity;
 pub mod content;
 pub mod download;
+pub(crate) mod record;
+pub(crate) mod validation;
 pub use capacity::UploadManifestLimit;
 pub mod manifest;
 pub mod planning;
@@ -31,7 +33,9 @@ use crate::model::{
     lifecycle::{
         LifecycleChange,
         binding::ObjectBinding,
-        requests::{ReferenceOperation, ReferenceRequest, ReferenceRequestOutcome},
+        requests::{
+            ReferenceOperation, ReferenceReceiptView, ReferenceRequest, ReferenceRequestOutcome,
+        },
     },
 };
 
@@ -191,20 +195,7 @@ impl UploadAdmissions {
             ));
         }
         let tenant_generation = self.tenants.active_generation(context.actor)?;
-        if input.uploader == Principal::anonymous()
-            || input.uploader == Principal::management_canister()
-        {
-            return Err(UploadAdmissionError::InvalidUploader);
-        }
-        if now_ns >= input.expires_at_ns {
-            return Err(UploadAdmissionError::Expired);
-        }
-        if input.request.object.bytes == 0 {
-            return Err(UploadAdmissionError::EmptyObject);
-        }
-        if input.request.object.bytes > self.config.limits().max_object_bytes.get() {
-            return Err(UploadAdmissionError::ObjectTooLarge);
-        }
+        validation::fresh(&self.config, input, now_ns)?;
         self.check_manifest_capacity(context.actor, input.request.object.bytes)?;
         let outcome = self.catalog.reserve(context.actor, input.request)?;
         self.permissions.insert(
@@ -260,27 +251,25 @@ impl UploadAdmissions {
     ) -> Result<&Permission, UploadAdmissionError> {
         self.check_service(context, request)?;
         let permission = self.permission(request)?;
-        if context.actor != permission.original.uploader {
-            return Err(UploadAdmissionError::NotUploader);
-        }
-        if permission.revoked {
-            return Err(UploadAdmissionError::Revoked);
-        }
         let tenant = request.object.first.object().tenant();
-        let generation = self.tenants.active_generation(tenant)?;
-        if generation != permission.tenant_generation {
-            return Err(TenantError::StalePermission.into());
-        }
-        if now_ns < permission.admitted_at_ns {
-            return Err(UploadAdmissionError::ClockReversed);
-        }
-        if now_ns >= permission.original.expires_at_ns {
-            return Err(UploadAdmissionError::Expired);
-        }
-        let phase = self.catalog.phase(tenant, request)?;
-        if phase != UploadPhase::Reserved {
-            return Err(UploadAdmissionError::NotReserved(phase));
-        }
+        let view = UploadPermissionView {
+            manifest: if permission.manifest.is_some() {
+                UploadManifestState::Bound
+            } else {
+                UploadManifestState::Unprepared
+            },
+            permission: permission.original,
+            admitted_at_ns: permission.admitted_at_ns,
+            tenant_generation: permission.tenant_generation,
+            revoked: permission.revoked,
+            phase: self.catalog.phase(tenant, request)?,
+        };
+        validation::uploader(
+            context,
+            &view,
+            self.tenants.active_generation(tenant),
+            now_ns,
+        )?;
         Ok(permission)
     }
 
@@ -407,6 +396,33 @@ impl UploadAdmissions {
         root: ProviderRootHash,
         request: ReferenceRequest,
     ) -> Result<ReferenceRequestOutcome, UploadAdmissionError> {
+        if let Some(receipt) = self.reference_receipt(context, root, request)? {
+            return Ok(ReferenceRequestOutcome::Replayed {
+                result: receipt.result,
+            });
+        }
+        if matches!(request.operation, ReferenceOperation::Retain(_)) {
+            self.tenants.active_generation(context.actor)?;
+        }
+        Ok(self.catalog.apply_reference(root, context.actor, request)?)
+    }
+
+    /// Inspect the original result for an exact tenant reference operation.
+    ///
+    /// The same authority and payload checks protect reads and mutation retries.
+    /// Suspension, full history and settlement do not erase receipts. Reading an
+    /// absent receipt neither records a failure nor applies the operation. A past
+    /// success is not current reference liveness; absence is only an observation
+    /// of this owner, never authority to repeat an uncertain provider effect.
+    /// # Errors
+    /// Rejects wrong service/tenant/namespace/object binding, unknown roots and
+    /// changed arguments for a recorded operation identity.
+    pub fn reference_receipt(
+        &self,
+        context: UploadContext,
+        root: ProviderRootHash,
+        request: ReferenceRequest,
+    ) -> Result<Option<ReferenceReceiptView>, UploadAdmissionError> {
         let object = match request.operation {
             ReferenceOperation::Retain(key) | ReferenceOperation::Release(key) => key.object(),
         };
@@ -419,18 +435,9 @@ impl UploadAdmissions {
             .confirmed()
             .get(root)
             .ok_or(CatalogError::UnknownRoot)?;
-        if let Some(receipt) = journal
+        Ok(journal
             .receipt(context.actor, request)
-            .map_err(CatalogError::from)?
-        {
-            return Ok(ReferenceRequestOutcome::Replayed {
-                result: receipt.result,
-            });
-        }
-        if matches!(request.operation, ReferenceOperation::Retain(_)) {
-            self.tenants.active_generation(context.actor)?;
-        }
-        Ok(self.catalog.apply_reference(root, context.actor, request)?)
+            .map_err(CatalogError::from)?)
     }
 
     /// Apply exact authenticated physical-deletion evidence, separately from billing.
@@ -475,14 +482,7 @@ impl UploadAdmissions {
         context: UploadContext,
         object: ObjectBinding,
     ) -> Result<(), UploadAdmissionError> {
-        if context.service != self.config.bindings().service || object.service() != context.service
-        {
-            return Err(UploadAdmissionError::WrongService);
-        }
-        if object.identity().namespace != self.config.bindings().namespace {
-            return Err(UploadAdmissionError::WrongNamespace);
-        }
-        Ok(())
+        validation::object(&self.config, context, object)
     }
 
     fn check_project(

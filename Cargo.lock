@@ -175,6 +175,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "blob-storage-probe"
+version = "0.0.0"
+dependencies = [
+ "blob-test-protocol",
+ "candid",
+ "ic-blob-storage",
+ "ic-cdk",
+]
+
+[[package]]
 name = "blob-test-protocol"
 version = "0.0.0"
 dependencies = [

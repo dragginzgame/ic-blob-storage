@@ -12,6 +12,7 @@ pub mod journey;
 pub mod obligations;
 pub mod source;
 pub mod status;
+pub mod storage;
 pub mod uploads;
 
 /// Deliberate source behavior for one local gateway-list experiment.

@@ -3,6 +3,7 @@
 
 mod admission_cases;
 mod admission_content;
+mod admission_receipts;
 mod admission_resources;
 mod admission_wire;
 mod support;

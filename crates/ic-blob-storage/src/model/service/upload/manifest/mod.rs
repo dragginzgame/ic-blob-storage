@@ -53,20 +53,7 @@ impl UploadAdmissions {
         now_ns: u64,
     ) -> Result<LifecycleChange, UploadAdmissionError> {
         self.check_uploader(context, request, now_ns)?;
-        let limits = self.config.manifest_limits();
-        validate_upload_metadata(
-            input.headers,
-            request.object.bytes,
-            limits.max_headers.get(),
-            limits.max_header_bytes.get(),
-        )?;
-        let manifest = CaffeineChunkManifest::new(
-            request.object.root,
-            request.object.bytes,
-            input.chunks,
-            input.headers,
-            limits,
-        )?;
+        let manifest = validate(&self.config, request, input)?;
         let permission = self
             .permissions
             .get_mut(&key(request))
@@ -94,4 +81,25 @@ impl UploadAdmissions {
         });
         Ok(LifecycleChange::Changed)
     }
+}
+
+pub(crate) fn validate(
+    config: &super::ServiceConfiguration,
+    request: UploadRequest,
+    input: UploadManifest<'_>,
+) -> Result<CaffeineChunkManifest, UploadAdmissionError> {
+    let limits = config.manifest_limits();
+    validate_upload_metadata(
+        input.headers,
+        request.object.bytes,
+        limits.max_headers.get(),
+        limits.max_header_bytes.get(),
+    )?;
+    Ok(CaffeineChunkManifest::new(
+        request.object.root,
+        request.object.bytes,
+        input.chunks,
+        input.headers,
+        limits,
+    )?)
 }
