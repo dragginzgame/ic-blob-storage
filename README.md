@@ -1,6 +1,6 @@
 # ic-blob-storage
 
-0.1.19 is the released foundation. The [0.2 delivery plan](docs/roadmap.md) tracks
+0.2.0 is the released library baseline. The [0.2 delivery plan](docs/roadmap.md) tracks
 the remaining work to a usable service; [current status](docs/status/current.md)
 separates implemented behavior from outstanding milestones.
 
@@ -34,6 +34,13 @@ Its measured admission/preparation/retry/exposure sequence is about 4M instructi
 with no file-byte transfer. It does not persist grants or issue certificates;
 provider size enforcement, replay and completion still require qualification.
 Candidate configuration derives manifest limits from its admitted object size.
+Admission maintains reservation/manifest totals and an object-identity index
+without rescanning pending or cancelled history. The resource probe also fills
+256 lifetime operation slots across two tenants; its measurements are in the
+[history-cost evidence](docs/evidence/core-primitives.md#retained-admission-history-after-020).
+Confirmed-object totals also use maintained global/tenant usage, including retained
+receipts for lifecycle failures. Root-only exposure indexes the original permission
+before rechecking the uploader and deadline. Production capacity still needs sizing.
 The local PocketIC journey covers 10 MiB files; its provider completion and billing
 observations remain substitutes, not deployed Caffeine qualification.
 Replies can be checked against the original encoded request, including its

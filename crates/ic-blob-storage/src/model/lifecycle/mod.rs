@@ -228,6 +228,12 @@ impl BlobLifecycle {
         self.references.len()
     }
 
+    /// Unused lifetime reference identities; releasing references does not refill them.
+    #[must_use]
+    pub fn remaining_reference_slots(&self) -> usize {
+        self.reference_limit.get() - self.references.len()
+    }
+
     /// Logical tenant bytes: counted once for this object while references remain.
     #[must_use]
     pub const fn logical_bytes(&self) -> u64 {

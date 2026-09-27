@@ -4,6 +4,9 @@ use blob_test_protocol::{admission::ExecutionProfile, journey::JourneyManifest};
 use sha2::{Digest, Sha256};
 use std::fmt::Write;
 
+mod history;
+mod releases;
+
 const CHUNK: usize = 1024 * 1024;
 
 impl Fixture {
@@ -222,11 +225,7 @@ fn resource_profile_ten_mib_direct_manifest_and_exposure() {
     assert_eq!(view.manifest, ManifestState::Bound);
     assert_eq!(view.phase, Phase::ExposurePossible);
     assert_eq!(view.usage.unwrap().liability, u128::from(p.request.bytes));
-    let digest = Sha256::digest(Fixture::wasm());
-    let mut wasm_sha256 = String::with_capacity(64);
-    for byte in digest {
-        write!(&mut wasm_sha256, "{byte:02x}").unwrap();
-    }
+    let wasm_sha256 = wasm_hash();
     let report = serde_json::json!({
         "scope":"Local release Wasm; bounded manifest admission and local exposure only. No file bytes or provider call. Counters exclude diagnostic storage and reply encoding; allocated Wasm memory is not live allocation size.",
         "wasm_sha256":wasm_sha256,"object_bytes":p.request.bytes,
@@ -236,4 +235,12 @@ fn resource_profile_ten_mib_direct_manifest_and_exposure() {
         std::fs::write(path, serde_json::to_vec_pretty(&report).unwrap()).unwrap();
     }
     println!("admission resource profile: {report}");
+}
+
+fn wasm_hash() -> String {
+    let mut hex = String::with_capacity(64);
+    for byte in Sha256::digest(Fixture::wasm()) {
+        write!(&mut hex, "{byte:02x}").unwrap();
+    }
+    hex
 }

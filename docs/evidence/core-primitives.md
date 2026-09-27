@@ -2379,6 +2379,9 @@ primitives, not a second production upload mode.
 
 ## Local admission resource measurements
 
+The following measurements are the 0.2.0 baseline; the continuation and retained
+history workload are recorded separately below.
+
 `make test-admission-resources` builds release Wasm and writes
 `.tmp/admission-resources.json`, including its SHA-256, instruction samples,
 encoded request sizes and allocated Wasm memory. PocketIC 16 uses actual IC
@@ -2403,3 +2406,153 @@ chunks, plus 903,016,377 for one retry per chunk; its measurement provenance is
 retained in the [upload-path review](toko-0.2-review.json). Those service append
 commands and tests have been removed. No live Caffeine request, production
 latency/cycle price or durable-service capacity is established by either run.
+
+## Retained admission history after 0.2.0
+
+The same transient owners now maintain private global/tenant reservation totals
+and lifetime manifest-leaf totals. Only successful admission increments them;
+cancellation or confirmation releases a reservation exactly once, while retained
+operation/leaf counts never decrease. Root claims use a private object-identity
+index with one key per root, scoped to the checked service and full tenant,
+namespace, object and incarnation identity. No new public mutation/import API or
+recovery authority follows from these indexes. At this checkpoint, confirmed-object
+usage and root-only permission lookup still scanned history; the follow-up below
+removes those scans.
+
+`make test-admission-resources` additionally writes `.tmp/admission-history.json`.
+Its fixed test installation admits then cancels 128 one-byte operations per tenant,
+filling 256 lifetime slots. Synthetic roots exercise reservations only; no file
+bytes, manifests or provider effects are supplied. Tenant exhaustion leaves the
+other tenant's capacity available. Rejections acquire no operation; exact replay,
+cleanup and zero byte charges survive stop/start at capacity. Every admission and
+cancellation is below a broad 5M-instruction ceiling; final allocated memory stays
+within 2 MiB growth. These are maintained regression bounds, not production limits.
+
+The [before/after record](admission-history.json) identifies both Wasm builds and
+all six checkpoints. It compares the 0.2.0 model under the same fixture with the
+indexed implementation. Selected total-call observations illustrate the tradeoff:
+
+| Retained operations | Baseline admission instructions | Indexed admission instructions |
+| --- | ---: | ---: |
+| 1 | 935,120 | 936,813 |
+| 128 | 1,443,874 | 1,480,278 |
+| 129 (second tenant's first) | 1,482,947 | 1,440,578 |
+| 256 | 1,732,502 | 1,802,377 |
+
+Both start at 1,245,184 allocated Wasm bytes. The baseline ends at 1,572,864;
+the indexed owner ends at 1,638,400, an extra 64 KiB. Explicit scans are removed,
+but the measured total cost is not uniformly lower. Decoder, allocation/layout
+and page effects are included without isolating their contributions. Do not infer
+constant whole-call cost or a production throughput improvement from this sample.
+That build's 10 MiB manifest sequence separately measures 4,113,659 instructions,
+1,766 wire bytes and steady 1,245,184 allocated Wasm bytes. Both reports exclude
+diagnostic storage/reply encoding, production persistence and provider transport.
+
+Native accounting audits independently reconstruct totals through rejected and
+successful transitions, zero bytes, tenant interleaving, cancellation, confirmation,
+release, deletion, settlement and exact replay. Existing wide-total and capacity
+tests remain effective. Targeted native validation, all 12 admission and 46
+integrity/recovery PocketIC cases, upload ownership, affected Clippy/release Wasm
+and library rustdoc pass. No full CI, provider effect or release command ran.
+
+## Confirmed usage and indexed exposure
+
+Confirmed catalog usage now keeps private global and tenant totals. One mutation
+path replaces the affected entry's contribution after reference, deletion or
+settlement changes. It also accounts for a newly recorded lifecycle error receipt
+without changing byte charges. Unchanged retries and rejected requests preserve
+totals; subtraction precedes addition for wide aggregates. Global usage is a copy
+and tenant usage a lookup; neither scans object history. Enumeration keeps its
+independent scan/result bounds and tenant index.
+
+The admission owner additionally retains one root-to-tenant/operation mapping per
+accepted permission. Root-only exposure uses that mapping and the original
+permission, then rechecks uploader, activation, deadline and phase. No rejected
+admission can install or overwrite the mapping. Cancelled and settled history
+remains bound; there is no counter/index import, reset or new public API.
+
+Native evidence reconstructs every usage field from journals across 64 objects,
+three tenants, distinct namespaces, multiple references, rejected-operation
+receipts, zero bytes and totals above `u64`. Each transition and exact replay is
+checked. Another case separates operation ID from object identity and rejects
+object/root conflicts without leaking a permission-index entry. PocketIC fills
+256 operation slots and exercises the last valid permission through unprepared,
+wrong-caller, cancelled-root and rejected-admission paths, stop/start and one-shot
+exposure, preserving the original declaration and quota.
+
+The latest build and reports are retained in the
+[same measurement record](admission-history.json). The 256-cancellation workload
+still ends at 1,638,400 allocated Wasm bytes; the 10 MiB sequence measures 4,116,047
+instructions with unchanged 1,766 request bytes and 1,245,184 allocated Wasm bytes.
+Equal allocated pages do not imply that the new index costs no memory. These
+workloads do not measure a full confirmed catalog or retained receipts/manifests,
+and establish no production throughput or persistence/provider guarantee.
+
+Targeted validation passes 30 service and 20 catalog/admission unit tests, 23
+catalog/upload/tenant integration cases, all 13 admission and 46 integrity/recovery
+PocketIC cases, and upload ownership. Affected release Wasm, strict all-target
+Clippy, warning-free library rustdoc, formatting and diff checks pass. Full CI
+and release/provider actions were not run.
+
+### Tenant content discovery and release reuse
+
+The post-0.2.0 shared-owner API now discovers original operations by explicitly
+authorized tenant, namespace and root. It returns current reservation/lifecycle
+state, preserves retired identities and uses the existing index without a history
+scan. It does not reserve a reference or prove present provider availability.
+Native tests separate operation from object ID, deny foreign discovery, preserve
+suspended inspection and exercise overlapping release references. Lost retain
+replies recover exact receipts; stale live reads cannot bypass queued deletion.
+Receipt exhaustion preserves cleanup capacity, physical deletion remains separate
+from billing cessation, and settled-root reallocation rejects without mutation.
+
+Targeted commands: `cargo test --offline --locked -p ic-blob-storage --lib model::service`
+(33 passing), and `cargo test --offline --locked -p ic-blob-storage-pocketic-tests
+--test admission -- --test-threads=2` (15 passing), with this repository's target
+directory and explicitly selected PocketIC 16.0.0 binary. The release admission
+Wasm SHA-256 is `5f9e8d93f1cdbc91a900b02af85faef3bb159a8a0b20eabcce21947029b21804`.
+The IC cases verify actual caller isolation, unchanged observations/accounting,
+uncertainty after revocation, suspended inspection and cancelled history through
+stop/start. They do not simulate provider confirmation through a new control.
+Affected strict all-target Clippy, warning-free library rustdoc, release Wasm,
+formatting and diff checks pass. Existing resource cases pass their broad budgets;
+the earlier exact measurement records remain tied to their original artifacts.
+No production endpoint, persistence, restore, provider behavior, large release
+capacity or deleted-content reintroduction is qualified by this batch.
+
+### Multi-file release history
+
+The next local workload uses 640 synthetic 256 KiB files and 64 synthetic 2 MiB
+files: 704 objects / 288 MiB, with 768 retained manifest leaves. File hashing runs
+on the test host; only declarations/manifests enter the canister. Four overlapping
+reference generations retain 2,816 reference IDs and 4,928 receipts. The final
+reference is releasable at history capacity; physical deletion and billing cessation
+then discharge separate byte totals without refunding lifetime admission slots.
+Exact retries and stop/start preserve history. Operator-only completion, deletion
+and settlement controls are explicit substitutes, not deployed Caffeine evidence.
+
+The [machine-readable report](release-history.json) binds the release Wasm hash
+and samples. Allocated Wasm memory grows from 1,245,184 to 4,587,520 bytes, including
+allocator headroom, not just live payload. At object 704, admission measures
+5,430,827 instructions, of which 5,334,922 precede workflow dispatch. The largest
+sampled retain total is 9,197,167; maximum retain workflow work is 495,359 and
+maximum release workflow work is 334,171 (independent maxima, not the same calls).
+The growth is predominantly before workflow dispatch; decoder/allocation work
+needs investigation before production sizing. No allocator root cause is proven.
+Counters exclude diagnostic recording and reply encoding; every measured mutation
+stays below the broad 10M ceiling. Larger per-object histories and read sessions
+remain unmeasured, and no persistence/provider cost follows from these numbers.
+
+The new reference-capacity view reports unused identities, unreserved receipts,
+reserved release receipts and fresh distinct retains. Native cases cover odd
+receipt budgets, admitted failures, effect-free inspection and zero fresh retains
+after deletion queues. The shared owner authenticates tenant disclosure; the IC
+workload denies foreign observers and unauthorized substitute facts.
+
+Targeted validation: 15 lifecycle and 33 service native cases; all 16 admission
+PocketIC cases using PocketIC 16.0.0; admission release Wasm; strict all-target
+Clippy for the core, protocol, admission probe and PocketIC package; warning-free
+library rustdoc; formatting and diff checks. The final admission suite took about
+271 seconds locally. `make test-admission-resources` now also writes
+`.tmp/release-history.json`; its large workload is intentionally several minutes.
+No full CI, release, live provider operation or consumer adoption ran.

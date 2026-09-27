@@ -3,6 +3,27 @@
 use crate::journey::{JourneyManifest, JourneyUsage};
 use candid::{CandidType, Principal};
 use serde::Deserialize;
+pub mod release;
+
+/// Fixed local measurement envelopes; none is a production configuration.
+#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+pub enum Workload {
+    /// Small envelope for authority, metadata and leaf-capacity checks.
+    Small,
+    /// Two tenants with 128 lifetime admissions each, for history-cost checks.
+    RetainedHistory,
+    /// 704 confirmed objects, retained manifests and four reference generations.
+    ReleaseHistory,
+}
+
+/// Explicit test installation; no provider or account authority is supplied.
+#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+pub struct Installation {
+    /// Sole observer/enrollment operator.
+    pub operator: Principal,
+    /// Fixed bounded workload to install.
+    pub workload: Workload,
+}
 
 /// Exact fixture operation. Object ID equals operation ID; incarnation/reference are one.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
@@ -19,6 +40,47 @@ pub struct Request {
     pub root: [u8; 32],
     /// Exact reserved length.
     pub bytes: u64,
+}
+
+/// Tenant-scoped discovery without a pre-existing operation identity.
+#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+pub struct ContentLookup {
+    /// Explicit fixture service, checked against the running canister.
+    pub service: Principal,
+    /// Only this authenticated tenant may discover its content.
+    pub tenant: Principal,
+    /// Configured namespace, not inferred from a digest.
+    pub namespace: u128,
+    /// Content root to look up.
+    pub root: [u8; 32],
+}
+
+/// Current local content state, not a provider observation or a retain receipt.
+#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+pub enum ContentState {
+    /// Admitted without exposure.
+    Reserved,
+    /// Possible exposure remains unresolved.
+    ExposurePossible,
+    /// Unexposed cancellation retains its identity.
+    Cancelled,
+    /// Confirmed with live references.
+    Live,
+    /// Last reference released; deletion remains unresolved.
+    DeletionPending,
+    /// Physical deletion known; billing remains unresolved.
+    ProviderDeleted,
+    /// Final settlement known; identity remains retained.
+    Settled,
+}
+
+/// Original upload identity and current state, visible only to its tenant.
+#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+pub struct ContentObservation {
+    /// Exact request to recover; discovery does not allocate a new operation.
+    pub request: Request,
+    /// Local lifecycle at query time.
+    pub state: ContentState,
 }
 
 /// Immutable project instruction, without caller or clock overrides.
@@ -57,7 +119,7 @@ pub enum Phase {
     Reserved,
     /// Possible exposure; bytes remain charged.
     ExposurePossible,
-    /// Provider completion was established by the host (not offered by this probe).
+    /// Host completion fact; measurement controls can supply an explicit substitute.
     Confirmed,
     /// Cancelled before exposure, identity history retained.
     Cancelled,
@@ -66,6 +128,9 @@ pub enum Phase {
 /// Actual-call controls. Exposure returns no certificate and causes no provider effect.
 #[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize)]
 pub enum Command {
+    /// Explicit local host facts and reference mutations for capacity measurements.
+    /// These controls are provider substitutes, never a production completion API.
+    FixtureLifecycle(release::LifecycleCommand),
     /// Operator-only enrollment with exact precondition.
     Enroll {
         /// Project to update.
@@ -88,6 +153,13 @@ pub enum Command {
 /// Typed mutation outcome; errors are ordinary Candid replies, never traps.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
 pub enum Outcome {
+    /// Original or replayed reference result, including recorded lifecycle failure.
+    Reference {
+        /// True returns the original receipt without executing again.
+        replayed: bool,
+        /// Inner result is separate from successful request admission.
+        result: Result<bool, release::ReferenceFailure>,
+    },
     /// New enrollment observation.
     Enrolled(Enrollment),
     /// Fresh admission.

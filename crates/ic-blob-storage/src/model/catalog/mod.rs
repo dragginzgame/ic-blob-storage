@@ -11,6 +11,9 @@
 //! and shares this catalog's capacity and root claims. Its confirmed-only view
 //! must not be used as the aggregate usage or liveness of pending uploads.
 
+mod accounting;
+use accounting::{CatalogAccounting, contribution};
+
 pub mod admission;
 pub mod pending;
 pub mod tenant;
@@ -98,8 +101,8 @@ struct Entry {
 /// One service's confirmed-object collection with no independent mutable escape.
 ///
 /// Settled entries remain counted against lifetime capacity. No remove/reset API
-/// erases the only root or receipt evidence. Derived usage avoids independently
-/// mutable counters drifting from object state. Scans are bounded by `max_objects`.
+/// erases the only root or receipt evidence. Private global/tenant usage changes
+/// with each entry mutation; usage reads never scan retained entries.
 /// A private tenant index holds one root per confirmed entry, bounded by the same
 /// lifetime limits, and is maintained only by successful object insertion.
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -111,6 +114,7 @@ pub struct BlobCatalog {
     // Exactly one root per confirmed entry; retained through settlement. This
     // derived index bounds tenant scans without inspecting another tenant's rows.
     tenant_roots: BTreeMap<Principal, BTreeSet<ProviderRootHash>>,
+    accounting: CatalogAccounting,
 }
 
 impl BlobCatalog {
@@ -124,6 +128,7 @@ impl BlobCatalog {
             claims: RootClaims::new(service, limits.max_objects)?,
             entries: BTreeMap::new(),
             tenant_roots: BTreeMap::new(),
+            accounting: CatalogAccounting::default(),
         })
     }
 
@@ -190,13 +195,12 @@ impl BlobCatalog {
         )?;
         // This is the last fallible step: no partial root claim on a capacity error.
         self.claims.claim(input.root, input.first.object())?;
-        self.entries.insert(
-            input.root,
-            Entry {
-                original: input,
-                requests,
-            },
-        );
+        let entry = Entry {
+            original: input,
+            requests,
+        };
+        self.accounting.insert(&entry);
+        self.entries.insert(input.root, entry);
         self.tenant_roots
             .entry(input.first.object().tenant())
             .or_default()
@@ -218,7 +222,7 @@ impl BlobCatalog {
         actor: Principal,
         request: ReferenceRequest,
     ) -> Result<ReferenceRequestOutcome, CatalogError> {
-        Ok(self.entry_mut(root)?.requests.apply(actor, request)?)
+        self.mutate_entry(root, |requests| Ok(requests.apply(actor, request)?))
     }
 
     /// Apply independently authenticated, exact physical deletion evidence.
@@ -229,10 +233,9 @@ impl BlobCatalog {
         root: ProviderRootHash,
         object: ObjectBinding,
     ) -> Result<LifecycleChange, CatalogError> {
-        Ok(self
-            .entry_mut(root)?
-            .requests
-            .confirm_provider_deleted(object)?)
+        self.mutate_entry(root, |requests| {
+            Ok(requests.confirm_provider_deleted(object)?)
+        })
     }
 
     /// Apply independently authenticated final billing cessation evidence.
@@ -243,10 +246,9 @@ impl BlobCatalog {
         root: ProviderRootHash,
         object: ObjectBinding,
     ) -> Result<LifecycleChange, CatalogError> {
-        Ok(self
-            .entry_mut(root)?
-            .requests
-            .confirm_billing_stopped(object)?)
+        self.mutate_entry(root, |requests| {
+            Ok(requests.confirm_billing_stopped(object)?)
+        })
     }
 
     /// Read an owned journal; callers still need scope and actor authorization.
@@ -264,26 +266,34 @@ impl BlobCatalog {
     /// Aggregate local usage across all tenants and namespaces.
     #[must_use]
     pub fn usage(&self) -> CatalogUsage {
-        usage(self.entries.values())
+        self.accounting.usage()
     }
 
-    /// Local tenant usage across namespaces; this accessor is not authorization.
-    /// # Panics
-    /// Panics if the private tenant index references a missing confirmed entry,
-    /// indicating an internal invariant violation, not rejected caller input.
+    /// Local tenant usage across namespaces, using one lookup; not authorization.
     #[must_use]
     pub fn tenant_usage(&self, tenant: Principal) -> CatalogUsage {
-        usage(
-            self.tenant_roots
-                .get(&tenant)
-                .into_iter()
-                .flatten()
-                .map(|root| self.entries.get(root).expect("indexed confirmed object")),
-        )
+        self.accounting.tenant_usage(tenant)
     }
 
-    fn entry_mut(&mut self, root: ProviderRootHash) -> Result<&mut Entry, CatalogError> {
-        self.entries.get_mut(&root).ok_or(CatalogError::UnknownRoot)
+    fn mutate_entry<T>(
+        &mut self,
+        root: ProviderRootHash,
+        apply: impl FnOnce(&mut ReferenceRequests) -> Result<T, CatalogError>,
+    ) -> Result<T, CatalogError> {
+        let entry = self
+            .entries
+            .get_mut(&root)
+            .ok_or(CatalogError::UnknownRoot)?;
+        let before = contribution(entry);
+        let result = apply(&mut entry.requests);
+        // Recorded lifecycle errors consume receipts even without a lifecycle
+        // change. Capture the actual contribution before returning either outcome.
+        self.accounting.replace(
+            entry.original.first.object().tenant(),
+            before,
+            contribution(entry),
+        );
+        result
     }
 }
 
@@ -325,27 +335,6 @@ pub struct CatalogUsage {
     pub reference_slots: u128,
     /// Retained request results, including rejected transitions.
     pub receipt_slots: u128,
-}
-
-fn usage<'a>(entries: impl Iterator<Item = &'a Entry>) -> CatalogUsage {
-    let mut result = CatalogUsage::default();
-    for entry in entries {
-        let lifecycle = entry.requests.lifecycle();
-        result.objects += 1;
-        result.live_objects += usize::from(lifecycle.phase() == LifecyclePhase::Live);
-        result.pending_deletions +=
-            usize::from(lifecycle.phase() == LifecyclePhase::DeletionPending);
-        result.unsettled_objects += usize::from(lifecycle.has_unsettled_obligations());
-        // On supported 32/64-bit targets, at most usize::MAX objects each hold
-        // u64 bytes and usize metadata slots; their products fit u128 exactly.
-        result.logical_bytes += u128::from(lifecycle.logical_bytes());
-        result.physical_bytes += u128::from(lifecycle.physical_bytes());
-        result.liability_bytes += u128::from(lifecycle.liability_bytes());
-        result.active_references += lifecycle.active_references() as u128;
-        result.reference_slots += lifecycle.reference_slots() as u128;
-        result.receipt_slots += entry.requests.receipt_count() as u128;
-    }
-    result
 }
 
 /// Exhausted catalog resource; no partial object admission occurs.

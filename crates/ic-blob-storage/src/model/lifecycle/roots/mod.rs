@@ -6,7 +6,10 @@
 //! This is transient: production use requires durable intent-before-effect claims,
 //! exclusive provider ownership and restore fencing. An empty new map is not recovery.
 
-use std::{collections::BTreeMap, num::NonZeroUsize};
+use std::{
+    collections::{BTreeMap, BTreeSet},
+    num::{NonZeroU128, NonZeroUsize},
+};
 
 use candid::Principal;
 use thiserror::Error;
@@ -25,6 +28,29 @@ pub struct RootClaims {
     service: Principal,
     limit: NonZeroUsize,
     claims: BTreeMap<ProviderRootHash, ObjectBinding>,
+    objects: BTreeSet<ObjectKey>,
+}
+
+// The owning service is checked before lookup. All remaining identity fields
+// participate in uniqueness; the set contains exactly one key per retained root.
+#[derive(Clone, Copy, Debug, Eq, Ord, PartialEq, PartialOrd)]
+struct ObjectKey {
+    tenant: Principal,
+    namespace: NonZeroU128,
+    object: NonZeroU128,
+    incarnation: NonZeroU128,
+}
+
+impl From<ObjectBinding> for ObjectKey {
+    fn from(binding: ObjectBinding) -> Self {
+        let identity = binding.identity();
+        Self {
+            tenant: binding.tenant(),
+            namespace: identity.namespace,
+            object: identity.object,
+            incarnation: identity.incarnation,
+        }
+    }
 }
 
 impl RootClaims {
@@ -39,14 +65,15 @@ impl RootClaims {
             service,
             limit,
             claims: BTreeMap::new(),
+            objects: BTreeSet::new(),
         })
     }
 
     /// Claim a root for exactly one object lifetime before exposing upload authority.
     ///
     /// Exact replay returns `Existing`; it never authorizes repeating an upload.
-    /// Each object binding can claim only one root. Reverse lookup is bounded by
-    /// the configured lifetime claim limit. The future workflow must persist this
+    /// Each object binding can claim only one root. A private identity index makes
+    /// this check logarithmic in retained claims, with one key per root. The future workflow must persist this
     /// claim atomically with the upload intent before issuing a certificate/effect.
     /// # Errors
     /// Rejects wrong service, root reassignment, changed root for the same object,
@@ -66,13 +93,15 @@ impl RootClaims {
                 Err(RootClaimError::RootAlreadyClaimed)
             };
         }
-        if self.claims.values().any(|existing| *existing == object) {
+        let object_key = ObjectKey::from(object);
+        if self.objects.contains(&object_key) {
             return Err(RootClaimError::ObjectAlreadyClaimed);
         }
         if self.claims.len() >= self.limit.get() {
             return Err(RootClaimError::LimitReached);
         }
         self.claims.insert(root, object);
+        self.objects.insert(object_key);
         Ok(RootClaimOutcome::Claimed)
     }
 

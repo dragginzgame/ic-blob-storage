@@ -1,12 +1,14 @@
 //! Heap access and passive boundary conversion; the core owns every transition.
 
+pub(crate) mod content;
 mod conversion;
 pub(crate) mod decode;
+pub(crate) mod release;
 pub(crate) mod resources;
 use blob_test_protocol::{
     admission::{
-        Enrollment, ExecutionProfile, Failure, ManifestState, Observation, Outcome, Permission,
-        Request,
+        Enrollment, ExecutionProfile, Failure, Installation, ManifestState, Observation, Outcome,
+        Permission, Request, Workload,
     },
     journey::{JourneyManifest, JourneyUsage},
 };
@@ -56,7 +58,14 @@ fn number(n: u128) -> NonZeroU128 {
     NonZeroU128::new(n).expect("positive fixture bound")
 }
 
-pub(crate) fn initialize(service: Principal, operator: Principal) {
+pub(crate) fn initialize(service: Principal, installation: Installation) {
+    let operator = installation.operator;
+    let (objects, tenant_objects, chunks, tenant_chunks, tenant_bytes, references, receipts) =
+        match installation.workload {
+            Workload::Small => (4, 2, 15, 10, 10, 2, 3),
+            Workload::RetainedHistory => (256, 128, 256, 128, 10, 2, 3),
+            Workload::ReleaseHistory => (704, 704, 768, 768, 288, 4, 7),
+        };
     let config = ServiceConfiguration::new(
         ServiceBindings {
             service,
@@ -70,17 +79,17 @@ pub(crate) fn initialize(service: Principal, operator: Principal) {
             max_headers: count(8),
             max_header_bytes: count(1024),
             manifests: ServiceManifestLimits {
-                max_chunks: count(15),
-                max_tenant_chunks: count(10),
+                max_chunks: count(chunks),
+                max_tenant_chunks: count(tenant_chunks),
             },
             catalog: CatalogLimits {
-                max_objects: count(4),
-                max_tenant_objects: count(2),
-                max_physical_bytes: number(20 * 1024 * 1024),
-                max_liability_bytes: number(20 * 1024 * 1024),
-                max_tenant_logical_bytes: number(10 * 1024 * 1024),
-                max_references_per_object: count(2),
-                max_receipts_per_object: count(3),
+                max_objects: count(objects),
+                max_tenant_objects: count(tenant_objects),
+                max_physical_bytes: number(2 * tenant_bytes * 1024 * 1024),
+                max_liability_bytes: number(2 * tenant_bytes * 1024 * 1024),
+                max_tenant_logical_bytes: number(tenant_bytes * 1024 * 1024),
+                max_references_per_object: count(references),
+                max_receipts_per_object: count(receipts),
             },
             uploads: UploadLimits {
                 max_active: count(4),

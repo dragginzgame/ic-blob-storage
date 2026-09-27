@@ -79,8 +79,8 @@ test-pocketic:
 test-admission-resources:
 	cargo build --offline --locked --release --target wasm32-unknown-unknown -p blob-admission-probe --lib
 	@mkdir -p .tmp
-	BLOB_ADMISSION_RESOURCE_REPORT="$(CURDIR)/.tmp/admission-resources.json" cargo test --offline --locked -p ic-blob-storage-pocketic-tests --test admission admission_resources -- --test-threads=2
-	@echo "Resource observations: .tmp/admission-resources.json (local probe, not provider pricing)"
+	BLOB_ADMISSION_RESOURCE_REPORT="$(CURDIR)/.tmp/admission-resources.json" BLOB_ADMISSION_HISTORY_REPORT="$(CURDIR)/.tmp/admission-history.json" BLOB_RELEASE_HISTORY_REPORT="$(CURDIR)/.tmp/release-history.json" cargo test --offline --locked -p ic-blob-storage-pocketic-tests --test admission admission_resources -- --test-threads=2
+	@echo "Resource observations: .tmp/admission-resources.json, .tmp/admission-history.json and .tmp/release-history.json (local probes, not provider pricing)"
 
 wasm-check:
 	cargo check --offline --locked --workspace --all-features --target wasm32-unknown-unknown

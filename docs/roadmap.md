@@ -6,10 +6,9 @@ and a consumer acceptance journey. It is not complete when another set of codecs
 or test fixtures passes. Canic removal and live installation retirement remain
 separate, explicitly authorized work.
 
-The proposed **0.2.0 library cut** packages the breaking direct-upload admission
+The released **0.2.0 library** packages the breaking direct-upload admission
 contract, tenant enrollment, canonical metadata and measured resource envelope.
-It is ready for the maintainer's release workflow after committing the batch;
-that workflow must still pass full validation. This release does not complete
+The maintainer confirmed its release. This release does not complete
 M1–M4 below. Durable handlers, provider qualification, both production adapters
 and consumer acceptance remain work for the 0.2 series.
 
@@ -72,6 +71,56 @@ Starting 0.2 does not waive the [service contract](service-contract.md).
   that may sync and fund. Preserve this distinction. Its retry behavior, default
   project/bucket and billing amounts are observations, not approved service defaults.
 
+### Toko Miner feedback — 2026-09-27
+
+The maintainer requested review of `../toko-miner/docs/upstream/ic-blob-storage.md`.
+It proposes release-published static media, a separate consumer journey from
+Toko's browser uploads. It does not approve Miner adoption or replace the Toko
+reference journey. Its recorded review used Miner `333fdc68fb5559d1ba7ba3af8a1aa01b3552319c`;
+our read-only follow-up found HEAD `9c896f0adfff002ae915b1dd1a27b7206a7d6965`
+and the feedback file clean, SHA-256
+`9ab5d9708fc9ed5d74664b265756691496d0b0e38b6d16ce6bf5fbeec7da7f74`.
+Spot checks of `frontend/src/outpost/scenery-sources.ts`,
+`frontend/src/catalog/artwork.ts`, `frontend/public/.ic-assets.json5`,
+`scripts/release/bundle.py` and `scripts/deploy/staging.sh` confirm bundled media
+URLs, restricted browser origins and frozen release artefact verification.
+No consumer build or provider experiment ran.
+
+| Feedback | Effect on the service plan |
+| --- | --- |
+| Miner BLOB-001 — managed service | Confirms M2/M4: durable shared handlers and one Canic-managed storage owner, with host-owned memory/lifecycle. Miner tenant, uploader and managed-role bindings still need an accepted application design; no per-shard media owner is implied. |
+| Miner BLOB-002 — headless publisher | Make noninteractive publication an explicit M3 client requirement alongside browser upload: dry-run inventory/capacity, bounded concurrency, exact-operation lookup/resume and typed results. Reuse this repository's hash/manifest implementation and direct-to-Caffeine byte path. Explicit service/tenant/uploader/payer/namespace bindings cannot come from interactive login, inferred targets or automatic funding. |
+| Miner BLOB-003 — browser delivery | Extend A10 qualification to immutable media URLs, integrity/trust, MIME, CORS, cache, errors and large reads under the consumer's CSP. A root URL alone does not establish certified HTTP or byte integrity. Define the verification path before changing consumer origins; measure cold/warm loading before performance claims. |
+| Miner BLOB-004 — repeated releases | Resolve tenant-authorized reuse, exact retain/release, bounded retention and deleted-content reintroduction in M1 before freezing persisted/protocol contracts. Current immutable root claims prohibit allocating the same provider root to a new object even after settlement. A retained live reference is supported by the model; a safe delete/re-upload contract remains unresolved. Do not weaken callback safety or treat indefinite retention as free. |
+| Miner BLOB-005 — release identity | README, roadmap and status now identify the released 0.2.0 library and unfinished service milestones in this worktree. This addresses the wording locally; it does not establish publication of these edits or close the consumer's finding. |
+
+The feedback's asset survey reports 702 media files / 283,211,048 bytes, largest
+8,362,256 bytes. That is its recorded checkout envelope, not a newly measured or
+qualified publish list. Use it to guide multi-file capacity work; derive actual
+inputs from a frozen consumed-media inventory. Toko's 500 MiB UI guard and the
+256-cancelled-admission fixture are not Miner capacity requirements or evidence.
+Measure retained manifests, objects, references, receipts, leaves, read sessions
+and liabilities across overlapping releases, including remaining capacity and a
+safe exhaustion path. The supported route for reintroducing removed media is an
+adoption blocker, not an assumed capability.
+
+The proposed release owner must retain exact operation/reference intent and
+publish its complete media map only after every required object is authoritatively
+confirmed and retained. Interruptions must resume without duplicate paid writes
+or lost references. Old-reference release needs a bounded policy accounting for
+cached/open browsers. Keeping the certified application shell and changing its
+self-contained-media contract both require Miner-side acceptance before adoption.
+The [consumer acceptance extension](acceptance-plan.md#release-published-media-consumer)
+records the failure cuts without changing that repository.
+
+Local progress: the shared owner now exposes tenant-authorized root discovery
+with the original operation and current lifecycle. Native overlapping-release
+cases cover retain/release replay, cleanup at receipt capacity and stale live
+observations; the local IC probe checks discovery isolation and stop/start.
+This supplies a publisher planning primitive, not a production client or an
+approved delete/re-upload route. The [reference recipe](service-contract.md#lifecycle-design-under-independent-review)
+keeps publication coordination and bounded retention explicit.
+
 ## Decisions to finish M1
 
 | Decision | Working direction | Still required before dependent implementation |
@@ -111,13 +160,33 @@ even before a manifest arrives. A prepared operation retains one leaf array;
 configuration rejects a payload envelope beyond the Wasm32 address range and
 requires the largest object to fit one tenant. Exact retries need no new slots.
 Cancellation, deletion and billing settlement do not remove the
-permission history or refund these slots. The owner derives usage from its exact
-retained permissions, avoiding a second mutable accounting source. This bounds
+permission history or refund these slots. The same owner now maintains private
+global/tenant leaf totals only after successful admission, avoiding full permission
+scans. Upload reservation totals similarly change only with successful transitions;
+the root-claim owner maintains one identity-index key per retained root. No public
+counter mutation, state import or recovery authority is introduced. This bounds
 retained leaf payloads, not total heap, transient decoding, allocator overhead or
 instructions. The admission probe now measures the direct-upload manifest path and bounds
 decoder bytes/work, type headers and skipped values; production metadata/history
 and read-session capacities still need measurement. See the
 [resource evidence](evidence/core-primitives.md#local-admission-resource-measurements).
+
+The post-0.2.0 [history workload](evidence/core-primitives.md#retained-admission-history-after-020)
+fills 256 cancelled admissions across two tenants and checks retries/cleanup at
+capacity. It records per-call instructions and allocated memory, not just model arithmetic.
+Removing the three scans does not give a uniform whole-call speedup in this small
+workload; the indexes add 64 KiB of allocated memory at its final checkpoint.
+The subsequent [accounting/index follow-up](evidence/core-primitives.md#confirmed-usage-and-indexed-exposure)
+removes confirmed-usage and root-only permission scans as well. Native audits cover
+all usage fields; the actual IC boundary exercises exposure at full history capacity.
+The subsequent 704-object release-history workload retains 768 manifest leaves,
+2,816 reference identities and 4,928 receipts for 288 MiB of declared media through
+four overlapping reference generations. It exercises cleanup after history fills;
+the shared owner's read-only capacity view distinguishes new-reference headroom
+from reserved release receipts. See the [release-history evidence](evidence/core-primitives.md#multi-file-release-history).
+These are synthetic files and local provider substitutes. Production bounds,
+larger per-object histories, read sessions and operational persistence remain
+unqualified; the fixture's four-generation limit is not a production default.
 
 The [upload-path evaluation](#upload-path-evaluation--2026-09-27) recommends direct
 browser-to-Caffeine upload as the production target, with bounded manifest
@@ -161,7 +230,7 @@ length experiment are in the [review record](evidence/toko-0.2-review.json).
 
 Before the hard cut, the optimized local 10 MiB run spent 1,713,702,451 instructions through the ten
 fresh appends and another 903,016,377 for one retry of every chunk. Manifest
-preparation ends at 1,142,257 instructions. The direct-upload probe now uses 4,107,938 instructions across admission,
+preparation ends at 1,142,257 instructions. The 0.2.0 direct-upload probe used 4,107,938 instructions across admission,
 preparation, an exact preparation retry and local exposure, with 1,766 encoded
 request bytes total. Allocated Wasm memory stays at 1,245,184 bytes. It eliminates
 the extra 10 MiB of canister ingress. This measures local model composition;
@@ -295,7 +364,9 @@ It provides no durable restore or provider evidence. The earlier PocketIC journe
 remains a separate fixture composition. Permissions
 have one bounded lifetime slot per catalog operation. A prepared operation retains
 one configured leaf array and no streaming file-hash state;
-root resolution currently scans that bounded history. No production persistence,
+root resolution uses a retained index to the original tenant/operation and then
+rechecks the full permission. Failed admission never installs a lookup entry.
+No production persistence,
 certificate bytes or substitute provider endpoints were added. Production host
 authentication, consumer outbox atomicity, instruction budgets and recovery remain open.
 The provider's accepted certificate lifetime/replay and project/bucket enforcement

@@ -135,3 +135,46 @@ fn catalog_rejection_cannot_consume_leaf_capacity_or_claim_the_rejected_root() {
         ))
     );
 }
+
+#[test]
+fn root_index_uses_operation_identity_and_never_indexes_rejected_admission() {
+    let mut owner = admissions();
+    let first = permission(1);
+    owner.admit(context(4), first, 10).unwrap();
+    let mut second = permission(2);
+    second.request.id = UploadRequestId::new(id(99));
+    let mut conflicting = second;
+    conflicting.request.object.first = first.request.object.first;
+    assert_eq!(
+        owner.admit(context(4), conflicting, 10),
+        Err(UploadAdmissionError::Catalog(UploadError::Root(
+            crate::model::lifecycle::roots::RootClaimError::ObjectAlreadyClaimed
+        )))
+    );
+    assert_eq!(
+        owner.expose_root(context(5), second.request.object.root, 11),
+        Err(UploadAdmissionError::UnknownPermission)
+    );
+    owner.admit(context(4), second, 10).unwrap();
+    prepare(&mut owner, &second);
+    assert_eq!(
+        owner.expose_root(context(5), second.request.object.root, 11),
+        Ok(second.request)
+    );
+    let rejected = permission(3);
+    assert_eq!(
+        owner.admit(context(4), rejected, 11),
+        Err(UploadAdmissionError::Catalog(UploadError::Catalog(
+            CatalogError::Capacity(CatalogCapacity::Objects)
+        )))
+    );
+    assert_eq!(
+        owner.expose_root(context(5), rejected.request.object.root, 11),
+        Err(UploadAdmissionError::UnknownPermission)
+    );
+    owner.revoke(context(4), first.request).unwrap();
+    assert_eq!(
+        owner.expose_root(context(5), first.request.object.root, 11),
+        Err(UploadAdmissionError::Revoked)
+    );
+}

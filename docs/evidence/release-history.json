@@ -1,0 +1,94 @@
+{
+  "declared_bytes": 301989888,
+  "final_wasm_memory_bytes": 4587520,
+  "initial_wasm_memory_bytes": 1245184,
+  "objects": 704,
+  "retained_receipts": 4928,
+  "retained_references": 2816,
+  "samples": [
+    {
+      "admit_before_work": 1023139,
+      "admit_instructions": 1033504,
+      "confirm_before_work": 1016434,
+      "confirm_instructions": 1031847,
+      "objects": 1,
+      "phase": "populate",
+      "prepare_before_work": 1033402,
+      "prepare_instructions": 1065639,
+      "wasm_memory_bytes": 1245184
+    },
+    {
+      "admit_before_work": 1342681,
+      "admit_instructions": 1402773,
+      "confirm_before_work": 1339567,
+      "confirm_instructions": 1388911,
+      "objects": 64,
+      "phase": "populate",
+      "prepare_before_work": 1353914,
+      "prepare_instructions": 1407172,
+      "wasm_memory_bytes": 1376256
+    },
+    {
+      "admit_before_work": 2614908,
+      "admit_instructions": 2694009,
+      "confirm_before_work": 2609125,
+      "confirm_instructions": 2670877,
+      "objects": 256,
+      "phase": "populate",
+      "prepare_before_work": 2622157,
+      "prepare_instructions": 2684163,
+      "wasm_memory_bytes": 1900544
+    },
+    {
+      "admit_before_work": 5016106,
+      "admit_instructions": 5095979,
+      "confirm_before_work": 5011067,
+      "confirm_instructions": 5073570,
+      "objects": 640,
+      "phase": "populate",
+      "prepare_before_work": 5023686,
+      "prepare_instructions": 5085438,
+      "wasm_memory_bytes": 2883584
+    },
+    {
+      "admit_before_work": 5334922,
+      "admit_instructions": 5430827,
+      "confirm_before_work": 5329779,
+      "confirm_instructions": 5404583,
+      "objects": 704,
+      "phase": "populate",
+      "prepare_before_work": 5346583,
+      "prepare_instructions": 5425175,
+      "wasm_memory_bytes": 3014656
+    },
+    {
+      "generation": 2,
+      "max_release_instructions": 8633527,
+      "max_release_workflow_instructions": 176266,
+      "max_retain_instructions": 8715925,
+      "max_retain_workflow_instructions": 414587,
+      "phase": "overlap",
+      "wasm_memory_bytes": 4587520
+    },
+    {
+      "generation": 3,
+      "max_release_instructions": 9196705,
+      "max_release_workflow_instructions": 177529,
+      "max_retain_instructions": 9197167,
+      "max_retain_workflow_instructions": 494588,
+      "phase": "overlap",
+      "wasm_memory_bytes": 4587520
+    },
+    {
+      "generation": 4,
+      "max_release_instructions": 8715846,
+      "max_release_workflow_instructions": 334171,
+      "max_retain_instructions": 8717728,
+      "max_retain_workflow_instructions": 495359,
+      "phase": "overlap",
+      "wasm_memory_bytes": 4587520
+    }
+  ],
+  "scope": "Local transient owner; synthetic 640 x 256 KiB and 64 x 2 MiB files, 768 retained leaves, four reference generations. Operator-only completion/deletion/billing facts are substitutes, not Caffeine evidence. No file bytes enter the canister. Instructions exclude diagnostic writes/reply encoding; memory is allocated Wasm pages. No persistence or read sessions.",
+  "wasm_sha256": "d92753d5251a6a183da4586e8bc5245caa52ee476c14e45974c748b7ab9fd52e"
+}

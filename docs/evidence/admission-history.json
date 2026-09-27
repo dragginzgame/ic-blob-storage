@@ -1,0 +1,256 @@
+{
+  "observed_on": "2026-09-27",
+  "baseline_model_commit": "f90d50cc58086ed2d45948eda8b5714cba341fbc",
+  "reproduction": "make test-admission-resources; the baseline used the same RetainedHistory fixture over the 0.2.0 model before adding accounting and identity indexes.",
+  "tooling": "Rust 1.98.1, PocketIC 16, release wasm32 build; ic-testkit supplies PocketIC.",
+  "before": {
+    "final_wasm_memory_bytes": 1572864,
+    "initial_wasm_memory_bytes": 1245184,
+    "samples": [
+      {
+        "admit_instructions": 935120,
+        "admit_workflow_instructions": 8077,
+        "cancel_instructions": 923830,
+        "retained_operations": 1,
+        "tenant_operations": 1,
+        "wasm_memory_bytes": 1245184
+      },
+      {
+        "admit_instructions": 1163485,
+        "admit_workflow_instructions": 74448,
+        "cancel_instructions": 1112287,
+        "retained_operations": 64,
+        "tenant_operations": 64,
+        "wasm_memory_bytes": 1310720
+      },
+      {
+        "admit_instructions": 1443874,
+        "admit_workflow_instructions": 276199,
+        "cancel_instructions": 1360623,
+        "retained_operations": 128,
+        "tenant_operations": 128,
+        "wasm_memory_bytes": 1441792
+      },
+      {
+        "admit_instructions": 1482947,
+        "admit_workflow_instructions": 312749,
+        "cancel_instructions": 1335635,
+        "retained_operations": 129,
+        "tenant_operations": 1,
+        "wasm_memory_bytes": 1441792
+      },
+      {
+        "admit_instructions": 1537192,
+        "admit_workflow_instructions": 286591,
+        "cancel_instructions": 1433435,
+        "retained_operations": 192,
+        "tenant_operations": 64,
+        "wasm_memory_bytes": 1507328
+      },
+      {
+        "admit_instructions": 1732502,
+        "admit_workflow_instructions": 162846,
+        "cancel_instructions": 1443926,
+        "retained_operations": 256,
+        "tenant_operations": 128,
+        "wasm_memory_bytes": 1572864
+      }
+    ],
+    "scope": "Local transient release Wasm, two tenants and 256 cancelled one-byte admissions. No manifests, provider calls, persistence or confirmed-object history. Instructions exclude diagnostic storage and reply encoding; memory is allocated Wasm pages.",
+    "wasm_sha256": "0ad3abdec5c6085e62c6bb4f01be23ef224298d655194db1b926d109a7934e3c"
+  },
+  "after": {
+    "final_wasm_memory_bytes": 1638400,
+    "initial_wasm_memory_bytes": 1245184,
+    "samples": [
+      {
+        "admit_instructions": 936813,
+        "admit_workflow_instructions": 9903,
+        "cancel_instructions": 923599,
+        "retained_operations": 1,
+        "tenant_operations": 1,
+        "wasm_memory_bytes": 1245184
+      },
+      {
+        "admit_instructions": 1143818,
+        "admit_workflow_instructions": 55321,
+        "cancel_instructions": 1113660,
+        "retained_operations": 64,
+        "tenant_operations": 64,
+        "wasm_memory_bytes": 1310720
+      },
+      {
+        "admit_instructions": 1480278,
+        "admit_workflow_instructions": 229955,
+        "cancel_instructions": 1441499,
+        "retained_operations": 128,
+        "tenant_operations": 128,
+        "wasm_memory_bytes": 1441792
+      },
+      {
+        "admit_instructions": 1440578,
+        "admit_workflow_instructions": 111535,
+        "cancel_instructions": 1417419,
+        "retained_operations": 129,
+        "tenant_operations": 1,
+        "wasm_memory_bytes": 1441792
+      },
+      {
+        "admit_instructions": 1550389,
+        "admit_workflow_instructions": 141380,
+        "cancel_instructions": 1435891,
+        "retained_operations": 192,
+        "tenant_operations": 64,
+        "wasm_memory_bytes": 1507328
+      },
+      {
+        "admit_instructions": 1802377,
+        "admit_workflow_instructions": 231155,
+        "cancel_instructions": 1681773,
+        "retained_operations": 256,
+        "tenant_operations": 128,
+        "wasm_memory_bytes": 1638400
+      }
+    ],
+    "scope": "Local transient release Wasm, two tenants and 256 cancelled one-byte admissions. No manifests, provider calls, persistence or confirmed-object history. Instructions exclude diagnostic storage and reply encoding; memory is allocated Wasm pages.",
+    "wasm_sha256": "9fdd7bd9df8fe9bc7e079bb6e9d0e3b24f2ce1782b7e56543312170d009674d0"
+  },
+  "direct_manifest": {
+    "initial_wasm_memory_bytes": 1245184,
+    "instructions_sum": 4113659,
+    "messages": [
+      {
+        "after_work": 936813,
+        "before_work": 927029,
+        "step": "admit",
+        "wasm_memory_bytes": 1245184,
+        "wire_bytes": 287
+      },
+      {
+        "after_work": 1133783,
+        "before_work": 978433,
+        "step": "prepare",
+        "wasm_memory_bytes": 1245184,
+        "wire_bytes": 642
+      },
+      {
+        "after_work": 1134091,
+        "before_work": 977600,
+        "step": "prepare_retry",
+        "wasm_memory_bytes": 1245184,
+        "wire_bytes": 642
+      },
+      {
+        "after_work": 908972,
+        "before_work": 903001,
+        "step": "expose",
+        "wasm_memory_bytes": 1245184,
+        "wire_bytes": 195
+      }
+    ],
+    "object_bytes": 10485760,
+    "scope": "Local release Wasm; bounded manifest admission and local exposure only. No file bytes or provider call. Counters exclude diagnostic storage and reply encoding; allocated Wasm memory is not live allocation size.",
+    "wasm_sha256": "9fdd7bd9df8fe9bc7e079bb6e9d0e3b24f2ce1782b7e56543312170d009674d0"
+  },
+  "interpretation": "Private accounting and identity indexes remove three explicit history scans. Total call instructions are not uniformly lower at 256 operations; allocation/layout/page costs are included but not isolated. Final allocated memory is 64 KiB higher. Confirmed-object usage and root-only permission lookup still scan; no production capacity or provider price is established.",
+  "interpretation_scope": "The preceding interpretation describes the initial index checkpoint. The follow-up below removes the remaining confirmed-usage and service permission scans; prior measurements are retained unchanged.",
+  "confirmed_accounting_and_permission_lookup": {
+    "observed_on": "2026-09-27",
+    "implementation": "Private global/tenant confirmed usage updated with entry insertion/mutation, including failed lifecycle receipts. One retained root-to-operation index in the service admission owner; authority remains checked by expose.",
+    "history": {
+      "final_wasm_memory_bytes": 1638400,
+      "initial_wasm_memory_bytes": 1245184,
+      "samples": [
+        {
+          "admit_instructions": 937434,
+          "admit_workflow_instructions": 10524,
+          "cancel_instructions": 923599,
+          "retained_operations": 1,
+          "tenant_operations": 1,
+          "wasm_memory_bytes": 1245184
+        },
+        {
+          "admit_instructions": 1145995,
+          "admit_workflow_instructions": 56664,
+          "cancel_instructions": 1112000,
+          "retained_operations": 64,
+          "tenant_operations": 64,
+          "wasm_memory_bytes": 1310720
+        },
+        {
+          "admit_instructions": 1402069,
+          "admit_workflow_instructions": 152389,
+          "cancel_instructions": 1362158,
+          "retained_operations": 128,
+          "tenant_operations": 128,
+          "wasm_memory_bytes": 1441792
+        },
+        {
+          "admit_instructions": 1443107,
+          "admit_workflow_instructions": 273537,
+          "cancel_instructions": 1338478,
+          "retained_operations": 129,
+          "tenant_operations": 1,
+          "wasm_memory_bytes": 1441792
+        },
+        {
+          "admit_instructions": 1553995,
+          "admit_workflow_instructions": 223846,
+          "cancel_instructions": 1515015,
+          "retained_operations": 192,
+          "tenant_operations": 64,
+          "wasm_memory_bytes": 1572864
+        },
+        {
+          "admit_instructions": 1642236,
+          "admit_workflow_instructions": 232973,
+          "cancel_instructions": 1522741,
+          "retained_operations": 256,
+          "tenant_operations": 128,
+          "wasm_memory_bytes": 1638400
+        }
+      ],
+      "scope": "Local transient release Wasm, two tenants and 256 cancelled one-byte admissions. No manifests, provider calls, persistence or confirmed-object history. Instructions exclude diagnostic storage and reply encoding; memory is allocated Wasm pages.",
+      "wasm_sha256": "fd0398e7ac5a46e9873054193ecdf0ec0eea5c402d036959e10c2f63fd76f546"
+    },
+    "direct_manifest": {
+      "initial_wasm_memory_bytes": 1245184,
+      "instructions_sum": 4116047,
+      "messages": [
+        {
+          "after_work": 937434,
+          "before_work": 927029,
+          "step": "admit",
+          "wasm_memory_bytes": 1245184,
+          "wire_bytes": 287
+        },
+        {
+          "after_work": 1134067,
+          "before_work": 978433,
+          "step": "prepare",
+          "wasm_memory_bytes": 1245184,
+          "wire_bytes": 642
+        },
+        {
+          "after_work": 1134375,
+          "before_work": 977600,
+          "step": "prepare_retry",
+          "wasm_memory_bytes": 1245184,
+          "wire_bytes": 642
+        },
+        {
+          "after_work": 910171,
+          "before_work": 903001,
+          "step": "expose",
+          "wasm_memory_bytes": 1245184,
+          "wire_bytes": 195
+        }
+      ],
+      "object_bytes": 10485760,
+      "scope": "Local release Wasm; bounded manifest admission and local exposure only. No file bytes or provider call. Counters exclude diagnostic storage and reply encoding; allocated Wasm memory is not live allocation size.",
+      "wasm_sha256": "fd0398e7ac5a46e9873054193ecdf0ec0eea5c402d036959e10c2f63fd76f546"
+    },
+    "evidence": "All-field native audit across 64 objects, three tenants, mixed lifecycle stages, zero bytes and totals above u64. Actual IC exposure of the final permission after filling 256 lifetime admissions; failed authority/admission and stop/start preserve identity and charges.",
+    "limitations": "The cancelled-history workload does not measure a full confirmed catalog, retained manifests or receipts at capacity. Reported allocated memory is unchanged from the previous indexed build at this checkpoint, not a claim of zero index cost or constant whole-call instructions. Provider and persistence qualification remain open."
+  }
+}

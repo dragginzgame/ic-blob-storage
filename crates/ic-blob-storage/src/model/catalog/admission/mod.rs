@@ -4,7 +4,9 @@
 //! Production must durably commit admission and exposure before authority escapes.
 //! A fresh instance is not recovery. No timeout or retry releases uncertain bytes.
 
+mod accounting;
 pub mod read;
+use accounting::ReservationAccounting;
 
 #[cfg(test)]
 mod tests;
@@ -39,6 +41,12 @@ impl UploadRequestId {
     #[must_use]
     pub const fn new(value: NonZeroU128) -> Self {
         Self(value)
+    }
+
+    /// Original operation number for exact boundary encoding, not a fresh allocator.
+    #[must_use]
+    pub const fn get(self) -> NonZeroU128 {
+        self.0
     }
 }
 
@@ -111,13 +119,14 @@ struct Operation {
 /// including cancelled and settled uploads. Active operations reserve logical,
 /// physical and liability bytes, plus the future confirmed object's metadata
 /// capacity. Confirmation transfers accounting without charging twice. Counts
-/// are derived from bounded state; receipt history is never evicted. This owner
+/// are maintained with successful transitions; receipt history is never evicted. This owner
 /// deliberately cannot be cloned, imported from a catalog, or serialized.
 #[derive(Debug, Eq, PartialEq)]
 pub struct UploadCatalog {
     catalog: BlobCatalog,
     limits: UploadLimits,
     operations: BTreeMap<(Principal, UploadRequestId), Operation>,
+    accounting: ReservationAccounting,
 }
 
 impl UploadCatalog {
@@ -133,6 +142,7 @@ impl UploadCatalog {
             catalog: BlobCatalog::new(service, catalog)?,
             limits,
             operations: BTreeMap::new(),
+            accounting: ReservationAccounting::default(),
         })
     }
 
@@ -207,6 +217,7 @@ impl UploadCatalog {
                 phase: UploadPhase::Reserved,
             },
         );
+        self.accounting.admit(key.0, request.object.bytes);
         Ok(UploadAdmission::Reserved)
     }
 
@@ -274,6 +285,8 @@ impl UploadCatalog {
             first: request.object.first,
         })?;
         operation.phase = UploadPhase::Confirmed;
+        self.accounting
+            .release(Self::key(request).0, request.object.bytes);
         Ok(LifecycleChange::Changed)
     }
 
@@ -333,46 +346,16 @@ impl UploadCatalog {
     /// Aggregate charged capacity, including reserved and possibly exposed uploads.
     #[must_use]
     pub fn usage(&self) -> UploadUsage {
-        Self::usage_with_operations(self.catalog.usage(), self.operations.values())
+        self.accounting.usage(self.catalog.usage())
     }
 
     /// Aggregate charged tenant capacity across namespaces; not authorization.
-    /// Only this tenant's operation range and confirmed-object index are visited.
-    /// No aggregate counters or additional mutable upload index are maintained.
+    /// Reservation and confirmed totals each require one tenant lookup; neither
+    /// scans retained operation or object history.
     #[must_use]
     pub fn tenant_usage(&self, tenant: Principal) -> UploadUsage {
-        let operations = self.operations.range(
-            (tenant, UploadRequestId::new(NonZeroU128::MIN))
-                ..=(tenant, UploadRequestId::new(NonZeroU128::MAX)),
-        );
-        Self::usage_with_operations(
-            self.catalog.tenant_usage(tenant),
-            operations.map(|(_, operation)| operation),
-        )
-    }
-
-    fn usage_with_operations<'a>(
-        confirmed: CatalogUsage,
-        operations: impl Iterator<Item = &'a Operation>,
-    ) -> UploadUsage {
-        let mut usage = UploadUsage {
-            logical_bytes: confirmed.logical_bytes,
-            physical_bytes: confirmed.physical_bytes,
-            liability_bytes: confirmed.liability_bytes,
-            ..UploadUsage::default()
-        };
-        for operation in operations {
-            usage.operations += 1;
-            if operation.phase.active() {
-                usage.active_reservations += 1;
-                usage.reserved_bytes += u128::from(operation.request.object.bytes);
-            }
-        }
-        // At most usize::MAX operations of u64 bytes fit u128 on supported targets.
-        usage.logical_bytes += usage.reserved_bytes;
-        usage.physical_bytes += usage.reserved_bytes;
-        usage.liability_bytes += usage.reserved_bytes;
-        usage
+        self.accounting
+            .tenant_usage(tenant, self.catalog.tenant_usage(tenant))
     }
 
     fn check_actor(&self, actor: Principal, request: UploadRequest) -> Result<(), UploadError> {
@@ -417,6 +400,10 @@ impl UploadCatalog {
             .get_mut(&Self::key(request))
             .expect("validated operation")
             .phase = to;
+        if from.active() && !to.active() {
+            self.accounting
+                .release(Self::key(request).0, request.object.bytes);
+        }
         Ok(LifecycleChange::Changed)
     }
 }

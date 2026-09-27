@@ -135,6 +135,27 @@ does not close provider suitability, installation retirement or Canic removal.
 into concrete runtime, operator and diagnostic capabilities. Its source-test
 references are not replacement test results.
 
+## Release-published media consumer
+
+The [Toko Miner feedback review](roadmap.md#toko-miner-feedback--2026-09-27)
+adds proposed acceptance inputs alongside Toko; no Miner adoption is approved.
+Freeze the consumed media inventory, numeric bounds and explicit principal/namespace
+bindings before executing these cases. These extend A01–A11, not executed evidence:
+
+- A01/A03/A11: a noninteractive publisher rejects wrong credentials/targets and
+  preserves exact operations through interrupted uploads, lost replies and failed
+  frontend publication. Dry-run is effect-free; uncertain work cannot start a new
+  paid upload. No frontend map advertises unconfirmed or unretained required media.
+- A04/A06/A08: overlapping releases reuse tenant-authorized live objects through
+  distinct references. Failed publication, old-reference retirement, removed-media
+  reintroduction and late callbacks preserve ownership and liabilities. Exercise
+  retained-history exhaustion with cleanup still possible and report remaining
+  capacity. Reintroduction needs a supported contract before this case can pass.
+- A02/A10: real browser GLB/image/texture loading obeys the chosen delivery trust
+  contract, rejects corruption/truncation and exercises MIME, CORS, CSP, cache and
+  error behavior. Measure cold/warm startup, bytes and latency; define the bounded
+  retention horizon for cached/open browsers before releasing old media.
+
 ## Provider qualification sequence after 0.1.12
 
 This is an execution proposal for the selected provider, not an executed test or

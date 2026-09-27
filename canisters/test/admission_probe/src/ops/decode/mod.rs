@@ -4,8 +4,8 @@
     reason = "CDK custom decoders take ownership of the argument buffer"
 )]
 
-use blob_test_protocol::admission::{Command, Request};
-use candid::{CandidType, DecoderConfig, Deserialize, Principal, decode_one_with_config};
+use blob_test_protocol::admission::{Command, ContentLookup, Installation, Request};
+use candid::{CandidType, DecoderConfig, Deserialize, decode_one_with_config};
 
 // Bounded manifests only. No file bytes enter this probe. These limits are
 // fixture inputs, not a production API or a network ingress maximum.
@@ -21,7 +21,11 @@ pub(crate) fn request(bytes: Vec<u8>) -> Request {
     decode(&bytes, SMALL_BYTES, 32 * 1024)
 }
 
-pub(crate) fn operator(bytes: Vec<u8>) -> Principal {
+pub(crate) fn content(bytes: Vec<u8>) -> ContentLookup {
+    decode(&bytes, SMALL_BYTES, 32 * 1024)
+}
+
+pub(crate) fn installation(bytes: Vec<u8>) -> Installation {
     decode(&bytes, SMALL_BYTES, 32 * 1024)
 }
 

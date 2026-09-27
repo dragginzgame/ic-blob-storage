@@ -4,9 +4,9 @@ mod ops;
 mod workflow;
 
 use blob_test_protocol::admission::{
-    Command, ExecutionProfile, Failure, Observation, Outcome, Request,
+    Command, ContentLookup, ContentObservation, ExecutionProfile, Failure, Installation,
+    Observation, Outcome, Request,
 };
-use candid::Principal;
 use ic_blob_storage::model::service::upload::UploadContext;
 
 fn context() -> UploadContext {
@@ -16,9 +16,9 @@ fn context() -> UploadContext {
     }
 }
 
-#[ic_cdk::init(decode_with = "ops::decode::operator")]
-fn init(operator: Principal) {
-    workflow::initialize(ic_cdk::api::canister_self(), operator);
+#[ic_cdk::init(decode_with = "ops::decode::installation")]
+fn init(installation: Installation) {
+    workflow::initialize(ic_cdk::api::canister_self(), installation);
 }
 
 #[ic_cdk::update(decode_with = "ops::decode::command")]
@@ -31,9 +31,21 @@ fn inspect(request: Request) -> Result<Observation, Failure> {
     workflow::inspect(context(), request)
 }
 
+#[ic_cdk::query(decode_with = "ops::decode::content")]
+fn lookup_content(input: ContentLookup) -> Result<Option<ContentObservation>, Failure> {
+    workflow::lookup_content(context(), input)
+}
+
 #[ic_cdk::query]
 fn resources() -> Result<Option<ExecutionProfile>, Failure> {
     workflow::resources(context())
+}
+
+#[ic_cdk::query(decode_with = "ops::decode::content")]
+fn reference_capacity(
+    input: ContentLookup,
+) -> Result<Option<blob_test_protocol::admission::release::ReferenceCapacity>, Failure> {
+    workflow::reference_capacity(context(), input)
 }
 
 // This disposable probe has no stable schema. Both hooks reject so neither a

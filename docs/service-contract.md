@@ -484,8 +484,12 @@ reference journals in a bounded transient catalog. Limits cover global and
 per-tenant lifetime object slots, per-object metadata, tenant logical bytes across
 namespaces, and separate global physical/billing-byte totals. Object counts retain zero-byte
 obligations. Exact registration replay never revives released references; no
-settlement path deletes history or frees lifetime slots. Derived counters avoid
-an independently mutable accounting ledger.
+settlement path deletes history or frees lifetime slots. Private global/tenant totals
+change through the same owner as object insertion and journal mutation. Each mutation
+replaces that entry's contribution, including a receipt recorded for a failed
+lifecycle operation; retries and outer rejections do not add charges. Usage reads
+do not scan object history. These are transient indexes, with no public counter
+mutation, import or recovery authority.
 
 Tenant catalog reads now resolve ownership before inspecting supplied reference
 bindings. Bounded cross-object batches preserve order/duplicates and reject
@@ -503,6 +507,36 @@ than equating them to deletion permission. These are internal model/policy views
 not a new provider wire contract. This extends the transient local exception;
 production still needs atomic durable reservations/claims before upload effects,
 authenticated endpoints, monetary accounting, provider evidence and restore fencing.
+
+The shared admission owner also supports tenant-scoped content discovery by root,
+with explicit service context and provider namespace. It returns the original
+upload request plus current pending/cancelled/confirmed lifecycle using the retained
+index. Unknown and foreign roots both return no object; absence is not global
+availability or permission to upload. Operators/uploaders have no implicit tenant
+discovery authority. Suspended tenants retain inspection access. This is a passive
+transient-model API, with no persistent protocol or provider guarantee.
+
+For overlapping consumer releases, retain a distinct reference to a live object
+before publishing the new release. Persist the exact request before dispatch and
+recover its receipt after a lost reply. A recorded success is historical, so also
+check current reference liveness under the consumer's registration/tombstone
+coordination; neither a root lookup nor a receipt prevents a concurrent release.
+An abandoned publication must release its acquired reference with its own exact
+request. Receipt admission preserves capacity for existing references' cleanup,
+but retained identities/receipts are never reclaimed. Final release immediately
+queues deletion: any retention horizon must keep a live reference until it ends.
+Once queued, content cannot be retained again, and its provider root cannot be
+reallocated even after settlement. Reintroducing deleted media remains an M1
+provider/identity decision; this lookup does not supply that missing contract.
+
+Reference capacity observations distinguish unused lifetime reference IDs,
+unreserved receipt slots and slots reserved for active references' release.
+Each fresh distinct retain needs one reference ID and two receipts: its retain
+result and its future release. The reported fresh-retain count is the lesser
+bound, or zero once deletion queues. Failed admitted lifecycle operations consume
+receipts too; exact retries do not. The shared service owner authenticates the
+tenant before disclosure, including after suspension. Counts are current history
+headroom, not enrollment permission, a reservation or a provider guarantee.
 
 The maintained transition order is below. Every confirmation presupposes exact
 authority and operation/incarnation correlation; these methods do not verify that

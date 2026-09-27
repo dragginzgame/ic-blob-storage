@@ -2,12 +2,14 @@
 #![cfg(not(target_family = "wasm"))]
 
 mod admission_cases;
+mod admission_content;
 mod admission_resources;
 mod support;
 mod vectors;
 
 use blob_test_protocol::admission::{
-    Command, Enrollment, Failure, ManifestState, Observation, Outcome, Permission, Phase, Request,
+    Command, Enrollment, Failure, Installation, ManifestState, Observation, Outcome, Permission,
+    Phase, Request, Workload,
 };
 use candid::Principal;
 use ic_testkit::{
@@ -30,6 +32,10 @@ struct Fixture {
 
 impl Fixture {
     fn new() -> Self {
+        Self::with_workload(Workload::Small)
+    }
+
+    fn with_workload(workload: Workload) -> Self {
         let harness = Harness::new();
         let operator = Fake::principal(1);
         let controller = Fake::principal(2);
@@ -43,7 +49,7 @@ impl Fixture {
         harness.pic.install_canister(
             service,
             Self::wasm(),
-            candid::encode_args((operator,)).unwrap(),
+            candid::encode_args((Installation { operator, workload },)).unwrap(),
             Some(controller),
         );
         Self {

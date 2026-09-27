@@ -2,13 +2,14 @@
 
 use crate::ops;
 use blob_test_protocol::admission::{
-    Command, ExecutionProfile, Failure, Observation, Outcome, Request,
+    Command, ContentLookup, ContentObservation, ExecutionProfile, Failure, Installation,
+    Observation, Outcome, Request,
 };
 use candid::Principal;
 use ic_blob_storage::model::service::upload::UploadContext;
 
-pub(crate) fn initialize(service: Principal, operator: Principal) {
-    ops::initialize(service, operator);
+pub(crate) fn initialize(service: Principal, installation: Installation) {
+    ops::initialize(service, installation);
 }
 
 pub(crate) fn execute(
@@ -18,6 +19,7 @@ pub(crate) fn execute(
 ) -> Result<Outcome, Failure> {
     let before = ops::resources::instructions();
     let result = match command {
+        Command::FixtureLifecycle(command) => ops::release::execute(context, command),
         Command::Enroll {
             tenant,
             expected,
@@ -36,6 +38,20 @@ pub(crate) fn inspect(context: UploadContext, request: Request) -> Result<Observ
     ops::inspect(context, request)
 }
 
+pub(crate) fn lookup_content(
+    context: UploadContext,
+    input: ContentLookup,
+) -> Result<Option<ContentObservation>, Failure> {
+    ops::content::lookup(context, input)
+}
+
 pub(crate) fn resources(context: UploadContext) -> Result<Option<ExecutionProfile>, Failure> {
     ops::resources::inspect(context)
+}
+
+pub(crate) fn reference_capacity(
+    context: UploadContext,
+    input: ContentLookup,
+) -> Result<Option<blob_test_protocol::admission::release::ReferenceCapacity>, Failure> {
+    ops::release::capacity(context, input)
 }

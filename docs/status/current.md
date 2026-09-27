@@ -4,18 +4,12 @@ Date: 2026-09-27
 
 ## Active work — 0.2 service phase
 
-The maintainer confirmed **0.1.19 is live** and authorized starting 0.2.
-Cargo and the release receipt are 0.1.19. Local main, origin/main and v0.1.19
-resolve to `12077974ed353fd09f84a425012ed41c2006a8fd`, released from
-`82ced1bd41e6d782806176055f29001c84dc8af7`. Registry publication was not queried.
-The 0.2.0 changelog is an undated development draft; no version mutation ran.
-
-**Release recommendation:** this batch is a coherent 0.2.0 library cut: breaking
-direct-upload admission, explicit enrollment/budgets and canonical metadata.
-Focused checks pass; the read-only minor release plan selects 0.2.0. The maintainer
-can commit the complete batch and run `make release-minor` from clean main. Its
-full validation gate remains required before tagging/pushing. This recommendation
-does not claim the production service or the full 0.2 plan is complete.
+The maintainer confirmed **0.2.0 is live**. Cargo and the release receipt are
+0.2.0. Local main, origin/main and v0.2.0 resolve to
+`f90d50cc58086ed2d45948eda8b5714cba341fbc`, from validated source
+`6f0a12e534c0a0d3f4758056c422f423ac5141aa`. The receipt records the
+`release-verify` gate; registry publication was not independently queried.
+Current work is in Unreleased; no version mutation or publication ran here.
 
 Follow the [0.2 delivery plan](../roadmap.md). Its goal is a usable Caffeine-backed
 service through shared durable handlers, both adapters and an operator client.
@@ -51,6 +45,15 @@ upload precedes asset registration. The roadmap specifies project-to-uploader
 admission and retained references/consumer outbox behavior across registration
 failures; actual Toko integration remains outstanding.
 
+The requested read-only [Toko Miner feedback review](../roadmap.md#toko-miner-feedback--2026-09-27)
+adds a distinct proposed release-media consumer. M3 now explicitly includes a
+resumable headless publisher; acceptance covers browser delivery/integrity and
+overlapping releases. Its reported 702-file / 270.1 MiB checkout guides capacity
+work, not a qualified publish list. Resolve live-object reuse, bounded retention,
+deleted-content reintroduction and lifetime-history exhaustion before freezing
+production contracts. Miner adoption/architecture remain unapproved; no sibling
+edits or consumer tests ran. Its stale release-doc finding is addressed locally.
+
 The maintainer selected direct browser-to-Caffeine upload. The shared admission
 owner now accepts bounded manifests instead of file chunks; `UploadRequest` has
 no raw-digest field. Its observations distinguish manifest binding, possible
@@ -70,21 +73,67 @@ prove actual stored length. Generic Caffeine hashing remains unchanged.
 
 The unpublished admission probe uses the same owner with actual IC callers/time.
 It emits no certificate or provider effect. Its 16 KiB command envelope bounds
-Candid work, skipped values and type headers before manifest conversion. A 10 MiB
-declaration through admission, preparation, exact retry and local exposure costs
-4,107,938 measured instructions and 1,766 request bytes, with allocated Wasm memory
+Candid work, skipped values and type headers before manifest conversion. The earlier
+accounting-build measurement of a 10 MiB declaration, preparation, retry and exposure was
+4,116,047 measured instructions and 1,766 request bytes, with allocated Wasm memory
 steady at 1,245,184 bytes. Counters exclude diagnostics/reply encoding, persistence
-and provider transport. See [resource evidence](../evidence/core-primitives.md#local-admission-resource-measurements).
+and provider transport. See [resource evidence](../evidence/core-primitives.md#confirmed-usage-and-indexed-exposure).
 Stop/start preserves its owner; unsupported upgrades reject atomically even when
 the outgoing hook is skipped. There is no operational restore path.
 
-Current targeted validation passes 29 native service tests, eight independent
-Caffeine hashing tests (including the canonical media vectors) and 11 admission
-PocketIC cases, with the release admission Wasm build, strict affected all-target
-Clippy and warning-free library rustdoc. The preceding hard-cut validation passed
-11 catalog-admission, 14 upload-read/tenant-obligation, 46 integrity/recovery and
-one upload-ownership PocketIC cases; those unchanged paths were not rerun here.
-Full CI was not run; package versions remain unchanged.
+After 0.2.0, reservation and manifest-leaf accounting uses private totals updated
+only by successful owner transitions. Root ownership now checks a bounded identity
+index instead of scanning prior claims. Lifetime slots remain occupied through
+cancellation/settlement; no restore or counter mutation API was added. Independent
+native audits compare aggregate usage against individual operation/lifecycle states.
+Confirmed-object usage now maintains all global/tenant fields through one mutation
+path, including receipts recorded for failed lifecycle operations. A retained root
+index resolves the exact service permission before all existing exposure checks;
+failed admissions create no index entry. That accounting batch preserved public APIs.
+
+The shared owner now adds `lookup_content`: an explicit tenant/namespace query
+returns the original upload identity and current reservation or confirmed lifecycle.
+It uses the retained index, discloses no foreign object and remains available to
+suspended tenants. It allocates no reference, renews no permission and issues no
+provider effect. Native overlapping-release cases prove exact receipt replay,
+stale-read rejection, cleanup at receipt capacity and separate deletion/settlement;
+settled root reallocation still rejects. Actual IC discovery checks cover caller
+isolation, uncertainty, cancellation and stop/start. See the
+[discovery evidence](../evidence/core-primitives.md#tenant-content-discovery-and-release-reuse).
+The same tenant boundary now reports remaining reference identities, unreserved
+receipts, reserved cleanup receipts and fresh distinct retains. Fresh retains need
+two receipt slots, and report zero after deletion queues. Counts are observations,
+not permission or reservations; exact mutations still enforce enrollment and state.
+
+The new two-tenant workload fills 256 cancelled operations, retaining exact retries,
+cleanup, isolation and stop/start behavior at capacity. Measured admission and
+cancellation calls stay below the 5M test ceiling. Allocated Wasm memory grows
+from 1,245,184 to 1,638,400 bytes,
+64 KiB above the baseline's final allocation. Total call costs do not improve
+uniformly at this size despite removing history scans. See the
+[before/after record](../evidence/admission-history.json), including the latest
+follow-up build. The native confirmed-accounting audit covers 64 objects across
+three tenants, every usage field and wide/zero-byte accounting. An actual IC case
+exposes the last permission at 256-operation capacity after rejected calls and
+stop/start. This is not production capacity or full confirmed-catalog memory evidence.
+
+The subsequent [multi-file workload](../evidence/core-primitives.md#multi-file-release-history)
+now measures 704 confirmed objects / 288 MiB of synthetic media with 768 retained
+leaves, 2,816 reference IDs and 4,928 receipts across four reference generations.
+Allocated Wasm memory grows from 1,245,184 to 4,587,520 bytes. Cleanup works at
+history capacity, and physical/billing byte charges end separately without freeing
+lifetime slots. All measured updates stay below 10M instructions, but roughly 98%
+of the last admission's 5.43M occurs before workflow dispatch. Investigate decoder
+and allocation costs before production sizing; the specific cause is not proven.
+Provider facts are operator-only substitutes. Read sessions, larger per-object
+histories and operational persistence remain unqualified.
+
+Latest targeted validation passes 15 lifecycle and 33 service unit cases, all 16
+admission PocketIC cases, affected strict all-target Clippy, warning-free rustdoc,
+the admission release Wasm build, formatting and diff checks. The resource helper
+additionally emits `.tmp/release-history.json`. Earlier accounting, catalog and
+integrity/recovery results remain in the linked core evidence at their original
+revisions. Full CI was not run; package versions remain 0.2.0.
 The independent integrity/recovery fixtures retain their own raw digest binding;
 no mandatory byte-verification workflow remains in service admission.
 
@@ -96,9 +145,13 @@ prove inventory completeness or identify only restores. A surviving full obligat
 source remains required; no new server guarantee was established.
 See [provider review](../provider-review.md#02-admission-follow-up--2026-09-27).
 
-**Next after the library cut:** close the remaining M1 decisions: surviving recovery authority, provider
+**Next:** close the remaining M1 decisions: surviving recovery authority, provider
 certificate replay/namespace/completion guarantees and the operational resource
 envelope (remaining work includes total memory/instructions and read sessions).
+Include repeated-release reuse/reintroduction and multi-file history sizing from
+the Miner feedback; a single-file or cancelled-history fixture cannot qualify them.
+The 704-object local baseline is now recorded; isolate the growing pre-workflow
+instruction cost and size larger reference histories/read sessions next.
 The [upload-path decision](../roadmap.md#upload-path-evaluation--2026-09-27)
 is implemented locally. Before issuing real certificates, qualify pre-charge
 size/tree enforcement, namespace/replay charging and independent completion/size

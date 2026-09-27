@@ -83,6 +83,20 @@ pub struct ReferenceReceiptView {
     pub result: Result<LifecycleChange, LifecycleError>,
 }
 
+/// Current local history headroom, not a reservation or durable admission promise.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub struct ReferenceCapacityView {
+    /// Unused lifetime reference identities, including no refunds for released IDs.
+    pub reference_slots: usize,
+    /// Receipt slots not reserved for releasing currently active references.
+    pub unreserved_receipts: usize,
+    /// Receipt slots held for cleanup, one per active reference.
+    pub release_reserved_receipts: usize,
+    /// Additional distinct references that could be retained now, accounting for
+    /// both the retain receipt and its eventual release. Zero after deletion queues.
+    pub fresh_retains: usize,
+}
+
 #[derive(Clone, Debug, Eq, PartialEq)]
 struct ReferenceReceipt {
     actor: Principal,
@@ -235,6 +249,31 @@ impl ReferenceRequests {
     pub fn receipt_count(&self) -> usize {
         self.receipts.len()
     }
+
+    /// Observe remaining capacity without consuming receipts or granting authority.
+    ///
+    /// Exact retries need no new slots. Fresh distinct retains each need an unused
+    /// reference identity and two receipt slots: one now, one reserved for release.
+    /// Other admitted requests, including lifecycle failures, can consume headroom
+    /// before the next retain. Hosts must authorize disclosure and recheck on mutation.
+    #[must_use]
+    pub fn capacity(&self) -> ReferenceCapacityView {
+        let reference_slots = self.lifecycle.remaining_reference_slots();
+        let release_reserved_receipts = self.lifecycle.active_references();
+        let unreserved_receipts =
+            self.receipt_limit.get() - self.receipts.len() - release_reserved_receipts;
+        let fresh_retains = if self.lifecycle.phase() == super::LifecyclePhase::Live {
+            reference_slots.min(unreserved_receipts / 2)
+        } else {
+            0
+        };
+        ReferenceCapacityView {
+            reference_slots,
+            unreserved_receipts,
+            release_reserved_receipts,
+            fresh_retains,
+        }
+    }
 }
 
 /// Request admission failure; no new receipt or lifecycle mutation occurs.
@@ -292,6 +331,69 @@ mod tests {
             bound(limit),
         )
         .expect("release capacity")
+    }
+
+    #[test]
+    fn capacity_accounts_for_two_receipts_per_fresh_reference_and_failed_requests() {
+        let mut state = journal(4);
+        let original = state.clone();
+        assert_eq!(
+            state.capacity(),
+            ReferenceCapacityView {
+                reference_slots: 2,
+                unreserved_receipts: 3,
+                release_reserved_receipts: 1,
+                fresh_retains: 1,
+            }
+        );
+        assert_eq!(state, original);
+        // Admitted lifecycle failures retain a receipt but allocate no reference.
+        let failed = request(1, ReferenceOperation::Release(key(9)));
+        assert_eq!(
+            state.apply(actor(), failed),
+            Ok(ReferenceRequestOutcome::Recorded {
+                result: Err(LifecycleError::UnknownReference),
+            })
+        );
+        assert_eq!(state.capacity().unreserved_receipts, 2);
+        assert_eq!(state.capacity().fresh_retains, 1);
+        state
+            .apply(actor(), request(2, ReferenceOperation::Retain(key(2))))
+            .unwrap();
+        assert_eq!(
+            state.capacity(),
+            ReferenceCapacityView {
+                reference_slots: 1,
+                unreserved_receipts: 0,
+                release_reserved_receipts: 2,
+                fresh_retains: 0,
+            }
+        );
+        let full = state.clone();
+        state.apply(actor(), failed).unwrap();
+        assert_eq!(state, full);
+        state
+            .apply(actor(), request(3, ReferenceOperation::Release(key(1))))
+            .unwrap();
+        state
+            .apply(actor(), request(4, ReferenceOperation::Release(key(2))))
+            .unwrap();
+        assert_eq!(
+            state.capacity(),
+            ReferenceCapacityView {
+                reference_slots: 1,
+                unreserved_receipts: 0,
+                release_reserved_receipts: 0,
+                fresh_retains: 0,
+            }
+        );
+        let mut pending = journal(9);
+        pending
+            .apply(actor(), request(1, ReferenceOperation::Release(key(1))))
+            .unwrap();
+        assert_eq!(pending.capacity().unreserved_receipts, 8);
+        assert_eq!(pending.capacity().reference_slots, 2);
+        assert_eq!(pending.capacity().fresh_retains, 0);
     }
 
     #[test]

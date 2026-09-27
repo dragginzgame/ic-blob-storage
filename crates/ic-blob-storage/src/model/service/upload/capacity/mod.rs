@@ -3,6 +3,21 @@
 use super::{UploadAdmissionError, UploadAdmissions};
 use crate::model::identity::caffeine::CAFFEINE_CHUNK_BYTES;
 use candid::Principal;
+use std::collections::BTreeMap;
+
+#[derive(Debug, Default)]
+pub(super) struct ManifestAccounting {
+    global: u64,
+    tenants: BTreeMap<Principal, u64>,
+}
+
+impl ManifestAccounting {
+    pub(super) fn admit(&mut self, tenant: Principal, bytes: u64) {
+        let retained = chunks(bytes);
+        self.global += retained;
+        *self.tenants.entry(tenant).or_default() += retained;
+    }
+}
 
 /// Which retained manifest budget rejected fresh admission.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -20,20 +35,16 @@ impl UploadAdmissions {
         bytes: u64,
     ) -> Result<(), UploadAdmissionError> {
         let requested = chunks(bytes);
-        // Derive from the same immutable permissions as admission, avoiding a
-        // separately mutable counter. Config bounds both map size and leaf count;
-        // even their maximum portable product fits u64. Cancellation/settlement
-        // cannot remove a permission and therefore cannot refund this capacity.
-        let mut global = requested;
-        let mut own = requested;
-        for permission in self.permissions.values() {
-            let object = permission.original.request.object;
-            let retained = chunks(object.bytes);
-            global += retained;
-            if object.first.object().tenant() == tenant {
-                own += retained;
-            }
-        }
+        // Admission alone consumes slots; cancellation and settlement keep them.
+        // Totals change only after the catalog and permission insert succeed.
+        let global = self.manifest_accounting.global + requested;
+        let own = self
+            .manifest_accounting
+            .tenants
+            .get(&tenant)
+            .copied()
+            .unwrap_or(0)
+            + requested;
         let limits = self.config.limits().manifests;
         if own > limits.max_tenant_chunks.get() as u64 {
             return Err(UploadAdmissionError::ManifestCapacity(

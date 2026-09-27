@@ -1,5 +1,6 @@
 use super::*;
 mod capacity;
+mod content;
 mod manifest;
 use crate::model::{
     billing::{FundingLimits, configuration::BillingConfiguration},

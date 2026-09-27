@@ -2,6 +2,46 @@
 
 ## [Unreleased]
 
+### Changed
+
+- Admission keeps private global/tenant reservation and manifest-leaf totals
+  alongside successful transitions, removing scans of retained upload history.
+  Root ownership uses a bounded object-identity index instead of a reverse scan.
+  Confirmed-object usage now maintains every global/tenant counter through one
+  mutation path, including receipts for rejected lifecycle operations. Root-only
+  exposure indexes the original operation and rechecks its authority; rejected
+  admissions cannot create a lookup entry.
+  Exact retries, cancelled history and separate physical/billing charges remain
+  unchanged; failed admission consumes no index or quota capacity.
+
+### Added
+
+- Read-only reference capacity reports separate unused reference identities,
+  unreserved receipts and cleanup reservations, including the number of fresh
+  distinct retains that fit. The shared owner authorizes disclosure by tenant.
+- A 704-object PocketIC workload retains manifests for 288 MiB of synthetic media
+  through four reference generations, exhaustion, retries, stop/start and cleanup.
+  Completion/deletion/billing controls are explicitly operator-only substitutes.
+  `make test-admission-resources` also emits `.tmp/release-history.json`, separating
+  pre-workflow and workflow instructions from allocated Wasm memory.
+- Tenant-authorized content discovery returns the original upload operation and
+  current reservation/lifecycle through the retained root index. Foreign and
+  unknown roots disclose no object; suspended tenants retain inspection access.
+  Native overlapping-release tests cover exact receipt recovery, stale reads,
+  history exhaustion with cleanup and separate physical/billing settlement.
+  PocketIC checks real caller isolation and passive discovery across stop/start.
+- A two-tenant PocketIC workload filling 256 lifetime operation slots, checking
+  cleanup, isolation, exact retries, stop/start and instruction/memory budgets.
+  `make test-admission-resources` now writes both single-upload and history reports.
+  Measurements retain the before/after tradeoff: fewer explicit scans do not
+  establish uniformly lower total call costs, and this workload uses 64 KiB more
+  allocated Wasm memory with the indexes.
+- Independent accounting checks across interleaved tenant transitions, rejected
+  mutations, zero-byte uploads, confirmation, deletion, settlement and retries.
+  A 64-object, three-tenant audit covers all confirmed usage fields and totals above
+  `u64`; an actual IC test exercises the final permission at 256-operation capacity
+  through failed authority checks, stop/start and one-shot exposure.
+
 ## [0.2.0] - 2026-09-27
 
 ### Added

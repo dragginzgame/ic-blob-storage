@@ -8,6 +8,7 @@ use candid::Principal;
 use thiserror::Error;
 
 mod capacity;
+pub mod content;
 pub use capacity::UploadManifestLimit;
 pub mod manifest;
 pub use manifest::UploadManifestState;
@@ -96,7 +97,10 @@ pub struct UploadAdmissions {
     config: ServiceConfiguration,
     catalog: UploadCatalog,
     permissions: BTreeMap<(Principal, UploadRequestId), Permission>,
+    // One immutable mapping per accepted permission, retained through settlement.
+    permission_roots: BTreeMap<ProviderRootHash, (Principal, UploadRequestId)>,
     tenants: TenantEnrollments,
+    manifest_accounting: capacity::ManifestAccounting,
 }
 
 impl UploadAdmissions {
@@ -114,7 +118,9 @@ impl UploadAdmissions {
             .expect("configuration validates service"),
             config,
             permissions: BTreeMap::new(),
+            permission_roots: BTreeMap::new(),
             tenants: TenantEnrollments::new(config.limits().max_tenants),
+            manifest_accounting: capacity::ManifestAccounting::default(),
         }
     }
 
@@ -212,6 +218,10 @@ impl UploadAdmissions {
                 revoked: false,
             },
         );
+        self.manifest_accounting
+            .admit(context.actor, input.request.object.bytes);
+        self.permission_roots
+            .insert(input.request.object.root, key(input.request));
         Ok(outcome)
     }
 
@@ -278,12 +288,15 @@ impl UploadAdmissions {
     /// Resolve a root-only certificate request to its original admitted operation.
     ///
     /// The shared catalog retains exclusive root claims, so a root cannot select
-    /// a newer operation after cancellation or release. This bounded lifetime
-    /// scan delegates to the same uploader/deadline/exposure checks as `expose`;
-    /// it never constructs authority from the caller's root. Production indexing
-    /// and instruction budgets remain to be qualified.
+    /// a newer operation after cancellation or release. A retained root index
+    /// selects the original permission in logarithmic time, then delegates to the
+    /// same uploader/deadline/exposure checks as `expose`. The index grants no
+    /// authority by itself; production resource budgets remain to be qualified.
     /// # Errors
     /// Rejects wrong service, unknown root and every exact exposure rejection.
+    /// # Panics
+    /// Panics if the private root index points to a missing permission, indicating
+    /// an internal invariant violation rather than rejected caller input.
     pub fn expose_root(
         &mut self,
         context: UploadContext,
@@ -293,12 +306,16 @@ impl UploadAdmissions {
         if context.service != self.config.bindings().service {
             return Err(UploadAdmissionError::WrongService);
         }
+        let permission_key = self
+            .permission_roots
+            .get(&root)
+            .ok_or(UploadAdmissionError::UnknownPermission)?;
         let request = self
             .permissions
-            .values()
-            .find(|permission| permission.original.request.object.root == root)
-            .map(|permission| permission.original.request)
-            .ok_or(UploadAdmissionError::UnknownPermission)?;
+            .get(permission_key)
+            .expect("indexed permission")
+            .original
+            .request;
         self.expose(context, request, now_ns)?;
         Ok(request)
     }

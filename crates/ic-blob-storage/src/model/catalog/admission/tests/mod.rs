@@ -1,4 +1,5 @@
 use super::*;
+mod accounting;
 use crate::model::lifecycle::{
     LifecyclePhase, ReferenceId,
     binding::{ObjectIdentity, ReferenceKey},
