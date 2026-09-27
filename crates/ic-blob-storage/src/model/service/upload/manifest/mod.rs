@@ -1,6 +1,6 @@
 //! Bounded declarations for direct uploads; no file bytes or streaming hash state.
 mod metadata;
-pub use metadata::UploadMetadataError;
+pub use metadata::{UploadMetadataError, validate_upload_metadata};
 
 use super::{
     LifecycleChange, UploadAdmissionError, UploadAdmissions, UploadContext, UploadRequest, key,
@@ -9,6 +9,13 @@ use crate::model::identity::caffeine::{
     CaffeineHeader,
     manifest::{CaffeineChunkHash, CaffeineChunkManifest},
 };
+
+/// One retained declaration per lifetime permission, never a byte buffer.
+#[derive(Debug)]
+pub(super) struct PreparedManifest {
+    pub(super) identity: CaffeineChunkManifest,
+    pub(super) headers: Vec<super::download::ContentHeader>,
+}
 
 /// Local declaration state. Neither variant establishes stored or verified content.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -47,7 +54,7 @@ impl UploadAdmissions {
     ) -> Result<LifecycleChange, UploadAdmissionError> {
         self.check_uploader(context, request, now_ns)?;
         let limits = self.config.manifest_limits();
-        metadata::validate(
+        validate_upload_metadata(
             input.headers,
             request.object.bytes,
             limits.max_headers.get(),
@@ -65,12 +72,26 @@ impl UploadAdmissions {
             .get_mut(&key(request))
             .ok_or(UploadAdmissionError::UnknownPermission)?;
         if let Some(existing) = &permission.manifest {
-            if existing != &manifest {
+            if existing.identity != manifest {
                 return Err(UploadAdmissionError::PermissionConflict);
             }
             return Ok(LifecycleChange::Unchanged);
         }
-        permission.manifest = Some(manifest);
+        // Copy only on the first successful binding. Limits and the root were
+        // checked above; reordered retries preserve the first accepted spelling
+        // and order without another retained allocation.
+        let headers = input
+            .headers
+            .iter()
+            .map(|header| super::download::ContentHeader {
+                name: header.name.to_owned(),
+                value: header.value.to_owned(),
+            })
+            .collect();
+        permission.manifest = Some(PreparedManifest {
+            identity: manifest,
+            headers,
+        });
         Ok(LifecycleChange::Changed)
     }
 }

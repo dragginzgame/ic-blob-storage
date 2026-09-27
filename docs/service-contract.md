@@ -44,6 +44,33 @@ suitability verdict. Freeze the decisions and evidence before B2 implementation,
 subject to the explicit bounded exception below.
 The bootstrap package name does not decide the final package split.
 
+Client preparation now uses the additive `CaffeineManifestBuilder`: the shared
+hash engine computes each leaf once and retains only an explicitly bounded list.
+The local `prepare_upload` example reuses `validate_upload_metadata` from the
+service, then requires exact length and successful EOF. Its computed digest/root
+and leaves establish local consistency only. The client must preserve the source
+bytes/metadata; no raw-digest admission requirement, provider certificate authority,
+persisted operation schema or completion evidence is introduced.
+
+The [consumer download direction](roadmap.md#consumer-download-verification)
+keeps bulk verification outside the service canister. The additive
+`CaffeineRootVerifier` and local stdin example check byte consistency against a
+fixed root, length and original metadata; they do not authenticate a download
+descriptor or establish successful provider completion. The example optionally
+publishes the exact checked bytes to a caller-controlled local file after clean
+EOF, without overwriting an existing destination. This is not production/browser
+delivery or a crash-durable transaction.
+The admission owner now retains original metadata and exposes a bounded borrowed
+`content_descriptor` view through its existing tenant authority. Its lifecycle
+field distinguishes prepared/uncertain/cancelled/confirmed/retired states; the
+view grants no reference, serving permission or provider guarantee. The private
+probe delegates the same query to this owner, without certifying its response.
+`retained_content_descriptor` additionally requires confirmed completion and an
+exact live reference for the supplied object incarnation. It performs one passive
+owner read; a copied result is not a retain receipt or permission to publish after
+release. Consumer publication/release exclusion remains a workflow obligation.
+Production descriptor publication and browser delivery remain outstanding.
+
 On 2026-09-25 the maintainer explicitly approved implementing content identities,
 hash parsing and pure funding/readiness policy with native tests before B1
 closes. This exception includes local implementation and its evidence only;
@@ -456,8 +483,11 @@ no ID; recorded lifecycle failures require a fresh ID for re-evaluation.
 Each active reference reserves one future release receipt. Admission enforces
 `retained receipts + active references <= receipt limit` after staging the
 operation, so receipt pressure cannot consume the capacity needed for final
-release. Exact retries still work at capacity. No receipt eviction or timeout
-exists. The workflow must authenticate before receipt access as well as mutation;
+release. Staging now computes one private reference transition without copying
+the retained reference map; capacity is checked before its receipt and mutation
+are published synchronously. The plan cannot escape the model or survive an
+intervening mutation/await. Exact retries still work at capacity. No receipt eviction
+or timeout exists. The workflow must authenticate before receipt access as well as mutation;
 an original success response does not imply the object is still live today.
 This is transient local bookkeeping: it does not survive restart, reconcile a
 paid effect or permit clearing history through reconstruction. Durable atomic
@@ -537,6 +567,24 @@ bound, or zero once deletion queues. Failed admitted lifecycle operations consum
 receipts too; exact retries do not. The shared service owner authenticates the
 tenant before disclosure, including after suspension. Counts are current history
 headroom, not enrollment permission, a reservation or a provider guarantee.
+
+For fresh uploads, `admission_capacity` observes the tighter tenant/global
+headroom in each independent dimension: lifetime operation/root slots, concurrent
+reservations, lifetime manifest leaves and bytes. Byte headroom is the minimum of
+tenant logical, global physical and global continuing-liability headroom, including
+unconfirmed reservations. Enrollment and per-object size/metadata limits accompany
+the observation. Only the exact enrolled tenant can inspect this scope; suspended
+tenants retain visibility without regaining admission authority. Shared contention
+affects the returned headroom, but other tenants' identities and records stay private.
+
+The read uses maintained totals without scanning history or changing state. All
+dimensions must fit together; the counts are not a promised number of uploads or
+a reservation. Cancellation can restore byte/concurrent capacity without restoring
+lifetime slots. Logical release and physical deletion cannot erase continuing
+billing. Combine this view with tenant content discovery and exact reference
+capacity for reuse; absence still does not prove a root is globally unclaimed.
+This adds a transient model observation and bounded private fixture query, not
+production persistence, authenticated publisher transport or a provider guarantee.
 
 The maintained transition order is below. Every confirmation presupposes exact
 authority and operation/incarnation correlation; these methods do not verify that

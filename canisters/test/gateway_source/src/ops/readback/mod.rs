@@ -101,6 +101,16 @@ pub(crate) fn reply(mut config: ReadSourceConfig) {
             super::reply(vec![0]);
             return;
         }
+        ReadSourceMode::WrongType => {
+            super::reply(candid::encode_one(vec![0_u16]).expect("wrong-type fixture"));
+            return;
+        }
+        ReadSourceMode::TruncatedEncoding => {
+            let mut bytes = candid::encode_one(config.bytes).expect("fixture bytes");
+            bytes.pop();
+            super::reply(bytes);
+            return;
+        }
         ReadSourceMode::Oversized => {
             super::reply(vec![0; CHUNK + 65]);
             return;

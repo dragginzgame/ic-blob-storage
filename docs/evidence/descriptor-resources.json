@@ -1,0 +1,63 @@
+{
+  "date": "2026-09-27",
+  "base_commit": "85967c82902c4730614ca5bd28ec81fea382f28a",
+  "rust": "1.98.1",
+  "candid": "0.10.37",
+  "pocket_ic": "16.0.0",
+  "scope": "Transient admission owner with retained original metadata and tenant-only descriptor views. Default Rust allocator; no production persistence, query certification, browser delivery or provider calls. Call counters exclude diagnostic writes and reply encoding. Memory is allocated Wasm pages, not retained payload size.",
+  "bound": "Per-object header entry/framed-byte limits multiplied by catalog lifetime object slots bound retained metadata, globally and per tenant. String/vector and allocator overhead are additional. Exact retries keep the first copy; cancellation and settlement do not recycle lifetime slots. This is not a total-memory-fit proof for arbitrary configurations.",
+  "maximum_metadata": {
+    "final_wasm_memory_bytes": 1245184,
+    "initial_wasm_memory_bytes": 1245184,
+    "retained_framed_metadata_bytes": 4096,
+    "samples": [
+      {
+        "objects": 1,
+        "prepare_instructions": 1058580,
+        "wasm_memory_bytes": 1245184
+      },
+      {
+        "objects": 2,
+        "prepare_instructions": 1059240,
+        "wasm_memory_bytes": 1245184
+      },
+      {
+        "objects": 3,
+        "prepare_instructions": 1059024,
+        "wasm_memory_bytes": 1245184
+      },
+      {
+        "objects": 4,
+        "prepare_instructions": 1059478,
+        "wasm_memory_bytes": 1245184
+      }
+    ],
+    "scope": "Four prepared then cancelled objects across two tenants, each with eight headers and 1024 framed metadata bytes. Reordered retries, overflow rejection, full lifetime history, suspension and stop/start. Transient probe; no production persistence, certified descriptor or provider calls. Counters exclude reply encoding/diagnostics.",
+    "wasm_sha256": "18ec97252cecfd064fb13258f8204784275ea4d8f11ca6365dafefb11160ddab"
+  },
+  "multi_file": {
+    "baseline_evidence": "reference-history.json#/after_multi_file",
+    "comparison": "Sequential implementation snapshots, not an isolated attribution of instruction changes to metadata. Counters include IC memory-region charges; default allocator locality changes between builds.",
+    "before": {
+      "wasm_sha256": "642e020a368ae9c3367f06fcc74882086bd002af8874c94e665c8c93d13f2188",
+      "objects": 704,
+      "declared_bytes": 301989888,
+      "initial_wasm_memory_bytes": 1245184,
+      "final_wasm_memory_bytes": 4521984,
+      "final_admission_instructions": 3825260,
+      "peak_retain_instructions": 5104779,
+      "peak_release_instructions": 4867114
+    },
+    "after": {
+      "wasm_sha256": "18ec97252cecfd064fb13258f8204784275ea4d8f11ca6365dafefb11160ddab",
+      "objects": 704,
+      "declared_bytes": 301989888,
+      "initial_wasm_memory_bytes": 1245184,
+      "final_wasm_memory_bytes": 4587520,
+      "final_admission_instructions": 3105760,
+      "peak_retain_instructions": 5425185,
+      "peak_release_instructions": 5505129
+    }
+  },
+  "reproduction": "make test-admission-resources emits .tmp/descriptor-resources.json and .tmp/release-history.json alongside the other workload reports. The complete admission test target additionally covers actual descriptor caller isolation and client verification."
+}

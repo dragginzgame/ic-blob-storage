@@ -4,6 +4,7 @@
 //! checkpoint. Matching a supplied root establishes consistency only. Its trusted
 //! provenance, tenant binding, availability and exact length remain external.
 
+pub mod builder;
 pub mod verification;
 
 #[cfg(test)]
@@ -169,6 +170,13 @@ impl CaffeineChunkManifest {
     #[must_use]
     pub fn chunk_count(&self) -> usize {
         self.chunks.len()
+    }
+
+    /// Ordered immutable leaf identities for a bounded admission declaration.
+    /// Copying or sending these values grants no upload or tenant authority.
+    #[must_use]
+    pub fn chunks(&self) -> &[CaffeineChunkHash] {
+        &self.chunks
     }
 
     /// Required byte length at this index, including the exact final partial chunk.

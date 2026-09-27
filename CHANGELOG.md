@@ -2,6 +2,102 @@
 
 ## [Unreleased]
 
+### Added
+
+- `blob-fixture-inventory` connects prepared inventories to local admission,
+  content-discovery and reference-capacity queries. It checks manifest/root
+  consistency and recomputes totals before querying, preserves per-asset reference
+  demand, and separates invisible, unfinished, live and retired content. Typed
+  failures produce no partial report. Actual executable/PocketIC journeys cover
+  isolation and unchanged service state. Queries are sequential observations,
+  never upload permission, reservations or a resumable operation journal.
+- Tenant-scoped `admission_capacity` reports remaining lifetime objects, concurrent
+  uploads, manifest leaves and byte headroom from the shared admission accounting,
+  plus enrollment and per-object metadata/size limits. It includes reservations
+  and continuing billing, preserves lifetime history after cancellation/settlement,
+  and remains inspectable during suspension. Native and bounded PocketIC queries
+  cover scope isolation and lifecycle accounting; observations reserve nothing.
+- `prepare_upload --inventory ... --snapshot PARENT_DIRECTORY` saves the exact
+  hashed bytes and completed inventory in a fresh private directory. Duplicate
+  roots share one saved body; later source replacement cannot alter that copy.
+  Ordinary failures remove only the current attempt, and repeated runs preserve
+  prior snapshots. Files are synced before success, but this is not a crash-durable
+  transaction or operation journal. Saved files still need verification before
+  later effects; no provider calls, library dependencies or allocator changes.
+- `prepare_upload --inventory` performs a bounded offline multi-file dry run.
+  It validates all declarations and aggregate work limits before reading sources,
+  preserves separate asset mappings while grouping identical roots, and reports
+  source versus distinct-blob byte/leaf totals. It rejects duplicate asset IDs,
+  unsafe paths, symlinks and nonregular or wrong-length sources. No report is
+  emitted until every file succeeds; source failures identify the asset and path.
+  These are local content statistics, not live capacity, reservations or uploads.
+- `CaffeineManifestBuilder` prepares a bounded ordered chunk manifest and both
+  content identities in one streaming pass through the shared hasher. It reserves
+  leaf capacity before accepting bytes and preserves state on rejected appends.
+  The local `prepare_upload` example reuses the service metadata validator and
+  emits original metadata, computed root/digest and leaves only after clean EOF.
+  Independent vectors and a 10 MiB PocketIC admission/descriptor journey cover
+  client preparation without relaying file bytes through the canister. No provider
+  call, raw-digest admission requirement or allocator change is introduced.
+- `retained_content_descriptor` checks confirmed completion and an exact live
+  consumer reference in one owner read. Released/unknown references and mismatched
+  object incarnations disclose no descriptor, even if another reference keeps the
+  blob live or an old successful retain receipt replays. Native and PocketIC cases
+  cover caller isolation, suspension, stop/start and cleanup. The observation adds
+  no receipt or reservation; trusted publication and release coordination remain
+  consumer workflow requirements.
+- Tenant-scoped `content_descriptor` views recover the first validated metadata,
+  exact object identity and current lifecycle. Admission retains one bounded
+  metadata set per lifetime permission; reordered retries, suspension, cancellation
+  and settlement preserve it. Actual IC caller, client-verification and capacity
+  tests cover the private query adapter. This is not certified browser publication.
+- `CaffeineRootVerifier` binds a trusted root, exact length and original hash
+  metadata before processing a bounded stream. Clients can verify downloads
+  without a supplied raw digest, leaf list or canister byte relay, reusing the
+  existing Caffeine hashing implementation. Prefixes remain unverified until
+  finalization. A local `verify_download` example requires successful EOF and
+  rejects corruption, truncation, excess bytes and late read errors. This is a
+  verification primitive, not a production HTTP/browser client or provider proof.
+- The local `verify_download` example accepts an optional output path. It stages
+  bounded bytes privately, verifies clean EOF and the root, syncs the file, then
+  publishes without replacing an existing destination. Failures remove normal
+  staging residue; symlinks and racing output creators cannot be overwritten.
+  A 10 MiB independent-vector CLI check covers saved bytes and rejection paths.
+  This is local file publication, not authenticated descriptors, browser delivery
+  or a crash-durable transaction. Only the example adds an already-locked tempfile
+  development dependency; library dependencies and the allocator are unchanged.
+
+### Changed
+
+- Resource checks now include maximum metadata retention and report
+  `.tmp/descriptor-resources.json`. With retained headers, the 704-object workload
+  uses 64 KiB more allocated Wasm memory; retain/release peaks measure 5.43M/5.51M
+  instructions. These local costs include allocation/memory-access effects and
+  do not establish production limits. The default allocator remains unchanged.
+- The private readback fixture uses Candid's bulk byte decoder with unchanged
+  wire types, reply limits and manifest verification. A 1 MiB read falls from
+  about 234M to 116M measured service instructions; allocated Wasm memory is
+  about 1.1 MiB higher but stays flat across repeated reads. The default Rust
+  allocator is unchanged. Operator-only, bounded diagnostics and
+  `make test-read-resources` cover full chunks, malformed replies, held-slot
+  denial and recovery. These fixture costs do not qualify production delivery.
+- Reference requests validate a private single-reference transition and cleanup
+  receipt capacity before publication, removing the full lifecycle-history copy
+  on each mutation. Public APIs, retained failure receipts and exact retry
+  semantics are unchanged. A new PocketIC workload checks 256 simultaneously
+  live references, all 511 receipts, stop/start and cleanup at capacity;
+  `make test-admission-resources` also writes `.tmp/reference-history.json`.
+- The unpublished admission probe uses operation-specific Candid inputs through
+  the same shared handlers. It no longer sends or decodes the entire command
+  enum for every mutation. Byte, work, type-header and skipped-value limits stay
+  enforced, with actual-caller rejection, retry and capacity-cleanup coverage.
+  Library APIs and production endpoint contracts are unchanged.
+- Resource reports separate runtime entry, Candid header/value decoding and
+  workflow counters. The 704-object workload's final admission drops from
+  5.43M to 3.11M measured instructions, and peak retain from 9.20M to 5.43M.
+  These local observations include IC memory-access charges, exclude reply and
+  persistence/provider costs, and do not establish a production capacity limit.
+
 ## [0.2.1] - 2026-09-27
 
 ### Changed

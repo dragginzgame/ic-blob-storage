@@ -3,6 +3,7 @@
 pub(crate) mod content;
 mod conversion;
 pub(crate) mod decode;
+pub(crate) mod planning;
 pub(crate) mod release;
 pub(crate) mod resources;
 use blob_test_protocol::{
@@ -65,6 +66,7 @@ pub(crate) fn initialize(service: Principal, installation: Installation) {
             Workload::Small => (4, 2, 15, 10, 10, 2, 3),
             Workload::RetainedHistory => (256, 128, 256, 128, 10, 2, 3),
             Workload::ReleaseHistory => (704, 704, 768, 768, 288, 4, 7),
+            Workload::ReferenceHistory => (1, 1, 10, 10, 10, 256, 511),
         };
     let config = ServiceConfiguration::new(
         ServiceBindings {
@@ -92,8 +94,8 @@ pub(crate) fn initialize(service: Principal, installation: Installation) {
                 max_receipts_per_object: count(receipts),
             },
             uploads: UploadLimits {
-                max_active: count(4),
-                max_tenant_active: count(2),
+                max_active: count(objects.min(4)),
+                max_tenant_active: count(tenant_objects.min(2)),
             },
         },
         // Explicit substitute identity only; this probe cannot call a Cashier.

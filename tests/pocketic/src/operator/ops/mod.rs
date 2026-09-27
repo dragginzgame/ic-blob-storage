@@ -3,9 +3,11 @@ mod render;
 use std::panic::{AssertUnwindSafe, catch_unwind};
 
 use blob_test_protocol::{funding::FundingOperatorStatusView, status::OperatorStatusView};
+use candid::Principal;
 use candid::{de::DecoderConfig, decode_one_with_config};
 use ic_testkit::pocket_ic::PocketIc;
 use serde_json::Value;
+use std::net::SocketAddr;
 
 use super::{
     Failure,
@@ -32,6 +34,31 @@ pub(super) fn query(target: &Target) -> Result<Vec<u8>, Failure> {
 
 pub(super) fn query_method(
     target: &Target,
+    method: &str,
+    args: Vec<u8>,
+) -> Result<Vec<u8>, Failure> {
+    query_target(
+        &QueryTarget {
+            server: target.server,
+            instance: target.instance,
+            canister: target.canister,
+            caller: target.caller,
+        },
+        method,
+        args,
+    )
+}
+
+/// Explicit transport selection, independent of each fixture's semantic binding.
+pub(super) struct QueryTarget {
+    pub server: SocketAddr,
+    pub instance: usize,
+    pub canister: Principal,
+    pub caller: Principal,
+}
+
+pub(super) fn query_target(
+    target: &QueryTarget,
     method: &str,
     args: Vec<u8>,
 ) -> Result<Vec<u8>, Failure> {

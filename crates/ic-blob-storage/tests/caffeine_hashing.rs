@@ -17,6 +17,9 @@ use ic_blob_storage::model::identity::caffeine::{
 };
 use serde::Deserialize;
 
+mod caffeine_download;
+mod caffeine_preparation;
+
 #[derive(Deserialize)]
 struct Fixture {
     vectors: Vec<Vector>,

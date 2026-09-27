@@ -1,7 +1,9 @@
 use super::*;
 mod capacity;
 mod content;
+mod download;
 mod manifest;
+mod planning;
 use crate::model::{
     billing::{FundingLimits, configuration::BillingConfiguration},
     catalog::{

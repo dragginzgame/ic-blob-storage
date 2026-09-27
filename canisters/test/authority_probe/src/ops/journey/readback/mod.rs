@@ -1,4 +1,6 @@
 //! Single-step local source transport and bounded manifest verification.
+pub(crate) mod resources;
+
 use crate::model::content::ContentRequest;
 use blob_test_protocol::journey::{JourneyFailure, readback::JourneyReadChunk};
 use candid::{Principal, de::DecoderConfig, decode_one_with_config};
@@ -89,20 +91,26 @@ pub(crate) fn verify(
     request: ContentRequest,
     index: u64,
     encoded: &[u8],
+    measurement: &mut resources::Measurement,
 ) -> Result<JourneyReadChunk, JourneyFailure> {
     // These bound application decoding, not the IC's prior reply buffering.
     if encoded.len() > CAFFEINE_CHUNK_BYTES + 64 {
         return Err(JourneyFailure::ReplyTooLarge);
     }
+    measurement.decoding();
     let mut config = DecoderConfig::new();
     config
         .set_decoding_quota(10_000_000)
         .set_skipping_quota(64)
         .set_max_type_len(8)
         .set_full_error_message(false);
-    let bytes: Vec<u8> =
-        decode_one_with_config(encoded, &config).map_err(|_| JourneyFailure::InvalidReply)?;
-    crate::ops::read(|state| {
+    // Candid's blob path validates vec nat8 and charges the same bounded decoder
+    // before one bulk copy, avoiding a Serde visitor call for every byte.
+    let bytes = decode_one_with_config::<serde_bytes::ByteBuf>(encoded, &config)
+        .map_err(|_| JourneyFailure::InvalidReply)?
+        .into_vec();
+    measurement.decoded();
+    let result = crate::ops::read(|state| {
         let entry = state
             .journey
             .requests
@@ -121,5 +129,7 @@ pub(crate) fn verify(
             offset: range.offset,
             bytes,
         })
-    })
+    });
+    measurement.verified();
+    result
 }

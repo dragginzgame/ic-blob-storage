@@ -58,6 +58,15 @@ enum ReferenceState {
     Released,
 }
 
+// Private, constant-size transition. The owner checks it and publishes it
+// synchronously, with no await or intervening lifecycle mutation. It cannot be
+// exported, persisted or replayed as authority against another lifecycle.
+struct ReferenceMutation {
+    reference: ReferenceId,
+    state: ReferenceState,
+    active_references: usize,
+}
+
 /// Bounded reference bookkeeping and release phases for one confirmed object.
 ///
 /// Released reference IDs retain their slots to reject reuse and make duplicate
@@ -103,10 +112,15 @@ impl BlobLifecycle {
     /// Rejects mismatched bindings, released identities, exhausted lifetime slots
     /// or new references after deletion queues. Rejection leaves the value unchanged.
     pub fn retain(&mut self, key: ReferenceKey) -> Result<LifecycleChange, LifecycleError> {
+        let mutation = self.plan_retain(key)?;
+        Ok(self.commit_reference(mutation))
+    }
+
+    fn plan_retain(&self, key: ReferenceKey) -> Result<Option<ReferenceMutation>, LifecycleError> {
         self.binding.check(key.object())?;
         let reference = key.reference();
         match self.references.get(&reference) {
-            Some(ReferenceState::Active) => return Ok(LifecycleChange::Unchanged),
+            Some(ReferenceState::Active) => return Ok(None),
             Some(ReferenceState::Released) => return Err(LifecycleError::ReferenceReleased),
             None => {}
         }
@@ -116,9 +130,11 @@ impl BlobLifecycle {
         if self.references.len() >= self.reference_limit.get() {
             return Err(LifecycleError::ReferenceLimitReached);
         }
-        self.references.insert(reference, ReferenceState::Active);
-        self.active_references += 1;
-        Ok(LifecycleChange::Changed)
+        Ok(Some(ReferenceMutation {
+            reference,
+            state: ReferenceState::Active,
+            active_references: self.active_references + 1,
+        }))
     }
 
     /// Release exactly one known reference, queuing deletion only after the last.
@@ -127,21 +143,37 @@ impl BlobLifecycle {
     /// A mismatched binding or unknown reference rejects without changing state.
     /// Repeated release of a known reference is a no-op in every later phase.
     pub fn release(&mut self, key: ReferenceKey) -> Result<LifecycleChange, LifecycleError> {
+        let mutation = self.plan_release(key)?;
+        Ok(self.commit_reference(mutation))
+    }
+
+    fn plan_release(&self, key: ReferenceKey) -> Result<Option<ReferenceMutation>, LifecycleError> {
         self.binding.check(key.object())?;
         let reference = key.reference();
         let state = self
             .references
-            .get_mut(&reference)
+            .get(&reference)
             .ok_or(LifecycleError::UnknownReference)?;
         if *state == ReferenceState::Released {
-            return Ok(LifecycleChange::Unchanged);
+            return Ok(None);
         }
-        *state = ReferenceState::Released;
-        self.active_references -= 1;
+        Ok(Some(ReferenceMutation {
+            reference,
+            state: ReferenceState::Released,
+            active_references: self.active_references - 1,
+        }))
+    }
+
+    fn commit_reference(&mut self, mutation: Option<ReferenceMutation>) -> LifecycleChange {
+        let Some(mutation) = mutation else {
+            return LifecycleChange::Unchanged;
+        };
+        self.references.insert(mutation.reference, mutation.state);
+        self.active_references = mutation.active_references;
         if self.active_references == 0 {
             self.phase = LifecyclePhase::DeletionPending;
         }
-        Ok(LifecycleChange::Changed)
+        LifecycleChange::Changed
     }
 
     /// Apply independently authenticated deletion evidence for this exact incarnation.

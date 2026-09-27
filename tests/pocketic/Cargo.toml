@@ -7,6 +7,10 @@ publish = false
 autobins = false
 
 [[bin]]
+name = "blob-fixture-inventory"
+path = "src/bin/blob_fixture_inventory/main.rs"
+
+[[bin]]
 name = "blob-fixture-funding-lookup"
 path = "src/bin/blob_fixture_funding_lookup/main.rs"
 
@@ -31,10 +35,12 @@ ic-testkit.workspace = true
 candid.workspace = true
 blob-test-protocol = { path = "../protocol" }
 serde_json.workspace = true
+serde.workspace = true
+ic-blob-storage = { path = "../../crates/ic-blob-storage" }
 
 [target.'cfg(not(target_family = "wasm"))'.dev-dependencies]
-ic-blob-storage = { path = "../../crates/ic-blob-storage" }
 sha2.workspace = true
+tempfile.workspace = true
 
 [lints]
 workspace = true

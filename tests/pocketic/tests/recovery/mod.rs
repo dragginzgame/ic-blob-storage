@@ -295,6 +295,7 @@ fn callback_trap_rolls_back_slot_release_and_stop_start_cannot_clear_it() {
     assert_eq!(error.reject_code, RejectCode::CanisterError);
     assert_eq!(f.source_observation().requests, 1);
     assert!(!f.source_observation().waiting);
+    assert_eq!(f.read_resources(f.operator), Ok(None));
     assert_eq!(
         f.read_chunk(f.first, v.upload, 0),
         Err(JourneyFailure::ReadInProgress)

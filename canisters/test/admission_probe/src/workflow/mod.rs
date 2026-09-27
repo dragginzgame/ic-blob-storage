@@ -49,9 +49,30 @@ pub(crate) fn resources(context: UploadContext) -> Result<Option<ExecutionProfil
     ops::resources::inspect(context)
 }
 
+pub(crate) fn admission_capacity(
+    context: UploadContext,
+    input: blob_test_protocol::admission::planning::AdmissionCapacityInput,
+) -> Result<blob_test_protocol::admission::planning::AdmissionCapacity, Failure> {
+    ops::planning::capacity(context, input)
+}
+
+pub(crate) fn content_descriptor(
+    context: UploadContext,
+    input: ContentLookup,
+) -> Result<Option<blob_test_protocol::admission::ContentDescriptor>, Failure> {
+    ops::content::descriptor(context, input)
+}
+
 pub(crate) fn reference_capacity(
     context: UploadContext,
     input: ContentLookup,
 ) -> Result<Option<blob_test_protocol::admission::release::ReferenceCapacity>, Failure> {
     ops::release::capacity(context, input)
+}
+
+pub(crate) fn retained_content_descriptor(
+    context: UploadContext,
+    input: blob_test_protocol::admission::input::RetainedDescriptorInput,
+) -> Result<Option<blob_test_protocol::admission::input::RetainedDescriptor>, Failure> {
+    ops::content::retained_descriptor(context, input)
 }

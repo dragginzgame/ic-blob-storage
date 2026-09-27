@@ -1,9 +1,12 @@
 //! Real local source calls; no deployed provider durability or HTTP claims.
+mod resources;
+
 use super::*;
 use blob_test_protocol::{
     SourceMode, SyncFailure,
     journey::readback::{
-        JourneyReadChunk, ReadSourceConfig, ReadSourceMode, ReadSourceObservation,
+        JourneyReadChunk, ReadExecutionProfile, ReadSourceConfig, ReadSourceMode,
+        ReadSourceObservation,
     },
 };
 use ic_testkit::pocket_ic::common::rest::RawMessageId;
@@ -11,6 +14,16 @@ use ic_testkit::pocket_ic::common::rest::RawMessageId;
 const CHUNK: usize = 1024 * 1024;
 
 impl Fixture {
+    pub(super) fn read_resources(
+        &self,
+        caller: Principal,
+    ) -> Result<Option<ReadExecutionProfile>, JourneyFailure> {
+        self.harness
+            .pic
+            .query_candid_as(self.service, caller, "journey_read_resources", ())
+            .expect("read resource observation")
+    }
+
     pub(super) fn source_config(
         &self,
         input: JourneyUpload,
@@ -182,6 +195,11 @@ fn rejected_source_replies_return_no_bytes_and_release_the_exact_read_slot() {
         (ReadSourceMode::Truncated, JourneyFailure::ContentMismatch),
         (ReadSourceMode::Oversized, JourneyFailure::ReplyTooLarge),
         (ReadSourceMode::Malformed, JourneyFailure::InvalidReply),
+        (ReadSourceMode::WrongType, JourneyFailure::InvalidReply),
+        (
+            ReadSourceMode::TruncatedEncoding,
+            JourneyFailure::InvalidReply,
+        ),
         (ReadSourceMode::Reject, JourneyFailure::Transport),
     ] {
         f.source_config(v.upload, 0, &v.bytes, mode, false);

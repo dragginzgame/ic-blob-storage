@@ -29,6 +29,18 @@ pub enum UploadManifestLimit {
 }
 
 impl UploadAdmissions {
+    pub(super) fn remaining_manifest_chunks(&self, tenant: Principal) -> u64 {
+        let limits = self.config.limits().manifests;
+        let own = self
+            .manifest_accounting
+            .tenants
+            .get(&tenant)
+            .copied()
+            .unwrap_or(0);
+        (limits.max_chunks.get() as u64 - self.manifest_accounting.global)
+            .min(limits.max_tenant_chunks.get() as u64 - own)
+    }
+
     pub(super) fn check_manifest_capacity(
         &self,
         tenant: Principal,

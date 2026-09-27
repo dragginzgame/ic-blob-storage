@@ -34,9 +34,10 @@ pub struct ServiceLimits {
     pub max_tenants: NonZeroUsize,
     /// Largest individual object, distinct from a browser's aggregate upload batch.
     pub max_object_bytes: NonZeroU64,
-    /// Maximum raw metadata entries, independently bounded by bytes.
+    /// Maximum metadata entries retained per prepared lifetime object slot.
     pub max_headers: NonZeroUsize,
-    /// Raw UTF-8 metadata bytes plus three framing bytes per entry.
+    /// Retained UTF-8 metadata bytes plus three framing bytes per entry, per
+    /// prepared lifetime object slot. Allocation overhead is additional.
     pub max_header_bytes: NonZeroUsize,
     /// Separate retained manifest capacity, reserved before accepting an upload.
     pub manifests: ServiceManifestLimits,

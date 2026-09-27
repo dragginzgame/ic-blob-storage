@@ -13,7 +13,7 @@ VERSION ?=
 RELEASE := bash scripts/release/release.sh
 CI_TARGETS := shell-check release-check fmt-check check clippy docs-check test wasm-check package
 
-.PHONY: help version deps cloc fmt fmt-check check clippy docs-check test test-native test-pocketic test-fixture test-admission-resources wasm-check \
+.PHONY: help version deps cloc fmt fmt-check check clippy docs-check test test-native test-pocketic test-fixture test-admission-resources test-read-resources wasm-check \
 	build package clean shell-check release-check ci validate release-verify \
 	release-plan ensure-clean patch minor major bump-x release-patch \
 	release-minor release-major release-x release-stage release-commit \
@@ -26,6 +26,7 @@ help:
 	@echo "check / clippy / test         Compile, lint, or test the workspace"
 	@echo "test-native / test-pocketic   Native core tests or local IC fixtures"
 	@echo "test-admission-resources     Local admission bounds and Wasm resource report"
+	@echo "test-read-resources          Local read-slot and Wasm resource report"
 	@echo "clean                        Explicitly remove build artifacts"
 	@echo "docs-check / wasm-check       Check docs or the Wasm library build"
 	@echo "ci / validate                Run the current repository validation gate"
@@ -79,8 +80,20 @@ test-pocketic:
 test-admission-resources:
 	cargo build --offline --locked --release --target wasm32-unknown-unknown -p blob-admission-probe --lib
 	@mkdir -p .tmp
-	BLOB_ADMISSION_RESOURCE_REPORT="$(CURDIR)/.tmp/admission-resources.json" BLOB_ADMISSION_HISTORY_REPORT="$(CURDIR)/.tmp/admission-history.json" BLOB_RELEASE_HISTORY_REPORT="$(CURDIR)/.tmp/release-history.json" cargo test --offline --locked -p ic-blob-storage-pocketic-tests --test admission admission_resources -- --test-threads=2
-	@echo "Resource observations: .tmp/admission-resources.json, .tmp/admission-history.json and .tmp/release-history.json (local probes, not provider pricing)"
+	BLOB_ADMISSION_RESOURCE_REPORT="$(CURDIR)/.tmp/admission-resources.json" \
+	BLOB_ADMISSION_HISTORY_REPORT="$(CURDIR)/.tmp/admission-history.json" \
+	BLOB_RELEASE_HISTORY_REPORT="$(CURDIR)/.tmp/release-history.json" \
+	BLOB_REFERENCE_HISTORY_REPORT="$(CURDIR)/.tmp/reference-history.json" \
+	BLOB_DESCRIPTOR_RESOURCE_REPORT="$(CURDIR)/.tmp/descriptor-resources.json" \
+	cargo test --offline --locked -p ic-blob-storage-pocketic-tests --test admission admission_resources -- --test-threads=2
+	@echo "Local resource reports in .tmp/: admission-resources.json, admission-history.json, release-history.json, reference-history.json, descriptor-resources.json (not provider pricing)"
+
+test-read-resources:
+	cargo build --offline --locked --release --target wasm32-unknown-unknown -p blob-authority-probe -p blob-gateway-source --lib
+	@mkdir -p .tmp
+	BLOB_READ_RESOURCE_REPORT="$(CURDIR)/.tmp/read-resources.json" \
+	cargo test --offline --locked -p ic-blob-storage-pocketic-tests --test journey readback -- --test-threads=2
+	@echo "Local read report: .tmp/read-resources.json (not a production read protocol or provider pricing)"
 
 wasm-check:
 	cargo check --offline --locked --workspace --all-features --target wasm32-unknown-unknown

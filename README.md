@@ -1,6 +1,6 @@
 # ic-blob-storage
 
-0.2.0 is the released library baseline. The [0.2 delivery plan](docs/roadmap.md) tracks
+0.2.1 is the released library baseline. The [0.2 delivery plan](docs/roadmap.md) tracks
 the remaining work to a usable service; [current status](docs/status/current.md)
 separates implemented behavior from outstanding milestones.
 
@@ -10,6 +10,18 @@ and lists missing chunks within explicit work limits. Ordered reads check each
 leaf before final raw-digest verification. It also validates billing inputs and
 decodes bounded Caffeine replies, including opaque audit pages for inspection.
 Audit rows are not interpreted as proof of funding credit.
+Whole streams can also be checked against a fixed trusted provider root, length
+and original metadata using `CaffeineRootVerifier`, without a supplied raw digest
+or leaf manifest. A prefix alone is not verified content.
+For upload clients, `CaffeineManifestBuilder` computes ordered leaves, the root
+and raw digest in one bounded streaming pass. It reuses the same hash engine and
+retains only the declared leaf list, without buffering the file or a full tree.
+Tenant-only `content_descriptor` views recover that original metadata alongside
+the exact operation and current lifecycle. They do not reserve references or
+provide certified browser delivery.
+`retained_content_descriptor` additionally requires confirmed completion and the
+consumer's exact live reference in the same read. It remains a current observation;
+the consumer must coordinate publication with reference release.
 The library also encodes explicit Cashier balance, payment-relationship and
 gateway-list queries, and inspects relationship replies against the expected
 storage owner and payer. Encoding/decoding performs no provider call and grants
@@ -130,12 +142,153 @@ See [dependency setup](docs/dependencies.md) for PocketIC provisioning.
 | `make test-native` | Native core tests and doctests |
 | `make test-pocketic` | Build and run the local admission, authority, sync and funding fixtures |
 | `make test-admission-resources` | Admission input bounds and local Wasm resource report in `.tmp/admission-resources.json` |
+| `make test-read-resources` | Single-slot readback bounds and local Wasm costs in `.tmp/read-resources.json` |
 | `make test` | Both suites, sequentially |
 | `make cloc` | Rust runtime/test file LOC and test function counts under `crates/` |
 
 Validation uses offline Cargo and this repository's `target/`. These checks
 make no provider calls or network deployments. PocketIC installs a test-only
 local canister; production service journeys remain unimplemented.
+
+Local headless preparation computes the declaration needed for upload admission:
+
+```sh
+cargo run --offline --locked -p ic-blob-storage --example prepare_upload -- \
+  declaration.json 10485760 10 < body.bin > prepared.json
+```
+
+`declaration.json` supplies `bytes` and original `headers` (`name`/`value` entries),
+including canonical `Content-Length` equal to `bytes`. The two numeric arguments
+bound content bytes and retained leaves. The example checks the shared service
+metadata rules with local limits of 16 headers / 4 KiB framed metadata, reads a
+16 KiB maximum declaration and uses a 64 KiB body buffer. Deployment limits still
+need independent selection. Only a successful invocation yields a complete JSON
+result: `claim`, `chunk_hashes` and `computed_content_digest`. The `claim` object
+has the input shape used by `verify_download` below.
+
+This is offline preparation, with no enrollment, certificate, provider upload or
+completion claim. Preserve the exact source bytes and metadata for later upload;
+the single-file mode does not copy the source or persist resumable operation intent. The
+computed raw digest is diagnostic and is not required by service admission.
+
+For multiple files, use `prepare_upload --inventory inventory.json`. Source paths
+resolve relative to the inventory file. For example:
+
+```json
+{
+  "limits": {
+    "files": 100,
+    "file_bytes": 10485760,
+    "file_chunks": 10,
+    "total_bytes": 104857600,
+    "total_chunks": 100
+  },
+  "files": [{
+    "asset": "example",
+    "source": "body.bin",
+    "declaration": {
+      "bytes": 3,
+      "headers": [{"name": "Content-Length", "value": "3"}]
+    }
+  }]
+}
+```
+
+The inventory is capped at 1 MiB of JSON. All limits are required positive maxima;
+aggregate budgets include duplicate sources. The tool reads files sequentially
+and emits `totals`, separate `assets` mappings and one prepared entry per distinct
+root in `blobs`, only after all succeed. Asset IDs must be unique; source paths
+must be relative, without parent traversal or symlinks, and name regular files.
+Use a controlled, unchanged source tree: these checks do not provide a filesystem
+sandbox or freeze a snapshot. Distinct-root totals do not establish service
+capacity, cross-tenant sharing, fresh-upload eligibility or provider charges.
+Existing references, lifetime history and billing obligations require service
+inspection; no actual service/tenant/namespace or operation identity is selected.
+
+The shared model's `UploadAdmissions::admission_capacity` supplies the next
+planning input: tenant-scoped lifetime object, concurrent upload, manifest-leaf
+and byte headroom, plus enrollment and per-object limits. It includes reservations
+and continuing billing; freed logical quota alone cannot make those obligations
+disappear. These independent counts reserve nothing. Existing blobs still require
+content discovery and reference-capacity checks. The unpublished
+`blob-fixture-inventory` command connects a prepared report to these queries on an
+already-running local admission probe:
+
+```sh
+cargo run --offline --locked -p ic-blob-storage-pocketic-tests \
+  --bin blob-fixture-inventory -- inspect \
+  --server 127.0.0.1:PORT --instance INSTANCE --canister SERVICE \
+  --caller TENANT --tenant TENANT --namespace NAMESPACE \
+  --inventory prepared-inventory.json
+```
+
+Use the output of `prepare_upload --inventory`, or a snapshot's `inventory.json`.
+The client requires explicit local targets and a simulated caller equal to the
+tenant. It bounds input to 8 MiB, 4,096 assets, 2,048 distinct blobs and 8,192 total
+distinct leaves, with at most 16 headers / 4 KiB framed metadata per object. It
+checks manifest/root consistency, mappings and recomputed totals before any query;
+it never opens source/body paths. There is one outstanding query at a time, at most
+one capacity query and two queries per distinct root, with bounded reply decoding.
+
+The JSON report distinguishes content not visible to this tenant, unfinished
+operations to recover, live blobs requiring new references, and retired roots.
+It budgets one fresh reference per asset for existing live blobs. New-object
+reference capacity remains unassessed. Not-visible content is not proof of global
+absence or upload eligibility. Aggregate new-byte/object/leaf demand and concurrent
+upload headroom are separate: a sequential batch need not fit every upload at once.
+Observations are sequential and can become stale; no root, quota or reference is
+reserved, and file bytes are not reverified. Exit 0 means a complete observation
+with no observed blocker, 4 reports blockers, 2 rejects arguments, and 3 reports
+input/query/reply failures without partial results. Production authentication,
+provider transport and operation persistence remain outstanding.
+
+To save the exact hashed bytes for later use, add an existing, caller-controlled
+destination directory:
+
+```sh
+cargo run --offline --locked -p ic-blob-storage --example prepare_upload -- \
+  --inventory inventory.json --snapshot ./snapshots > snapshot.json
+```
+
+Success returns `directory` (a fresh absolute path) and `inventory`. The directory
+contains `inventory.json` and `bodies/<root hex without sha256:>`, one file per
+distinct root. Asset `source` paths in the report remain provenance; use the saved
+bodies for later upload. Copying and hashing use the same buffers, so later changes
+to the originals cannot change the saved content. Duplicate sources still count
+against work limits and are fully checked. Disk use includes saved distinct bodies,
+one in-progress body, and the report.
+
+Normal failure removes the current attempt. Each repeat creates a separate
+directory and preserves earlier snapshots. On Unix the directory is private (0700)
+and body files are 0600. Files are synced, but this is not a portable crash-durable
+transaction: interruption can leave incomplete residue or a complete snapshot
+without a stdout receipt. No old directory is automatically resumed or deleted.
+Keep the saved directory controlled and reverify its files before future effects;
+this local copy is mutable and does not persist service operation identities.
+
+The local streaming verification example can save the exact checked bytes:
+
+```sh
+cargo run --offline --locked -p ic-blob-storage --example verify_download -- \
+  claim.json 10485760 verified.bin < body.bin
+```
+
+`claim.json` supplies `root`, `bytes` and `headers` (`name`/`value` entries) from
+trusted application data; the second argument is the caller's maximum byte
+budget. The example bounds the claim to 16 KiB and uses a 64 KiB receive buffer.
+Omit `verified.bin` to verify without retaining the body. With an output path,
+the example stages at most the declared length under the existing destination
+directory, verifies clean EOF and the root, syncs the file, then publishes without
+overwriting a file or symlink. Computed identities print only after success.
+Use a caller-controlled directory with no concurrent path replacement or temporary
+cleaner; staging uses owner-only directory/file permissions on Unix. Normal
+failures clean staging, but interruption can leave residue. A missing stdout receipt
+does not prove no file was published: reverify the existing output before using it.
+The example does not authenticate the claim, resume interrupted downloads or
+promise crash-durable directory updates. Persistence follows
+[tempfile's platform guarantees](https://docs.rs/tempfile/3.27.0/tempfile/struct.NamedTempFile.html#method.persist_noclobber).
+See the
+[consumer download direction](docs/roadmap.md#consumer-download-verification).
 
 The unpublished `blob-fixture-status` client attaches to an existing local PocketIC
 instance. It requires a literal loopback address, instance ID, canister and

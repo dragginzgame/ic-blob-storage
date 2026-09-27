@@ -4,6 +4,7 @@
 mod admission_cases;
 mod admission_content;
 mod admission_resources;
+mod admission_wire;
 mod support;
 mod vectors;
 
@@ -68,10 +69,13 @@ impl Fixture {
     }
 
     fn call(&self, caller: Principal, command: Command) -> Result<Outcome, Failure> {
-        self.harness
+        let (method, bytes) = admission_wire::encode(command);
+        let reply = self
+            .harness
             .pic
-            .update_candid_as(self.service, caller, "execute", (command,))
-            .expect("typed update reply, not a trap")
+            .update_call(self.service, caller, method, bytes)
+            .expect("typed update reply, not a trap");
+        candid::decode_one(&reply).expect("typed update reply")
     }
 
     fn inspect(&self, caller: Principal, request: Request) -> Result<Observation, Failure> {

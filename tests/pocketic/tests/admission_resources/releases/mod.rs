@@ -143,8 +143,14 @@ fn populate(f: &Fixture, samples: &mut Vec<serde_json::Value>) -> Vec<Permission
             samples.push(serde_json::json!({
                 "phase":"populate", "objects":index + 1,
                 "admit_instructions":admit.after_work, "admit_before_work":admit.before_work,
+                "admit_before_decode":admit.before_decode, "admit_after_header":admit.after_header,
+                "admit_after_value":admit.after_value, "admit_after_decode":admit.after_decode,
                 "prepare_instructions":prepare.after_work, "prepare_before_work":prepare.before_work,
+                "prepare_before_decode":prepare.before_decode, "prepare_after_header":prepare.after_header,
+                "prepare_after_value":prepare.after_value, "prepare_after_decode":prepare.after_decode,
                 "confirm_instructions":confirm.after_work, "confirm_before_work":confirm.before_work,
+                "confirm_before_decode":confirm.before_decode, "confirm_after_header":confirm.after_header,
+                "confirm_after_value":confirm.after_value, "confirm_after_decode":confirm.after_decode,
                 "wasm_memory_bytes":f.wasm_bytes(),
             }));
         }

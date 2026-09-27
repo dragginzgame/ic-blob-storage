@@ -147,8 +147,9 @@ impl ReferenceRequests {
     /// admitted request retains either success or lifecycle failure. Failed
     /// transitions can only be re-evaluated under a fresh request ID.
     ///
-    /// The lifecycle is staged in a bounded clone before publication together
-    /// with its receipt; work is proportional to retained reference slots.
+    /// A private single-reference transition is validated before reserving its
+    /// receipt and applying it synchronously. Lookup/insertion touches tree paths;
+    /// no full reference-history copy or scan is needed.
     /// This establishes local return-path atomicity, not durable IC transactions.
     /// # Errors
     /// Wrong object scope, conflicting ID reuse or insufficient unreserved receipt
@@ -168,15 +169,23 @@ impl ReferenceRequests {
             return Err(ReferenceRequestError::ReceiptLimitReached);
         }
 
-        let mut candidate = self.lifecycle.clone();
-        let result = match request.operation {
-            ReferenceOperation::Retain(key) => candidate.retain(key),
-            ReferenceOperation::Release(key) => candidate.release(key),
+        let planned = match request.operation {
+            ReferenceOperation::Retain(key) => self.lifecycle.plan_retain(key),
+            ReferenceOperation::Release(key) => self.lifecycle.plan_release(key),
+        };
+        let active_after = match &planned {
+            Ok(Some(mutation)) => mutation.active_references,
+            Ok(None) | Err(_) => self.lifecycle.active_references(),
         };
         // Subtract the new receipt before comparing the reserved release slots.
-        if candidate.active_references() > available - 1 {
+        if active_after > available - 1 {
             return Err(ReferenceRequestError::ReceiptLimitReached);
         }
+        let result = match &planned {
+            Ok(Some(_)) => Ok(LifecycleChange::Changed),
+            Ok(None) => Ok(LifecycleChange::Unchanged),
+            Err(error) => Err(*error),
+        };
         self.receipts.insert(
             request.id,
             ReferenceReceipt {
@@ -185,7 +194,9 @@ impl ReferenceRequests {
                 result,
             },
         );
-        self.lifecycle = candidate;
+        if let Ok(mutation) = planned {
+            self.lifecycle.commit_reference(mutation);
+        }
         Ok(ReferenceRequestOutcome::Recorded { result })
     }
 

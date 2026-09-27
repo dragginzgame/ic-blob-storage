@@ -17,6 +17,10 @@ impl Fixture {
     pub(in crate::recovery) fn assert_authority_fenced(&self, upload: JourneyUpload) {
         let before = self.archive();
         assert!(before.fenced);
+        assert_eq!(
+            self.read_resources(self.authority_operator),
+            Err(JourneyFailure::Denied)
+        );
         let sync: Result<(), SyncFailure> = self
             .harness
             .pic

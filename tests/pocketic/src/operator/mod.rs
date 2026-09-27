@@ -4,9 +4,11 @@ mod action;
 mod funding_lookup;
 mod funding_preview;
 pub use funding_lookup::run as run_funding_lookup;
+mod inventory;
 mod model;
 mod ops;
 pub use funding_preview::run as run_funding_preview;
+pub use inventory::run as run_inventory;
 
 pub use action::{run_refresh, run_sync};
 

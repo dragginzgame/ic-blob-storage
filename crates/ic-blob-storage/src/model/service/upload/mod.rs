@@ -9,8 +9,10 @@ use thiserror::Error;
 
 mod capacity;
 pub mod content;
+pub mod download;
 pub use capacity::UploadManifestLimit;
 pub mod manifest;
+pub mod planning;
 pub use manifest::UploadManifestState;
 
 use super::{
@@ -25,10 +27,7 @@ use crate::model::{
             UploadRequestId,
         },
     },
-    identity::{
-        ProviderRootHash,
-        caffeine::manifest::{CaffeineChunkManifest, CaffeineManifestError},
-    },
+    identity::{ProviderRootHash, caffeine::manifest::CaffeineManifestError},
     lifecycle::{
         LifecycleChange,
         binding::ObjectBinding,
@@ -78,7 +77,7 @@ pub struct UploadPermissionView {
 
 #[derive(Debug)]
 struct Permission {
-    manifest: Option<CaffeineChunkManifest>,
+    manifest: Option<manifest::PreparedManifest>,
     original: UploadPermission,
     admitted_at_ns: u64,
     tenant_generation: NonZeroU64,

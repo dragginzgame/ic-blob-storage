@@ -146,6 +146,12 @@ async fn journey_read(
     workflow::journey::readback::read(context(), &root, index).await
 }
 
+#[ic_cdk::query]
+fn journey_read_resources()
+-> Result<Option<blob_test_protocol::journey::readback::ReadExecutionProfile>, JourneyFailure> {
+    workflow::journey::readback::resources(inspection_context())
+}
+
 #[ic_cdk::update]
 fn journey_arm_read_callback_trap(root: Vec<u8>) -> bool {
     workflow::journey::readback::arm_callback_trap(context(), &root)

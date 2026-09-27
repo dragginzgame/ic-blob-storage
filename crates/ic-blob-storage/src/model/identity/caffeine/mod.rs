@@ -6,6 +6,7 @@
 //! and independent vectors. Empty provider objects remain unqualified.
 
 pub mod manifest;
+pub mod verification;
 
 mod metadata;
 
@@ -126,6 +127,17 @@ impl CaffeineContentHasher {
     /// Rejects wrong offset, excessive per-call work or bytes beyond the declared
     /// length, in that order. Rejection preserves all hash states and counters.
     pub fn append(&mut self, offset: u64, bytes: &[u8]) -> Result<(), CaffeineHashError> {
+        self.append_observing(offset, bytes, |_| {})
+    }
+
+    // A private observer lets the bounded manifest builder keep completed leaves
+    // without rehashing bytes or changing the fixed-memory public hasher.
+    fn append_observing(
+        &mut self,
+        offset: u64,
+        bytes: &[u8],
+        mut leaf: impl FnMut(Hash),
+    ) -> Result<(), CaffeineHashError> {
         if offset != self.received_bytes {
             return Err(CaffeineHashError::UnexpectedOffset {
                 expected: self.received_bytes,
@@ -147,7 +159,7 @@ impl CaffeineContentHasher {
             self.chunk_bytes += take;
             remaining = &remaining[take..];
             if self.chunk_bytes == CAFFEINE_CHUNK_BYTES {
-                self.complete_chunk();
+                leaf(self.complete_chunk());
             }
         }
         self.received_bytes += length;
@@ -157,14 +169,21 @@ impl CaffeineContentHasher {
     /// Compute both identities after receiving exactly the declared content length.
     /// # Errors
     /// Rejects incomplete content. Success proves supplied-byte consistency only.
-    pub fn finish(mut self) -> Result<CaffeineContentHashes, CaffeineHashError> {
+    pub fn finish(self) -> Result<CaffeineContentHashes, CaffeineHashError> {
+        self.finish_observing(|_| {})
+    }
+
+    fn finish_observing(
+        mut self,
+        mut leaf: impl FnMut(Hash),
+    ) -> Result<CaffeineContentHashes, CaffeineHashError> {
         if self.received_bytes != self.expected_bytes {
             return Err(CaffeineHashError::Incomplete {
                 remaining: self.remaining_bytes(),
             });
         }
         if self.chunk_bytes != 0 {
-            self.complete_chunk();
+            leaf(self.complete_chunk());
         }
         Ok(CaffeineContentHashes {
             content_digest: ContentDigest(self.raw.finalize().into()),
@@ -192,12 +211,13 @@ impl CaffeineContentHasher {
         Ok(actual)
     }
 
-    fn complete_chunk(&mut self) {
+    fn complete_chunk(&mut self) -> Hash {
         let hash: Hash = std::mem::replace(&mut self.chunk, chunk_hasher())
             .finalize()
             .into();
         self.chunk_bytes = 0;
         push_chunk(&mut self.frontier, hash);
+        hash
     }
 }
 

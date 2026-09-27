@@ -6,8 +6,9 @@ and a consumer acceptance journey. It is not complete when another set of codecs
 or test fixtures passes. Canic removal and live installation retirement remain
 separate, explicitly authorized work.
 
-The released **0.2.0 library** packages the breaking direct-upload admission
-contract, tenant enrollment, canonical metadata and measured resource envelope.
+The released **0.2.1 library** includes the 0.2 direct-upload admission contract,
+tenant enrollment, canonical metadata, indexed accounting and content/reference
+capacity inspection, with local resource evidence.
 The maintainer confirmed its release. This release does not complete
 M1–M4 below. Durable handlers, provider qualification, both production adapters
 and consumer acceptance remain work for the 0.2 series.
@@ -92,7 +93,7 @@ No consumer build or provider experiment ran.
 | Miner BLOB-002 — headless publisher | Make noninteractive publication an explicit M3 client requirement alongside browser upload: dry-run inventory/capacity, bounded concurrency, exact-operation lookup/resume and typed results. Reuse this repository's hash/manifest implementation and direct-to-Caffeine byte path. Explicit service/tenant/uploader/payer/namespace bindings cannot come from interactive login, inferred targets or automatic funding. |
 | Miner BLOB-003 — browser delivery | Extend A10 qualification to immutable media URLs, integrity/trust, MIME, CORS, cache, errors and large reads under the consumer's CSP. A root URL alone does not establish certified HTTP or byte integrity. Define the verification path before changing consumer origins; measure cold/warm loading before performance claims. |
 | Miner BLOB-004 — repeated releases | Resolve tenant-authorized reuse, exact retain/release, bounded retention and deleted-content reintroduction in M1 before freezing persisted/protocol contracts. Current immutable root claims prohibit allocating the same provider root to a new object even after settlement. A retained live reference is supported by the model; a safe delete/re-upload contract remains unresolved. Do not weaken callback safety or treat indefinite retention as free. |
-| Miner BLOB-005 — release identity | README, roadmap and status now identify the released 0.2.0 library and unfinished service milestones in this worktree. This addresses the wording locally; it does not establish publication of these edits or close the consumer's finding. |
+| Miner BLOB-005 — release identity | README, roadmap and status identify the released library baseline and unfinished service milestones. Local wording does not close the consumer's finding or establish adoption. |
 
 The feedback's asset survey reports 702 media files / 283,211,048 bytes, largest
 8,362,256 bytes. That is its recorded checkout envelope, not a newly measured or
@@ -120,6 +121,35 @@ observations; the local IC probe checks discovery isolation and stop/start.
 This supplies a publisher planning primitive, not a production client or an
 approved delete/re-upload route. The [reference recipe](service-contract.md#lifecycle-design-under-independent-review)
 keeps publication coordination and bounded retention explicit.
+
+Headless preparation now has a shared `CaffeineManifestBuilder` and local
+`prepare_upload` example. One streaming hash pass retains an explicitly bounded
+leaf list; the example reuses service metadata validation and requires clean EOF
+before emitting the root, raw digest, leaves and original metadata. A 10 MiB
+PocketIC case admits the client-generated declaration without relaying body bytes,
+then checks the retained descriptor and client verification after substituted
+completion. The example's `--inventory` mode now preflights a bounded explicit
+file list, checks aggregate byte/leaf work before deduplication, and emits separate
+asset mappings and distinct-root totals after every source succeeds. Duplicate
+content does not collapse asset identities. Optional snapshot output keeps one
+copy of the exact hashed bytes per root plus the completed inventory, independently
+of later source changes. The private local copies remain mutable and must be
+reverified before use; they are not durable operation/recovery authority.
+This is an offline publisher prerequisite: live capacity inspection, identity/operation persistence,
+service/provider transport and publication remain unimplemented. The prepared
+source must stay immutable until its exact bytes upload; a distinct local root
+does not establish that the service can admit it or reuse retired content.
+
+Fresh-upload capacity now has a tenant-scoped `admission_capacity` model view and
+bounded private probe query. Its independent lifetime/concurrent/leaf/byte headroom
+includes pending reservations and continuing billing; suspension remains visible.
+It complements existing-object discovery/reference capacity. The unpublished
+`blob-fixture-inventory` command now connects validated prepared inventories to
+these queries on an explicit existing local probe. It preserves asset reference
+demand and separates not-visible, pending, live and retired roots. Sequential
+observations reserve nothing and do not prove global absence or fresh admission.
+Production authentication, new-object reference sizing and persisted exact
+operation identities remain outstanding; no upload or funding occurs here.
 
 ## Decisions to finish M1
 
@@ -185,8 +215,30 @@ four overlapping reference generations. It exercises cleanup after history fills
 the shared owner's read-only capacity view distinguishes new-reference headroom
 from reserved release receipts. See the [release-history evidence](evidence/core-primitives.md#multi-file-release-history).
 These are synthetic files and local provider substitutes. Production bounds,
-larger per-object histories, read sessions and operational persistence remain
+read sessions and operational persistence remain
 unqualified; the fixture's four-generation limit is not a production default.
+The [per-object follow-up](evidence/core-primitives.md#reference-history-without-lifecycle-copies)
+also exercises 256 simultaneously live references and all 511 receipts, including
+rejections, stop/start, replay and final cleanup at capacity. Reference mutations
+now stage one private change rather than copy the object's retained history.
+
+The [decoder follow-up](evidence/core-primitives.md#operation-specific-admission-inputs)
+uses separate bounded inputs per mutation through the same handlers. Carry this
+boundary design into M2 instead of a catch-all wire command enum. It lowers local
+measured cost without changing model authority or choosing a different allocator.
+Counters include memory-region access/write charges; individual phase costs can
+shift when earlier work touches a region first. Retained-state decoder growth
+remains, so production sizing must include allocation locality, reply encoding,
+persistence and larger reference/read-session histories.
+An isolated Talc 5.1.1 comparison gave mixed costs and higher final memory;
+the maintainer confirmed keeping the default heap allocator. No allocator
+dependency is retained. The [single-slot read experiment](evidence/core-primitives.md#single-slot-read-resources)
+now measures a full 1 MiB leaf: bulk Candid decoding halves measured service
+work to about 116M instructions, with a higher but stable allocated heap.
+Hash verification alone still costs about 81M. Define the consumer download and
+integrity boundary before choosing production read concurrency; this fixture
+does not select a service proxy for browser delivery. Production storage locality
+and complete message costs also remain open.
 
 The [upload-path evaluation](#upload-path-evaluation--2026-09-27) recommends direct
 browser-to-Caffeine upload as the production target, with bounded manifest
@@ -290,6 +342,75 @@ fallback proof of provider completion. The local mandatory append workflow and r
 with no dual upload mode or compatibility shim. Hash/read-verifier primitives
 remain for integrity consumers. The model distinguishes manifest binding,
 possible exposure and confirmed completion; none of the first two claims storage.
+
+### Consumer download verification
+
+The working direction is direct Caffeine-to-client delivery with verification
+before application use. Keep bulk download hashing outside the service canister;
+the single-slot Candid fixture remains integrity/recovery evidence, not the
+production media path. This direction does not approve Toko/Miner adoption,
+change their origins/CSP or qualify the deployed gateway.
+
+The new `CaffeineRootVerifier` reuses the existing streaming tree hasher with a
+root fixed at construction. It needs trusted expected length and original hash
+metadata, but no leaf list or independently expected raw digest. Arbitrary body
+frames fit explicit per-call bounds; only successful finalization verifies the
+body. The local `verify_download` example additionally requires successful EOF,
+including after the expected last byte, and fails closed on trailing bytes.
+Its optional output path stages the same checked bytes in a private directory,
+syncs them after verification and publishes without replacing an existing target.
+This supplies local file quarantine, with a 64 KiB receive buffer and disk use
+bounded by the declared length. The caller controls the destination directory;
+interruption can leave staging residue or a published file without a stdout
+receipt. It establishes no authenticated descriptor, portable crash-durable
+transaction, resumable transfer or browser cache integration.
+
+The publisher/application must preserve an authenticated download descriptor:
+exact service/provider owner and project locator, object root, length, original
+hash metadata and the consumer's serving policy. Admission now retains one copy
+of the original validated header text with each prepared lifetime permission.
+`content_descriptor` borrows it under the same service/namespace/tenant checks as
+content discovery, carrying the current state even for cancelled or settled
+history. The private IC query adapter proves caller isolation and client hash
+verification; it is not certified response delivery or a publication permission.
+Do not replace the stored text with HTTP response headers or infer a raw digest
+from the provider-root string. A production authenticated descriptor endpoint or
+certified release mapping, provider locator and serving policy still need
+implementation and consumer qualification.
+
+The shared owner's `retained_content_descriptor` now checks confirmed completion,
+the exact object incarnation and the consumer's live reference in one read. A
+released reference gets no descriptor even when another release keeps the blob
+live; replay of an old successful retain receipt does not bypass this check.
+Suspension preserves inspection of existing references. This read creates no
+reference or receipt. Copies can become stale, so publication still needs the
+consumer transaction/outbox and release exclusion described below. The private
+query adapter does not certify that observation or bind a public provider URL.
+
+Metadata retention is bounded by existing per-object entry/byte limits and global/
+tenant lifetime object counts; retries retain the first copy and cleanup does not
+recycle it. These payload bounds exclude string/vector/allocator overhead and do
+not prove that every candidate configuration fits total canister memory. The
+[descriptor measurements](evidence/descriptor-resources.json) cover maximal headers
+at a small history limit plus the existing 704-object reference workload. Production
+storage and total-message costs remain separate qualifications.
+
+For a browser, verification must precede handing bytes to an image/model decoder
+or publishing an object URL. Bound total quarantined bytes and concurrent fetches,
+cancel on failure/overflow, and discard uncertain partial bodies. Require clean
+transport completion and the exact checked destination before claiming success.
+Cached bytes and embedded GLB dependencies need the same integrity policy.
+MIME safety, CORS, CSP, redirects, compressed representations, cache behavior,
+range/resume support and cold/warm loading remain A10 tests. A fixed-memory hash
+state does not make a browser's buffered body or decoded media fixed-memory.
+
+Standard browser SRI checks a raw digest, not Caffeine's metadata/tree root.
+An authenticated publisher-computed raw digest could support a separate browser
+adapter, but no raw-digest admission requirement is reintroduced. The current
+SRI specification covers script/link integration rather than an automatic
+integrity attribute for every media loader; see the
+[source review](provider-review.md#download-client-follow-up--2026-09-27).
+The default Rust allocator and ic-memory governance remain unchanged.
 
 ### Recovery boundary and evidence still needed
 

@@ -2,13 +2,21 @@
 
 use super::{STATE, conversion::failure};
 use blob_test_protocol::admission::{
-    ContentLookup, ContentObservation, ContentState, Failure, Request,
+    ContentDescriptor, ContentLookup, ContentObservation, ContentState, Failure, Request,
+    input::{RetainedDescriptor, RetainedDescriptorInput},
 };
 use ic_blob_storage::model::{
     catalog::admission::read::UploadRootState,
     identity::ProviderRootHash,
-    lifecycle::LifecyclePhase,
-    service::upload::{UploadContext, content::ContentLookup as ModelLookup},
+    lifecycle::{
+        LifecyclePhase, ReferenceId,
+        binding::{ObjectBinding, ObjectIdentity, ReferenceKey},
+    },
+    service::upload::{
+        UploadContext,
+        content::{ContentLookup as ModelLookup, TenantContentView},
+        download::ContentDescriptorView,
+    },
 };
 use std::num::NonZeroU128;
 
@@ -16,42 +24,102 @@ pub(crate) fn lookup(
     context: UploadContext,
     input: ContentLookup,
 ) -> Result<Option<ContentObservation>, Failure> {
-    if input.service != context.service {
-        return Err(Failure::WrongService);
-    }
-    let query = ModelLookup {
-        tenant: input.tenant,
-        namespace: NonZeroU128::new(input.namespace).ok_or(Failure::InvalidInput)?,
-        root: ProviderRootHash::try_from(input.root.as_slice()).expect("fixed hash width"),
-    };
+    let query = model_lookup(context, input)?;
     STATE.with_borrow(|state| {
         let owner = &state.as_ref().expect("initialized probe").owner;
         Ok(owner
             .lookup_content(context, query)
             .map_err(failure)?
-            .map(|view| {
-                let object = view.request.object.first.object();
-                ContentObservation {
-                    request: Request {
-                        service: object.service(),
-                        tenant: object.tenant(),
-                        namespace: object.identity().namespace.get(),
-                        id: view.request.id.get().get(),
-                        root: *view.request.object.root.as_bytes(),
-                        bytes: view.request.object.bytes,
-                    },
-                    state: match view.state {
-                        UploadRootState::Reserved => ContentState::Reserved,
-                        UploadRootState::ExposurePossible => ContentState::ExposurePossible,
-                        UploadRootState::Cancelled => ContentState::Cancelled,
-                        UploadRootState::Confirmed(phase) => match phase {
-                            LifecyclePhase::Live => ContentState::Live,
-                            LifecyclePhase::DeletionPending => ContentState::DeletionPending,
-                            LifecyclePhase::ProviderDeleted => ContentState::ProviderDeleted,
-                            LifecyclePhase::Settled => ContentState::Settled,
-                        },
-                    },
-                }
+            .map(observation))
+    })
+}
+
+pub(crate) fn descriptor(
+    context: UploadContext,
+    input: ContentLookup,
+) -> Result<Option<ContentDescriptor>, Failure> {
+    let query = model_lookup(context, input)?;
+    STATE.with_borrow(|state| {
+        let owner = &state.as_ref().expect("initialized probe").owner;
+        Ok(owner
+            .content_descriptor(context, query)
+            .map_err(failure)?
+            .map(descriptor_view))
+    })
+}
+
+pub(crate) fn retained_descriptor(
+    context: UploadContext,
+    input: RetainedDescriptorInput,
+) -> Result<Option<RetainedDescriptor>, Failure> {
+    let query = model_lookup(context, input.content)?;
+    let positive = |n| NonZeroU128::new(n).ok_or(Failure::InvalidInput);
+    let object = ObjectBinding::new(
+        context.service,
+        query.tenant,
+        ObjectIdentity {
+            namespace: query.namespace,
+            object: positive(input.object)?,
+            incarnation: positive(input.incarnation)?,
+        },
+    )
+    .map_err(|_| Failure::InvalidInput)?;
+    let reference = ReferenceKey::new(object, ReferenceId::new(positive(input.reference)?));
+    STATE.with_borrow(|state| {
+        let owner = &state.as_ref().expect("initialized probe").owner;
+        Ok(owner
+            .retained_content_descriptor(context, query.root, reference)
+            .map_err(failure)?
+            .map(|view| RetainedDescriptor {
+                reference: input,
+                descriptor: descriptor_view(view.descriptor),
             }))
     })
+}
+
+fn descriptor_view(view: ContentDescriptorView<'_>) -> ContentDescriptor {
+    ContentDescriptor {
+        content: observation(view.content),
+        headers: view
+            .headers
+            .iter()
+            .map(|header| (header.name.clone(), header.value.clone()))
+            .collect(),
+    }
+}
+
+fn model_lookup(context: UploadContext, input: ContentLookup) -> Result<ModelLookup, Failure> {
+    if input.service != context.service {
+        return Err(Failure::WrongService);
+    }
+    Ok(ModelLookup {
+        tenant: input.tenant,
+        namespace: NonZeroU128::new(input.namespace).ok_or(Failure::InvalidInput)?,
+        root: ProviderRootHash::try_from(input.root.as_slice()).expect("fixed hash width"),
+    })
+}
+
+fn observation(view: TenantContentView) -> ContentObservation {
+    let object = view.request.object.first.object();
+    ContentObservation {
+        request: Request {
+            service: object.service(),
+            tenant: object.tenant(),
+            namespace: object.identity().namespace.get(),
+            id: view.request.id.get().get(),
+            root: *view.request.object.root.as_bytes(),
+            bytes: view.request.object.bytes,
+        },
+        state: match view.state {
+            UploadRootState::Reserved => ContentState::Reserved,
+            UploadRootState::ExposurePossible => ContentState::ExposurePossible,
+            UploadRootState::Cancelled => ContentState::Cancelled,
+            UploadRootState::Confirmed(phase) => match phase {
+                LifecyclePhase::Live => ContentState::Live,
+                LifecyclePhase::DeletionPending => ContentState::DeletionPending,
+                LifecyclePhase::ProviderDeleted => ContentState::ProviderDeleted,
+                LifecyclePhase::Settled => ContentState::Settled,
+            },
+        },
+    }
 }

@@ -2556,3 +2556,391 @@ library rustdoc; formatting and diff checks. The final admission suite took abou
 271 seconds locally. `make test-admission-resources` now also writes
 `.tmp/release-history.json`; its large workload is intentionally several minutes.
 No full CI, release, live provider operation or consumer adoption ran.
+
+### Operation-specific admission inputs
+
+After the maintainer pushed 0.2.1 (`85967c82902c4730614ca5bd28ec81fea382f28a`),
+the private admission probe replaces its catch-all Candid command envelope with
+separate enrollment, admission, preparation, exposure, revocation, reference and
+operator-substitute inputs. The in-process dispatcher and service model are
+unchanged. No public library API or production transport is added. Every mutation
+keeps the same byte/work/type-header/skip limits, including trailing-argument
+validation. Rejected decoding rolls back without replacing the last observation.
+Diagnostics retain one operator-only sample, now separating decoder entry, header,
+value, final input disposal and workflow counters.
+
+The [new reports](admission-inputs.json) retain exact Wasm hashes and tool versions;
+the [released report](release-history.json) remains unchanged. The same synthetic
+workload, authority checks, exact retries, stop/start, saturated cleanup and
+separate deletion/settlement pass through the new boundaries.
+
+| Observation | Released baseline | Narrow inputs |
+| --- | ---: | ---: |
+| 10 MiB admission/prepare/retry/exposure instructions | 4,116,047¹ | 3,302,052 |
+| Same sequence request bytes | 1,766¹ | 1,355 |
+| Admission at 704 confirmed objects | 5,430,827 | 3,985,302 |
+| Peak retain instructions | 9,197,167 | 6,783,953 |
+| Peak release instructions | 9,196,705 | 6,622,482 |
+| Final allocated Wasm bytes | 4,587,520 | 4,521,984 |
+
+¹ Earlier accounting-build measurement in [admission-history.json](admission-history.json),
+not a remeasurement of the 0.2.1 tag. The 704-object comparison uses the released
+multi-file artifact. Compiler/layout and extra diagnostic calls are included;
+these comparisons do not isolate a pure decoder CPU speedup.
+
+PocketIC 16's [release metadata](https://github.com/dfinity/pocketic/releases/tag/16.0.0)
+pins IC commit `fc21803c3c3a8dd452b3b58b959751c41fecb89c`.
+Its [subnet configuration](https://github.com/dfinity/ic/blob/fc21803c3c3a8dd452b3b58b959751c41fecb89c/rs/config/src/subnet_config.rs)
+sets 5,000 instructions per OS page; its
+[memory tracker](https://github.com/dfinity/ic/blob/fc21803c3c3a8dd452b3b58b959751c41fecb89c/rs/memory_tracker/src/deterministic.rs)
+charges the 16 OS pages in a 64 KiB region on first access and again on first write.
+That explains the 80,000-instruction charge granularity. Observed phase increments
+are consistent with it, but these reports do not count pages or separate all CPU
+and memory charges. Moving the first touch between phases can shift apparent
+workflow cost without changing the workflow. No allocator root cause is proven.
+
+At object 704, 3,889,357 instructions still precede workflow dispatch; narrower
+inputs reduce the overhead but do not eliminate retained-state growth. Production
+sizing must include allocation locality, larger per-object histories, read sessions,
+reply encoding and durable storage. No provider transport/completion, funded
+installation, restore path or production capacity follows from this experiment.
+
+Targeted validation: admission release Wasm, all 16 existing admission PocketIC
+cases (207 seconds), a focused cross-caller check for each substitute endpoint and
+both reference actions, affected strict all-target Clippy, formatting and diff
+checks. Full CI, version mutation, publication and provider effects were not run.
+
+### Reference history without lifecycle copies
+
+Reference requests now compute one private transition instead of cloning the
+complete `BlobLifecycle`. Binding, current reference state and lifetime capacity
+are checked first; the resulting active count must still leave one receipt per
+live reference. Only then are the exact receipt and reference transition published
+synchronously. The plan cannot leave the model or cross an await. Lifecycle errors
+still produce retained failure receipts when capacity permits, while scope,
+request conflicts and capacity rejection mutate neither history. Public API and
+error/retry ordering are unchanged; this is local return-path atomicity, not a
+durable transaction or a recovery mechanism.
+
+The [measurement record](reference-history.json) contains before/after release
+Wasm hashes and counters. Its new single-object workload fills 256 simultaneously
+live reference slots and all 511 receipt slots. It checks capacity observations
+throughout, rejected fresh/unknown operations, stop/start, exact replay at full
+capacity and after settlement, all releases, and separate physical/billing cleanup.
+Operator completion/deletion/settlement are explicitly local substitutes.
+
+| Whole-call observation | Before copying removal | After |
+| --- | ---: | ---: |
+| 256-reference peak retain instructions | 1,085,132 | 1,034,109 |
+| 256-reference peak release instructions | 1,248,789 | 1,195,115 |
+| 256-reference final allocated Wasm bytes | 1,441,792 | 1,441,792 |
+| 704-object peak retain instructions | 6,783,953 | 5,104,779 |
+| 704-object peak release instructions | 6,622,482 | 4,867,114 |
+| 704-object final allocated Wasm bytes | 4,521,984 | 4,521,984 |
+
+The 704-object prior report is in [admission-inputs.json](admission-inputs.json).
+These observations include layout and memory-region charges, so individual phase
+maxima are not uniformly lower: the 256-reference maximum release workflow counter
+increases from 234,824 to 340,459 despite the lower whole-call peak. Removing the
+history copy eliminates a source-level linear allocation/copy operation; it does
+not prove a pure CPU speedup or constant whole-message costs. The latest final
+admission is 3,825,260 instructions, of which 3,729,316 precede workflow dispatch;
+that admission change is not attributed to the reference algorithm. Read-session,
+persistence, reply-encoding and provider costs remain outside these measurements.
+
+A separate pre-optimization experiment replaced only the private probe's default
+heap allocator with [Talc 5.1.1](https://docs.rs/talc/5.1.1/talc/wasm/index.html),
+using its safe `new_wasm_dynamic_allocator()` constructor. The record includes
+configuration, package checksum and Wasm hash. All 17 then-existing admission
+cases passed, but final admission rose from 3,985,302 to 4,148,196 instructions;
+peak retain fell from 6,783,953 to 5,909,854, and final allocated memory rose from
+4,521,984 to 4,653,056 bytes. This mixed result does not justify selecting it.
+The temporary allocator declaration, feature and dependencies were removed.
+The library does not own a global heap allocator; ic-memory's stable allocation
+governance and dependency alignment are unchanged.
+
+Targeted validation passes 15 lifecycle, 33 service and 20 catalog unit cases;
+28 lifecycle binding/catalog/tenant/upload integration cases; all 18 admission
+PocketIC cases (247 seconds); affected strict all-target Clippy, warning-free
+library rustdoc, admission release Wasm, formatting and diff checks.
+`make test-admission-resources` also writes the
+new `.tmp/reference-history.json` report. No full CI, release, provider operation
+or production capacity selection ran.
+
+## Single-slot read resources
+
+The 2026-09-27 [matched read experiment](read-resources.json) keeps the default
+Rust allocator, as requested by the maintainer. `make test-read-resources` builds
+only the authority/source fixtures and runs the readback cases; all per-call
+samples go to `.tmp/read-resources.json`. The archived comparison pins both Wasm
+hashes, Rust 1.98.1, PocketIC 16.0.0 and the existing Candid/serde_bytes versions.
+
+| Full 1 MiB leaf, 12 successive reads | Vec byte decoder | Bulk blob decoder |
+| --- | ---: | ---: |
+| Measured service workflow instructions | 234.4–234.6M | 115.9–116.0M |
+| Candid decode instructions | 122.1M | 3.63M |
+| Manifest verification instructions | 81.1M | 81.1M |
+| Allocated Wasm memory after each read | 5,898,240 bytes | 7,012,352 bytes |
+
+`serde_bytes::ByteBuf` selects Candid's checked `vec nat8` bulk-copy path instead
+of visiting each byte; conversion into the existing reply vector transfers its
+allocation. The wire format, encoded-size check, decoder quotas, hash binding and
+pre/post-await authorization remain unchanged. The higher allocated heap is a
+measured tradeoff, not evidence of higher live-byte requirements or a memory leak;
+this workload shows no growth across repeated reads. No allocator was substituted.
+
+The bounded diagnostic overwrites one volatile observation after each completed
+workflow. Only the configured operator can inspect it; restored owners deny it.
+It is neither durable evidence nor authority to clear a slot. Real PocketIC calls
+cover 3-byte and full-chunk success, corruption, oversized/malformed/wrong-type/
+truncated-encoding replies, transport rejection and interleaved busy/foreign
+callers. A held full-chunk read keeps its one slot without extra source effects.
+Callback traps publish no completed profile and preserve uncertain intent;
+release, revocation, stop/start and forced-restore cases retain their guarantees.
+
+Counters use the IC's call-context counter across awaits, including fixture
+journal saves and IC memory-access charges. They exclude ingress decoding,
+source execution, final response encoding and storing the diagnostic itself.
+Allocated memory is sampled after messages, not peak live memory. Reply-size
+checks limit application decoding, not the IC's earlier response buffering.
+The local source is a substitute, not a deployed Caffeine read transport.
+
+All 48 journey/recovery cases and affected strict all-target Clippy pass. The
+optimized artifacts were restored after the comparison and their hashes match
+those validated by the complete journey suite. Full CI and provider trials did
+not run. This sizes the existing single-slot experiment; it neither selects a
+production read proxy nor justifies multiplying its costs into a concurrency
+limit. Consumer download/integrity placement and production persistence costs
+must be decided before that limit is frozen.
+
+## Consumer root verification
+
+The 2026-09-27 follow-up adds `CaffeineRootVerifier`, binding the expected root,
+length and original metadata at construction while reusing the existing
+fixed-memory tree/raw hasher. It consumes arbitrary bounded frames without a
+leaf manifest or independently trusted raw digest. Only finalization checks the
+root; accepted prefixes are not verified or durable bytes. A matching root is
+not a provider completion or tenant-authority receipt.
+
+Independent published-client vectors cover metadata, chunk boundaries, uneven
+and repeated-leaf trees and 10 MiB content using a fixed 65,537-byte receive frame.
+Native cases reject substituted raw-digest identities, corrupt bodies, metadata
+changes, truncation and excess input. The local `verify_download` example also
+checks successful EOF, including interrupted reads, trailing bytes in a later
+frame and connection failure after the expected final byte. It emits no success
+on those failures and performs no destination write or network request. Its
+unit test is included in ordinary Cargo testing through `test = true`.
+
+Validation passes 20 Caffeine model cases, nine independent-vector integration
+cases, the example transport-boundary case, core all-target strict Clippy, Wasm
+compilation and warning-free rustdoc. The example verifies the independent
+`abc-text` claim/body end to end. Full CI and browser/provider trials did not run.
+The [download direction](../roadmap.md#consumer-download-verification) records
+remaining descriptor provenance, original-metadata retention and browser delivery
+requirements. No allocator, dependency or production endpoint change is included.
+
+## Retained download descriptors
+
+The 2026-09-27 descriptor follow-up retains the first validated metadata set
+alongside each prepared permission's manifest. Root, declared length and leaves
+are still checked before publication; header names/case/values/order are copied
+only on the first successful preparation. Reordered retries preserve that copy.
+Existing per-object header limits and lifetime object counts bound retention;
+no new default, public mutation API, allocator or stable schema was introduced.
+
+`UploadAdmissions::content_descriptor` returns a borrowed view after the same
+service/namespace/tenant checks as discovery. It contains the original request,
+current lifecycle and retained headers, including uncertain/cancelled/settled
+history. Reads grant no reference or publication permission and change no
+accounting. Unknown, foreign and unprepared roots return no descriptor; suspended
+tenants retain inspection. A configured provider locator, authenticated/certified
+consumer publication and serving policy are still required outside this view.
+
+The private IC query applies bounded input decoding and delegates to the same
+owner. Tests reject unrelated actors, controller status, foreign namespace/service
+and oversized arguments; consume an actual descriptor with `CaffeineRootVerifier`;
+and preserve metadata through reordered retries, cancellation, stop/start and
+separate physical deletion/billing settlement. The owner exposes no mutable header
+borrow and copies input strings, so later caller changes cannot rebind it.
+
+[Resource evidence](descriptor-resources.json) pins the final Wasm and records
+four maximal eight-header/1 KiB declarations across two tenants, retained after
+cancellation at full object history. Repeated retries and suspension/stop/start
+keep them readable without growing the 1,245,184-byte allocated heap. The existing
+704-object/four-generation workload ends at 4,587,520 bytes, 64 KiB above the prior
+reference batch. Peak retain/release costs are 5,425,185/5,505,129 instructions;
+final admission measures 3,105,760. This is a sequential-build comparison with IC
+memory-access charges and allocator locality, not isolated CPU attribution.
+Per-object payload bounds do not qualify arbitrary total-memory configurations.
+
+All 36 service model cases and 20 admission PocketIC cases pass, along with
+strict affected all-target Clippy, release admission Wasm and warning-free core
+rustdoc. `make test-admission-resources` now also writes the maximal metadata
+report. No full CI, provider effect, certified response or production recovery
+was exercised. Existing inspection-only and unsupported-upgrade boundaries remain.
+
+The reference-qualified follow-up adds `retained_content_descriptor` using the
+same metadata owner and confirmed lifecycle. Native cases cover authority and
+every object binding, unconfirmed/cancelled content, unknown/released references,
+suspension and separate cleanup states. A consumer cannot borrow another live
+reference. Copied observations remain stale after release; no query reserves a
+reference or writes a receipt. Existing historical descriptors remain readable.
+
+The private bounded adapter's PocketIC case checks actual caller isolation,
+oversized/zero-identity rejection, exact descriptor-to-body verification and two
+overlapping references. Stop/start preserves the remaining reference. After its
+release, replaying the old successful retain receipt still yields no descriptor;
+deletion and settlement do not change that result. All 30 upload model cases and
+four discovery/descriptor PocketIC cases pass, alongside strict affected Clippy
+and release Wasm compilation. These targeted checks do not refresh the preceding
+resource artifact or qualify certified publication, consumer transaction/outbox
+coordination, production recovery or provider behavior.
+
+## Local verified file output
+
+The `verify_download` example now accepts an optional destination. The same
+64 KiB stream that feeds the verifier writes to a temporary file under a private
+staging directory; declared-length limits apply before writes. Clean EOF, final
+root verification, flush and file sync precede `persist_noclobber`. The example
+does not reopen the input or copy a different file after verification. Unix
+staging directory/file permissions exclude group/other access. Only the example
+adds the existing tempfile 3.27.0 dependency; public library dependencies and
+heap allocation remain unchanged.
+
+Seven native example cases pass: output stays absent through the final EOF/error
+read; corrupt/short/excess/late-error input leaves no output or normal staging
+residue; short/interrupted writes complete and write/flush errors reject;
+existing, racing and dangling-symlink targets are preserved. An actual CLI run
+uses the independent `media-10485760` vector, compares the saved file's raw SHA-256
+with the published fixture digest, checks verify-only output, rejects a repeated
+destination, corrupted body and insufficient byte budget, and emits no success
+receipt on rejection. Normal shell-piped input also verifies. Strict core
+all-target Clippy and library Wasm compilation pass; no full CI ran.
+
+The client does not treat the byte count alone as completion. An interrupted
+process can leave staging residue. Publication can
+precede a lost stdout receipt; there is no automatic overwrite, resume or orphan
+cleanup. The caller must control the destination directory, and the parent is
+not synced. Platform behavior follows
+[tempfile's no-clobber persistence contract](https://docs.rs/tempfile/3.27.0/tempfile/struct.NamedTempFile.html#method.persist_noclobber),
+not a portable crash-durable transaction or authenticated browser delivery.
+
+## Client manifest preparation
+
+`CaffeineManifestBuilder` collects completed leaves from the existing streaming
+hasher through a private observer; raw and leaf hashes are each computed once.
+The existing fixed-memory hasher retains no new fields or leaves. Construction
+validates length, bounds `ceil(bytes / 1 MiB)` and reserves the leaf vector before
+accepting body input. Appends share offset/work/length checks before mutation;
+finalization moves the ordered leaves into an immutable manifest without a copy
+or second tree pass. The library adds no dependency or allocator change.
+
+Independent vectors compare every leaf, raw digest and provider root under
+65,537-byte frames, covering exact boundaries, partial/uneven trees, repeated
+leaves, metadata and 10 MiB content. Native cases also cover multiple leaves in
+one append, rejected appends after completed leaves, constructor budgets and
+incomplete finalization. The local `prepare_upload` example shares the service's
+metadata validator, rejecting malformed metadata and resource limits before
+reading its input. EOF, truncation, excess and late read errors are tested.
+
+An actual 10 MiB CLI preparation matches the independent `media-10485760` vector;
+its generated claim verifies and saves the body through `verify_download`, with
+the saved raw digest independently checked. Byte/leaf limits, inconsistent length
+metadata and short/excess input reject without a successful JSON result. A
+PocketIC case supplies the generated leaves to shared admission, which returns
+no retained descriptor before substituted completion. The returned original
+metadata then verifies the independently generated body on the client. No body
+is sent to the canister, and completion remains an explicit fixture substitute.
+
+Targeted checks pass 23 Caffeine and 39 service model cases, ten independent-vector/
+integrity integration cases, nine example cases and five discovery/descriptor
+PocketIC cases, strict affected all-target Clippy and release admission Wasm.
+No full CI, provider call or browser integration ran. File freezing, resumable
+publisher operation identity, authenticated descriptor delivery and deployed
+provider guarantees remain outstanding. Earlier resource measurements retain
+their original artifact identities and are not claims about this build.
+
+## Offline multi-file inventory
+
+`prepare_upload --inventory` reuses the same single-file preparation path. It
+checks the entire input's asset IDs, relative paths, metadata and file/aggregate
+byte/leaf budgets before opening body sources. Each regular source is then
+checked and hashed sequentially, including duplicate content. The report keeps
+every asset mapping while grouping prepared blobs by provider root; metadata
+changes can make identical raw bodies distinct blobs. No report is emitted before
+every source succeeds. Source failures identify their asset and path.
+
+Seven preparation example cases and strict core all-target Clippy pass. Cases
+cover reordered duplicate metadata, distinct metadata roots, all inventory limits,
+overflow, input-size/JSON rejection, duplicate assets, traversal, nonregular files,
+wrong length and leaf/parent symlinks. An actual CLI run with 704 synthetic asset
+entries (2,112 source bytes) produces 352 roots, preserves every mapping, repeats
+deterministically, and emits no report after an aggregate-budget failure or a
+missing final source. This exercises inventory behavior, not media throughput.
+
+The caller must control the unchanged source tree; checks do not prevent a
+concurrent filesystem adversary or freeze source bytes. Totals cover the local
+inventory only: they omit existing service history, references and obligations
+and establish no tenant authority, fresh-upload eligibility, reservation or
+provider price. Core APIs, dependencies and allocator are unchanged. No full CI,
+live service query, upload or consumer-repository change ran for this follow-up.
+
+The optional `--snapshot PARENT_DIRECTORY` follow-up saves the exact buffers
+passed to the hasher in a fresh private directory. It retains one body per root
+and writes the complete inventory last. Duplicate asset mappings remain separate;
+later source replacement cannot change the saved copy. Ordinary failures remove
+only the current attempt, and repeated runs never overwrite earlier snapshots.
+
+Ten preparation example cases and strict core all-target Clippy pass. Added cases
+cover independent-vector saved bytes, source replacement, duplicate mappings,
+Unix permissions, repeat isolation, late source failure cleanup and interrupted,
+short, failed or unflushed writes. An actual 10 MiB CLI snapshot with two asset
+mappings retains one body, matches an independently computed raw SHA-256 digest,
+and passes `verify_download` after the original is deleted. A failed repeat emits
+no success report and preserves the earlier snapshot without staging residue.
+
+Files are synced before keeping the directory, but directory entries are not:
+this is not a portable crash-durable transaction. A crash can leave incomplete
+residue or a completed copy without its stdout receipt. Saved local files remain
+mutable and require reverification before later effects; neither a snapshot nor
+its report supplies authenticated descriptors or resumable operation identity.
+Core APIs, dependencies and allocator remain unchanged. No service/provider call,
+PocketIC rerun, full CI or historical resource-record refresh ran for this change.
+
+## Tenant admission capacity
+
+`UploadAdmissions::admission_capacity` reads maintained reservation, catalog and
+manifest totals in one synchronous observation. It authenticates the exact
+enrolled tenant/service/namespace and reports the tighter tenant/global bounds
+without scanning history or exposing another tenant's records. Byte headroom
+includes pending reservations, physical storage and continuing billing. Lifetime
+object/manifest headroom remains consumed through cancellation and settlement.
+Suspended tenants can inspect, but cannot use headroom for fresh admission.
+
+Targeted validation passes 35 upload model cases (including five new capacity
+cases), three actual IC capacity-query cases, strict all-target Clippy for the
+core/protocol/probe/PocketIC packages, release admission Wasm and warning-free core
+rustdoc. Tests cover scope/input rejection, passive reads, wide arithmetic, shared
+contention, failed/exact retries, separate cleanup obligations, suspension and
+stop/start. No full CI or historical resource measurements were rerun. Provider
+completion/deletion/settlement in the IC cases remain explicit operator substitutes.
+The inventory publisher is not yet connected to this private query; counts reserve
+nothing and do not prove root availability, funded capacity or durable recovery.
+
+The subsequent `blob-fixture-inventory` command connects prepared reports to
+these local queries. Input validation reuses core manifest/metadata checks and
+recomputes totals; it opens no source paths. Bounded sequential queries distinguish
+not-visible content, unfinished operations, live reference demand and retired
+roots. One fresh reference per asset is explicit; reference sizing for newly
+admitted objects is not assessed. Missing content never proves global absence,
+and no result reserves resources or authorizes effects.
+
+Seventeen operator unit cases pass, including eleven inventory cases for explicit
+targets, input tampering/bounds, wide values, reply bindings, inconsistent/missing
+observations and query failures. Two actual executable/PocketIC cases pass through
+absence, admission, completion, duplicate reference pressure, settlement and
+stop/start; repeated reads preserve state and foreign tenants cannot see original
+operations. Completion/cleanup remain operator substitutes. Strict host-tool
+all-target Clippy, formatting and diff checks pass. Existing locked dependencies
+are reused by the unpublished client only. No full CI, provider call, production
+authentication, body reverification or historical resource refresh ran.

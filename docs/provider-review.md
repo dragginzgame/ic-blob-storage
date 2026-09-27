@@ -207,6 +207,31 @@ index, including reverse-order reads and corruption recovery. This is not the
 gateway's wire tree or a source of upload authority. The official source head was
 reconfirmed unchanged for this follow-up; no provider operation was issued.
 
+## Download client follow-up — 2026-09-27
+
+Authenticated read-only GitHub API checks returned official main
+`e5cacdfe5ce55e939edb02980fca800c0c13f421` and Toko development
+`6519b72d2a420564dabaf700fc55f7b8603d9fd3` unchanged. Re-read pinned
+`frontend/dist/StorageClient.js` SHA-256 is
+`6eb7f5b424f02476c9096e4684d8e520121c21b2b2f6f29f3c9a25e0c07cad57`;
+Toko's `frontend/src/lib/storage/storage-client.ts` remains
+`5742c9e31846ae7162fc1bb006013ad33e943be4a8f4d536ab907140f231ea4d`.
+Their direct-URL helpers do not download or verify the response body. Toko's
+comment that the gateway verifies data is a client assertion, not independent
+delivery evidence. No gateway body, account or package-registry refresh ran.
+
+The [W3C SRI draft, 20 March 2026](https://www.w3.org/TR/2026/WD-sri-2-20260320/)
+defines integrity using a content digest and script/link integration, and requires
+CORS for cross-origin verification. It does not interpret Caffeine tree roots or
+automatically cover every image/model loader. Browser execution, buffering and
+consumer CSP still require tests; this standards review is not browser evidence.
+
+The [download direction](roadmap.md#consumer-download-verification) places bulk
+verification in the consumer. Its Rust model and local stdin example use existing
+independent algorithm vectors without inventing a provider HTTP endpoint or
+certification contract. No completion, retention, charging or recovery guarantee
+was closed by this source review.
+
 ## Recovery findings — 2026-09-26
 
 [Source-bound probes and reproduction details](evidence/caffeine-recovery-review.json)

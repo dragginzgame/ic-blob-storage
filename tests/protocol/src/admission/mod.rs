@@ -3,6 +3,8 @@
 use crate::journey::{JourneyManifest, JourneyUsage};
 use candid::{CandidType, Principal};
 use serde::Deserialize;
+pub mod input;
+pub mod planning;
 pub mod release;
 
 /// Fixed local measurement envelopes; none is a production configuration.
@@ -14,6 +16,8 @@ pub enum Workload {
     RetainedHistory,
     /// 704 confirmed objects, retained manifests and four reference generations.
     ReleaseHistory,
+    /// One object with 256 live references and exactly enough release receipts.
+    ReferenceHistory,
 }
 
 /// Explicit test installation; no provider or account authority is supplied.
@@ -83,6 +87,15 @@ pub struct ContentObservation {
     pub state: ContentState,
 }
 
+/// Tenant-only declaration recovered from local state, not certified HTTP data.
+#[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize)]
+pub struct ContentDescriptor {
+    /// Exact original identity and current lifecycle; preparation is not completion.
+    pub content: ContentObservation,
+    /// Original validated name/value pairs, bounded by the installed envelope.
+    pub headers: Vec<(String, String)>,
+}
+
 /// Immutable project instruction, without caller or clock overrides.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
 pub struct Permission {
@@ -125,8 +138,9 @@ pub enum Phase {
     Cancelled,
 }
 
-/// Actual-call controls. Exposure returns no certificate and causes no provider effect.
-#[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize)]
+/// In-process dispatch only; each update has its own bounded wire input.
+/// Exposure returns no certificate and causes no provider effect.
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub enum Command {
     /// Explicit local host facts and reference mutations for capacity measurements.
     /// These controls are provider substitutes, never a production completion API.
@@ -195,6 +209,14 @@ pub struct Observation {
 pub struct ExecutionProfile {
     /// Actual caller of the measured update, including denied calls.
     pub caller: Principal,
+    /// Counter at entry to the custom decoder, after CDK argument collection.
+    pub before_decode: u64,
+    /// Counter after parsing the bounded Candid header/type table.
+    pub after_header: u64,
+    /// Counter after decoding the command value, before trailing arguments.
+    pub after_value: u64,
+    /// Counter after bounded decoding and input-buffer disposal, before dispatch.
+    pub after_decode: u64,
     /// Message instruction count after decoding and before workflow dispatch.
     pub before_work: u64,
     /// Message instruction count after workflow dispatch, before storing this

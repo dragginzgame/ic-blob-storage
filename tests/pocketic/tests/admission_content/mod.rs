@@ -2,6 +2,9 @@
 use super::*;
 use blob_test_protocol::admission::{ContentLookup, ContentObservation, ContentState};
 
+mod descriptor;
+mod planning;
+
 fn query(
     f: &Fixture,
     actor: Principal,

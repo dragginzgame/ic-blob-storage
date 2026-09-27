@@ -1,0 +1,260 @@
+{
+  "date": "2026-09-27",
+  "base_commit": "85967c82902c4730614ca5bd28ec81fea382f28a",
+  "pocket_ic": "16.0.0",
+  "rust": "1.98.1",
+  "candid": "0.10.37",
+  "serde_bytes": "0.11.19",
+  "scope": "Single-slot fixture read through a local source. Call-context counter 1 includes fixture journal saves and excludes ingress decode, source execution, final reply encoding and diagnostic storage. Allocated Wasm memory includes allocator headroom; neither peak live bytes nor production concurrency sizing. Default Rust allocator; no deployed provider calls.",
+  "method": "Same final workload and sources; baseline temporarily replaces ByteBuf decoding with Vec<u8> and raises only the test instruction ceiling. Optimized implementation restored; both Wasm hashes match the artifacts used for all 48 journey/recovery tests. Reports keep first success and full-size fault samples; make test-read-resources writes every sample locally.",
+  "counter_reference": "https://docs.internetcomputer.org/references/ic-interface-spec/canister-interface/",
+  "blob_decoder_reference": "https://docs.rs/candid/0.10.37/src/candid/de.rs.html",
+  "byte_buffer_reference": "https://docs.rs/serde_bytes/0.11.19/serde_bytes/struct.ByteBuf.html",
+  "before": {
+    "authority_wasm_sha256": "fbd59baa4e484fb3d00bc428832eada639016e9560f29c862aff426e4c3a9e5d",
+    "source_wasm_sha256": "0ed0f9a552181dfcfcb439aeef9f1eae7ddbdf07d33d2e42e6facbd23c629d97",
+    "full_chunk": {
+      "reads": 12,
+      "min_workflow_instructions": 234434139,
+      "max_workflow_instructions": 234600476,
+      "min_decode_instructions": 122114441,
+      "max_decode_instructions": 122114665,
+      "verify_instructions": [
+        81058579
+      ],
+      "allocated_wasm_memory_bytes": [
+        5898240
+      ]
+    },
+    "samples": [
+      {
+        "before_call": 12800594,
+        "call_and_callback_entry": 942713,
+        "callback_authorization": 12852472,
+        "case": "abc-text-0",
+        "decode": 17247,
+        "disclosed_bytes": 3,
+        "outcome": "Ok(())",
+        "received_bytes": 13,
+        "verify": 6696,
+        "wasm_memory_bytes": 1507328,
+        "workflow_instructions": 26620486
+      },
+      {
+        "before_call": 12804907,
+        "call_and_callback_entry": 5599582,
+        "callback_authorization": 12855506,
+        "case": "pattern-1048576-0",
+        "decode": 122114659,
+        "disclosed_bytes": 1048576,
+        "outcome": "Ok(())",
+        "received_bytes": 1048588,
+        "verify": 81058579,
+        "wasm_memory_bytes": 5898240,
+        "workflow_instructions": 234434139
+      },
+      {
+        "before_call": 12969545,
+        "call_and_callback_entry": 5599197,
+        "callback_authorization": 12856681,
+        "case": "pattern-1048576-Corrupt",
+        "decode": 122114447,
+        "disclosed_bytes": 0,
+        "outcome": "Err(ContentMismatch)",
+        "received_bytes": 1048588,
+        "verify": 81058636,
+        "wasm_memory_bytes": 5898240,
+        "workflow_instructions": 234599414
+      },
+      {
+        "before_call": 12969384,
+        "call_and_callback_entry": 5599654,
+        "callback_authorization": null,
+        "case": "pattern-1048576-Oversized",
+        "decode": null,
+        "disclosed_bytes": 0,
+        "outcome": "Err(ReplyTooLarge)",
+        "received_bytes": 1048641,
+        "verify": null,
+        "wasm_memory_bytes": 5898240,
+        "workflow_instructions": 31427062
+      },
+      {
+        "before_call": 12967731,
+        "call_and_callback_entry": 941961,
+        "callback_authorization": 12857100,
+        "case": "pattern-1048576-Malformed",
+        "decode": null,
+        "disclosed_bytes": 0,
+        "outcome": "Err(InvalidReply)",
+        "received_bytes": 1,
+        "verify": null,
+        "wasm_memory_bytes": 5898240,
+        "workflow_instructions": 26770068
+      },
+      {
+        "before_call": 12808971,
+        "call_and_callback_entry": 942478,
+        "callback_authorization": 12855156,
+        "case": "pattern-1048576-WrongType",
+        "decode": null,
+        "disclosed_bytes": 0,
+        "outcome": "Err(InvalidReply)",
+        "received_bytes": 12,
+        "verify": null,
+        "wasm_memory_bytes": 5898240,
+        "workflow_instructions": 26631375
+      },
+      {
+        "before_call": 12813475,
+        "call_and_callback_entry": 5597341,
+        "callback_authorization": 12856916,
+        "case": "pattern-1048576-TruncatedEncoding",
+        "decode": null,
+        "disclosed_bytes": 0,
+        "outcome": "Err(InvalidReply)",
+        "received_bytes": 1048587,
+        "verify": null,
+        "wasm_memory_bytes": 5898240,
+        "workflow_instructions": 31294627
+      },
+      {
+        "before_call": 12806947,
+        "call_and_callback_entry": 944162,
+        "callback_authorization": null,
+        "case": "pattern-1048576-Reject",
+        "decode": null,
+        "disclosed_bytes": 0,
+        "outcome": "Err(Transport)",
+        "received_bytes": 0,
+        "verify": null,
+        "wasm_memory_bytes": 5898240,
+        "workflow_instructions": 26608782
+      }
+    ]
+  },
+  "after": {
+    "authority_wasm_sha256": "5f9ea6b0227b52acf93156b2d5843f7844fa68ee575ceb07599e849a030570d2",
+    "source_wasm_sha256": "0ed0f9a552181dfcfcb439aeef9f1eae7ddbdf07d33d2e42e6facbd23c629d97",
+    "full_chunk": {
+      "reads": 12,
+      "min_workflow_instructions": 115882771,
+      "max_workflow_instructions": 116044991,
+      "min_decode_instructions": 3629330,
+      "max_decode_instructions": 3629834,
+      "verify_instructions": [
+        81058579
+      ],
+      "allocated_wasm_memory_bytes": [
+        7012352
+      ]
+    },
+    "samples": [
+      {
+        "before_call": 12728071,
+        "call_and_callback_entry": 942069,
+        "callback_authorization": 12859085,
+        "case": "abc-text-0",
+        "decode": 20875,
+        "disclosed_bytes": 3,
+        "outcome": "Ok(())",
+        "received_bytes": 13,
+        "verify": 6696,
+        "wasm_memory_bytes": 1507328,
+        "workflow_instructions": 26557560
+      },
+      {
+        "before_call": 12732788,
+        "call_and_callback_entry": 5599486,
+        "callback_authorization": 12861494,
+        "case": "pattern-1048576-0",
+        "decode": 3629677,
+        "disclosed_bytes": 1048576,
+        "outcome": "Ok(())",
+        "received_bytes": 1048588,
+        "verify": 81058579,
+        "wasm_memory_bytes": 7012352,
+        "workflow_instructions": 115882771
+      },
+      {
+        "before_call": 12735697,
+        "call_and_callback_entry": 5603743,
+        "callback_authorization": 12860278,
+        "case": "pattern-1048576-Corrupt",
+        "decode": 3629330,
+        "disclosed_bytes": 0,
+        "outcome": "Err(ContentMismatch)",
+        "received_bytes": 1048588,
+        "verify": 81058636,
+        "wasm_memory_bytes": 7012352,
+        "workflow_instructions": 115888501
+      },
+      {
+        "before_call": 12735684,
+        "call_and_callback_entry": 5603849,
+        "callback_authorization": null,
+        "case": "pattern-1048576-Oversized",
+        "decode": null,
+        "disclosed_bytes": 0,
+        "outcome": "Err(ReplyTooLarge)",
+        "received_bytes": 1048641,
+        "verify": null,
+        "wasm_memory_bytes": 7012352,
+        "workflow_instructions": 31200391
+      },
+      {
+        "before_call": 12735684,
+        "call_and_callback_entry": 946515,
+        "callback_authorization": 12859771,
+        "case": "pattern-1048576-Malformed",
+        "decode": null,
+        "disclosed_bytes": 0,
+        "outcome": "Err(InvalidReply)",
+        "received_bytes": 1,
+        "verify": null,
+        "wasm_memory_bytes": 7012352,
+        "workflow_instructions": 26545327
+      },
+      {
+        "before_call": 12736962,
+        "call_and_callback_entry": 941561,
+        "callback_authorization": 12861514,
+        "case": "pattern-1048576-WrongType",
+        "decode": null,
+        "disclosed_bytes": 0,
+        "outcome": "Err(InvalidReply)",
+        "received_bytes": 12,
+        "verify": null,
+        "wasm_memory_bytes": 7012352,
+        "workflow_instructions": 26567636
+      },
+      {
+        "before_call": 12733517,
+        "call_and_callback_entry": 5599996,
+        "callback_authorization": 12863188,
+        "case": "pattern-1048576-TruncatedEncoding",
+        "decode": null,
+        "disclosed_bytes": 0,
+        "outcome": "Err(InvalidReply)",
+        "received_bytes": 1048587,
+        "verify": null,
+        "wasm_memory_bytes": 7012352,
+        "workflow_instructions": 31226923
+      },
+      {
+        "before_call": 12735604,
+        "call_and_callback_entry": 946958,
+        "callback_authorization": null,
+        "case": "pattern-1048576-Reject",
+        "decode": null,
+        "disclosed_bytes": 0,
+        "outcome": "Err(Transport)",
+        "received_bytes": 0,
+        "verify": null,
+        "wasm_memory_bytes": 7012352,
+        "workflow_instructions": 26543167
+      }
+    ]
+  },
+  "dependency_version_note": "Corrected the recorded Candid version from the workspace minimum (0.10.36) to the actual locked dependency (0.10.37), already present at the recorded base commit. Measurements and artifact hashes are unchanged."
+}

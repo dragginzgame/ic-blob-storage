@@ -32,7 +32,15 @@ pub enum UploadMetadataError {
     LengthMismatch,
 }
 
-pub(super) fn validate(
+/// Check the service's original upload metadata before preparation or admission.
+///
+/// Raw entry/framed-byte budgets precede parsing. Requires one canonical
+/// Content-Length equal to `bytes`, unique ASCII-token names ignoring case and
+/// values without controls, line separators or surrounding whitespace. No input
+/// is rewritten. This validates a declaration, not MIME safety or stored length.
+/// # Errors
+/// Returns the first budget, syntax, uniqueness or declared-length rejection.
+pub fn validate_upload_metadata(
     headers: &[CaffeineHeader<'_>],
     bytes: u64,
     max_headers: usize,
