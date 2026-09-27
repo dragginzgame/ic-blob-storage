@@ -2,6 +2,38 @@
 
 ## [Unreleased]
 
+## [0.2.6]
+
+### Added
+
+- Shared guarded funding dispatch now owns first-attempt admission, durable
+  marking, post-write platform liquidity checks, one canonical unbounded call and
+  callback settlement. Host observations are acquired synchronously on polling;
+  missing holds refuse without mutation. Liquidity refusal records a positively
+  unsent call, while callback failure preserves uncertainty after remote acceptance.
+  PocketIC exercises this complete handler against the labelled local Cashier
+  substitute, including malformed replies, delayed replies with duplicate refusal,
+  and write traps. Production evidence acquisition and deployed-provider
+  qualification remain open.
+- Shared first-attempt admission binds fresh host observations to the complete
+  retained request. It recognises that request's own reservation without charging
+  it twice or requiring another history slot, while preserving older acceptance,
+  external uncertainty and restore fences. Only an exact unattempted intent can
+  receive its first durable marker; uncertain and terminal intents cannot retry.
+  Blocked calls preserve storage and reservations. Native and PocketIC coverage
+  exercises full history, identity exclusion, missing evidence and restoration.
+  Marking sends no call; qualified host evidence and post-write platform liquidity
+  checks remain required when composing production dispatch.
+- Shared funding preparation checks exact scope and identity, current journal
+  obligations, history capacity and the restore fence alongside independently
+  supplied host evidence. Unknown provider qualification, recovery, spendability
+  or complete account activity blocks reservation; external clearance cannot
+  override local liabilities. The update re-reads current state synchronously,
+  accepts no saved preview and leaves blocked requests unchanged. Native and
+  PocketIC coverage includes changed state, scope/caller isolation, full history
+  and fenced restoration. Host evidence acquisition and production dispatch
+  remain separate requirements; preparation sends no provider call.
+
 ## [0.2.5] - 2026-09-27
 
 ### Added

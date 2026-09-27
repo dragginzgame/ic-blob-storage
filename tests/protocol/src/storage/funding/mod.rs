@@ -1,4 +1,5 @@
 //! Local funding bookkeeping and explicitly labelled substitute transport.
+pub mod admission;
 pub mod history;
 pub mod outcome;
 pub mod summary;

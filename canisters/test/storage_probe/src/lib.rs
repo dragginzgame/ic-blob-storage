@@ -1,4 +1,4 @@
-//! Local IC evidence for the durable upload owner; no provider effects.
+//! Local IC evidence for durable service components and a Cashier substitute.
 #![expect(
     clippy::needless_pass_by_value,
     reason = "Candid endpoints own decoded inputs; the macro duplicates function-level expectations"
@@ -180,6 +180,13 @@ async fn fixture_funding_transport(
     workflow::funding_transport(context(), input).await
 }
 
+#[ic_cdk::update(decode_with = "ops::decode")]
+async fn fixture_guarded_funding_dispatch(
+    input: blob_test_protocol::storage::funding::transport::DispatchInput,
+) -> Result<blob_test_protocol::storage::funding::transport::DispatchResult, Failure> {
+    workflow::funding::dispatch::run(context(), input).await
+}
+
 #[ic_cdk::query(decode_with = "ops::decode")]
 fn funding_outcome(
     input: blob_test_protocol::storage::funding::Intent,
@@ -192,4 +199,31 @@ fn funding_summary(
     input: blob_test_protocol::storage::funding::history::Scope,
 ) -> Result<blob_test_protocol::storage::funding::summary::Summary, Failure> {
     workflow::funding_summary(context(), input)
+}
+#[ic_cdk::query(decode_with = "ops::decode")]
+fn funding_preparation(
+    input: blob_test_protocol::storage::funding::Intent,
+) -> Result<blob_test_protocol::storage::funding::admission::View, Failure> {
+    workflow::funding::inspect(context(), input)
+}
+
+#[ic_cdk::update(decode_with = "ops::decode")]
+fn prepare_funding(
+    input: blob_test_protocol::storage::funding::Intent,
+) -> Result<blob_test_protocol::storage::funding::admission::Preparation, Failure> {
+    workflow::funding::prepare(context(), input)
+}
+
+#[ic_cdk::query(decode_with = "ops::decode")]
+fn funding_attempt(
+    input: blob_test_protocol::storage::funding::Intent,
+) -> Result<blob_test_protocol::storage::funding::admission::View, Failure> {
+    workflow::funding::inspect_attempt(context(), input)
+}
+
+#[ic_cdk::update(decode_with = "ops::decode")]
+fn mark_funding_attempt(
+    input: blob_test_protocol::storage::funding::Intent,
+) -> Result<blob_test_protocol::storage::funding::admission::Attempt, Failure> {
+    workflow::funding::mark_attempt(context(), input)
 }

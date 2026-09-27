@@ -50,3 +50,44 @@ pub struct Substitute {
     /// Labelled cycle acceptance/reply behavior from the existing test receiver.
     pub behavior: FundingRequest,
 }
+
+/// Fixed host-evidence scenarios for the labelled guarded-dispatch experiment.
+/// These choices are not accepted by any production adapter.
+#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+pub enum EvidenceScenario {
+    /// Synthetic complete test facts; no deployed-provider qualification implied.
+    Complete,
+    /// Every external fact, including liquidity holds, remains unknown.
+    Unknown,
+    /// First-attempt facts supplied, but complete liquidity holds absent.
+    MissingHolds,
+}
+/// Local experiment control; no arbitrary provider method or evidence payload.
+#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+pub struct DispatchInput {
+    /// Exact reserved intent.
+    pub intent: Intent,
+    /// Additional operating slack for post-write platform liquidity.
+    pub operating_reserve: u128,
+    /// Other fixture liabilities, excluding this exact offer.
+    pub other_liabilities: u128,
+    /// Explicit labelled substitute observations.
+    pub evidence: EvidenceScenario,
+    /// First-marker write fault to verify rollback before any remote effect.
+    pub attempt_fault: Option<WriteFault>,
+    /// Callback-only storage fault; never production input.
+    pub callback_fault: Option<WriteFault>,
+}
+/// Shared dispatcher result, after durable settlement or refusal before mutation.
+#[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize)]
+pub enum DispatchResult {
+    /// First-attempt blockers and independent unknown liquidity holds.
+    Blocked {
+        /// Current journal and host-evidence blockers.
+        blockers: Vec<super::admission::Blocker>,
+        /// No complete host liquidity holds were supplied.
+        holds_unknown: bool,
+    },
+    /// Call observation already committed with journal accounting.
+    Settled(Observation),
+}

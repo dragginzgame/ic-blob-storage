@@ -71,7 +71,10 @@ pub(crate) fn complete(
     });
     TRAP_WRITE.set(None);
     result.map_err(failure)?;
-    Ok(Observation {
+    Ok(present(call, call_cost))
+}
+pub(crate) fn present(call: CashierTopUpObservation, call_cost: u128) -> Observation {
+    Observation {
         refunded: call.transfer().refunded(),
         accepted: call
             .transfer()
@@ -79,7 +82,7 @@ pub(crate) fn complete(
             .expect("completed local transport"),
         outcome: outcome(call.status()),
         call_cost,
-    })
+    }
 }
 pub(super) fn outcome(status: CashierTopUpStatus) -> FundingOutcome {
     match status {

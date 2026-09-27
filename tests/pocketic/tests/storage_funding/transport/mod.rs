@@ -1,5 +1,6 @@
 //! Actual IC transport/refunds through the shared journal and a labelled substitute.
 use super::*;
+mod dispatch;
 use blob_test_protocol::{
     funding::{
         FundingFailure, FundingOutcome, FundingProviderErrorView, FundingReceiptRecord,

@@ -817,6 +817,56 @@ journal only; other installations, linked payers and direct provider-account
 activity require independently established completeness. Zero local obligations
 neither release the restore fence nor establish payment authority.
 
+Shared `workflow::funding` adds guarded preparation above the low-level journal
+bookkeeping API. Inspection authenticates the operator and exact scope/request,
+then assesses current local obligations, identity, capacity and allocation against
+separately scoped host evidence. Provider qualification, recovery, spendability
+and complete external account activity remain independent requirements. Local
+clearance cannot fill missing external evidence; external clearance cannot erase
+local obligations or release the actual restore fence.
+`prepare_new` re-reads these local facts and reserves synchronously without an
+await. Blocked requests do not mutate storage, and the update accepts no saved
+preview as authority. Host observations are ordinary trusted integration values,
+not authenticated proof objects: the host must establish their scope, completeness
+and freshness in the same execution, never accept them from ingress. The probe
+deliberately reports unknown host evidence and cannot qualify itself through a
+request. This handler only prepares an intent; it neither dispatches nor grants
+later payment authority. Dispatch still needs current effect and liquidity checks.
+
+`workflow::funding::attempt` inspects and marks the exact existing reservation.
+Its host evidence binds every intent field, including the operation, offered
+amount and optional target. Other-activity observations exclude only that exact
+unattempted intent; available-for-offer funds include its still-unsent attachment
+and retain every other liability. The service does not add a reservation back to
+an arbitrary balance. Prepared state, the last retained identity and its complete
+hold must agree. Earlier accepted amounts, external unknowns and the actual fence
+independently block marking. Full history and exhausted unreserved allocation do
+not charge this already-reserved intent again. Uncertain and terminal states
+always reject another attempt, including fully refunded or proven-unsent results.
+The synchronous update re-reads state rather than accepting an earlier inspection.
+It either leaves storage unchanged or persists the first uncertainty marker and
+returns the canonical request. This is not dispatch: the host must construct the
+call after these writes, assess actual liquid cycles, call cost and complete holds,
+then dispatch without an intervening await. Dropping the result does not prove an
+unsent effect or confer retry authority.
+
+`workflow::funding::dispatch::dispatch` now owns this composition. The host provides
+synchronous `FundingJournalAccess` to the same installed owner, releasing its borrow
+before returning. After authenticated exact request lookup and an actual running
+service check, the handler invokes the host's observation closure once on polling.
+Unknown liquidity holds remain an independent blocker even when first-attempt
+evidence is otherwise complete. On admission, marking and all stable writes precede
+the platform liquidity observation. The handler either consumes the unpolled call
+as positively unsent or executes the canonical unbounded request once. It captures
+and records that call's refund and structured outcome against the original intent
+before another await. No pending permit or callback identity is supplied by ingress.
+Callback write traps retain the full uncertain offer while remote acceptance can
+survive; they grant no retry authority. Result settlement refers to local transport
+accounting, not independent provider credit. The local probe supplies explicitly
+synthetic host observations against a Cashier substitute. Qualified production
+host evidence acquisition remains open; this handler creates no automatic payment
+endpoint, timer or lifecycle ownership.
+
 Operator `outcome` inspection works while fenced and supplies validated transfer
 facts alongside the independent response. The probe workflow applies shared
 reconciliation policy to that transfer alone. Reported success never clears required
@@ -824,7 +874,7 @@ credit evidence; missing transport retains the full offered amount as potentiall
 spent. The v1 record schema is replaced directly, without migration or dual
 readers; cross-release transitions remain reinstall-only. Production provider
 authentication, independent credit reconciliation, account-wide
-uncredited activity, spendability and payment admission remain separate work before
+uncredited activity, spendability and dispatch admission remain separate work before
 a production call can use this journal. Local simulated transfers do not qualify
 deployed Cashier behavior or authorize a paid trial.
 

@@ -2,19 +2,18 @@
 
 Date: 2026-09-27
 
-## Active work — after 0.2.4
+## Active work — after 0.2.5
 
-The maintainer confirmed **0.2.4 is pushed**. Cargo and the release receipt are
-0.2.4. Local main, origin/main and v0.2.4 resolve to
-`909c5d9c6aed1c522c172fe742b081e419d39364`, from validated source
-`14e5629130fb8a77321c4df29cf6d01fdb1b0243`. The receipt records the
+The maintainer confirmed **0.2.5 is pushed**. Cargo and the release receipt are
+0.2.5. Local main, origin/main and v0.2.5 resolve to
+`d24de5af6596de15a5835bb7cf0478d73eff9dfe`, from validated source
+`5c901c1f924ebea99515b60cdea91a1b7f161c08`. The receipt records the
 `release-verify` gate; registry publication was not independently queried.
-The maintainer named **0.2.5** as the current draft. Its undated changelog contains
-funding discovery, shared Cashier transport, durable outcomes, scoped summaries
-and the prior test-performance work;
-Unreleased is empty. Existing edits were preserved. No version mutation, commit,
-publication, deployment or deployed-provider effect ran here; transfers below
-use simulated cycles between local PocketIC canisters.
+The maintainer selected **0.2.6** as the release target. Its undated changelog
+contains shared funding preparation, first-attempt admission and guarded dispatch;
+Unreleased is empty. Cargo and the release receipt remain 0.2.5. No version
+mutation, commit, publication, deployment or deployed-provider effect ran here;
+transfers below use simulated cycles between local PocketIC canisters.
 
 Follow the [0.2 delivery plan](../roadmap.md). Its goal remains a usable
 Caffeine-backed service through shared durable handlers, both adapters and an
@@ -27,7 +26,88 @@ operator client. Library publication does not qualify the service or Canic remov
 | M3 — Caffeine and operator integration | Not implemented | Qualified provider transport, completion/economics and production client |
 | M4 — managed parity and acceptance | Not implemented | Same journey through Canic adapter, complete replacement evidence and handoff |
 
-## Current focus — scoped funding summaries
+## Current focus — shared guarded funding dispatch
+
+`workflow::funding::inspect_preparation` combines authenticated current journal
+facts with separately scoped trusted host observations. Local obligations, the
+actual restore fence, stale/retained identity, full lifetime history and allocation
+reserve remain independent blockers alongside provider qualification, host recovery,
+spendability and complete external account activity. Neither local nor external
+clearance can stand in for the other. `prepare_new` re-reads current state and
+reserves the exact offer synchronously; it accepts no previous preview, performs
+no provider call and leaves blocked requests unchanged.
+
+Host observations are plain integration values, not authenticated proof objects.
+The integrating host still must establish their scope, freshness and completeness
+in the same execution. They must never come from ingress or a cached preview.
+The unpublished IC probe supplies unknown host observations, exposing only the
+exact proposed intent at its boundary; operator authority cannot fill those gaps.
+Its separately labelled raw transport/bookkeeping controls remain test fixtures.
+
+`workflow::funding::attempt` now separately inspects and marks an exact existing
+reservation. Host evidence binds every intent field and explicitly excludes only
+that unattempted request from other activity and liability holds. The handler
+requires Prepared state, the final retained identity and its exact complete hold.
+It does not charge the offer twice or demand another history slot, so the final
+slot can still be attempted. Older accepted amounts, unknown host facts and the
+actual restore fence independently block marking. Uncertain and terminal attempts
+cannot retry, including fully refunded or proven-unsent outcomes. Blocked updates
+leave the original reservation and all storage unchanged.
+
+Marking returns the canonical request after persisting uncertainty; it sends no
+call. The host must establish current qualified observations, then compose marking,
+call construction, post-write platform liquidity/holds checks and dispatch in the
+same message. A dropped result or earlier preview confers no retry authority.
+The IC probe supplies unknown observations for its preparation and marking
+endpoints; those endpoints accept no evidence flags.
+
+`workflow::funding::dispatch::dispatch` now composes guarded marking with the
+shared canonical transport and durable callback settlement. Hosts implement
+synchronous `FundingJournalAccess`, releasing the borrow before any await. After
+authenticated exact request lookup and actual service binding, the handler invokes
+the host observation closure on polling. Missing complete liquidity holds block
+independently without mutation. After the marker's writes, actual platform liquidity
+and call cost determine whether to execute once or consume the unpolled call as
+positively unsent. The original intent and execution remain captured for settlement;
+refund capture and durable outcome recording precede any further await.
+
+The separately labelled `fixture_guarded_funding_dispatch` endpoint exercises this
+shared handler with fixed synthetic host-evidence scenarios and a local Cashier
+substitute. It is not a production endpoint or provider qualification. Tests prove
+that pre-dispatch write traps send nothing and preserve Prepared, while callback
+write traps retain Uncertain/full accounting after remote acceptance survives.
+Missing holds leave stable memory unchanged; malformed replies retain independent
+acceptance, liquidity refusals settle as unsent, and later distinct intents require
+clear local obligations. A delayed real reply also leaves the journal readable
+with its full reservation charged, rejects a concurrent duplicate and settles the
+original exact request. Repeated and restored dispatches remain blocked.
+
+All 35 targeted native funding cases and nine admission-policy cases pass. All
+33 storage PocketIC cases pass in 48.13 seconds, including unchanged-state refusal,
+caller/scope isolation, retained/conflicting identities, capacity and restoration.
+The additional delayed-callback concurrency case passes separately in 1.93 seconds.
+Native coverage also proves allowed reservation and first marking with explicit
+test evidence, exact exclusion binding, full-history use without double charging,
+older acceptance blocking and changed-state refusal after an earlier preview.
+Affected strict all-target Clippy, both release Wasms and warning-free core rustdoc
+pass, as do formatting and diff checks. No stable schema, memory grant, allocator,
+dependency or package version changed. No full CI, resource benchmark refresh, live provider call or release
+action ran; the separate funding fixture suite remains prior evidence.
+
+This is a coherent additive 0.2.6 library release point. No released API or stable
+schema is removed or changed. The maintainer must commit the implementation and
+named draft, then run the normal release flow from clean main; its full
+`release-verify` gate remains required. The readiness review did not rerun full CI
+or create a release receipt. Publication does not qualify production funding.
+
+Next, establish qualified production host evidence acquisition and account-activity
+coverage for the shared dispatcher. Synthetic fixture observations must not be
+copied into a production adapter. The local call sequence is implemented; it cannot
+establish complete external activity or verified provider credit by itself.
+Independent credit evidence, provider qualification, other provider intents, read
+sessions, both adapters and operational recovery remain open.
+
+## Scoped funding summaries — included in 0.2.5
 
 `StableFundingJournal::summary` now checks explicit service/Cashier/account/namespace
 and operator authority, including empty journals, then reads maintained accounting

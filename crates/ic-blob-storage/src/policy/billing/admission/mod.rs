@@ -3,7 +3,9 @@
 //! This policy neither acquires a lock nor persists an intent. A positive result
 //! is not permission to call a provider, resume an attempt or repeat a payment.
 
+pub mod attempt;
 pub mod evidence;
+pub mod journal;
 
 use std::num::NonZeroU128;
 

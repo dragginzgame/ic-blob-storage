@@ -67,6 +67,15 @@ Structured Cashier outcomes now persist with their transport accounting; exact
 operator lookup keeps reported balances separate from conservative reconciliation.
 Scoped summaries now expose maintained local funding totals without history scans;
 later refunds cannot clear older uncredited acceptance or the restore fence.
+Shared funding preparation now combines these local constraints with separately
+scoped host observations, retaining every missing-evidence blocker. Updates
+re-read current state before synchronous reservation; previews grant no authority.
+Shared first-attempt admission now binds host observations to the exact retained
+request, recognising its own reservation without hiding older acceptance or
+unknown external activity. It marks once; uncertain/terminal attempts cannot retry.
+Shared guarded dispatch now composes marking, actual post-write liquidity, one
+canonical call and durable callback settlement, with local IC fault evidence.
+Production host evidence acquisition and provider qualification remain open.
 Next, establish complete account activity and credit evidence, then complete other provider
 intents, read sessions and operational lifecycle. Gateway callback
 authority and deployed-provider semantics remain separate qualification work.

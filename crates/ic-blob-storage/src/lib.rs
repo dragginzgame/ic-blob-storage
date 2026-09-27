@@ -1,8 +1,9 @@
 //! Independent blob-storage service library for Internet Computer canisters.
 //!
 //! Content identities, pure policy, transient lifecycle models and bounded
-//! Caffeine reply decoders are available. Storage workflows,
-//! provider effects, canister endpoints, and lifecycle hooks are not implemented.
+//! Caffeine reply decoders, durable journals and explicit Cashier transport are
+//! available. Shared funding preparation composes journal facts with host evidence;
+//! production service qualification and complete adapters remain unfinished.
 //!
 //! The intended service owns tenant authorization, content references, quotas,
 //! provider effects, billing, retention, and deletion. Standalone and managed
@@ -12,6 +13,7 @@
 pub mod model;
 pub mod ops;
 pub mod policy;
+pub mod workflow;
 
 /// Shared allocation governance and its exact stable-structures substrate.
 ///

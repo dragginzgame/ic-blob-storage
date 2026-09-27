@@ -1,4 +1,6 @@
 use super::*;
+mod admission;
+mod attempt;
 mod history;
 mod outcome;
 mod summary;

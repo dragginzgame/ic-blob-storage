@@ -1,4 +1,6 @@
 //! Local funding bookkeeping and shared transport against a labelled substitute.
+pub(crate) mod admission;
+pub(crate) mod dispatch;
 pub(crate) mod history;
 pub(crate) mod outcome;
 pub(crate) mod summary;
@@ -44,7 +46,7 @@ pub(super) fn initialize(
     }
     .unwrap()
 }
-fn intent(input: Intent) -> Result<FundingIntent, Failure> {
+pub(crate) fn intent(input: Intent) -> Result<FundingIntent, Failure> {
     Ok(FundingIntent {
         service: input.service,
         cashier: input.cashier,
@@ -58,7 +60,7 @@ fn intent(input: Intent) -> Result<FundingIntent, Failure> {
             .transpose()?,
     })
 }
-fn failure(error: FundingJournalError) -> Failure {
+pub(crate) fn failure(error: FundingJournalError) -> Failure {
     use ic_blob_storage::model::billing::{
         allocation::FundingAllocationError, journal::FundingIntentError,
     };

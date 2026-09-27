@@ -20,6 +20,10 @@ use candid::Principal;
 use ic_cdk::call::{Call, CallFailed};
 use std::num::NonZeroU128;
 
+pub(crate) fn running_service() -> Principal {
+    ic_cdk::api::canister_self()
+}
+
 /// One owned, unpolled call; constructing or dropping it sends nothing.
 /// Never retain its liquidity observation across an await or treat it as permission.
 #[must_use]

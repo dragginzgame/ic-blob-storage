@@ -1,4 +1,5 @@
 //! Delegate to shared-owner operations without a second upload workflow.
+pub(crate) mod funding;
 use crate::ops;
 use blob_test_protocol::{
     admission::{

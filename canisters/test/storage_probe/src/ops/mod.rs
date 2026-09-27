@@ -38,7 +38,7 @@ use std::{
     num::NonZeroU64,
 };
 
-struct ProbeMemory {
+pub(crate) struct ProbeMemory {
     memory: RuntimeMemory<DefaultMemoryImpl>,
     fault: Option<WriteFault>,
 }

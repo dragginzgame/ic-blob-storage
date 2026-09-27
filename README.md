@@ -69,8 +69,23 @@ reply with transport accounting; `outcome` reads it with validated transfer fact
 for the workflow's reconciliation policy, including while fenced. `summary` reads
 maintained totals and history capacity without scanning intents; older accepted
 amounts remain unresolved after newer refunds. Its scope is the local journal.
-Production payment admission, complete account
-activity and provider-credit reconciliation remain separate requirements.
+Shared `workflow::funding::inspect_preparation` reports local constraints alongside
+independent host evidence. `prepare_new` re-reads current state before reserving
+the exact offer synchronously; a saved preview cannot authorize that mutation.
+Missing evidence and local obligations independently block preparation. Integrating
+hosts must still establish current, complete account activity and spendability,
+qualify the provider and reconcile credit. Preparation sends no provider call;
+production dispatch requires its own current checks. Shared
+`workflow::funding::attempt::mark_first_attempt` checks the exact existing
+reservation with fresh host observations before marking it uncertain. It does not
+charge that reservation twice, allow repeated attempts or clear older acceptance.
+`workflow::funding::dispatch::dispatch` composes that check with post-write platform
+liquidity, one explicit Cashier call and durable callback settlement. Missing host
+holds block before mutation; liquidity refusal records a positively unsent call.
+The host supplies synchronous journal access and current qualified observations.
+PocketIC exercises this composition with synthetic host facts and a local Cashier
+substitute; deployed-provider qualification and production evidence acquisition
+remain open.
 The service uses bounded manifest authorization for direct browser-to-Caffeine
 upload. No file chunks or whole-file raw digest are required by service admission.
 Manifest consistency, possible exposure and independently confirmed provider
