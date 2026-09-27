@@ -1,6 +1,7 @@
 //! Bounded fixture journals and single platform effects for a local-only experiment.
 
 pub(crate) mod liquidity;
+pub(crate) mod lookup;
 pub(crate) mod preview;
 pub(crate) mod status;
 mod storage;
@@ -9,8 +10,9 @@ use std::{cell::RefCell, num::NonZeroUsize};
 
 use crate::model::FundingJournalRecord;
 use blob_test_protocol::funding::{
-    FundingAttemptRecord, FundingFailure, FundingObservation, FundingOutcome, FundingReceiptRecord,
-    FundingReconciliationView, FundingReplyMode, FundingRequest,
+    FundingAttemptRecord, FundingFailure, FundingObservation, FundingOutcome,
+    FundingProviderErrorView, FundingReceiptRecord, FundingReconciliationView, FundingReplyMode,
+    FundingRequest,
 };
 use candid::Principal;
 use ic_blob_storage::model::billing::transfer::FundingTransfer;
@@ -156,10 +158,17 @@ fn classify(bytes: &[u8]) -> FundingOutcome {
     };
     match decode_top_up_reply(bytes, limits) {
         Ok(TopUpReply::ReportedSuccess { .. }) => FundingOutcome::ReportedSuccess,
-        Ok(TopUpReply::ProviderFailure(TopUpProviderError::InternalError)) => {
-            FundingOutcome::ProviderError
-        }
-        _ => FundingOutcome::InvalidReply,
+        Ok(TopUpReply::ProviderFailure(error)) => FundingOutcome::ProviderError(match error {
+            TopUpProviderError::NotAuthorized(principal) => {
+                FundingProviderErrorView::NotAuthorized(principal)
+            }
+            TopUpProviderError::AccountBalanceOverflow => {
+                FundingProviderErrorView::AccountBalanceOverflow
+            }
+            TopUpProviderError::InternalError => FundingProviderErrorView::InternalError,
+            TopUpProviderError::TopUpWithoutCycles => FundingProviderErrorView::TopUpWithoutCycles,
+        }),
+        Err(_) => FundingOutcome::InvalidReply,
     }
 }
 
@@ -201,8 +210,23 @@ pub(crate) fn reply(mode: FundingReplyMode) {
         FundingReplyMode::Success | FundingReplyMode::DelayedSuccess => include_str!(
             "../../../../../crates/ic-blob-storage/tests/fixtures/caffeine-top-up/success.hex"
         ),
-        FundingReplyMode::ProviderError => include_str!(
+        FundingReplyMode::InternalError => include_str!(
             "../../../../../crates/ic-blob-storage/tests/fixtures/caffeine-top-up/internal.hex"
+        ),
+        FundingReplyMode::NotAuthorized => include_str!(
+            "../../../../../crates/ic-blob-storage/tests/fixtures/caffeine-top-up/unauthorized.hex"
+        ),
+        FundingReplyMode::AccountBalanceOverflow => include_str!(
+            "../../../../../crates/ic-blob-storage/tests/fixtures/caffeine-top-up/overflow.hex"
+        ),
+        FundingReplyMode::TopUpWithoutCycles => include_str!(
+            "../../../../../crates/ic-blob-storage/tests/fixtures/caffeine-top-up/without-cycles.hex"
+        ),
+        FundingReplyMode::LedgerReport => include_str!(
+            "../../../../../crates/ic-blob-storage/tests/fixtures/caffeine-ledger/credit.hex"
+        ),
+        FundingReplyMode::UnknownError => include_str!(
+            "../../../../../crates/ic-blob-storage/tests/fixtures/caffeine-top-up/unknown-error.hex"
         ),
         FundingReplyMode::Malformed => {
             ic_cdk::api::msg_reply(b"not candid");

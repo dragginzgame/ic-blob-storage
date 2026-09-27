@@ -54,11 +54,7 @@ pub(super) fn funding(status: &FundingOperatorStatusView) -> Value {
             "id":attempt.id.to_string(), "offered":attempt.offered.to_string(),
             "refunded":amount(attempt.refunded), "transport_accepted":amount(attempt.transport_accepted),
             "outcome":attempt.outcome, "provider_credit":amount(attempt.provider_credit),
-            "reconciliation":match attempt.reconciliation {
-                FundingReconciliationView::NoTransfer => json!({"kind":"NoTransfer"}),
-                FundingReconciliationView::CreditRequired(value) => json!({"kind":"CreditRequired", "cycles":value.to_string()}),
-                FundingReconciliationView::TransferUnknown(value) => json!({"kind":"TransferUnknown", "cycles":value.to_string()}),
-            },
+            "reconciliation":reconciliation(attempt.reconciliation),
         })).collect::<Vec<_>>(),
         "receipts":status.receipts.iter().map(|receipt| json!({
             "id":receipt.id.to_string(), "available":receipt.available.to_string(),
@@ -66,6 +62,18 @@ pub(super) fn funding(status: &FundingOperatorStatusView) -> Value {
         })).collect::<Vec<_>>(),
         "blockers":status.blockers, "warnings":status.warnings,
     })
+}
+
+pub(in crate::operator) fn reconciliation(value: FundingReconciliationView) -> Value {
+    match value {
+        FundingReconciliationView::NoTransfer => json!({"kind":"NoTransfer"}),
+        FundingReconciliationView::CreditRequired(cycles) => {
+            json!({"kind":"CreditRequired", "cycles":cycles.to_string()})
+        }
+        FundingReconciliationView::TransferUnknown(cycles) => {
+            json!({"kind":"TransferUnknown", "cycles":cycles.to_string()})
+        }
+    }
 }
 
 pub(in crate::operator) fn budget(

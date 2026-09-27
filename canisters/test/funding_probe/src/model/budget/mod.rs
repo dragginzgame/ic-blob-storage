@@ -1,7 +1,9 @@
-//! Bounded local attachment accounting derived from retained exact attempts.
-use super::{FundingAttemptRecord, FundingOutcome, JournalFailure, checked_transfer};
+//! Bounded fixture configuration projected through shared attachment accounting.
+use super::{FundingAttemptRecord, JournalFailure, checked_transfer};
 use candid::CandidType;
+use ic_blob_storage::model::billing::allocation::FundingAllocation;
 use serde::Deserialize;
+use std::num::{NonZeroU128, NonZeroUsize};
 
 #[derive(CandidType, Deserialize)]
 pub(crate) struct FundingBudgetRecord {
@@ -38,15 +40,26 @@ impl FundingBudgetRecord {
         operating_reserve: u128,
         other_liabilities: u128,
     ) -> Result<Self, JournalFailure> {
-        if reserve == 0 || allocated < reserve || operating_reserve == 0 {
+        if operating_reserve == 0 {
             return Err(JournalFailure::Budget);
         }
-        Ok(Self {
+        let value = Self {
             allocated,
             reserve,
             operating_reserve,
             other_liabilities,
-        })
+        };
+        value.allocation()?;
+        Ok(value)
+    }
+
+    fn allocation(&self) -> Result<FundingAllocation, JournalFailure> {
+        FundingAllocation::new(
+            self.allocated,
+            NonZeroU128::new(self.reserve).ok_or(JournalFailure::Budget)?,
+            NonZeroUsize::new(super::MAX_ATTEMPTS).expect("positive fixture capacity"),
+        )
+        .map_err(|_| JournalFailure::Budget)
     }
 
     pub fn snapshot(
@@ -56,68 +69,34 @@ impl FundingBudgetRecord {
         if attempts.len() > super::MAX_ATTEMPTS {
             return Err(JournalFailure::Capacity);
         }
-        Self::new(
-            self.allocated,
-            self.reserve,
-            self.operating_reserve,
-            self.other_liabilities,
-        )?;
-        let mut view = FundingBudgetSnapshot {
+        if self.operating_reserve == 0 {
+            return Err(JournalFailure::Budget);
+        }
+        let transfers = attempts
+            .iter()
+            .map(checked_transfer)
+            .collect::<Result<Vec<_>, _>>()?;
+        let view = self
+            .allocation()?
+            .reconstruct(&transfers)
+            .map_err(|_| JournalFailure::Budget)?;
+        Ok(FundingBudgetSnapshot {
             operating_reserve: self.operating_reserve,
             other_liabilities: self.other_liabilities,
             allocated: self.allocated,
             reserve: self.reserve,
-            revision: 0,
-            available: self.allocated,
-            accepted: 0,
-            refunded: 0,
-            not_enqueued: 0,
-            reserved_or_uncertain: 0,
-        };
-        for entry in attempts {
-            // Replay the accounting facts, not effects. Every original full
-            // attachment must have fitted before any callback refund existed.
-            let offered = entry.request.offered;
-            if offered > view.transferable() {
-                return Err(JournalFailure::Budget);
-            }
-            view.revision += 1;
-            view.available -= offered;
-            let transfer = checked_transfer(entry)?;
-            if let Some(observation) = entry.observation {
-                view.revision += 1;
-                let accepted = transfer.accepted().ok_or(JournalFailure::Budget)?;
-                view.accepted = view
-                    .accepted
-                    .checked_add(accepted)
-                    .ok_or(JournalFailure::Budget)?;
-                let returned = offered - accepted;
-                if matches!(
-                    observation.outcome,
-                    FundingOutcome::NotEnqueued | FundingOutcome::LiquidityBlocked
-                ) {
-                    view.not_enqueued = view
-                        .not_enqueued
-                        .checked_add(returned)
-                        .ok_or(JournalFailure::Budget)?;
-                } else {
-                    view.refunded = view
-                        .refunded
-                        .checked_add(returned)
-                        .ok_or(JournalFailure::Budget)?;
-                }
-                view.available = view
-                    .available
-                    .checked_add(returned)
-                    .ok_or(JournalFailure::Budget)?;
-            } else {
-                view.reserved_or_uncertain = view
-                    .reserved_or_uncertain
-                    .checked_add(offered)
-                    .ok_or(JournalFailure::Budget)?;
-            }
-        }
-        Ok(view)
+            // Bounded to twice MAX_ATTEMPTS; identity/versioning belongs to this
+            // journal rather than the shared amount-only projection.
+            revision: attempts
+                .iter()
+                .map(|entry| 1 + u64::from(entry.observation.is_some()))
+                .sum(),
+            available: view.available(),
+            accepted: view.accepted(),
+            refunded: view.refunded(),
+            not_enqueued: view.not_enqueued(),
+            reserved_or_uncertain: view.reserved_or_uncertain(),
+        })
     }
 }
 

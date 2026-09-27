@@ -1,0 +1,69 @@
+{
+   "cases" : [
+      {
+         "candid" : "(variant { Ok = record { balance = record { total = 7 : int; cycles_prepaid = 3 : int; cycles_promo = 4 : int; cycles_ledger = 0 : int; debt_target = variant { Ledger } }; ledger_block_index = 340282366920938463463374607431768211456 : nat; credited = 340282366920938463463374607431768211455 : nat } })",
+         "file" : "credit.hex"
+      },
+      {
+         "candid" : "(variant { Ok = record { balance = record { total = 7 : int; cycles_prepaid = 3 : int; cycles_promo = 4 : int; cycles_ledger = 0 : int; debt_target = variant { Ledger } }; ledger_block_index = 0 : nat; credited = 0 : nat } })",
+         "file" : "zero.hex"
+      },
+      {
+         "candid" : "(variant { Ok = record { balance = record { total = 7 : int; cycles_prepaid = 3 : int; cycles_promo = 4 : int; cycles_ledger = 0 : int; debt_target = variant { Ledger } }; ledger_block_index = 0 : nat; credited = 340282366920938463463374607431768211456 : nat } })",
+         "file" : "credit-overflow.hex"
+      },
+      {
+         "candid" : "(variant { Ok = record { balance = record { total = -1 : int; cycles_prepaid = 3 : int; cycles_promo = 4 : int; cycles_ledger = 0 : int; debt_target = variant { Ledger } }; ledger_block_index = 0 : nat; credited = 1 : nat } })",
+         "file" : "negative-total.hex"
+      },
+      {
+         "candid" : "(variant { Ok = record { balance = record { total = 7 : int; cycles_prepaid = -1 : int; cycles_promo = 4 : int; cycles_ledger = 0 : int; debt_target = variant { Ledger } }; ledger_block_index = 0 : nat; credited = 1 : nat } })",
+         "file" : "negative-cycles_prepaid.hex"
+      },
+      {
+         "candid" : "(variant { Ok = record { balance = record { total = 7 : int; cycles_prepaid = 3 : int; cycles_promo = -1 : int; cycles_ledger = 0 : int; debt_target = variant { Ledger } }; ledger_block_index = 0 : nat; credited = 1 : nat } })",
+         "file" : "negative-cycles_promo.hex"
+      },
+      {
+         "candid" : "(variant { Ok = record { balance = record { total = 7 : int; cycles_prepaid = 3 : int; cycles_promo = 4 : int; cycles_ledger = -1 : int; debt_target = variant { Ledger } }; ledger_block_index = 0 : nat; credited = 1 : nat } })",
+         "file" : "negative-cycles_ledger.hex"
+      },
+      {
+         "candid" : "(variant { Err = variant { NothingToDeposit } })",
+         "file" : "nothing.hex"
+      },
+      {
+         "candid" : "(variant { Err = variant { SweepFailed = record { message = \"synthetic private diagnostic\" } } })",
+         "file" : "sweep.hex"
+      },
+      {
+         "candid" : "(variant { Err = variant { InternalError = record { message = \"synthetic private diagnostic\" } } })",
+         "file" : "internal.hex"
+      },
+      {
+         "candid" : "(variant { Err = variant { DepositTooSmall = record { fee = 340282366920938463463374607431768211455 : nat; balance = 0 : nat } } })",
+         "file" : "small.hex"
+      },
+      {
+         "candid" : "(variant { Err = variant { DepositTooSmall = record { fee = 340282366920938463463374607431768211456 : nat; balance = 0 : nat } } })",
+         "file" : "fee-overflow.hex"
+      },
+      {
+         "candid" : "(variant { Err = variant { DepositTooSmall = record { fee = 1 : nat; balance = 340282366920938463463374607431768211456 : nat } } })",
+         "file" : "balance-overflow.hex"
+      },
+      {
+         "candid" : "(variant { Ok = record { balance = record { total = 7 : int; cycles_prepaid = 3 : int; cycles_promo = 4 : int; cycles_ledger = 0 : int; debt_target = variant { Ledger } }; ledger_block_index = 0 : nat; credited = 0 : nat; extension = vec { 1 : nat64; 1 : nat64; 1 : nat64; 1 : nat64; 1 : nat64; 1 : nat64; 1 : nat64; 1 : nat64; 1 : nat64; 1 : nat64; 1 : nat64; 1 : nat64; 1 : nat64; 1 : nat64; 1 : nat64; 1 : nat64; 1 : nat64; 1 : nat64; 1 : nat64; 1 : nat64; 1 : nat64; 1 : nat64; 1 : nat64; 1 : nat64; 1 : nat64; 1 : nat64; 1 : nat64; 1 : nat64; 1 : nat64; 1 : nat64; 1 : nat64; 1 : nat64; 1 : nat64; 1 : nat64; 1 : nat64; 1 : nat64; 1 : nat64; 1 : nat64; 1 : nat64; 1 : nat64; 1 : nat64; 1 : nat64; 1 : nat64; 1 : nat64; 1 : nat64; 1 : nat64; 1 : nat64; 1 : nat64; 1 : nat64; 1 : nat64; 1 : nat64; 1 : nat64; 1 : nat64; 1 : nat64; 1 : nat64; 1 : nat64; 1 : nat64; 1 : nat64; 1 : nat64; 1 : nat64; 1 : nat64; 1 : nat64; 1 : nat64; 1 : nat64; 1 : nat64; 1 : nat64; 1 : nat64; 1 : nat64; 1 : nat64; 1 : nat64; 1 : nat64; 1 : nat64; 1 : nat64; 1 : nat64; 1 : nat64; 1 : nat64; 1 : nat64; 1 : nat64; 1 : nat64; 1 : nat64; 1 : nat64; 1 : nat64; 1 : nat64; 1 : nat64; 1 : nat64; 1 : nat64; 1 : nat64; 1 : nat64; 1 : nat64; 1 : nat64; 1 : nat64; 1 : nat64; 1 : nat64; 1 : nat64; 1 : nat64; 1 : nat64; 1 : nat64; 1 : nat64; 1 : nat64; 1 : nat64; 1 : nat64; 1 : nat64; 1 : nat64; 1 : nat64; 1 : nat64; 1 : nat64; 1 : nat64; 1 : nat64; 1 : nat64; 1 : nat64; 1 : nat64; 1 : nat64; 1 : nat64; 1 : nat64; 1 : nat64; 1 : nat64; 1 : nat64; 1 : nat64; 1 : nat64; 1 : nat64; 1 : nat64; 1 : nat64; 1 : nat64; 1 : nat64; 1 : nat64; 1 : nat64; 1 : nat64; 1 : nat64 } } })",
+         "file" : "extended.hex",
+         "schema" : "synthetic additional field, inferred types"
+      },
+      {
+         "candid" : "(variant { Err = variant { UnknownFailure } })",
+         "file" : "unknown.hex",
+         "schema" : "synthetic unknown error, inferred types"
+      }
+   ],
+   "generator" : "didc 0.5.4 encode --defs docs/evidence/caffeine-cashier.did --types (NotifyCyclesLedgerDepositResult)",
+   "scope" : "Synthetic values independently encoded from refreshed deployed Candid; not real ledger transactions, account receipts or settlement evidence.",
+   "source_sha256" : "232b08e4514048d4de48d6d1bf4387f577bfb64c7e2e2ded699a5e52d475d76f"
+}

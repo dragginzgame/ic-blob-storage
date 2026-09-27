@@ -33,6 +33,34 @@ pub(crate) struct FundingJournalRecord {
 }
 
 impl FundingJournalRecord {
+    pub(crate) fn lookup(
+        &self,
+        caller: Principal,
+        query: blob_test_protocol::funding::lookup::FundingLookupRequest,
+    ) -> Result<
+        Option<FundingAttemptRecord>,
+        blob_test_protocol::funding::lookup::FundingLookupFailure,
+    > {
+        use blob_test_protocol::funding::lookup::FundingLookupFailure;
+        if caller != self.driver {
+            return Err(FundingLookupFailure::Denied);
+        }
+        if query.service != self.service || query.peer != self.peer {
+            return Err(FundingLookupFailure::Binding);
+        }
+        if !valid_request(query.attempt) {
+            return Err(FundingLookupFailure::InvalidRequest);
+        }
+        let entry = self
+            .attempts
+            .iter()
+            .find(|entry| entry.request.id == query.attempt.id);
+        if entry.is_some_and(|entry| entry.request != query.attempt) {
+            return Err(FundingLookupFailure::Conflict);
+        }
+        Ok(entry.copied())
+    }
+
     pub(crate) fn preview_identity(
         &self,
         service: Principal,

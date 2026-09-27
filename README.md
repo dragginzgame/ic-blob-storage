@@ -152,7 +152,7 @@ may re-add it. Both action tools share the JSON/exit behavior described above.
 The local reentrant fixture assigns its source canister the operator role; the CLI
 must name that simulated caller explicitly. This is not a production role binding.
 
-Funding has a passive preview only:
+Funding admission has a passive preview:
 
 ```sh
 cargo run --offline --locked -p ic-blob-storage-pocketic-tests --bin blob-fixture-funding-preview -- \
@@ -174,6 +174,27 @@ provider credit. Existing identities remain used even after full refunds. This
 command cannot invoke the raw transfer experiment, override missing accounting
 with flags or fall back to an update.
 
+Use `blob-fixture-funding-lookup` to recover the retained result of an exact raw
+experiment request after losing its ingress reply. For an original request with
+ID 1, offered 1000000, accept 400000, reply InternalError and no callback trap:
+
+```sh
+cargo run --offline --locked -p ic-blob-storage-pocketic-tests --bin blob-fixture-funding-lookup -- \
+  lookup --server "$FIXTURE_SERVER" --instance "$FIXTURE_INSTANCE" \
+  --canister "$FIXTURE_SENDER" --caller "$FIXTURE_DRIVER" \
+  --kind funding --peer "$FIXTURE_RECEIVER" --id 1 --amount 1000000 \
+  --accept 400000 --reply InternalError --trap-callback false
+```
+
+Every original input is required. This command queries `lookup_funding` only.
+Exit 0 means an exact retained transport observation; exit 4 means absent or
+pending evidence. Exit 2 is invalid arguments and exit 3 a failed, denied or
+conflicting lookup. None is a retry permit or provider credit. `Absent` means
+missing from this journal, including an old restored backup; `Pending` also covers
+callback rollback. Restored owners remain fenced even when an older journal omits
+a paid operation. Lookups do not call the peer, reload stable memory, consume an
+identity or change accounting. These are local PocketIC tools, not payment clients.
+
 The funding fixture requires `(peer, driver, FundingBudgetInput { allocated,
 reserve, operating_reserve, other_liabilities })` at installation. Its positive
 `reserve` limits transfer attachments;
@@ -188,6 +209,9 @@ a refund. Costs are sampled after intent persistence and before dispatch. A
 and reports no callback refund.
 Callback trap controls apply only to actual callbacks; they cannot erase an unsent
 refusal. Such refusals still consume the bounded journal's lifetime capacity.
+The fixture uses the library's `model::billing::allocation::FundingAllocation`
+for amount reconstruction. It requires complete sequential history and rejects
+original reserve violations even if the eventual reply returned the full offer.
 
 Preview `liquidity` figures are observations, possibly cached, and can change
 without a budget revision. The update rechecks its own exact encoded call. These

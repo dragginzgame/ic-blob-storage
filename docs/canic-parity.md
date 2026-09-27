@@ -133,6 +133,16 @@ call-cost bound, installed operating slack and other local liabilities. Unsent
 refusals consume identities without inventing refunds; query freshness is never
 dispatch authority. This adds local BLOB-11/15/17 evidence; complete production
 spendability, provider credit and safe operator funding admission remain open.
+The shared `FundingAllocation` library model now owns the sequential attachment
+projection used by this fixture; adapter-specific accounting loops are unnecessary.
+The experiment now preserves all advertised top-up errors through journal, status
+and CLI JSON. Actual IC evidence keeps refunds independent of those errors and
+rejects wrong-route ledger reports without clearing accounting or restore fences;
+see [outcome propagation](evidence/core-primitives.md#funding-error-propagation-for-0118).
+Exact local request lookup and its query-only CLI now recover retained transport
+results after discarded ingress replies, with typed conflicts and no retransmission.
+Old-backup absence and callback traps remain fenced/uncertain; this advances local
+BLOB-11/15/17 diagnosis, not provider credit reconciliation.
 
 | Capability | Required behavior here | Necessary correction or boundary |
 | --- | --- | --- |
@@ -146,7 +156,7 @@ spendability, provider credit and safe operator funding admission remain open.
 | BLOB-08: billing configuration | Validated provider identity, reserve/threshold/limit configuration, readback and restart persistence | Invalid values must leave the previous configuration intact; service owns policy |
 | BLOB-09: balances | Typed provider balance observations; distinguish absence, malformed values and unavailable observations | Verify the current deployed balance interface; account totals are not transfer-completion evidence |
 | BLOB-10: gateway sync | Explicit synchronization, validation/deduplication, state preservation on failure and successful-sync timestamp | Single current provider contract; no sync caused by status reads |
-| BLOB-11: funding | Explicit funding, reserve protection, no partial funding when the requested amount cannot be admitted, and observable results | Replace transient-only single-flight with persisted intent, exact identity and uncertain-effect reconciliation |
+| BLOB-11: funding | Explicit funding, reserve protection, no partial funding when the requested amount cannot be admitted, and observable results | Replace transient-only single-flight with persisted intent, exact identity and uncertain-effect reconciliation; bounded ledger notification decoding is partial wire evidence, not operation-bound credit |
 | BLOB-12: readiness | Configuration, gateways, balance, reserve, blockers and warnings reported without mutation | Include recovery fences; operator status cannot bypass service/provider uncertainty |
 | BLOB-13: lifecycle | Same-release restoration of configuration, gateway state, references and pending work | Add supported backup/restore fencing; restoration happens before deferred effects |
 | BLOB-14: composition | Explicit endpoint selection, separate actor/operator/provider guards and shared handlers in both adapters | Linking a library exports no application endpoints; a controller is not automatically a tenant |

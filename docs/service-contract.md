@@ -136,9 +136,19 @@ checks identity reuse/capacity without consuming an intent. Its raw transfer
 experiment remains separate from operator admission; no funding action is exposed
 through the preview CLI. Gross cycles and transport acceptance supply neither
 authoritative spendability nor provider credit.
+An exact local funding lookup now exposes absent, pending or retained transport
+evidence after checking caller, service/peer and all original request inputs.
+Its CLI only queries: missing evidence or a failed read cannot trigger payment.
+It reads the active owner and preserves restore fences; it does not reconcile a
+lost Cashier reply or establish that an absent operation had no external effect.
 The local fixture now requires an installed attachment allocation and positive
 reserve. Its bounded journal derives accounting from original intents and exact
 terminal observations; admission persists the full reservation before dispatch.
+The library's `FundingAllocation` model now owns this amount reconstruction for
+bounded sequential journals. Each original full offer must fit before applying its
+own return; unknown transport may appear only last. The fixture retains binding,
+identity, revision and persistence checks. This arithmetic model supplies neither
+omitted history nor a reconstruction rule for overlapping transfers.
 Known refunds and unsent attachments release only their allocation. Accepted and
 unresolved attachments remain charged, including through a permanent restore
 fence. Preview requests bind the budget revision, which changes even after a full

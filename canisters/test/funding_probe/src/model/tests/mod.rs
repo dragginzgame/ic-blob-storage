@@ -3,6 +3,90 @@ use blob_test_protocol::funding::{FundingReconciliationView, FundingReplyMode};
 
 type JournalMutation = fn(&mut FundingJournalRecord);
 
+#[test]
+fn exact_lookup_checks_authority_bindings_and_every_immutable_input() {
+    use blob_test_protocol::funding::lookup::{
+        FundingLookupFailure as Failure, FundingLookupRequest,
+    };
+    let mut journal = journal();
+    let query = FundingLookupRequest {
+        service: principal(1),
+        peer: principal(2),
+        attempt: request(1),
+    };
+    let original = journal.lookup(principal(3), query).unwrap().unwrap();
+    assert_eq!(original.request, query.attempt);
+    assert_eq!(journal.lookup(principal(2), query), Err(Failure::Denied));
+    assert_eq!(
+        journal.lookup(
+            principal(3),
+            FundingLookupRequest {
+                service: principal(4),
+                ..query
+            }
+        ),
+        Err(Failure::Binding)
+    );
+    assert_eq!(
+        journal.lookup(
+            principal(3),
+            FundingLookupRequest {
+                peer: principal(4),
+                ..query
+            }
+        ),
+        Err(Failure::Binding)
+    );
+    for attempt in [
+        FundingRequest {
+            offered: 101,
+            ..query.attempt
+        },
+        FundingRequest {
+            accept: 39,
+            ..query.attempt
+        },
+        FundingRequest {
+            reply: FundingReplyMode::InternalError,
+            ..query.attempt
+        },
+        FundingRequest {
+            trap_callback: true,
+            ..query.attempt
+        },
+    ] {
+        assert_eq!(
+            journal.lookup(principal(3), FundingLookupRequest { attempt, ..query }),
+            Err(Failure::Conflict)
+        );
+    }
+    assert_eq!(
+        journal.lookup(
+            principal(3),
+            FundingLookupRequest {
+                attempt: request(2),
+                ..query
+            }
+        ),
+        Ok(None)
+    );
+    assert_eq!(
+        journal.lookup(
+            principal(3),
+            FundingLookupRequest {
+                attempt: FundingRequest {
+                    offered: 0,
+                    ..query.attempt
+                },
+                ..query
+            }
+        ),
+        Err(Failure::InvalidRequest)
+    );
+    journal.fence();
+    assert_eq!(journal.lookup(principal(3), query), Ok(Some(original)));
+}
+
 fn principal(value: u8) -> Principal {
     Principal::from_slice(&[value, 1])
 }

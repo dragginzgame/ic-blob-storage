@@ -9,8 +9,8 @@ mod support;
 
 use blob_test_protocol::funding::{
     FundingAttemptRecord, FundingAttemptStatusView, FundingFailure, FundingObservation,
-    FundingOperatorStatusView, FundingOutcome, FundingReceiptRecord, FundingReconciliationView,
-    FundingReplyMode, FundingRequest, FundingUpgradeArgs,
+    FundingOperatorStatusView, FundingOutcome, FundingProviderErrorView, FundingReceiptRecord,
+    FundingReconciliationView, FundingReplyMode, FundingRequest, FundingUpgradeArgs,
 };
 use blob_test_protocol::status::{FundingActivityView, OperatorBlockerView};
 use candid::Principal;
@@ -274,10 +274,8 @@ fn fenced_status(mut status: FundingOperatorStatusView) -> FundingOperatorStatus
     status
 }
 
-#[test]
-fn refunds_are_call_specific_and_independent_of_cashier_reply_decoding() {
-    let fixture = Fixture::new();
-    let cases = [
+fn reply_cases() -> Vec<(u128, FundingReplyMode, FundingOutcome)> {
+    vec![
         (
             0,
             FundingReplyMode::Success,
@@ -295,8 +293,40 @@ fn refunds_are_call_specific_and_independent_of_cashier_reply_decoding() {
         ),
         (
             19_000_003,
-            FundingReplyMode::ProviderError,
-            FundingOutcome::ProviderError,
+            FundingReplyMode::InternalError,
+            FundingOutcome::ProviderError(FundingProviderErrorView::InternalError),
+        ),
+        (
+            23_000_003,
+            FundingReplyMode::NotAuthorized,
+            FundingOutcome::ProviderError(FundingProviderErrorView::NotAuthorized(
+                Principal::anonymous(),
+            )),
+        ),
+        (
+            100_000_000,
+            FundingReplyMode::AccountBalanceOverflow,
+            FundingOutcome::ProviderError(FundingProviderErrorView::AccountBalanceOverflow),
+        ),
+        (
+            31_000_003,
+            FundingReplyMode::TopUpWithoutCycles,
+            FundingOutcome::ProviderError(FundingProviderErrorView::TopUpWithoutCycles),
+        ),
+        (
+            0,
+            FundingReplyMode::TopUpWithoutCycles,
+            FundingOutcome::ProviderError(FundingProviderErrorView::TopUpWithoutCycles),
+        ),
+        (
+            17_000_001,
+            FundingReplyMode::LedgerReport,
+            FundingOutcome::InvalidReply,
+        ),
+        (
+            11_000_001,
+            FundingReplyMode::UnknownError,
+            FundingOutcome::InvalidReply,
         ),
         (
             29_000_007,
@@ -308,9 +338,14 @@ fn refunds_are_call_specific_and_independent_of_cashier_reply_decoding() {
             FundingReplyMode::Reject,
             FundingOutcome::Rejected(4),
         ),
-    ];
+    ]
+}
+
+#[test]
+fn refunds_are_call_specific_and_independent_of_cashier_reply_decoding() {
+    let fixture = Fixture::new();
     let mut credit_outstanding = false;
-    for (index, (accept, reply, outcome)) in cases.into_iter().enumerate() {
+    for (index, (accept, reply, outcome)) in reply_cases().into_iter().enumerate() {
         let request = request(u64::try_from(index).expect("small index"), accept, reply);
         let observation = fixture.fund(fixture.driver, request).expect("admitted");
         assert_eq!(
@@ -378,8 +413,18 @@ fn refunds_are_call_specific_and_independent_of_cashier_reply_decoding() {
 
 #[test]
 fn callback_trap_retains_pending_intent_and_blocks_another_payment() {
+    for reply in [
+        FundingReplyMode::Success,
+        FundingReplyMode::TopUpWithoutCycles,
+        FundingReplyMode::LedgerReport,
+    ] {
+        assert_callback_trap_retains_pending_intent(reply);
+    }
+}
+
+fn assert_callback_trap_retains_pending_intent(reply: FundingReplyMode) {
     let fixture = Fixture::new();
-    let mut request = request(7, 31_000_001, FundingReplyMode::Success);
+    let mut request = request(7, 31_000_001, reply);
     request.trap_callback = true;
     let result = fixture.harness.pic.update_call(
         fixture.sender,

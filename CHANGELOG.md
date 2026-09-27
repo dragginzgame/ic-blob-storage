@@ -2,6 +2,39 @@
 
 ## [Unreleased]
 
+## [0.1.18]
+
+### Added
+
+- Bounded Caffeine ledger-deposit notification response decoder, based on the
+  refreshed deployed Cashier Candid. It preserves reported credit, arbitrary-width
+  block indices and all advertised errors, rejecting invalid amounts and malformed
+  or over-budget replies. Independent Candid fixtures cover boundaries and unknown
+  variants. Reports do not establish operation correlation or settle uncertain
+  payments; no ledger transfer, notification or automatic retry is introduced.
+- Shared bounded attachment accounting for sequential funding journals. Original
+  full offers must preserve the installed reserve before refunds are applied;
+  accepted and unknown transfers retain their allocation. Exact refunds and
+  proven unsent offers stay separate, with typed capacity/sequencing/overflow
+  failures. The funding fixture now uses this library model instead of owning
+  another accounting loop; native and IC recovery checks cover the integration.
+- Query-only exact funding lookup and unpublished `blob-fixture-funding-lookup`
+  CLI. Full original requests must match retained intents; absent, pending and
+  observed states remain distinct from denied/conflicting/failed lookups. IC and
+  subprocess tests recover discarded ingress results without retransmission and
+  preserve callback uncertainty and old-backup fences. This inspects the local
+  experiment, not Cashier credit or permission to repeat a payment.
+
+### Fixed
+
+- Local funding now preserves all four advertised Cashier error categories in
+  its journal, operator status and CLI JSON, including the reported unauthorized
+  principal. Previously only internal errors survived classification. Actual IC
+  tests preserve refunds and uncredited acceptance independently of each error,
+  reject wrong-route ledger reports and unknown errors, and retain uncertainty
+  after callback traps and fenced restore. Unpublished fixture schema remains v1
+  with reinstall required across releases; published library APIs are unchanged.
+
 ## [0.1.17] - 2026-09-26
 
 ### Added

@@ -1,7 +1,9 @@
 //! Local-fixture tools with separate passive diagnosis and explicit observation commands.
 
 mod action;
+mod funding_lookup;
 mod funding_preview;
+pub use funding_lookup::run as run_funding_lookup;
 mod model;
 mod ops;
 pub use funding_preview::run as run_funding_preview;
@@ -31,6 +33,8 @@ enum Failure {
     ReplyTooLarge,
     InvalidReply,
     Binding,
+    Conflict,
+    InvalidRequest,
 }
 
 impl Failure {
@@ -43,6 +47,8 @@ impl Failure {
             Self::ReplyTooLarge => "reply_too_large",
             Self::InvalidReply => "invalid_reply",
             Self::Binding => "binding_mismatch",
+            Self::Conflict => "request_conflict",
+            Self::InvalidRequest => "invalid_request",
         }
     }
 }

@@ -8,6 +8,7 @@ pub mod audit;
 pub mod balance;
 pub mod funding;
 pub mod gateway;
+pub mod ledger;
 pub mod upload;
 
 mod wire;

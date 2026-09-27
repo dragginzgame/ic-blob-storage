@@ -7,6 +7,10 @@ publish = false
 autobins = false
 
 [[bin]]
+name = "blob-fixture-funding-lookup"
+path = "src/bin/blob_fixture_funding_lookup/main.rs"
+
+[[bin]]
 name = "blob-fixture-funding-preview"
 path = "src/bin/blob_fixture_funding_preview/main.rs"
 

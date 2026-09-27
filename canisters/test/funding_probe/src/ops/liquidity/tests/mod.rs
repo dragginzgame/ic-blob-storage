@@ -16,7 +16,12 @@ fn preview_payload_bounds_every_valid_local_reply_control() {
             for reply in [
                 FundingReplyMode::Success,
                 FundingReplyMode::DelayedSuccess,
-                FundingReplyMode::ProviderError,
+                FundingReplyMode::InternalError,
+                FundingReplyMode::NotAuthorized,
+                FundingReplyMode::AccountBalanceOverflow,
+                FundingReplyMode::TopUpWithoutCycles,
+                FundingReplyMode::LedgerReport,
+                FundingReplyMode::UnknownError,
                 FundingReplyMode::Malformed,
                 FundingReplyMode::Reject,
                 FundingReplyMode::Trap,

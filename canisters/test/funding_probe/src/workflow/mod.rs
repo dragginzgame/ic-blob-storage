@@ -15,6 +15,16 @@ use ic_blob_storage::policy::{
 use crate::ops;
 pub(crate) mod preview;
 
+pub(crate) fn lookup(
+    caller: Principal,
+    request: blob_test_protocol::funding::lookup::FundingLookupRequest,
+) -> Result<
+    blob_test_protocol::funding::lookup::FundingLookupView,
+    blob_test_protocol::funding::lookup::FundingLookupFailure,
+> {
+    ops::lookup::lookup(caller, request)
+}
+
 pub(crate) async fn fund(
     caller: Principal,
     request: FundingRequest,

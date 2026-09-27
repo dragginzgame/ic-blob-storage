@@ -2,6 +2,7 @@
 
 use thiserror::Error;
 
+pub mod allocation;
 pub mod balance;
 pub mod configuration;
 pub mod transfer;

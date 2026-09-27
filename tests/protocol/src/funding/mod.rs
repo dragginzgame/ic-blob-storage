@@ -1,6 +1,7 @@
 //! Local cycle-transfer controls; these are not Cashier request DTOs.
 
 pub mod budget;
+pub mod lookup;
 pub mod preview;
 
 use crate::status::{FundingActivityView, OperatorBlockerView, OperatorWarningView};
@@ -59,14 +60,24 @@ pub struct FundingAttemptStatusView {
 }
 
 /// Controlled response after the receiver accepts the requested cycles.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, Serialize)]
 pub enum FundingReplyMode {
     /// Replay the independent Candid success fixture.
     Success,
     /// Commit acceptance, then delay success across bounded actual IC rounds.
     DelayedSuccess,
     /// Replay the independent Candid `InternalError` fixture.
-    ProviderError,
+    InternalError,
+    /// Replay the independent Candid authorization failure fixture.
+    NotAuthorized,
+    /// Replay the independent Candid balance-overflow fixture.
+    AccountBalanceOverflow,
+    /// Replay the independent Candid missing-cycles fixture.
+    TopUpWithoutCycles,
+    /// Replay a ledger notification on the direct-top-up route; must reject.
+    LedgerReport,
+    /// Replay an unknown provider error; must remain unusable.
+    UnknownError,
     /// Return non-Candid bytes.
     Malformed,
     /// Explicitly reject after accepting cycles.
@@ -102,8 +113,8 @@ pub struct FundingRequest {
 pub enum FundingOutcome {
     /// The current production decoder accepts the balance report.
     ReportedSuccess,
-    /// The current production decoder reports the provider's `InternalError`.
-    ProviderError,
+    /// Advertised provider failure, independent of actual accepted/refunded cycles.
+    ProviderError(FundingProviderErrorView),
     /// Candid decoding or balance validation failed.
     InvalidReply,
     /// Actual reject code returned by the IC.
@@ -112,6 +123,20 @@ pub enum FundingOutcome {
     NotEnqueued,
     /// The post-persistence liquidity guard refused dispatch; no callback exists.
     LiquidityBlocked,
+}
+
+/// Passive projection of the library decoder's advertised top-up failures.
+/// These observations never establish refunds, credit or authority to retry.
+#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, Serialize)]
+pub enum FundingProviderErrorView {
+    /// The provider-reported principal, not inferred caller or account authority.
+    NotAuthorized(Principal),
+    /// Reported balance overflow, not evidence that no cycles were accepted.
+    AccountBalanceOverflow,
+    /// Internal failure with diagnostic text discarded by the shared decoder.
+    InternalError,
+    /// Reported absence of cycles; actual callback facts remain authoritative.
+    TopUpWithoutCycles,
 }
 
 /// Original call facts; enqueue failure has no callback refund to capture.

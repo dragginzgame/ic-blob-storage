@@ -1902,3 +1902,157 @@ Current Wasm SHA-256 (earlier slice hashes above remain historical observations)
 This strengthens the existing partial funding/recovery evidence; no production
 provider credit or recovery qualification changed. Cargo/release receipt remain
 0.1.16. No paid provider call, release action or full CI/release gate ran.
+
+## Ledger notification response decoding after 0.1.17
+
+The [funding review](caffeine-funding-review.json) refreshed public package/source
+metadata and anonymously read deployed Cashier Candid. The retained interface
+hash is unchanged. The new library decoder uses that advertised
+`NotifyCyclesLedgerDepositResult` schema, with private wire types and explicit
+byte, decode-work, skip-work and type-table bounds. No notification is sent.
+
+Independent didc 0.5.4 fixtures preserve `credited` separately from balance,
+including zero and u128::MAX, and a block index larger than u128::MAX. Invalid
+cycle amounts or any negative balance component reject the complete report.
+All four provider errors remain distinct; diagnostic messages are discarded.
+Malformed, truncated, unknown-variant and over-budget replies reject. A synthetic
+additional field decodes only with sufficient skip budget. A valid direct-top-up
+success cannot impersonate ledger notification success. Exact source values and
+synthetic extensions are recorded in the fixture cases.json.
+
+Checks passed: all targeted Caffeine native tests, strict library/test Clippy,
+library wasm32-unknown-unknown check, warning-free library rustdoc and formatting.
+The [funding reports inventory](funding-reports.sha256) binds decoder, shared
+conversion, independent fixtures and reviewed interface. Cargo/release receipt
+remain 0.1.17; the 0.1.18 changelog is an undated draft. Historical inventories
+were not refreshed. No full CI/release gate or new PocketIC run was needed for
+this pure decoder; there is no platform or transport change.
+
+This is partial BLOB-11 wire evidence. The update reply lacks an echoed account,
+ledger principal and caller operation identity. Neither the block index nor
+NothingToDeposit establishes correlation to an earlier deposit or direct top-up.
+Production reconciliation, retention, safe retry and independent recovery remain
+open; no decoder result can settle the existing fixture journal.
+
+## Funding error propagation for 0.1.18
+
+Review found that the local funding experiment mapped only `InternalError` from
+its shared decoder; other advertised failures became `InvalidReply`. The fixture
+now retains all four categories and the reported `NotAuthorized` principal in a
+passive outcome view. The private library decoder remains the only wire-schema
+owner. No diagnostic text becomes authority, and no provider error supplies a
+refund. The unpublished request/outcome schema is hard-cut within v1; no legacy
+reader or migration was added. Cross-release fixtures require reinstall.
+
+Actual PocketIC calls reuse independently encoded Cashier fixtures, controlling
+acceptance separately from response bytes. These combinations test local
+accounting, not whether the deployed Cashier accepts cycles on each error:
+
+- Partial acceptance with each provider error, full acceptance with overflow and
+  full refund with missing-cycles error retain exact callback facts. Later full
+  refunds cannot hide earlier credit obligations. Status preserves each category.
+- A ledger credit report and an unknown error on the direct-top-up path yield
+  InvalidReply while preserving independently observed receiver acceptance.
+- Success, missing-cycles error and wrong-route ledger replies followed by callback
+  traps retain the whole unresolved offer. Failed upgrades preserve the active
+  owner; successful same-release restores remain fenced without repeating payment.
+- Actual CLI subprocesses retain typed provider errors, principal text, decimal
+  amounts and absent provider credit. Repeated diagnosis leaves journals unchanged;
+  successful restore retains exact attempt outcomes and attachment accounting.
+
+Funding native checks, the complete funding/operator PocketIC targets, strict
+funding/protocol/client Clippy, warning-free rustdoc, fixture Wasm builds and
+formatting/diff checks pass. The preview payload bound covers every new reply
+control. A final test-data extraction was rechecked with the affected refund case.
+The current [funding reports inventory](funding-reports.sha256) includes this work;
+released inventories remain historical. Tested Wasm SHA-256:
+
+- authority: `3f38fb4094226079a38edcd0da383e478cec5411afddbf807d62a342c012ad21`
+- gateway source: `3cccb99777af423ab0cd0aabc4c0f7454f38ba40f31fabdd702a3af5d7fd81ff`
+- funding: `aa1a780694f8643c0600b14e1a94749783f5a9bc245835cdd373e3fd1008e35e`
+
+This strengthens partial BLOB-11/15/17 evidence. Public correlation research did
+not establish a Cashier completion lookup or numeric retention contract. Cycles
+Ledger transaction evidence alone cannot prove the separate Cashier account credit.
+No paid provider effect, deployment, version mutation or full CI/release gate ran.
+
+## Shared attachment accounting for 0.1.18
+
+The additive library `FundingAllocation` model now reconstructs amount accounting
+from complete, bounded, sequential `FundingTransfer` history. Configuration has an
+explicit allocation, positive reserve and lifetime slot limit. Every original
+full offer must fit before its own return is applied. Unknown transport can only
+be last; this algorithm does not claim to reconstruct overlapping calls.
+
+The view conserves the original allocation across available, accepted and unknown
+amounts. Historical callback refunds and proven unsent offers are independent
+totals, already returned to the available allocation. Neither is added twice.
+Native tests cover original over-budget offers followed by full refunds, consumed
+no-transfer slots, repeated reconstruction, reserve-only allocations, u128 limits,
+exact lifetime totals at the maximum, and overflow without partial output.
+
+The funding fixture's duplicate arithmetic loop was removed. It validates its
+own exact requests/transport observations, then delegates amount projection to the
+library. Service/peer/release bindings, identities, revisions, persistence,
+operating holds and restore fences remain fixture-owned. Existing IC budget and
+operator tests pass with this shared implementation, covering incoming-cycle
+isolation, full refunds, refusals, callbacks, provider errors, capacity exhaustion,
+old journals and live-callback restores. Library/fixture native tests, strict
+affected-package Clippy, warning-free library/fixture rustdoc and fixture Wasm
+builds also pass. Formatting and the current funding reports inventory pass.
+
+Tested Wasm SHA-256 (earlier slice observations above remain historical):
+
+- authority: `789e78b07cea694ee428f05e377e6e7878197cc1e5f9b0e86a1c1039536567c8`
+- gateway source: `3cccb99777af423ab0cd0aabc4c0f7454f38ba40f31fabdd702a3af5d7fd81ff`
+- funding: `7d08b74a97043e5ab62437e93f2e27e2c305b47d67ad66276140f755b23bc127`
+
+This advances reusable local BLOB-11 accounting. It cannot establish omitted
+history, authentic provider credit, total operating liabilities, safe identity
+allocation or a fresh recovery authority. No provider call or full CI/release
+gate ran; Cargo and the release receipt remain 0.1.17.
+
+## Exact local funding lookup for 0.1.18
+
+The local funding fixture now queries an exact original request through the active
+journal owner. Driver authority and service/peer bindings are checked before
+validating every immutable request input. A reused ID with different amount,
+acceptance control, reply mode or callback control returns Conflict, exposing no
+retained result. Absent, Pending and Observed describe local retained evidence;
+absence cannot establish no external effect, and pending includes callback rollback.
+
+The unpublished `blob-fixture-funding-lookup` CLI requires explicit loopback target,
+caller, peer and every original request field. It uses only `lookup_funding` query,
+with bounded Candid decoding, full-width decimal amounts and exact response binding.
+Typed failures are not converted to absence. It shares reconciliation JSON rendering
+with status and neither sends a transfer nor clears a fence. No provider schema or
+production transport was added; the fixture's stored schema was not changed by this
+lookup addition.
+
+Actual PocketIC and subprocess cases passed:
+
+- Discard a completed ingress result, then recover the exact retained provider-error
+  observation and refund without a second transfer. Conflicting inputs reject;
+  repeated reads leave sender/receiver journals unchanged. Fenced restore retains it.
+- Observe a live committed intent as Pending, then query its original completion.
+  A real callback trap instead stays Pending through queries and fenced restoration.
+- Replace stable bytes with an old empty backup: queries still read the active owner
+  until actual upgrade. Restored lookup reports Absent and fenced, while the receiver
+  retains its acceptance receipt and the sender rejects another payment.
+- Denied/misbound/invalid requests expose no outcome. An actual update-only lookup
+  witness is rejected without mutation; a positive update control proves the method
+  would mutate if invoked. There is no query-to-update fallback.
+
+Native model/CLI checks cover every immutable input, missing/duplicate arguments,
+unknown/mutating modes, malformed/oversized replies and exact u128/u64 JSON. Complete
+funding/operator PocketIC targets, strict affected-package Clippy, warning-free
+rustdoc, fixture Wasm builds and client Wasm check pass. Source hashes are retained
+in funding-reports.sha256. Tested Wasm SHA-256:
+
+- authority: `8efc571ddba3534904b8ad899b26895dcb10c47dd6ac69b2cba99e36c0ccad27`
+- gateway source: `7ebd7319b5d7f92a666012668190941d185b759112bd1145673a040ce2428b04`
+- funding: `7e48ad603b0c7b075d3fe30382d098fc9a01427005d023feab25d35bbe605874`
+
+This is local ingress-result recovery only. Cashier operation/account correlation,
+credit reconciliation and independent recovery remain open. No paid provider call,
+release action or full CI/release validation ran. Cargo/receipt remain 0.1.17.

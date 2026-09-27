@@ -2,100 +2,67 @@
 
 Date: 2026-09-26
 
-## Current batch — local operator actions and funding resource guards
+## Current batch — 0.1.18 funding reports, accounting and lookup
 
-The unpublished `blob-fixture-refresh` command now offers passive dry-run and an
-explicit refresh with separate post-status diagnostics. Exact service, namespace,
-source, account, configuration revision and next attempt are checked before intent
-and dispatch. Old previews and consumed requests cannot launch another read. Busy
-and restored owners remain blocked. JSON preserves completion or uncertainty even
-if the following query fails; there is no application retry or automatic sequence
-advance. The existing status client remains query-only.
+The maintainer named 0.1.18; its undated changelog draft is open. Cargo and the
+release receipt remain 0.1.17. Refreshed public source/package metadata and
+anonymous Cashier Candid are unchanged; see the bounded
+[review record](../evidence/caffeine-funding-review.json). No account audit, paid
+provider operation or deployment was performed.
 
-`blob-fixture-sync` now uses the same action/diagnosis client workflow. Its exact
-request includes the controlled source, operator-edit revision and next sync
-sequence. The fixture retains a required SyncControlRecord in its v1 archive;
-every revocation invalidates previews, even for an already absent member. Revision
-exhaustion blocks new syncs while preserving revocation. Status exposes source,
-revision and last sequence without granting a reusable token. The published
-GatewayRegistry API is unchanged. Reentrant source scenarios now carry explicit
-requests, including the deliberately authorized replacement after revocation.
+The library now decodes the advertised ledger-deposit notification response with
+explicit byte/work/type bounds, exact reported credit and arbitrary-width block
+indices. Every balance component and cycle amount must validate before success.
+All advertised failures remain distinct, with diagnostic text discarded.
+Independent Candid fixtures cover numeric boundaries, malformed/unknown replies,
+skipping budgets and rejection of direct-top-up success as ledger credit.
+Native Caffeine tests, strict library Clippy, Wasm check and warning-free rustdoc
+pass; see [decoder evidence](../evidence/core-primitives.md#ledger-notification-response-decoding-after-0117).
 
-The raw `fund` endpoint remains a controlled transfer experiment, separate from
-production operator admission. It now requires an explicit installed attachment
-allocation and positive reserve. A full offer is reserved atomically with its
-original intent before dispatch. Accounting derives from the bounded journal:
-accepted cycles remain charged, exact callback refunds and proven unsent offers
-release their allocation separately, and missing callbacks retain the full offer.
-There is no replenishment from gross cycle top-ups or incoming receipts. Required
-budget state is a v1 fixture hard cut; cross-release fixtures require reinstall.
+The funding experiment now retains every advertised direct-top-up error instead
+of misclassifying three categories as invalid replies. Typed errors, including the
+reported unauthorized principal, survive journal/status/CLI output and fenced
+restoration. Actual IC tests keep partial/full acceptance independent of provider
+errors, reject wrong-route ledger reports and unknown errors, and retain the full
+offer after callback traps. Native checks, strict affected-package Clippy/rustdoc,
+fixture Wasm builds and complete funding/operator PocketIC targets pass; see
+[outcome evidence](../evidence/core-primitives.md#funding-error-propagation-for-0118).
+This is a v1 hard cut of the unpublished fixture; cross-release reinstall remains
+required. The published library contract is unchanged by this follow-up.
 
-The query-only `blob-fixture-funding-preview` checks exact service/peer/id/amount
-and budget revision, used identities and journal capacity, then composes all
-uncredited history with shared admission
-evidence policy. Unknown recovery/spendability and absent limits remain blockers;
-positive transport acceptance never proves credit. Later refunds cannot hide
-older unresolved payments. The preview cannot transfer, reserve, retry or consume
-an identity, including after restore. No accounting/provider overrides are accepted.
-Budget revision advances on each admission and terminal observation, including full
-refunds. Local reserve violations are distinct from production spendability: the
-attachment envelope excludes execution fees and other operating liabilities.
+Attachment accounting now belongs to the library's additive `FundingAllocation`
+model. It validates an explicit reserve and lifetime bound, reconstructs complete
+sequential history, and keeps historical refunds/unsent offers separate from
+current allocation usage. Over-budget original offers, misplaced unknown transfers
+and overflowing totals return typed errors without partial output. The fixture
+delegates to this model while retaining identity/revision/persistence ownership.
+Native boundary tests, strict Clippy, rustdoc, Wasm builds and complete funding/
+operator PocketIC targets pass; see
+[allocation evidence](../evidence/core-primitives.md#shared-attachment-accounting-for-0118).
 
-The fixture now also requires positive operating slack and explicit other local
-liabilities. Shared additive liquidity policy checks the complete offer against
-platform liquid cycles minus those holds and the call-cost bound. The workflow
-samples its exact encoded call after persisting intent, before dispatch; a refusal
-retains the consumed identity with a LiquidityBlocked/no-transfer observation and
-no fabricated callback refund. Accepted/uncertain charges and restore fences remain.
-Preview cost bounds cover all valid local reply controls. Its liquid figures may
-be cached and can change without a budget revision, so updates never reuse them.
-These local holds do not establish complete production liabilities or credit.
+Exact read-only funding lookup now recovers retained local transport observations
+after a lost ingress reply without repeating the transfer. The query/CLI binds
+service, peer and every original request field, rejecting conflicts before exposing
+an outcome. Absent, pending and observed evidence remain distinct; old-backup
+absence and callback rollback preserve fences/uncertainty. The CLI never falls
+back to an update. Native, strict affected Clippy/rustdoc, fixture Wasm builds,
+client Wasm check and complete funding/operator PocketIC targets pass. See
+[lookup evidence](../evidence/core-primitives.md#exact-local-funding-lookup-for-0118).
+This is local ingress-result recovery, not a lost Cashier response lookup.
 
-Admission review found and fixed a same-message rollback bug: the callback trap
-control ran even after a liquidity refusal with no callback. Unsent attempts now
-commit their consumed identities, and restoration accepts those no-callback records.
-Actual zero/full-refund callback traps still retain the entire uncertain offer.
-Preview diagnosis also reports the same maximum attachment bound as update admission.
-Native, strict Clippy, Wasm/rustdoc and full affected funding/operator PocketIC checks
-pass, including refusal-capacity exhaustion and fenced restore. See
-[refusal evidence](../evidence/core-primitives.md#funding-refusal-recovery-after-0116).
-
-The additive library `assess_funding_evidence` API preserves independent missing
-and known unsafe facts. Reserve arithmetic runs only with known spendability and
-validated limits, without reducing the request. Complete observations retain the
-existing admission API's behavior. The fixture supplies no artificial positive
-funding evidence and always reports blocked admission.
-
-Native admission tests, strict affected-package Clippy, warning-free client/protocol
-rustdoc, fixture Wasm builds, client Wasm check and actual operator PocketIC tests
-pass, including held reads and an update witness whose post-status method is absent.
-See [operator action evidence](../evidence/core-primitives.md#explicit-local-operator-refresh-after-0116).
-Changes are in Unreleased. Cargo and the release receipt remain 0.1.16. Published
-library additions are compatible; both unpublished action endpoints require exact requests.
-Gateway-sync and full journey/recovery targets also pass. The additional actual
-live-sync callback upgrade retains a fenced pending intent; old replies cannot
-change membership or free it. See [sync evidence](../evidence/core-primitives.md#explicit-local-gateway-sync-after-0116).
-Funding admission native tests, strict affected Clippy, warning-free rustdoc,
-library/client Wasm checks, fixture builds and complete funding/operator PocketIC
-targets pass. Preview tests cover credit uncertainty, later refunds, callback traps,
-capacity, restore, added gross cycles and unchanged journals. See
-[funding preview evidence](../evidence/core-primitives.md#passive-funding-admission-preview-after-0116).
-The attachment-budget native and actual funding/operator PocketIC checks pass,
-including atomic rejection, incoming-cycle isolation, full-refund stale previews,
-callback rollback and retained reservations through fenced restore. See
-[budget evidence](../evidence/core-primitives.md#local-attachment-budget-after-0116).
-Native liquidity, fixture and client checks, strict affected Clippy, warning-free
-rustdoc, fixture Wasm builds, library/client Wasm checks and complete funding/operator
-PocketIC targets pass. Tests cover fee-only refusal, operating liabilities, consumed
-unsent identities, added funds without an allocation revision and fenced restoration.
-See [liquidity evidence](../evidence/core-primitives.md#funding-liquidity-guard-after-0116).
-Full CI/release validation was not run under this continuation.
+This adds no notification or ledger transfer. The Cashier response does not echo account,
+ledger identity or caller operation, and its reported index cannot yet be matched
+to an original deposit. NothingToDeposit does not prove prior credit. Continue
+with exact provider operation/account correlation and lost-reply reconciliation
+before exposing an operator funding action. Keep existing unknown credit,
+spendability and independent recovery blockers. Full CI/release validation was
+not run under this continuation.
 
 ## Released baseline
 
-The maintainer pushed 0.1.16. Local main, origin/main and annotated tag v0.1.16
-point to `4a3aaa6`, from source `d084112e811866682f8c9374ab46ac9c329624ff`.
-Cargo and the release receipt are 0.1.16; the worktree was clean when this release
+The maintainer pushed 0.1.17. Local main, origin/main and annotated tag v0.1.17
+point to `ff70032`, from source `270f7b81193c571206b2adae07fc9f076f58fe21`.
+Cargo and the release receipt are 0.1.17; the worktree was clean when this release
 was checked. Registry publication was not queried.
 Release/publication preserve artifacts; cleanup requires an explicit request.
 See [release guidance](../releasing.md).
@@ -133,7 +100,9 @@ The 0.1.15 upload-deletion journey inventory was verified against source
 `481fe67` (Cargo 0.1.14). Preserve it and its protocol selection as historical
 evidence. The released 0.1.16 verification-checkpoints inventory was verified
 against source `d084112` (Cargo 0.1.15); all 151 entries match. Preserve it unchanged.
-Current operator actions use a separate operator-actions inventory.
+The released 0.1.17 operator-actions inventory matches source `270f7b8` (Cargo
+0.1.16); all 180 entries match. Preserve it unchanged. The 0.1.18 decoder uses
+a separate [funding reports inventory](../evidence/funding-reports.sha256).
 
 ## Current follow-up — provider contract review
 
@@ -236,8 +205,9 @@ Clippy, rustdoc and Wasm checks pass; see [audit evidence](../evidence/core-prim
 No live account audit was requested. The search did not establish CSV columns,
 cursor semantics, operation matching or retention. No audit page clears uncertainty.
 
-Next qualify the selected wire contract and exact provider reconciliation inputs;
-do not add ledger decoding or audit-row interpretation from an assumed schema.
+Ledger notification decoding now follows the refreshed deployed Candid (see the
+current batch above). Next qualify exact provider reconciliation inputs; do not
+interpret audit rows or infer credit correlation from an assumed server contract.
 Remaining gaps are:
 
 1. Apply documented self-account/linked-payer patterns to the exact installation

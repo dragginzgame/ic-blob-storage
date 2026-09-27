@@ -220,6 +220,19 @@ amount. It is worth investigating, but a lost sweep/credit response still needs
 server evidence linking that transfer to the credited account exactly once.
 Switching payment routes alone would not close the recovery gate.
 
+The [post-0.1.17 refresh](evidence/caffeine-funding-review.json) found unchanged
+official main, npm/Mops versions and anonymous deployed Cashier Candid. The
+`cycles_ledger_deposit_notify_v1` response has a typed `credited` amount and
+`ledger_block_index`, but no echoed account, ledger principal or caller operation
+identity. It is an update, not a direct-top-up completion query. The interface
+does not establish whether that index identifies the original deposit or a sweep.
+`NothingToDeposit` and `SweepFailed` cannot settle an earlier uncertain operation.
+A bounded response decoder now preserves these observations without issuing a
+notification or choosing a different payment route. Its
+[local evidence](evidence/core-primitives.md#ledger-notification-response-decoding-after-0117)
+qualifies decoding only. Exact operation/account correlation, lost-reply lookup,
+retention and safe retry still require server evidence.
+
 These findings qualify source/client behavior only. The HTTP/certificate inputs
 and Cashier error were substitutes, not live provider outcomes. They identify
 the next server-contract questions without proving the provider cannot meet them.

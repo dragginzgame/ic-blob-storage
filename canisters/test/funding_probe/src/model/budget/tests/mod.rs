@@ -1,8 +1,8 @@
 use super::*;
 use crate::model::FundingJournalRecord;
 use blob_test_protocol::funding::{
-    FundingFailure, FundingObservation, FundingReceiptRecord, FundingReconciliationView,
-    FundingReplyMode, FundingRequest,
+    FundingFailure, FundingObservation, FundingOutcome, FundingReceiptRecord,
+    FundingReconciliationView, FundingReplyMode, FundingRequest,
 };
 use candid::Principal;
 

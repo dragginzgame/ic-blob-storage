@@ -1,0 +1,43 @@
+{
+  "observed_on": "2026-09-26",
+  "baseline_version": "0.1.17",
+  "scope": "Public metadata and anonymous interface reads only; no payment, notification, account audit, gateway request or deployment.",
+  "observations": {
+    "official_main": {
+      "source": "https://api.github.com/repos/caffeinelabs/skills/commits/main",
+      "commit": "e5cacdfe5ce55e939edb02980fca800c0c13f421"
+    },
+    "npm_latest": {
+      "source": "https://registry.npmjs.org/@caffeineai%2fobject-storage/latest",
+      "version": "1.1.2",
+      "integrity": "sha512-JAmoHT6E8M18DEbW4rkHinAOw0A8yNbz+rj8F56VAvr8Hf0TxQSK0ZdMrkwwT7BsiOLvtFK/YcLtoaWBc9x2xQ=="
+    },
+    "mops_highest": {
+      "canister": "oknww-riaaa-aaaam-qaf6a-cai",
+      "query": "getHighestVersion",
+      "package": "caffeineai-object-storage",
+      "version": "1.1.1"
+    },
+    "cashier_interface": {
+      "canister": "72ch2-fiaaa-aaaar-qbsvq-cai",
+      "metadata": "candid:service",
+      "network": "https://icp-api.io",
+      "retained_path": "docs/evidence/caffeine-cashier.did",
+      "sha256": "232b08e4514048d4de48d6d1bf4387f577bfb64c7e2e2ded699a5e52d475d76f"
+    }
+  },
+  "finding": {
+    "method": "cycles_ledger_deposit_notify_v1",
+    "mode": "update",
+    "success_fields": ["balance", "ledger_block_index", "credited"],
+    "missing_response_bindings": ["account", "ledger principal", "caller operation identity"],
+    "index_semantics": "The advertised interface alone does not identify the original deposit versus a sweep.",
+    "error_semantics": "NothingToDeposit and SweepFailed do not establish settlement or absence of earlier effects.",
+    "decision": "Decode bounded reports only. No route switch, completion lookup, retry permission or journal settlement follows."
+  },
+  "limitations": [
+    "Unchanged values confirm only the listed metadata; archives, source-file hashes, membership and pricing were not reverified in this refresh.",
+    "Public search and the DFINITY immutable-object-storage-example README supplied no exact operation-correlation or retention contract.",
+    "Synthetic didc response fixtures establish local wire decoding, not server behavior or authenticated credit."
+  ]
+}

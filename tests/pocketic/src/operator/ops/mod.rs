@@ -19,6 +19,7 @@ pub(super) struct Report {
 }
 
 pub(super) use render::budget as budget_json;
+pub(super) use render::reconciliation as reconciliation_json;
 pub(super) use render::target as target_json;
 
 pub(super) fn query(target: &Target) -> Result<Vec<u8>, Failure> {

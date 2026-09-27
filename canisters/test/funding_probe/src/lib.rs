@@ -49,6 +49,16 @@ fn receipts() -> Option<Vec<FundingReceiptRecord>> {
 }
 
 #[ic_cdk::query]
+fn lookup_funding(
+    request: blob_test_protocol::funding::lookup::FundingLookupRequest,
+) -> Result<
+    blob_test_protocol::funding::lookup::FundingLookupView,
+    blob_test_protocol::funding::lookup::FundingLookupFailure,
+> {
+    workflow::lookup(ic_cdk::api::msg_caller(), request)
+}
+
+#[ic_cdk::query]
 fn operator_status() -> Option<FundingOperatorStatusView> {
     workflow::operator_status(ic_cdk::api::canister_self(), ic_cdk::api::msg_caller())
 }

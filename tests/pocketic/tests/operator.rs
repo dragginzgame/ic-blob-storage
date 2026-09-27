@@ -2,6 +2,7 @@
 #![cfg(not(target_family = "wasm"))]
 
 mod operator_balance;
+mod operator_funding_lookup;
 mod operator_funding_preview;
 mod operator_method_mode;
 mod operator_sync;
@@ -253,6 +254,88 @@ fn funding_report_keeps_accepted_cycles_separate_from_credit_after_restore() {
     let (_, frozen) = command(&args);
     assert_eq!(frozen["status"]["fenced"], true);
     assert_eq!(frozen["status"]["attempts"], report["status"]["attempts"]);
+}
+
+#[test]
+fn funding_provider_failures_reach_json_without_becoming_refunds_or_credit() {
+    let f = Fixture::new();
+    let args = f.args(
+        f.sender,
+        f.driver,
+        "funding",
+        "--peer",
+        &f.receiver.to_text(),
+    );
+    let cases = [
+        (
+            FundingReplyMode::InternalError,
+            Value::from("InternalError"),
+        ),
+        (
+            FundingReplyMode::AccountBalanceOverflow,
+            Value::from("AccountBalanceOverflow"),
+        ),
+        (
+            FundingReplyMode::TopUpWithoutCycles,
+            Value::from("TopUpWithoutCycles"),
+        ),
+        (
+            FundingReplyMode::NotAuthorized,
+            serde_json::json!({"NotAuthorized":Principal::anonymous().to_text()}),
+        ),
+    ];
+    for (index, (reply, error)) in cases.into_iter().enumerate() {
+        let request = FundingRequest {
+            id: u64::try_from(index).unwrap(),
+            offered: 1_000_000_000,
+            accept: 400_000_000,
+            reply,
+            trap_callback: false,
+        };
+        let result: Result<FundingObservation, FundingFailure> = f
+            .harness
+            .pic
+            .update_candid_as(f.sender, f.driver, "fund", (request,))
+            .unwrap();
+        result.unwrap();
+        let before = f.journals();
+        let (code, report) = command(&args);
+        assert_eq!(code, 0);
+        let attempt = &report["status"]["attempts"][index];
+        assert_eq!(
+            attempt["outcome"],
+            serde_json::json!({"ProviderError":error})
+        );
+        assert_eq!(attempt["transport_accepted"], "400000000");
+        assert_eq!(attempt["refunded"], "600000000");
+        assert_eq!(
+            attempt["reconciliation"],
+            serde_json::json!({"kind":"CreditRequired", "cycles":"400000000"})
+        );
+        assert!(attempt["provider_credit"].is_null());
+        assert_eq!(report["status"]["funding_activity"], "Uncertain");
+        assert!(
+            f.journals() == before,
+            "diagnosis must not change accounting"
+        );
+    }
+    let (_, before) = command(&args);
+    f.harness
+        .pic
+        .upgrade_canister(
+            f.sender,
+            std::fs::read(fixture_path("BLOB_FUNDING_PROBE_WASM")).unwrap(),
+            candid::encode_args((FundingUpgradeArgs {
+                trap_after_restore: false,
+            },))
+            .unwrap(),
+            None,
+        )
+        .unwrap();
+    let (_, after) = command(&args);
+    assert_eq!(after["status"]["fenced"], true);
+    assert_eq!(after["status"]["attempts"], before["status"]["attempts"]);
+    assert_eq!(after["status"]["budget"], before["status"]["budget"]);
 }
 
 #[test]
