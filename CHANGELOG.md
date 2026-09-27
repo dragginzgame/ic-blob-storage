@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.2.1] - 2026-09-27
+
 ### Changed
 
 - Admission keeps private global/tenant reservation and manifest-leaf totals
