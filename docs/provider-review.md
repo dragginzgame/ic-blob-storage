@@ -1,14 +1,22 @@
-# Caffeine provider review — 2026-09-26
+# Caffeine provider review — 2026-09-27
 
 Verdict: Caffeine remains unqualified for the required service journey. The
 Cashier's deployed Candid and public gateway/pricing queries are now observed;
 server revision, paid-effect recovery and final billing guarantees remain open.
 Local response decoding and immutable root claims now address the source-level
 false-success/reassociation paths; their production prerequisites remain below.
-The [post-0.1.12 decision](#contract-decision-after-0112) records the latest
-refresh and the ownership/billing consequence of extracting a separate service.
+The [post-0.1.18 integration decision](#integration-decision-after-0118) records
+the current binding review and the next production implementation boundary.
 
 ## Selected integration baseline
+
+The 2026-09-27 [integration refresh](evidence/caffeine-installation-review.json)
+reconfirms official main, npm latest/integrity, Mops highest, deployed Cashier
+Candid and pinned backend file hashes. Authenticated read-only GitHub access
+reconfirms Toko development; anonymous access to that repository returned 404.
+Local Canic advanced to `8dce63c64c126340aae9456bc05ed9ad49bb9c69`, with no
+committed or working-tree changes in the inspected blob-storage/immutable paths.
+The earlier dated checkpoints below remain historical observations.
 
 The maintainer requires this service to target the latest official Caffeine
 integration rather than inherit Canic's potentially drifted bindings.
@@ -550,3 +558,104 @@ explicitly authorized account. Caffeine is the sole target. Report specific
 unsupported capabilities without silently dropping Canic parity or reopening
 provider selection. No external message, account query, payment, deployment or
 sibling mutation ran in this review.
+
+## Integration decision after 0.1.18
+
+The maintainer requested a concrete installation contract and the implementation
+supported by current evidence. The [refresh record](evidence/caffeine-installation-review.json)
+separates source facts from unset deployment inputs. It does not choose a live
+account or authorize effects. Production persistence/transport remains gated by
+the service contract; this batch implements local relationship inspection only.
+
+### Bindings that the source establishes
+
+| Role | Checked source fact | Extraction consequence |
+| --- | --- | --- |
+| Storage owner / certificate issuer | Toko's configured project-instance principal issues the update certificate and appears as gateway `owner` / download `owner_id` | A newly deployed service gets a different owner identity. Neither changing URLs nor linking a payer transfers existing blobs |
+| Payer in Canic | `workflow/blob_storage/billing` queries and tops up `IcOps::canister_self()` | Self-account funding is an existing implementation choice, not evidence that a new service inherits its balance |
+| Linked payer | Cashier advertises `payment_account_canister_get_v1({canister})` and the DFINITY example documents linking a paid canister with a daily limit | Inspect the relationship for the storage owner and match an independently expected payer; owner and payer are distinct roles |
+| Namespace | Toko accepts project/bucket inputs, with a zero-like project fallback and `default-bucket`; environment settings may override the frontend project | These strings do not prove an allocated exclusive namespace. Never copy them as approved production defaults |
+| Tenant | Toko config provisions keyed `project_instance` children under its project hub | A hub ID is not the project's storage owner or sufficient tenant authority |
+| Gateway / refill callbacks | Current Mixin authenticates gateway membership and the configured Cashier, respectively | Callback authority belongs to the owner installation; a payer link or controller privilege grants neither tenant nor gateway authority |
+
+Pinned sources: Toko's [component configuration](https://github.com/dragginzgame/toko/blob/6519b72d2a420564dabaf700fc55f7b8603d9fd3/apps/toko/canic.toml),
+[staging locator](https://github.com/dragginzgame/toko/blob/6519b72d2a420564dabaf700fc55f7b8603d9fd3/canister_ids.staging.json),
+[client](https://github.com/dragginzgame/toko/blob/6519b72d2a420564dabaf700fc55f7b8603d9fd3/frontend/src/lib/storage/storage-client.ts)
+and [project context](https://github.com/dragginzgame/toko/blob/6519b72d2a420564dabaf700fc55f7b8603d9fd3/frontend/src/lib/storage/project-storage-context.ts).
+The staging locator lists a project hub and registry but no project-instance
+principal. No deployed project inventory, private account state or deployment
+environment was read. The available source cannot select an exact migration target.
+
+### Proposed first installation and existing obligations
+
+Start qualification with a **new isolated storage-owner canister** and a new
+explicit namespace. The service principal owns the certificate and lifecycle
+callbacks; Toko's project principal is an explicitly admitted tenant. Use an
+explicitly selected self account for the first trial to minimize billing roles,
+unless the installation operator selects the documented linked-payer arrangement.
+This is a proposal, not a funded account or a frozen production configuration.
+Standalone and Canic deployment adapters must host the same handlers and enforce
+the same bindings. Both adapters remain owned here.
+
+Do not fold existing Toko objects into that new installation. Before any old
+installation is retired, retain its owner, namespace, roots, references, pending
+uploads/deletions, uncertain payments, account balances, payer relationships and
+continuing charges with an accountable operator. Old authority and funded
+reconciliation must remain available until closure or reviewed terminal
+disposition. This is installation retirement, not an old-schema reader or a
+migration engine. Source-only extraction into the same canister would preserve
+its principal but would still need obligation and stable-state disposition under
+the reinstall-only rule; it is not automatically a safe upgrade route.
+
+### Read-only implementation and advancement criteria
+
+The library now decodes `payment_account_canister_get_v1` under explicit byte,
+work, skip and type bounds. A present relationship must name the expected owner
+and payer. All advertised errors remain separate; signed limits, period spend,
+timestamps and arbitrary-width bandwidth counters remain observations. No
+remaining daily allowance or spendable balance is inferred. Candid optional-field
+subtyping can yield no relationship from an omitted/incompatible field, so
+`NoRelationshipReported` is deliberately weaker than proven absence. It must
+never select self-payment, close an obligation or authorize a retry.
+
+Request encoding now also belongs to the library for balance, payment relationship
+and the current gateway-list query. The maintained method is paired with its
+encoded arguments, explicit Cashier and response expectations. The relationship
+request sends the paid canister only; the expected payer is retained locally.
+Independent request vectors use the refreshed deployed Candid, whose hash is
+unchanged. The controlled local balance workflow exercises that record shape
+across IC awaits; its substitute endpoint and driver controls remain explicit.
+This closes request ownership/encoding, not production transport or source authority.
+The request now also supplies the original account/owner/payer to balance and
+relationship decoding, with method/source checks before byte processing. A local
+PocketIC query probe exercises the relationship method over driver-controlled
+bytes and remains read-only and restore-fenced. Its authorization policy is a
+fixture restriction, not a claim about the deployed Cashier's query permissions.
+Gateway replies now use the same original-request checks before scoped registry
+application. A passive local gateway query exercises the empty argument shape;
+the separate scheduling endpoint retains revocation/replacement and interruption
+evidence. Neither fixture establishes deployed query authority or freshness.
+Audit requests now also have a shared encoder, restricted to an explicit account
+and positive page bound. Present cursor accounts must match as a conservative
+local restriction, not a claim about server cursor semantics. Original-request
+reply handling bounds reported counts but cannot verify the account/filter from
+CSV. Independent vectors cover all advertised event variants. Anonymous Candid
+metadata was rechecked unchanged; no account audit was requested.
+
+Next production work is ordered as follows; the first two rows remain open:
+
+| Step | Concrete deliverable / condition |
+| --- | --- |
+| Installation selection | Exact service/owner, tenant and actor authority, Cashier, payer mode/account, gateway origin, allocated project/bucket, operator, resource budgets and old-installation disposition |
+| Provider evidence | Upload completion lookup and retry charging; exact payment correlation/retention; object deletion and final-charge evidence; supported recovery identity/fence. Existing questions above remain unresolved by this refresh |
+| Read-only composition | Once bindings and the contract are settled, one shared request scope binds service, namespace, Cashier, owner, payer, revision and attempt. Balance, relationship and gateway reads have independent outcomes; mismatches/stale replies cannot activate a binding. No update fallback or account-link creation |
+| Persistent handlers and adapters | Host-owned ic-memory, intent before exposure, bounded obligation journals, synchronous fenced restoration, identical standalone/Canic handler behavior and actual PocketIC failure cuts |
+| Explicitly approved provider trial | Bounded upload/verified read/release/deletion/billing and one funding operation under the existing acceptance sequence; preserve unresolved obligations at every exit |
+
+The [public Caffeine help article](https://help.caffeine.ai/hc/en-us/articles/49362898986644-File-Storage-Costs)
+describes billing after deletion for retail app credits, while the
+[official Rust example](https://github.com/dfinity/immutable-object-storage-example/blob/ef29e8a6e8063c6fe654cac53a3497cab585fefa/README.md)
+describes cycle accounts. Neither gives
+this installation an object-specific final-charge receipt. Unchanged packages,
+method signatures and consumer examples do not close the missing server contract.
+There was no account query, provider write, deployment or external message.

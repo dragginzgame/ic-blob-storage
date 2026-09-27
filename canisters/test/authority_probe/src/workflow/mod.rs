@@ -222,7 +222,7 @@ pub(crate) async fn sync_gateway(
     ops::sync::authorize(context.service, context.actor)?;
     let (token, scope) = ops::sync::begin(input)?;
     let outcome = match ops::sync::fetch(scope, input).await {
-        Ok(bytes) => ops::sync::apply(token, scope, &bytes),
+        Ok(response) => ops::sync::apply(token, scope, &response),
         Err(error) => Err(error),
     };
     if outcome.is_err() {

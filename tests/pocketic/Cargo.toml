@@ -33,6 +33,7 @@ blob-test-protocol = { path = "../protocol" }
 serde_json.workspace = true
 
 [target.'cfg(not(target_family = "wasm"))'.dev-dependencies]
+ic-blob-storage = { path = "../../crates/ic-blob-storage" }
 sha2.workspace = true
 
 [lints]

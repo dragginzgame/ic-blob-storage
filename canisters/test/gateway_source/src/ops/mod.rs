@@ -62,6 +62,10 @@ pub(crate) fn observation() -> SourceObservation {
     })
 }
 
+pub(crate) fn gateway_inspection() -> Option<Principal> {
+    read(SourceJournalRecord::gateway_inspection)
+}
+
 pub(crate) fn recovery() -> SourceRecoveryView {
     read(|state| SourceRecoveryView {
         fenced: state.fenced,

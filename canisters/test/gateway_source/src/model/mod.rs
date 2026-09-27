@@ -68,6 +68,12 @@ pub(crate) struct EffectRecord {
 }
 
 impl SourceJournalRecord {
+    /// A passive gateway observation cannot run a scripted scheduling/effect mode.
+    pub fn gateway_inspection(&self) -> Option<Principal> {
+        (!self.fenced && self.sync.held.is_none() && self.mode == SourceMode::Valid)
+            .then_some(self.gateway)
+    }
+
     pub fn new(service: Principal, gateway: Principal, driver: Principal) -> Self {
         Self {
             service,

@@ -186,7 +186,7 @@ pub enum AuditLogReplyError {
     MissingContinuation,
 }
 
-// Single private owner of the advertised response schema; no request API yet.
+// Single private owner of the advertised response schema.
 mod wire {
     use super::{CandidType, Deserialize, Principal};
 

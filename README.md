@@ -6,6 +6,15 @@ and lists missing chunks within explicit work limits. Ordered reads check each
 leaf before final raw-digest verification. It also validates billing inputs and
 decodes bounded Caffeine replies, including opaque audit pages for inspection.
 Audit rows are not interpreted as proof of funding credit.
+The library also encodes explicit Cashier balance, payment-relationship and
+gateway-list queries, and inspects relationship replies against the expected
+storage owner and payer. Encoding/decoding performs no provider call and grants
+no spending or account-link authority.
+Replies can be checked against the original encoded request, including its
+Cashier, method and expected account bindings. Gateway application additionally
+requires the exact registry scope and pending sync token. Explicit account-scoped
+audit queries retain page limits, filters and opaque cursors; their replies do
+not authenticate CSV contents or prove payment outcomes.
 
 A transient multi-object catalog owns lifecycle, root claims and request receipts,
 with tenant quotas, separate physical/billing accounting and

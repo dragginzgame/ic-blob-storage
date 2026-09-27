@@ -4,12 +4,23 @@ use blob_test_protocol::{GatewaySyncRequest, SyncFailure};
 use candid::Principal;
 use ic_blob_storage::{
     model::gateway::registry::{GatewayScope, GatewaySyncError, GatewaySyncToken},
-    ops::caffeine::gateway::{GatewayReplyError, GatewayReplyLimits, apply_gateway_sync_reply},
+    ops::caffeine::{
+        gateway::{GatewayReplyError, GatewayReplyLimits},
+        query::{
+            CashierQuery, CashierQueryError, CashierQueryRequest, reply::BoundGatewayReplyError,
+        },
+    },
 };
 use ic_cdk::call::Call;
 use std::num::NonZeroU128;
 
 use super::{bound, mutate};
+
+/// Original provider query held across the controlled source's reentrant schedule.
+pub(crate) struct GatewaySyncResponse {
+    request: CashierQueryRequest,
+    bytes: Vec<u8>,
+}
 
 pub(crate) fn authorize(service: Principal, actor: Principal) -> Result<(), SyncFailure> {
     let record = super::archive::current(service, actor).ok_or(SyncFailure::Denied)?;
@@ -73,40 +84,59 @@ pub(crate) fn begin(
 pub(crate) async fn fetch(
     scope: GatewayScope,
     input: GatewaySyncRequest,
-) -> Result<Vec<u8>, SyncFailure> {
-    Call::bounded_wait(scope.cashier(), "fixture_gateways")
+) -> Result<GatewaySyncResponse, SyncFailure> {
+    let request = CashierQueryRequest::new(scope.cashier(), CashierQuery::StorageGateways)
+        .map_err(|error| match error {
+            CashierQueryError::InvalidPrincipal { .. }
+            | CashierQueryError::AuditCursorAccountMismatch => SyncFailure::Binding,
+            CashierQueryError::EncodingFailed => SyncFailure::Transport,
+        })?;
+    // This local scheduling endpoint needs fixture-only revision/sequence data.
+    // It is not the provider's empty-argument query. Retain the selected provider
+    // request for target/method validation when handling the resulting list.
+    let response = Call::bounded_wait(request.cashier(), "fixture_gateways")
         .with_arg(input)
         .await
-        .map(ic_cdk::call::Response::into_bytes)
-        .map_err(|_| SyncFailure::Transport)
+        .map_err(|_| SyncFailure::Transport)?;
+    Ok(GatewaySyncResponse {
+        request,
+        bytes: response.into_bytes(),
+    })
 }
 
 pub(crate) fn apply(
     token: GatewaySyncToken,
     scope: GatewayScope,
-    bytes: &[u8],
+    response: &GatewaySyncResponse,
 ) -> Result<(), SyncFailure> {
     if super::archive::recovery::is_fenced() {
         return Err(SyncFailure::Fenced);
     }
     mutate(|state| {
-        let result = apply_gateway_sync_reply(
-            &mut state.registry,
-            token,
-            scope,
-            bytes,
-            GatewayReplyLimits {
-                max_bytes: bound(4096),
-                decoding_quota: bound(100_000),
-                skipping_quota: bound(1000),
-                max_type_entries: bound(32),
-            },
-        )
-        .map_err(|error| match error {
-            GatewayReplyError::ReplyTooLarge => SyncFailure::ReplyTooLarge,
-            GatewayReplyError::InvalidReply => SyncFailure::InvalidReply,
-            GatewayReplyError::Sync(error) => sync_error(error),
-        });
+        let result = response
+            .request
+            .apply_gateway_sync_reply(
+                &mut state.registry,
+                token,
+                scope,
+                &response.bytes,
+                GatewayReplyLimits {
+                    max_bytes: bound(4096),
+                    decoding_quota: bound(100_000),
+                    skipping_quota: bound(1000),
+                    max_type_entries: bound(32),
+                },
+            )
+            .map_err(|error| match error {
+                BoundGatewayReplyError::Binding(_) => SyncFailure::Binding,
+                BoundGatewayReplyError::Reply(GatewayReplyError::ReplyTooLarge) => {
+                    SyncFailure::ReplyTooLarge
+                }
+                BoundGatewayReplyError::Reply(GatewayReplyError::InvalidReply) => {
+                    SyncFailure::InvalidReply
+                }
+                BoundGatewayReplyError::Reply(GatewayReplyError::Sync(error)) => sync_error(error),
+            });
         if result.is_ok() {
             state.journey.reads.invalidate();
         }

@@ -2,6 +2,34 @@
 
 ## [Unreleased]
 
+### Added
+
+- Account-scoped Cashier audit query encoding with an explicit positive page
+  bound, event filter and opaque cursor. Replies use the original method/target
+  and the stricter requested/decoder count limit. Independent Candid vectors
+  cover every filter and full-width cursor values; no automatic pagination or
+  payment reconciliation is inferred from audit text.
+- Bounded Caffeine payment-relationship reply inspection with explicit expected
+  storage owner and payer. Preserves signed limits, period spend and bandwidth
+  counters without inventing spending authority; absent reports, binding errors
+  and all advertised provider failures remain distinct. Independent Candid
+  fixtures cover decoder bounds and optional-field semantics.
+- Library-owned Cashier balance, payment-relationship and gateway-list query
+  encoding with explicit targets and account bindings. Replies can now be handled
+  against the original request, rejecting wrong methods or sources before parsing.
+  Gateway application also requires the exact registry scope and pending token.
+  The local balance and gateway workflows retain their request across the await;
+  independent Candid vectors and IC revocation/recovery checks cover both paths.
+- Query-only relationship and gateway inspection in the controlled local source. PocketIC
+  covers exact signed amounts, missing/error reports, owner/payer mismatches,
+  denied callers, unchanged journals and restoration fences. Gateway queries
+  refuse scripted effect modes; consumed or revoked sync tokens cannot reapply
+  their replies. This adds no deployed transport, account-link action or paid operation.
+- Source-backed installation proposal separating Toko tenants, storage owners
+  and Cashier payers, with existing-obligation disposition and concrete gates
+  for shared production handlers. Current package/interface metadata rechecked;
+  no live installation, account or provider effects are selected by the proposal.
+
 ## [0.1.18] - 2026-09-27
 
 ### Added

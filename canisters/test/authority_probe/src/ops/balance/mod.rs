@@ -9,8 +9,16 @@ use blob_test_protocol::balance::{
 };
 use candid::Principal;
 use ic_blob_storage::ops::caffeine::balance::{
-    BalanceProviderError, BalanceReply, BalanceReplyError, BalanceReplyLimits, decode_balance_reply,
+    BalanceProviderError, BalanceReply, BalanceReplyError, BalanceReplyLimits,
 };
+use ic_blob_storage::ops::caffeine::query::reply::BoundBalanceReplyError;
+use ic_blob_storage::ops::caffeine::query::{CashierQuery, CashierQueryError, CashierQueryRequest};
+
+/// Original encoded request retained alongside its raw response until completion.
+pub(crate) struct BalanceResponse {
+    request: CashierQueryRequest,
+    bytes: Vec<u8>,
+}
 
 pub(crate) fn authorize(service: Principal, actor: Principal) -> Result<(), Failure> {
     let snapshot = super::archive::current(service, actor).ok_or(Failure::Denied)?;
@@ -62,41 +70,59 @@ pub(crate) fn begin(input: BalanceRefreshRequest) -> Result<(usize, ScopeRecord)
     })
 }
 
-pub(crate) async fn fetch(scope: ScopeRecord) -> Result<Vec<u8>, Failure> {
-    // Deliberately a local substitute method. No production Cashier request schema
-    // is declared here; only the maintained production reply decoder is exercised.
-    ic_cdk::call::Call::bounded_wait(scope.source, "fixture_balance")
-        .with_arg(scope.account)
+pub(crate) async fn fetch(scope: ScopeRecord) -> Result<BalanceResponse, Failure> {
+    let request = CashierQueryRequest::new(
+        scope.source,
+        CashierQuery::Balance {
+            account: scope.account,
+        },
+    )
+    .map_err(|error| match error {
+        CashierQueryError::InvalidPrincipal { .. }
+        | CashierQueryError::AuditCursorAccountMismatch => Failure::Binding,
+        CashierQueryError::EncodingFailed => Failure::Transport,
+    })?;
+    // Deliberately dispatch to a local substitute, not the maintained method name.
+    // Exercise the library-owned argument shape and reply decoder across an actual
+    // await. The fixture retains its driver controls and does not qualify Cashier.
+    let response = ic_cdk::call::Call::bounded_wait(request.cashier(), "fixture_balance")
+        .with_raw_args(request.arguments())
         .await
-        .map(ic_cdk::call::Response::into_bytes)
-        .map_err(|_| Failure::Transport)
+        .map_err(|_| Failure::Transport)?;
+    Ok(BalanceResponse {
+        request,
+        bytes: response.into_bytes(),
+    })
 }
 
 pub(crate) fn complete(
     id: usize,
     scope: ScopeRecord,
-    response: Result<Vec<u8>, Failure>,
+    response: Result<BalanceResponse, Failure>,
 ) -> Result<(), Failure> {
     // A callback after forced restore must not even reopen/mutate the frozen owner.
     if super::archive::recovery::is_fenced() {
         return Err(Failure::Fenced);
     }
     super::mutate(|state| {
-        let decoded = response.and_then(|bytes| decode(&bytes, scope.account));
+        let decoded = response.and_then(|response| decode(&response, scope.source));
         state
             .balance
             .complete(id, scope, decoded, ic_cdk::api::time())
     })
 }
 
-fn decode(bytes: &[u8], account: Principal) -> Result<[u128; 4], Failure> {
+fn decode(response: &BalanceResponse, source: Principal) -> Result<[u128; 4], Failure> {
     let limits = BalanceReplyLimits {
         max_bytes: super::bound(4096),
         decoding_quota: super::bound(100_000),
         skipping_quota: super::bound(1000),
         max_type_entries: super::bound(32),
     };
-    match decode_balance_reply(bytes, account, limits) {
+    match response
+        .request
+        .decode_balance_reply(source, &response.bytes, limits)
+    {
         Ok(BalanceReply::ReportedBalance { balance, .. }) => Ok([
             balance.total(),
             balance.prepaid(),
@@ -109,12 +135,19 @@ fn decode(bytes: &[u8], account: Principal) -> Result<[u128; 4], Failure> {
         Ok(BalanceReply::ProviderFailure(BalanceProviderError::InternalError)) => {
             Err(Failure::ProviderInternal)
         }
-        Err(BalanceReplyError::ReplyTooLarge) => Err(Failure::Oversized),
-        Err(BalanceReplyError::AccountMismatch) => Err(Failure::AccountMismatch),
+        Err(BoundBalanceReplyError::Reply(BalanceReplyError::ReplyTooLarge)) => {
+            Err(Failure::Oversized)
+        }
+        Err(BoundBalanceReplyError::Reply(BalanceReplyError::AccountMismatch)) => {
+            Err(Failure::AccountMismatch)
+        }
         Err(
-            BalanceReplyError::InvalidAccount
-            | BalanceReplyError::InvalidReply
-            | BalanceReplyError::InvalidBalance(_),
+            BoundBalanceReplyError::Binding(_)
+            | BoundBalanceReplyError::Reply(
+                BalanceReplyError::InvalidAccount
+                | BalanceReplyError::InvalidReply
+                | BalanceReplyError::InvalidBalance(_),
+            ),
         ) => Err(Failure::Malformed),
     }
 }

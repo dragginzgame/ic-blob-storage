@@ -29,6 +29,18 @@ pub(crate) fn observation(caller: Principal) -> Option<SourceObservation> {
     ops::read(|state| state.driver == caller).then(ops::observation)
 }
 
+pub(crate) fn inspect_gateways(caller: Principal) {
+    if !ops::read(|state| state.driver == caller) {
+        ops::reject();
+        return;
+    }
+    if let Some(gateway) = ops::gateway_inspection() {
+        ops::reply_list(gateway);
+    } else {
+        ops::reject();
+    }
+}
+
 pub(crate) async fn run_sync(
     caller: Principal,
     input: blob_test_protocol::GatewaySyncRequest,
@@ -156,5 +168,18 @@ pub(crate) async fn balance_reply(caller: Principal, account: Principal) {
         ops::reject();
     } else {
         ops::reply(reply.bytes);
+    }
+}
+
+pub(crate) fn inspect_relationship(caller: Principal, owner: Principal) {
+    // Driver-only substitute; not a claim about Cashier account-query authorization.
+    if !ops::read(|state| state.driver == caller && !state.fenced) {
+        ops::reject();
+        return;
+    }
+    if let Some(bytes) = ops::balance::inspection_reply(owner) {
+        ops::reply(bytes);
+    } else {
+        ops::reject();
     }
 }

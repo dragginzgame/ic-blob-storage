@@ -40,3 +40,7 @@ pub(crate) fn view() -> BalanceSourceView {
             .map(|c| c.account),
     })
 }
+
+pub(crate) fn inspection_reply(account: Principal) -> Option<Vec<u8>> {
+    super::read(|state| state.balance.inspection_reply(account))
+}

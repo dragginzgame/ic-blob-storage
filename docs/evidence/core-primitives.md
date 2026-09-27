@@ -2056,3 +2056,163 @@ in funding-reports.sha256. Tested Wasm SHA-256:
 This is local ingress-result recovery only. Cashier operation/account correlation,
 credit reconciliation and independent recovery remain open. No paid provider call,
 release action or full CI/release validation ran. Cargo/receipt remain 0.1.17.
+
+## Payment relationship inspection after 0.1.18
+
+The [installation review](caffeine-installation-review.json) pins the refreshed
+Cashier schema and Canic/Toko sources. The additive library decoder for
+`payment_account_canister_get_v1` accepts supplied bytes and explicitly expected
+paid-canister/payer principals. No transport or production installation is added.
+
+Independent didc 0.5.4 vectors live in
+`crates/ic-blob-storage/tests/fixtures/caffeine-relationship/`; `cases.json`
+retains exact Candid inputs and the schema hash. Reproduce each `candid` value
+with `didc encode --defs docs/evidence/caffeine-cashier.did --types
+'(PaymentAccountCanisterGetResult)'` and compare the resulting hex to its `file`.
+These are synthetic responses, not queried accounts. All fixtures reproduce
+byte-for-byte against the retained schema.
+
+Targeted native tests establish:
+
+- Present linked and explicit self-payer relationships bind both trusted principals;
+  mismatched owner/payer and anonymous/management expected principals reject.
+- Daily limits and period spend remain exact signed arbitrary-width observations,
+  including negative values and spend above the reported limit. Wide natural
+  counters, zero, maximum timestamps and optional expiry are not narrowed.
+- All four advertised provider failures and no-relationship reports remain distinct.
+  Diagnostic text is discarded. Unknown errors, truncated/malformed input and
+  byte/work/type/skip exhaustion return typed decoding failures.
+- Candid missing or incompatible optional fields can yield no relationship. That
+  result deliberately establishes neither self-payment nor absence of obligations.
+
+Checks passed: targeted library Caffeine tests, strict library all-target Clippy,
+warning-free library rustdoc, library Wasm check, formatting and diff whitespace.
+No platform behavior changed, so no new PocketIC claim is made. Existing 0.1.18
+funding-report hashes were verified against historical source `fff08a9`, not
+rotated to this worktree. Full CI/release validation, live account reads and
+provider effects were not run. Cargo and the release receipt remain 0.1.18.
+
+## Cashier query encoding and local composition after 0.1.18
+
+Anonymous Cashier Candid retrieval again matched SHA-256
+`232b08e4514048d4de48d6d1bf4387f577bfb64c7e2e2ded699a5e52d475d76f`.
+`CashierQueryRequest` owns target, method, encoded arguments and the original
+balance/relationship/gateway query selection. Anonymous/management principals
+reject in every role. The relationship payer is a retained response expectation,
+not sent as the requested usage owner. No constructor performs transport or
+selects an arbitrary/paid method. Workflows still own full operation correlation.
+
+Independent didc 0.5.4 request vectors live in
+`crates/ic-blob-storage/tests/fixtures/caffeine-query/cases.json`. For each case,
+encode its `candid` input using `--defs docs/evidence/caffeine-cashier.did
+--method <method>` and compare with its `file`. All method/argument pairs match
+byte-for-byte. Native checks additionally cover independently changed targets,
+accounts, owner and payer, including explicit self-payment expectations.
+
+The authority fixture now uses these balance arguments with its explicitly local
+`fixture_balance` endpoint. The controlled receiver independently decodes the
+account record and retains its service/driver checks, bounded history and hold/
+reject controls. No alternate old request shape remains. This is a hard cut of
+the unpublished v1 fixture; cross-release reinstall remains required.
+
+The complete operator-balance PocketIC group passes: actual replies preserve
+account checks, malformed/error distinctions, dispatch-based age, pending slots,
+configuration invalidation, callback interruption, frozen restoration, request
+identity consumption and passive status/preview behavior. The source still is a
+substitute, not an authenticated Cashier. Paid effects and provider qualification
+remain outside these results.
+
+Targeted Caffeine native tests, affected strict all-target Clippy, warning-free
+affected rustdoc, fixture Wasm builds, formatting and diff checks pass. Tested
+fixture Wasm SHA-256 values:
+
+- authority: `0f597ff2fc83c86dabbcb3cab8eaf19f217bda589c93466045a670ce20e434f1`
+- gateway source: `8e9fc5f854ce6e4835a8fbb5d2cc7d45b4303b780434215da35f71786a12cffe`
+- funding (test setup): `935d26f3c9c9537b5ec4d184948824d01d0b3f0042a7ffb9fe28af5c63d68518`
+
+No full CI, live account lookup, production transport or paid effect ran.
+Cargo/receipt remain 0.1.18; historical source inventories remain unchanged.
+
+## Request-bound replies and relationship queries after 0.1.18
+
+`CashierQueryRequest` now supplies its original bindings to balance/relationship
+reply decoding. Wrong decoder method or trusted response-source context rejects
+before byte/decoder limits. Native tests use the independent response fixtures
+to prove account, owner and payer mismatch handling, distinct absence/errors and
+unchanged request selection. The API does not authenticate caller-supplied source
+context or establish a response's freshness.
+
+The balance fixture retains the encoded request alongside its response across
+the actual await. Its journal still owns service/namespace/revision/attempt checks
+and restoration fencing; no current configuration is substituted into decoding.
+
+Gateway application now checks the original query method and target before the
+registry's service/namespace/Cashier scope, exact pending token and bounded
+decoding. Native checks cover wrong bindings, malformed/oversized/over-limit lists,
+success using the independent gateway fixture, and consumed/cancelled/revoked
+tokens. Every rejection preserves the entire registry, including pending state.
+The reentrant sync fixture retains the selected request across its await, while
+still calling its fixture-only scheduling endpoint with revision/sequence data.
+It does not send the provider's empty arguments to that scheduling endpoint.
+
+The controlled source exposes the maintained relationship query's name and request
+shape over its existing bounded raw-response slot. Its explicit driver restriction
+is a substitute policy, not Cashier authorization evidence. Queries reject wrong
+owners/callers and held/rejected/busy source state, and never alter journals.
+Actual PocketIC checks cover:
+
+- Exact signed amounts beyond u128 and distinct absent/all advertised error reports.
+- Wrong returned owner/payer, malformed and oversized responses with no fallback.
+- Caller/owner/hold/reject denial and stable journals before/after queries.
+- Injected old stable bytes cannot replace active heap observations. Actual
+  restoration fences the source and refuses the same formerly valid query.
+
+The separate gateway query accepts the maintained empty argument list. PocketIC
+feeds its reply into an exact pending library sync, checks consumed/revoked token
+rejection and unchanged fixture journals, and denies wrong callers, all scripted
+source modes and restored sources. The existing actual inter-canister sync tests
+still cover overlapping calls, revocation, newer membership, held replies and
+forced restoration with an outstanding callback.
+
+The PocketIC package adds only a local library dev-dependency; Cargo.lock records
+that edge, with no dependency version change. Native request checks, affected
+strict all-target Clippy, warning-free rustdoc and fixture Wasm builds pass. The
+complete operator and gateway-sync PocketIC targets pass for the final code.
+Formatting/diff checks pass.
+
+Tested Wasm SHA-256 values:
+
+- authority: `49c53f73d9a600fe2b37aa2ff46e1539561b99170f0bb4d042df17ba739ef8b5`
+- gateway source: `b8f4408966733d3250508148867f049ed03e077729ff7b79e63110388b0c7fdb`
+- funding: `399d89b1e342f4e3329e4661a858eecf6bc1fc80bce7745d0106380fb5a89386`
+
+This adds neither a production transport nor provider qualification. No live
+account lookup, payment, deployment or full CI/release validation ran. Release
+version remains 0.1.18; historical source inventories are unchanged.
+
+## Account-scoped audit requests after 0.1.18
+
+Anonymous Cashier Candid metadata was fetched again and still matches SHA-256
+`232b08e4514048d4de48d6d1bf4387f577bfb64c7e2e2ded699a5e52d475d76f`.
+The shared query encoder now accepts an explicit audit account, positive page
+bound, optional event filter and optional opaque cursor. It always sends the
+account and maximum, with no all-account/default-bound mode. A cursor naming a
+different account rejects locally; absent cursor accounts and every nat64
+sequence remain exact. This is a conservative local request restriction, not
+qualification of server cursor semantics.
+
+Request-bound reply decoding rejects wrong method/source before parsing and
+uses the smaller of requested and decoder reported-count bounds. It preserves
+opaque CSV, absent/terminal pages, provider failures and optional cursor fields.
+There is no row-count verification, account/filter authentication, completeness
+claim, automatic follow-up or payment reconciliation.
+
+Independent didc 0.5.4 vectors in the existing `caffeine-query/cases.json` cover
+the first page, all seven event variants with an account-bearing cursor, and
+maximum nat64 values with an absent cursor account. Native tests also cover
+invalid target/account, mismatched cursors, request-field independence, both
+directions of the count bound and unusable replies. The targeted Caffeine tests,
+strict affected all-target Clippy, affected Wasm checks, warning-free rustdoc,
+formatting and diff checks pass. No new platform workflow was added or PocketIC
+run repeated for this continuation. Earlier tested Wasm hashes remain evidence
+of those earlier runs. No live account read, paid effect or release action ran.

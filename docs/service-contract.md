@@ -122,6 +122,35 @@ It accepts supplied bytes and trusted context; no provider fetch is implemented.
 Local account-balance reply decoding likewise binds successful reports to a
 supplied requested account and rejects unusable amounts. It does not establish
 transport identity, account ownership, observation freshness or payment outcomes.
+The post-0.1.18 [installation proposal](provider-review.md#integration-decision-after-0118)
+separates service owner, tenant project and payer and inventories the remaining
+deployment inputs. Bounded local relationship decoding checks both expected
+principals and retains signed provider figures without interpreting allowance.
+No compatible relationship reported is not self-payment evidence. This extends
+local inspection only; it freezes no production binding, schema or transport.
+The library also owns the explicit method/argument encoding for balance,
+relationship and gateway-list queries. The controlled balance fixture sends the
+maintained account record to its local substitute endpoint and uses the shared
+reply decoder; IC interruption and restore checks remain local-model evidence.
+No real Cashier call, provider namespace or production workflow follows from
+constructing an encoded request.
+Balance/relationship decoding can retain the original request's method, target
+and account expectations; supplied response-source context is still not transport
+authentication. The balance fixture carries that request across its await. A
+driver-only local relationship query shares the bounded raw-response source and
+rejects held, busy, rejected or fenced observations. It cannot activate a payer
+or remove an obligation, and adds no production account workflow.
+Gateway reply application likewise checks the original method/target before the
+registry's scope, pending token and bounded decoding. The local reentrant sync
+fixture retains that request across its await but still calls its scheduling
+endpoint; a separate driver-only query exercises the provider's empty-argument
+shape. Scripted modes and restored sources cannot answer that passive query.
+Audit request encoding requires an explicit account and positive page limit;
+present cursor accounts must match. Reply inspection checks the original method
+and trusted source and enforces both requested and local reported-count bounds.
+Account/filter correctness is not independently verifiable from the opaque CSV
+envelope. There is no automatic pagination, production audit call or payment
+reconciliation; cursor order, retention and row semantics remain unqualified.
 The controlled-source workflow now supplies explicit IC target/caller and exact
 attempt correlation, with one pending read and sixteen lifetime attempts. This
 tests local orchestration, not deployed Cashier authority or certified freshness.

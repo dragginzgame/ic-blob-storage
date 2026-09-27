@@ -19,6 +19,16 @@ pub(crate) struct ReplyRecord {
 }
 
 impl BalanceSourceRecord {
+    /// Passive response inspection shares the bounded raw-byte configuration.
+    /// A held/rejected/busy source cannot be bypassed through the query path.
+    pub fn inspection_reply(&self, account: Principal) -> Option<Vec<u8>> {
+        let config = self.config.as_ref()?;
+        if self.pending || config.hold || config.reject || config.account != account {
+            return None;
+        }
+        Some(config.bytes.clone())
+    }
+
     pub fn new() -> Self {
         Self {
             config: None,

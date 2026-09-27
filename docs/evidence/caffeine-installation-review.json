@@ -1,0 +1,85 @@
+{
+  "schema_version": 1,
+  "observed_on": "2026-09-27",
+  "baseline_version": "0.1.18",
+  "scope": "Source review and anonymous Cashier/Mops metadata only; no account state, provider write, deployment, external message or sibling mutation.",
+  "observations": {
+    "official_main": "e5cacdfe5ce55e939edb02980fca800c0c13f421",
+    "npm_latest": "1.1.2",
+    "npm_integrity": "sha512-JAmoHT6E8M18DEbW4rkHinAOw0A8yNbz+rj8F56VAvr8Hf0TxQSK0ZdMrkwwT7BsiOLvtFK/YcLtoaWBc9x2xQ==",
+    "mops_highest": "1.1.1",
+    "mops_query": "getHighestVersion(\"caffeineai-object-storage\") on oknww-riaaa-aaaam-qaf6a-cai",
+    "cashier": "72ch2-fiaaa-aaaar-qbsvq-cai",
+    "cashier_candid_sha256": "232b08e4514048d4de48d6d1bf4387f577bfb64c7e2e2ded699a5e52d475d76f",
+    "cashier_read": "icp canister metadata 72ch2-fiaaa-aaaar-qbsvq-cai candid:service --network https://icp-api.io --root-key mainnet --identity anonymous",
+    "backend_source_sha256": {
+      "packages/object-storage/backend/src/Mixin.mo": "175c6b98672a83054fc08855062d1a7b7f2bd3713bf11a60d5319ac5afefe2b3",
+      "packages/object-storage/backend/src/Storage.mo": "0c757f4cb30ebe8e30b42a59b130a1662b47e403b9664f44e98d14b08b20af42"
+    },
+    "dfinity_example_main": "ef29e8a6e8063c6fe654cac53a3497cab585fefa",
+    "toko_development": "6519b72d2a420564dabaf700fc55f7b8603d9fd3",
+    "toko_access": "Anonymous GitHub returned 404; authenticated gh api read succeeded. Pinned contents and recursive tree retrieved.",
+    "toko_file_sha256": {
+      "apps/toko/canic.toml": "6706a4ee82cd958bf763440626fe1bf0201cb60b29b694a91b7d8b282a62601b",
+      "canister_ids.staging.json": "879303cc31e6a1e13010791afea44fdd05d085d04753fc6b3ee6f50059ebf27a",
+      "fleets/toko/project/instance/src/ops/immutable_storage.rs": "f6f428c58a016c66d29801e15591a9008d27ac4cfe58648e0da959598d7e8a67",
+      "frontend/src/lib/storage/storage-client.ts": "5742c9e31846ae7162fc1bb006013ad33e943be4a8f4d536ab907140f231ea4d",
+      "frontend/src/lib/storage/project-storage-context.ts": "3d266b607bdcc83f61f27bf8c0cf5d59d27259ecac7d056edde7315c0c86c3ee"
+    },
+    "canic_local_head": "8dce63c64c126340aae9456bc05ed9ad49bb9c69",
+    "canic_blob_diff_base": "3f825aa223e663a562a7cb1cca72e57b5703e0e9",
+    "canic_blob_diff": "No changes in committed diff or working tree for *blob_storage* and *immutable* paths; not a remote-head or whole-repository audit.",
+    "canic_billing_workflow_sha256": "f17ec0e206cd6a13dfc95be4c2a0eb4a3de190556d60897368ca55b4cd04b347"
+  },
+  "installation": {
+    "status": "proposal only; exact target not selected",
+    "service_owner": null,
+    "tenant_project_instance": null,
+    "tenant_actor_authority": null,
+    "payment_account": null,
+    "allocated_project": null,
+    "allocated_bucket": null,
+    "accountable_operator": null,
+    "resource_budgets": null,
+    "existing_obligation_inventory": null,
+    "proposed_first_trial": "New isolated owner and explicit namespace, explicit self account unless operator selects linked payer; existing installations retain obligations and authority."
+  },
+  "relationship_inspection": {
+    "method": "payment_account_canister_get_v1",
+    "mode": "query",
+    "request": "record { canister : principal }",
+    "required_present_bindings": [
+      "paid_canister",
+      "payment_account"
+    ],
+    "absence": "No compatible relationship reported is not proof of self-payment or no obligations.",
+    "amounts": "Signed daily limit and period spend preserved without sentinel or spendability interpretation.",
+    "implementation": "Bounded local decoder only; no transport, linking, funding or migration."
+  },
+  "query_encoding": {
+    "interface_rechecked_on": "2026-09-27",
+    "interface_sha256": "232b08e4514048d4de48d6d1bf4387f577bfb64c7e2e2ded699a5e52d475d76f",
+    "methods": [
+      "account_balance_get_v1",
+      "payment_account_canister_get_v1",
+      "storage_gateway_list_v1",
+      "payment_account_audit_log_get_v1"
+    ],
+    "fixtures": "crates/ic-blob-storage/tests/fixtures/caffeine-query/cases.json",
+    "composition": "Local balance fixture sends the maintained account record to its controlled substitute endpoint; no production transport."
+  },
+  "limitations": [
+    "Source metadata does not identify deployed server code or this installation's configuration.",
+    "No project instance was selected from the hub/registry staging locator.",
+    "Package archives, Mops file hashes, pricing and gateway membership were not requeried.",
+    "No server contract found closing upload retry/completion, payment correlation/retention, final billing or independent recovery authority."
+  ],
+  "audit_query_encoding": {
+    "interface_rechecked_on": "2026-09-27",
+    "interface_sha256": "232b08e4514048d4de48d6d1bf4387f577bfb64c7e2e2ded699a5e52d475d76f",
+    "scope": "Explicit account, positive page bound, optional event filter and opaque cursor; no all-account request or automatic pagination.",
+    "cursor_restriction": "A present cursor account must match the requested account. This local restriction does not establish deployed cursor semantics.",
+    "reply": "Method/source checks and the stricter requested/decoder reported-count bound; CSV cannot independently authenticate account/filter or settle payment.",
+    "evidence": "Independent didc request vectors and targeted native checks; no account audit or production transport."
+  }
+}

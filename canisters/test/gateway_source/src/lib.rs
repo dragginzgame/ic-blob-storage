@@ -98,7 +98,25 @@ fn balance_observation() -> Option<blob_test_protocol::balance::BalanceSourceVie
     workflow::balance_observation(ic_cdk::api::msg_caller())
 }
 #[ic_cdk::update(manual_reply = true)]
-async fn fixture_balance(account: Principal) -> PhantomData<()> {
-    workflow::balance_reply(ic_cdk::api::msg_caller(), account).await;
+async fn fixture_balance(
+    input: blob_test_protocol::balance::BalanceSourceRequest,
+) -> PhantomData<()> {
+    workflow::balance_reply(ic_cdk::api::msg_caller(), input.account).await;
+    PhantomData
+}
+
+// Maintained method/argument shape over driver-controlled bytes, never Cashier semantics.
+#[ic_cdk::query(manual_reply = true)]
+fn payment_account_canister_get_v1(
+    input: blob_test_protocol::balance::RelationshipSourceRequest,
+) -> PhantomData<()> {
+    workflow::inspect_relationship(ic_cdk::api::msg_caller(), input.canister);
+    PhantomData
+}
+
+// Query-only wire probe; fixture scheduling/effect modes cannot execute here.
+#[ic_cdk::query(manual_reply = true)]
+fn storage_gateway_list_v1() -> PhantomData<Vec<Principal>> {
+    workflow::inspect_gateways(ic_cdk::api::msg_caller());
     PhantomData
 }

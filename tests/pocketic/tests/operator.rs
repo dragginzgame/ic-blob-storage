@@ -4,7 +4,9 @@
 mod operator_balance;
 mod operator_funding_lookup;
 mod operator_funding_preview;
+mod operator_gateways;
 mod operator_method_mode;
+mod operator_relationship;
 mod operator_sync;
 mod support;
 mod sync_request;

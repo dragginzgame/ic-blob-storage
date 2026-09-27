@@ -1,0 +1,68 @@
+{
+  "generator": "didc 0.5.4",
+  "schema": "docs/evidence/caffeine-cashier.did",
+  "schema_sha256": "232b08e4514048d4de48d6d1bf4387f577bfb64c7e2e2ded699a5e52d475d76f",
+  "scope": "Independent request vectors; no calls or account authority.",
+  "cases": [
+    {
+      "file": "balance.hex",
+      "method": "account_balance_get_v1",
+      "candid": "(record { account = principal \"rrkah-fqaaa-aaaaa-aaaaq-cai\" })"
+    },
+    {
+      "file": "relationship.hex",
+      "method": "payment_account_canister_get_v1",
+      "candid": "(record { canister = principal \"rrkah-fqaaa-aaaaa-aaaaq-cai\" })"
+    },
+    {
+      "file": "gateways.hex",
+      "method": "storage_gateway_list_v1",
+      "candid": "()"
+    },
+    {
+      "file": "audit-first.hex",
+      "method": "payment_account_audit_log_get_v1",
+      "candid": "(record { account = opt principal \"rrkah-fqaaa-aaaaa-aaaaq-cai\"; max_entries = opt (2 : nat64); event_type = null; continuation_token = null })"
+    },
+    {
+      "file": "audit-Spend.hex",
+      "method": "payment_account_audit_log_get_v1",
+      "candid": "(record { account = opt principal \"rrkah-fqaaa-aaaaa-aaaaq-cai\"; max_entries = opt (2 : nat64); event_type = opt variant { Spend }; continuation_token = opt record { account = opt principal \"rrkah-fqaaa-aaaaa-aaaaq-cai\"; sequence = 7 : nat64 } })"
+    },
+    {
+      "file": "audit-RelationshipAdd.hex",
+      "method": "payment_account_audit_log_get_v1",
+      "candid": "(record { account = opt principal \"rrkah-fqaaa-aaaaa-aaaaq-cai\"; max_entries = opt (2 : nat64); event_type = opt variant { RelationshipAdd }; continuation_token = opt record { account = opt principal \"rrkah-fqaaa-aaaaa-aaaaq-cai\"; sequence = 7 : nat64 } })"
+    },
+    {
+      "file": "audit-RelationshipUpdate.hex",
+      "method": "payment_account_audit_log_get_v1",
+      "candid": "(record { account = opt principal \"rrkah-fqaaa-aaaaa-aaaaq-cai\"; max_entries = opt (2 : nat64); event_type = opt variant { RelationshipUpdate }; continuation_token = opt record { account = opt principal \"rrkah-fqaaa-aaaaa-aaaaq-cai\"; sequence = 7 : nat64 } })"
+    },
+    {
+      "file": "audit-LedgerDeposit.hex",
+      "method": "payment_account_audit_log_get_v1",
+      "candid": "(record { account = opt principal \"rrkah-fqaaa-aaaaa-aaaaq-cai\"; max_entries = opt (2 : nat64); event_type = opt variant { LedgerDeposit }; continuation_token = opt record { account = opt principal \"rrkah-fqaaa-aaaaa-aaaaq-cai\"; sequence = 7 : nat64 } })"
+    },
+    {
+      "file": "audit-TopUp.hex",
+      "method": "payment_account_audit_log_get_v1",
+      "candid": "(record { account = opt principal \"rrkah-fqaaa-aaaaa-aaaaq-cai\"; max_entries = opt (2 : nat64); event_type = opt variant { TopUp }; continuation_token = opt record { account = opt principal \"rrkah-fqaaa-aaaaa-aaaaq-cai\"; sequence = 7 : nat64 } })"
+    },
+    {
+      "file": "audit-RelationshipRemove.hex",
+      "method": "payment_account_audit_log_get_v1",
+      "candid": "(record { account = opt principal \"rrkah-fqaaa-aaaaa-aaaaq-cai\"; max_entries = opt (2 : nat64); event_type = opt variant { RelationshipRemove }; continuation_token = opt record { account = opt principal \"rrkah-fqaaa-aaaaa-aaaaq-cai\"; sequence = 7 : nat64 } })"
+    },
+    {
+      "file": "audit-UnitCharge.hex",
+      "method": "payment_account_audit_log_get_v1",
+      "candid": "(record { account = opt principal \"rrkah-fqaaa-aaaaa-aaaaq-cai\"; max_entries = opt (2 : nat64); event_type = opt variant { UnitCharge }; continuation_token = opt record { account = opt principal \"rrkah-fqaaa-aaaaa-aaaaq-cai\"; sequence = 7 : nat64 } })"
+    },
+    {
+      "file": "audit-wide.hex",
+      "method": "payment_account_audit_log_get_v1",
+      "candid": "(record { account = opt principal \"rrkah-fqaaa-aaaaa-aaaaq-cai\"; max_entries = opt (18446744073709551615 : nat64); event_type = null; continuation_token = opt record { account = null; sequence = 18446744073709551615 : nat64 } })"
+    }
+  ]
+}

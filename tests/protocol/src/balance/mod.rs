@@ -2,6 +2,21 @@
 use candid::{CandidType, Principal};
 use serde::{Deserialize, Serialize};
 
+/// Independent local receiver shape for the maintained balance request encoder.
+/// This fixture endpoint is a substitute, not a production Cashier implementation.
+#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+pub struct BalanceSourceRequest {
+    /// Account selected by the sender's request, checked by the controlled source.
+    pub account: Principal,
+}
+
+/// Independent receiver shape for a local Cashier relationship-query experiment.
+#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+pub struct RelationshipSourceRequest {
+    /// Usage owner selected by the encoded request, not the expected payer.
+    pub canister: Principal,
+}
+
 /// Explicit local observation binding; no default project/account is inferred.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
 pub struct BalanceScope {
@@ -43,7 +58,7 @@ pub enum BalanceFailure {
     Busy,
     /// Lifetime attempts or configuration sequence exhausted.
     Limit,
-    /// Actual local call rejected or could not be enqueued.
+    /// Local call could not be encoded, enqueued or completed.
     Transport,
     /// Response exceeded the byte budget.
     Oversized,

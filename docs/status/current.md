@@ -1,71 +1,97 @@
 # Current status
 
-Date: 2026-09-26
+Date: 2026-09-27
 
-## Current batch — 0.1.18 funding reports, accounting and lookup
+## Current batch — installation contract and Cashier inspection
 
-The maintainer named 0.1.18; its undated changelog draft is open. Cargo and the
-release receipt remain 0.1.17. Refreshed public source/package metadata and
-anonymous Cashier Candid are unchanged; see the bounded
-[review record](../evidence/caffeine-funding-review.json). No account audit, paid
-provider operation or deployment was performed.
+The maintainer confirmed 0.1.18 is live and approved investigating concrete
+Caffeine/Toko bindings and implementing what the evidence supports. New work is
+in Unreleased; no next version has been selected or mutated.
 
-The library now decodes the advertised ledger-deposit notification response with
-explicit byte/work/type bounds, exact reported credit and arbitrary-width block
-indices. Every balance component and cycle amount must validate before success.
-All advertised failures remain distinct, with diagnostic text discarded.
-Independent Candid fixtures cover numeric boundaries, malformed/unknown replies,
-skipping budgets and rejection of direct-top-up success as ledger credit.
-Native Caffeine tests, strict library Clippy, Wasm check and warning-free rustdoc
-pass; see [decoder evidence](../evidence/core-primitives.md#ledger-notification-response-decoding-after-0117).
+The [integration decision](../provider-review.md#integration-decision-after-0118)
+maps storage owner/certificate issuer, tenant project, Cashier payer, namespace
+and callback authority. It proposes a new isolated owner for initial qualification
+and keeps existing Toko obligations under their current installations until
+reviewed disposition. Toko's keyed project instances are dynamic; its staging
+locator supplies no project-instance principal. Exact deployment/operator/budget
+inputs remain unset. No hub ID or default namespace has been adopted as authority.
 
-The funding experiment now retains every advertised direct-top-up error instead
-of misclassifying three categories as invalid replies. Typed errors, including the
-reported unauthorized principal, survive journal/status/CLI output and fenced
-restoration. Actual IC tests keep partial/full acceptance independent of provider
-errors, reject wrong-route ledger reports and unknown errors, and retain the full
-offer after callback traps. Native checks, strict affected-package Clippy/rustdoc,
-fixture Wasm builds and complete funding/operator PocketIC targets pass; see
-[outcome evidence](../evidence/core-primitives.md#funding-error-propagation-for-0118).
-This is a v1 hard cut of the unpublished fixture; cross-release reinstall remains
-required. The published library contract is unchanged by this follow-up.
+The [source refresh](../evidence/caffeine-installation-review.json) reconfirms
+Caffeine main, npm 1.1.2/integrity, Mops 1.1.1, backend file hashes and Cashier
+Candid. Authenticated GitHub reads reconfirm Toko development. Local Canic is now
+`8dce63c64c126340aae9456bc05ed9ad49bb9c69`; inspected blob/immutable paths have
+no committed or working-tree changes from the previous checkpoint.
 
-Attachment accounting now belongs to the library's additive `FundingAllocation`
-model. It validates an explicit reserve and lifetime bound, reconstructs complete
-sequential history, and keeps historical refunds/unsent offers separate from
-current allocation usage. Over-budget original offers, misplaced unknown transfers
-and overflowing totals return typed errors without partial output. The fixture
-delegates to this model while retaining identity/revision/persistence ownership.
-Native boundary tests, strict Clippy, rustdoc, Wasm builds and complete funding/
-operator PocketIC targets pass; see
-[allocation evidence](../evidence/core-primitives.md#shared-attachment-accounting-for-0118).
+The library adds bounded `payment_account_canister_get_v1` reply inspection.
+Present relationships must match both expected owner and payer. All errors remain
+distinct; signed limits/spend and wide counters retain their exact values without
+spendability arithmetic. Candid optional subtyping can produce no relationship,
+which never proves self-payment or no liability. Independent didc fixtures,
+targeted Caffeine tests, strict library Clippy, warning-free rustdoc and Wasm check
+pass; see [relationship evidence](../evidence/core-primitives.md#payment-relationship-inspection-after-0118).
 
-Exact read-only funding lookup now recovers retained local transport observations
-after a lost ingress reply without repeating the transfer. The query/CLI binds
-service, peer and every original request field, rejecting conflicts before exposing
-an outcome. Absent, pending and observed evidence remain distinct; old-backup
-absence and callback rollback preserve fences/uncertainty. The CLI never falls
-back to an update. Native, strict affected Clippy/rustdoc, fixture Wasm builds,
-client Wasm check and complete funding/operator PocketIC targets pass. See
-[lookup evidence](../evidence/core-primitives.md#exact-local-funding-lookup-for-0118).
-This is local ingress-result recovery, not a lost Cashier response lookup.
+The continuation centralizes read-only Cashier request encoding for balance,
+payment relationship and gateway list. Explicit targets and response expectations
+stay with the method/argument pair; no arbitrary method or paid operation is
+available. The local balance workflow uses the shared encoder against its
+controlled receiver, whose request is now the maintained account record. This is
+a hard cut of the unpublished fixture, with cross-release reinstall unchanged.
+Cashier Candid was re-read anonymously and its hash is unchanged. Independent
+request vectors, targeted Caffeine tests, affected strict Clippy/rustdoc, fixture
+Wasm builds and the complete operator-balance PocketIC group pass. See
+[query evidence](../evidence/core-primitives.md#cashier-query-encoding-and-local-composition-after-0118).
 
-This adds no notification or ledger transfer. The Cashier response does not echo account,
-ledger identity or caller operation, and its reported index cannot yet be matched
-to an original deposit. NothingToDeposit does not prove prior credit. Continue
-with exact provider operation/account correlation and lost-reply reconciliation
-before exposing an operator funding action. Keep existing unknown credit,
-spendability and independent recovery blockers. Full CI/release validation was
-not run under this continuation.
+Balance and relationship reply decoding now binds to the original encoded request.
+Wrong method/source rejects precede parsing; the balance fixture retains that
+request across the await and still checks its journal revision and recovery fence.
+A driver-only relationship query in the controlled source exercises the maintained
+method/argument shape using existing bounded raw replies, without mutating journals.
+PocketIC covers exact signed amounts, absent/provider failures, wrong parties,
+caller/hold denials and old-backup fencing. Native request tests, affected strict
+Clippy/rustdoc, fixture Wasm builds and operator PocketIC checks pass; see
+[bound-reply evidence](../evidence/core-primitives.md#request-bound-replies-and-relationship-queries-after-0118).
+The PocketIC package now depends on the library directly for these integration
+checks; Cargo.lock changes only that local development dependency edge.
+
+Gateway reply application now binds to the original request before checking the
+registry scope and exact pending token. The local sync workflow retains that
+request across its reentrant scheduling call. A separate driver-only gateway
+query exercises the empty-argument shape and refuses scripted modes and restored
+sources. Native tests preserve state on binding/payload failures and stale tokens;
+PocketIC verifies query passivity, revocation, replacement and interrupted restore.
+Targeted native checks, affected strict Clippy/rustdoc, fixture builds and both
+complete operator/gateway-sync PocketIC targets pass. The bound-reply evidence
+above records the tested Wasm hashes and remaining limits.
+
+Audit request encoding now retains an explicit account, positive page bound,
+event filter and opaque cursor. Request-bound reply inspection enforces both
+requested and local reported-count limits without interpreting CSV as payment
+evidence. Independent didc vectors cover all event filters and full-width cursors;
+targeted Caffeine native tests, affected strict Clippy, Wasm checks and rustdoc
+pass. Public Cashier Candid was rechecked unchanged. This continuation adds no
+platform workflow or audit transport; the earlier PocketIC evidence is unchanged.
+
+Next: settle the explicit installation inputs and server evidence in the decision
+before shared production read-only composition, persistence and both adapters.
+Upload retry/completion, exact funding reconciliation, final billing and recovery
+authority remain open. No account query, production transport, paid effect,
+deployment, sibling edit or full CI/release validation ran in this batch.
 
 ## Released baseline
 
-The maintainer pushed 0.1.17. Local main, origin/main and annotated tag v0.1.17
-point to `ff70032`, from source `270f7b81193c571206b2adae07fc9f076f58fe21`.
-Cargo and the release receipt are 0.1.17; the worktree was clean when this release
+The maintainer pushed 0.1.18. Local main, origin/main and annotated tag v0.1.18
+point to `ef65676`, from source `fff08a91958d7f1571ff3f9339acdc741db9ed3d`.
+Cargo and the release receipt are 0.1.18; the worktree was clean when this release
 was checked. Registry publication was not queried.
 Release/publication preserve artifacts; cleanup requires an explicit request.
 See [release guidance](../releasing.md).
+
+0.1.18 supplies ledger notification decoding, complete top-up error propagation,
+shared attachment allocation accounting and exact local funding lookup/CLI.
+Retained local ingress results are recoverable without retransmission; Cashier
+credit after a lost provider response remains unresolved. The release receipt
+records the maintainer's release-verify gate. Detailed validation remains in
+[core evidence](../evidence/core-primitives.md).
 
 The library provides content/provider identities, streaming Caffeine hashing,
 root-bound manifests, chunk verification/coverage and bounded missing-chunk pages.
@@ -102,7 +128,9 @@ evidence. The released 0.1.16 verification-checkpoints inventory was verified
 against source `d084112` (Cargo 0.1.15); all 151 entries match. Preserve it unchanged.
 The released 0.1.17 operator-actions inventory matches source `270f7b8` (Cargo
 0.1.16); all 180 entries match. Preserve it unchanged. The 0.1.18 decoder uses
-a separate [funding reports inventory](../evidence/funding-reports.sha256).
+a separate [funding reports inventory](../evidence/funding-reports.sha256), now
+verified against source `fff08a9` (Cargo 0.1.17): all 110 entries match.
+Preserve it unchanged.
 
 ## Current follow-up — provider contract review
 
@@ -120,12 +148,13 @@ not executed provider qualification or authorization for effects. The maintainer
 confirmed Caffeine is the sole provider target and requested broader internet
 research. The earlier alternative-provider question is superseded.
 
-Official Caffeine main remains `e5cacdfe5ce55e939edb02980fca800c0c13f421`;
+At the 2026-09-26 checkpoint, Caffeine main was `e5cacdfe5ce55e939edb02980fca800c0c13f421`;
 refetched backend source hashes, npm latest 1.1.2/integrity, Mops highest 1.1.1
 and deployed Cashier Candid all match retained evidence. Archive integrity,
 Mops file hashes, gateway membership and pricing were not queried again.
-Toko development remains `6519b72d2a420564dabaf700fc55f7b8603d9fd3` and local
-Canic HEAD remains `3f825aa223e663a562a7cb1cca72e57b5703e0e9`.
+Toko development was `6519b72d2a420564dabaf700fc55f7b8603d9fd3` and local
+Canic HEAD was `3f825aa223e663a562a7cb1cca72e57b5703e0e9`. The current
+checkpoint is recorded at the top of this handoff.
 
 Toko's configured project canister supplies certificates and gateway owner IDs;
 Canic funds its current canister's Cashier account. A separately deployed storage
