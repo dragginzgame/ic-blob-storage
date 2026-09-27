@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.1.19] - 2026-09-27
+
 ### Added
 
 - Account-scoped Cashier audit query encoding with an explicit positive page
