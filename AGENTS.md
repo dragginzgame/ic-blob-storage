@@ -39,12 +39,20 @@ This file is normative for automated contributors.
 
 ## Pre-1.0 hard cuts
 
-- Remove superseded APIs, schemas, state paths and tests completely. No
-  deprecated aliases, shims, dual readers, legacy fallbacks or migration engine
-  unless the maintainer explicitly authorizes an exception.
+- Pre-1.0 is 100% hard cut. Maintain only the current contract; backward
+  compatibility is not an implementation goal.
+- Remove superseded public/internal APIs, DTOs, schemas, configuration, state
+  paths, fixtures and tests completely. Update consumers and documentation in
+  the same batch; do not leave both implementations available.
+- No deprecated aliases, compatibility shims, dual readers/writers, legacy
+  payload support, version-dispatch branches, fallback conversions, staged
+  deprecations or migration engines. Do not retain old paths for hypothetical
+  consumers or cross-release upgrade compatibility.
 - Breaking public API or semantic changes require a minor version; a hard cut
   does not justify publishing an incompatible patch.
 - Product protocol/config/stable-state generations remain v1 before 1.0.
+  Replace the current schema directly; do not introduce v2 branches to keep
+  superseded forms readable.
 - Cross-release transitions are reinstall-only. Same-release interruption
   recovery, retry, backup and restore remain required within the frozen contract.
 - Source allocation removal and installation retirement are separate. Never

@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.2.4]
+
 ### Added
 
 - `StableFundingJournal` persists exact local attachment intents, first-attempt
@@ -12,14 +14,23 @@
   reconstruction rules, retaining accepted and unresolved amounts independently
   of provider credit. Reopen checks complete bounded history and totals without
   repair, then fences every mutation. Native and PocketIC cases cover corrupted
-  history, overflow, interrupted writes and every phase through upgrade. The
-  retained method and optional target balance bind canonical `account_top_up_v1`
-  arguments with an explicit account and exact attachment. Request inspection
+  history, overflow, interrupted writes and every phase through upgrade.
+- `CashierTopUpRequest` owns canonical `account_top_up_v1` encoding. Its method,
+  explicit account, optional target balance and exact attachment are bound to the
+  retained intent. Request inspection
   survives fencing; changed arguments and mismatched transport service/target
   reject without releasing reservations. Independent Candid vectors and PocketIC
-  cover request encoding, correlation and upgrade preservation. This is
-  bookkeeping only: provider authentication, spendability
-  and operational recovery remain open; no payment dispatch is enabled.
+  cover request encoding, correlation and upgrade preservation.
+
+### Changed
+
+- Updated the test dependency `ic-testkit` to 0.10.1.
+- Made the pre-1.0 policy explicit in `AGENTS.md`: 100% hard cuts, complete
+  removal of superseded contracts and no compatibility or migration paths.
+  Same-release recovery and obligation-preservation requirements remain in force.
+
+Provider authentication, spendability and operational recovery remain open;
+no payment dispatch is enabled.
 
 ## [0.2.3] - 2026-09-27
 

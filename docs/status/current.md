@@ -9,7 +9,8 @@ The maintainer confirmed **0.2.3 is pushed**. Cargo and the release receipt are
 `c85f6e989f65fe7fdf3a4971ee066a88f9b80079`, from validated source
 `4d9bcdb938c1b12aaafe7554977166ab82a854c5`. The receipt records the
 `release-verify` gate; registry publication was not independently queried.
-The worktree was clean at the start of this batch. New work is in Unreleased;
+The worktree was clean at the start of this batch. Completed work is drafted in
+the undated 0.2.4 changelog section, with Unreleased empty;
 no version mutation, commit, publication, deployment or provider effect ran here.
 
 Follow the [0.2 delivery plan](../roadmap.md). Its goal remains a usable
@@ -65,7 +66,7 @@ interface hash. Independent didc request vectors cover absent and maximal target
 balances. The wire method has no operation-ID field; local intent correlation does
 not establish remote idempotency or provider credit.
 
-This is a coherent maintainer release checkpoint; Unreleased is updated and full
+This is a coherent maintainer release checkpoint; the 0.2.4 changelog is drafted and full
 release validation still needs to run. Next, qualify actual Cashier transport and
 authenticated outcomes together with account activity, spendability and execution-cost
 gates. Other provider journals, read sessions, adapters and operational
@@ -282,6 +283,8 @@ here and use shared handlers. Linking a library exports no endpoints/lifecycle.
 Production schema/transport gates remain open: another transient fixture does not
 complete M2, and local file storage does not qualify the production outbox.
 
+AGENTS.md explicitly requires 100% hard cuts before 1.0: remove superseded forms
+and update consumers/tests/docs together, without compatibility or migration paths.
 Pre-1.0 cross-release transitions remain reinstall-only; same-release interruption
 recovery is required. Source removal and installation retirement are separate.
 Never erase the only provider, balance, uncertain-effect or billing records. All
