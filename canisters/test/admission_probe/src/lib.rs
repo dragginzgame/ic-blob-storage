@@ -112,8 +112,8 @@ fn content_descriptor(
 }
 
 #[ic_cdk::query]
-fn resources() -> Result<Option<ExecutionProfile>, Failure> {
-    workflow::resources(context())
+fn resources(limit: u8) -> Result<Vec<ExecutionProfile>, Failure> {
+    workflow::resources(context(), limit)
 }
 
 #[ic_cdk::query(decode_with = "ops::decode::admission_capacity")]

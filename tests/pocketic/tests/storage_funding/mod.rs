@@ -1,6 +1,27 @@
 use super::*;
+mod history;
+mod summary;
+mod transport;
 use blob_test_protocol::storage::funding::{Action, Allocation, Command, Intent, Phase};
 impl Fixture {
+    fn funding_scope(&self) -> blob_test_protocol::storage::funding::history::Scope {
+        blob_test_protocol::storage::funding::history::Scope {
+            service: self.service,
+            cashier: self.operator,
+            account: self.service,
+            namespace: 1,
+        }
+    }
+    fn funding_summary(
+        &self,
+        actor: Principal,
+        scope: blob_test_protocol::storage::funding::history::Scope,
+    ) -> Result<blob_test_protocol::storage::funding::summary::Summary, Failure> {
+        self.harness
+            .pic
+            .query_candid_as(self.service, actor, "funding_summary", (scope,))
+            .unwrap()
+    }
     fn funding_intent(&self, operation: u128, offered: u128) -> Intent {
         Intent {
             service: self.service,

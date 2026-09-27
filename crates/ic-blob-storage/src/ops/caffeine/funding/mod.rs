@@ -2,10 +2,12 @@
 //!
 //! Schema: `docs/evidence/caffeine-cashier.did`, SHA-256
 //! `232b08e4514048d4de48d6d1bf4387f577bfb64c7e2e2ded699a5e52d475d76f`.
-//! No call, automatic retry, accepted-cycle accounting or settlement happens here.
+//! Decoding alone performs no effect or settlement. The explicit [`transport`]
+//! primitive captures exact IC attachment refunds; it never retries automatically.
 
 use std::num::NonZeroUsize;
 pub mod request;
+pub mod transport;
 
 use candid::{CandidType, Principal, de::DecoderConfig, decode_one_with_config};
 use serde::Deserialize;

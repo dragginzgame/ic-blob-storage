@@ -5,14 +5,15 @@ use blob_test_protocol::admission::{
     release::{LifecycleCommand, ReferenceCapacity},
 };
 use ic_blob_storage::model::identity::caffeine::{
-    CaffeineContentHasher, CaffeineHashLimits, CaffeineHeader,
+    CaffeineHashLimits, CaffeineHeader, manifest::builder::CaffeineManifestBuilder,
 };
 use std::num::{NonZeroU64, NonZeroUsize};
 
 const OBJECTS: usize = 704;
 const DECLARED_BYTES: u128 = 288 * 1024 * 1024;
+const SAMPLE_OBJECTS: [usize; 5] = [0, 63, 255, 639, 703];
 
-fn content(f: &Fixture, object: usize) -> (Permission, JourneyManifest) {
+fn content(f: &Fixture, object: usize, expires_at_ns: u64) -> (Permission, JourneyManifest) {
     let bytes = if object < 640 { CHUNK / 4 } else { 2 * CHUNK };
     let mut chunk = vec![0; bytes.min(CHUNK)];
     chunk[..8].copy_from_slice(&(object as u64).to_le_bytes());
@@ -21,7 +22,7 @@ fn content(f: &Fixture, object: usize) -> (Permission, JourneyManifest) {
         name: "Content-Length",
         value: &length,
     }];
-    let mut hasher = CaffeineContentHasher::new(
+    let mut builder = CaffeineManifestBuilder::new(
         bytes as u64,
         &headers,
         CaffeineHashLimits {
@@ -30,18 +31,22 @@ fn content(f: &Fixture, object: usize) -> (Permission, JourneyManifest) {
             max_headers: NonZeroUsize::new(1).unwrap(),
             max_header_bytes: NonZeroUsize::new(1024).unwrap(),
         },
+        NonZeroUsize::new(2).unwrap(),
     )
     .unwrap();
-    let mut chunks = Vec::new();
     for offset in (0..bytes).step_by(CHUNK) {
-        hasher.append(offset as u64, &chunk).unwrap();
-        // Independent fixture leaf calculation; only this test owns fabricated bytes.
-        let mut leaf = Sha256::new();
-        leaf.update(b"icfs-chunk/");
-        leaf.update(&chunk);
-        chunks.push(leaf.finalize().into());
+        builder.append(offset as u64, &chunk).unwrap();
     }
-    let root = *hasher.finish().unwrap().provider_root.as_bytes();
+    // Hash the same fabricated bytes once through the maintained builder; hashing
+    // correctness has independent vectors elsewhere, rather than in this cost test.
+    let built = builder.finish().unwrap();
+    let root = *built.hashes().provider_root.as_bytes();
+    let chunks = built
+        .manifest()
+        .chunks()
+        .iter()
+        .map(|hash| *hash.as_bytes())
+        .collect();
     let request = Request {
         service: f.service,
         tenant: f.project,
@@ -54,7 +59,7 @@ fn content(f: &Fixture, object: usize) -> (Permission, JourneyManifest) {
         Permission {
             request,
             uploader: f.uploader,
-            expires_at_ns: f.harness.pic.get_time().as_nanos_since_unix_epoch() + 3_600_000_000_000,
+            expires_at_ns,
         },
         JourneyManifest {
             chunks,
@@ -97,16 +102,51 @@ fn reference(request: Request, generation: u128, retain: bool) -> Command {
     })
 }
 
-fn measured(
+/// Queue independent objects, keeping each operation a separate IC message.
+/// Await every reply before submitting any dependent phase.
+fn calls(
     f: &Fixture,
     actor: Principal,
-    command: Command,
+    commands: impl Iterator<Item = Command>,
     expected: Outcome,
-) -> ExecutionProfile {
-    assert_eq!(f.call(actor, command), Ok(expected));
-    let profile = f.sample(actor);
-    assert!(profile.after_work < 10_000_000);
-    profile
+) {
+    let commands: Vec<_> = commands.collect();
+    assert!(!commands.is_empty() && commands.len() <= RESOURCE_SAMPLE_CAPACITY);
+    let messages: Vec<_> = commands
+        .into_iter()
+        .map(|command| {
+            let (method, bytes) = crate::admission_wire::encode(command);
+            f.harness
+                .pic
+                .submit_call(f.service, actor, method, bytes)
+                .unwrap()
+        })
+        .collect();
+    for message in messages {
+        let bytes = f.harness.pic.await_call(message).unwrap();
+        let result: Result<Outcome, Failure> = candid::decode_one(&bytes).unwrap();
+        assert_eq!(result, Ok(expected));
+    }
+}
+
+/// Inspect every new sample, including sequence continuity and actual caller.
+/// A missing, overwritten or unexpected sample fails rather than reducing coverage.
+fn measurements(f: &Fixture, previous: &mut u64, actors: &[Principal]) -> Vec<ExecutionProfile> {
+    assert!(!actors.is_empty() && actors.len() <= RESOURCE_SAMPLE_CAPACITY);
+    let profiles: Vec<_> = f
+        .resources(f.operator, actors.len())
+        .unwrap()
+        .into_iter()
+        .filter(|profile| profile.sequence > *previous)
+        .collect();
+    assert_eq!(profiles.len(), actors.len());
+    for (profile, actor) in profiles.iter().zip(actors) {
+        assert_eq!(profile.sequence, *previous + 1);
+        check_profile(*profile, *actor);
+        assert!(profile.after_work < 10_000_000);
+        *previous = profile.sequence;
+    }
+    profiles
 }
 
 fn reference_result(replayed: bool) -> Outcome {
@@ -118,28 +158,60 @@ fn reference_result(replayed: bool) -> Outcome {
 
 fn populate(f: &Fixture, samples: &mut Vec<serde_json::Value>) -> Vec<Permission> {
     let mut inputs = Vec::new();
-    for index in 0..OBJECTS {
-        let (input, manifest) = content(f, index);
-        let admit = measured(f, f.project, Command::Admit(input), Outcome::Admitted);
-        let prepare = measured(
+    let mut previous = f.sample(f.operator).sequence;
+    let expires_at_ns = f.harness.pic.get_time().as_nanos_since_unix_epoch() + 3_600_000_000_000;
+    let mut index = 0;
+    while index < OBJECTS {
+        // Respect the real two-active-upload tenant limit. Sample milestones run
+        // alone so each reported counter still identifies its exact object.
+        let milestone = SAMPLE_OBJECTS.contains(&index);
+        let count = if milestone || SAMPLE_OBJECTS.contains(&(index + 1)) {
+            1
+        } else {
+            2
+        };
+        let group: Vec<_> = (index..index + count)
+            .map(|object| content(f, object, expires_at_ns))
+            .collect();
+        calls(
+            f,
+            f.project,
+            group.iter().map(|(input, _)| Command::Admit(*input)),
+            Outcome::Admitted,
+        );
+        calls(
             f,
             f.uploader,
-            Command::Prepare(input.request, manifest),
+            group
+                .iter()
+                .map(|(input, manifest)| Command::Prepare(input.request, manifest.clone())),
             Outcome::Changed(true),
         );
-        measured(
+        calls(
             f,
             f.uploader,
-            Command::Expose(input.request.root),
+            group
+                .iter()
+                .map(|(input, _)| Command::Expose(input.request.root)),
             Outcome::Exposed,
         );
-        let confirm = measured(
+        calls(
             f,
             f.operator,
-            Command::FixtureLifecycle(LifecycleCommand::SubstituteCompletion(input.request)),
+            group.iter().map(|(input, _)| {
+                Command::FixtureLifecycle(LifecycleCommand::SubstituteCompletion(input.request))
+            }),
             Outcome::Changed(true),
         );
-        if [0, 63, 255, 639, 703].contains(&index) {
+        let actors: Vec<_> = [f.project, f.uploader, f.uploader, f.operator]
+            .into_iter()
+            .flat_map(|actor| std::iter::repeat_n(actor, count))
+            .collect();
+        let profiles = measurements(f, &mut previous, &actors);
+        if milestone {
+            let [admit, prepare, _, confirm] = profiles.as_slice() else {
+                panic!("single-object milestone");
+            };
             samples.push(serde_json::json!({
                 "phase":"populate", "objects":index + 1,
                 "admit_instructions":admit.after_work, "admit_before_work":admit.before_work,
@@ -154,36 +226,53 @@ fn populate(f: &Fixture, samples: &mut Vec<serde_json::Value>) -> Vec<Permission
                 "wasm_memory_bytes":f.wasm_bytes(),
             }));
         }
-        inputs.push(input);
+        inputs.extend(group.into_iter().map(|(input, _)| input));
+        index += count;
     }
     println!("release history: all manifests retained and substitute completions applied");
     inputs
 }
 
 fn overlap(f: &Fixture, inputs: &[Permission], samples: &mut Vec<serde_json::Value>) {
+    let mut previous = f
+        .resources(f.operator, RESOURCE_SAMPLE_CAPACITY)
+        .unwrap()
+        .last()
+        .unwrap()
+        .sequence;
     for generation in 2..=4 {
         let mut max_retain = 0;
         let mut max_release = 0;
         let mut max_retain_workflow = 0;
         let mut max_release_workflow = 0;
-        for input in inputs {
-            let retain = measured(
+        for group in inputs.chunks(RESOURCE_SAMPLE_CAPACITY) {
+            let actors = vec![f.project; group.len()];
+            calls(
                 f,
                 f.project,
-                reference(input.request, generation, true),
+                group
+                    .iter()
+                    .map(|input| reference(input.request, generation, true)),
                 reference_result(false),
             );
-            let release = measured(
+            for retain in measurements(f, &mut previous, &actors) {
+                max_retain = max_retain.max(retain.after_work);
+                max_retain_workflow =
+                    max_retain_workflow.max(retain.after_work - retain.before_work);
+            }
+            calls(
                 f,
                 f.project,
-                reference(input.request, generation - 1, false),
+                group
+                    .iter()
+                    .map(|input| reference(input.request, generation - 1, false)),
                 reference_result(false),
             );
-            max_retain = max_retain.max(retain.after_work);
-            max_release = max_release.max(release.after_work);
-            max_retain_workflow = max_retain_workflow.max(retain.after_work - retain.before_work);
-            max_release_workflow =
-                max_release_workflow.max(release.after_work - release.before_work);
+            for release in measurements(f, &mut previous, &actors) {
+                max_release = max_release.max(release.after_work);
+                max_release_workflow =
+                    max_release_workflow.max(release.after_work - release.before_work);
+            }
         }
         samples.push(serde_json::json!({"phase":"overlap", "generation":generation, "max_retain_instructions":max_retain, "max_release_instructions":max_release, "max_retain_workflow_instructions":max_retain_workflow, "max_release_workflow_instructions":max_release_workflow, "wasm_memory_bytes":f.wasm_bytes()}));
         println!(
@@ -193,24 +282,46 @@ fn overlap(f: &Fixture, inputs: &[Permission], samples: &mut Vec<serde_json::Val
 }
 
 fn cleanup(f: &Fixture, inputs: &[Permission]) {
-    for input in inputs {
+    let mut previous = f
+        .resources(f.operator, RESOURCE_SAMPLE_CAPACITY)
+        .unwrap()
+        .last()
+        .unwrap()
+        .sequence;
+    for group in inputs.chunks(RESOURCE_SAMPLE_CAPACITY) {
         // The seventh receipt is reserved for final release; never use a fresh ID
         // to recover the earlier retain result after release has changed liveness.
-        let final_release = Command::FixtureLifecycle(LifecycleCommand::Reference {
-            object: input.request,
-            reference: 4,
-            operation: 7,
-            retain: false,
-        });
-        measured(f, f.project, final_release.clone(), reference_result(false));
-        assert_eq!(f.call(f.project, final_release), Ok(reference_result(true)));
-        assert_eq!(
-            capacity(f, f.project, input.request)
-                .unwrap()
-                .unwrap()
-                .release_reserved_receipts,
-            0
+        let final_release = |input: &Permission| {
+            Command::FixtureLifecycle(LifecycleCommand::Reference {
+                object: input.request,
+                reference: 4,
+                operation: 7,
+                retain: false,
+            })
+        };
+        calls(
+            f,
+            f.project,
+            group.iter().map(final_release),
+            reference_result(false),
         );
+        measurements(f, &mut previous, &vec![f.project; group.len()]);
+        calls(
+            f,
+            f.project,
+            group.iter().map(final_release),
+            reference_result(true),
+        );
+        measurements(f, &mut previous, &vec![f.project; group.len()]);
+        for input in group {
+            assert_eq!(
+                capacity(f, f.project, input.request)
+                    .unwrap()
+                    .unwrap()
+                    .release_reserved_receipts,
+                0
+            );
+        }
     }
     let first = inputs[0];
     let usage = f.observe(first).usage.unwrap();
@@ -218,26 +329,32 @@ fn cleanup(f: &Fixture, inputs: &[Permission]) {
         (usage.logical, usage.physical, usage.liability),
         (0, DECLARED_BYTES, DECLARED_BYTES)
     );
-    for input in inputs {
-        measured(
+    for group in inputs.chunks(RESOURCE_SAMPLE_CAPACITY) {
+        calls(
             f,
             f.operator,
-            Command::FixtureLifecycle(LifecycleCommand::SubstituteDeletion(input.request)),
+            group.iter().map(|input| {
+                Command::FixtureLifecycle(LifecycleCommand::SubstituteDeletion(input.request))
+            }),
             Outcome::Changed(true),
         );
+        measurements(f, &mut previous, &vec![f.operator; group.len()]);
     }
     let usage = f.observe(first).usage.unwrap();
     assert_eq!(
         (usage.logical, usage.physical, usage.liability),
         (0, 0, DECLARED_BYTES)
     );
-    for input in inputs {
-        measured(
+    for group in inputs.chunks(RESOURCE_SAMPLE_CAPACITY) {
+        calls(
             f,
             f.operator,
-            Command::FixtureLifecycle(LifecycleCommand::SubstituteSettlement(input.request)),
+            group.iter().map(|input| {
+                Command::FixtureLifecycle(LifecycleCommand::SubstituteSettlement(input.request))
+            }),
             Outcome::Changed(true),
         );
+        measurements(f, &mut previous, &vec![f.operator; group.len()]);
     }
     let usage = f.observe(first).usage.unwrap();
     assert_eq!((usage.logical, usage.physical, usage.liability), (0, 0, 0));
@@ -296,7 +413,7 @@ fn resource_multifile_release_history_preserves_cleanup_at_capacity() {
         f.call(f.project, reference(first.request, 5, true)),
         Err(Failure::Capacity)
     );
-    let (extra, _) = content(&f, OBJECTS);
+    let (extra, _) = content(&f, OBJECTS, first.expires_at_ns);
     assert_eq!(
         f.call(f.project, Command::Admit(extra)),
         Err(Failure::TenantManifestCapacity)
@@ -315,6 +432,8 @@ fn resource_multifile_release_history_preserves_cleanup_at_capacity() {
     let report = serde_json::json!({
         "scope":"Local transient owner; synthetic 640 x 256 KiB and 64 x 2 MiB files, 768 retained leaves, four reference generations. Operator-only completion/deletion/billing facts are substitutes, not Caffeine evidence. No file bytes enter the canister. Instructions exclude diagnostic writes/reply encoding; memory is allocated Wasm pages. No persistence or read sessions.",
         "wasm_sha256":wasm_hash(), "objects":OBJECTS, "declared_bytes":DECLARED_BYTES,
+        "driver":"Independent IC messages queued per phase: at most two active uploads, then up to 32 distinct objects. Every reply and contiguous diagnostic sample is checked; milestone objects run alone.",
+        "diagnostic_window":RESOURCE_SAMPLE_CAPACITY,
         "retained_references":OBJECTS * 4, "retained_receipts":OBJECTS * 7,
         "initial_wasm_memory_bytes":initial_heap, "final_wasm_memory_bytes":final_heap, "samples":samples,
     });

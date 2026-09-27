@@ -59,6 +59,18 @@ pub(crate) async fn receive(caller: Principal, request: FundingRequest) {
     ops::reply(request.reply);
 }
 
+pub(crate) fn configure_cashier(
+    caller: Principal,
+    input: blob_test_protocol::storage::funding::transport::Substitute,
+) -> Result<(), FundingFailure> {
+    ops::cashier::configure(caller, input)
+}
+pub(crate) async fn receive_top_up(caller: Principal, arguments: Vec<u8>) {
+    let mode = ops::cashier::accept(caller, &arguments);
+    ops::delay_reply(mode).await;
+    ops::reply(mode);
+}
+
 pub(crate) fn operator_status(
     service: Principal,
     caller: Principal,

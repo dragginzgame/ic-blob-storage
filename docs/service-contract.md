@@ -783,10 +783,50 @@ changed or inconsistent records reject without repair. Reopened owners permit
 operator inspection but fence preparation, attempts and all outcomes, including
 late callbacks; they have no unfence/reset/eviction capability. Independent
 surviving authority and a complete obligation source remain required for recovery.
-The private storage probe supplies labelled local transport observations and never
-dispatches cycles. Production provider authentication,
-account-wide uncredited activity, spendability, execution costs and payment
-admission remain separate work before a production call can use this journal.
+The explicit `PreparedCashierTopUp` primitive constructs one owned unbounded IC
+call from the canonical request. It captures the running service/original target
+and this callback's exact refund before bounded reply decoding or another await.
+An unpolled call can be consumed as positively unsent; actual enqueue failures
+never sample an ambient refund. Call cost is measured before adding the attachment
+so liquidity policy counts the full offer once. The host must persist the attempt
+first, establish all activity/holds, then assess current liquidity and dispatch in
+the same message. The primitive exports no endpoint or automatic retry. Unbounded
+wait preserves attachment conservation but a stalled provider can obstruct upgrades.
+
+The private storage probe composes this transport with the journal against a
+labelled local Cashier substitute; its older bookkeeping controls remain explicitly
+fixture-only. PocketIC covers exact request bytes, refund/reply independence,
+liquidity refusal, receiver traps and callback-write rollback after acceptance.
+`record_observation` retains the shared transport's structured result together with
+its transport phase and allocation update. It independently checks the call's
+original account, offer and optional target; service/Cashier checks still apply.
+The bounded v1 intent record now stores normalized balance components, supported
+provider errors, decode failure categories or the raw reject code, without wire
+buffers or diagnostic strings. Response/phase mismatches reject; exact replay is
+unchanged and conflicting observations cannot overwrite history. Recording a
+response for already retained matching transport cannot release its return twice.
+Transport-only evidence remains explicitly distinguishable from a retained reply.
+
+Operator `summary` checks the same explicit `FundingJournalScope` used by history,
+including empty journals. It reads maintained accounting and metadata counts without
+decoding intent rows, exposing lifetime capacity, the last retained identity and
+the independent restore fence. Workflow applies `assess_uncredited_allocation`:
+any accepted or reserved/uncertain amount remains unresolved, regardless of later
+refunds, unsent attempts or reported balances. This summarizes the complete local
+journal only; other installations, linked payers and direct provider-account
+activity require independently established completeness. Zero local obligations
+neither release the restore fence nor establish payment authority.
+
+Operator `outcome` inspection works while fenced and supplies validated transfer
+facts alongside the independent response. The probe workflow applies shared
+reconciliation policy to that transfer alone. Reported success never clears required
+credit evidence; missing transport retains the full offered amount as potentially
+spent. The v1 record schema is replaced directly, without migration or dual
+readers; cross-release transitions remain reinstall-only. Production provider
+authentication, independent credit reconciliation, account-wide
+uncredited activity, spendability and payment admission remain separate work before
+a production call can use this journal. Local simulated transfers do not qualify
+deployed Cashier behavior or authorize a paid trial.
 
 - Object identity: an allocated object incarnation bound to service, tenant and
   provider namespace, with provider root and declared length as data, distinct

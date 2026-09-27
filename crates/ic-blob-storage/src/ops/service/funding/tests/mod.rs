@@ -1,4 +1,7 @@
 use super::*;
+mod history;
+mod outcome;
+mod summary;
 use crate::{
     model::billing::{
         journal::FundingIntentState,
@@ -399,6 +402,15 @@ fn wide_principals_and_amounts_fit_bounded_v1_codecs() {
         .complete(FundingTransportOutcome::Callback {
             refunded: u128::MAX - 1,
         })
+        .unwrap()
+        .with_response(
+            crate::model::billing::journal::record::response::FundingResponseRecord::Balance {
+                total: u128::MAX,
+                prepaid: u128::MAX,
+                promotional: u128::MAX,
+                ledger: u128::MAX,
+            },
+        )
         .unwrap();
     assert_eq!(FundingIntentRecord::from_bytes(row.to_bytes()), row);
     let record = FundingJournalRecord::new(&wide, allocation)

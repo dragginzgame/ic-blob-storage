@@ -9,7 +9,7 @@ pub(crate) mod resources;
 use blob_test_protocol::{
     admission::{
         Enrollment, ExecutionProfile, Failure, Installation, ManifestState, Observation, Outcome,
-        Permission, Request, Workload,
+        Permission, RESOURCE_SAMPLE_CAPACITY, Request, Workload,
     },
     journey::{JourneyManifest, JourneyUsage},
 };
@@ -39,6 +39,7 @@ use ic_blob_storage::model::{
 };
 use std::{
     cell::RefCell,
+    collections::VecDeque,
     num::{NonZeroU64, NonZeroU128, NonZeroUsize},
 };
 
@@ -49,7 +50,7 @@ thread_local! {
 struct State {
     owner: UploadAdmissions,
     config: ServiceConfiguration,
-    last_profile: Option<ExecutionProfile>,
+    profiles: VecDeque<ExecutionProfile>,
 }
 
 fn count(n: usize) -> NonZeroUsize {
@@ -107,7 +108,7 @@ pub(crate) fn initialize(service: Principal, installation: Installation) {
         *state = Some(State {
             owner: UploadAdmissions::new(config),
             config,
-            last_profile: None,
+            profiles: VecDeque::with_capacity(RESOURCE_SAMPLE_CAPACITY),
         });
     });
 }

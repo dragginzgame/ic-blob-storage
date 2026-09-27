@@ -203,10 +203,16 @@ pub struct Observation {
     pub usage: Option<JourneyUsage>,
 }
 
-/// Last completed probe workflow, visible only to its configured operator.
+/// Maximum retained diagnostic samples; independent of service history limits.
+pub const RESOURCE_SAMPLE_CAPACITY: usize = 32;
+
+/// Completed probe workflow, visible only to its configured operator.
 /// Counters are diagnostic observations, not authority or a production cost quote.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
 pub struct ExecutionProfile {
+    /// Monotonic diagnostic sequence, used to detect missing samples in a batch.
+    /// This transient counter grants no operational or restoration authority.
+    pub sequence: u64,
     /// Actual caller of the measured update, including denied calls.
     pub caller: Principal,
     /// Counter at entry to the custom decoder, after CDK argument collection.

@@ -54,11 +54,20 @@ exact-reference descriptors and bounded tenant/operator cleanup traversal now us
 this owner too. Admission/reference capacity and bounded operator root observations
 now use maintained counters/indexes, including during fenced inspection. A separate
 durable funding journal now reserves exact local attachments and retains transport
-outcomes with incremental accounting and IC rollback/upgrade evidence. It enables
-no calls. Retained method/account/target choices now bind canonical Cashier top-up
-requests, with exact-identity and transport-context checks on outcomes. Next,
-qualify authenticated transport, account activity and spendability gates around
-this history, then complete other provider
+outcomes with incremental accounting and IC rollback/upgrade evidence.
+Retained method/account/target choices now bind canonical Cashier top-up
+requests, with exact-identity and transport-context checks on outcomes. Bounded
+operator history now recovers exact requests without saved client input, newest
+first, including under the restore fence; pagination grants no retry authority.
+An explicit shared IC transport now captures exact unbounded-call refunds and
+bounded replies separately, with local journal/callback rollback and liquidity
+evidence against a Cashier substitute. Production provider/account qualification,
+complete account activity and spendability gates remain before payment admission.
+Structured Cashier outcomes now persist with their transport accounting; exact
+operator lookup keeps reported balances separate from conservative reconciliation.
+Scoped summaries now expose maintained local funding totals without history scans;
+later refunds cannot clear older uncredited acceptance or the restore fence.
+Next, establish complete account activity and credit evidence, then complete other provider
 intents, read sessions and operational lifecycle. Gateway callback
 authority and deployed-provider semantics remain separate qualification work.
 The original B1/B2/B3 extraction gates are project gates, not crate version numbers.

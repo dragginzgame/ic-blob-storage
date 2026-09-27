@@ -60,8 +60,17 @@ and exact transport outcomes. It reserves the full offer, keeps uncertain amount
 charged and rejects repeated attempt markers. Reopen validates history and totals
 before enforcing inspection only. It binds canonical Cashier top-up arguments,
 including explicit account and optional target balance, and checks supplied
-transport context before applying outcomes. It sends no cycles; authenticating
-transport and establishing provider credit remain separate requirements.
+transport context before applying outcomes. Bounded operator history recovers
+original requests even while fenced. The separate, explicitly invoked
+`ops::caffeine::funding::transport` sends one canonical request and captures its
+exact IC refund before bounded reply decoding. PocketIC connects it to this journal
+through a local Cashier substitute. `record_observation` commits the structured
+reply with transport accounting; `outcome` reads it with validated transfer facts
+for the workflow's reconciliation policy, including while fenced. `summary` reads
+maintained totals and history capacity without scanning intents; older accepted
+amounts remain unresolved after newer refunds. Its scope is the local journal.
+Production payment admission, complete account
+activity and provider-credit reconciliation remain separate requirements.
 The service uses bounded manifest authorization for direct browser-to-Caffeine
 upload. No file chunks or whole-file raw digest are required by service admission.
 Manifest consistency, possible exposure and independently confirmed provider

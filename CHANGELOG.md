@@ -2,6 +2,52 @@
 
 ## [Unreleased]
 
+## [0.2.5]
+
+### Added
+
+- Scoped funding summaries expose complete local attachment totals, lifetime
+  history capacity and the restore fence without scanning intent rows. Shared
+  policy keeps earlier accepted or reserved amounts unresolved after later
+  refunds or unsent attempts. Native and PocketIC cases cover scope/caller
+  isolation, rollback, actual IC acceptance and fenced upgrade inspection.
+  A clear local summary does not establish complete provider-account activity,
+  verified credit or payment authority.
+- Durable funding observations retain structured Cashier replies and exact
+  transport accounting together. Operator outcome lookup reports balances,
+  errors or missing replies separately from conservative reconciliation needs;
+  accepted cycles still require independent credit evidence. Original account,
+  attachment and optional target are checked against the shared call before
+  recording. Exact replay cannot refund twice or overwrite a different reply.
+  Native and PocketIC coverage includes bounded record widths, response/phase
+  validation, callback rollback, mismatched identities and fenced upgrade reads.
+  The v1 intent schema is replaced directly under the reinstall-only contract.
+- Explicit shared Cashier transport sends the canonical top-up request once and
+  captures its exact unbounded-call refund before decoding. Call cost excludes
+  the attachment; same-message liquidity checks preserve the full offer. Replies,
+  rejects and accepted cycles remain distinct. PocketIC connects the durable
+  journal to a local Cashier substitute, covering zero/partial/full acceptance,
+  malformed/error replies, receiver and callback-write traps, caller isolation,
+  blocked retries and fenced upgrade. This supplies local IC transport evidence;
+  deployed-provider qualification, account-wide activity and credit reconciliation
+  remain required before production payment admission.
+- `StableFundingJournal::history` provides bounded operator-only discovery of
+  original funding intents and current local outcomes, newest first, without
+  requiring a saved request. Service/Cashier/account/namespace checks bind each
+  query and continuation cursor. Reads preserve reservations and remain available
+  under the restore fence. Native and PocketIC cases cover full-width identities,
+  pagination, changing observations, caller isolation, rollback and upgrade;
+  discovered requests confer no payment, retry or unfencing authority.
+
+### Changed
+
+- Reduced the 704-object PocketIC release-history test's overhead by queuing
+  independent updates as separate IC messages and reading bounded diagnostic
+  windows. Every reply, measurement sequence, caller and instruction bound is
+  checked; full history, exact retries, restart and cleanup coverage remain.
+  Fixture content preparation uses the existing manifest builder to avoid
+  duplicate leaf hashing. No service API, allocator or dependency change.
+
 ## [0.2.4] - 2026-09-27
 
 ### Added

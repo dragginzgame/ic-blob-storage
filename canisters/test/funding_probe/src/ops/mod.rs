@@ -1,5 +1,6 @@
 //! Bounded fixture journals and single platform effects for a local-only experiment.
 
+pub(crate) mod cashier;
 pub(crate) mod liquidity;
 pub(crate) mod lookup;
 pub(crate) mod preview;

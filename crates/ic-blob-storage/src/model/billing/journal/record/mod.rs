@@ -1,4 +1,5 @@
 //! Bounded v1 journal schemas and transitions; no storage or transport effects.
+pub(crate) mod response;
 use super::{
     FundingIntent, FundingIntentError, FundingIntentState, FundingIntentView,
     FundingTransportOutcome,
@@ -15,6 +16,7 @@ use crate::model::{
 };
 use candid::{CandidType, DecoderConfig, Deserialize, Principal, decode_one_with_config};
 use ic_memory::ic_stable_structures::{Storable, storable::Bound};
+use response::FundingResponseRecord;
 use std::{borrow::Cow, num::NonZeroU128};
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
@@ -40,6 +42,7 @@ pub(crate) struct FundingIntentRecord {
     method: FundingMethodRecord,
     target_balance: Option<u128>,
     phase: FundingPhaseRecord,
+    response: FundingResponseRecord,
 }
 impl FundingIntentRecord {
     pub(crate) fn new(input: FundingIntent) -> Self {
@@ -54,10 +57,11 @@ impl FundingIntentRecord {
             method: FundingMethodRecord::AccountTopUpV1,
             target_balance: input.target_balance.map(NonZeroU128::get),
             phase: FundingPhaseRecord::Prepared,
+            response: FundingResponseRecord::Missing,
         }
     }
     pub(crate) fn view(self) -> Option<FundingIntentView> {
-        if self.version != 1 {
+        if self.version != 1 || !self.response.matches(self.phase) {
             return None;
         }
         let intent = FundingIntent {
@@ -124,6 +128,21 @@ impl FundingIntentRecord {
                 FundingTransfer::unbounded_callback(view.intent.offered, refunded).ok()?
             }
         })
+    }
+    pub(crate) const fn response(self) -> FundingResponseRecord {
+        self.response
+    }
+    pub(crate) fn with_response(
+        mut self,
+        response: FundingResponseRecord,
+    ) -> Result<Self, FundingIntentError> {
+        if !response.matches(self.phase)
+            || (self.response != FundingResponseRecord::Missing && self.response != response)
+        {
+            return Err(FundingIntentError::OutcomeConflict);
+        }
+        self.response = response;
+        Ok(self)
     }
 }
 
@@ -235,5 +254,5 @@ macro_rules! codec {
         }
     };
 }
-codec!(FundingIntentRecord, 512);
+codec!(FundingIntentRecord, 1024);
 codec!(FundingJournalRecord, 1024);

@@ -2,16 +2,19 @@
 
 Date: 2026-09-27
 
-## Active work — after 0.2.3
+## Active work — after 0.2.4
 
-The maintainer confirmed **0.2.3 is pushed**. Cargo and the release receipt are
-0.2.3. Local main, origin/main and v0.2.3 resolve to
-`c85f6e989f65fe7fdf3a4971ee066a88f9b80079`, from validated source
-`4d9bcdb938c1b12aaafe7554977166ab82a854c5`. The receipt records the
+The maintainer confirmed **0.2.4 is pushed**. Cargo and the release receipt are
+0.2.4. Local main, origin/main and v0.2.4 resolve to
+`909c5d9c6aed1c522c172fe742b081e419d39364`, from validated source
+`14e5629130fb8a77321c4df29cf6d01fdb1b0243`. The receipt records the
 `release-verify` gate; registry publication was not independently queried.
-The worktree was clean at the start of this batch. Completed work is drafted in
-the undated 0.2.4 changelog section, with Unreleased empty;
-no version mutation, commit, publication, deployment or provider effect ran here.
+The maintainer named **0.2.5** as the current draft. Its undated changelog contains
+funding discovery, shared Cashier transport, durable outcomes, scoped summaries
+and the prior test-performance work;
+Unreleased is empty. Existing edits were preserved. No version mutation, commit,
+publication, deployment or deployed-provider effect ran here; transfers below
+use simulated cycles between local PocketIC canisters.
 
 Follow the [0.2 delivery plan](../roadmap.md). Its goal remains a usable
 Caffeine-backed service through shared durable handlers, both adapters and an
@@ -24,7 +27,164 @@ operator client. Library publication does not qualify the service or Canic remov
 | M3 — Caffeine and operator integration | Not implemented | Qualified provider transport, completion/economics and production client |
 | M4 — managed parity and acceptance | Not implemented | Same journey through Canic adapter, complete replacement evidence and handoff |
 
-## Current focus — durable local funding intents
+## Current focus — scoped funding summaries
+
+`StableFundingJournal::summary` now checks explicit service/Cashier/account/namespace
+and operator authority, including empty journals, then reads maintained accounting
+and metadata without decoding intent rows. It returns local attachment totals,
+lifetime intent count/capacity, the last retained ID and the independent restore
+fence. History and summary share `FundingJournalScope`; the earlier draft-only
+history scope was replaced directly, with no alias or released API removal.
+
+Workflow applies the pure `assess_uncredited_allocation` policy. Earlier accepted
+amounts and prepared/uncertain offers cannot be hidden by newer full refunds,
+proven unsent attempts or reported balances. The result describes this entire
+local journal, not complete external provider-account activity. A clear result
+does not release the fence, prove spendability or authorize payment.
+
+All 29 targeted funding and four reconciliation unit cases pass, including
+equivalence with complete-history diagnosis at amount boundaries, full-width IDs,
+capacity, empty-scope isolation and metadata consistency. All 25 storage PocketIC
+cases pass in 40.57 seconds. New cases cover rollback, unchanged memory on queries,
+old accepted amounts through later returns, clear-but-fenced restoration and actual
+IC acceptance followed by a fully refunded call against the local Cashier substitute.
+Affected strict Clippy, both release Wasms, warning-free core rustdoc, formatting
+and diff checks pass. No stable schema, memory grant, allocator, dependency or
+package version changed in this slice. No full CI, resource benchmark refresh,
+live provider call or release action ran.
+
+Next, establish external account-activity completeness and independent credit
+evidence before production payment admission. Do not feed local `Clear` into an
+account-wide admission gate without that evidence. Provider qualification, other
+provider intents, read sessions, adapters and operational recovery remain open.
+
+## Durable Cashier outcomes — included in 0.2.5
+
+`StableFundingJournal::record_observation` now commits the shared transport's
+bounded structured response in the same IC transaction as its phase and attachment
+accounting. It checks the actual service/Cashier and original account, attachment
+and target balance before recording. Local operation/namespace correlation remains
+the host's responsibility because the provider wire method has neither field.
+The v1 intent record stores normalized balance components, provider error/decode
+categories or reject codes; it retains no response buffers or diagnostic strings.
+The maximum intent record is now 1 KiB, using the existing two host memories.
+No migration, compatibility reader, new schema generation or allocator is added.
+Cross-release transitions remain reinstall-only.
+
+The additive operator `outcome` reader preserves exact input identity, local
+transport phase, optional structured response and validated transfer facts. The
+probe workflow applies shared conservative reconciliation policy before boundary
+conversion. Prepared/uncertain offers remain potentially spent; exact accepted amounts
+require independent credit evidence even after reported success. Transport-only
+observations remain distinct from missing intents and structured replies. Exact
+replay cannot refund twice or erase a response; conflicting replies reject.
+Response/phase mismatches reject during transitions and restored-record inspection.
+Same-release restoration preserves outcomes while fencing every mutation.
+
+All 22 storage PocketIC cases pass. The shared transport now uses this atomic
+writer; actual callback-write traps roll back response and accounting while remote
+acceptance survives. Wrong callback account/offer/target remains uncertain. Zero,
+partial and full acceptance, malformed/error replies and rejection retain their
+independent reconciliation status through upgrade; unauthorized queries reject.
+All 27 targeted native funding and 14 billing-model cases pass, including bounded
+record widths, full diagnostic conversion, immutable replies and phase validation.
+Affected strict Clippy, both release Wasms, warning-free core rustdoc, formatting
+and diff checks pass. The final storage run passed in 34.81 seconds. The earlier
+batch's 18 funding fixture cases remain prior evidence, not a rerun in this slice.
+No full CI, resource benchmark refresh, dependency/version change or live call ran.
+
+Next, establish complete account activity and independent credit evidence before
+production payment admission. The new per-intent diagnosis is not an account-wide
+clearance, spendability proof, provider qualification or restore authority. Other
+provider intents, read sessions, both adapters and operational recovery remain open.
+
+## Shared Cashier transport — included in 0.2.5
+
+`ops::caffeine::funding::transport::PreparedCashierTopUp` owns one canonical
+unbounded IC call. It captures actual service/original Cashier identity, measures
+call cost before adding the attachment, and supplies current platform liquidity
+with explicit host holds to the existing full-offer policy. Consuming an unpolled
+call proves it unsent. Enqueue failures never sample a callback refund. Actual
+callbacks capture their refund before bounded decoding or another await; accepted
+attachment arithmetic stays independent of malformed replies, provider errors and
+rejection. Unbounded wait preserves exact refunds but a stalled peer can obstruct
+upgrades. No endpoint, lifecycle ownership or retry loop is implicitly exported.
+
+The storage probe persists the journal's exact first-attempt marker before using
+this transport, then records the original intent and call-correlated outcome.
+The existing funding probe supplies a driver-configured local Cashier substitute:
+it checks exact canonical bytes and uses actual IC cycle acceptance. The tests
+exercise zero/partial/full acceptance, malformed/error replies and rejection,
+receiver-trap rollback/full refund, operator and exact-intent isolation, and full
+liquidity refusal without dispatch. A sender callback-write trap preserves the
+receiver's acceptance and the full uncertain local reservation; retry and restored
+dispatch remain blocked. Substitute responses do not qualify deployed Caffeine.
+
+All 21 storage and 18 existing funding/recovery PocketIC cases pass. The expanded
+zero/full-acceptance case also passes after the storage run. All 24 targeted native
+funding cases, affected all-target strict Clippy, both release Wasms, warning-free
+core rustdoc, formatting and diff checks pass. No full CI or resource benchmark
+refresh ran. The durable outcome step above now retains structured replies as well
+as transport arithmetic. Complete account activity, spendability, independent
+credit evidence, provider/account qualification and production payment admission
+remain open. Continue keeping restored instances fenced.
+
+## Funding history discovery — included in 0.2.5
+
+`StableFundingJournal::history` lets the configured operator recover exact original
+intents and their current local states without a saved request. It traverses the
+existing stable index in descending operation-ID order, so any prepared/uncertain
+intent appears first on a fresh sweep. Trusted host limits bound returned intent
+values, with one index lookahead. Queries independently check service, Cashier,
+account and namespace; cursors retain the complete scope and an exclusive upper
+operation bound. They are untrusted current positions, not snapshots or freshness
+proof. A fresh sweep is needed for new intents or changed states behind a cursor.
+
+The storage probe exposes the same reader through a bounded query with a fixed
+two-result host limit. It returns the original attachment and optional target so
+the existing canonical request inspector can be used without guessing lost input.
+Terminal transport records remain visible; uncertain offers stay reserved.
+Restored history stays readable while all funding mutations remain fenced.
+
+Validation passes 13 funding journal unit cases, all 17 storage PocketIC cases,
+affected strict all-target Clippy and the release storage-probe Wasm build.
+Warning-free core rustdoc, formatting and diff checks pass as well.
+Coverage includes full-width/gapped IDs, cursor boundaries, each scope field,
+operator isolation on empty ranges, fresh sweeps after activity, returned-row
+validation, rolled-back writes and exact discovery/request inspection through
+same-release upgrade. This adds a library read API and a test-probe query, not
+payment transport or a production operator endpoint. No stable schema, allocator,
+dependency or package version changes are involved.
+
+This discovery path supplies operator visibility; it does not qualify account
+activity/spendability gates or release the restore fence. The transport step above
+now supplies local callback evidence without enabling a production payment endpoint.
+
+## Resource-test runtime — included in 0.2.5
+
+The full 704-object release-history test queues independent objects in small
+groups, still using separate IC messages and checking each reply. Population
+respects the real two-active-upload tenant limit; later phases queue up to 32
+distinct objects. Reported population milestones run alone. The admission probe
+now retains a fixed operator-only window of 32 diagnostic samples; callers request
+only the newest samples they need. Contiguous sequences, caller identity, decoder
+checkpoints and instruction ceilings are checked for every queued update.
+The same fabricated content uses the existing manifest builder, eliminating the
+extra independent leaf-hash pass and repeated time queries.
+
+All 704 objects, four reference generations, exact cleanup retries, capacity
+checks, stop/start and separate deletion/settlement remain. The unchanged local
+test took 224.07 seconds; the final optimized run passed in 119.20 seconds,
+about 47% less time. These are local host wall times, not service/provider cost
+claims. All 31 admission PocketIC cases pass, including diagnostic window rollover,
+bounded reads, authority, unchanged observations on rejected decoding and stop/start.
+Affected strict Clippy, release admission Wasm, formatting and diff checks pass.
+Historical artifact-bound reports remain
+unchanged; new reports stay under `.tmp/`. The test optimization changed no
+allocator, dependency or public service API. No version mutation, commit or full
+CI run is part of this batch.
+
+## Durable local funding intents — released in 0.2.4
 
 `ops::service::funding::StableFundingJournal` uses two host-granted memories for
 bounded exact intent history and maintained attachment accounting. It binds the
@@ -50,8 +210,8 @@ the existing `FundingAllocation` model, which also reconstructs retained history
 Reopen rejects missing/inconsistent rows and changed scope/allocation, then fences
 every mutation, including late outcomes. Its own ordered IDs cannot prove freshness.
 
-The storage probe now has two additional host memories and labelled bookkeeping
-controls; it sends no cycles. Fourteen storage PocketIC cases pass, including
+At the 0.2.4 closeout, the storage probe added two host memories and labelled
+bookkeeping controls without sending cycles. Fourteen storage PocketIC cases passed, including
 intent/accounting rollback, every funding phase through upgrade and canonical
 request preservation with changed-argument/source rejection.
 Targeted validation passes 169 core billing/policy/catalog/service/lifecycle/Cashier cases,
@@ -66,8 +226,7 @@ interface hash. Independent didc request vectors cover absent and maximal target
 balances. The wire method has no operation-ID field; local intent correlation does
 not establish remote idempotency or provider credit.
 
-This is a coherent maintainer release checkpoint; the 0.2.4 changelog is drafted and full
-release validation still needs to run. Next, qualify actual Cashier transport and
+Next, qualify actual Cashier transport and
 authenticated outcomes together with account activity, spendability and execution-cost
 gates. Other provider journals, read sessions, adapters and operational
 restoration remain incomplete. Continue keeping uncertain obligations inspectable

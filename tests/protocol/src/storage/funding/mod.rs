@@ -1,4 +1,8 @@
-//! Labelled local funding evidence; this fixture never dispatches cycles.
+//! Local funding bookkeeping and explicitly labelled substitute transport.
+pub mod history;
+pub mod outcome;
+pub mod summary;
+pub mod transport;
 use super::WriteFault;
 use candid::{CandidType, Deserialize, Principal};
 /// Complete exact local identity, without inferred payer/provider scope.

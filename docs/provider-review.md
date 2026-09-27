@@ -438,15 +438,19 @@ response. Therefore a zero refund after SYS_UNKNOWN does not prove acceptance.
 Unbounded wait avoids that particular ambiguity but can stall stopping/upgrades;
 it does not prove account credit or recover an old backup.
 
-Proposed funding direction: persist exact intent, bound the attachment and
+The maintained funding direction is to persist exact intent, bound the attachment and
 concurrency, use an unbounded call to the configured Cashier, and capture the
 platform refund in that call's callback before any further await. Persist this
 transport evidence separately from decoded Cashier success, including malformed
 or error replies. The locked ic-cdk 0.20.3 Response contains reply bytes, not a
-stored refund field; a future ops adapter needs PocketIC evidence that refund
-capture stays associated with the correct callback. This is a design proposal,
-not an implemented transport or a decision to replace the direct funding route
-with ledger transfers. Unknown outcomes remain fenced.
+stored refund field. The explicit shared transport now captures that refund in
+the matching callback. The storage PocketIC fixture composes it with the durable
+journal and a local Cashier substitute: exact requests, zero/partial/full
+acceptance, malformed/error replies, rejection, receiver traps and sender write
+traps are covered. This establishes local IC mechanics; production payment
+admission still needs provider/account qualification, complete account activity
+and credit reconciliation. It does not select ledger transfers or contact the
+deployed provider. Unknown outcomes remain fenced.
 
 The [PocketIC funding experiment](evidence/core-primitives.md#funding-callback-experiment)
 now verifies exact refunds on zero/partial/full acceptance, typed error,

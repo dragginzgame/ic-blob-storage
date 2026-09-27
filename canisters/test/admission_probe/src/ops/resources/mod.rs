@@ -1,12 +1,12 @@
-//! Bounded local diagnostics. One overwritten sample, no log or operational authority.
+//! Fixed diagnostic window, overwritten at capacity; no operational authority.
 
 use super::STATE;
-use blob_test_protocol::admission::{ExecutionProfile, Failure};
+use blob_test_protocol::admission::{ExecutionProfile, Failure, RESOURCE_SAMPLE_CAPACITY};
 use ic_blob_storage::model::service::upload::UploadContext;
 use std::cell::Cell;
 
 thread_local! {
-    // One overwritten observation, never a growing diagnostic journal.
+    // Decoder checkpoints for the currently executing message only.
     static DECODE: Cell<Option<(u64, u64, u64, u64)>> = const { Cell::new(None) };
 }
 
@@ -23,7 +23,15 @@ pub(crate) fn record(context: UploadContext, before_work: u64) {
     let (before_decode, after_header, after_value, after_decode) =
         DECODE.take().expect("command decoder observation");
     STATE.with_borrow_mut(|state| {
-        state.as_mut().expect("initialized probe").last_profile = Some(ExecutionProfile {
+        let profiles = &mut state.as_mut().expect("initialized probe").profiles;
+        let sequence = profiles.back().map_or(1, |last| {
+            last.sequence.checked_add(1).expect("diagnostic sequence")
+        });
+        if profiles.len() == RESOURCE_SAMPLE_CAPACITY {
+            profiles.pop_front();
+        }
+        profiles.push_back(ExecutionProfile {
+            sequence,
             caller: context.actor,
             before_decode,
             after_header,
@@ -35,7 +43,7 @@ pub(crate) fn record(context: UploadContext, before_work: u64) {
     });
 }
 
-pub(crate) fn inspect(context: UploadContext) -> Result<Option<ExecutionProfile>, Failure> {
+pub(crate) fn inspect(context: UploadContext, limit: u8) -> Result<Vec<ExecutionProfile>, Failure> {
     STATE.with_borrow(|state| {
         let state = state.as_ref().expect("initialized probe");
         let bindings = state.config.bindings();
@@ -45,6 +53,15 @@ pub(crate) fn inspect(context: UploadContext) -> Result<Option<ExecutionProfile>
         if context.actor != bindings.operator {
             return Err(Failure::NotOperator);
         }
-        Ok(state.last_profile)
+        let limit = usize::from(limit);
+        if limit == 0 || limit > RESOURCE_SAMPLE_CAPACITY {
+            return Err(Failure::InvalidInput);
+        }
+        Ok(state
+            .profiles
+            .iter()
+            .skip(state.profiles.len().saturating_sub(limit))
+            .copied()
+            .collect())
     })
 }

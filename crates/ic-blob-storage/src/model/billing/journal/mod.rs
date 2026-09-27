@@ -4,6 +4,19 @@ use candid::Principal;
 use std::num::NonZeroU128;
 use thiserror::Error;
 
+/// Explicit local journal scope; not proof of complete provider-account activity.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub struct FundingJournalScope {
+    /// Actual service holding this journal.
+    pub service: Principal,
+    /// Installed Cashier candidate, not provider qualification.
+    pub cashier: Principal,
+    /// Explicit payment account.
+    pub account: Principal,
+    /// Installed provider namespace.
+    pub namespace: NonZeroU128,
+}
+
 /// Complete local attachment identity; scope and amount must match on every retry.
 /// Operation IDs must increase for new intents. This ordering is not independent
 /// freshness authority after restore and must never be used to release a fence.

@@ -3,7 +3,22 @@
 use std::num::NonZeroU128;
 
 use super::admission::FundingActivity;
+use crate::model::billing::allocation::FundingAllocationView;
 use crate::model::billing::transfer::FundingTransfer;
+
+/// Diagnose the complete maintained totals of one uncredited local journal.
+/// Equivalent to inspecting all retained transfers, including old accepted work.
+/// Prepared/uncertain reservations conservatively block alongside accepted amounts.
+/// A local `Clear` establishes neither account-wide completeness nor freshness,
+/// provider credit, spendability or permission to release a restoration fence.
+#[must_use]
+pub const fn assess_uncredited_allocation(allocation: FundingAllocationView) -> FundingActivity {
+    if allocation.accepted() != 0 || allocation.reserved_or_uncertain() != 0 {
+        FundingActivity::Uncertain
+    } else {
+        FundingActivity::Clear
+    }
+}
 
 /// Diagnose retained attempts for which no independent credit settlement exists.
 ///
@@ -67,6 +82,37 @@ pub const fn assess_funding_reconciliation(transfer: FundingTransfer) -> Funding
 mod tests {
     use super::*;
     use crate::model::billing::transfer::FundingTransferError;
+
+    #[test]
+    fn maintained_allocation_activity_agrees_with_complete_history_at_amount_boundaries() {
+        use crate::model::billing::allocation::FundingAllocation;
+        use std::num::NonZeroUsize;
+        let allocation =
+            FundingAllocation::new(u128::MAX, NonZeroU128::MIN, NonZeroUsize::new(4).unwrap())
+                .unwrap();
+        for offered in [1, 900, u128::MAX - 1] {
+            let offered = NonZeroU128::new(offered).unwrap();
+            for transfer in [
+                FundingTransfer::unknown(offered),
+                FundingTransfer::not_enqueued(offered),
+                FundingTransfer::unbounded_callback(offered, 0).unwrap(),
+                FundingTransfer::unbounded_callback(offered, offered.get()).unwrap(),
+            ] {
+                let history = [FundingTransfer::not_enqueued(NonZeroU128::MIN), transfer];
+                let totals = allocation.reconstruct(&history).unwrap();
+                assert_eq!(
+                    assess_uncredited_allocation(totals),
+                    assess_uncredited_activity(
+                        history.into_iter().map(assess_funding_reconciliation)
+                    )
+                );
+            }
+        }
+        assert_eq!(
+            assess_uncredited_allocation(allocation.reconstruct(&[]).unwrap()),
+            FundingActivity::Clear
+        );
+    }
 
     #[test]
     fn uncredited_history_is_not_cleared_by_later_no_transfer_attempts() {

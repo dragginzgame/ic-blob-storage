@@ -1,4 +1,7 @@
 //! Incremental durable funding bookkeeping, without dispatch or credit authority.
+pub mod history;
+pub mod outcome;
+pub mod summary;
 use crate::model::{
     billing::{
         allocation::{FundingAllocation, FundingAllocationError, FundingAllocationView},
@@ -189,22 +192,7 @@ impl<M: Memory> StableFundingJournal<M> {
         source: FundingTransportContext,
         outcome: FundingTransportOutcome,
     ) -> Result<bool, FundingJournalError> {
-        self.authorize(execution)?;
-        self.mutable()?;
-        if source.service != execution.service || source.cashier != input.cashier {
-            return Err(FundingJournalError::TransportBinding);
-        }
-        let totals = self.totals()?;
-        Self::scope(&totals, input)?;
-        let prior = self.required(input)?;
-        let next = prior.complete(outcome)?;
-        if prior == next {
-            return Ok(false);
-        }
-        let totals = totals.resolve(next.transfer().ok_or(FundingJournalError::InvalidRecord)?)?;
-        self.intents.insert(input.operation.get(), next);
-        self.accounting.insert(0, totals);
-        Ok(true)
+        self.complete_transport(execution, input, source, outcome, None)
     }
     /// Inspect an exact intent as the operator, including under the restore fence.
     /// Absence is not proof of no external effect and cannot authorize payment.

@@ -1,7 +1,7 @@
 //! Local Wasm cost observations and rejected-ingress atomicity, not provider pricing.
 use super::*;
 use blob_test_protocol::{
-    admission::{ExecutionProfile, input::PreparationInput},
+    admission::{ExecutionProfile, RESOURCE_SAMPLE_CAPACITY, input::PreparationInput},
     journey::JourneyManifest,
 };
 use sha2::{Digest, Sha256};
@@ -79,21 +79,21 @@ fn resource_typed_endpoints_preserve_provider_and_tenant_authority() {
 }
 
 impl Fixture {
-    fn resources(&self, caller: Principal) -> Result<Option<ExecutionProfile>, Failure> {
+    fn resources(&self, caller: Principal, limit: usize) -> Result<Vec<ExecutionProfile>, Failure> {
         self.harness
             .pic
-            .query_candid_as(self.service, caller, "resources", ())
+            .query_candid_as(
+                self.service,
+                caller,
+                "resources",
+                (u8::try_from(limit).unwrap(),),
+            )
             .unwrap()
     }
 
     fn sample(&self, caller: Principal) -> ExecutionProfile {
-        let profile = self.resources(self.operator).unwrap().unwrap();
-        assert_eq!(profile.caller, caller);
-        assert!(profile.after_header > profile.before_decode);
-        assert!(profile.after_value > profile.after_header);
-        assert!(profile.after_decode > profile.after_value);
-        assert!(profile.before_work >= profile.after_decode);
-        assert!(profile.after_work > profile.before_work);
+        let profile = *self.resources(self.operator, 1).unwrap().last().unwrap();
+        check_profile(profile, caller);
         profile
     }
 
@@ -116,21 +116,85 @@ impl Fixture {
     }
 }
 
+fn check_profile(profile: ExecutionProfile, caller: Principal) {
+    assert_eq!(profile.caller, caller);
+    assert!(profile.after_header > profile.before_decode);
+    assert!(profile.after_value > profile.after_header);
+    assert!(profile.after_decode > profile.after_value);
+    assert!(profile.before_work >= profile.after_decode);
+    assert!(profile.after_work > profile.before_work);
+}
+
 #[test]
 fn resource_observations_are_operator_only_and_reads_preserve_the_sample() {
     let f = Fixture::new();
-    assert_eq!(f.resources(f.operator), Ok(None));
+    assert_eq!(
+        f.resources(f.operator, RESOURCE_SAMPLE_CAPACITY),
+        Ok(vec![])
+    );
     f.enroll();
     let sample = f.sample(f.operator);
     for caller in [f.controller, f.project, f.uploader, Principal::anonymous()] {
-        assert_eq!(f.resources(caller), Err(Failure::NotOperator));
+        assert_eq!(
+            f.resources(caller, RESOURCE_SAMPLE_CAPACITY),
+            Err(Failure::NotOperator)
+        );
     }
-    assert_eq!(f.resources(f.operator), Ok(Some(sample)));
+    assert_eq!(
+        f.resources(f.operator, RESOURCE_SAMPLE_CAPACITY),
+        Ok(vec![sample])
+    );
     assert_eq!(
         f.call(f.controller, f.enrollment(None, false)),
         Err(Failure::NotOperator)
     );
     f.sample(f.controller);
+}
+
+#[test]
+fn resource_window_preserves_order_and_overwrites_only_the_oldest_samples() {
+    let f = Fixture::new();
+    f.enroll();
+    let initial = f.sample(f.operator).sequence;
+    let callers: Vec<_> = (0..RESOURCE_SAMPLE_CAPACITY + 3)
+        .map(|index| Fake::principal(u32::try_from(index + 20).unwrap()))
+        .collect();
+    for caller in &callers {
+        assert_eq!(
+            f.call(*caller, f.enrollment(None, false)),
+            Err(Failure::NotOperator)
+        );
+    }
+    let profiles = f.resources(f.operator, RESOURCE_SAMPLE_CAPACITY).unwrap();
+    assert_eq!(profiles.len(), RESOURCE_SAMPLE_CAPACITY);
+    let discarded = callers.len() - RESOURCE_SAMPLE_CAPACITY;
+    for (index, (profile, caller)) in profiles.iter().zip(&callers[discarded..]).enumerate() {
+        check_profile(*profile, *caller);
+        assert_eq!(profile.sequence, initial + (discarded + index + 1) as u64);
+    }
+    f.restart();
+    assert_eq!(
+        f.resources(f.operator, RESOURCE_SAMPLE_CAPACITY),
+        Ok(profiles.clone())
+    );
+    for limit in [1, 3, RESOURCE_SAMPLE_CAPACITY] {
+        assert_eq!(
+            f.resources(f.operator, limit),
+            Ok(profiles[profiles.len() - limit..].to_vec())
+        );
+    }
+    for limit in [0, RESOURCE_SAMPLE_CAPACITY + 1] {
+        assert_eq!(f.resources(f.operator, limit), Err(Failure::InvalidInput));
+        assert_eq!(f.resources(f.controller, limit), Err(Failure::NotOperator));
+    }
+    assert_eq!(
+        f.resources(f.controller, RESOURCE_SAMPLE_CAPACITY),
+        Err(Failure::NotOperator)
+    );
+    assert_eq!(
+        f.resources(f.operator, RESOURCE_SAMPLE_CAPACITY),
+        Ok(profiles)
+    );
 }
 
 #[test]
@@ -141,7 +205,8 @@ fn resource_envelope_rejects_before_workflow_and_preserves_the_original_permissi
     let p = f.permission(&v);
     f.admit(p);
     let original = f.observe(p);
-    let profile = f.sample(f.project);
+    f.sample(f.project);
+    let profiles = f.resources(f.operator, RESOURCE_SAMPLE_CAPACITY).unwrap();
     let too_large = PreparationInput {
         request: p.request,
         manifest: JourneyManifest {
@@ -179,7 +244,10 @@ fn resource_envelope_rejects_before_workflow_and_preserves_the_original_permissi
         f.reject_input(bytes);
     }
     assert_eq!(f.observe(p), original);
-    assert_eq!(f.resources(f.operator), Ok(Some(profile)));
+    assert_eq!(
+        f.resources(f.operator, RESOURCE_SAMPLE_CAPACITY),
+        Ok(profiles)
+    );
     // A valid input still works after every rejected message.
     f.prepare(p, &v);
     assert_eq!(f.observe(p).manifest, ManifestState::Bound);

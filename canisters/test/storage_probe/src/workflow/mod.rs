@@ -148,3 +148,52 @@ pub(crate) fn funding_request(
 ) -> Result<blob_test_protocol::storage::funding::Request, Failure> {
     ops::funding::request(execution, input)
 }
+
+pub(crate) fn funding_history(
+    execution: UploadContext,
+    input: blob_test_protocol::storage::funding::history::Input,
+) -> Result<blob_test_protocol::storage::funding::history::Page, Failure> {
+    ops::funding::history::read(execution, input)
+}
+
+pub(crate) async fn funding_transport(
+    execution: UploadContext,
+    input: blob_test_protocol::storage::funding::transport::Input,
+) -> Result<blob_test_protocol::storage::funding::transport::Observation, Failure> {
+    use ic_blob_storage::policy::billing::liquidity::{
+        FundingLiquidityDecision, assess_funding_liquidity,
+    };
+    let reserve = std::num::NonZeroU128::new(input.operating_reserve).ok_or(Failure::Invalid)?;
+    let (original, prepared) = ops::funding::transport::begin(execution, input)?;
+    let liquidity = prepared.liquidity(reserve, input.other_liabilities);
+    let call = match assess_funding_liquidity(prepared.offered(), liquidity) {
+        FundingLiquidityDecision::Fits => prepared.execute(ops::funding::transport::limits()).await,
+        FundingLiquidityDecision::Insufficient { .. } => prepared.cancel(),
+    };
+    ops::funding::transport::complete(execution, original, call, input, liquidity.call_cost)
+}
+
+pub(crate) fn funding_outcome(
+    execution: UploadContext,
+    input: blob_test_protocol::storage::funding::Intent,
+) -> Result<Option<blob_test_protocol::storage::funding::outcome::Outcome>, Failure> {
+    let view = ops::funding::outcome::read(execution, input)?;
+    Ok(view.map(|view| {
+        let reconciliation =
+            ic_blob_storage::policy::billing::reconciliation::assess_funding_reconciliation(
+                view.transfer,
+            );
+        ops::funding::outcome::present(input, &view, reconciliation)
+    }))
+}
+
+pub(crate) fn funding_summary(
+    execution: UploadContext,
+    input: blob_test_protocol::storage::funding::history::Scope,
+) -> Result<blob_test_protocol::storage::funding::summary::Summary, Failure> {
+    let view = ops::funding::summary::read(execution, input)?;
+    let activity = ic_blob_storage::policy::billing::reconciliation::assess_uncredited_allocation(
+        view.allocation,
+    );
+    Ok(ops::funding::summary::present(view, activity))
+}

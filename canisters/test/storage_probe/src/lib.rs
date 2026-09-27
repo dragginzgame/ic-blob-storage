@@ -165,3 +165,31 @@ fn funding_request(
 ) -> Result<blob_test_protocol::storage::funding::Request, Failure> {
     workflow::funding_request(context(), input)
 }
+
+#[ic_cdk::query(decode_with = "ops::decode")]
+fn funding_history(
+    input: blob_test_protocol::storage::funding::history::Input,
+) -> Result<blob_test_protocol::storage::funding::history::Page, Failure> {
+    workflow::funding_history(context(), input)
+}
+
+#[ic_cdk::update(decode_with = "ops::decode")]
+async fn fixture_funding_transport(
+    input: blob_test_protocol::storage::funding::transport::Input,
+) -> Result<blob_test_protocol::storage::funding::transport::Observation, Failure> {
+    workflow::funding_transport(context(), input).await
+}
+
+#[ic_cdk::query(decode_with = "ops::decode")]
+fn funding_outcome(
+    input: blob_test_protocol::storage::funding::Intent,
+) -> Result<Option<blob_test_protocol::storage::funding::outcome::Outcome>, Failure> {
+    workflow::funding_outcome(context(), input)
+}
+
+#[ic_cdk::query(decode_with = "ops::decode")]
+fn funding_summary(
+    input: blob_test_protocol::storage::funding::history::Scope,
+) -> Result<blob_test_protocol::storage::funding::summary::Summary, Failure> {
+    workflow::funding_summary(context(), input)
+}

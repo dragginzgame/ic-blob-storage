@@ -38,6 +38,18 @@ async fn receive(request: FundingRequest) {
     workflow::receive(ic_cdk::api::msg_caller(), request).await;
 }
 
+#[ic_cdk::update]
+fn configure_cashier(
+    input: blob_test_protocol::storage::funding::transport::Substitute,
+) -> Result<(), FundingFailure> {
+    workflow::configure_cashier(ic_cdk::api::msg_caller(), input)
+}
+
+#[ic_cdk::update(manual_reply = true, decode_with = "ops::cashier::raw_arguments")]
+async fn account_top_up_v1(arguments: Vec<u8>) {
+    workflow::receive_top_up(ic_cdk::api::msg_caller(), arguments).await;
+}
+
 #[ic_cdk::query]
 fn attempts() -> Option<Vec<FundingAttemptRecord>> {
     ops::attempts(ic_cdk::api::msg_caller())

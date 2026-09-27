@@ -1,4 +1,8 @@
-//! Fixture bookkeeping only. Every transport observation is a labelled substitute.
+//! Local funding bookkeeping and shared transport against a labelled substitute.
+pub(crate) mod history;
+pub(crate) mod outcome;
+pub(crate) mod summary;
+pub(crate) mod transport;
 use super::{ProbeMemory, STATE, TRAP_WRITE};
 use blob_test_protocol::storage::{
     Failure,

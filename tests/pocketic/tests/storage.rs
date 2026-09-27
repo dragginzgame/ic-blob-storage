@@ -31,8 +31,9 @@ struct Fixture {
 }
 impl Fixture {
     fn new() -> Self {
-        let harness = Harness::new();
-        let operator = Fake::principal(1);
+        Self::with_operator(Harness::new(), Fake::principal(1))
+    }
+    fn with_operator(harness: Harness, operator: Principal) -> Self {
         let controller = Fake::principal(2);
         let service = harness.pic.create_canister_with_settings(
             Some(controller),

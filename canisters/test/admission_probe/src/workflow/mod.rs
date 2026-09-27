@@ -52,8 +52,11 @@ pub(crate) fn lookup_content(
     ops::content::lookup(context, input)
 }
 
-pub(crate) fn resources(context: UploadContext) -> Result<Option<ExecutionProfile>, Failure> {
-    ops::resources::inspect(context)
+pub(crate) fn resources(
+    context: UploadContext,
+    limit: u8,
+) -> Result<Vec<ExecutionProfile>, Failure> {
+    ops::resources::inspect(context, limit)
 }
 
 pub(crate) fn admission_capacity(
