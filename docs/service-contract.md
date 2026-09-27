@@ -743,6 +743,51 @@ host; the probe supplies explicit operator-only substitutes. No real certificate
 provider call or evidence qualification follows. Durable provider-call journals,
 read sessions, operational recovery and resource qualification remain required.
 
+`ops::service::funding::StableFundingJournal` owns a separate attachment allocation
+through two exclusively owned, host-granted memories: exact intent history and one
+configuration/accounting row. It binds service, operator, Cashier candidate, payment
+account, namespace, allocation, positive reserve and lifetime history limit. Hosts
+must provide a single journal for that allocation and propagate stable-write traps
+inside synchronous IC updates. This component neither shares nor refunds upload
+byte quotas and does not claim complete service economics.
+
+Preparation reserves the full positive offer under an explicit operation identity.
+The v1 intent also retains the `account_top_up_v1` method and exact optional positive
+target balance. Shared `CashierTopUpRequest` encoding emits a present request with
+a present explicit account; no caller-dependent account default is used. Target
+balance absence stays absent and is distinct from the attached offer. Method and
+full argument values are retained semantically; the frozen same-release encoder
+reconstructs canonical bytes without permitting arbitrary methods or payloads.
+The provider has no namespace or operation-ID argument, so those bindings remain
+local and cannot establish remote idempotency or lost-response reconciliation.
+New IDs must increase; exact replay compares the whole local scope and amount.
+Ordering is not proof of freshness after restore. Prepared and uncertain intents
+block later reservations. The first attempt marker persists possible dispatch;
+every repeated marker rejects. No timeout, expiry, absent reply or lookup result
+can authorize another attempt. Terminal observations accept only trusted-host
+proof of enqueue failure or an exact unbounded callback refund. They require the
+original intent and separately supplied running-service/original-target context;
+identical replay is unchanged and conflicting observations reject. The context
+must come from trusted transport, never reply fields or caller assertions. Matching
+principals checks correlation; it does not authenticate the source by itself.
+`mark_attempted` returns the canonical request only after persisting the marker.
+Operator `request` inspection returns the same bytes even while fenced, without
+granting dispatch authority. Changed target-balance options reject on every exact
+intent lookup/mutation rather than silently changing the encoded call.
+Unknown transport retains the entire attachment. Returned amounts release only
+their own allocation; accepted amounts remain charged and never imply credit.
+
+Ordinary writes touch one intent and maintained totals. Shared model arithmetic
+also reconstructs the complete bounded journal on reopen. Missing, orphaned,
+changed or inconsistent records reject without repair. Reopened owners permit
+operator inspection but fence preparation, attempts and all outcomes, including
+late callbacks; they have no unfence/reset/eviction capability. Independent
+surviving authority and a complete obligation source remain required for recovery.
+The private storage probe supplies labelled local transport observations and never
+dispatches cycles. Production provider authentication,
+account-wide uncredited activity, spendability, execution costs and payment
+admission remain separate work before a production call can use this journal.
+
 - Object identity: an allocated object incarnation bound to service, tenant and
   provider namespace, with provider root and declared length as data, distinct
   from independently established stored size. A root is never the ownership key.

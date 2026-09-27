@@ -7,6 +7,7 @@ use std::num::{NonZeroU128, NonZeroUsize};
 use thiserror::Error;
 
 use super::transfer::FundingTransfer;
+pub(crate) mod record;
 
 /// Installed attachment allocation and lifetime journal bound, without defaults.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -57,45 +58,23 @@ impl FundingAllocation {
         if attempts.len() > self.max_attempts.get() {
             return Err(FundingAllocationError::Capacity);
         }
-        let mut view = FundingAllocationView {
+        let mut view = self.empty();
+        for (index, transfer) in attempts.iter().enumerate() {
+            view = view.reserve(transfer.offered(), index)?;
+            view = view.resolve(*transfer)?;
+        }
+        Ok(view)
+    }
+
+    pub(crate) const fn empty(self) -> FundingAllocationView {
+        FundingAllocationView {
             reserve: self.reserve.get(),
             available: self.allocated,
             accepted: 0,
             refunded: 0,
             not_enqueued: 0,
             reserved_or_uncertain: 0,
-        };
-        for (index, transfer) in attempts.iter().enumerate() {
-            let offered = transfer.offered().get();
-            if offered > view.transferable() {
-                return Err(FundingAllocationError::ReserveWouldBeViolated {
-                    attempt_index: index,
-                });
-            }
-            view.available -= offered;
-            if let Some(accepted) = transfer.accepted() {
-                // Known accepted amounts are bounded by the original allocation.
-                view.accepted += accepted;
-                let returned = offered - accepted;
-                let total = if transfer.refunded().is_some() {
-                    &mut view.refunded
-                } else {
-                    &mut view.not_enqueued
-                };
-                // Lifetime returns can exceed the allocation after repeated
-                // full refunds/unsent attempts, so they need checked addition.
-                *total = total
-                    .checked_add(returned)
-                    .ok_or(FundingAllocationError::TotalsOverflow)?;
-                view.available += returned;
-            } else {
-                if index + 1 != attempts.len() {
-                    return Err(FundingAllocationError::PendingNotLast);
-                }
-                view.reserved_or_uncertain = offered;
-            }
         }
-        Ok(view)
     }
 }
 
@@ -113,6 +92,48 @@ pub struct FundingAllocationView {
 }
 
 impl FundingAllocationView {
+    pub(crate) fn reserve(
+        mut self,
+        offered: NonZeroU128,
+        index: usize,
+    ) -> Result<Self, FundingAllocationError> {
+        if self.reserved_or_uncertain != 0 {
+            return Err(FundingAllocationError::PendingNotLast);
+        }
+        if offered.get() > self.transferable() {
+            return Err(FundingAllocationError::ReserveWouldBeViolated {
+                attempt_index: index,
+            });
+        }
+        self.available -= offered.get();
+        self.reserved_or_uncertain = offered.get();
+        Ok(self)
+    }
+    pub(crate) fn resolve(
+        mut self,
+        transfer: FundingTransfer,
+    ) -> Result<Self, FundingAllocationError> {
+        assert_eq!(
+            self.reserved_or_uncertain,
+            transfer.offered().get(),
+            "exact reserved offer"
+        );
+        if let Some(accepted) = transfer.accepted() {
+            self.accepted += accepted;
+            let returned = transfer.offered().get() - accepted;
+            let total = if transfer.refunded().is_some() {
+                &mut self.refunded
+            } else {
+                &mut self.not_enqueued
+            };
+            *total = total
+                .checked_add(returned)
+                .ok_or(FundingAllocationError::TotalsOverflow)?;
+            self.available += returned;
+            self.reserved_or_uncertain = 0;
+        }
+        Ok(self)
+    }
     /// Remaining allocation, including the retained reserve.
     #[must_use]
     pub const fn available(self) -> u128 {

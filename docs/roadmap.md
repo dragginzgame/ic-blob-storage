@@ -52,9 +52,14 @@ histories. PocketIC covers partial-write rollback through settlement, uncertain
 bytes and same-release upgrade into an inspection-only fence. Indexed discovery,
 exact-reference descriptors and bounded tenant/operator cleanup traversal now use
 this owner too. Admission/reference capacity and bounded operator root observations
-now use maintained counters/indexes, including during fenced inspection. Next,
-implement durable provider-call intent storage and exact outcome correlation,
-followed by read sessions and complete operational lifecycle. Gateway callback
+now use maintained counters/indexes, including during fenced inspection. A separate
+durable funding journal now reserves exact local attachments and retains transport
+outcomes with incremental accounting and IC rollback/upgrade evidence. It enables
+no calls. Retained method/account/target choices now bind canonical Cashier top-up
+requests, with exact-identity and transport-context checks on outcomes. Next,
+qualify authenticated transport, account activity and spendability gates around
+this history, then complete other provider
+intents, read sessions and operational lifecycle. Gateway callback
 authority and deployed-provider semantics remain separate qualification work.
 The original B1/B2/B3 extraction gates are project gates, not crate version numbers.
 Starting 0.2 does not waive the [service contract](service-contract.md).

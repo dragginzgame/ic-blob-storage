@@ -2,15 +2,14 @@
 
 Date: 2026-09-27
 
-## Active work — after 0.2.2
+## Active work — after 0.2.3
 
-The maintainer confirmed **0.2.2 is pushed**. Cargo and the release receipt are
-0.2.2. Local main, origin/main and v0.2.2 resolve to
-`88c2cb9f913e376d49c702ffbadfb10aad424a6f`, from validated source
-`a43e0c90c81d845f18976b2b66cf1ccb351f2dc3`. The receipt records the
+The maintainer confirmed **0.2.3 is pushed**. Cargo and the release receipt are
+0.2.3. Local main, origin/main and v0.2.3 resolve to
+`c85f6e989f65fe7fdf3a4971ee066a88f9b80079`, from validated source
+`4d9bcdb938c1b12aaafe7554977166ab82a854c5`. The receipt records the
 `release-verify` gate; registry publication was not independently queried.
-The worktree was clean at the start of this batch. Completed work is drafted in
-the undated 0.2.3 changelog section, with Unreleased empty;
+The worktree was clean at the start of this batch. New work is in Unreleased;
 no version mutation, commit, publication, deployment or provider effect ran here.
 
 Follow the [0.2 delivery plan](../roadmap.md). Its goal remains a usable
@@ -24,9 +23,58 @@ operator client. Library publication does not qualify the service or Canic remov
 | M3 — Caffeine and operator integration | Not implemented | Qualified provider transport, completion/economics and production client |
 | M4 — managed parity and acceptance | Not implemented | Same journey through Canic adapter, complete replacement evidence and handoff |
 
+## Current focus — durable local funding intents
+
+`ops::service::funding::StableFundingJournal` uses two host-granted memories for
+bounded exact intent history and maintained attachment accounting. It binds the
+service/operator/Cashier/account/namespace and an explicit allocation, reserve and
+lifetime limit. New externally supplied IDs increase; replay checks the complete
+local identity and amount. Prepared/uncertain intents retain the full attachment
+and block later reservations. The first attempt marker persists possible dispatch;
+repeating it rejects. The intent retains the sole maintained top-up method and
+exact optional target balance. Shared encoding always supplies an explicit account
+and preserves the target option independently of the attachment. `mark_attempted`
+returns canonical call arguments after the marker write; operator request inspection
+also works while fenced and grants no dispatch authority. No provider call or payment
+endpoint is enabled.
+
+Trusted-host enqueue-failure or exact unbounded-refund observations update one
+intent and its totals in a synchronous IC transaction. Identical outcome replay
+changes nothing; conflicting evidence and return-total overflow preserve state.
+Outcomes additionally check separately supplied actual service/original target
+against the retained identity before mutation. The host must authenticate that
+transport context; payload assertions cannot supply it.
+Accepted amounts remain charged independently of provider credit. Accounting shares
+the existing `FundingAllocation` model, which also reconstructs retained history.
+Reopen rejects missing/inconsistent rows and changed scope/allocation, then fences
+every mutation, including late outcomes. Its own ordered IDs cannot prove freshness.
+
+The storage probe now has two additional host memories and labelled bookkeeping
+controls; it sends no cycles. Fourteen storage PocketIC cases pass, including
+intent/accounting rollback, every funding phase through upgrade and canonical
+request preservation with changed-argument/source rejection.
+Targeted validation passes 169 core billing/policy/catalog/service/lifecycle/Cashier cases,
+nine existing funding-probe unit cases, affected strict Clippy, release storage
+Wasm and warning-free rustdoc. No full CI or resource benchmark refresh ran here.
+A concurrent Cargo edit updated ic-testkit from 0.10.0 to 0.10.1 and reformatted the
+workspace list; it was preserved, and final checks used that state. The allocator
+and package version remain unchanged by this work.
+
+Anonymous Cashier metadata was refreshed on 2026-09-27 and matches the retained
+interface hash. Independent didc request vectors cover absent and maximal target
+balances. The wire method has no operation-ID field; local intent correlation does
+not establish remote idempotency or provider credit.
+
+This is a coherent maintainer release checkpoint; Unreleased is updated and full
+release validation still needs to run. Next, qualify actual Cashier transport and
+authenticated outcomes together with account activity, spendability and execution-cost
+gates. Other provider journals, read sessions, adapters and operational
+restoration remain incomplete. Continue keeping uncertain obligations inspectable
+without permitting repeated effects or releasing the restore fence.
+
 ## Released foundation
 
-The detailed prior handoff is retained in Git at v0.2.2. Historical results belong
+The detailed prior handoff is retained in Git at v0.2.3. Historical results belong
 to their original builds; see [core evidence](../evidence/core-primitives.md) and
 [the changelog](../../CHANGELOG.md). The maintained implementation includes:
 
@@ -59,7 +107,7 @@ Candid decoding reduced the fixture's 1 MiB read to about 116M instructions, wit
 hashing still about 81M. These artifact-bound observations are not production
 limits. Do not rotate their hashes or relabel old measurements for a new build.
 
-## Current focus — durable canister service storage
+## Durable upload baseline — released in 0.2.3
 
 The maintainer clarified that the filesystem journal is optional client tooling,
 not a requirement to run a local version of the service. Continue on shared stable
@@ -142,7 +190,7 @@ Two planning cases additionally check admission/reference headroom through clean
 and settlement, caller/scope isolation, raw root-batch bounds and order, uncertain
 and cancelled roots, unchanged accounting and fenced inspection after upgrade.
 
-Latest native validation passes 122 targeted catalog/service/lifecycle cases,
+The 0.2.3 implementation validation passed 122 targeted catalog/service/lifecycle cases,
 including heap/stable accounting agreement, cleanup headroom, immutable historical
 failures, every release phase, missing/orphaned rows, codec widths, near-bound
 manifests, small-manifest allocation, root/request consistency, bounded reads,
@@ -153,17 +201,13 @@ release storage-probe Wasm and warning-free core rustdoc. External dependency
 versions and the default allocator are unchanged. No full CI or resource
 benchmark refresh ran; the small fixture is not production sizing evidence.
 
-This is a coherent implementation checkpoint for the next maintainer-owned release;
-the maintainer requested the 0.2.3 changelog draft; the full release gate has not run.
-Next, implement durable provider-call intent storage and exact outcome correlation,
-including unknown responses and restored inspection, before enabling dispatch.
-The heap owner still supplies verified-read APIs. Durable provider-call intents,
+The heap owner still supplies verified-read APIs. Complete provider-call intents,
 callback authority/correlation, read sessions, provider
 economics and actual adapters remain incomplete. Do not imply all service
 obligations survive yet. Operational restoration still needs a complete obligation
 source and independently surviving authority; the current fence has no unfence API.
 
-## Earlier work in this draft — receipt inspection and local intent journal
+## Receipt inspection and local intent journal — released in 0.2.3
 
 `UploadAdmissions::reference_receipt` authenticates and reads an exact reference
 operation's original result without mutation. Mutation replay uses the same check

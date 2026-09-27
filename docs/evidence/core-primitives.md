@@ -3216,3 +3216,71 @@ allocator change, full CI or resource benchmark refresh ran. This completes the
 current durable planning/read batch; provider intents, callback authority, read
 sessions, adapters and operational recovery remain open. Release/version/commit
 and publication remain maintainer actions.
+
+## Durable local funding intent and attachment journal
+
+`StableFundingJournal` owns two host-granted memories. Exact intent rows bind the
+service, Cashier candidate, account, namespace, operation and offered attachment;
+a separate row retains configuration and allocation totals. Shared model arithmetic
+reserves the original full offer, distinguishes known refunds from proven unsent
+amounts, and retains accepted/uncertain attachments independently of provider credit.
+Ordinary mutations touch individual rows instead of reconstructing history.
+
+Preparation and the first attempt marker precede any possible host effect. Pending
+or uncertain intents block later reservations. Repeated attempt markers reject,
+terminal replay cannot refund twice, and conflicting outcomes preserve history.
+Reopen validates the complete bounded journal and recomputed totals without repair,
+then fences every mutation, including late outcomes. Increasing operation IDs are
+only local ordering; they cannot establish freshness or release the restore fence.
+
+Eight native journal cases cover exact identity/replay, reservation conservation,
+shared reconstruction agreement, invalid refunds, lifetime overflow, all restored
+phases, scope/authority, missing/orphaned/changed records and maximal record widths.
+All 162 targeted billing/policy/catalog/service/lifecycle cases pass, as do the nine
+existing funding-probe unit cases affected by shared allocation arithmetic.
+
+All thirteen storage PocketIC cases pass. Two added journeys trap after intent
+writes but before accounting writes, verify rollback of both stable and cached
+state, reject a second attempt, preserve every phase through same-release upgrade,
+and reject late outcomes under the fence. Transport facts are labelled substitutes;
+the fixture sends no cycles and performs no provider call. This is not deployed
+Cashier evidence, independent credit reconciliation or production call admission.
+
+Release storage-probe Wasm, affected all-target strict Clippy, warning-free core
+rustdoc, formatting and diff checks pass. Final checks used the concurrent
+ic-testkit 0.10.1 Cargo update, which this work preserved. No allocator or package
+version change, full CI, resource benchmark refresh or paid action ran. Cashier
+method/payload binding, authenticated callbacks, complete account activity,
+spendability/fee gates, other provider intents and operational recovery remain open.
+
+## Durable Cashier request binding and transport-context correlation
+
+On 2026-09-27, an anonymous read of Cashier `72ch2-fiaaa-aaaar-qbsvq-cai`
+`candid:service` through `https://icp-api.io` with the mainnet root key returned
+SHA-256 `232b08e4514048d4de48d6d1bf4387f577bfb64c7e2e2ded699a5e52d475d76f`,
+matching the retained `caffeine-cashier.did`. This verifies the advertised interface,
+not deployment behavior, account authority, provider credit or effect guarantees.
+
+`CashierTopUpRequest` owns the fixed method and canonical Candid encoding. The
+request/account options are present explicitly; the supplied optional positive
+target balance is retained independently of the offered attachment. Two fixtures
+under `tests/fixtures/caffeine-top-up/request-*.hex` were generated independently
+using `didc encode --method account_top_up_v1 --defs docs/evidence/caffeine-cashier.did`.
+They cover absent target and the maximum u128 target with an explicit account.
+Local operation/namespace identities have no provider wire fields and supply no
+remote deduplication or completion-query contract.
+
+The durable intent records the method and all argument choices; same-release
+encoding reconstructs exact bytes. Attempt marking returns that request only after
+its write. Operator inspection remains available while fenced. Changed target
+options reject as identity conflicts. Transport observations check independently
+supplied service/target context before changing allocation; the host must still
+authenticate transport and carry the exact original intent across the call.
+
+All 169 targeted core billing/policy/catalog/service/lifecycle/Cashier cases and
+fourteen storage PocketIC cases pass. The added IC case preserves canonical bytes
+through upgrade, rejects changed target balances and unrelated callers, and keeps
+the full offer charged after wrong-source or fenced late outcomes. Affected strict
+Clippy, release storage Wasm, warning-free rustdoc, formatting and diff checks pass.
+No paid call, account mutation, version change, full CI or resource benchmark ran.
+Provider authentication, account-wide credit/activity and spendability remain open.

@@ -5,6 +5,7 @@
 //! No call, automatic retry, accepted-cycle accounting or settlement happens here.
 
 use std::num::NonZeroUsize;
+pub mod request;
 
 use candid::{CandidType, Principal, de::DecoderConfig, decode_one_with_config};
 use serde::Deserialize;

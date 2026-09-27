@@ -55,6 +55,13 @@ Admission/reference headroom comes from maintained counters, sharing the heap
 model's quota and reserved-cleanup arithmetic. Bounded operator root observations
 preserve pending and retired states for reconciliation. They grant no provider
 callback or deletion authority and do not release the restore fence.
+`ops::service::funding::StableFundingJournal` adds durable local attachment intents
+and exact transport outcomes. It reserves the full offer, keeps uncertain amounts
+charged and rejects repeated attempt markers. Reopen validates history and totals
+before enforcing inspection only. It binds canonical Cashier top-up arguments,
+including explicit account and optional target balance, and checks supplied
+transport context before applying outcomes. It sends no cycles; authenticating
+transport and establishing provider credit remain separate requirements.
 The service uses bounded manifest authorization for direct browser-to-Caffeine
 upload. No file chunks or whole-file raw digest are required by service admission.
 Manifest consistency, possible exposure and independently confirmed provider

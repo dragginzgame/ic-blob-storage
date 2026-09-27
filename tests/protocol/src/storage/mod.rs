@@ -1,4 +1,5 @@
 //! Private controls for testing the durable upload owner, not a service API.
+pub mod funding;
 pub mod read;
 use crate::{
     admission::{
@@ -28,6 +29,10 @@ pub enum WriteFault {
     Receipts,
     /// Root-to-request index, after root claim and permission insertion.
     RootRequests,
+    /// Funding accounting, after the exact intent row write.
+    FundingAccounting,
+    /// Funding intent/attempt/outcome row.
+    FundingIntents,
 }
 /// One admission that must trap at the selected stable write.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]

@@ -123,3 +123,28 @@ pub(crate) fn observe_roots(
 ) -> Result<Vec<blob_test_protocol::storage::read::RootObservation>, Failure> {
     ops::planning::roots(context, input)
 }
+
+pub(crate) fn funding(
+    execution: UploadContext,
+    input: blob_test_protocol::storage::funding::Command,
+) -> Result<bool, Failure> {
+    ops::funding::apply(execution, input)
+}
+pub(crate) fn funding_lookup(
+    execution: UploadContext,
+    input: blob_test_protocol::storage::funding::Intent,
+) -> Result<Option<blob_test_protocol::storage::funding::Phase>, Failure> {
+    ops::funding::lookup(execution, input)
+}
+pub(crate) fn funding_allocation(
+    execution: UploadContext,
+) -> Result<blob_test_protocol::storage::funding::Allocation, Failure> {
+    ops::funding::allocation(execution)
+}
+
+pub(crate) fn funding_request(
+    execution: UploadContext,
+    input: blob_test_protocol::storage::funding::Intent,
+) -> Result<blob_test_protocol::storage::funding::Request, Failure> {
+    ops::funding::request(execution, input)
+}

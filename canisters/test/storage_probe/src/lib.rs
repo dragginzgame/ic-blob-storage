@@ -143,3 +143,25 @@ fn observe_roots(
 ) -> Result<Vec<blob_test_protocol::storage::read::RootObservation>, Failure> {
     workflow::observe_roots(context(), &input)
 }
+
+#[ic_cdk::update(decode_with = "ops::decode")]
+fn fixture_funding(input: blob_test_protocol::storage::funding::Command) -> Result<bool, Failure> {
+    workflow::funding(context(), input)
+}
+#[ic_cdk::query(decode_with = "ops::decode")]
+fn funding_lookup(
+    input: blob_test_protocol::storage::funding::Intent,
+) -> Result<Option<blob_test_protocol::storage::funding::Phase>, Failure> {
+    workflow::funding_lookup(context(), input)
+}
+#[ic_cdk::query]
+fn funding_allocation() -> Result<blob_test_protocol::storage::funding::Allocation, Failure> {
+    workflow::funding_allocation(context())
+}
+
+#[ic_cdk::query(decode_with = "ops::decode")]
+fn funding_request(
+    input: blob_test_protocol::storage::funding::Intent,
+) -> Result<blob_test_protocol::storage::funding::Request, Failure> {
+    workflow::funding_request(context(), input)
+}

@@ -2,6 +2,25 @@
 
 ## [Unreleased]
 
+### Added
+
+- `StableFundingJournal` persists exact local attachment intents, first-attempt
+  markers and terminal transport observations through two host-granted `ic-memory`
+  stores. Full offers are reserved before attempts; pending/uncertain intents block
+  later reservations. Exact replay cannot repeat an attempt or refund twice, and
+  conflicting outcomes reject. Incremental accounting shares the existing funding
+  reconstruction rules, retaining accepted and unresolved amounts independently
+  of provider credit. Reopen checks complete bounded history and totals without
+  repair, then fences every mutation. Native and PocketIC cases cover corrupted
+  history, overflow, interrupted writes and every phase through upgrade. The
+  retained method and optional target balance bind canonical `account_top_up_v1`
+  arguments with an explicit account and exact attachment. Request inspection
+  survives fencing; changed arguments and mismatched transport service/target
+  reject without releasing reservations. Independent Candid vectors and PocketIC
+  cover request encoding, correlation and upgrade preservation. This is
+  bookkeeping only: provider authentication, spendability
+  and operational recovery remain open; no payment dispatch is enabled.
+
 ## [0.2.3] - 2026-09-27
 
 ### Added
