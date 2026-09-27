@@ -1,0 +1,230 @@
+{
+  "schema_version": 1,
+  "observed_on": "2026-09-27",
+  "repository": "dragginzgame/toko",
+  "branch": "development",
+  "commit": "6519b72d2a420564dabaf700fc55f7b8603d9fd3",
+  "access": "Authenticated GitHub API; branch resolved before reading pinned source. Local Toko checkout not used.",
+  "scope": "Read-only consumer review for 0.2. No sibling edits, account reads, deployment or paid effects.",
+  "sources": [
+    {
+      "path": "frontend/src/lib/constants/contants.ts",
+      "url": "https://github.com/dragginzgame/toko/blob/6519b72d2a420564dabaf700fc55f7b8603d9fd3/frontend/src/lib/constants/contants.ts",
+      "sha256": "ebd01a242850f723b17e5f43b3a1794b5ff8bb9f67f07430c54a6d4f995df812"
+    },
+    {
+      "path": "frontend/src/lib/storage/storage-client.ts",
+      "url": "https://github.com/dragginzgame/toko/blob/6519b72d2a420564dabaf700fc55f7b8603d9fd3/frontend/src/lib/storage/storage-client.ts",
+      "sha256": "5742c9e31846ae7162fc1bb006013ad33e943be4a8f4d536ab907140f231ea4d"
+    },
+    {
+      "path": "frontend/src/lib/providers/Upload.provider.tsx",
+      "url": "https://github.com/dragginzgame/toko/blob/6519b72d2a420564dabaf700fc55f7b8603d9fd3/frontend/src/lib/providers/Upload.provider.tsx",
+      "sha256": "f1c95c216258bdeb0d002fed0dc0ac5af5ebc3a07828bd7a5c3ac4545a741a1e"
+    },
+    {
+      "path": "frontend/src/lib/blobStorage/mediaRemoteUpload.service.ts",
+      "url": "https://github.com/dragginzgame/toko/blob/6519b72d2a420564dabaf700fc55f7b8603d9fd3/frontend/src/lib/blobStorage/mediaRemoteUpload.service.ts",
+      "sha256": "d7c6fc0413a16ce972e4e2a310b7e8f56324785e214d4e0ff26f907103949152"
+    },
+    {
+      "path": "fleets/toko/project/instance/src/ops/asset.rs",
+      "url": "https://github.com/dragginzgame/toko/blob/6519b72d2a420564dabaf700fc55f7b8603d9fd3/fleets/toko/project/instance/src/ops/asset.rs",
+      "sha256": "879699f31fa09bc7a14ddcd93e56732377e54516af3b8900ad612cfa84445b31"
+    },
+    {
+      "path": "fleets/toko/project/hub/src/ops/blob_storage.rs",
+      "url": "https://github.com/dragginzgame/toko/blob/6519b72d2a420564dabaf700fc55f7b8603d9fd3/fleets/toko/project/hub/src/ops/blob_storage.rs",
+      "sha256": "5047c86398b580c00627be1dfbddc8f212ccbef110a2aa284c6b50fe7e2d8748"
+    },
+    {
+      "path": "fleets/toko/project/instance/src/ops/immutable_storage.rs",
+      "url": "https://github.com/dragginzgame/toko/blob/6519b72d2a420564dabaf700fc55f7b8603d9fd3/fleets/toko/project/instance/src/ops/immutable_storage.rs",
+      "sha256": "f6f428c58a016c66d29801e15591a9008d27ac4cfe58648e0da959598d7e8a67"
+    },
+    {
+      "path": "frontend/src/lib/utils/storage.utils.ts",
+      "url": "https://github.com/dragginzgame/toko/blob/6519b72d2a420564dabaf700fc55f7b8603d9fd3/frontend/src/lib/utils/storage.utils.ts",
+      "sha256": "e42eed506c14df2c9d7d8654d95f7dfff40b18de2d958e1ac0f9ad5e45807736"
+    }
+  ],
+  "observations": {
+    "remote_media_file_bytes": 10485760,
+    "main_upload_staging_bytes": 524288000,
+    "staging_is_provider_protocol_limit": false,
+    "thumbnail_max_bytes": 30000,
+    "asset_registration_ingress_bytes": 2097152,
+    "chunk_bytes": 1048576,
+    "upload": "Browser requests project certificate then uploads tree/chunks to gateway before registering project asset rows.",
+    "local_development": "Placeholder hashes can bypass gateway/registration evidence; this is not production upload qualification.",
+    "references": "Reviewed create path checks liveness but has no root-uniqueness check; deletion checks token/generator references around awaits and marks roots for deletion before deleting rows.",
+    "billing": "Project hub has separate passive status and explicit maintain paths; maintain may sync, fund and reread."
+  },
+  "implications": [
+    "A separate service needs explicit project-to-uploader admission; browser principal cannot be interpreted as the tenant project.",
+    "Retain operation ownership and accounting when gateway upload succeeds but project registration fails.",
+    "Define exact asset references and a durable consumer release outbox; repeated cross-canister checks alone are not exclusion.",
+    "Distinguish per-file, aggregate staging, lifetime and physical/billing budgets; do not copy the six-chunk fixture limit.",
+    "Provider retry/completion, namespace authority and final billing remain separate evidence gaps."
+  ],
+  "limitations": [
+    "Source code and constants do not establish a deployed installation or workload qualification.",
+    "Remote-media and main-upload paths differ; the observed media constant is not a universal per-file bound.",
+    "No live project, accountable installation operator, provisioned namespace or paid trial budget selected."
+  ],
+  "resource_follow_up": {
+    "observed_on": "2026-09-27",
+    "official_main_rechecked": "e5cacdfe5ce55e939edb02980fca800c0c13f421",
+    "dfinity_example_main_rechecked": "ef29e8a6e8063c6fe654cac53a3497cab585fefa",
+    "client_artifact_url": "https://github.com/caffeinelabs/skills/blob/e5cacdfe5ce55e939edb02980fca800c0c13f421/packages/object-storage/frontend/dist/StorageClient.js",
+    "client_artifact_sha256": "6eb7f5b424f02476c9096e4684d8e520121c21b2b2f6f29f3c9a25e0c07cad57",
+    "help_source": "https://help.caffeine.ai/hc/en-us/articles/49362898986644-File-Storage-Costs",
+    "result": "Bounded official source/help review supplied no new exact completion lookup or certificate replay/charging contract. Retail billing guidance is not an object-specific settlement receipt for this installation.",
+    "vectors_added": [
+      "pattern-10485760",
+      "pattern-10485761"
+    ],
+    "vector_method": "Same pinned unmodified hashing classes and Node v18.19.1 WebCrypto isolation as the existing vector fixture; no gateway calls.",
+    "limitations": "No package registry, deployed Cashier metadata or Toko remote refresh in this continuation. Source findings do not prove lack of provider support. No live account, upload or payment operation."
+  },
+  "certificate_review": {
+    "observed_on": "2026-09-27",
+    "toko_development_rechecked": "6519b72d2a420564dabaf700fc55f7b8603d9fd3",
+    "official_main": "e5cacdfe5ce55e939edb02980fca800c0c13f421",
+    "sources": [
+      {
+        "path": "packages/object-storage/backend/src/Mixin.mo",
+        "url": "https://github.com/caffeinelabs/skills/blob/e5cacdfe5ce55e939edb02980fca800c0c13f421/packages/object-storage/backend/src/Mixin.mo",
+        "sha256": "175c6b98672a83054fc08855062d1a7b7f2bd3713bf11a60d5319ac5afefe2b3"
+      },
+      {
+        "path": "packages/object-storage/backend/src/Storage.mo",
+        "url": "https://github.com/caffeinelabs/skills/blob/e5cacdfe5ce55e939edb02980fca800c0c13f421/packages/object-storage/backend/src/Storage.mo",
+        "sha256": "0c757f4cb30ebe8e30b42a59b130a1662b47e403b9664f44e98d14b08b20af42"
+      }
+    ],
+    "method": "_immutableObjectStorageCreateCertificate",
+    "input": "blobHash : Text",
+    "output": "record { method = \"upload\"; blob_hash = blobHash }",
+    "reference_caller_check": false,
+    "scope": "Official reference source only, not deployed gateway validation or replay semantics; package registries were not requeried.",
+    "local_decision": "Project-authorized exact uploader/operation with bounded reservation and one-shot possible exposure; deadlines and revocation constrain local issuance only.",
+    "unresolved": [
+      "Deployed certificate lifetime and replay/charging",
+      "Gateway namespace/project/bucket enforcement",
+      "Exact completion lookup and independent recovery authority",
+      "Durable tenant enrollment and consumer registration/release coordination"
+    ]
+  },
+  "direct_upload_evaluation": {
+    "observed_on": "2026-09-27",
+    "recommendation": "Direct browser-to-Caffeine upload with bounded manifest authorization; conditional on provider size enforcement, namespace/replay and independently obtained completion evidence. Evaluation only; runtime gate unchanged.",
+    "official_main_rechecked": "e5cacdfe5ce55e939edb02980fca800c0c13f421",
+    "toko_development_rechecked": "6519b72d2a420564dabaf700fc55f7b8603d9fd3",
+    "npm": {
+      "url": "https://registry.npmjs.org/@caffeineai%2fobject-storage/latest",
+      "version": "1.1.2",
+      "integrity": "sha512-JAmoHT6E8M18DEbW4rkHinAOw0A8yNbz+rj8F56VAvr8Hf0TxQSK0ZdMrkwwT7BsiOLvtFK/YcLtoaWBc9x2xQ=="
+    },
+    "source_artifacts": [
+      {
+        "url": "https://github.com/caffeinelabs/skills/blob/e5cacdfe5ce55e939edb02980fca800c0c13f421/packages/object-storage/frontend/dist/StorageClient.js",
+        "sha256": "6eb7f5b424f02476c9096e4684d8e520121c21b2b2f6f29f3c9a25e0c07cad57"
+      },
+      {
+        "path": "packages/object-storage/backend/src/Mixin.mo",
+        "url": "https://github.com/caffeinelabs/skills/blob/e5cacdfe5ce55e939edb02980fca800c0c13f421/packages/object-storage/backend/src/Mixin.mo",
+        "sha256": "175c6b98672a83054fc08855062d1a7b7f2bd3713bf11a60d5319ac5afefe2b3"
+      }
+    ],
+    "consumer_paths_reviewed": [
+      "frontend/src/lib/storage/storage-client.ts",
+      "frontend/src/lib/blobStorage/mediaRemoteUpload.service.ts",
+      "fleets/toko/project/instance/src/ops/immutable_storage.rs"
+    ],
+    "length_observation": {
+      "runtime": "v18.19.1",
+      "source_sha256": "6eb7f5b424f02476c9096e4684d8e520121c21b2b2f6f29f3c9a25e0c07cad57",
+      "actual_bytes": 1048576,
+      "declared_content_length": 1,
+      "chunk_count": 1,
+      "chunk_hash": "sha256:d5cb7b4bf68964050d947b4a2205c76fa61f8ad023648eb6caa6d3959239dfdd",
+      "provider_root": "sha256:3b78efe71296d57a2a6a42156c789ce4cf937d3a61bc7ab643020fe87cc69229",
+      "result": "Hash-tree construction accepts internally consistent metadata claiming one byte for a one-MiB leaf. No gateway called; server acceptance is unknown."
+    },
+    "reproduction": "Verify pinned StorageClient.js SHA-256; isolate the unmodified slice from const MAXIMUM_CONCURRENT_UPLOADS to before class StorageGatewayClient in Node VM with only WebCrypto, TextEncoder and Uint8Array. Hash new Uint8Array(1048576) with YHash.fromChunk; pass that one leaf to BlobHashTree.build with Content-Length: 1 and Content-Type: application/octet-stream. Record the root. No imports or gateway client executed.",
+    "native_check": "cargo test --offline --locked -p ic-blob-storage --lib leaf_checks_reject_corruption_and_length_lies_without_remembering_success passed",
+    "local_measurements": {
+      "wasm_sha256": "4c2e2afc5f85d954a2742854915436f601dd555011f6ba828ad178bb93d86411",
+      "object_bytes": 10485760,
+      "fresh_append_instructions_sum": 1713702451,
+      "retry_instructions_sum": 903016377,
+      "manifest_preparation_instructions": 1142257,
+      "scope": "local release Wasm; instruction samples exclude sample storage and reply encoding; memory is allocated Wasm pages, not live allocation size or provider cost"
+    },
+    "required_provider_evidence": [
+      "Pre-charge root/tree/chunk/length agreement, or verified per-leaf byte cap supporting a conservative reservation, with metadata/billing overhead bounded.",
+      "Owner/project/bucket binding and escaped-certificate replay, reuse and charging behavior.",
+      "Independent exact completion/size evidence recoverable after lost replies; browser flags and root liveness are insufficient."
+    ],
+    "limitations": [
+      "No gateway or account call, deployment, paid upload or payment.",
+      "No gateway server implementation or new guarantee established; source search absence is not proof a capability is unavailable.",
+      "No Mops/deployed Cashier refresh, package installation or sibling edit.",
+      "No direct-upload runtime benchmark; removed append costs are an architectural estimate, not a full cost or latency comparison."
+    ]
+  },
+  "direct_upload_implementation": {
+    "observed_on": "2026-09-27",
+    "authority": "Maintainer explicitly selected direct upload and removal of mandatory canister byte verification.",
+    "state": "Transient shared model and local IC adapter hard-cut; no production transport or persistence.",
+    "measurement": {
+      "initial_wasm_memory_bytes": 1245184,
+      "instructions_sum": 4107938,
+      "messages": [
+        {
+          "after_work": 934195,
+          "before_work": 926189,
+          "step": "admit",
+          "wasm_memory_bytes": 1245184,
+          "wire_bytes": 287
+        },
+        {
+          "after_work": 1132730,
+          "before_work": 977435,
+          "step": "prepare",
+          "wasm_memory_bytes": 1245184,
+          "wire_bytes": 642
+        },
+        {
+          "after_work": 1132084,
+          "before_work": 975864,
+          "step": "prepare_retry",
+          "wasm_memory_bytes": 1245184,
+          "wire_bytes": 642
+        },
+        {
+          "after_work": 908929,
+          "before_work": 902958,
+          "step": "expose",
+          "wasm_memory_bytes": 1245184,
+          "wire_bytes": 195
+        }
+      ],
+      "object_bytes": 10485760,
+      "scope": "Local release Wasm; bounded manifest admission and local exposure only. No file bytes or provider call. Counters exclude diagnostic storage and reply encoding; allocated Wasm memory is not live allocation size.",
+      "wasm_sha256": "1a7027b3ab7c240505287a2dbdc1a4d447b5f352b7f595e57029ede1203db488"
+    },
+    "remaining": "Provider pre-charge size/tree enforcement, namespace/replay charging and independent completion evidence must be qualified before real issuance.",
+    "metadata": {
+      "observed_on": "2026-09-27",
+      "contract": "Canonical Content-Length equals admitted bytes; unique ASCII-token names ignoring case; no controls, line separators or surrounding whitespace in values. Raw budgets precede parsing. This does not authenticate actual byte length or provider behavior.",
+      "independent_vectors": [
+        "media-1048577",
+        "media-10485760"
+      ],
+      "source_sha256": "6eb7f5b424f02476c9096e4684d8e520121c21b2b2f6f29f3c9a25e0c07cad57",
+      "evidence": "Native service rejection/accounting tests, independent actual-content hashing vectors and actual IC metadata rejection/reordered retry checks pass."
+    }
+  }
+}

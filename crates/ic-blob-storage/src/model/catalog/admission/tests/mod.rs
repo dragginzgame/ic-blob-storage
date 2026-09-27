@@ -57,7 +57,6 @@ fn request(id: u8, tenant: u8, bytes: u64) -> UploadRequest {
                 ReferenceId::new(n(1)),
             ),
         },
-        content: ContentDigest::compute(&[id]),
     }
 }
 fn actor(request: UploadRequest) -> Principal {
@@ -410,10 +409,6 @@ fn exact_payload_actor_and_scope_are_required_even_for_retries() {
         .expect("incarnation"),
     ];
     let mut changed = vec![
-        UploadRequest {
-            content: ContentDigest::compute(b"different"),
-            ..a
-        },
         UploadRequest {
             object: UploadObject {
                 root: root(2),

@@ -1,5 +1,9 @@
 # ic-blob-storage
 
+0.1.19 is the released foundation. The [0.2 delivery plan](docs/roadmap.md) tracks
+the remaining work to a usable service; [current status](docs/status/current.md)
+separates implemented behavior from outstanding milestones.
+
 An independent blob-storage service library for Internet Computer canisters.
 The core verifies raw-content and Caffeine-tree identities, tracks checked chunks,
 and lists missing chunks within explicit work limits. Ordered reads check each
@@ -10,6 +14,28 @@ The library also encodes explicit Cashier balance, payment-relationship and
 gateway-list queries, and inspects relationship replies against the expected
 storage owner and payer. Encoding/decoding performs no provider call and grants
 no spending or account-link authority.
+The 0.2 service admission model binds each project-approved upload to an exact
+uploader and deadline, sharing existing reservations and reference accounting.
+It checks root-only certificate requests against retained permissions and keeps
+possibly exposed uploads charged after expiry, revocation or failed asset creation.
+Operator-managed tenant enrollment gates fresh work; suspension preserves cleanup
+and accounting, and reactivation cannot renew older uploader permissions.
+The service uses bounded manifest authorization for direct browser-to-Caffeine
+upload. No file chunks or whole-file raw digest are required by service admission.
+Manifest consistency, possible exposure and independently confirmed provider
+completion remain distinct. Global and per-tenant lifetime manifest-leaf budgets
+survive cancellation and settlement, independently of released object bytes.
+Service metadata requires a canonical `Content-Length` matching the reservation,
+unique names ignoring case and values without controls or surrounding whitespace.
+This validates the declaration; actual stored length still needs provider evidence.
+The unpublished IC probe covers a 10 MiB declaration, exact retries, suspension,
+expiry, retained uncertainty, stop/start and atomic rejection of unsupported upgrades.
+Its measured admission/preparation/retry/exposure sequence is about 4M instructions
+with no file-byte transfer. It does not persist grants or issue certificates;
+provider size enforcement, replay and completion still require qualification.
+Candidate configuration derives manifest limits from its admitted object size.
+The local PocketIC journey covers 10 MiB files; its provider completion and billing
+observations remain substitutes, not deployed Caffeine qualification.
 Replies can be checked against the original encoded request, including its
 Cashier, method and expected account bindings. Gateway application additionally
 requires the exact registry scope and pending sync token. Explicit account-scoped
@@ -33,7 +59,7 @@ source canister tests stale sync replies and reentrant membership changes.
 The same local harness executes byte-verification vectors inside Wasm and checks
 an explicit instruction budget for ordered chunk appends.
 Upload fixtures also check real caller isolation, cancellation and retained uncertainty.
-A connected local journey now covers certificate admission through deletion and
+A separate local integrity journey covers certificate admission through deletion and
 separate billing cessation, including actual inter-canister callbacks and rollback.
 Its bounded files, explicit metadata and chunks are verified across messages
 before certificate admission, with tenant-only progress and checked retries;
@@ -95,7 +121,8 @@ See [dependency setup](docs/dependencies.md) for PocketIC provisioning.
 | `make fmt-check` | Formatting |
 | `make clippy` | Strict workspace linting |
 | `make test-native` | Native core tests and doctests |
-| `make test-pocketic` | Build and run the local authority, sync and funding fixtures |
+| `make test-pocketic` | Build and run the local admission, authority, sync and funding fixtures |
+| `make test-admission-resources` | Admission input bounds and local Wasm resource report in `.tmp/admission-resources.json` |
 | `make test` | Both suites, sequentially |
 | `make cloc` | Rust runtime/test file LOC and test function counts under `crates/` |
 
@@ -242,6 +269,7 @@ Canister fixtures and the harness outside `crates/` are excluded from this repor
 
 ## Documentation
 
+- [0.2 delivery plan](docs/roadmap.md): milestones, current Toko consumer findings and completion criteria.
 - [Current status](docs/status/current.md): implemented scope, validation and next work.
 - [Service contract](docs/service-contract.md): unresolved design decisions and implementation gates.
 - [Canic parity](docs/canic-parity.md): required capabilities, source inventory and removal obligations.

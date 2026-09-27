@@ -12,10 +12,7 @@ use ic_blob_storage::{
                 read::UploadRootState,
             },
         },
-        identity::{
-            ContentDigest,
-            batch::{ProviderRootBatch, RootBatchLimits},
-        },
+        identity::batch::{ProviderRootBatch, RootBatchLimits},
     },
     policy::catalog::upload::UploadRootStatus,
 };
@@ -52,7 +49,6 @@ pub(crate) fn initialize(service: Principal, first: Principal, second: Principal
                 bytes: 100,
                 first: reference.reference,
             },
-            content: ContentDigest::compute(&[id]),
         }
     });
     for request in requests {

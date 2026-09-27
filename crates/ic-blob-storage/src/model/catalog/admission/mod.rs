@@ -14,7 +14,7 @@ use super::{
     check_bytes,
 };
 use crate::model::{
-    identity::{ContentDigest, ProviderRootHash},
+    identity::ProviderRootHash,
     lifecycle::{
         LifecycleChange,
         binding::{ObjectBinding, ObjectBindingError, ReferenceKey},
@@ -42,15 +42,13 @@ impl UploadRequestId {
     }
 }
 
-/// Exact immutable local upload arguments; neither digest proves stored bytes.
+/// Exact immutable local upload arguments; a root does not prove stored bytes.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub struct UploadRequest {
     /// Tenant-scoped operation identity; retries must preserve every argument.
     pub id: UploadRequestId,
     /// Expected root, length and first reference with the full object binding.
     pub object: UploadObject,
-    /// Expected whole-file raw digest, distinct from the provider root.
-    pub content: ContentDigest,
 }
 
 /// Expected object properties to reserve, without claiming upload completion.
@@ -249,7 +247,7 @@ impl UploadCatalog {
     /// Apply a trusted exact completion fact, transferring reservation to catalog.
     ///
     /// The caller must independently authenticate and correlate provider completion
-    /// to this entire request and verify content identity. A client hash/progress,
+    /// to this entire request, including provider root and stored size. A client hash/progress,
     /// timeout or generic HTTP success cannot supply that fact. This local method
     /// defines no provider evidence format. Replays never reactivate references.
     /// # Errors

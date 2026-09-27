@@ -30,7 +30,7 @@ impl Fixture {
 fn stable_checkpoint_copy_completes_tails_without_advancing_live_authority() {
     for name in ["pattern-1048577", "uneven-tree-with-metadata"] {
         let f = Fixture::new();
-        let v = chunks::vector(name, 1);
+        let v = content_vectors::vector(name, 1);
         assert_eq!(
             f.reserve_manifest(f.first, v.upload, v.manifest.clone()),
             Ok(())
@@ -97,7 +97,7 @@ fn stable_checkpoint_copy_completes_tails_without_advancing_live_authority() {
 #[test]
 fn restored_hash_cannot_turn_a_wrong_raw_digest_into_verification() {
     let f = Fixture::new();
-    let v = chunks::vector("pattern-1048577", 1);
+    let v = content_vectors::vector("pattern-1048577", 1);
     let upload = JourneyUpload {
         digest: [7; 32],
         ..v.upload
@@ -137,7 +137,7 @@ fn restored_hash_cannot_turn_a_wrong_raw_digest_into_verification() {
 #[test]
 fn damaged_checkpoint_rejects_reconstruction_without_resetting_live_state() {
     let f = Fixture::new();
-    let v = chunks::vector("pattern-1048577", 1);
+    let v = content_vectors::vector("pattern-1048577", 1);
     assert_eq!(f.reserve_manifest(f.first, v.upload, v.manifest), Ok(()));
     assert_eq!(f.append(f.first, v.upload, 0, &v.bytes[..CHUNK]), Ok(()));
     let before = f.archive();
@@ -174,7 +174,7 @@ fn damaged_checkpoint_rejects_reconstruction_without_resetting_live_state() {
 #[test]
 fn controller_status_cannot_use_an_operator_checkpoint_probe() {
     let f = Fixture::with_source_operator(true);
-    let v = chunks::vector("abc-text", 1);
+    let v = content_vectors::vector("abc-text", 1);
     assert_eq!(f.reserve_manifest(f.first, v.upload, v.manifest), Ok(()));
     assert_eq!(
         f.checkpoint_probe(f.operator, v.upload, 0, &v.bytes),

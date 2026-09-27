@@ -1,13 +1,12 @@
 //! Single-step local source transport and bounded manifest verification.
+use crate::model::content::ContentRequest;
 use blob_test_protocol::journey::{JourneyFailure, readback::JourneyReadChunk};
 use candid::{Principal, de::DecoderConfig, decode_one_with_config};
-use ic_blob_storage::model::{
-    catalog::admission::UploadRequest, identity::caffeine::CAFFEINE_CHUNK_BYTES,
-};
+use ic_blob_storage::model::identity::caffeine::CAFFEINE_CHUNK_BYTES;
 use ic_cdk::call::Call;
 
 pub(crate) fn begin(
-    request: UploadRequest,
+    request: ContentRequest,
     index: u64,
     gateway: Principal,
 ) -> Result<u64, JourneyFailure> {
@@ -29,12 +28,12 @@ pub(crate) fn begin(
         state.read_intent = Some(crate::model::archive::ReadRecord {
             token,
             valid: true,
-            tenant: request.object.first.object().tenant(),
-            root: *request.object.root.as_bytes(),
+            tenant: request.upload.object.first.object().tenant(),
+            root: *request.upload.object.root.as_bytes(),
             index,
             gateway,
         });
-        if state.armed_read_trap == Some(request.object.root) {
+        if state.armed_read_trap == Some(request.upload.object.root) {
             state.armed_read_trap = None;
             state.trap_read_token = Some(token);
         }
@@ -62,7 +61,10 @@ pub(crate) fn arm_callback_trap(root: ic_blob_storage::model::identity::Provider
     super::mutate(|state| {
         if state.reads.busy()
             || state.armed_read_trap.is_some()
-            || !state.requests.iter().any(|r| r.request.object.root == root)
+            || !state
+                .requests
+                .iter()
+                .any(|r| r.request.upload.object.root == root)
         {
             return false;
         }
@@ -73,18 +75,18 @@ pub(crate) fn arm_callback_trap(root: ic_blob_storage::model::identity::Provider
 
 pub(crate) async fn fetch(
     gateway: Principal,
-    request: UploadRequest,
+    request: ContentRequest,
     index: u64,
 ) -> Result<Vec<u8>, JourneyFailure> {
     Call::bounded_wait(gateway, "fixture_chunk")
-        .with_args(&(request.object.root.as_bytes().to_vec(), index))
+        .with_args(&(request.upload.object.root.as_bytes().to_vec(), index))
         .await
         .map(ic_cdk::call::Response::into_bytes)
         .map_err(|_| JourneyFailure::Transport)
 }
 
 pub(crate) fn verify(
-    request: UploadRequest,
+    request: ContentRequest,
     index: u64,
     encoded: &[u8],
 ) -> Result<JourneyReadChunk, JourneyFailure> {

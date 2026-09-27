@@ -2,6 +2,70 @@
 
 ## [Unreleased]
 
+## [0.2.0]
+
+### Added
+
+- Canonical service upload metadata: exactly one `Content-Length` must match the
+  reservation; malformed names/values, duplicate names ignoring case and ambiguous
+  length spellings reject before manifest mutation. Configuration must accommodate
+  the largest object's length header. Native and actual IC checks preserve quota
+  and prior manifests on rejection and accept equivalent reordered retries.
+- Bounded manifest authorization for direct browser-to-Caffeine uploads, with
+  exact uploader, activation and deadline checks. Manifest binding is distinct
+  from provider completion; exposed uncertainty keeps its reservation. No file
+  chunks pass through service admission. The 10 MiB local admission, preparation,
+  retry and exposure sequence measures about 4M instructions, excluding provider
+  transport and persistence.
+- Bounded decoding, pre-conversion manifest checks and operator-only resource
+  observations in the local admission probe. Focused PocketIC checks enforce
+  instruction/memory budgets and emit a report through
+  `make test-admission-resources`. The metadata-only boundary accepts at most
+  16 KiB per command and separately bounds decoder work, skipping and type headers.
+- Explicit global and per-tenant budgets for retained manifest leaves. Admission
+  reserves capacity from declared size before catalog mutation; retries consume
+  nothing extra, and cancellation or settlement cannot refund retained history.
+- A local IC adapter exercising the shared owner with actual caller/time bindings.
+  Covers role isolation, 10 MiB manifests, exact retries, suspension/expiry,
+  stop/start continuity and atomic rejection of unsupported upgrades. It emits
+  no certificates or provider effects; durable service recovery remains open.
+- Shared service manifest budgets derived from the admitted object size, with
+  explicit metadata limits and portable chunk counts. Empty uploads reject before
+  reservation. Independent Caffeine vectors and the PocketIC journey now cover
+  the 10 MiB media boundary, oversized rejection, exact chunk retries and retained
+  recovery history; fixture admission and journal validation share one envelope.
+- Bounded operator-managed tenant enrollment in the shared admission model.
+  Suspension blocks fresh uploads, exposure and reference retains while preserving
+  exact receipts, cleanup and liabilities. Reactivation invalidates old uploader
+  permissions; stale enrollment updates conflict. Reference operations now verify
+  project/service/namespace context at this boundary. The 0.2 plan specifies the
+  remaining consumer registration/release transaction and outbox contract.
+- Project-authorized upload admission over the shared catalog, binding an exact
+  operation to an uploader and issuance deadline. Root-only certificate lookup
+  resolves retained permissions; changed retries, wrong callers and repeated
+  exposure reject. Passive lookup cannot renew authority. Revocation cancels only
+  unexposed reservations; escaped uploads and failed consumer registration retain
+  their accounting and references. This is a transient service model, without
+  certificate transport, durable state or provider retry guarantees.
+- Service configuration candidate validation for explicit service, operator and
+  payer identities, Wasm-compatible metadata counts and consistent object,
+  tenant, upload and gateway limits. Reference budgets reserve enough minimum
+  receipt history for retain/release. Construction grants no installed authority
+  or provider effects and defines no stable schema.
+- A finite 0.2 delivery plan and current Toko development source review, separating
+  consumer upload limits, browser authorization and asset-registration failures
+  from the completed 0.1 foundation. Current status now summarizes milestones
+  instead of repeating historical implementation notes.
+
+### Changed
+
+- Hard-cut the mandatory service byte-append workflow, streaming verification
+  state and raw-digest verdicts. `UploadRequest` no longer requires a raw digest;
+  service configuration names retained manifest capacity explicitly. Independent
+  content/read verification primitives remain available, with digest binding owned
+  by their integrity fixtures. Provider size, replay and completion guarantees
+  remain prerequisites for live issuance, not claims established by a manifest.
+
 ## [0.1.19] - 2026-09-27
 
 ### Added

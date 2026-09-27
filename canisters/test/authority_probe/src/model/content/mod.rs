@@ -5,9 +5,21 @@ use ic_blob_storage::model::identity::caffeine::manifest::verification::ordered:
 use ic_blob_storage::model::identity::{
     ContentDigest,
     caffeine::manifest::{
-        CaffeineChunkManifest, verification::ordered::CaffeineOrderedChunkVerifier,
+        CaffeineChunkManifest, CaffeineManifestLimits,
+        verification::ordered::CaffeineOrderedChunkVerifier,
     },
 };
+use std::num::{NonZeroU64, NonZeroUsize};
+
+/// One fixture envelope for admission, journal bounds and reconstruction.
+pub(crate) fn manifest_limits() -> CaffeineManifestLimits {
+    CaffeineManifestLimits {
+        max_content_bytes: NonZeroU64::new(10 * 1024 * 1024).expect("fixture bound"),
+        max_chunks: NonZeroUsize::new(10).expect("fixture bound"),
+        max_headers: NonZeroUsize::new(8).expect("fixture bound"),
+        max_header_bytes: NonZeroUsize::new(1024).expect("fixture bound"),
+    }
+}
 
 pub(crate) struct ContentSession {
     manifest: CaffeineChunkManifest,
@@ -147,4 +159,11 @@ impl ContentSession {
         self.state = State::Verified;
         Ok(())
     }
+}
+
+/// Explicit input to this integrity experiment, separate from catalog admission.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub(crate) struct ContentRequest {
+    pub upload: ic_blob_storage::model::catalog::admission::UploadRequest,
+    pub content: ic_blob_storage::model::identity::ContentDigest,
 }

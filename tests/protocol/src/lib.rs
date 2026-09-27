@@ -4,6 +4,7 @@
 use candid::{CandidType, Principal};
 use serde::{Deserialize, Serialize};
 
+pub mod admission;
 pub mod authority;
 pub mod content;
 pub mod funding;

@@ -79,7 +79,7 @@ fn object(
 #[test]
 fn archive_preserves_all_catalogs_partial_progress_and_byte_free_history() {
     let f = Fixture::new();
-    let partial = chunks::vector("pattern-1048577", 1);
+    let partial = content_vectors::vector("pattern-1048577", 1);
     assert_eq!(
         f.reserve_manifest(f.first, partial.upload, partial.manifest.clone()),
         Ok(())
@@ -88,7 +88,7 @@ fn archive_preserves_all_catalogs_partial_progress_and_byte_free_history() {
         f.append(f.first, partial.upload, 0, &partial.bytes[..CHUNK]),
         Ok(())
     );
-    let deleted = chunks::vector("abc-text", 2);
+    let deleted = content_vectors::vector("abc-text", 2);
     f.confirm_bytes(&deleted);
     assert_eq!(
         f.root_control(f.first, "journey_release", deleted.upload.root),
@@ -179,7 +179,7 @@ fn archive_preserves_all_catalogs_partial_progress_and_byte_free_history() {
 #[test]
 fn invalid_deletion_batch_rolls_back_prior_archive_writes_and_replay_preserves_receipts() {
     let f = Fixture::new();
-    let v = chunks::vector("abc-text", 1);
+    let v = content_vectors::vector("abc-text", 1);
     f.confirm_bytes(&v);
     assert_eq!(
         f.root_control(f.first, "journey_release", v.upload.root),
@@ -201,7 +201,7 @@ fn invalid_deletion_batch_rolls_back_prior_archive_writes_and_replay_preserves_r
 #[test]
 fn callback_trap_preserves_exact_stable_read_intent_and_revocation_marks_it_stale() {
     let f = Fixture::new();
-    let v = chunks::vector("abc-text", 1);
+    let v = content_vectors::vector("abc-text", 1);
     f.confirm_bytes(&v);
     f.source_config(v.upload, 0, &v.bytes, ReadSourceMode::Valid, true);
     let armed: bool = f
@@ -283,7 +283,7 @@ fn stable_archive_is_operator_only_and_old_or_missing_bytes_never_change_live_au
     let f = Fixture::new();
     let initial = f.archive();
     let old = f.harness.pic.get_stable_memory(f.service);
-    let v = chunks::vector("abc-text", 1);
+    let v = content_vectors::vector("abc-text", 1);
     f.confirm_bytes(&v);
     let current = f.archive();
     let saved = f.harness.pic.get_stable_memory(f.service);
@@ -314,7 +314,7 @@ fn stable_archive_is_operator_only_and_old_or_missing_bytes_never_change_live_au
 #[test]
 fn terminal_digest_failure_and_full_lifetime_root_history_are_archived() {
     let f = Fixture::new();
-    let v = chunks::vector("abc-text", 1);
+    let v = content_vectors::vector("abc-text", 1);
     let bad = JourneyUpload {
         digest: [9; 32],
         ..v.upload
@@ -348,7 +348,7 @@ fn terminal_digest_failure_and_full_lifetime_root_history_are_archived() {
         } else {
             (f.second, index - 2)
         };
-        let v = chunks::vector(name, u8::try_from(id).unwrap());
+        let v = content_vectors::vector(name, u8::try_from(id).unwrap());
         assert_eq!(
             f.reserve_manifest(tenant, v.upload, v.manifest.clone()),
             Ok(())
@@ -433,7 +433,6 @@ fn assert_sample_history(archive: &AuthorityArchiveView) {
     ] {
         let entry = object(archive, ArchiveCatalog::Uploads, [id; 32]);
         assert_eq!(entry.phase, phase);
-        assert!(entry.digest.is_some());
     }
 }
 

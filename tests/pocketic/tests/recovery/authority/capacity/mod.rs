@@ -1,7 +1,7 @@
 //! Byte capacity can be reused; root, receipt and uncertain-effect history cannot.
 use super::*;
 
-fn expose(f: &Fixture, v: &chunks::Vector) {
+fn expose(f: &Fixture, v: &content_vectors::Vector) {
     assert_eq!(
         f.reserve_manifest(f.first, v.upload, v.manifest.clone()),
         Ok(())
@@ -15,7 +15,7 @@ fn expose(f: &Fixture, v: &chunks::Vector) {
     f.certificate(f.first, v.upload.root).unwrap();
 }
 
-fn release_delete(f: &Fixture, v: &chunks::Vector) {
+fn release_delete(f: &Fixture, v: &content_vectors::Vector) {
     assert_eq!(
         f.root_control(f.first, "journey_release", v.upload.root),
         Ok(())
@@ -26,14 +26,14 @@ fn release_delete(f: &Fixture, v: &chunks::Vector) {
 #[test]
 fn restoration_retains_large_reused_capacity_and_exhausted_lifetime_slots() {
     let f = Fixture::new();
-    let settled = chunks::vector("uneven-tree-with-metadata", 1);
+    let settled = content_vectors::vector("uneven-tree-with-metadata", 1);
     f.confirm_bytes(&settled);
     release_delete(&f, &settled);
     assert_eq!(
         f.root_control(f.operator, "journey_settle", settled.upload.root),
         Ok(())
     );
-    let cancelled = chunks::vector("pattern-5242897", 2);
+    let cancelled = content_vectors::vector("pattern-10485760", 2);
     assert_eq!(
         f.reserve_manifest(f.first, cancelled.upload, cancelled.manifest.clone()),
         Ok(())
@@ -46,9 +46,9 @@ fn restoration_retains_large_reused_capacity_and_exhausted_lifetime_slots() {
         f.control(f.first, "journey_cancel", cancelled.upload),
         Ok(())
     );
-    let live = chunks::vector("pattern-3145728", 3);
+    let live = content_vectors::vector("pattern-3145728", 3);
     f.confirm_bytes(&live);
-    let exposed = chunks::vector("pattern-2097152", 4);
+    let exposed = content_vectors::vector("pattern-2097152", 4);
     expose(&f, &exposed);
     // The other tenant also retains four distinct operations; cancelled content
     // checkpoints remain present even though their byte reservations are zero.
@@ -61,7 +61,7 @@ fn restoration_retains_large_reused_capacity_and_exhausted_lifetime_slots() {
     .into_iter()
     .enumerate()
     {
-        let v = chunks::vector(name, u8::try_from(index + 1).unwrap());
+        let v = content_vectors::vector(name, u8::try_from(index + 1).unwrap());
         assert_eq!(f.reserve_manifest(f.second, v.upload, v.manifest), Ok(()));
         assert_eq!(f.control(f.second, "journey_cancel", v.upload), Ok(()));
     }
@@ -123,15 +123,15 @@ fn restoration_retains_large_reused_capacity_and_exhausted_lifetime_slots() {
 #[test]
 fn physical_deletion_keeps_billing_capacity_reserved_across_old_archive_restore() {
     let f = Fixture::new();
-    let deleted = chunks::vector("uneven-tree-with-metadata", 1);
+    let deleted = content_vectors::vector("uneven-tree-with-metadata", 1);
     f.confirm_bytes(&deleted);
     release_delete(&f, &deleted);
-    let second = chunks::vector("pattern-5242897", 1);
+    let second = content_vectors::vector("pattern-5242897", 1);
     assert_eq!(
         f.reserve_manifest(f.second, second.upload, second.manifest),
         Ok(())
     );
-    let next = chunks::vector("pattern-2097152", 2);
+    let next = content_vectors::vector("pattern-2097152", 2);
     assert_eq!(
         f.reserve_manifest(f.first, next.upload, next.manifest.clone()),
         Err(JourneyFailure::Limit)

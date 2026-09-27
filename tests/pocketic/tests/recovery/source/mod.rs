@@ -30,7 +30,7 @@ impl Fixture {
             .expect("fenced source restore");
     }
 
-    fn assert_source_fenced(&self, v: &chunks::Vector) {
+    fn assert_source_fenced(&self, v: &content_vectors::Vector) {
         let before = self.source_recovery(self.operator).expect("driver journal");
         assert!(before.fenced);
         assert_eq!(
@@ -116,7 +116,7 @@ impl Fixture {
 #[test]
 fn source_restores_maximum_leaf_and_history_but_all_effects_stay_fenced() {
     let f = Fixture::with_source_operator(true);
-    let v = chunks::vector("pattern-1048576", 1);
+    let v = content_vectors::vector("pattern-1048576", 1);
     f.confirm_bytes(&v);
     f.source_config(v.upload, 0, &v.bytes, ReadSourceMode::Valid, false);
     assert_eq!(
@@ -184,7 +184,7 @@ fn source_restores_maximum_leaf_and_history_but_all_effects_stay_fenced() {
 #[test]
 fn source_intents_have_a_lifetime_budget_and_restore_does_not_reset_it() {
     let f = Fixture::new();
-    let v = chunks::vector("pattern-1048576", 1);
+    let v = content_vectors::vector("pattern-1048576", 1);
     f.source_config(v.upload, 0, &v.bytes, ReadSourceMode::Valid, false);
     // Fill with the largest supported action payload alongside the maximum leaf.
     let roots = vec![vec![99; 32]; 8];
@@ -223,7 +223,7 @@ fn source_intents_have_a_lifetime_budget_and_restore_does_not_reset_it() {
 #[test]
 fn missing_journal_rejects_upgrade_without_discarding_the_old_heap() {
     let f = Fixture::new();
-    let v = chunks::vector("abc-text", 1);
+    let v = content_vectors::vector("abc-text", 1);
     f.confirm_bytes(&v);
     f.source_config(v.upload, 0, &v.bytes, ReadSourceMode::Valid, false);
     let saved = f.harness.pic.get_stable_memory(f.gateway);
@@ -248,7 +248,7 @@ fn missing_journal_rejects_upgrade_without_discarding_the_old_heap() {
 #[test]
 fn restoring_older_stable_bytes_never_reactivates_the_source() {
     let f = Fixture::new();
-    let v = chunks::vector("abc-text", 1);
+    let v = content_vectors::vector("abc-text", 1);
     f.confirm_bytes(&v);
     f.source_config(v.upload, 0, &v.bytes, ReadSourceMode::Valid, false);
     let old = f.harness.pic.get_stable_memory(f.gateway);
@@ -266,7 +266,7 @@ fn restoring_older_stable_bytes_never_reactivates_the_source() {
 #[test]
 fn unresolved_source_call_survives_a_forced_fenced_restore() {
     let f = Fixture::with_source_operator(true);
-    let v = chunks::vector("abc-text", 1);
+    let v = content_vectors::vector("abc-text", 1);
     f.confirm_bytes(&v);
     f.source_config(v.upload, 0, &v.bytes, ReadSourceMode::Valid, false);
     let request = f.sync_request();
@@ -310,7 +310,7 @@ fn unresolved_source_call_survives_a_forced_fenced_restore() {
 #[test]
 fn restored_pending_read_is_retained_for_inspection_without_releasing_it() {
     let f = Fixture::new();
-    let v = chunks::vector("abc-text", 1);
+    let v = content_vectors::vector("abc-text", 1);
     f.confirm_bytes(&v);
     f.source_config(v.upload, 0, &v.bytes, ReadSourceMode::Valid, true);
     let id = f.hold_read(v.upload);

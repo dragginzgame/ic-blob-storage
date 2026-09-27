@@ -86,8 +86,8 @@ impl Fixture {
 #[test]
 fn stop_start_retains_verified_prefix_exposure_and_unchanged_accounting() {
     let f = Fixture::new();
-    let partial = chunks::vector("pattern-1048577", 1);
-    let exposed = chunks::vector("abc-text", 1);
+    let partial = content_vectors::vector("pattern-1048577", 1);
+    let exposed = content_vectors::vector("abc-text", 1);
     assert_eq!(
         f.reserve_manifest(f.first, partial.upload, partial.manifest.clone()),
         Ok(())
@@ -156,14 +156,14 @@ fn stop_start_retains_verified_prefix_exposure_and_unchanged_accounting() {
 #[test]
 fn upgrade_retains_uncertain_roots_cancelled_history_and_continuing_billing() {
     let f = Fixture::new();
-    let deleted = chunks::vector("abc-binary", 1);
+    let deleted = content_vectors::vector("abc-binary", 1);
     f.confirm_bytes(&deleted);
     assert_eq!(
         f.root_control(f.first, "journey_release", deleted.upload.root),
         Ok(())
     );
     assert_eq!(f.delete(vec![root(deleted.upload.root)]), Ok(()));
-    let exposed = chunks::vector("abc-text", 2);
+    let exposed = content_vectors::vector("abc-text", 2);
     assert_eq!(
         f.reserve_manifest(f.first, exposed.upload, exposed.manifest.clone()),
         Ok(())
@@ -223,7 +223,7 @@ fn upgrade_retains_uncertain_roots_cancelled_history_and_continuing_billing() {
 #[test]
 fn skipping_pre_upgrade_restores_only_fenced_inspection() {
     let f = Fixture::new();
-    let v = chunks::vector("abc-text", 1);
+    let v = content_vectors::vector("abc-text", 1);
     f.confirm_bytes(&v);
     f.source_config(v.upload, 0, &v.bytes, ReadSourceMode::Valid, false);
     let mut retained = f.archive();
@@ -236,7 +236,7 @@ fn skipping_pre_upgrade_restores_only_fenced_inspection() {
 #[test]
 fn rejected_upgrades_preserve_the_held_read_and_its_release_race() {
     let f = Fixture::new();
-    let v = chunks::vector("abc-text", 1);
+    let v = content_vectors::vector("abc-text", 1);
     f.confirm_bytes(&v);
     f.source_config(v.upload, 0, &v.bytes, ReadSourceMode::Valid, true);
     let id = f.hold_read(v.upload);
@@ -260,7 +260,7 @@ fn rejected_upgrades_preserve_the_held_read_and_its_release_race() {
 #[test]
 fn callback_trap_rolls_back_slot_release_and_stop_start_cannot_clear_it() {
     let f = Fixture::new();
-    let v = chunks::vector("abc-text", 1);
+    let v = content_vectors::vector("abc-text", 1);
     f.confirm_bytes(&v);
     f.source_config(v.upload, 0, &v.bytes, ReadSourceMode::Valid, false);
     for caller in [

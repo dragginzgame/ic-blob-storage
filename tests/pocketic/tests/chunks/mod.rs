@@ -3,69 +3,7 @@ use super::*;
 
 const CHUNK: usize = 1024 * 1024;
 
-pub(super) struct Vector {
-    pub upload: JourneyUpload,
-    pub manifest: JourneyManifest,
-    pub bytes: Vec<u8>,
-}
-
-fn hash(value: &serde_json::Value) -> [u8; 32] {
-    let text = value
-        .as_str()
-        .expect("hash")
-        .strip_prefix("sha256:")
-        .expect("prefix");
-    std::array::from_fn(|i| u8::from_str_radix(&text[2 * i..2 * i + 2], 16).expect("hex"))
-}
-
-pub(super) fn vector(name: &str, id: u8) -> Vector {
-    let vectors: serde_json::Value = serde_json::from_str(include_str!(
-        "../../../../crates/ic-blob-storage/tests/fixtures/caffeine-hashing/vectors.json"
-    ))
-    .expect("independent JS vectors");
-    let v = vectors["vectors"]
-        .as_array()
-        .expect("vectors")
-        .iter()
-        .find(|v| v["name"] == name)
-        .expect("selected vector");
-    let bytes = v["bytes"].as_u64().expect("length");
-    Vector {
-        upload: JourneyUpload {
-            id,
-            root: hash(&v["provider_root"]),
-            digest: hash(&v["raw_digest"]),
-            bytes,
-        },
-        manifest: JourneyManifest {
-            chunks: v["chunk_hashes"]
-                .as_array()
-                .expect("chunks")
-                .iter()
-                .map(hash)
-                .collect(),
-            headers: v["headers"]
-                .as_array()
-                .expect("headers")
-                .iter()
-                .map(|h| {
-                    (
-                        h["name"].as_str().expect("name").to_owned(),
-                        h["value"].as_str().expect("value").to_owned(),
-                    )
-                })
-                .collect(),
-        },
-        bytes: (0..bytes)
-            .map(|i| match v["pattern"].as_str().expect("pattern") {
-                "abc" => b"abc"[usize::try_from(i).expect("index")],
-                "linear_mod251" => u8::try_from((i * 31 + 7) % 251).expect("pattern byte"),
-                "zeroes" => 0,
-                _ => panic!("unsupported fixture pattern"),
-            })
-            .collect(),
-    }
-}
+use super::content_vectors::vector;
 
 fn progress(
     next_chunk: u64,
@@ -191,7 +129,7 @@ fn invalid_manifests_and_metadata_cannot_consume_or_replace_a_reservation() {
             headers: v.manifest.headers.clone(),
         },
         JourneyManifest {
-            chunks: vec![[0; 32]; 7],
+            chunks: vec![[0; 32]; 11],
             headers: vec![],
         },
         JourneyManifest {
@@ -245,7 +183,7 @@ fn invalid_manifests_and_metadata_cannot_consume_or_replace_a_reservation() {
 #[test]
 fn unfinished_sessions_remain_charged_until_explicit_unexposed_cancellation() {
     let f = Fixture::new();
-    let v = vector("pattern-5242897", 1);
+    let v = vector("pattern-9437215", 1);
     let other = vector("pattern-2097152", 2);
     let amount = u128::from(v.upload.bytes);
     assert_eq!(
@@ -323,4 +261,57 @@ fn final_digest_rejection_retains_the_completed_leaf_progress_and_reservation() 
     );
     let amount = u128::from(wrong.bytes);
     assert_eq!(f.usage(f.first), Ok(usage(amount, amount, amount)));
+}
+
+#[test]
+fn ten_mib_media_boundary_verifies_across_messages_and_keeps_billing_until_settlement() {
+    let f = Fixture::new();
+    let v = vector("pattern-10485760", 1);
+    let too_large = vector("pattern-10485761", 2);
+    assert_eq!(
+        f.reserve_manifest(f.first, too_large.upload, too_large.manifest),
+        Err(JourneyFailure::InvalidInput)
+    );
+    assert_eq!(f.usage(f.first), Ok(usage(0, 0, 0)));
+    assert_eq!(
+        f.reserve_manifest(f.first, v.upload, v.manifest.clone()),
+        Ok(())
+    );
+    for (index, bytes) in v.bytes.chunks(CHUNK).enumerate() {
+        let index = u64::try_from(index).unwrap();
+        assert_eq!(f.append(f.first, v.upload, index, bytes), Ok(()));
+        // Recover a lost ingress reply at the largest admitted file size.
+        assert_eq!(f.append(f.first, v.upload, index, bytes), Ok(()));
+        let expected = if index == 9 {
+            JourneyVerification::Verified
+        } else {
+            JourneyVerification::Pending
+        };
+        assert_eq!(
+            f.progress(f.first, v.upload).unwrap(),
+            progress(index + 1, (index + 1) * CHUNK as u64, expected)
+        );
+        if index < 9 {
+            assert_eq!(
+                f.certificate(f.first, v.upload.root),
+                Err(RejectCode::CanisterError)
+            );
+        }
+    }
+    f.certificate(f.first, v.upload.root)
+        .expect("verified full manifest");
+    assert_eq!(f.complete(f.first, v.upload), Ok(())); // controlled provider substitute
+    assert_eq!(
+        f.root_control(f.first, "journey_release", v.upload.root),
+        Ok(())
+    );
+    let bytes = u128::from(v.upload.bytes);
+    assert_eq!(f.usage(f.first), Ok(usage(0, bytes, bytes)));
+    assert_eq!(f.delete(vec![root(v.upload.root)]), Ok(()));
+    assert_eq!(f.usage(f.first), Ok(usage(0, 0, bytes)));
+    assert_eq!(
+        f.root_control(f.operator, "journey_settle", v.upload.root),
+        Ok(())
+    );
+    assert_eq!(f.usage(f.first), Ok(usage(0, 0, 0)));
 }

@@ -118,7 +118,7 @@ fn operator_query_denies_controller_and_reports_missing_economics_without_effect
 #[test]
 fn diagnostic_counts_keep_logical_physical_and_billing_release_separate() {
     let f = Fixture::new();
-    let v = chunks::vector("abc-text", 1);
+    let v = content_vectors::vector("abc-text", 1);
     assert_eq!(
         f.reserve_manifest(f.first, v.upload, v.manifest.clone()),
         Ok(())
@@ -188,7 +188,7 @@ fn diagnostic_counts_keep_logical_physical_and_billing_release_separate() {
 fn old_or_missing_stable_evidence_cannot_replace_live_status_before_restore() {
     let f = Fixture::new();
     let old = f.harness.pic.get_stable_memory(f.service);
-    let v = chunks::vector("abc-text", 1);
+    let v = content_vectors::vector("abc-text", 1);
     f.confirm_bytes(&v);
     let current = f.status_unchanged();
     f.replace_archive_bytes(vec![]);
@@ -212,7 +212,7 @@ fn old_or_missing_stable_evidence_cannot_replace_live_status_before_restore() {
 #[test]
 fn pending_sync_and_invalidated_reads_remain_visible_without_diagnostic_retry() {
     let f = Fixture::with_source_operator(true);
-    let v = chunks::vector("abc-text", 1);
+    let v = content_vectors::vector("abc-text", 1);
     f.confirm_bytes(&v);
     f.source_config(v.upload, 0, &v.bytes, ReadSourceMode::Valid, true);
     let read = f.hold_read(v.upload);

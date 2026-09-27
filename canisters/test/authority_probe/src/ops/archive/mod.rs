@@ -118,8 +118,9 @@ fn capture(state: &State) -> AuthorityArchiveRecord {
         let mut record = upload(
             ArchiveCatalog::Journey,
             &state.journey.catalog,
-            entry.request,
+            entry.request.upload,
         );
+        record.digest = Some(*entry.request.content.as_bytes());
         let (next_chunk, verified_bytes, verdict) = entry.content.progress();
         record.content = Some(ContentRecord {
             checkpoint: entry.content.checkpoint(),
@@ -197,7 +198,7 @@ fn upload(catalog: ArchiveCatalog, owner: &UploadCatalog, request: UploadRequest
         id,
         root: *request.object.root.as_bytes(),
         bytes: request.object.bytes,
-        digest: Some(*request.content.as_bytes()),
+        digest: None,
         phase: match phase {
             UploadPhase::Reserved => ArchivePhase::Reserved,
             UploadPhase::ExposurePossible => ArchivePhase::ExposurePossible,

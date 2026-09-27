@@ -202,7 +202,7 @@ fn journey(record: &AuthorityArchiveRecord, copy: &mut ops::State) -> Option<()>
         {
             return None;
         }
-        replay(&mut copy.journey.catalog, request, entry.phase)?;
+        replay(&mut copy.journey.catalog, request.upload, entry.phase)?;
         copy.journey.requests.push(VerifiedUpload {
             request,
             content,
@@ -211,7 +211,8 @@ fn journey(record: &AuthorityArchiveRecord, copy: &mut ops::State) -> Option<()>
     }
     copy.journey.requests.sort_by_key(|entry| {
         record.objects.iter().position(|o| {
-            o.catalog == ArchiveCatalog::Journey && o.root == *entry.request.object.root.as_bytes()
+            o.catalog == ArchiveCatalog::Journey
+                && o.root == *entry.request.upload.object.root.as_bytes()
         })
     });
     Some(())

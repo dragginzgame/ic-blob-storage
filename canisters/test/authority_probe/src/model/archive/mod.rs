@@ -124,6 +124,7 @@ impl AuthorityArchiveRecord {
     }
 
     pub fn bounded(&self) -> bool {
+        let content_limits = super::content::manifest_limits();
         self.release == release_binding()
             && self.balance.valid(self.service, self.namespace)
             && self.objects.len() <= 14
@@ -131,14 +132,14 @@ impl AuthorityArchiveRecord {
             && self.objects.iter().all(|object| {
                 object.content.as_ref().is_none_or(|content| {
                     content.checkpoint.len() <= ic_blob_storage::model::identity::caffeine::manifest::verification::ordered::checkpoint::CaffeineVerificationCheckpointRecord::ENCODED_BYTES
-                        && content.chunks.len() <= 6
-                        && content.headers.len() <= 8
+                        && content.chunks.len() <= content_limits.max_chunks.get()
+                        && content.headers.len() <= content_limits.max_headers.get()
                         && content
                             .headers
                             .iter()
                             .map(|(key, value)| key.len() + value.len() + 3)
                             .sum::<usize>()
-                            <= 1024
+                            <= content_limits.max_header_bytes.get()
                 })
             })
     }

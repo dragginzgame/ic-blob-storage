@@ -10,6 +10,16 @@ the current binding review and the next production implementation boundary.
 
 ## Selected integration baseline
 
+The [direct-upload evaluation](roadmap.md#upload-path-evaluation--2026-09-27)
+rechecked official main, npm latest/integrity and Toko development unchanged.
+The maintainer selected browser-to-gateway transfer and the local model now
+accepts manifests without file bytes. Live issuance remains conditional on
+provider pre-charge size/tree enforcement, namespace/replay rules and independent
+completion evidence.
+The pinned client can hash false length metadata consistently; that isolated
+experiment says nothing about gateway acceptance. No new server guarantee,
+Mops query, deployed interface refresh or paid operation was established by it.
+
 The 2026-09-27 [integration refresh](evidence/caffeine-installation-review.json)
 reconfirms official main, npm latest/integrity, Mops highest, deployed Cashier
 Candid and pinned backend file hashes. Authenticated read-only GitHub access
@@ -428,6 +438,26 @@ main and deployed Cashier Candid were rechecked and remain unchanged. This
 selects the current reference; deployed gateway interoperability, completion
 lookup, duplicate charges, final billing and restore evidence remain open.
 Do not repeat the generic question of whether Rust can integrate.
+
+## 0.2 admission follow-up — 2026-09-27
+
+Read-only GitHub API checks again returned official skills HEAD
+`e5cacdfe5ce55e939edb02980fca800c0c13f421` and DFINITY example HEAD
+`ef29e8a6e8063c6fe654cac53a3497cab585fefa`. The public
+[integration guide](https://github.com/dfinity/immutable-object-storage-example/blob/ef29e8a6e8063c6fe654cac53a3497cab585fefa/README.md)
+still describes chunk-existence/resume behavior; it does not establish the required
+operation-specific completion, duplicate charging or surviving recovery inventory.
+The public [project discussion](https://forum.dfinity.org/t/introducing-ic-blob-storage-a-storage-service-foundation-for-internet-computer-apps/75786)
+had only the introductory post and no provider replies when read. The public
+`caffeinelabs/object-storage` repository URL returned 404; this is not proof that
+server source or a private contract does not exist. Package registries, deployed
+interfaces, account state and Toko were not refreshed in this follow-up.
+
+The [recovery decision](roadmap.md#recovery-boundary-and-evidence-still-needed)
+now distinguishes normal continuity, durable same-release upgrade and older-backup
+reconciliation. IC canister version alone cannot prove complete obligations or
+select a safe unfencing path. No missing provider guarantee was closed by this
+review; no provider contact, funding, deployment or account operation ran.
 
 ## Evidence needed to freeze B1
 

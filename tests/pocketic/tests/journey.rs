@@ -2,10 +2,12 @@
 #![cfg(not(target_family = "wasm"))]
 
 mod chunks;
+mod content_vectors;
 mod readback;
 mod recovery;
 mod support;
 mod sync_request;
+mod vectors;
 use blob_test_protocol::journey::{
     JourneyCertificate, JourneyFailure, JourneyManifest, JourneyProgress, JourneyReservation,
     JourneyUpload, JourneyUsage, JourneyVerification,
@@ -459,7 +461,7 @@ fn cancellation_and_rejected_authority_preserve_bounds_and_other_tenants() {
         f.reserve(
             f.first,
             JourneyUpload {
-                bytes: 6 * 1024 * 1024 + 1,
+                bytes: 10 * 1024 * 1024 + 1,
                 ..a
             }
         ),

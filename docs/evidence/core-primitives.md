@@ -2216,3 +2216,190 @@ strict affected all-target Clippy, affected Wasm checks, warning-free rustdoc,
 formatting and diff checks pass. No new platform workflow was added or PocketIC
 run repeated for this continuation. Earlier tested Wasm hashes remain evidence
 of those earlier runs. No live account read, paid effect or release action ran.
+
+## Service configuration candidates for 0.2
+
+`model::service::configuration` composes the existing catalog, upload and billing
+limits into one validated candidate. Identity fields are explicit and reject
+anonymous/management principals. The namespace remains a local nonzero binding,
+not a provisioned gateway project/bucket. Payer validation does not prove a linked
+relationship, and an operator identity does not enroll a tenant.
+
+Native tests cover independent logical/physical/liability budgets, tenant/global
+object and upload relations, special principals and Wasm32 count boundaries.
+Reference receipt validation uses wide arithmetic for `2 * references - 1`;
+an actual shared reference journal demonstrates retain and both releases at the
+minimum accepted bound. The 10 MiB object input reflects the reviewed Toko media
+constant but is a test envelope, not a production default or large-file journey.
+
+Targeted service-model tests, strict library all-target Clippy, Wasm compilation
+check, warning-free rustdoc, formatting and diff checks pass. Configuration
+construction allocates no service state and neither freezes a persisted schema
+nor enforces live request admission. No new platform workflow or provider call
+was introduced; PocketIC and full CI/release validation were not rerun. The
+[0.2 plan](../roadmap.md) records the remaining implementation and evidence gates.
+
+## Project-authorized upload admission for 0.2
+
+The current Toko development and official Caffeine main commits were rechecked
+unchanged. Refetched Mixin.mo and Storage.mo hashes match the retained provider
+baseline. Mixin's root-only certificate method returns `method` and `blob_hash`,
+without a caller check in that reference method; this is not deployed server
+authorization or certificate-replay evidence. Source pins are recorded in the
+[consumer/certificate review](toko-0.2-review.json).
+
+`UploadAdmissions` owns one exact project permission per shared catalog operation.
+It uses the existing reservation/reference/deletion/accounting transitions rather
+than a parallel lifecycle. Immutable arguments include uploader and deadline.
+The actual service/project/uploader contexts are supplied by the host; this model
+does not authenticate an IC call. Enrollment enforcement is extended below. Possible exposure must be
+committed before certificate bytes escape. Content verification and recovery
+eligibility remain independent host prerequisites.
+
+Native tests cover role separation, changed request/uploader/deadline rejection,
+wrong service/namespace, expiry and backwards time, exact replay, root lookup,
+retained cancelled-root claims, object/lifetime bounds and passive exact lookup.
+Revocation before exposure cancels reservation but retains identity; afterward it
+retains uncertain bytes and permits independently established late completion.
+Consumer-registration failure does not change the owned reference. Replayed
+completion after release cannot resurrect it; physical and billing release remain
+separate. Provider completion/deletion/billing facts are supplied test inputs.
+
+Targeted service native tests, strict library all-target Clippy, Wasm check,
+warning-free rustdoc, formatting and diff checks pass. No new canister endpoint,
+stable schema or transport was introduced; PocketIC and full CI/release validation
+were not run. Certificate lifetime, replay charging, namespace enforcement and
+recovery authority remain open; local revocation cannot recall an escaped certificate.
+
+## Tenant enrollment and consumer coordination for 0.2
+
+The same transient upload owner now contains a bounded lifetime enrollment map.
+Only the configured operator can update it using the exact observed state. There
+is no eviction, removal or reset. Suspension preserves reservations, references and
+liabilities; reactivation advances an activation generation and cannot revive old
+uploader permissions. Generation exhaustion still permits suspension and rejects
+reactivation. These are local authority generations, not surviving restore evidence.
+
+Reference application now checks supplied project/service/namespace context before
+the shared journal. Fresh retains require active enrollment; exact receipts and
+release remain available while suspended. Native tests cover unauthorized enrollment,
+invalid principals, capacity including suspended tenants, stale updates, reactivation,
+overflow, old-permission rejection, retained uncertainty and late completion. They
+also cover tenant/service/namespace isolation, changed receipt payloads, suspended
+retain replay and release at reserved receipt capacity, with separate physical and
+billing confirmation. Host-supplied provider facts remain labeled test inputs.
+
+The existing roadmap defines the consumer-side transaction/outbox requirements for
+stable registration identities, asset tombstones, exact release retries and bounded
+retained history. It is an integration contract, not implemented Toko behavior or
+evidence of atomicity across canisters. No new document or consumer implementation
+was introduced for this contract; sibling sources remain unchanged.
+
+Targeted service tests, strict library all-target Clippy, Wasm check, warning-free
+rustdoc, formatting and diff checks pass. No new endpoint, stable schema, provider
+call, version mutation or publication occurred. PocketIC and full CI were not rerun
+for these native models. Provider/recovery gates remain open.
+
+## Consumer-sized resource envelope for 0.2
+
+Service configuration now derives the maximum manifest leaf count from its object
+size, with separate raw metadata-entry and framed-byte bounds. Unsupported SHA-256
+lengths and nonportable leaf/header counts reject before allocation. Empty uploads
+reject before consuming a service operation or reservation. Native service tests
+cover exact/partial chunk boundaries and invalid envelopes without allocating the
+advertised maximum collections. Hosts still must apply the derived manifest limits;
+configuration alone cannot verify a request's metadata or bytes.
+
+The pinned published client artifact was fetched and verified against SHA-256
+`6eb7f5b424f02476c9096e4684d8e520121c21b2b2f6f29f3c9a25e0c07cad57`.
+Its unmodified hashing classes, isolated in Node v18.19.1 with WebCrypto and no
+gateway/network access, generated the added `pattern-10485760` and
+`pattern-10485761` vectors using the existing documented linear-mod251 generator.
+The maintained native vector suite passes both additions. Earlier vector data
+and historical source inventories remain unchanged.
+
+The connected PocketIC journey now admits ten 1 MiB leaves and a 10 MiB tenant
+logical budget, while keeping its separate 12 MiB global physical/liability bounds.
+The new boundary case verifies all ten ingress chunks and exact duplicate retries,
+denies certificate exposure before complete verification, and retains separate
+physical/billing obligations after logical release. One byte over rejects without
+allocation. The existing capacity/restore case now retains a ten-leaf cancelled
+manifest across ordinary and skipped-hook upgrades into the inspection-only fence.
+
+The first run caught a stale six-leaf journal bound; admission, reconstruction and
+journal validation now share the fixture's content envelope. The rerun passes all
+affected journey/recovery cases. Targeted service and independent-vector tests,
+strict affected all-target Clippy, release Wasm builds, warning-free rustdoc,
+formatting and diff checks pass. Completion/deletion/settlement are controlled
+provider substitutes. This is not a production admission journey, operational
+restore, throughput result or deployed Caffeine evidence. No full CI, paid effect,
+release or sibling mutation ran.
+
+## Direct-upload service admission for 0.2
+
+The maintainer selected direct browser-to-Caffeine upload after the measured
+cost evaluation. The shared owner now binds a bounded manifest before local
+exposure and accepts no file chunks. The generic upload request contains identity,
+root, declared size and reference binding, without a whole-file raw digest.
+Manifest consistency does not prove length or provider storage. Hosts still need
+qualified pre-charge size/tree enforcement, namespace/replay guarantees and
+independently established completion before using this model in production.
+
+Service admission additionally requires canonical `Content-Length` metadata equal
+to its reservation, unique ASCII-token names ignoring case, and values without
+controls, line separators or surrounding whitespace. Raw count/framed-byte bounds
+precede scans and temporary allocations. Configuration rejects a metadata budget
+too small for its largest object's required length header. Generic pinned hashing
+remains unchanged. Native rejection cases preserve unprepared and already-bound
+observations/accounting; a consistent false-length declaration still cannot prove
+the actual bytes. PocketIC covers missing/conflicting/duplicate/injected metadata,
+unchanged reservations, reordered retries and changed-root rejection before exposure.
+
+The independent `media-1048577` and `media-10485760` vectors use canonical length
+and content-type metadata. Their roots were generated with the pinned, unmodified
+official `BlobHashTree`/`YHash` classes from the existing independent leaf hashes,
+without imports, gateway calls or network. The native hashing suite checks the
+roots and leaves against actual content. Source provenance remains in the vector
+fixture; these vectors do not qualify deployed provider behavior.
+
+One bounded leaf array is retained per prepared operation; global/tenant manifest
+capacity is reserved at admission and survives cancellation and settlement. Exact
+retries preserve the original declaration. Invalid manifests allocate no partial
+state. Enrollment, uploader, service, deadline and phase checks apply on each call.
+Uncertain exposure stays charged through revocation; completion and consumer asset
+registration remain distinct, preserving references when consumer registration fails.
+
+The unpublished admission probe exercises this owner with actual IC callers/time,
+role separation, stop/start and atomic rejection of unsupported upgrades. Its
+metadata-only protocol bounds command bytes, decoder work, skipping, type-table
+size and header bytes. It returns no certificate and has no completion command.
+The separate integrity/readback fixtures retain independent raw-digest inputs and
+checkpoints outside the catalog request. They demonstrate integrity/recovery
+primitives, not a second production upload mode.
+
+## Local admission resource measurements
+
+`make test-admission-resources` builds release Wasm and writes
+`.tmp/admission-resources.json`, including its SHA-256, instruction samples,
+encoded request sizes and allocated Wasm memory. PocketIC 16 uses actual IC
+counters. Samples exclude diagnostic storage and reply encoding; memory reports
+allocated pages, not peak live allocations. Rust 1.98.1, CDK 0.20.3 and Candid
+0.10.37 were used. The maintained test allows headroom rather than freezing exact
+instruction/page counts: under 5M instructions per call, 10M across the sequence,
+and at most 1 MiB allocated growth from the initialized owner.
+
+| Step for a 10 MiB declaration | Instructions through workflow | Request bytes |
+| --- | ---: | ---: |
+| Admission | 934,195 | 287 |
+| Manifest preparation | 1,132,730 | 642 |
+| Exact manifest retry | 1,132,084 | 642 |
+| Local exposure | 908,929 | 195 |
+| Total | 4,107,938 | 1,766 |
+
+Allocated Wasm memory stayed at 1,245,184 bytes. Wasm SHA-256:
+`1a7027b3ab7c240505287a2dbdc1a4d447b5f352b7f595e57029ede1203db488`.
+The prior full-byte experiment spent 1,713,702,451 instructions just on fresh
+chunks, plus 903,016,377 for one retry per chunk; its measurement provenance is
+retained in the [upload-path review](toko-0.2-review.json). Those service append
+commands and tests have been removed. No live Caffeine request, production
+latency/cycle price or durable-service capacity is established by either run.

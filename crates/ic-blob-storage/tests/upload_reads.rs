@@ -17,7 +17,7 @@ use ic_blob_storage::{
             registry::{GatewayRegistry, GatewayScope},
         },
         identity::{
-            ContentDigest, HashParseError, ProviderRootHash,
+            HashParseError, ProviderRootHash,
             batch::{ProviderRootBatch, RootBatchLimits},
         },
         lifecycle::{
@@ -88,7 +88,6 @@ fn request(id: u8, tenant: u8, namespace: u128) -> UploadRequest {
                 ReferenceId::new(n(1)),
             ),
         },
-        content: ContentDigest::compute(&[id]),
     }
 }
 fn context(tenant: u8) -> TenantAccessContext {

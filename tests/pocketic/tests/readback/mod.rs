@@ -95,7 +95,7 @@ impl Fixture {
             .expect("typed reply")
     }
 
-    pub(super) fn confirm_bytes(&self, v: &chunks::Vector) {
+    pub(super) fn confirm_bytes(&self, v: &content_vectors::Vector) {
         assert_eq!(
             self.reserve_manifest(self.first, v.upload, v.manifest.clone()),
             Ok(())
@@ -120,7 +120,7 @@ impl Fixture {
 #[test]
 fn reads_verify_each_manifest_leaf_and_deny_unconfirmed_or_other_tenant_access() {
     let f = Fixture::new();
-    let v = chunks::vector("uneven-tree-with-metadata", 1);
+    let v = content_vectors::vector("uneven-tree-with-metadata", 1);
     f.source_config(v.upload, 0, &v.bytes[..CHUNK], ReadSourceMode::Valid, false);
     assert_eq!(
         f.reserve_manifest(f.first, v.upload, v.manifest.clone()),
@@ -175,7 +175,7 @@ fn reads_verify_each_manifest_leaf_and_deny_unconfirmed_or_other_tenant_access()
 #[test]
 fn rejected_source_replies_return_no_bytes_and_release_the_exact_read_slot() {
     let f = Fixture::new();
-    let v = chunks::vector("abc-text", 1);
+    let v = content_vectors::vector("abc-text", 1);
     f.confirm_bytes(&v);
     for (mode, error) in [
         (ReadSourceMode::Corrupt, JourneyFailure::ContentMismatch),
@@ -219,7 +219,7 @@ fn rejected_source_replies_return_no_bytes_and_release_the_exact_read_slot() {
 #[test]
 fn release_during_a_held_read_prevents_reply_disclosure_and_later_reads() {
     let f = Fixture::new();
-    let v = chunks::vector("abc-text", 1);
+    let v = content_vectors::vector("abc-text", 1);
     f.confirm_bytes(&v);
     f.source_config(v.upload, 0, &v.bytes, ReadSourceMode::Valid, true);
     let id = f.hold_read(v.upload);
@@ -258,7 +258,7 @@ fn release_during_a_held_read_prevents_reply_disclosure_and_later_reads() {
         f.read_chunk(f.first, v.upload, 0),
         Err(JourneyFailure::InvalidPhase)
     );
-    let next = chunks::vector("abc-binary", 2);
+    let next = content_vectors::vector("abc-binary", 2);
     f.confirm_bytes(&next);
     f.source_config(next.upload, 0, &next.bytes, ReadSourceMode::Valid, false);
     assert_eq!(
@@ -272,7 +272,7 @@ fn release_during_a_held_read_prevents_reply_disclosure_and_later_reads() {
 #[test]
 fn revoked_and_readded_gateway_cannot_validate_its_old_held_reply() {
     let f = Fixture::with_source_operator(true);
-    let v = chunks::vector("abc-text", 1);
+    let v = content_vectors::vector("abc-text", 1);
     f.confirm_bytes(&v);
     f.source_config(v.upload, 0, &v.bytes, ReadSourceMode::Valid, true);
     let id = f.hold_read(v.upload);

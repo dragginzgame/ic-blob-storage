@@ -134,7 +134,7 @@ impl Fixture {
 #[test]
 fn partial_verifier_and_all_catalogs_survive_repeated_and_skipped_hook_upgrades() {
     let f = Fixture::new();
-    let v = chunks::vector("pattern-1048577", 1);
+    let v = content_vectors::vector("pattern-1048577", 1);
     assert_eq!(
         f.reserve_manifest(f.first, v.upload, v.manifest.clone()),
         Ok(())
@@ -165,7 +165,7 @@ fn partial_verifier_and_all_catalogs_survive_repeated_and_skipped_hook_upgrades(
 #[test]
 fn old_archive_is_fenced_and_missing_archive_rejects_atomically() {
     let f = Fixture::new();
-    let v = chunks::vector("abc-text", 1);
+    let v = content_vectors::vector("abc-text", 1);
     assert_eq!(
         f.reserve_manifest(f.first, v.upload, v.manifest.clone()),
         Ok(())
@@ -192,7 +192,7 @@ fn old_archive_is_fenced_and_missing_archive_rejects_atomically() {
 #[test]
 fn trapped_read_intent_survives_forced_restore_without_callback_replay() {
     let f = Fixture::new();
-    let v = chunks::vector("abc-text", 1);
+    let v = content_vectors::vector("abc-text", 1);
     f.confirm_bytes(&v);
     f.source_config(v.upload, 0, &v.bytes, ReadSourceMode::Valid, false);
     let armed: bool = f

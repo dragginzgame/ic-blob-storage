@@ -1,5 +1,44 @@
 # Service contract — B1 draft
 
+The maintainer has started the 0.2 service phase after 0.1.19. The
+[delivery plan](roadmap.md) owns its milestones and current consumer decisions;
+the constraints and evidence requirements below still apply. Candidate service
+configuration validation composes existing local models without installing state,
+freezing a stable schema or claiming that the B1 provider/recovery gates are closed.
+The transient project-to-uploader admission model in the delivery plan additionally
+owns exact permissions alongside the existing upload catalog. Root-only exposure
+checks authenticated context supplied by the host; one-shot exposure, passive
+lookup and revocation preserve uncertain reservations. The maintainer selected
+direct browser-to-Caffeine upload after evaluating the cost of mandatory byte
+verification. The shared owner binds a bounded manifest to the admitted root and
+declared size; the service accepts no file chunks and has no raw-digest verdict.
+A matching manifest does not establish actual length, provider completion or
+billing. Before a real certificate escapes, the host still must qualify pre-charge
+size/tree enforcement, namespace/replay rules, durable intent and recovery.
+
+The shared owner validates raw metadata count/bytes before bounded header parsing.
+Names must be nonempty ASCII HTTP tokens and unique ignoring ASCII case. Values
+reject controls, line separators and surrounding whitespace, without rewriting.
+Exactly one `Content-Length` with that spelling is required, containing unsigned
+decimal digits without padding or leading zeroes and equal to the admitted size.
+The configuration must fit that header for its largest permitted object. These
+canonical casing/value rules are service choices stricter than generic HTTP;
+the independent Caffeine hash primitives continue to implement the pinned format.
+Reordered equivalent headers remain exact retries; changed or malformed metadata
+cannot replace a bound manifest or alter accounting. This is not MIME/serving
+policy or evidence of actual provider byte length.
+
+Operator-managed enrollment gates fresh authority; suspension preserves cleanup
+and accounting and reactivation invalidates old permissions. Global/tenant lifetime
+manifest capacity is reserved at admission and never refunded with byte quota.
+The unpublished PocketIC probe supplies actual IC caller/time, bounds Candid
+work and measures a 10 MiB declaration through admission, manifest preparation,
+retry and local exposure. Stop/start preserves the owner; unsupported upgrades
+reject atomically, including skipped outgoing hooks. It has no stable schema,
+provider effect or certificate response. Completion remains a separate trusted
+host input and is not exposed as a browser command. See the
+[upload-path decision](roadmap.md#upload-path-evaluation--2026-09-27).
+
 This is an unresolved contract checklist, not a frozen service API or provider
 suitability verdict. Freeze the decisions and evidence before B2 implementation,
 subject to the explicit bounded exception below.
@@ -28,9 +67,10 @@ After 0.1.14, the maintainer approved a connected local upload/deletion journey.
 The fixture uses the current source's certificate/liveness/deletion method shapes
 with shared catalog/policy checks. Tenant-only certificate admission, conservative
 protection of unknown/pending roots and gateway-only liveness are local proposed
-semantics. Local bytes must match the reserved manifest and raw digest before
-certificate exposure. This fixture accepts nonempty files up to 6 MiB in six
-chunks, with eight headers and 1 KiB of framed header input. It retains bounded
+semantics. In this separate integrity fixture, bytes match the manifest and raw digest before
+certificate exposure. The 0.2 continuation extends this fixture to nonempty files
+up to 10 MiB in ten chunks, with eight headers and 1 KiB of framed header input.
+Admission and journal validation share that fixture envelope. It retains bounded
 manifest/hash state across messages, discards checked bytes, and does not select
 a production upload architecture or restore format. Tenant progress and exact
 chunk retries preserve the verified prefix; a final raw-digest mismatch is
@@ -514,8 +554,9 @@ integrating host owns bootstrap, policy, grants and bucket profile. This depende
 does not freeze blob schemas/keys/IDs or close the provider and recovery gates.
 
 - Object identity: an allocated object incarnation bound to service, tenant and
-  provider namespace, with provider root, content digest and declared length as
-  data. A root or digest is never the ownership key. Initial design has no
+  provider namespace, with provider root and declared length as data, distinct
+  from independently established stored size. A root is never the ownership key.
+  The direct-upload service requires no whole-file raw digest. Initial design has no
   automatic deduplication; explicitly retaining the same tenant-owned object is
   distinct from merging independently uploaded objects. Provider-side identity
   collisions/sharing must be resolved before creating separate object records.

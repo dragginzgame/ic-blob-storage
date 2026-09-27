@@ -1,14 +1,12 @@
 //! Actual local reads with authority rechecked after the inter-canister await.
+use crate::model::content::ContentRequest;
 use crate::ops;
 use blob_test_protocol::journey::{JourneyFailure, readback::JourneyReadChunk};
 use candid::Principal;
-use ic_blob_storage::{
-    model::catalog::admission::UploadRequest,
-    policy::{
-        gateway::{GatewayCallbackContext, assess_gateway_callback},
-        liveness::assess_reference_liveness,
-        tenant::TenantAccessContext,
-    },
+use ic_blob_storage::policy::{
+    gateway::{GatewayCallbackContext, assess_gateway_callback},
+    liveness::assess_reference_liveness,
+    tenant::TenantAccessContext,
 };
 
 pub(crate) fn arm_callback_trap(context: TenantAccessContext, root: &[u8]) -> bool {
@@ -41,7 +39,7 @@ pub(crate) async fn read(
 
 fn authorize(
     context: TenantAccessContext,
-    request: UploadRequest,
+    request: ContentRequest,
     gateway: Principal,
 ) -> Result<(), JourneyFailure> {
     ops::read(|state| {
@@ -49,15 +47,16 @@ fn authorize(
             .journey
             .catalog
             .confirmed()
-            .get(request.object.root)
+            .get(request.upload.object.root)
             .ok_or(JourneyFailure::InvalidPhase)?;
-        let live = assess_reference_liveness(journal.lifecycle(), request.object.first, context)
-            .map_err(|_| JourneyFailure::Denied)?;
+        let live =
+            assess_reference_liveness(journal.lifecycle(), request.upload.object.first, context)
+                .map_err(|_| JourneyFailure::Denied)?;
         if !live {
             return Err(JourneyFailure::InvalidPhase);
         }
         assess_gateway_callback(
-            request.object.first.object(),
+            request.upload.object.first.object(),
             &state.registry,
             GatewayCallbackContext {
                 service: context.service,

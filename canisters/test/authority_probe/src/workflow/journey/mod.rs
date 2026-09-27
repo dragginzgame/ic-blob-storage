@@ -1,4 +1,5 @@
 //! A local protocol-shaped journey, not deployed Caffeine behavior or persistence.
+use crate::model::content::ContentRequest;
 use crate::ops;
 pub(crate) mod readback;
 use blob_test_protocol::journey::{
@@ -53,7 +54,7 @@ pub(crate) fn certificate(
     tenant(context)?;
     let root: ProviderRootHash = text.parse().map_err(|_| JourneyFailure::InvalidInput)?;
     let request = ops::journey::lookup(root)?;
-    assess_tenant_access(request.object.first.object(), context)
+    assess_tenant_access(request.upload.object.first.object(), context)
         .map_err(|_| JourneyFailure::Denied)?;
     ops::journey::expose(context.actor, request)?;
     Ok(JourneyCertificate {
@@ -81,11 +82,11 @@ pub(crate) fn progress(
 fn owned_request(
     context: TenantAccessContext,
     root: &[u8],
-) -> Result<ic_blob_storage::model::catalog::admission::UploadRequest, JourneyFailure> {
+) -> Result<ContentRequest, JourneyFailure> {
     tenant(context)?;
     let root = ProviderRootHash::try_from(root).map_err(|_| JourneyFailure::InvalidInput)?;
     let request = ops::journey::lookup(root)?;
-    assess_tenant_access(request.object.first.object(), context)
+    assess_tenant_access(request.upload.object.first.object(), context)
         .map_err(|_| JourneyFailure::Denied)?;
     Ok(request)
 }
@@ -104,11 +105,11 @@ pub(crate) fn cancel(
 fn gateway(
     context: TenantAccessContext,
     root: ProviderRootHash,
-) -> Result<ic_blob_storage::model::catalog::admission::UploadRequest, JourneyFailure> {
+) -> Result<ContentRequest, JourneyFailure> {
     let request = ops::journey::lookup(root)?;
     ops::read(|s| {
         assess_gateway_callback(
-            request.object.first.object(),
+            request.upload.object.first.object(),
             &s.registry,
             GatewayCallbackContext {
                 service: context.service,
@@ -126,7 +127,7 @@ pub(crate) fn complete(
     input: JourneyUpload,
 ) -> Result<(), JourneyFailure> {
     let request = ops::journey::request(context.service, owner, input)?;
-    gateway(context, request.object.root)?;
+    gateway(context, request.upload.object.root)?;
     // Explicitly substituted exact completion fact, not a client progress report.
     ops::journey::complete(request)
 }
@@ -136,7 +137,7 @@ pub(crate) fn release(context: TenantAccessContext, root: &[u8]) -> Result<(), J
     let request = ops::journey::lookup(
         ProviderRootHash::try_from(root).map_err(|_| JourneyFailure::InvalidInput)?,
     )?;
-    assess_tenant_access(request.object.first.object(), context)
+    assess_tenant_access(request.upload.object.first.object(), context)
         .map_err(|_| JourneyFailure::Denied)?;
     ops::journey::release(context.actor, request)
 }

@@ -12,7 +12,7 @@ use ic_blob_storage::{
             },
             tenant::{TenantObjectCursorError, TenantObjectPageLimits},
         },
-        identity::{ContentDigest, ProviderRootHash},
+        identity::ProviderRootHash,
         lifecycle::{
             LifecycleChange, LifecyclePhase, ReferenceId,
             binding::{ObjectBinding, ObjectIdentity, ReferenceKey},
@@ -359,7 +359,6 @@ fn confirmed_index_tracks_exact_replays_rejections_and_upload_transfer() {
             bytes: first.bytes,
             first: first.first,
         },
-        content: ContentDigest::compute(b"fixture"),
     };
     uploads.reserve(p(2), request).expect("reserve");
     uploads
