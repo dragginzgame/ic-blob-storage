@@ -210,19 +210,7 @@ impl CaffeineChunkManifest {
     pub fn verify_chunk(&self, index: u64, bytes: &[u8]) -> Result<(), CaffeineManifestError> {
         let chunk = self.chunk(index)?;
         let expected = self.chunk_bytes(index)?;
-        if bytes.len() != expected {
-            return Err(CaffeineManifestError::ChunkLengthMismatch {
-                expected,
-                actual: bytes.len(),
-            });
-        }
-        let mut hasher = chunk_hasher();
-        hasher.update(bytes);
-        let actual: Hash = hasher.finalize().into();
-        if actual != chunk.0 {
-            return Err(CaffeineManifestError::ChunkHashMismatch);
-        }
-        Ok(())
+        verify_leaf(chunk, expected, bytes)
     }
 
     fn chunk(&self, index: u64) -> Result<CaffeineChunkHash, CaffeineManifestError> {
@@ -232,6 +220,27 @@ impl CaffeineChunkManifest {
             .copied()
             .ok_or(CaffeineManifestError::ChunkIndexOutOfRange { index })
     }
+}
+
+// Shared by transient manifests and immutable admitted stable-manifest leaves.
+pub(crate) fn verify_leaf(
+    chunk: CaffeineChunkHash,
+    expected: usize,
+    bytes: &[u8],
+) -> Result<(), CaffeineManifestError> {
+    if bytes.len() != expected {
+        return Err(CaffeineManifestError::ChunkLengthMismatch {
+            expected,
+            actual: bytes.len(),
+        });
+    }
+    let mut hasher = chunk_hasher();
+    hasher.update(bytes);
+    let actual: Hash = hasher.finalize().into();
+    if actual != chunk.0 {
+        return Err(CaffeineManifestError::ChunkHashMismatch);
+    }
+    Ok(())
 }
 
 fn chunk_length(content_bytes: u64, index: u64) -> usize {

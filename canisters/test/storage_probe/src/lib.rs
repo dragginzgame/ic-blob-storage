@@ -253,10 +253,50 @@ fn fixture_gateway_roots(
 }
 
 #[ic_cdk::update(decode_with = "ops::decode")]
-async fn fixture_read_authority(
-    input: blob_test_protocol::storage::gateways::ReadAuthorityInput,
-) -> Result<(), blob_test_protocol::storage::Failure> {
+async fn fixture_read_chunk(
+    input: blob_test_protocol::storage::gateways::ReadSessionInput,
+) -> Result<
+    blob_test_protocol::journey::readback::JourneyReadChunk,
+    blob_test_protocol::storage::Failure,
+> {
     workflow::reads::run(context(), input).await
+}
+
+#[ic_cdk::query(decode_with = "ops::decode")]
+fn read_sessions() -> Result<
+    blob_test_protocol::storage::gateways::ReadSessionsView,
+    blob_test_protocol::storage::Failure,
+> {
+    ops::read::sessions::inspect(context())
+}
+
+#[ic_cdk::update(decode_with = "ops::decode")]
+fn blob_download_descriptor(
+    input: ic_blob_storage::dto::download::DownloadRequest,
+) -> Result<
+    ic_blob_storage::dto::download::DownloadResponse,
+    ic_blob_storage::dto::download::DownloadFailure,
+> {
+    workflow::reads::download::describe(context(), input)
+}
+
+#[ic_cdk::update(decode_with = "ops::decode")]
+async fn fixture_fetch_descriptor(
+    input: blob_test_protocol::storage::read::DownloadClientInput,
+) -> Result<
+    ic_blob_storage::dto::download::DownloadResponse,
+    blob_test_protocol::storage::read::DownloadProbeFailure,
+> {
+    workflow::reads::download::fetch(context(), input).await
+}
+#[ic_cdk::query(decode_with = "ops::decode")]
+async fn fixture_nonreplicated_descriptor(
+    input: blob_test_protocol::storage::read::DownloadClientInput,
+) -> Result<
+    ic_blob_storage::dto::download::DownloadResponse,
+    blob_test_protocol::storage::read::DownloadProbeFailure,
+> {
+    workflow::reads::download::fetch(context(), input).await
 }
 
 #[ic_cdk::update(decode_with = "ops::decode")]

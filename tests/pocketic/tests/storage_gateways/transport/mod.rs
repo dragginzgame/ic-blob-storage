@@ -1,5 +1,5 @@
 //! Real IC scheduling against an explicitly different local source method.
-mod read_authority;
+mod read_sessions;
 use super::*;
 use blob_test_protocol::{
     SourceMode, SourceObservation, source::SourceRecoveryView, storage::gateways::TransportInput,

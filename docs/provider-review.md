@@ -10,9 +10,20 @@ the current binding review and the next production implementation boundary.
 
 ## Selected integration baseline
 
+The latest [serving review](evidence/caffeine-gateway-transport.json) resolves
+official main to `ee8e3dda39b105f95133256144172a4506e841a8`; its latest commit changes
+Motoko skill guidance. The reviewed `StorageClient.ts` is byte-identical to the
+retained source. Npm latest/integrity remains 1.1.2, and Toko development/client
+remain at the prior pin. Both clients form direct HTTP `/v1/blob/` targets with
+root, certificate-issuing storage owner and project fields. No IC chunk-read
+interface is supplied by those client sources. The library now encodes that
+relative target and binds it to a current operational descriptor, without
+selecting an origin, granting project ownership or claiming deployed behavior.
+No blob/gateway request, account call or paid effect ran in this review.
+
 The [gateway transport review](evidence/caffeine-gateway-transport.json) rechecks
-official main, npm latest/integrity, Mops highest, both backend hashes and deployed
-Cashier Candid unchanged on 2026-09-28. The public gateway-list query again returns
+the earlier official main, npm latest/integrity, Mops highest, both backend hashes and deployed
+Cashier Candid unchanged at its 2026-09-28 observation. The public gateway-list query again returns
 the retained principal. These anonymous query observations are not portable
 certified proofs. The official Motoko wrapper uses a replicated call for this
 method, consistent with [ICP guidance](https://docs.internetcomputer.org/guides/security/data-integrity-and-authenticity/).

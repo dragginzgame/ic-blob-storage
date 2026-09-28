@@ -1,14 +1,32 @@
 //! Labelled local registry controls; these do not authenticate a provider reply.
 use candid::{CandidType, Deserialize, Principal};
-/// Authority-only local await fixture, not a provider read protocol.
+/// Durable-session local await fixture, not a provider read protocol.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
-pub struct ReadAuthorityInput {
+pub struct ReadSessionInput {
+    /// Exact zero-based chunk.
+    pub index: u64,
+    /// Local stable admission trap selection.
+    pub admit_fault: Option<super::WriteFault>,
+    /// Local stable callback trap selection.
+    pub callback_fault: Option<super::WriteFault>,
     /// Installed Cashier; service and namespace are explicit in the target.
     pub cashier: Principal,
     /// Exact tenant root/object/reference.
     pub target: crate::admission::input::RetainedDescriptorInput,
     /// Selected current gateway member.
     pub gateway: Principal,
+}
+/// Operator-only durable session accounting.
+#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+pub struct ReadSessionsView {
+    /// All allocated local identities, including completed reads.
+    pub last_sequence: u64,
+    /// Occupied slots, including interrupted and invalidated calls.
+    pub sessions: u32,
+    /// Reserved local reply buffers, separate from upload quota.
+    pub reserved_bytes: u64,
+    /// Restoration keeps occupancy inspection-only.
+    pub fenced: bool,
 }
 /// Bounded local gateway root observation; not the provider's liveness API.
 #[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize)]

@@ -824,19 +824,116 @@ Recheck uses the original context and target after an await, before disclosure.
 It is repeatable and read-only: it reserves no session slot, consumes no callback,
 authenticates no transport and verifies no bytes. Only the original exclusive
 owners may be used; host installation identity and stale-instance exclusion remain
-necessary. The local authority-only endpoint uses a bounded ephemeral test slot
-and an existing scheduling substitute, discarding its list; it is not a production
-read transport or durable session. The internal v1 registry schema is replaced
-directly and retains the counter on same-release reopen under its fence.
+necessary. The internal v1 registry schema retains the counter on same-release
+reopen under its fence.
 Cross-release transitions remain reinstall-only, with no compatibility branch.
+
+`ops::service::reads::StableReadSessions` owns three explicitly granted memories:
+the configuration/high-water counter/global usage, one bounded row per occupied
+session, and counters for tenants with occupied sessions. Trusted limits bound
+global and per-tenant counts and reply-buffer bytes independently. At most 1024
+active rows are supported; this is a representation envelope, not production
+resource qualification. Each session reserves the full configured reply budget.
+That budget does not account for all decoder copies or total canister memory.
+Ordinary mutations touch only the exact row and maintained counters. Completion
+removes its row and any empty tenant counter, retaining the global high-water ID;
+completed read history does not accumulate. Exhaustion blocks admission without
+blocking exact completion. Operator inspection pages are limited to 64 active rows.
+
+`workflow::reads::sessions::begin` checks matching owners, all fences, current
+authority and the declared chunk range, then commits the exact intent. No call is
+sent. The original authenticated context and opaque ticket must stay with one
+host-managed call. `complete` accepts only that exact occupied identity. It checks
+all owner fences/bindings, rechecks disclosure authority and removes that returned
+call's reservation atomically. Lost authority can therefore return an error after
+releasing the slot; the host must refuse byte disclosure. A repeated or stale
+callback cannot release a newer slot. No expiry, automatic retry or cancellation
+path frees an in-flight, abandoned or interrupted reservation.
+
+Reopen validates bounded retained identities, rows and recomputed global/tenant
+totals without repair, then fences both admission and completion. A counter from
+the same backup grants no independent freshness. Native tests do not supply IC
+transactions; hosts must propagate stable traps. PocketIC verifies that admission
+traps send nothing and callback traps preserve occupancy after the remote call
+returns, including through upgrade. The fixture replaces its temporary busy flag
+with these shared handlers and three additional grants through the same ic-memory
+runtime.
+
+`workflow::reads::chunk::read_chunk` now composes admission, one host transport
+await and synchronous callback completion/verification. `ReadSessionAccess` borrows
+the same owners only within synchronous closures. `ReadChunkTransport` supplies
+normalized host-authenticated source and original request correlation, not a
+library-selected provider wire or a principal trusted from reply data. The handler
+checks source/root/index and decoded size, then the exact admitted leaf length and
+domain-separated hash. One bounded immutable manifest record is decoded; its tree
+and reference/receipt histories are not rebuilt or copied. Returned bytes are moved
+into the verified result. Lost authority rejects before hashing. Ordinary returned
+transport/binding/content errors settle their exact reservation; traps roll back
+callback writes. A verified leaf does not prove whole-file completion or durability.
+
+The local fixture now calls the existing source's `fixture_chunk` method and checks
+encoded size before bounded bulk `vec nat8` decoding. Actual IC call targeting
+authenticates its peer. This is explicitly a provider substitute; no deployed
+Caffeine chunk interface is inferred. Encoded and decoded buffers can coexist, and
+the platform/CDK initially buffers the response before the application size check.
+Session budgets therefore do not qualify peak heap, instruction or provider costs.
+Production transport, supported recovery and resource sizing remain separate work.
+
+`workflow::reads::download::describe` provides a separate direct-client descriptor
+path without allocating a session or fetching any body. It requires active tenant
+authority, an unfenced owner and exactly the requested confirmed live reference.
+Its host-supplied `CaffeineDownloadScope` binds an explicit owner/project mapping
+to the installed local namespace. Owner must equal the service, independent of
+payment account and tenant. Project text is bounded at 256 UTF-8 bytes before
+copying, with no empty value, controls or surrounding whitespace; this is a local
+representation bound, not a provider naming guarantee or a default assignment.
+
+The original root, length and hash headers accompany an encoded relative Caffeine
+`/v1/blob/` request target. Request fields are individually percent-encoded; no
+bucket or gateway origin is guessed. HTTP origin authority cannot be inferred from
+the IC gateway principal list. Hosts must provision and retain the same project
+mapping used for uploads, authenticate descriptor delivery, approve the origin and
+redirect/credential/CORS/body policy, and coordinate the consumer reference with
+publication/release. The fixture exposes an update-only local descriptor using a
+labelled project; it is not a production endpoint or certified public release map.
+Suspension/release blocks new operational descriptors, not access to saved URLs or
+already downloaded bytes. Passive historical descriptors retain their inspection
+contract. No provider GET, certificate, account operation or body hashing occurs
+in the service descriptor workflow.
+
+`dto::download::{DownloadRequest,DownloadResponse,DownloadFailure}` now owns the
+maintained service boundary. `workflow::reads::download::handle` checks actual
+service/caller plus every nonzero identity and delegates to the same operational
+descriptor workflow. The unpublished probe exports the canonical update
+`blob_download_descriptor`; its private descriptor endpoint/DTO is removed.
+The response echoes the full request, owner/project, declared size and original
+headers. It returns no URL, origin, credentials or raw-digest assertion. Adapters
+must bound ingress decoding and supply the installed serving scope; linking the
+library exports no endpoint or lifecycle hook.
+
+`ReplicatedDownloadClient` binds tenant, selected storage service and a positive
+timeout up to 300 seconds. It checks actual canister identity and replicated
+execution, then sends the update once with zero attached cycles. Platform fees
+still apply. Actual IC targeting authenticates the response source. Bounded Candid
+decoding validates full request equality, owner/project, declared content limits
+and the shared upload metadata invariants before returning a descriptor. This
+does not limit the CDK's earlier platform-bounded response buffer. Clients using
+the standalone decoder must independently authenticate the service response.
+No query/method fallback or automatic retry occurs. A refusal, timeout or decoding
+failure returns no descriptor and never authorizes publication or a paid effect.
+The local test uses a real tenant canister; browser authentication and a certified
+public release mapping remain unimplemented. Copies can become stale across
+the return await, so consumer reference ownership and release exclusion remain
+necessary even after successful authenticated delivery.
 
 The private storage probe exercises interrupted writes from admission through
 completion, references and settlement, then same-release upgrade in every phase.
 Changed-operator restoration fails without changing the old instance. Completion,
 deletion and settlement APIs consume facts already authenticated by the trusted
 host; the probe supplies explicit operator-only substitutes. No real certificate,
-provider call or evidence qualification follows. Durable provider-call journals,
-read sessions, operational recovery and resource qualification remain required.
+provider call or evidence qualification follows. Other durable provider-call
+journals, deployed verified-read delivery, operational recovery and resource qualification
+remain required.
 
 `ops::service::funding::StableFundingJournal` owns a separate attachment allocation
 through two exclusively owned, host-granted memories: exact intent history and one

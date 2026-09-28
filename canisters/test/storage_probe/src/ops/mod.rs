@@ -67,6 +67,7 @@ struct State {
     funding: ic_blob_storage::ops::service::funding::StableFundingJournal<ProbeMemory>,
     gateways: ic_blob_storage::ops::service::gateways::StableGatewayRegistry<ProbeMemory>,
     gateway_attempts: Vec<ic_blob_storage::ops::service::gateways::reply::GatewaySyncRequest>,
+    read_sessions: ic_blob_storage::ops::service::reads::StableReadSessions<ProbeMemory>,
 }
 thread_local! {
     static STATE:RefCell<Option<State>>=const { RefCell::new(None) };
@@ -87,12 +88,15 @@ pub(crate) fn initialize(operator: Principal, restored: bool) {
         "fixture.funding_accounting.v1",
         "fixture.funding_intents.v1",
         "fixture.gateways.v1",
+        "fixture.read_journal.v1",
+        "fixture.read_sessions.v1",
+        "fixture.read_tenants.v1",
     ];
     let requests =
         keys.map(|key| MemoryRequest::new("fixture", key, SchemaMetadata::default()).unwrap());
     let grant = StaticMemoryRangeDeclaration::new(
         MemoryManagerAuthorityRecord::new(
-            MemoryManagerIdRange::new(120, 132).unwrap(),
+            MemoryManagerIdRange::new(120, 135).unwrap(),
             "fixture",
             MemoryManagerRangeMode::Allowed,
             None,
@@ -123,23 +127,10 @@ pub(crate) fn initialize(operator: Principal, restored: bool) {
         funding_accounting,
         funding_intents,
         gateways,
-    ] = keys.map(|key| ProbeMemory {
-        memory: runtime.open_memory_by_key(key).unwrap(),
-        fault: match key {
-            "fixture.root_objects.v1" => Some(WriteFault::Objects),
-            "fixture.permissions.v1" => Some(WriteFault::Permissions),
-            "fixture.usage.v1" => Some(WriteFault::Usage),
-            "fixture.manifests.v1" => Some(WriteFault::Manifests),
-            "fixture.confirmed.v1" => Some(WriteFault::Confirmed),
-            "fixture.references.v1" => Some(WriteFault::References),
-            "fixture.receipts.v1" => Some(WriteFault::Receipts),
-            "fixture.root_requests.v1" => Some(WriteFault::RootRequests),
-            "fixture.funding_accounting.v1" => Some(WriteFault::FundingAccounting),
-            "fixture.funding_intents.v1" => Some(WriteFault::FundingIntents),
-            "fixture.gateways.v1" => Some(WriteFault::Gateways),
-            _ => None,
-        },
-    });
+        read_journal,
+        read_sessions,
+        read_tenants,
+    ] = keys.map(|key| probe_memory(&mut runtime, key));
     let memory = UploadMemories {
         tenants,
         roots,
@@ -155,6 +146,15 @@ pub(crate) fn initialize(operator: Principal, restored: bool) {
     let config = configuration::configuration(operator);
     let funding = funding::initialize(funding_accounting, funding_intents, &config, restored);
     let gateways = gateways::initialize(gateways, &config, restored);
+    let read_sessions = read::sessions::initialize(
+        ic_blob_storage::ops::service::reads::ReadSessionMemories {
+            journal: read_journal,
+            sessions: read_sessions,
+            tenants: read_tenants,
+        },
+        &config,
+        restored,
+    );
     let uploads = if restored {
         StableUploads::open(memory, config)
     } else {
@@ -170,8 +170,31 @@ pub(crate) fn initialize(operator: Principal, restored: bool) {
             funding,
             gateways,
             gateway_attempts: Vec::new(),
+            read_sessions,
         });
     });
+}
+fn probe_memory(runtime: &mut MemoryRuntime<DefaultMemoryImpl>, key: &str) -> ProbeMemory {
+    ProbeMemory {
+        memory: runtime.open_memory_by_key(key).unwrap(),
+        fault: match key {
+            "fixture.root_objects.v1" => Some(WriteFault::Objects),
+            "fixture.permissions.v1" => Some(WriteFault::Permissions),
+            "fixture.usage.v1" => Some(WriteFault::Usage),
+            "fixture.manifests.v1" => Some(WriteFault::Manifests),
+            "fixture.confirmed.v1" => Some(WriteFault::Confirmed),
+            "fixture.references.v1" => Some(WriteFault::References),
+            "fixture.receipts.v1" => Some(WriteFault::Receipts),
+            "fixture.root_requests.v1" => Some(WriteFault::RootRequests),
+            "fixture.funding_accounting.v1" => Some(WriteFault::FundingAccounting),
+            "fixture.funding_intents.v1" => Some(WriteFault::FundingIntents),
+            "fixture.gateways.v1" => Some(WriteFault::Gateways),
+            "fixture.read_journal.v1" => Some(WriteFault::ReadJournal),
+            "fixture.read_sessions.v1" => Some(WriteFault::ReadSessions),
+            "fixture.read_tenants.v1" => Some(WriteFault::ReadTenants),
+            _ => None,
+        },
+    }
 }
 #[expect(
     clippy::needless_pass_by_value,

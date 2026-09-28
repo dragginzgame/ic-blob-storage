@@ -17,7 +17,7 @@ use crate::{
 fn scope() -> GatewayScope {
     GatewayScope::new(p(1), NonZeroU128::MIN, p(3)).unwrap()
 }
-fn setup() -> (
+pub(super) fn setup() -> (
     StableGatewayRegistry<VectorMemory>,
     StableUploads<VectorMemory>,
     UploadPermission,
@@ -29,7 +29,7 @@ fn setup() -> (
     uploads.confirm_upload(input.request).unwrap();
     (registry, uploads, input)
 }
-fn target(input: UploadPermission) -> ReadTarget {
+pub(super) fn target(input: UploadPermission) -> ReadTarget {
     ReadTarget {
         root: input.request.object.root,
         reference: input.request.object.first,

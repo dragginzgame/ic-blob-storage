@@ -1,4 +1,5 @@
 use super::*;
+mod download;
 use blob_test_protocol::{
     admission::{
         ContentDescriptor, ContentLookup, ContentObservation, ContentState,

@@ -8,6 +8,7 @@ publish = false
 [dependencies]
 candid.workspace = true
 serde.workspace = true
+ic-blob-storage = { path = "../../crates/ic-blob-storage" }
 
 [lints]
 workspace = true

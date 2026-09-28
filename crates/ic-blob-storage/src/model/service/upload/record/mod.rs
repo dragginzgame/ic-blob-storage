@@ -327,6 +327,33 @@ pub(crate) struct UploadManifestRecord {
     headers: Vec<UploadHeaderRecord>,
 }
 impl UploadManifestRecord {
+    /// Select from an immutable manifest already root-bound at admission and
+    /// validated on reopen. This range check does not independently authenticate
+    /// a new manifest or rebuild its tree.
+    pub(crate) fn read_leaf(
+        &self,
+        content_bytes: u64,
+        index: u64,
+    ) -> Option<(
+        crate::model::identity::caffeine::manifest::CaffeineChunkRange,
+        CaffeineChunkHash,
+    )> {
+        let chunk_bytes = crate::model::identity::caffeine::CAFFEINE_CHUNK_BYTES as u64;
+        if self.version != 1 || self.chunks.len() as u64 != content_bytes.div_ceil(chunk_bytes) {
+            return None;
+        }
+        let leaf = self.chunks.get(usize::try_from(index).ok()?)?;
+        let offset = index.checked_mul(chunk_bytes)?;
+        let bytes = usize::try_from(content_bytes.checked_sub(offset)?.min(chunk_bytes)).ok()?;
+        Some((
+            crate::model::identity::caffeine::manifest::CaffeineChunkRange {
+                index,
+                offset,
+                bytes,
+            },
+            CaffeineChunkHash::try_from(leaf.as_slice()).ok()?,
+        ))
+    }
     pub(crate) fn into_headers(
         self,
     ) -> Vec<crate::model::service::upload::download::ContentHeader> {

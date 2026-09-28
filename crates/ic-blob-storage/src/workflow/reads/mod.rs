@@ -1,8 +1,12 @@
 //! Current durable read authority and invalidation across a host-managed await.
 //!
-//! These checks do not reserve a read slot, correlate a chunk response, verify
-//! bytes or authorize a provider call. Hosts still need bounded durable session
-//! admission and exact one-shot completion before implementing a read endpoint.
+//! Capture/recheck alone reserve no slot and verify no bytes. The `sessions`
+//! module composes bounded durable admission and exact one-shot completion.
+//! The `chunk` module composes that journal with one host call and leaf verification.
+//! Qualified provider transport and source authentication remain host duties.
+pub mod chunk;
+pub mod download;
+pub mod sessions;
 use crate::{
     model::{
         gateway::registry::GatewayScope,

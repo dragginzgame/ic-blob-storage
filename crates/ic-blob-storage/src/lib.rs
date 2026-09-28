@@ -10,6 +10,7 @@
 //! canister adapters will delegate to the same implementation after the service
 //! contract is frozen.
 
+pub mod dto;
 pub mod model;
 pub mod ops;
 pub mod policy;

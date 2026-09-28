@@ -2,6 +2,47 @@
 
 ## [Unreleased]
 
+### Added
+
+- Bounded durable read sessions with separate global/per-tenant slot and reply
+  buffer budgets. Three host-granted memories retain exact chunk/reference/gateway
+  intent, active accounting and a never-reused local sequence. Shared admission
+  checks current authority and chunk range before committing; exact callback
+  completion releases only its own reservation and rechecks disclosure authority.
+  Revocation, elapsed time and dropped tickets do not release occupied capacity.
+  Restore validates retained rows/counters and remains inspection-only.
+- The local read fixture now uses the shared durable journal in place of its
+  temporary busy flag. Native and PocketIC evidence covers independent count/byte
+  limits, stale callbacks, exhaustion, authority invalidation, atomic admission
+  and callback failures, transport rejection and retained occupancy after upgrade.
+  Allocator and existing upload/funding/gateway schemas are unchanged.
+- Shared asynchronous chunk reads now combine durable admission, one host call,
+  current callback authority and exact manifest-leaf verification. Peer/root/index,
+  reply budget, length and hash must match before bytes are returned. Verification
+  reads the selected leaf from the bounded immutable manifest without rebuilding
+  its tree or copying operation histories. The local IC fixture fetches actual
+  chunks, bounds decoding and uses bulk byte decoding; malformed/corrupt replies
+  settle occupancy without disclosure, while callback traps retain it through
+  upgrade. The private probe reuses the existing locked `serde_bytes` dependency.
+  Deployed Caffeine transport, resource sizing and operational recovery remain open.
+- Operational download descriptors bind the current service owner, explicit
+  provider project/local namespace and exact live tenant reference to the stored
+  root, length and original hash metadata. Suspended/restored instances refuse
+  delivery while passive inspection remains available. The shared workflow emits
+  the reviewed Caffeine direct-blob request target with bounded, escaped fields;
+  no default project, origin, provider call or canister body transfer is introduced.
+  Source/package review confirms the current client download fields; provisioned
+  mappings, approved HTTP policy and production authenticated delivery remain open.
+- Library-owned descriptor request/response/error DTOs and one shared endpoint
+  handler replace the private fixture descriptor schema. An explicit replicated
+  client calls `blob_download_descriptor` once from the actual tenant canister,
+  bounds Candid decoding and checks the complete original reference, owner,
+  project, declared size and hash metadata. No credentials, server-selected URL,
+  cycles attachment, method fallback or automatic retry is introduced. Local
+  two-canister evidence covers caller identity, query refusal, limits, suspension
+  and restored service refusal. Browser delivery and publication/reference
+  coordination remain open.
+
 ## [0.2.8] - 2026-09-28
 
 ### Added

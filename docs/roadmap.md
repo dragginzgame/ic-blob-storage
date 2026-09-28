@@ -34,7 +34,7 @@ The [review record](evidence/toko-0.2-review.json) pins source paths and hashes.
 | Milestone | Deliverable | Completion evidence | Current state |
 | --- | --- | --- | --- |
 | M1 — contract | Toko asset journey, uploader/tenant/operator bindings, resource envelope, provider and recovery decisions | Resolved decision list below, concrete acceptance inputs and authoritative provider evidence for promised guarantees | In progress: configuration, enrollment and upload-permission models implemented; consumer coordination contract specified; provider/recovery evidence still open |
-| M2 — durable standalone journey | One production owner of configuration, upload/reference/deletion journals and shared handlers; standalone adapter | Actual PocketIC install, upload/admission, verification, interruption, accounting and supported recovery, including the 10 MiB media boundary | In progress: durable upload/reference/settlement bookkeeping with IC rollback/upgrade evidence; provider-call journals, read sessions and operational recovery outstanding |
+| M2 — durable standalone journey | One production owner of configuration, upload/reference/deletion journals and shared handlers; standalone adapter | Actual PocketIC install, upload/admission, verification, interruption, accounting and supported recovery, including the 10 MiB media boundary | In progress: durable upload/reference/settlement and verified read-session handlers with local IC evidence; complete provider-call journals, standalone adapter and operational recovery outstanding |
 | M3 — Caffeine and operator integration | Provider transport, verified completion/readback, explicit funding/reconciliation, production CLI and client | Exact source/interface provenance, client tests and bounded explicitly authorized provider trial; no inference of credit or billing cessation | In progress: shared transports with local IC evidence; deployed qualification and production clients remain open |
 | M4 — managed parity and acceptance | Thin Canic adapter, same API/tenant rules and real consumer composition | Same journey/operator cases through both deployments; all BLOB-01–18 replacement obligations resolved; removal readiness handoff | Not implemented |
 
@@ -93,8 +93,15 @@ Shared read-authority capture/recheck now binds the original tenant, exact live
 reference, root/object and selected gateway. A separately persisted invalidation
 counter prevents remove/re-add and same-list sync from reviving old reads; tenant
 reactivation also invalidates them. Held-reply IC evidence covers these checks,
-reference release, rollback and restoration. Bounded durable session admission,
-exact one-shot completion and verified-byte transport remain outstanding.
+reference release, rollback and restoration. Bounded durable session admission
+and exact one-shot completion now retain global/per-tenant slot and reply-buffer
+budgets, with IC write-rollback and fenced occupancy evidence. The shared async
+read workflow now binds returned source/root/index, bounds decoded bytes and checks
+the exact admitted manifest leaf without rebuilding the tree. A local IC source
+supplies actual chunks for malformed-reply, delayed authority and rollback tests.
+Qualified provider transport, resource sizing and operational session recovery
+remain outstanding. This optional canister read path does not change the direct
+Caffeine-to-client download direction or require bulk service readback on upload.
 Deployed transport qualification and effect callbacks remain separate.
 Next, establish complete account activity and credit evidence, then complete other provider
 intents, read sessions and operational lifecycle. Provider callback semantics and
@@ -446,6 +453,26 @@ Do not replace the stored text with HTTP response headers or infer a raw digest
 from the provider-root string. A production authenticated descriptor endpoint or
 certified release mapping, provider locator and serving policy still need
 implementation and consumer qualification.
+
+`workflow::reads::download::describe` now supplies the local operational descriptor:
+it checks active tenant authority, exact current live reference and the restore
+fence, then combines the original declaration with a trusted host-supplied
+`CaffeineDownloadScope`. Its storage owner must equal the installed service;
+tenant and payment account cannot substitute. The explicit provider project maps
+to the local namespace without deriving either from the other. The reviewed
+direct-blob target encodes root/owner/project and leaves origin selection separate.
+The update-only local fixture delivers that descriptor and feeds the existing
+off-canister root verifier, without fetching a body or allocating a read session.
+Provider assignment, authenticated production delivery, approved HTTP policy and
+consumer publication/reference coordination remain open; this is no public URL
+revocation guarantee. Previously returned descriptors/bytes can remain accessible.
+The canonical descriptor boundary now lives in the library, and an explicit
+replicated client authenticates metadata delivery from the selected storage
+canister to the actual tenant canister. Reply bounds, full reference/owner/project
+checks and shared metadata validation apply before returning. Actual two-canister
+PocketIC evidence replaces simulated caller identity for this route. Browser
+delivery, public certified mappings and consumer publication/release coordination
+remain separate work; authenticated observations are not leases across awaits.
 
 The shared owner's `retained_content_descriptor` now checks confirmed completion,
 the exact object incarnation and the consumer's live reference in one read. A

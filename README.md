@@ -45,7 +45,7 @@ share lifecycle rules. A local PocketIC probe checks partial-write rollback and
 same-release upgrade into an inspection-only fence. Completion, deletion and
 settlement require independently authenticated facts from the integrating host;
 the probe uses labelled substitutes. Real provider integration, durable provider
-call journals, read sessions and operational recovery remain unfinished.
+call journals, deployed read transport and operational recovery remain unfinished.
 The durable owner also supports indexed tenant discovery, original metadata and
 exact-live-reference descriptors. Tenant and operator traversal bound scanned rows
 and results separately; empty filtered pages retain continuation. These are current
@@ -110,8 +110,30 @@ generations are separate checks; these observations grant no effect authority.
 object/root and selected gateway against both durable owners. Gateway edits and
 successful syncs advance a persisted invalidation counter; tenant reactivation
 also invalidates earlier observations. Held-reply IC tests cover revocation,
-reference release and rollback. Bounded read sessions, exact one-shot completion,
-byte verification and production transport still need composition.
+reference release and rollback. `StableReadSessions` now persists bounded global
+and per-tenant slots and reply-buffer reservations through three host-granted
+memories. Shared session handlers check chunk range, commit intent before transport
+and consume only the exact callback's reservation. Revocation retains capacity
+until that callback returns; restoration preserves occupancy under a fence.
+`workflow::reads::chunk::read_chunk` composes one host call with these handlers,
+checks response source/root/index and verifies exact length and the admitted leaf
+hash before returning bytes. It loads one bounded manifest record without rebuilding
+the tree. The local IC fixture exercises real chunks, bounded bulk decoding,
+malformed replies and delayed callback rejection. Production transport, resource
+sizing and operational recovery remain open; the fixture is not Caffeine's wire.
+`workflow::reads::download::describe` supports direct client delivery without a
+canister body call. It binds an explicit Caffeine owner/project/namespace mapping
+to the active tenant's exact live reference, root, length and original metadata.
+Suspension and restoration refuse operational delivery; passive inspection stays
+available. The relative HTTP target follows the reviewed client format. Hosts
+still own provisioned mappings, approved origins, authenticated delivery and
+consumer verification/release coordination; no production URL is selected here.
+`dto::download` and `workflow::reads::download::handle` now own the descriptor
+boundary. `ReplicatedDownloadClient` sends its canonical update once from the
+actual tenant canister and validates a bounded, fully bound response. The probe
+exports that shared boundary and tests a real consumer-canister call. Linking
+the library exports nothing. This is authenticated IC metadata delivery, not a
+public certified release mapping, browser adapter or publication lease.
 The service uses bounded manifest authorization for direct browser-to-Caffeine
 upload. No file chunks or whole-file raw digest are required by service admission.
 Manifest consistency, possible exposure and independently confirmed provider

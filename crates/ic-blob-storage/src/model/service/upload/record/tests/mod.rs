@@ -73,3 +73,33 @@ fn variable_page_layout_keeps_a_hard_record_decode_bound() {
         );
     }
 }
+
+#[test]
+fn admitted_leaf_selection_preserves_position_and_exact_final_length() {
+    use crate::model::identity::caffeine::{CAFFEINE_CHUNK_BYTES, manifest::CaffeineChunkRange};
+    let record = UploadManifestRecord {
+        version: 1,
+        chunks: vec![[1; 32], [2; 32]],
+        headers: vec![],
+    };
+    let bytes = CAFFEINE_CHUNK_BYTES as u64 + 7;
+    for (index, offset, length, hash) in [
+        (0, 0, CAFFEINE_CHUNK_BYTES, [1; 32]),
+        (1, CAFFEINE_CHUNK_BYTES as u64, 7, [2; 32]),
+    ] {
+        assert_eq!(
+            record.read_leaf(bytes, index),
+            Some((
+                CaffeineChunkRange {
+                    index,
+                    offset,
+                    bytes: length
+                },
+                CaffeineChunkHash::try_from(hash.as_slice()).unwrap()
+            ))
+        );
+    }
+    assert_eq!(record.read_leaf(bytes, 2), None);
+    assert_eq!(record.read_leaf(bytes, u64::MAX), None);
+    assert_eq!(record.read_leaf(CAFFEINE_CHUNK_BYTES as u64, 0), None);
+}

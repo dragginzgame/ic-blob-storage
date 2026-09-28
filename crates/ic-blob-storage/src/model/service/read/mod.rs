@@ -1,4 +1,6 @@
 //! Exact read identity; this value alone grants no authority or session capacity.
+pub mod download;
+pub mod session;
 use crate::model::{identity::ProviderRootHash, lifecycle::binding::ReferenceKey};
 use candid::Principal;
 

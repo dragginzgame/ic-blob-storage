@@ -35,5 +35,32 @@
     "limits": "Positive timeout at most 300 seconds, matching locked ic-cdk 0.20.3. Reply byte budget checked before handing the owned response to the decoder. The CDK's initial buffer remains subject to platform limits, not the smaller application budget. Ordinary IC execution/call fees still apply.",
     "local_evidence": "PocketIC calls the actual query-only storage_gateway_list_v1 export. Its service-caller branch requires replicated execution and zero attached cycles. Wrong identities and ordinary query execution reject; size/reject/callback-trap failures retain pending state; restoration fences dispatch. Existing delayed-reply and source regression tests pass.",
     "qualification": "Local platform/caller composition only. Deployment selection/ownership, actual Cashier replicated execution, operational readiness and provider callback semantics remain unqualified. No deployment account or provider trust was selected by this review."
+  },
+  "download_review": {
+    "observed_on": "2026-09-28",
+    "access": "Read-only GitHub API/source fetches and public npm latest metadata. No gateway/object HTTP request, account call, replicated provider call or paid effect.",
+    "official_main": "ee8e3dda39b105f95133256144172a4506e841a8",
+    "head_change": "Latest commit changes writing-motoko skill guidance; the reviewed object-storage frontend source is byte-identical to the retained source.",
+    "official_client": {
+      "url": "https://github.com/caffeinelabs/skills/blob/ee8e3dda39b105f95133256144172a4506e841a8/packages/object-storage/frontend/src/StorageClient.ts",
+      "sha256": "a0a3ee3bb74ecca133bc6f68a024821b3319c7ccd4886940c31d179b9f85f557",
+      "method": "getDirectURL"
+    },
+    "npm_latest": "1.1.2",
+    "npm_integrity": "sha512-JAmoHT6E8M18DEbW4rkHinAOw0A8yNbz+rj8F56VAvr8Hf0TxQSK0ZdMrkwwT7BsiOLvtFK/YcLtoaWBc9x2xQ==",
+    "toko_development": "6519b72d2a420564dabaf700fc55f7b8603d9fd3",
+    "toko_client": {
+      "url": "https://github.com/dragginzgame/toko/blob/6519b72d2a420564dabaf700fc55f7b8603d9fd3/frontend/src/lib/storage/storage-client.ts",
+      "sha256": "5742c9e31846ae7162fc1bb006013ad33e943be4a8f4d536ab907140f231ea4d",
+      "method": "getDownloadURL"
+    },
+    "request": "/v1/blob/?blob_hash=<encoded root>&owner_id=<encoded storage owner>&project_id=<encoded project>",
+    "observations": [
+      "Both clients construct direct HTTP blob URLs. Download owner is the certificate-issuing backend/project canister, not the Cashier or payment account. The download URL has no bucket field.",
+      "The reviewed client supplies no IC chunk-read interface for the durable canister verifier. Its fixture_chunk method remains a local substitute.",
+      "Toko's comment that client verification is unnecessary is an application assertion; this review does not establish deployed gateway byte verification or certified delivery."
+    ],
+    "local_selection": "Explicit bounded host-provisioned owner/project/local-namespace mapping; current active, unfenced exact-reference descriptor; relative target with percent-encoded components. Approved origin, authenticated delivery, provisioned mapping, HTTP policy and consumer reference coordination remain host obligations. No default project, origin or inferred mapping from gateway principals.",
+    "limitations": "Source contract and local encoding only. No Mops/backend/Cashier refresh in this serving review; no HTTP headers, CORS, redirects, transformed-body behavior, availability, cache/revocation or deployed provider guarantees qualified. Cross-release migration is not introduced."
   }
 }

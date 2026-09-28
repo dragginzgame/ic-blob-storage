@@ -36,6 +36,12 @@ pub enum WriteFault {
     FundingIntents,
     /// Whole gateway membership and sync record.
     Gateways,
+    /// Read-session row write/removal.
+    ReadSessions,
+    /// Per-tenant read occupancy, after session row mutation.
+    ReadTenants,
+    /// Aggregate read occupancy and sequence, after session/tenant mutation.
+    ReadJournal,
 }
 /// One admission that must trap at the selected stable write.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
@@ -56,6 +62,8 @@ pub struct FaultPreparation {
 /// Typed boundary rejection for a fixture store operation.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
 pub enum Failure {
+    /// Returned bytes differ from the admitted leaf hash or exact length.
+    ContentMismatch,
     /// Labelled local read-only transport failed.
     Transport,
     /// Caller lacks the operation's role.

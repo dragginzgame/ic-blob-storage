@@ -1,5 +1,8 @@
 //! Bounded fixture read conversion and delegation to the durable owner.
 pub(crate) mod authority;
+pub(crate) mod download;
+pub(crate) mod sessions;
+pub(crate) mod transport;
 use super::{STATE, conversion};
 use blob_test_protocol::{
     admission::{
@@ -72,7 +75,7 @@ pub(crate) fn content_state(state: UploadRootState) -> ContentState {
         },
     }
 }
-fn descriptor(view: UploadDescriptorView) -> ContentDescriptor {
+pub(super) fn descriptor(view: UploadDescriptorView) -> ContentDescriptor {
     ContentDescriptor {
         content: observation(view.content),
         headers: view
@@ -118,6 +121,27 @@ pub(crate) fn retained(
     execution: UploadContext,
     input: RetainedDescriptorInput,
 ) -> Result<Option<RetainedDescriptor>, Failure> {
+    let (root, reference) = retained_target(execution, input)?;
+    STATE
+        .with_borrow(|state| {
+            state
+                .as_ref()
+                .unwrap()
+                .uploads
+                .retained_content_descriptor(execution, root, reference)
+        })
+        .map(|v| {
+            v.map(|v| RetainedDescriptor {
+                reference: input,
+                descriptor: descriptor(v.descriptor),
+            })
+        })
+        .map_err(conversion::failure)
+}
+pub(super) fn retained_target(
+    execution: UploadContext,
+    input: RetainedDescriptorInput,
+) -> Result<(ProviderRootHash, ReferenceKey), Failure> {
     let content = lookup(execution, input.content)?;
     let object = ObjectBinding::new(
         execution.service,
@@ -130,21 +154,7 @@ pub(crate) fn retained(
     )
     .map_err(|_| Failure::Invalid)?;
     let reference = ReferenceKey::new(object, ReferenceId::new(number(input.reference)?));
-    STATE
-        .with_borrow(|state| {
-            state.as_ref().unwrap().uploads.retained_content_descriptor(
-                execution,
-                content.root,
-                reference,
-            )
-        })
-        .map(|v| {
-            v.map(|v| RetainedDescriptor {
-                reference: input,
-                descriptor: descriptor(v.descriptor),
-            })
-        })
-        .map_err(conversion::failure)
+    Ok((content.root, reference))
 }
 fn scope(input: Scope, namespace: u128) -> Result<UploadScanScope, Failure> {
     let namespace = number(namespace)?;

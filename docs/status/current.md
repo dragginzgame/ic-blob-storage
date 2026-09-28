@@ -2,14 +2,14 @@
 
 Date: 2026-09-28
 
-## Active work — 0.2.8 draft after 0.2.7
+## Active work — after 0.2.8
 
-The maintainer confirmed **0.2.7 is pushed** and requested work on **0.2.8**.
-Cargo and the release receipt remain 0.2.7. Local main, origin/main and v0.2.7 resolve to
-`65d2945dcadf97440f88f2b4c4d8af64f3d0378c`, from validated source
-`a5fdd2e73399fcaca345ba0578adb151fe405864`. The receipt records the
+The maintainer confirmed **0.2.8 is pushed** and requested continued implementation.
+Cargo and the release receipt are 0.2.8. Local main, origin/main and v0.2.8 resolve to
+`298914a3ac3ded5f01288dba79d2d927b47f1cb6`, from validated source
+`cea82f92564eb713e10e515aa324c2a92f5bcb70`. The receipt records the
 `release-verify` gate; registry publication was not independently queried.
-New work is recorded under an undated **0.2.8** changelog draft.
+New work is recorded under **Unreleased**; no new version target was selected.
 No version mutation, commit, publication, deployment or deployed-provider effect ran here;
 transfers below use simulated cycles between local PocketIC canisters.
 
@@ -24,7 +24,134 @@ operator client. Library publication does not qualify the service or Canic remov
 | M3 — Caffeine and operator integration | In progress: shared transports with local IC evidence | Qualified provider transport, completion/economics and production client |
 | M4 — managed parity and acceptance | Not implemented | Same journey through Canic adapter, complete replacement evidence and handoff |
 
-## Current focus — durable read authority across awaits
+## Current focus — authenticated IC descriptor delivery
+
+`workflow::reads::download::describe` now binds current active tenant authority,
+an unfenced durable owner and the exact confirmed live reference to the retained
+root, length and original hash metadata. Trusted host `CaffeineDownloadScope`
+supplies an explicit storage owner/project/local-namespace mapping. Owner must
+equal the service; neither payer nor tenant can replace it. Project text is
+bounded before copying, with no default or inference from local namespace IDs.
+The result contains the reviewed relative `/v1/blob/` target with escaped fields.
+It performs no provider call, body transfer/hash, session admission or mutation.
+
+The probe's canonical update `blob_download_descriptor` delivers that view and feeds
+the existing off-canister root verifier with its original metadata. Caller,
+object/lifetime and reference isolation hold. Suspension, release and restore
+reject new operational descriptors while passive historical inspection remains
+available. Stable memory stays unchanged across success and rejection. Saved
+descriptors/URLs are not revoked by these checks; publication/reference
+coordination and provider serving policy remain required.
+
+`dto::download` now owns the passive request/response/error contract and
+`workflow::reads::download::handle` owns its shared boundary conversion and
+delegation. The private fixture descriptor schema/endpoint is removed. The
+response echoes the full request, owner/project, length and original headers;
+it carries no provider URL, credentials or raw-digest assertion. Linking exports
+no endpoint or lifecycle. Adapters supply actual caller/service and installed
+serving scope, with independently bounded ingress decoding.
+
+`ReplicatedDownloadClient` selects tenant/service and a bounded timeout, checks
+actual running identity and replicated execution, and sends the canonical update
+once with zero attached cycles. Actual IC targeting authenticates the peer;
+ordinary call/execution fees remain. Before disclosure, bounded Candid decoding
+checks the entire original reference, owner/project, declared size and shared
+metadata invariants. The CDK's initial buffer is platform-bounded separately.
+No automatic retry or query/method fallback occurs. A real second tenant canister
+now exercises this route, including wrong client/project, size limits, query
+refusal, typed suspension/restore failures and platform rejection. This is not
+a browser adapter or publication lease; copied observations can become stale
+across the return await.
+
+The [serving review](../evidence/caffeine-gateway-transport.json) rechecks official
+main at `ee8e3dda39b105f95133256144172a4506e841a8`. Its latest commit changes Motoko
+guidance; the reviewed storage client source is unchanged. Npm latest/integrity
+remains 1.1.2, and Toko development/client remain at the prior pin. Both clients
+use direct HTTP root/owner/project locators; this supplies no IC chunk-read wire
+for the optional canister verifier. No gateway object request, deployed account
+call or paid effect ran. Mops/backend/Cashier were not refreshed in this review.
+
+Twelve targeted native download cases and all five descriptor/scan PocketIC cases
+pass (5.81 seconds for the latter). Strict affected all-target Clippy, release
+storage-probe Wasm, warning-free core rustdoc, formatting and diff checks pass.
+The private test protocol now depends on the library to reuse its canonical DTOs.
+No external dependency version, stable allocation/schema, package version or
+allocator change was introduced in this descriptor step. Earlier unreleased read-session work below
+remains in the same batch; no full CI/release validation ran.
+
+Next, complete consumer publication/reference coordination and browser delivery,
+including explicit origin and HTTP body/redirect policy. The host
+must retain the provisioned owner/project mapping used for upload; constructing a
+scope does not prove ownership. Keep body delivery and verification off-canister
+for consumers. Production provider completion/economics, operational recovery,
+resource sizing and both deployment adapters remain open.
+
+## Durable verified chunk reads — preceding unreleased work
+
+`ops::service::reads::StableReadSessions` now owns three explicit host-granted
+memories for journal metadata, occupied sessions and active-tenant counters.
+Trusted global/per-tenant slot and reply-buffer limits apply independently. Each
+read reserves its complete configured reply budget, separately from upload quota.
+Ordinary updates touch exact rows/counters, not lifetime history. The bounded v1
+records retain chunk/reference/root/gateway, original tenant/service/scope and
+both authority generations. Completed rows and empty tenant counters are removed;
+the monotonic global identity remains. Exhaustion never wraps or blocks completion.
+
+Shared `workflow::reads::sessions::{begin,complete}` checks all owners, current
+authority and chunk range before admission, and commits intent before the host's
+single separately qualified call. Only the original exact callback can release
+its slot. Revocation, tenant reactivation, released references, elapsed time and
+dropped tickets do not free capacity. After the actual local call returns, lost
+authority rejects disclosure while releasing that exact reservation. Restore
+fences retain occupancy and prevent both admission and completion; bounded
+operator inspection remains available. No paid-effect or byte-verification
+authority is implied by completion.
+
+`workflow::reads::chunk::read_chunk` now composes those handlers with one normalized
+host transport. It admits on first poll, releases all owner borrows across the
+await, rechecks callback authority, binds authenticated source/root/index, bounds
+decoded bytes and verifies exact length and the immutable manifest leaf hash.
+The selected leaf comes from one bounded stored manifest; no tree reconstruction
+or reference/receipt history copy occurs. Hashing shares the maintained Caffeine
+leaf primitive. A returned error releases only its settled reservation; stale
+authority rejects before hashing. Dropped pending futures retain occupancy.
+
+The probe replaces its ephemeral busy flag and authority-only endpoint/DTO with
+the durable verified workflow. Three grants extend its existing ic-memory runtime;
+the allocator and existing upload/funding/gateway record schemas are unchanged.
+Its `fixture_read_chunk` endpoint now fetches actual bytes from the existing local
+source's `fixture_chunk`. The old list-discard scheduling path is removed. The
+probe checks encoded size before bounded bulk byte decoding, reusing the existing
+locked `serde_bytes` dependency. This is a labelled substitute, not Caffeine's wire.
+The actual IC call target authenticates the peer; normalized peer/root/index fields
+are trusted host assertions, not untrusted payload evidence. Application limits do
+not bound the platform/CDK's initial buffer or total encoded-plus-decoded heap.
+Admission traps at all three writes send nothing and roll back counters/identity;
+a callback trap after row removal preserves the entire occupied reservation.
+Upgrade retains that interrupted reservation under the fence. Failed transport
+settles occupancy, and stale callbacks cannot release later sessions.
+
+That step's validation passed both shared read-workflow native cases, the stored leaf
+range/partial-final-chunk case and all 15 manifest/hash regression cases. All 21
+targeted gateway/read PocketIC cases pass in 29.07 seconds. The local cases now
+exercise real chunks through corrupt, truncated, malformed, wrong-type, oversized
+and rejected replies, held authority changes, callback traps and fenced upgrade.
+Affected strict all-target Clippy, release storage/source Wasms, warning-free core
+rustdoc, formatting and diff checks pass.
+
+The preceding journal step passed five targeted native session/model cases, together with all 30 durable-upload
+unit cases (two overlap). All 54 storage PocketIC cases pass in 82.64 seconds,
+including existing funding, upload, gateway and descriptor/lifecycle regressions
+after the fixture grant change. Affected strict all-target Clippy, release
+storage/source/funding Wasms and warning-free core rustdoc pass. No full CI,
+resource benchmark, release/version action or deployed-provider effect ran.
+
+The serving review and direct-client descriptor above now extend this work. The
+optional canister verifier must not become mandatory bulk readback during uploads.
+Production transport qualification, resource sizing, operational recovery and
+adapters remain open. A copied local counter must never authorize restoration.
+
+## Durable read authority across awaits — included in 0.2.8
 
 `workflow::reads::{capture,recheck}` now binds the original caller/service, exact
 live reference, full object lifetime, root and selected current gateway. Both
@@ -57,13 +184,11 @@ also pass in 2.04 seconds. Affected strict all-target Clippy, release storage/so
 Wasms, warning-free core rustdoc, formatting and diff checks pass.
 No full CI, version mutation, release or deployed-provider operation ran.
 
-Next, add bounded durable read-session admission and exact one-shot completion
-on top of these authority checks. Invalidation must retain occupied capacity until
-the exact callback settles it; old callbacks must never free a newer session.
-Then compose manifest/chunk verification and qualified transport without weakening
-either restore fence. Provider qualification and operational recovery remain open.
+The session journal above now composes bounded admission, exact completion and
+manifest/chunk verification through a host transport. Deployed transport/provider
+qualification and operational recovery remain open without weakening restore fences.
 
-## Scoped durable gateway observations — included in the 0.2.8 draft
+## Scoped durable gateway observations — included in 0.2.8
 
 `workflow::gateways::callbacks::observe_roots` now composes the durable registry
 and upload owner synchronously. It requires matching complete configuration and
@@ -97,7 +222,7 @@ restore fences. Exact callback correlation and session capacity remain open.
 Provider effect semantics, deployed Cashier replicated execution, production
 funding evidence and operational recovery remain unqualified.
 
-## Explicit replicated gateway transport — included in the 0.2.8 draft
+## Explicit replicated gateway transport — included in 0.2.8
 
 `ops::caffeine::query::transport::replicated::ReplicatedGatewayQuery` now implements
 the shared host transport for the canonical gateway-list query. Configuration binds
