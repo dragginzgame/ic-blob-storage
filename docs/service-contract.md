@@ -554,13 +554,38 @@ suspension, and restored owners reject every mutation. Native and local IC evide
 cover bound responses, committed-but-unusable replies, reserved cleanup capacity,
 rollback and restored inspection. Consumer publication remains a separate transaction.
 
-The private `blob-consumer-probe` now exercises that transaction separately from
+The canonical `blob_upload_status` query delegates to `workflow::uploads::inspect`.
+Its replicated client authenticates the service and validates the bounded response
+against the full original `ReferenceUpload`. Only the actual tenant can inspect it;
+uploader and controller roles do not supply that authority. Suspension and restore
+preserve historical inspection. Confirmation records creation of the first
+reference, even after its release or settlement. It grants neither current serving
+authority nor permission to repeat an uncertain upload; absence does not grant retry.
+
+`workflow::uploads::admission` supplies canonical `blob_admit_upload` and
+`blob_upload_admission` inspection through `ReplicatedUploadAdmissionClient`.
+Both bind the complete upload, uploader and exclusive expiry; changed permissions
+conflict. Fresh reservations require an active tenant and available capacity.
+Exact replay returns retained state without renewal, even after expiry or
+suspension; restore rejects all admission mutations while preserving inspection.
+Adapters supply actual service/caller/time and propagate stable-write traps.
+The client sends once, bounds decoding and never retries or attaches cycles;
+ordinary IC fees apply. Neither route issues certificates or contacts Caffeine.
+
+The private `blob-consumer-probe` exercises consumer transactions separately from
 the storage owner: exact bounded intent and reserved cleanup operation before
-dispatch, dependency checks, atomic tombstone/publication changes, receipt recovery
-and permanent restore fencing. Local IC evidence includes a delayed registration
-after cancellation/release and traps before dispatch or after remote completion.
-It covers an additional reference to existing confirmed content. It is not Toko's
-asset schema, fresh-upload onboarding, production scale or operational recovery.
+dispatch, dependency checks, atomic tombstone/publication changes and restore
+fencing. Existing content uses explicit retain receipts; fresh uploads inspect
+completion and use the first reference without allocating an extra retain receipt.
+Publication still obtains an exact live-reference descriptor and rechecks its local
+tombstone. Late completion after cancellation remains recoverable for release under
+suspension. Local IC tests cover callback traps, cleanup and fenced upgrades.
+The fixture persists the complete permission and asset intent before sending
+canonical admission from its own canister. Typed refusals remain recorded; unknown
+acknowledgments are inspected under the original permission without redispatch.
+Cancellation and restore preserve that uncertainty. Preparation, exposure,
+revocation and completion remain test-host actions. Toko's asset schema,
+production scale, actual provider completion and operational recovery remain open.
 
 Each active reference reserves one future release receipt. Admission enforces
 `retained receipts + active references <= receipt limit` after staging the

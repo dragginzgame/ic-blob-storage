@@ -119,10 +119,33 @@ impl Fixture {
         )
     }
     fn admit(&self, actor: Principal, input: Permission) -> Result<bool, Failure> {
-        self.harness
+        let result: Result<
+            ic_blob_storage::dto::upload::admission::UploadAdmissionMutation,
+            ic_blob_storage::dto::upload::admission::UploadAdmissionFailure,
+        > = self
+            .harness
             .pic
-            .update_candid_as(self.service, actor, "admit", (input,))
-            .unwrap()
+            .update_candid_as(
+                self.service,
+                actor,
+                "blob_admit_upload",
+                (admission_input(input),),
+            )
+            .unwrap();
+        result.map(|r| !r.replayed).map_err(|e| {
+            use ic_blob_storage::dto::upload::admission::UploadAdmissionFailure as A;
+            match e {
+                A::Denied => Failure::Denied,
+                A::Binding => Failure::Binding,
+                A::Unknown => Failure::Unknown,
+                A::Conflict => Failure::Conflict,
+                A::Inactive => Failure::Inactive,
+                A::Fenced => Failure::Fenced,
+                A::Capacity => Failure::Capacity,
+                A::Expired | A::Invalid => Failure::Invalid,
+                A::Internal => panic!("unexpected internal admission failure"),
+            }
+        })
     }
     fn prepare(&self, input: &PreparationInput) -> Result<bool, Failure> {
         self.harness
@@ -210,7 +233,7 @@ fn admission_write_traps_roll_back_identity_permission_and_both_totals() {
                 f.tenant,
                 "admit_with_write_trap",
                 candid::encode_one(FaultAdmission {
-                    permission: attempted,
+                    permission: admission_input(attempted),
                     fault,
                 })
                 .unwrap(),
@@ -418,3 +441,23 @@ mod storage_reads;
 
 mod storage_consumer;
 mod storage_funding;
+
+fn admission_input(
+    input: Permission,
+) -> ic_blob_storage::dto::upload::admission::UploadAdmissionRequest {
+    ic_blob_storage::dto::upload::admission::UploadAdmissionRequest {
+        upload: ic_blob_storage::dto::reference::ReferenceUpload {
+            service: input.request.service,
+            tenant: input.request.tenant,
+            namespace: input.request.namespace,
+            upload: input.request.id,
+            object: input.request.id,
+            incarnation: 1,
+            first_reference: 1,
+            root: input.request.root,
+            bytes: input.request.bytes,
+        },
+        uploader: input.uploader,
+        expires_at_ns: input.expires_at_ns,
+    }
+}

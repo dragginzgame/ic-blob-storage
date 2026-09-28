@@ -634,16 +634,20 @@ validation fails, proves accounting is unchanged by retry, and exercises cleanup
 under suspension/capacity and restore refusal. No client-side intent journal or
 automatic retry is implied by those library clients.
 
-The separate `blob-consumer-probe` now provides local existing-content integration
-evidence. It retains exact bounded asset payload and both reference operation IDs
-before dispatch, atomically checks publication/tombstones/dependencies, and keeps
-release intent through lost acknowledgment. Actual IC tests race a held registration
-against cancellation and release, interrupt intent/publication/callback writes,
-recover receipts without mutating storage, and retain uncertain work under an
-upgrade fence. Two lifetime asset/outbox slots preserve cleanup at capacity.
-This is a labelled application substitute with one small stable record, not Toko
-code, a production resource envelope or a new storage-core database. Fresh-upload
-registration, real application transactions, browser delivery and operational
+The separate `blob-consumer-probe` provides local existing-content and fresh-upload
+registration evidence. It retains bounded asset intent and cleanup identities,
+atomically checks publication/tombstones/dependencies, and keeps release intent
+through lost acknowledgment. Existing content uses an explicit retain receipt;
+fresh content uses exact authenticated admission history and the upload's
+first reference without another retain. Both obtain a current live-reference
+descriptor before publication. Actual IC tests cover cancellation races, callback
+traps, late completion under suspension, exact cleanup and fenced upgrade.
+Two lifetime asset/outbox slots preserve cleanup at capacity. This labelled
+application substitute persists the full permission and asset intent before
+canonical admission through its actual tenant canister. Exact inspection binds
+uploader/expiry, recovers interrupted acknowledgments and never resends uncertain
+admission. Preparation, exposure, revocation and completion remain test-host work. Real
+application transactions, production sizing, browser delivery and operational
 recovery remain open.
 
 | Consumer action | Required durable boundary | Retry or interruption behavior |
@@ -672,7 +676,7 @@ The shared owner's local IC composition now has evidence. Next, resolve
 provider certificate replay/namespace and completion evidence, the
 supported recovery authority and remaining resource envelope before wiring durable
 records or transport. The consumer substitute above supplies local interruption
-and registration-versus-delete evidence for existing confirmed content; complete
+and registration-versus-delete evidence for first and additional references; complete
 application/adaptor journeys and provider qualification remain open.
 Propagate each implemented milestone through both adapters and operator behavior.
 

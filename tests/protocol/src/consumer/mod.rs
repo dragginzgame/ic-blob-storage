@@ -3,17 +3,25 @@ use candid::{CandidType, Deserialize};
 use ic_blob_storage::dto::reference::{
     ReferenceChange, ReferenceCommand, ReferenceTransitionFailure,
 };
-/// Exact application intent, retained before reference dispatch.
+/// Exact application intent, retained before permission or reference dispatch.
 #[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize)]
 pub struct Registration {
     /// Never reused application asset identity.
     pub asset: u128,
     /// Complete bounded fixture asset payload, compared directly on retry.
     pub payload: Vec<u8>,
-    /// Exact retain of a distinct reference to existing confirmed content.
-    pub retain: ReferenceCommand,
+    /// First upload reference or an explicit retain of existing content.
+    pub source: RegistrationSource,
     /// Reserved exact operation for eventual release of this reference.
     pub release_operation: u128,
+}
+/// Current supported registration sources, with no fabricated retain for a first reference.
+#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+pub enum RegistrationSource {
+    /// Add a distinct reference to existing content.
+    Existing(ReferenceCommand),
+    /// Observe completion of the exact upload that creates its first reference.
+    Fresh(ic_blob_storage::dto::upload::admission::UploadAdmissionRequest),
 }
 /// Deliberate IC transaction interruption.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
@@ -22,8 +30,12 @@ pub enum Fault {
     None,
     /// Trap after intent storage, before sending.
     AfterIntent,
+    /// Trap after remote admission before recording its acknowledgment.
+    AfterAdmission,
     /// Trap after remote retain, before recording the result.
     AfterRetain,
+    /// Trap after authenticated upload observation, before storing it locally.
+    AfterUploadObservation,
     /// Trap after local publication writes.
     AfterPublish,
     /// Trap after storing the remote release outcome.
@@ -56,10 +68,17 @@ pub struct AssetView {
     pub published: bool,
     /// A successful publication receipt remains even after cancellation.
     pub published_once: bool,
-    /// Reference dispatch intent has committed.
+    /// Fresh permission dispatch intent has committed.
+    pub admission_started: bool,
+    /// Exact admission acknowledgment or typed refusal; absent after dispatch is uncertain.
+    pub admission_result:
+        Option<Result<(), ic_blob_storage::dto::upload::admission::UploadAdmissionFailure>>,
+    /// Existing-content retain dispatch intent has committed; always false for fresh uploads.
     pub retain_started: bool,
-    /// Original retain result; absence after dispatch is uncertainty.
+    /// Existing-content retain result; absence after its dispatch is uncertainty.
     pub retain_result: Option<Result<ReferenceChange, ReferenceTransitionFailure>>,
+    /// Last exact upload observation for a fresh registration; never a browser assertion.
+    pub upload_state: Option<ic_blob_storage::dto::upload::UploadState>,
     /// Release dispatch intent has committed.
     pub release_started: bool,
     /// Original release result; an inner failure is not completed cleanup.
@@ -103,7 +122,7 @@ pub struct Release {
 pub struct Recovery {
     /// Existing asset identity.
     pub asset: u128,
-    /// Inspect release rather than retain.
+    /// Inspect release rather than the original retain or fresh upload.
     pub release: bool,
 }
 /// One bounded local application dependency change.

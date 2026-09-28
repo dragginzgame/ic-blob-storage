@@ -1,6 +1,6 @@
 //! Application transactions surround shared service clients without borrowing across awaits.
 use crate::ops;
-use blob_test_protocol::consumer::{AssetView, Failure, Fault, Run};
+use blob_test_protocol::consumer::{AssetView, Failure, Fault, RegistrationSource, Run};
 use candid::Principal;
 use ic_blob_storage::dto::reference::ReferenceReceiptLookup;
 pub(crate) async fn register(actor: Principal, input: &Run) -> Result<AssetView, Failure> {
@@ -11,16 +11,24 @@ pub(crate) async fn register(actor: Principal, input: &Run) -> Result<AssetView,
     })?;
     ops::fault(input.fault, Fault::AfterIntent);
     if send {
-        let command = ops::read(actor, |r| r.command(id, false))?;
-        let receipt = ops::apply(command, input.max_reply_bytes).await?;
-        ops::fault(input.fault, Fault::AfterRetain);
-        ops::mutate(actor, |r| r.complete(id, false, receipt))?;
+        match input.registration.source {
+            RegistrationSource::Existing(command) => {
+                let receipt = ops::apply(command, input.max_reply_bytes).await?;
+                ops::fault(input.fault, Fault::AfterRetain);
+                ops::mutate(actor, |r| r.complete(id, false, receipt))?;
+            }
+            RegistrationSource::Fresh(permission) => {
+                let response = ops::admission_status(permission).await?;
+                ops::fault(input.fault, Fault::AfterUploadObservation);
+                ops::mutate(actor, |r| r.acknowledge_admission(id, Ok(response)))?;
+            }
+        }
     }
     let view = ops::view(actor, id)?;
-    if view.cancelled || view.published || !matches!(view.retain_result, Some(Ok(_))) {
+    if view.cancelled || view.published || !ops::read(actor, |r| r.owns(id))? {
         return Ok(view);
     }
-    ops::descriptor(view.registration.retain).await?;
+    ops::descriptor(view.registration.source).await?;
     if input.hold {
         ops::hold().await?;
     }
@@ -47,6 +55,15 @@ pub(crate) async fn recover(
     id: u128,
     release: bool,
 ) -> Result<AssetView, Failure> {
+    let source = ops::read(actor, |r| {
+        r.authorize(actor, true)?;
+        Ok(r.view(id)?.registration.source)
+    })?;
+    if !release && let RegistrationSource::Fresh(permission) = source {
+        let response = ops::admission_status(permission).await?;
+        ops::mutate(actor, |r| r.acknowledge_admission(id, Ok(response)))?;
+        return ops::view(actor, id);
+    }
     let command = ops::read(actor, |r| {
         r.authorize(actor, true)?;
         r.command(id, release)
@@ -58,4 +75,32 @@ pub(crate) async fn recover(
             ops::view(actor, id)
         }
     }
+}
+
+pub(crate) async fn admit(actor: Principal, input: &Run) -> Result<AssetView, Failure> {
+    let RegistrationSource::Fresh(permission) = input.registration.source else {
+        return Err(Failure::Invalid);
+    };
+    let id = input.registration.asset;
+    let send = ops::mutate(actor, |r| {
+        r.prepare(&input.registration)?;
+        r.start_admission(id)
+    })?;
+    ops::fault(input.fault, Fault::AfterIntent);
+    if send {
+        let result = ops::admit(permission, input.max_reply_bytes).await?;
+        ops::fault(input.fault, Fault::AfterAdmission);
+        ops::mutate(actor, |r| r.acknowledge_admission(id, result))?;
+    }
+    ops::view(actor, id)
+}
+
+pub(crate) fn prepare(
+    actor: Principal,
+    input: &blob_test_protocol::consumer::Registration,
+) -> Result<AssetView, Failure> {
+    ops::mutate(actor, |r| {
+        r.prepare(input)?;
+        r.view(input.asset)
+    })
 }

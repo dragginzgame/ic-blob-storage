@@ -1,4 +1,5 @@
 use super::*;
+mod admission_boundary;
 use crate::{
     model::{
         catalog::admission::{UploadObject, UploadRequestId},
@@ -491,3 +492,4 @@ mod read_authority;
 mod read_chunks;
 mod read_sessions;
 mod reference_receipts;
+mod upload_status;

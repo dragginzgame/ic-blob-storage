@@ -1,9 +1,11 @@
 //! One durable upload/lifecycle owner. Provider evidence is a trusted-host input.
+pub mod admission;
 pub(crate) mod callbacks;
 mod lifecycle;
 mod planning;
 pub mod read;
 mod recovery;
+pub mod status;
 use super::{
     roots::{RootStoreError, StableRootClaims},
     tenant::{StableTenantEnrollments, TenantStoreError},

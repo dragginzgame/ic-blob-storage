@@ -4,7 +4,7 @@ pub mod reply;
 use crate::{
     dto::reference::{
         ReferenceAction, ReferenceChange, ReferenceCommand, ReferenceFailure,
-        ReferenceReceiptResponse, ReferenceTransitionFailure,
+        ReferenceReceiptResponse, ReferenceTransitionFailure, ReferenceUpload,
     },
     model::{
         catalog::admission::{UploadError, UploadObject, UploadRequest, UploadRequestId},
@@ -32,7 +32,27 @@ pub(crate) fn parse(
     context: UploadContext,
     request: ReferenceCommand,
 ) -> Result<(UploadRequest, ReferenceRequest), ReferenceFailure> {
-    let upload = request.upload;
+    let upload = parse_upload(context, request.upload)?;
+    let positive = |n| NonZeroU128::new(n).ok_or(ReferenceFailure::Invalid);
+    let key = ReferenceKey::new(
+        upload.object.first.object(),
+        ReferenceId::new(positive(request.reference)?),
+    );
+    Ok((
+        upload,
+        ReferenceRequest {
+            id: ReferenceRequestId::new(positive(request.operation)?),
+            operation: match request.action {
+                ReferenceAction::Retain => ReferenceOperation::Retain(key),
+                ReferenceAction::Release => ReferenceOperation::Release(key),
+            },
+        },
+    ))
+}
+pub(crate) fn parse_upload(
+    context: UploadContext,
+    upload: ReferenceUpload,
+) -> Result<UploadRequest, ReferenceFailure> {
     if upload.service != context.service {
         return Err(ReferenceFailure::Binding);
     }
@@ -53,27 +73,14 @@ pub(crate) fn parse(
         },
     )
     .map_err(|_| ReferenceFailure::Invalid)?;
-    let key = ReferenceKey::new(object, ReferenceId::new(positive(request.reference)?));
-    Ok((
-        UploadRequest {
-            id: UploadRequestId::new(positive(upload.upload)?),
-            object: UploadObject {
-                root: ProviderRootHash::try_from(upload.root.as_slice()).expect("fixed root"),
-                bytes: upload.bytes,
-                first: ReferenceKey::new(
-                    object,
-                    ReferenceId::new(positive(upload.first_reference)?),
-                ),
-            },
+    Ok(UploadRequest {
+        id: UploadRequestId::new(positive(upload.upload)?),
+        object: UploadObject {
+            root: ProviderRootHash::try_from(upload.root.as_slice()).expect("fixed root"),
+            bytes: upload.bytes,
+            first: ReferenceKey::new(object, ReferenceId::new(positive(upload.first_reference)?)),
         },
-        ReferenceRequest {
-            id: ReferenceRequestId::new(positive(request.operation)?),
-            operation: match request.action {
-                ReferenceAction::Retain => ReferenceOperation::Retain(key),
-                ReferenceAction::Release => ReferenceOperation::Release(key),
-            },
-        },
-    ))
+    })
 }
 pub(crate) fn present(
     request: ReferenceCommand,

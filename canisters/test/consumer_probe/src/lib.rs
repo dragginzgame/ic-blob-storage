@@ -1,4 +1,8 @@
 //! Local application transaction/outbox substitute. Never deploy as a product or Toko adapter.
+#![expect(
+    clippy::needless_pass_by_value,
+    reason = "Candid endpoints own decoded inputs"
+)]
 mod model;
 mod ops;
 mod workflow;
@@ -55,4 +59,14 @@ fn fenced() -> Result<bool, Failure> {
 #[ic_cdk::update]
 fn resume() -> Result<(), Failure> {
     ops::resume(ic_cdk::api::msg_caller())
+}
+
+// Save intent without dispatch; admit also persists intent before its first call.
+#[ic_cdk::update(decode_with = "ops::decode")]
+fn prepare(input: Box<blob_test_protocol::consumer::Registration>) -> Result<AssetView, Failure> {
+    workflow::prepare(ic_cdk::api::msg_caller(), &input)
+}
+#[ic_cdk::update(decode_with = "ops::decode")]
+async fn admit(input: Box<Run>) -> Result<AssetView, Failure> {
+    workflow::admit(ic_cdk::api::msg_caller(), &input).await
 }

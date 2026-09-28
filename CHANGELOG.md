@@ -2,6 +2,34 @@
 
 ## [Unreleased]
 
+## [0.2.11]
+
+### Added
+
+- Authenticated upload-status inspection through shared DTOs, a durable handler
+  and a bounded replicated IC client. Replies bind the complete original upload
+  and distinguish reservation, possible exposure, confirmation and cancellation.
+  Historical confirmation survives release, settlement and restore; it does not
+  establish current reference liveness or authorize retrying an uncertain effect.
+- Fresh-upload registration in the local consumer fixture uses the first
+  reference created by completion, with no extra retain or receipt. Intent can
+  be persisted before admission. Cancellation preserves uncertain
+  uploads for reconciliation and exact cleanup, including late completion under
+  suspension. Native and PocketIC evidence covers stale observations, conflicting
+  identities, interrupted callbacks, unchanged storage during registration and
+  fenced upgrades. Provider completion remains labelled test-host work;
+  production application integration and operational recovery are still open.
+- Canonical tenant upload admission and exact permission inspection now share
+  library DTOs, durable handlers and a bounded replicated client. Recovery binds
+  uploader and original expiry as well as every upload field; replay cannot renew
+  permission or reserve additional capacity. The consumer fixture persists that
+  permission before actual IC dispatch, retains typed refusals and reconciles
+  uncertain acknowledgments by inspection without resending. The storage probe's
+  private admission endpoint is replaced. Native and PocketIC tests cover changed
+  permissions, expiry, suspension, reply limits, write/callback rollback and
+  upgrade fencing. Manifest preparation, revocation transport and deployed-provider
+  qualification remain open; no certificate or paid provider effect is added.
+
 ## [0.2.10] - 2026-09-28
 
 ### Added

@@ -147,12 +147,22 @@ Persist the exact intent before polling the client future and preserve it throug
 uncertain replies. Exact mutation retries return history without reviving released
 references; restored owners permit inspection only. The client never retries itself.
 Consumer asset transactions and release outboxes remain application-owned work.
-The separate `blob-consumer-probe` demonstrates that ownership for existing
-confirmed content through real IC calls: bounded durable intent, atomic local
-publication/tombstones, dependency checks, exact receipt recovery and fenced
-upgrade. Its two-slot application substitute is only integration evidence;
-production Toko transactions, fresh-upload onboarding and operational recovery
-remain open. It introduces no consumer database into the storage library.
+`workflow::uploads::inspect` and `ReplicatedUploadStatusClient` expose exact tenant
+upload history through `blob_upload_status`. Confirmation records creation of the
+first reference; it stays historical after release and is not a publication lease.
+`workflow::uploads::admission` and `ReplicatedUploadAdmissionClient` provide
+`blob_admit_upload` and exact `blob_upload_admission` recovery. Both bind the
+uploader and original expiry; replay cannot renew the permission or charge capacity
+again. Save the full permission before dispatch and inspect uncertain outcomes.
+The separate `blob-consumer-probe` exercises both that first reference and explicit
+retains of existing content through real IC calls: bounded durable intent, atomic
+publication/tombstones, dependency checks, exact recovery and fenced upgrade.
+Fresh registration creates no extra retain receipt. The fixture now sends admission
+from its own canister and recovers interrupted acknowledgments without resending.
+Its two-slot application substitute is integration evidence; manifest preparation,
+exposure, revocation and provider completion are still arranged by the test host.
+Production Toko transactions and operational recovery remain open. The storage
+library owns no consumer database.
 The service uses bounded manifest authorization for direct browser-to-Caffeine
 upload. No file chunks or whole-file raw digest are required by service admission.
 Manifest consistency, possible exposure and independently confirmed provider

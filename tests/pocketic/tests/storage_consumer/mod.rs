@@ -1,7 +1,8 @@
 //! Real consumer-owned transactions through canonical storage clients.
 use super::*;
 use blob_test_protocol::consumer::{
-    AssetView, Failure as ConsumerFailure, Fault, Recovery, Registration, Release, Run, Use,
+    AssetView, Failure as ConsumerFailure, Fault, Recovery, Registration, RegistrationSource,
+    Release, Run, Use,
 };
 use blob_test_protocol::storage::ProviderFact;
 use ic_blob_storage::dto::reference::{
@@ -41,7 +42,7 @@ fn input(f: &Fixture, id: u8) -> Run {
             asset: u128::from(id),
             payload: vec![id; 8],
             release_operation: 2,
-            retain: ReferenceCommand {
+            source: RegistrationSource::Existing(ReferenceCommand {
                 upload: ReferenceUpload {
                     service: f.service,
                     tenant: f.tenant,
@@ -56,7 +57,7 @@ fn input(f: &Fixture, id: u8) -> Run {
                 operation: 1,
                 reference: 2,
                 action: ReferenceAction::Retain,
-            },
+            }),
         },
         fault: Fault::None,
         hold: false,
@@ -207,7 +208,7 @@ fn consumer_traps_preserve_intent_and_recover_without_retain_redispatch() {
         if fault == Fault::AfterIntent {
             assert_eq!(asset(&f, 1), Err(ConsumerFailure::Unknown));
             assert_eq!(
-                receipt(&f, input.registration.retain),
+                receipt(&f, retained(&input.registration)),
                 ReferenceReceiptLookup::Absent
             );
             assert!(register(&f, &input).unwrap().published);
@@ -301,8 +302,10 @@ fn bounded_consumer_history_rejects_changed_payload_and_preserves_cleanup_at_cap
     assert_eq!(register(&f, &changed), Err(ConsumerFailure::Conflict));
     let mut third = first.clone();
     third.registration.asset = 3;
-    third.registration.retain.reference = 3;
-    third.registration.retain.operation = 3;
+    let mut command = retained(&third.registration);
+    command.reference = 3;
+    command.operation = 3;
+    third.registration.source = RegistrationSource::Existing(command);
     third.registration.release_operation = 4;
     assert_eq!(register(&f, &third), Err(ConsumerFailure::Capacity));
     let denied: Result<AssetView, ConsumerFailure> = f
@@ -343,7 +346,7 @@ fn upgrade_keeps_uncertain_retain_and_tombstone_without_authorizing_recovery_or_
     assert!(pending.retain_started && pending.cancelled);
     assert_eq!(pending.retain_result, None);
     assert!(matches!(
-        receipt(&f, input.registration.retain),
+        receipt(&f, retained(&input.registration)),
         ReferenceReceiptLookup::Found(_)
     ));
     let before = f.harness.pic.get_stable_memory(f.service);
@@ -362,3 +365,11 @@ fn upgrade_keeps_uncertain_retain_and_tombstone_without_authorizing_recovery_or_
     assert_eq!(release(&f, 1), Err(ConsumerFailure::Fenced));
     assert_eq!(f.harness.pic.get_stable_memory(f.service), before);
 }
+
+fn retained(intent: &Registration) -> ReferenceCommand {
+    match intent.source {
+        RegistrationSource::Existing(command) => command,
+        RegistrationSource::Fresh(_) => panic!("existing-content test"),
+    }
+}
+mod fresh;

@@ -23,14 +23,11 @@ use ic_blob_storage::{
         ic_stable_structures::{DefaultMemoryImpl, Memory},
     },
     model::{
-        catalog::admission::UploadAdmission,
         identity::caffeine::{CaffeineHeader, manifest::CaffeineChunkHash},
         lifecycle::LifecycleChange,
         service::{
             tenant::{TenantEnrollmentView, TenantUpdate},
-            upload::{
-                UploadContext, UploadManifestState, UploadPermission, manifest::UploadManifest,
-            },
+            upload::{UploadContext, UploadManifestState, manifest::UploadManifest},
         },
     },
     ops::service::uploads::{StableUploads, UploadMemories},
@@ -217,26 +214,23 @@ pub(crate) fn decode<T: CandidType + for<'de> Deserialize<'de>>(bytes: Vec<u8>) 
 }
 pub(crate) fn admit(
     context: UploadContext,
-    input: Permission,
+    input: ic_blob_storage::dto::upload::admission::UploadAdmissionRequest,
     fault: Option<WriteFault>,
-) -> Result<bool, Failure> {
-    let permission = UploadPermission {
-        request: conversion::request(input.request)?,
-        uploader: input.uploader,
-        expires_at_ns: input.expires_at_ns,
-    };
+) -> Result<
+    ic_blob_storage::dto::upload::admission::UploadAdmissionMutation,
+    ic_blob_storage::dto::upload::admission::UploadAdmissionFailure,
+> {
     TRAP_WRITE.set(fault);
     let result = STATE.with_borrow_mut(|state| {
-        state
-            .as_mut()
-            .unwrap()
-            .uploads
-            .admit(context, permission, ic_cdk::api::time())
+        ic_blob_storage::workflow::uploads::admission::admit(
+            &mut state.as_mut().unwrap().uploads,
+            context,
+            input,
+            ic_cdk::api::time(),
+        )
     });
     TRAP_WRITE.set(None);
     result
-        .map(|r| r == UploadAdmission::Reserved)
-        .map_err(conversion::failure)
 }
 #[expect(
     clippy::needless_pass_by_value,

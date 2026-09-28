@@ -17,7 +17,7 @@ pub(crate) fn gateway_registry(
 use crate::ops;
 use blob_test_protocol::{
     admission::{
-        Enrollment, Permission, Request,
+        Enrollment, Request,
         input::{EnrollmentInput, PreparationInput},
     },
     storage::{Failure, Observation, Status, WriteFault},
@@ -29,9 +29,12 @@ pub(crate) fn initialize(operator: Principal, restored: bool) {
 }
 pub(crate) fn admit(
     context: UploadContext,
-    input: Permission,
+    input: ic_blob_storage::dto::upload::admission::UploadAdmissionRequest,
     fault: Option<WriteFault>,
-) -> Result<bool, Failure> {
+) -> Result<
+    ic_blob_storage::dto::upload::admission::UploadAdmissionMutation,
+    ic_blob_storage::dto::upload::admission::UploadAdmissionFailure,
+> {
     ops::admit(context, input, fault)
 }
 pub(crate) fn prepare(
@@ -201,3 +204,4 @@ pub(crate) fn funding_summary(
     Ok(ops::funding::summary::present(view, activity))
 }
 pub(crate) mod reads;
+pub(crate) mod uploads;

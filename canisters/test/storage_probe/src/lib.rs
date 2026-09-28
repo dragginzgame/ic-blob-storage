@@ -7,12 +7,16 @@ mod ops;
 mod workflow;
 use blob_test_protocol::{
     admission::{
-        Enrollment, Permission, Request,
+        Enrollment, Request,
         input::{EnrollmentInput, PreparationInput},
     },
     storage::{Failure, FaultAdmission, FaultPreparation, Observation, Status},
 };
 use candid::Principal;
+use ic_blob_storage::dto::upload::admission::{
+    UploadAdmissionFailure, UploadAdmissionMutation, UploadAdmissionRequest,
+    UploadAdmissionResponse,
+};
 use ic_blob_storage::model::service::upload::UploadContext;
 fn context() -> UploadContext {
     UploadContext {
@@ -29,12 +33,22 @@ fn post_upgrade(operator: Principal) {
     workflow::initialize(operator, true);
 }
 #[ic_cdk::update(decode_with = "ops::decode")]
-fn admit(input: Permission) -> Result<bool, Failure> {
+fn blob_admit_upload(
+    input: UploadAdmissionRequest,
+) -> Result<UploadAdmissionMutation, UploadAdmissionFailure> {
     workflow::admit(context(), input, None)
 }
 #[ic_cdk::update(decode_with = "ops::decode")]
-fn admit_with_write_trap(input: FaultAdmission) -> Result<bool, Failure> {
+fn admit_with_write_trap(
+    input: FaultAdmission,
+) -> Result<UploadAdmissionMutation, UploadAdmissionFailure> {
     workflow::admit(context(), input.permission, Some(input.fault))
+}
+#[ic_cdk::query(decode_with = "ops::decode")]
+fn blob_upload_admission(
+    input: UploadAdmissionRequest,
+) -> Result<UploadAdmissionResponse, UploadAdmissionFailure> {
+    workflow::uploads::admission(context(), input)
 }
 #[ic_cdk::update(decode_with = "ops::decode")]
 fn prepare(input: PreparationInput) -> Result<bool, Failure> {
@@ -371,4 +385,14 @@ async fn fixture_nonreplicated_reference_mutation(
     blob_test_protocol::storage::reference::ReferenceProbeFailure,
 > {
     workflow::references::mutate(context(), &input).await
+}
+
+#[ic_cdk::query(decode_with = "ops::decode")]
+fn blob_upload_status(
+    input: ic_blob_storage::dto::reference::ReferenceUpload,
+) -> Result<
+    ic_blob_storage::dto::upload::UploadStatusResponse,
+    ic_blob_storage::dto::upload::UploadStatusFailure,
+> {
+    workflow::uploads::inspect(context(), input)
 }

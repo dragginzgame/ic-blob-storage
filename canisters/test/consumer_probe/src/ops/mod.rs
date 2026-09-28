@@ -171,8 +171,10 @@ pub(crate) async fn receipt(command: ReferenceCommand) -> Result<ReferenceReceip
         .await
         .map_err(|_| Failure::Transport)
 }
-pub(crate) async fn descriptor(command: ReferenceCommand) -> Result<(), Failure> {
-    let u = command.upload;
+pub(crate) async fn descriptor(
+    source: blob_test_protocol::consumer::RegistrationSource,
+) -> Result<(), Failure> {
+    let (u, reference) = crate::model::binding(source);
     let scope = CaffeineDownloadScope::new(
         u.service,
         u.namespace.try_into().unwrap(),
@@ -190,7 +192,7 @@ pub(crate) async fn descriptor(command: ReferenceCommand) -> Result<(), Failure>
                 root: u.root,
                 object: u.object,
                 incarnation: u.incarnation,
-                reference: command.reference,
+                reference,
             },
             &scope,
             DownloadReplyLimits {
@@ -231,4 +233,45 @@ pub(crate) async fn hold() -> Result<(), Failure> {
     }
     WAITING.set(false);
     Err(Failure::Pending)
+}
+
+fn admission_client(
+    permission: ic_blob_storage::dto::upload::admission::UploadAdmissionRequest,
+) -> ic_blob_storage::ops::service::uploads::admission::client::ReplicatedUploadAdmissionClient {
+    ic_blob_storage::ops::service::uploads::admission::client::ReplicatedUploadAdmissionClient::new(
+        ic_cdk::api::canister_self(),
+        permission.upload.service,
+        30.try_into().unwrap(),
+    )
+    .expect("validated consumer configuration")
+}
+pub(crate) async fn admission_status(
+    permission: ic_blob_storage::dto::upload::admission::UploadAdmissionRequest,
+) -> Result<ic_blob_storage::dto::upload::admission::UploadAdmissionResponse, Failure> {
+    admission_client(permission)
+        .inspect(permission, 4096.try_into().unwrap())
+        .await
+        .map_err(|_| Failure::Transport)
+}
+pub(crate) async fn admit(
+    permission: ic_blob_storage::dto::upload::admission::UploadAdmissionRequest,
+    max: u32,
+) -> Result<
+    Result<
+        ic_blob_storage::dto::upload::admission::UploadAdmissionResponse,
+        ic_blob_storage::dto::upload::admission::UploadAdmissionFailure,
+    >,
+    Failure,
+> {
+    use ic_blob_storage::ops::service::uploads::admission::{
+        client::UploadAdmissionClientError, reply::UploadAdmissionReplyError,
+    };
+    let max = (max as usize).try_into().map_err(|_| Failure::Invalid)?;
+    match admission_client(permission).admit(permission, max).await {
+        Ok(response) => Ok(Ok(response.admission)),
+        Err(UploadAdmissionClientError::Reply(UploadAdmissionReplyError::Remote(error))) => {
+            Ok(Err(error))
+        }
+        Err(_) => Err(Failure::Transport),
+    }
 }

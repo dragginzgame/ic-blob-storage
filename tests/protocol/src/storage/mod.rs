@@ -45,7 +45,7 @@ pub enum WriteFault {
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
 pub struct FaultAdmission {
     /// Exact permission, without caller or clock override.
-    pub permission: Permission,
+    pub permission: ic_blob_storage::dto::upload::admission::UploadAdmissionRequest,
     /// Write that traps within this IC update.
     pub fault: WriteFault,
 }
