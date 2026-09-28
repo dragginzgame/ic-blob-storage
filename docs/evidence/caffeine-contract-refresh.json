@@ -146,6 +146,25 @@
     "wire": "_immutableObjectStorageCreateCertificate : (text) -> (record { method : text; blob_hash : text }); successful record contains method upload and the root, with no Result envelope.",
     "client_observation": "The client takes the certificate from the agent update response, checks the request-status rejected path, and supplies its bytes as OwnerEgressSignature. The canister reply record is not itself a signature or certificate byte array.",
     "local_implementation": "Shared root resolution authenticates the actual uploader, preserves the original full permission and passes independently established facts to guarded exposure before constructing the plain reply. The private PocketIC endpoint defaults to refusal and uses operator-configured evidence substitutes for success and rollback tests.",
+    "browser_ic_evidence": {
+      "tested_on": "2026-09-28",
+      "test_path": "tests/pocketic/tests/storage_exposure/certificate/ingress/browser/mod.rs",
+      "browser_source": "tests/browser/client.js",
+      "packages": { "@icp-sdk/core": "6.1.0", "playwright": "1.63.0", "esbuild": "0.28.2" },
+      "selection": "Public npm latest metadata checked before implementation; exact versions and archive integrities retained in tests/browser/package-lock.json.",
+      "runtime": "Node 24.21.0, Chromium 153.0.8010.12 (Playwright revision 1243). Node archive SHA-256 checked against the official release checksum list before repository-local extraction.",
+      "evidence": "Actual browser signing and local v4 ingress certificate verification. Strict IndexedDB transaction commits full permission and signed request before fetch; competing tabs send once. Aborted writes send nothing. Held reply/tab closure and reload recover the original request via read-state while preserving cancellation. Conflicting saves, stale/forged/oversized proofs and full lifetime capacity retain history.",
+      "limits": "Opt-in make test-browser, outside default CI/release validation. Two-slot private fixture, fixed test identity and substituted provider facts. No production browser/consumer journal, crash/eviction/backup guarantee, gateway upload, provider acceptance or paid effect."
+    },
+    "headless_ic_evidence": {
+      "tested_on": "2026-09-28",
+      "test_path": "tests/pocketic/tests/storage_exposure/certificate/ingress/mod.rs",
+      "agent": "ic-agent 0.49.2; latest non-yanked release checked at https://index.crates.io/ic/-a/ic-agent",
+      "transport": "One signed raw HTTP v4 ingress call to the owned local PocketIC instance; no automatic resubmission or redirects. IC certificate verification uses the agent and out-of-band emulator NNS root key, not an untrusted fetched mainnet key.",
+      "binding": "Saved envelope content is checked against actual uploader, service, method and root; request ID is recomputed, then signature/delegation/time and exact request-status reply are verified. Raw v4 certificate bytes are retained without re-encoding; read-state recovery separately supplies a fresh certificate of the historical reply.",
+      "recovery": "Saved request ID recovers the original certified reply without a new issuance call or service mutation. New issuance receives certified rejection. Historical proof remains available after local revocation and supplies no renewal or gateway retry authority.",
+      "limits": "Two local headless tests plus existing certificate/rollback cases. Test identities, temporary request artifacts and substituted provider facts only. No production client/journal, browser engine, gateway acceptance, provider receipt retention or deployed-provider effect."
+    },
     "limits": "Read-only GitHub revision/source and npm metadata refresh only. No Mops, Cashier, account, gateway or paid call; no archive redownload. This does not establish server pre-charge enforcement, accepted certificate lifetime/replay, namespace binding, browser certificate extraction or deployed gateway acceptance. Prior deployed observations remain historical."
   },
   "decision": {

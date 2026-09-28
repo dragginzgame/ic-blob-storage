@@ -11,11 +11,12 @@ export BLOB_STORAGE_PROBE_WASM := $(CARGO_TARGET_DIR)/wasm32-unknown-unknown/rel
 export BLOB_CONSUMER_PROBE_WASM := $(CARGO_TARGET_DIR)/wasm32-unknown-unknown/release/blob_consumer_probe.wasm
 export BLOB_GATEWAY_SOURCE_WASM := $(CARGO_TARGET_DIR)/wasm32-unknown-unknown/release/blob_gateway_source.wasm
 export BLOB_FUNDING_PROBE_WASM := $(CARGO_TARGET_DIR)/wasm32-unknown-unknown/release/blob_funding_probe.wasm
+export BLOB_BROWSER_NODE ?= node
 VERSION ?=
 RELEASE := bash scripts/release/release.sh
 CI_TARGETS := shell-check release-check fmt-check check clippy docs-check test wasm-check package
 
-.PHONY: help version deps cloc fmt fmt-check check clippy docs-check test test-native test-pocketic test-fixture test-admission-resources test-read-resources wasm-check \
+.PHONY: help version deps cloc fmt fmt-check check clippy docs-check test test-native test-pocketic test-browser test-fixture test-admission-resources test-read-resources wasm-check \
 	build package clean shell-check release-check ci validate release-verify \
 	release-plan ensure-clean patch minor major bump-x release-patch \
 	release-minor release-major release-x release-stage release-commit \
@@ -27,6 +28,7 @@ help:
 	@echo "fmt / fmt-check              Format Rust or check formatting"
 	@echo "check / clippy / test         Compile, lint, or test the workspace"
 	@echo "test-native / test-pocketic   Native core tests or local IC fixtures"
+	@echo "test-browser                  Opt-in Chromium certificate/IndexedDB evidence"
 	@echo "test-admission-resources     Local admission bounds and Wasm resource report"
 	@echo "test-read-resources          Local read-slot and Wasm resource report"
 	@echo "clean                        Explicitly remove build artifacts"
@@ -78,6 +80,12 @@ test-fixture:
 test-pocketic:
 	+$(MAKE) --no-print-directory test-fixture
 	cargo test --offline --locked -p ic-blob-storage-pocketic-tests
+
+# Browser tooling is explicitly provisioned; this target performs no downloads.
+test-browser:
+	$(BLOB_BROWSER_NODE) tests/browser/node_modules/esbuild/bin/esbuild tests/browser/client.js --bundle --format=esm --outfile=.tmp/browser/client.js
+	cargo build --offline --locked --release --target wasm32-unknown-unknown -p blob-storage-probe --lib
+	cargo test --offline --locked -p ic-blob-storage-pocketic-tests --test storage chromium_certificate_intent -- --ignored --test-threads=1
 
 test-admission-resources:
 	cargo build --offline --locked --release --target wasm32-unknown-unknown -p blob-admission-probe --lib

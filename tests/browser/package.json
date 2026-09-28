@@ -1,0 +1,12 @@
+{
+  "name": "ic-blob-storage-browser-evidence",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=20.19.0" },
+  "scripts": { "build": "esbuild client.js --bundle --format=esm --outfile=../../.tmp/browser/client.js" },
+  "devDependencies": {
+    "@icp-sdk/core": "6.1.0",
+    "esbuild": "0.28.2",
+    "playwright": "1.63.0"
+  }
+}

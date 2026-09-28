@@ -27,12 +27,15 @@ pub(super) struct Harness {
 
 impl Harness {
     pub fn new() -> Self {
+        Self::with_builder(PocketIcBuilder::new().with_application_subnet())
+    }
+
+    pub fn with_builder(builder: PocketIcBuilder) -> Self {
         let server =
             PocketIcStartupConfig::spawn(fixture_path("POCKET_IC_BIN"), Duration::from_secs(30))
                 .start_managed_server()
                 .expect("start explicitly selected local server");
-        let pic = PocketIcBuilder::new()
-            .with_application_subnet()
+        let pic = builder
             .try_build(PocketIcStartupConfig::connect(
                 server.url(),
                 Duration::from_secs(30),

@@ -1,5 +1,6 @@
 //! Local ingress update payload/rollback evidence, not gateway certificate acceptance.
 use super::*;
+mod ingress;
 use ic_blob_storage::{
     model::identity::ProviderRootHash,
     workflow::uploads::certificate::CAFFEINE_UPLOAD_CERTIFICATE_METHOD as METHOD,

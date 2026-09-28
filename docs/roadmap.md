@@ -598,8 +598,12 @@ exposure and retained charged history through restore. The shared certificate
 handler now resolves the original permission from the root and commits the gate
 before returning the reviewed plain Caffeine update payload. The local endpoint
 rejects by default; successful IC response tests use operator-configured substitute
-facts. Host-fact acquisition, browser response-certificate extraction and deployed
-gateway acceptance remain open.
+facts. Headless Rust tests now extract and verify the actual HTTP response
+certificate, reject forged/unrelated proofs and recover saved request IDs without
+reissuance. Historical recovery survives revocation without renewing permission.
+An opt-in Chromium fixture also verifies certificates and retains IndexedDB intent
+across competing tabs, cancellation and reload. Production browser/consumer storage,
+host-fact acquisition and deployed gateway acceptance remain open.
 
 ### Tenant enrollment and suspension
 

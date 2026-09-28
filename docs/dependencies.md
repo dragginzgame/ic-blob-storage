@@ -16,8 +16,19 @@ availability does not establish provider qualification or service readiness.
 | `ic-cdk` | 0.20.3 | IC platform operations for the ops layer |
 | `ic-memory` | 0.14.3 | Allocation governance; direct dependency aligned with Canic and IcyDB |
 | `ic-stable-structures` | 0.7.2 | Exact transitive substrate owned/re-exported by `ic-memory` |
-| `ic-testkit` | 0.10.0 | Native dev dependency of the unpublished PocketIC harness; shared helpers and full re-export |
+| `ic-testkit` | 0.10.1 | Native dependency of the unpublished PocketIC harness; shared helpers and full re-export |
 | `pocket-ic` | 16.0.0 | Transitive through `ic-testkit`; no direct dependency |
+| `ic-agent` | 0.49.2 | Native test-only signing and verification of local ingress certificates |
+
+Headless ingress tests add pinned `ic-agent` 0.49.2 (default features disabled),
+plus the already locked `reqwest` 0.13.5, `tokio` 1.53.1 and `serde_cbor` 0.11.2
+as native dev dependencies in `tests/pocketic`. The public crates.io index confirmed
+0.49.2 as the latest non-yanked agent release on 2026-09-28. Its cryptographic graph
+adds host-only lockfile entries without changing existing package versions, the
+published library dependency graph, Wasm allocation or memory grants. Tests trust
+the explicitly owned PocketIC NNS key, never a root key fetched from mainnet, and
+send no request to a Caffeine gateway. This is headless Rust evidence, not browser
+or production uploader qualification.
 
 At the initial registry check, the selected releases were current except `thiserror`, where PocketIC 16 pins
 2.0.18 and prevents selecting 2.0.21 in this graph. All selected versions compile
@@ -41,6 +52,32 @@ excludes it; testkit is owned by `tests/pocketic/Cargo.toml`.
 The unpublished `tests/pocketic` harness uses these exports. This shares version
 selection and harness helpers, rather than reducing the total transitive package
 count: testkit also brings host-side artifact/locking utilities.
+
+## Browser certificate evidence
+
+`tests/browser` is a private fixture, with npm-locked `@icp-sdk/core` 6.1.0,
+Playwright 1.63.0 and esbuild 0.28.2. These were the registry latest versions at
+the 2026-09-28 check. Use Node >=20.19.0; this run used Node 24.21.0 and
+Playwright's Chromium 153.0.8010.12 (revision 1243). Setup is explicit:
+
+```sh
+npm ci --prefix tests/browser --ignore-scripts --no-audit --no-fund
+node tests/browser/node_modules/playwright/cli.js install chromium
+make test-browser
+```
+
+Use a supported Node on PATH for setup. `BLOB_BROWSER_NODE=/absolute/path/to/node`
+can select the runtime for `make test-browser`. The target bundles existing local
+packages, builds the storage probe and runs the ignored browser case explicitly.
+It downloads nothing. Missing packages/browser/runtime fail rather than skip.
+The ordinary Rust/CI/release suite does not run this opt-in browser test.
+
+Rust owns the PocketIC installation and test identity. Browser traffic is confined
+to that local IC endpoint and the owned page. The IndexedDB store has two lifetime
+slots and no reset/eviction path; it tests transaction ordering, competing tabs,
+reload, cancellation and verified historical replies. This is not production
+sizing, crash/eviction durability, browser-profile restoration, a gateway upload,
+or qualification of a consumer's CSP/authentication/storage environment.
 
 ## Memory composition with Canic and IcyDB
 

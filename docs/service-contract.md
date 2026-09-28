@@ -637,6 +637,25 @@ defaults to refusal and requires operator-configured, explicitly simulated facts
 Its response/rollback tests do not prove gateway acceptance, production evidence
 acquisition, certificate replay/lifetime, namespace or pre-charge enforcement.
 
+Headless Rust tests obtain the actual v4 HTTP ingress certificate using a signing
+identity, then verify the IC signature/delegation/time and exact request ID under
+the owned PocketIC root key. They bind the saved envelope, uploader, service,
+method and root; certified rejection is not a successful upload reply. Read-state
+recovery obtains the historical reply without another issuance call or state
+change, even after local revocation. Such recovery neither renews permission nor
+authorizes gateway use/retry. Production browser integration, consumer cancellation/intent
+storage and deployed provider acceptance remain independent requirements.
+
+The private Chromium fixture adds a bounded two-slot IndexedDB store for full
+permission, exact signed envelope/request ID, dispatch phase and cancellation.
+Transactions finish before fetch and serialize competing tabs; aborted writes
+dispatch nothing. Reload/read-state recovery preserves original identity, while
+late verified replies cannot clear cancellation. Response bodies are bounded before
+SDK decoding. Its tests reject forged/unrelated proofs, conflicting saves and
+capacity exhaustion without erasing retained history. This is local browser
+evidence, not an eviction/crash/backup guarantee or a production consumer journal.
+It includes no gateway request, automatic provider retry or publication transition.
+
 The private `blob-consumer-probe` exercises consumer transactions separately from
 the storage owner: exact bounded intent and reserved cleanup operation before
 dispatch, dependency checks, atomic tombstone/publication changes and restore

@@ -15,8 +15,12 @@ official main and npm metadata unchanged, and confirms byte-identical Mixin/clie
 sources. The Mixin returns a plain `method`/`blob_hash` record; the client obtains
 certificate bytes from the IC agent's update response. The shared local handler now
 commits guarded exposure before constructing that record. PocketIC exercises the
-reply and rollback boundary using substituted host evidence, not browser certificate
-extraction or gateway acceptance. Provider qualification remains open.
+reply and rollback boundary using substituted host evidence. Headless Rust tests
+also verify actual signed HTTP ingress certificates and recover saved request IDs
+without reissuance. An opt-in Chromium fixture also verifies local IC certificates
+and IndexedDB intent across competing tabs, cancellation and reload. This establishes
+local browser handling, not deployed gateway acceptance. Provider qualification
+and production consumer integration remain open.
 
 The latest [serving review](evidence/caffeine-gateway-transport.json) resolves
 official main to `ee8e3dda39b105f95133256144172a4506e841a8`; its latest commit changes

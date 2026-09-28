@@ -2,16 +2,17 @@
 
 Date: 2026-09-28
 
-## Active work — 0.2.14 draft after 0.2.13
+## Active work — 0.2.15 changelog draft after 0.2.14
 
-The maintainer confirmed **0.2.13 is live** and requested continued work.
-Cargo and the release receipt are 0.2.13. Local main, origin/main and v0.2.13 resolve to
-`0c5bdf50b8c4009ecbefcd5864804469d35c36b2`, from validated source
-`3417297660137dec65039d02c64247445ab89790`. The receipt records the
+The maintainer confirmed **0.2.14 is pushed** and requested continued work.
+Cargo and the release receipt are 0.2.14. Local main, origin/main and v0.2.14 resolve to
+`40e11c9fe442fc41f71d58c7453233181a676f40`, from validated source
+`5b6c02d497d78ab48da6a13127f56316740b7c95`. The receipt records the
 `release-verify` gate; registry publication was not independently queried.
-The dated 0.2.13 notes match that release. The maintainer requested continued work
-on **0.2.14**; its undated changelog draft now holds this batch. Cargo and the
-release receipt remain 0.2.13 and are unchanged.
+The dated 0.2.14 notes match that release. The maintainer requested the **0.2.15**
+changelog; completed work is grouped in its undated draft below empty Unreleased.
+Package version and release receipt remain unchanged; release validation is pending.
+Cargo.lock adds only the native test agent's graph; existing package versions remain.
 No version mutation, commit, publication, deployment or deployed-provider effect ran here;
 transfers below use simulated cycles between local PocketIC canisters.
 
@@ -26,7 +27,76 @@ operator client. Library publication does not qualify the service or Canic remov
 | M3 — Caffeine and operator integration | In progress: shared transports with local IC evidence | Qualified provider transport, completion/economics and production client |
 | M4 — managed parity and acceptance | Not implemented | Same journey through Canic adapter, complete replacement evidence and handoff |
 
-## Current focus — guarded Caffeine certificate response
+## Current focus — browser certificate intent, cancellation and recovery
+
+The private `tests/browser` fixture now uses pinned IC JS SDK 6.1.0 and Chromium
+against the actual local PocketIC HTTP endpoint. It retains the full original
+permission as Candid bytes, full-width operation identity as text, and exact signed
+envelope/request ID in IndexedDB. A strict read/write transaction claims dispatch
+before fetch; two tabs cannot both send. Transaction abort leaves an unsent intent
+and sends nothing. Uncertain/observed/cancelled slots cannot be dispatched again.
+
+The browser verifies signature/delegation/time, exact request ID, method and root
+before recording an observation. HTTP bodies are bounded before SDK decoding;
+certificate buffers have a separate bound. Forged signatures, unrelated request
+IDs and oversized proofs cannot change intent. The gateway path is absent, and
+browser network access is restricted to the owned page and local IC endpoint.
+
+Chromium tests cover simultaneous tabs, held reply/tab closure, reload recovery,
+permanent local cancellation, conflicting bindings and lifetime capacity. Read-state
+recovery preserves the original envelope and request ID without reissuing. A late
+verified reply may update historical observation but cannot clear cancellation.
+Browser cancellation is not tenant permission withdrawal or quota release.
+
+`make test-browser` is an explicit opt-in outside the ordinary CI/release gate;
+it runs no downloads and fails on missing provisioned tooling. The two-slot fixture
+is not a production journal, eviction/crash/backup guarantee or Toko integration.
+This batch changes no core source, canister schema, allocator or memory grant.
+Browser package versions and setup are in [dependencies](../dependencies.md#browser-certificate-evidence).
+
+The opt-in browser test passes both scenarios in 4.99 seconds. The release storage
+Wasm build, strict storage-test Clippy, JavaScript syntax, package-lock/pin consistency,
+evidence JSON, formatting and diff checks pass. No full CI/release gate ran.
+
+Next, connect consumer-owned durable intent and cancellation to the production
+browser integration and obtain authoritative provider evidence for live issuance.
+Provider replay/namespace/pre-charge enforcement, completion/economics, both
+production adapters and operational recovery remain open.
+
+## Headless signed ingress and certificate recovery — 0.2.15 draft
+
+Two new headless cases use a real test signing identity, the official Rust IC
+agent and PocketIC's HTTP v4 ingress endpoint. The raw response certificate is
+verified under the explicitly owned emulator NNS key, including delegation and
+timestamp. Extraction binds the saved signed envelope/request ID, actual uploader,
+service, method and root before accepting the exact plain Caffeine reply. HTTP
+success and possession of certificate bytes alone do not establish issuance.
+Malformed/oversized bytes, a forged signature, wrong trust root, unrelated request
+or changed intent fail. No browser or deployed gateway is exercised.
+
+Saving the signed request before dispatch permits read-state recovery of its
+original reply without resubmission or service mutation. A new issuance attempt
+receives a certified rejection. The historical reply remains certifiable after
+local revocation; it neither renews permission nor authorizes gateway dispatch or
+retry. Applications must retain cancellation and uncertain-effect state separately.
+This is a temporary test artifact, not a production consumer journal, crash-safe
+storage guarantee, provider receipt-retention contract or operational restore.
+
+All four targeted certificate PocketIC cases pass (12.14 seconds), including the
+existing response/rollback checks. Strict storage-test Clippy and the release
+storage Wasm, formatting, diff and evidence-JSON checks pass. The core Wasm
+normal/build dependency tree excludes the new agent/HTTP/async/CBOR test packages.
+The new agent, HTTP, async and CBOR dependencies are native dev
+dependencies of the unpublished harness only; core source, Wasm allocator, stable
+schema and memory grants are unchanged. No full CI/release gate ran.
+
+The current focus above adds local Chromium/IndexedDB evidence; production consumer
+intent/cancellation and authoritative provider evidence for live issuance remain.
+The fixture still substitutes provider/recovery facts. Deployed certificate replay,
+namespace and pre-charge enforcement, completion/economics, both production adapters
+and operational recovery remain open.
+
+## Guarded Caffeine certificate response — included in 0.2.14
 
 `workflow::uploads::certificate` adds root-only resolution and issuance through
 the shared exposure gate. The root resolves through bounded retained indexes to
@@ -81,8 +151,8 @@ core/protocol/storage/consumer rustdoc, formatting and diff checks pass.
 No full CI/release gate ran. Cargo, dependencies, allocator, stable schema and
 memory grants are unchanged.
 
-Next, test browser/headless extraction of the IC response certificate against the
-local endpoint and obtain authoritative provider evidence for live issuance.
+The current focus above adds headless extraction of the local IC response
+certificate; browser integration and authoritative evidence for live issuance remain.
 The gate accepts host-established facts; it does not establish them. Both production
 adapters, provider completion/economics and operational recovery remain open.
 Tests still substitute host facts and send no certificate to a deployed gateway.

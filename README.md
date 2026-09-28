@@ -173,8 +173,13 @@ prove freshness. This workflow emits no certificate or provider call.
 `workflow::uploads::certificate` resolves Caffeine's root-only request as the actual
 uploader, commits that gate and constructs the reviewed plain update reply. Hosts
 must return it synchronously so the IC certifies the committed response. Linking
-exports no endpoint; provider qualification and browser certificate extraction
+exports no endpoint; provider qualification and production browser integration
 remain open, and successful local IC tests use explicitly substituted host facts.
+Headless Rust tests verify real local ingress certificates and recover their saved
+request IDs without reissuing. Historical certificates do not renew revoked permission.
+The opt-in `make test-browser` also checks Chromium signature verification and
+IndexedDB intent across competing tabs, cancellation and reload; see
+[browser setup](docs/dependencies.md#browser-certificate-evidence).
 The separate `blob-consumer-probe` exercises both that first reference and explicit
 retains of existing content through real IC calls: bounded durable intent, atomic
 publication/tombstones, dependency checks, exact recovery and fenced upgrade.

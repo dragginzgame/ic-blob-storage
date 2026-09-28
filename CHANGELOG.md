@@ -2,6 +2,28 @@
 
 ## [Unreleased]
 
+## [0.2.15]
+
+### Added
+
+- Headless certificate evidence through PocketIC's real HTTP v4 ingress API, using
+  an actual signing identity and the official IC agent. Tests extract the raw
+  certificate, verify its signature/delegation/time and bind the saved request ID,
+  uploader, service and expected root. Forged, unrelated, malformed, oversized and
+  rejected-response proofs cannot become upload certificates.
+- Saved ingress-request recovery obtains the original certified reply without
+  reissuing or changing service state. Historical proof survives local revocation
+  but does not renew permission or authorize a gateway retry. New cryptographic
+  dependencies belong only to the unpublished native test harness; production
+  browser integration and deployed Caffeine acceptance remain open.
+- Opt-in Chromium certificate/IndexedDB evidence using the pinned current IC JS
+  SDK. A bounded two-slot fixture commits the original permission and signed
+  envelope before dispatch, serializes competing tabs, and preserves cancellation
+  through a held response, tab closure and reload recovery. Aborted writes send
+  nothing; stale, forged or oversized proofs cannot change retained intent.
+  `make test-browser` runs the local test without downloading dependencies. This
+  is browser integration evidence, not a production journal or provider upload.
+
 ## [0.2.14] - 2026-09-28
 
 ### Added
