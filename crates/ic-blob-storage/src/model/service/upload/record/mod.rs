@@ -327,6 +327,19 @@ pub(crate) struct UploadManifestRecord {
     headers: Vec<UploadHeaderRecord>,
 }
 impl UploadManifestRecord {
+    pub(crate) fn into_view(self) -> manifest::UploadManifestView {
+        manifest::UploadManifestView {
+            chunks: self.chunks,
+            headers: self
+                .headers
+                .into_iter()
+                .map(|h| crate::model::service::upload::download::ContentHeader {
+                    name: h.name,
+                    value: h.value,
+                })
+                .collect(),
+        }
+    }
     /// Select from an immutable manifest already root-bound at admission and
     /// validated on reopen. This range check does not independently authenticate
     /// a new manifest or rebuild its tree.

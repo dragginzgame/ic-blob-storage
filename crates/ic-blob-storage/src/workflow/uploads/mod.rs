@@ -1,5 +1,6 @@
 //! Shared exact upload inspection, without certificate or provider authority.
 pub mod admission;
+pub mod manifests;
 use crate::{
     dto::{
         reference::ReferenceUpload,

@@ -63,7 +63,7 @@ fn uncertain_admission_recovers_exact_permission_without_resending_after_cancell
             assert_eq!(admit(&f, &altered), Err(ConsumerFailure::Conflict));
         }
         cancel(&f, 1).unwrap();
-        f.revoke(original.request).unwrap();
+        f.revoke(original).unwrap();
         f.enroll(Some(f.tenant().unwrap()), false).unwrap();
         let before = f.harness.pic.get_stable_memory(f.service);
         let recovered = recover(&f, 1, false).unwrap();

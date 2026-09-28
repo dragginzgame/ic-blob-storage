@@ -59,6 +59,16 @@ pub(crate) fn parse_upload(
     if upload.tenant != context.actor {
         return Err(ReferenceFailure::Denied);
     }
+    parse_upload_binding(context.service, upload)
+}
+// Conversion only. Each boundary authenticates its own tenant/uploader role first.
+pub(crate) fn parse_upload_binding(
+    service: candid::Principal,
+    upload: ReferenceUpload,
+) -> Result<UploadRequest, ReferenceFailure> {
+    if upload.service != service {
+        return Err(ReferenceFailure::Binding);
+    }
     if upload.bytes == 0 {
         return Err(ReferenceFailure::Invalid);
     }

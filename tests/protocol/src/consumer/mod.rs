@@ -32,6 +32,8 @@ pub enum Fault {
     AfterIntent,
     /// Trap after remote admission before recording its acknowledgment.
     AfterAdmission,
+    /// Trap after remote withdrawal before saving its acknowledgment.
+    AfterRevocation,
     /// Trap after remote retain, before recording the result.
     AfterRetain,
     /// Trap after authenticated upload observation, before storing it locally.
@@ -72,6 +74,11 @@ pub struct AssetView {
     pub admission_started: bool,
     /// Exact admission acknowledgment or typed refusal; absent after dispatch is uncertain.
     pub admission_result:
+        Option<Result<(), ic_blob_storage::dto::upload::admission::UploadAdmissionFailure>>,
+    /// Withdrawal dispatch intent committed after local cancellation.
+    pub revocation_started: bool,
+    /// Exact withdrawal acknowledgment or refusal; uncertainty retains the permission.
+    pub revocation_result:
         Option<Result<(), ic_blob_storage::dto::upload::admission::UploadAdmissionFailure>>,
     /// Existing-content retain dispatch intent has committed; always false for fresh uploads.
     pub retain_started: bool,
@@ -116,6 +123,16 @@ pub struct Release {
     pub asset: u128,
     /// Callback interruption control.
     pub fault: Fault,
+}
+/// Withdraw the saved fresh-upload permission after local cancellation.
+#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+pub struct Revocation {
+    /// Existing asset identity; the original permission is never supplied anew.
+    pub asset: u128,
+    /// Fixture callback interruption.
+    pub fault: Fault,
+    /// Encoded withdrawal reply budget.
+    pub max_reply_bytes: u32,
 }
 /// Exact retained operation to inspect; never a new dispatch.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]

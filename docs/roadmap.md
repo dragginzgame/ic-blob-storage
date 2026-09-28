@@ -646,8 +646,17 @@ Two lifetime asset/outbox slots preserve cleanup at capacity. This labelled
 application substitute persists the full permission and asset intent before
 canonical admission through its actual tenant canister. Exact inspection binds
 uploader/expiry, recovers interrupted acknowledgments and never resends uncertain
-admission. Preparation, exposure, revocation and completion remain test-host work. Real
-application transactions, production sizing, browser delivery and operational
+admission. The same permission client now delivers revocation, with the consumer's
+tombstone and withdrawal intent committed first. Unknown outcomes require exact
+inspection; local withdrawal never clears exposed/provider obligations.
+Shared uploader preparation and exact manifest inspection now replace the storage
+fixture's private preparation contract. The full permission and bounded declaration
+bind actual uploader authority; tenant/uploader queries retain the first metadata
+and leaves through revocation and restore. Bounded reply validation and IC tests
+cover unusable acknowledgments, unchanged retries and atomic write rollback.
+The test host still drives uploader ingress; a production uploader client and its
+intent storage remain open. Exposure/completion retain private fixture controls.
+Real application transactions, production sizing, browser delivery and operational
 recovery remain open.
 
 | Consumer action | Required durable boundary | Retry or interruption behavior |

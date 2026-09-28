@@ -2,6 +2,33 @@
 
 ## [Unreleased]
 
+## [0.2.12]
+
+### Added
+
+- Shared tenant upload revocation through `blob_revoke_upload` and the replicated
+  permission client. The full original permission, including uploader and expiry,
+  is checked before mutation. Unexposed cancellation releases reservation bytes;
+  possible exposure and confirmed references preserve their storage and billing
+  obligations. Replies distinguish first withdrawal from exact replay and require
+  positive revocation evidence. Suspension permits cleanup; restore fences it.
+- Consumer cancellation now retains a revocation intent before actual IC dispatch.
+  Lost or unusable acknowledgments remain pending until exact inspection; typed
+  refusals remain recorded. Local IC evidence covers callback and stable-write
+  rollback, late completion, caller/permission isolation and uncertain withdrawal
+  through upgrade. The storage probe's private revoke endpoint is replaced by the
+  shared contract. This withdraws local issuance permission, not a provider object;
+  provider qualification remains open.
+- Shared uploader manifest preparation and exact declaration inspection through
+  `blob_prepare_upload` and `blob_upload_manifest`. Full original permissions and
+  raw declaration bounds precede conversion; root/length validation uses the
+  existing Caffeine algorithm. Equivalent reordered retries preserve the first
+  metadata and leaves. Tenant/uploader recovery remains available after expiry,
+  revocation, exposure and fenced restore. Bounded reply decoders reject changed
+  permissions and malformed declarations. The storage fixture now uses this
+  contract, including write-trap recovery. This establishes declaration consistency,
+  not stored bytes, provider completion or a production uploader client.
+
 ## [0.2.11] - 2026-09-28
 
 ### Added

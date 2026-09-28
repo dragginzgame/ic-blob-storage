@@ -154,13 +154,24 @@ first reference; it stays historical after release and is not a publication leas
 `blob_admit_upload` and exact `blob_upload_admission` recovery. Both bind the
 uploader and original expiry; replay cannot renew the permission or charge capacity
 again. Save the full permission before dispatch and inspect uncertain outcomes.
+The same client's `revoke` method sends `blob_revoke_upload` with the original
+permission. Unexposed cancellation frees reservation bytes; possible exposure and
+confirmed objects keep their obligations. Local revocation is not provider deletion.
+`workflow::uploads::manifests` exposes `blob_prepare_upload` for the actual admitted
+uploader and `blob_upload_manifest` for tenant/uploader recovery of the exact first
+declaration. Full permission binding, declaration budgets and bounded reply decoding
+preserve original leaves and metadata through revocation and restore. Preparation
+validates root consistency; it does not transfer bytes or establish completion.
 The separate `blob-consumer-probe` exercises both that first reference and explicit
 retains of existing content through real IC calls: bounded durable intent, atomic
 publication/tombstones, dependency checks, exact recovery and fenced upgrade.
 Fresh registration creates no extra retain receipt. The fixture now sends admission
 from its own canister and recovers interrupted acknowledgments without resending.
-Its two-slot application substitute is integration evidence; manifest preparation,
-exposure, revocation and provider completion are still arranged by the test host.
+The consumer also dispatches permission withdrawal after saving its tombstone and
+reconciles uncertain acknowledgments through exact inspection. Its two-slot
+application substitute is integration evidence. The test host drives the shared
+manifest ingress as the uploader; exposure and provider completion still use private
+fixture controls. A production uploader client remains open.
 Production Toko transactions and operational recovery remain open. The storage
 library owns no consumer database.
 The service uses bounded manifest authorization for direct browser-to-Caffeine

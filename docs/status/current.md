@@ -2,16 +2,16 @@
 
 Date: 2026-09-28
 
-## Active work — 0.2.11 draft after 0.2.10
+## Active work — 0.2.12 changelog draft
 
-The maintainer confirmed **0.2.10 is pushed** and requested continued work.
-Cargo and the release receipt are 0.2.10. Local main, origin/main and v0.2.10 resolve to
-`db0b357d21c72ac43fb789e275eed20aeb271b1a`, from validated source
-`71ff38b012f1302c261388a44c00aac7950f5684`. The receipt records the
+The maintainer confirmed **0.2.11 is pushed** and requested continued work.
+Cargo and the release receipt are 0.2.11. Local main, origin/main and v0.2.11 resolve to
+`0cc772afeb2ef4299994116d1d1d74945209f525`, from validated source
+`9fcb034951e92a86ca12a0c0d1fbc3a6765e2063`. The receipt records the
 `release-verify` gate; registry publication was not independently queried.
-The dated 0.2.10 notes match that release. The maintainer requested the **0.2.11**
-changelog. Completed work is recorded in that undated draft below empty Unreleased;
-Cargo and the release receipt remain 0.2.10 until the maintainer's release flow.
+The dated 0.2.11 notes match that release. The maintainer requested the **0.2.12**
+changelog; completed work is now in that undated draft below empty Unreleased.
+Cargo and the release receipt remain at 0.2.11; release preparation has not run.
 No version mutation, commit, publication, deployment or deployed-provider effect ran here;
 transfers below use simulated cycles between local PocketIC canisters.
 
@@ -26,7 +26,74 @@ operator client. Library publication does not qualify the service or Canic remov
 | M3 — Caffeine and operator integration | In progress: shared transports with local IC evidence | Qualified provider transport, completion/economics and production client |
 | M4 — managed parity and acceptance | Not implemented | Same journey through Canic adapter, complete replacement evidence and handoff |
 
-## Current focus — authenticated admission and first-reference recovery
+## Current focus — uploader manifest preparation and recovery
+
+`workflow::uploads::manifests` now supplies canonical `blob_prepare_upload` and
+`blob_upload_manifest` with passive shared DTOs and bounded reply decoders.
+Preparation authenticates the actual admitted uploader; inspection allows the
+tenant or original uploader. Both bind the entire original permission, including
+uploader and expiry. Raw declaration budgets precede conversion, and the existing
+Caffeine root/length/metadata checks apply. Reordered equivalent retries retain
+the original leaves and metadata. Header-name case remains hash-significant.
+
+Inspection reads one immutable bounded record without rebuilding its tree. It
+preserves exact historical declarations after expiry, suspension, exposure,
+revocation and restore; it does not authorize replay, file publication, certificate
+issuance or provider completion. Preparation enforces current activation, phase,
+time and fencing. The storage probe replaces its private preparation endpoint and
+write-trap route with the shared handler. The test host still drives uploader
+ingress; no production uploader client or uploader outbox is claimed.
+
+All 27 manifest, 31 admission and 22 reference filtered native cases pass, including
+four new manifest boundary/reply cases (filters overlap). All 44 selected storage
+PocketIC cases pass in 83.15 seconds; funding and gateway transport were excluded.
+These cover actual uploader authority, unusable acknowledgments, unchanged stable
+memory on equivalent retry/refusal, declaration retention through fenced upgrade,
+and existing write-trap/consumer/lifecycle/read regressions. Release consumer/storage
+Wasms, strict affected all-target Clippy, warning-free core/protocol/consumer
+rustdoc, formatting and diff checks pass. No full CI/release gate ran.
+No service stable schema, memory grant, dependency or allocator changed.
+
+Next, wire an explicit uploader client to these shared preparation/inspection
+handlers with exact saved intent and interrupted acknowledgment recovery. Keep
+uploader authority separate from tenant asset registration. Production intent
+storage, browser delivery, exposure/certificate orchestration, both adapters,
+provider qualification and operational recovery remain open.
+
+## Consumer permission withdrawal — same 0.2.12 draft
+
+`workflow::uploads::admission::revoke` and the permission client's `revoke` method
+now expose canonical `blob_revoke_upload`. They bind the full original permission,
+including uploader and expiry, before mutation. The bounded response requires
+positive revocation evidence and distinguishes first withdrawal from exact replay.
+The storage probe's private revoke endpoint and write-trap route now use this
+shared handler. There is no new provider call, identity allocator or service journal.
+
+Consumer cancellation retains the original permission and tombstone. Explicit
+withdrawal persists dispatch intent before its actual IC call; admission uncertainty
+must first be reconciled. Typed refusals remain recorded, and uncertain withdrawal
+blocks redispatch until exact inspection proves revocation. An unrevoked observation
+does not acknowledge cleanup. Same-release upgrade preserves these fields under
+the consumer fence. The private fixture schema is replaced directly within v1;
+cross-release transitions remain reinstall-only.
+
+Unexposed cancellation releases reservation bytes. Exposed uncertainty stays charged;
+late completion still creates a first reference requiring explicit release.
+Confirmed references, provider deletion and billing cessation remain separate.
+Suspension permits cleanup, while restored owners reject all mutation.
+
+Seven targeted revocation native cases, three consumer-model cases and all 42
+selected storage PocketIC cases pass (68.34 seconds for the latter). These include
+the consumer, admission/write-trap, lifecycle, planning, read and gateway callback
+regressions; funding and gateway transport suites were excluded. Strict affected
+all-target Clippy, consumer/storage release Wasms, warning-free core/protocol/consumer
+rustdoc, formatting and diff checks pass. No full CI/release gate,
+dependency change, allocator change or new memory grant was required.
+
+The current focus above adds shared manifest preparation. Exposure and provider
+completion retain private test-host controls; production integration remains open.
+
+## Authenticated admission and first-reference recovery — included in 0.2.11
 
 `dto::upload`, `workflow::uploads::inspect` and `ReplicatedUploadStatusClient`
 now supply exact tenant-only upload history through `blob_upload_status`. The
@@ -66,7 +133,7 @@ state while preserving inspection and unresolved work. The two-slot/full-record
 fixture is not production sizing. No dependency, allocator, service stable schema
 or memory grant changed. Existing-content retain/release behavior remains covered.
 
-Latest validation passes 30 targeted admission native cases, three consumer-model
+The 0.2.11 implementation validation passed 30 targeted admission native cases, three consumer-model
 cases and all 31 selected storage PocketIC cases (53.31 seconds). These include all
 12 consumer cases plus admission, lifecycle, planning and read regressions; unrelated
 funding/gateway suites were excluded. The IC cases prove fresh registration leaves
@@ -78,12 +145,8 @@ Wasms, strict affected all-target Clippy, warning-free core/protocol/consumer
 rustdoc, formatting and diff checks pass. Full CI/release validation was not run;
 earlier batches' broader results remain historical evidence.
 
-Next, add shared manifest preparation and revocation transport, preserving exact
-declarations and cancellation intent before effects. Real application transaction
-integration, browser delivery policy,
-shared adapters, provider qualification, operational recovery and production
-sizing remain open. The host still arranges preparation/exposure/revocation and supplies
-labelled completion facts. This does not qualify Toko, Canic retirement or the service.
+The current section above advances revocation transport. Completion facts remain
+labelled substitutes; this does not qualify Toko, Canic retirement or the service.
 
 ## Canonical reference mutation and receipt recovery — included in 0.2.10
 

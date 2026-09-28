@@ -26,11 +26,35 @@ use crate::{
 pub const UPLOAD_ADMISSION_METHOD: &str = "blob_admit_upload";
 /// Read-only exact permission query, also callable through replicated execution.
 pub const UPLOAD_ADMISSION_STATUS_METHOD: &str = "blob_upload_admission";
+/// Canonical tenant permission withdrawal; this is not a provider delete call.
+pub const UPLOAD_REVOCATION_METHOD: &str = "blob_revoke_upload";
+pub(crate) fn revocation(
+    admission: UploadAdmissionResponse,
+    change: crate::model::lifecycle::LifecycleChange,
+) -> crate::dto::upload::admission::UploadRevocationResponse {
+    crate::dto::upload::admission::UploadRevocationResponse {
+        admission,
+        changed: change == crate::model::lifecycle::LifecycleChange::Changed,
+    }
+}
 pub(crate) fn parse(
     context: UploadContext,
     input: UploadAdmissionRequest,
 ) -> Result<UploadPermission, UploadAdmissionFailure> {
-    let request = references::parse_upload(context, input.upload).map_err(|e| match e {
+    if input.upload.service != context.service {
+        return Err(UploadAdmissionFailure::Binding);
+    }
+    if input.upload.tenant != context.actor {
+        return Err(UploadAdmissionFailure::Denied);
+    }
+    parse_binding(context.service, input)
+}
+// Conversion without actor substitution; the calling boundary owns role checks.
+pub(crate) fn parse_binding(
+    service: candid::Principal,
+    input: UploadAdmissionRequest,
+) -> Result<UploadPermission, UploadAdmissionFailure> {
+    let request = references::parse_upload_binding(service, input.upload).map_err(|e| match e {
         ReferenceFailure::Denied => UploadAdmissionFailure::Denied,
         ReferenceFailure::Binding => UploadAdmissionFailure::Binding,
         _ => UploadAdmissionFailure::Invalid,

@@ -104,3 +104,31 @@ pub(crate) fn prepare(
         r.view(input.asset)
     })
 }
+
+pub(crate) async fn revoke(
+    actor: Principal,
+    input: blob_test_protocol::consumer::Revocation,
+) -> Result<AssetView, Failure> {
+    let id = input.asset;
+    let send = ops::mutate(actor, |r| r.start_revocation(id))?;
+    ops::fault(input.fault, Fault::AfterIntent);
+    if send {
+        let permission = ops::read(actor, |r| r.revocation_permission(id))?;
+        let response = ops::revoke(permission, input.max_reply_bytes).await?;
+        ops::fault(input.fault, Fault::AfterRevocation);
+        ops::mutate(actor, |r| r.acknowledge_revocation(id, response))?;
+    }
+    ops::view(actor, id)
+}
+pub(crate) async fn recover_revocation(actor: Principal, id: u128) -> Result<AssetView, Failure> {
+    let permission = ops::read(actor, |r| {
+        r.authorize(actor, true)?;
+        if !r.view(id)?.revocation_started {
+            return Err(Failure::State);
+        }
+        r.revocation_permission(id)
+    })?;
+    let response = ops::admission_status(permission).await?;
+    ops::mutate(actor, |r| r.acknowledge_revocation(id, Ok(response)))?;
+    ops::view(actor, id)
+}

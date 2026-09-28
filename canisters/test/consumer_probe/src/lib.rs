@@ -70,3 +70,12 @@ fn prepare(input: Box<blob_test_protocol::consumer::Registration>) -> Result<Ass
 async fn admit(input: Box<Run>) -> Result<AssetView, Failure> {
     workflow::admit(ic_cdk::api::msg_caller(), &input).await
 }
+
+#[ic_cdk::update(decode_with = "ops::decode")]
+async fn revoke(input: blob_test_protocol::consumer::Revocation) -> Result<AssetView, Failure> {
+    workflow::revoke(ic_cdk::api::msg_caller(), input).await
+}
+#[ic_cdk::update(decode_with = "ops::decode")]
+async fn recover_revocation(asset: u128) -> Result<AssetView, Failure> {
+    workflow::recover_revocation(ic_cdk::api::msg_caller(), asset).await
+}

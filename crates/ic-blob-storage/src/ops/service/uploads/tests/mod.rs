@@ -1,5 +1,7 @@
 use super::*;
 mod admission_boundary;
+mod manifest_boundary;
+mod revocation;
 use crate::{
     model::{
         catalog::admission::{UploadObject, UploadRequestId},

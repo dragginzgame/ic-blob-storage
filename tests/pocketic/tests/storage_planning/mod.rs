@@ -193,10 +193,10 @@ fn operator_root_batches_are_bounded_authorized_and_preserved_after_upgrade() {
     f.admit(f.tenant, permission).unwrap();
     f.prepare(&preparation).unwrap();
     f.expose(permission.request).unwrap();
-    f.revoke(permission.request).unwrap();
+    f.revoke(permission).unwrap();
     let cancelled = f.permission(2, 2).0;
     f.admit(f.tenant, cancelled).unwrap();
-    f.revoke(cancelled.request).unwrap();
+    f.revoke(cancelled).unwrap();
     let query = RootBatchInput {
         service: f.service,
         namespace: 1,

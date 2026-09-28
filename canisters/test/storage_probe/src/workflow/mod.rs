@@ -16,13 +16,13 @@ pub(crate) fn gateway_registry(
 }
 use crate::ops;
 use blob_test_protocol::{
-    admission::{
-        Enrollment, Request,
-        input::{EnrollmentInput, PreparationInput},
-    },
+    admission::{Enrollment, Request, input::EnrollmentInput},
     storage::{Failure, Observation, Status, WriteFault},
 };
 use candid::Principal;
+use ic_blob_storage::dto::upload::manifest::{
+    UploadManifestFailure, UploadManifestMutation, UploadManifestRequest,
+};
 use ic_blob_storage::model::service::upload::UploadContext;
 pub(crate) fn initialize(operator: Principal, restored: bool) {
     ops::initialize(operator, restored);
@@ -39,9 +39,9 @@ pub(crate) fn admit(
 }
 pub(crate) fn prepare(
     context: UploadContext,
-    input: PreparationInput,
+    input: &UploadManifestRequest,
     fault: Option<WriteFault>,
-) -> Result<bool, Failure> {
+) -> Result<UploadManifestMutation, UploadManifestFailure> {
     ops::prepare(context, input, fault)
 }
 pub(crate) fn expose(context: UploadContext, input: Request) -> Result<(), Failure> {
@@ -49,9 +49,12 @@ pub(crate) fn expose(context: UploadContext, input: Request) -> Result<(), Failu
 }
 pub(crate) fn revoke(
     context: UploadContext,
-    input: Request,
+    input: ic_blob_storage::dto::upload::admission::UploadAdmissionRequest,
     fault: Option<WriteFault>,
-) -> Result<bool, Failure> {
+) -> Result<
+    ic_blob_storage::dto::upload::admission::UploadRevocationResponse,
+    ic_blob_storage::dto::upload::admission::UploadAdmissionFailure,
+> {
     ops::revoke(context, input, fault)
 }
 pub(crate) fn lookup(context: UploadContext, input: Request) -> Result<Observation, Failure> {

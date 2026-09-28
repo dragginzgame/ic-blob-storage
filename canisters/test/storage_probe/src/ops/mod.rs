@@ -8,10 +8,7 @@ pub(crate) mod planning;
 pub(crate) mod read;
 pub(crate) mod references;
 use blob_test_protocol::{
-    admission::{
-        Enrollment, Permission, Request,
-        input::{EnrollmentInput, PreparationInput},
-    },
+    admission::{Enrollment, Permission, Request, input::EnrollmentInput},
     storage::{Failure, Observation, Status, WriteFault},
 };
 use candid::{CandidType, DecoderConfig, Deserialize, Principal, decode_one_with_config};
@@ -22,13 +19,9 @@ use ic_blob_storage::{
         SchemaMetadata, SealedDeclarationSnapshot, StaticMemoryRangeDeclaration,
         ic_stable_structures::{DefaultMemoryImpl, Memory},
     },
-    model::{
-        identity::caffeine::{CaffeineHeader, manifest::CaffeineChunkHash},
-        lifecycle::LifecycleChange,
-        service::{
-            tenant::{TenantEnrollmentView, TenantUpdate},
-            upload::{UploadContext, UploadManifestState, manifest::UploadManifest},
-        },
+    model::service::{
+        tenant::{TenantEnrollmentView, TenantUpdate},
+        upload::{UploadContext, UploadManifestState},
     },
     ops::service::uploads::{StableUploads, UploadMemories},
 };
@@ -232,44 +225,25 @@ pub(crate) fn admit(
     TRAP_WRITE.set(None);
     result
 }
-#[expect(
-    clippy::needless_pass_by_value,
-    reason = "bounded input owned by dispatch"
-)]
 pub(crate) fn prepare(
     context: UploadContext,
-    input: PreparationInput,
+    input: &ic_blob_storage::dto::upload::manifest::UploadManifestRequest,
     fault: Option<WriteFault>,
-) -> Result<bool, Failure> {
-    let request = conversion::request(input.request)?;
-    let chunks = input
-        .manifest
-        .chunks
-        .iter()
-        .map(|v| CaffeineChunkHash::try_from(v.as_slice()).expect("fixed leaf"))
-        .collect::<Vec<_>>();
-    let headers = input
-        .manifest
-        .headers
-        .iter()
-        .map(|(name, value)| CaffeineHeader { name, value })
-        .collect::<Vec<_>>();
+) -> Result<
+    ic_blob_storage::dto::upload::manifest::UploadManifestMutation,
+    ic_blob_storage::dto::upload::manifest::UploadManifestFailure,
+> {
     TRAP_WRITE.set(fault);
     let result = STATE.with_borrow_mut(|state| {
-        state.as_mut().unwrap().uploads.prepare_manifest(
+        ic_blob_storage::workflow::uploads::manifests::prepare(
+            &mut state.as_mut().unwrap().uploads,
             context,
-            request,
-            UploadManifest {
-                chunks: &chunks,
-                headers: &headers,
-            },
+            input,
             ic_cdk::api::time(),
         )
     });
     TRAP_WRITE.set(None);
     result
-        .map(|v| v == LifecycleChange::Changed)
-        .map_err(conversion::failure)
 }
 pub(crate) fn expose(context: UploadContext, input: Request) -> Result<(), Failure> {
     let request = conversion::request(input)?;
@@ -285,17 +259,22 @@ pub(crate) fn expose(context: UploadContext, input: Request) -> Result<(), Failu
 }
 pub(crate) fn revoke(
     context: UploadContext,
-    input: Request,
+    input: ic_blob_storage::dto::upload::admission::UploadAdmissionRequest,
     fault: Option<WriteFault>,
-) -> Result<bool, Failure> {
-    let request = conversion::request(input)?;
+) -> Result<
+    ic_blob_storage::dto::upload::admission::UploadRevocationResponse,
+    ic_blob_storage::dto::upload::admission::UploadAdmissionFailure,
+> {
     TRAP_WRITE.set(fault);
-    let result =
-        STATE.with_borrow_mut(|state| state.as_mut().unwrap().uploads.revoke(context, request));
+    let result = STATE.with_borrow_mut(|state| {
+        ic_blob_storage::workflow::uploads::admission::revoke(
+            &mut state.as_mut().unwrap().uploads,
+            context,
+            input,
+        )
+    });
     TRAP_WRITE.set(None);
     result
-        .map(|v| v == LifecycleChange::Changed)
-        .map_err(conversion::failure)
 }
 pub(crate) fn lookup(context: UploadContext, input: Request) -> Result<Observation, Failure> {
     let request = conversion::request(input)?;

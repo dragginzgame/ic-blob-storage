@@ -2,6 +2,7 @@
 pub mod admission;
 pub(crate) mod callbacks;
 mod lifecycle;
+pub mod manifests;
 mod planning;
 pub mod read;
 mod recovery;

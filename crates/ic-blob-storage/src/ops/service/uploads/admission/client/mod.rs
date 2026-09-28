@@ -1,10 +1,11 @@
 //! One explicit replicated admission or inspection; no retry or provider effects.
 use super::{
-    UPLOAD_ADMISSION_METHOD, UPLOAD_ADMISSION_STATUS_METHOD,
+    UPLOAD_ADMISSION_METHOD, UPLOAD_ADMISSION_STATUS_METHOD, UPLOAD_REVOCATION_METHOD,
     reply::{self, UploadAdmissionReplyError},
 };
 use crate::dto::upload::admission::{
     UploadAdmissionMutation, UploadAdmissionRequest, UploadAdmissionResponse,
+    UploadRevocationResponse,
 };
 use candid::Principal;
 use ic_cdk::call::{Call, CallFailed, Response};
@@ -40,6 +41,20 @@ pub enum UploadAdmissionClientError {
     Reply(#[from] UploadAdmissionReplyError),
 }
 impl ReplicatedUploadAdmissionClient {
+    /// Withdraw local issuance permission once, attaching no cycles. Ordinary IC
+    /// fees apply. Persist cancellation intent before polling and inspect uncertain
+    /// outcomes. Exposed effects remain charged; this neither releases a confirmed
+    /// reference nor deletes provider content. The client never retries.
+    /// # Errors
+    /// Rejects wrong context, transport failure and invalid/non-revoked replies.
+    pub async fn revoke(
+        &self,
+        input: UploadAdmissionRequest,
+        max: NonZeroUsize,
+    ) -> Result<UploadRevocationResponse, UploadAdmissionClientError> {
+        let response = self.call(UPLOAD_REVOCATION_METHOD, input).await?;
+        Ok(reply::revocation(input, response.as_ref(), max)?)
+    }
     /// Select actual canisters and a bounded positive timeout; sends nothing.
     /// # Errors
     /// Refuses anonymous/management principals and timeout above 300 seconds.

@@ -6,16 +6,16 @@
 mod ops;
 mod workflow;
 use blob_test_protocol::{
-    admission::{
-        Enrollment, Request,
-        input::{EnrollmentInput, PreparationInput},
-    },
+    admission::{Enrollment, Request, input::EnrollmentInput},
     storage::{Failure, FaultAdmission, FaultPreparation, Observation, Status},
 };
 use candid::Principal;
 use ic_blob_storage::dto::upload::admission::{
     UploadAdmissionFailure, UploadAdmissionMutation, UploadAdmissionRequest,
     UploadAdmissionResponse,
+};
+use ic_blob_storage::dto::upload::manifest::{
+    UploadManifestFailure, UploadManifestMutation, UploadManifestRequest, UploadManifestResponse,
 };
 use ic_blob_storage::model::service::upload::UploadContext;
 fn context() -> UploadContext {
@@ -51,23 +51,39 @@ fn blob_upload_admission(
     workflow::uploads::admission(context(), input)
 }
 #[ic_cdk::update(decode_with = "ops::decode")]
-fn prepare(input: PreparationInput) -> Result<bool, Failure> {
-    workflow::prepare(context(), input, None)
+fn blob_prepare_upload(
+    input: UploadManifestRequest,
+) -> Result<UploadManifestMutation, UploadManifestFailure> {
+    workflow::prepare(context(), &input, None)
 }
 #[ic_cdk::update(decode_with = "ops::decode")]
-fn prepare_with_write_trap(input: FaultPreparation) -> Result<bool, Failure> {
-    workflow::prepare(context(), input.preparation, Some(input.fault))
+fn prepare_with_write_trap(
+    input: FaultPreparation,
+) -> Result<UploadManifestMutation, UploadManifestFailure> {
+    workflow::prepare(context(), &input.preparation, Some(input.fault))
+}
+#[ic_cdk::query(decode_with = "ops::decode")]
+fn blob_upload_manifest(
+    input: UploadAdmissionRequest,
+) -> Result<UploadManifestResponse, UploadManifestFailure> {
+    workflow::uploads::manifest(context(), input)
 }
 #[ic_cdk::update(decode_with = "ops::decode")]
 fn expose(input: Request) -> Result<(), Failure> {
     workflow::expose(context(), input)
 }
 #[ic_cdk::update(decode_with = "ops::decode")]
-fn revoke(input: Request) -> Result<bool, Failure> {
+fn blob_revoke_upload(
+    input: UploadAdmissionRequest,
+) -> Result<ic_blob_storage::dto::upload::admission::UploadRevocationResponse, UploadAdmissionFailure>
+{
     workflow::revoke(context(), input, None)
 }
 #[ic_cdk::update(decode_with = "ops::decode")]
-fn revoke_with_usage_write_trap(input: Request) -> Result<bool, Failure> {
+fn revoke_with_usage_write_trap(
+    input: UploadAdmissionRequest,
+) -> Result<ic_blob_storage::dto::upload::admission::UploadRevocationResponse, UploadAdmissionFailure>
+{
     workflow::revoke(
         context(),
         input,

@@ -1,6 +1,7 @@
 //! IC transaction rollback and same-release inspection of the durable upload owner.
 #![cfg(not(target_family = "wasm"))]
 mod storage_gateways;
+mod storage_manifests;
 mod support;
 use blob_test_protocol::{
     admission::{
@@ -132,26 +133,59 @@ impl Fixture {
                 (admission_input(input),),
             )
             .unwrap();
-        result.map(|r| !r.replayed).map_err(|e| {
-            use ic_blob_storage::dto::upload::admission::UploadAdmissionFailure as A;
+        result.map(|r| !r.replayed).map_err(admission_failure)
+    }
+    fn prepare(&self, input: &PreparationInput) -> Result<bool, Failure> {
+        let result: Result<
+            ic_blob_storage::dto::upload::manifest::UploadManifestMutation,
+            ic_blob_storage::dto::upload::manifest::UploadManifestFailure,
+        > = self
+            .harness
+            .pic
+            .update_candid_as(
+                self.service,
+                self.uploader,
+                "blob_prepare_upload",
+                (self.preparation_input(input),),
+            )
+            .unwrap();
+        result.map(|r| r.changed).map_err(|e| {
+            use ic_blob_storage::dto::upload::manifest::UploadManifestFailure as E;
             match e {
-                A::Denied => Failure::Denied,
-                A::Binding => Failure::Binding,
-                A::Unknown => Failure::Unknown,
-                A::Conflict => Failure::Conflict,
-                A::Inactive => Failure::Inactive,
-                A::Fenced => Failure::Fenced,
-                A::Capacity => Failure::Capacity,
-                A::Expired | A::Invalid => Failure::Invalid,
-                A::Internal => panic!("unexpected internal admission failure"),
+                E::Permission(e) => admission_failure(e),
+                E::Revoked => Failure::Revoked,
+                E::Phase => Failure::Phase,
+                E::Declaration => Failure::Invalid,
+                E::Limit => Failure::Capacity,
             }
         })
     }
-    fn prepare(&self, input: &PreparationInput) -> Result<bool, Failure> {
-        self.harness
-            .pic
-            .update_candid_as(self.service, self.uploader, "prepare", (input,))
-            .unwrap()
+    fn preparation_input(
+        &self,
+        input: &PreparationInput,
+    ) -> ic_blob_storage::dto::upload::manifest::UploadManifestRequest {
+        use ic_blob_storage::dto::upload::manifest::{
+            UploadManifestDeclaration, UploadManifestHeader, UploadManifestRequest,
+        };
+        UploadManifestRequest {
+            permission: admission_input(Permission {
+                request: input.request,
+                uploader: self.uploader,
+                expires_at_ns: u64::MAX,
+            }),
+            declaration: UploadManifestDeclaration {
+                chunks: input.manifest.chunks.clone(),
+                headers: input
+                    .manifest
+                    .headers
+                    .iter()
+                    .map(|(name, value)| UploadManifestHeader {
+                        name: name.clone(),
+                        value: value.clone(),
+                    })
+                    .collect(),
+            },
+        }
     }
     fn expose(&self, input: Request) -> Result<(), Failure> {
         self.harness
@@ -159,11 +193,21 @@ impl Fixture {
             .update_candid_as(self.service, self.uploader, "expose", (input,))
             .unwrap()
     }
-    fn revoke(&self, input: Request) -> Result<bool, Failure> {
-        self.harness
+    fn revoke(&self, input: Permission) -> Result<bool, Failure> {
+        let result: Result<
+            ic_blob_storage::dto::upload::admission::UploadRevocationResponse,
+            ic_blob_storage::dto::upload::admission::UploadAdmissionFailure,
+        > = self
+            .harness
             .pic
-            .update_candid_as(self.service, self.tenant, "revoke", (input,))
-            .unwrap()
+            .update_candid_as(
+                self.service,
+                self.tenant,
+                "blob_revoke_upload",
+                (admission_input(input),),
+            )
+            .unwrap();
+        result.map(|r| r.changed).map_err(admission_failure)
     }
     fn lookup(&self, actor: Principal, input: Request) -> Result<Observation, Failure> {
         self.harness
@@ -287,7 +331,7 @@ fn failed_preparation_cannot_leave_a_manifest_or_permission_flag() {
                 f.uploader,
                 "prepare_with_write_trap",
                 candid::encode_one(FaultPreparation {
-                    preparation: preparation.clone(),
+                    preparation: f.preparation_input(&preparation),
                     fault,
                 })
                 .unwrap(),
@@ -301,8 +345,8 @@ fn failed_preparation_cannot_leave_a_manifest_or_permission_flag() {
     assert_eq!(f.prepare(&preparation), Ok(true));
     assert_eq!(f.prepare(&preparation), Ok(false));
     f.expose(permission.request).unwrap();
-    assert_eq!(f.revoke(permission.request), Ok(true));
-    assert_eq!(f.revoke(permission.request), Ok(false));
+    assert_eq!(f.revoke(permission), Ok(true));
+    assert_eq!(f.revoke(permission), Ok(false));
     assert_eq!(f.status(), totals);
     assert_eq!(
         f.lookup(f.uploader, permission.request).unwrap().phase,
@@ -321,11 +365,11 @@ fn upgrade_preserves_complete_pending_obligations_and_fences_all_mutations() {
     f.admit(f.tenant, permission).unwrap();
     f.prepare(&preparation).unwrap();
     f.expose(permission.request).unwrap();
-    f.revoke(permission.request).unwrap();
+    f.revoke(permission).unwrap();
     let (cancelled, second_manifest) = f.permission(2, 8);
     f.admit(f.tenant, cancelled).unwrap();
     f.prepare(&second_manifest).unwrap();
-    f.revoke(cancelled.request).unwrap();
+    f.revoke(cancelled).unwrap();
     let suspended = f.enroll(Some(active), false).unwrap();
     let before = f.status();
     assert_eq!(
@@ -385,7 +429,7 @@ fn upgrade_preserves_complete_pending_obligations_and_fences_all_mutations() {
     assert_eq!(f.admit(f.tenant, permission), Err(Failure::Fenced));
     assert_eq!(f.prepare(&preparation), Err(Failure::Fenced));
     assert_eq!(f.expose(permission.request), Err(Failure::Fenced));
-    assert_eq!(f.revoke(permission.request), Err(Failure::Fenced));
+    assert_eq!(f.revoke(permission), Err(Failure::Fenced));
     f.restart();
     assert!(f.status().fenced);
     assert_eq!(f.lookup(f.tenant, permission.request), Ok(original));
@@ -406,13 +450,13 @@ fn failed_cancellation_retains_permission_and_reservation_until_retry() {
             f.service,
             f.tenant,
             "revoke_with_usage_write_trap",
-            candid::encode_one(permission.request).unwrap(),
+            candid::encode_one(admission_input(permission)).unwrap(),
         )
         .unwrap_err();
     assert_eq!(error.reject_code, RejectCode::CanisterError);
     assert_eq!(f.lookup(f.tenant, permission.request), Ok(before));
     assert_eq!(f.status(), totals);
-    assert_eq!(f.revoke(permission.request), Ok(true));
+    assert_eq!(f.revoke(permission), Ok(true));
     assert_eq!(
         f.status(),
         Status {
@@ -426,7 +470,7 @@ fn failed_cancellation_retains_permission_and_reservation_until_retry() {
             ..totals
         }
     );
-    assert_eq!(f.revoke(permission.request), Ok(false));
+    assert_eq!(f.revoke(permission), Ok(false));
     assert_eq!(f.admit(f.tenant, permission), Ok(false));
     assert_eq!(
         f.lookup(f.tenant, permission.request).unwrap().phase,
@@ -459,5 +503,22 @@ fn admission_input(
         },
         uploader: input.uploader,
         expires_at_ns: input.expires_at_ns,
+    }
+}
+
+fn admission_failure(
+    error: ic_blob_storage::dto::upload::admission::UploadAdmissionFailure,
+) -> Failure {
+    use ic_blob_storage::dto::upload::admission::UploadAdmissionFailure as A;
+    match error {
+        A::Denied => Failure::Denied,
+        A::Binding => Failure::Binding,
+        A::Unknown => Failure::Unknown,
+        A::Conflict => Failure::Conflict,
+        A::Inactive => Failure::Inactive,
+        A::Fenced => Failure::Fenced,
+        A::Capacity => Failure::Capacity,
+        A::Expired | A::Invalid => Failure::Invalid,
+        A::Internal => panic!("unexpected internal permission failure"),
     }
 }

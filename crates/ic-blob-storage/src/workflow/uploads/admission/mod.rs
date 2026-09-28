@@ -42,3 +42,25 @@ pub fn inspect<M: Memory>(
         .map_err(admission::failure)?;
     admission::present(input, &view)
 }
+
+/// Withdraw the tenant's exact original permission, including uploader and expiry.
+/// Cancellation before exposure releases its reservation; possible exposure stays
+/// charged. Confirmed references, provider deletion and billing remain separate.
+/// Suspension and expiry permit cleanup. Restore rejects all mutation, even replay.
+/// The host must propagate stable-write traps for atomic IC rollback.
+/// # Errors
+/// Rejects foreign, missing or changed permissions and restored owners.
+pub fn revoke<M: Memory>(
+    store: &mut StableUploads<M>,
+    context: UploadContext,
+    input: UploadAdmissionRequest,
+) -> Result<crate::dto::upload::admission::UploadRevocationResponse, UploadAdmissionFailure> {
+    let permission = admission::parse(context, input)?;
+    // Check the full original permission before withdrawing any authority.
+    inspect(store, context, input)?;
+    let change = store
+        .revoke(context, permission.request)
+        .map_err(admission::failure)?;
+    let observed = inspect(store, context, input)?;
+    Ok(admission::revocation(observed, change))
+}

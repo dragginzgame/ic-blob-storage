@@ -1,5 +1,6 @@
 //! Exact historical upload observation, distinct from current serving authority.
 pub mod admission;
+pub mod manifest;
 use super::reference::ReferenceUpload;
 use candid::{CandidType, Deserialize};
 /// Retained local upload phase; neither provider dispatch nor publication authority.

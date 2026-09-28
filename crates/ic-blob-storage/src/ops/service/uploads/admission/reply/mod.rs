@@ -2,7 +2,7 @@
 use crate::{
     dto::upload::admission::{
         UploadAdmissionFailure, UploadAdmissionMutation, UploadAdmissionRequest,
-        UploadAdmissionResponse,
+        UploadAdmissionResponse, UploadRevocationResponse,
     },
     model::service::upload::UploadContext,
 };
@@ -89,3 +89,19 @@ pub fn mutation(
 }
 #[cfg(test)]
 mod tests;
+
+/// Decode independently authenticated withdrawal evidence bound to the full permission.
+/// # Errors
+/// Rejects oversized, malformed, foreign, refused or non-revoked replies.
+pub fn revocation(
+    input: UploadAdmissionRequest,
+    bytes: &[u8],
+    max: NonZeroUsize,
+) -> Result<UploadRevocationResponse, UploadAdmissionReplyError> {
+    let result: UploadRevocationResponse = decode(input, bytes, max)?;
+    bound(input, result.admission)?;
+    if !result.admission.revoked {
+        return Err(UploadAdmissionReplyError::Invalid);
+    }
+    Ok(result)
+}

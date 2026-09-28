@@ -104,11 +104,11 @@ fn gateway_root_reads_preserve_uncertainty_and_every_cleanup_phase() {
     f.gateway_phase(root, ContentState::Reserved);
     f.prepare(&preparation).unwrap();
     f.expose(permission.request).unwrap();
-    f.revoke(permission.request).unwrap();
+    f.revoke(permission).unwrap();
     f.gateway_phase(root, ContentState::ExposurePossible);
     let cancelled = f.permission(2, 2).0;
     f.admit(f.tenant, cancelled).unwrap();
-    f.revoke(cancelled.request).unwrap();
+    f.revoke(cancelled).unwrap();
     let before = f.status();
     assert_eq!(
         f.gateway_roots(

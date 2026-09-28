@@ -26,6 +26,9 @@ struct AssetRecord {
     admission_started: bool,
     admission_result:
         Option<Result<(), ic_blob_storage::dto::upload::admission::UploadAdmissionFailure>>,
+    revocation_started: bool,
+    revocation_result:
+        Option<Result<(), ic_blob_storage::dto::upload::admission::UploadAdmissionFailure>>,
     retain_started: bool,
     retain_result: Option<
         Result<
@@ -130,6 +133,8 @@ impl ConsumerRecord {
                 _ => {}
             }
             if a.retain_result.is_some() && !a.retain_started
+                || a.revocation_started && (!a.cancelled || a.admission_result != Some(Ok(())))
+                || a.revocation_result.is_some() && !a.revocation_started
                 || a.admission_result.is_some() && !a.admission_started
                 || a.upload_state.is_some() && a.admission_result != Some(Ok(()))
                 || a.release_started && (!a.cancelled || !a.owned())
@@ -186,6 +191,8 @@ impl ConsumerRecord {
             published_once: false,
             admission_started: false,
             admission_result: None,
+            revocation_started: false,
+            revocation_result: None,
             retain_started: false,
             retain_result: None,
             upload_state: None,
@@ -214,6 +221,8 @@ impl ConsumerRecord {
             published_once: a.published_once,
             admission_started: a.admission_started,
             admission_result: a.admission_result,
+            revocation_started: a.revocation_started,
+            revocation_result: a.revocation_result,
             retain_started: a.retain_started,
             retain_result: a.retain_result,
             upload_state: a.upload_state,
@@ -442,6 +451,65 @@ impl ConsumerRecord {
         } else {
             a.admission_result = Some(result);
         }
+        Ok(())
+    }
+}
+
+impl ConsumerRecord {
+    pub(crate) fn revocation_permission(
+        &self,
+        id: u128,
+    ) -> Result<ic_blob_storage::dto::upload::admission::UploadAdmissionRequest, Failure> {
+        let a = self.view(id)?;
+        if !a.cancelled || a.admission_result != Some(Ok(())) {
+            return Err(Failure::State);
+        }
+        match a.registration.source {
+            RegistrationSource::Fresh(permission) => Ok(permission),
+            RegistrationSource::Existing(_) => Err(Failure::State),
+        }
+    }
+    pub(crate) fn start_revocation(&mut self, id: u128) -> Result<bool, Failure> {
+        self.revocation_permission(id)?;
+        let a = self.asset(id)?;
+        if a.revocation_result.is_some() {
+            return Ok(false);
+        }
+        if a.revocation_started {
+            return Err(Failure::Pending);
+        }
+        a.revocation_started = true;
+        Ok(true)
+    }
+    pub(crate) fn acknowledge_revocation(
+        &mut self,
+        id: u128,
+        response: Result<
+            ic_blob_storage::dto::upload::admission::UploadAdmissionResponse,
+            ic_blob_storage::dto::upload::admission::UploadAdmissionFailure,
+        >,
+    ) -> Result<(), Failure> {
+        let permission = self.revocation_permission(id)?;
+        let a = self.asset(id)?;
+        if !a.revocation_started {
+            return Err(Failure::State);
+        }
+        if let Ok(observed) = response {
+            if observed.permission != permission {
+                return Err(Failure::Conflict);
+            }
+            if !observed.revoked {
+                return Err(Failure::Pending);
+            }
+        }
+        let result = response.map(|_| ());
+        if a.revocation_result.is_some_and(|old| old != result) {
+            return Err(Failure::Conflict);
+        }
+        if let Ok(observed) = response {
+            self.acknowledge_admission(id, Ok(observed))?;
+        }
+        self.asset(id)?.revocation_result = Some(result);
         Ok(())
     }
 }

@@ -29,6 +29,14 @@ pub struct UploadAdmissionMutation {
     /// Existing permission was observed without renewing it or reserving more capacity.
     pub replayed: bool,
 }
+/// Local permission withdrawal, distinct from reference release or provider deletion.
+#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+pub struct UploadRevocationResponse {
+    /// Exact permission and retained phase; revocation must be true.
+    pub admission: UploadAdmissionResponse,
+    /// Whether this call first withdrew the permission; false is an exact replay.
+    pub changed: bool,
+}
 /// Admission/inspection refusal; missing history never proves safe provider retry.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
 pub enum UploadAdmissionFailure {

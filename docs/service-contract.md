@@ -572,6 +572,33 @@ Adapters supply actual service/caller/time and propagate stable-write traps.
 The client sends once, bounds decoding and never retries or attaches cycles;
 ordinary IC fees apply. Neither route issues certificates or contacts Caffeine.
 
+The same client exposes `blob_revoke_upload` through the shared synchronous
+revocation handler. It checks every original permission field before mutation;
+changed uploader or expiry cannot withdraw another permission. Unexposed cancellation
+releases reservation bytes while retaining lifetime identities. Possible exposure
+remains charged, and confirmed references require their own explicit release.
+Neither provider deletion nor billing cessation follows from local revocation.
+The response binds the permission, requires `revoked` and reports whether it changed.
+Suspension/expiry permit cleanup; restore rejects even exact mutation replay.
+Uncertain replies are reconciled using the existing exact permission query.
+
+`workflow::uploads::manifests` supplies canonical `blob_prepare_upload` and
+`blob_upload_manifest` inspection. Only the actual admitted uploader may prepare;
+the tenant or original uploader may inspect. Both bind every original permission
+field, including expiry. Raw leaf/header counts and original metadata bytes are
+bounded before conversion; adapters separately bound ingress decoding. The existing
+Caffeine root/length and metadata rules apply. Reordered equivalent retries preserve
+the first declaration; header-name case is hash-significant and is not normalized.
+The query reads one immutable bounded record without rebuilding its tree. Historical
+inspection survives expiry, suspension, exposure, cancellation and restore, while
+preparation enforces current activation, time, phase and the restore fence.
+Explicit Unprepared/Prepared variants and bounded reply decoding reject malformed
+data, changed permissions and inconsistent roots. A mutation acknowledgment must
+contain a prepared declaration matching the submitted leaves. Save intent before
+dispatch; an unusable acknowledgment requires exact inspection and never supplies
+authority for repeating an uncertain provider effect. This is declaration evidence,
+not verified file bytes, completion, a certificate or publication permission.
+
 The private `blob-consumer-probe` exercises consumer transactions separately from
 the storage owner: exact bounded intent and reserved cleanup operation before
 dispatch, dependency checks, atomic tombstone/publication changes and restore
@@ -583,8 +610,13 @@ suspension. Local IC tests cover callback traps, cleanup and fenced upgrades.
 The fixture persists the complete permission and asset intent before sending
 canonical admission from its own canister. Typed refusals remain recorded; unknown
 acknowledgments are inspected under the original permission without redispatch.
-Cancellation and restore preserve that uncertainty. Preparation, exposure,
-revocation and completion remain test-host actions. Toko's asset schema,
+Cancellation and restore preserve that uncertainty. The consumer now dispatches
+revocation only after persisting its tombstone and confirming original admission;
+unknown admission must be inspected first. Revocation acknowledgment is independent
+of reference release. Lost replies block redispatch and use exact inspection;
+an unrevoked observation leaves withdrawal pending. The test host now drives
+canonical manifest ingress as the actual uploader; exposure and completion retain
+private fixture controls. Production uploader intent storage and transport, Toko's asset schema,
 production scale, actual provider completion and operational recovery remain open.
 
 Each active reference reserves one future release receipt. Admission enforces

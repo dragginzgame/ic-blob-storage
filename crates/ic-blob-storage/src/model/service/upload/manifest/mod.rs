@@ -37,6 +37,12 @@ pub struct UploadManifest<'a> {
     /// does not establish actual length, MIME safety or provider enforcement.
     pub headers: &'a [CaffeineHeader<'a>],
 }
+/// Owned original declaration recovered from one bounded immutable record.
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub(crate) struct UploadManifestView {
+    pub(crate) chunks: Vec<[u8; 32]>,
+    pub(crate) headers: Vec<super::download::ContentHeader>,
+}
 
 impl UploadAdmissions {
     /// Bind a manifest for a direct browser-to-provider upload without file bytes.

@@ -2,6 +2,17 @@
 use ic_blob_storage::dto::upload::admission::{
     UploadAdmissionFailure, UploadAdmissionRequest, UploadAdmissionResponse,
 };
+pub(crate) fn manifest(
+    context: UploadContext,
+    input: UploadAdmissionRequest,
+) -> Result<
+    ic_blob_storage::dto::upload::manifest::UploadManifestResponse,
+    ic_blob_storage::dto::upload::manifest::UploadManifestFailure,
+> {
+    crate::ops::read::download::with_uploads(|uploads| {
+        ic_blob_storage::workflow::uploads::manifests::inspect(uploads, context, input)
+    })
+}
 pub(crate) fn admission(
     context: UploadContext,
     input: UploadAdmissionRequest,

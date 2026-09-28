@@ -1,4 +1,5 @@
 use super::*;
+mod revocation;
 use crate::dto::{reference::ReferenceUpload, upload::UploadState};
 use candid::{Principal, encode_one};
 #[test]

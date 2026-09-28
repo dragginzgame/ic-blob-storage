@@ -1,6 +1,7 @@
 use super::*;
 use ic_blob_storage::dto::upload::{UploadState, UploadStatusFailure, UploadStatusResponse};
 mod admission;
+mod revocation;
 fn fresh_input(f: &Fixture) -> (Run, Permission, PreparationInput) {
     let (permission, manifest) = f.permission(1, 1);
     let upload = ReferenceUpload {
@@ -128,7 +129,7 @@ fn late_upload_completion_after_cancellation_is_reconciled_for_cleanup_under_sus
     f.expose(permission.request).unwrap();
     register(&f, &input).unwrap();
     cancel(&f, 1).unwrap();
-    f.revoke(permission.request).unwrap();
+    revocation::withdraw(&f, Fault::None, 4096).unwrap();
     assert_eq!(
         recover(&f, 1, false).unwrap().upload_state,
         Some(UploadState::ExposurePossible)
@@ -184,9 +185,10 @@ fn upload_observation_trap_and_cancelled_reservation_cannot_fabricate_retention(
     assert!(register(&f, &input).unwrap().published);
     assert_eq!(f.harness.pic.get_stable_memory(f.service), before);
     let f = fixture();
-    let (input, permission, _) = prepared(&f);
+    let (input, _, _) = prepared(&f);
     admit(&f, &input).unwrap();
-    f.revoke(permission.request).unwrap();
+    cancel(&f, 1).unwrap();
+    revocation::withdraw(&f, Fault::None, 4096).unwrap();
     let cancelled = register(&f, &input).unwrap();
     assert_eq!(cancelled.upload_state, Some(UploadState::Cancelled));
     assert!(!cancelled.published);

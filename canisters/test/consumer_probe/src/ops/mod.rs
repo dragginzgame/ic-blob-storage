@@ -275,3 +275,26 @@ pub(crate) async fn admit(
         Err(_) => Err(Failure::Transport),
     }
 }
+
+pub(crate) async fn revoke(
+    permission: ic_blob_storage::dto::upload::admission::UploadAdmissionRequest,
+    max: u32,
+) -> Result<
+    Result<
+        ic_blob_storage::dto::upload::admission::UploadAdmissionResponse,
+        ic_blob_storage::dto::upload::admission::UploadAdmissionFailure,
+    >,
+    Failure,
+> {
+    use ic_blob_storage::ops::service::uploads::admission::{
+        client::UploadAdmissionClientError, reply::UploadAdmissionReplyError,
+    };
+    let max = (max as usize).try_into().map_err(|_| Failure::Invalid)?;
+    match admission_client(permission).revoke(permission, max).await {
+        Ok(response) => Ok(Ok(response.admission)),
+        Err(UploadAdmissionClientError::Reply(UploadAdmissionReplyError::Remote(error))) => {
+            Ok(Err(error))
+        }
+        Err(_) => Err(Failure::Transport),
+    }
+}

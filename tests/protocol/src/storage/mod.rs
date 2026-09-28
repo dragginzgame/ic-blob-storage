@@ -4,7 +4,7 @@ pub mod gateways;
 pub mod read;
 pub mod reference;
 use crate::{
-    admission::{Permission, Phase, Request, input::PreparationInput},
+    admission::{Permission, Phase, Request},
     journey::JourneyUsage,
 };
 use candid::{CandidType, Deserialize};
@@ -53,7 +53,7 @@ pub struct FaultAdmission {
 #[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize)]
 pub struct FaultPreparation {
     /// Exact declaration to prepare.
-    pub preparation: PreparationInput,
+    pub preparation: ic_blob_storage::dto::upload::manifest::UploadManifestRequest,
     /// Write that traps within this IC update.
     pub fault: WriteFault,
 }
