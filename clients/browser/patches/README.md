@@ -45,3 +45,9 @@ tree issue), add service admission or completion, persist gateway-effect intent,
 qualify provider charging, or create a production application store. A failed tree
 or chunk can still be uncertain. Neither a fresh preparation nor certificate
 recovery authorizes replaying it. These prerequisites remain before live transfer.
+
+The separate [gateway guard](../README.md#gateway-request-coordination) now journals
+opaque requests through this existing fetch hook. The package patch and upstream
+wire implementation remain unchanged. Journal transactions are demonstrated only
+with the local fixture store; production persistence and provider reconciliation
+remain open.

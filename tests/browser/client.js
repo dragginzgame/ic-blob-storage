@@ -3,10 +3,13 @@ import { Cbor } from '@icp-sdk/core/agent';
 import { Ed25519KeyIdentity } from '@icp-sdk/core/identity';
 import { StorageClient } from '@caffeineai/object-storage';
 import { createCertificateClient } from '../../clients/browser/certificate.js';
+import { createGatewayTransport } from '../../clients/browser/gateway.js';
 import * as intents from './intent.js';
+import { admitAndPrepare, finishConsumer } from './admission.js';
 
 const unhex = value => Uint8Array.from(value.match(/../g), b => parseInt(b, 16));
-let client, storage, prepared, lastAttempt, abortUpload, config, binding, lastProof;
+let client, storage, prepared, lastAttempt, abortUpload, config, binding, lastProof, gatewayFetch;
+let gatewayHeld = false, releaseGateway;
 let gatewayCalls = 0;
 let calls = 0, reads = 0, abortClaim = false, responseHeld = false, releaseResponse;
 let corruptInspection;
@@ -38,14 +41,32 @@ async function setup(cfg) {
       return response;
     } });
   abortUpload = new AbortController();
+  gatewayFetch = await createGatewayTransport({ certificate: client, origin: cfg.gateway,
+    maxRequests: 2, maxRequestBytes: 1024 * 1024,
+    intents: { ...intents,
+      claimGateway: async (...args) => {
+        // Cancel after the hook's read, before the atomic claim rechecks authority.
+        if (cfg.cancelAtGatewayClaim) await client.cancel();
+        return intents.claimGateway(...args, !!cfg.gatewayWriteAbort);
+      },
+      observeGateway: (...args) => intents.observeGateway(...args, !!cfg.gatewayObserveAbort) },
+    fetch: async (url, init) => {
+      const row = await client.inspect();
+      // Inspect the committed transaction at the actual transport boundary.
+      if (row.gateway?.requests.at(-1)?.phase !== 'uncertain') throw new Error('missing gateway intent');
+      gatewayCalls += 1;
+      const response = await fetch(url, init);
+      if (cfg.holdGateway && new URL(url).pathname === '/v1/blob-tree/') {
+        gatewayHeld = true;
+        await new Promise(resolve => { releaseGateway = resolve; });
+      }
+      return response;
+    },
+  });
   storage = new StorageClient('fixture-bucket', cfg.gateway, cfg.service, 'fixture-project', client.certificateAgent, {
     retry: false, concurrency: 1, signal: abortUpload.signal,
     fetch: async (url, init) => {
-      if (new URL(url).origin !== new URL(cfg.gateway).origin) throw new Error('gateway origin');
-      const row = await client.inspect();
-      if (row.cancelled || row.phase !== 'observed') throw new intents.Refusal('gateway-blocked');
-      gatewayCalls += 1;
-      const response = await fetch(url, { ...init, redirect: 'error' });
+      const response = await gatewayFetch(url, init);
       if (cfg.abortAfterTree && new URL(url).pathname === '/v1/blob-tree/') abortUpload.abort();
       return response;
     },
@@ -64,7 +85,7 @@ async function remember(result) {
   lastProof = { raw: certificate, requestId: unhex(row.requestId) };
   return row;
 }
-window.fixture = { setup, plan: async cfg => {
+window.fixture = { setup, admitAndPrepare, finishConsumer, plan: async cfg => {
     config = cfg;
     prepared = await prepare();
     return prepared;
@@ -83,6 +104,11 @@ window.fixture = { setup, plan: async cfg => {
   repeatHandle: () => storage.uploadPrepared(lastAttempt),
   rejectClonedHandle: () => storage.uploadPrepared({ ...prepared }),
   held: () => responseHeld, release: () => releaseResponse?.(),
+  gatewayHeld: () => gatewayHeld, releaseGateway: () => releaseGateway?.(),
+  gatewayProbe: (kind = 'ordinary') => gatewayFetch(
+    kind === 'origin' ? 'https://invalid.example/probe' : `${config.gateway}/probe`, {
+      method: 'PUT', body: kind === 'size' ? new Uint8Array(1024 * 1024 + 1) : new Uint8Array([1]),
+    }),
   abortClaim: value => { abortClaim = value; },
   rejectProof: async kind => {
     const { raw, requestId } = lastProof;

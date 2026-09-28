@@ -94,11 +94,22 @@ algorithms and wire formats upstream-owned. The patched browser/PocketIC cases
 cover immutable bytes, manifest agreement, lost replies, cancellation, failed
 gateway requests without retry and abort cuts against a local HTTP substitute.
 This supersedes the assessment's pending experiment and SDK mismatch. Production
-consumer admission, durable gateway-effect intent and deployed qualification remain.
+consumer admission, production persistence and deployed qualification remain.
 The local fixture now feeds Caffeine's actual prepared JSON through a bounded Rust
 decoder that reuses the existing model, then completes tenant admission and uploader
 preparation in PocketIC before returning permission. This proves the local handoff,
 not production application authentication or deployed provider behavior.
+The subsequent gateway guard journals opaque requests through the existing patched
+fetch hook without changing Caffeine's algorithms or wire formats. Local browser
+tests retain uncertain/failed HTTP effects and cancellation across tab loss and
+reload. A complete HTTP response is only historical transport evidence; production
+store durability, provider reconciliation and completion/billing remain unqualified.
+The Toko development authorization refresh remains at the prior commit. Its project
+asset registration requires a verified Maintainer session; certificate issuance
+checks AssetsManage separately. The reference browser journey now follows gateway
+outcomes with consumer registration or explicit cancellation/withdrawal, preserving
+unconfirmed obligations. That fixture operator policy is not Toko's delegated role
+policy; no Toko source was edited or deployed.
 
 The [certificate-response review](evidence/caffeine-contract-refresh.json) rechecks
 official main and npm metadata unchanged, and confirms byte-identical Mixin/client

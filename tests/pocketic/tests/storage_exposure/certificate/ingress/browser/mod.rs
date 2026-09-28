@@ -1,12 +1,8 @@
 //! Explicit browser opt-in: the default Rust suite has no Node/Chromium requirement.
+mod admission;
 use super::*;
-use ic_blob_storage::{
-    dto::upload::manifest::{UploadManifestFailure, UploadManifestMutation, UploadManifestRequest},
-    model::identity::caffeine::manifest::CaffeineManifestLimits,
-    ops::caffeine::preparation::{PreparedManifestLimits, decode_prepared_manifest},
-};
 use std::{
-    io::{BufRead, BufReader, Read, Write},
+    io::{BufRead, BufReader, Write},
     path::PathBuf,
     process::{Child, Command, Stdio},
 };
@@ -31,46 +27,12 @@ struct BrowserPreparation {
     manifest_json: String,
 }
 
-fn admit_browser_manifest(f: &Fixture, permission: Permission, browser: &BrowserPreparation) {
-    let input = input(f, permission);
-    let declaration = decode_prepared_manifest(
-        browser.hash.parse().unwrap(),
-        browser.byte_length,
-        browser.manifest_json.as_bytes(),
-        PreparedManifestLimits {
-            max_json_bytes: NonZeroUsize::new(4096).unwrap(),
-            manifest: CaffeineManifestLimits {
-                max_content_bytes: NonZeroU64::new(10).unwrap(),
-                max_chunks: NonZeroUsize::MIN,
-                max_headers: NonZeroUsize::new(8).unwrap(),
-                max_header_bytes: NonZeroUsize::new(1024).unwrap(),
-            },
-        },
-    )
-    .unwrap();
-    f.admit(f.tenant, permission).unwrap();
-    let request = UploadManifestRequest {
-        permission: input.permission,
-        declaration,
-    };
-    // The browser's data is not uploader authority: the actual tenant cannot prepare it.
-    let denied: Result<UploadManifestMutation, UploadManifestFailure> = f
-        .harness
-        .pic
-        .update_candid_as(f.service, f.tenant, "blob_prepare_upload", (&request,))
-        .unwrap();
-    assert_eq!(denied, Err(UploadManifestFailure::Permission(A::Denied)));
-    let accepted: Result<UploadManifestMutation, UploadManifestFailure> = f
-        .harness
-        .pic
-        .update_candid_as(f.service, f.uploader, "blob_prepare_upload", (&request,))
-        .unwrap();
-    assert!(accepted.unwrap().changed);
-    assert_eq!(
-        inspect(f, f.uploader, input).unwrap().state,
-        UploadState::Reserved
-    );
-    configure(f, input);
+fn read_control<T: serde::de::DeserializeOwned>(reader: &mut impl BufRead, limit: u64) -> T {
+    use std::io::Read;
+    let mut line = Vec::new();
+    reader.take(limit + 1).read_until(b'\n', &mut line).unwrap();
+    assert!(line.len() as u64 <= limit && line.ends_with(b"\n"));
+    serde_json::from_slice(&line).unwrap()
 }
 
 #[test]
@@ -81,9 +43,21 @@ fn chromium_certificate_intent_survives_reload_competing_tabs_and_cancellation()
         (u128::MAX - 1, 2, "lost-response"),
         (u128::MAX - 2, 3, "gateway-failure"),
         (u128::MAX - 3, 4, "abort-after-tree"),
+        (u128::MAX - 4, 5, "gateway-write-abort"),
+        (u128::MAX - 5, 6, "gateway-lost-response"),
+        (u128::MAX - 6, 7, "gateway-observe-abort"),
+        (u128::MAX - 7, 8, "gateway-late-cancel"),
+        (u128::MAX - 8, 9, "gateway-oversize"),
+        (u128::MAX - 9, 10, "gateway-cancel-before-claim"),
     ] {
-        let h = Headless::new();
+        let mut h = Headless::new();
+        admission::install(&mut h.fixture);
         let held = scenario == "lost-response";
+        let cancelled = held
+            || matches!(
+                scenario,
+                "gateway-lost-response" | "gateway-late-cancel" | "gateway-cancel-before-claim"
+            );
         let (permission, _) = h.fixture.permission(id, content);
         let input = input(&h.fixture, permission);
         let expected_root = root(permission);
@@ -99,6 +73,12 @@ fn chromium_certificate_intent_survives_reload_competing_tabs_and_cancellation()
             "content": content,
             "gatewayFailure": scenario == "gateway-failure",
             "abortAfterTree": scenario == "abort-after-tree",
+            "gatewayWriteAbort": scenario == "gateway-write-abort",
+            "gatewayObserveAbort": scenario == "gateway-observe-abort",
+            "holdGateway": matches!(scenario, "gateway-lost-response" | "gateway-late-cancel"),
+            "lateGateway": scenario == "gateway-late-cancel",
+            "oversizeGateway": scenario == "gateway-oversize",
+            "cancelAtGatewayClaim": scenario == "gateway-cancel-before-claim",
         });
         let config = tempfile::NamedTempFile::new().unwrap();
         std::fs::write(config.path(), serde_json::to_vec(&args).unwrap()).unwrap();
@@ -116,17 +96,21 @@ fn chromium_certificate_intent_survives_reload_competing_tabs_and_cancellation()
         let mut process = BrowserProcess(Some(child));
         let child = process.0.as_mut().unwrap();
         // Bound transport buffering before the shared decoder's own JSON bound.
-        let mut reader = BufReader::new(child.stdout.take().unwrap()).take(8193);
-        let mut line = Vec::new();
-        reader.read_until(b'\n', &mut line).unwrap();
-        assert!(line.len() <= 8192 && line.ends_with(b"\n"));
-        let browser: BrowserPreparation = serde_json::from_slice(&line).unwrap();
+        let mut reader = BufReader::new(child.stdout.take().unwrap());
+        let browser: BrowserPreparation = read_control(&mut reader, 8192);
         assert_eq!(browser.hash, expected_root);
         assert_eq!(browser.byte_length, permission.request.bytes);
-        admit_browser_manifest(&h.fixture, permission, &browser);
-        child.stdout = Some(reader.into_inner().into_inner());
-        let grant =
-            serde_json::json!({ "permission": candid::encode_one(input.permission).unwrap() });
+        let consumer = admission::handshake(
+            &h.fixture,
+            permission,
+            &browser,
+            &mut reader,
+            child.stdin.as_mut().unwrap(),
+            scenario == "success",
+        );
+        child.stdout = Some(reader.into_inner());
+        let grant = serde_json::json!({ "permission": candid::encode_one(input.permission).unwrap(),
+                "consumer": admission::consumer_commands(&consumer) });
         writeln!(child.stdin.take().unwrap(), "{grant}").unwrap();
         let output = process.0.take().unwrap().wait_with_output().unwrap();
         assert!(
@@ -137,18 +121,20 @@ fn chromium_certificate_intent_survives_reload_competing_tabs_and_cancellation()
         );
         let report: serde_json::Value = serde_json::from_slice(&output.stdout).unwrap();
         assert_eq!(report["outcome"], "passed");
-        assert_eq!(report["cancelled"], held);
+        assert_eq!(report["cancelled"], cancelled);
+        admission::verify_consumer(&h.fixture, &consumer, cancelled, report["consumer"].clone());
         assert_eq!(
             inspect(&h.fixture, h.fixture.uploader, input)
                 .unwrap()
                 .state,
             UploadState::ExposurePossible
         );
-        // Browser cancellation is not tenant permission withdrawal or quota release.
-        assert!(
-            !inspect(&h.fixture, h.fixture.tenant, input)
+        // The explicit consumer follow-through withdraws; browser cancellation alone does not.
+        assert_eq!(
+            inspect(&h.fixture, h.fixture.tenant, input)
                 .unwrap()
-                .revoked
+                .revoked,
+            cancelled
         );
     }
 }

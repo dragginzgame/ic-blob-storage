@@ -71,7 +71,7 @@ make test-browser
 
 Use a supported Node on PATH for setup. `BLOB_BROWSER_NODE=/absolute/path/to/node`
 can select the runtime for `make test-browser`. The target bundles existing local
-packages, builds the storage probe and runs the ignored browser case explicitly.
+packages, builds the storage and consumer probes and runs the ignored browser case explicitly.
 It downloads nothing. Missing packages/browser/runtime fail rather than skip.
 The ordinary Rust/CI/release suite does not run this opt-in browser test.
 The fixture imports the private reusable source client in `clients/browser`.

@@ -2,6 +2,6 @@
   "name": "@dragginzgame/blob-storage-browser",
   "private": true,
   "type": "module",
-  "exports": "./certificate.js",
+  "exports": { ".": "./certificate.js", "./gateway": "./gateway.js" },
   "peerDependencies": { "@icp-sdk/core": "5.4.0" }
 }

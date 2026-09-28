@@ -2,18 +2,18 @@
 
 Date: 2026-09-28
 
-## Active work — 0.2.16 changelog draft
+## Active work — 0.2.17 changelog draft
 
-The maintainer confirmed **0.2.15 is pushed** and requested continued work.
-Cargo and the release receipt are 0.2.15. Local main, origin/main and v0.2.15 resolve to
-`44b0d9e8c4ffcab558e41e87bbbe52851f2c35a4`, from validated source
-`14431b0f43d7cada64646963f52e4bbf264ca70c`. The receipt records the
+The maintainer confirmed **0.2.16 is pushed** and requested continued work.
+Cargo and the release receipt are 0.2.16. Local main, origin/main and v0.2.16 resolve to
+`99eb1195e1d5e7e62bf7ad1ab488c5248e0d8726`, from validated source
+`6d6234b1f414e9832c1115c5068529b1137bf7ad`. The receipt records the
 `release-verify` gate; registry publication was not independently queried.
-The dated 0.2.15 notes match that release. The maintainer requested the **0.2.16**
+The dated 0.2.16 notes match that release. The maintainer requested the **0.2.17**
 changelog; completed work is grouped in that undated draft below an empty
 **Unreleased** section. Package version and release receipt remain unchanged.
-The private browser fixture adds Caffeine 1.1.2 and aligns its SDK to supported
-5.4.0, recorded in its npm lockfile. Rust dependencies and Cargo.lock are unchanged.
+The browser fixture retains Caffeine 1.1.2 and supported SDK 5.4.0.
+Dependencies and lockfiles are unchanged in this batch.
 No version mutation, commit, publication, deployment or deployed-provider effect ran here;
 transfers below use simulated cycles between local PocketIC canisters.
 
@@ -28,7 +28,63 @@ operator client. Library publication does not qualify the service or Canic remov
 | M3 — Caffeine and operator integration | In progress: shared transports with local IC evidence | Qualified provider transport, completion/economics and production client |
 | M4 — managed parity and acceptance | Not implemented | Same journey through Canic adapter, complete replacement evidence and handoff |
 
-## Current focus — Caffeine package composition
+## Current focus — signed consumer admission and gateway coordination
+
+Browser admission now uses signed SDK ingress to the existing consumer probe.
+That canister retains the full asset/permission intent and calls the service under
+its actual tenant identity. The browser then signs preparation directly as the
+admitted uploader. Unrelated identities cannot admit or prepare, and the uploader
+cannot bypass the consumer by admitting itself. The harness verifies the exact
+persisted consumer intent, acknowledged permission and bounded manifest reply
+before allowing certificate issuance. After the gateway outcome, the browser signs
+a consumer registration attempt; service exposure remains unconfirmed and the asset
+stays unpublished even on HTTP success. Cancelled cases explicitly persist the
+consumer tombstone and then withdraw through its tenant client. The exact saved
+intent, acknowledged withdrawal, browser history and charged reservation survive.
+Local browser cancellation alone still does not withdraw tenant permission.
+
+The read-only Toko development refresh still resolves to
+`6519b72d2a420564dabaf700fc55f7b8603d9fd3`. Its project boundary verifies delegated
+subjects and project roles: asset registration requires Maintainer; certificate
+issuance separately checks AssetsManage. These remain application-owned policy,
+not a reason to add Toko/Canic authentication dependencies to the service. See the
+[pinned review](../evidence/toko-0.2-review.json). No sibling changes occurred.
+
+Rust supplies opaque Candid encoded from maintained DTOs and validates replies;
+the private JavaScript fixture adds no service schema or consumer API. SDK update
+calls verify IC certificates under the owned emulator key. `make test-browser`
+now also builds the existing consumer probe. There is no new production identity
+provider, browser preparation journal or Toko endpoint; the fixture's configured
+operator authorization is not Toko membership policy.
+
+`clients/browser/gateway.js` wraps Caffeine's existing per-client fetch hook. It
+snapshots opaque requests, commits bounded destination/header/body fingerprints
+before dispatch and records bounded HTTP responses before returning them upstream.
+The caller-owned store serializes gateway claims with certificate intent and
+cancellation. An execution token fences competing tabs and recreated hooks;
+lost/uncertain/failed requests cannot be replayed or continued automatically.
+This adds no provider parser, chunk uploader, hashing algorithm or SDK patch.
+
+The private IndexedDB fixture retains gateway history through cancellation,
+certificate recovery, tab closure and reload. Tests inspect committed intent at
+the actual fetch boundary and compare fingerprints to received HTTP bytes. New
+scenarios cover aborted claim/observation writes, lost and oversized replies, and
+late cancellation; local HTTP observations never confirm service completion.
+All ten Chromium/PocketIC scenarios pass in 45.53 seconds with signed consumer
+admission, uploader preparation and consumer follow-through, including cancellation
+between inspection and claim, request-budget exhaustion and attempts to continue
+after HTTP failure/uncertainty. Strict storage-test Clippy, release storage/consumer Wasm,
+formatting, JavaScript syntax and diff checks pass. No full CI/release gate ran.
+Common signed authorization refusal probes run once in the successful journey;
+transport fault cases retain their distinct recovery/accounting assertions.
+
+Next, integrate the production consumer's authentication and qualified persistence,
+then authoritative provider reconciliation/completion. Do not turn the fixture
+store into a production journal or infer gateway retry authority from recovered
+certificates, HTTP status or elapsed time. No deployed provider traffic, release,
+publication or sibling edits ran here.
+
+## Caffeine package composition — included in 0.2.16
 
 The unmodified published Caffeine 1.1.2 client passed both local browser scenarios
 using a real guarded HttpAgent (4.49 seconds). The existing constructor hook is
@@ -63,13 +119,13 @@ Four decoder tests additionally cover accepted upstream metadata and malformed,
 oversized or inconsistent declarations. Core library/test Clippy passes as well.
 The npm graph confirms a single shared SDK 5.4.0. No full CI ran.
 
-Next, connect this handoff to production consumer authentication and retain
-gateway-effect intent before transfer; do not infer that a recovered certificate
+The gateway follow-up above now retains effect intent around this handoff.
+Do not infer that a recovered certificate
 or freshly prepared handle permits a retry. Production authentication/storage,
 provider completion/economics and deployed qualification remain open. No provider
 traffic, upstream contact, deployment or package publication occurred here.
 
-## Browser reuse assessment — direction adopted in the 0.2.16 draft
+## Browser reuse assessment — direction adopted in 0.2.16
 
 The maintainer questioned duplicated browser work and explicitly requested a reuse
 assessment. The [assessment](../provider-review.md#browser-reuse-assessment--2026-09-28)
@@ -94,7 +150,7 @@ missing hooks, preferably upstream-supported or as a small reviewed pinned patch
 No upstream contact, implementation replacement, dependency change or provider
 effect ran during this source/API assessment. Full CI was not run.
 
-## Reusable browser certificate transport — preceding 0.2.16 draft evidence
+## Reusable browser certificate transport — included in 0.2.16
 
 `clients/browser` now owns certificate transport and verification as a private
 source package, using the pinned IC SDK peer. Callers supply authentication,

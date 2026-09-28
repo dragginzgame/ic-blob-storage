@@ -653,7 +653,7 @@ and root key, and rechecks the envelope's uploader/service/method/root before
 recovery. It issues once after durable claim or reads historical status without
 redispatch. Cancellation cannot recall an already claimed request, renew permission
 or free service capacity. The private source package contains no test identity,
-gateway upload, allocator or production store. Its [store contract](../clients/browser/README.md)
+provider wire implementation, allocator or production store. Its [store contract](../clients/browser/README.md)
 still requires consumer integration and restore/eviction qualification.
 
 The private Chromium fixture imports that transport and adds a bounded two-slot IndexedDB store for full
@@ -679,10 +679,24 @@ Failed/aborted transfers preserve local service exposure, not confirmed completi
 declaration with caller-selected buffering and manifest limits. Metadata and root
 checks reuse the existing model; redundant nested tree nodes are not validated.
 No file bytes, admission or authority are provided by that decoder. The local
-browser fixture now passes its actual prepared output through tenant admission and
-uploader preparation in PocketIC before receiving the exact permission.
-Production consumer admission, gateway-effect intent and deployed qualification
-remain required; no new provider wire implementation is introduced.
+browser fixture now signs admission to the existing consumer canister, which retains
+the exact asset/permission and admits as the tenant. The browser separately signs
+preparation directly as the uploader. Foreign identities and direct uploader
+admission are refused. Opaque Candid uses the existing Rust schemas and validators;
+this is local caller-boundary evidence, not Toko authentication or a production API.
+The browser then attempts registration through the consumer; unconfirmed exposure
+cannot publish even after successful HTTP. Explicit consumer cancellation followed
+by tenant withdrawal preserves the exposed reservation and browser request history.
+Browser cancellation, consumer tombstones and service withdrawal remain distinct.
+The separate browser gateway guard now commits request fingerprints before fetch
+through caller-owned storage. Its execution token and bounded request history share
+the certificate/cancellation transaction: uncertainty blocks continuation and a
+recreated hook cannot restart a transfer. Complete bounded HTTP replies are retained
+as history, including after cancellation; they do not establish provider completion.
+The local IndexedDB fixture demonstrates claim/observation rollback, cancellation
+races, lost replies and reload fencing. Production consumer admission, persistence,
+provider reconciliation and deployed qualification remain required; no new provider
+wire implementation is introduced.
 
 The private `blob-consumer-probe` exercises consumer transactions separately from
 the storage owner: exact bounded intent and reserved cleanup operation before

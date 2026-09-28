@@ -2,6 +2,32 @@
 
 ## [Unreleased]
 
+## [0.2.17]
+
+### Added
+
+- Browser gateway transport guard around Caffeine's existing fetch hook. Caller-owned
+  storage commits bounded request fingerprints before dispatch, atomically with
+  cancellation checks. A retained execution fence prevents competing tabs or reloads
+  from restarting a claimed transfer; failed or uncertain requests cannot be retried.
+  HTTP responses record history without confirming provider completion or billing.
+- Chromium/PocketIC coverage for gateway journal write aborts, lost responses,
+  failed observation writes, oversized replies, request capacity and cancellation
+  before claim/after dispatch. Reload and certificate recovery preserve gateway
+  history. Tests use a local gateway substitute and fixture IndexedDB store;
+  production persistence, reconciliation and deployed qualification remain open.
+- Browser admission now exercises signed ingress through the existing consumer
+  canister fixture, which persists asset intent and admits as the actual tenant.
+  The browser then prepares the manifest directly as the uploader. Unrelated
+  identities and direct uploader admission are refused. Candid encoding and reply
+  validation reuse the Rust types; no JavaScript service schema is duplicated.
+  This is local integration evidence, not a production Toko endpoint or identity flow.
+- Browser reference journeys now attempt consumer registration after gateway outcomes
+  and explicitly persist consumer cancellation before tenant withdrawal. HTTP success
+  cannot publish unconfirmed content; withdrawal preserves exposed reservations and
+  browser request history. Shared authorization probes run once across the fault
+  scenarios instead of repeating the same checks for every transport interruption.
+
 ## [0.2.16] - 2026-09-28
 
 ### Added

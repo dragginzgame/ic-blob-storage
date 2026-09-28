@@ -226,5 +226,20 @@
       "source_sha256": "6eb7f5b424f02476c9096e4684d8e520121c21b2b2f6f29f3c9a25e0c07cad57",
       "evidence": "Native service rejection/accounting tests, independent actual-content hashing vectors and actual IC metadata rejection/reordered retry checks pass."
     }
+  },
+  "consumer_authorization_refresh": {
+    "observed_on": "2026-09-28",
+    "branch": "development",
+    "commit": "6519b72d2a420564dabaf700fc55f7b8603d9fd3",
+    "access": "Authenticated GitHub API; resolved development then fetched pinned source. Read-only, no sibling edits or provider effects.",
+    "files": {
+      "fleets/toko/project/instance/src/lib.rs": "f54d5d6cca395279b8184edb8677c4d34a14a8142f8bf78bec85a0a5a430da7e",
+      "fleets/toko/project/instance/src/ops/asset.rs": "879699f31fa09bc7a14ddcd93e56732377e54516af3b8900ad612cfa84445b31",
+      "backend/src/toko/src/auth.rs": "6a9895766edadc52cb9b7ae6d0a0ee5606e7d026eecca34e12528c5853a49058",
+      "frontend/src/data/services/auth.service.ts": "9e8967b00d1f876328d90ca117a67f68fbe54b4ece7dd09df132befab566e013"
+    },
+    "observations": "Project endpoints verify delegated subjects and project roles. create_remote_assets requires Maintainer; the certificate endpoint separately requires AssetsManage. Non-local asset creation checks blob liveness before inserting assets. The auth service delegates to the application's AuthApi.",
+    "decision": "Keep Toko authentication and membership policy application-owned. Reuse the existing local consumer transaction fixture to prove browser registration cannot publish uncertain uploads and explicit cancellation/tenant withdrawal retains exposed reservations; do not copy a Toko auth stack into the service.",
+    "limits": "Source evidence does not establish current deployed policy or qualify the provider. Fixture operator identity is not Toko membership. Production consumer adoption remains open."
   }
 }

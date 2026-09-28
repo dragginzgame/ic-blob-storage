@@ -117,7 +117,10 @@ browser hash tree, chunk uploader or general-purpose journal by default.
 Local composition now uses that actual package through its existing agent hook,
 with a small pinned preparation/transport patch and supported SDK 5.4.0. Real IC
 certificates and local substitute gateway HTTP requests exercise the path; actual
-consumer admission and durable gateway-effect coordination remain next.
+consumer admission and qualified production persistence remain next. The gateway
+fetch guard now records bounded request intent and HTTP observations, fencing
+recreated hooks after a claimed transfer. Its local IndexedDB evidence does not
+establish production storage durability or provider reconciliation.
 The original B1/B2/B3 extraction gates are project gates, not crate version numbers.
 Starting 0.2 does not waive the [service contract](service-contract.md).
 

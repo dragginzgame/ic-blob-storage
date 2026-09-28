@@ -5,6 +5,7 @@ import { readFile } from 'node:fs/promises';
 import assert from 'node:assert/strict';
 import { createInterface } from 'node:readline';
 import { once } from 'node:events';
+import { createHash } from 'node:crypto';
 
 const [major, minor] = process.versions.node.split('.').map(Number);
 assert(major > 20 || (major === 20 && minor >= 19), 'Browser evidence requires Node >=20.19.0');
@@ -17,9 +18,9 @@ const server = createServer((req, res) => {
     const chunks = [];
     req.on('data', data => chunks.push(data));
     req.on('end', () => {
-      gateway.push({ url: req.url, body: Buffer.concat(chunks) });
+      gateway.push({ url: req.url, body: Buffer.concat(chunks), headers: req.headers });
       res.writeHead(config.gatewayFailure ? 503 : 200, { 'content-type': 'application/json' });
-      res.end(JSON.stringify({ status: 'blob_complete' }));
+      res.end(config.oversizeGateway ? 'x'.repeat(64 * 1024 + 1) : JSON.stringify({ status: 'blob_complete' }));
     });
     return;
   }
@@ -50,11 +51,17 @@ try {
   await a.waitForFunction(() => !!window.fixture);
   const upstreamPlan = await a.evaluate(c => fixture.plan(c), config);
   assert.deepEqual(gateway, []);
-  // Rust receives the actual browser declaration and makes real tenant admission
-  // and uploader preparation calls before returning the exact permission below.
+  // Rust converts the actual declaration into opaque Candid. The browser signs
+  // consumer admission and uploader preparation; Rust checks replies before grant.
   const control = createInterface({ input: process.stdin, crlfDelay: Infinity });
-  const grant = once(control, 'line');
+  const commandsReady = once(control, 'line');
   process.stdout.write(`${JSON.stringify(upstreamPlan)}\n`);
+  const [commandsLine] = await commandsReady;
+  const grant = once(control, 'line');
+  const replies = await a.evaluate(({ config, commands }) => fixture.admitAndPrepare(config, commands),
+    { config, commands: JSON.parse(commandsLine) });
+  assert.deepEqual(gateway, []);
+  process.stdout.write(`${JSON.stringify(replies)}\n`);
   const [line] = await grant;
   control.close(); process.stdin.pause();
   const admitted = JSON.parse(line);
@@ -69,6 +76,12 @@ try {
   assert.equal(manifest.tree.hash, config.root);
   assert.deepEqual(manifest.headers, ['Content-Length: 10', 'Content-Type: image/png']);
   assert.equal(await a.evaluate(() => fixture.calls()), 0);
+  assert.deepEqual(gateway, []);
+  for (const [kind, code] of [['origin', 'request'], ['size', 'request-size'], ['ordinary', 'gateway-blocked']]) {
+    assert.equal(await a.evaluate(async kind => {
+      try { await fixture.gatewayProbe(kind); return 'sent'; } catch (error) { return error.code; }
+    }, kind), code);
+  }
   assert.deepEqual(gateway, []);
   assert.equal(await a.evaluate(async () => {
     try { await fixture.rejectClonedHandle(); return 'sent'; } catch (error) { return error.name; }
@@ -93,7 +106,27 @@ try {
   const unsent = await b.evaluate(() => fixture.inspect());
   assert.equal(unsent.phase, 'saved'); assert.equal(unsent.envelope, undefined);
   await a.evaluate(() => fixture.abortClaim(false));
-  if (config.holdResponse) {
+  if (config.holdGateway) {
+    await a.evaluate(() => { window.outcome = fixture.issue().then(() => 'observed', () => 'failed'); });
+    await a.waitForFunction(() => fixture.gatewayHeld());
+    const pending = await b.evaluate(() => fixture.inspect());
+    assert.equal(pending.gateway.requests.length, 1);
+    assert.equal(pending.gateway.requests[0].phase, 'uncertain');
+    // Another tab cannot acquire a new gateway session, even with observed issuance.
+    assert.equal(await b.evaluate(async () => {
+      try { await fixture.gatewayProbe(); return 'sent'; } catch (error) { return error.code; }
+    }), 'gateway-session');
+    await b.evaluate(() => fixture.cancel());
+    if (config.lateGateway) {
+      await a.evaluate(() => fixture.releaseGateway());
+      assert.equal(await a.evaluate(() => window.outcome), 'failed');
+      const late = await b.evaluate(() => fixture.inspect());
+      assert.equal(late.gateway.requests[0].phase, 'responded');
+      assert.equal(late.cancelled, true);
+    } else {
+      await a.close();
+    }
+  } else if (config.holdResponse) {
     await a.evaluate(() => { window.outcome = fixture.issue().then(() => 'observed', () => 'failed'); });
     await a.waitForFunction(() => fixture.held());
     await b.evaluate(() => fixture.cancel());
@@ -105,15 +138,27 @@ try {
     const outcomes = await Promise.all([a, b].map(page => page.evaluate(async () => {
       try { await fixture.issue(); return 'observed'; } catch { return 'blocked'; }
     })));
-    const failedTransfer = config.gatewayFailure || config.abortAfterTree;
+    const failedTransfer = config.gatewayFailure || config.abortAfterTree || config.gatewayWriteAbort ||
+      config.gatewayObserveAbort || config.oversizeGateway || config.cancelAtGatewayClaim;
     assert.deepEqual(outcomes.sort(), failedTransfer ? ['blocked', 'blocked'] : ['blocked', 'observed']);
     const counts = await Promise.all([a, b].map(page => page.evaluate(() => fixture.calls())));
     assert.equal(counts.reduce((x, y) => x + y), 1);
   }
-  if (!config.holdResponse && !config.abortAfterTree) {
+  if (!config.holdResponse && !config.holdGateway && !config.abortAfterTree) {
     assert.equal(await a.evaluate(async () => {
       try { await fixture.repeatHandle(); return 'sent'; } catch (error) { return error.name; }
     }), 'TypeError');
+    // Exhausted, failed and uncertain transfers cannot send another request even
+    // through the still-live hook; the competing tab cannot acquire its session.
+    const beforeProbes = await b.evaluate(() => fixture.inspect());
+    const refused = await Promise.all([a, b].map(page => page.evaluate(async () => {
+      try { await fixture.gatewayProbe(); return 'sent'; } catch (error) { return error.code; }
+    })));
+    const expected = config.cancelAtGatewayClaim ? ['gateway-blocked', 'gateway-blocked'] :
+      config.gatewayWriteAbort ? ['fixture-write-abort', 'fixture-write-abort'] :
+      ['gateway-session', config.gatewayFailure ? 'gateway-uncertain' : 'gateway-capacity'];
+    assert.deepEqual(refused.sort(), expected.sort());
+    assert.deepEqual(await b.evaluate(() => fixture.inspect()), beforeProbes);
   }
   const before = await b.evaluate(() => fixture.inspect());
   await load(b); // Actual document reload, retaining IndexedDB.
@@ -126,8 +171,15 @@ try {
   assert.equal(recovered.requestId, before.requestId);
   assert.deepEqual(recovered.envelope, before.envelope);
   assert.equal(recovered.phase, 'observed');
-  assert.equal(recovered.cancelled, !!config.holdResponse);
+  assert.equal(recovered.cancelled, !!(config.holdResponse || config.holdGateway || config.cancelAtGatewayClaim));
+  assert.deepEqual(recovered.gateway, before.gateway);
   assert.equal(await b.evaluate(() => fixture.calls()), 0);
+  if (recovered.gateway || recovered.cancelled) {
+    assert.equal(await b.evaluate(async () => {
+      try { await fixture.gatewayProbe(); return 'sent'; } catch (error) { return error.code; }
+    }), recovered.cancelled ? 'gateway-blocked' : 'gateway-session');
+    assert.equal(await b.evaluate(() => fixture.gatewayCalls()), 0);
+  }
   const proofState = await b.evaluate(() => fixture.inspect());
   const reads = await b.evaluate(() => fixture.reads());
   for (const [kind, code] of [['binding', 'intent-binding'], ['trust', 'intent-binding'],
@@ -159,10 +211,24 @@ try {
     return { conflict, stale, capacity };
   });
   assert.deepEqual(checks, { conflict: 'conflict', stale: 'observation-binding', capacity: 'capacity' });
-  if (config.holdResponse) {
+  if (config.holdResponse || config.gatewayWriteAbort || config.cancelAtGatewayClaim) {
     assert.deepEqual(gateway, []);
+    assert.equal(recovered.gateway, undefined);
   } else {
-    assert.equal(gateway.length, config.gatewayFailure || config.abortAfterTree ? 1 : 2);
+    assert.equal(gateway.length, config.gatewayFailure || config.abortAfterTree || config.holdGateway ||
+      config.gatewayObserveAbort || config.oversizeGateway ? 1 : 2);
+    assert.equal(recovered.gateway.requests.length, gateway.length);
+    for (const [i, observed] of gateway.entries()) {
+      const entry = recovered.gateway.requests[i];
+      assert.equal(entry.request.url, `${origin}${observed.url}`);
+      assert.equal(entry.request.method, 'PUT');
+      assert.equal(entry.request.bodyBytes, observed.body.length);
+      assert.equal(entry.request.bodySha256, createHash('sha256').update(observed.body).digest('hex'));
+      for (const [name, value] of entry.request.headers) assert.equal(observed.headers[name], value);
+      const uncertain = (config.holdGateway && !config.lateGateway) || config.gatewayObserveAbort || config.oversizeGateway;
+      assert.equal(entry.phase, uncertain ? 'uncertain' : 'responded');
+      assert.equal(entry.status, uncertain ? undefined : config.gatewayFailure ? 503 : 200);
+    }
     assert.equal(gateway[0].url, '/v1/blob-tree/');
     const tree = JSON.parse(gateway[0].body);
     assert.deepEqual(tree.blob_tree, manifest);
@@ -179,7 +245,13 @@ try {
       assert.deepEqual(gateway[1].body, Buffer.alloc(10, config.content));
     }
   }
-  console.log(JSON.stringify({ browser: browser.version(), outcome: 'passed', cancelled: recovered.cancelled }));
+  const beforeConsumer = await b.evaluate(() => fixture.inspect());
+  const gatewayCount = gateway.length;
+  const consumer = await b.evaluate(({ config, cancelled }) => fixture.finishConsumer(config, cancelled),
+    { config, cancelled: recovered.cancelled });
+  assert.deepEqual(await b.evaluate(() => fixture.inspect()), beforeConsumer);
+  assert.equal(gateway.length, gatewayCount);
+  console.log(JSON.stringify({ browser: browser.version(), outcome: 'passed', cancelled: recovered.cancelled, consumer }));
 } finally {
   clearTimeout(deadline);
   await browser.close();

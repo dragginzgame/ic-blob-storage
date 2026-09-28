@@ -39,5 +39,26 @@
     "prepared_manifest_decoder": "ops::caffeine::preparation reuses model metadata/root checks with explicit JSON and declaration limits; four native tests pass for accepted upstream metadata and malformed/oversized/inconsistent input. Redundant nested tree nodes are ignored, not independently validated. No file bytes or authority are accepted by the decoder.",
     "checks": "Release storage Wasm and strict storage-test Clippy passed. Package source hashes checked before applying the patch to generated files; installed package unchanged. Browser checks are opt-in, not a full CI/release run.",
     "limits": "Private fixture with test identity, two-slot IndexedDB, simulated service provider facts and owned HTTP gateway substitute. No deployed gateway or billing evidence, production consumer admission, durable gateway-effect journal or live retry authority. Package installation disabled scripts."
+  },
+  "gateway_coordination": {
+    "tested_on": "2026-09-28",
+    "implementation": "clients/browser/gateway.js wraps the existing patched fetch hook without changing the package patch, provider algorithms or wire formats.",
+    "intent": "Caller-owned storage atomically retains request URL/method/headers/body size and SHA-256 fingerprint before fetch, bound to certificate intent and permanent cancellation. A retained execution token prevents recreated hooks or competing tabs from restarting an already claimed transfer.",
+    "observation": "Complete bounded HTTP responses become historical status records before return to Caffeine. Network/body/observation-write failures retain uncertainty; non-2xx status blocks continuation. Neither HTTP success nor certificate recovery establishes provider completion or permits replay.",
+    "checks": "Ten Chromium/PocketIC scenarios passed in 31.81 seconds, including claim/observation transaction aborts, held response/tab loss, oversized response, cancellation before claim and after dispatch, lifetime request capacity and refused continuation. Strict storage-test Clippy, release storage Wasm, JavaScript syntax, formatting and diff checks passed. No full CI/release gate ran.",
+    "limits": "Two-slot IndexedDB fixture and owned local gateway substitute only. No production durability/eviction/backup guarantee, authenticated consumer integration, provider reconciliation, billing cessation or deployed qualification. No live provider effect or publication occurred."
+  },
+  "signed_consumer_handoff": {
+    "tested_on": "2026-09-28",
+    "path": "Signed browser ingress to the existing consumer probe retains asset intent and calls canonical admission as the actual tenant; the browser separately signs canonical manifest preparation as the uploader. The harness validates exact retained intent and replies before permitting certificate issuance.",
+    "authority": "Unrelated browser identity admission/preparation and direct uploader admission receive typed refusals. The IC SDK verifies update certificates against the owned PocketIC root. Rust supplies and validates opaque Candid from existing DTOs; JavaScript duplicates no service schema.",
+    "checks": "All ten Chromium/PocketIC scenarios pass in 50.58 seconds with this handoff. Strict storage-test Clippy, release storage/consumer Wasm, JavaScript syntax, formatting and diff checks pass. No full CI/release gate ran.",
+    "limits": "Existing consumer fixture uses its configured operator identity, not Toko membership policy. No production login, preparation journal, consumer API, provider completion or publication was added. Gateway/provider facts remain local substitutes."
+  },
+  "consumer_followthrough": {
+    "tested_on": "2026-09-28",
+    "path": "After gateway outcomes, signed browser calls attempt consumer registration. HTTP success leaves unconfirmed exposure unpublished. Cancelled cases persist consumer tombstones then withdraw the exact permission through the consumer's tenant client.",
+    "checks": "Ten Chromium/PocketIC scenarios pass in 45.53 seconds. Persisted consumer intent and revocation acknowledgments match; exposed reservations remain active/charged and browser journal history is unchanged. Common authorization refusal probes run once, while transport cases keep their individual recovery checks. Strict storage-test Clippy, release storage/consumer Wasm, JavaScript syntax, formatting and diff checks pass.",
+    "limits": "All consumer and provider behavior remains labelled local fixture evidence. No provider completion, production login/storage, deployment or publication was added; no full CI/release gate ran."
   }
 }

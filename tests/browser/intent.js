@@ -83,3 +83,38 @@ export function cancel(binding) {
     return { ...row, cancelled: true };
   });
 }
+
+// Gateway claims and cancellation share the certificate row and transaction.
+export function claimGateway(binding, scope, owner, index, request, abortAfterPut = false) {
+  return change(binding.key, row => {
+    bound(row, binding);
+    if (row.cancelled || row.phase !== 'observed') throw new Refusal('gateway-blocked');
+    const gateway = row.gateway ?? { scope, owner, requests: [] };
+    if (gateway.owner !== owner || JSON.stringify(gateway.scope) !== JSON.stringify(scope)) {
+      throw new Refusal('gateway-session');
+    }
+    if (index !== gateway.requests.length || index >= scope.maxRequests) throw new Refusal('gateway-capacity');
+    const previous = gateway.requests.at(-1);
+    if (previous && (previous.phase !== 'responded' || previous.status < 200 || previous.status >= 300)) {
+      throw new Refusal('gateway-uncertain');
+    }
+    if (gateway.requests.some(entry => entry.request.url === request.url)) throw new Refusal('gateway-repeat');
+    gateway.requests.push({ request, phase: 'uncertain' });
+    return { ...row, gateway };
+  }, abortAfterPut);
+}
+export function observeGateway(binding, scope, owner, index, request, status, abortAfterPut = false) {
+  return change(binding.key, row => {
+    bound(row, binding);
+    const gateway = row.gateway;
+    const entry = gateway?.requests[index];
+    if (gateway?.owner !== owner || JSON.stringify(gateway.scope) !== JSON.stringify(scope) ||
+      gateway.requests.length !== index + 1 || !entry ||
+      JSON.stringify(entry.request) !== JSON.stringify(request) || entry.phase !== 'uncertain') {
+      throw new Refusal('gateway-observation');
+    }
+    gateway.requests[index] = { request, phase: 'responded', status };
+    // A late HTTP response records history even when cancellation won the race.
+    return { ...row, gateway };
+  }, abortAfterPut);
+}

@@ -84,7 +84,7 @@ test-pocketic:
 # Browser tooling is explicitly provisioned; this target performs no downloads.
 test-browser:
 	$(BLOB_BROWSER_NODE) tests/browser/build.mjs
-	cargo build --offline --locked --release --target wasm32-unknown-unknown -p blob-storage-probe --lib
+	cargo build --offline --locked --release --target wasm32-unknown-unknown -p blob-storage-probe -p blob-consumer-probe --lib
 	cargo test --offline --locked -p ic-blob-storage-pocketic-tests --test storage chromium_certificate_intent -- --ignored --test-threads=1
 
 test-admission-resources:

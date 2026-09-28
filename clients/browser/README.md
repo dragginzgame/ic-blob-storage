@@ -32,15 +32,24 @@ observation before handing the response to Caffeine. Caffeine continues to own
 certificate extraction and gateway requests. Use the patch's static preparation
 before service admission, then its `uploadPrepared` with explicit per-client
 transport, cancellation and disabled retries. The local composition is tested;
-production consumer integration and gateway-effect journaling are still open.
+the gateway guard below adds request journaling through the same caller-owned store.
+Production consumer integration and persistence qualification remain open.
 
 On the Rust side, `ops::caffeine::preparation::decode_prepared_manifest` converts
 the upstream `manifestJSON` into the existing service declaration within explicit
 JSON/content/leaf/header limits. It reuses metadata and root checks; it grants no
 tenant or uploader authority. The receiving transport must bound buffering too.
-The Chromium fixture passes that actual browser output through tenant admission
-and uploader preparation in PocketIC before returning the permission. This local
-handshake is not a production consumer API, and never sends file bytes to the service.
+The Chromium fixture passes that actual browser output through signed admission
+to the existing consumer canister, which retains asset intent and admits as the
+tenant. The browser then signs uploader preparation directly to the service before
+certificate issuance. Rust supplies/validates opaque Candid using maintained types;
+the fixture does not duplicate those schemas in JavaScript. This local handshake
+is not a production consumer API, and never sends file bytes to the service.
+After transfer attempts, the fixture calls the existing consumer registration
+handler and verifies that HTTP success cannot publish an unconfirmed asset.
+Cancelled cases separately persist consumer cancellation and withdraw tenant
+permission. These signed application calls leave the browser journal unchanged;
+the exposed reservation remains charged. They do not supply production Toko auth.
 
 The caller supplies an authenticated SDK identity, canonical service/tenant/uploader
 principals and a trusted IC root key as a Uint8Array. The client retains the IC
@@ -102,3 +111,51 @@ and storage errors also propagate. Errors never authorize retrying issuance.
 
 Run the actual Chromium/PocketIC checks with `make test-browser`, after the setup
 in [dependency documentation](../../docs/dependencies.md#browser-certificate-evidence).
+
+## Gateway request coordination
+
+`createGatewayTransport` in `gateway.js` (package subpath `./gateway`) supplies the
+patched Caffeine client's `fetch` option. Keep `retry: false` and `concurrency: 1`.
+It accepts `{ certificate, intents, origin, maxRequests, maxRequestBytes, fetch? }`;
+`certificate` is the existing certificate client and `intents` is the same store.
+The selected origin must use HTTPS or explicit loopback HTTP. This hook snapshots
+opaque PUT bodies/headers, confines requests to that origin, refuses redirects,
+omits cookies and records fingerprints. It neither builds nor interprets Caffeine
+trees, chunks, certificates, namespace fields or provider completion responses.
+The integrating application still owns the correct bucket/project/provider binding.
+
+The request budget is selected before dispatch: at most 256 requests, 2 MiB per
+body, 4096 URL characters and 16 headers totalling at most 4096 name/value characters.
+Bodies must be strings or Uint8Arrays. Responses are bounded to 64 KiB with a
+20-second request deadline. The fixture selects two requests and 1 MiB per body.
+These are local transport limits, not provider limits or evidence of accepted size.
+
+The store adds two methods to the certificate row, returning the whole resulting row:
+
+| Method | Required atomic behavior |
+| --- | --- |
+| `claimGateway(binding, scope, owner, index, request)` | Recheck the exact binding, observed certificate and uncancelled state in the same transaction as cancellation. On the first claim, retain `scope` and `owner`; thereafter require both unchanged. Require `index` to equal retained request count below the scope budget, every previous request responded with HTTP 2xx, and no previously claimed URL. Append `{ request, phase: 'uncertain' }` and resolve only after durable commit. |
+| `observeGateway(binding, scope, owner, index, request, status)` | Match the exact retained binding, scope, owner and last uncertain request. Record `{ request, phase: 'responded', status }`, preserving cancellation and all earlier history. Reject mismatches; this observation does not release capacity or authorize replay. |
+
+`scope` is `{ origin, maxRequests, maxRequestBytes }`. A request records its exact
+URL, method, normalized headers, body byte length and SHA-256 fingerprint. Body
+bytes and certificates are not copied into this gateway journal. The `owner` is a
+random local execution token retained by the store and by that hook instance;
+it is not a service identity, secret credential or operational restore authority.
+A new tab, reload or recreated hook receives a different token and cannot claim
+more requests for that transfer. There is deliberately no automatic resume path.
+
+An aborted claim sends nothing. Once committed, even an abort before fetch leaves
+uncertainty. Network/body/observation-write failure also retains that claim. A
+complete bounded HTTP response is recorded before Caffeine receives it; non-2xx
+responses block further requests. Late responses may update history but cannot
+clear cancellation or allow the next request. Local cancellation after a claim
+cannot recall its dispatch. Certificate recovery does not change gateway history.
+
+The caller must validate and retain these bounded records together with certificate
+intent and cancellation. Do not evict, reset or restore an old row to regain an
+execution token or capacity. The two-slot IndexedDB fixture demonstrates transactions,
+tab loss and reload, not production eviction, disk durability or rollback recovery.
+Provider reconciliation, completion, accounting and production application storage
+remain required before live use. `GatewayRefusal.code` reports local refusals;
+HTTP status alone proves neither stored content nor absence of a paid effect.
