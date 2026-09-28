@@ -177,9 +177,18 @@ exports no endpoint; provider qualification and production browser integration
 remain open, and successful local IC tests use explicitly substituted host facts.
 Headless Rust tests verify real local ingress certificates and recover their saved
 request IDs without reissuing. Historical certificates do not renew revoked permission.
-The opt-in `make test-browser` also checks Chromium signature verification and
+The reusable [browser certificate client](clients/browser/README.md) accepts
+caller-owned authentication, explicit IC trust and atomic durable intent storage.
+It retains exact request identity before issuance and recovers historical replies
+without redispatch. The source package is private; production consumer integration
+and deployed provider qualification remain open.
+The opt-in `make test-browser` checks this client's Chromium signature verification and
 IndexedDB intent across competing tabs, cancellation and reload; see
 [browser setup](docs/dependencies.md#browser-certificate-evidence).
+The upload fixture now reuses Caffeine 1.1.2 through that agent, with a
+[small preparation/transport patch](clients/browser/patches/README.md). Hashing,
+chunks and HTTP formats stay upstream-owned. Gateway tests use a local substitute;
+production admission/transfer coordination and provider qualification remain open.
 The separate `blob-consumer-probe` exercises both that first reference and explicit
 retains of existing content through real IC calls: bounded durable intent, atomic
 publication/tombstones, dependency checks, exact recovery and fenced upgrade.

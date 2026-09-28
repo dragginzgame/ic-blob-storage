@@ -1,115 +1,117 @@
-// Local browser evidence only. This fixture contains no gateway upload operation.
-import { HttpAgent, Certificate, Cbor, requestIdOf, lookupResultToBuffer } from '@icp-sdk/core/agent';
+// Local test identity, fault injection and controls; transport lives in clients/browser.
+import { Cbor } from '@icp-sdk/core/agent';
 import { Ed25519KeyIdentity } from '@icp-sdk/core/identity';
-import { Principal } from '@icp-sdk/core/principal';
-import { IDL } from '@icp-sdk/core/candid';
+import { StorageClient } from '@caffeineai/object-storage';
+import { createCertificateClient } from '../../clients/browser/certificate.js';
 import * as intents from './intent.js';
 
-const METHOD = '_immutableObjectStorageCreateCertificate';
-const encoder = new TextEncoder();
-const hex = value => Array.from(value, b => b.toString(16).padStart(2, '0')).join('');
 const unhex = value => Uint8Array.from(value.match(/../g), b => parseInt(b, 16));
-const equal = (a, b) => hex(a) === hex(b);
-let cfg, agent, binding;
-let calls = 0;
-let abortClaim = false, lastProof;
-let responseHeld, releaseResponse;
-async function setup(config) {
-  cfg = config;
-  const identity = Ed25519KeyIdentity.generate(new Uint8Array(32).fill(42));
-  if (identity.getPrincipal().toText() !== cfg.uploader) throw new intents.Refusal('identity');
+let client, storage, prepared, lastAttempt, abortUpload, config, binding, lastProof;
+let gatewayCalls = 0;
+let calls = 0, reads = 0, abortClaim = false, responseHeld = false, releaseResponse;
+let corruptInspection;
+async function setup(cfg) {
+  config = cfg;
+  // Upstream preparation needs no agent, service authorization or network call.
+  prepared ??= await prepare();
   binding = { key: `${cfg.service}:${cfg.tenant}:${cfg.operation}`, service: cfg.service,
     tenant: cfg.tenant, uploader: cfg.uploader, operation: cfg.operation,
     permission: cfg.permission, root: cfg.root };
-  agent = await HttpAgent.create({ host: cfg.url, identity, rootKey: new Uint8Array(cfg.rootKey),
-    shouldFetchRootKey: false, shouldSyncTime: false, retryTimes: 0,
-    fetch: guardedFetch });
-  await intents.save(binding);
+  client = await createCertificateClient({ host: cfg.url,
+    identity: Ed25519KeyIdentity.generate(new Uint8Array(32).fill(42)),
+    rootKey: new Uint8Array(cfg.rootKey), binding,
+    intents: { ...intents,
+      inspect: async binding => {
+        const row = await intents.inspect(binding);
+        return corruptInspection ? corruptInspection(row) : row;
+      },
+      claim: (binding, bytes, id) => intents.claim(binding, bytes, id, abortClaim) },
+    fetch: async (url, init) => {
+      const isCall = new URL(url).pathname.endsWith('/call');
+      if (isCall) calls += 1;
+      else reads += 1;
+      const response = await fetch(url, init);
+      if (isCall && cfg.holdResponse) {
+        responseHeld = true;
+        await new Promise(resolve => { releaseResponse = resolve; });
+      }
+      return response;
+    } });
+  abortUpload = new AbortController();
+  storage = new StorageClient('fixture-bucket', cfg.gateway, cfg.service, 'fixture-project', client.certificateAgent, {
+    retry: false, concurrency: 1, signal: abortUpload.signal,
+    fetch: async (url, init) => {
+      if (new URL(url).origin !== new URL(cfg.gateway).origin) throw new Error('gateway origin');
+      const row = await client.inspect();
+      if (row.cancelled || row.phase !== 'observed') throw new intents.Refusal('gateway-blocked');
+      gatewayCalls += 1;
+      const response = await fetch(url, { ...init, redirect: 'error' });
+      if (cfg.abortAfterTree && new URL(url).pathname === '/v1/blob-tree/') abortUpload.abort();
+      return response;
+    },
+  });
 }
-async function guardedFetch(url, init) {
-  const target = new URL(url);
-  if (target.origin !== new URL(cfg.url).origin) throw new intents.Refusal('origin');
-  if (target.pathname.endsWith('/call')) {
-    if (target.pathname !== `/api/v4/canister/${cfg.service}/call`) throw new intents.Refusal('route');
-    const bytes = new Uint8Array(init.body);
-    if (bytes.length > 8192) throw new intents.Refusal('envelope-size');
-    const envelope = Cbor.decode(bytes);
-    const content = envelope.content;
-    if (content.request_type !== 'call' || content.method_name !== METHOD ||
-        Principal.fromUint8Array(content.sender).toText() !== cfg.uploader ||
-        Principal.fromUint8Array(content.canister_id).toText() !== cfg.service ||
-        !equal(content.arg, IDL.encode([IDL.Text], [cfg.root]))) throw new intents.Refusal('envelope');
-    const requestId = hex(requestIdOf(content));
-    // Wait for IndexedDB transaction completion before the first network effect.
-    await intents.claim(binding.key, Array.from(bytes), requestId, abortClaim);
-    calls += 1;
-    const response = await boundedFetch(url, init);
-    if (cfg.holdResponse) {
-      responseHeld = true;
-      await new Promise(resolve => { releaseResponse = resolve; });
-    }
-    return response;
-  }
-  return boundedFetch(url, init);
+async function prepare() {
+  const bytes = new Uint8Array(10).fill(config.content);
+  const preparing = StorageClient.prepareFile(bytes, 'image/png');
+  bytes.fill(255); // The package patch must snapshot bytes before its first await.
+  const result = await preparing;
+  if (!Object.isFrozen(result) || result.hash !== config.root) throw new Error('preparation binding');
+  return result;
 }
-async function boundedFetch(url, init) {
-  const response = await fetch(url, { ...init, redirect: 'error', signal: AbortSignal.timeout(20_000) });
-  const reader = response.body.getReader();
-  const chunks = [];
-  let length = 0;
-  for (;;) {
-    const { done, value } = await reader.read();
-    if (done) break;
-    length += value.length;
-    if (length > 256 * 1024) { await reader.cancel(); throw new intents.Refusal('response-size'); }
-    chunks.push(value);
-  }
-  const body = new Uint8Array(length);
-  let offset = 0;
-  for (const chunk of chunks) { body.set(chunk, offset); offset += chunk.length; }
-  return new Response(body, { status: response.status, statusText: response.statusText, headers: response.headers });
+async function remember(result) {
+  const { certificate, ...row } = await result;
+  lastProof = { raw: certificate, requestId: unhex(row.requestId) };
+  return row;
 }
-async function accept(raw, requestId) {
-  if (!(raw instanceof Uint8Array) || raw.length > 128 * 1024) throw new intents.Refusal('certificate-size');
-  const row = await intents.inspect(binding.key);
-  if (!row?.envelope || row.requestId !== hex(requestId)) throw new intents.Refusal('request-id');
-  const content = Cbor.decode(new Uint8Array(row.envelope)).content;
-  if (hex(requestIdOf(content)) !== row.requestId) throw new intents.Refusal('saved-envelope');
-  const certificate = await Certificate.create({ certificate: raw, rootKey: new Uint8Array(cfg.rootKey),
-    principal: { canisterId: Principal.fromText(cfg.service) } });
-  const path = [encoder.encode('request_status'), requestId];
-  const status = lookupResultToBuffer(certificate.lookup_path([...path, encoder.encode('status')]));
-  if (!status || new TextDecoder().decode(status) !== 'replied') throw new intents.Refusal('status');
-  const reply = lookupResultToBuffer(certificate.lookup_path([...path, encoder.encode('reply')]));
-  const [value] = IDL.decode([IDL.Record({ method: IDL.Text, blob_hash: IDL.Text })], reply);
-  if (value.method !== 'upload' || value.blob_hash !== cfg.root) throw new intents.Refusal('reply');
-  lastProof = { raw, requestId };
-  return intents.observe(binding.key, row.requestId);
-}
-async function issue() {
-  const result = await agent.call(Principal.fromText(cfg.service), {
-    methodName: METHOD, arg: IDL.encode([IDL.Text], [cfg.root]), callSync: true });
-  return accept(result.response.body.certificate, result.requestId);
-}
-async function recover() {
-  const row = await intents.inspect(binding.key);
-  if (!row?.requestId) throw new intents.Refusal('missing-request');
-  const id = unhex(row.requestId);
-  const response = await agent.readState({ canisterId: Principal.fromText(cfg.service) }, {
-    paths: [[encoder.encode('request_status'), id]] });
-  return accept(response.certificate, id);
-}
-window.fixture = { setup, issue, recover, inspect: () => intents.inspect(binding.key),
-  cancel: () => intents.cancel(binding.key), calls: () => calls,
-  held: () => !!responseHeld, release: () => releaseResponse?.(),
+window.fixture = { setup, plan: async cfg => {
+    config = cfg;
+    prepared = await prepare();
+    return prepared;
+  }, issue: async () => {
+    // Each explicit test invocation obtains a preparation. The durable claim, not
+    // this ephemeral handle, prevents a new upload after uncertainty/cancellation.
+    const plan = prepared;
+    prepared = await prepare();
+    lastAttempt = plan;
+    const result = await storage.uploadPrepared(plan);
+    if (result.hash !== config.root) throw new Error('upstream root differs from Rust declaration');
+    return client.inspect();
+  }, recover: () => remember(client.recover()),
+  inspect: () => client.inspect(), cancel: () => client.cancel(), calls: () => calls, reads: () => reads,
+  preparation: () => prepared, gatewayCalls: () => gatewayCalls, abortUpload: () => abortUpload.abort(),
+  repeatHandle: () => storage.uploadPrepared(lastAttempt),
+  rejectClonedHandle: () => storage.uploadPrepared({ ...prepared }),
+  held: () => responseHeld, release: () => releaseResponse?.(),
   abortClaim: value => { abortClaim = value; },
   rejectProof: async kind => {
     const { raw, requestId } = lastProof;
-    if (kind === 'request') return accept(raw, new Uint8Array(32));
-    if (kind === 'size') return accept(new Uint8Array(128 * 1024 + 1), requestId);
+    if (kind === 'request') return client.observeCertificate(raw, new Uint8Array(32));
+    if (kind === 'size') return client.observeCertificate(new Uint8Array(128 * 1024 + 1), requestId);
     const changed = Cbor.decode(raw);
     changed.signature[0] ^= 1;
-    return accept(Cbor.encode(changed), requestId);
+    return client.observeCertificate(Cbor.encode(changed), requestId);
   },
-  // Additional local lifecycle/transaction checks; none dispatch network effects.
-  save: intents.save, claim: intents.claim, observe: intents.observe };
+  rejectRetained: async kind => {
+    corruptInspection = row => {
+      if (kind === 'binding') row.binding.permission[0] ^= 1;
+      if (kind === 'trust') row.binding.icRootKey[0] ^= 1;
+      if (kind === 'phase') row.phase = 'saved';
+      if (kind === 'envelope') {
+        const envelope = Cbor.decode(new Uint8Array(row.envelope));
+        envelope.content.method_name = 'unrelated';
+        row.envelope = Array.from(Cbor.encode(envelope));
+      }
+      return row;
+    };
+    try { return await client.recover(); } finally { corruptInspection = undefined; }
+  },
+  rejectSetup: async kind => {
+    const changed = structuredClone(binding);
+    if (kind === 'identity') changed.uploader = config.tenant;
+    if (kind === 'operation') changed.operation = '340282366920938463463374607431768211456';
+    return createCertificateClient({ host: config.url,
+      identity: Ed25519KeyIdentity.generate(new Uint8Array(32).fill(42)),
+      rootKey: new Uint8Array(config.rootKey), binding: changed, intents });
+  },
+  save: intents.save, observe: intents.observe };

@@ -2,17 +2,18 @@
 
 Date: 2026-09-28
 
-## Active work — 0.2.15 changelog draft after 0.2.14
+## Active work — 0.2.16 changelog draft
 
-The maintainer confirmed **0.2.14 is pushed** and requested continued work.
-Cargo and the release receipt are 0.2.14. Local main, origin/main and v0.2.14 resolve to
-`40e11c9fe442fc41f71d58c7453233181a676f40`, from validated source
-`5b6c02d497d78ab48da6a13127f56316740b7c95`. The receipt records the
+The maintainer confirmed **0.2.15 is pushed** and requested continued work.
+Cargo and the release receipt are 0.2.15. Local main, origin/main and v0.2.15 resolve to
+`44b0d9e8c4ffcab558e41e87bbbe52851f2c35a4`, from validated source
+`14431b0f43d7cada64646963f52e4bbf264ca70c`. The receipt records the
 `release-verify` gate; registry publication was not independently queried.
-The dated 0.2.14 notes match that release. The maintainer requested the **0.2.15**
-changelog; completed work is grouped in its undated draft below empty Unreleased.
-Package version and release receipt remain unchanged; release validation is pending.
-Cargo.lock adds only the native test agent's graph; existing package versions remain.
+The dated 0.2.15 notes match that release. The maintainer requested the **0.2.16**
+changelog; completed work is grouped in that undated draft below an empty
+**Unreleased** section. Package version and release receipt remain unchanged.
+The private browser fixture adds Caffeine 1.1.2 and aligns its SDK to supported
+5.4.0, recorded in its npm lockfile. Rust dependencies and Cargo.lock are unchanged.
 No version mutation, commit, publication, deployment or deployed-provider effect ran here;
 transfers below use simulated cycles between local PocketIC canisters.
 
@@ -27,7 +28,104 @@ operator client. Library publication does not qualify the service or Canic remov
 | M3 — Caffeine and operator integration | In progress: shared transports with local IC evidence | Qualified provider transport, completion/economics and production client |
 | M4 — managed parity and acceptance | Not implemented | Same journey through Canic adapter, complete replacement evidence and handoff |
 
-## Current focus — browser certificate intent, cancellation and recovery
+## Current focus — Caffeine package composition
+
+The unmodified published Caffeine 1.1.2 client passed both local browser scenarios
+using a real guarded HttpAgent (4.49 seconds). The existing constructor hook is
+sufficient: no additional certificate callback or copied provider client is needed.
+`clients/browser` only handles exact intent and IC observation; Caffeine owns its
+hashing, tree/chunks, certificate extraction and HTTP formats. The browser graph
+now uses SDK 5.4.0 within Caffeine's supported range, with no forced SDK 6 override.
+
+The [small pinned patch](../../clients/browser/patches/README.md) adds static
+network-free preparation before admission, single-use immutable preparation handles,
+and per-client fetch/abort/retry/concurrency controls. Caller byte mutation cannot
+change the prepared data. The build checks original package hashes and applies the
+patch to a generated copy, preserving installed dependencies and upstream algorithms.
+The fixture selects one attempt and one worker and confines HTTP to its owned local
+gateway substitute. Service completion remains unconfirmed after browser success.
+
+The browser's actual prepared JSON now feeds `ops::caffeine::preparation`, a bounded
+conversion into the existing service declaration. It reuses metadata validation
+and root reconstruction, ignores redundant nested tree nodes and adds no hashing
+or provider transport. The local driver waits for real tenant admission and
+uploader preparation in PocketIC before receiving the exact permission. A tenant
+calling preparation as itself is refused. Only metadata/leaves cross this boundary;
+file bytes remain in the browser. This is fixture coordination, not a Toko integration.
+
+Four patched Chromium/PocketIC scenarios pass in 13.25 seconds. They cover success,
+lost reply/cancellation, failed tree request with no retry, and abort after the tree
+with no chunk dispatch. Static preparation, byte snapshots, copied/consumed handle
+refusal and pre-issuance abort are included, alongside the earlier intent/crypto
+checks. Release storage Wasm, strict storage-test Clippy, formatting, JavaScript
+syntax, reproducible patch build, package/patch hash checks and diff checks pass.
+Four decoder tests additionally cover accepted upstream metadata and malformed,
+oversized or inconsistent declarations. Core library/test Clippy passes as well.
+The npm graph confirms a single shared SDK 5.4.0. No full CI ran.
+
+Next, connect this handoff to production consumer authentication and retain
+gateway-effect intent before transfer; do not infer that a recovered certificate
+or freshly prepared handle permits a retry. Production authentication/storage,
+provider completion/economics and deployed qualification remain open. No provider
+traffic, upstream contact, deployment or package publication occurred here.
+
+## Browser reuse assessment — direction adopted in the 0.2.16 draft
+
+The maintainer questioned duplicated browser work and explicitly requested a reuse
+assessment. The [assessment](../provider-review.md#browser-reuse-assessment--2026-09-28)
+rechecks official main and npm 1.1.2, verifies the downloaded archive's SHA-512 and
+inspects published declarations/source. Caffeine already owns hashing, metadata,
+chunking, certificate retrieval, gateway requests, retries, progress and direct URLs.
+No new general-purpose browser uploader or production IndexedDB store should be
+built as the next task. Existing unreleased client work remains intact pending
+demonstrated composition; the direction below supersedes its earlier expansion plan.
+
+Reuse the upstream package with the smallest necessary preparation/transport hooks.
+Its injected HttpAgent is an existing certificate integration point; first prove
+whether that suffices. Preparation is private, however, and gateway fetch/retry/
+cancellation are not configurable. Our manifest admission must precede issuance,
+so a plain `putFile()` wrapper is not yet sufficient. Published SDK dependency
+`^5.3.0` also differs from our 6.1.0 fixture; do not silently override it.
+
+Keep tenant/quota/reference/accounting policy and required Rust validation here.
+Keep exact-operation persistence/recovery/cancellation only as a narrow integration
+layer. Next, test the actual published package locally, then add only demonstrated
+missing hooks, preferably upstream-supported or as a small reviewed pinned patch.
+No upstream contact, implementation replacement, dependency change or provider
+effect ran during this source/API assessment. Full CI was not run.
+
+## Reusable browser certificate transport — preceding 0.2.16 draft evidence
+
+`clients/browser` now owns certificate transport and verification as a private
+source package, using the pinned IC SDK peer. Callers supply authentication,
+trusted IC root and an atomic durable intent store. The client snapshots full
+permission/operation bindings, persists the exact signed envelope before dispatch
+and returns verified historical observations without gateway or retry authority.
+Explicit cancellation and recovery preserve uncertain history. The documented
+store contract requires cross-tab atomicity, bounded capacity and retained tombstones;
+the client does not supply a production storage or identity allocator.
+
+Saved intent additionally binds IC origin and trusted root key. Recovery rejects
+changed permission/trust/envelope and inconsistent saved state before read-state.
+The exact v4 update and SDK v3 read-state routes are allowed; redirects, fallback
+routes and duplicate dispatch are refused. The client contains no fixture identity,
+fault switch or window global. Chromium now imports this implementation; only the
+two-slot IndexedDB store, test identity and fault injection remain in tests/browser.
+The bundler checks that the client peer, fixture pin and installed SDK agree.
+
+Both Chromium/PocketIC scenarios pass in 4.26 seconds, covering write abort,
+competing tabs, lost response/tab closure, cancellation and reload recovery, plus
+the new binding/state/identity/operation refusal checks. Release storage Wasm builds;
+JavaScript syntax, SDK/package-lock consistency, evidence JSON and diff checks pass.
+No Rust source, canister schema, allocator, memory grant or provider effect changed.
+No full CI/release gate ran; the browser target remains opt-in.
+
+The reuse assessment above now governs the next step. Actual consumer authentication,
+storage capacity/eviction/restore behavior and authoritative provider evidence remain
+open. This source package is not published to npm and does not establish deployed
+Caffeine acceptance or complete either service adapter.
+
+## Browser certificate intent, cancellation and recovery — included in 0.2.15
 
 The private `tests/browser` fixture now uses pinned IC JS SDK 6.1.0 and Chromium
 against the actual local PocketIC HTTP endpoint. It retains the full original
@@ -63,7 +161,7 @@ browser integration and obtain authoritative provider evidence for live issuance
 Provider replay/namespace/pre-charge enforcement, completion/economics, both
 production adapters and operational recovery remain open.
 
-## Headless signed ingress and certificate recovery — 0.2.15 draft
+## Headless signed ingress and certificate recovery — included in 0.2.15
 
 Two new headless cases use a real test signing identity, the official Rust IC
 agent and PocketIC's HTTP v4 ingress endpoint. The raw response certificate is

@@ -10,6 +10,96 @@ the current binding review and the next production implementation boundary.
 
 ## Selected integration baseline
 
+### Browser reuse assessment — 2026-09-28
+
+The maintainer requested reuse of Caffeine's implementation rather than another
+browser upload stack. **Reuse upstream's file preparation and gateway transfer;
+keep local code focused on service authority and durable operation coordination.**
+Do not expand `clients/browser` into a second hashing/chunking/upload SDK or promote
+the two-slot test store into a production journal as the default next task.
+
+This assessment rechecks npm latest **1.1.2** and official main
+`ee8e3dda39b105f95133256144172a4506e841a8`. The published archive was downloaded,
+SHA-512 verified against registry integrity, and inspected without running package
+scripts or installing dependencies. Published `StorageClient.js` remains identical
+to the retained implementation. The [assessment record](evidence/caffeine-browser-reuse.json)
+pins the artifact and declarations. This is API/source evidence, not a provider trial.
+
+| Responsibility | Existing implementation | Reuse decision |
+| --- | --- | --- |
+| Browser hashes, metadata, tree, chunks and progress | Caffeine `StorageClient.putFile` | Keep upstream-owned; do not add a parallel implementation here. |
+| Gateway tree/chunk requests and direct URLs | Caffeine `StorageClient` | Reuse after exposing the minimal control points below; do not duplicate its wire client. |
+| IC signing, CBOR and certificate cryptography | IC SDK, already used by both codebases | Continue using the SDK. Our exact-intent checks are application policy, not a new cryptographic implementation. |
+| Exact signed-request persistence, historical recovery and permanent cancellation | Local narrow certificate client/store contract; absent from the reviewed Caffeine client | Retain only the necessary coordination layer and tests; integrate it with upstream transfer. |
+| Tenant admission, quotas, references, accounting and Rust lifecycle | This repository's service core | Keep here. The official Motoko mixin is not a drop-in Rust service or this tenant policy. |
+| Rust manifest validation | This repository, checked against Caffeine vectors | Keep validation needed by the Rust service; this does not justify another browser tree builder. |
+
+The package's public exports are `StorageClient` and `ExternalBlob`. The declared
+storage API supplies its constructor, `putFile` and `getDirectURL`; preparation,
+certificate retrieval, chunk creation and parallel upload are private. The
+constructor accepts a caller-supplied `HttpAgent`, which is a useful existing
+integration point. It does **not** expose the complete prepared manifest before
+issuance, accept a prepared upload, or offer per-client gateway fetch, AbortSignal,
+retry or concurrency settings. Gateway requests use global fetch; tree and chunk
+writes use up to three retries after the first attempt, with ten chunk workers.
+These retry choices are observable client behavior, not proof of duplicate charging.
+
+An unchanged `putFile()` wrapper alone cannot implement our current journey:
+the service needs the original manifest admitted/prepared before issuance, while
+upstream only hands the agent the final root during its private upload sequence.
+Intercepting the agent helps with certificate intent, but does not expose that
+manifest or control later gateway retries/cancellation. Monkey-patching private
+methods, global fetch or duplicated tree-building would create the maintenance
+problem this assessment is intended to avoid.
+
+The smallest proposed extension is:
+
+1. Expose preparation and upload of that same prepared result, reusing upstream's
+   existing tree/chunk/metadata implementation. Keep bytes and declaration bound
+   across admission; an editable object is not an immutable preparation guarantee.
+2. Add per-client gateway transport/AbortSignal and explicit retry/concurrency
+   control, so the consumer can record and gate effects without global patches.
+3. Use the existing injected agent for certificate policy first. Add a narrow
+   certificate callback only if a local composition test demonstrates the agent
+   boundary is insufficient; do not assume a new client is required.
+
+Prefer an upstream-supported extension. If that is unavailable, evaluate a small,
+reviewable patch to the exact pinned package; avoid copying its full implementation
+into this repository. No upstream message or PR was sent, and no patch or new
+production dependency is adopted by this assessment.
+
+The published package declares `@icp-sdk/core ^5.3.0` and `file-type ^21.3.4`;
+our certificate fixture pins SDK 6.1.0. Forcing SDK 6 under the package is outside
+its declared range. First demonstrate the integration using supported dependencies,
+or review a minimal SDK-range/API update with actual tests. Our SDK 6 source also
+distinguishes raw `HttpAgent.call` from certified `HttpAgent.update`: do not assume
+the raw call verifies the reply merely because it returns certificate bytes.
+
+`putFile()` success returns a hash after its requests finish. It does not establish
+our service's independent completion/accounting or publish an application asset.
+The recorded empty-file tree issue also remains in the inspected artifact. These
+are specific integration/edge-case work, not reasons to replace the whole client.
+
+**Next implementation:** exercise the actual published package in an isolated local
+composition test, then implement only the proven missing extension points and the
+consumer/service coordination. Preserve existing exact-request/cancellation tests.
+Do not remove the current working certificate evidence before its replacement is
+demonstrated; do not grow it into a separate general-purpose uploader.
+
+Follow-up implementation: the unmodified package now passes local composition
+through the existing agent hook. The private fixture uses SDK 5.4.0 within the
+package's supported range. A [small pinned patch](../clients/browser/patches/README.md)
+then exposes static preparation and per-client transport controls, keeping provider
+algorithms and wire formats upstream-owned. The patched browser/PocketIC cases
+cover immutable bytes, manifest agreement, lost replies, cancellation, failed
+gateway requests without retry and abort cuts against a local HTTP substitute.
+This supersedes the assessment's pending experiment and SDK mismatch. Production
+consumer admission, durable gateway-effect intent and deployed qualification remain.
+The local fixture now feeds Caffeine's actual prepared JSON through a bounded Rust
+decoder that reuses the existing model, then completes tenant admission and uploader
+preparation in PocketIC before returning permission. This proves the local handoff,
+not production application authentication or deployed provider behavior.
+
 The [certificate-response review](evidence/caffeine-contract-refresh.json) rechecks
 official main and npm metadata unchanged, and confirms byte-identical Mixin/client
 sources. The Mixin returns a plain `method`/`blob_hash` record; the client obtains

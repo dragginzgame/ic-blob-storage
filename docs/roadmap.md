@@ -106,6 +106,18 @@ Deployed transport qualification and effect callbacks remain separate.
 Next, establish complete account activity and credit evidence, then complete other provider
 intents, read sessions and operational lifecycle. Provider callback semantics and
 deployed-provider evidence remain separate qualification work.
+The reusable browser certificate source client now accepts consumer-owned identity,
+IC trust and atomic intent storage, with Chromium/PocketIC evidence through that
+same implementation. This does not complete M3: actual consumer authentication,
+production storage/recovery, gateway upload and deployed qualification remain.
+The maintainer's [reuse assessment](provider-review.md#browser-reuse-assessment--2026-09-28)
+directs further browser work toward Caffeine's published client, using minimal
+preparation/transport extensions and narrow local policy. Do not implement another
+browser hash tree, chunk uploader or general-purpose journal by default.
+Local composition now uses that actual package through its existing agent hook,
+with a small pinned preparation/transport patch and supported SDK 5.4.0. Real IC
+certificates and local substitute gateway HTTP requests exercise the path; actual
+consumer admission and durable gateway-effect coordination remain next.
 The original B1/B2/B3 extraction gates are project gates, not crate version numbers.
 Starting 0.2 does not waive the [service contract](service-contract.md).
 

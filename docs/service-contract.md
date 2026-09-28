@@ -646,7 +646,17 @@ change, even after local revocation. Such recovery neither renews permission nor
 authorizes gateway use/retry. Production browser integration, consumer cancellation/intent
 storage and deployed provider acceptance remain independent requirements.
 
-The private Chromium fixture adds a bounded two-slot IndexedDB store for full
+The reusable `clients/browser` certificate transport accepts caller-supplied
+identity, IC trust and atomic durable intent storage. It snapshots original
+permission and full-width operation identity, binds stored intent to the IC origin
+and root key, and rechecks the envelope's uploader/service/method/root before
+recovery. It issues once after durable claim or reads historical status without
+redispatch. Cancellation cannot recall an already claimed request, renew permission
+or free service capacity. The private source package contains no test identity,
+gateway upload, allocator or production store. Its [store contract](../clients/browser/README.md)
+still requires consumer integration and restore/eviction qualification.
+
+The private Chromium fixture imports that transport and adds a bounded two-slot IndexedDB store for full
 permission, exact signed envelope/request ID, dispatch phase and cancellation.
 Transactions finish before fetch and serialize competing tabs; aborted writes
 dispatch nothing. Reload/read-state recovery preserves original identity, while
@@ -654,7 +664,25 @@ late verified replies cannot clear cancellation. Response bodies are bounded bef
 SDK decoding. Its tests reject forged/unrelated proofs, conflicting saves and
 capacity exhaustion without erasing retained history. This is local browser
 evidence, not an eviction/crash/backup guarantee or a production consumer journal.
-It includes no gateway request, automatic provider retry or publication transition.
+The certificate guard itself sends no gateway request and performs no automatic
+provider retry or publication transition.
+
+The subsequent browser composition now delegates upload hashing/chunking and HTTP
+formats to the published Caffeine 1.1.2 client. The certificate guard supplies its
+existing HttpAgent constructor hook. A pinned local patch exposes static prepared
+manifests and per-client transport controls; the fixture disables retries and
+uses only an owned HTTP gateway substitute. Preparation snapshots bytes before
+awaiting, yields an immutable manifest view and consumes its original handle once.
+These ephemeral handles are not durable operation identities or recovery authority.
+Failed/aborted transfers preserve local service exposure, not confirmed completion.
+`ops::caffeine::preparation` converts the upstream prepared JSON into the existing
+declaration with caller-selected buffering and manifest limits. Metadata and root
+checks reuse the existing model; redundant nested tree nodes are not validated.
+No file bytes, admission or authority are provided by that decoder. The local
+browser fixture now passes its actual prepared output through tenant admission and
+uploader preparation in PocketIC before receiving the exact permission.
+Production consumer admission, gateway-effect intent and deployed qualification
+remain required; no new provider wire implementation is introduced.
 
 The private `blob-consumer-probe` exercises consumer transactions separately from
 the storage owner: exact bounded intent and reserved cleanup operation before

@@ -2,6 +2,35 @@
 
 ## [Unreleased]
 
+## [0.2.16]
+
+### Added
+
+- Reusable browser certificate client with caller-owned authentication, explicit IC
+  trust and an atomic durable-intent store contract. Issuance saves the exact signed
+  request before dispatch; recovery verifies its historical reply without reissuing,
+  and cancellation remains permanent. Saved permission, network trust, uploader,
+  service, method and root are checked before accepting observations.
+- Browser upload composition now uses the actual Caffeine 1.1.2 package and its
+  supported IC SDK 5.4.0 through the existing agent hook. A pinned, hash-checked
+  patch exposes network-free preparation and per-client transport/cancellation/
+  retry controls; upstream still owns hashing, chunks, certificate extraction and
+  HTTP formats. Preparation snapshots caller bytes and uses immutable, single-use
+  handles. The private fixture applies the patch to a generated package copy and
+  verifies the pinned source hashes before building.
+- Bounded conversion of Caffeine's prepared manifest into the service's existing
+  declaration, reusing metadata and root validation without another tree builder.
+  Browser evidence now supplies the actual prepared JSON to tenant admission and
+  uploader preparation in PocketIC before receiving the permission; tenant-only
+  preparation is refused. File bytes remain in the browser.
+- Chromium/PocketIC coverage now imports the reusable client and Caffeine package.
+  Tests cover competing tabs, lost replies, cancellation, changed saved bindings,
+  invalid proofs, single-use handles, failed gateway requests without retry and
+  abort before issuance/after the tree. Decoder tests reject oversized, malformed
+  and inconsistent manifests. Gateway responses remain local substitutes;
+  production consumer authentication/storage, durable gateway-effect coordination
+  and deployed Caffeine qualification remain open. The browser package is private.
+
 ## [0.2.15] - 2026-09-28
 
 ### Added

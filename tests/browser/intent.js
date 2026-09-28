@@ -36,12 +36,12 @@ async function change(key, fn, abortAfterPut = false) {
     });
   } finally { db.close(); }
 }
-export async function inspect(key) {
+export async function inspect(binding) {
   const db = await open();
   try {
     return await new Promise((resolve, reject) => {
       const tx = db.transaction('intents', 'readonly');
-      const request = tx.objectStore('intents').get(key);
+      const request = tx.objectStore('intents').get(binding.key);
       tx.oncomplete = () => resolve(request.result);
       tx.onabort = () => reject(tx.error);
     });
@@ -57,14 +57,19 @@ export function save(binding) {
     return { key: binding.key, binding, cancelled: false, phase: 'saved' };
   });
 }
-export function claim(key, envelope, requestId, abortAfterPut = false) {
-  return change(key, row => {
+function bound(row, binding) {
+  if (!row || JSON.stringify(row.binding) !== JSON.stringify(binding)) throw new Refusal('intent-binding');
+}
+export function claim(binding, envelope, requestId, abortAfterPut = false) {
+  return change(binding.key, row => {
+    bound(row, binding);
     if (!row || row.cancelled || row.phase !== 'saved') throw new Refusal('dispatch-blocked');
     return { ...row, phase: 'uncertain', envelope, requestId };
   }, abortAfterPut);
 }
-export function observe(key, requestId) {
-  return change(key, row => {
+export function observe(binding, requestId) {
+  return change(binding.key, row => {
+    bound(row, binding);
     if (!row || !['uncertain', 'observed'].includes(row.phase) || row.requestId !== requestId) {
       throw new Refusal('observation-binding');
     }
@@ -72,9 +77,9 @@ export function observe(key, requestId) {
     return { ...row, phase: 'observed' };
   });
 }
-export function cancel(key) {
-  return change(key, row => {
-    if (!row) throw new Refusal('missing');
+export function cancel(binding) {
+  return change(binding.key, row => {
+    bound(row, binding);
     return { ...row, cancelled: true };
   });
 }

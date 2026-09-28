@@ -1,0 +1,169 @@
+--- a/dist/StorageClient.js
++++ b/dist/StorageClient.js
+@@ -240,8 +240,11 @@
+ }
+ class StorageGatewayClient {
+     storageGatewayUrl;
+-    constructor(storageGatewayUrl) {
++    constructor(storageGatewayUrl, options) {
+         this.storageGatewayUrl = storageGatewayUrl;
++        this.fetch = options.fetch ?? globalThis.fetch.bind(globalThis);
++        this.signal = options.signal;
++        this.attempt = options.retry === false ? operation => operation() : withRetry;
+     }
+     getStorageGatewayUrl() {
+         return this.storageGatewayUrl;
+@@ -252,7 +255,8 @@
+         const chunkHashString = params.chunkHash.toShaString();
+         validateHashFormat(blobHashString, `uploadChunk[${params.chunkIndex}] blob_hash`);
+         validateHashFormat(chunkHashString, `uploadChunk[${params.chunkIndex}] chunk_hash`);
+-        return await withRetry(async () => {
++        return await this.attempt(async () => {
++            this.signal?.throwIfAborted();
+             // Use query parameters for metadata and raw bytes in body
+             const queryParams = new URLSearchParams({
+                 owner_id: params.owner,
+@@ -263,7 +267,8 @@
+                 project_id: params.projectId,
+             });
+             const url = `${this.storageGatewayUrl}/${GATEWAY_VERSION}/chunk/?${queryParams.toString()}`;
+-            const response = await fetch(url, {
++            const response = await this.fetch(url, {
++                signal: this.signal,
+                 method: "PUT",
+                 headers: {
+                     "Content-Type": "application/octet-stream",
+@@ -291,7 +296,8 @@
+         treeJSON.chunk_hashes.forEach((hash, index) => {
+             validateHashFormat(hash, `uploadBlobTree chunk_hash[${index}]`);
+         });
+-        return await withRetry(async () => {
++        return await this.attempt(async () => {
++            this.signal?.throwIfAborted();
+             const url = `${this.storageGatewayUrl}/${GATEWAY_VERSION}/blob-tree/`;
+             const requestBody = {
+                 blob_tree: treeJSON,
+@@ -304,7 +310,8 @@
+                     OwnerEgressSignature: Array.from(certificateBytes),
+                 },
+             };
+-            const response = await fetch(url, {
++            const response = await this.fetch(url, {
++                signal: this.signal,
+                 method: "PUT",
+                 headers: {
+                     "Content-Type": "application/json",
+@@ -328,12 +335,18 @@
+     projectId;
+     agent;
+     storageGatewayClient;
+-    constructor(bucket, storageGatewayUrl, backendCanisterId, projectId, agent) {
++    static #prepared = new WeakMap();
++    constructor(bucket, storageGatewayUrl, backendCanisterId, projectId, agent, options = {}) {
+         this.bucket = bucket;
+         this.backendCanisterId = backendCanisterId;
+         this.projectId = projectId;
+         this.agent = agent;
+-        this.storageGatewayClient = new StorageGatewayClient(storageGatewayUrl);
++        this.storageGatewayClient = new StorageGatewayClient(storageGatewayUrl, options);
++        this.signal = options.signal;
++        this.concurrency = options.concurrency ?? MAXIMUM_CONCURRENT_UPLOADS;
++        if (!Number.isInteger(this.concurrency) || this.concurrency < 1 || this.concurrency > MAXIMUM_CONCURRENT_UPLOADS) {
++            throw new RangeError("Invalid upload concurrency");
++        }
+     }
+     async getCertificate(hash) {
+         const args = IDL.encode([IDL.Text], [hash]);
+@@ -376,6 +389,11 @@
+         throw new Error("Expected v4 response body");
+     }
+     async putFile(blobBytes, onProgress, contentTypeHint, filenameHint) {
++        const prepared = await StorageClient.prepareFile(blobBytes, contentTypeHint, filenameHint);
++        return this.uploadPrepared(prepared, onProgress);
++    }
++    static async prepareFile(blobBytes, contentTypeHint, filenameHint) {
++        blobBytes = new Uint8Array(blobBytes);
+         // HTTP headers for fetch requests (used for the PUT request to gateway)
+         const httpHeaders = {
+             "Content-Type": "application/json",
+@@ -395,6 +413,18 @@
+         const { chunks, chunkHashes, blobHashTree } = await this.processFileForUpload(file, fileHeaders);
+         const blobRootHash = blobHashTree.tree.hash;
+         const hashString = blobRootHash.toShaString();
++        const prepared = Object.freeze({ hash: hashString, byteLength: file.size,
++            manifestJSON: JSON.stringify(blobHashTree.toJSON()) });
++        StorageClient.#prepared.set(prepared, { chunks, chunkHashes, blobHashTree, blobRootHash, file, httpHeaders });
++        return prepared;
++    }
++    async uploadPrepared(prepared, onProgress) {
++        this.signal?.throwIfAborted();
++        const retained = StorageClient.#prepared.get(prepared);
++        if (!retained) throw new TypeError("Unknown or consumed preparation");
++        StorageClient.#prepared.delete(prepared);
++        const { chunks, chunkHashes, blobHashTree, blobRootHash, file, httpHeaders } = retained;
++        const hashString = prepared.hash;
+         const certificateBytes = await this.getCertificate(hashString);
+         await this.storageGatewayClient.uploadBlobTree(blobHashTree, this.bucket, file.size, this.backendCanisterId, this.projectId, certificateBytes);
+         await this.parallelUpload(chunks, chunkHashes, blobRootHash, httpHeaders, onProgress);
+@@ -407,7 +437,7 @@
+         validateHashFormat(hash, `getDirectURL for path '${hash}'`);
+         return `${this.storageGatewayClient.getStorageGatewayUrl()}/${GATEWAY_VERSION}/blob/?blob_hash=${encodeURIComponent(hash)}&owner_id=${encodeURIComponent(this.backendCanisterId)}&project_id=${encodeURIComponent(this.projectId)}`;
+     }
+-    async processFileForUpload(file, headers) {
++    static async processFileForUpload(file, headers) {
+         const chunks = this.createFileChunks(file);
+         const chunkHashes = [];
+         for (let i = 0; i < chunks.length; i++) {
+@@ -442,13 +472,13 @@
+                 onProgress(percentage);
+             }
+         };
+-        await Promise.all(Array.from({ length: MAXIMUM_CONCURRENT_UPLOADS }, async (_, workerId) => {
+-            for (let i = workerId; i < chunks.length; i += MAXIMUM_CONCURRENT_UPLOADS) {
++        await Promise.all(Array.from({ length: this.concurrency }, async (_, workerId) => {
++            for (let i = workerId; i < chunks.length; i += this.concurrency) {
+                 await uploadSingleChunk(i);
+             }
+         }));
+     }
+-    createFileChunks(file, chunkSize = 1024 * 1024) {
++    static createFileChunks(file, chunkSize = 1024 * 1024) {
+         const chunks = [];
+         const totalChunks = Math.ceil(file.size / chunkSize);
+         for (let index = 0; index < totalChunks; index++) {
+--- a/dist/StorageClient.d.ts
++++ b/dist/StorageClient.d.ts
+@@ -1,17 +1,30 @@
+ import { type HttpAgent } from "@icp-sdk/core/agent";
++export interface PreparedUpload {
++    readonly hash: string;
++    readonly byteLength: number;
++    readonly manifestJSON: string;
++}
++export interface StorageTransportOptions {
++    fetch?: typeof globalThis.fetch;
++    signal?: AbortSignal;
++    retry?: boolean;
++    concurrency?: number;
++}
+ export declare class StorageClient {
+     private readonly bucket;
+     private readonly backendCanisterId;
+     private readonly projectId;
+     private readonly agent;
+     private readonly storageGatewayClient;
+-    constructor(bucket: string, storageGatewayUrl: string, backendCanisterId: string, projectId: string, agent: HttpAgent);
++    constructor(bucket: string, storageGatewayUrl: string, backendCanisterId: string, projectId: string, agent: HttpAgent, options?: StorageTransportOptions);
++    static prepareFile(blobBytes: Uint8Array, contentTypeHint?: string, filenameHint?: string): Promise<PreparedUpload>;
++    uploadPrepared(prepared: PreparedUpload, onProgress?: (percentage: number) => void): Promise<{ hash: string }>;
+     private getCertificate;
+     putFile(blobBytes: Uint8Array, onProgress?: (percentage: number) => void, contentTypeHint?: string, filenameHint?: string): Promise<{
+         hash: string;
+     }>;
+     getDirectURL(hash: string): Promise<string>;
+-    private processFileForUpload;
++    private static processFileForUpload;
+     private parallelUpload;
+-    private createFileChunks;
++    private static createFileChunks;
+ }

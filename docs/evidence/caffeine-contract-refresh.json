@@ -146,6 +146,14 @@
     "wire": "_immutableObjectStorageCreateCertificate : (text) -> (record { method : text; blob_hash : text }); successful record contains method upload and the root, with no Result envelope.",
     "client_observation": "The client takes the certificate from the agent update response, checks the request-status rejected path, and supplies its bytes as OwnerEgressSignature. The canister reply record is not itself a signature or certificate byte array.",
     "local_implementation": "Shared root resolution authenticates the actual uploader, preserves the original full permission and passes independently established facts to guarded exposure before constructing the plain reply. The private PocketIC endpoint defaults to refusal and uses operator-configured evidence substitutes for success and rollback tests.",
+    "reusable_browser_client": {
+      "tested_on": "2026-09-28",
+      "source": "clients/browser/certificate.js",
+      "contract": "clients/browser/README.md",
+      "sdk": "@icp-sdk/core 6.1.0, unchanged pin; peer and installed fixture package checked by build.mjs",
+      "evidence": "The existing Chromium/PocketIC scenarios import the reusable client. Caller-owned identity/trust/store boundaries, full-width operation validation, retained permission and network trust binding, exact saved-envelope recovery and cancellation. Changed permission/trust/envelope or inconsistent phase is refused before a read-state request. Same actual v4 ingress certificate and v3 read-state path, no issuance retry.",
+      "limits": "Private unpublished source package. Fixture identity, two-slot IndexedDB and simulated provider facts; no production consumer authentication/storage integration, gateway dispatch, provider acceptance or paid effect. Browser validation remains opt-in."
+    },
     "browser_ic_evidence": {
       "tested_on": "2026-09-28",
       "test_path": "tests/pocketic/tests/storage_exposure/certificate/ingress/browser/mod.rs",

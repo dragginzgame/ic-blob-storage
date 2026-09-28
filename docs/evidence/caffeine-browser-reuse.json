@@ -1,0 +1,43 @@
+{
+  "reviewed_on": "2026-09-28",
+  "scope": "Read-only source/API assessment requested by the maintainer to avoid duplicating Caffeine's browser implementation.",
+  "upstream_commit": "ee8e3dda39b105f95133256144172a4506e841a8",
+  "registry_url": "https://registry.npmjs.org/@caffeineai%2fobject-storage/latest",
+  "package": "@caffeineai/object-storage",
+  "version": "1.1.2",
+  "archive_url": "https://registry.npmjs.org/@caffeineai/object-storage/-/object-storage-1.1.2.tgz",
+  "archive_integrity": "sha512-JAmoHT6E8M18DEbW4rkHinAOw0A8yNbz+rj8F56VAvr8Hf0TxQSK0ZdMrkwwT7BsiOLvtFK/YcLtoaWBc9x2xQ==",
+  "archive_integrity_verified": true,
+  "files": {
+    "dist/StorageClient.js": "6eb7f5b424f02476c9096e4684d8e520121c21b2b2f6f29f3c9a25e0c07cad57",
+    "dist/StorageClient.d.ts": "255e9fd1220ca7f80a460fa4cbe2a6c54a1e3c2d79709d75a3b014191faabc4c",
+    "package.json": "0041bcbbbdb5ce19253738bd00908099b32f477e62eccb8270430be2e104714b"
+  },
+  "public_exports": ["StorageClient", "ExternalBlob"],
+  "storage_client_public_methods": ["constructor", "putFile", "getDirectURL"],
+  "existing_extension": "Caller-supplied HttpAgent constructor argument",
+  "missing_control_points": [
+    "Public prepared manifest/bytes handoff before service admission and certificate issuance",
+    "Per-client gateway fetch and AbortSignal",
+    "Configurable gateway retry and concurrency policy"
+  ],
+  "declared_dependencies": { "@icp-sdk/core": "^5.3.0", "file-type": "^21.3.4" },
+  "fixture_sdk_at_assessment": "6.1.0",
+  "retry_policy_observed": { "additional_attempts": 3, "chunk_workers": 10 },
+  "decision": "Reuse upstream hashing, preparation and transfer. Keep narrow service/intent coordination. Prove the existing agent seam before proposing an additional certificate hook; prefer upstream support or a minimal pinned-package patch over a parallel SDK.",
+  "execution": "Initial assessment inspected archive and source only. The subsequent local composition is recorded below; neither phase performed a paid call, deployment, upstream contact or sibling mutation.",
+  "local_composition": {
+    "tested_on": "2026-09-28",
+    "package": "@caffeineai/object-storage 1.1.2",
+    "sdk": "@icp-sdk/core 5.4.0, within the provider package's declared range; one SDK version in the fixture",
+    "unmodified_package": "Two Chromium/PocketIC scenarios passed in 4.49 seconds using the existing real HttpAgent constructor hook, with actual tree/chunk HTTP requests to an owned local substitute. No new certificate callback was needed.",
+    "patch": "clients/browser/patches/caffeine-1.1.2.patch",
+    "patch_sha256": "55fc44fe155ec3be888e1bee524ccb931b28c8c9e0119ffc012e270238289364",
+    "patch_scope": "Static network-free preparation, immutable byte/manifest snapshot and single-use handle; per-client fetch/AbortSignal/retry/concurrency options. Provider hashes, chunks, certificate extraction and HTTP formats remain upstream-owned.",
+    "test_path": "tests/pocketic/tests/storage_exposure/certificate/ingress/browser/mod.rs",
+    "patched_package": "Four Chromium/PocketIC scenarios passed in 13.25 seconds: upload, lost reply/cancellation, failed tree request with no retry, and abort after the tree without chunk dispatch. The actual browser manifest passes bounded Rust conversion, tenant admission and uploader preparation before permission is returned; tenant-only preparation is refused. Caller byte mutation is isolated, copied/consumed handles and pre-issuance abort cannot dispatch. Earlier retained-intent/crypto checks remain.",
+    "prepared_manifest_decoder": "ops::caffeine::preparation reuses model metadata/root checks with explicit JSON and declaration limits; four native tests pass for accepted upstream metadata and malformed/oversized/inconsistent input. Redundant nested tree nodes are ignored, not independently validated. No file bytes or authority are accepted by the decoder.",
+    "checks": "Release storage Wasm and strict storage-test Clippy passed. Package source hashes checked before applying the patch to generated files; installed package unchanged. Browser checks are opt-in, not a full CI/release run.",
+    "limits": "Private fixture with test identity, two-slot IndexedDB, simulated service provider facts and owned HTTP gateway substitute. No deployed gateway or billing evidence, production consumer admission, durable gateway-effect journal or live retry authority. Package installation disabled scripts."
+  }
+}

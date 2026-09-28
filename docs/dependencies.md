@@ -55,9 +55,12 @@ count: testkit also brings host-side artifact/locking utilities.
 
 ## Browser certificate evidence
 
-`tests/browser` is a private fixture, with npm-locked `@icp-sdk/core` 6.1.0,
-Playwright 1.63.0 and esbuild 0.28.2. These were the registry latest versions at
-the 2026-09-28 check. Use Node >=20.19.0; this run used Node 24.21.0 and
+`tests/browser` is a private fixture, with npm-locked `@caffeineai/object-storage`
+1.1.2, `@icp-sdk/core` 5.4.0, Playwright 1.63.0 and esbuild 0.28.2. SDK 5.4.0
+is within Caffeine's declared `^5.3.0` range; it replaces the earlier fixture's
+6.1.0 pin so the composition uses one supported SDK. The Caffeine package is the
+latest verified provider package; SDK 6 is not forced into its dependency graph.
+Use Node >=20.19.0; this run used Node 24.21.0 and
 Playwright's Chromium 153.0.8010.12 (revision 1243). Setup is explicit:
 
 ```sh
@@ -71,12 +74,19 @@ can select the runtime for `make test-browser`. The target bundles existing loca
 packages, builds the storage probe and runs the ignored browser case explicitly.
 It downloads nothing. Missing packages/browser/runtime fail rather than skip.
 The ordinary Rust/CI/release suite does not run this opt-in browser test.
+The fixture imports the private reusable source client in `clients/browser`.
+Its peer dependency, fixture SDK pin and installed SDK version must agree before
+bundling. Git applies the [pinned Caffeine patch](../clients/browser/patches/README.md)
+to a generated copy under `.tmp/browser`, after original package hashes are checked.
+The installed package is not modified. Application authentication and production intent storage are caller-owned;
+see the [client contract](../clients/browser/README.md).
 
 Rust owns the PocketIC installation and test identity. Browser traffic is confined
-to that local IC endpoint and the owned page. The IndexedDB store has two lifetime
+to that local IC endpoint and the owned page/gateway substitute. The IndexedDB store has two lifetime
 slots and no reset/eviction path; it tests transaction ordering, competing tabs,
-reload, cancellation and verified historical replies. This is not production
-sizing, crash/eviction durability, browser-profile restoration, a gateway upload,
+reload, cancellation and verified historical replies. Caffeine performs real HTTP
+tree/chunk requests only against the local substitute. Failed/aborted transfer does
+not retry. This is not production sizing, crash/eviction durability, browser-profile restoration, a deployed gateway upload,
 or qualification of a consumer's CSP/authentication/storage environment.
 
 ## Memory composition with Canic and IcyDB
