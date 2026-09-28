@@ -2,6 +2,18 @@
 pub(crate) mod funding;
 pub(crate) mod gateways;
 pub(crate) mod references;
+pub(crate) fn configure_certificate(
+    context: UploadContext,
+    input: blob_test_protocol::storage::exposure::ExposureInput,
+) {
+    ops::exposure::configure_certificate(context, input);
+}
+pub(crate) fn certificate(
+    context: UploadContext,
+    root: &str,
+) -> ic_blob_storage::dto::upload::certificate::CaffeineUploadCertificateResponse {
+    ops::exposure::certificate(context, root)
+}
 pub(crate) fn gateways(
     context: UploadContext,
     input: blob_test_protocol::storage::gateways::Command,
@@ -44,8 +56,32 @@ pub(crate) fn prepare(
 ) -> Result<UploadManifestMutation, UploadManifestFailure> {
     ops::prepare(context, input, fault)
 }
-pub(crate) fn expose(context: UploadContext, input: Request) -> Result<(), Failure> {
-    ops::expose(context, input)
+pub(crate) fn expose(
+    context: UploadContext,
+    input: blob_test_protocol::storage::exposure::ExposureInput,
+) -> Result<
+    blob_test_protocol::storage::exposure::ExposureOutcome,
+    ic_blob_storage::dto::upload::exposure::UploadExposureFailure,
+> {
+    ops::exposure::commit(context, input)
+}
+pub(crate) fn exposure_preview(
+    context: UploadContext,
+    input: blob_test_protocol::storage::exposure::ExposureInput,
+) -> Result<
+    Vec<blob_test_protocol::storage::exposure::ExposureBlocker>,
+    ic_blob_storage::dto::upload::exposure::UploadExposureFailure,
+> {
+    ops::exposure::preview(context, input)
+}
+pub(crate) fn exposure_status(
+    context: UploadContext,
+    input: ic_blob_storage::dto::upload::admission::UploadAdmissionRequest,
+) -> Result<
+    ic_blob_storage::dto::upload::admission::UploadAdmissionResponse,
+    ic_blob_storage::dto::upload::exposure::UploadExposureFailure,
+> {
+    ops::exposure::inspect(context, input)
 }
 pub(crate) fn revoke(
     context: UploadContext,

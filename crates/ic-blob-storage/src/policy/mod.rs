@@ -6,3 +6,4 @@ pub mod diagnostics;
 pub mod gateway;
 pub mod liveness;
 pub mod tenant;
+pub mod upload;

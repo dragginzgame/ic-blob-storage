@@ -2,16 +2,16 @@
 
 Date: 2026-09-28
 
-## Active work — 0.2.13 changelog draft
+## Active work — 0.2.14 draft after 0.2.13
 
-The maintainer confirmed **0.2.12 is pushed** and requested continued work.
-Cargo and the release receipt are 0.2.12. Local main, origin/main and v0.2.12 resolve to
-`fc275ebf15479aff1a78ec91a12a51fba8c161ef`, from validated source
-`753cd8411a072f6d1432c2cec8ebf3190216ab54`. The receipt records the
+The maintainer confirmed **0.2.13 is live** and requested continued work.
+Cargo and the release receipt are 0.2.13. Local main, origin/main and v0.2.13 resolve to
+`0c5bdf50b8c4009ecbefcd5864804469d35c36b2`, from validated source
+`3417297660137dec65039d02c64247445ab89790`. The receipt records the
 `release-verify` gate; registry publication was not independently queried.
-The dated 0.2.12 notes match that release. The maintainer requested the **0.2.13**
-changelog; completed work is in that undated draft below empty Unreleased.
-Cargo and the release receipt remain at 0.2.12; release preparation has not run.
+The dated 0.2.13 notes match that release. The maintainer requested continued work
+on **0.2.14**; its undated changelog draft now holds this batch. Cargo and the
+release receipt remain 0.2.13 and are unchanged.
 No version mutation, commit, publication, deployment or deployed-provider effect ran here;
 transfers below use simulated cycles between local PocketIC canisters.
 
@@ -26,7 +26,68 @@ operator client. Library publication does not qualify the service or Canic remov
 | M3 — Caffeine and operator integration | In progress: shared transports with local IC evidence | Qualified provider transport, completion/economics and production client |
 | M4 — managed parity and acceptance | Not implemented | Same journey through Canic adapter, complete replacement evidence and handoff |
 
-## Current focus — uploader client, cancellation and recovery
+## Current focus — guarded Caffeine certificate response
+
+`workflow::uploads::certificate` adds root-only resolution and issuance through
+the shared exposure gate. The root resolves through bounded retained indexes to
+the full original permission; only the actual uploader may issue. Unknown and
+foreign roots are refused, and broken indexes fail closed. Independent full-width
+operation/object/reference identities are preserved. No manifest tree or file
+bytes are loaded. Issuance rechecks local eligibility and exact host facts before
+committing possible exposure and constructing the plain `upload`/`blob_hash` reply.
+
+The host must return that record from the same synchronous ingress update, with
+no await or Result wrapper, and propagate traps so the state and reply commit
+together. The IC supplies the response certificate; the library signs no bytes
+and exports no endpoint. The storage fixture implements the reviewed method,
+defaults to refusal and uses operator-configured evidence substitutes for tests.
+Query execution, foreign callers, stale/foreign facts and repeated issuance cannot
+produce a successful reply. A lost committed reply preserves inspectable exposure;
+revocation and same-release upgrade retain the obligation and cannot renew issuance.
+
+The [source refresh](../evidence/caffeine-contract-refresh.json) reconfirms official
+main `ee8e3dda39b105f95133256144172a4506e841a8`, npm 1.1.2/integrity and unchanged
+Mixin/client hashes. The client obtains certificate bytes from the agent's update
+response, separately from the plain canister reply. No Mops/Cashier/account/gateway
+call or deployed-provider effect ran. These source observations establish neither
+server qualification nor successful browser extraction/gateway acceptance.
+
+`workflow::uploads::exposure` now supplies `inspect_preparation`, `commit` and
+historical `inspect`. Full original permission and actual uploader authority bind
+exposure; tenant or original uploader may inspect history. Pure policy reports
+independent missing pre-charge limits, provider namespace, replay/lifetime/charging,
+recovery eligibility and durable-commit facts. Evidence binds the entire permission
+and current observation time. The host must establish provenance/freshness itself;
+equal timestamps do not prove either. No production ingress accepts these facts.
+
+Commit rechecks local preparation, activation, clock/deadline, phase and the permanent
+restore fence before recording possible exposure. A prior preview cannot authorize
+mutation after local changes. The result emits no certificate and grants no later
+issuance/retry authority. Committed exposure rejects repetition; revocation retains
+charged uncertainty, and exact historical inspection survives restore. No new
+stable schema, memory grant, dependency, allocator or provider effect is added.
+The lower-level owner method retains its bookkeeping contract.
+
+The storage probe's private exposure route delegates to the same workflow using
+labelled evidence scenarios, including consumer/read/lifecycle fixtures. All 49
+targeted native upload-owner cases and 55 selected storage PocketIC cases pass;
+the latter took 108.70 seconds, excluding funding and gateway transport. Three new
+native and two new IC cases cover the exact plain reply, root/permission/caller
+isolation, default refusal, malformed/oversized input, corrupt indexes, byte-for-byte
+write/response-trap rollback and lost committed acknowledgment through restore.
+The preceding exposure step additionally passed six filtered native cases (four new).
+Strict affected all-target Clippy, release consumer/storage Wasms, warning-free
+core/protocol/storage/consumer rustdoc, formatting and diff checks pass.
+No full CI/release gate ran. Cargo, dependencies, allocator, stable schema and
+memory grants are unchanged.
+
+Next, test browser/headless extraction of the IC response certificate against the
+local endpoint and obtain authoritative provider evidence for live issuance.
+The gate accepts host-established facts; it does not establish them. Both production
+adapters, provider completion/economics and operational recovery remain open.
+Tests still substitute host facts and send no certificate to a deployed gateway.
+
+## Uploader client, cancellation and recovery — included in 0.2.13
 
 `ReplicatedUploadManifestClient` now binds actual executing actor, tenant and service.
 Only the admitted uploader can prepare; tenant/uploader inspection is available.
@@ -62,7 +123,9 @@ core/protocol/consumer rustdoc, formatting and diff checks pass.
 No full CI/release gate ran; no dependency, allocator or memory grant changed.
 The service stable schema is unchanged.
 
-Next, implement shared exposure/certificate orchestration subject to provider gates.
+The current focus above adds shared guarded exposure and the local certificate
+response; deployed issuance remains subject to provider qualification and host
+evidence acquisition.
 Production browser/headless integration, intent sizing/storage, provider qualification,
 both production adapters and operational recovery remain open. Exposure/completion
 continue to use explicitly labelled fixture controls.

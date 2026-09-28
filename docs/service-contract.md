@@ -608,6 +608,35 @@ budgets precede decoding but follow the separately platform-bounded CDK buffer.
 The host must retain intent before polling; this transport owns no journal or
 identity allocation and implements no provider upload or browser delivery policy.
 
+`workflow::uploads::exposure` supplies read-only preparation inspection, guarded
+synchronous commit and exact tenant/uploader history. Its host evidence binds the
+full original permission and separately reports pre-charge size/tree/chunk limits,
+provider owner/project/bucket binding, replay/lifetime/charging, recovery eligibility
+and atomic durable commit. These facts must be established independently in the
+current execution, never accepted from production ingress. Timestamp mismatch blocks
+exposure; equal time is not proof of freshness or provenance. All missing host
+prerequisites remain visible. Commit rechecks current uploader, bound manifest,
+activation, expiry, phase and permanent restore fence, then writes possible exposure
+before any later effect can escape. A preview is not an authorization token.
+Historical inspection survives revocation and restore but cannot authorize issuance
+or an uncertain retry. A committed exposure rejects repetition even after a lost
+reply. The lower-level owner operation remains bookkeeping only. The shared gate
+issues no certificates, authenticates no provider evidence itself and adds no state
+schema or memory grant. Its IC evidence uses labelled host-fact substitutes.
+
+`workflow::uploads::certificate` connects that gate to the reviewed Caffeine
+root-only update reply. `resolve` authenticates the actual uploader and recovers
+the complete original permission through bounded index reads. `issue` re-resolves
+and rechecks current facts, then commits exposure before constructing the plain
+`{ method = "upload"; blob_hash }` response. The adapter must return that record
+from a synchronous ingress update, reject/trap failures and propagate write traps;
+it must never wrap the provider wire reply in Result, await or issue through a query.
+The IC supplies the ingress response certificate. Linking the library exports no
+endpoint and neither handler sends a provider request. The local storage fixture
+defaults to refusal and requires operator-configured, explicitly simulated facts.
+Its response/rollback tests do not prove gateway acceptance, production evidence
+acquisition, certificate replay/lifetime, namespace or pre-charge enforcement.
+
 The private `blob-consumer-probe` exercises consumer transactions separately from
 the storage owner: exact bounded intent and reserved cleanup operation before
 dispatch, dependency checks, atomic tombstone/publication changes and restore

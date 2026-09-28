@@ -1,5 +1,7 @@
 //! Exact historical upload observation, distinct from current serving authority.
 pub mod admission;
+pub mod certificate;
+pub mod exposure;
 pub mod manifest;
 use super::reference::ReferenceUpload;
 use candid::{CandidType, Deserialize};

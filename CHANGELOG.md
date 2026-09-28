@@ -2,6 +2,30 @@
 
 ## [Unreleased]
 
+## [0.2.14]
+
+### Added
+
+- Shared guarded upload-exposure workflow with exact permission binding and
+  independent host checks for pre-charge limits, provider namespace, replay charging,
+  recovery eligibility and durable commit. Missing or stale observations block
+  writes; commit rechecks actual uploader, preparation, activation, deadline, phase
+  and restore fencing. Preview results cannot authorize a later mutation.
+- Exact tenant/uploader exposure-history recovery and local IC evidence for
+  permission-write rollback, traps before update completion, and lost committed
+  acknowledgments. Repeat exposure is rejected, while revoked uncertain uploads
+  remain charged and inspectable through restore. The storage fixture now uses
+  the shared gate with explicitly labelled provider-evidence substitutes. Actual
+  evidence acquisition and deployed issuance remain open; no provider effect,
+  new stable schema or additional memory grant is introduced.
+- Shared Caffeine certificate-response handler resolves a root to its original
+  permission, authenticates the actual uploader and commits guarded exposure
+  before returning the reviewed plain `upload`/`blob_hash` reply. Linking exports
+  no endpoint. Local IC tests cover default refusal, malformed/foreign requests,
+  evidence mismatch, write/reply rollback, lost acknowledgment and fenced restore.
+  Provider acceptance, certificate replay and pre-charge enforcement remain
+  unqualified; the test adapter uses explicitly configured substitute evidence.
+
 ## [0.2.13] - 2026-09-28
 
 ### Added

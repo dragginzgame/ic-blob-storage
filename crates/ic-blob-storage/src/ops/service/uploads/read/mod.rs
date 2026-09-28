@@ -190,6 +190,14 @@ impl<M: Memory> StableUploads<M> {
         root: ProviderRootHash,
         object: ObjectBinding,
     ) -> Result<TenantContentView, UploadStoreError> {
+        let view = self.indexed_permission(root, object)?;
+        self.content_view(view.permission.request, view.phase)
+    }
+    pub(super) fn indexed_permission(
+        &self,
+        root: ProviderRootHash,
+        object: ObjectBinding,
+    ) -> Result<crate::model::service::upload::UploadPermissionView, UploadStoreError> {
         let id = self
             .root_requests
             .get(root.as_bytes())
@@ -207,7 +215,7 @@ impl<M: Memory> StableUploads<M> {
         {
             return Err(UploadStoreError::InvalidRecord);
         }
-        self.content_view(request, view.phase)
+        Ok(view)
     }
     /// Copy the first validated metadata of a tenant's prepared operation.
     /// Loads one bounded manifest record, never the file or other operations' metadata.

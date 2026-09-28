@@ -1,5 +1,6 @@
 //! IC transaction rollback and same-release inspection of the durable upload owner.
 #![cfg(not(target_family = "wasm"))]
+mod storage_exposure;
 mod storage_gateways;
 mod storage_manifests;
 mod support;
@@ -188,10 +189,40 @@ impl Fixture {
         }
     }
     fn expose(&self, input: Request) -> Result<(), Failure> {
-        self.harness
+        use blob_test_protocol::storage::exposure::{
+            ExposureInput, ExposureOutcome, ExposureScenario,
+        };
+        use ic_blob_storage::dto::upload::exposure::UploadExposureFailure as E;
+        let result: Result<ExposureOutcome, E> = self
+            .harness
             .pic
-            .update_candid_as(self.service, self.uploader, "expose", (input,))
-            .unwrap()
+            .update_candid_as(
+                self.service,
+                self.uploader,
+                "expose",
+                (ExposureInput {
+                    permission: admission_input(Permission {
+                        request: input,
+                        uploader: self.uploader,
+                        expires_at_ns: u64::MAX,
+                    }),
+                    scenario: ExposureScenario::QualifiedSubstitute,
+                    trap_write: false,
+                    trap_after: false,
+                },),
+            )
+            .unwrap();
+        result
+            .map(|r| {
+                assert!(matches!(r, ExposureOutcome::Exposed(_)));
+            })
+            .map_err(|e| match e {
+                E::Permission(e) => admission_failure(e),
+                E::Unprepared => Failure::Unprepared,
+                E::Revoked => Failure::Revoked,
+                E::Phase => Failure::Phase,
+                E::EvidenceBinding => Failure::Binding,
+            })
     }
     fn revoke(&self, input: Permission) -> Result<bool, Failure> {
         let result: Result<

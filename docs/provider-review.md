@@ -10,6 +10,14 @@ the current binding review and the next production implementation boundary.
 
 ## Selected integration baseline
 
+The [certificate-response review](evidence/caffeine-contract-refresh.json) rechecks
+official main and npm metadata unchanged, and confirms byte-identical Mixin/client
+sources. The Mixin returns a plain `method`/`blob_hash` record; the client obtains
+certificate bytes from the IC agent's update response. The shared local handler now
+commits guarded exposure before constructing that record. PocketIC exercises the
+reply and rollback boundary using substituted host evidence, not browser certificate
+extraction or gateway acceptance. Provider qualification remains open.
+
 The latest [serving review](evidence/caffeine-gateway-transport.json) resolves
 official main to `ee8e3dda39b105f95133256144172a4506e841a8`; its latest commit changes
 Motoko skill guidance. The reviewed `StorageClient.ts` is byte-identical to the

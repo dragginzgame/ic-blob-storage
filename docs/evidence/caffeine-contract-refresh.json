@@ -133,6 +133,21 @@
       "finding": "Direct URL serving is public, signed/expiring URLs unsupported, and deletion asynchronous. No operation-specific receipt/retention contract supplied."
     }
   ],
+  "certificate_response_review": {
+    "observed_on": "2026-09-28",
+    "official_main": "ee8e3dda39b105f95133256144172a4506e841a8",
+    "npm_latest": "1.1.2",
+    "npm_integrity_matches_baseline": true,
+    "mixin_url": "https://github.com/caffeinelabs/skills/blob/ee8e3dda39b105f95133256144172a4506e841a8/packages/object-storage/backend/src/Mixin.mo",
+    "mixin_sha256": "175c6b98672a83054fc08855062d1a7b7f2bd3713bf11a60d5319ac5afefe2b3",
+    "client_url": "https://github.com/caffeinelabs/skills/blob/ee8e3dda39b105f95133256144172a4506e841a8/packages/object-storage/frontend/src/StorageClient.ts",
+    "client_sha256": "a0a3ee3bb74ecca133bc6f68a024821b3319c7ccd4886940c31d179b9f85f557",
+    "unchanged_from_retained_sources": true,
+    "wire": "_immutableObjectStorageCreateCertificate : (text) -> (record { method : text; blob_hash : text }); successful record contains method upload and the root, with no Result envelope.",
+    "client_observation": "The client takes the certificate from the agent update response, checks the request-status rejected path, and supplies its bytes as OwnerEgressSignature. The canister reply record is not itself a signature or certificate byte array.",
+    "local_implementation": "Shared root resolution authenticates the actual uploader, preserves the original full permission and passes independently established facts to guarded exposure before constructing the plain reply. The private PocketIC endpoint defaults to refusal and uses operator-configured evidence substitutes for success and rollback tests.",
+    "limits": "Read-only GitHub revision/source and npm metadata refresh only. No Mops, Cashier, account, gateway or paid call; no archive redownload. This does not establish server pre-charge enforcement, accepted certificate lifetime/replay, namespace binding, browser certificate extraction or deployed gateway acceptance. Prior deployed observations remain historical."
+  },
   "decision": {
     "provider_selection": "Caffeine is the sole provider target, explicitly confirmed by the maintainer; alternative-provider question superseded",
     "production_provider_transport_ready": false,

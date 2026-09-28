@@ -69,8 +69,42 @@ fn blob_upload_manifest(
     workflow::uploads::manifest(context(), input)
 }
 #[ic_cdk::update(decode_with = "ops::decode")]
-fn expose(input: Request) -> Result<(), Failure> {
+fn expose(
+    input: blob_test_protocol::storage::exposure::ExposureInput,
+) -> Result<
+    blob_test_protocol::storage::exposure::ExposureOutcome,
+    ic_blob_storage::dto::upload::exposure::UploadExposureFailure,
+> {
     workflow::expose(context(), input)
+}
+#[ic_cdk::query(decode_with = "ops::decode")]
+fn exposure_preview(
+    input: blob_test_protocol::storage::exposure::ExposureInput,
+) -> Result<
+    Vec<blob_test_protocol::storage::exposure::ExposureBlocker>,
+    ic_blob_storage::dto::upload::exposure::UploadExposureFailure,
+> {
+    workflow::exposure_preview(context(), input)
+}
+#[ic_cdk::query(decode_with = "ops::decode")]
+fn exposure_status(
+    input: UploadAdmissionRequest,
+) -> Result<UploadAdmissionResponse, ic_blob_storage::dto::upload::exposure::UploadExposureFailure>
+{
+    workflow::exposure_status(context(), input)
+}
+#[ic_cdk::update(decode_with = "ops::decode")]
+fn configure_certificate_fixture(input: blob_test_protocol::storage::exposure::ExposureInput) {
+    workflow::configure_certificate(context(), input);
+}
+#[ic_cdk::update(
+    name = "_immutableObjectStorageCreateCertificate",
+    decode_with = "ops::decode"
+)]
+fn caffeine_upload_certificate(
+    root: String,
+) -> ic_blob_storage::dto::upload::certificate::CaffeineUploadCertificateResponse {
+    workflow::certificate(context(), &root)
 }
 #[ic_cdk::update(decode_with = "ops::decode")]
 fn blob_revoke_upload(

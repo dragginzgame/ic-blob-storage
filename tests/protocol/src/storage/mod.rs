@@ -1,4 +1,5 @@
 //! Private controls for testing the durable upload owner, not a service API.
+pub mod exposure;
 pub mod funding;
 pub mod gateways;
 pub mod read;

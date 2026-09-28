@@ -1,6 +1,7 @@
 //! Host grants, passive DTO conversion and fixture-only stable-write faults.
 mod configuration;
 mod conversion;
+pub(crate) mod exposure;
 pub(crate) mod funding;
 pub(crate) mod gateways;
 pub(crate) mod lifecycle;
@@ -244,18 +245,6 @@ pub(crate) fn prepare(
     });
     TRAP_WRITE.set(None);
     result
-}
-pub(crate) fn expose(context: UploadContext, input: Request) -> Result<(), Failure> {
-    let request = conversion::request(input)?;
-    STATE
-        .with_borrow_mut(|state| {
-            state
-                .as_mut()
-                .unwrap()
-                .uploads
-                .expose(context, request, ic_cdk::api::time())
-        })
-        .map_err(conversion::failure)
 }
 pub(crate) fn revoke(
     context: UploadContext,

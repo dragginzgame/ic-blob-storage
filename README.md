@@ -1,6 +1,6 @@
 # ic-blob-storage
 
-0.2.2 is the released library baseline. The [0.2 delivery plan](docs/roadmap.md) tracks
+The [0.2 delivery plan](docs/roadmap.md) tracks
 the remaining work to a usable service; [current status](docs/status/current.md)
 separates implemented behavior from outstanding milestones.
 
@@ -165,6 +165,16 @@ validates root consistency; it does not transfer bytes or establish completion.
 `ReplicatedUploadManifestClient` binds the actual actor, tenant and service, checks
 the declaration before preparation dispatch and sends once without automatic retry.
 Save the exact intent before polling; recover uncertain replies through inspection.
+`workflow::uploads::exposure` adds guarded preview/commit and exact historical
+inspection. It binds current host evidence to the original permission and blocks
+missing provider/recovery/durability prerequisites before marking possible exposure.
+The host must establish those facts independently; equal timestamps alone do not
+prove freshness. This workflow emits no certificate or provider call.
+`workflow::uploads::certificate` resolves Caffeine's root-only request as the actual
+uploader, commits that gate and constructs the reviewed plain update reply. Hosts
+must return it synchronously so the IC certifies the committed response. Linking
+exports no endpoint; provider qualification and browser certificate extraction
+remain open, and successful local IC tests use explicitly substituted host facts.
 The separate `blob-consumer-probe` exercises both that first reference and explicit
 retains of existing content through real IC calls: bounded durable intent, atomic
 publication/tombstones, dependency checks, exact recovery and fenced upgrade.

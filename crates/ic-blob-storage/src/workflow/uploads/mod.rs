@@ -1,5 +1,7 @@
-//! Shared exact upload inspection, without certificate or provider authority.
+//! Shared upload admission, preparation, guarded issuance and historical inspection.
 pub mod admission;
+pub mod certificate;
+pub mod exposure;
 pub mod manifests;
 use crate::{
     dto::{

@@ -1,6 +1,8 @@
 //! One durable upload/lifecycle owner. Provider evidence is a trusted-host input.
 pub mod admission;
 pub(crate) mod callbacks;
+pub(crate) mod certificate;
+pub mod exposure;
 mod lifecycle;
 pub mod manifests;
 mod planning;
@@ -325,6 +327,8 @@ impl<M: Memory> StableUploads<M> {
 
     /// Persist possible exposure before any future certificate could escape.
     /// This returns no certificate and does not qualify provider enforcement.
+    /// Hosts use `workflow::uploads::exposure` for the additional provider/recovery
+    /// gates; this primitive alone checks only local bookkeeping prerequisites.
     /// # Errors
     /// Rejects wrong uploader/activation/time, missing manifest, repeated exposure or fence.
     /// # Panics
@@ -335,17 +339,28 @@ impl<M: Memory> StableUploads<M> {
         request: UploadRequest,
         now: u64,
     ) -> Result<(), UploadStoreError> {
-        validation::object(&self.config, context, request.object.first.object())?;
-        self.mutable()?;
-        let mut record = self.required(request)?;
-        let view = self.uploader(context, &record, now)?;
-        if view.manifest != UploadManifestState::Bound {
-            return Err(UploadAdmissionError::ManifestNotPrepared.into());
-        }
+        let mut record = self.exposure_record(context, request, now)?;
         record.expose();
         self.permissions
             .insert(key(request), UploadStoreRecord::Permission(record));
         Ok(())
+    }
+    // Shared by inspection and commit; an inspection can never bypass the permanent
+    // restore fence, current activation, original uploader/time or prepared phase.
+    fn exposure_record(
+        &self,
+        context: UploadContext,
+        request: UploadRequest,
+        now: u64,
+    ) -> Result<UploadPermissionRecord, UploadStoreError> {
+        validation::object(&self.config, context, request.object.first.object())?;
+        self.mutable()?;
+        let record = self.required(request)?;
+        let view = self.uploader(context, &record, now)?;
+        if view.manifest != UploadManifestState::Bound {
+            return Err(UploadAdmissionError::ManifestNotPrepared.into());
+        }
+        Ok(record)
     }
 
     /// Revoke local issuance; only an unexposed reservation releases byte capacity.

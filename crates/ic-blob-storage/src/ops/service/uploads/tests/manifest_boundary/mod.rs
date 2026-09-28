@@ -17,7 +17,7 @@ use crate::{
 };
 use std::num::NonZeroUsize;
 
-fn input() -> UploadManifestRequest {
+pub(super) fn input() -> UploadManifestRequest {
     let built = built();
     UploadManifestRequest {
         permission: UploadAdmissionRequest {

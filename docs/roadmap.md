@@ -590,6 +590,17 @@ authentication, consumer outbox atomicity, instruction budgets and recovery rema
 The provider's accepted certificate lifetime/replay and project/bucket enforcement
 are unknown; a local deadline cannot establish those guarantees.
 
+The durable exposure path now uses a shared guarded workflow with exact permission
+and current host-evidence binding. Independent provider/recovery/durability blockers
+precede mutation; previews cannot override later local changes. Local IC evidence
+covers write/response rollback, lost committed acknowledgment, rejection of repeated
+exposure and retained charged history through restore. The shared certificate
+handler now resolves the original permission from the root and commits the gate
+before returning the reviewed plain Caffeine update payload. The local endpoint
+rejects by default; successful IC response tests use operator-configured substitute
+facts. Host-fact acquisition, browser response-certificate extraction and deployed
+gateway acceptance remain open.
+
 ### Tenant enrollment and suspension
 
 The shared admission owner now enforces operator-managed enrollment. Each tenant
