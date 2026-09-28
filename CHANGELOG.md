@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.2.9] - 2026-09-28
+
 ### Added
 
 - Bounded durable read sessions with separate global/per-tenant slot and reply
