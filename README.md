@@ -162,6 +162,9 @@ uploader and `blob_upload_manifest` for tenant/uploader recovery of the exact fi
 declaration. Full permission binding, declaration budgets and bounded reply decoding
 preserve original leaves and metadata through revocation and restore. Preparation
 validates root consistency; it does not transfer bytes or establish completion.
+`ReplicatedUploadManifestClient` binds the actual actor, tenant and service, checks
+the declaration before preparation dispatch and sends once without automatic retry.
+Save the exact intent before polling; recover uncertain replies through inspection.
 The separate `blob-consumer-probe` exercises both that first reference and explicit
 retains of existing content through real IC calls: bounded durable intent, atomic
 publication/tombstones, dependency checks, exact recovery and fenced upgrade.
@@ -169,9 +172,15 @@ Fresh registration creates no extra retain receipt. The fixture now sends admiss
 from its own canister and recovers interrupted acknowledgments without resending.
 The consumer also dispatches permission withdrawal after saving its tombstone and
 reconciles uncertain acknowledgments through exact inspection. Its two-slot
-application substitute is integration evidence. The test host drives the shared
-manifest ingress as the uploader; exposure and provider completion still use private
-fixture controls. A production uploader client remains open.
+application substitute is integration evidence. A separate uploader instance now
+persists bounded manifest intent before calling the shared client, retaining typed
+refusals and recovering uncertain acknowledgments without redispatch. Three-canister
+tests join preparation recovery with tenant registration and cleanup. Uploader
+cancellation preserves a local tombstone through late replies and recovery; tenant
+withdrawal and reference cleanup remain separate operations. Exposed obligations
+stay charged until their corresponding cleanup facts are established. Exposure and
+provider completion still use private fixture controls. Production browser/headless
+integration and intent storage remain open.
 Production Toko transactions and operational recovery remain open. The storage
 library owns no consumer database.
 The service uses bounded manifest authorization for direct browser-to-Caffeine

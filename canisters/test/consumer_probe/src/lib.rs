@@ -6,8 +6,37 @@
 mod model;
 mod ops;
 mod workflow;
+use blob_test_protocol::consumer::manifests::{
+    ManifestDispatch, ManifestIntent, ManifestIntentView,
+};
 use blob_test_protocol::consumer::{AssetView, Failure, Recovery, Release, Run, Use};
 use candid::Principal;
+#[ic_cdk::update(decode_with = "ops::decode")]
+fn save_manifest(input: Box<ManifestIntent>) -> Result<ManifestIntentView, Failure> {
+    workflow::manifests::save(ic_cdk::api::msg_caller(), &input)
+}
+#[ic_cdk::update(decode_with = "ops::decode")]
+async fn dispatch_manifest(input: ManifestDispatch) -> Result<ManifestIntentView, Failure> {
+    workflow::manifests::dispatch(ic_cdk::api::msg_caller(), input).await
+}
+#[ic_cdk::update(decode_with = "ops::decode")]
+async fn recover_manifest(id: u128) -> Result<ManifestIntentView, Failure> {
+    workflow::manifests::recover(ic_cdk::api::msg_caller(), id).await
+}
+#[ic_cdk::update(decode_with = "ops::decode")]
+fn cancel_manifest(id: u128) -> Result<ManifestIntentView, Failure> {
+    workflow::manifests::cancel(ic_cdk::api::msg_caller(), id)
+}
+#[ic_cdk::query(decode_with = "ops::decode")]
+fn manifest_intent(id: u128) -> Result<ManifestIntentView, Failure> {
+    workflow::manifests::view(ic_cdk::api::msg_caller(), id)
+}
+#[ic_cdk::query(composite = true, decode_with = "ops::decode")]
+async fn query_manifest(
+    id: u128,
+) -> Result<ic_blob_storage::dto::upload::manifest::UploadManifestResponse, Failure> {
+    workflow::manifests::inspect(ic_cdk::api::msg_caller(), id).await
+}
 #[ic_cdk::init]
 fn init(operator: Principal, service: Principal) {
     ops::initialize(Some((operator, service)));

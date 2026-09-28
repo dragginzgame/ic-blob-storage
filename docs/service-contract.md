@@ -599,6 +599,15 @@ dispatch; an unusable acknowledgment requires exact inspection and never supplie
 authority for repeating an uncertain provider effect. This is declaration evidence,
 not verified file bytes, completion, a certificate or publication permission.
 
+`ReplicatedUploadManifestClient` binds actual executing actor, tenant and service.
+Preparation requires the admitted uploader; inspection also permits the tenant.
+The client validates raw declaration bounds and root consistency before encoding
+or dispatch, requires replicated execution and performs one bounded-wait call
+without attached cycles or automatic retry. Ordinary IC fees apply. Response
+budgets precede decoding but follow the separately platform-bounded CDK buffer.
+The host must retain intent before polling; this transport owns no journal or
+identity allocation and implements no provider upload or browser delivery policy.
+
 The private `blob-consumer-probe` exercises consumer transactions separately from
 the storage owner: exact bounded intent and reserved cleanup operation before
 dispatch, dependency checks, atomic tombstone/publication changes and restore
@@ -614,10 +623,27 @@ Cancellation and restore preserve that uncertainty. The consumer now dispatches
 revocation only after persisting its tombstone and confirming original admission;
 unknown admission must be inspected first. Revocation acknowledgment is independent
 of reference release. Lost replies block redispatch and use exact inspection;
-an unrevoked observation leaves withdrawal pending. The test host now drives
-canonical manifest ingress as the actual uploader; exposure and completion retain
-private fixture controls. Production uploader intent storage and transport, Toko's asset schema,
-production scale, actual provider completion and operational recovery remain open.
+an unrevoked observation leaves withdrawal pending.
+The same private fixture can run as a separate uploader canister. Two lifetime
+manifest-intent slots retain exact request, dispatch state and accepted declaration
+or typed refusal inside its existing bounded record. Unknown acknowledgments block
+redispatch, including after unprepared inspection; stale/conflicting results cannot
+replace accepted history. Uploader cancellation retains a permanent
+local tombstone without clearing intent, uncertainty or accepted/refused history.
+Dispatch refuses cancelled intents; exact saves cannot reopen them. Inspection and
+late acknowledgments may retain historical preparation while preserving the tombstone.
+This local cancellation neither exercises tenant authority nor changes service
+accounting. The application must separately cancel the tenant asset and withdraw
+its permission; exposed late completion still requires reference release.
+IC tests hold the uploader acknowledgment across both cancellations and tenant
+suspension, checking unexposed cleanup and continuing exposed obligations.
+Upgrade validates the current v1 schema synchronously and fences mutation/reconciliation.
+The fixture schema is replaced directly;
+cross-release transitions remain reinstall-only. Three-canister tests join tenant
+admission, uploader preparation recovery, first-reference registration and cleanup.
+Exposure/completion retain private fixture controls. Production browser/headless
+integration and intent storage, Toko's asset schema, production scale, actual provider
+completion and operational recovery remain open.
 
 Each active reference reserves one future release receipt. Admission enforces
 `retained receipts + active references <= receipt limit` after staging the

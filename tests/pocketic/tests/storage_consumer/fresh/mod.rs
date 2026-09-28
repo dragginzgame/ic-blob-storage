@@ -1,6 +1,7 @@
 use super::*;
 use ic_blob_storage::dto::upload::{UploadState, UploadStatusFailure, UploadStatusResponse};
 mod admission;
+mod manifests;
 mod revocation;
 fn fresh_input(f: &Fixture) -> (Run, Permission, PreparationInput) {
     let (permission, manifest) = f.permission(1, 1);

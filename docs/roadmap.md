@@ -654,8 +654,15 @@ fixture's private preparation contract. The full permission and bounded declarat
 bind actual uploader authority; tenant/uploader queries retain the first metadata
 and leaves through revocation and restore. Bounded reply validation and IC tests
 cover unusable acknowledgments, unchanged retries and atomic write rollback.
-The test host still drives uploader ingress; a production uploader client and its
-intent storage remain open. Exposure/completion retain private fixture controls.
+The replicated manifest client now binds actor/tenant/service and sends once after
+bounded declaration validation. A separate uploader fixture persists exact intent
+and retains uncertain acknowledgments, typed refusals and fenced history. Local
+three-canister evidence joins admission, preparation recovery and tenant cleanup.
+Uploader cancellation now retains tombstones and uncertain history across delayed
+acknowledgments and upgrade. Joint IC races keep tenant withdrawal separate and
+preserve exposed late-completion/reference-cleanup obligations under suspension.
+Production browser/headless integration and intent storage remain open;
+exposure/completion retain private fixture controls.
 Real application transactions, production sizing, browser delivery and operational
 recovery remain open.
 

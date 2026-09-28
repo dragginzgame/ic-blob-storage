@@ -1,4 +1,5 @@
 use super::*;
+mod client;
 use ic_blob_storage::{
     dto::upload::{
         admission::{UploadAdmissionFailure as A, UploadAdmissionRequest},

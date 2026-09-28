@@ -1,4 +1,5 @@
 //! Bounded application substitute for local publication/outbox evidence, not Toko's API.
+pub mod manifests;
 use candid::{CandidType, Deserialize};
 use ic_blob_storage::dto::reference::{
     ReferenceChange, ReferenceCommand, ReferenceTransitionFailure,

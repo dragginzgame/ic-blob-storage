@@ -1,4 +1,5 @@
 //! Application transactions surround shared service clients without borrowing across awaits.
+pub(crate) mod manifests;
 use crate::ops;
 use blob_test_protocol::consumer::{AssetView, Failure, Fault, RegistrationSource, Run};
 use candid::Principal;

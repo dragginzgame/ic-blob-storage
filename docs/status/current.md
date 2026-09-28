@@ -2,16 +2,16 @@
 
 Date: 2026-09-28
 
-## Active work — 0.2.12 changelog draft
+## Active work — 0.2.13 changelog draft
 
-The maintainer confirmed **0.2.11 is pushed** and requested continued work.
-Cargo and the release receipt are 0.2.11. Local main, origin/main and v0.2.11 resolve to
-`0cc772afeb2ef4299994116d1d1d74945209f525`, from validated source
-`9fcb034951e92a86ca12a0c0d1fbc3a6765e2063`. The receipt records the
+The maintainer confirmed **0.2.12 is pushed** and requested continued work.
+Cargo and the release receipt are 0.2.12. Local main, origin/main and v0.2.12 resolve to
+`fc275ebf15479aff1a78ec91a12a51fba8c161ef`, from validated source
+`753cd8411a072f6d1432c2cec8ebf3190216ab54`. The receipt records the
 `release-verify` gate; registry publication was not independently queried.
-The dated 0.2.11 notes match that release. The maintainer requested the **0.2.12**
-changelog; completed work is now in that undated draft below empty Unreleased.
-Cargo and the release receipt remain at 0.2.11; release preparation has not run.
+The dated 0.2.12 notes match that release. The maintainer requested the **0.2.13**
+changelog; completed work is in that undated draft below empty Unreleased.
+Cargo and the release receipt remain at 0.2.12; release preparation has not run.
 No version mutation, commit, publication, deployment or deployed-provider effect ran here;
 transfers below use simulated cycles between local PocketIC canisters.
 
@@ -26,7 +26,48 @@ operator client. Library publication does not qualify the service or Canic remov
 | M3 — Caffeine and operator integration | In progress: shared transports with local IC evidence | Qualified provider transport, completion/economics and production client |
 | M4 — managed parity and acceptance | Not implemented | Same journey through Canic adapter, complete replacement evidence and handoff |
 
-## Current focus — uploader manifest preparation and recovery
+## Current focus — uploader client, cancellation and recovery
+
+`ReplicatedUploadManifestClient` now binds actual executing actor, tenant and service.
+Only the admitted uploader can prepare; tenant/uploader inspection is available.
+Preparation checks bounded declaration/root consistency before encoding/dispatch.
+Both operations require replicated execution, send once with no attached cycles
+and reuse the bounded reply decoder. No automatic retry, allocator, service journal,
+provider call or implicit endpoint/lifecycle is introduced.
+
+The private application fixture can run as a separate uploader instance with two
+lifetime manifest-intent slots in its existing bounded record. It saves exact
+intent before dispatch and retains typed refusals. Unusable acknowledgments or
+callback traps leave dispatch uncertain and block redispatch; exact inspection can
+acknowledge a prepared declaration but unprepared cannot clear uncertainty. Accepted
+original metadata remains retained; stale/foreign results cannot overwrite it.
+Uploader cancellation now persists a permanent local tombstone. It prevents any
+further preparation dispatch while retaining unsent/uncertain/accepted/refused
+history and lifetime capacity. Exact saves cannot reopen it. Recovery and delayed
+acknowledgments preserve cancellation. The tenant still owns permission withdrawal
+and asset/reference cleanup; uploader cancellation makes no service accounting claim.
+Same-release upgrade validates and fences the uploader record synchronously.
+The private v1 fixture schema is replaced directly; cross-release is reinstall-only.
+
+The preceding client step passed 29 manifest native and 49 selected storage PocketIC
+cases. The cancellation extension passes all six consumer-model cases, 18 consumer
+IC cases (35.56 seconds) and seven manifest IC cases (17.41 seconds). New races
+hold uploader acknowledgment across both cancellations and tenant withdrawal, then
+preserve unexposed cleanup or exposed late completion/reference release under
+suspension. Unsent, uncertain and reconciled cancelled history survives fenced
+upgrade. Earlier reply-loss, callback/start-write, authority, bounded-history and
+registration regressions remain covered. Preparation alone cannot publish.
+Strict affected all-target Clippy, release consumer/storage Wasms, warning-free
+core/protocol/consumer rustdoc, formatting and diff checks pass.
+No full CI/release gate ran; no dependency, allocator or memory grant changed.
+The service stable schema is unchanged.
+
+Next, implement shared exposure/certificate orchestration subject to provider gates.
+Production browser/headless integration, intent sizing/storage, provider qualification,
+both production adapters and operational recovery remain open. Exposure/completion
+continue to use explicitly labelled fixture controls.
+
+## Manifest preparation and recovery — included in 0.2.12
 
 `workflow::uploads::manifests` now supplies canonical `blob_prepare_upload` and
 `blob_upload_manifest` with passive shared DTOs and bounded reply decoders.
@@ -54,13 +95,10 @@ Wasms, strict affected all-target Clippy, warning-free core/protocol/consumer
 rustdoc, formatting and diff checks pass. No full CI/release gate ran.
 No service stable schema, memory grant, dependency or allocator changed.
 
-Next, wire an explicit uploader client to these shared preparation/inspection
-handlers with exact saved intent and interrupted acknowledgment recovery. Keep
-uploader authority separate from tenant asset registration. Production intent
-storage, browser delivery, exposure/certificate orchestration, both adapters,
-provider qualification and operational recovery remain open.
+The current focus above adds replicated uploader dispatch and saved-intent recovery.
+Browser delivery, provider qualification and production integration remain open.
 
-## Consumer permission withdrawal — same 0.2.12 draft
+## Consumer permission withdrawal — included in 0.2.12
 
 `workflow::uploads::admission::revoke` and the permission client's `revoke` method
 now expose canonical `blob_revoke_upload`. They bind the full original permission,

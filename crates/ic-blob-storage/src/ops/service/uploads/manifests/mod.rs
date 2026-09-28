@@ -1,4 +1,5 @@
 //! Actual uploader authority, bounded declaration conversion and immutable recovery.
+pub mod client;
 pub mod reply;
 use super::{StableUploads, UploadStoreError, admission, key};
 use crate::{

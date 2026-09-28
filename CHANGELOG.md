@@ -2,6 +2,31 @@
 
 ## [Unreleased]
 
+## [0.2.13]
+
+### Added
+
+- Replicated upload-manifest client with explicit actor, tenant and service bindings.
+  Preparation validates the bounded declaration before dispatch; inspection recovers
+  the original declaration. Calls send once, attach no cycles and never retry
+  automatically. Only the actual admitted uploader may prepare; the tenant may
+  also inspect. Query execution and changed bindings are refused.
+- Durable uploader intent in the local application fixture, exercised by a separate
+  uploader canister. Exact intent and dispatch state survive unusable replies and
+  callback traps; uncertainty blocks redispatch until inspection finds the accepted
+  declaration. Typed refusals remain recorded, and unprepared observations cannot
+  clear uncertainty. Bounded history, conflicting intents, stale observations and
+  fenced upgrades are covered. A three-canister journey joins tenant admission,
+  uploader recovery, first-reference registration and cleanup. Exposure/completion
+  remain labelled substitutes; browser integration and provider qualification are open.
+- Uploader cancellation now retains a permanent local tombstone, original intent
+  and uncertain/accepted/refused preparation history. It blocks redispatch without
+  claiming tenant revocation or freeing service capacity. Recovery and delayed
+  acknowledgments preserve cancellation; saved intent cannot reopen it. Local IC
+  races cover tenant withdrawal during a held uploader reply, unexposed reservation
+  cleanup, exposed late completion and reference release under suspension, plus
+  cancelled history through fenced upgrade. This extends the same application fixture.
+
 ## [0.2.12] - 2026-09-28
 
 ### Added
