@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "verified_on": "2026-09-26",
+  "verified_on": "2026-09-28",
   "selection": "Latest official Caffeine integration is the sole target. Current package sources take precedence over older integration examples; Canic bindings are extraction evidence, not the provider specification.",
   "status": "integration_target_only",
   "upstream": {
@@ -39,11 +39,12 @@
     "deployed_cashier_version_verified": false,
     "provider_recovery_and_billing_guarantees_verified": false,
     "service_implementation_started": true,
-    "implementation_scope": "Local content/billing/configuration, transient lifecycle/root claims and bounded Caffeine reply decoding with private wire DTOs. No provider transports/effects or persisted service workflows. Reply and claim tests do not qualify deployed completion, recovery or settlement.",
+    "implementation_scope": "Service library includes durable upload, funding and gateway owners, bounded reply decoding, shared dispatch and explicit replicated gateway-query transport. Native and local PocketIC evidence does not qualify deployed provider completion, recovery, callbacks or settlement.",
     "deployed_cashier_interface_observed": true
   },
   "refresh_policy": "Recheck official source and registry latest before provider implementation and qualification. Update exact pins, contract evidence and affected checks together; do not resolve moving latest tags at build time.",
   "source_priority": "September 2026 packages remain npm 1.1.2 and Mops 1.1.1. Target the current backend deletion-list vec blob shape; the April DFINITY vec text example is background, not a fallback. Actual deployed gateway interoperability remains to be qualified.",
   "deployment_observation": "evidence/caffeine-deployment-observation.json",
-  "contract_refresh": "evidence/caffeine-contract-refresh.json"
+  "contract_refresh": "evidence/caffeine-contract-refresh.json",
+  "gateway_transport_review": "evidence/caffeine-gateway-transport.json"
 }

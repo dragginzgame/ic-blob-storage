@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "observed_on": "2026-09-28",
+  "scope": "Read-only public source/package refresh, anonymous Cashier metadata and gateway-list query, plus local PocketIC replicated-query tests. No live update call, account lookup, deployment, attachment or paid provider operation.",
+  "baseline": {
+    "official_main": "e5cacdfe5ce55e939edb02980fca800c0c13f421",
+    "github_metadata": "https://api.github.com/repos/caffeinelabs/skills/commits/main",
+    "npm_latest": "1.1.2",
+    "npm_metadata": "https://registry.npmjs.org/@caffeineai%2fobject-storage/latest",
+    "npm_integrity": "sha512-JAmoHT6E8M18DEbW4rkHinAOw0A8yNbz+rj8F56VAvr8Hf0TxQSK0ZdMrkwwT7BsiOLvtFK/YcLtoaWBc9x2xQ==",
+    "mops_highest": "1.1.1",
+    "mops_command": "icp canister call oknww-riaaa-aaaam-qaf6a-cai getHighestVersion '(\"caffeineai-object-storage\")' --query --identity anonymous --network https://icp-api.io --root-key mainnet --candid .tmp/design-refresh/mops.did --output candid",
+    "backend_sha256": {
+      "Mixin.mo": "175c6b98672a83054fc08855062d1a7b7f2bd3713bf11a60d5319ac5afefe2b3",
+      "Storage.mo": "0c757f4cb30ebe8e30b42a59b130a1662b47e403b9664f44e98d14b08b20af42"
+    },
+    "unchanged_from_retained_pins": true
+  },
+  "cashier": {
+    "principal": "72ch2-fiaaa-aaaar-qbsvq-cai",
+    "interface_sha256": "232b08e4514048d4de48d6d1bf4387f577bfb64c7e2e2ded699a5e52d475d76f",
+    "metadata_command": "icp canister metadata 72ch2-fiaaa-aaaar-qbsvq-cai candid:service --identity anonymous --network https://icp-api.io --root-key mainnet",
+    "retained_interface": "caffeine-cashier.did",
+    "method": "storage_gateway_list_v1 : () -> (vec principal) query",
+    "query_command": "icp canister call 72ch2-fiaaa-aaaar-qbsvq-cai storage_gateway_list_v1 '()' --query --identity anonymous --network https://icp-api.io --root-key mainnet --candid docs/evidence/caffeine-cashier.did --output candid",
+    "observed_principals": ["jf2g2-sl4zh-zhvyx-v3zcb-hmumz-2at2q-wuamm-4qiml-43msi-r3man-eqe"],
+    "portable_certified_proof": false,
+    "live_replicated_call_tested": false
+  },
+  "replicated_route": {
+    "platform_guidance": "https://docs.internetcomputer.org/guides/security/data-integrity-and-authenticity/",
+    "source_reference": "https://github.com/caffeinelabs/skills/blob/e5cacdfe5ce55e939edb02980fca800c0c13f421/packages/object-storage/backend/src/Storage.mo#L30",
+    "source_observation": "The official Motoko wrapper invokes storage_gateway_list_v1 from shared execution using a non-query actor function declaration.",
+    "selection": "Explicit ReplicatedGatewayQuery; never automatic fallback from an off-chain query. Exact service/Cashier binding, canonical method/arguments, one bounded-wait call and zero attached cycles.",
+    "limits": "Positive timeout at most 300 seconds, matching locked ic-cdk 0.20.3. Reply byte budget checked before handing the owned response to the decoder. The CDK's initial buffer remains subject to platform limits, not the smaller application budget. Ordinary IC execution/call fees still apply.",
+    "local_evidence": "PocketIC calls the actual query-only storage_gateway_list_v1 export. Its service-caller branch requires replicated execution and zero attached cycles. Wrong identities and ordinary query execution reject; size/reject/callback-trap failures retain pending state; restoration fences dispatch. Existing delayed-reply and source regression tests pass.",
+    "qualification": "Local platform/caller composition only. Deployment selection/ownership, actual Cashier replicated execution, operational readiness and provider callback semantics remain unqualified. No deployment account or provider trust was selected by this review."
+  }
+}

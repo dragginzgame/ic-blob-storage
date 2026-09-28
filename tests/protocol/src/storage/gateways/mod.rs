@@ -1,5 +1,48 @@
 //! Labelled local registry controls; these do not authenticate a provider reply.
 use candid::{CandidType, Deserialize, Principal};
+/// Authority-only local await fixture, not a provider read protocol.
+#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+pub struct ReadAuthorityInput {
+    /// Installed Cashier; service and namespace are explicit in the target.
+    pub cashier: Principal,
+    /// Exact tenant root/object/reference.
+    pub target: crate::admission::input::RetainedDescriptorInput,
+    /// Selected current gateway member.
+    pub gateway: Principal,
+}
+/// Bounded local gateway root observation; not the provider's liveness API.
+#[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize)]
+pub struct RootsInput {
+    /// Exact service/Cashier/namespace; actor comes from actual IC context.
+    pub scope: Scope,
+    /// Ordered raw roots, including duplicates and malformed positions.
+    pub roots: Vec<Vec<u8>>,
+}
+/// Minimal phase-only local view, never a deletion boolean or effect receipt.
+#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+pub enum RootView {
+    /// Local upload/lifecycle phase; no tenant or operation identity is disclosed.
+    Known(crate::admission::ContentState),
+    /// No local claim; no provider deletion authority is implied.
+    Unknown,
+    /// Root could not be parsed.
+    Malformed {
+        /// Original supplied byte length.
+        bytes: u64,
+    },
+}
+/// Adversarial local controls for the explicit replicated transport primitive.
+#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+pub struct ReplicatedInput {
+    /// Previously persisted sync and callback fault selection.
+    pub attempt: TransportInput,
+    /// Expected executing canister; independently checked against the platform.
+    pub service: Principal,
+    /// Expected Cashier; independently checked against the canonical request.
+    pub cashier: Principal,
+    /// Test-only application response byte bound.
+    pub max_reply_bytes: u32,
+}
 /// Local transport control for a previously reserved fixture handle.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
 pub struct TransportInput {

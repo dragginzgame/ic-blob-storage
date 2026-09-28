@@ -2,14 +2,14 @@
 
 Date: 2026-09-28
 
-## Active work — after 0.2.6
+## Active work — 0.2.8 draft after 0.2.7
 
-The maintainer confirmed **0.2.6 is pushed**. Cargo and the release receipt are
-0.2.6. Local main, origin/main and v0.2.6 resolve to
-`af63842116c241b1e7fae95c6128897d01659ccf`, from validated source
-`ab006c8d46208548ef4362797a9c49ac1603b22f`. The receipt records the
+The maintainer confirmed **0.2.7 is pushed** and requested work on **0.2.8**.
+Cargo and the release receipt remain 0.2.7. Local main, origin/main and v0.2.7 resolve to
+`65d2945dcadf97440f88f2b4c4d8af64f3d0378c`, from validated source
+`a5fdd2e73399fcaca345ba0578adb151fe405864`. The receipt records the
 `release-verify` gate; registry publication was not independently queried.
-New work is recorded under **Unreleased**; no next version has been selected.
+New work is recorded under an undated **0.2.8** changelog draft.
 No version mutation, commit, publication, deployment or deployed-provider effect ran here;
 transfers below use simulated cycles between local PocketIC canisters.
 
@@ -21,10 +21,126 @@ operator client. Library publication does not qualify the service or Canic remov
 | --- | --- | --- |
 | M1 — contract | In progress | Freeze admission/resource envelope, provider guarantees and operational recovery |
 | M2 — durable standalone service | In progress: durable upload/reference/settlement bookkeeping and IC evidence | Complete reads/provider journals, shared handlers and operational recovery/journey evidence |
-| M3 — Caffeine and operator integration | Not implemented | Qualified provider transport, completion/economics and production client |
+| M3 — Caffeine and operator integration | In progress: shared transports with local IC evidence | Qualified provider transport, completion/economics and production client |
 | M4 — managed parity and acceptance | Not implemented | Same journey through Canic adapter, complete replacement evidence and handoff |
 
-## Current focus — durable gateway query orchestration
+## Current focus — durable read authority across awaits
+
+`workflow::reads::{capture,recheck}` now binds the original caller/service, exact
+live reference, full object lifetime, root and selected current gateway. Both
+durable owners must match configuration/scope and remain unfenced. Active tenant
+enrollment and its activation generation are checked independently. Indexed
+lookups avoid manifest and reference/receipt history copies; passive descriptor
+inspection retains its existing suspension/restoration behavior.
+
+Gateway membership now owns a separate read invalidation counter in the same
+bounded v1 record. Successful edits (including no-ops) and complete syncs (including
+identical lists) advance it; failures and sync begin/cancel do not. Remove/re-add
+and tenant suspension/reactivation therefore cannot revive old read authority.
+Exhaustion disables reads permanently while preserving administrative revocation.
+The internal schema is replaced directly; same-release restoration retains the
+counter and fence. Cross-release transitions remain reinstall-only. No additional
+memory grant, compatibility reader, dependency or allocator change was added.
+
+The opaque observation is host-retained, read-only and repeatable, not an ingress
+DTO, session reservation, one-shot callback completion or dispatch permit. The
+authority-only fixture holds a real local IC reply using the existing labelled
+source, discarding its list; it fetches no blob bytes. It proves invalidation after
+gateway remove/re-add, identical-list sync, tenant reactivation and exact reference
+release despite another live reference. A trapped membership write preserves
+authority; wrong callers and restored instances send nothing.
+
+Targeted validation passes 28 durable-upload unit cases, 31 gateway unit cases
+(three overlap), and 11 gateway-binding/upload-read integration cases. All 18
+gateway PocketIC cases pass in 27.38 seconds; existing descriptor/scan regressions
+also pass in 2.04 seconds. Affected strict all-target Clippy, release storage/source
+Wasms, warning-free core rustdoc, formatting and diff checks pass.
+No full CI, version mutation, release or deployed-provider operation ran.
+
+Next, add bounded durable read-session admission and exact one-shot completion
+on top of these authority checks. Invalidation must retain occupied capacity until
+the exact callback settles it; old callbacks must never free a newer session.
+Then compose manifest/chunk verification and qualified transport without weakening
+either restore fence. Provider qualification and operational recovery remain open.
+
+## Scoped durable gateway observations — included in the 0.2.8 draft
+
+`workflow::gateways::callbacks::observe_roots` now composes the durable registry
+and upload owner synchronously. It requires matching complete configuration and
+explicit service/Cashier/namespace scope, actual service and current membership,
+then checks both restore fences and each known root's stored object binding.
+Membership applies even to empty, unknown or malformed batches. There is no
+operator impersonation, public unguarded root reader, cached permit or await.
+Indexed reads retain order, duplicates and malformed positions without loading
+manifests or operation histories. Gateway results expose only local phases;
+tenant, request and reference identities remain private.
+
+The labelled probe endpoint proves actual caller isolation, immediate removal
+and sync replacement, uncertainty after exposed revocation, cancelled roots and
+all confirmed cleanup phases. Suspension retains operational visibility; upgrade
+fences gateway observations while existing operator inspection remains available.
+Native tests independently fence either owner, reject mismatched configuration
+and reject a broken root/request index without returning partial batch data.
+These observations grant no provider liveness/deletion mapping, effect completion,
+retry, read-session generation or recovery authority.
+
+Latest targeted checks pass: 25 durable-upload unit cases, 30 gateway unit cases
+(three overlap), two gateway binding cases, all 14 storage gateway PocketIC cases
+in 18.68 seconds, and four existing planning/read PocketIC cases in 3.79 seconds.
+Affected strict all-target Clippy, the release storage-probe Wasm, warning-free
+core rustdoc, formatting and diff checks pass.
+No full CI, provider call, version mutation or release action ran in this batch.
+Stable schemas, dependencies and allocator are unchanged.
+
+Read authority above now composes generations, object/reference bindings and
+restore fences. Exact callback correlation and session capacity remain open.
+Provider effect semantics, deployed Cashier replicated execution, production
+funding evidence and operational recovery remain unqualified.
+
+## Explicit replicated gateway transport — included in the 0.2.8 draft
+
+`ops::caffeine::query::transport::replicated::ReplicatedGatewayQuery` now implements
+the shared host transport for the canonical gateway-list query. Configuration binds
+service and Cashier with a positive timeout no greater than 300 seconds. Execution
+checks the actual running service, original request target, maintained method and
+replicated mode before sending. One bounded-wait call carries canonical arguments
+and no attached cycles, with no automatic retry, alternate method or mode fallback.
+Ordinary platform call/execution fees still apply. The application byte budget is
+checked before passing the CDK-owned response to decoding without a second copy;
+the CDK's initial buffer remains limited by the platform, not this smaller budget.
+
+The new fixture endpoint uses this production primitive against the local source's
+actual query-only `storage_gateway_list_v1` export. For the configured service,
+that source requires replicated execution and zero attachment. Driver inspection
+remains available and scripted scheduling modes still cannot execute in the query.
+Existing delayed-reply tests retain their separately labelled update substitute;
+it provides scheduling evidence rather than a second provider implementation.
+
+The [transport review](../evidence/caffeine-gateway-transport.json) refreshes official
+main, npm latest/integrity, Mops highest, backend file hashes and Cashier Candid,
+all unchanged. An anonymous public gateway-list query returns the same retained
+principal. Official platform guidance supports replicated queries and the pinned
+Motoko wrapper uses that route. No live replicated update, private account lookup,
+deployment, transfer or paid provider operation ran; the query text is not a
+portable certified proof or service qualification.
+
+All 27 targeted gateway native cases pass. All 11 storage gateway PocketIC cases
+pass in 13.38 seconds, including query-only replicated success, wrong identity and
+ordinary-query refusal, response-size rejection, remote rejection, callback rollback
+and fenced restoration. Both existing gateway-source regressions pass in 2.27
+seconds. Affected strict all-target Clippy, release storage/source/authority Wasms,
+warning-free core rustdoc, formatting and diff checks pass. No full CI or resource
+benchmark refresh ran. Stable schemas, dependencies, Cargo versions and release
+receipt are unchanged; the current draft is additive to the released library.
+
+Scoped gateway observations above now compose the durable owners; read-session
+generations and effect callbacks remain separate. Deployed Cashier replicated
+execution, provider trust, production funding evidence and operational recovery
+still need qualification. Do not re-treat the
+query annotation as a platform incompatibility, or label this local transport proof
+as acceptance of the deployed service.
+
+## Durable gateway query orchestration — included in 0.2.7
 
 `ops::service::gateways::StableGatewayRegistry` now persists the existing gateway
 model's membership and pending-sync transitions in one explicit host memory.

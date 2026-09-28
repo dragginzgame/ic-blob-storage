@@ -95,8 +95,23 @@ together. Failed replies retain the pending attempt; transport authentication an
 buffering limits remain host responsibilities.
 The async query handler checks pending state before host transport and revalidates
 after the await. Local IC tests cover delayed replies, concurrent edits and callback
-rollback; a production query transport still needs authentication and qualification.
+rollback. `ReplicatedGatewayQuery` explicitly selects IC replicated execution for
+the canonical query-only method, with service/Cashier checks, bounded wait and no
+attachment. This route passes local IC tests; deployed Cashier behaviour and
+installation/provider qualification remain open.
 This is local registry state, not proof of provider authority or callback freshness.
+`workflow::gateways::callbacks::observe_roots` composes current membership with
+the durable upload owner under matching configuration and explicit scope. It
+returns bounded local phases without tenant/request details, checks known object
+bindings and rejects either restored owner. Local IC tests cover caller isolation,
+revocation and cleanup phases. Provider liveness/deletion mapping and read-session
+generations are separate checks; these observations grant no effect authority.
+`workflow::reads` captures and rechecks the original tenant, exact live reference,
+object/root and selected gateway against both durable owners. Gateway edits and
+successful syncs advance a persisted invalidation counter; tenant reactivation
+also invalidates earlier observations. Held-reply IC tests cover revocation,
+reference release and rollback. Bounded read sessions, exact one-shot completion,
+byte verification and production transport still need composition.
 The service uses bounded manifest authorization for direct browser-to-Caffeine
 upload. No file chunks or whole-file raw digest are required by service admission.
 Manifest consistency, possible exposure and independently confirmed provider
@@ -179,9 +194,10 @@ funding restores now validate service/release bindings and journal consistency, 
 permanently fence both sending and receiving. Old journals and late callbacks cannot
 resume payment authority. This does not qualify whole-canister snapshot loads.
 
-Production persisted workflows, provider transports, clients and canister
-adapters are not implemented yet. Local bookkeeping and decoded provider reports
-do not establish a qualified storage service.
+Durable bookkeeping and shared funding/gateway transport primitives have local
+test evidence. Complete production workflows, clients, canister adapters and
+deployed-provider qualification remain open. Local bookkeeping and decoded
+provider reports do not establish a qualified storage service.
 
 The planned service owns tenant authorization, references, quotas, provider
 access, billing, retention and deletion. This repository will own standalone

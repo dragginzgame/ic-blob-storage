@@ -35,7 +35,7 @@ The [review record](evidence/toko-0.2-review.json) pins source paths and hashes.
 | --- | --- | --- | --- |
 | M1 — contract | Toko asset journey, uploader/tenant/operator bindings, resource envelope, provider and recovery decisions | Resolved decision list below, concrete acceptance inputs and authoritative provider evidence for promised guarantees | In progress: configuration, enrollment and upload-permission models implemented; consumer coordination contract specified; provider/recovery evidence still open |
 | M2 — durable standalone journey | One production owner of configuration, upload/reference/deletion journals and shared handlers; standalone adapter | Actual PocketIC install, upload/admission, verification, interruption, accounting and supported recovery, including the 10 MiB media boundary | In progress: durable upload/reference/settlement bookkeeping with IC rollback/upgrade evidence; provider-call journals, read sessions and operational recovery outstanding |
-| M3 — Caffeine and operator integration | Provider transport, verified completion/readback, explicit funding/reconciliation, production CLI and client | Exact source/interface provenance, client tests and bounded explicitly authorized provider trial; no inference of credit or billing cessation | Not implemented |
+| M3 — Caffeine and operator integration | Provider transport, verified completion/readback, explicit funding/reconciliation, production CLI and client | Exact source/interface provenance, client tests and bounded explicitly authorized provider trial; no inference of credit or billing cessation | In progress: shared transports with local IC evidence; deployed qualification and production clients remain open |
 | M4 — managed parity and acceptance | Thin Canic adapter, same API/tenant rules and real consumer composition | Same journey/operator cases through both deployments; all BLOB-01–18 replacement obligations resolved; removal readiness handoff | Not implemented |
 
 M2 depends on M1's applicable decisions, not just a milestone label. M2 may use
@@ -82,10 +82,23 @@ Its shared begin/complete/cancel workflow retains the canonical Cashier request 
 applies the bounded reply decoder transactionally, with IC rejection/rollback evidence.
 Shared async query orchestration now releases the store borrow across host transport
 and rejects delayed replies after revocation or replacement, with local IC evidence.
-Authenticated sync transport and callback/read-session authority remain separate.
+Explicit replicated transport now exercises the canonical query-only method with
+service/Cashier checks and local IC rollback evidence. Deployed Cashier replicated
+execution and provider trust remain unqualified.
+Shared scoped gateway root observations now join current durable membership,
+matching owner configuration and indexed object bindings. Both restore fences
+block operational reads; local IC evidence covers revocation and every cleanup
+phase without converting unknown/pending roots into deletion permission.
+Shared read-authority capture/recheck now binds the original tenant, exact live
+reference, root/object and selected gateway. A separately persisted invalidation
+counter prevents remove/re-add and same-list sync from reviving old reads; tenant
+reactivation also invalidates them. Held-reply IC evidence covers these checks,
+reference release, rollback and restoration. Bounded durable session admission,
+exact one-shot completion and verified-byte transport remain outstanding.
+Deployed transport qualification and effect callbacks remain separate.
 Next, establish complete account activity and credit evidence, then complete other provider
-intents, read sessions and operational lifecycle. Gateway callback
-authority and deployed-provider semantics remain separate qualification work.
+intents, read sessions and operational lifecycle. Provider callback semantics and
+deployed-provider evidence remain separate qualification work.
 The original B1/B2/B3 extraction gates are project gates, not crate version numbers.
 Starting 0.2 does not waive the [service contract](service-contract.md).
 

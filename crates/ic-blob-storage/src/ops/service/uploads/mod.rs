@@ -1,4 +1,5 @@
 //! One durable upload/lifecycle owner. Provider evidence is a trusted-host input.
+pub(crate) mod callbacks;
 mod lifecycle;
 mod planning;
 pub mod read;

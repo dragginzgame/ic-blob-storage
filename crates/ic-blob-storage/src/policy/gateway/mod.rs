@@ -28,6 +28,24 @@ pub enum GatewayAccessError {
     NotGateway,
 }
 
+/// Check actual service and current membership before any object lookup, including
+/// empty batches. Registry scope must independently match the owning store.
+/// Success is not a reusable permit, provider fact or restore clearance.
+/// # Errors
+/// Rejects a different executing service or a caller outside current membership.
+pub fn assess_gateway_membership(
+    registry: &GatewayRegistry,
+    context: GatewayCallbackContext,
+) -> Result<(), GatewayAccessError> {
+    if context.service != registry.scope().service() {
+        return Err(GatewayAccessError::WrongService);
+    }
+    if !registry.gateways().contains(context.actor) {
+        return Err(GatewayAccessError::NotGateway);
+    }
+    Ok(())
+}
+
 /// Check the current registry for a callback targeting a trusted object binding.
 ///
 /// Obtain the registry and binding from authoritative state. Assess this again
@@ -51,8 +69,5 @@ pub fn assess_gateway_callback(
     if registry.scope().namespace() != object.identity().namespace {
         return Err(GatewayAccessError::WrongNamespace);
     }
-    if !registry.gateways().contains(context.actor) {
-        return Err(GatewayAccessError::NotGateway);
-    }
-    Ok(())
+    assess_gateway_membership(registry, context)
 }

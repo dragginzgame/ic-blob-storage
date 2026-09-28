@@ -222,6 +222,20 @@ and canonical empty arguments. Delayed replies cannot overwrite revocation, a ne
 pending attempt or completed replacement; callback write traps preserve pending
 state after the source has answered. Restored dispatch sends nothing. These tests
 establish scheduling/rollback behavior, not replicated support for Cashier's query.
+`ReplicatedGatewayQuery` now explicitly selects replicated IC execution for the
+canonical query method. It checks its configured service against the actual running
+canister and its Cashier against the original request, refuses ordinary query
+execution and other query kinds, and sends once with a positive timeout of at most
+300 seconds. It attaches no cycles and installs no automatic fallback or retry;
+ordinary platform fees still apply. The CDK initially buffers under platform limits;
+the host's smaller byte budget is checked before the owned buffer reaches decoding,
+without copying it again. PocketIC exercises the canonical query-only export and
+tests zero attachment, scope/execution refusal, rejection, size limits, callback
+rollback and fenced restoration. The [current review](evidence/caffeine-gateway-transport.json)
+retains the unchanged public provider baseline. Local replicated execution is now
+established; deployment ownership, actual Cashier replicated execution and provider
+semantics remain qualification work. Off-chain query clients acquire no implicit
+permission to switch transport modes.
 Local account-balance reply decoding likewise binds successful reports to a
 supplied requested account and rejects unusable amounts. It does not establish
 transport identity, account ownership, observation freshness or payment outcomes.
@@ -770,6 +784,51 @@ exact original request and reserved, possibly exposed, cancelled or confirmed ph
 This operator view is distinct from a gateway callback: unknown/cancelled/settled
 observations never authorize provider deletion, retry or allocation, and local
 completion/settlement observations do not supply independent provider evidence.
+
+`workflow::gateways::callbacks::observe_roots` separately composes the durable
+registry and upload owner for scoped gateway observations. Both owners must have
+the same complete configuration and match the explicit service/Cashier/namespace.
+Actual service and current caller membership are checked even for empty, unknown
+or malformed batches. Each known root's stored object binding passes callback
+policy; inconsistent indexes reject the entire result. Both owners' restore
+fences independently block these operational reads, while operator inspection
+remains available. The synchronous handler retains no permit or borrow across
+an await and reuses indexed lookups without loading manifests or histories.
+
+Gateway results expose only local phases, unknown roots and malformed positions,
+preserving order and duplicates without tenant/request/reference details. Tenant
+suspension does not hide continuing obligations. Operator removal or a completed
+membership replacement applies on the next call. These phases are not provider
+liveness booleans, completion receipts or deletion permission. Provider semantics,
+callback correlation, read-session generations and recovery remain separate gates.
+The probe endpoint is explicitly a local fixture; no provider callback export,
+automatic deletion or paid effect is installed by linking the library.
+
+`workflow::reads::{capture,recheck}` adds current durable read authority. The
+opaque host-retained observation binds original caller/service, provider scope,
+selected gateway, root, full object lifetime and exact live reference. Both
+owners must share configuration and remain unfenced; enrollment must be active.
+Indexed reads avoid manifests and reference/receipt histories. Existing passive
+descriptor inspection keeps its suspension/restoration behavior.
+
+Gateway membership now owns a separate persisted read invalidation counter.
+Successful adds/removals, including no-op edits, and successful complete syncs,
+including identical lists, advance it atomically with membership. Failed writes
+roll back both. Invalid edits/replies and sync begin/cancel leave it unchanged.
+Exhaustion permanently disables new read observations without blocking revocation
+or wrapping the counter. Tenant suspension/reactivation uses the independently
+retained activation generation. Released reference identities cannot be replaced
+by another live reference or a historical retain receipt.
+
+Recheck uses the original context and target after an await, before disclosure.
+It is repeatable and read-only: it reserves no session slot, consumes no callback,
+authenticates no transport and verifies no bytes. Only the original exclusive
+owners may be used; host installation identity and stale-instance exclusion remain
+necessary. The local authority-only endpoint uses a bounded ephemeral test slot
+and an existing scheduling substitute, discarding its list; it is not a production
+read transport or durable session. The internal v1 registry schema is replaced
+directly and retains the counter on same-release reopen under its fence.
+Cross-release transitions remain reinstall-only, with no compatibility branch.
 
 The private storage probe exercises interrupted writes from admission through
 completion, references and settlement, then same-release upgrade in every phase.

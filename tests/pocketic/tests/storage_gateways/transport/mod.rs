@@ -1,4 +1,5 @@
 //! Real IC scheduling against an explicitly different local source method.
+mod read_authority;
 use super::*;
 use blob_test_protocol::{
     SourceMode, SourceObservation, source::SourceRecoveryView, storage::gateways::TransportInput,
@@ -224,3 +225,5 @@ fn gateway_callback_write_trap_keeps_pending_state_and_restoration_blocks_resend
         }
     );
 }
+
+mod replicated;

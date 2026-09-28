@@ -241,6 +241,38 @@ async fn fixture_gateway_transport(
 ) -> Result<(), blob_test_protocol::storage::Failure> {
     workflow::gateways::transport::run(context(), input).await
 }
+
+#[ic_cdk::query(decode_with = "ops::decode")]
+fn fixture_gateway_roots(
+    input: blob_test_protocol::storage::gateways::RootsInput,
+) -> Result<
+    Vec<blob_test_protocol::storage::gateways::RootView>,
+    blob_test_protocol::storage::Failure,
+> {
+    workflow::gateways::callbacks::roots(context(), &input)
+}
+
+#[ic_cdk::update(decode_with = "ops::decode")]
+async fn fixture_read_authority(
+    input: blob_test_protocol::storage::gateways::ReadAuthorityInput,
+) -> Result<(), blob_test_protocol::storage::Failure> {
+    workflow::reads::run(context(), input).await
+}
+
+#[ic_cdk::update(decode_with = "ops::decode")]
+async fn fixture_replicated_gateway_transport(
+    input: blob_test_protocol::storage::gateways::ReplicatedInput,
+) -> Result<(), blob_test_protocol::storage::Failure> {
+    workflow::gateways::replicated::run(context(), input).await
+}
+
+// Deliberately wrong execution context: the transport must refuse before calling.
+#[ic_cdk::query(decode_with = "ops::decode")]
+async fn fixture_nonreplicated_gateway_transport(
+    input: blob_test_protocol::storage::gateways::ReplicatedInput,
+) -> Result<(), blob_test_protocol::storage::Failure> {
+    workflow::gateways::replicated::run(context(), input).await
+}
 #[ic_cdk::query(decode_with = "ops::decode")]
 fn gateway_registry(
     input: blob_test_protocol::storage::gateways::Scope,

@@ -30,7 +30,9 @@ pub(crate) fn observation(caller: Principal) -> Option<SourceObservation> {
 }
 
 pub(crate) fn inspect_gateways(caller: Principal) {
-    if !ops::read(|state| state.driver == caller) {
+    let (driver, service) = ops::read(|state| (state.driver, state.service));
+    let service_call = caller == service && ops::unfunded_replicated_query();
+    if caller != driver && !service_call {
         ops::reject();
         return;
     }

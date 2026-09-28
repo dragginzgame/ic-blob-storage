@@ -5,6 +5,10 @@ mod scheduling;
 mod storage;
 pub(crate) mod sync_hold;
 
+pub(crate) fn unfunded_replicated_query() -> bool {
+    ic_cdk::api::in_replicated_execution() && ic_cdk::api::msg_cycles_available() == 0
+}
+
 use crate::model::{ActionRecord, SourceJournalRecord};
 use blob_test_protocol::{
     SourceMode, SourceObservation, SyncFailure,

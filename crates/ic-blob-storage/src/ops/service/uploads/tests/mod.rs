@@ -483,5 +483,7 @@ fn codec_envelope_is_checked_before_installation_and_binds_reopening() {
 
 mod lifecycle;
 
+mod callbacks;
 mod planning;
 mod read;
+mod read_authority;

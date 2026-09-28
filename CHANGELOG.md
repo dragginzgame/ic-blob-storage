@@ -2,6 +2,36 @@
 
 ## [Unreleased]
 
+## [0.2.8]
+
+### Added
+
+- Explicit replicated IC transport for the canonical Cashier gateway-list query.
+  It checks service/Cashier binding and execution mode, sends once with a bounded
+  timeout and no attached cycles, and checks reply size before handing the owned
+  buffer to the decoder. Ordinary platform costs still apply. PocketIC exercises
+  the query-only endpoint, wrong bindings, non-replicated refusal, rejection,
+  oversized replies, callback rollback and restore fencing. Current public
+  Caffeine source/package/interface observations remain unchanged; a live
+  replicated Cashier call and deployed-provider guarantees remain unqualified.
+- Shared scoped gateway root observations compose current durable membership,
+  matching owner configuration, stored object bindings and both restore fences.
+  Bounded indexed reads return local phases without tenant/operation details,
+  preserve pending uncertainty and reject revoked callers even for empty batches.
+  Native and PocketIC evidence covers independent fences, corrupt indexes, caller
+  isolation, membership replacement and all cleanup phases. These observations
+  grant no provider deletion, completion, retry or read-session authority.
+- Shared read-authority capture/recheck binds the original tenant, exact live
+  reference, object lifetime, root and selected gateway. A durable invalidation
+  counter prevents gateway removal/re-addition or unchanged-list syncs from
+  reviving old reads; tenant suspension/reactivation also invalidates them.
+  Membership and its counter commit together, with exhaustion blocking reads
+  while preserving revocation. Native and held-reply PocketIC tests cover these
+  checks, write rollback and both restore fences. Bounded session admission,
+  one-shot completion and production read transport remain separate work.
+  The internal v1 gateway record is replaced directly; cross-release installs
+  remain reinstall-only, with no compatibility reader or allocator change.
+
 ## [0.2.7] - 2026-09-28
 
 ### Added

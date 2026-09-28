@@ -1,5 +1,19 @@
 //! Passive conversion and explicit local-only gateway journal controls.
+pub(crate) mod callbacks;
 pub(crate) mod transport;
+
+pub(crate) fn replicated_failure(
+    error: ic_blob_storage::ops::caffeine::query::transport::replicated::ReplicatedQueryError,
+) -> blob_test_protocol::storage::Failure {
+    use ic_blob_storage::ops::caffeine::query::transport::replicated::ReplicatedQueryError as E;
+    match error {
+        E::Binding => Failure::Binding,
+        E::Execution => Failure::Phase,
+        E::ReplyTooLarge => Failure::Capacity,
+        E::NotEnqueued | E::Rejected(_) => Failure::Transport,
+        E::Method | E::InvalidPrincipal | E::TimeoutOutOfRange => Failure::Invalid,
+    }
+}
 use super::{STATE, TRAP_WRITE, UploadContext};
 use blob_test_protocol::storage::{
     Failure, WriteFault,

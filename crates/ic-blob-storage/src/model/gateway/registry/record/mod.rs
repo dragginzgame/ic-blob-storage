@@ -21,6 +21,7 @@ pub(crate) struct GatewayRegistryRecord {
     principals: Vec<Principal>,
     last_sequence: u64,
     pending_sequence: Option<u64>,
+    read_generation: super::generation::GatewayReadGeneration,
 }
 impl GatewayRegistryRecord {
     pub(crate) fn new(config: &ServiceConfiguration, registry: &GatewayRegistry) -> Self {
@@ -38,6 +39,7 @@ impl GatewayRegistryRecord {
             principals: registry.gateways().principals().to_vec(),
             last_sequence: sync.last_sequence,
             pending_sequence: sync.pending_sequence,
+            read_generation: registry.read_generation,
         }
     }
     pub(crate) fn matches(&self, config: &ServiceConfiguration) -> bool {
@@ -53,6 +55,7 @@ impl GatewayRegistryRecord {
     }
     pub(crate) fn registry(&self, config: &ServiceConfiguration) -> Option<GatewayRegistry> {
         if !self.matches(config)
+            || !self.read_generation.valid()
             || self.principals.len() > MAX_MEMBERS
             || self.principals.len() > config.billing().gateway_limits().max_unique.get()
         {
@@ -72,6 +75,7 @@ impl GatewayRegistryRecord {
             scope,
             gateways,
             last_sequence: self.last_sequence,
+            read_generation: self.read_generation,
             pending: self
                 .pending_sequence
                 .map(|sequence| GatewaySyncToken { scope, sequence }),

@@ -1,4 +1,6 @@
 //! Labelled local observations exercise the shared durable decoder workflow.
+pub(crate) mod callbacks;
+pub(crate) mod replicated;
 pub(crate) mod transport;
 use crate::ops::gateways::{failure, scope, sync_failure, with_registry};
 use blob_test_protocol::storage::{

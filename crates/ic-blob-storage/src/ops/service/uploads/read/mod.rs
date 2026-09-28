@@ -1,4 +1,5 @@
 //! Indexed tenant reads and bounded current-state traversal; no effect authority.
+mod authority;
 use super::{
     Memory, StableUploads, UploadContext, UploadPhase, UploadRequest, UploadStoreError,
     UploadStoreRecord, key, metadata, validation,
@@ -142,6 +143,14 @@ impl<M: Memory> StableUploads<M> {
         batch: &ProviderRootBatch,
     ) -> Result<Vec<UploadRootObservation>, UploadStoreError> {
         self.scan_authority(execution, UploadScanScope::Service { namespace })?;
+        self.observe_roots_for_owner(batch)
+    }
+
+    // Internal synchronous access after workflow authority checks. No public bypass.
+    pub(crate) fn observe_roots_for_owner(
+        &self,
+        batch: &ProviderRootBatch,
+    ) -> Result<Vec<UploadRootObservation>, UploadStoreError> {
         batch
             .entries()
             .iter()
@@ -223,6 +232,23 @@ impl<M: Memory> StableUploads<M> {
         root: ProviderRootHash,
         reference: ReferenceKey,
     ) -> Result<Option<RetainedUploadDescriptorView>, UploadStoreError> {
+        let Some(content) = self.retained_content(execution, root, reference)? else {
+            return Ok(None);
+        };
+        let descriptor = self
+            .descriptor(content)?
+            .ok_or(UploadStoreError::InvalidRecord)?;
+        Ok(Some(RetainedUploadDescriptorView {
+            descriptor,
+            reference,
+        }))
+    }
+    fn retained_content(
+        &self,
+        execution: UploadContext,
+        root: ProviderRootHash,
+        reference: ReferenceKey,
+    ) -> Result<Option<TenantContentView>, UploadStoreError> {
         let object = reference.object();
         validation::object(&self.config, execution, object)?;
         let Some(content) = self.lookup_content(
@@ -246,13 +272,7 @@ impl<M: Memory> StableUploads<M> {
         {
             return Ok(None);
         }
-        let descriptor = self
-            .descriptor(content)?
-            .ok_or(UploadStoreError::InvalidRecord)?;
-        Ok(Some(RetainedUploadDescriptorView {
-            descriptor,
-            reference,
-        }))
+        Ok(Some(content))
     }
     fn descriptor(
         &self,

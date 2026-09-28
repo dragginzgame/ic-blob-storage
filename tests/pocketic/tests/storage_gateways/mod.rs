@@ -360,4 +360,5 @@ fn gateway_encoded_reply_rejections_preserve_the_pending_sync_and_cannot_bypass_
     assert!(f.gateway_view().members.is_empty());
 }
 
+mod callbacks;
 mod transport;

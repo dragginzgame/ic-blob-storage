@@ -1,5 +1,6 @@
 //! Durable bounded gateway membership and sync correlation, not callback authority.
 pub mod access;
+pub(crate) mod callbacks;
 pub mod reply;
 use crate::model::{
     gateway::{

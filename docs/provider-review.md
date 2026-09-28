@@ -1,4 +1,4 @@
-# Caffeine provider review — 2026-09-27
+# Caffeine provider review — 2026-09-28
 
 Verdict: Caffeine remains unqualified for the required service journey. The
 Cashier's deployed Candid and public gateway/pricing queries are now observed;
@@ -9,6 +9,16 @@ The [post-0.1.18 integration decision](#integration-decision-after-0118) records
 the current binding review and the next production implementation boundary.
 
 ## Selected integration baseline
+
+The [gateway transport review](evidence/caffeine-gateway-transport.json) rechecks
+official main, npm latest/integrity, Mops highest, both backend hashes and deployed
+Cashier Candid unchanged on 2026-09-28. The public gateway-list query again returns
+the retained principal. These anonymous query observations are not portable
+certified proofs. The official Motoko wrapper uses a replicated call for this
+method, consistent with [ICP guidance](https://docs.internetcomputer.org/guides/security/data-integrity-and-authenticity/).
+The library now provides explicit replicated gateway transport and PocketIC proves
+its use of a query-only entry point. This closes the local call-mode gap, not
+deployed Cashier qualification; no live update, account lookup or payment ran.
 
 The [direct-upload evaluation](roadmap.md#upload-path-evaluation--2026-09-27)
 rechecked official main, npm latest/integrity and Toko development unchanged.

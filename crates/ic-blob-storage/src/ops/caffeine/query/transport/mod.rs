@@ -1,4 +1,5 @@
 //! Host-supplied authenticated query transport; no IC update fallback.
+pub mod replicated;
 use super::CashierQueryRequest;
 use candid::Principal;
 use std::{future::Future, num::NonZeroUsize};

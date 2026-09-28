@@ -118,9 +118,11 @@ fn maximum_gateway_record_roundtrips_with_pending_identity_and_rejects_oversized
     .unwrap();
     store.begin_sync(context(), scope()).unwrap();
     let record = store.records.get(&0).unwrap();
+    let generation = store.registry().unwrap().read_generation;
     assert_eq!(GatewayRegistryRecord::from_bytes(record.to_bytes()), record);
     drop(store);
     let restored = StableGatewayRegistry::open(m, config).unwrap();
+    assert_eq!(restored.registry().unwrap().read_generation, generation);
     let view = restored.inspect(context(), scope()).unwrap();
     assert_eq!(view.principals, principals);
     assert_eq!(view.sync.pending_sequence, Some(2));

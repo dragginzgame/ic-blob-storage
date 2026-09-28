@@ -6,6 +6,7 @@
 //! reconstructing or cloning this value does not establish a fresh identity.
 
 use std::num::NonZeroU128;
+pub(crate) mod generation;
 pub(crate) mod record;
 
 use candid::Principal;
@@ -108,6 +109,7 @@ pub struct GatewayRegistry {
     gateways: GatewayMembership,
     last_sequence: u64,
     pending: Option<GatewaySyncToken>,
+    pub(crate) read_generation: generation::GatewayReadGeneration,
 }
 
 impl GatewayRegistry {
@@ -122,6 +124,7 @@ impl GatewayRegistry {
             gateways,
             last_sequence: 0,
             pending: None,
+            read_generation: generation::GatewayReadGeneration::new(),
         }
     }
 
@@ -153,6 +156,7 @@ impl GatewayRegistry {
     /// # Errors
     /// Scope mismatch, stale/cancelled/replayed attempts and malformed lists leave
     /// membership and pending state unchanged. Cancel an unusable attempt explicitly.
+    /// Success invalidates outstanding read observations even for an identical list.
     pub fn apply_sync(
         &mut self,
         token: GatewaySyncToken,
@@ -161,6 +165,7 @@ impl GatewayRegistry {
     ) -> Result<(), GatewaySyncError> {
         self.check_sync(token, response_scope)?;
         self.gateways.replace_from_sync(principals)?;
+        self.read_generation.invalidate();
         self.pending = None;
         Ok(())
     }
@@ -195,10 +200,12 @@ impl GatewayRegistry {
     ///
     /// Even an already-present add is a new operator decision. Failed additions
     /// leave both membership and the pending sync unchanged.
+    /// Successful edits also invalidate earlier read observations.
     /// # Errors
     /// Invalid principal or membership capacity errors are returned unchanged.
     pub fn add(&mut self, principal: Principal) -> Result<GatewayAddOutcome, GatewayListError> {
         let outcome = self.gateways.add(principal)?;
+        self.read_generation.invalidate();
         self.pending = None;
         Ok(outcome)
     }
@@ -207,8 +214,10 @@ impl GatewayRegistry {
     ///
     /// Revocation remains possible at sequence exhaustion. This cannot revoke
     /// provider-side credentials or prevent a separately authorized future sync.
+    /// It invalidates read observations even when the member was already absent.
     pub fn remove(&mut self, principal: Principal) -> bool {
         let removed = self.gateways.remove(principal);
+        self.read_generation.invalidate();
         self.pending = None;
         removed
     }

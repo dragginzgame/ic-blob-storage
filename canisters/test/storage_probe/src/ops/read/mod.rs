@@ -1,4 +1,5 @@
 //! Bounded fixture read conversion and delegation to the durable owner.
+pub(crate) mod authority;
 use super::{STATE, conversion};
 use blob_test_protocol::{
     admission::{
@@ -55,16 +56,19 @@ pub(super) fn observation(view: TenantContentView) -> ContentObservation {
             root: *request.object.root.as_bytes(),
             bytes: request.object.bytes,
         },
-        state: match view.state {
-            UploadRootState::Reserved => ContentState::Reserved,
-            UploadRootState::ExposurePossible => ContentState::ExposurePossible,
-            UploadRootState::Cancelled => ContentState::Cancelled,
-            UploadRootState::Confirmed(phase) => match phase {
-                LifecyclePhase::Live => ContentState::Live,
-                LifecyclePhase::DeletionPending => ContentState::DeletionPending,
-                LifecyclePhase::ProviderDeleted => ContentState::ProviderDeleted,
-                LifecyclePhase::Settled => ContentState::Settled,
-            },
+        state: content_state(view.state),
+    }
+}
+pub(crate) fn content_state(state: UploadRootState) -> ContentState {
+    match state {
+        UploadRootState::Reserved => ContentState::Reserved,
+        UploadRootState::ExposurePossible => ContentState::ExposurePossible,
+        UploadRootState::Cancelled => ContentState::Cancelled,
+        UploadRootState::Confirmed(phase) => match phase {
+            LifecyclePhase::Live => ContentState::Live,
+            LifecyclePhase::DeletionPending => ContentState::DeletionPending,
+            LifecyclePhase::ProviderDeleted => ContentState::ProviderDeleted,
+            LifecyclePhase::Settled => ContentState::Settled,
         },
     }
 }
