@@ -530,6 +530,38 @@ the operation again. Scope errors, ID conflicts and receipt-capacity rejection
 leave both lifecycle and receipts unchanged. These rejected admissions consume
 no ID; recorded lifecycle failures require a fresh ID for re-evaluation.
 
+The durable shared receipt boundary (`workflow::references::receipt`,
+`dto::reference`) authenticates actual tenant/service and binds the complete
+original upload and reference operation. Its `blob_reference_receipt` query uses
+explicit `Absent`/`Found` variants; an incompatible payload cannot become absence
+through Candid optional coercion. `ReplicatedReferenceClient` sends one bounded
+replicated call to the selected service with no attached cycles, checks the exact
+returned request and preserves stored inner failures. Ordinary IC fees apply.
+Inspection works under suspension and restore fences and after settlement, but
+neither absence nor historical success proves current liveness or permits retry
+of an uncertain operation. Linking exports no endpoint; adapters own actual
+context and ingress limits. The consumer still owns publication and its outbox.
+
+The canonical `blob_apply_reference` update delegates to
+`workflow::references::apply` with the same `ReferenceCommand` used for receipt
+lookup. `ReplicatedReferenceClient::apply` is an explicit single dispatch;
+consumers must persist intent before polling it. A rejection, unusable response
+or dropped future does not establish non-execution. Preserve the exact operation
+and reconcile its receipt; the client allocates no identity and never retries.
+Responses distinguish original inner success/failure and exact replay. Fresh
+retains require current active enrollment, releases/replays preserve cleanup under
+suspension, and restored owners reject every mutation. Native and local IC evidence
+cover bound responses, committed-but-unusable replies, reserved cleanup capacity,
+rollback and restored inspection. Consumer publication remains a separate transaction.
+
+The private `blob-consumer-probe` now exercises that transaction separately from
+the storage owner: exact bounded intent and reserved cleanup operation before
+dispatch, dependency checks, atomic tombstone/publication changes, receipt recovery
+and permanent restore fencing. Local IC evidence includes a delayed registration
+after cancellation/release and traps before dispatch or after remote completion.
+It covers an additional reference to existing confirmed content. It is not Toko's
+asset schema, fresh-upload onboarding, production scale or operational recovery.
+
 Each active reference reserves one future release receipt. Admission enforces
 `retained receipts + active references <= receipt limit` after staging the
 operation, so receipt pressure cannot consume the capacity needed for final

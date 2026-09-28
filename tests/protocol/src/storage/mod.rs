@@ -2,11 +2,9 @@
 pub mod funding;
 pub mod gateways;
 pub mod read;
+pub mod reference;
 use crate::{
-    admission::{
-        Permission, Phase, Request,
-        input::{PreparationInput, ReferenceInput},
-    },
+    admission::{Permission, Phase, Request, input::PreparationInput},
     journey::JourneyUsage,
 };
 use candid::{CandidType, Deserialize};
@@ -141,36 +139,4 @@ pub struct FactInput {
     pub fact: ProviderFact,
     /// Optional fixture-only interrupted write.
     pub fault: Option<WriteFault>,
-}
-/// Exact reference request with an optional fixture-only interrupted write.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
-pub struct ReferenceMutationInput {
-    /// Full operation identity and action.
-    pub request: ReferenceInput,
-    /// Optional stable write fault.
-    pub fault: Option<WriteFault>,
-}
-/// Original recorded reference result; failure is distinct from admission rejection.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
-pub enum ReferenceResult {
-    /// Applied a reference transition.
-    Changed,
-    /// Exact reference state already held.
-    Unchanged,
-    /// Unknown reference could not be released.
-    UnknownReference,
-    /// Released reference cannot be reactivated.
-    Released,
-    /// Lifetime references exhausted.
-    Limit,
-    /// No new references after deletion queues.
-    DeletionQueued,
-}
-/// Receipt result and whether it was read from retained history.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
-pub struct ReferenceOutcome {
-    /// True if no new receipt was recorded.
-    pub replayed: bool,
-    /// Exact original result.
-    pub result: ReferenceResult,
 }

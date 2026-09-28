@@ -134,6 +134,25 @@ actual tenant canister and validates a bounded, fully bound response. The probe
 exports that shared boundary and tests a real consumer-canister call. Linking
 the library exports nothing. This is authenticated IC metadata delivery, not a
 public certified release mapping, browser adapter or publication lease.
+`dto::reference` and `workflow::references::receipt` supply exact historical
+receipt recovery through `blob_reference_receipt`. `ReplicatedReferenceClient`
+authenticates the service through one IC call and bounds decoding before returning
+explicit absence or the original success/failure. Upload/object/lifetime/reference
+identities remain independent. Suspension, settlement and restore do not erase
+inspection evidence; no result authorizes publication or an uncertain retry.
+`workflow::references::apply` and `ReplicatedReferenceClient::apply` expose the
+matching `blob_apply_reference` update. Both paths share `ReferenceCommand` and
+typed failures; admitted lifecycle failures remain inside the returned receipt.
+Persist the exact intent before polling the client future and preserve it through
+uncertain replies. Exact mutation retries return history without reviving released
+references; restored owners permit inspection only. The client never retries itself.
+Consumer asset transactions and release outboxes remain application-owned work.
+The separate `blob-consumer-probe` demonstrates that ownership for existing
+confirmed content through real IC calls: bounded durable intent, atomic local
+publication/tombstones, dependency checks, exact receipt recovery and fenced
+upgrade. Its two-slot application substitute is only integration evidence;
+production Toko transactions, fresh-upload onboarding and operational recovery
+remain open. It introduces no consumer database into the storage library.
 The service uses bounded manifest authorization for direct browser-to-Caffeine
 upload. No file chunks or whole-file raw digest are required by service admission.
 Manifest consistency, possible exposure and independently confirmed provider
@@ -345,8 +364,9 @@ with no observed blocker, 4 reports blockers, 2 rejects arguments, and 3 reports
 input/query/reply failures without partial results. Production authentication,
 provider transport and operation persistence remain outstanding.
 
-For an already-selected reference operation, `blob-fixture-reference` can preserve
-an exact local intent and inspect its historical receipt without applying it:
+For the transient admission fixture, `blob-fixture-reference` can preserve an
+exact local intent and inspect its historical receipt without applying it. This
+tool uses that fixture's wire, not the durable service's canonical receipt query:
 
 ```sh
 mkdir -m 700 reference-journal

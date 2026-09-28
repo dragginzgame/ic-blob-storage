@@ -2,6 +2,43 @@
 
 ## [Unreleased]
 
+## [0.2.10]
+
+### Added
+
+- Shared authenticated reference-receipt inspection with library-owned DTOs and
+  an explicit replicated IC client. Exact original upload, object, lifetime,
+  reference and operation arguments bind the returned historical success or
+  failure. Absence uses an explicit wire variant so malformed optional data
+  cannot silently become a missing receipt. Bounded decoding, actual tenant
+  identity and service targeting precede disclosure; no mutation fallback,
+  automatic retry or attached cycles are introduced.
+- The durable storage probe uses the canonical receipt query in place of its
+  private lookup. Native and two-canister PocketIC evidence covers independent
+  full-width identities, recorded failures, conflicting arguments, reply limits,
+  caller isolation, atomic rollback and receipt retention through release,
+  suspension, settlement and fenced upgrade. Historical success and absence
+  remain distinct from current liveness, publication and retry authority.
+- Canonical retain/release updates now use the same exact command and shared
+  durable handler as receipt recovery. The explicit replicated client sends once,
+  validates the returned operation and preserves recorded inner failures and
+  replay status. Fresh retains require active enrollment; cleanup and exact
+  replay remain available under suspension and receipt pressure, while restored
+  owners reject mutation. The private mutation endpoint/DTO/conversion is removed.
+  Local IC evidence recovers a committed mutation after an unusable reply without
+  changing accounting on retry, and preserves rollback, isolation and cleanup.
+  Production consumer intent persistence, publication transactions and outboxes
+  remain application-owned integration work.
+- A separate local consumer canister now exercises existing-content registration
+  through the shared retain, descriptor and receipt clients. Its bounded stable
+  intent reserves cleanup identities before dispatch; atomic publication,
+  dependency checks and tombstones prevent cancelled registrations from reviving
+  assets. Interrupted retain/publication/release callbacks retain repairable
+  evidence, and upgrade preserves unresolved work under an inspection-only fence.
+  Native and PocketIC tests cover these races, exact payload conflicts and cleanup
+  at lifetime capacity. This is an application substitute, not a Toko adapter,
+  production client journal or fresh-upload journey. Make targets include it.
+
 ## [0.2.9] - 2026-09-28
 
 ### Added

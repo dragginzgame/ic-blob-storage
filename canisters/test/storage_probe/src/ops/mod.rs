@@ -6,6 +6,7 @@ pub(crate) mod gateways;
 pub(crate) mod lifecycle;
 pub(crate) mod planning;
 pub(crate) mod read;
+pub(crate) mod references;
 use blob_test_protocol::{
     admission::{
         Enrollment, Permission, Request,

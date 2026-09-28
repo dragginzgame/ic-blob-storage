@@ -8,6 +8,7 @@ export POCKET_IC_BIN ?= $(CURDIR)/.tmp/tools/pocket-ic-16.0.0/pocket-ic
 export BLOB_AUTHORITY_PROBE_WASM := $(CARGO_TARGET_DIR)/wasm32-unknown-unknown/release/blob_authority_probe.wasm
 export BLOB_ADMISSION_PROBE_WASM := $(CARGO_TARGET_DIR)/wasm32-unknown-unknown/release/blob_admission_probe.wasm
 export BLOB_STORAGE_PROBE_WASM := $(CARGO_TARGET_DIR)/wasm32-unknown-unknown/release/blob_storage_probe.wasm
+export BLOB_CONSUMER_PROBE_WASM := $(CARGO_TARGET_DIR)/wasm32-unknown-unknown/release/blob_consumer_probe.wasm
 export BLOB_GATEWAY_SOURCE_WASM := $(CARGO_TARGET_DIR)/wasm32-unknown-unknown/release/blob_gateway_source.wasm
 export BLOB_FUNDING_PROBE_WASM := $(CARGO_TARGET_DIR)/wasm32-unknown-unknown/release/blob_funding_probe.wasm
 VERSION ?=
@@ -69,10 +70,10 @@ test:
 	+$(MAKE) --no-print-directory test-pocketic
 
 test-native:
-	cargo test --offline --locked -p ic-blob-storage --all-features
+	cargo test --offline --locked -p ic-blob-storage -p blob-consumer-probe --all-features
 
 test-fixture:
-	cargo build --offline --locked --release --target wasm32-unknown-unknown -p blob-authority-probe -p blob-admission-probe -p blob-storage-probe -p blob-gateway-source -p blob-funding-probe --lib
+	cargo build --offline --locked --release --target wasm32-unknown-unknown -p blob-authority-probe -p blob-admission-probe -p blob-storage-probe -p blob-consumer-probe -p blob-gateway-source -p blob-funding-probe --lib
 
 test-pocketic:
 	+$(MAKE) --no-print-directory test-fixture

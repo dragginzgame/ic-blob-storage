@@ -2,14 +2,15 @@
 
 Date: 2026-09-28
 
-## Active work — after 0.2.8
+## Active work — 0.2.10 after 0.2.9
 
-The maintainer confirmed **0.2.8 is pushed** and requested continued implementation.
-Cargo and the release receipt are 0.2.8. Local main, origin/main and v0.2.8 resolve to
-`298914a3ac3ded5f01288dba79d2d927b47f1cb6`, from validated source
-`cea82f92564eb713e10e515aa324c2a92f5bcb70`. The receipt records the
+The maintainer confirmed **0.2.9 is pushed** and selected **0.2.10** for continued work.
+Cargo and the release receipt are 0.2.9. Local main, origin/main and v0.2.9 resolve to
+`c061acfc30c352fe642867f15a0a232387cf34f2`, from validated source
+`6c03451dfe1691cf691002edafdad2485b3a6ca6`. The receipt records the
 `release-verify` gate; registry publication was not independently queried.
-New work is recorded under **Unreleased**; no new version target was selected.
+The dated 0.2.9 notes already match that release. New work is recorded in the
+undated **0.2.10** draft below empty Unreleased; Cargo and the receipt are unchanged.
 No version mutation, commit, publication, deployment or deployed-provider effect ran here;
 transfers below use simulated cycles between local PocketIC canisters.
 
@@ -24,7 +25,102 @@ operator client. Library publication does not qualify the service or Canic remov
 | M3 — Caffeine and operator integration | In progress: shared transports with local IC evidence | Qualified provider transport, completion/economics and production client |
 | M4 — managed parity and acceptance | Not implemented | Same journey through Canic adapter, complete replacement evidence and handoff |
 
-## Current focus — authenticated IC descriptor delivery
+## Current focus — consumer registration/cancellation integration evidence
+
+The new unpublished `blob-consumer-probe` is a separate application substitute
+using the shared reference and descriptor clients against the durable storage
+probe. It registers an additional asset reference to existing confirmed content;
+it does not define Toko's asset schema or move consumer transactions into the
+storage core. Exact asset ID, bounded full payload, upload/reference and both
+retain/release operation identities are retained before dispatch. Two lifetime
+asset/outbox slots reserve cleanup capacity without eviction or identity reuse.
+
+Publication and dependency attachment check the current tombstone synchronously.
+Cancellation refuses outstanding uses and atomically removes publication while
+retaining the release intent. A held post-descriptor callback cannot republish a
+cancelled asset, even after its release completes. Traps before dispatch roll back
+intent; traps after remote retain/release preserve uncertainty. Receipt recovery
+records the original result without replaying mutations, including inner failures.
+Historical publication evidence remains distinct from current visibility.
+
+One explicit ic-memory grant holds a bounded v1 fixture record. Upgrade validates
+and restores synchronously, then fences all publication, acknowledgment and
+dispatch while preserving inspection, tombstones and unresolved operations.
+Its full-record writes and two-slot limits are fixture choices, not production
+resource guidance. Default allocator and storage-service memories are unchanged.
+The workspace/lockfile add only the local test package using existing dependency
+versions; Make includes its native cases and Wasm in the maintained test flow.
+
+Both consumer-model cases and all five consumer PocketIC cases pass (10.52 seconds
+for the latter). Consumer and storage release Wasms, strict affected all-target
+Clippy, warning-free fixture/protocol rustdoc, formatting, diff checks and Make
+command previews pass. No full CI/release gate, version mutation, sibling edit
+or deployed-provider call ran.
+
+Next, cover fresh-upload registration and the real application's transaction
+integration, then browser delivery policy and the remaining shared adapters.
+Provider qualification, supported operational recovery and production sizing
+remain open. The fixture does not qualify Toko, Canic retirement or the service.
+
+## Canonical reference mutation and receipt recovery — same 0.2.10 draft
+
+`dto::reference` and `workflow::references::receipt` now expose the durable owner's
+original result under complete upload/object/lifetime/reference/operation binding.
+Upload, object and operation IDs remain independent, including full-width values.
+Lookup refusal, explicit absence, recorded success and recorded lifecycle failure
+are distinct. Explicit `Absent`/`Found` wire variants prevent incompatible Candid
+optional data silently turning into absence. The bounded decoder checks the entire
+returned request before disclosure. Unexpected internal results fail closed.
+
+`ReplicatedReferenceClient` checks configured and actual tenant identity and
+replicated execution, then invokes `blob_reference_receipt` once at the selected
+service with bounded wait and no attached cycles. Ordinary platform fees apply;
+the initial CDK buffer has separate platform bounds. No retry, mutation fallback,
+provider call or new journal is introduced. Suspension, release, settlement and
+restore preserve historical inspection, while mutation remains fenced on restore.
+Historical success is not current reference liveness; absence is not retry authority.
+
+`workflow::references::apply` now exposes the same durable transition through
+`blob_apply_reference`. Mutation and inspection share one passive `ReferenceCommand`
+and typed `ReferenceFailure`; the unshipped lookup-only type names were replaced
+directly. Responses bind the original command and preserve recorded inner failures
+and replay status. Active enrollment is required for fresh retains, but suspension
+does not block release or exact replay. Restore blocks every mutation, including
+replay, while receipt inspection remains available.
+
+The client's explicit `apply` method sends once, checks actual execution identity,
+and validates the bounded response. Callers must persist intent before polling
+and retain it through uncertain rejection, unusable replies or cancellation.
+No identity allocator, consumer outbox, automatic retry or provider effect is added.
+PocketIC demonstrates a committed retain whose reply exceeds the client budget,
+exact receipt recovery, byte-for-byte unchanged stable memory on replay, cleanup
+at capacity/under suspension and retained evidence after fenced upgrade.
+
+The durable storage probe replaces its private receipt lookup and mutation wire
+with the shared query/update. Superseded mutation DTOs/conversion are removed;
+the private write-trap endpoint delegates to the same handler. Its existing
+trap/upgrade evidence now uses the canonical DTO. A real second
+tenant canister exercises the replicated client, stored failures, changed arguments,
+wrong contexts, reply limits, query refusal and platform rejection. The separate
+transient admission fixture and its saved-intent tool retain their own test wire;
+they are not the durable service client.
+
+Twenty-two targeted native reference tests and all 63 storage PocketIC cases pass
+(103.04 seconds for the latter), including descriptor, quota, gateway and funding
+regressions after replacing the shared fixture mutation path. The preceding
+receipt-only step passed twelve native and five lifecycle PocketIC cases.
+Strict affected all-target Clippy, release storage-probe Wasm, warning-free core
+rustdoc, formatting and diff checks pass.
+No dependency, allocator, stable schema or memory grant changed. No full CI/release
+gate ran for this batch.
+
+The consumer fixture above now exercises existing-content registration/release
+using these shared clients. Production consumer asset transactions, tombstones and
+outboxes still belong to the application; service calls alone cannot atomically publish assets.
+Browser delivery/origin/body policy, provider qualification, operational recovery,
+resource sizing and both deployment adapters remain open.
+
+## Authenticated IC descriptor delivery — included in 0.2.9
 
 `workflow::reads::download::describe` now binds current active tenant authority,
 an unfenced durable owner and the exact confirmed live reference to the retained
@@ -76,8 +172,8 @@ pass (5.81 seconds for the latter). Strict affected all-target Clippy, release
 storage-probe Wasm, warning-free core rustdoc, formatting and diff checks pass.
 The private test protocol now depends on the library to reuse its canonical DTOs.
 No external dependency version, stable allocation/schema, package version or
-allocator change was introduced in this descriptor step. Earlier unreleased read-session work below
-remains in the same batch; no full CI/release validation ran.
+allocator change was introduced in this descriptor step. The read-session work below
+was included in the same 0.2.9 release; these are the step's targeted validation results.
 
 Next, complete consumer publication/reference coordination and browser delivery,
 including explicit origin and HTTP body/redirect policy. The host
@@ -86,7 +182,7 @@ scope does not prove ownership. Keep body delivery and verification off-canister
 for consumers. Production provider completion/economics, operational recovery,
 resource sizing and both deployment adapters remain open.
 
-## Durable verified chunk reads — preceding unreleased work
+## Durable verified chunk reads — included in 0.2.9
 
 `ops::service::reads::StableReadSessions` now owns three explicit host-granted
 memories for journal metadata, occupied sessions and active-tenant counters.

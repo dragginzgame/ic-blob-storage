@@ -416,4 +416,5 @@ mod storage_lifecycle;
 mod storage_planning;
 mod storage_reads;
 
+mod storage_consumer;
 mod storage_funding;

@@ -619,6 +619,33 @@ existing registration/liveness checks do not establish these distributed guarant
 No sibling source is changed. The consumer owns its asset transaction and outbox;
 this service owns exact reference receipts and provider obligations.
 
+The shared `workflow::references::receipt` boundary and
+`ReplicatedReferenceClient` now expose the durable owner's exact receipt through
+an authenticated replicated IC call. The original upload/object/lifetime and
+reference operation are bound in full; explicit absence, historical success,
+historical failure and lookup refusal stay distinct. Local two-canister tests
+cover inspection through suspension, settlement and fenced upgrade. This supplies
+consumer recovery evidence, not the consumer's transaction/outbox, current
+liveness or automatic dispatch authority. Canonical mutation delivery now uses
+`workflow::references::apply` and the same client's explicit `apply` method with
+one exact command and one bounded call. Its response retains the original inner
+result and replay status. PocketIC recovers a committed operation after reply
+validation fails, proves accounting is unchanged by retry, and exercises cleanup
+under suspension/capacity and restore refusal. No client-side intent journal or
+automatic retry is implied by those library clients.
+
+The separate `blob-consumer-probe` now provides local existing-content integration
+evidence. It retains exact bounded asset payload and both reference operation IDs
+before dispatch, atomically checks publication/tombstones/dependencies, and keeps
+release intent through lost acknowledgment. Actual IC tests race a held registration
+against cancellation and release, interrupt intent/publication/callback writes,
+recover receipts without mutating storage, and retain uncertain work under an
+upgrade fence. Two lifetime asset/outbox slots preserve cleanup at capacity.
+This is a labelled application substitute with one small stable record, not Toko
+code, a production resource envelope or a new storage-core database. Fresh-upload
+registration, real application transactions, browser delivery and operational
+recovery remain open.
+
 | Consumer action | Required durable boundary | Retry or interruption behavior |
 | --- | --- | --- |
 | Prepare upload/asset | Reserve bounded operation/outbox history and bind a stable asset ID to the exact upload, reference and full asset payload before requesting service admission | Same operation and arguments recover progress; changed payload conflicts. Browser progress is not completion evidence |
@@ -644,8 +671,9 @@ from that same snapshot cannot supply the independent recovery authority.
 The shared owner's local IC composition now has evidence. Next, resolve
 provider certificate replay/namespace and completion evidence, the
 supported recovery authority and remaining resource envelope before wiring durable
-records or transport. The consumer contract needs actual cross-canister interruption
-and registration-versus-delete evidence when shared handlers/adapters exist.
+records or transport. The consumer substitute above supplies local interruption
+and registration-versus-delete evidence for existing confirmed content; complete
+application/adaptor journeys and provider qualification remain open.
 Propagate each implemented milestone through both adapters and operator behavior.
 
 The existing [acceptance cases A01–A12](acceptance-plan.md) and

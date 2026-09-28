@@ -1,7 +1,11 @@
 use super::*;
+use blob_test_protocol::storage::reference::ReferenceFaultInput;
+use ic_blob_storage::dto::reference::*;
+use ic_blob_storage::ops::service::references::{REFERENCE_APPLY_METHOD, REFERENCE_RECEIPT_METHOD};
+mod receipts;
 use blob_test_protocol::{
     admission::input::ReferenceInput,
-    storage::{FactInput, ProviderFact, ReferenceMutationInput, ReferenceOutcome, ReferenceResult},
+    storage::{FactInput, ProviderFact},
 };
 impl Fixture {
     fn exposed(&self) -> Permission {
@@ -27,24 +31,29 @@ impl Fixture {
             )
             .unwrap()
     }
-    pub(super) fn reference(&self, request: ReferenceInput) -> Result<ReferenceOutcome, Failure> {
+    pub(super) fn reference(
+        &self,
+        request: ReferenceInput,
+    ) -> Result<ReferenceMutationResponse, ReferenceFailure> {
         self.harness
             .pic
             .update_candid_as(
                 self.service,
                 self.tenant,
-                "apply_reference",
-                (ReferenceMutationInput {
-                    request,
-                    fault: None,
-                },),
+                REFERENCE_APPLY_METHOD,
+                (receipt_request(request),),
             )
             .unwrap()
     }
-    fn receipt(&self, request: ReferenceInput) -> Result<Option<ReferenceResult>, Failure> {
+    fn receipt(&self, request: ReferenceInput) -> Result<ReferenceReceiptLookup, ReferenceFailure> {
         self.harness
             .pic
-            .query_candid_as(self.service, self.tenant, "reference_receipt", (request,))
+            .query_candid_as(
+                self.service,
+                self.tenant,
+                REFERENCE_RECEIPT_METHOD,
+                (receipt_request(request),),
+            )
             .unwrap()
     }
     fn live(&self, request: ReferenceInput) -> Result<bool, Failure> {
@@ -62,10 +71,13 @@ fn reference(object: Request, operation: u128, id: u128, retain: bool) -> Refere
         retain,
     }
 }
-fn changed(replayed: bool) -> ReferenceOutcome {
-    ReferenceOutcome {
+fn changed(request: ReferenceInput, replayed: bool) -> ReferenceMutationResponse {
+    ReferenceMutationResponse {
         replayed,
-        result: ReferenceResult::Changed,
+        receipt: ReferenceReceiptResponse {
+            request: receipt_request(request),
+            result: Ok(ReferenceChange::Changed),
+        },
     }
 }
 #[test]
@@ -154,31 +166,31 @@ fn reference_receipt_and_last_release_faults_roll_back_all_obligations() {
             .update_call(
                 f.service,
                 f.tenant,
-                "apply_reference",
-                candid::encode_one(ReferenceMutationInput {
-                    request: retain,
-                    fault: Some(fault),
+                "fixture_apply_reference_with_write_trap",
+                candid::encode_one(ReferenceFaultInput {
+                    request: receipt_request(retain),
+                    fault,
                 })
                 .unwrap(),
             )
             .unwrap_err();
         assert_eq!(error.reject_code, RejectCode::CanisterError);
         assert_eq!(f.status(), before);
-        assert_eq!(f.receipt(retain), Ok(None));
+        assert_eq!(f.receipt(retain), Ok(ReferenceReceiptLookup::Absent));
         assert_eq!(f.live(retain), Ok(false));
     }
-    assert_eq!(f.reference(retain), Ok(changed(false)));
-    assert_eq!(f.reference(retain), Ok(changed(true)));
+    assert_eq!(f.reference(retain), Ok(changed(retain, false)));
+    assert_eq!(f.reference(retain), Ok(changed(retain, true)));
     assert_eq!(
         f.reference(reference(permission.request, 4, 9, false)),
-        Err(Failure::ReceiptCapacity)
+        Err(ReferenceFailure::Capacity)
     );
     let active = f.tenant().unwrap();
     f.enroll(Some(active), false).unwrap();
-    assert_eq!(f.reference(retain), Ok(changed(true)));
+    assert_eq!(f.reference(retain), Ok(changed(retain, true)));
     assert_eq!(
         f.reference(reference(permission.request, 4, 3, true)),
-        Err(Failure::Inactive)
+        Err(ReferenceFailure::Inactive)
     );
     f.reference(reference(permission.request, 2, 1, false))
         .unwrap();
@@ -189,16 +201,16 @@ fn reference_receipt_and_last_release_faults_roll_back_all_obligations() {
         .update_call(
             f.service,
             f.tenant,
-            "apply_reference",
-            candid::encode_one(ReferenceMutationInput {
-                request: release,
-                fault: Some(WriteFault::Usage),
+            "fixture_apply_reference_with_write_trap",
+            candid::encode_one(ReferenceFaultInput {
+                request: receipt_request(release),
+                fault: WriteFault::Usage,
             })
             .unwrap(),
         )
         .unwrap_err();
     assert_eq!(error.reject_code, RejectCode::CanisterError);
-    assert_eq!(f.receipt(release), Ok(None));
+    assert_eq!(f.receipt(release), Ok(ReferenceReceiptLookup::Absent));
     assert_eq!(f.live(release), Ok(true));
     assert_eq!(
         f.status().usage,
@@ -208,7 +220,7 @@ fn reference_receipt_and_last_release_faults_roll_back_all_obligations() {
             liability: 10
         }
     );
-    assert_eq!(f.reference(release), Ok(changed(false)));
+    assert_eq!(f.reference(release), Ok(changed(release, false)));
     assert_eq!(
         f.status().usage,
         JourneyUsage {
@@ -251,7 +263,7 @@ fn reference_receipt_and_last_release_faults_roll_back_all_obligations() {
             liability: 0
         }
     );
-    assert_eq!(f.reference(retain), Ok(changed(true)));
+    assert_eq!(f.reference(retain), Ok(changed(retain, true)));
     assert_eq!(f.live(retain), Ok(false));
     assert_eq!(
         f.fact(permission.request, ProviderFact::Uploaded),
@@ -295,7 +307,7 @@ fn upgrade_retains_each_confirmed_phase_and_receipts_under_the_restore_fence() {
         );
         assert_eq!(f.receipt(release), Ok(receipt));
         assert_eq!(f.live(release), Ok(stage == 0));
-        assert_eq!(f.reference(release), Err(Failure::Fenced));
+        assert_eq!(f.reference(release), Err(ReferenceFailure::Fenced));
         for fact in [
             ProviderFact::Uploaded,
             ProviderFact::Deleted,
@@ -303,13 +315,43 @@ fn upgrade_retains_each_confirmed_phase_and_receipts_under_the_restore_fence() {
         ] {
             assert_eq!(f.fact(permission.request, fact), Err(Failure::Fenced));
         }
-        let denied: Result<Option<ReferenceResult>, Failure> = f
+        let denied: Result<ReferenceReceiptLookup, ReferenceFailure> = f
             .harness
             .pic
-            .query_candid_as(f.service, f.controller, "reference_receipt", (release,))
+            .query_candid_as(
+                f.service,
+                f.controller,
+                REFERENCE_RECEIPT_METHOD,
+                (receipt_request(release),),
+            )
             .unwrap();
-        assert_eq!(denied, Err(Failure::Denied));
+        assert_eq!(denied, Err(ReferenceFailure::Denied));
         f.restart();
         assert_eq!(f.receipt(release), Ok(receipt));
+    }
+}
+
+// This probe's admission fixture deliberately uses upload == object and first == 1.
+// The maintained receipt boundary carries those identities independently.
+fn receipt_request(input: ReferenceInput) -> ReferenceCommand {
+    ReferenceCommand {
+        upload: ReferenceUpload {
+            service: input.object.service,
+            tenant: input.object.tenant,
+            namespace: input.object.namespace,
+            upload: input.object.id,
+            object: input.object.id,
+            incarnation: 1,
+            first_reference: 1,
+            root: input.object.root,
+            bytes: input.object.bytes,
+        },
+        reference: input.reference,
+        operation: input.operation,
+        action: if input.retain {
+            ReferenceAction::Retain
+        } else {
+            ReferenceAction::Release
+        },
     }
 }

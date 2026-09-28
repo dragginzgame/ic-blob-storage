@@ -1,6 +1,7 @@
 //! Delegate to shared-owner operations without a second upload workflow.
 pub(crate) mod funding;
 pub(crate) mod gateways;
+pub(crate) mod references;
 pub(crate) fn gateways(
     context: UploadContext,
     input: blob_test_protocol::storage::gateways::Command,
@@ -74,18 +75,6 @@ pub(crate) fn fact(
     input: blob_test_protocol::storage::FactInput,
 ) -> Result<bool, Failure> {
     ops::lifecycle::fact(context, input)
-}
-pub(crate) fn reference(
-    context: UploadContext,
-    input: blob_test_protocol::storage::ReferenceMutationInput,
-) -> Result<blob_test_protocol::storage::ReferenceOutcome, Failure> {
-    ops::lifecycle::apply(context, input)
-}
-pub(crate) fn receipt(
-    context: UploadContext,
-    input: blob_test_protocol::admission::input::ReferenceInput,
-) -> Result<Option<blob_test_protocol::storage::ReferenceResult>, Failure> {
-    ops::lifecycle::receipt(context, input)
 }
 pub(crate) fn live(
     context: UploadContext,

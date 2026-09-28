@@ -4,6 +4,7 @@ members = [
     "canisters/test/authority_probe",
     "canisters/test/admission_probe",
     "canisters/test/storage_probe",
+    "canisters/test/consumer_probe",
     "canisters/test/gateway_source",
     "canisters/test/funding_probe",
     "tests/protocol",

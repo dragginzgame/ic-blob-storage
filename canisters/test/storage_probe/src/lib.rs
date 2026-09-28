@@ -82,16 +82,31 @@ fn fixture_provider_fact(input: blob_test_protocol::storage::FactInput) -> Resul
     workflow::fact(context(), input)
 }
 #[ic_cdk::update(decode_with = "ops::decode")]
-fn apply_reference(
-    input: blob_test_protocol::storage::ReferenceMutationInput,
-) -> Result<blob_test_protocol::storage::ReferenceOutcome, Failure> {
-    workflow::reference(context(), input)
+fn blob_apply_reference(
+    input: ic_blob_storage::dto::reference::ReferenceCommand,
+) -> Result<
+    ic_blob_storage::dto::reference::ReferenceMutationResponse,
+    ic_blob_storage::dto::reference::ReferenceFailure,
+> {
+    workflow::references::apply(context(), input, None)
+}
+#[ic_cdk::update(decode_with = "ops::decode")]
+fn fixture_apply_reference_with_write_trap(
+    input: blob_test_protocol::storage::reference::ReferenceFaultInput,
+) -> Result<
+    ic_blob_storage::dto::reference::ReferenceMutationResponse,
+    ic_blob_storage::dto::reference::ReferenceFailure,
+> {
+    workflow::references::apply(context(), input.request, Some(input.fault))
 }
 #[ic_cdk::query(decode_with = "ops::decode")]
-fn reference_receipt(
-    input: blob_test_protocol::admission::input::ReferenceInput,
-) -> Result<Option<blob_test_protocol::storage::ReferenceResult>, Failure> {
-    workflow::receipt(context(), input)
+fn blob_reference_receipt(
+    input: ic_blob_storage::dto::reference::ReferenceCommand,
+) -> Result<
+    ic_blob_storage::dto::reference::ReferenceReceiptLookup,
+    ic_blob_storage::dto::reference::ReferenceFailure,
+> {
+    workflow::references::receipt(context(), input)
 }
 #[ic_cdk::query(decode_with = "ops::decode")]
 fn reference_is_live(
@@ -318,4 +333,42 @@ fn gateway_registry(
     input: blob_test_protocol::storage::gateways::Scope,
 ) -> Result<blob_test_protocol::storage::gateways::View, Failure> {
     workflow::gateway_registry(context(), input)
+}
+
+#[ic_cdk::update(decode_with = "ops::decode")]
+async fn fixture_fetch_reference_receipt(
+    input: Box<blob_test_protocol::storage::reference::ReferenceClientInput>,
+) -> Result<
+    ic_blob_storage::dto::reference::ReferenceReceiptLookup,
+    blob_test_protocol::storage::reference::ReferenceProbeFailure,
+> {
+    workflow::references::fetch(context(), &input).await
+}
+#[ic_cdk::query(decode_with = "ops::decode")]
+async fn fixture_nonreplicated_reference_receipt(
+    input: Box<blob_test_protocol::storage::reference::ReferenceClientInput>,
+) -> Result<
+    ic_blob_storage::dto::reference::ReferenceReceiptLookup,
+    blob_test_protocol::storage::reference::ReferenceProbeFailure,
+> {
+    workflow::references::fetch(context(), &input).await
+}
+
+#[ic_cdk::update(decode_with = "ops::decode")]
+async fn fixture_mutate_reference(
+    input: Box<blob_test_protocol::storage::reference::ReferenceClientInput>,
+) -> Result<
+    ic_blob_storage::dto::reference::ReferenceMutationResponse,
+    blob_test_protocol::storage::reference::ReferenceProbeFailure,
+> {
+    workflow::references::mutate(context(), &input).await
+}
+#[ic_cdk::query(decode_with = "ops::decode")]
+async fn fixture_nonreplicated_reference_mutation(
+    input: Box<blob_test_protocol::storage::reference::ReferenceClientInput>,
+) -> Result<
+    ic_blob_storage::dto::reference::ReferenceMutationResponse,
+    blob_test_protocol::storage::reference::ReferenceProbeFailure,
+> {
+    workflow::references::mutate(context(), &input).await
 }
