@@ -76,6 +76,13 @@ unknown external activity. It marks once; uncertain/terminal attempts cannot ret
 Shared guarded dispatch now composes marking, actual post-write liquidity, one
 canonical call and durable callback settlement, with local IC fault evidence.
 Production host evidence acquisition and provider qualification remain open.
+The durable gateway registry now retains membership and pending sync together,
+reusing the existing revocation rules, with bounded records and fenced restoration.
+Its shared begin/complete/cancel workflow retains the canonical Cashier request and
+applies the bounded reply decoder transactionally, with IC rejection/rollback evidence.
+Shared async query orchestration now releases the store borrow across host transport
+and rejects delayed replies after revocation or replacement, with local IC evidence.
+Authenticated sync transport and callback/read-session authority remain separate.
 Next, establish complete account activity and credit evidence, then complete other provider
 intents, read sessions and operational lifecycle. Gateway callback
 authority and deployed-provider semantics remain separate qualification work.

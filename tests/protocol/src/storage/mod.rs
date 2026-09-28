@@ -1,5 +1,6 @@
 //! Private controls for testing the durable upload owner, not a service API.
 pub mod funding;
+pub mod gateways;
 pub mod read;
 use crate::{
     admission::{
@@ -33,6 +34,8 @@ pub enum WriteFault {
     FundingAccounting,
     /// Funding intent/attempt/outcome row.
     FundingIntents,
+    /// Whole gateway membership and sync record.
+    Gateways,
 }
 /// One admission that must trap at the selected stable write.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
@@ -53,6 +56,8 @@ pub struct FaultPreparation {
 /// Typed boundary rejection for a fixture store operation.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
 pub enum Failure {
+    /// Labelled local read-only transport failed.
+    Transport,
     /// Caller lacks the operation's role.
     Denied,
     /// Service or namespace differs.

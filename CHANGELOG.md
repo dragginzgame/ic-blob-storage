@@ -2,6 +2,30 @@
 
 ## [Unreleased]
 
+### Added
+
+- Durable gateway membership and pending sync state through one explicit
+  host-granted memory. The bounded v1 record reuses existing gateway validation
+  and revocation rules: operator edits invalidate older replies, invalid lists
+  leave pending state intact, and empty membership remains possible by removal.
+  Scope, operator and installed limits are checked on access/restoration; restored
+  registries remain inspection-only. Native and PocketIC coverage includes full
+  record bounds, stale replies, write rollback and retained pending syncs through
+  upgrade. Membership alone grants no provider callback or recovery authority.
+- Shared durable gateway sync now binds the canonical Cashier query to its pending
+  identity and applies encoded replies through the existing bounded decoder.
+  Authority, restore fencing and request/source/token checks precede parsing;
+  failed replies preserve the pending attempt for explicit cancellation or a valid
+  response. Native and PocketIC tests cover decoding refusal, stale correlation,
+  atomic reply-write rollback and restoration. The labelled probe uses this same
+  workflow; authenticated provider transport remains integration work.
+- Shared async gateway query orchestration checks the durable attempt on polling,
+  releases the registry borrow across host transport, and revalidates on completion.
+  Transport/source failures retain pending state; delayed replies cannot overwrite
+  operator edits or a newer sync. PocketIC covers real delayed local calls, callback
+  write traps and fenced restoration. Transport is explicitly host-supplied; the
+  local scheduling substitute does not qualify Caffeine's deployed query endpoint.
+
 ## [0.2.6] - 2026-09-27
 
 ### Added

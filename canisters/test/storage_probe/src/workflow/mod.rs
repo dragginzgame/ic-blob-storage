@@ -1,5 +1,18 @@
 //! Delegate to shared-owner operations without a second upload workflow.
 pub(crate) mod funding;
+pub(crate) mod gateways;
+pub(crate) fn gateways(
+    context: UploadContext,
+    input: blob_test_protocol::storage::gateways::Command,
+) -> Result<blob_test_protocol::storage::gateways::Outcome, Failure> {
+    gateways::apply(context, input)
+}
+pub(crate) fn gateway_registry(
+    context: UploadContext,
+    input: blob_test_protocol::storage::gateways::Scope,
+) -> Result<blob_test_protocol::storage::gateways::View, Failure> {
+    ops::gateways::inspect(context, input)
+}
 use crate::ops;
 use blob_test_protocol::{
     admission::{

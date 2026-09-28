@@ -29,6 +29,22 @@ pub struct GatewayMembership {
 }
 
 impl GatewayMembership {
+    pub(crate) fn from_retained(
+        principals: &[Principal],
+        limits: GatewayListLimits,
+    ) -> Option<Self> {
+        if principals.is_empty() {
+            return Some(Self::new(limits));
+        }
+        let list = GatewayList::new(principals, limits).ok()?;
+        if list.principals() != principals {
+            return None;
+        }
+        Some(Self {
+            principals: list.principals,
+            limits,
+        })
+    }
     /// Start with no members and explicit positive processing/membership limits.
     #[must_use]
     pub const fn new(limits: GatewayListLimits) -> Self {

@@ -114,6 +114,13 @@ fn payment_account_canister_get_v1(
     PhantomData
 }
 
+// Explicit local scheduling substitute; not the provider query endpoint.
+#[ic_cdk::update(manual_reply = true)]
+async fn fixture_gateway_query() -> PhantomData<Vec<Principal>> {
+    workflow::gateway_query(ic_cdk::api::msg_caller()).await;
+    PhantomData
+}
+
 // Query-only wire probe; fixture scheduling/effect modes cannot execute here.
 #[ic_cdk::query(manual_reply = true)]
 fn storage_gateway_list_v1() -> PhantomData<Vec<Principal>> {

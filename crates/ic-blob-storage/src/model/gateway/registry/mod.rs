@@ -6,6 +6,7 @@
 //! reconstructing or cloning this value does not establish a fresh identity.
 
 use std::num::NonZeroU128;
+pub(crate) mod record;
 
 use candid::Principal;
 use thiserror::Error;

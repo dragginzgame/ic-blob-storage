@@ -227,3 +227,23 @@ fn mark_funding_attempt(
 ) -> Result<blob_test_protocol::storage::funding::admission::Attempt, Failure> {
     workflow::funding::mark_attempt(context(), input)
 }
+
+#[ic_cdk::update(decode_with = "ops::decode")]
+fn fixture_gateways(
+    input: blob_test_protocol::storage::gateways::Command,
+) -> Result<blob_test_protocol::storage::gateways::Outcome, Failure> {
+    workflow::gateways(context(), input)
+}
+
+#[ic_cdk::update(decode_with = "ops::decode")]
+async fn fixture_gateway_transport(
+    input: blob_test_protocol::storage::gateways::TransportInput,
+) -> Result<(), blob_test_protocol::storage::Failure> {
+    workflow::gateways::transport::run(context(), input).await
+}
+#[ic_cdk::query(decode_with = "ops::decode")]
+fn gateway_registry(
+    input: blob_test_protocol::storage::gateways::Scope,
+) -> Result<blob_test_protocol::storage::gateways::View, Failure> {
+    workflow::gateway_registry(context(), input)
+}

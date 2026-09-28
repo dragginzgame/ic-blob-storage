@@ -183,9 +183,45 @@ checks current membership against the trusted object and execution context.
 These local rules do not establish endpoint authentication, provider revocation,
 durable freshness or a restore-safe sequence allocator. Operators can explicitly
 start a later sync that re-adds a member; no permanent denylist is implied.
-Bounded local Candid decoding now applies gateway-list replies through that
-registry, checking correlation before parsing and preserving state on failure.
-It accepts supplied bytes and trusted context; no provider fetch is implemented.
+`StableGatewayRegistry` now persists these same model transitions in one explicit
+host-granted memory. One bounded v1 record retains the service/operator/Cashier/
+namespace binding, processing and membership limits, ordered members, last sequence
+and pending identity together. Installation accepts at most 1024 distinct members;
+the complete record is bounded at 64 KiB. Each mutation validates before writing
+the whole bounded membership record, without accumulating lifetime sync rows.
+Malformed lists preserve pending state; operator adds/removals invalidate earlier
+attempts even if membership does not change. Explicit cancellation applies only to
+the exact read-only sync. Sequence exhaustion never prevents an operator removal.
+Restoration validates the retained record and installed bounds without repair,
+preserves pending identity and permanently fences mutation. Host release/installation
+checks remain separate. Native and local PocketIC evidence covers persistence and
+rollback; this store does not authenticate provider replies, assign read-session
+generations or qualify membership as callback authority. A host must bind live
+transport to the original opaque attempt; handles in the probe are bounded,
+labelled test controls and do not survive restore as operational authority.
+`workflow::gateways` constructs the canonical Cashier query before reserving its
+durable sync, then retains request and token together for completion or cancellation.
+Authority and restore fencing precede request/source/token checks and bounded Candid
+decoding. Only a fully valid reply commits membership and clears pending state;
+failures retain both unchanged. The storage probe supplies encoded local replies to
+this shared workflow, including write-trap rollback and restore evidence. A host
+must retain authenticated operator and source context across transport and bound
+buffering separately. Supplied bytes/scope do not authenticate a provider fetch;
+the advertised query has no automatic replicated-call fallback here.
+`workflow::gateways::transport::query_sync` accepts an already persisted attempt
+and invokes the host's `CashierQueryTransport` only after checking current authority,
+fence and exact pending identity on polling. `GatewayRegistryAccess` releases each
+synchronous borrow before transport. The original context/request remain captured;
+source matching and current-owner completion checks precede any membership write.
+Transport failures retain pending state for explicit cancellation or operator
+invalidation, without an automatic retry. Each invocation performs one read-only
+query; this is not a paid-effect dispatch permit or a persistent transport-attempt
+counter. The host must authenticate responses and independently bound buffering.
+PocketIC exercises this handler with a differently named local update substitute
+and canonical empty arguments. Delayed replies cannot overwrite revocation, a newer
+pending attempt or completed replacement; callback write traps preserve pending
+state after the source has answered. Restored dispatch sends nothing. These tests
+establish scheduling/rollback behavior, not replicated support for Cashier's query.
 Local account-balance reply decoding likewise binds successful reports to a
 supplied requested account and rejects unusable amounts. It does not establish
 transport identity, account ownership, observation freshness or payment outcomes.

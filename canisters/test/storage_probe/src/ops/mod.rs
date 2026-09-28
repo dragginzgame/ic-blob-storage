@@ -2,6 +2,7 @@
 mod configuration;
 mod conversion;
 pub(crate) mod funding;
+pub(crate) mod gateways;
 pub(crate) mod lifecycle;
 pub(crate) mod planning;
 pub(crate) mod read;
@@ -64,6 +65,8 @@ struct State {
     operator: Principal,
     uploads: StableUploads<ProbeMemory>,
     funding: ic_blob_storage::ops::service::funding::StableFundingJournal<ProbeMemory>,
+    gateways: ic_blob_storage::ops::service::gateways::StableGatewayRegistry<ProbeMemory>,
+    gateway_attempts: Vec<ic_blob_storage::ops::service::gateways::reply::GatewaySyncRequest>,
 }
 thread_local! {
     static STATE:RefCell<Option<State>>=const { RefCell::new(None) };
@@ -83,12 +86,13 @@ pub(crate) fn initialize(operator: Principal, restored: bool) {
         "fixture.root_requests.v1",
         "fixture.funding_accounting.v1",
         "fixture.funding_intents.v1",
+        "fixture.gateways.v1",
     ];
     let requests =
         keys.map(|key| MemoryRequest::new("fixture", key, SchemaMetadata::default()).unwrap());
     let grant = StaticMemoryRangeDeclaration::new(
         MemoryManagerAuthorityRecord::new(
-            MemoryManagerIdRange::new(120, 131).unwrap(),
+            MemoryManagerIdRange::new(120, 132).unwrap(),
             "fixture",
             MemoryManagerRangeMode::Allowed,
             None,
@@ -118,6 +122,7 @@ pub(crate) fn initialize(operator: Principal, restored: bool) {
         root_requests,
         funding_accounting,
         funding_intents,
+        gateways,
     ] = keys.map(|key| ProbeMemory {
         memory: runtime.open_memory_by_key(key).unwrap(),
         fault: match key {
@@ -131,6 +136,7 @@ pub(crate) fn initialize(operator: Principal, restored: bool) {
             "fixture.root_requests.v1" => Some(WriteFault::RootRequests),
             "fixture.funding_accounting.v1" => Some(WriteFault::FundingAccounting),
             "fixture.funding_intents.v1" => Some(WriteFault::FundingIntents),
+            "fixture.gateways.v1" => Some(WriteFault::Gateways),
             _ => None,
         },
     });
@@ -148,6 +154,7 @@ pub(crate) fn initialize(operator: Principal, restored: bool) {
     };
     let config = configuration::configuration(operator);
     let funding = funding::initialize(funding_accounting, funding_intents, &config, restored);
+    let gateways = gateways::initialize(gateways, &config, restored);
     let uploads = if restored {
         StableUploads::open(memory, config)
     } else {
@@ -161,6 +168,8 @@ pub(crate) fn initialize(operator: Principal, restored: bool) {
             operator,
             uploads,
             funding,
+            gateways,
+            gateway_attempts: Vec::new(),
         });
     });
 }

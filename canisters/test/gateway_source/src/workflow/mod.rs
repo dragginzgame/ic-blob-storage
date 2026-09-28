@@ -75,32 +75,10 @@ pub(crate) async fn reply(caller: Principal, input: blob_test_protocol::GatewayS
         return;
     }
     let (service, gateway, mode) = ops::receive();
+    if !passive_reply(gateway, mode).await {
+        return;
+    }
     match mode {
-        SourceMode::Hold => {
-            let token = ops::sync_hold::begin(gateway);
-            let ready = ops::sync_hold::wait(token).await;
-            ops::sync_hold::finish(token);
-            if !ready {
-                ops::reject();
-                return;
-            }
-        }
-        SourceMode::Reject => {
-            ops::reject();
-            return;
-        }
-        SourceMode::Malformed => {
-            ops::reply(vec![0]);
-            return;
-        }
-        SourceMode::Oversized => {
-            ops::reply(vec![0; 4097]);
-            return;
-        }
-        SourceMode::Empty => {
-            ops::reply_empty();
-            return;
-        }
         SourceMode::Overlap => {
             let result = ops::sync(service, input).await;
             ops::record_nested(result);
@@ -115,7 +93,7 @@ pub(crate) async fn reply(caller: Principal, input: blob_test_protocol::GatewayS
             let result = ops::sync(service, next_request).await;
             ops::record_nested(result);
         }
-        SourceMode::Valid => {}
+        _ => {}
     }
     // Deliberately return the captured OLD list after the reentrant mutation.
     ops::reply_list(gateway);
@@ -181,5 +159,52 @@ pub(crate) fn inspect_relationship(caller: Principal, owner: Principal) {
         ops::reply(bytes);
     } else {
         ops::reject();
+    }
+}
+
+// Shared controlled byte/hold behavior for both local scheduling experiments.
+async fn passive_reply(gateway: Principal, mode: SourceMode) -> bool {
+    match mode {
+        SourceMode::Hold => {
+            let token = ops::sync_hold::begin(gateway);
+            let ready = ops::sync_hold::wait(token).await;
+            ops::sync_hold::finish(token);
+            if ready {
+                return true;
+            }
+            ops::reject();
+        }
+        SourceMode::Reject => ops::reject(),
+        SourceMode::Malformed => ops::reply(vec![0]),
+        SourceMode::Oversized => ops::reply(vec![0; 4097]),
+        SourceMode::Empty => ops::reply_empty(),
+        _ => return true,
+    }
+    false
+}
+
+// Explicit update substitute for scheduling evidence; never exported under the
+// provider's query method. Scripted effects are unavailable on this endpoint.
+pub(crate) async fn gateway_query(caller: Principal) {
+    let allowed = ops::read(|state| {
+        state.service == caller
+            && !state.fenced
+            && matches!(
+                state.mode,
+                SourceMode::Valid
+                    | SourceMode::Hold
+                    | SourceMode::Reject
+                    | SourceMode::Malformed
+                    | SourceMode::Oversized
+                    | SourceMode::Empty
+            )
+    });
+    if !allowed {
+        ops::reject();
+        return;
+    }
+    let (_, gateway, mode) = ops::receive();
+    if passive_reply(gateway, mode).await {
+        ops::reply_list(gateway);
     }
 }

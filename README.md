@@ -86,6 +86,17 @@ The host supplies synchronous journal access and current qualified observations.
 PocketIC exercises this composition with synthetic host facts and a local Cashier
 substitute; deployed-provider qualification and production evidence acquisition
 remain open.
+`ops::service::gateways::StableGatewayRegistry` retains bounded membership and
+pending sync identity together in one host-granted memory. Operator edits invalidate
+older syncs; restoration preserves pending history under an inspection-only fence.
+`workflow::gateways` binds the canonical Cashier query to this durable attempt,
+then validates bounded encoded replies before committing membership and completion
+together. Failed replies retain the pending attempt; transport authentication and
+buffering limits remain host responsibilities.
+The async query handler checks pending state before host transport and revalidates
+after the await. Local IC tests cover delayed replies, concurrent edits and callback
+rollback; a production query transport still needs authentication and qualification.
+This is local registry state, not proof of provider authority or callback freshness.
 The service uses bounded manifest authorization for direct browser-to-Caffeine
 upload. No file chunks or whole-file raw digest are required by service admission.
 Manifest consistency, possible exposure and independently confirmed provider

@@ -1,18 +1,16 @@
 # Current status
 
-Date: 2026-09-27
+Date: 2026-09-28
 
-## Active work — after 0.2.5
+## Active work — after 0.2.6
 
-The maintainer confirmed **0.2.5 is pushed**. Cargo and the release receipt are
-0.2.5. Local main, origin/main and v0.2.5 resolve to
-`d24de5af6596de15a5835bb7cf0478d73eff9dfe`, from validated source
-`5c901c1f924ebea99515b60cdea91a1b7f161c08`. The receipt records the
+The maintainer confirmed **0.2.6 is pushed**. Cargo and the release receipt are
+0.2.6. Local main, origin/main and v0.2.6 resolve to
+`af63842116c241b1e7fae95c6128897d01659ccf`, from validated source
+`ab006c8d46208548ef4362797a9c49ac1603b22f`. The receipt records the
 `release-verify` gate; registry publication was not independently queried.
-The maintainer selected **0.2.6** as the release target. Its undated changelog
-contains shared funding preparation, first-attempt admission and guarded dispatch;
-Unreleased is empty. Cargo and the release receipt remain 0.2.5. No version
-mutation, commit, publication, deployment or deployed-provider effect ran here;
+New work is recorded under **Unreleased**; no next version has been selected.
+No version mutation, commit, publication, deployment or deployed-provider effect ran here;
 transfers below use simulated cycles between local PocketIC canisters.
 
 Follow the [0.2 delivery plan](../roadmap.md). Its goal remains a usable
@@ -26,7 +24,82 @@ operator client. Library publication does not qualify the service or Canic remov
 | M3 — Caffeine and operator integration | Not implemented | Qualified provider transport, completion/economics and production client |
 | M4 — managed parity and acceptance | Not implemented | Same journey through Canic adapter, complete replacement evidence and handoff |
 
-## Current focus — shared guarded funding dispatch
+## Current focus — durable gateway query orchestration
+
+`ops::service::gateways::StableGatewayRegistry` now persists the existing gateway
+model's membership and pending-sync transitions in one explicit host memory.
+The v1 record binds service, operator, namespace, Cashier and list limits, retains
+member order, and preserves last/pending sequence together. Its envelope is at
+most 1024 distinct principals and 64 KiB per record. Mutation rewrites one bounded
+record; lifetime syncs do not accumulate history rows. Restore validates and fences
+without repair, pending cancellation or counter reset.
+
+The shared model still owns list validation, duplicate normalization, exact sync
+correlation and invalidation by operator edits. Invalid replies leave membership
+and pending state unchanged. Even no-op adds/removals invalidate prior syncs;
+explicit removal can empty membership and remains possible at sequence exhaustion.
+The durable owner checks explicit scope and operator before reads or mutations.
+Membership is not callback authority or a read-session generation. Real source
+authentication, provider qualification and operational recovery remain open.
+
+`workflow::gateways` now authenticates the operator/scope, constructs the canonical
+Cashier query, and durably begins its exact pending attempt. The host retains the
+opaque request/token pair across transport. Completion checks authority and the
+actual restore fence, then reuses the original request's method/source/token checks
+and bounded Candid decoder against a private registry copy. Only a valid complete
+list writes membership and consumes pending state. Malformed/over-budget replies
+leave the attempt pending for explicit cancellation or a valid reply. Operator
+edits invalidate earlier attempts; stale replies cannot affect a newer sync.
+The unreleased durable raw-list apply path was removed, with its consumers and
+redundant test coverage replaced. Existing released transient APIs are unchanged.
+
+`workflow::gateways::transport::query_sync` now checks an existing durable attempt
+on polling, calls a host-supplied `CashierQueryTransport` without a registry borrow,
+then checks source and applies the reply through current-owner validation. Original
+operator/service/request context stays captured across the await. Failed transport
+or decoding preserves pending state; no automatic retry/cancellation is installed.
+Each invocation sends one read-only query, not a paid-effect permit. Authentication
+and pre-buffering limits are host integration obligations, not facts proved by the
+returned response struct. The fixture checks reply length before copying IC bytes.
+
+The storage probe grants one additional memory through its existing `ic-memory`
+runtime and restores this owner synchronously alongside uploads/funding. Its encoded
+reply bytes and bounded ephemeral request handles are labelled local test controls
+that exercise the shared workflow, not authenticated provider observations.
+Its separately labelled transport endpoint calls `fixture_gateway_query` on the
+existing local source, using canonical empty arguments. This deliberately different
+update endpoint supports scheduling tests; the provider-shaped query endpoint and
+its query-only contract remain unchanged. Source reply/hold behavior is shared
+with the earlier scheduling fixture; no source record or memory layout changed.
+Cross-release transitions remain reinstall-only; no old fixture/schema reader,
+allocator change or implicit production memory registration was added.
+
+All 26 targeted gateway native tests pass, including bounded durable reply refusal,
+correlation before decoding, a full-width 1024-member encoded reply/record round-trip,
+and rejection of an original host-retained request after restore. New native
+evidence checks source mismatch and invalidation after future construction but
+before polling, with no transport invocation. All eight storage gateway PocketIC
+cases pass in 10.67 seconds. Delayed real local replies cannot overwrite a newer
+pending sync or completed replacement. Queries/edits remain usable during awaits;
+callback traps preserve pending state after the source answers. Wrong callers,
+cancelled/completed attempts and restored owners send nothing. Malformed, oversized,
+empty and rejected replies retain the attempt. Both existing gateway-source
+regression cases pass in 2.09 seconds after sharing its reply/hold helper.
+The other 34 storage cases remain passing evidence from the preceding broader run;
+they were not rerun for this gateway-only change.
+Affected strict all-target Clippy, release storage/source/authority Wasms, warning-free core
+rustdoc, formatting and diff checks pass. Existing released store schemas, Cargo
+versions and dependencies are unchanged. No full CI, resource benchmark refresh,
+live provider call, publication or release action ran.
+
+Next, qualify production query transport/authentication against the current provider
+contract, then compose gateway callback/read-session authority with the durable
+owners. The retained Cashier interface advertises a query; never silently substitute
+an unqualified update call. Membership alone cannot authorize provider callbacks or
+resume a restored service. Production funding evidence remains unresolved; do not
+fill it from local membership or copy synthetic fixture facts into adapters.
+
+## Shared guarded funding dispatch — included in 0.2.6
 
 `workflow::funding::inspect_preparation` combines authenticated current journal
 facts with separately scoped trusted host observations. Local obligations, the
@@ -93,12 +166,6 @@ Affected strict all-target Clippy, both release Wasms and warning-free core rust
 pass, as do formatting and diff checks. No stable schema, memory grant, allocator,
 dependency or package version changed. No full CI, resource benchmark refresh, live provider call or release
 action ran; the separate funding fixture suite remains prior evidence.
-
-This is a coherent additive 0.2.6 library release point. No released API or stable
-schema is removed or changed. The maintainer must commit the implementation and
-named draft, then run the normal release flow from clean main; its full
-`release-verify` gate remains required. The readiness review did not rerun full CI
-or create a release receipt. Publication does not qualify production funding.
 
 Next, establish qualified production host evidence acquisition and account-activity
 coverage for the shared dispatcher. Synthetic fixture observations must not be

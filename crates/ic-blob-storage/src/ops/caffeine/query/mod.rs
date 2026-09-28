@@ -13,6 +13,7 @@ use super::relationship::PaymentRelationshipBinding;
 
 pub mod audit;
 pub mod reply;
+pub mod transport;
 
 /// Maintained queries only; no arbitrary method, funding or account-link operation.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
