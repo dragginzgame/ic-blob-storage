@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.2.7] - 2026-09-28
+
 ### Added
 
 - Durable gateway membership and pending sync state through one explicit
