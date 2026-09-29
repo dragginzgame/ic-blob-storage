@@ -1,6 +1,23 @@
 //! Trusted verifier statements about observed bytes, separate from provider durability.
 use super::admission::{UploadAdmissionFailure, UploadAdmissionRequest};
 use candid::{CandidType, Deserialize, Principal};
+/// One authenticated observation for the installed verifier to inspect exposed bytes.
+/// No origin, credential, upload certificate or retry permission is supplied.
+#[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize)]
+pub struct UploadVerificationPlan {
+    /// Full original permission; independent identities must remain intact.
+    pub permission: UploadAdmissionRequest,
+    /// Explicit installed verifier, independent of uploader and operator.
+    pub verifier: Principal,
+    /// Installed Caffeine owner, equal to this service.
+    pub owner: Principal,
+    /// Installed provider project, never inferred from namespace or tenant.
+    pub project: String,
+    /// Original admission time; a verifier clock before this cannot attest.
+    pub admitted_at_ns: u64,
+    /// Original root-consistent leaves and metadata, not provider response headers.
+    pub declaration: super::manifest::UploadManifestDeclaration,
+}
 /// Save this exact statement before sending. Changed statements cannot replace a receipt.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
 pub struct UploadAttestationRequest {

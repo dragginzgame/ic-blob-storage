@@ -14,6 +14,7 @@ pub(super) struct Options {
 }
 
 pub(super) enum Command {
+    ObserveUpload(super::observe_upload::Input),
     Status {
         scope: OperatorScope,
     },
@@ -27,6 +28,12 @@ pub(super) enum Command {
         permission: PathBuf,
         body: PathBuf,
         max_bytes: std::num::NonZeroU64,
+    },
+    UploadAttestation {
+        service: Principal,
+        namespace: u128,
+        verifier: Principal,
+        statement: PathBuf,
     },
 }
 
@@ -44,7 +51,14 @@ fn principal(value: &str) -> Result<Principal, Failure> {
 impl Options {
     pub fn parse(args: &[String]) -> Result<Self, Failure> {
         let command = args.first().map(String::as_str).ok_or(Failure::Arguments)?;
-        if !matches!(command, "status" | "funding-history" | "verify-upload") {
+        if !matches!(
+            command,
+            "status"
+                | "funding-history"
+                | "verify-upload"
+                | "upload-attestation"
+                | "observe-upload"
+        ) {
             return Err(Failure::Arguments);
         }
         let mut flags = BTreeMap::new();
@@ -61,72 +75,28 @@ impl Options {
         };
         let url = Url::parse(take("--url")?).map_err(|_| Failure::Arguments)?;
         let identity = PathBuf::from(take("--identity")?);
-        let actor = principal(take(if command == "verify-upload" {
-            "--actor"
-        } else {
-            "--operator"
-        })?)?;
+        let actor = principal(take(
+            if matches!(
+                command,
+                "verify-upload" | "upload-attestation" | "observe-upload"
+            ) {
+                "--actor"
+            } else {
+                "--operator"
+            },
+        )?)?;
         let service = principal(take("--service")?)?;
         let namespace_text = take("--namespace")?;
         let namespace: u128 = namespace_text.parse().map_err(|_| Failure::Arguments)?;
         if namespace == 0 || namespace.to_string() != namespace_text {
             return Err(Failure::Arguments);
         }
-        let command = if command == "verify-upload" {
-            let permission = PathBuf::from(take("--permission")?);
-            let body = PathBuf::from(take("--body")?);
-            let maximum = take("--max-bytes")?;
-            let max_bytes: std::num::NonZeroU64 =
-                maximum.parse().map_err(|_| Failure::Arguments)?;
-            if max_bytes.to_string() != maximum || max_bytes.get() > 1024 * 1024 * 1024 {
-                return Err(Failure::Arguments);
-            }
-            Command::VerifyUpload {
-                service,
-                namespace,
-                permission,
-                body,
-                max_bytes,
-            }
-        } else {
-            let scope = OperatorScope {
-                service,
-                namespace,
-                cashier: principal(take("--cashier")?)?,
-                payment_account: principal(take("--payer")?)?,
-            };
-            if command == "funding-history" {
-                Command::FundingHistory {
-                    scope,
-                    cursor: flags.remove("--cursor").map(PathBuf::from),
-                }
-            } else {
-                Command::Status { scope }
-            }
-        };
+        let command = parse_command(command, service, namespace, network, &mut flags)?;
         let root_key = flags.remove("--root-key").map(PathBuf::from);
-        if !flags.is_empty()
-            || !url.username().is_empty()
-            || url.password().is_some()
-            || url.query().is_some()
-            || url.fragment().is_some()
-            || url.path() != "/"
-            || url.port() == Some(0)
-        {
+        if !flags.is_empty() {
             return Err(Failure::Arguments);
         }
-        let loopback = match url.host() {
-            Some(Host::Ipv4(ip)) => ip.is_loopback(),
-            Some(Host::Ipv6(ip)) => ip.is_loopback(),
-            _ => false,
-        };
-        let valid_network = match network {
-            "local" => loopback && matches!(url.scheme(), "http" | "https") && root_key.is_some(),
-            _ => url.scheme() == "https" && url.host().is_some() && root_key.is_none(),
-        };
-        if !valid_network {
-            return Err(Failure::Arguments);
-        }
+        validate_url(&url, network, root_key.is_some())?;
         Ok(Self {
             command,
             network,
@@ -136,4 +106,91 @@ impl Options {
             root_key,
         })
     }
+}
+
+fn maximum(value: &str) -> Result<std::num::NonZeroU64, Failure> {
+    let maximum: std::num::NonZeroU64 = value.parse().map_err(|_| Failure::Arguments)?;
+    if maximum.to_string() != value || maximum.get() > 1024 * 1024 * 1024 {
+        return Err(Failure::Arguments);
+    }
+    Ok(maximum)
+}
+fn parse_command(
+    command: &str,
+    service: Principal,
+    namespace: u128,
+    network: &str,
+    flags: &mut BTreeMap<&str, &str>,
+) -> Result<Command, Failure> {
+    let mut take = |name| flags.remove(name).ok_or(Failure::Arguments);
+    Ok(if command == "observe-upload" {
+        let gateway = Url::parse(take("--gateway")?).map_err(|_| Failure::Arguments)?;
+        validate_url(&gateway, network, network == "local")?;
+        Command::ObserveUpload(super::observe_upload::Input {
+            service,
+            namespace,
+            gateway,
+            permission: PathBuf::from(take("--permission")?),
+            directory: PathBuf::from(take("--run-dir")?),
+            max_bytes: maximum(take("--max-bytes")?)?,
+        })
+    } else if command == "upload-attestation" {
+        Command::UploadAttestation {
+            service,
+            namespace,
+            verifier: principal(take("--verifier")?)?,
+            statement: PathBuf::from(take("--statement")?),
+        }
+    } else if command == "verify-upload" {
+        let permission = PathBuf::from(take("--permission")?);
+        let body = PathBuf::from(take("--body")?);
+        let max_bytes = maximum(take("--max-bytes")?)?;
+        Command::VerifyUpload {
+            service,
+            namespace,
+            permission,
+            body,
+            max_bytes,
+        }
+    } else {
+        let scope = OperatorScope {
+            service,
+            namespace,
+            cashier: principal(take("--cashier")?)?,
+            payment_account: principal(take("--payer")?)?,
+        };
+        if command == "funding-history" {
+            Command::FundingHistory {
+                scope,
+                cursor: flags.remove("--cursor").map(PathBuf::from),
+            }
+        } else {
+            Command::Status { scope }
+        }
+    })
+}
+
+fn validate_url(url: &Url, network: &str, explicit_root: bool) -> Result<(), Failure> {
+    if !url.username().is_empty()
+        || url.password().is_some()
+        || url.query().is_some()
+        || url.fragment().is_some()
+        || url.path() != "/"
+        || url.port() == Some(0)
+    {
+        return Err(Failure::Arguments);
+    }
+    let loopback = match url.host() {
+        Some(Host::Ipv4(ip)) => ip.is_loopback(),
+        Some(Host::Ipv6(ip)) => ip.is_loopback(),
+        _ => false,
+    };
+    let valid_network = match network {
+        "local" => loopback && matches!(url.scheme(), "http" | "https") && explicit_root,
+        _ => url.scheme() == "https" && url.host().is_some() && !explicit_root,
+    };
+    if !valid_network {
+        return Err(Failure::Arguments);
+    }
+    Ok(())
 }

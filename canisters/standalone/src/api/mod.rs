@@ -270,6 +270,17 @@ fn blob_verification_manifest(
     workflow::verification_manifest(context(), input)
 }
 
+#[ic_cdk::query(hidden = true, decode_with = "ops::decode")]
+#[candid::candid_method(query)]
+fn blob_verification_plan(
+    input: UploadAdmissionRequest,
+) -> Result<
+    ic_blob_storage::dto::upload::completion::UploadVerificationPlan,
+    ic_blob_storage::dto::upload::completion::UploadAttestationFailure,
+> {
+    workflow::verification_plan(context(), input)
+}
+
 ic_cdk::export_candid!();
 pub(crate) fn interface() -> String {
     __export_service()

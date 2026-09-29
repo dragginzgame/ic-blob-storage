@@ -1,4 +1,6 @@
 //! Authenticate exact verifier statements and commit them with upload accounting.
+pub mod reply;
+pub mod verification;
 use super::{StableUploads, admission};
 use crate::{
     dto::upload::{

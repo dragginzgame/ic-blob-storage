@@ -698,6 +698,10 @@ type Result_25 = variant {
   Ok : UploadStatusResponse;
   Err : UploadStatusFailure;
 };
+type Result_26 = variant {
+  Ok : UploadVerificationPlan;
+  Err : UploadAttestationFailure;
+};
 type Result_3 = variant {
   Ok : UploadAttestationMutation;
   Err : UploadAttestationFailure;
@@ -1199,6 +1203,22 @@ type UploadStatusResponse = record {
   // Exact original upload, including its independent first reference identity.
   upload : ReferenceUpload;
 };
+// One authenticated observation for the installed verifier to inspect exposed bytes.
+// No origin, credential, upload certificate or retry permission is supplied.
+type UploadVerificationPlan = record {
+  // Full original permission; independent identities must remain intact.
+  permission : UploadAdmissionRequest;
+  // Explicit installed verifier, independent of uploader and operator.
+  verifier : principal;
+  // Installed Caffeine owner, equal to this service.
+  owner : principal;
+  // Original root-consistent leaves and metadata, not provider response headers.
+  declaration : UploadManifestDeclaration;
+  // Original admission time; a verifier clock before this cannot attest.
+  admitted_at_ns : nat64;
+  // Installed provider project, never inferred from namespace or tenant.
+  project : text;
+};
 service : (HostInstallationInput) -> {
   blob_admit_upload : (UploadAdmissionRequest) -> (Result);
   blob_apply_reference : (ReferenceCommand) -> (Result_2);
@@ -1227,4 +1247,5 @@ service : (HostInstallationInput) -> {
   blob_upload_manifest : (UploadAdmissionRequest) -> (Result_24) query;
   blob_upload_status : (ReferenceUpload) -> (Result_25) query;
   blob_verification_manifest : (UploadAdmissionRequest) -> (Result_24) query;
+  blob_verification_plan : (UploadAdmissionRequest) -> (Result_26) query;
 }

@@ -352,3 +352,17 @@ pub(crate) fn verification_manifest(
         )
     })
 }
+
+pub(crate) fn verification_plan(
+    context: UploadContext,
+    input: UploadAdmissionRequest,
+) -> Result<
+    ic_blob_storage::dto::upload::completion::UploadVerificationPlan,
+    ic_blob_storage::dto::upload::completion::UploadAttestationFailure,
+> {
+    ops::with_verification(|uploads, authority, scope| {
+        ic_blob_storage::workflow::uploads::completion::verification_plan(
+            uploads, authority, scope, context, input,
+        )
+    })
+}

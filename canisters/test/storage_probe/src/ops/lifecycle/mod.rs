@@ -33,6 +33,24 @@ fn completion_authority(
     )
     .unwrap()
 }
+pub(crate) fn verification_plan(
+    context: UploadContext,
+    input: ic_blob_storage::dto::upload::admission::UploadAdmissionRequest,
+) -> Result<
+    ic_blob_storage::dto::upload::completion::UploadVerificationPlan,
+    ic_blob_storage::dto::upload::completion::UploadAttestationFailure,
+> {
+    STATE.with_borrow(|state| {
+        let state = state.as_ref().unwrap();
+        ic_blob_storage::workflow::uploads::completion::verification_plan(
+            &state.uploads,
+            completion_authority(state.operator),
+            &super::read::download::scope(context),
+            context,
+            input,
+        )
+    })
+}
 pub(crate) fn attest(
     context: UploadContext,
     input: &ic_blob_storage::dto::upload::completion::UploadAttestationRequest,

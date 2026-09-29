@@ -2,6 +2,33 @@
 
 ## [Unreleased]
 
+## [0.4.1]
+
+### Added
+
+- Verifier-only `blob_verification_plan` binds the installed Caffeine owner/project
+  and original declaration to an exposed unfinished upload. Standalone and the
+  durable fixture share the handler; wrong roles, bindings, phases and restored
+  owners reject without changing state.
+- Native `blob-storage observe-upload` makes one explicitly bounded provider GET,
+  checks the complete stream against original root/metadata/length, and durably saves
+  the exact attestation statement. Fresh run artifacts retain request intent,
+  responses, failures and hashes; existing or interrupted runs cannot be overwritten
+  or automatically resumed. Partial, corrupt, oversized, encoded and redirected
+  responses reject. No service update or on-canister file hashing occurs. Local HTTP
+  and signed PocketIC evidence includes process interruption and explicit fixture
+  attestation/recovery; deployed provider qualification and native dispatch remain open.
+- Authenticated `blob-storage upload-attestation` compares a saved exact statement
+  with immutable service history, reporting matched, conflicting or absent evidence.
+  It preserves full-width identities and restore fences without resending the
+  statement, fetching provider content or authorizing retries. Signed PocketIC
+  coverage recovers a discarded acknowledgment through reference release,
+  settlement and restoration while preserving service state and the saved intent.
+- Shared bounded attestation reply handling checks the expected service, namespace,
+  permission, verifier and receipt chronology. Mutation acknowledgments must match
+  the complete saved statement; malformed replies and service refusals never become
+  absent receipts. Historical receipt lookup preserves conflicting statements.
+
 ## [0.4.0] - 2026-09-29
 
 ### Added

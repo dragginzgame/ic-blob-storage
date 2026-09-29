@@ -579,3 +579,12 @@ fn blob_upload_attestation(
 > {
     workflow::attestation(context(), input)
 }
+#[ic_cdk::query(decode_with = "ops::decode")]
+fn blob_verification_plan(
+    input: UploadAdmissionRequest,
+) -> Result<
+    ic_blob_storage::dto::upload::completion::UploadVerificationPlan,
+    ic_blob_storage::dto::upload::completion::UploadAttestationFailure,
+> {
+    workflow::verification_plan(context(), input)
+}

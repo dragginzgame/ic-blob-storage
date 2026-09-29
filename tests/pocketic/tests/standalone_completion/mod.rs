@@ -29,6 +29,23 @@ fn verification_manifest(f: &Fixture, manifest: &UploadManifestRequest) {
         }
     }
 }
+fn plan_refuses(f: &Fixture, permission: UploadAdmissionRequest, fenced: bool) {
+    for actor in [Fake::principal(90), f.operator, f.tenant, f.uploader] {
+        let result: Result<UploadVerificationPlan, UploadAttestationFailure> = f
+            .harness
+            .pic
+            .query_candid_as(f.service, actor, "blob_verification_plan", (permission,))
+            .unwrap();
+        let expected = if actor != Fake::principal(90) {
+            UploadAttestationFailure::Denied
+        } else if fenced {
+            UploadAttestationFailure::Permission(UploadAdmissionFailure::Fenced)
+        } else {
+            UploadAttestationFailure::Phase
+        };
+        assert_eq!(result, Err(expected));
+    }
+}
 #[test]
 fn standalone_completion_requires_installed_verifier_exposure_and_active_owner() {
     let f = Fixture::new();
@@ -51,6 +68,7 @@ fn standalone_completion_requires_installed_verifier_exposure_and_active_owner()
         .unwrap();
     f.prepare(f.uploader, &manifest).unwrap();
     verification_manifest(&f, &manifest);
+    plan_refuses(&f, manifest.permission, false);
     let input = UploadAttestationRequest {
         permission: manifest.permission,
         content_digest: [1; 32],
@@ -89,6 +107,7 @@ fn standalone_completion_requires_installed_verifier_exposure_and_active_owner()
     }
     f.upgrade(candid::encode_args(()).unwrap()).unwrap();
     verification_manifest(&f, &manifest);
+    plan_refuses(&f, manifest.permission, true);
     let result: Result<UploadAttestationMutation, UploadAttestationFailure> = f
         .harness
         .pic

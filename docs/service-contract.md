@@ -33,10 +33,32 @@ Controller/operator/gateway status grants no implicit verifier authority. The
 current v1 host/lifecycle schemas change directly, requiring a minor release and
 cross-release reinstall. The existing trusted-host bookkeeping primitive remains
 explicitly distinguishable from a verifier receipt; no receipt is invented for it.
-The production fetch/dispatch worker and standalone certificate/exposure path are
+The production dispatch worker and standalone certificate/exposure path are
 still required before end-to-end use. See the [probe ledger](evidence/caffeine-probes/README.md)
 for local transaction evidence and the [host contract](../canisters/standalone/README.md)
 for endpoint usage.
+
+Native recovery now uses `blob-storage upload-attestation` with an independently
+selected expected verifier and a saved exact statement. Shared
+`ops::service::uploads::completion::reply` owns the lookup encoding and bounded
+inspection/mutation decoding. Scope, full permission, receipt verifier and time
+ordering are checked; mutation acknowledgment must match the original digest and
+observation time too. Lookup preserves a conflicting accepted statement for
+diagnosis. Neither an absent nor a matched historical receipt establishes current
+availability or authorizes redispatch; queries never resend statements or write
+the journal. Restore fencing remains visible. This recovery reader does not
+dispatch an attestation.
+
+`blob_verification_plan` now authenticates that verifier and binds its exact original
+permission/declaration to the installed Caffeine owner/project. It requires an
+unfenced exposed unfinished upload; revoked/suspended exposed work can still be
+reconciled. It does not grant upload, retry or future availability authority.
+The native `observe-upload` command authenticates this snapshot, uses the maintained
+provider target encoder with an explicitly approved origin, and makes one bounded
+GET. Complete root/metadata/length verification precedes durable statement creation.
+Fresh no-clobber runs persist intent before effects and retain failures; interrupted
+runs cannot resume automatically. Provider reads can cost money and live trials
+remain separately authorized. This command does not dispatch the saved statement.
 
 ## Service configuration and host
 

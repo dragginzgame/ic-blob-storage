@@ -109,6 +109,29 @@ provider authenticity; rerunning the opt-in test establishes current local behav
 
 ## Run index
 
+The `verifier-observation` local experiment is planned for 2026-09-29 against the
+current workspace. Tests use the maintained Caffeine target encoder and streaming
+verifier, a fixed PocketIC verifier identity, fixture owner/project and loopback HTTP
+substitutes. Record intent before one bounded GET; exercise complete, corrupt,
+truncated, oversized, non-200, redirected and encoded responses. Test refused service
+plans, interruption/no-clobber behavior and a verified statement carried to receipt
+recovery through an explicit fixture attestation. Per invocation: one service query,
+one provider GET maximum, 30 seconds each, explicit content bound at most 1 GiB,
+64 KiB service Candid. No deployed provider/account, credentials or attached cycles;
+no external cleanup. Stop on failure and retain failed outcomes; these local cases
+do not qualify the deployed provider or authorize live reads.
+
+The `attestation-recovery` local contract check is planned for 2026-09-29 against
+the current workspace and `storage_attestation_cli` PocketIC test. A fixed test
+tenant signs bounded receipt queries; the fixture operator is the explicit verifier.
+The plan saves the exact statement before a local attestation, discards its reply,
+and inspects absence, acceptance, changed intent, wrong verifier/root trust and
+settled/restored history. Exposure, content and deletion/settlement facts are
+labelled substitutes. Each CLI query is limited to 30 seconds, 256 KiB HTTP and
+4 KiB Candid; no query retries. No deployed account, gateway request, provider
+charge or attached cycles are involved. Stop on failure; only temporary local
+canisters/files require cleanup. The completed result is indexed below.
+
 | ID / date | Class and target | Status / evidence | Conclusion and obligations |
 | --- | --- | --- | --- |
 | historical-recovery / 2026-09-26 | Source inspection, substituted HTTP replies, Candid codecs and anonymous metadata | [Existing record](../caffeine-recovery-review.json), indexed retrospectively; not rerun | SDK progress is insufficient; root-only callbacks and payment correlation need conservative handling. No paid effects were recorded in that review; no fabricated modern run metadata |
@@ -119,6 +142,8 @@ provider authenticity; rerunning the opt-in test establishes current local behav
 | local-sdk-02 / 2026-09-29 | Same local substitutes; independent native Rust content verification | [Failure](local/2026-09-29-sdk-02/failure.json): first verification subprocess timed out; partial request/reply records retained | Node synchronous subprocess input did not reach EOF in this environment (reproduced with `cat`); asynchronous closed input works. No completed case, network/account access or cleanup obligations |
 | local-sdk-03 / 2026-09-29 | Same local substitutes, asynchronous verifier subprocess | [Plan](local/2026-09-29-sdk-03/plan.json), [summary](local/2026-09-29-sdk-03/summary.json); all six scenarios pass | SDK sends all chunks despite `existing_chunks` and returns successfully for a non-complete status. Lost final reply stays uncertain despite verified bytes; replay blocked. Aggregate budget stops before the next request. No real network/account access or cleanup obligations |
 | verifier-contract / 2026-09-29 | Local model/CLI and PocketIC; fixed test verifier principals and substituted content observations | 60 upload-store and two codec tests pass; all 32 standalone cases pass (141.72 seconds), plus `storage_completion` (5.05 seconds) | Exact authority/permission binding, immutable receipt replay, four stable-write rollback cuts, late revocation, release/settlement and fenced restoration pass. The signed CLI verifies 10 MiB against original metadata without mutating service state. Local canisters only; zero provider requests/attached cycles, no external cleanup or deployed availability claim |
+| attestation-recovery / 2026-09-29 | Local saved-intent decoder/CLI and signed PocketIC receipt queries; fixed test tenant and fixture verifier | `storage_attestation_cli` passes (5.33 seconds), including a deliberately discarded successful update acknowledgment | Absent, matched and conflicting evidence remain distinct. Changed permission/verifier and wrong root trust reject; settled/restored receipts remain immutable. Queries preserve stable bytes and the saved intent. This discards a test acknowledgment, not a simulated network packet; content/exposure/settlement are substitutes, with no deployed provider availability claim. No external requests, charges or cleanup obligations |
+| verifier-observation / 2026-09-29 | Native loopback HTTP substitutes and signed PocketIC installed-plan/statement journey; fixture exposure only | 14 native CLI tests pass, including multi-chunk streaming and HTTP corruption/EOF/size/encoding/redirect refusals. `storage_observe_cli` passes (4.00 seconds); standalone completion/plan refusals pass (5.37 seconds) | Intent exists before GET; complete verification saves the exact statement without dispatch. Killing the subprocess mid-body leaves no statement/summary and forbids reuse of that run. Explicit fixture dispatch accepts the independently checked statement and receipt recovery matches. Service bytes stay unchanged during observation. Local artifacts are temporary test outputs; maintained tests retain the scenario definitions. No real provider/account access, charges or cleanup obligations; no deployed qualification |
 
 Other retained investigations are indexed here without inventing missing request
 logs or replaying their effects. Use each record's own dates and evidence classes:

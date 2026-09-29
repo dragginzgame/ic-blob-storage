@@ -41,6 +41,13 @@ the complete content from the installed owner/project mapping and check original
 metadata, root and length off-canister before attesting. Local file matching alone
 is insufficient to establish provider availability.
 
+`blob_verification_plan` separately supplies the installed owner/project and original
+declaration to the configured verifier for an exposed, unfinished upload. It refuses
+unexposed/confirmed content and restored owners; revoked or suspended exposed uploads
+remain eligible for reconciliation. Historical `blob_verification_manifest` retains
+its inspection-only contract through fences. The plan contains no gateway origin or
+credential and is a snapshot, not a lease or retry permission.
+
 Only prepared, already-exposed uploads can be confirmed. The first statement,
 authenticated verifier and acceptance time commit with accounting and the first
 reference. Exact replay preserves that receipt; conflicting statements reject.
@@ -51,8 +58,9 @@ replay after reference release cannot resurrect it. Physical/economic liabilitie
 remain until their separate deletion/settlement evidence arrives.
 
 The attestation contract establishes trusted observed content availability, not
-future retention or billing cessation. The production verifier worker and
-standalone certificate/exposure path remain unfinished; installation of this
+future retention or billing cessation. Native `observe-upload` retrieves and checks
+provider bytes from an explicitly approved origin and saves a durable statement;
+attestation dispatch and the standalone certificate/exposure path remain unfinished. Installation of this
 contract alone does not enable a complete upload journey.
 
 Operator-only `blob_local_status` takes the explicit service, namespace, Cashier

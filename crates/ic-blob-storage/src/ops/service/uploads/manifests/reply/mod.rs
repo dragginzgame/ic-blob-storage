@@ -61,7 +61,7 @@ fn decode<T: CandidType + for<'de> Deserialize<'de>>(
         decode_one_with_config(bytes, &config).map_err(|_| UploadManifestReplyError::Invalid)?;
     result.map_err(UploadManifestReplyError::Remote)
 }
-pub(super) fn validate(
+pub(in crate::ops::service::uploads) fn validate(
     input: UploadAdmissionRequest,
     declaration: &UploadManifestDeclaration,
     limits: CaffeineManifestLimits,

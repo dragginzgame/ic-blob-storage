@@ -322,3 +322,12 @@ pub(crate) fn attestation(
 > {
     ops::lifecycle::attestation(context, input)
 }
+pub(crate) fn verification_plan(
+    context: ic_blob_storage::model::service::upload::UploadContext,
+    input: ic_blob_storage::dto::upload::admission::UploadAdmissionRequest,
+) -> Result<
+    ic_blob_storage::dto::upload::completion::UploadVerificationPlan,
+    ic_blob_storage::dto::upload::completion::UploadAttestationFailure,
+> {
+    ops::lifecycle::verification_plan(context, input)
+}

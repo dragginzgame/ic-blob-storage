@@ -636,6 +636,85 @@ authority. Inspection works after restoration without clearing fences. This is
 separate from the configured verifier's trusted availability attestation described
 in the [standalone contract](canisters/standalone/README.md).
 
+`upload-attestation` recovers historical evidence using the exact statement saved
+before an attestation was sent:
+
+```sh
+cargo run --offline --locked -p ic-blob-storage-cli --bin blob-storage -- \
+  upload-attestation --network ic --url "$IC_API_URL" --identity "$VERIFIER_PEM" \
+  --actor "$VERIFIER_PRINCIPAL" --service "$SERVICE_PRINCIPAL" \
+  --namespace "$SERVICE_NAMESPACE" --verifier "$VERIFIER_PRINCIPAL" \
+  --statement statement.candid
+```
+
+The statement is one binary Candid `UploadAttestationRequest`, bounded to 4 KiB.
+It contains the complete original permission, raw digest and observation time.
+Obtain `--verifier` from the trusted installation configuration; the command does
+not discover or install a verifier. The signer may be that verifier, the tenant
+or the original uploader. No original body file is required, and the saved
+statement is never overwritten. The service remains responsible for caller checks.
+
+The signed `blob_upload_attestation` query reuses the library's bounded decoder
+and checks the exact scope, permission, verifier and receipt chronology. JSON
+`outcome` is `matched`, `conflict` or `absent`; `receipt` is null only for absence.
+Conflicts retain both the expected digest/time and the accepted digest/time.
+All three observations exit 0, including when fenced; callers must inspect the
+outcome. Failures exit 3 and never become absence. IDs and times remain decimal
+strings. Limits are 30 seconds, 256 KiB HTTP and 4 KiB Candid with bounded decoding.
+
+A matched receipt proves the service retained that exact trusted statement. It
+does not establish current availability, reference liveness or billing cessation.
+Absence does not prove a pending update cannot still complete, and cannot authorize
+resending an uncertain effect. Every outcome reports `retry_authorized: false`.
+The command sends no update or provider request and writes no journal.
+
+`observe-upload` performs the verifier's independent provider read and saves the
+statement for future dispatch. Run it only against an explicitly approved gateway
+and installation with a read budget; provider charges remain unknown, including
+when a loopback origin forwards requests. No live trial was performed here.
+
+```sh
+cargo run --offline --locked -p ic-blob-storage-cli --bin blob-storage -- \
+  observe-upload --network ic --url "$IC_API_URL" --identity "$VERIFIER_PEM" \
+  --actor "$VERIFIER_PRINCIPAL" --service "$SERVICE_PRINCIPAL" \
+  --namespace "$SERVICE_NAMESPACE" --permission permission.candid \
+  --gateway "$APPROVED_GATEWAY_ORIGIN" --max-bytes 10485760 --run-dir new-observation
+```
+
+The service authenticates the verifier through `blob_verification_plan` and returns
+its installed owner/project and exact original declaration. The command validates
+the signed reply and uses the maintained Caffeine request-target encoder. The host
+must have already recorded exposure; standalone currently lacks that qualified path.
+Unexposed, confirmed or restored work rejects before any provider GET. Revoked or
+suspended exposed uploads remain eligible for reconciliation.
+
+One GET is allowed, with no redirects, HTTP retries, credentials or automatic
+decompression. IC mode requires HTTPS origins; local mode accepts literal loopback
+origins only. Both query and GET have 30-second deadlines. Service Candid is bounded
+to 64 KiB, 1,024 leaves and 16 headers/4 KiB metadata. The explicit content budget is
+at most 1 GiB and is checked before fetching. Whole-body streaming checks the
+original root, metadata and exact length off-canister. HTTP metadata cannot replace
+the original declaration; partial/encoded responses and incomplete EOF reject.
+These request/byte limits are not a billing guarantee or a bound on transport overhead.
+
+The run directory must be new and its parent must exist. Intent is synced before
+the query and GET. Artifacts include `plan.json`, `permission.candid`, the bounded
+`service-response.candid`, `download-request.json`, HTTP status and download outcome.
+Only complete verification writes and syncs `statement.candid`, followed by
+`summary.json` with its hash and observation time. The runner fingerprint covers its
+observation/transport/argument sources and lockfile; artifact hashes establish local
+integrity, not portable IC/provider signatures. Download bodies and identity keys
+are never retained. Keep this directory in controlled storage.
+
+Errors retain `failure.json` when writable. Abrupt interruption can leave partial
+files with no summary; neither failed nor interrupted runs are resumed or overwritten.
+Preserve their evidence before deciding on any separately budgeted new attempt.
+A saved statement binds the exact original permission and locally observed UTC time;
+the service still checks its admission/acceptance time bounds. The command sends no
+attestation or upload, and reports `attestation_dispatched: false` and
+`retry_authorized: false`. Native dispatch remains next; `verify-upload` local-file
+output cannot be promoted to a provider observation.
+
 The separate unpublished `blob-fixture-status` client attaches to an existing local PocketIC
 instance. It requires a literal loopback address, instance ID, canister and
 simulated caller; there are no inferred identities or targets. For example, with

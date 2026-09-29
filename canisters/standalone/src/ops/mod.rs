@@ -140,6 +140,18 @@ pub(crate) fn with_download<R>(
         f(&host.stores.uploads, &host.download_scope)
     })
 }
+pub(crate) fn with_verification<R>(
+    f: impl FnOnce(
+        &ic_blob_storage::ops::service::uploads::StableUploads<Memory>,
+        CompletionAuthority,
+        &CaffeineDownloadScope,
+    ) -> R,
+) -> R {
+    HOST.with_borrow(|host| {
+        let host = host.as_ref().expect("initialized host");
+        f(&host.stores.uploads, host.completion, &host.download_scope)
+    })
+}
 pub(crate) fn configuration(actor: Principal) -> Result<HostConfigurationView, HostFailure> {
     HOST.with_borrow(|host| {
         let host = host.as_ref().expect("initialized host");

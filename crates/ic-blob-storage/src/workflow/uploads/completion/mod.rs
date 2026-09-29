@@ -11,6 +11,19 @@ use crate::{
     ops::service::uploads::{StableUploads, completion},
 };
 use ic_memory::ic_stable_structures::Memory;
+/// Obtain installed provider mapping and original metadata for exposed unfinished content.
+/// This is a snapshot, not a lease, upload/retry authority or provider availability evidence.
+/// # Errors
+/// Refuses wrong verifier or binding, prepared-only/confirmed content and restored owners.
+pub fn verification_plan<M: Memory>(
+    store: &StableUploads<M>,
+    authority: CompletionAuthority,
+    scope: &crate::model::service::read::download::CaffeineDownloadScope,
+    context: UploadContext,
+    input: UploadAdmissionRequest,
+) -> Result<crate::dto::upload::completion::UploadVerificationPlan, UploadAttestationFailure> {
+    completion::verification::plan(store, authority, scope, context, input)
+}
 /// Accept the installed verifier's statement for an already-exposed, prepared upload.
 /// The verifier must independently fetch all bytes and verify the original root/metadata;
 /// this workflow trusts that role, not a browser claim. It does not promise future

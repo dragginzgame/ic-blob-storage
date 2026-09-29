@@ -1,4 +1,5 @@
 use super::*;
+mod verification;
 use crate::{
     dto::upload::{admission::UploadAdmissionFailure as A, completion::*},
     model::service::upload::completion::CompletionAuthority,

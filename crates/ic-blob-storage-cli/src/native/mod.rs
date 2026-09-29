@@ -1,5 +1,7 @@
 mod arguments;
+mod attestation;
 mod history;
+mod observe_upload;
 mod reply;
 #[cfg(test)]
 mod tests;
@@ -14,7 +16,16 @@ use ic_blob_storage::ops::service::operator::LOCAL_STATUS_METHOD;
 use serde_json::json;
 use std::{fs::File, io::Read, path::Path, process::ExitCode, time::Duration};
 
-const USAGE: &str = "blob-storage status|funding-history --network ic|local --url URL --identity PEM --operator PRINCIPAL --service PRINCIPAL --namespace DECIMAL --cashier PRINCIPAL --payer PRINCIPAL [--root-key DER]\nverify-upload --network ic|local --url URL --identity PEM --actor PRINCIPAL --service PRINCIPAL --namespace DECIMAL --permission CANDID --body FILE --max-bytes DECIMAL [--root-key DER]\nverify-upload checks a regular local file against the authenticated original manifest. Permission is one binary Candid UploadAdmissionRequest; maximum is at most 1 GiB. No provider availability, completion, or retry authority is established.\nfunding-history additionally accepts --cursor FILE containing the previous non-null next object; reads one page, never auto-paginates. Local mode requires an explicit trusted root-key file and a literal loopback URL. IC mode uses the built-in IC root and HTTPS; root-key overrides are rejected. Supports Ed25519 and secp256k1 PEM identities. Queries only shared service observations; no provider calls or mutations. Exit 0: observation (including empty or fenced); 2: arguments; 3: failure. Query signatures are verified; observations are not certified state, provider credit or dispatch authority.\n";
+const USAGE: &str = concat!(
+    "blob-storage status|funding-history --network ic|local --url URL --identity PEM --operator PRINCIPAL --service PRINCIPAL --namespace DECIMAL --cashier PRINCIPAL --payer PRINCIPAL [--root-key DER]\n",
+    "verify-upload --network ic|local --url URL --identity PEM --actor PRINCIPAL --service PRINCIPAL --namespace DECIMAL --permission CANDID --body FILE --max-bytes DECIMAL [--root-key DER]\n",
+    "upload-attestation --network ic|local --url URL --identity PEM --actor PRINCIPAL --service PRINCIPAL --namespace DECIMAL --verifier PRINCIPAL --statement CANDID [--root-key DER]\n",
+    "observe-upload --network ic|local --url URL --identity PEM --actor VERIFIER --service PRINCIPAL --namespace DECIMAL --permission CANDID --gateway ORIGIN --max-bytes DECIMAL --run-dir NEW_DIRECTORY [--root-key DER]\n",
+    "observe-upload queries the installed verification plan, performs one bounded gateway GET, checks all bytes against original metadata/root and durably saves statement.candid. Explicit gateway origin and provider read budget are required. Partial runs remain; no resume, redirects, retries or attestation dispatch. Provider reads may incur charges.\n",
+    "upload-attestation compares one saved binary Candid UploadAttestationRequest with immutable service history. The expected verifier must come from installation configuration. Outcomes are matched, conflict or absent; none authorizes retry. No mutation, provider fetch or journal write occurs.\n",
+    "verify-upload checks a regular local file against the authenticated original manifest. Permission is one binary Candid UploadAdmissionRequest; maximum is at most 1 GiB. No provider availability, completion, or retry authority is established.\n",
+    "funding-history additionally accepts --cursor FILE containing the previous non-null next object; reads one page, never auto-paginates. Local mode requires an explicit trusted root-key file and literal loopback origins. IC mode uses the built-in IC root and HTTPS; root-key overrides are rejected. Supports Ed25519 and secp256k1 PEM identities. Only observe-upload calls a provider; no command mutates the service. Exit 0: observation (including conflict, empty or fenced); 2: arguments; 3: failure. Query signatures are verified; observations are not certified state, provider credit or dispatch authority.\n",
+);
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 enum Failure {
@@ -35,6 +46,11 @@ enum Failure {
     Content,
     ManifestRefused,
     Unprepared,
+    AttestationRefused,
+    ExistingRun,
+    VerificationRefused,
+    ProviderResponse,
+    Clock,
 }
 impl Failure {
     const fn code(self) -> &'static str {
@@ -56,6 +72,11 @@ impl Failure {
             Self::Content => "content_mismatch",
             Self::ManifestRefused => "manifest_refused",
             Self::Unprepared => "unprepared",
+            Self::AttestationRefused => "attestation_refused",
+            Self::ExistingRun => "new_run_required",
+            Self::VerificationRefused => "verification_refused",
+            Self::ProviderResponse => "provider_response",
+            Self::Clock => "clock",
         }
     }
 }
@@ -109,6 +130,32 @@ fn identity(path: &Path, expected: Principal) -> Result<Box<dyn Identity>, Failu
 
 fn execute(args: &[String]) -> Result<serde_json::Value, Failure> {
     let options = arguments::Options::parse(args)?;
+    let runtime = tokio::runtime::Builder::new_current_thread()
+        .enable_all()
+        .build()
+        .map_err(|_| Failure::Transport)?;
+    runtime.block_on(observe(&options))
+}
+
+async fn observe(options: &arguments::Options) -> Result<serde_json::Value, Failure> {
+    if let arguments::Command::ObserveUpload(input) = &options.command {
+        return observe_upload::run(options, input).await;
+    }
+    let recovery = match &options.command {
+        arguments::Command::UploadAttestation {
+            service,
+            namespace,
+            verifier,
+            statement,
+        } => Some(attestation::Recovery::open(
+            *service,
+            *namespace,
+            *verifier,
+            options.actor,
+            statement,
+        )?),
+        _ => None,
+    };
     let history = match &options.command {
         arguments::Command::FundingHistory { scope, cursor } => {
             Some(history::request(*scope, cursor.as_deref())?)
@@ -132,7 +179,9 @@ fn execute(args: &[String]) -> Result<serde_json::Value, Failure> {
         )?),
         _ => None,
     };
-    let (service, method, argument) = if let Some(verification) = &verification {
+    let (service, method, argument) = if let Some(recovery) = &recovery {
+        recovery.query()
+    } else if let Some(verification) = &verification {
         (
             verification.permission.upload.service,
             ic_blob_storage::ops::service::uploads::manifests::UPLOAD_MANIFEST_INSPECT_METHOD,
@@ -153,39 +202,40 @@ fn execute(args: &[String]) -> Result<serde_json::Value, Failure> {
     } else {
         return Err(Failure::Arguments);
     };
-    let runtime = tokio::runtime::Builder::new_current_thread()
-        .enable_all()
-        .build()
-        .map_err(|_| Failure::Transport)?;
-    runtime.block_on(async {
-        let response = query(&options, service, method, argument).await?;
-        if let Some(verification) = verification {
-            verification.finish(
-                &response,
-                options.actor,
-                options.network,
-                options.url.as_str(),
-            )
-        } else if let Some(request) = history {
-            history::output(
-                request,
-                &response,
-                options.actor,
-                options.network,
-                options.url.as_str(),
-            )
-        } else if let arguments::Command::Status { scope } = options.command {
-            let status = reply::decode(&response, scope)?;
-            Ok(reply::output(
-                &status,
-                options.actor,
-                options.network,
-                options.url.as_str(),
-            ))
-        } else {
-            Err(Failure::Arguments)
-        }
-    })
+    let response = query(options, service, method, argument).await?;
+    if let Some(recovery) = recovery {
+        recovery.output(
+            &response,
+            options.actor,
+            options.network,
+            options.url.as_str(),
+        )
+    } else if let Some(verification) = verification {
+        verification.finish(
+            &response,
+            options.actor,
+            options.network,
+            options.url.as_str(),
+        )
+    } else if let Some(request) = history {
+        history::output(
+            request,
+            &response,
+            options.actor,
+            options.network,
+            options.url.as_str(),
+        )
+    } else if let arguments::Command::Status { scope } = options.command {
+        let status = reply::decode(&response, scope)?;
+        Ok(reply::output(
+            &status,
+            options.actor,
+            options.network,
+            options.url.as_str(),
+        ))
+    } else {
+        Err(Failure::Arguments)
+    }
 }
 
 async fn query(
