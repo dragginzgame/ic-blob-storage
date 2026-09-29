@@ -29,6 +29,25 @@ with each owner's restore fence. Inspection reads no lifetime history and makes 
 provider calls. Available allocation is not platform liquidity, transport acceptance
 is not provider credit, and the snapshot does not authorize retry or reconciliation.
 
+Operator-only `blob_revoke_gateway` takes this same scope and a concrete gateway
+principal. It removes local membership and invalidates older sync/read observations,
+including when the member was already absent. Read reservations and object/funding
+obligations remain accounted for. Each call is a fresh revocation decision, so do
+not automatically retry a lost acknowledgment; inspect local status first. Future
+explicit additions or syncs can re-add a member. This is not provider credential
+revocation or deletion, and restored registries reject the update.
+
+Operator-only `blob_sync_gateways` refreshes membership from the installed Cashier
+using the same scope. It records a pending sequence before one replicated
+`storage_gateway_list_v1` query, with a 30-second bounded wait, 64 KiB reply limit
+and bounded decoding. No cycles attach; ordinary IC execution fees apply. Failed
+queries or unusable replies retain pending work and block another refresh. Inspect
+`blob_local_status`, then use `blob_cancel_gateway_sync` with that exact sequence
+to cancel it. Cancellation preserves membership and allocated sequence history;
+revocation or cancellation prevents a delayed response from applying. Restoration
+fences both updates. This establishes local transport behavior, not deployed
+provider qualification, certificate readiness or payment authority.
+
 `blob_upload_history` lists this tenant's operations or, for the operator, all
 service operations. Each call scans at most 64 retained rows and returns at most
 32 matching identities with current local lifecycle state and the restore fence.
@@ -65,8 +84,8 @@ Tenant enrollment, upload admission/revocation, manifest preparation/inspection 
 reference operations use the existing shared workflows and actual caller/service/time.
 Preparation carries metadata and hashes; file bodies stay outside the canister.
 Reference operations require confirmed content, which this initial endpoint set
-cannot establish. No trusted-fact fixture endpoints, certificate issuance, provider
-dispatch, funding mutation, deletion or billing-settlement endpoint is exported yet.
+cannot establish. No trusted-fact fixture endpoints, certificate issuance, funding
+mutation, deletion or billing-settlement endpoint is exported yet.
 
 The host allocates seventeen exclusive grants in range 120–136 with sixteen-page
 memory-manager buckets: one bounded v1 installation record and sixteen shared-store

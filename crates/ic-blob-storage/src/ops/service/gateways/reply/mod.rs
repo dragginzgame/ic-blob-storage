@@ -20,6 +20,12 @@ pub struct GatewaySyncRequest {
     pub(crate) request: CashierQueryRequest,
 }
 impl GatewaySyncRequest {
+    /// Original durable local sequence, including after cancellation or completion.
+    /// It is a correlation value, not a reusable request or restore authority.
+    #[must_use]
+    pub const fn sequence(&self) -> u64 {
+        self.token.sequence()
+    }
     /// Canonical target, query method and encoded arguments for trusted transport.
     /// The provider advertises a query; replicated-call support is not implied.
     #[must_use]

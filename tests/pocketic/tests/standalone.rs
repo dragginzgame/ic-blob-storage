@@ -1,6 +1,7 @@
 //! Standalone Wasm installation, maintained endpoints and synchronous restore fencing.
 #![cfg(not(target_family = "wasm"))]
 mod standalone_funding;
+mod standalone_gateways;
 mod standalone_history;
 mod standalone_operator;
 mod support;
@@ -64,6 +65,9 @@ impl Fixture {
         Self::with_harness(Harness::new())
     }
     fn with_harness(harness: Harness) -> Self {
+        Self::with_cashier(harness, Fake::principal(5))
+    }
+    fn with_cashier(harness: Harness, cashier: Principal) -> Self {
         let controller = Fake::principal(1);
         let operator = Fake::principal(2);
         let service = harness.pic.create_canister_with_settings(
@@ -96,7 +100,7 @@ impl Fixture {
                 max_tenant_active: 2,
             },
             billing: ServiceBillingInput {
-                cashier: Fake::principal(5),
+                cashier,
                 reserve: 1,
                 minimum_balance: 10,
                 target_balance: 100,

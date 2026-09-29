@@ -156,6 +156,78 @@ type FundingResponse = variant {
   // Provider reported no attached cycles; local transport facts stay authoritative.
   TopUpWithoutCycles;
 };
+// Rejected revocations leave membership and pending work unchanged.
+type GatewayRevocationFailure = variant {
+  // Retained registry cannot be read consistently.
+  Internal;
+  // Zero namespace or anonymous/management gateway principal.
+  Invalid;
+  // Wrong actual service or installed service/provider/account scope.
+  Binding;
+  // Restored registry remains inspection-only.
+  Fenced;
+  // Actual caller is not the configured operator.
+  Denied;
+};
+// One current operator decision to revoke a gateway from this installation.
+// Repeating it is another revocation, not replay of a historical receipt; it can
+// remove membership added since an earlier call. Clients must not retry silently.
+type GatewayRevocationRequest = record {
+  // Complete installed service/namespace/Cashier/payer scope.
+  scope : OperatorScope;
+  // Concrete gateway principal to revoke, including an already absent member.
+  gateway : principal;
+};
+// Synchronous acknowledgment, not a retained receipt or provider-side settlement.
+type GatewayRevocationResponse = record {
+  // Exact operator decision applied by the service.
+  request : GatewayRevocationRequest;
+  // Whether the principal was a member before this decision. Pending sync and
+  // read observations are invalidated even when this is false.
+  removed : bool;
+};
+// Cancel exactly one observed pending read-only sync, never a paid operation.
+type GatewaySyncCancellation = record {
+  // Complete installed service/provider/account scope.
+  scope : OperatorScope;
+  // Positive pending identity obtained from local status.
+  sequence : nat64;
+};
+// Typed failure; transport/decoding failures preserve pending work for inspection.
+type GatewaySyncFailure = variant {
+  // Retained state could not be read consistently.
+  Internal;
+  // Local sync sequence cannot advance.
+  Exhausted;
+  // Zero namespace/cancellation identity or invalid host transport configuration.
+  Invalid;
+  // Another sync is already pending.
+  Busy;
+  // Scope, actual service or authenticated transport source differs.
+  Binding;
+  // Platform refused to enqueue the provider query; pending sync is retained.
+  NotEnqueued;
+  // Malformed, over-budget, empty or invalid membership reply.
+  InvalidReply;
+  // Restored registry remains inspection-only.
+  Fenced;
+  // Raw platform rejection, including bounded-wait uncertainty.
+  Rejected : nat32;
+  // Actual caller is not the configured operator.
+  Denied;
+  // Reply exceeds the host's transport/decoder byte budget.
+  ReplyTooLarge;
+  // The original pending sync was cancelled, revoked, completed or replaced.
+  Conflict;
+};
+// Acknowledgment of one completed local membership replacement.
+// Inspect local status after an uncertain reply; do not automatically start again.
+type GatewaySyncResponse = record {
+  // Complete original installed scope.
+  scope : OperatorScope;
+  // Local sync identity, never independent freshness or provider authority.
+  sequence : nat64;
+};
 // Operator-only installed configuration and local restore state.
 type HostConfigurationView = record {
   // Restored stores allow inspection only; false is not provider readiness.
@@ -255,7 +327,7 @@ type LocalUploadStatus = record {
   // Bytes reserved by these active uploads.
   reserved_bytes : nat;
 };
-// Complete installed service/provider/account scope for operator inspection.
+// Complete installed service/provider/account scope for explicit operator requests.
 type OperatorScope = record {
   // Actual storage service.
   "service" : principal;
@@ -375,16 +447,25 @@ type Result_1 = variant {
   Ok : ReferenceChange;
   Err : ReferenceTransitionFailure;
 };
-type Result_10 = variant { Ok : TenantEnrollmentResponse; Err : TenantFailure };
+type Result_10 = variant {
+  Ok : GatewayRevocationResponse;
+  Err : GatewayRevocationFailure;
+};
 type Result_11 = variant {
+  Ok : UploadRevocationResponse;
+  Err : UploadAdmissionFailure;
+};
+type Result_12 = variant { Ok : GatewaySyncResponse; Err : GatewaySyncFailure };
+type Result_13 = variant { Ok : TenantEnrollmentResponse; Err : TenantFailure };
+type Result_14 = variant {
   Ok : UploadAdmissionResponse;
   Err : UploadAdmissionFailure;
 };
-type Result_12 = variant {
+type Result_15 = variant {
   Ok : UploadHistoryPage;
   Err : FundingHistoryFailure;
 };
-type Result_13 = variant {
+type Result_16 = variant {
   Ok : UploadManifestResponse;
   Err : UploadManifestFailure;
 };
@@ -392,25 +473,22 @@ type Result_2 = variant {
   Ok : ReferenceMutationResponse;
   Err : ReferenceFailure;
 };
-type Result_3 = variant { Ok : HostConfigurationView; Err : HostFailure };
-type Result_4 = variant {
+type Result_3 = variant { Ok; Err : GatewaySyncFailure };
+type Result_4 = variant { Ok : HostConfigurationView; Err : HostFailure };
+type Result_5 = variant {
   Ok : FundingHistoryPage;
   Err : FundingHistoryFailure;
 };
-type Result_5 = variant {
+type Result_6 = variant {
   Ok : opt FundingOutcomeResponse;
   Err : FundingOutcomeFailure;
 };
-type Result_6 = variant { Ok : LocalServiceStatus; Err : LocalStatusFailure };
-type Result_7 = variant {
+type Result_7 = variant { Ok : LocalServiceStatus; Err : LocalStatusFailure };
+type Result_8 = variant {
   Ok : UploadManifestMutation;
   Err : UploadManifestFailure;
 };
-type Result_8 = variant { Ok : ReferenceReceiptLookup; Err : ReferenceFailure };
-type Result_9 = variant {
-  Ok : UploadRevocationResponse;
-  Err : UploadAdmissionFailure;
-};
+type Result_9 = variant { Ok : ReferenceReceiptLookup; Err : ReferenceFailure };
 // Explicit provider identity and local cycle thresholds, with no service defaults.
 type ServiceBillingInput = record {
   // Positive minimum provider balance.
@@ -762,16 +840,19 @@ type UploadState = variant {
 service : (ServiceConfigurationInput) -> {
   blob_admit_upload : (UploadAdmissionRequest) -> (Result);
   blob_apply_reference : (ReferenceCommand) -> (Result_2);
-  blob_configuration : () -> (Result_3) query;
-  blob_funding_history : (FundingHistoryRequest) -> (Result_4) query;
-  blob_funding_outcome : (FundingOutcomeRequest) -> (Result_5) query;
-  blob_local_status : (OperatorScope) -> (Result_6) query;
-  blob_prepare_upload : (UploadManifestRequest) -> (Result_7);
-  blob_reference_receipt : (ReferenceCommand) -> (Result_8) query;
-  blob_revoke_upload : (UploadAdmissionRequest) -> (Result_9);
-  blob_tenant : (TenantScope) -> (Result_10) query;
-  blob_update_tenant : (TenantUpdateRequest) -> (Result_10);
-  blob_upload_admission : (UploadAdmissionRequest) -> (Result_11) query;
-  blob_upload_history : (UploadHistoryRequest) -> (Result_12) query;
-  blob_upload_manifest : (UploadAdmissionRequest) -> (Result_13) query;
+  blob_cancel_gateway_sync : (GatewaySyncCancellation) -> (Result_3);
+  blob_configuration : () -> (Result_4) query;
+  blob_funding_history : (FundingHistoryRequest) -> (Result_5) query;
+  blob_funding_outcome : (FundingOutcomeRequest) -> (Result_6) query;
+  blob_local_status : (OperatorScope) -> (Result_7) query;
+  blob_prepare_upload : (UploadManifestRequest) -> (Result_8);
+  blob_reference_receipt : (ReferenceCommand) -> (Result_9) query;
+  blob_revoke_gateway : (GatewayRevocationRequest) -> (Result_10);
+  blob_revoke_upload : (UploadAdmissionRequest) -> (Result_11);
+  blob_sync_gateways : (OperatorScope) -> (Result_12);
+  blob_tenant : (TenantScope) -> (Result_13) query;
+  blob_update_tenant : (TenantUpdateRequest) -> (Result_13);
+  blob_upload_admission : (UploadAdmissionRequest) -> (Result_14) query;
+  blob_upload_history : (UploadHistoryRequest) -> (Result_15) query;
+  blob_upload_manifest : (UploadAdmissionRequest) -> (Result_16) query;
 }

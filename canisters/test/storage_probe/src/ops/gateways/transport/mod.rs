@@ -51,11 +51,10 @@ pub(crate) fn attempt(
         {
             return Err(Failure::Fenced);
         }
-        input
-            .token
-            .checked_sub(1)
-            .and_then(|v| usize::try_from(v).ok())
-            .and_then(|i| state.gateway_attempts.get(i))
+        state
+            .gateway_attempts
+            .iter()
+            .find(|attempt| attempt.sequence() == input.token)
             .cloned()
             .ok_or(Failure::Unknown)
     })

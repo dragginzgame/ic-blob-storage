@@ -2,6 +2,7 @@
 pub mod configuration;
 pub mod download;
 pub mod funding;
+pub mod gateway;
 pub mod operator;
 pub mod reference;
 pub mod tenant;

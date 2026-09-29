@@ -69,9 +69,11 @@ pub(crate) struct EffectRecord {
 
 impl SourceJournalRecord {
     /// A passive gateway observation cannot run a scripted scheduling/effect mode.
-    pub fn gateway_inspection(&self) -> Option<Principal> {
-        (!self.fenced && self.sync.held.is_none() && self.mode == SourceMode::Valid)
-            .then_some(self.gateway)
+    pub fn gateway_inspection(&self) -> Option<GatewayInspection> {
+        (!self.fenced && self.sync.held.is_none()).then_some(GatewayInspection {
+            gateway: self.gateway,
+            mode: self.mode,
+        })
     }
 
     pub fn new(service: Principal, gateway: Principal, driver: Principal) -> Self {
@@ -180,6 +182,12 @@ impl SourceJournalRecord {
         assert!(effect.succeeded.is_none(), "exact pending effect");
         effect.succeeded = Some(succeeded);
     }
+}
+
+#[derive(Clone, Copy)]
+pub(crate) struct GatewayInspection {
+    pub gateway: Principal,
+    pub mode: SourceMode,
 }
 
 impl ActionRecord {

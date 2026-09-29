@@ -1,5 +1,6 @@
 //! Synchronous installation, bounded ingress and borrowing of shared service owners.
 mod configuration;
+pub(crate) mod gateways;
 mod memory;
 use crate::{
     dto::{HostConfigurationView, HostFailure},

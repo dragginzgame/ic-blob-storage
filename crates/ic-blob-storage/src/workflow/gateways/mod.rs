@@ -4,6 +4,8 @@
 //! preserve original scope/operator context across the query. No automatic
 //! transport, retries, update fallback or provider qualification occurs here.
 pub mod callbacks;
+pub mod revocation;
+pub mod sync;
 pub mod transport;
 use crate::{
     model::{gateway::registry::GatewayScope, service::upload::UploadContext},

@@ -36,8 +36,8 @@ pub(crate) fn inspect_gateways(caller: Principal) {
         ops::reject();
         return;
     }
-    if let Some(gateway) = ops::gateway_inspection() {
-        ops::reply_list(gateway);
+    if let Some(view) = ops::gateway_inspection() {
+        ops::reply_inspection(view);
     } else {
         ops::reject();
     }

@@ -101,7 +101,7 @@ fn durable_gateway_transport_preserves_failed_attempts_and_refuses_unsendable_re
         assert_eq!(f.query_gateways(f.operator, old), Err(expected));
         assert_eq!(f.harness.pic.get_stable_memory(f.service), before);
     }
-    f.gateways(f.operator, Action::Cancel(old)).unwrap();
+    f.cancel_gateway_sync(f.operator, old).unwrap();
     let requests = f.source_requests();
     assert_eq!(f.query_gateways(f.operator, old), Err(Failure::Conflict));
     assert_eq!(f.source_requests(), requests);
@@ -118,35 +118,41 @@ fn durable_gateway_transport_preserves_failed_attempts_and_refuses_unsendable_re
 }
 #[test]
 fn delayed_gateway_reply_cannot_overwrite_edits_or_a_newer_pending_attempt() {
-    let f = Fixture::with_gateway_source();
-    f.gateways(f.operator, Action::Add(f.other)).unwrap();
-    let old = f.gateway_begin();
-    f.source_mode(SourceMode::Hold);
-    let call = f
-        .harness
-        .pic
-        .submit_call(
-            f.service,
-            f.operator,
-            "fixture_gateway_transport",
-            candid::encode_one(f.transport_input(old)).unwrap(),
-        )
-        .unwrap();
-    f.wait_source();
-    assert_eq!(f.gateways(f.operator, Action::Begin), Err(Failure::Phase));
-    assert_eq!(f.gateway_view().pending_sequence, Some(1));
-    f.gateways(f.operator, Action::Remove(f.other)).unwrap();
-    let current = f.gateway_begin();
-    let pending = f.gateway_view();
-    f.resume_source();
-    let result: Result<(), Failure> =
-        candid::decode_one(&f.harness.pic.await_call(call).unwrap()).unwrap();
-    assert_eq!(result, Err(Failure::Conflict));
-    assert_eq!(f.gateway_view(), pending);
-    assert!(pending.members.is_empty());
-    f.source_mode(SourceMode::Valid);
-    f.query_gateways(f.operator, current).unwrap();
-    assert_eq!(f.gateway_view().members, vec![f.other]);
+    for cancel in [false, true] {
+        let f = Fixture::with_gateway_source();
+        f.gateways(f.operator, Action::Add(f.other)).unwrap();
+        let old = f.gateway_begin();
+        f.source_mode(SourceMode::Hold);
+        let call = f
+            .harness
+            .pic
+            .submit_call(
+                f.service,
+                f.operator,
+                "fixture_gateway_transport",
+                candid::encode_one(f.transport_input(old)).unwrap(),
+            )
+            .unwrap();
+        f.wait_source();
+        assert_eq!(f.gateways(f.operator, Action::Begin), Err(Failure::Phase));
+        assert_eq!(f.gateway_view().pending_sequence, Some(1));
+        if cancel {
+            f.cancel_gateway_sync(f.operator, old).unwrap();
+        } else {
+            f.revoke_gateway(f.operator, f.other).unwrap();
+        }
+        let current = f.gateway_begin();
+        let pending = f.gateway_view();
+        f.resume_source();
+        let result: Result<(), Failure> =
+            candid::decode_one(&f.harness.pic.await_call(call).unwrap()).unwrap();
+        assert_eq!(result, Err(Failure::Conflict));
+        assert_eq!(f.gateway_view(), pending);
+        assert_eq!(pending.members, if cancel { vec![f.other] } else { vec![] });
+        f.source_mode(SourceMode::Valid);
+        f.query_gateways(f.operator, current).unwrap();
+        assert_eq!(f.gateway_view().members, vec![f.other]);
+    }
 }
 #[test]
 fn delayed_gateway_reply_cannot_overwrite_a_completed_replacement() {
@@ -164,7 +170,7 @@ fn delayed_gateway_reply_cannot_overwrite_a_completed_replacement() {
         )
         .unwrap();
     f.wait_source();
-    f.gateways(f.operator, Action::Remove(f.other)).unwrap();
+    f.revoke_gateway(f.operator, f.other).unwrap();
     let current = f.gateway_begin();
     f.gateways(
         f.operator,

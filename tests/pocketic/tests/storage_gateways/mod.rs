@@ -1,10 +1,97 @@
 //! Actual IC persistence/rollback of gateway membership and sync correlation.
 use super::*;
 use blob_test_protocol::storage::gateways::{Action, Command, Outcome, Scope, View};
+use ic_blob_storage::dto::gateway::sync::{GatewaySyncCancellation, GatewaySyncFailure};
+use ic_blob_storage::dto::{
+    gateway::{GatewayRevocationFailure, GatewayRevocationRequest, GatewayRevocationResponse},
+    operator::OperatorScope,
+};
+use ic_blob_storage::ops::service::gateways::revocation::GATEWAY_REVOCATION_METHOD;
 fn gateway_reply(principals: &[Principal]) -> Vec<u8> {
     candid::encode_one(principals).unwrap()
 }
 impl Fixture {
+    fn cancellation(&self, sequence: u64) -> GatewaySyncCancellation {
+        GatewaySyncCancellation {
+            scope: self.revocation(self.other).scope,
+            sequence,
+        }
+    }
+    fn cancel_gateway_sync(
+        &self,
+        actor: Principal,
+        sequence: u64,
+    ) -> Result<(), GatewaySyncFailure> {
+        self.harness
+            .pic
+            .update_candid_as(
+                self.service,
+                actor,
+                "blob_cancel_gateway_sync",
+                (self.cancellation(sequence),),
+            )
+            .unwrap()
+    }
+    fn cancel_gateway_sync_trap(&self, sequence: u64) {
+        let request = blob_test_protocol::storage::gateways::FaultCancellation {
+            request: self.cancellation(sequence),
+            fault: true,
+        };
+        let error = self
+            .harness
+            .pic
+            .update_call(
+                self.service,
+                self.operator,
+                "fixture_cancel_gateway_sync",
+                candid::encode_one(request).unwrap(),
+            )
+            .unwrap_err();
+        assert_eq!(error.reject_code, RejectCode::CanisterError);
+    }
+    fn revocation(&self, gateway: Principal) -> GatewayRevocationRequest {
+        GatewayRevocationRequest {
+            scope: OperatorScope {
+                service: self.service,
+                namespace: 1,
+                cashier: self.operator,
+                payment_account: self.service,
+            },
+            gateway,
+        }
+    }
+    fn revoke_gateway(
+        &self,
+        actor: Principal,
+        gateway: Principal,
+    ) -> Result<GatewayRevocationResponse, GatewayRevocationFailure> {
+        self.harness
+            .pic
+            .update_candid_as(
+                self.service,
+                actor,
+                GATEWAY_REVOCATION_METHOD,
+                (self.revocation(gateway),),
+            )
+            .unwrap()
+    }
+    fn revoke_gateway_trap(&self, gateway: Principal) {
+        let input = blob_test_protocol::storage::gateways::FaultRevocation {
+            request: self.revocation(gateway),
+            fault: true,
+        };
+        let error = self
+            .harness
+            .pic
+            .update_call(
+                self.service,
+                self.operator,
+                "fixture_revoke_gateway",
+                candid::encode_one(input).unwrap(),
+            )
+            .unwrap_err();
+        assert_eq!(error.reject_code, RejectCode::CanisterError);
+    }
     fn gateway_scope(&self) -> Scope {
         Scope {
             service: self.service,
@@ -108,7 +195,7 @@ fn durable_gateway_sync_cannot_undo_operator_edits_and_failed_lists_leave_it_pen
         Err(Failure::Capacity)
     );
     assert_eq!(f.harness.pic.get_stable_memory(f.service), before);
-    f.gateways(f.operator, Action::Remove(f.other)).unwrap();
+    f.revoke_gateway(f.operator, f.other).unwrap();
     assert!(f.gateway_view().members.is_empty());
     assert_eq!(
         f.gateways(
@@ -123,8 +210,8 @@ fn durable_gateway_sync_cannot_undo_operator_edits_and_failed_lists_leave_it_pen
     );
     let current = f.gateway_begin();
     assert_eq!(
-        f.gateways(f.operator, Action::Cancel(old)),
-        Err(Failure::Conflict)
+        f.cancel_gateway_sync(f.operator, old),
+        Err(GatewaySyncFailure::Conflict)
     );
     f.gateways(
         f.operator,
@@ -153,7 +240,7 @@ fn durable_gateway_sync_cannot_undo_operator_edits_and_failed_lists_leave_it_pen
         Err(Failure::Conflict)
     );
     let latest = f.gateway_begin();
-    f.gateways(f.operator, Action::Cancel(latest)).unwrap();
+    f.cancel_gateway_sync(f.operator, latest).unwrap();
     assert_eq!(f.gateway_view().pending_sequence, None);
     assert_eq!(
         f.gateways(
@@ -176,18 +263,16 @@ fn gateway_writes_roll_back_membership_and_pending_identity_together() {
     assert_eq!(f.gateway_view(), before);
     let token = f.gateway_begin();
     let pending = f.gateway_view();
-    for action in [
-        Action::Remove(f.other),
-        Action::Cancel(token),
-        Action::Apply {
-            token,
-            source: f.gateway_scope(),
-            reply: gateway_reply(&[f.tenant]),
-        },
-    ] {
-        f.gateway_trap(action);
-        assert_eq!(f.gateway_view(), pending);
-    }
+    f.revoke_gateway_trap(f.other);
+    assert_eq!(f.gateway_view(), pending);
+    f.cancel_gateway_sync_trap(token);
+    assert_eq!(f.gateway_view(), pending);
+    f.gateway_trap(Action::Apply {
+        token,
+        source: f.gateway_scope(),
+        reply: gateway_reply(&[f.tenant]),
+    });
+    assert_eq!(f.gateway_view(), pending);
     f.gateways(
         f.operator,
         Action::Apply {
@@ -211,8 +296,8 @@ fn gateway_scope_is_operator_only_and_restore_retains_members_and_unresolved_syn
     let bytes = f.harness.pic.get_stable_memory(f.service);
     for actor in [f.controller, f.tenant, f.uploader, Principal::anonymous()] {
         assert_eq!(
-            f.gateways(actor, Action::Remove(f.other)),
-            Err(Failure::Denied)
+            f.revoke_gateway(actor, f.other),
+            Err(GatewayRevocationFailure::Denied)
         );
         let view: Result<View, Failure> = f
             .harness
@@ -259,10 +344,16 @@ fn gateway_scope_is_operator_only_and_restore_retains_members_and_unresolved_syn
             ..before
         }
     );
+    assert_eq!(
+        f.revoke_gateway(f.operator, f.other),
+        Err(GatewayRevocationFailure::Fenced)
+    );
+    assert_eq!(
+        f.cancel_gateway_sync(f.operator, token),
+        Err(GatewaySyncFailure::Fenced)
+    );
     for action in [
         Action::Begin,
-        Action::Remove(f.other),
-        Action::Cancel(token),
         Action::Apply {
             token,
             source: f.gateway_scope(),
@@ -341,7 +432,7 @@ fn gateway_encoded_reply_rejections_preserve_the_pending_sync_and_cannot_bypass_
     .unwrap();
     assert_eq!(f.gateway_view().members, vec![f.tenant]);
     let old = f.gateway_begin();
-    f.gateways(f.operator, Action::Remove(f.tenant)).unwrap();
+    f.revoke_gateway(f.operator, f.tenant).unwrap();
     let current = f.gateway_begin();
     let pending = f.gateway_view();
     assert_eq!(
@@ -356,7 +447,7 @@ fn gateway_encoded_reply_rejections_preserve_the_pending_sync_and_cannot_bypass_
         Err(Failure::Conflict)
     );
     assert_eq!(f.gateway_view(), pending);
-    f.gateways(f.operator, Action::Cancel(current)).unwrap();
+    f.cancel_gateway_sync(f.operator, current).unwrap();
     assert!(f.gateway_view().members.is_empty());
 }
 

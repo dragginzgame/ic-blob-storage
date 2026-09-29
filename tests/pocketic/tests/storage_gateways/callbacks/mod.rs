@@ -159,7 +159,7 @@ fn gateway_root_reads_use_current_membership_and_refuse_restored_instances() {
         roots: vec![],
     };
     assert_eq!(f.gateway_roots(f.other, &input), Ok(vec![]));
-    f.gateways(f.operator, Action::Remove(f.other)).unwrap();
+    f.revoke_gateway(f.operator, f.other).unwrap();
     assert_eq!(f.gateway_roots(f.other, &input), Err(Failure::Denied));
     f.gateways(f.operator, Action::Add(f.other)).unwrap();
     assert_eq!(f.gateway_roots(f.other, &input), Ok(vec![]));

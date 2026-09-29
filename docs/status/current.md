@@ -2,17 +2,17 @@
 
 Date: 2026-09-29
 
-## Active work — shared funding inspection and client after 0.2.20
+## Active work — shared gateway operations after 0.2.21
 
-The maintainer confirmed **0.2.20 is live** and requested continued work toward
-the 0.2 service journey. Cargo and the release receipt are 0.2.20. Local main,
-origin/main and the peeled v0.2.20 tag resolve to
-`f7e5cd4fed6d9fd494c01acaa87d3be6a77d4c2b`, from validated source
-`f31b71997c0d1d54e6c02f814f43d0e13b4bf44e`. The receipt records the
+The maintainer confirmed **0.2.21 is pushed** and requested continued work toward
+the 0.2 service journey. Cargo and the release receipt are 0.2.21. Local main,
+origin/main and the peeled v0.2.21 tag resolve to
+`5b3b43489055f9db0ef7b40631f7e0ff8cddca82`, from validated source
+`3b23212b783df25cbf8da2745c05aa644bcbd2fe`. The receipt records the
 `release-verify` gate; registry publication was not independently queried.
-The dated 0.2.20 notes match that release. The maintainer requested the **0.2.21**
-changelog; completed funding inspection and client work is grouped in that undated
-draft below empty Unreleased. Package version and release receipt remain at 0.2.20.
+The dated 0.2.21 notes match that release. At the maintainer's request, completed
+gateway work is grouped in the undated **0.2.22** changelog draft, with Unreleased
+empty. Package version and release receipt remain at 0.2.21.
 The browser fixture retains Caffeine 1.1.2 and supported SDK 5.4.0.
 The worktree was clean at the start of this batch. No dependency changed.
 No version mutation, commit, publication, deployment or deployed-provider effect ran here;
@@ -29,7 +29,54 @@ operator client. Library publication does not qualify the service or Canic remov
 | M3 — Caffeine and operator integration | In progress: shared transports with local IC evidence | Qualified provider transport, completion/economics and production client |
 | M4 — managed parity and acceptance | Not implemented | Same journey through Canic adapter, complete replacement evidence and handoff |
 
-## Current focus — shared operator funding inspection
+## Current focus — shared gateway revocation, refresh and cancellation
+
+`dto::gateway` and `workflow::gateways::revocation::revoke` now expose
+`blob_revoke_gateway` in the standalone host and storage fixture. Full operator
+scope and actual service/caller checks precede the existing durable removal.
+Absent and final-member removals invalidate earlier sync/read observations while
+preserving occupied read slots and upload/funding accounting. Responses echo the
+request and report membership change; there is no historical receipt or automatic
+retry. A later explicit addition/sync can re-add a member. Provider credentials,
+physical deletion, billing and restore fences remain independent.
+
+The fixture's separate removal action/conversion is removed; normal tests use the
+shared endpoint and transaction fault controls call the same handler. Two native
+tests and ten targeted PocketIC cases pass (27.80 seconds for IC execution), covering
+scope/actor rejection, repeated absent removal, rollback, stale sync replies,
+remove/re-add during an outstanding read, preserved occupancy/accounting and fenced
+restoration. Strict affected Clippy, generated Candid comparison, release
+standalone/storage/gateway-source Wasm, warning-free core/host rustdoc, formatting
+and diff checks pass. No stable schema, memory grant,
+dependency, allocator or version changed. No full CI/release gate ran.
+
+Shared `workflow::gateways::sync` now connects `blob_sync_gateways` and exact
+`blob_cancel_gateway_sync` in both hosts. Refresh records the pending identity
+before one canonical replicated Cashier query, drops store borrows across the
+await and rechecks the original attempt on completion. Standalone fixes a
+30-second bounded wait, 64 KiB reply cap and independent decoding/membership bounds.
+There are no attached cycles, retries, method fallbacks or automatic cancellation.
+Failures retain the pending sequence in local status; exact operator cancellation
+preserves membership, read generations and allocated history. Restore fencing stays
+in force. These endpoints do not qualify provider semantics or enable paid effects.
+
+The fixture's separate cancellation action is removed. Retained fixture attempts
+now resolve by durable sequence so shared refreshes and adversarial fixture calls
+cannot confuse a vector position with an operation identity. Two new native tests
+pass, as do two standalone and ten affected storage PocketIC cases (40.05 seconds
+IC execution). They cover both-host refresh, malformed/empty/oversized/rejected
+replies, overlap, stale cancellation, cancellation of a held reply, rollback and
+retained pending work across restore. Strict affected Clippy, Candid comparison
+and release host/storage/gateway-source Wasm pass. Warning-free core/host rustdoc,
+formatting, diff checks and the standalone target's effect-free command preview
+also pass. The standalone test target now
+builds its required local provider substitute. No dependency, stable schema, memory
+grant, allocator or version changed; no full CI/release gate ran.
+
+Next, connect remaining provider/operator handlers and resolve qualified completion
+and operational recovery; this local revocation does not complete M2 or M3.
+
+## Shared operator funding inspection and client — included in 0.2.21
 
 `dto::funding` and `workflow::funding::history::inspect` now expose the existing
 bounded durable journal through `blob_funding_history` in the standalone host and

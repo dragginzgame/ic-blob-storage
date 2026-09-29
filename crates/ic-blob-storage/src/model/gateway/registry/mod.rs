@@ -92,6 +92,11 @@ pub struct GatewaySyncToken {
     scope: GatewayScope,
     sequence: u64,
 }
+impl GatewaySyncToken {
+    pub(crate) const fn sequence(self) -> u64 {
+        self.sequence
+    }
+}
 
 /// Read-only attempt counters, without a reusable token or recovery authority.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -194,6 +199,14 @@ impl GatewayRegistry {
         self.check_token(token)?;
         self.pending = None;
         Ok(())
+    }
+
+    pub(crate) fn cancel_observed_sync(&mut self, sequence: u64) -> Result<(), GatewaySyncError> {
+        let token = self
+            .pending
+            .filter(|token| token.sequence == sequence)
+            .ok_or(GatewaySyncError::StaleSync)?;
+        self.cancel_sync(token)
     }
 
     /// Apply an authorized add and invalidate any earlier pending sync.

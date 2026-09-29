@@ -258,6 +258,33 @@ rollback; this store does not authenticate provider replies, assign read-session
 generations or qualify membership as callback authority. A host must bind live
 transport to the original opaque attempt; handles in the probe are bounded,
 labelled test controls and do not survive restore as operational authority.
+
+`workflow::gateways::revocation::revoke` now backs the operator-only
+`blob_revoke_gateway` update in the standalone host and storage fixture. It binds
+actual caller/service and the explicit service/namespace/Cashier/payer scope before
+the existing durable removal. Even an absent member invalidates pending sync and
+older read observations; occupied read slots and upload/funding obligations remain.
+The response echoes the request and reports whether membership changed, without a
+historical receipt. Repetition is another revocation decision and may remove later
+re-added membership; callers must not automatically retry a lost acknowledgment.
+Local status supplies current inspection. This does not revoke provider credentials,
+delete objects, stop billing or bypass restoration fences. The fixture's separate
+removal command is removed; its fault hook delegates to the same shared handler.
+
+`workflow::gateways::sync::refresh` now composes durable admission and the existing
+replicated transport behind `blob_sync_gateways` in both hosts. The operator supplies
+the complete installed scope; the host fixes timeout/decoder budgets. Standalone
+uses a 30-second wait and 64 KiB reply bound after the CDK's platform-bounded buffer.
+Failure preserves the pending sequence for local inspection, with no automatic
+retry or cancellation. `blob_cancel_gateway_sync` resolves only that exact retained
+sequence under operator authority, using the model's original opaque token; ingress
+cannot manufacture a token. It preserves membership, read generations and sequence
+history. A delayed callback cannot overwrite cancellation, revocation or newer work.
+Both operations reject restoration fences. The fixture's private cancellation
+command is removed; retained fixture attempts now use their durable sequence rather
+than vector position. Local IC query evidence does not qualify deployed Cashier
+behavior, callback authority, paid effects or operational recovery.
+
 `workflow::gateways` constructs the canonical Cashier query before reserving its
 durable sync, then retains request and token together for completion or cancellation.
 Authority and restore fencing precede request/source/token checks and bounded Candid

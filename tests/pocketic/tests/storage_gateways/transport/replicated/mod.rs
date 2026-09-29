@@ -25,7 +25,24 @@ impl Fixture {
 #[test]
 fn canonical_query_endpoint_accepts_replicated_execution_without_attached_cycles() {
     let f = Fixture::with_gateway_source();
+    // The maintained endpoint allocates a sequence without a private fixture
+    // handle. Later fixture attempts must correlate by durable sequence.
+    let refreshed: Result<
+        ic_blob_storage::dto::gateway::sync::GatewaySyncResponse,
+        GatewaySyncFailure,
+    > = f
+        .harness
+        .pic
+        .update_candid_as(
+            f.service,
+            f.operator,
+            "blob_sync_gateways",
+            (f.revocation(f.other).scope,),
+        )
+        .unwrap();
+    assert_eq!(refreshed.unwrap().sequence, 1);
     let token = f.gateway_begin();
+    assert_eq!(token, 2);
     let source_memory = f.harness.pic.get_stable_memory(f.operator);
     let service_memory = f.harness.pic.get_stable_memory(f.service);
     for actor in [f.controller, f.tenant, Principal::anonymous()] {
@@ -94,7 +111,7 @@ fn replicated_query_refuses_query_execution_and_preserves_pending_on_rejection_o
         Err(Failure::Transport)
     );
     assert_eq!(f.harness.pic.get_stable_memory(f.service), before);
-    f.gateways(f.operator, Action::Cancel(token)).unwrap();
+    f.cancel_gateway_sync(f.operator, token).unwrap();
     f.source_mode(SourceMode::Valid);
     let next = f.gateway_begin();
     f.replicated_gateways(f.operator, f.replicated_input(next))

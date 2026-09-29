@@ -10,7 +10,7 @@ use blob_test_protocol::storage::{
 use ic_blob_storage::{
     model::{gateway::membership::GatewayAddOutcome, service::upload::UploadContext},
     ops::caffeine::gateway::GatewayReplyLimits,
-    workflow::gateways::{begin_sync, cancel_sync, complete_sync},
+    workflow::gateways::{begin_sync, complete_sync},
 };
 
 pub(crate) fn apply(context: UploadContext, input: Command) -> Result<Outcome, Failure> {
@@ -24,43 +24,42 @@ pub(crate) fn apply(context: UploadContext, input: Command) -> Result<Outcome, F
                 .add(context, installed, principal)
                 .map(|v| Outcome::Changed(v == GatewayAddOutcome::Added))
                 .map_err(failure),
-            Action::Remove(principal) => store
-                .remove(context, installed, principal)
-                .map(Outcome::Changed)
-                .map_err(failure),
             Action::Begin => {
                 if attempts.len() == 16 {
                     return Err(Failure::Capacity);
                 }
                 let attempt = begin_sync(store, context, installed).map_err(sync_failure)?;
+                let sequence = attempt.sequence();
                 attempts.push(attempt);
-                Ok(Outcome::Begun(attempts.len() as u64))
+                Ok(Outcome::Begun(sequence))
             }
             Action::Apply {
                 token,
                 source,
                 reply,
             } => {
-                let attempt = token
-                    .checked_sub(1)
-                    .and_then(|v| usize::try_from(v).ok())
-                    .and_then(|i| attempts.get(i))
+                let attempt = attempts
+                    .iter()
+                    .find(|attempt| attempt.sequence() == token)
                     .ok_or(Failure::Unknown)?;
                 complete_sync(store, context, attempt, scope(source)?, &reply, limits())
                     .map(|()| Outcome::Applied)
                     .map_err(sync_failure)
             }
-            Action::Cancel(token) => {
-                let attempt = token
-                    .checked_sub(1)
-                    .and_then(|v| usize::try_from(v).ok())
-                    .and_then(|i| attempts.get(i))
-                    .ok_or(Failure::Unknown)?;
-                cancel_sync(store, context, attempt)
-                    .map(|()| Outcome::Applied)
-                    .map_err(sync_failure)
-            }
         }
+    })
+}
+
+pub(crate) fn revoke(
+    context: UploadContext,
+    input: ic_blob_storage::dto::gateway::GatewayRevocationRequest,
+    fault: bool,
+) -> Result<
+    ic_blob_storage::dto::gateway::GatewayRevocationResponse,
+    ic_blob_storage::dto::gateway::GatewayRevocationFailure,
+> {
+    with_registry(fault, |store, _| {
+        ic_blob_storage::workflow::gateways::revocation::revoke(store, context, input)
     })
 }
 
@@ -72,4 +71,32 @@ pub(super) fn limits() -> GatewayReplyLimits {
         skipping_quota: 1000.try_into().unwrap(),
         max_type_entries: 32.try_into().unwrap(),
     }
+}
+
+pub(crate) async fn refresh(
+    context: UploadContext,
+    input: ic_blob_storage::dto::operator::OperatorScope,
+) -> Result<
+    ic_blob_storage::dto::gateway::sync::GatewaySyncResponse,
+    ic_blob_storage::dto::gateway::sync::GatewaySyncFailure,
+> {
+    ic_blob_storage::workflow::gateways::sync::refresh(
+        &crate::ops::gateways::transport::FixtureRegistry {
+            callback_fault: false,
+        },
+        context,
+        input,
+        30.try_into().unwrap(),
+        limits(),
+    )
+    .await
+}
+pub(crate) fn cancel_observed(
+    context: UploadContext,
+    input: ic_blob_storage::dto::gateway::sync::GatewaySyncCancellation,
+    fault: bool,
+) -> Result<(), ic_blob_storage::dto::gateway::sync::GatewaySyncFailure> {
+    with_registry(fault, |store, _| {
+        ic_blob_storage::workflow::gateways::sync::cancel(store, context, input)
+    })
 }

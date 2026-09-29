@@ -1,5 +1,20 @@
 //! Thin host composition; all tenant and blob transitions use shared workflows.
 use crate::ops;
+pub(crate) fn revoke_gateway(
+    context: UploadContext,
+    input: ic_blob_storage::dto::gateway::GatewayRevocationRequest,
+) -> Result<
+    ic_blob_storage::dto::gateway::GatewayRevocationResponse,
+    ic_blob_storage::dto::gateway::GatewayRevocationFailure,
+> {
+    ops::mutate(|stores| {
+        ic_blob_storage::workflow::gateways::revocation::revoke(
+            &mut stores.gateways,
+            context,
+            input,
+        )
+    })
+}
 use ic_blob_storage::dto::funding::outcome::{
     FundingOutcomeFailure, FundingOutcomeRequest, FundingOutcomeResponse,
 };
@@ -170,5 +185,30 @@ pub(crate) fn receipt(
 ) -> Result<ReferenceReceiptLookup, ReferenceFailure> {
     ops::read(|stores| {
         ic_blob_storage::workflow::references::receipt(&stores.uploads, context, input)
+    })
+}
+
+pub(crate) async fn sync_gateways(
+    context: UploadContext,
+    input: OperatorScope,
+) -> Result<
+    ic_blob_storage::dto::gateway::sync::GatewaySyncResponse,
+    ic_blob_storage::dto::gateway::sync::GatewaySyncFailure,
+> {
+    ic_blob_storage::workflow::gateways::sync::refresh(
+        &ops::gateways::GatewayHost,
+        context,
+        input,
+        30.try_into().unwrap(),
+        ops::gateways::limits(),
+    )
+    .await
+}
+pub(crate) fn cancel_gateway_sync(
+    context: UploadContext,
+    input: ic_blob_storage::dto::gateway::sync::GatewaySyncCancellation,
+) -> Result<(), ic_blob_storage::dto::gateway::sync::GatewaySyncFailure> {
+    ops::mutate(|stores| {
+        ic_blob_storage::workflow::gateways::sync::cancel(&mut stores.gateways, context, input)
     })
 }

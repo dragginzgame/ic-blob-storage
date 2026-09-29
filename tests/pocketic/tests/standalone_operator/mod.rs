@@ -5,7 +5,7 @@ use ic_blob_storage::{
     ops::service::operator::LOCAL_STATUS_METHOD,
 };
 impl Fixture {
-    fn operator_scope(&self) -> OperatorScope {
+    pub(super) fn operator_scope(&self) -> OperatorScope {
         OperatorScope {
             service: self.service,
             namespace: self.config.namespace,
@@ -13,7 +13,7 @@ impl Fixture {
             payment_account: self.config.payment_account,
         }
     }
-    fn local_status(
+    pub(super) fn local_status(
         &self,
         actor: Principal,
         scope: OperatorScope,

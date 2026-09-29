@@ -2,6 +2,8 @@
 pub mod access;
 pub(crate) mod callbacks;
 pub mod reply;
+pub mod revocation;
+pub mod sync;
 use crate::model::{
     gateway::{
         GatewayListError,

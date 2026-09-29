@@ -66,8 +66,17 @@ pub(crate) fn observation() -> SourceObservation {
     })
 }
 
-pub(crate) fn gateway_inspection() -> Option<Principal> {
+pub(crate) fn gateway_inspection() -> Option<crate::model::GatewayInspection> {
     read(SourceJournalRecord::gateway_inspection)
+}
+pub(crate) fn reply_inspection(view: crate::model::GatewayInspection) {
+    match view.mode {
+        SourceMode::Valid => reply_list(view.gateway),
+        SourceMode::Empty => reply_empty(),
+        SourceMode::Malformed => reply(vec![0]),
+        SourceMode::Oversized => reply(vec![0; 65_537]),
+        _ => reject(), // Queries never run scheduling or mutation modes.
+    }
 }
 
 pub(crate) fn recovery() -> SourceRecoveryView {

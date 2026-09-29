@@ -475,3 +475,45 @@ fn blob_upload_status(
 > {
     workflow::uploads::inspect(context(), input)
 }
+
+#[ic_cdk::update(decode_with = "ops::decode")]
+fn blob_revoke_gateway(
+    input: ic_blob_storage::dto::gateway::GatewayRevocationRequest,
+) -> Result<
+    ic_blob_storage::dto::gateway::GatewayRevocationResponse,
+    ic_blob_storage::dto::gateway::GatewayRevocationFailure,
+> {
+    workflow::gateways::revoke(context(), input, false)
+}
+#[ic_cdk::update(decode_with = "ops::decode")]
+fn fixture_revoke_gateway(
+    input: blob_test_protocol::storage::gateways::FaultRevocation,
+) -> Result<
+    ic_blob_storage::dto::gateway::GatewayRevocationResponse,
+    ic_blob_storage::dto::gateway::GatewayRevocationFailure,
+> {
+    workflow::gateways::revoke(context(), input.request, input.fault)
+}
+
+#[ic_cdk::update(decode_with = "ops::decode")]
+async fn blob_sync_gateways(
+    input: ic_blob_storage::dto::operator::OperatorScope,
+) -> Result<
+    ic_blob_storage::dto::gateway::sync::GatewaySyncResponse,
+    ic_blob_storage::dto::gateway::sync::GatewaySyncFailure,
+> {
+    workflow::gateways::refresh(context(), input).await
+}
+#[ic_cdk::update(decode_with = "ops::decode")]
+fn blob_cancel_gateway_sync(
+    input: ic_blob_storage::dto::gateway::sync::GatewaySyncCancellation,
+) -> Result<(), ic_blob_storage::dto::gateway::sync::GatewaySyncFailure> {
+    workflow::gateways::cancel_observed(context(), input, false)
+}
+
+#[ic_cdk::update(decode_with = "ops::decode")]
+fn fixture_cancel_gateway_sync(
+    input: blob_test_protocol::storage::gateways::FaultCancellation,
+) -> Result<(), ic_blob_storage::dto::gateway::sync::GatewaySyncFailure> {
+    workflow::gateways::cancel_observed(context(), input.request, input.fault)
+}

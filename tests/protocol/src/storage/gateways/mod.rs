@@ -61,7 +61,7 @@ pub struct ReplicatedInput {
     /// Test-only application response byte bound.
     pub max_reply_bytes: u32,
 }
-/// Local transport control for a previously reserved fixture handle.
+/// Local transport control for a retained fixture attempt's durable sequence.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
 pub struct TransportInput {
     /// Exact installed scope.
@@ -81,26 +81,22 @@ pub struct Scope {
     /// Local namespace.
     pub namespace: u128,
 }
-/// Test-only transitions. Tokens are bounded fixture handles, never ingress authority.
+/// Test-only transitions. Sequences identify retained attempts, never ingress authority.
 #[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize)]
 pub enum Action {
     /// Operator add.
     Add(Principal),
-    /// Operator removal, including the final member.
-    Remove(Principal),
     /// Reserve a read-only sync token.
     Begin,
     /// Apply a labelled source observation, never a real provider callback.
     Apply {
-        /// Handle issued by this fixture.
+        /// Durable sequence of an attempt retained by this fixture.
         token: u64,
         /// Synthetic transport source scope.
         source: Scope,
         /// Encoded Cashier gateway-list reply, bounded by host decoder limits.
         reply: Vec<u8>,
     },
-    /// Cancel the exact read-only sync.
-    Cancel(u64),
 }
 /// Bounded fixture command, separate from production callback endpoints.
 #[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize)]
@@ -115,11 +111,11 @@ pub struct Command {
 /// Observable fixture result.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
 pub enum Outcome {
-    /// Bounded local token handle.
+    /// Durable local sequence of the newly retained attempt.
     Begun(u64),
-    /// Add/remove membership change.
+    /// Addition membership change.
     Changed(bool),
-    /// Complete apply/cancel succeeded.
+    /// Complete apply succeeded.
     Applied,
 }
 /// Passive operator view, not callback or recovery authority.
@@ -133,4 +129,22 @@ pub struct View {
     pub pending_sequence: Option<u64>,
     /// All restored mutation is fenced.
     pub fenced: bool,
+}
+
+/// Local transaction fault control around the maintained revocation handler.
+#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+pub struct FaultRevocation {
+    /// Exact shared operator request.
+    pub request: ic_blob_storage::dto::gateway::GatewayRevocationRequest,
+    /// Trap on the registry write; never part of production ingress.
+    pub fault: bool,
+}
+
+/// Local stable-write interruption around exact shared cancellation.
+#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+pub struct FaultCancellation {
+    /// Exact maintained request.
+    pub request: ic_blob_storage::dto::gateway::sync::GatewaySyncCancellation,
+    /// Trap the cancellation write.
+    pub fault: bool,
 }

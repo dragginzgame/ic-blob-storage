@@ -2,6 +2,30 @@
 
 ## [Unreleased]
 
+## [0.2.22]
+
+### Added
+
+- Shared operator-only `blob_revoke_gateway` update in the standalone host and
+  storage fixture, bound to the installed service, namespace, Cashier and payer.
+  Removal invalidates older sync and read observations even for an absent member;
+  it preserves occupied read slots, upload obligations and funding accounting.
+  Repeated calls are fresh revocation decisions, not automatic receipt replay.
+- Native and PocketIC evidence for caller/scope rejection, absent/final-member
+  removal, stable-write rollback, delayed sync replies, remove/re-add during reads
+  and restored mutation fences. The fixture's private removal command is replaced
+  by the shared endpoint, with a separate local fault hook using the same handler.
+  No provider credentials, deletion or billing state changes.
+- Shared `blob_sync_gateways` and `blob_cancel_gateway_sync` operator updates in
+  both hosts. Refresh persists its pending identity before one bounded replicated
+  Cashier query; failures retain pending work, and cancellation targets the exact
+  observed sequence. Standalone limits are 30 seconds and 64 KiB per reply, with
+  independent decoder and membership bounds. No attached cycles or automatic retry.
+  The fixture's private cancellation command is removed. Native and PocketIC tests
+  cover malformed/oversized/rejected replies, overlap, stale cancellation, delayed
+  callbacks, write rollback and fenced restoration. `make test-standalone` now builds
+  the local gateway source fixture too; deployed-provider qualification remains open.
+
 ## [0.2.21] - 2026-09-29
 
 ### Added

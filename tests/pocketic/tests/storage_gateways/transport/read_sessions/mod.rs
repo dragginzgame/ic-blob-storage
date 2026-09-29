@@ -178,7 +178,14 @@ fn held_read_authority_rejects_remove_readd_and_tenant_reactivation() {
             f.enroll(Some(f.tenant().unwrap()), false).unwrap();
             f.enroll(Some(f.tenant().unwrap()), true).unwrap();
         } else {
-            f.gateways(f.operator, Action::Remove(f.operator)).unwrap();
+            let occupancy = f.session_view();
+            let accounting = f.local_status();
+            assert!(f.revoke_gateway(f.operator, f.operator).unwrap().removed);
+            assert_eq!(f.session_view(), occupancy);
+            let after = f.local_status();
+            assert_eq!(after.uploads, accounting.uploads);
+            assert_eq!(after.funding, accounting.funding);
+            assert_eq!(after.reads, accounting.reads);
             f.gateways(f.operator, Action::Add(f.operator)).unwrap();
         }
         f.resume_chunk();
@@ -258,7 +265,7 @@ fn gateway_write_rollback_preserves_read_authority_but_same_list_sync_invalidate
             )
             .unwrap();
         } else {
-            f.gateway_trap(Action::Remove(f.operator));
+            f.revoke_gateway_trap(f.operator);
         }
         f.resume_chunk();
         let result: Result<JourneyReadChunk, Failure> =
@@ -412,8 +419,8 @@ fn upgrade_preserves_upload_funding_gateway_and_interrupted_read_obligations() {
         }
     );
     assert_eq!(
-        f.gateways(f.operator, Action::Cancel(token)),
-        Err(Failure::Fenced)
+        f.cancel_gateway_sync(f.operator, token),
+        Err(GatewaySyncFailure::Fenced)
     );
     assert_eq!(
         f.status(),

@@ -1,7 +1,7 @@
 //! Passive local accounting observations; no readiness or provider credit assertion.
 use candid::{CandidType, Deserialize, Principal};
 
-/// Complete installed service/provider/account scope for operator inspection.
+/// Complete installed service/provider/account scope for explicit operator requests.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
 pub struct OperatorScope {
     /// Actual storage service.

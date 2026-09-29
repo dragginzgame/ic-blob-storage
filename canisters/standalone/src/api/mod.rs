@@ -1,4 +1,4 @@
-//! Explicit standalone canister host. Provider effects and operational recovery remain disabled.
+//! Explicit standalone host. Paid provider effects and operational recovery remain disabled.
 #![expect(
     clippy::needless_pass_by_value,
     clippy::large_types_passed_by_value,
@@ -140,6 +140,33 @@ fn blob_funding_outcome(
     input: FundingOutcomeRequest,
 ) -> Result<Option<FundingOutcomeResponse>, FundingOutcomeFailure> {
     workflow::funding_outcome(context(), input)
+}
+#[ic_cdk::update(hidden = true, decode_with = "ops::decode")]
+#[candid::candid_method(update)]
+fn blob_revoke_gateway(
+    input: ic_blob_storage::dto::gateway::GatewayRevocationRequest,
+) -> Result<
+    ic_blob_storage::dto::gateway::GatewayRevocationResponse,
+    ic_blob_storage::dto::gateway::GatewayRevocationFailure,
+> {
+    workflow::revoke_gateway(context(), input)
+}
+#[ic_cdk::update(hidden = true, decode_with = "ops::decode")]
+#[candid::candid_method(update)]
+async fn blob_sync_gateways(
+    input: OperatorScope,
+) -> Result<
+    ic_blob_storage::dto::gateway::sync::GatewaySyncResponse,
+    ic_blob_storage::dto::gateway::sync::GatewaySyncFailure,
+> {
+    workflow::sync_gateways(context(), input).await
+}
+#[ic_cdk::update(hidden = true, decode_with = "ops::decode")]
+#[candid::candid_method(update)]
+fn blob_cancel_gateway_sync(
+    input: ic_blob_storage::dto::gateway::sync::GatewaySyncCancellation,
+) -> Result<(), ic_blob_storage::dto::gateway::sync::GatewaySyncFailure> {
+    workflow::cancel_gateway_sync(context(), input)
 }
 ic_cdk::export_candid!();
 pub(crate) fn interface() -> String {

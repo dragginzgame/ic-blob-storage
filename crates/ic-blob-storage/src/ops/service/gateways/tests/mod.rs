@@ -1,4 +1,6 @@
 use super::*;
+mod revocation;
+mod sync;
 use crate::{
     model::billing::configuration::BillingConfiguration, ops::service::tenant::tests::config,
 };
