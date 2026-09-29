@@ -61,8 +61,11 @@ pub(crate) fn resources(
 
 pub(crate) fn admission_capacity(
     context: UploadContext,
-    input: blob_test_protocol::admission::planning::AdmissionCapacityInput,
-) -> Result<blob_test_protocol::admission::planning::AdmissionCapacity, Failure> {
+    input: ic_blob_storage::dto::tenant::TenantScope,
+) -> Result<
+    ic_blob_storage::dto::upload::capacity::UploadCapacityResponse,
+    ic_blob_storage::dto::upload::capacity::UploadCapacityFailure,
+> {
     ops::planning::capacity(context, input)
 }
 
@@ -75,8 +78,11 @@ pub(crate) fn content_descriptor(
 
 pub(crate) fn reference_capacity(
     context: UploadContext,
-    input: ContentLookup,
-) -> Result<Option<blob_test_protocol::admission::release::ReferenceCapacity>, Failure> {
+    input: ic_blob_storage::dto::reference::capacity::ReferenceCapacityRequest,
+) -> Result<
+    ic_blob_storage::dto::reference::capacity::ReferenceCapacityResponse,
+    ic_blob_storage::dto::reference::capacity::ReferenceCapacityFailure,
+> {
     ops::release::capacity(context, input)
 }
 

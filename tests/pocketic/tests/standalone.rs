@@ -1,9 +1,12 @@
 //! Standalone Wasm installation, maintained endpoints and synchronous restore fencing.
 #![cfg(not(target_family = "wasm"))]
+mod standalone_capacity;
 mod standalone_funding;
 mod standalone_gateways;
 mod standalone_history;
 mod standalone_operator;
+mod standalone_reference_capacity;
+mod standalone_upload_status;
 mod support;
 use candid::Principal;
 use ic_blob_storage::{

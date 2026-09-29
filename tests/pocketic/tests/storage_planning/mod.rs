@@ -1,20 +1,23 @@
 use super::*;
 use blob_test_protocol::{
-    admission::{
-        ContentLookup, ContentState,
-        input::ReferenceInput,
-        planning::{AdmissionCapacity, AdmissionCapacityInput},
-        release::ReferenceCapacity,
-    },
+    admission::{ContentLookup, ContentState, input::ReferenceInput},
     storage::{
         ProviderFact,
         read::{RootBatchInput, RootObservation},
     },
 };
+use ic_blob_storage::dto::{
+    reference::capacity::{
+        ReferenceCapacityFailure, ReferenceCapacityRequest, ReferenceCapacityResponse,
+        ReferenceHeadroom,
+    },
+    tenant::TenantScope,
+    upload::capacity::{UploadCapacityFailure, UploadCapacityResponse},
+};
 
 impl Fixture {
-    fn capacity_input(&self) -> AdmissionCapacityInput {
-        AdmissionCapacityInput {
+    fn capacity_input(&self) -> TenantScope {
+        TenantScope {
             service: self.service,
             tenant: self.tenant,
             namespace: 1,
@@ -23,22 +26,36 @@ impl Fixture {
     fn capacity(
         &self,
         actor: Principal,
-        input: AdmissionCapacityInput,
-    ) -> Result<AdmissionCapacity, Failure> {
+        input: TenantScope,
+    ) -> Result<UploadCapacityResponse, UploadCapacityFailure> {
         self.harness
             .pic
-            .query_candid_as(self.service, actor, "admission_capacity", (input,))
+            .query_candid_as(self.service, actor, "blob_upload_capacity", (input,))
             .unwrap()
     }
     fn reference_headroom(
         &self,
         actor: Principal,
         input: ContentLookup,
-    ) -> Result<Option<ReferenceCapacity>, Failure> {
-        self.harness
+    ) -> Result<Option<ReferenceHeadroom>, ReferenceCapacityFailure> {
+        let request = ReferenceCapacityRequest {
+            scope: TenantScope {
+                service: input.service,
+                tenant: input.tenant,
+                namespace: input.namespace,
+            },
+            root: input.root,
+        };
+        let result: Result<ReferenceCapacityResponse, ReferenceCapacityFailure> = self
+            .harness
             .pic
-            .query_candid_as(self.service, actor, "reference_capacity", (input,))
-            .unwrap()
+            .query_candid_as(self.service, actor, "blob_reference_capacity", (request,))
+            .unwrap();
+        result.map(|response| {
+            assert_eq!(response.request, request);
+            assert_eq!(response.fenced, self.status().fenced);
+            response.headroom
+        })
     }
     fn roots(
         &self,
@@ -60,7 +77,10 @@ impl Fixture {
 fn durable_headroom_preserves_cleanup_slots_and_billing_until_settlement() {
     let f = Fixture::new();
     let scope = f.capacity_input();
-    assert_eq!(f.capacity(f.tenant, scope), Err(Failure::Inactive));
+    assert_eq!(
+        f.capacity(f.tenant, scope),
+        Err(UploadCapacityFailure::NotEnrolled)
+    );
     f.enroll(None, true).unwrap();
     let initial = f.capacity(f.tenant, scope).unwrap();
     assert_eq!(initial.remaining_bytes, 20);
@@ -80,7 +100,7 @@ fn durable_headroom_preserves_cleanup_slots_and_billing_until_settlement() {
     f.fact(permission.request, ProviderFact::Uploaded).unwrap();
     assert_eq!(
         f.reference_headroom(f.tenant, lookup),
-        Ok(Some(ReferenceCapacity {
+        Ok(Some(ReferenceHeadroom {
             reference_slots: 1,
             unreserved_receipts: 2,
             release_reserved_receipts: 1,
@@ -96,7 +116,7 @@ fn durable_headroom_preserves_cleanup_slots_and_billing_until_settlement() {
     .unwrap();
     assert_eq!(
         f.reference_headroom(f.tenant, lookup),
-        Ok(Some(ReferenceCapacity {
+        Ok(Some(ReferenceHeadroom {
             reference_slots: 0,
             unreserved_receipts: 0,
             release_reserved_receipts: 2,
@@ -115,7 +135,7 @@ fn durable_headroom_preserves_cleanup_slots_and_billing_until_settlement() {
         })
         .unwrap();
     }
-    let retired = ReferenceCapacity {
+    let retired = ReferenceHeadroom {
         reference_slots: 0,
         unreserved_receipts: 0,
         release_reserved_receipts: 0,
@@ -138,8 +158,11 @@ fn durable_headroom_preserves_cleanup_slots_and_billing_until_settlement() {
         initial.remaining_active_uploads
     );
     for actor in [f.operator, f.controller, f.uploader, f.other] {
-        assert_eq!(f.capacity(actor, scope), Err(Failure::Denied));
-        assert_eq!(f.reference_headroom(actor, lookup), Err(Failure::Denied));
+        assert_eq!(f.capacity(actor, scope), Err(UploadCapacityFailure::Denied));
+        assert_eq!(
+            f.reference_headroom(actor, lookup),
+            Err(ReferenceCapacityFailure::Denied)
+        );
     }
     assert_eq!(
         f.reference_headroom(
@@ -152,16 +175,19 @@ fn durable_headroom_preserves_cleanup_slots_and_billing_until_settlement() {
         Ok(None)
     );
     for changed in [
-        AdmissionCapacityInput {
+        TenantScope {
             service: f.other,
             ..scope
         },
-        AdmissionCapacityInput {
+        TenantScope {
             namespace: 2,
             ..scope
         },
     ] {
-        assert_eq!(f.capacity(f.tenant, changed), Err(Failure::Binding));
+        assert_eq!(
+            f.capacity(f.tenant, changed),
+            Err(UploadCapacityFailure::Binding)
+        );
     }
     let before = f.status();
     f.harness
@@ -173,7 +199,13 @@ fn durable_headroom_preserves_cleanup_slots_and_billing_until_settlement() {
             Some(f.controller),
         )
         .unwrap();
-    assert_eq!(f.capacity(f.tenant, scope), Ok(settled));
+    assert_eq!(
+        f.capacity(f.tenant, scope),
+        Ok(UploadCapacityResponse {
+            fenced: true,
+            ..settled
+        })
+    );
     assert_eq!(f.reference_headroom(f.tenant, lookup), Ok(Some(retired)));
     assert_eq!(f.admit(f.tenant, permission), Err(Failure::Fenced));
     assert_eq!(

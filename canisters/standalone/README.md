@@ -57,6 +57,35 @@ bind the service, namespace, observer scope and filter; start a fresh sweep for
 changes behind the cursor. Inspection remains available during suspension and
 restore, without granting provider retry, publication or deletion authority.
 
+Tenant-only `blob_upload_capacity` takes `TenantScope` and returns the tighter
+global/tenant headroom for lifetime objects and manifest leaves, concurrent uploads
+and bytes. Maintained counters include reserved bytes, physical storage and
+continuing billing. The response echoes the scope, per-object metadata/byte limits,
+current enrollment and the independent restore fence. Missing enrollment rejects;
+suspended or restored tenants can still inspect. Counts are independent dimensions,
+not reservations or proof that an upload is safe. Cancellation restores only the
+applicable byte/concurrent capacity; lifetime history stays consumed.
+
+Tenant-only `blob_reference_capacity` takes the same tenant scope plus a provider
+root. It reports remaining lifetime references, unreserved receipt slots, receipts
+reserved for releasing live references and the corresponding fresh-retain headroom.
+The response echoes the exact request and includes the restore fence even when no
+headroom is visible. Unknown, foreign and unconfirmed roots all return absence;
+retired confirmed objects report zero fresh retains. Reads remain passive through
+suspension and restoration. Positive counts do not bypass enrollment, identity or
+restore checks, reserve a reference or prove that a reference is currently live.
+
+Tenant-only `blob_upload_status` looks up the exact original `ReferenceUpload`,
+including its separate upload, object, incarnation and first-reference identities,
+root and declared byte count. It reports retained local state and revocation;
+changed original arguments conflict, and an unknown operation stays unknown.
+Both query and replicated calls remain passive during suspension and restoration.
+Unlike `blob_upload_admission`, this lookup does not require the uploader and expiry.
+It does not report the restore fence: consult configuration or history for that
+independent observation. Historical confirmation never proves a live reference,
+safe provider retry or publication eligibility. Canister tenants can use the shared
+`ReplicatedUploadStatusClient` from an update with an explicit reply bound.
+
 Operator-only `blob_funding_history` uses the same explicit service, namespace,
 Cashier and payer scope as local status. It returns at most 32 retained intents
 per call, newest operation first, including exact offered amounts, optional target

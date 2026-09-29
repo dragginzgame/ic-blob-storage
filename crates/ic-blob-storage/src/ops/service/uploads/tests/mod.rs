@@ -1,8 +1,10 @@
 use super::*;
 mod admission_boundary;
+mod capacity_boundary;
 mod certificate_boundary;
 mod exposure_boundary;
 mod manifest_boundary;
+mod reference_capacity_boundary;
 mod revocation;
 use crate::{
     model::{

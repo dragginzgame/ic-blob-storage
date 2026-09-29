@@ -1,13 +1,14 @@
 //! Actual caller/scope enforcement and unchanged accounting through passive reads.
 use super::*;
-mod inventory;
-use blob_test_protocol::admission::{
-    planning::{AdmissionCapacity, AdmissionCapacityInput},
-    release::LifecycleCommand,
+use ic_blob_storage::dto::{
+    tenant::TenantScope,
+    upload::capacity::{UploadCapacityFailure, UploadCapacityResponse},
 };
+mod inventory;
+use blob_test_protocol::admission::release::LifecycleCommand;
 
-fn scope(f: &Fixture) -> AdmissionCapacityInput {
-    AdmissionCapacityInput {
+fn scope(f: &Fixture) -> TenantScope {
+    TenantScope {
         service: f.service,
         tenant: f.project,
         namespace: 1,
@@ -17,11 +18,11 @@ fn scope(f: &Fixture) -> AdmissionCapacityInput {
 fn capacity(
     f: &Fixture,
     actor: Principal,
-    input: AdmissionCapacityInput,
-) -> Result<AdmissionCapacity, Failure> {
+    input: TenantScope,
+) -> Result<UploadCapacityResponse, UploadCapacityFailure> {
     f.harness
         .pic
-        .query_candid_as(f.service, actor, "admission_capacity", (input,))
+        .query_candid_as(f.service, actor, "blob_upload_capacity", (input,))
         .unwrap()
 }
 
@@ -29,11 +30,15 @@ fn capacity(
 fn capacity_queries_enforce_caller_scope_and_input_bound() {
     let f = Fixture::new();
     let input = scope(&f);
-    assert_eq!(capacity(&f, f.project, input), Err(Failure::NotEnrolled));
+    assert_eq!(
+        capacity(&f, f.project, input),
+        Err(UploadCapacityFailure::NotEnrolled)
+    );
     let enrollment = f.enroll();
     let initial = capacity(&f, f.project, input).unwrap();
     assert_eq!(initial.scope, input);
-    assert_eq!(initial.enrollment, enrollment);
+    assert_eq!(initial.enrollment.generation, enrollment.generation);
+    assert_eq!(initial.enrollment.active, enrollment.active);
     assert_eq!(initial.max_object_bytes, 10 * 1024 * 1024);
     assert_eq!(initial.remaining_objects, 2);
     assert_eq!(initial.remaining_active_uploads, 2);
@@ -46,56 +51,59 @@ fn capacity_queries_enforce_caller_scope_and_input_bound() {
         f.other,
         Principal::anonymous(),
     ] {
-        assert_eq!(capacity(&f, actor, input), Err(Failure::NotProject));
+        assert_eq!(
+            capacity(&f, actor, input),
+            Err(UploadCapacityFailure::Denied)
+        );
     }
     assert_eq!(
         capacity(
             &f,
             f.other,
-            AdmissionCapacityInput {
+            TenantScope {
                 tenant: f.other,
                 ..input
             }
         ),
-        Err(Failure::NotEnrolled)
+        Err(UploadCapacityFailure::NotEnrolled)
     );
     assert_eq!(
         capacity(
             &f,
             f.project,
-            AdmissionCapacityInput {
+            TenantScope {
                 service: f.other,
                 ..input
             }
         ),
-        Err(Failure::WrongService)
+        Err(UploadCapacityFailure::Binding)
     );
     assert_eq!(
         capacity(
             &f,
             f.project,
-            AdmissionCapacityInput {
+            TenantScope {
                 namespace: 2,
                 ..input
             }
         ),
-        Err(Failure::WrongNamespace)
+        Err(UploadCapacityFailure::Binding)
     );
     assert_eq!(
         capacity(
             &f,
             f.project,
-            AdmissionCapacityInput {
+            TenantScope {
                 namespace: 0,
                 ..input
             }
         ),
-        Err(Failure::InvalidInput)
+        Err(UploadCapacityFailure::Invalid)
     );
     let oversized = f
         .harness
         .pic
-        .query_call(f.service, f.project, "admission_capacity", vec![0; 4097])
+        .query_call(f.service, f.project, "blob_upload_capacity", vec![0; 4097])
         .unwrap_err();
     assert_eq!(oversized.reject_code, RejectCode::CanisterError);
     assert_eq!(capacity(&f, f.project, input), Ok(initial));
@@ -134,10 +142,10 @@ fn capacity_preserves_cancelled_history_and_suspended_inspection_across_stop_sta
     f.restart();
     assert_eq!(
         capacity(&f, f.project, input).unwrap(),
-        AdmissionCapacity {
-            enrollment: Enrollment {
+        UploadCapacityResponse {
+            enrollment: ic_blob_storage::dto::tenant::TenantEnrollment {
                 active: false,
-                ..enrollment
+                generation: enrollment.generation
             },
             ..cancelled
         }

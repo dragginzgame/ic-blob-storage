@@ -640,7 +640,8 @@ suspension, and restored owners reject every mutation. Native and local IC evide
 cover bound responses, committed-but-unusable replies, reserved cleanup capacity,
 rollback and restored inspection. Consumer publication remains a separate transaction.
 
-The canonical `blob_upload_status` query delegates to `workflow::uploads::inspect`.
+The canonical `blob_upload_status` query in both the standalone host and storage
+fixture delegates to `workflow::uploads::inspect`.
 Its replicated client authenticates the service and validates the bounded response
 against the full original `ReferenceUpload`. Only the actual tenant can inspect it;
 uploader and controller roles do not supply that authority. Suspension and restore
@@ -919,12 +920,13 @@ absent receipts. The local saved-intent tool demonstrates this query path withou
 dispatch; its mutable filesystem artifact supplies neither fresh allocation nor
 surviving operational recovery authority.
 
-For fresh uploads, `admission_capacity` observes the tighter tenant/global
+For fresh uploads, `blob_upload_capacity` observes the tighter tenant/global
 headroom in each independent dimension: lifetime operation/root slots, concurrent
 reservations, lifetime manifest leaves and bytes. Byte headroom is the minimum of
 tenant logical, global physical and global continuing-liability headroom, including
 unconfirmed reservations. Enrollment and per-object size/metadata limits accompany
-the observation. Only the exact enrolled tenant can inspect this scope; suspended
+the observation, along with the independent restore fence. Only the exact enrolled
+tenant can inspect this scope; suspended
 tenants retain visibility without regaining admission authority. Shared contention
 affects the returned headroom, but other tenants' identities and records stay private.
 
@@ -934,8 +936,12 @@ a reservation. Cancellation can restore byte/concurrent capacity without restori
 lifetime slots. Logical release and physical deletion cannot erase continuing
 billing. Combine this view with tenant content discovery and exact reference
 capacity for reuse; absence still does not prove a root is globally unclaimed.
-This adds a transient model observation and bounded private fixture query, not
-production persistence, authenticated publisher transport or a provider guarantee.
+`workflow::uploads::capacity::inspect` serves this boundary in the standalone host,
+durable storage fixture and transient admission fixture. All use `TenantScope` and
+the same maintained DTOs and conversion. The old private capacity interface is
+removed. The local inventory tool uses the shared response and reports a restored
+service as blocked despite positive headroom; this is not a provider guarantee or
+production publisher authentication.
 
 The maintained transition order is below. Every confirmation presupposes exact
 authority and operation/incarnation correlation; these methods do not verify that
@@ -1073,6 +1079,18 @@ Reference headroom reserves one release receipt per active reference and two slo
 per additional retain/release pair. Unknown, foreign and unconfirmed roots expose no
 reference capacity. Retired confirmed objects have zero fresh retains. Suspension
 and restoration allow inspection, not fresh admission or removal of the fence.
+
+The shared `workflow::references::capacity::inspect` boundary exposes these
+reference counters as `blob_reference_capacity` in the standalone host and both
+admission fixtures. Requests bind `TenantScope` and a fixed-width provider root;
+responses echo the request, carry optional headroom and expose the independent
+restore fence even for absence. Caller/scope checks precede root visibility.
+Unknown, foreign and unconfirmed roots remain indistinguishable. Positive fresh
+retains reflect counter/lifecycle limits only, not enrollment, identity freshness,
+reference liveness or operational restore authority. All mutation checks remain
+in force. Private reference-capacity DTOs, endpoints and duplicate conversion are
+removed. The local inventory tool checks exact echoes and preserves a later fence
+without treating its earlier capacity observation as continuing authority.
 
 `observe_roots` requires the configured operator plus the actual service and explicit
 installed namespace, even for empty input. The host must construct `ProviderRootBatch`

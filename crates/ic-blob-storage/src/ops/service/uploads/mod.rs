@@ -1,6 +1,7 @@
 //! One durable upload/lifecycle owner. Provider evidence is a trusted-host input.
 pub mod admission;
 pub(crate) mod callbacks;
+pub mod capacity;
 pub(crate) mod certificate;
 pub mod exposure;
 pub mod history;
@@ -18,7 +19,8 @@ use super::{
 };
 use crate::model::{
     catalog::admission::{
-        UploadAdmission, UploadError, UploadPhase, UploadRequest, UploadUsage, capacity,
+        UploadAdmission, UploadError, UploadPhase, UploadRequest, UploadUsage,
+        capacity as admission_capacity,
     },
     lifecycle::{LifecycleChange, roots::RootClaimError},
     service::{
@@ -269,7 +271,7 @@ impl<M: Memory> StableUploads<M> {
         if self.roots.contains(input.request.object.root) {
             return Err(UploadError::Root(RootClaimError::RootAlreadyClaimed).into());
         }
-        capacity::check(
+        admission_capacity::check(
             global.view().ok_or(UploadStoreError::InvalidRecord)?,
             tenant.view().ok_or(UploadStoreError::InvalidRecord)?,
             self.config.limits().catalog,

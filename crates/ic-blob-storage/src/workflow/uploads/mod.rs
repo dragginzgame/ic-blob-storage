@@ -1,5 +1,6 @@
 //! Shared upload admission, preparation, guarded issuance and historical inspection.
 pub mod admission;
+pub mod capacity;
 pub mod certificate;
 pub mod exposure;
 pub mod history;

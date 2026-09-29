@@ -384,12 +384,15 @@ capacity, cross-tenant sharing, fresh-upload eligibility or provider charges.
 Existing references, lifetime history and billing obligations require service
 inspection; no actual service/tenant/namespace or operation identity is selected.
 
-The shared model's `UploadAdmissions::admission_capacity` supplies the next
-planning input: tenant-scoped lifetime object, concurrent upload, manifest-leaf
-and byte headroom, plus enrollment and per-object limits. It includes reservations
+The shared `blob_upload_capacity` query supplies the next planning input:
+tenant-scoped lifetime object, concurrent upload, manifest-leaf and byte headroom,
+plus enrollment, per-object limits and the restore fence. The standalone host and
+both admission fixtures reuse the same handler. It includes reservations
 and continuing billing; freed logical quota alone cannot make those obligations
 disappear. These independent counts reserve nothing. Existing blobs still require
-content discovery and reference-capacity checks. The unpublished
+content discovery and the shared `blob_reference_capacity` query. That query binds
+the tenant and root, preserves cleanup receipt reservations and reports its own
+restore fence. The unpublished
 `blob-fixture-inventory` command connects a prepared report to these queries on an
 already-running local admission probe:
 
@@ -409,7 +412,9 @@ checks manifest/root consistency, mappings and recomputed totals before any quer
 it never opens source/body paths. There is one outstanding query at a time, at most
 one capacity query and two queries per distinct root, with bounded reply decoding.
 
-The JSON report distinguishes content not visible to this tenant, unfinished
+The JSON report marks a restored service as blocked even with spare quota,
+including a fence observed by the later reference-capacity query. It
+distinguishes content not visible to this tenant, unfinished
 operations to recover, live blobs requiring new references, and retired roots.
 It budgets one fresh reference per asset for existing live blobs. New-object
 reference capacity remains unassessed. Not-visible content is not proof of global

@@ -220,12 +220,16 @@ service/provider transport and publication remain unimplemented. The prepared
 source must stay immutable until its exact bytes upload; a distinct local root
 does not establish that the service can admit it or reuse retired content.
 
-Fresh-upload capacity now has a tenant-scoped `admission_capacity` model view and
-bounded private probe query. Its independent lifetime/concurrent/leaf/byte headroom
-includes pending reservations and continuing billing; suspension remains visible.
+Fresh-upload capacity now has a shared tenant-scoped `blob_upload_capacity` query
+in the standalone host and both admission fixtures. Its independent
+lifetime/concurrent/leaf/byte headroom includes pending reservations and continuing
+billing; suspension and the durable owner's restore fence remain visible.
 It complements existing-object discovery/reference capacity. The unpublished
 `blob-fixture-inventory` command now connects validated prepared inventories to
-these queries on an explicit existing local probe. It preserves asset reference
+these queries on an explicit existing local probe, reporting fenced capacity as
+blocked. Reference headroom now uses the shared `blob_reference_capacity` query
+in the same hosts, with exact request echoes and an independent restore fence;
+private capacity interfaces and duplicate conversions are removed. It preserves asset reference
 demand and separates not-visible, pending, live and retired roots. Sequential
 observations reserve nothing and do not prove global absence or fresh admission.
 Production authentication, new-object reference sizing and persisted exact

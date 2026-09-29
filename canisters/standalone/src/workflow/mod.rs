@@ -1,5 +1,27 @@
 //! Thin host composition; all tenant and blob transitions use shared workflows.
 use crate::ops;
+pub(crate) fn reference_capacity(
+    context: UploadContext,
+    input: ic_blob_storage::dto::reference::capacity::ReferenceCapacityRequest,
+) -> Result<
+    ic_blob_storage::dto::reference::capacity::ReferenceCapacityResponse,
+    ic_blob_storage::dto::reference::capacity::ReferenceCapacityFailure,
+> {
+    ops::read(|stores| {
+        ic_blob_storage::workflow::references::capacity::inspect(&stores.uploads, context, input)
+    })
+}
+pub(crate) fn upload_capacity(
+    context: UploadContext,
+    input: ic_blob_storage::dto::tenant::TenantScope,
+) -> Result<
+    ic_blob_storage::dto::upload::capacity::UploadCapacityResponse,
+    ic_blob_storage::dto::upload::capacity::UploadCapacityFailure,
+> {
+    ops::read(|stores| {
+        ic_blob_storage::workflow::uploads::capacity::inspect(&stores.uploads, context, input)
+    })
+}
 pub(crate) fn revoke_gateway(
     context: UploadContext,
     input: ic_blob_storage::dto::gateway::GatewayRevocationRequest,
@@ -140,6 +162,15 @@ pub(crate) fn admission(
     ops::read(|stores| {
         ic_blob_storage::workflow::uploads::admission::inspect(&stores.uploads, context, input)
     })
+}
+pub(crate) fn upload_status(
+    context: UploadContext,
+    input: ic_blob_storage::dto::reference::ReferenceUpload,
+) -> Result<
+    ic_blob_storage::dto::upload::UploadStatusResponse,
+    ic_blob_storage::dto::upload::UploadStatusFailure,
+> {
+    ops::read(|stores| ic_blob_storage::workflow::uploads::inspect(&stores.uploads, context, input))
 }
 pub(crate) fn revoke(
     context: UploadContext,

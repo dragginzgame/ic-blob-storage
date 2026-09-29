@@ -3,12 +3,12 @@ use crate::operator::{
     model::{canister, decimal},
     ops::QueryTarget,
 };
-use blob_test_protocol::admission::planning::AdmissionCapacityInput;
+use ic_blob_storage::dto::tenant::TenantScope;
 use std::{collections::BTreeMap, net::SocketAddr, path::PathBuf};
 
 pub(super) struct Selection {
     pub target: QueryTarget,
-    pub scope: AdmissionCapacityInput,
+    pub scope: TenantScope,
     pub path: PathBuf,
 }
 
@@ -44,7 +44,7 @@ impl Selection {
                 canister: service,
                 caller,
             },
-            scope: AdmissionCapacityInput {
+            scope: TenantScope {
                 service,
                 tenant,
                 namespace,

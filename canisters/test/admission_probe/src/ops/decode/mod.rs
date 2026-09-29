@@ -41,6 +41,11 @@ pub(crate) fn reference_receipt(
 pub(crate) fn content(bytes: Vec<u8>) -> ContentLookup {
     decode(&bytes, SMALL_BYTES, 32 * 1024)
 }
+pub(crate) fn reference_capacity(
+    bytes: Vec<u8>,
+) -> ic_blob_storage::dto::reference::capacity::ReferenceCapacityRequest {
+    decode(&bytes, SMALL_BYTES, 32 * 1024)
+}
 
 pub(crate) fn retained_descriptor(
     bytes: Vec<u8>,
@@ -52,9 +57,7 @@ pub(crate) fn installation(bytes: Vec<u8>) -> Installation {
     decode(&bytes, SMALL_BYTES, 32 * 1024)
 }
 
-pub(crate) fn admission_capacity(
-    bytes: Vec<u8>,
-) -> blob_test_protocol::admission::planning::AdmissionCapacityInput {
+pub(crate) fn admission_capacity(bytes: Vec<u8>) -> ic_blob_storage::dto::tenant::TenantScope {
     decode(&bytes, SMALL_BYTES, 32 * 1024)
 }
 

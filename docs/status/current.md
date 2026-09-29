@@ -2,17 +2,17 @@
 
 Date: 2026-09-29
 
-## Active work — shared gateway operations after 0.2.21
+## Active work — shared upload inspection after 0.2.22
 
-The maintainer confirmed **0.2.21 is pushed** and requested continued work toward
-the 0.2 service journey. Cargo and the release receipt are 0.2.21. Local main,
-origin/main and the peeled v0.2.21 tag resolve to
-`5b3b43489055f9db0ef7b40631f7e0ff8cddca82`, from validated source
-`3b23212b783df25cbf8da2745c05aa644bcbd2fe`. The receipt records the
+The maintainer confirmed **0.2.22 is pushed** and requested continued work toward
+the 0.2 service journey. Cargo and the release receipt are 0.2.22. Local main,
+origin/main and the peeled v0.2.22 tag resolve to
+`05798a3530b9813e52d55cec06567dfcc9142b68`, from validated source
+`0119245d91a1e380d75406b6955540723c4d0c35`. The receipt records the
 `release-verify` gate; registry publication was not independently queried.
-The dated 0.2.21 notes match that release. At the maintainer's request, completed
-gateway work is grouped in the undated **0.2.22** changelog draft, with Unreleased
-empty. Package version and release receipt remain at 0.2.21.
+The dated 0.2.22 notes match that release. At the maintainer's request, completed
+inspection work is grouped in the undated **0.2.23** changelog draft, with Unreleased
+empty. Package version and release receipt remain at 0.2.22.
 The browser fixture retains Caffeine 1.1.2 and supported SDK 5.4.0.
 The worktree was clean at the start of this batch. No dependency changed.
 No version mutation, commit, publication, deployment or deployed-provider effect ran here;
@@ -29,7 +29,71 @@ operator client. Library publication does not qualify the service or Canic remov
 | M3 — Caffeine and operator integration | In progress: shared transports with local IC evidence | Qualified provider transport, completion/economics and production client |
 | M4 — managed parity and acceptance | Not implemented | Same journey through Canic adapter, complete replacement evidence and handoff |
 
-## Current focus — shared gateway revocation, refresh and cancellation
+## Current focus — shared upload/reference capacity and exact inspection
+
+`workflow::references::capacity::inspect` now provides `blob_reference_capacity`
+in the standalone host and both admission fixtures. Requests bind the exact tenant
+scope and provider root. The same maintained model counters supply lifetime
+references, unreserved receipts, reserved cleanup receipts and fresh-retain
+headroom. Responses echo the request and expose the owner's restore fence even
+for absent content. Unknown, foreign and unconfirmed roots remain indistinguishable;
+retired objects retain history with zero fresh retains. Suspension/restore allow
+inspection only. No reservation, receipt, provider effect or record is created.
+
+The private reference-capacity DTO, endpoints and duplicate conversions are removed.
+Inventory inspection checks exact echoes and reports a fence observed after its
+earlier upload-capacity query. Content discovery is still a private fixture query.
+Both native boundary tests and all thirteen inventory unit tests pass. Eight
+affected PocketIC cases pass: two standalone, two storage planning, two inventory
+subprocess cases and both reference/multifile cleanup resource cases. IC execution
+totals 142.69 seconds, including 125.45 seconds for the multifile case; this batch
+does not claim a performance improvement or refresh the retained resource reports.
+Strict affected Clippy, all three release Wasm builds, generated standalone Candid
+comparison, warning-free core/host rustdoc, formatting and diff checks pass.
+No full CI/release gate or deployed-provider operation ran.
+Stable schemas, memory grants, allocator, dependencies and version are unchanged.
+
+`workflow::uploads::capacity::inspect` now provides tenant-only
+`blob_upload_capacity` in the standalone host, durable storage fixture and transient
+admission fixture. All use the same scope/DTOs/conversion over existing headroom
+calculations. A read-only ops access trait handles the two maintained owners; the
+heap owner has no restore path, while the durable owner exposes its actual fence.
+Missing enrollment rejects; suspension and restoration preserve inspection.
+Independent lifetime/concurrent/leaf/byte dimensions reserve nothing and establish
+no provider, allocation or retry authority. No histories are scanned.
+
+The private capacity DTOs, endpoint names and duplicate conversions are removed.
+Existing tests and the local inventory tool consume the shared contract; inventory
+JSON includes the fence and reports `service_fenced` despite spare quota.
+Three native boundary tests and twelve inventory unit tests pass. Nine affected
+PocketIC cases pass (8.98 seconds total IC execution), including standalone shared
+contention, passive replicated reads, scope/ingress rejection, suspended cleanup,
+restore fencing, billing through settlement and actual inventory subprocesses.
+Release Wasm for all three hosts and generated standalone Candid comparison pass.
+Strict affected core/host/integration Clippy, warning-free core/host rustdoc,
+formatting and diff checks pass. The removed fixture capacity contract has no
+remaining Rust consumers.
+No stable schema, memory grant, allocator, dependency or package version changed.
+No full CI/release gate or deployed provider operation ran.
+
+The standalone host now exports `blob_upload_status` through the existing
+`workflow::uploads::inspect` handler and shared DTOs, matching the storage fixture.
+It authenticates actual tenant/service and binds the complete original upload,
+with independent full-width operation/object/incarnation/reference identities.
+The query reports retained local phase and revocation without requiring uploader
+or expiry. It stays passive through suspension and restore; historical confirmation
+is not current liveness, retry, publication or operational recovery authority.
+The existing response has no fence field; configuration/history retain that
+separate observation. No new schema, record, memory grant or provider effect exists.
+
+Both new standalone PocketIC tests pass (4.47 seconds), covering ordinary and
+replicated passive inspection, unknown operations, malformed/changed bindings,
+caller isolation, cancellation under suspension, ingress bounds and restoration.
+Strict host/standalone-test Clippy, release host Wasm and generated Candid comparison
+pass. No full CI/release gate ran. Remaining provider/operator handlers, qualified
+completion, operational recovery and the Canic adapter remain open.
+
+## Shared gateway revocation, refresh and cancellation — included in 0.2.22
 
 `dto::gateway` and `workflow::gateways::revocation::revoke` now expose
 `blob_revoke_gateway` in the standalone host and storage fixture. Full operator

@@ -1,4 +1,5 @@
 //! Canonical receipt conversion, bounded reply decoding and explicit IC transport.
+pub mod capacity;
 pub mod client;
 pub mod reply;
 use crate::{

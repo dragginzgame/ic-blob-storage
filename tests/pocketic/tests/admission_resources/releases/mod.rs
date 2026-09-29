@@ -1,8 +1,12 @@
 //! Synthetic multi-file manifests and explicit host-fact substitutes, not Miner acceptance.
 use super::*;
-use blob_test_protocol::admission::{
-    ContentLookup,
-    release::{LifecycleCommand, ReferenceCapacity},
+use blob_test_protocol::admission::release::LifecycleCommand;
+use ic_blob_storage::dto::{
+    reference::capacity::{
+        ReferenceCapacityFailure, ReferenceCapacityRequest, ReferenceCapacityResponse,
+        ReferenceHeadroom,
+    },
+    tenant::TenantScope,
 };
 use ic_blob_storage::model::identity::caffeine::{
     CaffeineHashLimits, CaffeineHeader, manifest::builder::CaffeineManifestBuilder,
@@ -72,21 +76,25 @@ fn capacity(
     f: &Fixture,
     actor: Principal,
     request: Request,
-) -> Result<Option<ReferenceCapacity>, Failure> {
-    f.harness
+) -> Result<Option<ReferenceHeadroom>, ReferenceCapacityFailure> {
+    let input = ReferenceCapacityRequest {
+        scope: TenantScope {
+            service: request.service,
+            tenant: request.tenant,
+            namespace: request.namespace,
+        },
+        root: request.root,
+    };
+    let result: Result<ReferenceCapacityResponse, ReferenceCapacityFailure> = f
+        .harness
         .pic
-        .query_candid_as(
-            f.service,
-            actor,
-            "reference_capacity",
-            (ContentLookup {
-                service: request.service,
-                tenant: request.tenant,
-                namespace: request.namespace,
-                root: request.root,
-            },),
-        )
-        .unwrap()
+        .query_candid_as(f.service, actor, "blob_reference_capacity", (input,))
+        .unwrap();
+    result.map(|response| {
+        assert_eq!(response.request, input);
+        assert!(!response.fenced);
+        response.headroom
+    })
 }
 
 fn reference(request: Request, generation: u128, retain: bool) -> Command {
@@ -369,7 +377,10 @@ fn resource_multifile_release_history_preserves_cleanup_at_capacity() {
     let inputs = populate(&f, &mut samples);
     let first = inputs[0];
     for actor in [f.operator, f.uploader, f.controller, f.other] {
-        assert_eq!(capacity(&f, actor, first.request), Err(Failure::NotProject));
+        assert_eq!(
+            capacity(&f, actor, first.request),
+            Err(ReferenceCapacityFailure::Denied)
+        );
         assert_eq!(
             f.call(
                 actor,
@@ -397,7 +408,7 @@ fn resource_multifile_release_history_preserves_cleanup_at_capacity() {
     for input in &inputs {
         assert_eq!(
             capacity(&f, f.project, input.request),
-            Ok(Some(ReferenceCapacity {
+            Ok(Some(ReferenceHeadroom {
                 reference_slots: 0,
                 unreserved_receipts: 0,
                 release_reserved_receipts: 1,

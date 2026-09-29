@@ -85,6 +85,16 @@ fn blob_upload_admission(
 ) -> Result<UploadAdmissionResponse, UploadAdmissionFailure> {
     workflow::admission(context(), input)
 }
+#[ic_cdk::query(hidden = true, decode_with = "ops::decode")]
+#[candid::candid_method(query)]
+fn blob_upload_status(
+    input: ic_blob_storage::dto::reference::ReferenceUpload,
+) -> Result<
+    ic_blob_storage::dto::upload::UploadStatusResponse,
+    ic_blob_storage::dto::upload::UploadStatusFailure,
+> {
+    workflow::upload_status(context(), input)
+}
 #[ic_cdk::update(hidden = true, decode_with = "ops::decode")]
 #[candid::candid_method(update)]
 fn blob_revoke_upload(
@@ -167,6 +177,26 @@ fn blob_cancel_gateway_sync(
     input: ic_blob_storage::dto::gateway::sync::GatewaySyncCancellation,
 ) -> Result<(), ic_blob_storage::dto::gateway::sync::GatewaySyncFailure> {
     workflow::cancel_gateway_sync(context(), input)
+}
+#[ic_cdk::query(hidden = true, decode_with = "ops::decode")]
+#[candid::candid_method(query)]
+fn blob_upload_capacity(
+    input: ic_blob_storage::dto::tenant::TenantScope,
+) -> Result<
+    ic_blob_storage::dto::upload::capacity::UploadCapacityResponse,
+    ic_blob_storage::dto::upload::capacity::UploadCapacityFailure,
+> {
+    workflow::upload_capacity(context(), input)
+}
+#[ic_cdk::query(hidden = true, decode_with = "ops::decode")]
+#[candid::candid_method(query)]
+fn blob_reference_capacity(
+    input: ic_blob_storage::dto::reference::capacity::ReferenceCapacityRequest,
+) -> Result<
+    ic_blob_storage::dto::reference::capacity::ReferenceCapacityResponse,
+    ic_blob_storage::dto::reference::capacity::ReferenceCapacityFailure,
+> {
+    workflow::reference_capacity(context(), input)
 }
 ic_cdk::export_candid!();
 pub(crate) fn interface() -> String {

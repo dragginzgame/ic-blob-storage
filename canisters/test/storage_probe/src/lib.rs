@@ -228,15 +228,21 @@ fn blob_upload_history(
 }
 
 #[ic_cdk::query(decode_with = "ops::decode")]
-fn admission_capacity(
-    input: blob_test_protocol::admission::planning::AdmissionCapacityInput,
-) -> Result<blob_test_protocol::admission::planning::AdmissionCapacity, Failure> {
+fn blob_upload_capacity(
+    input: ic_blob_storage::dto::tenant::TenantScope,
+) -> Result<
+    ic_blob_storage::dto::upload::capacity::UploadCapacityResponse,
+    ic_blob_storage::dto::upload::capacity::UploadCapacityFailure,
+> {
     workflow::admission_capacity(context(), input)
 }
 #[ic_cdk::query(decode_with = "ops::decode")]
-fn reference_capacity(
-    input: blob_test_protocol::admission::ContentLookup,
-) -> Result<Option<blob_test_protocol::admission::release::ReferenceCapacity>, Failure> {
+fn blob_reference_capacity(
+    input: ic_blob_storage::dto::reference::capacity::ReferenceCapacityRequest,
+) -> Result<
+    ic_blob_storage::dto::reference::capacity::ReferenceCapacityResponse,
+    ic_blob_storage::dto::reference::capacity::ReferenceCapacityFailure,
+> {
     workflow::reference_capacity(context(), input)
 }
 #[ic_cdk::query(decode_with = "ops::decode")]

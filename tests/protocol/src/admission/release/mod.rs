@@ -39,16 +39,3 @@ pub enum ReferenceFailure {
     /// Current lifecycle forbids the operation.
     Phase,
 }
-
-/// Passive tenant-authorized history headroom, not an admission reservation.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
-pub struct ReferenceCapacity {
-    /// Unused lifetime reference identities.
-    pub reference_slots: u64,
-    /// Unreserved receipt slots.
-    pub unreserved_receipts: u64,
-    /// Cleanup slots reserved for active references.
-    pub release_reserved_receipts: u64,
-    /// Fresh distinct retains possible at observation time.
-    pub fresh_retains: u64,
-}

@@ -182,15 +182,25 @@ pub(crate) fn scan(
 
 pub(crate) fn admission_capacity(
     context: UploadContext,
-    input: blob_test_protocol::admission::planning::AdmissionCapacityInput,
-) -> Result<blob_test_protocol::admission::planning::AdmissionCapacity, Failure> {
-    ops::planning::admission(context, input)
+    input: ic_blob_storage::dto::tenant::TenantScope,
+) -> Result<
+    ic_blob_storage::dto::upload::capacity::UploadCapacityResponse,
+    ic_blob_storage::dto::upload::capacity::UploadCapacityFailure,
+> {
+    ops::read::download::with_uploads(|uploads| {
+        ic_blob_storage::workflow::uploads::capacity::inspect(uploads, context, input)
+    })
 }
 pub(crate) fn reference_capacity(
     context: UploadContext,
-    input: blob_test_protocol::admission::ContentLookup,
-) -> Result<Option<blob_test_protocol::admission::release::ReferenceCapacity>, Failure> {
-    ops::planning::reference(context, input)
+    input: ic_blob_storage::dto::reference::capacity::ReferenceCapacityRequest,
+) -> Result<
+    ic_blob_storage::dto::reference::capacity::ReferenceCapacityResponse,
+    ic_blob_storage::dto::reference::capacity::ReferenceCapacityFailure,
+> {
+    ops::read::download::with_uploads(|uploads| {
+        ic_blob_storage::workflow::references::capacity::inspect(uploads, context, input)
+    })
 }
 pub(crate) fn observe_roots(
     context: UploadContext,

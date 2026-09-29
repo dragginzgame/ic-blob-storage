@@ -345,6 +345,33 @@ type ReferenceAction = variant {
   // Retain the named reference.
   Retain;
 };
+// Typed inspection refusal; never interpreted as absent content.
+type ReferenceCapacityFailure = variant {
+  // Inconsistent retained counters or failed boundary conversion.
+  Internal;
+  // Zero namespace or invalid tenant principal.
+  Invalid;
+  // Service or namespace differs from the installed owner.
+  Binding;
+  // Actual caller is not the tenant named in the request.
+  Denied;
+};
+// Root lookup; a digest is not tenant authority or proof of global absence.
+type ReferenceCapacityRequest = record {
+  // Provider root to inspect within this tenant's retained history.
+  root : blob;
+  // Actual service, positive namespace and tenant caller must match.
+  scope : TenantScope;
+};
+// Correlated observation, not reservation, liveness or mutation authority.
+type ReferenceCapacityResponse = record {
+  // Restored owner allows inspection only, including when headroom is absent.
+  fenced : bool;
+  // Exact original tenant/root request.
+  request : ReferenceCapacityRequest;
+  // Absent for unknown, foreign or unconfirmed roots; never proof of global absence.
+  headroom : opt ReferenceHeadroom;
+};
 // Original successful transition; it says nothing about current liveness.
 type ReferenceChange = variant {
   // The original operation required no change.
@@ -385,6 +412,18 @@ type ReferenceFailure = variant {
   Unknown;
   // Existing identity has different original arguments.
   Conflict;
+};
+// Independent lifetime capacity dimensions, without allocating a reference or receipt.
+type ReferenceHeadroom = record {
+  // Fresh distinct retains permitted by these counters and lifecycle only.
+  // Enrollment, identity, scope and restore checks still apply at mutation time.
+  fresh_retains : nat64;
+  // Receipt slots not already reserved for cleanup.
+  unreserved_receipts : nat64;
+  // Cleanup receipt slots reserved for active references.
+  release_reserved_receipts : nat64;
+  // Unused lifetime reference identities.
+  reference_slots : nat64;
 };
 // Exact original result plus whether this call recorded it or replayed history.
 type ReferenceMutationResponse = record {
@@ -448,26 +487,38 @@ type Result_1 = variant {
   Err : ReferenceTransitionFailure;
 };
 type Result_10 = variant {
+  Ok : ReferenceReceiptLookup;
+  Err : ReferenceFailure;
+};
+type Result_11 = variant {
   Ok : GatewayRevocationResponse;
   Err : GatewayRevocationFailure;
 };
-type Result_11 = variant {
+type Result_12 = variant {
   Ok : UploadRevocationResponse;
   Err : UploadAdmissionFailure;
 };
-type Result_12 = variant { Ok : GatewaySyncResponse; Err : GatewaySyncFailure };
-type Result_13 = variant { Ok : TenantEnrollmentResponse; Err : TenantFailure };
-type Result_14 = variant {
+type Result_13 = variant { Ok : GatewaySyncResponse; Err : GatewaySyncFailure };
+type Result_14 = variant { Ok : TenantEnrollmentResponse; Err : TenantFailure };
+type Result_15 = variant {
   Ok : UploadAdmissionResponse;
   Err : UploadAdmissionFailure;
 };
-type Result_15 = variant {
+type Result_16 = variant {
+  Ok : UploadCapacityResponse;
+  Err : UploadCapacityFailure;
+};
+type Result_17 = variant {
   Ok : UploadHistoryPage;
   Err : FundingHistoryFailure;
 };
-type Result_16 = variant {
+type Result_18 = variant {
   Ok : UploadManifestResponse;
   Err : UploadManifestFailure;
+};
+type Result_19 = variant {
+  Ok : UploadStatusResponse;
+  Err : UploadStatusFailure;
 };
 type Result_2 = variant {
   Ok : ReferenceMutationResponse;
@@ -488,7 +539,10 @@ type Result_8 = variant {
   Ok : UploadManifestMutation;
   Err : UploadManifestFailure;
 };
-type Result_9 = variant { Ok : ReferenceReceiptLookup; Err : ReferenceFailure };
+type Result_9 = variant {
+  Ok : ReferenceCapacityResponse;
+  Err : ReferenceCapacityFailure;
+};
 // Explicit provider identity and local cycle thresholds, with no service defaults.
 type ServiceBillingInput = record {
   // Positive minimum provider balance.
@@ -680,6 +734,42 @@ type UploadAdmissionResponse = record {
   // Current retained phase; confirmation remains historical after release.
   state : UploadState;
 };
+// Refusal to inspect capacity, never an implicit zero or permission to upload.
+type UploadCapacityFailure = variant {
+  // Retained state or counter conversion is inconsistent.
+  Internal;
+  // Invalid tenant principal or zero namespace.
+  Invalid;
+  // No retained enrollment exists for this tenant.
+  NotEnrolled;
+  // Service or namespace differs from the installed owner.
+  Binding;
+  // Caller differs from the explicitly named tenant.
+  Denied;
+};
+// Current tighter global/tenant headroom, including retained provider liabilities.
+type UploadCapacityResponse = record {
+  // Configured per-object framed metadata byte limit.
+  max_header_bytes : nat64;
+  // Remaining lifetime operation/root slots; cleanup never refunds history.
+  remaining_objects : nat64;
+  // Configured per-object metadata entry limit.
+  max_headers : nat64;
+  // Restored owner permits inspection only, regardless of positive headroom.
+  fenced : bool;
+  // Remaining concurrent reservations, including possibly exposed uploads.
+  remaining_active_uploads : nat64;
+  // Exact authenticated service, namespace and tenant.
+  scope : TenantScope;
+  // Remaining lifetime retained leaf slots.
+  remaining_manifest_chunks : nat64;
+  // Suspension preserves inspection while preventing fresh admission.
+  enrollment : TenantEnrollment;
+  // Configured per-object byte ceiling, independent of remaining bytes.
+  max_object_bytes : nat64;
+  // Minimum logical, physical and continuing-billing byte headroom.
+  remaining_bytes : nat;
+};
 // Current local reservation or confirmed lifecycle.
 type UploadContentState = variant {
   // No references remain; provider deletion unresolved.
@@ -837,6 +927,30 @@ type UploadState = variant {
   // Cancelled before exposure; retained identity is not reusable.
   Cancelled;
 };
+// Failed exact upload inspection. Absence does not authorize a fresh upload.
+type UploadStatusFailure = variant {
+  // Inconsistent internal storage.
+  Internal;
+  // Invalid original identity or length.
+  Invalid;
+  // Service/namespace differs from installed configuration.
+  Binding;
+  // Actual caller differs from the named tenant.
+  Denied;
+  // No retained upload under that operation identity.
+  Unknown;
+  // Retained operation has different original arguments.
+  Conflict;
+};
+// Full original binding and current retained local state.
+type UploadStatusResponse = record {
+  // Local issuance permission has been withdrawn; escaped effects remain possible.
+  revoked : bool;
+  // Local lifecycle observation, not current reference liveness.
+  state : UploadState;
+  // Exact original upload, including its independent first reference identity.
+  upload : ReferenceUpload;
+};
 service : (ServiceConfigurationInput) -> {
   blob_admit_upload : (UploadAdmissionRequest) -> (Result);
   blob_apply_reference : (ReferenceCommand) -> (Result_2);
@@ -846,13 +960,16 @@ service : (ServiceConfigurationInput) -> {
   blob_funding_outcome : (FundingOutcomeRequest) -> (Result_6) query;
   blob_local_status : (OperatorScope) -> (Result_7) query;
   blob_prepare_upload : (UploadManifestRequest) -> (Result_8);
-  blob_reference_receipt : (ReferenceCommand) -> (Result_9) query;
-  blob_revoke_gateway : (GatewayRevocationRequest) -> (Result_10);
-  blob_revoke_upload : (UploadAdmissionRequest) -> (Result_11);
-  blob_sync_gateways : (OperatorScope) -> (Result_12);
-  blob_tenant : (TenantScope) -> (Result_13) query;
-  blob_update_tenant : (TenantUpdateRequest) -> (Result_13);
-  blob_upload_admission : (UploadAdmissionRequest) -> (Result_14) query;
-  blob_upload_history : (UploadHistoryRequest) -> (Result_15) query;
-  blob_upload_manifest : (UploadAdmissionRequest) -> (Result_16) query;
+  blob_reference_capacity : (ReferenceCapacityRequest) -> (Result_9) query;
+  blob_reference_receipt : (ReferenceCommand) -> (Result_10) query;
+  blob_revoke_gateway : (GatewayRevocationRequest) -> (Result_11);
+  blob_revoke_upload : (UploadAdmissionRequest) -> (Result_12);
+  blob_sync_gateways : (OperatorScope) -> (Result_13);
+  blob_tenant : (TenantScope) -> (Result_14) query;
+  blob_update_tenant : (TenantUpdateRequest) -> (Result_14);
+  blob_upload_admission : (UploadAdmissionRequest) -> (Result_15) query;
+  blob_upload_capacity : (TenantScope) -> (Result_16) query;
+  blob_upload_history : (UploadHistoryRequest) -> (Result_17) query;
+  blob_upload_manifest : (UploadAdmissionRequest) -> (Result_18) query;
+  blob_upload_status : (ReferenceUpload) -> (Result_19) query;
 }

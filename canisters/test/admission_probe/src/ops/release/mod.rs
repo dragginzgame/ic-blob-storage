@@ -5,13 +5,12 @@ use super::{
     mutate,
 };
 use blob_test_protocol::admission::{
-    ContentLookup, Failure, Outcome,
+    Failure, Outcome,
     input::{ReferenceInput, ReferenceReceipt},
-    release::{LifecycleCommand, ReferenceCapacity, ReferenceFailure},
+    release::{LifecycleCommand, ReferenceFailure},
 };
 use ic_blob_storage::model::{
     catalog::{CatalogError, admission::UploadRequest},
-    identity::ProviderRootHash,
     lifecycle::{
         LifecycleChange, LifecycleError, ReferenceId,
         binding::ReferenceKey,
@@ -20,7 +19,7 @@ use ic_blob_storage::model::{
             ReferenceRequestOutcome,
         },
     },
-    service::upload::{UploadAdmissionError, UploadContext, content::ContentLookup as ModelLookup},
+    service::upload::{UploadAdmissionError, UploadContext},
 };
 use std::num::NonZeroU128;
 
@@ -177,30 +176,16 @@ const fn lifecycle_error(error: LifecycleError) -> ReferenceFailure {
 
 pub(crate) fn capacity(
     context: UploadContext,
-    input: ContentLookup,
-) -> Result<Option<ReferenceCapacity>, Failure> {
-    if input.service != context.service {
-        return Err(Failure::WrongService);
-    }
-    let input = ModelLookup {
-        tenant: input.tenant,
-        namespace: number(input.namespace)?,
-        root: ProviderRootHash::try_from(input.root.as_slice()).expect("fixed hash"),
-    };
+    input: ic_blob_storage::dto::reference::capacity::ReferenceCapacityRequest,
+) -> Result<
+    ic_blob_storage::dto::reference::capacity::ReferenceCapacityResponse,
+    ic_blob_storage::dto::reference::capacity::ReferenceCapacityFailure,
+> {
     STATE.with_borrow(|state| {
-        state
-            .as_ref()
-            .expect("initialized probe")
-            .owner
-            .reference_capacity(context, input)
-            .map(|view| {
-                view.map(|view| ReferenceCapacity {
-                    reference_slots: view.reference_slots as u64,
-                    unreserved_receipts: view.unreserved_receipts as u64,
-                    release_reserved_receipts: view.release_reserved_receipts as u64,
-                    fresh_retains: view.fresh_retains as u64,
-                })
-            })
-            .map_err(failure)
+        ic_blob_storage::workflow::references::capacity::inspect(
+            &state.as_ref().expect("initialized probe").owner,
+            context,
+            input,
+        )
     })
 }

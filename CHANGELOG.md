@@ -2,6 +2,32 @@
 
 ## [Unreleased]
 
+## [0.2.23]
+
+### Added
+
+- Shared tenant/root-scoped `blob_reference_capacity` query in the standalone host
+  and both admission fixtures. Correlated responses preserve unknown/foreign/
+  unconfirmed absence, lifetime reference slots, reserved cleanup receipts and
+  restore fencing. Replaced the private fixture DTO and conversions; inventory
+  inspection validates exact replies and blocks on a later observed restore fence.
+  Native and PocketIC tests cover caller isolation, suspension, cleanup at capacity,
+  settlement, restoration, bounded ingress and inventory subprocesses.
+- Shared tenant-only `blob_upload_capacity` query in the standalone host and both
+  admission fixtures, reusing maintained global/tenant headroom calculations.
+  Responses bind the tenant scope and report enrollment, object/metadata limits,
+  lifetime history, concurrent slots, byte headroom and the restore fence. Native
+  and PocketIC coverage includes full-width values, shared contention, cleanup,
+  continuing billing, bounded ingress and passive suspended/restored inspection.
+  Replaced the private capacity DTOs and conversions; the inventory tool consumes
+  the shared response and reports restored services as blocked despite spare quota.
+- Standalone `blob_upload_status` query using the shared exact-upload handler and
+  maintained DTOs. Tenant-only history stays available through suspension and
+  fenced restoration without granting current reference liveness or upload retry
+  authority. PocketIC tests cover independent full-width identities, passive query
+  and replicated execution, cancellation, caller isolation, changed original
+  arguments and bounded ingress. The generated deployment Candid includes the query.
+
 ## [0.2.22] - 2026-09-29
 
 ### Added

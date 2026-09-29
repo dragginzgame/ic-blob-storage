@@ -1,4 +1,5 @@
 //! Shared exact reference mutation and receipt inspection; no provider dispatch.
+pub mod capacity;
 use crate::{
     dto::reference::{ReferenceCommand, ReferenceFailure, ReferenceReceiptLookup},
     model::service::upload::UploadContext,

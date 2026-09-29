@@ -4,7 +4,6 @@ use crate::journey::{JourneyManifest, JourneyUsage};
 use candid::{CandidType, Principal};
 use serde::Deserialize;
 pub mod input;
-pub mod planning;
 pub mod release;
 
 /// Fixed local measurement envelopes; none is a production configuration.

@@ -1,8 +1,12 @@
 //! Many simultaneously live references; cleanup capacity remains reserved.
 use super::*;
-use blob_test_protocol::admission::{
-    ContentLookup,
-    release::{LifecycleCommand, ReferenceCapacity},
+use blob_test_protocol::admission::release::LifecycleCommand;
+use ic_blob_storage::dto::{
+    reference::capacity::{
+        ReferenceCapacityFailure, ReferenceCapacityRequest, ReferenceCapacityResponse,
+        ReferenceHeadroom,
+    },
+    tenant::TenantScope,
 };
 
 const REFERENCES: u64 = 256;
@@ -16,23 +20,24 @@ fn reference(request: Request, id: u64, retain: bool) -> Command {
     })
 }
 
-fn capacity(f: &Fixture, request: Request) -> ReferenceCapacity {
-    let result: Result<Option<ReferenceCapacity>, Failure> = f
+fn capacity(f: &Fixture, request: Request) -> ReferenceHeadroom {
+    let input = ReferenceCapacityRequest {
+        scope: TenantScope {
+            service: request.service,
+            tenant: request.tenant,
+            namespace: request.namespace,
+        },
+        root: request.root,
+    };
+    let result: Result<ReferenceCapacityResponse, ReferenceCapacityFailure> = f
         .harness
         .pic
-        .query_candid_as(
-            f.service,
-            f.project,
-            "reference_capacity",
-            (ContentLookup {
-                service: request.service,
-                tenant: request.tenant,
-                namespace: request.namespace,
-                root: request.root,
-            },),
-        )
+        .query_candid_as(f.service, f.project, "blob_reference_capacity", (input,))
         .unwrap();
-    result.unwrap().unwrap()
+    let response = result.unwrap();
+    assert_eq!(response.request, input);
+    assert!(!response.fenced);
+    response.headroom.unwrap()
 }
 
 fn changed(replayed: bool) -> Outcome {
@@ -152,7 +157,7 @@ fn resource_reference_history_reserves_every_release_and_keeps_exact_receipts() 
     let full = capacity(&f, input.request);
     assert_eq!(
         full,
-        ReferenceCapacity {
+        ReferenceHeadroom {
             reference_slots: 0,
             unreserved_receipts: 0,
             release_reserved_receipts: REFERENCES,
@@ -181,7 +186,7 @@ fn resource_reference_history_reserves_every_release_and_keeps_exact_receipts() 
     let (max_release, max_release_workflow) = release_all(&f, input, &mut samples);
     assert_eq!(
         capacity(&f, input.request),
-        ReferenceCapacity {
+        ReferenceHeadroom {
             reference_slots: 0,
             unreserved_receipts: 0,
             release_reserved_receipts: 0,
