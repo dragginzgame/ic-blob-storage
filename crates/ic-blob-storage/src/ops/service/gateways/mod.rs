@@ -41,6 +41,9 @@ pub struct StableGatewayRegistry<M: Memory> {
     fenced: bool,
 }
 impl<M: Memory> StableGatewayRegistry<M> {
+    pub(crate) const fn inspection_configuration(&self) -> &ServiceConfiguration {
+        &self.config
+    }
     /// Install empty membership with no pending sync in fresh exclusive memory.
     /// # Errors
     /// Rejects allocated memory or an unsupported member envelope before writing.

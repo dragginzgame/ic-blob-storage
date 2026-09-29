@@ -37,6 +37,23 @@ struct Fixture {
     other: Principal,
 }
 impl Fixture {
+    fn local_status(&self) -> ic_blob_storage::dto::operator::LocalServiceStatus {
+        self.harness
+            .pic
+            .query_candid_as::<Result<_, ic_blob_storage::dto::operator::LocalStatusFailure>, _>(
+                self.service,
+                self.operator,
+                ic_blob_storage::ops::service::operator::LOCAL_STATUS_METHOD,
+                (ic_blob_storage::dto::operator::OperatorScope {
+                    service: self.service,
+                    namespace: 1,
+                    cashier: self.operator,
+                    payment_account: self.service,
+                },),
+            )
+            .unwrap()
+            .unwrap()
+    }
     fn new() -> Self {
         Self::with_operator(Harness::new(), Fake::principal(1))
     }

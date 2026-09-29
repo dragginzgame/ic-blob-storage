@@ -1,0 +1,18 @@
+[package]
+name = "ic-blob-storage-canister"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+publish = false
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+candid.workspace = true
+serde.workspace = true
+ic-cdk.workspace = true
+ic-blob-storage = { path = "../../crates/ic-blob-storage" }
+
+[lints]
+workspace = true

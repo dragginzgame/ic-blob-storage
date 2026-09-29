@@ -1,0 +1,619 @@
+// Operator-only installed configuration and local restore state.
+type HostConfigurationView = record {
+  // Restored stores allow inspection only; false is not provider readiness.
+  fenced : bool;
+  // Package release bound to this installation, not a module hash.
+  release : text;
+  // Exact installed configuration; observation performs no provider calls.
+  configuration : ServiceConfigurationInput;
+};
+// Inspection authority rejection.
+type HostFailure = variant {
+  // Caller is not the configured operator; controller status is insufficient.
+  Denied;
+};
+// Complete maintained totals for this local funding journal only.
+type LocalFundingStatus = record {
+  // Retained lifetime intents, including terminal outcomes.
+  retained_intents : nat64;
+  // Transport-accepted attachments; not necessarily credited by the provider.
+  transport_accepted : nat;
+  // Funding owner refuses mutations after restoration.
+  fenced : bool;
+  // Lifetime exact refunds, already included in available allocation.
+  refunded : nat;
+  // Highest retained identity; not a restore-safe allocator.
+  last_operation : opt nat;
+  // Attachment whose transport outcome remains absent.
+  reserved_or_uncertain : nat;
+  // Remaining attachment allocation including its reserve.
+  available_allocation : nat;
+  // Remaining attachment allowance after reserve; never dispatch authority.
+  attachment_allowance : nat;
+  // Lifetime proven unsent attachments, not callback refunds.
+  not_enqueued : nat;
+  // Installed lifetime intent capacity.
+  intent_capacity : nat64;
+};
+// One bounded membership row, not evidence of deployed provider authorization.
+type LocalGatewayStatus = record {
+  // Installed principals in retained order, at most 1024.
+  members : vec principal;
+  // Gateway owner refuses mutations after restoration.
+  fenced : bool;
+  // Last allocated local sync identity, including invalidated attempts.
+  last_sequence : nat64;
+  // Outstanding local read-only sync.
+  pending_sequence : opt nat64;
+};
+// Occupied read slots survive interruption; inspection does not release them.
+type LocalReadStatus = record {
+  // Read owner refuses admission and completion after restoration.
+  fenced : bool;
+  // Highest locally allocated session identity.
+  last_sequence : nat64;
+  // Occupied sessions, including abandoned callbacks.
+  sessions : nat32;
+  // Reserved transport response buffers.
+  reserved_bytes : nat64;
+};
+// One synchronous local snapshot. No provider call or history traversal occurs.
+// Separate fences remain visible; none of these observations authorize dispatch.
+type LocalServiceStatus = record {
+  // Upload reservations and continuing object obligations.
+  uploads : LocalUploadStatus;
+  // Independently checked full request scope.
+  scope : OperatorScope;
+  // Bounded installed membership and local sync state.
+  gateways : LocalGatewayStatus;
+  // Retained concurrent read occupancy.
+  reads : LocalReadStatus;
+  // Local attachment allocation; not platform liquidity or provider credit.
+  funding : LocalFundingStatus;
+};
+// Local inspection refusal; failures never become empty or zero observations.
+type LocalStatusFailure = variant {
+  // Retained accounting or registry state cannot be read consistently.
+  Internal;
+  // Actual/requested scope or assembled owners differ.
+  Binding;
+  // Caller is not the configured operator.
+  Denied;
+};
+// Maintained upload counters, including cancelled/settled lifetime history.
+type LocalUploadStatus = record {
+  // Continuing billing-liability bytes, including reservations.
+  liability_bytes : nat;
+  // Logical bytes, including reservations.
+  logical_bytes : nat;
+  // Upload owner refuses mutations after restoration.
+  fenced : bool;
+  // Lifetime operation slots; cancellation does not free these.
+  operations : nat64;
+  // Reserved or possibly exposed uploads.
+  active_reservations : nat64;
+  // Physical bytes, including reservations.
+  physical_bytes : nat;
+  // Bytes reserved by these active uploads.
+  reserved_bytes : nat;
+};
+// Complete installed service/provider/account scope for operator inspection.
+type OperatorScope = record {
+  // Actual storage service.
+  "service" : principal;
+  // Installed Cashier, not a caller-selected transport destination.
+  cashier : principal;
+  // Installed payer account.
+  payment_account : principal;
+  // Positive installed local namespace.
+  namespace : nat;
+};
+// Exact reference operation kind.
+type ReferenceAction = variant {
+  // Release the named reference.
+  Release;
+  // Retain the named reference.
+  Retain;
+};
+// Original successful transition; it says nothing about current liveness.
+type ReferenceChange = variant {
+  // The original operation required no change.
+  Unchanged;
+  // The original operation changed the reference.
+  Changed;
+};
+// Passive exact intent shared by mutation and receipt lookup. Persist before dispatch.
+type ReferenceCommand = record {
+  // Exact original action.
+  action : ReferenceAction;
+  // Reference targeted by the operation.
+  reference : nat;
+  // Original confirmed upload.
+  upload : ReferenceUpload;
+  // Exact operation identity, independent of upload and reference IDs.
+  operation : nat;
+};
+// Admission/lookup refusal, distinct from a recorded transition failure.
+type ReferenceFailure = variant {
+  // Inconsistent storage or an unexpected internal result.
+  Internal;
+  // Invalid identity or declaration.
+  Invalid;
+  // Upload has not completed.
+  Unconfirmed;
+  // Fresh retain requires active enrollment. Exact replay and release remain allowed.
+  Inactive;
+  // Service or namespace differs from the installed owner.
+  Binding;
+  // Restored owner permits inspection only, including for exact mutation retries.
+  Fenced;
+  // No unreserved receipt slot; cleanup reservations remain protected.
+  Capacity;
+  // Actual caller is not the named tenant.
+  Denied;
+  // No matching upload operation is retained.
+  Unknown;
+  // Existing identity has different original arguments.
+  Conflict;
+};
+// Exact original result plus whether this call recorded it or replayed history.
+type ReferenceMutationResponse = record {
+  // True only when this call returned an already recorded result.
+  replayed : bool;
+  // Original transition result, including an admitted lifecycle failure.
+  receipt : ReferenceReceiptResponse;
+};
+// Explicit presence avoids Candid optional-value coercion hiding malformed data.
+type ReferenceReceiptLookup = variant {
+  // The exact original transition result.
+  Found : ReferenceReceiptResponse;
+  // No receipt in this owner; never permission to repeat an uncertain operation.
+  Absent;
+};
+// Exact recorded outcome. Historical success cannot authorize publication.
+type ReferenceReceiptResponse = record {
+  // Original success or failure, preserved across subsequent transitions.
+  result : Result_1;
+  // Complete original request, checked before disclosure by the client.
+  request : ReferenceCommand;
+};
+// Retained failure of an admitted operation, not failure to look up its receipt.
+type ReferenceTransitionFailure = variant {
+  // Lifetime reference capacity was exhausted.
+  Limit;
+  // Object deletion had already queued.
+  DeletionQueued;
+  // The reference had already been released.
+  Released;
+  // No such reference existed at the time.
+  UnknownReference;
+};
+// Complete original upload binding. Upload and object IDs are independent.
+type ReferenceUpload = record {
+  // Storage service canister.
+  "service" : principal;
+  // Object identity.
+  object : nat;
+  // Immutable provider root.
+  root : blob;
+  // Object lifetime.
+  incarnation : nat;
+  // Original upload operation.
+  upload : nat;
+  // Original declared nonzero length.
+  bytes : nat64;
+  // Tenant project canister.
+  tenant : principal;
+  // Local provider namespace.
+  namespace : nat;
+  // First reference admitted with the upload.
+  first_reference : nat;
+};
+type Result = variant {
+  Ok : UploadAdmissionMutation;
+  Err : UploadAdmissionFailure;
+};
+type Result_1 = variant {
+  Ok : ReferenceChange;
+  Err : ReferenceTransitionFailure;
+};
+type Result_10 = variant { Ok : UploadHistoryPage; Err : UploadHistoryFailure };
+type Result_11 = variant {
+  Ok : UploadManifestResponse;
+  Err : UploadManifestFailure;
+};
+type Result_2 = variant {
+  Ok : ReferenceMutationResponse;
+  Err : ReferenceFailure;
+};
+type Result_3 = variant { Ok : HostConfigurationView; Err : HostFailure };
+type Result_4 = variant { Ok : LocalServiceStatus; Err : LocalStatusFailure };
+type Result_5 = variant {
+  Ok : UploadManifestMutation;
+  Err : UploadManifestFailure;
+};
+type Result_6 = variant { Ok : ReferenceReceiptLookup; Err : ReferenceFailure };
+type Result_7 = variant {
+  Ok : UploadRevocationResponse;
+  Err : UploadAdmissionFailure;
+};
+type Result_8 = variant { Ok : TenantEnrollmentResponse; Err : TenantFailure };
+type Result_9 = variant {
+  Ok : UploadAdmissionResponse;
+  Err : UploadAdmissionFailure;
+};
+// Explicit provider identity and local cycle thresholds, with no service defaults.
+type ServiceBillingInput = record {
+  // Positive minimum provider balance.
+  minimum_balance : nat;
+  // Configured Cashier candidate; validation does not prove deployed behavior.
+  cashier : principal;
+  // Positive local cycle reserve.
+  reserve : nat;
+  // Positive target balance, at least the minimum.
+  target_balance : nat;
+  // Distinct gateway principals retained after validation.
+  max_gateway_unique : nat32;
+  // Raw gateway-list entries including duplicates.
+  max_gateway_entries : nat32;
+};
+// Candidate configuration for a separately authorized host installation.
+// No defaults, deployment authorization, provider namespace proof or mutation is implied.
+type ServiceConfigurationInput = record {
+  // Exact intended canister, checked against the host's actual identity.
+  "service" : principal;
+  // Explicit upload/catalog envelope; counts are portable to Wasm32.
+  resources : ServiceResourceInput;
+  // Explicit operator; controllers do not gain tenant authority.
+  operator : principal;
+  // Candidate Cashier and local funding policy; no payment is performed.
+  billing : ServiceBillingInput;
+  // Selected payer account; a different payer needs separate relationship proof.
+  payment_account : principal;
+  // Concurrent read occupancy and response buffer budgets.
+  reads : ServiceReadInput;
+  // Positive local namespace identity, not a provisioned gateway project/bucket.
+  namespace : nat;
+  // Separate local attachment allocation and retained funding history bound.
+  funding : ServiceFundingInput;
+};
+// Local attachment budget, not platform liquidity or provider credit.
+type ServiceFundingInput = record {
+  // Total lifetime attachment allocation in cycles.
+  allocated : nat;
+  // Positive amount kept out of attachment offers within this allocation.
+  reserve : nat;
+  // Positive lifetime journal capacity, including uncertain and completed attempts.
+  max_attempts : nat32;
+};
+// Explicit concurrent read bounds; abandoned sessions continue consuming capacity.
+type ServiceReadInput = record {
+  // Maximum response buffer reserved by one session.
+  reply_bytes : nat32;
+  // Reserved response buffer bytes per tenant.
+  tenant_bytes : nat64;
+  // Simultaneous slots per tenant.
+  tenant_sessions : nat32;
+  // Global simultaneous session slots.
+  sessions : nat32;
+  // Global reserved response buffer bytes.
+  bytes : nat64;
+};
+// Positive resource limits; conversion also checks all existing model relationships.
+type ServiceResourceInput = record {
+  // Framed metadata bytes per manifest.
+  max_header_bytes : nat32;
+  // Lifetime receipt slots per object, including reserved cleanup capacity.
+  max_receipts_per_object : nat32;
+  // Global concurrent upload reservations.
+  max_active : nat32;
+  // Concurrent upload reservations per tenant.
+  max_tenant_active : nat32;
+  // Metadata entries per manifest.
+  max_headers : nat32;
+  // Global lifetime object slots.
+  max_objects : nat32;
+  // Global byte budget for continuing billing obligations.
+  max_liability_bytes : nat;
+  // Lifetime tenant slots, including suspended entries.
+  max_tenants : nat32;
+  // Lifetime reference slots per object.
+  max_references_per_object : nat32;
+  // Largest admitted object in bytes.
+  max_object_bytes : nat64;
+  // Tenant logical-byte budget.
+  max_tenant_logical_bytes : nat;
+  // Global lifetime retained leaf slots.
+  max_chunks : nat32;
+  // Lifetime retained leaf slots per tenant.
+  max_tenant_chunks : nat32;
+  // Lifetime object slots per tenant.
+  max_tenant_objects : nat32;
+  // Global stored-byte budget, including unreconciled obligations.
+  max_physical_bytes : nat;
+};
+// Passive current enrollment, also used as an exact update precondition.
+type TenantEnrollment = record {
+  // Fresh admission is enabled; suspension preserves obligations and cleanup.
+  active : bool;
+  // Positive local activation generation; not a restore-safe allocation authority.
+  generation : nat64;
+};
+// Correlated observation, not a durable operation receipt or upload permission.
+type TenantEnrollmentResponse = record {
+  // This owner is inspection-only after restoration.
+  fenced : bool;
+  // Original requested service, namespace and tenant.
+  scope : TenantScope;
+  // Current enrollment, absent only for a never-enrolled tenant.
+  enrollment : opt TenantEnrollment;
+};
+// Typed refusal without granting authority or erasing tenant history.
+type TenantFailure = variant {
+  // Inconsistent retained state or unexpected internal result.
+  Internal;
+  // Invalid tenant principal or zero expected generation.
+  Invalid;
+  // Wrong running service or installed namespace.
+  Binding;
+  // Restored owners reject all updates, including no-ops.
+  Fenced;
+  // All lifetime tenant slots are occupied, including suspended entries.
+  Capacity;
+  // Mutation requires the operator; inspection requires the operator or tenant.
+  Denied;
+  // Reactivation cannot increment the generation; suspension remains possible.
+  GenerationExhausted;
+  // Current enrollment differs from the expected state; inspect before retrying.
+  Conflict;
+};
+// Exact service namespace and tenant; supplied identity alone grants no authority.
+type TenantScope = record {
+  // Intended running storage service.
+  "service" : principal;
+  // Tenant project, never inferred from the operator or controller.
+  tenant : principal;
+  // Positive installed local provider namespace.
+  namespace : nat;
+};
+// Operator-authorized compare-and-set; inspect after a lost reply before deciding again.
+type TenantUpdateRequest = record {
+  // Desired admission state; suspended tenants still consume lifetime capacity.
+  active : bool;
+  // Exact observed enrollment; `None` requires a never-enrolled tenant.
+  expected : opt TenantEnrollment;
+  // Exact destination and tenant.
+  scope : TenantScope;
+};
+// Admission/inspection refusal; missing history never proves safe provider retry.
+type UploadAdmissionFailure = variant {
+  // Inconsistent storage or an unexpected internal result.
+  Internal;
+  // Malformed identity, uploader or object length.
+  Invalid;
+  // Tenant is not enrolled or is suspended for fresh admission.
+  Inactive;
+  // Wrong installed service or namespace.
+  Binding;
+  // Restored owner permits inspection only.
+  Fenced;
+  // Configured object, history, reservation or byte capacity is exhausted.
+  Capacity;
+  // Caller is not the named tenant.
+  Denied;
+  // Exact operation has no retained permission.
+  Unknown;
+  // Fresh permission's exclusive deadline has passed.
+  Expired;
+  // Existing operation, root or object has conflicting arguments.
+  Conflict;
+};
+// Result of a synchronous local reservation, with no certificate or provider call.
+type UploadAdmissionMutation = record {
+  // Existing permission was observed without renewing it or reserving more capacity.
+  replayed : bool;
+  // Exact retained permission and phase.
+  admission : UploadAdmissionResponse;
+};
+// Immutable permission. Persist every field before dispatch; IDs are caller allocated.
+type UploadAdmissionRequest = record {
+  // Complete original upload and first-reference identity.
+  upload : ReferenceUpload;
+  // Explicit uploader, distinct from tenant admission authority.
+  uploader : principal;
+  // Exclusive issuance deadline in IC nanoseconds; retries never extend it.
+  expires_at_ns : nat64;
+};
+// Exact retained permission and historical phase, not issuance or serving authority.
+type UploadAdmissionResponse = record {
+  // Complete original permission, checked on both admission and inspection.
+  permission : UploadAdmissionRequest;
+  // Local permission was withdrawn; escaped effects may remain uncertain.
+  revoked : bool;
+  // Current retained phase; confirmation remains historical after release.
+  state : UploadState;
+};
+// Current local reservation or confirmed lifecycle.
+type UploadContentState = variant {
+  // No references remain; provider deletion unresolved.
+  DeletionPending;
+  // Unexposed local reservation.
+  Reserved;
+  // Confirmed content with live references.
+  Live;
+  // Physical deletion established; billing cessation unresolved.
+  ProviderDeleted;
+  // Escaped upload authority may have caused an effect.
+  ExposurePossible;
+  // Cancelled before exposure; identity remains retained.
+  Cancelled;
+  // Billing cessation established; history remains retained.
+  Settled;
+};
+// Untrusted forward position. Changes behind it require a fresh sweep.
+type UploadHistoryCursor = record {
+  // Original service.
+  "service" : principal;
+  // Last inspected operation; not necessarily a matching result.
+  after_request : nat;
+  // Tenant of the last inspected row.
+  after_tenant : principal;
+  // Original observer scope.
+  scope : UploadHistoryScope;
+  // Original filter.
+  filter : UploadHistoryFilter;
+  // Original local namespace.
+  namespace : nat;
+};
+// Complete original upload identity with its current local lifecycle.
+type UploadHistoryEntry = record {
+  // Operation, object and first-reference IDs are independent.
+  request : ReferenceUpload;
+  // Current observation; not publication or retry authority.
+  state : UploadContentState;
+};
+// Refusal never means empty history or safe retry.
+type UploadHistoryFailure = variant {
+  // Retained state could not be read consistently.
+  Internal;
+  // Zero or malformed identity.
+  Invalid;
+  // Wrong actual or installed service/namespace.
+  Binding;
+  // Actual caller does not own the requested observer scope.
+  Denied;
+  // Cursor does not match the requested scan.
+  CursorScope;
+};
+// Current local states to select, not a provider reconciliation result.
+type UploadHistoryFilter = variant {
+  // Every retained operation, including cancelled and settled history.
+  All;
+  // Last reference released, physical deletion unresolved.
+  DeletionPending;
+  // Active uploads or confirmed objects with unresolved obligations.
+  Outstanding;
+  // Reserved or possibly exposed uploads.
+  Active;
+};
+// One bounded synchronous observation, available during inspection-only restore.
+type UploadHistoryPage = record {
+  // Restored upload owner permits inspection only.
+  fenced : bool;
+  // Full original request echoed for correlation.
+  request : UploadHistoryRequest;
+  // Advances past inspected history even when the result is empty.
+  next : opt UploadHistoryCursor;
+  // Operation rows inspected, including filtered-out rows.
+  scanned : nat64;
+  // Matching entries only; no manifests, credentials or file bytes.
+  entries : vec UploadHistoryEntry;
+};
+// One scan; work and result limits are host-owned, never supplied by ingress.
+type UploadHistoryRequest = record {
+  // Actual intended storage service.
+  "service" : principal;
+  // Optional continuation, not a snapshot or completed sweep proof.
+  cursor : opt UploadHistoryCursor;
+  // Authority checked independently of the cursor.
+  scope : UploadHistoryScope;
+  // Current-state predicate.
+  filter : UploadHistoryFilter;
+  // Installed local namespace.
+  namespace : nat;
+};
+// Independently authenticated observer scope.
+type UploadHistoryScope = variant {
+  // Caller must be this tenant, including while suspended.
+  Tenant : principal;
+  // Caller must be the installed operator.
+  Service;
+};
+// Ordered leaf hashes and metadata, never complete content or raw-digest evidence.
+type UploadManifestDeclaration = record {
+  // Requires canonical Content-Length matching the immutable reservation.
+  headers : vec UploadManifestHeader;
+  // Ordered domain-separated chunk identities.
+  chunks : vec blob;
+};
+// Failed preparation/inspection; uncertainty must preserve the original intent.
+type UploadManifestFailure = variant {
+  // Raw declaration exceeds configured count or byte bounds.
+  Limit;
+  // Leaves, metadata or declared root/length are inconsistent.
+  Declaration;
+  // Preparation is no longer permitted in the current phase or clock context.
+  Phase;
+  // Local issuance permission was withdrawn.
+  Revoked;
+  // Permission identity, authority, expiry, activation or restoration failure.
+  Permission : UploadAdmissionFailure;
+};
+// Original metadata spelling and value; the boundary does not rewrite either.
+type UploadManifestHeader = record {
+  // Exact value, without controls or surrounding whitespace.
+  value : text;
+  // ASCII HTTP token, unique ignoring ASCII case.
+  name : text;
+};
+// Explicit absence prevents incompatible Candid optional data becoming unprepared.
+type UploadManifestInspection = variant {
+  // No declaration is retained; this does not authorize repeating uncertain effects.
+  Unprepared;
+  // Original accepted declaration, even after revocation, expiry or completion.
+  Prepared : UploadManifestDeclaration;
+};
+// Successful local preparation, with no provider call or file transfer.
+type UploadManifestMutation = record {
+  // Original accepted declaration, always Prepared.
+  observation : UploadManifestResponse;
+  // False when an equivalent declaration was already bound.
+  changed : bool;
+};
+// Save this complete intent before preparation dispatch; adapters bound ingress decoding.
+type UploadManifestRequest = record {
+  // Full original permission, including uploader and exclusive expiry.
+  permission : UploadAdmissionRequest;
+  // Declaration to validate against the admitted root and length.
+  declaration : UploadManifestDeclaration;
+};
+// Authenticated historical observation, not issuance or publication authority.
+type UploadManifestResponse = record {
+  // Exact original permission.
+  permission : UploadAdmissionRequest;
+  // First accepted declaration; equivalent retries do not replace its metadata.
+  manifest : UploadManifestInspection;
+};
+// Local permission withdrawal, distinct from reference release or provider deletion.
+type UploadRevocationResponse = record {
+  // Exact permission and retained phase; revocation must be true.
+  admission : UploadAdmissionResponse;
+  // Whether this call first withdrew the permission; false is an exact replay.
+  changed : bool;
+};
+// Retained local upload phase; neither provider dispatch nor publication authority.
+type UploadState = variant {
+  // Reserved locally; upload authority has not escaped.
+  Reserved;
+  // Independently authenticated completion was applied and the first reference created.
+  // This remains historical fact after release/deletion/settlement.
+  Confirmed;
+  // Upload authority may have escaped; effects remain uncertain.
+  ExposurePossible;
+  // Cancelled before exposure; retained identity is not reusable.
+  Cancelled;
+};
+service : (ServiceConfigurationInput) -> {
+  blob_admit_upload : (UploadAdmissionRequest) -> (Result);
+  blob_apply_reference : (ReferenceCommand) -> (Result_2);
+  blob_configuration : () -> (Result_3) query;
+  blob_local_status : (OperatorScope) -> (Result_4) query;
+  blob_prepare_upload : (UploadManifestRequest) -> (Result_5);
+  blob_reference_receipt : (ReferenceCommand) -> (Result_6) query;
+  blob_revoke_upload : (UploadAdmissionRequest) -> (Result_7);
+  blob_tenant : (TenantScope) -> (Result_8) query;
+  blob_update_tenant : (TenantUpdateRequest) -> (Result_8);
+  blob_upload_admission : (UploadAdmissionRequest) -> (Result_9) query;
+  blob_upload_history : (UploadHistoryRequest) -> (Result_10) query;
+  blob_upload_manifest : (UploadAdmissionRequest) -> (Result_11) query;
+}

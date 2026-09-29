@@ -290,13 +290,16 @@ permanently fence both sending and receiving. Old journals and late callbacks ca
 resume payment authority. This does not qualify whole-canister snapshot loads.
 
 Durable bookkeeping and shared funding/gateway transport primitives have local
-test evidence. Complete production workflows, clients, canister adapters and
+test evidence. The [standalone host](canisters/standalone/README.md) now owns explicit
+installation configuration, memory and synchronous fenced restoration, exposing
+tenant, admission, manifest and reference handlers through the shared library.
+Complete production workflows, clients, the Canic adapter and
 deployed-provider qualification remain open. Local bookkeeping and decoded
 provider reports do not establish a qualified storage service.
 
 The planned service owns tenant authorization, references, quotas, provider
-access, billing, retention and deletion. This repository will own standalone
-and Canic-managed adapters using the same handlers and blob API. The core
+access, billing, retention and deletion. Both standalone
+and Canic-managed adapters belong here and use the same handlers and blob API. The core
 builds without Canic; Canic owns generic deployment and lifecycle.
 
 Memory dependencies align through the re-exported `ic_memory` crate and its

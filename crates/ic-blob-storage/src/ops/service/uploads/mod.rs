@@ -3,6 +3,7 @@ pub mod admission;
 pub(crate) mod callbacks;
 pub(crate) mod certificate;
 pub mod exposure;
+pub mod history;
 mod lifecycle;
 pub mod manifests;
 mod planning;

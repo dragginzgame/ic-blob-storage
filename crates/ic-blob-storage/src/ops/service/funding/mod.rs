@@ -44,6 +44,9 @@ pub struct StableFundingJournal<M: Memory> {
     fenced: bool,
 }
 impl<M: Memory> StableFundingJournal<M> {
+    pub(crate) const fn inspection_configuration(&self) -> &ServiceConfiguration {
+        &self.config
+    }
     /// Install a fresh journal with an explicit attachment allocation and reserve.
     /// # Errors
     /// Rejects allocated memory and history limits that cannot fit 32-bit Wasm.

@@ -59,6 +59,9 @@ pub struct StableReadSessions<M: Memory> {
     fenced: bool,
 }
 impl<M: Memory> StableReadSessions<M> {
+    pub(crate) const fn inspection_configuration(&self) -> &ServiceConfiguration {
+        &self.config
+    }
     /// Initialize fresh exclusive memories under explicit service and read limits.
     /// # Errors
     /// Rejects invalid limits or any already allocated memory.

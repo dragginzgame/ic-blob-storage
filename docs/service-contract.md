@@ -24,6 +24,26 @@ publishing the assembly only after success. These APIs neither establish a provi
 namespace nor implement a production adapter, reconfiguration or operational
 unfencing contract. Linking the library exports no endpoint or lifecycle hook.
 
+The [standalone host](../canisters/standalone/README.md) now explicitly owns these
+hooks and grants, plus one bounded immutable configuration record. Its actual IC
+installation validates all inputs before allocation; same-release restoration
+loads the saved service/release-bound configuration without replacement arguments
+and fences every owner synchronously. Its tenant, admission, manifest and reference
+endpoints delegate to shared workflows, with bounded typed Candid and operator-only
+configuration readback. This initial host exports no provider-fact substitutes,
+certificates or paid calls. Operational recovery, remaining provider/operator
+integration and the Canic adapter are still open.
+
+`workflow::operator::inspect` supplies the shared passive `blob_local_status` query.
+The configured operator must bind the actual service, namespace, Cashier and payer;
+all four owners must have matching service configuration. A synchronous snapshot
+reads maintained upload/funding counters, bounded gateway membership and read
+occupancy without traversing lifetime history or making provider calls. Separate
+restore fences and uncertain funding remain visible. Local allocation is not
+platform liquidity, transport acceptance is not provider credit, and inspection
+grants no mutation, retry, reconciliation or readiness authority. The standalone
+host and storage fixture both delegate to this handler.
+
 The transient project-to-uploader admission model in the delivery plan additionally
 owns exact permissions alongside the existing upload catalog. Root-only exposure
 checks authenticated context supplied by the host; one-shot exposure, passive
@@ -1008,6 +1028,14 @@ deletion or outstanding obligations, depending on filter. Physical deletion alon
 does not remove continuing billing from the outstanding view. These queries work
 while suspended or fenced but grant no effect/recovery authority. Start a new sweep
 for insertions or phase changes behind a cursor; no snapshot/completion is implied.
+
+`workflow::uploads::history::inspect` exposes this same scan through the maintained
+`blob_upload_history` boundary. Passive DTOs carry full original upload, object,
+incarnation and first-reference identities independently, current lifecycle and
+the restore fence; responses echo the exact request. The standalone host limits
+each call to 64 inspected rows and 32 results. The storage fixture uses the same
+handler with single-row limits for cursor/failure evidence; its private scan DTOs
+and endpoint are removed. No manifest, file body or provider evidence is returned.
 
 `admission_capacity` and `reference_capacity` use maintained counters and indexed
 identity reads, without loading reference/receipt histories or manifests. Heap and

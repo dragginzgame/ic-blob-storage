@@ -2,6 +2,41 @@
 
 ## [Unreleased]
 
+## [0.2.20]
+
+### Added
+
+- Standalone canister host with explicit installation configuration, seventeen
+  exclusive ic-memory grants and synchronous assembly of the shared stores.
+  A bounded host record retains configuration and package-release/service binding;
+  upgrades load it without replacement inputs and leave every owner fenced.
+- Tenant, upload admission/revocation, manifest preparation/inspection and reference
+  endpoints delegate to existing shared workflows. Operator configuration readback
+  grants no controller authority. The maintained Candid exposes typed requests even
+  with custom bounded decoding; a schema check ignores explanatory comments.
+- Focused standalone build and PocketIC targets. Actual Wasm tests cover the 10 MiB
+  manifest path, caller isolation, stop/start, retained state and fenced mutation,
+  failed-install rollback, ingress bounds and foreign/missing/release-mismatched
+  restore rejection. Provider effects, operational recovery and the Canic adapter
+  remain unfinished; this host does not yet provide a complete storage journey.
+- Shared operator-only `blob_local_status` query, exported by the standalone host
+  and storage fixture. Explicit service/namespace/Cashier/payer binding and matching
+  owner configurations precede a synchronous snapshot of maintained upload totals,
+  funding allocation/outcomes, bounded gateway membership and read occupancy.
+  Separate restore fences remain visible; inspection makes no provider calls or
+  claims about provider credit, platform liquidity or readiness. Native and PocketIC
+  checks cover caller/scope rejection, full-width accounting, cancellation history,
+  refunds and uncertain funding, pending sync and interrupted reads across restore.
+- Shared `blob_upload_history` query for tenant-scoped or operator-wide bounded
+  discovery of retained operations. Responses preserve independent full-width
+  upload/object/incarnation/first-reference identities, current cleanup state and
+  the restore fence. Scope-bound cursors advance through empty filtered pages;
+  callers cannot choose work limits. The standalone host scans at most 64 rows
+  and returns at most 32 entries per call. The fixture's private scan DTOs and
+  endpoint are replaced by the shared handler. PocketIC tests cover isolation,
+  cancellation, suspension, cursor rejection, fresh sweeps and continuing billing
+  after physical deletion; history remains passive through restoration.
+
 ## [0.2.19] - 2026-09-29
 
 ### Added

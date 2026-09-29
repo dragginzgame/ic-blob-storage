@@ -2,6 +2,7 @@
 pub mod admission;
 pub mod certificate;
 pub mod exposure;
+pub mod history;
 pub mod manifest;
 use super::reference::ReferenceUpload;
 use candid::{CandidType, Deserialize};

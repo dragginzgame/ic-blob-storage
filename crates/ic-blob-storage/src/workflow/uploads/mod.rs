@@ -2,6 +2,7 @@
 pub mod admission;
 pub mod certificate;
 pub mod exposure;
+pub mod history;
 pub mod manifests;
 use crate::{
     dto::{

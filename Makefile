@@ -11,12 +11,13 @@ export BLOB_STORAGE_PROBE_WASM := $(CARGO_TARGET_DIR)/wasm32-unknown-unknown/rel
 export BLOB_CONSUMER_PROBE_WASM := $(CARGO_TARGET_DIR)/wasm32-unknown-unknown/release/blob_consumer_probe.wasm
 export BLOB_GATEWAY_SOURCE_WASM := $(CARGO_TARGET_DIR)/wasm32-unknown-unknown/release/blob_gateway_source.wasm
 export BLOB_FUNDING_PROBE_WASM := $(CARGO_TARGET_DIR)/wasm32-unknown-unknown/release/blob_funding_probe.wasm
+export BLOB_STANDALONE_WASM := $(CARGO_TARGET_DIR)/wasm32-unknown-unknown/release/ic_blob_storage_canister.wasm
 export BLOB_BROWSER_NODE ?= node
 VERSION ?=
 RELEASE := bash scripts/release/release.sh
 CI_TARGETS := shell-check release-check fmt-check check clippy docs-check test wasm-check package
 
-.PHONY: help version deps cloc fmt fmt-check check clippy docs-check test test-native test-pocketic test-browser test-fixture test-admission-resources test-read-resources wasm-check \
+.PHONY: help version deps cloc fmt fmt-check check clippy docs-check test test-native test-pocketic test-browser test-fixture test-standalone build-standalone test-admission-resources test-read-resources wasm-check \
 	build package clean shell-check release-check ci validate release-verify \
 	release-plan ensure-clean patch minor major bump-x release-patch \
 	release-minor release-major release-x release-stage release-commit \
@@ -28,6 +29,7 @@ help:
 	@echo "fmt / fmt-check              Format Rust or check formatting"
 	@echo "check / clippy / test         Compile, lint, or test the workspace"
 	@echo "test-native / test-pocketic   Native core tests or local IC fixtures"
+	@echo "build-standalone / test-standalone   Standalone host Wasm or focused local IC tests"
 	@echo "test-browser                  Opt-in Chromium certificate/IndexedDB evidence"
 	@echo "test-admission-resources     Local admission bounds and Wasm resource report"
 	@echo "test-read-resources          Local read-slot and Wasm resource report"
@@ -65,21 +67,29 @@ clippy:
 	cargo clippy --offline --locked --workspace --all-targets --all-features -- -D warnings
 
 docs-check:
-	RUSTDOCFLAGS="-D warnings" cargo doc --offline --locked -p ic-blob-storage --all-features --no-deps
+	RUSTDOCFLAGS="-D warnings" cargo doc --offline --locked -p ic-blob-storage -p ic-blob-storage-canister --all-features --no-deps
 
 test:
 	+$(MAKE) --no-print-directory test-native
 	+$(MAKE) --no-print-directory test-pocketic
 
 test-native:
-	cargo test --offline --locked -p ic-blob-storage -p blob-consumer-probe --all-features
+	cargo test --offline --locked -p ic-blob-storage -p blob-consumer-probe -p ic-blob-storage-canister --all-features
 
 test-fixture:
 	cargo build --offline --locked --release --target wasm32-unknown-unknown -p blob-authority-probe -p blob-admission-probe -p blob-storage-probe -p blob-consumer-probe -p blob-gateway-source -p blob-funding-probe --lib
 
 test-pocketic:
 	+$(MAKE) --no-print-directory test-fixture
+	+$(MAKE) --no-print-directory build-standalone
 	cargo test --offline --locked -p ic-blob-storage-pocketic-tests
+
+build-standalone:
+	cargo build --offline --locked --release --target wasm32-unknown-unknown -p ic-blob-storage-canister --lib
+
+test-standalone:
+	+$(MAKE) --no-print-directory build-standalone
+	cargo test --offline --locked -p ic-blob-storage-pocketic-tests --test standalone -- --test-threads=1
 
 # Browser tooling is explicitly provisioned; this target performs no downloads.
 test-browser:

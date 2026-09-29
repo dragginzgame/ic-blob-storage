@@ -9,17 +9,11 @@ use blob_test_protocol::{
         ContentDescriptor, ContentLookup, ContentObservation, ContentState, Request,
         input::{RetainedDescriptor, RetainedDescriptorInput},
     },
-    storage::{
-        Failure,
-        read::{Cursor, Filter, Page, ScanInput, Scope},
-    },
+    storage::Failure,
 };
 use ic_blob_storage::{
     model::{
-        catalog::admission::{
-            UploadRequestId,
-            read::{UploadPageLimits, UploadRootState},
-        },
+        catalog::admission::read::UploadRootState,
         identity::ProviderRootHash,
         lifecycle::{
             LifecyclePhase, ReferenceId,
@@ -30,11 +24,9 @@ use ic_blob_storage::{
             content::{ContentLookup as Lookup, TenantContentView},
         },
     },
-    ops::service::uploads::read::{
-        UploadDescriptorView, UploadScanCursor, UploadScanFilter, UploadScanScope,
-    },
+    ops::service::uploads::read::UploadDescriptorView,
 };
-use std::num::{NonZeroU128, NonZeroUsize};
+use std::num::NonZeroU128;
 fn number(value: u128) -> Result<NonZeroU128, Failure> {
     NonZeroU128::new(value).ok_or(Failure::Invalid)
 }
@@ -155,78 +147,4 @@ pub(super) fn retained_target(
     .map_err(|_| Failure::Invalid)?;
     let reference = ReferenceKey::new(object, ReferenceId::new(number(input.reference)?));
     Ok((content.root, reference))
-}
-fn scope(input: Scope, namespace: u128) -> Result<UploadScanScope, Failure> {
-    let namespace = number(namespace)?;
-    Ok(match input {
-        Scope::Tenant(tenant) => UploadScanScope::Tenant { tenant, namespace },
-        Scope::Service => UploadScanScope::Service { namespace },
-    })
-}
-fn filter(input: Filter) -> UploadScanFilter {
-    match input {
-        Filter::All => UploadScanFilter::All,
-        Filter::Active => UploadScanFilter::Active,
-        Filter::DeletionPending => UploadScanFilter::DeletionPending,
-        Filter::Outstanding => UploadScanFilter::Outstanding,
-    }
-}
-fn wire_filter(input: UploadScanFilter) -> Filter {
-    match input {
-        UploadScanFilter::All => Filter::All,
-        UploadScanFilter::Active => Filter::Active,
-        UploadScanFilter::DeletionPending => Filter::DeletionPending,
-        UploadScanFilter::Outstanding => Filter::Outstanding,
-    }
-}
-fn cursor(input: Cursor) -> Result<UploadScanCursor, Failure> {
-    Ok(UploadScanCursor {
-        service: input.service,
-        scope: scope(input.scope, input.namespace)?,
-        filter: filter(input.filter),
-        after_tenant: input.after_tenant,
-        after_request: UploadRequestId::new(number(input.after_request)?),
-    })
-}
-fn wire_cursor(input: UploadScanCursor) -> Cursor {
-    let (scope, namespace) = match input.scope {
-        UploadScanScope::Tenant { tenant, namespace } => (Scope::Tenant(tenant), namespace.get()),
-        UploadScanScope::Service { namespace } => (Scope::Service, namespace.get()),
-    };
-    Cursor {
-        service: input.service,
-        scope,
-        namespace,
-        filter: wire_filter(input.filter),
-        after_tenant: input.after_tenant,
-        after_request: input.after_request.get().get(),
-    }
-}
-pub(crate) fn scan(execution: UploadContext, input: ScanInput) -> Result<Page, Failure> {
-    if input.service != execution.service {
-        return Err(Failure::Binding);
-    }
-    let scope = scope(input.scope, input.namespace)?;
-    let cursor = input.cursor.map(cursor).transpose()?;
-    // Explicit tiny fixture bounds test empty filtered pages and continuation.
-    let limits = UploadPageLimits {
-        max_scan: NonZeroUsize::MIN,
-        max_results: NonZeroUsize::MIN,
-    };
-    STATE
-        .with_borrow(|state| {
-            state.as_ref().unwrap().uploads.scan(
-                execution,
-                scope,
-                filter(input.filter),
-                cursor,
-                limits,
-            )
-        })
-        .map(|v| Page {
-            entries: v.entries.into_iter().map(observation).collect(),
-            next: v.next.map(wire_cursor),
-            scanned: v.scanned as u64,
-        })
-        .map_err(conversion::failure)
 }

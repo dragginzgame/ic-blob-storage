@@ -2,19 +2,21 @@
 
 Date: 2026-09-29
 
-## Active work — 0.2.19 tenant API and canister operator client closeout
+## Active work — standalone host, operator status and bounded upload history
 
-The maintainer confirmed **0.2.18 is live** and requested continued work.
-Cargo and the release receipt are 0.2.18. Local main, origin/main and the peeled
-v0.2.18 tag resolve to `938c42c0a1c36751bf048214fbdbea8a3f353f5c`, from validated source
-`069334389cca4968b88ee6eb88cefc895c6f53f3`. The receipt records the
+The maintainer confirmed **0.2.19 is pushed** and requested continued work toward
+the 0.2 service journey. Cargo and the release receipt are 0.2.19. Local main,
+origin/main and the peeled v0.2.19 tag resolve to
+`aeb0f2802403d04d2857c27d9514bd3ccaa301e2`, from validated source
+`2a5351ca60d38923799b099406c2401dc2ace2de`. The receipt records the
 `release-verify` gate; registry publication was not independently queried.
-The dated 0.2.18 notes match that release. The maintainer selected **0.2.19** for
-the next push. Completed work is grouped in an undated 0.2.19 changelog draft below
-empty Unreleased. Package version and release receipt remain at 0.2.18.
+The dated 0.2.19 notes match that release. The maintainer requested the **0.2.20**
+changelog; completed work is grouped in that undated draft beneath empty Unreleased.
+Package version and release receipt remain at 0.2.19.
 The browser fixture retains Caffeine 1.1.2 and supported SDK 5.4.0.
-This implementation changes no dependency declarations. An independent Cargo.lock
-change appeared during the turn and is preserved; it is not part of this feature.
+The new unpublished standalone workspace crate uses existing locked dependencies;
+Cargo.lock adds only that local package and the integration-test dependency on it.
+The worktree was clean at the start of this batch. No external dependency changed.
 No version mutation, commit, publication, deployment or deployed-provider effect ran here;
 transfers below use simulated cycles between local PocketIC canisters.
 
@@ -25,11 +27,92 @@ operator client. Library publication does not qualify the service or Canic remov
 | Milestone | State | Remaining completion condition |
 | --- | --- | --- |
 | M1 — contract | In progress | Freeze admission/resource envelope, provider guarantees and operational recovery |
-| M2 — durable standalone service | In progress: durable upload/reference/settlement bookkeeping and IC evidence | Complete reads/provider journals, shared handlers and operational recovery/journey evidence |
+| M2 — durable standalone service | In progress: initial standalone host, durable shared stores and IC evidence | Connect remaining provider/operator handlers and prove operational recovery/full journey |
 | M3 — Caffeine and operator integration | In progress: shared transports with local IC evidence | Qualified provider transport, completion/economics and production client |
 | M4 — managed parity and acceptance | Not implemented | Same journey through Canic adapter, complete replacement evidence and handoff |
 
-## Current focus — scoped tenant handlers and explicit operator client
+## Current focus — standalone host and shared operational inspection
+
+`canisters/standalone` now owns actual init/post-upgrade hooks, one ic-memory runtime
+and seventeen exclusive memories. Installation validates the complete explicit
+candidate before allocation. A bounded v1 `ConfigurationRecord` retains the full
+configuration, actual service identity and package release independently of DTOs.
+Restoration takes no replacement inputs, rejects missing/foreign/release-mismatched
+state and assembles all four owners synchronously under their existing fences.
+Package release is not a module hash; the retained record is not freshness authority.
+
+Tenant, admission/revocation, manifest preparation/inspection and reference endpoints
+delegate to the shared workflows with platform caller/service/time. Configuration
+readback is operator-only. Explicit Candid declarations preserve typed arguments
+despite custom ingress decoders; the checked-in interface is tested against generated
+schema with explanatory comments ignored. No fixture protocol or provider-fact
+endpoint is linked.
+
+The additive shared `dto::operator` / `workflow::operator::inspect` API now backs
+`blob_local_status` in the standalone host and storage fixture. It checks the actual
+service, explicit namespace/Cashier/payer scope, operator caller and matching full
+service configurations across all four owners before returning local accounting.
+Maintained upload/funding counters, one bounded gateway row and read occupancy form
+one synchronous snapshot; there is no lifetime history traversal or provider call.
+Each restore fence remains visible. Allocation is not platform liquidity, transport
+acceptance is not provider credit, and the snapshot authorizes no retry or recovery.
+
+The three standalone PocketIC cases pass in 16.35 seconds. Actual Wasm evidence
+covers a 10 MiB manifest without body relay, tenant/uploader/controller isolation,
+unconfirmed reference refusal, stop/start, failed upgrade arguments, retained
+configuration/permission/manifest and refused mutations after restore. Failed
+installation/reinstallation and malformed/oversized ingress leave previous stable
+bytes intact. Missing memory, foreign installation and changed release identity
+reject without repair. ic-memory legitimately commits allocation-ledger metadata
+on successful bootstrap; tests compare service observations across restoration and
+assert byte-for-byte refusal behavior against the post-restore image.
+
+The standalone Candid schema test, strict host/integration Clippy, warning-free
+host rustdoc and release Wasm pass. Formatting and diff checks pass.
+`make build-standalone` and `make test-standalone` provide focused commands, and the
+normal native/PocketIC gates include the host. No full CI/release gate ran.
+
+Operator inspection adds three passing native cases for full-width accounting,
+scope/actor rejection, mismatched owners, independent fences and absence of writes.
+Three targeted PocketIC journeys pass in 10.55 seconds: standalone cancellation
+frees reserved bytes while retaining operation history; interrupted funding, gateway
+sync and read occupancy survive restoration; funding refunds, accepted/unsent
+amounts and retained identities remain distinct. Existing storage journeys use
+local substitutes and do not qualify deployed Caffeine behavior. The Candid schema
+test, strict affected core/host/fixture/integration Clippy, warning-free core/host
+rustdoc, release host/storage Wasm, formatting and diff checks pass. No service
+stable schema, memory grant or external dependency changed
+for this operator query.
+
+The shared `dto::upload::history` / `workflow::uploads::history::inspect` boundary
+now exports `blob_upload_history` in both hosts. It reuses the existing indexed
+stable scan with explicit tenant/operator authority, scope-bound cursors and
+host-owned independent work/result limits. The standalone endpoint scans at most
+64 rows and returns at most 32 entries. Replies echo the request and preserve
+distinct full-width upload/object/incarnation/first-reference IDs, current cleanup
+state and the restore fence. Empty filtered pages advance; changes behind the
+cursor require another sweep. Suspended/fenced inspection grants no retry or
+provider authority. The fixture's private scan types, conversion and endpoint are
+removed; other private fixture protocols remain only for their separate evidence.
+
+Four targeted PocketIC history journeys pass in 13.23 seconds, covering actual
+standalone caller/scope/cursor rejection, replicated passive inspection, cancelled
+history, suspension and restoration; fixture pagination, changed cursors and
+resweeps; and each lifecycle phase through physical deletion and billing cessation.
+Provider transitions in that last case are explicitly local substitutes. Fourteen
+targeted native read tests, the standalone Candid check, strict affected Clippy,
+release host/storage Wasm and warning-free core/host rustdoc pass. No stable schema,
+memory grant, dependency or version changed for this additive shared API. No full
+CI/release gate ran.
+
+Next, connect the operator/provider-facing handlers to this host and resolve the
+qualified completion/reconciliation path. Certificate issuance and paid provider
+effects are deliberately absent; an unfenced host is not provider readiness.
+Operational restore remains inspection-only. Production clients, complete journey,
+resource qualification and the Canic adapter remain open. See the compact
+[host contract](../../canisters/standalone/README.md).
+
+## Scoped tenant handlers and explicit operator client — included in 0.2.19
 
 `dto::tenant` and `workflow::tenants` now own explicit service/namespace/tenant
 enrollment requests, compare-and-set updates and correlated inspection responses.
@@ -85,12 +168,9 @@ strict storage-integration Clippy, warning-free core rustdoc, formatting and dif
 checks pass. The release helper accepts the 0.2.19 draft and its effect-free plan
 selects 0.2.18 -> 0.2.19 without modifying version files.
 
-This batch is ready for maintainer review and the normal 0.2.19 release flow,
-whose full validation gate has not run here. The unrelated Cargo.lock change is
-preserved for that review. Next implementation work is explicit host lifecycle
-ownership and operator integration against these maintained handlers. Production
-authentication/persistence, provider completion and operational recovery
-qualification remain open; this release does not close those milestones.
+The maintainer subsequently released this batch as 0.2.19; the release receipt
+records its full release-verify gate. Production authentication/persistence,
+provider completion and operational recovery qualification remain open.
 
 ## Explicit configuration and synchronous owner assembly — included in 0.2.18
 

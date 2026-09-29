@@ -63,6 +63,19 @@ thread_local! {
     static STATE:RefCell<Option<State>>=const { RefCell::new(None) };
     static TRAP_WRITE:Cell<Option<WriteFault>>=const { Cell::new(None) };
 }
+pub(crate) fn with_operator_stores<R>(
+    inspect: impl FnOnce(ic_blob_storage::ops::service::operator::OperatorStores<'_, ProbeMemory>) -> R,
+) -> R {
+    STATE.with_borrow(|state| {
+        let state = state.as_ref().expect("initialized fixture");
+        inspect(ic_blob_storage::ops::service::operator::OperatorStores {
+            uploads: &state.uploads,
+            funding: &state.funding,
+            gateways: &state.gateways,
+            reads: &state.read_sessions,
+        })
+    })
+}
 pub(crate) fn initialize(operator: Principal, restored: bool) {
     // Reject invalid candidates before even bootstrapping the host memory runtime.
     let config = configuration::configuration(operator);

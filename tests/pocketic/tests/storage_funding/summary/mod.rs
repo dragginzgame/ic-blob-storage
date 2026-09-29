@@ -32,6 +32,15 @@ fn local_funding_summary_preserves_old_uncredited_amounts_through_returns_traps_
     let before = read();
     let stable = f.harness.pic.get_stable_memory(f.service);
     assert_eq!(read(), before);
+    let local = f.local_status().funding;
+    assert_eq!(local.transport_accepted, 100);
+    assert_eq!(local.refunded, 1300);
+    assert_eq!(local.not_enqueued, 500);
+    assert_eq!(local.reserved_or_uncertain, 0);
+    assert_eq!(local.available_allocation, 900);
+    assert_eq!(local.attachment_allowance, 800);
+    assert_eq!(local.retained_intents, 3);
+    assert_eq!(local.last_operation, Some(u128::MAX));
     assert_eq!(f.harness.pic.get_stable_memory(f.service), stable);
     f.harness
         .pic
@@ -50,6 +59,13 @@ fn local_funding_summary_preserves_old_uncredited_amounts_through_returns_traps_
                 ..before.allocation
             },
             ..before
+        }
+    );
+    assert_eq!(
+        f.local_status().funding,
+        ic_blob_storage::dto::operator::LocalFundingStatus {
+            fenced: true,
+            ..local
         }
     );
 }

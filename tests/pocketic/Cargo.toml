@@ -45,6 +45,7 @@ tempfile.workspace = true
 sha2.workspace = true
 
 [target.'cfg(not(target_family = "wasm"))'.dev-dependencies]
+ic-blob-storage-canister = { path = "../../canisters/standalone" }
 # Headless certificate evidence only; never part of the published library/Wasm graph.
 ic-agent = { version = "=0.49.2", default-features = false }
 reqwest = { version = "0.13.5", default-features = false }

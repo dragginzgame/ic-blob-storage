@@ -27,6 +27,17 @@ pub(crate) fn gateway_registry(
     ops::gateways::inspect(context, input)
 }
 use crate::ops;
+pub(crate) fn local_status(
+    context: UploadContext,
+    input: ic_blob_storage::dto::operator::OperatorScope,
+) -> Result<
+    ic_blob_storage::dto::operator::LocalServiceStatus,
+    ic_blob_storage::dto::operator::LocalStatusFailure,
+> {
+    ops::with_operator_stores(|stores| {
+        ic_blob_storage::workflow::operator::inspect(stores, context, input)
+    })
+}
 use blob_test_protocol::{
     admission::Request,
     storage::{Failure, Observation, Status, WriteFault},
@@ -149,9 +160,24 @@ pub(crate) fn retained(
 }
 pub(crate) fn scan(
     context: UploadContext,
-    input: blob_test_protocol::storage::read::ScanInput,
-) -> Result<blob_test_protocol::storage::read::Page, Failure> {
-    ops::read::scan(context, input)
+    input: ic_blob_storage::dto::upload::history::UploadHistoryRequest,
+) -> Result<
+    ic_blob_storage::dto::upload::history::UploadHistoryPage,
+    ic_blob_storage::dto::upload::history::UploadHistoryFailure,
+> {
+    use ic_blob_storage::model::catalog::admission::read::UploadPageLimits;
+    use std::num::NonZeroUsize;
+    ops::with_operator_stores(|stores| {
+        ic_blob_storage::workflow::uploads::history::inspect(
+            stores.uploads,
+            context,
+            input,
+            UploadPageLimits {
+                max_scan: NonZeroUsize::MIN,
+                max_results: NonZeroUsize::MIN,
+            },
+        )
+    })
 }
 
 pub(crate) fn admission_capacity(

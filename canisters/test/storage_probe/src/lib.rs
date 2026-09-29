@@ -10,6 +10,7 @@ use blob_test_protocol::{
     storage::{Failure, FaultAdmission, FaultPreparation, Observation, Status},
 };
 use candid::Principal;
+use ic_blob_storage::dto::operator::{LocalServiceStatus, LocalStatusFailure, OperatorScope};
 use ic_blob_storage::dto::tenant::{
     TenantEnrollmentResponse, TenantFailure, TenantScope, TenantUpdateRequest,
 };
@@ -151,6 +152,10 @@ fn fixture_update_tenant_with_write_trap(
 fn blob_tenant(scope: TenantScope) -> Result<TenantEnrollmentResponse, TenantFailure> {
     workflow::tenant(context(), scope)
 }
+#[ic_cdk::query(decode_with = "ops::decode")]
+fn blob_local_status(input: OperatorScope) -> Result<LocalServiceStatus, LocalStatusFailure> {
+    workflow::local_status(context(), input)
+}
 #[ic_cdk::query]
 fn status() -> Result<Status, Failure> {
     workflow::status(context())
@@ -213,9 +218,12 @@ fn retained_content_descriptor(
     workflow::retained(context(), input)
 }
 #[ic_cdk::query(decode_with = "ops::decode")]
-fn scan_uploads(
-    input: blob_test_protocol::storage::read::ScanInput,
-) -> Result<blob_test_protocol::storage::read::Page, Failure> {
+fn blob_upload_history(
+    input: ic_blob_storage::dto::upload::history::UploadHistoryRequest,
+) -> Result<
+    ic_blob_storage::dto::upload::history::UploadHistoryPage,
+    ic_blob_storage::dto::upload::history::UploadHistoryFailure,
+> {
     workflow::scan(context(), input)
 }
 

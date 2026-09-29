@@ -1340,6 +1340,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "ic-blob-storage-canister"
+version = "0.2.19"
+dependencies = [
+ "candid",
+ "ic-blob-storage",
+ "ic-cdk",
+ "serde",
+]
+
+[[package]]
 name = "ic-blob-storage-pocketic-tests"
 version = "0.0.0"
 dependencies = [
@@ -1347,6 +1357,7 @@ dependencies = [
  "candid",
  "ic-agent",
  "ic-blob-storage",
+ "ic-blob-storage-canister",
  "ic-testkit",
  "reqwest",
  "serde",

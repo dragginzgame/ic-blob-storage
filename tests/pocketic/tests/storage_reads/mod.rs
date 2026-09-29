@@ -2,13 +2,15 @@ use super::*;
 mod download;
 use blob_test_protocol::{
     admission::{
-        ContentDescriptor, ContentLookup, ContentObservation, ContentState,
+        ContentDescriptor, ContentLookup, ContentObservation,
         input::{ReferenceInput, RetainedDescriptor, RetainedDescriptorInput},
     },
-    storage::{
-        ProviderFact,
-        read::{Filter, Page, ScanInput, Scope},
-    },
+    storage::ProviderFact,
+};
+use ic_blob_storage::dto::upload::history::{
+    UploadContentState, UploadHistoryCursor as Cursor, UploadHistoryFailure as HistoryFailure,
+    UploadHistoryFilter as Filter, UploadHistoryPage as Page, UploadHistoryRequest as ScanInput,
+    UploadHistoryScope as Scope,
 };
 impl Fixture {
     fn content_input(&self, request: Request) -> ContentLookup {
@@ -49,10 +51,10 @@ impl Fixture {
             .query_candid_as(self.service, actor, "retained_content_descriptor", (input,))
             .unwrap()
     }
-    fn scan(&self, actor: Principal, input: ScanInput) -> Result<Page, Failure> {
+    fn scan(&self, actor: Principal, input: ScanInput) -> Result<Page, HistoryFailure> {
         self.harness
             .pic
-            .query_candid_as(self.service, actor, "scan_uploads", (input,))
+            .query_candid_as(self.service, actor, "blob_upload_history", (input,))
             .unwrap()
     }
 }
@@ -176,23 +178,23 @@ fn bounded_cleanup_pages_reject_changed_cursors_and_require_new_sweeps() {
     assert_eq!(first.scanned, 1);
     let cursor = first.next.unwrap();
     for changed in [
-        blob_test_protocol::storage::read::Cursor {
+        Cursor {
             service: f.other,
             ..cursor
         },
-        blob_test_protocol::storage::read::Cursor {
+        Cursor {
             namespace: 2,
             ..cursor
         },
-        blob_test_protocol::storage::read::Cursor {
+        Cursor {
             scope: Scope::Service,
             ..cursor
         },
-        blob_test_protocol::storage::read::Cursor {
+        Cursor {
             filter: Filter::All,
             ..cursor
         },
-        blob_test_protocol::storage::read::Cursor {
+        Cursor {
             after_tenant: f.other,
             ..cursor
         },
@@ -205,7 +207,7 @@ fn bounded_cleanup_pages_reject_changed_cursors_and_require_new_sweeps() {
                     ..query
                 }
             ),
-            Err(Failure::CursorScope)
+            Err(HistoryFailure::CursorScope)
         );
     }
     f.reference(ReferenceInput {
@@ -215,7 +217,7 @@ fn bounded_cleanup_pages_reject_changed_cursors_and_require_new_sweeps() {
         retain: false,
     })
     .unwrap();
-    let end = f
+    let mut end = f
         .scan(
             f.tenant,
             ScanInput {
@@ -227,15 +229,27 @@ fn bounded_cleanup_pages_reject_changed_cursors_and_require_new_sweeps() {
     assert_eq!(end.scanned, 1);
     assert!(end.entries.is_empty());
     assert!(end.next.is_none());
-    let restarted = f.scan(f.tenant, query).unwrap();
-    assert_eq!(restarted.entries[0].request, permission.request);
-    assert_eq!(restarted.entries[0].state, ContentState::DeletionPending);
+    let mut restarted = f.scan(f.tenant, query).unwrap();
+    assert_eq!(
+        restarted.entries[0].request,
+        admission_input(permission).upload
+    );
+    assert_eq!(
+        restarted.entries[0].state,
+        UploadContentState::DeletionPending
+    );
     let operator_query = ScanInput {
         scope: Scope::Service,
         ..query
     };
-    assert_eq!(f.scan(f.controller, operator_query), Err(Failure::Denied));
-    assert_eq!(f.scan(f.tenant, operator_query), Err(Failure::Denied));
+    assert_eq!(
+        f.scan(f.controller, operator_query),
+        Err(HistoryFailure::Denied)
+    );
+    assert_eq!(
+        f.scan(f.tenant, operator_query),
+        Err(HistoryFailure::Denied)
+    );
     assert_eq!(
         f.scan(f.operator, operator_query).unwrap().entries,
         restarted.entries
@@ -261,6 +275,8 @@ fn bounded_cleanup_pages_reject_changed_cursors_and_require_new_sweeps() {
             Some(f.controller),
         )
         .unwrap();
+    restarted.fenced = true;
+    end.fenced = true;
     assert_eq!(f.scan(f.tenant, query), Ok(restarted));
     assert_eq!(
         f.scan(
@@ -278,5 +294,72 @@ fn bounded_cleanup_pages_reject_changed_cursors_and_require_new_sweeps() {
             fenced: true,
             ..before
         }
+    );
+}
+
+#[test]
+fn shared_history_distinguishes_exposure_deletion_and_billing_cessation() {
+    let f = Fixture::new();
+    f.enroll(None, true).unwrap();
+    let (permission, preparation) = f.permission(u128::MAX, 1);
+    let query = ScanInput {
+        service: f.service,
+        namespace: 1,
+        scope: Scope::Service,
+        filter: Filter::Outstanding,
+        cursor: None,
+    };
+    let observe = |state| {
+        let before = f.harness.pic.get_stable_memory(f.service);
+        let page = f.scan(f.operator, query).unwrap();
+        assert_eq!(page.request, query);
+        assert_eq!(
+            page.entries,
+            vec![ic_blob_storage::dto::upload::history::UploadHistoryEntry {
+                request: admission_input(permission).upload,
+                state,
+            }]
+        );
+        assert_eq!(page.scanned, 1);
+        assert_eq!(page.next, None);
+        assert!(
+            f.harness.pic.get_stable_memory(f.service).eq(&before),
+            "history changed stable bytes"
+        );
+    };
+    f.admit(f.tenant, permission).unwrap();
+    observe(UploadContentState::Reserved);
+    f.prepare(&preparation).unwrap();
+    f.expose(permission.request).unwrap();
+    observe(UploadContentState::ExposurePossible);
+    f.fact(permission.request, ProviderFact::Uploaded).unwrap();
+    observe(UploadContentState::Live);
+    f.reference(ReferenceInput {
+        object: permission.request,
+        reference: 1,
+        operation: 1,
+        retain: false,
+    })
+    .unwrap();
+    observe(UploadContentState::DeletionPending);
+    f.fact(permission.request, ProviderFact::Deleted).unwrap();
+    observe(UploadContentState::ProviderDeleted);
+    f.fact(permission.request, ProviderFact::Settled).unwrap();
+    let settled = f.scan(f.operator, query).unwrap();
+    assert!(settled.entries.is_empty());
+    assert_eq!(settled.scanned, 1);
+    let history = f
+        .scan(
+            f.operator,
+            ScanInput {
+                filter: Filter::All,
+                ..query
+            },
+        )
+        .unwrap();
+    assert_eq!(history.entries[0].state, UploadContentState::Settled);
+    assert_eq!(
+        history.entries[0].request,
+        admission_input(permission).upload
     );
 }

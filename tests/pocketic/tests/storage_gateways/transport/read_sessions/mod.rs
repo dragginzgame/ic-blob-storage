@@ -308,6 +308,10 @@ fn interrupted_read_admission_rolls_back_all_counters_and_sends_nothing() {
     assert_eq!(f.read_chunk(f.tenant, input), Ok(()));
 }
 #[test]
+#[expect(
+    clippy::too_many_lines,
+    reason = "One restore preserves four owners and checks their shared operator snapshot"
+)]
 fn upgrade_preserves_upload_funding_gateway_and_interrupted_read_obligations() {
     use blob_test_protocol::storage::WriteFault;
     use blob_test_protocol::storage::funding::{Action as FundingAction, Allocation};
@@ -346,6 +350,31 @@ fn upgrade_preserves_upload_funding_gateway_and_interrupted_read_obligations() {
     let token = f.gateway_begin();
     let gateways_before = f.gateway_view();
     let uploads_before = f.status();
+    let stable_before = f.harness.pic.get_stable_memory(f.service);
+    let local_before = f.local_status();
+    assert_eq!(local_before.funding.reserved_or_uncertain, 900);
+    assert_eq!(local_before.funding.available_allocation, 100);
+    assert_eq!(local_before.funding.attachment_allowance, 0);
+    assert_eq!(local_before.funding.last_operation, Some(u128::MAX));
+    assert_eq!(local_before.funding.retained_intents, 1);
+    assert_eq!(local_before.reads.sessions, 1);
+    assert_eq!(local_before.reads.reserved_bytes, 2048);
+    assert_eq!(local_before.gateways.members, gateways_before.members);
+    assert_eq!(
+        local_before.gateways.pending_sequence,
+        gateways_before.pending_sequence
+    );
+    assert_eq!(
+        local_before.uploads.liability_bytes,
+        uploads_before.usage.liability
+    );
+    assert!(
+        f.harness
+            .pic
+            .get_stable_memory(f.service)
+            .eq(&stable_before),
+        "inspection changed stable bytes"
+    );
     f.harness
         .pic
         .upgrade_canister(
@@ -393,6 +422,21 @@ fn upgrade_preserves_upload_funding_gateway_and_interrupted_read_obligations() {
             ..uploads_before
         }
     );
+    let stable_restored = f.harness.pic.get_stable_memory(f.service);
+    let mut expected = local_before;
+    expected.uploads.fenced = true;
+    expected.funding.fenced = true;
+    expected.gateways.fenced = true;
+    expected.reads.fenced = true;
+    assert_eq!(f.local_status(), expected);
+    assert!(
+        f.harness
+            .pic
+            .get_stable_memory(f.service)
+            .eq(&stable_restored),
+        "inspection changed stable bytes"
+    );
+    assert_eq!(f.chunk_observation().requests, 1);
 }
 
 #[test]

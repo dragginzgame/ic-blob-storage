@@ -3,6 +3,7 @@
 pub mod configuration;
 pub mod funding;
 pub mod gateways;
+pub mod operator;
 pub mod reads;
 pub mod references;
 pub mod roots;
