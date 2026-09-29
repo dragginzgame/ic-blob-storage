@@ -4,12 +4,61 @@ mod dispatch;
 use blob_test_protocol::{
     funding::{
         FundingFailure, FundingOutcome, FundingProviderErrorView, FundingReceiptRecord,
-        FundingReconciliationView, FundingReplyMode, FundingRequest,
+        FundingReplyMode, FundingRequest,
     },
     storage::funding::transport::{CallbackIdentityFault, Input, Observation, Substitute},
 };
+use ic_blob_storage::dto::{
+    funding::{
+        FundingPhase,
+        outcome::{
+            FundingOutcomeFailure, FundingOutcomeRequest, FundingOutcomeResponse,
+            FundingReconciliation as FundingReconciliationView, FundingReportedBalance,
+            FundingResponse,
+        },
+    },
+    operator::OperatorScope,
+};
 use ic_blob_storage::ops::caffeine::funding::request::CashierTopUpRequest;
 use std::num::NonZeroU128;
+
+fn outcome_request(intent: Intent) -> FundingOutcomeRequest {
+    FundingOutcomeRequest {
+        scope: OperatorScope {
+            service: intent.service,
+            cashier: intent.cashier,
+            payment_account: intent.account,
+            namespace: intent.namespace,
+        },
+        operation: intent.operation,
+        offered: intent.offered,
+        target_balance: intent.target_balance,
+    }
+}
+fn expected_response(outcome: FundingOutcome) -> FundingResponse {
+    match outcome {
+        FundingOutcome::ReportedSuccess => {
+            FundingResponse::ReportedSuccess(FundingReportedBalance {
+                total: 100,
+                prepaid: 80,
+                promotional: 10,
+                ledger: 10,
+            })
+        }
+        FundingOutcome::ProviderError(error) => match error {
+            FundingProviderErrorView::NotAuthorized(p) => FundingResponse::NotAuthorized(p),
+            FundingProviderErrorView::AccountBalanceOverflow => {
+                FundingResponse::AccountBalanceOverflow
+            }
+            FundingProviderErrorView::InternalError => FundingResponse::InternalError,
+            FundingProviderErrorView::TopUpWithoutCycles => FundingResponse::TopUpWithoutCycles,
+        },
+        FundingOutcome::InvalidReply => FundingResponse::InvalidReply,
+        FundingOutcome::Rejected(code) => FundingResponse::Rejected(code),
+        FundingOutcome::NotEnqueued => FundingResponse::NotEnqueued,
+        FundingOutcome::LiquidityBlocked => FundingResponse::NotDispatched,
+    }
+}
 
 impl Fixture {
     fn upgrade_storage(&self) {
@@ -100,10 +149,15 @@ impl Fixture {
         &self,
         actor: Principal,
         intent: Intent,
-    ) -> Result<Option<blob_test_protocol::storage::funding::outcome::Outcome>, Failure> {
+    ) -> Result<Option<FundingOutcomeResponse>, FundingOutcomeFailure> {
         self.harness
             .pic
-            .query_candid_as(self.service, actor, "funding_outcome", (intent,))
+            .query_candid_as(
+                self.service,
+                actor,
+                "blob_funding_outcome",
+                (outcome_request(intent),),
+            )
             .unwrap()
     }
 }
@@ -166,22 +220,14 @@ fn cashier_transport_binds_exact_arguments_and_keeps_refunds_independent_of_repl
         );
         assert!(result.call_cost > 0);
         let retained = f.retained_outcome(f.operator, intent).unwrap().unwrap();
-        assert_eq!(retained.intent, intent);
-        assert_eq!(retained.response, Some(expected));
+        assert_eq!(retained.request, outcome_request(intent));
+        assert_eq!(retained.response, Some(expected_response(expected)));
         assert_eq!(
             retained.reconciliation,
             if accepted == 0 {
                 FundingReconciliationView::NoTransfer
             } else {
                 FundingReconciliationView::CreditRequired(accepted)
-            }
-        );
-        assert_eq!(
-            retained.reported_balance,
-            if reply == FundingReplyMode::Success {
-                Some([100, 80, 10, 10])
-            } else {
-                None
             }
         );
         assert_eq!(
@@ -209,10 +255,19 @@ fn cashier_transport_binds_exact_arguments_and_keeps_refunds_independent_of_repl
         );
         assert_eq!(f.funding_allocation(), allocation);
         for actor in [f.controller, f.tenant, Principal::anonymous()] {
-            assert_eq!(f.retained_outcome(actor, intent), Err(Failure::Denied));
+            assert_eq!(
+                f.retained_outcome(actor, intent),
+                Err(FundingOutcomeFailure::Denied)
+            );
         }
         f.upgrade_storage();
-        assert_eq!(f.retained_outcome(f.operator, intent), Ok(Some(retained)));
+        assert_eq!(
+            f.retained_outcome(f.operator, intent),
+            Ok(Some(FundingOutcomeResponse {
+                fenced: true,
+                ..retained
+            }))
+        );
         assert_eq!(f.transport(f.operator, input(intent)), Err(Failure::Fenced));
     }
 }
@@ -277,7 +332,7 @@ fn cashier_transport_requires_exact_prepared_operator_intent_and_full_liquidity(
     );
     assert_eq!(f.funding_allocation().not_enqueued, 900);
     let retained = f.retained_outcome(f.operator, intent).unwrap().unwrap();
-    assert_eq!(retained.response, Some(FundingOutcome::LiquidityBlocked));
+    assert_eq!(retained.response, Some(FundingResponse::NotDispatched));
     assert_eq!(
         retained.reconciliation,
         FundingReconciliationView::NoTransfer
@@ -365,7 +420,13 @@ fn cashier_callback_write_trap_preserves_uncertainty_after_receiver_acceptance()
         Ok(Some(Phase::Uncertain))
     );
     assert_eq!(f.transport(f.operator, input(intent)), Err(Failure::Fenced));
-    assert_eq!(f.retained_outcome(f.operator, intent), Ok(Some(uncertain)));
+    assert_eq!(
+        f.retained_outcome(f.operator, intent),
+        Ok(Some(FundingOutcomeResponse {
+            fenced: true,
+            ..uncertain
+        }))
+    );
     assert_eq!(
         f.funding_allocation(),
         Allocation {
@@ -399,7 +460,7 @@ fn mismatched_callback_request_never_releases_the_original_uncertain_offer() {
         );
         assert_eq!(f.incoming()[0].accepted, 400);
         let retained = f.retained_outcome(f.operator, intent).unwrap().unwrap();
-        assert_eq!(retained.phase, Phase::Uncertain);
+        assert_eq!(retained.phase, FundingPhase::Uncertain);
         assert_eq!(retained.response, None);
         assert_eq!(
             retained.reconciliation,

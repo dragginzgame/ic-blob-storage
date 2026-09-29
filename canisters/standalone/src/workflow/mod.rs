@@ -1,5 +1,11 @@
 //! Thin host composition; all tenant and blob transitions use shared workflows.
 use crate::ops;
+use ic_blob_storage::dto::funding::outcome::{
+    FundingOutcomeFailure, FundingOutcomeRequest, FundingOutcomeResponse,
+};
+use ic_blob_storage::dto::funding::{
+    FundingHistoryFailure, FundingHistoryPage, FundingHistoryRequest,
+};
 use ic_blob_storage::dto::upload::history::{
     UploadHistoryFailure, UploadHistoryPage, UploadHistoryRequest,
 };
@@ -47,8 +53,29 @@ pub(crate) fn history(
 pub(crate) fn install(input: &ic_blob_storage::dto::configuration::ServiceConfigurationInput) {
     ops::install(input);
 }
+pub(crate) fn funding_history(
+    context: UploadContext,
+    input: FundingHistoryRequest,
+) -> Result<FundingHistoryPage, FundingHistoryFailure> {
+    ops::read(|stores| {
+        ic_blob_storage::workflow::funding::history::inspect(
+            &stores.funding,
+            context,
+            input,
+            std::num::NonZeroUsize::new(32).expect("fixed funding page bound"),
+        )
+    })
+}
 pub(crate) fn restore() {
     ops::restore();
+}
+pub(crate) fn funding_outcome(
+    context: UploadContext,
+    input: FundingOutcomeRequest,
+) -> Result<Option<FundingOutcomeResponse>, FundingOutcomeFailure> {
+    ops::read(|stores| {
+        ic_blob_storage::workflow::funding::outcome::inspect(&stores.funding, context, input)
+    })
 }
 pub(crate) fn local_status(
     context: UploadContext,

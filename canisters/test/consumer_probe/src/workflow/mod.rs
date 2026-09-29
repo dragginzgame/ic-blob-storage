@@ -2,6 +2,7 @@
 pub(crate) mod manifests;
 pub(crate) mod tenants;
 use crate::ops;
+pub(crate) mod funding;
 use blob_test_protocol::consumer::{AssetView, Failure, Fault, RegistrationSource, Run};
 use candid::Principal;
 use ic_blob_storage::dto::reference::ReferenceReceiptLookup;

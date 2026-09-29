@@ -1,22 +1,23 @@
 use super::*;
 mod admission;
+mod client;
 mod history;
 mod summary;
 mod transport;
 use blob_test_protocol::storage::funding::{Action, Allocation, Command, Intent, Phase};
 impl Fixture {
-    fn funding_scope(&self) -> blob_test_protocol::storage::funding::history::Scope {
-        blob_test_protocol::storage::funding::history::Scope {
+    fn funding_scope(&self) -> ic_blob_storage::dto::operator::OperatorScope {
+        ic_blob_storage::dto::operator::OperatorScope {
             service: self.service,
             cashier: self.operator,
-            account: self.service,
+            payment_account: self.service,
             namespace: 1,
         }
     }
     fn funding_summary(
         &self,
         actor: Principal,
-        scope: blob_test_protocol::storage::funding::history::Scope,
+        scope: ic_blob_storage::dto::operator::OperatorScope,
     ) -> Result<blob_test_protocol::storage::funding::summary::Summary, Failure> {
         self.harness
             .pic

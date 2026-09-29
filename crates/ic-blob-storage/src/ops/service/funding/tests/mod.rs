@@ -2,6 +2,7 @@ use super::*;
 mod admission;
 mod attempt;
 mod history;
+mod history_boundary;
 mod outcome;
 mod summary;
 use crate::{

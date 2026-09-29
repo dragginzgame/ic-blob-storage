@@ -1,12 +1,39 @@
 use super::*;
-use blob_test_protocol::storage::funding::history::{Cursor, Entry, Input, Page, Scope};
+use ic_blob_storage::dto::{
+    funding::{
+        FundingHistoryCursor as Cursor, FundingHistoryEntry as Entry,
+        FundingHistoryFailure as HistoryFailure, FundingHistoryPage as Page,
+        FundingHistoryRequest as Input, FundingPhase,
+    },
+    operator::OperatorScope as Scope,
+};
 
 impl Fixture {
-    fn funding_history(&self, actor: Principal, input: Input) -> Result<Page, Failure> {
+    fn funding_history(&self, actor: Principal, input: Input) -> Result<Page, HistoryFailure> {
         self.harness
             .pic
-            .query_candid_as(self.service, actor, "funding_history", (input,))
+            .query_candid_as(self.service, actor, "blob_funding_history", (input,))
             .unwrap()
+    }
+}
+
+fn entry(intent: Intent, phase: Phase) -> Entry {
+    Entry {
+        scope: Scope {
+            service: intent.service,
+            cashier: intent.cashier,
+            payment_account: intent.account,
+            namespace: intent.namespace,
+        },
+        operation: intent.operation,
+        offered: intent.offered,
+        target_balance: intent.target_balance,
+        phase: match phase {
+            Phase::Prepared => FundingPhase::Prepared,
+            Phase::Uncertain => FundingPhase::Uncertain,
+            Phase::NotEnqueued => FundingPhase::NotEnqueued,
+            Phase::Callback(refunded) => FundingPhase::Callback { refunded },
+        },
     }
 }
 
@@ -20,6 +47,8 @@ fn funding_history_recovers_original_requests_and_reserved_intents_across_upgrad
     assert_eq!(
         f.funding_history(f.operator, query),
         Ok(Page {
+            request: query,
+            fenced: false,
             entries: vec![],
             next: None
         })
@@ -34,7 +63,7 @@ fn funding_history_recovers_original_requests_and_reserved_intents_across_upgrad
         f.funding(f.operator, intent, Action::Prepare).unwrap();
         f.funding(f.operator, intent, Action::Attempt).unwrap();
         f.funding(f.operator, intent, action).unwrap();
-        entries.push(Entry { intent, phase });
+        entries.push(entry(intent, phase));
     }
     let old_page = f.funding_history(f.operator, query).unwrap();
     let newest = Intent {
@@ -43,26 +72,17 @@ fn funding_history_recovers_original_requests_and_reserved_intents_across_upgrad
     };
     f.funding(f.operator, newest, Action::Prepare).unwrap();
     let prepared = f.funding_history(f.operator, query).unwrap();
-    assert_eq!(
-        prepared.entries[0],
-        Entry {
-            intent: newest,
-            phase: Phase::Prepared
-        }
-    );
+    assert_eq!(prepared.entries[0], entry(newest, Phase::Prepared));
     f.funding(f.operator, newest, Action::Attempt).unwrap();
-    entries.push(Entry {
-        intent: newest,
-        phase: Phase::Uncertain,
-    });
+    entries.push(entry(newest, Phase::Uncertain));
     entries.reverse();
-    let first = f.funding_history(f.operator, query).unwrap();
+    let mut first = f.funding_history(f.operator, query).unwrap();
     assert_eq!(first.entries, entries[..2]);
     let continuation = Input {
         cursor: first.next,
         ..query
     };
-    let second = f.funding_history(f.operator, continuation).unwrap();
+    let mut second = f.funding_history(f.operator, continuation).unwrap();
     assert_eq!(second.entries, entries[2..]);
     assert_eq!(second.next, None);
     let old_tail = f
@@ -86,11 +106,22 @@ fn funding_history_recovers_original_requests_and_reserved_intents_across_upgrad
             Some(f.controller),
         )
         .unwrap();
+    first.fenced = true;
+    second.fenced = true;
     assert_eq!(f.funding_history(f.operator, query), Ok(first.clone()));
     assert_eq!(f.funding_history(f.operator, continuation), Ok(second));
     // The discovered identity is sufficient for canonical request inspection;
     // it remains insufficient to repeat an effect or release the restore fence.
-    let recovered = first.entries[0].intent;
+    let view = first.entries[0];
+    let recovered = Intent {
+        service: view.scope.service,
+        cashier: view.scope.cashier,
+        account: view.scope.payment_account,
+        namespace: view.scope.namespace,
+        operation: view.operation,
+        offered: view.offered,
+        target_balance: view.target_balance,
+    };
     check_recovered_request(&f, recovered);
     assert_eq!(
         f.funding(f.operator, recovered, Action::Attempt),
@@ -104,7 +135,7 @@ fn funding_history_recovers_original_requests_and_reserved_intents_across_upgrad
         }
     );
     for actor in [f.controller, f.tenant, f.uploader, Principal::anonymous()] {
-        assert_eq!(f.funding_history(actor, query), Err(Failure::Denied));
+        assert_eq!(f.funding_history(actor, query), Err(HistoryFailure::Denied));
     }
 }
 
@@ -139,7 +170,7 @@ fn funding_history_rejects_foreign_scope_and_cursors_even_when_the_range_is_empt
         cursor: None,
     };
     for actor in [f.controller, f.tenant, f.uploader, Principal::anonymous()] {
-        assert_eq!(f.funding_history(actor, query), Err(Failure::Denied));
+        assert_eq!(f.funding_history(actor, query), Err(HistoryFailure::Denied));
     }
     for changed in [
         Scope {
@@ -151,7 +182,7 @@ fn funding_history_rejects_foreign_scope_and_cursors_even_when_the_range_is_empt
             ..scope
         },
         Scope {
-            account: f.other,
+            payment_account: f.other,
             ..scope
         },
         Scope {
@@ -167,7 +198,7 @@ fn funding_history_rejects_foreign_scope_and_cursors_even_when_the_range_is_empt
                     ..query
                 }
             ),
-            Err(Failure::Binding)
+            Err(HistoryFailure::Binding)
         );
         assert_eq!(
             f.funding_history(
@@ -180,7 +211,7 @@ fn funding_history_rejects_foreign_scope_and_cursors_even_when_the_range_is_empt
                     ..query
                 }
             ),
-            Err(Failure::CursorScope)
+            Err(HistoryFailure::CursorScope)
         );
     }
     for invalid in [
@@ -201,7 +232,7 @@ fn funding_history_rejects_foreign_scope_and_cursors_even_when_the_range_is_empt
     ] {
         assert_eq!(
             f.funding_history(f.operator, invalid),
-            Err(Failure::Invalid)
+            Err(HistoryFailure::Invalid)
         );
     }
 }
@@ -245,16 +276,21 @@ fn funding_history_preserves_reservations_and_excludes_rolled_back_intents() {
     assert_eq!(
         empty,
         Page {
+            request: Input {
+                cursor: Some(Cursor {
+                    scope,
+                    before_operation: 1
+                }),
+                ..query
+            },
+            fenced: false,
             entries: vec![],
             next: None
         }
     );
     assert_eq!(
         f.funding_history(f.operator, query).unwrap().entries,
-        vec![Entry {
-            intent: original,
-            phase: Phase::Prepared
-        }]
+        vec![entry(original, Phase::Prepared)]
     );
     assert_eq!(f.funding_allocation(), before);
 }

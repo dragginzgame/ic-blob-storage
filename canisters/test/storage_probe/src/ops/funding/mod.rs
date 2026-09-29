@@ -1,8 +1,6 @@
 //! Local funding bookkeeping and shared transport against a labelled substitute.
 pub(crate) mod admission;
 pub(crate) mod dispatch;
-pub(crate) mod history;
-pub(crate) mod outcome;
 pub(crate) mod summary;
 pub(crate) mod transport;
 use super::{ProbeMemory, STATE, TRAP_WRITE};

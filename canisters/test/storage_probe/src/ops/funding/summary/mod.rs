@@ -1,26 +1,37 @@
 //! Scope conversion and read-only status projection; policy belongs to workflow.
-use super::{Failure, STATE, UploadContext, failure, history};
+use super::{Failure, STATE, UploadContext, failure};
 use blob_test_protocol::{
     status::FundingActivityView,
-    storage::funding::{Allocation, history::Scope, summary::Summary},
+    storage::funding::{Allocation, summary::Summary},
 };
 use ic_blob_storage::{
+    dto::operator::OperatorScope, model::billing::journal::FundingJournalScope,
     ops::service::funding::summary::FundingJournalSummary,
     policy::billing::admission::FundingActivity,
 };
 
 pub(crate) fn read(
     execution: UploadContext,
-    input: Scope,
+    input: OperatorScope,
 ) -> Result<FundingJournalSummary, Failure> {
-    let scope = history::scope(input)?;
+    let scope = FundingJournalScope {
+        service: input.service,
+        cashier: input.cashier,
+        account: input.payment_account,
+        namespace: std::num::NonZeroU128::new(input.namespace).ok_or(Failure::Invalid)?,
+    };
     STATE
         .with_borrow(|state| state.as_ref().unwrap().funding.summary(execution, scope))
         .map_err(failure)
 }
 pub(crate) fn present(view: FundingJournalSummary, activity: FundingActivity) -> Summary {
     Summary {
-        scope: history::wire_scope(view.scope),
+        scope: OperatorScope {
+            service: view.scope.service,
+            cashier: view.scope.cashier,
+            payment_account: view.scope.account,
+            namespace: view.scope.namespace.get(),
+        },
         allocation: Allocation {
             available: view.allocation.available(),
             accepted: view.allocation.accepted(),

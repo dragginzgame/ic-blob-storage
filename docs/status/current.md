@@ -2,21 +2,18 @@
 
 Date: 2026-09-29
 
-## Active work — standalone host, operator status and bounded upload history
+## Active work — shared funding inspection and client after 0.2.20
 
-The maintainer confirmed **0.2.19 is pushed** and requested continued work toward
-the 0.2 service journey. Cargo and the release receipt are 0.2.19. Local main,
-origin/main and the peeled v0.2.19 tag resolve to
-`aeb0f2802403d04d2857c27d9514bd3ccaa301e2`, from validated source
-`2a5351ca60d38923799b099406c2401dc2ace2de`. The receipt records the
+The maintainer confirmed **0.2.20 is live** and requested continued work toward
+the 0.2 service journey. Cargo and the release receipt are 0.2.20. Local main,
+origin/main and the peeled v0.2.20 tag resolve to
+`f7e5cd4fed6d9fd494c01acaa87d3be6a77d4c2b`, from validated source
+`f31b71997c0d1d54e6c02f814f43d0e13b4bf44e`. The receipt records the
 `release-verify` gate; registry publication was not independently queried.
-The dated 0.2.19 notes match that release. The maintainer requested the **0.2.20**
-changelog; completed work is grouped in that undated draft beneath empty Unreleased.
-Package version and release receipt remain at 0.2.19.
+The dated 0.2.20 notes match that release. New work is grouped in **Unreleased**;
+no next version is selected. Package version and release receipt remain at 0.2.20.
 The browser fixture retains Caffeine 1.1.2 and supported SDK 5.4.0.
-The new unpublished standalone workspace crate uses existing locked dependencies;
-Cargo.lock adds only that local package and the integration-test dependency on it.
-The worktree was clean at the start of this batch. No external dependency changed.
+The worktree was clean at the start of this batch. No dependency changed.
 No version mutation, commit, publication, deployment or deployed-provider effect ran here;
 transfers below use simulated cycles between local PocketIC canisters.
 
@@ -31,7 +28,75 @@ operator client. Library publication does not qualify the service or Canic remov
 | M3 — Caffeine and operator integration | In progress: shared transports with local IC evidence | Qualified provider transport, completion/economics and production client |
 | M4 — managed parity and acceptance | Not implemented | Same journey through Canic adapter, complete replacement evidence and handoff |
 
-## Current focus — standalone host and shared operational inspection
+## Current focus — shared operator funding inspection
+
+`dto::funding` and `workflow::funding::history::inspect` now expose the existing
+bounded durable journal through `blob_funding_history` in the standalone host and
+storage fixture. The API reuses `OperatorScope`, preserves exact full-width IDs,
+offers, optional target balances and transport phases, echoes the request and
+reports the restore fence. The standalone host returns at most 32 entries per
+query. Descending cursors bind the complete scope and grant no retry, provider
+credit, account-completeness or recovery authority. New or changed activity behind
+the cursor requires a fresh sweep; no whole-history reconstruction occurs.
+
+The fixture's private history DTOs, conversion and endpoint are removed. Its
+separate summary fixture uses the maintained operator scope too. No stable schema,
+configuration, allocator or provider effect changes. The standalone host still
+exports no funding mutation; actual nonempty histories below use local substitutes.
+
+Five targeted native funding-history tests and six PocketIC cases pass. Native
+coverage includes full-width offers, target balances and refunds through Candid
+and restoration without writes. The IC cases cover standalone scope/actor/cursor
+rejection and replicated passive reads, two-entry pages with sparse IDs, recovery
+of canonical requests after restore, retained uncertain attachments, write rollback
+and summary scope propagation. PocketIC execution totals 13.55 seconds. Strict
+affected Clippy, generated Candid comparison, release host/storage Wasm and
+warning-free core/host rustdoc pass. No full CI/release gate ran for this batch.
+
+`dto::funding::outcome` and `workflow::funding::outcome::inspect` now add
+`blob_funding_outcome` to both hosts. Exact inspection binds the original scope,
+operation, offer and optional target balance; changing a retained intent rejects.
+The response preserves phase, optional structured reply and restore fencing, with
+named reported balance components, provider errors and individual decoder failure
+categories. Workflow reuses shared reconciliation against retained transfer facts;
+a reported success or later refund cannot prove provider credit. Absence and
+transport-only history remain distinct. The fixture's private outcome DTO,
+endpoint and conversion are removed without changing dispatch or stable schemas.
+
+Three native outcome tests pass, extending the existing response-category matrix
+through the shared boundary/Candid and checking malformed/changed input, scope,
+absence and no writes. The new standalone case and all eleven affected transport
+PocketIC cases pass in 50.38 seconds total. They cover actual replicated passive
+lookup, local Cashier success/errors/malformed replies, liquidity refusal, delayed
+callbacks, receiver/callback traps and fenced restoration. These remain local
+substitutes, not deployed-provider evidence. Strict affected Clippy, Candid schema
+comparison, release standalone/storage/funding Wasm and warning-free core/host
+rustdoc pass. No full CI/release gate ran.
+
+Next, connect remaining operator/provider handlers and resolve qualified completion
+and operational recovery. History inspection does not establish service readiness.
+
+`ops::service::funding::client::ReplicatedFundingClient` now consumes both shared
+queries with pinned actual canister and complete operator scope. Each call uses a
+bounded replicated wait with no attached cycles, automatic retry or query fallback.
+Bounded decoding checks exact request echoes, full-width original amounts, strict
+descending page/cursor order and consistency between refunds and reconciliation.
+Remote refusal stays distinct from absence; fences and missing structured replies
+survive unchanged. These reads need no durable command journal or new stable schema.
+
+Six native client/reply tests pass, including the standalone-sized 32-entry page
+with full-width amounts and rejection of malformed/cross-scope/contradictory replies.
+Both targeted client PocketIC cases pass in 9.98 seconds: actual canister operator
+authorization, host ingress isolation, composite-query refusal, small reply budgets,
+multi-page discovery, unknown/changed exact intents and inspection after independent
+client/service restoration. Service and client stable bytes stay unchanged by reads.
+The consumer remains a labelled local substitute; deployed Caffeine behavior and
+production operator authentication are not qualified by this evidence. No dependency,
+allocator, version, stable schema or provider effect changed; no full CI/release gate ran.
+Strict core/consumer/storage-integration Clippy, release storage/consumer Wasm,
+warning-free core rustdoc, formatting and diff checks also pass.
+
+## Standalone host and shared operational inspection — included in 0.2.20
 
 `canisters/standalone` now owns actual init/post-upgrade hooks, one ic-memory runtime
 and seventeen exclusive memories. Installation validates the complete explicit

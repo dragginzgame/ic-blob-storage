@@ -269,9 +269,12 @@ fn funding_request(
 }
 
 #[ic_cdk::query(decode_with = "ops::decode")]
-fn funding_history(
-    input: blob_test_protocol::storage::funding::history::Input,
-) -> Result<blob_test_protocol::storage::funding::history::Page, Failure> {
+fn blob_funding_history(
+    input: ic_blob_storage::dto::funding::FundingHistoryRequest,
+) -> Result<
+    ic_blob_storage::dto::funding::FundingHistoryPage,
+    ic_blob_storage::dto::funding::FundingHistoryFailure,
+> {
     workflow::funding_history(context(), input)
 }
 
@@ -290,15 +293,18 @@ async fn fixture_guarded_funding_dispatch(
 }
 
 #[ic_cdk::query(decode_with = "ops::decode")]
-fn funding_outcome(
-    input: blob_test_protocol::storage::funding::Intent,
-) -> Result<Option<blob_test_protocol::storage::funding::outcome::Outcome>, Failure> {
+fn blob_funding_outcome(
+    input: ic_blob_storage::dto::funding::outcome::FundingOutcomeRequest,
+) -> Result<
+    Option<ic_blob_storage::dto::funding::outcome::FundingOutcomeResponse>,
+    ic_blob_storage::dto::funding::outcome::FundingOutcomeFailure,
+> {
     workflow::funding_outcome(context(), input)
 }
 
 #[ic_cdk::query(decode_with = "ops::decode")]
 fn funding_summary(
-    input: blob_test_protocol::storage::funding::history::Scope,
+    input: ic_blob_storage::dto::operator::OperatorScope,
 ) -> Result<blob_test_protocol::storage::funding::summary::Summary, Failure> {
     workflow::funding_summary(context(), input)
 }

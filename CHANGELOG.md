@@ -2,6 +2,33 @@
 
 ## [Unreleased]
 
+### Added
+
+- Shared operator-only `blob_funding_history` query in the standalone host and
+  storage fixture. Bounded descending pages recover exact local operation IDs,
+  attachment amounts, optional target balances and transport phases, with full
+  service/namespace/Cashier/payer binding and an explicit restore fence. The host
+  returns at most 32 entries; cursors grant no retry, credit or freshness authority.
+- Native and PocketIC coverage for full-width attachments/refunds, caller/scope
+  rejection, pagination, interrupted writes and retained uncertainty across restore.
+  The fixture's private history endpoint, DTOs and conversion are removed; its
+  related summary query now uses the shared operator scope. No funding dispatch
+  endpoint or deployed-provider guarantee is introduced.
+- Shared operator-only `blob_funding_outcome` query in both hosts, replacing the
+  fixture's private outcome endpoint and conversion. Exact lookup checks the full
+  original scope, operation, offer and optional target balance. Responses preserve
+  transport phase, reported balance components, provider errors, decoder categories
+  and restore fencing. Shared reconciliation keeps accepted or uncertain attachments
+  unresolved independently of reported success. Native and PocketIC tests cover
+  altered intents, absent/transport-only observations, delayed callbacks, write
+  rollback and retained outcomes after restoration against local substitutes.
+- `ReplicatedFundingClient` for single-call history and exact-outcome inspection
+  from a pinned canister operator. Bounded reply validation checks scope, original
+  amounts, descending cursors and refund/reconciliation consistency while retaining
+  absence, service refusals and restore fences. No attached cycles, automatic
+  retries, extra journal or lifecycle hooks. Native and PocketIC tests cover
+  malformed observations, caller isolation, reply limits and both host restorations.
+
 ## [0.2.20] - 2026-09-29
 
 ### Added

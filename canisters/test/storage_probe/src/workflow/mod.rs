@@ -226,9 +226,19 @@ pub(crate) fn funding_request(
 
 pub(crate) fn funding_history(
     execution: UploadContext,
-    input: blob_test_protocol::storage::funding::history::Input,
-) -> Result<blob_test_protocol::storage::funding::history::Page, Failure> {
-    ops::funding::history::read(execution, input)
+    input: ic_blob_storage::dto::funding::FundingHistoryRequest,
+) -> Result<
+    ic_blob_storage::dto::funding::FundingHistoryPage,
+    ic_blob_storage::dto::funding::FundingHistoryFailure,
+> {
+    ops::with_operator_stores(|stores| {
+        ic_blob_storage::workflow::funding::history::inspect(
+            stores.funding,
+            execution,
+            input,
+            std::num::NonZeroUsize::new(2).expect("fixture page bound"),
+        )
+    })
 }
 
 pub(crate) async fn funding_transport(
@@ -250,21 +260,19 @@ pub(crate) async fn funding_transport(
 
 pub(crate) fn funding_outcome(
     execution: UploadContext,
-    input: blob_test_protocol::storage::funding::Intent,
-) -> Result<Option<blob_test_protocol::storage::funding::outcome::Outcome>, Failure> {
-    let view = ops::funding::outcome::read(execution, input)?;
-    Ok(view.map(|view| {
-        let reconciliation =
-            ic_blob_storage::policy::billing::reconciliation::assess_funding_reconciliation(
-                view.transfer,
-            );
-        ops::funding::outcome::present(input, &view, reconciliation)
-    }))
+    input: ic_blob_storage::dto::funding::outcome::FundingOutcomeRequest,
+) -> Result<
+    Option<ic_blob_storage::dto::funding::outcome::FundingOutcomeResponse>,
+    ic_blob_storage::dto::funding::outcome::FundingOutcomeFailure,
+> {
+    ops::with_operator_stores(|stores| {
+        ic_blob_storage::workflow::funding::outcome::inspect(stores.funding, execution, input)
+    })
 }
 
 pub(crate) fn funding_summary(
     execution: UploadContext,
-    input: blob_test_protocol::storage::funding::history::Scope,
+    input: ic_blob_storage::dto::operator::OperatorScope,
 ) -> Result<blob_test_protocol::storage::funding::summary::Summary, Failure> {
     let view = ops::funding::summary::read(execution, input)?;
     let activity = ic_blob_storage::policy::billing::reconciliation::assess_uncredited_allocation(

@@ -1,6 +1,8 @@
 //! Synchronous preparation gates, without provider dispatch or automatic retry.
 pub mod attempt;
 pub mod dispatch;
+pub mod history;
+pub mod outcome;
 use crate::{
     model::{
         billing::journal::{FundingIntent, FundingIntentAdmission},

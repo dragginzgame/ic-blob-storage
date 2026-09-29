@@ -1,8 +1,10 @@
 //! Incremental durable funding bookkeeping, without dispatch or credit authority.
 pub mod access;
 mod admission;
+pub mod client;
 pub mod history;
 pub mod outcome;
+pub mod reply;
 pub mod summary;
 use crate::model::{
     billing::{

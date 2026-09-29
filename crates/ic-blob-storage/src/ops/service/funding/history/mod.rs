@@ -1,4 +1,5 @@
 //! Bounded operator discovery of retained funding intents, including after restore.
+pub mod boundary;
 use super::{FundingIntentView, FundingJournalError, Memory, StableFundingJournal, UploadContext};
 use crate::model::billing::journal::FundingJournalScope;
 use std::{

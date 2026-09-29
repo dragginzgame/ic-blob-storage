@@ -1,3 +1,161 @@
+// Balance component whose decoding or amount validation failed.
+type FundingBalanceField = variant {
+  // Prepaid balance.
+  Prepaid;
+  // Total balance.
+  Total;
+  // Ledger balance.
+  Ledger;
+  // Promotional balance.
+  Promotional;
+};
+// Descending local operation position, never a snapshot or retry permission.
+type FundingHistoryCursor = record {
+  // Complete original journal scope.
+  scope : OperatorScope;
+  // Exclusive positive upper bound for the next operation.
+  before_operation : nat;
+};
+// Original identity and amounts recovered without a saved caller request.
+type FundingHistoryEntry = record {
+  // Full retained scope, not a caller-selected transport destination.
+  scope : OperatorScope;
+  // Exact optional target balance; absence is never defaulted.
+  target_balance : opt nat;
+  // Positive lifetime local operation identity; not a provider receipt ID.
+  operation : nat;
+  // Retained local progress only.
+  phase : FundingPhase;
+  // Original positive cycle attachment, independent of execution fees.
+  offered : nat;
+};
+// Inspection refusals never become empty history or retry permission.
+type FundingHistoryFailure = variant {
+  // Retained records cannot be read consistently.
+  Internal;
+  // Zero namespace or continuation identity.
+  Invalid;
+  // Actual service or requested journal scope differs from installation.
+  Binding;
+  // Actual caller is not the configured operator.
+  Denied;
+  // Cursor belongs to a different journal scope.
+  CursorScope;
+};
+// Bounded current observations, newest local operation first.
+type FundingHistoryPage = record {
+  // Restored journal permits inspection only.
+  fenced : bool;
+  // Complete request echoed for correlation.
+  request : FundingHistoryRequest;
+  // Absent only at the end of this local range, not proof of account completeness.
+  next : opt FundingHistoryCursor;
+  // Exact local observations; no provider call or reconciliation is implied.
+  entries : vec FundingHistoryEntry;
+};
+// One operator history query with host-owned result bounds.
+type FundingHistoryRequest = record {
+  // Continuation; resweep to observe activity behind this position.
+  cursor : opt FundingHistoryCursor;
+  // Explicit installed service, namespace, Cashier and payer.
+  scope : OperatorScope;
+};
+// Exact inspection refusal; absence is returned separately and never permits retry.
+type FundingOutcomeFailure = variant {
+  // Retained state cannot be read consistently.
+  Internal;
+  // Zero namespace, operation, offer or present target balance.
+  Invalid;
+  // Wrong actual service or installed scope.
+  Binding;
+  // Caller is not the configured operator.
+  Denied;
+  // Retained intent differs from the supplied original amounts/options.
+  Conflict;
+};
+// Complete original local intent; changed amounts or target options must reject.
+type FundingOutcomeRequest = record {
+  // Installed service, namespace, Cashier and payer.
+  scope : OperatorScope;
+  // Exact optional positive target balance; no inferred default.
+  target_balance : opt nat;
+  // Positive local operation identity, not a provider receipt ID.
+  operation : nat;
+  // Original positive attachment, excluding execution fees.
+  offered : nat;
+};
+// One retained local observation; no field authorizes retry or unfencing.
+type FundingOutcomeResponse = record {
+  // Restored journal permits inspection only.
+  fenced : bool;
+  // Complete original intent checked before disclosure.
+  request : FundingOutcomeRequest;
+  // Absent when no structured response was durably retained.
+  response : opt FundingResponse;
+  // Local transport progress.
+  phase : FundingPhase;
+  // Independent diagnosis; a success report cannot clear accepted attachment.
+  reconciliation : FundingReconciliation;
+};
+// Local attachment progress, separate from any provider response or credit.
+type FundingPhase = variant {
+  // Attempt marked; full attachment remains potentially spent.
+  Uncertain;
+  // Trusted local observation proves the call was not enqueued.
+  NotEnqueued;
+  // Exact callback refund; accepted remainder is not proof of provider credit.
+  Callback : record {
+    // Cycles returned in the exact callback, bounded by the original offer.
+    refunded : nat;
+  };
+  // Attachment reserved before a local attempt marker.
+  Prepared;
+};
+// Conservative follow-up derived only from retained attachment facts.
+type FundingReconciliation = variant {
+  // Full original attachment remains potentially spent.
+  TransferUnknown : nat;
+  // Exact transport acceptance still requires independent provider-credit evidence.
+  CreditRequired : nat;
+  // No attached cycles transferred; execution fees are separate.
+  NoTransfer;
+};
+// Provider-reported balance components, never a credited-amount receipt.
+type FundingReportedBalance = record {
+  // Reported total.
+  total : nat;
+  // Reported prepaid cycles.
+  prepaid : nat;
+  // Reported ledger cycles.
+  ledger : nat;
+  // Reported promotional cycles.
+  promotional : nat;
+};
+// Retained structured response, independent of the exact callback refund.
+type FundingResponse = variant {
+  // Validated reported balance, not proof of credit or freshness.
+  ReportedSuccess : FundingReportedBalance;
+  // The platform did not enqueue a call.
+  NotEnqueued;
+  // Malformed, incompatible or over-budget Candid.
+  InvalidReply;
+  // The prepared call was consumed without polling it.
+  NotDispatched;
+  // Provider-reported principal, not caller authority.
+  NotAuthorized : principal;
+  // Raw IC rejection code, without diagnostic text.
+  Rejected : nat32;
+  // Reported balance component could not be represented or validated.
+  InvalidBalance : FundingBalanceField;
+  // Reply exceeded the configured decoding byte budget.
+  ReplyTooLarge;
+  // Provider-reported balance overflow; refund accounting stays independent.
+  AccountBalanceOverflow;
+  // Provider internal error; diagnostic text is discarded.
+  InternalError;
+  // Provider reported no attached cycles; local transport facts stay authoritative.
+  TopUpWithoutCycles;
+};
 // Operator-only installed configuration and local restore state.
 type HostConfigurationView = record {
   // Restored stores allow inspection only; false is not provider readiness.
@@ -217,8 +375,16 @@ type Result_1 = variant {
   Ok : ReferenceChange;
   Err : ReferenceTransitionFailure;
 };
-type Result_10 = variant { Ok : UploadHistoryPage; Err : UploadHistoryFailure };
+type Result_10 = variant { Ok : TenantEnrollmentResponse; Err : TenantFailure };
 type Result_11 = variant {
+  Ok : UploadAdmissionResponse;
+  Err : UploadAdmissionFailure;
+};
+type Result_12 = variant {
+  Ok : UploadHistoryPage;
+  Err : FundingHistoryFailure;
+};
+type Result_13 = variant {
   Ok : UploadManifestResponse;
   Err : UploadManifestFailure;
 };
@@ -227,19 +393,22 @@ type Result_2 = variant {
   Err : ReferenceFailure;
 };
 type Result_3 = variant { Ok : HostConfigurationView; Err : HostFailure };
-type Result_4 = variant { Ok : LocalServiceStatus; Err : LocalStatusFailure };
+type Result_4 = variant {
+  Ok : FundingHistoryPage;
+  Err : FundingHistoryFailure;
+};
 type Result_5 = variant {
+  Ok : opt FundingOutcomeResponse;
+  Err : FundingOutcomeFailure;
+};
+type Result_6 = variant { Ok : LocalServiceStatus; Err : LocalStatusFailure };
+type Result_7 = variant {
   Ok : UploadManifestMutation;
   Err : UploadManifestFailure;
 };
-type Result_6 = variant { Ok : ReferenceReceiptLookup; Err : ReferenceFailure };
-type Result_7 = variant {
-  Ok : UploadRevocationResponse;
-  Err : UploadAdmissionFailure;
-};
-type Result_8 = variant { Ok : TenantEnrollmentResponse; Err : TenantFailure };
+type Result_8 = variant { Ok : ReferenceReceiptLookup; Err : ReferenceFailure };
 type Result_9 = variant {
-  Ok : UploadAdmissionResponse;
+  Ok : UploadRevocationResponse;
   Err : UploadAdmissionFailure;
 };
 // Explicit provider identity and local cycle thresholds, with no service defaults.
@@ -472,19 +641,6 @@ type UploadHistoryEntry = record {
   // Current observation; not publication or retry authority.
   state : UploadContentState;
 };
-// Refusal never means empty history or safe retry.
-type UploadHistoryFailure = variant {
-  // Retained state could not be read consistently.
-  Internal;
-  // Zero or malformed identity.
-  Invalid;
-  // Wrong actual or installed service/namespace.
-  Binding;
-  // Actual caller does not own the requested observer scope.
-  Denied;
-  // Cursor does not match the requested scan.
-  CursorScope;
-};
 // Current local states to select, not a provider reconciliation result.
 type UploadHistoryFilter = variant {
   // Every retained operation, including cancelled and settled history.
@@ -607,13 +763,15 @@ service : (ServiceConfigurationInput) -> {
   blob_admit_upload : (UploadAdmissionRequest) -> (Result);
   blob_apply_reference : (ReferenceCommand) -> (Result_2);
   blob_configuration : () -> (Result_3) query;
-  blob_local_status : (OperatorScope) -> (Result_4) query;
-  blob_prepare_upload : (UploadManifestRequest) -> (Result_5);
-  blob_reference_receipt : (ReferenceCommand) -> (Result_6) query;
-  blob_revoke_upload : (UploadAdmissionRequest) -> (Result_7);
-  blob_tenant : (TenantScope) -> (Result_8) query;
-  blob_update_tenant : (TenantUpdateRequest) -> (Result_8);
-  blob_upload_admission : (UploadAdmissionRequest) -> (Result_9) query;
-  blob_upload_history : (UploadHistoryRequest) -> (Result_10) query;
-  blob_upload_manifest : (UploadAdmissionRequest) -> (Result_11) query;
+  blob_funding_history : (FundingHistoryRequest) -> (Result_4) query;
+  blob_funding_outcome : (FundingOutcomeRequest) -> (Result_5) query;
+  blob_local_status : (OperatorScope) -> (Result_6) query;
+  blob_prepare_upload : (UploadManifestRequest) -> (Result_7);
+  blob_reference_receipt : (ReferenceCommand) -> (Result_8) query;
+  blob_revoke_upload : (UploadAdmissionRequest) -> (Result_9);
+  blob_tenant : (TenantScope) -> (Result_10) query;
+  blob_update_tenant : (TenantUpdateRequest) -> (Result_10);
+  blob_upload_admission : (UploadAdmissionRequest) -> (Result_11) query;
+  blob_upload_history : (UploadHistoryRequest) -> (Result_12) query;
+  blob_upload_manifest : (UploadAdmissionRequest) -> (Result_13) query;
 }

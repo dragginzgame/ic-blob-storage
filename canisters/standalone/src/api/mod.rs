@@ -5,6 +5,12 @@
     reason = "Candid endpoint macros own decoded inputs"
 )]
 use crate::{dto, ops, workflow};
+use ic_blob_storage::dto::funding::outcome::{
+    FundingOutcomeFailure, FundingOutcomeRequest, FundingOutcomeResponse,
+};
+use ic_blob_storage::dto::funding::{
+    FundingHistoryFailure, FundingHistoryPage, FundingHistoryRequest,
+};
 use ic_blob_storage::dto::operator::{LocalServiceStatus, LocalStatusFailure, OperatorScope};
 use ic_blob_storage::dto::upload::history::{
     UploadHistoryFailure, UploadHistoryPage, UploadHistoryRequest,
@@ -120,6 +126,20 @@ fn blob_upload_history(
     input: UploadHistoryRequest,
 ) -> Result<UploadHistoryPage, UploadHistoryFailure> {
     workflow::history(context(), input)
+}
+#[ic_cdk::query(hidden = true, decode_with = "ops::decode")]
+#[candid::candid_method(query)]
+fn blob_funding_history(
+    input: FundingHistoryRequest,
+) -> Result<FundingHistoryPage, FundingHistoryFailure> {
+    workflow::funding_history(context(), input)
+}
+#[ic_cdk::query(hidden = true, decode_with = "ops::decode")]
+#[candid::candid_method(query)]
+fn blob_funding_outcome(
+    input: FundingOutcomeRequest,
+) -> Result<Option<FundingOutcomeResponse>, FundingOutcomeFailure> {
+    workflow::funding_outcome(context(), input)
 }
 ic_cdk::export_candid!();
 pub(crate) fn interface() -> String {

@@ -1,4 +1,5 @@
 //! Durable structured observations and conservative exact-intent reconciliation.
+pub mod boundary;
 mod conversion;
 use super::{
     FundingIntent, FundingIntentError, FundingJournalError, FundingTransportContext,

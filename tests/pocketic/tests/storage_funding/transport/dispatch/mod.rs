@@ -117,7 +117,7 @@ fn guarded_dispatch_requires_complete_holds_and_authority_before_marking_or_send
         (400, Some(500), FundingOutcome::InvalidReply)
     );
     let retained = f.retained_outcome(f.operator, intent).unwrap().unwrap();
-    assert_eq!(retained.response, Some(FundingOutcome::InvalidReply));
+    assert_eq!(retained.response, Some(FundingResponse::InvalidReply));
     assert_eq!(
         retained.reconciliation,
         FundingReconciliationView::CreditRequired(400)
@@ -141,7 +141,13 @@ fn guarded_dispatch_requires_complete_holds_and_authority_before_marking_or_send
             .0
             .contains(&B::JournalFenced)
     );
-    assert_eq!(f.retained_outcome(f.operator, intent), Ok(Some(retained)));
+    assert_eq!(
+        f.retained_outcome(f.operator, intent),
+        Ok(Some(FundingOutcomeResponse {
+            fenced: true,
+            ..retained
+        }))
+    );
 }
 #[test]
 fn guarded_dispatch_settles_unsent_liquidity_refusal_and_allows_a_distinct_intent() {
@@ -260,7 +266,7 @@ fn guarded_dispatch_callback_traps_retain_uncertainty_after_remote_acceptance() 
         );
         assert_eq!(f.funding_allocation(), before);
         let uncertain = f.retained_outcome(f.operator, intent).unwrap().unwrap();
-        assert_eq!(uncertain.phase, Phase::Uncertain);
+        assert_eq!(uncertain.phase, FundingPhase::Uncertain);
         assert_eq!(uncertain.response, None);
         assert_eq!(
             uncertain.reconciliation,
@@ -277,7 +283,13 @@ fn guarded_dispatch_callback_traps_retain_uncertainty_after_remote_acceptance() 
                 .0
                 .contains(&B::JournalFenced)
         );
-        assert_eq!(f.retained_outcome(f.operator, intent), Ok(Some(uncertain)));
+        assert_eq!(
+            f.retained_outcome(f.operator, intent),
+            Ok(Some(FundingOutcomeResponse {
+                fenced: true,
+                ..uncertain
+            }))
+        );
         assert_eq!(f.incoming().len(), 1);
     }
 }
@@ -306,13 +318,13 @@ fn delayed_guarded_dispatch_releases_the_borrow_but_retains_its_exact_reservatio
     for _ in 0..20 {
         f.harness.pic.tick();
         let view = f.retained_outcome(f.operator, intent).unwrap().unwrap();
-        if view.phase == Phase::Uncertain {
+        if view.phase == FundingPhase::Uncertain {
             pending = Some(view);
             break;
         }
     }
     let pending = pending.expect("observe the committed attempt before its delayed callback");
-    assert_eq!(pending.intent, intent);
+    assert_eq!(pending.request, outcome_request(intent));
     assert_eq!(pending.response, None);
     assert_eq!(
         pending.reconciliation,
@@ -328,9 +340,12 @@ fn delayed_guarded_dispatch_releases_the_borrow_but_retains_its_exact_reservatio
         candid::decode_one(&f.harness.pic.await_call(call).unwrap()).unwrap();
     assert_eq!(settled(reply).accepted, 400);
     let retained = f.retained_outcome(f.operator, intent).unwrap().unwrap();
-    assert_eq!(retained.intent, intent);
-    assert_eq!(retained.phase, Phase::Callback(500));
-    assert_eq!(retained.response, Some(FundingOutcome::ReportedSuccess));
+    assert_eq!(retained.request, outcome_request(intent));
+    assert_eq!(retained.phase, FundingPhase::Callback { refunded: 500 });
+    assert_eq!(
+        retained.response,
+        Some(expected_response(FundingOutcome::ReportedSuccess))
+    );
     assert_eq!(
         f.incoming(),
         vec![FundingReceiptRecord {

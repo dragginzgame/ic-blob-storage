@@ -13,6 +13,35 @@ use blob_test_protocol::consumer::{AssetView, Failure, Recovery, Release, Run, U
 use candid::Principal;
 
 #[ic_cdk::update(decode_with = "ops::decode")]
+async fn fixture_funding_history(
+    input: Box<blob_test_protocol::consumer::funding::FundingHistoryInspection>,
+) -> Result<ic_blob_storage::dto::funding::FundingHistoryPage, Failure> {
+    workflow::funding::history(
+        ic_cdk::api::msg_caller(),
+        input.request,
+        input.max_reply_bytes,
+    )
+    .await
+}
+#[ic_cdk::query(composite = true, decode_with = "ops::decode")]
+async fn fixture_query_funding(
+    input: Box<blob_test_protocol::consumer::funding::FundingHistoryInspection>,
+) -> Result<ic_blob_storage::dto::funding::FundingHistoryPage, Failure> {
+    workflow::funding::history(
+        ic_cdk::api::msg_caller(),
+        input.request,
+        input.max_reply_bytes,
+    )
+    .await
+}
+#[ic_cdk::update(decode_with = "ops::decode")]
+async fn fixture_funding_outcome(
+    input: ic_blob_storage::dto::funding::outcome::FundingOutcomeRequest,
+) -> Result<Option<ic_blob_storage::dto::funding::outcome::FundingOutcomeResponse>, Failure> {
+    workflow::funding::outcome(ic_cdk::api::msg_caller(), input).await
+}
+
+#[ic_cdk::update(decode_with = "ops::decode")]
 async fn fixture_update_tenant(
     input: blob_test_protocol::consumer::TenantDispatch,
 ) -> Result<ic_blob_storage::dto::tenant::TenantEnrollmentResponse, Failure> {

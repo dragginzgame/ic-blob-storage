@@ -1,13 +1,14 @@
 //! Complete local journal status, never provider-account clearance.
-use super::{Allocation, history::Scope};
+use super::Allocation;
 use crate::status::FundingActivityView;
 use candid::{CandidType, Deserialize};
+use ic_blob_storage::dto::operator::OperatorScope;
 
 /// Fixed-size operator observation without scanning or paging intent history.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
 pub struct Summary {
     /// Full installed journal scope.
-    pub scope: Scope,
+    pub scope: OperatorScope,
     /// Maintained lifetime attachment totals and independent restore fence.
     pub allocation: Allocation,
     /// All retained intent rows, including no-transfer outcomes.

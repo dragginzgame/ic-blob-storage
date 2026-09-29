@@ -1241,6 +1241,17 @@ intent lookup/mutation rather than silently changing the encoded call.
 Unknown transport retains the entire attachment. Returned amounts release only
 their own allocation; accepted amounts remain charged and never imply credit.
 
+`workflow::funding::history::inspect` exposes the existing bounded journal traversal
+as `blob_funding_history` through both the standalone host and storage fixture.
+The shared operator scope binds actual service, namespace, Cashier and payer even
+for empty ranges. Descending pages preserve full-width operation IDs, attachment
+amounts, optional target balances and local transport phases. Responses echo the
+request and retain the independent restore fence. The standalone host returns at
+most 32 entries; each scan reads only bounded intent rows plus an index lookahead.
+Changed cursor scopes reject, and new activity behind a cursor requires a fresh
+sweep. No page proves provider credit, complete account activity or retry safety.
+The fixture's private history DTOs, conversion and endpoint are removed.
+
 Ordinary writes touch one intent and maintained totals. Shared model arithmetic
 also reconstructs the complete bounded journal on reopen. Missing, orphaned,
 changed or inconsistent records reject without repair. Reopened owners permit
@@ -1270,6 +1281,25 @@ buffers or diagnostic strings. Response/phase mismatches reject; exact replay is
 unchanged and conflicting observations cannot overwrite history. Recording a
 response for already retained matching transport cannot release its return twice.
 Transport-only evidence remains explicitly distinguishable from a retained reply.
+
+`workflow::funding::outcome::inspect` now owns `blob_funding_outcome` in both hosts.
+The configured operator supplies the complete original scope, operation, positive
+offer and exact optional target balance; mismatched retained arguments reject.
+The response preserves local phase, typed balance components/provider errors/decode
+failures, and the restore fence. Workflow applies the existing reconciliation policy
+to retained transfer facts, independently of reply classification. Missing history
+and missing structured replies remain distinct; neither permits another payment.
+The fixture's private outcome DTO and endpoint conversion are removed.
+
+`ReplicatedFundingClient` pins the actual executing canister and full operator
+scope for one bounded replicated history/outcome call. It uses maintained method
+names and DTOs, attaches no cycles and adds no retry, pagination loop, journal or
+lifecycle ownership. Pure bounded reply decoders require independent service
+authentication, check exact echoes, descending cursor progress and refund amounts,
+and reject reconciliation inconsistent with transport facts. Refusal, absence and
+restore fences remain visible; provider reports cannot establish credit. The host
+still authenticates its own ingress. Local consumer-fixture evidence covers both
+restorations and passive bytes, not a production operator application.
 
 Operator `summary` checks the same explicit `FundingJournalScope` used by history,
 including empty journals. It reads maintained accounting and metadata counts without

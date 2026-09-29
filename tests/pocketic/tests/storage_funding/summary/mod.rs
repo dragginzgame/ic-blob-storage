@@ -1,5 +1,6 @@
 use super::*;
-use blob_test_protocol::{status::FundingActivityView, storage::funding::history::Scope};
+use blob_test_protocol::status::FundingActivityView;
+use ic_blob_storage::dto::operator::OperatorScope as Scope;
 
 #[test]
 fn local_funding_summary_preserves_old_uncredited_amounts_through_returns_traps_and_upgrade() {
@@ -87,7 +88,7 @@ fn empty_summary_rejects_foreign_scope_and_clear_restored_history_stays_fenced()
             ..scope
         },
         Scope {
-            account: f.other,
+            payment_account: f.other,
             ..scope
         },
         Scope {

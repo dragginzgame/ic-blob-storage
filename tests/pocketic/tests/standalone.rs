@@ -1,5 +1,6 @@
 //! Standalone Wasm installation, maintained endpoints and synchronous restore fencing.
 #![cfg(not(target_family = "wasm"))]
+mod standalone_funding;
 mod standalone_history;
 mod standalone_operator;
 mod support;

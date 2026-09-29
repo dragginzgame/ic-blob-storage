@@ -1,4 +1,5 @@
 //! Explicit bounded stable storage and platform calls for the application substitute.
+pub(crate) mod funding;
 pub(crate) mod manifests;
 pub(crate) mod tenants;
 use crate::model::ConsumerRecord;

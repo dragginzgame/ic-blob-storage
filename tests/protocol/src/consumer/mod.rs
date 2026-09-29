@@ -1,4 +1,5 @@
 //! Bounded application substitute for local publication/outbox evidence, not Toko's API.
+pub mod funding;
 pub mod manifests;
 
 /// One local operator-client dispatch, not a production persistence contract.

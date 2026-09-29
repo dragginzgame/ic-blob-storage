@@ -38,12 +38,35 @@ bind the service, namespace, observer scope and filter; start a fresh sweep for
 changes behind the cursor. Inspection remains available during suspension and
 restore, without granting provider retry, publication or deletion authority.
 
+Operator-only `blob_funding_history` uses the same explicit service, namespace,
+Cashier and payer scope as local status. It returns at most 32 retained intents
+per call, newest operation first, including exact offered amounts, optional target
+balances, transport phases and callback refunds. Replies echo the request and
+report the restore fence. A cursor is an exclusive operation-ID bound; start a
+fresh sweep for new intents or changed phases. This is local history, not evidence
+of complete provider-account activity, credit or safe payment retry.
+
+Operator-only `blob_funding_outcome` inspects one exact original intent using its
+scope, operation, offered amount and optional target balance. Changed original
+arguments reject; an unknown identity returns absence without retry authority.
+Retained results include transport phase, any structured response, the restore
+fence and shared reconciliation diagnosis. Reported balances, provider errors and
+decoder failures stay separate from exact refunds and accepted-cycle obligations.
+The query reads local storage and never refreshes provider balances or sends funds.
+
+Canister operators can use `ops::service::funding::client::ReplicatedFundingClient`
+with their actual canister identity, complete `OperatorScope` and a bounded timeout.
+`history` accepts explicit byte/entry reply limits; `outcome` checks one original
+intent. Calls require replicated execution and attach no cycles. The client checks
+reply correlation, pagination and refund consistency, preserves restore fences and
+owns no journal. Hosts still authenticate their own operator-facing endpoints.
+
 Tenant enrollment, upload admission/revocation, manifest preparation/inspection and
 reference operations use the existing shared workflows and actual caller/service/time.
 Preparation carries metadata and hashes; file bodies stay outside the canister.
 Reference operations require confirmed content, which this initial endpoint set
 cannot establish. No trusted-fact fixture endpoints, certificate issuance, provider
-dispatch, funding, deletion or billing-settlement endpoint is exported yet.
+dispatch, funding mutation, deletion or billing-settlement endpoint is exported yet.
 
 The host allocates seventeen exclusive grants in range 120–136 with sixteen-page
 memory-manager buckets: one bounded v1 installation record and sixteen shared-store
