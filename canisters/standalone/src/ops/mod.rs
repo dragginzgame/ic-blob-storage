@@ -8,6 +8,7 @@ use crate::{
     model::ConfigurationRecord,
 };
 use candid::{CandidType, DecoderConfig, Deserialize, Principal};
+use ic_blob_storage::model::service::upload::completion::CompletionAuthority;
 use ic_blob_storage::{
     ic_memory::{
         MemoryRuntime,
@@ -22,6 +23,7 @@ struct Host {
     _runtime: MemoryRuntime<DefaultMemoryImpl>,
     configuration: ConfigurationRecord,
     download_scope: CaffeineDownloadScope,
+    completion: CompletionAuthority,
     stores: ServiceStores<Memory>,
 }
 thread_local! {
@@ -41,6 +43,12 @@ pub(crate) fn install(input: &HostInstallationInput) {
         &input.project,
     )
     .expect("invalid installation project");
+    let completion = CompletionAuthority::new(
+        config.service().bindings().service,
+        config.service().bindings().namespace,
+        input.completion_verifier,
+    )
+    .expect("invalid completion verifier");
     assert_uninitialized();
     let Grants {
         runtime,
@@ -56,6 +64,7 @@ pub(crate) fn install(input: &HostInstallationInput) {
         _runtime: runtime,
         configuration: record,
         download_scope,
+        completion,
         stores,
     });
 }
@@ -85,11 +94,18 @@ pub(crate) fn restore() {
         &record.project,
     )
     .expect("retained project");
+    let completion = CompletionAuthority::new(
+        config.service().bindings().service,
+        config.service().bindings().namespace,
+        record.completion_verifier,
+    )
+    .expect("retained completion verifier");
     let stores = ServiceStores::open(stores, config).expect("service restoration");
     publish(Host {
         _runtime: runtime,
         configuration: record,
         download_scope,
+        completion,
         stores,
     });
 }
@@ -104,6 +120,14 @@ pub(crate) fn read<R>(f: impl FnOnce(&ServiceStores<Memory>) -> R) -> R {
 }
 pub(crate) fn mutate<R>(f: impl FnOnce(&mut ServiceStores<Memory>) -> R) -> R {
     HOST.with_borrow_mut(|host| f(&mut host.as_mut().expect("initialized host").stores))
+}
+pub(crate) fn with_completion<R>(
+    f: impl FnOnce(&mut ServiceStores<Memory>, CompletionAuthority) -> R,
+) -> R {
+    HOST.with_borrow_mut(|state| {
+        let host = state.as_mut().expect("initialized host");
+        f(&mut host.stores, host.completion)
+    })
 }
 pub(crate) fn with_download<R>(
     f: impl FnOnce(
@@ -125,6 +149,7 @@ pub(crate) fn configuration(actor: Principal) -> Result<HostConfigurationView, H
         Ok(HostConfigurationView {
             configuration: configuration::input(&host.configuration),
             project: host.configuration.project.clone(),
+            completion_verifier: host.configuration.completion_verifier,
             release: host.configuration.release.clone(),
             fenced: host.stores.uploads.is_fenced(),
         })

@@ -2,6 +2,7 @@ use super::*;
 mod admission_boundary;
 mod capacity_boundary;
 mod certificate_boundary;
+mod completion;
 mod discovery_boundary;
 mod exposure_boundary;
 mod manifest_boundary;

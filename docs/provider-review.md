@@ -7,6 +7,20 @@ remain research questions, not a requirement to obtain a provider reply. Current
 safety gates stay in place until observed behavior and explicit supported limits
 are propagated through implementation and acceptance evidence.
 
+Completion decision, 2026-09-29: the maintainer explicitly authorized an installed
+external verifier role. Its authenticated exact-upload attestation may establish
+**observed content availability** after independent retrieval and root/length/
+original-metadata verification under the installed provider owner/project mapping.
+It does not promise future retention, exact paid-operation outcome or cessation of
+billing. The shared workflow now retains the first statement with upload accounting
+and first-reference creation, rejects conflicts, and preserves exposure/restore
+fences and separate physical/economic obligations. Standalone exposes the configured
+role, verifier manifest query and attestation/receipt endpoints. IC tests prove the
+local authority and transaction behavior with substitute observations; the actual
+verifier fetch/dispatch worker and standalone certificate path remain unfinished.
+This explicitly narrows completion semantics without treating SDK progress or an
+untrusted client's local file check as a service fact. It needs no provider reply.
+
 Verdict: Caffeine remains unqualified for the required service journey. The
 Cashier's deployed Candid and public gateway/pricing queries are now observed;
 server revision, paid-effect recovery and final billing guarantees remain open.
@@ -32,7 +46,8 @@ This is client behavior under local substitutes, not a claim that the deployed
 gateway emits those replies. It reinforces the separation between SDK success,
 observed content availability and trusted service completion. Do not enable
 automatic resume or promote client progress/download verification to a canister
-completion fact. The current trusted completion bridge remains to be implemented.
+completion fact. Only the explicit trusted-verifier boundary above can accept an
+availability statement; provider receipt semantics remain unqualified.
 
 ### Browser reuse assessment — 2026-09-28
 

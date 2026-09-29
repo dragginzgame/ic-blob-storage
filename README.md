@@ -579,7 +579,7 @@ a trusted DER root obtained independently from the local replica owner; root
 overrides are rejected in IC mode. No root is fetched automatically. URL paths,
 credentials, query strings, fragments and HTTP redirects are rejected.
 
-The command only queries `blob_local_status`. It verifies IC query signatures;
+The `status` command only queries `blob_local_status`. It verifies IC query signatures;
 the result is a local observation, not certified state, provider credit, readiness
 or dispatch authority. It exposes separate upload/funding/gateway/read fences,
 including after restore. All counters and amounts are decimal strings, optional
@@ -607,6 +607,34 @@ not a snapshot: restart from the beginning to see changes behind a saved cursor.
 The command never automatically paginates, retries a payment or writes a journal.
 Local tests cover populated history through the shared durable storage fixture;
 its payment outcomes are controlled substitutes, not deployed Cashier evidence.
+
+`verify-upload` checks a saved local file against the service's original manifest:
+
+```sh
+cargo run --offline --locked -p ic-blob-storage-cli --bin blob-storage -- \
+  verify-upload --network ic --url "$IC_API_URL" --identity "$UPLOADER_PEM" \
+  --actor "$UPLOADER_PRINCIPAL" --service "$SERVICE_PRINCIPAL" \
+  --namespace "$SERVICE_NAMESPACE" --permission permission.candid \
+  --body downloaded.bin --max-bytes 10485760
+```
+
+`permission.candid` contains one binary Candid `UploadAdmissionRequest` saved by
+the integrating application (for example, `candid::encode_one(permission)`), not
+JSON or hexadecimal text. It is bounded to 4 KiB and binds the full original
+operation, uploader and expiry. The signer must be that uploader or the tenant;
+operator status supplies no override. The command queries `blob_upload_manifest`,
+reuses its bounded exact-reply decoder and hashes file bytes in native 64 KiB frames.
+`--max-bytes` is required and capped at 1 GiB; file size must equal the original
+declaration. Metadata is bounded to 16 headers/4 KiB and the manifest to 1,024 leaves.
+File changes during the read are still subject to length/root verification.
+
+Exit 0 means the bytes read matched the authenticated historical declaration.
+The JSON preserves full-width identities and a computed raw digest, and explicitly
+reports provider completion/availability as unestablished/unobserved. It does not
+fetch provider content, attest completion, write a destination or grant retry
+authority. Inspection works after restoration without clearing fences. This is
+separate from the configured verifier's trusted availability attestation described
+in the [standalone contract](canisters/standalone/README.md).
 
 The separate unpublished `blob-fixture-status` client attaches to an existing local PocketIC
 instance. It requires a literal loopback address, instance ID, canister and

@@ -10,6 +10,8 @@ pub struct HostInstallationInput {
     pub configuration: ServiceConfigurationInput,
     /// Provider project mapped to this service's local namespace; never inferred.
     pub project: String,
+    /// Trusted external whole-content verifier; no controller or operator default.
+    pub completion_verifier: candid::Principal,
 }
 
 /// Operator-only installed configuration and local restore state.
@@ -19,6 +21,8 @@ pub struct HostConfigurationView {
     pub configuration: ServiceConfigurationInput,
     /// Immutable installed provider project, independent of the payer and tenants.
     pub project: String,
+    /// Explicit installed verifier, independent of gateway membership.
+    pub completion_verifier: candid::Principal,
     /// Package release bound to this installation, not a module hash.
     pub release: String,
     /// Restored stores allow inspection only; false is not provider readiness.

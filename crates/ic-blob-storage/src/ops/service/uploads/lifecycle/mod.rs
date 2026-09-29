@@ -39,6 +39,16 @@ impl<M: Memory> StableUploads<M> {
         &mut self,
         request: UploadRequest,
     ) -> Result<LifecycleChange, UploadStoreError> {
+        self.complete_upload(
+            request,
+            crate::model::service::upload::record::lifecycle::CompletionRecord::HostFact,
+        )
+    }
+    pub(super) fn complete_upload(
+        &mut self,
+        request: UploadRequest,
+        completion: crate::model::service::upload::record::lifecycle::CompletionRecord,
+    ) -> Result<LifecycleChange, UploadStoreError> {
         self.trusted_request(request)?;
         self.mutable()?;
         let mut permission = self.required(request)?;
@@ -52,7 +62,7 @@ impl<M: Memory> StableUploads<M> {
         global.finish_reservation(request.object.bytes);
         own.finish_reservation(request.object.bytes);
         self.confirmed
-            .insert(key(request), ConfirmedLifecycleRecord::new());
+            .insert(key(request), ConfirmedLifecycleRecord::new(completion));
         self.references.insert(
             (key(request), request.object.first.reference().get().get()),
             ReferenceRecord::new(ReferenceState::Active),

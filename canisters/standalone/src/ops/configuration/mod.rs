@@ -14,6 +14,7 @@ pub(super) fn record(installation: &crate::dto::HostInstallationInput) -> Config
         payment_account: input.payment_account,
         namespace: input.namespace,
         project: installation.project.clone(),
+        completion_verifier: installation.completion_verifier,
         max_tenants: input.resources.max_tenants,
         max_object_bytes: input.resources.max_object_bytes,
         max_headers: input.resources.max_headers,

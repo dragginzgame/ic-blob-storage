@@ -2,6 +2,32 @@
 
 ## [Unreleased]
 
+## [0.4.0]
+
+### Added
+
+- Explicit verifier trust for upload completion: shared handlers authenticate the
+  installed verifier and exact exposed upload, retain its first attestation with
+  accounting and the first reference, and support immutable receipt inspection.
+  Exact replay never reactivates released references; conflicting statements and
+  restored mutations reject. Verifier-only manifest inspection supplies the
+  original declaration. Attestations establish trusted observations of content
+  availability, not future retention, payment credit or billing cessation.
+- Authenticated `blob-storage verify-upload` checks a bounded local file against
+  the service's exact retained manifest using the existing native streaming
+  verifier. Full-width identities and original metadata remain bound; corruption,
+  truncation, changed permissions and unprepared uploads reject. It sends no
+  gateway request or attestation and does no on-canister file hashing.
+
+### Changed
+
+- **Breaking:** standalone installation now requires
+  `completion_verifier`, validated before allocation and on restore. The current
+  v1 host and confirmed-lifecycle schemas retain explicit verifier authority and
+  evidence without a compatibility reader. Cross-release transitions remain
+  reinstall-only; same-release receipt recovery remains available through fences.
+- The standalone test target builds its consumer fixture explicitly.
+
 ## [0.3.0] - 2026-09-29
 
 ### Added

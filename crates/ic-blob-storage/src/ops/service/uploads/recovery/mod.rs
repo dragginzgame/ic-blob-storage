@@ -193,6 +193,18 @@ impl<M: Memory> StableUploads<M> {
         let record = retained
             .filter(|r| r.valid(self.config.limits().catalog))
             .ok_or(UploadStoreError::InvalidRecord)?;
+        if let crate::model::service::upload::record::lifecycle::CompletionRecord::Attested(
+            evidence,
+        ) = record.completion()
+        {
+            let permission = self
+                .required(upload)?
+                .view()
+                .ok_or(UploadStoreError::InvalidRecord)?;
+            if evidence.observed_at_ns < permission.admitted_at_ns {
+                return Err(UploadStoreError::InvalidRecord);
+            }
+        }
         let mut references = 0;
         let mut active = 0;
         for entry in self.references.range((owner, 0)..=(owner, u128::MAX)) {

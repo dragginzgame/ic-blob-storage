@@ -126,6 +126,14 @@ pub(crate) fn inspect<M: Memory>(
 ) -> Result<UploadManifestResponse, UploadManifestFailure> {
     let permission = parse(context, input, false)?;
     let view = exact(store, context, permission)?;
+    observation(store, input, &view)
+}
+pub(super) fn observation<M: Memory>(
+    store: &StableUploads<M>,
+    input: UploadAdmissionRequest,
+    view: &crate::model::service::upload::UploadPermissionView,
+) -> Result<UploadManifestResponse, UploadManifestFailure> {
+    let permission = view.permission;
     let manifest = if view.manifest == UploadManifestState::Unprepared {
         UploadManifestInspection::Unprepared
     } else {

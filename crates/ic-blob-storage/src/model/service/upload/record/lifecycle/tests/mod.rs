@@ -27,6 +27,12 @@ fn bounded_codecs_preserve_maximum_receipt_identity_and_typed_outcomes() {
         references: u64::MAX,
         active: u64::MAX,
         receipts: u64::MAX,
+        completion: CompletionRecord::Attested(AttestationRecord {
+            verifier: Principal::from_slice(&[255; 29]),
+            content_digest: [255; 32],
+            observed_at_ns: u64::MAX,
+            accepted_at_ns: u64::MAX,
+        }),
     };
     assert_eq!(
         ConfirmedLifecycleRecord::from_bytes(record.to_bytes()),

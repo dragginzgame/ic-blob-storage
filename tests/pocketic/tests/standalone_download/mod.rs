@@ -151,6 +151,7 @@ fn standalone_project_validation_rolls_back_installation_and_rejects_corrupt_res
         let input = candid::encode_one(HostInstallationInput {
             configuration: f.config,
             project,
+            completion_verifier: Fake::principal(90),
         })
         .unwrap();
         let error = f
@@ -233,6 +234,7 @@ fn standalone_project_at_utf8_byte_limit_survives_current_schema_restore() {
     let installation = HostInstallationInput {
         configuration: f.config,
         project: project.clone(),
+        completion_verifier: Fake::principal(90),
     };
     f.harness
         .pic

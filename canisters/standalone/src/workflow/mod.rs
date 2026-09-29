@@ -304,3 +304,51 @@ pub(crate) async fn inspect_account(
     )
     .await
 }
+
+pub(crate) fn attest(
+    context: UploadContext,
+    input: &ic_blob_storage::dto::upload::completion::UploadAttestationRequest,
+) -> Result<
+    ic_blob_storage::dto::upload::completion::UploadAttestationMutation,
+    ic_blob_storage::dto::upload::completion::UploadAttestationFailure,
+> {
+    ops::with_completion(|stores, authority| {
+        ic_blob_storage::workflow::uploads::completion::attest(
+            &mut stores.uploads,
+            authority,
+            context,
+            input,
+            ic_cdk::api::time(),
+        )
+    })
+}
+pub(crate) fn attestation(
+    context: UploadContext,
+    input: UploadAdmissionRequest,
+) -> Result<
+    ic_blob_storage::dto::upload::completion::UploadAttestationResponse,
+    ic_blob_storage::dto::upload::completion::UploadAttestationFailure,
+> {
+    ops::with_completion(|stores, authority| {
+        ic_blob_storage::workflow::uploads::completion::inspect(
+            &stores.uploads,
+            authority,
+            context,
+            input,
+        )
+    })
+}
+
+pub(crate) fn verification_manifest(
+    context: UploadContext,
+    input: UploadAdmissionRequest,
+) -> Result<UploadManifestResponse, UploadManifestFailure> {
+    ops::with_completion(|stores, authority| {
+        ic_blob_storage::workflow::uploads::completion::manifest(
+            &stores.uploads,
+            authority,
+            context,
+            input,
+        )
+    })
+}

@@ -6,6 +6,40 @@ the constraints and evidence requirements below still apply. Candidate service
 configuration validation composes existing local models without installing state,
 freezing a stable schema or claiming that the B1 provider/recovery gates are closed.
 
+## Explicit verifier completion trust — accepted 2026-09-29
+
+The maintainer authorized a configured external verifier to attest observed content
+availability after independently fetching the whole object under the installed
+provider owner/project mapping and checking original root, length and metadata.
+This is trusted-role evidence, not an untrusted client's progress, certificate,
+local file check or proof of future retention. Provider payment/deletion/billing
+semantics remain independent. No whole-file hashing occurs on the storage canister.
+
+`CompletionAuthority` binds actual service, namespace and verifier. Shared
+`workflow::uploads::completion` supplies verifier-only manifest inspection,
+`attest` and historical receipt inspection. An attestation binds the complete
+original permission, raw digest and observation time; time must fall between
+admission and acceptance. Only prepared, exposed uploads can transition. Receipt,
+confirmation, first reference and maintained accounting commit in one synchronous
+IC transaction. The first accepted statement is immutable; exact replay preserves
+its acceptance time and never recreates a released reference. A conflicting
+statement rejects. Late evidence after revocation/suspension preserves obligations.
+Inspection remains available through restore fencing; every attestation update,
+including replay, refuses a restored owner. No new stable memory grant is needed.
+
+Standalone requires an immutable `completion_verifier` at installation and exposes
+`blob_verification_manifest`, `blob_attest_upload` and `blob_upload_attestation`.
+Controller/operator/gateway status grants no implicit verifier authority. The
+current v1 host/lifecycle schemas change directly, requiring a minor release and
+cross-release reinstall. The existing trusted-host bookkeeping primitive remains
+explicitly distinguishable from a verifier receipt; no receipt is invented for it.
+The production fetch/dispatch worker and standalone certificate/exposure path are
+still required before end-to-end use. See the [probe ledger](evidence/caffeine-probes/README.md)
+for local transaction evidence and the [host contract](../canisters/standalone/README.md)
+for endpoint usage.
+
+## Service configuration and host
+
 `dto::configuration::ServiceConfigurationInput` supplies explicit service, operator,
 payer, namespace, resource, billing, funding allocation and read-session candidates. The shared
 `ops::service::configuration` boundary bounds encoded bytes and Candid decoding work,

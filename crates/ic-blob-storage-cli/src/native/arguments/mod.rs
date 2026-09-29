@@ -9,14 +9,25 @@ pub(super) struct Options {
     pub network: &'static str,
     pub url: Url,
     pub identity: PathBuf,
-    pub operator: Principal,
-    pub scope: OperatorScope,
+    pub actor: Principal,
     pub root_key: Option<PathBuf>,
 }
 
 pub(super) enum Command {
-    Status,
-    FundingHistory { cursor: Option<PathBuf> },
+    Status {
+        scope: OperatorScope,
+    },
+    FundingHistory {
+        scope: OperatorScope,
+        cursor: Option<PathBuf>,
+    },
+    VerifyUpload {
+        service: Principal,
+        namespace: u128,
+        permission: PathBuf,
+        body: PathBuf,
+        max_bytes: std::num::NonZeroU64,
+    },
 }
 
 fn principal(value: &str) -> Result<Principal, Failure> {
@@ -33,7 +44,7 @@ fn principal(value: &str) -> Result<Principal, Failure> {
 impl Options {
     pub fn parse(args: &[String]) -> Result<Self, Failure> {
         let command = args.first().map(String::as_str).ok_or(Failure::Arguments)?;
-        if !matches!(command, "status" | "funding-history") {
+        if !matches!(command, "status" | "funding-history" | "verify-upload") {
             return Err(Failure::Arguments);
         }
         let mut flags = BTreeMap::new();
@@ -50,22 +61,50 @@ impl Options {
         };
         let url = Url::parse(take("--url")?).map_err(|_| Failure::Arguments)?;
         let identity = PathBuf::from(take("--identity")?);
-        let operator = principal(take("--operator")?)?;
+        let actor = principal(take(if command == "verify-upload" {
+            "--actor"
+        } else {
+            "--operator"
+        })?)?;
         let service = principal(take("--service")?)?;
         let namespace_text = take("--namespace")?;
         let namespace: u128 = namespace_text.parse().map_err(|_| Failure::Arguments)?;
         if namespace == 0 || namespace.to_string() != namespace_text {
             return Err(Failure::Arguments);
         }
-        let cashier = principal(take("--cashier")?)?;
-        let payment_account = principal(take("--payer")?)?;
-        let root_key = flags.remove("--root-key").map(PathBuf::from);
-        let command = match command {
-            "funding-history" => Command::FundingHistory {
-                cursor: flags.remove("--cursor").map(PathBuf::from),
-            },
-            _ => Command::Status,
+        let command = if command == "verify-upload" {
+            let permission = PathBuf::from(take("--permission")?);
+            let body = PathBuf::from(take("--body")?);
+            let maximum = take("--max-bytes")?;
+            let max_bytes: std::num::NonZeroU64 =
+                maximum.parse().map_err(|_| Failure::Arguments)?;
+            if max_bytes.to_string() != maximum || max_bytes.get() > 1024 * 1024 * 1024 {
+                return Err(Failure::Arguments);
+            }
+            Command::VerifyUpload {
+                service,
+                namespace,
+                permission,
+                body,
+                max_bytes,
+            }
+        } else {
+            let scope = OperatorScope {
+                service,
+                namespace,
+                cashier: principal(take("--cashier")?)?,
+                payment_account: principal(take("--payer")?)?,
+            };
+            if command == "funding-history" {
+                Command::FundingHistory {
+                    scope,
+                    cursor: flags.remove("--cursor").map(PathBuf::from),
+                }
+            } else {
+                Command::Status { scope }
+            }
         };
+        let root_key = flags.remove("--root-key").map(PathBuf::from);
         if !flags.is_empty()
             || !url.username().is_empty()
             || url.password().is_some()
@@ -93,13 +132,7 @@ impl Options {
             network,
             url,
             identity,
-            operator,
-            scope: OperatorScope {
-                service,
-                namespace,
-                cashier,
-                payment_account,
-            },
+            actor,
             root_key,
         })
     }

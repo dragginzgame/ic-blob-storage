@@ -302,3 +302,23 @@ pub(crate) fn funding_summary(
 }
 pub(crate) mod reads;
 pub(crate) mod uploads;
+
+pub(crate) fn attest(
+    context: ic_blob_storage::model::service::upload::UploadContext,
+    input: &ic_blob_storage::dto::upload::completion::UploadAttestationRequest,
+    fault: Option<blob_test_protocol::storage::WriteFault>,
+) -> Result<
+    ic_blob_storage::dto::upload::completion::UploadAttestationMutation,
+    ic_blob_storage::dto::upload::completion::UploadAttestationFailure,
+> {
+    ops::lifecycle::attest(context, input, fault)
+}
+pub(crate) fn attestation(
+    context: ic_blob_storage::model::service::upload::UploadContext,
+    input: ic_blob_storage::dto::upload::admission::UploadAdmissionRequest,
+) -> Result<
+    ic_blob_storage::dto::upload::completion::UploadAttestationResponse,
+    ic_blob_storage::dto::upload::completion::UploadAttestationFailure,
+> {
+    ops::lifecycle::attestation(context, input)
+}

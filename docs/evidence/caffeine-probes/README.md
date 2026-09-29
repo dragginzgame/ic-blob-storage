@@ -34,6 +34,14 @@ all logs here; link their maintained test and record material changed findings.
 
 ## Current operating decisions and experiments
 
+On 2026-09-29 the maintainer explicitly selected a configured external verifier
+trust model. The verifier must independently retrieve complete content from the
+installation's owner/project binding and verify original metadata/root/length.
+Its signed canister call attests observed content availability, not guaranteed
+future retention, billing cessation or paid-operation identity. The new receipt
+path retains all physical/economic obligations and existing exposure/restore gates.
+This is an explicit service trust decision, not newly discovered Caffeine behavior.
+
 | Capability / question | Experiment and decisive evidence | Current limit until demonstrated |
 | --- | --- | --- |
 | Source/interface drift | Capture official revision, package metadata, source/Candid hashes; compare to the reviewed baseline before behavior changes | A matching interface/source is not proof of the deployed implementation |
@@ -110,6 +118,7 @@ provider authenticity; rerunning the opt-in test establishes current local behav
 | local-sdk-01 / 2026-09-29 | Pinned patched SDK with substituted certificate-agent reply, gateway and in-memory intent store | Failed before runner initialization: ESM bundle attempted dynamic require of Node `tty`; no run directory or requests. Fixed bundle with Node `createRequire` | Planned six scenarios did not start. No network/account access or cleanup obligations |
 | local-sdk-02 / 2026-09-29 | Same local substitutes; independent native Rust content verification | [Failure](local/2026-09-29-sdk-02/failure.json): first verification subprocess timed out; partial request/reply records retained | Node synchronous subprocess input did not reach EOF in this environment (reproduced with `cat`); asynchronous closed input works. No completed case, network/account access or cleanup obligations |
 | local-sdk-03 / 2026-09-29 | Same local substitutes, asynchronous verifier subprocess | [Plan](local/2026-09-29-sdk-03/plan.json), [summary](local/2026-09-29-sdk-03/summary.json); all six scenarios pass | SDK sends all chunks despite `existing_chunks` and returns successfully for a non-complete status. Lost final reply stays uncertain despite verified bytes; replay blocked. Aggregate budget stops before the next request. No real network/account access or cleanup obligations |
+| verifier-contract / 2026-09-29 | Local model/CLI and PocketIC; fixed test verifier principals and substituted content observations | 60 upload-store and two codec tests pass; all 32 standalone cases pass (141.72 seconds), plus `storage_completion` (5.05 seconds) | Exact authority/permission binding, immutable receipt replay, four stable-write rollback cuts, late revocation, release/settlement and fenced restoration pass. The signed CLI verifies 10 MiB against original metadata without mutating service state. Local canisters only; zero provider requests/attached cycles, no external cleanup or deployed availability claim |
 
 Other retained investigations are indexed here without inventing missing request
 logs or replaying their effects. Use each record's own dates and evidence classes:

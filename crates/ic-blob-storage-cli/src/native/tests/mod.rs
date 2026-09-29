@@ -37,12 +37,9 @@ fn change(args: &mut [String], flag: &str, value: &str) {
 
 #[test]
 fn arguments_require_complete_identity_scope_and_explicit_trust() {
-    assert_eq!(
-        arguments::Options::parse(&options())
-            .unwrap()
-            .scope
-            .namespace,
-        u128::MAX
+    assert!(
+        matches!(arguments::Options::parse(&options()).unwrap().command,
+        arguments::Command::Status { scope } if scope.namespace == u128::MAX)
     );
     for (flag, value) in [
         ("--url", "http://example.com"),

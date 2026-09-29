@@ -1,6 +1,7 @@
 //! Explicit standalone host. Paid provider effects and operational recovery remain disabled.
 #![expect(
     clippy::needless_pass_by_value,
+    clippy::large_types_passed_by_value,
     reason = "Candid endpoint macros own decoded inputs"
 )]
 use crate::{dto, ops, workflow};
@@ -238,6 +239,35 @@ async fn blob_inspect_account(
     ic_blob_storage::dto::account::AccountInspectionFailure,
 > {
     workflow::inspect_account(context(), input).await
+}
+
+#[ic_cdk::update(hidden = true, decode_with = "ops::decode")]
+#[candid::candid_method(update)]
+fn blob_attest_upload(
+    input: ic_blob_storage::dto::upload::completion::UploadAttestationRequest,
+) -> Result<
+    ic_blob_storage::dto::upload::completion::UploadAttestationMutation,
+    ic_blob_storage::dto::upload::completion::UploadAttestationFailure,
+> {
+    workflow::attest(context(), &input)
+}
+#[ic_cdk::query(hidden = true, decode_with = "ops::decode")]
+#[candid::candid_method(query)]
+fn blob_upload_attestation(
+    input: UploadAdmissionRequest,
+) -> Result<
+    ic_blob_storage::dto::upload::completion::UploadAttestationResponse,
+    ic_blob_storage::dto::upload::completion::UploadAttestationFailure,
+> {
+    workflow::attestation(context(), input)
+}
+
+#[ic_cdk::query(hidden = true, decode_with = "ops::decode")]
+#[candid::candid_method(query)]
+fn blob_verification_manifest(
+    input: UploadAdmissionRequest,
+) -> Result<UploadManifestResponse, UploadManifestFailure> {
+    workflow::verification_manifest(context(), input)
 }
 
 ic_cdk::export_candid!();

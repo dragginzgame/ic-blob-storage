@@ -5,6 +5,7 @@ mod reference_cli;
 mod standalone_account;
 mod standalone_capacity;
 mod standalone_cli;
+mod standalone_completion;
 mod standalone_discovery;
 mod standalone_download;
 mod standalone_funding;
@@ -15,6 +16,7 @@ mod standalone_reference_capacity;
 mod standalone_reference_recovery;
 mod standalone_reference_status;
 mod standalone_upload_status;
+mod standalone_verify_upload;
 mod support;
 use candid::Principal;
 use ic_blob_storage::{
@@ -517,6 +519,7 @@ fn installation(configuration: &ServiceConfigurationInput) -> Vec<u8> {
     candid::encode_one(HostInstallationInput {
         configuration: *configuration,
         project: PROJECT.into(),
+        completion_verifier: Fake::principal(90),
     })
     .unwrap()
 }

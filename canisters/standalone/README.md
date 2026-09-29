@@ -15,7 +15,8 @@ The [Candid contract](service.did) is generated from the endpoint declarations:
 cargo run --offline --locked -p ic-blob-storage-canister --example export_candid > canisters/standalone/service.did
 ```
 
-Installation takes one explicit `HostInstallationInput { configuration, project }`.
+Installation takes one explicit
+`HostInstallationInput { configuration, project, completion_verifier }`.
 `configuration` is the shared `ServiceConfigurationInput`, including the actual
 service principal, operator, payer, namespace and all resource/billing bounds.
 `project` is the explicit Caffeine project mapped to that namespace. It is immutable
@@ -30,6 +31,29 @@ There are no deployment defaults, provider namespace provisioning or account cha
 Operator-only `blob_configuration` returns the installed values, package release
 and restore fence, including the retained project; an unfenced owner does not imply
 provider readiness. Future upload dispatch must use this same provisioned mapping.
+
+`completion_verifier` is an explicitly trusted principal, never an operator,
+controller or gateway default. Anonymous and management principals reject before
+allocation. `blob_verification_manifest` lets only that verifier inspect the exact
+original declaration. `blob_attest_upload` accepts its signed statement binding the
+full permission, raw content digest and observation time. The verifier must fetch
+the complete content from the installed owner/project mapping and check original
+metadata, root and length off-canister before attesting. Local file matching alone
+is insufficient to establish provider availability.
+
+Only prepared, already-exposed uploads can be confirmed. The first statement,
+authenticated verifier and acceptance time commit with accounting and the first
+reference. Exact replay preserves that receipt; conflicting statements reject.
+`blob_upload_attestation` returns historical evidence to the verifier, tenant or
+original uploader, including through restore fencing. Updates reject restored
+owners. Revocation or suspension cannot erase a late exposed obligation; receipt
+replay after reference release cannot resurrect it. Physical/economic liabilities
+remain until their separate deletion/settlement evidence arrives.
+
+The attestation contract establishes trusted observed content availability, not
+future retention or billing cessation. The production verifier worker and
+standalone certificate/exposure path remain unfinished; installation of this
+contract alone does not enable a complete upload journey.
 
 Operator-only `blob_local_status` takes the explicit service, namespace, Cashier
 and payer scope. It returns one synchronous snapshot of maintained upload byte

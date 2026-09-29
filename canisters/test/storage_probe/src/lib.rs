@@ -1,6 +1,7 @@
 //! Local IC evidence for durable service components and a Cashier substitute.
 #![expect(
     clippy::needless_pass_by_value,
+    clippy::large_types_passed_by_value,
     reason = "Candid endpoints own decoded inputs; the macro duplicates function-level expectations"
 )]
 mod ops;
@@ -548,4 +549,33 @@ async fn fixture_nonreplicated_reference_status(
     blob_test_protocol::storage::reference::ReferenceProbeFailure,
 > {
     workflow::references::status(context(), &input).await
+}
+
+#[ic_cdk::update(decode_with = "ops::decode")]
+fn blob_attest_upload(
+    input: ic_blob_storage::dto::upload::completion::UploadAttestationRequest,
+) -> Result<
+    ic_blob_storage::dto::upload::completion::UploadAttestationMutation,
+    ic_blob_storage::dto::upload::completion::UploadAttestationFailure,
+> {
+    workflow::attest(context(), &input, None)
+}
+#[ic_cdk::update(decode_with = "ops::decode")]
+fn attest_with_write_trap(
+    input: ic_blob_storage::dto::upload::completion::UploadAttestationRequest,
+    fault: blob_test_protocol::storage::WriteFault,
+) -> Result<
+    ic_blob_storage::dto::upload::completion::UploadAttestationMutation,
+    ic_blob_storage::dto::upload::completion::UploadAttestationFailure,
+> {
+    workflow::attest(context(), &input, Some(fault))
+}
+#[ic_cdk::query(decode_with = "ops::decode")]
+fn blob_upload_attestation(
+    input: UploadAdmissionRequest,
+) -> Result<
+    ic_blob_storage::dto::upload::completion::UploadAttestationResponse,
+    ic_blob_storage::dto::upload::completion::UploadAttestationFailure,
+> {
+    workflow::attestation(context(), input)
 }

@@ -13,6 +13,7 @@ pub(crate) struct ConfigurationRecord {
     pub(crate) payment_account: Principal,
     pub(crate) namespace: u128,
     pub(crate) project: String,
+    pub(crate) completion_verifier: Principal,
     pub(crate) max_tenants: u32,
     pub(crate) max_object_bytes: u64,
     pub(crate) max_headers: u32,

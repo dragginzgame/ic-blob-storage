@@ -15,6 +15,12 @@ unproven universal guarantees. Missing guarantees require a reviewed narrower
 feature/recovery contract; they do not silently waive existing safety or parity
 requirements. Log every probe, including failed and inconclusive runs.
 
+The maintainer subsequently selected the [explicit verifier trust model](service-contract.md#explicit-verifier-completion-trust--accepted-2026-09-29)
+for observed content availability. Its shared authority/receipt boundary and
+standalone endpoints are implemented; production verifier retrieval/dispatch and
+standalone certificate exposure remain the next integration work. This decision
+does not close retention, economics, recovery or Canic parity gates.
+
 The released **0.2.1 library** includes the 0.2 direct-upload admission contract,
 tenant enrollment, canonical metadata, indexed accounting and content/reference
 capacity inspection, with local resource evidence.

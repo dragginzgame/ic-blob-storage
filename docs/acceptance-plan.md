@@ -8,6 +8,15 @@ does not prove universal retry, retention or billing guarantees. Unsupported
 features require an explicit contract/case revision, never a silent pass. These
 decisions do not authorize a paid trial or mark any case complete.
 
+The maintainer's 2026-09-29 [verifier trust decision](service-contract.md#explicit-verifier-completion-trust--accepted-2026-09-29)
+permits A02 completion to mean observed content availability attested by an
+explicitly installed verifier after full off-canister checking. It does not imply
+future retention or close economic obligations. Acceptance must reject other
+callers, altered permissions/evidence and unexposed uploads, preserve the first
+receipt through release/settlement, and keep restored mutation fences. Local IC
+evidence now covers these transaction/authority cases; independent deployed fetch,
+the worker's interruption journal and both-adapter journeys remain outstanding.
+
 No acceptance case below is fully qualified. The shared library has native
 identity, manifest/checkpoint, quota/reference, gateway, reply-codec and funding
 policy evidence. The [core evidence](evidence/core-primitives.md) and
@@ -233,7 +242,7 @@ insufficient for the transitions below.
 | --- | --- |
 | Before any authority escapes | A known unexposed reservation may cancel once; exact retry preserves history and cannot issue a second intent |
 | After certificate/effect exposure, before completion is known | Retain conservative capacity; transport failure does not reset to unexposed or authorize another paid write |
-| Provider completed, response lost | Use documented lookup for the original operation; correlate completion or retain uncertainty, without a blind repeat |
+| Provider completed, response lost | Independently fetch and verify the original owner/project/root through the configured verifier, or retain uncertainty. Persist/reconcile its exact attestation using the service receipt. This does not resolve unknown paid-operation charges or permit a blind upload repeat |
 | Completion received, before local completion is durable | Recover the same operation; applying its evidence transfers accounting once and does not reactivate released references |
 | Receipt retention expires | Keep the unresolved obligation fenced; expiry is not evidence of failure, refund or safe identity reuse |
 | Restore an older backup after an effect | Surviving authority must account for effects missing from the backup and exclude stale/concurrent instances before admission resumes |

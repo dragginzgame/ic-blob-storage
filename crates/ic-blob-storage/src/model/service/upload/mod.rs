@@ -8,6 +8,7 @@ use candid::Principal;
 use thiserror::Error;
 
 pub(crate) mod capacity;
+pub mod completion;
 pub mod content;
 pub mod download;
 pub(crate) mod record;

@@ -21,3 +21,55 @@ pub(crate) fn fact(context: UploadContext, input: FactInput) -> Result<bool, Fai
             .map_err(conversion::failure)
     })
 }
+
+// Explicit test substitute: installation operator is the configured verifier in this fixture.
+fn completion_authority(
+    operator: candid::Principal,
+) -> ic_blob_storage::model::service::upload::completion::CompletionAuthority {
+    ic_blob_storage::model::service::upload::completion::CompletionAuthority::new(
+        ic_cdk::api::canister_self(),
+        std::num::NonZeroU128::MIN,
+        operator,
+    )
+    .unwrap()
+}
+pub(crate) fn attest(
+    context: UploadContext,
+    input: &ic_blob_storage::dto::upload::completion::UploadAttestationRequest,
+    fault: Option<blob_test_protocol::storage::WriteFault>,
+) -> Result<
+    ic_blob_storage::dto::upload::completion::UploadAttestationMutation,
+    ic_blob_storage::dto::upload::completion::UploadAttestationFailure,
+> {
+    STATE.with_borrow_mut(|state| {
+        let state = state.as_mut().unwrap();
+        let authority = completion_authority(state.operator);
+        TRAP_WRITE.set(fault);
+        let result = ic_blob_storage::workflow::uploads::completion::attest(
+            &mut state.uploads,
+            authority,
+            context,
+            input,
+            ic_cdk::api::time(),
+        );
+        TRAP_WRITE.set(None);
+        result
+    })
+}
+pub(crate) fn attestation(
+    context: UploadContext,
+    input: ic_blob_storage::dto::upload::admission::UploadAdmissionRequest,
+) -> Result<
+    ic_blob_storage::dto::upload::completion::UploadAttestationResponse,
+    ic_blob_storage::dto::upload::completion::UploadAttestationFailure,
+> {
+    STATE.with_borrow(|state| {
+        let state = state.as_ref().unwrap();
+        ic_blob_storage::workflow::uploads::completion::inspect(
+            &state.uploads,
+            completion_authority(state.operator),
+            context,
+            input,
+        )
+    })
+}
