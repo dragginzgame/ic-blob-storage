@@ -2,19 +2,25 @@
 
 Date: 2026-09-29
 
-## Active work — shared upload inspection after 0.2.22
+## Active work — exact reference inspection after 0.2.23
 
-The maintainer confirmed **0.2.22 is pushed** and requested continued work toward
-the 0.2 service journey. Cargo and the release receipt are 0.2.22. Local main,
-origin/main and the peeled v0.2.22 tag resolve to
-`05798a3530b9813e52d55cec06567dfcc9142b68`, from validated source
-`0119245d91a1e380d75406b6955540723c4d0c35`. The receipt records the
+The maintainer confirmed **0.2.23 is pushed** and requested continued work toward
+the 0.2 service journey. Cargo and the release receipt are 0.2.23. Local main,
+origin/main and the peeled v0.2.23 tag resolve to
+`1d15bc80a5e350982ef33f80da06d7af28a8ee28`, from validated source
+`4ef51000ad4bae88028d70b9fce811bd6552369f`. The receipt records the
 `release-verify` gate; registry publication was not independently queried.
-The dated 0.2.22 notes match that release. At the maintainer's request, completed
-inspection work is grouped in the undated **0.2.23** changelog draft, with Unreleased
-empty. Package version and release receipt remain at 0.2.22.
+The dated 0.2.23 notes match that release. New completed work is recorded in the
+maintainer-requested, undated 0.2.24 changelog draft; Unreleased is empty. Package
+version and release receipt remain at 0.2.23. The draft name does not establish
+patch release readiness. The required standalone project mapping changes its init
+contract and current stable schema. The next release must be a minor release
+(0.3.0), not a 0.2 patch, and the draft must be renamed for that release. This does
+not close the remaining delivery milestones below. No version mutation is
+authorized or performed.
 The browser fixture retains Caffeine 1.1.2 and supported SDK 5.4.0.
-The worktree was clean at the start of this batch. No dependency changed.
+The discovery and descriptor work below was already dirty and is preserved in this batch.
+No dependency changed.
 No version mutation, commit, publication, deployment or deployed-provider effect ran here;
 transfers below use simulated cycles between local PocketIC canisters.
 
@@ -29,7 +35,112 @@ operator client. Library publication does not qualify the service or Canic remov
 | M3 — Caffeine and operator integration | In progress: shared transports with local IC evidence | Qualified provider transport, completion/economics and production client |
 | M4 — managed parity and acceptance | Not implemented | Same journey through Canic adapter, complete replacement evidence and handoff |
 
-## Current focus — shared upload/reference capacity and exact inspection
+## Current focus — exact current reference status and client
+
+`workflow::references::status::inspect` now exposes tenant-only
+`blob_reference_status` in standalone and the durable storage fixture. It reuses
+the maintained exact reference lookup and shared original-upload conversion under
+one borrow, returning an exact request echo, current local liveness and the owner's
+restore fence. No mutation action or receipt operation is accepted. Unknown or
+changed uploads and unconfirmed content reject; never-retained and released
+references of a confirmed upload are both non-live. Suspension, settlement and
+restoration preserve inspection. Historical retain success can coexist with a
+non-live current reference; a live result does not prove active enrollment or
+serving/retry authority. No reference, receipt, reservation or provider effect is
+created, and no history scan occurs.
+
+The storage fixture's private boolean endpoint and conversion are removed; existing
+lifecycle/recovery tests consume the shared boundary and check its fence.
+`ReplicatedReferenceClient::status` validates the exact lookup and bounded reply
+through the same single-call transport as receipt/mutation delivery, with no attached
+cycles or automatic retry. It preserves refusals and both independent flags. Local
+consumer controls remain labelled fixtures and accept no provider facts on this path.
+
+Three new native boundary/reply cases pass, including independent full-width IDs,
+changed arguments, suspension/release/settlement and fenced decoding. Eleven
+affected PocketIC cases pass: one standalone and ten storage lifecycle/client cases
+(45.52 seconds IC execution). Actual canister-client coverage includes wrong callers,
+small reply bounds, query-execution refusal, passive stable memory and inspection
+after independent service/client restoration. Receipt/mutation regressions also
+pass after sharing transport internals. Confirmed facts remain local substitutes;
+standalone still cannot establish provider completion.
+
+Strict affected all-target/all-feature Clippy, release standalone/storage Wasm,
+generated Candid comparison, warning-free core/host rustdoc, formatting and diff
+checks pass. No full CI/release gate ran. This step changes no stable schema, memory
+grant, allocator, dependency or version; the prior host-init minor-release requirement
+remains. Qualified provider completion/economics, operational recovery, production
+consumer coordination and Canic parity remain open.
+
+## Standalone operational descriptor delivery — current draft batch
+
+The standalone host now exposes update-only `blob_download_descriptor` through
+the existing shared download handler. It authenticates actual caller/service,
+requires active enrollment and the exact confirmed live reference, and refuses
+restored owners. It returns original metadata with the installed owner/project;
+there is no provider call, body hashing, read-session allocation or stable write.
+Saved descriptors and bytes are not revoked by a later refusal.
+
+Installation now takes `HostInstallationInput { configuration, project }`, with
+the shared configuration DTO unchanged. An explicit project is validated before
+allocation and retained in the current v1 host record; restore revalidates it before
+publishing the owners. Operator configuration readback includes it. Owner is always
+the actual service and the project maps to the installed namespace; tenant/payer/
+namespace text never supplies a default. This is representation validation, not
+provider assignment proof. Future dispatch must use this same provisioned mapping.
+The previous host init/schema is replaced directly, with no fallback/migration.
+Memory grants, shared store schemas, allocator and dependencies are unchanged.
+
+All 24 standalone PocketIC cases pass across the suite and targeted rerun. The
+initial run exposed the local consumer fixture's hardcoded target namespace; it
+now uses its operator-selected request namespace, and the full-width standalone
+client case passes. Three affected storage descriptor cases pass, retaining
+confirmed success, original metadata verification, exact-reference release,
+suspension, restore refusal and actual canister-client delivery. New host coverage
+includes malformed/oversized ingress, query refusal, invalid project rollback,
+the 256-byte UTF-8 boundary and corrupt-project restore rejection. Confirmed
+success still uses labelled fixture provider facts: standalone cannot yet establish
+completion and exports no trusted-fact hook.
+
+Strict affected all-target/all-feature Clippy, host/storage/gateway-source release
+Wasm, generated Candid comparison, warning-free host rustdoc, formatting, diff
+checks and the standalone target's command preview pass. That target now builds
+its consumer fixture. No full CI/release gate or deployed provider operation ran.
+Remaining provider/operator integration, qualified completion, operational recovery
+and Canic parity stay open; the version requirement is not service acceptance.
+
+## Shared indexed content discovery — current Unreleased batch
+
+`workflow::uploads::discovery::inspect` now exposes tenant-only
+`blob_lookup_content` in the standalone host and both admission fixtures. It uses
+the existing root index and history conversion, preserving independent full-width
+upload/object/incarnation/first-reference identities and every local lifecycle
+phase. Scope checks precede visibility. Unknown and foreign roots share absence;
+responses echo the exact request and report the same owner's restore fence even
+when no content is visible. Suspension and restore preserve passive inspection.
+There is no manifest/history scan, reservation, stable write or provider effect.
+
+The private discovery endpoints and their dedicated owner calls are removed.
+Fixture descriptor/root-batch DTOs still serve their distinct maintained views.
+Inventory now consumes shared upload-capacity, discovery and reference-capacity
+queries only. It validates request echoes even for absence, rejects zero original
+identities, renders independent IDs as decimal strings and retains a later fence.
+Sequential observations grant no fresh admission, retry or serving authority.
+
+Both native discovery boundary tests and all fifteen inventory unit tests pass.
+Twelve targeted PocketIC cases pass: two standalone discovery, six durable reads,
+two transient discovery and two inventory subprocess cases (28.38 seconds total
+IC execution). They cover actual caller isolation, bounded ingress, passive query
+and replicated reads, full-width independent IDs, suspended/restored discovery,
+cancelled/uncertain history and confirmed release/deletion/billing settlement.
+Confirmed provider facts remain labelled local substitutes. Strict affected
+all-target/all-feature Clippy, all three release Wasm builds, generated standalone
+Candid comparison, warning-free core/host rustdoc, formatting and diff checks pass.
+No full CI/release gate ran. Stable schemas, memory grants, allocator, dependencies and
+version were unchanged by discovery. The descriptor work above extends the host
+configuration; provider completion, operational recovery and Canic parity remain open.
+
+## Shared upload/reference capacity and exact inspection — included in 0.2.23
 
 Release-check follow-up: inventory test reply helpers now return encoded bytes;
 the simulated query closures own the transport `Result`. The earlier targeted
@@ -48,7 +159,8 @@ inspection only. No reservation, receipt, provider effect or record is created.
 
 The private reference-capacity DTO, endpoints and duplicate conversions are removed.
 Inventory inspection checks exact echoes and reports a fence observed after its
-earlier upload-capacity query. Content discovery is still a private fixture query.
+earlier upload-capacity query. Content discovery was still a private fixture query
+at this release; the current batch above replaces it.
 Both native boundary tests and all thirteen inventory unit tests pass. Eight
 affected PocketIC cases pass: two standalone, two storage planning, two inventory
 subprocess cases and both reference/multifile cleanup resource cases. IC execution

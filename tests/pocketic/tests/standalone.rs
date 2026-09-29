@@ -1,11 +1,14 @@
 //! Standalone Wasm installation, maintained endpoints and synchronous restore fencing.
 #![cfg(not(target_family = "wasm"))]
 mod standalone_capacity;
+mod standalone_discovery;
+mod standalone_download;
 mod standalone_funding;
 mod standalone_gateways;
 mod standalone_history;
 mod standalone_operator;
 mod standalone_reference_capacity;
+mod standalone_reference_status;
 mod standalone_upload_status;
 mod support;
 use candid::Principal;
@@ -35,7 +38,7 @@ use ic_blob_storage::{
         CaffeineHashLimits, CaffeineHeader, manifest::builder::CaffeineManifestBuilder,
     },
 };
-use ic_blob_storage_canister::dto::{HostConfigurationView, HostFailure};
+use ic_blob_storage_canister::dto::{HostConfigurationView, HostFailure, HostInstallationInput};
 use ic_testkit::{
     Fake,
     pic::CandidCallExt,
@@ -123,12 +126,9 @@ impl Fixture {
                 tenant_bytes: 2048,
             },
         };
-        harness.pic.install_canister(
-            service,
-            wasm(),
-            candid::encode_one(config).unwrap(),
-            Some(controller),
-        );
+        harness
+            .pic
+            .install_canister(service, wasm(), installation(&config), Some(controller));
         Self {
             harness,
             service,
@@ -279,6 +279,7 @@ fn standalone_admission_manifest_and_restore_use_shared_authority() {
     let f = Fixture::new();
     let installed = f.configuration(f.operator).unwrap();
     assert_eq!(installed.configuration, f.config);
+    assert_eq!(installed.project, PROJECT);
     assert!(!installed.fenced);
     for actor in [f.controller, f.tenant, Principal::anonymous()] {
         assert_eq!(f.configuration(actor), Err(HostFailure::Denied));
@@ -345,9 +346,7 @@ fn standalone_admission_manifest_and_restore_use_shared_authority() {
     unchanged(&f.harness.pic.get_stable_memory(f.service), &bytes);
     // No upgrade-supplied input can replace the retained operator or limits.
     assert_eq!(
-        f.upgrade(candid::encode_one(f.config).unwrap())
-            .unwrap_err()
-            .reject_code,
+        f.upgrade(installation(&f.config)).unwrap_err().reject_code,
         RejectCode::CanisterError
     );
     assert_eq!(f.configuration(f.operator).unwrap(), installed);
@@ -399,12 +398,11 @@ fn standalone_invalid_installation_rolls_back_and_bounded_ingress_does_not_write
     let mut invalid_limits = f.config;
     invalid_limits.resources.max_tenant_active = 0;
     for input in [
-        candid::encode_one(ServiceConfigurationInput {
+        installation(&ServiceConfigurationInput {
             service: f.tenant,
             ..f.config
-        })
-        .unwrap(),
-        candid::encode_one(invalid_limits).unwrap(),
+        }),
+        installation(&invalid_limits),
         vec![0; 16_385],
     ] {
         // Failed management reinstallation rolls back the old module and all state.
@@ -507,4 +505,13 @@ fn standalone_restore_rejects_foreign_and_missing_installation_memory() {
         &original.harness.pic.get_stable_memory(original.service),
         &wrong_release,
     );
+}
+
+const PROJECT: &str = "standalone fixture project/β?&=";
+fn installation(configuration: &ServiceConfigurationInput) -> Vec<u8> {
+    candid::encode_one(HostInstallationInput {
+        configuration: *configuration,
+        project: PROJECT.into(),
+    })
+    .unwrap()
 }

@@ -8,14 +8,15 @@ use crate::operator::{
     Failure,
     ops::{Report, query_target},
 };
-use blob_test_protocol::admission::{
-    ContentLookup, ContentObservation, ContentState, Failure as RemoteFailure,
-};
 use candid::{CandidType, DecoderConfig, Deserialize, decode_one_with_config};
 use ic_blob_storage::dto::reference::capacity::{
     ReferenceCapacityFailure, ReferenceCapacityRequest, ReferenceCapacityResponse,
 };
 use ic_blob_storage::dto::upload::capacity::{UploadCapacityFailure, UploadCapacityResponse};
+use ic_blob_storage::dto::upload::{
+    discovery::{UploadDiscoveryFailure, UploadDiscoveryRequest, UploadDiscoveryResponse},
+    history::{UploadContentState, UploadHistoryEntry},
+};
 use serde_json::{Value, json};
 
 fn decode_result<
@@ -41,15 +42,6 @@ fn decode_capacity(bytes: &[u8]) -> Result<UploadCapacityResponse, Failure> {
         UploadCapacityFailure::Binding => Failure::Binding,
         UploadCapacityFailure::Denied | UploadCapacityFailure::NotEnrolled => Failure::Denied,
         UploadCapacityFailure::Invalid | UploadCapacityFailure::Internal => Failure::InvalidReply,
-    })
-}
-fn decode<T: CandidType + for<'de> Deserialize<'de>>(bytes: &[u8]) -> Result<T, Failure> {
-    decode_result::<T, RemoteFailure>(bytes)?.map_err(|error| match error {
-        RemoteFailure::WrongService | RemoteFailure::WrongNamespace => Failure::Binding,
-        RemoteFailure::NotProject | RemoteFailure::NotEnrolled | RemoteFailure::NotObserver => {
-            Failure::Denied
-        }
-        _ => Failure::InvalidReply,
     })
 }
 
@@ -90,17 +82,15 @@ fn inspect(
     let mut unseen_chunks = 0u64;
     let mut contents = Vec::new();
     for blob in &inventory.blobs {
-        let lookup = ContentLookup {
-            service: selection.scope.service,
-            tenant: selection.scope.tenant,
-            namespace: selection.scope.namespace,
+        let lookup = UploadDiscoveryRequest {
+            scope: selection.scope,
             root: *blob.root.as_bytes(),
         };
-        let observed: Option<ContentObservation> = decode(&query(
-            "lookup_content",
-            candid::encode_one(lookup).expect("content scope"),
-        )?)?;
-        let entry = match observed {
+        let observed = discover(lookup, &mut query)?;
+        if observed.fenced {
+            blockers.push("service_fenced");
+        }
+        let mut entry = match observed.content {
             None => {
                 unseen_objects += 1;
                 unseen_bytes += u128::from(blob.bytes);
@@ -126,6 +116,7 @@ fn inspect(
                 entry
             }
         };
+        entry["discovery_fenced"] = json!(observed.fenced);
         contents.push(
             json!({"root":blob.root.to_string(),"assets":blob.assets,"bytes":blob.bytes.to_string(),
             "fresh_reference_demand":blob.assets.len(),"observation":entry}),
@@ -166,13 +157,17 @@ fn inspect(
 fn existing(
     selection: &Selection,
     blob: &PreparedBlob,
-    content: ContentObservation,
+    content: UploadHistoryEntry,
     query: &mut impl FnMut(&str, Vec<u8>) -> Result<Vec<u8>, Failure>,
 ) -> Result<(Value, Option<&'static str>), Failure> {
     check_binding(selection, blob, content)?;
-    let mut entry = json!({"state":format!("{:?}",content.state), "original_operation":content.request.id.to_string()});
+    let mut entry = json!({"state":format!("{:?}",content.state),
+        "original_operation":content.request.upload.to_string(),
+        "original_object":content.request.object.to_string(),
+        "original_incarnation":content.request.incarnation.to_string(),
+        "original_first_reference":content.request.first_reference.to_string()});
     let blocker = match content.state {
-        ContentState::Live => {
+        UploadContentState::Live => {
             let lookup = ReferenceCapacityRequest {
                 scope: selection.scope,
                 root: content.request.root,
@@ -209,14 +204,14 @@ fn existing(
                 (available.fresh_retains < blob.assets.len() as u64).then_some("reference_capacity")
             }
         }
-        ContentState::Reserved | ContentState::ExposurePossible => {
+        UploadContentState::Reserved | UploadContentState::ExposurePossible => {
             entry["status"] = json!("recover_existing_operation");
             Some("recover_existing_operation")
         }
-        ContentState::Cancelled
-        | ContentState::DeletionPending
-        | ContentState::ProviderDeleted
-        | ContentState::Settled => {
+        UploadContentState::Cancelled
+        | UploadContentState::DeletionPending
+        | UploadContentState::ProviderDeleted
+        | UploadContentState::Settled => {
             entry["status"] = json!("retired_root");
             Some("retired_root")
         }
@@ -227,7 +222,7 @@ fn existing(
 fn check_binding(
     selection: &Selection,
     blob: &PreparedBlob,
-    content: ContentObservation,
+    content: UploadHistoryEntry,
 ) -> Result<(), Failure> {
     let request = content.request;
     if request.service != selection.scope.service
@@ -235,11 +230,33 @@ fn check_binding(
         || request.namespace != selection.scope.namespace
         || request.root != *blob.root.as_bytes()
         || request.bytes != blob.bytes
-        || request.id == 0
+        || request.upload == 0
+        || request.object == 0
+        || request.incarnation == 0
+        || request.first_reference == 0
     {
         return Err(Failure::Binding);
     }
     Ok(())
+}
+
+fn discover(
+    request: UploadDiscoveryRequest,
+    query: &mut impl FnMut(&str, Vec<u8>) -> Result<Vec<u8>, Failure>,
+) -> Result<UploadDiscoveryResponse, Failure> {
+    let response: UploadDiscoveryResponse = decode_result::<_, UploadDiscoveryFailure>(&query(
+        "blob_lookup_content",
+        candid::encode_one(request).expect("content scope"),
+    )?)?
+    .map_err(|error| match error {
+        UploadDiscoveryFailure::Binding => Failure::Binding,
+        UploadDiscoveryFailure::Denied => Failure::Denied,
+        UploadDiscoveryFailure::Invalid | UploadDiscoveryFailure::Internal => Failure::InvalidReply,
+    })?;
+    if response.request != request {
+        return Err(Failure::Binding);
+    }
+    Ok(response)
 }
 
 #[cfg(test)]

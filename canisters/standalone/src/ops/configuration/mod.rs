@@ -4,7 +4,8 @@ use ic_blob_storage::dto::configuration::{
     ServiceBillingInput, ServiceConfigurationInput, ServiceFundingInput, ServiceReadInput,
     ServiceResourceInput,
 };
-pub(super) fn record(input: &ServiceConfigurationInput) -> ConfigurationRecord {
+pub(super) fn record(installation: &crate::dto::HostInstallationInput) -> ConfigurationRecord {
+    let input = &installation.configuration;
     ConfigurationRecord {
         version: 1,
         release: env!("CARGO_PKG_VERSION").to_owned(),
@@ -12,6 +13,7 @@ pub(super) fn record(input: &ServiceConfigurationInput) -> ConfigurationRecord {
         operator: input.operator,
         payment_account: input.payment_account,
         namespace: input.namespace,
+        project: installation.project.clone(),
         max_tenants: input.resources.max_tenants,
         max_object_bytes: input.resources.max_object_bytes,
         max_headers: input.resources.max_headers,

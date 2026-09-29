@@ -1,7 +1,6 @@
 //! Explicit standalone host. Paid provider effects and operational recovery remain disabled.
 #![expect(
     clippy::needless_pass_by_value,
-    clippy::large_types_passed_by_value,
     reason = "Candid endpoint macros own decoded inputs"
 )]
 use crate::{dto, ops, workflow};
@@ -43,7 +42,7 @@ fn context() -> UploadContext {
 #[ic_cdk::init(hidden = true, decode_with = "ops::decode_configuration")]
 // Custom decoding bounds raw Candid; explicitly retain its typed wire contract.
 #[candid::candid_method(init)]
-fn init(input: ic_blob_storage::dto::configuration::ServiceConfigurationInput) {
+fn init(input: dto::HostInstallationInput) {
     workflow::install(&input);
 }
 #[ic_cdk::post_upgrade]
@@ -198,6 +197,38 @@ fn blob_reference_capacity(
 > {
     workflow::reference_capacity(context(), input)
 }
+#[ic_cdk::query(hidden = true, decode_with = "ops::decode")]
+#[candid::candid_method(query)]
+fn blob_lookup_content(
+    input: ic_blob_storage::dto::upload::discovery::UploadDiscoveryRequest,
+) -> Result<
+    ic_blob_storage::dto::upload::discovery::UploadDiscoveryResponse,
+    ic_blob_storage::dto::upload::discovery::UploadDiscoveryFailure,
+> {
+    workflow::discover(context(), input)
+}
+
+#[ic_cdk::update(hidden = true, decode_with = "ops::decode")]
+#[candid::candid_method(update)]
+fn blob_download_descriptor(
+    input: ic_blob_storage::dto::download::DownloadRequest,
+) -> Result<
+    ic_blob_storage::dto::download::DownloadResponse,
+    ic_blob_storage::dto::download::DownloadFailure,
+> {
+    workflow::download(context(), input)
+}
+#[ic_cdk::query(hidden = true, decode_with = "ops::decode")]
+#[candid::candid_method(query)]
+fn blob_reference_status(
+    input: ic_blob_storage::dto::reference::status::ReferenceStatusRequest,
+) -> Result<
+    ic_blob_storage::dto::reference::status::ReferenceStatusResponse,
+    ic_blob_storage::dto::reference::ReferenceFailure,
+> {
+    workflow::reference_status(context(), input)
+}
+
 ic_cdk::export_candid!();
 pub(crate) fn interface() -> String {
     __export_service()

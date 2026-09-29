@@ -4,8 +4,8 @@ mod ops;
 mod workflow;
 
 use blob_test_protocol::admission::{
-    Command, ContentLookup, ContentObservation, ExecutionProfile, Failure, Installation,
-    Observation, Outcome, Permission, Request,
+    Command, ContentLookup, ExecutionProfile, Failure, Installation, Observation, Outcome,
+    Permission, Request,
     input::{EnrollmentInput, PreparationInput, ReferenceInput},
     release::LifecycleCommand,
 };
@@ -99,9 +99,14 @@ fn reference_receipt(
     workflow::reference_receipt(context(), input)
 }
 
-#[ic_cdk::query(decode_with = "ops::decode::content")]
-fn lookup_content(input: ContentLookup) -> Result<Option<ContentObservation>, Failure> {
-    workflow::lookup_content(context(), input)
+#[ic_cdk::query(decode_with = "ops::decode::discovery")]
+fn blob_lookup_content(
+    input: ic_blob_storage::dto::upload::discovery::UploadDiscoveryRequest,
+) -> Result<
+    ic_blob_storage::dto::upload::discovery::UploadDiscoveryResponse,
+    ic_blob_storage::dto::upload::discovery::UploadDiscoveryFailure,
+> {
+    workflow::discover(context(), input)
 }
 
 #[ic_cdk::query(decode_with = "ops::decode::content")]

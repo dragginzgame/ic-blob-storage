@@ -1,7 +1,7 @@
 use super::*;
 use crate::operator::inventory::input::tests::prepared;
-use blob_test_protocol::admission::Request;
 use candid::Principal;
+use ic_blob_storage::dto::reference::ReferenceUpload;
 use ic_blob_storage::dto::reference::capacity::ReferenceHeadroom;
 use ic_blob_storage::dto::tenant::TenantEnrollment;
 
@@ -95,7 +95,11 @@ fn reference_observation_rejects_wrong_echoes_and_keeps_later_restore_fences() {
     for response in [wrong_root, wrong_tenant, fenced] {
         let result = inspect(&s, &inventory, |method, _| match method {
             "blob_upload_capacity" => Ok(capacity_reply(capacity(&s))),
-            "lookup_content" => reply(Some(content(&s, &inventory, ContentState::Live))),
+            "blob_lookup_content" => discovery_reply(
+                &s,
+                &inventory,
+                Some(content(&s, &inventory, UploadContentState::Live)),
+            ),
             "blob_reference_capacity" => {
                 Ok(candid::encode_one(Ok::<_, ReferenceCapacityFailure>(response)).unwrap())
             }
@@ -120,7 +124,7 @@ fn restored_capacity_is_a_reported_blocker_even_with_spare_quota() {
     capacity.fenced = true;
     let report = inspect(&s, &inventory, |method, _| match method {
         "blob_upload_capacity" => Ok(capacity_reply(capacity)),
-        "lookup_content" => reply(None::<ContentObservation>),
+        "blob_lookup_content" => discovery_reply(&s, &inventory, None),
         _ => panic!("unexpected query"),
     })
     .unwrap();
@@ -129,22 +133,37 @@ fn restored_capacity_is_a_reported_blocker_even_with_spare_quota() {
     assert_eq!(report.value["capacity"]["fenced"], true);
 }
 
-fn content(s: &Selection, inventory: &Inventory, state: ContentState) -> ContentObservation {
-    ContentObservation {
+fn content(s: &Selection, inventory: &Inventory, state: UploadContentState) -> UploadHistoryEntry {
+    UploadHistoryEntry {
         state,
-        request: Request {
+        request: ReferenceUpload {
             service: s.scope.service,
             tenant: s.scope.tenant,
             namespace: s.scope.namespace,
-            id: 1,
+            upload: u128::MAX,
+            object: u128::MAX - 1,
+            incarnation: u128::MAX - 2,
+            first_reference: u128::MAX - 3,
             bytes: 3,
             root: *inventory.blobs[0].root.as_bytes(),
         },
     }
 }
 
-fn reply<T: CandidType>(value: T) -> Result<Vec<u8>, Failure> {
-    candid::encode_one(Ok::<_, RemoteFailure>(value)).map_err(|_| Failure::InvalidReply)
+fn discovery_reply(
+    s: &Selection,
+    inventory: &Inventory,
+    content: Option<UploadHistoryEntry>,
+) -> Result<Vec<u8>, Failure> {
+    candid::encode_one(Ok::<_, UploadDiscoveryFailure>(UploadDiscoveryResponse {
+        request: UploadDiscoveryRequest {
+            scope: s.scope,
+            root: *inventory.blobs[0].root.as_bytes(),
+        },
+        content,
+        fenced: false,
+    }))
+    .map_err(|_| Failure::InvalidReply)
 }
 
 #[test]
@@ -156,13 +175,13 @@ fn absent_content_is_unproven_and_wide_capacity_is_rendered_exactly() {
         methods.push(method.to_owned());
         match method {
             "blob_upload_capacity" => Ok(capacity_reply(capacity(&s))),
-            "lookup_content" => reply(None::<ContentObservation>),
+            "blob_lookup_content" => discovery_reply(&s, &inventory, None),
             _ => panic!("unexpected call"),
         }
     })
     .unwrap();
     assert!(!report.blocked);
-    assert_eq!(methods, ["blob_upload_capacity", "lookup_content"]);
+    assert_eq!(methods, ["blob_upload_capacity", "blob_lookup_content"]);
     assert_eq!(report.value["admission"], "not_proven");
     assert_eq!(
         report.value["contents"][0]["observation"]["status"],
@@ -180,24 +199,38 @@ fn pending_and_retired_content_never_become_new_upload_candidates() {
     let s = selection();
     let inventory = prepared();
     for state in [
-        ContentState::Reserved,
-        ContentState::ExposurePossible,
-        ContentState::Cancelled,
-        ContentState::DeletionPending,
-        ContentState::ProviderDeleted,
-        ContentState::Settled,
+        UploadContentState::Reserved,
+        UploadContentState::ExposurePossible,
+        UploadContentState::Cancelled,
+        UploadContentState::DeletionPending,
+        UploadContentState::ProviderDeleted,
+        UploadContentState::Settled,
     ] {
         let report = inspect(&s, &inventory, |method, _| match method {
             "blob_upload_capacity" => Ok(capacity_reply(capacity(&s))),
-            "lookup_content" => reply(Some(content(&s, &inventory, state))),
+            "blob_lookup_content" => {
+                discovery_reply(&s, &inventory, Some(content(&s, &inventory, state)))
+            }
             _ => panic!("unexpected call"),
         })
         .unwrap();
         assert!(report.blocked);
+        assert_eq!(
+            report.value["contents"][0]["observation"]["original_object"],
+            (u128::MAX - 1).to_string()
+        );
+        assert_eq!(
+            report.value["contents"][0]["observation"]["original_incarnation"],
+            (u128::MAX - 2).to_string()
+        );
+        assert_eq!(
+            report.value["contents"][0]["observation"]["original_first_reference"],
+            (u128::MAX - 3).to_string()
+        );
         assert_eq!(report.value["not_visible_demand"]["objects"], 0);
         assert_eq!(
             report.value["contents"][0]["observation"]["original_operation"],
-            "1"
+            u128::MAX.to_string()
         );
     }
 }
@@ -209,7 +242,11 @@ fn live_content_checks_each_assets_new_reference_and_stops_on_lost_observations(
     inventory.blobs[0].assets.push("alias".into());
     let report = inspect(&s, &inventory, |method, _| match method {
         "blob_upload_capacity" => Ok(capacity_reply(capacity(&s))),
-        "lookup_content" => reply(Some(content(&s, &inventory, ContentState::Live))),
+        "blob_lookup_content" => discovery_reply(
+            &s,
+            &inventory,
+            Some(content(&s, &inventory, UploadContentState::Live)),
+        ),
         "blob_reference_capacity" => Ok(reference_reply(
             &s,
             &inventory,
@@ -227,7 +264,11 @@ fn live_content_checks_each_assets_new_reference_and_stops_on_lost_observations(
     assert_eq!(report.value["blockers"], json!(["reference_capacity"]));
     let failed = inspect(&s, &inventory, |method, _| match method {
         "blob_upload_capacity" => Ok(capacity_reply(capacity(&s))),
-        "lookup_content" => reply(Some(content(&s, &inventory, ContentState::Live))),
+        "blob_lookup_content" => discovery_reply(
+            &s,
+            &inventory,
+            Some(content(&s, &inventory, UploadContentState::Live)),
+        ),
         "blob_reference_capacity" => Err(Failure::Transport),
         _ => panic!("unexpected call"),
     });
@@ -244,14 +285,14 @@ fn rejects_wrong_scope_wrong_content_and_malformed_or_denied_replies() {
         inspect(&s, &inventory, |_, _| Ok(capacity_reply(wrong))),
         Err(Failure::Binding)
     );
-    let mut changed = content(&s, &inventory, ContentState::Live);
+    let mut changed = content(&s, &inventory, UploadContentState::Live);
     changed.request.bytes = 4;
     assert_eq!(
         inspect(&s, &inventory, |method, _| {
             if method == "blob_upload_capacity" {
                 Ok(capacity_reply(capacity(&s)))
             } else {
-                reply(Some(changed))
+                discovery_reply(&s, &inventory, Some(changed))
             }
         }),
         Err(Failure::Binding)
@@ -286,7 +327,7 @@ fn reports_known_byte_history_metadata_and_suspension_blockers() {
         if method == "blob_upload_capacity" {
             Ok(capacity_reply(c))
         } else {
-            reply(None::<ContentObservation>)
+            discovery_reply(&s, &inventory, None)
         }
     })
     .unwrap();
@@ -314,11 +355,16 @@ fn batch_size_does_not_require_every_new_upload_to_fit_concurrently() {
         .unwrap();
     second.assets = vec!["second".into()];
     inventory.blobs.push(second);
-    let report = inspect(&s, &inventory, |method, _| {
+    let report = inspect(&s, &inventory, |method, args| {
         if method == "blob_upload_capacity" {
             Ok(capacity_reply(capacity(&s)))
         } else {
-            reply(None::<ContentObservation>)
+            candid::encode_one(Ok::<_, UploadDiscoveryFailure>(UploadDiscoveryResponse {
+                request: candid::decode_one(&args).unwrap(),
+                content: None,
+                fenced: false,
+            }))
+            .map_err(|_| Failure::InvalidReply)
         }
     })
     .unwrap();
@@ -348,7 +394,11 @@ fn inconsistent_capacity_and_disappeared_confirmed_content_fail_closed() {
     ] {
         let result = inspect(&s, &inventory, |method, _| match method {
             "blob_upload_capacity" => Ok(capacity_reply(capacity(&s))),
-            "lookup_content" => reply(Some(content(&s, &inventory, ContentState::Live))),
+            "blob_lookup_content" => discovery_reply(
+                &s,
+                &inventory,
+                Some(content(&s, &inventory, UploadContentState::Live)),
+            ),
             "blob_reference_capacity" => Ok(reference_reply(&s, &inventory, available)),
             _ => panic!("unexpected call"),
         });
@@ -360,5 +410,99 @@ fn inconsistent_capacity_and_disappeared_confirmed_content_fail_closed() {
                 Failure::InvalidReply
             })
         );
+    }
+}
+
+#[test]
+fn discovery_rejects_wrong_echoes_even_for_absence_and_keeps_a_later_fence() {
+    let s = selection();
+    let inventory = prepared();
+    let response = UploadDiscoveryResponse {
+        request: UploadDiscoveryRequest {
+            scope: s.scope,
+            root: *inventory.blobs[0].root.as_bytes(),
+        },
+        content: None,
+        fenced: false,
+    };
+    let mut wrong_root = response;
+    wrong_root.request.root = [7; 32];
+    let mut wrong_tenant = response;
+    wrong_tenant.request.scope.tenant = Principal::from_slice(&[9, 1]);
+    let mut fenced = response;
+    fenced.fenced = true;
+    for response in [wrong_root, wrong_tenant, fenced] {
+        let observed = inspect(&s, &inventory, |method, _| match method {
+            "blob_upload_capacity" => Ok(capacity_reply(capacity(&s))),
+            "blob_lookup_content" => {
+                Ok(candid::encode_one(Ok::<_, UploadDiscoveryFailure>(response)).unwrap())
+            }
+            _ => panic!("unexpected query"),
+        });
+        if response.fenced {
+            let report = observed.unwrap();
+            assert!(report.blocked);
+            assert_eq!(report.value["blockers"], json!(["service_fenced"]));
+            assert_eq!(
+                report.value["contents"][0]["observation"]["discovery_fenced"],
+                true
+            );
+        } else {
+            assert_eq!(observed, Err(Failure::Binding));
+        }
+    }
+}
+
+#[test]
+fn discovery_rejects_zero_independent_identities_and_remote_refusals() {
+    let s = selection();
+    let inventory = prepared();
+    let original = content(&s, &inventory, UploadContentState::Reserved);
+    for request in [
+        ReferenceUpload {
+            upload: 0,
+            ..original.request
+        },
+        ReferenceUpload {
+            object: 0,
+            ..original.request
+        },
+        ReferenceUpload {
+            incarnation: 0,
+            ..original.request
+        },
+        ReferenceUpload {
+            first_reference: 0,
+            ..original.request
+        },
+    ] {
+        let result = inspect(&s, &inventory, |method, _| match method {
+            "blob_upload_capacity" => Ok(capacity_reply(capacity(&s))),
+            "blob_lookup_content" => discovery_reply(
+                &s,
+                &inventory,
+                Some(UploadHistoryEntry {
+                    request,
+                    ..original
+                }),
+            ),
+            _ => panic!("unexpected query"),
+        });
+        assert_eq!(result, Err(Failure::Binding));
+    }
+    for (remote, expected) in [
+        (UploadDiscoveryFailure::Denied, Failure::Denied),
+        (UploadDiscoveryFailure::Binding, Failure::Binding),
+        (UploadDiscoveryFailure::Invalid, Failure::InvalidReply),
+        (UploadDiscoveryFailure::Internal, Failure::InvalidReply),
+    ] {
+        let result = inspect(&s, &inventory, |method, _| match method {
+            "blob_upload_capacity" => Ok(capacity_reply(capacity(&s))),
+            "blob_lookup_content" => {
+                Ok(candid::encode_one(Err::<UploadDiscoveryResponse, _>(remote)).unwrap())
+            }
+            _ => panic!("unexpected query"),
+        });
+        assert_eq!(result, Err(expected));
     }
 }

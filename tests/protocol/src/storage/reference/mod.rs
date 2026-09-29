@@ -39,3 +39,14 @@ pub struct ReferenceFaultInput {
     /// Stable write at which the fixture traps.
     pub fault: super::WriteFault,
 }
+
+/// Explicit local consumer of passive exact-reference state.
+#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+pub struct ReferenceStatusClientInput {
+    /// Exact maintained lookup, with no mutation operation or action.
+    pub request: ic_blob_storage::dto::reference::status::ReferenceStatusRequest,
+    /// Expected executing tenant canister.
+    pub tenant: Principal,
+    /// Maximum encoded reply bytes.
+    pub max_reply_bytes: u32,
+}

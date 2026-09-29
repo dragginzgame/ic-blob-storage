@@ -140,6 +140,10 @@ authenticates the service through one IC call and bounds decoding before returni
 explicit absence or the original success/failure. Upload/object/lifetime/reference
 identities remain independent. Suspension, settlement and restore do not erase
 inspection evidence; no result authorizes publication or an uncertain retry.
+`blob_reference_status` and `ReplicatedReferenceClient::status` separately inspect
+an exact reference's current local liveness and restore fence. A successful retain
+receipt can remain in history after status becomes non-live. Inspection works while
+suspended or restored; a live result is not enrollment, serving or retry authority.
 `workflow::references::apply` and `ReplicatedReferenceClient::apply` expose the
 matching `blob_apply_reference` update. Both paths share `ReferenceCommand` and
 typed failures; admitted lifecycle failures remain inside the returned receipt.
@@ -293,6 +297,9 @@ Durable bookkeeping and shared funding/gateway transport primitives have local
 test evidence. The [standalone host](canisters/standalone/README.md) now owns explicit
 installation configuration, memory and synchronous fenced restoration, exposing
 tenant, admission, manifest and reference handlers through the shared library.
+It also delivers reference-qualified download metadata through the shared update
+handler, using an explicit immutable Caffeine project supplied at installation.
+The new host init contract requires a minor release and cross-release reinstall.
 Complete production workflows, clients, the Canic adapter and
 deployed-provider qualification remain open. Local bookkeeping and decoded
 provider reports do not establish a qualified storage service.
@@ -390,7 +397,9 @@ plus enrollment, per-object limits and the restore fence. The standalone host an
 both admission fixtures reuse the same handler. It includes reservations
 and continuing billing; freed logical quota alone cannot make those obligations
 disappear. These independent counts reserve nothing. Existing blobs still require
-content discovery and the shared `blob_reference_capacity` query. That query binds
+the shared `blob_lookup_content` and `blob_reference_capacity` queries. Discovery
+returns complete original identities and local lifecycle, with exact request echoes
+and restore fencing even for absence. Reference capacity binds
 the tenant and root, preserves cleanup receipt reservations and reports its own
 restore fence. The unpublished
 `blob-fixture-inventory` command connects a prepared report to these queries on an

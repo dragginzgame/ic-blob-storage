@@ -56,7 +56,7 @@ fn cursor(input: UploadHistoryCursor) -> Result<UploadScanCursor, UploadHistoryF
         after_request: UploadRequestId::new(number(input.after_request)?),
     })
 }
-fn present(view: TenantContentView) -> UploadHistoryEntry {
+pub(super) fn present(view: TenantContentView) -> UploadHistoryEntry {
     let request = view.request;
     let first = request.object.first;
     let object = first.object();

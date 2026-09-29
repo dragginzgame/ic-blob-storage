@@ -77,22 +77,6 @@ pub(super) fn descriptor(view: UploadDescriptorView) -> ContentDescriptor {
             .collect(),
     }
 }
-pub(crate) fn content(
-    execution: UploadContext,
-    input: ContentLookup,
-) -> Result<Option<ContentObservation>, Failure> {
-    let input = lookup(execution, input)?;
-    STATE
-        .with_borrow(|state| {
-            state
-                .as_ref()
-                .unwrap()
-                .uploads
-                .lookup_content(execution, input)
-        })
-        .map(|v| v.map(observation))
-        .map_err(conversion::failure)
-}
 pub(crate) fn declaration(
     execution: UploadContext,
     input: ContentLookup,

@@ -20,17 +20,19 @@ use ic_blob_storage::model::{
 };
 use std::num::NonZeroU128;
 
-pub(crate) fn lookup(
+pub(crate) fn discover(
     context: UploadContext,
-    input: ContentLookup,
-) -> Result<Option<ContentObservation>, Failure> {
-    let query = model_lookup(context, input)?;
+    input: ic_blob_storage::dto::upload::discovery::UploadDiscoveryRequest,
+) -> Result<
+    ic_blob_storage::dto::upload::discovery::UploadDiscoveryResponse,
+    ic_blob_storage::dto::upload::discovery::UploadDiscoveryFailure,
+> {
     STATE.with_borrow(|state| {
-        let owner = &state.as_ref().expect("initialized probe").owner;
-        Ok(owner
-            .lookup_content(context, query)
-            .map_err(failure)?
-            .map(observation))
+        ic_blob_storage::workflow::uploads::discovery::inspect(
+            &state.as_ref().expect("initialized probe").owner,
+            context,
+            input,
+        )
     })
 }
 

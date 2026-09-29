@@ -220,3 +220,102 @@ fn mutation_reply_keeps_inner_failure_distinct_and_rejects_foreign_or_incomplete
         );
     }
 }
+
+#[test]
+fn reference_status_reply_preserves_fences_and_rejects_binding_size_and_wire_failures() {
+    let command = request();
+    let request = ReferenceStatusRequest {
+        upload: command.upload,
+        reference: command.reference,
+    };
+    let limit = 4096.try_into().unwrap();
+    for (live, fenced) in [(true, false), (true, true), (false, false), (false, true)] {
+        let response = ReferenceStatusResponse {
+            request,
+            live,
+            fenced,
+        };
+        let bytes = encode_one(Ok::<_, ReferenceFailure>(response)).unwrap();
+        assert_eq!(decode_status(request, &bytes, limit), Ok(response));
+        assert_eq!(
+            decode_status(request, &bytes, NonZeroUsize::MIN),
+            Err(ReferenceReplyError::Limit)
+        );
+        assert_eq!(
+            decode_status(
+                ReferenceStatusRequest {
+                    reference: 0,
+                    ..request
+                },
+                &bytes,
+                limit
+            ),
+            Err(ReferenceReplyError::Invalid)
+        );
+    }
+    let mut altered = vec![ReferenceStatusRequest {
+        reference: 8,
+        ..request
+    }];
+    for upload in [
+        ReferenceUpload {
+            service: command.upload.tenant,
+            ..command.upload
+        },
+        ReferenceUpload {
+            tenant: command.upload.service,
+            ..command.upload
+        },
+        ReferenceUpload {
+            namespace: 4,
+            ..command.upload
+        },
+        ReferenceUpload {
+            upload: 1,
+            ..command.upload
+        },
+        ReferenceUpload {
+            object: 1,
+            ..command.upload
+        },
+        ReferenceUpload {
+            incarnation: 1,
+            ..command.upload
+        },
+        ReferenceUpload {
+            first_reference: 1,
+            ..command.upload
+        },
+        ReferenceUpload {
+            root: [8; 32],
+            ..command.upload
+        },
+        ReferenceUpload {
+            bytes: 11,
+            ..command.upload
+        },
+    ] {
+        altered.push(ReferenceStatusRequest { upload, ..request });
+    }
+    for changed in altered {
+        let bytes = encode_one(Ok::<_, ReferenceFailure>(ReferenceStatusResponse {
+            request: changed,
+            live: true,
+            fenced: false,
+        }))
+        .unwrap();
+        assert_eq!(
+            decode_status(request, &bytes, limit),
+            Err(ReferenceReplyError::Binding)
+        );
+    }
+    assert_eq!(
+        decode_status(request, b"DIDL", limit),
+        Err(ReferenceReplyError::Invalid)
+    );
+    let denied = encode_one(Err::<ReferenceStatusResponse, _>(ReferenceFailure::Denied)).unwrap();
+    assert_eq!(
+        decode_status(request, &denied, limit),
+        Err(ReferenceReplyError::Remote(ReferenceFailure::Denied))
+    );
+}

@@ -3,7 +3,10 @@ use super::{
     REFERENCE_APPLY_METHOD, REFERENCE_RECEIPT_METHOD,
     reply::{self, ReferenceReplyError},
 };
-use crate::dto::reference::{ReferenceCommand, ReferenceMutationResponse, ReferenceReceiptLookup};
+use crate::dto::reference::{
+    ReferenceCommand, ReferenceMutationResponse, ReferenceReceiptLookup, ReferenceUpload,
+    status::{ReferenceStatusRequest, ReferenceStatusResponse},
+};
 use candid::Principal;
 use ic_cdk::call::{Call, CallFailed, Response};
 use std::num::{NonZeroU32, NonZeroUsize};
@@ -97,18 +100,54 @@ impl ReplicatedReferenceClient {
         )?)
     }
 
+    /// Inspect exact current local liveness once through replicated query execution.
+    /// No cycles attach and no reference changes. Refusals remain errors; the
+    /// restore fence is preserved. A response can become stale before the next call.
+    /// Invoke from an actual tenant canister update; native system APIs trap.
+    /// # Errors
+    /// Rejects wrong context, malformed input, transport and invalid or foreign replies.
+    pub async fn status(
+        &self,
+        request: ReferenceStatusRequest,
+        max_reply_bytes: NonZeroUsize,
+    ) -> Result<ReferenceStatusResponse, ReferenceClientError> {
+        self.check_actor(request.upload)?;
+        reply::check_status_request(request)?;
+        let response = self
+            .call(super::status::REFERENCE_STATUS_METHOD, request)
+            .await?;
+        Ok(reply::decode_status(
+            request,
+            response.as_ref(),
+            max_reply_bytes,
+        )?)
+    }
+
     async fn send(
         &self,
         request: ReferenceCommand,
         method: &str,
     ) -> Result<Response, ReferenceClientError> {
-        if request.upload.service != self.service
-            || request.upload.tenant != self.tenant
+        self.check_actor(request.upload)?;
+        reply::check_request(request)?;
+        self.call(method, request).await
+    }
+
+    fn check_actor(&self, upload: ReferenceUpload) -> Result<(), ReferenceClientError> {
+        if upload.service != self.service
+            || upload.tenant != self.tenant
             || ic_cdk::api::canister_self() != self.tenant
         {
             return Err(ReferenceClientError::Binding);
         }
-        reply::check_request(request)?;
+        Ok(())
+    }
+
+    async fn call<A: candid::CandidType>(
+        &self,
+        method: &str,
+        request: A,
+    ) -> Result<Response, ReferenceClientError> {
         if !ic_cdk::api::in_replicated_execution() {
             return Err(ReferenceClientError::Execution);
         }

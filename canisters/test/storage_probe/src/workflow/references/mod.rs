@@ -80,3 +80,23 @@ pub(crate) async fn mutate(
         .map_err(|_| ReferenceProbeFailure::Invalid)?;
     client.apply(input.request, max).await.map_err(failure)
 }
+
+pub(crate) async fn status(
+    context: UploadContext,
+    input: &blob_test_protocol::storage::reference::ReferenceStatusClientInput,
+) -> Result<ic_blob_storage::dto::reference::status::ReferenceStatusResponse, ReferenceProbeFailure>
+{
+    if !download::operator(context) {
+        return Err(ReferenceProbeFailure::Denied);
+    }
+    let client = ReplicatedReferenceClient::new(
+        input.tenant,
+        input.request.upload.service,
+        30.try_into().unwrap(),
+    )
+    .map_err(failure)?;
+    let max = (input.max_reply_bytes as usize)
+        .try_into()
+        .map_err(|_| ReferenceProbeFailure::Invalid)?;
+    client.status(input.request, max).await.map_err(failure)
+}

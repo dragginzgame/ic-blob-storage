@@ -2,7 +2,7 @@ use super::*;
 mod download;
 use blob_test_protocol::{
     admission::{
-        ContentDescriptor, ContentLookup, ContentObservation,
+        ContentDescriptor, ContentLookup,
         input::{ReferenceInput, RetainedDescriptor, RetainedDescriptorInput},
     },
     storage::ProviderFact,
@@ -11,6 +11,16 @@ use ic_blob_storage::dto::upload::history::{
     UploadContentState, UploadHistoryCursor as Cursor, UploadHistoryFailure as HistoryFailure,
     UploadHistoryFilter as Filter, UploadHistoryPage as Page, UploadHistoryRequest as ScanInput,
     UploadHistoryScope as Scope,
+};
+use ic_blob_storage::dto::{
+    tenant::TenantScope,
+    upload::{
+        discovery::{
+            UploadDiscoveryFailure as DiscoveryFailure, UploadDiscoveryRequest,
+            UploadDiscoveryResponse,
+        },
+        history::UploadHistoryEntry,
+    },
 };
 impl Fixture {
     fn content_input(&self, request: Request) -> ContentLookup {
@@ -25,11 +35,25 @@ impl Fixture {
         &self,
         actor: Principal,
         input: ContentLookup,
-    ) -> Result<Option<ContentObservation>, Failure> {
-        self.harness
+    ) -> Result<Option<UploadHistoryEntry>, DiscoveryFailure> {
+        let request = UploadDiscoveryRequest {
+            scope: TenantScope {
+                service: input.service,
+                tenant: input.tenant,
+                namespace: input.namespace,
+            },
+            root: input.root,
+        };
+        let response: Result<UploadDiscoveryResponse, DiscoveryFailure> = self
+            .harness
             .pic
-            .query_candid_as(self.service, actor, "lookup_content", (input,))
-            .unwrap()
+            .query_candid_as(self.service, actor, "blob_lookup_content", (request,))
+            .unwrap();
+        response.map(|response| {
+            assert_eq!(response.request, request);
+            assert_eq!(response.fenced, self.status().fenced);
+            response.content
+        })
     }
     fn declaration(
         &self,
@@ -114,7 +138,7 @@ fn durable_descriptors_require_the_consumers_exact_live_reference_through_upgrad
     assert_eq!(view.descriptor.content.request, permission.request);
     for actor in [f.uploader, f.operator, f.controller] {
         assert_eq!(f.retained(actor, second), Err(Failure::Denied));
-        assert_eq!(f.discover(actor, lookup), Err(Failure::Denied));
+        assert_eq!(f.discover(actor, lookup), Err(DiscoveryFailure::Denied));
     }
     assert_eq!(
         f.discover(
@@ -142,7 +166,7 @@ fn durable_descriptors_require_the_consumers_exact_live_reference_through_upgrad
     assert_eq!(f.retained(f.tenant, first), Ok(None));
     assert_eq!(
         f.discover(f.tenant, lookup).unwrap().unwrap().request,
-        permission.request
+        admission_input(permission).upload
     );
     assert_eq!(
         f.status(),
@@ -321,6 +345,11 @@ fn shared_history_distinguishes_exposure_deletion_and_billing_cessation() {
             }]
         );
         assert_eq!(page.scanned, 1);
+        assert_eq!(
+            f.discover(f.tenant, f.content_input(permission.request))
+                .unwrap(),
+            page.entries.first().copied()
+        );
         assert_eq!(page.next, None);
         assert!(
             f.harness.pic.get_stable_memory(f.service).eq(&before),
@@ -358,6 +387,11 @@ fn shared_history_distinguishes_exposure_deletion_and_billing_cessation() {
         )
         .unwrap();
     assert_eq!(history.entries[0].state, UploadContentState::Settled);
+    assert_eq!(
+        f.discover(f.tenant, f.content_input(permission.request))
+            .unwrap(),
+        history.entries.first().copied()
+    );
     assert_eq!(
         history.entries[0].request,
         admission_input(permission).upload

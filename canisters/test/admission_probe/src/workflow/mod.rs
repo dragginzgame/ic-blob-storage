@@ -2,8 +2,7 @@
 
 use crate::ops;
 use blob_test_protocol::admission::{
-    Command, ContentLookup, ContentObservation, ExecutionProfile, Failure, Installation,
-    Observation, Outcome, Request,
+    Command, ContentLookup, ExecutionProfile, Failure, Installation, Observation, Outcome, Request,
 };
 use candid::Principal;
 use ic_blob_storage::model::service::upload::UploadContext;
@@ -45,11 +44,14 @@ pub(crate) fn reference_receipt(
     ops::release::receipt(context, input)
 }
 
-pub(crate) fn lookup_content(
+pub(crate) fn discover(
     context: UploadContext,
-    input: ContentLookup,
-) -> Result<Option<ContentObservation>, Failure> {
-    ops::content::lookup(context, input)
+    input: ic_blob_storage::dto::upload::discovery::UploadDiscoveryRequest,
+) -> Result<
+    ic_blob_storage::dto::upload::discovery::UploadDiscoveryResponse,
+    ic_blob_storage::dto::upload::discovery::UploadDiscoveryFailure,
+> {
+    ops::content::discover(context, input)
 }
 
 pub(crate) fn resources(

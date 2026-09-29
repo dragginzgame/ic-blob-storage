@@ -7,7 +7,7 @@ mod selection;
 use super::{CommandResult, Failure};
 use serde_json::json;
 
-const USAGE: &str = "blob-fixture-inventory inspect --server LOOPBACK_IP:PORT --instance ID --canister PRINCIPAL --caller PRINCIPAL --tenant PRINCIPAL --namespace DECIMAL --inventory PREPARED_INVENTORY.json\nQueries blob_upload_capacity, lookup_content and blob_reference_capacity sequentially. Caller is simulated and must equal tenant. Input is the report from prepare_upload --inventory (or a snapshot's inventory.json), not its source declaration. No file bodies are read.\nExit: 0 complete observation with no observed blocker (not upload permission); 2 invalid arguments; 3 input/query/reply/binding failure; 4 observed capacity, enrollment, pending or retired-content blocker.\n";
+const USAGE: &str = "blob-fixture-inventory inspect --server LOOPBACK_IP:PORT --instance ID --canister PRINCIPAL --caller PRINCIPAL --tenant PRINCIPAL --namespace DECIMAL --inventory PREPARED_INVENTORY.json\nQueries blob_upload_capacity, blob_lookup_content and blob_reference_capacity sequentially. Caller is simulated and must equal tenant. Input is the report from prepare_upload --inventory (or a snapshot's inventory.json), not its source declaration. No file bodies are read.\nExit: 0 complete observation with no observed blocker (not upload permission); 2 invalid arguments; 3 input/query/reply/binding failure; 4 observed capacity, enrollment, pending or retired-content blocker.\n";
 
 /// Inspect a validated prepared inventory using only bounded local fixture queries.
 /// Observations can become stale and never reserve capacity or certify admission.

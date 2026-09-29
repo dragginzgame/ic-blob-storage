@@ -2,6 +2,42 @@
 
 ## [Unreleased]
 
+## [0.2.24]
+
+### Changed
+
+- **Breaking — requires a minor release:** standalone installation now takes
+  `HostInstallationInput { configuration, project }`. The explicit Caffeine project
+  is validated before allocation, retained in the current v1 configuration record,
+  revalidated during restore and included in operator configuration readback. No
+  project is inferred from a tenant, payer or local namespace. The previous host
+  init/schema is replaced directly; cross-release transitions remain reinstall-only.
+
+### Added
+
+- Shared tenant-only `blob_reference_status` query in standalone and the durable
+  storage fixture, replacing the fixture's private boolean endpoint. Exact upload
+  and reference bindings return current local liveness and the restore fence,
+  independently of historical retain/release receipts. The replicated reference
+  client now validates bounded status replies. Native and PocketIC tests cover
+  independent full-width IDs, changed bindings, suspension, release/settlement,
+  passive reads and inspection after both service and client restoration.
+- Standalone `blob_download_descriptor` update delegates to the existing shared
+  exact-live-reference workflow using the installed project mapping. It returns
+  original metadata only, with no provider/body call, read-session allocation or
+  serving access for inactive tenants, unconfirmed content or restored owners.
+  PocketIC coverage includes bounded inputs, project validation/restore corruption,
+  an actual canister client and the existing confirmed-reference fixture journey.
+  The standalone test target now builds its local consumer fixture too.
+- Shared tenant-scoped `blob_lookup_content` query in the standalone host and both
+  admission fixtures, replacing the private discovery endpoint. Indexed discovery
+  reuses the maintained history conversion, preserving independent full-width
+  upload, object, incarnation and first-reference identities through every local
+  lifecycle phase. Responses echo the request and report restore fencing even for
+  absence. The inventory tool validates those bindings and reports later fences;
+  native and PocketIC tests cover isolation, passive reads, suspension, restoration,
+  cleanup/settlement and actual inventory subprocesses.
+
 ## [0.2.23] - 2026-09-29
 
 ### Added

@@ -3,6 +3,7 @@ use blob_test_protocol::storage::reference::ReferenceFaultInput;
 use ic_blob_storage::dto::reference::*;
 use ic_blob_storage::ops::service::references::{REFERENCE_APPLY_METHOD, REFERENCE_RECEIPT_METHOD};
 mod receipts;
+mod status;
 use blob_test_protocol::{
     admission::input::ReferenceInput,
     storage::{FactInput, ProviderFact},
@@ -56,11 +57,30 @@ impl Fixture {
             )
             .unwrap()
     }
-    fn live(&self, request: ReferenceInput) -> Result<bool, Failure> {
-        self.harness
+    fn live(&self, input: ReferenceInput) -> Result<bool, ReferenceFailure> {
+        use ic_blob_storage::dto::reference::status::{
+            ReferenceStatusRequest, ReferenceStatusResponse,
+        };
+        let command = receipt_request(input);
+        let request = ReferenceStatusRequest {
+            upload: command.upload,
+            reference: command.reference,
+        };
+        let result: Result<ReferenceStatusResponse, ReferenceFailure> = self
+            .harness
             .pic
-            .query_candid_as(self.service, self.tenant, "reference_is_live", (request,))
-            .unwrap()
+            .query_candid_as(
+                self.service,
+                self.tenant,
+                "blob_reference_status",
+                (request,),
+            )
+            .unwrap();
+        result.map(|response| {
+            assert_eq!(response.request, request);
+            assert_eq!(response.fenced, self.status().fenced);
+            response.live
+        })
     }
 }
 fn reference(object: Request, operation: u128, id: u128, retain: bool) -> ReferenceInput {
@@ -130,7 +150,7 @@ fn completion_faults_preserve_the_reservation_and_cannot_leak_a_first_reference(
         );
         assert_eq!(
             f.live(reference(permission.request, 1, 1, false)),
-            Err(Failure::Phase)
+            Err(ReferenceFailure::Unconfirmed)
         );
     }
     assert_eq!(f.fact(permission.request, ProviderFact::Uploaded), Ok(true));

@@ -133,18 +133,28 @@ pub(crate) fn fact(
 ) -> Result<bool, Failure> {
     ops::lifecycle::fact(context, input)
 }
-pub(crate) fn live(
+pub(crate) fn reference_status(
     context: UploadContext,
-    input: blob_test_protocol::admission::input::ReferenceInput,
-) -> Result<bool, Failure> {
-    ops::lifecycle::live(context, input)
+    input: ic_blob_storage::dto::reference::status::ReferenceStatusRequest,
+) -> Result<
+    ic_blob_storage::dto::reference::status::ReferenceStatusResponse,
+    ic_blob_storage::dto::reference::ReferenceFailure,
+> {
+    ops::read::download::with_uploads(|uploads| {
+        ic_blob_storage::workflow::references::status::inspect(uploads, context, input)
+    })
 }
 
-pub(crate) fn content(
+pub(crate) fn discover(
     context: UploadContext,
-    input: blob_test_protocol::admission::ContentLookup,
-) -> Result<Option<blob_test_protocol::admission::ContentObservation>, Failure> {
-    ops::read::content(context, input)
+    input: ic_blob_storage::dto::upload::discovery::UploadDiscoveryRequest,
+) -> Result<
+    ic_blob_storage::dto::upload::discovery::UploadDiscoveryResponse,
+    ic_blob_storage::dto::upload::discovery::UploadDiscoveryFailure,
+> {
+    ops::read::download::with_uploads(|uploads| {
+        ic_blob_storage::workflow::uploads::discovery::inspect(uploads, context, input)
+    })
 }
 pub(crate) fn declaration(
     context: UploadContext,

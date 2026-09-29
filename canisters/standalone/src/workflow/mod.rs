@@ -87,7 +87,7 @@ pub(crate) fn history(
         )
     })
 }
-pub(crate) fn install(input: &ic_blob_storage::dto::configuration::ServiceConfigurationInput) {
+pub(crate) fn install(input: &crate::dto::HostInstallationInput) {
     ops::install(input);
 }
 pub(crate) fn funding_history(
@@ -241,5 +241,38 @@ pub(crate) fn cancel_gateway_sync(
 ) -> Result<(), ic_blob_storage::dto::gateway::sync::GatewaySyncFailure> {
     ops::mutate(|stores| {
         ic_blob_storage::workflow::gateways::sync::cancel(&mut stores.gateways, context, input)
+    })
+}
+
+pub(crate) fn discover(
+    context: UploadContext,
+    input: ic_blob_storage::dto::upload::discovery::UploadDiscoveryRequest,
+) -> Result<
+    ic_blob_storage::dto::upload::discovery::UploadDiscoveryResponse,
+    ic_blob_storage::dto::upload::discovery::UploadDiscoveryFailure,
+> {
+    ops::read(|stores| {
+        ic_blob_storage::workflow::uploads::discovery::inspect(&stores.uploads, context, input)
+    })
+}
+
+pub(crate) fn download(
+    context: UploadContext,
+    input: ic_blob_storage::dto::download::DownloadRequest,
+) -> Result<
+    ic_blob_storage::dto::download::DownloadResponse,
+    ic_blob_storage::dto::download::DownloadFailure,
+> {
+    ops::with_download(|uploads, scope| {
+        ic_blob_storage::workflow::reads::download::handle(uploads, context, scope, input)
+    })
+}
+
+pub(crate) fn reference_status(
+    context: UploadContext,
+    input: ic_blob_storage::dto::reference::status::ReferenceStatusRequest,
+) -> Result<ic_blob_storage::dto::reference::status::ReferenceStatusResponse, ReferenceFailure> {
+    ops::read(|stores| {
+        ic_blob_storage::workflow::references::status::inspect(&stores.uploads, context, input)
     })
 }

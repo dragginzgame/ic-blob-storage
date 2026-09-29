@@ -1,3 +1,59 @@
+// Descriptor refusal; no error authorizes body disclosure, retry of paid effects
+// or release of the consumer's reference.
+type DownloadFailure = variant {
+  // Stored invariants could not be established.
+  Internal;
+  // Malformed or zero identity.
+  Invalid;
+  // Tenant is absent or suspended.
+  Inactive;
+  // Service, namespace or configured serving identity differs.
+  Binding;
+  // Restored installation refuses operational delivery.
+  Fenced;
+  // Caller is not the named tenant.
+  Denied;
+  // No confirmed content with that exact live reference.
+  Unavailable;
+};
+// Original accepted hash metadata; HTTP response headers must not replace it.
+type DownloadHeader = record {
+  // Original header value.
+  value : text;
+  // Original header name.
+  name : text;
+};
+// Exact tenant-owned reference, never an allocation or a publication lease.
+type DownloadRequest = record {
+  // Intended storage service, also checked against actual execution.
+  "service" : principal;
+  // Nonzero object identity.
+  object : nat;
+  // Caffeine tree root, not a raw-content digest.
+  root : blob;
+  // Nonzero currently live reference.
+  reference : nat;
+  // Nonzero exact object lifetime.
+  incarnation : nat;
+  // Must equal the endpoint's authenticated caller.
+  tenant : principal;
+  // Explicit local namespace; never a provider project identifier.
+  namespace : nat;
+};
+// A current observation. Consumers must authenticate delivery and coordinate
+// publication/reference lifetime; saved descriptors are not revocation mechanisms.
+type DownloadResponse = record {
+  // Storage owner, independent of payer and tenant.
+  owner : principal;
+  // Complete request echoed by the same synchronous observation.
+  request : DownloadRequest;
+  // First-accepted metadata in its retained order/spelling.
+  headers : vec DownloadHeader;
+  // Declared exact nonzero body length.
+  bytes : nat64;
+  // Explicit provider project; no origin or credential is returned.
+  project : text;
+};
 // Balance component whose decoding or amount validation failed.
 type FundingBalanceField = variant {
   // Prepaid balance.
@@ -236,11 +292,21 @@ type HostConfigurationView = record {
   release : text;
   // Exact installed configuration; observation performs no provider calls.
   configuration : ServiceConfigurationInput;
+  // Immutable installed provider project, independent of the payer and tenants.
+  project : text;
 };
 // Inspection authority rejection.
 type HostFailure = variant {
   // Caller is not the configured operator; controller status is insufficient.
   Denied;
+};
+// Complete standalone installation, with an explicit provider project mapping.
+// Validation checks representation only; it does not provision a Caffeine project.
+type HostInstallationInput = record {
+  // Shared service identity, tenant/resource bounds and provider economics.
+  configuration : ServiceConfigurationInput;
+  // Provider project mapped to this service's local namespace; never inferred.
+  project : text;
 };
 // Complete maintained totals for this local funding journal only.
 type LocalFundingStatus = record {
@@ -345,30 +411,12 @@ type ReferenceAction = variant {
   // Retain the named reference.
   Retain;
 };
-// Typed inspection refusal; never interpreted as absent content.
-type ReferenceCapacityFailure = variant {
-  // Inconsistent retained counters or failed boundary conversion.
-  Internal;
-  // Zero namespace or invalid tenant principal.
-  Invalid;
-  // Service or namespace differs from the installed owner.
-  Binding;
-  // Actual caller is not the tenant named in the request.
-  Denied;
-};
-// Root lookup; a digest is not tenant authority or proof of global absence.
-type ReferenceCapacityRequest = record {
-  // Provider root to inspect within this tenant's retained history.
-  root : blob;
-  // Actual service, positive namespace and tenant caller must match.
-  scope : TenantScope;
-};
 // Correlated observation, not reservation, liveness or mutation authority.
 type ReferenceCapacityResponse = record {
   // Restored owner allows inspection only, including when headroom is absent.
   fenced : bool;
   // Exact original tenant/root request.
-  request : ReferenceCapacityRequest;
+  request : UploadDiscoveryRequest;
   // Absent for unknown, foreign or unconfirmed roots; never proof of global absence.
   headroom : opt ReferenceHeadroom;
 };
@@ -446,6 +494,23 @@ type ReferenceReceiptResponse = record {
   // Complete original request, checked before disclosure by the client.
   request : ReferenceCommand;
 };
+// Tenant-owned lookup, with no mutation operation or action to replay.
+type ReferenceStatusRequest = record {
+  // Exact positive reference identity to inspect.
+  reference : nat;
+  // Complete original upload binding, including independent object/first-reference IDs.
+  upload : ReferenceUpload;
+};
+// One synchronous retained-state observation, never a serving or mutation lease.
+type ReferenceStatusResponse = record {
+  // The same upload owner's restore fence; even a live reference cannot bypass it.
+  fenced : bool;
+  // Full request echoed for correlation.
+  request : ReferenceStatusRequest;
+  // Whether this exact reference is currently active in local retained state.
+  // False covers both never-retained and released references, not reusable identity.
+  live : bool;
+};
 // Retained failure of an admitted operation, not failure to look up its receipt.
 type ReferenceTransitionFailure = variant {
   // Lifetime reference capacity was exhausted.
@@ -487,61 +552,70 @@ type Result_1 = variant {
   Err : ReferenceTransitionFailure;
 };
 type Result_10 = variant {
+  Ok : UploadManifestMutation;
+  Err : UploadManifestFailure;
+};
+type Result_11 = variant {
+  Ok : ReferenceCapacityResponse;
+  Err : UploadDiscoveryFailure;
+};
+type Result_12 = variant {
   Ok : ReferenceReceiptLookup;
   Err : ReferenceFailure;
 };
-type Result_11 = variant {
+type Result_13 = variant {
+  Ok : ReferenceStatusResponse;
+  Err : ReferenceFailure;
+};
+type Result_14 = variant {
   Ok : GatewayRevocationResponse;
   Err : GatewayRevocationFailure;
 };
-type Result_12 = variant {
+type Result_15 = variant {
   Ok : UploadRevocationResponse;
   Err : UploadAdmissionFailure;
 };
-type Result_13 = variant { Ok : GatewaySyncResponse; Err : GatewaySyncFailure };
-type Result_14 = variant { Ok : TenantEnrollmentResponse; Err : TenantFailure };
-type Result_15 = variant {
+type Result_16 = variant { Ok : GatewaySyncResponse; Err : GatewaySyncFailure };
+type Result_17 = variant { Ok : TenantEnrollmentResponse; Err : TenantFailure };
+type Result_18 = variant {
   Ok : UploadAdmissionResponse;
   Err : UploadAdmissionFailure;
 };
-type Result_16 = variant {
+type Result_19 = variant {
   Ok : UploadCapacityResponse;
   Err : UploadCapacityFailure;
-};
-type Result_17 = variant {
-  Ok : UploadHistoryPage;
-  Err : FundingHistoryFailure;
-};
-type Result_18 = variant {
-  Ok : UploadManifestResponse;
-  Err : UploadManifestFailure;
-};
-type Result_19 = variant {
-  Ok : UploadStatusResponse;
-  Err : UploadStatusFailure;
 };
 type Result_2 = variant {
   Ok : ReferenceMutationResponse;
   Err : ReferenceFailure;
 };
+type Result_20 = variant {
+  Ok : UploadHistoryPage;
+  Err : FundingHistoryFailure;
+};
+type Result_21 = variant {
+  Ok : UploadManifestResponse;
+  Err : UploadManifestFailure;
+};
+type Result_22 = variant {
+  Ok : UploadStatusResponse;
+  Err : UploadStatusFailure;
+};
 type Result_3 = variant { Ok; Err : GatewaySyncFailure };
 type Result_4 = variant { Ok : HostConfigurationView; Err : HostFailure };
-type Result_5 = variant {
+type Result_5 = variant { Ok : DownloadResponse; Err : DownloadFailure };
+type Result_6 = variant {
   Ok : FundingHistoryPage;
   Err : FundingHistoryFailure;
 };
-type Result_6 = variant {
+type Result_7 = variant {
   Ok : opt FundingOutcomeResponse;
   Err : FundingOutcomeFailure;
 };
-type Result_7 = variant { Ok : LocalServiceStatus; Err : LocalStatusFailure };
-type Result_8 = variant {
-  Ok : UploadManifestMutation;
-  Err : UploadManifestFailure;
-};
+type Result_8 = variant { Ok : LocalServiceStatus; Err : LocalStatusFailure };
 type Result_9 = variant {
-  Ok : ReferenceCapacityResponse;
-  Err : ReferenceCapacityFailure;
+  Ok : UploadDiscoveryResponse;
+  Err : UploadDiscoveryFailure;
 };
 // Explicit provider identity and local cycle thresholds, with no service defaults.
 type ServiceBillingInput = record {
@@ -787,6 +861,33 @@ type UploadContentState = variant {
   // Billing cessation established; history remains retained.
   Settled;
 };
+// Refusal must never be interpreted as an absent root.
+type UploadDiscoveryFailure = variant {
+  // Retained state could not be read consistently.
+  Internal;
+  // Invalid tenant or zero namespace.
+  Invalid;
+  // Wrong actual or installed service/namespace.
+  Binding;
+  // Actual caller is not the named tenant.
+  Denied;
+};
+// Discover retained content without already knowing its operation identity.
+type UploadDiscoveryRequest = record {
+  // Provider root; a digest alone supplies no tenant authority.
+  root : blob;
+  // Actual tenant/service and installed namespace.
+  scope : TenantScope;
+};
+// One synchronous local observation. Absence is not upload or retry permission.
+type UploadDiscoveryResponse = record {
+  // Complete original identity and current local state, visible only to its tenant.
+  content : opt UploadHistoryEntry;
+  // The owner's restore fence, independent of content visibility.
+  fenced : bool;
+  // Exact request echoed even for absent or foreign content.
+  request : UploadDiscoveryRequest;
+};
 // Untrusted forward position. Changes behind it require a fresh sweep.
 type UploadHistoryCursor = record {
   // Original service.
@@ -856,7 +957,7 @@ type UploadHistoryScope = variant {
 // Ordered leaf hashes and metadata, never complete content or raw-digest evidence.
 type UploadManifestDeclaration = record {
   // Requires canonical Content-Length matching the immutable reservation.
-  headers : vec UploadManifestHeader;
+  headers : vec DownloadHeader;
   // Ordered domain-separated chunk identities.
   chunks : vec blob;
 };
@@ -872,13 +973,6 @@ type UploadManifestFailure = variant {
   Revoked;
   // Permission identity, authority, expiry, activation or restoration failure.
   Permission : UploadAdmissionFailure;
-};
-// Original metadata spelling and value; the boundary does not rewrite either.
-type UploadManifestHeader = record {
-  // Exact value, without controls or surrounding whitespace.
-  value : text;
-  // ASCII HTTP token, unique ignoring ASCII case.
-  name : text;
 };
 // Explicit absence prevents incompatible Candid optional data becoming unprepared.
 type UploadManifestInspection = variant {
@@ -951,25 +1045,28 @@ type UploadStatusResponse = record {
   // Exact original upload, including its independent first reference identity.
   upload : ReferenceUpload;
 };
-service : (ServiceConfigurationInput) -> {
+service : (HostInstallationInput) -> {
   blob_admit_upload : (UploadAdmissionRequest) -> (Result);
   blob_apply_reference : (ReferenceCommand) -> (Result_2);
   blob_cancel_gateway_sync : (GatewaySyncCancellation) -> (Result_3);
   blob_configuration : () -> (Result_4) query;
-  blob_funding_history : (FundingHistoryRequest) -> (Result_5) query;
-  blob_funding_outcome : (FundingOutcomeRequest) -> (Result_6) query;
-  blob_local_status : (OperatorScope) -> (Result_7) query;
-  blob_prepare_upload : (UploadManifestRequest) -> (Result_8);
-  blob_reference_capacity : (ReferenceCapacityRequest) -> (Result_9) query;
-  blob_reference_receipt : (ReferenceCommand) -> (Result_10) query;
-  blob_revoke_gateway : (GatewayRevocationRequest) -> (Result_11);
-  blob_revoke_upload : (UploadAdmissionRequest) -> (Result_12);
-  blob_sync_gateways : (OperatorScope) -> (Result_13);
-  blob_tenant : (TenantScope) -> (Result_14) query;
-  blob_update_tenant : (TenantUpdateRequest) -> (Result_14);
-  blob_upload_admission : (UploadAdmissionRequest) -> (Result_15) query;
-  blob_upload_capacity : (TenantScope) -> (Result_16) query;
-  blob_upload_history : (UploadHistoryRequest) -> (Result_17) query;
-  blob_upload_manifest : (UploadAdmissionRequest) -> (Result_18) query;
-  blob_upload_status : (ReferenceUpload) -> (Result_19) query;
+  blob_download_descriptor : (DownloadRequest) -> (Result_5);
+  blob_funding_history : (FundingHistoryRequest) -> (Result_6) query;
+  blob_funding_outcome : (FundingOutcomeRequest) -> (Result_7) query;
+  blob_local_status : (OperatorScope) -> (Result_8) query;
+  blob_lookup_content : (UploadDiscoveryRequest) -> (Result_9) query;
+  blob_prepare_upload : (UploadManifestRequest) -> (Result_10);
+  blob_reference_capacity : (UploadDiscoveryRequest) -> (Result_11) query;
+  blob_reference_receipt : (ReferenceCommand) -> (Result_12) query;
+  blob_reference_status : (ReferenceStatusRequest) -> (Result_13) query;
+  blob_revoke_gateway : (GatewayRevocationRequest) -> (Result_14);
+  blob_revoke_upload : (UploadAdmissionRequest) -> (Result_15);
+  blob_sync_gateways : (OperatorScope) -> (Result_16);
+  blob_tenant : (TenantScope) -> (Result_17) query;
+  blob_update_tenant : (TenantUpdateRequest) -> (Result_17);
+  blob_upload_admission : (UploadAdmissionRequest) -> (Result_18) query;
+  blob_upload_capacity : (TenantScope) -> (Result_19) query;
+  blob_upload_history : (UploadHistoryRequest) -> (Result_20) query;
+  blob_upload_manifest : (UploadAdmissionRequest) -> (Result_21) query;
+  blob_upload_status : (ReferenceUpload) -> (Result_22) query;
 }

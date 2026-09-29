@@ -2,6 +2,7 @@
 use crate::{
     dto::reference::{
         ReferenceCommand, ReferenceFailure, ReferenceMutationResponse, ReferenceReceiptLookup,
+        status::{ReferenceStatusRequest, ReferenceStatusResponse},
     },
     model::service::upload::UploadContext,
 };
@@ -11,14 +12,14 @@ use thiserror::Error;
 /// Reference response failure, separate from a stored transition failure.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Error)]
 pub enum ReferenceReplyError {
-    /// Returned exact operation differs from the requested one.
-    #[error("reference receipt binding mismatch")]
+    /// Returned exact request differs from the requested one.
+    #[error("reference reply binding mismatch")]
     Binding,
     /// Complete encoded response exceeds the configured application limit.
-    #[error("reference receipt exceeds limit")]
+    #[error("reference reply exceeds limit")]
     Limit,
     /// Malformed request or Candid response.
-    #[error("invalid reference receipt")]
+    #[error("invalid reference reply")]
     Invalid,
     /// Authenticated service refused the request.
     #[error("service refused reference request: {0:?}")]
@@ -66,6 +67,37 @@ pub fn decode_mutation(
     check_request(request)?;
     let response: ReferenceMutationResponse = bounded(bytes, max_reply_bytes)?;
     if response.receipt.request != request {
+        return Err(ReferenceReplyError::Binding);
+    }
+    Ok(response)
+}
+
+pub(crate) fn check_status_request(
+    request: ReferenceStatusRequest,
+) -> Result<(), ReferenceReplyError> {
+    super::status::parse(
+        UploadContext {
+            service: request.upload.service,
+            actor: request.upload.tenant,
+        },
+        request,
+    )
+    .map(|_| ())
+    .map_err(|_| ReferenceReplyError::Invalid)
+}
+
+/// Decode exact current liveness after independent service authentication.
+/// A live observation and restore fence survive unchanged; neither grants a lease.
+/// # Errors
+/// Rejects malformed, oversized, differently bound replies and remote refusals.
+pub fn decode_status(
+    request: ReferenceStatusRequest,
+    bytes: &[u8],
+    max_reply_bytes: NonZeroUsize,
+) -> Result<ReferenceStatusResponse, ReferenceReplyError> {
+    check_status_request(request)?;
+    let response: ReferenceStatusResponse = bounded(bytes, max_reply_bytes)?;
+    if response.request != request {
         return Err(ReferenceReplyError::Binding);
     }
     Ok(response)

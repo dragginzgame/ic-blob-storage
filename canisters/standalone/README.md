@@ -15,12 +15,21 @@ The [Candid contract](service.did) is generated from the endpoint declarations:
 cargo run --offline --locked -p ic-blob-storage-canister --example export_candid > canisters/standalone/service.did
 ```
 
-Installation takes one explicit `ServiceConfigurationInput`, including the actual
+Installation takes one explicit `HostInstallationInput { configuration, project }`.
+`configuration` is the shared `ServiceConfigurationInput`, including the actual
 service principal, operator, payer, namespace and all resource/billing bounds.
+`project` is the explicit Caffeine project mapped to that namespace. It is immutable
+and retained in the current v1 configuration record. It must contain 1–256 UTF-8
+bytes, with no controls or surrounding whitespace; these are local representation
+limits, not proof of provider assignment. Owner is the actual service, never the
+payer or tenant. Validation precedes allocation and runs again on restoration.
+This replaces the previous host init/schema and requires a minor release;
+cross-release transitions are reinstall-only, without migration or fallback.
 Management-canister installation authorization remains the platform's responsibility.
 There are no deployment defaults, provider namespace provisioning or account changes.
 Operator-only `blob_configuration` returns the installed values, package release
-and restore fence; an unfenced owner does not imply provider readiness.
+and restore fence, including the retained project; an unfenced owner does not imply
+provider readiness. Future upload dispatch must use this same provisioned mapping.
 
 Operator-only `blob_local_status` takes the explicit service, namespace, Cashier
 and payer scope. It returns one synchronous snapshot of maintained upload byte
@@ -74,6 +83,38 @@ headroom is visible. Unknown, foreign and unconfirmed roots all return absence;
 retired confirmed objects report zero fresh retains. Reads remain passive through
 suspension and restoration. Positive counts do not bypass enrollment, identity or
 restore checks, reserve a reference or prove that a reference is currently live.
+
+Tenant-only `blob_lookup_content` takes `TenantScope` and a provider root. Indexed
+discovery returns the complete original upload identity and current local lifecycle,
+without reading manifests or scanning history. Unknown and foreign roots share
+absence; cancelled and settled roots retain their identities. The response echoes
+the request and reports the restore fence even for absence. Suspension and restore
+preserve inspection. Discovery supplies no admission, retry or serving authority;
+live content still requires the consumer's exact live reference.
+
+Tenant-only `blob_reference_status` takes the complete original `ReferenceUpload`
+and a positive reference ID, with no mutation operation or action. It returns an
+exact request echo, current local `live` flag and the same owner's restore fence.
+Unknown or changed uploads and unconfirmed content return typed failures; for a
+confirmed upload, never-retained and released references both report non-live.
+Suspension, settlement and restore preserve inspection without allocating a
+reference or receipt. Historical retain success and current liveness are separate;
+neither supplies a publication lease, reusable identity or retry permission.
+`ReplicatedReferenceClient::status` authenticates delivery through one bounded
+replicated query call with no attached cycles or automatic retry.
+
+Tenant-only `blob_download_descriptor` is an update using the shared operational
+descriptor handler. It checks the complete service/tenant/namespace/root/object/
+incarnation/reference binding, active enrollment, confirmed content, the exact live
+reference and the restore fence. Unlike passive inspection, suspension and restore
+refuse delivery. Its response contains the echoed request, installed owner/project,
+declared byte count and original hash headers. It supplies no origin, credentials,
+file body or public serving lease. No provider call or read-session allocation occurs;
+ordinary IC execution fees still apply. Canister tenants can use the shared
+`ReplicatedDownloadClient` with their expected project and bounded reply settings.
+Confirmed success remains exercised through labelled local provider substitutes;
+this host still cannot establish completion. Previously delivered metadata or bytes
+are not revoked by refusing a subsequent descriptor request.
 
 Tenant-only `blob_upload_status` looks up the exact original `ReferenceUpload`,
 including its separate upload, object, incarnation and first-reference identities,

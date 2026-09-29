@@ -229,7 +229,11 @@ It complements existing-object discovery/reference capacity. The unpublished
 these queries on an explicit existing local probe, reporting fenced capacity as
 blocked. Reference headroom now uses the shared `blob_reference_capacity` query
 in the same hosts, with exact request echoes and an independent restore fence;
-private capacity interfaces and duplicate conversions are removed. It preserves asset reference
+private capacity interfaces and duplicate conversions are removed. Content discovery
+now uses shared `blob_lookup_content` in all three hosts, with complete independent
+original identities, exact echoes and restore fencing even for absence. The private
+discovery endpoint is removed; inventory consumes only shared inspection queries.
+It preserves asset reference
 demand and separates not-visible, pending, live and retired roots. Sequential
 observations reserve nothing and do not prove global absence or fresh admission.
 Production authentication, new-object reference sizing and persisted exact
@@ -469,9 +473,9 @@ content discovery, carrying the current state even for cancelled or settled
 history. The private IC query adapter proves caller isolation and client hash
 verification; it is not certified response delivery or a publication permission.
 Do not replace the stored text with HTTP response headers or infer a raw digest
-from the provider-root string. A production authenticated descriptor endpoint or
-certified release mapping, provider locator and serving policy still need
-implementation and consumer qualification.
+from the provider-root string. The shared authenticated descriptor endpoint is
+described below; certified release mappings, approved serving policy and complete
+consumer publication/reference coordination remain open.
 
 `workflow::reads::download::describe` now supplies the local operational descriptor:
 it checks active tenant authority, exact current live reference and the restore
@@ -482,7 +486,12 @@ to the local namespace without deriving either from the other. The reviewed
 direct-blob target encodes root/owner/project and leaves origin selection separate.
 The update-only local fixture delivers that descriptor and feeds the existing
 off-canister root verifier, without fetching a body or allocating a read session.
-Provider assignment, authenticated production delivery, approved HTTP policy and
+The standalone host now delivers the same canonical update using a required explicit
+project in `HostInstallationInput`, retained and revalidated on restore. This
+installation/schema hard cut requires a minor release; it does not close the 0.2
+delivery milestones. Actual canister-client tests preserve unconfirmed, inactive
+and restored refusals. Confirmed success still relies on labelled fixture facts
+until provider completion is connected. Provider assignment, approved HTTP policy and
 consumer publication/reference coordination remain open; this is no public URL
 revocation guarantee. Previously returned descriptors/bytes can remain accessible.
 The canonical descriptor boundary now lives in the library, and an explicit
@@ -667,6 +676,14 @@ result and replay status. PocketIC recovers a committed operation after reply
 validation fails, proves accounting is unchanged by retry, and exercises cleanup
 under suspension/capacity and restore refusal. No client-side intent journal or
 automatic retry is implied by those library clients.
+
+Current exact-reference state now has shared `blob_reference_status` in standalone
+and the durable fixture, consumed by `ReplicatedReferenceClient::status`. It preserves
+the restore fence and remains inspectable under suspension/settlement; historical
+retain success can coexist with a non-live current reference. Native and actual
+canister-client tests cover exact binding, reply bounds and independent service/client
+restoration. This fills the passive recovery lookup, not the consumer transaction,
+serving lease or provider-completion/recovery gates.
 
 The separate `blob-consumer-probe` provides local existing-content and fresh-upload
 registration evidence. It retains bounded asset intent and cleanup identities,

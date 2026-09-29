@@ -88,7 +88,7 @@ build-standalone:
 	cargo build --offline --locked --release --target wasm32-unknown-unknown -p ic-blob-storage-canister --lib
 
 test-standalone:
-	cargo build --offline --locked --release --target wasm32-unknown-unknown -p ic-blob-storage-canister -p blob-gateway-source --lib
+	cargo build --offline --locked --release --target wasm32-unknown-unknown -p ic-blob-storage-canister -p blob-gateway-source -p blob-storage-probe --lib
 	cargo test --offline --locked -p ic-blob-storage-pocketic-tests --test standalone -- --test-threads=1
 
 # Browser tooling is explicitly provisioned; this target performs no downloads.

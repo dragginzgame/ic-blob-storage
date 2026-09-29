@@ -2,6 +2,7 @@
 pub mod capacity;
 pub mod client;
 pub mod reply;
+pub mod status;
 use crate::{
     dto::reference::{
         ReferenceAction, ReferenceChange, ReferenceCommand, ReferenceFailure,

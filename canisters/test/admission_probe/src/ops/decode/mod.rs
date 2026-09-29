@@ -86,3 +86,9 @@ fn config(bytes: &[u8], maximum: usize, work: usize) -> DecoderConfig {
         .set_full_error_message(false);
     config
 }
+
+pub(crate) fn discovery(
+    bytes: Vec<u8>,
+) -> ic_blob_storage::dto::upload::discovery::UploadDiscoveryRequest {
+    decode(&bytes, SMALL_BYTES, 32 * 1024)
+}

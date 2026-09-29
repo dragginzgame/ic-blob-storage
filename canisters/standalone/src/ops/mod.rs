@@ -3,16 +3,16 @@ mod configuration;
 pub(crate) mod gateways;
 mod memory;
 use crate::{
-    dto::{HostConfigurationView, HostFailure},
+    dto::{HostConfigurationView, HostFailure, HostInstallationInput},
     model::ConfigurationRecord,
 };
 use candid::{CandidType, DecoderConfig, Deserialize, Principal};
 use ic_blob_storage::{
-    dto::configuration::ServiceConfigurationInput,
     ic_memory::{
         MemoryRuntime,
         ic_stable_structures::{BTreeMap, DefaultMemoryImpl, Memory as _},
     },
+    model::service::read::download::CaffeineDownloadScope,
     ops::service::{configuration::validate_candidate, stores::ServiceStores},
 };
 use memory::{Grants, Memory};
@@ -20,15 +20,26 @@ use std::cell::RefCell;
 struct Host {
     _runtime: MemoryRuntime<DefaultMemoryImpl>,
     configuration: ConfigurationRecord,
+    download_scope: CaffeineDownloadScope,
     stores: ServiceStores<Memory>,
 }
 thread_local! {
     static HOST: RefCell<Option<Host>> = const { RefCell::new(None) };
 }
-pub(crate) fn install(input: &ServiceConfigurationInput) {
+pub(crate) fn install(input: &HostInstallationInput) {
     // Validate the whole candidate before memory runtime bootstrap or allocation.
-    let config = validate_candidate(ic_cdk::api::canister_self(), *input)
+    let config = validate_candidate(ic_cdk::api::canister_self(), input.configuration)
         .expect("invalid installation configuration");
+    let download_scope = CaffeineDownloadScope::new(
+        ic_cdk::api::canister_self(),
+        input
+            .configuration
+            .namespace
+            .try_into()
+            .expect("validated namespace"),
+        &input.project,
+    )
+    .expect("invalid installation project");
     assert_uninitialized();
     let Grants {
         runtime,
@@ -43,6 +54,7 @@ pub(crate) fn install(input: &ServiceConfigurationInput) {
     publish(Host {
         _runtime: runtime,
         configuration: record,
+        download_scope,
         stores,
     });
 }
@@ -66,10 +78,17 @@ pub(crate) fn restore() {
     record.check_binding(ic_cdk::api::canister_self(), env!("CARGO_PKG_VERSION"));
     let config = validate_candidate(ic_cdk::api::canister_self(), configuration::input(&record))
         .expect("retained configuration");
+    let download_scope = CaffeineDownloadScope::new(
+        ic_cdk::api::canister_self(),
+        record.namespace.try_into().expect("validated namespace"),
+        &record.project,
+    )
+    .expect("retained project");
     let stores = ServiceStores::open(stores, config).expect("service restoration");
     publish(Host {
         _runtime: runtime,
         configuration: record,
+        download_scope,
         stores,
     });
 }
@@ -85,6 +104,17 @@ pub(crate) fn read<R>(f: impl FnOnce(&ServiceStores<Memory>) -> R) -> R {
 pub(crate) fn mutate<R>(f: impl FnOnce(&mut ServiceStores<Memory>) -> R) -> R {
     HOST.with_borrow_mut(|host| f(&mut host.as_mut().expect("initialized host").stores))
 }
+pub(crate) fn with_download<R>(
+    f: impl FnOnce(
+        &ic_blob_storage::ops::service::uploads::StableUploads<Memory>,
+        &CaffeineDownloadScope,
+    ) -> R,
+) -> R {
+    HOST.with_borrow(|host| {
+        let host = host.as_ref().expect("initialized host");
+        f(&host.stores.uploads, &host.download_scope)
+    })
+}
 pub(crate) fn configuration(actor: Principal) -> Result<HostConfigurationView, HostFailure> {
     HOST.with_borrow(|host| {
         let host = host.as_ref().expect("initialized host");
@@ -93,6 +123,7 @@ pub(crate) fn configuration(actor: Principal) -> Result<HostConfigurationView, H
         }
         Ok(HostConfigurationView {
             configuration: configuration::input(&host.configuration),
+            project: host.configuration.project.clone(),
             release: host.configuration.release.clone(),
             fenced: host.stores.uploads.is_fenced(),
         })
@@ -114,7 +145,7 @@ pub(crate) fn decode<T: CandidType + for<'de> Deserialize<'de>>(bytes: Vec<u8>) 
     bounded(&bytes, 4096)
 }
 #[expect(clippy::needless_pass_by_value, reason = "CDK owns ingress buffers")]
-pub(crate) fn decode_configuration(bytes: Vec<u8>) -> ServiceConfigurationInput {
+pub(crate) fn decode_configuration(bytes: Vec<u8>) -> HostInstallationInput {
     bounded(&bytes, 16_384)
 }
 #[expect(clippy::needless_pass_by_value, reason = "CDK owns ingress buffers")]

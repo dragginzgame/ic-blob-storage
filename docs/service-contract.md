@@ -30,7 +30,13 @@ installation validates all inputs before allocation; same-release restoration
 loads the saved service/release-bound configuration without replacement arguments
 and fences every owner synchronously. Its tenant, admission, manifest and reference
 endpoints delegate to shared workflows, with bounded typed Candid and operator-only
-configuration readback. This initial host exports no provider-fact substitutes,
+configuration readback. Standalone installation takes `HostInstallationInput`:
+shared `ServiceConfigurationInput` plus a required explicit Caffeine project. The
+host binds owner to its actual service and project to the installed local namespace,
+validates before allocation and retains/revalidates the mapping in its current v1
+record. Configuration readback includes the project. This host init/schema hard cut
+requires a minor release and cross-release reinstall, without a migration path.
+It establishes no provider project assignment. This initial host exports no provider-fact substitutes,
 certificates or paid calls. Operational recovery, remaining provider/operator
 integration and the Canic adapter are still open.
 
@@ -628,6 +634,24 @@ neither absence nor historical success proves current liveness or permits retry
 of an uncertain operation. Linking exports no endpoint; adapters own actual
 context and ingress limits. The consumer still owns publication and its outbox.
 
+The shared `workflow::references::status::inspect` exposes tenant-only
+`blob_reference_status` in standalone and the durable storage fixture. Its request
+contains the complete original upload and exact positive reference ID, without a
+mutation action or operation. It echoes that request and returns current local
+liveness plus the same owner's restore fence under one synchronous borrow. Missing,
+changed or unconfirmed uploads reject; never-retained and released references of a
+confirmed upload return non-live. Suspension, settlement and restoration preserve
+inspection. This indexed read creates no reference, receipt, quota reservation or
+provider effect. A successful retained receipt does not imply a live reference;
+live status does not imply active enrollment, serving authority or a cleared fence.
+The storage fixture's private boolean endpoint is removed.
+
+`ReplicatedReferenceClient::status` uses the same authenticated single-call transport
+as receipt inspection and mutation, with separate exact status-request validation.
+It bounds reply bytes and decoding, checks the full echo and preserves the independent
+live/fenced flags. Remote refusal never becomes false/absence. No journal, retry,
+publication lease or operational recovery authority is created by this read.
+
 The canonical `blob_apply_reference` update delegates to
 `workflow::references::apply` with the same `ReferenceCommand` used for receipt
 lookup. `ReplicatedReferenceClient::apply` is an explicit single dispatch;
@@ -1070,6 +1094,18 @@ each call to 64 inspected rows and 32 results. The storage fixture uses the same
 handler with single-row limits for cursor/failure evidence; its private scan DTOs
 and endpoint are removed. No manifest, file body or provider evidence is returned.
 
+`workflow::uploads::discovery::inspect` exposes indexed tenant discovery as
+`blob_lookup_content` in the standalone host and both admission fixtures. Scope
+checks precede visibility; operators, uploaders and controllers have no implicit
+tenant authority. Responses echo the exact tenant/root request, preserve complete
+independent identities via `UploadHistoryEntry` and report the same owner's fence
+even for absence. Unknown and foreign roots share absence; unconfirmed, cancelled
+and settled uploads retain their local phases. Suspension and restoration preserve
+these passive reads. No manifest, file bytes, scan, reservation or provider effect
+is involved. Neither absence nor a live observation authorizes allocation, retry,
+publication or release of a restore fence. The private discovery endpoint is removed;
+fixture descriptor/root-batch views remain separate consumers of their fixture DTOs.
+
 `admission_capacity` and `reference_capacity` use maintained counters and indexed
 identity reads, without loading reference/receipt histories or manifests. Heap and
 stable owners share headroom arithmetic. Admission observes the tighter global/tenant
@@ -1221,8 +1257,10 @@ in the service descriptor workflow.
 `dto::download::{DownloadRequest,DownloadResponse,DownloadFailure}` now owns the
 maintained service boundary. `workflow::reads::download::handle` checks actual
 service/caller plus every nonzero identity and delegates to the same operational
-descriptor workflow. The unpublished probe exports the canonical update
-`blob_download_descriptor`; its private descriptor endpoint/DTO is removed.
+descriptor workflow. Both the standalone host and unpublished probe export the
+canonical update `blob_download_descriptor`. Standalone uses its immutable installed
+project mapping under the same synchronous borrow as the upload owner; the probe
+uses a labelled substitute. The probe's private operational endpoint/DTO is removed.
 The response echoes the full request, owner/project, declared size and original
 headers. It returns no URL, origin, credentials or raw-digest assertion. Adapters
 must bound ingress decoding and supply the installed serving scope; linking the

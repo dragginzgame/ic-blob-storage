@@ -25,9 +25,15 @@ pub(crate) async fn fetch(
     if !download::operator(context) {
         return Err(DownloadProbeFailure::Denied);
     }
-    let scope =
-        CaffeineDownloadScope::new(input.request.service, 1.try_into().unwrap(), &input.project)
-            .map_err(|_| DownloadProbeFailure::Invalid)?;
+    // This operator-controlled consumer can target a different storage installation;
+    // its own fixture namespace is not the target's serving namespace.
+    let namespace = input
+        .request
+        .namespace
+        .try_into()
+        .map_err(|_| DownloadProbeFailure::Invalid)?;
+    let scope = CaffeineDownloadScope::new(input.request.service, namespace, &input.project)
+        .map_err(|_| DownloadProbeFailure::Invalid)?;
     let client =
         ReplicatedDownloadClient::new(input.tenant, input.request.service, 30.try_into().unwrap())
             .map_err(failure)?;

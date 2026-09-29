@@ -1,5 +1,6 @@
 //! Exact reference commands and historical outcomes; no implicit dispatch authority.
 pub mod capacity;
+pub mod status;
 use candid::{CandidType, Deserialize, Principal};
 
 /// Complete original upload binding. Upload and object IDs are independent.

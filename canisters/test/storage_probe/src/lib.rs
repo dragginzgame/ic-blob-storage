@@ -193,18 +193,25 @@ fn blob_reference_receipt(
     workflow::references::receipt(context(), input)
 }
 #[ic_cdk::query(decode_with = "ops::decode")]
-fn reference_is_live(
-    input: blob_test_protocol::admission::input::ReferenceInput,
-) -> Result<bool, Failure> {
-    workflow::live(context(), input)
+fn blob_reference_status(
+    input: ic_blob_storage::dto::reference::status::ReferenceStatusRequest,
+) -> Result<
+    ic_blob_storage::dto::reference::status::ReferenceStatusResponse,
+    ic_blob_storage::dto::reference::ReferenceFailure,
+> {
+    workflow::reference_status(context(), input)
 }
 
 #[ic_cdk::query(decode_with = "ops::decode")]
-fn lookup_content(
-    input: blob_test_protocol::admission::ContentLookup,
-) -> Result<Option<blob_test_protocol::admission::ContentObservation>, Failure> {
-    workflow::content(context(), input)
+fn blob_lookup_content(
+    input: ic_blob_storage::dto::upload::discovery::UploadDiscoveryRequest,
+) -> Result<
+    ic_blob_storage::dto::upload::discovery::UploadDiscoveryResponse,
+    ic_blob_storage::dto::upload::discovery::UploadDiscoveryFailure,
+> {
+    workflow::discover(context(), input)
 }
+
 #[ic_cdk::query(decode_with = "ops::decode")]
 fn content_descriptor(
     input: blob_test_protocol::admission::ContentLookup,
@@ -522,4 +529,23 @@ fn fixture_cancel_gateway_sync(
     input: blob_test_protocol::storage::gateways::FaultCancellation,
 ) -> Result<(), ic_blob_storage::dto::gateway::sync::GatewaySyncFailure> {
     workflow::gateways::cancel_observed(context(), input.request, input.fault)
+}
+
+#[ic_cdk::update(decode_with = "ops::decode")]
+async fn fixture_fetch_reference_status(
+    input: Box<blob_test_protocol::storage::reference::ReferenceStatusClientInput>,
+) -> Result<
+    ic_blob_storage::dto::reference::status::ReferenceStatusResponse,
+    blob_test_protocol::storage::reference::ReferenceProbeFailure,
+> {
+    workflow::references::status(context(), &input).await
+}
+#[ic_cdk::query(decode_with = "ops::decode")]
+async fn fixture_nonreplicated_reference_status(
+    input: Box<blob_test_protocol::storage::reference::ReferenceStatusClientInput>,
+) -> Result<
+    ic_blob_storage::dto::reference::status::ReferenceStatusResponse,
+    blob_test_protocol::storage::reference::ReferenceProbeFailure,
+> {
+    workflow::references::status(context(), &input).await
 }
