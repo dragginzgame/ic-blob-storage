@@ -50,6 +50,26 @@ policy or evidence of actual provider byte length.
 Operator-managed enrollment gates fresh authority; suspension preserves cleanup
 and accounting and reactivation invalidates old permissions. Global/tenant lifetime
 manifest capacity is reserved at admission and never refunded with byte quota.
+The shared `workflow::tenants` handlers bind every request to the installed service,
+namespace and explicit tenant. `blob_update_tenant` requires the operator and an
+exact observed enrollment precondition; `blob_tenant` permits that tenant or the
+operator to inspect, including under suspension or restoration. Replies echo the
+scope and expose the restore fence. A changed-state retry conflicts rather than
+acting as a retained operation receipt: inspect after an uncertain reply before
+choosing another update. Suspension never frees a lifetime tenant slot or erases
+obligations. The storage fixture uses these same handlers; hosts must still supply
+actual platform caller/service identity and explicitly export their endpoints.
+
+`ReplicatedTenantClient` pins the actual executing canister and complete tenant
+scope, makes one bounded call with no attached cycles, and checks the reply before
+returning it. Ordinary IC fees still apply. Its reply decoder reuses the tenant
+transition model to validate successful update acknowledgments; inspection can
+return absence or a restore fence but never proves which historical command ran.
+Hosts must retain exact command intent before polling the update future and reconcile
+unusable outcomes through inspection. The client owns no journal, authentication
+provider, lifecycle hooks or automatic retries. Local tests use one retained command
+in the existing consumer fixture; production operator persistence remains open.
+
 The unpublished PocketIC probe supplies actual IC caller/time, bounds Candid
 work and measures a 10 MiB declaration through admission, manifest preparation,
 retry and local exposure. Stop/start preserves the owner; unsupported upgrades

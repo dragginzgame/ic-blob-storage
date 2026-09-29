@@ -1,20 +1,20 @@
 # Current status
 
-Date: 2026-09-28
+Date: 2026-09-29
 
-## Active work — 0.2.18 changelog draft
+## Active work — 0.2.19 tenant API and canister operator client closeout
 
-The maintainer confirmed **0.2.17 is live** and requested continued work.
-Cargo and the release receipt are 0.2.17. Local main, origin/main and v0.2.17 resolve to
-`ae1ec05d23f6cd8634ed91ff9d2235194d20b079`, from validated source
-`f45e791056c4f2123d6b3804dd62037f0630f240`. The receipt records the
+The maintainer confirmed **0.2.18 is live** and requested continued work.
+Cargo and the release receipt are 0.2.18. Local main, origin/main and the peeled
+v0.2.18 tag resolve to `938c42c0a1c36751bf048214fbdbea8a3f353f5c`, from validated source
+`069334389cca4968b88ee6eb88cefc895c6f53f3`. The receipt records the
 `release-verify` gate; registry publication was not independently queried.
-The dated 0.2.17 notes match that release. The maintainer requested the **0.2.18**
-changelog; completed configuration and store assembly work is grouped in that
-undated draft below an empty **Unreleased** section. Package version and release
-receipt remain unchanged at 0.2.17.
+The dated 0.2.18 notes match that release. The maintainer selected **0.2.19** for
+the next push. Completed work is grouped in an undated 0.2.19 changelog draft below
+empty Unreleased. Package version and release receipt remain at 0.2.18.
 The browser fixture retains Caffeine 1.1.2 and supported SDK 5.4.0.
-Dependencies and lockfiles are unchanged in this batch.
+This implementation changes no dependency declarations. An independent Cargo.lock
+change appeared during the turn and is preserved; it is not part of this feature.
 No version mutation, commit, publication, deployment or deployed-provider effect ran here;
 transfers below use simulated cycles between local PocketIC canisters.
 
@@ -29,7 +29,70 @@ operator client. Library publication does not qualify the service or Canic remov
 | M3 — Caffeine and operator integration | In progress: shared transports with local IC evidence | Qualified provider transport, completion/economics and production client |
 | M4 — managed parity and acceptance | Not implemented | Same journey through Canic adapter, complete replacement evidence and handoff |
 
-## Current focus — explicit configuration and synchronous owner assembly
+## Current focus — scoped tenant handlers and explicit operator client
+
+`dto::tenant` and `workflow::tenants` now own explicit service/namespace/tenant
+enrollment requests, compare-and-set updates and correlated inspection responses.
+The existing stable tenant model remains the transition authority. Only the
+configured operator may update; the tenant and operator may inspect. Controllers,
+uploaders and unrelated callers gain no authority. Replies report the retained
+generation, activation state and restore fence without granting upload permission.
+
+The storage fixture removes its private enrollment endpoints/conversion and now
+exports `blob_update_tenant` and `blob_tenant` through the shared workflow. The
+storage test driver uses the maintained DTOs and method names. Other independent
+fixture protocols remain private to their own tests. No service stable schema, memory grant,
+allocator or provider effect changed. Production host lifecycle and endpoint
+ownership remain unfinished.
+
+`ReplicatedTenantClient` now pins actual executing canister, service, namespace and
+tenant, and sends a single bounded replicated call. It adds no automatic retry,
+query fallback, cycle attachment or identity inference. Bounded reply validation
+reuses the existing tenant transition model for exact acknowledgment generation
+and activation state. Inspection retains absent/fenced observations and cannot
+establish a command's historical execution. The host owns authentication and must
+persist its command before polling an update future.
+
+The existing consumer fixture retains one lifetime tenant command in its current
+bounded record before dispatch, with no separate journal or reset/retry path.
+It permits inspection after uncertain replies and restoration. This is a local
+operator/observer substitute, not production persistence or Canic integration.
+Four native client/reply tests pass, covering pinned scope/caller, full-width
+namespace/generation, transition validation, refusal and bounded decoding.
+Core/consumer/storage-integration Clippy, six existing consumer model tests and
+release storage/consumer Wasm pass. Both client PocketIC cases pass in 10.90 seconds,
+covering real canister operator/observer authority, query refusal, success, small
+reply budgets, trapped callbacks and restoration of both client and service.
+The saved command remains exact and cannot be dispatched again. The consumer
+fixture's current bounded record is extended directly; no compatibility path is added.
+
+Targeted PocketIC tests cover caller/scope isolation, zero/stale preconditions,
+inspection after a discarded reply, capacity retained by suspended tenants and
+rollback of enrollment/suspension/reactivation writes. All three pass in 7.96
+seconds. The restore test checks inspection and rejection of no-op updates as well
+as state changes. The two existing pending-upload/combined-obligation upgrade
+journeys also pass through the maintained endpoints (4.60 seconds). Strict affected
+Clippy, release storage/gateway-source Wasm, formatting and diff checks pass.
+Final checks use the preserved current Cargo.lock. No full CI/release gate ran.
+
+Closeout adds a stale-command client journey: changes to the active flag within
+one generation and suspension/reactivation into the next generation both reject
+the original precondition. The service bytes remain unchanged, the client retains
+the exact rejected command and neither replay nor replacement dispatch is allowed.
+Same-release client restoration preserves that intent and inspection while fencing
+updates. The complete six-case tenant PocketIC group passes in 25.27 seconds;
+strict storage-integration Clippy, warning-free core rustdoc, formatting and diff
+checks pass. The release helper accepts the 0.2.19 draft and its effect-free plan
+selects 0.2.18 -> 0.2.19 without modifying version files.
+
+This batch is ready for maintainer review and the normal 0.2.19 release flow,
+whose full validation gate has not run here. The unrelated Cargo.lock change is
+preserved for that review. Next implementation work is explicit host lifecycle
+ownership and operator integration against these maintained handlers. Production
+authentication/persistence, provider completion and operational recovery
+qualification remain open; this release does not close those milestones.
+
+## Explicit configuration and synchronous owner assembly — included in 0.2.18
 
 `dto::configuration` supplies passive Candid inputs for the existing service
 configuration model, funding allocation and concurrent read limits.

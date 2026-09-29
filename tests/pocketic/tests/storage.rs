@@ -3,18 +3,22 @@
 mod storage_exposure;
 mod storage_gateways;
 mod storage_manifests;
+mod storage_tenants;
 mod support;
 use blob_test_protocol::{
-    admission::{
-        Enrollment, Permission, Phase, Request,
-        input::{EnrollmentInput, PreparationInput},
-    },
+    admission::{Permission, Phase, Request, input::PreparationInput},
     journey::{JourneyManifest, JourneyUsage},
     storage::{Failure, FaultAdmission, FaultPreparation, Observation, Status, WriteFault},
 };
 use candid::Principal;
+use ic_blob_storage::dto::tenant::{
+    TenantEnrollment, TenantEnrollmentResponse, TenantFailure, TenantScope, TenantUpdateRequest,
+};
 use ic_blob_storage::model::identity::caffeine::{
     CaffeineHashLimits, CaffeineHeader, manifest::builder::CaffeineManifestBuilder,
+};
+use ic_blob_storage::ops::service::uploads::tenants::{
+    TENANT_INSPECTION_METHOD, TENANT_UPDATE_METHOD,
 };
 use ic_testkit::{
     Fake,
@@ -254,28 +258,52 @@ impl Fixture {
             .unwrap();
         result.unwrap()
     }
-    fn enroll(&self, expected: Option<Enrollment>, active: bool) -> Result<Enrollment, Failure> {
-        self.harness
+    fn tenant_scope(&self) -> TenantScope {
+        TenantScope {
+            service: self.service,
+            namespace: 1,
+            tenant: self.tenant,
+        }
+    }
+    fn enroll(
+        &self,
+        expected: Option<TenantEnrollment>,
+        active: bool,
+    ) -> Result<TenantEnrollment, TenantFailure> {
+        let response: Result<TenantEnrollmentResponse, TenantFailure> = self
+            .harness
             .pic
             .update_candid_as(
                 self.service,
                 self.operator,
-                "enroll",
-                (EnrollmentInput {
-                    tenant: self.tenant,
+                TENANT_UPDATE_METHOD,
+                (TenantUpdateRequest {
+                    scope: self.tenant_scope(),
                     expected,
                     active,
                 },),
             )
-            .unwrap()
+            .unwrap();
+        response.map(|v| {
+            assert_eq!(v.scope, self.tenant_scope());
+            assert!(!v.fenced);
+            v.enrollment.unwrap()
+        })
     }
-    fn tenant(&self) -> Option<Enrollment> {
-        let result: Result<Option<Enrollment>, Failure> = self
+    fn tenant(&self) -> Option<TenantEnrollment> {
+        let result: Result<TenantEnrollmentResponse, TenantFailure> = self
             .harness
             .pic
-            .query_candid_as(self.service, self.tenant, "tenant", (self.tenant,))
+            .query_candid_as(
+                self.service,
+                self.tenant,
+                TENANT_INSPECTION_METHOD,
+                (self.tenant_scope(),),
+            )
             .unwrap();
-        result.unwrap()
+        let response = result.unwrap();
+        assert_eq!(response.scope, self.tenant_scope());
+        response.enrollment
     }
     fn restart(&self) {
         self.harness
@@ -456,7 +484,7 @@ fn upgrade_preserves_complete_pending_obligations_and_fences_all_mutations() {
     assert_eq!(f.lookup(f.uploader, permission.request), Ok(original));
     assert_eq!(f.lookup(f.tenant, cancelled.request), Ok(cancelled_view));
     assert_eq!(f.lookup(f.other, permission.request), Err(Failure::Denied));
-    assert_eq!(f.enroll(Some(suspended), true), Err(Failure::Fenced));
+    assert_eq!(f.enroll(Some(suspended), true), Err(TenantFailure::Fenced));
     assert_eq!(f.admit(f.tenant, permission), Err(Failure::Fenced));
     assert_eq!(f.prepare(&preparation), Err(Failure::Fenced));
     assert_eq!(f.expose(permission.request), Err(Failure::Fenced));

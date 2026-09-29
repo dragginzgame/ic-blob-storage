@@ -2,6 +2,32 @@
 
 ## [Unreleased]
 
+## [0.2.19]
+
+### Added
+
+- Shared scoped tenant enrollment API and handlers for operator compare-and-set
+  updates and tenant/operator inspection. Requests bind service, namespace and
+  tenant; responses retain that scope and report the restore fence. Suspension
+  preserves lifetime capacity and obligations, while reactivation advances the
+  existing permission generation. Lost replies require inspection before choosing
+  another command; inspection does not prove historical execution.
+- The storage fixture now exports `blob_update_tenant` and `blob_tenant` through
+  the shared handlers, replacing its private enrollment endpoints and conversion.
+  PocketIC coverage checks caller isolation, malformed/stale preconditions,
+  capacity during suspension, enrollment write rollback and fenced restoration.
+  Production adapter/lifecycle ownership and provider qualification remain open.
+- Replicated tenant client with explicit executing canister and pinned tenant scope,
+  bounded waits/replies and no automatic retry or query-to-update fallback. Update
+  acknowledgments must match the existing model's exact generation/state transition;
+  inspection preserves absence and restore fences without claiming historical execution.
+- Local operator-client evidence uses the existing consumer fixture's bounded store
+  to retain one command before dispatch. Success, unusable replies and callback
+  interruption cannot reopen dispatch; restoration preserves the command for
+  inspection. Stale activation state and generation are rejected without changing
+  service storage, and rejected commands remain retained across client restoration.
+  This fixture is not a production operator journal or identity provider.
+
 ## [0.2.18] - 2026-09-29
 
 ### Added

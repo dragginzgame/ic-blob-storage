@@ -6,10 +6,13 @@
 mod ops;
 mod workflow;
 use blob_test_protocol::{
-    admission::{Enrollment, Request, input::EnrollmentInput},
+    admission::Request,
     storage::{Failure, FaultAdmission, FaultPreparation, Observation, Status},
 };
 use candid::Principal;
+use ic_blob_storage::dto::tenant::{
+    TenantEnrollmentResponse, TenantFailure, TenantScope, TenantUpdateRequest,
+};
 use ic_blob_storage::dto::upload::admission::{
     UploadAdmissionFailure, UploadAdmissionMutation, UploadAdmissionRequest,
     UploadAdmissionResponse,
@@ -129,12 +132,24 @@ fn lookup(input: Request) -> Result<Observation, Failure> {
     workflow::lookup(context(), input)
 }
 #[ic_cdk::update(decode_with = "ops::decode")]
-fn enroll(input: EnrollmentInput) -> Result<Enrollment, Failure> {
-    workflow::enroll(context(), input)
+fn blob_update_tenant(
+    input: TenantUpdateRequest,
+) -> Result<TenantEnrollmentResponse, TenantFailure> {
+    workflow::update_tenant(context(), input, None)
+}
+#[ic_cdk::update(decode_with = "ops::decode")]
+fn fixture_update_tenant_with_write_trap(
+    input: TenantUpdateRequest,
+) -> Result<TenantEnrollmentResponse, TenantFailure> {
+    workflow::update_tenant(
+        context(),
+        input,
+        Some(blob_test_protocol::storage::WriteFault::Tenants),
+    )
 }
 #[ic_cdk::query(decode_with = "ops::decode")]
-fn tenant(tenant: Principal) -> Result<Option<Enrollment>, Failure> {
-    workflow::tenant(context(), tenant)
+fn blob_tenant(scope: TenantScope) -> Result<TenantEnrollmentResponse, TenantFailure> {
+    workflow::tenant(context(), scope)
 }
 #[ic_cdk::query]
 fn status() -> Result<Status, Failure> {

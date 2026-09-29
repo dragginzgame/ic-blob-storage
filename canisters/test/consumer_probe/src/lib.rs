@@ -11,6 +11,30 @@ use blob_test_protocol::consumer::manifests::{
 };
 use blob_test_protocol::consumer::{AssetView, Failure, Recovery, Release, Run, Use};
 use candid::Principal;
+
+#[ic_cdk::update(decode_with = "ops::decode")]
+async fn fixture_update_tenant(
+    input: blob_test_protocol::consumer::TenantDispatch,
+) -> Result<ic_blob_storage::dto::tenant::TenantEnrollmentResponse, Failure> {
+    workflow::tenants::update(ic_cdk::api::msg_caller(), input).await
+}
+#[ic_cdk::update(decode_with = "ops::decode")]
+async fn fixture_inspect_tenant(
+    scope: ic_blob_storage::dto::tenant::TenantScope,
+) -> Result<ic_blob_storage::dto::tenant::TenantEnrollmentResponse, Failure> {
+    workflow::tenants::inspect(ic_cdk::api::msg_caller(), scope).await
+}
+#[ic_cdk::query(composite = true, decode_with = "ops::decode")]
+async fn fixture_query_tenant(
+    scope: ic_blob_storage::dto::tenant::TenantScope,
+) -> Result<ic_blob_storage::dto::tenant::TenantEnrollmentResponse, Failure> {
+    workflow::tenants::inspect(ic_cdk::api::msg_caller(), scope).await
+}
+#[ic_cdk::query]
+fn fixture_tenant_command()
+-> Result<Option<ic_blob_storage::dto::tenant::TenantUpdateRequest>, Failure> {
+    workflow::tenants::saved(ic_cdk::api::msg_caller())
+}
 #[ic_cdk::update(decode_with = "ops::decode")]
 fn save_manifest(input: Box<ManifestIntent>) -> Result<ManifestIntentView, Failure> {
     workflow::manifests::save(ic_cdk::api::msg_caller(), &input)

@@ -28,10 +28,13 @@ pub(crate) fn gateway_registry(
 }
 use crate::ops;
 use blob_test_protocol::{
-    admission::{Enrollment, Request, input::EnrollmentInput},
+    admission::Request,
     storage::{Failure, Observation, Status, WriteFault},
 };
 use candid::Principal;
+use ic_blob_storage::dto::tenant::{
+    TenantEnrollmentResponse, TenantFailure, TenantScope, TenantUpdateRequest,
+};
 use ic_blob_storage::dto::upload::manifest::{
     UploadManifestFailure, UploadManifestMutation, UploadManifestRequest,
 };
@@ -96,17 +99,18 @@ pub(crate) fn revoke(
 pub(crate) fn lookup(context: UploadContext, input: Request) -> Result<Observation, Failure> {
     ops::lookup(context, input)
 }
-pub(crate) fn enroll(
+pub(crate) fn update_tenant(
     context: UploadContext,
-    input: EnrollmentInput,
-) -> Result<Enrollment, Failure> {
-    ops::enroll(context, input)
+    input: TenantUpdateRequest,
+    fault: Option<WriteFault>,
+) -> Result<TenantEnrollmentResponse, TenantFailure> {
+    ops::update_tenant(context, input, fault)
 }
 pub(crate) fn tenant(
     context: UploadContext,
-    tenant: Principal,
-) -> Result<Option<Enrollment>, Failure> {
-    ops::tenant(context, tenant)
+    scope: TenantScope,
+) -> Result<TenantEnrollmentResponse, TenantFailure> {
+    ops::tenant(context, scope)
 }
 pub(crate) fn status(context: UploadContext) -> Result<Status, Failure> {
     ops::status(context)

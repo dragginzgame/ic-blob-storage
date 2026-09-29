@@ -1,5 +1,6 @@
 //! Small application-owned transaction model for local integration evidence only.
 pub(crate) mod manifests;
+pub(crate) mod tenants;
 use blob_test_protocol::consumer::{AssetView, Failure, Registration, RegistrationSource};
 use candid::{CandidType, Deserialize, Principal};
 use ic_blob_storage::dto::reference::{
@@ -14,6 +15,7 @@ pub(crate) struct ConsumerRecord {
     pub(crate) fenced: bool,
     assets: Vec<AssetRecord>,
     manifests: Vec<manifests::ManifestIntentRecord>,
+    tenant_command: Option<tenants::TenantCommandRecord>,
 }
 #[derive(Clone, CandidType, Deserialize)]
 #[expect(
@@ -57,6 +59,7 @@ impl ConsumerRecord {
             fenced: false,
             assets: Vec::new(),
             manifests: Vec::new(),
+            tenant_command: None,
         }
     }
     pub(crate) fn authorize(&self, actor: Principal, mutation: bool) -> Result<(), Failure> {
@@ -110,6 +113,7 @@ impl ConsumerRecord {
         Ok(())
     }
     pub(crate) fn validate(&self) -> Result<(), Failure> {
+        self.validate_tenant_command()?;
         self.validate_manifests()?;
         if [self.operator, self.service, self.tenant]
             .into_iter()

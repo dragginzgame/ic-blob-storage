@@ -2,4 +2,5 @@
 pub mod configuration;
 pub mod download;
 pub mod reference;
+pub mod tenant;
 pub mod upload;

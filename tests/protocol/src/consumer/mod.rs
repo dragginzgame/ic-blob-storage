@@ -1,5 +1,16 @@
 //! Bounded application substitute for local publication/outbox evidence, not Toko's API.
 pub mod manifests;
+
+/// One local operator-client dispatch, not a production persistence contract.
+#[derive(Clone, Copy, Debug, Eq, PartialEq, candid::CandidType, candid::Deserialize)]
+pub struct TenantDispatch {
+    /// Exact scoped compare-and-set retained before the inter-canister call.
+    pub command: ic_blob_storage::dto::tenant::TenantUpdateRequest,
+    /// Bound applied to the encoded reply before decoding.
+    pub max_reply_bytes: u32,
+    /// Interrupt the callback after service success, preserving the saved command.
+    pub trap_after_reply: bool,
+}
 use candid::{CandidType, Deserialize};
 use ic_blob_storage::dto::reference::{
     ReferenceChange, ReferenceCommand, ReferenceTransitionFailure,

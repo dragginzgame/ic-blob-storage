@@ -9,30 +9,25 @@ pub(crate) mod planning;
 pub(crate) mod read;
 pub(crate) mod references;
 use blob_test_protocol::{
-    admission::{Enrollment, Permission, Request, input::EnrollmentInput},
+    admission::{Permission, Request},
     storage::{Failure, Observation, Status, WriteFault},
 };
 use candid::{CandidType, DecoderConfig, Deserialize, Principal, decode_one_with_config};
 use ic_blob_storage::{
+    dto::tenant::{TenantEnrollmentResponse, TenantFailure, TenantScope, TenantUpdateRequest},
     ic_memory::{
         GenericRangePolicy, MemoryManagerAuthorityRecord, MemoryManagerConfig,
         MemoryManagerIdRange, MemoryManagerRangeMode, MemoryRequest, MemoryRuntime, RuntimeMemory,
         SchemaMetadata, SealedDeclarationSnapshot, StaticMemoryRangeDeclaration,
         ic_stable_structures::{DefaultMemoryImpl, Memory},
     },
-    model::service::{
-        tenant::{TenantEnrollmentView, TenantUpdate},
-        upload::{UploadContext, UploadManifestState},
-    },
+    model::service::upload::{UploadContext, UploadManifestState},
     ops::service::{
         stores::{ServiceMemories, ServiceStores},
         uploads::{StableUploads, UploadMemories},
     },
 };
-use std::{
-    cell::{Cell, RefCell},
-    num::NonZeroU64,
-};
+use std::cell::{Cell, RefCell};
 
 pub(crate) struct ProbeMemory {
     memory: RuntimeMemory<DefaultMemoryImpl>,
@@ -188,6 +183,7 @@ fn probe_memory(runtime: &mut MemoryRuntime<DefaultMemoryImpl>, key: &str) -> Pr
     ProbeMemory {
         memory: runtime.open_memory_by_key(key).unwrap(),
         fault: match key {
+            "fixture.tenants.v1" => Some(WriteFault::Tenants),
             "fixture.root_objects.v1" => Some(WriteFault::Objects),
             "fixture.permissions.v1" => Some(WriteFault::Permissions),
             "fixture.usage.v1" => Some(WriteFault::Usage),
@@ -300,47 +296,33 @@ pub(crate) fn lookup(context: UploadContext, input: Request) -> Result<Observati
         phase: conversion::phase(v.phase),
     })
 }
-fn enrollment(view: TenantEnrollmentView) -> Enrollment {
-    Enrollment {
-        generation: view.generation.get(),
-        active: view.active,
-    }
-}
-pub(crate) fn enroll(
+pub(crate) fn update_tenant(
     context: UploadContext,
-    input: EnrollmentInput,
-) -> Result<Enrollment, Failure> {
-    let expected = input
-        .expected
-        .map(|v| {
-            Ok(TenantEnrollmentView {
-                generation: NonZeroU64::new(v.generation).ok_or(Failure::Invalid)?,
-                active: v.active,
-            })
-        })
-        .transpose()?;
-    STATE
-        .with_borrow_mut(|state| {
-            state.as_mut().unwrap().uploads.update_tenant(
-                context,
-                TenantUpdate {
-                    tenant: input.tenant,
-                    expected,
-                    active: input.active,
-                },
-            )
-        })
-        .map(enrollment)
-        .map_err(conversion::failure)
+    input: TenantUpdateRequest,
+    fault: Option<WriteFault>,
+) -> Result<TenantEnrollmentResponse, TenantFailure> {
+    TRAP_WRITE.set(fault);
+    let result = STATE.with_borrow_mut(|state| {
+        ic_blob_storage::workflow::tenants::update(
+            &mut state.as_mut().unwrap().uploads,
+            context,
+            input,
+        )
+    });
+    TRAP_WRITE.set(None);
+    result
 }
 pub(crate) fn tenant(
     context: UploadContext,
-    tenant: Principal,
-) -> Result<Option<Enrollment>, Failure> {
-    STATE
-        .with_borrow(|state| state.as_ref().unwrap().uploads.tenant(context, tenant))
-        .map(|v| v.map(enrollment))
-        .map_err(conversion::failure)
+    scope: TenantScope,
+) -> Result<TenantEnrollmentResponse, TenantFailure> {
+    STATE.with_borrow(|state| {
+        ic_blob_storage::workflow::tenants::inspect(
+            &state.as_ref().unwrap().uploads,
+            context,
+            scope,
+        )
+    })
 }
 pub(crate) fn status(context: UploadContext) -> Result<Status, Failure> {
     STATE.with_borrow(|state| {

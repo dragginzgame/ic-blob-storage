@@ -10,6 +10,7 @@ pub mod read;
 mod recovery;
 pub(crate) use recovery::envelope as validate_envelope;
 pub mod status;
+pub mod tenants;
 use super::{
     roots::{RootStoreError, StableRootClaims},
     tenant::{StableTenantEnrollments, TenantStoreError},

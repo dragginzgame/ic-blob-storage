@@ -1,5 +1,6 @@
 //! Explicit bounded stable storage and platform calls for the application substitute.
 pub(crate) mod manifests;
+pub(crate) mod tenants;
 use crate::model::ConsumerRecord;
 use blob_test_protocol::consumer::{AssetView, Failure, Fault};
 use candid::{CandidType, Deserialize, Principal, de::DecoderConfig};
