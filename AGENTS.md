@@ -83,6 +83,13 @@ This file is normative for automated contributors.
 
 ## Safety and evidence
 
+- Caffeine qualification proceeds independently of provider cooperation. Read and
+  maintain [the probe ledger](docs/evidence/caffeine-probes/README.md) whenever
+  investigating provider behavior. Record intent/target/budget before a probe;
+  retain requests, results, hashes, failures, limitations and outstanding cleanup
+  afterward. Record source review, local substitutes and live observations as
+  different evidence classes. Never silently rerun, overwrite or omit a failed
+  or inconclusive probe. This requirement does not authorize paid effects.
 - Persist intent before effects; bind retries to exact operation identity.
   Expired evidence never authorizes repeating an uncertain paid effect.
 - Fence restored/stale instances until reconciliation proves safe identity

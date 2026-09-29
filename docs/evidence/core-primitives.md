@@ -2947,49 +2947,29 @@ authentication, body reverification or historical resource refresh ran.
 
 ## Exact reference receipt inspection
 
-`UploadAdmissions::reference_receipt` reads the original result of an exact tenant
-operation through the same authority and payload checks used by mutation replay.
-Unknown roots and changed identities remain errors; absent receipts allocate
-nothing. Retained successes and typed lifecycle failures survive suspension,
-full receipt history and settlement. Historical success does not assert current
-reference liveness. The private query also validates the original upload size.
+The maintained `blob_reference_receipt` query binds the full original upload and
+reference command. Its shared bounded decoder preserves explicit absence, recorded
+success or lifecycle failure, and service refusal as separate outcomes.
+`blob-fixture-reference` uses it against local standalone and durable storage hosts.
+The transient fixture receipt endpoint, DTO, conversion and superseded cases are
+removed. The heap model's receipt read remains used by mutation replay.
 
-The local `blob-fixture-reference` executable journals explicit bounded intents
-without replacing existing records and queries the exact receipt. It never
-allocates IDs or dispatches mutations. Its record includes the service, tenant,
-namespace, upload/object/lifetime, root, declared bytes and exact reference action.
-The identity-derived filename binds changed payloads to the same slot, where they
-conflict. An exclusive OS file lock serializes cooperating writers; syncing file
-contents and the directory precedes acknowledgment. Exact retries revalidate and
-sync the original record even when its success output was lost. The 4,096-entry
-limit includes staging residue; full journals retain exact recovery. Symlinked
-records/locks and corrupt records fail without replacement. No automatic cleanup
-or identity allocation is implemented.
+The local v1 intent journal retains independent full-width upload, object, lifetime
+and first-reference IDs. The scoped upload/operation key makes changed original
+arguments conflict. Eleven tool unit cases cover bounded inputs/replies, typed
+refusals, exact recovery, no-clobber files, locking, capacity and independent IDs.
+A separate subprocess case kills the actual lock holder and recovers a write whose
+success output was discarded. This is local Linux process-interruption evidence,
+not power-loss, production persistence or restored-writer authority.
 
-The receipt step passed 37 upload model cases. Latest validation passes 26
-host-tool cases (nine reference cases), one subprocess recovery case and three
-updated executable/query PocketIC cases. Coverage includes full-width IDs,
-no-clobber files and symlinks, invalid bounded inputs/replies, absent and failed
-receipts, changed actions, caller isolation, full history, release, settlement and
-stop/start. A client with only its saved intent recovers an existing receipt; this
-does not simulate a dropped transport response or an operational restore.
-Completion, deletion and settlement remain explicit operator substitutes.
-
-The subprocess case holds the actual OS lock in a separate process, verifies a
-competing executable fails busy, kills the holder, then saves successfully. After
-discarding success output, another process recovers the same record; a changed
-action conflicts and preserves the original bytes. Its ignored helper test runs
-only as that controlled subprocess. This is process-interruption evidence on
-Linux local storage, not a hardware power-loss test. Durability depends on an
-existing durable directory and filesystem sync semantics. Caller-controlled files
-remain mutable; directory copies/rollbacks have no independent freshness or
-restored-writer authority. Dispatch and consumer coordination remain open.
-
-Release admission Wasm and warning-free core rustdoc passed for the unchanged
-receipt implementation. Strict host-tool all-target Clippy, formatting and diff
-checks pass for the journal follow-up. Existing locked tempfile and sha2 are
-reused by the unpublished executable; library dependencies and allocator are unchanged.
-No full CI, provider effect or historical resource measurement refresh ran.
+Eight targeted PocketIC cases pass: one standalone saved-intent refusal/restore
+case and seven durable receipt/mutation cases, including two CLI subprocess
+journeys. Historical success survives release, settlement and fenced restoration;
+querying leaves stable memory unchanged. Standalone unknown and unconfirmed uploads
+remain service refusals, never absent receipts. Confirmed provider facts remain
+labelled substitutes. Strict affected all-target/all-feature Clippy and release
+Wasm builds for standalone, admission and durable storage pass. No full CI or
+deployed provider call ran; transport still uses simulated PocketIC identity.
 
 ## Shared stable tenant enrollment
 

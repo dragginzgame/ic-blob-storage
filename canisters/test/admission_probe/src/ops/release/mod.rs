@@ -6,7 +6,7 @@ use super::{
 };
 use blob_test_protocol::admission::{
     Failure, Outcome,
-    input::{ReferenceInput, ReferenceReceipt},
+    input::ReferenceInput,
     release::{LifecycleCommand, ReferenceFailure},
 };
 use ic_blob_storage::model::{
@@ -99,34 +99,6 @@ pub(crate) fn execute(
             LifecycleCommand::Reference { .. } => unreachable!("reference handled above"),
         };
         result.map(changed)
-    })
-}
-
-pub(crate) fn receipt(
-    context: UploadContext,
-    input: ReferenceInput,
-) -> Result<Option<ReferenceReceipt>, Failure> {
-    let (object, operation) = reference_request(input)?;
-    STATE.with_borrow(|state| {
-        let owner = &state.as_ref().expect("initialized probe").owner;
-        // Keep every field of the original upload bound, including its declared
-        // length; the fixture's reference input contains that full request.
-        let receipt = owner
-            .reference_receipt(context, object.object.root, operation)
-            .map_err(|error| match error {
-                UploadAdmissionError::Reference(CatalogError::Request(
-                    ReferenceRequestError::RequestConflict,
-                )) => Failure::Conflict,
-                other => reference_error(other),
-            })?;
-        owner.lookup(context, object).map_err(failure)?;
-        Ok(receipt.map(|receipt| ReferenceReceipt {
-            request: input,
-            result: receipt
-                .result
-                .map(|change| change == LifecycleChange::Changed)
-                .map_err(lifecycle_error),
-        }))
     })
 }
 

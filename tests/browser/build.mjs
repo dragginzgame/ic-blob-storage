@@ -32,3 +32,8 @@ await build({ absWorkingDir: repo, entryPoints: ['tests/browser/client.js'], bun
   format: 'esm', outfile: '.tmp/browser/client.js',
   alias: { '@caffeineai/object-storage': `${adapted}/dist/index.js` },
   nodePaths: [fileURLToPath(new URL('node_modules', import.meta.url))] });
+await build({ absWorkingDir: repo, entryPoints: ['tests/browser/sdk-probe.mjs'], bundle: true,
+  format: 'esm', platform: 'node', outfile: '.tmp/browser/sdk-probe.mjs',
+  banner: { js: "import { createRequire } from 'node:module'; const require = createRequire(import.meta.url);" },
+  alias: { '@caffeineai/object-storage': `${adapted}/dist/index.js` },
+  nodePaths: [fileURLToPath(new URL('node_modules', import.meta.url))] });

@@ -2,27 +2,22 @@
 
 Date: 2026-09-29
 
-## Active work — exact reference inspection after 0.2.23
+## Active work — 0.3.0 draft and independent Caffeine qualification
 
-The maintainer confirmed **0.2.23 is pushed** and requested continued work toward
-the 0.2 service journey. Cargo and the release receipt are 0.2.23. Local main,
-origin/main and the peeled v0.2.23 tag resolve to
-`1d15bc80a5e350982ef33f80da06d7af28a8ee28`, from validated source
-`4ef51000ad4bae88028d70b9fce811bd6552369f`. The receipt records the
-`release-verify` gate; registry publication was not independently queried.
-The dated 0.2.23 notes match that release. New completed work is recorded in the
-maintainer-requested, undated 0.2.24 changelog draft; Unreleased is empty. Package
-version and release receipt remain at 0.2.23. The draft name does not establish
-patch release readiness. The required standalone project mapping changes its init
-contract and current stable schema. The next release must be a minor release
-(0.3.0), not a 0.2 patch, and the draft must be renamed for that release. This does
-not close the remaining delivery milestones below. No version mutation is
-authorized or performed.
-The browser fixture retains Caffeine 1.1.2 and supported SDK 5.4.0.
-The discovery and descriptor work below was already dirty and is preserved in this batch.
-No dependency changed.
-No version mutation, commit, publication, deployment or deployed-provider effect ran here;
-transfers below use simulated cycles between local PocketIC canisters.
+The maintainer requested continued work on the 0.2 service journey. Cargo and the
+release receipt are 0.2.24. Local main, origin/main and the peeled v0.2.24 tag resolve
+to `b788c8399d5f1d651fadeaed96e13caf965d2fee`, from validated source
+`485177b17e6fbaa13e52df1ddc7f182d1c8cf780`. The receipt records `release-verify`;
+registry publication was not independently queried. The dated changelog records
+the released standalone init change; historical notes remain unchanged. Release
+numbering does not close the remaining milestones below. The maintainer now targets
+0.3.0; completed work is grouped in its undated changelog draft below empty Unreleased.
+No Cargo version mutation, commit, publication or release action was performed.
+The browser fixture retains Caffeine 1.1.2 and supported SDK 5.4.0. The new native
+CLI reuses locked ic-agent 0.49.2 and enables its PEM support; no dependency version,
+allocator, production host schema or deployment changed. Shared account inspection
+adds library types and a standalone endpoint; the released APIs remain intact. Local test
+provider facts remain substitutes, and no deployed-provider effect ran.
 
 Follow the [0.2 delivery plan](../roadmap.md). Its goal remains a usable
 Caffeine-backed service through shared durable handlers, both adapters and an
@@ -35,7 +30,199 @@ operator client. Library publication does not qualify the service or Canic remov
 | M3 — Caffeine and operator integration | In progress: shared transports with local IC evidence | Qualified provider transport, completion/economics and production client |
 | M4 — managed parity and acceptance | Not implemented | Same journey through Canic adapter, complete replacement evidence and handoff |
 
-## Current focus — exact current reference status and client
+## Current focus — independent qualification and persistent probe tracking
+
+The maintainer reports direct Caffeine cooperation is unavailable and authorized
+independent qualification using observed responses and explicit supported limits.
+A provider reply is no longer a prerequisite. Existing restore/payment fences,
+completion evidence gates, Canic parity and acceptance obligations remain; missing
+guarantees require an explicit feature/contract decision, not a silent waiver.
+
+Read and maintain the [probe ledger](../evidence/caffeine-probes/README.md) for every
+provider investigation. AGENTS now requires recording intent, targets, evidence
+class, budgets, results, failures, limitations and outstanding obligations. Existing
+research records are indexed without rewriting their history. New runs retain raw
+public responses, request/response metadata and hashes in unique directories.
+`caffeine-probe public-source` makes at most four anonymous public-source GETs,
+persists each request before dispatch, bounds time/bytes and preserves partial or
+failed runs. `verify` checks recorded integrity and reports incomplete runs without
+promoting them to qualification. `make probe-check` verifies retained runs offline
+as part of the gate; no periodic network job was introduced.
+
+Runs `2026-09-29-public-source-01` and `02` each captured and verified four responses.
+Run 01 preceded explicit disabling of reqwest protocol retries; its index records
+that limitation. Run 02 uses the corrected runner and all response hashes match;
+the first run remains unchanged. No application-level retries occurred.
+Official skills commit remains `78781961e52b8c9c874becd473402950429d4818`, both
+backend file hashes match the prior review, and npm latest remains 1.1.2 with the
+same integrity. These are source/registry facts only. No deployed gateway/account call,
+payment, upload, deployment or external message ran. No dependency version,
+allocator, service contract schema or release version changed.
+
+Eight CLI native tests pass, including three probe tests for intent-before-request,
+bounded capture, HTTP failures/redirect refusal, interrupted records and tamper/no-
+overwrite behavior. Strict CLI all-target/all-feature Clippy passes. The final
+targeted checks include offline retained-run verification, Wasm build isolation,
+formatting and diff checks; no full CI/release gate was run.
+
+Local SDK fault probes now reuse the pinned patched package through its existing
+agent/fetch boundaries. Six cases pass: single/multiple chunks, non-complete status,
+lost final response, HTTP failure and aggregate-byte exhaustion. The SDK uploads
+chunks despite supplied `existing_chunks` and can return successfully without a
+complete status. Captured bytes independently verify with the native Rust example;
+corrupt and truncated variants reject. A lost final reply remains uncertain and
+cannot authorize another transfer, even when those bytes verify. Certificate,
+gateway and in-memory store substitutes are explicit; no deployed behavior is proved.
+
+The browser guard and atomic store contract now require `maxTotalRequestBytes`,
+retained with the scope. Claims consume the total before dispatch, including uncertain
+requests. The current contract replaces the old shape directly. The actual
+Chromium/PocketIC suite passes all ten scenarios (49.12 seconds); initial sandbox
+socket refusal is recorded separately. The new `make test-sdk-probe` opt-in target
+runs without network, captures new directories only and uses installed dependencies.
+The ledger retains the startup failure, partial verifier-timeout run and successful
+run. `probe-check` also checks their recorded artifact hashes offline. No full
+CI/release gate has run on this draft.
+
+The bounded live trial remains prepared: two roots, explicit lost final response,
+24 gateway requests, 10 MiB uploaded, 12 MiB downloaded and verification outside the
+storage canister. Actual effects need an explicitly selected isolated installation/
+account and budget. The next implementation priority is the trusted completion
+bridge and its exact authority/correlation contract, not more generic probe tooling.
+Neither browser progress nor a client-supplied successful download can become a
+trusted canister fact. Operational recovery and managed parity also remain open.
+
+0.3.0 can name a library/tooling release independently of service qualification;
+it must not be described as completion of the 0.2 service plan. The draft needs the
+maintainer-owned clean source commit and full current release validation before
+push preparation. No gate is waived by the version target, and Canic removal is
+not ready. Continue the service work without waiting for provider feedback.
+
+## Authenticated funding history and concrete provider questions — current batch
+
+`blob-storage funding-history` now uses the same explicit signing identity, trust
+policy and installed scope as status. It reads one `blob_funding_history` page and
+reuses the library decoder for exact request/scopes, descending order, positive
+amounts, bounded refunds and continuation. JSON preserves full-width values and
+the local prepared/uncertain/not-enqueued/callback distinctions. A saved `next`
+object can be supplied through a bounded `--cursor` file; its full original scope
+must match before any network request. No auto-pagination, payment, provider query,
+journal mutation or claim of credit/account completeness is introduced.
+
+Five native CLI tests and two signed HTTP PocketIC journeys pass (11.28 seconds
+IC execution). Standalone covers valid empty history, wrong scope/operator, saved
+cursor refusal and passive restored inspection. The durable storage fixture covers
+nonempty descending pages, a full-width uncertain operation, partial refund and
+saved continuation after restoration while preserving stable memory and uncertainty.
+Its funding outcomes remain controlled substitutes. Strict affected all-target and
+all-feature Clippy passes. Final formatting, diff and native-dependency isolation
+checks accompany this batch; no full CI or release gate was run.
+
+The maintainer asked what Caffeine must supply. The existing
+[focused provider questions](../provider-review.md#focused-provider-questions--prepared-not-sent)
+now distinguish installation/billing context, lost-response upload completion,
+retry charges, exact payment reconciliation, deletion/final billing and rollback
+inventory/authority. Existing server docs or an engineer's confirmed contract may
+suffice; unsupported capabilities must be stated and the service promise reviewed.
+The current public DFINITY example and Caffeine app-credit help were re-read;
+neither closes these operation/recovery guarantees. No external message was sent.
+
+Next: authenticated exact funding-outcome/reference inspection using maintained
+decoders, plus provider contract decisions. Operational recovery and Canic parity
+remain open; this batch does not close the 0.2 plan or authorize a 0.3 release.
+
+## Authenticated service status without mutation authority — current batch
+
+The new unpublished native `ic-blob-storage-cli` package provides `blob-storage
+status`. It requires a PEM identity, matching operator and complete installed
+service/namespace/Cashier/payer scope, and queries the shared `blob_local_status`
+API. IC mode uses HTTPS and the SDK's pinned root; local mode requires a literal
+loopback origin and separately trusted DER root. No automatic root discovery,
+redirect, update fallback or provider effect occurs. Query signatures are verified;
+this is not certified state or proof of readiness. JSON preserves decimal-string
+counters, optional identities and separate fences. File, HTTP, reply and decoder
+limits are explicit, with a 30-second request deadline and redacted error codes.
+
+Three native tests and one actual signed HTTP PocketIC subprocess journey pass
+(5.54 seconds IC execution on the final run). The latter covers correct authentication, operator/key
+mismatch, wrong scope, rejected root trust, a valid but unauthorized caller and
+passive same-release restored inspection. Local requests bypass deliberately invalid
+ambient proxies. Strict CLI/PocketIC all-target/all-feature
+Clippy, CLI Wasm check, formatting and diff checks pass. The Wasm dependency tree
+contains only the CLI package, with no native transport or identity libraries.
+`test-native`, `test-pocketic` and `test-standalone`
+include the new package or subprocess binary as appropriate. Usage is in README.
+No full CI gate, production request, release or deployment was performed.
+
+Bounded authenticated funding history is now included above. Reference
+reconciliation, provider completion/economics, operational recovery and Canic parity
+remain open.
+
+## Account observations without funding authority — current batch
+
+Standalone `blob_inspect_account` now delegates to `workflow::account::inspect`.
+The configured operator chooses balance or payer relationship under the complete
+installed scope. `ReplicatedAccountQuery` shares the existing bounded IC query
+effect while restricting requests to that service and payer. Both request encoding
+and reply decoding stay in the maintained Caffeine boundary. The handler checks
+all four owners before dispatch and after the await; it neither retains borrows
+nor mutates state. Host configuration stays immutable for the invocation. Bounds
+are 30 seconds and 4 KiB, with explicit decoder work/type limits and no attachment,
+automatic retry, cached report, funding or account-link change. Responses are
+independent observations, never a spendability or provider-credit verdict.
+
+Two native cases cover explicit transport bindings and refusal of a late report
+after owner restoration. Nine targeted PocketIC cases pass (39.39 seconds): three
+new standalone account journeys, two existing standalone gateway-sync cases and
+four relationship-source cases. Evidence includes distinct linked payer/owner,
+full-width balances, signed and arbitrary-width relationship figures, structured
+provider errors, wrong bindings/callers, malformed/oversized input/replies, passive
+stable memory and both service/source restoration. Strict affected all-target and
+all-feature Clippy, generated Candid comparison and release Wasm builds pass.
+No full CI gate or deployed account query ran. Prior dirty reference-recovery work
+below is preserved and remains in the same Unreleased batch.
+
+The 2026-09-29 public-source refresh resolves official Caffeine skills main to
+`78781961e52b8c9c874becd473402950429d4818`; backend files match retained hashes and
+npm still reports 1.1.2 with unchanged integrity. This supplies no new completion,
+retry-charge, final-billing or restore contract. See the account inspection review
+in `docs/evidence/caffeine-gateway-transport.json`. The maintainer requested work
+until the 0.2 plan can close; that goal is not achieved. Authoritative provider
+answers (or an explicitly reviewed narrower contract), operational recovery,
+production consumer coordination and Canic parity remain. A provider contact or
+private contract was requested; no external message or paid action was sent.
+
+## Local reference recovery uses the service contract — current batch
+
+`blob-fixture-reference inspect` now calls the maintained `blob_reference_receipt`
+endpoint and reuses the library's bounded decoder. It works against local standalone
+and durable storage hosts. Explicit service refusals retain their typed reason and
+exit 3; absent receipts and stored lifecycle failures exit 4; historical success
+exits 0 without asserting current liveness. There is no mutation dispatch or retry.
+
+The current v1 local intent record requires independent full-width upload, object,
+incarnation and first-reference identities. Its key follows scoped upload/operation
+identity, so changed original object/lifetime/first-reference arguments conflict
+instead of allocating another file. Locking, no-clobber installation, sync-before-ack
+and bounded recovery remain. The transient fixture's private receipt endpoint,
+DTO, conversion and superseded tests are removed; no compatibility reader remains.
+
+Eleven reference-tool unit tests, the separate process-interruption journal case
+and eight PocketIC cases pass (28.71 seconds IC execution). New subprocess coverage
+uses a saved intent after deleting its source file, recovers historical success
+through suspension, release, settlement and fenced restoration, and preserves
+unknown/unconfirmed standalone refusals. Existing replicated receipt/mutation
+regressions pass. Strict affected all-target/all-feature Clippy and release Wasm
+builds for standalone, admission and durable storage pass. No full CI gate ran.
+
+Next service work remains provider completion/economics and operational recovery,
+production consumer coordination and Canic parity. The reference fixture CLI transport
+remains local PocketIC with simulated identity; the new status CLI above uses actual
+signing identity and shared service transport. Standalone cannot
+yet establish confirmed provider uploads; successful receipt journeys use labelled
+local provider substitutes.
+
+## Exact current reference status and client — included in 0.2.24
 
 `workflow::references::status::inspect` now exposes tenant-only
 `blob_reference_status` in standalone and the durable storage fixture. It reuses
@@ -68,11 +255,10 @@ standalone still cannot establish provider completion.
 Strict affected all-target/all-feature Clippy, release standalone/storage Wasm,
 generated Candid comparison, warning-free core/host rustdoc, formatting and diff
 checks pass. No full CI/release gate ran. This step changes no stable schema, memory
-grant, allocator, dependency or version; the prior host-init minor-release requirement
-remains. Qualified provider completion/economics, operational recovery, production
+grant, allocator, dependency or version. Qualified provider completion/economics, operational recovery, production
 consumer coordination and Canic parity remain open.
 
-## Standalone operational descriptor delivery — current draft batch
+## Standalone operational descriptor delivery — included in 0.2.24
 
 The standalone host now exposes update-only `blob_download_descriptor` through
 the existing shared download handler. It authenticates actual caller/service,
@@ -109,7 +295,7 @@ its consumer fixture. No full CI/release gate or deployed provider operation ran
 Remaining provider/operator integration, qualified completion, operational recovery
 and Canic parity stay open; the version requirement is not service acceptance.
 
-## Shared indexed content discovery — current Unreleased batch
+## Shared indexed content discovery — included in 0.2.24
 
 `workflow::uploads::discovery::inspect` now exposes tenant-only
 `blob_lookup_content` in the standalone host and both admission fixtures. It uses

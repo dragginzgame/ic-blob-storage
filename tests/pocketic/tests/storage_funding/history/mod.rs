@@ -1,4 +1,5 @@
 use super::*;
+mod cli;
 use ic_blob_storage::dto::{
     funding::{
         FundingHistoryCursor as Cursor, FundingHistoryEntry as Entry,

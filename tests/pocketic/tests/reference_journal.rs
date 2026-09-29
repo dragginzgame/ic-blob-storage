@@ -47,7 +47,7 @@ fn interrupted_writer_releases_lock_and_lost_ack_recovers_exact_intent() {
     let input = dir.path().join("input.json");
     let value = json!({"schema":1,"scope":"pocketic_fixture","asset":"image-a",
         "service":Principal::from_slice(&[1,1]).to_text(),"tenant":Principal::from_slice(&[2,1]).to_text(),
-        "namespace":"1","upload":"1","object":"1","incarnation":"1",
+        "namespace":"1","upload":"1","object":"1","incarnation":"1","first_reference":"1",
         "root":format!("sha256:{}", "11".repeat(32)),"bytes":3,"reference":"2","operation":"1","retain":true});
     fs::write(&input, serde_json::to_vec(&value).unwrap()).unwrap();
     let ready = dir.path().join("ready");

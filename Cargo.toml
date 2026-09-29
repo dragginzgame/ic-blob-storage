@@ -1,6 +1,7 @@
 [workspace]
 members = [
     "crates/ic-blob-storage",
+    "crates/ic-blob-storage-cli",
     "canisters/standalone",
     "canisters/test/authority_probe",
     "canisters/test/admission_probe",

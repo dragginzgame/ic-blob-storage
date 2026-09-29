@@ -94,6 +94,8 @@ export function claimGateway(binding, scope, owner, index, request, abortAfterPu
       throw new Refusal('gateway-session');
     }
     if (index !== gateway.requests.length || index >= scope.maxRequests) throw new Refusal('gateway-capacity');
+    const used = gateway.requests.reduce((n, entry) => n + entry.request.bodyBytes, 0);
+    if (request.bodyBytes > scope.maxTotalRequestBytes - used) throw new Refusal('gateway-budget');
     const previous = gateway.requests.at(-1);
     if (previous && (previous.phase !== 'responded' || previous.status < 200 || previous.status >= 300)) {
       throw new Refusal('gateway-uncertain');

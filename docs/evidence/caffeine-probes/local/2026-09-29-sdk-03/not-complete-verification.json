@@ -1,0 +1,23 @@
+[
+  {
+    "status": 0,
+    "signal": null,
+    "killed": false,
+    "stdout": "{\"bytes\":3,\"computed_content_digest\":\"sha256:10d083af91c061f2c89df71ee6928f959756b77c1ad17aa2383457da90524293\",\"provider_root\":\"sha256:4072929e28fff41c616b24ee7b3e130ab9aac9e2694d564dc1a2bd0d1339fd7d\"}\n",
+    "stderr": ""
+  },
+  {
+    "status": 1,
+    "signal": null,
+    "killed": false,
+    "stdout": "",
+    "stderr": "Error: Integrity(ProviderRootMismatch)\n"
+  },
+  {
+    "status": 1,
+    "signal": null,
+    "killed": false,
+    "stdout": "",
+    "stderr": "Error: Integrity(Incomplete { remaining: 1 })\n"
+  }
+]

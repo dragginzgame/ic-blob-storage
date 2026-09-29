@@ -3,6 +3,7 @@
 //! ICP executes a query entry point through consensus when called from an update.
 //! This authenticates the called canister's response, not its provider semantics,
 //! deployment ownership, list freshness beyond that execution or callback authority.
+pub mod account;
 use super::{CashierQueryRequest, CashierQueryResponse, CashierQueryTransport};
 use crate::ops::caffeine::query::CashierQuery;
 use candid::Principal;
@@ -60,7 +61,7 @@ pub enum ReplicatedQueryError {
     /// Actual service or original request Cashier differs from configuration.
     #[error("replicated query binding mismatch")]
     Binding,
-    /// Only the canonical gateway-list query is qualified by this primitive.
+    /// The method is outside the selected transport's read-only scope.
     #[error("unsupported replicated query method")]
     Method,
     /// An ordinary query/composite query cannot initiate this transport.
@@ -92,6 +93,19 @@ impl CashierQueryTransport for ReplicatedGatewayQuery {
         }
         if request.query() != CashierQuery::StorageGateways {
             return Err(ReplicatedQueryError::Method);
+        }
+        self.send(request, max_bytes).await
+    }
+}
+impl ReplicatedGatewayQuery {
+    // Both public transports validate their allowed request before this shared IC effect.
+    async fn send(
+        &self,
+        request: &CashierQueryRequest,
+        max_bytes: NonZeroUsize,
+    ) -> Result<CashierQueryResponse, ReplicatedQueryError> {
+        if request.cashier() != self.cashier || ic_cdk::api::canister_self() != self.service {
+            return Err(ReplicatedQueryError::Binding);
         }
         if !ic_cdk::api::in_replicated_execution() {
             return Err(ReplicatedQueryError::Execution);

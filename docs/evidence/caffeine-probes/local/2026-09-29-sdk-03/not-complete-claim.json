@@ -1,0 +1,14 @@
+{
+  "root": "sha256:4072929e28fff41c616b24ee7b3e130ab9aac9e2694d564dc1a2bd0d1339fd7d",
+  "bytes": 3,
+  "headers": [
+    {
+      "name": "Content-Length",
+      "value": "3"
+    },
+    {
+      "name": "Content-Type",
+      "value": "application/octet-stream"
+    }
+  ]
+}

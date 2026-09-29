@@ -1,0 +1,8 @@
+{
+  "index": 1,
+  "status": 200,
+  "body": "{\"status\":\"fixture_not_complete\"}",
+  "sha256": "3f511f3508ac13012bdff47cadfb94ab0d0a469447b747dca38669ec0e242752",
+  "delivered": true,
+  "substituteStoredBytes": 3
+}

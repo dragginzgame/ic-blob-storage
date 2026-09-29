@@ -1,6 +1,10 @@
 //! Standalone Wasm installation, maintained endpoints and synchronous restore fencing.
 #![cfg(not(target_family = "wasm"))]
+mod authenticated_cli;
+mod reference_cli;
+mod standalone_account;
 mod standalone_capacity;
+mod standalone_cli;
 mod standalone_discovery;
 mod standalone_download;
 mod standalone_funding;
@@ -8,6 +12,7 @@ mod standalone_gateways;
 mod standalone_history;
 mod standalone_operator;
 mod standalone_reference_capacity;
+mod standalone_reference_recovery;
 mod standalone_reference_status;
 mod standalone_upload_status;
 mod support;

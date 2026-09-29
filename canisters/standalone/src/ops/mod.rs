@@ -1,4 +1,5 @@
 //! Synchronous installation, bounded ingress and borrowing of shared service owners.
+pub(crate) mod account;
 mod configuration;
 pub(crate) mod gateways;
 mod memory;

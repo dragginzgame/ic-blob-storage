@@ -276,3 +276,31 @@ pub(crate) fn reference_status(
         ic_blob_storage::workflow::references::status::inspect(&stores.uploads, context, input)
     })
 }
+
+pub(crate) async fn inspect_account(
+    context: UploadContext,
+    input: ic_blob_storage::dto::account::AccountInspectionRequest,
+) -> Result<
+    ic_blob_storage::dto::account::AccountInspectionResponse,
+    ic_blob_storage::dto::account::AccountInspectionFailure,
+> {
+    use ic_blob_storage::{
+        dto::account::AccountInspectionFailure,
+        ops::caffeine::query::transport::replicated::account::ReplicatedAccountQuery,
+    };
+    let transport = ReplicatedAccountQuery::new(
+        input.scope.service,
+        input.scope.cashier,
+        input.scope.payment_account,
+        30.try_into().unwrap(),
+    )
+    .map_err(|_| AccountInspectionFailure::Invalid)?;
+    ic_blob_storage::workflow::account::inspect(
+        &ops::account::AccountHost,
+        &transport,
+        context,
+        input,
+        ops::account::limits(),
+    )
+    .await
+}

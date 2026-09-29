@@ -23,6 +23,9 @@ Use targeted checks while implementing. Full CI or release validation requires
 an explicit request or an explicitly authorized version/release target.
 Primitive Make targets do only their named operation. The complete current
 gate is make ci (also make validate and make release-verify).
+Its offline `probe-check` verifies retained Caffeine run artifacts; it never runs
+new network probes. The [probe ledger](../evidence/caffeine-probes/README.md) governs
+continuous evidence recording and separates source/local/live observations.
 
 Keep implementation, relevant success/rejection/recovery evidence and cleanup
 in one coherent batch. Tests assert typed failures or observable behavior;

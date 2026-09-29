@@ -1,0 +1,119 @@
+use super::*;
+use std::{
+    io::{Read, Write},
+    net::TcpListener,
+};
+
+#[test]
+fn immutable_records_detect_tampering_and_incomplete_runs() {
+    let dir = tempfile::tempdir().unwrap();
+    let p = dir.path();
+    record::json(p, "plan.json", &plan().unwrap()).unwrap();
+    assert_eq!(record::verify(p).unwrap()["outcome"], "incomplete");
+    record::json(
+        p,
+        "request-0.json",
+        &RequestRecord {
+            index: 0,
+            started_unix_seconds: 1,
+            method: "GET".into(),
+            url: COMMIT_URL.into(),
+        },
+    )
+    .unwrap();
+    assert_eq!(record::verify(p).unwrap()["requests_attempted"], 1);
+    record::save(p, "response-0.body", b"failure").unwrap();
+    record::json(
+        p,
+        "response-0.json",
+        &ResponseRecord {
+            index: 0,
+            finished_unix_seconds: 2,
+            status: Some(503),
+            outcome: "http_status".into(),
+            bytes: 7,
+            sha256: record::hash(b"failure"),
+        },
+    )
+    .unwrap();
+    record::json(
+        p,
+        "summary.json",
+        &SummaryRecord {
+            finished_unix_seconds: 2,
+            outcome: "failed".into(),
+            requests_attempted: 1,
+            source_commit: None,
+            limitation: LIMITATION.into(),
+        },
+    )
+    .unwrap();
+    assert_eq!(record::verify(p).unwrap()["outcome"], "failed");
+    assert!(record::save(p, "response-0.body", b"replacement").is_err());
+    std::fs::write(p.join("response-0.body"), b"changed").unwrap();
+    assert!(record::verify(p).is_err());
+    assert!(capture(p).is_err());
+    assert_eq!(
+        std::fs::read(p.join("response-0.body")).unwrap(),
+        b"changed"
+    );
+}
+
+#[test]
+fn only_exact_commit_ids_can_select_source_paths() {
+    assert!(commit(br#"{"sha":"78781961e52b8c9c874becd473402950429d4818"}"#).is_ok());
+    for bytes in [
+        br#"{"sha":"../../main"}"#.as_slice(),
+        br#"{"sha":"main"}"#,
+        b"{}",
+        b"not json",
+    ] {
+        assert!(commit(bytes).is_err());
+    }
+}
+
+#[test]
+fn public_http_capture_records_intent_before_dispatch_and_retains_failed_bounded_bodies() {
+    for (status, body_size, outcome) in [
+        (200, 8, "captured"),
+        (503, 16, "http_status"),
+        (302, 0, "http_status"),
+        (200, MAX_BODY + 1, "body_limit"),
+    ] {
+        let dir = tempfile::tempdir().unwrap();
+        record::json(dir.path(), "plan.json", &plan().unwrap()).unwrap();
+        let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+        let url = format!("http://{}/", listener.local_addr().unwrap());
+        let path = dir.path().to_path_buf();
+        let server = std::thread::spawn(move || {
+            let (mut stream, _) = listener.accept().unwrap();
+            stream
+                .set_read_timeout(Some(Duration::from_secs(5)))
+                .unwrap();
+            let mut buffer = [0; 4096];
+            let size = stream.read(&mut buffer).unwrap();
+            assert!(size > 0);
+            let intent: RequestRecord = record::decode(&path, "request-0.json").unwrap();
+            assert_eq!(intent.method, "GET");
+            write!(stream,"HTTP/1.1 {status} Test\r\nContent-Length: {body_size}\r\nLocation: http://127.0.0.1:9/\r\nConnection: close\r\n\r\n").unwrap();
+            let _ = stream.write_all(&vec![b'x'; body_size]);
+        });
+        let runtime = tokio::runtime::Builder::new_current_thread()
+            .enable_all()
+            .build()
+            .unwrap();
+        let mut attempted = 0;
+        let result = runtime.block_on(async {
+            let client = client_builder().no_proxy().build().unwrap();
+            fetch(dir.path(), &client, &url, &mut attempted).await
+        });
+        server.join().unwrap();
+        assert_eq!(attempted, 1);
+        assert_eq!(result.is_ok(), outcome == "captured");
+        let recorded: ResponseRecord = record::decode(dir.path(), "response-0.json").unwrap();
+        assert_eq!(recorded.outcome, outcome);
+        assert_eq!(recorded.bytes, body_size.min(MAX_BODY));
+        assert_eq!(recorded.status, Some(status));
+        assert_eq!(record::verify(dir.path()).unwrap()["responses_recorded"], 1);
+    }
+}

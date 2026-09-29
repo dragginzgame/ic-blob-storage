@@ -1,0 +1,41 @@
+{
+  "size": 1048577,
+  "byte": 17,
+  "sha256": "0bb8391d2b4471a9011cf99342c2d2bded2930fb63d84f619017483704bd507e",
+  "root": "sha256:029bb9311136a0a30b7d492426a3bacd181d6b8abfe850dd6905dde0dbdc7c7e",
+  "manifest": {
+    "tree_type": "DSBMTWH",
+    "chunk_hashes": [
+      "sha256:5ada7ba52e068512420747ce0aa89d2f63c15bc82ab841b290a479bd7e70cfea",
+      "sha256:1d63303a21e36677a3a387a3b33911361b9c4615b2da7fb06e0d1868c9394d2d"
+    ],
+    "tree": {
+      "hash": "sha256:029bb9311136a0a30b7d492426a3bacd181d6b8abfe850dd6905dde0dbdc7c7e",
+      "left": {
+        "hash": "sha256:7b1245a993f04c95d3ec45e239a7e4e9ac0ac7b5d8d944c7fda64545a4a41e91",
+        "left": {
+          "hash": "sha256:5ada7ba52e068512420747ce0aa89d2f63c15bc82ab841b290a479bd7e70cfea",
+          "left": null,
+          "right": null
+        },
+        "right": {
+          "hash": "sha256:1d63303a21e36677a3a387a3b33911361b9c4615b2da7fb06e0d1868c9394d2d",
+          "left": null,
+          "right": null
+        }
+      },
+      "right": {
+        "hash": "sha256:f36ce0bcb1cc049012ebed1f91e1f426c52e1c66b88fe89085969c3c1a330918",
+        "left": null,
+        "right": null
+      }
+    },
+    "headers": [
+      "Content-Length: 1048577",
+      "Content-Type: application/octet-stream"
+    ]
+  },
+  "maxTotalRequestBytes": 3145728,
+  "mode": "http-failure",
+  "expected": "local observation only"
+}

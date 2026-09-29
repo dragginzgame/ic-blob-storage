@@ -92,15 +92,15 @@ fn regular_file(path: &Path) -> Result<(), Failure> {
 
 fn name(record: &ReferenceIntentRecord) -> Result<String, Failure> {
     let request = record.request()?;
-    // Canonical scope + object lifetime + operation ID. Changed root, reference,
-    // action, declared size or asset payload MUST collide and fail comparison.
+    // Match the service's tenant/upload/operation receipt identity. Object,
+    // lifetime and first reference are immutable arguments, not new journal slots.
+    // Changed bindings or payload MUST collide and fail comparison.
     let key = serde_json::to_vec(&(
         "reference-intent-v1",
-        request.object.service.to_text(),
-        request.object.tenant.to_text(),
-        request.object.namespace.to_string(),
-        request.object.id.to_string(),
-        "1",
+        request.upload.service.to_text(),
+        request.upload.tenant.to_text(),
+        request.upload.namespace.to_string(),
+        request.upload.upload.to_string(),
         request.operation.to_string(),
     ))
     .expect("fixed identity tuple");

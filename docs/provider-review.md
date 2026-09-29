@@ -1,5 +1,12 @@
 # Caffeine provider review — 2026-09-28
 
+Decision update, 2026-09-29: the maintainer selected independent qualification
+without relying on Caffeine cooperation. The [probe ledger](evidence/caffeine-probes/README.md)
+owns the ongoing experiment plan, run index and evidence limits. Questions below
+remain research questions, not a requirement to obtain a provider reply. Current
+safety gates stay in place until observed behavior and explicit supported limits
+are propagated through implementation and acceptance evidence.
+
 Verdict: Caffeine remains unqualified for the required service journey. The
 Cashier's deployed Candid and public gateway/pricing queries are now observed;
 server revision, paid-effect recovery and final billing guarantees remain open.
@@ -9,6 +16,23 @@ The [post-0.1.18 integration decision](#integration-decision-after-0118) records
 the current binding review and the next production implementation boundary.
 
 ## Selected integration baseline
+
+### Local SDK fault observations — 2026-09-29
+
+[Recorded local SDK probes](evidence/caffeine-probes/README.md#run-index) exercise
+the maintained patched 1.1.2 package through its supplied agent/fetch boundaries.
+It sends all chunks even when the synthetic tree reply lists them in
+`existing_chunks`, and a synthetic non-complete chunk status can still produce a
+successful return and 100% progress. Lost final response leaves the local claim
+uncertain even when independently verified captured bytes match the expected root.
+The guard refuses replay and now caps aggregate body bytes as well as request count
+and individual body size. These limits bound traffic, not charges.
+
+This is client behavior under local substitutes, not a claim that the deployed
+gateway emits those replies. It reinforces the separation between SDK success,
+observed content availability and trusted service completion. Do not enable
+automatic resume or promote client progress/download verification to a canister
+completion fact. The current trusted completion bridge remains to be implemented.
 
 ### Browser reuse assessment — 2026-09-28
 
@@ -734,16 +758,30 @@ No local retry implementation can manufacture the missing server facts.
 
 ### Focused provider questions — prepared, not sent
 
-1. Confirm the exact owner/project/bucket/payment/callback arrangement for this
-   Rust service against the published integration patterns, including how existing
-   Toko-owned objects and balances remain accounted during extraction.
-2. What identifies an upload/tree/chunk operation, what is charged on retry, and
-   how is completion recovered after a lost reply? Supply lookup fields, numeric
-   receipt retention and incomplete-object handling, including `existing_chunks`.
-3. How can a specific uncertain top-up or ledger deposit be reconciled to exact
-   accepted/refunded amounts? Supply audit schema, correlation and retention.
-4. What proves deletion and final billing cessation for one object, and what
-   prevents stale callbacks or restored instances acting on a newer lifetime?
+The concrete request for a Caffeine engineer is the existing server/API contract,
+with example requests/replies and retention limits. This is not a request to build
+a custom storage system. If a capability is unsupported, say so explicitly; we
+must review the service promise and recovery policy rather than infer a guarantee.
+
+| Question to Caffeine | Why we need the answer |
+| --- | --- |
+| **Installation and billing contract:** confirm the supported independent Rust owner/project/bucket mapping, current gateway/Cashier interfaces, callback principals and self-paid versus linked-payer setup. Which cycle-funded storage, request, retry and zero-balance rules apply to this service? | Public app-credit guidance and cycle-funded integration are different contexts. We cannot transfer pricing, retention or deletion rules between them. Provisioning our actual service/operator/budgets remains our responsibility. |
+| **Upload completion:** if the final tree/chunk response is lost, how can the owner independently establish that the whole blob is complete and retained? Which authenticated lookup or receipt identifies owner/project/root, what does it guarantee, and how long is it retained? What happens to partial uploads? | A browser's hash/progress or a successful tree request cannot confirm durable completion. A verified download proves the observed bytes, without by itself establishing retention or paid-operation identity. |
+| **Retry charges:** what is charged when a tree, chunk or certificate is reused, including `existing_chunks`, `chunk_already_exists`, interrupted requests and an already complete root? What deduplication identity and time window apply? | Byte deduplication does not establish free or economically idempotent retries. We must preserve uncertain liability until the applicable rule is known. |
+| **Payment reconciliation:** how can an exact direct top-up or ledger deposit with a lost reply be looked up, including accepted/refunded amounts, fees and credited balance? Supply correlation fields, audit schema and retention; identify which payment routes support this. | A changed aggregate balance cannot establish which payment succeeded. A second payment or a different route is not reconciliation. |
+| **Deletion and final billing:** what precisely does an authorized deletion callback prove, can it be repeated or delayed, and when do object storage charges stop? What authoritative record or bounded account settlement establishes remaining charges, including prepaid amounts and account minima? | Logical release, byte deletion and financial closure are separate. An object-specific receipt is one possible answer, not a requirement to invent a new API if existing accounting can establish the same fact. |
+| **Recovery after old-backup restore:** what owner-scoped inventory, receipt history and supported fencing/retirement mechanisms survive our rollback? Can stale certificates or callbacks remain usable, for how long, and how can outstanding objects/payments be reconciled? | Our restore fence and durable journal cannot recover facts lost from the same backup. Independent recovery authority is our design responsibility; we need to know what provider evidence actually exists. |
+
+The 2026-09-29 follow-up re-read the current
+[DFINITY integration example](https://github.com/dfinity/immutable-object-storage-example)
+and [Caffeine app-credit help](https://help.caffeine.ai/hc/en-us/articles/49362898986644-File-Storage-Costs).
+The example documents chunk-existence resume, authorized scrubber callbacks and
+cycle-funded setup; the help article describes app-credit billing and deletion.
+These pages do not establish the lost-response correlation, replay charging,
+receipt retention or rollback reconciliation needed above. This is a limitation
+of the reviewed evidence, not proof that the deployed provider lacks those features.
+The skills source could not be re-fetched through the web reader during this
+follow-up; its prior pinned source review remains the source record.
 
 Continue source review using the independent integration leads above; remaining
 server semantics require authoritative evidence and bounded qualification on an
@@ -835,13 +873,22 @@ reply handling bounds reported counts but cannot verify the account/filter from
 CSV. Independent vectors cover all advertised event variants. Anonymous Candid
 metadata was rechecked unchanged; no account audit was requested.
 
+The 2026-09-29 [account inspection review](evidence/caffeine-gateway-transport.json)
+finds official skills main at `78781961e52b8c9c874becd473402950429d4818`, unchanged
+backend source hashes and unchanged npm 1.1.2 integrity. Standalone now composes
+one bounded replicated balance or relationship observation under its immutable
+installed scope. Local tests exercise actual query-only endpoints and preserve
+all accounting. This closes that local transport composition, not the deployed
+Cashier's query permissions, account completeness, credit or provider guarantees.
+No account query or paid provider operation ran against a deployed service.
+
 Next production work is ordered as follows; the first two rows remain open:
 
 | Step | Concrete deliverable / condition |
 | --- | --- |
 | Installation selection | Exact service/owner, tenant and actor authority, Cashier, payer mode/account, gateway origin, allocated project/bucket, operator, resource budgets and old-installation disposition |
 | Provider evidence | Upload completion lookup and retry charging; exact payment correlation/retention; object deletion and final-charge evidence; supported recovery identity/fence. Existing questions above remain unresolved by this refresh |
-| Read-only composition | Once bindings and the contract are settled, one shared request scope binds service, namespace, Cashier, owner, payer, revision and attempt. Balance, relationship and gateway reads have independent outcomes; mismatches/stale replies cannot activate a binding. No update fallback or account-link creation |
+| Read-only composition | Local standalone balance/relationship requests now bind service, namespace, Cashier and owner/payer through one invocation against immutable configuration, rechecked after await. Gateway sync retains its own sequence. Outcomes remain independent and cannot activate a binding. Deployed behavior and any future retained revision/attempt accounting still need qualification; no update fallback or account-link creation |
 | Persistent handlers and adapters | Host-owned ic-memory, intent before exposure, bounded obligation journals, synchronous fenced restoration, identical standalone/Canic handler behavior and actual PocketIC failure cuts |
 | Explicitly approved provider trial | Bounded upload/verified read/release/deletion/billing and one funding operation under the existing acceptance sequence; preserve unresolved obligations at every exit |
 

@@ -1,0 +1,8 @@
+{
+  "index": 0,
+  "url": "http://127.0.0.1:1/v1/blob-tree/",
+  "bytes": 1062,
+  "sha256": "f9c57c226eb4c6b03ab8607afd4e11783042a424de214fb828be35297a53e7a9",
+  "intentBeforeDispatch": true,
+  "effect": "local substitute"
+}

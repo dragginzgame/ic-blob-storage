@@ -1,0 +1,6 @@
+{
+  "outcome": "failed",
+  "name": "AssertionError",
+  "message": "Expected values to be strictly equal:\n\nnull !== 0\n",
+  "completedCases": []
+}

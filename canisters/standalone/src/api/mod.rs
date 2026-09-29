@@ -229,6 +229,17 @@ fn blob_reference_status(
     workflow::reference_status(context(), input)
 }
 
+#[ic_cdk::update(hidden = true, decode_with = "ops::decode")]
+#[candid::candid_method(update)]
+async fn blob_inspect_account(
+    input: ic_blob_storage::dto::account::AccountInspectionRequest,
+) -> Result<
+    ic_blob_storage::dto::account::AccountInspectionResponse,
+    ic_blob_storage::dto::account::AccountInspectionFailure,
+> {
+    workflow::inspect_account(context(), input).await
+}
+
 ic_cdk::export_candid!();
 pub(crate) fn interface() -> String {
     __export_service()

@@ -2,6 +2,66 @@
 
 ## [Unreleased]
 
+## [0.3.0]
+
+### Added
+
+- Offline Caffeine SDK fault probes retain synthetic request/reply evidence for
+  single/multiple chunks, ignored resume hints, non-complete status, lost final
+  response, HTTP failure and traffic exhaustion. Native Rust verification checks
+  original bytes and rejects corruption/truncation; uncertainty blocks replay.
+  `make test-sdk-probe` is opt-in and makes no network or paid provider calls.
+  Retained local artifacts are hash-checked by `make probe-check`; local evidence
+  does not establish deployed completion, retention or billing behavior.
+- Persistent Caffeine probe ledger and independent qualification policy. The
+  `caffeine-probe` tool records intent before bounded anonymous source requests,
+  retains raw responses and hashes in separate immutable runs, and verifies
+  artifacts without treating failed/incomplete capture as provider qualification.
+  Local HTTP evidence covers response limits, errors, redirects and interrupted
+  records. Provider cooperation is no longer a prerequisite; supported behavior
+  still requires evidence and explicit limits, with paid trials separately scoped.
+- Authenticated `blob-storage funding-history` reads one bounded page through the
+  shared service API and funding decoder. Exact scope, descending operation order,
+  full-width amounts, refunds, uncertainty and restore fences survive JSON output;
+  saved cursors bind the complete original scope before any network request.
+  Native boundary tests and signed HTTP subprocess coverage exercise refusals,
+  pagination and restoration without payment, automatic traversal or credit claims.
+- Native `blob-storage status` authenticates to the shared service endpoint with
+  an explicit PEM identity, operator and full installed scope. IC mode pins the
+  SDK's IC root; local mode requires a separately trusted root and loopback URL.
+  Verified query signatures, bounded transport/decoding, exact scope checks,
+  decimal-string counters and separate restore fences preserve observation-only
+  semantics. Signed HTTP subprocess evidence covers rejected trust/identity/scope,
+  operator refusal and passive restored inspection. This unpublished CLI adds no
+  mutations or provider calls; native dependencies stay out of Wasm builds.
+- Standalone operator-only `blob_inspect_account` uses a shared handler for one
+  bounded replicated Cashier balance or payer-relationship query. Exact installed
+  scope and all restore fences are checked before dispatch and after the await;
+  replies reuse the maintained provider encoders/decoders. Independent balances,
+  signed relationship figures, missing relationships and provider errors remain
+  distinct. No attached cycles, retry, funding, account change or cached authority.
+  Native and PocketIC evidence covers linked payers, full-width values, caller and
+  account mismatches, malformed/oversized replies, restore fencing and unchanged
+  local accounting. Deployed Cashier behavior remains unqualified.
+
+### Changed
+
+- **Breaking:** the private browser gateway contract now requires
+  `maxTotalRequestBytes` in configuration and retained scope. Both the hook and
+  atomic store claims enforce aggregate outbound body bytes; uncertain requests
+  stay charged to that budget. Consumers and the IndexedDB fixture use the current
+  contract directly, with no old-scope fallback. Chromium/PocketIC regression
+  coverage preserves cancellation, reload and competing-tab fences.
+- Local reference recovery now uses the shared `blob_reference_receipt` API and
+  bounded library decoder against standalone and durable storage hosts. The v1
+  fixture journal retains independent full-width upload, object, lifetime and
+  first-reference identities; changed original arguments conflict within the same
+  operation slot. Service refusals remain distinct from missing receipts and
+  recorded failures. Removed the transient fixture's private receipt endpoint,
+  DTO, conversion and superseded tests; subprocess coverage follows saved intents
+  through release, settlement and fenced restoration. Transport remains local
+  PocketIC; no production authentication or mutation dispatch is introduced.
+
 ## [0.2.24] - 2026-09-29
 
 ### Changed

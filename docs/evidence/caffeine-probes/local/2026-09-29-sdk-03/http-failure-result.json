@@ -1,0 +1,15 @@
+{
+  "name": "http-failure",
+  "mode": "http-failure",
+  "size": 1048577,
+  "requests": 2,
+  "uploaded": 1049638,
+  "returned": false,
+  "refusal": "Error",
+  "progress": [],
+  "finalRequestPhase": "responded",
+  "verified": null,
+  "retryDispatched": false,
+  "providerCompletion": "not_established",
+  "providerCharges": "not_observed"
+}

@@ -12,13 +12,14 @@ export BLOB_CONSUMER_PROBE_WASM := $(CARGO_TARGET_DIR)/wasm32-unknown-unknown/re
 export BLOB_GATEWAY_SOURCE_WASM := $(CARGO_TARGET_DIR)/wasm32-unknown-unknown/release/blob_gateway_source.wasm
 export BLOB_FUNDING_PROBE_WASM := $(CARGO_TARGET_DIR)/wasm32-unknown-unknown/release/blob_funding_probe.wasm
 export BLOB_STANDALONE_WASM := $(CARGO_TARGET_DIR)/wasm32-unknown-unknown/release/ic_blob_storage_canister.wasm
+export BLOB_CLI_BIN := $(CARGO_TARGET_DIR)/debug/blob-storage
 export BLOB_BROWSER_NODE ?= node
 VERSION ?=
 RELEASE := bash scripts/release/release.sh
-CI_TARGETS := shell-check release-check fmt-check check clippy docs-check test wasm-check package
+CI_TARGETS := shell-check release-check fmt-check check clippy probe-check docs-check test wasm-check package
 
-.PHONY: help version deps cloc fmt fmt-check check clippy docs-check test test-native test-pocketic test-browser test-fixture test-standalone build-standalone test-admission-resources test-read-resources wasm-check \
-	build package clean shell-check release-check ci validate release-verify \
+.PHONY: help version deps cloc fmt fmt-check check clippy docs-check test test-native test-pocketic test-browser test-sdk-probe test-fixture test-standalone build-standalone test-admission-resources test-read-resources wasm-check \
+	build package clean shell-check release-check probe-check ci validate release-verify \
 	release-plan ensure-clean patch minor major bump-x release-patch \
 	release-minor release-major release-x release-stage release-commit \
 	release-tag-check release-push publish publish-dry-run
@@ -31,10 +32,12 @@ help:
 	@echo "test-native / test-pocketic   Native core tests or local IC fixtures"
 	@echo "build-standalone / test-standalone   Standalone host Wasm or focused local IC tests"
 	@echo "test-browser                  Opt-in Chromium certificate/IndexedDB evidence"
+	@echo "test-sdk-probe                Opt-in local SDK fault probe; BLOB_SDK_PROBE_REPORT=NEW_DIRECTORY"
 	@echo "test-admission-resources     Local admission bounds and Wasm resource report"
 	@echo "test-read-resources          Local read-slot and Wasm resource report"
 	@echo "clean                        Explicitly remove build artifacts"
 	@echo "docs-check / wasm-check       Check docs or the Wasm library build"
+	@echo "probe-check                  Verify retained Caffeine probe artifacts offline"
 	@echo "ci / validate                Run the current repository validation gate"
 	@echo "release-check                Test release tooling without publication"
 	@echo "release-plan VERSION=minor   Preview patch/minor/major or an exact version"
@@ -66,6 +69,13 @@ check:
 clippy:
 	cargo clippy --offline --locked --workspace --all-targets --all-features -- -D warnings
 
+probe-check:
+	cargo build --offline --locked -p ic-blob-storage-cli --bin caffeine-probe
+	@for run in docs/evidence/caffeine-probes/runs/*; do \
+		"$(CARGO_TARGET_DIR)/debug/caffeine-probe" verify "$$run" || exit $$?; \
+	done
+	sha256sum --check --strict --quiet docs/evidence/caffeine-probes/local/SHA256SUMS
+
 docs-check:
 	RUSTDOCFLAGS="-D warnings" cargo doc --offline --locked -p ic-blob-storage -p ic-blob-storage-canister --all-features --no-deps
 
@@ -74,7 +84,7 @@ test:
 	+$(MAKE) --no-print-directory test-pocketic
 
 test-native:
-	cargo test --offline --locked -p ic-blob-storage -p blob-consumer-probe -p ic-blob-storage-canister --all-features
+	cargo test --offline --locked -p ic-blob-storage -p blob-consumer-probe -p ic-blob-storage-canister -p ic-blob-storage-cli --all-features
 
 test-fixture:
 	cargo build --offline --locked --release --target wasm32-unknown-unknown -p blob-authority-probe -p blob-admission-probe -p blob-storage-probe -p blob-consumer-probe -p blob-gateway-source -p blob-funding-probe --lib
@@ -82,6 +92,7 @@ test-fixture:
 test-pocketic:
 	+$(MAKE) --no-print-directory test-fixture
 	+$(MAKE) --no-print-directory build-standalone
+	cargo build --offline --locked -p ic-blob-storage-cli
 	cargo test --offline --locked -p ic-blob-storage-pocketic-tests
 
 build-standalone:
@@ -89,9 +100,16 @@ build-standalone:
 
 test-standalone:
 	cargo build --offline --locked --release --target wasm32-unknown-unknown -p ic-blob-storage-canister -p blob-gateway-source -p blob-storage-probe --lib
+	cargo build --offline --locked -p ic-blob-storage-cli
 	cargo test --offline --locked -p ic-blob-storage-pocketic-tests --test standalone -- --test-threads=1
 
 # Browser tooling is explicitly provisioned; this target performs no downloads.
+test-sdk-probe:
+	@test -n "$(BLOB_SDK_PROBE_REPORT)" || { echo 'Set BLOB_SDK_PROBE_REPORT to a new directory beneath an existing parent'; exit 1; }
+	$(BLOB_BROWSER_NODE) tests/browser/build.mjs
+	cargo build --offline --locked -p ic-blob-storage --example verify_download
+	$(BLOB_BROWSER_NODE) .tmp/browser/sdk-probe.mjs "$(BLOB_SDK_PROBE_REPORT)" "$(CARGO_TARGET_DIR)/debug/examples/verify_download"
+
 test-browser:
 	$(BLOB_BROWSER_NODE) tests/browser/build.mjs
 	cargo build --offline --locked --release --target wasm32-unknown-unknown -p blob-storage-probe -p blob-consumer-probe --lib

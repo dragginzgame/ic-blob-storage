@@ -51,3 +51,9 @@ opaque requests through this existing fetch hook. The package patch and upstream
 wire implementation remain unchanged. Journal transactions are demonstrated only
 with the local fixture store; production persistence and provider reconciliation
 remain open.
+
+The opt-in `test-sdk-probe` target reuses this exact patched build for multi-chunk
+and lost-response tests, with separately labelled certificate/gateway/store
+substitutes and native Rust byte verification. See the
+[probe ledger](../../../docs/evidence/caffeine-probes/README.md) for retained
+results, including SDK return without a complete status and ignored resume hints.

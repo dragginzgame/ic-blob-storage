@@ -3,7 +3,7 @@ use crate::operator::{
     Failure,
     model::{canister, decimal},
 };
-use blob_test_protocol::admission::{Request, input::ReferenceInput};
+use ic_blob_storage::dto::reference::{ReferenceAction, ReferenceCommand, ReferenceUpload};
 use ic_blob_storage::model::identity::ProviderRootHash;
 use serde::{Deserialize, Serialize};
 use std::{fs::File, io::Read, path::Path};
@@ -31,6 +31,7 @@ pub(super) struct ReferenceIntentRecord {
     upload: String,
     object: String,
     incarnation: String,
+    first_reference: String,
     root: String,
     bytes: u64,
     reference: String,
@@ -39,7 +40,7 @@ pub(super) struct ReferenceIntentRecord {
 }
 
 impl ReferenceIntentRecord {
-    pub fn request(&self) -> Result<ReferenceInput, Failure> {
+    pub fn request(&self) -> Result<ReferenceCommand, Failure> {
         if self.schema != 1
             || self.asset.is_empty()
             || self.asset.len() > 256
@@ -55,28 +56,29 @@ impl ReferenceIntentRecord {
             }
             Ok(n)
         };
-        let upload = positive(&self.upload)?;
-        // The disposable probe fixes object identity to the upload ID and lifetime
-        // to one. Keep those bindings explicit in the file, never imply a production allocator.
-        if positive(&self.object)? != upload || positive(&self.incarnation)? != 1 {
-            return Err(Failure::InvalidRequest);
-        }
         let root: ProviderRootHash = self.root.parse().map_err(|_| Failure::InvalidRequest)?;
         if root.to_string() != self.root {
             return Err(Failure::InvalidRequest);
         }
-        Ok(ReferenceInput {
-            object: Request {
+        Ok(ReferenceCommand {
+            upload: ReferenceUpload {
                 service: canister(&self.service).map_err(|_| Failure::InvalidRequest)?,
                 tenant: canister(&self.tenant).map_err(|_| Failure::InvalidRequest)?,
                 namespace: positive(&self.namespace)?,
-                id: upload,
+                upload: positive(&self.upload)?,
+                object: positive(&self.object)?,
+                incarnation: positive(&self.incarnation)?,
+                first_reference: positive(&self.first_reference)?,
                 root: *root.as_bytes(),
                 bytes: self.bytes,
             },
             reference: positive(&self.reference)?,
             operation: positive(&self.operation)?,
-            retain: self.retain,
+            action: if self.retain {
+                ReferenceAction::Retain
+            } else {
+                ReferenceAction::Release
+            },
         })
     }
 }

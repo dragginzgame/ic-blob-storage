@@ -152,8 +152,15 @@ pub(crate) async fn balance_reply(caller: Principal, account: Principal) {
 }
 
 pub(crate) fn inspect_relationship(caller: Principal, owner: Principal) {
-    // Driver-only substitute; not a claim about Cashier account-query authorization.
-    if !ops::read(|state| state.driver == caller && !state.fenced) {
+    // Local authorization only. The selected service must use actual replicated
+    // execution with no attached cycles; external driver reads remain passive.
+    let allowed = ops::read(|state| {
+        let service_call = caller == state.service
+            && ic_cdk::api::in_replicated_execution()
+            && ic_cdk::api::msg_cycles_available() == 0;
+        !state.fenced && (caller == state.driver || service_call)
+    });
+    if !allowed {
         ops::reject();
         return;
     }

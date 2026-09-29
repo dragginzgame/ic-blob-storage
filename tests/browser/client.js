@@ -42,7 +42,7 @@ async function setup(cfg) {
     } });
   abortUpload = new AbortController();
   gatewayFetch = await createGatewayTransport({ certificate: client, origin: cfg.gateway,
-    maxRequests: 2, maxRequestBytes: 1024 * 1024,
+    maxRequests: 2, maxRequestBytes: 1024 * 1024, maxTotalRequestBytes: 2 * 1024 * 1024,
     intents: { ...intents,
       claimGateway: async (...args) => {
         // Cancel after the hook's read, before the atomic claim rechecks authority.

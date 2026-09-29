@@ -59,12 +59,3 @@ pub struct ReferenceInput {
     /// True retains; false releases.
     pub retain: bool,
 }
-
-/// Historical result bound to the full queried operation; not current liveness.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
-pub struct ReferenceReceipt {
-    /// Exact operation observed in the owner's journal.
-    pub request: ReferenceInput,
-    /// Original successful change/no-op or recorded lifecycle failure.
-    pub result: Result<bool, super::release::ReferenceFailure>,
-}

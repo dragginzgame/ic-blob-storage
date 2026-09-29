@@ -44,6 +44,9 @@ fn exact_retry_recovers_same_private_file_and_conflicts_preserve_original() {
     for (field, value) in [
         ("retain", json!(false)),
         ("reference", json!("7")),
+        ("object", json!("7")),
+        ("incarnation", json!("7")),
+        ("first_reference", json!("7")),
         ("bytes", json!(4)),
         ("asset", json!("different")),
         ("root", json!(format!("sha256:{}", "22".repeat(32)))),
@@ -92,7 +95,6 @@ fn scope_and_operation_are_part_of_the_key() {
     }
     let mut changed = encoded();
     changed["upload"] = json!("2");
-    changed["object"] = json!("2");
     f.write(&changed);
     assert_ne!(f.save().unwrap().path, saved.path);
 }

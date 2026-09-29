@@ -1,0 +1,8 @@
+{
+  "index": 1,
+  "url": "http://127.0.0.1:1/v1/chunk/?owner_id=rrkah-fqaaa-aaaaa-aaaaq-cai&blob_hash=sha256%3A029bb9311136a0a30b7d492426a3bacd181d6b8abfe850dd6905dde0dbdc7c7e&chunk_hash=sha256%3A5ada7ba52e068512420747ce0aa89d2f63c15bc82ab841b290a479bd7e70cfea&chunk_index=0&bucket_name=fixture-bucket&project_id=fixture-project",
+  "bytes": 1048576,
+  "sha256": "af6bc14f1c16c30beba0c11b133ce5eec3d3ef2226f10cfaa6f02c9d16081667",
+  "intentBeforeDispatch": true,
+  "effect": "local substitute"
+}

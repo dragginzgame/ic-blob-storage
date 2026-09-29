@@ -50,6 +50,34 @@ platform liquidity, transport acceptance is not provider credit, and inspection
 grants no mutation, retry, reconciliation or readiness authority. The standalone
 host and storage fixture both delegate to this handler.
 
+The native `blob-storage status` client signs this query with a PEM identity whose
+principal must match the explicit operator before transport. It requires the full
+installed scope, validates that scope again on the bounded reply and emits amounts
+as decimal strings. IC query signatures are verified against the SDK's IC root,
+or a separately supplied local replica root with literal loopback targeting.
+Local transport disables environment proxies; neither mode follows redirects or
+fetches a root automatically. Inspection errors remain failures and each owner's
+fence stays visible. An authenticated query observation is not certified state,
+provider qualification, credit or authority to dispatch; the client never sends
+an update. Signed subprocess evidence uses the standalone canister in PocketIC.
+
+`workflow::account::inspect` supplies the standalone `blob_inspect_account` update.
+Each operator request selects one observation kind under the full installed scope;
+the balance account is the installed payer and the relationship owner is the
+actual service. One bounded replicated call uses the maintained Cashier encoder
+and decoder. All four owners are checked synchronously before dispatch and again
+after the await, with no borrow held across transport. Hosts keep configuration
+immutable throughout the invocation. Any restore fence refuses dispatch or a late
+result. No account report is persisted, no aggregate snapshot is implied and no
+account, allocation, gateway or readiness state changes. Reported totals remain
+independent of their components; signed relationship figures are preserved without
+sentinel interpretation or spending arithmetic. Absence cannot select self-payment.
+Standalone bounds are 30 seconds, 4 KiB, 500,000 decoding work, 1,000 skipping work
+and 64 type entries. The CDK initially buffers the platform-bounded reply before
+the application byte check. No cycles attach and no retry occurs; ordinary IC
+fees apply. Local query-only substitutes prove platform composition, not deployed
+provider semantics, complete account activity, credit or operational recovery.
+
 The transient project-to-uploader admission model in the delivery plan additionally
 owns exact permissions alongside the existing upload catalog. Root-only exposure
 checks authenticated context supplied by the host; one-shot exposure, passive
@@ -634,6 +662,14 @@ neither absence nor historical success proves current liveness or permits retry
 of an uncertain operation. Linking exports no endpoint; adapters own actual
 context and ingress limits. The consumer still owns publication and its outbox.
 
+The local saved-intent CLI uses this same endpoint and bounded decoder for both
+standalone and durable storage. It retains all independent original identities,
+including the first reference, and separates service refusals from absent receipts
+and recorded transition failures. Its filesystem journal preserves exact intent
+but supplies neither fresh allocation nor surviving restore authority. Transport
+remains PocketIC with a simulated caller; no production authentication or dispatch
+is provided. The transient fixture's private receipt endpoint is removed.
+
 The shared `workflow::references::status::inspect` exposes tenant-only
 `blob_reference_status` in standalone and the durable storage fixture. Its request
 contains the complete original upload and exact positive reference ID, without a
@@ -934,7 +970,7 @@ receipts too; exact retries do not. The shared service owner authenticates the
 tenant before disclosure, including after suspension. Counts are current history
 headroom, not enrollment permission, a reservation or a provider guarantee.
 
-`reference_receipt` exposes the original exact operation result through the same
+`blob_reference_receipt` exposes the original exact operation result through the same
 service/tenant/namespace/object and payload checks used by mutation replay. It
 never applies a request or consumes a receipt, including when the result is
 absent. Suspension, history exhaustion and settlement preserve inspection. A

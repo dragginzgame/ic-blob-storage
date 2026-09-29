@@ -1307,6 +1307,7 @@ dependencies = [
  "k256",
  "leb128",
  "p256",
+ "pem",
  "pkcs8",
  "rand 0.10.3",
  "rangemap",
@@ -1347,6 +1348,22 @@ dependencies = [
  "ic-blob-storage",
  "ic-cdk",
  "serde",
+]
+
+[[package]]
+name = "ic-blob-storage-cli"
+version = "0.2.24"
+dependencies = [
+ "candid",
+ "ic-agent",
+ "ic-blob-storage",
+ "reqwest",
+ "serde",
+ "serde_json",
+ "sha2 0.11.0",
+ "tempfile",
+ "tokio",
+ "url",
 ]
 
 [[package]]

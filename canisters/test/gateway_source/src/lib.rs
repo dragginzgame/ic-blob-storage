@@ -107,6 +107,15 @@ async fn fixture_balance(
 
 // Maintained method/argument shape over driver-controlled bytes, never Cashier semantics.
 #[ic_cdk::query(manual_reply = true)]
+fn account_balance_get_v1(
+    input: blob_test_protocol::balance::BalanceSourceRequest,
+) -> PhantomData<()> {
+    workflow::inspect_relationship(ic_cdk::api::msg_caller(), input.account);
+    PhantomData
+}
+
+// Both account query probes use the same passive driver-controlled reply source.
+#[ic_cdk::query(manual_reply = true)]
 fn payment_account_canister_get_v1(
     input: blob_test_protocol::balance::RelationshipSourceRequest,
 ) -> PhantomData<()> {

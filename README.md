@@ -4,6 +4,13 @@ The [0.2 delivery plan](docs/roadmap.md) tracks
 the remaining work to a usable service; [current status](docs/status/current.md)
 separates implemented behavior from outstanding milestones.
 
+Caffeine is qualified through independent source review and bounded experiments,
+with every investigation tracked in the [probe ledger](docs/evidence/caffeine-probes/README.md).
+`caffeine-probe` captures public-source evidence with retained requests/responses;
+`make probe-check` verifies saved artifacts offline. Provider feedback is useful
+but is not a prerequisite for progress. Successful captures do not qualify service
+behavior, and live paid trials require their own explicit account and budget.
+
 An independent blob-storage service library for Internet Computer canisters.
 The core verifies raw-content and Caffeine-tree identities, tracks checked chunks,
 and lists missing chunks within explicit work limits. Ordered reads check each
@@ -300,6 +307,9 @@ tenant, admission, manifest and reference handlers through the shared library.
 It also delivers reference-qualified download metadata through the shared update
 handler, using an explicit immutable Caffeine project supplied at installation.
 The new host init contract requires a minor release and cross-release reinstall.
+Operator-only account inspection now uses one bounded replicated Cashier balance
+or payer-relationship query through a shared handler. Reports stay separate from
+funding and readiness; no cycles attach or account changes occur.
 Complete production workflows, clients, the Canic adapter and
 deployed-provider qualification remain open. Local bookkeeping and decoded
 provider reports do not establish a qualified storage service.
@@ -435,9 +445,10 @@ with no observed blocker, 4 reports blockers, 2 rejects arguments, and 3 reports
 input/query/reply failures without partial results. Production authentication,
 provider transport and operation persistence remain outstanding.
 
-For the transient admission fixture, `blob-fixture-reference` can preserve an
-exact local intent and inspect its historical receipt without applying it. This
-tool uses that fixture's wire, not the durable service's canonical receipt query:
+For local standalone and durable storage installations, `blob-fixture-reference`
+can preserve an exact intent and inspect its historical receipt without applying
+it. It uses the shared `blob_reference_receipt` API and bounded reply decoder;
+transport remains PocketIC with a simulated tenant caller:
 
 ```sh
 mkdir -m 700 reference-journal
@@ -456,18 +467,19 @@ root and identities rather than the placeholders:
 {
   "schema": 1, "scope": "pocketic_fixture", "asset": "image-a",
   "service": "SERVICE", "tenant": "TENANT", "namespace": "1",
-  "upload": "1", "object": "1", "incarnation": "1",
+  "upload": "1", "object": "2", "incarnation": "3", "first_reference": "4",
   "root": "sha256:ROOT_HEX", "bytes": 3,
   "reference": "2", "operation": "1", "retain": true
 }
 ```
 
-IDs are positive canonical decimal strings, preserving their full width. The
-probe fixes object ID to upload ID and incarnation to one; the file records both
-explicitly. `retain: false` names a release. The tool does not allocate IDs or
+IDs are independent positive canonical decimal strings, preserving their full
+width. The original first reference is required explicitly; no identity is
+inferred from another. `retain: false` names a release. The tool does not allocate IDs or
 prove freshness. Saving requires an existing, durably created, caller-controlled
-local directory. A filename derived from scope/object/lifetime/operation binds one
-exact intent. Changing the root, reference, action, size or asset label conflicts;
+local directory. A filename derived from service/tenant/namespace/upload/operation
+binds one exact intent. Changing the object, lifetime, first reference, root,
+target reference, action, size or asset label conflicts;
 an exact retry returns the same record, even after its success output was lost.
 The tool never overwrites existing records or follows record/lock symlinks.
 
@@ -488,9 +500,11 @@ tests cover process interruption, not hardware failure. Dispatch, ID allocation
 and consumer outbox coordination remain unimplemented.
 
 Inspection checks the selected service and simulated tenant against the file,
-then queries only `reference_receipt`. Exit 0 means historical success, 4 means
+then queries only `blob_reference_receipt`. Exit 0 means historical success, 4 means
 an absent receipt or recorded lifecycle failure, 2 rejects arguments and 3 reports
-storage, lock contention, capacity, binding, conflict or query failures. An old
+storage, lock contention, capacity, binding or query failures. Service refusals
+also exit 3 and retain their typed reason under `observation.failure`; an
+unconfirmed upload is never reported as an absent receipt. An old
 successful retain can describe
 a reference that has since been released. Neither success nor absence authorizes
 publication or an uncertain effect; current liveness and consumer coordination
@@ -544,7 +558,57 @@ promise crash-durable directory updates. Persistence follows
 See the
 [consumer download direction](docs/roadmap.md#consumer-download-verification).
 
-The unpublished `blob-fixture-status` client attaches to an existing local PocketIC
+The unpublished native `blob-storage` command authenticates to the shared service
+API with an explicit Ed25519 or secp256k1 PEM identity. Set these variables from
+the installation's configuration and the operator's own identity:
+
+```sh
+cargo run --offline --locked -p ic-blob-storage-cli --bin blob-storage -- \
+  status --network ic --url "$IC_API_URL" --identity "$OPERATOR_PEM" \
+  --operator "$OPERATOR_PRINCIPAL" --service "$SERVICE_PRINCIPAL" \
+  --namespace "$SERVICE_NAMESPACE" --cashier "$CASHIER_PRINCIPAL" \
+  --payer "$PAYER_PRINCIPAL"
+```
+
+The PEM's principal must match `--operator` before any network request, and the
+service must authorize that caller. Namespace is a positive canonical decimal
+u128. The complete installed scope is checked in both request and response. IC
+mode requires an HTTPS origin and uses ic-agent's built-in IC root key. Local
+mode requires `--network local`, a literal loopback origin and `--root-key` naming
+a trusted DER root obtained independently from the local replica owner; root
+overrides are rejected in IC mode. No root is fetched automatically. URL paths,
+credentials, query strings, fragments and HTTP redirects are rejected.
+
+The command only queries `blob_local_status`. It verifies IC query signatures;
+the result is a local observation, not certified state, provider credit, readiness
+or dispatch authority. It exposes separate upload/funding/gateway/read fences,
+including after restore. All counters and amounts are decimal strings, optional
+identities remain `null`, and query failures never become zero balances. Exit 0
+means an observation was returned (even if fenced), 2 means invalid arguments,
+and 3 means a file, identity, transport, decoder, binding or service refusal. Errors
+are structured JSON codes; private key contents and remote diagnostics are omitted.
+The call has a 30-second deadline, a 256 KiB HTTP response ceiling and a 64 KiB
+Candid reply bound with decoder work limits. It never falls back to an update.
+Run `make test-standalone` for the local signed HTTP subprocess evidence.
+
+Use `funding-history` in place of `status` with the same authentication and scope
+flags to read one descending page from `blob_funding_history`. It accepts at most
+32 entries and reuses the library decoder to validate request echo, scope, ordering,
+amounts, refunds and continuation. The JSON `entries` preserve `prepared`,
+`uncertain`, `not_enqueued` and `callback` phases; callback refunds do not prove
+provider credit. Empty and fenced pages still exit 0.
+
+For another page, save the non-null `next` object from the prior result as a JSON
+file and pass `--cursor FILE`. The file is limited to 2 KiB and includes the complete
+scope plus a decimal-string `before_operation`; a changed scope rejects before
+transport. No cursor means a fresh sweep. `next: null` ends this local range; it
+does not prove complete provider-account activity. Pages are current observations,
+not a snapshot: restart from the beginning to see changes behind a saved cursor.
+The command never automatically paginates, retries a payment or writes a journal.
+Local tests cover populated history through the shared durable storage fixture;
+its payment outcomes are controlled substitutes, not deployed Cashier evidence.
+
+The separate unpublished `blob-fixture-status` client attaches to an existing local PocketIC
 instance. It requires a literal loopback address, instance ID, canister and
 simulated caller; there are no inferred identities or targets. For example, with
 these variables set from your running fixture harness:

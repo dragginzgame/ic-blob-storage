@@ -116,7 +116,8 @@ in [dependency documentation](../../docs/dependencies.md#browser-certificate-evi
 
 `createGatewayTransport` in `gateway.js` (package subpath `./gateway`) supplies the
 patched Caffeine client's `fetch` option. Keep `retry: false` and `concurrency: 1`.
-It accepts `{ certificate, intents, origin, maxRequests, maxRequestBytes, fetch? }`;
+It accepts `{ certificate, intents, origin, maxRequests, maxRequestBytes,
+maxTotalRequestBytes, fetch? }`;
 `certificate` is the existing certificate client and `intents` is the same store.
 The selected origin must use HTTPS or explicit loopback HTTP. This hook snapshots
 opaque PUT bodies/headers, confines requests to that origin, refuses redirects,
@@ -126,18 +127,23 @@ The integrating application still owns the correct bucket/project/provider bindi
 
 The request budget is selected before dispatch: at most 256 requests, 2 MiB per
 body, 4096 URL characters and 16 headers totalling at most 4096 name/value characters.
+The required `maxTotalRequestBytes` independently caps summed body bytes across
+all claims and cannot exceed `maxRequests * maxRequestBytes`. Committed claims
+consume this budget even when dispatch or its response is uncertain; it is never
+refunded by an HTTP observation. This bounds outbound traffic, not provider charges.
 Bodies must be strings or Uint8Arrays. Responses are bounded to 64 KiB with a
-20-second request deadline. The fixture selects two requests and 1 MiB per body.
+20-second request deadline. The fixture selects two requests, 1 MiB per body and
+2 MiB in total.
 These are local transport limits, not provider limits or evidence of accepted size.
 
 The store adds two methods to the certificate row, returning the whole resulting row:
 
 | Method | Required atomic behavior |
 | --- | --- |
-| `claimGateway(binding, scope, owner, index, request)` | Recheck the exact binding, observed certificate and uncancelled state in the same transaction as cancellation. On the first claim, retain `scope` and `owner`; thereafter require both unchanged. Require `index` to equal retained request count below the scope budget, every previous request responded with HTTP 2xx, and no previously claimed URL. Append `{ request, phase: 'uncertain' }` and resolve only after durable commit. |
+| `claimGateway(binding, scope, owner, index, request)` | Recheck the exact binding, observed certificate and uncancelled state in the same transaction as cancellation. On the first claim, retain `scope` and `owner`; thereafter require both unchanged. Require `index` to equal retained request count below the scope budget, every previous request responded with HTTP 2xx, and no previously claimed URL. Check summed retained `request.bodyBytes` plus this body against `scope.maxTotalRequestBytes`. Append `{ request, phase: 'uncertain' }` and resolve only after durable commit. |
 | `observeGateway(binding, scope, owner, index, request, status)` | Match the exact retained binding, scope, owner and last uncertain request. Record `{ request, phase: 'responded', status }`, preserving cancellation and all earlier history. Reject mismatches; this observation does not release capacity or authorize replay. |
 
-`scope` is `{ origin, maxRequests, maxRequestBytes }`. A request records its exact
+`scope` is `{ origin, maxRequests, maxRequestBytes, maxTotalRequestBytes }`. A request records its exact
 URL, method, normalized headers, body byte length and SHA-256 fingerprint. Body
 bytes and certificates are not copied into this gateway journal. The `owner` is a
 random local execution token retained by the store and by that hook instance;
@@ -159,3 +165,10 @@ tab loss and reload, not production eviction, disk durability or rollback recove
 Provider reconciliation, completion, accounting and production application storage
 remain required before live use. `GatewayRefusal.code` reports local refusals;
 HTTP status alone proves neither stored content nor absence of a paid effect.
+
+`make test-sdk-probe BLOB_SDK_PROBE_REPORT=NEW_DIRECTORY` exercises the pinned
+patched SDK with local certificate/gateway/store substitutes, including multiple
+chunks, ignored resume hints, non-complete replies, lost final responses and byte
+exhaustion. It records synthetic requests/replies and independently verifies bytes
+with the Rust download example, including corrupt/truncated rejection. See the
+[probe ledger](../../docs/evidence/caffeine-probes/README.md) for evidence and limits.

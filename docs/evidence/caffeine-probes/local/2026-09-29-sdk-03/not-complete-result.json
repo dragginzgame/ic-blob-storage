@@ -1,0 +1,21 @@
+{
+  "name": "not-complete",
+  "mode": "non-complete",
+  "size": 3,
+  "requests": 2,
+  "uploaded": 767,
+  "returned": true,
+  "refusal": null,
+  "progress": [
+    100
+  ],
+  "finalRequestPhase": "responded",
+  "verified": {
+    "original": true,
+    "corrupted": false,
+    "truncated": false
+  },
+  "retryDispatched": false,
+  "providerCompletion": "not_established",
+  "providerCharges": "not_observed"
+}

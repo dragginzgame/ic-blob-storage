@@ -1,0 +1,8 @@
+{
+  "index": 0,
+  "status": 200,
+  "body": "{\"status\":\"blob_tree_accepted\",\"existing_chunks\":[\"sha256:b2402ac54c9227606a6673478ad72f9a34fbc1062199f18a994dbd5f1825277f\"],\"chunk_check_errors\":0}",
+  "sha256": "238f6ba2cfa8821d23b2ddd5fde7a44eb0821f72e6ef3da1a2b5ac9e266ff2be",
+  "delivered": true,
+  "substituteStoredBytes": 0
+}

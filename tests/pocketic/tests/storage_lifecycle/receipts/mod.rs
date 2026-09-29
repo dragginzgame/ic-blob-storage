@@ -1,4 +1,5 @@
 use super::*;
+mod cli;
 mod mutations;
 use blob_test_protocol::storage::reference::{ReferenceClientInput, ReferenceProbeFailure};
 fn consumer() -> Fixture {

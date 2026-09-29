@@ -14,7 +14,7 @@ const require = (condition, code) => { if (!condition) throw new GatewayRefusal(
  * Recreating this hook cannot resume an already claimed transfer.
  */
 export async function createGatewayTransport({ certificate, intents, origin,
-  maxRequests, maxRequestBytes, fetch: transport = globalThis.fetch.bind(globalThis) }) {
+  maxRequests, maxRequestBytes, maxTotalRequestBytes, fetch: transport = globalThis.fetch.bind(globalThis) }) {
   const endpoint = new URL(origin);
   require(endpoint.protocol === 'https:' || (endpoint.protocol === 'http:' &&
     ['localhost', '127.0.0.1', '[::1]'].includes(endpoint.hostname)), 'origin');
@@ -22,15 +22,17 @@ export async function createGatewayTransport({ certificate, intents, origin,
     !endpoint.search && !endpoint.hash, 'origin');
   require(Number.isSafeInteger(maxRequests) && maxRequests > 0 && maxRequests <= 256 &&
     Number.isSafeInteger(maxRequestBytes) && maxRequestBytes > 0 &&
-    maxRequestBytes <= 2 * 1024 * 1024, 'limits');
+    maxRequestBytes <= 2 * 1024 * 1024 && Number.isSafeInteger(maxTotalRequestBytes) &&
+    maxTotalRequestBytes > 0 && maxTotalRequestBytes <= maxRequests * maxRequestBytes, 'limits');
   for (const method of ['claimGateway', 'observeGateway']) {
     require(typeof intents[method] === 'function', 'store');
   }
   const binding = structuredClone((await certificate.inspect()).binding);
-  const scope = Object.freeze({ origin: endpoint.origin, maxRequests, maxRequestBytes });
+  const scope = Object.freeze({ origin: endpoint.origin, maxRequests, maxRequestBytes, maxTotalRequestBytes });
   // A local execution fence, never a service operation ID or restore authority.
   const owner = crypto.randomUUID();
   let index = 0;
+  let claimedBytes = 0;
   const copy = value => structuredClone(value);
   function retained(row, request, phase) {
     require(row && equal(row.binding, binding) && row.phase === 'observed', 'intent-binding');
@@ -53,6 +55,7 @@ export async function createGatewayTransport({ certificate, intents, origin,
       <= maxRequestBytes, 'request-size');
     const body = typeof init.body === 'string' ? new TextEncoder().encode(init.body) : init.body.slice();
     require(body.length <= maxRequestBytes, 'request-size');
+    require(body.length <= maxTotalRequestBytes - claimedBytes, 'request-budget');
     const headers = Array.from(new Headers(init.headers).entries());
     require(headers.length <= 16 && headers.reduce((n, [k, v]) => n + k.length + v.length, 0)
       <= 4096, 'headers');
@@ -67,6 +70,7 @@ export async function createGatewayTransport({ certificate, intents, origin,
     signal.throwIfAborted();
     const row = await intents.claimGateway(copy(binding), copy(scope), owner, index, copy(request));
     retained(row, request, 'uncertain');
+    claimedBytes += body.length;
     require(!row.cancelled, 'gateway-blocked');
     // A cancellation/abort after claim may leave an unsent but uncertain request.
     // Never clear that claim or automatically retry it.

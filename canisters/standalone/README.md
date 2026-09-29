@@ -38,6 +38,18 @@ with each owner's restore fence. Inspection reads no lifetime history and makes 
 provider calls. Available allocation is not platform liquidity, transport acceptance
 is not provider credit, and the snapshot does not authorize retry or reconciliation.
 
+Operator-only `blob_inspect_account` takes `{ scope, kind }`, where `kind` is
+`Balance` or `PaymentRelationship`. It queries the installed payer's balance or
+the relationship between the service owner and that payer, respectively. Each
+invocation makes one replicated Cashier query with a 30-second bounded wait,
+4 KiB reply limit and bounded decoding. It attaches no cycles; ordinary IC call
+fees apply. Scope and all owner fences are rechecked after the await. Returned
+balances and signed relationship figures are observations only; a missing
+relationship never selects self-payment. No result changes funding, membership,
+configuration or readiness, and no automatic retry occurs. Results are not
+persisted or combined into an atomic account snapshot. Actual Cashier replicated
+account-query behavior and economics still need deployed qualification.
+
 Operator-only `blob_revoke_gateway` takes this same scope and a concrete gateway
 principal. It removes local membership and invalidates older sync/read observations,
 including when the member was already absent. Read reservations and object/funding

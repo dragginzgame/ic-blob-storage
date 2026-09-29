@@ -1,5 +1,7 @@
 //! IC transaction rollback and same-release inspection of the durable upload owner.
 #![cfg(not(target_family = "wasm"))]
+mod authenticated_cli;
+mod reference_cli;
 mod storage_exposure;
 mod storage_gateways;
 mod storage_manifests;

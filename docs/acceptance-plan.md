@@ -1,5 +1,13 @@
 # Service acceptance plan — proposed B1 assignments
 
+Qualification follows the [Caffeine probe ledger](evidence/caffeine-probes/README.md).
+Direct provider feedback is not an acceptance prerequisite. Evidence may come from
+public source/interface review and controlled observed behavior, with explicit
+limits and independent verification where possible. A repeated successful trial
+does not prove universal retry, retention or billing guarantees. Unsupported
+features require an explicit contract/case revision, never a silent pass. These
+decisions do not authorize a paid trial or mark any case complete.
+
 No acceptance case below is fully qualified. The shared library has native
 identity, manifest/checkpoint, quota/reference, gateway, reply-codec and funding
 policy evidence. The [core evidence](evidence/core-primitives.md) and

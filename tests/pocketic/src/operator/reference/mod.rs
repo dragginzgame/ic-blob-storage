@@ -7,10 +7,11 @@ use super::{
     model::{canister, decimal},
     ops::{QueryTarget, query_target},
 };
+use ic_blob_storage::ops::service::references::REFERENCE_RECEIPT_METHOD;
 use serde_json::json;
 use std::{collections::BTreeMap, net::SocketAddr, path::Path};
 
-const USAGE: &str = "blob-fixture-reference save --intent INPUT.json --journal EXISTING_DIRECTORY\nblob-fixture-reference inspect --intent INTENT.json --server LOOPBACK_IP:PORT --instance ID --canister PRINCIPAL --caller PRINCIPAL\nSave locks a bounded journal and syncs the exact identity-keyed file and directory before acknowledgment. Exact retries recover the same file; changed arguments conflict. Use an existing durable caller-controlled local directory. Never remove its .writer.lock. IDs and restore authority are not allocated. Inspect queries reference_receipt only. No mutation, upload or funding is sent.\nExit: 0 saved or historical successful receipt; 2 arguments; 3 input/storage/busy/capacity/transport/reply/binding/conflict; 4 absent or recorded failure. Success is not current reference liveness or dispatch authority.\n";
+const USAGE: &str = "blob-fixture-reference save --intent INPUT.json --journal EXISTING_DIRECTORY\nblob-fixture-reference inspect --intent INTENT.json --server LOOPBACK_IP:PORT --instance ID --canister PRINCIPAL --caller PRINCIPAL\nSave locks a bounded journal and syncs the exact identity-keyed file and directory before acknowledgment. Exact retries recover the same file; changed arguments conflict. Use an existing durable caller-controlled local directory. Never remove its .writer.lock. IDs and restore authority are not allocated. Inspect queries blob_reference_receipt only. No mutation, upload or funding is sent.\nExit: 0 saved or historical successful receipt; 2 arguments; 3 input/storage/busy/capacity/transport/reply/binding/conflict; 4 absent or recorded failure (service refusals exit 3). Success is not current reference liveness or dispatch authority.\n";
 
 /// Save an explicit local fixture intent or inspect its exact historical receipt.
 /// Neither command authorizes mutation, publication or recovery after restoring state.
@@ -75,7 +76,7 @@ fn execute(args: &[String]) -> Result<(u8, serde_json::Value), Failure> {
     }
     let record = record::load(Path::new(input))?;
     let request = record.request()?;
-    if request.object.service != service || request.object.tenant != caller {
+    if request.upload.service != service || request.upload.tenant != caller {
         return Err(Failure::Binding);
     }
     let bytes = query_target(
@@ -85,7 +86,7 @@ fn execute(args: &[String]) -> Result<(u8, serde_json::Value), Failure> {
             canister: service,
             caller,
         },
-        "reference_receipt",
+        REFERENCE_RECEIPT_METHOD,
         candid::encode_one(request).expect("fixed reference input"),
     )?;
     let (exit, observation) = observation::decode(request, &bytes)?;

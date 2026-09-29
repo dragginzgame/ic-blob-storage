@@ -1,4 +1,5 @@
 use super::*;
+mod account;
 mod operator;
 use crate::ops::service::configuration::{tests::candidate, validate_candidate};
 use ic_memory::ic_stable_structures::VectorMemory;

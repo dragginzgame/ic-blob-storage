@@ -1,5 +1,20 @@
 {
   "schema_version": 1,
+  "account_inspection_review": {
+    "observed_on": "2026-09-29",
+    "official_main": "78781961e52b8c9c874becd473402950429d4818",
+    "source": "https://github.com/caffeinelabs/skills/tree/78781961e52b8c9c874becd473402950429d4818/packages/object-storage/backend/src",
+    "Mixin.mo_sha256": "175c6b98672a83054fc08855062d1a7b7f2bd3713bf11a60d5319ac5afefe2b3",
+    "Storage.mo_sha256": "0c757f4cb30ebe8e30b42a59b130a1662b47e403b9664f44e98d14b08b20af42",
+    "backend_unchanged": true,
+    "npm_latest": "1.1.2",
+    "npm_integrity": "sha512-JAmoHT6E8M18DEbW4rkHinAOw0A8yNbz+rj8F56VAvr8Hf0TxQSK0ZdMrkwwT7BsiOLvtFK/YcLtoaWBc9x2xQ==",
+    "metadata": "https://registry.npmjs.org/@caffeineai%2fobject-storage/latest",
+    "implementation": "One operator-selected balance or payer-relationship observation through maintained request/reply ownership and ReplicatedAccountQuery. Standalone checks immutable installed scope and all restore fences before and after the await. No report persistence, account mutation, funding or readiness inference.",
+    "bounds": "30-second bounded wait, 4096 application reply bytes, 500000 Candid decoding work, 1000 skipping work, 64 type entries. The CDK initial buffer is platform-bounded. Zero attached cycles, no retry or fallback; ordinary IC fees apply.",
+    "local_evidence": "Two native composition/transport tests and nine targeted PocketIC cases pass. Local query-only source permits the configured service only in replicated execution with zero attached cycles. Linked payer, signed/wide figures, scope/caller and reply refusals, unchanged accounting, late native restore fence and actual IC service/source restoration are covered.",
+    "limits": "No live account query, deployed Cashier replicated-account test, provider operation, deployment or external message. This refresh does not establish authoritative upload completion, replay charging, final billing, independent recovery authority or service qualification. The provider server contract remains unresolved."
+  },
   "observed_on": "2026-09-28",
   "scope": "Read-only public source/package refresh, anonymous Cashier metadata and gateway-list query, plus local PocketIC replicated-query tests. No live update call, account lookup, deployment, attachment or paid provider operation.",
   "baseline": {

@@ -6,6 +6,15 @@ and a consumer acceptance journey. It is not complete when another set of codecs
 or test fixtures passes. Canic removal and live installation retirement remain
 separate, explicitly authorized work.
 
+The maintainer selected independent Caffeine qualification on 2026-09-29. Direct
+provider cooperation is not a prerequisite. Follow the persistent
+[probe ledger](evidence/caffeine-probes/README.md): combine pinned source/interface
+evidence, controlled local failure tests and bounded authorized live observations.
+Acceptance requires demonstrated behavior and explicit supported limits, not
+unproven universal guarantees. Missing guarantees require a reviewed narrower
+feature/recovery contract; they do not silently waive existing safety or parity
+requirements. Log every probe, including failed and inconclusive runs.
+
 The released **0.2.1 library** includes the 0.2 direct-upload admission contract,
 tenant enrollment, canonical metadata, indexed accounting and content/reference
 capacity inspection, with local resource evidence.
@@ -26,7 +35,7 @@ The [review record](evidence/toko-0.2-review.json) pins source paths and hashes.
 | Ownership | Transient catalogs, references, quotas, reservations | Durable service handlers and tenant enrollment |
 | Caffeine | Bounded codecs and scoped query encoding | Qualified transport and completion/economic evidence |
 | Recovery | Actual IC interruption tests; inspection-only restored fixtures | Defined operational restore/reconciliation with surviving authority |
-| Operations | Local status, refresh, sync, preview and lookup tools | Production authentication, targeting and funding workflow |
+| Operations | Local status, refresh, sync, preview and lookup tools | Authenticated status now available; remaining authenticated operations and funding workflow |
 | Deployment | Independent core library | Standalone and Canic adapters using identical handlers |
 
 ## Milestones and completion evidence
@@ -41,6 +50,26 @@ The [review record](evidence/toko-0.2-review.json) pins source paths and hashes.
 M2 depends on M1's applicable decisions, not just a milestone label. M2 may use
 explicitly labeled local provider substitutes for IC failure cuts; M3 must supply
 the actual provider evidence. A release is not proof that a milestone passed.
+
+The native `blob-storage status` CLI now signs queries to the shared
+`blob_local_status` endpoint using an explicit PEM operator identity and installed
+service/namespace/Cashier/payer scope. It verifies query signatures against the IC
+root, or an explicitly trusted local root, and preserves all restore fences and
+full-width accounting in JSON. Actual signed HTTP subprocess coverage uses the
+standalone canister and PocketIC gateway, including untrusted-root and denied-caller
+refusals. This closes the initial authenticated observation slice of M3; provider
+account operations, consumer coordination, operational recovery and qualified
+funding dispatch remain open. It is not a certified-state or readiness verdict.
+
+`blob-storage funding-history` extends that authenticated transport to one bounded
+page through the maintained funding decoder. Scoped saved cursors survive process
+restart and inspection after service restoration; local tests preserve uncertain
+amounts and callback refunds separately from credit. Populated payment facts use
+the explicit durable storage fixture, while standalone proves empty/denied/fenced
+inspection. No automatic sweep, payment dispatch or provider-account completeness
+claim is introduced. The [provider questions](provider-review.md#focused-provider-questions--prepared-not-sent)
+now identify the exact existing server guarantees and retention information needed
+to close the remaining evidence gaps, without demanding a custom provider API.
 
 The maintainer directed the next implementation toward canister service storage;
 the local filesystem journal remains optional test/operator tooling. Shared stable
@@ -239,10 +268,12 @@ observations reserve nothing and do not prove global absence or fresh admission.
 Production authentication, new-object reference sizing and persisted exact
 operation identities remain outstanding; no upload or funding occurs here.
 
-Reference recovery now has a shared `reference_receipt` read used by both passive
-inspection and mutation replay. `blob-fixture-reference` can journal a bounded exact
-fixture intent without replacement and query it later, including after release or
-settlement. It preserves historical typed results without allocating a new request
+Reference recovery now has a shared `blob_reference_receipt` query used by the
+local CLI and replicated client. `blob-fixture-reference` journals a bounded exact
+intent with independent upload/object/lifetime/first-reference bindings, then
+queries standalone or durable storage through the same maintained decoder,
+including after release, settlement or fenced restoration. It preserves service
+refusals separately from absence and recorded results without allocating a new request
 or reference. Caller-supplied IDs still need a surviving allocation authority;
 local writes now use an identity-keyed, bounded journal with an exclusive OS lock
 and file/directory sync before acknowledgment. Exact retries recover the same
@@ -262,6 +293,13 @@ restored-instance fence. Upload/provider intents and actual dispatch remain open
 | Upload and deletion evidence | Intent before certificate exposure; logical release, physical deletion and billing stop remain separate | Authoritative completion lookup, retry charging, retention and object-specific final billing evidence |
 | Recovery | Synchronous fencing on restoration; no reuse from an old local counter | Specify surviving identity/accounting authority, supported backup boundary and a proven operational recovery path; permanently fenced fixtures are insufficient |
 | Deployment ownership | Both adapters and client live here; Canic supplies generic lifecycle/discovery | Final package/protocol boundaries and production tenant/operator authentication; Canic changes require separate authority |
+
+Standalone account inspection now composes the maintained balance and relationship
+encoders/decoders through one bounded replicated query per operator request. It
+checks the full immutable installed scope and all restore fences on both sides of
+the await. Local IC tests cover linked payers and preserve all service accounting;
+these observations do not establish complete account activity, credit, provider
+qualification or payment admission. No paid provider trial has run.
 
 Each unresolved provider question must end in evidence, an explicitly reviewed
 narrower supported contract, or a reported blocker. Do not substitute another local
