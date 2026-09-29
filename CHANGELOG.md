@@ -26,6 +26,12 @@
   callbacks, write rollback and fenced restoration. `make test-standalone` now builds
   the local gateway source fixture too; deployed-provider qualification remains open.
 
+### Fixed
+
+- Updated operator gateway-query tests for passive malformed, oversized and empty
+  fixture replies. Client validation rejects each without changing pending sync
+  state or source journals; caller, scripted-effect and restore refusals remain covered.
+
 ## [0.2.21] - 2026-09-29
 
 ### Added

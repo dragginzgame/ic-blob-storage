@@ -76,6 +76,14 @@ grant, allocator or version changed; no full CI/release gate ran.
 Next, connect remaining provider/operator handlers and resolve qualified completion
 and operational recovery; this local revocation does not complete M2 or M3.
 
+The maintainer's validation exposed an outdated operator gateway-query assertion:
+passive malformed, oversized and empty fixture replies now return bytes for client
+validation rather than transport refusal. The test now separates those replies
+from scripted-effect refusal and checks typed client errors, unchanged pending
+sync and unchanged source journals. Caller and restore rejection checks remain.
+All 48 operator PocketIC cases pass (70.44 seconds with two test threads). This
+corrects test expectations only; no production or fixture behavior changed.
+
 ## Shared operator funding inspection and client — included in 0.2.21
 
 `dto::funding` and `workflow::funding::history::inspect` now expose the existing

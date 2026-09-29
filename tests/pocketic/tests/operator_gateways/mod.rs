@@ -3,7 +3,7 @@ use super::*;
 use blob_test_protocol::SourceMode;
 use ic_blob_storage::{
     model::gateway::{
-        GatewayListLimits,
+        GatewayListError, GatewayListLimits,
         membership::GatewayMembership,
         registry::{GatewayRegistry, GatewayScope, GatewaySyncError},
     },
@@ -103,9 +103,6 @@ fn gateway_query_refuses_other_callers_scripted_effect_modes_and_restored_source
     );
     for mode in [
         SourceMode::Hold,
-        SourceMode::Malformed,
-        SourceMode::Oversized,
-        SourceMode::Empty,
         SourceMode::Reject,
         SourceMode::Overlap,
         SourceMode::Revoke,
@@ -135,4 +132,53 @@ fn gateway_query_refuses_other_callers_scripted_effect_modes_and_restored_source
     let before = f.journals();
     assert!(query(f.driver).is_err());
     assert!(f.journals() == before, "restored source remains fenced");
+}
+
+#[test]
+fn gateway_query_passive_fault_replies_preserve_source_and_pending_sync() {
+    let f = Fixture::new();
+    let request = CashierQueryRequest::new(f.gateway, CashierQuery::StorageGateways).unwrap();
+    let scope = GatewayScope::new(f.authority, NonZeroU128::new(1).unwrap(), f.gateway).unwrap();
+    let mut registry = GatewayRegistry::new(
+        scope,
+        GatewayMembership::new(GatewayListLimits {
+            max_entries: n(4),
+            max_unique: n(4),
+        }),
+    );
+    let token = registry.begin_sync().unwrap();
+    let pending = registry.clone();
+    for (mode, expected) in [
+        (SourceMode::Malformed, GatewayReplyError::InvalidReply),
+        (SourceMode::Oversized, GatewayReplyError::ReplyTooLarge),
+        (
+            SourceMode::Empty,
+            GatewayReplyError::Sync(GatewaySyncError::InvalidList(GatewayListError::Empty)),
+        ),
+    ] {
+        let configured: bool = f
+            .harness
+            .pic
+            .update_candid_as(f.gateway, f.driver, "configure", (mode,))
+            .unwrap();
+        assert!(configured);
+        let before = f.journals();
+        let bytes = f
+            .harness
+            .pic
+            .query_call(
+                request.cashier(),
+                f.driver,
+                request.method_name(),
+                request.arguments().to_vec(),
+            )
+            .expect("passive fault mode returns bytes for client validation");
+        assert_eq!(
+            request.apply_gateway_sync_reply(&mut registry, token, scope, &bytes, limits()),
+            Err(expected.into()),
+            "mode {mode:?}"
+        );
+        assert_eq!(registry, pending);
+        assert!(f.journals() == before, "passive replies preserve journals");
+    }
 }
