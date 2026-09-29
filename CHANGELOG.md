@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.2.21]
+
 ### Added
 
 - Shared operator-only `blob_funding_history` query in the standalone host and

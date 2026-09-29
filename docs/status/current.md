@@ -10,8 +10,9 @@ origin/main and the peeled v0.2.20 tag resolve to
 `f7e5cd4fed6d9fd494c01acaa87d3be6a77d4c2b`, from validated source
 `f31b71997c0d1d54e6c02f814f43d0e13b4bf44e`. The receipt records the
 `release-verify` gate; registry publication was not independently queried.
-The dated 0.2.20 notes match that release. New work is grouped in **Unreleased**;
-no next version is selected. Package version and release receipt remain at 0.2.20.
+The dated 0.2.20 notes match that release. The maintainer requested the **0.2.21**
+changelog; completed funding inspection and client work is grouped in that undated
+draft below empty Unreleased. Package version and release receipt remain at 0.2.20.
 The browser fixture retains Caffeine 1.1.2 and supported SDK 5.4.0.
 The worktree was clean at the start of this batch. No dependency changed.
 No version mutation, commit, publication, deployment or deployed-provider effect ran here;
