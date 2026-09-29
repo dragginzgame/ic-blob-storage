@@ -8,6 +8,7 @@ pub mod manifests;
 mod planning;
 pub mod read;
 mod recovery;
+pub(crate) use recovery::envelope as validate_envelope;
 pub mod status;
 use super::{
     roots::{RootStoreError, StableRootClaims},

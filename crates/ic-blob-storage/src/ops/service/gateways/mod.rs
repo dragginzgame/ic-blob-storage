@@ -47,7 +47,7 @@ impl<M: Memory> StableGatewayRegistry<M> {
     /// # Panics
     /// Stable allocation/encoding failures trap; hosts must propagate IC rollback.
     pub fn install(memory: M, config: ServiceConfiguration) -> Result<Self, GatewayStoreError> {
-        Self::envelope(&config)?;
+        validate_envelope(&config)?;
         if memory.size() != 0 {
             return Err(GatewayStoreError::AlreadyAllocated);
         }
@@ -72,7 +72,7 @@ impl<M: Memory> StableGatewayRegistry<M> {
     /// # Panics
     /// Invalid collection/record bytes trap without initializing replacement state.
     pub fn open(memory: M, config: ServiceConfiguration) -> Result<Self, GatewayStoreError> {
-        Self::envelope(&config)?;
+        validate_envelope(&config)?;
         if memory.size() == 0 {
             return Err(GatewayStoreError::Missing);
         }
@@ -205,12 +205,13 @@ impl<M: Memory> StableGatewayRegistry<M> {
         )
         .expect("validated service configuration")
     }
-    fn envelope(config: &ServiceConfiguration) -> Result<(), GatewayStoreError> {
-        if config.billing().gateway_limits().max_unique.get() > MAX_MEMBERS {
-            return Err(GatewayStoreError::UnsupportedEnvelope);
-        }
-        Ok(())
+}
+
+pub(crate) fn validate_envelope(config: &ServiceConfiguration) -> Result<(), GatewayStoreError> {
+    if config.billing().gateway_limits().max_unique.get() > MAX_MEMBERS {
+        return Err(GatewayStoreError::UnsupportedEnvelope);
     }
+    Ok(())
 }
 /// Typed rejection; binary or stable-write failures trap separately.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Error)]

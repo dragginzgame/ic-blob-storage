@@ -56,19 +56,6 @@ pub(crate) fn failure(error: GatewayStoreError) -> Failure {
         _ => Failure::Invalid,
     }
 }
-pub(super) fn initialize(
-    memory: super::ProbeMemory,
-    config: &ic_blob_storage::model::service::configuration::ServiceConfiguration,
-    restored: bool,
-) -> ic_blob_storage::ops::service::gateways::StableGatewayRegistry<super::ProbeMemory> {
-    use ic_blob_storage::ops::service::gateways::StableGatewayRegistry;
-    if restored {
-        StableGatewayRegistry::open(memory, *config)
-    } else {
-        StableGatewayRegistry::install(memory, *config)
-    }
-    .unwrap()
-}
 pub(crate) fn inspect(context: UploadContext, input: Scope) -> Result<View, Failure> {
     let scope = scope(input)?;
     let value = STATE

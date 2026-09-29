@@ -2,6 +2,28 @@
 
 ## [Unreleased]
 
+## [0.2.18]
+
+### Added
+
+- Shared host configuration input and bounded Candid decoder. Explicit service,
+  operator, payer, namespace, resource, billing, funding allocation and read-session
+  inputs reuse existing model validation before state allocation. The host's actual
+  service identity must match. Invalid limits are rejected without defaults or
+  clamping, and balances and byte budgets preserve their full numeric width.
+- Shared synchronous assembly of upload, funding, gateway and read-session stores
+  with explicit host memory grants. All store envelopes are validated before
+  allocation; any occupied grant refuses fresh installation, and restoration never
+  initializes a missing store. The fixture's separate initialization paths are
+  removed. Changed funding/read limits reject without modifying retained bytes;
+  restored stores remain inspection-only.
+- Targeted coverage for malformed/oversized configuration, role bindings, resource
+  relationships, funding/read budgets and occupied/missing memory grants. A combined
+  PocketIC journey preserves upload obligations, uncertain funding, pending gateway
+  sync and interrupted read occupancy through same-release restoration, with
+  mutations refused afterward. Production adapters and deployed Caffeine
+  qualification remain open.
+
 ## [0.2.17] - 2026-09-28
 
 ### Added

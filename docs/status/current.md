@@ -2,16 +2,17 @@
 
 Date: 2026-09-28
 
-## Active work — 0.2.17 changelog draft
+## Active work — 0.2.18 changelog draft
 
-The maintainer confirmed **0.2.16 is pushed** and requested continued work.
-Cargo and the release receipt are 0.2.16. Local main, origin/main and v0.2.16 resolve to
-`99eb1195e1d5e7e62bf7ad1ab488c5248e0d8726`, from validated source
-`6d6234b1f414e9832c1115c5068529b1137bf7ad`. The receipt records the
+The maintainer confirmed **0.2.17 is live** and requested continued work.
+Cargo and the release receipt are 0.2.17. Local main, origin/main and v0.2.17 resolve to
+`ae1ec05d23f6cd8634ed91ff9d2235194d20b079`, from validated source
+`f45e791056c4f2123d6b3804dd62037f0630f240`. The receipt records the
 `release-verify` gate; registry publication was not independently queried.
-The dated 0.2.16 notes match that release. The maintainer requested the **0.2.17**
-changelog; completed work is grouped in that undated draft below an empty
-**Unreleased** section. Package version and release receipt remain unchanged.
+The dated 0.2.17 notes match that release. The maintainer requested the **0.2.18**
+changelog; completed configuration and store assembly work is grouped in that
+undated draft below an empty **Unreleased** section. Package version and release
+receipt remain unchanged at 0.2.17.
 The browser fixture retains Caffeine 1.1.2 and supported SDK 5.4.0.
 Dependencies and lockfiles are unchanged in this batch.
 No version mutation, commit, publication, deployment or deployed-provider effect ran here;
@@ -28,7 +29,47 @@ operator client. Library publication does not qualify the service or Canic remov
 | M3 — Caffeine and operator integration | In progress: shared transports with local IC evidence | Qualified provider transport, completion/economics and production client |
 | M4 — managed parity and acceptance | Not implemented | Same journey through Canic adapter, complete replacement evidence and handoff |
 
-## Current focus — signed consumer admission and gateway coordination
+## Current focus — explicit configuration and synchronous owner assembly
+
+`dto::configuration` supplies passive Candid inputs for the existing service
+configuration model, funding allocation and concurrent read limits.
+`ops::service::configuration` bounds raw input and decoding
+work, requires the actual host service identity, converts positive scalar/count
+limits and delegates cross-resource and billing validation to the existing model.
+It checks all four stable owners' resource/codec envelopes before allocating state.
+There are no deployment defaults, clamping, state writes or provider effects.
+Roles remain explicit and independent; balances, namespace and byte budgets keep
+their full width. The host owns installation authentication and ingress buffering.
+
+`ops::service::stores` now assembles uploads, funding, gateways and read sessions
+from one validated configuration and sixteen explicit host memory grants. Fresh
+install preflights the whole set; restoration requires every memory and validates
+all owners synchronously before returning an inspection-only assembly. There is no
+repair, missing-store initialization or unfencing. Hosts must propagate traps for
+IC rollback; native memory does not provide that transaction guarantee.
+
+The storage probe uses this path and removes its separate component initialization
+functions. Candidate validation now precedes host memory bootstrap. Its small
+fixture limits, init signature, memory layout and restore fence remain unchanged.
+Memory grants, release/installation identity, production endpoint/lifecycle ownership
+and provider qualification remain host responsibilities. Neither a production
+standalone host nor a Canic adapter is implemented by this step.
+
+Seven configuration tests and three assembly tests pass. They cover bounded Candid,
+role bindings, zero/cross-resource limits, separate attachment allocation, read
+budgets, stable codec bounds, every occupied/missing grant and changed funding/read
+limits without byte mutation. Strict core/storage-fixture/storage-integration Clippy
+and release storage/gateway-source Wasm pass. Two targeted PocketIC upgrade tests
+pass in 4.82 seconds: pending uploads with stop/start and changed-operator rejection,
+plus one combined restore retaining upload obligations, uncertain funding, pending
+gateway sync and interrupted read occupancy. All restored mutations remain fenced.
+Formatting and diff checks pass. No full CI/release gate ran.
+
+Next, connect explicit host lifecycle/endpoint ownership to this shared assembly,
+preserving inspection-only restoration. Production consumer authentication and
+persistence, independent provider completion and recovery qualification remain open.
+
+## Signed consumer admission and gateway coordination — included in 0.2.17
 
 Browser admission now uses signed SDK ingress to the existing consumer probe.
 That canister retains the full asset/permission intent and calls the service under

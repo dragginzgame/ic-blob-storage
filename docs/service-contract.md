@@ -5,6 +5,25 @@ The maintainer has started the 0.2 service phase after 0.1.19. The
 the constraints and evidence requirements below still apply. Candidate service
 configuration validation composes existing local models without installing state,
 freezing a stable schema or claiming that the B1 provider/recovery gates are closed.
+
+`dto::configuration::ServiceConfigurationInput` supplies explicit service, operator,
+payer, namespace, resource, billing, funding allocation and read-session candidates. The shared
+`ops::service::configuration` boundary bounds encoded bytes and Candid decoding work,
+checks the actual host identity and reuses the existing model's invariants without
+defaults, clamping or allocation. It also checks every maintained stable owner's
+codec/resource envelope. Hosts may validate an already typed candidate.
+The host must authenticate installation, bound ingress buffering and obtain its
+identity from the platform. `ops::service::stores::ServiceStores` assembles the four
+owners synchronously under these validated limits and sixteen distinct host-granted
+memories. Fresh installation preflights the entire set before writing; aliased
+grants or later write failures must trap for IC rollback. Native memory supplies no
+transaction guarantee. Restoration validates every owner before returning the
+assembly and leaves all owners inspection-only, with no repair or missing-store
+initialization. Hosts still own memory grants, release/installation identity and
+publishing the assembly only after success. These APIs neither establish a provider
+namespace nor implement a production adapter, reconfiguration or operational
+unfencing contract. Linking the library exports no endpoint or lifecycle hook.
+
 The transient project-to-uploader admission model in the delivery plan additionally
 owns exact permissions alongside the existing upload catalog. Root-only exposure
 checks authenticated context supplied by the host; one-shot exposure, passive

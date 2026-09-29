@@ -8,7 +8,7 @@ use super::{
 use crate::model::lifecycle::{LifecyclePhase, ReferenceState};
 use std::collections::{BTreeMap as HeapMap, BTreeSet};
 
-pub(super) fn envelope(config: &ServiceConfiguration) -> Result<(), UploadStoreError> {
+pub(crate) fn envelope(config: &ServiceConfiguration) -> Result<(), UploadStoreError> {
     let limits = config.manifest_limits();
     // Fixed Candid type/framing allowance, 33 bytes per encoded leaf, and a
     // conservative per-header string-length overhead beyond the raw byte budget.

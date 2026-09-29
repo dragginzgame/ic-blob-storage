@@ -308,8 +308,9 @@ fn interrupted_read_admission_rolls_back_all_counters_and_sends_nothing() {
     assert_eq!(f.read_chunk(f.tenant, input), Ok(()));
 }
 #[test]
-fn interrupted_read_callback_retains_occupancy_and_upgrade_never_frees_it() {
+fn upgrade_preserves_upload_funding_gateway_and_interrupted_read_obligations() {
     use blob_test_protocol::storage::WriteFault;
+    use blob_test_protocol::storage::funding::{Action as FundingAction, Allocation};
     let f = Fixture::with_gateway_source();
     let input = f.read_input();
     let failure = f
@@ -333,6 +334,18 @@ fn interrupted_read_callback_retains_occupancy_and_upgrade_never_frees_it() {
     assert_eq!(pending.reserved_bytes, 2048);
     assert_eq!(pending.last_sequence, 1);
     assert_eq!(f.read_chunk(f.tenant, input), Err(Failure::Capacity));
+
+    // One restore must preserve every owner's obligations together. Funding here
+    // is a labelled local journal substitute; it sends no provider payment.
+    let intent = f.funding_intent(u128::MAX, 900);
+    f.funding(f.operator, intent, FundingAction::Prepare)
+        .unwrap();
+    f.funding(f.operator, intent, FundingAction::Attempt)
+        .unwrap();
+    let funding_before = f.funding_allocation();
+    let token = f.gateway_begin();
+    let gateways_before = f.gateway_view();
+    let uploads_before = f.status();
     f.harness
         .pic
         .upgrade_canister(
@@ -351,6 +364,35 @@ fn interrupted_read_callback_retains_occupancy_and_upgrade_never_frees_it() {
     );
     assert_eq!(f.read_chunk(f.tenant, input), Err(Failure::Fenced));
     assert_eq!(f.chunk_observation().requests, 1);
+    assert_eq!(
+        f.funding_allocation(),
+        Allocation {
+            fenced: true,
+            ..funding_before
+        }
+    );
+    assert_eq!(
+        f.funding(f.operator, intent, FundingAction::Callback(900)),
+        Err(Failure::Fenced)
+    );
+    assert_eq!(
+        f.gateway_view(),
+        View {
+            fenced: true,
+            ..gateways_before
+        }
+    );
+    assert_eq!(
+        f.gateways(f.operator, Action::Cancel(token)),
+        Err(Failure::Fenced)
+    );
+    assert_eq!(
+        f.status(),
+        Status {
+            fenced: true,
+            ..uploads_before
+        }
+    );
 }
 
 #[test]

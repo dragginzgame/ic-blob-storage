@@ -12,40 +12,14 @@ use blob_test_protocol::storage::{
 };
 use ic_blob_storage::{
     model::{
-        billing::{
-            allocation::FundingAllocation,
-            journal::{
-                FundingIntent, FundingIntentAdmission, FundingIntentState, FundingTransportOutcome,
-            },
+        billing::journal::{
+            FundingIntent, FundingIntentAdmission, FundingIntentState, FundingTransportOutcome,
         },
-        service::{configuration::ServiceConfiguration, upload::UploadContext},
+        service::upload::UploadContext,
     },
-    ops::service::funding::{FundingJournalError, FundingMemories, StableFundingJournal},
+    ops::service::funding::FundingJournalError,
 };
-use std::num::{NonZeroU128, NonZeroUsize};
-pub(super) fn initialize(
-    accounting: ProbeMemory,
-    intents: ProbeMemory,
-    config: &ServiceConfiguration,
-    restored: bool,
-) -> StableFundingJournal<ProbeMemory> {
-    let allocation = FundingAllocation::new(
-        1000,
-        NonZeroU128::new(100).unwrap(),
-        NonZeroUsize::new(4).unwrap(),
-    )
-    .unwrap();
-    let memory = FundingMemories {
-        accounting,
-        intents,
-    };
-    if restored {
-        StableFundingJournal::open(memory, *config, allocation)
-    } else {
-        StableFundingJournal::install(memory, *config, allocation)
-    }
-    .unwrap()
-}
+use std::num::NonZeroU128;
 pub(crate) fn intent(input: Intent) -> Result<FundingIntent, Failure> {
     Ok(FundingIntent {
         service: input.service,

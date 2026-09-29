@@ -23,7 +23,7 @@ impl Fixture {
             .query_candid_as(self.service, actor, "funding_summary", (scope,))
             .unwrap()
     }
-    fn funding_intent(&self, operation: u128, offered: u128) -> Intent {
+    pub(super) fn funding_intent(&self, operation: u128, offered: u128) -> Intent {
         Intent {
             service: self.service,
             cashier: self.operator,
@@ -34,7 +34,12 @@ impl Fixture {
             target_balance: None,
         }
     }
-    fn funding(&self, actor: Principal, intent: Intent, action: Action) -> Result<bool, Failure> {
+    pub(super) fn funding(
+        &self,
+        actor: Principal,
+        intent: Intent,
+        action: Action,
+    ) -> Result<bool, Failure> {
         self.harness
             .pic
             .update_candid_as(
@@ -56,7 +61,7 @@ impl Fixture {
             .query_candid_as(self.service, actor, "funding_lookup", (intent,))
             .unwrap()
     }
-    fn funding_allocation(&self) -> Allocation {
+    pub(super) fn funding_allocation(&self) -> Allocation {
         self.harness
             .pic
             .query_candid_as::<Result<Allocation, Failure>, _>(

@@ -24,7 +24,10 @@ use ic_blob_storage::{
         tenant::{TenantEnrollmentView, TenantUpdate},
         upload::{UploadContext, UploadManifestState},
     },
-    ops::service::uploads::{StableUploads, UploadMemories},
+    ops::service::{
+        stores::{ServiceMemories, ServiceStores},
+        uploads::{StableUploads, UploadMemories},
+    },
 };
 use std::{
     cell::{Cell, RefCell},
@@ -66,6 +69,37 @@ thread_local! {
     static TRAP_WRITE:Cell<Option<WriteFault>>=const { Cell::new(None) };
 }
 pub(crate) fn initialize(operator: Principal, restored: bool) {
+    // Reject invalid candidates before even bootstrapping the host memory runtime.
+    let config = configuration::configuration(operator);
+    STATE.with_borrow(|state| assert!(state.is_none(), "initialization is not reset"));
+    let (runtime, memory) = granted_memories();
+    let ServiceStores {
+        uploads,
+        funding,
+        gateways,
+        reads: read_sessions,
+    } = if restored {
+        ServiceStores::open(memory, config)
+    } else {
+        ServiceStores::install(memory, config)
+    }
+    .unwrap();
+    STATE.with_borrow_mut(|state| {
+        *state = Some(State {
+            _runtime: runtime,
+            operator,
+            uploads,
+            funding,
+            gateways,
+            gateway_attempts: Vec::new(),
+            read_sessions,
+        });
+    });
+}
+fn granted_memories() -> (
+    MemoryRuntime<DefaultMemoryImpl>,
+    ServiceMemories<ProbeMemory>,
+) {
     let keys = [
         "fixture.tenants.v1",
         "fixture.roots.v1",
@@ -123,7 +157,7 @@ pub(crate) fn initialize(operator: Principal, restored: bool) {
         read_sessions,
         read_tenants,
     ] = keys.map(|key| probe_memory(&mut runtime, key));
-    let memory = UploadMemories {
+    let uploads = UploadMemories {
         tenants,
         roots,
         objects,
@@ -135,36 +169,20 @@ pub(crate) fn initialize(operator: Principal, restored: bool) {
         receipts,
         root_requests,
     };
-    let config = configuration::configuration(operator);
-    let funding = funding::initialize(funding_accounting, funding_intents, &config, restored);
-    let gateways = gateways::initialize(gateways, &config, restored);
-    let read_sessions = read::sessions::initialize(
-        ic_blob_storage::ops::service::reads::ReadSessionMemories {
+    let memory = ServiceMemories {
+        uploads,
+        funding: ic_blob_storage::ops::service::funding::FundingMemories {
+            accounting: funding_accounting,
+            intents: funding_intents,
+        },
+        gateways,
+        reads: ic_blob_storage::ops::service::reads::ReadSessionMemories {
             journal: read_journal,
             sessions: read_sessions,
             tenants: read_tenants,
         },
-        &config,
-        restored,
-    );
-    let uploads = if restored {
-        StableUploads::open(memory, config)
-    } else {
-        StableUploads::install(memory, config)
-    }
-    .unwrap();
-    STATE.with_borrow_mut(|state| {
-        assert!(state.is_none(), "initialization is not reset");
-        *state = Some(State {
-            _runtime: runtime,
-            operator,
-            uploads,
-            funding,
-            gateways,
-            gateway_attempts: Vec::new(),
-            read_sessions,
-        });
-    });
+    };
+    (runtime, memory)
 }
 fn probe_memory(runtime: &mut MemoryRuntime<DefaultMemoryImpl>, key: &str) -> ProbeMemory {
     ProbeMemory {

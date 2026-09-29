@@ -55,7 +55,7 @@ impl<M: Memory> StableFundingJournal<M> {
         allocation: FundingAllocation,
     ) -> Result<Self, FundingJournalError> {
         let record = FundingJournalRecord::new(&config, allocation);
-        Self::envelope(&record)?;
+        validate_envelope(&config, allocation)?;
         if memory.accounting.size() != 0 || memory.intents.size() != 0 {
             return Err(FundingJournalError::AlreadyAllocated);
         }
@@ -83,7 +83,7 @@ impl<M: Memory> StableFundingJournal<M> {
         allocation: FundingAllocation,
     ) -> Result<Self, FundingJournalError> {
         let mut reconstructed = FundingJournalRecord::new(&config, allocation);
-        Self::envelope(&reconstructed)?;
+        validate_envelope(&config, allocation)?;
         if memory.accounting.size() == 0 || memory.intents.size() == 0 {
             return Err(FundingJournalError::Missing);
         }
@@ -254,13 +254,6 @@ impl<M: Memory> StableFundingJournal<M> {
     pub const fn is_fenced(&self) -> bool {
         self.fenced
     }
-    fn envelope(record: &FundingJournalRecord) -> Result<(), FundingJournalError> {
-        if record.limit() > u64::from(u32::MAX) {
-            Err(FundingJournalError::UnsupportedEnvelope)
-        } else {
-            Ok(())
-        }
-    }
     fn authorize(&self, execution: UploadContext) -> Result<(), FundingJournalError> {
         if execution.service != self.config.bindings().service {
             return Err(FundingJournalError::Binding);
@@ -358,3 +351,14 @@ pub enum FundingJournalError {
 }
 #[cfg(test)]
 mod tests;
+
+pub(crate) fn validate_envelope(
+    config: &ServiceConfiguration,
+    allocation: FundingAllocation,
+) -> Result<(), FundingJournalError> {
+    if FundingJournalRecord::new(config, allocation).limit() > u64::from(u32::MAX) {
+        Err(FundingJournalError::UnsupportedEnvelope)
+    } else {
+        Ok(())
+    }
+}
