@@ -48,15 +48,15 @@ fn capacity(s: &Selection) -> UploadCapacityResponse {
         fenced: false,
     }
 }
-fn capacity_reply(value: UploadCapacityResponse) -> Result<Vec<u8>, Failure> {
-    Ok(candid::encode_one(Ok::<_, UploadCapacityFailure>(value)).unwrap())
+fn capacity_reply(value: UploadCapacityResponse) -> Vec<u8> {
+    candid::encode_one(Ok::<_, UploadCapacityFailure>(value)).unwrap()
 }
 fn reference_reply(
     s: &Selection,
     inventory: &Inventory,
     headroom: Option<ReferenceHeadroom>,
-) -> Result<Vec<u8>, Failure> {
-    Ok(candid::encode_one(Ok::<_, ReferenceCapacityFailure>(
+) -> Vec<u8> {
+    candid::encode_one(Ok::<_, ReferenceCapacityFailure>(
         ReferenceCapacityResponse {
             request: ReferenceCapacityRequest {
                 scope: s.scope,
@@ -66,7 +66,7 @@ fn reference_reply(
             fenced: false,
         },
     ))
-    .unwrap())
+    .unwrap()
 }
 
 #[test]
@@ -94,7 +94,7 @@ fn reference_observation_rejects_wrong_echoes_and_keeps_later_restore_fences() {
     fenced.fenced = true;
     for response in [wrong_root, wrong_tenant, fenced] {
         let result = inspect(&s, &inventory, |method, _| match method {
-            "blob_upload_capacity" => capacity_reply(capacity(&s)),
+            "blob_upload_capacity" => Ok(capacity_reply(capacity(&s))),
             "lookup_content" => reply(Some(content(&s, &inventory, ContentState::Live))),
             "blob_reference_capacity" => {
                 Ok(candid::encode_one(Ok::<_, ReferenceCapacityFailure>(response)).unwrap())
@@ -119,7 +119,7 @@ fn restored_capacity_is_a_reported_blocker_even_with_spare_quota() {
     let mut capacity = capacity(&s);
     capacity.fenced = true;
     let report = inspect(&s, &inventory, |method, _| match method {
-        "blob_upload_capacity" => capacity_reply(capacity),
+        "blob_upload_capacity" => Ok(capacity_reply(capacity)),
         "lookup_content" => reply(None::<ContentObservation>),
         _ => panic!("unexpected query"),
     })
@@ -155,7 +155,7 @@ fn absent_content_is_unproven_and_wide_capacity_is_rendered_exactly() {
     let report = inspect(&s, &inventory, |method, _| {
         methods.push(method.to_owned());
         match method {
-            "blob_upload_capacity" => capacity_reply(capacity(&s)),
+            "blob_upload_capacity" => Ok(capacity_reply(capacity(&s))),
             "lookup_content" => reply(None::<ContentObservation>),
             _ => panic!("unexpected call"),
         }
@@ -188,7 +188,7 @@ fn pending_and_retired_content_never_become_new_upload_candidates() {
         ContentState::Settled,
     ] {
         let report = inspect(&s, &inventory, |method, _| match method {
-            "blob_upload_capacity" => capacity_reply(capacity(&s)),
+            "blob_upload_capacity" => Ok(capacity_reply(capacity(&s))),
             "lookup_content" => reply(Some(content(&s, &inventory, state))),
             _ => panic!("unexpected call"),
         })
@@ -208,9 +208,9 @@ fn live_content_checks_each_assets_new_reference_and_stops_on_lost_observations(
     let mut inventory = prepared();
     inventory.blobs[0].assets.push("alias".into());
     let report = inspect(&s, &inventory, |method, _| match method {
-        "blob_upload_capacity" => capacity_reply(capacity(&s)),
+        "blob_upload_capacity" => Ok(capacity_reply(capacity(&s))),
         "lookup_content" => reply(Some(content(&s, &inventory, ContentState::Live))),
-        "blob_reference_capacity" => reference_reply(
+        "blob_reference_capacity" => Ok(reference_reply(
             &s,
             &inventory,
             Some(ReferenceHeadroom {
@@ -219,14 +219,14 @@ fn live_content_checks_each_assets_new_reference_and_stops_on_lost_observations(
                 release_reserved_receipts: 1,
                 fresh_retains: 1,
             }),
-        ),
+        )),
         _ => panic!("unexpected call"),
     })
     .unwrap();
     assert!(report.blocked);
     assert_eq!(report.value["blockers"], json!(["reference_capacity"]));
     let failed = inspect(&s, &inventory, |method, _| match method {
-        "blob_upload_capacity" => capacity_reply(capacity(&s)),
+        "blob_upload_capacity" => Ok(capacity_reply(capacity(&s))),
         "lookup_content" => reply(Some(content(&s, &inventory, ContentState::Live))),
         "blob_reference_capacity" => Err(Failure::Transport),
         _ => panic!("unexpected call"),
@@ -241,7 +241,7 @@ fn rejects_wrong_scope_wrong_content_and_malformed_or_denied_replies() {
     let mut wrong = capacity(&s);
     wrong.scope.namespace = 2;
     assert_eq!(
-        inspect(&s, &inventory, |_, _| capacity_reply(wrong)),
+        inspect(&s, &inventory, |_, _| Ok(capacity_reply(wrong))),
         Err(Failure::Binding)
     );
     let mut changed = content(&s, &inventory, ContentState::Live);
@@ -249,7 +249,7 @@ fn rejects_wrong_scope_wrong_content_and_malformed_or_denied_replies() {
     assert_eq!(
         inspect(&s, &inventory, |method, _| {
             if method == "blob_upload_capacity" {
-                capacity_reply(capacity(&s))
+                Ok(capacity_reply(capacity(&s)))
             } else {
                 reply(Some(changed))
             }
@@ -284,7 +284,7 @@ fn reports_known_byte_history_metadata_and_suspension_blockers() {
     c.max_headers = 1;
     let report = inspect(&s, &inventory, |method, _| {
         if method == "blob_upload_capacity" {
-            capacity_reply(c)
+            Ok(capacity_reply(c))
         } else {
             reply(None::<ContentObservation>)
         }
@@ -316,7 +316,7 @@ fn batch_size_does_not_require_every_new_upload_to_fit_concurrently() {
     inventory.blobs.push(second);
     let report = inspect(&s, &inventory, |method, _| {
         if method == "blob_upload_capacity" {
-            capacity_reply(capacity(&s))
+            Ok(capacity_reply(capacity(&s)))
         } else {
             reply(None::<ContentObservation>)
         }
@@ -334,7 +334,7 @@ fn inconsistent_capacity_and_disappeared_confirmed_content_fail_closed() {
     let mut invalid = capacity(&s);
     invalid.enrollment.generation = 0;
     assert_eq!(
-        inspect(&s, &inventory, |_, _| capacity_reply(invalid)),
+        inspect(&s, &inventory, |_, _| Ok(capacity_reply(invalid))),
         Err(Failure::InvalidReply)
     );
     for available in [
@@ -347,9 +347,9 @@ fn inconsistent_capacity_and_disappeared_confirmed_content_fail_closed() {
         }),
     ] {
         let result = inspect(&s, &inventory, |method, _| match method {
-            "blob_upload_capacity" => capacity_reply(capacity(&s)),
+            "blob_upload_capacity" => Ok(capacity_reply(capacity(&s))),
             "lookup_content" => reply(Some(content(&s, &inventory, ContentState::Live))),
-            "blob_reference_capacity" => reference_reply(&s, &inventory, available),
+            "blob_reference_capacity" => Ok(reference_reply(&s, &inventory, available)),
             _ => panic!("unexpected call"),
         });
         assert_eq!(

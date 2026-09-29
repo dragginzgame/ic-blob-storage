@@ -28,6 +28,11 @@
   and replicated execution, cancellation, caller isolation, changed original
   arguments and bounded ingress. The generated deployment Candid includes the query.
 
+### Fixed
+
+- Removed unnecessary `Result` wrappers from inventory test reply helpers so strict
+  Clippy also passes when library unit-test targets are included.
+
 ## [0.2.22] - 2026-09-29
 
 ### Added

@@ -31,6 +31,12 @@ operator client. Library publication does not qualify the service or Canic remov
 
 ## Current focus — shared upload/reference capacity and exact inspection
 
+Release-check follow-up: inventory test reply helpers now return encoded bytes;
+the simulated query closures own the transport `Result`. The earlier targeted
+Clippy selection omitted library unit-test targets. Strict package-scoped Clippy
+with `--all-targets --all-features` now passes, as do all thirteen inventory unit
+tests, formatting and diff checks. This fix changes no runtime behavior.
+
 `workflow::references::capacity::inspect` now provides `blob_reference_capacity`
 in the standalone host and both admission fixtures. Requests bind the exact tenant
 scope and provider root. The same maintained model counters supply lifetime
