@@ -1327,7 +1327,7 @@ dependencies = [
 
 [[package]]
 name = "ic-blob-storage"
-version = "0.2.19"
+version = "0.2.20"
 dependencies = [
  "candid",
  "ic-cdk",
@@ -1341,7 +1341,7 @@ dependencies = [
 
 [[package]]
 name = "ic-blob-storage-canister"
-version = "0.2.19"
+version = "0.2.20"
 dependencies = [
  "candid",
  "ic-blob-storage",
