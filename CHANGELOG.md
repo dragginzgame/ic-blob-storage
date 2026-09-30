@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.4.6] - 2026-09-30
+
 ### Added
 
 - Standalone lifecycle regression coverage preserves full installation and retained
