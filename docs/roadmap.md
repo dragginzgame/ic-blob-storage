@@ -20,9 +20,11 @@ for observed content availability. Its shared authority/receipt boundary and
 standalone endpoints, signed exact-statement receipt recovery and bounded native
 provider retrieval with durable statement capture are implemented. Explicit native
 submission now persists its exact signed request before one update and recovers lost
-acknowledgments by historical lookup. Standalone certificate exposure remains the
-next integration work. This decision
-does not close retention, economics, recovery or Canic parity gates.
+acknowledgments by historical lookup. Standalone now exposes the shared certificate
+boundary and a typed preparation assessment; issuance remains blocked until
+provider pre-charge limits, namespace, replay charging and recovery readiness are
+qualified or an explicit narrower contract is accepted. This decision does not
+close retention, economics, recovery or Canic parity gates.
 
 The released **0.2.1 library** includes the 0.2 direct-upload admission contract,
 tenant enrollment, canonical metadata, indexed accounting and content/reference
@@ -600,13 +602,28 @@ Snapshots include Wasm code and memory as well as stable state; loading one is a
 distinct management operation. A post-upgrade hook alone cannot cover that path.
 [Management specification](https://docs.internetcomputer.org/references/ic-interface-spec/management-canister/#ic-load_canister_snapshot).
 
-Before implementing operational restoration, choose the surviving source of the
-complete obligation inventory and how its freshness is enforced at admission,
-callbacks, timers and provider liveness/deletion responses. A restored instance
-must not report a missing root as deletable using stale state. No local counter,
-elapsed timeout or operator assertion may release the fence. The reviewed sources
-do not yet supply that surviving journal or the provider reconciliation contract;
-these remain explicit blockers to the dependent production schema and transport.
+The [local snapshot experiment](evidence/caffeine-probes/local/2026-09-30-snapshot-01/summary.json)
+now demonstrates that gap using actual management operations: standalone restores
+an unfenced heap, undoes revocation and forgets later admission/accounting. Its
+certificate gate remains disabled. The storage fixture can repeat exposure only
+because it substitutes fresh recovery qualification after rollback. These tests
+do not qualify snapshots; they disprove local-fence/journal validity as sufficient
+freshness evidence. No provider effects occurred.
+
+The [maintainer's recovery scope decision](service-contract.md#recovery-scope--maintainer-decision-2026-09-30)
+keeps one authoritative storage owner and local durable journals. External journals,
+dedicated recovery-controller canisters and extra metadata calls are deferred until
+a concrete use case justifies them. The current synchronous certificate boundary
+remains. Prioritize current-state durability, exact receipt recovery and supported
+same-release state-preserving lifecycle work; operational upgrade recovery is still
+unfinished. The earlier distributed proposal is historical, not the next work item.
+
+A restored instance must not report a missing root as deletable using stale state.
+No local counter, elapsed timeout, cached permit or operator assertion may release
+the fence. Older storage-owner snapshot loads remain unsupported for operation;
+active return requires complete independent reconciliation. Backup/restore and
+provider reconciliation/economics remain open gates, rather than justification to
+build distributed machinery before a concrete consumer need.
 
 ### Project-to-uploader admission
 

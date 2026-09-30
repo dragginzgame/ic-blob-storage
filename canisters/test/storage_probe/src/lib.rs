@@ -86,7 +86,7 @@ fn expose(
 fn exposure_preview(
     input: blob_test_protocol::storage::exposure::ExposureInput,
 ) -> Result<
-    Vec<blob_test_protocol::storage::exposure::ExposureBlocker>,
+    Vec<ic_blob_storage::dto::upload::exposure::UploadExposureBlocker>,
     ic_blob_storage::dto::upload::exposure::UploadExposureFailure,
 > {
     workflow::exposure_preview(context(), input)

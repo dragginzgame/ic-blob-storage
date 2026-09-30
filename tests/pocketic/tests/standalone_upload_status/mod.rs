@@ -6,7 +6,7 @@ use ic_blob_storage::{
 };
 
 impl Fixture {
-    fn upload_status(
+    pub(super) fn upload_status(
         &self,
         actor: Principal,
         upload: ReferenceUpload,

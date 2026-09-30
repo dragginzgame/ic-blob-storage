@@ -83,7 +83,7 @@ pub(crate) fn exposure_preview(
     context: UploadContext,
     input: blob_test_protocol::storage::exposure::ExposureInput,
 ) -> Result<
-    Vec<blob_test_protocol::storage::exposure::ExposureBlocker>,
+    Vec<ic_blob_storage::dto::upload::exposure::UploadExposureBlocker>,
     ic_blob_storage::dto::upload::exposure::UploadExposureFailure,
 > {
     ops::exposure::preview(context, input)

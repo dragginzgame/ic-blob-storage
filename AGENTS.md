@@ -62,6 +62,10 @@ This file is normative for automated contributors.
 
 ## Ownership and layering
 
+- Prefer one authoritative storage owner and its local durable journals. Defer
+  external journals, recovery-controller canisters and extra metadata calls until
+  a clear consumer/recovery use case justifies them. This preference does not
+  authorize stale-backup activation, clearing fences or losing obligations.
 - The service core builds without Canic and owns tenant policy, data,
   references, quotas, provider economics, retention and deletion.
 - This repository owns both standalone and Canic adapters. Both use the same

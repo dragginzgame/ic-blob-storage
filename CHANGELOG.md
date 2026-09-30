@@ -2,6 +2,37 @@
 
 ## [Unreleased]
 
+## [0.4.3]
+
+### Added
+
+- Standalone `_immutableObjectStorageCreateCertificate` update and uploader-only
+  `blob_upload_certificate_assessment` query delegate to shared permission/exposure
+  checks. Assessment returns the original permission and missing prerequisites
+  without changing state or reserving issuance. Certificate updates refuse while
+  provider pre-charge limits, namespace binding, replay charging and recovery
+  readiness remain unqualified. PocketIC covers authentication, malformed input,
+  unchanged reservations, stop/start, revocation and upgrade fencing.
+- Actual PocketIC management snapshot tests demonstrate that rollback can bypass
+  upgrade fencing, revive revoked permissions and lose later upload records and
+  reservations. Standalone certificate issuance still refuses after rollback;
+  labelled fixture facts demonstrate how falsely asserted recovery readiness could
+  permit repeated simulated exposure. Retained evidence documents the unsupported
+  snapshot activation path; these tests do not implement operational recovery.
+- Retained official Caffeine source capture and recovery review records. Reviewed
+  backend hashes and npm 1.1.2 integrity remain unchanged despite a newer upstream
+  revision. Source/local evidence supplies no new deployed-provider guarantees.
+
+### Changed
+
+- Shared passive certificate-assessment DTOs and exposure-blocker conversion replace
+  the fixture's duplicate wire enum and mapping. Issuance rechecks current authority;
+  a successful assessment cannot override later permission changes.
+- AGENTS.md, service contract, roadmap and handoff retain one authoritative storage
+  owner with local durable journals. External journal/controller machinery and extra
+  metadata calls are deferred until a concrete use case justifies them. Existing
+  certificate and recovery prerequisites remain enforced.
+
 ## [0.4.2] - 2026-09-30
 
 ### Added

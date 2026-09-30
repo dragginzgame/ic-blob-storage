@@ -1,0 +1,52 @@
+{
+  "date": "2026-09-30",
+  "evidence_class": "source_review_and_architectural_proposal",
+  "record_kind": "curated_review_not_raw_provider_capture_or_runtime_qualification",
+  "base_revision": "cfc2ed2129f5de482071e0f69492cfa9aeaff5c9",
+  "workspace": "uncommitted certificate boundary and snapshot evidence after 0.4.2",
+  "intent": "Prior recovery authority design entry in the probe ledger",
+  "sources": [
+    "https://docs.internetcomputer.org/references/ic-interface-spec/canister-interface/#canister-version",
+    "https://docs.internetcomputer.org/references/ic-interface-spec/management-canister/#ic-load_canister_snapshot",
+    "https://docs.internetcomputer.org/references/message-execution-properties/",
+    "docs/evidence/caffeine-probes/local/2026-09-30-snapshot-01/summary.json",
+    "docs/evidence/caffeine-probes/runs/2026-09-30-public-source-01/summary.json"
+  ],
+  "source_sha256": {
+    "crates/ic-blob-storage/src/workflow/uploads/certificate/mod.rs": "4cb80bf56820676a3a1d5e28a6311c093d06b949dda8e0905ae8166311590fa5",
+    "crates/ic-blob-storage/src/workflow/uploads/exposure/mod.rs": "634e51b411273dcb986ff34db9aa9c417cf0ccd8ef1abe37562ce0b6e86612e6",
+    "crates/ic-blob-storage/src/ops/service/stores/mod.rs": "65238716f48d95b66e3f083db87033ec4e456f962606c6ed348ebbd515c01579",
+    "canisters/standalone/src/ops/mod.rs": "320327eb985be5bcbceaefaa0fa03633a9a207a43e2016e97c5db6c65abefea2",
+    "canisters/standalone/src/ops/certificate/mod.rs": "621fbdf88c9c98e442c984434ab1be09b7796a104c6ba9750d787e96a5eefd72"
+  },
+  "source_findings": [
+    "The System API version changes for ordinary execution and management and may increase arbitrarily",
+    "Atomicity is scoped to a single message; an inter-canister await separates executions",
+    "Snapshot loading requires controller authority and replaces code and memory",
+    "Management history is bounded and cannot supply complete blob or funding inventory",
+    "The current core requires a synchronous whole certificate handler and relies on host-owned recovery qualification",
+    "The current standalone host deliberately supplies recovery_ready=false"
+  ],
+  "design_inferences": [
+    "A cached witness permit can be part of a rolled-back heap; it is insufficient as the recovery mechanism",
+    "An external watermark alone cannot reconstruct the missing economic and identity records",
+    "Preserving storage-owner backup recovery requires complete surviving records and governance of restore/restart outside that backup",
+    "Recommended proposal: one external bounded write-ahead journal and recovery controller, with the existing service retaining provider identity and shared workflows",
+    "Certificate issuance needs a journal prelude followed by one synchronous final exposure-write/reply message",
+    "The journal is the recoverable commit point; incomplete local materialization must not serve as current state",
+    "A lasting provider owner without rollback could avoid replication only if the maintainer explicitly narrows the storage backup recovery contract"
+  ],
+  "review_outcome": "proposal_prepared_requires_contract_and_trust_acceptance",
+  "provider_requests": 0,
+  "paid_effects": 0,
+  "runtime_experiments": 0,
+  "failures": [],
+  "cleanup": "None; no provider objects, accounts or local canister instances created",
+  "limitations": [
+    "Official web sources are linked; raw HTTP responses and transport request counts were not captured",
+    "No authority implementation, controller enforcement or end-to-end recovery was tested in this review",
+    "The controller/journal itself must remain outside the service rollback domain under explicit governance trust",
+    "Metadata cost, latency, capacity and reconstruction limits require measurement",
+    "Provider pre-charge, namespace, replay charging, deletion and billing qualification remain independently open"
+  ]
+}

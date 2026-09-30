@@ -1,5 +1,51 @@
 //! Thin host composition; all tenant and blob transitions use shared workflows.
 use crate::ops;
+pub(crate) fn certificate_assessment(
+    context: UploadContext,
+    root: &str,
+    now: u64,
+) -> Result<
+    ic_blob_storage::dto::upload::certificate::UploadCertificateAssessmentResponse,
+    ic_blob_storage::dto::upload::exposure::UploadExposureFailure,
+> {
+    ops::read(|stores| {
+        let permission = ic_blob_storage::workflow::uploads::certificate::resolve(
+            &stores.uploads,
+            context,
+            root,
+            now,
+        )?;
+        ic_blob_storage::workflow::uploads::certificate::inspect(
+            &stores.uploads,
+            context,
+            root,
+            ops::certificate::evidence(permission, now),
+            now,
+        )
+    })
+}
+
+pub(crate) fn certificate(
+    context: UploadContext,
+    root: &str,
+    now: u64,
+) -> Result<
+    ic_blob_storage::dto::upload::certificate::CaffeineUploadCertificateResponse,
+    ic_blob_storage::workflow::uploads::certificate::UploadCertificateFailure,
+> {
+    use ic_blob_storage::workflow::uploads::certificate::{self, UploadCertificateFailure};
+    ops::mutate(|stores| {
+        let permission = certificate::resolve(&stores.uploads, context, root, now)
+            .map_err(UploadCertificateFailure::Exposure)?;
+        certificate::issue(
+            &mut stores.uploads,
+            context,
+            root,
+            ops::certificate::evidence(permission, now),
+            now,
+        )
+    })
+}
 pub(crate) fn reference_capacity(
     context: UploadContext,
     input: ic_blob_storage::dto::reference::capacity::ReferenceCapacityRequest,

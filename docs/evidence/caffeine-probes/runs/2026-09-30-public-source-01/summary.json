@@ -1,0 +1,7 @@
+{
+  "finished_unix_seconds": 1790757907,
+  "outcome": "captured",
+  "requests_attempted": 4,
+  "source_commit": "14ab9511fd73258a380bc1a6861d6da6e548ebbb",
+  "limitation": "Public source/registry observations only. No gateway, account, payment or deployed behavioral qualification. Capture success is not provider acceptance."
+}

@@ -32,6 +32,24 @@ Operator-only `blob_configuration` returns the installed values, package release
 and restore fence, including the retained project; an unfenced owner does not imply
 provider readiness. Future upload dispatch must use this same provisioned mapping.
 
+`blob_upload_certificate_assessment(root)` is an uploader-only query over the
+original retained permission. The canonical root locates that permission; it grants
+no authority. Prepared, locally eligible uploads return the exact permission,
+assessment time and all missing prerequisites. Unknown roots, wrong callers,
+unprepared, expired, revoked or restored work refuse. Inspection changes no state
+and never reserves a later issuance attempt.
+
+`_immutableObjectStorageCreateCertificate(root)` is the matching synchronous update.
+It delegates to the shared certificate/exposure handler and traps on refusal;
+errors are never encoded as successful provider replies. **Issuance remains
+disabled:** pre-charge enforcement, provider namespace binding, replay charging
+and independent recovery readiness are unqualified. Installed owner/project values,
+gateway membership, local manifest consistency and an unfenced store cannot supply
+those facts. The host establishes atomic local durability only. No ingress-supplied
+qualification flags or operator override exist. Enabling provider effects requires
+evidence or an explicitly accepted narrower contract; this endpoint does not create
+that authority. No installation or state-schema change is introduced here.
+
 `completion_verifier` is an explicitly trusted principal, never an operator,
 controller or gateway default. Anonymous and management principals reject before
 allocation. `blob_verification_manifest` lets only that verifier inspect the exact
@@ -61,9 +79,9 @@ The attestation contract establishes trusted observed content availability, not
 future retention or billing cessation. Native `observe-upload` retrieves and checks
 provider bytes from an explicitly approved origin and saves a durable statement;
 `submit-attestation` can submit that exact statement once with durable intent and
-historical receipt recovery. The standalone certificate/exposure path remains
-unfinished. Installation of this
-contract alone does not enable a complete upload journey.
+historical receipt recovery. Standalone certificate issuance remains blocked by the
+independent prerequisites above. Installation alone does not enable a complete
+upload journey.
 
 Operator-only `blob_local_status` takes the explicit service, namespace, Cashier
 and payer scope. It returns one synchronous snapshot of maintained upload byte
@@ -216,8 +234,20 @@ configuration, checks service and package-release identity, validates every owne
 and leaves mutations fenced. It never repairs missing state or accepts replacement
 configuration. The ic-memory runtime commits allocation-ledger metadata during
 bootstrap; this is not service reconciliation or freshness authority. Stop/start
-preserves the active owner. Package release is not a module hash, and arbitrary
-snapshot rollback does not acquire fresh authority. Operational recovery remains
+preserves the active owner. Actual PocketIC management snapshot tests demonstrate
+that loading an older snapshot also restores the heap owner: it bypasses these
+upgrade hooks, can restore `fenced = false`, undo a revocation and lose later
+admissions/accounting. A clear fence is therefore not evidence of fresh state.
+Standalone certificate issuance remains disabled even after this rollback. Snapshot
+loading is unsupported for operation; do not restart a loaded snapshot as an active
+service. Package release is not a module hash. Operational recovery requires a
+surviving complete obligation inventory and independent freshness authority, and remains
 unfinished. Cross-release transitions require reinstall after the separately
 defined installation-retirement requirements; controllers can erase state through
 the management canister, so these hooks cannot enforce retirement on their behalf.
+
+The maintainer's current scope keeps this single authoritative owner and its local
+durable journals. Extra journal/controller canisters and metadata calls are deferred
+until a clear use case justifies them. Current-state durability, receipt recovery
+and state-preserving lifecycle work take priority; this does not enable older
+snapshot activation or clear the outstanding recovery/provider prerequisites.

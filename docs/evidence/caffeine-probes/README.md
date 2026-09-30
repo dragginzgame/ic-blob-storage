@@ -34,6 +34,52 @@ all logs here; link their maintained test and record material changed findings.
 
 ## Current operating decisions and experiments
 
+2026-09-30 maintainer scope decision after the recovery design review: keep one
+authoritative storage owner and local durable journals until a clear use case
+justifies more machinery. The external journal/controller proposal is deferred;
+it does not change the synchronous certificate boundary or enable issuance.
+Current-state durability and receipt/lifecycle recovery take priority. Old snapshot
+loads remain unsupported for operation and require complete independent
+reconciliation before activation. This decision makes no provider/recovery
+qualification claim and does not close the outstanding backup/restore requirement.
+The historical review artifact below remains unchanged. No new probe or effect.
+
+2026-09-30 recovery authority design intent: inspect the current certificate,
+exposure, funding, gateway and restore boundaries plus retained provider artifacts;
+review the official IC System API, snapshot and asynchronous-call specifications.
+This is source/design evidence, not a provider experiment. At most six public
+documentation reads, no account, gateway or paid calls. Determine whether a
+separate asynchronous witness can protect the existing synchronous certificate
+reply, what complete inventory must survive, and which component must own the
+provider identity. Local adversarial models may exercise permit replay and partial
+inventories; they cannot establish an external authority or deployed behavior.
+Retain references, conclusions, limitations and any failed review here. No external
+cleanup is expected; production qualification facts remain false.
+
+2026-09-30 whole-canister rollback intent: use PocketIC 16 through ic-testkit to
+take/load actual management snapshots of the current standalone and durable
+storage fixture. Fixed local principals only; compare stop/start, same-release
+upgrade and rollback across admission, revocation and simulated exposure. At most
+two isolated canisters, three snapshots and four loads; at most two 10 MiB local
+manifests and no file/provider transfer. Record whether saved heap owners bypass
+post-upgrade fencing and whether later history disappears. The fixture's qualified
+exposure facts remain substitutes. No live network, credentials, attached payment
+or Caffeine requests; no external cleanup. Local snapshot IDs are deleted and
+the owned test instances dropped. Stop on unexpected platform failures and retain
+the failed outcome here before adjusting the scenario.
+
+2026-09-30 certificate/exposure host integration intent: review the retained
+official Mixin/Storage and SDK evidence, then capture current public source in a
+fresh `2026-09-30-public-source-01` run using the maintained `public-source`
+command. Four anonymous official GitHub/raw/npm GETs maximum, 1 MiB and 30 seconds
+per request, no redirects/retries, accounts, gateway effects or attached cycles;
+stop and retain any failure. Compare hashes before changing host assumptions.
+Local PocketIC work will exercise the real standalone certificate ingress and
+read-only assessment with fixed test principals, prepared manifests, malformed
+requests, refusal, revocation and restoration. No fixture evidence may enable the
+production host: unqualified provider/recovery facts remain blockers. There is no
+live upload or payment budget, and no external cleanup is expected.
+
 2026-09-30 planned local verifier submission evidence: extend the signed PocketIC
 observation journey with the native one-shot `submit-attestation` command. Retain
 the existing fixture owner/project, fixed test verifier identity and ten-byte local
@@ -61,7 +107,7 @@ This is an explicit service trust decision, not newly discovered Caffeine behavi
 | Resume and retry charges | One variable per trial: duplicate tree, duplicate chunk, interrupted chunk, completed root. Correlate request logs with isolated audit/account observations; wait through billing aggregation | Assume repeats can cost money. No automatic uncertain paid-effect retry; bounded manual disposition must preserve prior liability |
 | Funding | Exact offered/accepted/refunded transport evidence plus provider audit correlation, including deliberately lost response | Never infer exact credit from aggregate balance movement. Uncorrelated outcomes stay uncertain and block automatic retry |
 | Deletion and billing | Release one isolated root; record authenticated callbacks, subsequent availability and account observations over the applicable billing interval | Failed GET is not proof of deletion. Preserve physical/economic obligations separately; no unsupported deadline for billing stop. Retain immutable root history to prevent stale-callback reassignment |
-| Old-backup recovery | Local interruption matrix first; then isolated live evidence tied to records outside the restored state, including delayed callbacks/certificates | Old backups remain fenced. A restored counter cannot authorize new work; reopening service requires surviving independent evidence and an implemented recovery decision |
+| Old-backup recovery | Actual local management snapshot tests below demonstrate heap restoration bypassing upgrade fencing; live evidence must bind records outside restored state, including delayed callbacks/certificates | Upgrade reopening fences owners, but snapshot loading can restore an unfenced heap and erase later obligations. Snapshot operation remains unsupported; standalone certificates stay disabled. A local counter or clear fence cannot authorize reopening |
 
 These limits retain current safety behavior. They do not silently remove Canic
 parity, authorize a new completion state or weaken existing acceptance cases.
@@ -121,6 +167,28 @@ provider authenticity; rerunning the opt-in test establishes current local behav
 
 ## Run index
 
+`recovery-design-01` / 2026-09-30: source review and architectural inference;
+[retained source references/hashes, findings and limits](local/2026-09-30-recovery-design-01/summary.json).
+Official IC version, message execution, management history and snapshot rules were
+reviewed against the current code and retained snapshot experiment. The historical
+proposal considered an external complete journal/controller and an asynchronous
+certificate prelude. The maintainer subsequently deferred that architecture in the
+[current scope decision](../../service-contract.md#recovery-scope--maintainer-decision-2026-09-30);
+the artifact's original recommendation remains preserved, not an active instruction.
+This review is not runtime qualification. No provider requests, paid effects,
+instances or cleanup; cached permits and sequence watermarks remain insufficient.
+Production facts remain false.
+
+`snapshot-01` / 2026-09-30: actual PocketIC management snapshot operations against
+standalone and the durable fixture; [retained outcome and source/Wasm hashes](local/2026-09-30-snapshot-01/summary.json).
+Both maintained scenarios pass (3.47 and 1.82 seconds). Rollback bypasses the upgrade
+hook, revives withdrawn permission and loses later reservations/history. The fixture
+can repeat simulated exposure when its host again substitutes qualified freshness;
+standalone still traps certificate issuance without changing state. These are
+negative recovery qualification results, not supported rollback behavior or deployed
+provider observations. Three snapshots deleted; no provider requests, paid effects
+or outstanding external cleanup. Strict targeted Clippy passes.
+
 The `verifier-observation` local experiment is planned for 2026-09-29 against the
 current workspace. Tests use the maintained Caffeine target encoder and streaming
 verifier, a fixed PocketIC verifier identity, fixture owner/project and loopback HTTP
@@ -146,6 +214,8 @@ canisters/files require cleanup. The completed result is indexed below.
 
 | ID / date | Class and target | Status / evidence | Conclusion and obligations |
 | --- | --- | --- | --- |
+| standalone-certificate / 2026-09-30 | Actual standalone and local storage-fixture PocketIC endpoints; no deployed provider | [Host refusal case](../../../tests/pocketic/tests/standalone_certificate/mod.rs) passes (4.27 seconds); six existing exposure/certificate cases pass (12.77 seconds), including real signed ingress verification, rollback and lost-reply recovery; optional Chromium case not rerun. Five core certificate tests, Candid comparison, strict affected Clippy, warning-free core/host docs and release Wasm builds pass | Standalone reports four unqualified prerequisites and refuses certificate issuance; role/malformed/unprepared/revoked/restored cases preserve state. Stop/start grants no new authority. Assessment does not reserve issuance. Shared blocker DTO/conversion replaces the fixture duplicate; positive issuance facts remain labelled fixture substitutes. No provider requests/attached cycles, external charges or cleanup obligations; no provider or old-backup qualification |
+| public-source-03 / 2026-09-30 | Anonymous official source/registry capture, four bounded GETs | [Plan](runs/2026-09-30-public-source-01/plan.json), [summary](runs/2026-09-30-public-source-01/summary.json); captured at commit `14ab9511fd73258a380bc1a6861d6da6e548ebbb` | Upstream HEAD moved; retained Mixin/Storage SHA-256 values still match public-source-02, and npm remains 1.1.2 with the same integrity. The root-only certificate reply has no owner/project, admitted size, deadline or operation identity fields; source refresh adds no deployed pre-charge, replay, provisioning or recovery evidence. No provider/account effects or external cleanup |
 | verifier-submission / 2026-09-30 | Native artifact validation and signed PocketIC through a bounded local fault proxy; fixture exposure and ten-byte local content | [Maintained journeys](../../../tests/pocketic/tests/storage_observe_cli/mod.rs) pass (4.49 seconds): normal acknowledgment, dropped real acknowledgment and forced HTTP 202. Native CLI tests and strict affected Clippy pass; historical settled/restored recovery (5.28 seconds) and signed standalone status/history regression (6.46 seconds) pass | Proxy compares the exact signed wire body with saved intent before forwarding one update. Competing submitters send once; incomplete, failed or changed observations reject before claiming. Killed provider reads remain undispatchable. A dropped acknowledgment stays uncertain; 202 stays pending. Both recover the exact immutable receipt through signed queries without resending. Request IDs, source/root/artifact hashes and outcomes are retained in temporary controlled test runs; scenario definitions remain in source. The pinned ic-agent 0.49.2 implementation was inspected locally for one-call transport, certificate verification and disabled retries. No live provider/account, attached cycles, external charges or cleanup obligations; deployed retention/billing/exposure remain unqualified |
 | historical-recovery / 2026-09-26 | Source inspection, substituted HTTP replies, Candid codecs and anonymous metadata | [Existing record](../caffeine-recovery-review.json), indexed retrospectively; not rerun | SDK progress is insufficient; root-only callbacks and payment correlation need conservative handling. No paid effects were recorded in that review; no fabricated modern run metadata |
 | historical-deployment / 2026-09-25 | Anonymous deployed interface/gateway/price observations | [Existing record](../caffeine-deployment-observation.json), indexed retrospectively; use its own timestamps/scope | Interface reachability is not upload, payment or billing qualification |

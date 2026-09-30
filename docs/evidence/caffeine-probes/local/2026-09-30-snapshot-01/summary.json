@@ -1,0 +1,60 @@
+{
+  "date": "2026-09-30",
+  "evidence_class": "local_pocketic_management_operations_with_substituted_exposure_facts",
+  "record_kind": "curated_test_outcome_not_raw_provider_capture",
+  "base_revision": "cfc2ed2129f5de482071e0f69492cfa9aeaff5c9",
+  "workspace": "uncommitted certificate boundary and snapshot tests after 0.4.2",
+  "pocket_ic": "16.0.0 via ic-testkit",
+  "intent": "Prior whole-canister rollback entry in the probe ledger",
+  "command": "cargo test --offline --locked -p ic-blob-storage-pocketic-tests --test standalone --test storage snapshot_rollback -- --nocapture",
+  "artifacts_sha256": {
+    "tests/pocketic/tests/standalone_snapshot/mod.rs": "af61aa56d0b2bf4ba4f6e5f9a869ae74c29f5f79b127dc59ad920a28ebbd89de",
+    "tests/pocketic/tests/storage_exposure/snapshot/mod.rs": "31e58ce7321f62222a9e3f5e32a2d533efa5b587ab1cbc12e46bcc20d2696ed7",
+    "tests/pocketic/tests/snapshots/mod.rs": "afd616ee2544494449966bb43635245f70b10967dbd8b94d60f88fab0df9c799",
+    "target/wasm32-unknown-unknown/release/ic_blob_storage_canister.wasm": "83cbca4f0331df876122109b91a276db33e6a4f8e048eac4379adbf076a59e95",
+    "target/wasm32-unknown-unknown/release/blob_storage_probe.wasm": "ae6067fd267d80f436e967b3dd9cef755791d5f22cbf115fd091bb581387990c",
+    "Cargo.lock": "ee401c9db88adf133de90e6183b35929b29d96013ccf69a0beb5fa1b8e86dc32"
+  },
+  "requests": {
+    "definitions": "Maintained test sources bind fixed Fake principals, exact permission and local service IDs; no raw Candid transcript retained",
+    "canisters": 2,
+    "snapshots_taken": 3,
+    "snapshots_loaded": 3,
+    "snapshots_deleted": 3,
+    "provider_requests": 0,
+    "paid_effects": 0
+  },
+  "results": [
+    {
+      "test": "standalone_snapshot::standalone_snapshot_rollback_bypasses_upgrade_fence_but_cannot_enable_certificates",
+      "outcome": "passed",
+      "seconds": 3.47,
+      "observations": [
+        "Same-release upgrade sets the owner fence",
+        "Loading the prepared snapshot restores an unfenced owner and undoes the later revocation",
+        "Certificate assessment still reports Recovery; certificate update traps with unchanged stable bytes",
+        "Loading the earlier snapshot loses the entire later operation and its liability reservation",
+        "Exact permission can be admitted again locally"
+      ]
+    },
+    {
+      "test": "storage_exposure::snapshot::snapshot_rollback_forgets_exposure_and_simulated_freshness_allows_reexposure",
+      "outcome": "passed",
+      "seconds": 1.82,
+      "observations": [
+        "A second simulated exposure is refused before rollback",
+        "Snapshot load restores Reserved and not-revoked state with no owner fence",
+        "The fixture's QualifiedSubstitute allows the same exposure again after rollback",
+        "Another simulated exposure is refused within the new uninterrupted history"
+      ]
+    }
+  ],
+  "failures": [],
+  "cleanup": "All three snapshots explicitly deleted; both managed local instances dropped",
+  "limitations": [
+    "No deployed IC or Caffeine behavior was observed",
+    "Exposure facts are test substitutes; no provider certificate was issued or uploaded",
+    "No external surviving journal or freshness authority is implemented by these tests",
+    "Hashes identify reviewed local files and do not authenticate a provider or prove reproducible builds"
+  ]
+}

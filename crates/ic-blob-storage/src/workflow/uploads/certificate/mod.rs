@@ -1,7 +1,8 @@
 //! Shared Caffeine root-only issuance boundary. Linking exports no IC endpoint.
 use crate::{
     dto::upload::{
-        certificate::CaffeineUploadCertificateResponse, exposure::UploadExposureFailure,
+        certificate::{CaffeineUploadCertificateResponse, UploadCertificateAssessmentResponse},
+        exposure::UploadExposureFailure,
     },
     model::service::upload::{UploadContext, UploadPermission},
     ops::service::uploads::{StableUploads, certificate},
@@ -12,6 +13,8 @@ use ic_memory::ic_stable_structures::Memory;
 
 /// Reviewed Caffeine ingress update name. Its wire reply is a plain record, not Result.
 pub const CAFFEINE_UPLOAD_CERTIFICATE_METHOD: &str = "_immutableObjectStorageCreateCertificate";
+/// Uploader-only read-only assessment; its reply is never a certificate or permit.
+pub const UPLOAD_CERTIFICATE_ASSESSMENT_METHOD: &str = "blob_upload_certificate_assessment";
 
 /// Local refusal. Adapters must reject/trap the ingress update, never encode this
 /// error as a successful provider reply or replace it with a certificate response.
@@ -35,6 +38,30 @@ pub fn resolve<M: Memory>(
     now: u64,
 ) -> Result<UploadPermission, UploadExposureFailure> {
     certificate::resolve(store, context, root, now)
+}
+
+/// Inspect the same local eligibility and independent evidence used at issuance.
+/// The root is a locator, not tenant authority. Host evidence must be obtained
+/// independently of ingress and bound to the complete original permission.
+/// No state is changed, even when every prerequisite is established.
+/// # Errors
+/// Refuses wrong actors/roots, stale local permissions, changed evidence or fences.
+pub fn inspect<M: Memory>(
+    store: &StableUploads<M>,
+    context: UploadContext,
+    root: &str,
+    evidence: UploadExposureHostEvidence,
+    now: u64,
+) -> Result<UploadCertificateAssessmentResponse, UploadExposureFailure> {
+    let permission = resolve(store, context, root, now)?;
+    let assessment = exposure::inspect_preparation(
+        store,
+        context,
+        certificate::input(permission),
+        evidence,
+        now,
+    )?;
+    Ok(certificate::assessment(permission, now, assessment))
 }
 
 /// Re-resolve a root, recheck exact current host evidence and record exposure before

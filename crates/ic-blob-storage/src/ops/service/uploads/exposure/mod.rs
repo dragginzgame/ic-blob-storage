@@ -12,6 +12,30 @@ use crate::{
     policy::upload::exposure::UploadExposureHostEvidence,
 };
 use ic_memory::ic_stable_structures::Memory;
+
+/// Present every independent policy blocker at the Candid boundary. Conversion
+/// grants no issuance authority and does not acquire or authenticate host evidence.
+#[must_use]
+pub fn blockers(
+    assessment: crate::policy::upload::exposure::UploadExposureAssessment,
+) -> Vec<crate::dto::upload::exposure::UploadExposureBlocker> {
+    use crate::{
+        dto::upload::exposure::UploadExposureBlocker as D,
+        policy::upload::exposure::UploadExposureBlocker as P,
+    };
+    assessment
+        .blockers
+        .into_iter()
+        .map(|blocker| match blocker {
+            P::StaleObservation => D::StaleObservation,
+            P::PrechargeLimits => D::PrechargeLimits,
+            P::ProviderNamespace => D::ProviderNamespace,
+            P::ReplayCharging => D::ReplayCharging,
+            P::Recovery => D::Recovery,
+            P::Durability => D::Durability,
+        })
+        .collect()
+}
 fn permission<M: Memory>(
     store: &StableUploads<M>,
     context: UploadContext,

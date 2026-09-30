@@ -2,73 +2,137 @@
 
 Date: 2026-09-30
 
-## Active work — native verifier submission after 0.4.1
+## Active work — single-owner recovery scope after 0.4.2
 
-The maintainer reports 0.4.1 pushed. Cargo/release receipt are 0.4.1; local main,
-origin/main and peeled v0.4.1 resolve to `ca13c6db6ccd4a3e00e9658e7341171c180a5d50`,
-from validated source `17bb37f9be6c576a8179ed496ba7508624f7e5e0`. The receipt records
-`release-verify`; registry publication was not independently queried. Completed
-work is grouped in the undated 0.4.2 changelog draft. Cargo remains 0.4.1; no
-release action or commit was performed.
+The maintainer reports 0.4.2 live. Cargo/release receipt are 0.4.2; local main,
+origin/main and peeled v0.4.2 resolve to `cfc2ed2129f5de482071e0f69492cfa9aeaff5c9`,
+from validated source `0cd4817c4b8f61795aaabe0b3b11aaa3af0f3511`. The receipt records
+`release-verify`; registry publication was not independently queried. This batch
+started clean and adds Unreleased work without version mutation or commits.
+
+The maintainer requested the 0.4.3 changelog. Completed work is now consolidated
+under an undated `[0.4.3]` section below empty Unreleased. Cargo and the release
+receipt remain 0.4.2; no release preparation, commit, tag or publication occurred.
+The implementation validation below is retained; this changelog-only step checks
+draft structure, preserved historical notes and the diff without rerunning CI.
 
 The approved [explicit verifier trust model](../service-contract.md#explicit-verifier-completion-trust--accepted-2026-09-29)
-remains unchanged: complete off-canister verification establishes trusted observed
-availability, not future retention or billing cessation. Maintain the
-[probe ledger](../evidence/caffeine-probes/README.md); no live provider request or
-paid effect ran. Local signed replica transport is real; exposure/content are fixtures.
+remains unchanged. Native observation, explicit one-shot attestation submission and
+historical receipt recovery shipped in 0.4.1/0.4.2. They establish trusted observed
+availability, not future retention, provider charging bounds or recovery readiness.
+Continue maintaining the [probe ledger](../evidence/caffeine-probes/README.md).
 
 ## Completed in this batch
 
-- Native `blob-storage submit-attestation` accepts only a complete successful
-  `observe-upload` directory with the same network, service URL, service, namespace
-  and verifier. Bounded strict record reads validate original permission/declaration,
-  owner/project/download target, complete download result, exact statement, time
-  ordering and hashes. Missing, failed, partial, oversized or mismatched artifacts
-  reject before signing/claiming. Local files remain trusted verifier input, not
-  portable authentication against an actor able to rewrite all artifacts.
-- Exclusive creation of `attestation/` claims the run. Before one update, the command
-  syncs an exact statement copy, signed envelope and intent with request ID, expiry,
-  runner version/source fingerprint, trust-root hash and observation hashes. Existing
-  claims reject, including empty/partial claims after interruption. Neither pending,
-  uncertain nor refused outcomes authorize resubmission; the guard is local, not
-  distributed. Do not delete/copy claims to retry.
-- The shared IC agent keeps explicit root/identity authority, verified replies,
-  no redirects/retries and bounded transport. Submission has a 30-second deadline,
-  no polling, no provider GET and no regenerated observation time. Certified mutation
-  replies use the shared exact-statement decoder. HTTP 202 remains pending; transport
-  failures remain uncertain. Saved historical receipt inspection recovers the exact
-  statement, including when a real replica acknowledgment is dropped by the test proxy.
-- Observation record schemas and Candid remain unchanged. Existing query transport
-  and statement decoding are shared with submission. No installation/public DTO/
-  stable-state schema, dependency or allocator change. README, service contract,
-  host guide, roadmap, probe ledger and 0.4.2 changelog draft are updated together.
+- Standalone exports the synchronous Caffeine certificate update and uploader-only
+  `blob_upload_certificate_assessment(root)` query. Both delegate through the shared
+  certificate/exposure workflow with bounded ingress, actual caller and current
+  execution clock. Root is a locator only; no controller/operator/verifier override.
+- The new shared assessment returns the exact original permission, assessment time
+  and every missing prerequisite without writing state. An empty blocker list is
+  still only a snapshot; later issuance rechecks current permission and evidence.
+  Shared passive exposure-blocker DTO/conversion replaces the fixture's duplicate
+  wire enum and mapping; pure policy remains free of DTOs and serialization.
+- Host evidence comes from retained permission and internal code, never ingress.
+  Synchronous shared stable commit and trap propagation establish local durability.
+  Pre-charge enforcement, provider namespace binding, replay charging and independent
+  recovery readiness remain unqualified. Accordingly the host certificate update
+  always traps under current facts; there is no enable flag or simulated-fact path.
+  Local preparation, project configuration and an unfenced store do not qualify it.
+- Candid export, README/host/service contract, roadmap, probe ledger and Unreleased
+  changelog are updated together. Changes are additive to the public service/API;
+  no installation, stable-state schema, dependency or allocator changes.
+- A fresh bounded anonymous official source/registry capture is retained at
+  `docs/evidence/caffeine-probes/runs/2026-09-30-public-source-01`. Upstream HEAD is
+  `14ab9511fd73258a380bc1a6861d6da6e548ebbb`; reviewed Mixin/Storage hashes are unchanged
+  from the previous capture, and npm remains 1.1.2 with unchanged integrity. The
+  root-only reply still adds no project/size/expiry/operation qualification. Four
+  source GETs, no provider/account/paid effects; offline probe integrity checks pass.
 
-Validation: all 16 native CLI tests pass (0.65 seconds). Three signed PocketIC
-observation/submission journeys pass (4.49 seconds), including concurrent submitters,
-intent before wire transport, damaged/missing artifacts, killed incomplete downloads,
-one actual signed update, a dropped real acknowledgment, forced HTTP 202 and exact
-receipt recovery with no resend. Existing settled/restored historical recovery passes
-(5.28 seconds), and signed standalone status/history trust/identity/scope regression
-passes (6.46 seconds). Strict affected all-target/all-feature Clippy, native CLI build,
-release storage-fixture Wasm, CLI Wasm check, formatting and diff checks pass.
-No full CI/release gate was requested or run.
+Validation: five core certificate tests and generated Candid comparison pass.
+The standalone PocketIC case passes (4.27 seconds): role, unknown/malformed input,
+preparation, four explicit blockers, unchanged reservation/state, stop/start,
+revocation and restoration. Six existing exposure/certificate PocketIC cases pass
+(12.77 seconds), covering the shared blocker conversion, stable-write/response trap
+rollback, actual signed certificate validation and lost-reply recovery without
+reissuance. Their positive host facts remain substitutes. The optional Chromium
+case was not rerun. Strict affected all-target/all-feature Clippy, warning-free
+core/host rustdoc, both release Wasm builds, make probe-check, formatting and diff
+checks pass. No full CI/release gate was requested or run.
+
+## Snapshot recovery follow-up
+
+Actual PocketIC `take_canister_snapshot` / `load_canister_snapshot` operations now
+cover the previously untested whole-canister rollback path. Two maintained tests
+pass: standalone (3.47 seconds) and durable fixture (1.82 seconds). A snapshot
+restores its heap owner without executing the upgrade hook, so it can undo a later
+fence and revocation. An older snapshot loses the later operation and its reserved
+liability entirely, and the exact permission can be admitted again locally. The
+fixture additionally demonstrates repeat simulated exposure when its host again
+claims recovery qualification. No provider was contacted or certificate issued.
+
+Standalone certificate refusal remains effective after the rollback, with unchanged
+stable bytes. This is negative qualification evidence, not an operational recovery
+fix: snapshot loading remains unsupported, and a reported clear fence must never
+be interpreted as independently fresh/complete state. The tests document the gap;
+they do not require preserving it after a real authority mechanism is implemented.
+All three local snapshots were deleted and both owned instances dropped. Targeted
+strict Clippy passes. The [probe ledger](../evidence/caffeine-probes/README.md) has
+the prior intent and immutable local outcome with source/Wasm hashes; the contract,
+roadmap, host guide and Unreleased notes now distinguish upgrade fencing from
+snapshot loading. No production API, state, dependency or version changed in this
+follow-up. No live trial or full CI/release gate ran.
+
+## Maintainer scope decision — current direction
+
+The maintainer selected simplicity until there is a clear use case. Keep one
+authoritative storage owner and its current local durable journals/shared handlers.
+External journals, dedicated recovery-controller canisters and extra metadata calls
+are deferred. The current synchronous certificate boundary remains. AGENTS.md now
+records this preference; the contract and roadmap have a short
+[scope decision](../service-contract.md#recovery-scope--maintainer-decision-2026-09-30)
+instead of the expanded distributed implementation proposal.
+
+Prioritize current-state durability, exact-operation receipt recovery and
+state-preserving same-release lifecycle work. Current upgrade restoration remains
+inspection-only, so operational upgrade recovery is still unfinished. Older
+snapshot loads remain unsupported for operation: loading can restore an unfenced
+heap, and a clear flag cannot prove fresh or complete state. Keep an installation
+stopped during such recovery; active return requires complete independent
+reconciliation. Backup/restore remains an open requirement, not silently completed
+or discarded by deferring the distributed design.
+
+The prior source/design review artifact is retained unchanged and marked historical
+in the probe ledger. Do not treat its recorded recommendation as current authority.
+This decision changes documentation only; no role, schema, endpoint, qualification,
+dependency, allocator or version changed. No new probe, provider or paid effect.
+Diff and retained evidence checksum checks are the targeted validation.
 
 ## Next integration and open gates
 
-Connect the standalone certificate/exposure path using the shared service handlers
-and the maintained Caffeine contract. Preparation alone must not become exposure or
-completion. Keep intent before effects, exact owner/project/permission identity,
-uncertain paid-effect fences and bounded resource accounting. Review current pinned
-provider source and retained probe evidence before changing those assumptions;
-record new source/local/live investigations separately. Native observation, explicit
-submission and receipt recovery are now implemented; qualify their host exposure
-boundary before claiming a complete standalone upload journey.
+The standalone boundary is wired; do not repeat that implementation or turn on
+issuance merely because it now has an endpoint. Next work must establish concrete
+provider/recovery evidence for the four remaining blockers, or obtain explicit
+acceptance of a narrower supported contract before changing them. No cooperation
+from Caffeine is required, but source hashes and local substitutes alone cannot
+qualify deployed pre-charge limits, namespace enforcement or replay billing.
+Keep prepared diagnostics bounded and tied to an exact isolated installation,
+owner/project/payer and request/byte/time/billing budget before any live paid trial.
+The ledger's existing live trial remains prepared, not dispatched; no such budget
+or installation selection was supplied in this batch.
 
-Any live/paid trial still needs an explicit isolated installation/account and budget.
-The existing bounded trial remains prepared, not dispatched. Operational old-backup
-recovery, economics/deletion qualification, consumer acceptance and Canic parity
-remain open. Canic removal is not ready. Cross-release transitions remain reinstall-only;
-same-release interruption and receipt recovery remain required.
+Independent old-backup freshness and surviving liabilities remain necessary for
+recovery. Do not treat a clear local restore fence, a counter from the same backup,
+or an operator boolean as that evidence. Do not repeat the snapshot demonstration
+or revive the external journal/controller proposal without a concrete consumer
+use case. Continue practical integration and lifecycle/receipt recovery within
+the single authoritative owner; identify the exact supported state-preserving
+upgrade boundary before enabling operational recovery. Provider qualification
+remains separate; simplicity does not set any certificate prerequisite to true.
+Economics/deletion qualification, consumer
+acceptance and Canic parity remain open. Canic removal is not ready. Cross-release
+transitions remain reinstall-only with retirement obligations preserved; same-release
+interruption and receipt recovery remain required.
 
 The sections below retain earlier implementation evidence. Their "current batch"
 and "next" wording is historical; this handoff takes precedence.

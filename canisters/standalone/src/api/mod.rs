@@ -111,6 +111,30 @@ fn blob_prepare_upload(
 }
 #[ic_cdk::query(hidden = true, decode_with = "ops::decode")]
 #[candid::candid_method(query)]
+fn blob_upload_certificate_assessment(
+    root: String,
+) -> Result<
+    ic_blob_storage::dto::upload::certificate::UploadCertificateAssessmentResponse,
+    ic_blob_storage::dto::upload::exposure::UploadExposureFailure,
+> {
+    workflow::certificate_assessment(context(), &root, ic_cdk::api::time())
+}
+#[ic_cdk::update(
+    name = "_immutableObjectStorageCreateCertificate",
+    hidden = true,
+    decode_with = "ops::decode"
+)]
+#[candid::candid_method(update, rename = "_immutableObjectStorageCreateCertificate")]
+fn caffeine_upload_certificate(
+    root: String,
+) -> ic_blob_storage::dto::upload::certificate::CaffeineUploadCertificateResponse {
+    // Never encode an error as a successful provider reply. Shared workflow
+    // rechecks current authority/evidence and commits exposure synchronously.
+    workflow::certificate(context(), &root, ic_cdk::api::time())
+        .unwrap_or_else(|_| ic_cdk::trap("certificate issuance refused"))
+}
+#[ic_cdk::query(hidden = true, decode_with = "ops::decode")]
+#[candid::candid_method(query)]
 fn blob_upload_manifest(
     input: UploadAdmissionRequest,
 ) -> Result<UploadManifestResponse, UploadManifestFailure> {

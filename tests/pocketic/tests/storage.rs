@@ -2,6 +2,7 @@
 #![cfg(not(target_family = "wasm"))]
 mod authenticated_cli;
 mod reference_cli;
+mod snapshots;
 mod storage_attestation_cli;
 mod storage_completion;
 mod storage_exposure;

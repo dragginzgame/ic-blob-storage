@@ -5,7 +5,7 @@ use crate::{
         reference::ReferenceUpload,
         upload::{
             admission::{UploadAdmissionFailure as A, UploadAdmissionRequest},
-            certificate::CaffeineUploadCertificateResponse,
+            certificate::{CaffeineUploadCertificateResponse, UploadCertificateAssessmentResponse},
             exposure::UploadExposureFailure as E,
         },
     },
@@ -13,6 +13,7 @@ use crate::{
         identity::ProviderRootHash,
         service::upload::{UploadContext, UploadPermission},
     },
+    policy::upload::exposure::UploadExposureAssessment,
 };
 use ic_memory::ic_stable_structures::Memory;
 
@@ -68,5 +69,17 @@ pub(crate) fn response(permission: UploadPermission) -> CaffeineUploadCertificat
     CaffeineUploadCertificateResponse {
         method: "upload".into(),
         blob_hash: permission.request.object.root.to_string(),
+    }
+}
+
+pub(crate) fn assessment(
+    permission: UploadPermission,
+    now: u64,
+    assessment: UploadExposureAssessment,
+) -> UploadCertificateAssessmentResponse {
+    UploadCertificateAssessmentResponse {
+        permission: input(permission),
+        assessed_at_ns: now,
+        blockers: exposure::blockers(assessment),
     }
 }

@@ -2,12 +2,12 @@
 use super::{STATE, TRAP_WRITE};
 use blob_test_protocol::storage::{
     WriteFault,
-    exposure::{ExposureBlocker, ExposureInput, ExposureOutcome, ExposureScenario},
+    exposure::{ExposureInput, ExposureOutcome, ExposureScenario},
 };
 use ic_blob_storage::{
     dto::upload::{
         admission::{UploadAdmissionFailure, UploadAdmissionRequest, UploadAdmissionResponse},
-        exposure::UploadExposureFailure,
+        exposure::{UploadExposureBlocker, UploadExposureFailure},
     },
     model::{
         catalog::admission::{UploadObject, UploadRequest, UploadRequestId},
@@ -18,9 +18,7 @@ use ic_blob_storage::{
         },
         service::upload::{UploadContext, UploadPermission},
     },
-    policy::upload::exposure::{
-        UploadExposureAssessment, UploadExposureBlocker, UploadExposureHostEvidence,
-    },
+    policy::upload::exposure::UploadExposureHostEvidence,
     workflow::uploads::exposure::{self, UploadExposureResult},
 };
 use std::num::NonZeroU128;
@@ -110,24 +108,10 @@ fn substitute(
         durable_commit: established,
     })
 }
-fn blockers(assessment: UploadExposureAssessment) -> Vec<ExposureBlocker> {
-    assessment
-        .blockers
-        .into_iter()
-        .map(|b| match b {
-            UploadExposureBlocker::StaleObservation => ExposureBlocker::StaleObservation,
-            UploadExposureBlocker::PrechargeLimits => ExposureBlocker::PrechargeLimits,
-            UploadExposureBlocker::ProviderNamespace => ExposureBlocker::ProviderNamespace,
-            UploadExposureBlocker::ReplayCharging => ExposureBlocker::ReplayCharging,
-            UploadExposureBlocker::Recovery => ExposureBlocker::Recovery,
-            UploadExposureBlocker::Durability => ExposureBlocker::Durability,
-        })
-        .collect()
-}
 pub(crate) fn preview(
     context: UploadContext,
     input: ExposureInput,
-) -> Result<Vec<ExposureBlocker>, UploadExposureFailure> {
+) -> Result<Vec<UploadExposureBlocker>, UploadExposureFailure> {
     let now = ic_cdk::api::time();
     let evidence = substitute(input, now)?;
     STATE.with_borrow(|s| {
@@ -138,7 +122,7 @@ pub(crate) fn preview(
             evidence,
             now,
         )
-        .map(blockers)
+        .map(ic_blob_storage::ops::service::uploads::exposure::blockers)
     })
 }
 pub(crate) fn commit(
@@ -162,7 +146,9 @@ pub(crate) fn commit(
         ic_cdk::trap("fixture after exposure write");
     }
     result.map(|r| match r {
-        UploadExposureResult::Blocked(a) => ExposureOutcome::Blocked(blockers(a)),
+        UploadExposureResult::Blocked(a) => ExposureOutcome::Blocked(
+            ic_blob_storage::ops::service::uploads::exposure::blockers(a),
+        ),
         UploadExposureResult::Exposed(v) => ExposureOutcome::Exposed(v),
     })
 }

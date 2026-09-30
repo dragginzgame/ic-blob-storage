@@ -1,6 +1,7 @@
 //! Labelled host-evidence substitutes for exposure tests. Never accept these controls in production.
 use candid::{CandidType, Deserialize};
 use ic_blob_storage::dto::upload::admission::{UploadAdmissionRequest, UploadAdmissionResponse};
+use ic_blob_storage::dto::upload::exposure::UploadExposureBlocker;
 /// Scenario selected by the local test host, not evidence from Caffeine.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
 pub enum ExposureScenario {
@@ -25,27 +26,11 @@ pub struct ExposureInput {
     /// Trap after the shared handler returns; the whole IC update must roll back.
     pub trap_after: bool,
 }
-/// Private wire representation of independent shared-policy blockers.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
-pub enum ExposureBlocker {
-    /// Observation predates this execution.
-    StaleObservation,
-    /// Pre-charge size enforcement unknown.
-    PrechargeLimits,
-    /// Provider namespace enforcement unknown.
-    ProviderNamespace,
-    /// Replay charging unknown.
-    ReplayCharging,
-    /// Recovery eligibility unknown.
-    Recovery,
-    /// Durable commit unknown.
-    Durability,
-}
 /// Simulated exposure or missing prerequisites; never a provider certificate.
 #[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize)]
 pub enum ExposureOutcome {
     /// No mutation took place.
-    Blocked(Vec<ExposureBlocker>),
+    Blocked(Vec<UploadExposureBlocker>),
     /// Durable possible-exposure state, without any provider effect.
     Exposed(Box<UploadAdmissionResponse>),
 }

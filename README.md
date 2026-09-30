@@ -684,7 +684,10 @@ cargo run --offline --locked -p ic-blob-storage-cli --bin blob-storage -- \
 The service authenticates the verifier through `blob_verification_plan` and returns
 its installed owner/project and exact original declaration. The command validates
 the signed reply and uses the maintained Caffeine request-target encoder. The host
-must have already recorded exposure; standalone currently lacks that qualified path.
+must have already recorded exposure. Standalone exposes an uploader-only
+`blob_upload_certificate_assessment(root)` and the canonical certificate update,
+but issuance remains blocked by independent provider/recovery prerequisites; see
+the [host contract](canisters/standalone/README.md).
 Unexposed, confirmed or restored work rejects before any provider GET. Revoked or
 suspended exposed uploads remain eligible for reconciliation.
 

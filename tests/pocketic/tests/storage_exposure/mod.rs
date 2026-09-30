@@ -1,12 +1,11 @@
 use super::*;
 mod certificate;
-use blob_test_protocol::storage::exposure::{
-    ExposureBlocker as B, ExposureInput, ExposureOutcome, ExposureScenario,
-};
+mod snapshot;
+use blob_test_protocol::storage::exposure::{ExposureInput, ExposureOutcome, ExposureScenario};
 use ic_blob_storage::dto::upload::{
     UploadState,
     admission::{UploadAdmissionFailure as A, UploadAdmissionResponse},
-    exposure::UploadExposureFailure as E,
+    exposure::{UploadExposureBlocker as B, UploadExposureFailure as E},
 };
 fn input(f: &Fixture, permission: Permission) -> ExposureInput {
     assert_eq!(permission.uploader, f.uploader);

@@ -33,7 +33,8 @@ Controller/operator/gateway status grants no implicit verifier authority. The
 current v1 host/lifecycle schemas change directly, requiring a minor release and
 cross-release reinstall. The existing trusted-host bookkeeping primitive remains
 explicitly distinguishable from a verifier receipt; no receipt is invented for it.
-The standalone certificate/exposure path is still required before end-to-end use.
+Standalone certificate/exposure integration now exists but remains blocked by
+independent provider and recovery qualification before end-to-end use.
 See the [probe ledger](evidence/caffeine-probes/README.md)
 for local transaction evidence and the [host contract](../canisters/standalone/README.md)
 for endpoint usage.
@@ -94,7 +95,7 @@ unfencing contract. Linking the library exports no endpoint or lifecycle hook.
 
 The [standalone host](../canisters/standalone/README.md) now explicitly owns these
 hooks and grants, plus one bounded immutable configuration record. Its actual IC
-installation validates all inputs before allocation; same-release restoration
+installation validates all inputs before allocation; same-release upgrade restoration
 loads the saved service/release-bound configuration without replacement arguments
 and fences every owner synchronously. Its tenant, admission, manifest and reference
 endpoints delegate to shared workflows, with bounded typed Candid and operator-only
@@ -104,8 +105,14 @@ host binds owner to its actual service and project to the installed local namesp
 validates before allocation and retains/revalidates the mapping in its current v1
 record. Configuration readback includes the project. This host init/schema hard cut
 requires a minor release and cross-release reinstall, without a migration path.
-It establishes no provider project assignment. This initial host exports no provider-fact substitutes,
-certificates or paid calls. Operational recovery, remaining provider/operator
+It establishes no provider project assignment. This host exports no provider-fact
+substitutes or enabled certificate issuance. Actual local management snapshot tests
+show that loading an old snapshot bypasses these hooks, restores its heap owner and
+can clear a later fence, undo revocation and lose later upload reservations. Snapshot
+loading remains unsupported for operation; `fenced = false` proves no independent
+freshness. The disabled certificate gate survives this rollback. See the
+[recorded recovery evidence](evidence/caffeine-probes/local/2026-09-30-snapshot-01/summary.json).
+Operational recovery, remaining provider/operator
 integration and the Canic adapter are still open.
 
 `workflow::operator::inspect` supplies the shared passive `blob_local_status` query.
@@ -685,6 +692,37 @@ journey and necessary corrections; optional ambitions do not gate extraction.
 Shared cross-tenant deduplication, generic provider plugins, cross-release
 migration, multi-Fleet indexing and new confidentiality guarantees are deferred.
 
+## Recovery scope — maintainer decision, 2026-09-30
+
+Keep one authoritative storage service with its existing local durable journals
+and shared handlers. The maintainer selected the simplest architecture until a
+clear use case justifies expansion. External write-ahead journals, dedicated
+recovery-controller canisters and additional metadata calls are deferred. The
+synchronous certificate commit/reply boundary remains the current contract.
+
+Prioritize current-state durability, exact-operation receipt recovery and
+state-preserving same-release lifecycle work. Stop/start preserves the current
+owner; today's upgrade restoration validates the retained state and remains
+inspection-only. Operational upgrade recovery is still unfinished. This decision
+does not introduce an unfence command or establish provider qualification.
+
+Loading an older whole-canister snapshot remains unsupported for operation. It
+can restore an unfenced heap and lose later records; the hook does not automatically
+detect that path. Keep the installation stopped during snapshot recovery and
+require complete independent reconciliation before any active return to service.
+A local counter, elapsed time, operator assertion or missing root is insufficient.
+Uncertain effects, balances, provider objects and continuing billing remain retained
+obligations. Same-release backup/restore remains an open requirement; deferring the
+distributed design does not mark recovery or extraction complete.
+
+Revisit the architecture when a named consumer actually needs active restoration
+of an older storage-owner backup after later external effects, and available
+provider/consumer evidence cannot close the missing inventory. Evaluate that case
+and its costs before selecting extra authority or replication. A restored consumer
+reconciles against the current storage owner; it does not roll that owner back.
+The earlier source/design review is retained as historical evidence in the
+[probe ledger](evidence/caffeine-probes/README.md); it is not the implementation plan.
+
 ## Lifecycle design under independent review
 
 Canic is a capability inventory and source of counterexamples, not the target
@@ -851,6 +889,24 @@ endpoint and neither handler sends a provider request. The local storage fixture
 defaults to refusal and requires operator-configured, explicitly simulated facts.
 Its response/rollback tests do not prove gateway acceptance, production evidence
 acquisition, certificate replay/lifetime, namespace or pre-charge enforcement.
+
+Shared certificate `inspect` returns the original permission, host assessment time
+and every missing prerequisite as passive DTOs. It applies the same local authority,
+phase and evidence-binding checks without writing exposure. Even an empty blocker
+list is only a snapshot; issuance must recheck current facts and permissions.
+The shared exposure-blocker conversion also serves the local fixture, replacing its
+private duplicate representation.
+
+Standalone exports the canonical certificate update and the uploader-only
+`blob_upload_certificate_assessment` query, both with bounded root ingress. Host
+evidence is constructed internally from the retained permission and execution
+clock; callers cannot submit qualification flags. Atomic local durability is
+established by synchronous shared commit and trap propagation. Deployed pre-charge
+limits, namespace provisioning/enforcement, replay charging and independent recovery
+readiness remain unqualified, so the update always refuses under current host facts.
+Prepared manifests, installed project text, verifier authority and a clear local
+restore fence do not satisfy those missing facts. This integrates the boundary
+without enabling provider effects or adding a configuration/state schema.
 
 Headless Rust tests obtain the actual v4 HTTP ingress certificate using a signing
 identity, then verify the IC signature/delegation/time and exact request ID under

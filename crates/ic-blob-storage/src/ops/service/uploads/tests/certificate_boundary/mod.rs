@@ -141,3 +141,85 @@ fn certificate_resolution_rejects_corrupt_root_request_indexes_without_writes() 
         assert_eq!(*m.permissions.borrow(), before);
     }
 }
+
+#[test]
+fn certificate_assessment_reports_exact_permission_and_all_missing_facts_without_mutation() {
+    use crate::dto::upload::{
+        certificate::UploadCertificateAssessmentResponse, exposure::UploadExposureBlocker as C,
+    };
+    let m = memory();
+    let store = prepared(clone_memory(&m));
+    let mut host = evidence();
+    let root = host.permission.request.object.root.to_string();
+    let before = m.permissions.borrow().clone();
+    host.observed_at_ns = 1;
+    host.precharge_limits = false;
+    host.provider_namespace = false;
+    host.replay_charging = false;
+    host.recovery_ready = false;
+    host.durable_commit = false;
+    let result = certificate::inspect(&store, context(5), &root, host, 2).unwrap();
+    assert_eq!(result.permission, manifest_boundary::input().permission);
+    assert_eq!(result.assessed_at_ns, 2);
+    assert_eq!(
+        result.blockers,
+        vec![
+            C::StaleObservation,
+            C::PrechargeLimits,
+            C::ProviderNamespace,
+            C::ReplayCharging,
+            C::Recovery,
+            C::Durability
+        ]
+    );
+    assert_eq!(
+        candid::decode_one::<UploadCertificateAssessmentResponse>(
+            &candid::encode_one(&result).unwrap()
+        )
+        .unwrap(),
+        result
+    );
+    for actor in [1, 2, 4, 6] {
+        assert_eq!(
+            certificate::inspect(&store, context(actor), &root, host, 2),
+            Err(E::Permission(A::Denied))
+        );
+    }
+    host.permission.expires_at_ns += 1;
+    assert_eq!(
+        certificate::inspect(&store, context(5), &root, host, 2),
+        Err(E::EvidenceBinding)
+    );
+    assert_eq!(*m.permissions.borrow(), before);
+}
+
+#[test]
+fn successful_certificate_assessment_never_reserves_or_survives_permission_changes() {
+    let m = memory();
+    let mut store = prepared(clone_memory(&m));
+    let host = evidence();
+    let root = host.permission.request.object.root.to_string();
+    let before = m.permissions.borrow().clone();
+    assert!(
+        certificate::inspect(&store, context(5), &root, host, 2)
+            .unwrap()
+            .blockers
+            .is_empty()
+    );
+    assert_eq!(*m.permissions.borrow(), before);
+    assert_eq!(
+        exposure::inspect(&store, context(5), manifest_boundary::input().permission)
+            .unwrap()
+            .state,
+        UploadState::Reserved
+    );
+    store.revoke(context(4), host.permission.request).unwrap();
+    assert_eq!(
+        certificate::inspect(&store, context(5), &root, host, 2),
+        Err(E::Revoked)
+    );
+    assert_eq!(
+        certificate::issue(&mut store, context(5), &root, host, 2),
+        Err(F::Exposure(E::Revoked))
+    );
+}
