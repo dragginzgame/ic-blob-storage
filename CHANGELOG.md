@@ -2,6 +2,23 @@
 
 ## [Unreleased]
 
+## [0.4.2]
+
+### Added
+
+- Native `blob-storage submit-attestation` validates a complete successful provider
+  observation and submits its exact statement once. A durable exclusive claim,
+  statement copy, signed request, request ID and artifact hashes precede the update;
+  incomplete, failed or mismatched observations reject. Existing claims refuse
+  resubmission, including after interruption or a lost reply. Bounded acknowledged
+  replies use the shared exact-statement decoder; pending and uncertain results
+  remain for explicit historical receipt recovery. No provider fetch, automatic
+  retry, polling or regenerated observation time occurs.
+- Signed PocketIC coverage checks intent before transport, competing native
+  submitters, damaged artifacts and receipt recovery after a local proxy drops an
+  actual replica acknowledgment. Provider exposure/content remain labelled fixtures;
+  this does not qualify standalone exposure or deployed Caffeine behavior.
+
 ## [0.4.1] - 2026-09-29
 
 ### Added

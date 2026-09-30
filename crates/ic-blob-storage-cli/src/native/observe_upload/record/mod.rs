@@ -1,77 +1,84 @@
 //! Fresh, no-clobber observation artifacts. Partial runs are never resumed automatically.
+//! String parameters permit borrowed writes and owned strict reads of the same schema.
 use super::super::Failure;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use std::{
     fs::{File, OpenOptions},
     io::Write,
     path::{Path, PathBuf},
 };
 
-#[derive(Serialize)]
-pub(super) struct ObservationPlanRecord<'a> {
+#[derive(Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
+pub(in crate::native) struct ObservationPlanRecord<S> {
     pub schema: u8,
-    pub runner_version: &'a str,
+    pub runner_version: S,
     pub runner_source_sha256: String,
-    pub network: &'a str,
-    pub service_url: &'a str,
+    pub network: S,
+    pub service_url: S,
     pub service: String,
     pub namespace: String,
     pub verifier: String,
-    pub gateway_origin: &'a str,
+    pub gateway_origin: S,
     pub max_content_bytes: String,
     pub max_provider_requests: u8,
     pub request_deadline_seconds: u8,
-    pub provider_charges: &'a str,
+    pub provider_charges: S,
     pub started_at_ns: String,
 }
-#[derive(Serialize)]
-pub(super) struct DownloadRequestRecord<'a> {
-    pub method: &'a str,
-    pub url: &'a str,
+#[derive(Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
+pub(in crate::native) struct DownloadRequestRecord<S> {
+    pub method: S,
+    pub url: S,
     pub service_reply_sha256: String,
     pub owner: String,
-    pub project: &'a str,
+    pub project: S,
     pub bytes: String,
     pub started_at_ns: String,
 }
-#[derive(Serialize)]
-pub(super) struct HttpResponseRecord {
+#[derive(Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
+pub(in crate::native) struct HttpResponseRecord {
     pub status: u16,
 }
-#[derive(Serialize)]
-pub(super) struct DownloadOutcomeRecord<'a> {
+#[derive(Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
+pub(in crate::native) struct DownloadOutcomeRecord<S> {
     pub received_bytes: String,
-    pub outcome: &'a str,
-    pub error: Option<&'a str>,
+    pub outcome: S,
+    pub error: Option<S>,
 }
-#[derive(Serialize)]
-pub(super) struct FailureRecord<'a> {
-    pub error: &'a str,
+#[derive(Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
+pub(in crate::native) struct FailureRecord<S> {
+    pub error: S,
 }
-#[derive(Serialize)]
-pub(super) struct ObservationSummaryRecord<'a> {
+#[derive(Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
+pub(in crate::native) struct ObservationSummaryRecord<S> {
     pub schema: u8,
-    pub observation: &'a str,
-    pub network: &'a str,
+    pub observation: S,
+    pub network: S,
     pub service: String,
     pub namespace: String,
     pub verifier: String,
     pub owner: String,
-    pub project: &'a str,
-    pub gateway_origin: &'a str,
+    pub project: S,
+    pub gateway_origin: S,
     pub root: String,
     pub bytes: String,
     pub content_digest: String,
     pub observed_at_ns: String,
     pub statement_sha256: String,
-    pub authentication: &'a str,
+    pub authentication: S,
     pub attestation_dispatched: bool,
     pub retry_authorized: bool,
-    pub future_retention: &'a str,
-    pub billing_cessation: &'a str,
+    pub future_retention: S,
+    pub billing_cessation: S,
 }
 
-pub(super) struct Run {
+pub(in crate::native) struct Run {
     path: PathBuf,
 }
 impl Run {

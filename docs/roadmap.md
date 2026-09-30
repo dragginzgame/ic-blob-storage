@@ -18,8 +18,10 @@ requirements. Log every probe, including failed and inconclusive runs.
 The maintainer subsequently selected the [explicit verifier trust model](service-contract.md#explicit-verifier-completion-trust--accepted-2026-09-29)
 for observed content availability. Its shared authority/receipt boundary and
 standalone endpoints, signed exact-statement receipt recovery and bounded native
-provider retrieval with durable statement capture are implemented. Native dispatch and
-standalone certificate exposure remain the next integration work. This decision
+provider retrieval with durable statement capture are implemented. Explicit native
+submission now persists its exact signed request before one update and recovers lost
+acknowledgments by historical lookup. Standalone certificate exposure remains the
+next integration work. This decision
 does not close retention, economics, recovery or Canic parity gates.
 
 The released **0.2.1 library** includes the 0.2 direct-upload admission contract,

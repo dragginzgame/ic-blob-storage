@@ -13,12 +13,12 @@ use serde_json::{Value, json};
 use std::path::Path;
 
 pub(super) struct Recovery {
-    authority: CompletionAuthority,
-    statement: UploadAttestationRequest,
+    pub(super) authority: CompletionAuthority,
+    pub(super) statement: UploadAttestationRequest,
     argument: Vec<u8>,
 }
 
-fn failure(error: UploadAttestationReplyError) -> Failure {
+pub(super) fn failure(error: UploadAttestationReplyError) -> Failure {
     match error {
         UploadAttestationReplyError::Limit => Failure::ReplyLimit,
         UploadAttestationReplyError::Invalid => Failure::InvalidReply,
@@ -44,6 +44,19 @@ impl Recovery {
         path: &Path,
     ) -> Result<Self, Failure> {
         let bytes = read(path, 4096)?;
+        Self::decode(service, namespace, verifier, actor, &bytes)
+    }
+
+    pub(super) fn decode(
+        service: Principal,
+        namespace: u128,
+        verifier: Principal,
+        actor: Principal,
+        bytes: &[u8],
+    ) -> Result<Self, Failure> {
+        if bytes.len() > 4096 {
+            return Err(Failure::Arguments);
+        }
         let mut config = DecoderConfig::new();
         config
             .set_decoding_quota(100_000)
@@ -52,7 +65,7 @@ impl Recovery {
             .set_max_header_len(4096)
             .set_full_error_message(false);
         let statement: UploadAttestationRequest =
-            decode_one_with_config(&bytes, &config).map_err(|_| Failure::Arguments)?;
+            decode_one_with_config(bytes, &config).map_err(|_| Failure::Arguments)?;
         let authority = CompletionAuthority::new(
             service,
             namespace.try_into().map_err(|_| Failure::Arguments)?,

@@ -33,8 +33,8 @@ Controller/operator/gateway status grants no implicit verifier authority. The
 current v1 host/lifecycle schemas change directly, requiring a minor release and
 cross-release reinstall. The existing trusted-host bookkeeping primitive remains
 explicitly distinguishable from a verifier receipt; no receipt is invented for it.
-The production dispatch worker and standalone certificate/exposure path are
-still required before end-to-end use. See the [probe ledger](evidence/caffeine-probes/README.md)
+The standalone certificate/exposure path is still required before end-to-end use.
+See the [probe ledger](evidence/caffeine-probes/README.md)
 for local transaction evidence and the [host contract](../canisters/standalone/README.md)
 for endpoint usage.
 
@@ -59,6 +59,18 @@ GET. Complete root/metadata/length verification precedes durable statement creat
 Fresh no-clobber runs persist intent before effects and retain failures; interrupted
 runs cannot resume automatically. Provider reads can cost money and live trials
 remain separately authorized. This command does not dispatch the saved statement.
+
+Explicit native `submit-attestation` validates the complete successful observation
+and its exact permission, declaration, owner/project, digest, timestamps and hashes.
+It exclusively claims the run and persists the statement, signed envelope, request
+identity, ingress expiry and trust/artifact hashes before one bounded update. The
+saved statement is never regenerated. Shared reply decoding checks a certified
+acknowledgment against that exact statement. Pending or uncertain outcomes require
+explicit receipt inspection, without polling, refetching or automatic resubmission.
+Existing claims refuse even after interruption before dispatch. Artifacts are trusted
+local verifier input, not portable authentication or a distributed submission lock;
+the canister's immutable receipt remains authoritative. This command introduces no
+new installation, public DTO or stable-state schema.
 
 ## Service configuration and host
 

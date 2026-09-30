@@ -14,6 +14,7 @@ pub(super) struct Options {
 }
 
 pub(super) enum Command {
+    SubmitAttestation(super::submit_attestation::Input),
     ObserveUpload(super::observe_upload::Input),
     Status {
         scope: OperatorScope,
@@ -58,6 +59,7 @@ impl Options {
                 | "verify-upload"
                 | "upload-attestation"
                 | "observe-upload"
+                | "submit-attestation"
         ) {
             return Err(Failure::Arguments);
         }
@@ -78,7 +80,7 @@ impl Options {
         let actor = principal(take(
             if matches!(
                 command,
-                "verify-upload" | "upload-attestation" | "observe-upload"
+                "verify-upload" | "upload-attestation" | "observe-upload" | "submit-attestation"
             ) {
                 "--actor"
             } else {
@@ -123,7 +125,13 @@ fn parse_command(
     flags: &mut BTreeMap<&str, &str>,
 ) -> Result<Command, Failure> {
     let mut take = |name| flags.remove(name).ok_or(Failure::Arguments);
-    Ok(if command == "observe-upload" {
+    Ok(if command == "submit-attestation" {
+        Command::SubmitAttestation(super::submit_attestation::Input {
+            service,
+            namespace,
+            directory: PathBuf::from(take("--run-dir")?),
+        })
+    } else if command == "observe-upload" {
         let gateway = Url::parse(take("--gateway")?).map_err(|_| Failure::Arguments)?;
         validate_url(&gateway, network, network == "local")?;
         Command::ObserveUpload(super::observe_upload::Input {
@@ -170,7 +178,7 @@ fn parse_command(
     })
 }
 
-fn validate_url(url: &Url, network: &str, explicit_root: bool) -> Result<(), Failure> {
+pub(super) fn validate_url(url: &Url, network: &str, explicit_root: bool) -> Result<(), Failure> {
     if !url.username().is_empty()
         || url.password().is_some()
         || url.query().is_some()

@@ -60,7 +60,9 @@ remain until their separate deletion/settlement evidence arrives.
 The attestation contract establishes trusted observed content availability, not
 future retention or billing cessation. Native `observe-upload` retrieves and checks
 provider bytes from an explicitly approved origin and saves a durable statement;
-attestation dispatch and the standalone certificate/exposure path remain unfinished. Installation of this
+`submit-attestation` can submit that exact statement once with durable intent and
+historical receipt recovery. The standalone certificate/exposure path remains
+unfinished. Installation of this
 contract alone does not enable a complete upload journey.
 
 Operator-only `blob_local_status` takes the explicit service, namespace, Cashier

@@ -34,6 +34,18 @@ all logs here; link their maintained test and record material changed findings.
 
 ## Current operating decisions and experiments
 
+2026-09-30 planned local verifier submission evidence: extend the signed PocketIC
+observation journey with the native one-shot `submit-attestation` command. Retain
+the existing fixture owner/project, fixed test verifier identity and ten-byte local
+HTTP substitute. Check missing/failed/changed artifacts before signing, intent and
+signed-envelope persistence before one update, no repeat submission, and historical
+receipt recovery. A local HTTP fault endpoint will exercise uncertain transport
+without a deployed provider. Bound each command to 30 seconds and one update;
+no live Caffeine, attached payment or provider cleanup is involved. Test artifacts
+live in temporary controlled directories; maintained scenarios and material outcomes
+are retained here. These tests cannot establish deployed provider availability,
+retention, deletion or billing behavior.
+
 On 2026-09-29 the maintainer explicitly selected a configured external verifier
 trust model. The verifier must independently retrieve complete content from the
 installation's owner/project binding and verify original metadata/root/length.
@@ -134,6 +146,7 @@ canisters/files require cleanup. The completed result is indexed below.
 
 | ID / date | Class and target | Status / evidence | Conclusion and obligations |
 | --- | --- | --- | --- |
+| verifier-submission / 2026-09-30 | Native artifact validation and signed PocketIC through a bounded local fault proxy; fixture exposure and ten-byte local content | [Maintained journeys](../../../tests/pocketic/tests/storage_observe_cli/mod.rs) pass (4.49 seconds): normal acknowledgment, dropped real acknowledgment and forced HTTP 202. Native CLI tests and strict affected Clippy pass; historical settled/restored recovery (5.28 seconds) and signed standalone status/history regression (6.46 seconds) pass | Proxy compares the exact signed wire body with saved intent before forwarding one update. Competing submitters send once; incomplete, failed or changed observations reject before claiming. Killed provider reads remain undispatchable. A dropped acknowledgment stays uncertain; 202 stays pending. Both recover the exact immutable receipt through signed queries without resending. Request IDs, source/root/artifact hashes and outcomes are retained in temporary controlled test runs; scenario definitions remain in source. The pinned ic-agent 0.49.2 implementation was inspected locally for one-call transport, certificate verification and disabled retries. No live provider/account, attached cycles, external charges or cleanup obligations; deployed retention/billing/exposure remain unqualified |
 | historical-recovery / 2026-09-26 | Source inspection, substituted HTTP replies, Candid codecs and anonymous metadata | [Existing record](../caffeine-recovery-review.json), indexed retrospectively; not rerun | SDK progress is insufficient; root-only callbacks and payment correlation need conservative handling. No paid effects were recorded in that review; no fabricated modern run metadata |
 | historical-deployment / 2026-09-25 | Anonymous deployed interface/gateway/price observations | [Existing record](../caffeine-deployment-observation.json), indexed retrospectively; use its own timestamps/scope | Interface reachability is not upload, payment or billing qualification |
 | public-source-01 / 2026-09-29 | Anonymous public source/registry capture; four recorded GET invocations, no account/paid effects | [Plan](runs/2026-09-29-public-source-01/plan.json), [summary](runs/2026-09-29-public-source-01/summary.json); captured, integrity checked | Official commit `78781961e52b8c9c874becd473402950429d4818`; both backend hashes match the prior review; npm 1.1.2/integrity unchanged. This runner had no application retries but still inherited reqwest protocol retries; actual wire request count was not measured. Preserved as captured; current runner explicitly disables transport retries |

@@ -1,6 +1,6 @@
 //! One bounded provider observation, retained before any future attestation dispatch.
 mod download;
-mod record;
+pub(super) mod record;
 #[cfg(test)]
 mod tests;
 use super::{Failure, arguments::Options, identity, query, read};

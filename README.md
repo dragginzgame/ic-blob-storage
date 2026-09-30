@@ -669,7 +669,7 @@ resending an uncertain effect. Every outcome reports `retry_authorized: false`.
 The command sends no update or provider request and writes no journal.
 
 `observe-upload` performs the verifier's independent provider read and saves the
-statement for future dispatch. Run it only against an explicitly approved gateway
+statement for explicit submission. Run it only against an explicitly approved gateway
 and installation with a read budget; provider charges remain unknown, including
 when a loopback origin forwards requests. No live trial was performed here.
 
@@ -712,8 +712,48 @@ Preserve their evidence before deciding on any separately budgeted new attempt.
 A saved statement binds the exact original permission and locally observed UTC time;
 the service still checks its admission/acceptance time bounds. The command sends no
 attestation or upload, and reports `attestation_dispatched: false` and
-`retry_authorized: false`. Native dispatch remains next; `verify-upload` local-file
+`retry_authorized: false`. `verify-upload` local-file
 output cannot be promoted to a provider observation.
+
+Submit a completed observation explicitly with the same service URL, service,
+namespace and verifier identity:
+
+```sh
+cargo run --offline --locked -p ic-blob-storage-cli --bin blob-storage -- \
+  submit-attestation --network ic --url "$IC_API_URL" --identity "$VERIFIER_PEM" \
+  --actor "$VERIFIER_PRINCIPAL" --service "$SERVICE_PRINCIPAL" \
+  --namespace "$SERVICE_NAMESPACE" --run-dir new-observation
+```
+
+The command validates every required observation artifact, the original declaration,
+owner/project, complete download result, exact statement, hashes and time ordering.
+Records are bounded and must be regular files; a failure marker rejects the run.
+These files remain trusted verifier input: local hashes do not prove authenticity
+against someone who can rewrite the entire run. Keep the directory under the
+verifier's control, including during submission. No provider read occurs here.
+
+An exclusive `attestation/` directory claims the run. Before one signed update,
+the command syncs an exact `statement.candid` copy, `signed-request.cbor` and
+`intent.json` containing the runner version/source fingerprint, request ID, expiry,
+root-key and artifact hashes. The fingerprint covers the native submission,
+observation-reader, shared transport/record/argument sources and lockfile.
+Keep the signed envelope private; it can authorize that exact request until expiry.
+The update has a 30-second deadline, disabled transport retries and no automatic
+polling. A certified reply must match the complete statement before reporting
+`accepted`. A queued request reports `pending`; transport or verification failure
+leaves an `uncertain` outcome when writable. An authenticated service refusal is
+recorded separately. The reply and outcome are retained without changing the
+observation's original summary.
+
+Every existing claim, including an empty directory left by a killed process, refuses
+resubmission with `submission_already_claimed`. Do not remove or copy the claim to
+retry. This is a local single-submission guard, not a distributed lock or global
+exactly-once guarantee. Recover with `upload-attestation` using the saved
+`attestation/statement.candid` and independently configured verifier. If interruption
+preceded that copy, the original observation statement remains available for lookup.
+An absent receipt, expired ingress request or local error never authorizes another
+submission. No statement, digest or observation time is regenerated. Exit zero can
+mean `pending`; inspect the outcome before treating it as acceptance.
 
 The separate unpublished `blob-fixture-status` client attaches to an existing local PocketIC
 instance. It requires a literal loopback address, instance ID, canister and

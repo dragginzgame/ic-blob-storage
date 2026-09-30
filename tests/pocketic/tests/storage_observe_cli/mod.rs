@@ -1,4 +1,5 @@
 //! Signed installed plan, real local HTTP bytes and saved statement; provider facts substituted.
+mod proxy;
 use super::*;
 use crate::authenticated_cli::{PEM, run};
 use ic_agent::{Identity, identity::BasicIdentity};
@@ -135,6 +136,10 @@ fn interrupted(args: &[String], directory: &Path) {
     drop(listener);
     assert!(!path.join("statement.candid").exists());
     assert!(!path.join("summary.json").exists());
+    let mut submit = shared_arguments("submit-attestation", &args);
+    submit.extend(["--run-dir".into(), path.to_str().unwrap().into()]);
+    assert_eq!(run(&submit, 3)["error"], "invalid_observation");
+    assert!(!path.join("attestation").exists());
     assert_eq!(run(&args, 3)["error"], "new_run_required");
     assert_eq!(
         std::fs::read(path.join("download-request.json")).unwrap(),
@@ -153,7 +158,7 @@ fn receipt(f: &Fixture, statement: &UploadAttestationRequest) -> UploadAttestati
         .unwrap()
         .unwrap()
 }
-fn attest_and_recover(f: &mut Fixture, path: &Path, args: &[String]) {
+fn attest_and_recover(f: &mut Fixture, path: &Path, args: &[String], reply: proxy::Reply) {
     let saved = std::fs::read(path.join("statement.candid")).unwrap();
     let statement: UploadAttestationRequest = candid::decode_one(&saved).unwrap();
     assert_eq!(
@@ -164,22 +169,56 @@ fn attest_and_recover(f: &mut Fixture, path: &Path, args: &[String]) {
         receipt(f, &statement).attestation,
         UploadAttestationLookup::Absent
     );
-    // Fixture-only dispatch tests whether the independently checked statement is accepted.
+    let mut submit = shared_arguments("submit-attestation", args);
+    submit.extend(["--run-dir".into(), path.to_str().unwrap().into()]);
+    if reply == proxy::Reply::Pass {
+        reject_damaged_runs(path, &submit);
+    }
     f.harness.pic.advance_time(Duration::from_secs(1));
-    f.harness
-        .pic
-        .update_candid_as::<Result<UploadAttestationMutation, UploadAttestationFailure>, _>(
-            f.service,
-            f.operator,
-            "blob_attest_upload",
-            (statement,),
-        )
-        .unwrap()
-        .unwrap();
+    if reply == proxy::Reply::Drop {
+        assert_eq!(run(&submit, 3)["error"], "transport");
+    } else if reply == proxy::Reply::Pending {
+        assert_eq!(run(&submit, 0)["outcome"], "pending");
+    } else {
+        concurrent_submission(&submit);
+    }
+    let intent = std::fs::read(path.join("attestation/intent.json")).unwrap();
+    assert_eq!(run(&submit, 3)["error"], "submission_already_claimed");
+    assert_eq!(
+        std::fs::read(path.join("attestation/intent.json")).unwrap(),
+        intent
+    );
+    // PocketIC executes the request before completing its synchronous call response.
     assert!(
         matches!(receipt(f, &statement).attestation, UploadAttestationLookup::Found(r) if r.request == statement)
     );
-    let mut recovery = vec!["upload-attestation".into()];
+    let mut recovery = shared_arguments("upload-attestation", args);
+    recovery.extend([
+        "--verifier".into(),
+        f.operator.to_text(),
+        "--statement".into(),
+        path.join("attestation/statement.candid")
+            .to_str()
+            .unwrap()
+            .into(),
+    ]);
+    assert_eq!(run(&recovery, 0)["outcome"], "matched");
+    assert_eq!(std::fs::read(path.join("statement.candid")).unwrap(), saved);
+    assert_eq!(
+        std::fs::read(path.join("attestation/statement.candid")).unwrap(),
+        saved
+    );
+    let outcome: serde_json::Value =
+        serde_json::from_slice(&std::fs::read(path.join("attestation/outcome.json")).unwrap())
+            .unwrap();
+    if reply == proxy::Reply::Drop {
+        assert_eq!(outcome["outcome"], "uncertain");
+    } else if reply == proxy::Reply::Pending {
+        assert_eq!(outcome["outcome"], "pending");
+    }
+}
+fn shared_arguments(command: &str, args: &[String]) -> Vec<String> {
+    let mut result = vec![command.into()];
     for flag in [
         "--network",
         "--url",
@@ -190,21 +229,137 @@ fn attest_and_recover(f: &mut Fixture, path: &Path, args: &[String]) {
         "--namespace",
     ] {
         let i = args.iter().position(|s| s == flag).unwrap();
-        recovery.extend([flag.into(), args[i + 1].clone()]);
+        result.extend([flag.into(), args[i + 1].clone()]);
     }
-    recovery.extend([
-        "--verifier".into(),
-        f.operator.to_text(),
-        "--statement".into(),
-        path.join("statement.candid").to_str().unwrap().into(),
-    ]);
-    change(&mut recovery, "--url", &live(f));
-    assert_eq!(run(&recovery, 0)["outcome"], "matched");
-    assert_eq!(std::fs::read(path.join("statement.candid")).unwrap(), saved);
-    f.harness.pic.stop_live();
+    result
+}
+fn concurrent_submission(args: &[String]) {
+    let barrier = std::sync::Barrier::new(2);
+    let invoke = || {
+        barrier.wait();
+        let output = std::process::Command::new(fixture_path("BLOB_CLI_BIN"))
+            .args(args)
+            .output()
+            .unwrap();
+        let value: serde_json::Value = serde_json::from_slice(&output.stdout).unwrap();
+        (output.status.code(), value)
+    };
+    let results = std::thread::scope(|threads| {
+        let a = threads.spawn(invoke);
+        let b = threads.spawn(invoke);
+        [a.join().unwrap(), b.join().unwrap()]
+    });
+    let success: Vec<_> = results
+        .iter()
+        .filter(|(code, _)| *code == Some(0))
+        .collect();
+    assert_eq!(success.len(), 1);
+    assert!(matches!(
+        success[0].1["outcome"].as_str(),
+        Some("accepted" | "pending")
+    ));
+    assert_eq!(success[0].1["retry_authorized"], false);
+    let refused = results.iter().find(|(code, _)| *code != Some(0)).unwrap();
+    assert_eq!(refused.0, Some(3));
+    assert_eq!(refused.1["error"], "submission_already_claimed");
+}
+fn reject_damaged_runs(path: &Path, args: &[String]) {
+    for name in [
+        "plan.json",
+        "summary.json",
+        "statement.candid",
+        "permission.candid",
+        "service-response.candid",
+        "download-request.json",
+        "download-outcome.json",
+        "http-response.json",
+    ] {
+        let file = path.join(name);
+        let saved = std::fs::read(&file).unwrap();
+        std::fs::remove_file(&file).unwrap();
+        assert_eq!(run(args, 3)["error"], "invalid_observation");
+        assert!(!path.join("attestation").exists());
+        std::fs::write(file, saved).unwrap();
+    }
+    for (name, field, value) in [
+        (
+            "summary.json",
+            "observation",
+            serde_json::json!("local_file"),
+        ),
+        ("summary.json", "content_digest", serde_json::json!("00")),
+        ("summary.json", "observed_at_ns", serde_json::json!("0")),
+        ("summary.json", "owner", serde_json::json!("aaaaa-aa")),
+        (
+            "summary.json",
+            "project",
+            serde_json::json!("another project"),
+        ),
+        (
+            "summary.json",
+            "attestation_dispatched",
+            serde_json::json!(true),
+        ),
+        ("plan.json", "verifier", serde_json::json!("aaaaa-aa")),
+        ("plan.json", "namespace", serde_json::json!("2")),
+        (
+            "plan.json",
+            "service_url",
+            serde_json::json!("http://127.0.0.1:9/"),
+        ),
+        (
+            "download-request.json",
+            "url",
+            serde_json::json!("http://127.0.0.1:9/"),
+        ),
+        (
+            "download-request.json",
+            "service_reply_sha256",
+            serde_json::json!("00"),
+        ),
+        (
+            "download-outcome.json",
+            "outcome",
+            serde_json::json!("failed"),
+        ),
+        (
+            "download-outcome.json",
+            "received_bytes",
+            serde_json::json!("9"),
+        ),
+        ("http-response.json", "status", serde_json::json!(206)),
+    ] {
+        let file = path.join(name);
+        let saved = std::fs::read(&file).unwrap();
+        let mut record: serde_json::Value = serde_json::from_slice(&saved).unwrap();
+        record[field] = value;
+        std::fs::write(&file, serde_json::to_vec(&record).unwrap()).unwrap();
+        assert_eq!(run(args, 3)["error"], "invalid_observation");
+        assert!(!path.join("attestation").exists());
+        std::fs::write(file, saved).unwrap();
+    }
+    std::fs::write(path.join("failure.json"), b"{}").unwrap();
+    assert_eq!(run(args, 3)["error"], "invalid_observation");
+    std::fs::remove_file(path.join("failure.json")).unwrap();
+    let summary = std::fs::read(path.join("summary.json")).unwrap();
+    std::fs::write(path.join("summary.json"), vec![b' '; 16 * 1024 + 1]).unwrap();
+    assert_eq!(run(args, 3)["error"], "invalid_observation");
+    std::fs::write(path.join("summary.json"), summary).unwrap();
+    assert!(!path.join("attestation").exists());
 }
 #[test]
-fn observer_uses_signed_installed_mapping_and_persists_verified_statement_without_dispatch() {
+fn observer_persists_content_then_explicit_native_submission_recovers_exact_receipt() {
+    journey(proxy::Reply::Pass);
+}
+#[test]
+fn native_submission_retains_uncertainty_after_actual_lost_reply_and_recovers_without_resend() {
+    journey(proxy::Reply::Drop);
+}
+#[test]
+fn pending_transport_response_requires_receipt_inspection_without_resend() {
+    journey(proxy::Reply::Pending);
+}
+fn journey(reply: proxy::Reply) {
     let operator = BasicIdentity::from_raw_key(&[42; 32]).sender().unwrap();
     let mut f = Fixture::with_operator(
         Harness::with_builder(
@@ -237,8 +392,15 @@ fn observer_uses_signed_installed_mapping_and_persists_verified_statement_withou
     f.harness.pic.stop_live();
     f.expose(permission.request).unwrap();
     let before = f.harness.pic.get_stable_memory(f.service);
-    change(&mut args, "--url", &live(&mut f));
     let observed = dir.join("observed");
+    let proxy = proxy::Proxy::start(
+        live(&mut f),
+        observed.join("attestation"),
+        f.service,
+        f.operator,
+        reply,
+    );
+    change(&mut args, "--url", &proxy.url);
     change(&mut args, "--run-dir", observed.to_str().unwrap());
     let scope = ic_blob_storage::model::service::read::download::CaffeineDownloadScope::new(
         f.service,
@@ -264,8 +426,10 @@ fn observer_uses_signed_installed_mapping_and_persists_verified_statement_withou
     assert_eq!(run(&args, 3)["error"], "new_run_required");
     interrupted(&args, dir);
     assert_eq!(f.harness.pic.get_stable_memory(f.service), before);
+    attest_and_recover(&mut f, &observed, &args, reply);
+    assert_eq!(proxy.calls(), 1);
+    drop(proxy);
     f.harness.pic.stop_live();
-    attest_and_recover(&mut f, &observed, &args);
     f.harness
         .pic
         .upgrade_canister(

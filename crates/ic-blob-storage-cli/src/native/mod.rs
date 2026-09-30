@@ -3,6 +3,7 @@ mod attestation;
 mod history;
 mod observe_upload;
 mod reply;
+mod submit_attestation;
 #[cfg(test)]
 mod tests;
 mod verify_upload;
@@ -21,10 +22,12 @@ const USAGE: &str = concat!(
     "verify-upload --network ic|local --url URL --identity PEM --actor PRINCIPAL --service PRINCIPAL --namespace DECIMAL --permission CANDID --body FILE --max-bytes DECIMAL [--root-key DER]\n",
     "upload-attestation --network ic|local --url URL --identity PEM --actor PRINCIPAL --service PRINCIPAL --namespace DECIMAL --verifier PRINCIPAL --statement CANDID [--root-key DER]\n",
     "observe-upload --network ic|local --url URL --identity PEM --actor VERIFIER --service PRINCIPAL --namespace DECIMAL --permission CANDID --gateway ORIGIN --max-bytes DECIMAL --run-dir NEW_DIRECTORY [--root-key DER]\n",
+    "submit-attestation --network ic|local --url URL --identity PEM --actor VERIFIER --service PRINCIPAL --namespace DECIMAL --run-dir COMPLETED_OBSERVATION_DIRECTORY [--root-key DER]\n",
+    "submit-attestation validates a complete successful observation, saves the exact signed update and intent under run-dir/attestation, then submits once. Existing submission directories refuse; pending or uncertain results require upload-attestation inspection using attestation/statement.candid. No polling, retry, provider read or regenerated statement. Keep these signed artifacts private.\n",
     "observe-upload queries the installed verification plan, performs one bounded gateway GET, checks all bytes against original metadata/root and durably saves statement.candid. Explicit gateway origin and provider read budget are required. Partial runs remain; no resume, redirects, retries or attestation dispatch. Provider reads may incur charges.\n",
     "upload-attestation compares one saved binary Candid UploadAttestationRequest with immutable service history. The expected verifier must come from installation configuration. Outcomes are matched, conflict or absent; none authorizes retry. No mutation, provider fetch or journal write occurs.\n",
     "verify-upload checks a regular local file against the authenticated original manifest. Permission is one binary Candid UploadAdmissionRequest; maximum is at most 1 GiB. No provider availability, completion, or retry authority is established.\n",
-    "funding-history additionally accepts --cursor FILE containing the previous non-null next object; reads one page, never auto-paginates. Local mode requires an explicit trusted root-key file and literal loopback origins. IC mode uses the built-in IC root and HTTPS; root-key overrides are rejected. Supports Ed25519 and secp256k1 PEM identities. Only observe-upload calls a provider; no command mutates the service. Exit 0: observation (including conflict, empty or fenced); 2: arguments; 3: failure. Query signatures are verified; observations are not certified state, provider credit or dispatch authority.\n",
+    "funding-history additionally accepts --cursor FILE containing the previous non-null next object; reads one page, never auto-paginates. Local mode requires an explicit trusted root-key file and literal loopback origins. IC mode uses the built-in IC root and HTTPS; root-key overrides are rejected. Supports Ed25519 and secp256k1 PEM identities. Only observe-upload calls a provider; only submit-attestation mutates the service. Exit 0: observation (including conflict, empty or fenced), accepted submission or pending request; 2: arguments; 3: failure. Query signatures are verified; observations are not certified state, provider credit or dispatch authority.\n",
 );
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -51,6 +54,8 @@ enum Failure {
     VerificationRefused,
     ProviderResponse,
     Clock,
+    Observation,
+    SubmissionClaimed,
 }
 impl Failure {
     const fn code(self) -> &'static str {
@@ -77,6 +82,8 @@ impl Failure {
             Self::VerificationRefused => "verification_refused",
             Self::ProviderResponse => "provider_response",
             Self::Clock => "clock",
+            Self::Observation => "invalid_observation",
+            Self::SubmissionClaimed => "submission_already_claimed",
         }
     }
 }
@@ -138,9 +145,16 @@ fn execute(args: &[String]) -> Result<serde_json::Value, Failure> {
 }
 
 async fn observe(options: &arguments::Options) -> Result<serde_json::Value, Failure> {
-    if let arguments::Command::ObserveUpload(input) = &options.command {
-        return observe_upload::run(options, input).await;
+    match &options.command {
+        arguments::Command::SubmitAttestation(input) => {
+            submit_attestation::run(options, input).await
+        }
+        arguments::Command::ObserveUpload(input) => observe_upload::run(options, input).await,
+        _ => inspect(options).await,
     }
+}
+
+async fn inspect(options: &arguments::Options) -> Result<serde_json::Value, Failure> {
     let recovery = match &options.command {
         arguments::Command::UploadAttestation {
             service,
@@ -238,12 +252,7 @@ async fn observe(options: &arguments::Options) -> Result<serde_json::Value, Fail
     }
 }
 
-async fn query(
-    options: &arguments::Options,
-    service: Principal,
-    method: &str,
-    argument: Vec<u8>,
-) -> Result<Vec<u8>, Failure> {
+fn agent(options: &arguments::Options) -> Result<Agent, Failure> {
     let identity = identity(&options.identity, options.actor)?;
     let root = options
         .root_key
@@ -272,6 +281,16 @@ async fn query(
     if let Some(root) = root {
         agent.set_root_key(root);
     }
+    Ok(agent)
+}
+
+async fn query(
+    options: &arguments::Options,
+    service: Principal,
+    method: &str,
+    argument: Vec<u8>,
+) -> Result<Vec<u8>, Failure> {
+    let agent = agent(options)?;
     tokio::time::timeout(
         Duration::from_secs(30),
         agent.query(&service, method).with_arg(argument).call(),
