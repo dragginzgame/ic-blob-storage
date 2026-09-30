@@ -1,5 +1,9 @@
 //! Adapter-owned conversion of generic Canic refusals into blob boundary replies.
-use super::{INSTALLATION, PreparationForwardFailure, dto::TransportFailure};
+pub(crate) mod fixture;
+use super::{
+    INSTALLATION, PreparationForwardFailure,
+    dto::{ProbeExposureFailure, TransportFailure},
+};
 use ic_blob_storage_canic::lifecycle::ManagedInstallation;
 
 pub(crate) fn read<R>(operation: impl FnOnce(&ManagedInstallation) -> R) -> R {
@@ -10,14 +14,15 @@ pub(crate) fn mutate<R>(operation: impl FnOnce(&mut ManagedInstallation) -> R) -
 }
 use ic_blob_storage::dto::{
     configuration::HostFailure,
+    download::DownloadFailure,
     funding::{FundingHistoryFailure, outcome::FundingOutcomeFailure},
     operator::LocalStatusFailure,
     reference::{ReferenceFailure, capacity::ReferenceCapacityFailure},
     tenant::TenantFailure,
     upload::{
         UploadStatusFailure, admission::UploadAdmissionFailure, capacity::UploadCapacityFailure,
-        discovery::UploadDiscoveryFailure, history::UploadHistoryFailure,
-        manifest::UploadManifestFailure,
+        completion::UploadAttestationFailure, discovery::UploadDiscoveryFailure,
+        history::UploadHistoryFailure, manifest::UploadManifestFailure,
     },
 };
 
@@ -54,6 +59,9 @@ denial!(ReferenceCapacityFailure, ReferenceCapacityFailure::Denied);
 denial!(LocalStatusFailure, LocalStatusFailure::Denied);
 denial!(FundingHistoryFailure, FundingHistoryFailure::Denied);
 denial!(FundingOutcomeFailure, FundingOutcomeFailure::Denied);
+denial!(UploadAttestationFailure, UploadAttestationFailure::Denied);
+denial!(DownloadFailure, DownloadFailure::Denied);
+denial!(ProbeExposureFailure, ProbeExposureFailure::Denied);
 impl From<canic::access::AccessError> for PreparationForwardFailure {
     fn from(_: canic::access::AccessError) -> Self {
         Self::Denied

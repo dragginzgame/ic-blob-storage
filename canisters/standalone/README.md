@@ -39,7 +39,7 @@ assessment time and all missing prerequisites. Unknown roots, wrong callers,
 unprepared, expired, revoked or restored work refuse. Inspection changes no state
 and never reserves a later issuance attempt.
 
-The native [`blob-storage certificate-assessment`](../../README.md) command signs
+The native [`blob-storage certificate-assessment`](../../docs/operator-guide.md#certificate-assessment) command signs
 this query as the original uploader and binds the reply to a saved binary Candid
 permission. It reports all missing prerequisites and distinct refusal codes without
 calling the certificate update or a provider. An empty blocker list remains only
@@ -154,7 +154,7 @@ retired confirmed objects report zero fresh retains. Reads remain passive throug
 suspension and restoration. Positive counts do not bypass enrollment, identity or
 restore checks, reserve a reference or prove that a reference is currently live.
 
-Operator-only native [`blob-storage funding-outcome`](../../README.md) inspects
+Operator-only native [`blob-storage funding-outcome`](../../docs/operator-guide.md#exact-funding-outcomes) inspects
 one exact original funding intent through `blob_funding_outcome`. Scope, operation,
 offer and optional target are required exactly as originally retained. Found
 records expose independent refund, response, reconciliation and restore fence;
@@ -162,7 +162,7 @@ absence carries no fence information. The signed read grants no payment, credit,
 retry or recovery authority and calls no provider. Same-release fenced owners
 retain passive inspection.
 
-Operator-only native [`blob-storage upload-history`](../../README.md) queries the
+Operator-only native [`blob-storage upload-history`](../../docs/operator-guide.md#upload-history) queries the
 shared `blob_upload_history` service-wide scope with an explicit lifecycle filter.
 One call returns at most 64 inspected rows and 32 matching entries. Saved JSON
 continuations bind the complete scan; empty filtered pages can still continue.
@@ -179,7 +179,7 @@ the request and reports the restore fence even for absence. Suspension and resto
 preserve inspection. Discovery supplies no admission, retry or serving authority;
 live content still requires the consumer's exact live reference.
 
-Native [`reference-status` and `reference-receipt`](../../README.md) sign existing
+Native [`reference-status` and `reference-receipt`](../../docs/operator-guide.md#reference-receipts-and-current-status) sign existing
 tenant queries from saved binary boundary requests. Receipt success/failure stays
 historical and carries no liveness/fence observation; status reads current local
 liveness and fence separately. Native identities must actually be the tenant;

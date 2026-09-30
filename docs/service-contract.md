@@ -195,17 +195,20 @@ before ops presents configuration, project, verifier, release and local fencing.
 Standalone retains its existing wire contract; the former host-local view/error
 definitions are now shared DTOs, with one implementation and no alternate reader.
 
-The controlled managed artifact currently implements nineteen blob methods:
+The controlled managed artifact currently implements twenty-four blob methods:
 configuration; tenant enrollment/suspension and inspection; upload admission,
 inspection, revocation, status, history and discovery; manifest preparation and
 inspection; reference mutation, receipt, status and capacity; upload capacity;
-and passive local status/funding history/outcome. Every method calls the shared
+passive local status/funding history/outcome; verifier plans/manifests,
+attestation/receipt inspection; and reference-qualified download descriptors.
+Every method calls the shared
 workflows through adapter-owned state access. One passive generic failure newtype
 keeps Canic guard conversion outside the core and preserves exact blob error wire
 shapes. Generic Fleet access refusals become denial; they are not described as a
 tenant-state or provider error. Fixture-only enrollment/readback endpoints were
 replaced by the maintained blob tenant methods. Explicit Canic update limits are
-4 KiB for tenant/admission/revocation/reference mutations and 128 KiB for manifests,
+4 KiB for tenant/admission/revocation/reference/attestation/download updates and
+128 KiB for manifests,
 before copying/decoding for ingress and inter-canister calls. A valid request at
 the manifest boundary reaches shared semantic validation; a request one byte larger is refused without
 changing stable state. Canic's update decoder supplies its own skipping quota;
@@ -217,6 +220,20 @@ and absent funding outcomes are local observations, not provider-credit evidence
 This partial artifact must not be presented as a production deployment contract.
 An operator-only test forwarder exercises actual inter-canister bounds; it is not
 a production endpoint, provider dispatch mechanism or tenant delegation.
+
+Managed completion journeys use the installed verifier and actual IC caller/time.
+Only that verifier can inspect a verification plan or attest the exact permission;
+accepted receipts replay unchanged and never revive released references. Downloads
+require a live tenant reference and refuse during suspension or restore. Last
+release removes logical bytes while physical bytes and billing liabilities remain.
+Same-release upgrade retains manifests, attestation/reference receipts and cleanup
+history with all owners fenced. The fixture's operator-only exposure-state hook
+selects a retained uploader solely to set up this local phase; it supplies no
+certificate, provider response or production recovery/qualification fact. Fixture
+file bytes are substitutes, not an independently fetched Caffeine object. Real
+certificate issuance remains blocked. Certificate assessment/issuance and
+gateway/account adapters and full consumer acceptance remain open alongside the
+decoder and production provenance gates.
 
 Source review of pinned Canic 0.110.48 and the read-only local Canic checkout
 found no public endpoint decoder hook. Its `payload(max_bytes = ...)` attribute

@@ -2,16 +2,60 @@
 
 Date: 2026-09-30
 
-## Active work — managed blob endpoints after 0.4.8
+## Active work — managed verification and delivery after 0.4.9
 
-The maintainer has released 0.4.8. Local main, origin/main and peeled v0.4.8
-resolve to `817141de9f11a98b0d90f8715c6815dc2c4160e3`; the release receipt
-records 0.4.8, release-verify and direct-parent source
-`012c92834a57b7eacbb16d3daa04d84b9cc7aaef`. This unreleased continuation began
-from that clean release. Package versions and the release receipt remain unchanged.
+The maintainer has released 0.4.9. Local main, origin/main and peeled v0.4.9
+resolve to `5f35bf6971fb0fefee72b9d62a71c4b7baae02ad`; the release receipt
+records 0.4.9, release-verify and direct-parent source
+`b006b2f344f2b55c0e084ca195a3049fa4828ed7`. The managed endpoint continuation
+below is now released. The current managed completion batch preserves the
+preceding README cleanup; package versions and the release receipt remain unchanged.
 No version mutation, agent commit, tag, push, publication or deployment occurred.
-The maintainer requested the next changelog; the completed continuation is now
-grouped under an undated 0.4.9 draft, with empty Unreleased. Cargo remains 0.4.8.
+
+The maintainer requested a readable README with emoji and tables. The root README
+now has 153 lines instead of 1,080, with an overview, prototype status, setup,
+repository map, tool navigation and development commands. Detailed command
+examples and their limits/recovery rules moved into [the operator/verifier guide](../operator-guide.md)
+and [local preparation/PocketIC tools](../local-tools.md), with section headings and
+overview tables. Standalone CLI links point to the relevant guide sections.
+The undated 0.4.10 changelog draft records the documentation and managed completion
+changes; Unreleased is empty and historical release notes are unchanged. Package
+versions and the release receipt stay at 0.4.9 until the maintainer's release flow.
+All 47 local links in the edited README/guides/host documentation resolve,
+code fences balance and diff checks pass. No Rust source changed or compilation
+ran for that documentation-only step. Provider investigations and the ledger are unchanged.
+
+The controlled Canic artifact now declares twenty-four of thirty maintained blob
+methods. Five new adapters call the same completion/download workflows as
+standalone: verifier plan and manifest, attestation mutation and receipt inspection,
+and reference-qualified download descriptor. Candid comparison checks every
+implemented method's complete types and modes. Actual service/caller/time and the
+installed verifier/project remain authoritative; no core, standalone public/stable
+contract, dependency version or allocator changed.
+
+Two new actual managed PocketIC journeys cover prepared-phase refusals, configured
+verifier authority, original manifests, observation-time checks, immutable exact
+attestation replay and conflicting digest refusal. Confirmed objects have download
+access only through live tenant references. Retaining a second reference exhausts
+fresh-retain headroom without preventing release. Suspension blocks delivery while
+allowing cleanup; replay never resurrects either reference. Last release leaves
+reserved/logical bytes zero and physical/liability bytes ten. Same-release upgrade
+preserves manifests, attestation/reference receipts, cleanup history and those
+liabilities with all four owners fenced; refused mutations preserve stable bytes.
+
+Exposure and ten-byte body content are explicit local substitutes. The fixture-only
+operator hook binds the original permission and invokes the local exposure-state
+primitive; it supplies no certificate, provider/recovery qualification evidence or
+live Caffeine effect. It must not be copied into deployment adapters. Production
+certificate issuance stays blocked. This is managed metadata/reference evidence,
+not an independently fetched provider object or a common consumer acceptance run.
+
+All seven managed cases pass in 89.57 seconds, including the new journeys and
+existing lifecycle/input-bound/rollback evidence. The supported Canic build passes
+in 36.00 seconds. See [the retained commands, attempts and artifact hashes](../evidence/core-primitives.md#managed-verification-attestation-and-reference-qualified-delivery--2026-09-30).
+Only targeted implementation checks ran; no full CI/release gate or provider probe.
+Final strict harness and isolated fixture Clippy, both formatting checks, diff,
+capability JSON, read-only changelog and dependency-separation checks pass.
 
 Before any compilation or source mutation, check host-visible build processes,
 including working directories nested beneath this repository. Sandbox-only ps
@@ -94,7 +138,7 @@ that API is internal to Canic-core. The implemented macro uses public
 identifies published v0.110.48 at `8d37c74c9a4457b9e2bd47ee883f98fd2889d63b`;
 this is not a refreshed blob removal inventory or a registry latest-version claim.
 
-## Current continuation
+## Released managed endpoint continuation
 
 - Shared installed-configuration DTOs, pure service/operator authority policy,
   ops presentation and one inspection workflow now replace standalone's private
@@ -140,23 +184,25 @@ passes in 13.63 seconds. The preceding subset's standalone admission/restore
 journey passed in 5.31 seconds; its six installation cases and native standalone
 Candid check remain unchanged. Strict affected library/harness and isolated fixture Clippy,
 warning-free core/standalone rustdoc, formatting/diff and dependency checks pass.
-No current-source full CI/release gate, provider effects, deployment or sibling edits
-are implied. The allocator, locked registry graph and library Canic independence
-are unchanged.
+These implementation-stage checks were targeted. The subsequent maintainer 0.4.9
+receipt separately records release-verify; it does not qualify provider behavior
+or service acceptance. No provider effects, deployment or sibling edits occurred.
+The allocator, locked registry graph and library Canic independence are unchanged.
 
 ## Guarantees and next work
 
 Next complete the managed blob endpoint artifact/Candid through the same service
-handlers as standalone. The nineteen-method configuration/tenant/upload/reference/
-passive-operator subset is implemented; remaining endpoints and
+handlers as standalone. The twenty-four-method configuration/tenant/upload/reference/
+passive-operator/verifier/download subset is implemented; six remaining endpoints and
 equivalent query-byte/decoding-work limits are still open. Canic's current public
 update macro in pinned Canic 0.110.48 supplies a byte limit and its own skipping quota, not standalone's
 full decoding-work/type/header bounds, and supplies no query-size hook. Supported
 upstream decoder controls are required; this repository alone cannot close that
 gap without duplicating framework internals. Do not qualify this partial artifact
-for production. Next add remaining verification/attestation/download endpoints
-and their confirmed-reference journey, then gateway/account/provider endpoints
-and occupied local operator evidence. Keep the same frozen blob contract.
+for production. Next add gateway/account and certificate-assessment/issuance adapters
+with occupied local operator evidence. Certificate issuance must retain its current
+provider/recovery refusals; completing the adapter does not qualify issuance.
+Keep the same frozen blob contract.
 The managed input contract and actual carrier are implemented/tested; selected
 consumer policy is still controlled fixture input, not production sizing.
 `declare_installation!` must run only after Canic authenticates its protected

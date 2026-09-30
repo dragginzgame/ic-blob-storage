@@ -4,9 +4,14 @@
     clippy::needless_pass_by_value,
     reason = "Candid adapters own decoded manifest input"
 )]
+#![expect(
+    clippy::large_types_passed_by_value,
+    reason = "Candid adapters own the decoded verifier statement"
+)]
 use super::{context, dto::TransportFailure, ops};
 pub(crate) use ic_blob_storage::dto::{
     configuration::{HostConfigurationView, HostFailure},
+    download::{DownloadFailure, DownloadRequest, DownloadResponse},
     funding::{
         FundingHistoryFailure, FundingHistoryPage, FundingHistoryRequest,
         outcome::{FundingOutcomeFailure, FundingOutcomeRequest, FundingOutcomeResponse},
@@ -26,6 +31,10 @@ pub(crate) use ic_blob_storage::dto::{
             UploadAdmissionResponse, UploadRevocationResponse,
         },
         capacity::{UploadCapacityFailure, UploadCapacityResponse},
+        completion::{
+            UploadAttestationFailure, UploadAttestationMutation, UploadAttestationRequest,
+            UploadAttestationResponse, UploadVerificationPlan,
+        },
         discovery::{UploadDiscoveryFailure, UploadDiscoveryRequest, UploadDiscoveryResponse},
         history::{UploadHistoryFailure, UploadHistoryPage, UploadHistoryRequest},
         manifest::{
@@ -247,5 +256,88 @@ fn blob_funding_outcome(
     ops::read(|owner| {
         workflow::funding::outcome::inspect(&owner.stores().funding, context, input)
             .map_err(TransportFailure)
+    })
+}
+
+#[canic::canic_update(public, payload(max_bytes = 4096))]
+fn blob_attest_upload(
+    input: UploadAttestationRequest,
+) -> Result<UploadAttestationMutation, TransportFailure<UploadAttestationFailure>> {
+    let context = actual_context();
+    ops::mutate(|owner| {
+        let authority = owner.completion_authority();
+        workflow::uploads::completion::attest(
+            &mut owner.stores_mut().uploads,
+            authority,
+            context,
+            &input,
+            ic_cdk::api::time(),
+        )
+        .map_err(TransportFailure)
+    })
+}
+
+#[canic::canic_query(public)]
+fn blob_upload_attestation(
+    input: UploadAdmissionRequest,
+) -> Result<UploadAttestationResponse, TransportFailure<UploadAttestationFailure>> {
+    let context = actual_context();
+    ops::read(|owner| {
+        workflow::uploads::completion::inspect(
+            &owner.stores().uploads,
+            owner.completion_authority(),
+            context,
+            input,
+        )
+        .map_err(TransportFailure)
+    })
+}
+
+#[canic::canic_query(public)]
+fn blob_verification_manifest(
+    input: UploadAdmissionRequest,
+) -> Result<UploadManifestResponse, TransportFailure<UploadManifestFailure>> {
+    let context = actual_context();
+    ops::read(|owner| {
+        workflow::uploads::completion::manifest(
+            &owner.stores().uploads,
+            owner.completion_authority(),
+            context,
+            input,
+        )
+        .map_err(TransportFailure)
+    })
+}
+
+#[canic::canic_query(public)]
+fn blob_verification_plan(
+    input: UploadAdmissionRequest,
+) -> Result<UploadVerificationPlan, TransportFailure<UploadAttestationFailure>> {
+    let context = actual_context();
+    ops::read(|owner| {
+        workflow::uploads::completion::verification_plan(
+            &owner.stores().uploads,
+            owner.completion_authority(),
+            owner.download_scope(),
+            context,
+            input,
+        )
+        .map_err(TransportFailure)
+    })
+}
+
+#[canic::canic_update(public, payload(max_bytes = 4096))]
+fn blob_download_descriptor(
+    input: DownloadRequest,
+) -> Result<DownloadResponse, TransportFailure<DownloadFailure>> {
+    let context = actual_context();
+    ops::read(|owner| {
+        workflow::reads::download::handle(
+            &owner.stores().uploads,
+            context,
+            owner.download_scope(),
+            input,
+        )
+        .map_err(TransportFailure)
     })
 }

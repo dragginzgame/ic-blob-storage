@@ -120,12 +120,16 @@ qualify a production deployment. Explicit bounded managed input now binds the
 platform service and Canic-validated release identity; invalid policy/carrier or
 protected release mismatch preserves populated stable state on failed install.
 The fixture's adjacent Candid includes all application methods and is parsed for
-their actual modes/shapes. Nineteen managed blob methods now cover configuration,
+their actual modes/shapes. Twenty-four managed blob methods now cover configuration,
 tenants, admission/revocation, upload history/discovery, manifests, references and
-passive operator/funding inspection, with exact standalone Candid comparison.
-Prepared uploads and suspended-tenant cancellation history retain accounting
-through fenced upgrade. Next complete managed endpoints, obtain supported Canic
-decoder controls for query/decoding-work bounds, establish production Fleet
+passive operator/funding inspection, verifier plans/attestation and reference-qualified
+download descriptors, with exact standalone Candid comparison. Prepared uploads,
+cancelled reservations and confirmed-reference cleanup retain accounting and
+receipts through fenced upgrade. Completion uses an explicitly labelled local
+exposure/body substitute; it does not qualify provider certificates or serving.
+Next complete certificate assessment/issuance and gateway/account adapters with
+occupied operator journeys, obtain supported Canic decoder controls for
+query/decoding-work bounds, establish production Fleet
 provenance and run common journeys through both adapters.
 Do not create a second memory runtime.
 

@@ -3711,3 +3711,93 @@ Fleet provenance, common consumer/operator acceptance, occupied provider recover
 and combined IcyDB composition remain open. Synthetic Root/Coordinator and fixed
 fixture release still qualify only this local subset. The Caffeine ledger remains
 unchanged because this batch investigates generic Canic composition only.
+
+## Managed verification, attestation and reference-qualified delivery — 2026-09-30
+
+Unreleased continuation after maintainer release 0.4.9, source base
+`5f35bf6971fb0fefee72b9d62a71c4b7baae02ad`. Published Canic 0.110.48 and its
+supported CLI build the controlled artifact. Five managed methods now call shared
+completion/download workflows: `blob_verification_manifest`,
+`blob_verification_plan`, `blob_attest_upload`, `blob_upload_attestation` and
+`blob_download_descriptor`. Official candid_parser compares all twenty-four
+implemented service methods' complete types/modes against maintained standalone
+Candid. Attestation/download updates select Canic's 4 KiB payload bound; the
+existing manifest transport-bound evidence still passes. Query/work limits remain
+the separately recorded unsupported-framework gate.
+
+Two new actual PocketIC journeys retain full-width independent identities and
+installed service/project/verifier bindings. Prepared uploads refuse attestation
+and delivery without advancing state. Only the installed verifier obtains plans
+or attests; tenant/uploader may inspect historical receipts. Invalid observation
+times and changed replay digests refuse. Exact accepted replay returns the same
+receipt, including after both references are released, without resurrecting them.
+Descriptors require a live tenant reference and retain original metadata. A second
+retain exhausts fresh-retain headroom while reserved release capacity remains.
+Suspension blocks delivery but permits release. Last release leaves reserved and
+logical bytes zero, physical bytes ten and liability bytes ten, with deletion
+pending. Same-release upgrade preserves original manifests, attestation/release
+receipts, cleanup history and those liabilities; all four owners are fenced and
+rejected mutations leave full stable memory unchanged.
+
+**Substitutes:** the ten-byte body is local fixture data. An operator-only
+`probe_expose_upload` hook checks the installed service/namespace and exact retained
+permission, then selects its uploader for the local exposure primitive. This is
+test setup, not certificate issuance, a provider response, recovery authority or
+qualification evidence. No Caffeine bytes are fetched and no provider call is
+made. The test hook must not be copied into deployment endpoints. Synthetic
+Root/Coordinator and fixed compiled release remain controlled fixture authority.
+
+Commands use repository `target/`, offline/locked Cargo and ic-testkit's PocketIC
+16.0.0 reexport/binary. Build: `make build-canic-probe`. Runtime:
+`cargo test -p ic-blob-storage-pocketic-tests --test canic_composition -- --test-threads=1`
+with `POCKET_IC_BIN=$PWD/.tmp/tools/pocket-ic-16.0.0/pocket-ic` and
+`BLOB_CANIC_PROBE_WASM=$PWD/.tmp/canic-probe/.icp/local/canisters/storage/storage.wasm`.
+All seven cases pass in **89.57 s**; supported build passes in **36.00 s**.
+Strict focused harness and isolated fixture all-target/all-feature Clippy pass,
+as do root/fixture formatting, diff, capability JSON and read-only changelog
+validation. Dependency trees retain Canic-free core/composition libraries and no
+parser/testkit/PocketIC dependencies in fixture Wasm. Test instances were dropped;
+build artifacts retained. Core/standalone source and contracts are unchanged.
+
+Retained log prefix is `/tmp/ic-blob-storage-managed-completion`. Every failed
+attempt remains distinct; macro export/lint corrections did not alter domain
+authority or wire contracts.
+
+| Log suffix | Result | SHA-256 |
+| --- | --- | --- |
+| `-01.log` | Managed suite passes | `bcca6a95debc6a1dd493809bffd96c50551e44831078d8f55c97a0fe9ebe49a0` |
+| `-build-01.log` | Failed: export could not resolve qualified failure type | `6a4f87f6a3a42cdb4906a62045730f6a45168aae28c946359803f6cc9e61d559` |
+| `-build-02.log` | Supported build passes after explicit root type import | `ecbe6d3747aaa16a5e8940a31326c7a487fbe8471db65d8005e956789351e343` |
+| `-clippy-01.log` | Failed: test assumed manifest response had a fence field | `0ed3e93f32a21321e4c939adcaed77641c0d6354c73d3e62b9d7bb2d60f44684` |
+| `-clippy-02.log` | Failed: native helper self/owned large arguments | `20e58af5fae10ea361f0b645f57c793ae2cdb270a565488dc467c24fa5e28611` |
+| `-clippy-03.log` | Harness passes before final export import | `0c5d42e9aaed28c1cae1a3164a365ea1b34a8def3b664d7fca0b4d27296708e3` |
+| `-clippy-04.log` | Final focused harness passes | `3076c329ff17fb4dd699c511374543ef364c1a78bd1bca9ed2a50b4866d39cb1` |
+| `-clippy-fixture-01.log` | Failed: ignored isolated lock still pre-release | `aadd21c4a5e6c3073fb39a32f3b359927a77ef02362a46a82c497cd764d5406e` |
+| `-clippy-fixture-02.log` | Failed: Candid owns a large statement argument | `ef743341eff99e1084d0d0ed13837b4b808efe6b53d9fced2f2469494ac7e867` |
+| `-clippy-fixture-03.log` | Failed: macro cloned function-level lint expectation | `48034befeb4ce959a5fa8aa973d3b006510a49279a8b73938188ae80a271c278` |
+| `-clippy-fixture-04.log` | Fixture passes with module-level expectation | `360fd5a576cb90c09fa5831d6c360a66a24fbe007fc43edfd00302779bc0106a` |
+| `-clippy-fixture-05.log` | Final isolated fixture passes | `8d9e668089171bde0ab6d47fdfe3e54ee4b6b1488cc89a734a18e891a2229a93` |
+
+Final source/artifact SHA-256 hashes:
+
+| Source/artifact | SHA-256 |
+| --- | --- |
+| `canisters/test/canic_probe/src/api/mod.rs` | `9e5a8311989310a251bf10e21d2541c69ea2ef4681c965f62a6f4776bd9fb240` |
+| `canisters/test/canic_probe/src/dto/mod.rs` | `e54646a12c6e53870609b7f4585b9eb3aa9b4ebe55357cb39206f5d6bcd34efe` |
+| `canisters/test/canic_probe/src/lib.rs` | `56593766373ef4323dc96de927d38eb45d8d1069b2004040ee95953f86678850` |
+| `canisters/test/canic_probe/src/managed/mod.rs` | `fef9ed4b7b51b2a12d13d93b851c168365c5bc4e9b530127dbcc23afb333a3f6` |
+| `canisters/test/canic_probe/src/ops/mod.rs` | `73c753ad9414d46b3a5243deab330bfc138ec3124ab2c48c12d4457821a3872c` |
+| `canisters/test/canic_probe/src/ops/fixture/mod.rs` | `659a0641f8c412eb60b35093fd96c69602f17f30d6195185cd0b92c7dc3367c7` |
+| `tests/pocketic/tests/canic_managed/completion/mod.rs` | `0be7f25f26a1eb366f2bb0838beb49cf83f12546ca9c62cb8d52e5f408a955f9` |
+| `tests/pocketic/tests/canic_managed/declaration/mod.rs` | `6760be34f03a9eb8786ebecc834bdaf53911818c81e4206eab11cd54c2b8f75e` |
+| `tests/pocketic/tests/canic_managed/mod.rs` | `4a115674da9cde0cd61fcc0dc31cc744e4bbdfcbc8b7abc02a3a01e99a11ff89` |
+| `.tmp/canic-probe/.icp/local/canisters/storage/storage.wasm` | `4679f9f4a891d589bb82dcdd6460d07e882fd8d55109d5f8af73c742f3a291e0` |
+| `.tmp/canic-probe/.icp/local/canisters/storage/storage.did` | `cf7234dc72ccfb2f57cb1f3df3e89853175979f79640c93b52f24feecf9fcae3` |
+
+Remaining six methods cover certificate assessment/issuance, gateway
+sync/cancellation/revocation and account inspection. Production Fleet provenance,
+supported decoder controls, common consumer/operator journeys, live provider
+completion/economics/deletion, occupied recovery and combined IcyDB composition
+remain open. No full CI/release gate, version mutation, commit, tag, push,
+publication, deployment or sibling edit occurred. No provider behavior was
+investigated; the Caffeine probe ledger is unchanged.

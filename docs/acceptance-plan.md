@@ -9,8 +9,8 @@ trial. No complete acceptance case below is qualified.
 
 ## Current local evidence and open gates — 2026-09-30
 
-This review covers the released 0.4.8 shared installation/Canic composition source
-and the uncommitted managed blob endpoint continuation. It supersedes older
+This review covers the released 0.4.9 shared installation/Canic composition source
+and the unreleased managed verification/attestation/download extension. It supersedes older
 implementation-gap summaries here;
 historical capability records retain their original dates and limitations.
 No Canic/Toko removal-inventory refresh or consumer acceptance is implied.
@@ -23,7 +23,7 @@ No Canic/Toko removal-inventory refresh or consumer acceptance is implied.
 | A04 — capacity | Bounded objects, references, receipts, sessions, reservations and liabilities; reserved release slots and separate logical/physical/economic accounting | Actual provider pre-charge bounds and production sizing for the selected consumer |
 | A05 — restore | Synchronous standalone restoration of all owners into inspection-only fences; stop/start and repeated current-release upgrades preserve local state; whole-canister rollback risk is demonstrated | A qualified operational recovery boundary and complete independently surviving reconciliation; current upgrades do not resume mutations and old snapshot loads are unsupported for operation |
 | A06 — release race | Exact reference mutation/receipt/status, tombstones, indexed cleanup, revocation and stale callback rejection over local IC substitutes | Deployed deletion and billing-cessation evidence plus accepted production consumer release coordination |
-| A07 — composition | Canic-free core and composition library; shared immutable installation/grants; published Canic fixture proves bounded installation input, service/release binding, rollback, Prepared denial, tenant/Fleet guards and fenced restore beside neighboring memory; nineteen blob methods match standalone Candid; prepared uploads and suspended-tenant cancellation/history retain accounting through upgrade; passive local status/funding inspection preserves bytes | Remaining managed endpoints, upstream decoder controls for query/decoding-work bounds, production Fleet provenance, generic coverage transfer and both-adapter/consumer acceptance |
+| A07 — composition | Canic-free core and composition library; shared immutable installation/grants; published Canic fixture proves bounded installation input, service/release binding, rollback, Prepared denial, tenant/Fleet guards and fenced restore beside neighboring memory; twenty-four blob methods match standalone Candid; verifier attestation, live-reference downloads and suspended-tenant cleanup preserve receipts and liabilities through upgrade using labelled exposure/body substitutes | Certificate assessment/issuance and gateway/account endpoints, upstream decoder controls for query/decoding-work bounds, production Fleet provenance, generic coverage transfer and both-adapter/consumer acceptance |
 | A08 — economics | Maintained Caffeine codecs, exact local transfer/refund journals, liquidity/attachment guards and conservative reconciliation; standalone account inspection is wired | Complete production spendability/liabilities and provider-credit/account activity evidence; reported balances are not receipts |
 | A09 — retirement | Contract separates source removal from installation retirement and preserves uncertainty/continuing obligations | Per-installation inventory and an accountable, evidenced settlement/disposition decision; no reset authority is supplied here |
 | A10 — serving | Root-bound local verification and explicit reference-qualified descriptors/read sessions; native provider observation has exact budgets and retained artifacts | Consumer MIME/public-serving acceptance, deployed serving evidence and confidentiality boundary |
@@ -32,12 +32,20 @@ No Canic/Toko removal-inventory refresh or consumer acceptance is implied.
 
 Current source-bound local records include:
 
+- [Managed verification and delivery](evidence/core-primitives.md#managed-verification-attestation-and-reference-qualified-delivery--2026-09-30):
+  configured-verifier authority, exact immutable attestation replay, live-reference
+  descriptors, release while suspended and retained physical/economic liabilities
+  through fenced restore. Five additional method types/modes match standalone.
+  Exposure and body bytes are local substitutes; this proves neither a real
+  certificate/upload/download nor deletion/billing cessation. Common client,
+  gateway/account and production deployment acceptance remain open.
 - [Managed cleanup and inspection](evidence/core-primitives.md#managed-cleanup-history-and-passive-operator-inspection--2026-09-30):
   maintained blob tenant endpoints, nineteen exact standalone method types,
   suspension/cancellation accounting, private reference/history refusals and
   passive local operator queries across fenced restore. Funding owners are empty;
-  confirmed references, in-flight provider effects and common client acceptance
-  remain open. Read-only Canic decoder review records required upstream support.
+  this earlier case does not cover confirmed references. In-flight provider
+  effects and common client acceptance remain open. Read-only Canic decoder
+  review records required upstream support.
 - [Managed Canic composition](evidence/core-primitives.md#managed-installation-input-and-release-authority--2026-09-30):
   actual managed IC lifecycle/rollback and tenant/Fleet authority with shared
   storage and an independent neighbor. Installation inputs and Root/Coordinator

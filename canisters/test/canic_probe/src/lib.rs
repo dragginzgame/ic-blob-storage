@@ -6,6 +6,8 @@ mod context;
 mod dto;
 mod ops;
 use candid::{CandidType, Deserialize, Principal};
+pub use dto::ProbeExposureFailure;
+use dto::TransportFailure;
 use ic_blob_storage::{
     dto::{
         configuration::{HostFailure, ServiceConfigurationInput},
@@ -140,6 +142,16 @@ fn probe_snapshot() -> CompositionSnapshot {
 #[ic_cdk::query]
 fn probe_fleet_caller() -> Result<Principal, ManagedCallFailure> {
     context::fleet_context().map(|context| context.actor)
+}
+
+// Operator-only local exposure-state substitute. No certificate, provider effect
+// or provider/recovery qualification fact is supplied by this test hook.
+#[canic::canic_update(public, payload(max_bytes = 4096))]
+fn probe_expose_upload(
+    input: ic_blob_storage::dto::upload::admission::UploadAdmissionRequest,
+) -> Result<(), TransportFailure<ProbeExposureFailure>> {
+    let actual = context::context().unwrap_or_else(|_| ic_cdk::trap("managed service is inactive"));
+    ops::fixture::expose(actual, input).map_err(TransportFailure)
 }
 #[ic_cdk::update]
 async fn probe_forward_enroll(

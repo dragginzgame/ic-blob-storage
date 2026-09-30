@@ -6,7 +6,7 @@ use super::dto::TransportFailure;
 #[cfg(canic_export_candid)]
 use super::{
     CompositionSnapshot, EnrollmentForwardFailure, ManagedCallFailure, PreparationForwardFailure,
-    Principal,
+    Principal, ProbeExposureFailure,
 };
 use super::{canic_install, canic_setup, canic_upgrade};
 canic::start!(lifecycle_participant(

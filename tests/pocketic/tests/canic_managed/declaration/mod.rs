@@ -14,6 +14,7 @@ fn built_candid_declares_application_methods_with_their_actual_modes_and_shapes(
         ("probe_fleet_caller", 0, true),
         ("probe_forward_enroll", 1, false),
         ("probe_forward_prepare", 1, false),
+        ("probe_expose_upload", 1, false),
     ] {
         let method = environment.get_method(&actor, name).unwrap();
         assert_eq!(method.args.len(), arguments);
@@ -49,6 +50,11 @@ fn built_candid_declares_application_methods_with_their_actual_modes_and_shapes(
         "blob_local_status",
         "blob_funding_history",
         "blob_funding_outcome",
+        "blob_attest_upload",
+        "blob_upload_attestation",
+        "blob_verification_manifest",
+        "blob_verification_plan",
+        "blob_download_descriptor",
     ] {
         let managed =
             candid::types::TypeInner::Func(environment.get_method(&actor, name).unwrap().clone())

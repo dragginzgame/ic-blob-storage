@@ -18,6 +18,7 @@ use ic_blob_storage_canic::ManagedCallFailure;
 use ic_testkit::pic::{CandidCallExt, CanisterInstallExt};
 use std::time::Duration;
 mod cleanup;
+mod completion;
 mod declaration;
 mod endpoints;
 mod installation;

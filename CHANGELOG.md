@@ -2,6 +2,26 @@
 
 ## [Unreleased]
 
+## [0.4.10]
+
+### Added
+
+- Five managed Canic endpoints delegate verification plans/manifests, verifier
+  attestation/receipt inspection and reference-qualified download descriptors to
+  shared service workflows. All twenty-four managed method types and modes match
+  standalone Candid.
+- Managed PocketIC journeys cover verifier-only completion, exact attestation
+  replay, downloads through live tenant references, release during suspension,
+  retained physical bytes/billing liabilities and fenced same-release restore.
+  Exposure state and file bytes are explicit local substitutes; no provider
+  certificate or live Caffeine effect is exercised.
+
+### Changed
+
+- README now presents a concise project overview, prototype status, setup and
+  development commands with emoji and tables. Detailed CLI and PocketIC examples
+  moved into linked operator/verifier and local-tool guides.
+
 ## [0.4.9] - 2026-09-30
 
 ### Added
