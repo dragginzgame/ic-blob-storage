@@ -1,8 +1,11 @@
 //! Exact managed input, release authority and failed-install transaction evidence.
-use super::{Fixture, ProbeFailure, wasm};
+use super::{Fixture, wasm};
 use blob_canic_probe::CompositionSnapshot;
 use canic::dto::abi::v1::CanisterInitPayload;
-use ic_blob_storage::dto::tenant::{TenantEnrollmentResponse, TenantScope, TenantUpdateRequest};
+use ic_blob_storage::dto::{
+    configuration::HostFailure,
+    tenant::{TenantEnrollmentResponse, TenantFailure, TenantScope, TenantUpdateRequest},
+};
 use ic_blob_storage_canic::arguments::{InitializationArgumentFailure, installation_arguments};
 use ic_testkit::pic::{CandidCallExt, CanisterInstallExt};
 use std::time::Duration;
@@ -11,18 +14,18 @@ use std::time::Duration;
 struct MissingPolicy {
     project: String,
 }
-fn enroll(f: &Fixture) -> (TenantScope, TenantEnrollmentResponse) {
+pub(super) fn enroll(f: &Fixture) -> (TenantScope, TenantEnrollmentResponse) {
     let scope = TenantScope {
         service: f.app(),
         namespace: u128::MAX,
         tenant: candid::Principal::from_slice(&[3, 1]),
     };
-    let reply: Result<TenantEnrollmentResponse, ProbeFailure> = f
+    let reply: Result<TenantEnrollmentResponse, TenantFailure> = f
         .pic()
         .update_candid_as(
             f.app(),
             candid::Principal::from_slice(&[2, 1]),
-            "probe_enroll",
+            "blob_update_tenant",
             (TenantUpdateRequest {
                 scope,
                 expected: None,
@@ -123,13 +126,13 @@ fn explicit_managed_input_and_release_failures_roll_back_the_whole_installation(
         assert_eq!(retained.verifier, installed.verifier);
         assert_eq!(retained.fences, installed.fences);
         assert_eq!(retained.neighbor, installed.neighbor);
-        let tenant: Result<TenantEnrollmentResponse, ProbeFailure> = f
+        let tenant: Result<TenantEnrollmentResponse, TenantFailure> = f
             .pic()
-            .query_candid_as(f.app(), scope.tenant, "probe_tenant", (scope,))
+            .query_candid_as(f.app(), scope.tenant, "blob_tenant", (scope,))
             .unwrap();
         assert_eq!(tenant.unwrap(), enrolled);
     }
-    let outsider: Result<Vec<u8>, ProbeFailure> = f
+    let outsider: Result<Vec<u8>, HostFailure> = f
         .pic()
         .query_candid_as(
             f.app(),
@@ -138,10 +141,5 @@ fn explicit_managed_input_and_release_failures_roll_back_the_whole_installation(
             (),
         )
         .unwrap();
-    assert_eq!(
-        outsider,
-        Err(ProbeFailure::Tenant(
-            ic_blob_storage::dto::tenant::TenantFailure::Denied
-        ))
-    );
+    assert_eq!(outsider, Err(HostFailure::Denied));
 }

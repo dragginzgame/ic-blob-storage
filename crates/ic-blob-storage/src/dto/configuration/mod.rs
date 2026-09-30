@@ -1,6 +1,28 @@
 //! Explicit local service configuration inputs, not a provider wire or stable schema.
 use candid::{CandidType, Deserialize, Principal};
 
+/// Operator-only installed configuration and local restore state.
+#[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize)]
+pub struct HostConfigurationView {
+    /// Exact installed configuration; observation performs no provider calls.
+    pub configuration: ServiceConfigurationInput,
+    /// Immutable installed provider project, independent of the payer and tenants.
+    pub project: String,
+    /// Explicit installed verifier, independent of gateway membership.
+    pub completion_verifier: Principal,
+    /// Host-validated release identity, not a module hash or freshness authority.
+    pub release: String,
+    /// Restored stores allow inspection only; false is not provider readiness.
+    pub fenced: bool,
+}
+
+/// Installed-configuration inspection authority rejection.
+#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+pub enum HostFailure {
+    /// Caller or service differs from the installed binding; controllers gain no authority.
+    Denied,
+}
+
 /// Candidate configuration for a separately authorized host installation.
 /// No defaults, deployment authorization, provider namespace proof or mutation is implied.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]

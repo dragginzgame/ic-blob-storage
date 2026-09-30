@@ -44,6 +44,55 @@ fn bytes(memory: &[VectorMemory; 17]) -> [Vec<u8>; 17] {
 }
 
 #[test]
+fn configuration_inspection_binds_operator_service_and_preserves_restore_fences() {
+    use crate::{dto::configuration::HostFailure, workflow::installation::inspect};
+    let memory = memory();
+    let installed = ServiceInstallation::install(memories(&memory), validated()).unwrap();
+    let context = UploadContext {
+        service: candidate().service,
+        actor: candidate().operator,
+    };
+    let view = inspect(&installed, context).unwrap();
+    assert_eq!(view.configuration, candidate());
+    assert_eq!(view.project, input().project);
+    assert_eq!(view.completion_verifier, input().completion_verifier);
+    assert_eq!(view.release, RELEASE);
+    assert!(!view.fenced);
+    let before = bytes(&memory);
+    for actor in [
+        candidate().payment_account,
+        input().completion_verifier,
+        Principal::anonymous(),
+    ] {
+        assert_eq!(
+            inspect(&installed, UploadContext { actor, ..context }),
+            Err(HostFailure::Denied)
+        );
+    }
+    assert_eq!(
+        inspect(
+            &installed,
+            UploadContext {
+                service: Principal::from_slice(&[77, 1]),
+                ..context
+            }
+        ),
+        Err(HostFailure::Denied)
+    );
+    drop(installed);
+    let restored =
+        ServiceInstallation::open(memories(&memory), candidate().service, RELEASE).unwrap();
+    assert_eq!(
+        inspect(&restored, context),
+        Ok(crate::dto::configuration::HostConfigurationView {
+            fenced: true,
+            ..view
+        })
+    );
+    assert_eq!(bytes(&memory), before);
+}
+
+#[test]
 fn whole_candidate_rejects_invalid_bindings_project_verifier_and_release() {
     let original = input();
     assert!(matches!(

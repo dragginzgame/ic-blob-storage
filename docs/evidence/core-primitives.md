@@ -3557,3 +3557,157 @@ remain fixture authority. The actual current carrier is evidenced, not every
 consumer/topology sizing choice. Full managed blob Candid/API, production Fleet
 artifact provenance, common consumer/operator journeys and occupied/in-flight
 managed recovery remain open. This is not combined IcyDB or provider qualification.
+
+## Managed blob endpoint subset — 2026-09-30
+
+Local IC composition evidence after released 0.4.8, using published Canic 0.110.48,
+its supported CLI and ic-testkit's PocketIC reexport. The core/allocator/registry
+versions are unchanged. The controlled artifact supplies six managed blob methods
+over shared configuration, admission, manifests and capacity workflows. The
+official Candid checker proves their complete method types and modes equal to
+standalone's maintained interface; standalone's native export check also passes.
+Adapter-local passive error newtypes retain the existing Candid shape, while ops
+maps generic Canic Fleet refusals to denial without a core Canic dependency.
+
+The new actual IC journey denies configuration to tenant/uploader/outsider/Root/
+anonymous/actual controllers, denies admission to unrelated actors, accepts the
+tenant's exact reservation and permits only its named uploader to prepare. An
+admitted/prepared ten-byte object with full-width IDs, original manifest, readback
+configuration and capacity survives same-release upgrade. All four owners are
+fenced; mutation refusal and inspection preserve stable memory. Valid Candid at
+exactly 131,072 bytes reaches the shared manifest limit, whereas 131,073 bytes
+receives typed ingress rejection and an actual inter-canister transport refusal.
+The smaller Canic default cannot silently exclude maintained manifest requests.
+The operator-only local forwarder is exclusively a fixture helper.
+
+Final managed suite: three PocketIC journeys and one Candid comparison pass in
+37.82 seconds (`/tmp/ic-blob-storage-managed-endpoints-06.log`, SHA-256
+`b98fbc6ffb9206c567ce470bedecf85eca4d45b8aac278878c725166fa33356c`).
+The existing standalone admission/manifest/stop-start/rejected-upgrade/fenced-
+restore journey passes in 5.31 seconds
+(`/tmp/ic-blob-storage-managed-endpoints-standalone-01.log`, SHA-256
+`0ca561a6a9089aa0a41c3dbfad15f45057ead41909cae552c670c054dd5412a5`).
+Six shared installation cases and the standalone native Candid check pass.
+Strict affected core/standalone/harness and isolated fixture Clippy, warning-free
+core/standalone rustdoc and formatting/diff checks pass. No full CI/release gate
+ran for this continuation. Test instances were dropped; build artifacts retained.
+
+Distinct failed attempts remain in `/tmp`: managed build `-build-01.log` exposed
+the required Canic guard-error conversion; harness `-01.log` failed a private DTO
+import, `-02.log` failed a misplaced assertion and `-03.log` exposed duplicate
+endpoint symbols from linking both artifacts for comparison. `-04.log` passed
+Candid then could not bind PocketIC inside the sandbox and was interrupted;
+`-05.log` passed the initial complete suite. Harness Clippy `-clippy-02.log`
+identified long journey functions, subsequently split by authority phase;
+isolated `-clippy-fixture-01.log` required a narrow owned-Candid-input lint
+expectation. Final supported build is `-build-03.log`; final strict captures are
+`-clippy-04.log`, `-clippy-standalone-01.log` and `-clippy-fixture-02.log`.
+These are local validation captures, not provider probes or production receipts.
+
+Selected final SHA-256 hashes:
+
+| Source/artifact | SHA-256 |
+| --- | --- |
+| `canisters/standalone/src/dto/mod.rs` | `684e9377576c6ef05beaf8603a2e03280436b50f5aceebd280d1aa236491c7b2` |
+| `canisters/standalone/src/ops/mod.rs` | `88188bd076db7c566b3cc9a5bf578e3034bcceb305a7143e3f654a0565b38145` |
+| `canisters/standalone/src/workflow/mod.rs` | `15ef957d637706f9421088bef3f705ff9af2a90e3471520a94fd5495c4233635` |
+| `crates/ic-blob-storage/src/dto/configuration/mod.rs` | `197196fcce01794f6f71343ea63ff4e1faf7924856d4b52fa1be5385e8a0a4fc` |
+| `crates/ic-blob-storage/src/policy/installation/mod.rs` | `9c5ff8107fa770c8dcca517225ceed13126d564405738cc73119fd8577f29619` |
+| `crates/ic-blob-storage/src/workflow/installation/mod.rs` | `f62198aaafcef199670b59da8a9033ad78b32be9941d115e1642df4c176dd297` |
+| `crates/ic-blob-storage/src/ops/service/installation/mod.rs` | `3498489fadde519f75a8941a0672327fe0b45d8136570e32031f6c2f3076e48f` |
+| `crates/ic-blob-storage/src/ops/service/installation/tests/mod.rs` | `f453ce625efc9dbcad9edb5d30bf5e2d9696d66f26111ef996c434611c3eb3c1` |
+| `canisters/test/canic_probe/src/api/mod.rs` | `4165975b93c6484432d920b75aac01d612a7e19bbff3f338551e9e4165390bce` |
+| `canisters/test/canic_probe/src/dto/mod.rs` | `785ba05bdbfd8d4717bc9f5f6233e79ded11d3e38380e5421a444688d23bc604` |
+| `canisters/test/canic_probe/src/ops/mod.rs` | `9d449af7232caf176f84b71cd5a1dc99aba956f97bc6c4543db05a108ba233be` |
+| `canisters/test/canic_probe/src/lib.rs` | `4de0c336215a7e971dc1d4920aefb1ef4daedbb45a77c2dddf106f5ad65f50f3` |
+| `canisters/test/canic_probe/src/managed/mod.rs` | `71face9dbb60bcd44621b9d50abeedecdc62c3fb05f84a76fffa92909890382b` |
+| `tests/pocketic/tests/canic_managed/endpoints/mod.rs` | `1ff753c4b3f1e29086e8cb98789fd7ade7d787a199338af434d58e399d28ecf6` |
+| `tests/pocketic/tests/canic_managed/declaration/mod.rs` | `f66de4c4564f51500e8be0951f7a8861611203b01c891d259e90b30fb287057c` |
+| `tests/pocketic/tests/canic_managed/mod.rs` | `c4f08b5181ef883ae4be16822bdb53717b56ac7d96e8677325e7f6edbeb857f9` |
+| `.tmp/canic-probe/.icp/local/canisters/storage/storage.wasm` | `f19ed6adfbf264b50ee52b0b33d88eff8c44a2f8a2a3a43ed9e475bcb5e87bf9` |
+| `.tmp/canic-probe/.icp/local/canisters/storage/storage.did` | `18cd56efb73a9105bb16c981c372d12e9baf355152c436d11b6b54e64cd7589c` |
+| `target/wasm32-unknown-unknown/release/ic_blob_storage_canister.wasm` | `e93fe31cde818924ce62105c764b1e13208392d785b809cbbbc190671f340c7a` |
+
+This is an endpoint subset with controlled installation inputs and fixed fixture
+release/synthetic Root authority. Remaining managed endpoints, equivalent query-
+byte/decoding-work bounds, production Fleet provenance, common consumer/operator
+acceptance, in-flight provider recovery and combined IcyDB composition remain open.
+No Caffeine behavior was investigated; no live provider effect or probe was sent.
+
+## Managed cleanup, history and passive operator inspection — 2026-09-30
+
+Continuation of the same unreleased batch after 0.4.8, using published Canic
+0.110.48 and its supported CLI. The controlled artifact now exposes nineteen
+blob methods over shared configuration, tenant, upload/history/discovery, manifest,
+reference/capacity and local operator/funding workflows. Official candid_parser
+checks all nineteen complete method types and modes against maintained standalone
+Candid. One passive generic error wrapper keeps Canic conversion in adapter ops;
+fixture-only tenant methods were replaced throughout by the blob tenant API.
+
+The new actual PocketIC journey prepares a ten-byte full-width-ID reservation,
+suspends its tenant and cancels the unexposed upload. Reserved/active counters
+reach zero while the operation and cancellation history remain. Tenant history,
+discovery and unconfirmed reference observations remain available after suspension
+and same-release restore. Uploader/operator/outsider/Root cannot revoke or
+inspect/mutate tenant references or private history. Local operator status, empty
+funding history and absent funding outcome are scoped and passive; tenant/outsider/
+Root refusals and wrong namespace preserve stable bytes. After upgrade every owner
+is fenced, history remains, and reference/revocation mutations refuse unchanged.
+This does not exercise confirmed references or populated/in-flight funding/read
+owners and does not establish provider deletion, credit or billing cessation.
+
+The managed suite passes in **47.34 s**, including four IC journeys and the exact
+Candid comparison. Expanded revocation/reference denial checks then pass in the
+focused cleanup case in **13.63 s**. Logs are
+`/tmp/ic-blob-storage-managed-history-01.log` (SHA-256
+`55f58b7243a4f08464e3ea2f49f78c707fbe7bc83e7482ce3495aee3314a8304`)
+and `-02.log` (`a7e6081f2d260cd69d3c648d9a3e28445f30ded1806ee9ab698b454c48450849`).
+Commands use this repository's target, offline/locked Cargo, ic-testkit's
+PocketIC 16.0.0 reexport/binary, the supported built fixture and one test thread.
+The final focused run changes only the cleanup test, not fixture source/artifacts.
+Test instances were dropped; build artifacts retained.
+
+Supported build `-build-01.log` passes in 21.42 s (SHA-256
+`978a29c820ae4963a4533ce786c3a62211171f619f503ec2a627390c4acefb2b`).
+Strict harness Clippy `-clippy-03.log` and isolated fixture all-target/all-feature
+Clippy `-clippy-fixture-01.log` pass. Retained failed `-clippy-01.log` rejected a
+long journey function; meaningful restore-phase extraction fixed it, and
+`-clippy-02.log` passed before expanded denial checks. Both formatting checks,
+diff and capability JSON checks pass. Core/composition dependency trees remain
+Canic-free; fixture Wasm excludes parser/testkit/PocketIC. Prior shared/core and
+standalone checks above remain applicable; those sources did not change here.
+No full CI/release gate, version mutation, commit, publication, deployment,
+sibling edit or provider probe/effect occurred.
+
+Read-only source review found no supported Canic decoder hook: query payload
+limits are rejected, update raw decoding exposes only its 10,000 skipping quota,
+and framework preflight is internal. Reviewed registry sources are
+`canic-macros-0.110.48/src/endpoint/{parse,expand,validate}/mod.rs`, with respective
+SHA-256 `e591b5749791cdd6bde85f46f0016df6ae333abe6d50c667d82cb8aac5bc04f3`,
+`852b10c671b59ce3fedb1a29367fbfcffb5ae40404da4a34fc7af69ec5c91cd1`,
+`6a34e2b942caf2603fcb83070ea9f1e7c8910f1366a3f870e1abaa1b798f5750`.
+The local read-only Canic checkout reports 0.110.48 at
+`e9ea2a2698135f583d56fb322a815af1480a3881`; this is not a removal-inventory refresh
+or latest-registry claim. Required upstream controls are in the service contract.
+No duplicated dispatch or unbounded-then-bounded re-decoding was introduced.
+
+Selected final source/artifact SHA-256 hashes:
+
+| Source/artifact | SHA-256 |
+| --- | --- |
+| `canisters/test/canic_probe/src/api/mod.rs` | `78310d4ea6008a5a2ad1aee6ad698ae65034e0a0d4cc89f14f202570e749e5a7` |
+| `canisters/test/canic_probe/src/dto/mod.rs` | `220ef440a25adae5fae4b905044c7f7d69a0a6cc66837f42b2bd35a129876b1d` |
+| `canisters/test/canic_probe/src/ops/mod.rs` | `9fdf7a6bfd6433f3ca3004a8448198927a1814e6ac5f3000dc7ce82544b4cfb1` |
+| `canisters/test/canic_probe/src/lib.rs` | `411b0b19ffec7c9d01de52f757077a8f5245c8420c720a3ec0da2d3894a15352` |
+| `canisters/test/canic_probe/src/managed/mod.rs` | `1f85bd20f24a05b55418fb237fc8a3483da9eac731a171aacb4a932ce387eab4` |
+| `tests/pocketic/tests/canic_managed/cleanup/mod.rs` | `89e79689b2608ef81097da3bc06e983b5f10186befd1d030957c4dbd9103cdce` |
+| `tests/pocketic/tests/canic_managed/declaration/mod.rs` | `c39e9ff54f914c98afd429623720209310366bf0fe8d10da33a2302e134e5ce4` |
+| `tests/pocketic/tests/canic_managed/mod.rs` | `65b1e1c32bb42628d3d814f8176c86b0634386910f81b67fb1a731c947e50d12` |
+| `.tmp/canic-probe/.icp/local/canisters/storage/storage.wasm` | `f2560baf088a7d451ce6422f3299645a776b8b6700b750485a00efdc337830c8` |
+| `.tmp/canic-probe/.icp/local/canisters/storage/storage.did` | `8928139331f422295daa295573a70cacb6003265b4cdc362be5114ed5cd37fe4` |
+
+Full managed endpoints, equivalent query-byte/decoding-work bounds, production
+Fleet provenance, common consumer/operator acceptance, occupied provider recovery
+and combined IcyDB composition remain open. Synthetic Root/Coordinator and fixed
+fixture release still qualify only this local subset. The Caffeine ledger remains
+unchanged because this batch investigates generic Canic composition only.

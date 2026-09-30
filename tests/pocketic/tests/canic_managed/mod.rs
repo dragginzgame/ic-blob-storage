@@ -1,5 +1,5 @@
 //! Published Canic managed lifecycle with shared real service owners and fixture inputs.
-use blob_canic_probe::{CompositionSnapshot, ProbeFailure};
+use blob_canic_probe::{CompositionSnapshot, EnrollmentForwardFailure};
 use candid::{CandidType, Deserialize, Principal};
 use canic::{
     dto::{
@@ -10,13 +10,16 @@ use canic::{
         ManagedRoleQualificationArtifact, install_managed_component_group,
     },
 };
+use ic_blob_storage::dto::configuration::HostFailure;
 use ic_blob_storage::dto::tenant::{
     TenantEnrollmentResponse, TenantFailure, TenantScope, TenantUpdateRequest,
 };
 use ic_blob_storage_canic::ManagedCallFailure;
 use ic_testkit::pic::{CandidCallExt, CanisterInstallExt};
 use std::time::Duration;
+mod cleanup;
 mod declaration;
+mod endpoints;
 mod installation;
 
 struct Fixture {
@@ -73,7 +76,7 @@ impl Fixture {
     }
     fn arguments(&self) -> Vec<u8> {
         self.pic()
-            .query_candid_as::<Result<Vec<u8>, ProbeFailure>, _>(
+            .query_candid_as::<Result<Vec<u8>, HostFailure>, _>(
                 self.app(),
                 Principal::from_slice(&[2, 1]),
                 "probe_init_arguments",
@@ -186,13 +189,50 @@ fn denied_callers(f: &Fixture, input: TenantUpdateRequest, outsider: Principal) 
     denied.dedup();
     for actor in denied {
         let before = f.pic().get_stable_memory(f.app());
-        let result: Result<TenantEnrollmentResponse, ProbeFailure> = f
+        let result: Result<TenantEnrollmentResponse, TenantFailure> = f
             .pic()
-            .update_candid_as(f.app(), actor, "probe_enroll", (input,))
+            .update_candid_as(f.app(), actor, "blob_update_tenant", (input,))
             .unwrap();
-        assert_eq!(result, Err(ProbeFailure::Tenant(TenantFailure::Denied)));
+        assert_eq!(result, Err(TenantFailure::Denied));
         assert_eq!(f.pic().get_stable_memory(f.app()), before);
     }
+}
+
+fn prepared_configuration_refuses(f: &Fixture, operator: Principal) {
+    let refused = f
+        .pic()
+        .query_call(
+            f.app(),
+            operator,
+            "blob_configuration",
+            candid::encode_args(()).unwrap(),
+        )
+        .unwrap_err();
+    assert_eq!(
+        refused.reject_code,
+        ic_testkit::pocket_ic::RejectCode::CanisterError
+    );
+}
+
+fn prepared_enrollment_refuses(f: &Fixture, operator: Principal, input: TenantUpdateRequest) {
+    let refusal = f
+        .pic()
+        .update_call(
+            f.app(),
+            operator,
+            "blob_update_tenant",
+            candid::encode_one(input).unwrap(),
+        )
+        .unwrap_err();
+    assert_eq!(
+        refusal.reject_code,
+        ic_testkit::pocket_ic::RejectCode::CanisterError
+    );
+    let forwarded: Result<TenantEnrollmentResponse, EnrollmentForwardFailure> = f
+        .pic()
+        .update_candid_as(f.app(), operator, "probe_forward_enroll", (input,))
+        .unwrap();
+    assert_eq!(forwarded, Err(EnrollmentForwardFailure::Transport));
 }
 
 #[test]
@@ -228,27 +268,17 @@ fn synchronous_installation_precedes_activation_and_all_owner_restore_preserves_
     };
     let enroll = |actor| {
         f.pic()
-            .update_candid_as::<Result<TenantEnrollmentResponse, ProbeFailure>, _>(
+            .update_candid_as::<Result<TenantEnrollmentResponse, TenantFailure>, _>(
                 f.app(),
                 actor,
-                "probe_enroll",
+                "blob_update_tenant",
                 (input,),
             )
             .unwrap()
     };
     let before = f.pic().get_stable_memory(f.app());
-    assert_eq!(
-        enroll(operator),
-        Err(ProbeFailure::Managed(ManagedCallFailure::Inactive))
-    );
-    let forwarded: Result<TenantEnrollmentResponse, ProbeFailure> = f
-        .pic()
-        .update_candid_as(f.app(), operator, "probe_forward_enroll", (f.app(), input))
-        .unwrap();
-    assert_eq!(
-        forwarded,
-        Err(ProbeFailure::Managed(ManagedCallFailure::Inactive))
-    );
+    prepared_enrollment_refuses(&f, operator, input);
+    prepared_configuration_refuses(&f, operator);
     assert_eq!(f.pic().get_stable_memory(f.app()), before);
     f.configure_and_wait_until_active(30);
     for _ in 0..30 {
@@ -272,9 +302,9 @@ fn synchronous_installation_precedes_activation_and_all_owner_restore_preserves_
     assert_eq!(restored.neighbor, installed.neighbor);
     assert_eq!(restored.fences, [true; 4]);
     let before = f.pic().get_stable_memory(f.app());
-    let retained: Result<TenantEnrollmentResponse, ProbeFailure> = f
+    let retained: Result<TenantEnrollmentResponse, TenantFailure> = f
         .pic()
-        .query_candid_as(f.app(), tenant, "probe_tenant", (scope,))
+        .query_candid_as(f.app(), tenant, "blob_tenant", (scope,))
         .unwrap();
     assert_eq!(
         retained.unwrap(),
@@ -283,9 +313,6 @@ fn synchronous_installation_precedes_activation_and_all_owner_restore_preserves_
             ..enrollment
         }
     );
-    assert_eq!(
-        enroll(operator),
-        Err(ProbeFailure::Tenant(TenantFailure::Fenced))
-    );
+    assert_eq!(enroll(operator), Err(TenantFailure::Fenced));
     assert_eq!(f.pic().get_stable_memory(f.app()), before);
 }

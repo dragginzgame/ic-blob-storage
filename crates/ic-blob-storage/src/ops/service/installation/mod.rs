@@ -169,6 +169,18 @@ impl<M: Memory> ServiceInstallation<M> {
     pub fn configuration(&self) -> ServiceConfigurationInput {
         configuration::input(&self.configuration)
     }
+    /// Convert retained installation state for an already-authorized observer.
+    /// Endpoint consumers should use the shared installation inspection workflow.
+    #[must_use]
+    pub fn configuration_view(&self) -> crate::dto::configuration::HostConfigurationView {
+        crate::dto::configuration::HostConfigurationView {
+            configuration: self.configuration(),
+            project: self.download_scope.project().to_owned(),
+            completion_verifier: self.completion.verifier(),
+            release: self.configuration.release.clone(),
+            fenced: self.stores.uploads.is_fenced(),
+        }
+    }
     /// Immutable provider project mapping, not evidence of namespace provisioning.
     #[must_use]
     pub fn download_scope(&self) -> &CaffeineDownloadScope {

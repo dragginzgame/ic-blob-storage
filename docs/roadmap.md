@@ -120,8 +120,13 @@ qualify a production deployment. Explicit bounded managed input now binds the
 platform service and Canic-validated release identity; invalid policy/carrier or
 protected release mismatch preserves populated stable state on failed install.
 The fixture's adjacent Candid includes all application methods and is parsed for
-their actual modes/shapes. Next implement complete shared-handler blob endpoints/
-Candid and production Fleet provenance; run common journeys through both adapters.
+their actual modes/shapes. Nineteen managed blob methods now cover configuration,
+tenants, admission/revocation, upload history/discovery, manifests, references and
+passive operator/funding inspection, with exact standalone Candid comparison.
+Prepared uploads and suspended-tenant cancellation history retain accounting
+through fenced upgrade. Next complete managed endpoints, obtain supported Canic
+decoder controls for query/decoding-work bounds, establish production Fleet
+provenance and run common journeys through both adapters.
 Do not create a second memory runtime.
 
 The maintainer directed the next implementation toward canister service storage;

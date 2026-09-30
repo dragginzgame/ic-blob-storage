@@ -3,8 +3,8 @@ pub(crate) mod account;
 pub(crate) mod certificate;
 pub(crate) mod gateways;
 mod memory;
-use crate::dto::{HostConfigurationView, HostFailure, HostInstallationInput};
-use candid::{CandidType, DecoderConfig, Deserialize, Principal};
+use crate::dto::HostInstallationInput;
+use candid::{CandidType, DecoderConfig, Deserialize};
 use ic_blob_storage::{
     ic_memory::{MemoryRuntime, ic_stable_structures::DefaultMemoryImpl},
     model::service::{
@@ -147,20 +147,10 @@ pub(crate) fn with_verification<R>(
         )
     })
 }
-pub(crate) fn configuration(actor: Principal) -> Result<HostConfigurationView, HostFailure> {
+pub(crate) fn with_installation<R>(f: impl FnOnce(&ServiceInstallation<Memory>) -> R) -> R {
     HOST.with_borrow(|host| {
         let installation = &host.as_ref().expect("initialized host").installation;
-        let configuration = installation.configuration();
-        if actor != configuration.operator {
-            return Err(HostFailure::Denied);
-        }
-        Ok(HostConfigurationView {
-            configuration,
-            project: installation.download_scope().project().to_owned(),
-            completion_verifier: installation.completion_authority().verifier(),
-            release: installation.release().to_owned(),
-            fenced: installation.stores().uploads.is_fenced(),
-        })
+        f(installation)
     })
 }
 fn bounded<T: CandidType + for<'de> Deserialize<'de>>(bytes: &[u8], max: usize) -> T {

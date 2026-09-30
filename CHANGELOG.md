@@ -2,6 +2,32 @@
 
 ## [Unreleased]
 
+## [0.4.9]
+
+### Added
+
+- Shared operator-only installation readback binds the actual service and caller,
+  preserves exact configuration/project/verifier/release and reports restoration
+  fencing. Standalone delegates to this handler with unchanged Candid.
+- Controlled Canic artifact exposes nineteen managed blob endpoints for
+  configuration, tenant enrollment/suspension, upload admission/revocation,
+  status/history/discovery, manifests, references/capacity and passive operator
+  status/funding history/outcome. All delegate to shared service workflows;
+  native Candid comparison checks exact method types and modes against standalone.
+- Managed PocketIC journey preserves an admitted, prepared upload and capacity
+  through same-release upgrade while refusing mutations. It checks operator,
+  tenant, uploader, outsider, Root and controller authority and valid Candid at
+  the 128 KiB update boundary, including oversized inter-canister refusal.
+- Managed suspension/cleanup journey cancels an unexposed reservation, preserves
+  cancellation history and accounting through fenced restore, and checks private
+  reference/history boundaries and passive operator inspection.
+
+### Changed
+
+- Managed fixture enrollment now uses the maintained blob tenant endpoints;
+  adapter-owned state access and one passive generic failure wrapper preserve
+  standalone reply types without duplicating authority or workflow logic.
+
 ## [0.4.8] - 2026-09-30
 
 ### Added

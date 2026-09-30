@@ -340,9 +340,14 @@ Canic directly. The library itself remains Canic-free. A managed PocketIC fixtur
 checks activation, caller authority and fenced restoration alongside neighboring
 memory. Managed installation takes explicit bounded policy, project and verifier
 bytes inside Canic's authenticated carrier; platform service identity and Canic's
-validated release identity bind the shared installation. The full managed blob
-endpoint artifact, production Fleet provenance and both-adapter acceptance remain
-open; see the
+validated release identity bind the shared installation. The controlled artifact
+now exposes nineteen blob methods for configuration, tenants, uploads/history,
+manifests, references/capacity and passive operator/funding inspection using shared
+workflows. Their types match standalone Candid. Prepared uploads and suspended
+tenant cleanup history survive fenced restoration. Complete managed endpoints,
+query/decoding-work bounds, production Fleet provenance and both-adapter acceptance
+remain open. The pinned Canic macros need upstream decoder controls to close
+the input-bound gap; see the
 [composition contract](docs/service-contract.md#managed-canic-composition).
 
 ## Local development

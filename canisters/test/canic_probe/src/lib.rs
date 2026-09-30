@@ -1,15 +1,17 @@
 //! Controlled application inputs with the real published Canic managed lifecycle.
 //! This fixture is not a production endpoint artifact or provider observation.
+mod api;
 pub mod configuration;
 mod context;
+mod dto;
+mod ops;
 use candid::{CandidType, Deserialize, Principal};
 use ic_blob_storage::{
     dto::{
-        configuration::ServiceConfigurationInput,
-        tenant::{TenantEnrollmentResponse, TenantFailure, TenantScope, TenantUpdateRequest},
+        configuration::{HostFailure, ServiceConfigurationInput},
+        tenant::{TenantEnrollmentResponse, TenantFailure, TenantUpdateRequest},
     },
     ic_memory::{self, ic_stable_structures::Memory},
-    workflow::tenants,
 };
 use ic_blob_storage_canic::{ManagedCallFailure, lifecycle::ManagedInstallation};
 use std::cell::{Cell, RefCell};
@@ -90,10 +92,10 @@ pub struct CompositionSnapshot {
     pub neighbor: Vec<u8>,
 }
 #[ic_cdk::query]
-fn probe_init_arguments() -> Result<Vec<u8>, ProbeFailure> {
+fn probe_init_arguments() -> Result<Vec<u8>, HostFailure> {
     INSTALLATION.with_borrow(|owner| {
         if ic_cdk::api::msg_caller() != owner.as_ref().unwrap().configuration().operator {
-            return Err(ProbeFailure::Tenant(TenantFailure::Denied));
+            return Err(HostFailure::Denied);
         }
         Ok(INIT_ARGUMENTS.with_borrow(Clone::clone))
     })
@@ -135,49 +137,71 @@ fn probe_snapshot() -> CompositionSnapshot {
         }
     })
 }
-/// Typed fixture endpoint refusal preserves managed and service authority separately.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
-pub enum ProbeFailure {
-    /// Managed activation or transport admission refused.
-    Managed(ManagedCallFailure),
-    /// Shared tenant handler refused.
-    Tenant(TenantFailure),
-}
-#[ic_cdk::update]
-fn probe_enroll(input: TenantUpdateRequest) -> Result<TenantEnrollmentResponse, ProbeFailure> {
-    let context = context::context().map_err(ProbeFailure::Managed)?;
-    INSTALLATION.with_borrow_mut(|owner| {
-        tenants::update(
-            &mut owner.as_mut().unwrap().stores_mut().uploads,
-            context,
-            input,
-        )
-        .map_err(ProbeFailure::Tenant)
-    })
-}
-#[ic_cdk::query]
-fn probe_tenant(input: TenantScope) -> Result<TenantEnrollmentResponse, ProbeFailure> {
-    let context = context::context().map_err(ProbeFailure::Managed)?;
-    INSTALLATION.with_borrow(|owner| {
-        tenants::inspect(&owner.as_ref().unwrap().stores().uploads, context, input)
-            .map_err(ProbeFailure::Tenant)
-    })
-}
 #[ic_cdk::query]
 fn probe_fleet_caller() -> Result<Principal, ManagedCallFailure> {
     context::fleet_context().map(|context| context.actor)
 }
 #[ic_cdk::update]
 async fn probe_forward_enroll(
-    target: Principal,
     input: TenantUpdateRequest,
-) -> Result<TenantEnrollmentResponse, ProbeFailure> {
-    ic_cdk::call::Call::unbounded_wait(target, "probe_enroll")
+) -> Result<TenantEnrollmentResponse, EnrollmentForwardFailure> {
+    let operator = ops::read(|owner| owner.configuration().operator);
+    if ic_cdk::api::msg_caller() != operator {
+        return Err(EnrollmentForwardFailure::Denied);
+    }
+    ic_cdk::call::Call::unbounded_wait(ic_cdk::api::canister_self(), "blob_update_tenant")
         .with_arg(input)
         .await
-        .expect("fixture inter-canister reply")
-        .candid()
+        .map_err(|_| EnrollmentForwardFailure::Transport)?
+        .candid::<Result<TenantEnrollmentResponse, TenantFailure>>()
         .expect("fixture typed reply")
+        .map_err(EnrollmentForwardFailure::Tenant)
+}
+
+/// Fixture-only local forwarding; it carries no operator delegation to its callee.
+#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+pub enum EnrollmentForwardFailure {
+    /// Only the installed operator may invoke this helper.
+    Denied,
+    /// Actual inter-canister transport was refused before a shared handler reply.
+    Transport,
+    /// The maintained tenant handler refused the canister caller.
+    Tenant(TenantFailure),
+}
+
+/// Fixture-only forwarding outcome; it cannot authorize provider or tenant effects.
+#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+pub enum PreparationForwardFailure {
+    /// Only the installed operator can use this local test forwarding helper.
+    Denied,
+    /// The actual inter-canister call was rejected.
+    Transport,
+    /// The shared manifest handler returned a typed refusal.
+    Manifest(ic_blob_storage::dto::upload::manifest::UploadManifestFailure),
+}
+
+#[canic::canic_update(public, payload(max_bytes = 262_144))]
+async fn probe_forward_prepare(
+    arguments: Vec<u8>,
+) -> Result<ic_blob_storage::dto::upload::manifest::UploadManifestMutation, PreparationForwardFailure>
+{
+    let operator =
+        INSTALLATION.with_borrow(|owner| owner.as_ref().unwrap().configuration().operator);
+    if ic_cdk::api::msg_caller() != operator {
+        return Err(PreparationForwardFailure::Denied);
+    }
+    let response =
+        ic_cdk::call::Call::unbounded_wait(ic_cdk::api::canister_self(), "blob_prepare_upload")
+            .with_raw_args(&arguments)
+            .await
+            .map_err(|_| PreparationForwardFailure::Transport)?;
+    response
+        .candid::<Result<
+            ic_blob_storage::dto::upload::manifest::UploadManifestMutation,
+            ic_blob_storage::dto::upload::manifest::UploadManifestFailure,
+        >>()
+        .expect("fixture typed manifest reply")
+        .map_err(PreparationForwardFailure::Manifest)
 }
 
 // Expand Canic's finish only after every application endpoint is registered.

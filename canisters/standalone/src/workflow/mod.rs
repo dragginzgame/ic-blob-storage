@@ -171,7 +171,15 @@ pub(crate) fn local_status(
 pub(crate) fn configuration(
     actor: candid::Principal,
 ) -> Result<crate::dto::HostConfigurationView, crate::dto::HostFailure> {
-    ops::configuration(actor)
+    ops::with_installation(|installation| {
+        ic_blob_storage::workflow::installation::inspect(
+            installation,
+            UploadContext {
+                service: ic_cdk::api::canister_self(),
+                actor,
+            },
+        )
+    })
 }
 pub(crate) fn update_tenant(
     context: UploadContext,

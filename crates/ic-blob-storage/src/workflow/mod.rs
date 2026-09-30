@@ -2,6 +2,7 @@
 pub mod account;
 pub mod funding;
 pub mod gateways;
+pub mod installation;
 pub mod operator;
 pub mod reads;
 pub mod references;

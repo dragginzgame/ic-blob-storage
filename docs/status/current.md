@@ -2,14 +2,16 @@
 
 Date: 2026-09-30
 
-## Active work — explicit Canic composition after 0.4.7
+## Active work — managed blob endpoints after 0.4.8
 
-The maintainer has released 0.4.7. Local main, origin/main and peeled v0.4.7
-resolve to `f5d050f2335de7e328fc56cedc3ac3325ab77abd`; the release receipt
-records 0.4.7, release-verify and direct-parent source
-`90469e518868c0ba8185475bf2c9dc3db3128518`. The ongoing unreleased batch began
-from that clean release; subsequent continuations preserve its dirty work.
+The maintainer has released 0.4.8. Local main, origin/main and peeled v0.4.8
+resolve to `817141de9f11a98b0d90f8715c6815dc2c4160e3`; the release receipt
+records 0.4.8, release-verify and direct-parent source
+`012c92834a57b7eacbb16d3daa04d84b9cc7aaef`. This unreleased continuation began
+from that clean release. Package versions and the release receipt remain unchanged.
 No version mutation, agent commit, tag, push, publication or deployment occurred.
+The maintainer requested the next changelog; the completed continuation is now
+grouped under an undated 0.4.9 draft, with empty Unreleased. Cargo remains 0.4.8.
 
 Before any compilation or source mutation, check host-visible build processes,
 including working directories nested beneath this repository. Sandbox-only ps
@@ -18,7 +20,7 @@ another build for its lock. Earlier redundant agent checks were interrupted,
 not passed; their logs remain historical evidence. This batch ran targeted checks
 only, with this repository's target directory.
 
-## Completed continuation
+## Released foundation
 
 - Added unpublished `ic-blob-storage-canic`: explicit memory-request and caller
   guard/installation macros, bounded typed managed input and synchronous
@@ -68,7 +70,7 @@ only, with this repository's target directory.
   argument shapes. Its dependencies stay out of Wasm; ic0 1.2.0 reuses the existing
   CDK version for bounded participant copies. No prior registry version changed.
 
-Latest validation: two managed PocketIC journeys plus the built-Candid check pass
+Foundation validation: two managed PocketIC journeys plus the built-Candid check pass
 in 30.13 seconds suite runtime. Ten rejected reinstalls cover missing/oversized/
 malformed application input, missing policy fields, excessive carrier size, extra
 arguments, invalid resource/project/verifier policy and protected release mismatch.
@@ -80,7 +82,8 @@ and isolated fixture all-target/all-feature Clippy pass, and composition rustdoc
 is warning-free. Formatting/diff and dependency graph/lock checks pass. Final
 source/Wasm/Candid hashes and retained failed attempts are in
 [managed input evidence](../evidence/core-primitives.md#managed-installation-input-and-release-authority--2026-09-30).
-Test instances were dropped. No full CI/release gate passed for changed source.
+Test instances were dropped. The maintainer's 0.4.8 receipt records release-verify;
+that gate does not establish production service acceptance.
 
 Earlier composition IC attempts assumed deferred callbacks completed immediately
 upon activation; bounded IC progress corrected the test. A subsequent run exposed the
@@ -91,11 +94,69 @@ that API is internal to Canic-core. The implemented macro uses public
 identifies published v0.110.48 at `8d37c74c9a4457b9e2bd47ee883f98fd2889d63b`;
 this is not a refreshed blob removal inventory or a registry latest-version claim.
 
+## Current continuation
+
+- Shared installed-configuration DTOs, pure service/operator authority policy,
+  ops presentation and one inspection workflow now replace standalone's private
+  readback implementation. The standalone public path reexports the single
+  shared type; its wire contract and stable schema are unchanged.
+- The controlled managed artifact explicitly declares nineteen blob methods:
+  configuration; tenant enrollment/suspension and readback; upload admission,
+  revocation, status/history/discovery; manifests; references/capacity; and passive
+  local status/funding history/outcome. Every method calls shared service workflows
+  through adapter-owned state access. Canic macros retain generic activation/Fleet
+  gates; one passive generic failure wrapper and ops conversions preserve exact
+  shared wire errors. Fixture-only tenant endpoints were removed and all consumers
+  now use the maintained blob tenant methods.
+- A new managed occupied journey checks operator-only configuration, tenant-only
+  admission, uploader-only preparation and tenant/uploader historical readback.
+  Outsiders, Root and actual controllers gain no configuration/tenant authority.
+  Full-width identities, original manifests and capacity survive same-release
+  upgrade; all service owners remain fenced and mutation refusals preserve bytes.
+- A second occupied managed journey suspends a tenant then cancels its unexposed
+  reservation. Reserved bytes reach zero while cancellation history remains;
+  history, discovery, reference queries and local operator inspection survive
+  fenced restore. Uploader/operator/outsider/Root cannot revoke or inspect/mutate
+  tenant references; passive inspection and typed refusals preserve stable bytes.
+  Funding owners are empty; unconfirmed references refuse rather than become live.
+- Explicit Canic update bounds are 4 KiB for small mutations and 128 KiB for manifests.
+  Valid Candid at exactly 128 KiB reaches shared semantic refusal; one byte larger
+  is refused on ingress and actual inter-canister calls. The operator-only local
+  forwarder is test machinery, not a production endpoint or delegation API.
+- The official Candid type checker compares all nineteen methods structurally against
+  standalone, including complete request/reply/error shapes and query/update modes.
+  It reads standalone's maintained deployment interface to avoid linking two
+  endpoint-exporting artifacts into one native executable.
+- Read-only review of pinned Canic 0.110.48 and the local Canic checkout found no
+  public bounded-decoder hook. Update byte bounds are available; query-byte and
+  decoding-work/type/header limits are not configurable through endpoint macros.
+  Required upstream support is recorded in the contract. Do not copy dispatch,
+  use internal preflight APIs or re-decode after an unbounded first pass.
+
+Current targeted evidence and retained attempts are in
+[managed cleanup and inspection evidence](../evidence/core-primitives.md#managed-cleanup-history-and-passive-operator-inspection--2026-09-30).
+Five managed cases pass in 47.34 seconds; the expanded cleanup authority case then
+passes in 13.63 seconds. The preceding subset's standalone admission/restore
+journey passed in 5.31 seconds; its six installation cases and native standalone
+Candid check remain unchanged. Strict affected library/harness and isolated fixture Clippy,
+warning-free core/standalone rustdoc, formatting/diff and dependency checks pass.
+No current-source full CI/release gate, provider effects, deployment or sibling edits
+are implied. The allocator, locked registry graph and library Canic independence
+are unchanged.
+
 ## Guarantees and next work
 
-Next implement the complete managed blob endpoint artifact/Candid through the
-same service handlers as standalone, including explicit authenticated installed
-configuration readback and Canic ingress limits for the maintained payloads.
+Next complete the managed blob endpoint artifact/Candid through the same service
+handlers as standalone. The nineteen-method configuration/tenant/upload/reference/
+passive-operator subset is implemented; remaining endpoints and
+equivalent query-byte/decoding-work limits are still open. Canic's current public
+update macro in pinned Canic 0.110.48 supplies a byte limit and its own skipping quota, not standalone's
+full decoding-work/type/header bounds, and supplies no query-size hook. Supported
+upstream decoder controls are required; this repository alone cannot close that
+gap without duplicating framework internals. Do not qualify this partial artifact
+for production. Next add remaining verification/attestation/download endpoints
+and their confirmed-reference journey, then gateway/account/provider endpoints
+and occupied local operator evidence. Keep the same frozen blob contract.
 The managed input contract and actual carrier are implemented/tested; selected
 consumer policy is still controlled fixture input, not production sizing.
 `declare_installation!` must run only after Canic authenticates its protected
@@ -110,9 +171,9 @@ exports or borrowing controller authority for tenant access.
 Current [acceptance gaps](../acceptance-plan.md#current-local-evidence-and-open-gates--2026-09-30)
 include common managed/standalone consumer and operator journeys, production
 operator mutations, provider completion/economics/deletion evidence, operational
-recovery, generic coverage transfer and installation retirement. Occupied/in-flight
-managed recovery and combined Canic/IcyDB behavior are not established by this
-tenant-only managed journey. Canic removal is not ready.
+recovery, generic coverage transfer and installation retirement. Prepared/cancelled
+upload restoration is locally evidenced; managed in-flight provider/funding/read
+recovery and combined Canic/IcyDB behavior remain open. Canic removal is not ready.
 
 Keep one storage owner and local durable journals; extra journals/controllers
 remain deferred under the [scope decision](../service-contract.md#recovery-scope--maintainer-decision-2026-09-30).

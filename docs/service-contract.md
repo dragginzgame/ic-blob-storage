@@ -189,6 +189,53 @@ retained configuration API. Candid export runs after all application declaration
 the adjacent interface is parsed and checked for the maintained endpoint modes
 and argument shapes.
 
+`workflow::installation::inspect` supplies operator-only configuration readback
+for both adapters. Pure policy checks the actual service and installed operator
+before ops presents configuration, project, verifier, release and local fencing.
+Standalone retains its existing wire contract; the former host-local view/error
+definitions are now shared DTOs, with one implementation and no alternate reader.
+
+The controlled managed artifact currently implements nineteen blob methods:
+configuration; tenant enrollment/suspension and inspection; upload admission,
+inspection, revocation, status, history and discovery; manifest preparation and
+inspection; reference mutation, receipt, status and capacity; upload capacity;
+and passive local status/funding history/outcome. Every method calls the shared
+workflows through adapter-owned state access. One passive generic failure newtype
+keeps Canic guard conversion outside the core and preserves exact blob error wire
+shapes. Generic Fleet access refusals become denial; they are not described as a
+tenant-state or provider error. Fixture-only enrollment/readback endpoints were
+replaced by the maintained blob tenant methods. Explicit Canic update limits are
+4 KiB for tenant/admission/revocation/reference mutations and 128 KiB for manifests,
+before copying/decoding for ingress and inter-canister calls. A valid request at
+the manifest boundary reaches shared semantic validation; a request one byte larger is refused without
+changing stable state. Canic's update decoder supplies its own skipping quota;
+equivalent query-byte and decoding-work limits remain an acceptance gap. A local
+managed journey proves suspension still permits unexposed upload cancellation,
+retains history and counters, rejects unrelated reference/history callers and
+preserves inspection and all-owner fences after restore. Empty funding history
+and absent funding outcomes are local observations, not provider-credit evidence.
+This partial artifact must not be presented as a production deployment contract.
+An operator-only test forwarder exercises actual inter-canister bounds; it is not
+a production endpoint, provider dispatch mechanism or tenant delegation.
+
+Source review of pinned Canic 0.110.48 and the read-only local Canic checkout
+found no public endpoint decoder hook. Its `payload(max_bytes = ...)` attribute
+supports updates only. Its update decoder sets a skipping quota of 10,000 but
+does not expose decoding-work, type-count or header limits; queries use default
+CDK decoding. The initial lifecycle envelope also decodes before the blob
+participant can apply its own bounds. These are source findings, not measured
+hostile-input instruction costs or a latest-registry assertion.
+
+Canic needs a supported way for the owning artifact to select one bounded decoder
+before application dispatch for queries, updates and lifecycle arguments. It must
+check raw size before copying and bound decoding work, skipped data, type count
+and header complexity for both ingress and inter-canister calls. It must preserve
+Canic preflight, Fleet guards, inspection registration, instrumentation and Candid
+export. The blob adapter can then apply the same numeric decoder bounds as standalone.
+Do not copy Canic's dispatch, depend on internal preflight APIs or decode a second
+time after an unbounded first pass. No upstream edit or request was sent in this
+review; full input-bound qualification remains open.
+
 The [local managed evidence](evidence/core-primitives.md#managed-installation-input-and-release-authority--2026-09-30)
 uses published Canic with controlled installation inputs and synthetic Root/
 Coordinator authority. It exercises real IC lifecycle, rollback, caller checks
