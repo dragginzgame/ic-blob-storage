@@ -323,6 +323,16 @@ Memory dependencies align through the re-exported `ic_memory` crate and its
 `ic_stable_structures` substrate. The host owns bootstrap and allocation policy;
 linking this library declares no stores or memory IDs. See
 [memory composition](docs/dependencies.md#memory-composition-with-canic-and-icydb).
+`ops::service::stores::grants` supplies the named service requests and assembles
+the sixteen memories through a host's committed lookup. Standalone now uses that
+mapping. `open_default` reuses a framework-owned, already bootstrapped runtime;
+it refuses absence before constructing a manager. Shared
+`ops::service::installation::ServiceInstallation` owns the immutable configuration
+record and service assembly. Standalone delegates validation, persistence and
+fenced restore to it. Hosts supply the installation candidate, actual identity and
+compiled release; they own allocation policy, exclusive storage access,
+authentication and synchronous lifecycle calls. This composition boundary does
+not implement or qualify the Canic adapter.
 
 ## Local development
 

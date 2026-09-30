@@ -105,6 +105,16 @@ settlement and same-release upgrade. Explicit tenant signatures and bounded shar
 decoders grant no operator delegation, publication lease or uncertain-operation
 retry authority. Canister tenants retain their shared client integration.
 
+Shared named service grant composition now removes the standalone-specific mapping
+of sixteen store memories. Explicit requests join the host's composed snapshot;
+grant assembly uses its committed lookup, with a guarded default-runtime path for
+framework embedding. The shared immutable installation owner now validates and
+persists configuration, project, verifier and release and restores all owners;
+standalone removes its private persistence implementation while retaining its
+range, bucket policy and lifecycle. Populated-owner/neighbor composition and actual standalone lifecycle
+checks cover this boundary; a Canic-managed deployment remains unimplemented and
+unqualified. Do not create a second memory runtime in that adapter.
+
 The maintainer directed the next implementation toward canister service storage;
 the local filesystem journal remains optional test/operator tooling. Shared stable
 components now form one upload/lifecycle owner through host-granted `ic-memory`,

@@ -9,10 +9,11 @@ trial. No complete acceptance case below is qualified.
 
 ## Current local evidence and open gates — 2026-09-30
 
-This review covers the current 0.4.5 source and the uncommitted funding/reference
-inspection continuation. It supersedes older implementation-gap summaries here;
+This review covers the released 0.4.6 inspection/lifecycle source and the
+uncommitted shared memory-grant and immutable installation continuation. It supersedes older
+implementation-gap summaries here;
 historical capability records retain their original dates and limitations.
-No Canic/Toko source refresh or consumer acceptance is implied.
+No Canic/Toko removal-inventory refresh or consumer acceptance is implied.
 
 | Cases | Implemented and locally evidenced | Still required for full acceptance |
 | --- | --- | --- |
@@ -22,7 +23,7 @@ No Canic/Toko source refresh or consumer acceptance is implied.
 | A04 — capacity | Bounded objects, references, receipts, sessions, reservations and liabilities; reserved release slots and separate logical/physical/economic accounting | Actual provider pre-charge bounds and production sizing for the selected consumer |
 | A05 — restore | Synchronous standalone restoration of all owners into inspection-only fences; stop/start and repeated current-release upgrades preserve local state; whole-canister rollback risk is demonstrated | A qualified operational recovery boundary and complete independently surviving reconciliation; current upgrades do not resume mutations and old snapshot loads are unsupported for operation |
 | A06 — release race | Exact reference mutation/receipt/status, tombstones, indexed cleanup, revocation and stale callback rejection over local IC substitutes | Deployed deletion and billing-cessation evidence plus accepted production consumer release coordination |
-| A07 — composition | Canic-free core and explicit standalone host use shared handlers; immutable installation, memory grants and lifecycle restore are implemented | Canic adapter, generic managed lifecycle/guard/allocation replacement evidence and both-adapter acceptance |
+| A07 — composition | Canic-free core and explicit standalone host use shared handlers; shared immutable installation/persistence, named grant composition and synchronous fenced restoration are implemented | Canic adapter, generic managed lifecycle/guard/allocation replacement evidence and both-adapter acceptance |
 | A08 — economics | Maintained Caffeine codecs, exact local transfer/refund journals, liquidity/attachment guards and conservative reconciliation; standalone account inspection is wired | Complete production spendability/liabilities and provider-credit/account activity evidence; reported balances are not receipts |
 | A09 — retirement | Contract separates source removal from installation retirement and preserves uncertainty/continuing obligations | Per-installation inventory and an accountable, evidenced settlement/disposition decision; no reset authority is supplied here |
 | A10 — serving | Root-bound local verification and explicit reference-qualified descriptors/read sessions; native provider observation has exact budgets and retained artifacts | Consumer MIME/public-serving acceptance, deployed serving evidence and confidentiality boundary |
@@ -31,6 +32,10 @@ No Canic/Toko source refresh or consumer acceptance is implied.
 
 Current source-bound local records include:
 
+- [Shared host composition](evidence/core-primitives.md#shared-immutable-installation--2026-09-30):
+  whole-candidate validation, grant preflight and passive restoration of retained
+  configuration/accounting; focused production standalone lifecycle and authority
+  tests. This does not establish managed Canic deployment or provider behavior.
 - [Funding inspection](evidence/caffeine-probes/local/2026-09-30-funding-outcome-cli-01/summary.json)
   and [reference history/status](evidence/caffeine-probes/local/2026-09-30-reference-native-01/summary.json):
   actual native signing/trust, typed refusals, exact original intent, passive

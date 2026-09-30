@@ -59,6 +59,27 @@ provider codecs and exact funding reconciliation. Durable service stores use
 host-granted ic-memory. The standalone host installs immutable service/project/
 verifier configuration and restores every owner synchronously into inspection-only
 fences. Linking a library exports neither endpoints nor lifecycle ownership.
+Shared named grant requests and assembly now provide a memory composition boundary
+for the adapter. A framework host can reuse its already bootstrapped default
+ic-memory runtime rather than create another manager; standalone consumes the
+same service mapping. The shared installation owner now also owns immutable
+configuration persistence and synchronous all-owner restoration. Standalone's
+private record and conversion path are removed; its public contracts remain
+unchanged. This closes duplicated grant/persistence wiring. Managed endpoints,
+lifecycle, allocation-policy and both-adapter acceptance still need implementation
+and evidence.
+
+Read-only lifecycle review of published Canic 0.110.48 identifies synchronous
+`lifecycle_participant` hooks after framework bootstrap, before deferred application
+work. These hooks take no arguments; blob configuration must be available at that
+synchronous boundary rather than waiting for asynchronous activation. Managed
+Components begin Prepared. Blob endpoints must check the maintained activation
+guard for ingress and inter-canister calls, alongside the same tenant predicates;
+Fleet admission depends on the selected compiled projection. The adapter must
+compose declarations before framework bootstrap and reuse its committed runtime.
+This generic API review does not refresh the blob removal inventory or qualify a
+managed deployment. Source provenance is retained in
+[core evidence](evidence/core-primitives.md#shared-immutable-installation--2026-09-30).
 
 Native tooling now uses actual PEM identities and verified IC query signatures:
 status, funding/upload history, exact funding outcome, reference receipt/status,

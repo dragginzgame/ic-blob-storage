@@ -248,13 +248,23 @@ Tenant enrollment, upload admission/revocation, manifest preparation/inspection 
 reference operations use the existing shared workflows and actual caller/service/time.
 Preparation carries metadata and hashes; file bodies stay outside the canister.
 Reference operations require confirmed content, which this initial endpoint set
-cannot establish. No trusted-fact fixture endpoints, certificate issuance, funding
-mutation, deletion or billing-settlement endpoint is exported yet.
+can establish only through the configured verifier after eligible exposure.
+The exported certificate update refuses the unqualified prerequisites described
+above. No trusted-fact fixture, funding mutation, deletion or billing-settlement
+endpoint is exported.
 
 The host allocates seventeen exclusive grants in range 120–136 with sixteen-page
 memory-manager buckets: one bounded v1 installation record and sixteen shared-store
-memories. DTOs are converted into an owned configuration record. All state writes
-are synchronous and traps propagate for IC rollback. Configuration is immutable.
+memories. Shared `ops::service::installation::ServiceInstallation` owns the immutable
+configuration record and the four service owners. Its validated candidate checks
+the complete configuration, project, verifier and host-supplied compiled release
+before allocation. The shared model owns the persisted schema and shared ops own
+DTO conversion. All state writes are synchronous and traps propagate for IC rollback.
+The sixteen service keys and their store mapping come from shared
+`ops::service::stores::grants`; the configuration key is shared too. Runtime,
+allocation policy, ingress authentication and lifecycle calls stay local to this
+host. The host explicitly composes the requests before bootstrap.
+The shared library chooses no physical IDs and registers nothing on linkage.
 Ingress bounds are 16 KiB for installation, 4 KiB for fixed commands and 128 KiB
 for manifests, with bounded Candid decoding and shared semantic limits afterward.
 The CDK first copies the separately platform-bounded ingress buffer.

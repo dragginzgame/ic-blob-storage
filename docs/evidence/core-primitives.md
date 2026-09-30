@@ -3264,3 +3264,113 @@ the full offer charged after wrong-source or fenced late outcomes. Affected stri
 Clippy, release storage Wasm, warning-free rustdoc, formatting and diff checks pass.
 No paid call, account mutation, version change, full CI or resource benchmark ran.
 Provider authentication, account-wide credit/activity and spendability remain open.
+
+## Shared host memory grants — 2026-09-30
+
+This continuation is based on released `v0.4.6` / source
+`5ee367f2ed10c3ba4f034f6d708775238b2d9687`, with unchanged dependencies and
+the default allocator. It adds named grant requests and owner assembly under the
+host's existing ic-memory runtime; standalone removes its duplicate mapping.
+No Canic dependency, static registration, physical placement, lifecycle export,
+provider behavior or operational unfencing is supplied by this helper.
+
+Four adjacent native tests pass in 0.03 seconds. Two host-selected ranges preserve
+populated tenant/funding records through reopen into all-owner fences, alongside
+an unchanged application memory. An incomplete composed snapshot returns the typed
+missing-key failure without writing or creating stores. Unbootstrapped access leaves
+backing bytes unchanged; default lookup leaves an absent runtime unconstructed,
+including the upstream allocation diagnostic's typed NotBootstrapped result.
+Native memory supplies no IC rollback or independent recovery guarantee.
+
+Four existing focused PocketIC cases pass against the rebuilt standalone Wasm:
+admission/manifest authority and restore (5.04 s), invalid installation/ingress
+rollback (6.16 s), foreign/missing-state refusal (6.41 s), and repeated whole-host
+lifecycle restoration (6.56 s). These use real management/lifecycle execution;
+they do not establish managed Canic composition or deployed provider guarantees.
+Strict core/standalone all-target/all-feature Clippy and warning-free rustdoc pass.
+
+Captured SHA-256 values bind this local candidate, not a future build:
+
+| Artifact | SHA-256 |
+| --- | --- |
+| `crates/ic-blob-storage/src/ops/service/stores/grants/mod.rs` | `ad956eba5e64429c3dc18223b20ed7bcf1da44b9462137866d6d474c50a9f2ab` |
+| `crates/ic-blob-storage/src/ops/service/stores/grants/tests/mod.rs` | `3725f5c1c82872c291538191f89b9458ab3f7125a4f302ea1892f319e2f02dbb` |
+| `canisters/standalone/src/ops/memory/mod.rs` | `034dc1ad567287dfa296bacc1a0b6f40e523ae0e4c58abdb234cac9c2b14f326` |
+| `target/wasm32-unknown-unknown/release/ic_blob_storage_canister.wasm` | `8aa82dc181084298c7589de0e86daf8462b8d32aef3b70e587d491a56b279aaa` |
+
+No paid/provider trial or new service qualification occurred. The maintainer's
+0.4.6 release receipt was verified before this continuation; a redundant agent
+full-gate run was interrupted after that release completed and is not a passed
+gate for this changed source. Its log remains in `/tmp/ic-blob-storage-046-release-verify.log`.
+
+## Shared immutable installation — 2026-09-30
+
+This continuation has the same released base
+`5ee367f2ed10c3ba4f034f6d708775238b2d9687`. The shared core now owns one bounded
+immutable installation record plus the four service owners. Whole-candidate
+validation runs before allocation. Fresh installation preflights all seventeen
+grants; restore checks the host's actual service and compiled release, revalidates
+project/verifier/resource inputs and opens every owner synchronously into fences.
+The standalone private record/conversion path is removed. Public DTOs, exported
+Candid, v1 record fields/codecs, physical placement and allocation policy are
+unchanged. No compatibility reader, migration, dependency or allocator is added.
+
+Five adjacent native cases pass in 0.04 seconds: invalid whole candidates;
+allocation at any grant rejects before writes; missing configuration and wrong row
+counts never initialize; wrong service/release, invalid project or missing owners
+never repair; and populated tenant/funding records preserve exact full-width
+configuration, project, verifier and all four fences. Native memory does not prove
+transaction rollback, independent freshness or recovery authority.
+
+Seven focused actual PocketIC cases pass against the rebuilt standalone artifact:
+
+| Maintained behavior | IC execution |
+| --- | --- |
+| Admission/manifest authority and fenced restore | 5.21 s |
+| Invalid installation and bounded-ingress rollback | 6.39 s |
+| Foreign/missing installation memory refusal | 6.39 s |
+| Stop/start and repeated upgrades preserve installation/all-owner fences | 6.47 s |
+| Configured verifier authority, exposure refusal and restore fence | 5.00 s |
+| Invalid project installation rollback and corrupt restore refusal | 7.72 s |
+| UTF-8 project byte limit and retained configuration through restore | 3.06 s |
+
+Total IC execution is 40.24 seconds. The unchanged Candid export test, strict
+core/standalone all-target/all-feature Clippy and warning-free rustdoc also pass.
+Test instances were dropped. No new full CI/release gate, live Caffeine call,
+paid effect, active recovery or managed deployment was exercised.
+
+Captured SHA-256 values describe this local candidate; earlier grant-only hashes
+above remain their original capture:
+
+| Artifact | SHA-256 |
+| --- | --- |
+| `crates/ic-blob-storage/src/ops/service/installation/mod.rs` | `6a22abbcefe9530a807f832de9ea8b3818994f4ca65b73a1b4b4678f92e05554` |
+| `crates/ic-blob-storage/src/ops/service/installation/configuration/mod.rs` | `26f884f8d7096574121d2f84b7708e886b0be1cdc00ab60ce75007a7d1bad1ff` |
+| `crates/ic-blob-storage/src/ops/service/installation/tests/mod.rs` | `0bce6260753c94f77ad0cb3ff91cf0edb3fb387c8638aa9673272292983223c4` |
+| `crates/ic-blob-storage/src/model/service/installation/record/mod.rs` | `dba6a6b8c15dd88430ca4ed5ea92f78b481aa5b3ec39ab625e09800b8a2286b2` |
+| `canisters/standalone/src/ops/mod.rs` | `b6d4a21ecad1eb1cf927143e5edb6665c686e30f2f296b80c32767851bc6d50d` |
+| `canisters/standalone/src/ops/memory/mod.rs` | `642ed42e14e4a6cb4b79373b4b8ded178fa60b7cde4fc82d9ecd0c4ac517abe8` |
+| `canisters/standalone/service.did` | `b112c53c777c43190bf35dd3f73c5913d790779ea3ebd271adfac4c04bf003b7` |
+| `target/wasm32-unknown-unknown/release/ic_blob_storage_canister.wasm` | `43a38cd34f27c8e1efef38c157017d559878063ea4327503e8faf4b6edecc83b` |
+
+Generic Canic API review separately used published local sources for `canic` and
+`canic-core` 0.110.48. `canic::start!` supports synchronous lifecycle participants;
+the activation facade supplies `require_active`, and Fleet admission has a caller
+guard for the selected projection. These are source observations, not executed
+managed composition. Reviewed source hashes are:
+
+| Published source | SHA-256 |
+| --- | --- |
+| `canic-0.110.48/src/macros/start.rs` | `c254abc321e778c9e6d21b43f9176f4fb1e197e9cd41dd3e7971442846d9f6fd` |
+| `canic-core-0.110.48/src/api/fleet_activation.rs` | `38d6394ef06319deb34bc4641e7ed371cf0af8566dfba99f3810e7384fc464c3` |
+| `canic-0.110.48/src/fleet_admission/mod.rs` | `c07e101ccf10807f25cb76d584a50be5be33279f2fcc32fb4d729c1759aff7ef` |
+
+A read-only upstream Git query confirms annotated v0.110.48 object
+`0707017060fcc086074d46a21435fe9759af109d`, peeled to
+`8d37c74c9a4457b9e2bd47ee883f98fd2889d63b`. It queried the v0.110.4* range only,
+not all versions. Registry HTTP lookup returned 403 and browser retrievals failed
+or returned stale indexed information; latest registry version remains unverified.
+No Canic dependency was selected, sibling modified or blob removal inventory
+refreshed. Configuration access during the argument-free synchronous participant,
+managed endpoint guards and actual combined allocation/lifecycle evidence remain
+the adapter's next implementation work.

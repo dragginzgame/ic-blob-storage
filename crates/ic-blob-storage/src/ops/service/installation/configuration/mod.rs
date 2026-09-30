@@ -1,20 +1,20 @@
 //! Boundary conversion delegates resource and billing invariants to the shared model.
-use crate::model::ConfigurationRecord;
-use ic_blob_storage::dto::configuration::{
+use crate::dto::configuration::{
     ServiceBillingInput, ServiceConfigurationInput, ServiceFundingInput, ServiceReadInput,
     ServiceResourceInput,
 };
-pub(super) fn record(installation: &crate::dto::HostInstallationInput) -> ConfigurationRecord {
-    let input = &installation.configuration;
+use crate::model::service::installation::record::ConfigurationRecord;
+pub(super) fn record(candidate: &super::ServiceInstallationCandidate<'_>) -> ConfigurationRecord {
+    let input = &candidate.configuration;
     ConfigurationRecord {
         version: 1,
-        release: env!("CARGO_PKG_VERSION").to_owned(),
+        release: candidate.release.to_owned(),
         service: input.service,
         operator: input.operator,
         payment_account: input.payment_account,
         namespace: input.namespace,
-        project: installation.project.clone(),
-        completion_verifier: installation.completion_verifier,
+        project: candidate.project.to_owned(),
+        completion_verifier: candidate.completion_verifier,
         max_tenants: input.resources.max_tenants,
         max_object_bytes: input.resources.max_object_bytes,
         max_headers: input.resources.max_headers,

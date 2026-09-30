@@ -2,179 +2,116 @@
 
 Date: 2026-09-30
 
-## Active work — native inspection, lifecycle evidence and acceptance review after 0.4.5
+## Active work — shared installation and host composition after 0.4.6
 
-The maintainer reports 0.4.5 live. Cargo and the release receipt are 0.4.5;
-local main, origin/main and peeled v0.4.5 resolve to
-`aac35b92ec883904046092d5f2ca19c39c217cb8`, from validated source
-`9f31d31fc90cea240c9594eef9b3a8707cbf63a6`. The receipt records
-`release-verify`; registry publication was not independently queried.
-This batch extends Unreleased without version mutation, commits or publication.
-The funding step began from a clean worktree. Its uncommitted work was preserved
-during the reference continuation. Dependencies, allocator and lock remain unchanged;
-Cargo.lock SHA-256 is
-`cba19070732fe01ac391df0d37e4bb8ed0b845852a9c7e15000000f8a3858259`.
+The maintainer has released 0.4.6. Annotated `v0.4.6`, local
+main and origin/main resolve to `5ee367f2ed10c3ba4f034f6d708775238b2d9687`;
+the release receipt records 0.4.6, `release-verify` and direct-parent source
+`62c599212caa3c782d645b5f9c48e3b47a1bf5a9`. The clean release's receipt hashes
+and tag identity were checked before this continuation. A read-only remote query
+also confirms origin's main and peeled v0.4.6 at that same release commit and the
+same annotated tag object. No duplicate tag, agent
+commit, version mutation, push or registry publication was performed.
 
-## Completed in this batch
+During the preceding continuation, an agent sandbox process check hid the
+still-running maintainer release. An extra
+`make release-verify` was consequently started, then stopped only by its verified
+process group once the completed maintainer release was visible. Its interrupted
+log remains `/tmp/ic-blob-storage-046-release-verify.log`; exit 143 is not a passed
+gate. Its identified PocketIC server is no longer present. Future active-build
+checks must see host processes and filter this repository's actual working
+directory; an isolated sandbox `ps` cannot establish that the build is idle.
 
-- Native `blob-storage funding-outcome` signs one existing `blob_funding_outcome`
-  query as the installed operator under full service/namespace/Cashier/payer scope.
-  Original operation, offered attachment and optional target are explicit positive
-  canonical u128 decimals; omission preserves None, with no inferred default.
-- The additive shared request encoder validates original intent before transport.
-  The maintained bounded reply decoder checks exact echo, refunds and conservative
-  reconciliation. Changed retained amounts/target return funding_conflict; absence
-  and typed service refusals never become an authorization to send another payment.
-- JSON preserves local phase, optional structured response, exact refund, reported
-  balance/error, reconciliation and the found record's restore fence. Unknown
-  transfer retains the full offer; exact acceptance still needs independent
-  provider-credit evidence. No-transfer refers only to attachment, excluding fees.
-  An absent record supplies no fence information, even after restore.
-- Limits are 4 KiB decoded outcome, existing 256 KiB HTTP ceiling and 30-second
-  deadline with explicit identity and IC/local trust. Each invocation sends at most
-  one query. There is no payment, provider query, journal mutation, polling,
-  retry or unfencing authority.
-- README, standalone guide, service contract, roadmap, probe ledger and Unreleased
-  propagate the behavior. Endpoint/DTO/stable-state contracts remain unchanged.
-- Native `reference-receipt` and `reference-status` sign separate tenant queries
-  from saved binary ReferenceCommand and ReferenceStatusRequest respectively.
-  Shared validated encoders and maintained bounded decoders preserve exact upload,
-  reference and operation identities. Input service/namespace/tenant binding checks
-  precede signing and transport. Operator/controller identities cannot impersonate
-  tenants; canister tenants retain ReplicatedReferenceClient integration.
-- Receipt JSON keeps historical success, recorded failure and absence separate,
-  labelling current liveness and fence as not observed. Explicit status returns
-  current local live/fenced flags. Neither observation grants publication or retry
-  authority, and neither invocation silently queries the other boundary. Each
-  uses 4 KiB input/reply bounds, one signed query and the shared trust/deadline limits.
+## Completed continuation
 
-Funding-step validation: six core funding codec cases and all 24 native CLI unit cases pass.
-New cases cover exact original targets/full-width values, malformed/oversized and
-misbound replies, typed conflict, missing response, unknown transfer, exact partial
-and full refund, and reported balances without credit claims.
-Strict affected all-target/all-feature Clippy and warning-free core rustdoc pass.
+- Shared `ops::service::stores::grants::requests` builds sixteen current service
+  requests under an explicit host authority. Registration, allocation range,
+  bucket policy, installation inputs and lifecycle calls stay with the embedding host.
+- `grants::open` assembles the maintained owner mapping through the host's
+  committed lookup. `open_default` checks the existing committed capability
+  before using a framework-owned default runtime; absence cannot construct a
+  manager or choose a bucket policy. Linking the library registers nothing.
+- Shared `ops::service::installation` now owns the immutable configuration record
+  and all four service owners. `ValidatedServiceInstallation` checks the complete
+  resource/identity candidate, project, verifier and host-compiled release before
+  allocation. `ServiceInstallation::install` preflights all seventeen grants;
+  `open` checks saved service/release/schema, revalidates inputs and opens every
+  owner synchronously into inspection-only fences. No missing-state repair or
+  operational unfencing exists. Native memory supplies no IC transaction guarantee.
+- Standalone consumes this mapping and installation owner, removing duplicate
+  service wiring, its private record and private conversion module. Runtime,
+  allocation policy, authentication and lifecycle calls remain host-owned.
+  Seventeen grants, configuration key, 120–136 range, sixteen-page buckets,
+  public DTOs/Candid and current v1 schema remain unchanged.
+- Composition evidence uses two physical placements in an actual ic-memory
+  runtime alongside a neighboring application owner. Populated tenant/funding
+  records survive reopen with all four service owners fenced and application
+  bytes intact. Missing grants refuse without allocation or repair. Native
+  memory does not establish IC transaction rollback or recovery freshness.
+- README, standalone guide, dependency composition, service contract, roadmap,
+  parity/acceptance summaries, core evidence and Unreleased propagate the change.
+  The guide also corrects an outdated statement that no certificate update or
+  verifier completion handler is exported; issuance still refuses qualification
+  blockers. No provider request, paid effect or dependency/allocator change occurred.
 
-Two actual signed HTTP PocketIC journeys pass in 10.93 seconds. Standalone covers
-absence, wrong namespace/signer/root trust, passive unchanged stable bytes and
-absence after fenced upgrade. The populated durable fixture joins history to
-exact intent inspection, retains partial refund and uncertainty, rejects changed
-offer/target and preserves exact outcomes through fenced restoration.
-Fifteen native invocations made fourteen query attempts; local HTTP instances and
-temporary files were dropped. Existing 0.4.5 service Wasm artifacts were reused;
-no service execution/schema change was required.
+Latest validation: five installation unit cases pass in 0.04 seconds and unchanged
+standalone Candid export passes. Seven focused PocketIC journeys pass in 40.24
+seconds against rebuilt standalone Wasm: admission/manifest authority and fenced
+restore, installation/ingress rollback, foreign/missing-state rejection, repeated
+whole-host lifecycle, configured verifier authority, corrupt project restore and
+UTF-8 project bounds. Strict core/standalone all-target/all-feature Clippy and
+warning-free rustdoc pass. Source and Wasm hashes are recorded in
+[installation evidence](../evidence/core-primitives.md#shared-immutable-installation--2026-09-30).
+The earlier four grant-composition cases and their separate source/Wasm capture
+remain in [grant evidence](../evidence/core-primitives.md#shared-host-memory-grants--2026-09-30).
+Formatting/diff and unchanged Cargo/receipt checks accompany this batch. Local
+test instances were dropped; no additional full CI or release gate passed.
 
-The broader native suite initially failed when its unchanged download substitute
-could not bind loopback in the sandbox. Retained
-[funding-native-01](../evidence/caffeine-probes/local/2026-09-30-funding-native-01/summary.json)
-records the failure before the loopback-enabled successful rerun.
-[funding-outcome-cli-01](../evidence/caffeine-probes/local/2026-09-30-funding-outcome-cli-01/summary.json)
-retains successful outcomes and source/binary hashes. These are curated local test
-evidence; fixture funding phases and constructed provider-response DTOs do not
-prove deployed Caffeine payment or credit behavior.
+## Guarantees and next work
 
-Reference-step validation: seven core reference reply cases and all 27 native CLI
-unit cases pass. Affected strict all-target/all-feature Clippy and warning-free
-core rustdoc pass. Two additional signed HTTP PocketIC journeys pass in 18.51
-seconds. Standalone retains Unknown/Unconfirmed refusals through upgrade and
-rejects scope/role/trust misuse. Durable storage distinguishes successful history
-from current liveness through release, settlement and fenced upgrade; changed
-action refuses and a recorded UnknownReference failure survives restoration.
-The installed two-object/three-receipt budgets remain unchanged, with separate
-objects preserving each final-release reservation. Twenty-two native invocations
-made twenty query attempts without mutating stable bytes or saved original input.
-Both local instances/files were dropped. The source/binary hashes and limitations
-are retained in
-[reference-native-01](../evidence/caffeine-probes/local/2026-09-30-reference-native-01/summary.json).
-Service Wasm is still the existing 0.4.5 artifact; completion/deletion/settlement
-are explicit local fixture substitutes, not provider evidence.
+Native funding/reference inspection and whole-host lifecycle evidence are now
+released in 0.4.6. Current acceptance gaps remain in the
+[acceptance matrix](../acceptance-plan.md#current-local-evidence-and-open-gates--2026-09-30).
+Shared grant and installation boundaries prepare managed composition; they are
+not a Canic adapter or combined Canic/IcyDB deployment test. Read-only review used
+both Canic's dirty checkout and published local 0.110.48 sources for generic APIs.
+An upstream Git query confirms annotated v0.110.48 at peeled commit
+`8d37c74c9a4457b9e2bd47ee883f98fd2889d63b`; registry freshness could not be
+established. This is not a refreshed blob removal inventory or managed acceptance.
+Siblings remain unmodified; no Canic dependency has been added.
 
-Lifecycle/acceptance continuation: the standalone whole-host regression passes
-in 6.37 seconds. One prepared 10 MiB manifest, complete installation/project/
-verifier/release and all non-fence status fields survive stop/start and two
-same-release upgrades. A configuration-bearing upgrade rejects without replacing
-the previous owner. Every successful upgrade fences uploads, funding, gateways
-and reads; manifest preparation, gateway revocation and account inspection refuse
-with typed Fenced errors without changing stable memory. Funding/read history and
-gateway membership are empty in this case; older occupied/in-flight evidence is
-separate. This is current-state inspection evidence, not active recovery or backup
-freshness. Source/binary hashes, review and limitations are retained in
-[standalone-lifecycle-01](../evidence/caffeine-probes/local/2026-09-30-standalone-lifecycle-01/summary.json).
-The owned local instance was dropped; no provider or paid effect occurred.
-Strict PocketIC all-target/all-feature Clippy, formatting and offline integrity
-checks pass. No production behavior, service API/schema or dependency changed.
+Next implement explicit repository-owned Canic endpoint/lifecycle composition
+using its existing runtime, shared installation owner and service handlers.
+Published 0.110.48 exposes synchronous `lifecycle_participant` pairs after framework
+bootstrap and before deferred work. Hooks take `fn()`, so determine bounded access
+to application installation arguments at this boundary; async `canic_install`
+is too late for owner construction. Components begin Prepared: endpoints need
+the maintained activation guard for ingress and inter-canister calls, with Fleet
+admission selected according to the compiled projection. Restore all owners before
+deferred work and retain blob-specific inspection fences even when Canic is Active.
+Do not duplicate workflows, bootstrap another manager, implicitly export endpoints
+on library linkage or borrow Canic controller authority for tenant operations.
+Resolve the exact managed installation and generic lifecycle/allocation contract
+before selecting its dependency/artifact and claiming managed acceptance.
 
-The [acceptance plan](../acceptance-plan.md#current-local-evidence-and-open-gates--2026-09-30)
-and [Canic parity](../canic-parity.md#required-replacements) now consolidate current
-local evidence and open gates. Their stale summaries incorrectly listed durable
-configuration and real operator identity as missing. Historical capability rows
-retain their captured scope and link to the current review; Canic/Toko source was
-not refreshed or modified. No complete acceptance case or removal gate is closed.
-
-Final formatting, diff, native-dependency isolation and offline probe integrity
-checks accompany this batch. No full CI/release gate, provider request, paid effect,
-release preparation, deployment or build cleanup was run.
-
-## Current guarantees and scope
-
-The approved [explicit verifier trust model](../service-contract.md#explicit-verifier-completion-trust--accepted-2026-09-29)
-remains unchanged. Native verification, bounded provider observation, one-shot
-attestation submission and exact historical receipt recovery are implemented.
-They establish trusted observed availability, not future retention, provider
-charging bounds or independent recovery readiness.
-
-0.4.3 wired the standalone synchronous certificate update and uploader-only
-assessment through shared workflows. Host facts still establish atomic local
-durability only; pre-charge limits, provider namespace binding, replay charging and
-recovery readiness are false. Therefore the production certificate update always
-refuses. No client diagnostics, prepared manifest, operator/controller status,
-configured project, verifier attestation or clear local fence can override this.
-
-Keep one authoritative storage owner with local durable journals and shared
-handlers. The maintainer deferred external journals, recovery-controller canisters
-and extra metadata calls until a clear use case justifies them; see the
+Keep one storage owner and local durable journals. External journals, recovery
+controller canisters and extra metadata calls remain deferred under the
 [scope decision](../service-contract.md#recovery-scope--maintainer-decision-2026-09-30).
-This does not discard backup/restore or qualify unsupported activation.
+The explicit verifier establishes observed availability, not future retention or
+billing cessation. Standalone certificate issuance still refuses pre-charge,
+namespace, replay-charging and independent recovery prerequisites.
 
-Same-release upgrades restore owners synchronously into inspection-only fences.
-Actual 0.4.3 PocketIC snapshot evidence demonstrates that loading an old snapshot
-does not run the upgrade hook: it can restore an unfenced heap, undo revocation and
-lose later operations/liabilities. Snapshot loading remains unsupported for active
-operation. Keep an installation stopped during such recovery; complete independent
-reconciliation must precede activation. A clear flag or counter restored from the
-same backup is not freshness evidence. Cross-release transitions remain reinstall-only,
-with source removal and installation retirement/accounting handled separately.
+Current upgrades restore into inspection-only fences. Older whole-canister snapshot
+loads remain unsupported for active operation because they can bypass upgrade
+hooks, revive permissions and forget obligations. No local counter/flag, library
+release or memory grant authorizes unfencing. Cross-release transitions are
+reinstall-only after separately retaining/discharging installation obligations.
 
-## Next integration and open gates
-
-Native assessment, bounded operator upload history, exact funding-outcome and
-separate tenant reference receipt/status inspection are implemented. Do not repeat
-them or interpret output as a qualification switch. Continue concrete single-owner
-consumer integration and current-state recovery evidence; use the current
-acceptance matrix to select a remaining concrete gap before adding more commands
-or APIs. Canister tenant authority remains with its existing client; native PEM
-inspection cannot impersonate it. Keep local journals. Identify the exact supported
-state-preserving same-release upgrade boundary before operational recovery; do not
-clear fences, re-admit uncertain operations or revive distributed machinery based
-only on local state or an operator boolean.
-
-Repeated standalone upgrade inspection is now covered. Do not add more equivalent
-empty-owner tests or another diagnostic command solely to extend patch work.
-Next substantive work should address production consumer intent/delivery or the
-repository-owned Canic adapter using shared handlers, or independently qualified
-provider evidence under a separately authorized trial. The single-owner recovery
-scope remains binding; do not infer permission for distributed recovery machinery.
-
-Provider qualification proceeds independently of cooperation under the
-[probe ledger](../evidence/caffeine-probes/README.md). No selected isolated
-installation/account or live paid budget has been supplied. The existing live
-trial remains prepared, not dispatched. Further pre-charge, namespace, replay,
-economics/deletion and recovery guarantees need actual evidence or explicit
-acceptance of a narrower operating contract before changing enforcement. Local
-substitutes and retained source hashes cannot establish deployed behavior.
-
-Consumer acceptance, operational recovery and Canic parity remain open. Canic
-removal is not ready. Neither the 0.4.5 release nor this local inspection tooling closes
-those service gates.
+Provider qualification follows the [probe ledger](../evidence/caffeine-probes/README.md).
+No isolated live account/installation or paid budget is selected; the existing
+trial remains prepared and undispatched. Consumer acceptance, operational recovery,
+operator mutations, managed parity and retirement remain open. Canic removal is
+not ready.
 
 The sections below retain earlier implementation evidence. Their "current batch"
 and "next" wording is historical; this handoff takes precedence.

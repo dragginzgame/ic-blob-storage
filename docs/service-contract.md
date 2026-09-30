@@ -93,8 +93,31 @@ publishing the assembly only after success. These APIs neither establish a provi
 namespace nor implement a production adapter, reconfiguration or operational
 unfencing contract. Linking the library exports no endpoint or lifecycle hook.
 
+`ops::service::stores::grants::requests` builds the sixteen named service requests
+under an explicit host authority without registration or allocation. Hosts compose
+them with configuration and other application declarations before their own
+bootstrap. `grants::open` assembles the current store mapping using that host's
+committed-memory lookup; missing grants refuse without creating or repairing a
+store. `open_default` checks an existing committed capability before using a
+framework-owned default runtime, so absence cannot silently select a bucket policy
+or create a second manager. These helpers do not grant exclusive access themselves:
+the host must assign the handles to one storage owner. Standalone uses the shared
+mapping with its unchanged configuration grant, range and bucket policy. The Canic
+adapter still requires explicit endpoint/lifecycle composition and qualification.
+
+`ops::service::installation::ValidatedServiceInstallation` also validates the
+explicit project, verifier and bounded host-compiled release before allocation.
+`ServiceInstallation` owns the immutable current configuration record and the
+four service owners. Fresh installation preflights all seventeen exclusive grants;
+the host must propagate any subsequent trap for IC rollback. Restoration checks
+the retained schema, actual service and compiled release before opening owners,
+revalidates all installed inputs and returns only after every owner is fenced.
+Missing or invalid state is never initialized or repaired. Configuration remains
+immutable; getters grant no endpoint, tenant or operational recovery authority.
+Standalone now uses this owner, preserving its public DTOs, Candid and v1 schema.
+
 The [standalone host](../canisters/standalone/README.md) now explicitly owns these
-hooks and grants, plus one bounded immutable configuration record. Its actual IC
+hooks and grants and delegates configuration persistence to the shared owner. Its actual IC
 installation validates all inputs before allocation; same-release upgrade restoration
 loads the saved service/release-bound configuration without replacement arguments
 and fences every owner synchronously. Its tenant, admission, manifest and reference

@@ -2,6 +2,32 @@
 
 ## [Unreleased]
 
+## [0.4.7]
+
+### Added
+
+- Shared named service memory requests and grant assembly let embedding hosts use
+  their existing ic-memory runtime without duplicating the sixteen-store mapping.
+  Default-runtime access requires prior host bootstrap. Composition tests preserve
+  populated owners and neighboring application memory under different placements;
+  missing grants refuse without initialization or repair.
+- Shared immutable installation owner validates service/resource configuration,
+  provider project, verifier and compiled release before memory allocation. It
+  preflights all seventeen grants, retains one bounded configuration record and
+  restores every owner synchronously into inspection-only fences. Tests preserve
+  populated accounting and reject missing or invalid retained state without repair.
+- Focused PocketIC coverage verifies installation rollback, caller/verifier
+  authority, corrupt-state refusal, project byte bounds and repeated fenced
+  upgrades against the refactored standalone canister.
+
+### Changed
+
+- Standalone delegates configuration persistence and service construction to the
+  shared installation owner, removing its private record/conversion implementation.
+  It uses the shared grant mapping while retaining allocation policy, authenticated
+  endpoints and synchronous lifecycle. Public DTOs, Candid, stable keys, schemas,
+  limits and restore fences remain unchanged.
+
 ## [0.4.6] - 2026-09-30
 
 ### Added

@@ -1,6 +1,6 @@
 //! Host-owned current configuration schema; boundary DTOs are not persisted.
 use candid::{CandidType, DecoderConfig, Deserialize, Principal};
-use ic_blob_storage::ic_memory::ic_stable_structures::{Storable, storable::Bound};
+use ic_memory::ic_stable_structures::{Storable, storable::Bound};
 use std::borrow::Cow;
 
 /// One bounded immutable installation record, never a freshness authority.
@@ -45,13 +45,21 @@ pub(crate) struct ConfigurationRecord {
     pub(crate) read_tenant_bytes: u64,
 }
 impl ConfigurationRecord {
-    pub(crate) fn check_binding(&self, service: Principal, release: &str) {
-        assert_eq!(self.version, 1, "configuration schema");
-        assert_eq!(self.service, service, "installation service identity");
-        assert_eq!(
-            self.release, release,
-            "cross-release restore is unsupported"
-        );
+    pub(crate) fn check_binding(
+        &self,
+        service: Principal,
+        release: &str,
+    ) -> Result<(), super::InstallationBindingError> {
+        if self.version != 1 {
+            return Err(super::InstallationBindingError::Schema);
+        }
+        if self.service != service {
+            return Err(super::InstallationBindingError::Service);
+        }
+        if self.release != release {
+            return Err(super::InstallationBindingError::Release);
+        }
+        Ok(())
     }
 }
 impl Storable for ConfigurationRecord {

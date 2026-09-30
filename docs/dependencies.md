@@ -114,9 +114,23 @@ allocation grants, bucket profile and policy. Future blob stores must participat
 in that host's committed allocation authority and open by stable key, alongside
 IcyDB. A managed adapter must adopt Canic's runtime rather than bootstrap a second
 manager or replace host policy with the generic default. A standalone adapter
-must explicitly own bootstrap itself. This crate currently declares no stores,
+must explicitly own bootstrap itself. Linking this crate registers no stores,
 IDs, ranges or lifecycle hooks. No raw manager, stable-save path or inferred
 allocation layout is introduced by this dependency change.
+
+`ops::service::stores::grants::requests(authority)` now builds the sixteen current
+service requests for explicit inclusion in the host's sealed declaration snapshot.
+The host supplies their authority/range alongside configuration and other owners,
+then bootstraps once. `grants::open` assembles the service mapping through its
+committed lookup. `grants::open_default` checks that the framework's default runtime
+already exists and is bootstrapped before opening by key; it does not choose a
+bucket profile, replace policy or construct an absent manager. Standalone uses
+the same mapping with its own explicit runtime. The shared installation owner
+persists the immutable configuration and assembles all four service owners;
+standalone delegates these operations to it. Hosts still supply actual service and
+compiled release, authenticate installation, own exclusive grants and call lifecycle
+functions synchronously. These helpers are not a qualified Canic adapter or proof
+of combined IcyDB application behavior.
 
 Native tests check the re-export's type compatibility with host handles, isolated
 cells and unchanged host configuration, and that ordinary library use does not

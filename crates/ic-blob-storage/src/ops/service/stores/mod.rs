@@ -1,4 +1,5 @@
 //! Synchronous assembly of durable owners with host-granted exclusive memory.
+pub mod grants;
 use super::{
     funding::{self, FundingJournalError, FundingMemories, StableFundingJournal},
     gateways::{self, GatewayStoreError, StableGatewayRegistry},

@@ -1,7 +1,6 @@
 //! Explicit standalone canister host. Provider effects and operational recovery remain disabled.
 mod api;
 pub mod dto;
-mod model;
 mod ops;
 mod workflow;
 

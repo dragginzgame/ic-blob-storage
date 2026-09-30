@@ -7,8 +7,8 @@ use ic_blob_storage::{
         ic_stable_structures::{DefaultMemoryImpl, Memory as _},
     },
     ops::service::{
-        funding::FundingMemories, reads::ReadSessionMemories, stores::ServiceMemories,
-        uploads::UploadMemories,
+        installation::INSTALLATION_MEMORY_KEY,
+        stores::{ServiceMemories, grants},
     },
 };
 pub(super) type Memory = RuntimeMemory<DefaultMemoryImpl>;
@@ -20,28 +20,11 @@ pub(super) struct Grants {
 pub(super) fn open(fresh: bool) -> Grants {
     let backing = DefaultMemoryImpl::default();
     assert_eq!(backing.size() == 0, fresh, "installation memory state");
-    let keys = [
-        "blob.configuration.v1",
-        "blob.tenants.v1",
-        "blob.roots.v1",
-        "blob.root_objects.v1",
-        "blob.permissions.v1",
-        "blob.usage.v1",
-        "blob.manifests.v1",
-        "blob.confirmed.v1",
-        "blob.references.v1",
-        "blob.receipts.v1",
-        "blob.root_requests.v1",
-        "blob.funding_accounting.v1",
-        "blob.funding_intents.v1",
-        "blob.gateways.v1",
-        "blob.read_journal.v1",
-        "blob.read_sessions.v1",
-        "blob.read_tenants.v1",
+    let mut requests = vec![
+        MemoryRequest::new("blob", INSTALLATION_MEMORY_KEY, SchemaMetadata::default())
+            .expect("host configuration request"),
     ];
-    let requests = keys.map(|key| {
-        MemoryRequest::new("blob", key, SchemaMetadata::default()).expect("host request")
-    });
+    requests.extend(grants::requests("blob").expect("host service requests"));
     let grant = StaticMemoryRangeDeclaration::new(
         MemoryManagerAuthorityRecord::new(
             MemoryManagerIdRange::new(120, 136).expect("host range"),
@@ -62,55 +45,14 @@ pub(super) fn open(fresh: bool) -> Grants {
     runtime
         .bootstrap(&declarations, &GenericRangePolicy)
         .expect("host memory bootstrap");
-    let [
-        configuration,
-        tenants,
-        roots,
-        root_objects,
-        permissions,
-        usage,
-        manifests,
-        confirmed,
-        references,
-        receipts,
-        root_requests,
-        funding_accounting,
-        funding_intents,
-        gateways,
-        read_journal,
-        read_sessions,
-        read_tenants,
-    ] = keys.map(|key| {
-        runtime
-            .open_memory_by_key(key)
-            .expect("exclusive host grant")
-    });
+    let configuration = runtime
+        .open_memory_by_key(INSTALLATION_MEMORY_KEY)
+        .expect("exclusive configuration grant");
+    let stores =
+        grants::open(|key| runtime.open_memory_by_key(key)).expect("exclusive service grants");
     Grants {
         runtime,
         configuration,
-        stores: ServiceMemories {
-            uploads: UploadMemories {
-                tenants,
-                roots,
-                objects: root_objects,
-                permissions,
-                usage,
-                manifests,
-                confirmed,
-                references,
-                receipts,
-                root_requests,
-            },
-            funding: FundingMemories {
-                accounting: funding_accounting,
-                intents: funding_intents,
-            },
-            gateways,
-            reads: ReadSessionMemories {
-                journal: read_journal,
-                sessions: read_sessions,
-                tenants: read_tenants,
-            },
-        },
+        stores,
     }
 }
