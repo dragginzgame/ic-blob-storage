@@ -58,7 +58,7 @@ The [review record](evidence/toko-0.2-review.json) pins source paths and hashes.
 | M1 — contract | Toko asset journey, uploader/tenant/operator bindings, resource envelope, provider and recovery decisions | Resolved decision list below, concrete acceptance inputs and authoritative provider evidence for promised guarantees | In progress: configuration, enrollment and upload-permission models implemented; consumer coordination contract specified; provider/recovery evidence still open |
 | M2 — durable standalone journey | One production owner of configuration, upload/reference/deletion journals and shared handlers; standalone adapter | Actual PocketIC install, upload/admission, verification, interruption, accounting and supported recovery, including the 10 MiB media boundary | In progress: initial standalone host with persisted configuration and shared tenant/admission/manifest/reference endpoints; complete provider-call journals, operational recovery and full journey outstanding |
 | M3 — Caffeine and operator integration | Provider transport, verified completion/readback, explicit funding/reconciliation, production CLI and client | Exact source/interface provenance, client tests and bounded explicitly authorized provider trial; no inference of credit or billing cessation | In progress: shared transports with local IC evidence; deployed qualification and production clients remain open |
-| M4 — managed parity and acceptance | Thin Canic adapter, same API/tenant rules and real consumer composition | Same journey/operator cases through both deployments; all BLOB-01–18 replacement obligations resolved; removal readiness handoff | Not implemented |
+| M4 — managed parity and acceptance | Thin Canic adapter, same API/tenant rules and real consumer composition | Same journey/operator cases through both deployments; all BLOB-01–18 replacement obligations resolved; removal readiness handoff | In progress: explicit composition library and published Canic lifecycle/guard fixture; full managed endpoint artifact and acceptance remain open |
 
 M2 depends on M1's applicable decisions, not just a milestone label. M2 may use
 explicitly labeled local provider substitutes for IC failure cuts; M3 must supply
@@ -111,9 +111,18 @@ grant assembly uses its committed lookup, with a guarded default-runtime path fo
 framework embedding. The shared immutable installation owner now validates and
 persists configuration, project, verifier and release and restores all owners;
 standalone removes its private persistence implementation while retaining its
-range, bucket policy and lifecycle. Populated-owner/neighbor composition and actual standalone lifecycle
-checks cover this boundary; a Canic-managed deployment remains unimplemented and
-unqualified. Do not create a second memory runtime in that adapter.
+range, bucket policy and lifecycle. Populated-owner/neighbor composition and actual
+standalone lifecycle checks cover this boundary. An explicit Canic composition
+library and managed PocketIC fixture now reuse the same owner in Canic's runtime,
+with Prepared denial, tenant/Fleet authority and all-owner fenced restoration.
+Controlled installation inputs and synthetic Root/Coordinator authority do not
+qualify a production deployment. Explicit bounded managed input now binds the
+platform service and Canic-validated release identity; invalid policy/carrier or
+protected release mismatch preserves populated stable state on failed install.
+The fixture's adjacent Candid includes all application methods and is parsed for
+their actual modes/shapes. Next implement complete shared-handler blob endpoints/
+Candid and production Fleet provenance; run common journeys through both adapters.
+Do not create a second memory runtime.
 
 The maintainer directed the next implementation toward canister service storage;
 the local filesystem journal remains optional test/operator tooling. Shared stable

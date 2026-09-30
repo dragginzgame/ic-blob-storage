@@ -331,8 +331,19 @@ it refuses absence before constructing a manager. Shared
 record and service assembly. Standalone delegates validation, persistence and
 fenced restore to it. Hosts supply the installation candidate, actual identity and
 compiled release; they own allocation policy, exclusive storage access,
-authentication and synchronous lifecycle calls. This composition boundary does
-not implement or qualify the Canic adapter.
+authentication and synchronous lifecycle calls.
+
+The unpublished `ic-blob-storage-canic` library now provides explicit memory and
+caller-guard macros plus synchronous lifecycle operations for that owner.
+The artifact declares its allocation range, invokes the macros and supplies
+Canic directly. The library itself remains Canic-free. A managed PocketIC fixture
+checks activation, caller authority and fenced restoration alongside neighboring
+memory. Managed installation takes explicit bounded policy, project and verifier
+bytes inside Canic's authenticated carrier; platform service identity and Canic's
+validated release identity bind the shared installation. The full managed blob
+endpoint artifact, production Fleet provenance and both-adapter acceptance remain
+open; see the
+[composition contract](docs/service-contract.md#managed-canic-composition).
 
 ## Local development
 
@@ -347,6 +358,7 @@ See [dependency setup](docs/dependencies.md) for PocketIC provisioning.
 | `make clippy` | Strict workspace linting |
 | `make test-native` | Native core tests and doctests |
 | `make test-pocketic` | Build and run the local admission, authority, sync and funding fixtures |
+| `make test-canic-composition` | Published Canic lifecycle, authority and shared-owner composition |
 | `make test-admission-resources` | Admission input bounds and local Wasm resource report in `.tmp/admission-resources.json` |
 | `make test-read-resources` | Single-slot readback bounds and local Wasm costs in `.tmp/read-resources.json` |
 | `make test` | Both suites, sequentially |

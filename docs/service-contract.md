@@ -102,8 +102,8 @@ store. `open_default` checks an existing committed capability before using a
 framework-owned default runtime, so absence cannot silently select a bucket policy
 or create a second manager. These helpers do not grant exclusive access themselves:
 the host must assign the handles to one storage owner. Standalone uses the shared
-mapping with its unchanged configuration grant, range and bucket policy. The Canic
-adapter still requires explicit endpoint/lifecycle composition and qualification.
+mapping with its unchanged configuration grant, range and bucket policy. Managed
+composition is described below; complete endpoint parity remains unqualified.
 
 `ops::service::installation::ValidatedServiceInstallation` also validates the
 explicit project, verifier and bounded host-compiled release before allocation.
@@ -135,8 +135,65 @@ can clear a later fence, undo revocation and lose later upload reservations. Sna
 loading remains unsupported for operation; `fenced = false` proves no independent
 freshness. The disabled certificate gate survives this rollback. See the
 [recorded recovery evidence](evidence/caffeine-probes/local/2026-09-30-snapshot-01/summary.json).
-Operational recovery, remaining provider/operator
-integration and the Canic adapter are still open.
+Operational recovery, remaining provider/operator integration and the complete
+Canic endpoint adapter are still open.
+
+### Managed Canic composition
+
+The unpublished `ic-blob-storage-canic` library contributes nothing on linkage.
+The owning artifact explicitly invokes `declare_memories!`, grants an allocation
+range for the same authority and declares Canic lifecycle participants. Canic
+bootstraps its sole runtime; the synchronous participant validates the complete
+blob installation before opening service grants, publishes the shared owner only
+after success and traps failures for IC rollback. Async setup is too late for
+owner construction. Restoration opens all four owners synchronously into fences;
+Canic activation cannot authorize blob mutations after restore. The current
+managed upgrade argument is Canic's Candid unit value; replacement configuration
+refuses without changing retained state.
+
+`declare_contexts!` explicitly emits named Rust guards in the artifact. They use
+public `ComponentRuntimeApi` status and correlated operation status, requiring
+both runtime and Fleet activation to be Active before obtaining actual service
+and caller identities. The separately selected Fleet guard additionally uses
+Canic's public admission predicate. Shared handlers still enforce tenant,
+operator, verifier and provider rules: controller or Root status grants none of
+these roles. The library emits no endpoint or endpoint attribute. Canic remains
+the artifact's direct dependency, satisfying its maintained role validator.
+
+`arguments::application_arguments` bounds the current managed carrier to 256 KiB,
+its application bytes to 16 KiB and Candid work/type complexity. It accepts exactly
+two arguments and rejects missing application bytes or trailing data. Call it only
+after Canic has authenticated the protected envelope; skipping that envelope does
+not authenticate it.
+
+`dto::ManagedInstallationInput` supplies explicit operator, payer, namespace,
+resource/billing/funding/read budgets, project and verifier. Service identity comes
+from the platform; the input cannot select a different service or release.
+`declare_installation!` emits named participant operations in the owning artifact,
+using public correlated Canic status for the release identity already checked
+against Canic's compiled binding. The shared installation record retains that
+identity and checks it again on restore. The macro selects no lifecycle entrypoint
+or heap publication. The participant checks the carrier size before its own
+platform copy, decodes one bounded typed application value and validates the whole
+candidate before opening blob grants. Missing fields, extra values, trailing data
+and invalid policy refuse, with no defaults or alternate installation path.
+These participant bounds do not replace or precede Canic's initial CDK decoding.
+
+The actual managed carrier is now tested through the published qualification
+helper. Invalid inputs and a mismatched protected release preserve a populated
+tenant record and every stable byte after rejected management reinstalls.
+The test's fixed compiled release remains fixture authority; finalized production
+Fleet artifact/release provenance is still open. The fixture's operator-only raw
+carrier observation is transient test machinery, not a production endpoint or
+retained configuration API. Candid export runs after all application declarations;
+the adjacent interface is parsed and checked for the maintained endpoint modes
+and argument shapes.
+
+The [local managed evidence](evidence/core-primitives.md#managed-installation-input-and-release-authority--2026-09-30)
+uses published Canic with controlled installation inputs and synthetic Root/
+Coordinator authority. It exercises real IC lifecycle, rollback, caller checks
+and neighboring memory, without implementing the full blob Candid artifact,
+combined IcyDB application, production Fleet deployment or provider effects.
 
 `workflow::operator::inspect` supplies the shared passive `blob_local_status` query.
 The configured operator must bind the actual service, namespace, Cashier and payer;

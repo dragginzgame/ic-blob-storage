@@ -14,11 +14,14 @@ availability does not establish provider qualification or service readiness.
 | `sha2` | 0.11.0 | SHA-256; optional allocation/OID features disabled |
 | `thiserror` | 2.0.18 | Typed error derives; matches PocketIC's exact requirement |
 | `ic-cdk` | 0.20.3 | IC platform operations for the ops layer |
+| `ic0` | 1.2.0 | Existing CDK system-API version, now direct for bounded participant argument copying |
 | `ic-memory` | 0.14.3 | Allocation governance; direct dependency aligned with Canic and IcyDB |
 | `ic-stable-structures` | 0.7.2 | Exact transitive substrate owned/re-exported by `ic-memory` |
 | `ic-testkit` | 0.10.1 | Native dependency of the unpublished PocketIC harness; shared helpers and full re-export |
 | `pocket-ic` | 16.0.0 | Transitive through `ic-testkit`; no direct dependency |
 | `ic-agent` | 0.49.2 | Native test-only signing and verification of local ingress certificates |
+| `canic` | 0.110.48 | Direct dependency of the managed fixture and native qualification harness only |
+| `candid_parser` | 0.4.1 | Native harness only; official parser/type checker for built managed Candid |
 
 Headless ingress tests add pinned `ic-agent` 0.49.2 (default features disabled),
 plus the already locked `reqwest` 0.13.5, `tokio` 1.53.1 and `serde_cbor` 0.11.2
@@ -129,8 +132,27 @@ the same mapping with its own explicit runtime. The shared installation owner
 persists the immutable configuration and assembles all four service owners;
 standalone delegates these operations to it. Hosts still supply actual service and
 compiled release, authenticate installation, own exclusive grants and call lifecycle
-functions synchronously. These helpers are not a qualified Canic adapter or proof
-of combined IcyDB application behavior.
+functions synchronously. The explicit Canic composition library now reuses these
+operations; full endpoint acceptance and combined IcyDB application behavior
+remain unqualified.
+
+The core and unpublished `ic-blob-storage-canic` composition library have no Canic
+dependency. Its opt-in macros emit calls to the public facade in the owning
+artifact, which must depend on Canic directly. This follows Canic 0.110.48's role
+validation rather than adding a transitive facade dependency through the library.
+The managed test uses one `ic-memory` 0.14.3 / `ic-stable-structures` 0.7.2 pair;
+allocation policy stays with Canic. Existing locked package versions are unchanged.
+Managed participants now use the already selected ic0 1.2.0 safe size/copy APIs
+to bound their own argument buffer before copying. The native Candid declaration
+guard uses official candid_parser 0.4.1, within the published Canic host's 0.4 range;
+its parser/code-generation dependencies are native-only. Neither this addition
+nor argument copying changes the allocator or published core's dependency graph.
+
+Published Canic host validation requires resolver 2. Only the unpublished managed
+fixture is an isolated resolver-2 workspace; the main workspace retains resolver
+3. `make prepare-canic-probe` seeds its ignored lockfile from the repository lock,
+then projects that graph with offline Cargo metadata. Subsequent fixture lint uses
+`--offline --locked`. There is no separately maintained dependency baseline.
 
 Native tests check the re-export's type compatibility with host handles, isolated
 cells and unchanged host configuration, and that ordinary library use does not
@@ -185,6 +207,18 @@ Other platforms must use the corresponding official 16.0.0 release asset and
 verify its published digest before setting `POCKET_IC_BIN`. `make deps` fetches
 Cargo packages only; it does not provision this binary.
 
+Managed fixture builds additionally require the published `canic` CLI 0.110.48,
+`ic-wasm` 0.11.1 and Binaryen `wasm-opt` 132 on PATH. They are already installed in
+this workspace. For a fresh checkout, provision these tools explicitly; the test
+target downloads nothing. `make build-canic-probe` runs Canic's declaration/runtime
+validation and artifact finalization with offline Cargo, retaining this repository's
+target directory. It suppresses Canic's automatic sccache selection unless the
+caller explicitly sets `RUSTC_WRAPPER`. `make test-canic-composition` builds that
+artifact and runs only its PocketIC journey. The normal PocketIC suite includes it;
+the independent standalone build does not need the Canic CLI. The fixture uses
+Canic's public qualification helper, which owns its local instance, rather than
+the harness's ordinary explicit server handle.
+
 `make test-pocketic` builds `blob-authority-probe`, `blob-gateway-source` and
 `blob-funding-probe` into
 this repository's Wasm release target, then runs the unpublished host harness.
@@ -205,9 +239,8 @@ The probe and host harness also reuse the existing serde/JSON packages to read
 the pinned content vectors. `make test-pocketic RUST_TEST_NOCAPTURE=1` prints the
 measured Wasm ordered-append instruction observations as well as test results.
 
-The existing core has no Canic dependency. Move boundary dependencies into
-their owning protocol/client/adapter packages when that split is implemented;
-keep Canic confined to the managed adapter. The
+The existing core has no Canic dependency. Keep Canic confined to the owning
+managed artifact and its native qualification harness. The
 [Caffeine baseline](provider-baseline.json) remains the upstream integration
 reference. No npm/Motoko package is installed into this Rust-only scaffold;
 browser dependencies belong to a concrete browser client or compatibility

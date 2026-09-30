@@ -65,9 +65,17 @@ ic-memory runtime rather than create another manager; standalone consumes the
 same service mapping. The shared installation owner now also owns immutable
 configuration persistence and synchronous all-owner restoration. Standalone's
 private record and conversion path are removed; its public contracts remain
-unchanged. This closes duplicated grant/persistence wiring. Managed endpoints,
-lifecycle, allocation-policy and both-adapter acceptance still need implementation
-and evidence.
+unchanged. This closes duplicated grant/persistence wiring. The explicit Canic
+composition library now adds declarations, public-facade caller guards and
+synchronous participant operations without implicit endpoint or lifecycle exports.
+Published Canic PocketIC evidence covers Prepared denial, activation, tenant and
+Fleet authority, rejected-upgrade rollback and all-owner fenced restoration beside
+neighboring memory. Explicit typed installation inputs now bind the actual service
+and Canic-validated release identity through the shared owner. Invalid inputs and
+protected release mismatch preserve a populated tenant and all stable bytes.
+The built Candid includes application endpoints and has a native parser guard.
+Full managed endpoints, production Fleet provenance and both-adapter acceptance
+remain open.
 
 Read-only lifecycle review of published Canic 0.110.48 identifies synchronous
 `lifecycle_participant` hooks after framework bootstrap, before deferred application
@@ -75,11 +83,15 @@ work. These hooks take no arguments; blob configuration must be available at tha
 synchronous boundary rather than waiting for asynchronous activation. Managed
 Components begin Prepared. Blob endpoints must check the maintained activation
 guard for ingress and inter-canister calls, alongside the same tenant predicates;
-Fleet admission depends on the selected compiled projection. The adapter must
-compose declarations before framework bootstrap and reuse its committed runtime.
-This generic API review does not refresh the blob removal inventory or qualify a
-managed deployment. Source provenance is retained in
-[core evidence](evidence/core-primitives.md#shared-immutable-installation--2026-09-30).
+Fleet admission depends on the selected compiled projection. The implemented guard
+uses public `ComponentRuntimeApi` runtime status and correlated operation status;
+the previously reviewed `FleetActivationApi::require_active` is internal to
+Canic-core, not exposed by its public facade. The fixture composes declarations
+before framework bootstrap and reuses its committed runtime. Its controlled
+installation policy now passes through the real managed carrier, but this does
+not qualify a production Fleet deployment or complete blob endpoint artifact.
+This does not refresh the blob removal inventory. Source and executed provenance
+are retained in [managed evidence](evidence/core-primitives.md#managed-canic-composition--2026-09-30).
 
 Native tooling now uses actual PEM identities and verified IC query signatures:
 status, funding/upload history, exact funding outcome, reference receipt/status,

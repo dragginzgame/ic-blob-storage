@@ -2,6 +2,33 @@
 
 ## [Unreleased]
 
+### Added
+
+- Explicit Canic composition library supplies named memory declarations, caller
+  guards and synchronous installation/restoration over the shared service owner.
+  Linking registers no endpoints, lifecycle or memory. The owning artifact uses
+  Canic directly; the core and composition library remain Canic-free.
+- Bounded managed application-argument extraction requires the authenticated
+  two-argument carrier and explicit typed installation policy, project and verifier.
+  Participants bound their own platform copy before decoding, bind the service to
+  its actual principal and retain Canic's validated release identity. No defaults
+  or replacement configuration are accepted. Failed installations preserve an
+  enrolled tenant, all stable owners and neighboring memory.
+- Published Canic 0.110.48 PocketIC composition fixture covers Prepared ingress
+  and inter-canister refusal, activation, Fleet admission, tenant denial for
+  outsider/Root/controller callers, rejected-upgrade rollback and retained
+  installation/neighbor memory with all four owners fenced after upgrade.
+
+### Changed
+
+- Local validation builds the managed fixture through Canic's supported CLI.
+  Its isolated resolver-2 workspace follows the host validator while the main
+  workspace retains resolver 3 and the existing allocator. Its ignored lockfile
+  is seeded from the repository lock and projected offline before build/lint.
+- Managed Candid export now follows every application endpoint declaration. A
+  native official-parser check validates endpoint names, modes and argument shapes,
+  covering an omission that actual endpoint calls alone did not detect.
+
 ## [0.4.7] - 2026-09-30
 
 ### Added

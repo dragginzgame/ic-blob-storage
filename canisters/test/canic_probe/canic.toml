@@ -1,0 +1,25 @@
+[app]
+name = "blob_canic_probe"
+init_mode = "enabled"
+
+[roles.root]
+kind = "root"
+
+[roles.storage]
+kind = "canister"
+package = "."
+fleet_admission = true
+
+[component_specs.storage]
+component_role = "storage"
+maximum_instances = 1
+
+[component_groups.storage.components.storage]
+component_spec = "storage"
+
+[component_group_deployments.storage]
+component_group = "storage"
+initial_placements = 1
+maximum_placements = 1
+placement.maximum_per_root = 1
+placement.minimum_distinct_roots = 1

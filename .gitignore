@@ -1,5 +1,8 @@
 /target/
 /.tmp/
+/.canic/
+/canisters/test/canic_probe/.canic/
+/canisters/test/canic_probe/Cargo.lock
 /tests/browser/node_modules/
 **/*.rs.bk
 .DS_Store

@@ -3374,3 +3374,186 @@ No Canic dependency was selected, sibling modified or blob removal inventory
 refreshed. Configuration access during the argument-free synchronous participant,
 managed endpoint guards and actual combined allocation/lifecycle evidence remain
 the adapter's next implementation work.
+
+## Managed Canic composition — 2026-09-30
+
+Base is released 0.4.7 at `f5d050f2335de7e328fc56cedc3ac3325ab77abd`.
+The unpublished composition library reuses the released shared installation and
+seventeen grants. It declares nothing on linkage. Explicit macros contribute
+memory requests and emit named caller guards in the owning artifact; Canic is
+that artifact's direct dependency, not a core/library dependency. Synchronous
+participants run after Canic framework bootstrap and before deferred application
+work, publishing only complete owners. Restore retains all four blob fences.
+
+Published Canic 0.110.48 is pinned. Its supported CLI built the managed fixture
+through declaration/runtime validation and artifact finalization. Tools were
+Canic CLI 0.110.48, ic-wasm 0.11.1 and wasm-opt 132. The main workspace retains
+resolver 3; the unpublished fixture alone uses resolver 2 as required by the
+host validator. Its ignored lock is seeded from the root lock and projected
+offline. Every selected registry version/checksum remains in the root lock;
+every previously locked registry version/checksum is unchanged. Wasm trees show
+one ic-memory 0.14.3 / ic-stable-structures 0.7.2 pair and no testkit/PocketIC;
+the core and composition library trees contain no Canic. No allocator changes.
+
+The earlier generic source review above described `require_active` as a facade
+guard. That function is internal to Canic-core. The executed guard instead uses
+public `ComponentRuntimeApi::status` and `operation_status`, which correlate the
+runtime and Fleet activation operation identity, and requires both phases Active.
+The separately selected Fleet guard calls the public admission predicate.
+
+One managed PocketIC journey passes in **13.53 seconds** IC execution:
+
+- Complete shared installation is observable while Prepared and before deferred
+  callbacks; both ingress and a real inter-canister call refuse without changing
+  stable memory. Bounded IC progress later observes deferred callbacks.
+- Actual platform caller binding reaches shared tenant handlers. Outsider,
+  synthetic Root and actual IC controllers receive typed tenant denials without
+  stable mutation; the explicit operator may enroll. Fleet admission accepts
+  configured members and refuses an outsider separately.
+- Replacement upgrade arguments trap and preserve the complete stable memory.
+  Canic's same-release upgrade helper sends one Candid unit value; that exact form
+  succeeds. Installed configuration, UTF-8 project, verifier, compiled fixture
+  release, tenant enrollment and neighboring application bytes survive.
+- All four service owners are synchronously fenced after upgrade. Tenant
+  inspection remains passive; operator mutation receives the typed fenced failure.
+
+Two adjacent native cases pass: linkage neither constructs nor registers a memory
+runtime, and application-argument extraction preserves the exact payload while
+rejecting missing, oversized, malformed, trailing or third-argument input.
+The latter uses controlled carrier values, not a production managed installation
+payload. Strict composition/harness and isolated fixture all-target/all-feature
+Clippy, warning-free composition rustdoc, formatting and diff checks pass.
+No full CI or release gate ran.
+
+Failures remain separate captures. `/tmp/ic-blob-storage-canic-composition-01.log`
+failed because the test assumed deferred work ran immediately upon activation
+(SHA-256 `756f470c45b4cfeed4e64b7cf64022df2bb06916bdc3e1bec94af8990b9be1c3`).
+Bounded IC progress corrected that expectation.
+`/tmp/ic-blob-storage-canic-composition-02.log` exposed the mismatch between
+zero Candid arguments and Canic's single unit upgrade argument
+(`15ea357eed4aa61b97ad5ccaf04656d8034d467dc398c3eaf0bff36ae7d055ed`).
+The adapter now uses only the maintained Canic unit form; no fallback was added.
+The passing capture is `/tmp/ic-blob-storage-canic-composition-03.log`
+(`418f570713a01545b8c419d0fa53998ae72f439feb17f20dd04be2795c645c69`).
+
+Build attempts retain `/tmp/ic-blob-storage-canic-build.log` and numbered
+`-02` through `-07.log`: resolver rejection, missing explicit feature arrays,
+forbidden transitive Canic facade dependency, sandbox sccache startup failure,
+initial successful build, unavailable CDK size-helper compilation failure and
+final successful build respectively. The final capture is
+`/tmp/ic-blob-storage-canic-build-07.log`
+(`9d4bc2e7a13d221c40063df388a4a72126284871806e771c7575adfe1d0eaf8d`);
+final build took 22.90 seconds. Cargo wrapper selection is now explicit rather
+than relying on Canic's automatic sccache startup.
+
+| Local source/artifact | SHA-256 |
+| --- | --- |
+| `crates/ic-blob-storage-canic/src/lib.rs` | `39bed5bbd2d5fc0c28a92fb26281b77f65936e0960c2a66b96cb2ae7be577131` |
+| `crates/ic-blob-storage-canic/src/arguments/mod.rs` | `56f1fc6313a56ed68a81fc2a5f00dcf04ea8f96e85910fb09a93b3cef5996782` |
+| `crates/ic-blob-storage-canic/src/lifecycle/mod.rs` | `c41c3e53dae1f5876900f119a25631a5183a979c4360bd4642e69a7518d9cc45` |
+| `crates/ic-blob-storage-canic/src/memory/mod.rs` | `84774317bdd324291a46a4bc83b750a984d70457e67ce22b04f158abbc7fdbf4` |
+| `canisters/test/canic_probe/src/lib.rs` | `1ea35df3cd4ce2fa8b603a6db528df06ec0e32340d402c374ada05e6c44e4808` |
+| `canisters/test/canic_probe/canic.toml` | `63b4ee017ee33071f7f7d55b01e42b21cb77a0cdf670fb04ea93906c1e2ccc61` |
+| `tests/pocketic/tests/canic_composition.rs` | `d404483a1700e5fd433f861dae0adb2b9d239ca0475a9916b65c815aca45a155` |
+| `.tmp/canic-probe/.icp/local/canisters/storage/storage.did` | `167e76637a7750415f0bc311439c7be6ff618f95e1cc790fb5b5a75d48dfe5cb` |
+| `.tmp/canic-probe/.icp/local/canisters/storage/storage.wasm` | `22648e35c82a0b1fdb8b37681df6b91d87430744ca8ed83649b30131339154c0` |
+
+This is actual IC composition under controlled installation configuration and
+Canic's public test helper's synthetic Root/Coordinator authority. Fixed release
+identity `01` repeated 32 times is fixture authority only, not finalized production
+Fleet release provenance. The fixture exports observation/tenant probes rather
+than the complete production blob Candid API. Test instances were dropped.
+Production managed input composition, endpoint parity, common consumer/operator
+journeys, occupied/in-flight managed recovery and combined IcyDB application remain
+open. No provider behavior was investigated, Caffeine request/paid effect performed,
+sibling modified, deployment or release made. The provider probe ledger is unchanged.
+
+## Managed installation input and release authority — 2026-09-30
+
+Continuation of the same unreleased composition batch over 0.4.7 base
+`f5d050f2335de7e328fc56cedc3ac3325ab77abd`. Existing core, standalone APIs,
+memory grants/allocator and current v1 record schema are unchanged.
+
+The managed adapter now accepts one explicit `ManagedInstallationInput` inside
+Canic's application bytes: operator, payer, namespace, resource/billing/funding/
+read limits, project and completion verifier. The participant checks the 256 KiB
+carrier before its own platform copy, bounds application bytes to 16 KiB, decodes
+one typed value with work/type limits and reuses shared whole-candidate validation
+before opening blob grants. Canic's initial typed CDK decoding happens first;
+these bounds do not claim to precede that framework buffer.
+
+Explicit `declare_installation!` operations obtain correlated public Canic status
+only after the lifecycle has authenticated its payload and checked the compiled
+release binding. Actual service identity comes from the platform; neither service
+nor release is selectable in application policy. The shared installation retains
+Canic's validated release identity and checks it on restore. The former fixture
+package-version binding and baked installation-hook candidate are removed.
+No alternate reader, fallback input or migration exists.
+
+The fixture now uses Canic's public Component Group helper with explicit application
+bytes. Its operator-only transient carrier observation lets the test reuse the exact
+upstream-generated envelope, rather than reconstructing Canic authority. Only a
+fresh fixture with no tenant/provider obligations is successfully reinstalled to
+observe Prepared behavior. Failed-reinstall evidence instead starts with an enrolled
+tenant and never clears it. This carrier query is test machinery, not a production
+configuration/recovery endpoint or durable journal.
+
+Two actual IC journeys and one built-interface check pass in **30.13 seconds**
+suite runtime. The maintained lifecycle journey covers Prepared ingress and actual
+inter-canister denials, deferred work after owner publication, tenant/Fleet authority,
+replacement-upgrade rollback and same-artifact restoration with all owners fenced.
+The new journey rejects ten installation carriers: absent application input,
+oversized application, malformed bytes, excessive carrier size, missing policy
+fields, third carrier argument, zero object bound, anonymous verifier, invalid
+project and protected release mismatch. Every rejection returns the typed IC
+canister-error category and preserves the complete stable memory, retained
+configuration/release/project/verifier/fences, neighboring bytes and tenant
+enrollment. Host-side decoding of the captured actual carrier also verifies exact
+policy preservation and rejects inner extra values/trailing data with typed errors.
+
+Artifact review found that the preceding fixture placed Canic's finish expansion
+before application endpoint registration. The prior adjacent Candid hashes record
+only generic Canic methods; they do not evidence declaration of the called probes.
+The maintained module expands last, with all needed signature types in scope.
+The adjacent interface now includes every application method. Official native
+candid_parser 0.4.1 parses and type-checks it, then checks the maintained names,
+query/update modes and argument/result shapes. Actual typed IC calls separately
+exercise those endpoints. This fixes declaration coverage without treating a
+successful runtime call as interface evidence.
+
+Two adjacent native library cases, strict affected library/harness and isolated
+fixture Clippy, warning-free composition rustdoc, formatting and diff checks pass.
+Wasm trees exclude candid_parser, testkit and PocketIC; core/composition trees
+remain Canic-free. Safe copying reuses the already locked ic0 1.2.0. The parser
+adds native-only packages, with no changes to previously locked registry versions/
+checksums; every isolated fixture selection remains bound to the root lock.
+No full CI/release gate, deployed Fleet, provider request, paid effect, sibling edit,
+version mutation, commit or publication occurred. Local instances were dropped.
+
+Retained passing attempts: `/tmp/ic-blob-storage-canic-input-01.log` (27.30 s,
+initial eight refusal cases) and `-02.log` (28.09 s, populated state and ten cases)
+precede the interface correction. Final `-03.log` includes the parsed interface
+check, SHA-256 `af9a29ad6dbc1954b5eba3ad022bb029b38179b0737fd402cc11cd0afdb35e4c`.
+Build attempts `/tmp/ic-blob-storage-canic-input-build-01.log` through `-04.log`
+remain separate. The final supported Canic build passed in 17.63 s;
+`-04.log` SHA-256 is `d769b936e6fa0e66e68a80d7b046a74e948a7590a1c2b77081b38cf7020d704d`.
+
+| Current local source/artifact | SHA-256 |
+| --- | --- |
+| `crates/ic-blob-storage-canic/src/lib.rs` | `5d9535a135fc15be2874cc70ac734165dcea06987fe680f7d3504b1f1f42455e` |
+| `crates/ic-blob-storage-canic/src/dto/mod.rs` | `8a23b52f48adff43adfca65dae8bf7a69734d67652d51380707b519519d53e2b` |
+| `crates/ic-blob-storage-canic/src/arguments/mod.rs` | `bd6cb7209a36fb0fbd00bc6e5d5183b6e721a61d39378472c67ad4ec6ad658c6` |
+| `crates/ic-blob-storage-canic/src/lifecycle/mod.rs` | `7b8d39e67410e69a62791bc616d2bd686470fb5618b34d67a87a7ac89179a478` |
+| `canisters/test/canic_probe/src/lib.rs` | `effcf475dd71e8cc3950dd7d588e0c3f4612f3a385944837f1d4e879bb6a1d6c` |
+| `canisters/test/canic_probe/src/managed/mod.rs` | `841d6ec9cab016f548fec3199b46e3d850e94b8bfa27cd8722e0ceb73f07c537` |
+| `tests/pocketic/tests/canic_managed/mod.rs` | `2d0f171615a3e19bec2140c33c24dfa89502bb6cd24601553a6ba8beb80d37d5` |
+| `tests/pocketic/tests/canic_managed/installation/mod.rs` | `2dc3e817a9fb40dc2a5b0b72aec42dc491c26baf6bbbe591dfeca17b342307e5` |
+| `tests/pocketic/tests/canic_managed/declaration/mod.rs` | `b78854d5838f7c0702319108b690103c8831b9df793557851fa54cf3969abf21` |
+| `.tmp/canic-probe/.icp/local/canisters/storage/storage.did` | `d06633e182a72f5764e8c4cd534c8b6cfa7a95b2b61d89fbab15355f7cd8c54e` |
+| `.tmp/canic-probe/.icp/local/canisters/storage/storage.wasm` | `7fcb907530a25c649666949da80329586e6e802161a2039d5991c149fc973a42` |
+
+Fixed compiled release `01` repeated 32 times and synthetic Root/Coordinator
+remain fixture authority. The actual current carrier is evidenced, not every
+consumer/topology sizing choice. Full managed blob Candid/API, production Fleet
+artifact provenance, common consumer/operator journeys and occupied/in-flight
+managed recovery remain open. This is not combined IcyDB or provider qualification.
