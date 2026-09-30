@@ -897,6 +897,15 @@ list is only a snapshot; issuance must recheck current facts and permissions.
 The shared exposure-blocker conversion also serves the local fixture, replacing its
 private duplicate representation.
 
+Native `blob-storage certificate-assessment` uses the uploader's signing identity
+and explicit replica trust to query this boundary once. Its saved binary permission
+must match the expected service/namespace/uploader before transport; the shared
+bounded codec compares every original field in the reply and retains typed
+refusals. Duplicate blockers, oversized or malformed replies reject. Full-width
+identity and host assessment time survive in JSON. Neither a blocked nor an empty
+assessment permits issuance, retry or recovery activation, and the command makes
+no update or provider request.
+
 Standalone exports the canonical certificate update and the uploader-only
 `blob_upload_certificate_assessment` query, both with bounded root ingress. Host
 evidence is constructed internally from the retained permission and execution

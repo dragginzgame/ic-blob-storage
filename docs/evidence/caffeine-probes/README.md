@@ -34,6 +34,24 @@ all logs here; link their maintained test and record material changed findings.
 
 ## Current operating decisions and experiments
 
+2026-09-30 certificate CLI follow-up intent: retain the first local run's final
+incorrect state assertion, then compare the complete post-revocation record
+before and after upgrade. Repeat only the maintained native journey as a new
+`certificate-cli-02` run within the original twelve-attempt local budget.
+Authentication, trust, state and all provider qualification facts remain unchanged;
+no provider calls or paid effects. Retain the first failure below.
+
+2026-09-30 native certificate-assessment intent: exercise the current standalone
+assessment through a real signed HTTP query using a fixed local uploader identity
+and explicitly trusted PocketIC root. One owned local installation, one 10 MiB
+manifest and at most twelve query attempts; each native command is bounded to
+30 seconds, a 256 KiB HTTP response and 4 KiB decoded reply. Check full permission
+binding, missing preparation, qualification blockers, revocation and upgrade
+fencing without changing stable memory. No certificate update, Caffeine request,
+provider transfer, attached payment or paid effect. Temporary test credentials
+and input files are deleted with their directory; stop the local HTTP instance
+and drop the owned canister. Retain failures and material conclusions below.
+
 2026-09-30 maintainer scope decision after the recovery design review: keep one
 authoritative storage owner and local durable journals until a clear use case
 justifies more machinery. The external journal/controller proposal is deferred;
@@ -227,6 +245,8 @@ canisters/files require cleanup. The completed result is indexed below.
 | verifier-contract / 2026-09-29 | Local model/CLI and PocketIC; fixed test verifier principals and substituted content observations | 60 upload-store and two codec tests pass; all 32 standalone cases pass (141.72 seconds), plus `storage_completion` (5.05 seconds) | Exact authority/permission binding, immutable receipt replay, four stable-write rollback cuts, late revocation, release/settlement and fenced restoration pass. The signed CLI verifies 10 MiB against original metadata without mutating service state. Local canisters only; zero provider requests/attached cycles, no external cleanup or deployed availability claim |
 | attestation-recovery / 2026-09-29 | Local saved-intent decoder/CLI and signed PocketIC receipt queries; fixed test tenant and fixture verifier | `storage_attestation_cli` passes (5.33 seconds), including a deliberately discarded successful update acknowledgment | Absent, matched and conflicting evidence remain distinct. Changed permission/verifier and wrong root trust reject; settled/restored receipts remain immutable. Queries preserve stable bytes and the saved intent. This discards a test acknowledgment, not a simulated network packet; content/exposure/settlement are substitutes, with no deployed provider availability claim. No external requests, charges or cleanup obligations |
 | verifier-observation / 2026-09-29 | Native loopback HTTP substitutes and signed PocketIC installed-plan/statement journey; fixture exposure only | 14 native CLI tests pass, including multi-chunk streaming and HTTP corruption/EOF/size/encoding/redirect refusals. `storage_observe_cli` passes (4.00 seconds); standalone completion/plan refusals pass (5.37 seconds) | Intent exists before GET; complete verification saves the exact statement without dispatch. Killing the subprocess mid-body leaves no statement/summary and forbids reuse of that run. Explicit fixture dispatch accepts the independently checked statement and receipt recovery matches. Service bytes stay unchanged during observation. Local artifacts are temporary test outputs; maintained tests retain the scenario definitions. No real provider/account access, charges or cleanup obligations; no deployed qualification |
+| certificate-cli-01 / 2026-09-30 | Signed local native queries with current production host facts | [Failed test outcome](local/2026-09-30-certificate-cli-01/summary.json) | All transport, blocker, intent, revocation and fence checks reached; final test assertion wrongly expected Reserved after explicit revocation (actual Cancelled). First outcome and source/binary hashes retained. No provider requests or paid effects; local instance stopped and temporary artifacts dropped |
+| certificate-cli-02 / 2026-09-30 | Same local signed journey with corrected post-revocation baseline | [Passed test outcome](local/2026-09-30-certificate-cli-02/summary.json), 6.40 seconds | Complete revoked record survives upgrade unchanged; signed assessment retains all four blockers and rejects changed intent/trust, revocation and restoration. No state changes, certificate updates, provider requests or paid effects; local instance stopped and temporary artifacts dropped. No deployed qualification |
 
 Other retained investigations are indexed here without inventing missing request
 logs or replaying their effects. Use each record's own dates and evidence classes:

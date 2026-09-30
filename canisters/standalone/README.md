@@ -39,6 +39,12 @@ assessment time and all missing prerequisites. Unknown roots, wrong callers,
 unprepared, expired, revoked or restored work refuse. Inspection changes no state
 and never reserves a later issuance attempt.
 
+The native [`blob-storage certificate-assessment`](../../README.md) command signs
+this query as the original uploader and binds the reply to a saved binary Candid
+permission. It reports all missing prerequisites and distinct refusal codes without
+calling the certificate update or a provider. An empty blocker list remains only
+an observation; issuance always rechecks current authority.
+
 `_immutableObjectStorageCreateCertificate(root)` is the matching synchronous update.
 It delegates to the shared certificate/exposure handler and traps on refusal;
 errors are never encoded as successful provider replies. **Issuance remains

@@ -1,5 +1,6 @@
 mod arguments;
 mod attestation;
+mod certificate_assessment;
 mod history;
 mod observe_upload;
 mod reply;
@@ -18,6 +19,8 @@ use serde_json::json;
 use std::{fs::File, io::Read, path::Path, process::ExitCode, time::Duration};
 
 const USAGE: &str = concat!(
+    "blob-storage certificate-assessment --network ic|local --url URL --identity PEM --actor UPLOADER --service PRINCIPAL --namespace DECIMAL --permission CANDID [--root-key DER]\n",
+    "certificate-assessment reads one exact permission assessment and its missing prerequisites. It never issues a certificate, reserves issuance or authorizes retry, even with no blockers.\n",
     "blob-storage status|funding-history --network ic|local --url URL --identity PEM --operator PRINCIPAL --service PRINCIPAL --namespace DECIMAL --cashier PRINCIPAL --payer PRINCIPAL [--root-key DER]\n",
     "verify-upload --network ic|local --url URL --identity PEM --actor PRINCIPAL --service PRINCIPAL --namespace DECIMAL --permission CANDID --body FILE --max-bytes DECIMAL [--root-key DER]\n",
     "upload-attestation --network ic|local --url URL --identity PEM --actor PRINCIPAL --service PRINCIPAL --namespace DECIMAL --verifier PRINCIPAL --statement CANDID [--root-key DER]\n",
@@ -56,6 +59,7 @@ enum Failure {
     Clock,
     Observation,
     SubmissionClaimed,
+    AssessmentRefused(ic_blob_storage::dto::upload::exposure::UploadExposureFailure),
 }
 impl Failure {
     const fn code(self) -> &'static str {
@@ -84,6 +88,7 @@ impl Failure {
             Self::Clock => "clock",
             Self::Observation => "invalid_observation",
             Self::SubmissionClaimed => "submission_already_claimed",
+            Self::AssessmentRefused(error) => certificate_assessment::refusal_code(error),
         }
     }
 }
@@ -146,6 +151,9 @@ fn execute(args: &[String]) -> Result<serde_json::Value, Failure> {
 
 async fn observe(options: &arguments::Options) -> Result<serde_json::Value, Failure> {
     match &options.command {
+        arguments::Command::CertificateAssessment(input) => {
+            certificate_assessment::run(options, input).await
+        }
         arguments::Command::SubmitAttestation(input) => {
             submit_attestation::run(options, input).await
         }

@@ -21,7 +21,9 @@ standalone endpoints, signed exact-statement receipt recovery and bounded native
 provider retrieval with durable statement capture are implemented. Explicit native
 submission now persists its exact signed request before one update and recovers lost
 acknowledgments by historical lookup. Standalone now exposes the shared certificate
-boundary and a typed preparation assessment; issuance remains blocked until
+boundary and a typed preparation assessment, now inspectable through the signed
+native `certificate-assessment` command using exact saved permission; issuance
+remains blocked until
 provider pre-charge limits, namespace, replay charging and recovery readiness are
 qualified or an explicit narrower contract is accepted. This decision does not
 close retention, economics, recovery or Canic parity gates.

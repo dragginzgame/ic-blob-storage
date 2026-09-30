@@ -2,137 +2,100 @@
 
 Date: 2026-09-30
 
-## Active work — single-owner recovery scope after 0.4.2
+## Active work — native certificate assessment after 0.4.3
 
-The maintainer reports 0.4.2 live. Cargo/release receipt are 0.4.2; local main,
-origin/main and peeled v0.4.2 resolve to `cfc2ed2129f5de482071e0f69492cfa9aeaff5c9`,
-from validated source `0cd4817c4b8f61795aaabe0b3b11aaa3af0f3511`. The receipt records
-`release-verify`; registry publication was not independently queried. This batch
-started clean and adds Unreleased work without version mutation or commits.
-
-The maintainer requested the 0.4.3 changelog. Completed work is now consolidated
-under an undated `[0.4.3]` section below empty Unreleased. Cargo and the release
-receipt remain 0.4.2; no release preparation, commit, tag or publication occurred.
-The implementation validation below is retained; this changelog-only step checks
-draft structure, preserved historical notes and the diff without rerunning CI.
-
-The approved [explicit verifier trust model](../service-contract.md#explicit-verifier-completion-trust--accepted-2026-09-29)
-remains unchanged. Native observation, explicit one-shot attestation submission and
-historical receipt recovery shipped in 0.4.1/0.4.2. They establish trusted observed
-availability, not future retention, provider charging bounds or recovery readiness.
-Continue maintaining the [probe ledger](../evidence/caffeine-probes/README.md).
+The maintainer reports 0.4.3 live. Cargo and the release receipt are 0.4.3;
+local main, origin/main and peeled v0.4.3 resolve to
+`d1b80f58560cac5b9b19a1ba10489897c653eb4d`, from validated source
+`cb8715792d4a81a7fa8708f9d5ee4f7720c285c8`. The receipt records
+`release-verify`; registry publication was not independently queried.
+This batch started clean and extends Unreleased without version mutation or commits.
 
 ## Completed in this batch
 
-- Standalone exports the synchronous Caffeine certificate update and uploader-only
-  `blob_upload_certificate_assessment(root)` query. Both delegate through the shared
-  certificate/exposure workflow with bounded ingress, actual caller and current
-  execution clock. Root is a locator only; no controller/operator/verifier override.
-- The new shared assessment returns the exact original permission, assessment time
-  and every missing prerequisite without writing state. An empty blocker list is
-  still only a snapshot; later issuance rechecks current permission and evidence.
-  Shared passive exposure-blocker DTO/conversion replaces the fixture's duplicate
-  wire enum and mapping; pure policy remains free of DTOs and serialization.
-- Host evidence comes from retained permission and internal code, never ingress.
-  Synchronous shared stable commit and trap propagation establish local durability.
-  Pre-charge enforcement, provider namespace binding, replay charging and independent
-  recovery readiness remain unqualified. Accordingly the host certificate update
-  always traps under current facts; there is no enable flag or simulated-fact path.
-  Local preparation, project configuration and an unfenced store do not qualify it.
-- Candid export, README/host/service contract, roadmap, probe ledger and Unreleased
-  changelog are updated together. Changes are additive to the public service/API;
-  no installation, stable-state schema, dependency or allocator changes.
-- A fresh bounded anonymous official source/registry capture is retained at
-  `docs/evidence/caffeine-probes/runs/2026-09-30-public-source-01`. Upstream HEAD is
-  `14ab9511fd73258a380bc1a6861d6da6e548ebbb`; reviewed Mixin/Storage hashes are unchanged
-  from the previous capture, and npm remains 1.1.2 with unchanged integrity. The
-  root-only reply still adds no project/size/expiry/operation qualification. Four
-  source GETs, no provider/account/paid effects; offline probe integrity checks pass.
+- Native `blob-storage certificate-assessment` signs one uploader-only query to
+  the existing standalone endpoint. The saved binary Candid permission must bind
+  the explicit service, namespace and uploader before identity/network access.
+  Replies must match every original permission field; JSON preserves independent
+  full-width identities, assessment time and all missing prerequisites.
+- The shared public request/reply codec reuses maintained permission validation
+  and applies explicit byte/work/type limits. Malformed, oversized, foreign or
+  duplicate-blocker replies reject. Authenticated service refusals stay typed;
+  the CLI preserves distinct unprepared, revoked, phase and permission codes.
+- The command uses the existing signed-query transport, explicit IC/local root
+  trust, no redirects/transport retries, a 30-second deadline, a 256 KiB HTTP
+  ceiling and 4 KiB permission/reply bounds. It never issues a certificate,
+  reserves issuance, calls a provider or writes an intent journal. Even an empty
+  assessment grants no issuance/retry authority.
+- README, standalone guide, contract, roadmap, probe ledger and Unreleased notes
+  propagate the maintained contract together. No endpoint, stable-state schema,
+  configuration, dependency, allocator or version changed.
 
-Validation: five core certificate tests and generated Candid comparison pass.
-The standalone PocketIC case passes (4.27 seconds): role, unknown/malformed input,
-preparation, four explicit blockers, unchanged reservation/state, stop/start,
-revocation and restoration. Six existing exposure/certificate PocketIC cases pass
-(12.77 seconds), covering the shared blocker conversion, stable-write/response trap
-rollback, actual signed certificate validation and lost-reply recovery without
-reissuance. Their positive host facts remain substitutes. The optional Chromium
-case was not rerun. Strict affected all-target/all-feature Clippy, warning-free
-core/host rustdoc, both release Wasm builds, make probe-check, formatting and diff
-checks pass. No full CI/release gate was requested or run.
+Validation: two core codec tests and two native command tests pass. Existing
+standalone certificate authority/lifecycle coverage passes; the new actual signed
+HTTP PocketIC CLI journey passes in 6.40 seconds. It covers missing preparation,
+four host blockers, changed saved expiry, bad root trust, revocation, upgrade
+fencing and unchanged stable memory. The first run passed these checks but failed
+its final incorrect Reserved expectation after revocation; it is retained as
+[certificate-cli-01](../evidence/caffeine-probes/local/2026-09-30-certificate-cli-01/summary.json).
+The corrected run compares the complete revoked record across upgrade and is
+retained separately as
+[certificate-cli-02](../evidence/caffeine-probes/local/2026-09-30-certificate-cli-02/summary.json).
+Strict affected all-target/all-feature Clippy and the release standalone Wasm build
+pass. Warning-free core rustdoc, formatting, offline probe integrity and diff
+checks pass; the CLI Wasm dependency tree still contains only the package itself.
+No full CI/release gate or live provider request was run.
 
-## Snapshot recovery follow-up
+## Current guarantees and scope
 
-Actual PocketIC `take_canister_snapshot` / `load_canister_snapshot` operations now
-cover the previously untested whole-canister rollback path. Two maintained tests
-pass: standalone (3.47 seconds) and durable fixture (1.82 seconds). A snapshot
-restores its heap owner without executing the upgrade hook, so it can undo a later
-fence and revocation. An older snapshot loses the later operation and its reserved
-liability entirely, and the exact permission can be admitted again locally. The
-fixture additionally demonstrates repeat simulated exposure when its host again
-claims recovery qualification. No provider was contacted or certificate issued.
+The approved [explicit verifier trust model](../service-contract.md#explicit-verifier-completion-trust--accepted-2026-09-29)
+remains unchanged. Native verification, bounded provider observation, one-shot
+attestation submission and exact historical receipt recovery are implemented.
+They establish trusted observed availability, not future retention, provider
+charging bounds or independent recovery readiness.
 
-Standalone certificate refusal remains effective after the rollback, with unchanged
-stable bytes. This is negative qualification evidence, not an operational recovery
-fix: snapshot loading remains unsupported, and a reported clear fence must never
-be interpreted as independently fresh/complete state. The tests document the gap;
-they do not require preserving it after a real authority mechanism is implemented.
-All three local snapshots were deleted and both owned instances dropped. Targeted
-strict Clippy passes. The [probe ledger](../evidence/caffeine-probes/README.md) has
-the prior intent and immutable local outcome with source/Wasm hashes; the contract,
-roadmap, host guide and Unreleased notes now distinguish upgrade fencing from
-snapshot loading. No production API, state, dependency or version changed in this
-follow-up. No live trial or full CI/release gate ran.
+0.4.3 wired the standalone synchronous certificate update and uploader-only
+assessment through shared workflows. Host facts still establish atomic local
+durability only; pre-charge limits, provider namespace binding, replay charging and
+recovery readiness are false. Therefore the production certificate update always
+refuses. No client diagnostics, prepared manifest, operator/controller status,
+configured project, verifier attestation or clear local fence can override this.
 
-## Maintainer scope decision — current direction
+Keep one authoritative storage owner with local durable journals and shared
+handlers. The maintainer deferred external journals, recovery-controller canisters
+and extra metadata calls until a clear use case justifies them; see the
+[scope decision](../service-contract.md#recovery-scope--maintainer-decision-2026-09-30).
+This does not discard backup/restore or qualify unsupported activation.
 
-The maintainer selected simplicity until there is a clear use case. Keep one
-authoritative storage owner and its current local durable journals/shared handlers.
-External journals, dedicated recovery-controller canisters and extra metadata calls
-are deferred. The current synchronous certificate boundary remains. AGENTS.md now
-records this preference; the contract and roadmap have a short
-[scope decision](../service-contract.md#recovery-scope--maintainer-decision-2026-09-30)
-instead of the expanded distributed implementation proposal.
-
-Prioritize current-state durability, exact-operation receipt recovery and
-state-preserving same-release lifecycle work. Current upgrade restoration remains
-inspection-only, so operational upgrade recovery is still unfinished. Older
-snapshot loads remain unsupported for operation: loading can restore an unfenced
-heap, and a clear flag cannot prove fresh or complete state. Keep an installation
-stopped during such recovery; active return requires complete independent
-reconciliation. Backup/restore remains an open requirement, not silently completed
-or discarded by deferring the distributed design.
-
-The prior source/design review artifact is retained unchanged and marked historical
-in the probe ledger. Do not treat its recorded recommendation as current authority.
-This decision changes documentation only; no role, schema, endpoint, qualification,
-dependency, allocator or version changed. No new probe, provider or paid effect.
-Diff and retained evidence checksum checks are the targeted validation.
+Same-release upgrades restore owners synchronously into inspection-only fences.
+Actual 0.4.3 PocketIC snapshot evidence demonstrates that loading an old snapshot
+does not run the upgrade hook: it can restore an unfenced heap, undo revocation and
+lose later operations/liabilities. Snapshot loading remains unsupported for active
+operation. Keep an installation stopped during such recovery; complete independent
+reconciliation must precede activation. A clear flag or counter restored from the
+same backup is not freshness evidence. Cross-release transitions remain reinstall-only,
+with source removal and installation retirement/accounting handled separately.
 
 ## Next integration and open gates
 
-The standalone boundary is wired; do not repeat that implementation or turn on
-issuance merely because it now has an endpoint. Next work must establish concrete
-provider/recovery evidence for the four remaining blockers, or obtain explicit
-acceptance of a narrower supported contract before changing them. No cooperation
-from Caffeine is required, but source hashes and local substitutes alone cannot
-qualify deployed pre-charge limits, namespace enforcement or replay billing.
-Keep prepared diagnostics bounded and tied to an exact isolated installation,
-owner/project/payer and request/byte/time/billing budget before any live paid trial.
-The ledger's existing live trial remains prepared, not dispatched; no such budget
-or installation selection was supplied in this batch.
+The native assessment is now implemented; do not repeat it or interpret its output
+as a qualification switch. Continue concrete single-owner integration and
+current-state durability/receipt recovery. Identify the exact supported
+state-preserving same-release upgrade boundary before operational recovery; do not
+clear fences, re-admit uncertain operations or revive distributed machinery based
+only on local state or an operator boolean.
 
-Independent old-backup freshness and surviving liabilities remain necessary for
-recovery. Do not treat a clear local restore fence, a counter from the same backup,
-or an operator boolean as that evidence. Do not repeat the snapshot demonstration
-or revive the external journal/controller proposal without a concrete consumer
-use case. Continue practical integration and lifecycle/receipt recovery within
-the single authoritative owner; identify the exact supported state-preserving
-upgrade boundary before enabling operational recovery. Provider qualification
-remains separate; simplicity does not set any certificate prerequisite to true.
-Economics/deletion qualification, consumer
-acceptance and Canic parity remain open. Canic removal is not ready. Cross-release
-transitions remain reinstall-only with retirement obligations preserved; same-release
-interruption and receipt recovery remain required.
+Provider qualification proceeds independently of cooperation under the
+[probe ledger](../evidence/caffeine-probes/README.md). No selected isolated
+installation/account or live paid budget has been supplied. The existing live
+trial remains prepared, not dispatched. Further pre-charge, namespace, replay,
+economics/deletion and recovery guarantees need actual evidence or explicit
+acceptance of a narrower operating contract before changing enforcement. Local
+substitutes and retained source hashes cannot establish deployed behavior.
+
+Consumer acceptance, operational recovery and Canic parity remain open. Canic
+removal is not ready. Neither the 0.4.3 release nor this diagnostic command closes
+those service gates.
 
 The sections below retain earlier implementation evidence. Their "current batch"
 and "next" wording is historical; this handoff takes precedence.

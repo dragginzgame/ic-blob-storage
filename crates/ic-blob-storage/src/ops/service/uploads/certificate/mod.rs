@@ -1,4 +1,5 @@
 //! Bounded root resolution with actual uploader authority and retained index checks.
+pub mod reply;
 use super::{StableUploads, admission, exposure};
 use crate::{
     dto::{

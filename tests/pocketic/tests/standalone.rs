@@ -6,6 +6,7 @@ mod snapshots;
 mod standalone_account;
 mod standalone_capacity;
 mod standalone_certificate;
+mod standalone_certificate_cli;
 mod standalone_cli;
 mod standalone_completion;
 mod standalone_discovery;

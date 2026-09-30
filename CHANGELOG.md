@@ -2,6 +2,18 @@
 
 ## [Unreleased]
 
+### Added
+
+- Native `blob-storage certificate-assessment` signs one uploader-only query and
+  compares the returned permission with saved original intent. JSON retains every
+  missing prerequisite and full-width identity; unprepared, revoked and fenced
+  refusals remain distinct. No certificate issuance, provider call, reservation
+  or retry authority is introduced, including when the blocker list is empty.
+- Shared bounded certificate-assessment request/reply codec validates the complete
+  permission and rejects malformed, oversized, foreign or duplicate-blocker replies.
+  Signed standalone PocketIC coverage exercises exact intent, root trust,
+  revocation and upgrade fencing while preserving stable state.
+
 ## [0.4.3] - 2026-09-30
 
 ### Added

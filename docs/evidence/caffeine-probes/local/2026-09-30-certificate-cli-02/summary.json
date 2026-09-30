@@ -1,0 +1,50 @@
+{
+  "date": "2026-09-30",
+  "evidence_class": "local_signed_pocketic_queries_with_production_host_facts",
+  "record_kind": "curated_test_outcome_not_raw_provider_capture",
+  "base_revision": "d1b80f58560cac5b9b19a1ba10489897c653eb4d",
+  "workspace": "uncommitted native certificate assessment after 0.4.3",
+  "pocket_ic": "16.0.0 via ic-testkit",
+  "intent": "Prior native certificate-assessment follow-up intent in the probe ledger",
+  "supersedes": "2026-09-30-certificate-cli-01 only for corrected final test assertion; failed original outcome retained",
+  "command": "cargo test --offline --locked -p ic-blob-storage-pocketic-tests --test standalone standalone_certificate_cli -- --test-threads=1",
+  "artifacts_sha256": {
+    "tests/pocketic/tests/standalone_certificate_cli/mod.rs": "8fbc290dc192dc27879e63fdcfb445d1e9eaf8d5da58b998ec4b501928a7bcec",
+    "crates/ic-blob-storage-cli/src/native/certificate_assessment/mod.rs": "6c80f9d316549fe83016c5465c356ef1bf2d7e2d1c9b0954082e294450250be5",
+    "crates/ic-blob-storage/src/ops/service/uploads/certificate/reply/mod.rs": "1460bdf829d9999b4d4420a4d40935353f34e5e86c436a56fd23853def8b052f",
+    "target/wasm32-unknown-unknown/release/ic_blob_storage_canister.wasm": "c78ae0e4d5ec38682263d8f3da0163c8a746358501661d5140bf2f4ca3358788",
+    "target/debug/blob-storage": "fbb9a06e12ca5e1b2af11eb71860b71969d3a5883609cc2c543b613338fae145",
+    "Cargo.lock": "c346c157ad1384444344ba59bd009ee77beec056c1f0c1f5d626db592548a800"
+  },
+  "results": [
+    {
+      "test": "standalone_certificate_cli::standalone_certificate_cli_preserves_blockers_exact_intent_and_lifecycle_refusals",
+      "outcome": "passed",
+      "seconds": 6.4,
+      "observations": [
+        "Unprepared original permission returns a refusal",
+        "Signed prepared assessment retains full-width original identities and four unqualified prerequisites",
+        "Changed saved expiry rejects on full reply binding; wrong trusted root rejects transport",
+        "Revoked permission returns assessment_revoked; restored owner returns assessment_permission_fenced",
+        "Every queried lifecycle state retains unchanged stable bytes",
+        "Complete revoked record is unchanged across same-release upgrade; no upload/reference resurrection",
+        "No issuance or retry authority is reported"
+      ]
+    }
+  ],
+  "failures": [],
+  "requests": {
+    "native_commands": 6,
+    "provider_requests": 0,
+    "paid_effects": 0,
+    "definitions": "Maintained test source; no raw Candid transcript retained"
+  },
+  "cleanup": "Local HTTP instance explicitly stopped; owned PocketIC instance and temporary input directory dropped",
+  "limitations": [
+    "No deployed Caffeine or IC behavior was observed",
+    "No provider facts are substituted to enable standalone issuance",
+    "Query signatures are not certified state or independent recovery freshness",
+    "No raw HTTP/Candid transcript retained",
+    "Artifact hashes identify local files, not provider authenticity or reproducible builds"
+  ]
+}

@@ -2,7 +2,7 @@
 pub mod admission;
 pub(crate) mod callbacks;
 pub mod capacity;
-pub(crate) mod certificate;
+pub mod certificate;
 pub mod completion;
 pub mod discovery;
 pub mod exposure;

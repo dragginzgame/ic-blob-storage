@@ -608,6 +608,31 @@ The command never automatically paginates, retries a payment or writes a journal
 Local tests cover populated history through the shared durable storage fixture;
 its payment outcomes are controlled substitutes, not deployed Cashier evidence.
 
+`certificate-assessment` inspects missing issuance prerequisites for a saved permission:
+
+```sh
+cargo run --offline --locked -p ic-blob-storage-cli --bin blob-storage -- \
+  certificate-assessment --network ic --url "$IC_API_URL" --identity "$UPLOADER_PEM" \
+  --actor "$UPLOADER_PRINCIPAL" --service "$SERVICE_PRINCIPAL" \
+  --namespace "$SERVICE_NAMESPACE" --permission permission.candid
+```
+
+The input is one binary Candid `UploadAdmissionRequest` (4 KiB maximum). Service,
+namespace and original uploader must match before transport. The command signs one
+`blob_upload_certificate_assessment` query, verifies query signatures and decodes
+at most 4 KiB against the complete saved permission, including independent object
+identities and expiry. JSON preserves decimal-string integers, host assessment time
+and every blocker. Prepared standalone uploads currently report `precharge_limits`,
+`provider_namespace`, `replay_charging` and `recovery` as missing prerequisites.
+
+Exit 0 means an assessment was observed, including blocked uploads; it never
+authorizes issuance or retry. Even an empty list cannot reserve a later update.
+Unprepared, expired, revoked and restored permissions refuse with distinct JSON
+error codes and exit 3. The same explicit IC/local root trust, 30-second deadline
+and 256 KiB HTTP ceiling apply. No certificate update, provider request, file
+rewrite or service mutation occurs. This does not qualify provider behavior or
+enable the standalone certificate endpoint.
+
 `verify-upload` checks a saved local file against the service's original manifest:
 
 ```sh

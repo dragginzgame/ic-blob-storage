@@ -14,6 +14,7 @@ pub(super) struct Options {
 }
 
 pub(super) enum Command {
+    CertificateAssessment(super::certificate_assessment::Input),
     SubmitAttestation(super::submit_attestation::Input),
     ObserveUpload(super::observe_upload::Input),
     Status {
@@ -55,6 +56,7 @@ impl Options {
         if !matches!(
             command,
             "status"
+                | "certificate-assessment"
                 | "funding-history"
                 | "verify-upload"
                 | "upload-attestation"
@@ -80,7 +82,11 @@ impl Options {
         let actor = principal(take(
             if matches!(
                 command,
-                "verify-upload" | "upload-attestation" | "observe-upload" | "submit-attestation"
+                "verify-upload"
+                    | "upload-attestation"
+                    | "observe-upload"
+                    | "submit-attestation"
+                    | "certificate-assessment"
             ) {
                 "--actor"
             } else {
@@ -125,7 +131,13 @@ fn parse_command(
     flags: &mut BTreeMap<&str, &str>,
 ) -> Result<Command, Failure> {
     let mut take = |name| flags.remove(name).ok_or(Failure::Arguments);
-    Ok(if command == "submit-attestation" {
+    Ok(if command == "certificate-assessment" {
+        Command::CertificateAssessment(super::certificate_assessment::Input {
+            service,
+            namespace,
+            permission: PathBuf::from(take("--permission")?),
+        })
+    } else if command == "submit-attestation" {
         Command::SubmitAttestation(super::submit_attestation::Input {
             service,
             namespace,
