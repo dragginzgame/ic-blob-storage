@@ -84,12 +84,26 @@ claim is introduced. The [provider questions](provider-review.md#focused-provide
 now identify the exact existing server guarantees and retention information needed
 to close the remaining evidence gaps, without demanding a custom provider API.
 
+`blob-storage funding-outcome` now reads one exact retained funding intent using
+the existing service query and decoder. Original offer/optional target binding,
+transport refund, missing structured reply, reported balance/error and conservative
+reconciliation stay separate through fenced inspection. Absence conveys no fence
+and grants no retry authority. This closes the native funding receipt-inspection
+tooling slice; independent provider-credit/account completeness remains open.
+
 `blob-storage upload-history` now gives the operator one signed service-wide page
 of retained identities and local lifecycle states without saved upload input.
 Explicit filtering and saved scoped continuation preserve empty filtered progress,
 cancelled history and same-release restore fences. The shared bounded decoder
 validates identity scope, ordering, uniqueness and work/progress facts. This supports
 local inventory inspection, not complete provider/backup reconciliation or retry.
+
+Native `reference-receipt` and `reference-status` now inspect saved tenant requests
+through separate existing boundaries. Original success/failure/absence remains
+distinct from current local reference liveness and restore fencing through release,
+settlement and same-release upgrade. Explicit tenant signatures and bounded shared
+decoders grant no operator delegation, publication lease or uncertain-operation
+retry authority. Canister tenants retain their shared client integration.
 
 The maintainer directed the next implementation toward canister service storage;
 the local filesystem journal remains optional test/operator tooling. Shared stable

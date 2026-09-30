@@ -1,0 +1,77 @@
+{
+  "date": "2026-09-30",
+  "evidence_class": "local_signed_pocketic_funding_outcome_queries",
+  "record_kind": "curated_test_outcome_not_raw_provider_capture",
+  "base_revision": "aac35b92ec883904046092d5f2ca19c39c217cb8",
+  "workspace": "uncommitted exact native funding-outcome batch after 0.4.5",
+  "pocket_ic": "16.0.0 via ic-testkit",
+  "intent": "Exact funding-outcome CLI intent in probe ledger; at most sixteen native invocations",
+  "artifacts_sha256": {
+    "crates/ic-blob-storage-cli/src/native/funding_outcome/mod.rs": "8578aaeaf20a6c4baccb55f2b2b1e23f100eb8f0f7ff01d2a746b34b6e039b5f",
+    "crates/ic-blob-storage-cli/src/native/funding_outcome/tests/mod.rs": "3f0dce5c0dc5395a909549ca9aa666b9bb56921d1b6a259475aa9b7459908963",
+    "crates/ic-blob-storage-cli/src/native/arguments/mod.rs": "e6892c0c73e24e116fc7257f66bd0eb99b506c1ddb06afc152553886a3be3f9f",
+    "crates/ic-blob-storage/src/ops/service/funding/reply/outcome/mod.rs": "29e56491c4708edc6311659b528971c0e695b64815a13b0047a0d28dbf8e6671",
+    "tests/pocketic/tests/standalone_funding_cli/mod.rs": "4fb178852aa67fd61dbff1910cde8044c00569fed1aeca8d0e047e0af8d7e365",
+    "tests/pocketic/tests/storage_funding/history/cli/mod.rs": "5a12c700fa76c3ac6a139404876b91712b0538607d11f91ccd6641e584b25601",
+    "target/debug/blob-storage": "62aa763e215b26b2d203e71a48b48b3e1e4ae0655b587456e1bdd1a025befa02",
+    "target/wasm32-unknown-unknown/release/ic_blob_storage_canister.wasm": "650cfb84353b6445118a1ee9b9d40a9f187f280723b6d79f50aed0c9328315b2",
+    "target/wasm32-unknown-unknown/release/blob_storage_probe.wasm": "5c39c8fa3ab2c0e633938b1f79153ec5a9ea9606e299439f5884bf4a68869c2a",
+    "Cargo.lock": "cba19070732fe01ac391df0d37e4bb8ed0b845852a9c7e15000000f8a3858259"
+  },
+  "results": [
+    {
+      "test": "standalone_funding_cli::standalone_funding_cli_preserves_absence_and_refusals_after_fenced_upgrade",
+      "command": "cargo test --offline --locked -p ic-blob-storage-pocketic-tests --test standalone standalone_funding_cli -- --test-threads=1",
+      "outcome": "passed",
+      "seconds": 4.45,
+      "observations": [
+        "Original full-width intent inspects absent production history",
+        "Wrong namespace, expected signer and untrusted root refuse",
+        "Absent record remains null after same-release upgrade, without fabricating an unfenced owner",
+        "Separate configuration confirms restored owner fenced; queries preserve stable bytes"
+      ]
+    },
+    {
+      "test": "storage_funding::history::cli::authenticated_funding_history_cli_recovers_cursor_and_exact_outcomes_after_restore",
+      "command": "cargo test --offline --locked -p ic-blob-storage-pocketic-tests --test storage storage_funding::history::cli -- --test-threads=1",
+      "outcome": "passed",
+      "seconds": 6.48,
+      "observations": [
+        "Existing funding history supplies exact callback intent and full-width uncertain identity/target",
+        "Partial refund retains accepted attachment of ten without a structured provider response or credit claim",
+        "Not-enqueued attachment reports no_transfer; unknown operation reports absence",
+        "Changed offer and None versus original present target produce funding_conflict",
+        "Same-release upgrade preserves exact uncertain outcome with fence set and unchanged stable bytes; allocation remains uncertain thirty"
+      ]
+    },
+    {
+      "test": "native CLI unit suite with local loopback access",
+      "outcome": "passed",
+      "passed": 24,
+      "seconds": 0.66,
+      "prior_environment_failure": "2026-09-30-funding-native-01; unchanged download substitute needed permission to bind loopback"
+    }
+  ],
+  "failures": [],
+  "requests": {
+    "native_subprocess_invocations": 15,
+    "signed_query_attempts": 14,
+    "provider_requests": 0,
+    "attached_payment_cycles": "0",
+    "paid_effects": 0
+  },
+  "bindings": {
+    "actors": "fixed test-only Ed25519 seed [42; 32], configured operator per owned canister",
+    "service": "owned PocketIC standalone and durable storage fixture only",
+    "namespace": "installed exact standalone namespace; storage fixture namespace one",
+    "cashier_payer": "configured fixture bindings; no deployed provider account",
+    "trust": "explicit PocketIC root DER; ambient broken proxies bypassed in local mode"
+  },
+  "cleanup": "Both local HTTP instances explicitly stopped; owned canisters and temporary identities/root/cursor files dropped",
+  "limitations": [
+    "Funding phase transitions are controlled storage-fixture substitutes, not actual provider payments",
+    "Reported balance JSON tests use local constructed DTOs, not deployed Cashier reports",
+    "Query signature verification is not certified state, provider credit, complete account inventory, recovery freshness or retry authority",
+    "Existing 0.4.5 service Wasm artifacts reused: this batch changes native tooling and an additive request encoder, with no endpoint/DTO/stable-schema changes"
+  ]
+}

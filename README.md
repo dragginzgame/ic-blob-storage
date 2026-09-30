@@ -608,6 +608,41 @@ The command never automatically paginates, retries a payment or writes a journal
 Local tests cover populated history through the shared durable storage fixture;
 its payment outcomes are controlled substitutes, not deployed Cashier evidence.
 
+Inspect an exact original funding intent with `funding-outcome`:
+
+```sh
+cargo run --offline --locked -p ic-blob-storage-cli --bin blob-storage -- \
+  funding-outcome --network ic --url "$IC_API_URL" --identity "$OPERATOR_PEM" \
+  --operator "$OPERATOR_PRINCIPAL" --service "$SERVICE_PRINCIPAL" \
+  --namespace "$SERVICE_NAMESPACE" --cashier "$CASHIER_PRINCIPAL" \
+  --payer "$PAYER_PRINCIPAL" --operation "$FUNDING_OPERATION" \
+  --offered "$ORIGINAL_OFFERED_CYCLES"
+```
+
+Use the original decimal-string operation, offer and optional target from funding
+history or your retained intent. Supply `--target-balance DECIMAL` only when the
+original intent had a target; omission means `None`, with no inferred default.
+Changed retained amounts or target produce `funding_conflict`, not absence.
+All supplied numbers must be positive canonical u128 decimals.
+
+One signed `blob_funding_outcome` query returns `outcome: found` with a `record`,
+or `outcome: absent` with `record: null`. Absence supplies no fence information,
+even on a restored installation; inspect status separately for owner fences.
+A found record retains local phase, exact callback refund, optional structured
+response, conservative reconciliation and its restore fence. `response: null`
+means no structured reply was retained. Reported success balances and typed
+provider errors remain separate from attachment accounting.
+
+`transfer_unknown` keeps the entire original offer potentially spent.
+`credit_required` names the exact accepted attachment still needing independent
+provider-credit evidence. `no_transfer` concerns attached cycles only; execution
+fees are separate. Every output sets `retry_authorized: false` and
+`provider_credit: not_established`. Empty, uncertain and fenced observations
+exit 0; authenticated service refusals exit 3. The bounded decoder checks exact
+intent and transport/reconciliation consistency within 4 KiB, with the same
+30-second signed-query and 256 KiB HTTP limits as status. No payment, provider
+query, polling, journal write or automatic retry occurs.
+
 `upload-history` recovers retained upload identities without saved upload requests:
 
 ```sh
@@ -641,6 +676,52 @@ filter results, work bounds and cursor progress. Signed queries use the same exp
 IC/local trust and deadline as status. Empty and fenced observations exit 0;
 service refusals remain errors. The command reads no provider content, performs
 no mutation and never grants retry, serving or recovery authority.
+
+Tenant-owned reference inspection uses separate saved boundary requests:
+
+```sh
+cargo run --offline --locked -p ic-blob-storage-cli --bin blob-storage -- \
+  reference-receipt --network ic --url "$IC_API_URL" --identity "$TENANT_PEM" \
+  --actor "$TENANT_PRINCIPAL" --service "$SERVICE_PRINCIPAL" \
+  --namespace "$SERVICE_NAMESPACE" --request reference-command.candid
+
+cargo run --offline --locked -p ic-blob-storage-cli --bin blob-storage -- \
+  reference-status --network ic --url "$IC_API_URL" --identity "$TENANT_PEM" \
+  --actor "$TENANT_PRINCIPAL" --service "$SERVICE_PRINCIPAL" \
+  --namespace "$SERVICE_NAMESPACE" --request reference-status.candid
+```
+
+`reference-command.candid` is the original binary Candid `ReferenceCommand` saved
+before dispatch. It includes the complete original upload, independent reference
+and operation IDs and exact retain/release action. `reference-status.candid` is a
+binary Candid `ReferenceStatusRequest` containing that original upload and the
+reference to inspect; it has no mutation operation or action. Both inputs are
+bounded to 4 KiB and validated against explicit service, namespace and tenant
+before identity/network access. The PEM must sign as that tenant. Operator and
+controller status grant no tenant authority. A canister tenant cannot be
+impersonated with a PEM; use its existing `ReplicatedReferenceClient` integration.
+
+`reference-receipt` signs one `blob_reference_receipt` query. JSON distinguishes
+`absent` from `found`, with an original success (`changed`/`unchanged`) or recorded
+transition failure. Lookup refusals remain errors, including `reference_unknown`,
+`reference_unconfirmed` and `reference_conflict`. A successful retain receipt stays
+successful after release or settlement. This reply carries neither a current
+liveness observation nor a restore fence; both are labelled `not_observed`.
+Absence supplies no retry authority and does not prove that an upload is confirmed.
+
+`reference-status` independently signs one `blob_reference_status` query. It
+returns the exact reference's current local `live` flag and owner's `fenced` flag.
+False includes never-retained and released references; it never makes an identity
+reusable. Even true with a clear local fence is no publication lease, provider
+availability guarantee or independent recovery proof. The two observations are
+separate in time; neither command silently performs the other query.
+
+Both commands preserve full-width decimal identities/amounts, verify query
+signatures with explicit IC/local trust, and use a 4 KiB reply limit, 256 KiB HTTP
+ceiling and 30-second deadline. Exit 0 means an observation, including absence or
+recorded failure; exit 3 means transport, decoding, binding or lookup refusal.
+They set retry/publication authority to false and perform no mutation, provider
+request, journal write, polling or automatic retry.
 
 `certificate-assessment` inspects missing issuance prerequisites for a saved permission:
 

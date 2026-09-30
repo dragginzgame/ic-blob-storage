@@ -9,6 +9,15 @@ use crate::dto::funding::{
 };
 use std::num::NonZeroUsize;
 
+/// Validate and encode the exact original intent for passive outcome inspection.
+/// This creates no funding operation and grants no retry authority.
+/// # Errors
+/// Rejects invalid scope, zero identities/amounts or encoding failure.
+pub fn inspection_request(input: FundingOutcomeRequest) -> Result<Vec<u8>, FundingReplyError> {
+    check_outcome(input)?;
+    candid::encode_one(input).map_err(|_| FundingReplyError::Invalid)
+}
+
 /// Decode a response from the independently authenticated selected service.
 /// Absence, missing structured response and restore fences remain distinct.
 /// Checks exact original intent and reported reconciliation against transport

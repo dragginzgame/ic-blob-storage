@@ -58,8 +58,18 @@ pub(super) fn request(
         .transpose()?;
     Ok(FundingHistoryRequest { scope, cursor })
 }
-fn scope_json(scope: OperatorScope) -> Value {
+pub(super) fn scope_json(scope: OperatorScope) -> Value {
     json!({"service":scope.service.to_text(),"namespace":scope.namespace.to_string(),"cashier":scope.cashier.to_text(),"payment_account":scope.payment_account.to_text()})
+}
+pub(super) fn phase_json(phase: FundingPhase) -> Value {
+    match phase {
+        FundingPhase::Prepared => json!({"state":"prepared"}),
+        FundingPhase::Uncertain => json!({"state":"uncertain"}),
+        FundingPhase::NotEnqueued => json!({"state":"not_enqueued"}),
+        FundingPhase::Callback { refunded } => {
+            json!({"state":"callback","refunded":refunded.to_string()})
+        }
+    }
 }
 fn cursor_json(cursor: FundingHistoryCursor) -> Value {
     json!({"scope":scope_json(cursor.scope),"before_operation":cursor.before_operation.to_string()})
@@ -95,12 +105,7 @@ pub(super) fn output(
     )
     .map_err(failure)?;
     let entries: Vec<_> = page.entries.iter().map(|entry| {
-        let phase = match entry.phase {
-            FundingPhase::Prepared => json!({"state":"prepared"}),
-            FundingPhase::Uncertain => json!({"state":"uncertain"}),
-            FundingPhase::NotEnqueued => json!({"state":"not_enqueued"}),
-            FundingPhase::Callback { refunded } => json!({"state":"callback","refunded":refunded.to_string()}),
-        };
+        let phase = phase_json(entry.phase);
         json!({"operation":entry.operation.to_string(),"offered":entry.offered.to_string(),"target_balance":entry.target_balance.map(|n|n.to_string()),"phase":phase})
     }).collect();
     Ok(

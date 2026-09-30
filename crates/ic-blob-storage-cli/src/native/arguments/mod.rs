@@ -14,6 +14,8 @@ pub(super) struct Options {
 }
 
 pub(super) enum Command {
+    Reference(super::references::Input),
+    FundingOutcome(ic_blob_storage::dto::funding::outcome::FundingOutcomeRequest),
     UploadHistory(super::upload_history::Input),
     CertificateAssessment(super::certificate_assessment::Input),
     SubmitAttestation(super::submit_attestation::Input),
@@ -60,6 +62,9 @@ impl Options {
                 | "upload-history"
                 | "certificate-assessment"
                 | "funding-history"
+                | "funding-outcome"
+                | "reference-receipt"
+                | "reference-status"
                 | "verify-upload"
                 | "upload-attestation"
                 | "observe-upload"
@@ -89,6 +94,8 @@ impl Options {
                     | "observe-upload"
                     | "submit-attestation"
                     | "certificate-assessment"
+                    | "reference-receipt"
+                    | "reference-status"
             ) {
                 "--actor"
             } else {
@@ -96,11 +103,7 @@ impl Options {
             },
         )?)?;
         let service = principal(take("--service")?)?;
-        let namespace_text = take("--namespace")?;
-        let namespace: u128 = namespace_text.parse().map_err(|_| Failure::Arguments)?;
-        if namespace == 0 || namespace.to_string() != namespace_text {
-            return Err(Failure::Arguments);
-        }
+        let namespace = positive(take("--namespace")?)?;
         let command = parse_command(command, service, namespace, network, &mut flags)?;
         let root_key = flags.remove("--root-key").map(PathBuf::from);
         if !flags.is_empty() {
@@ -118,6 +121,14 @@ impl Options {
     }
 }
 
+fn positive(value: &str) -> Result<u128, Failure> {
+    let number: u128 = value.parse().map_err(|_| Failure::Arguments)?;
+    if number == 0 || number.to_string() != value {
+        return Err(Failure::Arguments);
+    }
+    Ok(number)
+}
+
 fn maximum(value: &str) -> Result<std::num::NonZeroU64, Failure> {
     let maximum: std::num::NonZeroU64 = value.parse().map_err(|_| Failure::Arguments)?;
     if maximum.to_string() != value || maximum.get() > 1024 * 1024 * 1024 {
@@ -133,70 +144,95 @@ fn parse_command(
     flags: &mut BTreeMap<&str, &str>,
 ) -> Result<Command, Failure> {
     let mut take = |name| flags.remove(name).ok_or(Failure::Arguments);
-    Ok(if command == "upload-history" {
-        Command::UploadHistory(super::upload_history::Input {
-            service,
-            namespace,
-            filter: super::upload_history::filter(take("--filter")?)?,
-            cursor: flags.remove("--cursor").map(PathBuf::from),
-        })
-    } else if command == "certificate-assessment" {
-        Command::CertificateAssessment(super::certificate_assessment::Input {
-            service,
-            namespace,
-            permission: PathBuf::from(take("--permission")?),
-        })
-    } else if command == "submit-attestation" {
-        Command::SubmitAttestation(super::submit_attestation::Input {
-            service,
-            namespace,
-            directory: PathBuf::from(take("--run-dir")?),
-        })
-    } else if command == "observe-upload" {
-        let gateway = Url::parse(take("--gateway")?).map_err(|_| Failure::Arguments)?;
-        validate_url(&gateway, network, network == "local")?;
-        Command::ObserveUpload(super::observe_upload::Input {
-            service,
-            namespace,
-            gateway,
-            permission: PathBuf::from(take("--permission")?),
-            directory: PathBuf::from(take("--run-dir")?),
-            max_bytes: maximum(take("--max-bytes")?)?,
-        })
-    } else if command == "upload-attestation" {
-        Command::UploadAttestation {
-            service,
-            namespace,
-            verifier: principal(take("--verifier")?)?,
-            statement: PathBuf::from(take("--statement")?),
-        }
-    } else if command == "verify-upload" {
-        let permission = PathBuf::from(take("--permission")?);
-        let body = PathBuf::from(take("--body")?);
-        let max_bytes = maximum(take("--max-bytes")?)?;
-        Command::VerifyUpload {
-            service,
-            namespace,
-            permission,
-            body,
-            max_bytes,
-        }
-    } else {
-        let scope = OperatorScope {
-            service,
-            namespace,
-            cashier: principal(take("--cashier")?)?,
-            payment_account: principal(take("--payer")?)?,
-        };
-        if command == "funding-history" {
-            Command::FundingHistory {
-                scope,
+    Ok(
+        if matches!(command, "reference-receipt" | "reference-status") {
+            Command::Reference(super::references::Input {
+                service,
+                namespace,
+                request: PathBuf::from(take("--request")?),
+                kind: if command == "reference-receipt" {
+                    super::references::Kind::Receipt
+                } else {
+                    super::references::Kind::Status
+                },
+            })
+        } else if command == "upload-history" {
+            Command::UploadHistory(super::upload_history::Input {
+                service,
+                namespace,
+                filter: super::upload_history::filter(take("--filter")?)?,
                 cursor: flags.remove("--cursor").map(PathBuf::from),
+            })
+        } else if command == "certificate-assessment" {
+            Command::CertificateAssessment(super::certificate_assessment::Input {
+                service,
+                namespace,
+                permission: PathBuf::from(take("--permission")?),
+            })
+        } else if command == "submit-attestation" {
+            Command::SubmitAttestation(super::submit_attestation::Input {
+                service,
+                namespace,
+                directory: PathBuf::from(take("--run-dir")?),
+            })
+        } else if command == "observe-upload" {
+            let gateway = Url::parse(take("--gateway")?).map_err(|_| Failure::Arguments)?;
+            validate_url(&gateway, network, network == "local")?;
+            Command::ObserveUpload(super::observe_upload::Input {
+                service,
+                namespace,
+                gateway,
+                permission: PathBuf::from(take("--permission")?),
+                directory: PathBuf::from(take("--run-dir")?),
+                max_bytes: maximum(take("--max-bytes")?)?,
+            })
+        } else if command == "upload-attestation" {
+            Command::UploadAttestation {
+                service,
+                namespace,
+                verifier: principal(take("--verifier")?)?,
+                statement: PathBuf::from(take("--statement")?),
+            }
+        } else if command == "verify-upload" {
+            let permission = PathBuf::from(take("--permission")?);
+            let body = PathBuf::from(take("--body")?);
+            let max_bytes = maximum(take("--max-bytes")?)?;
+            Command::VerifyUpload {
+                service,
+                namespace,
+                permission,
+                body,
+                max_bytes,
             }
         } else {
-            Command::Status { scope }
-        }
-    })
+            let scope = OperatorScope {
+                service,
+                namespace,
+                cashier: principal(take("--cashier")?)?,
+                payment_account: principal(take("--payer")?)?,
+            };
+            if command == "funding-outcome" {
+                Command::FundingOutcome(
+                    ic_blob_storage::dto::funding::outcome::FundingOutcomeRequest {
+                        scope,
+                        operation: positive(take("--operation")?)?,
+                        offered: positive(take("--offered")?)?,
+                        target_balance: flags
+                            .remove("--target-balance")
+                            .map(positive)
+                            .transpose()?,
+                    },
+                )
+            } else if command == "funding-history" {
+                Command::FundingHistory {
+                    scope,
+                    cursor: flags.remove("--cursor").map(PathBuf::from),
+                }
+            } else {
+                Command::Status { scope }
+            }
+        },
+    )
 }
 
 pub(super) fn validate_url(url: &Url, network: &str, explicit_root: bool) -> Result<(), Failure> {

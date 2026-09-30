@@ -27,6 +27,46 @@ fn request() -> FundingOutcomeRequest {
         target_balance: Some(u128::MAX),
     }
 }
+#[test]
+fn outcome_request_validates_original_intent_without_defaulting_target() {
+    for target_balance in [None, Some(u128::MAX)] {
+        let input = FundingOutcomeRequest {
+            target_balance,
+            ..request()
+        };
+        let encoded = outcome::inspection_request(input).unwrap();
+        assert_eq!(
+            candid::decode_one::<FundingOutcomeRequest>(&encoded).unwrap(),
+            input
+        );
+    }
+    for input in [
+        FundingOutcomeRequest {
+            operation: 0,
+            ..request()
+        },
+        FundingOutcomeRequest {
+            offered: 0,
+            ..request()
+        },
+        FundingOutcomeRequest {
+            target_balance: Some(0),
+            ..request()
+        },
+        FundingOutcomeRequest {
+            scope: OperatorScope {
+                service: Principal::anonymous(),
+                ..scope()
+            },
+            ..request()
+        },
+    ] {
+        assert_eq!(
+            outcome::inspection_request(input),
+            Err(FundingReplyError::Invalid)
+        );
+    }
+}
 fn page() -> FundingHistoryPage {
     let input = request();
     FundingHistoryPage {

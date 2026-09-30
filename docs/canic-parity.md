@@ -47,102 +47,41 @@ owns the current integration target and deployment evidence gaps.
 
 ## Required replacements
 
-The shared library implements identities and streaming verification, bounded
-catalogs/reservations/reference receipts, tenant and gateway policy, reply decoding
-and funding/readiness arithmetic. The [core evidence](evidence/core-primitives.md)
-records the limits of each native primitive. Linking the library exports no
-endpoints or lifecycle hooks.
+The [current acceptance review](acceptance-plan.md#current-local-evidence-and-open-gates--2026-09-30)
+owns the implemented-local-versus-unqualified distinction. The source capability
+inventory and older replacement records remain dated evidence, not a current
+list of missing implementation. This review does not refresh the Canic source
+checkpoint or authorize removal.
 
-The [connected PocketIC journey](evidence/core-primitives.md#connected-upload-and-deletion-journey-after-0114)
-adds actual callers, certificate-shaped admission, chunk verification/readback,
-revocation, deletion callbacks and separate billing cessation over local substitutes
-(BLOB-01–07/10/14). Completion, source bytes and billing facts are not deployed
-Caffeine evidence. Provider certificate verification and HTTP transport remain open.
+The current shared core owns tenant policy, manifest/identity verification,
+reference receipts/liveness, quotas, continuing liabilities, gateway administration,
+provider codecs and exact funding reconciliation. Durable service stores use
+host-granted ic-memory. The standalone host installs immutable service/project/
+verifier configuration and restores every owner synchronously into inspection-only
+fences. Linking a library exports neither endpoints nor lifecycle ownership.
 
-The [checkpoint/recovery batch](evidence/core-primitives.md#verification-checkpoints-after-0115)
-adds protected hash checkpoints and atomic fixture journals for identities, charges,
-receipts, verification and pending calls (BLOB-01/06/10/13). Same-release restoration
-is inspection-only and permanently fenced. Tests cover actual held sync/read
-schedules, older journals, failed upgrades, large-object capacity reuse and retained
-billing/history. This does not resume production operations, make old counters fresh
-or qualify snapshot loads, reinstalls or independent recovery authority.
+Native tooling now uses actual PEM identities and verified IC query signatures:
+status, funding/upload history, exact funding outcome, reference receipt/status,
+certificate assessment and verifier observation/submission/recovery. Signed
+PocketIC evidence is in the [probe ledger](evidence/caffeine-probes/README.md).
+The older blob-fixture tools remain local simulator/journal tooling; their
+simulated callers must not be confused with native authentication evidence.
+Standalone account inspection, gateway sync/revocation and synchronous certificate
+composition delegate to shared handlers. Certificate issuance still refuses the
+unqualified provider/recovery prerequisites; no local diagnostic enables it.
 
-[Funding fixtures](evidence/core-primitives.md#funding-callback-experiment) exercise
-actual local cycle transfers, callback traps, refunds, enqueue failure and journal
-recovery. Shared reconciliation keeps transport acceptance separate from provider
-credit. Balance and audit codecs preserve typed failures; no deployed credit or
-CSV-row reconciliation contract is inferred (BLOB-08/09/11/12).
-Driver-only funding status now diagnoses complete retained outgoing history and
-separately reports incoming local receipts. PocketIC proves no query effects through
-callback traps and upgrades; credit, balances and recovery authority stay unverified.
-Funding restoration now validates service/release bindings and journal consistency,
-then permanently fences sending, acceptance and callback completion. Actual older
-and in-flight journals remain inspection-only; malformed/foreign journals reject
-atomically (partial BLOB-11/12/13). Snapshot loads and production recovery remain open.
+Remaining parity work is concrete: qualify deployed provider bindings, completion,
+charging, deletion and final billing; acquire complete spendability/credit evidence;
+finish production operator mutation workflows and managed discovery; implement
+and qualify the Canic adapter and its generic lifecycle/guard/allocation coverage;
+accept a named consumer's bounded journey through both deployments; and settle
+operational recovery plus affected-installation retirement. Current store fences,
+local exact receipts, fixture refunds and releases do not close those obligations.
+Keep one storage owner and local journals until a concrete need justifies more
+machinery.
 
-Production transports, durable service configuration, operational reconciliation,
-both adapters and production operator workflows remain outstanding.
-Shared operator diagnosis now composes billing policy and retained obligations.
-The operator-only fixture query preserves unknown economics, pending work and
-restore blockers; PocketIC checks isolation and unchanged journals/source history.
-It reads the current active or frozen owner, not an independently replaced old
-archive. This adds partial BLOB-06/12/17 evidence; configured billing observations,
-the final operator client and both production adapters remain outstanding.
-The unpublished `blob-fixture-status` now exercises actual read-only transport
-against explicitly selected local PocketIC instances and simulated callers.
-Its fixed query mode rejects missing/update-only methods without effects; JSON
-and exit codes retain diagnosis, unknowns and binding/read failures. Subprocess
-tests preserve journals and instance ownership, including fenced restores.
-This adds partial BLOB-12/15/16/17 and A11 evidence, without production identity,
-managed discovery, sync/funding commands or provider qualification.
-Scoped balance reads now exercise the shared Caffeine decoder over actual calls
-to a controlled source (partial BLOB-09/12/13/17 and A05/A08/A11). Persisted intent,
-configuration revisions, dispatch-based expiry and fenced restoration prevent
-using stale reports. Failures never become zero and retained reports never become
-spendable reservations or payment credit. Production billing remains outstanding.
-Local diagnostic billing limits now bind to the observation scope/revision. Shared
-balance-threshold assessment composes with operator diagnosis while unknown local
-spendability remains an explicit blocker. Native and actual CLI/PocketIC tests cover
-thresholds, invalid limits, stale scope, observation failures and fenced restoration
-(partial BLOB-08/12/17). No live account or complete service readiness is inferred.
-The boundaries below describe full replacement requirements, not completed gates.
-
-The separate unpublished refresh CLI adds passive admission preview, atomic exact
-scope/revision/sequence checks and independent post-action diagnostics. PocketIC
-subprocesses prove stale/repeated requests do not dispatch again and failed status
-does not replay an acknowledged update (partial BLOB-15/16/17 and A11). Unknown
-acknowledgements stay uncertain. See [operator evidence](evidence/core-primitives.md#explicit-local-operator-refresh-after-0116).
-This remains local balance observation; production sync/funding and both adapters
-are still outstanding.
-
-Local gateway-sync commands now share that action/diagnosis workflow, with explicit
-edit revisions and next sequences. Revocation invalidates previews even without a
-membership change; held replies and forced restores cannot regain authority.
-This adds partial BLOB-10/15/16/17 evidence, not production sync qualification.
-
-Passive funding previews now combine exact identity/capacity checks with additive
-incomplete-evidence admission policy. Unknown spendability and unverified credit
-remain blockers through refunds and restores (partial BLOB-11/15/17, A08/A11).
-This does not expose the raw transfer experiment as an operator funding command.
-The transfer experiment now atomically reserves the full attachment against an
-explicit installed budget. Actual IC tests retain accepted/uncertain charges,
-distinguish exact refunds from unsent calls and preserve accounting through fenced
-restore. Preview revisions reject stale observations even after a full refund.
-The post-persistence liquidity guard additionally accounts for the exact platform
-call-cost bound, installed operating slack and other local liabilities. Unsent
-refusals consume identities without inventing refunds; query freshness is never
-dispatch authority. This adds local BLOB-11/15/17 evidence; complete production
-spendability, provider credit and safe operator funding admission remain open.
-The shared `FundingAllocation` library model now owns the sequential attachment
-projection used by this fixture; adapter-specific accounting loops are unnecessary.
-The experiment now preserves all advertised top-up errors through journal, status
-and CLI JSON. Actual IC evidence keeps refunds independent of those errors and
-rejects wrong-route ledger reports without clearing accounting or restore fences;
-see [outcome propagation](evidence/core-primitives.md#funding-error-propagation-for-0118).
-Exact local request lookup and its query-only CLI now recover retained transport
-results after discarded ingress replies, with typed conflicts and no retransmission.
-Old-backup absence and callback traps remain fenced/uncertain; this advances local
-BLOB-11/15/17 diagnosis, not provider credit reconciliation.
+The table below is the behavior-preservation contract, including necessary safety
+corrections. It is not a completion checklist or permission to reset/remove code.
 
 | Capability | Required behavior here | Necessary correction or boundary |
 | --- | --- | --- |

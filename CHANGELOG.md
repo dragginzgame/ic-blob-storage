@@ -2,6 +2,37 @@
 
 ## [Unreleased]
 
+### Added
+
+- Standalone lifecycle regression coverage preserves full installation and retained
+  metadata through stop/start and repeated same-release upgrades. All four owners
+  remain fenced, and operational refusals preserve stable memory.
+- Native `blob-storage reference-receipt` and `reference-status` sign separate
+  tenant queries using saved original boundary requests. Historical success,
+  recorded failure and absence remain separate from current liveness and restore
+  fences, with exact scope validation and no mutation, provider call or retry
+  authority. Shared request encoders reuse the maintained reference rules.
+- Signed reference inspection tests preserve receipts through release, settlement
+  and fenced upgrade while current liveness changes. Production standalone
+  unknown/unconfirmed content remains a typed refusal.
+- Native `blob-storage funding-outcome` signs one query for the exact original
+  funding operation, offer and optional target. JSON preserves absence, unknown
+  attachment, exact refund, structured provider response, conservative
+  reconciliation and found-record restore fences without claiming provider
+  credit or authorizing another payment. A shared validated request encoder and
+  bounded reply decoder retain typed refusals and full-width amounts.
+- Signed PocketIC coverage joins funding history to exact outcome inspection and
+  checks passive uncertain/refund records through fenced upgrade. Standalone
+  absence remains distinct from unknown fence information and scope/trust refusals.
+
+### Changed
+
+- Consolidated acceptance and Canic parity summaries around current implementation
+  and source-bound evidence. Durable standalone configuration and signed native
+  transport are recorded as implemented; provider, operational recovery, managed
+  adapter, operator mutation, consumer and retirement qualification remain open.
+  Historical capability records remain explicitly dated evidence.
+
 ## [0.4.5] - 2026-09-30
 
 ### Added

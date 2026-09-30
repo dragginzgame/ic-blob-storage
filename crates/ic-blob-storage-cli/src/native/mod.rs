@@ -1,8 +1,10 @@
 mod arguments;
 mod attestation;
 mod certificate_assessment;
+mod funding_outcome;
 mod history;
 mod observe_upload;
+mod references;
 mod reply;
 mod submit_attestation;
 #[cfg(test)]
@@ -20,6 +22,10 @@ use serde_json::json;
 use std::{fs::File, io::Read, path::Path, process::ExitCode, time::Duration};
 
 const USAGE: &str = concat!(
+    "blob-storage reference-receipt|reference-status --network ic|local --url URL --identity PEM --actor TENANT --service PRINCIPAL --namespace DECIMAL --request CANDID [--root-key DER]\n",
+    "reference-receipt inspects one saved binary Candid ReferenceCommand; original success/failure is historical, with no fence or liveness observation. reference-status reads one ReferenceStatusRequest and returns current local liveness and fence. Each signs one tenant query; no mutation, provider call or retry authority. Canister tenants use ReplicatedReferenceClient.\n",
+    "blob-storage funding-outcome --network ic|local --url URL --identity PEM --operator PRINCIPAL --service PRINCIPAL --namespace DECIMAL --cashier PRINCIPAL --payer PRINCIPAL --operation DECIMAL --offered DECIMAL [--target-balance DECIMAL] [--root-key DER]\n",
+    "funding-outcome inspects one exact original funding intent. Omit target-balance only when the original intent had none. Absence, unknown transfer and reported balance never authorize another payment; no mutation or provider call occurs.\n",
     "blob-storage upload-history --network ic|local --url URL --identity PEM --operator PRINCIPAL --service PRINCIPAL --namespace DECIMAL --filter all|active|deletion-pending|outstanding [--cursor FILE] [--root-key DER]\n",
     "upload-history reads one service-wide page of retained upload identities and local states. Save a non-null next object for explicit continuation; empty filtered pages can still continue. No auto-pagination, provider call, retry or mutation.\n",
     "blob-storage certificate-assessment --network ic|local --url URL --identity PEM --actor UPLOADER --service PRINCIPAL --namespace DECIMAL --permission CANDID [--root-key DER]\n",
@@ -50,6 +56,7 @@ enum Failure {
     Denied,
     ServiceInternal,
     ServiceInvalid,
+    FundingConflict,
     CursorScope,
     ReplyLimit,
     Content,
@@ -63,6 +70,7 @@ enum Failure {
     Observation,
     SubmissionClaimed,
     AssessmentRefused(ic_blob_storage::dto::upload::exposure::UploadExposureFailure),
+    ReferenceRefused(ic_blob_storage::dto::reference::ReferenceFailure),
 }
 impl Failure {
     const fn code(self) -> &'static str {
@@ -79,6 +87,7 @@ impl Failure {
             Self::Denied => "denied",
             Self::ServiceInternal => "service_internal",
             Self::ServiceInvalid => "service_invalid",
+            Self::FundingConflict => "funding_conflict",
             Self::CursorScope => "cursor_scope",
             Self::ReplyLimit => "reply_limit",
             Self::Content => "content_mismatch",
@@ -92,6 +101,7 @@ impl Failure {
             Self::Observation => "invalid_observation",
             Self::SubmissionClaimed => "submission_already_claimed",
             Self::AssessmentRefused(error) => certificate_assessment::refusal_code(error),
+            Self::ReferenceRefused(error) => references::refusal_code(error),
         }
     }
 }
@@ -154,6 +164,8 @@ fn execute(args: &[String]) -> Result<serde_json::Value, Failure> {
 
 async fn observe(options: &arguments::Options) -> Result<serde_json::Value, Failure> {
     match &options.command {
+        arguments::Command::Reference(input) => references::run(options, input).await,
+        arguments::Command::FundingOutcome(input) => funding_outcome::run(options, *input).await,
         arguments::Command::UploadHistory(input) => upload_history::run(options, input).await,
         arguments::Command::CertificateAssessment(input) => {
             certificate_assessment::run(options, input).await

@@ -25,6 +25,44 @@ fn request() -> ReferenceCommand {
 fn encoded(value: Result<ReferenceReceiptLookup, ReferenceFailure>) -> Vec<u8> {
     encode_one(value).unwrap()
 }
+#[test]
+fn passive_request_encoders_preserve_independent_identities_and_validate_inputs() {
+    let r = request();
+    assert_eq!(
+        candid::decode_one::<ReferenceCommand>(&receipt_request(r).unwrap()).unwrap(),
+        r
+    );
+    let s = ReferenceStatusRequest {
+        upload: r.upload,
+        reference: r.reference,
+    };
+    assert_eq!(
+        candid::decode_one::<ReferenceStatusRequest>(&status_request(s).unwrap()).unwrap(),
+        s
+    );
+    assert_eq!(
+        receipt_request(ReferenceCommand { operation: 0, ..r }),
+        Err(ReferenceReplyError::Invalid)
+    );
+    assert_eq!(
+        receipt_request(ReferenceCommand { reference: 0, ..r }),
+        Err(ReferenceReplyError::Invalid)
+    );
+    assert_eq!(
+        status_request(ReferenceStatusRequest { reference: 0, ..s }),
+        Err(ReferenceReplyError::Invalid)
+    );
+    assert_eq!(
+        status_request(ReferenceStatusRequest {
+            upload: ReferenceUpload {
+                bytes: 0,
+                ..s.upload
+            },
+            ..s
+        }),
+        Err(ReferenceReplyError::Invalid)
+    );
+}
 fn decode_reply(bytes: &[u8]) -> Result<ReferenceReceiptLookup, ReferenceReplyError> {
     decode(request(), bytes, 4096.try_into().unwrap())
 }

@@ -1,6 +1,13 @@
 {
   "schema_version": 1,
   "reviewed_on": "2026-09-25",
+  "current_replacement_review": {
+    "date": "2026-09-30",
+    "record": "acceptance-plan.md#current-local-evidence-and-open-gates--2026-09-30",
+    "scope": "0.4.5 source and uncommitted native funding/reference inspection plus whole-host lifecycle evidence",
+    "upstream_source_refreshed": false,
+    "semantics": "Replacement evidence rows retain their captured coverage and remaining-work statements as history. The linked current review identifies implemented local behavior and still-unqualified acceptance gates; no capability is marked fully qualified."
+  },
   "canic_commit": "10d00c6d9494a45b30e66f84d1bd886c8acdd45c",
   "source_hash_inventory": "canic-source-inventory.tsv",
   "scope": "Maintained Canic blob API, emitted endpoints, storage lifecycle, operator commands and diagnostics. Behavior preservation with required safety corrections; not source/API compatibility.",

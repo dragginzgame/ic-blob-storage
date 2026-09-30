@@ -154,6 +154,14 @@ retired confirmed objects report zero fresh retains. Reads remain passive throug
 suspension and restoration. Positive counts do not bypass enrollment, identity or
 restore checks, reserve a reference or prove that a reference is currently live.
 
+Operator-only native [`blob-storage funding-outcome`](../../README.md) inspects
+one exact original funding intent through `blob_funding_outcome`. Scope, operation,
+offer and optional target are required exactly as originally retained. Found
+records expose independent refund, response, reconciliation and restore fence;
+absence carries no fence information. The signed read grants no payment, credit,
+retry or recovery authority and calls no provider. Same-release fenced owners
+retain passive inspection.
+
 Operator-only native [`blob-storage upload-history`](../../README.md) queries the
 shared `blob_upload_history` service-wide scope with an explicit lifecycle filter.
 One call returns at most 64 inspected rows and 32 matching entries. Saved JSON
@@ -170,6 +178,13 @@ absence; cancelled and settled roots retain their identities. The response echoe
 the request and reports the restore fence even for absence. Suspension and restore
 preserve inspection. Discovery supplies no admission, retry or serving authority;
 live content still requires the consumer's exact live reference.
+
+Native [`reference-status` and `reference-receipt`](../../README.md) sign existing
+tenant queries from saved binary boundary requests. Receipt success/failure stays
+historical and carries no liveness/fence observation; status reads current local
+liveness and fence separately. Native identities must actually be the tenant;
+canister tenants use the shared canister client. No delegated operator authority,
+combined snapshot, provider request, mutation or retry is implied.
 
 Tenant-only `blob_reference_status` takes the complete original `ReferenceUpload`
 and a positive reference ID, with no mutation operation or action. It returns an

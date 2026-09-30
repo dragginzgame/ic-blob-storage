@@ -36,6 +36,14 @@ pub(crate) fn check_request(request: ReferenceCommand) -> Result<(), ReferenceRe
     .map(|_| ())
     .map_err(|_| ReferenceReplyError::Invalid)
 }
+/// Validate and encode exact original intent for passive receipt inspection.
+/// Creates no mutation or retry authority.
+/// # Errors
+/// Rejects invalid identities/declarations or encoding failure.
+pub fn receipt_request(request: ReferenceCommand) -> Result<Vec<u8>, ReferenceReplyError> {
+    check_request(request)?;
+    candid::encode_one(request).map_err(|_| ReferenceReplyError::Invalid)
+}
 /// Decode a reply from an independently authenticated service. Absence, original
 /// success, original failure and lookup refusal remain distinct. Neither absence
 /// nor historical success supplies mutation, retry or current liveness authority.
@@ -84,6 +92,14 @@ pub(crate) fn check_status_request(
     )
     .map(|_| ())
     .map_err(|_| ReferenceReplyError::Invalid)
+}
+
+/// Validate and encode an exact current reference lookup without mutation intent.
+/// # Errors
+/// Rejects invalid identities/declarations or encoding failure.
+pub fn status_request(request: ReferenceStatusRequest) -> Result<Vec<u8>, ReferenceReplyError> {
+    check_status_request(request)?;
+    candid::encode_one(request).map_err(|_| ReferenceReplyError::Invalid)
 }
 
 /// Decode exact current liveness after independent service authentication.

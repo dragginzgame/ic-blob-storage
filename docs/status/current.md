@@ -2,69 +2,117 @@
 
 Date: 2026-09-30
 
-## Active work — native upload history after 0.4.4
+## Active work — native inspection, lifecycle evidence and acceptance review after 0.4.5
 
-The maintainer reports 0.4.4 live. Cargo and the release receipt are 0.4.4;
-local main, origin/main and peeled v0.4.4 resolve to
-`4ac8e5d70f23010f5e9b990f118303afbe1396f9`, from validated source
-`9aab1b2dd847405514f038c12b6442d3e4d8e13e`. The receipt records
+The maintainer reports 0.4.5 live. Cargo and the release receipt are 0.4.5;
+local main, origin/main and peeled v0.4.5 resolve to
+`aac35b92ec883904046092d5f2ca19c39c217cb8`, from validated source
+`9f31d31fc90cea240c9594eef9b3a8707cbf63a6`. The receipt records
 `release-verify`; registry publication was not independently queried.
-This batch extends Unreleased without version mutation or commits.
-
-The maintainer requested the 0.4.5 changelog. Completed upload-history work is
-consolidated under an undated `[0.4.5]` section below empty Unreleased. Cargo and
-the release receipt remain 0.4.4; no release preparation, commit, tag or publication
-occurred. This documentation step checks draft structure and unchanged historical
-notes without rerunning implementation or full CI/release validation.
-
-The initial worktree already contained Cargo.lock updates to quinn-proto 0.11.19
-and quinn-udp 0.5.16. They are preserved unchanged; affected builds use that working
-lock. Its SHA-256 remains
-`946856cdcd2b89e7ea72940a76742ff2ca56872ef4fc01837cb46a6705e81b58`.
-No dependency edit was made by this batch.
+This batch extends Unreleased without version mutation, commits or publication.
+The funding step began from a clean worktree. Its uncommitted work was preserved
+during the reference continuation. Dependencies, allocator and lock remain unchanged;
+Cargo.lock SHA-256 is
+`cba19070732fe01ac391df0d37e4bb8ed0b845852a9c7e15000000f8a3858259`.
 
 ## Completed in this batch
 
-- Native `blob-storage upload-history` signs one existing service-wide history
-  query as the explicitly named operator. Required filters select all retained
-  history, active work, pending physical deletion or outstanding obligations.
-  No saved upload request or unrelated Cashier/payer flags are required.
-- The shared bounded request/reply codec validates request echo, complete original
-  entry identity/scope, tenant/upload ordering, root/object lifetime uniqueness,
-  selected states, scanned/result limits and forward progress. It reuses the
-  maintained scan predicate, preserving continuing billing after physical deletion.
-  Typed refusals never become empty history.
-- Saved JSON continuations bind service, namespace, observer scope, filter and
-  last inspected tenant/upload identity before identity/transport access. Empty
-  filtered pages can still advance. JSON preserves full-width decimal identities,
-  local lifecycle, scanned count and independent restore fence.
-- Bounds are 2 KiB cursor input, 64 KiB decoded reply, 64 inspected rows and
-  32 results, plus the existing 256 KiB HTTP ceiling and 30-second deadline.
-  Each invocation makes one signed query, with explicit IC/local trust and no
-  automatic pagination, provider call, mutation or retry authority.
+- Native `blob-storage funding-outcome` signs one existing `blob_funding_outcome`
+  query as the installed operator under full service/namespace/Cashier/payer scope.
+  Original operation, offered attachment and optional target are explicit positive
+  canonical u128 decimals; omission preserves None, with no inferred default.
+- The additive shared request encoder validates original intent before transport.
+  The maintained bounded reply decoder checks exact echo, refunds and conservative
+  reconciliation. Changed retained amounts/target return funding_conflict; absence
+  and typed service refusals never become an authorization to send another payment.
+- JSON preserves local phase, optional structured response, exact refund, reported
+  balance/error, reconciliation and the found record's restore fence. Unknown
+  transfer retains the full offer; exact acceptance still needs independent
+  provider-credit evidence. No-transfer refers only to attachment, excluding fees.
+  An absent record supplies no fence information, even after restore.
+- Limits are 4 KiB decoded outcome, existing 256 KiB HTTP ceiling and 30-second
+  deadline with explicit identity and IC/local trust. Each invocation sends at most
+  one query. There is no payment, provider query, journal mutation, polling,
+  retry or unfencing authority.
 - README, standalone guide, service contract, roadmap, probe ledger and Unreleased
-  notes propagate the contract together. Public service DTOs/endpoints, stable
-  schema, installation, dependencies, allocator and package version are unchanged.
+  propagate the behavior. Endpoint/DTO/stable-state contracts remain unchanged.
+- Native `reference-receipt` and `reference-status` sign separate tenant queries
+  from saved binary ReferenceCommand and ReferenceStatusRequest respectively.
+  Shared validated encoders and maintained bounded decoders preserve exact upload,
+  reference and operation identities. Input service/namespace/tenant binding checks
+  precede signing and transport. Operator/controller identities cannot impersonate
+  tenants; canister tenants retain ReplicatedReferenceClient integration.
+- Receipt JSON keeps historical success, recorded failure and absence separate,
+  labelling current liveness and fence as not observed. Explicit status returns
+  current local live/fenced flags. Neither observation grants publication or retry
+  authority, and neither invocation silently queries the other boundary. Each
+  uses 4 KiB input/reply bounds, one signed query and the shared trust/deadline limits.
 
-Validation: six core codec cases and three native CLI cases pass, including
-cross-tenant ordering, scope/identity/filter/cursor malformation, independent
-limits, typed refusals and empty filtered progress. Existing standalone history
-authority/suspension/restore cases pass. The actual signed HTTP PocketIC CLI
-journey passes in 6.56 seconds: 64 cancelled one-byte declarations, a full-width
-active identity, scan/result limits, scoped saved continuation, identity/scope
-refusal, unchanged stable bytes and fenced upgrade inspection.
+Funding-step validation: six core funding codec cases and all 24 native CLI unit cases pass.
+New cases cover exact original targets/full-width values, malformed/oversized and
+misbound replies, typed conflict, missing response, unknown transfer, exact partial
+and full refund, and reported balances without credit claims.
+Strict affected all-target/all-feature Clippy and warning-free core rustdoc pass.
 
-The first setup correctly failed with Capacity because it enlarged object history
-but retained the fixture's 20-chunk lifetime budget. It is recorded as
-[upload-history-cli-01](../evidence/caffeine-probes/local/2026-09-30-upload-history-cli-01/summary.json);
-only fixture limits changed, and the corrected outcome is separately retained as
-[upload-history-cli-02](../evidence/caffeine-probes/local/2026-09-30-upload-history-cli-02/summary.json).
-Production resource accounting and provider facts remain unchanged.
+Two actual signed HTTP PocketIC journeys pass in 10.93 seconds. Standalone covers
+absence, wrong namespace/signer/root trust, passive unchanged stable bytes and
+absence after fenced upgrade. The populated durable fixture joins history to
+exact intent inspection, retains partial refund and uncertainty, rejects changed
+offer/target and preserves exact outcomes through fenced restoration.
+Fifteen native invocations made fourteen query attempts; local HTTP instances and
+temporary files were dropped. Existing 0.4.5 service Wasm artifacts were reused;
+no service execution/schema change was required.
 
-Strict affected all-target/all-feature Clippy and the release standalone Wasm
-build pass. Final warning-free core rustdoc, formatting, offline probe integrity,
-native-dependency isolation and diff checks accompany this batch. No full CI/release
-gate, provider request, paid effect, release preparation or deployment was run.
+The broader native suite initially failed when its unchanged download substitute
+could not bind loopback in the sandbox. Retained
+[funding-native-01](../evidence/caffeine-probes/local/2026-09-30-funding-native-01/summary.json)
+records the failure before the loopback-enabled successful rerun.
+[funding-outcome-cli-01](../evidence/caffeine-probes/local/2026-09-30-funding-outcome-cli-01/summary.json)
+retains successful outcomes and source/binary hashes. These are curated local test
+evidence; fixture funding phases and constructed provider-response DTOs do not
+prove deployed Caffeine payment or credit behavior.
+
+Reference-step validation: seven core reference reply cases and all 27 native CLI
+unit cases pass. Affected strict all-target/all-feature Clippy and warning-free
+core rustdoc pass. Two additional signed HTTP PocketIC journeys pass in 18.51
+seconds. Standalone retains Unknown/Unconfirmed refusals through upgrade and
+rejects scope/role/trust misuse. Durable storage distinguishes successful history
+from current liveness through release, settlement and fenced upgrade; changed
+action refuses and a recorded UnknownReference failure survives restoration.
+The installed two-object/three-receipt budgets remain unchanged, with separate
+objects preserving each final-release reservation. Twenty-two native invocations
+made twenty query attempts without mutating stable bytes or saved original input.
+Both local instances/files were dropped. The source/binary hashes and limitations
+are retained in
+[reference-native-01](../evidence/caffeine-probes/local/2026-09-30-reference-native-01/summary.json).
+Service Wasm is still the existing 0.4.5 artifact; completion/deletion/settlement
+are explicit local fixture substitutes, not provider evidence.
+
+Lifecycle/acceptance continuation: the standalone whole-host regression passes
+in 6.37 seconds. One prepared 10 MiB manifest, complete installation/project/
+verifier/release and all non-fence status fields survive stop/start and two
+same-release upgrades. A configuration-bearing upgrade rejects without replacing
+the previous owner. Every successful upgrade fences uploads, funding, gateways
+and reads; manifest preparation, gateway revocation and account inspection refuse
+with typed Fenced errors without changing stable memory. Funding/read history and
+gateway membership are empty in this case; older occupied/in-flight evidence is
+separate. This is current-state inspection evidence, not active recovery or backup
+freshness. Source/binary hashes, review and limitations are retained in
+[standalone-lifecycle-01](../evidence/caffeine-probes/local/2026-09-30-standalone-lifecycle-01/summary.json).
+The owned local instance was dropped; no provider or paid effect occurred.
+Strict PocketIC all-target/all-feature Clippy, formatting and offline integrity
+checks pass. No production behavior, service API/schema or dependency changed.
+
+The [acceptance plan](../acceptance-plan.md#current-local-evidence-and-open-gates--2026-09-30)
+and [Canic parity](../canic-parity.md#required-replacements) now consolidate current
+local evidence and open gates. Their stale summaries incorrectly listed durable
+configuration and real operator identity as missing. Historical capability rows
+retain their captured scope and link to the current review; Canic/Toko source was
+not refreshed or modified. No complete acceptance case or removal gate is closed.
+
+Final formatting, diff, native-dependency isolation and offline probe integrity
+checks accompany this batch. No full CI/release gate, provider request, paid effect,
+release preparation, deployment or build cleanup was run.
 
 ## Current guarantees and scope
 
@@ -98,12 +146,23 @@ with source removal and installation retirement/accounting handled separately.
 
 ## Next integration and open gates
 
-Native assessment and bounded operator upload history are implemented. Do not
-repeat them or interpret their output as a qualification switch. Continue concrete single-owner integration and
-current-state durability/receipt recovery. Identify the exact supported
+Native assessment, bounded operator upload history, exact funding-outcome and
+separate tenant reference receipt/status inspection are implemented. Do not repeat
+them or interpret output as a qualification switch. Continue concrete single-owner
+consumer integration and current-state recovery evidence; use the current
+acceptance matrix to select a remaining concrete gap before adding more commands
+or APIs. Canister tenant authority remains with its existing client; native PEM
+inspection cannot impersonate it. Keep local journals. Identify the exact supported
 state-preserving same-release upgrade boundary before operational recovery; do not
 clear fences, re-admit uncertain operations or revive distributed machinery based
 only on local state or an operator boolean.
+
+Repeated standalone upgrade inspection is now covered. Do not add more equivalent
+empty-owner tests or another diagnostic command solely to extend patch work.
+Next substantive work should address production consumer intent/delivery or the
+repository-owned Canic adapter using shared handlers, or independently qualified
+provider evidence under a separately authorized trial. The single-owner recovery
+scope remains binding; do not infer permission for distributed recovery machinery.
 
 Provider qualification proceeds independently of cooperation under the
 [probe ledger](../evidence/caffeine-probes/README.md). No selected isolated
@@ -114,7 +173,7 @@ acceptance of a narrower operating contract before changing enforcement. Local
 substitutes and retained source hashes cannot establish deployed behavior.
 
 Consumer acceptance, operational recovery and Canic parity remain open. Canic
-removal is not ready. Neither the 0.4.4 release nor this local inventory command closes
+removal is not ready. Neither the 0.4.5 release nor this local inspection tooling closes
 those service gates.
 
 The sections below retain earlier implementation evidence. Their "current batch"

@@ -34,6 +34,50 @@ all logs here; link their maintained test and record material changed findings.
 
 ## Current operating decisions and experiments
 
+2026-09-30 standalone lifecycle/acceptance review intent: inspect maintained
+host/store restoration and reconcile acceptance/parity claims with current local
+evidence. One owned standalone PocketIC canister, one admitted/prepared 10 MiB
+manifest, one stop/start, one rejected configuration-bearing upgrade and two
+same-release empty-argument upgrades. Compare complete installation, retained
+admission/manifest and all four owner fences; after restoration attempt only
+manifest preparation, gateway revocation and account inspection, expecting typed
+Fenced refusals before any source call. No snapshot load, provider request,
+funding, deployment or unfence. Drop the owned local instance; record material
+outcomes and any failure as standalone-lifecycle-01. Local current-state evidence
+does not qualify active recovery or Canic parity.
+
+2026-09-30 native reference inspection intent: exercise separate receipt and
+current-status queries on one owned standalone installation and one populated
+durable storage fixture through signed local PocketIC HTTP. Fixed test tenant
+identity, explicit root DER, exact original saved Candid requests; at most 32
+native invocations, each one query with a 30-second deadline, 256 KiB HTTP ceiling
+and 4 KiB input/reply limits. Check unknown/unconfirmed refusal, caller/scope/trust
+binding, absent and recorded results, retain then release, local liveness,
+settlement and passive fenced upgrade. The populated fixture uses its installed
+two-object budget and three receipts per object, preserving final-release slots.
+Completion, deletion and settlement use
+labelled fixture facts, with no provider requests, payment or retry. Stop owned
+HTTP instances and drop canisters and temporary files; preserve failed/inconclusive
+outcomes before correction and retain material evidence as reference-native-01.
+
+2026-09-30 funding CLI validation follow-up: the broader native CLI suite's
+existing download substitute could not bind loopback in the sandbox. Retain
+funding-native-01 before a loopback-enabled rerun of that unchanged suite. No
+deployed provider contact or funding occurs; temporary local servers/files are
+dropped. The funding-outcome PocketIC intent below remains within its budget.
+
+2026-09-30 exact funding-outcome CLI intent: inspect one owned standalone
+installation and one populated durable storage fixture through signed PocketIC
+HTTP queries as fixed test operators with explicit local root trust. At most
+sixteen native invocations total; each makes at most one query with a 30-second
+deadline, 256 KiB HTTP ceiling and 4 KiB decoded outcome limit. Check absent
+history, original amounts/optional target, partial refund, uncertain attachment,
+scope/identity refusals and passive fenced same-release inspection. Fixture
+funding phases are controlled substitutes, never real payments or evidence of
+Caffeine credit. No provider requests or attached cycles. Stop local HTTP
+instances and drop owned canisters and temporary files. Retain any failed run
+before correction; record material outcomes as funding-outcome-cli-01.
+
 2026-09-30 upload-history follow-up intent: retain the first run's setup Capacity
 refusal, then declare a 65-chunk global/tenant fixture budget for its 65 retained
 one-byte declarations. Rerun the native journey alone as `upload-history-cli-02`
@@ -266,6 +310,10 @@ canisters/files require cleanup. The completed result is indexed below.
 | certificate-cli-02 / 2026-09-30 | Same local signed journey with corrected post-revocation baseline | [Passed test outcome](local/2026-09-30-certificate-cli-02/summary.json), 6.40 seconds | Complete revoked record survives upgrade unchanged; signed assessment retains all four blockers and rejects changed intent/trust, revocation and restoration. No state changes, certificate updates, provider requests or paid effects; local instance stopped and temporary artifacts dropped. No deployed qualification |
 | upload-history-cli-01 / 2026-09-30 | Local PocketIC inventory setup; no native query reached | [Failed setup outcome](local/2026-09-30-upload-history-cli-01/summary.json) | Fixture requested 65 retained declarations but kept lifetime chunk limits at 20; admission correctly returned Capacity. Existing service history tests passed. Source/binary hashes and first failure retained; owned instance dropped, no provider/paid effects |
 | upload-history-cli-02 / 2026-09-30 | Signed local queries with corrected fixture history budget | [Passed outcome](local/2026-09-30-upload-history-cli-02/summary.json), 6.56 seconds | Empty filtered scan advances across 64 cancelled declarations; explicit pages retain full-width active identity and cancelled history through fenced upgrade. Saved cursor/scope/identity refusals preserve stable bytes. Local instance stopped and temporary files dropped; no provider/paid effects or recovery qualification |
+| funding-native-01 / 2026-09-30 | Native CLI validation in network-restricted sandbox | [Failed environment outcome](local/2026-09-30-funding-native-01/summary.json) | New funding cases passed; existing download substitute could not bind loopback. Failure retained before unchanged loopback-enabled rerun; no provider contact or paid effects |
+| funding-outcome-cli-01 / 2026-09-30 | Signed local standalone and controlled durable funding observations | [Passed outcomes](local/2026-09-30-funding-outcome-cli-01/summary.json), 10.93 seconds PocketIC | Exact history-to-outcome binding, partial refund, uncertain attachment, typed conflicts, absence and fenced upgrade preserve stable bytes. Fifteen native invocations, fourteen query attempts, no provider requests/payments. Native unit rerun passes with local loopback; all local instances/files dropped. No provider-credit or recovery qualification |
+| reference-native-01 / 2026-09-30 | Signed local standalone and controlled durable reference inspection | [Passed outcomes](local/2026-09-30-reference-native-01/summary.json), 18.51 seconds PocketIC | Separate history/current queries preserve success and recorded failure through release, substituted settlement and fenced upgrade. Wrong intent/scope/role/trust refuses, queries preserve stable bytes, installed receipt/cleanup bounds unchanged. Twenty-two native invocations, twenty query attempts; no provider requests/payments. Owned local instances/files dropped; no availability, publication or recovery qualification |
+| standalone-lifecycle-01 / 2026-09-30 | Source review and local standalone lifecycle | [Passed outcome and review](local/2026-09-30-standalone-lifecycle-01/summary.json), 6.37 seconds | Stop/start preserves current installation/state; rejected replacement settings preserve the previous owner; two same-release upgrades retain metadata and all four fences. Operational refusals preserve stable bytes. Funding/read owners are empty in this case. Acceptance/parity summaries corrected without qualifying active recovery, provider, managed parity or retirement. Owned instance dropped; no provider/paid effects |
 
 Other retained investigations are indexed here without inventing missing request
 logs or replaying their effects. Use each record's own dates and evidence classes:

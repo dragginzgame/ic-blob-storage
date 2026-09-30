@@ -1,0 +1,61 @@
+{
+  "date": "2026-09-30",
+  "evidence_class": "source_review_and_local_pocketic_standalone_lifecycle",
+  "record_kind": "curated_review_and_test_outcome_not_provider_capture",
+  "base_revision": "aac35b92ec883904046092d5f2ca19c39c217cb8",
+  "workspace": "uncommitted lifecycle and acceptance reconciliation alongside native inspection after 0.4.5",
+  "intent": "Standalone lifecycle/acceptance review intent in probe ledger",
+  "pocket_ic": "16.0.0 via ic-testkit",
+  "artifacts_sha256": {
+    "tests/pocketic/tests/standalone_lifecycle/mod.rs": "c8e823a4dd3a860b19526bec0f060335e4443aee53e53efb8a81dd38bd668ee2",
+    "canisters/standalone/src/ops/mod.rs": "320327eb985be5bcbceaefaa0fa03633a9a207a43e2016e97c5db6c65abefea2",
+    "canisters/standalone/src/model/mod.rs": "984152b32b664ed1b0caf3feaa3a763c01dc0ec0d11e71ceab6bea95a1b7069f",
+    "crates/ic-blob-storage/src/ops/service/stores/mod.rs": "65238716f48d95b66e3f083db87033ec4e456f962606c6ed348ebbd515c01579",
+    "docs/acceptance-plan.md": "795737df3c34c57e6470d0a4f54fd7b24d18f164de485663b04fdfb7b6bb3957",
+    "docs/canic-parity.md": "7e8ba46eee5649a7d08bf67c46cf3b53cc7803885a5b53e336d1a64974159ebd",
+    "docs/canic-capabilities.json": "2e41fb9958d5b43adb182f6c47d0308a65147aba15cd195e10b907fc4c469e1b",
+    "target/wasm32-unknown-unknown/release/ic_blob_storage_canister.wasm": "650cfb84353b6445118a1ee9b9d40a9f187f280723b6d79f50aed0c9328315b2",
+    "Cargo.lock": "cba19070732fe01ac391df0d37e4bb8ed0b845852a9c7e15000000f8a3858259"
+  },
+  "results": [
+    {
+      "test": "standalone_lifecycle::stop_start_and_repeated_upgrade_preserve_installation_and_all_owner_fences",
+      "command": "cargo test --offline --locked -p ic-blob-storage-pocketic-tests --test standalone standalone_lifecycle -- --test-threads=1",
+      "outcome": "passed",
+      "seconds": 6.37,
+      "observations": [
+        "A prepared ten-MiB manifest and complete immutable service/project/verifier/release configuration survive stop/start",
+        "Rejected configuration-bearing upgrade leaves configuration, all-owner status and stable bytes unchanged",
+        "Two empty-argument same-release upgrades each preserve all non-fence status fields and exact admission/manifest metadata",
+        "Upload, funding, gateway and read owners are fenced after each successful upgrade",
+        "Manifest preparation, gateway revocation and account inspection return typed Fenced refusals and preserve stable bytes"
+      ]
+    }
+  ],
+  "review_findings": [
+    "Durable standalone configuration and real native signing/trust are implemented; prior acceptance/parity summaries incorrectly retained these as current missing implementation",
+    "Source capability inventory is historical; original coverage/remaining statements retain their captured scope, with a link to the current acceptance review",
+    "No complete acceptance case is qualified; actual provider, active recovery, managed adapter, operator mutations, production consumer and retirement remain open"
+  ],
+  "failures": [],
+  "budgets": {
+    "owned_canisters": 1,
+    "manifests": 1,
+    "declared_bytes": 10485760,
+    "stop_start_pairs": 1,
+    "rejected_configuration_upgrades": 1,
+    "same_release_empty_argument_upgrades": 2,
+    "fenced_operational_attempts": 6,
+    "provider_requests": 0,
+    "attached_payment_cycles": "0",
+    "paid_effects": 0
+  },
+  "cleanup": "Owned local PocketIC canister and instance dropped; no snapshot, live installation or external cleanup obligations",
+  "limitations": [
+    "Funding/read journals and gateway membership are empty in this standalone case; occupied and in-flight journal evidence is separately scoped",
+    "Stop/start of current heap and inspection-only upgrades do not establish freshness of an older backup",
+    "No snapshot loading, unfencing, operational recovery or paid provider experiment occurred",
+    "Canic/Toko upstream source was not refreshed or modified",
+    "Existing 0.4.5 service Wasm reused; this batch adds regression evidence and reconciles documentation, without product API/schema or production behavior changes"
+  ]
+}

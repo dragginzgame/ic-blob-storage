@@ -1,104 +1,63 @@
-# Service acceptance plan — proposed B1 assignments
+# Service acceptance plan
 
 Qualification follows the [Caffeine probe ledger](evidence/caffeine-probes/README.md).
-Direct provider feedback is not an acceptance prerequisite. Evidence may come from
-public source/interface review and controlled observed behavior, with explicit
-limits and independent verification where possible. A repeated successful trial
-does not prove universal retry, retention or billing guarantees. Unsupported
-features require an explicit contract/case revision, never a silent pass. These
-decisions do not authorize a paid trial or mark any case complete.
+Provider cooperation is not required, but public source review, local substitutes
+and deployed observations remain different evidence classes. Unsupported guarantees
+need an explicit operating-contract decision; repeated success is not a universal
+retry, retention or billing guarantee. This plan authorizes no deployment or paid
+trial. No complete acceptance case below is qualified.
 
-The maintainer's 2026-09-29 [verifier trust decision](service-contract.md#explicit-verifier-completion-trust--accepted-2026-09-29)
-permits A02 completion to mean observed content availability attested by an
-explicitly installed verifier after full off-canister checking. It does not imply
-future retention or close economic obligations. Acceptance must reject other
-callers, altered permissions/evidence and unexposed uploads, preserve the first
-receipt through release/settlement, and keep restored mutation fences. Local IC
-evidence now covers these transaction/authority cases; independent deployed fetch,
-the worker's interruption journal and both-adapter journeys remain outstanding.
+## Current local evidence and open gates — 2026-09-30
 
-No acceptance case below is fully qualified. The shared library has native
-identity, manifest/checkpoint, quota/reference, gateway, reply-codec and funding
-policy evidence. The [core evidence](evidence/core-primitives.md) and
-[capability inventory](canic-capabilities.json) record scoped coverage; source test
-references and nonempty evidence lists are not completion claims.
+This review covers the current 0.4.5 source and the uncommitted funding/reference
+inspection continuation. It supersedes older implementation-gap summaries here;
+historical capability records retain their original dates and limitations.
+No Canic/Toko source refresh or consumer acceptance is implied.
 
-The connected PocketIC fixtures provide partial evidence for:
+| Cases | Implemented and locally evidenced | Still required for full acceptance |
+| --- | --- | --- |
+| A01 — authority | Shared service/tenant rules, explicit operator/uploader/verifier roles, scoped endpoints and signed native queries; controllers do not gain tenant access | Concrete consumer and managed-adapter journey with the same rules |
+| A02 — content | Streaming provider-root/content verification, bounded manifest handling, explicit trusted-verifier completion and immutable attestation receipts | Qualified real certificate/upload path and independent deployed byte fetch; empty-object/serving limits remain explicit contract questions |
+| A03 — interruption | Durable service and fixture-consumer intents, atomic IC rollback, exact historical recovery and native one-shot verifier submission | Actual provider lost-response/charging behavior and production consumer outbox/worker acceptance; local files are not independent freshness authority |
+| A04 — capacity | Bounded objects, references, receipts, sessions, reservations and liabilities; reserved release slots and separate logical/physical/economic accounting | Actual provider pre-charge bounds and production sizing for the selected consumer |
+| A05 — restore | Synchronous standalone restoration of all owners into inspection-only fences; stop/start and repeated current-release upgrades preserve local state; whole-canister rollback risk is demonstrated | A qualified operational recovery boundary and complete independently surviving reconciliation; current upgrades do not resume mutations and old snapshot loads are unsupported for operation |
+| A06 — release race | Exact reference mutation/receipt/status, tombstones, indexed cleanup, revocation and stale callback rejection over local IC substitutes | Deployed deletion and billing-cessation evidence plus accepted production consumer release coordination |
+| A07 — composition | Canic-free core and explicit standalone host use shared handlers; immutable installation, memory grants and lifecycle restore are implemented | Canic adapter, generic managed lifecycle/guard/allocation replacement evidence and both-adapter acceptance |
+| A08 — economics | Maintained Caffeine codecs, exact local transfer/refund journals, liquidity/attachment guards and conservative reconciliation; standalone account inspection is wired | Complete production spendability/liabilities and provider-credit/account activity evidence; reported balances are not receipts |
+| A09 — retirement | Contract separates source removal from installation retirement and preserves uncertainty/continuing obligations | Per-installation inventory and an accountable, evidenced settlement/disposition decision; no reset authority is supplied here |
+| A10 — serving | Root-bound local verification and explicit reference-qualified descriptors/read sessions; native provider observation has exact budgets and retained artifacts | Consumer MIME/public-serving acceptance, deployed serving evidence and confidentiality boundary |
+| A11 — operator parity | Signed native status, funding history/outcome, upload history, certificate assessment, reference receipt/status and verifier tooling; standalone gateway/account handlers also exist | Qualified operator mutation workflows, managed target discovery and both-deployment journeys. Read-only native coverage does not imply sync/funding command parity |
+| A12 — removal readiness | Source-bound Canic capability inventory and maintained replacement evidence | Every required behavior working here, Canic-owned generic coverage transfer, refreshed removal inventory and separate retirement review |
 
-- A01/A02/A06: actual caller/controller separation, byte verification, admission,
-  release/deletion callbacks and revoked/stale gateway rejection. Completion,
-  stored bytes and final billing facts remain controlled substitutes.
-- A03/A04/A05: committed intents, exact replay, callback rollback, retained
-  capacity and lifetime history, private verification checkpoints and same-release
-  inspection-only recovery. Captured in-flight read/sync journals remain fenced
-  even when restored after their newer live calls completed. Missing/corrupt
-  journals reject atomically. Large histories can exceed active byte limits while
-  still retaining cancelled/settled identities and receipts.
-- A08: actual local cycle transfer/refund and insufficient-cycles behavior,
-  callback uncertainty and journal restoration. Accepted transport cycles do not
-  prove Cashier account credit; physical deletion does not prove billing stopped.
-  Funding status diagnoses all retained attempts without effects; later no-transfer
-  results cannot hide older unverified credit. Missing recovery authority remains
-  explicit; successful restoration permanently fences both cycle sending and
-  acceptance. Old journals, actual in-flight intents and late replies stay fenced;
-  missing/corrupt/foreign journals and failed hooks preserve the previous owner.
-- A04/A05/A11: a read-only operator status query reports separate retained byte
-  obligations, lifetime history and pending callbacks, including fenced restores.
-  Queries preserve journals and source history. Missing economics stay unknown;
-  native policy tests retain malformed/unavailable balances and uncertain funding.
-- A11: actual `blob-fixture-status` subprocesses query explicitly bound local
-  instances, preserve exact JSON amounts/unknowns and signal blockers separately
-  from read failures. Denied/wrong bindings, missing and update-only methods reject
-  without mutation; successful and fenced reads preserve journals and instance
-  ownership. This is a simulator transport with a simulated caller.
-- A11: the separate local refresh command has an effect-free admission preview.
-  Atomic update checks bind revision, next attempt and all account/source scope.
-  Actual subprocess tests reject stale previews, consumed requests, busy/fenced
-  owners and denied callers. A completed update with failed post-status is retained
-  as completed without replay; malformed acknowledgement stays uncertain. Production
-  sync/funding commands, identity and both adapters remain outstanding.
-- A05/A11: local gateway-sync commands bind edit revision and next sequence;
-  no-op revocations invalidate previews. Held replies, reentrant replacement,
-  failed post-status and live callback upgrades retain current membership or
-  fenced pending evidence without command replay. Production sync remains open.
-- A08/A11: passive funding preview binds identity and full amount, preserving
-  missing spendability and uncredited/unknown transfers. Actual queries and CLI
-  subprocesses leave attempts/receipts unchanged across refunds, callback traps,
-  capacity exhaustion and restore. No operator funding action is qualified.
-- A08/A11: the installed local attachment budget reserves each full original offer
-  before dispatch. Actual IC tests prove atomic reserve rejection, exact refund
-  release, distinct unsent calls, no replenishment by incoming/gross cycles and
-  retained uncertainty after callback rollback and restore. A full refund changes
-  preview revision despite leaving allocation unchanged. The additional liquidity
-  guard checks exact platform call costs and installed operating/liability holds
-  after persistence. PocketIC proves fee-only rejection and independent liquidity
-  changes without a budget revision. Production spendability, recovery and provider
-  credit remain unqualified; cached previews cannot authorize a transfer.
-  Refused unsent operations retain identities/capacity even with callback trap
-  controls set; actual zero/full-refund callback failures remain uncertain.
-- A05/A08/A11: scoped balance-read intents and bounded history survive fenced
-  restoration. Actual controlled-source calls cover malformed/rejected/misbound
-  replies, dispatch-based expiry, reconfiguration during a held read and upgrades
-  while callbacks are live. Passive status/CLI reads preserve both journals;
-  provider credit, spendable funds and production billing remain unqualified.
-- A08/A11: validated local billing limits remain bound to the observation revision.
-  Shared threshold diagnosis and the actual CLI preserve unknown spendability,
-  malformed/unavailable/expired observations and restore fences. Limit updates and
-  status reads do not refresh, fund or clear uncertainty. The released complete
-  reserve API retains its behavior; this adds no production funding authority.
+Current source-bound local records include:
 
-See [current recovery evidence](evidence/core-primitives.md#verification-checkpoints-after-0115)
-and [funding evidence](evidence/core-primitives.md#funding-callback-experiment).
-These experiments neither qualify deployed Caffeine behavior nor resume service
-operations after restore. Snapshot loads can bypass lifecycle hooks. Independent
-recovery authority, paid-effect retention/idempotency, production bounds and named
-owners remain requirements of the [service contract](service-contract.md).
+- [Funding inspection](evidence/caffeine-probes/local/2026-09-30-funding-outcome-cli-01/summary.json)
+  and [reference history/status](evidence/caffeine-probes/local/2026-09-30-reference-native-01/summary.json):
+  actual native signing/trust, typed refusals, exact original intent, passive
+  durable history and fenced inspection. Fixture provider outcomes are substitutes.
+- [Upload history](evidence/caffeine-probes/local/2026-09-30-upload-history-cli-02/summary.json)
+  and [certificate assessment](evidence/caffeine-probes/local/2026-09-30-certificate-cli-02/summary.json):
+  bounded inventory progress and the current production blockers, without
+  mutation/retry authority or issuance readiness.
+- [Whole-host lifecycle](evidence/caffeine-probes/local/2026-09-30-standalone-lifecycle-01/summary.json):
+  retained installation and admission/manifest across stop/start and repeated
+  fenced upgrades. Funding/read owners are empty in this case; occupied/in-flight
+  recovery evidence remains separately scoped in [core evidence](evidence/core-primitives.md).
+- [Snapshot findings](evidence/caffeine-probes/local/2026-09-30-snapshot-01/summary.json):
+  loading an old whole-canister snapshot can bypass upgrade hooks and forget later
+  history. Deferring external journals/controllers does not close this requirement.
+
+Production signing and durable standalone configuration are implemented.
+Provider qualification, operational recovery, Canic integration, production
+operator mutations, consumer acceptance and installation retirement remain open.
+Libraries, local test artifacts and release publication do not qualify those gates.
 
 Run the final service cases through standalone and managed deployments using the
 same handlers. Both adapters and the operator client belong here; Canic supplies
-generic managed lifecycle/discovery. The current fixture client does not
-qualify production operator transport, configured provider observations or either adapter,
-and does not close A07/A11/A12.
+generic managed lifecycle/discovery. Fixture clients alone do not qualify
+production identity or deployed observations. Signed native tooling now has local
+standalone/durable-fixture evidence; managed integration, operator mutation parity
+and actual-provider acceptance remain open under A07/A11/A12.
 
 Provider compatibility cases must use the current selected integration in the
 [baseline record](provider-baseline.json), refreshed before provider implementation

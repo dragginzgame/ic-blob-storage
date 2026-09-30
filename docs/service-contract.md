@@ -788,6 +788,21 @@ provider effect. A successful retained receipt does not imply a live reference;
 live status does not imply active enrollment, serving authority or a cleared fence.
 The storage fixture's private boolean endpoint is removed.
 
+Native `blob-storage reference-receipt` and `reference-status` sign these existing
+queries as the explicit tenant using saved binary Candid ReferenceCommand and
+ReferenceStatusRequest respectively. Shared request encoders apply the maintained
+identity/declaration rules; file limits, exact service/namespace and tenant checks
+precede signing and transport. Native PEM principals must be actual tenants;
+configured operators/controllers cannot impersonate a tenant, and canister tenants
+use their existing ReplicatedReferenceClient. Each invocation sends one signed
+query with a 30-second deadline, 256 KiB HTTP ceiling and 4 KiB input/reply bounds.
+The receipt JSON retains original success/recorded failure/absence, labelling
+liveness and fence as not observed because this endpoint carries neither.
+Status independently reports current local liveness and restore fence. Refusals
+remain typed errors; observations including recorded failures exit successfully.
+There is no combined snapshot, provider availability evidence, publication lease,
+mutation, local journal write or retry/recovery authority.
+
 `ReplicatedReferenceClient::status` uses the same authenticated single-call transport
 as receipt inspection and mutation, with separate exact status-request validation.
 It bounds reply bytes and decoding, checks the full echo and preserves the independent
@@ -1553,6 +1568,16 @@ failures, and the restore fence. Workflow applies the existing reconciliation po
 to retained transfer facts, independently of reply classification. Missing history
 and missing structured replies remain distinct; neither permits another payment.
 The fixture's private outcome DTO and endpoint conversion are removed.
+
+Native `blob-storage funding-outcome` uses this existing operator boundary and
+the shared validated request encoder and bounded reply decoder. Original operation,
+offer and optional target must be supplied exactly, including the distinction
+between no target and a present target. JSON separates absence, missing structured
+response, exact refund, reported balance/error, conservative reconciliation and
+the found journal's restore fence. Absence has no record and therefore no fence
+observation; it must not be interpreted as an unfenced owner. Full-width amounts
+remain decimal strings. One signed query has a 4 KiB decoded outcome bound and
+grants no provider-credit, retry, payment or unfencing authority.
 
 `ReplicatedFundingClient` pins the actual executing canister and full operator
 scope for one bounded replicated history/outcome call. It uses maintained method
