@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.4.4] - 2026-09-30
+
 ### Added
 
 - Native `blob-storage certificate-assessment` signs one uploader-only query and
