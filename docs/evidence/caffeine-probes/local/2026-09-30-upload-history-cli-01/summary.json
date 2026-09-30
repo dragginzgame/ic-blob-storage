@@ -1,0 +1,53 @@
+{
+  "date": "2026-09-30",
+  "evidence_class": "local_pocketic_upload_inventory_setup",
+  "record_kind": "curated_test_outcome_not_raw_provider_capture",
+  "base_revision": "4ac8e5d70f23010f5e9b990f118303afbe1396f9",
+  "workspace": "uncommitted native upload history after 0.4.4; pre-existing Cargo.lock changes retained",
+  "pocket_ic": "16.0.0 via ic-testkit",
+  "intent": "Prior local upload-history tooling intent in probe ledger",
+  "command": "cargo test --offline --locked -p ic-blob-storage-pocketic-tests --test standalone standalone_history -- --test-threads=1",
+  "artifacts_sha256": {
+    "tests/pocketic/tests/standalone_history_cli/mod.rs": "be9307bd7e855377dcbafba8b2e35ad6becf5ecb5c74fde6cad77b085d6d7cbb",
+    "crates/ic-blob-storage/src/ops/service/uploads/history/reply/mod.rs": "4030d62c0aabc1c292920c007e85209e46fcb5ad96da39796404142a93fd2b46",
+    "crates/ic-blob-storage-cli/src/native/upload_history/mod.rs": "52f83b9ea2ff07916c48c4b13b17f1fa05846ee6cf3f8020ccd1ac1cc88cf90a",
+    "target/wasm32-unknown-unknown/release/ic_blob_storage_canister.wasm": "650cfb84353b6445118a1ee9b9d40a9f187f280723b6d79f50aed0c9328315b2",
+    "target/debug/blob-storage": "23dc8f6e4d35438c69ea1c191d99e4cc7f54877c2a174640bf7d8db99a5bd1e1",
+    "Cargo.lock": "946856cdcd2b89e7ea72940a76742ff2ca56872ef4fc01837cb46a6705e81b58"
+  },
+  "results": [
+    {
+      "test": "standalone_history::standalone_history_preserves_distinct_full_width_ids_and_fenced_suspended_inspection",
+      "outcome": "passed"
+    },
+    {
+      "test": "standalone_history::standalone_history_rejects_scope_and_cursor_errors_even_without_records",
+      "outcome": "passed"
+    },
+    {
+      "test": "standalone_history_cli::standalone_history_cli_follows_empty_progress_and_retains_inventory_after_upgrade",
+      "outcome": "failed_during_setup"
+    }
+  ],
+  "failures": [
+    {
+      "kind": "fixture_capacity",
+      "location": "tests/pocketic/tests/standalone_history_cli/mod.rs:84",
+      "observed": "UploadAdmissionFailure::Capacity",
+      "cause": "Fixture enlarged lifetime object capacity to 65 but retained default global/tenant lifetime chunk limit 20",
+      "interpretation": "Setup did not satisfy its declared history budget; production limits and lifetime accounting remain correct"
+    }
+  ],
+  "requests": {
+    "native_commands": 0,
+    "provider_requests": 0,
+    "paid_effects": 0,
+    "definitions": "Maintained test sources; no raw Candid transcript retained"
+  },
+  "cleanup": "Owned PocketIC instance and its local canister dropped during unwind; no live CLI HTTP instance or input directory had been created",
+  "limitations": [
+    "No native upload-history transport was reached in this run",
+    "No deployed provider or IC behavior observed",
+    "Hashes identify local artifacts, not provider authenticity or reproducible builds"
+  ]
+}

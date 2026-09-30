@@ -34,6 +34,23 @@ all logs here; link their maintained test and record material changed findings.
 
 ## Current operating decisions and experiments
 
+2026-09-30 upload-history follow-up intent: retain the first run's setup Capacity
+refusal, then declare a 65-chunk global/tenant fixture budget for its 65 retained
+one-byte declarations. Rerun the native journey alone as `upload-history-cli-02`
+under the original twelve-invocation budget. Production limits/accounting and
+provider facts stay unchanged; no provider requests or paid effects.
+
+2026-09-30 local upload-history tooling intent: inspect one owned PocketIC
+standalone installation with a fixed test operator identity and explicit local
+root trust. Retain 64 cancelled one-byte declarations followed by one full-width
+active identity to exercise empty filtered progress, explicit pagination and
+same-release fenced inspection. At most twelve native invocations, one query
+per invocation, 30-second deadline, 256 KiB HTTP and 64 KiB decoded reply limits;
+no manifests, file/provider transfer, certificate updates or paid effects.
+Saved cursor scope must reject before identity/transport access. Stop the local
+HTTP instance and drop owned canisters/temporary input files. This tests local
+inventory observations, not deployed provider state or complete recovery freshness.
+
 2026-09-30 certificate CLI follow-up intent: retain the first local run's final
 incorrect state assertion, then compare the complete post-revocation record
 before and after upgrade. Repeat only the maintained native journey as a new
@@ -247,6 +264,8 @@ canisters/files require cleanup. The completed result is indexed below.
 | verifier-observation / 2026-09-29 | Native loopback HTTP substitutes and signed PocketIC installed-plan/statement journey; fixture exposure only | 14 native CLI tests pass, including multi-chunk streaming and HTTP corruption/EOF/size/encoding/redirect refusals. `storage_observe_cli` passes (4.00 seconds); standalone completion/plan refusals pass (5.37 seconds) | Intent exists before GET; complete verification saves the exact statement without dispatch. Killing the subprocess mid-body leaves no statement/summary and forbids reuse of that run. Explicit fixture dispatch accepts the independently checked statement and receipt recovery matches. Service bytes stay unchanged during observation. Local artifacts are temporary test outputs; maintained tests retain the scenario definitions. No real provider/account access, charges or cleanup obligations; no deployed qualification |
 | certificate-cli-01 / 2026-09-30 | Signed local native queries with current production host facts | [Failed test outcome](local/2026-09-30-certificate-cli-01/summary.json) | All transport, blocker, intent, revocation and fence checks reached; final test assertion wrongly expected Reserved after explicit revocation (actual Cancelled). First outcome and source/binary hashes retained. No provider requests or paid effects; local instance stopped and temporary artifacts dropped |
 | certificate-cli-02 / 2026-09-30 | Same local signed journey with corrected post-revocation baseline | [Passed test outcome](local/2026-09-30-certificate-cli-02/summary.json), 6.40 seconds | Complete revoked record survives upgrade unchanged; signed assessment retains all four blockers and rejects changed intent/trust, revocation and restoration. No state changes, certificate updates, provider requests or paid effects; local instance stopped and temporary artifacts dropped. No deployed qualification |
+| upload-history-cli-01 / 2026-09-30 | Local PocketIC inventory setup; no native query reached | [Failed setup outcome](local/2026-09-30-upload-history-cli-01/summary.json) | Fixture requested 65 retained declarations but kept lifetime chunk limits at 20; admission correctly returned Capacity. Existing service history tests passed. Source/binary hashes and first failure retained; owned instance dropped, no provider/paid effects |
+| upload-history-cli-02 / 2026-09-30 | Signed local queries with corrected fixture history budget | [Passed outcome](local/2026-09-30-upload-history-cli-02/summary.json), 6.56 seconds | Empty filtered scan advances across 64 cancelled declarations; explicit pages retain full-width active identity and cancelled history through fenced upgrade. Saved cursor/scope/identity refusals preserve stable bytes. Local instance stopped and temporary files dropped; no provider/paid effects or recovery qualification |
 
 Other retained investigations are indexed here without inventing missing request
 logs or replaying their effects. Use each record's own dates and evidence classes:

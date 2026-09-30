@@ -14,6 +14,7 @@ mod standalone_download;
 mod standalone_funding;
 mod standalone_gateways;
 mod standalone_history;
+mod standalone_history_cli;
 mod standalone_operator;
 mod standalone_reference_capacity;
 mod standalone_reference_recovery;

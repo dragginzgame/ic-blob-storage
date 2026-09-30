@@ -7,6 +7,7 @@ mod reply;
 mod submit_attestation;
 #[cfg(test)]
 mod tests;
+mod upload_history;
 mod verify_upload;
 
 use candid::Principal;
@@ -19,6 +20,8 @@ use serde_json::json;
 use std::{fs::File, io::Read, path::Path, process::ExitCode, time::Duration};
 
 const USAGE: &str = concat!(
+    "blob-storage upload-history --network ic|local --url URL --identity PEM --operator PRINCIPAL --service PRINCIPAL --namespace DECIMAL --filter all|active|deletion-pending|outstanding [--cursor FILE] [--root-key DER]\n",
+    "upload-history reads one service-wide page of retained upload identities and local states. Save a non-null next object for explicit continuation; empty filtered pages can still continue. No auto-pagination, provider call, retry or mutation.\n",
     "blob-storage certificate-assessment --network ic|local --url URL --identity PEM --actor UPLOADER --service PRINCIPAL --namespace DECIMAL --permission CANDID [--root-key DER]\n",
     "certificate-assessment reads one exact permission assessment and its missing prerequisites. It never issues a certificate, reserves issuance or authorizes retry, even with no blockers.\n",
     "blob-storage status|funding-history --network ic|local --url URL --identity PEM --operator PRINCIPAL --service PRINCIPAL --namespace DECIMAL --cashier PRINCIPAL --payer PRINCIPAL [--root-key DER]\n",
@@ -151,6 +154,7 @@ fn execute(args: &[String]) -> Result<serde_json::Value, Failure> {
 
 async fn observe(options: &arguments::Options) -> Result<serde_json::Value, Failure> {
     match &options.command {
+        arguments::Command::UploadHistory(input) => upload_history::run(options, input).await,
         arguments::Command::CertificateAssessment(input) => {
             certificate_assessment::run(options, input).await
         }

@@ -14,6 +14,7 @@ pub(super) struct Options {
 }
 
 pub(super) enum Command {
+    UploadHistory(super::upload_history::Input),
     CertificateAssessment(super::certificate_assessment::Input),
     SubmitAttestation(super::submit_attestation::Input),
     ObserveUpload(super::observe_upload::Input),
@@ -56,6 +57,7 @@ impl Options {
         if !matches!(
             command,
             "status"
+                | "upload-history"
                 | "certificate-assessment"
                 | "funding-history"
                 | "verify-upload"
@@ -131,7 +133,14 @@ fn parse_command(
     flags: &mut BTreeMap<&str, &str>,
 ) -> Result<Command, Failure> {
     let mut take = |name| flags.remove(name).ok_or(Failure::Arguments);
-    Ok(if command == "certificate-assessment" {
+    Ok(if command == "upload-history" {
+        Command::UploadHistory(super::upload_history::Input {
+            service,
+            namespace,
+            filter: super::upload_history::filter(take("--filter")?)?,
+            cursor: flags.remove("--cursor").map(PathBuf::from),
+        })
+    } else if command == "certificate-assessment" {
         Command::CertificateAssessment(super::certificate_assessment::Input {
             service,
             namespace,

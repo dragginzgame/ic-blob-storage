@@ -84,6 +84,13 @@ claim is introduced. The [provider questions](provider-review.md#focused-provide
 now identify the exact existing server guarantees and retention information needed
 to close the remaining evidence gaps, without demanding a custom provider API.
 
+`blob-storage upload-history` now gives the operator one signed service-wide page
+of retained identities and local lifecycle states without saved upload input.
+Explicit filtering and saved scoped continuation preserve empty filtered progress,
+cancelled history and same-release restore fences. The shared bounded decoder
+validates identity scope, ordering, uniqueness and work/progress facts. This supports
+local inventory inspection, not complete provider/backup reconciliation or retry.
+
 The maintainer directed the next implementation toward canister service storage;
 the local filesystem journal remains optional test/operator tooling. Shared stable
 components now form one upload/lifecycle owner through host-granted `ic-memory`,

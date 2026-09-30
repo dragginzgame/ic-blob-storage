@@ -2,49 +2,69 @@
 
 Date: 2026-09-30
 
-## Active work — native certificate assessment after 0.4.3
+## Active work — native upload history after 0.4.4
 
-The maintainer reports 0.4.3 live. Cargo and the release receipt are 0.4.3;
-local main, origin/main and peeled v0.4.3 resolve to
-`d1b80f58560cac5b9b19a1ba10489897c653eb4d`, from validated source
-`cb8715792d4a81a7fa8708f9d5ee4f7720c285c8`. The receipt records
+The maintainer reports 0.4.4 live. Cargo and the release receipt are 0.4.4;
+local main, origin/main and peeled v0.4.4 resolve to
+`4ac8e5d70f23010f5e9b990f118303afbe1396f9`, from validated source
+`9aab1b2dd847405514f038c12b6442d3e4d8e13e`. The receipt records
 `release-verify`; registry publication was not independently queried.
-This batch started clean and extends Unreleased without version mutation or commits.
+This batch extends Unreleased without version mutation or commits.
+
+The maintainer requested the 0.4.5 changelog. Completed upload-history work is
+consolidated under an undated `[0.4.5]` section below empty Unreleased. Cargo and
+the release receipt remain 0.4.4; no release preparation, commit, tag or publication
+occurred. This documentation step checks draft structure and unchanged historical
+notes without rerunning implementation or full CI/release validation.
+
+The initial worktree already contained Cargo.lock updates to quinn-proto 0.11.19
+and quinn-udp 0.5.16. They are preserved unchanged; affected builds use that working
+lock. Its SHA-256 remains
+`946856cdcd2b89e7ea72940a76742ff2ca56872ef4fc01837cb46a6705e81b58`.
+No dependency edit was made by this batch.
 
 ## Completed in this batch
 
-- Native `blob-storage certificate-assessment` signs one uploader-only query to
-  the existing standalone endpoint. The saved binary Candid permission must bind
-  the explicit service, namespace and uploader before identity/network access.
-  Replies must match every original permission field; JSON preserves independent
-  full-width identities, assessment time and all missing prerequisites.
-- The shared public request/reply codec reuses maintained permission validation
-  and applies explicit byte/work/type limits. Malformed, oversized, foreign or
-  duplicate-blocker replies reject. Authenticated service refusals stay typed;
-  the CLI preserves distinct unprepared, revoked, phase and permission codes.
-- The command uses the existing signed-query transport, explicit IC/local root
-  trust, no redirects/transport retries, a 30-second deadline, a 256 KiB HTTP
-  ceiling and 4 KiB permission/reply bounds. It never issues a certificate,
-  reserves issuance, calls a provider or writes an intent journal. Even an empty
-  assessment grants no issuance/retry authority.
-- README, standalone guide, contract, roadmap, probe ledger and Unreleased notes
-  propagate the maintained contract together. No endpoint, stable-state schema,
-  configuration, dependency, allocator or version changed.
+- Native `blob-storage upload-history` signs one existing service-wide history
+  query as the explicitly named operator. Required filters select all retained
+  history, active work, pending physical deletion or outstanding obligations.
+  No saved upload request or unrelated Cashier/payer flags are required.
+- The shared bounded request/reply codec validates request echo, complete original
+  entry identity/scope, tenant/upload ordering, root/object lifetime uniqueness,
+  selected states, scanned/result limits and forward progress. It reuses the
+  maintained scan predicate, preserving continuing billing after physical deletion.
+  Typed refusals never become empty history.
+- Saved JSON continuations bind service, namespace, observer scope, filter and
+  last inspected tenant/upload identity before identity/transport access. Empty
+  filtered pages can still advance. JSON preserves full-width decimal identities,
+  local lifecycle, scanned count and independent restore fence.
+- Bounds are 2 KiB cursor input, 64 KiB decoded reply, 64 inspected rows and
+  32 results, plus the existing 256 KiB HTTP ceiling and 30-second deadline.
+  Each invocation makes one signed query, with explicit IC/local trust and no
+  automatic pagination, provider call, mutation or retry authority.
+- README, standalone guide, service contract, roadmap, probe ledger and Unreleased
+  notes propagate the contract together. Public service DTOs/endpoints, stable
+  schema, installation, dependencies, allocator and package version are unchanged.
 
-Validation: two core codec tests and two native command tests pass. Existing
-standalone certificate authority/lifecycle coverage passes; the new actual signed
-HTTP PocketIC CLI journey passes in 6.40 seconds. It covers missing preparation,
-four host blockers, changed saved expiry, bad root trust, revocation, upgrade
-fencing and unchanged stable memory. The first run passed these checks but failed
-its final incorrect Reserved expectation after revocation; it is retained as
-[certificate-cli-01](../evidence/caffeine-probes/local/2026-09-30-certificate-cli-01/summary.json).
-The corrected run compares the complete revoked record across upgrade and is
-retained separately as
-[certificate-cli-02](../evidence/caffeine-probes/local/2026-09-30-certificate-cli-02/summary.json).
-Strict affected all-target/all-feature Clippy and the release standalone Wasm build
-pass. Warning-free core rustdoc, formatting, offline probe integrity and diff
-checks pass; the CLI Wasm dependency tree still contains only the package itself.
-No full CI/release gate or live provider request was run.
+Validation: six core codec cases and three native CLI cases pass, including
+cross-tenant ordering, scope/identity/filter/cursor malformation, independent
+limits, typed refusals and empty filtered progress. Existing standalone history
+authority/suspension/restore cases pass. The actual signed HTTP PocketIC CLI
+journey passes in 6.56 seconds: 64 cancelled one-byte declarations, a full-width
+active identity, scan/result limits, scoped saved continuation, identity/scope
+refusal, unchanged stable bytes and fenced upgrade inspection.
+
+The first setup correctly failed with Capacity because it enlarged object history
+but retained the fixture's 20-chunk lifetime budget. It is recorded as
+[upload-history-cli-01](../evidence/caffeine-probes/local/2026-09-30-upload-history-cli-01/summary.json);
+only fixture limits changed, and the corrected outcome is separately retained as
+[upload-history-cli-02](../evidence/caffeine-probes/local/2026-09-30-upload-history-cli-02/summary.json).
+Production resource accounting and provider facts remain unchanged.
+
+Strict affected all-target/all-feature Clippy and the release standalone Wasm
+build pass. Final warning-free core rustdoc, formatting, offline probe integrity,
+native-dependency isolation and diff checks accompany this batch. No full CI/release
+gate, provider request, paid effect, release preparation or deployment was run.
 
 ## Current guarantees and scope
 
@@ -78,8 +98,8 @@ with source removal and installation retirement/accounting handled separately.
 
 ## Next integration and open gates
 
-The native assessment is now implemented; do not repeat it or interpret its output
-as a qualification switch. Continue concrete single-owner integration and
+Native assessment and bounded operator upload history are implemented. Do not
+repeat them or interpret their output as a qualification switch. Continue concrete single-owner integration and
 current-state durability/receipt recovery. Identify the exact supported
 state-preserving same-release upgrade boundary before operational recovery; do not
 clear fences, re-admit uncertain operations or revive distributed machinery based
@@ -94,7 +114,7 @@ acceptance of a narrower operating contract before changing enforcement. Local
 substitutes and retained source hashes cannot establish deployed behavior.
 
 Consumer acceptance, operational recovery and Canic parity remain open. Canic
-removal is not ready. Neither the 0.4.3 release nor this diagnostic command closes
+removal is not ready. Neither the 0.4.4 release nor this local inventory command closes
 those service gates.
 
 The sections below retain earlier implementation evidence. Their "current batch"

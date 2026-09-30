@@ -154,6 +154,15 @@ retired confirmed objects report zero fresh retains. Reads remain passive throug
 suspension and restoration. Positive counts do not bypass enrollment, identity or
 restore checks, reserve a reference or prove that a reference is currently live.
 
+Operator-only native [`blob-storage upload-history`](../../README.md) queries the
+shared `blob_upload_history` service-wide scope with an explicit lifecycle filter.
+One call returns at most 64 inspected rows and 32 matching entries. Saved JSON
+continuations bind the complete scan; empty filtered pages can still continue.
+The command preserves cancelled/settled history and restore fences without
+provider calls, automatic pagination or mutation/retry authority. Tenant-scoped
+service queries retain their existing caller rules; the native command grants no
+operator access through tenant scope.
+
 Tenant-only `blob_lookup_content` takes `TenantScope` and a provider root. Indexed
 discovery returns the complete original upload identity and current local lifecycle,
 without reading manifests or scanning history. Unknown and foreign roots share

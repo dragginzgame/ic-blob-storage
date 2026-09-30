@@ -2,6 +2,20 @@
 
 ## [Unreleased]
 
+## [0.4.5]
+
+### Added
+
+- Native `blob-storage upload-history` signs one operator query over retained
+  upload identities and local lifecycle states. Explicit filters, full-width JSON,
+  saved scoped cursors, scanned-row counts and restore fences preserve empty
+  filtered progress without automatic pagination, provider calls or retry authority.
+- Shared bounded upload-history request/reply codec checks complete identity,
+  scope, ordering, root/object uniqueness, selected states and forward continuation.
+  Refusals stay distinct from empty pages. Signed PocketIC coverage exercises
+  cancelled history, real scan/page bounds and saved continuation after upgrade
+  without changing stable state.
+
 ## [0.4.4] - 2026-09-30
 
 ### Added

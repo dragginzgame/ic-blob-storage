@@ -74,7 +74,7 @@ pub enum UploadScanFilter {
     Outstanding,
 }
 impl UploadScanFilter {
-    fn includes(self, state: UploadRootState) -> bool {
+    pub(super) fn includes(self, state: UploadRootState) -> bool {
         match self {
             Self::All => true,
             Self::Active => matches!(

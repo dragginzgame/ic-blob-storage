@@ -1,4 +1,5 @@
 //! Passive boundary conversion around the existing bounded stable scan.
+pub mod reply;
 use crate::{
     dto::{
         reference::ReferenceUpload,

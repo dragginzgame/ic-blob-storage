@@ -1263,6 +1263,17 @@ each call to 64 inspected rows and 32 results. The storage fixture uses the same
 handler with single-row limits for cursor/failure evidence; its private scan DTOs
 and endpoint are removed. No manifest, file body or provider evidence is returned.
 
+The native `blob-storage upload-history` command signs one service-wide scan as
+the explicitly named operator, with required filter and optional saved JSON cursor.
+The cursor binds service, namespace, observer scope, filter and last inspected
+tenant/upload ID before identity/transport access. The shared bounded request/reply
+codec validates the complete request echo, full entry identities, tenant/upload
+ordering, root/object uniqueness, selected lifecycle states, scan/result bounds
+and forward continuation. Empty filtered pages may continue past unreturned rows;
+empty or fenced observations do not become mutation/retry authority. JSON retains
+decimal-string identities and scanned counts. No automatic traversal, provider
+request, live reference claim or account/freshness reconciliation is performed.
+
 `workflow::uploads::discovery::inspect` exposes indexed tenant discovery as
 `blob_lookup_content` in the standalone host and both admission fixtures. Scope
 checks precede visibility; operators, uploaders and controllers have no implicit

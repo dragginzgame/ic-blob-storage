@@ -608,6 +608,40 @@ The command never automatically paginates, retries a payment or writes a journal
 Local tests cover populated history through the shared durable storage fixture;
 its payment outcomes are controlled substitutes, not deployed Cashier evidence.
 
+`upload-history` recovers retained upload identities without saved upload requests:
+
+```sh
+cargo run --offline --locked -p ic-blob-storage-cli --bin blob-storage -- \
+  upload-history --network ic --url "$IC_API_URL" --identity "$OPERATOR_PEM" \
+  --operator "$OPERATOR_PRINCIPAL" --service "$SERVICE_PRINCIPAL" \
+  --namespace "$SERVICE_NAMESPACE" --filter outstanding
+```
+
+The configured operator observes the installed service-wide history. `--filter`
+is required: `all` includes cancellation and settlement, `active` includes reserved
+or possibly exposed uploads, `deletion-pending` selects unresolved physical deletion,
+and `outstanding` also retains live/provider-deleted content with unresolved
+obligations. Physical deletion alone does not establish billing cessation.
+No Cashier or payer flags are needed for this local history query.
+
+Each command queries `blob_upload_history` once, accepting at most 64 inspected
+rows and 32 matching entries in 64 KiB of bounded Candid. JSON preserves all original
+upload/object/incarnation/first-reference identities, roots, byte lengths, local
+states, the independent restore fence and decimal-string `scanned` count.
+
+Save the non-null `next` object as JSON and pass `--cursor FILE` for another page.
+The file is limited to 2 KiB and binds service, namespace, service-wide observer
+scope, filter and last inspected tenant/upload ID; malformed or changed scope
+rejects before identity/network access. Empty filtered pages may still have a
+continuation. `next: null` ends this local traversal, not provider reconciliation.
+Pages are current observations; start without a cursor to see changes behind it.
+
+The shared decoder checks ordering, identity scope, duplicate roots/object lifetimes,
+filter results, work bounds and cursor progress. Signed queries use the same explicit
+IC/local trust and deadline as status. Empty and fenced observations exit 0;
+service refusals remain errors. The command reads no provider content, performs
+no mutation and never grants retry, serving or recovery authority.
+
 `certificate-assessment` inspects missing issuance prerequisites for a saved permission:
 
 ```sh
