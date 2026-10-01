@@ -2,7 +2,109 @@
 
 Date: 2026-10-01
 
-## Active work — managed endpoints and signed clients after 0.4.10
+The maintainer requested the next changelog. Completed application restoration,
+native account inspection and HTTP retry fixes are grouped in the undated 0.4.12
+draft in CHANGELOG.md, immediately below empty Unreleased. Draft structure and
+diff checks pass; Cargo versions/lock and the release receipt remain at 0.4.11.
+No release preparation, full validation, commit, tag or publication ran.
+
+## Active work — signed account inspection and framework review after 0.4.11
+
+The released baseline remains 0.4.11 at
+`807b0ae0e8c8d2f43f01bab7a6d285888fe2d20c`; this continuation preserves the
+preceding unresolved application restore batch below. No package version,
+release receipt, agent commit, tag/push, publication, deployment or paid effect
+changed. Existing standalone/managed service artifacts are reused; no dependency,
+allocator, public service API/schema, lifecycle or external journal is added.
+
+Native `inspect-account --kind balance|relationship` now observes one existing
+shared service read update with explicit operator/service/namespace/Cashier/payer
+scope. Signed update certificate validation, exact request/kind echo and bounded
+4 KiB decoding preserve reported independent balances and arbitrary-width signed
+relationship fields. Absence/provider errors remain explicit observations,
+without credit/spendability/payment/retry authority. The thirty-second wait concerns
+only that IC request ID; there is no automatic refresh or resubmission. A lost or
+untrusted reply can follow read execution and remains unobserved.
+
+The shared native Agent no longer uses ic-agent's implicit HTTP 429/503 RetryLogic:
+its public middleware delegates to the configured no-retry client. An actual
+socket regression counts one service operation under either response for queries
+and updates. Separate query trust-key reads are not resubmissions. The first
+fixture counting mistake and earlier lint failures remain retained. Actual signed
+account journeys run through both adapters over the existing query-only Cashier
+substitute; identity/scope/trust, malformed/oversized reply and restore refusals
+preserve complete stable memory. A managed setup failure revealed fixed-operator
+fixture helpers; setup now authenticates as the actual configured operator.
+
+New standalone/managed journeys pass in 7.03/10.82 seconds. Existing managed signed
+client, standalone signed client and occupied operator regressions pass in
+10.30/6.46/16.05 seconds. Thirty-five native units, CLI build/final strict CLI Clippy
+and final harness all-target/all-feature strict Clippy pass. Fresh report roots
+retain 62 standalone/validation and 44 managed files with immutable manifests,
+including failed attempts; no PEM is retained. Owned instances/gateway/progress/
+sockets/temporary inputs are cleaned up; build artifacts remain. There were zero
+deployed Caffeine requests/payment/provider cycle attachments and no external
+cleanup. See [account evidence](../evidence/core-primitives.md#signed-native-account-inspection-and-bounded-transport--2026-10-01)
+and the [ledger](../evidence/caffeine-probes/README.md). Only targeted checks ran.
+
+The [fresh framework review](../evidence/core-primitives.md#managed-certificate-framework-review--2026-10-01)
+compares immutable upstream main/peeled v0.110.48 at
+`8d37c74c9a4457b9e2bd47ee883f98fd2889d63b` with the pinned macro files;
+all relevant files match. Supported plain-record Fleet rejection and decoder
+work/type/header hooks remain absent. Registry metadata returned HTTP 403,
+so latest registry version is unverified. Source/failed-fetch records are retained;
+siblings remain read-only and no upstream message was sent. No internal facade
+bypass or reply wrapper is introduced. Provider/recovery/provenance gates remain
+independent. Next address the remaining supported operator mutation tooling and
+provider/recovery evidence; managed certificate issuance still requires supported
+framework changes. Real consumer adoption, serving, Fleet/verifier provenance,
+IcyDB composition and removal/retirement remain open.
+
+Final formatting/diff and read-only draft changelog checks pass. Capability JSON,
+342 maintained local documentation links/anchors, balanced code fences, eighteen
+current source/artifact hashes and all 207 files in the three new and preceding
+unresolved-outbox manifests validate. Historical capability rows and dated
+changelog notes stay intact; Cargo versions/lock and release receipt are unchanged.
+
+## Earlier active batch — unresolved application restoration after 0.4.11
+
+The maintainer released 0.4.11. Local main, origin/main and peeled v0.4.11 resolve
+to `807b0ae0e8c8d2f43f01bab7a6d285888fe2d20c`; the release-verify receipt binds
+direct-parent source `c833c402a9abbc90147f7f48b55188557e673846`. This continuation
+started clean. Package versions/receipt remain unchanged; no agent commit, version
+mutation, tag, push, publication, deployment or paid effect occurred.
+
+Four new managed application cases preserve unresolved retain/release outbox
+entries after committed service effects. Application-first and service-first
+restoration, then repeated same-release upgrades, retain exact asset/payload/
+cleanup bindings, tombstones, absent acknowledgments, original service receipts
+and current reference liveness. A published fresh asset stays independently owned;
+its ten logical/physical/liability bytes survive reuse-reference release. Restored
+application registration/admission/withdrawal/cleanup/recovery/new-use calls refuse
+through its fence, without converting service receipts into local acknowledgment.
+Controller status grants neither asset disclosure nor recovery. Passive service
+queries select the exact tenant identity in PocketIC; no fenced application
+reconciliation or operational restart is claimed. Both complete stable memories
+stay unchanged through each phase's inspection/refusals.
+
+All six affected managed application cases pass in 57.45 seconds, including the
+existing callback-recovery and publication-race cases. Final strict affected
+harness Clippy passes; the first missing-trait compile attempt remains retained.
+The fresh 83-file report set preserves all six journeys without overwriting previous
+evidence. Owned instances/temporary resources were dropped; reports and build
+artifacts remain. Exposure/completion and the application are local substitutes;
+there was no provider GET/payment/deployed request or outstanding external cleanup.
+See [unresolved-outbox evidence](../evidence/core-primitives.md#managed-unresolved-outbox-restoration--2026-10-01)
+and the [probe ledger](../evidence/caffeine-probes/README.md). No full CI/release
+validation ran. Next address the supported managed certificate boundary and
+remaining provider/operational recovery evidence; real consumer adoption, serving,
+Fleet/verifier provenance, IcyDB composition and removal/retirement remain open.
+No new production API, schema, dependency, allocator or external journal is added.
+Final formatting/diff, read-only draft changelog and capability JSON checks pass;
+all 344 maintained local documentation links/anchors, balanced fences, eleven
+current evidence hashes and the complete 83-file report manifest validate.
+
+## Released integration — 0.4.11
 
 The maintainer released 0.4.10. Local main, origin/main and peeled v0.4.10 resolve
 to `429db4ab516b7da2745cd242e3ac175a5cf13281`; its release-verify receipt binds

@@ -4349,3 +4349,217 @@ Final root formatting/diff, read-only draft changelog and capability JSON checks
 pass. All 340 maintained local documentation links/anchors and balanced fences
 validate. Thirty-three current source/artifact/log/manifest hashes and all three
 complete retained report manifests match; historical captures remain unchanged.
+
+## Managed unresolved outbox restoration — 2026-10-01
+
+Evidence class: local managed PocketIC/application substitute. The existing
+consumer probe, configured ten-byte exposure/completion and public Canic fixture
+are unchanged. Service, tenant, operator, uploader and verifier stay distinct;
+consumer and service keep their own existing durable owners. No production API,
+stable schema, allocator, dependency or extra recovery component is added.
+
+Four new cases interrupt callbacks after actual committed retain/release effects,
+then restore the application before the service or the service before the
+application. Both owners are upgraded again within the same release. Complete
+asset intent/payload and independent upload/object/lifetime/reference/cleanup IDs,
+tombstones and absent application acknowledgments remain exact. An unresolved
+retain has an original successful service receipt and a live reference but no
+application retain result or release dispatch. An unresolved release has both
+original successful service receipts and a dead reuse reference, while its
+application release acknowledgment stays absent. The published first asset and
+its original live reference stay independently owned, retaining ten logical,
+physical and liability bytes with zero reservation.
+
+Each phase compares exact decoded histories, all four service fences and current
+reference fences. Consumer registration, preparation/admission, cancellation,
+release, both acknowledgment recovery paths, withdrawal/recovery and new use
+refuse Fenced before effects. The existing workflow checks mutation authority
+before awaiting clients; acknowledgment itself is a mutation and cannot bypass
+the consumer fence. Controller asset inspection/recovery returns Denied. Service
+reference mutation returns Fenced even for exact historical replay. Full stable
+memory of both owners is unchanged across inspection/refusals and both asset
+views remain exact. In application-first restoration, these application refusals
+also run while the service is still operational. This gives executable fence/
+history evidence alongside the source authority checks, not an outbound network
+request counter. Restored published views are retained history, not serving leases.
+
+Passive service receipt/status queries explicitly select the tenant identity in
+PocketIC. They do not show the fenced consumer performing reconciliation or
+persisting an acknowledgment. No fence is cleared. These cases exercise retained
+unresolved outbox work, not an old snapshot or a callback still in flight during
+code installation. Operational restart and production consumer serving remain open.
+
+Per case budget: sixty-four explicit application/service updates and sixty-four
+inspection queries, thirty-second client deadlines, 4 KiB replies and ten declared
+bytes. No hold is used by the new cases; the rerun existing publication-race case
+retains its 128-call management hold bound. Provider GETs/deployed requests/attached
+provider cycles/payments are zero. The fresh retained parent
+/tmp/ic-blob-storage-unresolved-outbox-evidence-01 has 83 files across four new
+interruption children plus the existing outbox/cancel-race children. Canonical
+Candid snapshots retain original intents, prepared manifest, labelled completion,
+unresolved history, restore order, phase histories and typed refusals. The immutable
+manifest covers every report file. No previous capture was overwritten. Owned
+instances/temporary resources were dropped; reports/build artifacts remain, with
+no external object or outstanding external cleanup.
+
+| Retained command/report | Outcome | SHA-256 |
+| --- | --- | --- |
+| `/tmp/ic-blob-storage-unresolved-outbox-clippy-01.log` | Failed compilation: installation extension trait missing in new module; corrected | `c24989f83d6da0da74427a8e8f73912bb361284a933e4bdb1b42bf813e1fcae5` |
+| `/tmp/ic-blob-storage-unresolved-outbox-clippy-02.log` | Offline locked affected canic_composition harness strict Clippy passes | `d6c935d1c6a7e7b4dabadacd1c108b70c781c9116a13fbb2765fb3bab2b7d1dd` |
+| `/tmp/ic-blob-storage-unresolved-outbox-01.log` | Offline locked canic_managed::consumer: four new and two existing cases pass, 57.45 s | `a589ae48f5c162906c2aad33c49447e562bd36acbf7aa3b0ba4d1eceabf7aa60` |
+| `/tmp/ic-blob-storage-unresolved-outbox-evidence-01/SHA256SUMS` | Immutable complete 83-file report manifest | `40a1d8a0c2ca7476ab995aff3fe5033569c15ab76a99a87334cef148e4509efb` |
+
+| Current source/artifact | SHA-256 |
+| --- | --- |
+| `tests/pocketic/tests/canic_managed/consumer/interruption/mod.rs` | `8b811b826b71683fb4d29a137b2c390d39701665c8395b829f9df03fce455a59` |
+| `tests/pocketic/tests/canic_managed/consumer/mod.rs` | `2da33a638e0234e9561f9cbec16c0e765fe7fcf1e0d5a653db77d7533392f168` |
+| `canisters/test/consumer_probe/src/ops/mod.rs` | `a3b5345e1613d8b6b399505c80253b88f526154feac3bed29a8eb4634baf1e82` |
+| `canisters/test/consumer_probe/src/model/mod.rs` | `b212a8df9bb33f71bf083f22447af2803c4bb2c283b0bbc979ff1914e546d485` |
+| `canisters/test/consumer_probe/src/workflow/mod.rs` | `b7ed8fdffa8563b731c9f1e986c65cc2750ec5645b79d71cd4169f18b8ffe5ba` |
+| `target/wasm32-unknown-unknown/release/blob_consumer_probe.wasm` | `0ab231b0dc3127dea9606d1c5e02e40da2ef3993b1c3d104a89c07f6c75a90e9` |
+| `.tmp/canic-probe/.icp/local/canisters/storage/storage.wasm` | `61138d7e982b98c93ab12fba5b38fb1244f88d15323f8d1ec8bc320bf3e3e0dc` |
+
+Source began clean at released 0.4.11, HEAD/origin/main/peeled tag
+807b0ae0e8c8d2f43f01bab7a6d285888fe2d20c; its release receipt binds parent
+c833c402a9abbc90147f7f48b55188557e673846. Only targeted implementation checks ran;
+no new full CI/release gate, artifact rebuild, version mutation, agent commit,
+push/publication/deployment or paid provider probe. Historical hashes remain
+bound to their original captures. Next address the supported managed certificate
+boundary and remaining provider/operational recovery evidence. Production consumer
+adoption/serving, Fleet/verifier provenance, IcyDB composition and source removal/
+installation retirement are still unqualified.
+
+Final root formatting/diff, read-only draft changelog and capability JSON checks
+pass. All 344 maintained local documentation links/anchors, balanced fences,
+eleven current source/artifact/log/manifest hashes and the complete 83-file
+report manifest validate. Earlier evidence remains bound to its original captures.
+
+## Managed certificate framework review — 2026-10-01
+
+Evidence class: immutable upstream source/cached registry comparison, not deployed
+Caffeine or full framework qualification. The ledger records intent and request
+budgets before the investigation. Four metadata requests and four source fetches
+were used; deadlines were thirty seconds, metadata/source ceilings 2 MiB and
+unused archive allowance 4 MiB. No provider/payment/deployment or sibling edit.
+
+The GitHub landing discovery succeeded; the web registry opening was unavailable
+and the explicit crates API request returned HTTP 403 with an empty body. Both
+failures are retained. Latest registry version is therefore unverified.
+`git ls-remote` resolved HEAD/main and peeled v0.110.48 to
+`8d37c74c9a4457b9e2bd47ee883f98fd2889d63b`; the annotated tag object is
+`0707017060fcc086074d46a21435fe9759af109d`. The immutable Cargo.toml reports
+0.110.48. Downloaded access/expansion/parser files match pinned registry files
+byte-for-byte. The read-only dirty sibling checkout is at
+`02af7277664c1664a58bfaa5e6fde997474c9802`; it was neither altered nor treated
+as a clean release. Relevant source:
+[public expansion](https://github.com/dragginzgame/canic/blob/8d37c74c9a4457b9e2bd47ee883f98fd2889d63b/crates/canic-macros/src/endpoint/expand/mod.rs),
+[access planning](https://github.com/dragginzgame/canic/blob/8d37c74c9a4457b9e2bd47ee883f98fd2889d63b/crates/canic-macros/src/endpoint/expand/access.rs),
+[attribute parser](https://github.com/dragginzgame/canic/blob/8d37c74c9a4457b9e2bd47ee883f98fd2889d63b/crates/canic-macros/src/endpoint/parse/mod.rs).
+
+The normal default Fleet guard still requires Result and cannot emit the maintained
+plain Caffeine success record with IC rejection on refusal. Queries use default
+CDK decoding; update payload limits expose raw byte limits/skipping quota 10,000
+but not work/type/header hooks. The prior actual compilation refusal remains
+separate retained evidence; unchanged macro bytes did not justify another failed
+build. Internal classification, wrapper replies and copied dispatch remain
+prohibited. Supported rejection/decoder hooks, provider qualification, production
+provenance and operational recovery stay distinct gates. No upstream message sent.
+
+Retained directory: `/tmp/ic-blob-storage-certificate-framework-review-01`. Its
+immutable manifest binds eighteen files (headers, stderr, discovery, refs, source
+and comparison bindings); manifest SHA256 is
+`7a7c921b607ab6a574da72716a02a0c5174f31b35cfbbd2bf466876b567742d9`. Owned request resources closed; no external
+cleanup outstanding. Responses/hashes demonstrate inspected source integrity,
+not provider guarantees or framework implementation.
+
+| Source capture | SHA256 |
+| --- | --- |
+| `/tmp/ic-blob-storage-certificate-framework-review-01/access.rs` | `40df7ef009a5baa79bf12749edc803f03fb3f121d5aab94257f67c00025b7406` |
+| `/tmp/ic-blob-storage-certificate-framework-review-01/expand.rs` | `852b10c671b59ce3fedb1a29367fbfcffb5ae40404da4a34fc7af69ec5c91cd1` |
+| `/tmp/ic-blob-storage-certificate-framework-review-01/parse.rs` | `e591b5749791cdd6bde85f46f0016df6ae333abe6d50c667d82cb8aac5bc04f3` |
+
+## Signed native account inspection and bounded transport — 2026-10-01
+
+Native `inspect-account` signs one existing `blob_inspect_account` read update
+for explicit balance/relationship kind and complete installed operator scope. The
+service remains the provider request owner. A thirty-second deadline bounds exact
+IC request waiting, with 256 KiB HTTP and 4 KiB Candid replies, decoding quota
+100,000, skipping zero, 128 types and 4 KiB header bound. No payment, automatic
+refresh/redispatch, gateway mutation, journal, new endpoint/schema or dependency.
+
+Actual signed native subprocesses run through standalone and managed adapters over
+the existing query-only local Cashier. The standalone fixture owner supplies NNS
+root trust; Canic's public qualification helper owns its application-only instance,
+and its independent control API supplies the undelegated subnet trust key. Normal
+Fleet/bootstrap/caller guards remain active. Fixture setup now uses its configured
+operator for readback and enrollment rather than an old fixed test principal.
+Each fresh journey's pre-effect plan budgets twenty-four CLI invocations and local
+provider queries; fifteen client invocations execute. Raw canonical source/request
+Candid, command/result JSON and public roots are retained, with temporary PEM only.
+
+Full-width independent reported balances, arbitrary-width signed relationship
+amounts/Nat bandwidth, u64-max period and absent expiry are preserved. Account
+absence, no reported relationship and diagnostic unauthorized principal stay
+observations, never zero/credit/spendability/retry authority. Invalid/oversized
+provider replies, wrong actual/declared signer, namespace/Cashier/payer and damaged
+root refuse. Certificate failure after a read update may follow its execution; it
+is not proof the provider read was unsent. Both complete service stable memories
+stay unchanged through observations/refusals. Same-release upgrade fences balance
+and relationship inspection and preserves both service/source stable bytes.
+
+Cached ic-agent 0.49.2 source exposed a retry mismatch: `with_http_client` wraps
+its client in RetryLogic, including HTTP 429/503 retries despite TCP retries zero.
+The maintained Agent now uses public `with_arc_http_middleware` with the existing
+reqwest client (retry never, redirects refused), retaining byte limits and trust
+verification. An owned network counter regression asserts one service query or
+update under each response. Separate query trust-key reads are not redispatch.
+The first test attempt incorrectly counted those reads; its failure is retained.
+
+Validation, all offline/locked and targeted:
+
+- Thirty-five native CLI unit cases pass in 0.65 seconds; CLI build passes in
+  2.52 seconds and final CLI all-target strict Clippy in 0.75 seconds.
+- New standalone signed account journey passes in 7.03 seconds; managed in
+  10.82 seconds. The first managed attempt refused fixture readback with Denied
+  because the helper assumed its prior operator; that attempt is retained.
+- Existing managed signed client (10.30 seconds), standalone signed client
+  (6.46 seconds) and occupied managed operator (16.05 seconds) regressions pass.
+  Final harness all-target/all-feature strict Clippy passes in 1.01 seconds.
+- Earlier lint and unit failures remain in the fresh validation capture; no
+  evidence was overwritten. Production storage Wasm inputs are unchanged, so
+  existing released artifacts were reused. No full CI/release gate was run.
+
+Commands select CLI units in `ic-blob-storage-cli`, and `standalone_native_account`
+or `managed_native_account` in the corresponding PocketIC test target with
+`--test-threads=1`; configured artifact paths are retained in validation inputs.
+Local query sources/exposure are substitutes. There were zero deployed Caffeine
+requests, attached provider cycles, payments or outstanding external cleanup.
+Owned gateway/progress/instances/sockets and temporary identities were closed or
+dropped; build artifacts and reports remain. This does not qualify complete
+account activity, provider credit, real serving, production Fleet or safe recovery.
+
+The first fresh root `/tmp/ic-blob-storage-native-account-evidence-01` retains
+44 standalone files plus validation logs/inputs. Its manifest SHA256 is
+`0dde008111c9d03d19ce515cef62185b31c9b37508494372634bf89f85070070`. The second fresh root
+`/tmp/ic-blob-storage-native-account-evidence-02` retains 44 managed files,
+manifest SHA256 `7bb8d10e7f5e11578669a26f6389c3cbbd3420da68c2ebc16dd51486da79873e`.
+No private identity is retained. Successful IC certificate validation concerns
+these controlled service observations; report hashes are local integrity only.
+
+| Maintained input/artifact | SHA256 |
+| --- | --- |
+| `crates/ic-blob-storage-cli/src/native/mod.rs` | `dca5601cb8c762c2601f21eee1a60f0a29a0cd392b14f69bcc9c4fcb5958e41b` |
+| `crates/ic-blob-storage-cli/src/native/arguments/mod.rs` | `f385ad2a15d9e4e22f738915f25a85589189a66cfe9a2940eb0dfdf3d7d7e1a7` |
+| `crates/ic-blob-storage-cli/src/native/account/mod.rs` | `0010bcb04c383e2cebf9b47b2ac741aa15468cfe106afe7f6c87f120897a659d` |
+| `crates/ic-blob-storage-cli/src/native/account/tests/mod.rs` | `91d924ffddef30d53ca79d377cd2f3198d441ad4767b59846702d2a9b5a91c3e` |
+| `crates/ic-blob-storage-cli/src/native/tests/http/mod.rs` | `684353a66ef7e4fe5b4933ffbdadf80259a96d846aa013411afca67da4d254ac` |
+| `tests/pocketic/tests/account_native_cli/mod.rs` | `be564bf39497e0437ce21a72d20f6d53cc49b5381e474e81e2af396554d73f14` |
+| `tests/pocketic/tests/standalone_account/native_cli/mod.rs` | `b9ef723b164b8f7b32faa40211e88b4912b19482e50a97163bd6d7a856ccc2ce` |
+| `tests/pocketic/tests/canic_managed/operator/native_cli/mod.rs` | `d9287c820341cdb049b4a7832a9c4e21aa9b0bf1b403f96f06155baf3dc721bb` |
+| `tests/pocketic/tests/canic_managed/operator/mod.rs` | `d8c54e3450d45132088fe9137f7b18094a535ab4002187f07ac4974d7f7a76fd` |
+| `tests/pocketic/tests/canic_managed/mod.rs` | `c62abfc8adb86dbeebe9d21990eb3933949630b1ed293615e5c824f7700c721e` |
+| `tests/pocketic/tests/canic_managed/installation/mod.rs` | `532ec01851af75b479f8783a2e376101ede5dbfad7cb82c75095df8be844211c` |
+| `target/debug/blob-storage` | `27a87703073ba177fab8581b9953b3d70f6f4de1ccd26f2471197724b3c17adb` |
+| `.tmp/canic-probe/.icp/local/canisters/storage/storage.wasm` | `61138d7e982b98c93ab12fba5b38fb1244f88d15323f8d1ec8bc320bf3e3e0dc` |
+| `target/wasm32-unknown-unknown/release/ic_blob_storage_canister.wasm` | `f9c51d78f9b7d4bf45c46cbc4d01daeab7e1894f29281ce9e742eed2228f563e` |
+| `target/wasm32-unknown-unknown/release/blob_gateway_source.wasm` | `f01fdb8e3cf9867cccd9689c222a8f2976ecc5b07fe7f8623c4bf5eb0ec94325` |

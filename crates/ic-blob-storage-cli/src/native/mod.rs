@@ -1,3 +1,4 @@
+mod account;
 mod arguments;
 mod attestation;
 mod certificate_assessment;
@@ -23,6 +24,8 @@ use serde_json::json;
 use std::{fs::File, io::Read, path::Path, process::ExitCode, time::Duration};
 
 const USAGE: &str = concat!(
+    "blob-storage inspect-account --network ic|local --url URL --identity PEM --operator PRINCIPAL --service PRINCIPAL --namespace DECIMAL --cashier PRINCIPAL --payer PRINCIPAL --kind balance|relationship [--root-key DER]\n",
+    "inspect-account submits one scoped service read update, then waits for that exact IC request within thirty seconds. It reports one provider balance or relationship, including absence/errors; no payment, gateway change, credit inference, automatic refresh or redispatch. A lost result remains unobserved.\n",
     "blob-storage submit-reference --network ic|local --url URL --identity PEM --actor TENANT --service PRINCIPAL --namespace DECIMAL --request CANDID --run-dir NEW_DIRECTORY [--root-key DER]\n",
     "submit-reference validates one exact ReferenceCommand, claims a new private directory and saves request.candid, the signed update and intent before one dispatch. Pending or uncertain results require reference-receipt inspection with saved request.candid; no polling, retry or identity allocation. A recorded inner failure is not a successful retain/release. Existing or partial runs refuse.\n",
     "blob-storage reference-receipt|reference-status --network ic|local --url URL --identity PEM --actor TENANT --service PRINCIPAL --namespace DECIMAL --request CANDID [--root-key DER]\n",
@@ -42,7 +45,7 @@ const USAGE: &str = concat!(
     "observe-upload queries the installed verification plan, performs one bounded gateway GET, checks all bytes against original metadata/root and durably saves statement.candid. Explicit gateway origin and provider read budget are required. Partial runs remain; no resume, redirects, retries or attestation dispatch. Provider reads may incur charges.\n",
     "upload-attestation compares one saved binary Candid UploadAttestationRequest with immutable service history. The expected verifier must come from installation configuration. Outcomes are matched, conflict or absent; none authorizes retry. No mutation, provider fetch or journal write occurs.\n",
     "verify-upload checks a regular local file against the authenticated original manifest. Permission is one binary Candid UploadAdmissionRequest; maximum is at most 1 GiB. No provider availability, completion, or retry authority is established.\n",
-    "funding-history additionally accepts --cursor FILE containing the previous non-null next object; reads one page, never auto-paginates. Local mode requires an explicit trusted root-key file and literal loopback origins. IC mode uses the built-in IC root and HTTPS; root-key overrides are rejected. Supports Ed25519 and secp256k1 PEM identities. Only observe-upload calls a provider; submit-attestation and submit-reference mutate the service. Exit 0: observation (including conflict, empty or fenced), recorded submission (inspect its result) or pending request; 2: arguments; 3: failure. Query signatures are verified; observations are not certified state, provider credit or dispatch authority.\n",
+    "funding-history additionally accepts --cursor FILE containing the previous non-null next object; reads one page, never auto-paginates. Local mode requires an explicit trusted root-key file and literal loopback origins. IC mode uses the built-in IC root and HTTPS; root-key overrides are rejected. Supports Ed25519 and secp256k1 PEM identities. Observe-upload fetches provider bytes; inspect-account asks the service for a provider observation; submit-attestation and submit-reference mutate the service. Exit 0: observation (including conflict, empty or fenced), recorded submission (inspect its result) or pending request; 2: arguments; 3: failure. Query signatures and update certificates are verified; observations are not provider credit or dispatch authority.\n",
 );
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -74,6 +77,7 @@ enum Failure {
     SubmissionClaimed,
     AssessmentRefused(ic_blob_storage::dto::upload::exposure::UploadExposureFailure),
     ReferenceRefused(ic_blob_storage::dto::reference::ReferenceFailure),
+    AccountRefused(ic_blob_storage::dto::account::AccountInspectionFailure),
 }
 impl Failure {
     const fn code(self) -> &'static str {
@@ -105,6 +109,7 @@ impl Failure {
             Self::SubmissionClaimed => "submission_already_claimed",
             Self::AssessmentRefused(error) => certificate_assessment::refusal_code(error),
             Self::ReferenceRefused(error) => references::refusal_code(error),
+            Self::AccountRefused(error) => account::refusal_code(error),
         }
     }
 }
@@ -167,6 +172,7 @@ fn execute(args: &[String]) -> Result<serde_json::Value, Failure> {
 
 async fn observe(options: &arguments::Options) -> Result<serde_json::Value, Failure> {
     match &options.command {
+        arguments::Command::InspectAccount(input) => account::run(options, *input).await,
         arguments::Command::Reference(input) => references::run(options, input).await,
         arguments::Command::FundingOutcome(input) => funding_outcome::run(options, *input).await,
         arguments::Command::UploadHistory(input) => upload_history::run(options, input).await,
@@ -300,7 +306,12 @@ fn agent(options: &arguments::Options) -> Result<Agent, Failure> {
     let agent = Agent::builder()
         .with_url(options.url.as_str())
         .with_boxed_identity(identity)
-        .with_http_client(client.build().map_err(|_| Failure::Transport)?)
+        // The SDK's with_http_client adds automatic 429/503 retries even when
+        // TCP retries are zero. Its public middleware hook uses our client
+        // directly, retaining byte limits without an automatic redispatch layer.
+        .with_arc_http_middleware(std::sync::Arc::new(
+            client.build().map_err(|_| Failure::Transport)?,
+        ))
         .with_max_tcp_error_retries(0)
         .with_max_response_body_size(256 * 1024)
         .with_verify_query_signatures(true)

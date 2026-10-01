@@ -2,7 +2,10 @@
 mod references;
 mod verifier;
 use super::{Fixture, endpoints::manifest};
-use crate::authenticated_cli::{PEM, arguments, run};
+use crate::{
+    account_native_cli::OUTSIDER_PEM,
+    authenticated_cli::{PEM, arguments, run},
+};
 use ic_agent::{Identity, identity::BasicIdentity};
 use ic_blob_storage::dto::{
     operator::OperatorScope,
@@ -19,15 +22,12 @@ use ic_testkit::{
 use serde_json::{Value, json};
 use std::{path::Path, time::Duration};
 
-// A distinct fixed test-only Ed25519 seed [43; 32].
-const OUTSIDER_PEM: &str = "-----BEGIN PRIVATE KEY-----\nMC4CAQAwBQYDK2VwBCIEICsrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysr\n-----END PRIVATE KEY-----\n";
-
 fn change(args: &mut [String], flag: &str, value: &str) {
     let index = args.iter().position(|s| s == flag).unwrap();
     args[index + 1] = value.into();
 }
 
-fn local_subnet_key(f: &Fixture) -> Vec<u8> {
+pub(super) fn local_subnet_key(f: &Fixture) -> Vec<u8> {
     // The public Canic helper owns an application-only instance. With no NNS,
     // its certificates have no delegation. Pin that subnet's key through the
     // independently controlled test API, never through the CLI's replica URL.
@@ -62,7 +62,7 @@ fn local_subnet_key(f: &Fixture) -> Vec<u8> {
         })
 }
 
-fn live(f: &Fixture) -> (PocketIc, String) {
+pub(super) fn live(f: &Fixture) -> (PocketIc, String) {
     // The public helper keeps ownership. This supported non-owning handle only
     // controls its HTTP gateway; dropping it never deletes the managed instance.
     let mut pic = PocketIc::new_from_existing_instance(

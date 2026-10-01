@@ -34,6 +34,116 @@ all logs here; link their maintained test and record material changed findings.
 
 ## Current operating decisions and experiments
 
+2026-10-01 signed native account inspection outcome: actual native balance and
+relationship journeys pass through standalone (7.03 seconds) and managed
+(10.82 seconds) adapters, fifteen CLI invocations per journey within their
+pre-effect budgets. Exact operator/account binding, arbitrary-width signed/Nat
+relationship fields and independent reported balances survive. Missing accounts,
+no reported relationship and provider errors remain observations. Invalid/oversized
+source replies, signer/scope/trust refusals and fenced same-release restore retain
+complete stable state without credit/payment/retry authority. Update trust failure
+can follow execution and does not prove an unsent read. The first managed attempt
+refused setup because the fixture helper assumed the old operator; it remains
+retained, and helpers now bind the installed operator explicitly.
+
+The transport review found ic-agent 0.49.2's implicit HTTP 429/503 retries despite
+TCP retries zero. Public middleware now delegates to the existing no-retry client.
+An owned socket counter regression proves one service query/update under each
+backpressure response; the first fixture incorrectly counted separate trust-key
+reads and its failure is retained. Thirty-five native units, CLI build/final strict
+Clippy, both new signed journeys, existing standalone/managed signed clients and
+occupied managed operator regression, and final strict harness Clippy pass.
+Fresh roots `/tmp/ic-blob-storage-native-account-evidence-01` (62 files including
+44 standalone captures and validation) and `-02` (44 managed captures) have
+immutable manifests. All failed lint/unit/managed attempts are retained. Owned
+instances/gateway/progress/sockets and temporary PEM were cleaned up; reports and
+build artifacts remain. All Cashier reports are local query-only substitutes;
+zero deployed requests/payments/provider cycle attachments and no external cleanup.
+See [signed account evidence](../core-primitives.md#signed-native-account-inspection-and-bounded-transport--2026-10-01).
+No full CI/release validation, publication, schema/version/dependency or allocator
+change occurred. Complete account activity, credit and operational restart remain
+unqualified.
+
+2026-10-01 managed certificate framework review outcome: upstream main/HEAD and
+peeled v0.110.48 resolve to `8d37c74c9a4457b9e2bd47ee883f98fd2889d63b`.
+Four immutable source fetches succeeded; access/expansion/parser files exactly
+match cached pinned registry 0.110.48. Source still lacks supported plain-record
+Fleet refusal and work/type/header decoder hooks. Normal framework dispatch remains
+intact; no workaround, upstream edit/message or redundant failed build follows.
+The four metadata requests include successful GitHub discovery/refs, an unavailable
+web registry opening and explicit registry HTTP 403/empty body; latest registry
+version is unverified. Every failure/source response/header/stderr is retained in
+`/tmp/ic-blob-storage-certificate-framework-review-01` with eighteen-file manifest
+and exact comparison bindings. Read-only sibling revision/dirty state is recorded;
+no sibling was altered. Zero Caffeine requests, payments, attached provider cycles
+or cleanup obligations. See [source review](../core-primitives.md#managed-certificate-framework-review--2026-10-01).
+Framework support remains separate from provider/provenance/recovery qualification.
+
+2026-10-01 signed native account inspection intent: add one explicitly selected
+balance or payment-relationship observation through the existing shared
+blob_inspect_account service update. Preserve operator/service/namespace/Cashier/
+payer binding, signed transport/root trust and bounded service reply validation;
+do not recreate provider requests or send attached cycles. Native tooling submits
+one read operation and waits only for that exact IC request, with a thirty-second
+deadline and no redispatch/retry. Report balances, absence and provider errors as
+observations, never credit, spendability or payment/retry authority. Exercise the
+actual standalone and managed artifacts over their existing local query-only
+source with distinct identities and explicit fixture account configuration.
+Per journey: at most twenty-four CLI invocations and twenty-four local provider
+queries, 256 KiB transport/4 KiB account replies, zero payment/attached provider
+cycles/deployed Caffeine requests. Retain fresh canonical requests/responses and
+refusals, including malformed/oversized replies and fenced restoration. Close
+owned gateway/progress/instances/temporary identities; retain reports/artifacts.
+
+2026-10-01 managed certificate framework review intent: inspect the pinned public
+Canic endpoint contract, the read-only local checkout and current registry/upstream
+metadata for supported plain-record rejection and bounded decoder hooks. Preserve
+the Caffeine reply format, normal Fleet/activation/preflight/instrumentation and
+single synchronous commit/reply; no internal-method classification or copied
+framework dispatch. Source/registry observations are distinct from local IC and
+deployed-provider evidence. At most four metadata requests and four source/archive
+fetches, thirty-second deadlines and 2 MiB per response (source archives 4 MiB),
+zero deployed Caffeine requests/attached provider cycles/payments. Retain exact
+responses, revisions/hashes and failures in a fresh local review directory. Sibling
+repositories remain read-only; no dependency change or paid trial follows merely
+from finding a newer release. If support is absent, specify the precise supported
+framework gate and continue useful work available in this repository.
+
+2026-10-01 unresolved application restore outcome: all four new interruption cases
+and both existing application cases pass in 57.45 seconds. Committed retain/release
+effects remain distinct from absent application acknowledgments through either
+upgrade order and repeated same-release restoration. Exact asset/payload/cleanup
+bindings, tombstones, service receipts, liveness and ten logical/physical/liability
+bytes survive. Fenced application mutation/recovery calls refuse without resolving
+uncertainty; controller disclosure/recovery refuses. Tenant-scoped service queries
+remain passive and both complete stable memories match before/after inspection
+and refusals. Final strict affected Clippy passes; the initial missing-trait compile
+failure is retained. The fresh 83-file report preserves all six cases and is bound
+in [unresolved-outbox evidence](../core-primitives.md#managed-unresolved-outbox-restoration--2026-10-01).
+Local instances/temporary resources were dropped; reports/build artifacts remain.
+No provider GET/payment/deployed request, external object or cleanup obligation
+was created. Application/exposure/completion are local substitutes; this closes
+the local restore test gap, not operational restart, stale-snapshot activation,
+production consumer serving or deployed provider qualification.
+
+2026-10-01 unresolved application restore intent after 0.4.11: extend the existing
+managed application substitute with committed retain/release effects whose callback
+traps before its acknowledgment can persist. Keep a published fresh asset and a
+cancelled reuse asset's exact unresolved outbox intent. Upgrade application first
+and service first in separate fresh cases, then repeat same-release upgrades of
+both owners. Verify exact asset/tombstone/pending histories, original service
+receipts/current reference liveness, denied callers and all-owner fences. Refuse
+registration, admission, cleanup, recovery and new uses without clearing fences
+or fabricating acknowledgment. Passive service inspection uses explicit tenant
+identity in PocketIC; it is not recovery performed by the fenced application.
+The existing probe and configured ten-byte exposure/completion are local substitutes.
+Per case: at most sixty-four explicit application/service updates, sixty-four
+inspection queries, thirty-second client deadlines and 4 KiB replies; no hold,
+provider GET, deployed request, attached provider cycles or payment. Retain exact
+Candid in fresh report children and keep each attempt/log separately. Drop owned
+instances/temporary resources and retain reports/build artifacts. No operational
+restart, production Toko acceptance or external journal is introduced.
+
 2026-10-01 standalone reference outcome: all three acknowledged/dropped/pending
 journeys pass in 35.21 seconds against the actual standalone artifact. Four signed
 intents per journey retain exact original commands and typed Unknown/Unconfirmed/

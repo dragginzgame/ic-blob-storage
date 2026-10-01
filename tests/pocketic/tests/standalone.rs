@@ -1,5 +1,6 @@
 //! Standalone Wasm installation, maintained endpoints and synchronous restore fencing.
 #![cfg(not(target_family = "wasm"))]
+mod account_native_cli;
 mod authenticated_cli;
 mod reference_cli;
 mod snapshots;
@@ -90,8 +91,14 @@ impl Fixture {
         Self::with_cashier(harness, Fake::principal(5))
     }
     fn with_cashier(harness: Harness, cashier: Principal) -> Self {
+        Self::with_cashier_and_operator(harness, cashier, Fake::principal(2))
+    }
+    fn with_cashier_and_operator(
+        harness: Harness,
+        cashier: Principal,
+        operator: Principal,
+    ) -> Self {
         let controller = Fake::principal(1);
-        let operator = Fake::principal(2);
         let service = harness.pic.create_canister_with_settings(
             Some(controller),
             Some(CanisterSettings {

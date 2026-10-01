@@ -1,4 +1,5 @@
 //! Actual replicated account queries over a passive source; no provider qualification.
+mod native_cli;
 use super::*;
 use blob_test_protocol::balance::BalanceSourceConfig;
 use candid::{CandidType, Int, Nat};
@@ -41,9 +42,11 @@ enum RelationshipError {
 }
 
 fn fixture() -> Fixture {
-    let harness = Harness::new();
+    fixture_with_operator(Harness::new(), Fake::principal(2))
+}
+fn fixture_with_operator(harness: Harness, operator: Principal) -> Fixture {
     let cashier = harness.pic.create_canister();
-    let f = Fixture::with_cashier(harness, cashier);
+    let f = Fixture::with_cashier_and_operator(harness, cashier, operator);
     f.harness.pic.install_canister(
         cashier,
         std::fs::read(fixture_path("BLOB_GATEWAY_SOURCE_WASM")).unwrap(),

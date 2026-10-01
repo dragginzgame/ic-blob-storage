@@ -1,5 +1,6 @@
 //! Managed operator queries over the existing labelled local source, never deployed Caffeine.
-use super::{Fixture, endpoints::manifest, installation::enroll, wasm};
+mod native_cli;
+use super::{Fixture, endpoints::manifest, installation::enroll_as, wasm};
 use blob_test_protocol::{SourceMode, balance::BalanceSourceConfig};
 use candid::Principal;
 use canic::dto::abi::v1::CanisterInitPayload;
@@ -32,11 +33,15 @@ struct Journey {
 }
 impl Journey {
     fn new() -> Self {
-        let f = Fixture::new();
+        Self::with_operator(blob_canic_probe::configuration::input().operator)
+    }
+    fn with_operator(operator: Principal) -> Self {
+        let mut input = blob_canic_probe::configuration::input();
+        input.operator = operator;
+        let f = Fixture::with_input(&input);
         let cashier = f.pic().create_canister();
         let (payload, _): (CanisterInitPayload, Option<Vec<u8>>) =
-            candid::decode_args(&f.arguments()).unwrap();
-        let mut input = blob_canic_probe::configuration::input();
+            candid::decode_args(&f.arguments_as(operator)).unwrap();
         input.billing.cashier = cashier;
         // Provision only this fresh empty local installation: no tenants, objects,
         // provider effects or obligations exist. Preserve the protected envelope.
@@ -69,7 +74,7 @@ impl Journey {
             cashier,
             payment_account: input.payment_account,
         };
-        let (tenant, _) = enroll(&f);
+        let (tenant, _) = enroll_as(&f, operator);
         let declaration = manifest(&f, tenant.tenant, Principal::from_slice(&[6, 1]));
         f.pic()
             .update_candid_as::<Result<UploadAdmissionMutation, UploadAdmissionFailure>, _>(

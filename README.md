@@ -36,7 +36,7 @@ and durable metadata; admission does not require uploading the file body to it.
 | Canic adapter | **29 of 30 service methods** wired in a controlled managed fixture; their Candid types match standalone |
 | Managed lifecycle | Installation, activation, verifier checks, reference-qualified downloads, cleanup accounting and fenced upgrades tested locally |
 | Native tooling | Signed inspection and byte checks through both adapters; managed reference recovery and standalone submission refusals tested locally |
-| Application prototype | Existing asset/outbox fixture tests managed publication, callback recovery, cancellation races and cleanup |
+| Application prototype | Existing asset/outbox fixture tests managed publication, callback recovery, cancellation races, cleanup and restoration with unfinished work |
 | Browser integration | Private certificate/intent client composed with Caffeine's upload SDK in local tests |
 | Live service acceptance | Still open: remaining managed endpoints, complete consumer flow, provider guarantees and operational recovery |
 
@@ -97,6 +97,7 @@ for the integration details.
 | I want to… | Start here |
 | --- | --- |
 | Inspect service state or retained funding | [Operator and verifier guide](docs/operator-guide.md#identity-trust-and-service-status) |
+| Observe provider-reported balances or relationships | [Account inspection](docs/operator-guide.md#account-inspection) |
 | Find uploads or inspect references | [Upload history](docs/operator-guide.md#upload-history) and [reference inspection](docs/operator-guide.md#reference-receipts-and-current-status) |
 | Retain or release an exact tenant reference | [One-shot reference submission](docs/operator-guide.md#submit-a-reference) |
 | Check a file against its saved upload declaration | [Local-file verification](docs/operator-guide.md#verify-a-local-file) |

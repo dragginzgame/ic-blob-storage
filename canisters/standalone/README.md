@@ -154,6 +154,11 @@ retired confirmed objects report zero fresh retains. Reads remain passive throug
 suspension and restoration. Positive counts do not bypass enrollment, identity or
 restore checks, reserve a reference or prove that a reference is currently live.
 
+Operator-only native [`blob-storage inspect-account`](../../docs/operator-guide.md#account-inspection)
+submits one existing service read update for an explicitly selected balance or
+relationship. Provider fields remain observations; no credit, spendability or
+retry authority is inferred. Same-release restore refuses further provider reads.
+
 Operator-only native [`blob-storage funding-outcome`](../../docs/operator-guide.md#exact-funding-outcomes) inspects
 one exact original funding intent through `blob_funding_outcome`. Scope, operation,
 offer and optional target are required exactly as originally retained. Found

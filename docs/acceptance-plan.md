@@ -9,8 +9,9 @@ trial. No complete acceptance case below is qualified.
 
 ## Current local evidence and open gates — 2026-10-01
 
-This review covers the released 0.4.10 shared installation/Canic composition source
-and the unreleased managed endpoint/client and controlled application/outbox extensions. It supersedes older
+This review covers the released 0.4.11 shared installation, managed endpoint/client
+and controlled application/outbox source, plus unresolved-outbox restore tests, signed native account inspection and a fresh
+managed certificate framework source review. It supersedes older
 implementation-gap summaries here;
 historical capability records retain their original dates and limitations.
 No Canic/Toko removal-inventory refresh or consumer acceptance is implied.
@@ -27,11 +28,28 @@ No Canic/Toko removal-inventory refresh or consumer acceptance is implied.
 | A08 — economics | Maintained Caffeine codecs, exact local transfer/refund journals, liquidity/attachment guards and conservative reconciliation; standalone account inspection is wired | Complete production spendability/liabilities and provider-credit/account activity evidence; reported balances are not receipts |
 | A09 — retirement | Contract separates source removal from installation retirement and preserves uncertainty/continuing obligations | Per-installation inventory and an accountable, evidenced settlement/disposition decision; no reset authority is supplied here |
 | A10 — serving | Root-bound local verification and explicit reference-qualified descriptors/read sessions; native provider observation has exact budgets and retained artifacts | Consumer MIME/public-serving acceptance, deployed serving evidence and confidentiality boundary |
-| A11 — operator parity | Signed native status, funding history/outcome, upload history, certificate assessment, reference receipt/status and verifier tooling; standalone and managed gateway/account handlers use the same workflows with local IC evidence | Qualified packaged operator mutation workflows, managed target discovery and common client journeys through both deployments. Endpoint tests do not imply native sync/funding command parity |
+| A11 — operator parity | Signed native status, funding history/outcome, upload history, certificate assessment, reference receipt/status, account inspection and verifier tooling; standalone and managed gateway/account handlers use the same workflows with local IC evidence | Qualified packaged operator mutation workflows, managed target discovery and common client journeys through both deployments. Endpoint tests do not imply native sync/funding command parity |
 | A12 — removal readiness | Source-bound Canic capability inventory and maintained replacement evidence | Every required behavior working here, Canic-owned generic coverage transfer, refreshed removal inventory and separate retirement review |
 
 Current source-bound local records include:
 
+- [Signed native account inspection](evidence/core-primitives.md#signed-native-account-inspection-and-bounded-transport--2026-10-01):
+  both adapters, exact signer/account scope, full-width independent balances and
+  relationship fields, explicit provider absence/errors, invalid reply refusals
+  and fenced restore. Actual update trust validation and passive local state use
+  query-only Cashier substitutes; no credit/payment/deployed qualification.
+  HTTP backpressure returns without implicit service resubmission.
+- [Current certificate framework source](evidence/core-primitives.md#managed-certificate-framework-review--2026-10-01):
+  immutable upstream main/tag matches pinned macro sources; supported plain-reply
+  rejection and decoder hooks remain unavailable. Registry HTTP 403 is retained,
+  so no latest-registry assertion or framework/provider qualification follows.
+
+- [Unresolved managed application restore](evidence/core-primitives.md#managed-unresolved-outbox-restoration--2026-10-01):
+  committed retain/release effects with absent application acknowledgments,
+  both upgrade orders and repeated same-release restoration. Exact histories,
+  tombstones, receipts, liveness and liabilities survive; fenced application
+  recovery refuses without resolving uncertainty or resuming operations. Passive
+  service inspection uses explicit tenant identity, not an unfenced consumer.
 - [Standalone signed submission refusals](evidence/core-primitives.md#standalone-signed-reference-submission-and-refused-inspection--2026-10-01):
   acknowledged/dropped/pending update handling, exact saved intents and real
   unknown/unconfirmed/fenced service refusals. A refused receipt lookup leaves

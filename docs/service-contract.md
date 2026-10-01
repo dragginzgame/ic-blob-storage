@@ -268,6 +268,20 @@ this exercises the trusted-verifier contract, not deployed Caffeine availability
 future retention or billing cessation. Concrete consumer/outbox composition,
 production verifier trust/provenance and deployed acceptance remain separate.
 
+Native `inspect-account` now delegates balance/relationship observations through
+`blob_inspect_account` in both adapters with the existing operator scope and
+explicit kind. One signed read update may wait on its exact IC request ID but
+never automatically resubmits. Reported totals remain independent of components;
+relationship signed amounts/Nat counters retain their arbitrary widths and optional
+expiry. Exact request, kind and relationship principals are validated inside a
+4 KiB bounded reply decoder. Typed absence/provider errors remain observations;
+transport/refusal never implies zero, credit, spendability or retry authority.
+Update certificate failure can follow execution; it does not prove an unsent read.
+Actual signed local journeys cover both adapters and passive stable memory/fenced
+restore over the existing query-only Cashier substitute. The shared native Agent
+uses its public middleware hook with the configured no-retry client, avoiding
+ic-agent's implicit HTTP 429/503 retry logic.
+
 The only unwired service method is `_immutableObjectStorageCreateCertificate`.
 Pinned Canic 0.110.48 injects its default Fleet guard even for `public` endpoints;
 its expansion rejects every access-gated function with a non-Result reply.
@@ -288,6 +302,12 @@ does not expose decoding-work, type-count or header limits; queries use default
 CDK decoding. The initial lifecycle envelope also decodes before the blob
 participant can apply its own bounds. These are source findings, not measured
 hostile-input instruction costs or a latest-registry assertion.
+
+A fresh source review on 2026-10-01 resolves upstream main and peeled v0.110.48
+to `8d37c74c9a4457b9e2bd47ee883f98fd2889d63b`; its access, expansion and parser
+files match the pinned registry sources byte-for-byte. The framework gates above
+remain current for that inspected source. Registry metadata returned HTTP 403;
+latest-registry status remains unverified. See [retained review](evidence/core-primitives.md#managed-certificate-framework-review--2026-10-01).
 
 Canic needs a supported way for the owning artifact to select one bounded decoder
 before application dispatch for queries, updates and lifecycle arguments. It must
@@ -1043,6 +1063,20 @@ restore preserves its own fence/tombstones/history. Cancellation during a bounde
 post-descriptor hold prevents the delayed callback from publishing or admitting
 new uses. These are controlled local application/exposure/completion substitutes,
 not Toko, production outbox/serving acceptance, or deployed Caffeine guarantees.
+
+Occupied application restoration now also preserves unresolved retain/release
+outbox entries after committed service effects, in either upgrade order and through
+repeated same-release upgrades. Exact asset intent, payload, cleanup identity,
+tombstone and absent acknowledgment remain unchanged. Service receipt/current
+reference inspection stays available under explicit tenant identity; a fenced
+application cannot record that acknowledgment or resume dispatch/publication.
+Restored registration, admission, withdrawal, cleanup, recovery and new-use calls
+refuse before effects, preserving both owners' stable bytes. A retained published
+view is history, not authority to serve or admit uses through a fence. The original
+fresh reference remains live, retaining ten logical/physical/liability bytes;
+release of the reuse reference cannot erase the other asset's obligation.
+These controlled local restore cases grant no fence-clearing or operational
+restart authority and do not qualify old snapshot activation.
 
 The canonical `blob_apply_reference` update delegates to
 `workflow::references::apply` with the same `ReferenceCommand` used for receipt

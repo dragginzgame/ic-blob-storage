@@ -82,10 +82,13 @@ impl Fixture {
         self.group.pic()
     }
     fn arguments(&self) -> Vec<u8> {
+        self.arguments_as(blob_canic_probe::configuration::input().operator)
+    }
+    fn arguments_as(&self, operator: Principal) -> Vec<u8> {
         self.pic()
             .query_candid_as::<Result<Vec<u8>, HostFailure>, _>(
                 self.app(),
-                Principal::from_slice(&[2, 1]),
+                operator,
                 "probe_init_arguments",
                 (),
             )

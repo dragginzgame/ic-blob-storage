@@ -1,4 +1,5 @@
 use super::*;
+mod http;
 use ic_blob_storage::dto::operator::*;
 
 fn actor() -> Principal {

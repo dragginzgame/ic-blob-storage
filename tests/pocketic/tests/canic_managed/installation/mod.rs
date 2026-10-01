@@ -15,6 +15,12 @@ struct MissingPolicy {
     project: String,
 }
 pub(super) fn enroll(f: &Fixture) -> (TenantScope, TenantEnrollmentResponse) {
+    enroll_as(f, blob_canic_probe::configuration::input().operator)
+}
+pub(super) fn enroll_as(
+    f: &Fixture,
+    operator: candid::Principal,
+) -> (TenantScope, TenantEnrollmentResponse) {
     let scope = TenantScope {
         service: f.app(),
         namespace: u128::MAX,
@@ -24,7 +30,7 @@ pub(super) fn enroll(f: &Fixture) -> (TenantScope, TenantEnrollmentResponse) {
         .pic()
         .update_candid_as(
             f.app(),
-            candid::Principal::from_slice(&[2, 1]),
+            operator,
             "blob_update_tenant",
             (TenantUpdateRequest {
                 scope,

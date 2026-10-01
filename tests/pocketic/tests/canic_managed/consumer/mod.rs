@@ -31,6 +31,7 @@ use std::{
     path::{Path, PathBuf},
     time::Duration,
 };
+mod interruption;
 
 fn wasm() -> Vec<u8> {
     let path = std::env::var_os("BLOB_CONSUMER_PROBE_WASM").expect("explicit consumer artifact");
@@ -211,9 +212,12 @@ impl Application {
             .unwrap()
     }
     fn reference(&self, id: u128, live: bool, fenced: bool) {
+        let result = self.reference_state(id);
+        assert_eq!((result.live, result.fenced), (live, fenced));
+    }
+    fn reference_state(&self, id: u128) -> ReferenceStatusResponse {
         let command = self.command(id, true);
-        let result: ReferenceStatusResponse = self
-            .f
+        self.f
             .pic()
             .query_candid_as::<Result<_, ReferenceFailure>, _>(
                 self.f.app(),
@@ -225,8 +229,7 @@ impl Application {
                 },),
             )
             .unwrap()
-            .unwrap();
-        assert_eq!((result.live, result.fenced), (live, fenced));
+            .unwrap()
     }
     fn release(&self, id: u128) -> AssetView {
         self.mutate(
@@ -242,10 +245,9 @@ impl Application {
         self.mutate("recover", &Recovery { asset: id, release })
             .unwrap()
     }
-    fn accounting(&self, fenced: bool) {
+    fn status(&self) -> LocalServiceStatus {
         let input = blob_canic_probe::configuration::input();
-        let value: LocalServiceStatus = self
-            .f
+        self.f
             .pic()
             .query_candid_as::<Result<_, LocalStatusFailure>, _>(
                 self.f.app(),
@@ -259,7 +261,10 @@ impl Application {
                 },),
             )
             .unwrap()
-            .unwrap();
+            .unwrap()
+    }
+    fn accounting(&self, fenced: bool) {
+        let value = self.status();
         assert_eq!(
             [
                 value.uploads.reserved_bytes,

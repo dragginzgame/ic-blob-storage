@@ -151,9 +151,24 @@ The existing application/outbox probe also runs as an actual managed-service
 tenant through shared clients: fresh/reuse publication, callback interruption,
 use guards, reserved cleanup during suspension and cancellation before a delayed
 publication callback. Release recovery succeeds under the service fence; consumer
-restore preserves its own fence/history. Next test occupied application restoration
-with unresolved outbox work, retaining obligations without operational restart.
+restore preserves its own fence/history. Occupied application restoration now also
+retains unresolved retain/release outbox entries through both upgrade orders and
+repeated same-release upgrades. Service receipts remain inspectable while the
+application refuses acknowledgment, publication and dispatch through its fence;
+exact histories and remaining liabilities survive. Next address the supported
+managed certificate boundary and remaining provider/operational recovery evidence.
 Production consumer/outbox acceptance remains separate.
+
+Native `inspect-account` now observes one selected balance or payment relationship
+through that existing service handler, with actual signed journeys in both adapters.
+Exact scope, numeric widths, structured absence/errors and restore refusal survive;
+no credit, payment or retry is inferred. HTTP 429/503 no longer trigger implicit
+Agent resubmission. Packaged gateway/funding mutations and operational recovery
+remain open. The [fresh framework review](evidence/core-primitives.md#managed-certificate-framework-review--2026-10-01)
+finds upstream main/tag source identical to pinned 0.110.48 for the relevant macros;
+plain-reply rejection and decoder hooks remain unavailable. Registry metadata
+returned 403, so this review does not claim the latest registry version. Continue
+supported operator/consumer work while tracking that distinct framework gate.
 No internal-method bypass or copied framework dispatch is acceptable.
 Do not create a second memory runtime.
 

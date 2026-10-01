@@ -14,6 +14,7 @@ pub(super) struct Options {
 }
 
 pub(super) enum Command {
+    InspectAccount(ic_blob_storage::dto::account::AccountInspectionRequest),
     Reference(super::references::Input),
     FundingOutcome(ic_blob_storage::dto::funding::outcome::FundingOutcomeRequest),
     UploadHistory(super::upload_history::Input),
@@ -60,6 +61,7 @@ impl Options {
         if !matches!(
             command,
             "status"
+                | "inspect-account"
                 | "upload-history"
                 | "certificate-assessment"
                 | "funding-history"
@@ -215,32 +217,7 @@ fn parse_command(
                 max_bytes,
             }
         } else {
-            let scope = OperatorScope {
-                service,
-                namespace,
-                cashier: principal(take("--cashier")?)?,
-                payment_account: principal(take("--payer")?)?,
-            };
-            if command == "funding-outcome" {
-                Command::FundingOutcome(
-                    ic_blob_storage::dto::funding::outcome::FundingOutcomeRequest {
-                        scope,
-                        operation: positive(take("--operation")?)?,
-                        offered: positive(take("--offered")?)?,
-                        target_balance: flags
-                            .remove("--target-balance")
-                            .map(positive)
-                            .transpose()?,
-                    },
-                )
-            } else if command == "funding-history" {
-                Command::FundingHistory {
-                    scope,
-                    cursor: flags.remove("--cursor").map(PathBuf::from),
-                }
-            } else {
-                Command::Status { scope }
-            }
+            parse_operator_command(command, service, namespace, flags)?
         },
     )
 }
@@ -268,4 +245,43 @@ pub(super) fn validate_url(url: &Url, network: &str, explicit_root: bool) -> Res
         return Err(Failure::Arguments);
     }
     Ok(())
+}
+
+fn parse_operator_command(
+    command: &str,
+    service: Principal,
+    namespace: u128,
+    flags: &mut BTreeMap<&str, &str>,
+) -> Result<Command, Failure> {
+    let mut take = |name| flags.remove(name).ok_or(Failure::Arguments);
+    Ok({
+        let scope = OperatorScope {
+            service,
+            namespace,
+            cashier: principal(take("--cashier")?)?,
+            payment_account: principal(take("--payer")?)?,
+        };
+        if command == "inspect-account" {
+            Command::InspectAccount(ic_blob_storage::dto::account::AccountInspectionRequest {
+                scope,
+                kind: super::account::kind(take("--kind")?)?,
+            })
+        } else if command == "funding-outcome" {
+            Command::FundingOutcome(
+                ic_blob_storage::dto::funding::outcome::FundingOutcomeRequest {
+                    scope,
+                    operation: positive(take("--operation")?)?,
+                    offered: positive(take("--offered")?)?,
+                    target_balance: flags.remove("--target-balance").map(positive).transpose()?,
+                },
+            )
+        } else if command == "funding-history" {
+            Command::FundingHistory {
+                scope,
+                cursor: flags.remove("--cursor").map(PathBuf::from),
+            }
+        } else {
+            Command::Status { scope }
+        }
+    })
 }

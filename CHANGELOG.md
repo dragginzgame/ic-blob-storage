@@ -2,6 +2,29 @@
 
 ## [Unreleased]
 
+## [0.4.12]
+
+### Added
+
+- Managed application restore tests preserve unresolved retain/release outbox
+  entries after committed service effects, in both upgrade orders and repeated
+  same-release upgrades. Exact intents, tombstones, receipts, reference liveness
+  and liabilities survive; restored application mutations and acknowledgment
+  recovery refuse through its fence without clearing uncertainty.
+- Native `inspect-account` observes an explicitly selected balance or payment
+  relationship through the existing shared service update. Exact operator/account
+  scope, independent balances, signed arbitrary-width relationship fields and
+  reported absence/errors remain observations without credit or retry authority.
+- Signed native account journeys exercise both standalone and managed adapters,
+  malformed/oversized replies, foreign identity/scope/trust refusals and fenced
+  same-release restore over the existing query-only Cashier substitute.
+
+### Fixed
+
+- Native Agent transport no longer inherits ic-agent's automatic HTTP 429/503
+  retries. The configured no-retry client now owns HTTP handling; a network
+  regression checks one service submission under either backpressure response.
+
 ## [0.4.11] - 2026-10-01
 
 ### Added

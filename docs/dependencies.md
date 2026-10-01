@@ -238,11 +238,20 @@ labelled local source bytes; test PEM identities remain temporary. There is no
 new runtime/registry dependency or production consumer journal.
 `BLOB_STANDALONE_REFERENCE_REPORT` retains fresh per-mode signed refusal/recovery
 captures against the actual standalone artifact. `BLOB_MANAGED_CONSUMER_REPORT`
-retains fresh `outbox` and `cancel-race` children with exact application/service
-Candid and labelled local completion. Both require existing parents and refuse
+retains fresh `outbox`, `cancel-race`, `retain-consumer-first`,
+`retain-service-first`, `release-consumer-first` and `release-service-first`
+children with exact application/service Candid and labelled local completion.
+The interruption children preserve unresolved outbox histories across both upgrade
+orders and repeated same-release restoration. Both variables require existing parents and refuse
 retained/partial children; ordinary runs use temporary directories. The consumer
 is the existing local application substitute using shared clients and its own
 bounded durable record, not a new production dependency or recovery component.
+
+`BLOB_ACCOUNT_REPORT` retains fresh `standalone` and `managed` children for signed
+native balance/relationship journeys. Use an existing empty parent; existing or
+partial children refuse. Reports retain request/source Candid, raw command/result
+JSON and public root trust; identities remain temporary. The source is the same
+local query-only Cashier substitute, with no payment or deployed provider request.
 
 `make test-pocketic` builds `blob-authority-probe`, `blob-gateway-source` and
 `blob-funding-probe` into

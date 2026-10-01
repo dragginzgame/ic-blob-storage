@@ -8,6 +8,7 @@ installation scope and original saved requests.
 | Task | Command | Effect |
 | --- | --- | --- |
 | Inspect local counters and restore fences | `status` | Signed service query |
+| Observe provider-reported balances or relationships | `inspect-account` | One signed service read update; service queries Cashier |
 | Inspect retained funding | `funding-history`, `funding-outcome` | Signed service query |
 | Find upload identities | `upload-history` | Signed service query |
 | Recover reference results or inspect liveness | `reference-receipt`, `reference-status` | Signed service query |
@@ -73,6 +74,52 @@ are structured JSON codes; private key contents and remote diagnostics are omitt
 The call has a 30-second deadline, a 256 KiB HTTP response ceiling and a 64 KiB
 Candid reply bound with decoder work limits. It never falls back to an update.
 Run `make test-standalone` for the local signed HTTP subprocess evidence.
+
+## Account inspection
+
+Choose one observation with `inspect-account --kind balance|relationship` and
+supply the same identity/trust and complete operator scope as `status`:
+
+```sh
+cargo run --offline --locked -p ic-blob-storage-cli --bin blob-storage -- \
+  inspect-account --network ic --url "$IC_API_URL" --identity "$OPERATOR_PEM" \
+  --operator "$OPERATOR_PRINCIPAL" --service "$SERVICE_PRINCIPAL" \
+  --namespace "$SERVICE_NAMESPACE" --cashier "$CASHIER_PRINCIPAL" \
+  --payer "$PAYER_PRINCIPAL" --kind balance
+```
+
+The client submits the existing `blob_inspect_account` service update once;
+that workflow performs a replicated Cashier query. It attaches no provider cycles,
+changes no service credit/allocation and starts no payment. The client verifies
+its IC update certificate, then checks the exact echoed request and observation
+kind; this authenticates the service reply, not a separate provider signature or
+future provider guarantee. Local mode uses the independently supplied root as
+above. A restored installation refuses with `account_fenced`.
+
+JSON preserves reported total, prepaid, promotional and ledger balances separately;
+it does not recompute the total. Relationship amounts retain arbitrary-width
+signed decimal strings, counters use decimal strings and absent expiration is
+`null`. Present relationships must match both the service and payer. Missing
+accounts, absent reported relationships and typed provider errors are explicit
+`provider_report` observations, exit 0. `no_relationship_reported` does not prove
+provider absence. Transport, malformed/oversized reply, authority, scope and fence
+refusals exit 3. No failure becomes a zero balance. Every successful output sets
+`provider_credit` and `spendability` to `not_established`, and
+`retry_authorized: false`.
+
+The command has a thirty-second deadline, 256 KiB HTTP response ceiling and 4 KiB
+Candid reply bound with work/type/header limits and no skipped fields. Waiting
+may inspect the exact IC request ID; it never resubmits, automatically refreshes,
+funds or writes a journal. A timeout or failed certificate validation can follow
+execution of this read update: treat the result as unobserved, not proof the
+Cashier was never queried. Native Agent transport also returns HTTP 429/503
+backpressure without automatically resending queries or updates.
+
+Actual signed journeys through both adapters retain complete stable memory across
+observations/refusals and check same-release restore. Cashier replies are local
+substitutes; see [account evidence](evidence/core-primitives.md#signed-native-account-inspection-and-bounded-transport--2026-10-01).
+Live provider observations still require the selected scope and budget recorded
+in the probe ledger.
 
 ## Funding history
 
