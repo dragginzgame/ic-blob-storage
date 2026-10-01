@@ -1,39 +1,7 @@
 //! Explicit browser opt-in: the default Rust suite has no Node/Chromium requirement.
 mod admission;
 use super::*;
-use std::{
-    io::{BufRead, BufReader, Write},
-    path::PathBuf,
-    process::{Child, Command, Stdio},
-};
-
-// Ensure failed assertions also terminate and reap the owned browser driver.
-struct BrowserProcess(Option<Child>);
-impl Drop for BrowserProcess {
-    fn drop(&mut self) {
-        if let Some(child) = &mut self.0 {
-            let _ = child.kill();
-            let _ = child.wait();
-        }
-    }
-}
-
-#[derive(serde::Deserialize)]
-#[serde(rename_all = "camelCase", deny_unknown_fields)]
-struct BrowserPreparation {
-    hash: String,
-    byte_length: u64,
-    #[serde(rename = "manifestJSON")]
-    manifest_json: String,
-}
-
-fn read_control<T: serde::de::DeserializeOwned>(reader: &mut impl BufRead, limit: u64) -> T {
-    use std::io::Read;
-    let mut line = Vec::new();
-    reader.take(limit + 1).read_until(b'\n', &mut line).unwrap();
-    assert!(line.len() as u64 <= limit && line.ends_with(b"\n"));
-    serde_json::from_slice(&line).unwrap()
-}
+use crate::browser_driver::{BrowserDriver, BrowserPreparation};
 
 #[test]
 #[ignore = "Requires pinned browser packages and Chromium; run make test-browser"]
@@ -80,46 +48,22 @@ fn chromium_certificate_intent_survives_reload_competing_tabs_and_cancellation()
             "oversizeGateway": scenario == "gateway-oversize",
             "cancelAtGatewayClaim": scenario == "gateway-cancel-before-claim",
         });
-        let config = tempfile::NamedTempFile::new().unwrap();
-        std::fs::write(config.path(), serde_json::to_vec(&args).unwrap()).unwrap();
-        let repo = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../..");
-        let node = std::env::var_os("BLOB_BROWSER_NODE").unwrap_or_else(|| "node".into());
-        let child = Command::new(node)
-            .arg(repo.join("tests/browser/run.mjs"))
-            .arg(config.path())
-            .current_dir(&repo)
-            .stdin(Stdio::piped())
-            .stdout(Stdio::piped())
-            .stderr(Stdio::piped())
-            .spawn()
-            .expect("run configured browser driver");
-        let mut process = BrowserProcess(Some(child));
-        let child = process.0.as_mut().unwrap();
+        let mut driver = BrowserDriver::start(&args);
         // Bound transport buffering before the shared decoder's own JSON bound.
-        let mut reader = BufReader::new(child.stdout.take().unwrap());
-        let browser: BrowserPreparation = read_control(&mut reader, 8192);
+        let browser: BrowserPreparation = driver.read(8192);
         assert_eq!(browser.hash, expected_root);
         assert_eq!(browser.byte_length, permission.request.bytes);
         let consumer = admission::handshake(
             &h.fixture,
             permission,
             &browser,
-            &mut reader,
-            child.stdin.as_mut().unwrap(),
+            &mut driver,
             scenario == "success",
         );
-        child.stdout = Some(reader.into_inner());
         let grant = serde_json::json!({ "permission": candid::encode_one(input.permission).unwrap(),
                 "consumer": admission::consumer_commands(&consumer) });
-        writeln!(child.stdin.take().unwrap(), "{grant}").unwrap();
-        let output = process.0.take().unwrap().wait_with_output().unwrap();
-        assert!(
-            output.status.success(),
-            "browser failed: {}\n{}",
-            String::from_utf8_lossy(&output.stdout),
-            String::from_utf8_lossy(&output.stderr)
-        );
-        let report: serde_json::Value = serde_json::from_slice(&output.stdout).unwrap();
+        driver.send(&grant);
+        let report = driver.finish();
         assert_eq!(report["outcome"], "passed");
         assert_eq!(report["cancelled"], cancelled);
         admission::verify_consumer(&h.fixture, &consumer, cancelled, report["consumer"].clone());

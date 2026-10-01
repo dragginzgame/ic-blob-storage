@@ -54,8 +54,8 @@ a fully root-verified file, reusing the verifier's bounded HTTP implementation.
 The signed managed completion/download/release/restore journey is locally covered;
 standalone preserves unconfirmed/fenced refusal without provider GETs. This closes
 the missing native file-output step, not real issuance or consumer acceptance.
-Next focus on the existing upload-certificate provider/recovery prerequisites and
-supported Canic plain-record rejection/decoder controls. A real bounded upload
+Next focus on the existing upload-certificate provider/recovery prerequisites;
+published Canic plain-record rejection/decoder controls are adopted. A real bounded upload
 trial still needs its selected installation and explicit provider-effect budget;
 another passive funding diagnostic is not the next delivery priority.
 Signed native admission, uploader manifest preparation, exact recovery and tenant

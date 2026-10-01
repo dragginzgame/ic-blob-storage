@@ -335,6 +335,14 @@ framework development. Siblings stay read-only; a deployed Fleet is not required
 for PocketIC. Published dependency adoption does not qualify provider exposure
 or replace full release validation.
 
+The opt-in managed browser setup uses the pinned Caffeine SDK, existing certificate
+client and consumer fixture for actual signed admission/preparation. Competing tabs
+claim one refused issuance; reload/rejection inspection preserves uncertainty with
+no gateway traffic. Explicit withdrawal releases only the unexposed reservation,
+and fenced restore retains cancelled history. This
+[local evidence](evidence/core-primitives.md#managed-browser-setup--2026-10-01)
+does not qualify provider exposure or production browser storage/recovery.
+
 Earlier source findings and failed public-adapter attempts remain dated evidence
 in the [framework review](evidence/core-primitives.md#managed-certificate-framework-review--2026-10-01)
 and [upload setup review](evidence/core-primitives.md#signed-native-upload-setup--2026-10-01).

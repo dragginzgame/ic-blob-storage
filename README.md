@@ -33,16 +33,17 @@ and durable metadata; admission does not require uploading the file body to it.
 | --- | --- |
 | Shared Rust core | Implemented, with native and local IC evidence |
 | Standalone canister | Shared handlers and explicit installation configuration; provider certificate issuance remains disabled |
-| Canic adapter | **30 of 31 service methods** wired in a controlled managed fixture; their Candid types match standalone |
+| Canic adapter | All service methods wired in the controlled managed fixture, including the plain certificate reply; their Candid types match standalone |
 | Managed lifecycle | Installation, activation, verifier checks, reference-qualified downloads, cleanup accounting and fenced upgrades tested locally |
 | Native tooling | Verified upload snapshots, generated download/reference inputs, signed setup/recovery/cancellation, tenant file downloads and verifier completion; both hosts tested locally |
 | Application prototype | Existing asset/outbox fixture tests managed publication, callback recovery, cancellation races, cleanup and restoration with unfinished work |
 | Browser integration | Private certificate/intent client composed with Caffeine's upload SDK in local tests |
-| Live service acceptance | Still open: remaining managed endpoints, complete consumer flow, provider guarantees and operational recovery |
+| Live service acceptance | Still open: complete consumer flow, provider guarantees and operational recovery |
 
-Canic's pinned endpoint macros need support for Caffeine's plain certificate reply,
-plus query-size and decoding-work controls before full managed qualification. See the
-[composition contract](docs/service-contract.md#managed-canic-composition) for that gap.
+Pinned Canic 0.110.49 provides plain certificate replies and bounded endpoint/
+lifecycle decoding. Provider and recovery prerequisites still prevent successful
+certificate issuance. See the
+[composition contract](docs/service-contract.md#managed-canic-composition).
 
 Local tests use controlled provider substitutes where stated. A verifier's
 attestation records observed content availability; it does not promise future
@@ -69,6 +70,7 @@ Choose the local canister path you want to exercise:
 | Standalone | `make test-standalone` | PocketIC server |
 | Canic-managed prototype | `make test-canic-composition` | PocketIC, Canic CLI, ic-wasm and wasm-opt |
 | Browser certificate flow | `make test-browser` | PocketIC, browser packages, Node and Chromium |
+| Managed browser setup and refusal | `make test-canic-browser` | Canic build tools, PocketIC, browser packages, Node and Chromium |
 
 Follow [dependency setup](docs/dependencies.md) to provision those tools.
 The test targets use local canisters and do not deploy a live service.
@@ -82,7 +84,7 @@ Both canister adapters call the same service workflows and tenant rules.
 | [Rust core](crates/ic-blob-storage) | Content, policy, durable state and shared workflows; builds without Canic |
 | [Standalone host](canisters/standalone/README.md) | Explicit endpoints, installation, memory and lifecycle |
 | [Canic composition library](crates/ic-blob-storage-canic) | Opt-in memory declarations, caller guards and synchronous installation/restoration |
-| [Managed fixture](canisters/test/canic_probe) | Current Canic endpoint subset and local composition artifact |
+| [Managed fixture](canisters/test/canic_probe) | Canic service endpoints and local composition artifact |
 | [Native CLI](crates/ic-blob-storage-cli) | Signed inspection, tenant reference submission and verifier tooling |
 | [Browser client](clients/browser/README.md) | Certificate transport and durable intent boundary; reuses Caffeine's upload SDK |
 | [PocketIC harness](tests/pocketic) | Actual local canister, lifecycle and inter-canister tests |

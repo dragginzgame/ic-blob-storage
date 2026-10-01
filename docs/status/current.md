@@ -2,7 +2,42 @@
 
 Date: 2026-10-01
 
-## Active work — 0.4.15 draft and published Canic adoption
+## Active work — managed browser setup after 0.4.15
+
+The maintainer released 0.4.15; clean main initially points to `d988835`.
+Continue with the existing browser SDK/client against the actual managed host,
+without waiting for a Fleet deployment or enabling provider effects. The new
+opt-in `make test-canic-browser` builds the managed artifact and existing consumer,
+then exercises actual browser/consumer admission, uploader preparation and refused
+certificate issuance. Both identities/opaque Candid remain Rust-bound; no second
+SDK, schema, production store or qualification override is introduced.
+
+The managed Chromium case passes in 9.25 seconds against current release artifacts:
+independent Rust/SDK root and manifest checks, tenant/uploader authority refusals,
+one issuance claim across two tabs, no gateway traffic and exact browser intent
+through reload/certified rejection without redispatch. Explicit consumer
+cancellation/tenant withdrawal releases the unexposed reservation; original
+cancelled permission/history survives same-release inspection-only restore.
+Initial fresh-consumer-state and reservation-accounting assertion failures are
+retained separately and corrected against maintained behavior, before issuance.
+
+Browser cases now share one bounded process/control owner with failure termination
+and diagnostic capture. All ten earlier browser scenarios pass after that refactor
+(54.56 seconds); strict lint for both affected harness targets passes (11.24
+seconds). Formatting and JavaScript syntax checks pass. README's obsolete endpoint
+count/missing-macro claims are removed. See the source-bound
+[evidence](../evidence/core-primitives.md#managed-browser-setup--2026-10-01).
+New notes join Unreleased; Cargo/dependencies/release receipt remain 0.4.15.
+Pre-run intent, failures, corrected result and source/artifact hashes remain in
+`.tmp/managed-browser-01`. This is local browser/IC evidence: provider pre-charge,
+namespace, replay and operational recovery facts remain false, with no successful
+certificate exposure, gateway/provider request, paid effect or deployment.
+[Canic feedback](../canic-parity.md#integration-feedback) CF-01 remains closed;
+no new actionable framework defect is established. Next resolve the provider/
+recovery facts and select a bounded real consumer trial before claiming usable
+live uploads/downloads. Siblings remain read-only; no release action or cleanup.
+
+## Earlier work — 0.4.15 draft and published Canic adoption
 
 The maintainer's full managed suite reports one operator failure (28 other cases
 pass). Isolated reproduction finds a stale test expectation: a 4 KiB valid Candid

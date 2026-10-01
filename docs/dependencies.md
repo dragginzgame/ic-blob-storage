@@ -121,6 +121,22 @@ tree/chunk requests only against the local substitute. Failed/aborted transfer d
 not retry. This is not production sizing, crash/eviction durability, browser-profile restoration, a deployed gateway upload,
 or qualification of a consumer's CSP/authentication/storage environment.
 
+### Managed browser setup
+
+The managed browser check uses the same provisioned packages and Chromium:
+
+```sh
+make test-canic-browser BLOB_BROWSER_NODE=/absolute/path/to/node
+```
+
+It builds the canonical managed fixture and existing consumer, then runs actual
+signed browser admission/preparation through the shared service workflows.
+Production certificate facts remain false, so one claimed request refuses with
+no gateway traffic; browser uncertainty and cancellation plus service cleanup/
+fenced history are checked. This local case is outside ordinary CI and establishes
+no deployed Caffeine guarantee. Canic build tools are required; no Fleet deployment
+or package/browser download occurs.
+
 ### Offline native/browser handoff
 
 With the same local packages and Node 24, run the optional preparation check:

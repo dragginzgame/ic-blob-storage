@@ -62,8 +62,7 @@ pub(super) fn handshake(
     f: &Fixture,
     permission: Permission,
     browser: &BrowserPreparation,
-    reader: &mut impl BufRead,
-    writer: &mut impl Write,
+    driver: &mut BrowserDriver,
     verify_authority: bool,
 ) -> Run {
     let declaration = decode_prepared_manifest(
@@ -97,8 +96,8 @@ pub(super) fn handshake(
         "permission": candid::encode_one(request.permission).unwrap(),
         "preparation": candid::encode_one(&request).unwrap(),
     });
-    writeln!(writer, "{commands}").unwrap();
-    let replies: BrowserReplies = read_control(reader, 32768);
+    driver.send(&commands);
+    let replies: BrowserReplies = driver.read(32768);
     assert_eq!(replies.authority.is_some(), verify_authority);
     if let Some(authority) = replies.authority {
         verify_refusals(&request, &authority);

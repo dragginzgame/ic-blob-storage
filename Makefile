@@ -20,7 +20,7 @@ VERSION ?=
 RELEASE := bash scripts/release/release.sh
 CI_TARGETS := shell-check release-check fmt-check check clippy probe-check docs-check test wasm-check package
 
-.PHONY: help version deps cloc fmt fmt-check check clippy docs-check test test-native test-pocketic test-browser test-sdk-probe test-sdk-inputs test-fixture test-standalone build-standalone prepare-canic-probe build-canic-probe test-canic-composition test-admission-resources test-read-resources wasm-check \
+.PHONY: help version deps cloc fmt fmt-check check clippy docs-check test test-native test-pocketic test-browser test-canic-browser test-sdk-probe test-sdk-inputs test-fixture test-standalone build-standalone prepare-canic-probe build-canic-probe test-canic-composition test-admission-resources test-read-resources wasm-check \
 	build package clean shell-check release-check probe-check ci validate release-verify \
 	release-plan ensure-clean patch minor major bump-x release-patch \
 	release-minor release-major release-x release-stage release-commit \
@@ -35,6 +35,7 @@ help:
 	@echo "build-standalone / test-standalone   Standalone host Wasm or focused local IC tests"
 	@echo "test-canic-composition        Published Canic lifecycle and shared storage fixture"
 	@echo "test-browser                  Opt-in Chromium certificate/IndexedDB evidence"
+	@echo "test-canic-browser            Opt-in managed browser setup and certificate refusal"
 	@echo "test-sdk-probe                Opt-in local SDK fault probe; BLOB_SDK_PROBE_REPORT=NEW_DIRECTORY"
 	@echo "test-sdk-inputs               Opt-in offline native/browser handoff; BLOB_SDK_INPUTS_REPORT=NEW_DIRECTORY"
 	@echo "test-admission-resources     Local admission bounds and Wasm resource report"
@@ -145,6 +146,12 @@ test-browser:
 	$(BLOB_BROWSER_NODE) tests/browser/build.mjs
 	cargo build --offline --locked --release --target wasm32-unknown-unknown -p blob-storage-probe -p blob-consumer-probe --lib
 	cargo test --offline --locked -p ic-blob-storage-pocketic-tests --test storage chromium_certificate_intent -- --ignored --test-threads=1
+
+test-canic-browser:
+	$(BLOB_BROWSER_NODE) tests/browser/build.mjs
+	+$(MAKE) --no-print-directory build-canic-probe
+	cargo build --offline --locked --release --target wasm32-unknown-unknown -p blob-consumer-probe --lib
+	cargo test --offline --locked -p ic-blob-storage-pocketic-tests --test canic_composition chromium_managed_upload_setup -- --ignored --test-threads=1
 
 test-admission-resources:
 	cargo build --offline --locked --release --target wasm32-unknown-unknown -p blob-admission-probe --lib

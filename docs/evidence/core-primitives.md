@@ -5236,3 +5236,53 @@ This closes package adoption [CF-01](../canic-parity.md#integration-feedback).
 No full CI/release gate, deployed Fleet, provider request, payment, sibling edit,
 upstream message, product version/receipt mutation, commit/tag/publication or
 cleanup. Earlier frozen-source evidence remains historical and unchanged.
+
+## Managed browser setup — 2026-10-01
+
+The maintainer released 0.4.15; baseline main is `d988835`. New opt-in
+`make test-canic-browser` connects the existing browser client and maintained
+patched Caffeine 1.1.2 SDK to the actual managed host, not the earlier successful
+certificate fixture. Inputs are registry Canic 0.110.49, SDK 5.4.0, Node 24.21.0,
+Chromium 153.0.8010.12 and PocketIC 16.0.0. Production source/dependencies remain
+unchanged. Existing service/consumer release artifacts are used; the new Make
+recipe is inspected, not rerun as a redundant artifact build. The pinned bundle
+build checks upstream source hashes and applies the maintained patch.
+
+Rust independently derives the ten-byte body root and validates the actual SDK
+manifest. Rust-owned opaque Candid binds the consumer tenant, uploader, permission,
+independent full-width identities and prepared declaration. Actual signed browser
+admission/preparation succeed; foreign admission/preparation and direct uploader
+tenant admission return typed denial. No second SDK, DTO schema or service workflow
+is introduced. The shared bounded Node control owner also serves earlier scenarios.
+
+Two tabs claim exactly one certificate update. The current production host reports
+the four pre-charge/namespace/replay/recovery blockers and refuses issuance without
+changing service stable bytes. The browser retains the exact uncertain envelope
+and request ID through reload and certified rejection inspection, without resend.
+Gateway authority refuses and observed gateway requests remain zero. Explicit
+browser cancellation and consumer withdrawal release the unexposed reservation:
+reserved/global logical/physical/liability bytes change from ten to zero, while
+the original cancelled/revoked permission and operation remain. Same-release
+upgrade retains this history with the service mutation fence set.
+
+Initial new-harness assumptions fail before certificate grant: the consumer already
+reports Reserved after admission, and global physical/liability capacity includes
+reservations. Separate first/second failure logs and correction records are retained;
+neither attempt issues a certificate or sends gateway traffic. Corrected managed
+Chromium passes in 9.25 seconds; all ten earlier browser scenarios pass in 54.56
+seconds after the shared helper refactor. Strict lint for the managed/storage harness
+targets passes in 11.24 seconds; formatting and both changed JavaScript syntax checks
+pass. No full CI/release gate is run. Existing scenarios still use labelled local
+certificate/exposure/gateway substitutes and do not qualify deployed Caffeine.
+
+Pre-run intent, source/artifact/package identities, commands, separate logs and
+browser request/intent reports remain in `.tmp/managed-browser-01`; previous captures
+are unchanged. All traffic is confined to owned local page/PocketIC origins, with
+zero deployed provider/payment budget. Local processes/instances exit and build
+artifacts remain; no external object, balance or cleanup obligation is created.
+There is no successful managed certificate exposure, upload/download transfer,
+production browser store/recovery qualification or deployed Fleet evidence.
+[CF-01](../canic-parity.md#integration-feedback) remains closed and no new actionable
+Canic finding is established. Siblings remain read-only; no version/release/commit/
+tag/publication/deployment or Cargo cleanup occurs. See the
+[ledger](caffeine-probes/README.md) and [setup](../dependencies.md#managed-browser-setup).

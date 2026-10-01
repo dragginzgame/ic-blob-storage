@@ -2,6 +2,20 @@
 
 ## [Unreleased]
 
+### Added
+
+- Opt-in `test-canic-browser` connects the pinned Caffeine SDK and existing browser
+  client to actual managed consumer admission and uploader preparation. Competing
+  tabs claim one certificate request; refusal sends no gateway traffic, and exact
+  uncertainty survives reload before explicit cancellation and tenant withdrawal.
+  Unexposed reservations are released, with cancelled history retained after restore.
+
+### Changed
+
+- Browser composition cases share one bounded Rust control/process helper, including
+  child termination on failure. The README reflects completed managed endpoint and
+  Canic 0.110.49 hook adoption; provider/recovery qualification remains open.
+
 ## [0.4.15] - 2026-10-01
 
 ### Added

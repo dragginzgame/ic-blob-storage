@@ -2,6 +2,7 @@
 #![cfg(not(target_family = "wasm"))]
 mod account_native_cli;
 mod authenticated_cli;
+mod browser_driver;
 mod canic_managed;
 mod funding_assessment_cli;
 mod gateway_native_cli;

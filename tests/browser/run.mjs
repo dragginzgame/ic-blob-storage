@@ -6,6 +6,7 @@ import assert from 'node:assert/strict';
 import { createInterface } from 'node:readline';
 import { once } from 'node:events';
 import { createHash } from 'node:crypto';
+import { refusedCertificate } from './refused-certificate.mjs';
 
 const [major, minor] = process.versions.node.split('.').map(Number);
 assert(major > 20 || (major === 20 && minor >= 19), 'Browser evidence requires Node >=20.19.0');
@@ -34,7 +35,7 @@ const server = createServer((req, res) => {
 await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
 const origin = `http://127.0.0.1:${server.address().port}`;
 const browser = await chromium.launch({ headless: true });
-try {
+async function exercise() {
   const context = await browser.newContext();
   // Browser traffic is confined to the owned page and PocketIC endpoint.
   await context.route('**/*', route => {
@@ -63,7 +64,7 @@ try {
   assert.deepEqual(gateway, []);
   process.stdout.write(`${JSON.stringify(replies)}\n`);
   const [line] = await grant;
-  control.close(); process.stdin.pause();
+  if (!config.certificateBlocked) { control.close(); process.stdin.pause(); }
   const admitted = JSON.parse(line);
   assert.ok(Array.isArray(admitted.permission));
   Object.assign(config, admitted);
@@ -77,6 +78,10 @@ try {
   assert.deepEqual(manifest.headers, ['Content-Length: 10', 'Content-Type: image/png']);
   assert.equal(await a.evaluate(() => fixture.calls()), 0);
   assert.deepEqual(gateway, []);
+  if (config.certificateBlocked) {
+    await refusedCertificate({ a, b, load, gateway, config, control, browser });
+    return;
+  }
   for (const [kind, code] of [['origin', 'request'], ['size', 'request-size'], ['ordinary', 'gateway-blocked']]) {
     assert.equal(await a.evaluate(async kind => {
       try { await fixture.gatewayProbe(kind); return 'sent'; } catch (error) { return error.code; }
@@ -252,7 +257,8 @@ try {
   assert.deepEqual(await b.evaluate(() => fixture.inspect()), beforeConsumer);
   assert.equal(gateway.length, gatewayCount);
   console.log(JSON.stringify({ browser: browser.version(), outcome: 'passed', cancelled: recovered.cancelled, consumer }));
-} finally {
+}
+try { await exercise(); } finally {
   clearTimeout(deadline);
   await browser.close();
   await new Promise(resolve => server.close(resolve));

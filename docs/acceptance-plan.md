@@ -9,7 +9,7 @@ trial. No complete acceptance case below is qualified.
 
 ## Current local evidence and open gates — 2026-10-01
 
-This review covers the released 0.4.14 shared installation, managed endpoint/client
+This review covers the released 0.4.15 shared installation, managed endpoint/client
 and controlled application/outbox source, plus native verified tenant file downloads.
 It includes unresolved-outbox restore tests, signed account inspection, the recorded
 managed certificate framework source review, gateway controls, passive funding
@@ -53,6 +53,15 @@ transfer or a replacement for the application's authenticated asset transaction.
 See [setup evidence](evidence/core-primitives.md#signed-native-upload-setup--2026-10-01).
 
 Current source-bound local records include:
+
+- [Managed browser setup](evidence/core-primitives.md#managed-browser-setup--2026-10-01):
+  pinned SDK preparation, signed consumer admission and uploader preparation use
+  the actual managed host. Two tabs claim one refused certificate request with
+  zero gateway traffic; reload and rejection inspection retain the exact uncertain
+  intent without resending. Explicit cancellation/withdrawal releases unexposed
+  reservations and preserves cancelled history through fenced restore. This is
+  local browser/IC evidence; provider exposure and production storage/recovery
+  qualification remain open.
 
 - [Native/browser handoff](evidence/core-primitives.md#native-browser-certificate-binding--2026-10-01):
   actual pinned SDK 10 MiB preparation feeds native verified snapshots and the

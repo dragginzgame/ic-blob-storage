@@ -17,6 +17,7 @@ use ic_blob_storage::dto::tenant::{
 use ic_blob_storage_canic::ManagedCallFailure;
 use ic_testkit::pic::{CandidCallExt, CanisterInstallExt};
 use std::time::Duration;
+mod browser;
 mod certificate;
 mod cleanup;
 mod cli;

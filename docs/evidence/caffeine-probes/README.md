@@ -34,6 +34,29 @@ all logs here; link their maintained test and record material changed findings.
 
 ## Current operating decisions and experiments
 
+2026-10-01 managed browser intent: `.tmp/managed-browser-01/intent.txt` records
+the pinned local SDK/browser/framework inputs and bounded trial. Connect actual
+consumer admission/uploader preparation to the maintained managed certificate
+endpoint without changing its false provider/recovery prerequisites. Require one
+claimed issuance across competing tabs, no gateway traffic, exact uncertainty
+through reload/rejection inspection, and explicit consumer cancellation/withdrawal.
+All traffic stays on owned PocketIC/page origins, with zero deployed-provider or
+payment budget. This is local browser/IC integration, not Caffeine qualification.
+
+2026-10-01 managed browser outcome: the actual managed-host Chromium journey
+passes in 9.25 seconds. One certificate update is refused, with zero gateway
+requests; exact uncertainty survives reload/certified rejection without resending.
+Explicit cancellation/withdrawal releases unexposed capacity, retaining cancelled
+history through fenced restore. Two initial harness assertions wrongly expected
+no consumer Reserved state and no global physical reservation accounting; both
+fail before issuance and are retained separately with their corrections. All ten
+earlier browser scenarios and both affected strict-lint targets pass. Intent,
+separate logs/reports and source/artifact/package hashes remain in the fresh
+`.tmp/managed-browser-01` capture. Local instances/browser processes exit; build
+artifacts remain. No external objects, payment or cleanup obligations are created.
+The four provider/recovery prerequisites stay false; see
+[evidence](../core-primitives.md#managed-browser-setup--2026-10-01).
+
 2026-10-01 managed operator regression: `.tmp/managed-operator-fix-01` records
 the pre-run intent, isolated failing reproduction and corrected source/results.
 Valid Candid at the 4 KiB transport ceiling can exhaust the separate decoding-work

@@ -35,6 +35,14 @@ transport, cancellation and disabled retries. The local composition is tested;
 the gateway guard below adds request journaling through the same caller-owned store.
 Production consumer integration and persistence qualification remain open.
 
+`make test-canic-browser` exercises this same SDK/client against actual managed
+consumer admission and uploader preparation. Current certificate prerequisites
+remain false: two tabs send one claimed request, certified rejection cannot become
+gateway authority, and reload retains exact uncertainty without redispatch.
+Explicit browser cancellation and tenant withdrawal release only unexposed
+reservations; cancelled service history survives fenced restoration. This opt-in
+uses local IC/page origins and the private fixture store, not deployed Caffeine.
+
 For native-prepared inputs, load `certificate-binding.json` from
 [`blob-storage upload-inputs`](../../docs/operator-guide.md#generate-upload-inputs-offline)
 as `binding` above. It derives the existing key/service/tenant/uploader/operation/
