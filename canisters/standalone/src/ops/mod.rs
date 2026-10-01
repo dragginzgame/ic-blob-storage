@@ -21,7 +21,7 @@ use ic_blob_storage::{
 use memory::{Grants, Memory};
 use std::cell::RefCell;
 struct Host {
-    runtime: MemoryRuntime<DefaultMemoryImpl>,
+    _runtime: MemoryRuntime<DefaultMemoryImpl>,
     installation: ServiceInstallation<Memory>,
 }
 thread_local! {
@@ -54,7 +54,7 @@ pub(crate) fn install(input: &HostInstallationInput) {
     )
     .expect("service installation");
     publish(Host {
-        runtime,
+        _runtime: runtime,
         installation,
     });
 }
@@ -80,7 +80,7 @@ pub(crate) fn restore() {
     )
     .expect("service restoration");
     publish(Host {
-        runtime,
+        _runtime: runtime,
         installation,
     });
 }
@@ -151,14 +151,6 @@ pub(crate) fn with_installation<R>(f: impl FnOnce(&ServiceInstallation<Memory>) 
     HOST.with_borrow(|host| {
         let installation = &host.as_ref().expect("initialized host").installation;
         f(installation)
-    })
-}
-pub(crate) fn with_memory_host<R>(
-    f: impl FnOnce(&ServiceInstallation<Memory>, &MemoryRuntime<DefaultMemoryImpl>) -> R,
-) -> R {
-    HOST.with_borrow(|host| {
-        let host = host.as_ref().expect("initialized host");
-        f(&host.installation, &host.runtime)
     })
 }
 fn bounded<T: CandidType + for<'de> Deserialize<'de>>(bytes: &[u8], max: usize) -> T {

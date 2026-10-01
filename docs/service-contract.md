@@ -151,19 +151,12 @@ Canic activation cannot authorize blob mutations after restore. The current
 managed upgrade argument is Canic's Candid unit value; replacement configuration
 refuses without changing retained state.
 
-The lifecycle declaration explicitly supplies the same memory authority as the
-blob requests. Before any blob handle opens, ic-memory verifies all seventeen
-keys, their current authority and declaration metadata against the existing host
-commitment. Refusal cannot bootstrap, replay admission or repair missing state.
-Successful adoption is an allocation check, not application-schema validation,
+The memory declaration supplies explicit blob requests and authority; Canic
+validates the host allocation policy during its sole bootstrap. Managed opening
+requires an existing committed runtime before any key lookup, then opens the
+configuration and shared service grants without choosing host bucket policy.
+Linking the composition library registers nothing. This does not establish
 independent freshness evidence or permission to activate a restored owner.
-
-Both adapters' operator-only `blob_host_memory_status` authenticates the complete
-installed scope before one compact host-runtime measurement. Its numeric totals
-include other host owners and the ledger, without per-ID names or history reads.
-Backing capacity, virtual extent and bucket slack are separate from tenant quota,
-provider storage and billing liabilities. Failed measurement never supplies zero
-totals. Passive fenced inspection changes no store, lifecycle or recovery authority.
 
 `declare_contexts!` explicitly emits named Rust guards in the artifact. They use
 public `ComponentRuntimeApi` status and correlated operation status, requiring

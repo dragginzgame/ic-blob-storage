@@ -62,13 +62,6 @@ fn blob_configuration() -> Result<dto::HostConfigurationView, dto::HostFailure> 
 fn blob_local_status(input: OperatorScope) -> Result<LocalServiceStatus, LocalStatusFailure> {
     workflow::local_status(context(), input)
 }
-#[ic_cdk::query(hidden = true, decode_with = "ops::decode")]
-#[candid::candid_method(query)]
-fn blob_host_memory_status(
-    input: OperatorScope,
-) -> Result<ic_blob_storage::dto::operator::memory::HostMemoryStatus, LocalStatusFailure> {
-    workflow::memory_status(context(), input)
-}
 #[ic_cdk::update(hidden = true, decode_with = "ops::decode")]
 #[candid::candid_method(update)]
 fn blob_update_tenant(

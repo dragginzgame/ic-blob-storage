@@ -1,30 +1,14 @@
 //! Reuse the host's committed runtime; never bootstrap or choose a bucket policy.
 use ic_blob_storage::{
     ic_memory::{
-        MemoryRequest, RuntimeAdoptionError, RuntimeMemory, RuntimeOpenError, SchemaMetadata,
-        SealedDeclarationSnapshot, StaticMemoryDeclarationError,
-        ic_stable_structures::DefaultMemoryImpl,
+        MemoryRequest, RuntimeMemory, RuntimeOpenError, SchemaMetadata,
+        StaticMemoryDeclarationError, ic_stable_structures::DefaultMemoryImpl,
     },
     ops::service::{
         installation::{INSTALLATION_MEMORY_KEY, ServiceInstallationMemories},
         stores::grants,
     },
 };
-use thiserror::Error;
-
-/// Failure to adopt the host's existing grants; no bootstrap or repair is attempted.
-#[derive(Debug, Error)]
-pub enum MemoryAdoptionFailure {
-    /// The explicitly requested authority or declarations are invalid.
-    #[error(transparent)]
-    Declarations(#[from] StaticMemoryDeclarationError),
-    /// Current committed authority, key or declaration metadata differs.
-    #[error(transparent)]
-    Adoption(#[from] RuntimeAdoptionError),
-    /// A verified grant could not be opened.
-    #[error(transparent)]
-    Open(#[from] RuntimeOpenError),
-}
 
 /// Memory handle supplied by Canic's sole default runtime.
 pub type ManagedMemory = RuntimeMemory<DefaultMemoryImpl>;
@@ -43,16 +27,12 @@ pub fn requests(authority: &str) -> Result<Vec<MemoryRequest>, StaticMemoryDecla
 }
 
 /// Open the complete installation only after Canic has committed its memory grants.
-/// Verify all seventeen declarations against the explicit expected authority before
-/// opening any handle. Missing authority/grants do not initialize a manager or store.
+/// Missing authority/grants do not initialize a manager or any service store.
 /// The artifact must give these handles exclusively to one installation owner.
 /// # Errors
 /// Preserves upstream absence, missing-key and runtime inspection errors.
-pub fn open(
-    authority: &str,
-) -> Result<ServiceInstallationMemories<ManagedMemory>, MemoryAdoptionFailure> {
-    let requirements = SealedDeclarationSnapshot::new(&[], &[], &requests(authority)?)?;
-    ic_blob_storage::ic_memory::verify_default_memory_manager_authority(&requirements, authority)?;
+pub fn open() -> Result<ServiceInstallationMemories<ManagedMemory>, RuntimeOpenError> {
+    ic_blob_storage::ic_memory::committed_allocations()?;
     Ok(ServiceInstallationMemories {
         configuration: ic_blob_storage::ic_memory::open_default_memory_manager_memory_by_key(
             INSTALLATION_MEMORY_KEY,
@@ -62,4 +42,25 @@ pub fn open(
 }
 
 #[cfg(test)]
-mod tests;
+mod tests {
+    use super::*;
+    #[test]
+    fn absent_framework_runtime_is_not_constructed_or_registered_by_linkage() {
+        std::thread::spawn(|| {
+            assert!(matches!(open(), Err(RuntimeOpenError::NotBootstrapped)));
+            assert!(matches!(
+                ic_blob_storage::ic_memory::default_memory_manager_memory_allocations(),
+                Err(ic_blob_storage::ic_memory::RuntimeDiagnosticError::NotBootstrapped)
+            ));
+            let snapshot = ic_blob_storage::ic_memory::sealed_declaration_snapshot().unwrap();
+            assert!(
+                !snapshot
+                    .requests()
+                    .iter()
+                    .any(|r| r.stable_key().as_str().starts_with("blob."))
+            );
+        })
+        .join()
+        .unwrap();
+    }
+}

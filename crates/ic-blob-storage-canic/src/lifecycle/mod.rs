@@ -1,10 +1,11 @@
 //! Synchronous participant operations; the artifact explicitly owns publication.
 use crate::{
     arguments::{self, InitializationArgumentFailure},
-    memory::{self, ManagedMemory, MemoryAdoptionFailure},
+    memory::{self, ManagedMemory},
 };
 use ic_blob_storage::{
     dto::configuration::ServiceConfigurationInput,
+    ic_memory::RuntimeOpenError,
     ops::service::installation::{
         ServiceInstallation, ServiceInstallationCandidate, ServiceInstallationError,
         ValidatedServiceInstallation,
@@ -17,14 +18,13 @@ pub type ManagedInstallation = ServiceInstallation<ManagedMemory>;
 
 /// Install in the synchronous participant after Canic bootstrap, before activation.
 /// Validate all application inputs before opening blob grants. The artifact supplies
-/// its compiled release and expected memory authority, publishes only after success
-/// and must trap on failure so
+/// its compiled release, publishes only after success and must trap on failure so
 /// IC rolls back framework bootstrap and any partial writes. Do not use async setup.
 /// # Errors
 /// Rejects invalid inputs, missing committed grants or allocated service state.
 /// # Panics
 /// Stable write failures or aliased/corrupt grants trap; do not catch and continue.
-pub fn install(release: &str, authority: &str) -> Result<ManagedInstallation, LifecycleFailure> {
+pub fn install(release: &str) -> Result<ManagedInstallation, LifecycleFailure> {
     let size = ic0::msg_arg_data_size();
     if size > arguments::CARRIER_BYTES {
         return Err(InitializationArgumentFailure::CarrierBound.into());
@@ -51,27 +51,23 @@ pub fn install(release: &str, authority: &str) -> Result<ManagedInstallation, Li
             release,
         },
     )?;
-    Ok(ServiceInstallation::install(
-        memory::open(authority)?,
-        candidate,
-    )?)
+    Ok(ServiceInstallation::install(memory::open()?, candidate)?)
 }
 
 /// Restore in the synchronous post-upgrade participant before deferred work.
 /// Only Canic's Candid unit upgrade argument is accepted. The host supplies its compiled
-/// release and expected memory authority; all four owners remain fenced even if
-/// Canic returns to Active.
+/// release; all four owners remain fenced even if Canic returns to Active.
 /// # Errors
 /// Rejects replacement arguments, missing memory, binding changes or invalid state.
 /// # Panics
 /// Binary corruption traps. The artifact must propagate failures for IC rollback.
-pub fn restore(release: &str, authority: &str) -> Result<ManagedInstallation, LifecycleFailure> {
+pub fn restore(release: &str) -> Result<ManagedInstallation, LifecycleFailure> {
     let empty = candid::encode_one(()).expect("encode Canic unit upgrade argument");
     if ic0::msg_arg_data_size() != empty.len() || ic_cdk::api::msg_arg_data() != empty {
         return Err(LifecycleFailure::UpgradeArguments);
     }
     Ok(ServiceInstallation::open(
-        memory::open(authority)?,
+        memory::open()?,
         ic_cdk::api::canister_self(),
         release,
     )?)
@@ -89,9 +85,9 @@ pub enum LifecycleFailure {
     /// Same-release restoration accepts no replacement configuration.
     #[error("upgrade requires Canic's Candid unit argument")]
     UpgradeArguments,
-    /// Framework grants differ from the expected declarations/authority or cannot open.
+    /// The framework has not committed every required grant.
     #[error(transparent)]
-    Memory(#[from] MemoryAdoptionFailure),
+    Memory(#[from] RuntimeOpenError),
     /// Shared installation validation/construction/restoration failed.
     #[error(transparent)]
     Installation(#[from] ServiceInstallationError),

@@ -47,7 +47,7 @@ fn install() {
     let installation = context::install().unwrap();
     INIT_ARGUMENTS.set(ic_cdk::api::msg_arg_data());
     let memory = neighbor();
-    assert_eq!(memory.grow(1), Ok(0));
+    assert_eq!(memory.grow(1), 0);
     memory.write(0, b"neighbor");
     INSTALLATION.with_borrow_mut(|owner| {
         assert!(owner.is_none());

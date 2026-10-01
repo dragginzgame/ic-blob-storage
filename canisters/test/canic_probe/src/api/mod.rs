@@ -244,24 +244,6 @@ fn blob_local_status(
     })
 }
 #[canic::canic_query(public, decode = crate::limits::REQUEST)]
-fn blob_host_memory_status(
-    input: OperatorScope,
-) -> Result<
-    ic_blob_storage::dto::operator::memory::HostMemoryStatus,
-    TransportFailure<LocalStatusFailure>,
-> {
-    let context = actual_context();
-    ops::read(|owner| {
-        workflow::operator::memory_status(
-            owner.stores().into(),
-            context,
-            input,
-            ic_blob_storage::ic_memory::default_memory_manager_memory_allocation_summary,
-        )
-        .map_err(TransportFailure)
-    })
-}
-#[canic::canic_query(public, decode = crate::limits::REQUEST)]
 fn blob_funding_history(
     input: FundingHistoryRequest,
 ) -> Result<FundingHistoryPage, TransportFailure<FundingHistoryFailure>> {

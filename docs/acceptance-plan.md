@@ -57,7 +57,8 @@ Current source-bound local records include:
 - [Offline installation check and isolated trial sequence](operator-guide.md#check-installation-inputs-offline):
   complete shared configuration/project/verifier/release validation preserves the
   exact proposal and rejects invalid/ambiguous input before output. Three cases,
-  strict affected lint and actual executable decoding pass with ic-memory 0.15.
+  strict affected lint and actual executable decoding retain their earlier evidence.
+  The three CLI validation cases also pass on the current aligned 0.14.3 graph.
   This establishes no platform/release identity, deployment, account authority or
   provider readiness; paid transfer is stopped at the four maintained facts.
 

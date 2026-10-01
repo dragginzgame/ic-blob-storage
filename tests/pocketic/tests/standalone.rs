@@ -20,7 +20,6 @@ mod standalone_gateways;
 mod standalone_history;
 mod standalone_history_cli;
 mod standalone_lifecycle;
-mod standalone_memory;
 mod standalone_operator;
 mod standalone_reference_capacity;
 mod standalone_reference_native_cli;

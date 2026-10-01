@@ -76,11 +76,9 @@ macro_rules! declare_contexts {
 /// authenticated installation and checked its compiled release binding. The
 /// artifact must publish only complete owners and trap failures for IC rollback.
 /// Linking this library emits no lifecycle entrypoint or installation defaults.
-/// The explicit authority must match the artifact's memory declarations; adoption
-/// verifies every blob requirement before opening stores on install or restore.
 #[macro_export]
 macro_rules! declare_installation {
-    (authority = $authority:expr, install = $install:ident, restore = $restore:ident $(,)?) => {
+    (install = $install:ident, restore = $restore:ident $(,)?) => {
         /// Read the bounded managed input and install under validated Canic release authority.
         /// # Errors
         /// Refuses absent/inconsistent authority, invalid input or unavailable service grants.
@@ -99,7 +97,6 @@ macro_rules! declare_installation {
                     .identity
                     .release_build_id
                     .to_string(),
-                $authority,
             )
         }
         /// Restore all service owners under Canic's validated same-release authority.
@@ -120,7 +117,6 @@ macro_rules! declare_installation {
                     .identity
                     .release_build_id
                     .to_string(),
-                $authority,
             )
         }
     };

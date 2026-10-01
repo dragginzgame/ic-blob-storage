@@ -30,7 +30,20 @@ Feedback is recorded here, not sent upstream automatically; Canic stays read-onl
 | ID | State | Finding and action | Owner / closure |
 | --- | --- | --- | --- |
 | CF-01 | Closed — 2026-10-01 | Both workspaces pin registry Canic `0.110.49`; core/macros resolve to the same version. The packaged source identifies commit `75c7f0998fd4531f8a6b81d91b53b71daffca332` and contains the plain-reply rejection and endpoint/lifecycle decoding hooks. Canonical build and all six focused composition cases pass without path overrides or deployed Fleet. [Evidence](evidence/core-primitives.md#published-canic-adoption--2026-10-01) retains package checksums, artifact identity and results, including the first sandbox server-start refusal. | Canic publication and this repository's dependency adoption/validation are complete. Full release validation and provider qualification remain separate. |
-| CF-02 | Open — 2026-10-01 | Blob core now selects published `ic-memory` `0.15.0` (source `26306737cf75efb320bb9c4029dcd1d77bc83184`), while registry Canic/core `0.110.49` still requires `^0.14.3`. Native fixture compilation passes, but CLI `0.110.49` rejects `make build-canic-probe` with `role_contract_multiple_memory_runtimes` for the two registry identities. The guard correctly prevents separate default runtimes; no shim or additional bootstrap is appropriate. [Adoption evidence](evidence/core-primitives.md#ic-memory-015-adoption--2026-10-01) retains resolution, checksums and refusal; [follow-up evidence](evidence/core-primitives.md#ic-memory-015-follow-ups--2026-10-01) covers prepared explicit authority verification and the compact host-memory query, with native compilation only for the managed fixture. | Maintainer is working on Canic adoption. Publish a Canic release using `ic-memory` 0.15, adopt it in both blob manifests, then confirm one runtime identity and rerun canonical managed build plus lifecycle, host-memory query and Candid contract checks. |
+| CF-02 | Closed by local published dependency alignment — 2026-10-01 | The earlier ic-memory 0.15 graph correctly failed canonical build with two runtime identities. Per maintainer direction, pin this repo to published Canic 0.110.49's ic-memory 0.14.3 and defer the unreleased 0.15-only APIs. Preserve historical refusal evidence and the multiple-runtime guard. [Alignment evidence](evidence/core-primitives.md#published-memory-alignment--2026-10-01). | Single-runtime canonical build, focused managed authority/lifecycle/decoding and Candid checks pass here. No Canic publication action is required for this release; revisit 0.15 adoption with a matching published host when useful. |
+
+CF-02 release check, 2026-10-01: the maintainer's `release-minor` stops at that
+canonical guard from committed draft `dc7fa46`, before version preparation.
+The package/release receipt remain 0.4.16 and no 0.5.0 tag is observed. Read-only
+local Canic inspection finds the 0.15 adoption in its current worktree, still
+labelled 0.110.49; its handoff reports no publication. A complete bounded read of
+the [official canic-core index](https://index.crates.io/ca/ni/canic-core) observes
+latest non-yanked 0.110.49 requiring `^0.14.3`, with no published dependency on
+0.15. Failed web/DNS and size-limited requests remain separate from the successful
+capture in `.tmp/canic-memory-release-block-01`. That diagnostic initially proposed publishing Canic first. The subsequent
+maintainer direction supersedes that action: this repo now pins 0.14.3 and
+passes the canonical build and focused managed platform checks. No Canic
+publication is required; no guard is bypassed.
 
 The stale embedded-peer release fixture and compiler-cache startup refusals are
 already recorded in Canic's own handoff/local evidence. The frozen local artifact

@@ -4,21 +4,8 @@
 
 ## [0.5.0]
 
-### Breaking
-
-- Upgrade the public `ic-memory` re-export to 0.15.0. Direct growth callers must
-  handle its typed result; stable-structure wrappers retain their upstream trait
-  contract. Cross-release installations remain reinstall-only.
-- Managed `memory::open`, lifecycle `install`/`restore` and `declare_installation!`
-  now require an explicit memory authority. All seventeen declarations are verified
-  before opening any blob handle; adoption failures use `MemoryAdoptionFailure`.
-  The previous implicit-authority forms are removed.
-
 ### Added
 
-- Operator-only `blob_host_memory_status` reports compact host backing capacity
-  through the same shared handler in standalone and managed adapters. Capacity,
-  slack and binding totals remain separate from tenant/provider usage and quotas.
 - PocketIC growth-refusal coverage checks whole-state rollback, a populated
   neighbor, exact storage-only retry and fenced restoration.
 - Offline `installation-check` validates complete proposed configuration, project,
@@ -35,9 +22,10 @@
 
 ### Changed
 
-- Default memory opens use ic-memory's nonconstructing lookup without duplicate
-  readiness checks. Managed artifact builds and IC qualification await Canic's
-  matching ic-memory dependency adoption (CF-02).
+- Pin `ic-memory` to 0.14.3, matching published Canic 0.110.49, so managed
+  builds use one runtime identity without waiting for an upstream release.
+  Defer unreleased 0.15-only memory APIs; retain committed-runtime checks and
+  the current lifecycle contract.
 - Browser and SDK fault fixtures use the same upload composition; the build checks
   both SDK peer pins. Existing reload, cancellation, lost-response and cleanup
   behavior is preserved, including the fixture's post-response abort timing.

@@ -5531,3 +5531,43 @@ in the fresh `.tmp/ic-memory-followups-01` capture. Notes join Unreleased; the
 breaking re-export/lifecycle API batch needs a minor product release when requested.
 No provider request or financial effect, operational recovery qualification,
 sibling edit, commit/version/publication, deployment or build cleanup occurs.
+
+## Published memory alignment — 2026-10-01
+
+The maintainer directs this release to proceed without waiting for Canic's
+unpublished ic-memory adoption. Pin the core to registry `ic-memory =0.14.3`,
+matching published Canic/core 0.110.49. Root and managed fixture lock graphs now
+contain one memory package identity. The canonical `make build-canic-probe`
+passes with the normal multiple-runtime guard enabled; no path overrides,
+second runtime or sibling edits are used. The earlier 0.15 adoption, follow-up
+and failed release captures remain unchanged as historical evidence.
+
+Remove the unreleased 0.15-only typed-growth adoption, explicit managed-adoption
+API and compact host-capacity query, together with their DTOs, consumers and
+feature-specific tests. Restore the maintained lifecycle API and committed-runtime
+preflight; this is not a second compatibility path. Keep browser upload composition
+and offline account/installation checks. The real growth-refusal fixture uses the
+upstream `Memory::grow` -1 sentinel, unchanged extent and deliberate IC trap after
+admission writes, retaining full stable-image rollback, neighbor, exact retry and
+fenced same-release restoration coverage.
+
+Current native checks pass for shared grants, absent managed runtime, standalone
+exported Candid and offline installation validation. Release Wasm builds for
+standalone, storage, consumer and gateway fixtures pass.
+Seven focused managed cases pass: adjacent Candid comparison, synchronous install/
+activation/all-owner fenced restore, invalid input/release install rollback,
+oversized upgrade rollback, certificate blocker persistence, bounded certificate
+decoding and tenant admission/manifest authority through fenced upgrade. Actual
+storage backing-growth refusal preserves the complete stable image and neighbor,
+then succeeds on exact storage-only retry and restores fenced. Standalone stop/
+start and repeated same-release upgrade also pass. Affected all-target/all-feature
+strict lint and both formatting checks pass, including the separate managed
+workspace. JSON/history checks preserve historical capability/changelog records
+and false provider facts; maintained documentation links and draft syntax pass.
+Intent, commands, raw logs, source/artifact hashes and graph are retained in
+the sealed `.tmp/published-memory-alignment-01`. This is local composition evidence,
+not deployed Caffeine, production Fleet or operational recovery qualification.
+No full CI/release preparation, commit, version change, deployment, provider/paid
+effect or build cleanup occurs. All four certificate host facts remain false.
+[CF-02](../canic-parity.md#integration-feedback) no longer requires a Canic release;
+matching 0.15 adoption may be revisited later with a compatible published host.

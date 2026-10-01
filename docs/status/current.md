@@ -3,13 +3,42 @@
 Date: 2026-10-01
 
 Release draft: [0.5.0](../../CHANGELOG.md#050), undated below empty Unreleased,
-collects the current memory/API, browser transfer and offline trial tooling batch.
-The minor draft makes the ic-memory growth and explicit managed-authority breaks
-visible. Product version/release receipt remain 0.4.16; no release preparation or
-full validation runs for this notes request. CF-02 remains open before managed
-release validation; no provider/recovery qualification is implied.
+collects browser transfer, offline trial tooling and backing-growth rollback coverage.
+Product version/receipt remain 0.4.16; the failed release-minor did not prepare
+a version or tag. The maintainer asks to avoid waiting for Canic publication.
 
-## Active work — ic-memory 0.15 follow-ups after 0.4.16
+## Active work — published memory alignment
+
+The core now pins ic-memory =0.14.3, matching published Canic 0.110.49, with one
+resolved registry identity. The multiple-runtime guard remains enabled. The
+unreleased 0.15-only explicit-adoption API and compact host-capacity query are
+removed entirely, including DTOs, consumers and tests. Existing managed lifecycle
+forms and committed-runtime preflight remain the current contract; no framework
+API copy or alternate runtime is introduced. The real backing-growth-refusal
+fixture now uses the maintained -1 sentinel while retaining whole-state rollback,
+neighbor preservation, exact retry and fenced restore coverage. Browser transfer
+and offline account/installation tooling are preserved.
+
+Canonical managed build, shared-grant/absent-runtime native tests, standalone
+Candid and offline installation validation pass. Seven focused managed checks
+cover Candid, synchronous activation/all-owner fenced restore, invalid install
+rollback, oversized upgrade, certificate blockers/decoding and admission/manifest
+authority through upgrade. Real backing-growth rollback and standalone repeated
+restore also pass. These are local IC checks, not provider qualification.
+Affected all-target/all-feature strict lint and both formatting checks pass,
+including the separate managed fixture workspace.
+See [alignment evidence](../evidence/core-primitives.md#published-memory-alignment--2026-10-01)
+and [Canic feedback](../canic-parity.md#integration-feedback): CF-01 and CF-02
+are closed; no Canic publication action remains for this release.
+Earlier failed release and 0.15 captures remain historical and unchanged. No sibling edits,
+commit, release, deployment, paid effects or cleanup are authorized here. All
+four provider/recovery facts remain false. Full CI/release validation has not
+run; the maintainer owns committing these changes and retrying release-minor.
+
+Sections below retain earlier source/graph observations; their 0.15 APIs and
+publication action are superseded by this current decision.
+
+## Earlier work — superseded ic-memory 0.15 follow-ups after 0.4.16
 
 The maintainer authorizes all four follow-ups. Managed `memory::open(authority)`
 and both lifecycle paths now require an explicit expected authority and verify
@@ -41,7 +70,7 @@ lint, formatting, warning-free core/host/adapter rustdoc and both Wasm builds pa
 import and lint failures remain in separate logs.
 
 See [evidence](../evidence/core-primitives.md#ic-memory-015-follow-ups--2026-10-01),
-[operator usage](../operator-guide.md#host-memory-capacity) and
+[historical memory evidence](../evidence/core-primitives.md#ic-memory-015-follow-ups--2026-10-01) and
 `.tmp/ic-memory-followups-01`. [Canic feedback](../canic-parity.md#integration-feedback)
 CF-02 stays open for matching package adoption, one runtime identity and canonical
 managed artifact/lifecycle/query checks. Native compilation of the updated fixture
@@ -82,7 +111,7 @@ are required. No additional Canic defect is established by this offline batch.
 Next finalize trial identities/budgets and provider/recovery evidence; effects
 remain separately authorized. Siblings are read-only and notes join Unreleased.
 
-## Concurrent work — ic-memory 0.15 adoption after 0.4.16
+## Earlier work — superseded ic-memory 0.15 adoption after 0.4.16
 
 The maintainer requests `ic-memory` 0.15 and confirms Canic adoption is being
 handled separately. The core now selects published 0.15.0; its cached archive

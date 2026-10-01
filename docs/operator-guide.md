@@ -94,8 +94,8 @@ still enforces the actual binding and its own transport/semantic limits.
 Use one new isolated storage owner and its existing local journals. No existing
 installation/account is selected; keep existing Canic/Toko accounts and obligations
 separate. Choose the standalone or Canic-managed host before provisioning; both
-share the validator and blob workflows. Managed artifact readiness currently also
-depends on matching ic-memory adoption in Canic; see
+share the validator and blob workflows. Managed build and focused lifecycle checks pass
+on the published Canic-aligned memory graph; see
 [CF-02](canic-parity.md#integration-feedback). Local managed evidence retains its
 original dependency/artifact identity, without qualifying a new deployed Fleet.
 
@@ -386,24 +386,6 @@ are structured JSON codes; private key contents and remote diagnostics are omitt
 The call has a 30-second deadline, a 256 KiB HTTP response ceiling and a 64 KiB
 Candid reply bound with decoder work limits. It never falls back to an update.
 Run `make test-standalone` for the local signed HTTP subprocess evidence.
-
-### Host memory capacity
-
-Both adapters expose the query `blob_host_memory_status` with the same complete
-`OperatorScope` used by `status`. Use an authenticated Candid client with the
-installed operator; controller status alone does not grant access. The existing
-`blob-storage status` command continues to query service accounting only.
-
-The numeric `HostMemoryStatus` reports the host's actual bucket profile, backing
-and virtual extents, assigned capacity, bucket slack, remaining table slots and
-application/ledger/unknown binding totals. This includes all owners in the shared
-runtime. These are capacity observations, not payload occupancy, tenant quota,
-provider object bytes or future growth guarantees. Unknown-bound bytes are not
-free space. Inspection performs one bounded metadata read, without per-ID rows,
-history decoding, provider requests or writes. Wrong scope/caller refuses before
-measurement; failed measurement returns a typed error rather than zero totals.
-The query remains available after fenced restoration and cannot clear any fence.
-Managed artifact validation still awaits Canic dependency alignment (CF-02).
 
 ## Account inspection
 

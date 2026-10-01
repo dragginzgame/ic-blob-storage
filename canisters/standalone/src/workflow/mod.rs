@@ -179,19 +179,6 @@ pub(crate) fn local_status(
         ic_blob_storage::workflow::operator::inspect(OperatorStores::from(stores), context, input)
     })
 }
-pub(crate) fn memory_status(
-    context: UploadContext,
-    input: OperatorScope,
-) -> Result<ic_blob_storage::dto::operator::memory::HostMemoryStatus, LocalStatusFailure> {
-    ops::with_memory_host(|installation, runtime| {
-        ic_blob_storage::workflow::operator::memory_status(
-            installation.stores().into(),
-            context,
-            input,
-            || runtime.memory_allocation_summary(),
-        )
-    })
-}
 pub(crate) fn configuration(
     actor: candid::Principal,
 ) -> Result<crate::dto::HostConfigurationView, crate::dto::HostFailure> {

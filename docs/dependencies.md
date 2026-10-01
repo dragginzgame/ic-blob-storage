@@ -15,7 +15,7 @@ availability does not establish provider qualification or service readiness.
 | `thiserror` | 2.0.18 | Typed error derives; matches PocketIC's exact requirement |
 | `ic-cdk` | 0.20.3 | IC platform operations for the ops layer |
 | `ic0` | 1.2.0 | Existing CDK system-API version, now direct for bounded participant argument copying |
-| `ic-memory` | 0.15.0 | Allocation governance; Canic alignment remains open as CF-02 |
+| `ic-memory` | =0.14.3 | One runtime identity with published Canic 0.110.49 |
 | `ic-stable-structures` | 0.7.2 | Exact transitive substrate owned/re-exported by `ic-memory` |
 | `ic-testkit` | 0.10.1 | Native dependency of the unpublished PocketIC harness; shared helpers and full re-export |
 | `pocket-ic` | 16.0.0 | Transitive through `ic-testkit`; no direct dependency |
@@ -158,19 +158,14 @@ guarantee. Existing evidence directories refuse reuse; build artifacts are kept.
 
 ## Memory composition with Canic and IcyDB
 
-The core selects published `ic-memory` 0.15.0 and its exact
-`ic-stable-structures` 0.7.2 substrate. Direct `RuntimeMemory::grow` calls now
-return `Result<u64, RuntimeGrowError>`; generic stable structures still use
-the upstream `Memory::grow` sentinel contract. Default-runtime opens are
-nonconstructing. The package archive matches the lockfile checksum.
-
-Pinned Canic 0.110.49 still requires `ic-memory` 0.14.3. The managed artifact
-therefore resolves two runtime identities and canonical `canic build` refuses
-with `role_contract_multiple_memory_runtimes`, even though native compilation
-passes. [CF-02](canic-parity.md#integration-feedback) tracks Canic publication
-and adoption before managed builds or lifecycle checks can resume. The maintainer
-is working on that dependency adoption. Do not create a second runtime or bridge
-package identities. See the [current evidence](evidence/core-primitives.md#ic-memory-015-adoption--2026-10-01).
+The core pins published `ic-memory` 0.14.3 and its `ic-stable-structures`
+0.7.2 substrate, matching registry Canic 0.110.49. Growth uses the upstream
+`Memory::grow` sentinel contract. Managed builds must resolve one package identity;
+the multiple-runtime guard remains enabled. Adoption of 0.15-only APIs is deferred
+so this release does not depend on Canic publication. The earlier adoption and
+refusal captures remain historical evidence, not the current dependency selection.
+See [alignment evidence](evidence/core-primitives.md#published-memory-alignment--2026-10-01)
+and [CF-02](canic-parity.md#integration-feedback).
 
 The earlier 0.1.12 combined resolution of Canic 0.110.42, IcyDB 0.261.11 and
 `ic-memory` 0.14.3 remains historical evidence. Neither framework is a dependency
@@ -200,8 +195,8 @@ allocation layout is introduced by this dependency change.
 service requests for explicit inclusion in the host's sealed declaration snapshot.
 The host supplies their authority/range alongside configuration and other owners,
 then bootstraps once. `grants::open` assembles the service mapping through its
-committed lookup. `grants::open_default` uses nonconstructing default key opens
-that require an existing bootstrapped runtime; it does not choose a
+committed lookup. `grants::open_default` checks the existing committed capability
+before default key opens; it does not choose a
 bucket profile, replace policy or construct an absent manager. Standalone uses
 the same mapping with its own explicit runtime. The shared installation owner
 persists the immutable configuration and assembles all four service owners;
@@ -211,28 +206,19 @@ functions synchronously. The explicit Canic composition library now reuses these
 operations; full endpoint acceptance and combined IcyDB application behavior
 remain unqualified.
 
-Managed `memory::open(authority)` verifies all seventeen current requirements
-with `verify_default_memory_manager_authority` before opening any handles.
-`declare_installation!` requires `authority = ...`, matching `declare_memories!`;
-both install and restore propagate typed adoption refusal. Verification checks
-current allocation authority and declaration metadata without admission replay,
-policy changes, store writes or a new runtime. It does not validate application
-schemas or authorize recovery activation. Native subprocess cases isolate the
-process-global declaration registry and cover absent/wrong/missing/metadata and
-matching bindings while preserving allocation totals, generation and a neighbor.
-
-`blob_host_memory_status(OperatorScope)` uses the shared operator authentication
-and compact numeric summary in both adapters. It describes the entire host
-runtime, including other owners and the ledger, without per-ID names/history.
-See [operator usage](operator-guide.md#host-memory-capacity) and
-[qualification](evidence/core-primitives.md#ic-memory-015-follow-ups--2026-10-01).
+Managed `memory::open()` checks the host's committed runtime before opening
+configuration and shared grants. `declare_memories!` supplies the explicit
+authority requests; Canic owns their range and bootstrap validation. The lifecycle
+macro retains its install/restore form. The prepared 0.15-only adoption API and
+compact host-capacity endpoint are deferred and removed from the current contract.
+No local copy of the framework's new verification or summary API is supplied.
 
 The core and unpublished `ic-blob-storage-canic` composition library have no Canic
 dependency. Its opt-in macros emit calls to the public facade in the owning
 artifact, which must depend on Canic directly. This follows Canic 0.110.48's role
 validation rather than adding a transitive facade dependency through the library.
 The managed test must use one `ic-memory` package identity with allocation policy
-owned by Canic; the current dependency mismatch blocks its artifact build.
+owned by Canic; the published graph is aligned here.
 Managed participants now use the already selected ic0 1.2.0 safe size/copy APIs
 to bound their own argument buffer before copying. The native Candid declaration
 guard uses official candid_parser 0.4.1, within the published Canic host's 0.4 range;
