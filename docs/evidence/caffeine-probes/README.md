@@ -34,6 +34,100 @@ all logs here; link their maintained test and record material changed findings.
 
 ## Current operating decisions and experiments
 
+2026-10-01 passive funding assessment outcome: shared synchronous query and
+signed native command report exact current local limits and mandatory missing
+qualification/recovery/account-activity/spendability evidence. No reservation,
+funding mutation or provider call is exposed. All 28 affected core funding units
+and 42 native units pass; synthetic accepted/uncertain history is labelled model
+evidence. Both actual signed IC journeys pass (standalone 6.19 seconds, managed
+10.06 seconds) with 21 CLI invocations each, under the recorded 24-invocation
+budget. Cashier stays stopped; occupied upload/funding/read/gateway facts and
+complete service/source stable bytes remain unchanged during refusals and after
+same-release fenced restore. Full-width proposals/optional target, scope/identity,
+untrusted replies and rejected caller qualification flags are covered. Current
+Candid types/modes, both existing signed status regressions, native/standalone/
+supported managed builds and final strict affected/isolated Clippy pass.
+
+The fresh 110-file capture at
+`/tmp/ic-blob-storage-funding-assessment-evidence-01` retains 44 files per adapter
+and 22 validation files, including all failed intermediate lint/compile attempts,
+input hashes and exact commands. Immutable manifest SHA-256:
+`f21accdda21a2d987624aea8e6515752af65855b919270f1168c179327c300fb`.
+Neither failed identity-constructor compile attempt started a signed journey.
+No PEM remains; owned local gateways/progress/instances/temporary inputs were
+cleaned up and capture/build artifacts retained. Zero Cashier queries, deployed
+Caffeine requests, payments or provider cycle attachments; no external cleanup.
+No full CI/release validation, dependency/allocator change or upstream refresh.
+Missing trusted production evidence acquisition, qualified dispatch and recovery
+remain open independently of provider balances or local empty history. See
+[assessment evidence](../core-primitives.md#passive-funding-preparation-assessment--2026-10-01).
+
+2026-10-01 passive funding assessment intent: expose current preparation-policy
+blockers through the same synchronous shared handler in standalone and managed
+adapters, then inspect with the signed native client. Authenticate exact operator/
+service/namespace/Cashier/payer and proposed operation/offer/optional target.
+Provider qualification, recovery, complete account activity and spendability stay
+unestablished by these hosts; do not infer them from balances, status, local clear
+history or caller assertions. No reservation, dispatch, provider query or payment.
+Exercise native local journal occupancy/retained identity/capacity/accounting and
+actual signed IC scope/trust/fenced restoration; preserve occupied unrelated
+owners and complete stable bytes. Per adapter journey: at most twenty-four CLI
+queries, thirty-second deadlines, 256 KiB HTTP/4 KiB service replies; zero Cashier/
+deployed Caffeine requests, payments or provider cycle attachments. Record plans,
+requests/results/failures before advancing; retain fresh captures/public trust,
+clean owned gateway/progress/instances/temporary PEM and keep build artifacts.
+This extends the existing unreleased gateway batch after 0.4.12. It does not
+authorize provider trials, sibling changes, operational unfencing or qualification.
+
+2026-10-01 signed native gateway controls outcome: all three commands retain
+canonical request/signed intent before one service update. Actual signed shared
+journeys pass through standalone (13.77 seconds) and managed (14.70 seconds),
+with thirty-nine CLI invocations and six local Cashier queries each, within the
+recorded budgets. Exact cancellation/absence revocation acknowledgments stay
+separate from dropped/pending results; repeat/partial claims do not send again.
+Current signed status shows membership/pending work without settling original
+uncertainty or authorizing retry. Invalid/oversized provider replies preserve
+pending identity; busy/stale cancellation refuse. Unrelated occupied owners and
+pending history survive same-release restoration; all controls refuse the fence
+and full service/source memories stay unchanged during refusals. Actual wrong
+signer and namespace/Cashier/payer refuse; malformed decisions/identity mismatch
+fail before a durable claim.
+
+Thirty-nine native units, CLI build/final strict CLI Clippy, both new signed
+journeys, both existing standalone sync cases and final strict harness Clippy
+pass. The initial harness lint rejected a long journey helper; it was split and
+the failure is retained. Fresh `/tmp/ic-blob-storage-gateway-controls-evidence-01`
+retains 204 files per adapter and validation inputs/logs/commands (420 files total)
+with immutable SHA256SUMS. Signed raw requests, bounded Candid replies, explicit
+mode intentions and command/result/status/outcome JSON remain; public root trust
+is retained and PEM identities stay temporary. Owned proxy/gateway/progress/
+instances/temporary inputs are closed or dropped, with no external cleanup.
+No deployed Caffeine request, payment or attached provider cycles occurred; all
+source replies are query-only substitutes, not provider qualification. Existing
+released service artifacts were reused; no new schema/endpoint, allocator,
+dependency, version mutation or full CI/release gate. See
+[gateway control evidence](../core-primitives.md#signed-native-gateway-controls--2026-10-01).
+Framework/provider/provenance/recovery and funding admission remain independent
+gates; no upstream probe, message or sibling edit was made.
+
+2026-10-01 signed native gateway controls intent: compose sync, exact pending-sync
+cancellation and local gateway revocation through the existing shared service
+handlers. Claim a fresh private directory and save canonical request, signed update
+and scoped intent before one dispatch; retain acknowledged/pending/uncertain/typed
+refusal separately, with no polling, retry or locally predicted sync identity.
+Use signed status only as current inspection, not a retained revocation receipt or
+permission to repeat an uncertain action. Run actual signed standalone and managed
+journeys over the existing query-only Cashier substitute; exercise lost/pending
+acknowledgments, partial claims, invalid replies, scope/caller refusals and occupied
+same-release restore. Per journey: at most forty CLI invocations, twenty local
+provider queries, thirty-second client deadlines, 256 KiB HTTP/4 KiB service replies
+and bounded existing provider decoding. Zero deployed Caffeine requests, payments
+or attached provider cycles. Retain plans/requests/results/failures in fresh capture
+children, stop on unexpected requests/effects and close owned sockets/gateway/
+progress/instances/temporary PEM. Public roots and evidence/build artifacts remain.
+This continuation starts from released 0.4.12, with no provider source refresh or
+qualification inferred from the local substitutes. No new deployment/paid authority.
+
 2026-10-01 signed native account inspection outcome: actual native balance and
 relationship journeys pass through standalone (7.03 seconds) and managed
 (10.82 seconds) adapters, fifteen CLI invocations per journey within their

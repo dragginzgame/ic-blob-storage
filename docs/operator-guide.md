@@ -9,6 +9,8 @@ installation scope and original saved requests.
 | --- | --- | --- |
 | Inspect local counters and restore fences | `status` | Signed service query |
 | Observe provider-reported balances or relationships | `inspect-account` | One signed service read update; service queries Cashier |
+| Sync gateways, cancel a pending sync or revoke membership | `sync-gateways`, `cancel-gateway-sync`, `revoke-gateway` | One signed service update and retained local intent |
+| Diagnose a proposed funding intent | `funding-assessment` | Signed passive query; no reservation or payment |
 | Inspect retained funding | `funding-history`, `funding-outcome` | Signed service query |
 | Find upload identities | `upload-history` | Signed service query |
 | Recover reference results or inspect liveness | `reference-receipt`, `reference-status` | Signed service query |
@@ -121,6 +123,68 @@ substitutes; see [account evidence](evidence/core-primitives.md#signed-native-ac
 Live provider observations still require the selected scope and budget recorded
 in the probe ledger.
 
+## Gateway controls
+
+Use the same operator identity, trust and complete scope as `status`. Each
+command requires a new `--run-dir` under an existing durable parent directory:
+
+```sh
+cargo run --offline --locked -p ic-blob-storage-cli --bin blob-storage -- \
+  sync-gateways --network ic --url "$IC_API_URL" --identity "$OPERATOR_PEM" \
+  --operator "$OPERATOR_PRINCIPAL" --service "$SERVICE_PRINCIPAL" \
+  --namespace "$SERVICE_NAMESPACE" --cashier "$CASHIER_PRINCIPAL" \
+  --payer "$PAYER_PRINCIPAL" --run-dir ./gateway-sync-intent
+```
+
+| Decision | Required choice | Service effect |
+| --- | --- | --- |
+| `sync-gateways` | No guessed sequence or gateway | Persist pending identity, query installed Cashier once, then replace membership if still current |
+| `cancel-gateway-sync` | `--sequence DECIMAL` from observed pending status | Cancel only that read-only sync, preserving allocated sequence history |
+| `revoke-gateway` | `--gateway PRINCIPAL` | Remove local membership and invalidate pending sync/read observations, even if already absent |
+
+For cancellation or revocation, replace `sync-gateways` in the example, add the
+required choice and use a distinct run directory. Cancellation sequences must be
+positive canonical u64 decimals; principals must be concrete canonical identities.
+These are current operator decisions. Revocation is local membership removal;
+it does not delete provider bytes, stop billing, release read slots or permanently
+ban future re-addition. Neither cancellation nor revocation queries the provider.
+Sync attaches no provider cycles; normal IC execution costs remain separate.
+
+Before network dispatch, the client atomically claims a private directory and
+syncs `request.candid`, `signed-request.cbor` and `intent.json`, binding the
+complete scope/operator/decision, method, request ID, expiry and hashes of request,
+signature and trusted root. Existing or partial directories refuse before sending.
+These files are operator-owned recovery evidence; they are not an independent
+freshness authority after copying/restoring. Keep signed artifacts private.
+
+The client submits once with a thirty-second deadline and does not poll, retry,
+allocate sync IDs or automatically inspect status. HTTP backpressure also refuses
+without resubmission. A verified, bounded Candid acknowledgment is saved with the
+original request; sync scope/positive sequence and revocation scope/gateway must
+match. Cancellation's unit reply acknowledges the saved exact request under its
+IC request ID. Native limits are 256 KiB HTTP and 4 KiB Candid with work/type/header
+bounds and no skipped fields. Oversized replies remain uncertain without storing
+unbounded bytes. Bounded malformed replies remain retained.
+
+`outcome.json` distinguishes `acknowledged`, `pending`, `refused` and
+`uncertain`. A typed service refusal exits 3; it can still leave pending work
+from a failed sync. Pending admission exits 0 but is not an acknowledgment.
+Transport/trust/decoder uncertainty exits 3 and may follow a committed effect.
+Local file failure can leave a partial claim without outcome; retain it and inspect
+rather than dispatching again. Every outcome keeps `retry_authorized: false`,
+with provider deletion/billing cessation unestablished and historical receipt
+unavailable. The current service does not retain gateway mutation receipts.
+
+Use a separate signed `status` command to inspect membership, last sequence and
+pending identity. A cleared pending identity or absent member shows current state;
+it cannot prove which operation changed it or authorize repetition of an uncertain
+revocation/sync. A failed sync's exact observed pending ID can be the input to a
+new explicit cancellation decision; stale IDs conflict. Same-release restoration
+preserves pending history but fences all three controls. Local signed journeys
+through both adapters use a query-only Cashier substitute; see
+[gateway evidence](evidence/core-primitives.md#signed-native-gateway-controls--2026-10-01).
+Production provider/provenance and operational recovery qualification remain open.
+
 ## Funding history
 
 Use `funding-history` in place of `status` with the same authentication and scope
@@ -139,6 +203,44 @@ not a snapshot: restart from the beginning to see changes behind a saved cursor.
 The command never automatically paginates, retries a payment or writes a journal.
 Local tests cover populated history through the shared durable storage fixture;
 its payment outcomes are controlled substitutes, not deployed Cashier evidence.
+
+## Passive funding assessment
+
+Use the installed operator identity to diagnose a proposed intent:
+
+```bash
+cargo run --locked -p ic-blob-storage-cli --bin blob-storage -- \
+  funding-assessment --network ic --url "$IC_API_URL" --identity "$OPERATOR_PEM" \
+  --operator "$OPERATOR_PRINCIPAL" --service "$STORAGE_CANISTER" \
+  --namespace "$NAMESPACE" --cashier "$CASHIER_CANISTER" --payer "$PAYER_PRINCIPAL" \
+  --operation "$PROPOSED_OPERATION" --offered "$OFFERED_CYCLES"
+```
+
+Add `--target-balance DECIMAL` only for an exact positive provider target;
+absence stays absent. Operation and offer must be positive full-width decimal
+integers. The proposed identity is not allocated by this query and is not evidence
+of freshness, especially after restore. Changed amounts/target for a retained
+identity return `funding_conflict`; use the original funding outcome to inspect it.
+
+One `blob_funding_preparation_assessment` query returns the exact request, maintained
+local journal totals and independent blockers. It reports retained/stale identity,
+lifetime capacity, local attachment allowance, uncredited/uncertain amounts and
+actual fencing. The hosts have no trusted production evidence acquisition path:
+`provider_unqualified`, `recovery_unknown`, `funding_unknown` and
+`spendability_unknown` remain even when the local offer fits an empty journal.
+Caller flags cannot provide these facts. Reported provider balances do not supply
+credit, complete account activity or spendability.
+
+Exit 0 means a successfully observed assessment, including its blockers; typed
+refusals exit 3 and invalid arguments exit 2. JSON uses decimal strings for amounts
+and identities. The CLI checks exact echo, bounded decoding and consistency of
+local blockers, with a thirty-second deadline, 256 KiB HTTP and 4 KiB Candid
+ceilings. Query signatures require the same explicit trust as status. No reservation,
+payment, provider query, automatic retry or restore-fence release occurs;
+preparation/dispatch/retry authority are always false. Never cache the report as
+future authorization. Local both-adapter evidence keeps the Cashier stopped and
+occupied unrelated owners intact through restored inspection. See
+[assessment evidence](evidence/core-primitives.md#passive-funding-preparation-assessment--2026-10-01).
 
 ## Exact funding outcomes
 

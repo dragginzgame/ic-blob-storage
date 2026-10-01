@@ -2,6 +2,27 @@
 
 ## [Unreleased]
 
+## [0.4.13]
+
+### Added
+
+- Operator-only `blob_funding_preparation_assessment` shares the existing funding
+  policy across both adapters. It reports exact local capacity, retained identity,
+  unresolved allocation and restore fences alongside missing provider, recovery,
+  activity and spendability evidence; it reserves nothing and calls no provider.
+- Signed native `funding-assessment` preserves full-width proposed amounts and
+  optional target, validates exact bounded replies and grants no payment or retry
+  authority. Both-adapter journeys preserve occupied uploads and complete stable
+  bytes during refusals and restored inspection while the Cashier is stopped.
+- Native `sync-gateways`, `cancel-gateway-sync` and `revoke-gateway` delegate to
+  existing shared service handlers. Each saves exact canonical request, signed
+  intent and outcome in a fresh private directory before one update; interrupted
+  or existing claims refuse without resubmission.
+- Shared signed gateway journeys through standalone and Canic adapters distinguish
+  acknowledgments from lost/pending replies, require exact cancellation, retain
+  invalid-reply pending work and preserve occupied owners through fenced restore.
+  Current status never becomes a historical receipt or retry/deletion authority.
+
 ## [0.4.12] - 2026-10-01
 
 ### Added

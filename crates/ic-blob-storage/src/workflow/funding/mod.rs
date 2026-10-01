@@ -1,4 +1,5 @@
 //! Synchronous preparation gates, without provider dispatch or automatic retry.
+pub mod assessment;
 pub mod attempt;
 pub mod dispatch;
 pub mod history;

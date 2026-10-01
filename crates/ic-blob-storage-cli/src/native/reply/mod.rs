@@ -1,6 +1,8 @@
 use super::Failure;
 use candid::{Principal, de::DecoderConfig, decode_one_with_config};
-use ic_blob_storage::dto::operator::{LocalServiceStatus, LocalStatusFailure, OperatorScope};
+use ic_blob_storage::dto::operator::{
+    LocalFundingStatus, LocalServiceStatus, LocalStatusFailure, OperatorScope,
+};
 use serde_json::{Value, json};
 
 pub(super) fn decode(bytes: &[u8], scope: OperatorScope) -> Result<LocalServiceStatus, Failure> {
@@ -44,15 +46,17 @@ pub(super) fn output(
             "operations":s.uploads.operations.to_string(),"active_reservations":s.uploads.active_reservations.to_string(),
             "reserved_bytes":s.uploads.reserved_bytes.to_string(),"logical_bytes":s.uploads.logical_bytes.to_string(),
             "physical_bytes":s.uploads.physical_bytes.to_string(),"liability_bytes":s.uploads.liability_bytes.to_string(),"fenced":s.uploads.fenced},
-        "funding":{
-            "available_allocation":s.funding.available_allocation.to_string(),"attachment_allowance":s.funding.attachment_allowance.to_string(),
-            "transport_accepted":s.funding.transport_accepted.to_string(),"refunded":s.funding.refunded.to_string(),
-            "not_enqueued":s.funding.not_enqueued.to_string(),"reserved_or_uncertain":s.funding.reserved_or_uncertain.to_string(),
-            "retained_intents":s.funding.retained_intents.to_string(),"intent_capacity":s.funding.intent_capacity.to_string(),
-            "last_operation":s.funding.last_operation.map(|n|n.to_string()),"fenced":s.funding.fenced},
+        "funding":funding(&s.funding),
         "gateways":{"members":s.gateways.members.iter().map(Principal::to_text).collect::<Vec<_>>(),
             "last_sequence":s.gateways.last_sequence.to_string(),"pending_sequence":s.gateways.pending_sequence.map(|n|n.to_string()),"fenced":s.gateways.fenced},
         "reads":{"last_sequence":s.reads.last_sequence.to_string(),"sessions":s.reads.sessions.to_string(),
             "reserved_bytes":s.reads.reserved_bytes.to_string(),"fenced":s.reads.fenced}
     })
+}
+pub(super) fn funding(s: &LocalFundingStatus) -> Value {
+    json!({"available_allocation":s.available_allocation.to_string(),"attachment_allowance":s.attachment_allowance.to_string(),
+        "transport_accepted":s.transport_accepted.to_string(),"refunded":s.refunded.to_string(),
+        "not_enqueued":s.not_enqueued.to_string(),"reserved_or_uncertain":s.reserved_or_uncertain.to_string(),
+        "retained_intents":s.retained_intents.to_string(),"intent_capacity":s.intent_capacity.to_string(),
+        "last_operation":s.last_operation.map(|n|n.to_string()),"fenced":s.fenced})
 }

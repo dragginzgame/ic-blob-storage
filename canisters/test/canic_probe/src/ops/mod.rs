@@ -19,7 +19,10 @@ use ic_blob_storage::dto::{
     account::AccountInspectionFailure,
     configuration::HostFailure,
     download::DownloadFailure,
-    funding::{FundingHistoryFailure, outcome::FundingOutcomeFailure},
+    funding::{
+        FundingHistoryFailure, assessment::FundingPreparationFailure,
+        outcome::FundingOutcomeFailure,
+    },
     gateway::{GatewayRevocationFailure, sync::GatewaySyncFailure},
     operator::LocalStatusFailure,
     reference::{ReferenceFailure, capacity::ReferenceCapacityFailure},
@@ -65,6 +68,7 @@ denial!(ReferenceCapacityFailure, ReferenceCapacityFailure::Denied);
 denial!(LocalStatusFailure, LocalStatusFailure::Denied);
 denial!(FundingHistoryFailure, FundingHistoryFailure::Denied);
 denial!(FundingOutcomeFailure, FundingOutcomeFailure::Denied);
+denial!(FundingPreparationFailure, FundingPreparationFailure::Denied);
 denial!(UploadAttestationFailure, UploadAttestationFailure::Denied);
 denial!(DownloadFailure, DownloadFailure::Denied);
 denial!(ProbeExposureFailure, ProbeExposureFailure::Denied);

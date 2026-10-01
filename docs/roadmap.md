@@ -40,6 +40,14 @@ remote `development` branch. Its current reviewed commit is
 `6519b72d2a420564dabaf700fc55f7b8603d9fd3`; do not use a local Toko checkout.
 The [review record](evidence/toko-0.2-review.json) pins source paths and hashes.
 
+Passive funding preparation diagnosis is now shared across both adapters and
+inspectable through the signed native client. It reports actual local obligations,
+capacity and fencing with explicitly missing qualification, recovery, complete
+activity and spendability evidence. Stopped-Cashier local journeys establish that
+assessment requires no provider call and preserves occupied owners through restore;
+no funding mutation or payment is exposed. Trusted evidence acquisition and
+qualified packaged funding remain open. See [assessment evidence](evidence/core-primitives.md#passive-funding-preparation-assessment--2026-10-01).
+
 ## Starting point
 
 | Area | Available from 0.1 | 0.2 deliverable still required |
@@ -163,8 +171,13 @@ Native `inspect-account` now observes one selected balance or payment relationsh
 through that existing service handler, with actual signed journeys in both adapters.
 Exact scope, numeric widths, structured absence/errors and restore refusal survive;
 no credit, payment or retry is inferred. HTTP 429/503 no longer trigger implicit
-Agent resubmission. Packaged gateway/funding mutations and operational recovery
-remain open. The [fresh framework review](evidence/core-primitives.md#managed-certificate-framework-review--2026-10-01)
+Agent resubmission. Packaged native gateway sync/exact cancellation/revocation now use the existing
+handlers through both adapters, retaining signed intent before one dispatch and
+separating acknowledgment, pending, typed refusal and uncertainty. Lost replies
+remain unresolved by current-state status; no historical gateway receipt or
+automatic retry is introduced. Occupied owners and pending work survive fenced
+restore over labelled substitutes. Packaged funding mutations, provider/recovery
+qualification and production operator acceptance remain open. The [fresh framework review](evidence/core-primitives.md#managed-certificate-framework-review--2026-10-01)
 finds upstream main/tag source identical to pinned 0.110.48 for the relevant macros;
 plain-reply rejection and decoder hooks remain unavailable. Registry metadata
 returned 403, so this review does not claim the latest registry version. Continue

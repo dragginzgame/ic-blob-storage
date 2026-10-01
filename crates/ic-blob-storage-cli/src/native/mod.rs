@@ -2,7 +2,9 @@ mod account;
 mod arguments;
 mod attestation;
 mod certificate_assessment;
+mod funding_assessment;
 mod funding_outcome;
+mod gateway_controls;
 mod history;
 mod observe_upload;
 mod references;
@@ -24,6 +26,10 @@ use serde_json::json;
 use std::{fs::File, io::Read, path::Path, process::ExitCode, time::Duration};
 
 const USAGE: &str = concat!(
+    "blob-storage funding-assessment --network ic|local --url URL --identity PEM --operator PRINCIPAL --service PRINCIPAL --namespace DECIMAL --cashier PRINCIPAL --payer PRINCIPAL --operation DECIMAL --offered DECIMAL [--target-balance DECIMAL] [--root-key DER]\n",
+    "funding-assessment signs one passive preparation-policy query. It reports exact local limits/history/fence and missing provider/recovery/account/spendability evidence, without reserving funds, allocating an operation, querying a provider or paying. Observations never authorize preparation, dispatch or retry.\n",
+    "blob-storage sync-gateways|cancel-gateway-sync|revoke-gateway --network ic|local --url URL --identity PEM --operator PRINCIPAL --service PRINCIPAL --namespace DECIMAL --cashier PRINCIPAL --payer PRINCIPAL --run-dir NEW_DIRECTORY [--sequence DECIMAL | --gateway PRINCIPAL] [--root-key DER]\n",
+    "Gateway controls persist exact signed intent before one update. Cancel requires the observed pending sequence; revoke requires an explicit gateway. Existing/partial runs refuse. No polling, retry, provider deletion or billing cessation. After a lost reply inspect status; current membership is not an exact historical receipt or permission to repeat.\n",
     "blob-storage inspect-account --network ic|local --url URL --identity PEM --operator PRINCIPAL --service PRINCIPAL --namespace DECIMAL --cashier PRINCIPAL --payer PRINCIPAL --kind balance|relationship [--root-key DER]\n",
     "inspect-account submits one scoped service read update, then waits for that exact IC request within thirty seconds. It reports one provider balance or relationship, including absence/errors; no payment, gateway change, credit inference, automatic refresh or redispatch. A lost result remains unobserved.\n",
     "blob-storage submit-reference --network ic|local --url URL --identity PEM --actor TENANT --service PRINCIPAL --namespace DECIMAL --request CANDID --run-dir NEW_DIRECTORY [--root-key DER]\n",
@@ -78,6 +84,9 @@ enum Failure {
     AssessmentRefused(ic_blob_storage::dto::upload::exposure::UploadExposureFailure),
     ReferenceRefused(ic_blob_storage::dto::reference::ReferenceFailure),
     AccountRefused(ic_blob_storage::dto::account::AccountInspectionFailure),
+    FundingAssessmentRefused(ic_blob_storage::dto::funding::assessment::FundingPreparationFailure),
+    GatewaySyncRefused(ic_blob_storage::dto::gateway::sync::GatewaySyncFailure),
+    GatewayRevocationRefused(ic_blob_storage::dto::gateway::GatewayRevocationFailure),
 }
 impl Failure {
     const fn code(self) -> &'static str {
@@ -110,6 +119,9 @@ impl Failure {
             Self::AssessmentRefused(error) => certificate_assessment::refusal_code(error),
             Self::ReferenceRefused(error) => references::refusal_code(error),
             Self::AccountRefused(error) => account::refusal_code(error),
+            Self::FundingAssessmentRefused(error) => funding_assessment::refusal_code(error),
+            Self::GatewaySyncRefused(error) => gateway_controls::sync_code(error),
+            Self::GatewayRevocationRefused(error) => gateway_controls::revocation_code(error),
         }
     }
 }
@@ -173,6 +185,10 @@ fn execute(args: &[String]) -> Result<serde_json::Value, Failure> {
 async fn observe(options: &arguments::Options) -> Result<serde_json::Value, Failure> {
     match &options.command {
         arguments::Command::InspectAccount(input) => account::run(options, *input).await,
+        arguments::Command::FundingAssessment(input) => {
+            funding_assessment::run(options, *input).await
+        }
+        arguments::Command::GatewayControl(input) => gateway_controls::run(options, input).await,
         arguments::Command::Reference(input) => references::run(options, input).await,
         arguments::Command::FundingOutcome(input) => funding_outcome::run(options, *input).await,
         arguments::Command::UploadHistory(input) => upload_history::run(options, input).await,

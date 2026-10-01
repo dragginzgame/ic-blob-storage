@@ -15,6 +15,9 @@ pub(crate) use ic_blob_storage::dto::{
     download::{DownloadFailure, DownloadRequest, DownloadResponse},
     funding::{
         FundingHistoryFailure, FundingHistoryPage, FundingHistoryRequest,
+        assessment::{
+            FundingPreparationFailure, FundingPreparationRequest, FundingPreparationResponse,
+        },
         outcome::{FundingOutcomeFailure, FundingOutcomeRequest, FundingOutcomeResponse},
     },
     gateway::{
@@ -262,6 +265,16 @@ fn blob_funding_outcome(
     let context = actual_context();
     ops::read(|owner| {
         workflow::funding::outcome::inspect(&owner.stores().funding, context, input)
+            .map_err(TransportFailure)
+    })
+}
+#[canic::canic_query(public)]
+fn blob_funding_preparation_assessment(
+    input: FundingPreparationRequest,
+) -> Result<FundingPreparationResponse, TransportFailure<FundingPreparationFailure>> {
+    let context = actual_context();
+    ops::read(|owner| {
+        workflow::funding::assessment::inspect(&owner.stores().funding, context, input)
             .map_err(TransportFailure)
     })
 }

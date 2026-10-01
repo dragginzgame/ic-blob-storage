@@ -113,18 +113,7 @@ pub(crate) fn inspect<M: Memory>(
             liability_bytes: uploads.liability_bytes,
             fenced: stores.uploads.is_fenced(),
         },
-        funding: LocalFundingStatus {
-            available_allocation: funding.allocation.available(),
-            attachment_allowance: funding.allocation.transferable(),
-            transport_accepted: funding.allocation.accepted(),
-            refunded: funding.allocation.refunded(),
-            not_enqueued: funding.allocation.not_enqueued(),
-            reserved_or_uncertain: funding.allocation.reserved_or_uncertain(),
-            retained_intents: funding.retained_intents,
-            intent_capacity: funding.intent_capacity,
-            last_operation: funding.last_operation.map(std::num::NonZeroU128::get),
-            fenced: funding.fenced,
-        },
+        funding: funding_status(funding),
         gateways: LocalGatewayStatus {
             members: gateways.principals,
             last_sequence: gateways.sync.last_sequence,
@@ -138,4 +127,20 @@ pub(crate) fn inspect<M: Memory>(
             fenced: reads.fenced,
         },
     })
+}
+pub(crate) fn funding_status(
+    funding: crate::ops::service::funding::summary::FundingJournalSummary,
+) -> LocalFundingStatus {
+    LocalFundingStatus {
+        available_allocation: funding.allocation.available(),
+        attachment_allowance: funding.allocation.transferable(),
+        transport_accepted: funding.allocation.accepted(),
+        refunded: funding.allocation.refunded(),
+        not_enqueued: funding.allocation.not_enqueued(),
+        reserved_or_uncertain: funding.allocation.reserved_or_uncertain(),
+        retained_intents: funding.retained_intents,
+        intent_capacity: funding.intent_capacity,
+        last_operation: funding.last_operation.map(std::num::NonZeroU128::get),
+        fenced: funding.fenced,
+    }
 }

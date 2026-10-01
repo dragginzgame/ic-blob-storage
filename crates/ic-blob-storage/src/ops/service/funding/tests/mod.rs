@@ -1,5 +1,6 @@
 use super::*;
 mod admission;
+mod assessment;
 mod attempt;
 mod history;
 mod history_boundary;

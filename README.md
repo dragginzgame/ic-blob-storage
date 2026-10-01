@@ -33,7 +33,7 @@ and durable metadata; admission does not require uploading the file body to it.
 | --- | --- |
 | Shared Rust core | Implemented, with native and local IC evidence |
 | Standalone canister | Shared handlers and explicit installation configuration; provider certificate issuance remains disabled |
-| Canic adapter | **29 of 30 service methods** wired in a controlled managed fixture; their Candid types match standalone |
+| Canic adapter | **30 of 31 service methods** wired in a controlled managed fixture; their Candid types match standalone |
 | Managed lifecycle | Installation, activation, verifier checks, reference-qualified downloads, cleanup accounting and fenced upgrades tested locally |
 | Native tooling | Signed inspection and byte checks through both adapters; managed reference recovery and standalone submission refusals tested locally |
 | Application prototype | Existing asset/outbox fixture tests managed publication, callback recovery, cancellation races, cleanup and restoration with unfinished work |
@@ -96,8 +96,10 @@ for the integration details.
 
 | I want to… | Start here |
 | --- | --- |
+| Diagnose a proposed funding intent | [Passive funding assessment](docs/operator-guide.md#passive-funding-assessment) |
 | Inspect service state or retained funding | [Operator and verifier guide](docs/operator-guide.md#identity-trust-and-service-status) |
 | Observe provider-reported balances or relationships | [Account inspection](docs/operator-guide.md#account-inspection) |
+| Sync or revoke gateways, or cancel a pending sync | [Gateway controls](docs/operator-guide.md#gateway-controls) |
 | Find uploads or inspect references | [Upload history](docs/operator-guide.md#upload-history) and [reference inspection](docs/operator-guide.md#reference-receipts-and-current-status) |
 | Retain or release an exact tenant reference | [One-shot reference submission](docs/operator-guide.md#submit-a-reference) |
 | Check a file against its saved upload declaration | [Local-file verification](docs/operator-guide.md#verify-a-local-file) |

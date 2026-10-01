@@ -10,8 +10,8 @@ trial. No complete acceptance case below is qualified.
 ## Current local evidence and open gates — 2026-10-01
 
 This review covers the released 0.4.11 shared installation, managed endpoint/client
-and controlled application/outbox source, plus unresolved-outbox restore tests, signed native account inspection and a fresh
-managed certificate framework source review. It supersedes older
+and controlled application/outbox source, plus unresolved-outbox restore tests, signed native account inspection, a fresh
+managed certificate framework source review and signed gateway controls. It supersedes older
 implementation-gap summaries here;
 historical capability records retain their original dates and limitations.
 No Canic/Toko removal-inventory refresh or consumer acceptance is implied.
@@ -24,14 +24,28 @@ No Canic/Toko removal-inventory refresh or consumer acceptance is implied.
 | A04 — capacity | Bounded objects, references, receipts, sessions, reservations and liabilities; reserved release slots and separate logical/physical/economic accounting | Actual provider pre-charge bounds and production sizing for the selected consumer |
 | A05 — restore | Synchronous standalone restoration of all owners into inspection-only fences; stop/start and repeated current-release upgrades preserve local state; whole-canister rollback risk is demonstrated | A qualified operational recovery boundary and complete independently surviving reconciliation; current upgrades do not resume mutations and old snapshot loads are unsupported for operation |
 | A06 — release race | Exact reference mutation/receipt/status, signed managed tenant cleanup at capacity during suspension, immutable replay without resurrection, tombstones, indexed cleanup, revocation and stale callback rejection over local IC substitutes | Deployed deletion and billing-cessation evidence plus accepted production consumer release coordination |
-| A07 — composition | Canic-free core and composition library; shared immutable installation/grants; published Canic fixture proves lifecycle/authority beside neighboring memory; twenty-nine blob methods match standalone Candid; verifier/reference cleanup preserves receipts and liabilities; certificate assessment reports real blockers; gateway/account journeys preserve failed syncs and unrelated occupied owners through fenced restore over labelled substitutes | Supported Canic plain-record certificate rejection and decoder controls, production Fleet provenance, generic coverage transfer and both-adapter/common-client acceptance |
+| A07 — composition | Canic-free core and composition library; shared immutable installation/grants; published Canic fixture proves lifecycle/authority beside neighboring memory; thirty blob methods match standalone Candid; verifier/reference cleanup preserves receipts and liabilities; certificate assessment reports real blockers; gateway/account journeys preserve failed syncs and unrelated occupied owners through fenced restore over labelled substitutes | Supported Canic plain-record certificate rejection and decoder controls, production Fleet provenance, generic coverage transfer and both-adapter/common-client acceptance |
 | A08 — economics | Maintained Caffeine codecs, exact local transfer/refund journals, liquidity/attachment guards and conservative reconciliation; standalone account inspection is wired | Complete production spendability/liabilities and provider-credit/account activity evidence; reported balances are not receipts |
 | A09 — retirement | Contract separates source removal from installation retirement and preserves uncertainty/continuing obligations | Per-installation inventory and an accountable, evidenced settlement/disposition decision; no reset authority is supplied here |
 | A10 — serving | Root-bound local verification and explicit reference-qualified descriptors/read sessions; native provider observation has exact budgets and retained artifacts | Consumer MIME/public-serving acceptance, deployed serving evidence and confidentiality boundary |
-| A11 — operator parity | Signed native status, funding history/outcome, upload history, certificate assessment, reference receipt/status, account inspection and verifier tooling; standalone and managed gateway/account handlers use the same workflows with local IC evidence | Qualified packaged operator mutation workflows, managed target discovery and common client journeys through both deployments. Endpoint tests do not imply native sync/funding command parity |
+| A11 — operator parity | Signed native status, funding preparation assessment/history/outcome, upload history, certificate assessment, reference receipt/status, account inspection, gateway sync/cancellation/revocation and verifier tooling; standalone and managed gateway/account handlers use the same workflows with local IC evidence | Qualified packaged funding workflows, production managed target discovery and complete operator acceptance through both deployments. Local gateway controls do not qualify provider behavior or safe operational recovery |
 | A12 — removal readiness | Source-bound Canic capability inventory and maintained replacement evidence | Every required behavior working here, Canic-owned generic coverage transfer, refreshed removal inventory and separate retirement review |
 
 Current source-bound local records include:
+
+- [Passive funding assessment](evidence/core-primitives.md#passive-funding-preparation-assessment--2026-10-01):
+  one shared operator query and signed native command report current local limits
+  and independent missing host evidence without reservation/payment/provider calls.
+  Both-adapter journeys retain occupied unrelated state through scope/trust refusals
+  and fenced same-release restore with the Cashier stopped. Qualified packaged
+  funding and trusted production evidence acquisition remain open.
+
+- [Signed native gateway controls](evidence/core-primitives.md#signed-native-gateway-controls--2026-10-01):
+  sync, exact cancellation and local revocation through both adapters; pre-effect
+  canonical/signed intent, interrupted-claim refusal and lost/pending replies
+  without resend. Current state cannot settle historical uncertainty. Invalid
+  replies retain pending work; occupied unrelated owners and pending identity
+  survive fenced restore. Sources are local substitutes; no deployed qualification.
 
 - [Signed native account inspection](evidence/core-primitives.md#signed-native-account-inspection-and-bounded-transport--2026-10-01):
   both adapters, exact signer/account scope, full-width independent balances and

@@ -1,6 +1,7 @@
 //! Incremental durable funding bookkeeping, without dispatch or credit authority.
 pub mod access;
 mod admission;
+pub mod assessment;
 pub mod client;
 pub mod history;
 pub mod outcome;

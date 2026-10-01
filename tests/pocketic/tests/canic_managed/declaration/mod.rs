@@ -50,6 +50,7 @@ fn built_candid_declares_application_methods_with_their_actual_modes_and_shapes(
         "blob_local_status",
         "blob_funding_history",
         "blob_funding_outcome",
+        "blob_funding_preparation_assessment",
         "blob_attest_upload",
         "blob_upload_attestation",
         "blob_verification_manifest",

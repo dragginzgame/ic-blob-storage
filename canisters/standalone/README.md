@@ -154,6 +154,12 @@ retired confirmed objects report zero fresh retains. Reads remain passive throug
 suspension and restoration. Positive counts do not bypass enrollment, identity or
 restore checks, reserve a reference or prove that a reference is currently live.
 
+Operator-only native [gateway controls](../../docs/operator-guide.md#gateway-controls)
+sync the installed membership, cancel an exact observed pending sync or revoke one
+local gateway through existing handlers. Each retains signed intent before one
+submission; uncertain replies require current-state inspection without automatic
+repetition. Restored owners refuse all three controls.
+
 Operator-only native [`blob-storage inspect-account`](../../docs/operator-guide.md#account-inspection)
 submits one existing service read update for an explicitly selected balance or
 relationship. Provider fields remain observations; no credit, spendability or
@@ -241,6 +247,16 @@ balances, transport phases and callback refunds. Replies echo the request and
 report the restore fence. A cursor is an exclusive operation-ID bound; start a
 fresh sweep for new intents or changed phases. This is local history, not evidence
 of complete provider-account activity, credit or safe payment retry.
+
+Operator-only `blob_funding_preparation_assessment` takes exact operator scope,
+positive proposed operation/offer and optional positive target. The shared workflow
+reads current local accounting, lifetime capacity, retained identity and restore
+fence through the existing preparation policy. Its synchronous report retains
+missing provider qualification, recovery, complete external activity and spendability
+as separate blockers; ingress cannot assert those facts. No intent is allocated,
+funds reserved or provider called. Inspection remains available while fenced.
+Native [funding assessment](../../docs/operator-guide.md#passive-funding-assessment)
+checks bounded exact signed replies without payment or retry authority.
 
 Operator-only `blob_funding_outcome` inspects one exact original intent using its
 scope, operation, offered amount and optional target balance. Changed original

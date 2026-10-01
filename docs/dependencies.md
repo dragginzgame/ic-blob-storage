@@ -253,6 +253,21 @@ partial children refuse. Reports retain request/source Candid, raw command/resul
 JSON and public root trust; identities remain temporary. The source is the same
 local query-only Cashier substitute, with no payment or deployed provider request.
 
+`BLOB_GATEWAY_CONTROL_REPORT` retains fresh `standalone` and `managed` children
+for the shared signed native gateway journey. Use an existing empty parent;
+retained/partial children refuse. Plans, public root, canonical/signed requests,
+intent/outcome/response records and explicit signed status captures remain; PEM
+identities are temporary. The existing fault proxy verifies saved intent before
+forwarding each update, then passes, drops or substitutes pending admission.
+All gateway source modes are labelled local query-only substitutes.
+
+`BLOB_FUNDING_ASSESSMENT_REPORT` retains fresh `standalone` and `managed` children
+for signed passive funding diagnosis, refusal and restore journeys. Use an existing
+empty parent; retained/partial children refuse. Plans, command/result JSON and
+public root keys remain; PEM identities are temporary. The Cashier is stopped
+throughout these queries, with no provider requests, payment or cycle attachment.
+No dependency or allocator changes accompany this endpoint/tooling batch.
+
 `make test-pocketic` builds `blob-authority-probe`, `blob-gateway-source` and
 `blob-funding-probe` into
 this repository's Wasm release target, then runs the unpublished host harness.

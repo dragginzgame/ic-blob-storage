@@ -5,7 +5,9 @@ use ic_blob_storage::dto::gateway::sync::{
     GatewaySyncCancellation, GatewaySyncFailure as SyncError, GatewaySyncResponse,
 };
 fn fixture() -> Fixture {
-    let harness = Harness::new();
+    fixture_with_operator(Harness::new(), Fake::principal(2))
+}
+pub(super) fn fixture_with_operator(harness: Harness, operator: Principal) -> Fixture {
     let driver = Fake::principal(1);
     let cashier = harness.pic.create_canister_with_settings(
         Some(driver),
@@ -14,7 +16,7 @@ fn fixture() -> Fixture {
             ..CanisterSettings::default()
         }),
     );
-    let f = Fixture::with_cashier(harness, cashier);
+    let f = Fixture::with_cashier_and_operator(harness, cashier, operator);
     f.harness.pic.install_canister(
         cashier,
         std::fs::read(fixture_path("BLOB_GATEWAY_SOURCE_WASM")).unwrap(),
@@ -47,7 +49,7 @@ fn cancel(f: &Fixture, actor: Principal, sequence: u64) -> Result<(), SyncError>
         )
         .unwrap()
 }
-fn mode(f: &Fixture, selected: SourceMode) {
+pub(super) fn mode(f: &Fixture, selected: SourceMode) {
     assert!(
         f.harness
             .pic

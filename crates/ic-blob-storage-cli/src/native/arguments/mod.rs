@@ -14,6 +14,8 @@ pub(super) struct Options {
 }
 
 pub(super) enum Command {
+    GatewayControl(super::gateway_controls::Input),
+    FundingAssessment(ic_blob_storage::dto::funding::assessment::FundingPreparationRequest),
     InspectAccount(ic_blob_storage::dto::account::AccountInspectionRequest),
     Reference(super::references::Input),
     FundingOutcome(ic_blob_storage::dto::funding::outcome::FundingOutcomeRequest),
@@ -62,10 +64,14 @@ impl Options {
             command,
             "status"
                 | "inspect-account"
+                | "sync-gateways"
+                | "cancel-gateway-sync"
+                | "revoke-gateway"
                 | "upload-history"
                 | "certificate-assessment"
                 | "funding-history"
                 | "funding-outcome"
+                | "funding-assessment"
                 | "reference-receipt"
                 | "reference-status"
                 | "verify-upload"
@@ -261,18 +267,49 @@ fn parse_operator_command(
             cashier: principal(take("--cashier")?)?,
             payment_account: principal(take("--payer")?)?,
         };
-        if command == "inspect-account" {
+        if matches!(
+            command,
+            "sync-gateways" | "cancel-gateway-sync" | "revoke-gateway"
+        ) {
+            let action = match command {
+                "sync-gateways" => super::gateway_controls::Action::Sync,
+                "cancel-gateway-sync" => super::gateway_controls::Action::Cancel(
+                    positive(take("--sequence")?)?
+                        .try_into()
+                        .map_err(|_| Failure::Arguments)?,
+                ),
+                _ => super::gateway_controls::Action::Revoke(principal(take("--gateway")?)?),
+            };
+            Command::GatewayControl(super::gateway_controls::Input {
+                scope,
+                action,
+                directory: PathBuf::from(take("--run-dir")?),
+            })
+        } else if command == "inspect-account" {
             Command::InspectAccount(ic_blob_storage::dto::account::AccountInspectionRequest {
                 scope,
                 kind: super::account::kind(take("--kind")?)?,
             })
-        } else if command == "funding-outcome" {
+        } else if matches!(command, "funding-outcome" | "funding-assessment") {
+            let operation = positive(take("--operation")?)?;
+            let offered = positive(take("--offered")?)?;
+            let target_balance = flags.remove("--target-balance").map(positive).transpose()?;
+            if command == "funding-assessment" {
+                return Ok(Command::FundingAssessment(
+                    ic_blob_storage::dto::funding::assessment::FundingPreparationRequest {
+                        scope,
+                        operation,
+                        offered,
+                        target_balance,
+                    },
+                ));
+            }
             Command::FundingOutcome(
                 ic_blob_storage::dto::funding::outcome::FundingOutcomeRequest {
                     scope,
-                    operation: positive(take("--operation")?)?,
-                    offered: positive(take("--offered")?)?,
-                    target_balance: flags.remove("--target-balance").map(positive).transpose()?,
+                    operation,
+                    offered,
+                    target_balance,
                 },
             )
         } else if command == "funding-history" {

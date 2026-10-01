@@ -160,6 +160,17 @@ pub(crate) fn funding_outcome(
         ic_blob_storage::workflow::funding::outcome::inspect(&stores.funding, context, input)
     })
 }
+pub(crate) fn funding_assessment(
+    context: UploadContext,
+    input: ic_blob_storage::dto::funding::assessment::FundingPreparationRequest,
+) -> Result<
+    ic_blob_storage::dto::funding::assessment::FundingPreparationResponse,
+    ic_blob_storage::dto::funding::assessment::FundingPreparationFailure,
+> {
+    ops::read(|stores| {
+        ic_blob_storage::workflow::funding::assessment::inspect(&stores.funding, context, input)
+    })
+}
 pub(crate) fn local_status(
     context: UploadContext,
     input: OperatorScope,

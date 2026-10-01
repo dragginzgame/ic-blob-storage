@@ -4563,3 +4563,213 @@ these controlled service observations; report hashes are local integrity only.
 | `.tmp/canic-probe/.icp/local/canisters/storage/storage.wasm` | `61138d7e982b98c93ab12fba5b38fb1244f88d15323f8d1ec8bc320bf3e3e0dc` |
 | `target/wasm32-unknown-unknown/release/ic_blob_storage_canister.wasm` | `f9c51d78f9b7d4bf45c46cbc4d01daeab7e1894f29281ce9e742eed2228f563e` |
 | `target/wasm32-unknown-unknown/release/blob_gateway_source.wasm` | `f01fdb8e3cf9867cccd9689c222a8f2976ecc5b07fe7f8623c4bf5eb0ec94325` |
+
+## Signed native gateway controls — 2026-10-01
+
+Released baseline 0.4.12 is `468b871077ac2dcf2fcf0d8d7370795887d2332e`; its
+receipt binds source `08de8e69c0a653435d294ad6dce8273bd60cfda6`. Continuation
+started clean. This batch adds native tooling and actual signed local journeys,
+without service API/stable-schema, dependency, allocator or lifecycle changes.
+Existing released standalone/Canic/source Wasm artifacts are reused. No version
+mutation, commit/tag/push, publication, deployment or paid effect by this agent.
+
+`sync-gateways`, `cancel-gateway-sync` and `revoke-gateway` call existing shared
+handlers. The service remains provider-request owner; only sync invokes the
+installed Cashier query. Exact cancellation takes an observed positive sequence;
+no predicted/local allocation or implicit new decision is introduced. A fresh
+private durable directory is claimed before one network submission, retaining
+canonical Candid, signed CBOR and scoped hashed intent. Existing/interrupted claims
+refuse without dispatch. Typed decoder bounds are 4 KiB, work 100,000, skip zero,
+128 types and 4 KiB header; HTTP is 256 KiB and the single request has a thirty-second
+deadline. No polling, automatic retry, fallback or operator payment.
+
+Outcomes distinguish acknowledged, pending admission, typed refusal and uncertain
+transport/decoding. Scope, positive returned sync sequence and exact revocation
+request are validated; cancellation's unit acknowledgment binds the saved signed
+request ID. Missing/untrusted acknowledgments may follow committed effects. All
+outcomes deny retry/deletion/billing-cessation authority and explicitly report
+that historical gateway mutation receipts are unavailable. Current signed status
+remains a separate observation and cannot settle which operation changed state.
+Partial client storage is retained, never automatically resumed; it is not an
+independently surviving freshness authority after restore/copy.
+
+One shared actual signed subprocess journey runs through both adapters. Standalone
+uses the owning NNS root; managed composition uses Canic's public qualification
+helper with independently pinned undelegated subnet key and non-owning gateway.
+The pre-effect plan budgets forty CLI invocations and twenty local provider reads;
+each journey uses thirty-nine CLI invocations and six sync queries. The existing
+fault proxy verifies the retained canonical/signed intent and signature bindings
+before forwarding each one update, then passes, drops or reports pending admission.
+No private PEM is retained. Source mode intent is saved before its local selection.
+
+Signed outsider controls and wrong namespace/Cashier/payer refuse; identity mismatch
+and zero sequence fail before claiming. Empty interrupted claims remain empty.
+Valid sync acknowledges exact sequence; committed dropped revocation leaves
+uncertainty while status shows absence. Pending sync admission is not completion;
+status independently observes the applied membership. Malformed/oversized provider
+replies preserve exact pending identity and old membership; overlapping sync and
+stale cancellation refuse. Dropped cancellation leaves an uncertain outcome while
+status shows no pending sync, without clearing original uncertainty. Exact
+acknowledged cancellation, another invalid sync, pending revocation and absent
+acknowledged revocation preserve the same semantics. A final rejected sync retains
+its pending identity across same-release upgrade; all three controls refuse the
+restore fence. Source query modes remain labelled substitutes.
+
+The standalone prepared upload retains 10 MiB reservation/physical/liability
+accounting; managed retains its prepared ten-byte reservation. Every signed status
+phase preserves unrelated upload/funding/read sections. Complete service/source
+stable memories stay unchanged through authority refusals and through restored
+control/status refusals. Neither provider credit, deletion/billing stop, real
+Caffeine behavior, production Fleet/consumer acceptance nor safe restart is proved.
+
+Validation, offline/locked and targeted:
+
+- Thirty-nine native units pass in 0.69 seconds, including exact arguments, bounded
+  acknowledgment validation, typed errors and independent outcome classifications.
+- Standalone signed gateway journey passes in 13.77 seconds; managed in
+  14.70 seconds. Both existing standalone sync/restore cases pass in 11.14 seconds.
+- CLI build passes in 12.38 seconds; final strict CLI all-target Clippy passes
+  in 0.28 seconds and harness all-target/all-feature Clippy in 0.99 seconds.
+  The first harness lint refused a long journey helper; that log remains retained.
+- No full CI/release gate ran. Source Wasm rebuilding was unnecessary for the
+  unchanged service contract; build caches/artifacts are retained.
+
+The fresh capture `/tmp/ic-blob-storage-gateway-controls-evidence-01` retains
+204 standalone and 204 managed files, plus validation commands, logs and exact
+input/artifact bindings (420 files overall). Empty interrupted claim directories
+remain alongside their refused-command captures. SHA256SUMS manifest digest:
+`1c996ffc5ee3534b4a94d42f621a2518d8df99093944a6feb8366f769407f022`. No files or failed attempts were overwritten.
+Owned proxy/gateway/progress/instances and temporary PEM/input files were closed
+or dropped; reports/artifacts remain, with zero deployed Caffeine requests,
+payments/provider cycle attachments and no external cleanup obligations.
+
+| Maintained input/artifact | SHA256 |
+| --- | --- |
+| `crates/ic-blob-storage-cli/src/native/gateway_controls/mod.rs` | `3cd75eed77b32ae79bcaf8c35dc8cf473c410c42fc874a011b9111565df7247e` |
+| `crates/ic-blob-storage-cli/src/native/gateway_controls/tests/mod.rs` | `c09e11a1ca237ecf23ec862465eadf6717189c365ed3365e05d69ab86e9a510e` |
+| `crates/ic-blob-storage-cli/src/native/mod.rs` | `1e1da146da6bccf7f9348d6d8b94d7c282cdf9559dc1cc6b57c60e2b5c25984f` |
+| `crates/ic-blob-storage-cli/src/native/arguments/mod.rs` | `a4f6919791ba85d2949ba8a829306eb8d58252e422ecbe5b49d047849caac762` |
+| `tests/pocketic/tests/gateway_native_cli/mod.rs` | `279745f8d8634c8b9828b06134b0ab100e958712b7fa8bb931659174c20d2eda` |
+| `tests/pocketic/tests/standalone_gateways/native_cli/mod.rs` | `f1a796e5a91b6ea85b19e21a85dbf9dbfdeb690135e05f9974618de938c6f37c` |
+| `tests/pocketic/tests/standalone_gateways/sync/mod.rs` | `da5823aba9a7291d63287864309c6daaa1d9371716202c9b1785efe9ae4a7f67` |
+| `tests/pocketic/tests/canic_managed/operator/gateway_cli/mod.rs` | `0a0b0c3306baacd6c3b2d0dd5365508526a036f79e08490cd9452952308c3478` |
+| `crates/ic-blob-storage/src/dto/gateway/mod.rs` | `71f12796a908c7fc2c99d5d3b38e42aa010f906ad9e4f82301620a65bc10ece8` |
+| `crates/ic-blob-storage/src/dto/gateway/sync/mod.rs` | `a2e21820b04239ba3b8a2666ccaa52f33f6d91ede5e5455c95d8c03945d9f56a` |
+| `target/debug/blob-storage` | `7b6b6e7618f32a7b6d28e53d388a378b1713f81cb0cd196728f067d34203a0dd` |
+| `.tmp/canic-probe/.icp/local/canisters/storage/storage.wasm` | `887ff19971281987a9140353fa1625892959778a19ac1240e1fb24d6f497b57b` |
+| `target/wasm32-unknown-unknown/release/ic_blob_storage_canister.wasm` | `198768fbd69e49ef0082d7da9a489e0be2c53294b4c6ab189e1273d672f53418` |
+| `target/wasm32-unknown-unknown/release/blob_gateway_source.wasm` | `1c4c3fed02b870e459f163a36674b8c0b6375af0f1ba3b7ab6c7c8422c3bdfe2` |
+| `Cargo.lock` | `1c6da13ee8d047778680358bbcad6fba19c4f65205bf51b74daadba3f21e0908` |
+
+## Passive funding preparation assessment — 2026-10-01
+
+This extends the existing unreleased gateway batch after maintainer release 0.4.12
+(`468b871077ac2dcf2fcf0d8d7370795887d2332e`). No version, commit, tag/push,
+publication, dependency/allocator or paid-effect change occurred. The service adds
+a compatible passive query; stable configuration/state generations remain v1.
+
+Shared `workflow::funding::assessment::inspect` delegates to the existing preparation
+policy with authenticated installed scope and actual local journal facts. It
+reports local unresolved allocation, retained/stale identity, lifetime capacity,
+attachment allowance and fencing independently of missing provider qualification,
+recovery, complete external account activity and spendability. These hosts have
+no production acquisition path for that evidence; ingress cannot assert it. No
+intent allocation, reservation, provider call or payment occurs, and preparation/
+dispatch remain unexposed. The query cannot establish fresh identities or become
+cached authority. Shared ops projects maintained funding totals for both status
+and assessment without a workflow dependency or whole-history scan.
+
+Native `funding-assessment` makes one signed query with exact scoped request echo,
+positive full-width operation/offer/exact optional target, thirty-second deadline,
+256 KiB HTTP and 4 KiB Candid limits. Decoder work/types/header/skipping remain
+bounded. Changed echo, malformed/oversized or inconsistent blockers and typed
+refusals reject; output always denies preparation/dispatch/retry authority and
+keeps provider credit/spendability unestablished. No automatic retry or new journal
+is added. Existing outcome inspection remains a separate historical capability.
+
+Three core cases exercise full-width requests, four retained accepted transfers at
+capacity, changed original arguments, uncertain reservations, stale identity,
+authority and fenced reopen with unchanged memories/totals. These transfer facts
+are synthetic model bookkeeping, not provider credit. Three native cases exercise
+optional target, exact echo, malformed/oversized/inconsistent reports and fenced
+full-history diagnosis. All 28 affected funding units pass in 0.05 seconds; all
+42 native units pass in 0.64 seconds, including prior mutation/HTTP regressions.
+
+The shared signed subprocess journey runs through rebuilt standalone and
+supported managed artifacts beside a prepared 10 MiB and ten-byte upload,
+respectively. Cashier is stopped before all queries and stays stopped through
+restoration. Each journey retains 21 CLI invocations within its pre-effect budget
+of 24, proving full-width and absent-target reports, actual actor/namespace/
+Cashier/payer refusals, rejected caller qualification assertions, invalid IDs,
+untrusted replies and same-release fenced inspection. Complete service and
+Cashier stable bytes stay unchanged through each phase; funding history remains
+empty and no synthetic service funding mutation hook is introduced. These are
+local platform/substitute observations, not deployed provider qualification.
+
+| Targeted validation | Result |
+| --- | --- |
+| Shared standalone signed funding assessment | Pass, 6.19 seconds |
+| Shared managed signed funding assessment | Pass, 10.06 seconds |
+| Existing standalone signed status/trust/restore | Pass, 6.63 seconds |
+| Existing managed signed status/trust/restore | Pass, 10.89 seconds |
+| Exact managed/standalone Candid types and modes | Pass, 0.02 seconds |
+| Native CLI / standalone Wasm / supported managed build | Pass, 10.58 / 23.67 / 52.12 seconds |
+| Final strict affected root / isolated managed Clippy | Pass, 11.41 / 6.72 seconds |
+
+Both declarations cover the same thirty implemented blob methods; managed
+certificate issuance, its plain-record Fleet rejection and equivalent query
+decoder controls remain separate framework gates. The standalone declaration was
+regenerated from its current exporter, including maintained documentation. No
+full CI/release validation, resource benchmark or upstream refresh ran.
+
+Fresh evidence is `/tmp/ic-blob-storage-funding-assessment-evidence-01`: 44 files per adapter plus
+22 validation files, 110 manifested files total. Plans/public roots, command/
+result JSON, exact commands, input/source/artifact hashes and every failed/successful
+validation log remain. The immutable `SHA256SUMS` hash is
+`f21accdda21a2d987624aea8e6515752af65855b919270f1168c179327c300fb`. No PEM is retained.
+Initial core/harness compilation and lint mistakes (journal open name, projection
+passing/import/layering, test module path/literal formatting) and both unsupported
+identity-constructor attempts are retained; the existing raw-key test API resolves
+the latter without a dependency or production feature change. Neither failed
+constructor attempt started a signed journey or overwrote its evidence.
+
+Owned local gateways/progress/instances and temporary identity files were cleaned
+up; capture/build artifacts stay retained. Zero Cashier queries, deployed Caffeine
+requests, payments/provider cycle attachments and no external cleanup obligation.
+See the [ledger](caffeine-probes/README.md) and
+[operator guide](../operator-guide.md#passive-funding-assessment). Qualified funded
+workflows need trusted complete production evidence acquisition and safe recovery;
+local clearance or balances cannot supply those facts. Consumer/Fleet provenance,
+operational restart, IcyDB composition and removal/retirement remain open.
+
+Current exact source/artifact inputs (earlier captures are historical):
+
+| Input | SHA-256 |
+| --- | --- |
+| `Cargo.toml` | `482ec2708cfd20c9ed87afe8441078788c24b3bc6bc3da9b3bcbfd52f3ef6277` |
+| `Cargo.lock` | `1c6da13ee8d047778680358bbcad6fba19c4f65205bf51b74daadba3f21e0908` |
+| `crates/ic-blob-storage/src/dto/funding/assessment/mod.rs` | `a18ede5878811e7bfc2a4980f0e8ae9fb43c2c583166434990dbe3e57d3530fc` |
+| `crates/ic-blob-storage/src/ops/service/funding/assessment/mod.rs` | `d5cfd637aaa98f83739a7953af24f0dee081d2a8c99a890d363e431ef6c4351b` |
+| `crates/ic-blob-storage/src/workflow/funding/assessment/mod.rs` | `820135218cbb1495e715df9be836eaef3966da73bcdebd3fccd67e953c8482e1` |
+| `crates/ic-blob-storage/src/workflow/funding/mod.rs` | `e678cc8c601a34bc9c69bb688e80cb9b90290fea6d563ab3de7da8d15026976a` |
+| `crates/ic-blob-storage/src/ops/service/operator/mod.rs` | `7c1cba5efb5c542cd3430a0312d92af1c404d94b2726fea0372c354abe91d794` |
+| `crates/ic-blob-storage/src/ops/service/funding/tests/assessment/mod.rs` | `bd8bc60fda2790eb27ef42a6619225227bcf5581349233ba7ddc4172578adc9b` |
+| `crates/ic-blob-storage-cli/src/native/funding_assessment/mod.rs` | `18a07dc7157e3e16f19deba4ede64d9948dc5ad011355ed58b52e42e888ba05f` |
+| `crates/ic-blob-storage-cli/src/native/funding_assessment/tests/mod.rs` | `0d4c93d7f7de1f0888d894172806e13013c32833ee1b494ae4808d8102108afb` |
+| `crates/ic-blob-storage-cli/src/native/arguments/mod.rs` | `35b1c8ad9818ff17f972ad93f0c824d731443062225497d9ae9a29be12ded911` |
+| `crates/ic-blob-storage-cli/src/native/reply/mod.rs` | `551fa50e8e64f697f14c1083b1986a3861095a441a63fe7b115cbcbae0c95071` |
+| `canisters/standalone/src/api/mod.rs` | `c4d769f15f297da4f30eedfa36e179844194a080ff249fad6ac40794a9e5ab70` |
+| `canisters/standalone/src/workflow/mod.rs` | `83b6035a84af149aefa920160ac506352adb80eb732d1e0a5f3401c802bfbfd6` |
+| `canisters/standalone/service.did` | `88b8cf28e504a873bba5bf691837719ba03431cb332aad8bba275355dcfab882` |
+| `canisters/test/canic_probe/src/api/mod.rs` | `3fc2216c5fd52657962c130210d097da0839dc6f95df4d0f325f19d105db47ec` |
+| `canisters/test/canic_probe/src/ops/mod.rs` | `16a2fec5c78ad452f9a08613b44033e9085ba20800f180cca858325d1d087e90` |
+| `canisters/test/canic_probe/canic.toml` | `63b4ee017ee33071f7f7d55b01e42b21cb77a0cdf670fb04ea93906c1e2ccc61` |
+| `tests/pocketic/tests/funding_assessment_cli/mod.rs` | `79a8150093bda4a8fe1b10f6dfe7e917286647026e52a091b3e5336bc486d9aa` |
+| `tests/pocketic/tests/standalone_gateways/funding_assessment/mod.rs` | `7e7de9d049a27c294973985b84c2fd636b9ba7d017f3106adb63024027ddc9af` |
+| `tests/pocketic/tests/canic_managed/operator/funding_assessment/mod.rs` | `5d2c8d49ee8a13632f615acee26fedc661cc1305ddec9c17635fe9cf52d7c347` |
+| `tests/pocketic/tests/canic_managed/declaration/mod.rs` | `8fadbdd6236a137290102fa3e1449905837c24fc5c086711665eb2eb0cb84e70` |
+| `target/debug/blob-storage` | `df49a844074113025f594695eca46b6d8af0e4be0a22d6228621ce86a5a8a910` |
+| `target/wasm32-unknown-unknown/release/ic_blob_storage_canister.wasm` | `dbaba86076cc85d64271cb31f4fa5c03fd3917b6700b90a49a4fb647fa0554b5` |
+| `.tmp/canic-probe/.icp/local/canisters/storage/storage.wasm` | `4d665991604cb240a28bd226ac1fd71e710fa6097249806306394c2356aeb42a` |
+| `.tmp/canic-probe/.icp/local/canisters/storage/storage.did` | `a6607bf95a82b3213827efcae65892fc865cbe01be3e7dd8acc049f23c9aa889` |
+| `target/wasm32-unknown-unknown/release/blob_gateway_source.wasm` | `1c4c3fed02b870e459f163a36674b8c0b6375af0f1ba3b7ab6c7c8422c3bdfe2` |

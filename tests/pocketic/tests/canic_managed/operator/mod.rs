@@ -1,4 +1,6 @@
 //! Managed operator queries over the existing labelled local source, never deployed Caffeine.
+mod funding_assessment;
+mod gateway_cli;
 mod native_cli;
 use super::{Fixture, endpoints::manifest, installation::enroll_as, wasm};
 use blob_test_protocol::{SourceMode, balance::BalanceSourceConfig};

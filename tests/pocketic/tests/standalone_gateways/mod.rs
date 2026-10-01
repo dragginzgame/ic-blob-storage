@@ -1,4 +1,6 @@
 //! Standalone operator removal delegates to the shared durable owner.
+mod funding_assessment;
+mod native_cli;
 mod sync;
 use super::*;
 use ic_blob_storage::{

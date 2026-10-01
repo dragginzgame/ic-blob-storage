@@ -195,11 +195,11 @@ before ops presents configuration, project, verifier, release and local fencing.
 Standalone retains its existing wire contract; the former host-local view/error
 definitions are now shared DTOs, with one implementation and no alternate reader.
 
-The controlled managed artifact currently implements twenty-nine blob methods:
+The controlled managed artifact currently implements thirty blob methods:
 configuration; tenant enrollment/suspension and inspection; upload admission,
 inspection, revocation, status, history and discovery; manifest preparation and
 inspection; reference mutation, receipt, status and capacity; upload capacity;
-passive local status/funding history/outcome; verifier plans/manifests,
+passive local status/funding preparation assessment/history/outcome; verifier plans/manifests,
 attestation/receipt inspection; reference-qualified download descriptors;
 certificate assessment; gateway sync/cancellation/revocation; and account inspection.
 Every method calls the shared
@@ -281,6 +281,23 @@ Actual signed local journeys cover both adapters and passive stable memory/fence
 restore over the existing query-only Cashier substitute. The shared native Agent
 uses its public middleware hook with the configured no-retry client, avoiding
 ic-agent's implicit HTTP 429/503 retry logic.
+
+Native `sync-gateways`, `cancel-gateway-sync` and `revoke-gateway` delegate
+to the existing scoped handlers in both adapters. A fresh private durable client
+claim binds exact canonical request, signed update and intent before one dispatch.
+Interrupted/existing claims refuse without resend. Cancellation requires an
+explicit observed positive pending identity; clients do not predict service IDs.
+Bounded update replies preserve exact scope/sequence or revocation request and
+typed refusals, while pending admission and uncertain replies never become
+acknowledgments. Each outcome denies retry/deletion/billing-cessation authority.
+Sync calls the installed Cashier query with no attached provider cycles;
+cancellation/revocation apply local decisions only. An absent revocation still
+invalidates pending/read observations. Lost acknowledgment cannot authorize
+repetition: the service has no historical gateway mutation receipt, and current
+signed status cannot reconstruct which decision changed membership or pending work.
+Fresh copied client storage is not independent freshness authority. Actual signed
+local journeys preserve occupied unrelated owners and pending history through
+fenced same-release restore; provider replies remain query-only substitutes.
 
 The only unwired service method is `_immutableObjectStorageCreateCertificate`.
 Pinned Canic 0.110.48 injects its default Fleet guard even for `public` endpoints;
@@ -1847,6 +1864,29 @@ the found journal's restore fence. Absence has no record and therefore no fence
 observation; it must not be interpreted as an unfenced owner. Full-width amounts
 remain decimal strings. One signed query has a 4 KiB decoded outcome bound and
 grants no provider-credit, retry, payment or unfencing authority.
+
+`workflow::funding::assessment::inspect` now exposes the existing preparation
+policy synchronously through `blob_funding_preparation_assessment` in both adapters.
+The authenticated operator supplies the complete installed scope and a proposed
+positive operation/offer/exact optional target. The host supplies no externally
+asserted evidence: qualification is false and recovery, complete account activity
+and spendable cycles are unknown. The passive boundary accepts no evidence fields.
+It reports all independent missing facts alongside actual journal fencing,
+retained/stale identity, lifetime capacity, unresolved allocation and exact local
+attachment allowance. Changed retained arguments conflict. It allocates nothing,
+reserves nothing and performs no provider call; fresh preparation and dispatch
+remain unexposed. A successful report grants no permission and cannot become
+cached effect authorization or establish independent identity freshness.
+
+Native `funding-assessment` performs one signed query with exact request echo,
+4 KiB bounded Candid decoding, 256 KiB HTTP and thirty-second limits. Full-width
+numbers remain decimal strings; optional target absence stays absent. Scope/actor,
+changed echo, malformed/oversized/inconsistent reports and untrusted replies refuse.
+Local shared-core tests cover occupied funding history and uncertain reservations;
+signed PocketIC journeys through both artifacts preserve occupied uploads and all
+stable bytes through actual refusals and same-release fenced restore with the
+Cashier stopped. This does not establish provider credit/retention or production
+funding readiness. Managed query decoder control remains a separate framework gap.
 
 `ReplicatedFundingClient` pins the actual executing canister and full operator
 scope for one bounded replicated history/outcome call. It uses maintained method

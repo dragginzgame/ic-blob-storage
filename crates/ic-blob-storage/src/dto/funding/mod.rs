@@ -1,4 +1,5 @@
 //! Passive local funding history; no payment or provider-credit authority.
+pub mod assessment;
 pub mod outcome;
 use super::operator::OperatorScope;
 use candid::{CandidType, Deserialize};

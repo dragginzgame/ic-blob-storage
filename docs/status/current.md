@@ -2,13 +2,133 @@
 
 Date: 2026-10-01
 
-The maintainer requested the next changelog. Completed application restoration,
-native account inspection and HTTP retry fixes are grouped in the undated 0.4.12
-draft in CHANGELOG.md, immediately below empty Unreleased. Draft structure and
-diff checks pass; Cargo versions/lock and the release receipt remain at 0.4.11.
-No release preparation, full validation, commit, tag or publication ran.
+## Active work — passive funding diagnosis after 0.4.12
 
-## Active work — signed account inspection and framework review after 0.4.11
+The maintainer released 0.4.12 at
+`468b871077ac2dcf2fcf0d8d7370795887d2332e`. This continuation preserves the
+unreleased gateway batch below. Cargo versions/root lock/release receipt remain
+unchanged; no agent commit, tag/push, publication, deployment or paid effect.
+One compatible passive service query is added; configuration/stable generations
+remain v1, with no dependency, allocator, new journal or lifecycle change.
+
+The maintainer requested the next changelog. Completed gateway and passive funding
+work is grouped in the undated 0.4.13 draft below empty Unreleased; package version
+and release receipt remain 0.4.12. The read-only draft check passes. No release
+preparation, full validation or publication ran for this documentation request.
+
+Operator-only `blob_funding_preparation_assessment` delegates to existing funding
+preparation policy through both adapters. It authenticates exact scope/proposed
+identity/amount/target and reports actual local retained/stale identity, capacity,
+unresolved allocation, attachment allowance and fence. The hosts have no trusted
+production acquisition path for provider qualification, recovery, complete account
+activity or spendability; those remain independent missing-evidence blockers.
+Ingress cannot assert them. No identity allocation, reservation or provider call
+occurs; preparation/dispatch remain unexposed. Query reports never grant current
+or cached effect/retry authority and cannot establish independent ID freshness.
+
+Native `funding-assessment` makes one bounded signed query, preserves full-width
+amounts and optional target and validates exact echo/consistent local blockers.
+Both-adapter shared journeys run beside occupied prepared uploads (standalone
+10 MiB, managed ten bytes) with Cashier stopped before every query and through
+restore. Identity/scope/trust refusals and caller evidence/invalid-ID rejection,
+then same-release fenced inspection, preserve complete service/source stable bytes.
+Core tests independently cover retained accepted history at capacity, changed
+original arguments and uncertain reservations; these are synthetic bookkeeping,
+not service funding mutation hooks or provider-credit evidence.
+
+All 28 affected funding units pass in 0.05 seconds and 42 native units in
+0.64 seconds. Standalone/managed journeys pass in 6.19/10.06 seconds; existing
+signed status regressions pass in 6.63/10.89 seconds. Exact both-adapter Candid
+comparison, CLI/standalone/supported managed builds and final strict affected and
+isolated managed Clippy pass. Initial compile/lint mistakes and both unsupported
+test identity constructor attempts remain retained; the existing raw-key API
+resolves the latter without changing dependencies. Neither failed constructor
+attempt started a signed journey. Only targeted validation ran, with no full CI,
+release gate or benchmark refresh.
+
+The fresh 110-file capture retains 44 files per adapter and 22 validation files
+with immutable manifest, exact commands and source/artifact bindings. Each journey
+uses 21 CLI invocations within its pre-effect budget of 24. No PEM remains; owned
+gateways/progress/instances/temporary inputs were cleaned up, with capture/build
+artifacts retained. Zero Cashier/deployed Caffeine requests, payments or provider
+cycle attachments and no external cleanup. See
+[assessment evidence](../evidence/core-primitives.md#passive-funding-preparation-assessment--2026-10-01)
+and the [ledger](../evidence/caffeine-probes/README.md). Earlier dated captures stay
+historical; rebuilt service artifacts now include the new passive endpoint.
+
+Current managed coverage is thirty of thirty-one service methods, with exact
+standalone Candid parity. Certificate issuance still requires supported Canic
+plain-record Fleet rejection and query decoder controls; current inspected
+framework/registry limitations below are unchanged, with no new source refresh.
+Next address trusted production funding evidence acquisition and remaining
+provider/recovery boundaries, without accepting ingress evidence or balances as
+credit/spendability. Production consumer/serving, Fleet/verifier provenance,
+IcyDB composition, operational restart and removal/retirement remain open.
+
+Final formatting, diff and read-only draft changelog checks pass. All 359 maintained
+local documentation links/anchors, balanced fences, capability JSON, 27 current
+source/artifact hashes and 110 fresh manifested files validate. The preceding
+420-file gateway manifest is intact and no private PEM is retained. Historical
+records remain unchanged; Cargo versions/root lock and release receipt are intact.
+
+## Earlier active work — signed gateway controls after 0.4.12
+
+The maintainer released 0.4.12. Local main, origin/main and peeled v0.4.12 resolve
+to `468b871077ac2dcf2fcf0d8d7370795887d2332e`; its release-verify receipt
+binds direct-parent source `08de8e69c0a653435d294ad6dce8273bd60cfda6`.
+This continuation started clean. Versions/lock/release receipt remain unchanged;
+no agent commit, version mutation, tag/push, publication, deployment or paid effect.
+
+Native `sync-gateways`, `cancel-gateway-sync` and `revoke-gateway` now call the
+existing shared handlers. Each claims a fresh private directory and saves exact
+canonical/signed intent before one update. Existing/interrupted claims refuse;
+no polling, automatic retry or guessed sync identity. Explicit cancellation binds
+the observed pending sequence; revocation removes local membership and invalidates
+observations even if already absent. No provider deletion/billing cessation or
+read-slot release is implied. Only sync queries the installed Cashier, with no
+attached provider cycles. Pending admission, typed refusal and lost acknowledgment
+remain separate from a bounded authenticated acknowledgment. Current signed status
+cannot become a historical gateway mutation receipt or authorize a repeat.
+
+One shared signed subprocess journey covers both adapters beside occupied uploads:
+identity/scope refusal, empty interrupted claim, acknowledged sync/cancel/revocation,
+dropped revocation/cancellation, pending sync/revocation, failed reply pending work,
+busy/stale cancellation and fenced same-release restore. Unrelated upload/funding/
+read sections stay intact; complete service/source stable bytes stay unchanged
+through authority and restored refusal phases. Standalone retains a prepared
+10 MiB reservation and managed retains ten bytes, without exposure/completion.
+Both source lists are local query-only substitutes; production provider and
+Fleet/consumer acceptance are not established. Existing released service/source
+Wasm artifacts were reused; only native tooling and harness source changed.
+
+All thirty-nine native units pass in 0.69 seconds. New standalone/managed journeys
+pass in 13.77/14.70 seconds; both existing standalone sync cases pass in
+11.14 seconds. Native CLI build and final strict CLI/harness lint pass. The first
+harness lint failure is retained. The fresh capture contains 420 files, 204 per
+adapter plus commands/logs/input bindings, with an immutable manifest. Each journey
+uses thirty-nine CLI invocations and six provider queries within its pre-effect
+budget. No PEM is retained. Owned sockets/proxy/gateway/progress/instances and
+temporary inputs were cleaned up; evidence/build artifacts remain. Zero deployed
+Caffeine requests, payments/provider cycle attachments and no external cleanup.
+See [gateway evidence](../evidence/core-primitives.md#signed-native-gateway-controls--2026-10-01)
+and the [ledger](../evidence/caffeine-probes/README.md). Only targeted checks ran;
+no full CI/release validation or dependency/allocator/public API/schema change.
+
+Next address supported funding/operator admission and remaining provider/recovery
+evidence. Native gateway controls are now locally covered in both adapters, while
+production target/provenance and complete operator acceptance remain open.
+Managed certificate issuance still needs supported Canic plain-record rejection
+and decoder hooks; the latest inspected framework source remains recorded below,
+with registry metadata unverified. Real consumer adoption/serving, Fleet/verifier
+provenance, IcyDB composition and source removal/retirement remain open.
+
+Final formatting/diff and read-only next-draft changelog checks pass. Capability
+JSON, 349 maintained local documentation links/anchors, balanced fences, fifteen
+current source/artifact hashes and all 420 retained capture files validate. Dated
+release notes and historical captures remain intact; Cargo versions/lock and the
+release receipt are unchanged.
+
+## Released inspection and restoration — 0.4.12
 
 The released baseline remains 0.4.11 at
 `807b0ae0e8c8d2f43f01bab7a6d285888fe2d20c`; this continuation preserves the

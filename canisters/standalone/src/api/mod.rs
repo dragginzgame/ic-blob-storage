@@ -5,6 +5,9 @@
     reason = "Candid endpoint macros own decoded inputs"
 )]
 use crate::{dto, ops, workflow};
+use ic_blob_storage::dto::funding::assessment::{
+    FundingPreparationFailure, FundingPreparationRequest, FundingPreparationResponse,
+};
 use ic_blob_storage::dto::funding::outcome::{
     FundingOutcomeFailure, FundingOutcomeRequest, FundingOutcomeResponse,
 };
@@ -174,6 +177,13 @@ fn blob_funding_outcome(
     input: FundingOutcomeRequest,
 ) -> Result<Option<FundingOutcomeResponse>, FundingOutcomeFailure> {
     workflow::funding_outcome(context(), input)
+}
+#[ic_cdk::query(hidden = true, decode_with = "ops::decode")]
+#[candid::candid_method(query)]
+fn blob_funding_preparation_assessment(
+    input: FundingPreparationRequest,
+) -> Result<FundingPreparationResponse, FundingPreparationFailure> {
+    workflow::funding_assessment(context(), input)
 }
 #[ic_cdk::update(hidden = true, decode_with = "ops::decode")]
 #[candid::candid_method(update)]
