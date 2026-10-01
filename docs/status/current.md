@@ -2,7 +2,39 @@
 
 Date: 2026-10-01
 
-## Active work — local managed certificate and decoding after 0.4.14
+## Active work — 0.4.15 draft and published Canic adoption
+
+The maintainer requested 0.4.15 notes and reports Canic 0.110.49 published.
+CHANGELOG.md now has an undated 0.4.15 draft beneath empty Unreleased, covering
+native/browser bindings, managed certificate/decoding adoption, published Canic
+pins and persistent feedback. Product version and release receipt remain 0.4.14.
+Both direct workspace pins now select registry Canic 0.110.49; core/macros resolve
+to the same version without local overrides. The maintainer's existing staged
+core/macros and lazy_static lock changes are preserved; only the facade selection
+is additionally changed. Cached archives match lock checksums and identify source
+`75c7f0998fd4531f8a6b81d91b53b71daffca332`. External metadata pages failed, so no
+claim about the registry's latest version is made.
+
+Canonical managed build passes (101.05 seconds) using installed Canic CLI 0.110.48
+and registry libraries 0.110.49. All six focused certificate/decoder/lifecycle/
+manifest/Candid cases pass; fixture and affected harness strict lint pass.
+Initial sandbox PocketIC loopback refusal is retained; only the stalled owned
+test was terminated, and the loopback-enabled repeat passes. Intent, commands,
+metadata, package/VCS identities, source/lock/artifact hashes, copied Wasm/Candid
+and separate logs remain in `.tmp/published-canic-49-01`. Prior captures remain
+unchanged. No full CI/release gate or successful certificate exposure was observed.
+See [evidence](../evidence/core-primitives.md#published-canic-adoption--2026-10-01).
+
+[Canic feedback](../canic-parity.md#integration-feedback) CF-01 is closed with
+published package identity and downstream results. No other Canic action is open
+in that list. Keep tracking/reminding newly actionable integration findings.
+Next address the unchanged pre-charge/namespace/replay/recovery facts and selected
+consumer/account/budget for a bounded real upload/download trial. Local framework
+success does not establish those facts or authorize paid effects. Siblings stay
+read-only; no deployment, commit/tag/publication, product version mutation or
+Cargo cleanup occurred. The maintainer owns release preparation and commits.
+
+## Earlier work — local managed certificate and decoding after 0.4.14
 
 The maintainer requested continued local integration plus persistent Canic
 feedback/reminders. AGENTS.md now requires the

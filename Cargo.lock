@@ -475,9 +475,9 @@ dependencies = [
 
 [[package]]
 name = "canic"
-version = "0.110.48"
+version = "0.110.49"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "44230934346771b53f47eca6b1aeed198cb79fd8f64fb6cc6fb51a2d46536dd0"
+checksum = "3d028e746b00fb873bbd646953960a1cc69d6707e00a636ef18a7166702bfa8e"
 dependencies = [
  "candid",
  "canic-core",
@@ -491,9 +491,9 @@ dependencies = [
 
 [[package]]
 name = "canic-core"
-version = "0.110.48"
+version = "0.110.49"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3466c779ba51de6a6781ebd040774bb40946dad12f2bb4a471185a8acff3f9d4"
+checksum = "4915b4dd3ec2516388bfc03324f9ad4a778b038c73823392378cc4cdcdfc44d1"
 dependencies = [
  "async-trait",
  "candid",
@@ -515,9 +515,9 @@ dependencies = [
 
 [[package]]
 name = "canic-macros"
-version = "0.110.48"
+version = "0.110.49"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7a7b2a799829e0015ac8f84987879723d28a925443b3688bfe437050d3b6a909"
+checksum = "e82751ce249636a57a154fc75dcf8eda032784f7112e2a636c9faad044fc96c7"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -2163,9 +2163,9 @@ dependencies = [
 
 [[package]]
 name = "lazy_static"
-version = "1.5.0"
+version = "1.5.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bbd2bcb4c963f2ddae06a2efc7e9f3591312473c50c6685e1f298068316e66fe"
+checksum = "20870f649af7073d53e38067b2a84312175d56ea15217e1b15bc83506ec50afb"
 
 [[package]]
 name = "leb128"

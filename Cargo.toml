@@ -26,7 +26,7 @@ publish = ["crates-io"]
 
 [workspace.dependencies]
 candid = "0.10.36"
-canic = { version = "=0.110.48", default-features = false }
+canic = { version = "=0.110.49", default-features = false }
 ic-cdk = "0.20.3"
 ic0 = "=1.2.0"
 ic-memory = "0.14.3"

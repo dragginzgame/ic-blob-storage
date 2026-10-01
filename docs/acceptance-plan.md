@@ -21,8 +21,9 @@ This is local byte/setup evidence, with no certificate gate override or transfer
 Local managed adoption now builds the canonical plain-record certificate method
 and bounded endpoint/lifecycle decoders against frozen Canic source. Refusal,
 authority, Candid types, manifest bounds and lifecycle rollback pass; successful
-certificate exposure and deployed provider behavior remain unobserved. Normal
-release dependency adoption is [CF-01](canic-parity.md#integration-feedback).
+certificate exposure and deployed provider behavior remain unobserved. Registry
+Canic 0.110.49 now passes the same six focused checks without source overrides,
+closing dependency adoption [CF-01](canic-parity.md#integration-feedback).
 It supersedes older
 implementation-gap summaries here;
 historical capability records retain their original dates and limitations.
@@ -36,7 +37,7 @@ No Canic/Toko removal-inventory refresh or consumer acceptance is implied.
 | A04 — capacity | Bounded objects, references, receipts, sessions, reservations and liabilities; reserved release slots and separate logical/physical/economic accounting | Actual provider pre-charge bounds and production sizing for the selected consumer |
 | A05 — restore | Synchronous standalone restoration of all owners into inspection-only fences; stop/start and repeated current-release upgrades preserve local state; whole-canister rollback risk is demonstrated | A qualified operational recovery boundary and complete independently surviving reconciliation; current upgrades do not resume mutations and old snapshot loads are unsupported for operation |
 | A06 — release race | Exact reference mutation/receipt/status, signed managed tenant cleanup at capacity during suspension, immutable replay without resurrection, tombstones, indexed cleanup, revocation and stale callback rejection over local IC substitutes | Deployed deletion and billing-cessation evidence plus accepted production consumer release coordination |
-| A07 — composition | Canic-free core and composition library; shared immutable installation/grants; managed fixture proves lifecycle/authority beside neighboring memory; all blob methods including the plain-record certificate method match standalone Candid; local Canic hooks bound endpoint/lifecycle decoding and preserve actual refusal/rollback; verifier/reference cleanup preserves receipts and liabilities; certificate assessment reports real blockers; gateway/account journeys preserve failed syncs and unrelated occupied owners through fenced restore over labelled substitutes | Published dependency adoption, successful qualified certificate exposure, production Fleet provenance, generic coverage transfer and both-adapter/common-client acceptance |
+| A07 — composition | Canic-free core and composition library; shared immutable installation/grants; managed fixture proves lifecycle/authority beside neighboring memory; all blob methods including the plain-record certificate method match standalone Candid; local Canic hooks bound endpoint/lifecycle decoding and preserve actual refusal/rollback; verifier/reference cleanup preserves receipts and liabilities; certificate assessment reports real blockers; gateway/account journeys preserve failed syncs and unrelated occupied owners through fenced restore over labelled substitutes | Successful qualified certificate exposure, production Fleet provenance, generic coverage transfer and both-adapter/common-client acceptance |
 | A08 — economics | Maintained Caffeine codecs, exact local transfer/refund journals, liquidity/attachment guards and conservative reconciliation; standalone account inspection is wired | Complete production spendability/liabilities and provider-credit/account activity evidence; reported balances are not receipts |
 | A09 — retirement | Contract separates source removal from installation retirement and preserves uncertainty/continuing obligations | Per-installation inventory and an accountable, evidenced settlement/disposition decision; no reset authority is supplied here |
 | A10 — serving | Root-bound local verification, reference-qualified descriptors/read sessions and usable native verified file output; signed managed completion/download/release/restore and standalone refusal over labelled local substitutes | Complete real upload/download consumer journey, MIME/public-serving acceptance, deployed serving evidence and confidentiality boundary |
@@ -64,7 +65,9 @@ Current source-bound local records include:
   frozen local Canic builds the plain-record method and bounded endpoint/lifecycle
   adapters. Candid types, actual refusal/authority, valid hostile headers/types,
   manifest boundaries and occupied-owner rollback pass. Successful certificate
-  exposure and provider behavior remain unobserved; published pin adoption is CF-01.
+  exposure and provider behavior remain unobserved. Subsequent
+  [published Canic adoption](evidence/core-primitives.md#published-canic-adoption--2026-10-01)
+  passes the same checks against registry 0.110.49, closing CF-01.
 
 - [Passive funding assessment](evidence/core-primitives.md#passive-funding-preparation-assessment--2026-10-01):
   one shared operator query and signed native command report current local limits

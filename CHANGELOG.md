@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.4.15]
+
 ### Added
 
 - Verified `upload-inputs` also exports `certificate-binding.json` for the existing
@@ -10,16 +12,22 @@
 - Opt-in `test-sdk-inputs` checks real pinned Caffeine preparation, a 10 MiB native
   snapshot/browser binding, matching SDK preparation after source edits, and
   repeat/corrupt-source refusal with all network calls blocked.
-- Documented local Canic development using frozen source and isolated dependency
-  overrides. The managed fixture builds and targeted admission/certificate/restore
-  checks pass without requiring Canic publication or a live Fleet deployment.
 - Managed fixture certificate endpoint uses Canic's public plain-record rejection
   hook and the shared synchronous issuance workflow. Provider prerequisites still
   refuse exposure; its Candid declaration matches standalone.
+
+### Changed
+
 - Managed blob queries, updates and lifecycle now select bounded Candid decoding;
   local IC checks cover malformed/oversized/type/header input, manifest boundaries
-  and occupied-owner rollback. Normal release adoption awaits the supported Canic pin.
-- Persistent Canic integration feedback and handoff reminders are required by AGENTS.md.
+  and occupied-owner rollback.
+- Both direct Canic dependency pins now select published 0.110.49, which provides
+  the certificate rejection and decoding hooks previously tested through frozen
+  local source. The storage core remains independent of Canic.
+- Documented local Canic development with frozen source and isolated dependency
+  overrides; integration checks require no live Fleet deployment.
+- Persistent Canic integration feedback and handoff reminders are required by
+  AGENTS.md.
 
 ## [0.4.14] - 2026-10-01
 

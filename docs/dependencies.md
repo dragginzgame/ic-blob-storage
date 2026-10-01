@@ -20,7 +20,7 @@ availability does not establish provider qualification or service readiness.
 | `ic-testkit` | 0.10.1 | Native dependency of the unpublished PocketIC harness; shared helpers and full re-export |
 | `pocket-ic` | 16.0.0 | Transitive through `ic-testkit`; no direct dependency |
 | `ic-agent` | 0.49.2 | Native test-only signing and verification of local ingress certificates |
-| `canic` | 0.110.48 | Direct dependency of the managed fixture and native qualification harness only |
+| `canic` | 0.110.49 | Direct dependency of the managed fixture and native qualification harness only |
 | `candid_parser` | 0.4.1 | Native harness only; official parser/type checker for built managed Candid |
 
 Headless ingress tests add pinned `ic-agent` 0.49.2 (default features disabled),
@@ -78,10 +78,11 @@ The current prepared workspace is `.tmp/local-canic-02/blob`, using committed
 Canic `32da629d0214bf791541a9b3c1832dbef13ece29` in `.tmp/local-canic-01/canic`.
 Its artifact is `.tmp/local-canic-02/icp/.icp/local/canisters/storage/storage.wasm`.
 The [handoff](status/current.md) records executed checks and limitations.
-The maintained fixture now uses the public rejection and decoding hooks absent
-from our registry pin. Build/test it through this local lane for now; normal
-workspace checks and the release gate need a published Canic dependency containing
-those hooks. Track that action as [CF-01](canic-parity.md#integration-feedback).
+Both maintained workspaces now pin registry Canic 0.110.49, including its core
+and macros. The canonical build and six focused managed checks pass against those
+packages without path overrides; this local source lane remains optional.
+The package-adoption action [CF-01](canic-parity.md#integration-feedback) is closed;
+see [published dependency evidence](evidence/core-primitives.md#published-canic-adoption--2026-10-01).
 Local success does not qualify provider economics/recovery or certificate exposure.
 
 ## Browser certificate evidence

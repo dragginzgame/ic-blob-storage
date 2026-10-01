@@ -3,7 +3,7 @@
 resolver = "2"
 
 [workspace.dependencies]
-canic = { version = "=0.110.48", default-features = false, features = [] }
+canic = { version = "=0.110.49", default-features = false, features = [] }
 
 [package]
 name = "blob-canic-probe"

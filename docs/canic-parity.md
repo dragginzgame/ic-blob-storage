@@ -29,7 +29,7 @@ Feedback is recorded here, not sent upstream automatically; Canic stays read-onl
 
 | ID | State | Finding and action | Owner / closure |
 | --- | --- | --- | --- |
-| CF-01 | Open for normal release; local development unblocked | New plain-reply rejection and decoder hooks exist in frozen Canic `32da629d0214bf791541a9b3c1832dbef13ece29` but are absent from our registry pin `0.110.48`. Current managed fixture adoption uses the isolated local source lane. Before the next normal repository release, adopt a published package containing those hooks and repeat focused composition checks. No live Fleet deployment is required to build/test them. | Canic maintainer publishes the hooks; this repository adopts and validates the dependency. Close with resolved package/source identity and downstream results. |
+| CF-01 | Closed — 2026-10-01 | Both workspaces pin registry Canic `0.110.49`; core/macros resolve to the same version. The packaged source identifies commit `75c7f0998fd4531f8a6b81d91b53b71daffca332` and contains the plain-reply rejection and endpoint/lifecycle decoding hooks. Canonical build and all six focused composition cases pass without path overrides or deployed Fleet. [Evidence](evidence/core-primitives.md#published-canic-adoption--2026-10-01) retains package checksums, artifact identity and results, including the first sandbox server-start refusal. | Canic publication and this repository's dependency adoption/validation are complete. Full release validation and provider qualification remain separate. |
 
 The stale embedded-peer release fixture and compiler-cache startup refusals are
 already recorded in Canic's own handoff/local evidence. The frozen local artifact

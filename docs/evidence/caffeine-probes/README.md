@@ -34,6 +34,19 @@ all logs here; link their maintained test and record material changed findings.
 
 ## Current operating decisions and experiments
 
+2026-10-01 published Canic adoption: pre-run intent and separate attempt logs are
+retained in `.tmp/published-canic-49-01`. Registry Canic/core/macros 0.110.49 build
+the managed artifact without source overrides. The same six focused certificate,
+decoder, manifest, lifecycle rollback and Candid cases plus both affected strict
+lint lanes pass. Initial sandbox loopback refusal and the stopped test attempt
+are retained; the loopback-enabled repeat passes. Package/VCS, lock, source and
+artifact hashes are captured. This closes
+[CF-01](../../canic-parity.md#integration-feedback); it adds local framework/IC
+evidence only. Four provider/recovery prerequisites remain false, with no successful
+certificate exposure, provider request, paid effect or deployed Fleet. Full release
+validation remains separate. See
+[evidence](../core-primitives.md#published-canic-adoption--2026-10-01).
+
 2026-10-01 managed hook adoption: pre-run `.tmp/local-canic-02/intent.txt` records
 frozen framework source, zero provider/payment budget, bounded builds/checks,
 refusal/decoder/lifecycle questions and instance cleanup. All six focused cases

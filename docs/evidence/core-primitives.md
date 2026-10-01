@@ -5199,3 +5199,40 @@ The new capture's `SHA256SUMS` is
 the previous local-source manifest still verifies. Current code matches its copied
 counterpart, final links/JSON/formatting/diff checks pass, and owned local PocketIC
 processes have exited.
+
+## Published Canic adoption — 2026-10-01
+
+The maintainer reports Canic 0.110.49 published while requesting the 0.4.15 notes.
+Both direct workspace pins now select registry 0.110.49; metadata resolves `canic`,
+`canic-core` and `canic-macros` to that version without local overrides. Cached
+registry archives match their lockfile checksums and identify source commit
+`75c7f0998fd4531f8a6b81d91b53b71daffca332`. The required public rejection and
+endpoint/lifecycle decoding hooks are present. External crates.io/docs.rs page
+lookups failed; this establishes the selected cached package identity, not a
+claim about the registry's latest version. The maintainer's staged core/macros and
+lazy_static updates remain unchanged; our additional lockfile change selects the
+Canic facade. Product version and release receipt remain 0.4.14.
+
+Canonical `make build-canic-probe` succeeds in 101.05 seconds using installed
+Canic CLI 0.110.48, registry libraries 0.110.49, offline Cargo and this repository's
+target. The resulting Wasm hashes to
+`11eb4861a467215e530ef86dd07afed784c67caf79be5d4731a8d36fa00cafee`;
+its Candid hashes to
+`7daefe99d6779f9994b070f13d1a8cbf20d64c1c04f6e4834b261ce2f468839f`.
+The same six focused cases pass: certificate authority/refusal and hostile decoding
+(16.76 seconds), invalid installation and occupied oversized-upgrade rollback
+(21.80 seconds), manifest bounds/authority/fenced restore (8.50 seconds) and all
+blob Candid types/modes (0.01 seconds). These retain missing provider prerequisites;
+there is no successful certificate exposure or deployed transfer.
+Fixture all-target/all-feature strict lint passes in 35.51 seconds; the affected
+native harness strict lint passes in 10.20 seconds.
+
+The first harness compiles but PocketIC cannot bind loopback inside the sandbox.
+Only its identified stalled test process is terminated; the refusal log is retained
+separately. A loopback-enabled repeat passes. Pre-run intent, commands, package/VCS
+identities, both resolved locks, metadata, source/artifact hashes, copied Wasm/Candid
+and separate attempt/result logs are retained in `.tmp/published-canic-49-01`.
+This closes package adoption [CF-01](../canic-parity.md#integration-feedback).
+No full CI/release gate, deployed Fleet, provider request, payment, sibling edit,
+upstream message, product version/receipt mutation, commit/tag/publication or
+cleanup. Earlier frozen-source evidence remains historical and unchanged.

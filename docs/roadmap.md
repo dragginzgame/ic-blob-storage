@@ -85,9 +85,10 @@ The maintainer now selected local Canic development while its release/deployment
 is being repaired. Frozen committed source `32da629d0214bf791541a9b3c1832dbef13ece29`
 now builds the managed plain-record certificate adapter and bounded query/update/
 lifecycle decoders. Targeted Candid/authority/manifest/rollback checks pass in
-PocketIC using isolated copied workspaces. Continue in that lane without waiting
-for publication; real issuance still lacks provider/recovery facts, and normal
-release dependency adoption remains [CF-01](canic-parity.md#integration-feedback). See
+PocketIC using isolated copied workspaces. Subsequent registry Canic 0.110.49
+adoption passes the canonical build and the same six focused checks without
+source overrides, closing [CF-01](canic-parity.md#integration-feedback).
+Real issuance still lacks provider/recovery facts. See
 [local setup](dependencies.md#local-canic-development).
 See [download usage](operator-guide.md#download-a-verified-file) and
 [local evidence](evidence/core-primitives.md#verified-native-tenant-downloads--2026-10-01).

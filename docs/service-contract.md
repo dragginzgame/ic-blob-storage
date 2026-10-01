@@ -327,13 +327,13 @@ The production host facts remain false; no successful certificate exposure or
 provider transfer is observed. This is downstream local framework evidence, not
 production Fleet provenance or provider qualification.
 
-Our published dependency pin remains Canic 0.110.48, whose reviewed registry
-macros lack these hooks. The maintainer selected local development while Canic
-release/deployment work continues separately. Use the isolated copied-workspace
-[source lane](dependencies.md#local-canic-development); normal workspace/release
-checks need dependency adoption recorded as [CF-01](canic-parity.md#integration-feedback).
-Sibling repositories stay read-only. Registry publication status has not been
-refreshed by this local build; deployment is not a prerequisite for PocketIC.
+Both maintained workspaces now pin registry Canic 0.110.49 with these hooks.
+The canonical build and six focused checks pass without source overrides;
+[CF-01](canic-parity.md#integration-feedback) is closed. The isolated copied-workspace
+[source lane](dependencies.md#local-canic-development) remains available for local
+framework development. Siblings stay read-only; a deployed Fleet is not required
+for PocketIC. Published dependency adoption does not qualify provider exposure
+or replace full release validation.
 
 Earlier source findings and failed public-adapter attempts remain dated evidence
 in the [framework review](evidence/core-primitives.md#managed-certificate-framework-review--2026-10-01)
