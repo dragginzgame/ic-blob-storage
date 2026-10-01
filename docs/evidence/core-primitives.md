@@ -3801,3 +3801,551 @@ completion/economics/deletion, occupied recovery and combined IcyDB composition
 remain open. No full CI/release gate, version mutation, commit, tag, push,
 publication, deployment or sibling edit occurred. No provider behavior was
 investigated; the Caffeine probe ledger is unchanged.
+
+## Managed certificate assessment and operator queries — 2026-09-30
+
+Unreleased continuation after maintainer release 0.4.10, clean source base
+`429db4ab516b7da2745cd242e3ac175a5cf13281`. Five managed adapters call existing
+shared workflows: certificate assessment, gateway sync/cancellation/revocation
+and account inspection. Official candid_parser compares all twenty-nine supported
+service methods' complete types/modes to maintained standalone Candid. Four new
+updates select 4 KiB bounds. The supported Canic 0.110.48 build passes in
+**43.34 s**; the existing query-only source builds in **18.15 s**.
+
+The certificate-assessment journey prepares a full-width-ID ten-byte reservation.
+Only its uploader can inspect; tenant/operator/verifier/outsider/Root/controller
+calls refuse. Unprepared/revoked/fenced state, malformed and unknown roots retain
+their typed failures. Assessment reports PrechargeLimits, ProviderNamespace,
+ReplayCharging and Recovery, with the exact original permission and host time;
+no exposure, successful provider reply or qualification fact is invented. Stable
+bytes remain unchanged during successful observations and refusals.
+
+The operator journey allocates one local source and re-provisions only its fresh
+empty managed installation through the original authenticated carrier, changing
+the explicit Cashier principal before any tenant/object/obligation exists. It then
+enrolls a tenant and prepares ten reserved bytes. Operator/service/namespace/
+Cashier/payer checks precede calls. Valid Candid at exactly 4 KiB reaches scope
+refusal on the async sync endpoint; 4 KiB plus one rejects before dispatch.
+Successful sync, present/absent revocation, malformed/oversized reply retention,
+Busy refusal, stale cancellation and exact cancellation preserve unrelated upload,
+funding and read owners. Passive account queries report full-width independent
+balances, no relationship, AccountNotFound, malformed and oversized failures
+without local credit/allocation/readiness changes. A rejected sync remains pending
+through same-release upgrade: membership and allocated sequence survive, all four
+owners fence, and sync/cancel/revoke/account calls refuse unchanged.
+
+**Evidence class and budget:** actual managed IC behavior over the existing local
+query-only Cashier substitute; gateway/response bytes are controlled fixture data.
+Five gateway-list and five account queries execute, with zero attached cycles,
+30-second bounded waits, 64 KiB gateway and 4 KiB account reply ceilings plus fixed
+decoder work/type budgets. The source checks actual service/replicated execution
+and zero attachments; it cannot establish deployed Caffeine semantics or fees.
+Successful gateway/account queries are passive at the source; source configuration
+updates are explicit fixture setup. No payment, provider object or deployed request
+occurs. The ledger records bounded intent and outcome before/after the run.
+
+The canonical `_immutableObjectStorageCreateCertificate` adapter remains unwired.
+The attempted plain-record `canic_update(public, ...)` fails compilation. Pinned
+macro `build_access_plan` injects DefaultFleet even for public endpoints;
+`expand` requires a direct Result for every nonempty access plan. Caffeine's
+maintained plain-record success/IC rejection contract cannot be changed to Result,
+and `internal` would omit the normal application Fleet guard. The attempted method
+was completely removed; no alternative contract/bypass remains. Supported plain-
+reply rejection is a framework gate, separate from decoder and provider readiness.
+Initial root formatting also refused the not-yet-created operator module; the
+module was completed before subsequent successful formatting/compilation. No
+upstream edit/request or copied framework dispatch was introduced.
+
+All nine managed cases pass in **107.47 s**, including the prior lifecycle,
+rollback, cleanup and verifier/delivery cases. Commands use repository `target/`,
+offline/locked Cargo, ic-testkit's PocketIC 16.0.0 and one test thread. Build commands
+are `make build-canic-probe` and
+`cargo build --release --target wasm32-unknown-unknown -p blob-gateway-source --lib`.
+The runtime command is
+`cargo test -p ic-blob-storage-pocketic-tests --test canic_composition -- --test-threads=1`,
+with explicit `POCKET_IC_BIN`, `BLOB_CANIC_PROBE_WASM` and
+`BLOB_GATEWAY_SOURCE_WASM` paths to the local artifacts below. Final strict focused
+harness and isolated fixture all-target/all-feature Clippy, both formatting checks,
+diff, capability JSON and read-only changelog checks pass. No core/standalone
+contract/schema, dependency version or allocator changed. Instances were dropped;
+build artifacts retained. No full CI/release gate, version mutation, agent commit,
+tag, push, publication, deployment or sibling edit occurred.
+
+Retained log prefix: `/tmp/ic-blob-storage-managed-operator`.
+
+| Log suffix | Result | SHA-256 |
+| --- | --- | --- |
+| `-01.log` | Managed suite passes | `8d4a0b6678ca7b21b06eea1ef7d142b78ee1012640fb0c2fcac643da646b44af` |
+| `-build-01.log` | Supported managed build passes | `8eec0cda324d5f9068922cc97163c9dd2304a036e089602b354b94588e7ba4da` |
+| `-source-build-01.log` | Existing source build passes | `40f31c73977c43ee98c19fc9d5d0b4d834c341b4ea0e5ed215b4c22994fb63af` |
+| `-prepare-01.log` | Isolated lock projection passes | `d225a034651838c96019d1a9a93c240beb450d96ca99f9c08fc1063dbf222b17` |
+| `-fixture-clippy-01.log` | Failed: public plain-record endpoint unsupported | `671bce41745443f21dee38a5cbcd954cba9acf655f03fdb175d467be99b19f1f` |
+| `-clippy-01.log` | Same unsupported endpoint fails harness compilation | `84090e94f1aa49173f855f5f21b90d070f67a832a4c1dcf9decf5bf9f42ac8a4` |
+| `-clippy-02.log` | Harness passes after removing attempted issuer | `a5cd4446343f85e8271024ac4000bd26fbdc4a79394e56dcf8ffa6a881ad3855` |
+| `-fixture-clippy-02.log` | Final isolated fixture passes | `0e84c73aec9e02d293a993f1b0bc78790d416f0084af45a7ccdc7c54cda19307` |
+| `-clippy-03.log` | Final harness passes including 4 KiB boundary | `2c2d60d318cbf2e0057eac03f75fafde4b6bf8e63b0e71be6e0a66a93bef61cd` |
+
+Final source/artifact SHA-256 hashes:
+
+| Source/artifact | SHA-256 |
+| --- | --- |
+| `canisters/test/canic_probe/src/api/mod.rs` | `80050815490b4d9d2b4b6cd239f1f80c670d32d39ec4a8f9e65f9b400bccecfb` |
+| `canisters/test/canic_probe/src/ops/mod.rs` | `acd09bf188f5e26e2d9870c1437a183f174c7bdbfd8ffc6a73a7aa2fa7ea8d7a` |
+| `canisters/test/canic_probe/src/ops/account/mod.rs` | `468ab73ebdc6fc1f580a404fee5c87c9a72090f64d20be1deae4ce43acd22453` |
+| `canisters/test/canic_probe/src/ops/certificate/mod.rs` | `6a62295ac18b68a6f17e1d623e7655ea206132748af8f50160f54c6003a0bad7` |
+| `canisters/test/canic_probe/src/ops/gateways/mod.rs` | `d8cee1da6c2013811d24f89eb48ed3e7d015ef5d99d41133069983bc9c2bbbb3` |
+| `tests/pocketic/tests/canic_managed/certificate/mod.rs` | `cd81ce77147c55ad0044f64a01dd6d1e76adbcb385dcb99628253f93cf495dba` |
+| `tests/pocketic/tests/canic_managed/operator/mod.rs` | `6c2e6b255e75133666af92830ba0aa6a11127942934ae819a3a3dd58da8b5d47` |
+| `tests/pocketic/tests/canic_managed/declaration/mod.rs` | `8d1adc16795b046b7b5f2f46a2763b9805afa490ae10672925382df250643c91` |
+| `tests/pocketic/tests/canic_managed/mod.rs` | `620f60fdeb26ae673f5cf1256f369ba47f424610cd262e1df625236c8b846c3b` |
+| `Makefile` | `e6365e04ba39e34bd2c0b4298ac3dfd6fc76875a074cedf03d939a2c80f303e9` |
+| `.tmp/canic-probe/.icp/local/canisters/storage/storage.wasm` | `61138d7e982b98c93ab12fba5b38fb1244f88d15323f8d1ec8bc320bf3e3e0dc` |
+| `.tmp/canic-probe/.icp/local/canisters/storage/storage.did` | `4c0c27182e49ff9385b0f3adf67858116a79c803e6f4ae91051da7f2d2e43622` |
+| `target/wasm32-unknown-unknown/release/blob_gateway_source.wasm` | `f01fdb8e3cf9867cccd9689c222a8f2976ecc5b07fe7f8623c4bf5eb0ec94325` |
+
+Pinned macro source hashes: `canic-macros-0.110.48/src/endpoint/expand/access.rs`
+is `40df7ef009a5baa79bf12749edc803f03fb3f121d5aab94257f67c00025b7406`;
+`expand/mod.rs` is
+`852b10c671b59ce3fedb1a29367fbfcffb5ae40404da4a34fc7af69ec5c91cd1`.
+These identify the reviewed registry source, not a latest-version assertion.
+Common native operator/consumer journeys, supported framework rejection/decoding,
+production Fleet provenance, live provider qualification, operational recovery,
+combined IcyDB composition and removal/retirement acceptance remain open.
+
+## Managed signed client and local byte verification — 2026-09-30
+
+Evidence class: local managed PocketIC and actual native signed subprocesses.
+This continuation retains the preceding unreleased twenty-nine-method artifact;
+it changes test/tooling composition, not production endpoints, stable schemas,
+registry versions or allocator. The public Canic qualification helper remains the
+installation owner and now takes explicit fixture input with canonical Fleet
+principal ordering. Shared native subprocess helpers no longer require the
+standalone server harness; failed-command diagnostics include the command name.
+
+The controlled signer is explicitly installed as operator and uploader. The test
+pins the application-only instance's undelegated subnet key through the owned
+PocketIC control API before starting its literal-loopback gateway using a supported
+non-owning handle. CLI origin restrictions, proxy bypass and query signatures stay
+enabled; no root is fetched by the client and no framework bootstrap is recreated.
+This local trust arrangement does not test mainnet NNS delegation or production
+Fleet provenance. Exploratory reads of official current PocketIC server source
+are unversioned source review, not claims about the installed binary; executed
+evidence is bound to the pinned local server and artifacts below.
+
+The maintained `status`, `funding-history`, `upload-history`,
+`certificate-assessment` and `verify-upload` commands run against one ten-byte
+reservation. Incorrect declared identity refuses before transport; another valid
+signer reaches service authorization and is denied. Incorrect installed scope and
+tampered root refuse. The original permission preserves full-width IDs/deadline;
+changed deadline refuses. Assessment reports the four real blockers without
+exposure. Local ten-byte content verifies against the authenticated original
+manifest; corrupt, short and long files refuse. Same-release restore retains
+inventory and permits historical byte inspection while assessment refuses the
+permission fence. All four owners report fenced, and each complete query phase
+preserves full stable memory. Provider completion/availability and retry authority
+remain expressly absent. There is no native update or provider query in this new
+case; fixture setup mutations are local metadata, not provider effects.
+
+Budget/outcome: intent is in the probe ledger. The new journey invokes the CLI
+22 times, including pre-transport refusals, below its 32-invocation ceiling;
+each uses the maintained 30-second client/256 KiB response limits. Control key
+lookup is one local read with a 30-second timeout. Zero provider requests/payments
+and zero attached provider cycles. Stop/drop owned progress, gateway, instances
+and temporary files; build artifacts are retained. No full CI/release gate,
+version mutation, commit, tag, push, publication, deployment or sibling edit.
+
+All commands use this repository's `CARGO_TARGET_DIR`, offline locked Cargo and
+explicit `POCKET_IC_BIN`, `BLOB_CANIC_PROBE_WASM`, `BLOB_GATEWAY_SOURCE_WASM`,
+`BLOB_STANDALONE_WASM` and `BLOB_CLI_BIN` where required. Test filters below are
+complete executed arguments, not a full validation claim.
+
+| Capture under `/tmp/ic-blob-storage-managed-cli` | Command/result | SHA-256 |
+| --- | --- | --- |
+| `-clippy-01.log` | Managed/standalone harness strict Clippy failed on long test and input ownership; also records a build-directory lock wait after an idle precheck, with no source mutation during validation | `42ce2a008c3c962cca206f8be6a87ffd4509cb71e3f1dda9fadd3e3107f414a8` |
+| `-clippy-02.log` | Same strict targeted Clippy passes after helper extraction and borrowed input | `82f5bcef4dffc9a7a797876e598dc419279f297a7c6422bc37ae078a7bcf6b69` |
+| `-build-01.log` | `cargo build --offline --locked -p ic-blob-storage-cli --bin blob-storage` passes in 10.77 s | `adea0b0f705977ebcb4de38bbc12da11b6eaa9efa153618047036f00087c5699` |
+| `-01.log` | `cargo test … --test canic_composition managed_signed_cli -- --test-threads=1` fails before CLI invocation: noncanonical Fleet principal order | `8311446fcc7c6047cbc3b5e88875af8db05f0669277e30f45fd12fe0fa9886ea` |
+| `-02.log` | Same filter fails: instance API path is outside maintained CLI origin contract | `0ae2a74e1246bf3618997f5c898b1b65c4f9b66888ffeca4573051db53b1cd96` |
+| `-03.log` | Same filter fails: `PocketIc::url()` returns localhost despite gateway domain; CLI requires literal loopback | `d6e59b8d67676ec55d5bcb5959a1631b9a6cfc7e35e7806c8b6ec751a26d40d1` |
+| `-04.log` | Same filter passes in 9.71 s using constructor's returned URL; this precedes added byte checks | `aeefc50e33c78b753a821f5abb2862826e83919d3a7daece8f00dba209865702` |
+| `-clippy-03.log` | `cargo clippy --offline --locked -p ic-blob-storage-pocketic-tests --test canic_composition --test standalone --all-features -- -D warnings` passes with final byte checks | `00ddff306936204a3464159a9b89dd48961484111313cf632e3165524a9cebf8` |
+| `-05.log` | `cargo test --offline --locked -p ic-blob-storage-pocketic-tests --test canic_composition -- --test-threads=1`: all ten cases pass in 114.87 s | `128720009be32c67e76a0457f53a7bdb85d9eb9dec350f1ed92d0a43153cecb3` |
+| `-standalone-01.log` | `cargo test --offline --locked -p ic-blob-storage-pocketic-tests --test standalone standalone_authenticated_cli -- --test-threads=1` passes in 6.24 s | `e592de3c99696db2785edd6ab9f04261ced88e5169998e4ca36708659c2a3ccc` |
+
+| Final source/artifact | SHA-256 |
+| --- | --- |
+| `tests/pocketic/tests/canic_managed/cli/mod.rs` | `ba39e7e202964433b107c3ff5861e9a4c2e890df1fa92c68c54c59493d81a06b` |
+| `tests/pocketic/tests/canic_managed/mod.rs` | `09304d49c666657c5f2a4d69a90a7a6c86edd85d95f2aa8b87ca86043228ec81` |
+| `tests/pocketic/tests/authenticated_cli/mod.rs` | `14f7afa4b6ea9586e6539317c47cc9a44642f776c4c5604a720c685462680909` |
+| `tests/pocketic/tests/canic_composition.rs` | `82c24ab203ab7d31d3cd18a2b376cc70b6221291dd30d7249876cfcc40143a6f` |
+| `Makefile` | `552cdb9330050a8ff794741689d77de7c818e5110a4d9e1c6fc190c9a6bfaccb` |
+| `target/debug/blob-storage` | `fb53ccb6b04df6ed5fab35feb483e2f67091da572bbebce84cc975815831d18e` |
+| `.tmp/canic-probe/.icp/local/canisters/storage/storage.wasm` | `61138d7e982b98c93ab12fba5b38fb1244f88d15323f8d1ec8bc320bf3e3e0dc` |
+| `.tmp/canic-probe/.icp/local/canisters/storage/storage.did` | `4c0c27182e49ff9385b0f3adf67858116a79c803e6f4ae91051da7f2d2e43622` |
+| `target/wasm32-unknown-unknown/release/ic_blob_storage_canister.wasm` | `426aec9fa34c613b7609e735b6fa34348894d13ea3b63d9ddf49a6bc6fbbe4dd` |
+| `.tmp/tools/pocket-ic-16.0.0/pocket-ic` | `69e324bdb68d32d878b7a9504b1379f08f8d1921272bacb065b0fabb3d0f3792` |
+
+Exploratory official `dfinity/ic` master `rs/pocket_ic_server/src/lib.rs` and
+`pocket_ic.rs` copies are retained at `/tmp/ic-blob-storage-pocketic-server-review.rs`
+(`d3c7f181724ec370e84cd3b7520757869fc15a28fac6cb49a313a0258ca80fbe`)
+and `/tmp/ic-blob-storage-pocketic-topology-review.rs`
+(`167677b138e58021b36520e893fd35a28484dd7849b82190e1472182060780f0`).
+The initial web fetch of the latter failed with cache miss; direct official-source
+reads then succeeded. These mutable upstream captures are not a refreshed provider
+baseline. Pinned PocketIC Rust client `root_key`, `new_from_existing_instance`,
+drop and gateway URL behavior was reviewed read-only in its registry source.
+
+Next evidence is the trusted verifier's retained observation and one-shot signed
+submission through the managed adapter. Complete consumer composition, provider
+qualification, supported framework plain-reply rejection/decoding, operational
+recovery, IcyDB composition and source-removal/retirement acceptance remain open.
+
+Final root/isolated-fixture formatting, diff, capability JSON and read-only
+`release-data.pl changelog-check 0.4.11 2026-09-30` pass. All 302 local links/
+anchors in maintained edited Markdown, balanced fences and the twenty current
+source/artifact/log table hashes validate. Exploratory source captures retain
+their separately recorded hashes; historical evidence hashes were not rotated.
+
+## Managed signed verifier observation submission and recovery — 2026-09-30
+
+Evidence class: local managed PocketIC with actual signed native commands and
+owned HTTP source/fault transport. Exposure and ten-byte HTTP content are labelled
+substitutes, not a Caffeine certificate/object. The fixed test signer is installed
+solely as completion verifier; operator, tenant and uploader are distinct. The
+public Canic helper, sole runtime/storage owner and undelegated local subnet trust
+arrangement remain unchanged. No production code/API/schema, registry graph or
+allocator changes. The former fixture-local proxy is removed; existing native
+and managed cases use one maintained HTTP fault proxy/source.
+
+Maintained `observe-upload` saves plan/permission/service response and GET intent
+before the source receives a request. The source checks the exact owner/project/
+full-width namespace/root target, no Authorization header and pre-effect records.
+Verified bytes yield the exact original permission and content digest in a saved
+statement; observation preserves full service stable memory. Unexposed and foreign
+verifier queries refuse before GET. Changed observation project refuses before
+creating a dispatch claim, with tampered input/refusal retained separately.
+
+Maintained `submit-attestation` persists its signed request/statement/intent before
+one real replica update. The shared proxy checks the exact signed sender, service,
+method, argument, expiry and stored bytes before forwarding. Three modes pass the
+actual acknowledgment, drop it after replica execution, or replace it with pending
+HTTP admission. Their saved outcomes remain accepted, uncertain or pending.
+Repeated submission refuses the existing claim and preserves original intent.
+Signed `upload-attestation` resolves the exact historical receipt without resend.
+The live first reference permits a tenant descriptor after acceptance. Same-release
+upgrade fences operational delivery/new observation while preserving signed receipt
+inspection and complete stable bytes during those reads/refusals. Historical
+metadata establishes neither current availability, future retention nor billing
+cessation. No native funding/provider mutation or deployed Caffeine effect.
+
+Budget: per managed verifier journey, one local GET/ten content bytes and one signed
+IC metadata update, with at most sixteen CLI invocations and maintained 30-second/
+256 KiB client bounds. The executed journey uses eleven invocations. Each fault mode
+asserts exactly one forwarded update and no further source request. Provider cycles
+attached/payments/deployed provider requests are zero. Local control key lookup
+uses a 30-second limit. Setup exposure is a labelled fixture-only metadata cut.
+The existing native regression cases additionally retain their pre-existing partial
+GET/process interruption and concurrent submission checks; they are local substitutes.
+
+Each initial managed run uses a fresh owned parent beneath `/tmp`; a mode child
+is created without replacement and rejects retained/partial children. Optional
+`BLOB_MANAGED_VERIFIER_REPORT` retains the reports; normal tests use temporary
+directories. Source plans label local evidence and all role/owner/project/budget
+bindings before requests. Set 01 captures the first successful three cases (88
+files); set 02 captures final raw HTTP response, tamper refusal and recovered/
+restored receipts (103 files). Both retain public local trust keys, observation
+plans/outcomes, exact signed requests and service replies; no private key or
+provider certificate is retained. Their SHA256SUMS manifests bind all files;
+they establish capture integrity, not independent provider signatures/freshness.
+Owned sockets, proxy, gateway/progress and instances were closed/dropped. Reports
+and build artifacts remain; there are no new external objects/cleanup obligations.
+
+All commands use repository `CARGO_TARGET_DIR`, offline locked Cargo and explicit
+fixture paths. The managed fixture/CLI are unchanged artifacts from the preceding
+batch. No full CI/release gate, version mutation, agent commit, tag, push,
+publication, deployment or sibling edits occurred.
+
+| Retained capture | Command/result | SHA-256 |
+| --- | --- | --- |
+| `/tmp/ic-blob-storage-managed-verifier-clippy-01.log` | Strict affected harness lint fails: module ancestor and assumed descriptor digest field; corrected to maintained DTO and update mode | `4802d69af68fc2aac0f62bf9d9dbbd2851b5d4bf37d5001eb0a503a67f85dd66` |
+| `/tmp/ic-blob-storage-managed-verifier-clippy-02.log` | Same lint fails: large attestation passed by value; corrected to borrowed input | `a5df30dd757be948bb84c4b7b1912cb55a3126ed08a3b99e3af29e55ef45cf96` |
+| `/tmp/ic-blob-storage-managed-verifier-clippy-03.log` | Targeted managed/storage harness Clippy passes before final capture expansion | `7ca149b78561d0b92aacb63f094fb21e9c965a9076069baf7616f3e7678795c8` |
+| `/tmp/ic-blob-storage-managed-verifier-01.log` | `cargo test --offline --locked -p ic-blob-storage-pocketic-tests --test canic_composition managed_native_verifier_submission -- --test-threads=1`: three cases pass in 33.37 s | `5afb1712a601117e78cac243f913a350a38106b2ec4dea3f77fa0ee3dec71a17` |
+| `/tmp/ic-blob-storage-managed-verifier-clippy-04.log` | `cargo clippy --offline --locked -p ic-blob-storage-pocketic-tests --test canic_composition --test storage --all-features -- -D warnings` passes with final capture | `5f8d6ab8726dad6ab9ffbf384dbe9108ea12ffe65b5c67afecf0c6dbbfbed8e4` |
+| `/tmp/ic-blob-storage-managed-verifier-02.log` | `cargo test --offline --locked -p ic-blob-storage-pocketic-tests --test canic_composition canic_managed::cli -- --test-threads=1`: four affected managed cases pass in 41.86 s | `994c7c7bc9df0c39794203eb9eea4a42fa59e2edbb2f0df5d2a659b687ddc4af` |
+| `/tmp/ic-blob-storage-managed-verifier-storage-build-01.log` | `cargo build --offline --locked --release --target wasm32-unknown-unknown -p blob-storage-probe --lib` passes in 8.29 s | `000c5464aa8bc66fa4a4e4701b7d4d350e9ed0dcaa4b9ba3b55eefa4801a6770` |
+| `/tmp/ic-blob-storage-managed-verifier-storage-01.log` | `cargo test --offline --locked -p ic-blob-storage-pocketic-tests --test storage storage_observe_cli -- --test-threads=1`: three existing cases pass in 12.63 s | `cb1de78710e697ce8a2473ec7a2eed7a335f8a8446e1b642c3627cbc18f2cc7d` |
+| `/tmp/ic-blob-storage-managed-verifier-evidence-01/SHA256SUMS` | Immutable initial 88-file report manifest | `2c2a725eb16305accfa238fa2ad6cb293c5db9fcb33ef0f2ff0879fc9e014270` |
+| `/tmp/ic-blob-storage-managed-verifier-evidence-02/SHA256SUMS` | Immutable final 103-file report manifest | `426ecb608f34aa023513528d28ca0d36a6913e4dbc4b2a517270e63b79b9b001` |
+
+| Final source/artifact | SHA-256 |
+| --- | --- |
+| `tests/pocketic/tests/canic_managed/cli/verifier/mod.rs` | `5eb46398943514238e46d5f68eed1f9bece4ebe002343e148c8a83677bcc8f5f` |
+| `tests/pocketic/tests/canic_managed/cli/mod.rs` | `8aa0865ec6b978e18832091389019e61976d89303fd93b6c241b084e4e00b6a2` |
+| `tests/pocketic/tests/submission_proxy/mod.rs` | `ab2d5b9c5e110f99e1d704c2f700123c9c9d006f41dae745691fa05b53930faf` |
+| `tests/pocketic/tests/observation_provider/mod.rs` | `ea073603804aa43f0e035628553b4f95c9c9de993a3fb2212bfc8ef4b6860ef5` |
+| `tests/pocketic/tests/storage_observe_cli/mod.rs` | `5acacf0f7e8ac89de7703b40afcf69af383d4109e55fe38efbe7d65696affa34` |
+| `tests/pocketic/tests/canic_composition.rs` | `6e36b5715ae24a62e7e0cec09f662a23f7851213bc43c960afb58ec15e56e9c8` |
+| `tests/pocketic/tests/storage.rs` | `f5838658246395aa445e41e8b59e24d6db0e91855baee3f852f861b9cb504208` |
+| `target/wasm32-unknown-unknown/release/blob_storage_probe.wasm` | `817dd57e09ee70a6d7c37e8c6af60bb4f25c8a6891d71bf9ee3e0cb3acc09933` |
+
+Next is signed tenant reference receipt/liveness and cleanup beside trusted
+completion. Supported framework plain-reply rejection/decoding, production Fleet/
+verifier provenance, deployed Caffeine qualification, concrete consumer/outbox,
+operational recovery, IcyDB composition and removal/retirement acceptance remain
+open. This local metadata completion must not be relabelled provider qualification.
+
+Final root/isolated fixture formatting, diff, capability JSON and read-only draft
+changelog checks pass. All 307 maintained local documentation links/anchors and
+balanced fences validate. Eighteen current source/artifact/log/manifest table
+hashes match; both complete 88/103-file SHA256SUMS manifests validate. Historical
+source/artifact/log hashes remain bound to their original captures.
+
+## Managed signed tenant reference submission and cleanup — 2026-09-30
+
+Evidence class: actual local managed PocketIC/native signing with labelled
+exposure and owned ten-byte HTTP content substitutes. No Caffeine certificate,
+deployed object or paid request. Test tenant seed 43 and installed verifier seed
+42 are distinct from operator/uploader. The public Canic helper, memory runtime,
+application-only subnet trust and service/stable contract are unchanged.
+
+Native `submit-reference` validates the saved full-width tenant command, claims
+a new private directory and synchronizes canonical `request.candid`, exact
+`signed-request.cbor` and bound `intent.json` before one IC update. It uses the
+maintained request/reply validators. Empty/interrupted/existing claims refuse.
+No polling, automatic retry or identity allocation. Exact recorded receipts
+carry either success or a stored transition failure; pending, remote refusal and
+transport uncertainty remain distinct. The output never equates historical
+retain success with current liveness or logical release with provider deletion/
+billing cessation. The source input is unchanged; recovery can use the durable
+dispatch copy even after the incoming request file is removed.
+
+The managed journey first runs real signed verifier observation/submission over
+one persisted plan and local GET. The tenant then records an unknown-reference
+release failure, retains a second reference and recovers acknowledged/dropped/
+pending replies through signed receipt inspection. The shared proxy now accepts
+one explicit sender/service/method/argument binding; it checks intent/signed bytes
+before forwarding exactly one real reference update. Repeated invocation refuses
+the claim without a second request. Foreign scope/identity and verifier-as-tenant
+refuse before dispatch; an empty interrupted claim is preserved.
+
+At full reference headroom, both releases still succeed, including final release
+during suspension. Fresh retain refuses inactive enrollment. A deliberately
+separate exact historical replay returns the original success without reviving
+either reference; it is not the uncertainty-recovery path. Original success and
+stored unknown-reference failure remain readable, separately from current dead
+status. Last release leaves reserved/logical bytes zero and physical/liability
+bytes ten. Same-release restoration fences all four owners; exact success/failure
+receipt inspection and dead status survive, while replay/delivery refuse and full
+stable memory remains unchanged. No provider deletion/settlement is fabricated.
+
+Per journey, the pre-recorded maximum is ten signed updates, sixty CLI invocations,
+one GET and ten content bytes; actual use is eight signed updates and twenty-seven
+CLI invocations. Ordinary setup/enrollment/descriptor operations are local
+PocketIC effects. CLI deadlines are thirty seconds, HTTP replies at most 256 KiB
+and reference inputs/replies at most 4 KiB; the fault proxy bounds requests and
+has a ninety-second lifetime. All attached provider cycles/payments/deployed
+provider requests are zero. Unknown outcomes never authorize repeating an effect.
+
+Optional `BLOB_MANAGED_REFERENCE_REPORT` captures new per-mode children under
+an existing parent; retained/partial children refuse. Set 01 contains 277 files
+with a no-overwrite SHA256SUMS manifest: public trust, role/budget plans, exact
+commands, signed dispatches/outcomes, original/current/restored observations and
+raw labelled HTTP request/response. Each of its twenty-four signed intent records
+passes independent request/argument/trust SHA-256 and scope/budget inspection.
+ContentDigest display hashes have the maintained `sha256:` prefix. No private
+PEM is retained. Capture integrity supplies no provider signature or independent
+freshness authority. Sources/proxy/gateway/progress and instances were stopped/
+dropped; temporary identities removed, reports/build artifacts retained.
+
+All Cargo commands use offline locked resolution, repository CARGO_TARGET_DIR
+and explicit local artifact paths. This is targeted implementation validation,
+not full CI/release verification. Registry versions, allocator, service Candid
+and stable schemas remain unchanged. No version mutation, agent commit, tag,
+push, publication, deployment or sibling edits occurred.
+
+| Retained capture | Command/result | SHA-256 |
+| --- | --- | --- |
+| `/tmp/ic-blob-storage-managed-reference-cli-clippy-01.log` | CLI all-target strict lint fails: borrowed request-ID preferred; corrected | `9645a031ffbbc73e4f095423c9e7c44aa7eba6796428f10d0ac223c0de449e41` |
+| `/tmp/ic-blob-storage-managed-reference-cli-clippy-02.log` | CLI strict lint passes before the named intent record refinement | `cd261f6e4baab0e488401b22de73a8bd8cbdd7cac2e361a1164de75bda2814d0` |
+| `/tmp/ic-blob-storage-managed-reference-cli-clippy-03.log` | `cargo clippy --offline --locked -p ic-blob-storage-cli --all-targets -- -D warnings` passes with final source | `676401afa2a182f457d9685e31a7619594bb180cd678df9938a2723dbe2cc096` |
+| `/tmp/ic-blob-storage-managed-reference-harness-clippy-01.log` | Affected harness lint fails: unused imports, boolean assertion and small dispatch boundary needing Copy; corrected | `023607f86f7cd357cab5e6b36848042c6e048e1d67a2abd5eda155731543bf1e` |
+| `/tmp/ic-blob-storage-managed-reference-harness-clippy-02.log` | `cargo clippy --offline --locked -p ic-blob-storage-pocketic-tests --test canic_composition --test storage --all-features -- -D warnings` passes | `9cd6b49ba2d83f2a7321b9251b5267c28d834513da9c54142cafb468d3dd3739` |
+| `/tmp/ic-blob-storage-managed-reference-cli-unit-01.log` | Native CLI unit run fails in existing HTTP download case on sandbox socket denial; twenty-eight other cases pass | `97684dfc8e799543897e9e5228df3d8aa321e842396e6881b1a02daeb211ac3e` |
+| `/tmp/ic-blob-storage-managed-reference-cli-unit-02.log` | `cargo test --offline --locked -p ic-blob-storage-cli --bin blob-storage native::`: all twenty-nine cases pass with local socket access, 0.64 s | `fb16e68f7073bf987b424d7e31f50a85d7057e708298153a49a043804266e5e5` |
+| `/tmp/ic-blob-storage-managed-reference-cli-build-01.log` | `cargo build --offline --locked -p ic-blob-storage-cli --bin blob-storage` passes in 2.00 s | `8a96b05301b98cbb2c600ab6b27a3cca2064d4aa3b2e027fff7111009349008a` |
+| `/tmp/ic-blob-storage-managed-reference-01.log` | `cargo test … --test canic_composition managed_native_tenant_reference -- --test-threads=1`: three cases pass in 33.45 s | `74f5391c70a7a5081e04462296fdd27fcd756da8afead436d2c23603af89a0d5` |
+| `/tmp/ic-blob-storage-managed-reference-cli-regression-01.log` | `cargo test … --test canic_composition canic_managed::cli -- --test-threads=1`: seven affected cases pass in 73.13 s | `21a237a3ad7f50bdd657f1896d9c8749d0acbf61d12d8408465fb95a34b9ec65` |
+| `/tmp/ic-blob-storage-managed-reference-storage-observe-01.log` | `cargo test … --test storage storage_observe_cli -- --test-threads=1`: three existing cases pass in 11.90 s | `0aff9e3d8f790fd6a29c190b98e129469ae5cfb0cb71a4a56b6c5b1b9e87a08e` |
+| `/tmp/ic-blob-storage-managed-reference-storage-receipt-01.log` | `cargo test … --test storage storage_reference_native_cli -- --test-threads=1`: existing signed receipt/status case passes in 11.84 s | `f38b4f0ebe3ba5808c45e902eb63e1ee33815eb49f62bd7d40eeee0b5da72696` |
+| `/tmp/ic-blob-storage-managed-reference-evidence-01/SHA256SUMS` | Immutable 277-file report manifest | `087b26e690e5c69fc81b31a807fb48f1ca954c76c65823e2212701b9985414da` |
+
+| Final source/artifact | SHA-256 |
+| --- | --- |
+| `crates/ic-blob-storage-cli/src/native/submit_reference/mod.rs` | `0ec673dfb89274cea9b2b193248fb6ebde7919a04a2cac5d82b6f8623fe0b83f` |
+| `crates/ic-blob-storage-cli/src/native/submit_reference/tests/mod.rs` | `79e5952f31ec5d5471f59820c84e4344d3451628bfbf06b1244933838ed26f50` |
+| `crates/ic-blob-storage-cli/src/native/references/mod.rs` | `ea704d978ea7fb8cec8f90565358f945c3c700947bc289a327d630d23da71e9c` |
+| `crates/ic-blob-storage-cli/src/native/mod.rs` | `945006a7f4ced5f98a603a9d718f5dfa77def4a83148772a8d336c6a07d70f74` |
+| `crates/ic-blob-storage-cli/src/native/arguments/mod.rs` | `d1c0ecc38f34019594cb956e36da63d483ee11141eb4276fcfc6ced97b20d747` |
+| `tests/pocketic/tests/canic_managed/cli/references/mod.rs` | `aec8d53cd60177066b6ea69f49968f6b83c8e6919fdc973236a20b898b193ef0` |
+| `tests/pocketic/tests/canic_managed/cli/verifier/mod.rs` | `2a801a741e7bba1988d534aa606737dde9f60d1ccfed3db578cb386b7ea872d1` |
+| `tests/pocketic/tests/submission_proxy/mod.rs` | `9871318efefb30e3ad10d46e8b831a20893e6a39be3a71179405d2d6b4c23f0d` |
+| `tests/pocketic/tests/storage_observe_cli/mod.rs` | `a58bac4200b9bdba9e0f36e54df6cb09a6a5601a88362d577e27d101f34cdad6` |
+| `target/debug/blob-storage` | `52ff271acd70f949c0ee6f634585ac3bfc25b2d8ccdd71163f765841c50a4386` |
+| `.tmp/canic-probe/.icp/local/canisters/storage/storage.wasm` | `61138d7e982b98c93ab12fba5b38fb1244f88d15323f8d1ec8bc320bf3e3e0dc` |
+| `.tmp/canic-probe/.icp/local/canisters/storage/storage.did` | `4c0c27182e49ff9385b0f3adf67858116a79c803e6f4ae91051da7f2d2e43622` |
+
+Next exercise native reference submission against the standalone host and define
+the concrete consumer transaction/outbox journey. Supported framework plain-reply
+rejection/decoding, production Fleet/verifier provenance, deployed Caffeine
+qualification, operational recovery, IcyDB composition and removal/retirement
+acceptance remain open. Local reference completion/cleanup does not qualify the
+provider or authorize operating a restored instance.
+
+Final root formatting, diff, read-only draft changelog and capability JSON checks
+pass. All 313 maintained local documentation links/anchors and balanced fences
+validate. Twenty-five current source/artifact/log/manifest table hashes and the
+complete 277-file SHA256SUMS manifest match. Historical source/artifact/log hashes
+remain bound to their original captures.
+
+## Standalone signed reference submission and refused inspection — 2026-10-01
+
+Evidence class: local PocketIC against the actual standalone artifact, genuine
+signed native commands and owned loopback fault transport. The application and
+NNS supply real replica/query signing; tenant, uploader, operator and controllers
+are distinct. Production issuance/exposure stays disabled. No confirmed object
+is injected and no successful standalone retain/release is claimed.
+
+Three maintained journeys use acknowledged, dropped and pending acknowledgments
+for one unknown-upload reference update. Exact command, signed body and intent
+are durable before the shared proxy forwards it once. Acknowledged refusal stays
+typed Unknown. When the acknowledgment is lost/pending, receipt inspection itself
+refuses Unknown; it cannot resolve the original uncertainty or prove absence.
+The original outcome remains byte-exact and a repeated submission cannot resend.
+Actual admission/preparation then yields typed Unconfirmed for both retain and
+release. Wrong scope, signer and trust refuse. Same-release upgrade fences all
+four service owners; release refuses Fenced while historical inspection remains
+Unconfirmed. All inspection/refusal phases preserve complete stable memory and
+the original 10 MiB reserved/logical/physical/liability accounting.
+
+Budget per journey: at most eight signed updates and forty CLI invocations,
+30-second deadlines, 256 KiB transport/4 KiB reference replies and one owned
+10 MiB manifest/reservation. Each executed journey records four signed intents.
+Provider GETs, deployed requests, attached provider cycles and payments are zero.
+Optional BLOB_STANDALONE_REFERENCE_REPORT retains fresh mode directories; normal
+runs use temporary directories. The fresh 82-file report contains twelve signed
+intents with request/body/trust hashes and raw service replies; temporary PEM
+keys are removed. Proxies, gateways, progress and instances were stopped/dropped.
+No external object or cleanup obligation was created; build artifacts remain.
+
+| Retained command/report | Outcome | SHA-256 |
+| --- | --- | --- |
+| `/tmp/ic-blob-storage-standalone-reference-clippy-01.log` | Failed: journey too long and inefficient clones; corrected | `c45d6f490b1bb31e75d71361e56fa0b3be97daa58e676c7626443a5ccddddf22` |
+| `/tmp/ic-blob-storage-standalone-reference-clippy-02.log` | Failed: journey still too long; preparation helper extracted | `384b1739850740cc2e82642c850c77a449a44801ae2c3fd3a4f101e587fec6c8` |
+| `/tmp/ic-blob-storage-standalone-reference-clippy-03.log` | Failed: journey two lines over lint bound; preparation stage extracted | `1d2b6721a1126c05ce7de9ebc0ffb211f61f4e4d80375aaa06abc7f04815239c` |
+| `/tmp/ic-blob-storage-standalone-reference-clippy-04.log` | Strict affected standalone harness Clippy passes | `5aeafbfe96538610960891b8f38d5f96812fda854630e2e67e7c56a5b7a034c3` |
+| `/tmp/ic-blob-storage-standalone-reference-wasm-build-01.log` | Offline locked standalone release Wasm build passes, 4.30 s | `e632015134b05312e276e40dca8f85ffcc1552d1299772e070f4ac61795d0bcc` |
+| `/tmp/ic-blob-storage-standalone-reference-cli-build-01.log` | Offline locked native CLI build passes, 8.96 s | `9ddaef0a7f45ba4a1b2b6917fed3f2560f9145c8f39ddcc643e46fdbe189031a` |
+| `/tmp/ic-blob-storage-standalone-reference-01.log` | Offline locked standalone_reference_native_cli: three cases pass, 35.21 s | `2a7298f4bcd438e54e73c5a7f25121a426314d3c445264fa28da4782a7fa45f1` |
+| `/tmp/ic-blob-storage-standalone-reference-evidence-01/SHA256SUMS` | Immutable 82-file report manifest | `c2f585b60c2ef134bdc074770829722fcfbe283e22ee12c9a16116d23c9f88ad` |
+
+| Current source/artifact | SHA-256 |
+| --- | --- |
+| `tests/pocketic/tests/standalone_reference_native_cli/mod.rs` | `0dbee152313870d2bc16fa18494b321a91652fb03c7bae83e15713921ec8ab77` |
+| `tests/pocketic/tests/standalone.rs` | `907c0e8409cf58c3113fcc2ffb19d162c8ec24b34971f1663993ca509ca578e9` |
+| `tests/pocketic/tests/submission_proxy/mod.rs` | `9871318efefb30e3ad10d46e8b831a20893e6a39be3a71179405d2d6b4c23f0d` |
+| `Cargo.lock` | `c1e76826b4bd79ad28ae67c66939cfd04ed8b7fea1c720956ca94fa76a91f53a` |
+| `target/debug/blob-storage` | `08fb49a53bddc96d19a31f68cb653e64c46e4117cfa9ec3416ba3b4c081eaa87` |
+| `target/wasm32-unknown-unknown/release/ic_blob_storage_canister.wasm` | `f9c51d78f9b7d4bf45c46cbc4d01daeab7e1894f29281ce9e742eed2228f563e` |
+
+The pre-existing worktree yoke-derive 0.8.3 → 0.8.4 lock change was preserved,
+not introduced here. Rebuilt CLI/standalone hashes bind this current input;
+earlier evidence keeps its original artifact hashes. This proves maintained
+production refusals, not provider upload/completion, deletion or billing cessation.
+
+## Managed application outbox and publication race — 2026-10-01
+
+Evidence class: local application substitute using the existing bounded consumer
+probe as an actual canister tenant against managed storage. The public Canic
+qualification helper remains installation/runtime owner. The probe calls the
+shared replicated admission/reference/descriptor clients; no application workflow,
+provider contract or second service journal is copied. Its local durable asset/
+outbox record remains bounded to 16 KiB in its own memory 120. Service, tenant,
+operator, uploader and verifier are explicit and distinct. The managed input
+uses the probe's maintained fixture project; IDs retain full-width independence.
+
+One fresh asset uses its original first reference; a reuse asset acquires a
+separate reference. Actual replicated admission precedes manifest preparation.
+Fixture-only operator exposure and configured-verifier attestation over known
+ten-byte content are labelled metadata substitutes: no GET, provider object,
+certificate or production issuance. Operator/root cannot perform tenant mutations.
+
+The first case traps callbacks after committed retain/release effects. Durable
+application intents retain unresolved results without pretending those effects
+failed. Cancellation preserves the tombstone and release waits for acquisition
+reconciliation; exact receipt recovery records the original retain without
+publishing or redispatch. Active uses refuse cancellation without changing either
+owner. After detach, reserved cleanup remains available at zero fresh-retain
+headroom during suspension. Final logical/reserved bytes become zero while ten
+physical/liability bytes remain. The service is fenced before recovery of the
+pending release; successful passive receipt recovery under that mutation fence
+proves no redispatch. Repeated release returns the saved result unchanged.
+
+The second case holds a reuse registration after its descriptor call. Cancellation
+and release win before resuming that callback; the late callback returns typed
+State, cannot publish, and new use refuses. The other asset/reference stays live
+until its own cancellation/release. Both cases upgrade the consumer within the
+current release after service restore, retaining exact asset history/tombstones
+and its independent fence. Fenced registration/release/recovery refuse with both
+stable memories unchanged. They do not resume operational writes.
+
+Budget per case: sixty-four explicit application/service updates, sixty-four
+inspection queries, 30-second client deadlines and 4 KiB replies. The existing
+hold bounds management raw_rand calls to 128. Declared content is ten bytes;
+provider GETs/deployed requests/attached provider cycles/payments are zero.
+Optional BLOB_MANAGED_CONSUMER_REPORT uses fresh children; normal runs use temporary
+directories. Set 01 retains the initial outbox case (15 files); set 02 retains
+both final cases and precise budget labels (29 files). Raw canonical Candid
+captures retain intents, admission/completion, pending/recovered assets,
+accounting and restored history. No prior capture was overwritten. Owned
+instances/temporary resources were dropped; reports and build artifacts remain.
+
+| Retained command/report | Outcome | SHA-256 |
+| --- | --- | --- |
+| `/tmp/ic-blob-storage-managed-consumer-clippy-01.log` | Failed: constructor too long; completion stage extracted | `a763bdd3217df7b1a965aa835c065fb03ce16155dfb8feef5ca114146cd4ebed` |
+| `/tmp/ic-blob-storage-managed-consumer-clippy-02.log` | Initial affected managed harness strict Clippy passes | `d9db2f10eda07bb8c321efdc4af706b1178a944ec4b95145368178d06053fce8` |
+| `/tmp/ic-blob-storage-managed-consumer-clippy-03.log` | Managed and standalone harness strict Clippy passes after race addition | `5f7da738179eeea65682d4a97df4133f2ba96819d12fcd7493ebbcf8195011ff` |
+| `/tmp/ic-blob-storage-managed-consumer-clippy-04.log` | Final affected managed and standalone harness strict Clippy passes | `5f7da738179eeea65682d4a97df4133f2ba96819d12fcd7493ebbcf8195011ff` |
+| `/tmp/ic-blob-storage-managed-consumer-build-01.log` | Offline locked existing consumer release Wasm build passes, 4.45 s | `f96ee95fb70a755efe9b1b91c3faca2d831b293f16e623d7f3ebde0828998b6a` |
+| `/tmp/ic-blob-storage-managed-consumer-01.log` | Initial outbox case passes, 12.14 s | `a74fcd37513a6203d6a4b50cdff1ff17884889b088f3e675ef8f50a586ffb605` |
+| `/tmp/ic-blob-storage-managed-consumer-02.log` | Offline locked canic_managed::consumer: both cases pass, 20.06 s | `76d9c632431c23951300a6c5d85210c05d91ae13cf396f0834d7546601df5d2d` |
+| `/tmp/ic-blob-storage-managed-consumer-declaration-01.log` | Maintained declaration comparison passes: twenty-nine exact method types/modes, 0.02 s | `42b3bfdc287c77a1cf3163351b423cd34d41bb3ee26eef820347e72c21df41b0` |
+| `/tmp/ic-blob-storage-managed-consumer-evidence-01/SHA256SUMS` | Immutable initial 15-file report manifest | `39a8e9df7428da74f867fe6e2a0091429c5197d7d2fbc0035b4b69c6129631a4` |
+| `/tmp/ic-blob-storage-managed-consumer-evidence-02/SHA256SUMS` | Immutable final 29-file report manifest | `29367dc7d6fac568c4a7186bcd43eae3a7bf45fa32b3839d01ed39c719520da5` |
+
+| Current source/artifact | SHA-256 |
+| --- | --- |
+| `tests/pocketic/tests/canic_managed/consumer/mod.rs` | `d7c6ba615cae9b8c14c7b23b80fbd36d368bda67870dc3d05f76ad57ebdef68d` |
+| `tests/pocketic/tests/canic_managed/mod.rs` | `e592952f9ca705036a32b82289789aba7dd00700d0a4aebd782df87279e95a5e` |
+| `canisters/test/consumer_probe/src/ops/mod.rs` | `a3b5345e1613d8b6b399505c80253b88f526154feac3bed29a8eb4634baf1e82` |
+| `canisters/test/consumer_probe/src/model/mod.rs` | `b212a8df9bb33f71bf083f22447af2803c4bb2c283b0bbc979ff1914e546d485` |
+| `canisters/test/consumer_probe/src/workflow/mod.rs` | `b7ed8fdffa8563b731c9f1e986c65cc2750ec5645b79d71cd4169f18b8ffe5ba` |
+| `Makefile` | `36dbf37637f579cf341a067d581c4503d2ef5e5427501c64937aff02ccb94c2f` |
+| `target/wasm32-unknown-unknown/release/blob_consumer_probe.wasm` | `0ab231b0dc3127dea9606d1c5e02e40da2ef3993b1c3d104a89c07f6c75a90e9` |
+| `.tmp/canic-probe/.icp/local/canisters/storage/storage.wasm` | `61138d7e982b98c93ab12fba5b38fb1244f88d15323f8d1ec8bc320bf3e3e0dc` |
+| `.tmp/canic-probe/.icp/local/canisters/storage/storage.did` | `4c0c27182e49ff9385b0f3adf67858116a79c803e6f4ae91051da7f2d2e43622` |
+
+The focused Canic target builds the existing consumer artifact alongside its
+existing inputs. No production service/probe/CLI contract, schema, dependency
+version or allocator changed in these test additions. Targeted checks only;
+no full CI/release validation, version mutation, commit, publication or deployment.
+Next cover occupied application restoration with an unresolved outbox entry;
+current successful recovery occurs before the consumer's own fence. Production
+consumer/serving acceptance, Fleet/verifier provenance, supported framework
+certificate reply/decoding, deployed provider qualification, operational recovery,
+IcyDB composition and source removal/retirement remain open.
+
+Final root formatting/diff, read-only draft changelog and capability JSON checks
+pass. All 340 maintained local documentation links/anchors and balanced fences
+validate. Thirty-three current source/artifact/log/manifest hashes and all three
+complete retained report manifests match; historical captures remain unchanged.

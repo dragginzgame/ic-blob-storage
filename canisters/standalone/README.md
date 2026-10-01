@@ -186,6 +186,14 @@ liveness and fence separately. Native identities must actually be the tenant;
 canister tenants use the shared canister client. No delegated operator authority,
 combined snapshot, provider request, mutation or retry is implied.
 
+Native [`submit-reference`](../../docs/operator-guide.md#submit-a-reference) saves
+the exact command and signed intent before one update. Actual standalone tests
+preserve unknown/unconfirmed refusals and all-owner restore fencing. Lost/pending
+acknowledgments stay unresolved when receipt inspection refuses; the saved claim
+never grants resend authority. Successful reference creation still requires a
+qualified upload/completion path, which the standalone production host currently
+does not expose. These tests add no completion hook or provider substitute here.
+
 Tenant-only `blob_reference_status` takes the complete original `ReferenceUpload`
 and a positive reference ID, with no mutation operation or action. It returns an
 exact request echo, current local `live` flag and the same owner's restore fence.

@@ -120,17 +120,41 @@ qualify a production deployment. Explicit bounded managed input now binds the
 platform service and Canic-validated release identity; invalid policy/carrier or
 protected release mismatch preserves populated stable state on failed install.
 The fixture's adjacent Candid includes all application methods and is parsed for
-their actual modes/shapes. Twenty-four managed blob methods now cover configuration,
+their actual modes/shapes. Twenty-nine managed blob methods now cover configuration,
 tenants, admission/revocation, upload history/discovery, manifests, references and
 passive operator/funding inspection, verifier plans/attestation and reference-qualified
-download descriptors, with exact standalone Candid comparison. Prepared uploads,
+download descriptors, certificate assessment and gateway/account handlers, with
+exact standalone Candid comparison. Prepared uploads,
 cancelled reservations and confirmed-reference cleanup retain accounting and
 receipts through fenced upgrade. Completion uses an explicitly labelled local
 exposure/body substitute; it does not qualify provider certificates or serving.
-Next complete certificate assessment/issuance and gateway/account adapters with
-occupied operator journeys, obtain supported Canic decoder controls for
-query/decoding-work bounds, establish production Fleet
-provenance and run common journeys through both adapters.
+Managed operator journeys preserve failed-sync identity and unrelated state
+across query/cancellation/revocation and fenced restore over the existing local
+Cashier substitute. Certificate issuance is the remaining endpoint: pinned Canic's
+public Fleet guard requires Result while Caffeine requires a plain record. Obtain
+supported framework plain-reply rejection and decoder controls, establish
+production Fleet provenance and finish common client/operator journeys through both
+adapters. Signed native status/history/assessment and local byte verification now
+exercise the managed fixture, including incorrect identity/scope/trust, corrupt
+files and passive fenced restore. The trusted verifier's retained observation
+and one-shot signed submission now run through the managed adapter, including
+dropped/pending replies and exact receipt recovery without resend. Local exposure
+and source bytes do not qualify deployed Caffeine serving or completion. The
+native tenant now submits one saved reference command, recovers lost/pending
+acknowledgments through exact receipts and independently inspects current liveness.
+Managed signed journeys release at capacity during suspension and preserve dead
+references, historical results and physical/billing liabilities through fenced
+restore beside trusted completion. Standalone signed submission now preserves
+actual unknown/unconfirmed/fenced refusals; refused receipt inspection leaves
+lost/pending outcomes unresolved, without synthetic completion or resend.
+The existing application/outbox probe also runs as an actual managed-service
+tenant through shared clients: fresh/reuse publication, callback interruption,
+use guards, reserved cleanup during suspension and cancellation before a delayed
+publication callback. Release recovery succeeds under the service fence; consumer
+restore preserves its own fence/history. Next test occupied application restoration
+with unresolved outbox work, retaining obligations without operational restart.
+Production consumer/outbox acceptance remains separate.
+No internal-method bypass or copied framework dispatch is acceptable.
 Do not create a second memory runtime.
 
 The maintainer directed the next implementation toward canister service storage;

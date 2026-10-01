@@ -1,7 +1,7 @@
 # Operator and verifier guide
 
-Use the native `blob-storage` client to inspect a service, check content and
-submit an explicitly trusted verifier's statement. Run examples from the
+Use the native `blob-storage` client to inspect a service, submit tenant reference
+operations, check content and submit an explicitly trusted verifier's statement. Run examples from the
 repository root. Replace environment variables and input files with the exact
 installation scope and original saved requests.
 
@@ -11,6 +11,7 @@ installation scope and original saved requests.
 | Inspect retained funding | `funding-history`, `funding-outcome` | Signed service query |
 | Find upload identities | `upload-history` | Signed service query |
 | Recover reference results or inspect liveness | `reference-receipt`, `reference-status` | Signed service query |
+| Retain or release a saved tenant reference | `submit-reference` | One signed service update and local intent writes |
 | Inspect issuance blockers | `certificate-assessment` | Signed service query |
 | Check a local body against its declaration | `verify-upload` | Signed service query and local file read |
 | Recover a trusted completion receipt | `upload-attestation` | Signed service query |
@@ -22,6 +23,21 @@ see [current status](status/current.md) before selecting a target. Service
 observations preserve local facts and fences; they do not grant retry or payment
 authority. Provider reads require a selected installation, approved origin and
 budget under the [probe ledger](evidence/caffeine-probes/README.md).
+Local signed managed evidence now covers `status`, `funding-history`,
+`upload-history`, `certificate-assessment` and `verify-upload`, including exact
+saved permissions, trust refusal and passive fenced restore. These same maintained
+commands also have standalone evidence. File bytes in that managed case are local
+substitutes. Managed `observe-upload`, `submit-attestation` and
+`upload-attestation` now also have actual signed local evidence with one source
+GET and one update, including dropped/pending reply recovery without resend.
+Those bytes/exposure remain substitutes; deployed provider and complete consumer
+acceptance are separate work. See [inspection evidence](evidence/core-primitives.md#managed-signed-client-and-local-byte-verification--2026-09-30)
+and [verifier evidence](evidence/core-primitives.md#managed-signed-verifier-observation-submission-and-recovery--2026-09-30).
+Managed tenant reference submission/receipt/status now also run with a distinct
+signer beside verifier completion. Lost/pending acknowledgments recover without
+resend; cleanup at capacity during suspension preserves physical/billing liabilities,
+and fenced restore preserves historical results without reviving references.
+See [tenant reference evidence](evidence/core-primitives.md#managed-signed-tenant-reference-submission-and-cleanup--2026-09-30).
 
 ## Identity, trust and service status
 
@@ -149,6 +165,43 @@ filter results, work bounds and cursor progress. Signed queries use the same exp
 IC/local trust and deadline as status. Empty and fenced observations exit 0;
 service refusals remain errors. The command reads no provider content, performs
 no mutation and never grants retry, serving or recovery authority.
+
+## Submit a reference
+
+```sh
+cargo run --offline --locked -p ic-blob-storage-cli --bin blob-storage -- \
+  submit-reference --network ic --url "$IC_API_URL" --identity "$TENANT_PEM" \
+  --actor "$TENANT_PRINCIPAL" --service "$SERVICE_PRINCIPAL" \
+  --namespace "$SERVICE_NAMESPACE" --request reference-command.candid \
+  --run-dir ./reference-dispatch
+```
+
+The input is one binary Candid `ReferenceCommand`, with the original upload,
+explicit positive reference/operation IDs and exact retain/release action.
+The client validates its tenant and scope before signing, claims a new private
+directory and syncs `request.candid`, `signed-request.cbor` and `intent.json`
+before sending one `blob_apply_reference` update. The intent binds signer,
+target, network/trust, full operation, signed expiry/request ID and file hashes.
+There is no polling, automatic resend, ID allocation or provider call. Keep
+the signed artifacts private. A canister tenant uses `ReplicatedReferenceClient`.
+
+Read `outcome.json` and the JSON output together: `recorded` means the service
+returned an exact receipt; `result.state` is either `success` or a stored
+transition `failure`. A recorded failure exits zero and does not mean retain/release
+succeeded. `pending` and `uncertain` require `reference-receipt` with the saved
+`reference-dispatch/request.candid`; `refused` preserves the typed service refusal.
+If receipt inspection itself refuses (`reference_unknown`, `reference_unconfirmed`
+or another typed error), the original pending/uncertain outcome stays unresolved.
+Do not replace it with absence or assume non-execution. Standalone tests exercise
+this boundary: its production issuance/exposure path remains disabled, so a
+prepared reservation cannot become a successful reference through this command.
+Existing/partial directories refuse, including an interrupted empty claim.
+Preserve them and the original input for reconciliation. A new directory is not
+retry authority; neither an absent receipt nor expired ingress permits resend.
+Local files have no independent freshness authority and do not coordinate an
+application outbox or asset publication. Historical retain success is separate
+from current liveness; logical release establishes neither provider deletion nor
+billing cessation.
 
 ## Reference receipts and current status
 

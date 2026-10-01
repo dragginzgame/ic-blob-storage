@@ -1,28 +1,40 @@
 //! Local HTTP fault transport around real `PocketIC`; no provider protocol substitute here.
-use super::*;
+use candid::Principal;
+use ic_blob_storage::model::identity::ContentDigest;
 use std::sync::{
     Arc,
     atomic::{AtomicBool, AtomicUsize, Ordering},
 };
+use std::{
+    io::{Read, Write},
+    net::TcpListener,
+    time::{Duration, Instant},
+};
 
-pub(super) struct Proxy {
+pub(crate) struct Proxy {
     pub url: String,
     calls: Arc<AtomicUsize>,
     stop: Arc<AtomicBool>,
     thread: Option<std::thread::JoinHandle<()>>,
 }
 #[derive(Clone, Copy, Eq, PartialEq)]
-pub(super) enum Reply {
+pub(crate) enum Reply {
     Pass,
     Drop,
     Pending,
+}
+#[derive(Clone, Copy)]
+pub(crate) struct Dispatch {
+    pub service: Principal,
+    pub actor: Principal,
+    pub method: &'static str,
+    pub argument_file: &'static str,
 }
 impl Proxy {
     pub fn start(
         backend: String,
         directory: std::path::PathBuf,
-        service: Principal,
-        verifier: Principal,
+        dispatch: Dispatch,
         reply: Reply,
     ) -> Self {
         let listener = TcpListener::bind("127.0.0.1:0").unwrap();
@@ -81,11 +93,12 @@ impl Proxy {
                         intent["signed_request_sha256"],
                         ContentDigest::compute(&body).to_string()
                     );
-                    let argument = std::fs::read(directory.join("statement.candid")).unwrap();
+                    assert_eq!(intent["method"], dispatch.method);
+                    let argument = std::fs::read(directory.join(dispatch.argument_file)).unwrap();
                     ic_agent::agent::signed_update_inspect(
-                        verifier,
-                        service,
-                        "blob_attest_upload",
+                        dispatch.actor,
+                        dispatch.service,
+                        dispatch.method,
                         &argument,
                         intent["ingress_expiry_ns"]
                             .as_str()

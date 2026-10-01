@@ -2,6 +2,56 @@
 
 ## [Unreleased]
 
+## [0.4.11]
+
+### Added
+
+- Standalone signed reference submission exercises typed unknown/unconfirmed and
+  fenced refusals. Lost/pending replies remain unresolved when receipt inspection
+  refuses, with saved intent preserved and no resend or synthetic completion.
+- Existing application/outbox probe now runs as a canister tenant against managed
+  storage through shared admission/reference/descriptor clients. Callback traps,
+  use guards, suspension cleanup and a delayed-publication cancellation race keep
+  original intents and tombstones. Receipt recovery succeeds under a service
+  mutation fence; restoring the application preserves its own fence and history.
+- Native `submit-reference` saves an exact tenant command and signed intent before
+  one retain/release update. Existing or interrupted claims refuse; pending/lost
+  replies reconcile through saved receipt inspection without automatic resend.
+  Recorded transition failures remain distinct from successful reference changes.
+- Managed signed tenant journeys cover reference submission/recovery, liveness,
+  release at capacity during suspension, historical replay without resurrection
+  and fenced restore beside signed verifier completion. Last release preserves
+  physical bytes and billing liabilities; source bytes/exposure are local substitutes.
+- Five managed endpoints delegate certificate assessment, gateway sync,
+  cancellation/revocation and account inspection to shared service workflows.
+  All twenty-nine implemented service method types and modes match standalone.
+- Managed PocketIC journeys check real certificate blockers, uploader/controller
+  boundaries, exact failed-sync cancellation, passive account observations,
+  unchanged unrelated owners and retained pending work after fenced restore.
+  An async gateway update accepts valid Candid at 4 KiB and rejects one byte more.
+  Provider replies remain explicitly labelled local substitutes.
+- Common signed native CLI exercises managed status, funding/upload history,
+  certificate assessment and local byte verification. Wrong identity/scope/trust,
+  changed permission and corrupt/short/long files refuse; historical reads remain
+  passive after all-owner fenced restore, without provider-completion authority.
+- Managed signed verifier journeys observe an authenticated plan, fetch labelled
+  local bytes and submit one retained attestation. Acknowledged, lost and pending
+  replies recover exact receipts without resend; foreign verifiers, damaged
+  observations and fenced new fetches refuse. Raw local request/response and
+  signed dispatch evidence can be retained in fresh report directories.
+
+### Changed
+
+- Focused Canic tests build the native CLI, existing query-only Cashier and
+  bounded application/outbox probe alongside the managed artifact. Shared
+  subprocess diagnostics name the failed command. No provider endpoint or paid
+  effect is added to the tests.
+- Native fixture and managed verifier cases share one HTTP fault proxy and byte
+  source; the superseded fixture-local proxy module is removed.
+- Managed certificate issuance remains unwired: pinned Canic's default Fleet
+  guard requires a Result reply, conflicting with Caffeine's plain-record contract.
+  Supported framework rejection and decoder controls remain acceptance gates.
+
 ## [0.4.10] - 2026-09-30
 
 ### Added

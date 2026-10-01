@@ -17,11 +17,15 @@ use ic_blob_storage::dto::tenant::{
 use ic_blob_storage_canic::ManagedCallFailure;
 use ic_testkit::pic::{CandidCallExt, CanisterInstallExt};
 use std::time::Duration;
+mod certificate;
 mod cleanup;
+mod cli;
 mod completion;
+mod consumer;
 mod declaration;
 mod endpoints;
 mod installation;
+mod operator;
 
 struct Fixture {
     group: ManagedComponentGroupFixture,
@@ -38,18 +42,20 @@ enum CommandResponse {
 }
 impl Fixture {
     fn new() -> Self {
+        Self::with_input(&blob_canic_probe::configuration::input())
+    }
+    fn with_input(input: &ic_blob_storage_canic::dto::ManagedInstallationInput) -> Self {
         let mut artifact =
             ManagedRoleQualificationArtifact::new("storage".parse().unwrap(), wasm());
-        artifact.application_init_args =
-            Some(candid::encode_one(blob_canic_probe::configuration::input()).unwrap());
+        artifact.application_init_args = Some(candid::encode_one(input).unwrap());
+        let mut admitted = vec![input.operator, input.payment_account];
+        admitted.sort_unstable();
+        admitted.dedup();
         let group = install_managed_component_group(ManagedComponentGroupQualificationInput::new(
             include_str!("../../../../canisters/test/canic_probe/canic.toml"),
             "storage",
             &"01".repeat(32),
-            vec![
-                Principal::from_slice(&[2, 1]),
-                Principal::from_slice(&[3, 1]),
-            ],
+            admitted,
             vec![artifact],
         ))
         .unwrap();

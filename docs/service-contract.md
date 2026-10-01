@@ -195,20 +195,20 @@ before ops presents configuration, project, verifier, release and local fencing.
 Standalone retains its existing wire contract; the former host-local view/error
 definitions are now shared DTOs, with one implementation and no alternate reader.
 
-The controlled managed artifact currently implements twenty-four blob methods:
+The controlled managed artifact currently implements twenty-nine blob methods:
 configuration; tenant enrollment/suspension and inspection; upload admission,
 inspection, revocation, status, history and discovery; manifest preparation and
 inspection; reference mutation, receipt, status and capacity; upload capacity;
 passive local status/funding history/outcome; verifier plans/manifests,
-attestation/receipt inspection; and reference-qualified download descriptors.
+attestation/receipt inspection; reference-qualified download descriptors;
+certificate assessment; gateway sync/cancellation/revocation; and account inspection.
 Every method calls the shared
 workflows through adapter-owned state access. One passive generic failure newtype
 keeps Canic guard conversion outside the core and preserves exact blob error wire
 shapes. Generic Fleet access refusals become denial; they are not described as a
 tenant-state or provider error. Fixture-only enrollment/readback endpoints were
 replaced by the maintained blob tenant methods. Explicit Canic update limits are
-4 KiB for tenant/admission/revocation/reference/attestation/download updates and
-128 KiB for manifests,
+4 KiB for small updates and 128 KiB for manifests,
 before copying/decoding for ingress and inter-canister calls. A valid request at
 the manifest boundary reaches shared semantic validation; a request one byte larger is refused without
 changing stable state. Canic's update decoder supplies its own skipping quota;
@@ -231,9 +231,55 @@ history with all owners fenced. The fixture's operator-only exposure-state hook
 selects a retained uploader solely to set up this local phase; it supplies no
 certificate, provider response or production recovery/qualification fact. Fixture
 file bytes are substitutes, not an independently fetched Caffeine object. Real
-certificate issuance remains blocked. Certificate assessment/issuance and
-gateway/account adapters and full consumer acceptance remain open alongside the
-decoder and production provenance gates.
+certificate issuance remains blocked. Uploader-only managed certificate assessment
+reports the same four provider/recovery blockers as standalone, without exposure
+or reply creation; revocation and restore refuse eligibility. Managed operator
+journeys use the existing query-only Cashier substitute and shared bounded
+transports. Scope/actor checks precede calls; failed syncs retain their identity
+until exact cancellation. Account reports never change local allocation, credit,
+membership or readiness. Pending syncs, prepared bytes and unrelated owners survive
+fenced restore. These are local adapter observations, not deployed account credit
+or provider qualification. Common consumer/operator acceptance remains open.
+
+The maintained native CLI now exercises managed `status`, `funding-history`,
+`upload-history`, `certificate-assessment` and `verify-upload` with actual signed
+ingress queries. Local trust pins the application-only PocketIC subnet key through
+the owned control API before starting a public loopback gateway; the client never
+fetches its root automatically or disables query signatures. Incorrect signer,
+scope and trust refuse; exact full-width permissions and historical manifests
+remain authoritative. Changed, truncated and oversized local files fail verification.
+Same-release restore retains inventory and permits passive local byte inspection
+while assessment refuses the permission fence. Every query phase preserves complete
+stable memory. File bytes are local substitutes; this adds neither exposure,
+provider availability/completion nor retry authority.
+
+Managed native verifier evidence uses a distinct installed verifier and real
+signed `observe-upload`, `submit-attestation` and `upload-attestation` commands.
+One local source GET follows persisted intent/authenticated plan; one signed IC
+update follows the complete retained observation and signed dispatch intent.
+The shared fault transport passes, drops or replaces the actual acknowledgment
+with pending admission; none of these modes resends. Exact receipt inspection
+resolves the local lost/pending outcome while preserving the original signed
+statement and dispatch record. Foreign verifiers refuse before GET and damaged
+observations before dispatch. Same-release restore permits historical receipt
+inspection but refuses new observations and download delivery, preserving stable
+memory. Exposure and ten-byte HTTP content are labelled local substitutes;
+this exercises the trusted-verifier contract, not deployed Caffeine availability,
+future retention or billing cessation. Concrete consumer/outbox composition,
+production verifier trust/provenance and deployed acceptance remain separate.
+
+The only unwired service method is `_immutableObjectStorageCreateCertificate`.
+Pinned Canic 0.110.48 injects its default Fleet guard even for `public` endpoints;
+its expansion rejects every access-gated function with a non-Result reply.
+Caffeine's maintained contract requires a plain record on success and IC rejection
+on refusal. A Result wrapper would change that wire format; `internal` would
+misclassify this application method and omit its normal Fleet guard. Neither is an
+accepted workaround. A supported framework adapter must preserve the plain Candid
+reply, synchronous commit/reply, rejection on failure, normal Fleet/preflight/
+instrumentation and registration. Do not copy dispatch or use internal helpers.
+The attempted public plain-record adapter failed compilation and was removed;
+no alternative endpoint or qualification fact remains. No upstream edit/request
+was sent. This gate is separate from provider readiness and bounded decoding.
 
 Source review of pinned Canic 0.110.48 and the read-only local Canic checkout
 found no public endpoint decoder hook. Its `payload(max_bytes = ...)` attribute
@@ -952,6 +998,51 @@ as receipt inspection and mutation, with separate exact status-request validatio
 It bounds reply bytes and decoding, checks the full echo and preserves the independent
 live/fenced flags. Remote refusal never becomes false/absence. No journal, retry,
 publication lease or operational recovery authority is created by this read.
+
+Native `submit-reference` uses that same exact command and bounded mutation-reply
+decoder. It validates the tenant/service/namespace before signing, atomically
+claims a new private directory and synchronizes the canonical command, signed
+update and bound dispatch intent before one request. The saved outcome distinguishes
+an exact recorded receipt (including an inner transition failure), pending,
+typed service refusal and uncertainty. There is no polling, automatic retry,
+identity allocation or provider request. Existing/partial claims refuse even if
+empty; use the saved command for passive receipt reconciliation. A file copy,
+new directory, absent receipt or expired signed ingress supplies no freshness/
+retry authority. Consumer transaction/outbox and durable production coordination
+remain separate requirements.
+
+Managed signed tenant evidence combines this command and receipt/status queries
+with actual signed verifier completion over labelled ten-byte local content.
+Acknowledged/dropped/pending reference updates recover exact original results
+without resend. A stored unknown-reference failure remains a failure; capacity
+and suspension preserve releases. Exact historical replay does not revive dead
+references. Last release leaves logical/reserved bytes zero and physical/liability
+bytes ten. Same-release restoration fences all owners and mutations while
+historical success/failure and dead-reference inspection remain passive. This is
+local metadata/client evidence, not a deployed provider deletion/settlement or
+production consumer/outbox acceptance run.
+
+Standalone signed submission evidence preserves the production host's actual
+boundaries: unknown content, admitted/prepared but unconfirmed content, and
+same-release restoration. A typed mutation refusal is retained as refusal.
+Dropped/pending acknowledgment remains uncertain/pending if exact receipt
+inspection itself refuses; lookup error is neither original outcome nor absence
+and cannot authorize resend. Refused retain/release and passive reads preserve
+all stable bytes and the full reservation; all four owners stay fenced after
+restore. No exposure/completion bypass was added to the standalone artifact.
+
+The existing bounded consumer probe also composes canonical admission/reference/
+descriptor clients with the managed service as an actual canister tenant. Its own
+durable application record holds asset intent, publication, tombstone and release
+outbox; there is no second service journal or recovery controller. One fresh asset
+and one reuse asset share ten-byte local fixture content. Callback traps preserve
+original retain/release intents. Cleanup at reserved capacity during suspension
+retains physical/billing liabilities. A release receipt is recovered after the
+service is fenced: mutation rejection makes passive recovery observable. Application
+restore preserves its own fence/tombstones/history. Cancellation during a bounded
+post-descriptor hold prevents the delayed callback from publishing or admitting
+new uses. These are controlled local application/exposure/completion substitutes,
+not Toko, production outbox/serving acceptance, or deployed Caffeine guarantees.
 
 The canonical `blob_apply_reference` update delegates to
 `workflow::references::apply` with the same `ReferenceCommand` used for receipt

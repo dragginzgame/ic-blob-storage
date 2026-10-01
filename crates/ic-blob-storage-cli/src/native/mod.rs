@@ -7,6 +7,7 @@ mod observe_upload;
 mod references;
 mod reply;
 mod submit_attestation;
+mod submit_reference;
 #[cfg(test)]
 mod tests;
 mod upload_history;
@@ -22,6 +23,8 @@ use serde_json::json;
 use std::{fs::File, io::Read, path::Path, process::ExitCode, time::Duration};
 
 const USAGE: &str = concat!(
+    "blob-storage submit-reference --network ic|local --url URL --identity PEM --actor TENANT --service PRINCIPAL --namespace DECIMAL --request CANDID --run-dir NEW_DIRECTORY [--root-key DER]\n",
+    "submit-reference validates one exact ReferenceCommand, claims a new private directory and saves request.candid, the signed update and intent before one dispatch. Pending or uncertain results require reference-receipt inspection with saved request.candid; no polling, retry or identity allocation. A recorded inner failure is not a successful retain/release. Existing or partial runs refuse.\n",
     "blob-storage reference-receipt|reference-status --network ic|local --url URL --identity PEM --actor TENANT --service PRINCIPAL --namespace DECIMAL --request CANDID [--root-key DER]\n",
     "reference-receipt inspects one saved binary Candid ReferenceCommand; original success/failure is historical, with no fence or liveness observation. reference-status reads one ReferenceStatusRequest and returns current local liveness and fence. Each signs one tenant query; no mutation, provider call or retry authority. Canister tenants use ReplicatedReferenceClient.\n",
     "blob-storage funding-outcome --network ic|local --url URL --identity PEM --operator PRINCIPAL --service PRINCIPAL --namespace DECIMAL --cashier PRINCIPAL --payer PRINCIPAL --operation DECIMAL --offered DECIMAL [--target-balance DECIMAL] [--root-key DER]\n",
@@ -39,7 +42,7 @@ const USAGE: &str = concat!(
     "observe-upload queries the installed verification plan, performs one bounded gateway GET, checks all bytes against original metadata/root and durably saves statement.candid. Explicit gateway origin and provider read budget are required. Partial runs remain; no resume, redirects, retries or attestation dispatch. Provider reads may incur charges.\n",
     "upload-attestation compares one saved binary Candid UploadAttestationRequest with immutable service history. The expected verifier must come from installation configuration. Outcomes are matched, conflict or absent; none authorizes retry. No mutation, provider fetch or journal write occurs.\n",
     "verify-upload checks a regular local file against the authenticated original manifest. Permission is one binary Candid UploadAdmissionRequest; maximum is at most 1 GiB. No provider availability, completion, or retry authority is established.\n",
-    "funding-history additionally accepts --cursor FILE containing the previous non-null next object; reads one page, never auto-paginates. Local mode requires an explicit trusted root-key file and literal loopback origins. IC mode uses the built-in IC root and HTTPS; root-key overrides are rejected. Supports Ed25519 and secp256k1 PEM identities. Only observe-upload calls a provider; only submit-attestation mutates the service. Exit 0: observation (including conflict, empty or fenced), accepted submission or pending request; 2: arguments; 3: failure. Query signatures are verified; observations are not certified state, provider credit or dispatch authority.\n",
+    "funding-history additionally accepts --cursor FILE containing the previous non-null next object; reads one page, never auto-paginates. Local mode requires an explicit trusted root-key file and literal loopback origins. IC mode uses the built-in IC root and HTTPS; root-key overrides are rejected. Supports Ed25519 and secp256k1 PEM identities. Only observe-upload calls a provider; submit-attestation and submit-reference mutate the service. Exit 0: observation (including conflict, empty or fenced), recorded submission (inspect its result) or pending request; 2: arguments; 3: failure. Query signatures are verified; observations are not certified state, provider credit or dispatch authority.\n",
 );
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -173,6 +176,7 @@ async fn observe(options: &arguments::Options) -> Result<serde_json::Value, Fail
         arguments::Command::SubmitAttestation(input) => {
             submit_attestation::run(options, input).await
         }
+        arguments::Command::SubmitReference(input) => submit_reference::run(options, input).await,
         arguments::Command::ObserveUpload(input) => observe_upload::run(options, input).await,
         _ => inspect(options).await,
     }

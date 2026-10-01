@@ -47,7 +47,7 @@ owns the current integration target and deployment evidence gaps.
 
 ## Required replacements
 
-The [current acceptance review](acceptance-plan.md#current-local-evidence-and-open-gates--2026-09-30)
+The [current acceptance review](acceptance-plan.md#current-local-evidence-and-open-gates--2026-10-01)
 owns the implemented-local-versus-unqualified distinction. The source capability
 inventory and older replacement records remain dated evidence, not a current
 list of missing implementation. This review does not refresh the Canic source

@@ -34,6 +34,213 @@ all logs here; link their maintained test and record material changed findings.
 
 ## Current operating decisions and experiments
 
+2026-10-01 standalone reference outcome: all three acknowledged/dropped/pending
+journeys pass in 35.21 seconds against the actual standalone artifact. Four signed
+intents per journey retain exact original commands and typed Unknown/Unconfirmed/
+Fenced refusals. Refused receipt inspection leaves lost/pending outcomes unresolved;
+repeat submission never resends. All four owner fences and the 10 MiB reservation/
+physical/liability accounting survive restoration and passive inspection. Final
+strict affected Clippy and artifact builds pass; earlier lint failures remain.
+The fresh 82-file report contains twelve signed intents and raw replies, bound in
+[standalone evidence](../core-primitives.md#standalone-signed-reference-submission-and-refused-inspection--2026-10-01).
+Temporary identities and owned sockets/gateway/progress/instances were cleaned up;
+reports/build artifacts remain. No provider GET/payment/deployed request or external
+object was created. Production successful completion remains disabled here.
+
+2026-10-01 managed application outcome: the initial outbox case passes in 12.14
+seconds; both final outbox/publication-race cases pass in 20.06 seconds. Actual
+tenant calls use maintained admission/reference/descriptor clients, exact original
+intents and receipt recovery after committed-effect callback traps. Cancellation
+wins before the delayed callback; new uses refuse and the other asset stays live
+until its own release. Cleanup at capacity during suspension retains physical/
+billing liabilities. A pending release recovers passively under a service mutation
+fence; subsequent consumer restore preserves its own fence/history. Final strict
+affected harness Clippy, consumer build and exact managed Candid comparison pass;
+the initial lint failure remains. Fresh 15/29-file sets preserve both runs with
+raw canonical Candid and immutable manifests in
+[application evidence](../core-primitives.md#managed-application-outbox-and-publication-race--2026-10-01).
+Local instances/temporary resources were dropped; no provider GET/payment/deployed
+request, external object or outstanding external cleanup was created. This remains
+a local application/exposure/completion substitute, not Toko, operational restart
+or provider deletion/billing qualification. Next restore occupied application
+state while its outbox is unresolved; no fence-clearing authority is inferred.
+
+2026-10-01 managed application/outbox intent: install the existing bounded consumer
+probe as an actual canister tenant beside the public Canic fixture. Reuse its
+canonical replicated admission/reference/descriptor clients and its own local
+durable asset/outbox record; add no production component or external journal.
+Explicitly configure the service with the probe's maintained fixture project.
+One fresh asset and one reuse asset share a ten-byte object over labelled local
+exposure/completion, with distinct service, tenant, operator, uploader and verifier.
+At most sixty-four explicit application/service updates and sixty-four inspection queries, thirty-second client
+deadlines and 4 KiB client reply bounds; zero provider GETs, attached provider
+cycles/payments or deployed requests. Check retained admission/retain/release
+intents, callback traps, original receipt recovery without redispatch, atomic
+tombstone/outbox, use guards, reserved cleanup capacity during suspension and
+separate physical/billing liabilities. Restore both consumer and service within
+the current release, preserving their fences/history without operational restart.
+Save plans/exact Candid in fresh capture directories; retain any failed attempt.
+Drop owned instances/temporary resources; retain reports and build artifacts.
+The consumer is a local application substitute, not Toko or production acceptance.
+
+2026-10-01 managed application publication-race intent: extend the same local
+probe/managed-service journey with the probe's bounded post-descriptor hold.
+Cancel the reuse asset while registration waits, release its reference, then
+resume the delayed callback and require it to refuse publication. A new use of
+the tombstoned asset must refuse. The fresh asset/reference remains live until
+its own cancellation/release; subsequent restore preserves the race outcome.
+Same local targets/sixty-four explicit application/service update and inspection
+query budgets, plus the maintained hold's bound of 128 management `raw_rand`
+calls; ten declared bytes,
+zero provider GETs/attached cycles/payments/deployed requests. Capture this new
+case and reruns in fresh children/parents; retain the first successful outbox
+report unchanged. This probes application interleaving, not provider deletion.
+
+2026-10-01 standalone reference intent: run native one-shot tenant submission
+against the maintained standalone Wasm with real signed IC updates. Production
+issuance/exposure remains disabled; do not inject a confirmed object or add a
+completion hook. Use unknown, admitted/prepared and same-release fenced states.
+Per journey: at most eight signed updates and forty CLI invocations, thirty-second
+client deadlines, 256 KiB transport/4 KiB reference reply bounds, one owned
+10 MiB local manifest/reservation, zero provider GETs/attached cycles/payments/
+deployed requests. The shared fault proxy forwards one update, passing its typed
+refusal or dropping/replacing its acknowledgment. Preserve pending/uncertain
+outcomes when receipt inspection itself refuses; neither unknown/unconfirmed nor
+an empty/partial claim authorizes resend. Retain all intent/result evidence in
+fresh report children. Inspect all restore fences and complete stable bytes.
+Stop/drop owned proxy/gateway/progress/instances and temporary identities, retaining
+reports/build artifacts. This is local production-refusal evidence; successful
+retain/release and provider guarantees remain separate acceptance work.
+
+2026-09-30 managed tenant reference intent: add one-shot native
+`submit-reference` over the maintained service contract and exercise signed
+tenant retain/release beside signed verifier completion in the public Canic
+fixture. Use distinct fixed test signers for tenant and verifier, one labelled
+local exposure and one owned ten-byte source GET. Per journey: at most ten signed
+updates and sixty CLI invocations, thirty-second client deadlines, 256 KiB
+transport/4 KiB reference reply bounds, zero attached provider cycles/payments
+and zero deployed Caffeine requests. Retain exact request/signed intent before
+dispatch; inspect original receipts after acknowledged/dropped/pending replies.
+Check partial/existing claim, caller/scope refusal, stored transition failure,
+cleanup at capacity during suspension, historical success versus current liveness,
+remaining physical/billing liabilities and passive fenced restoration. Reports
+get fresh directories; failed/inconclusive runs remain. Stop/drop owned source,
+proxy, gateway/progress and instances; retain reports and build artifacts. This
+does not establish a production consumer outbox or deployed provider deletion.
+
+2026-09-30 managed tenant reference outcome: all three new journeys pass in
+33.45 seconds; all seven affected managed signed-client cases then pass in
+73.13 seconds. Each tenant journey uses one local ten-byte GET and eight saved
+signed update intents, including verifier completion, explicit historical replay
+and inactive/fenced refusals. The fault proxy forwards exactly one reference
+update; original receipt inspection resolves dropped/pending replies without
+resend. Empty/existing claims and foreign scope/signers refuse. Stored failures
+remain distinct; releases at capacity during suspension and replay retain dead
+references and physical/billing liabilities. Same-release restore preserves
+historical receipts, liveness and all-owner fences with stable memory unchanged
+during reads/refusal. All twenty-nine native CLI unit cases, strict affected
+Clippy/build, three existing verifier cases and one existing signed receipt/status
+case pass. Initial lint and sandbox-socket failures remain separate retained logs.
+The fresh 277-file report manifest and bound commands/artifacts are in
+[tenant reference evidence](../core-primitives.md#managed-signed-tenant-reference-submission-and-cleanup--2026-09-30).
+Signed request/argument/trust hashes and scope/budget records validate; PEM keys
+are temporary. Owned sources, proxies, gateway/progress and instances were closed/
+dropped; reports/build artifacts remain. No deployed provider request, payment,
+external object or outstanding external cleanup was created. Production consumer
+coordination and real deletion/billing cessation remain open.
+
+2026-09-30 managed verifier intent: exercise maintained `observe-upload`,
+`submit-attestation` and `upload-attestation` against the public Canic fixture.
+Install the fixed signing identity solely as verifier, with distinct tenant,
+uploader and operator. An operator-only labelled fixture exposure hook prepares
+the phase; it issues no certificate and supplies no production qualification.
+Reuse the existing native HTTP fault proxy and an owned loopback ten-byte source.
+Per journey: at most one source GET, one signed update and sixteen CLI invocations;
+30-second client deadlines, 256 KiB service replies, ten-byte content budget,
+zero attached provider cycles/payments and no deployed Caffeine contact. Check
+unexposed/foreign-verifier refusal before GET, observation persistence before
+effects, acknowledged/dropped/pending replies, exact receipt recovery without
+resend and fenced same-release restoration. Save each initial outcome in a fresh
+local report directory; never reuse an uncertain submission. Stop/drop sockets,
+proxy, gateway/progress and owned instances, retaining reports and build artifacts.
+
+2026-09-30 managed verifier outcome: three new cases pass initially in 33.37
+seconds; after completing raw response/tamper/recovery capture, all four managed
+signed-client cases pass in 41.86 seconds. Each verifier journey issues one local
+source GET and one signed IC update (zero deployed provider requests/payments),
+then resolves acknowledged/dropped/pending replies by exact receipt inspection
+without resend. Foreign verifier, damaged observation and fenced new fetches
+refuse. The shared proxy/source extraction also passes all three existing native
+fixture cases in 12.63 seconds. Retained evidence sets 01/02 contain 88/103 files,
+bound by immutable SHA256SUMS manifests; the first set predates raw response and
+additional refusal/recovery captures. No record was overwritten. Logs, failed
+compile/lint attempts, complete bindings/budgets and capture hashes are in
+[managed verifier evidence](../core-primitives.md#managed-signed-verifier-observation-submission-and-recovery--2026-09-30).
+Owned local resources were closed/dropped; there are no new external objects or
+cleanup obligations. Local exposure/bytes and trusted metadata completion do not
+qualify deployed provider behavior, future retention, billing cessation,
+production verifier provenance or concrete consumer/outbox acceptance.
+
+2026-09-30 managed signed-client intent: run the maintained native CLI against
+the public Canic application-only PocketIC fixture. Bind the fixed test signing
+identity explicitly as operator and uploader; pin its undelegated application
+subnet key through the independently owned local control API. Query status,
+funding/upload history and certificate assessment beside one ten-byte reservation;
+verify local file bytes against its signed original manifest and refuse changed,
+short or long files, without claiming provider availability or completion;
+check identity/scope/trust refusal, exact saved permission and all-owner fenced
+same-release restore. At most 32 signed CLI invocations, each bounded by the
+maintained 30-second client timeout and 256 KiB response budget. No certificate
+issuance, provider requests, payments or deployed Caffeine contact; attached
+provider cycles are zero. Stop progress/drop instances and temporary test files;
+retain every attempt in core evidence. Local signing is not production Fleet or
+provider qualification.
+
+2026-09-30 managed signed-client outcome: the final managed suite passes all ten
+cases in 114.87 seconds, and the existing signed standalone status/history case
+passes in 6.24 seconds. The new journey invokes the maintained CLI 22 times,
+including refusals before transport, against one prepared ten-byte reservation.
+Pinned local subnet trust verifies queries without an NNS or a signature bypass.
+Wrong identity/scope/trust, changed permission and corrupt/short/long files refuse;
+historical inventory/byte checks remain passive after all-owner fenced restore.
+No provider request, exposure, completion or payment is produced. Three failed
+fixture/URL attempts and an earlier lint failure remain distinct captures; the
+subsequent successful narrower run predates the added byte cases. Full commands,
+artifact/source/log hashes and limitations are in
+[managed signed-client evidence](../core-primitives.md#managed-signed-client-and-local-byte-verification--2026-09-30).
+Owned progress/gateway/instances and temporary input files were cleaned up; there
+are no new provider objects or external cleanup obligations. Production Fleet,
+verifier submission and concrete consumer/deployed-provider acceptance remain open.
+
+2026-09-30 managed adapter intent after 0.4.10: extend the existing Canic
+composition suite with certificate refusal and gateway/account endpoints over
+shared workflows. Use one owned local managed operator installation, one prepared
+ten-byte reservation and the existing query-only Cashier substitute. Provision the
+selected source through the fresh empty fixture's authenticated application carrier
+before creating any tenant or obligation. At most eight gateway-list and eight
+account reads per journey, 30-second call timeout, 64 KiB gateway and 4 KiB account
+reply budgets, no attached cycles, payments or deployed provider contact. Check
+operator/scope denial, exact failed-sync cancellation, passive account observations
+and retained pending work/all-owner fences after same-release upgrade. Stop/drop
+owned instances; retain every attempt in the managed core evidence. This is generic
+adapter composition over existing labelled source modes, not new deployed Caffeine
+qualification or authority to repeat an uncertain paid effect.
+
+2026-09-30 managed adapter outcome: all nine Canic composition cases pass in
+107.47 seconds. The new operator journey executes five gateway-list and five
+account queries against the existing owned query-only substitute, each with zero
+attached cycles. It preserves failed-sync identity, exact cancellation and passive
+reports beside a prepared ten-byte reservation, then restores all owners fenced.
+Certificate assessment reports existing blockers without exposure. A compiler/
+pinned-source finding changed the implementation plan: public Canic default Fleet
+guards require Result and cannot preserve Caffeine's plain certificate reply.
+The attempted issuance adapter was removed; no internal-endpoint workaround was
+introduced. Retained attempts, commands, hashes and limits are in
+[managed operator evidence](../core-primitives.md#managed-certificate-assessment-and-operator-queries--2026-09-30).
+This records generic managed composition over maintained local wire substitutes,
+not new deployed Caffeine behavior. Owned instances were dropped; no provider
+objects, balance changes or outstanding external cleanup were created.
+
 2026-09-30 standalone lifecycle/acceptance review intent: inspect maintained
 host/store restoration and reconcile acceptance/parity claims with current local
 evidence. One owned standalone PocketIC canister, one admitted/prepared 10 MiB

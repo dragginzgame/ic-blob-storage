@@ -55,6 +55,11 @@ fn built_candid_declares_application_methods_with_their_actual_modes_and_shapes(
         "blob_verification_manifest",
         "blob_verification_plan",
         "blob_download_descriptor",
+        "blob_upload_certificate_assessment",
+        "blob_revoke_gateway",
+        "blob_cancel_gateway_sync",
+        "blob_sync_gateways",
+        "blob_inspect_account",
     ] {
         let managed =
             candid::types::TypeInner::Func(environment.get_method(&actor, name).unwrap().clone())

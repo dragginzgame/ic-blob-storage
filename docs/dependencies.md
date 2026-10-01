@@ -214,10 +214,35 @@ target downloads nothing. `make build-canic-probe` runs Canic's declaration/runt
 validation and artifact finalization with offline Cargo, retaining this repository's
 target directory. It suppresses Canic's automatic sccache selection unless the
 caller explicitly sets `RUSTC_WRAPPER`. `make test-canic-composition` builds that
-artifact and runs only its PocketIC journey. The normal PocketIC suite includes it;
+artifact, native `blob-storage` CLI, existing query-only Cashier substitute and
+existing consumer/outbox probe,
+then runs managed PocketIC and signed subprocess journeys. The normal PocketIC suite includes them;
 the independent standalone build does not need the Canic CLI. The fixture uses
 Canic's public qualification helper, which owns its local instance, rather than
 the harness's ordinary explicit server handle.
+Signed managed tests pin the application-only instance's subnet key through its
+local control API and use a supported non-owning PocketIC handle for a literal
+loopback HTTP gateway. Signature checks and CLI origin restrictions stay enabled;
+this test trust arrangement does not establish production Fleet provenance.
+Managed and durable native verifier cases share the same local HTTP source/fault
+proxy. To retain managed verifier records, set `BLOB_MANAGED_VERIFIER_REPORT` to
+an existing empty parent directory before running the focused test target. Each
+reply mode creates a new child and refuses an existing or partial child;
+routine runs use temporary directories. Reports contain labelled local fixture
+data and public trust keys, not a deployment identity or provider certificate.
+`BLOB_MANAGED_REFERENCE_REPORT` provides the same fresh-child capture behavior for
+signed tenant retain/release, original receipts, current liveness and cleanup
+journeys beside trusted completion. Use an existing empty parent; normal tests
+use temporary files. Reports retain exact signed requests, public trust and
+labelled local source bytes; test PEM identities remain temporary. There is no
+new runtime/registry dependency or production consumer journal.
+`BLOB_STANDALONE_REFERENCE_REPORT` retains fresh per-mode signed refusal/recovery
+captures against the actual standalone artifact. `BLOB_MANAGED_CONSUMER_REPORT`
+retains fresh `outbox` and `cancel-race` children with exact application/service
+Candid and labelled local completion. Both require existing parents and refuse
+retained/partial children; ordinary runs use temporary directories. The consumer
+is the existing local application substitute using shared clients and its own
+bounded durable record, not a new production dependency or recovery component.
 
 `make test-pocketic` builds `blob-authority-probe`, `blob-gateway-source` and
 `blob-funding-probe` into

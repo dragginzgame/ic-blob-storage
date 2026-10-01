@@ -19,6 +19,7 @@ pub(super) enum Command {
     UploadHistory(super::upload_history::Input),
     CertificateAssessment(super::certificate_assessment::Input),
     SubmitAttestation(super::submit_attestation::Input),
+    SubmitReference(super::submit_reference::Input),
     ObserveUpload(super::observe_upload::Input),
     Status {
         scope: OperatorScope,
@@ -69,6 +70,7 @@ impl Options {
                 | "upload-attestation"
                 | "observe-upload"
                 | "submit-attestation"
+                | "submit-reference"
         ) {
             return Err(Failure::Arguments);
         }
@@ -93,6 +95,7 @@ impl Options {
                     | "upload-attestation"
                     | "observe-upload"
                     | "submit-attestation"
+                    | "submit-reference"
                     | "certificate-assessment"
                     | "reference-receipt"
                     | "reference-status"
@@ -155,6 +158,13 @@ fn parse_command(
                 } else {
                     super::references::Kind::Status
                 },
+            })
+        } else if command == "submit-reference" {
+            Command::SubmitReference(super::submit_reference::Input {
+                service,
+                namespace,
+                request: PathBuf::from(take("--request")?),
+                directory: PathBuf::from(take("--run-dir")?),
             })
         } else if command == "upload-history" {
             Command::UploadHistory(super::upload_history::Input {

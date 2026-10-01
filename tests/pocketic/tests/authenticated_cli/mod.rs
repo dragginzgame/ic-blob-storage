@@ -1,5 +1,4 @@
 //! Native client subprocess with fixed test credentials and explicit local trust.
-use super::support::fixture_path;
 use candid::Principal;
 use ic_blob_storage::dto::operator::OperatorScope;
 use serde_json::Value;
@@ -44,7 +43,12 @@ pub(super) fn arguments(
 }
 
 pub(super) fn run(args: &[String], code: i32) -> Value {
-    let result = Command::new(fixture_path("BLOB_CLI_BIN"))
+    let executable = std::env::var_os("BLOB_CLI_BIN").expect("explicit signed CLI artifact");
+    assert!(
+        Path::new(&executable).is_file(),
+        "signed CLI artifact exists"
+    );
+    let result = Command::new(executable)
         .args(args)
         // Local mode must bypass ambient proxies, even without NO_PROXY exclusions.
         .env("HTTP_PROXY", "http://127.0.0.1:9")
@@ -58,7 +62,8 @@ pub(super) fn run(args: &[String], code: i32) -> Value {
     assert_eq!(
         result.status.code(),
         Some(code),
-        "stdout: {} stderr: {}",
+        "command {} stdout: {} stderr: {}",
+        args[0],
         String::from_utf8_lossy(&result.stdout),
         String::from_utf8_lossy(&result.stderr)
     );

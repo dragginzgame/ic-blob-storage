@@ -10,11 +10,16 @@
 )]
 use super::{context, dto::TransportFailure, ops};
 pub(crate) use ic_blob_storage::dto::{
+    account::{AccountInspectionFailure, AccountInspectionRequest, AccountInspectionResponse},
     configuration::{HostConfigurationView, HostFailure},
     download::{DownloadFailure, DownloadRequest, DownloadResponse},
     funding::{
         FundingHistoryFailure, FundingHistoryPage, FundingHistoryRequest,
         outcome::{FundingOutcomeFailure, FundingOutcomeRequest, FundingOutcomeResponse},
+    },
+    gateway::{
+        GatewayRevocationFailure, GatewayRevocationRequest, GatewayRevocationResponse,
+        sync::{GatewaySyncCancellation, GatewaySyncFailure, GatewaySyncResponse},
     },
     operator::{LocalServiceStatus, LocalStatusFailure, OperatorScope},
     reference::{
@@ -31,11 +36,13 @@ pub(crate) use ic_blob_storage::dto::{
             UploadAdmissionResponse, UploadRevocationResponse,
         },
         capacity::{UploadCapacityFailure, UploadCapacityResponse},
+        certificate::UploadCertificateAssessmentResponse,
         completion::{
             UploadAttestationFailure, UploadAttestationMutation, UploadAttestationRequest,
             UploadAttestationResponse, UploadVerificationPlan,
         },
         discovery::{UploadDiscoveryFailure, UploadDiscoveryRequest, UploadDiscoveryResponse},
+        exposure::UploadExposureFailure,
         history::{UploadHistoryFailure, UploadHistoryPage, UploadHistoryRequest},
         manifest::{
             UploadManifestFailure, UploadManifestMutation, UploadManifestRequest,
@@ -340,4 +347,86 @@ fn blob_download_descriptor(
         )
         .map_err(TransportFailure)
     })
+}
+
+#[canic::canic_query(public)]
+fn blob_upload_certificate_assessment(
+    root: String,
+) -> Result<UploadCertificateAssessmentResponse, TransportFailure<UploadExposureFailure>> {
+    let context = actual_context();
+    let now = ic_cdk::api::time();
+    ops::read(|owner| {
+        let store = &owner.stores().uploads;
+        let permission = workflow::uploads::certificate::resolve(store, context, &root, now)
+            .map_err(TransportFailure)?;
+        workflow::uploads::certificate::inspect(
+            store,
+            context,
+            &root,
+            ops::certificate::evidence(permission, now),
+            now,
+        )
+        .map_err(TransportFailure)
+    })
+}
+
+#[canic::canic_update(public, payload(max_bytes = 4096))]
+fn blob_revoke_gateway(
+    input: GatewayRevocationRequest,
+) -> Result<GatewayRevocationResponse, TransportFailure<GatewayRevocationFailure>> {
+    let context = actual_context();
+    ops::mutate(|owner| {
+        workflow::gateways::revocation::revoke(&mut owner.stores_mut().gateways, context, input)
+            .map_err(TransportFailure)
+    })
+}
+
+#[canic::canic_update(public, payload(max_bytes = 4096))]
+fn blob_cancel_gateway_sync(
+    input: GatewaySyncCancellation,
+) -> Result<(), TransportFailure<GatewaySyncFailure>> {
+    let context = actual_context();
+    ops::mutate(|owner| {
+        workflow::gateways::sync::cancel(&mut owner.stores_mut().gateways, context, input)
+            .map_err(TransportFailure)
+    })
+}
+
+#[canic::canic_update(public, payload(max_bytes = 4096))]
+async fn blob_sync_gateways(
+    input: OperatorScope,
+) -> Result<GatewaySyncResponse, TransportFailure<GatewaySyncFailure>> {
+    workflow::gateways::sync::refresh(
+        &ops::gateways::GatewayHost,
+        actual_context(),
+        input,
+        30.try_into().expect("fixed timeout"),
+        ops::gateways::limits(),
+    )
+    .await
+    .map_err(TransportFailure)
+}
+
+#[canic::canic_update(public, payload(max_bytes = 4096))]
+async fn blob_inspect_account(
+    input: AccountInspectionRequest,
+) -> Result<AccountInspectionResponse, TransportFailure<AccountInspectionFailure>> {
+    use ic_blob_storage::ops::caffeine::query::transport::replicated::account::ReplicatedAccountQuery;
+    let context = actual_context();
+    let transport = ReplicatedAccountQuery::new(
+        input.scope.service,
+        input.scope.cashier,
+        input.scope.payment_account,
+        30.try_into().expect("fixed timeout"),
+    )
+    .map_err(|_| TransportFailure(AccountInspectionFailure::Invalid))?;
+    workflow::account::inspect(
+        &ops::account::AccountHost,
+        &transport,
+        context,
+        input,
+        ops::account::limits(),
+    )
+    .await
+    .map_err(TransportFailure)
 }

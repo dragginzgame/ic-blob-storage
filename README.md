@@ -33,14 +33,15 @@ and durable metadata; admission does not require uploading the file body to it.
 | --- | --- |
 | Shared Rust core | Implemented, with native and local IC evidence |
 | Standalone canister | Shared handlers and explicit installation configuration; provider certificate issuance remains disabled |
-| Canic adapter | **24 of 30 service methods** wired in a controlled managed fixture; their Candid types match standalone |
+| Canic adapter | **29 of 30 service methods** wired in a controlled managed fixture; their Candid types match standalone |
 | Managed lifecycle | Installation, activation, verifier checks, reference-qualified downloads, cleanup accounting and fenced upgrades tested locally |
-| Native tooling | Signed inspection, local verification and explicit verifier observation/submission |
+| Native tooling | Signed inspection and byte checks through both adapters; managed reference recovery and standalone submission refusals tested locally |
+| Application prototype | Existing asset/outbox fixture tests managed publication, callback recovery, cancellation races and cleanup |
 | Browser integration | Private certificate/intent client composed with Caffeine's upload SDK in local tests |
 | Live service acceptance | Still open: remaining managed endpoints, complete consumer flow, provider guarantees and operational recovery |
 
-Canic's current endpoint macros also need supported query-size and decoding-work
-controls before full managed input qualification. See the
+Canic's pinned endpoint macros need support for Caffeine's plain certificate reply,
+plus query-size and decoding-work controls before full managed qualification. See the
 [composition contract](docs/service-contract.md#managed-canic-composition) for that gap.
 
 Local tests use controlled provider substitutes where stated. A verifier's
@@ -82,7 +83,7 @@ Both canister adapters call the same service workflows and tenant rules.
 | [Standalone host](canisters/standalone/README.md) | Explicit endpoints, installation, memory and lifecycle |
 | [Canic composition library](crates/ic-blob-storage-canic) | Opt-in memory declarations, caller guards and synchronous installation/restoration |
 | [Managed fixture](canisters/test/canic_probe) | Current Canic endpoint subset and local composition artifact |
-| [Native CLI](crates/ic-blob-storage-cli) | Signed service inspection and verifier tooling |
+| [Native CLI](crates/ic-blob-storage-cli) | Signed inspection, tenant reference submission and verifier tooling |
 | [Browser client](clients/browser/README.md) | Certificate transport and durable intent boundary; reuses Caffeine's upload SDK |
 | [PocketIC harness](tests/pocketic) | Actual local canister, lifecycle and inter-canister tests |
 
@@ -97,6 +98,7 @@ for the integration details.
 | --- | --- |
 | Inspect service state or retained funding | [Operator and verifier guide](docs/operator-guide.md#identity-trust-and-service-status) |
 | Find uploads or inspect references | [Upload history](docs/operator-guide.md#upload-history) and [reference inspection](docs/operator-guide.md#reference-receipts-and-current-status) |
+| Retain or release an exact tenant reference | [One-shot reference submission](docs/operator-guide.md#submit-a-reference) |
 | Check a file against its saved upload declaration | [Local-file verification](docs/operator-guide.md#verify-a-local-file) |
 | Observe provider bytes and submit a verifier statement | [Observation](docs/operator-guide.md#observe-provider-content) and [submission](docs/operator-guide.md#submit-an-attestation) |
 | Prepare file manifests, inventories or saved bodies | [Local preparation guide](docs/local-tools.md#prepare-one-file) |

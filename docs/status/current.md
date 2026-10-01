@@ -1,16 +1,180 @@
 # Current status
 
-Date: 2026-09-30
+Date: 2026-10-01
 
-## Active work — managed verification and delivery after 0.4.9
+## Active work — managed endpoints and signed clients after 0.4.10
 
-The maintainer has released 0.4.9. Local main, origin/main and peeled v0.4.9
-resolve to `5f35bf6971fb0fefee72b9d62a71c4b7baae02ad`; the release receipt
-records 0.4.9, release-verify and direct-parent source
-`b006b2f344f2b55c0e084ca195a3049fa4828ed7`. The managed endpoint continuation
-below is now released. The current managed completion batch preserves the
-preceding README cleanup; package versions and the release receipt remain unchanged.
-No version mutation, agent commit, tag, push, publication or deployment occurred.
+The maintainer released 0.4.10. Local main, origin/main and peeled v0.4.10 resolve
+to `429db4ab516b7da2745cd242e3ac175a5cf13281`; its release-verify receipt binds
+direct-parent source `727e4bdfdb0f4dc29019f4d5a9453dba14b462b8`. This continuation
+started from a clean worktree. Package versions/receipt remain unchanged; no
+version mutation, agent commit, tag, push, publication or deployment occurred.
+
+The latest continuation exercises actual standalone signed reference submission
+and the existing bounded consumer probe as a canister tenant against managed
+storage. Standalone acknowledged/dropped/pending journeys preserve typed
+unknown/unconfirmed/fenced refusals; a refused receipt lookup leaves the original
+uncertainty unresolved and never authorizes resend. Production issuance/exposure
+is still disabled; no confirmed object or successful reference is injected.
+
+The managed application uses shared replicated clients and its own bounded local
+asset/outbox record. Fresh/reuse assets, committed-effect callback traps, exact
+receipt recovery, use guards and reserved cleanup during suspension preserve
+intents/tombstones and separate physical/billing liabilities. Cancellation wins
+against a delayed publication callback without harming the other asset. Recovery
+of a pending release succeeds under the service's mutation fence without resend;
+subsequent application restore preserves its independent fence and exact history.
+Exposure/completion and the consumer remain labelled local substitutes, not Toko
+or deployed Caffeine acceptance. No new production component/journal is added.
+
+Three standalone cases pass in 35.21 seconds; both managed application cases pass
+in 20.06 seconds. The exact managed Candid declaration comparison, final strict
+affected harness Clippy and standalone/consumer Wasm/native CLI builds pass.
+Earlier lint attempts remain retained. Fresh report sets preserve 82 standalone,
+15 initial application and 29 final application files without overwriting history;
+temporary identities/sockets/instances were cleaned up and build artifacts remain.
+The pre-existing yoke-derive lock change is preserved; rebuilt artifact hashes bind
+that current input. See [standalone evidence](../evidence/core-primitives.md#standalone-signed-reference-submission-and-refused-inspection--2026-10-01),
+[application evidence](../evidence/core-primitives.md#managed-application-outbox-and-publication-race--2026-10-01)
+and the [probe ledger](../evidence/caffeine-probes/README.md). No live/paid provider
+effect or full CI/release validation ran. Next cover occupied application restore
+with unresolved outbox entries; current recovery finishes before the consumer's
+own fence. Operational restart and production consumer/provider acceptance remain
+open. Package versions and release receipt are unchanged. Final formatting/diff,
+read-only draft changelog and capability JSON checks pass. All 340 maintained local
+documentation links/anchors, balanced fences, thirty-three current evidence hashes
+and the three complete report manifests validate; historical captures stay intact.
+
+The preceding continuation adds native `submit-reference`: validate an explicit
+tenant command, claim a new private directory and persist exact command/signed
+intent before one update. Existing or interrupted claims refuse; acknowledged,
+pending and uncertain outcomes remain distinct. Recorded inner transition failures
+do not become successful retain/release. No polling, ID allocation or automatic retry.
+
+Three signed managed tenant journeys run beside signed verifier completion with
+distinct signers and labelled local exposure/ten-byte source. Lost/pending replies
+recover through the durable dispatch copy without resend. Release at capacity
+during suspension succeeds; historical success/failure survives cleanup and exact
+replay does not resurrect references. Last release retains physical/liability
+bytes ten with logical/reserved bytes zero. Same-release restore fences all owners;
+historical receipts/current dead-reference reads and refused mutations preserve
+stable memory. The shared proxy now has explicit sender/method/argument bindings.
+
+All seven affected managed signed-client cases pass in 73.13 seconds; three
+existing durable native verifier cases pass in 11.90 seconds and the existing
+signed receipt/status case passes in 11.84 seconds. All twenty-nine native CLI
+unit cases, strict CLI/harness Clippy and CLI build pass. The first native unit
+attempt hit sandbox socket denial; the same local tests passed with loopback
+access. Earlier lint attempts remain retained. See [tenant reference evidence](../evidence/core-primitives.md#managed-signed-tenant-reference-submission-and-cleanup--2026-09-30)
+and the [probe ledger](../evidence/caffeine-probes/README.md). A fresh 277-file
+report set preserves dispatches, original results, public trust and raw local
+source bytes; no private PEM is retained. Owned resources were closed/dropped;
+reports/build artifacts remain. No deployed provider effect or full CI/release
+gate ran. Its standalone/application follow-up is recorded above.
+Final formatting/diff, read-only draft changelog and capability JSON checks pass.
+All 313 maintained local documentation links/anchors, balanced fences, twenty-five
+current evidence hashes and the complete 277-file report manifest validate.
+
+The next continuation adds actual signed managed verifier observation/submission
+and exact receipt recovery for acknowledged, dropped and pending replies. The
+test signer is installed solely as verifier, separate from tenant/uploader/operator.
+Each journey persists the authenticated plan before one local source GET and a
+complete retained observation/signed intent before one IC update. Foreign verifier
+and damaged observation refuse before those effects. Lost/pending acknowledgments
+are resolved through exact signed receipt inspection; repeated submission stays
+claimed without redispatch. Same-release restore retains the receipt, blocks new
+observations/downloads and preserves stable memory during inspection/refusal.
+Exposure and ten-byte source content remain explicitly labelled local substitutes.
+
+Managed and durable native cases now share one HTTP proxy/source; the former
+fixture-local proxy is removed. Four affected managed signed-client cases pass in
+41.86 seconds; all three existing native observation/submission cases pass in
+12.63 seconds. Strict affected harness Clippy and current storage fixture build
+pass. Formatting/diff, read-only draft changelog and capability JSON checks pass;
+307 local documentation links/anchors, eighteen current evidence table hashes
+and both complete report manifests validate. Two fresh retained report sets preserve the first successful run and final
+raw requests/responses, tamper refusal and recovery evidence; no records were
+overwritten. See [managed verifier evidence](../evidence/core-primitives.md#managed-signed-verifier-observation-submission-and-recovery--2026-09-30)
+and the [probe ledger](../evidence/caffeine-probes/README.md). Owned sockets/proxy,
+gateway/progress/instances and temporary identity files were cleaned up; reports
+and build artifacts remain. No deployed Caffeine request/payment or full CI/release
+gate ran. The tenant continuation above follows this verifier batch; concrete
+consumer/outbox acceptance remains open.
+
+Common native `blob-storage` subprocesses now exercise managed status,
+funding/upload history, certificate assessment and local byte verification with
+actual signing and query-signature validation. The public Canic qualification
+helper is still the installation owner. Its application-only PocketIC subnet key
+is pinned through the owned local control API; a supported non-owning handle starts
+the loopback gateway. No Canic bootstrap is copied and CLI origin/trust restrictions
+are unchanged. Explicit fixture inputs bind the test signer as operator/uploader;
+another valid signer is denied. Fleet principals are canonicalized before passing
+them to the public helper.
+
+Incorrect identity/scope/trust and changed saved permission refuse. Prepared
+full-width inventory and the signed manifest remain exact; corrupt, short and long
+local files fail verification. Historical inventory/byte inspection survives
+same-release restore with all owners fenced while assessment refuses the fence.
+Every query phase preserves full stable memory. File bytes remain local substitutes;
+there is no provider request, exposure, completion, payment or retry authority.
+All ten managed cases pass in 114.87 seconds; the existing signed standalone
+status/history case passes in 6.24 seconds. Strict affected managed/standalone
+harness Clippy and the native CLI build pass. Earlier failed fixture/URL/lint
+attempts remain retained in [signed client evidence](../evidence/core-primitives.md#managed-signed-client-and-local-byte-verification--2026-09-30).
+Root/isolated fixture formatting, diff, capability JSON and read-only draft
+changelog checks pass; 302 local documentation links/anchors and all twenty
+current evidence table hashes validate.
+Owned progress/gateway/instances and temporary input files were cleaned up; build
+artifacts remain. No full CI/release validation ran. The following verifier
+continuation is recorded above; this inspection batch remains separate evidence.
+
+Five new managed endpoints delegate certificate assessment, gateway sync,
+cancellation/revocation and account inspection to shared service workflows.
+Adapter-owned host access releases borrows before awaits and uses the same fixed
+reply/work/type budgets as standalone. All twenty-nine implemented service Candid
+types/modes match standalone. Core/standalone contracts, stable schemas, registry
+versions, allocator and the sole Canic memory runtime remain unchanged.
+
+The uploader-only assessment reports the four current provider/recovery blockers;
+tenant/operator/verifier/outsider/Root/controllers gain no access. Invalid/unknown
+roots, unprepared/revoked permissions and fenced restore refuse passively.
+The occupied operator journey provisions the existing query-only Cashier substitute
+through an authenticated carrier while the fixture is still fresh and empty, then
+enrolls a tenant and prepares a ten-byte reservation. Scope/caller checks precede
+queries. Exact 4 KiB valid async-sync Candid reaches semantic refusal; 4 KiB plus
+one refuses at transport. Sync/revocation, malformed/oversized reply retention,
+exact cancellation and repeated-cancellation conflict leave unrelated owners
+unchanged. Balance/relationship/error observations change no local allocation,
+credit, membership or readiness. A rejected sync retains its pending identity and
+members across same-release restore with every owner fenced; further queries,
+cancellation and revocation refuse without changing service/source stable bytes.
+
+The remaining method is `_immutableObjectStorageCreateCertificate`. The attempted
+plain-record public Canic adapter failed compilation: pinned 0.110.48 injects a
+Fleet guard even for `public`, and requires Result on every access-gated function.
+The attempt was removed entirely. Do not wrap Caffeine's reply, mark this application
+method `internal`, copy dispatch or call internal framework helpers. Supported
+plain-reply rejection is a distinct framework gate alongside bounded query/work
+decoding; provider qualification and recovery readiness are still independently
+missing. No upstream edit or request was sent.
+
+All nine managed cases pass in 107.47 seconds; supported Canic build passes in
+43.34 seconds and the existing source builds in 18.15 seconds. Final targeted
+harness and isolated fixture Clippy pass. Logs, failed attempts and final hashes
+are in [managed operator evidence](../evidence/core-primitives.md#managed-certificate-assessment-and-operator-queries--2026-09-30).
+The [probe ledger](../evidence/caffeine-probes/README.md) records intent/outcome;
+all query targets/replies are local substitutes, with no deployed Caffeine request
+or payment. Instances were dropped and build artifacts retained. Full CI/release
+validation was not run for those endpoint checks. The subsequent signed client
+evidence above remains local and does not complete consumer/service acceptance.
+
+## Released verification and delivery — 0.4.10
+
+This completed batch began from 0.4.9 at
+`5f35bf6971fb0fefee72b9d62a71c4b7baae02ad` and was released by the maintainer
+in 0.4.10. Managed completion and the preceding README cleanup stayed together.
+The evidence below records implementation-stage checks before that release;
+no agent version mutation, commit, tag, push, publication or deployment occurred.
 
 The maintainer requested a readable README with emoji and tables. The root README
 now has 153 lines instead of 1,080, with an overview, prototype status, setup,
@@ -18,14 +182,14 @@ repository map, tool navigation and development commands. Detailed command
 examples and their limits/recovery rules moved into [the operator/verifier guide](../operator-guide.md)
 and [local preparation/PocketIC tools](../local-tools.md), with section headings and
 overview tables. Standalone CLI links point to the relevant guide sections.
-The undated 0.4.10 changelog draft records the documentation and managed completion
-changes; Unreleased is empty and historical release notes are unchanged. Package
-versions and the release receipt stay at 0.4.9 until the maintainer's release flow.
+The dated 0.4.10 changelog records the documentation and managed completion
+changes. Its maintainer release receipt subsequently records release-verify;
+the implementation-stage evidence below remains bound to its original artifacts.
 All 47 local links in the edited README/guides/host documentation resolve,
 code fences balance and diff checks pass. No Rust source changed or compilation
 ran for that documentation-only step. Provider investigations and the ledger are unchanged.
 
-The controlled Canic artifact now declares twenty-four of thirty maintained blob
+The 0.4.10 controlled Canic artifact declares twenty-four of thirty maintained blob
 methods. Five new adapters call the same completion/download workflows as
 standalone: verifier plan and manifest, attestation mutation and receipt inspection,
 and reference-qualified download descriptor. Candid comparison checks every
@@ -192,17 +356,18 @@ The allocator, locked registry graph and library Canic independence are unchange
 ## Guarantees and next work
 
 Next complete the managed blob endpoint artifact/Candid through the same service
-handlers as standalone. The twenty-four-method configuration/tenant/upload/reference/
-passive-operator/verifier/download subset is implemented; six remaining endpoints and
-equivalent query-byte/decoding-work limits are still open. Canic's current public
+handlers as standalone. Twenty-nine methods are implemented; canonical certificate
+issuance needs supported plain-reply rejection. Equivalent query-byte/decoding-work
+limits are still open. Canic's current public
 update macro in pinned Canic 0.110.48 supplies a byte limit and its own skipping quota, not standalone's
 full decoding-work/type/header bounds, and supplies no query-size hook. Supported
 upstream decoder controls are required; this repository alone cannot close that
 gap without duplicating framework internals. Do not qualify this partial artifact
-for production. Next add gateway/account and certificate-assessment/issuance adapters
-with occupied local operator evidence. Certificate issuance must retain its current
-provider/recovery refusals; completing the adapter does not qualify issuance.
-Keep the same frozen blob contract.
+for production. Next continue common client/operator acceptance with managed
+signed tenant reference/liveness/cleanup and prepare the
+concrete framework requirements for plain certificate replies and bounded decoding.
+Certificate issuance must retain current provider/recovery refusals; completing
+an adapter cannot qualify issuance. Keep the same frozen blob contract.
 The managed input contract and actual carrier are implemented/tested; selected
 consumer policy is still controlled fixture input, not production sizing.
 `declare_installation!` must run only after Canic authenticates its protected
@@ -214,7 +379,7 @@ exact production release/artifact provenance and full endpoint parity as gates.
 Avoid duplicating workflows, another memory manager, implicit library endpoint
 exports or borrowing controller authority for tenant access.
 
-Current [acceptance gaps](../acceptance-plan.md#current-local-evidence-and-open-gates--2026-09-30)
+Current [acceptance gaps](../acceptance-plan.md#current-local-evidence-and-open-gates--2026-10-01)
 include common managed/standalone consumer and operator journeys, production
 operator mutations, provider completion/economics/deletion evidence, operational
 recovery, generic coverage transfer and installation retirement. Prepared/cancelled
@@ -230,8 +395,9 @@ unsupported for active operation; a revived local flag/counter cannot establish
 freshness or erase obligations. Cross-release transitions remain reinstall-only
 after separately retaining/discharging installation obligations.
 
-No provider behavior was investigated in this generic Canic composition batch,
-so the [probe ledger](../evidence/caffeine-probes/README.md) is unchanged. No live
+Only the existing local query-only source was exercised in this generic Canic
+composition batch. The [probe ledger](../evidence/caffeine-probes/README.md) records
+the bounded intent/outcome separately from deployed provider evidence. No live
 account/installation or paid budget is selected; the existing provider trial is
 prepared and undispatched. Sibling repositories remain unmodified.
 

@@ -11,7 +11,7 @@ use ic_blob_storage::{
     ops::service::references::{REFERENCE_RECEIPT_METHOD, reply, status::REFERENCE_STATUS_METHOD},
 };
 use serde_json::{Value, json};
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 pub(super) enum Kind {
     Receipt,
@@ -43,14 +43,14 @@ fn decode<T: CandidType + for<'de> Deserialize<'de>>(bytes: &[u8]) -> Result<T, 
     decode_one_with_config(bytes, &config).map_err(|_| Failure::Arguments)
 }
 fn open(input: &Input, actor: Principal) -> Result<Inspection, Failure> {
-    let bytes = read(&input.request, 4096)?;
     let (request, upload, argument) = match input.kind {
         Kind::Receipt => {
-            let request: ReferenceCommand = decode(&bytes)?;
-            let argument = reply::receipt_request(request).map_err(|_| Failure::Arguments)?;
+            let (request, argument) =
+                command(input.service, input.namespace, &input.request, actor)?;
             (Request::Receipt(request), request.upload, argument)
         }
         Kind::Status => {
+            let bytes = read(&input.request, 4096)?;
             let request: ReferenceStatusRequest = decode(&bytes)?;
             let argument = reply::status_request(request).map_err(|_| Failure::Arguments)?;
             (Request::Status(request), request.upload, argument)
@@ -64,6 +64,22 @@ fn open(input: &Input, actor: Principal) -> Result<Inspection, Failure> {
     }
     Ok(Inspection { request, argument })
 }
+pub(super) fn command(
+    service: Principal,
+    namespace: u128,
+    path: &Path,
+    actor: Principal,
+) -> Result<(ReferenceCommand, Vec<u8>), Failure> {
+    let request: ReferenceCommand = decode(&read(path, 4096)?)?;
+    let argument = reply::receipt_request(request).map_err(|_| Failure::Arguments)?;
+    if request.upload.service != service || request.upload.namespace != namespace {
+        return Err(Failure::Binding);
+    }
+    if request.upload.tenant != actor {
+        return Err(Failure::Denied);
+    }
+    Ok((request, argument))
+}
 pub(super) async fn run(options: &Options, input: &Input) -> Result<Value, Failure> {
     let inspection = open(input, options.actor)?;
     let method = match inspection.request {
@@ -73,7 +89,7 @@ pub(super) async fn run(options: &Options, input: &Input) -> Result<Value, Failu
     let bytes = query(options, input.service, method, inspection.argument).await?;
     output(&inspection.request, &bytes, options)
 }
-fn failure(error: reply::ReferenceReplyError) -> Failure {
+pub(super) fn failure(error: reply::ReferenceReplyError) -> Failure {
     match error {
         reply::ReferenceReplyError::Binding => Failure::Binding,
         reply::ReferenceReplyError::Limit => Failure::ReplyLimit,
@@ -95,10 +111,23 @@ pub(super) const fn refusal_code(error: ReferenceFailure) -> &'static str {
         ReferenceFailure::Internal => "reference_internal",
     }
 }
-fn upload_json(u: ReferenceUpload) -> Value {
+pub(super) fn upload_json(u: ReferenceUpload) -> Value {
     json!({"service":u.service.to_text(),"tenant":u.tenant.to_text(),"namespace":u.namespace.to_string(),
         "upload":u.upload.to_string(),"object":u.object.to_string(),"incarnation":u.incarnation.to_string(),
         "first_reference":u.first_reference.to_string(),"root":ProviderRootHash::try_from(u.root.as_slice()).expect("fixed root").to_string(),"bytes":u.bytes.to_string()})
+}
+pub(super) fn result_json(result: Result<ReferenceChange, ReferenceTransitionFailure>) -> Value {
+    match result {
+        Ok(change) => json!({"state":"success","change":match change {
+            ReferenceChange::Changed => "changed", ReferenceChange::Unchanged => "unchanged",
+        }}),
+        Err(error) => json!({"state":"failure","failure":match error {
+            ReferenceTransitionFailure::UnknownReference => "unknown_reference",
+            ReferenceTransitionFailure::Released => "released",
+            ReferenceTransitionFailure::Limit => "limit",
+            ReferenceTransitionFailure::DeletionQueued => "deletion_queued",
+        }}),
+    }
 }
 fn output(request: &Request, bytes: &[u8], options: &Options) -> Result<Value, Failure> {
     let max = 4096.try_into().expect("positive reply limit");
@@ -110,17 +139,7 @@ fn output(request: &Request, bytes: &[u8], options: &Options) -> Result<Value, F
             let lookup = reply::decode(request, bytes, max).map_err(failure)?;
             let result = match lookup {
                 ReferenceReceiptLookup::Absent => None,
-                ReferenceReceiptLookup::Found(receipt) => Some(match receipt.result {
-                    Ok(change) => json!({"state":"success","change":match change {
-                        ReferenceChange::Changed => "changed", ReferenceChange::Unchanged => "unchanged",
-                    }}),
-                    Err(error) => json!({"state":"failure","failure":match error {
-                        ReferenceTransitionFailure::UnknownReference => "unknown_reference",
-                        ReferenceTransitionFailure::Released => "released",
-                        ReferenceTransitionFailure::Limit => "limit",
-                        ReferenceTransitionFailure::DeletionQueued => "deletion_queued",
-                    }}),
-                }),
+                ReferenceReceiptLookup::Found(receipt) => Some(result_json(receipt.result)),
             };
             value["observation"] = "reference_receipt".into();
             value["upload"] = upload_json(request.upload);

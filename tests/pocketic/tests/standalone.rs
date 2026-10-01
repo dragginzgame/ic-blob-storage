@@ -25,6 +25,7 @@ mod standalone_reference_status;
 mod standalone_snapshot;
 mod standalone_upload_status;
 mod standalone_verify_upload;
+mod submission_proxy;
 mod support;
 use candid::Principal;
 use ic_blob_storage::{

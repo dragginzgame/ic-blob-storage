@@ -1,12 +1,13 @@
 //! Signed installed plan, real local HTTP bytes and saved statement; provider facts substituted.
-mod proxy;
 use super::*;
 use crate::authenticated_cli::{PEM, run};
+use crate::observation_provider::{incoming, serve};
+use crate::submission_proxy as proxy;
 use ic_agent::{Identity, identity::BasicIdentity};
 use ic_blob_storage::{dto::upload::completion::*, model::identity::ContentDigest};
 use ic_testkit::pocket_ic::PocketIcBuilder;
 use std::{
-    io::{Read, Write},
+    io::Write,
     net::TcpListener,
     path::Path,
     time::{Duration, Instant},
@@ -51,57 +52,6 @@ fn arguments(f: &Fixture, url: &str, directory: &Path, gateway: &str) -> Vec<Str
     .into_iter()
     .map(str::to_owned)
     .collect()
-}
-fn incoming(listener: &TcpListener) -> (std::net::TcpStream, String) {
-    listener.set_nonblocking(true).unwrap();
-    let deadline = Instant::now() + Duration::from_secs(15);
-    let mut stream = loop {
-        match listener.accept() {
-            Ok((stream, _)) => break stream,
-            Err(e) if e.kind() == std::io::ErrorKind::WouldBlock && Instant::now() < deadline => {
-                std::thread::sleep(Duration::from_millis(5));
-            }
-            other => panic!("expected one local provider request: {other:?}"),
-        }
-    };
-    stream
-        .set_read_timeout(Some(Duration::from_secs(5)))
-        .unwrap();
-    stream
-        .set_write_timeout(Some(Duration::from_secs(5)))
-        .unwrap();
-    let mut request = Vec::new();
-    while !request.ends_with(b"\r\n\r\n") {
-        assert!(request.len() < 8192);
-        let mut byte = [0];
-        stream.read_exact(&mut byte).unwrap();
-        request.push(byte[0]);
-    }
-    (stream, String::from_utf8(request).unwrap())
-}
-fn provider(listener: &TcpListener, path: &Path, expected: &str) {
-    let (mut stream, request) = incoming(listener);
-    assert_eq!(
-        request.lines().next().unwrap(),
-        format!("GET {expected} HTTP/1.1")
-    );
-    assert!(!request.to_ascii_lowercase().contains("authorization:"));
-    for file in [
-        "plan.json",
-        "permission.candid",
-        "service-response.candid",
-        "download-request.json",
-    ] {
-        assert!(
-            path.join(file).is_file(),
-            "intent/declaration must precede provider GET"
-        );
-    }
-    assert!(!path.join("statement.candid").exists());
-    stream
-        .write_all(b"HTTP/1.1 200 OK\r\nContent-Length: 10\r\nConnection: close\r\n\r\n")
-        .unwrap();
-    stream.write_all(&[5; 10]).unwrap();
 }
 fn interrupted(args: &[String], directory: &Path) {
     let mut args = args.to_vec();
@@ -396,8 +346,12 @@ fn journey(reply: proxy::Reply) {
     let proxy = proxy::Proxy::start(
         live(&mut f),
         observed.join("attestation"),
-        f.service,
-        f.operator,
+        proxy::Dispatch {
+            service: f.service,
+            actor: f.operator,
+            method: "blob_attest_upload",
+            argument_file: "statement.candid",
+        },
         reply,
     );
     change(&mut args, "--url", &proxy.url);
@@ -414,7 +368,7 @@ fn journey(reply: proxy::Reply) {
     .unwrap();
     let target = ic_blob_storage::ops::caffeine::download::request_target(&scope, root);
     std::thread::scope(|threads| {
-        let server = threads.spawn(|| provider(&listener, &observed, &target));
+        let server = threads.spawn(|| serve(&listener, &observed, &target, &[5; 10]));
         let report = run(&args, 0);
         assert_eq!(report["project"], scope.project());
         assert_eq!(report["owner"], f.service.to_text());

@@ -117,6 +117,9 @@ build-canic-probe:
 
 test-canic-composition:
 	+$(MAKE) --no-print-directory build-canic-probe
+	cargo build --offline --locked --release --target wasm32-unknown-unknown -p blob-gateway-source --lib
+	cargo build --offline --locked --release --target wasm32-unknown-unknown -p blob-consumer-probe --lib
+	cargo build --offline --locked -p ic-blob-storage-cli --bin blob-storage
 	cargo test --offline --locked -p ic-blob-storage-pocketic-tests --test canic_composition -- --test-threads=1
 
 test-standalone:

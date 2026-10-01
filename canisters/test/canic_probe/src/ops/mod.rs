@@ -1,5 +1,8 @@
 //! Adapter-owned conversion of generic Canic refusals into blob boundary replies.
+pub(crate) mod account;
+pub(crate) mod certificate;
 pub(crate) mod fixture;
+pub(crate) mod gateways;
 use super::{
     INSTALLATION, PreparationForwardFailure,
     dto::{ProbeExposureFailure, TransportFailure},
@@ -13,16 +16,19 @@ pub(crate) fn mutate<R>(operation: impl FnOnce(&mut ManagedInstallation) -> R) -
     INSTALLATION.with_borrow_mut(|owner| operation(owner.as_mut().expect("installed service")))
 }
 use ic_blob_storage::dto::{
+    account::AccountInspectionFailure,
     configuration::HostFailure,
     download::DownloadFailure,
     funding::{FundingHistoryFailure, outcome::FundingOutcomeFailure},
+    gateway::{GatewayRevocationFailure, sync::GatewaySyncFailure},
     operator::LocalStatusFailure,
     reference::{ReferenceFailure, capacity::ReferenceCapacityFailure},
     tenant::TenantFailure,
     upload::{
         UploadStatusFailure, admission::UploadAdmissionFailure, capacity::UploadCapacityFailure,
         completion::UploadAttestationFailure, discovery::UploadDiscoveryFailure,
-        history::UploadHistoryFailure, manifest::UploadManifestFailure,
+        exposure::UploadExposureFailure, history::UploadHistoryFailure,
+        manifest::UploadManifestFailure,
     },
 };
 
@@ -62,6 +68,13 @@ denial!(FundingOutcomeFailure, FundingOutcomeFailure::Denied);
 denial!(UploadAttestationFailure, UploadAttestationFailure::Denied);
 denial!(DownloadFailure, DownloadFailure::Denied);
 denial!(ProbeExposureFailure, ProbeExposureFailure::Denied);
+denial!(AccountInspectionFailure, AccountInspectionFailure::Denied);
+denial!(GatewayRevocationFailure, GatewayRevocationFailure::Denied);
+denial!(GatewaySyncFailure, GatewaySyncFailure::Denied);
+denial!(
+    UploadExposureFailure,
+    UploadExposureFailure::Permission(UploadAdmissionFailure::Denied)
+);
 impl From<canic::access::AccessError> for PreparationForwardFailure {
     fn from(_: canic::access::AccessError) -> Self {
         Self::Denied

@@ -1,6 +1,7 @@
 //! IC transaction rollback and same-release inspection of the durable upload owner.
 #![cfg(not(target_family = "wasm"))]
 mod authenticated_cli;
+mod observation_provider;
 mod reference_cli;
 mod snapshots;
 mod storage_attestation_cli;
@@ -11,6 +12,7 @@ mod storage_manifests;
 mod storage_observe_cli;
 mod storage_reference_native_cli;
 mod storage_tenants;
+mod submission_proxy;
 mod support;
 use blob_test_protocol::{
     admission::{Permission, Phase, Request, input::PreparationInput},
