@@ -12,7 +12,10 @@ use ic_blob_storage::{
         reference::ReferenceUpload,
         upload::{admission::UploadAdmissionRequest, manifest::UploadManifestRequest},
     },
-    model::identity::{ProviderRootHash, caffeine::manifest::CaffeineManifestLimits},
+    model::identity::{
+        ProviderRootHash,
+        caffeine::{CaffeineContentHashes, manifest::CaffeineManifestLimits},
+    },
     ops::{
         caffeine::preparation::{PreparedManifestLimits, decode_prepared_manifest},
         service::uploads::{
@@ -20,7 +23,7 @@ use ic_blob_storage::{
         },
     },
 };
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
 use sha2::{Digest, Sha256};
 use std::{
@@ -32,6 +35,36 @@ use std::{
 };
 
 const MANIFEST_BYTES: u64 = 256 * 1024;
+
+/// Existing browser client's passive original binding; no store or authority.
+#[derive(Serialize)]
+struct BrowserCertificateBinding {
+    key: String,
+    service: String,
+    tenant: String,
+    uploader: String,
+    operation: String,
+    root: String,
+    permission: Vec<u8>,
+}
+impl BrowserCertificateBinding {
+    fn new(request: UploadAdmissionRequest, permission: Vec<u8>) -> Self {
+        let service = request.upload.service.to_text();
+        let tenant = request.upload.tenant.to_text();
+        let operation = request.upload.upload.to_string();
+        Self {
+            key: format!("{service}:{tenant}:{operation}"),
+            service,
+            tenant,
+            uploader: request.uploader.to_text(),
+            operation,
+            root: ProviderRootHash::try_from(request.upload.root.as_slice())
+                .expect("fixed provider root")
+                .to_string(),
+            permission,
+        }
+    }
+}
 
 /// Caller-selected identities remain unallocated and unauthenticated local data.
 #[derive(Deserialize)]
@@ -143,19 +176,50 @@ pub(super) fn run(args: &[String]) -> Result<Value, Failure> {
     if admission.len() > 4096 || preparation.len() > 65536 {
         return Err(Failure::ReplyLimit);
     }
+    let browser = serde_json::to_vec(&BrowserCertificateBinding::new(
+        permission,
+        admission.clone(),
+    ))
+    .map_err(|_| Failure::Arguments)?;
     let source = LocalBody::open(body_path, permission.upload.bytes)?;
     // All bounded decoding and canonical conversion precedes claiming the output.
     let run = Run::create(directory)?;
     run.bytes("binding.json", &binding_bytes)?;
     run.bytes("manifest.json", &manifest_bytes)?;
+    let hashes = snapshot(source, &request, maximum, &run)?;
+    run.bytes("permission.candid", &admission)?;
+    run.bytes("manifest.candid", &preparation)?;
+    references.save(&run)?;
+    run.bytes("certificate-binding.json", &browser)?;
+    let result = json!({
+        "schema": 1, "observation": "local_upload_inputs",
+        "binding_sha256": digest(&binding_bytes), "manifest_sha256": digest(&manifest_bytes),
+        "permission_sha256": digest(&admission), "preparation_sha256": digest(&preparation),
+        "root": binding.root, "bytes": binding.bytes,
+        "chunks": request.declaration.chunks.len(),
+        "permission_file": "permission.candid", "preparation_file": "manifest.candid",
+        "first_reference": references.summary(),
+        "certificate_binding_file": "certificate-binding.json",
+        "certificate_binding_sha256": digest(&browser),
+        "body_file": "body.bin", "content_digest": hashes.content_digest.to_string(),
+        "authenticated": false, "identities_allocated": false, "body_verified": true,
+        "service_dispatched": false, "provider_dispatched": false,
+    });
+    run.json("summary.json", &result)?;
+    Ok(result)
+}
+
+/// Publish verified bytes before any usable request or browser binding output.
+fn snapshot(
+    source: LocalBody,
+    request: &UploadManifestRequest,
+    maximum: NonZeroU64,
+    run: &Run,
+) -> Result<CaffeineContentHashes, Failure> {
     let mut body = run.open_body()?;
-    let verified = source.verify(
-        binding.root.parse().map_err(|_| Failure::Arguments)?,
-        &request.declaration,
-        maximum,
-        &mut body,
-    );
-    let hashes = match verified {
+    let root = ProviderRootHash::try_from(request.permission.upload.root.as_slice())
+        .expect("fixed provider root");
+    let hashes = match source.verify(root, &request.declaration, maximum, &mut body) {
         Ok(hashes) => hashes,
         Err(error) => {
             run.json(
@@ -170,23 +234,7 @@ pub(super) fn run(args: &[String]) -> Result<Value, Failure> {
     body.sync_all().map_err(|_| Failure::File)?;
     drop(body);
     run.publish_body()?;
-    run.bytes("permission.candid", &admission)?;
-    run.bytes("manifest.candid", &preparation)?;
-    references.save(&run)?;
-    let result = json!({
-        "schema": 1, "observation": "local_upload_inputs",
-        "binding_sha256": digest(&binding_bytes), "manifest_sha256": digest(&manifest_bytes),
-        "permission_sha256": digest(&admission), "preparation_sha256": digest(&preparation),
-        "root": binding.root, "bytes": binding.bytes,
-        "chunks": request.declaration.chunks.len(),
-        "permission_file": "permission.candid", "preparation_file": "manifest.candid",
-        "first_reference": references.summary(),
-        "body_file": "body.bin", "content_digest": hashes.content_digest.to_string(),
-        "authenticated": false, "identities_allocated": false, "body_verified": true,
-        "service_dispatched": false, "provider_dispatched": false,
-    });
-    run.json("summary.json", &result)?;
-    Ok(result)
+    Ok(hashes)
 }
 fn digest(bytes: &[u8]) -> String {
     Sha256::digest(bytes)

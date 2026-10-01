@@ -1,9 +1,10 @@
-//! Controlled application inputs with the real published Canic managed lifecycle.
+//! Controlled application inputs with Canic's canonical managed lifecycle.
 //! This fixture is not a production endpoint artifact or provider observation.
 mod api;
 pub mod configuration;
 mod context;
 mod dto;
+mod limits;
 mod ops;
 use candid::{CandidType, Deserialize, Principal};
 pub use dto::ProbeExposureFailure;

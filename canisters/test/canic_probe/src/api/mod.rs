@@ -39,7 +39,7 @@ pub(crate) use ic_blob_storage::dto::{
             UploadAdmissionResponse, UploadRevocationResponse,
         },
         capacity::{UploadCapacityFailure, UploadCapacityResponse},
-        certificate::UploadCertificateAssessmentResponse,
+        certificate::{CaffeineUploadCertificateResponse, UploadCertificateAssessmentResponse},
         completion::{
             UploadAttestationFailure, UploadAttestationMutation, UploadAttestationRequest,
             UploadAttestationResponse, UploadVerificationPlan,
@@ -59,13 +59,13 @@ fn actual_context() -> ic_blob_storage::model::service::upload::UploadContext {
     context::context().unwrap_or_else(|_| ic_cdk::trap("managed service is inactive"))
 }
 
-#[canic::canic_query(public)]
+#[canic::canic_query(public, decode = crate::limits::REQUEST)]
 fn blob_configuration() -> Result<HostConfigurationView, TransportFailure<HostFailure>> {
     let context = actual_context();
     ops::read(|owner| workflow::installation::inspect(owner, context).map_err(TransportFailure))
 }
 
-#[canic::canic_update(public, payload(max_bytes = 4096))]
+#[canic::canic_update(public, decode = crate::limits::REQUEST)]
 fn blob_admit_upload(
     input: UploadAdmissionRequest,
 ) -> Result<UploadAdmissionMutation, TransportFailure<UploadAdmissionFailure>> {
@@ -81,7 +81,7 @@ fn blob_admit_upload(
     })
 }
 
-#[canic::canic_query(public)]
+#[canic::canic_query(public, decode = crate::limits::REQUEST)]
 fn blob_upload_admission(
     input: UploadAdmissionRequest,
 ) -> Result<UploadAdmissionResponse, TransportFailure<UploadAdmissionFailure>> {
@@ -92,7 +92,7 @@ fn blob_upload_admission(
     })
 }
 
-#[canic::canic_update(public, payload(max_bytes = 131_072))]
+#[canic::canic_update(public, decode = crate::limits::MANIFEST)]
 fn blob_prepare_upload(
     input: UploadManifestRequest,
 ) -> Result<UploadManifestMutation, TransportFailure<UploadManifestFailure>> {
@@ -108,7 +108,7 @@ fn blob_prepare_upload(
     })
 }
 
-#[canic::canic_query(public)]
+#[canic::canic_query(public, decode = crate::limits::REQUEST)]
 fn blob_upload_manifest(
     input: UploadAdmissionRequest,
 ) -> Result<UploadManifestResponse, TransportFailure<UploadManifestFailure>> {
@@ -119,7 +119,7 @@ fn blob_upload_manifest(
     })
 }
 
-#[canic::canic_query(public)]
+#[canic::canic_query(public, decode = crate::limits::REQUEST)]
 fn blob_upload_capacity(
     input: TenantScope,
 ) -> Result<UploadCapacityResponse, TransportFailure<UploadCapacityFailure>> {
@@ -130,7 +130,7 @@ fn blob_upload_capacity(
     })
 }
 
-#[canic::canic_update(public, payload(max_bytes = 4096))]
+#[canic::canic_update(public, decode = crate::limits::REQUEST)]
 fn blob_update_tenant(
     input: TenantUpdateRequest,
 ) -> Result<TenantEnrollmentResponse, TransportFailure<TenantFailure>> {
@@ -140,7 +140,7 @@ fn blob_update_tenant(
             .map_err(TransportFailure)
     })
 }
-#[canic::canic_query(public)]
+#[canic::canic_query(public, decode = crate::limits::REQUEST)]
 fn blob_tenant(
     input: TenantScope,
 ) -> Result<TenantEnrollmentResponse, TransportFailure<TenantFailure>> {
@@ -150,7 +150,7 @@ fn blob_tenant(
             .map_err(TransportFailure)
     })
 }
-#[canic::canic_query(public)]
+#[canic::canic_query(public, decode = crate::limits::REQUEST)]
 fn blob_upload_status(
     input: ReferenceUpload,
 ) -> Result<UploadStatusResponse, TransportFailure<UploadStatusFailure>> {
@@ -160,7 +160,7 @@ fn blob_upload_status(
             .map_err(TransportFailure)
     })
 }
-#[canic::canic_update(public, payload(max_bytes = 4096))]
+#[canic::canic_update(public, decode = crate::limits::REQUEST)]
 fn blob_revoke_upload(
     input: UploadAdmissionRequest,
 ) -> Result<UploadRevocationResponse, TransportFailure<UploadAdmissionFailure>> {
@@ -170,7 +170,7 @@ fn blob_revoke_upload(
             .map_err(TransportFailure)
     })
 }
-#[canic::canic_query(public)]
+#[canic::canic_query(public, decode = crate::limits::REQUEST)]
 fn blob_upload_history(
     input: UploadHistoryRequest,
 ) -> Result<UploadHistoryPage, TransportFailure<UploadHistoryFailure>> {
@@ -184,7 +184,7 @@ fn blob_upload_history(
             .map_err(TransportFailure)
     })
 }
-#[canic::canic_query(public)]
+#[canic::canic_query(public, decode = crate::limits::REQUEST)]
 fn blob_lookup_content(
     input: UploadDiscoveryRequest,
 ) -> Result<UploadDiscoveryResponse, TransportFailure<UploadDiscoveryFailure>> {
@@ -194,7 +194,7 @@ fn blob_lookup_content(
             .map_err(TransportFailure)
     })
 }
-#[canic::canic_update(public, payload(max_bytes = 4096))]
+#[canic::canic_update(public, decode = crate::limits::REQUEST)]
 fn blob_apply_reference(
     input: ReferenceCommand,
 ) -> Result<ReferenceMutationResponse, TransportFailure<ReferenceFailure>> {
@@ -204,7 +204,7 @@ fn blob_apply_reference(
             .map_err(TransportFailure)
     })
 }
-#[canic::canic_query(public)]
+#[canic::canic_query(public, decode = crate::limits::REQUEST)]
 fn blob_reference_receipt(
     input: ReferenceCommand,
 ) -> Result<ReferenceReceiptLookup, TransportFailure<ReferenceFailure>> {
@@ -214,7 +214,7 @@ fn blob_reference_receipt(
             .map_err(TransportFailure)
     })
 }
-#[canic::canic_query(public)]
+#[canic::canic_query(public, decode = crate::limits::REQUEST)]
 fn blob_reference_status(
     input: ReferenceStatusRequest,
 ) -> Result<ReferenceStatusResponse, TransportFailure<ReferenceFailure>> {
@@ -224,7 +224,7 @@ fn blob_reference_status(
             .map_err(TransportFailure)
     })
 }
-#[canic::canic_query(public)]
+#[canic::canic_query(public, decode = crate::limits::REQUEST)]
 fn blob_reference_capacity(
     input: ReferenceCapacityRequest,
 ) -> Result<ReferenceCapacityResponse, TransportFailure<ReferenceCapacityFailure>> {
@@ -234,7 +234,7 @@ fn blob_reference_capacity(
             .map_err(TransportFailure)
     })
 }
-#[canic::canic_query(public)]
+#[canic::canic_query(public, decode = crate::limits::REQUEST)]
 fn blob_local_status(
     input: OperatorScope,
 ) -> Result<LocalServiceStatus, TransportFailure<LocalStatusFailure>> {
@@ -243,7 +243,7 @@ fn blob_local_status(
         workflow::operator::inspect(owner.stores().into(), context, input).map_err(TransportFailure)
     })
 }
-#[canic::canic_query(public)]
+#[canic::canic_query(public, decode = crate::limits::REQUEST)]
 fn blob_funding_history(
     input: FundingHistoryRequest,
 ) -> Result<FundingHistoryPage, TransportFailure<FundingHistoryFailure>> {
@@ -258,7 +258,7 @@ fn blob_funding_history(
         .map_err(TransportFailure)
     })
 }
-#[canic::canic_query(public)]
+#[canic::canic_query(public, decode = crate::limits::REQUEST)]
 fn blob_funding_outcome(
     input: FundingOutcomeRequest,
 ) -> Result<Option<FundingOutcomeResponse>, TransportFailure<FundingOutcomeFailure>> {
@@ -268,7 +268,7 @@ fn blob_funding_outcome(
             .map_err(TransportFailure)
     })
 }
-#[canic::canic_query(public)]
+#[canic::canic_query(public, decode = crate::limits::REQUEST)]
 fn blob_funding_preparation_assessment(
     input: FundingPreparationRequest,
 ) -> Result<FundingPreparationResponse, TransportFailure<FundingPreparationFailure>> {
@@ -279,7 +279,7 @@ fn blob_funding_preparation_assessment(
     })
 }
 
-#[canic::canic_update(public, payload(max_bytes = 4096))]
+#[canic::canic_update(public, decode = crate::limits::REQUEST)]
 fn blob_attest_upload(
     input: UploadAttestationRequest,
 ) -> Result<UploadAttestationMutation, TransportFailure<UploadAttestationFailure>> {
@@ -297,7 +297,7 @@ fn blob_attest_upload(
     })
 }
 
-#[canic::canic_query(public)]
+#[canic::canic_query(public, decode = crate::limits::REQUEST)]
 fn blob_upload_attestation(
     input: UploadAdmissionRequest,
 ) -> Result<UploadAttestationResponse, TransportFailure<UploadAttestationFailure>> {
@@ -313,7 +313,7 @@ fn blob_upload_attestation(
     })
 }
 
-#[canic::canic_query(public)]
+#[canic::canic_query(public, decode = crate::limits::REQUEST)]
 fn blob_verification_manifest(
     input: UploadAdmissionRequest,
 ) -> Result<UploadManifestResponse, TransportFailure<UploadManifestFailure>> {
@@ -329,7 +329,7 @@ fn blob_verification_manifest(
     })
 }
 
-#[canic::canic_query(public)]
+#[canic::canic_query(public, decode = crate::limits::REQUEST)]
 fn blob_verification_plan(
     input: UploadAdmissionRequest,
 ) -> Result<UploadVerificationPlan, TransportFailure<UploadAttestationFailure>> {
@@ -346,7 +346,7 @@ fn blob_verification_plan(
     })
 }
 
-#[canic::canic_update(public, payload(max_bytes = 4096))]
+#[canic::canic_update(public, decode = crate::limits::REQUEST)]
 fn blob_download_descriptor(
     input: DownloadRequest,
 ) -> Result<DownloadResponse, TransportFailure<DownloadFailure>> {
@@ -362,7 +362,7 @@ fn blob_download_descriptor(
     })
 }
 
-#[canic::canic_query(public)]
+#[canic::canic_query(public, decode = crate::limits::REQUEST)]
 fn blob_upload_certificate_assessment(
     root: String,
 ) -> Result<UploadCertificateAssessmentResponse, TransportFailure<UploadExposureFailure>> {
@@ -383,7 +383,31 @@ fn blob_upload_certificate_assessment(
     })
 }
 
-#[canic::canic_update(public, payload(max_bytes = 4096))]
+#[canic::canic_update(
+    public,
+    name = "_immutableObjectStorageCreateCertificate",
+    on_access_denied = "reject",
+    decode = crate::limits::REQUEST
+)]
+fn caffeine_upload_certificate(root: String) -> CaffeineUploadCertificateResponse {
+    let context = actual_context();
+    let now = ic_cdk::api::time();
+    ops::mutate(|owner| {
+        let store = &mut owner.stores_mut().uploads;
+        let permission = workflow::uploads::certificate::resolve(store, context, &root, now)
+            .unwrap_or_else(|_| ic_cdk::trap("certificate issuance refused"));
+        workflow::uploads::certificate::issue(
+            store,
+            context,
+            &root,
+            ops::certificate::evidence(permission, now),
+            now,
+        )
+        .unwrap_or_else(|_| ic_cdk::trap("certificate issuance refused"))
+    })
+}
+
+#[canic::canic_update(public, decode = crate::limits::REQUEST)]
 fn blob_revoke_gateway(
     input: GatewayRevocationRequest,
 ) -> Result<GatewayRevocationResponse, TransportFailure<GatewayRevocationFailure>> {
@@ -394,7 +418,7 @@ fn blob_revoke_gateway(
     })
 }
 
-#[canic::canic_update(public, payload(max_bytes = 4096))]
+#[canic::canic_update(public, decode = crate::limits::REQUEST)]
 fn blob_cancel_gateway_sync(
     input: GatewaySyncCancellation,
 ) -> Result<(), TransportFailure<GatewaySyncFailure>> {
@@ -405,7 +429,7 @@ fn blob_cancel_gateway_sync(
     })
 }
 
-#[canic::canic_update(public, payload(max_bytes = 4096))]
+#[canic::canic_update(public, decode = crate::limits::REQUEST)]
 async fn blob_sync_gateways(
     input: OperatorScope,
 ) -> Result<GatewaySyncResponse, TransportFailure<GatewaySyncFailure>> {
@@ -420,7 +444,7 @@ async fn blob_sync_gateways(
     .map_err(TransportFailure)
 }
 
-#[canic::canic_update(public, payload(max_bytes = 4096))]
+#[canic::canic_update(public, decode = crate::limits::REQUEST)]
 async fn blob_inspect_account(
     input: AccountInspectionRequest,
 ) -> Result<AccountInspectionResponse, TransportFailure<AccountInspectionFailure>> {

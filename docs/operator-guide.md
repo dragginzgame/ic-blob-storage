@@ -89,7 +89,7 @@ cargo run --offline --locked -p ic-blob-storage-cli --bin blob-storage -- \
 
 The fresh private directory retains both exact JSON inputs, a verified `body.bin`,
 `permission.candid`, `manifest.candid`, first-reference `download.candid` and
-`reference-status.candid`, and a final `summary.json` with input/output
+`reference-status.candid`, browser `certificate-binding.json`, and a final `summary.json` with input/output
 hashes and the raw content digest. It opens a regular source file once, checks its
 declared length, then hashes and copies the same 64 KiB frames. Complete EOF/root
 verification and file sync precede publication without replacement. Source-path
@@ -99,6 +99,17 @@ and transfer preparation, rather than reopening a potentially changed source.
 If rebuilding a Caffeine prepared handle from this snapshot, supply the original
 metadata and require its computed root/length to match the saved permission before
 certificate issuance or gateway requests.
+
+`certificate-binding.json` is the existing browser certificate client's input:
+canonical service/tenant/uploader, upload ID as its `operation`, root, exact
+permission Candid as a byte array, and `${service}:${tenant}:${operation}` as
+`key`. Its hash is in the final summary. Load it as `binding` when creating the
+[browser client](../clients/browser/README.md); the application supplies its
+authenticated identity, trusted IC root/origin and durable intent store separately.
+The original `permission.candid` remains the input for signed service admission.
+This JSON is neither a certificate nor a ready-to-upload grant, and it contains
+no gateway origin, provider account or qualification override. Keep it with the
+verified snapshot under the application's intent policy.
 
 Existing directories refuse, including partial runs. Failed verification retains
 private `body.part` and `failure.json`, with no published body, Candid request files

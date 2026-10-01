@@ -2,7 +2,147 @@
 
 Date: 2026-10-01
 
-## Active work — shared reference downloads and changelog after 0.4.13
+## Active work — local managed certificate and decoding after 0.4.14
+
+The maintainer requested continued local integration plus persistent Canic
+feedback/reminders. AGENTS.md now requires the
+[feedback list](../canic-parity.md#integration-feedback) and delivery reminders.
+CF-01 is open: the registry pin lacks the new hooks, so normal workspace/release
+checks need a published dependency containing them. Local development proceeds
+without Canic deployment. No framework defect was established in these checks.
+
+The maintained managed fixture now declares the canonical plain-record certificate
+update with public `on_access_denied = "reject"`, delegating synchronous issuance
+to the shared workflow. All blob queries/updates select five-dimensional decoding
+limits; owning lifecycle selects the protected 256 KiB carrier limit before
+restoration/participants. Manifest transport remains 128 KiB with independent
+semantic limits. No internal endpoint, copied dispatch or qualification override.
+The four provider/recovery facts remain false; real issuance still refuses.
+
+Fresh `.tmp/local-canic-02/blob` copies current Rust sources and uses immutable
+Canic `32da629d0214bf791541a9b3c1832dbef13ece29` from `.tmp/local-canic-01/canic`.
+Both copied manifests retain their local overrides/locks; maintained Cargo/lock/
+release receipt stay 0.4.14. Canonical artifact build passes in 49.38 seconds.
+A documentation-title sync rebuild (19.92 seconds) yields byte-identical Wasm
+and Candid, so the existing targeted results still bind the final artifact.
+
+Six focused cases pass: actual certificate authority/refusal through revocation
+and fenced restore plus malformed/oversized/type/header refusal (16.63 seconds);
+invalid install and oversized-upgrade occupied rollback (21.02 seconds); manifest
+exact boundaries, inter-canister overflow, tenant authority and fences (8.54
+seconds); all maintained blob Candid types including the plain record (0.02
+seconds). Fixture all-target/all-feature and affected native-harness strict lint
+pass. Initial test compilation used the wrong testkit rejection accessor; retained
+failure and corrected structured assertion are in separate logs. No full CI or
+release gate; no successful certificate exposure or provider transfer observed.
+
+See [evidence](../evidence/core-primitives.md#managed-certificate-and-decoding--2026-10-01)
+and [local setup](../dependencies.md#local-canic-development). Intent, exact source/
+lock/artifact hashes, initial/final builds and all results remain in the fresh
+capture; previous manifests remain immutable. Instances drop normally, with no
+external cleanup. Siblings untouched; no provider requests, paid effects,
+deployment, release action or Cargo cleanup. Changelog and current contract/
+acceptance/roadmap/ledger are updated together.
+The sealed capture manifest hashes to
+`2177a07389e98b0a48405eb27bb6a7e04a54b110ff4c0b6023a232d2bd6cd172`.
+Current/copied code agrees; the previous manifest, formatting, capability JSON,
+457 maintained links/fences and diff/release-file checks pass. Owned PocketIC
+processes have exited. The initial obsolete handoff fragment failure is retained
+and its link corrected without freezing a status heading.
+
+Next address the existing pre-charge/namespace/replay/recovery facts for a bounded
+real upload-to-download trial. Do not infer those facts from configured limits or
+local substitutes; no installation/provider account/budget is selected. Track
+Canic package adoption as CF-01 before a normal release; generic continuation
+does not authorize publication/deployment or paid trials.
+
+## Earlier work — local Canic composition after 0.4.14
+
+The maintainer selected local Canic development while its release/deployment is
+being repaired. Publication is not a prerequisite for local composition work.
+Sibling scope remains read-only. Frozen committed Canic
+`32da629d0214bf791541a9b3c1832dbef13ece29` and this repository's working Rust
+workspace are copied into `.tmp/local-canic-01/{canic,blob}`. Root and fixture
+copies patch `canic`, `canic-core` and `canic-macros` to that source; metadata
+confirms all three selected packages are local. Generated locks stay in copies;
+maintained Cargo.toml/Cargo.lock/release receipt remain unchanged at 0.4.14.
+
+Installed Canic CLI 0.110.48 builds the copied managed fixture through its canonical
+role-contract pipeline, offline with compiler caching explicitly disabled and
+this repository's target directory. The artifact is
+`.tmp/local-canic-01/icp/.icp/local/canisters/storage/storage.wasm`, with adjacent
+Candid. Declaration/runtime/finalization complete in 101.27 seconds. Two actual
+managed PocketIC cases pass: certificate assessment/authority/revocation/fenced
+restore (9.77 seconds), and admission/manifest bounds/tenant authority/fenced
+upgrade (8.46 seconds). These run existing endpoints; they do not yet qualify the
+new plain-record rejection or endpoint/lifecycle decoder hooks downstream.
+
+Intent, committed source archive, copied sources/locks, metadata, source/artifact
+hashes and all logs remain in `.tmp/local-canic-01`. Initial metadata omitted the
+local test-protocol directory; the corrected copy resolves offline. Initial build
+preflights refused a missing output directory and unavailable sandboxed sccache;
+both refusals are retained, with no compiler/cache bypass. The successful build
+uses `RUSTC_WRAPPER=`. Test instances drop normally; no deployed provider request,
+paid effect, account, external cleanup, sibling edit, release action or Cargo
+cleanup. Only the two targeted tests ran, not full CI or a release gate.
+
+Next use this local source lane to adopt and qualify supported Canic plain-record
+certificate rejection and bounded endpoint/lifecycle decoding. Keep normal
+published dependency validation separate. Pre-charge, namespace, replay and
+operational recovery facts remain unqualified; local framework success cannot
+authorize paid certificate exposure. The real consumer trial still needs selected
+installation/provider account/budget/cleanup ownership. See
+[local development](../dependencies.md#local-canic-development).
+
+## Earlier work — native/browser handoff after 0.4.14
+
+The maintainer pushed 0.4.14. Clean main/origin/peeled tag resolve to
+`4750ac8e5c65bb3663503caabd8c3d0807cda0bb`; the release receipt binds source
+`8316e684cc770ff4703b573a5061338462bcfe33`. Preserve Cargo/lock/receipt and
+historical changelog; this compatible tooling work joins Unreleased.
+
+Verified `upload-inputs` now also exports the existing browser certificate
+client's `certificate-binding.json`: canonical service/tenant/uploader, upload ID
+as operation, exact root/key and original opaque permission Candid bytes. The
+native DTO remains authoritative; no second JS schema, SDK, signer or journal.
+JSON is validated/encoded before claim and written only after body publication;
+corrupt snapshots yield no browser binding. Summary binds its file hash. A private
+snapshot helper preserves failure/sync/publication behavior and keeps run readable.
+
+Actual hash-checked Caffeine 1.1.2 plus maintained patch prepares ten 1 MiB chunks;
+the CLI saves/verifies the 10 MiB file and generates binding accepted by the
+existing browser source client in Node. Its store permits setup/inspection only
+and its trust bytes are deliberately non-IC substitutes; no certificate or IC
+signature is tested. Changed source leaves the snapshot intact; SDK repreparation
+with original metadata matches root, length and exact manifest. Completed-file
+hashes remain unchanged on repeat refusal; corrupt source retains private partial/
+failure with no body/Candid/browser binding/summary. Three native calls return
+0/3/3, two SDK preparations, zero network calls. Known fixture identity exists only
+in memory. Opt-in `make test-sdk-inputs` repeats this in a new directory; its
+recipe was inspected, not used to rerun the capture. No Chromium/PocketIC/full CI.
+
+All five affected native cases, final CLI all-target strict lint, native binary
+and hash-checked SDK bundle build pass. Initial run-length lint and pre-refactor
+logs remain retained. Changelog, usage/client/setup docs and evidence are updated.
+See [evidence](../evidence/core-primitives.md#native-browser-certificate-binding--2026-10-01).
+Fresh `/tmp/ic-blob-storage-browser-handoff-evidence-01` retains 38 manifested
+files and 26 current source/artifact/package bindings. Formatting, diff, capability
+JSON, read-only changelog and 423 maintained local links/fences pass; previous
+capture manifests remain immutable.
+
+Read-only Canic source is now clean/committed at
+`c36a0edf8518e0f0793dad13e0908ffc3394aeae` with the public generic hooks;
+its handoff reports focused qualification passes, not rerun here. Local package
+versions remain 0.110.48 and registry metadata was unavailable, so our published
+pin remains unchanged. Next adopt qualified published hooks here, then resolve
+the unchanged pre-charge/namespace/replay/recovery facts and real consumer trial.
+No live-provider installation/account/budget is selected. Do not infer facts from
+configuration or SDK/local substitutes. Siblings untouched; no paid effect,
+deployment, commit/version/tag/publication or cleanup. Operational restore,
+consumer provenance and retirement remain open. Owned test buffers/identity dropped;
+capture/build retained and no external cleanup obligation.
+
+## Earlier work — shared reference downloads and changelog after 0.4.13
 
 The maintainer requested continued upload/download work followed by the changelog.
 The extended existing signed managed journey now uses generated second-reference

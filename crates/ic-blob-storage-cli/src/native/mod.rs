@@ -34,7 +34,7 @@ use std::{fs::File, io::Read, path::Path, process::ExitCode, time::Duration};
 
 const USAGE: &str = concat!(
     "blob-storage upload-inputs --binding JSON --manifest UPSTREAM_MANIFEST_JSON --body FILE --max-bytes DECIMAL --run-dir NEW_DIRECTORY\n",
-    "Offline preparation of permission.candid, manifest.candid, first-reference download.candid/reference-status.candid and a complete root-verified body.bin snapshot. Explicit original identities and Caffeine's prepared declaration; no signer, network, ID allocation or certificate. Failed snapshots remain private body.part; existing or partial directories refuse.\n",
+    "Offline preparation of permission.candid, manifest.candid, first-reference download.candid/reference-status.candid, certificate-binding.json for the existing browser client and a complete root-verified body.bin snapshot. Explicit original identities and Caffeine's prepared declaration; no signer, network, ID allocation or certificate. Failed snapshots remain private body.part; existing or partial directories refuse.\n",
     "blob-storage reference-inputs --permission PERMISSION_CANDID --action retain|release --reference DECIMAL --operation DECIMAL --run-dir NEW_DIRECTORY\n",
     "Offline exact reference.candid, reference-status.candid and download.candid generation from the original saved permission. Canonical positive identities are caller-supplied, never allocated. No signer, network, mutation, liveness, expiry renewal or retry authority; existing or partial directories refuse.\n",
     "blob-storage admit-upload|prepare-upload|revoke-upload --network ic|local --url URL --identity PEM --actor PRINCIPAL --service PRINCIPAL --namespace DECIMAL --request CANDID --run-dir NEW_DIRECTORY [--root-key DER]\n",

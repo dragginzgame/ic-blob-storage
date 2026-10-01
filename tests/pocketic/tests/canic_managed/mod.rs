@@ -1,4 +1,4 @@
-//! Published Canic managed lifecycle with shared real service owners and fixture inputs.
+//! Canonical Canic managed lifecycle with shared real service owners and fixture inputs.
 use blob_canic_probe::{CompositionSnapshot, EnrollmentForwardFailure};
 use candid::{CandidType, Deserialize, Principal};
 use canic::{

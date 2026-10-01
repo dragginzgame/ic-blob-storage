@@ -9,8 +9,8 @@ use super::{
     Principal, ProbeExposureFailure,
 };
 use super::{canic_install, canic_setup, canic_upgrade};
-canic::start!(lifecycle_participant(
-    init = crate::install,
-    post_upgrade = crate::restore
-),);
+canic::start!(
+    argument_limits = crate::limits::LIFECYCLE,
+    lifecycle_participant(init = crate::install, post_upgrade = crate::restore),
+);
 canic::finish!();

@@ -34,6 +34,70 @@ all logs here; link their maintained test and record material changed findings.
 
 ## Current operating decisions and experiments
 
+2026-10-01 managed hook adoption: pre-run `.tmp/local-canic-02/intent.txt` records
+frozen framework source, zero provider/payment budget, bounded builds/checks,
+refusal/decoder/lifecycle questions and instance cleanup. All six focused cases
+and both affected strict-lint lanes pass against Canic `32da629d0214bf791541a9b3c1832dbef13ece29`.
+The canonical certificate method's plain record matches standalone; actual issue
+calls refuse missing prerequisites, wrong actors and restored owners without
+exposure. Valid hostile Candid type/header envelopes, malformed/oversized input,
+exact manifest boundaries and occupied lifecycle rollback are locally exercised.
+Initial testkit-accessor compilation failure and corrected result are retained.
+This is local framework/IC evidence, not successful certificate exposure or
+deployed Caffeine behavior. Host facts remain false; no qualification override,
+provider call, paid effect, live Fleet or sibling edit. AGENTS.md now requires
+stored [Canic feedback](../../canic-parity.md#integration-feedback) and delivery
+reminders; CF-01 covers normal published dependency adoption. See
+[evidence](../core-primitives.md#managed-certificate-and-decoding--2026-10-01).
+
+2026-10-01 local Canic composition: the maintainer selected local development
+while Canic release/deployment work continues separately. The pre-run intent in
+`.tmp/local-canic-01/intent.txt` bounds offline metadata, one canonical artifact
+build, one native harness build and two focused managed PocketIC cases, with no
+provider requests or paid effects. Committed Canic `32da629d0214bf791541a9b3c1832dbef13ece29`
+is frozen here; sibling sources stay read-only and only copied workspace locks
+resolve path overrides. The canonical managed build and existing certificate/
+admission/fenced-restore cases pass. Initial copy/output/cache preflight refusals
+and corrected results are all retained there alongside source/artifact hashes.
+This is local framework/substitute evidence, not adoption evidence for the new
+hooks or deployed Caffeine behavior. The four certificate prerequisites remain
+unqualified; no paid exposure is authorized. Instances drop; builds/capture stay.
+See [handoff](../../status/current.md).
+
+2026-10-01 native/browser handoff intent: emit the existing browser certificate
+client's exact binding JSON alongside verified upload inputs, deriving its IDs,
+root and opaque Candid permission from the maintained Rust DTO. No new JS schema,
+signer, intent journal, certificate or gateway implementation. Execute actual
+pinned Caffeine 1.1.2 preparation (maintained repository patch) on a 10 MiB local
+file, pass its manifest/binding/body through the native CLI, and consume the
+generated binding in the existing browser client with an explicitly in-memory
+store that permits setup only. Rebuild preparation from the native snapshot and
+original metadata; require the same root/length before any potential future use.
+Global and explicit network transports throw, with no certificate issue/recovery
+or gateway upload. At most three native invocations, two SDK preparations and
+32 MiB local data; preserve no-clobber and corrupt-body failures in fresh
+`/tmp/ic-blob-storage-browser-handoff-evidence-01`. Retain outputs/logs/source and
+binary/package hashes; no deployed request, payment, attachment, private key file,
+account or external cleanup. This is local SDK/native/client evidence, not a
+production store, authorization, readiness or provider guarantee.
+
+2026-10-01 native/browser handoff outcome: five affected CLI cases and final
+strict CLI all-target lint pass. The first lint found a 102-line run function;
+its log is retained, and snapshot publication now has a separate private helper
+with the same verification/failure behavior. Actual pinned SDK preparation passes
+through native conversion for ten 1 MiB chunks. The existing browser source client
+accepts the generated full-width binding/opaque permission in Node, using only
+setup/inspection with an in-memory substitute and deliberately non-IC trust bytes.
+No signature/certificate/IC behavior is exercised. After the source changes,
+snapshot preparation reproduces exactly the root, ten-MiB length and manifest.
+Native repeat refuses with every completed file hash unchanged; corrupt source
+retains private partial/failure with no body, Candid, browser binding or summary.
+Three native invocations return 0/3/3, two SDK preparations and zero network calls.
+Fresh [evidence](../core-primitives.md#native-browser-certificate-binding--2026-10-01)
+retains commands/results, package/source/artifact bindings and failed/final logs.
+No full CI, Chromium/PocketIC rerun, upstream refresh or provider experiment.
+Known test identity lived in memory only; no key file or external cleanup.
+
 2026-10-01 shared native download intent: extend the existing managed completion/
 download journey with an offline-generated second retain, a deliberately dropped
 reply around the actual signed update, exact receipt/status recovery without

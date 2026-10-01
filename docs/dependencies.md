@@ -56,6 +56,34 @@ The unpublished `tests/pocketic` harness uses these exports. This shares version
 selection and harness helpers, rather than reducing the total transitive package
 count: testkit also brings host-side artifact/locking utilities.
 
+## Local Canic development
+
+Canic publication or a deployed Fleet is not required for local development.
+Freeze a committed Canic revision into an ignored directory here, copy this
+repository's current Rust workspace into a separate directory, and apply
+`[patch.crates-io]` path overrides for `canic`, `canic-core` and `canic-macros`
+in both copied workspace manifests (root and `canisters/test/canic_probe`).
+Cargo resolves new lockfiles only in those copies. Keep the sibling checkout
+read-only and this repository's release manifests/lockfile unchanged. Freeze
+source first so a concurrent Canic release cannot change a running build.
+
+Use the maintained `canic build` command against the copied fixture workspace,
+with a separate `--icp-root`, `CARGO_NET_OFFLINE=true`, `RUSTC_WRAPPER=` and this
+repository's `CARGO_TARGET_DIR`. Do not bypass Canic's role-contract build marker.
+Then run the copied PocketIC harness with `BLOB_CANIC_PROBE_WASM` pointing at that
+generated artifact and `POCKET_IC_BIN` pointing at the provisioned local server.
+PocketIC creates the managed test group; no live Fleet deployment is needed.
+
+The current prepared workspace is `.tmp/local-canic-02/blob`, using committed
+Canic `32da629d0214bf791541a9b3c1832dbef13ece29` in `.tmp/local-canic-01/canic`.
+Its artifact is `.tmp/local-canic-02/icp/.icp/local/canisters/storage/storage.wasm`.
+The [handoff](status/current.md) records executed checks and limitations.
+The maintained fixture now uses the public rejection and decoding hooks absent
+from our registry pin. Build/test it through this local lane for now; normal
+workspace checks and the release gate need a published Canic dependency containing
+those hooks. Track that action as [CF-01](canic-parity.md#integration-feedback).
+Local success does not qualify provider economics/recovery or certificate exposure.
+
 ## Browser certificate evidence
 
 `tests/browser` is a private fixture, with npm-locked `@caffeineai/object-storage`
@@ -91,6 +119,25 @@ reload, cancellation and verified historical replies. Caffeine performs real HTT
 tree/chunk requests only against the local substitute. Failed/aborted transfer does
 not retry. This is not production sizing, crash/eviction durability, browser-profile restoration, a deployed gateway upload,
 or qualification of a consumer's CSP/authentication/storage environment.
+
+### Offline native/browser handoff
+
+With the same local packages and Node 24, run the optional preparation check:
+
+```sh
+make test-sdk-inputs BLOB_BROWSER_NODE=/absolute/path/to/node \
+  BLOB_SDK_INPUTS_REPORT=/tmp/new-browser-inputs-evidence
+```
+
+It bundles the hash-checked pinned SDK/patch, builds the native CLI offline and
+prepares a 10 MiB file. Actual SDK output feeds `upload-inputs`; its generated
+`certificate-binding.json` is consumed by the existing browser source client in
+Node with an in-memory setup-only store. Snapshot repreparation, no-clobber repeat
+and corrupt-source refusal retain exact output/logs in the new directory. All
+network calls throw; no certificate issue/recovery or gateway upload occurs.
+This check needs neither Chromium nor PocketIC and remains outside ordinary CI.
+It establishes no production storage durability, service authorization or provider
+guarantee. Existing evidence directories refuse reuse; build artifacts are kept.
 
 ## Memory composition with Canic and IcyDB
 

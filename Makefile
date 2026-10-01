@@ -20,7 +20,7 @@ VERSION ?=
 RELEASE := bash scripts/release/release.sh
 CI_TARGETS := shell-check release-check fmt-check check clippy probe-check docs-check test wasm-check package
 
-.PHONY: help version deps cloc fmt fmt-check check clippy docs-check test test-native test-pocketic test-browser test-sdk-probe test-fixture test-standalone build-standalone prepare-canic-probe build-canic-probe test-canic-composition test-admission-resources test-read-resources wasm-check \
+.PHONY: help version deps cloc fmt fmt-check check clippy docs-check test test-native test-pocketic test-browser test-sdk-probe test-sdk-inputs test-fixture test-standalone build-standalone prepare-canic-probe build-canic-probe test-canic-composition test-admission-resources test-read-resources wasm-check \
 	build package clean shell-check release-check probe-check ci validate release-verify \
 	release-plan ensure-clean patch minor major bump-x release-patch \
 	release-minor release-major release-x release-stage release-commit \
@@ -36,6 +36,7 @@ help:
 	@echo "test-canic-composition        Published Canic lifecycle and shared storage fixture"
 	@echo "test-browser                  Opt-in Chromium certificate/IndexedDB evidence"
 	@echo "test-sdk-probe                Opt-in local SDK fault probe; BLOB_SDK_PROBE_REPORT=NEW_DIRECTORY"
+	@echo "test-sdk-inputs               Opt-in offline native/browser handoff; BLOB_SDK_INPUTS_REPORT=NEW_DIRECTORY"
 	@echo "test-admission-resources     Local admission bounds and Wasm resource report"
 	@echo "test-read-resources          Local read-slot and Wasm resource report"
 	@echo "clean                        Explicitly remove build artifacts"
@@ -133,6 +134,12 @@ test-sdk-probe:
 	$(BLOB_BROWSER_NODE) tests/browser/build.mjs
 	cargo build --offline --locked -p ic-blob-storage --example verify_download
 	$(BLOB_BROWSER_NODE) .tmp/browser/sdk-probe.mjs "$(BLOB_SDK_PROBE_REPORT)" "$(CARGO_TARGET_DIR)/debug/examples/verify_download"
+
+test-sdk-inputs:
+	@test -n "$(BLOB_SDK_INPUTS_REPORT)" || { echo 'Set BLOB_SDK_INPUTS_REPORT to a new directory beneath an existing parent'; exit 1; }
+	$(BLOB_BROWSER_NODE) tests/browser/build.mjs
+	cargo build --offline --locked -p ic-blob-storage-cli --bin blob-storage
+	$(BLOB_BROWSER_NODE) .tmp/browser/native-inputs.mjs "$(BLOB_SDK_INPUTS_REPORT)" "$(CARGO_TARGET_DIR)/debug/blob-storage"
 
 test-browser:
 	$(BLOB_BROWSER_NODE) tests/browser/build.mjs

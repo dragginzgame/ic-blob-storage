@@ -12,7 +12,7 @@ pub(crate) fn evidence(permission: UploadPermission, now: u64) -> UploadExposure
         replay_charging: false,
         recovery_ready: false,
         // The host supports synchronous stable updates in an IC transaction.
-        // This passive assessment never commits exposure or creates reply bytes.
+        // Qualification remains false for both passive assessment and issuance.
         durable_commit: true,
     }
 }

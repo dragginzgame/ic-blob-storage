@@ -62,9 +62,11 @@ Signed native admission, uploader manifest preparation, exact recovery and tenan
 cancellation now run through both actual hosts, including lost/pending replies and
 fenced history. These commands make upload setup usable without fixture mutation
 calls; they do not waive certificate or provider qualification. The latest read-only
-local Canic review now finds uncommitted generic plain-reply/decoder APIs;
-their lifecycle and strict-lint qualification remain open, and this repository
-still pins the published 0.110.48. The maintainer kept sibling edits out of this
+local Canic review now finds committed generic plain-reply/decoder APIs at clean
+`c36a0edf8518e0f0793dad13e0908ffc3394aeae`; its handoff reports focused framework
+qualification passes. Local package versions still say 0.110.48 and latest registry
+metadata could not be obtained, so this repository keeps that published pin until
+the new public hooks are released and qualified here. The maintainer kept sibling edits out of this
 session and coordinates Canic work separately. Offline `upload-inputs` now bridges
 the upstream prepared manifest to the exact native admission/preparation files
 without an application-specific Rust encoder or a second hashing/upload SDK.
@@ -75,6 +77,18 @@ First-reference download/status inputs now accompany upload preparation; offline
 `reference-inputs` generates exact retain/release and read requests from saved
 permissions. Generated requests drive signed local release/receipt/liveness through
 fenced restore, without adding an allocator or application outbox.
+Verified inputs now also export the existing browser client's exact certificate
+binding. Actual pinned SDK 10 MiB preparation and snapshot repreparation pass
+through the native converter with all network calls blocked; this is an offline
+handoff, not certificate issuance or real transfer acceptance.
+The maintainer now selected local Canic development while its release/deployment
+is being repaired. Frozen committed source `32da629d0214bf791541a9b3c1832dbef13ece29`
+now builds the managed plain-record certificate adapter and bounded query/update/
+lifecycle decoders. Targeted Candid/authority/manifest/rollback checks pass in
+PocketIC using isolated copied workspaces. Continue in that lane without waiting
+for publication; real issuance still lacks provider/recovery facts, and normal
+release dependency adoption remains [CF-01](canic-parity.md#integration-feedback). See
+[local setup](dependencies.md#local-canic-development).
 See [download usage](operator-guide.md#download-a-verified-file) and
 [local evidence](evidence/core-primitives.md#verified-native-tenant-downloads--2026-10-01).
 

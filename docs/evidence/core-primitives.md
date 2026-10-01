@@ -5105,3 +5105,97 @@ Earlier capture manifests remain immutable. See
 [usage](../operator-guide.md#share-a-confirmed-blob-within-a-tenant) and
 [ledger](caffeine-probes/README.md). Certificate issuance/provider recovery and
 real consumer upload/download delivery remain open.
+
+## Native browser certificate binding — 2026-10-01
+
+Verified `upload-inputs` exports the existing browser client's binding directly
+from its maintained Rust permission: exact service/tenant/uploader, upload ID as
+operation, root/key and opaque Candid bytes. No JS reconstruction of service DTOs,
+identity allocation, credential, certificate or new provider format. Encoding
+precedes claim; binding follows complete body verification/publication and its
+hash is in summary. Corrupt body produces no binding. The private snapshot helper
+retains the previous same-buffer EOF/root, failure, sync and no-clobber semantics.
+
+The real hash-checked pinned Caffeine 1.1.2 package with the maintained patch
+prepares a 10 MiB ten-chunk file. Native conversion verifies/saves it and the
+existing browser source client in Node accepts the generated full-width binding
+and permission. The setup-only in-memory store and deliberately non-IC trust
+bytes are labelled substitutes: no signature, certificate, IC endpoint, durable
+store or browser platform behavior is exercised. All network calls throw.
+After changing the original source, SDK preparation from the snapshot and original
+metadata reproduces exact root/length/manifest. A repeat refuses with every file
+hash unchanged; corrupt source retains only private partial/failure, no usable
+body/Candid/browser binding/summary. Three native invocations return 0/3/3; two
+SDK preparations and zero network requests. No provider account or paid effect.
+
+All five affected native cases pass in 0.04 seconds; final CLI all-target strict
+lint, native binary and SDK bundle build pass. The first run-length lint failure
+and both pre-/post-refactor unit/build logs are retained. The new opt-in Make
+recipe is inspected without repeating the capture. Only targeted checks ran;
+no full CI/release gate, Chromium/PocketIC rerun or upstream SDK refresh. Fresh
+`/tmp/ic-blob-storage-browser-handoff-evidence-01` retains actual manifests,
+bindings, snapshots/partial bytes, commands/outcomes and validation/source/package
+bindings. The known fixture identity lived in memory only; no private key file,
+network resource, account/object or external cleanup. Build/evidence are retained.
+The capture has 38 manifested files and 26 source/artifact/package bindings;
+`SHA256SUMS` hashes to
+`657361e996f6cfc78c284d370714d277d33815fb170762f7d855c894f8517a4d`.
+
+Read-only local Canic review now finds clean committed public hooks at
+`c36a0edf8518e0f0793dad13e0908ffc3394aeae`; its handoff reports focused generic
+qualification passes, not rerun here. Local Cargo still says 0.110.48. The web
+metadata lookup was unavailable; latest registry version remains unverified.
+This is source/handoff review, not published dependency/downstream qualification.
+Our pin and host prerequisites remain unchanged; adoption awaits supported
+published hooks. See [usage](../operator-guide.md#generate-upload-inputs-offline),
+[client](../../clients/browser/README.md) and [ledger](caffeine-probes/README.md).
+
+## Managed certificate and decoding — 2026-10-01
+
+The maintainer selected local Canic development and persistent feedback reminders.
+The managed fixture now uses public rejection/decoder/lifecycle hooks from frozen
+Canic `32da629d0214bf791541a9b3c1832dbef13ece29`, through the canonical Canic CLI
+build. Both copied workspaces patch the three Canic packages; main manifests,
+lockfile and release receipt are unchanged. The independent core has no Canic
+production dependency. Old capture `.tmp/local-canic-01` remains immutable;
+new intent/sources/locks/artifact/logs are retained in `.tmp/local-canic-02`.
+The initial canonical build takes 49.38 seconds. After syncing the library's
+documentation title, a 19.92-second rebuild produces byte-identical Wasm and
+Candid; exact pre-/post-rebuild hashes bind the executed tests to the final artifact.
+
+The exact `_immutableObjectStorageCreateCertificate` update has a plain record
+Candid result matching standalone. It calls the same synchronous root resolution/
+issuance workflow and actual actor binding, with no internal dispatch workaround
+or qualification override. Actual IC issuance refuses unprepared/blocked/revoked/
+restored uploads and wrong actors, retaining stable bytes and local reservation
+accounting. There is no observed successful certificate reply or deployed transfer.
+
+All blob queries/updates select five-dimensional decoding limits. Actual malformed,
+oversized, excessive-type and excessive-header requests reject before mutation;
+the latter two are valid Candid under ordinary decoding. An exact 4 KiB envelope
+reaches shared root validation. Existing manifest evidence retains the 128 KiB
+transport boundary, smaller semantic limits, ingress and inter-canister overflow
+refusal, tenant authority and fenced restore. Initial carrier limits precede
+participants; invalid installation and oversized upgrade preserve occupied owners,
+neighboring memory and tenant state through whole-transaction rollback.
+
+Six focused cases pass: two certificate cases (16.63 seconds), two lifecycle cases
+(21.02 seconds), manifest/authority/restore (8.54 seconds), and exact Candid types
+(0.02 seconds). Fixture all-target/all-feature strict lint and the affected native
+harness strict lint pass. The initial test compile used the wrong testkit rejection
+accessor; its failure is retained, and the corrected assertion uses the structured
+rejection response. No error-text assertions or production test overrides were added.
+Only targeted checks ran, not full CI/release validation or provider experiments.
+
+The four certificate prerequisites remain false. Canic publication/pin adoption
+for normal workspace/release checks is [CF-01](../canic-parity.md#integration-feedback);
+local development continues without a live Fleet deployment. AGENTS.md requires
+maintained feedback and delivery reminders. No Canic defect was established by
+the downstream checks; provider economics/recovery are separate service work.
+Sibling repositories stay read-only; instances drop and artifacts remain, with
+no paid effect, deployment, commit/version/tag/publication or external cleanup.
+The new capture's `SHA256SUMS` is
+`2177a07389e98b0a48405eb27bb6a7e04a54b110ff4c0b6023a232d2bd6cd172`;
+the previous local-source manifest still verifies. Current code matches its copied
+counterpart, final links/JSON/formatting/diff checks pass, and owned local PocketIC
+processes have exited.

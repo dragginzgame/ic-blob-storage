@@ -299,62 +299,49 @@ Fresh copied client storage is not independent freshness authority. Actual signe
 local journeys preserve occupied unrelated owners and pending history through
 fenced same-release restore; provider replies remain query-only substitutes.
 
-The only unwired service method is `_immutableObjectStorageCreateCertificate`.
-Pinned Canic 0.110.48 injects its default Fleet guard even for `public` endpoints;
-its expansion rejects every access-gated function with a non-Result reply.
-Caffeine's maintained contract requires a plain record on success and IC rejection
-on refusal. A Result wrapper would change that wire format; `internal` would
-misclassify this application method and omit its normal Fleet guard. Neither is an
-accepted workaround. A supported framework adapter must preserve the plain Candid
-reply, synchronous commit/reply, rejection on failure, normal Fleet/preflight/
-instrumentation and registration. Do not copy dispatch or use internal helpers.
-The attempted public plain-record adapter failed compilation and was removed;
-no alternative endpoint or qualification fact remains. No upstream edit/request
-was sent. This gate is separate from provider readiness and bounded decoding.
+The managed fixture now declares `_immutableObjectStorageCreateCertificate` with
+Canic's public `on_access_denied = "reject"` hook, preserving a plain Caffeine
+record on success and IC refusal on failure. The actual service/actor context and
+retained root resolve through the shared workflow, which rechecks eligibility,
+independent host facts and durable exposure synchronously before reply. There is
+no Result wire wrapper, internal endpoint workaround, copied dispatch or added
+qualification override. Normal Fleet guards, preflight, instrumentation and
+Candid registration remain framework-owned.
 
-Source review of pinned Canic 0.110.48 and the read-only local Canic checkout
-found no public endpoint decoder hook. Its `payload(max_bytes = ...)` attribute
-supports updates only. Its update decoder sets a skipping quota of 10,000 but
-does not expose decoding-work, type-count or header limits; queries use default
-CDK decoding. The initial lifecycle envelope also decodes before the blob
-participant can apply its own bounds. These are source findings, not measured
-hostile-input instruction costs or a latest-registry assertion.
+Every managed blob query/update selects `decode = LIMITS`; owning lifecycle uses
+`argument_limits = LIMITS` before restoration/participants. The artifact bounds
+raw bytes, decoding and skipping work, type-table entries and header complexity.
+The existing 128 KiB manifest transport envelope remains; shared semantic limits
+still apply. The protected lifecycle carrier is capped at 256 KiB, with separate
+nested application extraction/validation. Decoder work quotas are not measured
+IC instruction or cycle budgets.
 
-A fresh source review on 2026-10-01 resolves upstream main and peeled v0.110.48
-to `8d37c74c9a4457b9e2bd47ee883f98fd2889d63b`; its access, expansion and parser
-files match the pinned registry sources byte-for-byte. The framework gates above
-remain current for that inspected source. Registry metadata returned HTTP 403;
-latest-registry status remains unverified. See [retained review](evidence/core-primitives.md#managed-certificate-framework-review--2026-10-01).
+Frozen local Canic `32da629d0214bf791541a9b3c1832dbef13ece29` builds this source
+through the canonical role-contract pipeline. Its built Candid matches standalone,
+including the exact certificate name/update mode/plain record. Actual local IC
+checks cover wrong actors, unprepared/blocked/revoked/restored issuance refusal,
+malformed and excessive byte/type/header envelopes, exact manifest boundaries and
+inter-canister overflow, invalid installation rollback and oversized upgrade
+rollback with occupied owners. Stable bytes and tenant authority are preserved.
+The production host facts remain false; no successful certificate exposure or
+provider transfer is observed. This is downstream local framework evidence, not
+production Fleet provenance or provider qualification.
 
-Later read-only local review at Canic `70a0bc9a435a7695d8931a7c66c745576e678597`
-finds the same access/expansion/parser files as pinned 0.110.48, byte-for-byte.
-Both generic framework gates remain in that inspected checkout; this is local
-source evidence, not a new upstream-main or registry refresh. Sibling edits require
-separate scope authority. See [upload setup evidence](evidence/core-primitives.md#signed-native-upload-setup--2026-10-01).
+Our published dependency pin remains Canic 0.110.48, whose reviewed registry
+macros lack these hooks. The maintainer selected local development while Canic
+release/deployment work continues separately. Use the isolated copied-workspace
+[source lane](dependencies.md#local-canic-development); normal workspace/release
+checks need dependency adoption recorded as [CF-01](canic-parity.md#integration-feedback).
+Sibling repositories stay read-only. Registry publication status has not been
+refreshed by this local build; deployment is not a prerequisite for PocketIC.
 
-Subsequent read-only review of uncommitted Canic work finds public
-`on_access_denied = "reject"`, endpoint `decode = LIMITS` and owning lifecycle
-`argument_limits = LIMITS` implementations. Retained native and endpoint PocketIC
-checks pass; lifecycle qualification and strict lint remain incomplete in the
-reviewed logs. This repository still pins published 0.110.48. The maintainer kept
-sibling edits out of this session and coordinates Canic changes separately;
-uncommitted framework code does not close this adapter's qualification gates.
-
-Canic needs a supported way for the owning artifact to select one bounded decoder
-before application dispatch for queries, updates and lifecycle arguments. It must
-check raw size before copying and bound decoding work, skipped data, type count
-and header complexity for both ingress and inter-canister calls. It must preserve
-Canic preflight, Fleet guards, inspection registration, instrumentation and Candid
-export. The blob adapter can then apply the same numeric decoder bounds as standalone.
-Do not copy Canic's dispatch, depend on internal preflight APIs or decode a second
-time after an unbounded first pass. No upstream edit or request was sent in this
-review; full input-bound qualification remains open.
-
-The [local managed evidence](evidence/core-primitives.md#managed-installation-input-and-release-authority--2026-09-30)
-uses published Canic with controlled installation inputs and synthetic Root/
-Coordinator authority. It exercises real IC lifecycle, rollback, caller checks
-and neighboring memory, without implementing the full blob Candid artifact,
-combined IcyDB application, production Fleet deployment or provider effects.
+Earlier source findings and failed public-adapter attempts remain dated evidence
+in the [framework review](evidence/core-primitives.md#managed-certificate-framework-review--2026-10-01)
+and [upload setup review](evidence/core-primitives.md#signed-native-upload-setup--2026-10-01).
+They describe the inspected published/older local sources, not the maintained
+local adoption. The earlier [managed installation evidence](evidence/core-primitives.md#managed-installation-input-and-release-authority--2026-09-30)
+uses synthetic Root/Coordinator authority; it does not qualify a production
+Fleet, combined IcyDB application or provider effects.
 
 `workflow::operator::inspect` supplies the shared passive `blob_local_status` query.
 The configured operator must bind the actual service, namespace, Cashier and payer;

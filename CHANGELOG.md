@@ -2,6 +2,25 @@
 
 ## [Unreleased]
 
+### Added
+
+- Verified `upload-inputs` also exports `certificate-binding.json` for the existing
+  Caffeine browser certificate client, deriving exact identities, root and opaque
+  permission bytes from the maintained Rust contract without manual JS encoding.
+- Opt-in `test-sdk-inputs` checks real pinned Caffeine preparation, a 10 MiB native
+  snapshot/browser binding, matching SDK preparation after source edits, and
+  repeat/corrupt-source refusal with all network calls blocked.
+- Documented local Canic development using frozen source and isolated dependency
+  overrides. The managed fixture builds and targeted admission/certificate/restore
+  checks pass without requiring Canic publication or a live Fleet deployment.
+- Managed fixture certificate endpoint uses Canic's public plain-record rejection
+  hook and the shared synchronous issuance workflow. Provider prerequisites still
+  refuse exposure; its Candid declaration matches standalone.
+- Managed blob queries, updates and lifecycle now select bounded Candid decoding;
+  local IC checks cover malformed/oversized/type/header input, manifest boundaries
+  and occupied-owner rollback. Normal release adoption awaits the supported Canic pin.
+- Persistent Canic integration feedback and handoff reminders are required by AGENTS.md.
+
 ## [0.4.14] - 2026-10-01
 
 ### Added

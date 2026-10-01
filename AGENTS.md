@@ -10,6 +10,10 @@ This file is normative for automated contributors.
   ic-memory and ic-timers, are read-only unless separately named and authorized.
   Inspect/review/audit requests never authorize sibling edits.
 - Preserve unrelated dirty worktree state.
+- Record actionable Canic integration feedback in
+  [the feedback list](docs/canic-parity.md#integration-feedback), link it from the
+  current handoff, and remind the maintainer of open actions in delivery summaries.
+  Recording feedback does not authorize sibling edits or sending upstream messages.
 - The bootstrap does not accept Canic's 0.110 closeout. Follow the remaining
   implementation gates recorded in the status and service contract.
 

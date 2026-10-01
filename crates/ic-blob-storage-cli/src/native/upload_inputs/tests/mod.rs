@@ -75,6 +75,24 @@ fn offline_command_emits_exact_full_width_service_requests_without_network_confi
     assert_eq!(preparation.declaration.headers[1].value, "text/plain");
     assert_eq!(report["permission_sha256"], digest(&permission_bytes));
     assert_eq!(report["preparation_sha256"], digest(&preparation_bytes));
+    let browser_bytes = std::fs::read(output.join("certificate-binding.json")).unwrap();
+    let browser: Value = serde_json::from_slice(&browser_bytes).unwrap();
+    assert_eq!(browser["permission"], json!(permission_bytes));
+    assert_eq!(browser["service"], permission.upload.service.to_text());
+    assert_eq!(browser["tenant"], permission.upload.tenant.to_text());
+    assert_eq!(browser["uploader"], permission.uploader.to_text());
+    assert_eq!(browser["operation"], permission.upload.upload.to_string());
+    assert_eq!(browser["root"], ROOT);
+    assert_eq!(
+        browser["key"],
+        format!(
+            "{}:{}:{}",
+            permission.upload.service.to_text(),
+            permission.upload.tenant.to_text(),
+            permission.upload.upload
+        )
+    );
+    assert_eq!(report["certificate_binding_sha256"], digest(&browser_bytes));
     assert_eq!(report["body_verified"], true);
     assert_eq!(std::fs::read(output.join("body.bin")).unwrap(), b"abc");
     assert_eq!(report["identities_allocated"], false);
@@ -210,6 +228,7 @@ fn corrupt_source_leaves_only_private_partial_evidence_and_no_request_files() {
         "manifest.candid",
         "download.candid",
         "reference-status.candid",
+        "certificate-binding.json",
     ] {
         assert!(!output.join(name).exists());
     }

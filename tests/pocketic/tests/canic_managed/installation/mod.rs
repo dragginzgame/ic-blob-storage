@@ -149,3 +149,32 @@ fn explicit_managed_input_and_release_failures_roll_back_the_whole_installation(
         .unwrap();
     assert_eq!(outsider, Err(HostFailure::Denied));
 }
+
+#[test]
+fn managed_lifecycle_refuses_oversized_upgrade_before_restoring_occupied_owners() {
+    let f = Fixture::new();
+    let (scope, enrolled) = enroll(&f);
+    let before = f.pic().get_stable_memory(f.app());
+    let snapshot: CompositionSnapshot =
+        f.pic().query_candid(f.app(), "probe_snapshot", ()).unwrap();
+    let bytes = candid::encode_one(vec![0u8; 256 * 1024]).unwrap();
+    f.pic()
+        .wait_out_install_code_rate_limit(Duration::from_secs(5));
+    let error = f
+        .pic()
+        .upgrade_canister(f.app(), wasm(), bytes, Some(f.root()))
+        .unwrap_err();
+    assert_eq!(
+        error.reject_code,
+        ic_testkit::pocket_ic::RejectCode::CanisterError
+    );
+    assert_eq!(f.pic().get_stable_memory(f.app()), before);
+    let retained: CompositionSnapshot =
+        f.pic().query_candid(f.app(), "probe_snapshot", ()).unwrap();
+    assert_eq!(retained, snapshot);
+    let tenant: Result<TenantEnrollmentResponse, TenantFailure> = f
+        .pic()
+        .query_candid_as(f.app(), scope.tenant, "blob_tenant", (scope,))
+        .unwrap();
+    assert_eq!(tenant.unwrap(), enrolled);
+}

@@ -97,6 +97,7 @@ for the integration details.
 | I want to… | Start here |
 | --- | --- |
 | Admit, prepare or cancel an upload | [Signed upload setup](docs/operator-guide.md#admit-and-prepare-an-upload) |
+| Hand a verified upload snapshot to the browser client | [Generated binding](clients/browser/README.md) and [offline check](docs/dependencies.md#offline-nativebrowser-handoff) |
 | Download a verified file | [Tenant downloads](docs/operator-guide.md#download-a-verified-file) |
 | Diagnose a proposed funding intent | [Passive funding assessment](docs/operator-guide.md#passive-funding-assessment) |
 | Inspect service state or retained funding | [Operator and verifier guide](docs/operator-guide.md#identity-trust-and-service-status) |

@@ -19,6 +19,24 @@ Some references are assertion helpers inside larger tests. They identify
 behavior to reproduce, not checks run or passed in this repository.
 Source file hashes are retained in [the source inventory](canic-source-inventory.tsv).
 
+## Integration feedback
+
+Keep actionable Canic findings here and link this section from the current
+handoff. Remind the maintainer of open actions in delivery summaries. Record
+source/build identity, observed behavior, reproduction/evidence, owner and closure
+criteria; do not promote local substitutes to deployed provider guarantees.
+Feedback is recorded here, not sent upstream automatically; Canic stays read-only.
+
+| ID | State | Finding and action | Owner / closure |
+| --- | --- | --- | --- |
+| CF-01 | Open for normal release; local development unblocked | New plain-reply rejection and decoder hooks exist in frozen Canic `32da629d0214bf791541a9b3c1832dbef13ece29` but are absent from our registry pin `0.110.48`. Current managed fixture adoption uses the isolated local source lane. Before the next normal repository release, adopt a published package containing those hooks and repeat focused composition checks. No live Fleet deployment is required to build/test them. | Canic maintainer publishes the hooks; this repository adopts and validates the dependency. Close with resolved package/source identity and downstream results. |
+
+The stale embedded-peer release fixture and compiler-cache startup refusals are
+already recorded in Canic's own handoff/local evidence. The frozen local artifact
+build works with explicit `RUSTC_WRAPPER=`; no additional framework defect has
+been established by that result. Caffeine pre-charge, namespace, replay charging
+and operational recovery remain service/provider work, not Canic feedback.
+
 ## Source checkpoint
 
 The inventory captures Canic commit

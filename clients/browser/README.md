@@ -35,6 +35,18 @@ transport, cancellation and disabled retries. The local composition is tested;
 the gateway guard below adds request journaling through the same caller-owned store.
 Production consumer integration and persistence qualification remain open.
 
+For native-prepared inputs, load `certificate-binding.json` from
+[`blob-storage upload-inputs`](../../docs/operator-guide.md#generate-upload-inputs-offline)
+as `binding` above. It derives the existing key/service/tenant/uploader/operation/
+root fields and opaque permission bytes from one validated Rust permission, after
+complete body verification. `operation` is the original upload ID. The application
+still supplies its own identity, trusted IC origin/root and qualified durable store;
+the file grants no certificate, dispatch or retry authority. Confirm signed service
+admission/preparation before issuance, including current host prerequisites.
+Use the saved `body.bin` if rebuilding a Caffeine prepared handle, retain the
+original metadata and require the rebuilt root and byte length to match before
+any certificate/gateway effect. The SDK continues to own preparation and transfer.
+
 On the Rust side, `ops::caffeine::preparation::decode_prepared_manifest` converts
 the upstream `manifestJSON` into the existing service declaration within explicit
 JSON/content/leaf/header limits. It reuses metadata and root checks; it grants no
