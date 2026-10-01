@@ -278,21 +278,48 @@ fn bounded_sync(j: &Journey) {
         namespace: 1,
         cashier: j.scope.cashier,
         payment_account: j.scope.payment_account,
-        padding: vec![0; 4096],
+        padding: vec![0; 32],
     };
-    let overhead = candid::encode_one(&input).unwrap().len() - 4096;
-    input.padding.truncate(4096 - overhead);
-    let bytes = candid::encode_one(&input).unwrap();
-    assert_eq!(bytes.len(), 4096);
-    // Valid Candid with a skippable field must reach scope validation at the bound.
+    // A small skippable field fits both transport and decoding-work limits.
     let reply =
         j.f.pic()
-            .update_call(j.f.app(), j.operator, "blob_sync_gateways", bytes)
+            .update_call(
+                j.f.app(),
+                j.operator,
+                "blob_sync_gateways",
+                candid::encode_one(&input).unwrap(),
+            )
             .unwrap();
     assert_eq!(
         candid::decode_one::<Result<GatewaySyncResponse, SyncError>>(&reply).unwrap(),
         Err(SyncError::Binding)
     );
+    assert_eq!(j.f.pic().get_stable_memory(j.f.app()), before);
+    assert_eq!(j.f.pic().get_stable_memory(j.scope.cashier), source);
+
+    input.padding.resize(4096, 0);
+    let overhead = candid::encode_one(&input).unwrap().len() - 4096;
+    input.padding.truncate(4096 - overhead);
+    let bytes = candid::encode_one(&input).unwrap();
+    assert_eq!(bytes.len(), 4096);
+    // Valid Candid at the byte limit can still exhaust the independent work quota.
+    assert_eq!(
+        candid::decode_one::<OperatorScope>(&bytes).unwrap(),
+        OperatorScope {
+            namespace: 1,
+            ..j.scope
+        }
+    );
+    let error =
+        j.f.pic()
+            .update_call(j.f.app(), j.operator, "blob_sync_gateways", bytes)
+            .unwrap_err();
+    assert_eq!(
+        error.reject_code,
+        ic_testkit::pocket_ic::RejectCode::CanisterError
+    );
+    assert_eq!(j.f.pic().get_stable_memory(j.f.app()), before);
+    assert_eq!(j.f.pic().get_stable_memory(j.scope.cashier), source);
     input.padding.push(0);
     let bytes = candid::encode_one(input).unwrap();
     assert_eq!(bytes.len(), 4097);

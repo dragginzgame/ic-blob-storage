@@ -4,6 +4,21 @@ Date: 2026-10-01
 
 ## Active work — 0.4.15 draft and published Canic adoption
 
+The maintainer's full managed suite reports one operator failure (28 other cases
+pass). Isolated reproduction finds a stale test expectation: a 4 KiB valid Candid
+envelope with an unknown padding field exhausts the independent work quota before
+scope validation. The test now checks small skipped input reaches typed Binding,
+ordinary Candid can decode the exact 4 KiB envelope while managed bounded decoding
+refuses it, and 4097 bytes refuse at ingress. Each case preserves service/source
+stable bytes. All four related managed operator journeys pass (53.31 seconds),
+and the affected harness strict lint passes. Formatting, changelog and maintained
+documentation checks pass.
+Production limits/adapters and package/release files are unchanged. Fresh intent,
+failing reproduction, corrected source, artifact hashes and result logs remain in
+`.tmp/managed-operator-fix-01`; earlier captures are untouched. No new actionable
+Canic defect is established; [feedback](../canic-parity.md#integration-feedback)
+CF-01 remains closed. Full CI/release validation has not been rerun here.
+
 The maintainer requested 0.4.15 notes and reports Canic 0.110.49 published.
 CHANGELOG.md now has an undated 0.4.15 draft beneath empty Unreleased, covering
 native/browser bindings, managed certificate/decoding adoption, published Canic

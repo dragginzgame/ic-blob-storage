@@ -29,6 +29,12 @@
 - Persistent Canic integration feedback and handoff reminders are required by
   AGENTS.md.
 
+### Fixed
+
+- Managed operator boundary coverage now distinguishes Candid decoding-work
+  limits from the 4 KiB byte limit. Small skipped fields reach scope validation;
+  valid but over-budget input and oversized input refuse without changing owners.
+
 ## [0.4.14] - 2026-10-01
 
 ### Added

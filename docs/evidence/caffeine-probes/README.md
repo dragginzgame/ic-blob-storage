@@ -34,6 +34,18 @@ all logs here; link their maintained test and record material changed findings.
 
 ## Current operating decisions and experiments
 
+2026-10-01 managed operator regression: `.tmp/managed-operator-fix-01` records
+the pre-run intent, isolated failing reproduction and corrected source/results.
+Valid Candid at the 4 KiB transport ceiling can exhaust the separate decoding-work
+budget; the old test incorrectly expected scope validation. Updated coverage proves
+small skipped input reaches typed Binding, valid over-budget input traps and
+4097-byte input rejects at ingress, with service/source stable bytes unchanged.
+All four related managed operator journeys and affected strict lint pass.
+Production limits and adapters are unchanged; no new Canic action is established.
+These use the existing labelled local gateway/Cashier substitute, not deployed
+Caffeine, with no provider request, payment or exposure. Earlier evidence remains
+unchanged; see [handoff](../../status/current.md).
+
 2026-10-01 published Canic adoption: pre-run intent and separate attempt logs are
 retained in `.tmp/published-canic-49-01`. Registry Canic/core/macros 0.110.49 build
 the managed artifact without source overrides. The same six focused certificate,
