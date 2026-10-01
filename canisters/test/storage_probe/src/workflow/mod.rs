@@ -27,6 +27,15 @@ pub(crate) fn gateway_registry(
     ops::gateways::inspect(context, input)
 }
 use crate::ops;
+pub(crate) fn admit_with_growth(
+    context: UploadContext,
+    input: blob_test_protocol::storage::GrowthAdmission,
+) -> Result<
+    ic_blob_storage::dto::upload::admission::UploadAdmissionMutation,
+    ic_blob_storage::dto::upload::admission::UploadAdmissionFailure,
+> {
+    ops::admit_with_growth(context, input)
+}
 pub(crate) fn local_status(
     context: UploadContext,
     input: ic_blob_storage::dto::operator::OperatorScope,

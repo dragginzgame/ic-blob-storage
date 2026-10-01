@@ -34,6 +34,89 @@ all logs here; link their maintained test and record material changed findings.
 
 ## Current operating decisions and experiments
 
+2026-10-01 isolated-trial plan intent: `.tmp/isolated-trial-plan-01/intent.txt`
+bounds repository source review, an offline complete installation check and a
+concrete trial sequence. Reuse the shared installation validator; no duplicate
+host init/provider schema or local qualification override. Proposed service,
+project, verifier and compiled release remain unauthenticated planned inputs.
+No new network/account/object/payment probe, deployment or funded trial is
+authorized; all four host facts stay false and existing captures stay immutable.
+
+2026-10-01 isolated-trial plan outcome: native `installation-check` reuses the
+shared complete validator over bounded one-value configuration Candid and explicit
+planned service/project/verifier/release. Three targeted cases and strict affected
+CLI lint pass; actual executable output preserves exact bytes and independently
+decodes, with repeat refusal and no overwrite. An unquoted reserved field in the
+independent textual fixture initially fails, leaving empty bytes and dependent
+test failures; failed input/result and corrected encoding/checks are retained in
+`.tmp/isolated-trial-plan-01`. No provider contract, init schema or qualification
+override is added. The [sequence](../../operator-guide.md#isolated-uploaddownload-trial-plan)
+requires exact selected identities/budgets, existing four facts and separate effect
+authority before the paid transfer. No new network probe/account/payment/object or
+external cleanup obligation occurs. Concurrent ic-memory work is preserved;
+current dependency/runtime blocker CF-02 remains open, with no new Canic defect.
+
+2026-10-01 trial-preflight intent: `.tmp/caffeine-trial-preflight-01/intent.txt`
+bounds primary onboarding/spending review and anonymous current Cashier interface/
+pricing observation. Use the known candidate Cashier with no payer/account/owner
+arguments, at most one metadata and one selected public price query; no silent
+method fallback or retries. Retain failures/limitations and distinguish public
+figures from an enforced financial cap. Isolated trial bindings are requested,
+but deployment, certificate, account changes and paid effects remain outside scope.
+
+2026-10-01 trial-preflight outcome: the maintainer reports no existing isolated
+trial canister or funded account. One anonymous metadata command and one public
+`pricelist_v1` query against candidate Cashier `72ch2-fiaaa-aaaar-qbsvq-cai`
+succeed with exact retained bytes. Native CLI internal HTTP request/retry counts
+were not independently captured. The
+[deployed public capture](deployed/2026-10-01-cashier-preflight-01/summary.json)
+retains requests, replies, exits, hashes and limitations. A pinned guide lookup
+returns cache miss; the retained historical guide describes requests per thousand,
+while the live list labels them `M`. Units, caps, expiry and charges remain
+unqualified; no account relationship, gateway or paid effect is probed.
+
+Offline `account-link-inputs` separately encodes explicit proposed bindings and
+positive raw terms without dispatch. Two codec cases match an independent `didc`
+fixture; two CLI cases cover valid output and invalid/repeated/partial-output
+refusal. Strict affected lint and core rustdoc pass after retained initial lint
+failures are corrected. Actual executable output decodes independently and repeat
+refuses without overwriting. Intent, commands, logs, sample artifacts and identities
+remain in `.tmp/caffeine-trial-preflight-01`; sample identities/maximal terms are
+local fixtures, not trial bindings. Host facts stay false and no funding,
+deployment, account mutation or external cleanup obligation is created.
+
+2026-10-01 upload-gate review intent: following release 0.4.16,
+`.tmp/upload-gates-01/intent.txt` bounds a fresh anonymous public-source refresh
+and review of the four certificate blockers. Distinguish established client facts,
+unobserved server guarantees and local recovery choices for one minimal upload/
+verified-download prototype. No gateway, account, payment or deployment action;
+zero provider-effect budget. Retain failed/inconclusive lookups separately and
+keep host facts false unless the evidence and operating contract justify them.
+
+2026-10-01 upload-gate review outcome: the first public-source attempt fails on
+sandbox transport and remains in
+[public-source-01](runs/2026-10-01-public-source-01/summary.json). A separately
+planned network-enabled capture
+[public-source-02](runs/2026-10-01-public-source-02/summary.json) records four
+anonymous GETs: official main `4ebf43c518c9fc7b090ed4d27677fea26d6b98f3`, byte-identical
+Mixin/Storage and npm 1.1.2 with the retained integrity. The existing probe binary
+reports 0.4.15; its exact source/binary identity is retained, not relabelled as a
+0.4.16 build. Mops/server/account/gateway behavior is not refreshed. A primary
+April-guide lookup returns cache miss; no guarantee is inferred from it.
+
+The follow-up shared browser transfer uses the existing patched SDK and gateway
+journal, with root/owner binding and fixed serial/no-retry policy. Six maintained
+SDK scenarios pass over labelled certificate/gateway/store substitutes; their
+[requests/results](local/2026-10-01-sdk-transfer-01/summary.json) retain preflight
+refusals, exact owner/project/bucket, lost final response and verified local bytes.
+The managed refusal journey passes (9.35 seconds), and all ten existing browser
+scenarios pass (53.90 seconds). Initial fixture abort-timing regression and its
+correction remain separate in `.tmp/upload-gates-01`. Owned local processes exit;
+build/evidence remain. No provider writes, payments, account changes or external
+cleanup obligations; no successful managed exposure or deployed byte observation.
+See [the unresolved trial facts](../caffeine-upload-gates.json); these results do
+not turn any host qualification flag on or qualify production browser persistence.
+
 2026-10-01 managed browser intent: `.tmp/managed-browser-01/intent.txt` records
 the pinned local SDK/browser/framework inputs and bounded trial. Connect actual
 consumer admission/uploader preparation to the maintained managed certificate

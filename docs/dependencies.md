@@ -15,7 +15,7 @@ availability does not establish provider qualification or service readiness.
 | `thiserror` | 2.0.18 | Typed error derives; matches PocketIC's exact requirement |
 | `ic-cdk` | 0.20.3 | IC platform operations for the ops layer |
 | `ic0` | 1.2.0 | Existing CDK system-API version, now direct for bounded participant argument copying |
-| `ic-memory` | 0.14.3 | Allocation governance; direct dependency aligned with Canic and IcyDB |
+| `ic-memory` | 0.15.0 | Allocation governance; Canic alignment remains open as CF-02 |
 | `ic-stable-structures` | 0.7.2 | Exact transitive substrate owned/re-exported by `ic-memory` |
 | `ic-testkit` | 0.10.1 | Native dependency of the unpublished PocketIC harness; shared helpers and full re-export |
 | `pocket-ic` | 16.0.0 | Transitive through `ic-testkit`; no direct dependency |
@@ -158,12 +158,23 @@ guarantee. Existing evidence directories refuse reuse; build artifacts are kept.
 
 ## Memory composition with Canic and IcyDB
 
-The 0.1.12 work uses the published `ic-memory` 0.14.3 package already selected by
-Canic 0.110.42 and IcyDB 0.261.11. A combined dependency-resolution check of this
-crate, `canic-core` and `icydb-core` resolves one `ic-memory` 0.14.3 and one
-`ic-stable-structures` 0.7.2. Those two framework crates are not dependencies of
-the blob core; the combined graph is a compatibility check, not an adapter build.
-The lockfile retains existing versions and adds ic-memory's missing dependencies.
+The core selects published `ic-memory` 0.15.0 and its exact
+`ic-stable-structures` 0.7.2 substrate. Direct `RuntimeMemory::grow` calls now
+return `Result<u64, RuntimeGrowError>`; generic stable structures still use
+the upstream `Memory::grow` sentinel contract. Default-runtime opens are
+nonconstructing. The package archive matches the lockfile checksum.
+
+Pinned Canic 0.110.49 still requires `ic-memory` 0.14.3. The managed artifact
+therefore resolves two runtime identities and canonical `canic build` refuses
+with `role_contract_multiple_memory_runtimes`, even though native compilation
+passes. [CF-02](canic-parity.md#integration-feedback) tracks Canic publication
+and adoption before managed builds or lifecycle checks can resume. The maintainer
+is working on that dependency adoption. Do not create a second runtime or bridge
+package identities. See the [current evidence](evidence/core-primitives.md#ic-memory-015-adoption--2026-10-01).
+
+The earlier 0.1.12 combined resolution of Canic 0.110.42, IcyDB 0.261.11 and
+`ic-memory` 0.14.3 remains historical evidence. Neither framework is a dependency
+of the blob core; IcyDB composition with 0.15 has not been qualified here.
 
 Use the shared public path for storage types:
 
@@ -189,8 +200,8 @@ allocation layout is introduced by this dependency change.
 service requests for explicit inclusion in the host's sealed declaration snapshot.
 The host supplies their authority/range alongside configuration and other owners,
 then bootstraps once. `grants::open` assembles the service mapping through its
-committed lookup. `grants::open_default` checks that the framework's default runtime
-already exists and is bootstrapped before opening by key; it does not choose a
+committed lookup. `grants::open_default` uses nonconstructing default key opens
+that require an existing bootstrapped runtime; it does not choose a
 bucket profile, replace policy or construct an absent manager. Standalone uses
 the same mapping with its own explicit runtime. The shared installation owner
 persists the immutable configuration and assembles all four service owners;
@@ -200,12 +211,28 @@ functions synchronously. The explicit Canic composition library now reuses these
 operations; full endpoint acceptance and combined IcyDB application behavior
 remain unqualified.
 
+Managed `memory::open(authority)` verifies all seventeen current requirements
+with `verify_default_memory_manager_authority` before opening any handles.
+`declare_installation!` requires `authority = ...`, matching `declare_memories!`;
+both install and restore propagate typed adoption refusal. Verification checks
+current allocation authority and declaration metadata without admission replay,
+policy changes, store writes or a new runtime. It does not validate application
+schemas or authorize recovery activation. Native subprocess cases isolate the
+process-global declaration registry and cover absent/wrong/missing/metadata and
+matching bindings while preserving allocation totals, generation and a neighbor.
+
+`blob_host_memory_status(OperatorScope)` uses the shared operator authentication
+and compact numeric summary in both adapters. It describes the entire host
+runtime, including other owners and the ledger, without per-ID names/history.
+See [operator usage](operator-guide.md#host-memory-capacity) and
+[qualification](evidence/core-primitives.md#ic-memory-015-follow-ups--2026-10-01).
+
 The core and unpublished `ic-blob-storage-canic` composition library have no Canic
 dependency. Its opt-in macros emit calls to the public facade in the owning
 artifact, which must depend on Canic directly. This follows Canic 0.110.48's role
 validation rather than adding a transitive facade dependency through the library.
-The managed test uses one `ic-memory` 0.14.3 / `ic-stable-structures` 0.7.2 pair;
-allocation policy stays with Canic. Existing locked package versions are unchanged.
+The managed test must use one `ic-memory` package identity with allocation policy
+owned by Canic; the current dependency mismatch blocks its artifact build.
 Managed participants now use the already selected ic0 1.2.0 safe size/copy APIs
 to bound their own argument buffer before copying. The native Candid declaration
 guard uses official candid_parser 0.4.1, within the published Canic host's 0.4 range;

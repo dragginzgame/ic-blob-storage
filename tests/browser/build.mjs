@@ -12,6 +12,7 @@ const client = await json('../../clients/browser/package.json');
 const fixture = await json('package.json');
 const sdk = await json('node_modules/@icp-sdk/core/package.json');
 assert.equal(client.peerDependencies['@icp-sdk/core'], fixture.devDependencies['@icp-sdk/core']);
+assert.equal(client.peerDependencies['@caffeineai/object-storage'], fixture.devDependencies['@caffeineai/object-storage']);
 assert.equal(sdk.version, client.peerDependencies['@icp-sdk/core']);
 const evidence = await json('../../docs/evidence/caffeine-browser-reuse.json');
 const upstream = fileURLToPath(new URL('node_modules/@caffeineai/object-storage', import.meta.url));

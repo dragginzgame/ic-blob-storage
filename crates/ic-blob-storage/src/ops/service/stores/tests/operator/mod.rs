@@ -22,6 +22,49 @@ fn scope() -> OperatorScope {
     }
 }
 #[test]
+fn memory_measurement_authenticates_before_invoking_host_and_preserves_measurement_errors() {
+    use crate::workflow::operator::memory_status as inspect;
+    let input = candidate();
+    let memory = std::array::from_fn(|_| VectorMemory::default());
+    let stores = ServiceStores::install(
+        memories(&memory),
+        validate_candidate(input.service, input).unwrap(),
+    )
+    .unwrap();
+    let before = memory.each_ref().map(|m| m.borrow().clone());
+    assert_eq!(
+        inspect(
+            (&stores).into(),
+            UploadContext {
+                actor: candid::Principal::anonymous(),
+                ..context()
+            },
+            scope(),
+            || panic!("must authenticate first")
+        ),
+        Err(LocalStatusFailure::Denied)
+    );
+    assert_eq!(
+        inspect(
+            (&stores).into(),
+            context(),
+            OperatorScope {
+                namespace: 0,
+                ..scope()
+            },
+            || panic!("must validate scope first")
+        ),
+        Err(LocalStatusFailure::Binding)
+    );
+    assert_eq!(
+        inspect((&stores).into(), context(), scope(), || Err(
+            ic_memory::RuntimeDiagnosticError::NotBootstrapped
+        )),
+        Err(LocalStatusFailure::Internal)
+    );
+    assert!(memory.each_ref().map(|m| m.borrow().clone()).eq(&before));
+}
+#[test]
 fn local_operator_snapshot_preserves_width_and_checks_every_scope_field_without_writes() {
     let input = candidate();
     let config = validate_candidate(input.service, input).unwrap();

@@ -48,6 +48,7 @@ fn built_candid_declares_application_methods_with_their_actual_modes_and_shapes(
         "blob_reference_status",
         "blob_reference_capacity",
         "blob_local_status",
+        "blob_host_memory_status",
         "blob_funding_history",
         "blob_funding_outcome",
         "blob_funding_preparation_assessment",

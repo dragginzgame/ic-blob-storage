@@ -3,6 +3,17 @@
   "verified_on": "2026-09-28",
   "selection": "Latest official Caffeine integration is the sole target. Current package sources take precedence over older integration examples; Canic bindings are extraction evidence, not the provider specification.",
   "status": "integration_target_only",
+  "public_source_refresh": {
+    "observed_on": "2026-10-01",
+    "skills_commit": "4ebf43c518c9fc7b090ed4d27677fea26d6b98f3",
+    "npm_latest_observed": "1.1.2",
+    "npm_integrity_matches_retained_pin": true,
+    "backend_hashes_match_retained_pin": true,
+    "record": "evidence/caffeine-upload-gates.json",
+    "mops_refreshed": false,
+    "deployed_behavior_observed": false
+  },
+  "public_cashier_refresh": {"account_or_enforcement_qualified":false,"cashier":"72ch2-fiaaa-aaaar-qbsvq-cai","matches_retained_bytes":true,"metadata_sha256":"232b08e4514048d4de48d6d1bf4387f577bfb64c7e2e2ded699a5e52d475d76f","observed_on":"2026-10-01","pricing_sha256":"e26629bd9aee2c546958735358dfc5597e33f3e18abef438d1b2d9fe120788ca","record":"evidence/caffeine-probes/deployed/2026-10-01-cashier-preflight-01/summary.json","server_revision_observed":false},
   "upstream": {
     "repository": "https://github.com/caffeinelabs/skills",
     "branch_observed": "main",

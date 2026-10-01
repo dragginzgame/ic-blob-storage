@@ -2,7 +2,184 @@
 
 Date: 2026-10-01
 
-## Active work — managed browser setup after 0.4.15
+Release draft: [0.5.0](../../CHANGELOG.md#050), undated below empty Unreleased,
+collects the current memory/API, browser transfer and offline trial tooling batch.
+The minor draft makes the ic-memory growth and explicit managed-authority breaks
+visible. Product version/release receipt remain 0.4.16; no release preparation or
+full validation runs for this notes request. CF-02 remains open before managed
+release validation; no provider/recovery qualification is implied.
+
+## Active work — ic-memory 0.15 follow-ups after 0.4.16
+
+The maintainer authorizes all four follow-ups. Managed `memory::open(authority)`
+and both lifecycle paths now require an explicit expected authority and verify
+all seventeen declarations before opening any handle. The lifecycle macro is
+hard-cut to the explicit authority form; its fixture consumer is updated.
+Nonconstructing key opens replace duplicate committed-capability readiness checks.
+Five isolated native host cases cover absent runtime, wrong authority, missing
+key, changed declaration metadata and matching adoption with unchanged allocation
+accounting/generation and neighbor bytes. Initial registration-name/global-registry
+fixture failures remain recorded separately; no upstream defect is established.
+
+Both adapters expose operator-only `blob_host_memory_status(OperatorScope)` via
+one shared handler. Full scope/configuration authentication occurs before compact
+host-runtime measurement; missing measurements return errors. Capacity/slack and
+current/ledger/unknown binding totals include other host owners and remain distinct
+from payload occupancy, quotas and provider obligations. The current standalone
+Candid is regenerated and its executable guard passes. The actual standalone query
+checks role/scope refusal, numeric conservation, stable-byte preservation, replicated
+inspection and passive availability after all four owners restore fenced.
+
+The storage fixture now wraps the actual backing memory and retains a populated
+independent neighbor. After local admission writes, exact typed growth refusal and
+the trait sentinel take the deliberate trap path; unexpected outcomes return a
+normal error so assertion panics cannot qualify refusal. Final PocketIC evidence
+checks whole stable-image rollback, absent admission, exact storage-only retry and
+fenced same-release restore. Both prior write-rollback cases and the existing
+standalone operator journey pass. Core shared-store cases, affected/harness strict
+lint, formatting, warning-free core/host/adapter rustdoc and both Wasm builds pass. Initial Wasm
+import and lint failures remain in separate logs.
+
+See [evidence](../evidence/core-primitives.md#ic-memory-015-follow-ups--2026-10-01),
+[operator usage](../operator-guide.md#host-memory-capacity) and
+`.tmp/ic-memory-followups-01`. [Canic feedback](../canic-parity.md#integration-feedback)
+CF-02 stays open for matching package adoption, one runtime identity and canonical
+managed artifact/lifecycle/query checks. Native compilation of the updated fixture
+passes; it is not managed IC qualification. Canic remains pinned 0.110.49 here and
+still requires ic-memory 0.14.3; no second runtime or compatibility bridge is added.
+Existing offline trial/browser dirty work is preserved as below. Notes join
+Unreleased; product version remains 0.4.16 and the breaking public API batch needs
+a minor release when requested. No full CI/release gate, provider request, paid
+effect, sibling edit, commit, deployment or build cleanup occurs.
+
+## Concurrent work — isolated trial setup after 0.4.16
+
+The [trial plan](../operator-guide.md#isolated-uploaddownload-trial-plan) now sequences
+exact role/configuration/account binding, qualification, authorized provisioning,
+one transfer, whole-body verifier completion, tenant download and obligation-
+preserving closeout. No test canister/account, numerical financial terms or effect
+authority is selected. Creation must be followed by a check against the actual
+principal before installation; planned strings are not platform authentication.
+
+New offline `installation-check` passes the complete candidate through the shared
+installation validator, after bounded exact Candid decoding. Project/verifier/
+service/release are explicit. Original bytes and a hashed passive summary use
+fresh private output; malformed/extra arguments, inconsistent limits and existing/
+partial output refuse. No memory grant, init carrier, deployment, funding, account
+effect or qualification override. Three targeted cases, affected strict lint and
+actual executable/independent Candid decoding pass on the current ic-memory 0.15
+graph. The initial independent fixture syntax failure and dependent test failures
+remain separately captured. No full CI/release gate or new platform test runs.
+
+The maintainer confirms concurrent dependency work. Preserve that batch below and
+avoid competing builds; the short earlier lock wait is retained. Evidence, exact
+sources/commands, tests and offline samples remain in `.tmp/isolated-trial-plan-01`.
+See the [probe ledger](../evidence/caffeine-probes/README.md); no new network probe,
+paid effect, release/commit or build cleanup occurs. All four host facts remain
+false. [Canic feedback](../canic-parity.md#integration-feedback) CF-02 remains open:
+matching ic-memory adoption and canonical managed artifact/lifecycle validation
+are required. No additional Canic defect is established by this offline batch.
+Next finalize trial identities/budgets and provider/recovery evidence; effects
+remain separately authorized. Siblings are read-only and notes join Unreleased.
+
+## Concurrent work — ic-memory 0.15 adoption after 0.4.16
+
+The maintainer requests `ic-memory` 0.15 and confirms Canic adoption is being
+handled separately. The core now selects published 0.15.0; its cached archive
+matches the lock checksum and identifies source
+`26306737cf75efb320bb9c4029dcd1d77bc83184`. Direct growth callers use typed
+results; the storage fault wrapper delegates the upstream trait adapter.
+Core composition, shared-store/installation and adapter native checks pass.
+Strict affected all-target/all-feature lint and both formatting checks pass.
+Standalone, consumer and storage-probe release Wasm builds pass; actual standalone
+stop/start and repeated same-release upgrade preserve all owner fences. The initial
+PocketIC loopback refusal and successful permitted retry remain separate logs.
+
+Pinned Canic/core 0.110.49 still requires ic-memory 0.14.3. Native managed fixture
+compilation passes, but canonical CLI 0.110.49 refuses the two package identities
+with `role_contract_multiple_memory_runtimes`. No new managed artifact or lifecycle
+result is claimed. [Canic feedback](../canic-parity.md#integration-feedback) CF-02
+is open: adopt the forthcoming compatible Canic release in both manifests, confirm
+one runtime identity and rerun managed build/lifecycle checks. CF-01 remains closed.
+Registry web lookups and a public crates.io API request failed; no latest-version
+claim is made. The existing pinned source suffices to establish the mismatch.
+
+See [evidence](../evidence/core-primitives.md#ic-memory-015-adoption--2026-10-01)
+and `.tmp/ic-memory-015-01`. Existing onboarding/browser dirty work is preserved.
+Release files remain 0.4.16, with notes joined to Unreleased; the re-exported
+growth API change requires a minor product release when requested. Provider/
+recovery qualification and onboarding inputs remain open as below. Siblings
+remain read-only; no commit, release, deployment, paid effect or cleanup occurs.
+No full CI/release gate runs this batch.
+
+## Earlier work — offline onboarding after 0.4.16
+
+The maintainer confirms there is no existing isolated trial canister or funded
+account. Continue preparing exact onboarding inputs without inferring deployment,
+funding or account-mutation authority. Release files remain 0.4.16; the preceding
+dirty shared browser batch below is preserved and both changes join Unreleased.
+
+New offline `account-link-inputs` uses the single Cashier wire owner to encode
+explicit target/caller/paid-canister/payer and positive raw daily-limit/expiry.
+It saves create-new Candid and a hashed passive summary, with no signing, network,
+identity allocation, unit conversion or spending guarantee. Two codec and two CLI
+tests pass; strict affected all-target lint, warning-free core rustdoc and actual
+executable/independent `didc` decoding pass. Invalid/repeated/partial output
+refuses without overwrite. Initial lint failures and corrected logs are retained.
+See [setup](../operator-guide.md#generate-account-link-inputs-offline) and
+[evidence](../evidence/core-primitives.md#offline-account-link-inputs-and-public-cashier-review--2026-10-01).
+
+Two anonymous public Cashier commands observe byte-identical retained metadata/
+pricing, separately from local tests. Internal HTTP counts/retries are unknown.
+The [probe ledger](../evidence/caffeine-probes/README.md) retains the failed guide
+lookup and historical/live request-unit discrepancy; no financial conversion or
+enforcement is established. Intent, source/binary identities, commands, failures,
+results and sample files remain in `.tmp/caffeine-trial-preflight-01`; fixture
+principals/maximal terms are not selected trial inputs. All four host facts remain
+false; no account/provider object/payment, deployment or cleanup obligation occurs.
+[Canic feedback](../canic-parity.md#integration-feedback) CF-01 remains closed with
+no new actionable finding. Next select/provision the isolated trial bindings,
+review the exact provider financial/expiry terms and qualify the operating/recovery
+contract before authorizing real effects. Siblings remain read-only; no release,
+commit or build cleanup occurs. No full CI/release gate is run this batch.
+
+## Earlier work — shared browser transfer after 0.4.16
+
+The maintainer released 0.4.16; clean main initially points to `d8e20ce`.
+The private browser package now exports `createUploadTransfer`, composing the
+maintained patched Caffeine SDK with the existing certificate client/gateway
+journal. The owner/root derive from the original certificate binding; explicit
+bucket/project/traffic inputs, serial transfer and disabled retries replace manual
+SDK construction in both browser and SDK fault fixtures. The same guarded transport
+is available without allocating a second session. No provider protocol, Candid
+schema, production store or qualification override is introduced.
+
+Six maintained SDK substitute cases pass, including pre-issuance root/namespace
+refusal, exact owner/project/bucket requests, multiple chunks, lost final responses,
+byte-budget/HTTP refusal and native body verification. The actual managed browser
+journey passes (9.35 seconds) with its four blockers and zero gateway traffic;
+all ten existing Chromium scenarios pass (53.90 seconds). An initial regression
+moved the fixture's post-tree abort before complete response reading; its failure
+is retained and the fault timing corrected. The maintained guard semantics are
+unchanged. New notes remain Unreleased; Cargo/release files stay 0.4.16.
+
+Fresh public-source capture observes official skills commit
+`4ebf43c518c9fc7b090ed4d27677fea26d6b98f3`, unchanged backend hashes and npm 1.1.2
+with the retained integrity. Initial sandbox transport failure and an unavailable
+documentation lookup are retained separately; no gateway/account/provider behavior
+is probed. Exact inputs/results remain in `.tmp/upload-gates-01`, with maintained
+public/local captures linked from the [probe ledger](../evidence/caffeine-probes/README.md).
+The [gate review](../evidence/caffeine-upload-gates.json) records what is still
+needed for the first actual upload/verified download. Client limits cannot qualify
+pre-charge/replay charges, and owner/project strings cannot prove provisioning.
+Same-release restoration remains inspection-only; stale snapshot activation is
+unsupported. No trial owner/payer/spending budget is selected or effect authorized.
+[Canic feedback](../canic-parity.md#integration-feedback) CF-01 remains closed;
+no new actionable Canic finding is established. Next select and qualify the bounded
+trial operating contract and exact installation/account bindings. Siblings remain
+read-only; no release/commit/deployment/paid effect or build cleanup occurs.
+
+## Earlier work — managed browser setup after 0.4.15
 
 The maintainer released 0.4.15; clean main initially points to `d988835`.
 Continue with the existing browser SDK/client against the actual managed host,

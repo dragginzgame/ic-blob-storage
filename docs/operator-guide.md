@@ -7,6 +7,8 @@ installation scope and original saved requests.
 
 | Task | Command | Effect |
 | --- | --- | --- |
+| Check a complete proposed installation | `installation-check` | Offline shared validation, exact configuration snapshot and summary |
+| Prepare an explicit Cashier account link | `account-link-inputs` | Offline Candid and summary; no signature, submission or funding |
 | Save verified upload bytes and service requests | `upload-inputs` | Offline root verification and fresh private files |
 | Reserve, prepare or withdraw an exact upload | `admit-upload`, `prepare-upload`, `revoke-upload` | One local service update and saved signed intent; no provider call |
 | Recover original permission or manifest | `upload-permission`, `upload-manifest` | Signed exact query; never redispatches |
@@ -25,7 +27,7 @@ installation scope and original saved requests.
 | Check provider bytes and retain a statement | `observe-upload` | Signed service query, provider GET and local evidence writes |
 | Submit the saved statement once | `submit-attestation` | Signed service update and local intent writes |
 
-Endpoint availability differs between standalone and the current managed fixture;
+The standalone and managed fixture expose the same maintained blob method types;
 see [current status](status/current.md) before selecting a target. Service
 observations preserve local facts and fences; they do not grant retry or payment
 authority. Provider reads require a selected installation, approved origin and
@@ -45,6 +47,123 @@ signer beside verifier completion. Lost/pending acknowledgments recover without
 resend; cleanup at capacity during suspension preserves physical/billing liabilities,
 and fenced restore preserves historical results without reviving references.
 See [tenant reference evidence](evidence/core-primitives.md#managed-signed-tenant-reference-submission-and-cleanup--2026-09-30).
+
+## Check installation inputs offline
+
+`installation-check` checks the same complete candidate used by both hosts,
+including service/operator/payer bindings, portable quotas, reference cleanup
+capacity, funding reserves, read limits, project and trusted verifier. It does
+not open memory or construct either host's init carrier.
+
+Prepare one `ServiceConfigurationInput` using the maintained Candid type and your
+explicitly reviewed values. Candid numeric literals preserve u128 widths; quote
+the `service` field name in textual Candid. The
+[local fixture](../crates/ic-blob-storage-cli/tests/fixtures/installation/configuration.args)
+illustrates syntax only: its principals, namespace and financial values are not
+trial defaults. From the repository root:
+
+```sh
+didc encode --defs canisters/standalone/service.did \
+  --types '(ServiceConfigurationInput)' < trial-configuration.args > trial-configuration.hex
+perl -ne 'chomp; print pack("H*", $_)' trial-configuration.hex > trial-configuration.candid
+cargo build --offline --locked -p ic-blob-storage-cli --bin blob-storage
+target/debug/blob-storage installation-check \
+  --configuration trial-configuration.candid --service "$SERVICE" \
+  --project "$PROJECT" --verifier "$VERIFIER" --release "$HOST_RELEASE" \
+  --run-dir .tmp/trial-installation-check
+```
+
+The command accepts at most 16 KiB of Candid with one exact typed value, bounded
+decode work, no skipped fields and no trailing values/bytes. Unknown or repeated
+CLI options refuse. Complete semantic validation precedes creation of a new
+private directory containing the original `configuration.candid` and hashed
+`summary.json`; existing or partial output is never replaced. The report keeps
+full-width namespace as a decimal string and labels authority/effect facts false.
+It is a local proposal, not a deployment permit or recovery journal.
+
+The supplied service and release are planned inputs. Deployment must independently
+check the actual canister and compiled artifact: standalone takes
+`HostInstallationInput { configuration, project, completion_verifier }`; managed
+takes `ManagedInstallationInput` as Canic application bytes, with platform service
+and validated release supplied by the host. Use those maintained DTOs rather than
+submitting the shared configuration alone as init arguments. Host installation
+still enforces the actual binding and its own transport/semantic limits.
+
+## Isolated upload/download trial plan
+
+Use one new isolated storage owner and its existing local journals. No existing
+installation/account is selected; keep existing Canic/Toko accounts and obligations
+separate. Choose the standalone or Canic-managed host before provisioning; both
+share the validator and blob workflows. Managed artifact readiness currently also
+depends on matching ic-memory adoption in Canic; see
+[CF-02](canic-parity.md#integration-feedback). Local managed evidence retains its
+original dependency/artifact identity, without qualifying a new deployed Fleet.
+
+| Stage | Concrete preparation or observation | Required before moving on |
+| --- | --- | --- |
+| Bind the trial | Select host, controller/deployer, operator, tenant, uploader, verifier, explicit payer, Cashier, project/bucket, gateway origin and cleanup owner | Exact identities, namespace assignment and separately authorized creation/deployment; no implicit account or role defaults |
+| Freeze local inputs | Run `installation-check`, prepare `account-link-inputs`, bind exact Wasm/Candid/release hashes and choose one known nonempty file of at most 1 KiB | Original configuration/terms/body retained; finalize and recheck actual service principal after authorized creation, before installation; no fixture defaults |
+| Review economics and recovery | Resolve raw price/expiry units, enforced economic exposure, replay/lost-response handling and the supported lifecycle boundary | Evidence for the maintained four certificate facts; a weaker economic contract requires explicit review and a minor semantic release |
+| Provision and inspect | After exact action authority, create the isolated owner, recheck configuration against its actual principal, then install and separately submit account/funding actions; inspect configuration, relationship/balance and gateway scope | Actual identities match the finalized plan, namespace is provisioned, obligations and every failed/uncertain action are retained; no automatic retry |
+| Admit and prepare | Use maintained SDK preparation, `upload-inputs`, tenant `admit-upload` and uploader `prepare-upload` | Original snapshot/root/permission match; trusted roles and current certificate assessment checked |
+| Transfer once | After explicit trial authority and qualified host facts, use `createUploadTransfer` with serial/no-retry settings and original binding | One certificate claim; reviewed request/body/time limits and numeric financial exposure; stop on refusal, uncertainty or budget exhaustion |
+| Verify and download | `observe-upload`, `submit-attestation`, then tenant `download`, using separate fresh evidence directories | Whole-body root/length verification and exact trusted receipt; SDK success alone cannot establish completion |
+| Close the trial | Release the exact reference, retain provider object/payment/uncertainty records and assign ongoing reconciliation | Logical release is not physical deletion or billing cessation; retire only under the existing contract |
+
+The first paid transfer remains **stopped**: current hosts report unqualified
+pre-charge limits, namespace, replay charging and operational recovery. This plan
+does not override those facts. Qualification experiments need their own recorded
+intent, selected targets and budget; deployment/account/funding actions need exact
+authority. Public metadata/pricing and client limits do not establish an enforced
+financial ceiling.
+
+Before any network trial, record numeric request, aggregate body/response byte,
+wall-time and financial limits in the [probe ledger](evidence/caffeine-probes/README.md).
+Include setup/inspection, certificate, gateway writes and both verifier/tenant
+reads; the small file size is not the total wire or cost budget. The browser hook's
+limits govern cooperating client traffic, not an escaped certificate. A lost
+result stops effects; inspect original service intent/provider evidence without
+resending. Stop/start retains the owner; upgrades remain inspection-only and
+snapshot activation is unsupported. Local files are not independent freshness
+authority. Keep [trial facts](evidence/caffeine-upload-gates.json) and the
+[service retirement contract](service-contract.md) with final disposition evidence.
+
+## Generate account-link inputs offline
+
+There is no existing trial installation or funded account selected. This command
+prepares a proposed `payment_account_canister_add_v1` request using the maintained
+Cashier wire schema. It does not create an account, deploy a canister, authenticate
+the planned caller or contact any network. Supply the exact proposed bindings:
+
+```sh
+cargo build --offline --locked -p ic-blob-storage-cli --bin blob-storage
+target/debug/blob-storage account-link-inputs \
+  --cashier "$CASHIER" --caller "$CALLER" --owner "$SERVICE" --payer "$PAYER" \
+  --daily-limit "$PROVIDER_DAILY_LIMIT" --expiry "$PROVIDER_EXPIRY" \
+  --run-dir .tmp/account-link-inputs
+```
+
+All principals must be canonical and neither anonymous nor management. The payer
+and expiry are explicit: neither defaults to the caller nor to an indefinite
+link. Daily limit and expiry are canonical positive decimal strings, bounded to
+u128 and u64 respectively. They are **raw provider inputs**; this tool does not
+convert currencies, infer timestamp units, validate future expiry or establish
+enforcement. Do not choose trial values from the maximal numbers in test fixtures.
+
+The fresh private directory contains `account-link.candid` and `summary.json`,
+retaining the target, planned signer, paid canister, payer, raw terms, method and
+request hash. The caller is planned local context, not an encoded authority claim.
+Missing, duplicate or invalid arguments refuse before output creation; an existing
+directory, including partial output, is never overwritten. Files are proposed
+inputs, not an effect journal, spending guarantee, receipt or retry permission.
+
+Account submission, funding and deployment require separately reviewed exact
+targets and authority. Current public Cashier metadata/pricing match retained
+replies, but an older onboarding guide uses request-unit labels different from
+the live price list. Neither observation proves the selected account's limit,
+expiry, charging behavior or namespace provisioning. See the
+[recorded observations](evidence/caffeine-probes/deployed/2026-10-01-cashier-preflight-01/summary.json)
+and [trial gates](evidence/caffeine-upload-gates.json).
 
 ## Generate upload inputs offline
 
@@ -267,6 +386,24 @@ are structured JSON codes; private key contents and remote diagnostics are omitt
 The call has a 30-second deadline, a 256 KiB HTTP response ceiling and a 64 KiB
 Candid reply bound with decoder work limits. It never falls back to an update.
 Run `make test-standalone` for the local signed HTTP subprocess evidence.
+
+### Host memory capacity
+
+Both adapters expose the query `blob_host_memory_status` with the same complete
+`OperatorScope` used by `status`. Use an authenticated Candid client with the
+installed operator; controller status alone does not grant access. The existing
+`blob-storage status` command continues to query service accounting only.
+
+The numeric `HostMemoryStatus` reports the host's actual bucket profile, backing
+and virtual extents, assigned capacity, bucket slack, remaining table slots and
+application/ledger/unknown binding totals. This includes all owners in the shared
+runtime. These are capacity observations, not payload occupancy, tenant quota,
+provider object bytes or future growth guarantees. Unknown-bound bytes are not
+free space. Inspection performs one bounded metadata read, without per-ID rows,
+history decoding, provider requests or writes. Wrong scope/caller refuses before
+measurement; failed measurement returns a typed error rather than zero totals.
+The query remains available after fenced restoration and cannot clear any fence.
+Managed artifact validation still awaits Canic dependency alignment (CF-02).
 
 ## Account inspection
 

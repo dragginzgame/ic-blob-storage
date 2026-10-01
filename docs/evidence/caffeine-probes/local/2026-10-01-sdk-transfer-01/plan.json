@@ -1,0 +1,26 @@
+{
+  "schema": 1,
+  "kind": "local_sdk_substitutes",
+  "started": "2026-10-01T16:34:04.672Z",
+  "runner": "0539967a7fe17f1d4c46d30f599e6fab7365d5d0156a28352cbbee53a1e34185",
+  "verifier": "8f0cd0eef2a1532d9a7f254a99ec3dd2d995efc62722313b3e3dbea46c6d4559",
+  "node": "24.21.0",
+  "package": "1.1.2 with maintained repository patch",
+  "limits": {
+    "cases": 8,
+    "requestsPerCase": 3,
+    "requestBytes": 2097152,
+    "totalRequestBytes": 3145728,
+    "responseBytes": 65536
+  },
+  "origin": "http://127.0.0.1:1",
+  "identity": "substituted certificate-agent response",
+  "providerCalls": 0,
+  "attachedCycles": "0",
+  "cleanup": "No external objects or account effects",
+  "substitutes": [
+    "in-memory intent store",
+    "certificate response",
+    "all gateway replies"
+  ]
+}

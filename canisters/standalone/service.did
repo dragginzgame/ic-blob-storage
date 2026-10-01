@@ -440,6 +440,35 @@ type HostInstallationInput = record {
   // Provider project mapped to this service's local namespace; never inferred.
   project : text;
 };
+// Numeric allocation totals for the host's entire shared memory runtime.
+// Capacity includes the ledger and other owners; it is never payload occupancy,
+// tenant quota, provider storage or permission to activate a restored service.
+type HostMemoryStatus = record {
+  // Host backing extent in bytes.
+  physical_extent_bytes : nat64;
+  // Allocated capacity with no current declaration; not unused capacity.
+  unknown_binding_bytes : nat64;
+  // Sum of addressable virtual extents.
+  virtual_extent_bytes : nat64;
+  // Allocated capacity currently bound to application declarations.
+  current_binding_bytes : nat64;
+  // Assigned bucket capacity beyond virtual extents.
+  bucket_slack_bytes : nat64;
+  // Manager metadata capacity in bytes.
+  manager_metadata_bytes : nat64;
+  // Exact authenticated service/provider/account scope.
+  scope : OperatorScope;
+  // Remaining finite bucket-table slots, not a backing-growth guarantee.
+  remaining_buckets : nat32;
+  // Actual persisted bucket size in Wasm pages.
+  bucket_size_pages : nat16;
+  // Assigned bucket capacity in bytes.
+  allocated_bucket_bytes : nat64;
+  // Allocated capacity in the substrate ledger slot.
+  ledger_binding_bytes : nat64;
+  // Backing bytes outside manager metadata and assigned buckets.
+  unmanaged_bytes : nat64;
+};
 // Complete maintained totals for this local funding journal only.
 type LocalFundingStatus = record {
   // Retained lifetime intents, including terminal outcomes.
@@ -501,7 +530,7 @@ type LocalServiceStatus = record {
 };
 // Local inspection refusal; failures never become empty or zero observations.
 type LocalStatusFailure = variant {
-  // Retained accounting or registry state cannot be read consistently.
+  // Retained accounting, registry state or host memory cannot be read consistently.
   Internal;
   // Actual/requested scope or assembled owners differ.
   Binding;
@@ -683,74 +712,75 @@ type Result_1 = variant {
   Ok : ReferenceChange;
   Err : ReferenceTransitionFailure;
 };
-type Result_10 = variant {
+type Result_10 = variant { Ok : HostMemoryStatus; Err : LocalStatusFailure };
+type Result_11 = variant {
   Ok : AccountInspectionResponse;
   Err : AccountInspectionFailure;
 };
-type Result_11 = variant { Ok : LocalServiceStatus; Err : LocalStatusFailure };
-type Result_12 = variant {
+type Result_12 = variant { Ok : LocalServiceStatus; Err : LocalStatusFailure };
+type Result_13 = variant {
   Ok : UploadDiscoveryResponse;
   Err : UploadDiscoveryFailure;
 };
-type Result_13 = variant {
+type Result_14 = variant {
   Ok : UploadManifestMutation;
   Err : UploadManifestFailure;
 };
-type Result_14 = variant {
+type Result_15 = variant {
   Ok : ReferenceCapacityResponse;
   Err : UploadDiscoveryFailure;
 };
-type Result_15 = variant {
+type Result_16 = variant {
   Ok : ReferenceReceiptLookup;
   Err : ReferenceFailure;
 };
-type Result_16 = variant {
+type Result_17 = variant {
   Ok : ReferenceStatusResponse;
   Err : ReferenceFailure;
 };
-type Result_17 = variant {
+type Result_18 = variant {
   Ok : GatewayRevocationResponse;
   Err : GatewayRevocationFailure;
 };
-type Result_18 = variant {
+type Result_19 = variant {
   Ok : UploadRevocationResponse;
   Err : UploadAdmissionFailure;
 };
-type Result_19 = variant { Ok : GatewaySyncResponse; Err : GatewaySyncFailure };
 type Result_2 = variant {
   Ok : ReferenceMutationResponse;
   Err : ReferenceFailure;
 };
-type Result_20 = variant { Ok : TenantEnrollmentResponse; Err : TenantFailure };
-type Result_21 = variant {
+type Result_20 = variant { Ok : GatewaySyncResponse; Err : GatewaySyncFailure };
+type Result_21 = variant { Ok : TenantEnrollmentResponse; Err : TenantFailure };
+type Result_22 = variant {
   Ok : UploadAdmissionResponse;
   Err : UploadAdmissionFailure;
 };
-type Result_22 = variant {
+type Result_23 = variant {
   Ok : UploadAttestationResponse;
   Err : UploadAttestationFailure;
 };
-type Result_23 = variant {
+type Result_24 = variant {
   Ok : UploadCapacityResponse;
   Err : UploadCapacityFailure;
 };
-type Result_24 = variant {
+type Result_25 = variant {
   Ok : UploadCertificateAssessmentResponse;
   Err : UploadExposureFailure;
 };
-type Result_25 = variant {
+type Result_26 = variant {
   Ok : UploadHistoryPage;
   Err : FundingHistoryFailure;
 };
-type Result_26 = variant {
+type Result_27 = variant {
   Ok : UploadManifestResponse;
   Err : UploadManifestFailure;
 };
-type Result_27 = variant {
+type Result_28 = variant {
   Ok : UploadStatusResponse;
   Err : UploadStatusFailure;
 };
-type Result_28 = variant {
+type Result_29 = variant {
   Ok : UploadVerificationPlan;
   Err : UploadAttestationFailure;
 };
@@ -1325,25 +1355,26 @@ service : (HostInstallationInput) -> {
   blob_funding_preparation_assessment : (FundingOutcomeRequest) -> (
       Result_9,
     ) query;
-  blob_inspect_account : (AccountInspectionRequest) -> (Result_10);
-  blob_local_status : (OperatorScope) -> (Result_11) query;
-  blob_lookup_content : (UploadDiscoveryRequest) -> (Result_12) query;
-  blob_prepare_upload : (UploadManifestRequest) -> (Result_13);
-  blob_reference_capacity : (UploadDiscoveryRequest) -> (Result_14) query;
-  blob_reference_receipt : (ReferenceCommand) -> (Result_15) query;
-  blob_reference_status : (ReferenceStatusRequest) -> (Result_16) query;
-  blob_revoke_gateway : (GatewayRevocationRequest) -> (Result_17);
-  blob_revoke_upload : (UploadAdmissionRequest) -> (Result_18);
-  blob_sync_gateways : (OperatorScope) -> (Result_19);
-  blob_tenant : (TenantScope) -> (Result_20) query;
-  blob_update_tenant : (TenantUpdateRequest) -> (Result_20);
-  blob_upload_admission : (UploadAdmissionRequest) -> (Result_21) query;
-  blob_upload_attestation : (UploadAdmissionRequest) -> (Result_22) query;
-  blob_upload_capacity : (TenantScope) -> (Result_23) query;
-  blob_upload_certificate_assessment : (text) -> (Result_24) query;
-  blob_upload_history : (UploadHistoryRequest) -> (Result_25) query;
-  blob_upload_manifest : (UploadAdmissionRequest) -> (Result_26) query;
-  blob_upload_status : (ReferenceUpload) -> (Result_27) query;
-  blob_verification_manifest : (UploadAdmissionRequest) -> (Result_26) query;
-  blob_verification_plan : (UploadAdmissionRequest) -> (Result_28) query;
+  blob_host_memory_status : (OperatorScope) -> (Result_10) query;
+  blob_inspect_account : (AccountInspectionRequest) -> (Result_11);
+  blob_local_status : (OperatorScope) -> (Result_12) query;
+  blob_lookup_content : (UploadDiscoveryRequest) -> (Result_13) query;
+  blob_prepare_upload : (UploadManifestRequest) -> (Result_14);
+  blob_reference_capacity : (UploadDiscoveryRequest) -> (Result_15) query;
+  blob_reference_receipt : (ReferenceCommand) -> (Result_16) query;
+  blob_reference_status : (ReferenceStatusRequest) -> (Result_17) query;
+  blob_revoke_gateway : (GatewayRevocationRequest) -> (Result_18);
+  blob_revoke_upload : (UploadAdmissionRequest) -> (Result_19);
+  blob_sync_gateways : (OperatorScope) -> (Result_20);
+  blob_tenant : (TenantScope) -> (Result_21) query;
+  blob_update_tenant : (TenantUpdateRequest) -> (Result_21);
+  blob_upload_admission : (UploadAdmissionRequest) -> (Result_22) query;
+  blob_upload_attestation : (UploadAdmissionRequest) -> (Result_23) query;
+  blob_upload_capacity : (TenantScope) -> (Result_24) query;
+  blob_upload_certificate_assessment : (text) -> (Result_25) query;
+  blob_upload_history : (UploadHistoryRequest) -> (Result_26) query;
+  blob_upload_manifest : (UploadAdmissionRequest) -> (Result_27) query;
+  blob_upload_status : (ReferenceUpload) -> (Result_28) query;
+  blob_verification_manifest : (UploadAdmissionRequest) -> (Result_27) query;
+  blob_verification_plan : (UploadAdmissionRequest) -> (Result_29) query;
 }

@@ -1,0 +1,28 @@
+(
+  record {
+    gauges = record {
+      bytes_stored = record {
+        per = variant { G };
+        cost = 38_461_538_461 : int;
+      };
+    };
+    counters = record {
+      read_request_price = record {
+        per = variant { M };
+        cost = 307_692_307_692 : int;
+      };
+      bytes_downloaded_price = record {
+        per = variant { G };
+        cost = 76_923_076_923 : int;
+      };
+      bytes_uploaded_price = record {
+        per = variant { G };
+        cost = 115_384_615_383 : int;
+      };
+      write_request_price = record {
+        per = variant { M };
+        cost = 3_846_153_846_153 : int;
+      };
+    };
+  },
+)

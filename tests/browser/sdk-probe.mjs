@@ -8,6 +8,7 @@ import { execFile } from 'node:child_process';
 import { Cbor } from '@icp-sdk/core/agent';
 import { StorageClient } from '@caffeineai/object-storage';
 import { createGatewayTransport, GatewayRefusal } from '../../clients/browser/gateway.js';
+import { createUploadTransfer, TransferRefusal } from '../../clients/browser/transfer.js';
 import { fixtureIntents } from './probe-intents.js';
 
 assert(Number(process.versions.node.split('.')[0]) >= 24, 'Use the provisioned Node 24 tool');
@@ -41,7 +42,7 @@ async function probe(name, size, mode) {
   const bytes = new Uint8Array(size).fill(17);
   const prepared = await StorageClient.prepareFile(bytes, 'application/octet-stream');
   const manifest = JSON.parse(prepared.manifestJSON);
-  const binding = { key: name, root: prepared.hash };
+  const binding = { key: name, root: prepared.hash, service: 'rrkah-fqaaa-aaaaa-aaaaq-cai' };
   const intents = fixtureIntents(binding);
   const certificate = { inspect: intents.inspect };
   const stored = [];
@@ -50,7 +51,8 @@ async function probe(name, size, mode) {
   const maxTotalRequestBytes = mode === 'budget' ? 512 * 1024 : 3 * 1024 * 1024;
   record(`${name}-input.json`, { size, byte: 17, sha256: digest(bytes), root: prepared.hash,
     manifest, maxTotalRequestBytes, mode, expected: 'local observation only' });
-  const fetch = await createGatewayTransport({ certificate, intents, origin,
+  const options = { certificate, intents, origin,
+    bucket: 'fixture-bucket', project: 'fixture-project',
     maxRequests: 3, maxRequestBytes: 2 * 1024 * 1024, maxTotalRequestBytes,
     fetch: async (url, init) => {
       const row = await intents.inspect();
@@ -64,6 +66,16 @@ async function probe(name, size, mode) {
         sha256: digest(init.body), intentBeforeDispatch: true, effect: 'local substitute' });
       const target = new URL(url);
       const tree = target.pathname === '/v1/blob-tree/';
+      if (tree) {
+        const sent = JSON.parse(new TextDecoder().decode(init.body));
+        assert.equal(sent.owner, binding.service);
+        assert.equal(sent.project_id, 'fixture-project');
+        assert.equal(sent.bucket_name, 'fixture-bucket');
+      } else {
+        assert.equal(target.searchParams.get('owner_id'), binding.service);
+        assert.equal(target.searchParams.get('project_id'), 'fixture-project');
+        assert.equal(target.searchParams.get('bucket_name'), 'fixture-bucket');
+      }
       if (!tree) stored.push(init.body.slice());
       const last = !tree && Number(target.searchParams.get('chunk_index')) === manifest.chunk_hashes.length - 1;
       const status = mode === 'http-failure' && !tree ? 503 : 200;
@@ -76,14 +88,23 @@ async function probe(name, size, mode) {
       if (dropped) throw new TypeError('Deliberately discarded local response');
       return new Response(body, { status, headers: { 'content-type': 'application/json' } });
     },
-  });
+  };
   const agent = { call: async () => {
     certificateCalls++;
     // Valid CBOR container, deliberately no signature/tree. Not a verified IC certificate.
     return { requestId: new Uint8Array(32), response: { body: { certificate: Cbor.encode({}) } } };
   } };
-  const storage = new StorageClient('fixture-bucket', origin, 'rrkah-fqaaa-aaaaa-aaaaq-cai',
-    'fixture-project', agent, { retry: false, concurrency: 1, fetch });
+  certificate.certificateAgent = agent;
+  const storage = await createUploadTransfer(options);
+  // Wrong roots and invalid provider bindings refuse before certificate dispatch.
+  await assert.rejects(storage.uploadPrepared({ ...prepared, hash: `sha256:${'0'.repeat(64)}` }),
+    error => error instanceof TransferRefusal && error.code === 'root');
+  for (const project of ['', ' ', 'a\nb', '\u0100', 'x'.repeat(257)]) {
+    await assert.rejects(createUploadTransfer({ ...options, project }),
+      error => error instanceof TransferRefusal && error.code === 'namespace');
+  }
+  assert.equal(certificateCalls, 0);
+  assert.equal(requests, 0);
   let returned = false, refusal = null;
   try { assert.equal((await storage.uploadPrepared(prepared, n => progress.push(n))).hash, prepared.hash); returned = true; }
   catch (error) { refusal = error instanceof GatewayRefusal ? error.code : error.name; }
@@ -138,7 +159,8 @@ async function probe(name, size, mode) {
   }
   const result = { name, mode, size, requests, uploaded, returned, refusal, progress,
     finalRequestPhase: row.gateway.requests.at(-1).phase, verified,
-    retryDispatched: false, providerCompletion: 'not_established', providerCharges: 'not_observed' };
+    retryDispatched: false, compositionPreflightRefusals: true,
+    providerCompletion: 'not_established', providerCharges: 'not_observed' };
   record(`${name}-result.json`, result); cases.push(result);
 }
 

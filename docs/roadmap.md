@@ -58,6 +58,12 @@ Next focus on the existing upload-certificate provider/recovery prerequisites;
 published Canic plain-record rejection/decoder controls are adopted. A real bounded upload
 trial still needs its selected installation and explicit provider-effect budget;
 another passive funding diagnostic is not the next delivery priority.
+The private browser upload composition now centralizes certificate owner/root,
+serial SDK transfer, disabled retries and the existing bounded gateway journal.
+Actual managed setup/refusal and SDK/browser substitute journeys use it; this is
+consumer integration preparation, not a provider gate waiver. The current
+[trial-gate review](evidence/caffeine-upload-gates.json) separates the missing
+deployment/economic/recovery facts from the controls already enforced locally.
 Signed native admission, uploader manifest preparation, exact recovery and tenant
 cancellation now run through both actual hosts, including lost/pending replies and
 fenced history. These commands make upload setup usable without fixture mutation

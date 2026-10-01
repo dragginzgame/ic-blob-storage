@@ -84,6 +84,7 @@ probe-check:
 		"$(CARGO_TARGET_DIR)/debug/caffeine-probe" verify "$$run" || exit $$?; \
 	done
 	sha256sum --check --strict --quiet docs/evidence/caffeine-probes/local/SHA256SUMS
+	sha256sum --check --strict --quiet docs/evidence/caffeine-probes/deployed/SHA256SUMS
 
 docs-check:
 	RUSTDOCFLAGS="-D warnings" cargo doc --offline --locked -p ic-blob-storage -p ic-blob-storage-canister -p ic-blob-storage-canic --all-features --no-deps

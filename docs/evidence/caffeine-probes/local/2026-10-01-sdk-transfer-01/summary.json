@@ -1,0 +1,133 @@
+{
+  "outcome": "passed",
+  "cases": [
+    {
+      "name": "single",
+      "mode": "success",
+      "size": 3,
+      "requests": 2,
+      "uploaded": 767,
+      "returned": true,
+      "refusal": null,
+      "progress": [
+        100
+      ],
+      "finalRequestPhase": "responded",
+      "verified": {
+        "original": true,
+        "corrupted": false,
+        "truncated": false
+      },
+      "retryDispatched": false,
+      "compositionPreflightRefusals": true,
+      "providerCompletion": "not_established",
+      "providerCharges": "not_observed"
+    },
+    {
+      "name": "multi",
+      "mode": "success",
+      "size": 1048577,
+      "requests": 3,
+      "uploaded": 1049639,
+      "returned": true,
+      "refusal": null,
+      "progress": [
+        50,
+        100
+      ],
+      "finalRequestPhase": "responded",
+      "verified": {
+        "original": true,
+        "corrupted": false,
+        "truncated": false
+      },
+      "retryDispatched": false,
+      "compositionPreflightRefusals": true,
+      "providerCompletion": "not_established",
+      "providerCharges": "not_observed"
+    },
+    {
+      "name": "not-complete",
+      "mode": "non-complete",
+      "size": 3,
+      "requests": 2,
+      "uploaded": 767,
+      "returned": true,
+      "refusal": null,
+      "progress": [
+        100
+      ],
+      "finalRequestPhase": "responded",
+      "verified": {
+        "original": true,
+        "corrupted": false,
+        "truncated": false
+      },
+      "retryDispatched": false,
+      "compositionPreflightRefusals": true,
+      "providerCompletion": "not_established",
+      "providerCharges": "not_observed"
+    },
+    {
+      "name": "lost-final",
+      "mode": "lost-final",
+      "size": 1048577,
+      "requests": 3,
+      "uploaded": 1049639,
+      "returned": false,
+      "refusal": "TypeError",
+      "progress": [
+        50
+      ],
+      "finalRequestPhase": "uncertain",
+      "verified": {
+        "original": true,
+        "corrupted": false,
+        "truncated": false
+      },
+      "retryDispatched": false,
+      "compositionPreflightRefusals": true,
+      "providerCompletion": "not_established",
+      "providerCharges": "not_observed"
+    },
+    {
+      "name": "http-failure",
+      "mode": "http-failure",
+      "size": 1048577,
+      "requests": 2,
+      "uploaded": 1049638,
+      "returned": false,
+      "refusal": "Error",
+      "progress": [],
+      "finalRequestPhase": "responded",
+      "verified": null,
+      "retryDispatched": false,
+      "compositionPreflightRefusals": true,
+      "providerCompletion": "not_established",
+      "providerCharges": "not_observed"
+    },
+    {
+      "name": "byte-budget",
+      "mode": "budget",
+      "size": 1048577,
+      "requests": 1,
+      "uploaded": 1062,
+      "returned": false,
+      "refusal": "request-budget",
+      "progress": [],
+      "finalRequestPhase": "responded",
+      "verified": null,
+      "retryDispatched": false,
+      "compositionPreflightRefusals": true,
+      "providerCompletion": "not_established",
+      "providerCharges": "not_observed"
+    }
+  ],
+  "conclusions": [
+    "SDK uploads chunks despite supplied existing_chunks",
+    "SDK return/progress does not require a complete status",
+    "Lost final reply preserves uncertainty even when substitute bytes verify",
+    "Traffic budget refuses next request before dispatch"
+  ],
+  "limitations": "Substituted certificate/gateway/store; no IC lifecycle, provider retention, charges or production recovery proved"
+}

@@ -14,6 +14,7 @@ use crate::{
     },
 };
 use ic_memory::ic_stable_structures::Memory;
+pub mod memory;
 
 /// Canonical passive local query; linking exports no endpoint.
 pub const LOCAL_STATUS_METHOD: &str = "blob_local_status";
@@ -47,11 +48,11 @@ impl<'a, M: Memory> From<&'a ServiceStores<M>> for OperatorStores<'a, M> {
         }
     }
 }
-pub(crate) fn inspect<M: Memory>(
+fn authorize<M: Memory>(
     stores: OperatorStores<'_, M>,
     context: UploadContext,
     scope: OperatorScope,
-) -> Result<LocalServiceStatus, LocalStatusFailure> {
+) -> Result<(), LocalStatusFailure> {
     let config = stores.uploads.callback_configuration();
     let bindings = config.bindings();
     let expected = OperatorScope {
@@ -72,6 +73,17 @@ pub(crate) fn inspect<M: Memory>(
     {
         return Err(LocalStatusFailure::Binding);
     }
+    Ok(())
+}
+
+pub(crate) fn inspect<M: Memory>(
+    stores: OperatorStores<'_, M>,
+    context: UploadContext,
+    scope: OperatorScope,
+) -> Result<LocalServiceStatus, LocalStatusFailure> {
+    authorize(stores, context, scope)?;
+    let config = stores.uploads.callback_configuration();
+    let bindings = config.bindings();
     // Each owner still applies its own authority/scope and retained-state checks.
     // No incomplete observation is replaced by zero, absence or an empty list.
     let uploads = stores

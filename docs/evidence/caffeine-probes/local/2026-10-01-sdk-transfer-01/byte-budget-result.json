@@ -1,0 +1,16 @@
+{
+  "name": "byte-budget",
+  "mode": "budget",
+  "size": 1048577,
+  "requests": 1,
+  "uploaded": 1062,
+  "returned": false,
+  "refusal": "request-budget",
+  "progress": [],
+  "finalRequestPhase": "responded",
+  "verified": null,
+  "retryDispatched": false,
+  "compositionPreflightRefusals": true,
+  "providerCompletion": "not_established",
+  "providerCharges": "not_observed"
+}

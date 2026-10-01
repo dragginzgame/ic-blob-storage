@@ -1,0 +1,22 @@
+{
+  "name": "lost-final",
+  "mode": "lost-final",
+  "size": 1048577,
+  "requests": 3,
+  "uploaded": 1049639,
+  "returned": false,
+  "refusal": "TypeError",
+  "progress": [
+    50
+  ],
+  "finalRequestPhase": "uncertain",
+  "verified": {
+    "original": true,
+    "corrupted": false,
+    "truncated": false
+  },
+  "retryDispatched": false,
+  "compositionPreflightRefusals": true,
+  "providerCompletion": "not_established",
+  "providerCharges": "not_observed"
+}

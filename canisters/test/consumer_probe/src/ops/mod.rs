@@ -77,7 +77,7 @@ pub(crate) fn initialize(initial: Option<(Principal, Principal)>) {
     let memory = runtime.open_memory_by_key(KEY).unwrap();
     let record = if let Some((operator, service)) = initial {
         assert_eq!(memory.size(), 0, "initialization cannot reset history");
-        assert_ne!(memory.grow(1), -1, "fixture memory allocation");
+        assert_eq!(memory.grow(1), Ok(0), "fixture memory allocation");
         ConsumerRecord::new(operator, service, ic_cdk::api::canister_self())
     } else {
         assert!(memory.size() > 0, "missing consumer history");

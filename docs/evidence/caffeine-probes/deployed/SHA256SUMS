@@ -1,0 +1,13 @@
+232b08e4514048d4de48d6d1bf4387f577bfb64c7e2e2ded699a5e52d475d76f  docs/evidence/caffeine-probes/deployed/2026-10-01-cashier-preflight-01/cashier-current.did
+07b687a066164eac38aae91d8098d9ca56545a10f2ef74f8c5250559ecb96c31  docs/evidence/caffeine-probes/deployed/2026-10-01-cashier-preflight-01/icp-version.txt
+20b148e369608a9b7161c9e2a556e41488e961eb01be4dd86de0cf186b0c7137  docs/evidence/caffeine-probes/deployed/2026-10-01-cashier-preflight-01/intent.txt
+4921c4590aa2311aa5ea518c5ddeecaec263ca4600b1fc2c7d5f84668755031a  docs/evidence/caffeine-probes/deployed/2026-10-01-cashier-preflight-01/interface-inputs.sha256
+0ccdb5a77ba5bf7687f2565a8ed97dfb9c1af45503c496fb646312239fab5101  docs/evidence/caffeine-probes/deployed/2026-10-01-cashier-preflight-01/metadata-exit.txt
+1f7ce4ffd8eb1375a8873acc90cbd7567e8bbeac0307d4b36fe2646dbf4c230a  docs/evidence/caffeine-probes/deployed/2026-10-01-cashier-preflight-01/metadata-request.json
+e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  docs/evidence/caffeine-probes/deployed/2026-10-01-cashier-preflight-01/metadata-stderr.txt
+e26629bd9aee2c546958735358dfc5597e33f3e18abef438d1b2d9fe120788ca  docs/evidence/caffeine-probes/deployed/2026-10-01-cashier-preflight-01/pricelist-current.did
+0ccdb5a77ba5bf7687f2565a8ed97dfb9c1af45503c496fb646312239fab5101  docs/evidence/caffeine-probes/deployed/2026-10-01-cashier-preflight-01/pricing-exit.txt
+62d615e6fbec5d97d3ddc88db768bef05f8ec696b5d58e7bc1cd24bb20a554f1  docs/evidence/caffeine-probes/deployed/2026-10-01-cashier-preflight-01/pricing-request.json
+e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  docs/evidence/caffeine-probes/deployed/2026-10-01-cashier-preflight-01/pricing-stderr.txt
+8177c9529f30c53fcf29744eb1d8e023bc08b65172bf11f24945bbacf26018ab  docs/evidence/caffeine-probes/deployed/2026-10-01-cashier-preflight-01/summary.json
+b4d27a5133dd8cd1fc0a30f3cf8d51e18608d290b5822bc773ac66b4b4f3bb84  docs/evidence/caffeine-probes/deployed/2026-10-01-cashier-preflight-01/web-review-01.json

@@ -1,0 +1,32 @@
+{
+  "size": 3,
+  "byte": 17,
+  "sha256": "10d083af91c061f2c89df71ee6928f959756b77c1ad17aa2383457da90524293",
+  "root": "sha256:4072929e28fff41c616b24ee7b3e130ab9aac9e2694d564dc1a2bd0d1339fd7d",
+  "manifest": {
+    "tree_type": "DSBMTWH",
+    "chunk_hashes": [
+      "sha256:b2402ac54c9227606a6673478ad72f9a34fbc1062199f18a994dbd5f1825277f"
+    ],
+    "tree": {
+      "hash": "sha256:4072929e28fff41c616b24ee7b3e130ab9aac9e2694d564dc1a2bd0d1339fd7d",
+      "left": {
+        "hash": "sha256:b2402ac54c9227606a6673478ad72f9a34fbc1062199f18a994dbd5f1825277f",
+        "left": null,
+        "right": null
+      },
+      "right": {
+        "hash": "sha256:58029243fd80584e0567a94ef346f3081b901c5642d8623331fec47da2187614",
+        "left": null,
+        "right": null
+      }
+    },
+    "headers": [
+      "Content-Length: 3",
+      "Content-Type: application/octet-stream"
+    ]
+  },
+  "maxTotalRequestBytes": 3145728,
+  "mode": "non-complete",
+  "expected": "local observation only"
+}

@@ -109,15 +109,14 @@ pub fn open<M: Memory, E>(
 }
 
 /// Open service grants from the already bootstrapped default runtime, for a host
-/// such as Canic that owns it. Checks the existing committed capability first;
-/// absence cannot construct a manager or silently choose its bucket policy.
+/// such as Canic that owns it. Key opens are nonconstructing; absence cannot
+/// initialize a manager or silently choose its bucket policy.
 /// No declarations, lifecycle hooks, store initialization or recovery activation
 /// are implied. The host must grant exclusive service ownership as for [`open`].
 /// # Errors
 /// Rejects an absent/unbootstrapped runtime, missing grant or runtime access failure.
 pub fn open_default() -> Result<ServiceMemories<RuntimeMemory<DefaultMemoryImpl>>, RuntimeOpenError>
 {
-    ic_memory::committed_allocations()?;
     open(ic_memory::open_default_memory_manager_memory_by_key)
 }
 

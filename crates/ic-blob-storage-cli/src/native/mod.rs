@@ -1,4 +1,5 @@
 mod account;
+mod account_link_inputs;
 mod arguments;
 mod artifacts;
 mod attestation;
@@ -8,6 +9,7 @@ mod funding_assessment;
 mod funding_outcome;
 mod gateway_controls;
 mod history;
+mod installation_check;
 mod local_body;
 mod observe_upload;
 mod provider_download;
@@ -33,6 +35,10 @@ use serde_json::json;
 use std::{fs::File, io::Read, path::Path, process::ExitCode, time::Duration};
 
 const USAGE: &str = concat!(
+    "blob-storage account-link-inputs --cashier PRINCIPAL --caller PRINCIPAL --owner PRINCIPAL --payer PRINCIPAL --daily-limit DECIMAL --expiry DECIMAL --run-dir NEW_DIRECTORY\n",
+    "account-link-inputs is offline. It encodes explicit positive raw provider terms with an explicit payer/expiry, never selects units, signs, links or funds an account. Existing/partial output refuses; generated input is not an effect journal, financial cap proof or retry permit.\n",
+    "blob-storage installation-check --configuration CONFIGURATION_CANDID --service PRINCIPAL --project PROJECT --verifier PRINCIPAL --release HOST_RELEASE --run-dir NEW_DIRECTORY\n",
+    "installation-check is offline. It checks one bounded ServiceConfigurationInput plus explicit planned service/project/verifier/release through the shared installation validator, preserving original configuration bytes and a passive summary. It does not generate host init carriers, authenticate platform/release identity, grant memory, deploy, provision, fund or qualify certificate facts. Existing/partial output refuses.\n",
     "blob-storage upload-inputs --binding JSON --manifest UPSTREAM_MANIFEST_JSON --body FILE --max-bytes DECIMAL --run-dir NEW_DIRECTORY\n",
     "Offline preparation of permission.candid, manifest.candid, first-reference download.candid/reference-status.candid, certificate-binding.json for the existing browser client and a complete root-verified body.bin snapshot. Explicit original identities and Caffeine's prepared declaration; no signer, network, ID allocation or certificate. Failed snapshots remain private body.part; existing or partial directories refuse.\n",
     "blob-storage reference-inputs --permission PERMISSION_CANDID --action retain|release --reference DECIMAL --operation DECIMAL --run-dir NEW_DIRECTORY\n",
@@ -199,6 +205,18 @@ fn identity(path: &Path, expected: Principal) -> Result<Box<dyn Identity>, Failu
 }
 
 fn execute(args: &[String]) -> Result<serde_json::Value, Failure> {
+    if args
+        .first()
+        .is_some_and(|command| command == "installation-check")
+    {
+        return installation_check::run(args);
+    }
+    if args
+        .first()
+        .is_some_and(|command| command == "account-link-inputs")
+    {
+        return account_link_inputs::run(args);
+    }
     if args
         .first()
         .is_some_and(|command| command == "reference-inputs")

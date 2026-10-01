@@ -49,6 +49,12 @@ fn admit_with_write_trap(
 ) -> Result<UploadAdmissionMutation, UploadAdmissionFailure> {
     workflow::admit(context(), input.permission, Some(input.fault))
 }
+#[ic_cdk::update(decode_with = "ops::decode")]
+fn admit_with_growth(
+    input: blob_test_protocol::storage::GrowthAdmission,
+) -> Result<UploadAdmissionMutation, UploadAdmissionFailure> {
+    workflow::admit_with_growth(context(), input)
+}
 #[ic_cdk::query(decode_with = "ops::decode")]
 fn blob_upload_admission(
     input: UploadAdmissionRequest,

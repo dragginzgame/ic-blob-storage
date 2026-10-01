@@ -2,6 +2,51 @@
 
 ## [Unreleased]
 
+## [0.5.0]
+
+### Breaking
+
+- Upgrade the public `ic-memory` re-export to 0.15.0. Direct growth callers must
+  handle its typed result; stable-structure wrappers retain their upstream trait
+  contract. Cross-release installations remain reinstall-only.
+- Managed `memory::open`, lifecycle `install`/`restore` and `declare_installation!`
+  now require an explicit memory authority. All seventeen declarations are verified
+  before opening any blob handle; adoption failures use `MemoryAdoptionFailure`.
+  The previous implicit-authority forms are removed.
+
+### Added
+
+- Operator-only `blob_host_memory_status` reports compact host backing capacity
+  through the same shared handler in standalone and managed adapters. Capacity,
+  slack and binding totals remain separate from tenant/provider usage and quotas.
+- PocketIC growth-refusal coverage checks whole-state rollback, a populated
+  neighbor, exact storage-only retry and fenced restoration.
+- Offline `installation-check` validates complete proposed configuration, project,
+  verifier and release through the shared installation owner before preserving
+  exact inputs. It refuses malformed/extra Candid, inconsistent limits and existing
+  output without deploying, allocating memory or qualifying provider facts.
+- Offline `account-link-inputs` generates reviewable Cashier Candid with explicit
+  canister, payer, caller, positive daily limit and expiry. It preserves exact
+  bytes and hashes in a fresh directory without signing, linking or funding.
+- Reusable private browser upload composition binds the patched Caffeine SDK to
+  the admitted certificate owner/root and existing gateway journal. It fixes
+  serial transfer and disabled retries, requires explicit traffic/namespace inputs,
+  and refuses wrong roots or malformed namespace values before issuance.
+
+### Changed
+
+- Default memory opens use ic-memory's nonconstructing lookup without duplicate
+  readiness checks. Managed artifact builds and IC qualification await Canic's
+  matching ic-memory dependency adoption (CF-02).
+- Browser and SDK fault fixtures use the same upload composition; the build checks
+  both SDK peer pins. Existing reload, cancellation, lost-response and cleanup
+  behavior is preserved, including the fixture's post-response abort timing.
+- Refreshed public Caffeine source/npm evidence and recorded the remaining trial
+  gates separately from local client guarantees; provider host facts stay false.
+- Refreshed anonymous deployed Cashier metadata and public pricing observations.
+  Both match retained replies; historical guide pricing differs in request-unit
+  labels, so no conversion or enforced financial guarantee is inferred.
+
 ## [0.4.16] - 2026-10-01
 
 ### Added

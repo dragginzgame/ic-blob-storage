@@ -27,9 +27,10 @@ The extension supplies:
   and a scoped transport. Original package defaults remain upstream behavior;
   they are not this service's approved retry policy.
 
-Prepare before admission, retain the admitted operation separately, then pass
-`createCertificateClient(...).certificateAgent` to Caffeine's constructor. This
-uses its existing real HttpAgent injection point; no new certificate callback or
+Prepare before admission and retain the admitted operation separately. The
+[shared upload composition](../README.md) passes the existing certificate client's
+guarded real HttpAgent to Caffeine's constructor and fixes serial/no-retry options
+with the existing bounded gateway journal. No new certificate callback or
 private-method/global-fetch monkey patch is needed.
 
 The tests first exercised unmodified 1.1.2 with that agent. The maintained patched

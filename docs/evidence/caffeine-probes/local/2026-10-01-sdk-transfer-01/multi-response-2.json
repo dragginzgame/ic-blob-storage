@@ -1,0 +1,8 @@
+{
+  "index": 2,
+  "status": 200,
+  "body": "{\"status\":\"blob_complete\"}",
+  "sha256": "96688f2b05364e6f3ff4d385a7d5e330ed15dde389079c110c78180ed3423a0f",
+  "delivered": true,
+  "substituteStoredBytes": 1048577
+}

@@ -35,9 +35,9 @@ and durable metadata; admission does not require uploading the file body to it.
 | Standalone canister | Shared handlers and explicit installation configuration; provider certificate issuance remains disabled |
 | Canic adapter | All service methods wired in the controlled managed fixture, including the plain certificate reply; their Candid types match standalone |
 | Managed lifecycle | Installation, activation, verifier checks, reference-qualified downloads, cleanup accounting and fenced upgrades tested locally |
-| Native tooling | Verified upload snapshots, generated download/reference inputs, signed setup/recovery/cancellation, tenant file downloads and verifier completion; both hosts tested locally |
+| Native tooling | Offline installation checks, account-link inputs and verified snapshots; signed setup/recovery, tenant downloads and verifier completion tested locally through both hosts |
 | Application prototype | Existing asset/outbox fixture tests managed publication, callback recovery, cancellation races, cleanup and restoration with unfinished work |
-| Browser integration | Private certificate/intent client composed with Caffeine's upload SDK in local tests |
+| Browser integration | Reusable upload composition binds Caffeine's SDK to certificate intent, serial transfer and bounded request journaling; locally tested |
 | Live service acceptance | Still open: complete consumer flow, provider guarantees and operational recovery |
 
 Pinned Canic 0.110.49 provides plain certificate replies and bounded endpoint/

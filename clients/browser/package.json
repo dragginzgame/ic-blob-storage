@@ -2,6 +2,6 @@
   "name": "@dragginzgame/blob-storage-browser",
   "private": true,
   "type": "module",
-  "exports": { ".": "./certificate.js", "./gateway": "./gateway.js" },
-  "peerDependencies": { "@icp-sdk/core": "5.4.0" }
+  "exports": { ".": "./certificate.js", "./gateway": "./gateway.js", "./transfer": "./transfer.js" },
+  "peerDependencies": { "@icp-sdk/core": "5.4.0", "@caffeineai/object-storage": "1.1.2" }
 }

@@ -52,6 +52,14 @@ pub struct FaultAdmission {
     /// Write that traps within this IC update.
     pub fault: WriteFault,
 }
+/// One local admission followed by explicit backing growth, with a refusal substitute.
+#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+pub struct GrowthAdmission {
+    /// Exact permission used for the storage-only retry.
+    pub permission: ic_blob_storage::dto::upload::admission::UploadAdmissionRequest,
+    /// Refuse the physical backing reservation after admission writes.
+    pub refuse: bool,
+}
 /// One manifest binding that must trap at the selected stable write.
 #[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize)]
 pub struct FaultPreparation {

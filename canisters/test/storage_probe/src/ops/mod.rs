@@ -29,8 +29,29 @@ use ic_blob_storage::{
 };
 use std::cell::{Cell, RefCell};
 
+#[derive(Clone, Default)]
+pub(crate) struct ProbeBackingMemory(DefaultMemoryImpl);
+impl Memory for ProbeBackingMemory {
+    fn size(&self) -> u64 {
+        self.0.size()
+    }
+    fn grow(&self, pages: u64) -> i64 {
+        if REFUSE_GROWTH.get() {
+            -1
+        } else {
+            self.0.grow(pages)
+        }
+    }
+    fn read(&self, offset: u64, dst: &mut [u8]) {
+        self.0.read(offset, dst);
+    }
+    fn write(&self, offset: u64, src: &[u8]) {
+        self.0.write(offset, src);
+    }
+}
+
 pub(crate) struct ProbeMemory {
-    memory: RuntimeMemory<DefaultMemoryImpl>,
+    memory: RuntimeMemory<ProbeBackingMemory>,
     fault: Option<WriteFault>,
 }
 impl Memory for ProbeMemory {
@@ -38,7 +59,7 @@ impl Memory for ProbeMemory {
         self.memory.size()
     }
     fn grow(&self, pages: u64) -> i64 {
-        self.memory.grow(pages)
+        Memory::grow(&self.memory, pages)
     }
     fn read(&self, offset: u64, dst: &mut [u8]) {
         self.memory.read(offset, dst);
@@ -51,7 +72,7 @@ impl Memory for ProbeMemory {
     }
 }
 struct State {
-    _runtime: MemoryRuntime<DefaultMemoryImpl>,
+    runtime: MemoryRuntime<ProbeBackingMemory>,
     operator: Principal,
     uploads: StableUploads<ProbeMemory>,
     funding: ic_blob_storage::ops::service::funding::StableFundingJournal<ProbeMemory>,
@@ -62,6 +83,7 @@ struct State {
 thread_local! {
     static STATE:RefCell<Option<State>>=const { RefCell::new(None) };
     static TRAP_WRITE:Cell<Option<WriteFault>>=const { Cell::new(None) };
+    static REFUSE_GROWTH:Cell<bool>=const { Cell::new(false) };
 }
 pub(crate) fn with_operator_stores<R>(
     inspect: impl FnOnce(ic_blob_storage::ops::service::operator::OperatorStores<'_, ProbeMemory>) -> R,
@@ -81,6 +103,14 @@ pub(crate) fn initialize(operator: Principal, restored: bool) {
     let config = configuration::configuration(operator);
     STATE.with_borrow(|state| assert!(state.is_none(), "initialization is not reset"));
     let (runtime, memory) = granted_memories();
+    let neighbor = runtime.open_memory_by_key("fixture.neighbor.v1").unwrap();
+    if !restored {
+        assert_eq!(neighbor.grow(1), Ok(0));
+        neighbor.write(0, b"neighbor");
+    }
+    let mut bytes = [0; 8];
+    neighbor.read(0, &mut bytes);
+    assert_eq!(&bytes, b"neighbor");
     let ServiceStores {
         uploads,
         funding,
@@ -94,7 +124,7 @@ pub(crate) fn initialize(operator: Principal, restored: bool) {
     .unwrap();
     STATE.with_borrow_mut(|state| {
         *state = Some(State {
-            _runtime: runtime,
+            runtime,
             operator,
             uploads,
             funding,
@@ -105,7 +135,7 @@ pub(crate) fn initialize(operator: Principal, restored: bool) {
     });
 }
 fn granted_memories() -> (
-    MemoryRuntime<DefaultMemoryImpl>,
+    MemoryRuntime<ProbeBackingMemory>,
     ServiceMemories<ProbeMemory>,
 ) {
     let keys = [
@@ -126,8 +156,12 @@ fn granted_memories() -> (
         "fixture.read_sessions.v1",
         "fixture.read_tenants.v1",
     ];
-    let requests =
-        keys.map(|key| MemoryRequest::new("fixture", key, SchemaMetadata::default()).unwrap());
+    let mut requests = keys
+        .map(|key| MemoryRequest::new("fixture", key, SchemaMetadata::default()).unwrap())
+        .to_vec();
+    requests.push(
+        MemoryRequest::new("neighbor", "fixture.neighbor.v1", SchemaMetadata::default()).unwrap(),
+    );
     let grant = StaticMemoryRangeDeclaration::new(
         MemoryManagerAuthorityRecord::new(
             MemoryManagerIdRange::new(120, 135).unwrap(),
@@ -138,9 +172,19 @@ fn granted_memories() -> (
         .unwrap(),
     )
     .unwrap();
-    let declarations = SealedDeclarationSnapshot::new(&[], &[grant], &requests).unwrap();
+    let neighbor = StaticMemoryRangeDeclaration::new(
+        MemoryManagerAuthorityRecord::new(
+            MemoryManagerIdRange::new(136, 136).unwrap(),
+            "neighbor",
+            MemoryManagerRangeMode::Allowed,
+            None,
+        )
+        .unwrap(),
+    )
+    .unwrap();
+    let declarations = SealedDeclarationSnapshot::new(&[], &[grant, neighbor], &requests).unwrap();
     let mut runtime = MemoryRuntime::new_with_config(
-        DefaultMemoryImpl::default(),
+        ProbeBackingMemory::default(),
         MemoryManagerConfig::new(16).unwrap(),
     )
     .unwrap();
@@ -192,7 +236,7 @@ fn granted_memories() -> (
     };
     (runtime, memory)
 }
-fn probe_memory(runtime: &mut MemoryRuntime<DefaultMemoryImpl>, key: &str) -> ProbeMemory {
+fn probe_memory(runtime: &mut MemoryRuntime<ProbeBackingMemory>, key: &str) -> ProbeMemory {
     ProbeMemory {
         memory: runtime.open_memory_by_key(key).unwrap(),
         fault: match key {
@@ -252,6 +296,53 @@ pub(crate) fn admit(
     });
     TRAP_WRITE.set(None);
     result
+}
+pub(crate) fn admit_with_growth(
+    context: UploadContext,
+    input: blob_test_protocol::storage::GrowthAdmission,
+) -> Result<
+    ic_blob_storage::dto::upload::admission::UploadAdmissionMutation,
+    ic_blob_storage::dto::upload::admission::UploadAdmissionFailure,
+> {
+    // Exercise IC rollback after real application writes, then an explicit
+    // physical backing reservation through the maintained runtime growth API.
+    let result = admit(context, input.permission, None)?;
+    STATE.with_borrow(|state| {
+        let memory = state
+            .as_ref()
+            .unwrap()
+            .runtime
+            .open_memory_by_key("fixture.permissions.v1")
+            .unwrap();
+        let before = memory.size();
+        REFUSE_GROWTH.set(input.refuse);
+        let grown = memory.grow(16);
+        if input.refuse {
+            if !matches!(
+                grown,
+                Err(ic_blob_storage::ic_memory::RuntimeGrowError::BackingRefused { .. })
+            ) {
+                REFUSE_GROWTH.set(false);
+                return Err(
+                    ic_blob_storage::dto::upload::admission::UploadAdmissionFailure::Internal,
+                );
+            }
+            if memory.size() != before || Memory::grow(&memory, 16) != -1 {
+                REFUSE_GROWTH.set(false);
+                return Err(
+                    ic_blob_storage::dto::upload::admission::UploadAdmissionFailure::Internal,
+                );
+            }
+            // Only the expected typed refusal and unchanged extent take the trap
+            // path. Unexpected outcomes return normally so the test cannot mistake
+            // an assertion panic for qualified growth-refusal rollback.
+            ic_cdk::trap("fixture backing growth refused");
+        }
+        REFUSE_GROWTH.set(false);
+        assert_eq!(grown, Ok(before));
+        Ok(())
+    })?;
+    Ok(result)
 }
 pub(crate) fn prepare(
     context: UploadContext,

@@ -9,6 +9,7 @@ mod storage_attestation_cli;
 mod storage_completion;
 mod storage_exposure;
 mod storage_gateways;
+mod storage_growth;
 mod storage_manifests;
 mod storage_observe_cli;
 mod storage_reference_native_cli;

@@ -1,0 +1,81 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-01",
+  "baseline_release": "0.4.16",
+  "baseline_commit": "d8e20ce",
+  "scope": "First bounded actual upload and independently verified download; source, local and public Cashier observations remain distinct, no provider-effect authority",
+  "public_source_refresh": {
+    "record": "caffeine-probes/runs/2026-10-01-public-source-02/summary.json",
+    "failed_initial_record": "caffeine-probes/runs/2026-10-01-public-source-01/summary.json",
+    "skills_commit": "4ebf43c518c9fc7b090ed4d27677fea26d6b98f3",
+    "commit_date": "2026-09-30T14:23:27Z",
+    "npm_latest_observed": "1.1.2",
+    "npm_integrity": "sha512-JAmoHT6E8M18DEbW4rkHinAOw0A8yNbz+rj8F56VAvr8Hf0TxQSK0ZdMrkwwT7BsiOLvtFK/YcLtoaWBc9x2xQ==",
+    "backend_sha256": {
+      "Mixin.mo": "175c6b98672a83054fc08855062d1a7b7f2bd3713bf11a60d5319ac5afefe2b3",
+      "Storage.mo": "0c757f4cb30ebe8e30b42a59b130a1662b47e403b9664f44e98d14b08b20af42"
+    },
+    "backend_changed_from_retained_pin": false,
+    "mops_refreshed": false,
+    "server_source_obtained": false,
+    "deployed_behavior_observed": false,
+    "unavailable_lookup": "Pinned April DFINITY integration README lookup returned cache miss; retained in .tmp/upload-gates-01/web-review-01.json"
+  },
+  "local_transfer": {
+    "source": "../../clients/browser/transfer.js",
+    "sdk": "Caffeine 1.1.2 with maintained patch, SDK 5.4.0",
+    "owner_and_root": "Original certificate binding, no independently configured SDK owner",
+    "retry": false,
+    "concurrency": 1,
+    "journal": "Existing certificate and bounded gateway request owner; no second store or schema",
+    "observations": "Wrong root/malformed namespace refusal before issuance; exact emitted owner/project/bucket; six maintained SDK substitute cases and actual managed refusal plus ten browser scenarios",
+    "sdk_record": "caffeine-probes/local/2026-10-01-sdk-transfer-01/summary.json",
+    "production_persistence_qualified": false,
+    "sdk_success_establishes_completion": false
+  },
+  "certificate_gates": [
+    {
+      "blocker": "PrechargeLimits",
+      "current_host_fact": false,
+      "local_control": "Service manifest/reservations and gateway request/count/body ceilings",
+      "missing_fact": "Under the current contract, selected provider rejects over-limit tree/chunk/body effects before the applicable charge",
+      "alternative_for_review": "An evidenced financial ceiling with accepted experimental exposure could support a different operating contract; changing the current gate semantics requires a minor release, not setting this flag from a client budget",
+      "reason_local_control_is_insufficient": "The plain certificate reply commits method/root; possession can outlive the browser hook. Client ceilings are not a server spending cap."
+    },
+    {
+      "blocker": "ProviderNamespace",
+      "current_host_fact": false,
+      "local_control": "SDK owner comes from actual service binding; explicit bucket/project and root remain distinct from tenant authority",
+      "missing_fact": "Exact isolated service owner, Cashier/payer relationship and provider project/bucket are selected and provisioned for this installation",
+      "reason_local_control_is_insufficient": "Canonical strings and a root-only certificate do not prove provisioned namespace authority or transfer objects from an existing Canic owner."
+    },
+    {
+      "blocker": "ReplayCharging",
+      "current_host_fact": false,
+      "local_control": "One certificate claim, one serial gateway session, disabled retries and permanent uncertainty/cancellation history",
+      "missing_fact": "Under the current contract, applicable escaped-certificate lifetime, repeated tree/chunk charges and lost-response economic exposure are qualified",
+      "alternative_for_review": "A provider-enforced economic ceiling could bound a restricted trial despite unknown retry charges; that requires an explicit revised operating contract and minor release, not a qualification assertion",
+      "reason_local_control_is_insufficient": "Our store prevents cooperating-client resend; it cannot revoke a certificate or establish provider economics. Existing_chunks and successful HTTP are not charge receipts."
+    },
+    {
+      "blocker": "Recovery",
+      "current_host_fact": false,
+      "local_control": "One authoritative storage owner, local durable journals, exact receipt inspection and inspection-only same-release restoration",
+      "missing_fact": "Qualified supported recovery boundary with complete obligations and freshness authority; separately choose the first trial's lifecycle/retirement responsibilities",
+      "reason_local_control_is_insufficient": "An unfenced fresh store does not prove independent obligations after rollback. Snapshot activation and automatic unfencing remain unsupported; external journals remain deferred."
+    }
+  ],
+  "onboarding_preflight": {"actual_executable_and_independent_decoder":"passed","cli_tests":"passed","codec_tests":"passed","command":"account-link-inputs","date":"2026-10-01","funding_dispatched":false,"maintainer_has_existing_trial_installation_or_funded_account":false,"operator_guide":"../operator-guide.md#generate-account-link-inputs-offline","provider_dispatched":false,"public_cashier_record":"caffeine-probes/deployed/2026-10-01-cashier-preflight-01/summary.json","qualified":false,"spending_guarantee":"not_established","units_interpreted":false},
+  "trial_setup_plan": {"actual_service_identity_finalized":"after separately authorized creation; rerun check before install","approved_financial_terms":null,"approved_gateway_origin":null,"body_template":{"artifact":".tmp/isolated-trial-plan-01/trial-body-template.bin","bytes":31,"is_provider_root":false,"raw_sha256":"a773434bed76e5b1c1d905f62b8af8e2e87268145826ff103f251da429a46554","selected_for_upload":false},"certificate_facts_changed":false,"date":"2026-10-01","init_carrier":"maintained selected host DTO; shared configuration alone is not an init argument","local_check":"../operator-guide.md#check-installation-inputs-offline","managed_artifact":"awaits Canic matching ic-memory0.15 adoption and canonical build/lifecycle checks (CF-02)","max_proposed_initial_body_bytes":1024,"minor_semantic_review_required_for_weaker_economic_contract":true,"record":"../operator-guide.md#isolated-uploaddownload-trial-plan","request_byte_time_limits_selected":false,"selected_host":null,"selected_payer":null,"selected_service":null,"stages":["bind_trial","freeze_and_validate_local_inputs","review_economics_and_recovery","authorize_create_recheck_actual_identity_install_and_inspect","admit_and_prepare","authorize_one_transfer","verify_and_download","retain_obligations_and_closeout"],"state":"proposal_only_not_authorized_or_qualified","upload_allowed":false},
+  "next_trial_inputs": [
+    "Exact isolated service owner, tenant/uploader/verifier, gateway origin, Cashier/payer and project/bucket; no inferred deployment defaults",
+    "Reviewable numeric financial ceiling backed by the selected account/provider operating contract, plus request/byte/time limits and accountable cleanup owner",
+    "Original known body/manifest/permission and current provider/host identities; use the existing snapshot, shared transfer, verifier and tenant download handlers",
+    "Keep failed/uncertain effects and all physical/billing liabilities; separately record actual deletion and billing cessation, never infer them from withdrawal",
+    "Explicit trial authority and a host implementation of justified facts; this review supplies neither a gate waiver nor ingress qualification flags"
+  ],
+  "canic_feedback": "CF-01 closed; concurrent dependency adoption records CF-02 open for Canic ic-memory0.15 alignment and managed artifact/lifecycle checks; no additional finding from this offline plan",
+  "provider_object_requests": 0,
+  "paid_effects": 0,
+  "qualification": "Not qualified; host certificate facts unchanged"
+}

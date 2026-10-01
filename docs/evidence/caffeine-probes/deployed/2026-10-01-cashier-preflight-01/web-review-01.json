@@ -1,0 +1,13 @@
+{
+   "content_obtained" : false,
+   "date" : "2026-10-01",
+   "evidence_class" : "failed_primary_web_lookup",
+   "limitation" : "Historical request-pricing description per thousand differs from live factor M; no factor conversion or cap enforcement inferred.",
+   "outcome" : "Cache miss",
+   "retried" : false,
+   "substitute_class" : "retained_historical_primary_documentation",
+   "substitute_source" : ".tmp/provider-contract-refresh/dfinity-example-README.md",
+   "substitute_source_sha256" : "09e954fb0ad1daa61fe0c57258a34c31c57535a72fb92d23ab80a8b065c510b4",
+   "tool" : "web.open",
+   "url" : "https://github.com/dfinity/immutable-object-storage-example/blob/ef29e8a6e8063c6fe654cac53a3497cab585fefa/README.md"
+}

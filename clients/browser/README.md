@@ -25,14 +25,36 @@ const observation = await client.issue();
 // After an uncertain response, use client.recover(), never issue again.
 ```
 
-For Caffeine's upload path, pass `client.certificateAgent` as its existing agent
-constructor argument. This is a real SDK HttpAgent with its public call boundary
-guarded by the same intent persistence and verification. It refuses a cancelled
-observation before handing the response to Caffeine. Caffeine continues to own
-certificate extraction and gateway requests. Use the patch's static preparation
-before service admission, then its `uploadPrepared` with explicit per-client
-transport, cancellation and disabled retries. The local composition is tested;
-the gateway guard below adds request journaling through the same caller-owned store.
+For Caffeine's upload path, use `createUploadTransfer` from `./transfer.js` with
+the maintained [patched SDK](patches/README.md). The private package requires
+Caffeine 1.1.2 and SDK 5.4.0; the unpatched npm artifact refuses with `sdk`.
+Prepare with Caffeine before service admission, then create the transfer after
+authenticated admission/preparation using the same certificate client and store:
+
+```js
+import { createUploadTransfer } from './transfer.js';
+
+const transfer = await createUploadTransfer({
+  certificate: client, intents, origin: gatewayOrigin, bucket, project,
+  maxRequests, maxRequestBytes, maxTotalRequestBytes, signal,
+});
+const result = await transfer.uploadPrepared(prepared, onProgress);
+```
+
+The helper derives the SDK owner from the certificate binding, refuses a different
+prepared root before issuance, and requires explicit bounded bucket/project values.
+It fixes `retry: false` and `concurrency: 1`, using the existing gateway journal.
+`transfer.transport` is that same guarded fetch hook for request inspection or
+direct composition; it shares the SDK's session and budgets. It does not create a
+second request owner. Caffeine owns preparation, handle consumption, chunking,
+certificate extraction and wire formats. The existing guarded real SDK HttpAgent
+refuses cancelled observations before handing certificates to Caffeine.
+
+The returned `{ hash }` and progress are SDK observations, not verified availability
+or permission to publish. Complete download verification, configured-verifier
+attestation and the tenant's authenticated asset transaction remain separate.
+Explicit project/bucket strings do not qualify provider namespace ownership;
+client request bounds do not prove provider pre-charge or replay charging limits.
 Production consumer integration and persistence qualification remain open.
 
 `make test-canic-browser` exercises this same SDK/client against actual managed

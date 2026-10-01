@@ -1,0 +1,22 @@
+{
+  "name": "single",
+  "mode": "success",
+  "size": 3,
+  "requests": 2,
+  "uploaded": 767,
+  "returned": true,
+  "refusal": null,
+  "progress": [
+    100
+  ],
+  "finalRequestPhase": "responded",
+  "verified": {
+    "original": true,
+    "corrupted": false,
+    "truncated": false
+  },
+  "retryDispatched": false,
+  "compositionPreflightRefusals": true,
+  "providerCompletion": "not_established",
+  "providerCharges": "not_observed"
+}

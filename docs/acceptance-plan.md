@@ -54,6 +54,27 @@ See [setup evidence](evidence/core-primitives.md#signed-native-upload-setup--202
 
 Current source-bound local records include:
 
+- [Offline installation check and isolated trial sequence](operator-guide.md#check-installation-inputs-offline):
+  complete shared configuration/project/verifier/release validation preserves the
+  exact proposal and rejects invalid/ambiguous input before output. Three cases,
+  strict affected lint and actual executable decoding pass with ic-memory 0.15.
+  This establishes no platform/release identity, deployment, account authority or
+  provider readiness; paid transfer is stopped at the four maintained facts.
+
+- [Offline account-link inputs](operator-guide.md#generate-account-link-inputs-offline):
+  explicit planned principals and positive raw terms encode against independently
+  checked Cashier Candid; invalid/repeated inputs refuse without replacing output.
+  [Public Cashier observations](evidence/caffeine-probes/deployed/2026-10-01-cashier-preflight-01/summary.json)
+  match retained metadata/pricing. Neither class establishes account authority,
+  an enforced spending cap, a funded installation or certificate readiness.
+
+- [Browser upload composition and trial gates](evidence/caffeine-upload-gates.json):
+  one reusable SDK setup derives certificate owner/root and fixes serial transfer,
+  disabled retries and explicit bounded namespace/traffic inputs. Existing browser
+  and SDK fault cases use it. Fresh public source/npm capture retains unchanged
+  backend hashes and npm 1.1.2; failed lookups remain recorded. Local client controls
+  do not qualify the four provider/recovery facts or authorize a paid trial.
+
 - [Managed browser setup](evidence/core-primitives.md#managed-browser-setup--2026-10-01):
   pinned SDK preparation, signed consumer admission and uploader preparation use
   the actual managed host. Two tabs claim one refused certificate request with

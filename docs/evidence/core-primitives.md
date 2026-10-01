@@ -5286,3 +5286,248 @@ production browser store/recovery qualification or deployed Fleet evidence.
 Canic finding is established. Siblings remain read-only; no version/release/commit/
 tag/publication/deployment or Cargo cleanup occurs. See the
 [ledger](caffeine-probes/README.md) and [setup](../dependencies.md#managed-browser-setup).
+
+## Shared browser upload transfer — 2026-10-01
+
+After maintainer release 0.4.16 (`d8e20ce`), the private browser package exports
+`createUploadTransfer`. It composes the maintained patched Caffeine 1.1.2 SDK with
+the existing certificate client/gateway journal. The original certificate binding
+supplies owner/root; explicit project/bucket and traffic bounds, fixed serial
+transfer and disabled retries replace duplicated SDK configuration. Wrong roots
+and malformed namespace values refuse before certificate dispatch. The exposed
+transport is the SDK's same guarded session, not a second provider request owner.
+Preparation, wire formats, chunking and handle consumption remain Caffeine-owned.
+No production store, public Rust contract or qualification override is added.
+
+Six existing SDK fault cases use the helper and pass, retaining exact emitted
+owner/project/bucket, multiple chunks, HTTP/aggregate-budget refusals, lost-final
+uncertainty and independent native verification of substitute bytes. SDK success
+without complete status remains explicitly unqualified. Raw local request/result
+records are retained under
+`caffeine-probes/local/2026-10-01-sdk-transfer-01`; certificates, gateway and store
+are labelled substitutes. The actual managed Chromium refusal journey passes
+in 9.35 seconds, retaining all four blockers and zero gateway requests. All ten
+existing Chromium scenarios pass in 53.90 seconds. The first browser regression
+fails at the fixture's post-tree abort: manual composition had moved cancellation
+before complete response reading. Its separate failure/correction records remain
+in `.tmp/upload-gates-01`; the corrected fault occurs after observation commits.
+The maintained guard semantics are unchanged. Node syntax and pinned bundle/peer
+checks pass; verifier build is targeted, not full CI/release validation.
+
+Fresh bounded anonymous public-source capture observes skills
+`4ebf43c518c9fc7b090ed4d27677fea26d6b98f3`, unchanged Mixin/Storage hashes and npm
+1.1.2 with retained integrity. The initial transport failure is preserved separately
+from the four-GET successful capture; its reused probe binary reports 0.4.15 and is
+not relabelled. A pinned April-guide lookup is unavailable. No Mops/deployed server,
+account or gateway behavior is refreshed. The [trial-gate review](caffeine-upload-gates.json)
+distinguishes these public observations and local controls from unproved limits,
+namespace, replay charging and operational recovery. A proposed different economic
+operating contract is a review item requiring a minor semantic change, not current
+host qualification. No selected trial owner/payer/financial budget is inferred.
+
+Intent, commands, package/source/artifact identities and separate outcomes remain
+in `.tmp/upload-gates-01`; maintained raw public/local records are indexed by the
+[ledger](caffeine-probes/README.md). Current hosts keep all four prerequisite facts
+false. Browser/IC traffic remains local and substitutes create no external object,
+payment, balance or cleanup obligation. Instances exit and artifacts remain.
+Siblings stay read-only; no deploy/release/commit/tag/publication or Cargo cleanup.
+No new actionable Canic finding is established; CF-01 remains closed.
+
+## Offline account-link inputs and public Cashier review — 2026-10-01
+
+The additive native `account-link-inputs` command uses one ops-owned Cashier wire
+encoder. Explicit cashier/caller/paid-canister/payer and positive raw daily-limit/
+expiry inputs produce complete Candid arguments and a hashed summary in a fresh
+private directory. It allocates no identity, signs nothing and dispatches no
+request. Units, freshness, caller authority and cap enforcement remain unproved;
+the prepared file is not an effect journal or retry token. See the
+[operator guide](../operator-guide.md#generate-account-link-inputs-offline).
+
+Two codec tests match independently generated `didc` bytes against the maintained
+Cashier declaration, including full-width values and explicit option fields.
+Two CLI tests cover valid output, role/sentinel/overflow/noncanonical refusal,
+missing/duplicate/unknown options and preserved existing/partial output. Actual
+executable output independently decodes against freshly observed Cashier Candid;
+repeat refuses with original artifacts preserved. Strict affected all-target lint,
+formatting and warning-free core rustdoc pass. Initial lint failures remain in
+separate logs. No new platform test or full CI/release gate runs for this offline
+codec/tooling addition. Dependencies, production adapter facts and release files
+are unchanged.
+
+Separately, two anonymous mainnet native commands observe public Cashier metadata
+and `pricelist_v1`; both replies match retained bytes. Their
+[deployed public capture](caffeine-probes/deployed/2026-10-01-cashier-preflight-01/summary.json)
+does not establish server source/revision, account relationships or enforcement.
+Internal HTTP request/retry counts are unknown. A failed pinned-guide lookup is
+retained; the historical retained guide's request pricing labels differ from live
+factor `M`, without a justified conversion. No provider object/account/payment
+effect or cleanup obligation is created. The maintainer confirms no existing trial
+canister/account. All four certificate facts remain false; CF-01 remains closed
+with no new actionable Canic finding. Siblings are read-only and no version,
+commit, publication, deployment or build cleanup occurs.
+
+Pre-run intent, independent fixture inputs, executable examples, command results,
+source/binary hashes and separate logs remain in `.tmp/caffeine-trial-preflight-01`.
+Prior captures stay immutable; the new public record is verified offline by
+`probe-check`. Account selection/provisioning, exact financial terms and the
+trial operating/recovery contract remain next work, with separate effect authority.
+
+## ic-memory 0.15 adoption — 2026-10-01
+
+The maintainer requests the published 0.15 dependency and confirms Canic adoption
+is being handled separately. Core now requires `ic-memory` 0.15.0; its registry
+archive SHA-256 matches lock checksum
+`21a7b22c19fd5a35f074f7ecac0abb8544a4c84b0e925967ff5588d40a1d9c39`
+and packaged VCS identity is `26306737cf75efb320bb9c4029dcd1d77bc83184`.
+The exact stable-structures substrate remains 0.7.2. No other locked package
+version changes; Canic still requires a separate 0.14.3 runtime.
+
+Direct runtime growth now returns `Result<u64, RuntimeGrowError>`. Shared-grant
+tests, consumer initialization and the managed neighbor fixture assert typed
+success. The storage fault wrapper explicitly delegates `Memory::grow`, preserving
+the upstream sentinel contract rather than recreating the error conversion.
+Source review observes nonconstructing default opens, protected capacity
+reservation, numeric allocation summaries and authority-scoped adoption checks.
+No ic-memory defect is established by this limited integration review.
+
+| Check | Result / scope |
+| --- | --- |
+| Core `memory_composition` | Both cases pass: linking does not claim memory; host grants preserve cells and bucket configuration. |
+| Core `ops::service::stores` | All eleven cases pass, including incomplete-grant refusal without writes, composed owner/neighbor preservation, scope checks and restore fences. |
+| Core `ops::service::installation` | All six cases pass, including occupied/missing state refusal and populated configuration/owner restoration. |
+| Canic adapter native units | Both cases pass; absent runtime stays unconstructed and malformed carrier inputs refuse. |
+| Release Wasm | Standalone, consumer and storage-probe builds pass with the new direct growth contract and generic trait wrapper. |
+| Actual standalone lifecycle | Stop/start and repeated same-release upgrades preserve installation/history/reservations and all owner fences (6.78 seconds). Initial sandbox loopback refusal is retained separately; permitted retry passes. |
+| Strict affected lint and formatting | Core, adapter, standalone, consumer and storage-probe all-target/all-feature lint passes; both workspace formatting checks pass. |
+| Native managed fixture | Passes after refreshing its ignored lockfile from the root. The initial stale-lock refusal is retained separately. Native compilation does not qualify shared runtime identity. |
+| Canonical managed artifact | CLI 0.110.49 refuses before build with `role_contract_multiple_memory_runtimes`: registry Canic/core 0.110.49 uses 0.14.3 while blob uses 0.15.0. No new managed Wasm/lifecycle evidence exists. |
+
+[CF-02](../canic-parity.md#integration-feedback) tracks the remaining publication,
+both-manifest adoption, single-identity resolution and managed build/lifecycle
+checks. The guard correctly prevents multiple default runtimes. Registry web
+lookups failed; public crates.io API lookup separately failed DNS in the sandbox
+and returned HTTP 403 on a permitted retry. Those failures establish no latest
+version. Existing package source and exact resolution establish the pinned mismatch.
+
+Commands/results, separate failure/retry logs, dependency trees and source/lock/
+Wasm hashes remain in `.tmp/ic-memory-015-01`. Earlier evidence and unrelated dirty
+onboarding/browser work stay preserved. Release version stays 0.4.16 and notes
+join Unreleased; the public re-exported growth API change requires a minor product
+release when requested. No full CI/release gate, live provider observation,
+operational recovery qualification, sibling edit, commit, deployment, paid effect
+or build cleanup occurs.
+
+## Offline installation check and isolated trial plan — 2026-10-01
+
+Native `installation-check` uses the existing complete installation validator,
+without copying either host's init schema or provider wire. A bounded one-value
+`ServiceConfigurationInput` decode precedes semantic validation with explicit
+planned service/project/verifier/release. It retains original bytes/hash and a
+passive summary in fresh private output. Namespace uses a full-width decimal
+string; platform/release identity, stable allocation, host carrier generation,
+provisioning, dispatch and provider/recovery qualification remain false.
+
+Three targeted CLI cases pass: independent `didc` fixture preservation through
+source edits, repeat/partial-output refusal, complete resource/binding/authority
+validation and malformed/oversized/extra-value/trailing/ambiguous input refusal.
+Affected CLI all-target strict lint passes. Actual executable output independently
+decodes against maintained standalone Candid, and exact repeat refuses without
+replacing artifacts. The initial fixture parser failure (unquoted reserved
+`service` field), empty output and dependent failing tests remain separate from
+corrected evidence. This is offline/native validation, without a new platform
+case, provider observation or full CI/release gate.
+
+The [trial plan](../operator-guide.md#isolated-uploaddownload-trial-plan) ties exact
+roles, artifact/configuration/account inputs, financial/recovery qualification,
+authorized provisioning, one maintained SDK transfer, trusted whole-body
+completion, tenant download and continuing-obligation closeout together. Actual
+service identity is finalized after authorized creation and rechecked before
+install; shared configuration bytes alone are not either host's init carrier.
+No trial installation/account/financial terms are selected; all four certificate
+facts stay false. A weakened economic contract remains a reviewed minor semantic
+change, never a local gate override.
+
+The maintainer confirms concurrent dependency work. Its ic-memory 0.15 changes
+are preserved; targeted checks above use that graph. A brief lock wait is retained
+and subsequent checks use explicit build-lock preflight. Existing Canic
+[CF-02](../canic-parity.md#integration-feedback) remains open for matching adoption
+and canonical managed artifact/lifecycle checks; this batch establishes no new
+framework defect. Current/previous dependency results retain their own source and
+artifact identities. Intent, failures/corrections, commands, exact source/lock/
+binary hashes and offline samples remain in `.tmp/isolated-trial-plan-01`; prior
+captures remain immutable. No network/account/provider-object/payment effect,
+deployment, sibling edit, commit/version/publication or build cleanup occurs.
+
+## ic-memory 0.15 follow-ups — 2026-10-01
+
+The maintainer authorizes explicit managed adoption verification, a PocketIC
+growth-refusal case, compact host diagnostics and removal of redundant readiness
+checks. The dependency/package identities remain those in the preceding 0.15
+adoption evidence; product version stays 0.4.16. Existing offline trial/browser
+dirty work and earlier evidence are preserved.
+
+Managed opening now takes an explicit authority, builds the seventeen maintained
+requirements and invokes `verify_default_memory_manager_authority` before any
+configuration/store handle opens. The lifecycle macro and both install/restore
+paths require that authority, with the owning fixture updated in the same hard
+cut. No registration, admission replay, policy change or second runtime occurs.
+Five native subprocess hosts qualify absent runtime, wrong authority, missing
+key, mismatched diagnostic metadata and matching adoption, with unchanged physical
+allocation accounting, committed generation and populated neighbor bytes. These
+are native host integration cases, not actual Canic lifecycle evidence. The first
+fixture used an incorrect registration API and then incorrectly assumed the
+process-global registry was thread-local; both failures are retained separately
+and corrected by fresh processes without a reset API or production test branches.
+
+Both adapters call one shared operator-authenticated `memory_status` workflow.
+Its host-supplied compact summary maps to passive `HostMemoryStatus`, with backing/
+virtual extent, assigned bucket capacity/slack, remaining slots and current/ledger/
+unknown binding totals. It measures the entire host, not tenant payload, quota,
+provider bytes or billing. Authentication/full owner configuration agreement
+precedes the measurement callback; failed measurement yields typed `Internal`
+instead of zero totals. The native denial/scope/error case and existing shared-store
+cases pass. Default store opens now rely directly on nonconstructing key lookup;
+the existing absent-runtime test still passes.
+
+The new standalone endpoint uses the maintained bounded decoder and the managed
+endpoint uses the maintained Canic limits/transport wrapper. Standalone deployment
+Candid is regenerated; its exported-contract guard passes. Actual standalone
+PocketIC coverage passes (4.26 seconds): denied controller/tenant/uploader/anonymous
+callers, every scope binding, backing and attribution conservation, byte-preserving
+query/replicated inspection, admitted reservations and passive fenced restore.
+The existing operator admission/cancellation/restoration journey passes too
+(4.37 seconds). Querying capacity grants no recovery authority and clears no fence.
+
+The storage fixture wraps actual `DefaultMemoryImpl` backing growth with an
+explicit refusal substitute, and declares a separate populated neighbor. A valid
+admission writes real owners before a direct runtime backing reservation refuses;
+only typed `BackingRefused`, unchanged virtual extent and the upstream `-1` adapter
+result reach the intentional trap. Unexpected outcomes return a normal error so a
+generic assertion panic cannot qualify refusal. The test observes typed IC
+rejection, byte-identical whole stable memory (including ledger/manager/neighbor),
+unchanged counters and absent admission. Exact storage-only retry succeeds once,
+ordinary replay changes nothing, and same-release restore remains fenced.
+The final growth case and both existing admission/manifest write-rollback cases
+pass together (14.57 seconds). This is an explicitly forced growth after local
+writes, not observed IC memory exhaustion, a BTree allocation benchmark or any
+provider paid-effect/retry qualification.
+
+Standalone and storage-probe release Wasm builds, affected all-target/all-feature
+strict lint, all three changed native harness targets and warning-free core/host/
+adapter rustdoc pass. The first Wasm build had missing fixture type imports; the
+first lint rejected a test import placed after statements. Separate initial and
+corrected logs remain in `.tmp/ic-memory-followups-01`. No full CI/release gate or
+resource-budget benchmark refresh occurs.
+
+Updated managed source compiles natively, including the explicit authority macro
+and new query/contract comparison, but canonical managed Wasm still awaits the
+existing two-runtime mismatch closure in [CF-02](../canic-parity.md#integration-feedback).
+Adopt matching Canic in both manifests, confirm one runtime identity, then run
+canonical build plus managed lifecycle/query/contract checks. This batch establishes
+no new Canic defect and never bypasses its multiple-runtime guard.
+
+Logs, command record, source/lock/archive and copied final Wasm/Candid hashes remain
+in the fresh `.tmp/ic-memory-followups-01` capture. Notes join Unreleased; the
+breaking re-export/lifecycle API batch needs a minor product release when requested.
+No provider request or financial effect, operational recovery qualification,
+sibling edit, commit/version/publication, deployment or build cleanup occurs.

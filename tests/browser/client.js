@@ -3,7 +3,7 @@ import { Cbor } from '@icp-sdk/core/agent';
 import { Ed25519KeyIdentity } from '@icp-sdk/core/identity';
 import { StorageClient } from '@caffeineai/object-storage';
 import { createCertificateClient } from '../../clients/browser/certificate.js';
-import { createGatewayTransport } from '../../clients/browser/gateway.js';
+import { createUploadTransfer } from '../../clients/browser/transfer.js';
 import * as intents from './intent.js';
 import { admitAndPrepare, finishConsumer } from './admission.js';
 
@@ -41,7 +41,8 @@ async function setup(cfg) {
       return response;
     } });
   abortUpload = new AbortController();
-  gatewayFetch = await createGatewayTransport({ certificate: client, origin: cfg.gateway,
+  const options = { certificate: client, origin: cfg.gateway,
+    bucket: 'fixture-bucket', project: 'fixture-project', signal: abortUpload.signal,
     maxRequests: 2, maxRequestBytes: 1024 * 1024, maxTotalRequestBytes: 2 * 1024 * 1024,
     intents: { ...intents,
       claimGateway: async (...args) => {
@@ -49,7 +50,12 @@ async function setup(cfg) {
         if (cfg.cancelAtGatewayClaim) await client.cancel();
         return intents.claimGateway(...args, !!cfg.gatewayWriteAbort);
       },
-      observeGateway: (...args) => intents.observeGateway(...args, !!cfg.gatewayObserveAbort) },
+      observeGateway: async (...args) => {
+        const row = await intents.observeGateway(...args, !!cfg.gatewayObserveAbort);
+        // This fault is after the complete response has been read and journalled.
+        if (cfg.abortAfterTree && new URL(args[4].url).pathname === '/v1/blob-tree/') abortUpload.abort();
+        return row;
+      } },
     fetch: async (url, init) => {
       const row = await client.inspect();
       // Inspect the committed transaction at the actual transport boundary.
@@ -62,15 +68,9 @@ async function setup(cfg) {
       }
       return response;
     },
-  });
-  storage = new StorageClient('fixture-bucket', cfg.gateway, cfg.service, 'fixture-project', client.certificateAgent, {
-    retry: false, concurrency: 1, signal: abortUpload.signal,
-    fetch: async (url, init) => {
-      const response = await gatewayFetch(url, init);
-      if (cfg.abortAfterTree && new URL(url).pathname === '/v1/blob-tree/') abortUpload.abort();
-      return response;
-    },
-  });
+  };
+  storage = await createUploadTransfer(options);
+  gatewayFetch = storage.transport;
 }
 async function prepare() {
   const bytes = new Uint8Array(10).fill(config.content);
