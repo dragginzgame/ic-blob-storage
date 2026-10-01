@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.4.16] - 2026-10-01
+
 ### Added
 
 - Opt-in `test-canic-browser` connects the pinned Caffeine SDK and existing browser
