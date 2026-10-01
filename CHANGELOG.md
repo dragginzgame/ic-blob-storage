@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.4.14] - 2026-10-01
+
 ### Added
 
 - Offline `upload-inputs` converts Caffeine's prepared manifest and explicit
