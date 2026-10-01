@@ -1,24 +1,21 @@
 //! Local byte evidence against an authenticated original declaration, never completion authority.
-use super::{Failure, read};
+use super::{Failure, local_body::LocalBody, read};
 use candid::{Principal, de::DecoderConfig, decode_one_with_config};
 use ic_blob_storage::{
     dto::upload::{admission::UploadAdmissionRequest, manifest::UploadManifestInspection},
-    model::identity::caffeine::{
-        CaffeineHashLimits, CaffeineHeader, manifest::CaffeineManifestLimits,
-        verification::CaffeineRootVerifier,
-    },
+    model::identity::caffeine::manifest::CaffeineManifestLimits,
     ops::service::uploads::manifests::reply::{
         self, UploadManifestReplyError, UploadManifestReplyLimits,
     },
 };
 use serde_json::{Value, json};
-use std::{fs::File, io::Read, num::NonZeroU64, path::Path};
+use std::{num::NonZeroU64, path::Path};
 
 const FRAME: usize = 64 * 1024;
 
 pub(super) struct Verification {
     pub permission: UploadAdmissionRequest,
-    body: File,
+    body: LocalBody,
     max_bytes: NonZeroU64,
 }
 impl Verification {
@@ -63,14 +60,7 @@ impl Verification {
         {
             return Err(Failure::Arguments);
         }
-        let body = File::open(body).map_err(|_| Failure::File)?;
-        let metadata = body.metadata().map_err(|_| Failure::File)?;
-        if !metadata.is_file() {
-            return Err(Failure::File);
-        }
-        if metadata.len() != upload.bytes {
-            return Err(Failure::Content);
-        }
+        let body = LocalBody::open(body, upload.bytes)?;
         // Keep this open handle across the query; a path replacement cannot select another file.
         Ok(Self {
             permission,
@@ -80,7 +70,7 @@ impl Verification {
     }
 
     pub fn finish(
-        mut self,
+        self,
         response: &[u8],
         actor: Principal,
         network: &str,
@@ -109,40 +99,10 @@ impl Verification {
             return Err(Failure::Unprepared);
         };
         let upload = self.permission.upload;
-        let headers: Vec<_> = declaration
-            .headers
-            .iter()
-            .map(|h| CaffeineHeader {
-                name: &h.name,
-                value: &h.value,
-            })
-            .collect();
         let root = upload.root.as_slice().try_into().expect("fixed root");
-        let mut verifier = CaffeineRootVerifier::new(
-            root,
-            upload.bytes,
-            &headers,
-            CaffeineHashLimits {
-                max_content_bytes: self.max_bytes,
-                max_append_bytes: FRAME.try_into().expect("positive frame bound"),
-                max_headers: 16.try_into().expect("positive header bound"),
-                max_header_bytes: 4096.try_into().expect("positive metadata bound"),
-            },
-        )
-        .map_err(|_| Failure::InvalidReply)?;
-        let mut buffer = vec![0; FRAME];
-        loop {
-            let count = match self.body.read(&mut buffer) {
-                Ok(0) => break,
-                Ok(count) => count,
-                Err(error) if error.kind() == std::io::ErrorKind::Interrupted => continue,
-                Err(_) => return Err(Failure::File),
-            };
-            verifier
-                .append(verifier.received_bytes(), &buffer[..count])
-                .map_err(|_| Failure::Content)?;
-        }
-        let hashes = verifier.finish().map_err(|_| Failure::Content)?;
+        let hashes = self
+            .body
+            .verify(root, &declaration, self.max_bytes, &mut std::io::sink())?;
         Ok(
             json!({"schema":1,"observation":"local_upload_bytes","actor":actor.to_text(),
             "network":network,"url":url,"manifest_authentication":"query_signatures",

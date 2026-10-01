@@ -25,7 +25,11 @@ pub enum UploadAdmissionReplyError {
     #[error("admission refused: {0:?}")]
     Remote(UploadAdmissionFailure),
 }
-pub(crate) fn check(input: UploadAdmissionRequest) -> Result<(), UploadAdmissionReplyError> {
+/// Validate the complete saved permission before a client encodes or dispatches it.
+/// This checks structure only; it does not grant tenant or issuance authority.
+/// # Errors
+/// Rejects invalid principals, object/reference identities and declared bytes.
+pub fn validate_request(input: UploadAdmissionRequest) -> Result<(), UploadAdmissionReplyError> {
     super::parse(
         UploadContext {
             service: input.upload.service,
@@ -41,7 +45,7 @@ fn decode<T: CandidType + for<'de> Deserialize<'de>>(
     bytes: &[u8],
     max: NonZeroUsize,
 ) -> Result<T, UploadAdmissionReplyError> {
-    check(input)?;
+    validate_request(input)?;
     if bytes.len() > max.get() {
         return Err(UploadAdmissionReplyError::Limit);
     }

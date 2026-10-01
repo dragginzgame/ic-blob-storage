@@ -1,9 +1,15 @@
 //! One bounded provider observation, retained before any future attestation dispatch.
-mod download;
 pub(super) mod record;
 #[cfg(test)]
 mod tests;
-use super::{Failure, arguments::Options, identity, query, read};
+use super::{
+    Failure,
+    arguments::Options,
+    artifacts::{FailureRecord, Run},
+    identity,
+    provider_download::{self, ExpectedBody},
+    query, read,
+};
 use candid::{Principal, de::DecoderConfig, decode_one_with_config};
 use ic_blob_storage::{
     dto::upload::{admission::UploadAdmissionRequest, completion::UploadAttestationRequest},
@@ -83,7 +89,7 @@ pub(super) async fn run(options: &Options, input: &Input) -> Result<Value, Failu
         other => error(other),
     })?;
     identity(&options.identity, options.actor)?;
-    let run = record::Run::create(&input.directory)?;
+    let run = Run::create(&input.directory)?;
     run.bytes("permission.candid", &argument)?;
     run.json(
         "plan.json",
@@ -94,7 +100,8 @@ pub(super) async fn run(options: &Options, input: &Input) -> Result<Value, Failu
                 concat!(
                     include_str!("mod.rs"),
                     include_str!("record/mod.rs"),
-                    include_str!("download/mod.rs"),
+                    include_str!("../provider_download/mod.rs"),
+                    include_str!("../artifacts/mod.rs"),
                     include_str!("../mod.rs"),
                     include_str!("../arguments/mod.rs"),
                     include_str!("../../../../../Cargo.lock")
@@ -120,7 +127,7 @@ pub(super) async fn run(options: &Options, input: &Input) -> Result<Value, Failu
     if let Err(failure) = result {
         run.json(
             "failure.json",
-            &record::FailureRecord {
+            &FailureRecord {
                 error: failure.code(),
             },
         )?;
@@ -134,7 +141,7 @@ async fn capture(
     authority: CompletionAuthority,
     permission: UploadAdmissionRequest,
     argument: Vec<u8>,
-    run: &record::Run,
+    run: &Run,
 ) -> Result<Value, Failure> {
     let bytes = query(
         options,
@@ -181,7 +188,7 @@ async fn capture(
             started_at_ns: now()?.to_string(),
         },
     )?;
-    let digest = download::fetch(&target, options.network, &plan, input.max_bytes, run).await?;
+    let digest = download_plan(&target, options.network, &plan, input.max_bytes, run).await?;
     let observed_at_ns = now()?;
     if observed_at_ns < plan.admitted_at_ns {
         return Err(Failure::Clock);
@@ -216,4 +223,32 @@ async fn capture(
     };
     run.json("summary.json", &report)?;
     serde_json::to_value(report).map_err(|_| Failure::File)
+}
+
+async fn download_plan(
+    target: &Url,
+    network: &str,
+    plan: &ic_blob_storage::dto::upload::completion::UploadVerificationPlan,
+    maximum: NonZeroU64,
+    run: &Run,
+) -> Result<ContentDigest, Failure> {
+    let headers: Vec<_> = plan
+        .declaration
+        .headers
+        .iter()
+        .map(
+            |h| ic_blob_storage::model::identity::caffeine::CaffeineHeader {
+                name: &h.name,
+                value: &h.value,
+            },
+        )
+        .collect();
+    let expected = ExpectedBody {
+        root: ProviderRootHash::try_from(plan.permission.upload.root.as_slice())
+            .expect("fixed root"),
+        bytes: plan.permission.upload.bytes,
+        headers: &headers,
+        maximum,
+    };
+    provider_download::fetch(target, network, &expected, run, &mut std::io::sink()).await
 }

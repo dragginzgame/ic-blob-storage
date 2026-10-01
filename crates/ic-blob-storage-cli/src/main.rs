@@ -1,4 +1,4 @@
-//! Explicitly authenticated, read-only service observations.
+//! Offline upload inputs and explicitly authenticated service operations.
 #[cfg(not(target_family = "wasm"))]
 mod native;
 

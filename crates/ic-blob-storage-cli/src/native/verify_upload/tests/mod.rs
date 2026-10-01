@@ -1,4 +1,5 @@
 use super::*;
+use ic_blob_storage::model::identity::caffeine::{CaffeineHashLimits, CaffeineHeader};
 use ic_blob_storage::{
     dto::{
         reference::ReferenceUpload,

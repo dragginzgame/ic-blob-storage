@@ -9,9 +9,16 @@ trial. No complete acceptance case below is qualified.
 
 ## Current local evidence and open gates — 2026-10-01
 
-This review covers the released 0.4.11 shared installation, managed endpoint/client
-and controlled application/outbox source, plus unresolved-outbox restore tests, signed native account inspection, a fresh
-managed certificate framework source review and signed gateway controls. It supersedes older
+This review covers the released 0.4.13 shared installation, managed endpoint/client
+and controlled application/outbox source, plus native verified tenant file downloads.
+It includes unresolved-outbox restore tests, signed account inspection, the recorded
+managed certificate framework source review, gateway controls, passive funding
+assessment, signed native upload admission/preparation/recovery/cancellation and
+offline upstream-manifest conversion with complete root-verified file snapshots.
+Actual generated requests feed both signed host journeys; a later source edit
+cannot change the snapshot used for authenticated service-manifest verification.
+This is local byte/setup evidence, with no certificate gate override or transfer.
+It supersedes older
 implementation-gap summaries here;
 historical capability records retain their original dates and limitations.
 No Canic/Toko removal-inventory refresh or consumer acceptance is implied.
@@ -27,9 +34,17 @@ No Canic/Toko removal-inventory refresh or consumer acceptance is implied.
 | A07 — composition | Canic-free core and composition library; shared immutable installation/grants; published Canic fixture proves lifecycle/authority beside neighboring memory; thirty blob methods match standalone Candid; verifier/reference cleanup preserves receipts and liabilities; certificate assessment reports real blockers; gateway/account journeys preserve failed syncs and unrelated occupied owners through fenced restore over labelled substitutes | Supported Canic plain-record certificate rejection and decoder controls, production Fleet provenance, generic coverage transfer and both-adapter/common-client acceptance |
 | A08 — economics | Maintained Caffeine codecs, exact local transfer/refund journals, liquidity/attachment guards and conservative reconciliation; standalone account inspection is wired | Complete production spendability/liabilities and provider-credit/account activity evidence; reported balances are not receipts |
 | A09 — retirement | Contract separates source removal from installation retirement and preserves uncertainty/continuing obligations | Per-installation inventory and an accountable, evidenced settlement/disposition decision; no reset authority is supplied here |
-| A10 — serving | Root-bound local verification and explicit reference-qualified descriptors/read sessions; native provider observation has exact budgets and retained artifacts | Consumer MIME/public-serving acceptance, deployed serving evidence and confidentiality boundary |
+| A10 — serving | Root-bound local verification, reference-qualified descriptors/read sessions and usable native verified file output; signed managed completion/download/release/restore and standalone refusal over labelled local substitutes | Complete real upload/download consumer journey, MIME/public-serving acceptance, deployed serving evidence and confidentiality boundary |
 | A11 — operator parity | Signed native status, funding preparation assessment/history/outcome, upload history, certificate assessment, reference receipt/status, account inspection, gateway sync/cancellation/revocation and verifier tooling; standalone and managed gateway/account handlers use the same workflows with local IC evidence | Qualified packaged funding workflows, production managed target discovery and complete operator acceptance through both deployments. Local gateway controls do not qualify provider behavior or safe operational recovery |
 | A12 — removal readiness | Source-bound Canic capability inventory and maintained replacement evidence | Every required behavior working here, Canic-owned generic coverage transfer, refreshed removal inventory and separate retirement review |
+
+Native upload setup now exercises actual tenant admission and uploader preparation
+through both adapters, with no fixture exposure/completion. Lost/pending responses
+recover original permission/declaration without repeating updates; cancellation
+releases unexposed bytes and retains lifetime history through fenced restoration.
+This is A01/A03 local platform evidence, not qualified real certificate/provider
+transfer or a replacement for the application's authenticated asset transaction.
+See [setup evidence](evidence/core-primitives.md#signed-native-upload-setup--2026-10-01).
 
 Current source-bound local records include:
 

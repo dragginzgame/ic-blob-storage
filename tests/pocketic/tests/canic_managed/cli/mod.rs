@@ -1,5 +1,6 @@
 //! Common native signing/trust tooling against the public managed fixture.
 mod references;
+mod upload_setup;
 mod verifier;
 use super::{Fixture, endpoints::manifest};
 use crate::{

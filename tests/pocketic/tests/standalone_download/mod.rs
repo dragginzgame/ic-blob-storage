@@ -1,5 +1,6 @@
 //! Operational descriptor delivery uses the installed scope and the shared live-reference gate.
 //! Successful confirmed serving is covered by labelled storage fixtures until completion is wired.
+mod native;
 use super::*;
 use ic_blob_storage::{
     dto::download::{DownloadFailure as F, DownloadRequest, DownloadResponse},

@@ -26,10 +26,12 @@ mod standalone_reference_native_cli;
 mod standalone_reference_recovery;
 mod standalone_reference_status;
 mod standalone_snapshot;
+mod standalone_upload_setup;
 mod standalone_upload_status;
 mod standalone_verify_upload;
 mod submission_proxy;
 mod support;
+mod upload_setup_cli;
 use candid::Principal;
 use ic_blob_storage::{
     dto::{

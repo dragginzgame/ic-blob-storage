@@ -118,7 +118,7 @@ impl ReplicatedUploadManifestClient {
         limits: UploadManifestReplyLimits,
     ) -> Result<UploadManifestMutation, UploadManifestClientError> {
         self.check(input.permission, true)?;
-        reply::validate(input.permission, &input.declaration, limits.declaration)?;
+        reply::validate_declaration(input.permission, &input.declaration, limits.declaration)?;
         let response = Call::bounded_wait(self.service, UPLOAD_MANIFEST_PREPARE_METHOD)
             .change_timeout(self.timeout.get())
             .with_arg(input)

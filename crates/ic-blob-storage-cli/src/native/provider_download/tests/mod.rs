@@ -5,6 +5,7 @@ use ic_blob_storage::{
         reference::ReferenceUpload,
         upload::{
             admission::UploadAdmissionRequest,
+            completion::UploadVerificationPlan,
             manifest::{UploadManifestDeclaration, UploadManifestHeader},
         },
     },
@@ -127,20 +128,35 @@ fn run_case(
     .unwrap();
     let directory = tempfile::tempdir().unwrap();
     let path = directory.path().join("run");
-    let run = record::Run::create(&path).unwrap();
+    let run = Run::create(&path).unwrap();
     let runtime = tokio::runtime::Builder::new_current_thread()
         .enable_all()
         .build()
         .unwrap();
+    let original_headers: Vec<_> = plan
+        .declaration
+        .headers
+        .iter()
+        .map(|h| CaffeineHeader {
+            name: &h.name,
+            value: &h.value,
+        })
+        .collect();
+    let expected_body = ExpectedBody {
+        root: plan.permission.upload.root.as_slice().try_into().unwrap(),
+        bytes: plan.permission.upload.bytes,
+        headers: &original_headers,
+        maximum: plan.permission.upload.bytes.try_into().unwrap(),
+    };
     std::thread::scope(|scope| {
         let server = scope.spawn(|| serve(&listener, headers, bytes));
         assert_eq!(
             runtime.block_on(fetch(
                 &url,
                 "local",
-                plan,
-                plan.permission.upload.bytes.try_into().unwrap(),
-                &run
+                &expected_body,
+                &run,
+                &mut std::io::sink()
             )),
             expected
         );

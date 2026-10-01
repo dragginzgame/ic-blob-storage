@@ -229,6 +229,19 @@ Confirmed success remains exercised through labelled local provider substitutes;
 this host still cannot establish completion. Previously delivered metadata or bytes
 are not revoked by refusing a subsequent descriptor request.
 
+Native tenant [`download`](../../docs/operator-guide.md#download-a-verified-file)
+uses that replicated descriptor and the installed expected project before one
+bounded provider GET, publishing `body.bin` only after complete root verification.
+Signed standalone tests prove unconfirmed and restored refusal without a GET;
+successful file delivery uses the labelled managed completion/content substitute.
+No standalone completion injection or issuance override is provided.
+
+Native [upload setup](../../docs/operator-guide.md#admit-and-prepare-an-upload)
+calls the existing admission, manifest preparation and revocation handlers with
+exact saved requests. Signed tenant/uploader recovery, dropped/pending replies,
+unexposed cancellation and fenced history run through this actual host. No
+certificate or provider call is added by these commands.
+
 Tenant-only `blob_upload_status` looks up the exact original `ReferenceUpload`,
 including its separate upload, object, incarnation and first-reference identities,
 root and declared byte count. It reports retained local state and revocation;

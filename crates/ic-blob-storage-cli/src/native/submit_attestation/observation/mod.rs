@@ -3,10 +3,10 @@
 use super::{Failure, Input};
 use crate::native::{
     arguments::Options,
+    artifacts::{DownloadOutcomeRecord, HttpResponseRecord},
     attestation::Recovery,
     observe_upload::record::{
-        DownloadOutcomeRecord, DownloadRequestRecord, HttpResponseRecord, ObservationPlanRecord,
-        ObservationSummaryRecord,
+        DownloadRequestRecord, ObservationPlanRecord, ObservationSummaryRecord,
     },
     read,
 };

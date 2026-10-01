@@ -326,6 +326,20 @@ files match the pinned registry sources byte-for-byte. The framework gates above
 remain current for that inspected source. Registry metadata returned HTTP 403;
 latest-registry status remains unverified. See [retained review](evidence/core-primitives.md#managed-certificate-framework-review--2026-10-01).
 
+Later read-only local review at Canic `70a0bc9a435a7695d8931a7c66c745576e678597`
+finds the same access/expansion/parser files as pinned 0.110.48, byte-for-byte.
+Both generic framework gates remain in that inspected checkout; this is local
+source evidence, not a new upstream-main or registry refresh. Sibling edits require
+separate scope authority. See [upload setup evidence](evidence/core-primitives.md#signed-native-upload-setup--2026-10-01).
+
+Subsequent read-only review of uncommitted Canic work finds public
+`on_access_denied = "reject"`, endpoint `decode = LIMITS` and owning lifecycle
+`argument_limits = LIMITS` implementations. Retained native and endpoint PocketIC
+checks pass; lifecycle qualification and strict lint remain incomplete in the
+reviewed logs. This repository still pins published 0.110.48. The maintainer kept
+sibling edits out of this session and coordinates Canic changes separately;
+uncommitted framework code does not close this adapter's qualification gates.
+
 Canic needs a supported way for the owning artifact to select one bounded decoder
 before application dispatch for queries, updates and lifecycle arguments. It must
 check raw size before copying and bound decoding work, skipped data, type count
@@ -1761,6 +1775,18 @@ The local test uses a real tenant canister; browser authentication and a certifi
 public release mapping remain unimplemented. Copies can become stale across
 the return await, so consumer reference ownership and release exclusion remain
 necessary even after successful authenticated delivery.
+
+Native tenant `download` uses the same descriptor decoder and canonical Caffeine
+path, with an independently selected expected project and approved origin. One
+replicated descriptor update authenticates the exact tenant/live reference; only
+an exact bounded reply permits one provider GET. The maintained streaming verifier
+checks declared length, original hash headers and root at complete EOF before
+publishing a synced private `body.bin` without replacement. Partial bytes stay
+unverified, and run reuse, redirects, retries and content decoding are refused.
+This grants no public serving lease, future retention, confidentiality or billing
+cessation. Signed local managed completion-to-file evidence uses labelled exposure
+and content; standalone exercises its actual unconfirmed/restored refusals.
+See [usage](operator-guide.md#download-a-verified-file).
 
 The private storage probe exercises interrupted writes from admission through
 completion, references and settlement, then same-release upgrade in every phase.

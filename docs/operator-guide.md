@@ -7,6 +7,9 @@ installation scope and original saved requests.
 
 | Task | Command | Effect |
 | --- | --- | --- |
+| Save verified upload bytes and service requests | `upload-inputs` | Offline root verification and fresh private files |
+| Reserve, prepare or withdraw an exact upload | `admit-upload`, `prepare-upload`, `revoke-upload` | One local service update and saved signed intent; no provider call |
+| Recover original permission or manifest | `upload-permission`, `upload-manifest` | Signed exact query; never redispatches |
 | Inspect local counters and restore fences | `status` | Signed service query |
 | Observe provider-reported balances or relationships | `inspect-account` | One signed service read update; service queries Cashier |
 | Sync gateways, cancel a pending sync or revoke membership | `sync-gateways`, `cancel-gateway-sync`, `revoke-gateway` | One signed service update and retained local intent |
@@ -18,6 +21,7 @@ installation scope and original saved requests.
 | Inspect issuance blockers | `certificate-assessment` | Signed service query |
 | Check a local body against its declaration | `verify-upload` | Signed service query and local file read |
 | Recover a trusted completion receipt | `upload-attestation` | Signed service query |
+| Save a verified tenant file | `download` | One replicated descriptor update, then one provider GET and private file writes |
 | Check provider bytes and retain a statement | `observe-upload` | Signed service query, provider GET and local evidence writes |
 | Submit the saved statement once | `submit-attestation` | Signed service update and local intent writes |
 
@@ -41,6 +45,182 @@ signer beside verifier completion. Lost/pending acknowledgments recover without
 resend; cleanup at capacity during suspension preserves physical/billing liabilities,
 and fenced restore preserves historical results without reviving references.
 See [tenant reference evidence](evidence/core-primitives.md#managed-signed-tenant-reference-submission-and-cleanup--2026-09-30).
+
+## Generate upload inputs offline
+
+`upload-inputs` converts the upstream Caffeine preparation's `manifestJSON` and
+your application's original binding into the Candid files used by the signed
+commands below. The required `--body` file is root-verified and saved as the same
+exact buffers, so subsequent source edits cannot change the prepared snapshot.
+Caffeine still owns upload preparation and transfer; this command reuses the
+core's maintained preparation decoder, service validators and streaming verifier.
+
+Save `manifestJSON` as `manifest.json`. Supply a `binding.json` with these fields:
+
+```json
+{
+  "schema": 1,
+  "service": "SERVICE_PRINCIPAL",
+  "namespace": "1",
+  "tenant": "TENANT_PRINCIPAL",
+  "uploader": "UPLOADER_PRINCIPAL",
+  "upload": "APPLICATION_ALLOCATED_UPLOAD_ID",
+  "object": "APPLICATION_ALLOCATED_OBJECT_ID",
+  "incarnation": "APPLICATION_ALLOCATED_INCARNATION_ID",
+  "first_reference": "APPLICATION_ALLOCATED_REFERENCE_ID",
+  "root": "sha256:LOWERCASE_64_HEX_CHARACTERS",
+  "bytes": "ORIGINAL_FILE_BYTE_LENGTH",
+  "expires_at_ns": "ORIGINAL_EXCLUSIVE_EXPIRY_NANOSECONDS"
+}
+```
+
+Replace placeholders with the application's exact original values. Numeric fields
+are canonical positive decimal **strings**, preserving u128 IDs and u64 lengths/
+expiry. Principals and the provider root use their canonical text representations.
+Unknown fields, invalid principals, noncanonical numbers and inconsistent
+metadata/leaves/root refuse before claiming output. The root and length must come
+from the same prepared file; a raw SHA-256 content digest is not a Caffeine root.
+
+```sh
+cargo run --offline --locked -p ic-blob-storage-cli --bin blob-storage -- \
+  upload-inputs --binding binding.json --manifest manifest.json --body source.bin \
+  --max-bytes 10485760 --run-dir new-upload-inputs
+```
+
+The fresh private directory retains both exact JSON inputs, a verified `body.bin`,
+`permission.candid`, `manifest.candid`, first-reference `download.candid` and
+`reference-status.candid`, and a final `summary.json` with input/output
+hashes and the raw content digest. It opens a regular source file once, checks its
+declared length, then hashes and copies the same 64 KiB frames. Complete EOF/root
+verification and file sync precede publication without replacement. Source-path
+replacement cannot select a different open file; in-place changes are checked
+against the original root and length. Use this snapshot for subsequent file checks
+and transfer preparation, rather than reopening a potentially changed source.
+If rebuilding a Caffeine prepared handle from this snapshot, supply the original
+metadata and require its computed root/length to match the saved permission before
+certificate issuance or gateway requests.
+
+Existing directories refuse, including partial runs. Failed verification retains
+private `body.part` and `failure.json`, with no published body, Candid request files
+or summary. A later write failure can leave verified output without a summary;
+retain the incomplete run and do not treat it as complete preparation. Input bindings
+are capped at 4 KiB, upstream JSON at 256 KiB, ordered leaves at 1,024 and metadata
+at 16 headers/4 KiB. The selected content maximum is at most 1 GiB; the service may
+have smaller installed limits. Generated permission/manifest Candid is capped at
+4/64 KiB for the native upload commands.
+
+No signer, URL or root key is needed. This command neither allocates nor proves
+fresh IDs, authenticates tenants, checks the current service clock/expiry or admits
+an upload. Keep the snapshot and binding under the application's intent/allocation
+policy. Saved files remain mutable local data: use signed `verify-upload` against
+the service's original declaration before future effects; snapshot creation does
+not authenticate subsequent file edits. No certificate or provider request occurs.
+
+## Admit and prepare an upload
+
+These commands make the service setup callable without a test harness. Start
+with a saved binary Candid `UploadAdmissionRequest` (`permission.candid`) and
+`UploadManifestRequest` (`manifest.candid`). The latter contains that exact
+permission and the prepared original headers/ordered leaves. Obtain these from
+[`upload-inputs`](#generate-upload-inputs-offline), the integrating application's maintained Rust DTOs and
+[existing file preparation](local-tools.md#prepare-one-file), or the upstream
+browser preparation bridge. No file body is sent to the service. IDs and expiry
+must come from the application's allocation/intent policy; the CLI never allocates
+them or renews them. The operator must already have enrolled the tenant.
+
+```sh
+cargo run --offline --locked -p ic-blob-storage-cli --bin blob-storage -- \
+  admit-upload --network ic --url "$IC_API_URL" --identity "$TENANT_PEM" \
+  --actor "$TENANT_PRINCIPAL" --service "$SERVICE_PRINCIPAL" \
+  --namespace "$SERVICE_NAMESPACE" --request permission.candid --run-dir new-admission
+
+cargo run --offline --locked -p ic-blob-storage-cli --bin blob-storage -- \
+  prepare-upload --network ic --url "$IC_API_URL" --identity "$UPLOADER_PEM" \
+  --actor "$UPLOADER_PRINCIPAL" --service "$SERVICE_PRINCIPAL" \
+  --namespace "$SERVICE_NAMESPACE" --request manifest.candid --run-dir new-preparation
+```
+
+Admission and withdrawal require the actual named tenant; preparation requires
+the exact admitted uploader. Both identities are explicit even when they happen
+to match. Canister tenants instead use `ReplicatedUploadAdmissionClient` through
+their own application authorization; a PEM cannot impersonate that tenant.
+Preflight reuses the core's permission, metadata/length/leaf/root validators.
+Preparation input/reply is bounded to 64 KiB, 1024 leaves, 16 headers/4096 header
+bytes and 1 GiB declared content; permission input/reply is bounded to 4 KiB.
+Service configuration may impose smaller limits. Transport retains the common
+256 KiB HTTP ceiling, thirty-second deadline and identity/trust rules below.
+
+Each mutation claims a fresh private run, writes canonical `request.candid`,
+`permission.candid`, `signed-request.cbor` and `intent.json` before dispatch, then
+records `outcome.json`. `acknowledged`, typed `refused`, `pending` and `uncertain`
+remain distinct. Existing/partial runs refuse reuse; no polling or automatic retry.
+An unusable acknowledgment can follow a committed reservation or preparation.
+
+Recover with `upload-permission --request new-admission/permission.candid` as the
+tenant, or `upload-manifest --request new-preparation/permission.candid` as tenant
+or uploader, using the same identity/trust/service/namespace flags and no run-dir.
+These signed queries leave the original submission artifacts unchanged. They
+report retained history, not which lost call produced it, current readiness,
+renewed expiry or authority to resend. Unknown permission and a `null` unprepared
+manifest never authorize repeating an uncertain effect.
+
+`revoke-upload` takes the same original permission and a fresh run as the tenant.
+Before exposure it cancels the reservation and releases bytes while retaining
+operation/root/manifest history. Escaped effects and confirmed references retain
+their separate obligations; withdrawal is not provider deletion or billing stop.
+Restored owners permit exact inspection and refuse every mutation. Successful
+setup never issues a certificate or completes an upload: the existing provider,
+recovery and managed-framework issuance gates still apply.
+
+## Download a verified file
+
+Use the tenant's own PEM and the exact current `DownloadRequest`, Candid-encoded
+from the asset's saved service/tenant/namespace/root/object/incarnation/reference.
+For the first reference, use `download.candid` from `upload-inputs`; for another
+explicit reference use the output of [`reference-inputs`](#generate-reference-inputs-offline).
+Obtain the expected project and approved gateway origin from installation policy;
+the command never discovers them from the provider response.
+
+```sh
+cargo run --offline --locked -p ic-blob-storage-cli --bin blob-storage -- \
+  download --network ic --url "$IC_API_URL" --identity "$TENANT_PEM" \
+  --actor "$TENANT_PRINCIPAL" --service "$SERVICE_PRINCIPAL" \
+  --namespace "$SERVICE_NAMESPACE" --request download.candid \
+  --project "$CAFFEINE_PROJECT" --gateway "$APPROVED_GATEWAY_ORIGIN" \
+  --max-bytes 10485760 --run-dir new-download
+```
+
+The command claims a fresh private directory and saves the request/plan before
+one `blob_download_descriptor` update. It authenticates the IC update certificate
+and checks the exact live reference, installed owner/project, declared size and
+original hash headers before any provider GET. A service refusal issues no GET.
+Canister tenants instead use `ReplicatedDownloadClient` through their own
+application's authorization; a PEM cannot impersonate a canister tenant.
+
+One GET streams into private `body.part`. Successful EOF, length and Caffeine-root
+verification, followed by file sync, publishes `body.bin` without replacement.
+`summary.json` and stdout report its path, raw content digest and original headers.
+HTTP metadata cannot replace the service's original hash metadata. Failure or
+interruption can leave partial files and retained intent; never use `body.part` as
+verified output. Interruption after verified publication can leave `body.bin`
+without a summary. Existing or interrupted run directories refuse reuse.
+
+Both the descriptor wait and GET have thirty-second deadlines. The service
+transport has a 256 KiB response ceiling; request/reply Candid is bounded to 4 KiB
+with decoding-work limits. `--max-bytes` is an explicit positive ceiling, at most
+1 GiB, and also bounds the independently declared body. No redirects, automatic
+retries, range response or content decompression are accepted. Local mode requires
+literal loopback origins and an independently supplied `--root-key`; IC mode
+requires HTTPS and the built-in IC trust root. Select the origin and provider-read
+budget under the [probe ledger](evidence/caffeine-probes/README.md); charges remain
+unknown rather than being treated as free.
+
+A descriptor is a snapshot, not a publication lease. Releasing a reference cannot
+recall an already downloaded file. Verified bytes establish observed content only,
+without future retention, confidentiality or billing-cessation guarantees.
+Successful signed managed coverage uses labelled local exposure and content;
+standalone proves unconfirmed/fenced refusal. Both production hosts still require
+the existing issuance/provider/recovery gates before a real upload can complete.
 
 ## Identity, trust and service status
 
@@ -315,6 +495,36 @@ IC/local trust and deadline as status. Empty and fenced observations exit 0;
 service refusals remain errors. The command reads no provider content, performs
 no mutation and never grants retry, serving or recovery authority.
 
+## Generate reference inputs offline
+
+Use the exact original `permission.candid` from upload preparation. Select the
+reference and operation through the application's allocation/intent policy; these
+canonical positive decimal u128 values are supplied explicitly, never allocated
+by this tool. For release, name the reference being released. For retain, name
+the application's fresh reference. Preserve that exact operation for recovery.
+
+```sh
+cargo run --offline --locked -p ic-blob-storage-cli --bin blob-storage -- \
+  reference-inputs --permission permission.candid --action release \
+  --reference "$REFERENCE_ID" --operation "$OPERATION_ID" --run-dir new-reference-inputs
+```
+
+The fresh private directory saves the exact permission, `reference.candid` for
+`submit-reference`/`reference-receipt`, `reference-status.candid` for status and
+`download.candid` for the same reference, followed by a hashed `summary.json`.
+Use `--action retain` for a retain command. It checks bounded Candid and the
+maintained core binding invariants before claiming output. Permission input is
+capped at 4 KiB with bounded decoding work; malformed, noncanonical and duplicate
+options refuse. Existing or partial directories never resume or overwrite.
+
+No identity, URL or root key is needed. This is local request preparation, not
+authenticated authority, admission, completion, current liveness or retry approval.
+An expired upload permission remains usable as the original cleanup binding; its
+expiry is neither renewed nor used to authorize another upload. A generated
+download request may name a released or unconfirmed reference: the signed service
+handler still enforces current authority and liveness before any provider GET.
+Saved files remain mutable local data under the application's intent policy.
+
 ## Submit a reference
 
 ```sh
@@ -327,6 +537,8 @@ cargo run --offline --locked -p ic-blob-storage-cli --bin blob-storage -- \
 
 The input is one binary Candid `ReferenceCommand`, with the original upload,
 explicit positive reference/operation IDs and exact retain/release action.
+Generate it with [`reference-inputs`](#generate-reference-inputs-offline) and use
+its `reference.candid`, or encode the same maintained DTO in the application.
 The client validates its tenant and scope before signing, claims a new private
 directory and syncs `request.candid`, `signed-request.cbor` and `intent.json`
 before sending one `blob_apply_reference` update. The intent binds signer,
@@ -399,6 +611,44 @@ ceiling and 30-second deadline. Exit 0 means an observation, including absence o
 recorded failure; exit 3 means transport, decoding, binding or lookup refusal.
 They set retry/publication authority to false and perform no mutation, provider
 request, journal write, polling or automatic retry.
+
+## Share a confirmed blob within a tenant
+
+For two application assets using the same confirmed blob, retain a second reference
+before releasing the first. Keep the original permission and allocate a fresh
+reference and operation in the application; this does not grant another tenant
+access or upload the body again.
+
+```sh
+cargo run --offline --locked -p ic-blob-storage-cli --bin blob-storage -- \
+  reference-inputs --permission permission.candid --action retain \
+  --reference "$SECOND_REFERENCE_ID" --operation "$RETAIN_OPERATION_ID" \
+  --run-dir second-reference-inputs
+```
+
+Submit `second-reference-inputs/reference.candid` using
+[`submit-reference`](#submit-a-reference) and a fresh dispatch directory. Confirm
+`result.state: success`; after a lost/pending reply, inspect the exact dispatch's
+saved `request.candid` with `reference-receipt` and inspect current liveness with
+`second-reference-inputs/reference-status.candid`. Keep the uncertain artifacts;
+receipt success does not overwrite the transport outcome or authorize resend.
+Use `second-reference-inputs/download.candid` for its verified download.
+
+| Local step | First reference | Second reference | Accounting |
+| --- | --- | --- | --- |
+| Confirm original upload | Live | Not retained | Logical, physical and liability bytes remain charged |
+| Retain second reference | Live | Live | The existing blob remains stored |
+| Release first reference | Released | Live | The second reference still permits download |
+| Release second reference | Released | Released | Logical bytes released; physical and billing liabilities remain |
+
+Each release needs its own original operation ID and generated command. Once the
+last reference is released, both downloads refuse; historical retain success does
+not revive it. Same-release restored owners expose fenced/inactive history and
+refuse mutation. Downloads already delivered remain on disk. Reference status and
+descriptors are observations, not leases or future-availability guarantees.
+The [local signed journey](evidence/core-primitives.md#shared-native-reference-downloads--2026-10-01)
+checks this flow using the existing labelled exposure/content substitute; real
+provider issuance, deletion and billing cessation remain separate gates.
 
 ## Certificate assessment
 

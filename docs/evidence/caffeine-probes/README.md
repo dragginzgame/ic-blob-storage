@@ -34,6 +34,216 @@ all logs here; link their maintained test and record material changed findings.
 
 ## Current operating decisions and experiments
 
+2026-10-01 shared native download intent: extend the existing managed completion/
+download journey with an offline-generated second retain, a deliberately dropped
+reply around the actual signed update, exact receipt/status recovery without
+redispatch, and another verified download after first-reference release. Generate
+and submit the final release, distinguish local logical bytes from physical/billing
+liabilities, and inspect both historical receipts/current liveness through fenced
+restore. Retain uncertain artifacts unchanged, including a refused same-run submit.
+Use fresh `/tmp/ic-blob-storage-shared-download-evidence-01`, at most 40 tenant CLI
+plus two verifier invocations, seven bounded ten-byte local source GETs, thirty-second
+command deadlines and one proxy retain update. Existing fixture exposure/content
+remain substitutes; no qualification override, SDK refresh, deployed provider
+request, payment or attachment. Preserve failures/commands/results/source hashes;
+drop owned temporary keys/proxy/gateway/progress/instances and retain capture/build.
+No external cleanup obligation or new live-effect authority.
+
+2026-10-01 shared native download outcome: the extended existing managed journey
+passes in 14.16 seconds with 37 total CLI invocations and seven local ten-byte
+source GETs. Ten bytes is the client/expected-body bound; existing fault responses
+include zero/nine/eleven bytes (sixty total source content bytes, largest eleven),
+with no oversized body published. Generated second-reference retain is dispatched once through the
+drop proxy; exact signed-query receipt/status recover success and liveness with
+all uncertain artifacts unchanged. Same-run submission refuses. First release
+refuses its download while the second delivers the identical verified file.
+Final release changes local logical bytes from ten to zero, preserving ten physical
+and ten liability bytes. Fenced restore preserves exact retain/release history,
+inactive status, all stable bytes and both files; refused mutation/GETs grant no
+provider deletion or billing cessation. Targeted managed-harness strict lint,
+formatting, diff and draft checks pass; production code/dependencies are unchanged.
+No repeated native unit/full CI/release gate or upstream/provider refresh. Fresh
+capture is recorded in [evidence](../core-primitives.md#shared-native-reference-downloads--2026-10-01).
+Owned keys/proxy/gateway/progress/instances dropped; evidence/build retained and
+zero deployed provider requests/payments/attachments or external cleanup.
+
+2026-10-01 offline reference input intent: generate first-reference download/status
+files with the verified upload snapshot, and explicit retain/release command plus
+read files from the exact saved permission. Reuse maintained core validators and
+Candid; no allocation, signer, dispatch, expiry renewal or retry authority. Run
+both existing signed setup journeys (32 CLI/eight local updates/16 MiB service
+traffic each, 10 MiB standalone and ten-byte managed snapshots) with generated
+unconfirmed-reference requests and zero source GETs. Extend the existing managed
+ten-byte download journey to consume generated reference inputs and perform signed
+release/receipt/status, including fenced restore (24 tenant CLI plus two verifier
+invocations, six bounded local source GETs, thirty-second command deadlines).
+Existing exposure/content remain labelled local substitutes; qualification facts
+stay false. Fresh `/tmp/ic-blob-storage-reference-inputs-evidence-01` retains
+commands, results, failures and final source/artifact bindings. No deployed provider
+request, SDK refresh, payment or attachment. Drop owned keys/servers/progress;
+retain evidence/build, with no external cleanup.
+Three additional offline binary checks use a copied retained abc/text permission:
+full-width retain inputs (exit 0), repeat refusal
+(exit 3) and noncanonical reference refusal before claim (exit 2). No network,
+body read, service/provider call or cleanup resource.
+
+2026-10-01 offline reference input outcome: all 57 CLI and three probe-tool units,
+native binary build and final strict CLI/harness lint pass. The first lint attempt
+rejected constant `chunks_exact` in a fixture helper; its log is retained and the
+maintained `as_chunks` form passes. Standalone and pinned managed setup journeys
+pass in 7.61/8.47 seconds, 25 CLI invocations each, with generated first-reference
+status/download refusals and zero source GETs. The existing managed download
+journey passes in 11.92 seconds, 21 total invocations and six local substitute
+GETs: generated inputs drive download, signed release, exact receipt and current
+status; release prevents another fetch and fenced restore preserves inactive
+status, receipt and all stable bytes. Logical release establishes neither provider
+deletion nor billing cessation. Three actual offline binary smoke outcomes are
+0/3/2. Fresh capture and hashes are recorded in
+[evidence](../core-primitives.md#offline-reference-and-download-inputs--2026-10-01).
+Owned temporary keys/servers/progress/instances dropped; no external cleanup,
+deployed provider call, payment, attachment, SDK refresh or new qualification fact.
+
+2026-10-01 verified upload snapshot outcome: all 54 CLI and three probe-tool units,
+native binary build and strict CLI/harness lint pass. Existing standalone 10 MiB
+and pinned managed ten-byte journeys now consume actual generated Candid and
+verified snapshots and pass in 7.19/8.86 seconds (23 CLI invocations each). Source
+edits leave snapshots unchanged; signed service-manifest verification succeeds.
+Lost/pending recovery, cancellation and fenced accounting remain intact; all four
+certificate blockers remain false host prerequisites. No exposure/completion or
+provider qualification is supplied by tests. Three offline binary smoke results
+retain corrupt output, unchanged partial evidence on repaired-source refusal and
+a successful fresh snapshot. Capture `/tmp/ic-blob-storage-upload-snapshot-evidence-01`
+contains 230 manifested files, seven logs and 22 final source/artifact bindings.
+Zero provider requests/GETs/payments/attachments. Manifest JSON is a local Rust
+fixture substitute in upstream format; no SDK/upstream/provider refresh. Owned
+servers/proxies/progress/instances/PEMs dropped, builds and evidence retained;
+no external cleanup. See
+[evidence](../core-primitives.md#verified-native-upload-snapshots--2026-10-01).
+
+2026-10-01 verified upload snapshot intent: extend the unreleased offline
+`upload-inputs` contract to require a regular body file, stream it through the
+maintained Caffeine root verifier and save those same buffers. Only complete
+EOF/root verification and file sync may publish `body.bin` and the Candid inputs;
+failed output stays private with no usable summary. Reuse the same local-file
+verifier in signed `verify-upload`; no second hashing/tree/chunk/upload SDK.
+Run the existing signed standalone (10 MiB) and pinned managed (ten-byte) setup
+journeys using actual generated inputs, then verify the snapshot against the
+service manifest after deliberately changing its original source. Manifest JSON
+is an explicit local upstream-format substitute from the maintained Rust fixture,
+not a fresh SDK/provider observation. Per host: at most 32 native invocations,
+eight local service updates, 16 MiB service traffic, one bounded body snapshot,
+thirty-second command deadlines and zero provider requests/GETs/payments/cycles.
+Use fresh `/tmp/ic-blob-storage-upload-snapshot-evidence-01` children; retain
+failures/logs/source bindings, drop owned temporary keys/proxies/servers and retain
+evidence/build. Qualification facts remain false; no fixture exposure/completion.
+Three additional offline smoke invocations use the retained independent abc/text
+vector: corrupt three-byte body, repaired-source refusal of the existing partial
+run and successful fresh snapshot. No service/provider requests; keep every result
+and failed partial, with no keys or external cleanup.
+
+2026-10-01 offline upload-input conversion outcome: four new native cases pass;
+all 51 CLI and three existing probe-tool units, strict CLI all-target lint and
+binary build pass. Three actual binary invocations emit exact Candid, preserve
+all output hashes on refused repeat and reject changed metadata before claim.
+Fresh `/tmp/ic-blob-storage-upload-inputs-evidence-01` retains 30 manifested files
+and fourteen final source/artifact bindings, including failed compile/lint and
+sandbox attempts. This is local conversion/vector evidence, not an upstream SDK
+execution or provider qualification. Zero smoke service/provider requests or paid
+effects; existing native regressions use owned local HTTP substitutes only. No key
+or external cleanup obligation. See
+[evidence](../core-primitives.md#offline-native-upload-inputs--2026-10-01).
+
+2026-10-01 offline upload-input conversion intent: reuse the maintained Caffeine
+prepared-manifest decoder and shared service validators; do not introduce hashing,
+chunking or transfer logic. Qualify the native binary with the existing independent
+Caffeine 1.1.2 abc/text vector, explicit full-width IDs, preserved input/output
+hashes, no-clobber repeat and inconsistent-manifest refusal before output claim.
+Three smoke invocations, inputs capped at 4 KiB binding/256 KiB manifest and ten
+content bytes; zero service/provider requests, payments or attachments. Native
+regressions use their existing local HTTP substitutes only. Retain each failed
+compile/lint/sandbox attempt and final logs in a fresh capture; no provider behavior
+or qualification refresh is implied.
+
+2026-10-01 signed upload setup outcome: actual native tenant admission, uploader
+preparation, exact recovery and tenant cancellation pass through standalone and
+managed handlers in 6.66/7.74 seconds. Each uses twenty-one CLI invocations under
+its pre-effect plan, preserving original uncertain artifacts through query recovery,
+rejecting corrupt declarations before claim, releasing unexposed bytes and retaining
+history under same-release restore fences. No fixture exposure/completion or
+production host evidence override. All 47 native units, four affected core cases,
+current CLI/host builds and final strict affected Clippy pass; targeted checks only.
+
+Captures `/tmp/ic-blob-storage-upload-setup-evidence-01` and `-02` retain 92/111
+manifested files. First managed enrollment failed before the native client because
+the test used a hard-coded operator; then-current hashes/log/result are retained in
+01 alongside successful standalone records. Corrected managed uses fresh 02 with
+all development logs, exact commands and final input bindings. Owned local proxies,
+gateways/progress/instances/temporary PEM dropped; build/evidence retained. Zero
+provider GETs, deployed requests, payments or attachments and no external cleanup.
+Read-only local Canic HEAD `70a0bc9a435a7695d8931a7c66c745576e678597` has the same
+relevant macro files as pinned 0.110.48, retaining both generic issuance/decoder
+gaps. No upstream/registry/provider refresh or sibling mutation. See
+[evidence](../core-primitives.md#signed-native-upload-setup--2026-10-01).
+
+2026-10-01 signed upload setup intent: make local admission/preparation/cancellation
+usable through the native client before qualified certificate issuance. Reuse
+maintained DTOs, handlers, pure validators and exact recovery decoders, with one
+saved signed update per fresh run and no automatic polling/retry. Exercise the
+actual standalone and supported managed service over loopback PocketIC: distinct
+tenant/uploader identities, exact full-width permission/manifest, lost admission,
+pending preparation, exact read-only recovery, cancellation and fenced restoration.
+Per adapter budget: at most 32 CLI invocations, eight local updates, 16 MiB service
+traffic, thirty seconds per command; zero provider GETs/requests/payments/attachments.
+Preserve requests/results/public trust/failures and original uncertain artifacts;
+drop owned proxies/gateways/progress/instances/temporary PEM, retain build/evidence.
+No fixture exposure/completion hook, provider source refresh or paid trial.
+
+2026-10-01 tenant download outcome: native tenant output uses the maintained
+replicated descriptor/decoder, canonical provider path and shared streaming root
+verifier. All 45 native units pass (0.62 seconds), actual signed managed
+completion/download/release/restore passes (12.80 seconds), standalone
+unconfirmed/restored refusal passes (5.15 seconds), and all three existing managed
+verifier receipt/recovery regressions pass (12.06 seconds). Wrong scope/signer,
+corrupt/short/long/redirect replies and run reuse never yield a new verified file;
+released/fenced descriptors issue no GET. Download/refusal phases preserve complete
+service stable bytes. This is local platform and labelled exposure/content evidence,
+not a real upload, certificate, deployed availability or operational recovery claim.
+
+Fresh captures `/tmp/ic-blob-storage-tenant-download-evidence-01`, `-02`, `-03`
+retain twelve, thirty-one and 156 manifested files respectively. First failed
+managed setup repeated exposure already performed by the fixture (zero GETs);
+second asserted the wrong submission label after accepted completion (one GET).
+Both failed attempts retain their then-current input hashes and logs. Final managed
+uses fourteen CLI invocations/six GETs, standalone two/zero within their recorded
+plans. Existing verifier regressions add three local GETs with temporary raw
+captures and retained validation logs. Final source/artifact bindings and all
+development failures remain in 03; manifests and hashes are recorded in
+[evidence](../core-primitives.md#verified-native-tenant-downloads--2026-10-01).
+Owned listeners/gateways/progress/instances/temporary PEM dropped, evidence/build
+artifacts retained; zero deployed Caffeine requests, payments or provider cycle
+attachments and no external cleanup. No provider/upstream source refresh occurred.
+Next work is the real upload path's existing qualification/framework gates, not
+an assumed free read or an unapproved live trial.
+
+2026-10-01 tenant download implementation intent: prioritize a usable byte path.
+Reuse the maintained replicated descriptor, canonical provider URL and streaming
+Caffeine root verification rather than create another provider client. Add one
+signed tenant descriptor update followed only on exact authenticated success by
+one explicitly selected origin GET, with original headers/length/root, no redirect,
+retry or content decoding. Save intent before each effect; retain incomplete bytes
+privately and publish a usable file only after complete EOF/root verification.
+Exercise native socket corruption/truncation/oversize/redirect/encoding cuts and
+actual signed managed completion-to-download, release and restored refusal over
+the existing labelled ten-byte exposure/content substitute; standalone can exercise
+real unconfirmed/fenced refusal until qualified issuance exists. Per local journey:
+at most 24 CLI invocations, six local source GETs, 10 MiB reply/download traffic,
+thirty seconds per request; zero deployed provider requests/payments/attachments.
+Retain fresh requests/results/public trust/raw local source/failure artifacts; clean
+owned sockets/gateways/progress/instances/temporary PEM, retain build artifacts.
+No upstream/provider source refresh is implied; unchanged maintained provider path
+is locally exercised, not newly qualified. Production issuance/provider/recovery
+prerequisites stay explicit. This does not authorize paid trials or sibling edits.
+
 2026-10-01 passive funding assessment outcome: shared synchronous query and
 signed native command report exact current local limits and mandatory missing
 qualification/recovery/account-activity/spendability evidence. No reservation,

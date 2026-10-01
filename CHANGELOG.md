@@ -2,6 +2,49 @@
 
 ## [Unreleased]
 
+### Added
+
+- Offline `upload-inputs` converts Caffeine's prepared manifest and explicit
+  original bindings into admission/preparation and first-reference read requests.
+  It saves a complete root-verified `body.bin` snapshot; corrupt bodies leave
+  private partial output without usable requests. IDs are explicit and full-width.
+- Offline `reference-inputs` generates exact retain/release, status and download
+  Candid from the original saved permission and explicit reference/operation IDs.
+  It retains permission bytes and hashes without allocating identities, renewing
+  expiry, dispatching or granting liveness/retry authority.
+- Native `admit-upload`, `prepare-upload` and `revoke-upload` persist the exact
+  signed request before one local service update. `upload-permission` and
+  `upload-manifest` recover the original retained records without redispatch,
+  renewing expiry or issuing a certificate. Tenant and uploader roles stay distinct.
+- Shared signed upload setup journeys through standalone and Canic recover lost
+  admission and pending preparation, reject corrupt manifests before dispatch,
+  verify generated snapshots after source edits, cancel unexposed reservations
+  and preserve accounting/history through fenced restore.
+- Native `download` authenticates the exact tenant's replicated live-reference
+  descriptor, fetches one bounded provider body and writes a usable `body.bin`
+  only after complete EOF/root verification against original service metadata.
+  Failed bodies remain private partial files; redirects, automatic retries and
+  content decoding are disabled, and existing output is never overwritten.
+- Signed managed completion-to-download coverage exercises verified file output,
+  corruption, truncation, oversize, redirects, released references and fenced
+  restoration over labelled local exposure/content substitutes. Signed standalone
+  unconfirmed/restored refusals issue no provider GET. Real uploads still require
+  the existing provider, recovery and framework qualification.
+- Generated reference inputs now drive signed retain/release and receipt/status
+  recovery. A lost retain reply is recovered without resending; a second reference
+  still downloads after the first is released. Final release stops downloads while
+  physical/billing liabilities and original receipts survive fenced restore.
+
+### Changed
+
+- Signed `verify-upload` and offline snapshots share one bounded local-file
+  verifier, keeping the same open source handle and complete EOF/root checks.
+- Native and canister upload clients use the same public permission/declaration
+  preflight validators and bounded reply decoders; no second metadata/tree contract.
+- Tenant download and verifier observation share the maintained streaming HTTP
+  verifier and private artifact helper. The superseded observation-only module
+  is removed; exact verifier statements and receipt recovery retain their behavior.
+
 ## [0.4.13] - 2026-10-01
 
 ### Added

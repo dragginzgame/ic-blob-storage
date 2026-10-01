@@ -2,7 +2,302 @@
 
 Date: 2026-10-01
 
-## Active work — passive funding diagnosis after 0.4.12
+## Active work — shared reference downloads and changelog after 0.4.13
+
+The maintainer requested continued upload/download work followed by the changelog.
+The extended existing signed managed journey now uses generated second-reference
+retain inputs, drops the actual update reply and recovers only its exact receipt/
+current status. One proxy update occurs; same-run submission refuses and original
+uncertain request/signature/intent/outcome bytes remain unchanged through cleanup
+and restore. No new production workflow, allocator, dependency or fixture override.
+
+After first-reference release, that download refuses while the second delivers
+the identical verified ten-byte file. Final release stops both downloads and
+releases logical bytes while retaining ten physical and ten liability bytes.
+Same-release fenced restore preserves inactive status, original retain/release
+receipts, all stable bytes and both downloaded files; mutations and GETs refuse.
+Existing provider exposure/content are labelled local substitutes. The journey
+passes in 14.16 seconds with 37 total CLI invocations/seven substitute GETs under
+its recorded budget. Targeted managed-harness strict lint passes. The CLI/core/
+host contracts are unchanged; earlier 57 CLI unit results remain historical and
+were not unnecessarily repeated. No full CI/release gate or upstream refresh.
+
+The next-release notes are consolidated in CHANGELOG.md's existing Unreleased
+section; no target version was named, so Cargo/lock/release receipt remain 0.4.13.
+See [usage](../operator-guide.md#share-a-confirmed-blob-within-a-tenant) and
+[evidence](../evidence/core-primitives.md#shared-native-reference-downloads--2026-10-01).
+Owned keys/proxy/gateway/progress/instances dropped; build/evidence retained, with
+no deployed provider request, payment, attachment or external cleanup.
+Fresh `/tmp/ic-blob-storage-shared-download-evidence-01` retains 226 manifested
+files and 32 source/artifact bindings. Formatting, diff, capability JSON, read-only
+changelog and 409 maintained local links/fences pass; earlier manifests stay intact.
+
+Next continue qualified certificate issuance and the real consumer transfer after
+the separately coordinated Canic hooks are qualified/published. The standalone
+pre-charge/namespace/replay/recovery prerequisites remain false; do not promote
+configuration or substitute observations to those facts. Operational restore,
+consumer provenance and safe retirement remain open. Repository-only scope and
+no live-provider budget/paid-effect authority still apply.
+
+## Earlier work — generated reference/download inputs after 0.4.13
+
+Continue the Unreleased upload/download delivery while Canic's framework work is
+coordinated separately. Repository-only edits; released versions/dependencies,
+allocator, host qualification facts and service contracts remain unchanged.
+No commit, version mutation, publication, deployment or paid provider effect.
+
+`upload-inputs` now also emits first-reference download/status Candid after complete
+body verification. Offline `reference-inputs` converts the original saved permission
+and explicit canonical reference/operation/action into exact command/status/download
+files, retaining the permission and hashes in a fresh private run. Shared core
+validation and Candid own the binding contract. No ID allocation, signer/network,
+expiry renewal, liveness or retry authority; partial/existing runs never resume.
+An expired permission is still representable as an original cleanup binding.
+
+Both signed setup journeys consume generated first-reference reads and refuse
+unconfirmed status/download before any provider GET (25 invocations per host).
+Standalone 10 MiB and pinned managed ten-byte journeys pass in 7.61/8.47 seconds.
+The managed completion/download journey now consumes generated reference inputs
+and signed release rather than fixture release dispatch: exact receipt, live then
+inactive status, released fetch refusal and fenced restored history preserve
+stable bytes. It passes in 11.92 seconds, 21 invocations/six local substitute GETs.
+Existing exposure/content remain explicit substitutes; no deployed qualification.
+All 57 CLI/three probe units, binary build and final affected strict lint pass.
+The initial fixture chunk-iterator lint failure is retained. Three offline binary
+smoke calls return 0/3/2 for retain, repeat refusal and noncanonical input refusal.
+See [evidence](../evidence/core-primitives.md#offline-reference-and-download-inputs--2026-10-01)
+and [usage](../operator-guide.md#generate-reference-inputs-offline).
+Fresh `/tmp/ic-blob-storage-reference-inputs-evidence-01` retains 389 manifested
+files and 31 source/artifact bindings, including failed lint/transient doc checks.
+Final formatting, diff, capability JSON, read-only changelog and 401 maintained
+links/fences pass; Cargo/version/lock/release receipt remain unchanged.
+
+Next prioritize qualified certificate issuance and a real consumer transfer:
+the standalone host still lacks pre-charge, namespace, replay and recovery facts;
+Canic's public hooks await separate qualification/publication. Do not infer them
+from configuration or add exposure overrides. Operational recovery, production
+consumer provenance and safe retirement remain open. Ordinary continuation grants
+no live-provider account/budget or paid-effect authority. Owned local resources/
+temporary keys dropped; evidence/build retained, with no external cleanup. Only
+targeted checks ran; no full CI/release gate or upstream/provider refresh.
+
+## Earlier work — verified upload snapshots after 0.4.13
+
+Continue the preceding Unreleased upload/download work while the maintainer
+coordinates generic Canic framework changes separately. All edits stay here;
+release/version/lock/receipt, dependencies, allocator and host contracts remain
+unchanged. No commit/tag/push/publication/deployment or paid provider effect.
+
+The unreleased `upload-inputs` now requires `--body FILE`. After bounded original
+binding/manifest validation, it holds a regular source open once and checks/copies
+the same 64 KiB frames through the maintained Caffeine root verifier. Complete
+EOF/root verification and sync precede no-clobber `body.bin` publication and Candid
+input files; summary is last. Corrupt bytes leave private `body.part`/failure with
+no request files. Later file failures may leave verified output without summary;
+incomplete runs never resume. Signed `verify-upload` now shares this one local-file
+verifier; its authorization, query and evidence semantics remain unchanged.
+
+Both existing signed setup journeys now consume actual generated Candid and
+snapshots (standalone 10 MiB, pinned managed ten bytes). After an intentional source
+edit, signed verification against the original service manifest still succeeds
+with the saved snapshot. Dropped admission, pending preparation, corrupt declaration,
+exact recovery, cancellation and all-owner fenced restore remain covered. Both
+hosts still report all four certificate blockers; no exposure/completion or
+provider qualification override. Upstream-format JSON is an explicit local Rust
+fixture substitute, not a newly executed SDK or deployed provider observation.
+
+All 54 CLI and three probe-tool units pass in 0.61/0.21 seconds; both PocketIC
+journeys pass in 7.19/8.86 seconds, each with 23 native invocations and zero provider
+requests/GETs/payments/attachments. Final CLI/harness all-target/all-feature strict
+lint, binary build, formatting, diff, capability JSON, maintained links and read-only
+changelog checks pass. Three offline binary smoke cases retain corrupt-body output,
+unchanged partial evidence after repaired-source refusal and a successful fresh
+snapshot. Fresh `/tmp/ic-blob-storage-upload-snapshot-evidence-01` retains 230
+manifested files and 22 final source/artifact bindings;
+[snapshot evidence](../evidence/core-primitives.md#verified-native-upload-snapshots--2026-10-01)
+records its manifest hash. Owned test servers/proxies/progress/instances/PEMs dropped;
+no external cleanup. Earlier capture manifests remain historical and unchanged.
+
+See [usage](../operator-guide.md#generate-upload-inputs-offline). Next prioritize
+qualified issuance and real consumer upload/download delivery: provider pre-charge,
+namespace, replay and recovery facts remain missing in the production standalone
+host; Canic's generic hooks await separate qualification/publication. Do not change
+those facts to true from configuration or add fixture overrides. New live provider
+effects require selected installation/account/budget/cleanup authority; ordinary
+continuation does not grant it. Operational restore, consumer provenance and safe
+removal/retirement remain open. Only targeted local checks ran, no full CI/release
+gate, upstream refresh or provider experiment.
+
+## Earlier work — offline upload inputs after 0.4.13
+
+The maintainer kept edits in this repository and requested useful upload/download
+work while Canic's separate framework work is qualified. Released main/origin/tag
+and Cargo/release files remain 0.4.13; all completed work joins Unreleased.
+No commit/version mutation/tag/push/publication/deployment, paid effect or sibling
+edit. No new dependency, endpoint, schema generation, allocator or service journal.
+
+Native `upload-inputs` converts bounded upstream Caffeine `manifestJSON` and an
+explicit original JSON binding into `permission.candid` and `manifest.candid`.
+It uses the existing preparation decoder and shared permission/declaration
+validators; no second hashing/chunking/upload SDK. Canonical decimal strings
+preserve full-width IDs/expiry and distinct tenant/uploader roles. All validation
+precedes a fresh private output claim. Exact input copies, Candid hashes and final
+summary are synced without replacement. Incomplete runs remain private and never
+resume. It needs no signer/network/runtime and grants no identity freshness,
+authority, file-byte verification, clock validity, service admission or certificate.
+See [usage](../operator-guide.md#generate-upload-inputs-offline).
+
+Four new native cases cover exact full-width maintained DTO output, changed
+root/leaves/metadata, schema/principal/decimal refusal, bounded regular files and
+no-clobber/option refusal. All 51 native CLI cases and three existing probe-tool
+units pass in 0.61/0.20 seconds; strict CLI all-target lint, native binary build,
+formatting, diff and read-only changelog checks pass. The initial sandbox run could
+not bind the two existing loopback tests; the authorized loopback rerun passes.
+Failed compilation/lint attempts remain retained. Only targeted checks ran;
+no full CI/release gate or new PocketIC/provider run was needed for this offline
+conversion. Three actual binary smoke invocations produce canonical input files,
+refuse a repeat without changing their hashes and refuse inconsistent metadata
+before creating output. Evidence is retained at
+`/tmp/ic-blob-storage-upload-inputs-evidence-01`; no key, external resource or
+cleanup obligation. Its 30 manifested files and fourteen source/artifact bindings
+validate; [conversion evidence](../evidence/core-primitives.md#offline-native-upload-inputs--2026-10-01)
+records the manifest hash. Earlier immutable evidence captures remain historical.
+
+Read-only Canic review now finds uncommitted `on_access_denied = "reject"`,
+`decode = LIMITS` and lifecycle `argument_limits = LIMITS` implementations.
+Retained macro/decoder and endpoint PocketIC checks pass; reviewed lifecycle
+qualification and strict lint remain incomplete. We still pin published 0.110.48;
+do not adopt unpublished framework work or edit Canic in this session. This is
+local source/log review, not an upstream/registry/provider refresh. Next qualify
+and adopt the supported public hooks here after Canic finishes, then resolve the
+existing provider/recovery certificate prerequisites and a bounded real consumer
+upload/download trial. Ordinary continuation grants no live-effect authority or
+gate override. Keep upload/download delivery ahead of unrelated diagnostics.
+
+## Earlier work — signed upload setup after 0.4.13
+
+Continue the preceding Unreleased download batch. Released main/origin/tag remains
+`842fa41664c74a2ae8c2fe27f88460e508be0edf`; Cargo versions/lock and the maintainer's
+receipt are unchanged. No agent commit/version mutation/tag/push/publication,
+deployment, provider payment or sibling edit. No new endpoint/schema, dependency,
+allocator or runtime journal; pure preflight validators are now public for reuse.
+
+Native `admit-upload`, `prepare-upload`, `revoke-upload`, `upload-permission` and
+`upload-manifest` call existing handlers/decoders with exact saved Candid. Tenant
+admission/withdrawal and uploader preparation remain distinct. Shared permission
+and root/metadata/leaf validators run before dispatch. One fresh private claim
+saves canonical request, permission copy, signed update and intent before each
+mutation; no polling/redispatch or allocation. Acknowledged/refused/pending/uncertain
+outcomes remain separate; query recovery leaves original artifacts unchanged and
+cannot renew expiry, create retry authority or issue a certificate.
+
+The same signed journey passes through standalone (10 MiB declaration) and managed
+(ten bytes): wrong role/PEM, unadmitted preparation, dropped admission, pending
+preparation, corrupted declaration refusal before claim, exact read-only recovery,
+changed expiry conflict, unexposed cancellation and same-release fenced history.
+Cancellation releases all reservation/logical/physical/liability bytes while
+retaining the lifetime operation and manifest. Both hosts preserve complete stable
+bytes during restored inspection/refusal; every mutation stays fenced. Neither
+journey injects exposure/completion or provider qualification.
+
+All 47 native units and four affected core reply/client cases pass. Standalone
+and managed journeys pass in 6.66/7.74 seconds; CLI/standalone/supported managed
+builds and final affected strict Clippy pass. The failed first managed enrollment
+used a hard-coded operator instead of its configured principal; failure/log/hashes
+are retained, and no native client started. Initial rename/panic-documentation
+lint failures remain development history. Only targeted checks ran, no full CI,
+release gate or benchmark. Two fresh captures retain 203 manifested files, exact
+commands, source/artifact bindings and twenty-one CLI invocations per successful
+host. Owned proxies/gateways/progress/instances/temporary PEM dropped; evidence/
+build retained. Zero provider GETs/deployed requests/payments/attachments and no
+external cleanup. See [evidence](../evidence/core-primitives.md#signed-native-upload-setup--2026-10-01),
+[usage](../operator-guide.md#admit-and-prepare-an-upload) and the
+[ledger](../evidence/caffeine-probes/README.md).
+
+A read-only local Canic review finds clean HEAD
+`70a0bc9a435a7695d8931a7c66c745576e678597`; relevant access/expansion/parser files
+still match pinned 0.110.48. Plain-record Fleet rejection and bounded query/work
+decoding remain unsupported in that source. This is not an upstream/registry or
+provider refresh. The maintainer subsequently selected repository-only edits;
+generic Canic framework changes are coordinated in a separate session.
+Next resolve actual certificate issuance, provider/recovery evidence and a bounded
+real upload/download consumer trial. Ordinary continuation authorizes no live
+effects or gate override; approved narrower contracts require an explicit decision.
+Production consumer/Fleet/verifier provenance, operational recovery, IcyDB
+composition and removal/retirement remain open. Keep that delivery priority.
+
+Final formatting, diff and read-only changelog draft checks pass. Capability JSON,
+382 maintained local documentation links/anchors, balanced fences, all 23 current
+source/artifact bindings and both new manifests validate. Earlier download/gateway/
+funding manifests remain intact; no private PEM is retained. Release files have
+no diff except the intended Unreleased changelog additions.
+
+## Earlier work — usable tenant downloads after 0.4.13
+
+The maintainer completed 0.4.13 during this continuation. Local main, origin/main
+and peeled v0.4.13 resolve to `842fa41664c74a2ae8c2fe27f88460e508be0edf`;
+the receipt binds direct-parent source `4b68d2524505a2ae243e01125d22cd9e306abd83`.
+Preserve those maintainer-owned release files. This new batch is in Unreleased;
+no agent commit/version mutation/tag/push/publication/deployment/paid effect.
+
+The user prioritized working uploads/downloads. Native tenant `download` now
+authenticates one replicated exact-reference descriptor and fetches one bounded
+provider body using the existing streaming verifier. It checks installed expected
+project, owner, original headers, length and Caffeine root at complete EOF before
+publishing synced `body.bin` without replacement. Failed output stays private
+`body.part`; fresh directories, explicit origin/budget, no redirects/retries or
+content decoding. A descriptor is a snapshot, not a lease; release cannot recall
+delivered files. No new service endpoint/schema, journal, dependency or allocator.
+The old observation-only HTTP module is removed and both consumers share one
+implementation/artifact helper; verifier receipt schemas remain unchanged.
+
+Actual signed managed completion-to-file succeeds over the existing labelled
+ten-byte exposure/content substitute: independent verifier observation/submission,
+tenant file, wrong signer/project/reference, no-clobber repeat, corrupt/short/long/
+redirect replies, last reference release and same-release fenced restoration.
+Standalone signed unconfirmed/restored refusals issue no GET; no production
+completion hook or evidence override was added. Complete service stable bytes
+remain unchanged during downloads/refusals. Old verified bytes remain after release.
+
+All 45 native units pass in 0.62 seconds, managed journey in 12.80 seconds,
+standalone journey in 5.15 seconds and all three existing managed verifier
+submission/lost/pending-reply regressions in 12.06 seconds. CLI/standalone/supported
+managed builds and final affected strict Clippy pass. Initial lint/fixture mistakes
+and both failed managed attempts remain retained; neither overwrites later evidence.
+Only targeted checks ran, without full CI/release validation or benchmarks.
+
+Three fresh captures retain 199 manifested files total (12 failed first, 31 failed
+second, 156 final), with exact commands, public trust, requests/replies, raw local
+source/body outputs, failures and source/artifact hashes. Successful managed and
+standalone use fourteen/two CLI invocations and six/zero source GETs within their
+pre-effect bounds; the second failed attempt used one GET. Existing verifier
+regressions used three additional local GETs, with temporary raw captures and a
+retained validation log. Owned sockets/gateways/progress/instances/PEM were dropped;
+build/evidence artifacts retained. Zero deployed Caffeine requests, payments or
+provider attachments and no external cleanup obligation. See
+[evidence](../evidence/core-primitives.md#verified-native-tenant-downloads--2026-10-01),
+[usage](../operator-guide.md#download-a-verified-file) and the
+[ledger](../evidence/caffeine-probes/README.md).
+
+Next prioritize the first real upload-to-download consumer journey. Native file
+output is now usable, but production certificate issuance remains disabled until
+the existing provider pre-charge/namespace/replay and recovery prerequisites have
+trusted evidence or an explicitly accepted narrower contract. Managed issuance
+also needs supported Canic plain-record Fleet rejection and decoder controls.
+No upstream source refresh occurred in this batch. The prepared live trial still
+has no selected installation/account/spending cap/cleanup owner; ordinary
+continuation does not authorize paid effects or sibling edits. Production consumer,
+Fleet/verifier provenance, IcyDB composition, operational recovery and safe
+removal/retirement remain open. Do not return to unrelated passive diagnostics
+as the primary delivery path.
+
+Final formatting, diff and read-only draft changelog checks pass. Capability JSON,
+371 local documentation links/anchors, balanced fences, all seventeen final
+source/artifact bindings and all three new manifests validate. Previous gateway
+and funding manifests remain intact; no private PEM is retained. Cargo versions,
+root lock and maintainer release receipt have no diff.
+
+## Earlier work — passive funding diagnosis released in 0.4.13
 
 The maintainer released 0.4.12 at
 `468b871077ac2dcf2fcf0d8d7370795887d2332e`. This continuation preserves the

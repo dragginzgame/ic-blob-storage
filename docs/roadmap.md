@@ -48,6 +48,36 @@ assessment requires no provider call and preserves occupied owners through resto
 no funding mutation or payment is exposed. Trusted evidence acquisition and
 qualified packaged funding remain open. See [assessment evidence](evidence/core-primitives.md#passive-funding-preparation-assessment--2026-10-01).
 
+The immediate priority is a complete upload-to-usable-download consumer path.
+Native tenant `download` now authenticates the replicated descriptor and returns
+a fully root-verified file, reusing the verifier's bounded HTTP implementation.
+The signed managed completion/download/release/restore journey is locally covered;
+standalone preserves unconfirmed/fenced refusal without provider GETs. This closes
+the missing native file-output step, not real issuance or consumer acceptance.
+Next focus on the existing upload-certificate provider/recovery prerequisites and
+supported Canic plain-record rejection/decoder controls. A real bounded upload
+trial still needs its selected installation and explicit provider-effect budget;
+another passive funding diagnostic is not the next delivery priority.
+Signed native admission, uploader manifest preparation, exact recovery and tenant
+cancellation now run through both actual hosts, including lost/pending replies and
+fenced history. These commands make upload setup usable without fixture mutation
+calls; they do not waive certificate or provider qualification. The latest read-only
+local Canic review now finds uncommitted generic plain-reply/decoder APIs;
+their lifecycle and strict-lint qualification remain open, and this repository
+still pins the published 0.110.48. The maintainer kept sibling edits out of this
+session and coordinates Canic work separately. Offline `upload-inputs` now bridges
+the upstream prepared manifest to the exact native admission/preparation files
+without an application-specific Rust encoder or a second hashing/upload SDK.
+It now saves complete root-verified file snapshots; generated Candid feeds the
+signed service journey and the snapshot is rechecked against the original service
+manifest after intentional source edits. Provider/recovery issuance gates remain.
+First-reference download/status inputs now accompany upload preparation; offline
+`reference-inputs` generates exact retain/release and read requests from saved
+permissions. Generated requests drive signed local release/receipt/liveness through
+fenced restore, without adding an allocator or application outbox.
+See [download usage](operator-guide.md#download-a-verified-file) and
+[local evidence](evidence/core-primitives.md#verified-native-tenant-downloads--2026-10-01).
+
 ## Starting point
 
 | Area | Available from 0.1 | 0.2 deliverable still required |

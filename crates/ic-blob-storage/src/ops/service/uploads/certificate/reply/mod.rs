@@ -34,7 +34,7 @@ pub enum UploadCertificateAssessmentReplyError {
 pub fn assessment_request(
     permission: UploadAdmissionRequest,
 ) -> Result<Vec<u8>, UploadCertificateAssessmentReplyError> {
-    super::super::admission::reply::check(permission)
+    super::super::admission::reply::validate_request(permission)
         .map_err(|_| UploadCertificateAssessmentReplyError::Invalid)?;
     let root = ProviderRootHash::try_from(permission.upload.root.as_slice())
         .map_err(|_| UploadCertificateAssessmentReplyError::Invalid)?;
@@ -50,7 +50,7 @@ pub fn assessment(
     bytes: &[u8],
     maximum: NonZeroUsize,
 ) -> Result<UploadCertificateAssessmentResponse, UploadCertificateAssessmentReplyError> {
-    super::super::admission::reply::check(permission)
+    super::super::admission::reply::validate_request(permission)
         .map_err(|_| UploadCertificateAssessmentReplyError::Invalid)?;
     if bytes.len() > maximum.get() {
         return Err(UploadCertificateAssessmentReplyError::Limit);

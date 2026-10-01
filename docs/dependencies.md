@@ -268,6 +268,26 @@ public root keys remain; PEM identities are temporary. The Cashier is stopped
 throughout these queries, with no provider requests, payment or cycle attachment.
 No dependency or allocator changes accompany this endpoint/tooling batch.
 
+`BLOB_TENANT_DOWNLOAD_REPORT` retains fresh `managed` and `standalone` children
+for signed tenant file downloads and standalone unconfirmed/restored refusals.
+Use an existing empty parent; retained or partial children refuse reuse. Plans,
+exact descriptor requests/replies, public trust, command/result JSON, raw local
+source exchanges and verified/partial bytes remain. Test PEMs are temporary.
+Managed completion uses the existing labelled exposure/content substitute; these
+reports establish no deployed provider behavior or paid-effect authority.
+
+`BLOB_UPLOAD_SETUP_REPORT` retains fresh `standalone`/`managed` children for native
+admission, preparation, exact recovery and cancellation. Plans/public roots,
+command/result JSON, canonical and signed requests, intent/outcome/reply files and
+original manifest history remain; offline-generated permission/manifest files,
+verified body snapshots and subsequent signed local-file checks are also retained.
+The original source is intentionally changed after snapshot creation. Manifest JSON
+uses the local Rust fixture's upstream format, rather than fresh upstream SDK or
+deployed provider evidence. Temporary PEMs are dropped. Existing/partial
+children refuse. The fault proxy forwards each real update once before dropping
+or replacing its acknowledgment; it neither supplies provider evidence nor exposes
+or confirms uploads. No new dependency or allocator is required.
+
 `make test-pocketic` builds `blob-authority-probe`, `blob-gateway-source` and
 `blob-funding-probe` into
 this repository's Wasm release target, then runs the unpublished host harness.

@@ -1,35 +1,42 @@
 //! Provider body verification; original service metadata always owns the root.
-use super::{Failure, record};
-use ic_blob_storage::{
-    dto::upload::completion::UploadVerificationPlan,
-    model::identity::{
-        ContentDigest, ProviderRootHash,
-        caffeine::{CaffeineHashLimits, CaffeineHeader, verification::CaffeineRootVerifier},
-    },
+use super::{
+    Failure,
+    artifacts::{DownloadOutcomeRecord, HttpResponseRecord, Run},
 };
-use std::{num::NonZeroU64, time::Duration};
+use ic_blob_storage::model::identity::{
+    ContentDigest, ProviderRootHash,
+    caffeine::{CaffeineHashLimits, CaffeineHeader, verification::CaffeineRootVerifier},
+};
+use std::{io::Write, num::NonZeroU64, time::Duration};
 use url::Url;
 #[cfg(test)]
 mod tests;
 
+pub(super) struct ExpectedBody<'a> {
+    pub root: ProviderRootHash,
+    pub bytes: u64,
+    pub headers: &'a [CaffeineHeader<'a>],
+    pub maximum: NonZeroU64,
+}
+
 pub(super) async fn fetch(
     url: &Url,
     network: &str,
-    plan: &UploadVerificationPlan,
-    maximum: NonZeroU64,
-    run: &record::Run,
+    expected: &ExpectedBody<'_>,
+    run: &Run,
+    sink: &mut impl Write,
 ) -> Result<ContentDigest, Failure> {
     let mut received = 0_u64;
     let result = tokio::time::timeout(
         Duration::from_secs(30),
-        body(url, network, plan, maximum, run, &mut received),
+        body(url, network, expected, run, sink, &mut received),
     )
     .await
     .map_err(|_| Failure::Timeout)
     .and_then(std::convert::identity);
     run.json(
         "download-outcome.json",
-        &record::DownloadOutcomeRecord {
+        &DownloadOutcomeRecord {
             received_bytes: received.to_string(),
             outcome: if result.is_ok() { "verified" } else { "failed" },
             error: result.as_ref().err().map(|e| e.code()),
@@ -40,26 +47,17 @@ pub(super) async fn fetch(
 async fn body(
     url: &Url,
     network: &str,
-    plan: &UploadVerificationPlan,
-    maximum: NonZeroU64,
-    run: &record::Run,
+    expected: &ExpectedBody<'_>,
+    run: &Run,
+    sink: &mut impl Write,
     received: &mut u64,
 ) -> Result<ContentDigest, Failure> {
-    let headers: Vec<_> = plan
-        .declaration
-        .headers
-        .iter()
-        .map(|h| CaffeineHeader {
-            name: &h.name,
-            value: &h.value,
-        })
-        .collect();
     let mut verifier = CaffeineRootVerifier::new(
-        ProviderRootHash::try_from(plan.permission.upload.root.as_slice()).expect("fixed root"),
-        plan.permission.upload.bytes,
-        &headers,
+        expected.root,
+        expected.bytes,
+        expected.headers,
         CaffeineHashLimits {
-            max_content_bytes: maximum,
+            max_content_bytes: expected.maximum,
             max_append_bytes: (64 * 1024).try_into().unwrap(),
             max_headers: 16.try_into().unwrap(),
             max_header_bytes: 4096.try_into().unwrap(),
@@ -89,7 +87,7 @@ async fn body(
         .map_err(|_| Failure::Transport)?;
     run.json(
         "http-response.json",
-        &record::HttpResponseRecord {
+        &HttpResponseRecord {
             status: response.status().as_u16(),
         },
     )?;
@@ -107,7 +105,7 @@ async fn body(
     }
     if response
         .content_length()
-        .is_some_and(|size| size != plan.permission.upload.bytes)
+        .is_some_and(|size| size != expected.bytes)
     {
         return Err(Failure::Content);
     }
@@ -115,15 +113,17 @@ async fn body(
         *received = received
             .checked_add(chunk.len().try_into().map_err(|_| Failure::Content)?)
             .ok_or(Failure::Content)?;
-        if *received > plan.permission.upload.bytes {
+        if *received > expected.bytes {
             return Err(Failure::Content);
         }
         for frame in chunk.chunks(64 * 1024) {
             verifier
                 .append(verifier.received_bytes(), frame)
                 .map_err(|_| Failure::Content)?;
+            sink.write_all(frame).map_err(|_| Failure::File)?;
         }
     }
+    sink.flush().map_err(|_| Failure::File)?;
     verifier
         .finish()
         .map(|h| h.content_digest)

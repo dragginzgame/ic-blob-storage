@@ -14,6 +14,8 @@ pub(super) struct Options {
 }
 
 pub(super) enum Command {
+    UploadSetup(super::upload_setup::Input),
+    Download(super::download::Input),
     GatewayControl(super::gateway_controls::Input),
     FundingAssessment(ic_blob_storage::dto::funding::assessment::FundingPreparationRequest),
     InspectAccount(ic_blob_storage::dto::account::AccountInspectionRequest),
@@ -63,6 +65,11 @@ impl Options {
         if !matches!(
             command,
             "status"
+                | "admit-upload"
+                | "prepare-upload"
+                | "revoke-upload"
+                | "upload-permission"
+                | "upload-manifest"
                 | "inspect-account"
                 | "sync-gateways"
                 | "cancel-gateway-sync"
@@ -77,6 +84,7 @@ impl Options {
                 | "verify-upload"
                 | "upload-attestation"
                 | "observe-upload"
+                | "download"
                 | "submit-attestation"
                 | "submit-reference"
         ) {
@@ -100,8 +108,14 @@ impl Options {
             if matches!(
                 command,
                 "verify-upload"
+                    | "admit-upload"
+                    | "prepare-upload"
+                    | "revoke-upload"
+                    | "upload-permission"
+                    | "upload-manifest"
                     | "upload-attestation"
                     | "observe-upload"
+                    | "download"
                     | "submit-attestation"
                     | "submit-reference"
                     | "certificate-assessment"
@@ -156,7 +170,19 @@ fn parse_command(
 ) -> Result<Command, Failure> {
     let mut take = |name| flags.remove(name).ok_or(Failure::Arguments);
     Ok(
-        if matches!(command, "reference-receipt" | "reference-status") {
+        if let Some(kind) = super::upload_setup::Kind::parse(command) {
+            Command::UploadSetup(super::upload_setup::Input {
+                kind,
+                service,
+                namespace,
+                request: PathBuf::from(take("--request")?),
+                directory: if kind.mutation() {
+                    Some(PathBuf::from(take("--run-dir")?))
+                } else {
+                    None
+                },
+            })
+        } else if matches!(command, "reference-receipt" | "reference-status") {
             Command::Reference(super::references::Input {
                 service,
                 namespace,
@@ -192,6 +218,18 @@ fn parse_command(
                 service,
                 namespace,
                 directory: PathBuf::from(take("--run-dir")?),
+            })
+        } else if command == "download" {
+            let gateway = Url::parse(take("--gateway")?).map_err(|_| Failure::Arguments)?;
+            validate_url(&gateway, network, network == "local")?;
+            Command::Download(super::download::Input {
+                service,
+                namespace,
+                request: PathBuf::from(take("--request")?),
+                project: take("--project")?.to_owned(),
+                gateway,
+                directory: PathBuf::from(take("--run-dir")?),
+                max_bytes: maximum(take("--max-bytes")?)?,
             })
         } else if command == "observe-upload" {
             let gateway = Url::parse(take("--gateway")?).map_err(|_| Failure::Arguments)?;

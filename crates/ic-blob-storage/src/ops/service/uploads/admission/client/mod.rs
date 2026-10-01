@@ -87,7 +87,7 @@ impl ReplicatedUploadAdmissionClient {
         {
             return Err(UploadAdmissionClientError::Binding);
         }
-        reply::check(input)?;
+        reply::validate_request(input)?;
         if !ic_cdk::api::in_replicated_execution() {
             return Err(UploadAdmissionClientError::Execution);
         }

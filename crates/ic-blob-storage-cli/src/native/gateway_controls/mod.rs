@@ -1,5 +1,5 @@
 //! One explicit gateway decision, durably claimed before dispatch and never retried.
-use super::{Failure, agent, arguments::Options, observe_upload::record::Run};
+use super::{Failure, agent, arguments::Options, artifacts::Run};
 use candid::{Principal, de::DecoderConfig, decode_one_with_config};
 use ic_agent::{Agent, agent::CallResponse};
 use ic_blob_storage::{

@@ -1,12 +1,17 @@
 mod account;
 mod arguments;
+mod artifacts;
 mod attestation;
 mod certificate_assessment;
+mod download;
 mod funding_assessment;
 mod funding_outcome;
 mod gateway_controls;
 mod history;
+mod local_body;
 mod observe_upload;
+mod provider_download;
+mod reference_inputs;
 mod references;
 mod reply;
 mod submit_attestation;
@@ -14,6 +19,8 @@ mod submit_reference;
 #[cfg(test)]
 mod tests;
 mod upload_history;
+mod upload_inputs;
+mod upload_setup;
 mod verify_upload;
 
 use candid::Principal;
@@ -26,6 +33,16 @@ use serde_json::json;
 use std::{fs::File, io::Read, path::Path, process::ExitCode, time::Duration};
 
 const USAGE: &str = concat!(
+    "blob-storage upload-inputs --binding JSON --manifest UPSTREAM_MANIFEST_JSON --body FILE --max-bytes DECIMAL --run-dir NEW_DIRECTORY\n",
+    "Offline preparation of permission.candid, manifest.candid, first-reference download.candid/reference-status.candid and a complete root-verified body.bin snapshot. Explicit original identities and Caffeine's prepared declaration; no signer, network, ID allocation or certificate. Failed snapshots remain private body.part; existing or partial directories refuse.\n",
+    "blob-storage reference-inputs --permission PERMISSION_CANDID --action retain|release --reference DECIMAL --operation DECIMAL --run-dir NEW_DIRECTORY\n",
+    "Offline exact reference.candid, reference-status.candid and download.candid generation from the original saved permission. Canonical positive identities are caller-supplied, never allocated. No signer, network, mutation, liveness, expiry renewal or retry authority; existing or partial directories refuse.\n",
+    "blob-storage admit-upload|prepare-upload|revoke-upload --network ic|local --url URL --identity PEM --actor PRINCIPAL --service PRINCIPAL --namespace DECIMAL --request CANDID --run-dir NEW_DIRECTORY [--root-key DER]\n",
+    "Upload setup persists exact signed intent before one local service update, with no polling or retry. Admit/revoke require the tenant; prepare requires the uploader and a complete UploadManifestRequest. No certificate, provider transfer or publication. Existing or partial runs refuse.\n",
+    "blob-storage upload-permission|upload-manifest --network ic|local --url URL --identity PEM --actor PRINCIPAL --service PRINCIPAL --namespace DECIMAL --request PERMISSION_CANDID [--root-key DER]\n",
+    "Exact historical inspection uses a saved UploadAdmissionRequest (permission.candid). Permission requires the tenant; manifest permits tenant or uploader. A retained record or unprepared/unknown result never authorizes redispatch or renews an expiry.\n",
+    "blob-storage download --network ic|local --url URL --identity PEM --actor TENANT --service PRINCIPAL --namespace DECIMAL --request CANDID --project PROJECT --gateway ORIGIN --max-bytes DECIMAL --run-dir NEW_DIRECTORY [--root-key DER]\n",
+    "download authenticates one exact live-reference descriptor through a replicated update, then performs one bounded provider GET. Original metadata/root and complete EOF verification precede body.bin publication; failed bodies remain body.part. No redirects, decoding, retry, publication lease or funding. Provider reads require an approved origin and budget. Existing or partial runs refuse.\n",
     "blob-storage funding-assessment --network ic|local --url URL --identity PEM --operator PRINCIPAL --service PRINCIPAL --namespace DECIMAL --cashier PRINCIPAL --payer PRINCIPAL --operation DECIMAL --offered DECIMAL [--target-balance DECIMAL] [--root-key DER]\n",
     "funding-assessment signs one passive preparation-policy query. It reports exact local limits/history/fence and missing provider/recovery/account/spendability evidence, without reserving funds, allocating an operation, querying a provider or paying. Observations never authorize preparation, dispatch or retry.\n",
     "blob-storage sync-gateways|cancel-gateway-sync|revoke-gateway --network ic|local --url URL --identity PEM --operator PRINCIPAL --service PRINCIPAL --namespace DECIMAL --cashier PRINCIPAL --payer PRINCIPAL --run-dir NEW_DIRECTORY [--sequence DECIMAL | --gateway PRINCIPAL] [--root-key DER]\n",
@@ -56,6 +73,9 @@ const USAGE: &str = concat!(
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 enum Failure {
+    PreparedManifest,
+    UploadAdmissionRefused(ic_blob_storage::dto::upload::admission::UploadAdmissionFailure),
+    UploadManifestRefused(ic_blob_storage::dto::upload::manifest::UploadManifestFailure),
     Arguments,
     File,
     Identity,
@@ -87,10 +107,14 @@ enum Failure {
     FundingAssessmentRefused(ic_blob_storage::dto::funding::assessment::FundingPreparationFailure),
     GatewaySyncRefused(ic_blob_storage::dto::gateway::sync::GatewaySyncFailure),
     GatewayRevocationRefused(ic_blob_storage::dto::gateway::GatewayRevocationFailure),
+    DownloadRefused(ic_blob_storage::dto::download::DownloadFailure),
 }
 impl Failure {
     const fn code(self) -> &'static str {
         match self {
+            Self::PreparedManifest => "prepared_manifest",
+            Self::UploadAdmissionRefused(e) => upload_setup::admission_code(e),
+            Self::UploadManifestRefused(e) => upload_setup::manifest_code(e),
             Self::Arguments => "arguments",
             Self::File => "file",
             Self::Identity => "identity",
@@ -122,6 +146,7 @@ impl Failure {
             Self::FundingAssessmentRefused(error) => funding_assessment::refusal_code(error),
             Self::GatewaySyncRefused(error) => gateway_controls::sync_code(error),
             Self::GatewayRevocationRefused(error) => gateway_controls::revocation_code(error),
+            Self::DownloadRefused(error) => download::refusal_code(error),
         }
     }
 }
@@ -174,6 +199,18 @@ fn identity(path: &Path, expected: Principal) -> Result<Box<dyn Identity>, Failu
 }
 
 fn execute(args: &[String]) -> Result<serde_json::Value, Failure> {
+    if args
+        .first()
+        .is_some_and(|command| command == "reference-inputs")
+    {
+        return reference_inputs::run(args);
+    }
+    if args
+        .first()
+        .is_some_and(|command| command == "upload-inputs")
+    {
+        return upload_inputs::run(args);
+    }
     let options = arguments::Options::parse(args)?;
     let runtime = tokio::runtime::Builder::new_current_thread()
         .enable_all()
@@ -184,6 +221,7 @@ fn execute(args: &[String]) -> Result<serde_json::Value, Failure> {
 
 async fn observe(options: &arguments::Options) -> Result<serde_json::Value, Failure> {
     match &options.command {
+        arguments::Command::UploadSetup(input) => upload_setup::run(options, input).await,
         arguments::Command::InspectAccount(input) => account::run(options, *input).await,
         arguments::Command::FundingAssessment(input) => {
             funding_assessment::run(options, *input).await
@@ -200,6 +238,7 @@ async fn observe(options: &arguments::Options) -> Result<serde_json::Value, Fail
         }
         arguments::Command::SubmitReference(input) => submit_reference::run(options, input).await,
         arguments::Command::ObserveUpload(input) => observe_upload::run(options, input).await,
+        arguments::Command::Download(input) => download::run(options, input).await,
         _ => inspect(options).await,
     }
 }

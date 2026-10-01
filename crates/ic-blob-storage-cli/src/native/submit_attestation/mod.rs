@@ -2,7 +2,7 @@
 mod observation;
 #[cfg(test)]
 mod tests;
-use super::{Failure, agent, arguments::Options, attestation, observe_upload::record::Run};
+use super::{Failure, agent, arguments::Options, artifacts::Run, attestation};
 use candid::Principal;
 use ic_agent::agent::CallResponse;
 use ic_blob_storage::{

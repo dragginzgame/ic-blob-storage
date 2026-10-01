@@ -7,3 +7,4 @@ mod funding_assessment_cli;
 mod gateway_native_cli;
 mod observation_provider;
 mod submission_proxy;
+mod upload_setup_cli;

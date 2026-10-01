@@ -1,5 +1,5 @@
 //! One exact tenant mutation, with retained intent and no redispatch or ID allocation.
-use super::{Failure, agent, arguments::Options, observe_upload::record::Run, references};
+use super::{Failure, agent, arguments::Options, artifacts::Run, references};
 use candid::Principal;
 use ic_agent::agent::CallResponse;
 use ic_blob_storage::{

@@ -61,7 +61,11 @@ fn decode<T: CandidType + for<'de> Deserialize<'de>>(
         decode_one_with_config(bytes, &config).map_err(|_| UploadManifestReplyError::Invalid)?;
     result.map_err(UploadManifestReplyError::Remote)
 }
-pub(in crate::ops::service::uploads) fn validate(
+/// Validate a saved declaration against the original permission before dispatch.
+/// Matching metadata/leaves establish structure, never provider completion.
+/// # Errors
+/// Rejects oversized declarations, invalid original metadata and root/length mismatch.
+pub fn validate_declaration(
     input: UploadAdmissionRequest,
     declaration: &UploadManifestDeclaration,
     limits: CaffeineManifestLimits,
@@ -81,10 +85,12 @@ pub(in crate::ops::service::uploads) fn validate(
     let chunks = declaration
         .chunks
         .iter()
-        .map(|c| CaffeineChunkHash::try_from(c.as_slice()).expect("fixed leaf"))
-        .collect::<Vec<_>>();
+        .map(|c| CaffeineChunkHash::try_from(c.as_slice()))
+        .collect::<Result<Vec<_>, _>>()
+        .map_err(|_| UploadManifestReplyError::Invalid)?;
     CaffeineChunkManifest::new(
-        ProviderRootHash::try_from(input.upload.root.as_slice()).expect("fixed root"),
+        ProviderRootHash::try_from(input.upload.root.as_slice())
+            .map_err(|_| UploadManifestReplyError::Invalid)?,
         input.upload.bytes,
         &chunks,
         &headers,
@@ -102,7 +108,7 @@ fn bound(
         return Err(UploadManifestReplyError::Binding);
     }
     if let UploadManifestInspection::Prepared(declaration) = &response.manifest {
-        validate(input, declaration, limits.declaration)?;
+        validate_declaration(input, declaration, limits.declaration)?;
     }
     Ok(())
 }
@@ -130,7 +136,7 @@ pub fn mutation(
 ) -> Result<UploadManifestMutation, UploadManifestReplyError> {
     let response: UploadManifestMutation = decode(input.permission, bytes, limits)?;
     bound(input.permission, &response.observation, limits)?;
-    validate(input.permission, &input.declaration, limits.declaration)?;
+    validate_declaration(input.permission, &input.declaration, limits.declaration)?;
     let UploadManifestInspection::Prepared(retained) = &response.observation.manifest else {
         return Err(UploadManifestReplyError::Invalid);
     };

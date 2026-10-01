@@ -1,4 +1,5 @@
 //! Actual signed tenant operations beside trusted completion; provider bytes/exposure are local.
+mod download;
 use super::{Fixture, OUTSIDER_PEM, live, local_subnet_key, manifest, verifier};
 use crate::{
     authenticated_cli::{PEM, run},

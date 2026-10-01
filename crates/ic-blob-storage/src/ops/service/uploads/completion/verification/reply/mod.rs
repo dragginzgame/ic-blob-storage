@@ -9,7 +9,9 @@ use crate::{
     },
     ops::service::uploads::{
         completion::reply::{UploadAttestationReplyError, inspection_request},
-        manifests::reply::{UploadManifestReplyError, UploadManifestReplyLimits, validate},
+        manifests::reply::{
+            UploadManifestReplyError, UploadManifestReplyLimits, validate_declaration,
+        },
     },
 };
 use candid::{de::DecoderConfig, decode_one_with_config};
@@ -46,9 +48,11 @@ pub fn decode(
     }
     CaffeineDownloadScope::new(response.owner, authority.namespace(), &response.project)
         .map_err(|_| UploadAttestationReplyError::Invalid)?;
-    validate(permission, &response.declaration, limits.declaration).map_err(|e| match e {
-        UploadManifestReplyError::Limit => UploadAttestationReplyError::Limit,
-        _ => UploadAttestationReplyError::Invalid,
-    })?;
+    validate_declaration(permission, &response.declaration, limits.declaration).map_err(
+        |e| match e {
+            UploadManifestReplyError::Limit => UploadAttestationReplyError::Limit,
+            _ => UploadAttestationReplyError::Invalid,
+        },
+    )?;
     Ok(response)
 }
