@@ -1,0 +1,91 @@
+{
+  "schema": 1,
+  "date": "2026-10-02",
+  "evidence": "released_source_artifacts_and_actual_local_trial_template_installation",
+  "capture": ".tmp/trial-release-01",
+  "release": "0.6.0",
+  "release_commit": "f03c7532e35b0d90d22563509018e4ebc380d79e",
+  "release_source": "9a08a29a770515c4143270baa754850531ae8b23",
+  "release_receipt_file_hashes_verified": true,
+  "receipt_binds_wasm": false,
+  "production_source_matches_release": true,
+  "test_source_delta": "test-source.diff",
+  "artifacts": [
+    {
+      "path": "released-source.tar",
+      "bytes": 7690240,
+      "sha256": "0b0f482c91cae6bceb5542925fb925377f1e8a7bc1cedea33cc906f7a3ae967d"
+    },
+    {
+      "path": "artifacts/ic_blob_storage_canister.wasm",
+      "bytes": 3941148,
+      "sha256": "0766e2b39c1b8eaaf5edbf6cde90908e99125aca3fb77b2975399735a82ef2a2"
+    },
+    {
+      "path": "artifacts/blob-storage",
+      "bytes": 156440776,
+      "sha256": "34e13def0414ed470817a0f0879b2cbd4994b4a69efab4f9c9519b2f3d024f57"
+    },
+    {
+      "path": "artifacts/service.did",
+      "bytes": 54064,
+      "sha256": "2e782d3ee9ffc69268db9f6e5203026f3a3eebb0de289ce1c31d3776fe06faf3"
+    },
+    {
+      "path": "artifacts/configuration.args.template",
+      "bytes": 1396,
+      "sha256": "c053dc53f3aafdee63ee4b671f2320ef36ff2c94fe53bfd9db22f0be4e10b495"
+    },
+    {
+      "path": "artifacts/standalone-tests",
+      "bytes": 282202184,
+      "sha256": "62384f1f8b14b57b2384550ca42e37b8cafa7994d3ad2b9b3c563450fa133cad"
+    }
+  ],
+  "checks": {
+    "maintained_template_declared_did_encoding": true,
+    "declared_exported_did_equal": true,
+    "cli_carrier_installed_in_pocketic": true,
+    "exact_configuration_role_readback": true,
+    "wrong_service_refusal_preserves_owner": true,
+    "controller_configuration_denied": true,
+    "restricted_local_assessment_has_no_blockers": true,
+    "compiled_release_readback": "0.6.0",
+    "compiled_release_matches_receipt": true,
+    "independent_did_decoding": true,
+    "proposed_roles_offline_candidate_checked": true,
+    "focused_test_seconds": 3.43,
+    "strict_affected_clippy": true,
+    "format_check": true
+  },
+  "inputs": {
+    "local_installation": "local-installation/installation.candid",
+    "candidate": "candidate-local-only/installation.candid",
+    "live_service_selected": false,
+    "local_only": true,
+    "must_not_deploy": true
+  },
+  "effects": {
+    "external_network_requests": 0,
+    "live_provider_requests": 0,
+    "real_attached_cycles": "0",
+    "mainnet_creation": false,
+    "mainnet_installation": false,
+    "payment": false,
+    "live_certificate": false,
+    "live_upload": false
+  },
+  "failures": [
+    "preparation-failure-01.txt",
+    "development-failures.json"
+  ],
+  "limitations": [
+    "Local identities/Cashier and service principals are substitutes, not selected live roles.",
+    "Release receipt binds release files; separately retained artifact hashes establish local review identity, not provider behavior or deployed module identity.",
+    "The new maintained test source differs from the released test; production sources remain exact released bytes.",
+    "Local PocketIC physical HTTP request counts were not measured; see plan-clarification.json.",
+    "Funding/account credit, raw expiry, project acceptance, authenticated gateway streaming, retention and billing cessation remain unqualified."
+  ],
+  "cleanup": "No live resource created; retain frozen local files and private candidate keys separately. No build cleanup.",
+  "next": "Separate authorization for one fresh detached canister with explicit canic-mainnet, 2T initial cycles and fees checked against proposed 10T service ceiling. After creation regenerate init for actual service; no automatic install or provider funding."
+}

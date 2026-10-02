@@ -2,6 +2,28 @@
 
 ## [Unreleased]
 
+## [0.6.1]
+
+### Added
+
+- Record the first isolated mainnet standalone trial: exact installation and
+  configuration readback, reconciled cycles-ledger deposit and Cashier credit,
+  verified payer settings, shared gateway/balance inspection and an approved
+  payer-to-canister link. Retain signed requests, failed observations and budget
+  accounting in the Caffeine probe ledger.
+- Document the bounded payment-link expiry experiment. Exact terms read back,
+  but gateway credit remains zero before and after the candidate expiry, leaving
+  expiry enforcement inconclusive. Live upload/download, project/bucket acceptance
+  and billing cessation remain unqualified.
+
+### Changed
+
+- Exercise the maintained standalone trial template through the declared/exported
+  Candid contract, offline CLI carrier and actual PocketIC installation. Check
+  exact readback, wrong-service refusal and controller denial; retain optional
+  installation evidence and a frozen 0.6.0 artifact packet for trial review.
+- Update the workspace dependency and lockfile to ic-memory 0.15.3.
+
 ## [0.6.0] - 2026-10-02
 
 ### Breaking

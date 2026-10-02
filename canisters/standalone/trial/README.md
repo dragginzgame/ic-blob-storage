@@ -57,3 +57,42 @@ Current trial role candidates and secret-file locations remain in private
 the global identity manager. Follow the
 [provisioning sequence](../../../docs/operator-guide.md#prepare-isolated-trial-provisioning)
 before any live action.
+
+## Bind the installation to reviewed artifacts
+
+The released 0.6.0 review packet is private in `.tmp/trial-release-01`.
+Its [retained summary](../../../docs/evidence/caffeine-probes/local/2026-10-02-trial-release-01/summary.json)
+records the source revision, artifact hashes and actual local installation result.
+Fresh trial signing keys remain in the separate private proposal directory.
+Preserve this packet instead of deploying mutable `target/`
+paths or reusing the earlier 0.5.0 preparation copies.
+
+| Artifact | Required binding |
+| --- | --- |
+| Source and release | Exact reviewed commit, source archive, Cargo/lock/toolchain and receipt; receipt hashes bind release files, not the Wasm |
+| Standalone Wasm | Frozen file and SHA-256; observed compiled release must match the selected release |
+| Native CLI and DID | Frozen CLI/DID hashes; declared and host-exported Candid contracts must agree |
+| Configuration and init | Exact validated carrier and hash for the actual created service principal; all local stand-in inputs remain local-only |
+| Installed readback | Explicit operator inspects service, payer, namespace, project, trusted uploader, verifier, resource envelope, release and fence before tenant admission |
+
+The maintained PocketIC installation test encodes this template with local roles,
+passes it through `installation-check`, and checks the actual host readback and
+authority rejections. Set `BLOB_TRIAL_INSTALLATION_REPORT` to a **new directory**
+when running that focused case to retain init/readback Candid and a summary.
+Local byte agreement and release readback do not authorize live installation or
+qualify provider account/project behavior. After authorized creation, regenerate
+the candidate for the actual service and retain its new hash alongside the frozen
+artifacts before requesting installation.
+
+The [authorized mainnet installation](../../../docs/evidence/caffeine-probes/deployed/2026-10-02-trial-install-02/summary.json)
+now runs frozen 0.6.0 on `4wyfo-qaaaa-aaaam-qjlpq-cai` with the exact actual-service
+carrier. Every role/configuration reads back; local activity is zero and owners
+are unfenced. Its module hash binds submitted gzip bytes, whose decompression
+matches the reviewed raw Wasm. This completes installation, while provider
+project provisioning and upload/download remain open. The later
+[isolated funding](../../../docs/evidence/caffeine-probes/deployed/2026-10-02-trial-funding-01/summary.json)
+creates/credits the installed payer's account with 999.8B cycles from one 1T-gross
+deposit and notification. Verified settings have zero overdraft and no target
+refill; owner linkage and raw expiry terms still need qualification. The maintainer
+preapproves up to 100T total trial spending; retain exact intents and reconcile
+uncertain outcomes rather than requesting the same covered approval again.

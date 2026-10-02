@@ -1,7 +1,7 @@
 # First standalone Caffeine trial
 
 The maintainer **accepted this restricted contract on 2026-10-02**. The implementation
-replaces the 0.5.0 gate semantics and requires a minor release. Acceptance does not
+ships in 0.6.0, replacing the 0.5.0 gate semantics. Acceptance does not
 authorize deployment, funding or provider traffic. The objective
 is one actual upload, an independent verified fetch, and a tenant download.
 The [existing run sequence](operator-guide.md#isolated-uploaddownload-trial-plan)
@@ -80,7 +80,7 @@ maximum bill. The maintainer accepted this residual risk for the restricted
 contract; actual target selection, funding and live effects still require their
 own exact authority.
 
-This replaces the maintained issuance contract coherently in a minor release,
+The 0.6.0 release replaces the maintained issuance contract coherently,
 with corresponding rejection/interruption evidence. Pre-1.0 remains a hard cut: no parallel trial mode,
 old/new gate generations, compatibility path or manually supplied true flags.
 
@@ -88,22 +88,35 @@ old/new gate generations, compatibility path or manually supplied true flags.
 
 The [configuration envelope](../canisters/standalone/trial/README.md) and
 [provisioning sequence](operator-guide.md#prepare-isolated-trial-provisioning)
-now have a concrete private proposal in `.tmp/trial-provisioning-01/proposal.json`:
+have an original private proposal in `.tmp/trial-provisioning-01/proposal.json`:
 canic-mainnet is the deployment/operator candidate, with fresh repository-local
 payer/tenant/uploader and separate verifier candidates, a fresh proposed project/
-bucket and dedicated browser history. No live roles, account, service or provider
-namespace are selected by preparation. The actual service and raw expiry remain
-unset. Shared validation and independent decoding pass with a labelled local
+bucket and dedicated browser history. That preparation selected no live roles,
+account, service or provider namespace; actual service and raw expiry were
+unset. Shared validation and independent decoding passed with a labelled local
 service stand-in; those installation bytes are never live inputs.
+
+The separately authorized creation now supplies actual service
+`4wyfo-qaaaa-aaaam-qjlpq-cai`, controlled by canic-mainnet-recovered at the same
+planned principal. [Creation evidence](evidence/caffeine-probes/deployed/2026-10-02-trial-create-02/summary.json)
+retains the exact request/block, 2.0001T debit and empty module/controller status.
+The [new offline init proposal](evidence/caffeine-probes/local/2026-10-02-trial-installation-01/summary.json)
+binds frozen 0.6.0 artifacts to this actual service. The separately authorized
+[installation](evidence/caffeine-probes/deployed/2026-10-02-trial-install-02/summary.json)
+now succeeds once with exact configuration/roles, release 0.6.0 and fresh zero
+local activity. Its submitted gzip module hash and byte-identical raw Wasm are
+retained separately. Subsequent funding and shared-handler observations below
+establish only their recorded paths; project acceptance and object transfer remain
+unqualified.
 
 | Input | Current state |
 | --- | --- |
-| Host | Standalone proposed; no live instance created or selected |
-| Service, controller/deployer, operator, tenant, uploader and verifier | Local `canic-mainnet` identity exists as a signer candidate; no live role assignment or service selection. Syntax-test principals are not live targets |
-| Cashier, payer and account controller | Unselected; retained Cashier is a candidate, not an approved account binding |
-| Gateway origin, project and bucket | Unselected; must match provisioning and both download paths |
-| Total trial budget | Maintainer selected at most 100T cycles (100,000,000,000,000); planning ceiling, not a proven maximum bill |
-| Proposed allocation | At most 10T for service/IC execution, 1T for initial provider funding, 89T held unallocated; proposal, not a price estimate or target spend |
+| Host | Frozen standalone 0.6.0 installed on the detached mainnet owner; all local owners unfenced |
+| Service, controller/deployer, operator, tenant, uploader and verifier | Service `4wyfo-qaaaa-aaaam-qjlpq-cai`; recovered controller/operator and exact fresh uploader/verifier match reviewed init. Tenant admission remains unperformed |
+| Cashier, payer and account controller | Installed bindings match. Exact deposit/notification credits 999.8B; one explicitly approved link succeeds with exact terms. Expiry enforcement and repeat/lost-response behavior remain unqualified |
+| Gateway origin, project and bucket | One actual Cashier gateway is synced into the standalone registry at sequence 1. Origin/transport, project acceptance and bucket provisioning remain open |
+| Total trial budget | Maintainer explicitly preapproves total spending up to 100T cycles; 3.0001T gross donor debit recorded, 96.9999T remain; no proven maximum external bill |
+| Allocation | Conservative 10T service / 1T initial provider / 89T unallocated plan. One 1T gross deposit is complete; account credits 999.8B after 100M transfer and 100M sweep fees |
 | Monitoring/retention window | Unselected; must cover continuing obligations rather than just transfer time |
 | Relationship limit/expiry, overdraft and gateway credit handling | Raw provider terms and enforcement unqualified |
 | Browser identity and persistent intent store | Maintained IndexedDB journal is locally tested; select its actual profile/origin/database with one lifetime slot. Reopen explicitly; missing history stops the trial. Setup-only in-memory store cannot dispatch |
@@ -112,15 +125,44 @@ service stand-in; those installation bytes are never live inputs.
 Treat gross cycle allocations and outstanding charge exposure conservatively;
 provider funding is not proof of either credit or final cost. Do not count a
 refund or remaining provider balance as released budget without exact evidence.
-The unallocated 89T is not automatic refill authority. The 100T planning decision
-does not select an account, establish price/expiry units or authorize the separate
-effects described below. Contract acceptance is separately recorded above.
+The original planning-only decision did not authorize funding. The later explicit
+100T total preapproval now covers scoped trial spending; do not ask again for it.
+Remaining budget never permits repeating uncertain effects or presuming provider
+enforcement/expiry units. Contract acceptance is separately recorded above.
 
-Read-only `icp identity list` confirms `canic-mainnet` has public principal
+The [selected-payer funding review](evidence/caffeine-probes/deployed/2026-10-02-trial-funding-review-01/summary.json)
+retains zero payer/deposit-address ledger balances, unchanged provider-returned
+subaccount and a mainnet-verified AccountNotFound reply. Exact direct-deposit and
+payer-notification inputs independently encode against the retained current DID.
+That preparation precedes the separately approved
+[funding result](evidence/caffeine-probes/deployed/2026-10-02-trial-funding-01/summary.json):
+one exact transfer and one notification succeed, with reconciled ledger blocks,
+credited account and empty deposit address. Verified account/settings reads confirm
+zero overdraft and no automatic target refill. A missing/refused credit reply still
+stops effects and preserves original funds/requests as continuing obligations.
+
+The [live standalone readiness capture](evidence/caffeine-probes/deployed/2026-10-02-trial-link-01/summary.json)
+confirms bounded gateway discovery and the shared balance handler's exact 999.8B
+observation. Anonymous/payer budget_check return NotAuthorized; explicit-gateway
+budget_get returns OwnerNotFound before linkage. Automatic approval review blocks
+the initial request, which expires unsubmitted. Subsequent explicit approval and
+the [fresh link experiment](evidence/caffeine-probes/deployed/2026-10-02-trial-link-02/summary.json)
+complete one link with exact payer/owner/raw limit/expiry readback. Relationship and
+zero gateway-credit replies remain identical before/after candidate expiry; no
+usage/spend is reported. Linkage/owner recognition works, but expiry enforcement
+is inconclusive. Zero gateway credit is separate from the funded-payer balance;
+visible metadata does not prove spending authority persists. No extension, new
+funds, certificate or object transfer follows. Preserve the relationship, funded
+resources and rejection; billing cessation remains unqualified. Next review
+gateway admission/credit and namespace/browser readiness.
+
+The earlier read-only `icp identity list` confirms `canic-mainnet` has public principal
 `o5trf-oqyg7-cawjp-xs4pw-aomb3-iwki5-hyezf-qahfz-j3ffd-jh4fc-oqe`.
-The default remains `toko-miner-local`. No key was exported, identity changed,
-signing capability tested or live account selected. Naming this identity does not
-assign it to operator, tenant, uploader or verifier roles.
+The default remains `toko-miner-local`. That metadata check did not test signing
+capability or select roles. Later creation/installation uses the explicitly
+selected recovered signer at the same principal with no key export/default change;
+its operator role is explicit in the approved init. Controller status does not
+assign tenant, uploader, verifier or provider account authority.
 
 Finalize identities before producing live inputs. Obtain the actual created
 service principal before installation, then rerun `installation-check`; bind

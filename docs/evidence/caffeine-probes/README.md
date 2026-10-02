@@ -34,6 +34,269 @@ all logs here; link their maintained test and record material changed findings.
 
 ## Current operating decisions and experiments
 
+### Explicitly approved payment-link expiry experiment — 2026-10-02
+
+Intent: `.tmp/trial-link-02/intent.json` records the maintainer's explicit "yes
+please" to the concrete payer-to-owner Cashier link and 90-second expiry experiment.
+This resolves the earlier automatic approval rejection for this exact mutation;
+the old expired, unsubmitted request remains immutable and is never replayed.
+Refresh absent relationship and exact gateway within two bounded queries. Prepare
+fresh current-native inputs and retain/independently verify one payer-signed add
+request with raw daily limit 1,000,000,000,000 and fresh absolute-nanosecond expiry
+hypothesis. Submit once, then at most four relationship/explicit-gateway budget
+queries before/after candidate expiry in a 180-second window. Each SDK query has
+mainnet node-signature verification, no retries, four transports/64 KiB/30 seconds
+maximum; update wait is bounded to 60 seconds. Refusal/drift/uncertainty/inconclusive
+evidence stops new effects. No extension, funding, certificate or object request
+is included. Preserve funded/link resources and uncertain obligations; neither
+expiry nor raw daily limit proves a total spending cap or billing cessation.
+
+Outcome: [the approved link](deployed/2026-10-02-trial-link-02/summary.json)
+succeeds once at request
+`7b00e6c905a6fd41033b6a543536e9dde31305d376cc9295c13d1424b995999c`.
+Verified readback matches the exact payer/owner, raw 1T daily limit and raw expiry
+`1790943900147000000` (candidate 2026-10-02T12:25:00.147Z). Provider creation time
+is consistent with Unix nanoseconds within the retained preparation/read interval;
+the returned expiry alone does not establish its interpretation or enforcement.
+Relationship and budget responses before/after candidate expiry are byte-identical:
+relationship remains visible, gateway available credit is zero, all usage is zero.
+Owner recognition/linkage is observed, **expiry enforcement is inconclusive**.
+Zero gateway credit does not mean the funded payer is empty, and visible relationship
+metadata after its timestamp does not prove effective spending authority persists.
+
+Six mainnet-verified logical queries use twelve bounded query/verification transport
+calls with no SDK retries; one CLI update submission is retained, while physical
+wire attempts are not measured. The observation window is 130.265 seconds from
+preparation through final reply. A local check initially assumes creation time is
+within 30 seconds of the later reply; it fails at 30.642 seconds. Corrected checks
+use the actual retained preparation/read interval, not that invented threshold;
+failure is retained and no request/effect repeats. No extension, donor debit,
+funding, certificate or object request follows. Total donor debit remains 3.0001T,
+remaining 96.9999T under standing 100T approval. Preserve the provider relationship,
+funded payer and owner; billing cessation is not proved. Next: review actual
+gateway credit allocation/admission and namespace/browser readiness, without
+impersonating a gateway or extending this inconclusive probe. Canic stays deferred.
+
+### Owner linkage, observed expiry and gateway membership — 2026-10-02
+
+Intent: `.tmp/trial-link-01/intent.json` uses persistent 100T trial authority with
+the installed owner and already funded isolated payer. No refill is planned.
+Read gateway membership/absent relation; use frozen native CLI/current Cashier DID
+for one payer-signed link with 1T raw daily limit and a 90-second absolute-nanosecond
+expiry hypothesis. Retain the exact request/signature before one dispatch, then
+read relationship and empty-unit budget before and after expiry within 180 seconds.
+This is an expiry experiment, not a prior claim about units or enforced total cost.
+Only a supported conclusive result permits a separately retained extension; stop
+on uncertain updates or inconclusive authority/expiry. Operator sync may follow
+only within installed bounds. No certificate, gateway object upload, new funds,
+owner reset or cleanup is planned; keep all linked/funded obligations and evidence.
+
+Outcome: the [readiness capture](deployed/2026-10-02-trial-link-01/summary.json)
+finds one live gateway within installed bounds and an absent relationship.
+Anonymous and mainnet-verified payer budget_check return NotAuthorized; explicit
+gateway budget_get returns OwnerNotFound. These are typed baseline refusals,
+not expiry evidence. Two primary source searches find no Cashier-specific unit
+guidance. Automatic approval review rejects the link submission before process
+launch because a persistent provider payment relationship is not clearly covered
+by continuation plus the spending ceiling. The signed link expires unsubmitted;
+no bypass/retry, add-link or extension occurs in that run. Subsequent explicit
+approval and the separately captured experiment above resolve its mutation gate.
+
+Unaffected work completes once: independently verified operator gateway sync stores
+the exact sole gateway at sequence 1 with no pending sync; local owners stay
+unfenced with no upload/read/funding activity. One shared standalone balance
+inspection reads the exact installed payer's 999.8B ledger/total and zero prepaid/
+promotional balances from Cashier. Actual inter-canister discovery and inspection
+work; gateway origin/transport, namespace/project/bucket, expiry and object delivery
+remain unqualified. There are five direct provider logical queries (four anonymous,
+one signed), two shared-handler provider reads and one local status query. Signed
+budget verification uses two bounded transport calls; physical CLI wire attempts
+are not measured. No donor transfer, account link, certificate or object request
+occurs. Total debit remains 3.0001T under standing 100T authority. Password files
+are removed; funded resources and immutable private capture remain. Canic stays
+deferred. The ad-hoc signed-budget helper's success log mislabels its method as
+account-info; its saved request and result correctly identify budget_check.
+
+### Authorized direct deposit and notification — 2026-10-02
+
+Intent: `.tmp/trial-funding-01/intent.json` records the maintainer's explicit
+approval of the reviewed 1T-gross direct deposit and one payer notification, plus
+standing total trial expenditure authority up to 100T cycles. This supersedes
+the earlier planning-only budget; do not request the same spending approval again.
+Count the prior 2.0001T creation debit and reserve this 1T before signing. Refresh
+fee, donor balance, provider-returned address and empty destination; retain the
+unchanged reviewed memo/timestamp and one exact signed transfer before dispatch.
+Inspect the exact ledger block, donor debit and deposit balance before the
+isolated payer signs/submits one explicit-account notification with no attached
+cycles. Capture credited/balance/sweep block or refusal before subsequent reads.
+Inspect account/settings, remaining deposit and exact returned block. Never repeat
+an uncertain transfer/notification or substitute a new timestamp. Temporary
+password material is removed; existing candidate keys are not exported/imported.
+Retain funded resources/obligations. The approved budget is not evidence of a
+provider billing cap, credit, account authority or project acceptance.
+
+Outcome: [funding and credit](deployed/2026-10-02-trial-funding-01/summary.json)
+complete with one saved donor transfer at ledger block 16,749,490, exactly 1T gross.
+The exact transaction, donor debit and deposit balance reconcile before one saved
+payer notification. It credits 999.8B and returns sweep block 16,749,515; the exact
+sweep/100M fee and zero remaining deposit match. Verified payer account/settings
+queries confirm the correct new account, same balance, zero overdraft and no
+target auto-refill; no settings mutation is needed. A local settings capture-name
+collision refuses before dispatch and is retained; a new namespace succeeds.
+No paid request repeats. Password files are removed, candidate keys stay private
+and installed/funded resources remain owned. Gross total donor debit is 3.0001T
+with 96.9999T remaining under the now-standing 100T total approval. Service burn
+and provider credit are not counted again as new donor debits. Direct creation/
+credit is observed for this account; replay/lost-response recovery, linkage/expiry,
+gateway/project acceptance and uploads remain unqualified. Canic stays deferred.
+
+### Selected payer funding review — 2026-10-02
+
+Intent: `.tmp/trial-funding-review-01/intent.json` bounds six read-only logical
+queries after actual standalone installation: current ledger fee, donor/payer
+balances, the selected payer's provider-returned deposit subaccount, that address's
+ledger balance and payer-signed account-info. Retain each result before continuing;
+use the existing private candidate key with mainnet query-signature verification,
+no retries or replacement root. Review one-hop versus staged funding against the
+same returned address, fees and at most the proposed 1T gross provider allocation.
+Encode exact unsigned candidates and recovery/stop rules; provider creation/credit
+remain unproven. No transfer, notification, account mutation, certificate or upload
+is authorized. Source review and signed query observations stay distinct from
+persistent receipts. Stop on binding drift or uncertainty and retain failed data.
+
+Outcome: the [review](deployed/2026-10-02-trial-funding-review-01/summary.json)
+retains all six observations. Payer and returned-address ledger balances are zero;
+mainnet-verified payer account-info is AccountNotFound. Returned subaccount is
+unchanged and the fee is 100M cycles. Exact unsigned direct-transfer and explicit
+notification candidates match independently generated current-DID encodings.
+One direct transfer proposes 999.9B plus 100M fee, within 1T gross; an intermediate
+payer ledger transfer adds a fee without qualifying creation/credit. One payer
+notification would follow exact transaction reconciliation, subject to explicit
+approval. Conditional 999.8B credit assumes one 100M sweep deduction and no others;
+actual creation/credit/sweep/refund semantics remain unqualified. Initial outer-opt
+and textual numeric-annotation failures remain; corrections precede signing/effects.
+No transfer/update/account mutation, certificate or upload occurs. Retain funds
+and original evidence on uncertain/refused results; no new deposit or notification
+retry is implied. Canic and its consumer actions stay deferred.
+
+### Authorized standalone installation — 2026-10-02
+
+Intent: `.tmp/trial-install-02/intent.json` records explicit maintainer approval
+to install frozen 0.6.0 on existing empty `4wyfo-qaaaa-aaaam-qjlpq-cai` with the
+reviewed 565-byte init. Check controller, empty module and retained artifact hashes;
+sign and independently inspect one exact management install_code request before
+one submission. Gzip is a supported management transport encoding; decompression
+must equal the approved Wasm byte for byte. Retain both encoding hashes and the
+observed module hash. Use explicit install mode, no reinstall/upgrade or automatic
+retry. Stop on uncertainty; inspect the original request and owner instead.
+Read back module, compiled release, every configuration/role and fresh local
+accounting. IC execution consumes the owner's existing allocation; no new cycles
+transfer, Caffeine funding, account mutation, certificate or upload is authorized.
+Remove temporary password files; retain installed resource and controlled evidence.
+
+Outcome: [installation and readback](deployed/2026-10-02-trial-install-02/summary.json)
+succeed from one saved submission. Tagged official CLI source establishes the
+effective management destination; only routing metadata changes, preserving the
+signature/request ID. The observed module hash matches the submitted gzip encoding,
+whose decompression equals the approved raw Wasm. Every init field/role matches;
+compiled release is 0.6.0, all local owners are unfenced, activity is zero and
+anonymous configuration inspection returns typed Denied. Three local validation/
+syntax failures remain with corrections; none repeats the installation or a
+provider effect. Service queries are uncertified observations. Balance is
+1,487,607,279,785 cycles and reported idle burn is 1,404,810,943/day; the pre/post
+12,380,829,273-cycle delta includes installation, status and elapsed burn, not an
+isolated price. Password files are removed, keys are not exported, and the resource
+remains owned. No Caffeine call/funding, certificate or upload occurs; account/
+project provisioning and bounded provider effects remain separately reviewable.
+
+### Authorized isolated owner creation — 2026-10-02
+
+Continuation intent: `.tmp/trial-create-02/intent.json` records the maintainer's
+selection of canic-mainnet-recovered with supplied signer access, under the existing
+one-owner/2T creation approval. Confirm its public principal matches the planned
+controller, refresh balance/fee observations, and retain one explicit timestamped
+signed cycles-ledger request before one submission. Password material stays in an
+ephemeral private file and is removed after signing; it is never included in the
+probe capture or logs. Stop on identity/budget/signing mismatch or uncertain result.
+No repeated creation, installation, minting or provider effects are authorized.
+
+The [completed creation](deployed/2026-10-02-trial-create-02/summary.json) returns
+`4wyfo-qaaaa-aaaam-qjlpq-cai` at block 16,749,045 from one exact saved submission.
+The recovered signer matches the original principal; independent signature,
+request-ID, caller/controller/amount/timestamp checks pass. One local decoder
+failure on a Node Buffer's backing offset is corrected with an exact-byte copy;
+the signed request is unchanged and no extra paid request occurs. Both temporary
+password files are removed; password material/exported keys are absent from the
+capture, while signed envelopes stay private. Exact ledger block and account
+delta agree on the 2.0001T debit. Authenticated status confirms the expected
+controller, zero compute/memory allocation and no module, with observed balance
+1,499,997,545,813 cycles and continuing maintainer-owned IC costs. Physical
+transport attempt counts are unmeasured. No install, mint/top-up or Caffeine call.
+
+The [offline installation packet](local/2026-10-02-trial-installation-01/summary.json)
+then validates and independently decodes a 565-byte complete init carrier for the
+actual created service using frozen 0.6.0 artifacts and proposed isolated roles.
+Source/Wasm/DID/CLI/init hashes remain explicit. Namespace/project consistency is
+not provider provisioning. Installation requires its own authority; the created
+owner remains empty and account/funding/certificate/upload are unperformed.
+Its [metadata clarification](local/2026-10-02-trial-installation-01/clarifications.json)
+corrects one excess parent in the original creation-evidence pointer without
+overwriting the summary or changing artifact/authority facts.
+
+Intent: `.tmp/trial-create-01/intent.json` records the maintainer's explicit
+authorization for one detached empty mainnet canister using canic-mainnet,
+2T initial cycles and fees checked against the proposed 10T service allocation.
+Inspect that identity's cycles-ledger balance, current fees and official CLI/
+ledger behavior before submission; retain exact intent/request identity and one
+creation outcome. Stop on insufficient balance, unsupported capture or uncertain
+result; no repeated creation, mint/top-up, install or provider funding. Creation
+does not qualify Caffeine. Retain any resulting principal/balance as continuing
+maintainer-owned resources; no deletion/reset authority. Source/metadata observations
+and the paid IC effect remain separate evidence classes.
+
+The [preflight result](deployed/2026-10-02-trial-create-preflight-01/summary.json)
+retains a failed local signer load before any dispatch: canic-mainnet needs a
+password and the non-interactive CLI has no terminal. Public metadata still
+matches the expected principal and default identity is unchanged. Two separate
+anonymous cycles-ledger queries observe sufficient funds and a 100M fee;
+raw account balance stays private. Current official DID arguments encode/decode
+offline with explicit controller, zero compute allocation and an unsubmitted
+sample timestamp. No creation is signed/sent, no principal/block exists and no
+cycles are spent. Primary source distinguishes the ledger fee from creation
+cost deducted from initial canister funding; remaining balance/subnet is not
+observed. The tagged CLI source lookup fails and remains recorded. Signer access
+is pending an explicitly supplied password-file path or maintainer local signing;
+creation authorization persists without another permission question. No install,
+mint/top-up, provider calls or external cleanup.
+
+### Released standalone trial artifacts — 2026-10-02
+
+Review intent: `.tmp/trial-release-01/plan.json` binds local preparation to released
+0.6.0 source. Freeze source/Wasm/CLI/DID, encode the maintained trial template
+against the current DID, and exercise offline CLI carrier validation plus actual
+PocketIC installation/readback. Check the observed compiled release against the
+retained release receipt. Local roles and service principals are substitutes;
+their init bytes must never be deployed. No network/provider requests, real cycle
+attachments, deployment, funding or live certificate/upload. Stop on source drift,
+build contention, binding/readback failure; retain failed runs and all artifacts.
+
+The [completed review](local/2026-10-02-trial-release-01/summary.json) freezes
+released production source and artifacts separately from the modified test source.
+The maintained trial template encodes through the declared DID, which equals the
+host-exported interface; actual local installation reads back the exact envelope
+and roles with release 0.6.0. Wrong-service installation preserves the original
+owner, controller readback refuses, and restricted local assessment succeeds.
+The focused case passes in 3.43 seconds, affected strict lint/formatting and
+independent DID decodes pass. A separate offline candidate retains the proposed
+roles with a local-only service stand-in; neither init file can be deployed.
+Initial system-Node child-process EPERM and formatting failure remain recorded.
+The original plan's zero network/install effect fields mean external/mainnet;
+local PocketIC calls/installations are the explicit target and their physical
+HTTP count is unmeasured, clarified in a separate retained record. No live effect,
+new provider qualification or external cleanup. The receipt binds release files,
+not Wasm; the packet records exact artifact hashes independently. Creation of the
+isolated live owner remains separately authorized; no automatic install/funding.
+
 ### Trial configuration and account provisioning — 2026-10-02
 
 The [retained preparation](local/2026-10-02-trial-provisioning-01/summary.json)
@@ -1255,6 +1518,7 @@ This is an explicit service trust decision, not newly discovered Caffeine behavi
 | Capability / question | Experiment and decisive evidence | Current limit until demonstrated |
 | --- | --- | --- |
 | Source/interface drift | Capture official revision, package metadata, source/Candid hashes; compare to the reviewed baseline before behavior changes | A matching interface/source is not proof of the deployed implementation |
+| Live account and gateway inspection | [Standalone readiness](deployed/2026-10-02-trial-link-01/summary.json) observes shared gateway sync and exact funded payer balance; [approved link](deployed/2026-10-02-trial-link-02/summary.json) succeeds with exact readback and retained before/after budget queries | Discovery/balance inspection and exact payer linkage work for these bindings. Zero gateway credit gives no expiry-enforcement signal; project/bucket, gateway admission/delivery and billing cessation remain unqualified |
 | Upload completion | Isolated known files spanning empty/single/multiple chunks; capture actual tree/chunk responses, interrupt the final response, then independently download and verify complete bytes/metadata against the expected root | Browser progress/hash alone cannot confirm completion. Verified reads establish observed content availability, not future retention or a trusted canister fact. Keep the current service completion gate until the evidence bridge and narrower semantics are implemented/reviewed |
 | Resume and retry charges | One variable per trial: duplicate tree, duplicate chunk, interrupted chunk, completed root. Correlate request logs with isolated audit/account observations; wait through billing aggregation | Assume repeats can cost money. No automatic uncertain paid-effect retry; bounded manual disposition must preserve prior liability |
 | Funding | Exact offered/accepted/refunded transport evidence plus provider audit correlation, including deliberately lost response | Never infer exact credit from aggregate balance movement. Uncorrelated outcomes stay uncertain and block automatic retry |

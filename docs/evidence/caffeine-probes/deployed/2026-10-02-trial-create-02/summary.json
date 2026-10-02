@@ -1,0 +1,129 @@
+{
+  "schema": 1,
+  "date": "2026-10-02",
+  "evidence": "authorized_mainnet_detached_canister_creation_and_reconciliation",
+  "capture": ".tmp/trial-create-02",
+  "authority": "One detached owner, 2T creation amount plus fees within proposed 10T service allocation; maintainer selects recovered signer",
+  "identity": "canic-mainnet-recovered",
+  "same_planned_principal": true,
+  "controller": "o5trf-oqyg7-cawjp-xs4pw-aomb3-iwki5-hyezf-qahfz-j3ffd-jh4fc-oqe",
+  "network": "https://icp-api.io",
+  "root_key": "mainnet",
+  "service": "4wyfo-qaaaa-aaaam-qjlpq-cai",
+  "block_id": "16749045",
+  "request_id": "68060dd89c931fcf73180ccfed7ed8b2ed714a9002f5b4a84ed58f3d5a73bf1e",
+  "created_at_time_ns": "1790939443027000000",
+  "method": "create_canister",
+  "exact_signed_request_retained_privately": true,
+  "local_request_signature_verified": true,
+  "typed_creation_success_decoded": true,
+  "submission_invocations": 1,
+  "repeats": 0,
+  "physical_transport_attempts_unmeasured": true,
+  "ledger": {
+    "creation_amount_cycles": "2000000000000",
+    "fee_cycles": "100000000",
+    "gross_account_debit_cycles": "2000100000000",
+    "creation_block_caller_timestamp_amount_fee_match": true,
+    "source_account_delta_matches": true,
+    "raw_account_balances_private": true,
+    "block_query_is_distinct_from_update_receipt": true
+  },
+  "owner": {
+    "controller_status_confirmed": true,
+    "status": "Running",
+    "module_hash": null,
+    "compute_allocation": "0",
+    "memory_allocation": "0",
+    "observed_balance_cycles": "1499997545813",
+    "observed_reserved_cycles": "0",
+    "reported_idle_cycles_per_day": "864319605",
+    "status_is_snapshot": true,
+    "continuing_cost_owner": "Maintainer"
+  },
+  "secret_handling": {
+    "temporary_password_files_removed": true,
+    "password_not_in_capture": true,
+    "existing_key_exported": false,
+    "signed_envelopes_private": true
+  },
+  "failures": [
+    {
+      "record": "review-failure-01.json",
+      "class": "offline_local_verifier",
+      "outcome": "Node Buffer backing offset caused wrong Candid magic; exact-byte copy decodes the original signed request without re-signing or another submission"
+    }
+  ],
+  "artifacts": [
+    {
+      "private_path": "intent.json",
+      "bytes": 1468,
+      "sha256": "ff57bf3718976ef2babf93901cd1e0d096fa47a865288a81ab7fc409b267ca91"
+    },
+    {
+      "private_path": "dispatch-intent.json",
+      "bytes": 831,
+      "sha256": "287d529bd60783574c6ccf48c6ec919d4214b81ac5ce0999c5941d338e520918"
+    },
+    {
+      "private_path": "create-signed.json",
+      "bytes": 14062,
+      "sha256": "bb8e0e012a5f51e96208f138aa9e8300b263e6d9803a167d3a83647d690825ff"
+    },
+    {
+      "private_path": "signed-review.json",
+      "bytes": 789,
+      "sha256": "8958c5461a1bdfa1ae1763323962f874e48e55dc1499b54a234979d4fd68afc5"
+    },
+    {
+      "private_path": "creation-request.candid",
+      "bytes": 252,
+      "sha256": "ffcbd3ca102fdf2024e1d11633e75327ff5f7549ec8e50ab5f8175050beb881c"
+    },
+    {
+      "private_path": "create-result.json",
+      "bytes": 532,
+      "sha256": "bfbf829e509b8a33b4042347f74405713e532cef3f5f40cf86559a3980209d8a"
+    },
+    {
+      "private_path": "creation-receipt.json",
+      "bytes": 520,
+      "sha256": "827e35851071bd09bef740842c564d37fe12eae438527b1ded597311ca4be71c"
+    },
+    {
+      "private_path": "creation-block.json",
+      "bytes": 2455,
+      "sha256": "7efa087e3f7ee3d6e741c12c716d3684ef84bd0e694e027a7f669e4d533cc6b4"
+    },
+    {
+      "private_path": "canister-status.json",
+      "bytes": 795,
+      "sha256": "c86e71111bf7c4b79a96ba2cf6a319813194afe7a8e6a3bd75efd539dd46860e"
+    },
+    {
+      "private_path": "reconciliation.json",
+      "bytes": 1026,
+      "sha256": "9b744ad1532f0000e6f3b46a5f497cc4c21dfc7f5636ab85cd8941fc515f51e8"
+    },
+    {
+      "private_path": "review-failure-01.json",
+      "bytes": 352,
+      "sha256": "ad5daaa9e5803b543a95209620f65261a29f4cda75956eceec327926dd6bd1ec"
+    }
+  ],
+  "limitations": [
+    "The canister is empty; no blob service or provider account exists from this creation.",
+    "Controller/balance and ledger query data are observations, not fixed future balances or provider qualification.",
+    "Creation amount is 2T; creation costs reduce the new owner balance. Account gross debit and remaining owner cycles are recorded separately."
+  ],
+  "effects": {
+    "installed": false,
+    "provider_calls": 0,
+    "provider_funded": false,
+    "certificate_issued": false,
+    "upload": false,
+    "mint_or_topup": false
+  },
+  "cleanup": "Retain one real canister and continuing IC costs under maintainer ownership; no deletion/reset authorized. Ephemeral password files removed, signed evidence and build artifacts retained.",
+  "next": "Review exact frozen 0.6.0 installation packet bound to this principal; obtain separate install authority before dispatch."
+}

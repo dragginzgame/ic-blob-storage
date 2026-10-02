@@ -1,0 +1,106 @@
+{
+  "schema": 1,
+  "date": "2026-10-02",
+  "evidence": "authorized_creation_preflight_public_cycles_ledger_queries_and_offline_arguments",
+  "capture": ".tmp/trial-create-01",
+  "creation_authorized": true,
+  "authority": "One detached empty canister with canic-mainnet, 2T initial funding and fees under proposed 10T service allocation; no install/provider effect",
+  "controller": "o5trf-oqyg7-cawjp-xs4pw-aomb3-iwki5-hyezf-qahfz-j3ffd-jh4fc-oqe",
+  "network": "https://icp-api.io",
+  "root_key": "mainnet",
+  "cli": "icp 1.6.0",
+  "queries": {
+    "invocations": 2,
+    "physical_transport_request_count_measured": false,
+    "signer": "anonymous",
+    "cycles_ledger": "um5iw-rqaaa-aaaaq-qaaba-cai",
+    "balance_sufficient_at_observation": true,
+    "ledger_fee_cycles": "100000000",
+    "proposed_amount_cycles": "2000000000000",
+    "proposed_account_debit_cycles": "2000100000000",
+    "balance_file_private": true,
+    "query_observations_are_not_transaction_receipts": true
+  },
+  "identity": {
+    "public_metadata_matches": true,
+    "default_unchanged": true,
+    "existing_key_exported": false,
+    "existing_password_read": false,
+    "signer_load_succeeded": false
+  },
+  "failure": {
+    "stage": "local_signer_load",
+    "error": "Password prompt unavailable: not a terminal",
+    "before_network_dispatch": true,
+    "source_cli_lookup": "Official CLI tagged-source web lookup cache miss; no behavior inferred",
+    "local_discovery": "icp ledger is not a supported subcommand; no network use"
+  },
+  "offline": {
+    "creation_arguments_current_official_did_encode_decode": true,
+    "explicit_controller": true,
+    "compute_allocation": "0",
+    "explicit_created_at_time_sample": true,
+    "sample_is_unsigned_and_unsubmitted": true,
+    "sample_is_not_final_request": true
+  },
+  "creation": {
+    "signed": false,
+    "submitted": false,
+    "invocations": 0,
+    "principal": null,
+    "ledger_block": null,
+    "real_spend_cycles": "0"
+  },
+  "source_review": {
+    "ledger_did_url": "https://raw.githubusercontent.com/dfinity/cycles-ledger/main/cycles-ledger/cycles-ledger.did",
+    "ledger_fee_and_amount_semantics_url": "https://github.com/dfinity/cycles-ledger",
+    "creation_cost_url": "https://docs.internetcomputer.org/references/cycle-costs/",
+    "creation_fee_deducted_from_created_canister_funding": true,
+    "actual_subnet_and_remaining_balance_unobserved": true
+  },
+  "inputs": [
+    {
+      "path": "intent.json",
+      "bytes": 1530,
+      "sha256": "fc0be60dba1e1ae7da990e6d176f26c1ccb48e09bef27c224a9f6e682b875571"
+    },
+    {
+      "path": "preflight.json",
+      "bytes": 1662,
+      "sha256": "e2d72b9f6da7c33f6db9f3c96b3084683fb9698cf66e2028a200efc2d53f28ea"
+    },
+    {
+      "path": "cycles-ledger.did",
+      "bytes": 11351,
+      "sha256": "af8f846f268d1ca34f51d1c9b00ed77f90c11e8c3aa288fd915eae5aea28457f"
+    },
+    {
+      "path": "cycles-balance.json",
+      "bytes": 38,
+      "sha256": "6cc6428487022b2f811df92493c8558098c55593ac5bd0213cbe75ceedbc900c"
+    },
+    {
+      "path": "ledger-fee.json",
+      "bytes": 104,
+      "sha256": "fc9f198896081001605639c39527dbee6a0dfebc2053ff13fa83f5c51d687509"
+    },
+    {
+      "path": "identity-principal.stderr",
+      "bytes": 97,
+      "sha256": "91813e9249335884f8f64b658590105e0e8e2aa50ddec3a34608cb5542ed2456"
+    },
+    {
+      "path": "identity-list.json",
+      "bytes": 416,
+      "sha256": "dae168cf52f03e135154e578e532046e007bc35326c0c71228a938987c9ad8e6"
+    },
+    {
+      "path": "creation-local-encoding-only.candid",
+      "bytes": 252,
+      "sha256": "a0632fe80bd90f17176beade40f28ad3fd24725b31ce8385766b6653900a59a6"
+    }
+  ],
+  "cleanup": "No live resource or paid obligation created; retain private preflight and candidate keys separately. No build cleanup.",
+  "next": "Await explicitly supplied password-file path or maintainer local signing. Creation authority remains valid; recheck preflight and preserve exact signed request before one submission. No automatic installation or provider funding.",
+  "provider_qualified": false
+}

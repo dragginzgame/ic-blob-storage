@@ -1,0 +1,119 @@
+{
+  "schema": 1,
+  "date": "2026-10-02",
+  "evidence": "actual_approved_cashier_payment_link_and_inconclusive_expiry_experiment",
+  "capture": ".tmp/trial-link-02",
+  "prior_record": "../2026-10-02-trial-link-01/summary.json",
+  "funding_record": "../2026-10-02-trial-funding-01/summary.json",
+  "service": "4wyfo-qaaaa-aaaam-qjlpq-cai",
+  "installed_release": "0.6.0",
+  "cashier": "72ch2-fiaaa-aaaar-qbsvq-cai",
+  "payer": "jaqw3-42pqs-5bivi-nj3xg-5row5-gpluj-sbn54-vthud-pyb5v-sm2rs-bae",
+  "gateway": "jf2g2-sl4zh-zhvyx-v3zcb-hmumz-2at2q-wuamm-4qiml-43msi-r3man-eqe",
+  "authorization": {
+    "maintainer_instruction": "yes please",
+    "action": "One payment link from funded payer to isolated owner, raw daily limit 1000000000000 and fresh 90-second expiry experiment",
+    "explicit_provider_mutation_approved": true,
+    "prior_automatic_rejection_resolved_for_exact_action": true,
+    "historical_expired_request_never_submitted": true,
+    "extensions_authorized": 0
+  },
+  "preflight": {
+    "fresh_absent_relationship": true,
+    "same_sole_gateway": true,
+    "mainnet_query_signatures_verified": true
+  },
+  "link": {
+    "method": "payment_account_canister_add_v1",
+    "request_id": "7b00e6c905a6fd41033b6a543536e9dde31305d376cc9295c13d1424b995999c",
+    "reply": "Ok",
+    "submission_invocations": 1,
+    "independent_signature_request_id_and_scope_verified": true,
+    "argument_sha256": "a3ae323b22b49d49a61e380397f56fe32ea08bfbdf0c7a95b72ca66e9d87fde3",
+    "payer_owner_and_raw_terms_readback_match": true,
+    "daily_limit_raw": "1000000000000",
+    "expiration_timestamp_raw": "1790943900147000000",
+    "prepared_at": "2026-10-02T12:23:30.147Z",
+    "expiry_hypothesis_at": "2026-10-02T12:25:00.147Z",
+    "extension_invocations": 0,
+    "attached_cycles": "0"
+  },
+  "relationship_observations": {
+    "before_candidate_expiry_at": "2026-10-02T12:24:19.448Z",
+    "after_candidate_expiry_at": "2026-10-02T12:25:34.838Z",
+    "visible_before_and_after": true,
+    "response_bytes_unchanged": true,
+    "current_period_spent": "0",
+    "bandwidth_baseline_uploaded": "0",
+    "bandwidth_baseline_downloaded": "0",
+    "added_timestamp_raw": "1790943828806923552",
+    "creation_clock_scale_consistent_with_unix_nanoseconds": true,
+    "expiry_field_returned_unchanged": true,
+    "expiry_units_and_enforcement_qualified": false,
+    "metadata_visibility_not_spending_authority": true
+  },
+  "budget_observations": {
+    "method": "budget_get_v1",
+    "explicit_actual_gateway": true,
+    "before_at": "2026-10-02T12:24:23.257Z",
+    "after_at": "2026-10-02T12:25:40.412Z",
+    "available_credit_before": "0",
+    "available_credit_after": "0",
+    "all_usage_zero": true,
+    "response_bytes_unchanged": true,
+    "owner_recognition_after_link": true,
+    "zero_gateway_credit_not_empty_payer_balance": true,
+    "nonzero_active_credit_signal": false,
+    "expiry_enforcement": "inconclusive"
+  },
+  "requests": {
+    "logical_queries": 6,
+    "mainnet_verified_queries": 6,
+    "query_and_verification_transport_calls": 12,
+    "no_sdk_retries": true,
+    "max_transport_calls_per_query": 4,
+    "max_bytes_each": 65536,
+    "max_query_seconds": 30,
+    "update_timeout_seconds": 60,
+    "observation_window_ms": 130265,
+    "physical_wire_attempt_count_measured": false,
+    "provider_update_submission_invocations": 1
+  },
+  "failures": [
+    {
+      "record": "active-check-failure-01.json",
+      "stage": "Local retained-data validation",
+      "reason": "Invented 30-second limit between provider creation and later query completion fails at 30.642 seconds",
+      "correction": "Use actual retained preparation/read interval; no new provider query or mutation repeated"
+    }
+  ],
+  "budget": {
+    "standing_total_approved_cycles": "100000000000000",
+    "gross_donor_debit_so_far_cycles": "3000100000000",
+    "new_donor_debit_cycles": "0",
+    "remaining_authorized_cycles": "96999900000000",
+    "payer_balance_prior_verified_snapshot_cycles": "999800000000",
+    "payer_balance_not_refreshed_by_this_probe": true,
+    "provider_total_bill_cap_guaranteed": false
+  },
+  "cleanup": {
+    "original_private_payer_key_used_without_export_or_import": true,
+    "password_or_global_identity_change": false,
+    "provider_relationship_retained": true,
+    "funded_payer_and_owner_retained": true,
+    "no_reset_delete_or_inferred_refund": true,
+    "billing_cessation_qualified": false
+  },
+  "limitations": [
+    "This exact payer-signed link and its readback succeed; no uncertain-response recovery, repetition or extension is qualified.",
+    "Zero gateway credit before and after gives no signal for expiry enforcement; creation-time scale and returned raw expiry do not establish expiry semantics.",
+    "Relationship visibility after the candidate timestamp is metadata, not proof of ongoing spending authority.",
+    "Payer credit and gateway allocated credit are separate reported quantities; do not add funds or impersonate gateway on this zero observation.",
+    "No gateway admission, namespace/project/bucket acceptance, persistent browser, certificate, object upload/download, retention or billing-cessation behavior is established."
+  ],
+  "new_funding": 0,
+  "provider_object_requests": 0,
+  "certificates_issued": 0,
+  "live_uploads": 0,
+  "next": "Review actual gateway credit allocation/admission and namespace/browser readiness before proposing another exact link term or bounded upload. Stop this inconclusive experiment with no extension; preserve relationship/funded resources. Canic and its consumer actions remain deferred."
+}

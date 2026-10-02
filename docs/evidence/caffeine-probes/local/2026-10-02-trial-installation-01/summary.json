@@ -1,0 +1,41 @@
+{
+  "schema": 1,
+  "date": "2026-10-02",
+  "evidence": "offline_actual_service_installation_input_preparation",
+  "capture": ".tmp/trial-installation-01",
+  "service": "4wyfo-qaaaa-aaaam-qjlpq-cai",
+  "creation_record": "../../../deployed/2026-10-02-trial-create-02/summary.json",
+  "release": "0.6.0",
+  "release_commit": "f03c7532e35b0d90d22563509018e4ebc380d79e",
+  "controller_operator": "o5trf-oqyg7-cawjp-xs4pw-aomb3-iwki5-hyezf-qahfz-j3ffd-jh4fc-oqe",
+  "payer_tenant_trusted_uploader": "jaqw3-42pqs-5bivi-nj3xg-5row5-gpluj-sbn54-vthud-pyb5v-sm2rs-bae",
+  "completion_verifier": "n67bb-yqikw-jbye7-anfpz-tgws7-akhqy-kdpln-ihuix-hzdjf-3ghwy-4ae",
+  "project": "02c7762e-11c0-43bf-960c-c651096a8e3a",
+  "cashier": "72ch2-fiaaa-aaaar-qbsvq-cai",
+  "namespace": "1",
+  "wasm": {
+    "path": ".tmp/trial-release-01/artifacts/ic_blob_storage_canister.wasm",
+    "sha256": "0766e2b39c1b8eaaf5edbf6cde90908e99125aca3fb77b2975399735a82ef2a2"
+  },
+  "init": {
+    "path": ".tmp/trial-installation-01/checked/installation.candid",
+    "bytes": 565,
+    "sha256": "e96bf4fffb86e4ef9a0f20b76d9a22364aec6840e2cf31b82ec79d94fb8b60b4",
+    "offline_validated": true,
+    "independent_did_decoded": true,
+    "actual_created_service_binding": true
+  },
+  "mode": "install",
+  "bounds": "One lifetime tenant/object/reference, one 1KiB chunk, two cleanup receipts; all local cycle attachment allocation reserved",
+  "validated": true,
+  "independent_did_decoded": true,
+  "installed": false,
+  "installation_authorized": false,
+  "provider_provisioned": false,
+  "provider_account_funded": false,
+  "live_upload_authorized": false,
+  "existing_candidate_keys_copied": false,
+  "frozen_artifact_source": ".tmp/trial-release-01",
+  "limitations": "Offline consistency and actual service identity do not establish installed module/configuration or provider account/project acceptance.",
+  "next": "Review installation-proposal.json; exact installed module hash and operator configuration readback are required after separate install authority."
+}

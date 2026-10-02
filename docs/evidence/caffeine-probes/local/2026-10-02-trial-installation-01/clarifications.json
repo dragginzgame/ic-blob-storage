@@ -1,0 +1,10 @@
+{
+  "schema": 1,
+  "original": "summary.json",
+  "correction": {
+    "field": "creation_record",
+    "original": "../../../deployed/2026-10-02-trial-create-02/summary.json",
+    "correct_relative_path": "../../deployed/2026-10-02-trial-create-02/summary.json"
+  },
+  "interpretation": "The original source pointer has one excess parent component; this separate correction preserves the immutable summary and does not change creation, artifact or authority facts."
+}

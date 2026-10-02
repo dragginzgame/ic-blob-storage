@@ -2,14 +2,11 @@
 
 Date: 2026-10-02
 
-Released baseline: [0.5.0](../../CHANGELOG.md), dated 2026-10-02, at
-`03715ebecc608f6f679ca0e753fc95a8fd5eae7b`. Package version and release receipt
-are 0.5.0. Completed work is in the maintainer-selected undated 0.6.0
-changelog draft, with Unreleased empty. Required trusted-uploader installation,
-shared init DTO, upload-input and browser contract changes are breaking: under
-[version policy](../governance/development.md#versions-and-changelog), this batch
-uses the selected minor release. Draft naming does not bump package/receipt
-versions; release preparation remains a separate step.
+Released baseline: [0.6.0](../../CHANGELOG.md), dated 2026-10-02, at
+`f03c7532e35b0d90d22563509018e4ebc380d79e`. Package version, tag and release receipt
+are 0.6.0. The next changelog draft is undated **0.6.1**, requested by the
+maintainer; package versions, tags and release receipt remain unchanged. New
+completed work joins that draft until release.
 Commits and release operations belong to the maintainer.
 
 Canic integration is deferred by the maintainer on 2026-10-02 until useful work
@@ -18,9 +15,329 @@ implementation and evidence; the [feedback list](../canic-parity.md#integration-
 is a future consumer backlog, not a prerequisite for this local work. Siblings
 remain read-only and no upstream message is authorized.
 
+## Approved payer link; expiry experiment inconclusive — 2026-10-02
+
+The maintainer explicitly approves the proposed one-link/90-second experiment,
+resolving the earlier automatic approval rejection for this exact mutation. The
+[fresh approved capture](../evidence/caffeine-probes/deployed/2026-10-02-trial-link-02/summary.json)
+retains refreshed baseline, native inputs, independently verified signature/request
+and one successful add-link submission:
+`7b00e6c905a6fd41033b6a543536e9dde31305d376cc9295c13d1424b995999c`.
+Verified readback exactly matches payer/owner, raw daily limit 1,000,000,000,000 and
+expiry `1790943900147000000`, candidate 2026-10-02T12:25:00.147Z. Provider creation
+time fits the actual preparation/read interval as Unix nanoseconds; this does not
+prove the expiry field's interpretation or enforcement. The old request remains
+expired, immutable and unsubmitted; no repeat approval is needed for the completed link.
+
+Before/after candidate expiry, relationship and budget replies are byte-identical:
+the relationship remains visible, gateway available credit is zero, and usage/spend
+is zero. Exact linkage and owner recognition work, but **expiry enforcement is
+inconclusive**. Zero gateway credit does not mean the funded payer is empty;
+metadata visibility after the timestamp does not prove continuing spending authority.
+Six mainnet-verified logical queries use twelve bounded query/verification transports
+without retries, within a 130.265-second observation window. A failed local invented
+30-second timestamp threshold is retained; corrected checks use the actual
+preparation/read interval without repeating requests/effects.
+
+Private `.tmp/trial-link-02` retains all intents, replies and failure/verification.
+No extension, new donor debit, funding, certificate or object request follows.
+Total debit stays 3.0001T, remaining 96.9999T under standing 100T authority.
+Preserve the relationship, funded payer and installed owner; billing cessation
+is not proved. Original payer keys stay private; no password/global identity changes.
+No build/CI, version/release/commit, sibling edit, reset or artifact cleanup occurs;
+frozen 0.6.0 is reused and concurrent ic-memory 0.15.3 work preserved.
+
+Next: review actual gateway credit allocation/admission and project/bucket/browser
+readiness before selecting another exact link term or upload. Do not impersonate
+the listed gateway or extend this inconclusive probe. Canic and its
+[consumer feedback](../canic-parity.md#integration-feedback) remain deferred/open.
+
+## Live standalone gateway and balance observations — 2026-10-02
+
+The [link-readiness capture](../evidence/caffeine-probes/deployed/2026-10-02-trial-link-01/summary.json)
+observes exactly one Cashier gateway, within the installed two-entry/one-unique
+bounds. One independently verified operator `blob_sync_gateways` request completes
+at sequence 1; local readback contains that exact principal, no pending sync and
+all owners unfenced. Upload/read/funding activity remains zero. One independently
+verified `blob_inspect_account` Balance invocation through the actual standalone
+shared handler reports the installed payer's exact **999,800,000,000 cycles**:
+ledger equals total, prepaid/promotional zero. These actual inter-canister reads
+establish this discovery/inspection path, not gateway object delivery or future
+provider credit guarantees. Local status is an uncertified query observation.
+
+The relationship baseline is absent. Anonymous and mainnet-verified payer-signed
+`budget_check_v1` both return typed NotAuthorized; anonymous `budget_get_v1` with
+the actual listed gateway returns OwnerNotFound. Do not assume the payer can call
+budget_check or interpret either refusal as a balance/expiry result. Two primary
+source searches find no Cashier-specific expiry guidance. No link/expiry behavior,
+project/bucket acceptance, certificate or object transfer is qualified.
+
+Automatic approval review rejects the saved `payment_account_canister_add_v1`
+submission before process launch: it treats the persistent payment relationship
+as an account mutation not clearly authorized by continuation plus the spending
+ceiling. Do not bypass/resubmit that rejected action. The signed candidate is now
+expired, retained and **never submitted**; its historical request is not a retry
+candidate. Standing 100T spending authority remains in force. This batch adds no
+donor debit: total stays 3.0001T, remaining 96.9999T. The funded payer and installed
+owner remain continuing resources.
+
+That run proposed the concrete provider relationship mutation prepared in
+`.tmp/trial-link-01/payment-link-proposal.json`: one link from the
+installed payer to `4wyfo-qaaaa-aaaam-qjlpq-cai` through installed Cashier, raw daily
+limit 1,000,000,000,000 and a freshly retained 90-second absolute-nanosecond expiry
+hypothesis. Use a new linked capture and exact fresh signature only after approval;
+observe the relationship and explicit-gateway budget before/after, within 180
+seconds. Inconclusive/zero/refused evidence stops; no extension, funding, certificate
+or object request is included. Never infer total cost or billing cessation from
+expiry. One uncertain update stops new effects and requires original-request review.
+The subsequently approved experiment above completes that exact add-link action;
+expiry remains inconclusive and no extension follows.
+
+Private `.tmp/trial-link-01` retains intents, signatures, typed refusals, successful
+shared-handler replies, the automatic rejection and the expired unsubmitted link.
+Temporary password files are removed and original participant/verifier keys stay
+private. Preserve concurrent Cargo.toml/Cargo.lock ic-memory 0.15.3 work; frozen
+0.6.0 artifacts are used without compilation. No full CI, version/release/commit,
+sibling change, reset or build cleanup occurs. Canic and its
+[consumer actions](../canic-parity.md#integration-feedback) remain deferred/open.
+
+## Funded isolated payer; standing 100T spending authority — 2026-10-02
+
+The maintainer explicitly approves the reviewed deposit/notification and states
+"anything up to 100T is preapproved". This is persistent **total isolated trial
+spending authority**, superseding the earlier planning-only budget. Do not ask
+again for covered spending; preserve selected targets, evidence and budget checks.
+It does not authorize repeating uncertain effects, commits, releases or sibling
+work. Extra resources/reset/retirement still need their actual scope and obligation
+checks. The 100T ceiling is not a proved external provider billing cap.
+
+One exact saved donor transfer succeeds: request
+`83ae22b4ab46f99e7906cf829f3b071f22428ddc00d32a0ca37ab00199a8eed9`,
+ledger block 16,749,490. Amount is 999.9B cycles and explicit fee is 100M, exactly
+1T gross debit. Independent signature/request and exact block sender/destination/
+amount/fee/memo/timestamp checks pass; donor debit and isolated deposit balance
+reconcile before notification. One payer-signed explicit-account notification
+then succeeds: request
+`b8b84ae1d10f077fb6b5f29d89fc13774515b9628b528b822f83d8e6449fd335`.
+Cashier credits **999,800,000,000 cycles**, with sweep block 16,749,515. Exact
+sweep from the isolated subaccount to Cashier's default account and 100M fee
+match; deposit balance returns to zero. No intermediate payer ledger transfer,
+extra deposit or notification retry occurs.
+
+Mainnet-verified payer account/settings queries confirm the correct new account,
+same 999.8B balance, zero overdraft and no target auto-refill. No settings mutation
+is needed. One local settings capture collides with an existing filename and
+refuses before network dispatch; a separate namespace succeeds. Failure/original
+captures remain, and no paid effect repeats. Private `.tmp/trial-funding-01`
+retains all intents, signed envelopes, replies, exact ledger blocks and checks.
+Temporary donor password files are removed; no key export/global identity import,
+deployment, build/CI, release/commit, sibling edit or artifact cleanup occurs.
+
+Total gross donor debit is **3,000,100,000,000 cycles**, including prior 2.0001T
+creation and this 1T funding; **96,999,900,000,000 cycles** remain authorized.
+Canister execution consumes its already-funded balance; provider credit is not
+counted again as another donor debit. Preserve the owner, funded account, keys and
+receipts as continuing resources. See the
+[funding evidence](../evidence/caffeine-probes/deployed/2026-10-02-trial-funding-01/summary.json).
+
+Next: review/link this payer to the actual owner with explicit raw daily limit and
+expiry, then qualify gateway membership/project/bucket and the bounded transfer.
+The exact fresh-account direct deposit/credit path is observed; notification replay,
+lost-response recovery, future bills and billing cessation are not qualified.
+No account linkage, certificate or live upload has occurred. Canic stays deferred;
+its [consumer actions](../canic-parity.md#integration-feedback) remain open.
+
+## Earlier selected payer funding proposal — 2026-10-02
+
+The [read-only route review](../evidence/caffeine-probes/deployed/2026-10-02-trial-funding-review-01/summary.json)
+observes the installed payer's unchanged provider-returned 32-byte deposit
+subaccount. Payer ledger and Cashier deposit-address balances are zero; a fresh
+payer-signed, mainnet-verified account-info query reports AccountNotFound. Ledger
+fee is 100M cycles and the donor can cover the proposed amount. Five anonymous
+CLI queries and one signed provider query run with retained bounded requests/
+replies; the signed query uses one query plus one verification read_state, no
+retries/root replacement. These are observations, not persistent credit receipts.
+
+Private `.tmp/trial-funding-review-01/funding-proposal.json` prepares one direct
+donor-to-Cashier-returned-address transfer: 999,900,000,000 cycles plus explicit
+100,000,000 fee, for exactly 1T gross debit under the proposed initial provider
+allocation. Donor is canic-mainnet-recovered; isolated payer remains the installed
+participant. An intermediate payer ledger transfer would add a fee without proving
+provider credit semantics. The direct route is a bounded proposed experiment,
+not qualified credit behavior. Only after exact ledger transaction/destination
+reconciliation would one notification, signed by the payer with its explicit
+account and zero attached cycles, test creation/credit. If there is one 100M
+sweep deduction and no others, credit would be 999.8B; this is conditional, not
+an established fee/credit guarantee.
+
+Current-DID SDK encoding and independent didc encoding match every candidate
+field. Initial optional-wrapper and textual annotation mistakes are retained
+alongside corrected inputs; no signing/submission occurs. Freeze the reviewed
+exact request/memo/timestamp before an authorized effect; a lost result stops all
+new effects. No second deposit, automatic notification retry, refill or presumed
+refund is allowed. Never replace an uncertain transaction with a fresh timestamp.
+Retain stranded deposit funds and every original request/refusal as obligations.
+
+The subsequently authorized and completed funding above resolves this proposal.
+Account linkage, expiry units, project/bucket acceptance and uploads remain open.
+This earlier preparation performs no provider
+mutation, transfer, certificate, deployment, build/CI, release/commit, key export,
+sibling change or artifact cleanup occurs. Canic stays deferred; its
+[consumer actions](../canic-parity.md#integration-feedback) remain open.
+
+## Installed isolated standalone owner — 2026-10-02
+
+The maintainer explicitly approves the reviewed installation. Frozen standalone
+0.6.0 is installed once on `4wyfo-qaaaa-aaaam-qjlpq-cai` in install mode with the
+exact 565-byte actual-service carrier. Private `.tmp/trial-install-02` retains
+intent, empty-owner preflight, signed request and reply, status/configuration/local
+state, local failures and independent verification. Request ID is
+`08d7490c65db8787384ea1651741362447e36017e9bbf9a81f26abf25f045be7`.
+No reinstall/upgrade, repeated installation or additional cycles transfer occurs.
+
+Supported gzip transport decompresses byte for byte to the approved raw Wasm
+`0766e2b39c1b8eaaf5edbf6cde90908e99125aca3fb77b2975399735a82ef2a2`.
+Observed module hash binds its submitted encoding:
+`c070f18a5b7c723f9aa22e31631d9d647b6f7eaf8a1cc3e9160af55ee757fbfb`.
+The generic CLI's saved management destination is corrected to the signed
+argument's effective canister using tagged official source; signed envelope and
+request ID remain unchanged. Exact init/configuration/roles read back, compiled
+release is 0.6.0 and all local owners are unfenced. Upload/funding/gateway/read
+activity is zero, attachment allowance is zero, and anonymous configuration
+inspection returns typed Denied. Service query observations are uncertified and
+establish no provider readiness. Three local field/URL/Candid checks initially
+fail; corrected reads use retained data or a request that never dispatched. No
+paid effect is repeated, and all failed observations remain recorded.
+
+Authenticated status confirms Running and the expected single controller.
+Balance is 1,487,607,279,785 cycles, reserved cycles zero and idle burn is
+1,404,810,943 cycles/day. The 12,380,829,273-cycle pre/post delta includes install,
+status execution and elapsed burn; it is not an isolated installation price.
+These are snapshots. Prior gross creation debit remains 2.0001T within the
+proposed 10T service allocation. Temporary password files are removed; no keys
+are exported. Preserve this maintainer-owned resource and the private evidence.
+See the [installation evidence](../evidence/caffeine-probes/deployed/2026-10-02-trial-install-02/summary.json).
+
+Next: review the isolated payer's bounded funding/deposit/notification and actual
+provider account/project binding. No Caffeine funding, mutation, certificate or
+upload is authorized/performed by installation. Canic stays deferred; its
+[consumer actions](../canic-parity.md#integration-feedback) remain open. No build,
+full CI, release/commit, sibling edits or artifact cleanup occurs.
+
+## Earlier creation and installation preparation — 2026-10-02
+
+One detached empty mainnet canister is created: `4wyfo-qaaaa-aaaam-qjlpq-cai`.
+The maintainer selects canic-mainnet-recovered, whose unlocked signer matches the
+planned controller `o5trf-oqyg7-cawjp-xs4pw-aomb3-iwki5-hyezf-qahfz-j3ffd-jh4fc-oqe`.
+The exact signed request is retained privately before one submission. Independent
+request-ID, signature, caller, amount, controller and timestamp checks pass.
+Creation succeeds at ledger block 16,749,045, request ID
+`68060dd89c931fcf73180ccfed7ed8b2ed714a9002f5b4a84ed58f3d5a73bf1e`.
+There is no repeat. A local SDK decoder initially mishandles a Node Buffer's backing
+offset; its failure and corrected exact-byte copy are retained without re-signing
+or another paid request. Temporary password files are removed after use; password
+material and exported keys are absent from the capture/public evidence.
+
+The queried exact block matches caller/timestamp/2T amount/100M fee, and the account
+delta is exactly 2,000,100,000,000 cycles. Authenticated status confirms Running,
+the one expected controller, zero compute/memory allocation and no installed module.
+Observed balance is 1,499,997,545,813 cycles, reserved cycles zero, with reported
+idle burn 864,319,605 cycles/day. These are snapshots, not fixed future balances.
+Count the gross 2.0001T debit within the proposed 10T service allocation; the
+created resource and continuing IC costs remain maintainer-owned. No deletion,
+reset, top-up, provider funding, certificate or upload is authorized/performed.
+See the [creation evidence](../evidence/caffeine-probes/deployed/2026-10-02-trial-create-02/summary.json).
+
+Private `.tmp/trial-installation-01/installation-proposal.json` binds the actual
+service to frozen released 0.6.0 Wasm/DID/CLI and a validated 565-byte complete
+init carrier. Operator/controller is the recovered principal; the fresh isolated
+payer/tenant/uploader and distinct verifier remain proposed, with the original
+project candidate, namespace 1 and one-tenant/object/reference/1 KiB envelope.
+Local attachment allocation is fully reserved. Independent DID decoding and
+artifact/init hashes pass; local stand-in inputs are not reused. See the
+[offline installation evidence](../evidence/caffeine-probes/local/2026-10-02-trial-installation-01/summary.json).
+
+The separately authorized installation and readback above complete this proposal.
+Creation authority is fulfilled and permits no second owner; provider/account
+effects remain separate. Canic stays deferred, with
+[consumer actions](../canic-parity.md#integration-feedback) open. No build, full CI,
+release/commit, sibling edits or artifact cleanup occurs.
+
+## Authorized creation preflight — 2026-10-02
+
+The maintainer explicitly authorizes one isolated detached canister using
+canic-mainnet, 2T initial creation funding and fees counted against the proposed
+10T service allocation. This authority persists; do not ask for it again.
+No installation, provider funding, certificate or upload is authorized by that reply.
+
+Private `.tmp/trial-create-01` retains the original intent, current official
+cycles-ledger DID, CLI help, public metadata, balance/fee replies and failures.
+Stored public identity metadata matches the proposed controller/operator and the
+default identity is unchanged. Anonymous queries report sufficient cycles and a
+100M ledger fee: the proposed source-account debit is 2,000,100,000,000 cycles.
+Primary IC cost documentation distinguishes the creation fee deducted from the
+new canister's funding; its actual remaining balance/subnet must be observed,
+not reported as an untouched 2T. No mint/top-up is authorized or needed by this
+balance observation. All values are preflight snapshots, not transaction receipts.
+
+The original signer-loading attempt fails before any network request because
+canic-mainnet requires a password and the non-interactive CLI has no terminal.
+That preflight signs/submits no creation call. The maintainer later resolves
+access with canic-mainnet-recovered; the subsequent run above creates the one
+authorized owner. Do not search for or export passwords/keys, change the default
+identity, or treat public metadata as proof of signer access. The
+[preflight evidence](../evidence/caffeine-probes/deployed/2026-10-02-trial-create-preflight-01/summary.json)
+keeps that failure distinct from the successful anonymous observations.
+
+That run's next step was signer access and refreshed preflight before one signed
+cycles-ledger create_canister submission; the run above completes it.
+The retained argument template fixes amount/controller/compute allocation and
+requires an explicit created_at_time for transaction identity. Its encoded sample
+is unsubmitted schema evidence, not the eventual paid request. This is the same
+authorized detached creation effect as the higher-level CLI proposal. An uncertain
+reply requires inspection of the original request/block; never create another
+owner or regenerate a paid transaction to obtain a clearer result. Capture any
+returned principal, creation block and actual balance before offline init generation.
+Installation remains separately authorized; Canic stays deferred and its
+[consumer actions](../canic-parity.md#integration-feedback) remain open.
+
+## Released artifact review and next step — 2026-10-02
+
+The private `.tmp/trial-release-01` packet freezes the released source archive,
+receipt, toolchain/configuration, standalone Wasm, native CLI, DID and trial
+template with exact hashes. Production source matches the released commit;
+the changed test source is retained separately. The release receipt verifies its
+release files but does not itself bind Wasm, so the packet records that hash
+separately rather than treating a version label as artifact identity.
+
+The maintained installation test now encodes the actual trial template against
+the declared DID, checks equality with the host-exported interface, and installs
+the CLI-produced carrier in PocketIC. Exact configuration, project, uploader and
+verifier readback pass; the Wasm reports 0.6.0. Wrong-service installation refuses
+without changing the existing owner, controllers cannot inspect configuration,
+and the template admits the restricted local certificate assessment. The focused
+case passes in 3.43 seconds; strict affected integration lint and formatting pass.
+An independent DID decoder reads both the actual local readback and the separately
+prepared candidate init. Both sets of init bytes use local service stand-ins and
+must never be deployed. See the
+[release-artifact evidence](../evidence/caffeine-probes/local/2026-10-02-trial-release-01/summary.json).
+
+The one-canister creation proposal remains in
+`.tmp/trial-provisioning-01/creation-proposal.json`: explicit canic-mainnet,
+2T initial cycles, fees/balance checked against the proposed 10T service allocation,
+no automatic retry or install. The maintainer subsequently authorizes creation;
+the creation above is complete. After successful creation,
+replace the stand-in with the actual principal and
+recheck the exact init before separately authorized installation. No deployment,
+funding, provider request, live certificate/upload, full CI or cleanup occurs here.
+Canic stays deferred; its [consumer actions](../canic-parity.md#integration-feedback)
+remain open. The implementation history below records pre-release artifacts;
+its earlier 0.5.0 labels do not identify the current release packet.
+
 ## Current trial preparation and next step — 2026-10-02
 
-The maintainer authorizes configuration/account-provisioning preparation only.
+The original packet is authorized for configuration/account-provisioning preparation;
+the separately authorized owner creation is completed above.
 The [maintained standalone envelope](../../canisters/standalone/trial/README.md)
 sets one lifetime tenant/object/reference and one 1 KiB chunk, two retained
 receipts, one upload/read slot and 1 KiB buffers. Local cycle attachment allocation
@@ -99,7 +416,7 @@ established; further repetitions of the same substitute cannot qualify Caffeine'
 authenticated behavior. Future [consumer actions](../canic-parity.md#integration-feedback)
 include preserving streams, normal TLS trust and native HTTP2 support; Canic stays
 deferred. No full CI, minimum-compiler rerun, release/version/commit, sibling edits
-or build cleanup occurs. Work remains in the current 0.6.0 draft.
+or build cleanup occurs in that run. Those changes shipped in 0.6.0.
 
 ## Active work — accepted restricted upload contract
 
@@ -107,9 +424,9 @@ On 2026-10-02 the maintainer explicitly accepts the
 [restricted contract](../standalone-trial.md): one trusted uploader, one fresh
 storage owner/tenant/object/reference and a nonempty file of at most 1 KiB,
 without provider spending-cap/replay guarantees or operational old-backup recovery.
-This is a breaking semantic/init/API change requiring a minor release; the
-package remains 0.5.0. The maintainer selected 0.6.0 for the changelog draft;
-the named draft retains the breaking notes and meets the minor-version requirement.
+This breaking semantic/init/API change shipped in the maintainer's 0.6.0 minor
+release. Its original validation used pre-release builds labelled 0.5.0; the new
+artifact review above uses the released source and observed 0.6.0 Wasm.
 
 The current certificate evidence/DTO/CLI blockers are TrialBounds, NamespaceBinding,
 TrustedUploader, CurrentOwner, Durability and StaleObservation. Required immutable

@@ -1,0 +1,86 @@
+{
+  "schema": 1,
+  "date": "2026-10-02",
+  "evidence": "actual_mainnet_standalone_installation_and_readback",
+  "capture": ".tmp/trial-install-02",
+  "service": "4wyfo-qaaaa-aaaam-qjlpq-cai",
+  "release": "0.6.0",
+  "release_commit": "f03c7532e35b0d90d22563509018e4ebc380d79e",
+  "creation_record": "../2026-10-02-trial-create-02/summary.json",
+  "reviewed_installation": "../../local/2026-10-02-trial-installation-01/summary.json",
+  "identity": "canic-mainnet-recovered",
+  "controller_operator": "o5trf-oqyg7-cawjp-xs4pw-aomb3-iwki5-hyezf-qahfz-j3ffd-jh4fc-oqe",
+  "payer_tenant_trusted_uploader": "jaqw3-42pqs-5bivi-nj3xg-5row5-gpluj-sbn54-vthud-pyb5v-sm2rs-bae",
+  "completion_verifier": "n67bb-yqikw-jbye7-anfpz-tgws7-akhqy-kdpln-ihuix-hzdjf-3ghwy-4ae",
+  "project": "02c7762e-11c0-43bf-960c-c651096a8e3a",
+  "cashier": "72ch2-fiaaa-aaaar-qbsvq-cai",
+  "namespace": "1",
+  "installation_authorized": true,
+  "installed": true,
+  "mode": "install",
+  "request_id": "08d7490c65db8787384ea1651741362447e36017e9bbf9a81f26abf25f045be7",
+  "submission_invocations": 1,
+  "reinstall_or_upgrade": false,
+  "raw_wasm_sha256": "0766e2b39c1b8eaaf5edbf6cde90908e99125aca3fb77b2975399735a82ef2a2",
+  "transport_encoding": "gzip",
+  "transport_bytes": 839466,
+  "transport_sha256": "c070f18a5b7c723f9aa22e31631d9d647b6f7eaf8a1cc3e9160af55ee757fbfb",
+  "observed_module_hash": "0xc070f18a5b7c723f9aa22e31631d9d647b6f7eaf8a1cc3e9160af55ee757fbfb",
+  "transport_decompresses_to_exact_approved_wasm": true,
+  "init_sha256": "e96bf4fffb86e4ef9a0f20b76d9a22364aec6840e2cf31b82ec79d94fb8b60b4",
+  "init_bytes": 565,
+  "signed_request_signature_and_exact_bytes_verified": true,
+  "management_routing": {
+    "original_destination": "aaaaa-aa",
+    "corrected_effective_destination": "4wyfo-qaaaa-aaaam-qjlpq-cai",
+    "signed_envelope_unchanged": true,
+    "source": "https://github.com/dfinity/icp-cli/blob/v1.6.0/crates/icp-app/src/signed_message.rs"
+  },
+  "installation_reply": "()",
+  "status": "Running",
+  "exact_configuration_and_roles_readback_match": true,
+  "compiled_release_matches": true,
+  "all_owners_unfenced": true,
+  "fresh_zero_upload_funding_gateway_and_read_activity": true,
+  "local_attachment_allowance_cycles": "0",
+  "anonymous_configuration_reply": {
+    "Err": {
+      "Denied": null
+    }
+  },
+  "service_queries_certified": false,
+  "query_observations_not_provider_guarantees": true,
+  "balance_before_cycles": "1499988109058",
+  "balance_after_cycles": "1487607279785",
+  "observed_balance_delta_cycles": "12380829273",
+  "balance_delta_includes_install_execution_status_and_elapsed_burn": true,
+  "idle_cycles_burned_per_day": "1404810943",
+  "additional_transferred_cycles": "0",
+  "gross_prior_creation_debit_cycles": "2000100000000",
+  "service_allocation_ceiling_cycles": "10000000000000",
+  "provider_funding_authorized": false,
+  "provider_account_funded": false,
+  "provider_provisioned": false,
+  "provider_calls": 0,
+  "certificate_issued": false,
+  "upload_authorized": false,
+  "local_failures": [
+    {
+      "record": "preflight-failure-01.json",
+      "result": "Corrected settings.controllers access on retained reply; no extra status query"
+    },
+    {
+      "record": "signed-review-failure-01.json",
+      "result": "Normalized URL trailing slash; no re-signing or extra dispatch"
+    },
+    {
+      "record": "local-status-failure-01.json",
+      "result": "Quoted Candid service keyword before first actual local-status query"
+    }
+  ],
+  "temporary_password_files_removed": true,
+  "private_keys_exported": false,
+  "physical_transport_attempt_counts_measured": false,
+  "limitations": "Module hash binds the submitted gzip encoding, whose decompression exactly matches reviewed raw Wasm. Operator service queries are uncertified observations. Installation does not provision Caffeine project/account, establish credit, authorize certificates/uploads or qualify provider economics/retention/deletion. Canister remains maintainer-owned with continuing IC costs; no deletion/reset or refill authorized.",
+  "next": "Review bounded payer funding/deposit/notification and provider account/project binding separately; retain original owner and obligations. Canic adoption remains deferred."
+}

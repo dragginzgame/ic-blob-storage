@@ -1,0 +1,120 @@
+{
+  "schema": 1,
+  "date": "2026-10-02",
+  "evidence": "actual_standalone_gateway_and_balance_observations_with_unsubmitted_link",
+  "capture": ".tmp/trial-link-01",
+  "service": "4wyfo-qaaaa-aaaam-qjlpq-cai",
+  "installed_release": "0.6.0",
+  "cashier": "72ch2-fiaaa-aaaar-qbsvq-cai",
+  "payer": "jaqw3-42pqs-5bivi-nj3xg-5row5-gpluj-sbn54-vthud-pyb5v-sm2rs-bae",
+  "namespace": "1",
+  "funding_record": "../2026-10-02-trial-funding-01/summary.json",
+  "gateway": {
+    "principal": "jf2g2-sl4zh-zhvyx-v3zcb-hmumz-2at2q-wuamm-4qiml-43msi-r3man-eqe",
+    "provider_members_observed": 1,
+    "installed_max_entries": 2,
+    "installed_max_unique": 1,
+    "shared_sync_submission_invocations": 1,
+    "request_id": "c1f93ca7d4644ceaac07900e8c722f4ae5aaea137ad20388315b1247b3f45574",
+    "reply_sequence": "1",
+    "local_members_match": true,
+    "pending_sequence": null,
+    "all_owners_unfenced": true,
+    "local_status_certified": false,
+    "origin_stream_cors_delivery_qualified": false
+  },
+  "shared_account_inspection": {
+    "kind": "Balance",
+    "submission_invocations": 1,
+    "request_id": "e40f7b0a2feef3a8a718d05b4997c271abe349d2d329177c0bd93d31b8488f5f",
+    "installed_payer_and_scope_verified": true,
+    "reported_balance": {
+      "total": "999800000000",
+      "ledger": "999800000000",
+      "prepaid": "0",
+      "promotional": "0"
+    },
+    "provider_account_mutation": false
+  },
+  "baseline": {
+    "payment_relationship": null,
+    "anonymous_budget_check": "NotAuthorized",
+    "payer_signed_budget_check": "NotAuthorized",
+    "payer_query_signature_verified": true,
+    "payer_mainnet_root_unchanged": true,
+    "actual_gateway_budget_get": "OwnerNotFound",
+    "expiry_units_qualified": false,
+    "expiry_enforcement_qualified": false
+  },
+  "link": {
+    "method": "payment_account_canister_add_v1",
+    "signed_request_id": "e08de3253b1541baf8ae7cb3fc54312965736e5cdfdb0f1d911b44af9cc393d6",
+    "argument_sha256": "ec92bd7024646e7a81b09f7ec218e8417d7118c74a365b5bd5cc34343355004f",
+    "daily_limit_raw": "1000000000000",
+    "historical_expiration_timestamp_raw": "1790942723609000000",
+    "signed_request_expired": true,
+    "submission_invocations": 0,
+    "automatic_review_rejected_before_process_launch": true,
+    "rejection_reason": "Persistent provider payment relationship not clearly authorized by general continuation and spending ceiling; safer read-only alternatives available",
+    "bypass_or_retry": false,
+    "explicit_provider_mutation_approval_pending": true,
+    "fresh_capture_required": true,
+    "extend_invocations": 0
+  },
+  "proposal": {
+    "private_file": "payment-link-proposal.json",
+    "same_owner_payer_cashier": true,
+    "max_add_updates": 1,
+    "max_extensions": 0,
+    "expiration_hypothesis": "Absolute Unix nanoseconds, fresh now plus 90 seconds",
+    "max_after_link_logical_queries": 4,
+    "max_observation_seconds": 180,
+    "new_funds_cycles": "0",
+    "attached_cycles": "0",
+    "certificates_and_object_requests": 0,
+    "inconclusive_evidence_stops": true,
+    "no_billing_cessation_claim": true
+  },
+  "budgets": {
+    "standing_total_approved_cycles": "100000000000000",
+    "gross_donor_debit_so_far_cycles": "3000100000000",
+    "new_donor_debit_cycles": "0",
+    "remaining_authorized_cycles": "96999900000000",
+    "service_execution_uses_previously_funded_owner_balance": true,
+    "provider_bill_cap_guaranteed": false
+  },
+  "requests": {
+    "direct_provider_logical_queries": 5,
+    "anonymous_direct_queries": 4,
+    "payer_signed_direct_queries": 1,
+    "signed_query_and_verification_transport_calls": 2,
+    "shared_handler_provider_reads": 2,
+    "local_status_queries": 1,
+    "provider_update_submission_invocations": 0,
+    "service_update_submission_invocations": 2,
+    "physical_cli_wire_attempts_measured": false
+  },
+  "source_review": {
+    "primary_source_searches": 2,
+    "cashier_specific_expiry_guidance_found": false,
+    "unrelated_ingress_expiry_not_provider_evidence": true
+  },
+  "failures_and_limitations": [
+    "Anonymous and payer budget_check authority unavailable; neither response is a budget/expiry observation.",
+    "Unlinked owner returns OwnerNotFound through explicit-gateway budget_get; no active or expired link observation occurs.",
+    "Automatic review rejection and expired signed candidate are preserved without submission or workaround.",
+    "Ad-hoc signed-budget success log says account-info; saved request and result correctly identify budget_check.",
+    "Node query-signature verification and shared-handler replies do not establish permanent provider history, future retention, total billing cap or billing cessation.",
+    "Project/bucket acceptance, gateway origin/stream/CORS, persistent browser, certificate, upload and download remain unqualified."
+  ],
+  "cleanup": {
+    "temporary_operator_password_files_removed": true,
+    "private_key_export_or_import": false,
+    "installed_owner_and_funded_payer_retained": true,
+    "reset_delete_or_inferred_refund": false
+  },
+  "provider_object_requests": 0,
+  "certificates_issued": 0,
+  "live_uploads": 0,
+  "next": "Obtain explicit approval for the concrete one-link provider mutation; use fresh linked capture/expiry after approval, preserve uncertainty and stop on inconclusive results. Standing 100T spending authority remains; Canic and its consumer backlog stay deferred."
+}

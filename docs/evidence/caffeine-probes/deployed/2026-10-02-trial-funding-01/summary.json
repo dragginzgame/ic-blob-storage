@@ -1,0 +1,109 @@
+{
+  "schema": 1,
+  "date": "2026-10-02",
+  "evidence": "actual_mainnet_direct_ledger_deposit_and_cashier_credit",
+  "capture": ".tmp/trial-funding-01",
+  "service": "4wyfo-qaaaa-aaaam-qjlpq-cai",
+  "installed_release": "0.6.0",
+  "installation_record": "../2026-10-02-trial-install-02/summary.json",
+  "review_record": "../2026-10-02-trial-funding-review-01/summary.json",
+  "cashier": "72ch2-fiaaa-aaaar-qbsvq-cai",
+  "payer": "jaqw3-42pqs-5bivi-nj3xg-5row5-gpluj-sbn54-vthud-pyb5v-sm2rs-bae",
+  "ledger": "um5iw-rqaaa-aaaaq-qaaba-cai",
+  "donor_identity": "canic-mainnet-recovered",
+  "donor_principal": "o5trf-oqyg7-cawjp-xs4pw-aomb3-iwki5-hyezf-qahfz-j3ffd-jh4fc-oqe",
+  "authorization": {
+    "exact_reviewed_deposit_and_notification": true,
+    "standing_total_trial_spend_cycles": "100000000000000",
+    "maintainer_instruction": "yes please, anything up to 100T is preapproved",
+    "no_repeat_approval_for_covered_spending": true,
+    "uncertain_effect_repetition_authorized": false
+  },
+  "transfer": {
+    "request_id": "83ae22b4ab46f99e7906cf829f3b071f22428ddc00d32a0ca37ab00199a8eed9",
+    "block_id": "16749490",
+    "destination_subaccount_hex": "1d4f84ba14550d4eee6ec5d6e99eba26416f79599e837e03dac99a8c82020000",
+    "amount_cycles": "999900000000",
+    "explicit_fee_cycles": "100000000",
+    "gross_donor_debit_cycles": "1000000000000",
+    "submission_invocations": 1,
+    "exact_signature_and_request_verified": true,
+    "exact_block_sender_destination_amount_fee_memo_timestamp_verified": true,
+    "source_debit_and_destination_balance_reconciled": true
+  },
+  "notification": {
+    "request_id": "b8b84ae1d10f077fb6b5f29d89fc13774515b9628b528b822f83d8e6449fd335",
+    "caller": "jaqw3-42pqs-5bivi-nj3xg-5row5-gpluj-sbn54-vthud-pyb5v-sm2rs-bae",
+    "explicit_account": true,
+    "attached_cycles": "0",
+    "submission_invocations": 1,
+    "exact_signature_and_request_verified": true,
+    "credited_cycles": "999800000000",
+    "balance": {
+      "total": "999800000000",
+      "cycles_prepaid": "0",
+      "cycles_promo": "0",
+      "debt_target": {
+        "Ledger": null
+      },
+      "cycles_ledger": "999800000000"
+    },
+    "sweep_block_id": "16749515",
+    "exact_sweep_from_isolated_subaccount_to_cashier_default_verified": true,
+    "observed_sweep_fee_cycles": "100000000",
+    "remaining_deposit_cycles": "0"
+  },
+  "payer_observations": {
+    "account_owner_matches": true,
+    "account_created_and_credit_observed": true,
+    "signed_account_info_verified_against_mainnet": true,
+    "signed_settings_verified_against_mainnet": true,
+    "overdraft_limit_cycles": "0",
+    "target_balance": null,
+    "settings_mutation_needed": false,
+    "creation_ts_ns": "1790941841169481133"
+  },
+  "budget": {
+    "ceiling_cycles": "100000000000000",
+    "prior_gross_creation_debit_cycles": "2000100000000",
+    "new_gross_funding_debit_cycles": "1000000000000",
+    "total_gross_donor_debit_cycles": "3000100000000",
+    "remaining_authorized_cycles": "96999900000000",
+    "service_execution_uses_previously_funded_owner_balance": true,
+    "credited_provider_cycles_not_a_second_donor_debit": true,
+    "remaining_budget_not_a_provider_bill_guarantee": true
+  },
+  "queries": {
+    "anonymous_cli_logical_queries": 9,
+    "payer_signed_logical_queries_dispatched": 2,
+    "signed_query_and_verification_transport_calls": 4,
+    "physical_wire_attempt_count_measured": false,
+    "failed_settings_capture_before_dispatch": 1
+  },
+  "failures": [
+    {
+      "record": "settings-capture-failure-01.json",
+      "outcome": "Exclusive file creation refused before settings query dispatch. Distinct settings capture succeeds; originals retained and no update/payment repeated."
+    }
+  ],
+  "cleanup": {
+    "temporary_donor_password_removed": true,
+    "password_absent_from_evidence": true,
+    "candidate_key_export_or_import": false,
+    "installed_owner_retained": true,
+    "provider_funded_balance_remains_owned": true,
+    "no_delete_reset_or_inferred_refund": true
+  },
+  "limitations": [
+    "This exact returned-address donor deposit and payer notification creates/credits this fresh account; it does not qualify all callers, repeated notification or lost-response credit recovery.",
+    "Verified node query signatures and raw replies do not establish immutable provider history or future credit/retention/replay charges.",
+    "Account linkage/expiry units, gateway membership/project/bucket acceptance and actual upload/download remain unqualified.",
+    "Zero overdraft and absent target balance are observed settings; no guaranteed global spending cap or billing cessation is established."
+  ],
+  "provider_object_requests": 0,
+  "certificates_issued": 0,
+  "live_uploads": 0,
+  "account_linkage_performed": false,
+  "settings_mutations": 0,
+  "next": "Continue isolated account-link/expiry/gateway review under persistent 100T total spend approval; retain every intent and uncertain outcome. No repeat spending confirmation needed for covered trial actions. Canic remains deferred."
+}

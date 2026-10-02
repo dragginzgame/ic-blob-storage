@@ -166,12 +166,14 @@ these exact values before issuance and stop on missing or changed history.
 | Create the owner | One detached standalone canister, explicit controller/identity/network and at most the proposed 10T service allocation | Original create intent and ledger request/result; actual principal, fees and cycle balance. A lost result stops creation; inspect the original transaction, never create another to get a cleaner result |
 | Finalize installation | Replace the service placeholder, run installation-check, retain exact source/Wasm/DID/init hashes and inspect installed configuration | Actual host identity/release/roles/project/envelope match; local validation alone is insufficient |
 | Inspect the payer route | Query Cashier's `cycles_ledger_deposit_subaccount_v1` with `sender = isolated payer`; review account info/settings and ledger fees with that same explicitly selected payer | Exact reply/subaccount, caller binding, account existence/creation behavior and credit route established; never derive a Cashier deposit subaccount independently |
-| Prepare ledger funding | If the route is established, propose one bounded donor-to-payer ledger transfer followed by one payer-to-Cashier-subaccount transfer | Exact source/destination/amount/fee/memo/created_at_time and retained transaction identity; include all transfer/sweep fees within the initial provider allocation. No standing approval or automatic refill |
+| Prepare ledger funding | Review one bounded donor transfer directly to Cashier's returned subaccount for the selected payer, followed by a payer-signed notification experiment | Exact source/destination/amount/fee/memo/created_at_time and retained transaction identity; direct credit remains unqualified. Count fees within the initial allocation. No standing approval or automatic refill |
 | Notify and inspect | Separately invoke `cycles_ledger_deposit_notify_v1` with explicit isolated account after the recorded transfer | Raw credited amount, balance and returned ledger block retained; `NothingToDeposit`, `SweepFailed` or missing replies do not justify another transfer. This mutation's reconciliation semantics remain unqualified |
 | Set and link account | After account existence/authority is evidenced, explicitly review zero overdraft/no target auto-refill and prepare `account-link-inputs` for the actual owner | Raw positive daily limit and absolute expiry with evidenced units; authenticated caller is the payer or an evidenced delegate. A daily limit is not a guaranteed total bill cap |
 | Inspect service/provider scope | Maintained scoped relationship/balance inspection and gateway sync, followed by exact configuration readback | Actual paid-canister/payer/raw terms match; accepted project/bucket and gateway scope recorded before the one transfer |
 
-This is a proposed route, not a claim that notification creates an account or that
+The initial route was a proposal; the later
+[exact deposit/notification](evidence/caffeine-probes/deployed/2026-10-02-trial-funding-01/summary.json)
+creates and credits the selected fresh payer. This does not establish that
 arbitrary callers can fund/control another account. The retained Cashier DID has
 deposit-subaccount/notify methods and no explicit account-create method; that
 absence does not prove lazy creation. Query inputs are prepared offline. No
@@ -191,18 +193,96 @@ calls. A direct ledger-deposit route could avoid a wallet/proxy, if Cashier's
 account authorization and credit behavior are evidenced. No new funding endpoint,
 wallet, proxy, Canic dependency or provider client schema is added here.
 
-The 100T total planning ceiling retains the proposed 10T service / 1T initial
-provider / 89T unallocated split. Actual funding amount is still unset pending
-fee/credit observations; no refill is authorized. Select a monitoring window and
+The maintainer now preapproves total trial spending up to 100T. Preserve the
+conservative 10T service / 1T initial provider / 89T unallocated plan; the 1T gross
+initial funding is completed, with 999.8B credited after observed fees. Count
+3.0001T total donor debit so far and 96.9999T remaining. Do not request the same
+covered spending approval again, and never repeat an uncertain effect merely
+because budget remains. Select a monitoring window and
 continuing cleanup owner before upload. Reserve-only local attachment policy does
 not cap provider spending, terminate billing or establish old-backup activation.
 Raw expiry units and project acceptance remain open. Retain every intent/outcome
 before advancing and review the exact next effect separately; never run an upstream
 one-shot setup script. See the [preparation evidence](evidence/caffeine-probes/local/2026-10-02-trial-provisioning-01/summary.json).
 
+The [selected-payer review](evidence/caffeine-probes/deployed/2026-10-02-trial-funding-review-01/summary.json)
+now proposes 999.9B cycles directly from the recovered donor to the provider-returned
+isolated deposit address, with an explicit 100M ledger fee: **1T gross donor debit**.
+The payer signs the subsequent explicit-account notification, after exact transfer
+block and address-balance reconciliation. Funding an intermediate payer ledger
+account is unnecessary for this proposed experiment and adds a fee. The unchanged
+address, empty balances and signed AccountNotFound observation do not establish
+creation, sweep credit or refundability. A conditional 999.8B credit assumes one
+100M sweep fee and no other deductions; observe the actual credited/balance/block
+reply rather than asserting this prediction.
+
+Use the current method's **record with optional account** for notification; its
+whole argument is not optional. Retain exact binary candidates and independently
+decode against the current DID. Freeze explicit fee, memo and created_at_time
+before an authorized transfer, and capture the signed request before dispatch.
+After an uncertain transfer or notification, inspect the original request, exact
+ledger transaction and account/address state; never send another deposit or
+notification to obtain a clearer result. Expired unsigned preparation can be
+replaced in a new linked capture only before any signing/submission uncertainty.
+Provider refusals retain funds and cleanup ownership. This preparation authorizes
+no funding, mutation, account linkage or upload by itself. The later explicit
+approval completes one transfer/notification with exact transaction and account
+reconciliation. Separate payer-signed reads confirm zero overdraft and no target
+balance; no settings mutation is needed. Preserve these resources and receipts
+while preparing linkage/expiry and actual transfer qualification.
+
+The [standalone readiness observations](evidence/caffeine-probes/deployed/2026-10-02-trial-link-01/summary.json)
+subsequently confirm one Cashier gateway through shared sync and 999.8B payer balance
+through shared account inspection on the actual owner. Neither performs a payment
+link. Anonymous and payer-signed budget_check are NotAuthorized; explicit-gateway
+budget_get reports OwnerNotFound before linking. These refusals cannot establish
+expiry units. Automatic approval review rejects the prepared persistent link before
+process launch, requiring explicit approval for that account mutation. Preserve its
+expired unsubmitted envelope; prepare fresh inputs in a linked capture after approval.
+The concrete proposal contains one 90-second nanosecond-expiry hypothesis with raw
+daily limit 1,000,000,000,000, no extension/new funds/certificate/object effects and
+bounded relationship/budget reads. Subsequent explicit approval and the
+[fresh link experiment](evidence/caffeine-probes/deployed/2026-10-02-trial-link-02/summary.json)
+complete that exact add-link once with matching term readback. Relationship and
+zero gateway-credit replies remain byte-identical before/after candidate expiry;
+expiry enforcement is inconclusive. Zero gateway credit is separate from the
+999.8B funded-payer observation. No extension, extra funds, certificate or object
+request follows. Retain the relationship and funded resources; billing cessation
+is unqualified. Review actual gateway admission/credit and namespace/browser
+readiness before another exact effect. Total donor debit stays 3.0001T.
+
+The maintainer has authorized and completed the one-owner 2T creation effect. Its
+[preflight](evidence/caffeine-probes/deployed/2026-10-02-trial-create-preflight-01/summary.json)
+observes sufficient source-account cycles and the ledger fee, but initially cannot
+load the password-protected deployer in a non-interactive terminal. The subsequent
+[creation](evidence/caffeine-probes/deployed/2026-10-02-trial-create-02/summary.json)
+uses the explicitly selected recovered identity at the same principal, preserving
+one exact request and block before preparing init for the actual empty service.
+For password-protected signers, resolve access
+using an explicitly supplied password-file path (`--identity-password-file`) or
+maintainer local signing; public principal metadata cannot unlock or authenticate
+the key. Retain the exact signed creation envelope before submission. A direct
+cycles-ledger `create_canister` request can use explicit amount/controller/settings
+and `created_at_time`, while `icp message send` carries that saved request. The
+unsigned encoding sample is not a dispatch/retry permit. If a request has already
+been submitted with a lost result, inspect its original identity instead of
+generating a new timestamp. Count the ledger fee in the source-account debit and
+observe the created canister's balance after its creation cost; 2T offered is not
+proof of 2T remaining. This authority does not include minting, installing or
+provider-account funding. The later separately authorized
+[standalone installation](evidence/caffeine-probes/deployed/2026-10-02-trial-install-02/summary.json)
+uses that actual owner and exact reviewed init, with compiled 0.6.0/configuration
+readback and fresh zero local activity. Supported gzip submission has its own
+module hash; decompression matches the reviewed raw Wasm. Record both hashes.
+For saved management requests, verify the effective destination against the signed
+argument: generic CLI signing may retain the management principal as routing
+metadata. Correct only destination metadata before submission, retain both files
+and the unchanged signed envelope/request ID. Never infer provider account/project
+acceptance from installation or authorize funding/certificates/uploads from it.
+
 ## Generate account-link inputs offline
 
-There is no existing trial installation or funded account selected. This command
+The isolated standalone owner is installed and its payer account is funded. This command
 prepares a proposed `payment_account_canister_add_v1` request using the maintained
 Cashier wire schema. It does not create an account, deploy a canister, authenticate
 the planned caller or contact any network. Supply the exact proposed bindings:

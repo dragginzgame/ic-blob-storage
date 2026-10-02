@@ -1,7 +1,7 @@
 # Development plan
 
-Released 0.5.0 makes the library and standalone service independent of
-consumer frameworks and adopts ic-memory 0.15.0. Downstream wrappers, deployment
+Released 0.6.0 supplies the framework-independent library and standalone service,
+the restricted upload contract and ic-memory 0.15.2. Downstream wrappers, deployment
 integration and their tests belong in consumer repositories. Library publication
 is separate from qualified live service operation.
 
@@ -41,7 +41,39 @@ platform identity, account authority or provider qualification. The current
 certificate gate checks installed uploader trust, local namespace, restricted
 envelope and durable current ownership. Provider spending/replay guarantees remain
 outside the accepted contract; client ceilings are not a provider spending cap.
-This semantic/init/API hard cut requires a minor release before the actual trial.
+This semantic/init/API hard cut shipped in the 0.6.0 minor release. The
+[released artifact review](status/current.md#released-artifact-review-and-next-step--2026-10-02)
+binds local installation evidence to frozen source/Wasm/CLI/DID; actual provider
+account and upload/download qualification remain open.
+
+The [isolated mainnet owner](evidence/caffeine-probes/deployed/2026-10-02-trial-install-02/summary.json)
+now runs that frozen 0.6.0 with exact role/configuration readback and zero local
+activity. Next, review bounded payer funding/deposit/notification and provider
+account/project linkage. Installation does not authorize those effects or uploads.
+The [funding review](evidence/caffeine-probes/deployed/2026-10-02-trial-funding-review-01/summary.json)
+prepares independently decoded exact inputs; the later
+[authorized funding](evidence/caffeine-probes/deployed/2026-10-02-trial-funding-01/summary.json)
+completes one 1T-gross deposit and one notification, crediting the new isolated
+account with 999.8B. Zero overdraft/no target refill are observed. Total standing
+spend approval is 100T, with 3.0001T donor debit so far. Next: payer/owner linkage,
+raw expiry terms and gateway/project acceptance before the bounded transfer.
+
+The [live standalone readiness capture](evidence/caffeine-probes/deployed/2026-10-02-trial-link-01/summary.json)
+now completes bounded gateway sync and shared account balance inspection against
+the actual Cashier: one gateway, sequence 1, no pending sync, exact 999.8B payer
+balance. Gateway origin/transport and project/bucket acceptance remain open.
+Budget-check authority is unavailable for anonymous and payer callers; the
+explicit-gateway budget baseline reports OwnerNotFound. No expiry qualification
+follows from these refusals. Automatic approval review blocks the persistent
+provider link before submission until explicit approval for that mutation.
+The maintainer subsequently approves, and the
+[fresh link experiment](evidence/caffeine-probes/deployed/2026-10-02-trial-link-02/summary.json)
+succeeds once with exact payer/owner/raw term readback. Relationship metadata and
+zero gateway-credit replies remain identical before/after candidate expiry. This
+establishes linkage/owner recognition, not expiry enforcement or upload readiness.
+No extension, new donor debit, certificate or object transfer follows; standing
+100T approval remains in force. Next review actual gateway admission/credit and
+namespace/browser readiness before selecting another exact link term or upload.
 
 Do not add another journal owner, recovery canister or allocator. Prefer the
 single storage owner and its local durable journals. Restored/stale instances stay

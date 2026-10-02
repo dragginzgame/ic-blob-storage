@@ -1,0 +1,93 @@
+{
+  "schema": 1,
+  "date": "2026-10-02",
+  "evidence": "read_only_installed_payer_route_and_offline_funding_review",
+  "capture": ".tmp/trial-funding-review-01",
+  "service": "4wyfo-qaaaa-aaaam-qjlpq-cai",
+  "installed_release": "0.6.0",
+  "installation_record": "../2026-10-02-trial-install-02/summary.json",
+  "payer": "jaqw3-42pqs-5bivi-nj3xg-5row5-gpluj-sbn54-vthud-pyb5v-sm2rs-bae",
+  "cashier": "72ch2-fiaaa-aaaar-qbsvq-cai",
+  "ledger": "um5iw-rqaaa-aaaaq-qaaba-cai",
+  "donor": {
+    "identity": "canic-mainnet-recovered",
+    "owner": "o5trf-oqyg7-cawjp-xs4pw-aomb3-iwki5-hyezf-qahfz-j3ffd-jh4fc-oqe",
+    "subaccount": null
+  },
+  "observations": {
+    "ledger_fee_cycles": "100000000",
+    "payer_ledger_balance_cycles": "0",
+    "cashier_deposit_subaccount_balance_cycles": "0",
+    "provider_returned_subaccount_hex": "1d4f84ba14550d4eee6ec5d6e99eba26416f79599e837e03dac99a8c82020000",
+    "deposit_address_unchanged_from_prior_query": true,
+    "deposit_address_independently_derived": false,
+    "signed_account_info": {
+      "Err": {
+        "AccountNotFound": null
+      }
+    },
+    "mainnet_query_signature_verification": true,
+    "signed_query_transport_calls": 2,
+    "account_creation_or_credit_established": false
+  },
+  "queries": {
+    "cli_logical_queries": 5,
+    "payer_signed_logical_queries": 1,
+    "signed_query_and_verification_transport_calls": 2,
+    "physical_attempt_counts_measured": false,
+    "no_sdk_retries": true,
+    "root_key_replacement": false
+  },
+  "review": {
+    "private_proposal": ".tmp/trial-funding-review-01/funding-proposal.json",
+    "route": "One direct donor ledger transfer to Cashier returned subaccount for installed isolated payer, then one notification signed by that payer",
+    "proposed_gross_donor_debit_ceiling_cycles": "1000000000000",
+    "proposed_transfer_amount_cycles": "999900000000",
+    "explicit_ledger_fee_cycles": "100000000",
+    "proposed_notification_caller": "jaqw3-42pqs-5bivi-nj3xg-5row5-gpluj-sbn54-vthud-pyb5v-sm2rs-bae",
+    "notification_has_explicit_account": true,
+    "notification_has_no_attached_cycles": true,
+    "intermediate_payer_ledger_transfer_required": false,
+    "credit_route_qualified": false,
+    "conditional_credit_if_one_ledger_fee_sweep_and_no_other_deductions_cycles": "999800000000",
+    "conditional_credit_is_not_a_guarantee": true,
+    "automatic_refill_or_second_transfer": false,
+    "automatic_notification_retry": false,
+    "independent_did_and_sdk_field_match": true,
+    "transfer_sha256": "50ed8d1fd1e2ce49f9d447825c7926d2c83d935a479169c8ebb659bc3269e6b2",
+    "notification_sha256": "f76e57ede60c900ff75b4f5988fa9fb0c54b35ca1c2079a640b6acd7f29088ab",
+    "source_status": "Retained current Cashier DID advertises sender deposit subaccount and explicit-account notification; official ICRC-1 ledger transfer routes to an explicit recipient. No Cashier server implementation or durable credit receipt.",
+    "sources": [
+      "https://github.com/dfinity/cycles-ledger",
+      "https://github.com/dfinity/ICRC-1/blob/main/standards/ICRC-1/README.md"
+    ]
+  },
+  "failures": [
+    {
+      "record": "encode-failure-01.json",
+      "outcome": "Removed mistaken outer optional around current notification record before signing/effects"
+    },
+    {
+      "record": "independent-encode-failure-01.json",
+      "outcome": "Corrected parentheses in text-only optional numeric annotations; binary candidate unchanged"
+    }
+  ],
+  "effects": {
+    "updates": 0,
+    "ledger_transfers": 0,
+    "account_mutations": 0,
+    "provider_object_requests": 0,
+    "cycles_transferred": "0",
+    "funding_authorized": false,
+    "notification_authorized": false,
+    "certificate_or_upload_authorized": false
+  },
+  "cleanup": "No external changes; installed original owner remains active. Candidate private keys remain only in original controlled directory; no identity import/key export, deployment or artifact cleanup.",
+  "limitations": [
+    "Query replies are timestamped observations; verified node signatures do not establish durable account creation or credit.",
+    "A direct deposit to the returned isolated address remains an experiment; notification authorization, account creation, sweep deductions and refundability remain unproven.",
+    "1T bounds the proposed gross donor debit, not provider future retention/replay costs or a guaranteed overall bill.",
+    "Account settings/linkage, expiry units, project/bucket acceptance, browser environment and actual upload/download remain separately reviewable."
+  ],
+  "next": "Maintainer review/approval of exactly one direct ledger deposit within 1T gross and one payer-signed notification after transfer reconciliation. Stop on uncertain/refused outcomes; no account settings/linkage, certificate or upload implied. Canic stays deferred."
+}
