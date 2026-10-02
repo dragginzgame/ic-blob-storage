@@ -81,11 +81,11 @@ fn update_only_status_is_rejected_without_executing_it() {
     let canister = pic.create_canister();
     pic.install_canister(canister, update_wasm("operator_status", &[]), vec![], None);
     let args = f.args(canister, f.driver, "authority", "--namespace", "1");
-    assert!(pic.get_stable_memory(canister).is_empty());
+    assert_eq!(pic.get_stable_memory(canister), Vec::<u8>::new());
     let (code, result) = command(&args);
     assert_eq!(code, 3);
     assert_eq!(result["error"], "query_rejected");
-    assert!(pic.get_stable_memory(canister).is_empty());
+    assert_eq!(pic.get_stable_memory(canister), Vec::<u8>::new());
     // Positive control proves this is executable mutation, not an inert/missing export.
     pic.update_call(canister, f.driver, "operator_status", vec![])
         .unwrap();

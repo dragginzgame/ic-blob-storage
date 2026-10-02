@@ -172,7 +172,7 @@ fn gateway_pages_recheck_revocation_and_reject_foreign_scope_continuations() {
     let filtered =
         assess_gateway_pending(&catalog, &gateways, context, Some(cursor), page_limits())
             .expect("authorized again");
-    assert!(filtered.entries.is_empty());
+    assert_eq!(filtered.entries, []);
     assert_eq!(filtered.scanned, 1);
     let last = assess_gateway_pending(&catalog, &gateways, context, filtered.next, page_limits())
         .expect("next namespace match");

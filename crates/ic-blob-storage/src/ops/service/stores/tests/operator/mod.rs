@@ -36,7 +36,7 @@ fn local_operator_snapshot_preserves_width_and_checks_every_scope_field_without_
     assert_eq!(view.funding.last_operation, None);
     assert_eq!(view.uploads.operations, 0);
     assert_eq!(view.reads.sessions, 0);
-    assert!(view.gateways.members.is_empty());
+    assert_eq!(view.gateways.members, []);
     let roundtrip = candid::decode_one(&candid::encode_one(&view).unwrap()).unwrap();
     assert_eq!(view, roundtrip);
     for bad in [

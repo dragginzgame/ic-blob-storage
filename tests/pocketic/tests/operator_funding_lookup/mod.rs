@@ -282,7 +282,7 @@ fn lookup_denies_wrong_callers_and_bindings_and_never_falls_back_to_update() {
     let (code, result) = lookup(&args);
     assert_eq!(code, 3);
     assert_eq!(result["error"], "query_rejected");
-    assert!(pic.get_stable_memory(canister).is_empty());
+    assert_eq!(pic.get_stable_memory(canister), Vec::<u8>::new());
     pic.update_call(canister, f.driver, "lookup_funding", vec![])
         .unwrap();
     assert_eq!(pic.get_stable_memory(canister).len(), 65_536);

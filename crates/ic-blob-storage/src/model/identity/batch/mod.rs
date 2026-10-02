@@ -25,7 +25,7 @@ pub struct RootBatchLimits {
 ///
 /// Empty batches are accepted. Duplicates remain separate entries; malformed
 /// roots retain their typed error at the original position. An eventual liveness
-/// handler can map invalid entries to false, as Canic does, while evaluating
+/// handler can map invalid entries to false while evaluating
 /// valid roots through separately authorized state access. This value does not
 /// perform that lookup or claim any root is live or dead.
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -69,6 +69,7 @@ impl ProviderRootBatch {
     }
 
     /// One parse result for each original entry, in the same order.
+    #[must_use]
     pub fn entries(&self) -> &[Result<ProviderRootHash, HashParseError>] {
         &self.entries
     }
@@ -131,11 +132,11 @@ mod tests {
                 Err(HashParseError::InvalidByteLength { actual: 33 }),
             ]
         );
-        assert!(
+        assert_eq!(
             ProviderRootBatch::from_bytes(&[], limits(1, 1))
                 .expect("empty batch")
-                .entries()
-                .is_empty()
+                .entries(),
+            []
         );
     }
 

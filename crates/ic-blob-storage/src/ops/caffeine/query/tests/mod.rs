@@ -21,7 +21,7 @@ fn binding() -> PaymentRelationshipBinding {
 
 fn fixture(hex: &str) -> Vec<u8> {
     let (pairs, remainder) = hex.trim().as_bytes().as_chunks::<2>();
-    assert!(remainder.is_empty());
+    assert_eq!(remainder, b"");
     pairs
         .iter()
         .map(|pair| u8::from_str_radix(std::str::from_utf8(pair).expect("hex"), 16).expect("byte"))

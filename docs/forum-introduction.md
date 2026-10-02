@@ -99,12 +99,9 @@ The target is a complete application journey:
 
 > An authorized tenant uploads a bounded object, resumes after interruption, reads and verifies the bytes, and releases its reference through confirmed deletion and billing cessation.
 
-That journey should work through two deployment options:
-
-- **Standalone:** a service canister that does not require Canic.
-- **Canic-managed:** an adapter that uses Canic’s generic deployment and lifecycle facilities.
-
-Both are planned to use the same service handlers, blob API, and tenant rules. The core already builds without Canic.
+This repository supplies a standalone service and a framework-free library.
+Consumer frameworks wrap the library and own their deployment integration and
+tests in their own repositories. Both use the shared service workflows and tenant rules.
 
 The intended deliverables also include upload/read clients and operator tooling for readiness checks, gateway administration, funding, and diagnostics.
 
@@ -122,11 +119,11 @@ The service needs to record intent and reserve capacity before starting external
 
 Interrupted operations must retain their identity, accounting, and unresolved outcome. Restoring an older backup must not silently permit reused identities or repeated payments.
 
-### 3. Build endpoints, clients, and both adapters
+### 3. Build endpoints and clients
 
 Authentication and delegation belong at the endpoints. Storage policy and workflows belong in the shared service.
 
-The standalone and Canic-managed deployments should exercise the same behavior, with operator tooling using that service API too.
+Standalone and consumer-owned wrappers should exercise the shared library contract, with operator tooling using that service API too.
 
 ### 4. Demonstrate the full journey
 
@@ -134,9 +131,9 @@ Qualification needs canister lifecycle and interruption tests using PocketIC, al
 
 Tests using a substitute provider are useful, but they cannot establish how a deployed provider handles lost replies, retention, or billing.
 
-### 5. Complete the Canic extraction
+### 5. Qualify consumer integration
 
-Existing blob capabilities in Canic need working replacements here before removal there.
+Consumers must test their own wrapper, application transactions and interruption recovery against the public library.
 
 Retiring existing installations is a separate responsibility: removing code does not settle outstanding balances, stored objects, or uncertain operations.
 
@@ -189,7 +186,7 @@ I would especially like to hear from developers with concrete storage workflows:
 
 - What kinds of objects are you storing, and how frequently do they change?
 - Do several records or canisters need to reference the same object?
-- Would you use a standalone service, a Canic-managed deployment, or both?
+- Would you use the standalone service or embed the library in your own canister?
 - What upload interruption and recovery cases matter most to your application?
 - Do you need public serving, restricted access, or both?
 

@@ -1,13 +1,13 @@
 # 🗃️ ic-blob-storage
 
-Blob storage for Internet Computer canisters, with a shared Rust service core,
-a standalone canister and a Canic-managed adapter. **Caffeine is the storage
+Blob storage for Internet Computer canisters, with a shared Rust service core
+and a standalone canister. **Caffeine is the storage
 provider.** The service owns tenant access, upload permissions, references,
 quotas and accounting.
 
 **Status: a working local prototype, with production integration still in progress.**
-Canic composition runs in PocketIC. A complete live Caffeine upload and download
-journey is still being qualified.
+Standalone and storage lifecycle tests run in PocketIC. A complete live Caffeine
+upload and download journey is still being qualified.
 
 [Current status](docs/status/current.md) · [Changelog](CHANGELOG.md) ·
 [Development plan](docs/roadmap.md) · [Service contract](docs/service-contract.md)
@@ -33,17 +33,13 @@ and durable metadata; admission does not require uploading the file body to it.
 | --- | --- |
 | Shared Rust core | Implemented, with native and local IC evidence |
 | Standalone canister | Shared handlers and explicit installation configuration; provider certificate issuance remains disabled |
-| Canic adapter | All service methods wired in the controlled managed fixture, including the plain certificate reply; their Candid types match standalone |
-| Managed lifecycle | Installation, activation, verifier checks, reference-qualified downloads, cleanup accounting and fenced upgrades tested locally |
-| Native tooling | Offline installation checks, account-link inputs and verified snapshots; signed setup/recovery, tenant downloads and verifier completion tested locally through both hosts |
-| Application prototype | Existing asset/outbox fixture tests managed publication, callback recovery, cancellation races, cleanup and restoration with unfinished work |
-| Browser integration | Reusable upload composition binds Caffeine's SDK to certificate intent, serial transfer and bounded request journaling; locally tested |
+| Lifecycle | Synchronous installation, inspection-only restoration and local rollback tests || Native tooling | Offline installation checks, account-link inputs and verified snapshots; signed setup/recovery, tenant downloads and verifier completion tested locally |
+| Application integration | Consumer frameworks own their wrappers, asset transactions and integration tests || Browser integration | Reusable upload composition binds Caffeine's SDK to certificate intent, serial transfer and bounded request journaling; locally tested |
 | Live service acceptance | Still open: complete consumer flow, provider guarantees and operational recovery |
 
-Pinned Canic 0.110.49 provides plain certificate replies and bounded endpoint/
-lifecycle decoding. Provider and recovery prerequisites still prevent successful
-certificate issuance. See the
-[composition contract](docs/service-contract.md#managed-canic-composition).
+The public library has no downstream framework dependency. Consumer frameworks
+wrap its shared workflows and own integration testing in their repositories.
+Provider and recovery prerequisites still prevent successful certificate issuance.
 
 Local tests use controlled provider substitutes where stated. A verifier's
 attestation records observed content availability; it does not promise future
@@ -59,39 +55,36 @@ make deps
 make test-native
 ```
 
-The [toolchain file](rust-toolchain.toml) pins Rust, rustfmt, Clippy and the Wasm
-target. `make deps` fetches locked Rust dependencies; validation then uses offline
-Cargo and this repository's `target/` directory.
+The [toolchain file](rust-toolchain.toml) pins development Rust **1.99.0**, rustfmt,
+Clippy and the Wasm target. The library's minimum supported Rust version is
+**1.88.0**; the local PocketIC harness needs **1.89.0** for file locking.
+`make deps` fetches locked Rust dependencies; validation then uses offline Cargo
+and this repository's `target/` directory.
 
 Choose the local canister path you want to exercise:
 
 | Path | Command | Extra setup |
 | --- | --- | --- |
 | Standalone | `make test-standalone` | PocketIC server |
-| Canic-managed prototype | `make test-canic-composition` | PocketIC, Canic CLI, ic-wasm and wasm-opt |
 | Browser certificate flow | `make test-browser` | PocketIC, browser packages, Node and Chromium |
-| Managed browser setup and refusal | `make test-canic-browser` | Canic build tools, PocketIC, browser packages, Node and Chromium |
 
 Follow [dependency setup](docs/dependencies.md) to provision those tools.
 The test targets use local canisters and do not deploy a live service.
 
 ## 🧩 Repository layout
 
-Both canister adapters call the same service workflows and tenant rules.
+The standalone host and external consumers use the same service workflows and tenant rules.
 
 | Location | Responsibility |
 | --- | --- |
-| [Rust core](crates/ic-blob-storage) | Content, policy, durable state and shared workflows; builds without Canic |
+| [Rust core](crates/ic-blob-storage) | Content, policy, durable state and shared workflows; no downstream framework dependency |
 | [Standalone host](canisters/standalone/README.md) | Explicit endpoints, installation, memory and lifecycle |
-| [Canic composition library](crates/ic-blob-storage-canic) | Opt-in memory declarations, caller guards and synchronous installation/restoration |
-| [Managed fixture](canisters/test/canic_probe) | Canic service endpoints and local composition artifact |
 | [Native CLI](crates/ic-blob-storage-cli) | Signed inspection, tenant reference submission and verifier tooling |
 | [Browser client](clients/browser/README.md) | Certificate transport and durable intent boundary; reuses Caffeine's upload SDK |
 | [PocketIC harness](tests/pocketic) | Actual local canister, lifecycle and inter-canister tests |
 
-The host owns one `ic-memory` runtime and its allocation policy. In Canic,
-that host is Canic. Linking a library registers no endpoints or lifecycle hooks.
-See [memory composition](docs/dependencies.md#memory-composition-with-canic-and-icydb)
+The host owns one `ic-memory` runtime and its allocation policy. Linking a library registers no endpoints or lifecycle hooks.
+See [memory composition](docs/dependencies.md#memory-composition)
 for the integration details.
 
 ## 🛠️ Tools and examples
@@ -126,8 +119,7 @@ scope; controller status does not grant tenant access.
 | `make check` | Native compilation |
 | `make clippy` | Strict Rust linting |
 | `make test-native` | Native tests and doctests |
-| `make test-pocketic` | Local IC suites, including standalone and managed fixtures |
-| `make test-canic-composition` | Focused managed Canic suite |
+| `make test-pocketic` | Local storage and standalone IC suites |
 | `make test-admission-resources` | Admission bounds and local instruction-cost reports |
 | `make test-read-resources` | Read-slot bounds and local instruction-cost reports |
 | `make probe-check` | Offline integrity checks of retained provider evidence |
@@ -148,7 +140,6 @@ Releases preserve build artifacts; cleanup is a separate `make clean` action.
 | [Development plan](docs/roadmap.md) | Milestones and consumer integration direction |
 | [Service contract](docs/service-contract.md) | Authority, accounting, verifier trust and recovery rules |
 | [Acceptance plan](docs/acceptance-plan.md) | What must be demonstrated before service qualification |
-| [Canic parity](docs/canic-parity.md) | Replacement capabilities and removal obligations |
 | [Provider review](docs/provider-review.md) | Reviewed Caffeine interfaces and unresolved guarantees |
 | [Probe ledger](docs/evidence/caffeine-probes/README.md) | Tracked investigations, retained artifacts and limitations |
 | [Core evidence](docs/evidence/core-primitives.md) | Source-bound local implementation and test results |
@@ -156,7 +147,7 @@ Releases preserve build artifacts; cleanup is a separate `make clean` action.
 
 Before 1.0, contract changes are hard cuts with no compatibility shims or migration
 engine. Breaking changes use minor releases; cross-release installations require
-reinstall after obligations are safely retained or discharged. Canic source removal
+reinstall after obligations are safely retained or discharged. Source removal
 and retirement of an existing storage installation are separate decisions.
 
 ## 📄 License

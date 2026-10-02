@@ -164,7 +164,7 @@ fn normal_work_is_visible_without_claiming_a_global_shutdown() {
         pending_billing: usize::MAX,
         ..input()
     });
-    assert!(report.blockers().is_empty());
+    assert_eq!(report.blockers(), []);
     assert_eq!(
         report.warnings(),
         &[

@@ -183,7 +183,7 @@ fn completion_survives_failed_post_status_without_repeating_update() {
     let (code, result) = refresh_command(&args(&f, "dry-run", request));
     assert_eq!(code, 6);
     assert_eq!(result["action"]["error"], "query_rejected");
-    assert!(pic.get_stable_memory(update_only).is_empty());
+    assert_eq!(pic.get_stable_memory(update_only), Vec::<u8>::new());
 }
 
 #[test]

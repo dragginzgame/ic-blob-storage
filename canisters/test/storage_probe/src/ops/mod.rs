@@ -105,7 +105,7 @@ pub(crate) fn initialize(operator: Principal, restored: bool) {
     let (runtime, memory) = granted_memories();
     let neighbor = runtime.open_memory_by_key("fixture.neighbor.v1").unwrap();
     if !restored {
-        assert_eq!(neighbor.grow(1), 0);
+        assert_eq!(neighbor.grow(1), Ok(0));
         neighbor.write(0, b"neighbor");
     }
     let mut bytes = [0; 8];
@@ -318,7 +318,10 @@ pub(crate) fn admit_with_growth(
         REFUSE_GROWTH.set(input.refuse);
         let grown = memory.grow(16);
         if input.refuse {
-            if grown != -1 {
+            if !matches!(
+                grown,
+                Err(ic_blob_storage::ic_memory::RuntimeGrowError::BackingRefused { .. })
+            ) {
                 REFUSE_GROWTH.set(false);
                 return Err(
                     ic_blob_storage::dto::upload::admission::UploadAdmissionFailure::Internal,
@@ -330,16 +333,13 @@ pub(crate) fn admit_with_growth(
                     ic_blob_storage::dto::upload::admission::UploadAdmissionFailure::Internal,
                 );
             }
-            // Only the expected growth sentinel and unchanged extent take the trap
+            // Only the expected typed backing refusal and unchanged extent take the trap
             // path. Unexpected outcomes return normally so the test cannot mistake
             // an assertion panic for qualified growth-refusal rollback.
             ic_cdk::trap("fixture backing growth refused");
         }
         REFUSE_GROWTH.set(false);
-        assert_eq!(
-            grown,
-            i64::try_from(before).expect("fixture extent fits growth result")
-        );
+        assert_eq!(grown, Ok(before));
         Ok(())
     })?;
     Ok(result)

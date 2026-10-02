@@ -295,7 +295,7 @@ fn update_only_preview_method_cannot_trigger_a_transfer_fallback() {
     let (code, result) = preview(&input);
     assert_eq!(code, 3);
     assert_eq!(result["error"], "query_rejected");
-    assert!(pic.get_stable_memory(canister).is_empty());
+    assert_eq!(pic.get_stable_memory(canister), Vec::<u8>::new());
 }
 
 #[test]

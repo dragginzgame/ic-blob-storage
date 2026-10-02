@@ -93,7 +93,7 @@ fn standalone_history_preserves_distinct_full_width_ids_and_fenced_suspended_ins
     };
     let page = f.history(f.tenant, active).unwrap();
     assert_eq!(page.request, active);
-    assert!(page.entries.is_empty());
+    assert_eq!(page.entries, []);
     assert_eq!(page.scanned, 1);
     f.upgrade(candid::encode_args(()).unwrap()).unwrap();
     expected.fenced = true;
@@ -184,7 +184,7 @@ fn standalone_history_rejects_scope_and_cursor_errors_even_without_records() {
         Err(UploadHistoryFailure::CursorScope)
     );
     let page = f.history(f.tenant, request).unwrap();
-    assert!(page.entries.is_empty());
+    assert_eq!(page.entries, []);
     assert_eq!(page.scanned, 0);
     assert_eq!(page.next, None);
     unchanged(&f.harness.pic.get_stable_memory(f.service), &before);

@@ -159,7 +159,7 @@ decoder, manifest, lifecycle rollback and Candid cases plus both affected strict
 lint lanes pass. Initial sandbox loopback refusal and the stopped test attempt
 are retained; the loopback-enabled repeat passes. Package/VCS, lock, source and
 artifact hashes are captured. This closes
-[CF-01](../../canic-parity.md#integration-feedback); it adds local framework/IC
+CF-01; it adds local framework/IC
 evidence only. Four provider/recovery prerequisites remain false, with no successful
 certificate exposure, provider request, paid effect or deployed Fleet. Full release
 validation remains separate. See
@@ -177,7 +177,7 @@ Initial testkit-accessor compilation failure and corrected result are retained.
 This is local framework/IC evidence, not successful certificate exposure or
 deployed Caffeine behavior. Host facts remain false; no qualification override,
 provider call, paid effect, live Fleet or sibling edit. AGENTS.md now requires
-stored [Canic feedback](../../canic-parity.md#integration-feedback) and delivery
+stored Canic feedback and delivery
 reminders; CF-01 covers normal published dependency adoption. See
 [evidence](../core-primitives.md#managed-certificate-and-decoding--2026-10-01).
 

@@ -126,7 +126,7 @@ fn coverage(vector: &Vector) -> u64 {
             },
         )
         .expect("page");
-    assert!(page.chunks.is_empty());
+    assert_eq!(page.chunks, []);
     assert_eq!(
         page.next_index,
         (vector.chunk_hashes.len() > 1).then_some(1)

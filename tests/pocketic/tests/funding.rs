@@ -129,12 +129,12 @@ impl Fixture {
         assert_eq!(incoming.service, self.receiver);
         assert_eq!(incoming.peer, self.sender);
         assert_eq!(incoming.receipts, receipts);
-        assert!(incoming.attempts.is_empty());
+        assert_eq!(incoming.attempts, []);
         assert_eq!(incoming.funding_activity, FundingActivityView::Clear);
         assert_eq!(status.service, self.sender);
         assert_eq!(status.peer, self.receiver);
         assert_eq!(status.attempts.len(), attempts.len());
-        assert!(status.receipts.is_empty());
+        assert_eq!(status.receipts, []);
         assert!(!status.provider_qualified);
         assert!(!status.billing_configured);
         assert_eq!(status.provider_balance, None);
@@ -161,7 +161,7 @@ impl Fixture {
                 !report.fenced
             );
         }
-        assert!(status.warnings.is_empty());
+        assert_eq!(status.warnings, []);
         assert_eq!(self.attempts(), attempts);
         assert_eq!(self.receipts(), receipts);
         assert!(
@@ -487,7 +487,7 @@ fn assert_callback_trap_retains_pending_intent(reply: FundingReplyMode) {
     fixture
         .harness
         .pic
-        .advance_time(std::time::Duration::from_hours(24));
+        .advance_time(std::time::Duration::from_secs(24 * 60 * 60));
     fixture.harness.pic.tick();
     assert_eq!(fixture.status_unchanged(), status);
     assert_eq!(
@@ -592,7 +592,7 @@ fn lifetime_journal_capacity_survives_upgrade_without_forgetting_payments() {
     }
     let attempts = fixture.attempts();
     let receipts = fixture.receipts();
-    assert!(!receipts.is_empty());
+    assert_ne!(receipts, []);
     let status = fixture.status_unchanged();
     fixture.upgrade_both();
     assert_eq!(fixture.status_unchanged(), fenced_status(status));
@@ -696,8 +696,8 @@ fn denied_and_invalid_requests_cannot_offer_cycles_or_inspect_journals() {
             Err(FundingFailure::Limit)
         );
     }
-    assert!(fixture.attempts().is_empty());
-    assert!(fixture.receipts().is_empty());
+    assert_eq!(fixture.attempts(), []);
+    assert_eq!(fixture.receipts(), []);
     let status = fixture.status_unchanged();
     assert_eq!(status.funding_activity, FundingActivityView::Clear);
     assert!(
@@ -733,7 +733,7 @@ fn denied_and_invalid_requests_cannot_offer_cycles_or_inspect_journals() {
         )
         .expect_err("driver cannot impersonate peer");
     assert_eq!(rejected.reject_code, RejectCode::CanisterError);
-    assert!(fixture.receipts().is_empty());
+    assert_eq!(fixture.receipts(), []);
     fixture.upgrade_both();
     assert_eq!(fixture.status_unchanged(), fenced_status(status));
     assert_eq!(

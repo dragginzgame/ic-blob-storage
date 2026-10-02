@@ -213,7 +213,7 @@ fn filtered_pages_advance_and_new_sweeps_find_phase_changes_behind_the_cursor() 
     let first = store
         .scan(context(4), scope(), filter, None, limits())
         .unwrap();
-    assert!(first.entries.is_empty());
+    assert_eq!(first.entries, []);
     assert_eq!(first.scanned, 1);
     let cursor = first.next.unwrap();
     let before = store.usage().unwrap();
@@ -254,7 +254,7 @@ fn filtered_pages_advance_and_new_sweeps_find_phase_changes_behind_the_cursor() 
     let end = store
         .scan(context(4), scope(), filter, Some(cursor), limits())
         .unwrap();
-    assert!(end.entries.is_empty());
+    assert_eq!(end.entries, []);
     assert_eq!(end.scanned, 1);
     assert!(end.next.is_none());
     let restarted = store
@@ -401,7 +401,7 @@ fn scan_and_result_limits_are_independent_and_terminal_history_stays_bounded() {
         )
         .unwrap();
     assert_eq!(terminal.scanned, 2);
-    assert!(terminal.entries.is_empty());
+    assert_eq!(terminal.entries, []);
     assert!(terminal.next.is_none());
 }
 #[test]
@@ -434,7 +434,7 @@ fn cleanup_views_keep_billing_obligations_after_physical_deletion() {
         outstanding.entries[0].state,
         UploadRootState::Confirmed(LifecyclePhase::ProviderDeleted)
     );
-    assert!(
+    assert_eq!(
         store
             .scan(
                 context(4),
@@ -444,11 +444,11 @@ fn cleanup_views_keep_billing_obligations_after_physical_deletion() {
                 limits()
             )
             .unwrap()
-            .entries
-            .is_empty()
+            .entries,
+        []
     );
     store.confirm_billing_stopped(input.request).unwrap();
-    assert!(
+    assert_eq!(
         store
             .scan(
                 context(4),
@@ -458,8 +458,8 @@ fn cleanup_views_keep_billing_obligations_after_physical_deletion() {
                 limits()
             )
             .unwrap()
-            .entries
-            .is_empty()
+            .entries,
+        []
     );
     assert_eq!(
         store

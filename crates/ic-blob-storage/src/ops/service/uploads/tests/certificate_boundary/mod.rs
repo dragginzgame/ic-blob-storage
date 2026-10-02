@@ -200,11 +200,11 @@ fn successful_certificate_assessment_never_reserves_or_survives_permission_chang
     let host = evidence();
     let root = host.permission.request.object.root.to_string();
     let before = m.permissions.borrow().clone();
-    assert!(
+    assert_eq!(
         certificate::inspect(&store, context(5), &root, host, 2)
             .unwrap()
-            .blockers
-            .is_empty()
+            .blockers,
+        []
     );
     assert_eq!(*m.permissions.borrow(), before);
     assert_eq!(

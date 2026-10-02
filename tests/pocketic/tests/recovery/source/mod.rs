@@ -173,7 +173,9 @@ fn source_restores_maximum_leaf_and_history_but_all_effects_stay_fenced() {
     }
     f.assert_source_fenced(&v);
     f.restart(f.gateway);
-    f.harness.pic.advance_time(Duration::from_hours(24));
+    f.harness
+        .pic
+        .advance_time(Duration::from_secs(24 * 60 * 60));
     f.upgrade_source();
     f.upgrade_skipping_outgoing_hook(f.gateway, true);
     f.assert_source_fenced(&v);

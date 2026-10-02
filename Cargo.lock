@@ -288,18 +288,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "blob-canic-probe"
-version = "0.0.0"
-dependencies = [
- "candid",
- "canic",
- "ic-blob-storage",
- "ic-blob-storage-canic",
- "ic-cdk",
- "serde",
-]
-
-[[package]]
 name = "blob-consumer-probe"
 version = "0.0.0"
 dependencies = [
@@ -471,57 +459,6 @@ dependencies = [
  "serde",
  "thiserror 1.0.69",
  "toml 0.8.23",
-]
-
-[[package]]
-name = "canic"
-version = "0.110.49"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3d028e746b00fb873bbd646953960a1cc69d6707e00a636ef18a7166702bfa8e"
-dependencies = [
- "candid",
- "canic-core",
- "canic-macros",
- "ic-cdk",
- "ic-testkit",
- "ic0",
- "serde",
- "toml 1.1.6+spec-1.1.0",
-]
-
-[[package]]
-name = "canic-core"
-version = "0.110.49"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4915b4dd3ec2516388bfc03324f9ad4a778b038c73823392378cc4cdcdfc44d1"
-dependencies = [
- "async-trait",
- "candid",
- "ciborium",
- "ic-cdk",
- "ic-memory",
- "ic-secp256k1",
- "ic-timers",
- "proc-macro2",
- "quote",
- "remain",
- "serde",
- "serde_bytes",
- "serde_path_to_error",
- "sha2 0.10.9",
- "thiserror 2.0.18",
- "toml 1.1.6+spec-1.1.0",
-]
-
-[[package]]
-name = "canic-macros"
-version = "0.110.49"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e82751ce249636a57a154fc75dcf8eda032784f7112e2a636c9faad044fc96c7"
-dependencies = [
- "proc-macro2",
- "quote",
- "syn 3.0.6",
 ]
 
 [[package]]
@@ -1565,7 +1502,7 @@ dependencies = [
  "k256",
  "leb128",
  "p256",
- "pem 3.0.6",
+ "pem",
  "pkcs8",
  "rand 0.10.3",
  "rangemap",
@@ -1599,18 +1536,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "ic-blob-storage-canic"
-version = "0.4.16"
-dependencies = [
- "candid",
- "ic-blob-storage",
- "ic-cdk",
- "ic0",
- "serde",
- "thiserror 2.0.18",
-]
-
-[[package]]
 name = "ic-blob-storage-canister"
 version = "0.4.16"
 dependencies = [
@@ -1640,14 +1565,11 @@ dependencies = [
 name = "ic-blob-storage-pocketic-tests"
 version = "0.0.0"
 dependencies = [
- "blob-canic-probe",
  "blob-test-protocol",
  "candid",
  "candid_parser",
- "canic",
  "ic-agent",
  "ic-blob-storage",
- "ic-blob-storage-canic",
  "ic-blob-storage-canister",
  "ic-testkit",
  "reqwest",
@@ -1700,17 +1622,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "ic-cdk-timers"
-version = "1.0.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6852b9c1d4a82ff50fc7318599298aee8bfb082bd7e9fe7e5c1420692b2170f7"
-dependencies = [
- "ic-cdk-executor",
- "ic0",
- "slotmap",
-]
-
-[[package]]
 name = "ic-certification"
 version = "3.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1733,7 +1644,7 @@ dependencies = [
  "hex-literal",
  "hkdf",
  "ic_principal",
- "pem 3.0.6",
+ "pem",
  "rand 0.8.8",
  "thiserror 2.0.18",
  "zeroize",
@@ -1763,34 +1674,15 @@ dependencies = [
 
 [[package]]
 name = "ic-memory"
-version = "0.14.3"
+version = "0.15.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b9368f37df84f896d04da5b980e0e038302c4da24892f89e00124c6d7cb953c7"
+checksum = "21a7b22c19fd5a35f074f7ecac0abb8544a4c84b0e925967ff5588d40a1d9c39"
 dependencies = [
  "ciborium",
  "ctor",
  "ic-stable-structures",
  "serde",
  "thiserror 2.0.18",
-]
-
-[[package]]
-name = "ic-secp256k1"
-version = "0.3.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3bf34836f1c4e8114b6d13b7699428939742e9ad73615bc0be4799ccc5566869"
-dependencies = [
- "hex-literal",
- "hmac",
- "ic_principal",
- "k256",
- "num-bigint",
- "pem 1.1.1",
- "rand 0.8.8",
- "rand_chacha",
- "sha2 0.10.9",
- "simple_asn1",
- "zeroize",
 ]
 
 [[package]]
@@ -1816,17 +1708,6 @@ dependencies = [
  "serde_json",
  "sha2 0.10.9",
  "toml 1.1.6+spec-1.1.0",
-]
-
-[[package]]
-name = "ic-timers"
-version = "0.8.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c1474fd7c9bcc237404173c2689c4175e61ef2c9670bccf539ca10ccd193d132"
-dependencies = [
- "ic-cdk-timers",
- "ic0",
- "thiserror 2.0.18",
 ]
 
 [[package]]
@@ -2480,15 +2361,6 @@ checksum = "57c0d7b74b563b49d38dae00a0c37d4d6de9b432382b2892f0574ddcae73fd0a"
 
 [[package]]
 name = "pem"
-version = "1.1.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a8835c273a76a90455d7344889b0964598e3316e2a79ede8e36f16bdcf2228b8"
-dependencies = [
- "base64 0.13.1",
-]
-
-[[package]]
-name = "pem"
 version = "3.0.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1d30c53c26bc5b31a98cd02d20f25a7c8567146caf63ed593a9d87b2775291be"
@@ -2887,17 +2759,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d6f6ff9a378485b298a5286656da665ba74413d36db0979633275d2e708145d4"
 
 [[package]]
-name = "remain"
-version = "0.2.16"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2b297d1baead74bf76361e49ed016060bd829633361b68500d2e7ea3e66ab6a4"
-dependencies = [
- "proc-macro2",
- "quote",
- "syn 3.0.6",
-]
-
-[[package]]
 name = "reqwest"
 version = "0.13.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3243,17 +3104,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "serde_path_to_error"
-version = "0.1.20"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "10a9ff822e371bb5403e391ecd83e182e0e77ba7f6fe0160b795797109d1b457"
-dependencies = [
- "itoa",
- "serde",
- "serde_core",
-]
-
-[[package]]
 name = "serde_repr"
 version = "0.1.21"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3373,18 +3223,6 @@ name = "simdutf8"
 version = "0.1.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e3a9fe34e3e7a50316060351f37187a3f546bce95496156754b601a5fa71b76e"
-
-[[package]]
-name = "simple_asn1"
-version = "0.6.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0d585997b0ac10be3c5ee635f1bab02d512760d14b7c468801ac8a01d9ae5f1d"
-dependencies = [
- "num-bigint",
- "num-traits",
- "thiserror 2.0.18",
- "time",
-]
 
 [[package]]
 name = "siphasher"

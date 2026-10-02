@@ -296,8 +296,8 @@ mod tests {
             );
             assert!(result.is_ready());
             assert_eq!(result.funding(), FundingStatus::NotNeeded);
-            assert!(result.blockers().is_empty());
-            assert!(result.warnings().is_empty());
+            assert_eq!(result.blockers(), []);
+            assert_eq!(result.warnings(), []);
         }
         for (balance, requested) in [(0, 100), (1, 99), (9, 91)] {
             let result = assess_readiness(

@@ -109,7 +109,7 @@ pub fn funding_from_nat(value: &Nat) -> Result<NonZeroU128, BillingInputError> {
 
 /// Parse the operator's positive, unsigned ASCII decimal cycle amount.
 ///
-/// Leading zeros are accepted, as in Canic. Signs, whitespace, separators,
+/// Leading zeros are accepted. Signs, whitespace, separators,
 /// fractional/exponent notation and non-ASCII digits are rejected. Input length
 /// is bounded by the caller's command/request limit, not an arbitrary digit cap.
 /// # Errors

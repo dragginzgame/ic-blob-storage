@@ -247,7 +247,7 @@ fn callback_trap_preserves_exact_stable_read_intent_and_revocation_marks_it_stal
         .unwrap();
     assert!(revoked);
     let after = f.archive();
-    assert!(after.gateways.is_empty());
+    assert_eq!(after.gateways, []);
     let pending = after.pending_read.as_ref().unwrap();
     assert!(!pending.valid);
     assert_eq!(pending.token, read.token);
@@ -406,7 +406,7 @@ fn successful_and_reentrant_syncs_archive_sequences_and_current_membership() {
     let after = query();
     assert_eq!((after.last_sync, after.pending_sync), (3, None));
     assert_eq!(after.objects, initial.objects);
-    assert!(after.gateways.is_empty());
+    assert_eq!(after.gateways, []);
 }
 
 fn assert_sample_history(archive: &AuthorityArchiveView) {

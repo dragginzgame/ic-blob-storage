@@ -76,7 +76,7 @@ fn standalone_operator_inspection_is_scoped_passive_and_retains_history_after_ca
     assert_eq!(initial.funding.reserved_or_uncertain, 0);
     assert_eq!(initial.uploads.operations, 0);
     assert_eq!(initial.reads.sessions, 0);
-    assert!(initial.gateways.members.is_empty());
+    assert_eq!(initial.gateways.members, []);
     let replicated: Result<LocalServiceStatus, LocalStatusFailure> = f
         .harness
         .pic

@@ -217,7 +217,7 @@ fn independent_budgets_progress_through_sparse_history_without_foreign_rows() {
     }
     let empty = assess_tenant_unsettled_objects(&catalog, context(9), None, budget(1, 1))
         .expect("unrelated tenant");
-    assert!(empty.entries.is_empty());
+    assert_eq!(empty.entries, []);
     assert_eq!(empty.scanned, 0);
     assert_eq!(empty.next, None);
     assert_eq!(catalog, before);
@@ -303,7 +303,7 @@ fn continuation_observes_settlement_and_new_lower_roots_need_a_new_sweep() {
         .expect("new earlier root");
     let tail =
         assess_tenant_unsettled_objects(&catalog, context(2), cursor, budget(1, 1)).expect("tail");
-    assert!(tail.entries.is_empty());
+    assert_eq!(tail.entries, []);
     assert_eq!((tail.scanned, tail.next), (1, None));
     let fresh = assess_tenant_unsettled_objects(&catalog, context(2), None, budget(10, 10))
         .expect("new sweep");
@@ -368,7 +368,7 @@ fn confirmed_index_tracks_exact_replays_rejections_and_upload_transfer() {
         assess_tenant_unsettled_objects(uploads.confirmed(), context(2), None, budget(1, 1))
             .expect("confirmed only");
     assert_eq!(pending.scanned, 0);
-    assert!(pending.entries.is_empty());
+    assert_eq!(pending.entries, []);
     assert_eq!(uploads.tenant_usage(p(2)).reserved_bytes, 10);
     uploads.confirm_upload(request).expect("trusted completion");
     assert_eq!(

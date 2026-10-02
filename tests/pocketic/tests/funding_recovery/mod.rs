@@ -103,7 +103,7 @@ fn old_empty_sender_journal_cannot_reuse_a_paid_identity_or_admit_new_work() {
     f.restart(f.sender);
     f.harness
         .pic
-        .advance_time(std::time::Duration::from_hours(24));
+        .advance_time(std::time::Duration::from_secs(24 * 60 * 60));
     f.harness.pic.tick();
     f.assert_sender_fenced(paid);
 }
@@ -117,7 +117,7 @@ fn restored_receiver_rejects_real_attached_cycles_before_acceptance() {
     let known = f.attempts();
     f.replace_memory(f.receiver, old);
     f.upgrade_one(f.receiver, false).unwrap();
-    assert!(f.receipts().is_empty());
+    assert_eq!(f.receipts(), []);
     let fenced = f.harness.pic.get_stable_memory(f.receiver);
     let next = request(2, 41_000_003, FundingReplyMode::Success);
     let observation = f.fund(f.driver, next).unwrap();

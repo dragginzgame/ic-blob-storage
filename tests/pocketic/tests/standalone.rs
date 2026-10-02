@@ -495,12 +495,9 @@ fn standalone_restore_rejects_foreign_and_missing_installation_memory() {
             .reject_code,
         RejectCode::CanisterError
     );
-    assert!(
-        target
-            .harness
-            .pic
-            .get_stable_memory(target.service)
-            .is_empty()
+    assert_eq!(
+        target.harness.pic.get_stable_memory(target.service),
+        Vec::<u8>::new()
     );
 
     // Change only the retained release in a same-service snapshot. This is

@@ -40,13 +40,7 @@ fn shared_revocation_invalidates_sync_and_reads_even_when_absent_and_survives_re
             candid::decode_one::<GatewayRevocationResponse>(&bytes).unwrap(),
             response
         );
-        assert!(
-            store
-                .inspect(context(), scope())
-                .unwrap()
-                .principals
-                .is_empty()
-        );
+        assert_eq!(store.inspect(context(), scope()).unwrap().principals, []);
         assert_eq!(
             store
                 .inspect(context(), scope())
@@ -66,13 +60,7 @@ fn shared_revocation_invalidates_sync_and_reads_even_when_absent_and_survives_re
     }
     let before = memory.borrow().clone();
     let mut restored = StableGatewayRegistry::open(memory.clone(), config()).unwrap();
-    assert!(
-        restored
-            .inspect(context(), scope())
-            .unwrap()
-            .principals
-            .is_empty()
-    );
+    assert_eq!(restored.inspect(context(), scope()).unwrap().principals, []);
     assert_eq!(
         revoke(&mut restored, context(), request()),
         Err(Error::Fenced)

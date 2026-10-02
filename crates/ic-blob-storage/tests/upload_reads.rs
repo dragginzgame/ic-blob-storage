@@ -196,7 +196,7 @@ fn tenant_pages_bound_work_skip_terminal_history_and_do_not_scan_other_tenants()
     }
     let empty = assess_tenant_active_uploads(&owner, context(2), None, limits(1, 1))
         .expect("empty filtered page");
-    assert!(empty.entries.is_empty());
+    assert_eq!(empty.entries, []);
     assert!(empty.next.is_some());
     let other = assess_tenant_active_uploads(&owner, context(3), None, limits(16, 16))
         .expect("other tenant");
@@ -223,7 +223,7 @@ fn pages_observe_intervening_transitions_and_new_lower_ids_require_a_fresh_sweep
     reserve(&mut owner, inserted);
     let resumed = assess_tenant_active_uploads(&owner, context(2), first.next, limits(16, 16))
         .expect("resume");
-    assert!(resumed.entries.is_empty());
+    assert_eq!(resumed.entries, []);
     assert!(resumed.next.is_none());
     assert_eq!(resumed.scanned, 2);
     let restarted =
@@ -291,7 +291,7 @@ fn cursor_scope_and_current_context_are_checked_even_for_empty_reads() {
     // Service principal/controller-like caller has no access to the tenant's rows.
     let unrelated = assess_tenant_active_uploads(&owner, context(1), None, limits(1, 1))
         .expect("own empty history");
-    assert!(unrelated.entries.is_empty());
+    assert_eq!(unrelated.entries, []);
     assert_eq!(unrelated.scanned, 0);
     assert_eq!(
         assess_tenant_upload_usage(&owner, context(1)),
@@ -322,7 +322,7 @@ fn maximum_request_id_and_identical_ids_in_different_tenants_have_exact_boundari
     owner.cancel(p(2), max).expect("cancel max ID");
     let page = assess_tenant_active_uploads(&owner, context(2), None, limits(1, 1))
         .expect("terminal max ID");
-    assert!(page.entries.is_empty());
+    assert_eq!(page.entries, []);
     assert!(page.next.is_none());
     assert_eq!(page.scanned, 1);
 }

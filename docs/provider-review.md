@@ -283,7 +283,7 @@ were not installed or adopted as instructions.
 ## Differences from Canic's captured contract
 
 Comparison baseline: the Canic revision and Candid/source hashes recorded in
-[Canic parity](canic-parity.md#source-checkpoint).
+Canic parity.
 
 | Surface | Canic's reviewed source/snapshot | Newly reviewed official integration |
 | --- | --- | --- |

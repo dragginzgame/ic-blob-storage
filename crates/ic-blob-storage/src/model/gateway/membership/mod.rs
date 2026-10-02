@@ -146,7 +146,7 @@ mod tests {
     #[test]
     fn repeated_add_at_capacity_is_idempotent_and_rejection_preserves_state() {
         let mut members = membership();
-        assert!(members.principals().is_empty());
+        assert_eq!(members.principals(), []);
         assert_eq!(members.add(p(2)), Ok(GatewayAddOutcome::Added));
         assert_eq!(members.add(p(1)), Ok(GatewayAddOutcome::Added));
         let full = members.clone();
@@ -182,7 +182,7 @@ mod tests {
         assert_eq!(members.principals(), &[p(2), p(3)]);
         assert!(members.remove(p(2)));
         assert!(members.remove(p(3)));
-        assert!(members.principals().is_empty());
+        assert_eq!(members.principals(), []);
         assert_eq!(members.replace_from_sync(&[]), Err(GatewayListError::Empty));
         members.add(p(1)).expect("explicit re-add after removal");
         assert_eq!(members.principals(), &[p(1)]);

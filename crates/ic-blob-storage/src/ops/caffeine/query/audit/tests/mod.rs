@@ -32,7 +32,7 @@ fn fixture(directory: &str, name: &str) -> Vec<u8> {
         .join(format!("{name}.hex"));
     let hex = std::fs::read_to_string(path).unwrap();
     let (pairs, rest) = hex.trim().as_bytes().as_chunks::<2>();
-    assert!(rest.is_empty());
+    assert_eq!(rest, b"");
     pairs
         .iter()
         .map(|p| u8::from_str_radix(std::str::from_utf8(p).unwrap(), 16).unwrap())

@@ -355,7 +355,7 @@ fn upload_interruption_replay_release_and_delayed_callbacks_share_one_accounting
     assert_eq!(f.delete(vec![root(a.root), root(a.root)]), Ok(()));
     assert_eq!(f.delete(delayed), Ok(()));
     assert_eq!(f.usage(f.first), Ok(usage(150, 150, 250)));
-    assert!(f.pending().is_empty());
+    assert_eq!(f.pending(), Vec::<Vec<u8>>::new());
     assert_eq!(
         f.root_control(f.first, "journey_settle", a.root),
         Err(JourneyFailure::Denied)

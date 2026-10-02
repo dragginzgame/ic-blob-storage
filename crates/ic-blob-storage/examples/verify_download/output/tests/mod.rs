@@ -1,6 +1,6 @@
 use super::*;
 use crate::{CaffeineHashError, tests::verifier};
-use std::fs;
+use std::{fs, path::PathBuf};
 
 struct ObservedBody<'a> {
     bytes: &'a [u8],
@@ -35,7 +35,7 @@ impl Read for ObservedBody<'_> {
     }
 }
 
-fn contents(directory: &Path) -> Vec<std::path::PathBuf> {
+fn contents(directory: &Path) -> Vec<PathBuf> {
     fs::read_dir(directory)
         .unwrap()
         .map(|entry| entry.unwrap().path())
@@ -105,7 +105,7 @@ fn bad_or_incomplete_bodies_never_publish_and_normal_errors_remove_temporary_byt
             ),
             _ => unreachable!(),
         }
-        assert!(contents(dir.path()).is_empty());
+        assert_eq!(contents(dir.path()), Vec::<PathBuf>::new());
     }
 }
 
@@ -171,5 +171,5 @@ fn invalid_destination_rejects_before_reading_the_body() {
     assert!(
         matches!(save_verified(Unread, verifier(), &dir.path().join("missing/file")), Err(OutputError::Create(error)) if error.kind() == io::ErrorKind::NotFound)
     );
-    assert!(contents(dir.path()).is_empty());
+    assert_eq!(contents(dir.path()), Vec::<PathBuf>::new());
 }

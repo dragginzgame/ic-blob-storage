@@ -96,7 +96,7 @@ fn preview_and_consumed_sequence_cannot_undo_later_operator_decisions() {
         "stale commands must preserve revocation"
     );
     assert_eq!(observed(&f).requests, 0);
-    assert!(status(&f).gateways.is_empty());
+    assert_eq!(status(&f).gateways, []);
     let current = request(&f);
     let (code, result) = sync_command(&args(&f, "sync", current));
     assert_eq!(code, 0);
@@ -183,7 +183,7 @@ fn held_reply_cannot_override_revocation_and_overlap_does_not_dispatch() {
         candid::decode_one(&f.harness.pic.await_call(id).unwrap()).unwrap();
     assert_eq!(completed, Err(SyncFailure::Stale));
     assert_eq!(observed(&f).requests, 1);
-    assert!(status(&f).gateways.is_empty());
+    assert_eq!(status(&f).gateways, []);
     assert_eq!(status(&f).sync_revision, revised);
 }
 
@@ -318,7 +318,7 @@ fn sync_result_survives_failed_post_status_and_preview_stays_query_only() {
         sync_command(&args(&f, "dry-run", GatewaySyncRequest { service, ..r })).1["action"]["error"],
         "query_rejected"
     );
-    assert!(pic.get_stable_memory(service).is_empty());
+    assert_eq!(pic.get_stable_memory(service), Vec::<u8>::new());
     let mut invalid = args(&f, "sync", r);
     invalid.extend(["--account".into(), f.receiver.to_text()]);
     assert_eq!(sync_command(&invalid).0, 2);

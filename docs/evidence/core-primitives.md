@@ -1,5 +1,9 @@
 # Content and billing primitives — native evidence
 
+This file retains source-bound history. Sections describing the removed Canic
+adapter and its former commands are historical; current library/standalone scope
+and validation are recorded in the 2026-10-02 independent-library section below.
+
 The original core candidate is recorded below; subsequent local ports have
 separate source hashes in their sections.
 
@@ -101,7 +105,7 @@ ports numeric conversions from Canic's `ops/blob_storage/conversion.rs` and
 `domain/policy/pure/blob_storage/mod.rs` and the validation portion of
 `workflow/blob_storage/billing/mod.rs`. Re-inspected at Canic HEAD
 `3f825aa223e663a562a7cb1cca72e57b5703e0e9`; these files still match the
-historical [source inventory](../canic-source-inventory.tsv). Other dirty Canic
+historical source inventory. Other dirty Canic
 work was neither incorporated nor changed.
 
 Unsigned/signed Candid values must fit `u128`; negative balances never become
@@ -209,7 +213,7 @@ release, dependency update or sibling mutation ran.
 The [batch parser](../../crates/ic-blob-storage/src/model/identity/batch/mod.rs)
 preserves the input ordering, duplicates and individually malformed entries used
 by Canic's `BlobStorageApi::blobs_are_live`. The inspected lifecycle API still
-matches the [source inventory](../canic-source-inventory.tsv). Parsing returns
+matches the source inventory. Parsing returns
 one typed result per input; it does not query liveness or authorize a caller.
 
 Explicit raw entry and combined byte limits bound processing and result storage.
@@ -2735,7 +2739,7 @@ Validation passes 20 Caffeine model cases, nine independent-vector integration
 cases, the example transport-boundary case, core all-target strict Clippy, Wasm
 compilation and warning-free rustdoc. The example verifies the independent
 `abc-text` claim/body end to end. Full CI and browser/provider trials did not run.
-The [download direction](../roadmap.md#consumer-download-verification) records
+The [download direction](../operator-guide.md#download-a-verified-file) records
 remaining descriptor provenance, original-metadata retention and browser delivery
 requirements. No allocator, dependency or production endpoint change is included.
 
@@ -5188,7 +5192,7 @@ rejection response. No error-text assertions or production test overrides were a
 Only targeted checks ran, not full CI/release validation or provider experiments.
 
 The four certificate prerequisites remain false. Canic publication/pin adoption
-for normal workspace/release checks is [CF-01](../canic-parity.md#integration-feedback);
+for normal workspace/release checks is CF-01;
 local development continues without a live Fleet deployment. AGENTS.md requires
 maintained feedback and delivery reminders. No Canic defect was established by
 the downstream checks; provider economics/recovery are separate service work.
@@ -5232,7 +5236,7 @@ Only its identified stalled test process is terminated; the refusal log is retai
 separately. A loopback-enabled repeat passes. Pre-run intent, commands, package/VCS
 identities, both resolved locks, metadata, source/artifact hashes, copied Wasm/Candid
 and separate attempt/result logs are retained in `.tmp/published-canic-49-01`.
-This closes package adoption [CF-01](../canic-parity.md#integration-feedback).
+This closes package adoption CF-01.
 No full CI/release gate, deployed Fleet, provider request, payment, sibling edit,
 upstream message, product version/receipt mutation, commit/tag/publication or
 cleanup. Earlier frozen-source evidence remains historical and unchanged.
@@ -5282,10 +5286,10 @@ zero deployed provider/payment budget. Local processes/instances exit and build
 artifacts remain; no external object, balance or cleanup obligation is created.
 There is no successful managed certificate exposure, upload/download transfer,
 production browser store/recovery qualification or deployed Fleet evidence.
-[CF-01](../canic-parity.md#integration-feedback) remains closed and no new actionable
+CF-01 remains closed and no new actionable
 Canic finding is established. Siblings remain read-only; no version/release/commit/
 tag/publication/deployment or Cargo cleanup occurs. See the
-[ledger](caffeine-probes/README.md) and [setup](../dependencies.md#managed-browser-setup).
+[ledger](caffeine-probes/README.md) and setup.
 
 ## Shared browser upload transfer — 2026-10-01
 
@@ -5402,7 +5406,7 @@ No ic-memory defect is established by this limited integration review.
 | Native managed fixture | Passes after refreshing its ignored lockfile from the root. The initial stale-lock refusal is retained separately. Native compilation does not qualify shared runtime identity. |
 | Canonical managed artifact | CLI 0.110.49 refuses before build with `role_contract_multiple_memory_runtimes`: registry Canic/core 0.110.49 uses 0.14.3 while blob uses 0.15.0. No new managed Wasm/lifecycle evidence exists. |
 
-[CF-02](../canic-parity.md#integration-feedback) tracks the remaining publication,
+CF-02 tracks the remaining publication,
 both-manifest adoption, single-identity resolution and managed build/lifecycle
 checks. The guard correctly prevents multiple default runtimes. Registry web
 lookups failed; public crates.io API lookup separately failed DNS in the sandbox
@@ -5450,7 +5454,7 @@ change, never a local gate override.
 The maintainer confirms concurrent dependency work. Its ic-memory 0.15 changes
 are preserved; targeted checks above use that graph. A brief lock wait is retained
 and subsequent checks use explicit build-lock preflight. Existing Canic
-[CF-02](../canic-parity.md#integration-feedback) remains open for matching adoption
+CF-02 remains open for matching adoption
 and canonical managed artifact/lifecycle checks; this batch establishes no new
 framework defect. Current/previous dependency results retain their own source and
 artifact identities. Intent, failures/corrections, commands, exact source/lock/
@@ -5521,7 +5525,7 @@ resource-budget benchmark refresh occurs.
 
 Updated managed source compiles natively, including the explicit authority macro
 and new query/contract comparison, but canonical managed Wasm still awaits the
-existing two-runtime mismatch closure in [CF-02](../canic-parity.md#integration-feedback).
+existing two-runtime mismatch closure in CF-02.
 Adopt matching Canic in both manifests, confirm one runtime identity, then run
 canonical build plus managed lifecycle/query/contract checks. This batch establishes
 no new Canic defect and never bypasses its multiple-runtime guard.
@@ -5569,7 +5573,7 @@ the sealed `.tmp/published-memory-alignment-01`. This is local composition evide
 not deployed Caffeine, production Fleet or operational recovery qualification.
 No full CI/release preparation, commit, version change, deployment, provider/paid
 effect or build cleanup occurs. All four certificate host facts remain false.
-[CF-02](../canic-parity.md#integration-feedback) no longer requires a Canic release;
+CF-02 no longer requires a Canic release;
 matching 0.15 adoption may be revisited later with a compatible published host.
 
 ### Dependency pin repair — 2026-10-02
@@ -5590,3 +5594,88 @@ sealed in `.tmp/memory-pin-repair-01`. Earlier captures remain unchanged.
 Both root dependency files must be committed by the maintainer before release
 preparation. No sibling edit, commit, version change, cleanup or provider effect
 is performed. CF-02 remains closed locally; no Canic publication is required.
+
+## Independent library and memory 0.15 — 2026-10-02
+
+The maintainer explicitly removes all Canic code and tests here; consumer frameworks
+own their wrappers and integration qualification externally. Remove the adapter
+crate, managed fixture and complete managed test tree, dependencies, build/test
+commands and current framework inventories. No opt-in lane, adapter shim or path
+override remains. Generic service APIs, grants, tenant rules, standalone endpoints,
+native/browser tools and framework-free PocketIC fixtures remain maintained.
+Earlier removed-integration captures are history, not current wrapper qualification.
+All provider probe records, failed/inconclusive observations and outstanding facts
+are retained; no source removal authorizes installation reset or retirement.
+
+A bounded read of the official Cargo index on 2026-10-02 observes ic-memory 0.15.0
+as the latest non-yanked release, checksum
+`21a7b22c19fd5a35f074f7ecac0abb8544a4c84b0e925967ff5588d40a1d9c39`.
+The root selects =0.15.0 and its locked graph contains one runtime identity and
+no Canic package. Direct growth callers use typed results; backing wrappers use
+the unchanged upstream trait. The allocator and product protocol generation stay
+unchanged. Product package/receipt remain 0.4.16; the existing 0.5.0 minor draft
+records the public growth API break and complete adapter removal.
+
+Whole-workspace native all-target/all-feature check and strict lint pass. Targeted
+shared-store/grant and installation cases and standalone exported-Candid check pass.
+Release standalone/storage/consumer/gateway Wasm builds pass. Real PocketIC typed
+backing refusal after admission preserves the complete stable image and neighbor,
+then succeeds on exact storage-only retry and restores fenced. Standalone stop/start
+and repeated same-release upgrade preserve all owner fences. These are actual IC
+checks with labelled local substitutes, not deployed Caffeine or consumer wrapper
+qualification. No full CI/release gate runs in this batch.
+
+Framework-free Wasm workspace check, warning-free core/standalone rustdoc,
+formatting and offline core package verification pass. Maintained documentation
+links, draft syntax, the default target
+plan and structural dependency/removal checks pass. Historical release notes and
+raw provider artifacts are unchanged; two probe-ledger links to removed feedback
+documentation are converted to historical text.
+
+Intent and the maintainer's steering, official index, metadata/tree, source/artifact
+hashes, commands, successful logs and the initial bounded documentation-edit failure
+remain in `.tmp/memory-independent-release-01`. No commit, version/publication,
+sibling change, provider call, paid effect, deployment or build cleanup occurs.
+All four certificate host facts remain false. Consumers, including Canic, must
+implement and test their wrappers in their own repositories; that downstream work
+has not been done here and no upstream message is sent.
+
+## Rust minimum and development toolchain — 2026-10-02
+
+The maintainer requests an MSRV audit and development Rust 1.99.0. The prior
+workspace minimum 1.98.1 unnecessarily matched its development pin. Audit the
+locked Cargo metadata: no selected dependency declares a minimum above 1.88,
+with `ic-cdk`, `ic-memory`, `ic-agent`, `ic-testkit`, ICU and time among the
+packages declaring that floor. The maintained content codecs use
+[`slice::as_chunks`](https://doc.rust-lang.org/stable/std/primitive.slice.html#method.as_chunks),
+stabilized in 1.88. Set the workspace minimum to 1.88.0 independently of the
+development pin 1.99.0; do not change dependency or product package versions.
+
+The initial full-workspace 1.88 check fails in the native harness journal on
+[`File::try_lock`](https://doc.rust-lang.org/stable/std/fs/struct.File.html#method.try_lock)
+and `TryLockError`, stabilized in 1.89. Declare 1.89.0 only for that unpublished
+host harness, preserving the library's lower consumer requirement. Its first
+1.89 check also reveals five newer `Duration::from_hours(24)` test calls;
+replace them with the equivalent `Duration::from_secs(24 * 60 * 60)`.
+Actual native all-target/all-feature checks pass at 1.88 for all other workspace
+members and at 1.89 for the complete workspace. Corresponding Wasm checks pass.
+These are source/locked-graph checks on Linux x86_64 and wasm32-unknown-unknown,
+not promises about arbitrary consumer resolutions or other target platforms.
+
+Rust 1.99 introduces assertion diagnostics and expands result-use linting here.
+Use equivalent empty/nonempty comparisons, explicit types for ambiguous byte/path
+collections and a `must_use` annotation. No lint is suppressed. The Cargo fixer
+first cannot bind its restricted local locking listener; the approved offline
+retry retains its invalid internal type-path and ambiguous slice suggestions.
+Repair those suggestions manually, keep readable assertions and retain all
+failed attempts. Strict workspace Clippy, rustfmt and Wasm checking pass on 1.99;
+minimum-compiler checks are repeated against the final source after lint edits.
+
+Intent, metadata, per-package/dependency floors, exact compiler identities,
+commands, logs, failures and final source hashes remain in the fresh
+`.tmp/msrv-toolchain-01` capture. The README, dependency guide, handoff and existing
+0.5.0 draft distinguish development tooling from supported consumer compilers.
+Earlier source-removal captures and dirty work are preserved. No full CI/release
+gate, new runtime/provider probe, sibling edit, commit, publication, deployment,
+paid effect or build cleanup occurs. Consumer wrapper/integration testing remains
+external; all four Caffeine certificate host facts remain false.

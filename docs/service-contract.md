@@ -135,741 +135,47 @@ can clear a later fence, undo revocation and lose later upload reservations. Sna
 loading remains unsupported for operation; `fenced = false` proves no independent
 freshness. The disabled certificate gate survives this rollback. See the
 [recorded recovery evidence](evidence/caffeine-probes/local/2026-09-30-snapshot-01/summary.json).
-Operational recovery, remaining provider/operator integration and the complete
-Canic endpoint adapter are still open.
+Operational recovery and remaining provider/operator integration are still open.
 
-### Managed Canic composition
+### Library host integration
 
-The unpublished `ic-blob-storage-canic` library contributes nothing on linkage.
-The owning artifact explicitly invokes `declare_memories!`, grants an allocation
-range for the same authority and declares Canic lifecycle participants. Canic
-bootstraps its sole runtime; the synchronous participant validates the complete
-blob installation before opening service grants, publishes the shared owner only
-after success and traps failures for IC rollback. Async setup is too late for
-owner construction. Restoration opens all four owners synchronously into fences;
-Canic activation cannot authorize blob mutations after restore. The current
-managed upgrade argument is Canic's Candid unit value; replacement configuration
-refuses without changing retained state.
+This repository owns the storage core and standalone canister. Consumer frameworks
+own their wrappers, deployment lifecycle and integration tests externally. The
+library exports shared DTOs, handlers, immutable installation configuration and
+explicit memory requests. Linking it registers no endpoints, bootstraps no memory
+and takes no lifecycle ownership. A library release does not qualify a consumer's
+wrapper or a deployed service.
 
-The memory declaration supplies explicit blob requests and authority; Canic
-validates the host allocation policy during its sole bootstrap. Managed opening
-requires an existing committed runtime before any key lookup, then opens the
-configuration and shared service grants without choosing host bucket policy.
-Linking the composition library registers nothing. This does not establish
-independent freshness evidence or permission to activate a restored owner.
+The owning canister authenticates the actual caller and service, bounds transport
+and decoding work, and delegates to shared workflows. Tenant, operator, uploader
+and verifier roles remain explicit; framework activation and controller status
+grant none of those roles. Provider request/callback contracts have one core owner,
+and clients use the service API rather than defining a provider protocol.
 
-`declare_contexts!` explicitly emits named Rust guards in the artifact. They use
-public `ComponentRuntimeApi` status and correlated operation status, requiring
-both runtime and Fleet activation to be Active before obtaining actual service
-and caller identities. The separately selected Fleet guard additionally uses
-Canic's public admission predicate. Shared handlers still enforce tenant,
-operator, verifier and provider rules: controller or Root status grants none of
-these roles. The library emits no endpoint or endpoint attribute. Canic remains
-the artifact's direct dependency, satisfying its maintained role validator.
+The host declares the installation configuration key and sixteen shared service
+requests within one allocation authority, bootstraps one ic-memory runtime, validates
+all installation inputs and calls `ServiceInstallation::install` synchronously.
+It supplies actual service identity, project, verifier and compiled release.
+Publishing a partially constructed owner or initializing through deferred work
+is unsupported. Stable-memory failures must propagate for IC transaction rollback.
 
-`arguments::application_arguments` bounds the current managed carrier to 256 KiB,
-its application bytes to 16 KiB and Candid work/type complexity. It accepts exactly
-two arguments and rejects missing application bytes or trailing data. Call it only
-after Canic has authenticated the protected envelope; skipping that envelope does
-not authenticate it.
+Restoration calls `ServiceInstallation::open` synchronously before deferred work.
+All four owners remain inspection-only and fenced. Missing or corrupt grants,
+configuration or history cannot be repaired or reset away. A framework's active
+state is not freshness evidence and cannot clear these fences. Cross-release
+transitions remain reinstall-only, after installation obligations are preserved
+or discharged; same-release interruption recovery remains required.
 
-`dto::ManagedInstallationInput` supplies explicit operator, payer, namespace,
-resource/billing/funding/read budgets, project and verifier. Service identity comes
-from the platform; the input cannot select a different service or release.
-`declare_installation!` emits named participant operations in the owning artifact,
-using public correlated Canic status for the release identity already checked
-against Canic's compiled binding. The shared installation record retains that
-identity and checks it again on restore. The macro selects no lifecycle entrypoint
-or heap publication. The participant checks the carrier size before its own
-platform copy, decodes one bounded typed application value and validates the whole
-candidate before opening blob grants. Missing fields, extra values, trailing data
-and invalid policy refuse, with no defaults or alternate installation path.
-These participant bounds do not replace or precede Canic's initial CDK decoding.
-
-The actual managed carrier is now tested through the published qualification
-helper. Invalid inputs and a mismatched protected release preserve a populated
-tenant record and every stable byte after rejected management reinstalls.
-The test's fixed compiled release remains fixture authority; finalized production
-Fleet artifact/release provenance is still open. The fixture's operator-only raw
-carrier observation is transient test machinery, not a production endpoint or
-retained configuration API. Candid export runs after all application declarations;
-the adjacent interface is parsed and checked for the maintained endpoint modes
-and argument shapes.
-
-`workflow::installation::inspect` supplies operator-only configuration readback
-for both adapters. Pure policy checks the actual service and installed operator
-before ops presents configuration, project, verifier, release and local fencing.
-Standalone retains its existing wire contract; the former host-local view/error
-definitions are now shared DTOs, with one implementation and no alternate reader.
-
-The controlled managed artifact currently implements thirty blob methods:
-configuration; tenant enrollment/suspension and inspection; upload admission,
-inspection, revocation, status, history and discovery; manifest preparation and
-inspection; reference mutation, receipt, status and capacity; upload capacity;
-passive local status/funding preparation assessment/history/outcome; verifier plans/manifests,
-attestation/receipt inspection; reference-qualified download descriptors;
-certificate assessment; gateway sync/cancellation/revocation; and account inspection.
-Every method calls the shared
-workflows through adapter-owned state access. One passive generic failure newtype
-keeps Canic guard conversion outside the core and preserves exact blob error wire
-shapes. Generic Fleet access refusals become denial; they are not described as a
-tenant-state or provider error. Fixture-only enrollment/readback endpoints were
-replaced by the maintained blob tenant methods. Explicit Canic update limits are
-4 KiB for small updates and 128 KiB for manifests,
-before copying/decoding for ingress and inter-canister calls. A valid request at
-the manifest boundary reaches shared semantic validation; a request one byte larger is refused without
-changing stable state. Canic's update decoder supplies its own skipping quota;
-equivalent query-byte and decoding-work limits remain an acceptance gap. A local
-managed journey proves suspension still permits unexposed upload cancellation,
-retains history and counters, rejects unrelated reference/history callers and
-preserves inspection and all-owner fences after restore. Empty funding history
-and absent funding outcomes are local observations, not provider-credit evidence.
-This partial artifact must not be presented as a production deployment contract.
-An operator-only test forwarder exercises actual inter-canister bounds; it is not
-a production endpoint, provider dispatch mechanism or tenant delegation.
-
-Managed completion journeys use the installed verifier and actual IC caller/time.
-Only that verifier can inspect a verification plan or attest the exact permission;
-accepted receipts replay unchanged and never revive released references. Downloads
-require a live tenant reference and refuse during suspension or restore. Last
-release removes logical bytes while physical bytes and billing liabilities remain.
-Same-release upgrade retains manifests, attestation/reference receipts and cleanup
-history with all owners fenced. The fixture's operator-only exposure-state hook
-selects a retained uploader solely to set up this local phase; it supplies no
-certificate, provider response or production recovery/qualification fact. Fixture
-file bytes are substitutes, not an independently fetched Caffeine object. Real
-certificate issuance remains blocked. Uploader-only managed certificate assessment
-reports the same four provider/recovery blockers as standalone, without exposure
-or reply creation; revocation and restore refuse eligibility. Managed operator
-journeys use the existing query-only Cashier substitute and shared bounded
-transports. Scope/actor checks precede calls; failed syncs retain their identity
-until exact cancellation. Account reports never change local allocation, credit,
-membership or readiness. Pending syncs, prepared bytes and unrelated owners survive
-fenced restore. These are local adapter observations, not deployed account credit
-or provider qualification. Common consumer/operator acceptance remains open.
-
-The maintained native CLI now exercises managed `status`, `funding-history`,
-`upload-history`, `certificate-assessment` and `verify-upload` with actual signed
-ingress queries. Local trust pins the application-only PocketIC subnet key through
-the owned control API before starting a public loopback gateway; the client never
-fetches its root automatically or disables query signatures. Incorrect signer,
-scope and trust refuse; exact full-width permissions and historical manifests
-remain authoritative. Changed, truncated and oversized local files fail verification.
-Same-release restore retains inventory and permits passive local byte inspection
-while assessment refuses the permission fence. Every query phase preserves complete
-stable memory. File bytes are local substitutes; this adds neither exposure,
-provider availability/completion nor retry authority.
-
-Managed native verifier evidence uses a distinct installed verifier and real
-signed `observe-upload`, `submit-attestation` and `upload-attestation` commands.
-One local source GET follows persisted intent/authenticated plan; one signed IC
-update follows the complete retained observation and signed dispatch intent.
-The shared fault transport passes, drops or replaces the actual acknowledgment
-with pending admission; none of these modes resends. Exact receipt inspection
-resolves the local lost/pending outcome while preserving the original signed
-statement and dispatch record. Foreign verifiers refuse before GET and damaged
-observations before dispatch. Same-release restore permits historical receipt
-inspection but refuses new observations and download delivery, preserving stable
-memory. Exposure and ten-byte HTTP content are labelled local substitutes;
-this exercises the trusted-verifier contract, not deployed Caffeine availability,
-future retention or billing cessation. Concrete consumer/outbox composition,
-production verifier trust/provenance and deployed acceptance remain separate.
-
-Native `inspect-account` now delegates balance/relationship observations through
-`blob_inspect_account` in both adapters with the existing operator scope and
-explicit kind. One signed read update may wait on its exact IC request ID but
-never automatically resubmits. Reported totals remain independent of components;
-relationship signed amounts/Nat counters retain their arbitrary widths and optional
-expiry. Exact request, kind and relationship principals are validated inside a
-4 KiB bounded reply decoder. Typed absence/provider errors remain observations;
-transport/refusal never implies zero, credit, spendability or retry authority.
-Update certificate failure can follow execution; it does not prove an unsent read.
-Actual signed local journeys cover both adapters and passive stable memory/fenced
-restore over the existing query-only Cashier substitute. The shared native Agent
-uses its public middleware hook with the configured no-retry client, avoiding
-ic-agent's implicit HTTP 429/503 retry logic.
-
-Native `sync-gateways`, `cancel-gateway-sync` and `revoke-gateway` delegate
-to the existing scoped handlers in both adapters. A fresh private durable client
-claim binds exact canonical request, signed update and intent before one dispatch.
-Interrupted/existing claims refuse without resend. Cancellation requires an
-explicit observed positive pending identity; clients do not predict service IDs.
-Bounded update replies preserve exact scope/sequence or revocation request and
-typed refusals, while pending admission and uncertain replies never become
-acknowledgments. Each outcome denies retry/deletion/billing-cessation authority.
-Sync calls the installed Cashier query with no attached provider cycles;
-cancellation/revocation apply local decisions only. An absent revocation still
-invalidates pending/read observations. Lost acknowledgment cannot authorize
-repetition: the service has no historical gateway mutation receipt, and current
-signed status cannot reconstruct which decision changed membership or pending work.
-Fresh copied client storage is not independent freshness authority. Actual signed
-local journeys preserve occupied unrelated owners and pending history through
-fenced same-release restore; provider replies remain query-only substitutes.
-
-The managed fixture now declares `_immutableObjectStorageCreateCertificate` with
-Canic's public `on_access_denied = "reject"` hook, preserving a plain Caffeine
-record on success and IC refusal on failure. The actual service/actor context and
-retained root resolve through the shared workflow, which rechecks eligibility,
-independent host facts and durable exposure synchronously before reply. There is
-no Result wire wrapper, internal endpoint workaround, copied dispatch or added
-qualification override. Normal Fleet guards, preflight, instrumentation and
-Candid registration remain framework-owned.
-
-Every managed blob query/update selects `decode = LIMITS`; owning lifecycle uses
-`argument_limits = LIMITS` before restoration/participants. The artifact bounds
-raw bytes, decoding and skipping work, type-table entries and header complexity.
-The existing 128 KiB manifest transport envelope remains; shared semantic limits
-still apply. The protected lifecycle carrier is capped at 256 KiB, with separate
-nested application extraction/validation. Decoder work quotas are not measured
-IC instruction or cycle budgets.
-
-Frozen local Canic `32da629d0214bf791541a9b3c1832dbef13ece29` builds this source
-through the canonical role-contract pipeline. Its built Candid matches standalone,
-including the exact certificate name/update mode/plain record. Actual local IC
-checks cover wrong actors, unprepared/blocked/revoked/restored issuance refusal,
-malformed and excessive byte/type/header envelopes, exact manifest boundaries and
-inter-canister overflow, invalid installation rollback and oversized upgrade
-rollback with occupied owners. Stable bytes and tenant authority are preserved.
-The production host facts remain false; no successful certificate exposure or
-provider transfer is observed. This is downstream local framework evidence, not
-production Fleet provenance or provider qualification.
-
-Both maintained workspaces now pin registry Canic 0.110.49 with these hooks.
-The canonical build and six focused checks pass without source overrides;
-[CF-01](canic-parity.md#integration-feedback) is closed. The isolated copied-workspace
-[source lane](dependencies.md#local-canic-development) remains available for local
-framework development. Siblings stay read-only; a deployed Fleet is not required
-for PocketIC. Published dependency adoption does not qualify provider exposure
-or replace full release validation.
-
-The opt-in managed browser setup uses the pinned Caffeine SDK, existing certificate
-client and consumer fixture for actual signed admission/preparation. Competing tabs
-claim one refused issuance; reload/rejection inspection preserves uncertainty with
-no gateway traffic. Explicit withdrawal releases only the unexposed reservation,
-and fenced restore retains cancelled history. This
-[local evidence](evidence/core-primitives.md#managed-browser-setup--2026-10-01)
-does not qualify provider exposure or production browser storage/recovery.
-
-Earlier source findings and failed public-adapter attempts remain dated evidence
-in the [framework review](evidence/core-primitives.md#managed-certificate-framework-review--2026-10-01)
-and [upload setup review](evidence/core-primitives.md#signed-native-upload-setup--2026-10-01).
-They describe the inspected published/older local sources, not the maintained
-local adoption. The earlier [managed installation evidence](evidence/core-primitives.md#managed-installation-input-and-release-authority--2026-09-30)
-uses synthetic Root/Coordinator authority; it does not qualify a production
-Fleet, combined IcyDB application or provider effects.
-
-`workflow::operator::inspect` supplies the shared passive `blob_local_status` query.
-The configured operator must bind the actual service, namespace, Cashier and payer;
-all four owners must have matching service configuration. A synchronous snapshot
-reads maintained upload/funding counters, bounded gateway membership and read
-occupancy without traversing lifetime history or making provider calls. Separate
-restore fences and uncertain funding remain visible. Local allocation is not
-platform liquidity, transport acceptance is not provider credit, and inspection
-grants no mutation, retry, reconciliation or readiness authority. The standalone
-host and storage fixture both delegate to this handler.
-
-The native `blob-storage status` client signs this query with a PEM identity whose
-principal must match the explicit operator before transport. It requires the full
-installed scope, validates that scope again on the bounded reply and emits amounts
-as decimal strings. IC query signatures are verified against the SDK's IC root,
-or a separately supplied local replica root with literal loopback targeting.
-Local transport disables environment proxies; neither mode follows redirects or
-fetches a root automatically. Inspection errors remain failures and each owner's
-fence stays visible. An authenticated query observation is not certified state,
-provider qualification, credit or authority to dispatch; the client never sends
-an update. Signed subprocess evidence uses the standalone canister in PocketIC.
-
-`workflow::account::inspect` supplies the standalone `blob_inspect_account` update.
-Each operator request selects one observation kind under the full installed scope;
-the balance account is the installed payer and the relationship owner is the
-actual service. One bounded replicated call uses the maintained Cashier encoder
-and decoder. All four owners are checked synchronously before dispatch and again
-after the await, with no borrow held across transport. Hosts keep configuration
-immutable throughout the invocation. Any restore fence refuses dispatch or a late
-result. No account report is persisted, no aggregate snapshot is implied and no
-account, allocation, gateway or readiness state changes. Reported totals remain
-independent of their components; signed relationship figures are preserved without
-sentinel interpretation or spending arithmetic. Absence cannot select self-payment.
-Standalone bounds are 30 seconds, 4 KiB, 500,000 decoding work, 1,000 skipping work
-and 64 type entries. The CDK initially buffers the platform-bounded reply before
-the application byte check. No cycles attach and no retry occurs; ordinary IC
-fees apply. Local query-only substitutes prove platform composition, not deployed
-provider semantics, complete account activity, credit or operational recovery.
-
-The transient project-to-uploader admission model in the delivery plan additionally
-owns exact permissions alongside the existing upload catalog. Root-only exposure
-checks authenticated context supplied by the host; one-shot exposure, passive
-lookup and revocation preserve uncertain reservations. The maintainer selected
-direct browser-to-Caffeine upload after evaluating the cost of mandatory byte
-verification. The shared owner binds a bounded manifest to the admitted root and
-declared size; the service accepts no file chunks and has no raw-digest verdict.
-A matching manifest does not establish actual length, provider completion or
-billing. Before a real certificate escapes, the host still must qualify pre-charge
-size/tree enforcement, namespace/replay rules, durable intent and recovery.
-
-The shared owner validates raw metadata count/bytes before bounded header parsing.
-Names must be nonempty ASCII HTTP tokens and unique ignoring ASCII case. Values
-reject controls, line separators and surrounding whitespace, without rewriting.
-Exactly one `Content-Length` with that spelling is required, containing unsigned
-decimal digits without padding or leading zeroes and equal to the admitted size.
-The configuration must fit that header for its largest permitted object. These
-canonical casing/value rules are service choices stricter than generic HTTP;
-the independent Caffeine hash primitives continue to implement the pinned format.
-Reordered equivalent headers remain exact retries; changed or malformed metadata
-cannot replace a bound manifest or alter accounting. This is not MIME/serving
-policy or evidence of actual provider byte length.
-
-Operator-managed enrollment gates fresh authority; suspension preserves cleanup
-and accounting and reactivation invalidates old permissions. Global/tenant lifetime
-manifest capacity is reserved at admission and never refunded with byte quota.
-The shared `workflow::tenants` handlers bind every request to the installed service,
-namespace and explicit tenant. `blob_update_tenant` requires the operator and an
-exact observed enrollment precondition; `blob_tenant` permits that tenant or the
-operator to inspect, including under suspension or restoration. Replies echo the
-scope and expose the restore fence. A changed-state retry conflicts rather than
-acting as a retained operation receipt: inspect after an uncertain reply before
-choosing another update. Suspension never frees a lifetime tenant slot or erases
-obligations. The storage fixture uses these same handlers; hosts must still supply
-actual platform caller/service identity and explicitly export their endpoints.
-
-`ReplicatedTenantClient` pins the actual executing canister and complete tenant
-scope, makes one bounded call with no attached cycles, and checks the reply before
-returning it. Ordinary IC fees still apply. Its reply decoder reuses the tenant
-transition model to validate successful update acknowledgments; inspection can
-return absence or a restore fence but never proves which historical command ran.
-Hosts must retain exact command intent before polling the update future and reconcile
-unusable outcomes through inspection. The client owns no journal, authentication
-provider, lifecycle hooks or automatic retries. Local tests use one retained command
-in the existing consumer fixture; production operator persistence remains open.
-
-The unpublished PocketIC probe supplies actual IC caller/time, bounds Candid
-work and measures a 10 MiB declaration through admission, manifest preparation,
-retry and local exposure. Stop/start preserves the owner; unsupported upgrades
-reject atomically, including skipped outgoing hooks. It has no stable schema,
-provider effect or certificate response. Completion remains a separate trusted
-host input and is not exposed as a browser command. See the
-[upload-path decision](roadmap.md#upload-path-evaluation--2026-09-27).
-
-This is an unresolved contract checklist, not a frozen service API or provider
-suitability verdict. Freeze the decisions and evidence before B2 implementation,
-subject to the explicit bounded exception below.
-The bootstrap package name does not decide the final package split.
-
-Client preparation now uses the additive `CaffeineManifestBuilder`: the shared
-hash engine computes each leaf once and retains only an explicitly bounded list.
-The local `prepare_upload` example reuses `validate_upload_metadata` from the
-service, then requires exact length and successful EOF. Its computed digest/root
-and leaves establish local consistency only. The client must preserve the source
-bytes/metadata; no raw-digest admission requirement, provider certificate authority,
-persisted operation schema or completion evidence is introduced.
-
-The [consumer download direction](roadmap.md#consumer-download-verification)
-keeps bulk verification outside the service canister. The additive
-`CaffeineRootVerifier` and local stdin example check byte consistency against a
-fixed root, length and original metadata; they do not authenticate a download
-descriptor or establish successful provider completion. The example optionally
-publishes the exact checked bytes to a caller-controlled local file after clean
-EOF, without overwriting an existing destination. This is not production/browser
-delivery or a crash-durable transaction.
-The admission owner now retains original metadata and exposes a bounded borrowed
-`content_descriptor` view through its existing tenant authority. Its lifecycle
-field distinguishes prepared/uncertain/cancelled/confirmed/retired states; the
-view grants no reference, serving permission or provider guarantee. The private
-probe delegates the same query to this owner, without certifying its response.
-`retained_content_descriptor` additionally requires confirmed completion and an
-exact live reference for the supplied object incarnation. It performs one passive
-owner read; a copied result is not a retain receipt or permission to publish after
-release. Consumer publication/release exclusion remains a workflow obligation.
-Production descriptor publication and browser delivery remain outstanding.
-
-On 2026-09-25 the maintainer explicitly approved implementing content identities,
-hash parsing and pure funding/readiness policy with native tests before B1
-closes. This exception includes local implementation and its evidence only;
-provider bindings/effects, persisted workflows and Canic removal remain gated.
-The maintainer subsequently removed B1 ownership/readiness as a library
-publication gate; crates.io publication follows the separate release workflow.
-[Core evidence](evidence/core-primitives.md) records the resulting
-scope. It does not settle tenant authority, provider identity, configuration
-persistence, recovery reconciliation or overall service readiness.
-
-The continuing local port includes billing input/configuration validation and
-transient gateway-list validation and membership operations. These values add no provider interface,
-persisted workflow or callback authority; the remaining implementation gates
-below still apply.
-The local test scope also includes an unpublished PocketIC authority probe over
-sample transient objects. Actual IC caller/service context reaches the shared
-library policies and catalog; caller isolation, release replay and gateway
-revocation have [partial evidence](evidence/core-primitives.md#pocketic-authority-probe-after-018).
-This fixture does not select a production API or establish provider/persistence guarantees.
-After 0.1.14, the maintainer approved a connected local upload/deletion journey.
-The fixture uses the current source's certificate/liveness/deletion method shapes
-with shared catalog/policy checks. Tenant-only certificate admission, conservative
-protection of unknown/pending roots and gateway-only liveness are local proposed
-semantics. In this separate integrity fixture, bytes match the manifest and raw digest before
-certificate exposure. The 0.2 continuation extends this fixture to nonempty files
-up to 10 MiB in ten chunks, with eight headers and 1 KiB of framed header input.
-Admission and journal validation share that fixture envelope. It retains bounded
-manifest/hash state across messages, discards checked bytes, and does not select
-a production upload architecture or restore format. Tenant progress and exact
-chunk retries preserve the verified prefix; a final raw-digest mismatch is
-terminal for that declaration. Real IC callback rollback is exercised; gateway certificate
-validation, provider storage, completion and billing cessation remain unqualified.
-The same local journey reads individual chunks from a driver-controlled source
-canister. It requires the bound tenant's live confirmed reference and current
-gateway authority before and after the call, and checks bytes against the
-admitted manifest before disclosure. Revocation/successful gateway sync invalidate
-pending reads; re-addition cannot validate an old reply. This does not specify a
-production HTTP transport, range protocol, read-session recovery or provider SLA.
-The authority fixture restores synchronously into an inspection-only fence.
-PocketIC proves ordinary stop/start continuity, same-release upgrades, atomic
-rollback of invalid incoming journals, and retention of uncertainty, root history,
-billing and held callbacks. An operator-armed read callback trap rolls back attempted slot cleanup;
-that slot stays blocked through stop/start and elapsed time. No reset/unfence
-endpoint is provided. The local source has a fixture-only ic-memory journal for
-bindings, retained bytes/read state and bounded lifetime call history. Intents
-precede dispatch. Synchronous restoration always fences operational endpoints;
-only the original driver can inspect the retained journal. Unresolved work rejects
-ordinary upgrades, while skipping the outgoing hook still restores behind the
-fence. Missing journals reject restoration. These hooks do not qualify snapshot
-loads/reinstall or supply independent authority surviving an old backup.
-The authority fixture additionally writes a bounded inspection archive in the
-same IC message as every mutation. It covers sample confirmed objects, sample
-uploads and the connected journey, including immutable identities, release
-receipts, accounting, manifests/progress and exact pending read intent. Only its
-explicit operator may inspect it. The archive now retains private exact-release
-streaming-hash checkpoints. A test-only probe can reconstruct and advance a copy;
-its result never updates live progress, catalog state or certificate eligibility.
-Hash-state bytes can contain a short plaintext buffer and are omitted from public
-inspection views. Their checksum detects damage, not forgery or rollback.
-Incoming archives bind the workspace release/dependency selection through the
-Cargo.lock digest, including when all content is terminal. Disposable catalogs
-validate all records through shared transitions and exact comparison before the
-complete frozen archive becomes the inspection owner. Pending read/sync identities
-remain evidence; restoration never mints callable tokens from them. Busy active
-instances reject ordinary upgrades; forced restoration retains uncertainty under
-the fence. All operational endpoints, including gateway liveness/deletion queries,
-reject after restoration. No unfence/reset path is provided. Older archives cannot
-authorize renewed admission; full snapshot loads remain outside this evidence.
-An operator-only status query projects the current active or frozen owner into
-separate catalog phase/receipt counts and logical, physical and billing bytes.
-Shared pure diagnosis composes existing billing blockers with recovery/provider
-qualification and funding-journal uncertainty; outstanding read/sync/upload/delete
-work remains visible separately. Validated diagnostic billing limits may now be
-installed for an exact balance scope/revision. Shared threshold assessment reports
-shortfalls without reserve arithmetic when spendable funds are unknown, preserving
-an explicit spendability blocker. Funding activity remains unobserved. Its
-separately configured local balance-read scope now binds service, namespace, source
-and account to each persisted intent. The shared decoder validates independent
-reply bytes; status retains history and only exposes a current total within the
-fixture's dispatch-based age bound and current configuration revision. Restoration
-always invalidates current use. No query refreshes, credits or funds an account.
-Gross canister cycles never stand in for spendable funds.
-Status is neither an archive-integrity audit nor operational admission authority.
-Queries cannot sync, fund, replay work or clear fences, and older/missing stable
-evidence cannot replace live status before an actual restore.
-An unpublished local operator client now consumes authority/funding status through
-ic-testkit's PocketIC transport. Target server/instance/canister/caller and expected
-namespace/peer are explicit; the caller is simulated, not production authentication.
-Only the fixed query is callable. Structured blocker checks never grant effects,
-and failed reads cannot trigger an update fallback. Real subprocess tests cover
-permission/binding failures, method mode and unchanged journals after restoration.
-The separate local refresh tool queries an admission preview or explicitly requests
-a controlled balance read. The fixture atomically checks caller, fence, full scope,
-revision and next attempt before intent/dispatch. Preview cannot reserve admission;
-repeating a consumed request cannot dispatch again. Post-status has a separate JSON
-outcome and never triggers action replay. Malformed or missing acknowledgements
-remain uncertain. These fixture commands establish no production account authority.
-The local sync command shares that client flow. Required fixture edit revisions
-invalidate previews on every revocation, while the existing registry owns callback
-correlation and membership. Exhausted revisions block sync but never revocation.
-Source/revision/sequence status is inspection data, not token or restore authority.
-Its controlled local source canister additionally exercises gateway sync across
-real awaits, including reentrant revocation and replacement. No provider binding
-or deployed Cashier transport is implemented by these test-only calls.
-
-The transient gateway model now correlates one pending sync to its exact local
-attempt and immutable service/namespace/Cashier scope. Operator edits invalidate
-older syncs; malformed responses preserve current state. Pure callback policy
-checks current membership against the trusted object and execution context.
-These local rules do not establish endpoint authentication, provider revocation,
-durable freshness or a restore-safe sequence allocator. Operators can explicitly
-start a later sync that re-adds a member; no permanent denylist is implied.
-`StableGatewayRegistry` now persists these same model transitions in one explicit
-host-granted memory. One bounded v1 record retains the service/operator/Cashier/
-namespace binding, processing and membership limits, ordered members, last sequence
-and pending identity together. Installation accepts at most 1024 distinct members;
-the complete record is bounded at 64 KiB. Each mutation validates before writing
-the whole bounded membership record, without accumulating lifetime sync rows.
-Malformed lists preserve pending state; operator adds/removals invalidate earlier
-attempts even if membership does not change. Explicit cancellation applies only to
-the exact read-only sync. Sequence exhaustion never prevents an operator removal.
-Restoration validates the retained record and installed bounds without repair,
-preserves pending identity and permanently fences mutation. Host release/installation
-checks remain separate. Native and local PocketIC evidence covers persistence and
-rollback; this store does not authenticate provider replies, assign read-session
-generations or qualify membership as callback authority. A host must bind live
-transport to the original opaque attempt; handles in the probe are bounded,
-labelled test controls and do not survive restore as operational authority.
-
-`workflow::gateways::revocation::revoke` now backs the operator-only
-`blob_revoke_gateway` update in the standalone host and storage fixture. It binds
-actual caller/service and the explicit service/namespace/Cashier/payer scope before
-the existing durable removal. Even an absent member invalidates pending sync and
-older read observations; occupied read slots and upload/funding obligations remain.
-The response echoes the request and reports whether membership changed, without a
-historical receipt. Repetition is another revocation decision and may remove later
-re-added membership; callers must not automatically retry a lost acknowledgment.
-Local status supplies current inspection. This does not revoke provider credentials,
-delete objects, stop billing or bypass restoration fences. The fixture's separate
-removal command is removed; its fault hook delegates to the same shared handler.
-
-`workflow::gateways::sync::refresh` now composes durable admission and the existing
-replicated transport behind `blob_sync_gateways` in both hosts. The operator supplies
-the complete installed scope; the host fixes timeout/decoder budgets. Standalone
-uses a 30-second wait and 64 KiB reply bound after the CDK's platform-bounded buffer.
-Failure preserves the pending sequence for local inspection, with no automatic
-retry or cancellation. `blob_cancel_gateway_sync` resolves only that exact retained
-sequence under operator authority, using the model's original opaque token; ingress
-cannot manufacture a token. It preserves membership, read generations and sequence
-history. A delayed callback cannot overwrite cancellation, revocation or newer work.
-Both operations reject restoration fences. The fixture's private cancellation
-command is removed; retained fixture attempts now use their durable sequence rather
-than vector position. Local IC query evidence does not qualify deployed Cashier
-behavior, callback authority, paid effects or operational recovery.
-
-`workflow::gateways` constructs the canonical Cashier query before reserving its
-durable sync, then retains request and token together for completion or cancellation.
-Authority and restore fencing precede request/source/token checks and bounded Candid
-decoding. Only a fully valid reply commits membership and clears pending state;
-failures retain both unchanged. The storage probe supplies encoded local replies to
-this shared workflow, including write-trap rollback and restore evidence. A host
-must retain authenticated operator and source context across transport and bound
-buffering separately. Supplied bytes/scope do not authenticate a provider fetch;
-the advertised query has no automatic replicated-call fallback here.
-`workflow::gateways::transport::query_sync` accepts an already persisted attempt
-and invokes the host's `CashierQueryTransport` only after checking current authority,
-fence and exact pending identity on polling. `GatewayRegistryAccess` releases each
-synchronous borrow before transport. The original context/request remain captured;
-source matching and current-owner completion checks precede any membership write.
-Transport failures retain pending state for explicit cancellation or operator
-invalidation, without an automatic retry. Each invocation performs one read-only
-query; this is not a paid-effect dispatch permit or a persistent transport-attempt
-counter. The host must authenticate responses and independently bound buffering.
-PocketIC exercises this handler with a differently named local update substitute
-and canonical empty arguments. Delayed replies cannot overwrite revocation, a newer
-pending attempt or completed replacement; callback write traps preserve pending
-state after the source has answered. Restored dispatch sends nothing. These tests
-establish scheduling/rollback behavior, not replicated support for Cashier's query.
-`ReplicatedGatewayQuery` now explicitly selects replicated IC execution for the
-canonical query method. It checks its configured service against the actual running
-canister and its Cashier against the original request, refuses ordinary query
-execution and other query kinds, and sends once with a positive timeout of at most
-300 seconds. It attaches no cycles and installs no automatic fallback or retry;
-ordinary platform fees still apply. The CDK initially buffers under platform limits;
-the host's smaller byte budget is checked before the owned buffer reaches decoding,
-without copying it again. PocketIC exercises the canonical query-only export and
-tests zero attachment, scope/execution refusal, rejection, size limits, callback
-rollback and fenced restoration. The [current review](evidence/caffeine-gateway-transport.json)
-retains the unchanged public provider baseline. Local replicated execution is now
-established; deployment ownership, actual Cashier replicated execution and provider
-semantics remain qualification work. Off-chain query clients acquire no implicit
-permission to switch transport modes.
-Local account-balance reply decoding likewise binds successful reports to a
-supplied requested account and rejects unusable amounts. It does not establish
-transport identity, account ownership, observation freshness or payment outcomes.
-The post-0.1.18 [installation proposal](provider-review.md#integration-decision-after-0118)
-separates service owner, tenant project and payer and inventories the remaining
-deployment inputs. Bounded local relationship decoding checks both expected
-principals and retains signed provider figures without interpreting allowance.
-No compatible relationship reported is not self-payment evidence. This extends
-local inspection only; it freezes no production binding, schema or transport.
-The library also owns the explicit method/argument encoding for balance,
-relationship and gateway-list queries. The controlled balance fixture sends the
-maintained account record to its local substitute endpoint and uses the shared
-reply decoder; IC interruption and restore checks remain local-model evidence.
-No real Cashier call, provider namespace or production workflow follows from
-constructing an encoded request.
-Balance/relationship decoding can retain the original request's method, target
-and account expectations; supplied response-source context is still not transport
-authentication. The balance fixture carries that request across its await. A
-driver-only local relationship query shares the bounded raw-response source and
-rejects held, busy, rejected or fenced observations. It cannot activate a payer
-or remove an obligation, and adds no production account workflow.
-Gateway reply application likewise checks the original method/target before the
-registry's scope, pending token and bounded decoding. The local reentrant sync
-fixture retains that request across its await but still calls its scheduling
-endpoint; a separate driver-only query exercises the provider's empty-argument
-shape. Scripted modes and restored sources cannot answer that passive query.
-Audit request encoding requires an explicit account and positive page limit;
-present cursor accounts must match. Reply inspection checks the original method
-and trusted source and enforces both requested and local reported-count bounds.
-Account/filter correctness is not independently verifiable from the opaque CSV
-envelope. There is no automatic pagination, production audit call or payment
-reconciliation; cursor order, retention and row semantics remain unqualified.
-The controlled-source workflow now supplies explicit IC target/caller and exact
-attempt correlation, with one pending read and sixteen lifetime attempts. This
-tests local orchestration, not deployed Cashier authority or certified freshness.
-
-Pure funding policy now also assesses admission of a new intent from supplied
-recovery/activity observations. This is part of the local policy exception;
-it neither establishes those observations nor persists or executes an intent.
-An additive incomplete-evidence assessment retains unknown spendability, recovery
-and activity alongside known blockers. Reserve arithmetic never replaces missing
-funds with zero. The local funding-preview query binds sender/peer/id/amount and
-checks identity reuse/capacity without consuming an intent. Its raw transfer
-experiment remains separate from operator admission; no funding action is exposed
-through the preview CLI. Gross cycles and transport acceptance supply neither
-authoritative spendability nor provider credit.
-An exact local funding lookup now exposes absent, pending or retained transport
-evidence after checking caller, service/peer and all original request inputs.
-Its CLI only queries: missing evidence or a failed read cannot trigger payment.
-It reads the active owner and preserves restore fences; it does not reconcile a
-lost Cashier reply or establish that an absent operation had no external effect.
-The local fixture now requires an installed attachment allocation and positive
-reserve. Its bounded journal derives accounting from original intents and exact
-terminal observations; admission persists the full reservation before dispatch.
-The library's `FundingAllocation` model now owns this amount reconstruction for
-bounded sequential journals. Each original full offer must fit before applying its
-own return; unknown transport may appear only last. The fixture retains binding,
-identity, revision and persistence checks. This arithmetic model supplies neither
-omitted history nor a reconstruction rule for overlapping transfers.
-Known refunds and unsent attachments release only their allocation. Accepted and
-unresolved attachments remain charged, including through a permanent restore
-fence. Preview requests bind the budget revision, which changes even after a full
-refund. This is an attachment envelope, not production spendability: execution
-fees and other liabilities are outside it, and incoming cycles cannot replenish it.
-An additional local liquidity guard now samples the platform balance and exact
-call-cost bound after intent persistence. It preserves separately installed
-positive operating slack and explicit other liabilities. A refused dispatch is
-recorded as unsent with zero acceptance and no callback refund; its identity stays
-consumed. Callback failure controls apply only to real callbacks, preserving
-unsent refusals through restore. Preview amount limits match update admission.
-Query observations can be cached or become stale without any journal
-revision change, so the update rechecks them. These local resource inputs do not
-establish complete production accounting, independent recovery or provider credit.
-Shared transfer values now validate exact unbounded-call refund arithmetic and
-distinguish proven enqueue failure from missing evidence. Pure reconciliation
-policy diagnoses no transfer, accepted cycles requiring credit evidence, or an
-unknown transfer with the full attachment unresolved. Its result neither clears
-account-wide activity nor permits a retry. Service/provider/account/operation
-bindings and authoritative credit reconciliation remain workflow obligations.
-Shared activity diagnosis now examines all uncredited attempts, so a later refund
-or unsent call cannot hide older credit requirements. The funding fixture exposes
-that diagnosis in a driver-only query bound to its actual canister and retained
-local peer. Incoming acceptance receipts remain separate from outgoing attempts;
-neither establishes provider credit. Active experiments report recovery as unknown;
-restored instances report an enforced permanent fence. Restoration checks the actual
-service and Cargo.lock release binding, bounded unique operation/receipt identities,
-exact refund arithmetic and retained shared reconciliation before installing the
-inspection owner. The sender rejects all new/reused payment intents; the receiver
-rejects before cycle acceptance. Late callbacks cannot complete restored intents.
-Unknown transfers and uncredited acceptance remain inspectable through repeated
-upgrades. Missing/corrupt/foreign journals and failed hooks reject atomically.
-The changed fixture schema is reinstall-only, with no older reader or reset/unfence.
-Whole-canister snapshots can bypass hooks and remain unqualified. Missing billing
-configuration, balance and spendable reservations remain unknown. Queries preserve
-journals and make no calls. Before restore, experimental admission still allows
-distinct completed transport cases; this is not a production funding workflow.
-Local Cashier audit decoding now covers its verified Candid response envelope,
-with bounded opaque CSV and reported pagination fields. No row schema, request
-transport, automatic pagination, complete-history proof or credit matching is
-implemented; provider errors and unusable pages cannot settle funding.
-
-The maintainer subsequently requested the persistence contract and lifecycle
-model, and explicitly directed a fresh design review of Canic's decisions.
-That local scope includes the transient confirmed-object lifecycle model below.
-It does not close provider qualification or authorize persisted workflows/effects.
-
-The 0.1.11 continuation also authorizes local upload admission/reservation work.
-`UploadCatalog` owns its confirmed catalog and operation history together, using
-the same root claims and aggregate byte bounds. Exact tenant-scoped operations
-reserve lifetime history, concurrent slots and bytes before possible exposure.
-Cancellation is allowed only before exposure; unknown outcomes retain capacity.
-Confirmation consumes an independently authenticated exact fact and transfers
-the reservation without allocating a second object. Cancelled/settled history
-and root claims are retained. This transient model has no certificates, provider
-transport, timeout, serialization, restore or automatic uncertain-effect retry.
-Byte liabilities do not bound monetary costs. Pending-upload gateway liveness,
-provider reconciliation and durable admission remain integration work.
-Local read policy now includes tenant-scoped active-upload pages and aggregate
-reserved/confirmed usage. Scope-bound cursors convey no authority or snapshot;
-scan/result budgets come from configuration. Gateway observations cover pending,
-cancelled and confirmed root history with current membership and namespace checks.
-These typed observations deliberately define no provider liveness/deletion boolean.
-Gateway batches use temporary input-bounded maps and at most one shared history
-scan; duplicates do not multiply scans, and no read cache persists between calls.
-Native tests and fixed PocketIC caller/cancellation/revocation fixtures cover this
-read boundary; pending-root protection in the actual protocol remains unqualified.
-
-On 2026-09-26 the maintainer explicitly requested resolving the upload-completion,
-funding-error and stale-deletion findings. That scope now includes bounded local
-Caffeine reply decoding with one private wire owner, and a transient immutable
-root-claim model. It does not authorize paid tests, deployed adapters or a claim
-that source-level response checks establish the missing server guarantees.
-
-The [Canic parity review](canic-parity.md) records the captured
-Canic source inventory, preserved behavior, required safety corrections and
-removal obligations. The [acceptance plan](acceptance-plan.md) supplies
-concrete proposed cases A01–A12. These are B1 working inputs, not a frozen
-contract or executed qualification. The repository is now
-`dragginzgame/ic-blob-storage`; accountable maintainers and registry ownership
-remain to be assigned.
-
-The maintainer selected the latest official Caffeine integration as the target.
-The [provider baseline](provider-baseline.json) pins the verified latest npm
-client and current official backend source; the [provider review](provider-review.md)
-records verification and differences from Canic's snapshots. Canic supplies
-extraction history, not authority for the provider contract. Refresh the exact
-upstream baseline before implementation and qualification. Caffeine is not yet
-qualified; deployed-contract and recovery/economic evidence still must close
-before provider bindings and effects are implemented.
-
-The local content-identity exception now includes bounded streaming computation
-of the reviewed Caffeine client's nonempty content tree and raw digest. Explicit
-metadata is hashed with the client's normalization and ordering; no MIME or header
-inference occurs. This is local hashing, not an upload tree/certificate, chunk proof,
-HTTP-header validator, completion observation or persisted checkpoint. Independent
-client vectors provide algorithm evidence only. Empty provider objects remain
-unqualified rather than inheriting the client's failing empty-tree branch.
-The same local algorithm now validates bounded ordered chunk manifests against
-an expected root and verifies exact bytes at any chunk index. These are immutable
-local identities, not provider wire manifests or certificates. Construction
-checks consistency only; verified bytes, trusted length, tenant binding, provider
-availability and durable resume progress remain separate requirements. In
-particular, a root without trusted length metadata cannot alone authenticate the
-declared final-chunk length.
-The local byte-verification scope also includes bounded in-memory coverage of
-unique chunk positions in one manifest. This tracks successful observations only;
-it neither owns destination bytes nor serializes resume state. All-chunks-verified
-is separate from successful writes, durable completion and provider availability.
-An ordered variant composes exact manifest leaf checks with raw-content hashing:
-bad chunks reject before advancing the hash, and finalization checks the full
-declared length and separately supplied raw digest. Its successful identity pair
-still makes no destination-write, persistence or provider-completion claim.
-Missing-chunk enumeration is also local: positive scan/result limits bound each
-page, and byte ranges follow the immutable manifest's declared length. Scans use
-current coverage, confer no reservation/authority and are not durable checkpoints
-or evidence that the provider supports any HTTP range protocol.
-The unpublished PocketIC fixture exercises these local byte algorithms in Wasm
-using compiled independent vectors and measures ordered-append instructions.
-It exposes fixed test cases only; no production read API, input-size qualification,
-provider transport or durable state is established by this experiment.
-
-The [independent deployment review](provider-review.md#independent-deployment-support)
-now identifies DFINITY's explicit Rust onboarding guide and payment-account
-linking example. Caffeine is the sole provider target. Exact installation
-bindings, deployed interoperability and recovery/economic behavior still
-need qualification; lack of general Rust integration guidance is no longer a
-blocker. The example does not replace tenant policy, host memory ownership or
-restore fencing. Target the current package's `vec blob` deletion list, without
-the older example's text fallback. Executed callback-refund and same-release
-upgrade experiments are platform evidence with fixture-owned ic-memory journals,
-not authorization for production provider effects or frozen service schemas.
+The standalone adapter provides the maintained endpoint/configuration contract.
+Local PocketIC fixtures exercise service state, rollback, authority and lifecycle
+with labelled substitutes. Full provider qualification, consumer acceptance and
+operational restart remain open. Historical framework implementation observations
+are retained in the evidence record; the removed wrapper is not a maintained API.
 
 ## Design inputs and assumptions
 
 The maintainer requested a fresh review on 2026-09-26, including choices made
-here. Canic supplies the capability/removal checklist; Toko supplies concrete
+here. Toko supplies concrete
 consumer scenarios; current authoritative provider contracts define provider
 behavior. Neither application's implementation automatically specifies this
 service. Refresh dated source pins before implementing an external boundary.
@@ -908,26 +214,17 @@ apply within the frozen release; pre-1.0 cross-release transitions remain reinst
 
 ## Acceptance target
 
-The proposed package roles are core, passive service protocol, upload/read
-client, standalone canister, thin Canic adapter and operator CLI. Only the core
-exists as a product package; the test canister and host harness are unpublished
-fixtures. Final product names and package split remain open. Both adapters belong here,
-and only the managed adapter may depend on Canic. One internal provider module
-owns request/callback definitions; clients use the service protocol.
-
-The maintainer explicitly requires all Canic blob functionality to be ready
-here before Canic removal. The [parity contract](canic-parity.md) and
-[capability inventory](canic-capabilities.json) include lifecycle, gateway,
-billing, status, operator commands and diagnostics. Operator replacement is
-part of this extraction, with A11/A12 acceptance alongside the service journey.
-Preserve capabilities using the current provider contract and required safety
-corrections; do not preserve superseded APIs or unsafe behavior as aliases.
+The package roles are the shared core, standalone host, native CLI and private
+browser client. This repository owns service workflows and provider bookkeeping.
+Consumer frameworks own deployment wrappers and integration tests externally.
+Operator workflows and diagnostics remain part of service acceptance; removing
+framework code here does not waive authority, accounting or retirement requirements.
 
 Name one concrete application and accountable consumer owner. Its journey is:
 an authorized tenant uploads a bounded object, resumes after interruption,
 reads and verifies bytes, and releases the reference through confirmed provider
-deletion and billing cessation. Exercise it against both standalone and
-Canic-managed deployments with the same blob API and tenant rules.
+deletion and billing cessation. Exercise it against the standalone service and the consumer's own wrapper using
+the same shared blob API and tenant rules.
 
 Classify each behavior as existing behavior preserved, a safety correction
 required for extraction, or a new capability deferred. B2 is bounded by this
@@ -1496,8 +793,8 @@ does not establish billing cessation or fix loss of history after an old backup.
 ### Candidate persisted boundaries
 
 Most boundaries below remain proposed v1 responsibilities rather than installed
-records or a frozen wire format. Keep them independent of Canic's memory IDs and store layout.
-The maintainer selected `ic-memory` as the allocation owner aligned with Canic
+records or a frozen wire format. Keep them independent of a consumer framework's memory IDs and store layout.
+The maintainer selected `ic-memory` as the sole allocation owner shared with hosts
 and IcyDB. Future core stores use its re-exported stable collections, and the
 integrating host owns bootstrap, policy, grants and bucket profile. This dependency decision
 does not freeze blob schemas/keys/IDs or close the provider and recovery gates.
@@ -1894,7 +1191,7 @@ remain decimal strings. One signed query has a 4 KiB decoded outcome bound and
 grants no provider-credit, retry, payment or unfencing authority.
 
 `workflow::funding::assessment::inspect` now exposes the existing preparation
-policy synchronously through `blob_funding_preparation_assessment` in both adapters.
+policy synchronously through the shared `blob_funding_preparation_assessment` standalone endpoint.
 The authenticated operator supplies the complete installed scope and a proposed
 positive operation/offer/exact optional target. The host supplies no externally
 asserted evidence: qualification is false and recovery, complete account activity
@@ -2028,7 +1325,7 @@ Installation must explicitly supply positive limits for object/chunk size,
 tenant/global bytes and object/reference counts, outstanding sessions/effects,
 receipt storage and liability capacity. The lifetime reference bound counts
 released IDs too. Reject inconsistent profiles before admission, with no inferred
-production defaults from Canic. Numeric deployment budgets and supported evidence/
+production defaults from a consumer framework. Numeric deployment budgets and supported evidence/
 restore horizons remain open until a concrete consumer and provider guarantees
 are selected; the model's native fixtures are not production limits.
 
@@ -2047,13 +1344,12 @@ horizons. Assign the acceptance cases to accountable owners.
 | Contract | Owner role to assign | Decision and acceptance evidence |
 | --- | --- | --- |
 | Scope and publication | Service maintainer and consumer owner | Name application, maintainers, package split, registry/repository ownership and release plan; bind preserved behavior to source |
-| Deployments and adapters | Service maintainer; Canic owners qualify generic integration | Both adapters live here, share handlers and tenant rules; core builds without Canic; retain Candid/artifact provenance and both journey results |
-| Tenant authority | Service maintainer | Exact tenant/actor bindings and denial cases; a digest or Canic controller status grants no tenant authority |
+| Library and host integration | Service maintainer and consumer owners | Shared core and standalone host live here; consumer wrappers/integration tests live externally and preserve the same authority/workflow contract |
+| Tenant authority | Service maintainer | Exact tenant/actor bindings and denial cases; a digest or controller status grants no tenant authority |
 | Identities and restore | Service maintainer | Recovery identity, non-reuse authority surviving older backups, stale-instance fencing and reconciliation before effects or admission based on stale accounting |
 | Provider suitability | Service maintainer | For every paid/destructive operation: exact retry identity, authoritative completion evidence, retention horizon, typed uncertain outcome, bounded reconciliation, separate deletion and billing-cessation evidence |
 | Accounting | Service maintainer | Deduplication choice, logical/physical quota basis, reservation/release timing, race-safe counters and ownership of costs until deletion and billing cessation |
-| Existing obligations | Each affected installation operator; Canic owner inventories allocations | External objects, uploads, uncertain paid effects, balances and billing inventory; no-obligation evidence or completed owned decommission/disposition before reset |
-| Canic removal and generic coverage | Canic runtime/facade, host/CLI and testing owners | Complete removal inventory and replacement evidence for surviving generic fixture coverage; changes occur only under separate Canic work |
+| Existing obligations | Each affected installation operator | External objects, uploads, uncertain paid effects, balances and billing inventory; no-obligation evidence or completed owned decommission/disposition before reset |
 
 Caffeine is the selected integration target but is not yet qualified. Missing exact
 retry binding, authoritative completion evidence, adequate evidence retention,

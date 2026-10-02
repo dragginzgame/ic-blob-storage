@@ -109,7 +109,7 @@ pub fn open<M: Memory, E>(
 }
 
 /// Open service grants from the already bootstrapped default runtime, for a host
-/// such as Canic that owns it. Checks the existing committed capability first;
+/// that owns it. Checks the existing committed capability first;
 /// absence cannot construct a manager or silently choose its bucket policy.
 /// No declarations, lifecycle hooks, store initialization or recovery activation
 /// are implied. The host must grant exclusive service ownership as for [`open`].

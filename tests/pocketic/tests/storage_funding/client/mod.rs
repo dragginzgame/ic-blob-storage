@@ -210,12 +210,7 @@ fn funding_client_requires_host_authentication_service_operator_and_replicated_e
             .unwrap();
         assert_eq!(query, Err(ConsumerFailure::Transport));
         if authorized {
-            assert!(
-                history(&f, client, request, 16_384)
-                    .unwrap()
-                    .entries
-                    .is_empty()
-            );
+            assert_eq!(history(&f, client, request, 16_384).unwrap().entries, []);
         } else {
             assert_eq!(
                 history(&f, client, request, 16_384),

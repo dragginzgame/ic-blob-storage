@@ -24,7 +24,7 @@ fn library_linking_and_content_work_do_not_claim_or_bootstrap_memory() {
         Err(RuntimeOpenError::NotBootstrapped)
     );
     let before = blob_memory::sealed_declaration_snapshot().expect("linked declarations");
-    assert!(before.registered_declarations().is_empty());
+    assert_eq!(before.registered_declarations(), []);
     let digest = ContentDigest::compute(b"no stable memory required");
     assert_eq!(digest.to_string().parse::<ContentDigest>(), Ok(digest));
     assert!(!blob_memory::is_default_memory_manager_bootstrapped().expect("observe again"));
@@ -32,11 +32,11 @@ fn library_linking_and_content_work_do_not_claim_or_bootstrap_memory() {
         blob_memory::committed_allocations(),
         Err(RuntimeOpenError::NotBootstrapped)
     );
-    assert!(
+    assert_eq!(
         blob_memory::sealed_declaration_snapshot()
             .expect("same snapshot")
-            .registered_declarations()
-            .is_empty()
+            .registered_declarations(),
+        []
     );
 }
 

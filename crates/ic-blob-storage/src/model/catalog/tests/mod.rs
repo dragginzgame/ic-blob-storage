@@ -450,7 +450,7 @@ fn pages_advance_through_sparse_results_and_reject_cross_scope_cursors() {
     let first = catalog
         .pending_deletions(n(1), None, limits)
         .expect("first page");
-    assert!(first.entries.is_empty());
+    assert_eq!(first.entries, []);
     assert_eq!(first.scanned, 1);
     let cursor = first.next.expect("empty page must advance");
     assert_eq!(

@@ -463,7 +463,7 @@ mod tests {
             .add(p(4))
             .expect("explicit membership edits need no sync identity");
         assert!(registry.remove(p(4)));
-        assert!(registry.gateways().principals().is_empty());
+        assert_eq!(registry.gateways().principals(), []);
     }
 
     #[test]

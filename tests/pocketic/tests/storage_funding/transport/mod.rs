@@ -325,7 +325,7 @@ fn cashier_transport_requires_exact_prepared_operator_intent_and_full_liquidity(
         (blocked.accepted, blocked.refunded, blocked.outcome),
         (0, None, FundingOutcome::LiquidityBlocked)
     );
-    assert!(f.incoming().is_empty());
+    assert_eq!(f.incoming(), []);
     assert_eq!(
         f.funding_lookup(f.operator, intent),
         Ok(Some(Phase::NotEnqueued))
@@ -351,7 +351,7 @@ fn cashier_receiver_trap_rolls_back_acceptance_and_returns_the_full_attachment()
         (result.accepted, result.refunded, result.outcome),
         (0, Some(900), FundingOutcome::Rejected(5))
     );
-    assert!(f.incoming().is_empty());
+    assert_eq!(f.incoming(), []);
     assert_eq!(
         f.funding_lookup(f.operator, intent),
         Ok(Some(Phase::Callback(900)))

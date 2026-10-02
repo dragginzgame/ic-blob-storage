@@ -36,7 +36,7 @@ pub(super) fn prepared(m: UploadMemories<VectorMemory>) -> StableUploads<VectorM
 #[test]
 fn exposure_policy_keeps_each_missing_host_fact_independent() {
     let yes = evidence();
-    assert!(assess_exposure(yes, 2).blockers.is_empty());
+    assert_eq!(assess_exposure(yes, 2).blockers, []);
     for (changed, blocker) in [
         (
             UploadExposureHostEvidence {
@@ -158,11 +158,11 @@ fn exposure_binds_complete_permission_and_current_evidence_before_any_write() {
             Ok(UploadExposureResult::Blocked(assessment))
         );
     }
-    assert!(
+    assert_eq!(
         exposure::inspect_preparation(&store, context(5), p, yes, 2)
             .unwrap()
-            .blockers
-            .is_empty()
+            .blockers,
+        []
     );
     assert_eq!(
         exposure::commit(&mut store, context(5), p, yes, 3),
@@ -192,11 +192,11 @@ fn exposure_preview_never_overrides_revocation_activation_expiry_or_restore() {
     let mut store = prepared(clone_memory(&m));
     let p = manifest_boundary::input().permission;
     let yes = evidence();
-    assert!(
+    assert_eq!(
         exposure::inspect_preparation(&store, context(5), p, yes, 2)
             .unwrap()
-            .blockers
-            .is_empty()
+            .blockers,
+        []
     );
     assert_eq!(
         exposure::commit(

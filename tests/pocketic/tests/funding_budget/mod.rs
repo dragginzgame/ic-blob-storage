@@ -23,7 +23,7 @@ fn reserve_rejection_is_atomic_and_only_exact_returns_release_the_allocation() {
         f.fund(f.driver, too_large),
         Err(FundingFailure::ReserveWouldBeViolated)
     );
-    assert!(f.receipts().is_empty());
+    assert_eq!(f.receipts(), []);
     assert_eq!(f.status_unchanged().budget, initial);
     assert!(
         [f.sender, f.receiver].map(|id| f.harness.pic.get_stable_memory(id)) == bytes,
@@ -200,7 +200,7 @@ fn operating_holds_block_dispatch_and_liquidity_changes_without_a_budget_revisio
             reconciliation: FundingReconciliationView::NoTransfer,
         }
     );
-    assert!(f.receipts().is_empty());
+    assert_eq!(f.receipts(), []);
     let status = f.status_unchanged();
     assert_eq!(status.budget.available, before.budget.available);
     assert_eq!(status.budget.not_enqueued, proposed.requested_cycles);
@@ -300,7 +300,7 @@ fn platform_call_cost_blocks_an_attachment_that_fits_the_liquid_balance() {
     assert_eq!(outcome.outcome, FundingOutcome::LiquidityBlocked);
     assert_eq!(outcome.refunded, None);
     assert_eq!(outcome.transport_accepted, Some(0));
-    assert!(f.receipts().is_empty());
+    assert_eq!(f.receipts(), []);
     assert_eq!(f.status_unchanged().budget.not_enqueued, amount);
 }
 
@@ -338,7 +338,7 @@ fn unsent_attempts_ignore_callback_controls_and_remain_bounded_after_restore() {
             Err(FundingFailure::AlreadyAdmitted)
         );
     }
-    assert!(f.receipts().is_empty());
+    assert_eq!(f.receipts(), []);
     assert_eq!(
         f.fund(f.driver, request(16, 0, FundingReplyMode::Success)),
         Err(FundingFailure::Limit)

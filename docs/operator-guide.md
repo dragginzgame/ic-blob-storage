@@ -82,22 +82,19 @@ full-width namespace as a decimal string and labels authority/effect facts false
 It is a local proposal, not a deployment permit or recovery journal.
 
 The supplied service and release are planned inputs. Deployment must independently
-check the actual canister and compiled artifact: standalone takes
-`HostInstallationInput { configuration, project, completion_verifier }`; managed
-takes `ManagedInstallationInput` as Canic application bytes, with platform service
-and validated release supplied by the host. Use those maintained DTOs rather than
-submitting the shared configuration alone as init arguments. Host installation
-still enforces the actual binding and its own transport/semantic limits.
+check the actual canister and compiled artifact. Standalone takes
+`HostInstallationInput { configuration, project, completion_verifier }`; shared
+configuration alone is not its init argument. External consumer wrappers own
+their initialization carrier and must preserve the complete shared validator,
+actual service binding and transport/semantic limits.
 
 ## Isolated upload/download trial plan
 
 Use one new isolated storage owner and its existing local journals. No existing
-installation/account is selected; keep existing Canic/Toko accounts and obligations
-separate. Choose the standalone or Canic-managed host before provisioning; both
-share the validator and blob workflows. Managed build and focused lifecycle checks pass
-on the published Canic-aligned memory graph; see
-[CF-02](canic-parity.md#integration-feedback). Local managed evidence retains its
-original dependency/artifact identity, without qualifying a new deployed Fleet.
+installation/account is selected; keep existing installations and obligations
+separate. Use the standalone host here, or a separately qualified consumer-owned
+wrapper. This repository supplies no framework adapter or integration suite.
+
 
 | Stage | Concrete preparation or observation | Required before moving on |
 | --- | --- | --- |
@@ -427,7 +424,7 @@ execution of this read update: treat the result as unobserved, not proof the
 Cashier was never queried. Native Agent transport also returns HTTP 429/503
 backpressure without automatically resending queries or updates.
 
-Actual signed journeys through both adapters retain complete stable memory across
+Recorded historical signed host journeys retain complete stable memory across
 observations/refusals and check same-release restore. Cashier replies are local
 substitutes; see [account evidence](evidence/core-primitives.md#signed-native-account-inspection-and-bounded-transport--2026-10-01).
 Live provider observations still require the selected scope and budget recorded
@@ -491,7 +488,7 @@ it cannot prove which operation changed it or authorize repetition of an uncerta
 revocation/sync. A failed sync's exact observed pending ID can be the input to a
 new explicit cancellation decision; stale IDs conflict. Same-release restoration
 preserves pending history but fences all three controls. Local signed journeys
-through both adapters use a query-only Cashier substitute; see
+in the recorded historical host evidence use a query-only Cashier substitute; see
 [gateway evidence](evidence/core-primitives.md#signed-native-gateway-controls--2026-10-01).
 Production provider/provenance and operational recovery qualification remain open.
 

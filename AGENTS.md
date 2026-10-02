@@ -10,12 +10,9 @@ This file is normative for automated contributors.
   ic-memory and ic-timers, are read-only unless separately named and authorized.
   Inspect/review/audit requests never authorize sibling edits.
 - Preserve unrelated dirty worktree state.
-- Record actionable Canic integration feedback in
-  [the feedback list](docs/canic-parity.md#integration-feedback), link it from the
-  current handoff, and remind the maintainer of open actions in delivery summaries.
-  Recording feedback does not authorize sibling edits or sending upstream messages.
-- The bootstrap does not accept Canic's 0.110 closeout. Follow the remaining
-  implementation gates recorded in the status and service contract.
+- Record actionable consumer integration feedback in the current handoff and
+  remind the maintainer of open actions in delivery summaries. Recording feedback
+  does not authorize sibling edits or sending upstream messages.
 
 ## Delivery and release
 
@@ -72,10 +69,10 @@ This file is normative for automated contributors.
   authorize stale-backup activation, clearing fences or losing obligations.
 - The service core builds without Canic and owns tenant policy, data,
   references, quotas, provider economics, retention and deletion.
-- This repository owns both standalone and Canic adapters. Both use the same
-  service handlers, blob API and tenant rules; neither duplicates workflows.
-- Canic owns generic deployment/lifecycle. Do not add blob-specific production
-  dependencies back to Canic.
+- This repository owns the service core and standalone adapter. Consumer
+  frameworks own their wrappers and integration tests in their own repositories.
+  Do not add downstream framework dependencies, adapter crates, fixtures or tests
+  here. Linking the core must not take endpoint or lifecycle ownership.
 - Dependency direction: endpoints call workflow; workflow calls policy and ops;
   ops may call model. Policy never calls ops.
 - DTOs are passive boundary data. Request/mutation DTOs have no Default unless

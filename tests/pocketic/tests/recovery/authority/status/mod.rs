@@ -239,7 +239,7 @@ fn pending_sync_and_invalidated_reads_remain_visible_without_diagnostic_retry() 
         .unwrap();
     assert!(revoked);
     let no_gateway = f.status_unchanged();
-    assert!(no_gateway.gateways.is_empty());
+    assert_eq!(no_gateway.gateways, []);
     assert!(no_gateway.blockers.contains(&Blocker::GatewaysMissing));
     f.replace_archive_bytes(memory);
     f.upgrade_skipping_outgoing_hook(f.service, true);

@@ -2,7 +2,8 @@
 name = "ic-blob-storage-pocketic-tests"
 version = "0.0.0"
 edition.workspace = true
-rust-version.workspace = true
+# The native fixture journal uses std::fs::File::try_lock (stable in 1.89).
+rust-version = "1.89.0"
 publish = false
 autobins = false
 
@@ -46,9 +47,6 @@ sha2.workspace = true
 
 [target.'cfg(not(target_family = "wasm"))'.dev-dependencies]
 candid_parser = "=0.4.1"
-canic = { workspace = true, features = ["testing"] }
-ic-blob-storage-canic = { path = "../../crates/ic-blob-storage-canic" }
-blob-canic-probe = { path = "../../canisters/test/canic_probe" }
 ic-blob-storage-canister = { path = "../../canisters/standalone" }
 # Headless certificate evidence only; never part of the published library/Wasm graph.
 ic-agent = { version = "=0.49.2", default-features = false }

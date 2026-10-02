@@ -526,7 +526,7 @@ fn empty_pages_advance_and_later_pages_observe_intervening_verification() {
     let middle = verifier
         .missing_chunks(first.next_index.expect("continuation"), limits)
         .expect("middle");
-    assert!(middle.chunks.is_empty());
+    assert_eq!(middle.chunks, []);
     assert_eq!(middle.scanned, 8);
     assert_eq!(middle.next_index, Some(9));
     assert!(!verifier.progress().all_chunks_verified());
@@ -545,6 +545,6 @@ fn empty_pages_advance_and_later_pages_observe_intervening_verification() {
         .expect("last bytes");
     assert!(verifier.progress().all_chunks_verified());
     let rescanned = verifier.missing_chunks(0, limits).expect("new sweep");
-    assert!(rescanned.chunks.is_empty());
+    assert_eq!(rescanned.chunks, []);
     assert_eq!(rescanned.next_index, Some(8));
 }

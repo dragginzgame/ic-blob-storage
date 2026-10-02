@@ -196,7 +196,7 @@ fn durable_gateway_sync_cannot_undo_operator_edits_and_failed_lists_leave_it_pen
     );
     assert_eq!(f.harness.pic.get_stable_memory(f.service), before);
     f.revoke_gateway(f.operator, f.other).unwrap();
-    assert!(f.gateway_view().members.is_empty());
+    assert_eq!(f.gateway_view().members, []);
     assert_eq!(
         f.gateways(
             f.operator,
@@ -448,7 +448,7 @@ fn gateway_encoded_reply_rejections_preserve_the_pending_sync_and_cannot_bypass_
     );
     assert_eq!(f.gateway_view(), pending);
     f.cancel_gateway_sync(f.operator, current).unwrap();
-    assert!(f.gateway_view().members.is_empty());
+    assert_eq!(f.gateway_view().members, []);
 }
 
 mod callbacks;

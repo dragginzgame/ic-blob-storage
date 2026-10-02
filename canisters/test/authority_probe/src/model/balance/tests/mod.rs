@@ -29,7 +29,7 @@ fn refresh_admission_binds_exact_scope_revision_and_next_sequence() {
     wrong.source = Principal::from_slice(&[4]);
     assert_eq!(journal.check_refresh(wrong, 1, 1), Err(Failure::Binding));
     assert_eq!(journal.check_refresh(scope, 1, 1), Ok(()));
-    assert!(journal.attempts.is_empty());
+    assert_eq!(journal.attempts, []);
     let (id, _) = journal.begin(10).unwrap();
     assert_eq!(journal.check_refresh(scope, 1, 1), Err(Failure::Busy));
     assert_eq!(

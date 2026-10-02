@@ -149,7 +149,7 @@ fn revocation_while_list_is_held_survives_stale_reply_and_fenced_upgrade() {
         .unwrap();
     assert!(revoked);
     let mut revoked = f.archive();
-    assert!(revoked.gateways.is_empty());
+    assert_eq!(revoked.gateways, []);
     assert_eq!((revoked.last_sync, revoked.pending_sync), (1, None));
     assert_eq!(f.resume_sync(id), Err(SyncFailure::Stale));
     assert_eq!(f.archive(), revoked);

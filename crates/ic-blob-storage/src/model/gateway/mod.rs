@@ -24,7 +24,7 @@ pub struct GatewayListLimits {
 /// A nonempty validated gateway list in first-occurrence order.
 ///
 /// Anonymous and management principals are rejected. Other principal classes
-/// are allowed, matching Canic's validation; this does not prove that a principal
+/// are allowed; this does not prove that a principal
 /// is a deployed gateway. Limits apply before any replacement becomes visible.
 /// No serialization or stable-state schema is implied by this transient value.
 #[derive(Clone, Debug, Eq, PartialEq)]

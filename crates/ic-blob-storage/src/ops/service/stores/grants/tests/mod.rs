@@ -97,7 +97,7 @@ fn incomplete_composed_grants_reject_without_allocating_or_repairing() {
     let neighbor = runtime
         .open_memory_by_key("application.settings.v1")
         .unwrap();
-    neighbor.grow(1);
+    neighbor.grow(1).expect("neighbor memory growth");
     neighbor.write(0, b"application-owned data");
     let before = backing.borrow().clone();
     assert!(matches!(
@@ -129,7 +129,7 @@ fn composed_journey(first: u8) {
     let mut host = runtime(backing.clone());
     host.bootstrap(&declarations, &GenericRangePolicy).unwrap();
     let neighbor = host.open_memory_by_key("application.settings.v1").unwrap();
-    assert_eq!(neighbor.grow(1), 0);
+    assert_eq!(neighbor.grow(1), Ok(0));
     neighbor.write(0, b"application-owned data");
 
     let input = candidate();

@@ -12,15 +12,13 @@ export BLOB_CONSUMER_PROBE_WASM := $(CARGO_TARGET_DIR)/wasm32-unknown-unknown/re
 export BLOB_GATEWAY_SOURCE_WASM := $(CARGO_TARGET_DIR)/wasm32-unknown-unknown/release/blob_gateway_source.wasm
 export BLOB_FUNDING_PROBE_WASM := $(CARGO_TARGET_DIR)/wasm32-unknown-unknown/release/blob_funding_probe.wasm
 export BLOB_STANDALONE_WASM := $(CARGO_TARGET_DIR)/wasm32-unknown-unknown/release/ic_blob_storage_canister.wasm
-export BLOB_CANIC_PROBE_WASM := $(CURDIR)/.tmp/canic-probe/.icp/local/canisters/storage/storage.wasm
-CANIC ?= canic
 export BLOB_CLI_BIN := $(CARGO_TARGET_DIR)/debug/blob-storage
 export BLOB_BROWSER_NODE ?= node
 VERSION ?=
 RELEASE := bash scripts/release/release.sh
 CI_TARGETS := shell-check release-check fmt-check check clippy probe-check docs-check test wasm-check package
 
-.PHONY: help version deps cloc fmt fmt-check check clippy docs-check test test-native test-pocketic test-browser test-canic-browser test-sdk-probe test-sdk-inputs test-fixture test-standalone build-standalone prepare-canic-probe build-canic-probe test-canic-composition test-admission-resources test-read-resources wasm-check \
+.PHONY: help version deps cloc fmt fmt-check check clippy docs-check test test-native test-pocketic test-browser test-sdk-probe test-sdk-inputs test-fixture test-standalone build-standalone test-admission-resources test-read-resources wasm-check \
 	build package clean shell-check release-check probe-check ci validate release-verify \
 	release-plan ensure-clean patch minor major bump-x release-patch \
 	release-minor release-major release-x release-stage release-commit \
@@ -33,9 +31,7 @@ help:
 	@echo "check / clippy / test         Compile, lint, or test the workspace"
 	@echo "test-native / test-pocketic   Native core tests or local IC fixtures"
 	@echo "build-standalone / test-standalone   Standalone host Wasm or focused local IC tests"
-	@echo "test-canic-composition        Published Canic lifecycle and shared storage fixture"
 	@echo "test-browser                  Opt-in Chromium certificate/IndexedDB evidence"
-	@echo "test-canic-browser            Opt-in managed browser setup and certificate refusal"
 	@echo "test-sdk-probe                Opt-in local SDK fault probe; BLOB_SDK_PROBE_REPORT=NEW_DIRECTORY"
 	@echo "test-sdk-inputs               Opt-in offline native/browser handoff; BLOB_SDK_INPUTS_REPORT=NEW_DIRECTORY"
 	@echo "test-admission-resources     Local admission bounds and Wasm resource report"
@@ -64,19 +60,15 @@ cloc:
 
 fmt:
 	cargo fmt --all
-	cargo fmt --manifest-path canisters/test/canic_probe/Cargo.toml
 
 fmt-check:
 	cargo fmt --all -- --check
-	cargo fmt --manifest-path canisters/test/canic_probe/Cargo.toml -- --check
 
 check:
 	cargo check --offline --locked --workspace --all-targets --all-features
 
 clippy:
 	cargo clippy --offline --locked --workspace --all-targets --all-features -- -D warnings
-	+$(MAKE) --no-print-directory prepare-canic-probe
-	cargo clippy --offline --locked --manifest-path canisters/test/canic_probe/Cargo.toml --all-targets --all-features -- -D warnings
 
 probe-check:
 	cargo build --offline --locked -p ic-blob-storage-cli --bin caffeine-probe
@@ -87,18 +79,17 @@ probe-check:
 	sha256sum --check --strict --quiet docs/evidence/caffeine-probes/deployed/SHA256SUMS
 
 docs-check:
-	RUSTDOCFLAGS="-D warnings" cargo doc --offline --locked -p ic-blob-storage -p ic-blob-storage-canister -p ic-blob-storage-canic --all-features --no-deps
+	RUSTDOCFLAGS="-D warnings" cargo doc --offline --locked -p ic-blob-storage -p ic-blob-storage-canister --all-features --no-deps
 
 test:
 	+$(MAKE) --no-print-directory test-native
 	+$(MAKE) --no-print-directory test-pocketic
 
 test-native:
-	cargo test --offline --locked -p ic-blob-storage -p blob-consumer-probe -p ic-blob-storage-canister -p ic-blob-storage-cli -p ic-blob-storage-canic --all-features
+	cargo test --offline --locked -p ic-blob-storage -p blob-consumer-probe -p ic-blob-storage-canister -p ic-blob-storage-cli --all-features
 
 test-fixture:
 	cargo build --offline --locked --release --target wasm32-unknown-unknown -p blob-authority-probe -p blob-admission-probe -p blob-storage-probe -p blob-consumer-probe -p blob-gateway-source -p blob-funding-probe --lib
-	+$(MAKE) --no-print-directory build-canic-probe
 
 test-pocketic:
 	+$(MAKE) --no-print-directory test-fixture
@@ -108,22 +99,6 @@ test-pocketic:
 
 build-standalone:
 	cargo build --offline --locked --release --target wasm32-unknown-unknown -p ic-blob-storage-canister --lib
-
-prepare-canic-probe:
-	cp Cargo.lock canisters/test/canic_probe/Cargo.lock
-	cargo metadata --offline --manifest-path canisters/test/canic_probe/Cargo.toml --format-version 1 > /dev/null
-
-build-canic-probe:
-	+$(MAKE) --no-print-directory prepare-canic-probe
-	mkdir -p .tmp/canic-probe
-	CARGO_NET_OFFLINE=true RUSTC_WRAPPER="$${RUSTC_WRAPPER-}" $(CANIC) build blob_canic_probe storage --workspace "$(CURDIR)/canisters/test/canic_probe" --icp-root "$(CURDIR)/.tmp/canic-probe" --config "$(CURDIR)/canisters/test/canic_probe/canic.toml" --profile release
-
-test-canic-composition:
-	+$(MAKE) --no-print-directory build-canic-probe
-	cargo build --offline --locked --release --target wasm32-unknown-unknown -p blob-gateway-source --lib
-	cargo build --offline --locked --release --target wasm32-unknown-unknown -p blob-consumer-probe --lib
-	cargo build --offline --locked -p ic-blob-storage-cli --bin blob-storage
-	cargo test --offline --locked -p ic-blob-storage-pocketic-tests --test canic_composition -- --test-threads=1
 
 test-standalone:
 	cargo build --offline --locked --release --target wasm32-unknown-unknown -p ic-blob-storage-canister -p blob-gateway-source -p blob-storage-probe -p blob-consumer-probe --lib
@@ -147,12 +122,6 @@ test-browser:
 	$(BLOB_BROWSER_NODE) tests/browser/build.mjs
 	cargo build --offline --locked --release --target wasm32-unknown-unknown -p blob-storage-probe -p blob-consumer-probe --lib
 	cargo test --offline --locked -p ic-blob-storage-pocketic-tests --test storage chromium_certificate_intent -- --ignored --test-threads=1
-
-test-canic-browser:
-	$(BLOB_BROWSER_NODE) tests/browser/build.mjs
-	+$(MAKE) --no-print-directory build-canic-probe
-	cargo build --offline --locked --release --target wasm32-unknown-unknown -p blob-consumer-probe --lib
-	cargo test --offline --locked -p ic-blob-storage-pocketic-tests --test canic_composition chromium_managed_upload_setup -- --ignored --test-threads=1
 
 test-admission-resources:
 	cargo build --offline --locked --release --target wasm32-unknown-unknown -p blob-admission-probe --lib

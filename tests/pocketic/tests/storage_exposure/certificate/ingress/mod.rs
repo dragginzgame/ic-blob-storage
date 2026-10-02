@@ -90,7 +90,7 @@ fn headless_ingress_extracts_exact_certificate_and_rejects_forged_or_unrelated_p
     let signed = h.sign(&expected);
     let certificate = h.runtime.block_on(submit(&h.url, &signed));
     let reply = extract(&h.agent, &signed, &expected, &certificate).unwrap();
-    assert!(!reply.is_empty());
+    assert_ne!(reply, Vec::<u8>::new());
     assert_eq!(
         inspect(&h.fixture, h.fixture.uploader, input)
             .unwrap()

@@ -4,6 +4,13 @@
 
 ## [0.5.0]
 
+### Breaking
+
+- Upgrade the public `ic-memory` re-export to 0.15.0. Direct runtime growth
+  returns typed results; generic stable-structure memory keeps its trait contract.
+- Remove the Canic adapter crate, managed fixture and integration suite completely.
+  Consumer frameworks now own their wrappers and integration tests.
+
 ### Added
 
 - PocketIC growth-refusal coverage checks whole-state rollback, a populated
@@ -22,10 +29,13 @@
 
 ### Changed
 
-- Pin `ic-memory` to exactly `=0.14.3`, matching published Canic 0.110.49, so managed
-  builds use one runtime identity without waiting for an upstream release.
-  Defer unreleased 0.15-only memory APIs; retain committed-runtime checks and
-  the current lifecycle contract.
+- Lower the library, standalone and CLI MSRV from 1.98.1 to 1.88.0. The unpublished
+  PocketIC harness declares 1.89.0 for native file locking. Pin development Rust,
+  Clippy and rustfmt to 1.99.0 independently of those compatibility requirements.
+- Adopt Rust 1.99's assertion diagnostics and result-use lint without suppressions;
+  recovery tests express the same 24-hour delay using the supported seconds API.
+- Remove downstream Canic dependencies and build/test targets from this repository.
+  Library and standalone validation no longer require Canic releases or tools.
 - Browser and SDK fault fixtures use the same upload composition; the build checks
   both SDK peer pins. Existing reload, cancellation, lost-response and cleanup
   behavior is preserved, including the fixture's post-response abort timing.

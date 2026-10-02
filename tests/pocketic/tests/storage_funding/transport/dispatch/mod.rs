@@ -107,10 +107,10 @@ fn guarded_dispatch_requires_complete_holds_and_authority_before_marking_or_send
             ..request(intent)
         },
     ));
-    assert!(otherwise_ready.is_empty());
+    assert_eq!(otherwise_ready, []);
     assert!(holds_unknown);
     assert_eq!(f.harness.pic.get_stable_memory(f.service), before);
-    assert!(f.incoming().is_empty());
+    assert_eq!(f.incoming(), []);
     let result = settled(f.guarded_dispatch(f.operator, request(intent)));
     assert_eq!(
         (result.accepted, result.refunded, result.outcome),
@@ -167,7 +167,7 @@ fn guarded_dispatch_settles_unsent_liquidity_refusal_and_allows_a_distinct_inten
         (0, None, FundingOutcome::LiquidityBlocked)
     );
     assert!(result.call_cost > 0);
-    assert!(f.incoming().is_empty());
+    assert_eq!(f.incoming(), []);
     assert_eq!(
         f.funding_lookup(f.operator, intent),
         Ok(Some(Phase::NotEnqueued))
@@ -223,7 +223,7 @@ fn guarded_dispatch_marker_trap_sends_nothing_and_preserves_prepared_state() {
         .unwrap_err();
     assert_eq!(error.reject_code, RejectCode::CanisterError);
     assert_eq!(f.harness.pic.get_stable_memory(f.service), before);
-    assert!(f.incoming().is_empty());
+    assert_eq!(f.incoming(), []);
     assert_eq!(
         f.funding_lookup(f.operator, intent),
         Ok(Some(Phase::Prepared))

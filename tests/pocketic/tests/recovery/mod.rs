@@ -302,7 +302,9 @@ fn callback_trap_rolls_back_slot_release_and_stop_start_cannot_clear_it() {
     );
     f.reject_upgrade(f.service);
     f.restart(f.service);
-    f.harness.pic.advance_time(Duration::from_hours(24));
+    f.harness
+        .pic
+        .advance_time(Duration::from_secs(24 * 60 * 60));
     assert_eq!(
         f.read_chunk(f.first, v.upload, 0),
         Err(JourneyFailure::ReadInProgress)

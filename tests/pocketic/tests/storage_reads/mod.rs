@@ -198,7 +198,7 @@ fn bounded_cleanup_pages_reject_changed_cursors_and_require_new_sweeps() {
         cursor: None,
     };
     let first = f.scan(f.tenant, query).unwrap();
-    assert!(first.entries.is_empty());
+    assert_eq!(first.entries, []);
     assert_eq!(first.scanned, 1);
     let cursor = first.next.unwrap();
     for changed in [
@@ -251,7 +251,7 @@ fn bounded_cleanup_pages_reject_changed_cursors_and_require_new_sweeps() {
         )
         .unwrap();
     assert_eq!(end.scanned, 1);
-    assert!(end.entries.is_empty());
+    assert_eq!(end.entries, []);
     assert!(end.next.is_none());
     let mut restarted = f.scan(f.tenant, query).unwrap();
     assert_eq!(
@@ -288,7 +288,7 @@ fn bounded_cleanup_pages_reject_changed_cursors_and_require_new_sweeps() {
         )
         .unwrap();
     assert_eq!(foreign.scanned, 0);
-    assert!(foreign.entries.is_empty());
+    assert_eq!(foreign.entries, []);
     let before = f.status();
     f.harness
         .pic
@@ -375,7 +375,7 @@ fn shared_history_distinguishes_exposure_deletion_and_billing_cessation() {
     observe(UploadContentState::ProviderDeleted);
     f.fact(permission.request, ProviderFact::Settled).unwrap();
     let settled = f.scan(f.operator, query).unwrap();
-    assert!(settled.entries.is_empty());
+    assert_eq!(settled.entries, []);
     assert_eq!(settled.scanned, 1);
     let history = f
         .scan(

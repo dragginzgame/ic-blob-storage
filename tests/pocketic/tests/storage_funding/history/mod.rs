@@ -252,12 +252,7 @@ fn funding_history_preserves_reservations_and_excludes_rolled_back_intents() {
     };
     let initial = f.funding_allocation();
     f.funding_trap(original, Action::Prepare, WriteFault::FundingAccounting);
-    assert!(
-        f.funding_history(f.operator, query)
-            .unwrap()
-            .entries
-            .is_empty()
-    );
+    assert_eq!(f.funding_history(f.operator, query).unwrap().entries, []);
     assert_eq!(f.funding_allocation(), initial);
     f.funding(f.operator, original, Action::Prepare).unwrap();
     let before = f.funding_allocation();

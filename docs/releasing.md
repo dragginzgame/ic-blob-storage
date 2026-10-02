@@ -85,5 +85,5 @@ it is not part of `make release-patch` and does not clean build artifacts.
 
 The maintainer removed the B1 ownership/readiness publication gate. Publishing
 the current library does not imply that provider integration, service acceptance
-or Canic replacement is complete; those are tracked in the
+or consumer integration is complete; those are tracked in the
 [service contract](service-contract.md).
