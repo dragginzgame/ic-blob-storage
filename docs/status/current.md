@@ -4,8 +4,9 @@ Date: 2026-10-02
 
 Released baseline: [0.6.1](../../CHANGELOG.md), dated 2026-10-02, at
 `a1e2c9ba69cc058526541e38da5f9884c6a2baac`. Package, tag and receipt agree;
-the maintainer completed the release. New work joins Unreleased; no next version
-is named. The isolated deployed owner still runs frozen 0.6.0; its DID is byte
+the maintainer completed the release. The maintainer now requests the undated
+[0.7.0 changelog draft](../../CHANGELOG.md); Unreleased is empty. Package/version
+and release receipt remain 0.6.1. The isolated deployed owner still runs frozen 0.6.0; its DID is byte
 identical to released 0.6.1. This continuation does not update that installation.
 Commits and release operations belong to the maintainer.
 
@@ -27,8 +28,8 @@ one-time exposure, durability, deadlines/revocation and restore fences remain.
 
 The former policy envelope, host-evidence field and public blocker are removed
 from core, standalone Candid, native JSON, fixtures and tests. There is no parallel
-mode or bypass. This public semantic/API hard cut joins Unreleased and requires
-a minor release; package/release receipt and the deployed 0.6.0 owner remain frozen.
+mode or bypass. This public semantic/API hard cut is in the requested 0.7.0
+minor-release draft; package/release receipt and the deployed 0.6.0 owner remain frozen.
 Its stopped browser claim, configured 1 KiB slot, link/balances and liabilities
 are not reset or upgraded. Implementation authority here includes no deployment
 or new provider traffic.

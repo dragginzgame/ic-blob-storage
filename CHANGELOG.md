@@ -2,38 +2,42 @@
 
 ## [Unreleased]
 
+## [0.7.0]
+
 ### Breaking
 
 - Replace the certificate policy's fixed 1 KiB/single-object trial gate with
   validated installation resource limits, allowing larger and multi-file uploads.
   Admission still enforces object size, tenant/global bytes, lifetime history,
-  leaves and concurrency. Remove the trial-bound host-evidence field and blocker
-  from the public policy, DTO, Candid and native JSON without a compatibility path.
-  Explicit uploader trust, exact permissions, one-time exposure and restore fences
-  remain enforced. This requires a minor release; the deployed 0.6.0 trial is unchanged.
+  leaves and concurrency. Explicit uploader trust, exact permissions, one-time
+  exposure and restore fences remain enforced.
+- Remove `RestrictedUploadEnvelope`, `UploadExposureHostEvidence::trial_bounds`
+  and `UploadExposureBlocker::TrialBounds` from the public policy, DTO, Candid
+  and native JSON without a compatibility path. Consumers must update their
+  wrappers and configure their own resource limits. Cross-release installation
+  changes remain reinstall-only after obligations are preserved or discharged;
+  the existing deployed 0.6.0 trial remains unchanged.
 
 ### Added
 
-- Retain an actual-service 1 KiB upload packet and bounded live-trial plan using
-  the installed standalone carrier and maintained Caffeine SDK/native tools.
-  Check exact browser/native bindings and unsigned IndexedDB history across
-  browser-process restart; preserve the failed probe without resetting history.
-  Distinguish gateway credit from payer balance and source guidance from deployed
-  admission, expiry and billing guarantees.
-- Record the approved two-hour payment-link update and the first actual standalone
-  certificate issuance. The exact SDK tree upload reaches Caffeine but returns
-  HTTP 403 for insufficient owner balance, despite the unchanged funded payer.
-  Retain the original certificate/browser history and 1 KiB exposure; stop before
-  the chunk, download or retry, with no additional funding.
-- Reconcile a separately authorized 4.1T gross payer top-up, raising its balance
-  to 5.0996T. Record the distinct zero owner-account and gateway-credit observations,
-  retain the stopped upload unchanged, and prepare an unsigned daily-limit
-  comparison without changing provider terms or replaying the transfer.
-- Complete the explicitly approved 1T-to-5T daily allowance comparison with
-  unchanged expiry. Reconcile the observed 1T payer-to-owner credit allocation,
-  nonzero gateway credit and zero reported usage; preserve the stopped upload.
-  Record bounded verified queries and the failed local check without claiming
-  upload admission or treating internal allocation as another donor debit.
+- Verify actual local canister certificate issuance for a 10 MiB object and a
+  second multi-chunk object under one installation. Exercise configured size and
+  capacity rejection, caller/trust checks, replay refusal, revocation, retained
+  liabilities and restore fences; update native assessment and Candid checks.
+- Document consumer sizing for Toko Miner's recorded asset envelope, including
+  separate lifetime history, overlapping-release bytes and client/read budgets.
+  Record the remaining wrapper, publisher and delivery qualification work.
+- Retain the actual-service 1 KiB upload packet, exact native/browser bindings
+  and persistent IndexedDB history across browser restart. Record the approved
+  payment-link expiry update and first mainnet-verified standalone certificate.
+  Caffeine rejects the tree upload with HTTP 403 for insufficient owner balance;
+  preserve its certificate, browser claim and exposure before any chunk or retry.
+- Reconcile a 4.1T gross payer top-up and the approved daily allowance increase
+  from 1T to 5T with expiry unchanged. Verified readback shows 4.0996T remaining
+  in the payer, 1T allocated to the owner and nonzero gateway credit with zero
+  reported usage. Preserve bounded requests, failed checks and budget accounting;
+  internal credit allocation is not another donor debit. A complete live upload
+  and independently verified download remain unqualified.
 
 ## [0.6.1] - 2026-10-02
 
