@@ -1,7 +1,7 @@
 # Development plan
 
-Released 0.6.0 supplies the framework-independent library and standalone service,
-the restricted upload contract and ic-memory 0.15.2. Downstream wrappers, deployment
+Released 0.6.1 supplies the framework-independent library and standalone service,
+the restricted upload contract and ic-memory 0.15.3. Downstream wrappers, deployment
 integration and their tests belong in consumer repositories. Library publication
 is separate from qualified live service operation.
 
@@ -27,6 +27,15 @@ and bounded gateway journal. Actual live certificate/upload/download remains ope
 
 ## Next action
 
+The maintainer now requests removing the 1 KiB integration blocker. Current source
+uses installed object/tenant/global/lifetime limits for issuance, removing the extra
+trial envelope and its public blocker/host field in a pending minor hard cut.
+The same trusted-uploader, exact permission, exposure journal and restore fences
+remain. A 10 MiB configured object issues in local IC checks; this does not qualify
+larger live transfers or production Miner adoption. Publish the minor contract
+before consumers adopt it; size lifetime release history and client/read budgets
+from their frozen consumed-media inventory. The original live owner stays frozen.
+
 The maintainer accepted the [restricted standalone contract](standalone-trial.md): one 1 KiB
 file under explicit trusted roles and a restricted fresh-instance lifecycle.
 The maintainer selected a total planning budget of 100T cycles; the proposed
@@ -47,9 +56,9 @@ binds local installation evidence to frozen source/Wasm/CLI/DID; actual provider
 account and upload/download qualification remain open.
 
 The [isolated mainnet owner](evidence/caffeine-probes/deployed/2026-10-02-trial-install-02/summary.json)
-now runs that frozen 0.6.0 with exact role/configuration readback and zero local
-activity. Next, review bounded payer funding/deposit/notification and provider
-account/project linkage. Installation does not authorize those effects or uploads.
+runs that frozen 0.6.0 with exact role/configuration readback. Initial zero local
+activity is retained in the installation capture; the live trial below now admits
+one upload. Installation alone does not authorize provider effects.
 The [funding review](evidence/caffeine-probes/deployed/2026-10-02-trial-funding-review-01/summary.json)
 prepares independently decoded exact inputs; the later
 [authorized funding](evidence/caffeine-probes/deployed/2026-10-02-trial-funding-01/summary.json)
@@ -74,6 +83,43 @@ establishes linkage/owner recognition, not expiry enforcement or upload readines
 No extension, new donor debit, certificate or object transfer follows; standing
 100T approval remains in force. Next review actual gateway admission/credit and
 namespace/browser readiness before selecting another exact link term or upload.
+
+The [actual-service preparation](evidence/caffeine-probes/local/2026-10-02-gateway-admission-01/summary.json)
+now checks one 1 KiB SDK/native packet and a retained one-slot browser journal
+through process restart, using the installed 0.6.0 carrier. Signing is a substitute;
+no provider request occurs. Public source places budget checks at upload admission,
+so zero per-gateway credit is not treated as proof of empty payer funds or a mandatory
+positive-credit preflight. A concrete existing-link two-hour renewal and bounded
+live-trial plan are prepared; that source/offline capture does not perform effects.
+
+The [subsequently approved live trial](evidence/caffeine-probes/deployed/2026-10-02-trial-live-01/summary.json)
+updates the existing link once to the exact nominal two-hour expiry with its 1T
+daily limit unchanged. Original tenant enrollment, upload permission/manifest and
+one mainnet-verified certificate succeed. The exact streamed SDK tree PUT reaches
+Caffeine and returns HTTP 403 for insufficient owner balance. No chunk, retry,
+download or attestation follows. Payer balance remains 999.8B, relationship unchanged
+and gateway credit/usage zero; the refusal cause is unresolved. The source example's
+10T funding and 5T daily limit are guidance rather than proved admission thresholds.
+
+Next investigate owner/gateway credit allocation before another reviewed trial.
+Preserve the exact original profile's observed certificate/403 claim and the
+service's 1 KiB exposure/liability; do not resend, reset capacity or infer deletion
+or billing cessation. Total donor debit stays 3.0001T under standing 100T authority.
+Independent whole-byte verification, tenant download and disposition remain open.
+
+The maintainer's [larger-cycle comparison](evidence/caffeine-probes/deployed/2026-10-02-trial-funding-02/summary.json)
+then credits 4.0998T from a 4.1T gross deposit, raising the same payer to 5.0996T.
+Its public owner-account balance is independently zero with Prepaid debt target;
+gateway credit/usage and link terms stay unchanged. This does not retest upload
+admission or prove the earlier refusal's cause. Original donor liquidity is only
+1.654605097235T, so the example's 10T funding is not reached. Total donor debit
+is now 7.1001T, remaining authority 92.8999T. The [approved 1T -> 5T allowance comparison](evidence/caffeine-probes/deployed/2026-10-02-trial-limit-01/summary.json)
+then succeeds with unchanged expiry. Payer falls to 4.0996T; owner holds 1T Ledger
+credit, matching the link's 1T period spend. Gateway credit becomes raw 333333333333
+with all reported usage zero. This is observed internal allocation, not another
+donor debit or proof of the earlier refusal's cause. No upload admission is retested.
+Next prepare a separately reviewed fresh-owner upload/download trial without
+replaying the old claimed transfer, resetting its slot or losing its obligations.
 
 Do not add another journal owner, recovery canister or allocator. Prefer the
 single storage owner and its local durable journals. Restored/stale instances stay
@@ -116,6 +162,16 @@ no deployment, funding, provider effect or upstream repository change.
   project/bucket and billing amounts are observations, not approved service defaults.
 
 ### Toko Miner feedback — 2026-09-27
+
+The 2026-10-02 read-only follow-up finds local HEAD
+`dcc4b0131a928092f39be45d06d5397f3045f8ff` and uncommitted feedback SHA-256
+`cd187187521a88392b052eed265ee7d4dc16130120e5f892a369123760703c35`.
+Its latest recorded survey reports 816 media files/271,176,671 bytes, largest
+8,362,256 bytes. This supersedes the earlier survey for sizing guidance only;
+it is not a refreshed asset measurement or production consumed-media inventory.
+The current source's configured issuance removes the deliberate size/capacity
+policy blocker, pending minor publication. Headless publication, delivery/trust,
+retention/reintroduction and consumer wrapper acceptance remain open.
 
 The maintainer requested review of `../toko-miner/docs/upstream/ic-blob-storage.md`.
 It proposes release-published static media, a separate consumer journey from

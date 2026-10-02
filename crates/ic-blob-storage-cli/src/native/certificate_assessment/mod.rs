@@ -71,7 +71,6 @@ fn output(
         .into_iter()
         .map(|blocker| match blocker {
             B::StaleObservation => "stale_observation",
-            B::TrialBounds => "trial_bounds",
             B::NamespaceBinding => "namespace_binding",
             B::TrustedUploader => "trusted_uploader",
             B::CurrentOwner => "current_owner",

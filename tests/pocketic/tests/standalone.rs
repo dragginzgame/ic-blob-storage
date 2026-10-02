@@ -115,7 +115,7 @@ impl Fixture {
             PROJECT,
         )
     }
-    fn restricted(harness: Harness, uploader: Principal) -> Self {
+    fn small(harness: Harness, uploader: Principal) -> Self {
         Self::with_profile(
             harness,
             Fake::principal(5),
@@ -131,7 +131,7 @@ impl Fixture {
         cashier: Principal,
         operator: Principal,
         uploader: Principal,
-        restricted: bool,
+        small_envelope: bool,
         verifier: Principal,
         project: &str,
     ) -> Self {
@@ -186,7 +186,7 @@ impl Fixture {
                 tenant_bytes: 2048,
             },
         };
-        if restricted {
+        if small_envelope {
             let r = &mut config.resources;
             r.max_tenants = 1;
             r.max_object_bytes = 1024;

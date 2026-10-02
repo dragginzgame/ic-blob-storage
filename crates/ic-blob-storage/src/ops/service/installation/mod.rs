@@ -220,28 +220,13 @@ impl<M: Memory> ServiceInstallation<M> {
         now: u64,
         durable_commit: bool,
     ) -> crate::policy::upload::exposure::UploadExposureHostEvidence {
-        use crate::policy::upload::exposure::{
-            RestrictedUploadEnvelope, UploadExposureHostEvidence,
-        };
-        let r = self.configuration().resources;
-        let envelope = RestrictedUploadEnvelope {
-            tenants: r.max_tenants,
-            objects: r.max_objects,
-            tenant_objects: r.max_tenant_objects,
-            object_bytes: r.max_object_bytes,
-            physical_bytes: r.max_physical_bytes,
-            liability_bytes: r.max_liability_bytes,
-            tenant_bytes: r.max_tenant_logical_bytes,
-            references: r.max_references_per_object,
-            receipts: r.max_receipts_per_object,
-            active: r.max_active,
-            tenant_active: r.max_tenant_active,
-        };
+        use crate::policy::upload::exposure::UploadExposureHostEvidence;
+        // Admission and manifest preparation already enforce this installation's
+        // object, tenant, global and lifetime quotas before exposure is possible.
         let object = permission.request.object.first.object();
         UploadExposureHostEvidence {
             permission,
             observed_at_ns: now,
-            trial_bounds: envelope.permits(permission.request.object.bytes),
             namespace_binding: object.service() == self.download_scope.owner()
                 && object.identity().namespace == self.download_scope.namespace(),
             trusted_uploader: self.issuer.permits(permission),

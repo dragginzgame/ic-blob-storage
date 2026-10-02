@@ -22,8 +22,9 @@ The public ic-memory growth API is now 0.15.0. See the
 [latest implementation evidence](evidence/core-primitives.md#independent-library-and-memory-015--2026-10-02).
 
 The maintainer accepted the [restricted standalone contract](standalone-trial.md)
-on 2026-10-02. Its current issuance prerequisites are explicit uploader trust,
-matching local namespace, one-tenant/one-object/1 KiB bounds, current owner and
+on 2026-10-02, then requested configurable sizing for Toko Miner. Current issuance
+requires explicit uploader trust, matching local namespace, an admitted/prepared
+reservation within installed resource quotas, a current owner and
 atomic durability. Provider spending caps, replay-charge guarantees and operational
 old-backup recovery are outside that contract; their evidence remains unqualified.
 The public API/init/schema hard cut requires a minor release. No isolated live

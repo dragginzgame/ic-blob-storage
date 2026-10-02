@@ -1,0 +1,157 @@
+{
+  "schema": 1,
+  "date": "2026-10-02",
+  "evidence_classes": [
+    "local_IC_implementation",
+    "native_boundary_checks",
+    "read_only_consumer_feedback"
+  ],
+  "authorization": "Maintainer explicitly requests relaxing the 1 KiB limit for Toko Miner integration",
+  "baseline_release": "0.6.1",
+  "capture": ".tmp/configured-upload-01",
+  "maintained_contract": {
+    "resource_limits": "Validated installation configuration; no separate certificate trial envelope",
+    "quotas_owner": "Existing admission and manifest models",
+    "trusted_uploader_required": true,
+    "exact_tenant_permission_required": true,
+    "one_time_exposure_required": true,
+    "restore_fences_retained": true,
+    "minor_release_required": true,
+    "version_changed": false,
+    "production_state_generation": 1
+  },
+  "local_multifile_case": {
+    "object_maximum_bytes": 10485760,
+    "first_object_bytes": 10485760,
+    "second_object_bytes": 1048577,
+    "object_capacity": 2,
+    "active_capacity": 2,
+    "certificates_issued": 2,
+    "retained_physical_bytes": 11534337,
+    "retained_liability_bytes": 11534337,
+    "oversized_admission": "Capacity",
+    "third_object_admission": "Capacity",
+    "certificate_replay": "refused",
+    "unauthorized_callers": "refused",
+    "restore": "inspection_only",
+    "provider_calls": 0,
+    "proof_is_not_live_transfer": true
+  },
+  "consumer_feedback": {
+    "repository": "../toko-miner",
+    "local_HEAD": "dcc4b0131a928092f39be45d06d5397f3045f8ff",
+    "path": "docs/upstream/ic-blob-storage.md",
+    "worktree_file": "modified_uncommitted",
+    "sha256": "cd187187521a88392b052eed265ee7d4dc16130120e5f892a369123760703c35",
+    "reported_media_files": 816,
+    "reported_bytes": 271176671,
+    "reported_largest_bytes": 8362256,
+    "live_or_consumed_inventory_qualified": false,
+    "sibling_edits": false
+  },
+  "checks": {
+    "core_upload_admission_manifest_exposure_and_recovery": {
+      "log": ".tmp/configured-upload-01/core-tests.log",
+      "sha256": "3db37ab3dd430d3a45c938e8450bdcbe7fd2bb62f9c52cb56ab972113873af61",
+      "passed": 64,
+      "failed": 0,
+      "ignored": 0
+    },
+    "native_assessment_json": {
+      "log": ".tmp/configured-upload-01/cli-tests.log",
+      "sha256": "2840cc69464becaab13d55fef4a7227b8f5d486f3dd42d161d7b8d28c309826c",
+      "passed": 2,
+      "failed": 0,
+      "ignored": 0
+    },
+    "standalone_certificate_authority_and_lifecycle": {
+      "log": ".tmp/configured-upload-01/certificate-pocketic.log",
+      "sha256": "88eae484de6e8e8327671c764ed0f3d25ed449ffe99624040bf62d3f8c8a7038",
+      "passed": 4,
+      "failed": 0,
+      "ignored": 0
+    },
+    "rollback_lost_response_and_host_evidence": {
+      "log": ".tmp/configured-upload-01/exposure-pocketic.log",
+      "sha256": "249e017b683c87cbc6d02f904451b7a0718722aa16b0895f8a87dc20eaea55e2",
+      "passed": 7,
+      "failed": 0,
+      "ignored": 1
+    },
+    "authenticated_cli": {
+      "log": ".tmp/configured-upload-01/did-pocketic.log",
+      "sha256": "1e088f905f6e3a60e7e7461ad722db28e1b0bc30a40b6e2388e53fa0a481ba87",
+      "passed": 1,
+      "failed": 0,
+      "ignored": 0
+    },
+    "signed_setup_recovery": {
+      "log": ".tmp/configured-upload-01/setup-pocketic-final.log",
+      "sha256": "a7bb39340d25269cd7a212fa3d250ed64dacd04c542d2f87448c7961e3661f17",
+      "passed": 1,
+      "failed": 0,
+      "ignored": 0
+    },
+    "installation_carrier_and_declared_exported_Candid": {
+      "log": ".tmp/configured-upload-01/installation-pocketic.log",
+      "sha256": "94466add065d591ef50509c8f5cdb8421bde0a474b164e80785230ce6f89ad16",
+      "passed": 1,
+      "failed": 0,
+      "ignored": 0
+    },
+    "configured_multifile_final": {
+      "log": ".tmp/configured-upload-01/multifile-pocketic-final.log",
+      "sha256": "611bffce0ba4e7aa46503092a471580cb1946c5e3d22c90035e3d6b9faf329f4",
+      "passed": 1,
+      "failed": 0,
+      "ignored": 0
+    }
+  },
+  "strict_affected_all_target_lint": {
+    "log": ".tmp/configured-upload-01/clippy-final.log",
+    "sha256": "446f6e772cddd4c4883d880e32f198913abd3cf2c23f538ec181fbcbe6eaa102",
+    "passed": true
+  },
+  "release_Wasm_build": {
+    "log": ".tmp/configured-upload-01/wasm-build.log",
+    "passed": true,
+    "artifacts": {
+      "standalone": "eb2afbfbea3473ee9f6766fec3b4ed139adf1dffc341fa60d4d5d2eb221a1b9c",
+      "storage_probe": "31a9cde4b444f285d52e5191b28442c6e9783f41e57bf40591e209f6ad571b4e"
+    }
+  },
+  "current_Candid_sha256": "28d84c104579a5ab06571c2f1a8816dd186595b0d13824183dbf60f4b3848c93",
+  "retained_initial_failures_and_selections": [
+    {
+      "log": "exposure-compile.log",
+      "outcome": "wrong test target; corrected to storage storage_exposure filter"
+    },
+    {
+      "log": "setup-pocketic.log",
+      "outcome": "empty helper-module filter; corrected to actual standalone setup test"
+    },
+    {
+      "log": "clippy.log",
+      "outcome": "new test exceeded function-length lint; extract helpers and rerun focused case"
+    }
+  ],
+  "effects": {
+    "new_deployments": 0,
+    "new_funding": 0,
+    "new_provider_queries": 0,
+    "new_provider_object_requests": 0,
+    "live_owner_reconfigured": false,
+    "live_owner_release": "0.6.0",
+    "prior_journals_and_liabilities_preserved": true,
+    "commits": 0,
+    "release_or_publication": 0,
+    "build_cleanup": 0,
+    "allocator_or_dependency_changes": false
+  },
+  "remaining": [
+    "Minor publication and consumer adoption of the removed public field/variant",
+    "Consumer inventory and lifetime/history/read/client sizing",
+    "Complete live upload/download, provider economics and serving qualification",
+    "Headless release publisher and consumer wrapper acceptance"
+  ]
+}

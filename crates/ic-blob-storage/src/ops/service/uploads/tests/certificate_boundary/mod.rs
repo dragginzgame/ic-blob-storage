@@ -3,7 +3,6 @@ use crate::{
     dto::upload::{
         UploadState, admission::UploadAdmissionFailure as A, exposure::UploadExposureFailure as E,
     },
-    policy::upload::exposure::UploadExposureBlocker as B,
     workflow::uploads::{
         certificate::{self, UploadCertificateFailure as F},
         exposure,
@@ -98,18 +97,6 @@ fn certificate_root_is_a_locator_and_never_caller_or_evidence_authority() {
         certificate::issue(&mut store, context(5), &root, foreign, 2),
         Err(F::Exposure(E::EvidenceBinding))
     );
-    let blocked = certificate::issue(
-        &mut store,
-        context(5),
-        &root,
-        crate::policy::upload::exposure::UploadExposureHostEvidence {
-            trial_bounds: false,
-            ..yes
-        },
-        2,
-    )
-    .unwrap_err();
-    assert!(matches!(blocked, F::Blocked(a) if a.blockers == [B::TrialBounds]));
     assert_eq!(*m.permissions.borrow(), before);
     assert_eq!(
         certificate::resolve(&store, context(5), &root, 100),
@@ -153,7 +140,6 @@ fn certificate_assessment_reports_exact_permission_and_all_missing_facts_without
     let root = host.permission.request.object.root.to_string();
     let before = m.permissions.borrow().clone();
     host.observed_at_ns = 1;
-    host.trial_bounds = false;
     host.namespace_binding = false;
     host.trusted_uploader = false;
     host.current_owner = false;
@@ -165,7 +151,6 @@ fn certificate_assessment_reports_exact_permission_and_all_missing_facts_without
         result.blockers,
         vec![
             C::StaleObservation,
-            C::TrialBounds,
             C::NamespaceBinding,
             C::TrustedUploader,
             C::CurrentOwner,

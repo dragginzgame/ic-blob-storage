@@ -51,10 +51,10 @@ an observation; issuance always rechecks current authority.
 `_immutableObjectStorageCreateCertificate(root)` is the matching synchronous update.
 It delegates to the shared certificate/exposure handler and traps on refusal;
 errors are never encoded as successful provider replies. The maintainer accepted
-the [restricted contract](../../docs/standalone-trial.md): issuance requires the
-explicit installed trusted uploader, exact local namespace, one lifetime tenant,
-object and reference, byte budgets at most 1 KiB and a durable current owner.
-Broader installations report `TrialBounds` and refuse. Tenant permission, manifest,
+the [configured contract](../../docs/standalone-trial.md): issuance requires the
+explicit installed trusted uploader, exact local namespace, an admitted/prepared
+reservation within the validated installation quotas and a durable current owner.
+Larger and multi-file installations use their configured limits. Tenant permission, manifest,
 activation, expiry, phase and restore fences are still checked. One committed
 issuance leaves possible exposure and can never be reissued after a lost reply.
 The required `trusted_uploader` is immutable, explicitly validated before allocation

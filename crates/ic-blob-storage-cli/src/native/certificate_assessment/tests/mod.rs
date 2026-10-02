@@ -81,7 +81,6 @@ fn json_preserves_full_width_identity_and_never_turns_a_snapshot_into_authority(
         vec![],
         vec![
             B::StaleObservation,
-            B::TrialBounds,
             B::NamespaceBinding,
             B::TrustedUploader,
             B::CurrentOwner,
@@ -107,7 +106,6 @@ fn json_preserves_full_width_identity_and_never_turns_a_snapshot_into_authority(
                 value["blockers"],
                 json!([
                     "stale_observation",
-                    "trial_bounds",
                     "namespace_binding",
                     "trusted_uploader",
                     "current_owner",

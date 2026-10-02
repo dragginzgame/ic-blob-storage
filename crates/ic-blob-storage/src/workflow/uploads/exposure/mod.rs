@@ -21,7 +21,7 @@ pub enum UploadExposureResult {
     Exposed(Box<UploadAdmissionResponse>),
 }
 /// Inspect actual local eligibility and independently supplied current host facts.
-/// The host must derive installed uploader trust, the restricted envelope, local
+/// Admission enforces installed quotas. The host must derive uploader trust, local
 /// namespace, current-owner eligibility and durable commit. Do not deserialize evidence from ingress
 /// or reuse an assessment after an await; commit re-reads local state independently.
 /// # Errors

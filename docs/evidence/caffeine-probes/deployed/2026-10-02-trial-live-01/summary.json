@@ -1,0 +1,177 @@
+{
+  "schema": 1,
+  "date": "2026-10-02",
+  "evidence": "actual_approved_two_hour_link_live_standalone_certificate_and_gateway_credit_refusal",
+  "capture": ".tmp/trial-live-01",
+  "prior_record": "../../local/2026-10-02-gateway-admission-01/summary.json",
+  "prior_link_record": "../2026-10-02-trial-link-02/summary.json",
+  "service": "4wyfo-qaaaa-aaaam-qjlpq-cai",
+  "installed_release": "0.6.0",
+  "repository_release": "0.6.1",
+  "cashier": "72ch2-fiaaa-aaaar-qbsvq-cai",
+  "payer": "jaqw3-42pqs-5bivi-nj3xg-5row5-gpluj-sbn54-vthud-pyb5v-sm2rs-bae",
+  "gateway_principal": "jf2g2-sl4zh-zhvyx-v3zcb-hmumz-2at2q-wuamm-4qiml-43msi-r3man-eqe",
+  "gateway_origin": "https://blob.caffeine.ai",
+  "namespace": "1",
+  "authorization": {
+    "explicit_two_hour_update_approved": true,
+    "maintainer_reply": "yes please",
+    "standing_total_spending_authority_cycles": "100000000000000",
+    "scope": "Existing link expiry change and isolated one-file standalone trial",
+    "additional_funding_planned": "0",
+    "automatic_paid_retries": 0
+  },
+  "renewal": {
+    "method": "payment_account_canister_update_v1",
+    "request_id": "b30a64b9c35804181ce029a32ea47b9213afb8359529be6913495d4d756b9ea4",
+    "result": "Ok",
+    "submission_invocations": 1,
+    "daily_limit_raw": "1000000000000",
+    "daily_limit_changed": false,
+    "expiration_timestamp_raw": "1790953635603000000",
+    "expiry_hypothesis_at": "2026-10-02T15:07:15.603Z",
+    "exact_readback_matches": true,
+    "other_relationship_fields_unchanged": true,
+    "expiry_enforcement_qualified": false
+  },
+  "local_setup": {
+    "exact_configuration_roles_and_initial_fences_match": true,
+    "tenant_enrolled": true,
+    "tenant_generation": "1",
+    "enrollment_request_id": "8042c3d953687e2a1ad92c844c2acb0a9d364e8398d6e849859aed9123026934",
+    "admission_request_id": "e1be960c425033168f30c9d7f29171a282a1ec7037271c215eff7dca54a988ab",
+    "preparation_request_id": "a52b0b22637dd9d34e793963bad254cc7afb8805056d7d64e7a496ea2675eae9",
+    "original_permission_manifest_and_body_match": true,
+    "certificate_assessment_blockers": [],
+    "body_bytes": 1024,
+    "root": "sha256:03850cce6627d98f1be2d725cb7b2ae6846818065a243ab234893643043771e5"
+  },
+  "certificate": {
+    "issued": 1,
+    "request_id": "cafa3f62d248a44af1cdc8a50689d7447542676633ae213bebee7680f455473e",
+    "http_status": 200,
+    "ic_mainnet_signature_and_exact_reply_verified": true,
+    "plain_reply_method": "upload",
+    "original_root": true,
+    "original_request_envelope_persisted_before_dispatch": true,
+    "independent_post_capture_historical_max_age_minutes": 60,
+    "certificate_bytes_private": true
+  },
+  "gateway": {
+    "sdk": "Caffeine 1.1.2 with maintained patch and SDK 5.4.0",
+    "browser": "153.0.8010.12",
+    "profile": ".tmp/trial-browser-profile-01",
+    "origin": "http://127.0.0.1:43023",
+    "database": "ic-blob-storage-mainnet-trial-v1",
+    "max_slots": 1,
+    "real_payer_identity_loaded_only_in_memory": true,
+    "method": "PUT",
+    "path": "/v1/blob-tree/",
+    "dispatches": 1,
+    "request_bytes": 7456,
+    "request_sha256": "c86d4fa78c13a21bbf3c9371b8486ff7d0c7f6e3c1cab5ea6a092b5247859865",
+    "response_status": 403,
+    "response_bytes": 67,
+    "response_sha256": "a0d49d1c822d79ba80f8ae89eea74f3c7fd2538b89848f1034d73312cfd7ca48",
+    "response_message": "Owner does not have sufficient balance: 4wyfo-qaaaa-aaaam-qjlpq-cai",
+    "exact_owner_project_bucket_root_and_certificate_match": true,
+    "streamed_request_reaches_readable_https_response": true,
+    "http_version_not_captured": true,
+    "universal_cors_and_stream_compatibility_qualified": false,
+    "chunk_dispatches": 0,
+    "automatic_retries": 0,
+    "client_history_reopened_exactly_after_restart": true,
+    "wire_transmissions_not_measured": true
+  },
+  "post_refusal": {
+    "payer_balance_cycles": "999800000000",
+    "payer_account_reply_unchanged": true,
+    "relationship_reply_unchanged": true,
+    "gateway_available_credit": "0",
+    "reported_usage_and_relationship_spend": "0",
+    "owner_account_query": "NotAuthorized for payer; not AccountNotFound",
+    "canister_api_version": [],
+    "refusal_root_cause_proved": false,
+    "permission_state": "exposure_possible",
+    "local_accounting": {
+      "operations": "1",
+      "active_reservations": "1",
+      "reserved_bytes": "1024",
+      "logical_bytes": "1024",
+      "physical_bytes": "1024",
+      "liability_bytes": "1024",
+      "fenced": false
+    },
+    "conservative_local_physical_bytes_not_provider_storage_proof": true
+  },
+  "read_bounds": {
+    "cashier_logical_verified_queries": 9,
+    "cashier_query_and_verification_transports": 18,
+    "max_transports_per_query": 4,
+    "max_bytes_each": 65536,
+    "timeout_seconds": 30,
+    "retries": 0,
+    "service_query_observations_separately_captured": true,
+    "icp_operator_queries_uncertified": true
+  },
+  "source_guidance": {
+    "record": "../../local/2026-10-02-gateway-admission-01/summary.json",
+    "repository": "dfinity/immutable-object-storage-example",
+    "blob_sha": "a7b952ef70d0b403035cc4e08a488f8b78b8ed7e",
+    "readme_sha256": "ef4a668d0707114c5d8eb945ea20e2c730b640555423ef7917c7a081f0f6ca11",
+    "documented_example_funding_cycles": "10000000000000",
+    "documented_example_daily_limit_cycles": "5000000000000",
+    "minimum_balance_or_credit_allocation_algorithm_proved": false,
+    "no_supported_application_credit_grant_or_effect_free_dry_run_demonstrated": true
+  },
+  "local_failures_retained": [
+    {
+      "record": "payer-balance-before/local-encoding-failure.json",
+      "effect": "Official account field preparation refused before network; separate corrected query retained"
+    },
+    {
+      "record": "enroll-sign-failure-01.json",
+      "effect": "Shell parsing refusal before signing/execution; corrected source retained"
+    },
+    {
+      "record": "setup-check-failure-01.json",
+      "effect": "Wrong SDK JSON-field assumption refused locally; maintained shape correction retained without repeating an effect"
+    },
+    {
+      "record": "timestamp-clarification.json",
+      "effect": "Manually written future intent timestamp corrected in linked note; actual dynamic dispatch/signature used for freshness"
+    },
+    {
+      "record": "credential-redaction.json",
+      "effect": "Credential literals removed from private execution wrappers before sealing; redacted helpers retained"
+    }
+  ],
+  "budget": {
+    "standing_total_approved_cycles": "100000000000000",
+    "gross_donor_debit_so_far_cycles": "3000100000000",
+    "new_donor_debit_cycles": "0",
+    "remaining_authorized_cycles": "96999900000000",
+    "payer_reported_debit_observed_cycles": "0",
+    "future_or_delayed_provider_charges_excluded": false,
+    "provider_total_bill_cap_guaranteed": false
+  },
+  "cleanup": {
+    "local_servers_and_browsers_closed": true,
+    "original_private_keys_in_original_private_paths": true,
+    "temporary_password_files_removed": true,
+    "no_global_identity_change": true,
+    "owner_payer_link_and_exact_original_history_retained": true,
+    "reference_release": false,
+    "provider_deletion_proved": false,
+    "billing_cessation_proved": false,
+    "reset_upgrade_reinstall": false,
+    "profile_is_owned_mutable_resource_not_sealed_capture": true
+  },
+  "provider_object_requests": 1,
+  "certificates_issued": 1,
+  "completed_live_uploads": 0,
+  "downloads": 0,
+  "attestations": 0,
+  "new_funding": 0,
+  "next": "Investigate actual owner/gateway credit allocation and documented funding/daily-limit guidance before a separate reviewed trial. Do not resend this transfer, add funds on zero-credit alone, impersonate the gateway, clear the exposure, reset lifetime capacity or rely on expiry to stop billing. Existing funded/account/provider obligations remain owned; Canic and its consumer feedback stay deferred."
+}

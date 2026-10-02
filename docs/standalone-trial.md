@@ -1,7 +1,10 @@
 # First standalone Caffeine trial
 
-The maintainer **accepted this restricted contract on 2026-10-02**. The implementation
-ships in 0.6.0, replacing the 0.5.0 gate semantics. Acceptance does not
+The maintainer **accepted the initial restricted contract on 2026-10-02**; it
+shipped in 0.6.0. The later request to relax the 1 KiB limit for Toko Miner changes
+the current source contract to use validated installation resource limits.
+The first live owner's frozen 0.6.0 configuration and evidence remain intact.
+Contract acceptance does not
 authorize deployment, funding or provider traffic. The objective
 is one actual upload, an independent verified fetch, and a tenant download.
 The [existing run sequence](operator-guide.md#isolated-uploaddownload-trial-plan)
@@ -11,12 +14,12 @@ and [probe ledger](evidence/caffeine-probes/README.md) own command/evidence hand
 
 | Blocker | What we have | What is still needed |
 | --- | --- | --- |
-| Trial bounds | Installed lifetime limits enforce one tenant/object/reference and at most 1 KiB | Select this envelope for the actual installation; broader configurations refuse certificate issuance |
+| Resource admission | Installed object size, tenant/global byte quotas, lifetime history, leaves and concurrency limits bound each admitted/prepared reservation | Size the installation from the consumer inventory and retention horizon; larger and multi-file configurations may issue certificates |
 | Uploader trust | Required immutable `trusted_uploader`, scoped to service and local namespace | Select a trusted participant and exact tenant-approved permission; tenant approval alone cannot grant this trust |
 | Local namespace | Original service owner/root and explicit installed project/local namespace | Select and provision the actual payer/project/bucket relationship; local matching does not prove provider provisioning |
 | Current owner/durability | One synchronous exposure commit/reply; stop/start and inspection-only upgrade restoration | Keep the original owner active without snapshot loading; old-backup activation is unsupported and can restore lost authority |
 
-The current local blockers are `TrialBounds`, `NamespaceBinding`, `TrustedUploader`,
+The current local blockers are `NamespaceBinding`, `TrustedUploader`,
 `CurrentOwner`, `Durability` and `StaleObservation`. Provider pre-charge, duplicate
 charging, provisioning and backup-freshness guarantees are outside this contract;
 they are not facts set true from local success. No ingress qualification flags or
@@ -35,9 +38,25 @@ terminal currency. The process then failed its file-size guard; the failed outco
 and reply are both retained, without a retry. This does not resolve request-factor
 semantics, account-limit enforcement or expiry units.
 
-## Accepted restricted prototype contract
+## Current upload sizing
 
-These assumptions apply together:
+The service imposes no separate 1 KiB or single-object certificate limit. Hosts
+select `ServiceResourceInput` explicitly; admission and manifest preparation
+enforce those limits before issuance. A 10 MiB object maximum covers the largest
+asset in the recorded Miner feedback (8,362,256 bytes), but a complete release also
+needs adequate object/leaf/reference/receipt capacity and physical/liability
+budgets across overlapping releases. Read-session and client transfer/download
+limits are configured separately; raising an object limit does not raise them.
+Uploader trust, exact permission, one-time exposure, current-owner fences and
+continuing billing obligations still apply. Larger live transfers remain unqualified.
+Removing the former public trial gate requires a minor release and cross-release
+reinstall after obligations are preserved or discharged; it does not reconfigure
+the existing live owner or authorize deploying a consumer installation.
+
+## Recorded 0.6.0 prototype envelope
+
+The original isolated trial selected these assumptions together. They describe
+that frozen installation and its retained history, not current library size limits:
 
 - One freshly created standalone owner, one isolated payer, one tenant, one upload
   and one first reference. Operator, uploader, verifier and controllers are explicit
@@ -112,15 +131,15 @@ unqualified.
 | Input | Current state |
 | --- | --- |
 | Host | Frozen standalone 0.6.0 installed on the detached mainnet owner; all local owners unfenced |
-| Service, controller/deployer, operator, tenant, uploader and verifier | Service `4wyfo-qaaaa-aaaam-qjlpq-cai`; recovered controller/operator and exact fresh uploader/verifier match reviewed init. Tenant admission remains unperformed |
-| Cashier, payer and account controller | Installed bindings match. Exact deposit/notification credits 999.8B; one explicitly approved link succeeds with exact terms. Expiry enforcement and repeat/lost-response behavior remain unqualified |
-| Gateway origin, project and bucket | One actual Cashier gateway is synced into the standalone registry at sequence 1. Origin/transport, project acceptance and bucket provisioning remain open |
-| Total trial budget | Maintainer explicitly preapproves total spending up to 100T cycles; 3.0001T gross donor debit recorded, 96.9999T remain; no proven maximum external bill |
+| Service, controller/deployer, operator, tenant, uploader and verifier | Service `4wyfo-qaaaa-aaaam-qjlpq-cai`; recovered controller/operator and exact uploader/verifier match reviewed init. Tenant enrollment, original permission/manifest and one actual certificate succeed |
+| Cashier, payer and account controller | Installed bindings match. Initial and later deposits credit 5.0996T total. The approved allowance update is followed by 1T payer-to-owner allocation: payer 4.0996T, owner 1T Ledger credit. No new donor debit; enforcement and uncertain-response recovery remain unqualified |
+| Gateway origin, project and bucket | One Cashier gateway is synced at sequence 1. A streamed HTTPS tree PUT reaches `https://blob.caffeine.ai` and returns readable HTTP 403 for insufficient owner balance; project/bucket acceptance and full transfer remain unqualified |
+| Total trial budget | Maintainer explicitly preapproves total spending up to 100T cycles; 7.1001T gross donor debit recorded, 92.8999T authority remains. Original donor liquidity is 1.654605097235T; approval is not available funds or a proven maximum external bill |
 | Allocation | Conservative 10T service / 1T initial provider / 89T unallocated plan. One 1T gross deposit is complete; account credits 999.8B after 100M transfer and 100M sweep fees |
 | Monitoring/retention window | Unselected; must cover continuing obligations rather than just transfer time |
-| Relationship limit/expiry, overdraft and gateway credit handling | Raw provider terms and enforcement unqualified |
-| Browser identity and persistent intent store | Maintained IndexedDB journal is locally tested; select its actual profile/origin/database with one lifetime slot. Reopen explicitly; missing history stops the trial. Setup-only in-memory store cannot dispatch |
-| Cleanup/reconciliation owner and continuing storage disposition | Unselected; logical release alone cannot close the trial |
+| Relationship limit/expiry, overdraft and gateway credit handling | Approved daily allowance is now 5T; raw expiry remains 1790953635603000000 (nominal 2026-10-02T15:07:15.603Z), enforcement unqualified. Zero overdraft/no target refill unchanged. Relationship period spend is 1T, gateway credit raw 333333333333 and all reported gateway usage zero |
+| Browser identity and persistent intent store | Real original payer signs in memory; original profile/origin/database retains the verified certificate and one responded 403 claim across restart. Open existing history explicitly; missing history stops |
+| Cleanup/reconciliation owner and continuing storage disposition | Maintainer controls original operator/payer and retained histories. One exposure-possible 1 KiB reservation/liability remains; no release, reset, deletion or billing cessation is inferred from refusal |
 
 Treat gross cycle allocations and outstanding charge exposure conservatively;
 provider funding is not proof of either credit or final cost. Do not count a
@@ -155,6 +174,41 @@ visible metadata does not prove spending authority persists. No extension, new
 funds, certificate or object transfer follows. Preserve the relationship, funded
 resources and rejection; billing cessation remains unqualified. Next review
 gateway admission/credit and namespace/browser readiness.
+
+The [actual-service preparation](evidence/caffeine-probes/local/2026-10-02-gateway-admission-01/summary.json)
+retains the known 1 KiB body, SDK manifest, exact installed carrier and native/browser
+handoff. An unsigned one-slot journal survives browser-process restart in the
+recorded profile/origin/database, with no keys or provider traffic. Source review
+finds no separate application credit-grant requirement or effect-free dry-run;
+zero gateway credit does not prove upload refusal. The retained live-trial plan
+proposes a separately approved two-hour relationship expiry before real admission,
+one certificate, two SDK upload dispatches and independent verified downloads.
+Limits remain client bounds, not a total provider bill cap. Keep failed probes,
+unsigned history and all funded/relationship obligations; check candidate freshness
+and exact state before any effect.
+
+The subsequently approved [live trial](evidence/caffeine-probes/deployed/2026-10-02-trial-live-01/summary.json)
+updates that link once, admits/prepares the original packet and verifies one actual
+certificate. Caffeine refuses the tree with HTTP 403 for insufficient owner balance;
+the chunk and both planned downloads are not attempted. Payer/relationship replies
+remain unchanged while gateway credit/usage are zero. Source guidance recommends
+10T funding and illustrates 5T daily allowance; neither a minimum nor the refusal
+cause is established. Investigate credit allocation before another reviewed trial.
+Do not retry this transfer or clear its retained 1 KiB exposure/history.
+
+The subsequently requested [larger payer funding](evidence/caffeine-probes/deployed/2026-10-02-trial-funding-02/summary.json)
+credits another 4.0998T after two fees, with original account/settings and exact
+link terms unchanged. Separate owner/payer/gateway reads identify zero owner
+Prepaid balance, 5.0996T payer Ledger credit and zero gateway credit. No upload
+is retested, so these do not establish the earlier refusal's cause. The selected
+donor cannot fund the example's 10T balance. The [subsequently approved comparison](evidence/caffeine-probes/deployed/2026-10-02-trial-limit-01/summary.json)
+changes daily allowance 1T -> 5T, preserving expiry. It succeeds once; verified
+reads reconcile 1T allocated from payer to owner, leaving payer 4.0996T and owner
+1T Ledger credit. Gateway credit becomes raw 333333333333; reported usage stays
+zero. Internal allocation is not additional donor spending or proved upload cost.
+No admission retest occurs. Prepare a separately reviewed fresh-owner trial;
+retain the prior exposed operation, browser claim, link and balances without
+retrying its claimed transfer, resetting capacity or inferring billing cessation.
 
 The earlier read-only `icp identity list` confirms `canic-mainnet` has public principal
 `o5trf-oqyg7-cawjp-xs4pw-aomb3-iwki5-hyezf-qahfz-j3ffd-jh4fc-oqe`.

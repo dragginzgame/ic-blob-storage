@@ -1118,8 +1118,6 @@ type UploadDiscoveryResponse = record {
 type UploadExposureBlocker = variant {
   // Original uploader lacks explicit installed trust.
   TrustedUploader;
-  // Installed envelope or body exceeds the one-object/1 KiB contract.
-  TrialBounds;
   // Owner is inspection-only after restoration; no backup freshness claim.
   CurrentOwner;
   // Atomic intent-before-effect durability is not established.

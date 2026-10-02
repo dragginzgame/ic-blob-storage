@@ -18,7 +18,6 @@ pub(super) fn evidence() -> UploadExposureHostEvidence {
     UploadExposureHostEvidence {
         permission,
         observed_at_ns: 2,
-        trial_bounds: true,
         namespace_binding: true,
         trusted_uploader: true,
         current_owner: true,
@@ -51,13 +50,6 @@ fn exposure_policy_keeps_each_missing_host_fact_independent() {
                 ..yes
             },
             B::StaleObservation,
-        ),
-        (
-            UploadExposureHostEvidence {
-                trial_bounds: false,
-                ..yes
-            },
-            B::TrialBounds,
         ),
         (
             UploadExposureHostEvidence {
@@ -94,7 +86,6 @@ fn exposure_policy_keeps_each_missing_host_fact_independent() {
         assess_exposure(
             UploadExposureHostEvidence {
                 observed_at_ns: 1,
-                trial_bounds: false,
                 namespace_binding: false,
                 trusted_uploader: false,
                 current_owner: false,
@@ -106,7 +97,6 @@ fn exposure_policy_keeps_each_missing_host_fact_independent() {
         .blockers,
         vec![
             B::StaleObservation,
-            B::TrialBounds,
             B::NamespaceBinding,
             B::TrustedUploader,
             B::CurrentOwner,
@@ -145,10 +135,6 @@ fn exposure_binds_complete_permission_and_current_evidence_before_any_write() {
         },
         UploadExposureHostEvidence {
             current_owner: false,
-            ..yes
-        },
-        UploadExposureHostEvidence {
-            trial_bounds: false,
             ..yes
         },
     ] {

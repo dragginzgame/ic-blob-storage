@@ -1,5 +1,157 @@
 # Caffeine probe ledger
 
+## Configurable issuance — local implementation, 2026-10-02
+
+The maintainer requests relaxing the 1 KiB cap for Miner integration. The
+[local evidence](../configured-upload.json) records removal of the extra trial
+envelope in favor of installed admission quotas, plus actual PocketIC certificate
+issuance for a 10 MiB object and a second multi-chunk object. Quota, authority,
+replay, rollback and restore checks remain. This is local IC implementation
+evidence and read-only consumer feedback, not a deployed-provider probe or Miner
+acceptance. No provider/account call, funding, deployment or old-claim replay
+occurs. The public semantic/API cut requires a minor release. Original live
+captures, owner configuration, payment balances and stopped obligations remain.
+Initial local selection/lint failures are retained in `.tmp/configured-upload-01`.
+
+## Approved 5T daily allowance comparison — 2026-10-02
+
+Intent: `.tmp/trial-limit-01/intent.json`, before new queries/effects. The maintainer
+explicitly approves changing only the existing linked-payer allowance **1T -> 5T**,
+preserving raw expiry `1790953635603000000` (nominal 2026-10-02T15:07:15.603Z).
+Reuse the exact unsigned candidate retained in the prior funding capture; sign
+fresh only after exact payer/relationship/gateway and nominal expiry checks.
+At most one update, four baseline and three post-update verified logical queries,
+four transports/64 KiB each, 30-second query deadlines and 60-second update/final
+observation bounds. No retry, attached cycles, new funds, certificate, upload,
+owner/deployment or account-role switch. Changed bindings/terms/expired nominal
+scope, unexpected usage or uncertain/wrong response stops and preserves the original
+request. Keep the old certificate/403 journal and 1 KiB exposure; deletion and
+billing cessation are not inferred. Gross donor debit remains 7.1001T, remaining
+standing 100T authority 92.8999T. Original private payer key is used in place;
+no password, global identity, sibling change, release/commit or build cleanup.
+
+Outcome: the [completed allowance comparison](deployed/2026-10-02-trial-limit-01/summary.json)
+records one successful original-payer update, request
+`1d6698003bdf90619aa53a274b800db4aa09af2bf93f5e383c71b2db4558fc03`.
+Readback confirms exactly 5T daily allowance and unchanged expiry. Payer credit
+falls **5.0996T -> 4.0996T**, relationship period spend rises **0 -> 1T**, and
+gateway available credit rises **0 -> raw 333333333333** with all usage zero.
+A separately recorded read-only followup intent precedes one public owner-balance
+query to reconcile this unexpected debit: owner now holds **1T Ledger credit**,
+matching the debit, unlike its historical zero/Prepaid account. Other payer settings
+and relationship fields remain unchanged. This is observed internal credit
+allocation after the update, not a new donor transfer or proof of an upload bill.
+Do not double-count it: gross donor debit stays 7.1001T, authority 92.8999T.
+
+Eight logical queries use sixteen bounded mainnet-verified transports, including
+the additional accounting read; the three planned post-update queries finish in
+8.228 seconds. An initial local record verifier incorrectly requires a Result
+from the gateway-list method; failure and corrected official-IDL decode are retained.
+Delivery failures for verifier-script permissions and an overstrict prose assertion
+are also retained; private permissions and structured delivery checks now pass.
+No network retry, new funding, certificate, upload/download or owner change occurs.
+The original stopped browser claim and service liability survive. Positive credit
+does not qualify admission, an allocation algorithm/minimum or expiry enforcement.
+Prepare a separately reviewed fresh-owner trial; do not replay the old claimed
+transfer, reset its lifetime slot or erase continuing balances and obligations.
+
+## Larger isolated payer balance — 2026-10-02
+
+Intent: `.tmp/trial-funding-02/intent.json`, recorded before new requests. The
+maintainer requests testing with more cycles under standing total 100T trial
+authority. Propose one additional **10T gross** direct deposit to the original
+Cashier-returned isolated subaccount and one exact payer notification. At unchanged
+fees, payer balance would rise from 999.8B to 10.9996T, above the documented 10T
+funding example. Gross donor total would be 13.0001T, leaving 86.9999T authorized.
+Refresh payer/relationship/gateway, fee, donor/deposit balances and exact subaccount
+before signing; verify each transfer/sweep/credit before the next effect.
+The pre-query plan substitutes twenty verified SDK queries and zero CLI reads for
+the initial combined twenty-four-query allowance (four transports, 64 KiB each,
+30 seconds). Bound two public source lookups and a 60-second final observation
+window. One transfer and notification only; uncertainty stops with original requests
+retained. Keep daily limit/expiry unchanged and preserve the stopped upload's
+certificate/403 claim and exposure. No new owner, certificate, upload retry, reset
+or billing-cessation inference is included. Original keys and ephemeral credential
+handling remain private; no build, release, sibling change or artifact cleanup.
+
+Fresh donor balance is only 5.754605097235T, so the original 10T maximum proposal
+cannot be funded. Before signing, `selected-proposal.json` reduces the experiment
+to **4.1T gross**, leaving 1.654605097235T in the donor. At the observed unchanged
+fees, it would credit 4.0998T and bring the original payer to **5.0996T**; gross
+trial donor total would be 7.1001T, remaining authority 92.8999T. This larger balance
+does not meet the example's 10T guidance or establish a minimum. No source-account
+switch, daily-limit/expiry change or stopped-upload retry is proposed.
+
+Outcome: the [larger funding summary](deployed/2026-10-02-trial-funding-02/summary.json)
+records one fresh successful transfer and payer notification, exact signatures/
+blocks/deltas/sweep/fees, emptied deposit and **5.0996T** balance in the same payer.
+Gross donor debit totals **7.1001T**, remaining authority **92.8999T**; original
+donor liquidity is 1.654605097235T. No automatic top-up settings or link terms
+change. A public verified owner-account balance is zero with Prepaid debt target,
+while the payer has 5.0996T Ledger credit; gateway credit/usage stay zero initially
+and later. This is a funding/read comparison, not a second upload-admission test
+or proof of the earlier refusal's cause. Nineteen verified logical queries use
+thirty-eight query/verification transports; final window is under 60 seconds.
+The failed web lookup is retained; source guidance comes from the prior fresh
+immutable README. Original profile/certificate/403 history and 1 KiB liability
+stay unchanged. Original keys remain private; ephemeral password removed.
+
+At this capture's close, the unsigned proposal was daily allowance 1T -> 5T on the existing link,
+expiry unchanged, no new funding, certificates or uploads. Official IDL encoding
+and independent decoding agree; its request hash/targets/budgets are retained in
+`daily-limit-proposal.json`. Exact provider term selection remains pending because
+earlier approval kept the daily limit at 1T. No signature or mutation occurs for
+that proposal in this funding run; the approved comparison above completes it.
+Keep separate balances and continuing obligations; Canic feedback
+is recorded without sibling work or upstream messages.
+
+## Approved two-hour link and bounded transfer — 2026-10-02
+
+Intent retained before network effects in `.tmp/trial-live-01/intent.json`.
+The maintainer explicitly approves one fresh nominal two-hour expiry update of
+the existing payer/owner relationship, preserving the raw daily limit 1T. The
+standing total isolated-trial spending authority is 100T; gross donor debit is
+3.0001T and remaining authority 96.9999T. No new funding is planned.
+Refresh exact relationship/gateway/installation/roles before setup. At most one
+link update, three service setup updates, one certificate and two serial streamed
+gateway upload dispatches are proposed for the retained 1 KiB packet/profile;
+at most two whole 1 KiB downloads follow. No automatic paid retry is allowed.
+Twelve logical provider queries are bounded individually by four transports,
+64 KiB each and 30 seconds. Changed bindings, expired permission, uncertainty,
+incorrect readback or byte mismatch stop new effects. Keep the installed owner,
+funded payer, provider relationship and original journals; local server/browser
+close after use. Expiry enforcement, billing cessation and future retention are
+not assumed. Outcome and immutable manifest follow in this run's capture.
+
+Outcome: the [live summary](deployed/2026-10-02-trial-live-01/summary.json)
+records one successful exact renewal, local tenant/admission/manifest setup and
+one real mainnet-verified certificate. The SDK's single 7,456-byte streamed tree
+PUT receives readable HTTP 403 for insufficient owner balance; no chunk, retry,
+download, attestation or release follows. Original certificate/root/owner/project/
+bucket independently match. The payer and relationship replies stay unchanged,
+gateway credit/usage/spend zero. Owner-account inspection refuses the payer as
+NotAuthorized; API-version read is empty, neither establishing the cause.
+Nine verified Cashier logical queries use eighteen captured verification/query
+transports; service reads and setup have their own retained journals. The existing
+browser profile reopens with the exact certificate and responded 403 claim.
+Service exposure and 1 KiB reserved/logical/physical/liability accounting remain;
+they do not prove stored provider bytes or cessation. Gross donor debit stays
+3.0001T, remaining 96.9999T; no new funds or reset occurs.
+
+The fresh retained DFINITY README recommends 10T funding and illustrates a 5T
+daily limit, without establishing a minimum or gateway credit algorithm. This is
+source guidance, not the observed refusal's cause or authority to retry. Investigate
+allocation before another reviewed trial. Local field-shape/parse/SDK-check failures,
+timestamp correction and private-wrapper credential redaction are retained;
+corrected checks repeat no paid effect. Servers/browsers close, temporary passwords
+are removed, original keys remain private and current history remains owned.
+Canic feedback records separate admission/refusal handling; adoption stays deferred.
+An offline capture check initially matches its own PEM-marker source literal;
+the retained corrected check scans actual multiline private-key material and passes.
+No network request or effect repeats for that correction. Independent certificate,
+tree/refusal, accounting, budget, original artifact and public/private record checks
+pass, alongside evidence manifests, changelog structure and diff whitespace.
+
 This is the entry point for every Caffeine investigation. The maintainer selected
 independent qualification on 2026-09-29; direct provider cooperation is unavailable
 as a planning assumption. Release acceptance depends on demonstrated behavior and
@@ -33,6 +185,45 @@ poller or recurring paid job. Routine reruns of the same local test need not cop
 all logs here; link their maintained test and record material changed findings.
 
 ## Current operating decisions and experiments
+
+### Gateway admission and credit review — 2026-10-02
+
+Intent: `.tmp/gateway-admission-review-01/intent.json` investigates public Caffeine
+source and maintained SDK behavior after the zero-credit expiry experiment.
+Bound four primary-source lookups and four one-MiB/30-second source fetches; review
+local retained sources and prepare offline checks where supported. Distinguish
+gateway credit allocation from funded payer balance. No provider update, extension,
+funding, object request or gateway impersonation is planned. A header named dry-run
+is not proof of zero effects; qualify its source contract before any such probe.
+Preserve the installed owner, funded payer and existing relationship obligations.
+
+Outcome: [source and actual-service preparation](local/2026-10-02-gateway-admission-01/summary.json)
+refreshes two public trees and two immutable blobs within the recorded fetch limits.
+Caffeine SDK bytes are unchanged; DFINITY README differs only by a trailing newline.
+Its architecture/protocol describes budget checking at gateway upload admission,
+not a separate application credit-grant operation. No effect-free dry-run is
+demonstrated. These source observations do not explain the deployed zero-credit
+algorithm; zero gateway credit is not presumed empty payer balance or a mandatory
+positive-credit preflight. Unhelpful searches and the provider repository's 404
+remain retained alongside successful sources.
+
+SDK/native tools prepare a known 1 KiB file using the exact actual-service carrier.
+Independent decoding checks permission/manifest/browser/root and download/status
+bindings, plus an unsigned operator tenant-enrollment candidate. Planned IDs are
+not allocated. A one-slot IndexedDB row with those exact inputs survives browser
+process restart at the recorded private profile/origin/database, without keys,
+signatures or provider calls. The first probe creates the row then uses unsupported
+`reopen`; the corrected `open` follow-up preserves the same history and failed run,
+within a newly retained four-launch total limit. Signer is a setup-only facade;
+actual signing, admission, streamed upload and provider behavior remain unqualified.
+
+The concrete plan prepares one existing-link update to nominal two-hour expiry,
+unchanged raw 1T daily limit, no new funds and one 1 KiB real trial. That provider
+term change remains unsubmitted pending exact approval; prior approval included
+zero extensions. It is a new trial proposal, not a repeat expiry experiment. Total
+donor debit stays 3.0001T; 96.9999T remain under standing 100T spending authority.
+Preserve the profile/capture, existing relationship, funded account and owner.
+No Cargo build/full CI, release/commit, sibling edits or build cleanup occurs.
 
 ### Explicitly approved payment-link expiry experiment — 2026-10-02
 
@@ -1518,6 +1709,7 @@ This is an explicit service trust decision, not newly discovered Caffeine behavi
 | Capability / question | Experiment and decisive evidence | Current limit until demonstrated |
 | --- | --- | --- |
 | Source/interface drift | Capture official revision, package metadata, source/Candid hashes; compare to the reviewed baseline before behavior changes | A matching interface/source is not proof of the deployed implementation |
+| Actual-service browser preparation | [Unsigned packet/profile](local/2026-10-02-gateway-admission-01/summary.json) verifies one 1 KiB SDK/native packet and exact IndexedDB row through process restart at a retained origin/profile | Setup-only signer; actual admission, signing, gateway streaming and provider behavior remain open. Open existing history; do not reset missing or uncertain work |
 | Live account and gateway inspection | [Standalone readiness](deployed/2026-10-02-trial-link-01/summary.json) observes shared gateway sync and exact funded payer balance; [approved link](deployed/2026-10-02-trial-link-02/summary.json) succeeds with exact readback and retained before/after budget queries | Discovery/balance inspection and exact payer linkage work for these bindings. Zero gateway credit gives no expiry-enforcement signal; project/bucket, gateway admission/delivery and billing cessation remain unqualified |
 | Upload completion | Isolated known files spanning empty/single/multiple chunks; capture actual tree/chunk responses, interrupt the final response, then independently download and verify complete bytes/metadata against the expected root | Browser progress/hash alone cannot confirm completion. Verified reads establish observed content availability, not future retention or a trusted canister fact. Keep the current service completion gate until the evidence bridge and narrower semantics are implemented/reviewed |
 | Resume and retry charges | One variable per trial: duplicate tree, duplicate chunk, interrupted chunk, completed root. Correlate request logs with isolated audit/account observations; wait through billing aggregation | Assume repeats can cost money. No automatic uncertain paid-effect retry; bounded manual disposition must preserve prior liability |

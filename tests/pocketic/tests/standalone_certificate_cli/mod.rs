@@ -104,10 +104,7 @@ fn standalone_certificate_cli_preserves_blockers_exact_intent_and_lifecycle_refu
         permission.upload.object.to_string()
     );
     assert_eq!(value["expires_at_ns"], permission.expires_at_ns.to_string());
-    assert_eq!(
-        value["blockers"],
-        serde_json::json!(["trial_bounds", "trusted_uploader",])
-    );
+    assert_eq!(value["blockers"], serde_json::json!(["trusted_uploader"]));
     assert_eq!(value["issuance_authorized"], false);
     assert_eq!(value["retry_authorized"], false);
     rejects_changed_permission_and_trust(&args, dir.path(), permission);

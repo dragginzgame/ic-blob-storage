@@ -5797,3 +5797,20 @@ actual IC/browser facts, fixed test identities and local provider substitutes.
 No live provider/account call, deployment/funding, allocator/dependency/version
 mutation, full CI, commit, cleanup or sibling edit occurs. Actual gateway acceptance,
 provisioning, retention/billing and the trial environment remain unqualified.
+
+## Configured certificate sizing — 2026-10-02
+
+The maintainer requests removing the 1 KiB integration cap. The extra trial envelope,
+host-evidence field and public blocker are removed directly; issuance uses the
+existing admission/manifest quotas and preserves uploader trust, exact permission,
+one-time exposure and restoration fences. See [the record](configured-upload.json).
+Actual standalone PocketIC issues one 10 MiB certificate and a second object of
+1 MiB + 1 byte in the same owner. Configured size and capacity exhaustion return
+typed admission errors without releasing physical/liability accounting. Caller,
+manifest, replay, revocation, stop/start and same-release restore checks pass.
+Local rollback/lost-response and signed setup/carrier/Candid checks also pass.
+Core and native boundary tests, release Wasm and strict affected-package lint pass.
+Wrong test selection and the initial test-length lint failure remain in the capture.
+No live provider effect or Miner adoption is qualified. Existing live captures and
+the 0.6.0 owner stay frozen; publication requires a minor release. No allocator,
+dependency, version, commit, sibling or cleanup change occurs.

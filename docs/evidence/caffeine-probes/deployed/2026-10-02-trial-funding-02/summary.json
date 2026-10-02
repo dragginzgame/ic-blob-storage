@@ -1,0 +1,164 @@
+{
+  "schema": 1,
+  "date": "2026-10-02",
+  "evidence": "actual_larger_isolated_payer_funding_and_separate_zero_owner_gateway_balances",
+  "capture": ".tmp/trial-funding-02",
+  "prior_record": "../2026-10-02-trial-live-01/summary.json",
+  "prior_funding_record": "../2026-10-02-trial-funding-01/summary.json",
+  "authorization": {
+    "maintainer_request": "ok sure maybe we need to test with more cycles",
+    "standing_approval": "yes please, anything up to 100T is preapproved",
+    "total_trial_spending_cycles": "100000000000000",
+    "new_source_or_identity_selected": false
+  },
+  "service": "4wyfo-qaaaa-aaaam-qjlpq-cai",
+  "installed_release": "0.6.0",
+  "repository_release": "0.6.1",
+  "cashier": "72ch2-fiaaa-aaaar-qbsvq-cai",
+  "payer": "jaqw3-42pqs-5bivi-nj3xg-5row5-gpluj-sbn54-vthud-pyb5v-sm2rs-bae",
+  "donor": "o5trf-oqyg7-cawjp-xs4pw-aomb3-iwki5-hyezf-qahfz-j3ffd-jh4fc-oqe",
+  "ledger": "um5iw-rqaaa-aaaaq-qaaba-cai",
+  "gateway": "jf2g2-sl4zh-zhvyx-v3zcb-hmumz-2at2q-wuamm-4qiml-43msi-r3man-eqe",
+  "funding_selection": {
+    "initial_max_gross_proposal_cycles": "10000000000000",
+    "original_donor_before_cycles": "5754605097235",
+    "selected_gross_debit_cycles": "4100000000000",
+    "reason": "Original selected donor lacks 10T; use 4.1T gross and retain over 1T in the donor. No other funding source or identity is selected.",
+    "source_recommended_10T_payer_balance_reached": false,
+    "minimum_funding_or_gateway_allocation_algorithm_proved": false
+  },
+  "transfer": {
+    "method": "icrc1_transfer",
+    "request_id": "36d459d0ffc1d72be35ec0d75ae6876ee35ce6974a88c173a1dfa0102871c423",
+    "submission_invocations": 1,
+    "result": "Ok",
+    "block_id": "16750551",
+    "amount_cycles": "4099900000000",
+    "explicit_fee_cycles": "100000000",
+    "gross_debit_cycles": "4100000000000",
+    "original_donor_and_exact_cashier_subaccount_verified": true,
+    "fresh_timestamp_and_memo_not_prior_request_retry": true,
+    "independent_signature_request_block_and_balances_match": true
+  },
+  "notification": {
+    "method": "cycles_ledger_deposit_notify_v1",
+    "request_id": "49ad8b56101406da75bcf56d55175915e44c913134087febf85b34352bacba34",
+    "submission_invocations": 1,
+    "result": "Ok",
+    "caller_is_original_payer": true,
+    "explicit_account_is_original_payer": true,
+    "attached_cycles": "0",
+    "sweep_block_id": "16750574",
+    "sweep_fee_cycles": "100000000",
+    "credited_cycles": "4099800000000",
+    "exact_sweep_to_cashier_default_verified": true,
+    "deposit_balance_cycles": "0",
+    "retry": 0
+  },
+  "post_funding": {
+    "payer_balance_before_cycles": "999800000000",
+    "payer_balance_after_cycles": "5099600000000",
+    "payer_account_creation_and_identity_unchanged": true,
+    "overdraft_limit_cycles": "0",
+    "target_auto_refill": null,
+    "owner_balance_query": {
+      "Ok": {
+        "account_cycle_balances": {
+          "total": "0",
+          "cycles_prepaid": "0",
+          "cycles_promo": "0",
+          "debt_target": {
+            "Prepaid": null
+          },
+          "cycles_ledger": "0"
+        },
+        "account": {
+          "__principal__": "4wyfo-qaaaa-aaaam-qjlpq-cai"
+        }
+      }
+    },
+    "owner_and_payer_balances_are_distinct": true,
+    "gateway_credit_before": "0",
+    "gateway_credit_after": "0",
+    "gateway_credit_later": "0",
+    "budget_reply_unchanged": true,
+    "reported_gateway_usage": "0",
+    "relationship_period_spend": "0",
+    "daily_limit_raw_unchanged": "1000000000000",
+    "expiration_timestamp_raw_unchanged": "1790953635603000000",
+    "expiry_hypothesis_at": "2026-10-02T15:07:15.603Z",
+    "relationship_reply_unchanged": true,
+    "larger_balance_not_upload_admission_test": true,
+    "insufficient_balance_refusal_cause_unresolved": true,
+    "previous_certificate_and_403_journal_retained": true,
+    "previous_exposure_and_liability_bytes_retained": "1024"
+  },
+  "queries": {
+    "logical_queries": 19,
+    "captured_query_and_signature_verification_transports": 38,
+    "max_logical_queries": 20,
+    "max_transports_each": 4,
+    "max_bytes_each": 65536,
+    "query_deadline_seconds": 30,
+    "retries": 0,
+    "all_mainnet_signatures_verified": true,
+    "final_window_started_at": "2026-10-02T13:39:32.141Z",
+    "final_window_finished_at": "2026-10-02T13:39:37.821Z",
+    "final_window_elapsed_ms": 5680,
+    "seconds_between_initial_and_later_budget_observations": 154.401
+  },
+  "source_review": {
+    "failed_web_lookup_retained": "source-lookup-failure.json",
+    "source_guidance_record": "../../local/2026-10-02-gateway-admission-01/summary.json",
+    "fresh_retained_readme_blob": "a7b952ef70d0b403035cc4e08a488f8b78b8ed7e",
+    "readme_sha256": "ef4a668d0707114c5d8eb945ea20e2c730b640555423ef7917c7a081f0f6ca11",
+    "funding_example_cycles": "10000000000000",
+    "daily_limit_example_cycles": "5000000000000",
+    "example_not_proof_of_minimum_or_refusal_cause": true
+  },
+  "next_term_proposal": {
+    "private_record": "daily-limit-proposal.json",
+    "method": "payment_account_canister_update_v1",
+    "old_daily_limit_raw": "1000000000000",
+    "proposed_daily_limit_raw": "5000000000000",
+    "expiry_unchanged": true,
+    "additional_funding_cycles": "0",
+    "new_uploads": 0,
+    "new_certificates": 0,
+    "max_submission_invocations_if_approved": 1,
+    "independent_official_IDL_encode_decode_verified": true,
+    "argument_sha256": "6d5b7758061287ea122118a9bf927ee531771f03304558582f468d228e40797f",
+    "signed": false,
+    "submitted": false,
+    "exact_term_change_approval_pending": true
+  },
+  "budget": {
+    "standing_total_approved_cycles": "100000000000000",
+    "prior_gross_donor_debit_cycles": "3000100000000",
+    "new_gross_donor_debit_cycles": "4100000000000",
+    "gross_donor_debit_so_far_cycles": "7100100000000",
+    "remaining_authorized_cycles": "92899900000000",
+    "original_donor_available_after_cycles": "1654605097235",
+    "authority_not_actual_liquid_balance": true,
+    "provider_credit_not_double_counted_as_donor_debit": true,
+    "provider_total_bill_cap_guaranteed": false
+  },
+  "cleanup": {
+    "original_owner_payer_link_both_accounts_and_journals_retained": true,
+    "temporary_password_file_removed": true,
+    "no_credentials_in_capture_or_public_files": true,
+    "original_signing_keys_in_original_private_paths": true,
+    "no_global_identity_change": true,
+    "no_reset_upgrade_reinstall_deletion_or_retirement": true,
+    "provider_billing_cessation_proved": false,
+    "previous_browser_profile_unmodified_by_this_probe": true
+  },
+  "new_funding_transfers": 1,
+  "provider_account_notifications": 1,
+  "new_link_mutations": 0,
+  "new_provider_object_requests": 0,
+  "new_certificates": 0,
+  "new_uploads": 0,
+  "new_downloads": 0,
+  "next": "Review one explicitly approved 1T -> 5T daily allowance update, matching the source example while preserving current expiry; inspect relationship and budget afterward. Do not infer allocation or upload readiness from payer funding alone, change the configured payer, fund owner directly, impersonate gateway or replay/reset the stopped upload. A further 10T-balance test requires additional liquidity at the selected donor or an explicitly selected source. Canic adoption and consumer feedback remain deferred."
+}

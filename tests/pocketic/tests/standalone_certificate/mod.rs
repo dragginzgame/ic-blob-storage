@@ -1,4 +1,4 @@
-//! Actual restricted host: explicit trust, one local exposure and preserved fences.
+//! Actual configured host: bounded multi-file issuance, explicit trust and restore fences.
 use super::*;
 use ic_blob_storage::{
     dto::upload::{
@@ -36,11 +36,18 @@ pub(super) fn root(input: &UploadManifestRequest) -> String {
     .to_string()
 }
 #[test]
-fn standalone_certificate_rejects_large_installations_and_preserves_local_authority() {
+fn standalone_certificate_issues_configured_multifile_uploads_and_preserves_quotas_and_authority() {
+    use ic_blob_storage::dto::upload::{
+        UploadState, certificate::CaffeineUploadCertificateResponse,
+    };
     let f = Fixture::new();
     f.enroll(f.operator).unwrap();
     let manifest = f.manifest();
     let root = root(&manifest);
+    // The configured 10 MiB object maximum remains an admission boundary.
+    let mut oversized = manifest.permission;
+    oversized.upload.bytes += 1;
+    assert_eq!(admit(&f, oversized), Err(UploadAdmissionFailure::Capacity));
     f.harness
         .pic
         .update_candid_as::<Result<UploadAdmissionMutation, UploadAdmissionFailure>, _>(
@@ -58,33 +65,8 @@ fn standalone_certificate_rejects_large_installations_and_preserves_local_author
     let assessment = inspect(&f, f.uploader, &root).unwrap();
     assert_eq!(assessment.permission, manifest.permission);
     assert!(assessment.assessed_at_ns <= f.harness.pic.get_time().as_nanos_since_unix_epoch());
-    assert_eq!(assessment.blockers, vec![B::TrialBounds]);
-    refuses(&f, f.uploader, &root);
-    for actor in [
-        f.controller,
-        f.operator,
-        f.tenant,
-        Fake::principal(90),
-        Principal::anonymous(),
-    ] {
-        assert_eq!(
-            inspect(&f, actor, &root),
-            Err(E::Permission(UploadAdmissionFailure::Denied))
-        );
-        refuses(&f, actor, &root);
-    }
-    assert_eq!(
-        inspect(&f, f.uploader, "sha256:00"),
-        Err(E::Permission(UploadAdmissionFailure::Invalid))
-    );
-    refuses(&f, f.uploader, "sha256:00");
-    let unknown = format!("sha256:{}", "ff".repeat(32));
-    assert_eq!(
-        inspect(&f, f.uploader, &unknown),
-        Err(E::Permission(UploadAdmissionFailure::Denied))
-    );
-    refuses(&f, f.uploader, &unknown);
-    malformed(&f);
+    assert_eq!(assessment.blockers, []);
+    check_authority(&f, &root);
     unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
     assert_eq!(
         f.admission(manifest.permission).state,
@@ -102,7 +84,22 @@ fn standalone_certificate_rejects_large_installations_and_preserves_local_author
         inspect(&f, f.uploader, &root).unwrap().blockers,
         assessment.blockers
     );
+    let reply: CaffeineUploadCertificateResponse = f
+        .harness
+        .pic
+        .update_candid_as(f.service, f.uploader, ISSUE, (root.clone(),))
+        .unwrap();
+    assert_eq!(reply.method, "upload");
+    assert_eq!(reply.blob_hash, root);
+    assert_eq!(
+        f.admission(manifest.permission).state,
+        UploadState::ExposurePossible
+    );
     refuses(&f, f.uploader, &root);
+
+    let second = second_upload_at_capacity(&f, &manifest);
+    let second_root = self::root(&second);
+    let usage = f.local_status(f.operator, f.operator_scope()).unwrap();
     f.harness
         .pic
         .update_candid_as::<Result<UploadRevocationResponse, UploadAdmissionFailure>, _>(
@@ -115,6 +112,10 @@ fn standalone_certificate_rejects_large_installations_and_preserves_local_author
         .unwrap();
     assert_eq!(inspect(&f, f.uploader, &root), Err(E::Revoked));
     refuses(&f, f.uploader, &root);
+    assert_eq!(
+        f.local_status(f.operator, f.operator_scope()).unwrap(),
+        usage
+    );
     f.upgrade(candid::encode_args(()).unwrap()).unwrap();
     assert_eq!(
         inspect(&f, f.uploader, &root),
@@ -122,15 +123,99 @@ fn standalone_certificate_rejects_large_installations_and_preserves_local_author
     );
     let restored = f.harness.pic.get_stable_memory(f.service);
     refuses(&f, f.uploader, &root);
+    refuses(&f, f.uploader, &second_root);
+    assert_eq!(
+        f.admission(second.permission).state,
+        UploadState::ExposurePossible
+    );
     unchanged(&f.harness.pic.get_stable_memory(f.service), &restored);
 }
 
-#[test]
-fn standalone_restricted_certificate_issues_once_and_retains_uncertainty_across_stop_and_restore() {
+fn check_authority(f: &Fixture, root: &str) {
+    for actor in [
+        f.controller,
+        f.operator,
+        f.tenant,
+        Fake::principal(90),
+        Principal::anonymous(),
+    ] {
+        assert_eq!(
+            inspect(f, actor, root),
+            Err(E::Permission(UploadAdmissionFailure::Denied))
+        );
+        refuses(f, actor, root);
+    }
+    assert_eq!(
+        inspect(f, f.uploader, "sha256:00"),
+        Err(E::Permission(UploadAdmissionFailure::Invalid))
+    );
+    refuses(f, f.uploader, "sha256:00");
+    let unknown = format!("sha256:{}", "ff".repeat(32));
+    assert_eq!(
+        inspect(f, f.uploader, &unknown),
+        Err(E::Permission(UploadAdmissionFailure::Denied))
+    );
+    refuses(f, f.uploader, &unknown);
+    malformed(f);
+}
+
+fn second_upload_at_capacity(f: &Fixture, first: &UploadManifestRequest) -> UploadManifestRequest {
     use ic_blob_storage::dto::upload::{
         UploadState, certificate::CaffeineUploadCertificateResponse,
     };
-    let f = Fixture::restricted(Harness::new(), Fake::principal(4));
+    // A second object crosses a chunk boundary and shares the same trusted owner.
+    let mut second = f.manifest_bytes(1024 * 1024 + 1);
+    second.permission.upload.upload = 2;
+    second.permission.upload.object = 3;
+    let second_root = self::root(&second);
+    admit(f, second.permission).unwrap();
+    f.prepare(f.uploader, &second).unwrap();
+    assert_eq!(inspect(f, f.uploader, &second_root).unwrap().blockers, []);
+    let reply: CaffeineUploadCertificateResponse = f
+        .harness
+        .pic
+        .update_candid_as(f.service, f.uploader, ISSUE, (second_root.clone(),))
+        .unwrap();
+    assert_eq!(reply.blob_hash, second_root);
+    assert_eq!(
+        f.admission(second.permission).state,
+        UploadState::ExposurePossible
+    );
+    refuses(f, f.uploader, &second_root);
+    let usage = f.local_status(f.operator, f.operator_scope()).unwrap();
+    let total = u128::from(first.permission.upload.bytes + second.permission.upload.bytes);
+    assert_eq!(usage.uploads.active_reservations, 2);
+    assert_eq!(usage.uploads.physical_bytes, total);
+    assert_eq!(usage.uploads.liability_bytes, total);
+    let mut third = second.permission;
+    third.upload.upload = 3;
+    third.upload.object = 4;
+    third.upload.root = [99; 32];
+    third.upload.bytes = 1;
+    assert_eq!(admit(f, third), Err(UploadAdmissionFailure::Capacity));
+    assert_eq!(
+        f.local_status(f.operator, f.operator_scope()).unwrap(),
+        usage
+    );
+    second
+}
+
+fn admit(
+    f: &Fixture,
+    permission: UploadAdmissionRequest,
+) -> Result<UploadAdmissionMutation, UploadAdmissionFailure> {
+    f.harness
+        .pic
+        .update_candid_as(f.service, f.tenant, "blob_admit_upload", (permission,))
+        .unwrap()
+}
+
+#[test]
+fn standalone_small_configuration_issues_once_and_retains_uncertainty_across_stop_and_restore() {
+    use ic_blob_storage::dto::upload::{
+        UploadState, certificate::CaffeineUploadCertificateResponse,
+    };
+    let f = Fixture::small(Harness::new(), Fake::principal(4));
     f.enroll(f.operator).unwrap();
     let manifest = f.small_manifest();
     let root = root(&manifest);
@@ -212,7 +297,7 @@ fn standalone_restricted_certificate_issues_once_and_retains_uncertainty_across_
 
 #[test]
 fn standalone_tenant_permission_cannot_grant_installed_uploader_trust() {
-    let mut f = Fixture::restricted(Harness::new(), Fake::principal(4));
+    let mut f = Fixture::small(Harness::new(), Fake::principal(4));
     f.uploader = Fake::principal(91);
     f.enroll(f.operator).unwrap();
     let manifest = f.small_manifest();

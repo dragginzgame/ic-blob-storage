@@ -32,7 +32,7 @@ fn assessment_validates_the_full_permission_before_root_lookup_and_after_reply()
     let response = UploadCertificateAssessmentResponse {
         permission,
         assessed_at_ns: u64::MAX,
-        blockers: vec![B::TrialBounds, B::CurrentOwner],
+        blockers: vec![B::CurrentOwner],
     };
     let bytes = encode_one(Ok::<_, UploadExposureFailure>(&response)).unwrap();
     let maximum = 4096.try_into().unwrap();

@@ -32,17 +32,21 @@ and durable metadata; admission does not require uploading the file body to it.
 | Area | Current state |
 | --- | --- |
 | Shared Rust core | Implemented, with native and local IC evidence |
-| Standalone canister | Shared handlers; restricted certificate issuance for an explicitly trusted uploader and one object up to 1 KiB |
+| Standalone canister | Shared handlers; trusted-uploader certificate issuance within configured object sizes, quotas and multi-file capacity |
 | Lifecycle | Synchronous installation, inspection-only restoration and local rollback tests |
 | Native tooling | Offline installation checks, account-link inputs and verified snapshots; signed setup/recovery, tenant downloads and verifier completion tested locally |
 | Application integration | Consumer frameworks own their wrappers, asset transactions and integration tests |
 | Browser integration | Reusable upload composition binds Caffeine's SDK to certificate intent, serial transfer and bounded request journaling; locally tested |
 | Live service acceptance | Still open: complete consumer flow, provider guarantees and operational recovery |
 
+Configurable certificate sizing is **Unreleased** and requires a minor release.
+Published 0.6.1 and the frozen live trial retain their earlier 1 KiB restriction.
+
 The public library has no downstream framework dependency. Consumer frameworks
 wrap its shared workflows and own integration testing in their repositories.
-The [accepted standalone trial contract](docs/standalone-trial.md) records the
-1 KiB limit, 100T-cycle planning budget and inputs needed before live effects.
+The [issuance contract and retained trial](docs/standalone-trial.md) distinguish
+configurable upload limits from the first live owner's 1 KiB configuration.
+The trial's 100T-cycle budget and exact live inputs remain separate decisions.
 Provider spending limits and old-backup recovery remain outside its guarantees.
 
 Local tests use controlled provider substitutes where stated. A verifier's

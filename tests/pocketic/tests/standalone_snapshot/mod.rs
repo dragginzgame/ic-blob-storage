@@ -18,7 +18,7 @@ fn admit(f: &Fixture, permission: UploadAdmissionRequest) {
 
 #[test]
 fn standalone_snapshot_rollback_bypasses_upgrade_fence_and_loses_later_obligations() {
-    let f = Fixture::restricted(Harness::new(), Fake::principal(4));
+    let f = Fixture::small(Harness::new(), Fake::principal(4));
     let pic = &f.harness.pic;
     f.enroll(f.operator).unwrap();
     let empty = snapshots::take(pic, f.service, f.controller);

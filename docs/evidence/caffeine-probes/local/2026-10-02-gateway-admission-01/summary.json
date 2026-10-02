@@ -1,0 +1,137 @@
+{
+  "schema": 1,
+  "date": "2026-10-02",
+  "evidence": "public_source_and_actual_local_unsigned_browser_preparation",
+  "capture": ".tmp/gateway-admission-review-01",
+  "repository_release": "0.6.1",
+  "repository_commit": "a1e2c9ba69cc058526541e38da5f9884c6a2baac",
+  "installed_owner_release": "0.6.0",
+  "service": "4wyfo-qaaaa-aaaam-qjlpq-cai",
+  "cashier": "72ch2-fiaaa-aaaar-qbsvq-cai",
+  "payer_tenant_uploader": "jaqw3-42pqs-5bivi-nj3xg-5row5-gpluj-sbn54-vthud-pyb5v-sm2rs-bae",
+  "namespace": "1",
+  "project": "02c7762e-11c0-43bf-960c-c651096a8e3a",
+  "bucket": "ic-blob-storage-trial-02c7762e-11c0-43bf-960c-c651096a8e3a",
+  "source_review": {
+    "lookups": 4,
+    "source_fetches": 4,
+    "source_response_bytes": 232769,
+    "max_source_bytes_each": 1048576,
+    "max_seconds_each": 30,
+    "caffeine_tree": "9e40da604ff8f08f291943f935445c78fd8a36f8",
+    "caffeine_sdk_blob": "f568a7ba9f06d8fd3eba587ad9580600c101e07e",
+    "caffeine_sdk_sha256": "6eb7f5b424f02476c9096e4684d8e520121c21b2b2f6f29f3c9a25e0c07cad57",
+    "current_source_sdk_matches_reviewed_1_1_2": true,
+    "dfinity_tree": "ef29e8a6e8063c6fe654cac53a3497cab585fefa",
+    "dfinity_readme_blob": "a7b952ef70d0b403035cc4e08a488f8b78b8ed7e",
+    "dfinity_readme_sha256": "ef4a668d0707114c5d8eb945ea20e2c730b640555423ef7917c7a081f0f6ca11",
+    "readme_only_trailing_newline_difference": true,
+    "source_url": "https://github.com/dfinity/immutable-object-storage-example/blob/main/README.md",
+    "gateway_budget_check_during_upload_is_documented": true,
+    "application_credit_grant_not_demonstrated": true,
+    "effect_free_dry_run_not_demonstrated": true,
+    "deployed_algorithm_or_expiry_enforcement_qualified": false,
+    "failed_or_unhelpful_lookups": [
+      "Two searches yielded no relevant provider implementation",
+      "https://github.com/caffeinelabs/object-storage returned 404"
+    ]
+  },
+  "offline_packet": {
+    "body_bytes": 1024,
+    "body_sha256": "b2256110f2c4226de0008dd4382a388e033f211b617bd3237135ab1d59a722b6",
+    "root": "sha256:03850cce6627d98f1be2d725cb7b2ae6846818065a243ab234893643043771e5",
+    "installation_sha256": "e96bf4fffb86e4ef9a0f20b76d9a22364aec6840e2cf31b82ec79d94fb8b60b4",
+    "installed_and_current_declared_did_identical": true,
+    "planned_ids": [
+      "1",
+      "1",
+      "1",
+      "1"
+    ],
+    "ids_allocated_or_admitted": false,
+    "permission_expiry_candidate_at": "2026-10-02T14:48:07.565Z",
+    "native_permission_manifest_browser_and_sdk_agree": true,
+    "tenant_enrollment_candidate_encoded": true,
+    "tenant_candidate_signed_or_submitted": false,
+    "network_requests": 0
+  },
+  "browser": {
+    "profile": ".tmp/trial-browser-profile-01",
+    "origin": "http://127.0.0.1:43023",
+    "database": "ic-blob-storage-mainnet-trial-v1",
+    "lifetime_slots": 1,
+    "first_create_preserved": true,
+    "corrected_open_preserves_exact_unsigned_row": true,
+    "process_restart_checked": true,
+    "phase": "saved",
+    "envelope_or_request_id_present": false,
+    "private_keys_loaded_or_served": false,
+    "signer_is_setup_only_substitute": true,
+    "signatures": 0,
+    "certificate_or_gateway_requests": 0,
+    "remote_requests_blocked": 0,
+    "original_and_followup_browser_launches": 4,
+    "missing_history_stops": true,
+    "server_stopped": true,
+    "live_signing_transport_and_provider_unqualified": true
+  },
+  "failures": [
+    {
+      "record": "browser-failure.json",
+      "failure": "Probe used unsupported reopen mode after successful creation",
+      "correction": "Supported open mode reuses original profile/origin/history; failed source and outputs retained, no journal reset or provider request"
+    }
+  ],
+  "next_proposal": {
+    "private_plan": "live-trial-plan.json",
+    "method": "payment_account_canister_update_v1",
+    "paid_canister": "4wyfo-qaaaa-aaaam-qjlpq-cai",
+    "explicit_payer": "jaqw3-42pqs-5bivi-nj3xg-5row5-gpluj-sbn54-vthud-pyb5v-sm2rs-bae",
+    "spending_limit_per_day": "unchanged raw 1000000000000",
+    "nominal_expiry_hours": 2,
+    "max_updates": 1,
+    "new_funding_cycles": "0",
+    "attached_cycles": "0",
+    "candidate_signed_or_submitted": false,
+    "exact_provider_term_change_approval_pending": true,
+    "prior_approved_probe_included_zero_extensions": true,
+    "not_an_expiry_qualification_claim": true,
+    "covered_trial_spending_authority_remains": true
+  },
+  "live_trial_client_bounds": {
+    "body_bytes": 1024,
+    "max_upload_dispatches": 2,
+    "max_request_bytes_each": 65536,
+    "max_total_upload_request_bytes": 131072,
+    "max_full_downloads": 2,
+    "max_download_bytes_each": 1024,
+    "automatic_paid_retries": 0,
+    "client_bounds_not_provider_bill_or_wire_attempt_guarantees": true
+  },
+  "budget": {
+    "ceiling_cycles": "100000000000000",
+    "gross_donor_debit_so_far_cycles": "3000100000000",
+    "new_donor_debit_cycles": "0",
+    "remaining_authorized_cycles": "96999900000000"
+  },
+  "provider_updates": 0,
+  "link_extensions": 0,
+  "certificates_issued": 0,
+  "provider_object_requests": 0,
+  "live_uploads": 0,
+  "cleanup": {
+    "installed_owner_funded_payer_and_relationship_retained": true,
+    "browser_profile_and_unsigned_history_retained": true,
+    "no_new_global_identity_or_exported_keys": true,
+    "local_server_closed": true,
+    "no_reset_or_inferred_provider_refund_or_billing_stop": true
+  },
+  "limitations": [
+    "Source guidance does not establish deployed gateway credit allocation, price, admission, namespace or expiry behavior.",
+    "Actual unsigned browser persistence is observed at this profile/origin; setup-only signer does not authenticate live operations.",
+    "Packet IDs and permission are planned inputs; refresh actual roles, fences, empty tenant/capacity, history and freshness before admission or signing.",
+    "Candidate link renewal is unsubmitted and requires exact approval; provider spending authority remains 100T, without repeating a covered-budget approval request.",
+    "One real upload, independent verifier observation/attestation, tenant download, reference release and continuing provider disposition remain outstanding."
+  ],
+  "next": "Approve the concrete provider term change before one retained payer update for the bounded real trial. Reopen exact history and preserve uncertainty; Canic and its consumer actions remain deferred."
+}

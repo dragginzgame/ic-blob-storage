@@ -53,7 +53,6 @@ fn exposure_missing_host_facts_and_stale_previews_cannot_mutate_or_bypass_author
         ..yes
     };
     let expected = vec![
-        B::TrialBounds,
         B::NamespaceBinding,
         B::TrustedUploader,
         B::CurrentOwner,

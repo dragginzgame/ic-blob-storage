@@ -2,6 +2,39 @@
 
 ## [Unreleased]
 
+### Breaking
+
+- Replace the certificate policy's fixed 1 KiB/single-object trial gate with
+  validated installation resource limits, allowing larger and multi-file uploads.
+  Admission still enforces object size, tenant/global bytes, lifetime history,
+  leaves and concurrency. Remove the trial-bound host-evidence field and blocker
+  from the public policy, DTO, Candid and native JSON without a compatibility path.
+  Explicit uploader trust, exact permissions, one-time exposure and restore fences
+  remain enforced. This requires a minor release; the deployed 0.6.0 trial is unchanged.
+
+### Added
+
+- Retain an actual-service 1 KiB upload packet and bounded live-trial plan using
+  the installed standalone carrier and maintained Caffeine SDK/native tools.
+  Check exact browser/native bindings and unsigned IndexedDB history across
+  browser-process restart; preserve the failed probe without resetting history.
+  Distinguish gateway credit from payer balance and source guidance from deployed
+  admission, expiry and billing guarantees.
+- Record the approved two-hour payment-link update and the first actual standalone
+  certificate issuance. The exact SDK tree upload reaches Caffeine but returns
+  HTTP 403 for insufficient owner balance, despite the unchanged funded payer.
+  Retain the original certificate/browser history and 1 KiB exposure; stop before
+  the chunk, download or retry, with no additional funding.
+- Reconcile a separately authorized 4.1T gross payer top-up, raising its balance
+  to 5.0996T. Record the distinct zero owner-account and gateway-credit observations,
+  retain the stopped upload unchanged, and prepare an unsigned daily-limit
+  comparison without changing provider terms or replaying the transfer.
+- Complete the explicitly approved 1T-to-5T daily allowance comparison with
+  unchanged expiry. Reconcile the observed 1T payer-to-owner credit allocation,
+  nonzero gateway credit and zero reported usage; preserve the stopped upload.
+  Record bounded verified queries and the failed local check without claiming
+  upload admission or treating internal allocation as another donor debit.
+
 ## [0.6.1] - 2026-10-02
 
 ### Added

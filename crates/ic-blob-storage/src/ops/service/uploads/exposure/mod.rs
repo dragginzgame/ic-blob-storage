@@ -28,7 +28,6 @@ pub fn blockers(
         .into_iter()
         .map(|blocker| match blocker {
             P::StaleObservation => D::StaleObservation,
-            P::TrialBounds => D::TrialBounds,
             P::NamespaceBinding => D::NamespaceBinding,
             P::TrustedUploader => D::TrustedUploader,
             P::CurrentOwner => D::CurrentOwner,

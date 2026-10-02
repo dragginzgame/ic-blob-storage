@@ -1,7 +1,8 @@
 # Prepare an isolated standalone trial
 
-The [accepted contract](../../../docs/standalone-trial.md) permits one trusted
-1 KiB upload. This directory supplies its proposed resource envelope; it does not
+The [current contract](../../../docs/standalone-trial.md) uses configurable resource
+limits. This directory supplies the original isolated trial's deliberately small
+one-object/1 KiB sample envelope, not a library-wide maximum; it does not
 deploy, select a payer or provision a Caffeine namespace.
 
 Copy [configuration.args.template](configuration.args.template) into a fresh private

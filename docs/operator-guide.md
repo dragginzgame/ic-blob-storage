@@ -117,7 +117,7 @@ wrapper. This repository supplies no framework adapter or integration suite.
 | Stage | Concrete preparation or observation | Required before moving on |
 | --- | --- | --- |
 | Bind the trial | Select host, controller/deployer, operator, tenant, uploader, verifier, explicit payer, Cashier, project/bucket, gateway origin and cleanup owner | Exact identities, namespace assignment and separately authorized creation/deployment; no implicit account or role defaults |
-| Freeze local inputs | Run `installation-check`, prepare `account-link-inputs`, bind exact Wasm/Candid/release hashes and choose one known nonempty file of at most 1 KiB | Original configuration/terms/body retained; finalize and recheck actual service principal after authorized creation, before installation; no fixture defaults |
+| Freeze local inputs | Run `installation-check`, prepare `account-link-inputs`, bind exact Wasm/Candid/release hashes and choose a nonempty file within installed limits (1 KiB for the retained first live owner) | Original configuration/terms/body retained; size larger/multi-file installations explicitly and recheck actual service after authorized creation; no fixture defaults |
 | Review economics and lifecycle | Record raw price/expiry units, selected spending controls, retained uncertainty and the accepted fresh-owner lifecycle | No guaranteed provider spending cap or replay charges; use trusted participants and preserve all continuing obligations |
 | Provision and inspect | After exact action authority, create the isolated owner, recheck configuration against its actual principal, then install and separately submit account/funding actions; inspect configuration, relationship/balance and gateway scope | Actual identities match the finalized plan, namespace is provisioned, obligations and every failed/uncertain action are retained; no automatic retry |
 | Admit and prepare | Use maintained SDK preparation, `upload-inputs`, tenant `admit-upload` and uploader `prepare-upload` | Original snapshot/root/permission match; trusted roles and current certificate assessment checked |
@@ -251,6 +251,46 @@ request follows. Retain the relationship and funded resources; billing cessation
 is unqualified. Review actual gateway admission/credit and namespace/browser
 readiness before another exact effect. Total donor debit stays 3.0001T.
 
+The [actual-service packet and browser journal](evidence/caffeine-probes/local/2026-10-02-gateway-admission-01/summary.json)
+now prepare the known 1 KiB body against the installed 0.6.0 carrier. Public source
+places budget admission at the gateway; no separate application credit grant or
+effect-free dry-run is demonstrated. Do not treat zero gateway credit as an empty
+payer account or add funds on that observation alone.
+
+| Next-trial item | Prepared state |
+| --- | --- |
+| SDK/native inputs | Exact body/root, installation, permission, manifest, browser binding and download/status files in private `.tmp/gateway-admission-review-01/upload-inputs` |
+| Browser history | The original slot now retains a verified certificate and one responded HTTP 403 tree claim in `.tmp/trial-browser-profile-01` at `http://127.0.0.1:43023`, database `ic-blob-storage-mainnet-trial-v1`; exact history survives reopening |
+| Provider terms | Explicitly approved expiry update succeeds once: raw daily limit unchanged at 1T, nominal expiry 2026-10-02T15:07:15.603Z; expiry enforcement unqualified |
+| Current balances | Separate larger deposit raises the original payer to 5.0996T Ledger credit; public owner-account balance is zero with Prepaid debt target, gateway credit/usage zero |
+| Transfer bounds | One 1 KiB object, two SDK upload dispatches, 64 KiB per request/128 KiB total, serial operation and no automatic paid retries |
+| Completion and disposition | Tree admission refuses; no chunk/download/attestation/release. Preserve the original exposure-possible permission and 1 KiB local physical/liability accounting; refusal does not prove deletion or billing cessation |
+
+The [live trial](evidence/caffeine-probes/deployed/2026-10-02-trial-live-01/summary.json)
+acknowledges the exact tenant/permission/manifest and issues one mainnet-verified
+certificate. Its one streamed SDK tree request receives HTTP 403 for insufficient
+owner balance. At that refusal payer balance is 999.8B and gateway credit zero;
+the cause is unresolved. Public example funding of 10T and daily limit of 5T are guidance,
+not proved admission thresholds. Do not fund speculatively or resend this transfer.
+Inspect credit allocation before a separate reviewed trial; retain this original
+profile and service liabilities. Never recreate missing history, serve keys through
+the local HTTP server or put them in the journal. Standing total trial spend
+authority remains 100T. The subsequently requested
+[larger funding comparison](evidence/caffeine-probes/deployed/2026-10-02-trial-funding-02/summary.json)
+deposits 4.1T gross and credits 4.0998T, with exact sweep/fee/account reconciliation.
+At that capture's close, payer balance is 5.0996T; owner balance and gateway credit
+are zero, and the stopped upload is untouched. Total donor debit is **7.1001T**, remaining
+authority **92.8999T**; the selected donor has only **1.654605097235T** liquid.
+The subsequently [approved 1T -> 5T allowance update](evidence/caffeine-probes/deployed/2026-10-02-trial-limit-01/summary.json)
+preserves expiry and succeeds once. Readback shows 1T payer-to-owner allocation:
+**4.0996T payer**, **1T owner Ledger credit**, **1T relationship period spend**
+and raw **333333333333 gateway credit**, with all usage zero. Other account settings
+and relationship fields are unchanged. No new funds or upload request occurs;
+internal allocation is not another donor debit. The server algorithm, earlier
+refusal cause, expiry enforcement and upload admission remain unqualified.
+Prepare a separately reviewed fresh-owner trial while retaining the old claim,
+profile, link, balances and exposure. Never replay its transfer or reset its slot.
+
 The maintainer has authorized and completed the one-owner 2T creation effect. Its
 [preflight](evidence/caffeine-probes/deployed/2026-10-02-trial-create-preflight-01/summary.json)
 observes sufficient source-account cycles and the ledger fee, but initially cannot
@@ -279,6 +319,26 @@ argument: generic CLI signing may retain the management principal as routing
 metadata. Correct only destination metadata before submission, retain both files
 and the unchanged signed envelope/request ID. Never infer provider account/project
 acceptance from installation or authorize funding/certificates/uploads from it.
+
+## Size a consumer installation
+
+Certificate issuance uses the validated `ServiceResourceInput`, with no extra
+1 KiB or single-object cap. Choose limits before installing the immutable owner.
+The first live trial and its template deliberately retain their small envelope.
+
+| Configuration | Sizing input |
+| --- | --- |
+| `max_object_bytes` | Largest consumed asset; 10 MiB covers the recorded Miner maximum of 8,362,256 bytes |
+| Object, tenant and manifest-leaf capacity | Lifetime unique objects/leaves across the selected release horizon, including cancelled work; capacity is not recovered by releasing a reference |
+| Physical/liability and tenant logical bytes | Overlapping releases and uncertain stored obligations; logical release does not delete provider bytes or end billing |
+| References and receipts per object | Reuse across releases, exact retain/release history and retained cleanup capacity |
+| Active upload and read limits | Explicit publisher concurrency and read-session/byte/reply budgets; these are independent of the object maximum |
+
+Client upload and whole-download budgets must also cover each selected object.
+Keep one configured trusted publisher and exact tenant permissions; controller
+status grants no upload authority. This sizing change requires a minor release
+and an appropriately configured consumer installation, not an in-place reset of
+the old trial owner. It does not qualify provider economics or public delivery.
 
 ## Generate account-link inputs offline
 
@@ -974,10 +1034,11 @@ namespace and original uploader must match before transport. The command signs o
 `blob_upload_certificate_assessment` query, verifies query signatures and decodes
 at most 4 KiB against the complete saved permission, including independent object
 identities and expiry. JSON preserves decimal-string integers, host assessment time
-and every blocker. Restricted issuance reports `trial_bounds`, `namespace_binding`,
+and every blocker. Trusted issuance reports `namespace_binding`,
 `trusted_uploader`, `current_owner`, `durability` or `stale_observation` when a local
-prerequisite fails. These are not provider charge/provisioning guarantees. Broader
-installations remain usable for local service workflows but fail `trial_bounds`.
+prerequisite fails. These are not provider charge/provisioning guarantees.
+Object and release capacity follow the validated installation configuration;
+admission and preparation enforce quotas before certificate assessment or issuance.
 
 Exit 0 means an assessment was observed, including blocked uploads; it never
 authorizes issuance or retry. Even an empty list cannot reserve a later update.

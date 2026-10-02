@@ -8,8 +8,6 @@ use candid::{CandidType, Deserialize};
 pub enum UploadExposureBlocker {
     /// Host facts were not established in the current execution.
     StaleObservation,
-    /// Installed envelope or body exceeds the one-object/1 KiB contract.
-    TrialBounds,
     /// Explicit installed local namespace does not match the permission.
     NamespaceBinding,
     /// Original uploader lacks explicit installed trust.

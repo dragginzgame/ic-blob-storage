@@ -6,13 +6,18 @@ Candidate validation composes the local models without installing state or
 proving provider behavior. Library publication and live service acceptance are
 separate.
 
-## Restricted certificate issuance — accepted 2026-10-02
+## Configured certificate issuance — accepted 2026-10-02
 
-The maintainer accepted the [first standalone contract](standalone-trial.md).
-The maintained issuance policy requires explicit installed uploader trust, an
-exact local service/namespace mapping, one lifetime tenant/object/reference and
-positive byte budgets no larger than 1 KiB, a current owner and atomic exposure
-commit. The uploader must also hold the exact original tenant permission and
+The maintainer accepted the [first standalone contract](standalone-trial.md), then
+explicitly requested relaxing its 1 KiB restriction for Toko Miner integration.
+Object sizes, tenant/global byte budgets, lifetime objects/references/receipts,
+manifest leaves and concurrent reservations now use the validated installation's
+resource configuration. There is no additional one-object or 1 KiB issuance cap.
+Admission reserves those resources; preparation validates the exact manifest;
+issuance rechecks the retained reservation and permission. Exhaustion still refuses.
+The policy requires explicit installed uploader trust, an exact local
+service/namespace mapping, a current owner and atomic exposure commit.
+The uploader must also hold the exact original tenant permission and
 prepared manifest. Controller/operator status grants none of that authority.
 No public uploader, automatic paid retry, provider spending-cap/replay guarantee
 or operational old-backup activation is supported. Stop/start preserves the owner;
@@ -20,11 +25,14 @@ same-release upgrade restoration is inspection-only. An older management snapsho
 restores heap authority too and cannot safely resume operation.
 
 Provider provisioning, account controls, retention, deletion and billing cessation
-remain separate observed facts. Trusted participants and a small admitted object
+remain separate observed facts. Trusted participants and configured object limits
 do not prove those facts or enforce a maximum external bill. The 100T-cycle total
 planning ceiling is independent of actual target selection and paid-effect authority.
 This replaces the former provider-qualification gate directly in a minor release:
 no alternate mode, manually true flags, compatibility reader or v2 schema.
+The public host-evidence field and DTO blocker for the former trial envelope are
+removed outright, including Candid and native JSON. This semantic/API change
+requires a minor release; existing deployed installations remain frozen.
 
 ## Explicit verifier completion trust — accepted 2026-09-29
 
@@ -501,7 +509,7 @@ identity allocation and implements no provider upload or browser delivery policy
 
 `workflow::uploads::exposure` supplies read-only preparation inspection, guarded
 synchronous commit and exact tenant/uploader history. Its host evidence binds the
-full original permission and separately reports restricted lifetime/body bounds,
+full original permission and separately reports
 explicit local namespace mapping, installed uploader trust, current-owner eligibility
 and atomic durable commit. These facts must be established from the installed owner in the
 current execution, never accepted from production ingress. Timestamp mismatch blocks
@@ -552,8 +560,8 @@ established by synchronous shared commit and trap propagation. Deployed pre-char
 limits, namespace provisioning/enforcement, replay charging and independent recovery
 readiness remain unqualified and outside the accepted restricted issuance contract.
 The host now derives local prerequisites through the shared installation owner,
-issues only within the one-object/1 KiB envelope and explicitly installed uploader
-trust, and commits possible exposure before replying. An empty query does not
+issues only for an admitted/prepared reservation within installed quotas and
+explicitly installed uploader trust, and commits possible exposure before replying. An empty query does not
 reserve issuance. Its current v1 record/readback includes that uploader identity.
 
 Headless Rust tests obtain the actual v4 HTTP ingress certificate using a signing

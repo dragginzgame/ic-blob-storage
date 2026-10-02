@@ -108,7 +108,7 @@ fn carrier(f: &Fixture, directory: &Path, project: &str, verifier: Principal) ->
 
 #[test]
 fn standalone_installs_cli_carrier_and_independently_rejects_wrong_actual_service() {
-    let mut f = Fixture::restricted(Harness::new(), Fake::principal(4));
+    let mut f = Fixture::small(Harness::new(), Fake::principal(4));
     let before = f.configuration(f.operator).unwrap();
     let stable = f.harness.pic.get_stable_memory(f.service);
     f.config = trial_configuration(&f);
