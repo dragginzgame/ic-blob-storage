@@ -1,4 +1,5 @@
 use super::*;
+use ic_blob_storage::dto::configuration::ServiceConfigurationInput;
 
 fn fixture() -> Vec<u8> {
     // Independent didc encoding against the maintained standalone declaration.
@@ -26,6 +27,8 @@ fn args(base: &Path, bytes: &[u8]) -> Vec<String> {
         "isolated local fixture/β",
         "--verifier",
         "rdmx6-jaaaa-aaaaa-aaadq-cai",
+        "--trusted-uploader",
+        "renrk-eyaaa-aaaaa-aaada-cai",
         "--release",
         env!("CARGO_PKG_VERSION"),
         "--run-dir",
@@ -60,12 +63,32 @@ fn complete_offline_check_preserves_proposal_without_allocating_or_replacing() {
     assert_eq!(report["project"], "isolated local fixture/β");
     assert_eq!(report["expected_host_release"], env!("CARGO_PKG_VERSION"));
     assert_eq!(report["configuration_validated"], true);
+    assert_eq!(report["host_init_encoded"], true);
+    let installation = std::fs::read(output.join("installation.candid")).unwrap();
+    assert_eq!(report["installation_file"], "installation.candid");
+    assert_eq!(
+        report["installation_sha256"],
+        ContentDigest::compute(&installation).to_string()
+    );
+    let encoded: ServiceInstallationInput = candid::decode_one(&installation).unwrap();
+    assert_eq!(
+        encoded.configuration,
+        decode::<ServiceConfigurationInput>(&original).unwrap()
+    );
+    assert_eq!(encoded.project, "isolated local fixture/β");
+    assert_eq!(
+        encoded.completion_verifier.to_text(),
+        "rdmx6-jaaaa-aaaaa-aaadq-cai"
+    );
+    assert_eq!(
+        encoded.trusted_uploader.to_text(),
+        "renrk-eyaaa-aaaaa-aaada-cai"
+    );
     for field in [
         "authenticated",
         "platform_identity_checked",
         "compiled_release_checked",
         "stable_memory_allocated",
-        "host_init_encoded",
         "installation_dispatched",
         "provider_dispatched",
         "funding_dispatched",
@@ -94,6 +117,10 @@ fn complete_offline_check_preserves_proposal_without_allocating_or_replacing() {
     );
     assert_eq!(std::fs::read(output.join("summary.json")).unwrap(), summary);
     assert_eq!(
+        std::fs::read(output.join("installation.candid")).unwrap(),
+        installation
+    );
+    assert_eq!(
         std::fs::read(output.join("configuration.candid")).unwrap(),
         original
     );
@@ -114,11 +141,12 @@ fn complete_offline_check_preserves_proposal_without_allocating_or_replacing() {
         b"partial"
     );
     assert!(!partial.path().join("output/summary.json").exists());
+    assert!(!partial.path().join("output/installation.candid").exists());
 }
 
 #[test]
 fn complete_validator_refuses_inconsistent_limits_bindings_and_authorities_before_output() {
-    let original = decode(&fixture()).unwrap();
+    let original: ServiceConfigurationInput = decode(&fixture()).unwrap();
     let setters: [fn(&mut ServiceConfigurationInput); 6] = [
         |input| input.namespace = 0,
         |input| input.operator = Principal::anonymous(),
@@ -141,6 +169,8 @@ fn complete_validator_refuses_inconsistent_limits_bindings_and_authorities_befor
         ("--service", "invalid"),
         ("--verifier", "2vxsx-fae"),
         ("--verifier", "aaaaa-aa"),
+        ("--trusted-uploader", "2vxsx-fae"),
+        ("--trusted-uploader", "aaaaa-aa"),
         ("--project", ""),
         ("--project", " surrounding space "),
         ("--project", "line\nbreak"),
@@ -158,7 +188,7 @@ fn complete_validator_refuses_inconsistent_limits_bindings_and_authorities_befor
 
 #[test]
 fn bounded_exact_input_refuses_malformed_extra_or_ambiguous_arguments() {
-    let input = decode(&fixture()).unwrap();
+    let input: ServiceConfigurationInput = decode(&fixture()).unwrap();
     let mut trailing = fixture();
     trailing.push(0);
     for (bytes, expected) in [

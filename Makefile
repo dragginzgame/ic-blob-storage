@@ -14,11 +14,12 @@ export BLOB_FUNDING_PROBE_WASM := $(CARGO_TARGET_DIR)/wasm32-unknown-unknown/rel
 export BLOB_STANDALONE_WASM := $(CARGO_TARGET_DIR)/wasm32-unknown-unknown/release/ic_blob_storage_canister.wasm
 export BLOB_CLI_BIN := $(CARGO_TARGET_DIR)/debug/blob-storage
 export BLOB_BROWSER_NODE ?= node
+BLOB_SDK_INPUTS_BYTES ?= 10485760
 VERSION ?=
 RELEASE := bash scripts/release/release.sh
 CI_TARGETS := shell-check release-check fmt-check check clippy probe-check docs-check test wasm-check package
 
-.PHONY: help version deps cloc fmt fmt-check check clippy docs-check test test-native test-pocketic test-browser test-sdk-probe test-sdk-inputs test-fixture test-standalone build-standalone test-admission-resources test-read-resources wasm-check \
+.PHONY: help version deps cloc fmt fmt-check check clippy docs-check test test-native test-pocketic test-browser test-browser-store test-browser-transport test-browser-standalone test-sdk-probe test-sdk-inputs test-fixture test-standalone build-standalone test-admission-resources test-read-resources wasm-check \
 	build package clean shell-check release-check probe-check ci validate release-verify \
 	release-plan ensure-clean patch minor major bump-x release-patch \
 	release-minor release-major release-x release-stage release-commit \
@@ -32,6 +33,9 @@ help:
 	@echo "test-native / test-pocketic   Native core tests or local IC fixtures"
 	@echo "build-standalone / test-standalone   Standalone host Wasm or focused local IC tests"
 	@echo "test-browser                  Opt-in Chromium certificate/IndexedDB evidence"
+	@echo "test-browser-store            Opt-in Chromium journal persistence without Rust builds"
+	@echo "test-browser-transport        Opt-in owned TLS transport checks; BLOB_BROWSER_TRANSPORT_REPORT=NEW_DIRECTORY"
+	@echo "test-browser-standalone       Opt-in local standalone upload/verified download rehearsal"
 	@echo "test-sdk-probe                Opt-in local SDK fault probe; BLOB_SDK_PROBE_REPORT=NEW_DIRECTORY"
 	@echo "test-sdk-inputs               Opt-in offline native/browser handoff; BLOB_SDK_INPUTS_REPORT=NEW_DIRECTORY"
 	@echo "test-admission-resources     Local admission bounds and Wasm resource report"
@@ -116,10 +120,26 @@ test-sdk-inputs:
 	@test -n "$(BLOB_SDK_INPUTS_REPORT)" || { echo 'Set BLOB_SDK_INPUTS_REPORT to a new directory beneath an existing parent'; exit 1; }
 	$(BLOB_BROWSER_NODE) tests/browser/build.mjs
 	cargo build --offline --locked -p ic-blob-storage-cli --bin blob-storage
-	$(BLOB_BROWSER_NODE) .tmp/browser/native-inputs.mjs "$(BLOB_SDK_INPUTS_REPORT)" "$(CARGO_TARGET_DIR)/debug/blob-storage"
+	$(BLOB_BROWSER_NODE) .tmp/browser/native-inputs.mjs "$(BLOB_SDK_INPUTS_REPORT)" "$(CARGO_TARGET_DIR)/debug/blob-storage" "$(BLOB_SDK_INPUTS_BYTES)"
+
+test-browser-transport:
+	@test -n "$(BLOB_BROWSER_TRANSPORT_REPORT)" || { echo 'Set BLOB_BROWSER_TRANSPORT_REPORT to a new directory beneath an existing parent'; exit 1; }
+	$(BLOB_BROWSER_NODE) tests/browser/build.mjs
+	$(BLOB_BROWSER_NODE) tests/browser/transport.mjs "$(BLOB_BROWSER_TRANSPORT_REPORT)"
+
+test-browser-store:
+	$(BLOB_BROWSER_NODE) tests/browser/build.mjs
+	$(BLOB_BROWSER_NODE) tests/browser/store.mjs
+
+test-browser-standalone:
+	$(BLOB_BROWSER_NODE) tests/browser/build.mjs
+	cargo build --offline --locked --release --target wasm32-unknown-unknown -p ic-blob-storage-canister --lib
+	cargo build --offline --locked -p ic-blob-storage-cli --bin blob-storage
+	cargo test --offline --locked -p ic-blob-storage-pocketic-tests --test standalone chromium_standalone_trial -- --ignored --test-threads=1
 
 test-browser:
 	$(BLOB_BROWSER_NODE) tests/browser/build.mjs
+	$(BLOB_BROWSER_NODE) tests/browser/store.mjs
 	cargo build --offline --locked --release --target wasm32-unknown-unknown -p blob-storage-probe -p blob-consumer-probe --lib
 	cargo test --offline --locked -p ic-blob-storage-pocketic-tests --test storage chromium_certificate_intent -- --ignored --test-threads=1
 

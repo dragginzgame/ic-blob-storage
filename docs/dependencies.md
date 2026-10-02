@@ -14,7 +14,7 @@ availability does not establish provider qualification or service readiness.
 | `sha2` | 0.11.0 | SHA-256; optional allocation/OID features disabled |
 | `thiserror` | 2.0.18 | Typed error derives; matches PocketIC's exact requirement |
 | `ic-cdk` | 0.20.3 | IC platform operations for the ops layer |
-| `ic-memory` | =0.15.0 | Sole allocation runtime; public typed growth API |
+| `ic-memory` | 0.15.2 (locked) | Sole allocation runtime; public typed growth API |
 | `ic-stable-structures` | 0.7.2 | Exact transitive substrate owned/re-exported by `ic-memory` |
 | `ic-testkit` | 0.10.1 | Native dependency of the unpublished PocketIC harness; shared helpers and full re-export |
 | `pocket-ic` | 16.0.0 | Transitive through `ic-testkit`; no direct dependency |
@@ -30,6 +30,14 @@ published library dependency graph, Wasm allocation or memory grants. Tests trus
 the explicitly owned PocketIC NNS key, never a root key fetched from mainnet, and
 send no request to a Caffeine gateway. This is headless Rust evidence, not browser
 or production uploader qualification.
+
+The native CLI explicitly enables reqwest 0.13.5's `rustls` and `http2` features;
+CLI-only builds must support HTTPS/HTTP/2 independently of the harness or agent's
+transitive feature choices. Platform certificate validation and no-retry settings
+remain enabled. The newly reached h2 0.4.19 and hyper 1.11.1 already exist in the
+lockfile and declare Rust 1.63, below the maintained CLI minimum; no version or
+MSRV is changed. Current development-toolchain checks do not rerun the minimum
+compiler evidence.
 
 At the initial registry check, the selected releases were current except `thiserror`, where PocketIC 16 pins
 2.0.18 and prevents selecting 2.0.21 in this graph. Development builds use the
@@ -95,7 +103,10 @@ is within Caffeine's declared `^5.3.0` range; it replaces the earlier fixture's
 6.1.0 pin so the composition uses one supported SDK. The Caffeine package is the
 latest verified provider package; SDK 6 is not forced into its dependency graph.
 Use Node >=20.19.0; this run used Node 24.21.0 and
-Playwright's Chromium 153.0.8010.12 (revision 1243). Setup is explicit:
+Playwright's Chromium 153.0.8010.12 (revision 1243). Upload fixtures also need
+`openssl` on PATH to create temporary loopback TLS keys. Chromium trusts only the
+generated certificate's public-key pin; unrelated TLS validation is unchanged.
+Setup is explicit:
 
 ```sh
 npm ci --prefix tests/browser --ignore-scripts --no-audit --no-fund
@@ -112,16 +123,58 @@ The fixture imports the private reusable source client in `clients/browser`.
 Its peer dependency, fixture SDK pin and installed SDK version must agree before
 bundling. Git applies the [pinned Caffeine patch](../clients/browser/patches/README.md)
 to a generated copy under `.tmp/browser`, after original package hashes are checked.
-The installed package is not modified. Application authentication and production intent storage are caller-owned;
-see the [client contract](../clients/browser/README.md).
+The installed package is not modified. Application authentication and selection of
+the persistent browser environment are caller-owned; the source package supplies
+the bounded IndexedDB journal. Its independent `make test-browser-store` target
+requires the same provisioned Node/packages/Chromium but no Rust build or PocketIC;
+it tests explicit create/reopen and a graceful browser-process restart with an
+isolated retained profile under `.tmp/`.
+See the [client contract](../clients/browser/README.md).
+
+`make test-browser-transport BLOB_BROWSER_TRANSPORT_REPORT=NEW_DIRECTORY` runs
+owned TLS HTTP/1.1 and HTTP/2 replay checks without Rust/PocketIC builds. Each
+case has a fresh context and one maintained journal claim. Buffered/XHR controls
+intentionally replace the outgoing stream to reproduce replay; production uses
+only the stream, refuses HTTP/1.x and preserves uncertainty after connection loss.
+Request instrumentation observes rather than intercepts upload bodies. Other cuts
+can be selected directly with `node tests/browser/transport.mjs NEW_DIRECTORY
+refused-stream` or `data-close`. These are local transport observations, not
+deployed gateway, billing or universal browser guarantees.
 
 Rust owns the PocketIC installation and test identity. Browser traffic is confined
-to that local IC endpoint and the owned page/gateway substitute. The IndexedDB store has two lifetime
+to that local IC endpoint and the owned page/gateway substitute. The maintained IndexedDB store has two lifetime
 slots and no reset/eviction path; it tests transaction ordering, competing tabs,
 reload, cancellation and verified historical replies. Caffeine performs real HTTP
 tree/chunk requests only against the local substitute. Failed/aborted transfer does
-not retry. This is not production sizing, crash/eviction durability, browser-profile restoration, a deployed gateway upload,
+not retry. This is not production sizing, power-loss/eviction durability, rollback recovery, a deployed gateway upload,
 or qualification of a consumer's CSP/authentication/storage environment.
+
+### Complete local standalone rehearsal
+
+`make test-browser-standalone` uses the same provisioned browser tools and PocketIC.
+It builds the standalone Wasm/CLI and explicitly runs four ignored cases against a
+local gateway substitute. Actual installed host facts issue the certificate; no
+operator-supplied provider flags or consumer framework are involved. One-slot
+IndexedDB survives reload, while native tools verify uploaded bytes, submit the
+distinct verifier's statement and download as the tenant. HTTP upload success
+alone cannot serve an asset. Release retains physical bytes and liabilities.
+A separate fresh owner receives a corrupt GET, records failure without attestation,
+and retains exposure after withdrawal/cancellation. The interruption cases lose
+reply headers, verify without a new upload and preserve release through late
+completion/replay. One TLS HTTP/2 origin receives uploads and serves those same
+bytes to both native readers. The fixture generates a CA and leaf certificate;
+on Linux, each native child uses only that public CA through SSL_CERT_FILE with
+normal validation. Unrelated roots refuse before an HTTP GET; a REFUSED_STREAM
+read fails without redispatch, before a separately budgeted complete observation.
+No process-global trust or certificate-validation bypass is introduced.
+
+To retain exact commands and artifacts, set `BLOB_STANDALONE_BROWSER_REPORT` to a
+fresh **existing parent directory**; the tests create `success/`, `corrupt/`,
+`lost-final/` and `withdrawn/`
+and refuse existing child directories. Otherwise they use temporary directories.
+The capture contains fixed test keys and signed local requests; these identities
+are never deployment identities. The ordinary Rust/CI suite does not require this
+opt-in browser target, and no deployed provider/account request occurs.
 
 ### Offline native/browser handoff
 
@@ -133,7 +186,9 @@ make test-sdk-inputs BLOB_BROWSER_NODE=/absolute/path/to/node \
 ```
 
 It bundles the hash-checked pinned SDK/patch, builds the native CLI offline and
-prepares a 10 MiB file. Actual SDK output feeds `upload-inputs`; its generated
+prepares a 10 MiB file. A passive local configuration fixture feeds
+`installation-check`; its exact complete carrier and actual SDK output feed
+`upload-inputs`. The generated
 `certificate-binding.json` is consumed by the existing browser source client in
 Node with an in-memory setup-only store. Snapshot repreparation, no-clobber repeat
 and corrupt-source refusal retain exact output/logs in the new directory. All
@@ -142,12 +197,33 @@ This check needs neither Chromium nor PocketIC and remains outside ordinary CI.
 It establishes no production storage durability, service authorization or provider
 guarantee. Existing evidence directories refuse reuse; build artifacts are kept.
 
+For the proposed first standalone trial, set `BLOB_SDK_INPUTS_BYTES=1024` on this
+same offline target. The optional size accepts canonical positive byte counts up
+to 10 MiB and rejects invalid input before creating output. The default remains
+10 MiB. Both envelopes exercise the same SDK/native/snapshot/refusal checks;
+neither emits a certificate or sends service/gateway traffic. See the
+[trial review](standalone-trial.md) for the accepted operating contract and open inputs.
+
 ## Memory composition
 
-The core selects `ic-memory =0.15.0` and its `ic-stable-structures` 0.7.2
-substrate. The official Cargo index on 2026-10-02 identifies 0.15.0 as the
-latest non-yanked release. Direct `RuntimeMemory::grow` returns a typed result;
+The maintainer selects `ic-memory 0.15.2`; the lockfile resolves one registry
+package and its `ic-stable-structures` 0.7.2 substrate.
+Direct `RuntimeMemory::grow` returns a typed result;
 generic `Memory` wrappers preserve the upstream -1 sentinel contract.
+
+The published 0.15.2 changelog reports addressing IcyDB feedback in
+[#8](https://github.com/dragginzgame/ic-memory/issues/8): narrow raw-read and
+registration-hook lint exceptions become justified expectations, unsupported-format
+tests compare typed diagnostics, and Wasm declaration-count tests avoid overflow.
+The clean local upstream release `e2fe658` and cached registry package agree on
+the changelog. Source comparison with 0.15.1 preserves raw-read forwarding and its
+tests; it introduces no new consumer read API, memory format or allocator choice.
+This repository defines no unsafe read override to change. Upstream retains its
+declared Rust 1.88 minimum. The GitHub issue-body fetch fails, so this review does
+not independently summarize that body or claim its current resolution status.
+Targeted current core/CLI/host lint, native installation and actual local IC
+installation/growth-refusal/retry/restoration checks pass with 0.15.2. Retained
+evidence is in `.tmp/installation-carrier-01`; older MSRV captures remain historical.
 
 Use `ic_blob_storage::ic_memory` for storage types. The host owns one runtime,
 its allocation policy and explicit grants. The installation needs its configuration

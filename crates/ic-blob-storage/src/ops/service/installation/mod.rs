@@ -9,7 +9,10 @@ use crate::{
     model::service::{
         installation::{InstallationBindingError, record::ConfigurationRecord},
         read::download::{CaffeineDownloadScope, DownloadScopeError},
-        upload::completion::{CompletionAuthority, InvalidCompletionAuthority},
+        upload::{
+            completion::{CompletionAuthority, InvalidCompletionAuthority},
+            issuer::{InvalidUploadIssuerAuthority, UploadIssuerAuthority},
+        },
     },
 };
 use candid::Principal;
@@ -29,6 +32,8 @@ pub struct ServiceInstallationCandidate<'a> {
     pub project: &'a str,
     /// Trusted whole-content verifier, independent of operator/controller roles.
     pub completion_verifier: Principal,
+    /// Explicit trusted certificate uploader; no role is inferred from operator/controller.
+    pub trusted_uploader: Principal,
     /// Host-supplied frozen package release, never an ingress override on restore.
     pub release: &'a str,
 }
@@ -40,6 +45,7 @@ pub struct ValidatedServiceInstallation {
     limits: ServiceStoreConfiguration,
     download_scope: CaffeineDownloadScope,
     completion: CompletionAuthority,
+    issuer: UploadIssuerAuthority,
 }
 impl ValidatedServiceInstallation {
     /// Validate the complete candidate without memory, registration or provider effects.
@@ -63,6 +69,8 @@ impl ValidatedServiceInstallation {
             CaffeineDownloadScope::new(actual_service, namespace, candidate.project)?;
         let completion =
             CompletionAuthority::new(actual_service, namespace, candidate.completion_verifier)?;
+        let issuer =
+            UploadIssuerAuthority::new(actual_service, namespace, candidate.trusted_uploader)?;
         let configuration = configuration::record(&candidate);
         if configuration.to_bytes().len() > 16_384 {
             return Err(ServiceInstallationError::RecordBound);
@@ -72,6 +80,7 @@ impl ValidatedServiceInstallation {
             limits,
             download_scope,
             completion,
+            issuer,
         })
     }
 }
@@ -92,6 +101,7 @@ pub struct ServiceInstallation<M: Memory> {
     configuration: ConfigurationRecord,
     download_scope: CaffeineDownloadScope,
     completion: CompletionAuthority,
+    issuer: UploadIssuerAuthority,
     stores: ServiceStores<M>,
 }
 impl<M: Memory> ServiceInstallation<M> {
@@ -121,6 +131,7 @@ impl<M: Memory> ServiceInstallation<M> {
             configuration: candidate.configuration,
             download_scope: candidate.download_scope,
             completion: candidate.completion,
+            issuer: candidate.issuer,
             stores,
         })
     }
@@ -152,6 +163,7 @@ impl<M: Memory> ServiceInstallation<M> {
                 configuration: configuration::input(&record),
                 project: &record.project,
                 completion_verifier: record.completion_verifier,
+                trusted_uploader: record.trusted_uploader,
                 release,
             },
         )?;
@@ -160,6 +172,7 @@ impl<M: Memory> ServiceInstallation<M> {
             configuration: record,
             download_scope: candidate.download_scope,
             completion: candidate.completion,
+            issuer: candidate.issuer,
             stores,
         })
     }
@@ -177,6 +190,7 @@ impl<M: Memory> ServiceInstallation<M> {
             configuration: self.configuration(),
             project: self.download_scope.project().to_owned(),
             completion_verifier: self.completion.verifier(),
+            trusted_uploader: self.issuer.uploader(),
             release: self.configuration.release.clone(),
             fenced: self.stores.uploads.is_fenced(),
         }
@@ -190,6 +204,50 @@ impl<M: Memory> ServiceInstallation<M> {
     #[must_use]
     pub const fn completion_authority(&self) -> CompletionAuthority {
         self.completion
+    }
+    /// Immutable trusted-uploader authority; does not qualify provider behavior.
+    #[must_use]
+    pub const fn issuer_authority(&self) -> UploadIssuerAuthority {
+        self.issuer
+    }
+
+    /// Derive current restricted-contract facts from the installed owner and limits.
+    /// No facts are supplied by ingress; local bindings do not prove provisioning.
+    #[must_use]
+    pub fn certificate_evidence(
+        &self,
+        permission: crate::model::service::upload::UploadPermission,
+        now: u64,
+        durable_commit: bool,
+    ) -> crate::policy::upload::exposure::UploadExposureHostEvidence {
+        use crate::policy::upload::exposure::{
+            RestrictedUploadEnvelope, UploadExposureHostEvidence,
+        };
+        let r = self.configuration().resources;
+        let envelope = RestrictedUploadEnvelope {
+            tenants: r.max_tenants,
+            objects: r.max_objects,
+            tenant_objects: r.max_tenant_objects,
+            object_bytes: r.max_object_bytes,
+            physical_bytes: r.max_physical_bytes,
+            liability_bytes: r.max_liability_bytes,
+            tenant_bytes: r.max_tenant_logical_bytes,
+            references: r.max_references_per_object,
+            receipts: r.max_receipts_per_object,
+            active: r.max_active,
+            tenant_active: r.max_tenant_active,
+        };
+        let object = permission.request.object.first.object();
+        UploadExposureHostEvidence {
+            permission,
+            observed_at_ns: now,
+            trial_bounds: envelope.permits(permission.request.object.bytes),
+            namespace_binding: object.service() == self.download_scope.owner()
+                && object.identity().namespace == self.download_scope.namespace(),
+            trusted_uploader: self.issuer.permits(permission),
+            current_owner: !self.stores.uploads.is_fenced(),
+            durable_commit,
+        }
     }
     /// Frozen installed package release; not an artifact hash or freshness authority.
     #[must_use]
@@ -237,6 +295,9 @@ pub enum ServiceInstallationError {
     /// Explicit verifier identity is invalid.
     #[error(transparent)]
     Verifier(#[from] InvalidCompletionAuthority),
+    /// Explicit trusted certificate uploader is invalid.
+    #[error(transparent)]
+    Issuer(#[from] InvalidUploadIssuerAuthority),
     /// A shared store could not be installed or restored under the immutable limits.
     #[error(transparent)]
     Stores(#[from] ServiceStoreError),

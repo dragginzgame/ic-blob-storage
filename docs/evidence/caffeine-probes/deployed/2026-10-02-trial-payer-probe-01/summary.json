@@ -1,0 +1,123 @@
+{
+  "schema": 1,
+  "date": "2026-10-02",
+  "evidence": "deployed_cashier_fresh_candidate_queries",
+  "capture": ".tmp/trial-payer-probe-01",
+  "cashier": "72ch2-fiaaa-aaaar-qbsvq-cai",
+  "host": "https://icp-api.io",
+  "candidate": "jaqw3-42pqs-5bivi-nj3xg-5row5-gpluj-sbn54-vthud-pyb5v-sm2rs-bae",
+  "candidateSelectedForLiveEffects": false,
+  "observations": [
+    {
+      "method": "cycles_ledger_deposit_subaccount_v1",
+      "actor": "anonymous",
+      "commandExit": 0,
+      "reply": {
+        "subaccountBytes": 32,
+        "subaccountHex": "1d4f84ba14550d4eee6ec5d6e99eba26416f79599e837e03dac99a8c82020000"
+      },
+      "rawResponseSha256": "0e45d6b680c445a0d7f205647e44f1982836607df17e806f04c4cb0ae17b06b5",
+      "inference": "Cashier supplies a deposit address for this sender; no persistent account, credit or authority established"
+    },
+    {
+      "method": "account_info_get_v1",
+      "actor": "anonymous",
+      "commandExit": 0,
+      "reply": {
+        "Err": {
+          "NotAuthorized": "2vxsx-fae"
+        }
+      },
+      "rawResponseSha256": "bd52da311570e0142dfbc1fb688147082fcd12a06405a0f89ef2143e8c346609",
+      "inference": "Typed provider refusal is a successful transport observation, not an account-absence result"
+    },
+    {
+      "method": "account_info_get_v1",
+      "actor": "fresh candidate",
+      "querySignatureVerified": true,
+      "reply": {
+        "Err": {
+          "AccountNotFound": null
+        }
+      },
+      "result": {
+        "status": "replied",
+        "bytes": 354,
+        "sha256": "2d7ccf2f5b44a85974fec1a87748d20cb6a36a6f6acac76ed213e0325c4c7585",
+        "querySignatureVerified": true,
+        "mainnetRootUnchanged": true,
+        "transportCalls": 2,
+        "completed": "2026-10-02T10:20:38.964Z"
+      },
+      "rawResponseSha256": "ea6eb111ff1151be34e5ceea27b49ada00c889770474103726d256a87556b6cd",
+      "inference": "The signed query reports no account at observation time; mutation/creation/credit semantics remain unknown"
+    }
+  ],
+  "requestInputHashes": {
+    "deposit": "3cb2223c717f97fb6435a02a7125699e354248c48635328bd79439059668a030",
+    "accountInfo": "44906a83826ceda3ed9af6d2bdc78a078044557eedcf5376432d02ad8da66984",
+    "cashierDid": "232b08e4514048d4de48d6d1bf4387f577bfb64c7e2e2ded699a5e52d475d76f"
+  },
+  "requestSchema": "Generated directly from retained Cashier DID; no independent production schema or client added",
+  "signedQuery": {
+    "sdk": "5.4.0",
+    "mainnetRoot": true,
+    "fetchedReplacementRoot": false,
+    "retryTimes": 0,
+    "verifiedNodeKeysAndReply": true,
+    "transport": [
+      {
+        "method": "POST",
+        "url": "https://icp-api.io/api/v3/canister/72ch2-fiaaa-aaaar-qbsvq-cai/query",
+        "requestBytes": 338,
+        "requestSha256": "4d33ed33c0de920ba2b482e1a53025a11c2908d048f650654bddaf98f8cdb6ce",
+        "responseStatus": 200,
+        "responseBytes": 536,
+        "responseSha256": "4dd207ade92d982f2982be1d09dd414116bf77f7881d2fb808ef06c501dab8c4"
+      },
+      {
+        "method": "POST",
+        "url": "https://icp-api.io/api/v3/canister/72ch2-fiaaa-aaaar-qbsvq-cai/read_state",
+        "requestBytes": 251,
+        "requestSha256": "c35f12b572ac87dfa05266d2f153e2aa9a69d2410df851bc8105a5f00cc213d8",
+        "responseStatus": 200,
+        "responseBytes": 21816,
+        "responseSha256": "5ea7fd9c3aa4ad10b4fbf91f95c765f62280acdcf4061605e89f9c53b1386963"
+      }
+    ],
+    "queryInvocationsObserved": 1,
+    "verificationReadStateInvocationsObserved": 1
+  },
+  "limits": {
+    "anonymousCliQueryInvocations": 2,
+    "anonymousDeadlineSecondsEach": 20,
+    "anonymousOutputBytesEach": 65536,
+    "signedLogicalQueries": 1,
+    "signedTransportCallsMaximum": 4,
+    "signedDeadlineSeconds": 30,
+    "signedRequestAndResponseBytesEach": 65536,
+    "physicalWireAttemptCountMeasured": false
+  },
+  "failures": [
+    "Anonymous account-info is NotAuthorized; retained, not retried as anonymous.",
+    "Signed raw Candid hex is initially saved as a JSON string; direct didc decoding refuses. Original file and failed decode remain. A fresh hex-only derivative decodes as AccountNotFound without another query.",
+    "One documentation patch fails on a nonexistent context; refused atomically, corrected after reading exact context."
+  ],
+  "limitations": [
+    "Query results are timestamped observations; retained hashes are not portable certified-state proofs.",
+    "Signed query verification checks the node response using mainnet-certified keys, not a durable account-creation receipt.",
+    "No deposit address independently derived; any eventual transfer must use the exact selected/reviewed returned address.",
+    "No persisted account creation, credit amount, deposit sweep/notification recovery, project/bucket acceptance, expiry units or enforced spending limits qualified."
+  ],
+  "effects": {
+    "providerObjectRequests": 0,
+    "accountMutations": 0,
+    "ledgerTransfers": 0,
+    "deployment": 0,
+    "attachedCycles": "0",
+    "paidEffects": 0,
+    "physicalWireAttemptsAndProviderChargesMeasured": false
+  },
+  "cleanup": "No external objects/accounts created or funded; private new candidate identity and signed observations retained; no existing key/account changed.",
+  "next": "Review first funding/notification as separate concrete effects after targets, fee budget and roles are selected. Canic remains deferred."
+}

@@ -8,7 +8,8 @@ pub(crate) fn certificate_assessment(
     ic_blob_storage::dto::upload::certificate::UploadCertificateAssessmentResponse,
     ic_blob_storage::dto::upload::exposure::UploadExposureFailure,
 > {
-    ops::read(|stores| {
+    ops::with_installation(|installation| {
+        let stores = installation.stores();
         let permission = ic_blob_storage::workflow::uploads::certificate::resolve(
             &stores.uploads,
             context,
@@ -19,7 +20,7 @@ pub(crate) fn certificate_assessment(
             &stores.uploads,
             context,
             root,
-            ops::certificate::evidence(permission, now),
+            installation.certificate_evidence(permission, now, true),
             now,
         )
     })
@@ -34,14 +35,16 @@ pub(crate) fn certificate(
     ic_blob_storage::workflow::uploads::certificate::UploadCertificateFailure,
 > {
     use ic_blob_storage::workflow::uploads::certificate::{self, UploadCertificateFailure};
-    ops::mutate(|stores| {
-        let permission = certificate::resolve(&stores.uploads, context, root, now)
+    ops::with_certificate(|installation| {
+        let permission = certificate::resolve(&installation.stores().uploads, context, root, now)
             .map_err(UploadCertificateFailure::Exposure)?;
+        // Synchronous replicated update: exposure and the plain reply commit together.
+        let evidence = installation.certificate_evidence(permission, now, true);
         certificate::issue(
-            &mut stores.uploads,
+            &mut installation.stores_mut().uploads,
             context,
             root,
-            ops::certificate::evidence(permission, now),
+            evidence,
             now,
         )
     })
@@ -133,7 +136,7 @@ pub(crate) fn history(
         )
     })
 }
-pub(crate) fn install(input: &crate::dto::HostInstallationInput) {
+pub(crate) fn install(input: &ic_blob_storage::dto::configuration::ServiceInstallationInput) {
     ops::install(input);
 }
 pub(crate) fn funding_history(

@@ -91,10 +91,11 @@ fn standalone_completion_requires_installed_verifier_exposure_and_active_owner()
     assert_eq!(result, Err(UploadAttestationFailure::Phase));
     unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
     for invalid in [Principal::anonymous(), Principal::management_canister()] {
-        let args = candid::encode_one(HostInstallationInput {
+        let args = candid::encode_one(ServiceInstallationInput {
             configuration: f.config,
             project: PROJECT.into(),
             completion_verifier: invalid,
+            trusted_uploader: Fake::principal(4),
         })
         .unwrap();
         assert!(

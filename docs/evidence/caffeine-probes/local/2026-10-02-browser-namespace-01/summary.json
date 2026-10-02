@@ -1,0 +1,103 @@
+{
+  "schema": 1,
+  "date": "2026-10-02",
+  "class": "offline_preparation_and_actual_local_namespace_binding",
+  "baseline_release": "0.5.0",
+  "baseline_commit": "03715ebecc608f6f679ca0e753fc95a8fd5eae7b",
+  "artifact_capture": ".tmp/browser-namespace-01",
+  "intent": "intent.txt",
+  "change": "One existing certificate intent freezes project/bucket before issuance; native JSON requires them, transfer derives namespace from the binding, no independent namespace options or compatibility schema",
+  "contract": {
+    "minor_release_required": true,
+    "schema": 1,
+    "extra_owner": false,
+    "core_permission_or_init_change": false,
+    "provider_wire_implementation_added": false
+  },
+  "checks": {
+    "native_upload_inputs": {
+      "passed": true,
+      "log": "native-tests-final.log"
+    },
+    "strict_cli_lint": {
+      "passed": true,
+      "log": "clippy-final.log"
+    },
+    "strict_integration_lint": {
+      "passed": true,
+      "log": "integration-clippy.log"
+    },
+    "journal_chromium": {
+      "passed": true,
+      "log": "store-tests-bounded.log",
+      "browser": "153.0.8010.12"
+    },
+    "sdk_substitutes": {
+      "passed": true,
+      "log": "sdk-probe-final.log",
+      "record": "sdk-final/summary.json"
+    },
+    "one_kib_native_handoff": {
+      "passed": true,
+      "log": "native-handoff.log",
+      "record": "inputs/summary.json"
+    },
+    "actual_standalone_journeys": {
+      "passed": true,
+      "log": "standalone-trials-final.log",
+      "seconds": 8.37,
+      "earlier_log": "standalone-trials.log",
+      "earlier_seconds": 9.27
+    },
+    "formatting": {
+      "passed": true,
+      "log": "fmt-check-delivery.log"
+    },
+    "diff_check": {
+      "passed": true,
+      "log": "diff-check.log"
+    }
+  },
+  "facts": [
+    "Native namespace validation precedes output directory creation; complete body/root snapshot verification remains",
+    "Header-compatible project and well-formed UTF-8 bucket have separate 256-byte bounds; invalid controls/Unicode and over-budget values refuse",
+    "Current project/bucket binding survives graceful browser-process restart with cancellation and gateway history",
+    "Changed namespace conflicts before saved/observed claims without replacing current evidence",
+    "Actual host/browser setup rejects both changed fields before certificate dispatch; SDK tree uses retained project/bucket",
+    "Independent verifier and tenant download still succeed; corrupt GET cannot establish completion or free obligations"
+  ],
+  "provider_substitutes": {
+    "gateway": "Owned loopback HTTP receives actual SDK upload bytes and serves them",
+    "account": "Local candidate binding only; no Cashier/account called or funded",
+    "body_bytes": 1024,
+    "max_puts_per_owner": 2,
+    "max_put_body_bytes": 65536,
+    "max_total_put_body_bytes": 131072,
+    "success_gets": 2,
+    "corrupt_gets": 1,
+    "automatic_retries": 0
+  },
+  "artifacts": {
+    "tested_flow_cli_sha256": "b7f7c82b94b601e418fc572a4167dde0fe97666e5371ec5e0bab70b0445016ac",
+    "standalone_wasm_sha256": "7b93fd6588b325f2cd06d1dde2cc02ab705f5ef682712029b2dfa1fabba9b00a",
+    "wasm_matches_previous_current_capture": true,
+    "verifier_sha256": "520401679acb2174fe0f03301ad40d9c5abfd23969bdb0b35f71947673d70185",
+    "failed_attempts": "failures.json",
+    "native_snapshot_report": "inputs/summary.json"
+  },
+  "limitations": [
+    "Explicit original project/bucket still require review against actual installation and deployed provisioning",
+    "No provider acceptance, spending/replay cap, retention, deletion or billing-cessation qualification",
+    "No old-browser-profile/schema activation, eviction, power-loss or rollback guarantee",
+    "Live account/namespace/gateway/browser/role/cleanup selection and effect authority remain open",
+    "No full CI, version/release/publication/commit, sibling changes, allocator change or build cleanup"
+  ],
+  "live_effects": {
+    "provider_queries": 0,
+    "provider_object_requests": 0,
+    "account_mutations": 0,
+    "deployed_canisters": 0,
+    "payments": 0
+  },
+  "cleanup": "Owned local test processes close; retained evidence and browser profiles kept, no external obligations"
+}

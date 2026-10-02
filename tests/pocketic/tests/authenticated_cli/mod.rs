@@ -43,22 +43,35 @@ pub(super) fn arguments(
 }
 
 pub(super) fn run(args: &[String], code: i32) -> Value {
+    run_with_tls_roots(args, code, None)
+}
+
+/// Override only the child process's TLS trust for an owned HTTPS fixture.
+pub(super) fn run_with_tls_roots(args: &[String], code: i32, roots: Option<&Path>) -> Value {
     let executable = std::env::var_os("BLOB_CLI_BIN").expect("explicit signed CLI artifact");
     assert!(
         Path::new(&executable).is_file(),
         "signed CLI artifact exists"
     );
-    let result = Command::new(executable)
+    let mut command = Command::new(executable);
+    command
         .args(args)
         // Local mode must bypass ambient proxies, even without NO_PROXY exclusions.
         .env("HTTP_PROXY", "http://127.0.0.1:9")
         .env("http_proxy", "http://127.0.0.1:9")
+        .env("HTTPS_PROXY", "http://127.0.0.1:9")
+        .env("https_proxy", "http://127.0.0.1:9")
         .env("ALL_PROXY", "http://127.0.0.1:9")
         .env("all_proxy", "http://127.0.0.1:9")
         .env("NO_PROXY", "")
-        .env("no_proxy", "")
-        .output()
-        .unwrap();
+        .env("no_proxy", "");
+    if let Some(roots) = roots {
+        assert!(roots.is_file(), "explicit fixture TLS root file exists");
+        command
+            .env("SSL_CERT_FILE", roots)
+            .env_remove("SSL_CERT_DIR");
+    }
+    let result = command.output().unwrap();
     assert_eq!(
         result.status.code(),
         Some(code),

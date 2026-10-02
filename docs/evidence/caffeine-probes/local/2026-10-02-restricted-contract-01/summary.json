@@ -1,0 +1,127 @@
+{
+   "artifact_capture" : ".tmp/restricted-contract-01",
+   "artifacts_sha256" : {
+      "blob-storage" : "28b72c6073a0f1ee216035f5fe871e9cdbc464a018459e04d73d3d7f4adbf540",
+      "blob_consumer_probe.wasm" : "668fe12422cbeff78f537856f922bb1ad883856f132e27b3f87667e786d5e54d",
+      "blob_gateway_source.wasm" : "239af4969817df62fdaeedc9777906ef19c5f6b4820cab091f73020910a33bf4",
+      "blob_storage_probe.wasm" : "67c83d735feba97bf03ba6bb2360ab898d587af55cac745ec5a8c640e8085e39",
+      "ic_blob_storage_canister.wasm" : "e3157bcf8c6cc47872f0614df7c213a8be590f20afee20a87e9ade797ad5a87d",
+      "service.did" : "277047dd755b307c39a6ba31c692d3f2d52a611f604e351eab86ed92cbd57873",
+      "standalone-tests" : "426b5e45b759319fbcd6432d244593ecd58938ef3e23b71dcc1cb0084fa21ef9",
+      "storage-tests" : "0bd62ad420e00c172323e2aeca8f2609c2c3de95df256f51639ded9703e33c5b"
+   },
+   "baseline_commit" : "03715ebecc608f6f679ca0e753fc95a8fd5eae7b",
+   "baseline_release" : "0.5.0",
+   "checks" : {
+      "browser" : {
+         "class" : "actual_chromium_local_ic_and_substitute_gateway",
+         "limitations" : "Two-slot fixture IndexedDB; not production client persistence, deployment or provider behavior",
+         "log" : "pocketic-browser-final.log",
+         "passed" : true,
+         "scenarios" : 10,
+         "seconds" : 56.5
+      },
+      "cli_assessment" : {
+         "log" : "cli-certificate-final.log",
+         "passed" : 2
+      },
+      "cli_installation" : {
+         "log" : "cli-installation-final.log",
+         "passed" : 3
+      },
+      "clippy" : {
+         "log" : "clippy-current-source.log",
+         "passed" : true,
+         "scope" : "affected core/standalone/CLI/PocketIC all targets and all features, warnings denied"
+      },
+      "core_uploads" : {
+         "log" : "core-uploads-final.log",
+         "passed" : 84
+      },
+      "formatting" : {
+         "log" : "fmt-check.log",
+         "passed" : true
+      },
+      "installation" : {
+         "log" : "core-installation-final.log",
+         "passed" : 6
+      },
+      "offline_installation" : {
+         "configuration_sha256" : "5e07d8890e838e92e42a6287f85ff8a57cd4a97d48ee27a621ba2967c063f595",
+         "host_init_contains_required_uploader" : true,
+         "host_init_independently_encoded_and_decoded" : true,
+         "host_init_sha256" : "577776c8ab576fa89aebce7d4e0657f2eff196e63d39ac1ffeec42e7fc17cbee",
+         "identities" : "local syntax substitutes only",
+         "passed" : true
+      },
+      "restricted_bounds" : {
+         "log" : "core-bounds-final.log",
+         "passed" : 1
+      },
+      "shared_exposure" : {
+         "class" : "actual_local_ic_with_host_fact_substitutes",
+         "covers" : [
+            "stable-write and response-trap rollback",
+            "committed lost reply refuses reissue",
+            "IC-signed request/certificate binding and read-state recovery",
+            "unsupported snapshot demonstrates lost history"
+         ],
+         "log" : "pocketic-exposure-final.log",
+         "passed" : 7,
+         "seconds" : 36.77
+      },
+      "standalone" : {
+         "failed" : 0,
+         "log" : "pocketic-standalone-retained-artifacts.log",
+         "passed" : 48,
+         "provider_substitutes" : "account/gateway fixture calls only; successful standalone issuance uses actual installed local facts",
+         "seconds" : 268.95
+      },
+      "wasm_build" : {
+         "log" : "wasm-build-after-target-loss.log",
+         "passed" : true
+      }
+   },
+   "class" : "actual_local_ic_and_local_tooling",
+   "contract" : {
+      "accepted" : true,
+      "authority" : "maintainer explicit asynchronous acceptance",
+      "compatibility_path" : false,
+      "current_schema" : 1,
+      "minor_release_required" : true,
+      "source" : "docs/standalone-trial.md",
+      "version_mutated" : false
+   },
+   "date" : "2026-10-02",
+   "failures" : {
+      "all_failed_attempts_retained" : true,
+      "cleanup" : "maintainer confirms cargo clean; no cleanup by this agent",
+      "record" : "failures.json",
+      "target_loss_confirmation" : "target-loss-confirmation.json"
+   },
+   "implemented" : [
+      "required immutable trusted_uploader, validated before allocation and retained in v1 record/readback",
+      "shared installed evidence for restricted bounds, local namespace, uploader trust and current owner",
+      "synchronous plain certificate reply after exact one-time exposure commit",
+      "one lifetime tenant/object/reference and positive admitted/body byte budgets no larger than 1024",
+      "inspection-only upgrade restoration and retained possible-exposure obligations",
+      "current blocker DTO/JSON and required installation-check --trusted-uploader",
+      "unused removed-managed-fixture browser refusal branch deleted"
+   ],
+   "limitations" : [
+      "old management snapshots can restore lost exposure, revocation and accounting plus local issuance eligibility; activation unsupported",
+      "no guaranteed external bill or provider pre-charge/replay/provisioning qualification",
+      "persistent production browser store and live identities/account/namespace still unselected",
+      "prior 0.5.0 review/init capture is historical, not current carrier",
+      "full CI, release preparation and publication not run"
+   ],
+   "live_effects" : {
+      "account_mutations" : 0,
+      "deployed_canisters" : 0,
+      "payments" : 0,
+      "provider_object_requests" : 0,
+      "provider_queries" : 0
+   },
+   "prior_review" : "../2026-10-02-standalone-trial-review-01/summary.json",
+   "schema" : 1
+}

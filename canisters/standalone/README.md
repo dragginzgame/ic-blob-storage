@@ -16,7 +16,10 @@ cargo run --offline --locked -p ic-blob-storage-canister --example export_candid
 ```
 
 Installation takes one explicit
-`HostInstallationInput { configuration, project, completion_verifier }`.
+`ServiceInstallationInput { configuration, project, completion_verifier, trusted_uploader }`
+from `ic_blob_storage::dto::configuration`. The offline
+[`installation-check`](../../docs/operator-guide.md#check-installation-inputs-offline)
+command produces its complete binary Candid and hash; no manual wrapper is needed.
 `configuration` is the shared `ServiceConfigurationInput`, including the actual
 service principal, operator, payer, namespace and all resource/billing bounds.
 `project` is the explicit Caffeine project mapped to that namespace. It is immutable
@@ -47,14 +50,20 @@ an observation; issuance always rechecks current authority.
 
 `_immutableObjectStorageCreateCertificate(root)` is the matching synchronous update.
 It delegates to the shared certificate/exposure handler and traps on refusal;
-errors are never encoded as successful provider replies. **Issuance remains
-disabled:** pre-charge enforcement, provider namespace binding, replay charging
-and independent recovery readiness are unqualified. Installed owner/project values,
-gateway membership, local manifest consistency and an unfenced store cannot supply
-those facts. The host establishes atomic local durability only. No ingress-supplied
-qualification flags or operator override exist. Enabling provider effects requires
-evidence or an explicitly accepted narrower contract; this endpoint does not create
-that authority. No installation or state-schema change is introduced here.
+errors are never encoded as successful provider replies. The maintainer accepted
+the [restricted contract](../../docs/standalone-trial.md): issuance requires the
+explicit installed trusted uploader, exact local namespace, one lifetime tenant,
+object and reference, byte budgets at most 1 KiB and a durable current owner.
+Broader installations report `TrialBounds` and refuse. Tenant permission, manifest,
+activation, expiry, phase and restore fences are still checked. One committed
+issuance leaves possible exposure and can never be reissued after a lost reply.
+The required `trusted_uploader` is immutable, explicitly validated before allocation
+and retained in the current v1 installation record. Anonymous and management
+principals refuse; controller/operator status grants no implicit uploader trust.
+No ingress-supplied qualification flags or operator override exist. These are local
+checks: provider provisioning, spending caps and escaped-certificate replay charges
+remain unproven. No paid trial or account/deployment action follows from installation.
+This init/API/schema hard cut requires a minor release and cross-release reinstall.
 
 `completion_verifier` is an explicitly trusted principal, never an operator,
 controller or gateway default. Anonymous and management principals reject before
@@ -85,9 +94,8 @@ The attestation contract establishes trusted observed content availability, not
 future retention or billing cessation. Native `observe-upload` retrieves and checks
 provider bytes from an explicitly approved origin and saves a durable statement;
 `submit-attestation` can submit that exact statement once with durable intent and
-historical receipt recovery. Standalone certificate issuance remains blocked by the
-independent prerequisites above. Installation alone does not enable a complete
-upload journey.
+historical receipt recovery. A complete journey still needs selected provider/account
+bindings, a persistent client intent store and separately authorized effects.
 
 Operator-only `blob_local_status` takes the explicit service, namespace, Cashier
 and payer scope. It returns one synchronous snapshot of maintained upload byte
@@ -201,9 +209,9 @@ Native [`submit-reference`](../../docs/operator-guide.md#submit-a-reference) sav
 the exact command and signed intent before one update. Actual standalone tests
 preserve unknown/unconfirmed refusals and all-owner restore fencing. Lost/pending
 acknowledgments stay unresolved when receipt inspection refuses; the saved claim
-never grants resend authority. Successful reference creation still requires a
-qualified upload/completion path, which the standalone production host currently
-does not expose. These tests add no completion hook or provider substitute here.
+never grants resend authority. Successful reference creation requires confirmed
+content through the installed verifier after eligible exposure. Reference commands
+cannot establish that completion themselves.
 
 Tenant-only `blob_reference_status` takes the complete original `ReferenceUpload`
 and a positive reference ID, with no mutation operation or action. It returns an
@@ -225,16 +233,17 @@ declared byte count and original hash headers. It supplies no origin, credential
 file body or public serving lease. No provider call or read-session allocation occurs;
 ordinary IC execution fees still apply. Canister tenants can use the shared
 `ReplicatedDownloadClient` with their expected project and bounded reply settings.
-Confirmed success remains exercised through labelled local provider substitutes;
-this host still cannot establish completion. Previously delivered metadata or bytes
+Confirmed success is exercised through the configured verifier with a labelled
+local gateway substitute. Previously delivered metadata or bytes
 are not revoked by refusing a subsequent descriptor request.
 
 Native tenant [`download`](../../docs/operator-guide.md#download-a-verified-file)
 uses that replicated descriptor and the installed expected project before one
 bounded provider GET, publishing `body.bin` only after complete root verification.
-Signed standalone tests prove unconfirmed and restored refusal without a GET;
-successful file delivery uses the labelled managed completion/content substitute.
-No standalone completion injection or issuance override is provided.
+Signed standalone tests prove unconfirmed and restored refusal without a GET.
+The complete browser/native rehearsal verifies actual uploaded bytes through a
+local gateway substitute, signed verifier attestation and tenant download.
+No completion injection or issuance override is provided.
 
 Native [upload setup](../../docs/operator-guide.md#admit-and-prepare-an-upload)
 calls the existing admission, manifest preparation and revocation handlers with
@@ -291,7 +300,7 @@ reference operations use the existing shared workflows and actual caller/service
 Preparation carries metadata and hashes; file bodies stay outside the canister.
 Reference operations require confirmed content, which this initial endpoint set
 can establish only through the configured verifier after eligible exposure.
-The exported certificate update refuses the unqualified prerequisites described
+The exported certificate update checks the restricted local prerequisites described
 above. No trusted-fact fixture, funding mutation, deletion or billing-settlement
 endpoint is exported.
 
@@ -320,8 +329,9 @@ preserves the active owner. Actual PocketIC management snapshot tests demonstrat
 that loading an older snapshot also restores the heap owner: it bypasses these
 upgrade hooks, can restore `fenced = false`, undo a revocation and lose later
 admissions/accounting. A clear fence is therefore not evidence of fresh state.
-Standalone certificate issuance remains disabled even after this rollback. Snapshot
-loading is unsupported for operation; do not restart a loaded snapshot as an active
+Snapshot loading can also restore certificate eligibility under the restricted
+contract: local gates cannot detect an older heap. Loading is unsupported for
+operation; do not restart a loaded snapshot as an active
 service. Package release is not a module hash. Operational recovery requires a
 surviving complete obligation inventory and independent freshness authority, and remains
 unfinished. Cross-release transitions require reinstall after the separately
@@ -331,5 +341,5 @@ the management canister, so these hooks cannot enforce retirement on their behal
 The maintainer's current scope keeps this single authoritative owner and its local
 durable journals. Extra journal/controller canisters and metadata calls are deferred
 until a clear use case justifies them. Current-state durability, receipt recovery
-and state-preserving lifecycle work take priority; this does not enable older
-snapshot activation or clear the outstanding recovery/provider prerequisites.
+and state-preserving lifecycle work take priority. No old-snapshot activation,
+unfencing or provider economic guarantee is part of the accepted prototype.

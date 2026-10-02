@@ -6,9 +6,9 @@ evidence classes. Unsupported guarantees require an explicit operating-contract
 review. Repeated success is not a universal retry, retention or billing guarantee.
 This plan authorizes no deployment or paid trial; full service acceptance is open.
 
-## Current local evidence and open gates — 2026-10-01
+## Current local evidence and open gates — 2026-10-02
 
-The released 0.4.16 library supplies shared durable owners, tenant policy,
+The released 0.5.0 library supplies shared durable owners, tenant policy,
 provider bookkeeping, references, verifier completion, read descriptors and
 operator workflows. Native tools prepare exact inputs and verified snapshots,
 send signed requests once and recover original outcomes through inspection.
@@ -21,10 +21,14 @@ captures remain historical evidence; they do not qualify a current wrapper.
 The public ic-memory growth API is now 0.15.0. See the
 [latest implementation evidence](evidence/core-primitives.md#independent-library-and-memory-015--2026-10-02).
 
-Four certificate facts remain false: pre-charge limits, namespace authority,
-replay charging and supported recovery. A fresh store, client traffic budget or
-successful local substitute cannot set them. No isolated live trial service,
-funded account, numerical financial terms or paid-effect authority is selected.
+The maintainer accepted the [restricted standalone contract](standalone-trial.md)
+on 2026-10-02. Its current issuance prerequisites are explicit uploader trust,
+matching local namespace, one-tenant/one-object/1 KiB bounds, current owner and
+atomic durability. Provider spending caps, replay-charge guarantees and operational
+old-backup recovery are outside that contract; their evidence remains unqualified.
+The public API/init/schema hard cut requires a minor release. No isolated live
+trial service, funded account, provider terms or paid-effect authority is selected.
+The 100T-cycle planning ceiling is separate from an enforced maximum bill.
 The [trial plan](operator-guide.md#isolated-uploaddownload-trial-plan) prepares
 inputs but does not authorize provider effects.
 
@@ -32,7 +36,7 @@ inputs but does not authorize provider effects.
 | --- | --- | --- |
 | A01 — authority | Explicit tenant, uploader, operator and verifier bindings; shared handlers and standalone endpoints | Accepted consumer transaction and deployed service identity; controller status grants no tenant access |
 | A02 — content | Bounded manifests, streaming root verification and exact verifier receipts | Real certificate/upload path, independent whole-body fetch and accepted empty-object/serving limits |
-| A03 — interruption | Persisted intents, exact historical lookup, uncertainty retention and local IC rollback | Provider lost-response/charging semantics and production consumer outbox/worker |
+| A03 — interruption | Persisted intents, exact historical lookup, uncertainty retention, local IC rollback and actual IndexedDB tab/restart evidence | Provider lost-response/charging semantics, selected browser persistence environment and production consumer outbox/worker |
 | A04 — capacity | Bounded objects, references, receipts, sessions, reservations and liabilities; reserved release capacity | Provider pre-charge bounds and production sizing for the selected consumer |
 | A05 — restore | Synchronous same-release reopening preserves history with all owners fenced | Complete surviving obligations and independent freshness authority before operational restart |
 | A06 — release race | Exact reference mutation/receipt/liveness, tombstones, revocation and separate byte accounting | Consumer release coordination, provider deletion and billing cessation |

@@ -81,10 +81,10 @@ fn json_preserves_full_width_identity_and_never_turns_a_snapshot_into_authority(
         vec![],
         vec![
             B::StaleObservation,
-            B::PrechargeLimits,
-            B::ProviderNamespace,
-            B::ReplayCharging,
-            B::Recovery,
+            B::TrialBounds,
+            B::NamespaceBinding,
+            B::TrustedUploader,
+            B::CurrentOwner,
             B::Durability,
         ],
     ] {
@@ -107,10 +107,10 @@ fn json_preserves_full_width_identity_and_never_turns_a_snapshot_into_authority(
                 value["blockers"],
                 json!([
                     "stale_observation",
-                    "precharge_limits",
-                    "provider_namespace",
-                    "replay_charging",
-                    "recovery",
+                    "trial_bounds",
+                    "namespace_binding",
+                    "trusted_uploader",
+                    "current_owner",
                     "durability"
                 ])
             );

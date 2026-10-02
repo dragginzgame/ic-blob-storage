@@ -20,6 +20,7 @@ use ic_blob_storage::dto::upload::history::{
 };
 use ic_blob_storage::{
     dto::{
+        configuration::ServiceInstallationInput,
         reference::{
             ReferenceCommand, ReferenceFailure, ReferenceMutationResponse, ReferenceReceiptLookup,
         },
@@ -46,7 +47,7 @@ fn context() -> UploadContext {
 #[ic_cdk::init(hidden = true, decode_with = "ops::decode_configuration")]
 // Custom decoding bounds raw Candid; explicitly retain its typed wire contract.
 #[candid::candid_method(init)]
-fn init(input: dto::HostInstallationInput) {
+fn init(input: ServiceInstallationInput) {
     workflow::install(&input);
 }
 #[ic_cdk::post_upgrade]

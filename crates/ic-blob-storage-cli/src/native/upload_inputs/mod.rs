@@ -1,4 +1,5 @@
 //! Offline upstream-manifest conversion; no authority, allocation or dispatch.
+mod installation;
 use super::{
     Failure,
     artifacts::{FailureRecord, Run},
@@ -12,10 +13,8 @@ use ic_blob_storage::{
         reference::ReferenceUpload,
         upload::{admission::UploadAdmissionRequest, manifest::UploadManifestRequest},
     },
-    model::identity::{
-        ProviderRootHash,
-        caffeine::{CaffeineContentHashes, manifest::CaffeineManifestLimits},
-    },
+    model::identity::{ProviderRootHash, caffeine::CaffeineContentHashes},
+    model::service::read::download::CaffeineDownloadScope,
     ops::{
         caffeine::preparation::{PreparedManifestLimits, decode_prepared_manifest},
         service::uploads::{
@@ -45,10 +44,17 @@ struct BrowserCertificateBinding {
     uploader: String,
     operation: String,
     root: String,
+    project: String,
+    bucket: String,
     permission: Vec<u8>,
 }
 impl BrowserCertificateBinding {
-    fn new(request: UploadAdmissionRequest, permission: Vec<u8>) -> Self {
+    fn new(
+        request: UploadAdmissionRequest,
+        permission: Vec<u8>,
+        project: &str,
+        bucket: &str,
+    ) -> Self {
         let service = request.upload.service.to_text();
         let tenant = request.upload.tenant.to_text();
         let operation = request.upload.upload.to_string();
@@ -62,6 +68,8 @@ impl BrowserCertificateBinding {
                 .expect("fixed provider root")
                 .to_string(),
             permission,
+            project: project.into(),
+            bucket: bucket.into(),
         }
     }
 }
@@ -71,6 +79,8 @@ impl BrowserCertificateBinding {
 #[serde(deny_unknown_fields)]
 struct Binding {
     schema: u8,
+    project: String,
+    bucket: String,
     service: String,
     namespace: String,
     tenant: String,
@@ -124,6 +134,37 @@ impl Binding {
     }
 }
 
+fn validate_namespaces(
+    binding: &Binding,
+    permission: UploadAdmissionRequest,
+) -> Result<(), Failure> {
+    for namespace in [&binding.project, &binding.bucket] {
+        if namespace.starts_with('\u{feff}') || namespace.ends_with('\u{feff}') {
+            return Err(Failure::Arguments);
+        }
+        CaffeineDownloadScope::new(
+            permission.upload.service,
+            permission
+                .upload
+                .namespace
+                .try_into()
+                .map_err(|_| Failure::Arguments)?,
+            namespace,
+        )
+        .map_err(|_| Failure::Arguments)?;
+    }
+    // Fetch Headers requires ByteString project values, in addition to the
+    // shared UTF-8 namespace bounds. Bucket travels in the SDK's JSON/query.
+    if binding
+        .project
+        .chars()
+        .any(|character| u32::from(character) > 255)
+    {
+        return Err(Failure::Arguments);
+    }
+    Ok(())
+}
+
 pub(super) fn run(args: &[String]) -> Result<Value, Failure> {
     let mut flags = BTreeMap::new();
     for pair in args[1..].chunks(2) {
@@ -133,6 +174,7 @@ pub(super) fn run(args: &[String]) -> Result<Value, Failure> {
     }
     let mut take = |name| flags.remove(name).ok_or(Failure::Arguments);
     let binding_path = Path::new(take("--binding")?);
+    let installation_path = Path::new(take("--installation")?);
     let manifest_path = Path::new(take("--manifest")?);
     let maximum: NonZeroU64 = positive(take("--max-bytes")?)?;
     let directory = Path::new(take("--run-dir")?);
@@ -144,13 +186,11 @@ pub(super) fn run(args: &[String]) -> Result<Value, Failure> {
     let binding: Binding =
         serde_json::from_slice(&binding_bytes).map_err(|_| Failure::Arguments)?;
     let permission = binding.permission()?;
+    validate_namespaces(&binding, permission)?;
+    let installation =
+        installation::Installation::load(installation_path, &binding, permission, maximum)?;
     let manifest_bytes = read(manifest_path, MANIFEST_BYTES)?;
-    let limits = CaffeineManifestLimits {
-        max_content_bytes: maximum,
-        max_chunks: 1024.try_into().expect("positive chunk bound"),
-        max_headers: 16.try_into().expect("positive header bound"),
-        max_header_bytes: 4096.try_into().expect("positive metadata bound"),
-    };
+    let limits = installation.limits;
     let declaration = decode_prepared_manifest(
         binding.root.parse().map_err(|_| Failure::Arguments)?,
         permission.upload.bytes,
@@ -179,6 +219,8 @@ pub(super) fn run(args: &[String]) -> Result<Value, Failure> {
     let browser = serde_json::to_vec(&BrowserCertificateBinding::new(
         permission,
         admission.clone(),
+        &binding.project,
+        &binding.bucket,
     ))
     .map_err(|_| Failure::Arguments)?;
     let source = LocalBody::open(body_path, permission.upload.bytes)?;
@@ -186,6 +228,7 @@ pub(super) fn run(args: &[String]) -> Result<Value, Failure> {
     let run = Run::create(directory)?;
     run.bytes("binding.json", &binding_bytes)?;
     run.bytes("manifest.json", &manifest_bytes)?;
+    run.bytes("installation.candid", &installation.bytes)?;
     let hashes = snapshot(source, &request, maximum, &run)?;
     run.bytes("permission.candid", &admission)?;
     run.bytes("manifest.candid", &preparation)?;
@@ -193,6 +236,10 @@ pub(super) fn run(args: &[String]) -> Result<Value, Failure> {
     run.bytes("certificate-binding.json", &browser)?;
     let result = json!({
         "schema": 1, "observation": "local_upload_inputs",
+        "installation_file": "installation.candid",
+        "installation_sha256": digest(&installation.bytes),
+        "installation_binding_checked": true,
+        "installed_state_observed": false, "namespace_provisioned": false,
         "binding_sha256": digest(&binding_bytes), "manifest_sha256": digest(&manifest_bytes),
         "permission_sha256": digest(&admission), "preparation_sha256": digest(&preparation),
         "root": binding.root, "bytes": binding.bytes,
@@ -200,6 +247,7 @@ pub(super) fn run(args: &[String]) -> Result<Value, Failure> {
         "permission_file": "permission.candid", "preparation_file": "manifest.candid",
         "first_reference": references.summary(),
         "certificate_binding_file": "certificate-binding.json",
+        "project": binding.project, "bucket": binding.bucket,
         "certificate_binding_sha256": digest(&browser),
         "body_file": "body.bin", "content_digest": hashes.content_digest.to_string(),
         "authenticated": false, "identities_allocated": false, "body_verified": true,

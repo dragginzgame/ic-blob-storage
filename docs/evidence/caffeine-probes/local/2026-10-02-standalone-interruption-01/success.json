@@ -1,0 +1,38 @@
+{
+  "attestation_accepted": true,
+  "billing_cessation_established": false,
+  "browser_journal": "maintained_one_slot_indexeddb",
+  "certificate_issuer": "actual_installed_standalone_facts",
+  "content_bytes": 1024,
+  "content_digest": "sha256:b2256110f2c4226de0008dd4382a388e033f211b617bd3237135ab1d59a722b6",
+  "evidence": "actual_standalone_chromium_native_local_provider_substitute",
+  "independent_observation": true,
+  "liability_bytes_retained": 1024,
+  "live_provider_requests": 0,
+  "paid_effects": 0,
+  "physical_bytes_retained": 1024,
+  "provider_deletion_established": false,
+  "provider_gets": [
+    "/v1/blob/?blob_hash=sha256%3Ad53964e58575f66aa53db95000c2d48152b0bf2f22da88274a85788efd5a3b6e&owner_id=dllsh-pd777-77776-qaaaa-cai&project_id=standalone-trial",
+    "/v1/blob/?blob_hash=sha256%3Ad53964e58575f66aa53db95000c2d48152b0bf2f22da88274a85788efd5a3b6e&owner_id=dllsh-pd777-77776-qaaaa-cai&project_id=standalone-trial"
+  ],
+  "provider_puts": [
+    {
+      "bytes": 4660,
+      "path": "/v1/blob-tree/",
+      "sha256": "de898a506953150d49d3d114c6c3ec30e3b8c3f5e6f66d4ac76d31b41bdecea3"
+    },
+    {
+      "bytes": 1024,
+      "path": "/v1/chunk/?owner_id=dllsh-pd777-77776-qaaaa-cai&blob_hash=sha256%3Ad53964e58575f66aa53db95000c2d48152b0bf2f22da88274a85788efd5a3b6e&chunk_hash=sha256%3A93beaf743566f9e55d341b9fdcab54250bd8b391f0fab18837ba25accf22a387&chunk_index=0&bucket_name=local-standalone-trial&project_id=standalone-trial",
+      "sha256": "b2256110f2c4226de0008dd4382a388e033f211b617bd3237135ab1d59a722b6"
+    }
+  ],
+  "reference_released": true,
+  "schema": 1,
+  "tenant_download_verified": true,
+  "browser": "153.0.8010.12",
+  "actual_put_arrivals": 2,
+  "guarded_gateway_claims": 2,
+  "provider_get_count": 2
+}

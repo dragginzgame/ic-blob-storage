@@ -11,11 +11,18 @@ for existing extension points and the specific missing controls.
 private source package uses the exact `@icp-sdk/core` peer version in package.json;
 it is not published to npm. The Chromium fixture imports this implementation.
 The peer is SDK 5.4.0, within Caffeine 1.1.2's declared `^5.3.0` dependency range.
-Application authentication, durable storage and deployed Caffeine qualification
-are still integration requirements.
+Application authentication, selection of a persistent browser environment and
+deployed Caffeine qualification are still integration requirements. The package
+now supplies the bounded IndexedDB journal described below.
 
 ```js
 import { createCertificateClient } from './certificate.js';
+import { createIndexedDBIntentStore } from './intents.js';
+
+// Explicit first-time setup in the selected browser profile and origin.
+const intents = await createIndexedDBIntentStore({
+  database: 'isolated-upload-intents-v1', maxSlots: 1, mode: 'create',
+});
 
 const client = await createCertificateClient({
   host, identity, rootKey, binding, intents,
@@ -35,14 +42,14 @@ authenticated admission/preparation using the same certificate client and store:
 import { createUploadTransfer } from './transfer.js';
 
 const transfer = await createUploadTransfer({
-  certificate: client, intents, origin: gatewayOrigin, bucket, project,
+  certificate: client, intents, origin: gatewayOrigin,
   maxRequests, maxRequestBytes, maxTotalRequestBytes, signal,
 });
 const result = await transfer.uploadPrepared(prepared, onProgress);
 ```
 
-The helper derives the SDK owner from the certificate binding, refuses a different
-prepared root before issuance, and requires explicit bounded bucket/project values.
+The helper derives the SDK owner, project and bucket from the immutable certificate
+binding and refuses a different prepared root before issuance.
 It fixes `retry: false` and `concurrency: 1`, using the existing gateway journal.
 `transfer.transport` is that same guarded fetch hook for request inspection or
 direct composition; it shares the SDK's session and budgets. It does not create a
@@ -61,7 +68,11 @@ For native-prepared inputs, load `certificate-binding.json` from
 [`blob-storage upload-inputs`](../../docs/operator-guide.md#generate-upload-inputs-offline)
 as `binding` above. It derives the existing key/service/tenant/uploader/operation/
 root fields and opaque permission bytes from one validated Rust permission, after
-complete body verification. `operation` is the original upload ID. The application
+complete body verification. Native preparation requires complete reviewed
+`installation.candid`, checks the proposed service/namespace/project/trusted uploader
+and resource bounds, and retains those exact bytes/hash. Actual installed state
+and provider provisioning remain separate checks.
+`operation` is the original upload ID. The application
 still supplies its own identity, trusted IC origin/root and qualified durable store;
 the file grants no certificate, dispatch or retry authority. Confirm signed service
 admission/preparation before issuance, including current host prerequisites.
@@ -93,13 +104,23 @@ trust from the endpoint. HTTPS is required except for explicit loopback HTTP.
 All requests are confined to that origin and the exact service's v4 update or v3
 read-state route. Redirects and automatic update fallback are refused.
 
-`binding` contains `service`, `tenant`, `uploader`, `operation`, `root`, `permission`
+`binding` contains `service`, `tenant`, `uploader`, `operation`, `root`, `project`,
+`bucket`, `permission`
 and `key`. Operation is a canonical decimal u128 **string**; root is `sha256:`
 followed by 64 lowercase hex characters. Permission is the full original permission's Candid bytes as a
 byte array, retained opaquely without reconstructing the Rust contract in JS.
 Key is `${service}:${tenant}:${operation}`. The caller must obtain these fields
 from the admitted permission. Local binding checks do not grant tenant authority;
 the service authenticates and validates the actual issuance request.
+
+Project and bucket are selected before certificate setup and retained immutably in
+this same intent. Load them from the reviewed native `certificate-binding.json`;
+project must match the installed service and bucket must match the selected provider
+namespace. The transfer obtains both from the intent and has no separate namespace
+options. A changed project or bucket conflicts before issuance/transfer, including
+after reopening the journal. Both are bounded to 256 UTF-8 bytes, without controls,
+surrounding whitespace or malformed Unicode; project must additionally be an HTTP
+header ByteString. These are representation/binding checks, not provisioning proof.
 
 ## Durable intent store contract
 
@@ -119,8 +140,40 @@ Every method returns the resulting row. Concurrent clients/tabs must serialize
 these transitions in the store; checking outside the transaction is insufficient.
 No overwrite, tombstone eviction or reset may make a dispatched operation eligible
 again. Storage failure must reject before dispatch. The client checks returned rows
-but cannot turn an unsafe store into durable storage. The two-slot IndexedDB store
-in tests/browser is a fixture, not a production implementation or sizing decision.
+but cannot turn an unsafe store into durable storage. The maintained implementation
+is `createIndexedDBIntentStore` in `intents.js` (package subpath `./intents`). The
+Chromium fixture uses this implementation with two slots and test-only platform
+fault injection; it no longer duplicates journal transitions.
+
+Create a journal exactly once with `mode: 'create'`. On subsequent loads, use
+`mode: 'open'` with the same database name and capacity. Creation refuses an existing
+database; opening refuses a missing one without leaving a new empty database.
+Never catch that refusal by creating a replacement or choosing another name for
+the same permission. Retain the selected database/profile/origin outside transient
+page state and preserve any outstanding obligations when retiring it.
+
+`maxSlots` is an immutable lifetime bound from 1 to 64. Cancelled and dispatched
+rows still occupy slots; capacity is never refunded. The current v1 schema has no
+migration, deletion, reset or old-profile activation API. `close()` releases the
+connection only. The optional `indexedDB` factory is a trusted platform boundary,
+defaulting to the browser's own IndexedDB implementation.
+
+Writes require a `strict` durability transaction and resolve after transaction
+completion, never after an individual request succeeds. Binding, phase, gateway
+history and capacity checks share that transaction across tabs. The implementation
+uses a point lookup and count, never a full-store scan, validates bounded rows and
+snapshots caller-owned arguments before storage awaits. Store opening and each
+transaction have ten-second local timeouts. Missing/configuration-conflicting/
+structurally corrupt records refuse; `IntentRefusal.code` reports local failures,
+and platform/storage errors also propagate. Envelope authentication remains the
+certificate client's responsibility; the journal does not grant upload authority.
+
+The real Chromium tests cover competing tabs, graceful browser-process restart,
+cancelled tombstones, request budgets and corrupt-history refusal. They establish
+local IndexedDB behavior in that tested profile, not resilience to power loss,
+eviction, profile rollback or hostile same-origin code. Select and review the actual
+trial browser/origin, protect its signed envelopes, and arrange persistence and
+obligation ownership before effects. A missing journal is a stop condition.
 
 `issue()` persists the signed request before fetch. A failure after that commit
 leaves uncertainty, including a lost reply or an unsupported v4 endpoint. Recover
@@ -143,8 +196,22 @@ Same-origin script compromise, profile loss/rollback and browser eviction are ou
 these guarantees. `CertificateRefusal.code` identifies local refusals; SDK, network
 and storage errors also propagate. Errors never authorize retrying issuance.
 
-Run the actual Chromium/PocketIC checks with `make test-browser`, after the setup
+Run the journal-only checks with `make test-browser-store` or the actual
+Chromium/PocketIC checks with `make test-browser`, after the setup
 in [dependency documentation](../../docs/dependencies.md#browser-certificate-evidence).
+`make test-browser-standalone` additionally rehearses the complete restricted host,
+SDK upload, independent verifier and tenant download against a local gateway
+substitute. It includes corrupt bytes and a pre-header connection loss after
+the gateway receives the file. Historical certificate recovery preserves the
+uncertain gateway claim; verification can establish observed content without
+another upload dispatch. The same trusted verifier can reconcile stored bytes
+after tenant withdrawal. Explicit reference release ends local liveness; replay
+of the accepted attestation leaves the released reference inactive. The fixture
+uses the maintained clients, one-slot store and test identities; it supplies
+neither production authentication nor live provisioning.
+Upload, verifier and tenant reads now use the same TLS HTTP/2 substitute, with
+native certificate verification against its explicit fixture CA. Unrelated roots
+and a refused stream retain failed observations without implicit read retries.
 
 ## Gateway request coordination
 
@@ -153,7 +220,11 @@ patched Caffeine client's `fetch` option. Keep `retry: false` and `concurrency: 
 It accepts `{ certificate, intents, origin, maxRequests, maxRequestBytes,
 maxTotalRequestBytes, fetch? }`;
 `certificate` is the existing certificate client and `intents` is the same store.
-The selected origin must use HTTPS or explicit loopback HTTP. This hook snapshots
+The selected upload origin must use HTTPS with HTTP/2 or HTTP/3 and a browser
+supporting streaming requests. Construction detects missing request-stream support
+before issuance; HTTP/1.x negotiation fails without a buffered fallback. Local
+Chromium evidence uses a temporary certificate pinned only to owned TLS fixtures.
+This hook snapshots
 opaque PUT bodies/headers, confines requests to that origin, refuses redirects,
 omits cookies and records fingerprints. It neither builds nor interprets Caffeine
 trees, chunks, certificates, namespace fields or provider completion responses.
@@ -164,8 +235,29 @@ body, 4096 URL characters and 16 headers totalling at most 4096 name/value chara
 The required `maxTotalRequestBytes` independently caps summed body bytes across
 all claims and cannot exceed `maxRequests * maxRequestBytes`. Committed claims
 consume this budget even when dispatch or its response is uncertain; it is never
-refunded by an HTTP observation. This bounds outbound traffic, not provider charges.
-Bodies must be strings or Uint8Arrays. Responses are bounded to 64 KiB with a
+refunded by an HTTP observation. This bounds bodies passed to the guarded fetch
+hook, not all network transmissions or provider charges. SDK retries are disabled.
+Incoming bodies must be strings or Uint8Arrays; the fingerprinted snapshot is
+emitted once through an immediately closed ReadableStream with `duplex: 'half'`.
+The optional trusted fetch hook must preserve this stream and must not buffer,
+clone, retry or redirect the request. Application headers, method, URL and payload
+remain those of the pinned Caffeine SDK; this does not introduce a provider API.
+
+The earlier buffered transport's Chromium 153 diagnostic observes two identical
+chunk PUTs from one claim after a pre-header reset. Current stream checks preserve
+one uncertain claim and one arrival on owned HTTP/2 connection-close, immediate
+data-close and REFUSED_STREAM cuts; buffered fetch, keepalive:false and XHR controls
+repeat. The complete standalone journey also recovers the original pre-header
+loss without another upload dispatch. This is a tested mitigation, not an
+exactly-once wire or replay-charge guarantee: Chromium has an internal stream
+replay cache, and other timings, browsers, HTTP/3, intermediaries and the deployed
+gateway remain unqualified. See the [repair ledger](../../docs/evidence/caffeine-probes/README.md#browser-replay-repair--2026-10-02).
+Anonymous [gateway metadata](../../docs/evidence/caffeine-probes/deployed/2026-10-02-gateway-stream-01/summary.json)
+observes HTTP/2 and successful PUT preflights for both SDK endpoints. This advertises
+CORS support; it does not establish acceptance of streamed authenticated bodies.
+The additional advertised X-Dry-Run header has unqualified semantics and is unused.
+Run owned transport checks with `make test-browser-transport
+BLOB_BROWSER_TRANSPORT_REPORT=NEW_DIRECTORY`. Responses are bounded to 64 KiB with a
 20-second request deadline. The fixture selects two requests, 1 MiB per body and
 2 MiB in total.
 These are local transport limits, not provider limits or evidence of accepted size.
@@ -192,10 +284,19 @@ responses block further requests. Late responses may update history but cannot
 clear cancellation or allow the next request. Local cancellation after a claim
 cannot recall its dispatch. Certificate recovery does not change gateway history.
 
+An uncertain upload response does not prove the provider lacks the object. With
+the separately approved read budget and configured verifier, use `observe-upload`
+on the original permission to check complete bytes, then explicitly submit that
+saved statement. This is reconciliation, never a new upload or an automatic
+retry. Tenant withdrawal cannot erase an already stored object; if it is later
+confirmed, retain its obligations and explicitly release its exact reference.
+Consumers must preserve this cleanup intent when an application cancels publication.
+
 The caller must validate and retain these bounded records together with certificate
 intent and cancellation. Do not evict, reset or restore an old row to regain an
-execution token or capacity. The two-slot IndexedDB fixture demonstrates transactions,
-tab loss and reload, not production eviction, disk durability or rollback recovery.
+execution token or capacity. The maintained IndexedDB store demonstrates transactions,
+tab loss, reload and graceful browser restart, not power-loss durability, eviction
+or rollback recovery in a production environment.
 Provider reconciliation, completion, accounting and production application storage
 remain required before live use. `GatewayRefusal.code` reports local refusals;
 HTTP status alone proves neither stored content nor absence of a paid effect.

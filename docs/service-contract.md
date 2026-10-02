@@ -1,10 +1,30 @@
-# Service contract — B1 draft
+# Service contract
 
-The maintainer has started the 0.2 service phase after 0.1.19. The
-[delivery plan](roadmap.md) owns its milestones and current consumer decisions;
-the constraints and evidence requirements below still apply. Candidate service
-configuration validation composes existing local models without installing state,
-freezing a stable schema or claiming that the B1 provider/recovery gates are closed.
+This defines the maintained library and standalone operating contract. The
+[delivery plan](roadmap.md) owns milestones and current consumer decisions.
+Candidate validation composes the local models without installing state or
+proving provider behavior. Library publication and live service acceptance are
+separate.
+
+## Restricted certificate issuance — accepted 2026-10-02
+
+The maintainer accepted the [first standalone contract](standalone-trial.md).
+The maintained issuance policy requires explicit installed uploader trust, an
+exact local service/namespace mapping, one lifetime tenant/object/reference and
+positive byte budgets no larger than 1 KiB, a current owner and atomic exposure
+commit. The uploader must also hold the exact original tenant permission and
+prepared manifest. Controller/operator status grants none of that authority.
+No public uploader, automatic paid retry, provider spending-cap/replay guarantee
+or operational old-backup activation is supported. Stop/start preserves the owner;
+same-release upgrade restoration is inspection-only. An older management snapshot
+restores heap authority too and cannot safely resume operation.
+
+Provider provisioning, account controls, retention, deletion and billing cessation
+remain separate observed facts. Trusted participants and a small admitted object
+do not prove those facts or enforce a maximum external bill. The 100T-cycle total
+planning ceiling is independent of actual target selection and paid-effect authority.
+This replaces the former provider-qualification gate directly in a minor release:
+no alternate mode, manually true flags, compatibility reader or v2 schema.
 
 ## Explicit verifier completion trust — accepted 2026-09-29
 
@@ -33,8 +53,8 @@ Controller/operator/gateway status grants no implicit verifier authority. The
 current v1 host/lifecycle schemas change directly, requiring a minor release and
 cross-release reinstall. The existing trusted-host bookkeeping primitive remains
 explicitly distinguishable from a verifier receipt; no receipt is invented for it.
-Standalone certificate/exposure integration now exists but remains blocked by
-independent provider and recovery qualification before end-to-end use.
+Standalone certificate/exposure integration uses the restricted local contract
+above; live end-to-end acceptance remains open.
 See the [probe ledger](evidence/caffeine-probes/README.md)
 for local transaction evidence and the [host contract](../canisters/standalone/README.md)
 for endpoint usage.
@@ -106,7 +126,7 @@ mapping with its unchanged configuration grant, range and bucket policy. Managed
 composition is described below; complete endpoint parity remains unqualified.
 
 `ops::service::installation::ValidatedServiceInstallation` also validates the
-explicit project, verifier and bounded host-compiled release before allocation.
+explicit project, verifier, trusted uploader and bounded host-compiled release before allocation.
 `ServiceInstallation` owns the immutable current configuration record and the
 four service owners. Fresh installation preflights all seventeen exclusive grants;
 the host must propagate any subsequent trap for IC rollback. Restoration checks
@@ -114,7 +134,8 @@ the retained schema, actual service and compiled release before opening owners,
 revalidates all installed inputs and returns only after every owner is fenced.
 Missing or invalid state is never initialized or repaired. Configuration remains
 immutable; getters grant no endpoint, tenant or operational recovery authority.
-Standalone now uses this owner, preserving its public DTOs, Candid and v1 schema.
+Standalone uses this owner; current DTOs/Candid and the v1 record now include
+required immutable uploader trust without cross-release compatibility.
 
 The [standalone host](../canisters/standalone/README.md) now explicitly owns these
 hooks and grants and delegates configuration persistence to the shared owner. Its actual IC
@@ -122,18 +143,21 @@ installation validates all inputs before allocation; same-release upgrade restor
 loads the saved service/release-bound configuration without replacement arguments
 and fences every owner synchronously. Its tenant, admission, manifest and reference
 endpoints delegate to shared workflows, with bounded typed Candid and operator-only
-configuration readback. Standalone installation takes `HostInstallationInput`:
-shared `ServiceConfigurationInput` plus a required explicit Caffeine project. The
+configuration readback. Standalone installation takes the core's passive
+`ServiceInstallationInput`:
+shared `ServiceConfigurationInput` plus required explicit Caffeine project,
+completion verifier and trusted certificate uploader. The
 host binds owner to its actual service and project to the installed local namespace,
 validates before allocation and retains/revalidates the mapping in its current v1
 record. Configuration readback includes the project. This host init/schema hard cut
 requires a minor release and cross-release reinstall, without a migration path.
 It establishes no provider project assignment. This host exports no provider-fact
-substitutes or enabled certificate issuance. Actual local management snapshot tests
+substitutes; actual restricted issuance derives only local prerequisites. Management snapshot tests
 show that loading an old snapshot bypasses these hooks, restores its heap owner and
 can clear a later fence, undo revocation and lose later upload reservations. Snapshot
 loading remains unsupported for operation; `fenced = false` proves no independent
-freshness. The disabled certificate gate survives this rollback. See the
+freshness. Restricted local eligibility can also return after rollback, so old
+snapshot activation is outside the accepted contract. See the historical
 [recorded recovery evidence](evidence/caffeine-probes/local/2026-09-30-snapshot-01/summary.json).
 Operational recovery and remaining provider/operator integration are still open.
 
@@ -477,9 +501,9 @@ identity allocation and implements no provider upload or browser delivery policy
 
 `workflow::uploads::exposure` supplies read-only preparation inspection, guarded
 synchronous commit and exact tenant/uploader history. Its host evidence binds the
-full original permission and separately reports pre-charge size/tree/chunk limits,
-provider owner/project/bucket binding, replay/lifetime/charging, recovery eligibility
-and atomic durable commit. These facts must be established independently in the
+full original permission and separately reports restricted lifetime/body bounds,
+explicit local namespace mapping, installed uploader trust, current-owner eligibility
+and atomic durable commit. These facts must be established from the installed owner in the
 current execution, never accepted from production ingress. Timestamp mismatch blocks
 exposure; equal time is not proof of freshness or provenance. All missing host
 prerequisites remain visible. Commit rechecks current uploader, bound manifest,
@@ -526,10 +550,11 @@ evidence is constructed internally from the retained permission and execution
 clock; callers cannot submit qualification flags. Atomic local durability is
 established by synchronous shared commit and trap propagation. Deployed pre-charge
 limits, namespace provisioning/enforcement, replay charging and independent recovery
-readiness remain unqualified, so the update always refuses under current host facts.
-Prepared manifests, installed project text, verifier authority and a clear local
-restore fence do not satisfy those missing facts. This integrates the boundary
-without enabling provider effects or adding a configuration/state schema.
+readiness remain unqualified and outside the accepted restricted issuance contract.
+The host now derives local prerequisites through the shared installation owner,
+issues only within the one-object/1 KiB envelope and explicitly installed uploader
+trust, and commits possible exposure before replying. An empty query does not
+reserve issuance. Its current v1 record/readback includes that uploader identity.
 
 Headless Rust tests obtain the actual v4 HTTP ingress certificate using a signing
 identity, then verify the IC signature/delegation/time and exact request ID under
@@ -543,21 +568,33 @@ storage and deployed provider acceptance remain independent requirements.
 The reusable `clients/browser` certificate transport accepts caller-supplied
 identity, IC trust and atomic durable intent storage. It snapshots original
 permission and full-width operation identity, binds stored intent to the IC origin
-and root key, and rechecks the envelope's uploader/service/method/root before
+and root key, and retains explicit project/bucket before issuance. Transfer derives
+the SDK namespace from that binding; changed values conflict across setup/reopening.
+Native `upload-inputs` requires these original values and a complete installation
+carrier. Shared validation checks proposed service/namespace/project/trusted uploader
+and resource bounds, preserves exact init bytes and checks UTF-8/header bounds.
+This does not observe actual installed state or remaining capacity; neither offline
+validation nor local storage proves provider provisioning.
+The client rechecks the envelope's uploader/service/method/root before
 recovery. It issues once after durable claim or reads historical status without
 redispatch. Cancellation cannot recall an already claimed request, renew permission
 or free service capacity. The private source package contains no test identity,
-provider wire implementation, allocator or production store. Its [store contract](../clients/browser/README.md)
-still requires consumer integration and restore/eviction qualification.
+provider wire implementation or allocator. Its maintained bounded IndexedDB journal
+implements the [store contract](../clients/browser/README.md); consumer integration,
+environment selection and restore/eviction qualification remain separate.
 
-The private Chromium fixture imports that transport and adds a bounded two-slot IndexedDB store for full
+The private Chromium fixture imports that transport and the maintained IndexedDB store, selecting two slots for full
 permission, exact signed envelope/request ID, dispatch phase and cancellation.
 Transactions finish before fetch and serialize competing tabs; aborted writes
 dispatch nothing. Reload/read-state recovery preserves original identity, while
 late verified replies cannot clear cancellation. Response bodies are bounded before
 SDK decoding. Its tests reject forged/unrelated proofs, conflicting saves and
 capacity exhaustion without erasing retained history. This is local browser
-evidence, not an eviction/crash/backup guarantee or a production consumer journal.
+evidence, not an eviction/power-loss/backup guarantee or qualified consumer environment.
+The journal independently refuses missing/conflicting stores and malformed history,
+retains fixed lifetime capacity and serializes strict commits across tabs. Actual
+graceful browser-process restart preserves cancellation and gateway requests; no
+replay, reset or automatic replacement is available after missing history.
 The certificate guard itself sends no gateway request and performs no automatic
 provider retry or publication transition.
 
@@ -1351,7 +1388,8 @@ horizons. Assign the acceptance cases to accountable owners.
 | Accounting | Service maintainer | Deduplication choice, logical/physical quota basis, reservation/release timing, race-safe counters and ownership of costs until deletion and billing cessation |
 | Existing obligations | Each affected installation operator | External objects, uploads, uncertain paid effects, balances and billing inventory; no-obligation evidence or completed owned decommission/disposition before reset |
 
-Caffeine is the selected integration target but is not yet qualified. Missing exact
+Caffeine is the selected integration target; general production qualification
+remains open beyond the accepted restricted prototype. Missing exact
 retry binding, authoritative completion evidence, adequate evidence retention,
 a safe uncertain-result disposition, or required deletion/billing-cessation
 proof disqualifies the provider for the required contract. Provider evidence

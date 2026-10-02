@@ -1,0 +1,83 @@
+{
+  "schema": 1,
+  "date": "2026-10-02",
+  "class": "actual_local_standalone_interruption_and_browser_transport_observation",
+  "baseline_release": "0.5.0",
+  "baseline_commit": "03715ebecc608f6f679ca0e753fc95a8fd5eae7b",
+  "artifact_capture": ".tmp/standalone-interruption-01",
+  "intent": "intent.txt",
+  "change": "Maintain lost final response-body and withdrawal/late-completion scenarios through actual host, browser journal, native verifier and explicit release; record independent pre-header transport retransmission finding",
+  "contract": {
+    "product_semantics_changed": false,
+    "core_abi_or_stable_schema_changed": false,
+    "new_owner": false,
+    "provider_wire_added": false,
+    "version_mutated": false,
+    "canic_work": "deferred"
+  },
+  "checks": {
+    "strict_affected_integration_lint": {
+      "passed": true,
+      "log": "integration-clippy-corrected.log"
+    },
+    "standalone_journeys": {
+      "passed": true,
+      "log": "standalone-trials-body-loss.log",
+      "seconds": 17.84,
+      "scenario_records": [
+        "success.json",
+        "corrupt.json",
+        "lost-final.json",
+        "withdrawn.json"
+      ]
+    },
+    "formatting": {
+      "passed": true,
+      "log": "fmt-check.log"
+    },
+    "diff_check": {
+      "passed": true,
+      "log": "diff-check.log"
+    }
+  },
+  "facts": [
+    "Final received chunk with truncated 200 response body records SDK failure and uncertain gateway claim; certificate reload/recovery does not change gateway history",
+    "Actual same-owner stop/start preserves configuration/exposure; independently verified content can be attested/downloaded without a new upload dispatch",
+    "Withdrawn exposed work can be reconciled; explicit reference release ends liveness, exact attestation replay leaves it inactive",
+    "Logical release retains 1024 physical/liability bytes, while cancellation retains journal claims and original uncertainty",
+    "A separate failed pre-header reset experiment observes a byte-identical chunk retransmission below the hook: three loopback PUT arrivals from two journal claims with disabled SDK retries"
+  ],
+  "provider_substitutes": {
+    "gateway": "Owned loopback retains received SDK bytes; actual response-body truncation and before-header reset cuts are distinct",
+    "account": "Candidate fixture; no external account or Cashier call",
+    "successful_cases_total_put_arrivals": 8,
+    "successful_cases_total_gets": 6,
+    "max_put_body_bytes": 65536,
+    "max_total_claimed_put_body_bytes_per_owner": 131072,
+    "fetch_dispatches_per_owner": 2,
+    "exact_wire_attempt_budget_qualified": false
+  },
+  "artifacts": {
+    "cli_sha256": "b1add86d4b7ada950eaf2936334e059b9943b1d8e5d175b577c287288e3ed986",
+    "standalone_wasm_sha256": "7b93fd6588b325f2cd06d1dde2cc02ab705f5ef682712029b2dfa1fabba9b00a",
+    "unchanged_cli_wasm_sdk_bundle": true,
+    "source_hashes": "source-hashes.json",
+    "failed_attempts": "failures.json",
+    "transport_diagnostic": "transport-diagnostic.json"
+  },
+  "limitations": [
+    "No deployed gateway/provisioning/retention/deletion/billing-cessation or replay-charge qualification",
+    "Fetch-hook budgets do not bound browser transport retransmissions; no exactly-once wire or financial cap",
+    "Tenant withdrawal does not recall a certificate or cancel already stored-byte obligations; application cancellation needs exact release intent",
+    "No production authentication/browser-profile selection, old snapshot activation or eviction/power-loss guarantee",
+    "No full CI, minimum compiler rerun, release/commit/deployment/funding/sibling change/build cleanup"
+  ],
+  "live_effects": {
+    "provider_queries": 0,
+    "provider_object_requests": 0,
+    "account_mutations": 0,
+    "deployed_canisters": 0,
+    "payments": 0
+  },
+  "cleanup": "Owned fixture processes close; controlled artifacts remain and no external obligations are created"
+}

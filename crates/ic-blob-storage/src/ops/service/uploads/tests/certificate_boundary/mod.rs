@@ -103,13 +103,13 @@ fn certificate_root_is_a_locator_and_never_caller_or_evidence_authority() {
         context(5),
         &root,
         crate::policy::upload::exposure::UploadExposureHostEvidence {
-            precharge_limits: false,
+            trial_bounds: false,
             ..yes
         },
         2,
     )
     .unwrap_err();
-    assert!(matches!(blocked, F::Blocked(a) if a.blockers == [B::PrechargeLimits]));
+    assert!(matches!(blocked, F::Blocked(a) if a.blockers == [B::TrialBounds]));
     assert_eq!(*m.permissions.borrow(), before);
     assert_eq!(
         certificate::resolve(&store, context(5), &root, 100),
@@ -153,10 +153,10 @@ fn certificate_assessment_reports_exact_permission_and_all_missing_facts_without
     let root = host.permission.request.object.root.to_string();
     let before = m.permissions.borrow().clone();
     host.observed_at_ns = 1;
-    host.precharge_limits = false;
-    host.provider_namespace = false;
-    host.replay_charging = false;
-    host.recovery_ready = false;
+    host.trial_bounds = false;
+    host.namespace_binding = false;
+    host.trusted_uploader = false;
+    host.current_owner = false;
     host.durable_commit = false;
     let result = certificate::inspect(&store, context(5), &root, host, 2).unwrap();
     assert_eq!(result.permission, manifest_boundary::input().permission);
@@ -165,10 +165,10 @@ fn certificate_assessment_reports_exact_permission_and_all_missing_facts_without
         result.blockers,
         vec![
             C::StaleObservation,
-            C::PrechargeLimits,
-            C::ProviderNamespace,
-            C::ReplayCharging,
-            C::Recovery,
+            C::TrialBounds,
+            C::NamespaceBinding,
+            C::TrustedUploader,
+            C::CurrentOwner,
             C::Durability
         ]
     );

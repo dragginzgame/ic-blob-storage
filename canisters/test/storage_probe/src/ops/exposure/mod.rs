@@ -101,10 +101,10 @@ fn substitute(
         } else {
             now
         },
-        precharge_limits: established,
-        provider_namespace: established,
-        replay_charging: established,
-        recovery_ready: established,
+        trial_bounds: established,
+        namespace_binding: established,
+        trusted_uploader: established,
+        current_owner: established,
         durable_commit: established,
     })
 }

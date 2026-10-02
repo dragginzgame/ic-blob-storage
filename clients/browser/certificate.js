@@ -1,6 +1,7 @@
 import { HttpAgent, Certificate, Cbor, requestIdOf, lookupResultToBuffer } from '@icp-sdk/core/agent';
 import { Principal } from '@icp-sdk/core/principal';
 import { IDL } from '@icp-sdk/core/candid';
+import { validNamespace } from './namespace.js';
 
 const METHOD = '_immutableObjectStorageCreateCertificate';
 const encoder = new TextEncoder();
@@ -32,6 +33,7 @@ export async function createCertificateClient({ host, identity, rootKey, binding
   const saved = structuredClone(binding);
   saved.icOrigin = endpoint.origin;
   saved.icRootKey = Array.from(trustRoot);
+  require(validNamespace(saved.project, true) && validNamespace(saved.bucket), 'namespace');
   for (const field of ['service', 'tenant', 'uploader']) {
     require(typeof saved[field] === 'string' &&
       Principal.fromText(saved[field]).toText() === saved[field], 'principal');
@@ -55,7 +57,7 @@ export async function createCertificateClient({ host, identity, rootKey, binding
   const copyBinding = () => structuredClone(saved);
   function bound(row) {
     require(row?.key === saved.key && row.binding &&
-      ['key', 'service', 'tenant', 'uploader', 'operation', 'root', 'icOrigin'].every(field =>
+      ['key', 'service', 'tenant', 'uploader', 'operation', 'root', 'project', 'bucket', 'icOrigin'].every(field =>
         row.binding[field] === saved[field]) && Array.isArray(row.binding.permission) &&
       same(row.binding.permission, saved.permission) && Array.isArray(row.binding.icRootKey) &&
       same(row.binding.icRootKey, saved.icRootKey), 'intent-binding');

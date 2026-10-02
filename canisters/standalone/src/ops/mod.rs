@@ -1,11 +1,10 @@
 //! Synchronous host lifecycle and borrowing of the shared installation owner.
 pub(crate) mod account;
-pub(crate) mod certificate;
 pub(crate) mod gateways;
 mod memory;
-use crate::dto::HostInstallationInput;
 use candid::{CandidType, DecoderConfig, Deserialize};
 use ic_blob_storage::{
+    dto::configuration::ServiceInstallationInput,
     ic_memory::{MemoryRuntime, ic_stable_structures::DefaultMemoryImpl},
     model::service::{
         read::download::CaffeineDownloadScope, upload::completion::CompletionAuthority,
@@ -27,7 +26,7 @@ struct Host {
 thread_local! {
     static HOST: RefCell<Option<Host>> = const { RefCell::new(None) };
 }
-pub(crate) fn install(input: &HostInstallationInput) {
+pub(crate) fn install(input: &ServiceInstallationInput) {
     // The complete candidate is checked before this host bootstraps memory.
     let candidate = ValidatedServiceInstallation::new(
         ic_cdk::api::canister_self(),
@@ -35,6 +34,7 @@ pub(crate) fn install(input: &HostInstallationInput) {
             configuration: input.configuration,
             project: &input.project,
             completion_verifier: input.completion_verifier,
+            trusted_uploader: input.trusted_uploader,
             release: env!("CARGO_PKG_VERSION"),
         },
     )
@@ -153,6 +153,9 @@ pub(crate) fn with_installation<R>(f: impl FnOnce(&ServiceInstallation<Memory>) 
         f(installation)
     })
 }
+pub(crate) fn with_certificate<R>(f: impl FnOnce(&mut ServiceInstallation<Memory>) -> R) -> R {
+    HOST.with_borrow_mut(|host| f(&mut host.as_mut().expect("initialized host").installation))
+}
 fn bounded<T: CandidType + for<'de> Deserialize<'de>>(bytes: &[u8], max: usize) -> T {
     assert!(bytes.len() <= max, "ingress byte bound");
     let mut config = DecoderConfig::new();
@@ -169,7 +172,7 @@ pub(crate) fn decode<T: CandidType + for<'de> Deserialize<'de>>(bytes: Vec<u8>) 
     bounded(&bytes, 4096)
 }
 #[expect(clippy::needless_pass_by_value, reason = "CDK owns ingress buffers")]
-pub(crate) fn decode_configuration(bytes: Vec<u8>) -> HostInstallationInput {
+pub(crate) fn decode_configuration(bytes: Vec<u8>) -> ServiceInstallationInput {
     bounded(&bytes, 16_384)
 }
 #[expect(clippy::needless_pass_by_value, reason = "CDK owns ingress buffers")]

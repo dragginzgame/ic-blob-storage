@@ -32,7 +32,7 @@ fn assessment_validates_the_full_permission_before_root_lookup_and_after_reply()
     let response = UploadCertificateAssessmentResponse {
         permission,
         assessed_at_ns: u64::MAX,
-        blockers: vec![B::PrechargeLimits, B::Recovery],
+        blockers: vec![B::TrialBounds, B::CurrentOwner],
     };
     let bytes = encode_one(Ok::<_, UploadExposureFailure>(&response)).unwrap();
     let maximum = 4096.try_into().unwrap();
@@ -110,7 +110,7 @@ fn assessments_preserve_empty_snapshots_refusals_and_decoder_limits() {
         assessment(p, &encode_one(true).unwrap(), maximum),
         Err(UploadCertificateAssessmentReplyError::Invalid)
     );
-    response.blockers = vec![B::Recovery, B::Recovery];
+    response.blockers = vec![B::CurrentOwner, B::CurrentOwner];
     assert_eq!(
         assessment(
             p,

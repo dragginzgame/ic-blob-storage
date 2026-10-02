@@ -11,6 +11,7 @@ pub(crate) mod capacity;
 pub mod completion;
 pub mod content;
 pub mod download;
+pub mod issuer;
 pub(crate) mod record;
 pub(crate) mod validation;
 pub use capacity::UploadManifestLimit;

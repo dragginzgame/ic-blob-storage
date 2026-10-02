@@ -1,4 +1,6 @@
 use super::*;
+mod installation;
+use ic_blob_storage::dto::configuration::{ServiceConfigurationInput, ServiceInstallationInput};
 use ic_blob_storage::dto::upload::manifest::UploadManifestRequest;
 
 // Independent Caffeine 1.1.2 abc/text vector, also used by the core preparation tests.
@@ -6,7 +8,7 @@ const ROOT: &str = "sha256:0e9afaf413b048e40834d5b0e737d80fbf304af2045c7564d96ad
 const LEAF: &str = "sha256:b5b435d47a4cce7dfec493b1e020c5308d9c7fe90add1aff510f9c2a9c4ea8e7";
 
 fn binding() -> Value {
-    json!({"schema":1,
+    json!({"schema":1, "project":"fixture-project", "bucket":"fixture-bucket",
         "service": Principal::self_authenticating([1]).to_text(),
         "namespace": u128::MAX.to_string(),
         "tenant": Principal::self_authenticating([2]).to_text(),
@@ -19,7 +21,35 @@ fn manifest() -> Value {
     json!({"tree_type":"DSBMTWH", "chunk_hashes":[LEAF],
         "tree":{"hash":ROOT}, "headers":["Content-Length: 3", "Content-Type: text/plain"]})
 }
+fn installation(binding: &Value) -> ServiceInstallationInput {
+    let fixture = include_str!(concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/tests/fixtures/installation/configuration.hex"
+    ));
+    let bytes = fixture
+        .trim()
+        .as_bytes()
+        .as_chunks::<2>()
+        .0
+        .iter()
+        .map(|pair| u8::from_str_radix(std::str::from_utf8(pair).unwrap(), 16).unwrap())
+        .collect::<Vec<_>>();
+    let mut configuration: ServiceConfigurationInput = candid::decode_one(&bytes).unwrap();
+    configuration.service = principal(binding["service"].as_str().unwrap()).unwrap();
+    configuration.namespace = u128::MAX;
+    ServiceInstallationInput {
+        configuration,
+        project: binding["project"].as_str().unwrap().into(),
+        trusted_uploader: Principal::self_authenticating([3]),
+        completion_verifier: Principal::self_authenticating([4]),
+    }
+}
 fn arguments(base: &Path, binding: &Value, manifest: &Value) -> Vec<String> {
+    std::fs::write(
+        base.join("installation.candid"),
+        candid::encode_one(installation(binding)).unwrap(),
+    )
+    .unwrap();
     std::fs::write(
         base.join("binding.json"),
         serde_json::to_vec(binding).unwrap(),
@@ -43,6 +73,8 @@ fn arguments(base: &Path, binding: &Value, manifest: &Value) -> Vec<String> {
         base.join("output").display().to_string(),
         "--body".into(),
         base.join("body.bin").display().to_string(),
+        "--installation".into(),
+        base.join("installation.candid").display().to_string(),
     ]
 }
 
@@ -83,6 +115,8 @@ fn offline_command_emits_exact_full_width_service_requests_without_network_confi
     assert_eq!(browser["uploader"], permission.uploader.to_text());
     assert_eq!(browser["operation"], permission.upload.upload.to_string());
     assert_eq!(browser["root"], ROOT);
+    assert_eq!(browser["project"], "fixture-project");
+    assert_eq!(browser["bucket"], "fixture-bucket");
     assert_eq!(
         browser["key"],
         format!(
@@ -94,6 +128,15 @@ fn offline_command_emits_exact_full_width_service_requests_without_network_confi
     );
     assert_eq!(report["certificate_binding_sha256"], digest(&browser_bytes));
     assert_eq!(report["body_verified"], true);
+    let init = std::fs::read(output.join("installation.candid")).unwrap();
+    assert_eq!(
+        init,
+        std::fs::read(base.path().join("installation.candid")).unwrap()
+    );
+    assert_eq!(report["installation_sha256"], digest(&init));
+    assert_eq!(report["installation_binding_checked"], true);
+    assert_eq!(report["installed_state_observed"], false);
+    assert_eq!(report["namespace_provisioned"], false);
     assert_eq!(std::fs::read(output.join("body.bin")).unwrap(), b"abc");
     assert_eq!(report["identities_allocated"], false);
     assert_eq!(report["provider_dispatched"], false);
@@ -165,6 +208,17 @@ fn binding_requires_canonical_strings_current_schema_and_valid_authority_princip
         ("uploader", json!("2vxsx-fae")),
         ("schema", json!(2)),
         ("unexpected", json!(true)),
+        ("project", json!("")),
+        ("project", json!(" surrounding ")),
+        ("project", json!("line\nbreak")),
+        ("project", json!("β")),
+        ("project", json!("\u{0085}")),
+        ("project", json!("a".repeat(257))),
+        ("bucket", json!("")),
+        ("bucket", json!(" padded ")),
+        ("bucket", json!("\u{0085}")),
+        ("bucket", json!("a".repeat(257))),
+        ("bucket", json!("\u{feff}bucket")),
     ] {
         let base = tempfile::tempdir().unwrap();
         let mut changed = binding();
@@ -175,6 +229,30 @@ fn binding_requires_canonical_strings_current_schema_and_valid_authority_princip
             Err(Failure::Arguments)
         ));
         assert!(!base.path().join("output").exists());
+    }
+}
+
+#[test]
+fn namespace_byte_bounds_preserve_header_compatible_project_and_utf8_bucket() {
+    let base = tempfile::tempdir().unwrap();
+    let mut input = binding();
+    input["project"] = json!("é".repeat(128));
+    input["bucket"] = json!("β".repeat(128));
+    let args = arguments(base.path(), &input, &manifest());
+    crate::native::execute(&args).unwrap();
+    let browser: Value = serde_json::from_slice(
+        &std::fs::read(base.path().join("output/certificate-binding.json")).unwrap(),
+    )
+    .unwrap();
+    assert_eq!(browser["project"], input["project"]);
+    assert_eq!(browser["bucket"], input["bucket"]);
+    for field in ["project", "bucket"] {
+        let rejected = tempfile::tempdir().unwrap();
+        let mut oversized = input.clone();
+        oversized[field] = json!("é".repeat(129));
+        let args = arguments(rejected.path(), &oversized, &manifest());
+        assert_eq!(crate::native::execute(&args), Err(Failure::Arguments));
+        assert!(!rejected.path().join("output").exists());
     }
 }
 

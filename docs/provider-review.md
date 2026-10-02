@@ -54,8 +54,11 @@ availability statement; provider receipt semantics remain unqualified.
 The maintainer requested reuse of Caffeine's implementation rather than another
 browser upload stack. **Reuse upstream's file preparation and gateway transfer;
 keep local code focused on service authority and durable operation coordination.**
-Do not expand `clients/browser` into a second hashing/chunking/upload SDK or promote
-the two-slot test store into a production journal as the default next task.
+Do not expand `clients/browser` into a second hashing/chunking/upload SDK. The later
+accepted restricted standalone trial needs persistent exact-intent storage: the
+[maintained journal](../clients/browser/README.md#durable-intent-store-contract)
+now implements that narrow coordination boundary and replaces fixture duplication.
+Local tab/restart evidence does not qualify a production persistence environment.
 
 This assessment rechecks npm latest **1.1.2** and official main
 `ee8e3dda39b105f95133256144172a4506e841a8`. The published archive was downloaded,

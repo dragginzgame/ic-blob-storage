@@ -7,9 +7,9 @@ installation scope and original saved requests.
 
 | Task | Command | Effect |
 | --- | --- | --- |
-| Check a complete proposed installation | `installation-check` | Offline shared validation, exact configuration snapshot and summary |
+| Check a complete proposed installation | `installation-check` | Offline shared validation, exact configuration and complete init bytes with hashes |
 | Prepare an explicit Cashier account link | `account-link-inputs` | Offline Candid and summary; no signature, submission or funding |
-| Save verified upload bytes and service requests | `upload-inputs` | Offline root verification and fresh private files |
+| Save verified upload bytes and service requests | `upload-inputs` | Offline installation consistency/root verification and fresh private files |
 | Reserve, prepare or withdraw an exact upload | `admit-upload`, `prepare-upload`, `revoke-upload` | One local service update and saved signed intent; no provider call |
 | Recover original permission or manifest | `upload-permission`, `upload-manifest` | Signed exact query; never redispatches |
 | Inspect local counters and restore fences | `status` | Signed service query |
@@ -50,10 +50,11 @@ See [tenant reference evidence](evidence/core-primitives.md#managed-signed-tenan
 
 ## Check installation inputs offline
 
-`installation-check` checks the same complete candidate used by both hosts,
+`installation-check` checks the complete shared installation candidate,
 including service/operator/payer bindings, portable quotas, reference cleanup
-capacity, funding reserves, read limits, project and trusted verifier. It does
-not open memory or construct either host's init carrier.
+capacity, funding reserves, read limits, project, trusted verifier and trusted
+certificate uploader. It emits the complete shared `ServiceInstallationInput`
+without opening memory or dispatching installation.
 
 Prepare one `ServiceConfigurationInput` using the maintained Candid type and your
 explicitly reviewed values. Candid numeric literals preserve u128 widths; quote
@@ -70,25 +71,42 @@ cargo build --offline --locked -p ic-blob-storage-cli --bin blob-storage
 target/debug/blob-storage installation-check \
   --configuration trial-configuration.candid --service "$SERVICE" \
   --project "$PROJECT" --verifier "$VERIFIER" --release "$HOST_RELEASE" \
+  --trusted-uploader "$UPLOADER_PRINCIPAL" \
   --run-dir .tmp/trial-installation-check
 ```
 
 The command accepts at most 16 KiB of Candid with one exact typed value, bounded
 decode work, no skipped fields and no trailing values/bytes. Unknown or repeated
 CLI options refuse. Complete semantic validation precedes creation of a new
-private directory containing the original `configuration.candid` and hashed
-`summary.json`; existing or partial output is never replaced. The report keeps
-full-width namespace as a decimal string and labels authority/effect facts false.
+private directory containing the original `configuration.candid`, complete
+`installation.candid` and `summary.json` with both byte hashes; existing or partial
+output is never replaced. The report keeps full-width namespace as a decimal
+string. `host_init_encoded` is true; authentication, actual platform identity,
+compiled release and effect facts remain false.
 It is a local proposal, not a deployment permit or recovery journal.
 
 The supplied service and release are planned inputs. Deployment must independently
-check the actual canister and compiled artifact. Standalone takes
-`HostInstallationInput { configuration, project, completion_verifier }`; shared
-configuration alone is not its init argument. External consumer wrappers own
-their initialization carrier and must preserve the complete shared validator,
-actual service binding and transport/semantic limits.
+check the actual canister and compiled artifact. Standalone takes the core's
+`ServiceInstallationInput { configuration, project, completion_verifier, trusted_uploader }`;
+`installation.candid` is its exact init argument. `configuration.candid` alone is
+insufficient. Independently decode the generated carrier before installation:
+
+```sh
+perl -0777 -ne 'print unpack("H*", $_)' .tmp/trial-installation-check/installation.candid |
+  didc decode --defs canisters/standalone/service.did --types '(ServiceInstallationInput)'
+```
+
+Compare the decoded values and both file hashes with the finalized plan. No
+identity credential is embedded. External consumer wrappers can import the same
+passive DTO without depending on the standalone crate; wrappers still own their
+initialization hooks and preserve the complete validator, actual service binding,
+compiled release and transport/semantic limits.
 
 ## Isolated upload/download trial plan
+
+The [accepted standalone trial contract](standalone-trial.md) bounds one 1 KiB
+upload and records the maintainer's 100T-cycle total budget, restricted lifecycle,
+unselected account/identity bindings and remaining provider observations.
 
 Use one new isolated storage owner and its existing local journals. No existing
 installation/account is selected; keep existing installations and obligations
@@ -100,16 +118,16 @@ wrapper. This repository supplies no framework adapter or integration suite.
 | --- | --- | --- |
 | Bind the trial | Select host, controller/deployer, operator, tenant, uploader, verifier, explicit payer, Cashier, project/bucket, gateway origin and cleanup owner | Exact identities, namespace assignment and separately authorized creation/deployment; no implicit account or role defaults |
 | Freeze local inputs | Run `installation-check`, prepare `account-link-inputs`, bind exact Wasm/Candid/release hashes and choose one known nonempty file of at most 1 KiB | Original configuration/terms/body retained; finalize and recheck actual service principal after authorized creation, before installation; no fixture defaults |
-| Review economics and recovery | Resolve raw price/expiry units, enforced economic exposure, replay/lost-response handling and the supported lifecycle boundary | Evidence for the maintained four certificate facts; a weaker economic contract requires explicit review and a minor semantic release |
+| Review economics and lifecycle | Record raw price/expiry units, selected spending controls, retained uncertainty and the accepted fresh-owner lifecycle | No guaranteed provider spending cap or replay charges; use trusted participants and preserve all continuing obligations |
 | Provision and inspect | After exact action authority, create the isolated owner, recheck configuration against its actual principal, then install and separately submit account/funding actions; inspect configuration, relationship/balance and gateway scope | Actual identities match the finalized plan, namespace is provisioned, obligations and every failed/uncertain action are retained; no automatic retry |
 | Admit and prepare | Use maintained SDK preparation, `upload-inputs`, tenant `admit-upload` and uploader `prepare-upload` | Original snapshot/root/permission match; trusted roles and current certificate assessment checked |
 | Transfer once | After explicit trial authority and qualified host facts, use `createUploadTransfer` with serial/no-retry settings and original binding | One certificate claim; reviewed request/body/time limits and numeric financial exposure; stop on refusal, uncertainty or budget exhaustion |
 | Verify and download | `observe-upload`, `submit-attestation`, then tenant `download`, using separate fresh evidence directories | Whole-body root/length verification and exact trusted receipt; SDK success alone cannot establish completion |
 | Close the trial | Release the exact reference, retain provider object/payment/uncertainty records and assign ongoing reconciliation | Logical release is not physical deletion or billing cessation; retire only under the existing contract |
 
-The first paid transfer remains **stopped**: current hosts report unqualified
-pre-charge limits, namespace, replay charging and operational recovery. This plan
-does not override those facts. Qualification experiments need their own recorded
+The first paid transfer remains **stopped** until exact live targets and effect
+authority are selected. The accepted restricted contract allows local issuance
+without claiming provider pre-charge/replay or old-backup guarantees. Experiments need their own recorded
 intent, selected targets and budget; deployment/account/funding actions need exact
 authority. Public metadata/pricing and client limits do not establish an enforced
 financial ceiling.
@@ -124,6 +142,63 @@ resending. Stop/start retains the owner; upgrades remain inspection-only and
 snapshot activation is unsupported. Local files are not independent freshness
 authority. Keep [trial facts](evidence/caffeine-upload-gates.json) and the
 [service retirement contract](service-contract.md) with final disposition evidence.
+
+## Prepare isolated trial provisioning
+
+Use the [maintained configuration envelope](../canisters/standalone/trial/README.md)
+and private `.tmp/trial-provisioning-01/proposal.json`. The preparation proposes
+`canic-mainnet` solely as deployer/controller/operator, with a fresh repository-local
+principal explicitly sharing payer/tenant/trusted-uploader roles and a distinct
+fresh verifier. No existing signing key or account is read; the default identity
+remains unchanged. Fresh key files are private candidates, not selected authority
+or funded accounts. Before any use, arrange their retention and controlled browser
+handoff; never serve identity files from the trial page or put them in its bundle.
+
+The provider candidates remain Cashier `72ch2-fiaaa-aaaar-qbsvq-cai` and
+`https://blob.caffeine.ai`. A fresh UUID project/bucket and namespace 1 are proposed
+in the private packet. Local representation validation is not provider assignment
+or acceptance. A dedicated persistent browser profile, HTTPS localhost page,
+unique IndexedDB name and one lifetime journal slot are also proposed. Select
+these exact values before issuance and stop on missing or changed history.
+
+| Order | Reviewed operation | Evidence required before the following effect |
+| --- | --- | --- |
+| Create the owner | One detached standalone canister, explicit controller/identity/network and at most the proposed 10T service allocation | Original create intent and ledger request/result; actual principal, fees and cycle balance. A lost result stops creation; inspect the original transaction, never create another to get a cleaner result |
+| Finalize installation | Replace the service placeholder, run installation-check, retain exact source/Wasm/DID/init hashes and inspect installed configuration | Actual host identity/release/roles/project/envelope match; local validation alone is insufficient |
+| Inspect the payer route | Query Cashier's `cycles_ledger_deposit_subaccount_v1` with `sender = isolated payer`; review account info/settings and ledger fees with that same explicitly selected payer | Exact reply/subaccount, caller binding, account existence/creation behavior and credit route established; never derive a Cashier deposit subaccount independently |
+| Prepare ledger funding | If the route is established, propose one bounded donor-to-payer ledger transfer followed by one payer-to-Cashier-subaccount transfer | Exact source/destination/amount/fee/memo/created_at_time and retained transaction identity; include all transfer/sweep fees within the initial provider allocation. No standing approval or automatic refill |
+| Notify and inspect | Separately invoke `cycles_ledger_deposit_notify_v1` with explicit isolated account after the recorded transfer | Raw credited amount, balance and returned ledger block retained; `NothingToDeposit`, `SweepFailed` or missing replies do not justify another transfer. This mutation's reconciliation semantics remain unqualified |
+| Set and link account | After account existence/authority is evidenced, explicitly review zero overdraft/no target auto-refill and prepare `account-link-inputs` for the actual owner | Raw positive daily limit and absolute expiry with evidenced units; authenticated caller is the payer or an evidenced delegate. A daily limit is not a guaranteed total bill cap |
+| Inspect service/provider scope | Maintained scoped relationship/balance inspection and gateway sync, followed by exact configuration readback | Actual paid-canister/payer/raw terms match; accepted project/bucket and gateway scope recorded before the one transfer |
+
+This is a proposed route, not a claim that notification creates an account or that
+arbitrary callers can fund/control another account. The retained Cashier DID has
+deposit-subaccount/notify methods and no explicit account-create method; that
+absence does not prove lazy creation. Query inputs are prepared offline. No
+mutation has been sent. A later separate
+[fresh-candidate observation](evidence/caffeine-probes/deployed/2026-10-02-trial-payer-probe-01/summary.json)
+returns a 32-byte deposit subaccount. Anonymous account-info returns NotAuthorized;
+the same request signed by the fresh payer returns AccountNotFound, with mainnet
+query-signature verification. Retain the provider-returned address, but recheck the
+exact selected binding before any transfer. These observations establish neither
+lazy creation nor notification/mutation authority or credited funds.
+
+The historical [DFINITY integration example](https://github.com/dfinity/immutable-object-storage-example/blob/ef29e8a6e8063c6fe654cac53a3497cab585fefa/README.md)
+describes funded account linkage and a wallet-based top-up. Current
+[IC cycles documentation](https://docs.internetcomputer.org/concepts/cycles/)
+explains ledger transfers and why a ledger cannot make arbitrary cycle-attached
+calls. A direct ledger-deposit route could avoid a wallet/proxy, if Cashier's
+account authorization and credit behavior are evidenced. No new funding endpoint,
+wallet, proxy, Canic dependency or provider client schema is added here.
+
+The 100T total planning ceiling retains the proposed 10T service / 1T initial
+provider / 89T unallocated split. Actual funding amount is still unset pending
+fee/credit observations; no refill is authorized. Select a monitoring window and
+continuing cleanup owner before upload. Reserve-only local attachment policy does
+not cap provider spending, terminate billing or establish old-backup activation.
+Raw expiry units and project acceptance remain open. Retain every intent/outcome
+before advancing and review the exact next effect separately; never run an upstream
+one-shot setup script. See the [preparation evidence](evidence/caffeine-probes/local/2026-10-02-trial-provisioning-01/summary.json).
 
 ## Generate account-link inputs offline
 
@@ -177,6 +252,8 @@ Save `manifestJSON` as `manifest.json`. Supply a `binding.json` with these field
 {
   "schema": 1,
   "service": "SERVICE_PRINCIPAL",
+  "project": "INSTALLED_PROVIDER_PROJECT",
+  "bucket": "SELECTED_PROVIDER_BUCKET",
   "namespace": "1",
   "tenant": "TENANT_PRINCIPAL",
   "uploader": "UPLOADER_PRINCIPAL",
@@ -199,11 +276,21 @@ from the same prepared file; a raw SHA-256 content digest is not a Caffeine root
 
 ```sh
 cargo run --offline --locked -p ic-blob-storage-cli --bin blob-storage -- \
-  upload-inputs --binding binding.json --manifest manifest.json --body source.bin \
+  upload-inputs --installation reviewed-installation/installation.candid \
+  --binding binding.json --manifest manifest.json --body source.bin \
   --max-bytes 10485760 --run-dir new-upload-inputs
 ```
 
-The fresh private directory retains both exact JSON inputs, a verified `body.bin`,
+Use complete `installation.candid` from the reviewed `installation-check` output,
+not its configuration-only file. The command decodes one bounded exact current
+`ServiceInstallationInput`, applies the shared candidate validator and requires
+the original service, local namespace, project and trusted uploader to match.
+The candidate's object/chunk/header bounds constrain preparation alongside the
+caller ceiling. This checks a proposed installation, without observing actual
+installed state, remaining capacity, tenant authority, release or provisioning.
+The host and authenticated service workflows still make those decisions.
+
+The fresh private directory retains exact `installation.candid`, both JSON inputs, a verified `body.bin`,
 `permission.candid`, `manifest.candid`, first-reference `download.candid` and
 `reference-status.candid`, browser `certificate-binding.json`, and a final `summary.json` with input/output
 hashes and the raw content digest. It opens a regular source file once, checks its
@@ -222,6 +309,14 @@ permission Candid as a byte array, and `${service}:${tenant}:${operation}` as
 `key`. Its hash is in the final summary. Load it as `binding` when creating the
 [browser client](../clients/browser/README.md); the application supplies its
 authenticated identity, trusted IC root/origin and durable intent store separately.
+Required project and bucket are also retained in this binding. Project must match
+the candidate carrier; review that carrier against the actual installation and
+bucket against the selected provider account. The offline command cannot prove
+that provisioning. Both require 1–256 UTF-8 bytes,
+no controls or surrounding whitespace; project must fit the SDK HTTP-header
+ByteString contract too. Invalid namespace values refuse before creating output.
+The browser transfer reads these immutable values from the certificate intent,
+so a separate setup argument cannot redirect the same saved upload after a reload.
 The original `permission.candid` remains the input for signed service admission.
 This JSON is neither a certificate nor a ready-to-upload grant, and it contains
 no gateway origin, provider account or qualification override. Keep it with the
@@ -295,9 +390,15 @@ manifest never authorize repeating an uncertain effect.
 Before exposure it cancels the reservation and releases bytes while retaining
 operation/root/manifest history. Escaped effects and confirmed references retain
 their separate obligations; withdrawal is not provider deletion or billing stop.
+An exposed upload may still be independently verified and confirmed after
+withdrawal, so its actual stored bytes can be accounted for. Keep an explicit
+release intent when cancelling publication: once that exact object is confirmed,
+release its reference through `submit-reference`. Attestation replay retains the
+original receipt and does not reactivate a released reference. Inspect liveness
+separately; a revoked upload permission alone does not release a live reference.
 Restored owners permit exact inspection and refuse every mutation. Successful
-setup never issues a certificate or completes an upload: the existing provider,
-recovery and managed-framework issuance gates still apply.
+setup never issues a certificate or completes an upload; installed restricted
+certificate facts and current-owner checks still apply.
 
 ## Download a verified file
 
@@ -681,7 +782,7 @@ succeeded. `pending` and `uncertain` require `reference-receipt` with the saved
 If receipt inspection itself refuses (`reference_unknown`, `reference_unconfirmed`
 or another typed error), the original pending/uncertain outcome stays unresolved.
 Do not replace it with absence or assume non-execution. Standalone tests exercise
-this boundary: its production issuance/exposure path remains disabled, so a
+this boundary with broader installations that refuse restricted issuance; a
 prepared reservation cannot become a successful reference through this command.
 Existing/partial directories refuse, including an interrupted empty claim.
 Preserve them and the original input for reconciliation. A new directory is not
@@ -793,8 +894,10 @@ namespace and original uploader must match before transport. The command signs o
 `blob_upload_certificate_assessment` query, verifies query signatures and decodes
 at most 4 KiB against the complete saved permission, including independent object
 identities and expiry. JSON preserves decimal-string integers, host assessment time
-and every blocker. Prepared standalone uploads currently report `precharge_limits`,
-`provider_namespace`, `replay_charging` and `recovery` as missing prerequisites.
+and every blocker. Restricted issuance reports `trial_bounds`, `namespace_binding`,
+`trusted_uploader`, `current_owner`, `durability` or `stale_observation` when a local
+prerequisite fails. These are not provider charge/provisioning guarantees. Broader
+installations remain usable for local service workflows but fail `trial_bounds`.
 
 Exit 0 means an assessment was observed, including blocked uploads; it never
 authorizes issuance or retry. Even an empty list cannot reserve a later update.
@@ -888,7 +991,7 @@ its installed owner/project and exact original declaration. The command validate
 the signed reply and uses the maintained Caffeine request-target encoder. The host
 must have already recorded exposure. Standalone exposes an uploader-only
 `blob_upload_certificate_assessment(root)` and the canonical certificate update,
-but issuance remains blocked by independent provider/recovery prerequisites; see
+with the accepted restricted trusted-uploader/current-owner contract; see
 the [host contract](../canisters/standalone/README.md).
 Unexposed, confirmed or restored work rejects before any provider GET. Revoked or
 suspended exposed uploads remain eligible for reconciliation.

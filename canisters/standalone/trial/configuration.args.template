@@ -1,0 +1,43 @@
+// Offline proposal only. Replace every named principal with a reviewed exact value.
+// The actual service principal is available only after separately authorized creation.
+(record {
+  "service" = principal "ACTUAL_SERVICE_PRINCIPAL";
+  operator = principal "OPERATOR_PRINCIPAL";
+  payment_account = principal "ISOLATED_PAYER_PRINCIPAL";
+  namespace = 1;
+  resources = record {
+    max_tenants = 1;
+    max_object_bytes = 1024;
+    max_headers = 4;
+    max_header_bytes = 512;
+    max_chunks = 1;
+    max_tenant_chunks = 1;
+    max_objects = 1;
+    max_tenant_objects = 1;
+    max_physical_bytes = 1024;
+    max_liability_bytes = 1024;
+    max_tenant_logical_bytes = 1024;
+    max_references_per_object = 1;
+    max_receipts_per_object = 2;
+    max_active = 1;
+    max_tenant_active = 1;
+  };
+  billing = record {
+    cashier = principal "REVIEWED_CASHIER_PRINCIPAL";
+    reserve = 2000000000000;
+    minimum_balance = 100000000000;
+    target_balance = 1000000000000;
+    max_gateway_entries = 2;
+    max_gateway_unique = 1;
+  };
+  // Reserve the entire local allocation: no service attachment offer is available.
+  // This does not cap provider charges or recall an escaped certificate.
+  funding = record { allocated = 1; reserve = 1; max_attempts = 1; };
+  reads = record {
+    sessions = 1;
+    tenant_sessions = 1;
+    reply_bytes = 1024;
+    bytes = 1024;
+    tenant_bytes = 1024;
+  };
+})

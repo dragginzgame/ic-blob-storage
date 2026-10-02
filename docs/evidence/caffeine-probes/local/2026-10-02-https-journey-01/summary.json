@@ -1,0 +1,369 @@
+{
+  "schema": 1,
+  "date": "2026-10-02",
+  "evidence": "actual_local_standalone_chromium_native_https_journeys",
+  "capture": ".tmp/https-journey-01",
+  "provider": "One owned TLS HTTP/2 origin serves browser uploads and both native readers using the actual uploaded bytes",
+  "result": "Four restricted journeys pass with normal native TLS validation and explicit CLI HTTP/2 support",
+  "trust": "Generated test-only CA plus CA:FALSE server leaf with IP SAN; public CA passed to individual Linux CLI children via SSL_CERT_FILE; browser pins leaf SPKI; no production verification bypass",
+  "nativeDependencies": {
+    "reqwest": "0.13.5",
+    "explicitFeatures": [
+      "rustls",
+      "http2"
+    ],
+    "h2": "0.4.19",
+    "hyper": "1.11.1",
+    "dependencyVersionsChanged": false,
+    "h2AndHyperDeclaredRustVersion": "1.63",
+    "cliDeclaredRustVersion": "1.88",
+    "compilerUsed": "1.99.0",
+    "minimumCompilerRerun": false,
+    "featureGraphBefore": ".tmp/gateway-stream-review-01/reqwest-features-before.txt",
+    "featureGraphAfter": ".tmp/https-journey-01/reqwest-features-after.txt",
+    "icMemory": "0.15.2",
+    "maintainerMemoryChangePreserved": true
+  },
+  "limits": {
+    "freshOwners": 4,
+    "bodyBytesPerOwner": 1024,
+    "putArrivalsPerOwner": 2,
+    "totalGetArrivals": 7,
+    "refusedGetArrivals": 1,
+    "unrelatedRootGetArrivals": 0,
+    "browserDeadlineSeconds": 90,
+    "nativeDeadlineSeconds": 30
+  },
+  "journeys": [
+    {
+      "name": "success",
+      "browser": "153.0.8010.12",
+      "outcome": "passed",
+      "uploadOrigin": "https://127.0.0.1:33345",
+      "downloadOrigin": "https://127.0.0.1:33345",
+      "protocol": "h2",
+      "putArrivals": [
+        {
+          "bytes": 4784,
+          "path": "/v1/blob-tree/",
+          "sha256": "c0c590421b4376653698251833c98e2658bb8f5f17a494a4244ceb01366cf0cb"
+        },
+        {
+          "bytes": 1024,
+          "path": "/v1/chunk/?owner_id=dllsh-pd777-77776-qaaaa-cai&blob_hash=sha256%3Ad53964e58575f66aa53db95000c2d48152b0bf2f22da88274a85788efd5a3b6e&chunk_hash=sha256%3A93beaf743566f9e55d341b9fdcab54250bd8b391f0fab18837ba25accf22a387&chunk_index=0&bucket_name=local-standalone-trial&project_id=standalone-trial",
+          "sha256": "b2256110f2c4226de0008dd4382a388e033f211b617bd3237135ab1d59a722b6"
+        }
+      ],
+      "getArrivals": 3,
+      "journalClaims": 2,
+      "journalPhases": [
+        "responded",
+        "responded"
+      ],
+      "cancelled": false,
+      "uploadAcknowledged": true,
+      "contentSha256": "b2256110f2c4226de0008dd4382a388e033f211b617bd3237135ab1d59a722b6",
+      "maintainedOutcome": {
+        "attestation_accepted": true,
+        "billing_cessation_established": false,
+        "browser_journal": "maintained_one_slot_indexeddb",
+        "certificate_issuer": "actual_installed_standalone_facts",
+        "content_bytes": 1024,
+        "content_digest": "sha256:b2256110f2c4226de0008dd4382a388e033f211b617bd3237135ab1d59a722b6",
+        "evidence": "actual_standalone_chromium_native_local_provider_substitute",
+        "independent_observation": true,
+        "liability_bytes_retained": 1024,
+        "live_provider_requests": 0,
+        "paid_effects": 0,
+        "physical_bytes_retained": 1024,
+        "provider_deletion_established": false,
+        "reference_released": true,
+        "schema": 1,
+        "tenant_download_verified": true
+      },
+      "publicRootSha256": "b8c687b0028538ba222be26dacbbef4011d80b30c64cc3766c45d90c5ff7a8f3",
+      "privateSource": ".tmp/https-journey-01/trials-01/success/browser-result.json",
+      "privateSourceSha256": "372fce5b08c0829f1146a016b49acae2be89a9abd1c043ff9f779b375011202f",
+      "privateOutcome": ".tmp/https-journey-01/trials-01/success/summary.json",
+      "privateOutcomeSha256": "1bde1f27903853cd7f0a2de1dc5ffe2d9b5f81c154912dab5506bf6aa4f818c4"
+    },
+    {
+      "name": "corrupt",
+      "browser": "153.0.8010.12",
+      "outcome": "passed",
+      "uploadOrigin": "https://127.0.0.1:45263",
+      "downloadOrigin": "https://127.0.0.1:45263",
+      "protocol": "h2",
+      "putArrivals": [
+        {
+          "bytes": 4638,
+          "path": "/v1/blob-tree/",
+          "sha256": "d812087d0e56d34558f26bf9a1b01d051ce4705216bb42372b4f524770912b29"
+        },
+        {
+          "bytes": 1024,
+          "path": "/v1/chunk/?owner_id=dllsh-pd777-77776-qaaaa-cai&blob_hash=sha256%3Ad53964e58575f66aa53db95000c2d48152b0bf2f22da88274a85788efd5a3b6e&chunk_hash=sha256%3A93beaf743566f9e55d341b9fdcab54250bd8b391f0fab18837ba25accf22a387&chunk_index=0&bucket_name=local-standalone-trial&project_id=standalone-trial",
+          "sha256": "b2256110f2c4226de0008dd4382a388e033f211b617bd3237135ab1d59a722b6"
+        }
+      ],
+      "getArrivals": 1,
+      "journalClaims": 2,
+      "journalPhases": [
+        "responded",
+        "responded"
+      ],
+      "cancelled": true,
+      "uploadAcknowledged": true,
+      "contentSha256": "b2256110f2c4226de0008dd4382a388e033f211b617bd3237135ab1d59a722b6",
+      "maintainedOutcome": {
+        "attestation_created": false,
+        "billing_cessation_established": false,
+        "browser_cancelled": true,
+        "evidence": "actual_standalone_chromium_native_corrupt_gateway_substitute",
+        "live_provider_requests": 0,
+        "paid_effects": 0,
+        "permission_revoked": true,
+        "provider_deletion_established": false,
+        "retained_bytes": 1024,
+        "schema": 1,
+        "state": "ExposurePossible",
+        "tenant_download_unavailable": true,
+        "verification_error": "content_mismatch"
+      },
+      "publicRootSha256": "2a7317bd74308c9e64fd5e83fb0953eb13fa3d13fedbf01dc583466b73b996f0",
+      "privateSource": ".tmp/https-journey-01/trials-01/corrupt/browser-result.json",
+      "privateSourceSha256": "1ca7980a98926f2d003d4974ecdabab52d3e6742939774fe668f15aa69e2dbbc",
+      "privateOutcome": ".tmp/https-journey-01/trials-01/corrupt/summary.json",
+      "privateOutcomeSha256": "41d833331fbd551ee2bb0866a8a540ab1adeebfdeac109c81ad55839461e5a1d"
+    },
+    {
+      "name": "lost-final",
+      "browser": "153.0.8010.12",
+      "outcome": "passed",
+      "uploadOrigin": "https://127.0.0.1:33271",
+      "downloadOrigin": "https://127.0.0.1:33271",
+      "protocol": "h2",
+      "putArrivals": [
+        {
+          "bytes": 4667,
+          "path": "/v1/blob-tree/",
+          "sha256": "346d02ea5ba09c9f18cf77147dd4a61c91be0a10854069e8e1e3378ace3b1c31"
+        },
+        {
+          "bytes": 1024,
+          "path": "/v1/chunk/?owner_id=dllsh-pd777-77776-qaaaa-cai&blob_hash=sha256%3Ad53964e58575f66aa53db95000c2d48152b0bf2f22da88274a85788efd5a3b6e&chunk_hash=sha256%3A93beaf743566f9e55d341b9fdcab54250bd8b391f0fab18837ba25accf22a387&chunk_index=0&bucket_name=local-standalone-trial&project_id=standalone-trial",
+          "sha256": "b2256110f2c4226de0008dd4382a388e033f211b617bd3237135ab1d59a722b6"
+        }
+      ],
+      "getArrivals": 2,
+      "journalClaims": 2,
+      "journalPhases": [
+        "responded",
+        "uncertain"
+      ],
+      "cancelled": false,
+      "uploadAcknowledged": false,
+      "contentSha256": "b2256110f2c4226de0008dd4382a388e033f211b617bd3237135ab1d59a722b6",
+      "maintainedOutcome": {
+        "attestation_accepted": true,
+        "billing_cessation_established": false,
+        "browser_upload_acknowledged": false,
+        "certificate_recovered_without_reissue": true,
+        "evidence": "actual_standalone_lost_response_local_gateway_substitute",
+        "final_gateway_request_phase": "uncertain",
+        "independent_observation": true,
+        "liability_bytes_retained": 1024,
+        "live_provider_requests": 0,
+        "owner_stop_start_preserved": true,
+        "paid_effects": 0,
+        "physical_bytes_retained": 1024,
+        "provider_deletion_established": false,
+        "reference_released": true,
+        "schema": 1,
+        "tenant_download_verified": true
+      },
+      "publicRootSha256": "7c5127a4af64a9a084f1f3ded22099877709aa8dd444149bf7f8e6f58706527f",
+      "privateSource": ".tmp/https-journey-01/trials-01/lost-final/browser-result.json",
+      "privateSourceSha256": "82c008fdd670626ac7fd515023f6544b8f11868ab1ac7dd55a8983ce999809f0",
+      "privateOutcome": ".tmp/https-journey-01/trials-01/lost-final/summary.json",
+      "privateOutcomeSha256": "0901c28efdf331e89d7929a094a7c2fb3cd94c086b666dd9869919cccb69bc3b"
+    },
+    {
+      "name": "withdrawn",
+      "browser": "153.0.8010.12",
+      "outcome": "passed",
+      "uploadOrigin": "https://127.0.0.1:38397",
+      "downloadOrigin": "https://127.0.0.1:38397",
+      "protocol": "h2",
+      "putArrivals": [
+        {
+          "bytes": 4647,
+          "path": "/v1/blob-tree/",
+          "sha256": "163c68a37adc42f4e3c72fb0496c064d61bd46e7ef881237dda38c62a0ff2b2d"
+        },
+        {
+          "bytes": 1024,
+          "path": "/v1/chunk/?owner_id=dllsh-pd777-77776-qaaaa-cai&blob_hash=sha256%3Ad53964e58575f66aa53db95000c2d48152b0bf2f22da88274a85788efd5a3b6e&chunk_hash=sha256%3A93beaf743566f9e55d341b9fdcab54250bd8b391f0fab18837ba25accf22a387&chunk_index=0&bucket_name=local-standalone-trial&project_id=standalone-trial",
+          "sha256": "b2256110f2c4226de0008dd4382a388e033f211b617bd3237135ab1d59a722b6"
+        }
+      ],
+      "getArrivals": 1,
+      "journalClaims": 2,
+      "journalPhases": [
+        "responded",
+        "uncertain"
+      ],
+      "cancelled": true,
+      "uploadAcknowledged": false,
+      "contentSha256": "b2256110f2c4226de0008dd4382a388e033f211b617bd3237135ab1d59a722b6",
+      "maintainedOutcome": {
+        "attestation_replay_leaves_reference_inactive": true,
+        "authoritative_receipt_preserved": true,
+        "billing_cessation_established": false,
+        "browser_cancelled": true,
+        "browser_upload_acknowledged": false,
+        "evidence": "actual_standalone_withdrawal_after_verified_observation_local_substitute",
+        "final_gateway_request_phase": "uncertain",
+        "late_attestation_accepted_for_reconciliation": true,
+        "liability_bytes_retained": 1024,
+        "live_provider_requests": 0,
+        "logical_bytes": 0,
+        "original_statement_preserved": true,
+        "paid_effects": 0,
+        "permission_revoked": true,
+        "physical_bytes_retained": 1024,
+        "provider_deletion_established": false,
+        "reference_explicitly_released": true,
+        "schema": 1,
+        "second_submission_blocked": true,
+        "state": "Confirmed",
+        "tenant_download_unavailable": true,
+        "whole_body_observed": true
+      },
+      "publicRootSha256": "9fc897960db23642ae5e22034e56b6cc210475b6c0d31833e1320f998cc0fccf",
+      "privateSource": ".tmp/https-journey-01/trials-01/withdrawn/browser-result.json",
+      "privateSourceSha256": "f4527eb3d18019c77144ae1eea239e75916a1c4c39a6ed47213dd7613da3eb81",
+      "privateOutcome": ".tmp/https-journey-01/trials-01/withdrawn/summary.json",
+      "privateOutcomeSha256": "44693fba2a4ec2c6f68d493d3caa4f320510b99528cd7fe1e9561fb0b2a170e5"
+    }
+  ],
+  "refusals": [
+    {
+      "name": "untrusted-observation",
+      "reason": "Unrelated test-only CA; normal TLS verification refuses before HTTP",
+      "httpGetArrivals": 0,
+      "implicitReadRetransmissions": 0,
+      "downloadOutcome": {
+        "received_bytes": "0",
+        "outcome": "failed",
+        "error": "transport"
+      },
+      "verifierStatementCreated": false,
+      "privateOutcome": ".tmp/https-journey-01/trials-01/success/untrusted-observation/download-outcome.json",
+      "privateOutcomeSha256": "aab9d89af01a3350ef232f2772d959534c2f6e1b8bc44a5508c81ac617bc9b8a"
+    },
+    {
+      "name": "refused-observation",
+      "reason": "Correct CA; owned H2 stream closes with NGHTTP2_REFUSED_STREAM before headers",
+      "httpGetArrivals": 1,
+      "implicitReadRetransmissions": 0,
+      "downloadOutcome": {
+        "received_bytes": "0",
+        "outcome": "failed",
+        "error": "transport"
+      },
+      "verifierStatementCreated": false,
+      "privateOutcome": ".tmp/https-journey-01/trials-01/success/refused-observation/download-outcome.json",
+      "privateOutcomeSha256": "aab9d89af01a3350ef232f2772d959534c2f6e1b8bc44a5508c81ac617bc9b8a"
+    }
+  ],
+  "validation": {
+    "actualStandaloneJourneysPassed": 4,
+    "standaloneSeconds": 20.02,
+    "nativeCliTestsPassed": 66,
+    "ownedTransportCasesPassed": 8,
+    "strictAffectedCliClippy": "passed",
+    "strictAffectedStandaloneClippy": "passed",
+    "formatting": "passed",
+    "fullCiRun": false
+  },
+  "failuresAndCorrections": [
+    "One documentation patch initially targets an invented context line; rejected atomically, corrected before later validation.",
+    "Supplementary transport-01 fails at sandboxed Chromium startup before requests; failed plan/log retained; fresh transport-02 succeeds.",
+    "Expected wrong-root/refused-stream/corrupt-byte observations remain failed and retained; separately budgeted valid reads are distinct operations."
+  ],
+  "artifacts": [
+    {
+      "path": ".tmp/https-journey-01/artifacts/blob-storage",
+      "sha256": "eed76d8112071d0552c6d31ba98373204624b507e3ad732169d1343b05826708"
+    },
+    {
+      "path": ".tmp/https-journey-01/artifacts/ic_blob_storage_canister.wasm",
+      "sha256": "7b93fd6588b325f2cd06d1dde2cc02ab705f5ef682712029b2dfa1fabba9b00a"
+    }
+  ],
+  "sources": [
+    {
+      "source": "crates/ic-blob-storage-cli/Cargo.toml",
+      "sha256": "ac58443122abf07047f404a9caedc19819698533edf009193b06342b1f931446",
+      "retained": ".tmp/https-journey-01/artifacts/source-0-Cargo.toml"
+    },
+    {
+      "source": "tests/browser/tls.mjs",
+      "sha256": "74ea8c21b84d5ae299aaf587cde306513e1ac78086ba9051ab35900c9f31f132",
+      "retained": ".tmp/https-journey-01/artifacts/source-1-tls.mjs"
+    },
+    {
+      "source": "tests/browser/standalone.mjs",
+      "sha256": "965c0e07932842038a7b91ad85c0552666c1128f49533da958a2f03101dc3cc8",
+      "retained": ".tmp/https-journey-01/artifacts/source-2-standalone.mjs"
+    },
+    {
+      "source": "tests/browser/transport.mjs",
+      "sha256": "1eda104c824cb15e4fe9428beda2edcfdad5effe3607708f145e59ea22afa524",
+      "retained": ".tmp/https-journey-01/artifacts/source-3-transport.mjs"
+    },
+    {
+      "source": "tests/pocketic/tests/authenticated_cli/mod.rs",
+      "sha256": "a21400f2ca672c1dca209b0a23dd26f15b92944646d58fbd941946fb00ff3dd8",
+      "retained": ".tmp/https-journey-01/artifacts/source-4-mod.rs"
+    },
+    {
+      "source": "tests/pocketic/tests/standalone_browser/mod.rs",
+      "sha256": "e62da48d992cf3ecbef4450301904b7fe72e21de11175d42bf9c76dd8a88dc39",
+      "retained": ".tmp/https-journey-01/artifacts/source-5-mod.rs"
+    },
+    {
+      "source": "tests/pocketic/tests/standalone_browser/client/mod.rs",
+      "sha256": "8017ac6b265c1aa59e78e0a167bc87779c025af38a5ac234c927fa3648f65e61",
+      "retained": ".tmp/https-journey-01/artifacts/source-6-mod.rs"
+    },
+    {
+      "source": "clients/browser/gateway.js",
+      "sha256": "8d1ccb75c576be4585c20cb8cf73ca7171dbba04872454d4f2cd74a33e787370",
+      "retained": ".tmp/https-journey-01/artifacts/source-7-gateway.js"
+    },
+    {
+      "source": "clients/browser/transfer.js",
+      "sha256": "3c7141df6f250ec80cf81fa690f986cbd28e65109c7bed9cd77b5c941af49618",
+      "retained": ".tmp/https-journey-01/artifacts/source-8-transfer.js"
+    }
+  ],
+  "liveProviderObjectRequests": 0,
+  "paidEffects": 0,
+  "qualification": {
+    "deployedAuthenticatedStreaming": false,
+    "providerProvisioning": false,
+    "browserWireAtMostOnceGuaranteed": false,
+    "replayCharging": false,
+    "retentionDeletionOrBillingCessation": false,
+    "productionBrowserPersistence": false
+  },
+  "cleanup": "Owned test browsers/gateway/PocketIC close; ephemeral TLS private-key directories removed; public roots, test identities, requests, failures and build artifacts retained in private capture.",
+  "openActions": [
+    "Select exact isolated live roles/account/project/gateway/browser and cleanup ownership before effects.",
+    "Qualify authenticated streaming and provider economics independently of anonymous TLS/CORS observations.",
+    "Future consumer must preserve request streams, normal TLS verification and exact reference-release intent; Canic remains deferred."
+  ],
+  "versionsCommitsReleaseDeploymentSiblingEditsOrBuildCleanup": false
+}

@@ -16,10 +16,18 @@ const require = (condition, code) => { if (!condition) throw new GatewayRefusal(
 export async function createGatewayTransport({ certificate, intents, origin,
   maxRequests, maxRequestBytes, maxTotalRequestBytes, fetch: transport = globalThis.fetch.bind(globalThis) }) {
   const endpoint = new URL(origin);
-  require(endpoint.protocol === 'https:' || (endpoint.protocol === 'http:' &&
-    ['localhost', '127.0.0.1', '[::1]'].includes(endpoint.hostname)), 'origin');
+  require(endpoint.protocol === 'https:', 'origin');
   require(!endpoint.username && !endpoint.password && endpoint.pathname === '/' &&
     !endpoint.search && !endpoint.hash, 'origin');
+  // Reject unsupported request-stream environments before certificate issuance.
+  // A buffered fallback reintroduces transparent PUT replay after connection loss.
+  let duplex = false;
+  try {
+    const probe = new Request(endpoint, { method: 'PUT', body: new ReadableStream({
+      start(controller) { controller.close(); }
+    }), get duplex() { duplex = true; return 'half'; } });
+    require(duplex && !probe.headers.has('content-type'), 'request-streaming');
+  } catch { throw new GatewayRefusal('request-streaming'); }
   require(Number.isSafeInteger(maxRequests) && maxRequests > 0 && maxRequests <= 256 &&
     Number.isSafeInteger(maxRequestBytes) && maxRequestBytes > 0 &&
     maxRequestBytes <= 2 * 1024 * 1024 && Number.isSafeInteger(maxTotalRequestBytes) &&
@@ -75,7 +83,13 @@ export async function createGatewayTransport({ certificate, intents, origin,
     // A cancellation/abort after claim may leave an unsent but uncertain request.
     // Never clear that claim or automatically retry it.
     signal.throwIfAborted();
-    const response = await transport(target.href, { method: 'PUT', headers, body, signal,
+    // The already fingerprinted snapshot is emitted once and immediately closed.
+    // Keep the SDK's exact PUT payload; never buffer or replay it in a fallback.
+    const stream = new ReadableStream({ start(controller) {
+      controller.enqueue(body); controller.close();
+    } });
+    const response = await transport(target.href, { method: 'PUT', headers, body: stream,
+      duplex: 'half', signal,
       redirect: 'error', credentials: 'omit', cache: 'no-store', referrerPolicy: 'no-referrer' });
     require(!response.redirected && response.status >= 200 && response.status <= 599, 'response');
     const chunks = [];

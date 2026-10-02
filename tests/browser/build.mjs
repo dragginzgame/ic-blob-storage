@@ -33,6 +33,13 @@ await build({ absWorkingDir: repo, entryPoints: ['tests/browser/client.js'], bun
   format: 'esm', outfile: '.tmp/browser/client.js',
   alias: { '@caffeineai/object-storage': `${adapted}/dist/index.js` },
   nodePaths: [fileURLToPath(new URL('node_modules', import.meta.url))] });
+await build({ absWorkingDir: repo, entryPoints: ['tests/browser/store.js'], bundle: true,
+  format: 'esm', outfile: '.tmp/browser/store.js',
+  nodePaths: [fileURLToPath(new URL('node_modules', import.meta.url))] });
+await build({ absWorkingDir: repo, entryPoints: ['tests/browser/standalone.js'], bundle: true,
+  format: 'esm', outfile: '.tmp/browser/standalone.js',
+  alias: { '@caffeineai/object-storage': `${adapted}/dist/index.js` },
+  nodePaths: [fileURLToPath(new URL('node_modules', import.meta.url))] });
 for (const name of ['sdk-probe', 'native-inputs']) await build({ absWorkingDir: repo,
   entryPoints: [`tests/browser/${name}.mjs`], bundle: true,
   format: 'esm', platform: 'node', outfile: `.tmp/browser/${name}.mjs`,

@@ -1,0 +1,43 @@
+{
+  "attestation_replay_leaves_reference_inactive": true,
+  "authoritative_receipt_preserved": true,
+  "billing_cessation_established": false,
+  "browser_cancelled": true,
+  "browser_upload_acknowledged": false,
+  "evidence": "actual_standalone_withdrawal_after_verified_observation_local_substitute",
+  "final_gateway_request_phase": "uncertain",
+  "late_attestation_accepted_for_reconciliation": true,
+  "liability_bytes_retained": 1024,
+  "live_provider_requests": 0,
+  "logical_bytes": 0,
+  "original_statement_preserved": true,
+  "paid_effects": 0,
+  "permission_revoked": true,
+  "physical_bytes_retained": 1024,
+  "provider_deletion_established": false,
+  "provider_gets": [
+    "/v1/blob/?blob_hash=sha256%3Ad53964e58575f66aa53db95000c2d48152b0bf2f22da88274a85788efd5a3b6e&owner_id=dllsh-pd777-77776-qaaaa-cai&project_id=standalone-trial"
+  ],
+  "provider_puts": [
+    {
+      "bytes": 4777,
+      "path": "/v1/blob-tree/",
+      "sha256": "9e599da69bb30565dbfe578a7046a853e11feb456786f4105cbb4003907e0137"
+    },
+    {
+      "bytes": 1024,
+      "path": "/v1/chunk/?owner_id=dllsh-pd777-77776-qaaaa-cai&blob_hash=sha256%3Ad53964e58575f66aa53db95000c2d48152b0bf2f22da88274a85788efd5a3b6e&chunk_hash=sha256%3A93beaf743566f9e55d341b9fdcab54250bd8b391f0fab18837ba25accf22a387&chunk_index=0&bucket_name=local-standalone-trial&project_id=standalone-trial",
+      "sha256": "b2256110f2c4226de0008dd4382a388e033f211b617bd3237135ab1d59a722b6"
+    }
+  ],
+  "reference_explicitly_released": true,
+  "schema": 1,
+  "second_submission_blocked": true,
+  "state": "Confirmed",
+  "tenant_download_unavailable": true,
+  "whole_body_observed": true,
+  "browser": "153.0.8010.12",
+  "actual_put_arrivals": 2,
+  "guarded_gateway_claims": 2,
+  "provider_get_count": 1
+}

@@ -27,7 +27,7 @@ fn snapshot_rollback_forgets_exposure_and_simulated_freshness_allows_reexposure(
     assert_eq!(rolled_back.state, UploadState::Reserved);
     assert!(!f.local_status().uploads.fenced);
 
-    // The simulated host claims Recovery=true again. The shared owner cannot
+    // The simulated host claims current-owner eligibility again. The shared owner cannot
     // recover the first exposure from this backup. This is why production must
     // never derive that fact from a clear fence or locally valid journal.
     assert_eq!(expose(&f, f.uploader, yes).unwrap(), first);

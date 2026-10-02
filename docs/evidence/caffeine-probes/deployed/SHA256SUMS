@@ -11,3 +11,15 @@ e26629bd9aee2c546958735358dfc5597e33f3e18abef438d1b2d9fe120788ca  docs/evidence/
 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  docs/evidence/caffeine-probes/deployed/2026-10-01-cashier-preflight-01/pricing-stderr.txt
 8177c9529f30c53fcf29744eb1d8e023bc08b65172bf11f24945bbacf26018ab  docs/evidence/caffeine-probes/deployed/2026-10-01-cashier-preflight-01/summary.json
 b4d27a5133dd8cd1fc0a30f3cf8d51e18608d290b5822bc773ac66b4b4f3bb84  docs/evidence/caffeine-probes/deployed/2026-10-01-cashier-preflight-01/web-review-01.json
+af489f7170eaf213b960628333c4752e3907304303ed0b052b43d864d2653c2e  docs/evidence/caffeine-probes/deployed/2026-10-02-pricing-units-01/exit.txt
+07b687a066164eac38aae91d8098d9ca56545a10f2ef74f8c5250559ecb96c31  docs/evidence/caffeine-probes/deployed/2026-10-02-pricing-units-01/icp-version.txt
+1b7dfdef9bcf866ca4abb24b860aced57518173169e5f45e33479adcfb4b5aa0  docs/evidence/caffeine-probes/deployed/2026-10-02-pricing-units-01/input.sha256
+8511536c75a80205b2120a4e532e7b400732e33dfd9776cf0ace00226252d2ab  docs/evidence/caffeine-probes/deployed/2026-10-02-pricing-units-01/intent.json
+ba8ff65d32e1a92ad8537ea4e01b05403617da824bf26b6f0cadc312a5762d4b  docs/evidence/caffeine-probes/deployed/2026-10-02-pricing-units-01/reply.candid
+83a996d16f06ccd53f539b530dc013c7966b25fd815039893ac05c03539302b2  docs/evidence/caffeine-probes/deployed/2026-10-02-pricing-units-01/reply.candid.txt
+5697c32b63a4f9089ecc1383dd3ad6c22a0627cacdc138209a3e22f8eedd2c65  docs/evidence/caffeine-probes/deployed/2026-10-02-pricing-units-01/request.json
+de25f493e2a030af329f5f01121c9f9249da8508936bfa0a119d0a5c8f638731  docs/evidence/caffeine-probes/deployed/2026-10-02-pricing-units-01/stderr.txt
+ba9b2606e869c70d4440552e821beda3c110b9137f0d83baa6289967d5b29298  docs/evidence/caffeine-probes/deployed/2026-10-02-pricing-units-01/summary.json
+beed391ab91ee86d2227918a84755957f2e5e7f6f2eeac8e43322588bd100140  docs/evidence/caffeine-probes/deployed/2026-10-02-gateway-stream-01/summary.json
+51febd9723ce2e07b06f4a97bf54ba7920cea99a6bde9978140f80490bb235d3  docs/evidence/caffeine-probes/deployed/2026-10-02-gateway-stream-01/clarifications.json
+9c8c372369a65615b4a05542047910d3e7a44448c9f4405440d003a589881620  docs/evidence/caffeine-probes/deployed/2026-10-02-trial-payer-probe-01/summary.json

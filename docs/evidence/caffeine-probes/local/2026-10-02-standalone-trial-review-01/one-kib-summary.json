@@ -1,0 +1,25 @@
+{
+  "schema": 1,
+  "sdkPreparations": 2,
+  "nativeInvocations": 3,
+  "contentBytes": 1024,
+  "chunks": 1,
+  "certificateBindingAccepted": true,
+  "originalSourceChanged": true,
+  "snapshotRepreparationMatches": true,
+  "inputHashes": {
+    "binding.json": "28fe5a4cdb64d06b7cb6a60729e2ed13a793f75b08fee9a664968dc7549e6676",
+    "body.bin": "b2256110f2c4226de0008dd4382a388e033f211b617bd3237135ab1d59a722b6",
+    "certificate-binding.json": "777b887d744f8eb6dbcccba7bbf2dea2844de3da9e9a572c6eea3dee700334d0",
+    "download.candid": "2503711caa39c028170e9717135201cafc091c16932c15594f663f55b7a4e37e",
+    "manifest.candid": "c78333b8078348a52d25599a215dddf3bdbadf09bf0dc43358aa200ce0d02eaf",
+    "manifest.json": "71c44f846c9ac18874b5feb06b041e992493d63f44d1775e9263339e2fb3a344",
+    "permission.candid": "5d187e72ba4d3c3f8ebb85dbcd9be2c2deac2e9145be5aec6896e0edb03a4e2f",
+    "reference-status.candid": "0b0b538bbf2e53efdabb87e1dc93a39aa814bb100a9ac45a8cd1185eb2037566",
+    "summary.json": "a1d21a555dbba936641ee596ff1b697cd98dbbbb768e221301343dc4e2142405"
+  },
+  "networkRequests": 0,
+  "certificateIssued": false,
+  "storeQualified": false,
+  "providerQualified": false
+}

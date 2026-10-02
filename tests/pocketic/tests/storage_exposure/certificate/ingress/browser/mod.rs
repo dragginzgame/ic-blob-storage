@@ -48,7 +48,7 @@ fn chromium_certificate_intent_survives_reload_competing_tabs_and_cancellation()
             "oversizeGateway": scenario == "gateway-oversize",
             "cancelAtGatewayClaim": scenario == "gateway-cancel-before-claim",
         });
-        let mut driver = BrowserDriver::start(&args);
+        let mut driver = BrowserDriver::start(&args, "run.mjs");
         // Bound transport buffering before the shared decoder's own JSON bound.
         let browser: BrowserPreparation = driver.read(8192);
         assert_eq!(browser.hash, expected_root);

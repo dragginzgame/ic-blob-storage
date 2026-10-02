@@ -8,7 +8,7 @@ pub(super) fn prepare(c: &Client, body: &[u8]) {
     let root = ProviderRootHash::try_from(u.root.as_slice())
         .unwrap()
         .to_string();
-    let binding = json!({"schema":1,"service":u.service.to_text(),"namespace":u.namespace.to_string(),
+    let binding = json!({"schema":1,"project":c.installation.project,"bucket":"fixture-bucket","service":u.service.to_text(),"namespace":u.namespace.to_string(),
         "tenant":u.tenant.to_text(),"uploader":p.uploader.to_text(),"upload":u.upload.to_string(),
         "object":u.object.to_string(),"incarnation":u.incarnation.to_string(),
         "first_reference":u.first_reference.to_string(),"root":root,"bytes":u.bytes.to_string(),
@@ -27,8 +27,14 @@ pub(super) fn prepare(c: &Client, body: &[u8]) {
     );
     let source = c.temporary.path().join("source.bin");
     save(&source, body);
+    save(
+        &c.report.join("installation.candid"),
+        &candid::encode_one(&c.installation).unwrap(),
+    );
     let args = vec![
         "upload-inputs".into(),
+        "--installation".into(),
+        c.report.join("installation.candid").display().to_string(),
         "--binding".into(),
         c.report.join("binding.json").display().to_string(),
         "--manifest".into(),

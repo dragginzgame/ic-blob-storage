@@ -32,14 +32,18 @@ and durable metadata; admission does not require uploading the file body to it.
 | Area | Current state |
 | --- | --- |
 | Shared Rust core | Implemented, with native and local IC evidence |
-| Standalone canister | Shared handlers and explicit installation configuration; provider certificate issuance remains disabled |
-| Lifecycle | Synchronous installation, inspection-only restoration and local rollback tests || Native tooling | Offline installation checks, account-link inputs and verified snapshots; signed setup/recovery, tenant downloads and verifier completion tested locally |
-| Application integration | Consumer frameworks own their wrappers, asset transactions and integration tests || Browser integration | Reusable upload composition binds Caffeine's SDK to certificate intent, serial transfer and bounded request journaling; locally tested |
+| Standalone canister | Shared handlers; restricted certificate issuance for an explicitly trusted uploader and one object up to 1 KiB |
+| Lifecycle | Synchronous installation, inspection-only restoration and local rollback tests |
+| Native tooling | Offline installation checks, account-link inputs and verified snapshots; signed setup/recovery, tenant downloads and verifier completion tested locally |
+| Application integration | Consumer frameworks own their wrappers, asset transactions and integration tests |
+| Browser integration | Reusable upload composition binds Caffeine's SDK to certificate intent, serial transfer and bounded request journaling; locally tested |
 | Live service acceptance | Still open: complete consumer flow, provider guarantees and operational recovery |
 
 The public library has no downstream framework dependency. Consumer frameworks
 wrap its shared workflows and own integration testing in their repositories.
-Provider and recovery prerequisites still prevent successful certificate issuance.
+The [accepted standalone trial contract](docs/standalone-trial.md) records the
+1 KiB limit, 100T-cycle planning budget and inputs needed before live effects.
+Provider spending limits and old-backup recovery remain outside its guarantees.
 
 Local tests use controlled provider substitutes where stated. A verifier's
 attestation records observed content availability; it does not promise future

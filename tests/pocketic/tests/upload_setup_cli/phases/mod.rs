@@ -42,15 +42,7 @@ pub(super) fn before_restore(c: &Client) {
     let mut args = c.args("certificate-assessment", None, true);
     let n = args.iter().position(|a| a == "--request").unwrap();
     args[n] = "--permission".into();
-    assert_eq!(
-        c.call(&args, 0)["blockers"],
-        json!([
-            "precharge_limits",
-            "provider_namespace",
-            "replay_charging",
-            "recovery"
-        ])
-    );
+    assert_eq!(c.call(&args, 0)["blockers"], json!(["trial_bounds"]));
     let mut changed = c.permission.permission;
     changed.expires_at_ns -= 1;
     save(

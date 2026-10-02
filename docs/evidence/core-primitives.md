@@ -5679,3 +5679,121 @@ Earlier source-removal captures and dirty work are preserved. No full CI/release
 gate, new runtime/provider probe, sibling edit, commit, publication, deployment,
 paid effect or build cleanup occurs. Consumer wrapper/integration testing remains
 external; all four Caffeine certificate host facts remain false.
+
+## First standalone trial preparation — 2026-10-02
+
+After released 0.5.0, the maintainer authorizes the trial review and selects a
+100T-cycle total planning budget. The [proposal](../standalone-trial.md) separates
+trusted participants, one fresh owner/1 KiB file, local request limits, unsupported
+rollback activation and retained billing obligations from still-unqualified provider
+economics. The proposed 10T service / 1T initial provider / 89T unallocated split
+is not an estimate, account selection, accepted gate change or dispatched effect.
+
+The existing opt-in SDK/native handoff accepts a canonical body size up to its
+unchanged 10 MiB envelope. Both the 1 KiB case and default pass with network calls
+refused, including snapshot repreparation after source edits, repeated-output and
+corrupt-source refusal. Invalid sizes fail before creating output. Shared validation
+accepts a one-object/1 KiB candidate; the maintained standalone DID independently
+encodes and decodes its complete host carrier. An initial unsupported decoder flag
+fails and is retained before corrected stdin decoding. The local principals and
+financial values remain syntax substitutes, not proposed live identities or terms.
+
+Fresh 0.5.0 standalone release Wasm builds and the focused actual PocketIC
+certificate-boundary case passes. It proves refusal, authority, state preservation,
+stop/start and fenced restore under the maintained four false host facts. There
+are no substituted true facts or deployed provider observations in that check.
+Public source refresh, two unavailable primary guide lookups and the public
+pricing-unit query's valid reply/failed process are separately retained in the
+[probe ledger](caffeine-probes/README.md). They qualify no charge cap or namespace.
+
+Intent, original failed attempts, commands, complete inputs, CLI/SDK outputs,
+Wasm/DID hashes and local logs remain in `.tmp/standalone-trial-review-01`; the
+[retained summary](caffeine-probes/local/2026-10-02-standalone-trial-review-01/summary.json)
+identifies each evidence class. Full CI/release validation, deployment, account
+changes, payment, upload certificate or provider object traffic do not occur.
+Current gate semantics, allocator, v1 schema and consumer-owned wrapper boundary
+remain unchanged; any accepted semantic revision requires a minor hard cut.
+
+## Restricted issuance contract — accepted 2026-10-02
+
+The maintainer explicitly accepts one trusted uploader/fresh owner and one nonempty
+file of at most 1 KiB, without provider spending-cap/replay or operational old-backup
+guarantees. Required immutable uploader trust is validated before allocation,
+retained in the current v1 installation and configuration readback, and bound to the
+original tenant permission. Shared installation derives local bounds/namespace/
+current-owner facts. Standalone returns Caffeine's plain root reply only after the
+same synchronous durable exposure commit. No ingress qualification flags, override,
+compatibility path, extra journal or allocator are introduced. Current policy/DTO/
+CLI/init/schema semantics replace the former contract and require a minor release.
+
+Actual standalone tests pass all 48 cases, including issuance once, original-role
+refusals, rejected untrusted tenant-approved uploader, lost/pending native replies,
+stop/start and fenced restore with retained obligations. An actual management
+snapshot demonstrates lost later exposure/revocation and renewed local eligibility;
+active snapshot rollback remains unsupported. Seven shared exposure/IC-certificate
+cases pass with labelled host-fact substitutes. The ten-scenario Chromium/SDK suite
+passes against actual local IC/IndexedDB and a gateway substitute after removing an
+unused branch for the deleted managed fixture. It does not qualify provider behavior
+or production browser storage. Targeted store/installation/policy/CLI checks, strict
+affected all-target/all-feature lint, formatting and Wasm builds pass. Current full
+init independently encodes/decodes with required trust; the offline checker sends no
+installation/provider request.
+
+Capture `.tmp/restricted-contract-01` retains exact artifacts, hashes and failed
+attempts: initial lint, denied loopback, oversized fixture, checked conversion and
+the wider run interrupted by the maintainer's cargo clean. Retained artifact copies
+allow the final rerun to use fixed inputs. The [summary](caffeine-probes/local/2026-10-02-restricted-contract-01/summary.json)
+separates current local facts from historical provider/source observations. Budget
+remains at most 100T cycles for planning; actual targets/persistence/terms/cleanup
+remain unselected, with no live deployment, payment or provider request. Full CI,
+version mutation, commit, publication and sibling edits do not occur. Consumer
+wrappers must adopt the required trust and current blocker contract externally.
+
+## Maintained browser intent journal — 2026-10-02
+
+`clients/browser/intents.js` supplies one bounded IndexedDB owner for the existing
+certificate/gateway contract. Explicit create/open refuses existing/missing stores
+and changed capacity; missing-store refusal leaves no empty replacement. Strict
+transactions serialize point reads, count/capacity checks, cancellation and bounded
+history across tabs and resolve only on completion. Arguments are snapshotted before
+storage awaits and records validated. Lifetime slots are not refunded; no reset,
+eviction, migration or provider retry API is added. The upload fixture now calls
+this same owner, with actual transaction abort injection only in its platform wrapper.
+
+Real Chromium verifies competing claims, permanent cancellation, malformed-request
+refusal without mutation, uncertain/non-2xx/repeat/budget blocks, retained tombstones
+and exact history across graceful browser-process exit/restart. Deliberate structural
+history corruption refuses inspection and saves. The ten-scenario local IC/SDK
+suite passes with actual aborted claims/observations and cancellation races against
+a gateway substitute. The first run retains a failed extra fixture identity beyond
+u128::MAX; only test identities change on correction. Logs and source hashes are in
+`.tmp/browser-intents-01`; the [summary](caffeine-probes/local/2026-10-02-browser-intents-01/summary.json)
+separates actual browser/IC facts from substituted provider observations.
+
+This is a maintained implementation and local persistence evidence, not qualification
+of power loss, browser eviction/rollback, application auth or deployed provider
+behavior. The actual trial origin/profile/database and live service/account remain
+unselected. No Rust build, live deployment/funding, paid effect, new SDK/allocator,
+full CI, version mutation, commit or sibling edit is performed in this step.
+
+## Complete local standalone/browser journey — 2026-10-02
+
+The opt-in `make test-browser-standalone` joins actual restricted standalone
+installation/certificate facts with SDK preparation/transfer, one-slot IndexedDB,
+signed native admission, browser uploader preparation and reload/read-state recovery.
+The owned gateway substitute serves the actual received chunk. HTTP success alone
+cannot serve a tenant asset. Native full-body verification, a distinct installed
+verifier's signed attestation and tenant verified download pass. Exact reference
+release removes logical use while retaining 1,024 physical/liability bytes.
+
+A separate fresh-owner corrupt-GET case creates no statement or completion, keeps
+tenant download unavailable and preserves exposure/bytes after tenant withdrawal
+and browser cancellation. Both cases pass (8.46 seconds), as do strict affected
+integration lint, formatting and target builds. The current Wasm/CLI hashes match
+prior retained artifacts; no production behavior change is implied by this harness.
+Initial compiler/patch mistakes remain in `.tmp/standalone-browser-01`; the
+[summary](caffeine-probes/local/2026-10-02-standalone-browser-01/summary.json) labels
+actual IC/browser facts, fixed test identities and local provider substitutes.
+No live provider/account call, deployment/funding, allocator/dependency/version
+mutation, full CI, commit, cleanup or sibling edit occurs. Actual gateway acceptance,
+provisioning, retention/billing and the trial environment remain unqualified.

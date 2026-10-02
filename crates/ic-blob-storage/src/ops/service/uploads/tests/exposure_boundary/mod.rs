@@ -18,10 +18,10 @@ pub(super) fn evidence() -> UploadExposureHostEvidence {
     UploadExposureHostEvidence {
         permission,
         observed_at_ns: 2,
-        precharge_limits: true,
-        provider_namespace: true,
-        replay_charging: true,
-        recovery_ready: true,
+        trial_bounds: true,
+        namespace_binding: true,
+        trusted_uploader: true,
+        current_owner: true,
         durable_commit: true,
     }
 }
@@ -54,31 +54,31 @@ fn exposure_policy_keeps_each_missing_host_fact_independent() {
         ),
         (
             UploadExposureHostEvidence {
-                precharge_limits: false,
+                trial_bounds: false,
                 ..yes
             },
-            B::PrechargeLimits,
+            B::TrialBounds,
         ),
         (
             UploadExposureHostEvidence {
-                provider_namespace: false,
+                namespace_binding: false,
                 ..yes
             },
-            B::ProviderNamespace,
+            B::NamespaceBinding,
         ),
         (
             UploadExposureHostEvidence {
-                replay_charging: false,
+                trusted_uploader: false,
                 ..yes
             },
-            B::ReplayCharging,
+            B::TrustedUploader,
         ),
         (
             UploadExposureHostEvidence {
-                recovery_ready: false,
+                current_owner: false,
                 ..yes
             },
-            B::Recovery,
+            B::CurrentOwner,
         ),
         (
             UploadExposureHostEvidence {
@@ -94,10 +94,10 @@ fn exposure_policy_keeps_each_missing_host_fact_independent() {
         assess_exposure(
             UploadExposureHostEvidence {
                 observed_at_ns: 1,
-                precharge_limits: false,
-                provider_namespace: false,
-                replay_charging: false,
-                recovery_ready: false,
+                trial_bounds: false,
+                namespace_binding: false,
+                trusted_uploader: false,
+                current_owner: false,
                 durable_commit: false,
                 ..yes
             },
@@ -106,10 +106,10 @@ fn exposure_policy_keeps_each_missing_host_fact_independent() {
         .blockers,
         vec![
             B::StaleObservation,
-            B::PrechargeLimits,
-            B::ProviderNamespace,
-            B::ReplayCharging,
-            B::Recovery,
+            B::TrialBounds,
+            B::NamespaceBinding,
+            B::TrustedUploader,
+            B::CurrentOwner,
             B::Durability
         ]
     );
@@ -144,11 +144,11 @@ fn exposure_binds_complete_permission_and_current_evidence_before_any_write() {
             ..yes
         },
         UploadExposureHostEvidence {
-            recovery_ready: false,
+            current_owner: false,
             ..yes
         },
         UploadExposureHostEvidence {
-            precharge_limits: false,
+            trial_bounds: false,
             ..yes
         },
     ] {

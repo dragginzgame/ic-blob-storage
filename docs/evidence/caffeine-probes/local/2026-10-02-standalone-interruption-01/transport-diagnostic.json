@@ -1,0 +1,107 @@
+{
+  "schema": 1,
+  "date": "2026-10-02",
+  "class": "actual_local_browser_transport_observation_with_gateway_substitute",
+  "artifact_capture": ".tmp/standalone-interruption-01",
+  "log": "transport-diagnostic.log",
+  "driver": "artifacts/standalone-preheaders-diagnostic.mjs",
+  "driver_sha256": "c5e44a75f08782825fda0fdf3f84324b42fc6e38e6217735402a91e1678c72c4",
+  "browser": "153.0.8010.12",
+  "cut": "Retain chunk bytes then reset connection before response headers",
+  "journal_claims": 2,
+  "put_arrivals": 3,
+  "repeated_chunk_same_url_body_hash_and_length": true,
+  "application_retry": false,
+  "source_versions": "Maintained Caffeine 1.1.2 patch, SDK 5.4.0, same Chromium binary as successful cases",
+  "interpretation": "Browser transport repeated the chunk below the guarded fetch boundary despite disabled SDK retries; claim budgets cannot guarantee exact on-wire attempts",
+  "diagnostic": {
+    "evidence": "local_lost_reply_diagnostic",
+    "arrivals": [
+      {
+        "path": "/v1/blob-tree/",
+        "bytes": 4793,
+        "sha256": "2057506a1066df12ed375dbe1a705cc3cbb2cdad02795a711b7fa8142f417950"
+      },
+      {
+        "path": "/v1/chunk/?owner_id=dllsh-pd777-77776-qaaaa-cai&blob_hash=sha256%3Ad53964e58575f66aa53db95000c2d48152b0bf2f22da88274a85788efd5a3b6e&chunk_hash=sha256%3A93beaf743566f9e55d341b9fdcab54250bd8b391f0fab18837ba25accf22a387&chunk_index=0&bucket_name=local-standalone-trial&project_id=standalone-trial",
+        "bytes": 1024,
+        "sha256": "b2256110f2c4226de0008dd4382a388e033f211b617bd3237135ab1d59a722b6"
+      },
+      {
+        "path": "/v1/chunk/?owner_id=dllsh-pd777-77776-qaaaa-cai&blob_hash=sha256%3Ad53964e58575f66aa53db95000c2d48152b0bf2f22da88274a85788efd5a3b6e&chunk_hash=sha256%3A93beaf743566f9e55d341b9fdcab54250bd8b391f0fab18837ba25accf22a387&chunk_index=0&bucket_name=local-standalone-trial&project_id=standalone-trial",
+        "bytes": 1024,
+        "sha256": "b2256110f2c4226de0008dd4382a388e033f211b617bd3237135ab1d59a722b6"
+      }
+    ],
+    "retainedPuts": [
+      {
+        "path": "/v1/blob-tree/",
+        "bytes": 4793,
+        "sha256": "2057506a1066df12ed375dbe1a705cc3cbb2cdad02795a711b7fa8142f417950"
+      },
+      {
+        "path": "/v1/chunk/?owner_id=dllsh-pd777-77776-qaaaa-cai&blob_hash=sha256%3Ad53964e58575f66aa53db95000c2d48152b0bf2f22da88274a85788efd5a3b6e&chunk_hash=sha256%3A93beaf743566f9e55d341b9fdcab54250bd8b391f0fab18837ba25accf22a387&chunk_index=0&bucket_name=local-standalone-trial&project_id=standalone-trial",
+        "bytes": 1024,
+        "sha256": "b2256110f2c4226de0008dd4382a388e033f211b617bd3237135ab1d59a722b6"
+      }
+    ],
+    "uploadOutcome": {
+      "uploaded": false,
+      "failure": {
+        "name": "Error",
+        "message": "Failed to upload chunk 0: 500 Internal Server Error - "
+      }
+    },
+    "failure": "AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:\n\n  assert(puts.length < 2)\n",
+    "gatewayHistory": [
+      {
+        "request": {
+          "url": "http://127.0.0.1:34391/v1/blob-tree/",
+          "method": "PUT",
+          "headers": [
+            [
+              "content-type",
+              "application/json"
+            ],
+            [
+              "x-caffeine-project-id",
+              "standalone-trial"
+            ]
+          ],
+          "bodyBytes": 4793,
+          "bodySha256": "2057506a1066df12ed375dbe1a705cc3cbb2cdad02795a711b7fa8142f417950"
+        },
+        "phase": "responded",
+        "status": 200
+      },
+      {
+        "request": {
+          "url": "http://127.0.0.1:34391/v1/chunk/?owner_id=dllsh-pd777-77776-qaaaa-cai&blob_hash=sha256%3Ad53964e58575f66aa53db95000c2d48152b0bf2f22da88274a85788efd5a3b6e&chunk_hash=sha256%3A93beaf743566f9e55d341b9fdcab54250bd8b391f0fab18837ba25accf22a387&chunk_index=0&bucket_name=local-standalone-trial&project_id=standalone-trial",
+          "method": "PUT",
+          "headers": [
+            [
+              "content-type",
+              "application/octet-stream"
+            ],
+            [
+              "x-caffeine-project-id",
+              "standalone-trial"
+            ]
+          ],
+          "bodyBytes": 1024,
+          "bodySha256": "b2256110f2c4226de0008dd4382a388e033f211b617bd3237135ab1d59a722b6"
+        },
+        "phase": "responded",
+        "status": 500
+      }
+    ]
+  },
+  "limitations": [
+    "Owned loopback HTTP only, not deployed Caffeine or another browser/network configuration",
+    "No provider replay-charge, duplicate-billing, idempotency or spending-cap claim",
+    "No universal native fetch retry disable mechanism implemented",
+    "Initial failed source retained; no provider paid effect repeated"
+  ],
+  "live_provider_requests": 0,
+  "paid_effects": 0
+}

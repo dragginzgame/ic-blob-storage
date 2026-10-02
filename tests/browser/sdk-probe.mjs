@@ -30,19 +30,20 @@ record('plan.json', {
   package: '1.1.2 with maintained repository patch',
   limits: { cases: 8, requestsPerCase: 3, requestBytes: 2 * 1024 * 1024,
     totalRequestBytes: 3 * 1024 * 1024, responseBytes: 65536 },
-  origin: 'http://127.0.0.1:1', identity: 'substituted certificate-agent response',
+  origin: 'https://substitute.invalid', identity: 'substituted certificate-agent response',
   providerCalls: 0, attachedCycles: '0', cleanup: 'No external objects or account effects',
   substitutes: ['in-memory intent store', 'certificate response', 'all gateway replies'],
 });
 globalThis.fetch = () => { throw new Error('Unexpected network request'); };
-const origin = 'http://127.0.0.1:1';
+const origin = 'https://substitute.invalid';
 const cases = [];
 
 async function probe(name, size, mode) {
   const bytes = new Uint8Array(size).fill(17);
   const prepared = await StorageClient.prepareFile(bytes, 'application/octet-stream');
   const manifest = JSON.parse(prepared.manifestJSON);
-  const binding = { key: name, root: prepared.hash, service: 'rrkah-fqaaa-aaaaa-aaaaq-cai' };
+  const binding = { key: name, root: prepared.hash, service: 'rrkah-fqaaa-aaaaa-aaaaq-cai',
+    project: 'fixture-project', bucket: 'fixture-bucket' };
   const intents = fixtureIntents(binding);
   const certificate = { inspect: intents.inspect };
   const stored = [];
@@ -52,22 +53,24 @@ async function probe(name, size, mode) {
   record(`${name}-input.json`, { size, byte: 17, sha256: digest(bytes), root: prepared.hash,
     manifest, maxTotalRequestBytes, mode, expected: 'local observation only' });
   const options = { certificate, intents, origin,
-    bucket: 'fixture-bucket', project: 'fixture-project',
     maxRequests: 3, maxRequestBytes: 2 * 1024 * 1024, maxTotalRequestBytes,
     fetch: async (url, init) => {
+      assert(init.body instanceof ReadableStream);
+      assert.equal(init.duplex, 'half');
+      const bytes = new Uint8Array(await new Response(init.body).arrayBuffer());
       const row = await intents.inspect();
       const request = row.gateway.requests.at(-1);
       assert.equal(request.phase, 'uncertain');
-      assert.equal(request.request.bodySha256, digest(init.body));
+      assert.equal(request.request.bodySha256, digest(bytes));
       assert.equal(init.redirect, 'error');
       const index = requests++;
-      uploaded += init.body.byteLength;
-      record(`${name}-request-${index}.json`, { index, url, bytes: init.body.byteLength,
-        sha256: digest(init.body), intentBeforeDispatch: true, effect: 'local substitute' });
+      uploaded += bytes.byteLength;
+      record(`${name}-request-${index}.json`, { index, url, bytes: bytes.byteLength,
+        sha256: digest(bytes), intentBeforeDispatch: true, effect: 'local substitute' });
       const target = new URL(url);
       const tree = target.pathname === '/v1/blob-tree/';
       if (tree) {
-        const sent = JSON.parse(new TextDecoder().decode(init.body));
+        const sent = JSON.parse(new TextDecoder().decode(bytes));
         assert.equal(sent.owner, binding.service);
         assert.equal(sent.project_id, 'fixture-project');
         assert.equal(sent.bucket_name, 'fixture-bucket');
@@ -76,7 +79,7 @@ async function probe(name, size, mode) {
         assert.equal(target.searchParams.get('project_id'), 'fixture-project');
         assert.equal(target.searchParams.get('bucket_name'), 'fixture-bucket');
       }
-      if (!tree) stored.push(init.body.slice());
+      if (!tree) stored.push(bytes.slice());
       const last = !tree && Number(target.searchParams.get('chunk_index')) === manifest.chunk_hashes.length - 1;
       const status = mode === 'http-failure' && !tree ? 503 : 200;
       const payload = tree ? { status: 'blob_tree_accepted', existing_chunks: manifest.chunk_hashes, chunk_check_errors: 0 }
@@ -99,12 +102,18 @@ async function probe(name, size, mode) {
   // Wrong roots and invalid provider bindings refuse before certificate dispatch.
   await assert.rejects(storage.uploadPrepared({ ...prepared, hash: `sha256:${'0'.repeat(64)}` }),
     error => error instanceof TransferRefusal && error.code === 'root');
-  for (const project of ['', ' ', 'a\nb', '\u0100', 'x'.repeat(257)]) {
-    await assert.rejects(createUploadTransfer({ ...options, project }),
+  for (const project of ['', ' ', 'a\nb', '\u0085', '\u0100', 'x'.repeat(257)]) {
+    const invalid = { ...certificate, inspect: async () => ({ binding: { ...binding, project } }) };
+    await assert.rejects(createUploadTransfer({ ...options, certificate: invalid }),
       error => error instanceof TransferRefusal && error.code === 'namespace');
   }
   assert.equal(certificateCalls, 0);
   assert.equal(requests, 0);
+  for (const bucket of ['', ' padded ', '\ud800', '\u0085', 'β'.repeat(129)]) {
+    const invalid = { ...certificate, inspect: async () => ({ binding: { ...binding, bucket } }) };
+    await assert.rejects(createUploadTransfer({ ...options, certificate: invalid }),
+      error => error instanceof TransferRefusal && error.code === 'namespace');
+  }
   let returned = false, refusal = null;
   try { assert.equal((await storage.uploadPrepared(prepared, n => progress.push(n))).hash, prepared.hash); returned = true; }
   catch (error) { refusal = error instanceof GatewayRefusal ? error.code : error.name; }

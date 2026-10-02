@@ -8,14 +8,14 @@ use candid::{CandidType, Deserialize};
 pub enum UploadExposureBlocker {
     /// Host facts were not established in the current execution.
     StaleObservation,
-    /// Deployed size/tree/chunk enforcement before charging is unqualified.
-    PrechargeLimits,
-    /// Provider owner/project/namespace binding is unqualified.
-    ProviderNamespace,
-    /// Certificate replay, lifetime or charging behavior is unqualified.
-    ReplayCharging,
-    /// Complete obligations and independent recovery freshness are unqualified.
-    Recovery,
+    /// Installed envelope or body exceeds the one-object/1 KiB contract.
+    TrialBounds,
+    /// Explicit installed local namespace does not match the permission.
+    NamespaceBinding,
+    /// Original uploader lacks explicit installed trust.
+    TrustedUploader,
+    /// Owner is inspection-only after restoration; no backup freshness claim.
+    CurrentOwner,
     /// Atomic intent-before-effect durability is not established.
     Durability,
 }

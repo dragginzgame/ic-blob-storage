@@ -1,0 +1,198 @@
+{
+  "schema": 1,
+  "date": "2026-10-02",
+  "evidence": "offline_trial_preparation_local_identity_checks_and_source_review",
+  "capture": ".tmp/trial-provisioning-01",
+  "authority": "Configuration and provisioning preparation only",
+  "roles": {
+    "deployerControllerOperatorCandidate": {
+      "name": "canic-mainnet",
+      "principal": "o5trf-oqyg7-cawjp-xs4pw-aomb3-iwki5-hyezf-qahfz-j3ffd-jh4fc-oqe"
+    },
+    "payerTenantTrustedUploaderCandidate": "jaqw3-42pqs-5bivi-nj3xg-5row5-gpluj-sbn54-vthud-pyb5v-sm2rs-bae",
+    "completionVerifierCandidate": "n67bb-yqikw-jbye7-anfpz-tgws7-akhqy-kdpln-ihuix-hzdjf-3ghwy-4ae",
+    "actualService": null,
+    "selectedOrAssignedLiveRoles": false
+  },
+  "localKeys": {
+    "newCandidateIdentities": 2,
+    "permissions": "0600 keys inside 0700 directory",
+    "existingKeysReadOrExported": false,
+    "globalIdentityImportOrDefaultChange": false,
+    "sdkAndNodePublicDerAgreement": true,
+    "localSignatureVerified": true,
+    "privateLocations": ".tmp/trial-provisioning-01/proposal.json",
+    "privateKeysPublished": false
+  },
+  "envelope": {
+    "tenants": 1,
+    "objects": 1,
+    "referencesPerObject": 1,
+    "contentBytes": 1024,
+    "chunks": 1,
+    "receipts": 2,
+    "activeUploads": 1,
+    "readSessions": 1,
+    "readBufferBytes": 1024,
+    "fundingAllocatedCycles": "1",
+    "fundingReservedCycles": "1",
+    "serviceAttachmentOfferAvailable": false,
+    "localNamespace": "1",
+    "template": "canisters/standalone/trial/configuration.args.template"
+  },
+  "validation": {
+    "sharedInstallationCheck": true,
+    "independentInitDidDecoding": true,
+    "localStandInService": "dllsh-pd777-77776-qaaaa-cai",
+    "liveInputsGenerated": false,
+    "localInstallationHash": "sha256:bfea8d08438c03f6c71d9cd75ca9938af1efcdfad75240eadead22ad610ee3b1",
+    "requests": [
+      {
+        "name": "deposit-subaccount",
+        "bytes": 46,
+        "sha256": "3cb2223c717f97fb6435a02a7125699e354248c48635328bd79439059668a030",
+        "dispatched": false
+      },
+      {
+        "name": "deposit-notify",
+        "bytes": 49,
+        "sha256": "39faa2ec3571f0bfe1d55a66bac9fbc1c86f34ce90874e265defa91d53b83c8d",
+        "dispatched": false
+      },
+      {
+        "name": "account-settings",
+        "bytes": 68,
+        "sha256": "d1a9a67ad26feb293f9c461604290a74961f07aff276ed1b36cbdd8be2096bde",
+        "dispatched": false
+      }
+    ],
+    "nativeBrowserKeyFormatsPrepared": true,
+    "nativeAgentKeyParsingRerun": false,
+    "fullCiOrNewRustCompilation": false
+  },
+  "providerCandidates": {
+    "cashier": "72ch2-fiaaa-aaaar-qbsvq-cai",
+    "gateway": "https://blob.caffeine.ai",
+    "project": "02c7762e-11c0-43bf-960c-c651096a8e3a",
+    "bucket": "ic-blob-storage-trial-02c7762e-11c0-43bf-960c-c651096a8e3a",
+    "provisionedOrSelected": false
+  },
+  "browserCandidates": {
+    "profileCandidate": ".tmp/trial-provisioning-01/browser-profile",
+    "originCandidate": "https://localhost:7443",
+    "databaseCandidate": "ic-blob-storage-trial-02c7762e-11c0-43bf-960c-c651096a8e3a",
+    "lifetimeSlots": 1,
+    "persistentEnvironmentQualified": false
+  },
+  "budget": {
+    "ceilingCycles": "100000000000000",
+    "serviceAndIcCeilingCycles": "10000000000000",
+    "providerInitialCeilingCycles": "1000000000000",
+    "heldUnallocatedCycles": "89000000000000",
+    "proposedProviderDailyLimitRaw": "1000000000000",
+    "providerExpiryRaw": null,
+    "monitoredPlanningBudgetOnly": true,
+    "providerSpendingGuarantee": false
+  },
+  "firstCreationOfferProposalCycles": "2000000000000",
+  "provisioning": {
+    "route": "Candidate Cashier cycles-ledger subaccount query, bounded transfers, explicit notify, settings and canister linkage",
+    "avoidsWalletOrProxyIfQualified": true,
+    "accountCreateMethodAdvertised": false,
+    "lazyAccountCreationProven": false,
+    "actualDepositAddressObserved": false,
+    "callerAndCreditSemanticsQualified": false,
+    "expiryUnitsQualified": false
+  },
+  "artifactCandidate": {
+    "cli": ".tmp/https-journey-01/artifacts/blob-storage",
+    "cliSha256": "eed76d8112071d0552c6d31ba98373204624b507e3ad732169d1343b05826708",
+    "wasm": ".tmp/https-journey-01/artifacts/ic_blob_storage_canister.wasm",
+    "wasmSha256": "7b93fd6588b325f2cd06d1dde2cc02ab705f5ef682712029b2dfa1fabba9b00a",
+    "packageLabel": "0.5.0",
+    "publishedReleaseReceiptDoesNotBindCurrentDraftArtifacts": true,
+    "deploymentArtifactApproved": false
+  },
+  "sources": [
+    {
+      "source": "docs/evidence/caffeine-cashier.did",
+      "retained": ".tmp/trial-provisioning-01/source-0-caffeine-cashier.did",
+      "sha256": "232b08e4514048d4de48d6d1bf4387f577bfb64c7e2e2ded699a5e52d475d76f"
+    },
+    {
+      "source": "canisters/standalone/service.did",
+      "retained": ".tmp/trial-provisioning-01/source-1-service.did",
+      "sha256": "2e782d3ee9ffc69268db9f6e5203026f3a3eebb0de289ce1c31d3776fe06faf3"
+    },
+    {
+      "source": "canisters/standalone/trial/configuration.args.template",
+      "retained": ".tmp/trial-provisioning-01/source-2-configuration.args.template",
+      "sha256": "c053dc53f3aafdee63ee4b671f2320ef36ff2c94fe53bfd9db22f0be4e10b495"
+    },
+    {
+      "source": ".tmp/provider-contract-refresh/dfinity-example-README.md",
+      "retained": ".tmp/trial-provisioning-01/source-3-dfinity-example-README.md",
+      "sha256": "09e954fb0ad1daa61fe0c57258a34c31c57535a72fb92d23ab80a8b065c510b4"
+    }
+  ],
+  "primaryDocumentation": [
+    {
+      "url": "https://docs.internetcomputer.org/concepts/cycles/",
+      "finding": "Ledger transfers are supported; arbitrary cycle-attached canister calls are not a ledger operation.",
+      "evidence": "Public documentation; no runtime provider observation"
+    },
+    {
+      "url": "https://github.com/dfinity/immutable-object-storage-example/blob/ef29e8a6e8063c6fe654cac53a3497cab585fefa/README.md",
+      "finding": "Historical funded account linkage and wallet top-up example.",
+      "evidence": "Retained exact source; cached main README lookup is not a freshness guarantee"
+    }
+  ],
+  "failuresAndCorrections": [
+    {
+      "operation": "icp identity list --json",
+      "result": "Settings lock outside workspace refused by sandbox; initial empty output retained; fresh metadata-only call succeeds outside sandbox. No default/key changes."
+    },
+    {
+      "operation": "Initial local configuration encoding",
+      "result": "Candid field service must be quoted because it is a keyword. didc refuses before any network effect; following empty-byte offline validation also refuses. Initial args/hex/candid remain; corrected template uses a fresh local-02 directory."
+    },
+    {
+      "operation": "Public source lookups",
+      "result": "Two guessed DFINITY examples directory URLs and pinned setup.sh/provider site are unavailable; web searches find no matching public deposit/account implementation. Cached primary README and IC cycles docs are available. No server semantics inferred."
+    },
+    {
+      "operation": "Local source lookup",
+      "result": "Several guessed local filenames/directories are absent; actual paths found using rg --files. No data removed or modified by those reads."
+    },
+    {
+      "operation": "First init decoder invocation",
+      "result": "Filename supplied to didc rather than hex; failed stderr retained; fresh stdin hex decoding passes."
+    },
+    {
+      "operation": "First Cashier request decoder",
+      "result": "didc --method selects response type; named request-type decoding passes in fresh requests-02. All encoders use authoritative retained DID, no API reimplementation."
+    }
+  ],
+  "outstanding": [
+    "Actual created service principal",
+    "Final reviewed artifact/release and roles",
+    "Payer account creation/credit authorization semantics",
+    "Provider project/bucket acceptance",
+    "Raw expiry units and selected absolute expiry",
+    "Selected monitoring window and continuing-obligation disposition"
+  ],
+  "effectCounts": {
+    "accountSpecificQueries": 0,
+    "providerObjectRequests": 0,
+    "providerMutations": 0,
+    "icUpdates": 0,
+    "attachedCycles": "0",
+    "deployment": 0,
+    "funding": 0,
+    "liveCertificates": 0,
+    "siblingEdits": 0,
+    "commitsOrVersionChanges": 0
+  },
+  "cleanup": "No external resources created; private locally generated candidate keys, preparations and existing build artifacts retained. No build cleanup.",
+  "next": "Review exact roles and isolated creation proposal, freeze actual service/artifact inputs after authorized creation; establish deposit/account/project/expiry semantics before funding or upload. Canic remains deferred."
+}

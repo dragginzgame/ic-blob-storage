@@ -418,6 +418,8 @@ type HostConfigurationView = record {
   fenced : bool;
   // Host-validated release identity, not a module hash or freshness authority.
   release : text;
+  // Explicit trusted certificate uploader; does not grant tenant authority.
+  trusted_uploader : principal;
   // Exact installed configuration; observation performs no provider calls.
   configuration : ServiceConfigurationInput;
   // Explicit installed verifier, independent of gateway membership.
@@ -429,16 +431,6 @@ type HostConfigurationView = record {
 type HostFailure = variant {
   // Caller or service differs from the installed binding; controllers gain no authority.
   Denied;
-};
-// Complete standalone installation, with an explicit provider project mapping.
-// Validation checks representation only; it does not provision a Caffeine project.
-type HostInstallationInput = record {
-  // Shared service identity, tenant/resource bounds and provider economics.
-  configuration : ServiceConfigurationInput;
-  // Trusted external whole-content verifier; no controller or operator default.
-  completion_verifier : principal;
-  // Provider project mapped to this service's local namespace; never inferred.
-  project : text;
 };
 // Complete maintained totals for this local funding journal only.
 type LocalFundingStatus = record {
@@ -817,6 +809,19 @@ type ServiceFundingInput = record {
   // Positive lifetime journal capacity, including uncertain and completed attempts.
   max_attempts : nat32;
 };
+// Complete installation input shared by host adapters and offline preparation.
+// Passive data only: hosts authenticate installation, validate their actual
+// identity and compiled release, and explicitly own allocation and lifecycle.
+type ServiceInstallationInput = record {
+  // Explicit trusted uploader for restricted certificate issuance.
+  trusted_uploader : principal;
+  // Shared service identity, tenant/resource bounds and provider economics.
+  configuration : ServiceConfigurationInput;
+  // Trusted external whole-content verifier; no controller or operator default.
+  completion_verifier : principal;
+  // Explicit provider project mapping; validation does not provision it.
+  project : text;
+};
 // Explicit concurrent read bounds; abandoned sessions continue consuming capacity.
 type ServiceReadInput = record {
   // Maximum response buffer reserved by one session.
@@ -1111,18 +1116,18 @@ type UploadDiscoveryResponse = record {
 // A missing independent prerequisite for exposure or certificate issuance.
 // A successful inspection with blockers is not upload authorization.
 type UploadExposureBlocker = variant {
-  // Certificate replay, lifetime or charging behavior is unqualified.
-  ReplayCharging;
-  // Provider owner/project/namespace binding is unqualified.
-  ProviderNamespace;
-  // Complete obligations and independent recovery freshness are unqualified.
-  Recovery;
+  // Original uploader lacks explicit installed trust.
+  TrustedUploader;
+  // Installed envelope or body exceeds the one-object/1 KiB contract.
+  TrialBounds;
+  // Owner is inspection-only after restoration; no backup freshness claim.
+  CurrentOwner;
   // Atomic intent-before-effect durability is not established.
   Durability;
+  // Explicit installed local namespace does not match the permission.
+  NamespaceBinding;
   // Host facts were not established in the current execution.
   StaleObservation;
-  // Deployed size/tree/chunk enforcement before charging is unqualified.
-  PrechargeLimits;
 };
 // Refused local exposure or historical permission inspection.
 type UploadExposureFailure = variant {
@@ -1310,7 +1315,7 @@ type UploadVerificationPlan = record {
   // Installed provider project, never inferred from namespace or tenant.
   project : text;
 };
-service : (HostInstallationInput) -> {
+service : (ServiceInstallationInput) -> {
   _immutableObjectStorageCreateCertificate : (text) -> (
       CaffeineUploadCertificateResponse,
     );

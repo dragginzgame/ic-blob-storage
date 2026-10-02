@@ -53,10 +53,10 @@ fn exposure_missing_host_facts_and_stale_previews_cannot_mutate_or_bypass_author
         ..yes
     };
     let expected = vec![
-        B::PrechargeLimits,
-        B::ProviderNamespace,
-        B::ReplayCharging,
-        B::Recovery,
+        B::TrialBounds,
+        B::NamespaceBinding,
+        B::TrustedUploader,
+        B::CurrentOwner,
         B::Durability,
     ];
     assert_eq!(preview(&f, missing), Ok(expected.clone()));

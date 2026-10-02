@@ -42,7 +42,7 @@ pub fn resolve<M: Memory>(
 
 /// Inspect the same local eligibility and independent evidence used at issuance.
 /// The root is a locator, not tenant authority. Host evidence must be obtained
-/// independently of ingress and bound to the complete original permission.
+/// from installed trust/current-owner facts and bound to the complete original permission.
 /// No state is changed, even when every prerequisite is established.
 /// # Errors
 /// Refuses wrong actors/roots, stale local permissions, changed evidence or fences.
@@ -72,7 +72,8 @@ pub fn inspect<M: Memory>(
 ///
 /// The IC supplies the response certificate; this function does not sign bytes or
 /// send them to a gateway. The host owns ingress decoding limits and independent
-/// provider/recovery qualification. Never accept host evidence from ingress.
+/// trusted-uploader contract. Never accept host evidence from ingress or claim
+/// that local prerequisites establish provider charge or replay enforcement.
 /// A lost committed reply must be inspected, not reissued. A local deadline cannot
 /// recall an escaped certificate or establish the provider's replay rules.
 /// # Errors

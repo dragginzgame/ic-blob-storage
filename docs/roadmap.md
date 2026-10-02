@@ -1,6 +1,6 @@
 # Development plan
 
-The current 0.5.0 batch makes the library and standalone service independent of
+Released 0.5.0 makes the library and standalone service independent of
 consumer frameworks and adopts ic-memory 0.15.0. Downstream wrappers, deployment
 integration and their tests belong in consumer repositories. Library publication
 is separate from qualified live service operation.
@@ -27,13 +27,21 @@ and bounded gateway journal. Actual live certificate/upload/download remains ope
 
 ## Next action
 
+The maintainer accepted the [restricted standalone contract](standalone-trial.md): one 1 KiB
+file under explicit trusted roles and a restricted fresh-instance lifecycle.
+The maintainer selected a total planning budget of 100T cycles; the proposed
+10T service / 1T initial provider / 89T unallocated split is not a price estimate,
+enforced provider cap or effect authority. Offline 1 KiB preparation and complete
+host-init syntax now pass; the existing 10 MiB rehearsal remains the default.
+
 Finish the existing upload/download trial prerequisites. Select exact isolated
 service/tenant/uploader/verifier, Cashier/payer, gateway/project/bucket and reviewable
 financial/byte/time limits. The offline checks prepare these inputs but grant no
-platform identity, account authority or qualification. Four certificate facts
-remain false; client ceilings are not a provider spending cap. Any narrower
-experimental operating contract needs an explicit reviewed decision rather than
-turning those facts on from local test success.
+platform identity, account authority or provider qualification. The current
+certificate gate checks installed uploader trust, local namespace, restricted
+envelope and durable current ownership. Provider spending/replay guarantees remain
+outside the accepted contract; client ceilings are not a provider spending cap.
+This semantic/init/API hard cut requires a minor release before the actual trial.
 
 Do not add another journal owner, recovery canister or allocator. Prefer the
 single storage owner and its local durable journals. Restored/stale instances stay

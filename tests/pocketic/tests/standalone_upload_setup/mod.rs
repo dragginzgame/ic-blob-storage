@@ -7,13 +7,20 @@ use crate::{
 use ic_testkit::pocket_ic::PocketIcBuilder;
 #[test]
 fn standalone_signed_upload_setup_recovers_lost_and_pending_replies_then_cancels_and_fences() {
-    let mut f = Fixture::with_harness(Harness::with_builder(
-        PocketIcBuilder::new()
-            .with_nns_subnet()
-            .with_application_subnet(),
-    ));
+    let mut f = Fixture::with_profile(
+        Harness::with_builder(
+            PocketIcBuilder::new()
+                .with_nns_subnet()
+                .with_application_subnet(),
+        ),
+        Fake::principal(5),
+        Fake::principal(2),
+        uploader(),
+        false,
+        Fake::principal(90),
+        "signed-setup-fixture",
+    );
     f.tenant = signer();
-    f.uploader = uploader();
     f.enroll(f.operator).unwrap();
     let input = f.manifest();
     let trusted = f.harness.pic.root_key().unwrap();
@@ -23,7 +30,20 @@ fn standalone_signed_upload_setup_recovers_lost_and_pending_replies_then_cancels
         .make_live_with_params(None, None, Some(vec!["127.0.0.1".into()]), None)
         .to_string();
     let body = vec![42; usize::try_from(input.permission.upload.bytes).unwrap()];
-    let client = Client::new(input.clone(), &body, &url, &trusted, "standalone");
+    let host = f.configuration(f.operator).unwrap();
+    let client = Client::new(
+        input.clone(),
+        &body,
+        &url,
+        &trusted,
+        "standalone",
+        ServiceInstallationInput {
+            configuration: host.configuration,
+            project: host.project,
+            completion_verifier: host.completion_verifier,
+            trusted_uploader: host.trusted_uploader,
+        },
+    );
     client.before_restore();
     let original = f.admission(input.permission);
     assert_eq!(

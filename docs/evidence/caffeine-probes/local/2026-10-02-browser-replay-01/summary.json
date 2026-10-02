@@ -1,0 +1,78 @@
+{
+  "schema": 1,
+  "date": "2026-10-02",
+  "evidence": "browser_replay_repair",
+  "capture": ".tmp/browser-replay-01",
+  "result": "Mitigates the reproduced pre-header replay with a closed request stream; no buffered fallback",
+  "contract": {
+    "httpsRequired": true,
+    "requestStreamsRequired": true,
+    "http1UploadSupported": false,
+    "duplex": "half",
+    "sdkApplicationPayloadPreserved": true,
+    "sdkRetry": false,
+    "concurrency": 1,
+    "exactlyOnceWireGuaranteed": false,
+    "providerReplayEconomicsQualified": false,
+    "deployedStreamingCompatibilityQualified": false,
+    "http3Qualified": false
+  },
+  "validation": {
+    "standaloneJourneysPassed": 4,
+    "standaloneSeconds": 18.06,
+    "localCertificateScenariosPassed": 10,
+    "certificateSeconds": 53.11,
+    "maintainedTransportCutsPassed": [
+      "connection-close",
+      "refused-stream",
+      "data-close"
+    ],
+    "sdkSubstituteCasesPassed": 6,
+    "finalLostCasePassed": true,
+    "finalLostSeconds": 4.79,
+    "formattingPassed": true,
+    "diffCheckPassed": true,
+    "javascriptSyntaxPassed": true
+  },
+  "failuresAndCorrections": [
+    "Initial matrix warms navigation rather than credentials-omit fetch pool; retained in matrix-01.",
+    "Corrected pool and distinct cuts retained in matrix-02/03/04; buffered controls repeat, streams refuse HTTP/1.1 and preserve uncertainty on HTTP/2.",
+    "Initial standalone repair upload works but recovery probe uses page origin rather than selected TLS upload origin; all four fail this test assertion. Corrected probe and rerun retained.",
+    "Read-only Node git subprocess comparison reports EPERM in default sandbox; shell capture/fs-only comparison succeeds without escalation."
+  ],
+  "sources": [
+    {
+      "url": "https://chromium.googlesource.com/chromium/src/+/refs/tags/153.0.8010.12/services/network/chunked_data_pipe_upload_data_stream.cc?format=TEXT",
+      "status": "200",
+      "base64Sha256": "196a7d1f5c4e10adf5f136663ffbda5d48c5c46a7473cde57c5486211b17394e",
+      "sourceSha256": "c22828b84d576497e60940f524fbc3de5304800b0828d35be44f643964da415b"
+    },
+    {
+      "url": "https://chromium.googlesource.com/chromium/src/+/refs/tags/153.0.8010.12/services/network/url_loader_util.cc?format=TEXT",
+      "status": "200",
+      "base64Sha256": "d56a447069def28b9af29b651a46253dc1b0097cd036e564c448f90e13741401",
+      "sourceSha256": "dd0bad96a2a43b8a39306e0d9929f4638b1e45ed199e44761fe66339208d8cfe"
+    },
+    {
+      "url": "https://chromium.googlesource.com/chromium/src/+/refs/tags/153.0.8010.12/net/http/http_network_transaction.cc?format=TEXT",
+      "status": "200",
+      "base64Sha256": "5add2dd54d936a3adabd4f9bef41f14d17e972462d38f13c3a03c38c9ba3dd8d",
+      "sourceSha256": "078f51b757a7041c0928e5ad12b0338674f0826311539b27e57d799024f6b913"
+    }
+  ],
+  "guide": "https://developer.chrome.com/docs/capabilities/web-apis/fetch-streaming-requests",
+  "webFailures": "Web tools report Internal Error for several current/tagged Chromium pages; bounded direct exact-tag retrieval succeeds for all three retained sources.",
+  "limits": "All transport cuts are fresh owned cases with 1 KiB bodies, at most three arrivals and 10-second cases; existing integration/SDK bounds remain. No deployment, paid effect, release, full CI or sibling changes.",
+  "cleanup": "Owned sockets and browsers closed; generated temporary TLS private key directories removed; build/capture artifacts retained.",
+  "openActions": [
+    "Qualify selected live HTTPS gateway/CORS/stream support with explicit paid-trial authority.",
+    "Select persistent browser environment and preserve exact uncertainty/cancellation/reference release.",
+    "Future Canic consumer must preserve outgoing streams; adoption remains deferred."
+  ],
+  "artifacts": {
+    "gateway.js": "8d1ccb75c576be4585c20cb8cf73ca7171dbba04872454d4f2cd74a33e787370",
+    "bundled-standalone.js": "48654a278eb5fe599177f67df00b9db47694aa28719ec9f8601a5d001ebe64f6",
+    "ic_blob_storage_canister.wasm": "7b93fd6588b325f2cd06d1dde2cc02ab705f5ef682712029b2dfa1fabba9b00a",
+    "blob-storage": "b1add86d4b7ada950eaf2936334e059b9943b1d8e5d175b577c287288e3ed986"
+  }
+}

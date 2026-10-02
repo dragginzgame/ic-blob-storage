@@ -4,7 +4,7 @@
   "selection": "Latest official Caffeine integration is the sole target. Current package sources take precedence over older integration examples; Canic bindings are extraction evidence, not the provider specification.",
   "status": "integration_target_only",
   "public_source_refresh": {
-    "observed_on": "2026-10-01",
+    "observed_on": "2026-10-02",
     "skills_commit": "4ebf43c518c9fc7b090ed4d27677fea26d6b98f3",
     "npm_latest_observed": "1.1.2",
     "npm_integrity_matches_retained_pin": true,

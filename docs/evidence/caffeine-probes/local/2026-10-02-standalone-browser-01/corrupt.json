@@ -1,0 +1,30 @@
+{
+  "attestation_created": false,
+  "billing_cessation_established": false,
+  "browser_cancelled": true,
+  "evidence": "actual_standalone_chromium_native_corrupt_gateway_substitute",
+  "live_provider_requests": 0,
+  "paid_effects": 0,
+  "permission_revoked": true,
+  "provider_deletion_established": false,
+  "provider_gets": [
+    "/v1/blob/?blob_hash=sha256%3Ad53964e58575f66aa53db95000c2d48152b0bf2f22da88274a85788efd5a3b6e&owner_id=dllsh-pd777-77776-qaaaa-cai&project_id=standalone-trial"
+  ],
+  "provider_puts": [
+    {
+      "bytes": 4788,
+      "path": "/v1/blob-tree/",
+      "sha256": "faab1526a68f9a23b2bf0df1522fd0a99e2a6f773d19482c8130e9427973096c"
+    },
+    {
+      "bytes": 1024,
+      "path": "/v1/chunk/?owner_id=dllsh-pd777-77776-qaaaa-cai&blob_hash=sha256%3Ad53964e58575f66aa53db95000c2d48152b0bf2f22da88274a85788efd5a3b6e&chunk_hash=sha256%3A93beaf743566f9e55d341b9fdcab54250bd8b391f0fab18837ba25accf22a387&chunk_index=0&bucket_name=local-standalone-trial&project_id=standalone-trial",
+      "sha256": "b2256110f2c4226de0008dd4382a388e033f211b617bd3237135ab1d59a722b6"
+    }
+  ],
+  "retained_bytes": 1024,
+  "schema": 1,
+  "state": "ExposurePossible",
+  "tenant_download_unavailable": true,
+  "verification_error": "content_mismatch"
+}

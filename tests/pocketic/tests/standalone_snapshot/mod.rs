@@ -1,4 +1,4 @@
-//! Recovery qualification evidence: snapshots restore heap authority as well as history.
+//! Unsupported snapshot rollback restores heap authority as well as history.
 //! This records an unsupported rollback path, not a requirement to preserve the gap.
 use super::*;
 use ic_blob_storage::dto::upload::{UploadState, UploadStatusFailure};
@@ -17,16 +17,26 @@ fn admit(f: &Fixture, permission: UploadAdmissionRequest) {
 }
 
 #[test]
-fn standalone_snapshot_rollback_bypasses_upgrade_fence_but_cannot_enable_certificates() {
-    let f = Fixture::new();
+fn standalone_snapshot_rollback_bypasses_upgrade_fence_and_loses_later_obligations() {
+    let f = Fixture::restricted(Harness::new(), Fake::principal(4));
     let pic = &f.harness.pic;
     f.enroll(f.operator).unwrap();
     let empty = snapshots::take(pic, f.service, f.controller);
-    let manifest = f.manifest();
+    let manifest = f.small_manifest();
     let permission = manifest.permission;
     admit(&f, permission);
     f.prepare(f.uploader, &manifest).unwrap();
     let prepared = snapshots::take(pic, f.service, f.controller);
+    let root = super::standalone_certificate::root(&manifest);
+    let _: ic_blob_storage::dto::upload::certificate::CaffeineUploadCertificateResponse = pic
+        .update_candid_as(
+            f.service,
+            f.uploader,
+            ic_blob_storage::workflow::uploads::certificate::CAFFEINE_UPLOAD_CERTIFICATE_METHOD,
+            (root.clone(),),
+        )
+        .unwrap();
+    assert_eq!(f.admission(permission).state, UploadState::ExposurePossible);
     pic.update_candid_as::<Result<UploadRevocationResponse, UploadAdmissionFailure>, _>(
         f.service,
         f.tenant,
@@ -45,15 +55,11 @@ fn standalone_snapshot_rollback_bypasses_upgrade_fence_but_cannot_enable_certifi
     let restored = f.admission(permission);
     assert!(!restored.revoked);
     assert_eq!(restored.state, UploadState::Reserved);
-    let root = super::standalone_certificate::root(&manifest);
     let assessment = super::standalone_certificate::inspect(&f, f.uploader, &root).unwrap();
-    assert!(
-        assessment
-            .blockers
-            .contains(&ic_blob_storage::dto::upload::exposure::UploadExposureBlocker::Recovery)
-    );
+    // This demonstrates why snapshot activation is unsupported: the heap cannot
+    // know that exposure and revocation occurred after the restored snapshot.
+    assert_eq!(assessment.blockers, []);
     let before = pic.get_stable_memory(f.service);
-    super::standalone_certificate::refuses(&f, f.uploader, &root);
     unchanged(&pic.get_stable_memory(f.service), &before);
 
     // An even older snapshot forgets the entire operation and its reservation.

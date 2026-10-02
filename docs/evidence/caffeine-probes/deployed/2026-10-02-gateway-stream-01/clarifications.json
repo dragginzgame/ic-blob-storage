@@ -1,0 +1,17 @@
+{
+  "schema": 1,
+  "date": "2026-10-02",
+  "corrects": "summary.json",
+  "originalSummarySha256": "beed391ab91ee86d2227918a84755957f2e5e7f6f2eeac8e43322588bd100140",
+  "originalSummaryUnchanged": true,
+  "headOutput": {
+    "responseBodyBytes": 0,
+    "responseBodySha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "originalFieldMeaning": "The original HEAD responseBodySha256 hashes curl --head output, which contains response headers; it is not a received entity-body hash.",
+    "retainedFile": ".tmp/gateway-stream-review-01/requests/head-body.txt"
+  },
+  "requestLimit": "Three configured curl invocations, retry zero and no redirect following; physical wire-attempt count is not independently measured.",
+  "rootStatus": "HTTP 400 is retained and is not an application-health claim.",
+  "privacy": "Response cookie values remain private and were never sent back; public summary contains only selected safe headers and hashes.",
+  "qualification": "Anonymous TLS/H2/CORS metadata only; X-Dry-Run is advertised but untested, no object/certificate/account/deployment or paid effect"
+}

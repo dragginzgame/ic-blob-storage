@@ -1,0 +1,1 @@
+{"network":"https://icp-api.io","root_key":"mainnet","identity":"anonymous","canister":"72ch2-fiaaa-aaaar-qbsvq-cai","method":"pricelist_get_v1","argument":"()","mode":"query","candid":"docs/evidence/caffeine-probes/deployed/2026-10-01-cashier-preflight-01/cashier-current.did","output":"candid"}

@@ -20,13 +20,13 @@ pub(crate) struct BrowserDriver {
     _config: tempfile::NamedTempFile,
 }
 impl BrowserDriver {
-    pub(crate) fn start(config: &serde_json::Value) -> Self {
+    pub(crate) fn start(config: &serde_json::Value, script: &str) -> Self {
         let saved = tempfile::NamedTempFile::new().unwrap();
         std::fs::write(saved.path(), serde_json::to_vec(config).unwrap()).unwrap();
         let repo = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../..");
         let node = std::env::var_os("BLOB_BROWSER_NODE").unwrap_or_else(|| "node".into());
         let mut child = Command::new(node)
-            .arg(repo.join("tests/browser/run.mjs"))
+            .arg(repo.join("tests/browser").join(script))
             .arg(saved.path())
             .current_dir(&repo)
             .stdin(Stdio::piped())

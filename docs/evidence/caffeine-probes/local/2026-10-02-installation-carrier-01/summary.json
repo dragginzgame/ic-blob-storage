@@ -1,0 +1,101 @@
+{
+  "schema": 1,
+  "date": "2026-10-02",
+  "class": "offline_cli_and_actual_local_host_installation",
+  "baseline_release": "0.5.0",
+  "baseline_commit": "03715ebecc608f6f679ca0e753fc95a8fd5eae7b",
+  "artifact_capture": ".tmp/installation-carrier-01",
+  "intent": "intent.txt",
+  "implementation": "One passive core ServiceInstallationInput, no alias or downstream dependency; installation-check writes exact complete init bytes and hash after full validation",
+  "checks": {
+    "cli_unit": {
+      "passed": true,
+      "log": "cli-tests-memory-0152.log"
+    },
+    "shared_installation": {
+      "passed": true,
+      "log": "installation-tests.log"
+    },
+    "exported_candid": {
+      "passed": true,
+      "log": "host-contract-tests.log"
+    },
+    "independent_didc": {
+      "passed": true,
+      "decoded": "installation-decoded.args",
+      "note": "Fixture is broader than the restricted issuance envelope; independent syntax evidence only"
+    },
+    "actual_host_installation": {
+      "passed": true,
+      "log": "host-installation-cli.log",
+      "seconds": 3.48,
+      "test": "standalone_installs_cli_carrier_and_independently_rejects_wrong_actual_service"
+    },
+    "actual_growth_refusal_retry_restore": {
+      "passed": true,
+      "log": "growth-rollback-corrected.log",
+      "seconds": 2.92
+    },
+    "core_cli_host_strict_lint": {
+      "passed": true,
+      "log": "clippy.log"
+    },
+    "integration_strict_lint": {
+      "passed": true,
+      "log": "integration-clippy-corrected.log"
+    },
+    "current_wasm_builds": {
+      "passed": true,
+      "log": "wasm-build.log"
+    },
+    "formatting": {
+      "passed": true,
+      "log": "fmt-check.log"
+    }
+  },
+  "actual_local_facts": [
+    "CLI carrier accepted unmodified by actual standalone Wasm",
+    "Different proposed service passes offline validation but actual host traps before allocation; original heap/config/stable bytes remain",
+    "Installed project/verifier/trusted uploader and configured release read back exactly; controller alone is denied",
+    "Tenant admission and trusted-uploader preparation yield no local certificate blockers in the installed one-object/1KiB owner",
+    "Typed backing growth refusal rolls back admission and populated neighbor; exact retry succeeds and restoration stays fenced"
+  ],
+  "artifacts": {
+    "configuration_sha256": "sha256:a83f6fe6d5d154d21434c7cf99bb81fedb92a097da2f5f1bfaea8b754a97b930",
+    "installation_sha256": "sha256:486883eaf1f34a5ca8b74593dffec3204df47c94010ee315dfe20d883bee7d69",
+    "standalone_wasm_sha256": "7b93fd6588b325f2cd06d1dde2cc02ab705f5ef682712029b2dfa1fabba9b00a",
+    "cli_sha256": "9b6060c6d61301c1cc163ee429c5447f7516428da556f0ac3efc5a57f0e05e17",
+    "storage_probe_sha256": "155898f8b2a34202972e674809c78e83a4bac692a2fe29756df2fc8ebb10a340",
+    "candid_sha256": "2e782d3ee9ffc69268db9f6e5203026f3a3eebb0de289ce1c31d3776fe06faf3",
+    "failed_attempts": "failures.json"
+  },
+  "maintainer_dependency_update": {
+    "ic_memory": "0.15.2",
+    "one_registry_identity": true,
+    "review": "upstream-review.json",
+    "new_blob_specific_adaptation_required": false
+  },
+  "identity_metadata": {
+    "candidate": "canic-mainnet",
+    "public_principal": "o5trf-oqyg7-cawjp-xs4pw-aomb3-iwki5-hyezf-qahfz-j3ffd-jh4fc-oqe",
+    "default_unchanged": "toko-miner-local",
+    "keys_exported": false,
+    "signing_tested": false,
+    "roles_assigned": false
+  },
+  "limitations": [
+    "Encoding is true; authenticated/platform identity/compiled release/effect/provider facts remain false in offline report",
+    "No live provider account, project, namespace, gateway, role assignment or deployment is selected by identity metadata discovery",
+    "No deployed Caffeine behavior, economic cap, retention, deletion or billing cessation is qualified",
+    "Upstream issue body could not be fetched; assessment is based on primary local release/source and published package",
+    "No minimum-toolchain rerun, full CI, version/release/publication/commit/sibling mutation or build cleanup"
+  ],
+  "live_effects": {
+    "caffeine_requests": 0,
+    "provider_object_requests": 0,
+    "account_mutations": 0,
+    "deployed_canisters": 0,
+    "payments": 0
+  },
+  "cleanup": "Local owned PocketIC processes close; retain artifacts, no external obligations or build cleanup"
+}

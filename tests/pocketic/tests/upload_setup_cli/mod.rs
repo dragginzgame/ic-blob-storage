@@ -1,4 +1,4 @@
-//! One signed local reservation/preparation/cancellation journey shared by both hosts.
+//! Signed local reservation/preparation/cancellation journey for the standalone host.
 mod inputs;
 mod phases;
 use crate::{
@@ -7,7 +7,9 @@ use crate::{
     submission_proxy::{Dispatch, Proxy, Reply},
 };
 use candid::Principal;
-use ic_blob_storage::dto::upload::manifest::UploadManifestRequest;
+use ic_blob_storage::dto::{
+    configuration::ServiceInstallationInput, upload::manifest::UploadManifestRequest,
+};
 use serde_json::{Value, json};
 use std::{
     cell::Cell,
@@ -19,6 +21,7 @@ pub(crate) struct Client {
     temporary: tempfile::TempDir,
     count: Cell<u32>,
     permission: UploadManifestRequest,
+    installation: ServiceInstallationInput,
 }
 pub(crate) fn uploader() -> Principal {
     use ic_agent::Identity;
@@ -69,6 +72,7 @@ impl Client {
         url: &str,
         trusted: &[u8],
         label: &str,
+        installation: ServiceInstallationInput,
     ) -> Self {
         let temporary = tempfile::tempdir().unwrap();
         let report = std::env::var_os("BLOB_UPLOAD_SETUP_REPORT").map_or_else(
@@ -110,6 +114,7 @@ impl Client {
             temporary,
             count: Cell::new(0),
             permission,
+            installation,
         };
         inputs::prepare(&client, body);
         client

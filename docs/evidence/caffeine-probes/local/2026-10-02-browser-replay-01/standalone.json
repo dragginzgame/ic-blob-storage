@@ -1,0 +1,139 @@
+{
+  "schema": 1,
+  "evidence": "actual_local_standalone_chromium_native_journeys",
+  "provider": "Owned TLS HTTP/2 upload and separate HTTP native-read origins, serving the same received bytes",
+  "journeys": [
+    {
+      "name": "success",
+      "browser": "153.0.8010.12",
+      "outcome": "passed",
+      "uploadProtocol": "TLS HTTP/2",
+      "uploadOrigin": "https://127.0.0.1:35853",
+      "nativeReadOrigin": "http://127.0.0.1:41465",
+      "arrivals": [
+        {
+          "bytes": 4651,
+          "path": "/v1/blob-tree/",
+          "sha256": "73986aabeecba76cfcbad1b8b51da6a9bb4455ce59d6bfbd264402075dad4447"
+        },
+        {
+          "bytes": 1024,
+          "path": "/v1/chunk/?owner_id=dllsh-pd777-77776-qaaaa-cai&blob_hash=sha256%3Ad53964e58575f66aa53db95000c2d48152b0bf2f22da88274a85788efd5a3b6e&chunk_hash=sha256%3A93beaf743566f9e55d341b9fdcab54250bd8b391f0fab18837ba25accf22a387&chunk_index=0&bucket_name=local-standalone-trial&project_id=standalone-trial",
+          "sha256": "b2256110f2c4226de0008dd4382a388e033f211b617bd3237135ab1d59a722b6"
+        }
+      ],
+      "gets": [
+        "/v1/blob/?blob_hash=sha256%3Ad53964e58575f66aa53db95000c2d48152b0bf2f22da88274a85788efd5a3b6e&owner_id=dllsh-pd777-77776-qaaaa-cai&project_id=standalone-trial",
+        "/v1/blob/?blob_hash=sha256%3Ad53964e58575f66aa53db95000c2d48152b0bf2f22da88274a85788efd5a3b6e&owner_id=dllsh-pd777-77776-qaaaa-cai&project_id=standalone-trial"
+      ],
+      "journalClaims": 2,
+      "journalPhases": [
+        "responded",
+        "responded"
+      ],
+      "cancelled": false,
+      "uploadAcknowledged": true,
+      "privateSource": ".tmp/browser-replay-01/trials-02/success/browser-result.json",
+      "privateSourceSha256": "ebe824afe914ba592179ca7c00ff68616bc9c0c3862faccc03e9291a3e62f403"
+    },
+    {
+      "name": "corrupt",
+      "browser": "153.0.8010.12",
+      "outcome": "passed",
+      "uploadProtocol": "TLS HTTP/2",
+      "uploadOrigin": "https://127.0.0.1:42803",
+      "nativeReadOrigin": "http://127.0.0.1:38101",
+      "arrivals": [
+        {
+          "bytes": 4785,
+          "path": "/v1/blob-tree/",
+          "sha256": "a04dd346e86155e1d185922cf761c51e5d6fc410f219a2548c35d6ae3a94f37c"
+        },
+        {
+          "bytes": 1024,
+          "path": "/v1/chunk/?owner_id=dllsh-pd777-77776-qaaaa-cai&blob_hash=sha256%3Ad53964e58575f66aa53db95000c2d48152b0bf2f22da88274a85788efd5a3b6e&chunk_hash=sha256%3A93beaf743566f9e55d341b9fdcab54250bd8b391f0fab18837ba25accf22a387&chunk_index=0&bucket_name=local-standalone-trial&project_id=standalone-trial",
+          "sha256": "b2256110f2c4226de0008dd4382a388e033f211b617bd3237135ab1d59a722b6"
+        }
+      ],
+      "gets": [
+        "/v1/blob/?blob_hash=sha256%3Ad53964e58575f66aa53db95000c2d48152b0bf2f22da88274a85788efd5a3b6e&owner_id=dllsh-pd777-77776-qaaaa-cai&project_id=standalone-trial"
+      ],
+      "journalClaims": 2,
+      "journalPhases": [
+        "responded",
+        "responded"
+      ],
+      "cancelled": true,
+      "uploadAcknowledged": true,
+      "privateSource": ".tmp/browser-replay-01/trials-02/corrupt/browser-result.json",
+      "privateSourceSha256": "7647003638152423ce12be83a9e3dccc6222bdb2a8e6154f588af4bd102f0d0c"
+    },
+    {
+      "name": "lost-final",
+      "browser": "153.0.8010.12",
+      "outcome": "passed",
+      "uploadProtocol": "TLS HTTP/2",
+      "uploadOrigin": "https://127.0.0.1:33819",
+      "nativeReadOrigin": "http://127.0.0.1:36783",
+      "arrivals": [
+        {
+          "bytes": 4782,
+          "path": "/v1/blob-tree/",
+          "sha256": "e6845c0e6cd836d91303b4433c4abe600df48ad9f233cefa403c88c9763312cd"
+        },
+        {
+          "bytes": 1024,
+          "path": "/v1/chunk/?owner_id=dllsh-pd777-77776-qaaaa-cai&blob_hash=sha256%3Ad53964e58575f66aa53db95000c2d48152b0bf2f22da88274a85788efd5a3b6e&chunk_hash=sha256%3A93beaf743566f9e55d341b9fdcab54250bd8b391f0fab18837ba25accf22a387&chunk_index=0&bucket_name=local-standalone-trial&project_id=standalone-trial",
+          "sha256": "b2256110f2c4226de0008dd4382a388e033f211b617bd3237135ab1d59a722b6"
+        }
+      ],
+      "gets": [
+        "/v1/blob/?blob_hash=sha256%3Ad53964e58575f66aa53db95000c2d48152b0bf2f22da88274a85788efd5a3b6e&owner_id=dllsh-pd777-77776-qaaaa-cai&project_id=standalone-trial",
+        "/v1/blob/?blob_hash=sha256%3Ad53964e58575f66aa53db95000c2d48152b0bf2f22da88274a85788efd5a3b6e&owner_id=dllsh-pd777-77776-qaaaa-cai&project_id=standalone-trial"
+      ],
+      "journalClaims": 2,
+      "journalPhases": [
+        "responded",
+        "uncertain"
+      ],
+      "cancelled": false,
+      "uploadAcknowledged": false,
+      "privateSource": ".tmp/browser-replay-01/trials-02/lost-final/browser-result.json",
+      "privateSourceSha256": "b98dc2f80505301a923da39b1edf2709d2d248418823623297e8954285c1af5d"
+    },
+    {
+      "name": "withdrawn",
+      "browser": "153.0.8010.12",
+      "outcome": "passed",
+      "uploadProtocol": "TLS HTTP/2",
+      "uploadOrigin": "https://127.0.0.1:43571",
+      "nativeReadOrigin": "http://127.0.0.1:32953",
+      "arrivals": [
+        {
+          "bytes": 4650,
+          "path": "/v1/blob-tree/",
+          "sha256": "82106fde48f6aa3484a417c2a076e89f68b0b420d71470522d2ae07ff5c8e852"
+        },
+        {
+          "bytes": 1024,
+          "path": "/v1/chunk/?owner_id=dllsh-pd777-77776-qaaaa-cai&blob_hash=sha256%3Ad53964e58575f66aa53db95000c2d48152b0bf2f22da88274a85788efd5a3b6e&chunk_hash=sha256%3A93beaf743566f9e55d341b9fdcab54250bd8b391f0fab18837ba25accf22a387&chunk_index=0&bucket_name=local-standalone-trial&project_id=standalone-trial",
+          "sha256": "b2256110f2c4226de0008dd4382a388e033f211b617bd3237135ab1d59a722b6"
+        }
+      ],
+      "gets": [
+        "/v1/blob/?blob_hash=sha256%3Ad53964e58575f66aa53db95000c2d48152b0bf2f22da88274a85788efd5a3b6e&owner_id=dllsh-pd777-77776-qaaaa-cai&project_id=standalone-trial"
+      ],
+      "journalClaims": 2,
+      "journalPhases": [
+        "responded",
+        "uncertain"
+      ],
+      "cancelled": true,
+      "uploadAcknowledged": false,
+      "privateSource": ".tmp/browser-replay-01/trials-02/withdrawn/browser-result.json",
+      "privateSourceSha256": "841bcd28b2fdb622a12a01992d56aa104eedd4d74f5c90e9a3c18921dce5c0f9"
+    }
+  ],
+  "liveProviderRequests": 0,
+  "paidEffects": 0
+}

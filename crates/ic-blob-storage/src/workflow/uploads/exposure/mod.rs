@@ -21,8 +21,8 @@ pub enum UploadExposureResult {
     Exposed(Box<UploadAdmissionResponse>),
 }
 /// Inspect actual local eligibility and independently supplied current host facts.
-/// The host must establish deployed provider namespace/size/replay qualification,
-/// recovery eligibility and durable commit. Do not deserialize evidence from ingress
+/// The host must derive installed uploader trust, the restricted envelope, local
+/// namespace, current-owner eligibility and durable commit. Do not deserialize evidence from ingress
 /// or reuse an assessment after an await; commit re-reads local state independently.
 /// # Errors
 /// Refuses foreign/changed permission or evidence, expiry, phase, revocation or fence.

@@ -1,5 +1,6 @@
 import { StorageClient } from '@caffeineai/object-storage';
 import { createGatewayTransport } from './gateway.js';
+import { validNamespace } from './namespace.js';
 
 /** Local composition refusal; it grants no provider or service authority. */
 export class TransferRefusal extends Error {
@@ -13,25 +14,22 @@ const require = (condition, code) => { if (!condition) throw new TransferRefusal
  * host obligation. The returned transport is the same guarded request owner used
  * by the SDK, not a second session. SDK success is never service completion.
  */
-export async function createUploadTransfer({ certificate, intents, origin, bucket, project,
-  maxRequests, maxRequestBytes, maxTotalRequestBytes, signal, fetch }) {
+export async function createUploadTransfer(options) {
+  const allowed = ['certificate', 'intents', 'origin', 'maxRequests', 'maxRequestBytes',
+    'maxTotalRequestBytes', 'signal', 'fetch'];
+  require(options && Object.keys(options).every(key => allowed.includes(key)), 'options');
+  const { certificate, intents, origin, maxRequests, maxRequestBytes,
+    maxTotalRequestBytes, signal, fetch } = options;
   require(typeof StorageClient.prepareFile === 'function' &&
     typeof StorageClient.prototype.uploadPrepared === 'function', 'sdk');
-  for (const value of [bucket, project]) {
-    require(typeof value === 'string' && value.length > 0 &&
-      value.trim() === value && !/[\u0000-\u001f\u007f]/u.test(value) &&
-      new TextEncoder().encode(value).length <= 256, 'namespace');
-  }
-  // The project is also an HTTP header in the pinned SDK's chunk request.
-  try { new Headers({ 'X-Caffeine-Project-ID': project }); }
-  catch { throw new TransferRefusal('namespace'); }
   const binding = structuredClone((await certificate.inspect()).binding);
   require(binding && typeof binding.service === 'string' &&
     typeof binding.root === 'string', 'binding');
+  require(validNamespace(binding.project, true) && validNamespace(binding.bucket), 'namespace');
   const transport = await createGatewayTransport({ certificate, intents, origin,
     maxRequests, maxRequestBytes, maxTotalRequestBytes, fetch });
-  const storage = new StorageClient(bucket, new URL(origin).origin, binding.service,
-    project, certificate.certificateAgent, {
+  const storage = new StorageClient(binding.bucket, new URL(origin).origin, binding.service,
+    binding.project, certificate.certificateAgent, {
       retry: false, concurrency: 1, signal, fetch: transport,
     });
   return Object.freeze({

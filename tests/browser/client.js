@@ -19,7 +19,7 @@ async function setup(cfg) {
   prepared ??= await prepare();
   binding = { key: `${cfg.service}:${cfg.tenant}:${cfg.operation}`, service: cfg.service,
     tenant: cfg.tenant, uploader: cfg.uploader, operation: cfg.operation,
-    permission: cfg.permission, root: cfg.root };
+    permission: cfg.permission, root: cfg.root, project: 'fixture-project', bucket: 'fixture-bucket' };
   client = await createCertificateClient({ host: cfg.url,
     identity: Ed25519KeyIdentity.generate(new Uint8Array(32).fill(42)),
     rootKey: new Uint8Array(cfg.rootKey), binding,
@@ -42,7 +42,7 @@ async function setup(cfg) {
     } });
   abortUpload = new AbortController();
   const options = { certificate: client, origin: cfg.gateway,
-    bucket: 'fixture-bucket', project: 'fixture-project', signal: abortUpload.signal,
+    signal: abortUpload.signal,
     maxRequests: 2, maxRequestBytes: 1024 * 1024, maxTotalRequestBytes: 2 * 1024 * 1024,
     intents: { ...intents,
       claimGateway: async (...args) => {
@@ -85,7 +85,7 @@ async function remember(result) {
   lastProof = { raw: certificate, requestId: unhex(row.requestId) };
   return row;
 }
-window.fixture = { setup, admitAndPrepare, finishConsumer, plan: async cfg => {
+window.fixture = { setup, initializeStore: intents.initialize, admitAndPrepare, finishConsumer, plan: async cfg => {
     config = cfg;
     prepared = await prepare();
     return prepared;

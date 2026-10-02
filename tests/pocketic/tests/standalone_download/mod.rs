@@ -149,10 +149,11 @@ fn standalone_project_validation_rolls_back_installation_and_rejects_corrupt_res
         "a\nb".into(),
         "é".repeat(129),
     ] {
-        let input = candid::encode_one(HostInstallationInput {
+        let input = candid::encode_one(ServiceInstallationInput {
             configuration: f.config,
             project,
             completion_verifier: Fake::principal(90),
+            trusted_uploader: Fake::principal(4),
         })
         .unwrap();
         let error = f
@@ -232,10 +233,11 @@ fn standalone_download_client_propagates_inactive_unconfirmed_and_restored_refus
 fn standalone_project_at_utf8_byte_limit_survives_current_schema_restore() {
     let f = Fixture::new();
     let project = "é".repeat(128);
-    let installation = HostInstallationInput {
+    let installation = ServiceInstallationInput {
         configuration: f.config,
         project: project.clone(),
         completion_verifier: Fake::principal(90),
+        trusted_uploader: Fake::principal(4),
     };
     f.harness
         .pic

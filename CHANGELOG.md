@@ -2,6 +2,97 @@
 
 ## [Unreleased]
 
+## [0.6.0]
+
+### Breaking
+
+- Require HTTPS and browser request-stream support for upload transport. Send
+  each snapshotted SDK PUT payload through one immediately closed stream with
+  `duplex: 'half'`; HTTP/1.x fails without a buffered fallback. Trusted fetch hooks
+  must preserve the stream.
+- Adopt the accepted restricted upload contract: certificate issuance requires
+  an explicitly installed trusted uploader, a matching local namespace, a
+  one-tenant/one-object/1 KiB lifetime envelope and the current durable owner.
+  Provider spending caps, replay-charge guarantees and operational old-backup
+  recovery are outside this contract. Exact permission checks, one-time exposure,
+  uncertainty accounting and inspection-only restoration remain enforced.
+- Add required `trusted_uploader` to standalone installation, shared installation
+  candidates and configuration readback; persist it in the current v1 record.
+  Replace certificate blocker DTOs and native JSON with the current local facts.
+  `installation-check` now requires `--trusted-uploader`. These changes require a
+  minor release and reinstall after obligations are preserved or discharged.
+- Move complete installation input into the core as
+  `dto::configuration::ServiceInstallationInput`; remove the standalone's
+  `HostInstallationInput` without an alias. Standalone Candid and consumers use
+  the shared passive DTO; lifecycle ownership remains with the host.
+- Require explicit project and bucket in offline upload-input JSON and the browser
+  certificate binding. Retain them in the current v1 journal before issuance;
+  remove independent transfer namespace options. Reopening with changed values
+  refuses without dispatch.
+- Require `upload-inputs --installation` with the complete current installation
+  carrier. Reject inconsistent service, namespace, project or trusted uploader and
+  enforce the candidate's object/manifest bounds before producing upload files.
+  Preserve exact init bytes and their hash; this offline check grants no installed
+  authority or provider provisioning guarantee.
+
+### Added
+
+- Add an offline standalone trial configuration envelope with one 1 KiB lifetime
+  object/reference, retained cleanup capacity and a fully reserved service cycle
+  attachment allocation. Document isolated role/account preparation and the
+  proposed Cashier cycles-ledger deposit route without deploying or funding it.
+  Retain provider-returned deposit metadata and the fresh payer's signed
+  AccountNotFound observation separately from anonymous authorization refusal.
+- Extend the complete standalone/browser rehearsal with a lost final upload
+  reply, supported owner stop/start and independent verification without another
+  upload dispatch. Cover withdrawal before late completion, explicit reference
+  release and exact attestation replay that leaves the released reference inactive.
+  Uploads and both native reads now use one TLS HTTP/2 gateway with normal native
+  certificate validation; unrelated roots and a refused stream preserve failed
+  observations without attestation or automatic read retransmission.
+- Reusable bounded IndexedDB intent storage for the browser certificate and gateway
+  clients. Explicit creation/reopening, immutable lifetime capacity, strict atomic
+  commits and validated history preserve cancellation and uncertain requests across
+  tabs and reloads. A missing journal refuses rather than silently starting fresh.
+- Journal-only Chromium checks (`make test-browser-store`) cover browser-process
+  restart, concurrent claims, retained tombstones, request bounds and corrupt
+  history; the upload fixture now exercises the same maintained store.
+- Complete local standalone/browser rehearsal (`make test-browser-standalone`)
+  exercises actual installed certificate facts, SDK upload, independent native
+  verification, distinct-verifier attestation, tenant download and reference release.
+  A separate corrupt-body journey refuses completion without erasing exposure or
+  liabilities. Both use a local gateway substitute, with no live provider effects.
+
+### Changed
+
+- Explicitly enable the native CLI's reqwest TLS and HTTP/2 features. CLI-only
+  builds previously lacked HTTP/2; dependency versions, memory composition and
+  platform certificate verification remain unchanged.
+- Mitigate the reproduced hidden Chromium chunk PUT replay using streamed bodies.
+  Owned HTTP/2 connection-close, immediate receipt-close and refused-stream cases
+  retain uncertainty with one arrival; buffered fetch/XHR controls repeat. The
+  actual standalone rehearsal recovers pre-header loss without another upload.
+  Add opt-in `test-browser-transport`; retain failed/corrected experiments and
+  provider/browser compatibility limits without claiming exactly-once billing.
+- Clarify browser budgets as guarded fetch-dispatch/body bounds. A retained local
+  Chromium diagnostic observes a transparent repeated chunk PUT after a pre-header
+  connection reset despite disabled SDK retries; exact wire-attempt counts and
+  replay charges remain unqualified. Preserve the failed experiment separately.
+- Offline `installation-check` now writes complete `installation.candid` with
+  its hash alongside the exact original configuration. Actual local installation
+  accepts these bytes and independently rejects an incorrect service binding;
+  offline validation still grants no platform or provider authority.
+  CLI help now describes the complete init output.
+- Adopt the maintainer's ic-memory 0.15.2 dependency update. Review its addressed
+  IcyDB lint feedback and unchanged read contract; qualify current installation,
+  typed growth-refusal rollback, exact retry and fenced restoration locally.
+- Make the offline SDK/native handoff rehearsal accept an explicit body size up
+  to its existing 10 MiB bound, so the first 1 KiB standalone trial can use the
+  same preparation, snapshot, repeat and corrupt-source checks. Invalid sizes
+  refuse before creating output; the default remains 10 MiB.
+- Remove the unused browser refusal branch for the deleted managed fixture;
+  retain current browser cancellation, concurrency and gateway failure checks.
+
 ## [0.5.0] - 2026-10-02
 
 ### Breaking

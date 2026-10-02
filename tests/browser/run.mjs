@@ -1,12 +1,11 @@
 // Browser test driver only. Rust owns the PocketIC instance and installation.
 import { chromium } from 'playwright';
-import { createServer } from 'node:http';
+import { loopbackTLS, loopbackH2 } from './tls.mjs';
 import { readFile } from 'node:fs/promises';
 import assert from 'node:assert/strict';
 import { createInterface } from 'node:readline';
 import { once } from 'node:events';
 import { createHash } from 'node:crypto';
-import { refusedCertificate } from './refused-certificate.mjs';
 
 const [major, minor] = process.versions.node.split('.').map(Number);
 assert(major > 20 || (major === 20 && minor >= 19), 'Browser evidence requires Node >=20.19.0');
@@ -14,7 +13,8 @@ const config = JSON.parse(await readFile(process.argv[2], 'utf8'));
 const deadline = setTimeout(() => { console.error('Browser fixture exceeded 60 seconds'); process.exit(1); }, 60_000);
 const bundle = await readFile(new URL('../../.tmp/browser/client.js', import.meta.url));
 const gateway = [];
-const server = createServer((req, res) => {
+const tls = await loopbackTLS();
+const server = await loopbackH2(tls, (req, res) => {
   if (req.method === 'PUT') {
     const chunks = [];
     req.on('data', data => chunks.push(data));
@@ -32,16 +32,14 @@ const server = createServer((req, res) => {
     res.end('<!doctype html><script type="module" src="/client.js"></script>');
   }
 });
-await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
-const origin = `http://127.0.0.1:${server.address().port}`;
-const browser = await chromium.launch({ headless: true });
+const origin = server.origin;
+const browser = await chromium.launch(tls.launch);
 async function exercise() {
   const context = await browser.newContext();
-  // Browser traffic is confined to the owned page and PocketIC endpoint.
-  await context.route('**/*', route => {
-    const url = new URL(route.request().url());
-    return [origin, new URL(config.url).origin].includes(url.origin) ? route.continue() : route.abort();
-  });
+  // Observe without routing, which can rewrite a stream into a buffered request.
+  const unexpected = [];
+  context.on('request', request => { if (![origin, new URL(config.url).origin].includes(
+    new URL(request.url()).origin)) unexpected.push(request.url()); });
   const load = async page => {
     await page.goto(origin);
     await page.waitForFunction(() => !!window.fixture);
@@ -50,6 +48,7 @@ async function exercise() {
   const a = await context.newPage(), b = await context.newPage();
   await a.goto(origin);
   await a.waitForFunction(() => !!window.fixture);
+  await a.evaluate(() => fixture.initializeStore());
   const upstreamPlan = await a.evaluate(c => fixture.plan(c), config);
   assert.deepEqual(gateway, []);
   // Rust converts the actual declaration into opaque Candid. The browser signs
@@ -64,7 +63,7 @@ async function exercise() {
   assert.deepEqual(gateway, []);
   process.stdout.write(`${JSON.stringify(replies)}\n`);
   const [line] = await grant;
-  if (!config.certificateBlocked) { control.close(); process.stdin.pause(); }
+  control.close(); process.stdin.pause();
   const admitted = JSON.parse(line);
   assert.ok(Array.isArray(admitted.permission));
   Object.assign(config, admitted);
@@ -78,10 +77,6 @@ async function exercise() {
   assert.deepEqual(manifest.headers, ['Content-Length: 10', 'Content-Type: image/png']);
   assert.equal(await a.evaluate(() => fixture.calls()), 0);
   assert.deepEqual(gateway, []);
-  if (config.certificateBlocked) {
-    await refusedCertificate({ a, b, load, gateway, config, control, browser });
-    return;
-  }
   for (const [kind, code] of [['origin', 'request'], ['size', 'request-size'], ['ordinary', 'gateway-blocked']]) {
     assert.equal(await a.evaluate(async kind => {
       try { await fixture.gatewayProbe(kind); return 'sent'; } catch (error) { return error.code; }
@@ -209,13 +204,18 @@ async function exercise() {
   const checks = await b.evaluate(async () => {
     const row = await fixture.inspect();
     const code = async fn => { try { await fn(); return 'unexpected'; } catch (e) { return e.code; } };
-    const conflict = await code(() => fixture.save({ ...row.binding, root: 'changed' }));
-    const stale = await code(() => fixture.observe(row.binding, 'unrelated'));
-    await fixture.save({ ...row.binding, key: 'second' });
-    const capacity = await code(() => fixture.save({ ...row.binding, key: 'third' }));
+    const conflict = await code(() => fixture.save({ ...row.binding, root: `sha256:${'0'.repeat(64)}` }));
+    const stale = await code(() => fixture.observe(row.binding, '0'.repeat(64)));
+    const next = offset => {
+      // Fixture identities only: the real permission deliberately tests u128::MAX.
+      const operation = ((BigInt(row.binding.operation) + offset) % (1n << 128n)).toString();
+      return { ...row.binding, operation, key: `${row.binding.service}:${row.binding.tenant}:${operation}` };
+    };
+    await fixture.save(next(1n));
+    const capacity = await code(() => fixture.save(next(2n)));
     return { conflict, stale, capacity };
   });
-  assert.deepEqual(checks, { conflict: 'conflict', stale: 'observation-binding', capacity: 'capacity' });
+  assert.deepEqual(checks, { conflict: 'intent-binding', stale: 'observation-binding', capacity: 'capacity' });
   if (config.holdResponse || config.gatewayWriteAbort || config.cancelAtGatewayClaim) {
     assert.deepEqual(gateway, []);
     assert.equal(recovered.gateway, undefined);
@@ -256,10 +256,11 @@ async function exercise() {
     { config, cancelled: recovered.cancelled });
   assert.deepEqual(await b.evaluate(() => fixture.inspect()), beforeConsumer);
   assert.equal(gateway.length, gatewayCount);
+  assert.deepEqual(unexpected, []);
   console.log(JSON.stringify({ browser: browser.version(), outcome: 'passed', cancelled: recovered.cancelled, consumer }));
 }
 try { await exercise(); } finally {
   clearTimeout(deadline);
   await browser.close();
-  await new Promise(resolve => server.close(resolve));
+  await server.close(); await tls.close();
 }

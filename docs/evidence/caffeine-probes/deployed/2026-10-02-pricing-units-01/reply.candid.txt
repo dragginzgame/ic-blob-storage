@@ -1,0 +1,45 @@
+(
+  variant {
+    Ok = record {
+      units = vec {
+        record {
+          "base.currency.caffeine_credit";
+          record {
+            description = "Caffeine credit (~$0.25, 100B icp_cycles)";
+            conversion = variant {
+              Unit = record {
+                rate = record {
+                  numerator = 100_000_000_000 : int;
+                  denominator = 1 : int;
+                };
+                target = "base.currency.icp_cycle";
+              }
+            };
+          };
+        };
+        record {
+          "base.currency.icp_cycle";
+          record {
+            description = "ICP cycle — the Cashier\'s internal accounting unit";
+            conversion = variant { Terminal };
+          };
+        };
+        record {
+          "base.currency.usd";
+          record {
+            description = "1 USD at XDR rate (1 USD ≈ 0.769 XDR, 1 XDR = 1T cycles)";
+            conversion = variant {
+              Unit = record {
+                rate = record {
+                  numerator = 769_230_769_230 : int;
+                  denominator = 1 : int;
+                };
+                target = "base.currency.icp_cycle";
+              }
+            };
+          };
+        };
+      };
+    }
+  },
+)

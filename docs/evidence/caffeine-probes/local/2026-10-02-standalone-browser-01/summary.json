@@ -1,0 +1,56 @@
+{
+  "schema": 1,
+  "date": "2026-10-02",
+  "class": "actual_local_standalone_chromium_native_with_provider_substitute",
+  "baseline_release": "0.5.0",
+  "baseline_commit": "03715ebecc608f6f679ca0e753fc95a8fd5eae7b",
+  "artifact_capture": ".tmp/standalone-browser-01",
+  "intent": "intent.txt",
+  "tests": "tests/pocketic/tests/standalone_browser",
+  "target": "make test-browser-standalone",
+  "checks": {
+    "complete_target": { "passed": true, "log": "trials-final.log", "cases": 2, "seconds": 8.46 },
+    "affected_strict_lint": { "passed": true, "log": "clippy-corrected.log", "scope": "standalone and storage integration targets" },
+    "formatting": { "passed": true, "log": "fmt-check.log" },
+    "first_success_before_expansion": { "passed": true, "log": "trial-first.log", "seconds": 5.93 }
+  },
+  "actual_host_facts": [
+    "Current standalone Wasm with required trusted uploader and one-object/1KiB limits; no simulated issuer prerequisite flags",
+    "Three distinct fixed local identities: uploader, tenant and configured verifier",
+    "SDK preparation passed through shared decoder and native input generator; signed tenant admission and browser uploader preparation",
+    "One IC-signed certificate after actual synchronous exposure commit",
+    "Maintained one-slot IndexedDB records exact request/gateway history and preserves read-state recovery across reload",
+    "HTTP success alone cannot authorize tenant download",
+    "Native independent full-body verification and signed verifier attestation establish observed availability",
+    "Tenant descriptor/download verifies exact uploaded bytes; release retains physical bytes and liabilities",
+    "Corrupt GET creates no statement or attestation; withdrawal/cancellation preserve exposure and liabilities"
+  ],
+  "provider_substitutes": {
+    "gateway": "Owned loopback HTTP server receiving actual SDK tree/chunk requests and serving received bytes",
+    "cashier_and_namespace_provisioning": "Syntax/local bindings only; no account called or funded",
+    "success_record": "success.json",
+    "corrupt_record": "corrupt.json",
+    "max_body_bytes": 1024,
+    "max_puts_per_fresh_owner": 2,
+    "max_put_body_bytes": 65536,
+    "max_total_put_body_bytes": 131072,
+    "success_gets": 2,
+    "corrupt_gets": 1,
+    "automatic_retries": 0
+  },
+  "artifacts": {
+    "standalone_wasm_sha256": "e3157bcf8c6cc47872f0614df7c213a8be590f20afee20a87e9ade797ad5a87d",
+    "cli_sha256": "28b72c6073a0f1ee216035f5fe871e9cdbc464a018459e04d73d3d7f4adbf540",
+    "matches_previous_retained_wasm_and_cli": true,
+    "failed_attempts": "failures.json"
+  },
+  "integration_feedback": "Select a project accepted by the SDK HTTP header and keep owner/project/root identical for upload and both GETs; no sibling edits",
+  "limitations": [
+    "Local substitute does not qualify deployed gateway acceptance, namespace provisioning, balances, retention, deletion or billing cessation",
+    "Actual live service/account/browser environment and provider-effect authority remain unselected",
+    "Reload evidence does not qualify power loss, profile eviction or rollback",
+    "No production API, dependency, allocator or version mutation; no full CI, release, publication or sibling edits"
+  ],
+  "live_effects": { "provider_queries": 0, "provider_object_requests": 0, "account_mutations": 0, "deployed_canisters": 0, "payments": 0 },
+  "cleanup": "Owned local processes close; retain all local artifacts and liability evidence, no build cleanup or external obligations"
+}

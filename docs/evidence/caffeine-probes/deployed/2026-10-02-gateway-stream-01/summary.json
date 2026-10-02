@@ -1,0 +1,103 @@
+{
+  "schema": 1,
+  "date": "2026-10-02",
+  "kind": "anonymous_deployed_gateway_transport_metadata",
+  "capture": ".tmp/gateway-stream-review-01",
+  "locator": "Source default from indexed Toko development 6519b72d2a420564dabaf700fc55f7b8603d9fd3; no live binding selected",
+  "actor": "anonymous, no cookies/credentials/owner/project value/account/certificates",
+  "syntheticBrowserOrigin": "https://localhost:7443",
+  "requests": [
+    {
+      "method": "HEAD",
+      "url": "https://blob.caffeine.ai/",
+      "status": 400,
+      "protocol": "2",
+      "tlsVerificationResult": 0,
+      "exitcode": 0,
+      "elapsedSeconds": 0.319359,
+      "responseBodyBytes": 0,
+      "headers": {
+        "content-type": "text/plain",
+        "content-length": "48",
+        "access-control-allow-origin": "*",
+        "access-control-allow-methods": "GET, PUT, HEAD, OPTIONS",
+        "access-control-allow-headers": "Content-Type, X-Caffeine-Project-ID, X-Dry-Run",
+        "date": "Fri, 02 Oct 2026 09:46:11 GMT"
+      },
+      "privateHeaders": ".tmp/gateway-stream-review-01/requests/head-headers.txt",
+      "headersSha256": "7d398c3a8f708c47276ac1473d130526f004c63e4496743ce6c4a7696a77f58a",
+      "responseBodySha256": "7d398c3a8f708c47276ac1473d130526f004c63e4496743ce6c4a7696a77f58a",
+      "cookieValuesPublished": false
+    },
+    {
+      "method": "OPTIONS",
+      "url": "https://blob.caffeine.ai/v1/blob-tree/",
+      "status": 200,
+      "protocol": "2",
+      "tlsVerificationResult": 0,
+      "exitcode": 0,
+      "elapsedSeconds": 0.297847,
+      "responseBodyBytes": 0,
+      "headers": {
+        "content-type": "text/plain",
+        "content-length": "0",
+        "access-control-allow-origin": "*",
+        "access-control-allow-methods": "GET, PUT, HEAD, OPTIONS",
+        "access-control-allow-headers": "Content-Type, X-Caffeine-Project-ID, X-Dry-Run",
+        "date": "Fri, 02 Oct 2026 09:46:54 GMT"
+      },
+      "privateHeaders": ".tmp/gateway-stream-review-01/requests/tree-headers.txt",
+      "headersSha256": "9d46b759a9fdadad4149c990ff8624cd18c1c1233396ffd112206df4966ddbf9",
+      "responseBodySha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "cookieValuesPublished": false
+    },
+    {
+      "method": "OPTIONS",
+      "url": "https://blob.caffeine.ai/v1/chunk/",
+      "status": 200,
+      "protocol": "2",
+      "tlsVerificationResult": 0,
+      "exitcode": 0,
+      "elapsedSeconds": 0.313082,
+      "responseBodyBytes": 0,
+      "headers": {
+        "content-type": "text/plain",
+        "content-length": "0",
+        "access-control-allow-origin": "*",
+        "access-control-allow-methods": "GET, PUT, HEAD, OPTIONS",
+        "access-control-allow-headers": "Content-Type, X-Caffeine-Project-ID, X-Dry-Run",
+        "date": "Fri, 02 Oct 2026 09:47:28 GMT"
+      },
+      "privateHeaders": ".tmp/gateway-stream-review-01/requests/chunk-headers.txt",
+      "headersSha256": "c29315ea0e4492f9a677068ebe8f8c5ac22884d229fd95b1c58d946a30511b9e",
+      "responseBodySha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "cookieValuesPublished": false
+    }
+  ],
+  "findings": {
+    "http2Negotiated": true,
+    "tlsVerified": true,
+    "treeAndChunkPreflightsSucceeded": true,
+    "putAndSdkHeadersAdvertised": true,
+    "dryRunHeaderAdvertised": true,
+    "dryRunSemanticsQualified": false
+  },
+  "limits": {
+    "maxRequests": 3,
+    "requestBodyBytes": 0,
+    "deadlineSeconds": 15,
+    "maxBodyBytes": 65536,
+    "redirectFollowing": false,
+    "curlRetry": 0
+  },
+  "limitations": [
+    "HTTP/2 applies to this curl path; browser/intermediary negotiation is separate.",
+    "Root HEAD returns HTTP 400 and is retained; both endpoint preflights return HTTP 200.",
+    "Preflight metadata cannot prove streamed-body acceptance, actual namespace provisioning, certificate validity, retention, replay charging or account enforcement.",
+    "X-Dry-Run is merely advertised; no PUT or dry-run behavior is tested or authorized.",
+    "No account identifiers or attached cycles; provider charges are unqualified.",
+    "No live gateway/project/account/application origin selected; no live upload, object GET, IC call, funding, deployment or keys."
+  ],
+  "cleanup": "No external objects/accounts/keys created; anonymous session cookies remain only in controlled raw captures and were never sent back.",
+  "qualification": "Observed HTTPS/HTTP2/CORS metadata only; authenticated streaming and economics remain unqualified"
+}

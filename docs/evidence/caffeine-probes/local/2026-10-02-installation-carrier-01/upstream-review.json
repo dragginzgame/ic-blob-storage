@@ -1,0 +1,23 @@
+{
+  "selected_by": "maintainer",
+  "version": "0.15.2",
+  "package_source": "cached published crates.io package",
+  "package_checksum": "e86c44ef1bd376575897db19b0a2539401c0536ee132203a448f61b08d81190b",
+  "local_upstream_commit": "e2fe65873e7bbc534ed402bab9b8698b09231a0e",
+  "local_upstream_clean": true,
+  "changelog_sha256": "3c54c3cd4f651aa3914c375864f01c0b7c3667e186a086952750bedea5b7aa3a",
+  "published_changelog_sha256": "3c54c3cd4f651aa3914c375864f01c0b7c3667e186a086952750bedea5b7aa3a",
+  "linked_issue_body": {
+    "url": "https://github.com/dragginzgame/ic-memory/issues/8",
+    "outcome": "web open failed: Cache miss",
+    "attempts": 1
+  },
+  "source_review": "0.15.1 to 0.15.2 raw-read forwarding body unchanged; narrow allowances become expectations. Diagnostic/count/iterator/test helper cleanup, no new consumer API or durable format.",
+  "declared_msrv": "1.88.0",
+  "current_validation_toolchain": "1.99.0",
+  "minimum_toolchain_rerun": false,
+  "local_unsafe_read_overrides": 0,
+  "required_blob_specific_adaptation": false,
+  "edits_to_sibling": false,
+  "messages_sent_upstream": false
+}

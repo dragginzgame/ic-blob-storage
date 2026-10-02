@@ -71,10 +71,10 @@ fn output(
         .into_iter()
         .map(|blocker| match blocker {
             B::StaleObservation => "stale_observation",
-            B::PrechargeLimits => "precharge_limits",
-            B::ProviderNamespace => "provider_namespace",
-            B::ReplayCharging => "replay_charging",
-            B::Recovery => "recovery",
+            B::TrialBounds => "trial_bounds",
+            B::NamespaceBinding => "namespace_binding",
+            B::TrustedUploader => "trusted_uploader",
+            B::CurrentOwner => "current_owner",
             B::Durability => "durability",
         })
         .collect();

@@ -2,11 +2,13 @@
 #![cfg(not(target_family = "wasm"))]
 mod account_native_cli;
 mod authenticated_cli;
+mod browser_driver;
 mod funding_assessment_cli;
 mod gateway_native_cli;
 mod reference_cli;
 mod snapshots;
 mod standalone_account;
+mod standalone_browser;
 mod standalone_capacity;
 mod standalone_certificate;
 mod standalone_certificate_cli;
@@ -19,6 +21,7 @@ mod standalone_funding_cli;
 mod standalone_gateways;
 mod standalone_history;
 mod standalone_history_cli;
+mod standalone_installation_cli;
 mod standalone_lifecycle;
 mod standalone_operator;
 mod standalone_reference_capacity;
@@ -36,8 +39,8 @@ use candid::Principal;
 use ic_blob_storage::{
     dto::{
         configuration::{
-            ServiceBillingInput, ServiceConfigurationInput, ServiceFundingInput, ServiceReadInput,
-            ServiceResourceInput,
+            ServiceBillingInput, ServiceConfigurationInput, ServiceFundingInput,
+            ServiceInstallationInput, ServiceReadInput, ServiceResourceInput,
         },
         reference::{
             ReferenceAction, ReferenceCommand, ReferenceFailure, ReferenceMutationResponse,
@@ -59,7 +62,7 @@ use ic_blob_storage::{
         CaffeineHashLimits, CaffeineHeader, manifest::builder::CaffeineManifestBuilder,
     },
 };
-use ic_blob_storage_canister::dto::{HostConfigurationView, HostFailure, HostInstallationInput};
+use ic_blob_storage_canister::dto::{HostConfigurationView, HostFailure};
 use ic_testkit::{
     Fake,
     pic::CandidCallExt,
@@ -102,6 +105,36 @@ impl Fixture {
         cashier: Principal,
         operator: Principal,
     ) -> Self {
+        Self::with_profile(
+            harness,
+            cashier,
+            operator,
+            Fake::principal(4),
+            false,
+            Fake::principal(90),
+            PROJECT,
+        )
+    }
+    fn restricted(harness: Harness, uploader: Principal) -> Self {
+        Self::with_profile(
+            harness,
+            Fake::principal(5),
+            Fake::principal(2),
+            uploader,
+            true,
+            Fake::principal(90),
+            PROJECT,
+        )
+    }
+    fn with_profile(
+        harness: Harness,
+        cashier: Principal,
+        operator: Principal,
+        uploader: Principal,
+        restricted: bool,
+        verifier: Principal,
+        project: &str,
+    ) -> Self {
         let controller = Fake::principal(1);
         let service = harness.pic.create_canister_with_settings(
             Some(controller),
@@ -110,7 +143,7 @@ impl Fixture {
                 ..CanisterSettings::default()
             }),
         );
-        let config = ServiceConfigurationInput {
+        let mut config = ServiceConfigurationInput {
             service,
             operator,
             payment_account: service,
@@ -153,16 +186,38 @@ impl Fixture {
                 tenant_bytes: 2048,
             },
         };
-        harness
-            .pic
-            .install_canister(service, wasm(), installation(&config), Some(controller));
+        if restricted {
+            let r = &mut config.resources;
+            r.max_tenants = 1;
+            r.max_object_bytes = 1024;
+            r.max_objects = 1;
+            r.max_tenant_objects = 1;
+            r.max_physical_bytes = 1024;
+            r.max_liability_bytes = 1024;
+            r.max_tenant_logical_bytes = 1024;
+            r.max_references_per_object = 1;
+            r.max_receipts_per_object = 2;
+            r.max_active = 1;
+            r.max_tenant_active = 1;
+        }
+        let mut input: ServiceInstallationInput =
+            candid::decode_one(&installation(&config)).unwrap();
+        input.trusted_uploader = uploader;
+        input.completion_verifier = verifier;
+        input.project = project.into();
+        harness.pic.install_canister(
+            service,
+            wasm(),
+            candid::encode_one(input).unwrap(),
+            Some(controller),
+        );
         Self {
             harness,
             service,
             controller,
             operator,
             tenant: Fake::principal(3),
-            uploader: Fake::principal(4),
+            uploader,
             config,
         }
     }
@@ -234,11 +289,17 @@ impl Fixture {
             .upgrade_canister(self.service, wasm(), args, Some(self.controller))
     }
     fn manifest(&self) -> UploadManifestRequest {
-        let bytes = 10 * 1024 * 1024;
+        self.manifest_bytes(10 * 1024 * 1024)
+    }
+    fn small_manifest(&self) -> UploadManifestRequest {
+        self.manifest_bytes(1024)
+    }
+    fn manifest_bytes(&self, bytes: u64) -> UploadManifestRequest {
+        let length = bytes.to_string();
         let headers = [
             CaffeineHeader {
                 name: "Content-Length",
-                value: "10485760",
+                value: &length,
             },
             CaffeineHeader {
                 name: "Content-Type",
@@ -254,12 +315,16 @@ impl Fixture {
                 max_headers: 8.try_into().unwrap(),
                 max_header_bytes: 1024.try_into().unwrap(),
             },
-            10.try_into().unwrap(),
+            usize::try_from(bytes.div_ceil(1024 * 1024))
+                .unwrap()
+                .try_into()
+                .unwrap(),
         )
         .unwrap();
         let chunk = vec![42; 1024 * 1024];
-        for index in 0..10 {
-            builder.append(index * 1024 * 1024, &chunk).unwrap();
+        for offset in (0..bytes).step_by(1024 * 1024) {
+            let take = usize::try_from((bytes - offset).min(1024 * 1024)).unwrap();
+            builder.append(offset, &chunk[..take]).unwrap();
         }
         let prepared = builder.finish().unwrap();
         UploadManifestRequest {
@@ -533,10 +598,11 @@ fn standalone_restore_rejects_foreign_and_missing_installation_memory() {
 
 const PROJECT: &str = "standalone fixture project/β?&=";
 fn installation(configuration: &ServiceConfigurationInput) -> Vec<u8> {
-    candid::encode_one(HostInstallationInput {
+    candid::encode_one(ServiceInstallationInput {
         configuration: *configuration,
         project: PROJECT.into(),
         completion_verifier: Fake::principal(90),
+        trusted_uploader: Fake::principal(4),
     })
     .unwrap()
 }

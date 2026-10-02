@@ -1,0 +1,109 @@
+{
+  "schema": 1,
+  "date": "2026-10-02",
+  "class": "offline_installation_bound_preparation_and_actual_local_standalone",
+  "baseline_release": "0.5.0",
+  "baseline_commit": "03715ebecc608f6f679ca0e753fc95a8fd5eae7b",
+  "artifact_capture": ".tmp/upload-installation-01",
+  "intent": "intent.txt",
+  "change": "Require one complete current installation carrier for offline upload preparation; shared candidate validation, exact service/namespace/project/trusted uploader and resource bounds; preserve exact bytes/hash without installed-state observation",
+  "contract": {
+    "minor_release_required": true,
+    "protocol_schema": 1,
+    "core_abi_or_stable_schema_changed": false,
+    "extra_owner": false,
+    "provider_wire_added": false,
+    "canic_integration": "explicitly_deferred"
+  },
+  "checks": {
+    "native_upload_inputs": {
+      "passed": true,
+      "log": "native-tests-corrected.log"
+    },
+    "native_installation_check": {
+      "passed": true,
+      "log": "installation-tests.log"
+    },
+    "strict_cli_lint": {
+      "passed": true,
+      "log": "cli-clippy.log"
+    },
+    "strict_integration_lint": {
+      "passed": true,
+      "log": "integration-clippy-final.log"
+    },
+    "offline_sdk_handoff": {
+      "passed": true,
+      "body_bytes": [
+        1024,
+        10485760
+      ],
+      "logs": [
+        "offline-1k.log",
+        "offline-10m.log"
+      ],
+      "network_requests": 0
+    },
+    "actual_standalone_journeys": {
+      "passed": true,
+      "log": "standalone-trials.log",
+      "seconds": 10.02
+    },
+    "signed_setup_recovery": {
+      "passed": true,
+      "log": "signed-setup-corrected.log",
+      "seconds": 8.07,
+      "provider_requests": 0
+    },
+    "formatting": {
+      "passed": true,
+      "log": "fmt-check.log"
+    },
+    "diff_check": {
+      "passed": true,
+      "log": "diff-check.log"
+    },
+    "released_history_receipt_toolchain": {
+      "unchanged": true
+    }
+  },
+  "facts": [
+    "Offline mismatched service/local namespace/project/trusted uploader and invalid installation model refuse before creating output",
+    "Bounded exact Candid rejects malformed/extra/trailing/oversized input; one maintained decoder serves both candidate commands",
+    "Valid candidate object/header limits constrain prepared manifests alongside explicit caller/work ceilings",
+    "Both actual local upload/verifier/tenant-download journeys consume carrier-bound CLI files; corrupt provider bytes retain exposure and obligations",
+    "Signed local lost/pending reply history, cancellation and fenced restore pass with the configured actual uploader"
+  ],
+  "artifacts": {
+    "cli_sha256": "b1add86d4b7ada950eaf2936334e059b9943b1d8e5d175b577c287288e3ed986",
+    "standalone_wasm_sha256": "7b93fd6588b325f2cd06d1dde2cc02ab705f5ef682712029b2dfa1fabba9b00a",
+    "wasm_reused_unchanged": true,
+    "source_hashes": "source-hashes.json",
+    "failed_attempts": "failures.json"
+  },
+  "provider_substitutes": {
+    "gateway": "Owned loopback serves actual received SDK bytes",
+    "account": "Candidate fixture only; no external account call/funding",
+    "max_puts_per_browser_owner": 2,
+    "max_put_body_bytes": 65536,
+    "max_total_put_body_bytes": 131072,
+    "success_gets": 2,
+    "corrupt_gets": 1,
+    "retries": 0
+  },
+  "limitations": [
+    "Candidate validation does not authenticate actual installed state, compiled host release, tenant authority or remaining capacity",
+    "Bucket/provisioning, account economics/replay charges, retention/deletion/billing cessation remain unqualified",
+    "No snapshot activation, power-loss/browser eviction or stale-backup guarantees added",
+    "Live roles/account/gateway/browser/cleanup targets remain unselected",
+    "Minimum compiler and full CI not rerun; package remains 0.5.0; no release/version/commit/sibling work/cleanup"
+  ],
+  "live_effects": {
+    "provider_queries": 0,
+    "provider_object_requests": 0,
+    "account_mutations": 0,
+    "deployed_canisters": 0,
+    "payments": 0
+  },
+  "cleanup": "Owned local processes close; fixtures and captures retained, no external obligations"
+}

@@ -28,10 +28,10 @@ pub fn blockers(
         .into_iter()
         .map(|blocker| match blocker {
             P::StaleObservation => D::StaleObservation,
-            P::PrechargeLimits => D::PrechargeLimits,
-            P::ProviderNamespace => D::ProviderNamespace,
-            P::ReplayCharging => D::ReplayCharging,
-            P::Recovery => D::Recovery,
+            P::TrialBounds => D::TrialBounds,
+            P::NamespaceBinding => D::NamespaceBinding,
+            P::TrustedUploader => D::TrustedUploader,
+            P::CurrentOwner => D::CurrentOwner,
             P::Durability => D::Durability,
         })
         .collect()

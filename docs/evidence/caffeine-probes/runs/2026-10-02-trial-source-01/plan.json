@@ -1,0 +1,19 @@
+{
+  "schema": 1,
+  "started_unix_seconds": 1790923829,
+  "runner_version": "0.4.16",
+  "runner_source_sha256": "7cd8317cccef43e959486d82181d9836c265acbdaf828cc0d1ef82a31d8f62b2",
+  "kind": "public_source",
+  "identity": "anonymous",
+  "max_requests": 4,
+  "max_response_bytes": 1048576,
+  "request_deadline_seconds": 30,
+  "attached_cycles": "0",
+  "provider_account": null,
+  "targets": [
+    "https://api.github.com/repos/caffeinelabs/skills/commits/main",
+    "https://raw.githubusercontent.com/caffeinelabs/skills/{observed_commit}/packages/object-storage/backend/src/Mixin.mo",
+    "https://raw.githubusercontent.com/caffeinelabs/skills/{observed_commit}/packages/object-storage/backend/src/Storage.mo",
+    "https://registry.npmjs.org/@caffeineai%2fobject-storage/latest"
+  ]
+}

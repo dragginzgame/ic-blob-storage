@@ -1,0 +1,123 @@
+{
+   "artifact_capture" : ".tmp/standalone-trial-review-01",
+   "baseline_commit" : "03715eb",
+   "baseline_release" : "0.5.0",
+   "date" : "2026-10-02",
+   "limitations" : "Source, failed public query, retained interfaces and offline substitutes remain separate. No deployment, selected live namespace, persistent browser-store qualification, spending cap, operational recovery or deletion/billing cessation evidence.",
+   "local_certificate_boundary" : {
+      "case" : "standalone_certificate_reports_real_blockers_and_never_treats_preparation_as_authority",
+      "class" : "actual_local_ic",
+      "local_provider_substitutes" : "none; host remains blocked",
+      "paid_effects" : 0,
+      "qualification_changed" : false,
+      "result" : "passed"
+   },
+   "local_installation" : {
+      "class" : "offline_syntax_and_shared_validation",
+      "configuration_sha256" : "5e07d8890e838e92e42a6287f85ff8a57cd4a97d48ee27a621ba2967c063f595",
+      "configuration_validated" : true,
+      "host_did_sha256" : "88b8cf28e504a873bba5bf691837719ba03431cb332aad8bba275355dcfab882",
+      "host_init_independently_decoded" : true,
+      "host_init_sha256" : "2295e1ec4d7ba3e07548869ea93626d58ec5207de0aec07aa4bd6753469a6296",
+      "identities" : "unchosen local fixture principals; never use as live targets",
+      "initial_decoder_flag_failure" : {
+         "exit" : 2,
+         "reason" : "unsupported --input option; corrected stdin decoding retained"
+      },
+      "installation_dispatched" : false,
+      "source_configuration" : "crates/ic-blob-storage-cli/tests/fixtures/installation/configuration.args with one-object/1024-byte bounds",
+      "standalone_build_release" : "0.5.0",
+      "standalone_wasm_sha256" : "cd4b37e15dbd12a9ec534b41095c434c2151f236ba0e5f9d80aa39a32fe46f7a"
+   },
+   "local_preparation" : {
+      "class" : "offline_sdk_native_handoff",
+      "default" : 10485760,
+      "invalid_sizes_rejected_before_output" : [
+         "0",
+         "-1",
+         "01",
+         "1.5",
+         "10485761"
+      ],
+      "keys_or_signers_provisioned" : false,
+      "native_cli_release" : "0.5.0",
+      "network_requests" : 0,
+      "one_kib" : 1024,
+      "regression" : "default-summary.json",
+      "small" : "one-kib-summary.json",
+      "store" : "in-memory setup-only substitute; cannot dispatch"
+   },
+   "operating_contract" : {
+      "accepted" : false,
+      "current_certificate_facts_changed" : false,
+      "current_schema_generation" : 1,
+      "minor_semantic_release_required_if_contract_changes" : true,
+      "proposal" : "docs/standalone-trial.md"
+   },
+   "proposed_budget" : {
+      "effect_allocations_activated" : false,
+      "held_unallocated_cycles" : "89000000000000",
+      "initial_provider_funding_cycles" : "1000000000000",
+      "maintainer_total_cycles" : "100000000000000",
+      "provider_enforced_ceiling" : false,
+      "service_and_ic_cycles" : "10000000000000",
+      "terms_and_expiry_finalized" : false
+   },
+   "provider_effects" : {
+      "account_mutations" : 0,
+      "certificates_issued" : 0,
+      "cleanup" : "No new external account/object/payment obligation. Keep all failed probe and local rehearsal artifacts.",
+      "objects_created" : 0,
+      "payments" : 0,
+      "provider_object_gets" : 0
+   },
+   "public_source" : {
+      "backend_sha256" : {
+         "Mixin.mo" : "175c6b98672a83054fc08855062d1a7b7f2bd3713bf11a60d5319ac5afefe2b3",
+         "Storage.mo" : "0c757f4cb30ebe8e30b42a59b130a1662b47e403b9664f44e98d14b08b20af42"
+      },
+      "class" : "public_source",
+      "deployed_behavior_qualified" : false,
+      "max_requests" : 4,
+      "max_response_bytes" : 1048576,
+      "npm_integrity" : "sha512-JAmoHT6E8M18DEbW4rkHinAOw0A8yNbz+rj8F56VAvr8Hf0TxQSK0ZdMrkwwT7BsiOLvtFK/YcLtoaWBc9x2xQ==",
+      "npm_latest_observed" : "1.1.2",
+      "record" : "../../runs/2026-10-02-trial-source-01/summary.json",
+      "request_deadline_seconds" : 30,
+      "request_retry" : false,
+      "runner_sha256" : "5f2dd8ba2341ae80827e394ea1842c9f8f31a4b0ee078545863b912b97dd0638",
+      "runner_version" : "0.4.16",
+      "server_source_obtained" : false,
+      "source_commit" : "4ebf43c518c9fc7b090ed4d27677fea26d6b98f3"
+   },
+   "public_unit_query" : {
+      "charge_or_expiry_enforcement_qualified" : false,
+      "class" : "deployed_public_query_process_failed",
+      "independent_decode" : "passed",
+      "process_exit" : 153,
+      "record" : "../../deployed/2026-10-02-pricing-units-01/summary.json",
+      "reported_terminal" : "base.currency.icp_cycle",
+      "whole_command_succeeded" : false
+   },
+   "retained_cashier" : {
+      "class" : "retained_public_interface",
+      "controls" : [
+         "relationship daily limit",
+         "relationship expiry",
+         "account overdraft",
+         "gateway credit"
+      ],
+      "enforcement_qualified" : false,
+      "record" : "../../deployed/2026-10-01-cashier-preflight-01/summary.json",
+      "sha256" : "232b08e4514048d4de48d6d1bf4387f577bfb64c7e2e2ded699a5e52d475d76f"
+   },
+   "schema" : 1,
+   "state" : "proposal_not_accepted_no_live_effects",
+   "web_review" : {
+      "class" : "primary_source_review",
+      "explicit_opens" : 3,
+      "failed_lookups" : 2,
+      "record" : "web-results.json",
+      "retail_guidance_is_cycles_contract" : false
+   }
+}

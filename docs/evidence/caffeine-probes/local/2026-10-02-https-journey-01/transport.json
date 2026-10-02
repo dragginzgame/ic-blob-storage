@@ -1,0 +1,199 @@
+{
+  "schema": 1,
+  "evidence": "owned_loopback_transport",
+  "cut": "connection-close",
+  "results": [
+    {
+      "protocol": "http/1.1",
+      "mode": "buffered",
+      "browser": "153.0.8010.12",
+      "dispatches": 1,
+      "arrivals": [
+        {
+          "method": "PUT",
+          "path": "/upload",
+          "protocol": "1.1",
+          "bytes": 1024,
+          "sha256": "b2256110f2c4226de0008dd4382a388e033f211b617bd3237135ab1d59a722b6"
+        },
+        {
+          "method": "PUT",
+          "path": "/upload",
+          "protocol": "1.1",
+          "bytes": 1024,
+          "sha256": "b2256110f2c4226de0008dd4382a388e033f211b617bd3237135ab1d59a722b6"
+        }
+      ],
+      "outcome": {
+        "status": 503
+      },
+      "retainedPhase": "responded"
+    },
+    {
+      "protocol": "http/1.1",
+      "mode": "keepalive-false",
+      "browser": "153.0.8010.12",
+      "dispatches": 1,
+      "arrivals": [
+        {
+          "method": "PUT",
+          "path": "/upload",
+          "protocol": "1.1",
+          "bytes": 1024,
+          "sha256": "b2256110f2c4226de0008dd4382a388e033f211b617bd3237135ab1d59a722b6"
+        },
+        {
+          "method": "PUT",
+          "path": "/upload",
+          "protocol": "1.1",
+          "bytes": 1024,
+          "sha256": "b2256110f2c4226de0008dd4382a388e033f211b617bd3237135ab1d59a722b6"
+        }
+      ],
+      "outcome": {
+        "status": 503
+      },
+      "retainedPhase": "responded"
+    },
+    {
+      "protocol": "http/1.1",
+      "mode": "xhr",
+      "browser": "153.0.8010.12",
+      "dispatches": 1,
+      "arrivals": [
+        {
+          "method": "PUT",
+          "path": "/upload",
+          "protocol": "1.1",
+          "bytes": 1024,
+          "sha256": "b2256110f2c4226de0008dd4382a388e033f211b617bd3237135ab1d59a722b6"
+        },
+        {
+          "method": "PUT",
+          "path": "/upload",
+          "protocol": "1.1",
+          "bytes": 1024,
+          "sha256": "b2256110f2c4226de0008dd4382a388e033f211b617bd3237135ab1d59a722b6"
+        }
+      ],
+      "outcome": {
+        "status": 503
+      },
+      "retainedPhase": "responded"
+    },
+    {
+      "protocol": "http/1.1",
+      "mode": "stream",
+      "browser": "153.0.8010.12",
+      "dispatches": 1,
+      "arrivals": [],
+      "outcome": {
+        "error": "TypeError",
+        "code": null
+      },
+      "retainedPhase": "uncertain"
+    },
+    {
+      "protocol": "h2",
+      "mode": "buffered",
+      "browser": "153.0.8010.12",
+      "dispatches": 1,
+      "arrivals": [
+        {
+          "method": "PUT",
+          "path": "/upload",
+          "protocol": "2.0",
+          "bytes": 1024,
+          "sha256": "b2256110f2c4226de0008dd4382a388e033f211b617bd3237135ab1d59a722b6"
+        },
+        {
+          "method": "PUT",
+          "path": "/upload",
+          "protocol": "2.0",
+          "bytes": 1024,
+          "sha256": "b2256110f2c4226de0008dd4382a388e033f211b617bd3237135ab1d59a722b6"
+        }
+      ],
+      "outcome": {
+        "status": 503
+      },
+      "retainedPhase": "responded"
+    },
+    {
+      "protocol": "h2",
+      "mode": "keepalive-false",
+      "browser": "153.0.8010.12",
+      "dispatches": 1,
+      "arrivals": [
+        {
+          "method": "PUT",
+          "path": "/upload",
+          "protocol": "2.0",
+          "bytes": 1024,
+          "sha256": "b2256110f2c4226de0008dd4382a388e033f211b617bd3237135ab1d59a722b6"
+        },
+        {
+          "method": "PUT",
+          "path": "/upload",
+          "protocol": "2.0",
+          "bytes": 1024,
+          "sha256": "b2256110f2c4226de0008dd4382a388e033f211b617bd3237135ab1d59a722b6"
+        }
+      ],
+      "outcome": {
+        "status": 503
+      },
+      "retainedPhase": "responded"
+    },
+    {
+      "protocol": "h2",
+      "mode": "xhr",
+      "browser": "153.0.8010.12",
+      "dispatches": 1,
+      "arrivals": [
+        {
+          "method": "PUT",
+          "path": "/upload",
+          "protocol": "2.0",
+          "bytes": 1024,
+          "sha256": "b2256110f2c4226de0008dd4382a388e033f211b617bd3237135ab1d59a722b6"
+        },
+        {
+          "method": "PUT",
+          "path": "/upload",
+          "protocol": "2.0",
+          "bytes": 1024,
+          "sha256": "b2256110f2c4226de0008dd4382a388e033f211b617bd3237135ab1d59a722b6"
+        }
+      ],
+      "outcome": {
+        "status": 503
+      },
+      "retainedPhase": "responded"
+    },
+    {
+      "protocol": "h2",
+      "mode": "stream",
+      "browser": "153.0.8010.12",
+      "dispatches": 1,
+      "arrivals": [
+        {
+          "method": "PUT",
+          "path": "/upload",
+          "protocol": "2.0",
+          "bytes": 1024,
+          "sha256": "b2256110f2c4226de0008dd4382a388e033f211b617bd3237135ab1d59a722b6"
+        }
+      ],
+      "outcome": {
+        "error": "TypeError",
+        "code": null
+      },
+      "retainedPhase": "uncertain"
+    }
+  ],
+  "deployedProviderQualified": false,
+  "controls": "Buffered/XHR test wrappers deliberately replace the maintained stream; not production alternatives",
+  "failedPriorRun": ".tmp/https-journey-01/transport-01.log",
+  "failedPriorReason": "Sandbox denies Chromium startup before any socket request; fresh transport-02 passes"
+}

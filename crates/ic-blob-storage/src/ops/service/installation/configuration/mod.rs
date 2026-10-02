@@ -15,6 +15,7 @@ pub(super) fn record(candidate: &super::ServiceInstallationCandidate<'_>) -> Con
         namespace: input.namespace,
         project: candidate.project.to_owned(),
         completion_verifier: candidate.completion_verifier,
+        trusted_uploader: candidate.trusted_uploader,
         max_tenants: input.resources.max_tenants,
         max_object_bytes: input.resources.max_object_bytes,
         max_headers: input.resources.max_headers,

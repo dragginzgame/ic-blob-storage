@@ -34,6 +34,263 @@ all logs here; link their maintained test and record material changed findings.
 
 ## Current operating decisions and experiments
 
+### Trial configuration and account provisioning — 2026-10-02
+
+The [retained preparation](local/2026-10-02-trial-provisioning-01/summary.json)
+and [maintained configuration template](../../../canisters/standalone/trial/README.md)
+prepare the restricted resource envelope and concrete private role/browser/provider
+candidates. Two fresh local Ed25519 candidates have SDK/public-DER principal
+agreement and a locally verified signature; private files stay 0600 under 0700,
+without existing-key export, global identity import/default changes or network use.
+The maintained CLI validates the template with an explicit local service stand-in;
+independent current-DID decoding passes. Live service remains unset and these
+local-only installation bytes must never be deployed. Reserve-only local allocation
+prevents service cycle offers, not provider spending or continuing charges.
+
+The retained Cashier interface advertises cycles-ledger deposit-subaccount/notify
+and account settings/linkage. Corresponding query/notify/zero-overdraft/no-target
+request candidates encode/decode offline. There is no advertised account-create
+method; lazy creation, authorization and credit semantics are not inferred.
+Primary IC documentation describes ledger transfers without arbitrary attached-cycle
+calls; the historical DFINITY example describes account linkage and wallet funding.
+A direct deposit route could avoid a wallet/proxy if its semantics are established.
+Raw expiry, actual deposit address/fees and project/bucket acceptance remain open.
+No upstream setup script, wallet, proxy or provider API implementation is added.
+
+Initial ICP identity metadata fails on its external settings lock; a fresh
+metadata-only invocation succeeds with the same default. First template encoding
+fails on unquoted Candid service field; corrected local-02 validates. First
+independent decode mistakenly supplies a filename rather than hex; fresh stdin
+decode succeeds. Missing guessed local paths and unavailable web/code searches
+remain recorded; no server behavior is inferred. Public cached documentation and
+retained source are separate from fresh deployed evidence. No account-specific or
+provider-object request, IC update, funding, deployment or live certificate occurs.
+No external resources require cleanup; private candidate keys and build artifacts
+remain. Full CI/release/version/commit/sibling work remains unauthorized.
+
+#### Review intent
+
+The subsequent [fresh-candidate Cashier queries](deployed/2026-10-02-trial-payer-probe-01/summary.json)
+return a provider-supplied 32-byte deposit subaccount, anonymous account-info
+NotAuthorized and signed account-info AccountNotFound. The signed SDK query
+verifies node keys/reply against the mainnet root, using one query and one
+read_state fetch, no root replacement or SDK retries. This reports current absence;
+it does not create an account or establish future credit/mutation authorization.
+Physical wire attempts/provider charges remain unmeasured. No notification,
+ledger transfer, funding, account mutation, deployment or provider object request.
+Raw signed requests, responses and generated authoritative DID bindings remain in
+private `.tmp/trial-payer-probe-01`. Initial signed hex is JSON-quoted and fails
+direct didc decoding; retain it and the failure, then decode a fresh hex-only
+derivative without another network call. Typed responses also decode through
+bindings generated from the retained DID. No external cleanup or global identity
+import/change occurs; only the newly generated candidate key signs this query.
+
+After completing the offline packet, start a separate fresh
+`.tmp/trial-payer-probe-01` observation: at most two anonymous Cashier query
+invocations, first cycles_ledger_deposit_subaccount_v1 with sender equal to the
+new proposed isolated participant, then account_info_get_v1 for that same fresh
+principal. Use retained DID, explicit mainnet root and icp-api.io; twenty seconds
+and 64 KiB output per invocation, no configured command retries or redirects.
+Retain the first result before the second; stop on transport/timeout/size failure.
+No existing/private account is queried. No signer, cycles attachment, notification,
+linkage, settings update, ledger transfer, deployment or provider object request.
+These query observations do not select live roles or prove persisted account
+creation, authorization, project provisioning, credit or enforced spending limits.
+Physical wire attempts/provider charges are unmeasured. No external cleanup.
+
+The deposit-subaccount query succeeds with a 32-byte result. Anonymous account-info
+returns typed NotAuthorized(anonymous), retained without retry. Before proceeding,
+extend this separate observation with one signed account-info query using only the
+freshly generated participant identity. Use the retained Candid request and installed
+SDK 5.4.0 with mainnet root/query-signature validation, no fetched replacement root,
+zero SDK retries and at most four bounded HTTPS transport calls (30 seconds total,
+64 KiB request/response each) for that query and its verification metadata. This
+tests caller authorization, not credit, persistent creation or mutation authority.
+Keep signed artifacts private; stop on refusal/limit/transport failure. No funds,
+account linkage, notification, settings mutation or provider object traffic.
+
+2026-10-02 trial configuration/provisioning review intent:
+`.tmp/trial-provisioning-01` will retain local public identity metadata and existing
+Cashier DID/source/account-deposit observations, plus bounded public documentation
+lookups for account onboarding and cycles-ledger deposits. No identity switching,
+private-key reading/export, account-specific query, provider mutation, deployment,
+funding or upload. Reuse maintained offline encoders for the concrete installation
+envelope and separately reviewed requests; missing live service/payer/project/raw
+terms remain explicit, never replaced by fixture identities. Distinguish client
+source, retained deployed interface and documentation from server guarantees.
+Public source requests have no attached cycles; no live account/provider-object
+request is planned. Retain unavailable lookups and exact source hashes.
+
+### Same-origin HTTPS and public gateway metadata — 2026-10-02
+
+The [anonymous deployed metadata](deployed/2026-10-02-gateway-stream-01/summary.json)
+retains three configured curl invocations: verified TLS/HTTP2 for all, root HEAD
+400 and tree/chunk preflight OPTIONS 200 with PUT/SDK headers advertised. No
+namespace values, credentials, certificate bodies, object GET/PUT, account setup
+or attached cycles are sent. Advertised X-Dry-Run has unknown semantics and is
+unused. Browser-path negotiation, real application-origin behavior, authenticated
+streaming, provisioning, replay economics and retention remain unqualified.
+The [linked clarification](deployed/2026-10-02-gateway-stream-01/clarifications.json)
+preserves the original summary: curl --head saves headers in its output file,
+whose original hash is not a transferred entity-body hash; physical wire attempts
+are not independently counted. Cookie values remain private and are not reused.
+Raw outcomes, requests, hashes and feature inspection remain in
+`.tmp/gateway-stream-review-01`; no external objects need cleanup.
+
+The [HTTPS journey evidence](local/2026-10-02-https-journey-01/summary.json)
+records the CLI-only HTTP2 feature gap and its explicit rustls/http2 fix without
+dependency version changes. All four actual standalone/Chromium/native journeys
+pass through one owned TLS/H2 origin serving the received upload bytes. Native
+verification remains enabled with child-scoped Linux test roots; unrelated trust
+reaches no HTTP GET. A correctly trusted REFUSED_STREAM read fails after one GET,
+retaining its failed observation without a statement or implicit retransmission;
+a separately started complete read then verifies successfully. The four owners
+receive two PUTs each and seven total GETs. Corrupt data, pre-header upload reply
+loss and withdrawal retain the existing accounting and exact-release behavior.
+
+All 66 native CLI tests and strict affected CLI/standalone lint pass. The
+[eight-case transport propagation](local/2026-10-02-https-journey-01/transport.json)
+also passes with the new CA/leaf helper. Its initial sandbox-denied Chromium
+startup remains in transport-01, before requests; fresh transport-02 is separate.
+`.tmp/https-journey-01` retains requests, known fixture keys, public test roots,
+artifacts, sources and failed observations. Owned resources close and temporary
+TLS private keys are removed; builds/evidence remain. No paid effect, deployment,
+full CI, minimum-toolchain rerun, commit/version mutation or sibling edit occurs.
+Canic remains deferred; live target/browser/cleanup selection is still open.
+
+#### Pre-effect intents and run progression
+
+2026-10-02 gateway stream compatibility intent: `.tmp/gateway-stream-review-01`
+records at most three anonymous requests to source-listed `https://blob.caffeine.ai`:
+HEAD `/`, OPTIONS `/v1/blob-tree/` and OPTIONS `/v1/chunk/`. Preflights use synthetic
+Origin `https://localhost:7443`, PUT and the pinned SDK's header names, without
+project values, namespace/account identifiers, credentials or certificate bytes.
+Bound each request to 15 seconds/64 KiB, no retries/redirect following; stop on
+transport/limit/redirect failure. Retain every outcome before advancing. No upload,
+object GET, IC call, payment, account setup or attached cycles. This anonymous
+transport/CORS observation does not select live bindings or qualify streaming-body
+acceptance, provisioning, replay economics or retention; no external cleanup.
+
+2026-10-02 same-origin HTTPS rehearsal intent: `.tmp/https-journey-01/intent.json`
+records replacement of the split local upload/read origins with one TLS HTTP/2
+gateway. CLI-only dependency inspection shows missing HTTP/2; explicitly enable
+its existing reqwest rustls/http2 features without changing versions or allocator.
+Generate a fixture CA/leaf and pass the public CA through each native child's
+SSL_CERT_FILE, preserving normal certificate verification and global environment.
+Run the four existing fresh 1 KiB owner journeys (two PUT arrivals each, six GETs
+total), plus a mismatched-root refusal before an HTTP GET. Retain that failed
+observation separately from a newly authorized read with correct trust. No live
+provider/account/IC effect or payment; normal current recovery/release/accounting
+remains. Close owned local resources and remove ephemeral private TLS keys, keeping
+public trust, build/evidence artifacts and all failures. Targeted validation only.
+
+Before running the HTTPS journeys, extend the local negative cut to one HTTP/2
+REFUSED_STREAM GET after correct TLS validation. The newly enabled native HTTP/2
+client must fail without redispatch; retain its distinct failed observation before
+the separately budgeted complete verifier read. This adds one owned GET (seven
+across the four cases); the mismatched-root attempt reaches no HTTP handler.
+
+Before closing this capture, rerun the owned connection-close transport matrix
+with the new test CA/leaf helper: eight fresh HTTP/1.1/H2 browser cases, at most
+three 1 KiB arrivals each, 10 seconds per case/90 seconds overall. Retain results
+in `.tmp/https-journey-01/transport-01`; no provider or payment effects. This checks
+the shared TLS helper's propagation; it does not repeat live metadata requests.
+
+The sandbox refuses Chromium startup before any socket request in transport-01;
+its plan and failed log remain. A fresh transport-02 uses the same local budgets
+outside that restriction. No failed or completed capture is overwritten.
+
+2026-10-02 browser replay repair intent: `.tmp/browser-replay-01/intent.json`
+records a comparison of buffered fetch, explicit keepalive settings, XHR and
+one-shot streaming bodies on owned HTTP/1.1 and TLS HTTP/2 gateways. Each fresh
+browser context warms its connection, sends one 1 KiB PUT and loses the reply
+before headers. Bound eight cases to three arrivals each, 10 seconds per case
+and 90 seconds overall. Retain every arrival, outcome and source-review failure;
+do not infer exactly-once behavior or provider economics from a candidate fix.
+Up to four additional anonymous Chromium source GETs are bounded to 2 MiB and
+20 seconds each without retries/redirects. Earlier web lookups include unavailable
+tagged source pages. No live provider/IC/payment/deployment effects or identities
+are involved. Close owned sockets/browser and remove generated temporary TLS
+keys while retaining artifacts. Preserve the SDK's PUT wire contract and journal.
+
+The first eight-case matrix warms navigation rather than the fetch credentials
+pool: XHR repeats, but the first buffered fetch has one arrival. A distinct
+eight-case correction warms the exact credentials-omit connection; buffered
+fetch, keepalive:false and XHR repeat on both HTTP/1.1 and HTTP/2. Streams have
+zero HTTP/1.1 arrivals and one HTTP/2 arrival in that complete-body connection
+cut. Before adopting a streaming fix, a third fresh eight-case matrix replaces
+the HTTP/2 connection loss with REFUSED_STREAM after body receipt (HTTP/1.1
+retains its original reset). Same per-case/run limits; this is an intentionally
+misbehaving local substitute to test replay behavior, not a real provider result.
+
+Both complete-body HTTP/2 cuts yield one streaming PUT arrival and a retained
+uncertain claim. A fourth fresh matrix closes immediately upon the first 1 KiB
+data event, before request EOF, to check whether that apparent mitigation depends
+on completion timing. Same eight cases, three-arrival/10-second ceilings; retain
+its distinct plan/results before any production transport change.
+
+The fourth matrix again has one streaming HTTP/2 arrival and an uncertain claim.
+Repair intent: send each snapshotted SDK PUT body through an immediately closed
+ReadableStream with duplex:half, require HTTPS and detect stream support before
+issuance. Never fall back to buffered fetch. Rehearse the four installed standalone
+journeys using an owned TLS HTTP/2 upload gateway, preserving the exact SDK wire
+bytes and restoring the original pre-header reset. Native verifier/download use
+a separate HTTP loopback origin serving those same received bytes (TLS/HTTP/2
+provider support and same-origin deployed compatibility remain unqualified).
+Also propagate through the existing ten local IC/browser gateway cases and
+eight SDK-substitute cases, within their maintained request/time/byte limits.
+Retain every initial failure and corrected run separately; no live effects or
+provider guarantee are authorized. Browser instrumentation observes traffic
+without request interception, which could rewrite streams into buffered bodies.
+
+2026-10-02 standalone-trial review intent: after released 0.5.0, review the four
+certificate blockers against current public source and retained Cashier interfaces,
+and prepare a concrete bounded trial contract using the existing tools. The fresh
+`2026-10-02-trial-source-01` run permits at most four anonymous official GitHub/npm
+GETs, each at most 2 MiB and 30 seconds, with no retries or redirects. Up to four
+explicit primary-source web opens review onboarding/spending guidance; retain
+failed lookups and source-only limitations. Intent and runner hash are recorded
+in `.tmp/standalone-trial-review-01`. No payer/service, financial ceiling or provider
+authority is selected; no deployment, account change, certificate, payment,
+gateway/object request or qualification override is authorized.
+
+2026-10-02 pricing-unit review intent: make one top-level anonymous
+`pricelist_get_v1(())` query against candidate Cashier
+`72ch2-fiaaa-aaaar-qbsvq-cai`, using the retained public interface and mainnet
+trust. A fresh `deployed/2026-10-02-pricing-units-01` directory records the exact
+request, tool/interface hashes and outcome. Bound the process to 30 seconds plus
+a five-second termination grace, and output files to 128 KiB each. ICP CLI internal
+request/retry counts are not independently measured; no second command/fallback
+is authorized. No payer/owner/account arguments, updates or attached cycles. This
+public pricing observation cannot qualify enforcement or authorize provider effects.
+
+2026-10-02 standalone-trial review outcome: the maintainer selects a 100T-cycle
+total planning budget. The [restricted contract proposal](../../standalone-trial.md)
+records one fresh trusted-owner/uploader journey, a 1 KiB body, proposed
+10T service / 1T initial provider / 89T unallocated budget and unselected live
+bindings. The existing offline SDK/native rehearsal passes at 1 KiB and its
+10 MiB default; invalid sizes reject before output. A one-object/1 KiB candidate
+validates and the complete host init independently encodes/decodes. The first
+decoder command uses an unsupported flag and fails; corrected stdin decoding
+and the failed attempt remain retained. No service is installed.
+
+The fresh public-source run captures four requests under its actual 1 MiB reply
+cap, a tighter bound than the initial review ceiling. Its available 0.4.16 runner
+hash/version are retained; backend sources and npm 1.1.2 integrity match the prior
+pins. Two explicit primary web lookups return cache misses. Retail credit help
+is observed separately and supplies no cycles-account cap or retention guarantee.
+
+The anonymous unit query outputs independently decodable `PricelistGetResult`
+data reporting cycles as terminal internal currency, then the process fails
+SIGXFSZ (exit 153). Its stdout is 1,240 bytes, stderr 43 bytes; the failing write
+target is unknown, so the output-file bound cannot explain it as reply truncation.
+Preserve the failed process and valid reported data separately. No retry/fallback,
+complete successful command, independently established query authenticity or
+provider enforcement follows. All four certificate facts remain false; no paid,
+account-mutation, certificate, gateway/object or provider-download effect occurs.
+See the [retained review](local/2026-10-02-standalone-trial-review-01/summary.json)
+and [failed query record](deployed/2026-10-02-pricing-units-01/summary.json).
+
 2026-10-01 isolated-trial plan intent: `.tmp/isolated-trial-plan-01/intent.txt`
 bounds repository source review, an offline complete installation check and a
 concrete trial sequence. Reuse the shared installation validator; no duplicate
@@ -1062,6 +1319,16 @@ provider authenticity; rerunning the opt-in test establishes current local behav
 
 ## Run index
 
+`standalone-trial-review-01` / 2026-10-02: public source, retained-interface and
+offline preparation observations stay separately identified in the
+[review record](local/2026-10-02-standalone-trial-review-01/summary.json).
+The [source run](runs/2026-10-02-trial-source-01/summary.json) captures four GETs,
+with unchanged Mixin/Storage hashes and npm pin. The
+[unit query](deployed/2026-10-02-pricing-units-01/summary.json) produces reported
+currency data but exits 153 under its file-size guard; failed outcome is preserved,
+without retry. The 1 KiB and default 10 MiB offline handoffs pass. No effect
+authority, charge cap, namespace, production persistence or recovery is qualified.
+
 `recovery-design-01` / 2026-09-30: source review and architectural inference;
 [retained source references/hashes, findings and limits](local/2026-09-30-recovery-design-01/summary.json).
 Official IC version, message execution, management history and snapshot rules were
@@ -1149,39 +1416,293 @@ the local server; the loopback-enabled rerun passed. This uses actual IC certifi
 and IndexedDB behavior with a local gateway substitute. It does not turn the SDK
 probe's synthetic certificate into deployed-provider evidence.
 
-## Next trial — upload/resume, prepared scope, not dispatched
+## Current trial proposal
 
-Use an isolated explicitly selected owner/project/payer and diagnostic authorization
-surface; standalone does not yet expose the complete real certificate/completion
-journey. Preserve original bytes outside the canister. Reuse the pinned upstream
-file preparation/transfer code and independently check reads against expected
-roots/metadata. Record all SDK-internal requests: a high-level upload call is not
-one HTTP request. No SDK retry may bypass the total request/byte budget.
+The [first standalone trial proposal](../../standalone-trial.md) replaces the
+earlier two-file upload/resume draft. It targets one nonempty file of at most
+1 KiB, a fresh isolated owner and trusted participants, within the maintainer's
+100T-cycle planning ceiling. Its account, namespace, financial terms and operating
+contract remain unselected or unaccepted; no paid effect is dispatched. The
+proposal distinguishes client request bounds from provider spending guarantees
+and retains all four current certificate blockers.
 
-1. Record baseline configuration, current interface/source hashes and available
-   account/audit evidence. Stop on binding/version drift, unresolved pre-existing
-   obligations or insufficient budget evidence. Do not fund or link accounts as
-   an implicit setup step.
-2. Upload one known three-byte file; retain every request/response and the exact
-   certificate correlation securely. Download and verify it independently.
-3. Upload a second known file of 1 MiB + 1 byte. Deliberately discard the final
-   chunk response at the client, recording that loss. Inspect current availability
-   and the documented resume response. Record each explicit repeated tree/chunk
-   request separately; stop if the response cannot be interpreted under the pinned
-   contract. Do not turn this experiment into an automatic production retry rule.
-4. Download and verify the second file, then capture account/audit observations
-   and compare complete versus lost-response paths. If charges cannot be correlated,
-   record that result as unresolved. Preserve both roots and their obligations for
-   a separately planned deletion/billing observation; do not erase trial records.
+Lost-response/replay, deletion/billing and long-retention experiments require
+separate recorded intents and observation windows after the first trial. They
+are not part of its upload budget or automatic retry authority. Preserve every
+object and uncertainty record until its continuing obligations are evidenced.
 
-Proposed client bounds for this trial: two object roots, at most two certificate
-updates, eight read-only service/account observations, 24 gateway HTTP requests,
-10 MiB upload and 12 MiB download traffic, 30 seconds per request and 15 minutes
-total. Stop at the first exhausted bound, unexpected binding, uncertain new payment
-or insufficient charge evidence. These are traffic/time ceilings, not a financial
-guarantee. The exact account, operator, certificate authority, provider spending cap
-and funded cleanup owner remain unselected. Resolve them in a recorded run plan
-before any live effect; this draft is not permission to deploy or spend.
+## Restricted contract implementation — 2026-10-02
 
-Deletion/billing and long-retention experiments have separate observation windows.
-No guessed wait interval or quiet balance sample can establish final settlement.
+The maintainer explicitly accepts the trusted-uploader/fresh-owner contract,
+without a provider spending cap or operational old-backup recovery. Intent in
+`.tmp/restricted-contract-01/intent.txt` bounds local implementation and checks;
+no new provider query, account mutation, deployment or paid effect is authorized.
+Replace former provider-qualification flags directly with current local issuance
+prerequisites. Persist required uploader trust in the current v1 installation,
+retain exposure-once/revocation/accounting and inspection-only restoration, and
+keep actual provider guarantees independently unqualified. This requires a minor
+release; no version mutation occurs.
+
+Local validation includes actual standalone issuance/refusal, signed native
+inspection and stop/start/restoration/snapshot behavior. The first sandbox run
+fails before canister creation because loopback binding is denied; its log remains.
+An explicit loopback-enabled run then finds that the restricted fixture still uses
+its original 10 MiB manifest: admission correctly refuses Capacity. A corrected
+small-file helper initially fails compilation converting u64 directly to
+NonZeroUsize; that attempt remains before the explicit checked usize conversion.
+The initial strict lint also rejects an empty-vector assertion; corrected typed
+comparison introduces no suppression. All are local failures, not provider probes.
+
+The earlier sealed review/source/query artifacts remain unchanged. The accepted
+[contract](../../standalone-trial.md) replaces their former issuance semantics;
+source/npm observations and the failed public unit query do not prove provisioning,
+pre-charge or replay controls. The current implementation's retained summary and
+final local results are recorded separately after validation completes.
+
+A wider standalone run first passes actual restricted issuance and broader-profile
+refusal, then the entire shared `target/` disappears during validation. Nine cases
+pass and 39 fail, predominantly before installation on missing fixture inputs.
+No cleanup command is issued by this work; the cause is unestablished. Preserve
+that run without treating missing artifacts as service failures. Rebuild only after
+checking for active builders and retain exact Wasm/CLI copies before the next run.
+
+The maintainer subsequently confirms running `cargo clean` during that wider run,
+explaining the artifact loss. The agent initiates no cleanup. This explanation
+supplements the retained failed outcome; it does not erase or rerun a provider probe.
+
+Final fixed-artifact outcome: all 48 standalone cases pass (268.95 seconds), including
+actual restricted issuance, untrusted-uploader refusal and supported lifecycle. The
+unsupported snapshot case shows that rollback forgets later exposure/revocation and
+restores local eligibility; this is evidence against active snapshot use. Seven
+shared exposure/IC-certificate rollback/recovery cases pass (36.77 seconds) using
+explicit fixture host facts. The ten-scenario Chromium/SDK suite passes (56.50
+seconds) with actual IC/IndexedDB and a local gateway substitute. Its two-slot store
+is not a qualified production client store. Current required-uploader host init
+independently encodes/decodes, offline installation and targeted core/CLI checks
+pass, as do strict affected lint and formatting. Exact retained artifact hashes and
+all failed attempts are in `.tmp/restricted-contract-01`; the
+[separate retained summary](local/2026-10-02-restricted-contract-01/summary.json)
+records each evidence class. No new live provider/account/object or paid effect,
+version/release operation, allocator change, downstream dependency or sibling edit.
+
+## Maintained browser journal — 2026-10-02
+
+Intent in `.tmp/browser-intents-01/intent.txt` bounds repository implementation and
+actual local Chromium/PocketIC checks only. No source refresh, external query,
+deployment, account mutation, funding or provider object request occurs. The
+maintained `clients/browser/intents.js` now owns the certificate/gateway journal;
+the two-slot upload fixture calls it with test-only platform abort injection rather
+than duplicating transitions. Its explicit create/open modes refuse missing history
+and changed capacity, and strict transactions retain lifetime slots and uncertainty.
+
+Real Chromium checks pass for competing tabs, graceful browser-process restart,
+retained cancelled capacity, origin/body bounds and deliberately corrupted-history
+refusal. The ten-scenario local IC/SDK upload suite passes in 49.94 seconds with
+actual aborted transactions, cancellation races and a local gateway substitute.
+The first upload run fails on extra fixture identities beyond its deliberately
+maximum-u128 permission; the corrected test and failed log remain retained.
+No production identity allocation or replay rule changes. The
+[separate retained summary](local/2026-10-02-browser-intents-01/summary.json) records
+all outcomes and `.tmp/browser-intents-01` holds logs and hashes. Actual trial
+profile/origin/database, authentication, eviction, power loss and rollback behavior
+remain unqualified. This removes a fixture-only implementation gap; it does not
+establish deployed Caffeine availability, economics, retention or billing cessation.
+
+## Complete local restricted-host journey — 2026-10-02
+
+Intent in `.tmp/standalone-browser-01/intent.txt` bounds two fresh local owners,
+three distinct fixed test identities and maintained browser/native tooling. Each
+owner has one 1,024-byte object, at most two serial PUTs bounded to 64 KiB each and
+128 KiB aggregate, and at most two complete GETs. No external account/gateway
+request, deployed instance, funding or paid effect is authorized or performed.
+
+`make test-browser-standalone` passes both cases in 8.46 seconds. Actual installed
+standalone prerequisites issue the IC-signed certificate, and the maintained SDK
+uploads through the one-slot IndexedDB journal. Reload recovers historical evidence
+without reissue or resumed transfer. The local gateway serves bytes received from
+the upload. HTTP success alone refuses tenant download; an independent native
+whole-body GET produces a statement, a distinct configured verifier submits it,
+and the tenant then downloads verified bytes. Exact reference release retains
+physical bytes and liabilities; it does not delete the substitute's object.
+
+The separate corrupt-body case uses one GET, records content_mismatch without a
+statement/attestation, and leaves download unavailable. Tenant withdrawal and
+browser cancellation preserve ExposurePossible and 1,024-byte obligations. Neither
+case retries a provider request. The initial digest-format and nested-revocation
+compiler mistakes, constructor warning, editing context misses, first successful
+run and corrected full target remain in the capture. Strict affected integration
+lint, formatting and current Wasm/CLI builds pass; Wasm/CLI hashes match the earlier
+retained artifacts. The [summary](local/2026-10-02-standalone-browser-01/summary.json)
+and separate success/corrupt records retain exact outcomes and limitations.
+
+This is actual host/browser/native integration with a provider substitute, not
+qualification of deployed acceptance, provisioning, billing or retention. Select
+actual live identities/account/browser environment and provider authority before
+effects. Project values must satisfy the SDK HTTP-header check as well as service
+metadata/URL validation. No SDK wire implementation, second journal, downstream
+framework dependency, allocator, version or production API is added.
+
+## Complete offline installation carrier — 2026-10-02
+
+Intent in `.tmp/installation-carrier-01/intent.txt` bounds one passive shared init
+DTO, CLI packaging, independent Candid decoding and targeted actual local host
+installation. Offline `installation-check` now preserves complete init bytes and
+their hash, without host/compiled-release authentication or effect authority.
+Actual local installation consumes those bytes unchanged; wrong actual service
+binding traps before allocation and preserves original heap/config/stable state.
+Configured project/verifier/trusted uploader read back, controller-only inspection
+refuses, and restricted tenant/uploader preparation has no local blockers.
+No live certificate or provider request occurs.
+
+The maintainer's concurrent ic-memory 0.15.2 update is preserved. Its cached
+published changelog matches the clean local release; source review finds addressed
+IcyDB lint feedback without a new read/API/schema contract. The linked issue-body
+web lookup fails, without a retry or status inference. One runtime resolves;
+native installation tests, current Wasm builds, affected strict lint and actual
+typed growth refusal/rollback/exact retry/fenced restore pass. Wrong CLI target,
+lint, fixture-variable and sandbox metadata-lock attempts stay in the fresh capture.
+
+Read-only local identity discovery finds `canic-mainnet` and retains its public
+principal; default identity is unchanged and no credential is exported or signer
+tested. Live roles/account/project/browser remain unselected. The
+[summary](local/2026-10-02-installation-carrier-01/summary.json), exact offline report
+and upstream-review record distinguish these local facts from deployed Caffeine
+qualification. Earlier captures remain immutable; no deployment, payment, account
+change, Caffeine object/query, full CI, version, commit, sibling edit or build cleanup.
+
+## Immutable browser namespace handoff — 2026-10-02
+
+Intent in `.tmp/browser-namespace-01/intent.txt` bounds native preparation and
+local journal/SDK/standalone checks only. Project and bucket now belong to the
+original native upload-input JSON and immutable certificate intent. The maintained
+transfer derives them from that owner instead of accepting independent namespace
+arguments. Current v1 records are replaced directly; no extra journal, endpoint,
+provider wire implementation, allocator or compatibility reader is introduced.
+
+Six targeted native cases and strict affected CLI/integration lint pass. Actual
+Chromium journal checks preserve namespace fields through restart and refuse drift,
+invalid Unicode, controls and UTF-8/header bounds before claims. The pinned SDK's
+six local substitute cases and a 1 KiB native/browser snapshot handoff pass without
+network. Both actual standalone/browser/native journeys pass in 8.37 seconds
+against the final bounded client; the earlier 9.27-second run remains retained,
+including project/bucket conflicts before certificate dispatch and correct emitted
+tree fields, successful verification/attestation/download/release and corrupt-body
+refusal preserving exposure/liabilities. The retained Wasm matches the previous
+current artifact; CLI/browser artifacts are fresh. Initial multi-operation patch
+and function-length lint failures remain, with corrected outcomes and no suppression.
+
+The [summary](local/2026-10-02-browser-namespace-01/summary.json) separates exact
+local facts, offline SDK substitutes and gateway/account substitutes. Original
+project must still match installation and bucket must match real provisioning;
+immutable local history cannot establish either. Live targets remain unselected.
+No live source refresh/query, Caffeine object/account/funding/deployment effect,
+full CI, version, commit, upstream message, sibling edit or build cleanup occurs.
+
+## Installation-bound upload preparation — 2026-10-02
+
+Intent in `.tmp/upload-installation-01/intent.txt` bounds shared offline candidate
+validation, native/SDK preparation and actual existing local standalone browser
+and signed-setup journeys. Require the complete current init carrier, reject
+service/namespace/project/trusted-uploader mismatches and constrain manifests with
+its resource bounds before producing usable upload artifacts. Retain exact carrier
+bytes/hash; actual installed-state, provisioning, remaining capacity and provider
+behavior remain separate. The gateway/account are local substitutes with the
+existing two-PUT, two/one-GET budgets, serial execution and no retries. No new live
+provider/deployment/account/payment effect or sibling work is planned.
+
+Outcome: targeted native candidate/binding/bounds cases and strict affected lint
+pass. Offline pinned SDK/native handoffs pass at 1 KiB and 10 MiB with networking
+refused. Both actual local standalone/browser/native journeys pass in 10.02 seconds;
+exact carrier bytes/hash match, independent verification/attestation/download/release
+succeeds, and corrupt bytes preserve exposure/liability. Signed lost/pending replies,
+cancellation and fenced restoration pass in 8.07 seconds with the declared uploader.
+Initial invalid metadata-budget and outdated trust-assertion failures remain in
+the capture alongside corrected results; no uncertain provider effect is repeated.
+See the [summary](local/2026-10-02-upload-installation-01/summary.json). Release history,
+receipt and toolchain remain unchanged. Canic adoption is explicitly deferred;
+actual installation/provisioning/account/browser/cleanup selection still requires
+separate evidence. No live provider/deployment/payment, allocator, full CI, version,
+commit, sibling change or build cleanup occurs.
+
+## Browser replay repair — 2026-10-02
+
+The maintainer asks to fix the retained Chromium pre-header duplicate. Intent and
+every capture are in `.tmp/browser-replay-01`. Four exploratory matrices distinguish
+navigation's credentials pool from the warmed fetch pool, complete-body loss from
+immediate data-close, and HTTP/2 REFUSED_STREAM. Buffered fetch, keepalive:false and
+XHR repeat after receipt on reused connections. Streams refuse HTTP/1.x and show
+one arrival under the three HTTP/2 cuts. The first unrepresentative pool remains
+recorded rather than treated as a fix. Three direct source GETs succeed against
+Chromium tag 153.0.8010.12 after web-tool errors; their bytes/hashes remain. Source
+shows a streamed-body replay cache, limiting any universal inference.
+
+The current transport snapshots/fingerprints as before, then emits one immediately
+closed stream with duplex:half. HTTPS and stream support are required; missing
+support refuses before issuance, and HTTP/1.x negotiation fails without buffering.
+Current maintained regression runs pass all three owned TLS cuts, including
+unsupported-stream construction/history preservation and buffered/XHR controls.
+This changes browser compatibility in the existing minor-release draft, without
+changing the SDK's application method/URL/headers/payload, core schema or owner.
+
+All four actual local standalone/browser/native journeys pass (18.06 seconds) with
+the original pre-header loss restored, exactly the two planned PUT arrivals per
+owner, retained uncertainty and verifier recovery without another upload. Native
+reads use a separate HTTP loopback origin serving the same received bytes. Ten
+existing IC/browser certificate/gateway scenarios pass (53.11 seconds), and all
+six SDK substitutes pass. Initial standalone uploads succeed but the recovery
+probe uses the wrong origin; all four assertion failures and the corrected rerun
+remain. Browser request observation replaces interception so tests preserve the
+streaming network path. Owned browsers/sockets close and temporary TLS keys are
+removed; retained Wasm/CLI/build/evidence artifacts remain.
+
+See the [summary](local/2026-10-02-browser-replay-01/summary.json),
+[transport observations](local/2026-10-02-browser-replay-01/transport.json) and
+[standalone observations](local/2026-10-02-browser-replay-01/standalone.json).
+This fixes the reproduced local path, not deployed provider economics or every
+possible browser/intermediary retry. Live HTTPS/stream/CORS support, other browsers,
+HTTP/3 and persistent environment remain unqualified. No provider/IC mainnet
+request, payment, live deployment, release/commit, full CI, sibling work or build cleanup.
+
+## Standalone transfer interruption — 2026-10-02
+
+Intent in `.tmp/standalone-interruption-01/intent.txt` bounds four actual local
+standalone/Chromium/native cases with owned gateway/account substitutes, at most
+two serial PUTs per fresh 1 KiB owner and six GETs across all cases. New cuts lose
+the final chunk response only after retaining received bytes, and withdraw tenant
+permission after a valid whole-body observation but before its signed attestation.
+Keep the uncertain gateway claim, exact certificate history, exposure and byte
+obligations; recovery never repeats an upload. Use the existing handlers and
+journal, with supported stop/start and typed service refusal evidence. No live
+provider/query/account/deployment/payment effects or downstream work is planned.
+
+Source review corrects the initial late-attestation-refusal assumption before
+runtime probing: the maintained lifecycle explicitly permits actual completion
+after revocation, and verification plans permit reconciliation of exposed work.
+The maintained withdrawal case accepts the exact statement, keeps permission
+revoked, explicitly releases its reference and proves an exact attestation replay
+leaves that reference inactive. No product semantics are changed to fit a test.
+
+The first local pre-header-loss experiment fails both new cases: the journal's
+final request is responded rather than uncertain. A separately bounded diagnostic
+observes three PUT arrivals (tree, chunk, byte-identical chunk), from two journal
+claims with disabled SDK retries. The substitute retains only the planned writes
+and rejects the repeat with HTTP 500. This is Chromium 153 loopback transport
+evidence, not a deployed gateway observation or provider replay-charge fact.
+All failed logs, diagnostic source and request fingerprints remain retained.
+Budgets are now described precisely as fetch-hook dispatch/body limits; transport
+retransmissions and exactly-once wire behavior are outside that meter.
+
+A distinct final-response-body truncation experiment passes all four maintained
+standalone/browser/native journeys in 17.84 seconds, with two PUT arrivals per
+owner and six GETs across the cases. The final chunk was received before its 200
+reply body truncated; the browser records failure and preserves the uncertain
+claim across reload/read-state recovery. Actual owner stop/start preserves exposure,
+and independent verifier/tenant reads succeed without another upload dispatch.
+The withdrawn case accepts late reconciliation, releases its reference and keeps
+physical/liability bytes despite attestation replay and browser cancellation.
+Strict affected integration lint, formatting and diff checks pass. The initial
+nonexistent refusal-variant compiler error and correction remain in the capture.
+See the [summary](local/2026-10-02-standalone-interruption-01/summary.json) and
+[transport diagnostic](local/2026-10-02-standalone-interruption-01/transport-diagnostic.json).
+Wasm/CLI/SDK artifacts are reused unchanged; no live provider/account/deployment/
+payment, new owner/API/allocator, full CI, version, commit, sibling change or cleanup.
