@@ -29,7 +29,7 @@ candid = "0.10.36"
 canic = { version = "=0.110.49", default-features = false }
 ic-cdk = "0.20.3"
 ic0 = "=1.2.0"
-ic-memory = "0.15.0"
+ic-memory = "=0.14.3"
 ic-testkit = "0.10.1"
 serde = { version = "1.0.229", features = ["derive"] }
 serde_bytes = "0.11.19"

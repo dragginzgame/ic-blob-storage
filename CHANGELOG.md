@@ -22,7 +22,7 @@
 
 ### Changed
 
-- Pin `ic-memory` to 0.14.3, matching published Canic 0.110.49, so managed
+- Pin `ic-memory` to exactly `=0.14.3`, matching published Canic 0.110.49, so managed
   builds use one runtime identity without waiting for an upstream release.
   Defer unreleased 0.15-only memory APIs; retain committed-runtime checks and
   the current lifecycle contract.

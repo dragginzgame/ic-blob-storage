@@ -51,6 +51,14 @@ build works with explicit `RUSTC_WRAPPER=`; no additional framework defect has
 been established by that result. Caffeine pre-charge, namespace, replay charging
 and operational recovery remain service/provider work, not Canic feedback.
 
+CF-02 follow-up, 2026-10-02: commit `0afc794` omitted the prior root manifest/lock
+alignment, leaving 0.15 selected beside Canic's 0.14.3. The reported E0308 is a
+local dependency/source mismatch. Restore the exact 0.14.3 pin and both locked
+graphs; canonical build and strict affected/managed lint pass. Retain the closed
+feedback state: no Canic action or guard bypass is required. The maintainer must
+include both root dependency files in the next commit. Evidence is retained in
+`.tmp/memory-pin-repair-01`.
+
 ## Source checkpoint
 
 The inventory captures Canic commit

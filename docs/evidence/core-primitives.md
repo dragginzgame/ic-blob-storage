@@ -5571,3 +5571,22 @@ No full CI/release preparation, commit, version change, deployment, provider/pai
 effect or build cleanup occurs. All four certificate host facts remain false.
 [CF-02](../canic-parity.md#integration-feedback) no longer requires a Canic release;
 matching 0.15 adoption may be revisited later with a compatible published host.
+
+### Dependency pin repair — 2026-10-02
+
+The reported managed neighbor growth E0308 is reproduced by committed root
+manifest/lock selection of ic-memory 0.15.0 in `0afc794`, beside published Canic's
+0.14.3; the prior dependency-file alignment is absent from that commit. Restore
+the exact `=0.14.3` pin and resolve offline, then project the managed lock using
+`make prepare-canic-probe`. Both trees contain only 0.14.3. Canonical managed
+build, strict managed all-target/all-feature lint and affected core/adapter/
+storage/consumer lint pass. Growth callers and runtime guard remain unchanged;
+no extra platform claim is inferred from compilation. The brief initial build
+lock wait is retained, and a host process inspection subsequently finds no active
+Cargo/Canic/build process. No full CI/release or new PocketIC run occurs.
+
+Fresh intent, original dependency files, graph, commands, logs and hashes are
+sealed in `.tmp/memory-pin-repair-01`. Earlier captures remain unchanged.
+Both root dependency files must be committed by the maintainer before release
+preparation. No sibling edit, commit, version change, cleanup or provider effect
+is performed. CF-02 remains closed locally; no Canic publication is required.

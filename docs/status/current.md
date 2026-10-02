@@ -1,6 +1,6 @@
 # Current status
 
-Date: 2026-10-01
+Date: 2026-10-02
 
 Release draft: [0.5.0](../../CHANGELOG.md#050), undated below empty Unreleased,
 collects browser transfer, offline trial tooling and backing-growth rollback coverage.
@@ -8,6 +8,18 @@ Product version/receipt remain 0.4.16; the failed release-minor did not prepare
 a version or tag. The maintainer asks to avoid waiting for Canic publication.
 
 ## Active work — published memory alignment
+
+Follow-up pin repair, 2026-10-02: committed source `0afc794` contains the deferred
+APIs and sentinel callers but omits the prior root dependency-file changes.
+Its manifest/lock still select 0.15.0, producing E0308 in the managed neighbor
+growth assertion. Restore the exact `=0.14.3` pin and regenerate the root lock,
+then project the managed lock with the maintained helper. Both dependency trees
+now contain one 0.14.3 identity. Canonical managed build, strict managed lint and
+affected all-target/all-feature core/adapter/storage/consumer lint pass. No source
+assertion workaround or upstream publication is needed. Include **Cargo.toml and
+Cargo.lock** in the maintainer's next commit before retrying release preparation.
+Capture: `.tmp/memory-pin-repair-01`; prior platform evidence below remains bound
+to its original artifact. Full CI/release validation has not been rerun here.
 
 The core now pins ic-memory =0.14.3, matching published Canic 0.110.49, with one
 resolved registry identity. The multiple-runtime guard remains enabled. The
