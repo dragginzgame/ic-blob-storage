@@ -1,0 +1,33 @@
+{
+  "schema": 1,
+  "date": "2026-10-03",
+  "evidence_class": "local_standalone_pocketic_native_session_and_owned_https_http2_browser_substitute",
+  "intent": "Qualify the persistent publication session with cached full-batch validation, selected-body revalidation, receipt-gated serial setup, exact setup recovery and final-map observations.",
+  "files": [
+    1024,
+    2048
+  ],
+  "max_active_uploads_in_browser_cases": 1,
+  "max_control_frames_per_session": 17,
+  "max_session_seconds": 30,
+  "max_gateway_puts_per_browser_case": 4,
+  "max_gateway_gets_per_browser_case": 4,
+  "native_cases": [
+    "cached_completed_copy_and_exact_preparation",
+    "changed_selected_body_refused_before_admission",
+    "bounded_steps_and_idle_control_deadline"
+  ],
+  "browser_cases": [
+    "complete",
+    "lost_reply_and_original_browser_history",
+    "corrupt_observation_stops_before_next_transfer"
+  ],
+  "automatic_upload_retries": 0,
+  "live_provider_requests": 0,
+  "paid_effects": 0,
+  "limitations": [
+    "Synthetic native verifier receipts are local IC evidence only",
+    "Owned gateway is not deployed Caffeine",
+    "Browser worker automation and complete Miner/public-serving acceptance remain open"
+  ]
+}

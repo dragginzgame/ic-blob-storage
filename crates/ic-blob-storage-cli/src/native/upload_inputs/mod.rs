@@ -199,6 +199,17 @@ pub(super) fn run(args: &[String]) -> Result<Value, Failure> {
 }
 
 impl PreparedInput {
+    /// Cached original inputs for the maintained browser; it must snapshot and
+    /// reverify the selected body's digest/SDK root before certificate intent.
+    pub fn transfer_input(&self, body_sha256: &str) -> Result<Value, Failure> {
+        Ok(
+            json!({"binding":serde_json::from_slice::<Value>(&self.browser)
+            .map_err(|_| Failure::Binding)?,
+            "body":self.files.body,"body_sha256":body_sha256,
+            "manifest_json":std::str::from_utf8(&self.files.manifest).map_err(|_| Failure::Binding)?,
+            "bytes":self.permission.upload.bytes.to_string()}),
+        )
+    }
     /// Original maintained request packets for durable indexed setup.
     pub fn setup_requests(&self) -> (&[u8], &[u8]) {
         (&self.admission, &self.preparation)

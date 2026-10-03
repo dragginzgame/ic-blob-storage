@@ -121,10 +121,11 @@ publishing the assembly only after success. These APIs neither establish a provi
 namespace nor implement a production adapter, reconfiguration or operational
 unfencing contract. Linking the library exports no endpoint or lifecycle hook.
 
-`ops::service::stores::grants::requests` builds the sixteen named service requests
-under an explicit host authority without registration or allocation. Hosts compose
-them with configuration and other application declarations before their own
-bootstrap. `grants::open` assembles the current store mapping using that host's
+`ops::service::installation::requests` builds all seventeen named installation
+requests, including configuration, under the supplied host authority. Hosts
+compose this passive inventory with their other application declarations before
+their own bootstrap. Store-only compositions can use the sixteen requests from
+`ops::service::stores::grants::requests`. `grants::open` assembles the current store mapping using that host's
 committed-memory lookup; missing grants refuse without creating or repairing a
 store. `open_default` checks an existing committed capability before using a
 framework-owned default runtime, so absence cannot silently select a bucket policy
@@ -134,7 +135,9 @@ mapping with its unchanged configuration grant, range and bucket policy. Managed
 composition is described below; complete endpoint parity remains unqualified.
 
 `ops::service::installation::ValidatedServiceInstallation` also validates the
-explicit project, verifier, trusted uploader and bounded host-compiled release before allocation.
+explicit project, verifier, trusted uploader and bounded library release before allocation.
+Use `ic_blob_storage::LIBRARY_VERSION` for that compiled dependency identity;
+an embedding host's package version and Wasm/module identity are separate facts.
 `ServiceInstallation` owns the immutable current configuration record and the
 four service owners. Fresh installation preflights all seventeen exclusive grants;
 the host must propagate any subsequent trap for IC rollback. Restoration checks

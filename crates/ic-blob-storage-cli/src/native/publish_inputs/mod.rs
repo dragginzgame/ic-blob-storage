@@ -24,6 +24,7 @@ pub(super) const MAX_TIMEOUT_SECONDS: u64 = 3600;
 /// One complete frozen batch; caller-supplied identities remain proposals.
 pub(super) struct PreparedBatch {
     pub inputs: Vec<PreparedInput>,
+    pub body_digests: Vec<String>,
     pub inventory: Vec<u8>,
     pub installation: Vec<u8>,
 }
@@ -82,6 +83,7 @@ impl PreparedBatch {
         }
         Ok(Self {
             inputs,
+            body_digests: inventory.files.into_iter().map(|e| e.body_sha256).collect(),
             inventory: inventory_bytes,
             installation,
         })

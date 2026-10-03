@@ -1,0 +1,251 @@
+{
+  "schema": 1,
+  "date": "2026-10-03",
+  "evidence_class": "local_standalone_pocketic_native_session_and_owned_https_http2_browser_substitute",
+  "intent": "intent.json",
+  "supplemental_recovery_intent": "recovery-intent.json",
+  "regression_intent": "regression-intent.json",
+  "baseline_release": "0.9.0",
+  "host_artifact": "unchanged local draft; not deployed",
+  "ic_memory": "0.15.6; concurrent selection preserved",
+  "sdk": {
+    "caffeine": "1.1.2",
+    "core": "5.4.0",
+    "node": "24.21.0",
+    "chromium": "153.0.8010.12",
+    "patch": "clients/browser/patches/caffeine-1.1.2.patch"
+  },
+  "operation": "publish_session",
+  "input_verification": "complete startup pass; selected body digest before setup; browser raw digest and SDK root before certificate intent",
+  "control": {
+    "max_frame_bytes": 8192,
+    "queue_frames": 1,
+    "max_steps": 17,
+    "timeout_seconds": 30,
+    "cursor": "exact live original reference and configured-verifier digest only",
+    "map": "all original indices inspected, then complete live-reference observation"
+  },
+  "native_cases": {
+    "cached_batch": "pass; completed local body copy can change without another full scan; selected second file is rechecked; map retains original digest",
+    "changed_selected_body": "pass; content_mismatch before setup claim/admission; request/failure and unchanged-state assertion retained",
+    "bounded_steps_and_idle": "pass; one step ends blocked; stdin remains open while deadline exits timeout",
+    "original_setup_recovery": "pass; EOF transport failure followed by new process and exact original signed claims, zero updates; tampered source refuses binding before setup"
+  },
+  "browser_cases": {
+    "persistent-complete": {
+      "capture": ".tmp/publish-session-01/browser-01/persistent-complete",
+      "confirmed_map_written": true,
+      "max_active_uploads": 1,
+      "retained_physical_bytes": 3072,
+      "retained_liability_bytes": 3072,
+      "provider_puts": [
+        {
+          "bytes": 4777,
+          "path": "/v1/blob-tree/",
+          "sha256": "c015b11c29f37edcdb8309945fcdebaa2d0be140c5e1843b7cc20857ee6b1c40"
+        },
+        {
+          "bytes": 1024,
+          "path": "/v1/chunk/?owner_id=dllsh-pd777-77776-qaaaa-cai&blob_hash=sha256%3Ad53964e58575f66aa53db95000c2d48152b0bf2f22da88274a85788efd5a3b6e&chunk_hash=sha256%3A93beaf743566f9e55d341b9fdcab54250bd8b391f0fab18837ba25accf22a387&chunk_index=0&bucket_name=fixture-bucket&project_id=standalone-trial",
+          "sha256": "b2256110f2c4226de0008dd4382a388e033f211b617bd3237135ab1d59a722b6"
+        },
+        {
+          "bytes": 4889,
+          "path": "/v1/blob-tree/",
+          "sha256": "dd06deb86d45ce7309ba4789b4739baaa2ed172e0e8bf9b1d38f7efd5388f89c"
+        },
+        {
+          "bytes": 2048,
+          "path": "/v1/chunk/?owner_id=dllsh-pd777-77776-qaaaa-cai&blob_hash=sha256%3A85a0606884f4f1d0342661b1ad202541c85182e559daee6fbbbf83268ad52a67&chunk_hash=sha256%3A594750ba8f154f311da90b701b029bebb775099024dee6e11c64cfa0b1ef4cca&chunk_index=0&bucket_name=fixture-bucket&project_id=standalone-trial",
+          "sha256": "0c4af872167e9a2e045d87dc873c6b20936e7fc896ad437cf1ee5266feec40bc"
+        }
+      ],
+      "provider_gets": [
+        "/v1/blob/?blob_hash=sha256%3Ad53964e58575f66aa53db95000c2d48152b0bf2f22da88274a85788efd5a3b6e&owner_id=dllsh-pd777-77776-qaaaa-cai&project_id=standalone-trial",
+        "/v1/blob/?blob_hash=sha256%3Ad53964e58575f66aa53db95000c2d48152b0bf2f22da88274a85788efd5a3b6e&owner_id=dllsh-pd777-77776-qaaaa-cai&project_id=standalone-trial",
+        "/v1/blob/?blob_hash=sha256%3A85a0606884f4f1d0342661b1ad202541c85182e559daee6fbbbf83268ad52a67&owner_id=dllsh-pd777-77776-qaaaa-cai&project_id=standalone-trial",
+        "/v1/blob/?blob_hash=sha256%3A85a0606884f4f1d0342661b1ad202541c85182e559daee6fbbbf83268ad52a67&owner_id=dllsh-pd777-77776-qaaaa-cai&project_id=standalone-trial"
+      ],
+      "browser_restart_preserved": true
+    },
+    "persistent-lost": {
+      "capture": ".tmp/publish-session-01/browser-01/persistent-lost",
+      "confirmed_map_written": true,
+      "max_active_uploads": 1,
+      "retained_physical_bytes": 3072,
+      "retained_liability_bytes": 3072,
+      "provider_puts": [
+        {
+          "bytes": 4766,
+          "path": "/v1/blob-tree/",
+          "sha256": "ff0fa985113f7bad1000b651c7561a6328a146bfc91763e41270cb3b27af89ed"
+        },
+        {
+          "bytes": 1024,
+          "path": "/v1/chunk/?owner_id=dllsh-pd777-77776-qaaaa-cai&blob_hash=sha256%3Ad53964e58575f66aa53db95000c2d48152b0bf2f22da88274a85788efd5a3b6e&chunk_hash=sha256%3A93beaf743566f9e55d341b9fdcab54250bd8b391f0fab18837ba25accf22a387&chunk_index=0&bucket_name=fixture-bucket&project_id=standalone-trial",
+          "sha256": "b2256110f2c4226de0008dd4382a388e033f211b617bd3237135ab1d59a722b6"
+        },
+        {
+          "bytes": 4915,
+          "path": "/v1/blob-tree/",
+          "sha256": "658b4fa725c4b739b0ee443dc43b487ac61fb7830529e5dd470946cb9ce9016c"
+        },
+        {
+          "bytes": 2048,
+          "path": "/v1/chunk/?owner_id=dllsh-pd777-77776-qaaaa-cai&blob_hash=sha256%3A85a0606884f4f1d0342661b1ad202541c85182e559daee6fbbbf83268ad52a67&chunk_hash=sha256%3A594750ba8f154f311da90b701b029bebb775099024dee6e11c64cfa0b1ef4cca&chunk_index=0&bucket_name=fixture-bucket&project_id=standalone-trial",
+          "sha256": "0c4af872167e9a2e045d87dc873c6b20936e7fc896ad437cf1ee5266feec40bc"
+        }
+      ],
+      "provider_gets": [
+        "/v1/blob/?blob_hash=sha256%3Ad53964e58575f66aa53db95000c2d48152b0bf2f22da88274a85788efd5a3b6e&owner_id=dllsh-pd777-77776-qaaaa-cai&project_id=standalone-trial",
+        "/v1/blob/?blob_hash=sha256%3Ad53964e58575f66aa53db95000c2d48152b0bf2f22da88274a85788efd5a3b6e&owner_id=dllsh-pd777-77776-qaaaa-cai&project_id=standalone-trial",
+        "/v1/blob/?blob_hash=sha256%3A85a0606884f4f1d0342661b1ad202541c85182e559daee6fbbbf83268ad52a67&owner_id=dllsh-pd777-77776-qaaaa-cai&project_id=standalone-trial",
+        "/v1/blob/?blob_hash=sha256%3A85a0606884f4f1d0342661b1ad202541c85182e559daee6fbbbf83268ad52a67&owner_id=dllsh-pd777-77776-qaaaa-cai&project_id=standalone-trial"
+      ],
+      "browser_restart_preserved": true
+    },
+    "persistent-corrupt": {
+      "capture": ".tmp/publish-session-01/browser-01/persistent-corrupt",
+      "confirmed_map_written": false,
+      "max_active_uploads": 1,
+      "retained_physical_bytes": 1024,
+      "retained_liability_bytes": 1024,
+      "provider_puts": [
+        {
+          "bytes": 4779,
+          "path": "/v1/blob-tree/",
+          "sha256": "18dfeb98eded53fa8c3912874f9718e6516522e8712f03e138a3e9c71c1dd219"
+        },
+        {
+          "bytes": 1024,
+          "path": "/v1/chunk/?owner_id=dllsh-pd777-77776-qaaaa-cai&blob_hash=sha256%3Ad53964e58575f66aa53db95000c2d48152b0bf2f22da88274a85788efd5a3b6e&chunk_hash=sha256%3A93beaf743566f9e55d341b9fdcab54250bd8b391f0fab18837ba25accf22a387&chunk_index=0&bucket_name=fixture-bucket&project_id=standalone-trial",
+          "sha256": "b2256110f2c4226de0008dd4382a388e033f211b617bd3237135ab1d59a722b6"
+        }
+      ],
+      "provider_gets": [
+        "/v1/blob/?blob_hash=sha256%3Ad53964e58575f66aa53db95000c2d48152b0bf2f22da88274a85788efd5a3b6e&owner_id=dllsh-pd777-77776-qaaaa-cai&project_id=standalone-trial"
+      ],
+      "browser_restart_preserved": true
+    }
+  },
+  "lost_reply_recovery": {
+    "native_process_restarted": true,
+    "original_setup": {
+      "state": "permission_inactive",
+      "service_updates_this_run": 0
+    },
+    "gateway_phases": [
+      [
+        "responded",
+        "uncertain"
+      ],
+      [
+        "responded",
+        "responded"
+      ]
+    ],
+    "automatic_redispatches": 0
+  },
+  "validation": {
+    "native_cli": "pass",
+    "persistent_session_pocketic": "pass",
+    "affected_setup_map_capacity_and_recovery_pocketic": "pass; private original native journals retained in final run",
+    "browser_serial": "pass; three persistent cases and three affected indexed regressions",
+    "strict_cli_and_standalone_integration_clippy": "pass",
+    "pinned_browser_source_and_patch_build": "pass",
+    "cli_build": "pass",
+    "formatting_and_whitespace": "pass",
+    "public_and_private_evidence_hashes": "pass",
+    "full_ci": false
+  },
+  "failures_and_capture_limitations": [
+    {
+      "capture": ".tmp/publish-session-01/native-control.log",
+      "reason": "Serde's unit map variant ignored extra fields; decoder test failed. Use an empty struct variant and retain the corrected passing run separately."
+    },
+    {
+      "capture": ".tmp/publish-session-01/standalone-clippy.log",
+      "reason": "Test helper pass-by-value and length lint; borrow frames and extract map assertions without suppression."
+    },
+    {
+      "capture": ".tmp/publish-session-01/standalone-clippy-retention.log",
+      "reason": "First opt-in capture refactor missed the shared Directory import; compile failed before any probe, corrected final lint retained."
+    },
+    {
+      "capture": ".tmp/publish-session-01/session-pocketic.log",
+      "reason": "Initial three cases used disposable fixture directories. Logs survive, but original requests were not retained."
+    },
+    {
+      "capture": ".tmp/publish-session-01/session-pocketic-recovery.log",
+      "reason": "First expanded four-case run likewise used disposable directories. Final supplemental run retains original signed requests, control frames and raw replies under native-retained."
+    }
+  ],
+  "retention": {
+    "native_journals": ".tmp/publish-session-01/native-retained",
+    "browser_profiles_signed_requests_queries_and_gateway_records": ".tmp/publish-session-01/browser-01",
+    "private_file_hash_manifest": ".tmp/publish-session-01/capture-sha256.txt",
+    "original_failures_preserved": true,
+    "owned_local_servers_and_browsers_closed": true,
+    "live_owners_profiles_balances_and_obligations_unchanged": true
+  },
+  "limitations": [
+    "Owned gateway and synthetic image-labelled bodies do not establish deployed Caffeine or real media/public-serving behavior.",
+    "The maintained native phase controller is implemented; production browser-worker/verifier automation and complete headless publisher remain unfinished.",
+    "Cached maps describe the initially validated intent, not fresh verification of all current local copies, an atomic snapshot or future retention.",
+    "675 distinct Miner blobs/679 asset identities, release overlap, MIME/CORS/cache/CSP/open-browser retention and consumer adoption remain open.",
+    "Native synthetic attestations establish local service logic only; the browser cases use independent whole-byte observation against the substitute.",
+    "No provider deletion or billing cessation is established; completed/exposed objects retain physical and liability bytes.",
+    "Canic wrapper adoption remains deferred; sibling repositories remain read-only."
+  ],
+  "source_and_artifact_sha256": {
+    "crates/ic-blob-storage-cli/Cargo.toml": "763d0132835502898559437432cb0ebc1808cb4a584da539662c9a6e74bf2e75",
+    "crates/ic-blob-storage-cli/src/native/publish_session/mod.rs": "ebca4df0955f4cd2f557c2b50bf7fb84a76ff940fe20af78a1de24947aa6d7fd",
+    "crates/ic-blob-storage-cli/src/native/publish_session/control/mod.rs": "25712f7dfc202d69dc8d0f6bb35430771cb93cf367ed004012b470f1607b82c7",
+    "crates/ic-blob-storage-cli/src/native/publish_session/progress/mod.rs": "8524a47f1545746e825787cdaa0ca8c2e07805bd5d4de07ae4af98bcdb14e249",
+    "crates/ic-blob-storage-cli/src/native/arguments/mod.rs": "43273c0a7f63a6de17a6a9af8265762040015b9d935ce5248dc91694d5358ede",
+    "crates/ic-blob-storage-cli/src/native/publish_prepare/mod.rs": "c615c9f1efbea2da6d1a5d6b0633b50cb8695e0675a06130e5caec445a20624f",
+    "crates/ic-blob-storage-cli/src/native/publish_map/mod.rs": "0c6bcd710a96c3d2d9b5ea85fef474e94ecfa062623671b4996548bb8619e497",
+    "crates/ic-blob-storage-cli/src/native/upload_inputs/mod.rs": "e21f8b9f9d1d6221bbe6db2d4b52423391def57b66ea10566fd2e26c3cda8b00",
+    "tests/pocketic/tests/native_session/mod.rs": "23ab635bc7e94bfe7262f9903df11843e9be4164adc2e11da97953aad1592897",
+    "tests/pocketic/tests/standalone_publish_session/mod.rs": "5e3d54e043a6763bfcb84f66f00ecb4efb3a742f67077aefb26767244578604f",
+    "tests/pocketic/tests/standalone_browser/serial/mod.rs": "6eca49fe7226b69eef039146262f45ff4488744f4be79ce2108c70ffbea7df6b",
+    "tests/pocketic/tests/browser_driver/mod.rs": "f24a1ce30008b52a18846973ed1f6db5951592383273872a3c637eea15f18ea9",
+    "tests/browser/serial.mjs": "dc94f128bcc9406149f68b5e0ae908ecc0b684657a9db401757d371de25fdbd2",
+    "tests/browser/build.mjs": "c5b0badcc2edb130442853d1dd8a8a735591ac74b62cff8d1460a96b5c7d8aa6",
+    "tests/browser/standalone-gateway.mjs": "9394024e08ae8f23609e391c45cff1ff614db2c6f4da6ccfffb1dbcc756fb0cd",
+    "clients/browser/publication.js": "f259ffc707b02454cb56488e68b3129bd490a2f326a29e08fb55c966fa60c493",
+    "clients/browser/patches/caffeine-1.1.2.patch": "55fc44fe155ec3be888e1bee524ccb931b28c8c9e0119ffc012e270238289364",
+    "target/debug/blob-storage": "0cf5f19d25a1b89256d59b6c66cb447b4e32756f5c22f5fb221b111e16c3e9c1",
+    "target/wasm32-unknown-unknown/release/ic_blob_storage_canister.wasm": "e4d6e3f744b27e0530521aab9440a02f636088f4dfd44733ff9e6f69a1183331"
+  },
+  "log_intent_and_capture_manifest_sha256": {
+    ".tmp/publish-session-01/browser-01.log": "aedc827d742ec5c32944a8c1e44afeba324cc9d51676935ee8f56f216f73dbfc",
+    ".tmp/publish-session-01/browser-build.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    ".tmp/publish-session-01/cli-build.log": "cf8df3f2ae8b8b8a45cd6c9342c3a39b8e45df298c5434b948718d95b6deb2ea",
+    ".tmp/publish-session-01/cli-clippy.log": "2f15a63c023e4fd86b46743fe89cb61980aaa9c39207142ac3680a8154be6cfc",
+    ".tmp/publish-session-01/diff-check.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    ".tmp/publish-session-01/fmt-check.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    ".tmp/publish-session-01/native-cli.log": "13d0651583310d79c71f90be9c975d1bf7688a312b87de58df022d072248ec04",
+    ".tmp/publish-session-01/native-control-corrected.log": "687f5029dbb3f49b94879cfc5e36be28a8a0dd4e7bbfb2630f0e814729545d02",
+    ".tmp/publish-session-01/native-control.log": "ba999059ec77f78ae4cea91c7b3c98d588de341567b2fc5a556075a1f8bc401d",
+    ".tmp/publish-session-01/publication-regressions.log": "04d49c09c0b6fc8e20847c45b3d05db03915a1181b62b9495bf7c73b4c4eaac2",
+    ".tmp/publish-session-01/session-pocketic-recovery.log": "23395440fef23ad98768321d0d5a926449cbcbe3dcb9d1647bfaff08bf324ba2",
+    ".tmp/publish-session-01/session-pocketic.log": "6cc6a1c727932c3a0e82eb5a33d81ba4d8cd4067c042e4ecbb967f02092bccd2",
+    ".tmp/publish-session-01/standalone-clippy-corrected.log": "c7999c99e8d0115b3894bd26356733389d2265fea4659fb9a9d64f871b731494",
+    ".tmp/publish-session-01/standalone-clippy-final.log": "d5bf9b437f126da600a1d59bcdd584d02df8319c780de9bc019ecaa706b74643",
+    ".tmp/publish-session-01/standalone-clippy-retention.log": "e34e397d104e5e8a6ded1db569113cd56b7b20a60f989cb7e7e05a9f7edfd5bb",
+    ".tmp/publish-session-01/standalone-clippy.log": "e5f3f8c91c623c96fa94a7744df8572ce99ce804bc64ce7161ef44f62ccdd369",
+    ".tmp/publish-session-01/intent.json": "d97c267def4221b726530282b75d339b1c4150689361dd265bbd6a3bb2b0b545",
+    ".tmp/publish-session-01/recovery-intent.json": "aa427d49164d12909a865c5f8c95d2f82ca593cea255b1993b726716f2924a7e",
+    ".tmp/publish-session-01/regression-intent.json": "e1198613b4dc23edd4b5a3b128c60d716c0fa3576f1a569d69f33f0b52eca895",
+    ".tmp/publish-session-01/capture-sha256.txt": "9d03fa52bf6ee6ed3d843049716750481791a46d32167e8a9c8b3930d5f05afb"
+  },
+  "live_provider_requests": 0,
+  "paid_effects": 0,
+  "deployment": false,
+  "version_change": false,
+  "commits": false,
+  "sibling_edits": false,
+  "build_cleanup": false,
+  "feedback": "docs/canic-parity.md#integration-feedback"
+}

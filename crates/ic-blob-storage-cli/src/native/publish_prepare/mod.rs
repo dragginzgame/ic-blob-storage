@@ -54,7 +54,7 @@ pub(super) async fn run(options: &Options, input: &Input) -> Result<Value, Failu
     run_selected(options, input, &batch).await
 }
 
-async fn run_selected(
+pub(in crate::native) async fn run_selected(
     options: &Options,
     input: &Input,
     batch: &publish_inputs::PreparedBatch,

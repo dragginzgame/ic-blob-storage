@@ -84,8 +84,10 @@ any certificate/gateway effect. The SDK continues to own preparation and transfe
 
 For an indexed `publish-inputs` file after authenticated `publish-prepare`, use
 `createPublicationUpload` (package subpath `./publication`). The consumer must
-reverify the full batch/setup report and select the original file; this helper
-accepts one body and owns no ID allocation or setup journal.
+validate the full batch/setup report and select the original file; this helper
+accepts one body and owns no ID allocation or setup journal. Independent native
+commands reverify the full batch; Unreleased `publish-session` retains one
+validated batch and supplies the selected cached transfer descriptor instead.
 
 ```js
 import { createPublicationUpload } from './publication.js';
@@ -119,6 +121,113 @@ The standalone Chromium fixture now uses frozen native batch preparation and thi
 helper. Its HTTPS HTTP/2 gateway is an owned substitute; success, lost-final-reply,
 corrupt-read and withdrawn/late-completion journeys establish local composition,
 not production provider behavior or a complete Miner publication.
+
+The serial local fixture drives two original frozen files at one active service
+reservation, with independent native verification/attestation between transfers
+and `publish-file-status` before advancing. Whole-browser restarts preserve the
+existing strict IndexedDB rows. Lost chunk replies reconcile without another PUT;
+corrupt observation stops before the second upload or any complete media map.
+The [serial recipe](../../docs/operator-guide.md#complete-one-file-before-preparing-the-next)
+describes the remaining consumer orchestration boundary. This helper still owns
+one file's SDK transfer; it does not own service setup, verifier credentials or a
+second batch dispatch journal. The persistent-session fixture additionally holds
+one validated batch across setup/status/map, rechecks selected bytes before setup,
+and reopens original signed setup journals after native process interruption.
+An exposed permission refuses setup recovery with zero updates; independent
+verification reconciles the original lost-reply upload before advancement. See
+the [session protocol](../../docs/operator-guide.md#hold-one-validated-batch-across-publication-phases).
+The maintained SDK and strict IndexedDB rows remain the certificate/gateway owners;
+the worker below is implemented; native parent and verifier-phase automation
+remain open.
+
+### Run jobs in a browser worker
+
+Unreleased `createPublicationWorker` (package subpath `./worker`) supplies the
+browser job boundary for a headless publisher. It runs in a real DedicatedWorker
+as well as a trusted browser context. Bootstrap with an explicitly selected
+signer and existing strict IndexedDB store. Bind service, tenant, uploader,
+project, bucket, IC trust root and reviewed gateway before jobs. A job or content
+digest cannot select another tenant or gateway.
+
+```js
+import { createPublicationWorker, servePublicationWorker } from './worker.js';
+
+const worker = createPublicationWorker({
+  host, identity, rootKey, service, tenant, uploader, project, bucket, intents,
+  origin: gatewayOrigin, maxBodyBytes, maxRequests, maxRequestBytes,
+  maxTotalRequestBytes, maxJobs: 32, timeoutSeconds: 120, signal,
+});
+// Inside an application-bootstrapped worker, accept only its trusted private port.
+const stopServing = servePublicationWorker(worker, trustedPort);
+```
+
+The host owns worker creation, signer loading and private-port bootstrap. The
+library adds no public window listener, HTTP credential route or identity loader.
+Keep private signing material out of static assets, logs and public responses.
+Stopping the port does not delete history, cancel the service operation or prove
+a stopped effect. The caller owns browser termination and loss/rollback fencing.
+
+Send passive structured-clone jobs over the private port, or call `execute`
+directly in a trusted context. An upload job is:
+
+```js
+const result = await worker.execute({
+  schema: 1, id: 1, action: 'upload', index: 0, binding,
+  snapshot: {
+    body: selectedBytes, bodySha256: originalRawSha256,
+    manifestJSON: originalSdkManifestJSON, contentType, filename,
+  },
+});
+```
+
+The body must be a nonempty `Uint8Array` within the configured limit. Supply the
+original metadata hints, including omitted filename; the SDK rebuild must match
+the frozen metadata/leaves/root exactly. The native session's cached descriptor
+supplies body path, digest, manifest and binding; the consumer loads that body and
+supplies original hints. Require native setup's `prepared:true` before uploading.
+No array-of-bytes fallback or alternative provider decoder is introduced.
+
+| Job action | Result and effects |
+| --- | --- |
+| `upload` | `transfer-observed` after SDK success; independent verification still required. Claimed, cancelled or started gateway history refuses before another transfer |
+| `inspect` | `inspected` with a bounded journal projection, including `present:false`; no new intent or provider request |
+| `recover-certificate` | Verify the exact historical certificate; return `certificate-observed` and its byte count, without certificate redispatch or provider upload |
+| `cancel` | Persist cancellation in the existing row; separate from tenant withdrawal, reference release, deletion and billing cessation |
+
+Other jobs contain the same `schema`, increasing `id`, original `index` and
+`binding`, without `snapshot`. Recovery/cancellation require exact existing
+history and never create a missing row. Unknown fields/actions, foreign scope
+and malformed snapshots fail. Body, binding and trust bytes are snapshotted before
+awaits. One active job is allowed; concurrent requests refuse without clearing
+another job's guard. Every call consumes the finite budget (maximum 32,769).
+IDs increase per worker and index is bounded to the current batch ceiling.
+These process-local numbers correlate jobs; existing signed certificate/gateway
+claims remain durable dispatch authority.
+
+Replies echo bounded `id`, `index` and `action`, with state or a redacted error
+code from a finite public vocabulary; arbitrary exported-error code strings are
+also redacted. Journal projections validate cancellation, certificate phase and at most
+256 gateway request index/phase/status entries. They omit envelopes, certificates,
+permission bytes, URLs, headers and provider/SDK error messages. Every reply states
+`service_completion_checked:false` and `retry_authorized:false`. Require independent
+whole-download observation/attestation, then the native session's `file_live:true`
+before advancing; finish with its map. Neither SDK success nor certificate
+recovery establishes service completion.
+
+The configured deadline (at most one hour) aborts network requests and fences new
+jobs after idle time. Crypto, IndexedDB and scheduling remain cooperative; the
+host must own process termination. Preserve the original profile and all native
+journals after failure. Reopen the same durable store; never select a new or
+rolled-back profile to replay uncertainty. Job/request bounds do not guarantee
+a provider spending cap. Cancellation alone cannot dispose of stored bytes.
+
+Actual Chromium/PocketIC tests use this implementation in DedicatedWorkers at one
+active reservation. Browser/native restart reconciles lost replies without new
+uploads. Cancellation survives reopening; corrupt observation blocks the next
+transfer/map while preserving exposed bytes. Offline control tests use a substituted
+store and establish boundary checks only. Native parent launch/signing/bootstrap,
+verifier automation, real Miner media and serving acceptance remain unfinished;
+the owned gateway is not deployed Caffeine.
 
 On the Rust side, `ops::caffeine::preparation::decode_prepared_manifest` converts
 the upstream `manifestJSON` into the existing service declaration within explicit

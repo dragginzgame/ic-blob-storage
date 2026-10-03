@@ -17,7 +17,9 @@ mod parsing;
 mod provider_download;
 mod publish_check;
 mod publish_inputs;
+mod publish_map;
 mod publish_prepare;
+mod publish_session;
 mod reference_inputs;
 mod references;
 mod reply;
@@ -49,11 +51,16 @@ const USAGE: &str = concat!(
     "Offline preparation checks the complete installation candidate against the original service/namespace/project/trusted uploader and installed resource bounds. It saves installation.candid, permission.candid, manifest.candid, first-reference requests, certificate-binding.json and a root-verified body.bin snapshot. No authentication, actual installed-state/provisioning proof, signer, network, ID allocation or certificate. Failed snapshots remain private body.part; existing or partial directories refuse.\n",
     "blob-storage publish-inputs --inventory JSON --root DIRECTORY --installation INSTALLATION_CANDID --max-bytes DECIMAL --max-total-bytes DECIMAL --run-dir NEW_DIRECTORY\n",
     "Offline batch preparation verifies frozen input hashes, unique identities, one tenant/provider scope and aggregate fresh-installation capacity before serial root-verified snapshots. Final summary appears only on complete success; failures retain partial evidence and refuse overwrite. No remaining-live-capacity proof, allocation, certificate, network, publication or retry authority.\n",
+    "blob-storage publish-map --network ic|local --url URL --identity TENANT_PEM --actor TENANT --operator-identity OPERATOR_PEM --service PRINCIPAL --namespace DECIMAL --inputs COMPLETE_PUBLISH_INPUTS_DIRECTORY --gateway ORIGIN --max-bytes DECIMAL --max-total-bytes DECIMAL --max-queries DECIMAL --timeout-seconds DECIMAL --run-dir NEW_DIRECTORY [--root-key DER]\n",
+    "blob-storage publish-file-status accepts the same scope/input flags plus --file-index ZERO_BASED_DECIMAL and --max-queries 4. It checks installed configuration, enrollment, the selected verifier digest and exact live first reference. Require file_live:true before advancing a serial publisher; no whole-batch map, upload retry or publication lease is produced. The complete frozen batch is reverified before queries.\n",
+    "Reverify one complete frozen batch and authenticate current enrollment, fence and exact first-reference liveness. Write media-map.json only when every file passes; blocked or partial runs never emit a map. Sequential observations are not an atomic publication/retention lease or public serving qualification. No update, provider request, reference mutation or retry.\n",
     "blob-storage publish-check --network ic|local --url URL --identity PEM --actor TENANT --service PRINCIPAL --namespace DECIMAL --inputs COMPLETE_PUBLISH_INPUTS_DIRECTORY --max-bytes DECIMAL --max-total-bytes DECIMAL --max-queries DECIMAL --timeout-seconds DECIMAL --run-dir NEW_DIRECTORY [--root-key DER]\n",
     "publish-check reverifies complete frozen snapshots and request packets before signed sequential capacity/content queries. Retain query intents/replies, blockers and original discovered IDs. Existing roots require recovery, retain or retirement handling; no allocation, reservation, updates, provider calls or retry/publication authority. A blocked summary is an observation, not command failure. Partial runs retain failure evidence and refuse overwrite.\n",
     "blob-storage publish-prepare|publish-prepare-resume --network ic|local --url URL --identity TENANT_PEM --actor TENANT --uploader-identity UPLOADER_PEM --service PRINCIPAL --namespace DECIMAL --inputs COMPLETE_PUBLISH_INPUTS_DIRECTORY --file-index ZERO_BASED_DECIMAL --max-bytes DECIMAL --max-total-bytes DECIMAL --timeout-seconds DECIMAL --run-dir NEW_DIRECTORY [--source-run ORIGINAL_PREPARATION_DIRECTORY] [--root-key DER]\n",
     "Prepare one indexed file serially. Reverify the entire batch, authenticate both roles and retain finite capacity/discovery observations before at most two local updates. Resume requires --source-run, binds the original signed admission, and never resubmits a claimed update; it may send only an unclaimed preparation. Four queries maximum per invocation. No certificate, provider transfer, expiry renewal, allocation or publication. Preserve the original journal; partial claims and unknown state never license redispatch.\n",
     "blob-storage publish-prepare-batch --network ic|local --url URL --identity TENANT_PEM --actor TENANT --uploader-identity UPLOADER_PEM --service PRINCIPAL --namespace DECIMAL --inputs COMPLETE_PUBLISH_INPUTS_DIRECTORY --max-bytes DECIMAL --max-total-bytes DECIMAL --timeout-seconds DECIMAL --run-dir NEW_DIRECTORY [--root-key DER]\n",
+    "blob-storage publish-session --network ic|local --url URL --identity TENANT_PEM --actor TENANT --operator-identity OPERATOR_PEM --uploader-identity UPLOADER_PEM --service PRINCIPAL --namespace DECIMAL --inputs COMPLETE_PUBLISH_INPUTS_DIRECTORY --gateway ORIGIN --max-bytes DECIMAL --max-total-bytes DECIMAL --max-steps DECIMAL --timeout-seconds DECIMAL --run-dir NEW_DIRECTORY [--root-key DER]\n",
+    "A bounded JSON-lines session retains one validated batch. Prepare/status phases accept the current original index; status advances only after exact verifier completion and live reference. Map finishes only after every index passes. Prepare recovery names the original source_run and never resubmits claims. Each selected body is reverified before setup; browser transfer and independent observation/attestation remain separately owned. No certificate/provider request, publication lease or extra effect journal.\n",
     "Verify the frozen batch once and serially prepare its files through the same signed setup workflow. Each file has an independent file-NNNN journal, at most two updates and four queries. Stop at the first blocker, uncertainty or failure; never repeat a claimed step or resume the whole batch. The overall deadline covers all setup calls. Recovery uses publish-prepare-resume with the original file directory. No certificate, provider transfer or publication; active reservation capacity still limits progress.\n",
     "blob-storage reference-inputs --permission PERMISSION_CANDID --action retain|release --reference DECIMAL --operation DECIMAL --run-dir NEW_DIRECTORY\n",
     "Offline exact reference.candid, reference-status.candid and download.candid generation from the original saved permission. Canonical positive identities are caller-supplied, never allocated. No signer, network, mutation, liveness, expiry renewal or retry authority; existing or partial directories refuse.\n",
@@ -192,12 +199,26 @@ pub(super) fn run() -> ExitCode {
     }
 }
 
-fn read(path: &Path, maximum: u64) -> Result<Vec<u8>, Failure> {
-    let mut bytes = Vec::new();
-    let file = File::open(path).map_err(|_| Failure::File)?;
+fn open_regular(path: &Path) -> Result<File, Failure> {
+    let mut options = std::fs::OpenOptions::new();
+    options.read(true);
+    // A FIFO open can block before metadata or any transport deadline. Validate
+    // the descriptor actually opened, avoiding a pathname precheck/replacement race.
+    #[cfg(unix)]
+    {
+        use std::os::unix::fs::OpenOptionsExt as _;
+        options.custom_flags(libc::O_NONBLOCK);
+    }
+    let file = options.open(path).map_err(|_| Failure::File)?;
     if !file.metadata().map_err(|_| Failure::File)?.is_file() {
         return Err(Failure::File);
     }
+    Ok(file)
+}
+
+fn read(path: &Path, maximum: u64) -> Result<Vec<u8>, Failure> {
+    let mut bytes = Vec::new();
+    let file = open_regular(path)?;
     file.take(maximum + 1)
         .read_to_end(&mut bytes)
         .map_err(|_| Failure::File)?;
@@ -261,6 +282,8 @@ fn execute(args: &[String]) -> Result<serde_json::Value, Failure> {
 
 async fn observe(options: &arguments::Options) -> Result<serde_json::Value, Failure> {
     match &options.command {
+        arguments::Command::PublishSession(input) => publish_session::run(options, input).await,
+        arguments::Command::PublishMap(input) => publish_map::run(options, input).await,
         arguments::Command::UploadSetup(input) => upload_setup::run(options, input).await,
         arguments::Command::PublishCheck(input) => publish_check::run(options, input).await,
         arguments::Command::PublishPrepare(input) => publish_prepare::run(options, input).await,
@@ -387,7 +410,15 @@ async fn inspect(options: &arguments::Options) -> Result<serde_json::Value, Fail
 }
 
 fn agent(options: &arguments::Options) -> Result<Agent, Failure> {
-    let identity = identity(&options.identity, options.actor)?;
+    agent_for(options, &options.identity, options.actor)
+}
+
+fn agent_for(
+    options: &arguments::Options,
+    identity_path: &Path,
+    actor: Principal,
+) -> Result<Agent, Failure> {
+    let identity = identity(identity_path, actor)?;
     let root = options
         .root_key
         .as_ref()

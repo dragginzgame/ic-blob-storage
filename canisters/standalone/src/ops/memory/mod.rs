@@ -2,12 +2,12 @@
 use ic_blob_storage::{
     ic_memory::{
         GenericRangePolicy, MemoryManagerAuthorityRecord, MemoryManagerConfig,
-        MemoryManagerIdRange, MemoryManagerRangeMode, MemoryRequest, MemoryRuntime, RuntimeMemory,
-        SchemaMetadata, SealedDeclarationSnapshot, StaticMemoryRangeDeclaration,
+        MemoryManagerIdRange, MemoryManagerRangeMode, MemoryRuntime, RuntimeMemory,
+        SealedDeclarationSnapshot, StaticMemoryRangeDeclaration,
         ic_stable_structures::{DefaultMemoryImpl, Memory as _},
     },
     ops::service::{
-        installation::INSTALLATION_MEMORY_KEY,
+        installation::{self, INSTALLATION_MEMORY_KEY},
         stores::{ServiceMemories, grants},
     },
 };
@@ -20,11 +20,7 @@ pub(super) struct Grants {
 pub(super) fn open(fresh: bool) -> Grants {
     let backing = DefaultMemoryImpl::default();
     assert_eq!(backing.size() == 0, fresh, "installation memory state");
-    let mut requests = vec![
-        MemoryRequest::new("blob", INSTALLATION_MEMORY_KEY, SchemaMetadata::default())
-            .expect("host configuration request"),
-    ];
-    requests.extend(grants::requests("blob").expect("host service requests"));
+    let requests = installation::requests("blob").expect("host installation requests");
     let grant = StaticMemoryRangeDeclaration::new(
         MemoryManagerAuthorityRecord::new(
             MemoryManagerIdRange::new(120, 136).expect("host range"),

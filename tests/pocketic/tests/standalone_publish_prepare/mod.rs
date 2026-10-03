@@ -9,12 +9,12 @@ use crate::{
 use serde_json::{Value, json};
 use std::path::Path;
 
-enum Directory {
+pub(super) enum Directory {
     Temporary(tempfile::TempDir),
     Retained(std::path::PathBuf),
 }
 impl Directory {
-    fn new(label: &str) -> Self {
+    pub(super) fn new(label: &str) -> Self {
         if let Some(root) = std::env::var_os("BLOB_PUBLICATION_REPORT") {
             let root = std::path::PathBuf::from(root);
             std::fs::create_dir_all(&root).unwrap();
@@ -29,7 +29,7 @@ impl Directory {
             Self::Temporary(tempfile::tempdir().unwrap())
         }
     }
-    fn path(&self) -> &Path {
+    pub(super) fn path(&self) -> &Path {
         match self {
             Self::Temporary(directory) => directory.path(),
             Self::Retained(path) => path,

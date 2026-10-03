@@ -14,6 +14,8 @@ pub(super) struct Options {
 }
 
 pub(super) enum Command {
+    PublishSession(super::publish_session::Input),
+    PublishMap(super::publish_map::Input),
     PublishPrepareBatch(super::publish_prepare::Input),
     PublishPrepare(super::publish_prepare::Input),
     PublishCheck(super::publish_check::Input),
@@ -66,6 +68,9 @@ impl Options {
             command,
             "status"
                 | "publish-check"
+                | "publish-map"
+                | "publish-file-status"
+                | "publish-session"
                 | "publish-prepare"
                 | "publish-prepare-resume"
                 | "publish-prepare-batch"
@@ -108,6 +113,9 @@ impl Options {
                 command,
                 "verify-upload"
                     | "publish-check"
+                    | "publish-map"
+                    | "publish-file-status"
+                    | "publish-session"
                     | "publish-prepare"
                     | "publish-prepare-resume"
                     | "publish-prepare-batch"
@@ -166,7 +174,47 @@ fn parse_command(
     flags: &mut BTreeMap<&str, &str>,
 ) -> Result<Command, Failure> {
     match command {
-        "publish-check" => parse_publish_check(service, namespace, flags),
+        "publish-session" => parse_publish_session(service, namespace, network, flags),
+        "publish-check" => Ok(Command::PublishCheck(parse_publish_check(
+            service,
+            namespace,
+            flags,
+            super::publish_inputs::MAX_FILES as u128 + 1,
+        )?)),
+        "publish-map" | "publish-file-status" => {
+            let selection = if command == "publish-file-status" {
+                let text = flags.remove("--file-index").ok_or(Failure::Arguments)?;
+                let index: usize = text.parse().map_err(|_| Failure::Arguments)?;
+                if index.to_string() != text || index >= super::publish_inputs::MAX_FILES {
+                    return Err(Failure::Arguments);
+                }
+                super::publish_map::Selection::File(index)
+            } else {
+                super::publish_map::Selection::Batch
+            };
+            let gateway = Url::parse(flags.remove("--gateway").ok_or(Failure::Arguments)?)
+                .map_err(|_| Failure::Arguments)?;
+            validate_url(&gateway, network, network == "local")?;
+            Ok(Command::PublishMap(super::publish_map::Input {
+                selection,
+                operator_identity: PathBuf::from(
+                    flags
+                        .remove("--operator-identity")
+                        .ok_or(Failure::Arguments)?,
+                ),
+                checks: parse_publish_check(
+                    service,
+                    namespace,
+                    flags,
+                    if command == "publish-file-status" {
+                        4
+                    } else {
+                        2 * super::publish_inputs::MAX_FILES as u128 + 2
+                    },
+                )?,
+                gateway,
+            }))
+        }
         "publish-prepare" | "publish-prepare-resume" | "publish-prepare-batch" => {
             parse_publish_prepare(command, service, namespace, flags)
         }
@@ -283,19 +331,20 @@ fn parse_publish_check(
     service: Principal,
     namespace: u128,
     flags: &mut BTreeMap<&str, &str>,
-) -> Result<Command, Failure> {
+    query_limit: u128,
+) -> Result<super::publish_check::Input, Failure> {
     let mut take = |name| flags.remove(name).ok_or(Failure::Arguments);
     let max_bytes = maximum(take("--max-bytes")?)?;
     let max_total_bytes = positive::<u128>(take("--max-total-bytes")?)?;
     let max_queries = positive::<u128>(take("--max-queries")?)?;
     let timeout_seconds = positive::<u128>(take("--timeout-seconds")?)?;
     if max_total_bytes > u128::from(super::publish_inputs::MAX_TOTAL_BYTES)
-        || max_queries > super::publish_inputs::MAX_FILES as u128 + 1
+        || max_queries > query_limit
         || timeout_seconds > u128::from(super::publish_inputs::MAX_TIMEOUT_SECONDS)
     {
         return Err(Failure::Arguments);
     }
-    Ok(Command::PublishCheck(super::publish_check::Input {
+    Ok(super::publish_check::Input {
         service,
         namespace,
         inputs: PathBuf::from(take("--inputs")?),
@@ -307,7 +356,7 @@ fn parse_publish_check(
         .ok_or(Failure::Arguments)?,
         max_queries: max_queries.try_into().map_err(|_| Failure::Arguments)?,
         timeout_seconds: timeout_seconds.try_into().map_err(|_| Failure::Arguments)?,
-    }))
+    })
 }
 
 fn parse_publish_prepare(
@@ -323,17 +372,39 @@ fn parse_publish_prepare(
         take("--file-index")?
     };
     let index: usize = index_text.parse().map_err(|_| Failure::Arguments)?;
+    if index.to_string() != index_text || index >= super::publish_inputs::MAX_FILES {
+        return Err(Failure::Arguments);
+    }
+    let source = if command == "publish-prepare-resume" {
+        Some(PathBuf::from(take("--source-run")?))
+    } else {
+        None
+    };
+    let mut input = parse_prepare_input(service, namespace, index, flags)?;
+    input.source = source;
+    Ok(if command == "publish-prepare-batch" {
+        Command::PublishPrepareBatch(input)
+    } else {
+        Command::PublishPrepare(input)
+    })
+}
+
+fn parse_prepare_input(
+    service: Principal,
+    namespace: u128,
+    index: usize,
+    flags: &mut BTreeMap<&str, &str>,
+) -> Result<super::publish_prepare::Input, Failure> {
+    let mut take = |name| flags.remove(name).ok_or(Failure::Arguments);
     let max_bytes = maximum(take("--max-bytes")?)?;
     let total = positive::<u128>(take("--max-total-bytes")?)?;
     let timeout = positive::<u128>(take("--timeout-seconds")?)?;
-    if index.to_string() != index_text
-        || index >= super::publish_inputs::MAX_FILES
-        || total > u128::from(super::publish_inputs::MAX_TOTAL_BYTES)
+    if total > u128::from(super::publish_inputs::MAX_TOTAL_BYTES)
         || timeout > u128::from(super::publish_inputs::MAX_TIMEOUT_SECONDS)
     {
         return Err(Failure::Arguments);
     }
-    let input = super::publish_prepare::Input {
+    Ok(super::publish_prepare::Input {
         service,
         namespace,
         index,
@@ -346,17 +417,33 @@ fn parse_publish_prepare(
         inputs: PathBuf::from(take("--inputs")?),
         directory: PathBuf::from(take("--run-dir")?),
         uploader_identity: PathBuf::from(take("--uploader-identity")?),
-        source: if command == "publish-prepare-resume" {
-            Some(PathBuf::from(take("--source-run")?))
-        } else {
-            None
-        },
-    };
-    Ok(if command == "publish-prepare-batch" {
-        Command::PublishPrepareBatch(input)
-    } else {
-        Command::PublishPrepare(input)
+        source: None,
     })
+}
+
+fn parse_publish_session(
+    service: Principal,
+    namespace: u128,
+    network: &str,
+    flags: &mut BTreeMap<&str, &str>,
+) -> Result<Command, Failure> {
+    let gateway = Url::parse(flags.remove("--gateway").ok_or(Failure::Arguments)?)
+        .map_err(|_| Failure::Arguments)?;
+    validate_url(&gateway, network, network == "local")?;
+    let max_steps = positive::<u64>(flags.remove("--max-steps").ok_or(Failure::Arguments)?)?;
+    if max_steps > 8 * super::publish_inputs::MAX_FILES as u64 + 1 {
+        return Err(Failure::Arguments);
+    }
+    Ok(Command::PublishSession(super::publish_session::Input {
+        operator_identity: PathBuf::from(
+            flags
+                .remove("--operator-identity")
+                .ok_or(Failure::Arguments)?,
+        ),
+        prepare: parse_prepare_input(service, namespace, 0, flags)?,
+        gateway,
+        max_steps,
+    }))
 }
 
 pub(super) fn validate_url(url: &Url, network: &str, explicit_root: bool) -> Result<(), Failure> {

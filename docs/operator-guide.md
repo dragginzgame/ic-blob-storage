@@ -1,9 +1,9 @@
 # Operator and verifier guide
 
-## Current-instance recovery in Unreleased
+## Current-instance recovery
 
-Frozen live 0.7.0 installations restore inspection-only. The next minor-release
-draft adds operator-only `blob_resume_current_instance()` with empty arguments.
+Frozen live 0.7.0 installations restore inspection-only. The current contract,
+released in 0.8.0, supports operator-only `blob_resume_current_instance()` with empty arguments.
 Same-release upgrade restoration remains synchronous and fenced before deferred
 work. Invoke this endpoint as the installed operator on the current canister;
 controller status supplies no authority. It reads IC-owned history once with
@@ -379,7 +379,7 @@ budgets then need joint qualification. No additional journal/controller canister
 is needed for this design.
 
 Keep three independent bounds: service lifetime objects/leaves, browser lifetime
-attempts, and files/bytes in each publication batch. Unreleased browser journals
+attempts, and files/bytes in each publication batch. Current browser journals
 can be configured up to 1,000,000 attempts; native batches remain at most 4,096
 files with explicit byte budgets. Process larger datasets as separately frozen,
 bounded batches with globally distinct original IDs and all journals retained.
@@ -730,6 +730,164 @@ There is no whole-batch replay or automatic retry. Files not yet started can use
 ordinary indexed preparation with fresh output directories; never reissue a
 claimed step. Reverify bytes immediately before transfer through the maintained
 browser helper, including after any change since the batch's verification pass.
+
+### Produce a complete confirmed-reference map
+
+After each indexed file has transferred and the configured verifier has independently
+observed and attested its complete bytes, use Unreleased `publish-map` for the final
+batch observation. The command reverifies all frozen files once before signing
+queries or claiming output. Authenticate the tenant and operator independently;
+the expected operator comes from the frozen installation input. It must match the
+actual installed configuration, project, verifier, uploader and compiled library
+release. A proposed installation alone cannot supply that proof.
+
+```sh
+blob-storage publish-map --network ic --url https://icp-api.io \
+  --identity tenant.pem --actor TENANT --operator-identity operator.pem \
+  --service SERVICE --namespace 1 --inputs publish-inputs \
+  --gateway https://REVIEWED_GATEWAY \
+  --max-bytes 10485760 --max-total-bytes 1073741824 \
+  --max-queries 1352 --timeout-seconds 3600 --run-dir publication-map
+```
+
+Allow at least `2 × files + 2` queries (1,352 for Miner's 675 distinct blobs):
+installed configuration, tenant capacity/enrollment, then exact verifier receipt
+and first-reference status for each file. Each query has a thirty-second deadline;
+the whole observation has the explicit deadline, at most one hour. Query replies
+are bounded and the exact intents, arguments and raw results survive failures.
+There are no service updates, provider requests or automatic retries.
+
+Inspect `all_references_live`, including on exit zero. Missing or unmatched
+completion, an inactive reference/tenant or a restore fence blocks the map;
+malformed/foreign replies and transport errors fail with retained evidence.
+`media-map.json` appears only when every file passes. It binds original file
+indices and upload/reference identities to the installed project, shared Caffeine
+request target, raw body SHA-256 and exact original headers. No partial success
+list is a complete map. New observations use new directories and never overwrite
+the original upload, observation, attestation or browser journals.
+
+This is a sequence of authenticated observations, not an atomic snapshot or
+publication lease. References may change afterward. It does not perform the
+consumer's asset transaction, create overlapping-release references or qualify
+public MIME/CORS/cache/CSP/retention. Consumers must join every emitted asset
+identity to the original frozen index, retain the selected release references,
+verify bounded bytes before decoding and own final publication/cancellation.
+The command checks first references; additional release references use the exact
+maintained retain/receipt/status workflows. Logical release still does not prove
+provider deletion or billing cessation.
+
+### Complete one file before preparing the next
+
+At concurrency one, use indexed `publish-prepare`, then the maintained browser
+`createPublicationUpload`, independent `observe-upload` and exact
+`submit-attestation` before moving to the next original index. SDK success does
+not free a reservation. A lost SDK reply is reconciled through complete download
+observation; it never authorizes another upload. Retain each file's original setup,
+browser, observation and signed-attestation journals, including uncertain claims.
+Use the approved provider read budget and handle pending attestations through
+`upload-attestation` with the saved statement, without resubmitting it.
+
+Unreleased `publish-file-status` supplies the authenticated per-file check:
+
+```sh
+blob-storage publish-file-status --network ic --url https://icp-api.io \
+  --identity tenant.pem --actor TENANT --operator-identity operator.pem \
+  --service SERVICE --namespace 1 --inputs publish-inputs --file-index 0 \
+  --gateway https://REVIEWED_GATEWAY \
+  --max-bytes 10485760 --max-total-bytes 1073741824 \
+  --max-queries 4 --timeout-seconds 30 --run-dir confirmed-file-0000
+```
+
+Require `file_live:true` for the exact original index, digest and first reference.
+The command authenticates installed configuration/release with the operator,
+tenant enrollment/capacity, the configured verifier's accepted whole-body digest
+and current unfenced reference status. Its shared decoders and target builder are
+the same as `publish-map`; it sends no update or provider request. Missing
+completion, release, suspension or fencing blocks progress. Exit zero alone is
+insufficient. A successful file check sets `batch_complete:false` and never writes
+`media-map.json`. Finish with the complete `publish-map` observation after every
+file passes, then perform the consumer's asset transaction separately.
+
+Independent CLI invocations reverify the complete frozen batch; this is bounded
+but repeats file I/O. The persistent session below retains one validated batch
+and reuses these phase owners. The current commands and local serial harness
+are components, not a complete production headless publisher.
+The local two-file trials use an owned HTTPS HTTP/2 substitute and synthetic bytes
+with image metadata; they do not qualify Miner's real media or public serving.
+Keep independent physical/liability limits: confirmation frees active concurrency,
+while stored bytes and billing obligations remain accounted for.
+
+### Hold one validated batch across publication phases
+
+Unreleased `publish-session` keeps the validated batch in one native process.
+It authenticates the tenant, uploader and operator, compares the actual installed
+configuration/release, and refuses a fenced host before its `ready` event.
+It handles setup, indexed completion checks and final-map observations through
+the same maintained command implementations. Certificate/SDK transfer,
+independent whole-download observation and configured-verifier attestation still
+run through the existing browser and verifier tools. This command is the native
+phase controller. The browser [publication worker](../clients/browser/README.md#run-jobs-in-a-browser-worker)
+now supplies a fixed-authority job boundary; native parent launch/bootstrap and
+verifier-phase automation remain unfinished.
+
+```sh
+blob-storage publish-session --network ic --url https://icp-api.io \
+  --identity tenant.pem --actor TENANT --operator-identity operator.pem \
+  --uploader-identity uploader.pem --service SERVICE --namespace 1 \
+  --inputs publish-inputs --gateway https://REVIEWED_GATEWAY \
+  --max-bytes 10485760 --max-total-bytes 1073741824 \
+  --max-steps 2701 --timeout-seconds 3600 --run-dir publication-session
+```
+
+A parent process supplies one JSON object per newline on stdin and reads flushed
+JSON lines on stdout. Keep stdin open until the final map or an intentional stop;
+EOF ends with a typed transport failure and retained journals. Wait for `ready`
+before sending frames. Each phase produces an `event:"phase"` line containing
+`step`, `next_index` and `report`. Map completion or step exhaustion then emits
+the final CLI result and exits. Errors emit the normal redacted failure result.
+
+| Control frame | Required handling |
+| --- | --- |
+| `{"phase":"prepare","index":0}` | Require `report.prepared:true`; use its `transfer` descriptor with the maintained browser helper |
+| `{"phase":"status","index":0}` | After independent verification/attestation, require `report.file_live:true` before moving to index 1 |
+| `{"phase":"prepare","index":0,"source_run":"/absolute/original/setup"}` | Recover the exact original per-file setup, preserving its signed journals; never name a recovery-report directory |
+| `{"phase":"map"}` | After every original index passes, inspect `all_references_live`; only complete success writes the root `media-map.json` |
+
+Frames are bounded to 8 KiB including newline; unknown fields/phases and truncated
+frames fail. The control queue holds one frame. Choose a positive step budget of
+at most `8 × files + 1`; 2,701 allows four phases per file plus the map for 675
+files. A blocked status or setup consumes a step; there is no automatic polling.
+The finite session deadline includes configuration checks, control waits and
+network phases after synchronous startup input verification. Filesystem I/O and
+stdout writes are synchronous; this is not a preemptive filesystem deadline.
+Idle stdin does not keep the process alive beyond the tested control deadline.
+
+The session starts at index zero and advances only on authenticated exact
+completion/reference evidence. It rejects out-of-order setup/status and premature
+maps. A restarted session must inspect already-confirmed original indices again;
+for uncertain setup, name the original `step-NNNN/setup/` directory explicitly.
+Within a running session, repeated preparation uses its pinned original directory.
+Neither a restarted process, expired signed ingress nor a lost browser reply
+authorizes redispatch. An already-exposed permission refuses preparation; reconcile
+the original object through the independent verifier instead. Keep original
+browser profiles and all setup/observation/attestation journals.
+
+Full-batch bodies and metadata are validated once at startup. Setup rehashes the
+selected body against that frozen digest; completed and unrelated bodies are not
+rescanned for each phase. The returned `transfer` includes cached binding,
+manifest JSON, original raw digest/byte count and the body path. The browser must
+snapshot that body and recheck raw digest and SDK root before certificate intent,
+using `createPublicationUpload`; a path alone is not verified content. Final maps
+describe the initially validated intent and current reference observations, not
+the present integrity of every local body copy or an atomic publication lease.
+
+Intent, exact control requests and query replies are saved under a private
+create-new root, with existing signed setup journals below each step. The recorded
+maximum is two setup updates per original file and a conservative
+`4 × max_steps + 2 × files + 3` service-query bound. No provider request, verifier
+attestation, funding or retry is performed by the session. External transfers and
+verification need their own budgets. Exit zero may describe blocked/incomplete
+work; inspect typed report fields before continuing or publishing.
 
 ## Admit and prepare an upload
 

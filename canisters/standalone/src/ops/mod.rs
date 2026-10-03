@@ -36,7 +36,7 @@ pub(crate) fn install(input: &ServiceInstallationInput) {
             project: &input.project,
             completion_verifier: input.completion_verifier,
             trusted_uploader: input.trusted_uploader,
-            release: env!("CARGO_PKG_VERSION"),
+            release: ic_blob_storage::LIBRARY_VERSION,
             platform_installation_version: ic_cdk::api::canister_version(),
         },
     )
@@ -79,7 +79,7 @@ pub(crate) fn restore() {
             stores,
         },
         ic_cdk::api::canister_self(),
-        env!("CARGO_PKG_VERSION"),
+        ic_blob_storage::LIBRARY_VERSION,
     )
     .expect("service restoration");
     publish(Host {

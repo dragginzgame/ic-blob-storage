@@ -1,0 +1,28 @@
+{
+  "schema": 1,
+  "date": "2026-10-03",
+  "evidence_class": "local_standalone_pocketic_chromium_owned_https_http2_gateway_substitute",
+  "intent": "Qualify serial two-file publication through existing native setup, browser SDK/journals, independent native observation/attestation and authenticated file-status/final-map queries.",
+  "files": [
+    1024,
+    2048
+  ],
+  "max_active_uploads": 1,
+  "scenarios": [
+    "complete",
+    "lost_first_chunk_reply_and_browser_restart",
+    "corrupt_first_observation_stops_progress"
+  ],
+  "max_puts_per_scenario": 4,
+  "max_gets_per_scenario": 4,
+  "max_body_bytes": 2048,
+  "automatic_upload_retries": 0,
+  "live_provider_requests": 0,
+  "paid_effects": 0,
+  "scope": "Owned loopback services only; existing paid/live owners and siblings unchanged.",
+  "limitations": [
+    "Not deployed Caffeine behavior",
+    "Not Miner public serving or full-inventory acceptance",
+    "Harness coordinates existing clients; complete production headless publisher remains open"
+  ]
+}

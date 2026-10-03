@@ -22,7 +22,7 @@ and operational recovery remain in progress; lifecycle tests run in PocketIC.
 | References and cleanup | Track which assets remain in use and retain exact mutation receipts |
 | Quotas and accounting | Bound objects, bytes, uploads, references and retained history |
 | Provider bookkeeping | Preserve gateway state, funding intents, refunds and uncertain outcomes |
-| Recovery | Inspect restored records; Unreleased proves current-instance activation from IC history |
+| Recovery | Inspect restored records; prove current-instance activation from IC history |
 
 The design sends file bytes directly from the uploader to Caffeine. Hashing and
 whole-file verification can run off-canister. The canister coordinates permissions
@@ -34,15 +34,17 @@ and durable metadata; admission does not require uploading the file body to it.
 | --- | --- |
 | Shared Rust core | Implemented, with native and local IC evidence |
 | Standalone canister | Shared handlers; trusted-uploader certificate issuance within configured object sizes, quotas and multi-file capacity |
-| Lifecycle | Synchronous fenced restoration; Unreleased adds IC-history-proven current-instance recovery and snapshot refusal |
+| Lifecycle | Synchronous fenced restoration; IC-history-proven current-instance recovery and snapshot refusal |
 | Native tooling | Installation/account inputs, verified snapshots and signed setup/recovery; tenant downloads and verifier completion pass live |
-| Batch publication | Unreleased: frozen inventories, signed capacity/content checks, indexed setup and browser transfer with preserved journals; local verification/download journeys pass, complete batch publication remains unfinished |
+| Batch publication | Frozen inventories, signed capacity/content checks, indexed/batch setup and browser transfer with preserved journals; local verification/download journeys pass, complete batch publication remains unfinished |
 | Application integration | Consumer frameworks own their wrappers, asset transactions and integration tests |
 | Browser integration | Caffeine's SDK with certificate intent and bounded persistent journaling; live 1 KiB and ten-chunk 10 MiB transfers pass |
 | Live service acceptance | Still open: complete consumer flow, provider guarantees and operational recovery |
 
-The released **0.7.0** supports configurable certificate sizing. Batch preparation
-and current-instance recovery are **Unreleased** and join the next minor release.
+The current library release is **0.9.0**. Configurable certificate sizing shipped
+in 0.7.0; indexed batch preparation, frozen-file browser transfer and current-instance
+recovery shipped in 0.8.0. Release 0.9.0 adds one-pass batch setup and removes the
+standalone DTO forwarding namespace; consumers import the core configuration types.
 The frozen 0.6.0 live trial retains its original 1 KiB configuration and stopped
 upload history. A separate
 [0.7.0 trial](docs/evidence/caffeine-probes/deployed/2026-10-02-trial-v070-live-01/summary.json)
@@ -60,10 +62,10 @@ Exact trial authority, budgets and retained obligations are recorded in the
 Local tests use controlled provider substitutes where stated. A verifier's
 attestation records observed content availability; it does not promise future
 retention. Releasing a reference, deleting provider bytes and ending billing are
-separate events. Frozen 0.7.0 restores inspection-only; Unreleased adds operator-only
+separate events. Frozen 0.7.0 restores inspection-only; the current release supports operator-only
 current-instance recovery from IC management history. Its twenty-change window must
 still reach the immutable installation anchor; older snapshots/backups stay fenced.
-See the [recovery guide](docs/operator-guide.md#current-instance-recovery-in-unreleased)
+See the [recovery guide](docs/operator-guide.md#current-instance-recovery)
 for operating limits and the [gap review](docs/service-gaps.md) for consumer and
 provider acceptance still required.
 
@@ -114,9 +116,13 @@ for the integration details.
 | I want to… | Start here |
 | --- | --- |
 | Size a consumer installation | [Resource limits and lifetime capacity](docs/operator-guide.md#size-a-consumer-installation) |
-| Freeze an upload batch and check live capacity (Unreleased) | [Offline inventory](docs/operator-guide.md#freeze-a-publication-inventory-offline), then [signed batch check](docs/operator-guide.md#check-a-frozen-batch-against-live-capacity) |
-| Prepare one batch file or recover its setup (Unreleased) | [Indexed preparation and original journals](docs/operator-guide.md#prepare-one-indexed-file-with-surviving-setup-intent) |
-| Prepare a batch with one verification pass (Unreleased) | [Bounded serial setup](docs/operator-guide.md#prepare-a-complete-batch-with-one-verification-pass); active capacity still applies |
+| Freeze an upload batch and check live capacity | [Offline inventory](docs/operator-guide.md#freeze-a-publication-inventory-offline), then [signed batch check](docs/operator-guide.md#check-a-frozen-batch-against-live-capacity) |
+| Prepare one batch file or recover its setup | [Indexed preparation and original journals](docs/operator-guide.md#prepare-one-indexed-file-with-surviving-setup-intent) |
+| Prepare a batch with one verification pass | [Bounded serial setup](docs/operator-guide.md#prepare-a-complete-batch-with-one-verification-pass); active capacity still applies |
+| Complete uploads at concurrency one | [Per-file verification and reference checks](docs/operator-guide.md#complete-one-file-before-preparing-the-next); Unreleased tooling, complete headless publisher still open |
+| Reuse one validated batch across publication phases (Unreleased) | [Persistent native session](docs/operator-guide.md#hold-one-validated-batch-across-publication-phases); coordinate browser transfer and verification separately |
+| Offload uploads to a browser worker (Unreleased) | [Private-port publication worker](clients/browser/README.md#run-jobs-in-a-browser-worker); fixed targets, existing journals and redacted results |
+| Confirm every batch file before mapping assets (Unreleased) | [Authenticated complete reference map](docs/operator-guide.md#produce-a-complete-confirmed-reference-map); serving and publication remain consumer responsibilities |
 | Admit, prepare or cancel an upload | [Signed upload setup](docs/operator-guide.md#admit-and-prepare-an-upload) |
 | Hand a verified upload snapshot to the browser client | [Generated binding](clients/browser/README.md) and [offline check](docs/dependencies.md#offline-nativebrowser-handoff) |
 | Download a verified file | [Tenant downloads](docs/operator-guide.md#download-a-verified-file) |
@@ -132,7 +138,7 @@ for the integration details.
 | Prepare file manifests, inventories or saved bodies | [Local preparation guide](docs/local-tools.md#prepare-one-file) |
 | Inspect or exercise a running PocketIC fixture | [Fixture tools](docs/local-tools.md#inspect-a-running-pocketic-fixture) |
 | Integrate the standalone canister | [Host configuration and endpoint contract](canisters/standalone/README.md) |
-| Resume a fenced current instance (Unreleased) | [Operator recovery and finite IC history](docs/operator-guide.md#current-instance-recovery-in-unreleased) |
+| Resume a fenced current instance | [Operator recovery and finite IC history](docs/operator-guide.md#current-instance-recovery) |
 
 These guides retain the exact command examples, input formats, limits and recovery
 behavior. The native client requires explicit signing identities and installation

@@ -311,11 +311,14 @@ The host allocates seventeen exclusive grants in range 120–136 with sixteen-pa
 memory-manager buckets: one bounded v1 installation record and sixteen shared-store
 memories. Shared `ops::service::installation::ServiceInstallation` owns the immutable
 configuration record and the four service owners. Its validated candidate checks
-the complete configuration, project, verifier and host-supplied compiled release
+the complete configuration, project, verifier and compiled library release
 before allocation. The shared model owns the persisted schema and shared ops own
 DTO conversion. All state writes are synchronous and traps propagate for IC rollback.
 The sixteen service keys and their store mapping come from shared
-`ops::service::stores::grants`; the configuration key is shared too. Runtime,
+`ops::service::stores::grants`; `ops::service::installation::requests` supplies
+the complete configuration/store inventory under the explicit host authority.
+The host uses `ic_blob_storage::LIBRARY_VERSION` for its dependency's compiled
+release; host package and Wasm/module identities remain separate. Runtime,
 allocation policy, ingress authentication and lifecycle calls stay local to this
 host. The host explicitly composes the requests before bootstrap.
 The shared library chooses no physical IDs and registers nothing on linkage.

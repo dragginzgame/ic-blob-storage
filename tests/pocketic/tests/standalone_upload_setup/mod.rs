@@ -16,7 +16,7 @@ fn standalone_signed_upload_setup_recovers_lost_and_pending_replies_then_cancels
         Fake::principal(5),
         Fake::principal(2),
         uploader(),
-        false,
+        Envelope::Regular,
         Fake::principal(90),
         "signed-setup-fixture",
     );

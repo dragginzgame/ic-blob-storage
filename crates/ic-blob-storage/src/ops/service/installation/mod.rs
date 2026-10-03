@@ -17,12 +17,28 @@ use crate::{
 };
 use candid::Principal;
 use ic_memory::ic_stable_structures::{BTreeMap, Memory, Storable};
+use ic_memory::{MemoryRequest, SchemaMetadata, StaticMemoryDeclarationError};
 use thiserror::Error;
 
 /// Stable key for the host-granted immutable installation record.
 pub const INSTALLATION_MEMORY_KEY: &str = "blob.configuration.v1";
 
-/// Explicit installation data plus the host's compiled release identity.
+/// Build all seventeen installation memory requests under the host's authority.
+/// Configuration and store keys share one inventory; no registration, physical
+/// ID selection, bootstrap, allocation, lifecycle hook or stable write occurs.
+/// # Errors
+/// Rejects an invalid authority using the memory runtime's declaration error.
+pub fn requests(authority: &str) -> Result<Vec<MemoryRequest>, StaticMemoryDeclarationError> {
+    let mut requests = vec![MemoryRequest::new(
+        authority,
+        INSTALLATION_MEMORY_KEY,
+        SchemaMetadata::default(),
+    )?];
+    requests.extend(super::stores::grants::requests(authority)?);
+    Ok(requests)
+}
+
+/// Explicit installation data plus the compiled library release identity.
 /// No defaults, deployment, allocation or provider qualification are implied.
 #[derive(Clone, Copy, Debug)]
 pub struct ServiceInstallationCandidate<'a> {
@@ -34,7 +50,8 @@ pub struct ServiceInstallationCandidate<'a> {
     pub completion_verifier: Principal,
     /// Explicit trusted certificate uploader; no role is inferred from operator/controller.
     pub trusted_uploader: Principal,
-    /// Host-supplied frozen package release, never an ingress override on restore.
+    /// Frozen library release, normally `crate::LIBRARY_VERSION`; never an
+    /// ingress override on restore. Host artifact identity is separate.
     pub release: &'a str,
     /// Actual IC version observed in init; zero means an offline/native candidate
     /// has no qualified platform anchor. Never accept this value from ingress.

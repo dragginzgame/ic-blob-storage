@@ -1,0 +1,22 @@
+{
+  "schema": 1,
+  "date": "2026-10-03",
+  "evidence_class": "local_standalone_pocketic_native_service_transport",
+  "intent": "Retain the original native session request/recovery journals in opt-in private captures, then check affected indexed/batch setup and full-map regressions after shared argument parsing and visibility changes.",
+  "commands": [
+    "standalone_publication_session",
+    "standalone_publish_prepare",
+    "standalone_publish_map"
+  ],
+  "max_session_seconds": 30,
+  "max_control_frames_per_session": 17,
+  "provider_requests": 0,
+  "automatic_upload_retries": 0,
+  "paid_effects": 0,
+  "retained_root": ".tmp/publish-session-01/native-retained",
+  "limitations": [
+    "Native synthetic verifier receipts are local service evidence only",
+    "Existing fault transport drops IC replies and never calls Caffeine",
+    "The earlier native capture used disposable fixture directories; its logs remain retained"
+  ]
+}

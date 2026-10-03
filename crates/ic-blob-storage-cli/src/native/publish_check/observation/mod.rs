@@ -48,7 +48,10 @@ fn decode<T: CandidType + for<'de> Deserialize<'de>>(bytes: &[u8]) -> Result<T, 
         .set_full_error_message(false);
     decode_one_with_config(bytes, &config).map_err(|_| Failure::InvalidReply)
 }
-fn capacity(scope: TenantScope, bytes: &[u8]) -> Result<UploadCapacityResponse, Failure> {
+pub(in crate::native) fn capacity(
+    scope: TenantScope,
+    bytes: &[u8],
+) -> Result<UploadCapacityResponse, Failure> {
     let r: Result<UploadCapacityResponse, UploadCapacityFailure> = decode(bytes)?;
     let r = r.map_err(|e| match e {
         UploadCapacityFailure::Binding => Failure::Binding,
@@ -103,7 +106,7 @@ fn discovery(
     }
     Ok(r)
 }
-async fn observe<Q, F>(
+pub(in crate::native) async fn observe<Q, F>(
     run: &Run,
     index: usize,
     method: &'static str,

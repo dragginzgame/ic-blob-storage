@@ -195,4 +195,7 @@ fn identity_and_root_files_are_bounded_without_private_diagnostics() {
         Err(Failure::Identity)
     ));
     assert_eq!(read(file.path(), 2), Err(Failure::File));
+    std::fs::write(file.path(), b"ok").unwrap();
+    assert_eq!(read(file.path(), 2), Ok(b"ok".to_vec()));
+    assert_eq!(read(file.path().parent().unwrap(), 2), Err(Failure::File));
 }

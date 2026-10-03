@@ -1,7 +1,7 @@
 //! Bounded authenticated batch observations, never allocation or dispatch authority.
 pub(super) mod observation;
 #[cfg(test)]
-mod tests;
+pub(super) mod tests;
 use super::{Failure, arguments::Options, artifacts::Run, publish_inputs};
 use candid::Principal;
 use serde_json::{Value, json};

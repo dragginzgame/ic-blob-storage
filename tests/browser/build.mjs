@@ -40,7 +40,11 @@ await build({ absWorkingDir: repo, entryPoints: ['tests/browser/standalone.js'],
   format: 'esm', outfile: '.tmp/browser/standalone.js',
   alias: { '@caffeineai/object-storage': `${adapted}/dist/index.js` },
   nodePaths: [fileURLToPath(new URL('node_modules', import.meta.url))] });
-for (const name of ['sdk-probe', 'native-inputs', 'publication']) await build({ absWorkingDir: repo,
+await build({ absWorkingDir: repo, entryPoints: ['tests/browser/publication-worker.js'], bundle: true,
+  format: 'esm', outfile: '.tmp/browser/publication-worker.js',
+  alias: { '@caffeineai/object-storage': `${adapted}/dist/index.js` },
+  nodePaths: [fileURLToPath(new URL('node_modules', import.meta.url))] });
+for (const name of ['sdk-probe', 'native-inputs', 'publication', 'worker']) await build({ absWorkingDir: repo,
   entryPoints: [`tests/browser/${name}.mjs`], bundle: true,
   format: 'esm', platform: 'node', outfile: `.tmp/browser/${name}.mjs`,
   banner: { js: "import { createRequire } from 'node:module'; const require = createRequire(import.meta.url);" },

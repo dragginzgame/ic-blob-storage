@@ -11,7 +11,7 @@ use ic_blob_storage::dto::{
 };
 use std::fs;
 
-fn frozen() -> tempfile::TempDir {
+pub(in crate::native) fn frozen() -> tempfile::TempDir {
     let d = tempfile::tempdir().unwrap();
     let binding = serde_json::to_vec(&fixture::binding()).unwrap();
     let manifest = serde_json::to_vec(&fixture::manifest()).unwrap();
@@ -44,7 +44,7 @@ fn frozen() -> tempfile::TempDir {
     execute(&args).unwrap();
     d
 }
-fn batch(d: &tempfile::TempDir) -> publish_inputs::PreparedBatch {
+pub(in crate::native) fn batch(d: &tempfile::TempDir) -> publish_inputs::PreparedBatch {
     publish_inputs::PreparedBatch::open_frozen(
         &d.path().join("batch"),
         NonZeroU64::new(10).unwrap(),
@@ -52,7 +52,7 @@ fn batch(d: &tempfile::TempDir) -> publish_inputs::PreparedBatch {
     )
     .unwrap()
 }
-fn capacity(scope: TenantScope) -> UploadCapacityResponse {
+pub(in crate::native) fn capacity(scope: TenantScope) -> UploadCapacityResponse {
     UploadCapacityResponse {
         scope,
         enrollment: TenantEnrollment {

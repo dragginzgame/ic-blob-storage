@@ -1,0 +1,29 @@
+{
+  "schema": 1,
+  "date": "2026-10-03",
+  "evidence_class": "local_standalone_native_and_browser_substitute",
+  "intent": "Extend the original session probe with interrupted native-process recovery from exact original setup journals, journal tamper refusal, and native session restart after browser exposure with a lost chunk reply.",
+  "native_recovery_cases": [
+    "setup_then_control_eof",
+    "original_signed_claim_recovery_without_updates",
+    "tampered_original_manifest_refused_before_setup"
+  ],
+  "browser_recovery_cases": [
+    "restart_native_session_after_lost_reply",
+    "original_exposed_setup_refuses_redispatch",
+    "independent_verification_allows_next_file"
+  ],
+  "max_files": 2,
+  "max_control_frames_per_session": 17,
+  "max_session_seconds": 30,
+  "max_gateway_puts_per_browser_case": 4,
+  "max_gateway_gets_per_browser_case": 4,
+  "automatic_upload_retries": 0,
+  "live_provider_requests": 0,
+  "paid_effects": 0,
+  "limitations": [
+    "Synthetic native verifier receipts are not provider observations",
+    "Owned gateway is not deployed Caffeine",
+    "Original browser profiles and signed setup journals are required; no old-backup activation"
+  ]
+}

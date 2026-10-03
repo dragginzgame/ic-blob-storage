@@ -13,12 +13,12 @@ use std::fmt::Write as _;
 use std::path::Path;
 
 pub(super) fn setup() -> Fixture {
-    setup_profile(true)
+    setup_profile(Envelope::Single)
 }
 pub(super) fn setup_batch() -> Fixture {
-    setup_profile(false)
+    setup_profile(Envelope::Regular)
 }
-fn setup_profile(small_envelope: bool) -> Fixture {
+fn setup_profile(envelope: Envelope) -> Fixture {
     let mut f = Fixture::with_profile(
         Harness::with_builder(
             PocketIcBuilder::new()
@@ -28,7 +28,7 @@ fn setup_profile(small_envelope: bool) -> Fixture {
         Fake::principal(5),
         Fake::principal(2),
         uploader(),
-        small_envelope,
+        envelope,
         Fake::principal(90),
         "publish-check-fixture",
     );

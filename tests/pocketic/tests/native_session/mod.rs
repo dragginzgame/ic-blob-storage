@@ -1,0 +1,88 @@
+//! Owned native subprocess for the maintained publication session control protocol.
+use serde_json::Value;
+use std::{
+    io::{BufRead, BufReader, Read, Write},
+    process::{Child, ChildStdout, Command, Stdio},
+    time::{Duration, Instant},
+};
+
+pub(crate) struct NativeSession {
+    child: Option<Child>,
+    reader: BufReader<ChildStdout>,
+}
+impl NativeSession {
+    pub(crate) fn start(args: &[String]) -> Self {
+        let mut child =
+            Command::new(std::env::var_os("BLOB_CLI_BIN").expect("explicit native artifact"))
+                .args(args)
+                .stdin(Stdio::piped())
+                .stdout(Stdio::piped())
+                .stderr(Stdio::piped())
+                .env("HTTP_PROXY", "http://127.0.0.1:9")
+                .env("HTTPS_PROXY", "http://127.0.0.1:9")
+                .env("ALL_PROXY", "http://127.0.0.1:9")
+                .env("NO_PROXY", "")
+                .spawn()
+                .unwrap();
+        let reader = BufReader::new(child.stdout.take().unwrap());
+        Self {
+            child: Some(child),
+            reader,
+        }
+    }
+    pub(crate) fn send(&mut self, frame: &Value) {
+        let writer = self.child.as_mut().unwrap().stdin.as_mut().unwrap();
+        serde_json::to_writer(&mut *writer, frame).unwrap();
+        writer.write_all(b"\n").unwrap();
+        writer.flush().unwrap();
+    }
+    pub(crate) fn read(&mut self) -> Value {
+        let mut bytes = Vec::new();
+        (&mut self.reader)
+            .take(1024 * 1024 + 1)
+            .read_until(b'\n', &mut bytes)
+            .unwrap();
+        assert!(
+            bytes.len() <= 1024 * 1024 && bytes.ends_with(b"\n"),
+            "bounded complete session response"
+        );
+        serde_json::from_slice(&bytes).unwrap()
+    }
+    /// Wait without closing stdin: the session's deadline must end an idle read.
+    pub(crate) fn wait_for_deadline(&mut self) {
+        let deadline = Instant::now() + Duration::from_secs(5);
+        loop {
+            if self.child.as_mut().unwrap().try_wait().unwrap().is_some() {
+                return;
+            }
+            assert!(
+                Instant::now() < deadline,
+                "session exits while its control pipe remains open"
+            );
+            std::thread::sleep(Duration::from_millis(10));
+        }
+    }
+    pub(crate) fn finish(mut self, expected: i32) -> Value {
+        self.child.as_mut().unwrap().stdin.take();
+        let result = self.read();
+        let output = self.child.take().unwrap().wait_with_output().unwrap();
+        assert_eq!(
+            output.status.code(),
+            Some(expected),
+            "native session status"
+        );
+        assert!(
+            output.stderr.is_empty(),
+            "native errors stay redacted on stdout"
+        );
+        result
+    }
+}
+impl Drop for NativeSession {
+    fn drop(&mut self) {
+        if let Some(child) = &mut self.child {
+            let _ = child.kill();
+            let _ = child.wait();
+        }
+    }
+}

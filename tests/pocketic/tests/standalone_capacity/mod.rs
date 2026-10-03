@@ -5,7 +5,11 @@ use ic_blob_storage::{
     ops::service::uploads::capacity::UPLOAD_CAPACITY_METHOD,
 };
 impl Fixture {
-    fn capacity(&self, actor: Principal, scope: TenantScope) -> Result<UploadCapacityResponse, F> {
+    pub(super) fn capacity(
+        &self,
+        actor: Principal,
+        scope: TenantScope,
+    ) -> Result<UploadCapacityResponse, F> {
         self.harness
             .pic
             .query_candid_as(self.service, actor, UPLOAD_CAPACITY_METHOD, (scope,))

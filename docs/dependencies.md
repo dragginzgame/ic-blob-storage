@@ -212,7 +212,8 @@ neither emits a certificate or sends service/gateway traffic. See the
 
 ## Memory composition
 
-The maintainer selects `ic-memory 0.15.2`; the lockfile resolves one registry
+Released 0.9.0 selects `ic-memory 0.15.4`; the current working tree selects 0.15.6
+through the maintainer's concurrent dependency update. The lockfile resolves one registry
 package and its `ic-stable-structures` 0.7.2 substrate.
 Direct `RuntimeMemory::grow` returns a typed result;
 generic `Memory` wrappers preserve the upstream -1 sentinel contract.
@@ -232,7 +233,10 @@ installation/growth-refusal/retry/restoration checks pass with 0.15.2. Retained
 evidence is in `.tmp/installation-carrier-01`; older MSRV captures remain historical.
 
 Use `ic_blob_storage::ic_memory` for storage types. The host owns one runtime,
-its allocation policy and explicit grants. The installation needs its configuration
+its allocation policy and explicit grants. Use
+`ops::service::installation::requests(authority)` for the complete seventeen-key
+inventory and `LIBRARY_VERSION` for the compiled library contract. Neither helper
+registers declarations, selects physical IDs or bootstraps memory. The installation needs its configuration
 key and sixteen shared service requests; linking the library registers nothing.
 `grants::open` adopts the host's committed lookup; `open_default` requires an
 already committed default runtime. Standalone owns its own explicit bootstrap.

@@ -5,6 +5,7 @@ mod authenticated_cli;
 mod browser_driver;
 mod funding_assessment_cli;
 mod gateway_native_cli;
+mod native_session;
 mod reference_cli;
 mod snapshots;
 mod standalone_account;
@@ -25,7 +26,9 @@ mod standalone_installation_cli;
 mod standalone_lifecycle;
 mod standalone_operator;
 mod standalone_publish_check;
+mod standalone_publish_map;
 mod standalone_publish_prepare;
+mod standalone_publish_session;
 mod standalone_reference_capacity;
 mod standalone_reference_native_cli;
 mod standalone_reference_recovery;
@@ -80,6 +83,12 @@ struct Fixture {
     uploader: Principal,
     config: ServiceConfigurationInput,
 }
+#[derive(Clone, Copy)]
+enum Envelope {
+    Regular,
+    Single,
+    Serial,
+}
 fn wasm() -> Vec<u8> {
     std::fs::read(fixture_path("BLOB_STANDALONE_WASM")).unwrap()
 }
@@ -111,7 +120,7 @@ impl Fixture {
             cashier,
             operator,
             Fake::principal(4),
-            false,
+            Envelope::Regular,
             Fake::principal(90),
             PROJECT,
         )
@@ -122,7 +131,7 @@ impl Fixture {
             Fake::principal(5),
             Fake::principal(2),
             uploader,
-            true,
+            Envelope::Single,
             Fake::principal(90),
             PROJECT,
         )
@@ -132,7 +141,7 @@ impl Fixture {
         cashier: Principal,
         operator: Principal,
         uploader: Principal,
-        small_envelope: bool,
+        envelope: Envelope,
         verifier: Principal,
         project: &str,
     ) -> Self {
@@ -187,7 +196,7 @@ impl Fixture {
                 tenant_bytes: 2048,
             },
         };
-        if small_envelope {
+        if matches!(envelope, Envelope::Single | Envelope::Serial) {
             let r = &mut config.resources;
             r.max_tenants = 1;
             r.max_object_bytes = 1024;
@@ -200,6 +209,14 @@ impl Fixture {
             r.max_receipts_per_object = 2;
             r.max_active = 1;
             r.max_tenant_active = 1;
+            if matches!(envelope, Envelope::Serial) {
+                r.max_object_bytes = 2048;
+                r.max_objects = 2;
+                r.max_tenant_objects = 2;
+                r.max_physical_bytes = 3072;
+                r.max_liability_bytes = 3072;
+                r.max_tenant_logical_bytes = 3072;
+            }
         }
         let mut input: ServiceInstallationInput =
             candid::decode_one(&installation(&config)).unwrap();

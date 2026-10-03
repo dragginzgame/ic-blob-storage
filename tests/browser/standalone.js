@@ -3,15 +3,16 @@ import { Ed25519KeyIdentity } from '@icp-sdk/core/identity';
 import { StorageClient } from '@caffeineai/object-storage';
 import { createPublicationUpload } from '../../clients/browser/publication.js';
 import { createIndexedDBIntentStore } from '../../clients/browser/intents.js';
+import { workerPublication } from './worker-client.js';
 let publication;
+const workerReports = [];
 let calls = 0;
 const identity = Ed25519KeyIdentity.generate(new Uint8Array(32).fill(42));
-const journal = { database: 'standalone-trial-v1', maxSlots: 1 };
 function inputs(config) {
   return { host: config.url, identity, rootKey: new Uint8Array(config.rootKey),
     binding: config.binding, body: new Uint8Array(config.snapshot.body),
     bodySha256: config.snapshot.bodySha256, manifestJSON: config.snapshot.manifestJSON,
-    contentType: 'image/png', maxBodyBytes: 1024, origin: config.gateway,
+    contentType: 'image/png', maxBodyBytes: config.maxBodyBytes ?? 1024, origin: config.gateway,
     maxRequests: 2, maxRequestBytes: 65536, maxTotalRequestBytes: 131072,
     certificateFetch: (url, init) => {
       if (new URL(url).pathname.endsWith('/call')) calls++;
@@ -19,18 +20,27 @@ function inputs(config) {
     } };
 }
 window.trial = {
-  plan: () => StorageClient.prepareFile(new Uint8Array(1024).fill(42), 'image/png'),
+  plan: (size = 1024) => StorageClient.prepareFile(new Uint8Array(size).fill(42), 'image/png'),
   async setup(config, mode) {
-    const intents = await createIndexedDBIntentStore({ ...journal, mode });
+    publication?.close?.();
+    if (config.worker) {
+      publication = await workerPublication(config, mode, () => calls++, workerReports);
+      return;
+    }
+    const intents = await createIndexedDBIntentStore({
+      database: 'standalone-trial-v1', maxSlots: config.journalSlots ?? 1, mode });
     const candidate = inputs(config);
-    publication = await createPublicationUpload({ ...candidate, intents });
+    const upload = await createPublicationUpload({ ...candidate, intents });
+    publication = { upload: upload.upload, inspect: upload.inspect, cancel: upload.cancel,
+      async recover() {
+        const { certificate: proof, ...row } = await upload.recoverCertificate();
+        return { row, certificateBytes: proof.length };
+      } };
   },
   upload: () => publication.upload(),
   inspect: () => publication.inspect(),
-  recover: async () => {
-    const { certificate: proof, ...row } = await publication.recoverCertificate();
-    return { row, certificateBytes: proof.length };
-  },
+  recover: () => publication.recover(),
   cancel: () => publication.cancel(),
   calls: () => calls,
+  workerReports: () => workerReports,
 };

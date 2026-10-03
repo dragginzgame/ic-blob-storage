@@ -1,0 +1,15 @@
+{
+  "schema": 1,
+  "evidence_class": "owned_local_standalone_pocketic_chromium_http2_gateway_substitute",
+  "intent": "Requalify the shared gateway harness and refactored serial assertions. Include the four maintained single-file success/corrupt/lost/withdrawn journeys and the three serial journeys.",
+  "max_scenarios": 7,
+  "max_puts_per_serial_scenario": 4,
+  "max_gets_per_serial_scenario": 4,
+  "max_puts_per_single_file_scenario": 2,
+  "max_gets_per_single_file_scenario": 3,
+  "new_capture_root": ".tmp/serial-publication-01/browser-03",
+  "preserve_prior_failed_and_successful_captures": true,
+  "live_provider_requests": 0,
+  "paid_effects": 0,
+  "automatic_upload_retries": 0
+}

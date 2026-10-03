@@ -1553,6 +1553,7 @@ dependencies = [
  "candid",
  "ic-agent",
  "ic-blob-storage",
+ "libc",
  "reqwest",
  "serde",
  "serde_json",
@@ -1675,9 +1676,9 @@ dependencies = [
 
 [[package]]
 name = "ic-memory"
-version = "0.15.4"
+version = "0.15.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a9b40c0ed9633232145a4c26d57a0eb2c689ce3719336aa1ea7baa4ce79c8bb2"
+checksum = "abd0d83da68e786c44cc0c5b7a9c223b00cfb82523f81ed252f5c1d2275b1d08"
 dependencies = [
  "ciborium",
  "ctor",
@@ -1697,9 +1698,9 @@ dependencies = [
 
 [[package]]
 name = "ic-testkit"
-version = "0.10.4"
+version = "0.11.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "857ace1e57584de6e04c8f03de4bd7125368e993e433844a9e0f960e60c2c940"
+checksum = "c5fadb9e1a58c7fba8af339aec979604b1ff3cedaf2793140de1818cce772219"
 dependencies = [
  "candid",
  "fs2",

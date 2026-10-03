@@ -2,16 +2,17 @@
 
 Date: 2026-10-03
 
-Repository baseline: [0.8.0](../../CHANGELOG.md), dated 2026-10-03, at
-`64804288687a60c39c370984cf0b71e983fdb551`. The maintainer completes that release
-concurrently with the audit below. Local package, tag, origin tracking ref and
-receipt agree; receipt hashes verify against committed release files. No new
-registry-publication or service-deployment observation is inferred. The undated
-0.9.0 changelog draft now contains the standalone DTO forwarding-path removal,
-requiring a minor release, plus the CLI cleanup and bounded batch setup below.
-Unreleased is empty; Cargo and the release receipt remain at 0.8.0. Earlier Unreleased
-entries below retain their implementation/evidence
-history for work now included in 0.8.0. The old isolated owner remains frozen at
+Repository baseline: [0.9.0](../../CHANGELOG.md), dated 2026-10-03, at
+`d4a8759bfa9660ab1362711ec2dec99176b8af89`. Local package, peeled tag,
+origin tracking ref and receipt agree; all three committed release-file hashes verify.
+The receipt binds validated source `3c7fc2bc0d9d4a28bc0f13f7c6ba9ae7b146b1d9`.
+No new registry-publication or service-deployment observation is inferred.
+Unreleased tracks the bounded-input fix, embedding helpers, authenticated
+reference-map/per-file tooling, persistent native phases, the browser worker and
+serial local evidence
+below. Earlier Unreleased entries retain implementation and
+evidence history for work now included in 0.8.0 and 0.9.0.
+The old isolated owner remains frozen at
 0.6.0 with its original stopped history; the separate live owner was last verified
 at 0.7.0. Both retain their original obligations and exhausted capacity.
 Commits and release operations belong to the maintainer.
@@ -22,7 +23,291 @@ implementation and evidence; the [feedback list](../canic-parity.md#integration-
 is a future consumer backlog, not a prerequisite for this local work. Siblings
 remain read-only and no upstream message is authorized.
 
-## Unreleased: code cleanup and one-pass batch setup — 2026-10-03
+## Unreleased: private-port browser publication worker — 2026-10-03
+
+Add `createPublicationWorker` / `servePublicationWorker` in the private browser
+package. Bind uploader signer, service/tenant/project/bucket, IC origin/root,
+reviewed gateway and body/request/job/deadline limits before jobs. Accept upload,
+inspection, historical certificate recovery and cancellation on a trusted private
+MessagePort, including in an actual DedicatedWorker. Reuse the maintained SDK
+and strict IndexedDB certificate/gateway owners; add no provider wire decoder,
+retry journal or service workflow. Snapshot caller-owned input before awaits.
+Concurrent jobs refuse without unlocking another active job; job correlation
+and budgets are local execution guards, not persistent effect identities.
+
+Return bounded redacted states and journal phase/status projections, omitting
+envelopes, certificates, permissions, request URLs/headers and provider error
+messages. Forward only a finite error-code vocabulary; exported error classes
+cannot smuggle arbitrary code strings into replies. Validate the projected
+phase/status types and request ceiling, including for custom stores.
+Every result has `service_completion_checked:false` and
+`retry_authorized:false`; only native observation/attestation/reference checks
+can authorize advancement. Inspection of absent history never saves a row;
+recovery/cancellation require exact original history. Claimed/cancelled uploads
+refuse before another transfer. A cooperative deadline aborts transport and
+fences new jobs; the host still owns process termination and profile-loss fencing.
+
+Offline boundary cases pass for foreign scope, malformed jobs, content changes,
+concurrency, snapshots, budgets/idle deadlines, missing/claimed history, configured
+roles/origins and credential redaction. These use a substituted store, not a fake
+platform in production. Three actual DedicatedWorker/PocketIC/native journeys
+pass at one active reservation. Native/browser restart reconciles a lost reply
+without another upload; original exposed setup recovery has zero updates.
+Cancellation survives reopening. Corrupt observation blocks the next transfer
+and complete map while retaining 1,024 exposed physical/liability bytes; complete
+cases retain 3,072. Public-serving/real-media and deployed-provider guarantees
+do not follow from these synthetic image-labelled local gateway trials.
+
+All thirteen affected Chromium journeys pass, including existing persistent,
+indexed and single-file upload/download/recovery regressions. Strict integration
+lint, pinned SDK/source/patch browser builds, formatting/whitespace and public/private
+capture checksums pass. Core, host Wasm, native CLI and dependencies are unchanged
+this batch; preserve concurrent ic-memory 0.15.6 selection and dirty work. The
+[probe record](../evidence/caffeine-probes/local/2026-10-03-publication-worker-01/summary.json)
+and [ledger](../evidence/caffeine-probes/README.md#private-port-browser-worker--2026-10-03)
+retain intentions, original profiles/claims/replies, opaque gateway fingerprints,
+redacted worker results and source/artifact/log hashes under
+`.tmp/publication-worker-01`. Intermediate captures used the misleading fixed
+`file_live:false` wording; final captures use `service_completion_checked:false`.
+Final offline cases refuse exported errors carrying private code strings and
+corrupt/oversized projections; three final worker regressions pass after those
+guards. The rejected documentation patch is recorded before corrected propagation.
+No live/paid provider call, deployment, version/release/commit/publication, full
+CI, sibling edit or build cleanup occurs. Live exhausted owners and obligations
+remain intact.
+
+Next implement the native parent launcher and durable parent phase intent around
+these components: selected signer/bootstrap/private port, bounded body loading
+with original metadata hints, independent observation/attestation and exact
+per-file journals. Do not claim a complete noninteractive publisher from the
+library worker alone. Then qualify all 679 Miner identities / 675 blobs, real
+media, overlapping references and MIME/CORS/cache/CSP/open-browser retention.
+The [consumer backlog](../canic-parity.md#integration-feedback) records adoption
+and acceptance actions; Canic remains deferred. No sibling changes or upstream
+messages are authorized.
+
+## Draft 0.10.0 — 2026-10-03
+
+The undated [0.10.0 changelog](../../CHANGELOG.md) collects the completed
+embedding helpers, authenticated publication map/status checks, persistent native
+sessions, private-port browser worker and nonblocking native-input fix.
+Unreleased is empty; package versions and the release receipt remain at 0.9.0.
+The maintainer owns commits and the release flow.
+
+Concurrent dependency updates select `ic-memory` 0.15.7 and `ic-testkit` 0.11.0
+in the lockfile. Preserve these updates. The earlier recorded validations retain
+their original dependency identities; they do not validate this newer selection.
+This changelog-only pass checks release-note structure and whitespace, without
+compilation or full CI. Next work remains native parent/verifier automation and
+complete Miner acceptance; Canic adoption remains deferred with open actions in
+the [feedback list](../canic-parity.md#integration-feedback).
+
+## Unreleased: persistent native publication phases — 2026-10-03
+
+Add `publish-session` as the next headless-publisher component. Keep one fully
+validated frozen batch and authenticated tenant/operator agents across bounded
+setup/status/map frames. Authenticate uploader and actual installed configuration/
+release before ready. Rehash only selected bytes before setup; return cached
+original binding/manifest/digest for browser snapshot verification. Reuse the
+maintained indexed setup and map owners; add no provider contract, certificate
+dispatcher or retry journal. Advance only on exact configured-verifier completion
+and current unfenced first reference, then inspect all references before the map.
+
+Persist bounded original intent/control requests before effects. Pin each original
+setup directory, recover exact signed claims after process interruption, and
+refuse changed journals or already-exposed preparation without redispatch. Status
+recovery can inspect confirmed original indices again in a new session. Frames
+are at most 8 KiB, the queue holds one, and the explicit step/session deadline
+bounds waits. An idle stdin reader cannot hold runtime shutdown past the tested
+deadline. Synchronous startup hashing/filesystem/stdout I/O is not preemptively
+bounded by that deadline. Maps describe initially validated intent, not fresh
+verification of every local copy or an atomic publication/retention lease.
+
+Four native PocketIC session cases and all six affected serial Chromium journeys
+pass. Native process/browser restart after a lost chunk response preserves the
+original signed setup and strict IndexedDB histories. Exposed setup recovery
+performs zero updates; independent complete observation and attestation allow
+progress without another PUT. Corruption blocks the next upload and complete map.
+Completed cases retain 3,072 physical/liability bytes; corruption retains 1,024
+exposed bytes. Native synthetic receipts qualify local service logic only; the
+browser cases independently observe an owned gateway substitute.
+
+Targeted native CLI and fifteen affected setup/map/capacity/recovery PocketIC
+checks pass, as do strict CLI/integration lint, current CLI/pinned browser builds,
+formatting and whitespace. The host Wasm is unchanged. Public and private
+retained-evidence checksum checks pass. Retain exact requests, replies, browser
+profiles, hashes and failures in `.tmp/publish-session-01`; the
+[probe record](../evidence/caffeine-probes/local/2026-10-03-publish-session-01/summary.json)
+and [ledger](../evidence/caffeine-probes/README.md#persistent-native-publication-phases--2026-10-03)
+separate this local evidence from deployed behavior. The first disposable native
+captures lacked retained request journals; their logs survive and the final run
+retains originals. Corrected decoder/lint/capture-import failures are recorded.
+Preserve concurrent ic-memory 0.15.6 selection and other dirty work. No full CI,
+paid/live provider effect, deployment, version/release/commit/publication, sibling
+edit or build cleanup occurs. Live owner obligations remain untouched.
+
+Next build the production browser worker and native parent orchestration around
+these components, coordinating independent observation/attestation and exact
+original journals without automatic upload retries. Then qualify all 679 Miner
+asset identities / 675 blobs, real media, overlapping references and public
+MIME/CORS/cache/CSP/open-browser retention in the consumer transaction. The
+[integration feedback](../canic-parity.md#integration-feedback) records adoption
+and those open acceptance actions. Canic remains deferred; the complete
+production headless publisher and Miner readiness are not yet claimed.
+
+## Unreleased: serial completion checks and two-file journeys — 2026-10-03
+
+Add `publish-file-status` as an indexed observation using the existing map workflow,
+installed configuration/release authentication, tenant enrollment/capacity,
+configured-verifier receipt/digest and exact unfenced first-reference checks.
+Require the original canonical index and four query slots before output. Preserve
+query arguments/replies, original IDs/digest and blockers; require `file_live:true`
+before advancing a serial consumer. It sets `batch_complete:false` and never
+emits a complete media map. No provider request, update or retry owner is added.
+Full map semantics and existing production origin restrictions remain intact.
+
+Qualify actual standalone/native/Chromium composition with two distinct roots
+(1,024 and 2,048 synthetic bytes) at one active reservation. The second setup is
+blocked while the first is exposed, even after SDK success. Independent bounded
+observation and exact configured attestation free concurrency; indexed status
+then allows progress and the final complete map joins both original files.
+Whole-browser restart reopens the same strict IndexedDB rows; a deliberately lost
+first chunk reply remains uncertain while independent reconciliation confirms the
+object without another PUT. Corrupt first observation blocks the next transfer
+and any complete map. Confirmation preserves physical/liability accounting:
+3,072 bytes for complete/lost cases and 1,024 still exposed for corrupt refusal.
+These image-labelled synthetic bodies do not qualify image decoding or serving.
+
+Use one shared owned HTTPS HTTP/2 gateway fixture for maintained single-file and
+serial journeys; retain bounded requests, hashes, native signed journals, raw
+query/observation replies and browser profiles privately. The
+[probe record](../evidence/caffeine-probes/local/2026-10-03-serial-publication-01/summary.json)
+and [ledger](../evidence/caffeine-probes/README.md#serial-completion-and-browser-restart--2026-10-03)
+separate local substitution from deployed evidence. Failed captures survive in
+`.tmp/serial-publication-01`: sandbox sockets, the PocketIC already-live localhost
+URL, ambient Node 18, strict test-helper lint and its first extraction compile
+failure. Corrected runs use literal loopback, provisioned Node 24 and fresh browser
+captures; no production policy or lint suppression is weakened.
+
+Targeted validation passes: native CLI cases, actual indexed/full-map PocketIC
+checks and all seven affected browser journeys (three serial and four maintained
+single-file success/corrupt/lost/withdrawn cases). Current CLI build, pinned SDK
+source/patch browser build, strict CLI/integration lint, formatting and whitespace
+checks pass. The prior current host Wasm is unchanged; the concurrent registry
+ic-memory 0.15.6 selection is preserved. No full CI/release, live provider/paid
+effect, deployment, version/commit/publication, sibling edit or build cleanup.
+
+Next implement the persistent headless coordinator around the existing phase
+owners and original per-file journals. Independent CLI invocations still reverify
+the full batch; do not assemble 675-file production publication as repeated full
+body scans. Retain one validated batch in the coordinator, revalidate the selected
+body before transfer and recover only exact original claims/receipts. Then qualify
+all 679 Miner asset identities / 675 distinct blobs, release overlap, cancellation
+and public MIME/CORS/cache/CSP/open-browser retention in the consumer transaction.
+The [integration feedback](../canic-parity.md#integration-feedback) records released
+adoption still pending. Canic remains deferred; live exhausted owners and all
+original physical/billing obligations remain untouched.
+
+## Unreleased: upstream fixes and complete reference maps — 2026-10-03
+
+Address the current native-file defect with nonblocking Unix descriptor opening
+followed by same-descriptor regular-file validation. Reuse that helper for bounded
+metadata reads and streaming body snapshots. Preserve byte bounds, redacted typed
+failures and source/snapshot verification; no pathname-only precheck is trusted.
+A FIFO-with-no-writer subprocess promptly returns the file refusal before
+transport setup; regular, empty, oversize and directory cases remain covered.
+
+Address GitHub issue #1 locally with passive
+`ops::service::installation::requests(authority)` and `LIBRARY_VERSION`.
+The complete seventeen-request inventory includes configuration and the existing
+store mapping without registration, ID selection, bootstrap or another runtime.
+Standalone uses both helpers. Store-only assemblies retain their authoritative
+sixteen-key helper; that is a maintained composition boundary, not an alias.
+Installation tests cover unique complete keys, supplied authority, refusal and
+reopen. Actual PocketIC readback verifies the compiled dependency identity
+independently of the test consumer's package version and rejects wrong-service
+installation without changing the prior state. The GitHub issue remains open;
+no upstream message or release/adoption claim is made.
+
+Add `publish-map` as the next publisher component. Reverify the complete frozen
+batch once, authenticate tenant/operator independently and compare actual installed
+configuration, project, verifier, uploader and compiled release. Then observe active
+tenant enrollment and unfenced exact verifier receipts/current first references.
+Every accepted digest must equal that frozen body's raw SHA-256. Persist bounded
+query intents, arguments and raw replies; write `media-map.json` only when all files
+pass. Retain original indices/IDs, headers, digests and shared Caffeine targets.
+Blocked/failed/partial runs cannot produce a complete map. These sequential facts
+are not an atomic snapshot, publication lease or serving/retention guarantee.
+
+Targeted validation passes: 87 native CLI cases plus the FIFO subprocess, eight
+installation and four composed-grant cases, two actual standalone PocketIC map
+cases and the existing installation carrier. The map cases cover incomplete then
+complete two-file state, released references, restore fences, wrong operator,
+insufficient query budget and corrupt later bytes without premature output.
+Locally trusted synthetic attestations exercise the service; they do not observe
+a provider. Fresh host Wasm/CLI builds, strict affected core/CLI/host and standalone
+integration lint, strict core Rustdoc, formatting and whitespace checks pass with the concurrent
+ic-memory 0.15.6 selection preserved. Logs in `.tmp/upstream-followthrough-01`
+retain first compile/lint failures and the rejected non-loopback local fixture;
+corrected runs preserve the production origin restrictions.
+
+Next complete serial transfer/verification/attestation orchestration and exact
+interruption recovery, freeing active reservations before the next indexed setup.
+Use the complete map within the consumer's asset transaction and qualify all
+679 Miner asset identities / 675 distinct blobs, overlapping references and
+public MIME/CORS/cache/CSP/open-browser retention. The
+[consumer backlog](../canic-parity.md#integration-feedback) records released adoption
+still required; Canic wrapper work remains deferred. No live service/provider
+effect, deployment, funding, full CI, version/release/commit, sibling edit or
+build cleanup occurs. Existing physical and billing obligations remain intact.
+
+## Released 0.9.0: upstream feedback review — 2026-10-03
+
+Read-only GitHub checks find the same Miner and Canic feedback as their local
+files. Returned Git blob identities match local `git hash-object` results:
+Miner `5a59d159a6d33503f3a7820b9f1ca31d3cf60c7e`, Canic
+`f7a4b3b7301bb6e5ba6442aa692369924f754bef`. Their feedback files are clean;
+unrelated Miner gameplay/fleet edits and ic-memory edits remain untouched.
+Miner feedback SHA-256 remains
+`62b8cede95cfc1dc5bcac8e33eac07c8b20647767ade2aa0875a7eb5dadb1a91`;
+Canic feedback SHA-256 is
+`53f8ccef8cfd220c53a20bfefb0ba2a9b1febbb27b45751030e003226002b571`.
+Miner still selects registry 0.7.0; its BLOB-002/003/004 requirements remain open.
+Release 0.9.0 does not establish consumer adoption or complete publication.
+
+Two actionable gaps survive current-source inspection. Canic's
+[FIFO report](https://github.com/dragginzgame/canic/blob/main/docs/upstream/ic-blob-storage.md)
+still matches native `read`: blocking `File::open` precedes same-descriptor
+regular-file validation and transport deadlines. Fix descriptor opening without
+a metadata-only race; qualify prompt typed refusal in a subprocess plus maintained
+regular/empty/oversize behavior. This review does not rerun the historical FIFO
+reproduction. Open [GitHub issue #1](https://github.com/dragginzgame/ic-blob-storage/issues/1)
+requests one passive installation inventory of all seventeen memory requests and
+a library-owned compiled-version constant. Current store grants supply sixteen;
+standalone separately adds configuration and uses its own package version.
+These are embedding usability requests, not evidence of an authority bypass.
+
+The local ic-memory release is now 0.15.6 at
+`77d228547081904285ee1839e6fdb4ff15610ba3`. Its committed 0.15.5/0.15.6 notes
+describe a configured-bootstrap reentrancy fix, bounded decoding and fewer repeated
+checksum scans; 0.15.6 also removes an unused error variant. The committed 0.9.0
+release uses 0.15.4. During this review another task updates the working-tree
+manifest and lock to registry 0.15.6; preserve those edits and leave its dependency
+validation to that task. This review makes no independent registry-publication
+claim and runs no build. Composition still requires one package identity per host.
+
+Next fix the bounded-file defect and passive embedding helpers together, then
+drive serial transfer, independent verification/attestation, exact references and
+confirmed media-map output using existing dispatch owners. Interleave completion
+to free active reservations; `publish-prepare-batch` alone does not do this.
+Qualify actual Miner media, interrupted publication, overlapping releases and
+public MIME/CORS/cache/CSP before claiming consumer readiness. The
+[feedback list](../canic-parity.md#integration-feedback) records these actions;
+Canic wrapper adoption remains deferred. Refresh current release wording in the
+README, roadmap and guides while preserving dated evidence. No provider probe,
+paid effect, deployment, build, full CI, sibling edit or upstream message occurs.
+
+## Completed in 0.9.0: code cleanup and one-pass batch setup — 2026-10-03
 
 Work through the maintainer's four accepted audit findings. Add bounded
 `publish-prepare-batch`, which opens and verifies the complete frozen batch once

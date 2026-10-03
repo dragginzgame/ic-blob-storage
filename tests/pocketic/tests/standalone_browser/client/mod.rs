@@ -46,6 +46,9 @@ fn limits() -> CaffeineManifestLimits {
 }
 impl Trial {
     pub fn new(label: &str) -> Self {
+        Self::with_envelope(label, Envelope::Single)
+    }
+    pub(super) fn with_envelope(label: &str, envelope: Envelope) -> Self {
         use ic_testkit::pocket_ic::PocketIcBuilder;
         let principal = |seed| BasicIdentity::from_raw_key(&[seed; 32]).sender().unwrap();
         let mut f = Fixture::with_profile(
@@ -55,9 +58,13 @@ impl Trial {
                     .with_application_subnet(),
             ),
             Fake::principal(5),
-            Fake::principal(2),
+            if matches!(envelope, Envelope::Serial) {
+                principal(42)
+            } else {
+                Fake::principal(2)
+            },
             principal(42),
-            true,
+            envelope,
             principal(44),
             PROJECT,
         );
@@ -95,7 +102,7 @@ impl Trial {
         )
         .unwrap();
     }
-    fn args(&self, command: &str, identity: &str, actor: Principal) -> Vec<String> {
+    pub(super) fn args(&self, command: &str, identity: &str, actor: Principal) -> Vec<String> {
         [
             command,
             "--network",
@@ -117,7 +124,7 @@ impl Trial {
         .map(str::to_owned)
         .collect()
     }
-    fn invoke(&self, label: &str, args: &[String], code: i32) -> serde_json::Value {
+    pub(super) fn invoke(&self, label: &str, args: &[String], code: i32) -> serde_json::Value {
         self.record(&format!("{label}-command.json"), &serde_json::json!(args));
         let roots = self.report.join("gateway-ca.pem");
         let result = run_with_tls_roots(args, code, Some(&roots));
@@ -349,7 +356,7 @@ impl Trial {
             "--project".into(),
             PROJECT.into(),
             "--max-bytes".into(),
-            "1024".into(),
+            input.permission.upload.bytes.to_string(),
             "--run-dir".into(),
             self.report.join(label).display().to_string(),
         ]);

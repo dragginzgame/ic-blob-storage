@@ -6,72 +6,14 @@ import { once } from 'node:events';
 import { createHash } from 'node:crypto';
 import assert from 'node:assert/strict';
 import { loopbackTLS, loopbackH2 } from './tls.mjs';
+import { standaloneGateway } from './standalone-gateway.mjs';
 const config = JSON.parse(await readFile(process.argv[2], 'utf8'));
 const bundle = await readFile(new URL('../../.tmp/browser/standalone.js', import.meta.url));
 const control = createInterface({ input: process.stdin, crlfDelay: Infinity });
 const next = async () => JSON.parse((await once(control, 'line'))[0]);
 const send = value => process.stdout.write(`${JSON.stringify(value)}\n`);
-const puts = [], gets = [], arrivals = [];
-let tree, body, failure;
-const handle = (req, res) => {
-  const url = new URL(req.url, 'http://localhost');
-  if (req.method === 'PUT') {
-    assert.equal(req.httpVersion, '2.0');
-    const chunks = []; let length = 0;
-    req.on('data', bytes => {
-      length += bytes.length;
-      if (length > 65536) req.destroy(new Error('request limit'));
-      else chunks.push(bytes);
-    });
-    req.on('end', () => {
-      try {
-        const bytes = Buffer.concat(chunks);
-        arrivals.push({ path: req.url, bytes: bytes.length, sha256: createHash('sha256').update(bytes).digest('hex') });
-        assert(arrivals.length <= 2);
-        if (puts.length === 0) {
-          assert.equal(url.pathname, '/v1/blob-tree/'); tree = JSON.parse(bytes);
-          assert.equal(tree.owner, config.service); assert.equal(tree.project_id, config.project);
-          assert.equal(tree.num_blob_bytes, 1024); assert(tree.auth.OwnerEgressSignature.length > 0);
-        } else {
-          assert.equal(url.pathname, '/v1/chunk/');
-          assert.equal(url.searchParams.get('blob_hash'), tree.blob_tree.tree.hash);
-          assert.equal(url.searchParams.get('owner_id'), config.service);
-          assert.equal(req.headers['x-caffeine-project-id'], config.project);
-          assert.deepEqual(bytes, Buffer.alloc(1024, 42)); body = bytes;
-        }
-        puts.push({ path: req.url, bytes: bytes.length, sha256: createHash('sha256').update(bytes).digest('hex') });
-        // Reproduce the original pre-header reset after receiving the whole chunk.
-        // Streaming must leave one uncertain claim without a repeated PUT arrival.
-        if (config.lostFinalReply && puts.length === 2) {
-          req.stream.session.destroy(); return;
-        }
-        res.writeHead(200, { 'content-type': 'application/json' }); res.end('{"status":"blob_complete"}');
-      } catch (error) { failure = String(error); res.writeHead(500); res.end(); }
-    });
-    return;
-  }
-  if (url.pathname === '/v1/blob/') {
-    try {
-      assert.equal(req.httpVersion, '2.0');
-      assert.equal(req.method, 'GET'); assert(body); assert(gets.length < (config.refuseFirstRead ? 3 : 2));
-      assert.equal(url.searchParams.get('blob_hash'), tree.blob_tree.tree.hash);
-      assert.equal(url.searchParams.get('owner_id'), config.service);
-      assert.equal(url.searchParams.get('project_id'), config.project);
-      gets.push(req.url);
-      if (config.refuseFirstRead && gets.length === 1) {
-        req.stream.close(7); return; // NGHTTP2_REFUSED_STREAM before response headers.
-      }
-      const reply = Buffer.from(body);
-      if (config.corruptRead) reply[0] ^= 1;
-      res.writeHead(200, { 'content-type': 'image/png', 'content-length': reply.length }); res.end(reply);
-    } catch (error) { failure = String(error); res.writeHead(500); res.end(); }
-    return;
-  }
-  if (req.url === '/standalone.js') {
-    res.writeHead(200, { 'content-type': 'text/javascript' }); res.end(bundle);
-  } else { res.writeHead(200, { 'content-type': 'text/html' });
-    res.end('<!doctype html><script type="module" src="/standalone.js"></script>'); }
-};
+const { handle, state } = standaloneGateway(config, bundle);
+const { puts, gets, arrivals } = state;
 const deadline = setTimeout(() => { console.error('Standalone browser trial exceeded 90 seconds'); process.exit(1); }, 90_000);
 const tls = await loopbackTLS();
 const uploads = await loopbackH2(tls, handle);
@@ -113,8 +55,8 @@ try {
   });
   assert.equal(outcome.uploaded, !config.lostFinalReply);
   if (outcome.uploaded) assert.deepEqual(outcome.result, { hash: grant.binding.root });
-  assert.equal(tree.bucket_name, grant.binding.bucket);
-  assert.equal(tree.project_id, grant.binding.project);
+  assert.equal(state.tree.bucket_name, grant.binding.bucket);
+  assert.equal(state.tree.project_id, grant.binding.project);
   const uploaded = await page.evaluate(() => trial.inspect());
   assert.equal(uploaded.phase, 'observed'); assert.equal(uploaded.cancelled, false);
   assert.equal(await page.evaluate(() => trial.calls()), 1);
@@ -139,7 +81,7 @@ try {
     finalRequestPhase: uploaded.gateway.requests.at(-1).phase });
   assert.deepEqual(await next(), { finish: true });
   assert.equal(gets.length, config.corruptRead || config.withdrawAfterObservation ? 1 : config.refuseFirstRead ? 3 : 2);
-  assert.equal(puts.length, 2); assert.equal(failure, undefined);
+  assert.equal(puts.length, 2); assert.equal(state.failure, undefined);
   assert.deepEqual(unexpected, []);
   if (config.corruptRead || config.withdrawAfterObservation) {
     const cancelled = await page.evaluate(() => trial.cancel());
@@ -148,7 +90,7 @@ try {
   send({ outcome: 'passed', browser: browser.version(), uploadOrigin: uploads.origin,
     downloadOrigin: origin, providerProtocol: 'h2', puts, gets, arrivals,
     uploadOutcome: outcome, journal: await page.evaluate(() => trial.inspect()),
-    contentSha256: createHash('sha256').update(body).digest('hex'), provider: 'local substitute' });
+    contentSha256: createHash('sha256').update(state.body).digest('hex'), provider: 'local substitute' });
 } finally {
   clearTimeout(deadline); control.close(); process.stdin.pause();
   await browser.close(); await uploads.close(); await tls.close();

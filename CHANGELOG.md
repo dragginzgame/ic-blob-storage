@@ -2,6 +2,51 @@
 
 ## [Unreleased]
 
+## [0.10.0]
+
+### Added
+
+- Add passive complete installation memory requests and `LIBRARY_VERSION` for
+  embedding hosts. Standalone uses the shared seventeen-request inventory and
+  compiled library identity without selecting a second runtime or allocator.
+- Add `publish-map`: reverify the frozen batch once, authenticate installed
+  configuration with the operator and inspect tenant enrollment, exact verifier
+  digests and current first references. Save bounded query evidence; emit a
+  complete media map only when every file passes. Preserve original indices,
+  identities, content digests and explicit provider targets without updates,
+  provider requests, retries or a publication/retention lease.
+- Add `publish-file-status` for serial publication: use the same installed-state,
+  enrollment, verifier-digest and live-reference checks for one original frozen
+  index, with four bounded queries and retained evidence. It emits no batch map.
+  Local two-file Chromium/PocketIC journeys exercise completion at one active
+  reservation, browser restart after a lost chunk reply and corruption blocking
+  the next transfer; existing dispatch journals and accounting remain authoritative.
+- Add `publish-session`: retain one validated frozen batch across bounded setup,
+  per-file completion checks and final-map phases. Recheck only the selected body
+  before setup, require exact confirmed references before advancing, and recover
+  original signed setup journals without redispatch. Local native/Chromium cases
+  cover process interruption, lost upload replies, tampering, corrupt downloads
+  and idle deadlines. Browser transfer and verifier tools remain separate owners;
+  the complete production headless publisher is still unfinished.
+- Add a browser publication worker over a trusted private MessagePort. Bind its
+  signer, service, tenant, project, bucket, origins and budgets before jobs; reuse
+  the existing SDK and IndexedDB journals for one active upload, inspection,
+  certificate recovery and cancellation. Return redacted results without signed
+  envelopes or service-completion claims. Real dedicated-worker journeys cover
+  serial completion, lost replies across browser/native restart and cancellation
+  with corrupt observation; native parent automation remains unfinished.
+
+### Changed
+
+- Select the `ic-memory` 0.15 and `ic-testkit` 0.11 dependency families; the
+  workspace lockfile resolves 0.15.7 and 0.11.0 respectively.
+
+### Fixed
+
+- Open native inputs nonblocking on Unix, then validate the same descriptor as
+  a regular file before reading. Share the check with streaming body snapshots
+  so FIFOs without writers cannot hang before validation or transport deadlines.
+
 ## [0.9.0] - 2026-10-03
 
 ### Breaking

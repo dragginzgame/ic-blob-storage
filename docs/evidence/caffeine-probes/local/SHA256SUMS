@@ -165,3 +165,13 @@ b11d95ba76635ff3d1c804ed838f8853b541bb9fae5b448fe5d435460974332e  docs/evidence/
 63b958dc1872d70309cb6a63e5ea3b7c53e22a2833ec56d92d3f0b07fd4609b4  docs/evidence/caffeine-probes/local/2026-10-03-publish-prepare-01/artifacts.json
 5be5f1a3381b2116bd34e5dd13b9a8be4525f51cb9fcbfd42f4fa8d280de8bc4  docs/evidence/caffeine-probes/local/2026-10-03-publish-transfer-01/summary.json
 8b5cd36fa720a879ca64d99871391c08ca2dd38c07a94b0eb64ed4f0425d890a  docs/evidence/caffeine-probes/local/2026-10-03-publish-transfer-01/artifacts.json
+52351174e0a3ab41b707d110ba05b754bb22ec6f471b3d97a3ba1b2be8c97862  docs/evidence/caffeine-probes/local/2026-10-03-publish-session-01/intent.json
+ca4aa00f41b8b59fe7d9a2c439f3fcd785aee33ad9427b72ad14bd3e2ed81f38  docs/evidence/caffeine-probes/local/2026-10-03-publish-session-01/recovery-intent.json
+74ac92750a8a50a6eed4048b7fe11d02a566741042d2a83d79b10ce340d08d0a  docs/evidence/caffeine-probes/local/2026-10-03-publish-session-01/regression-intent.json
+2f7ca0f38dc2be5007dc9b75e7ec86d644bc0b230f14281b58d92121563f127f  docs/evidence/caffeine-probes/local/2026-10-03-publish-session-01/summary.json
+d9a8f0cdfd4064cf1e7106c95b631daaf513409c94790c2f20a2b05997f317c1  docs/evidence/caffeine-probes/local/2026-10-03-serial-publication-01/intent.json
+a1ba9f8bbc2d6cf601f678376926ed8604424877bd613888ae24760684ff7634  docs/evidence/caffeine-probes/local/2026-10-03-serial-publication-01/regression-intent.json
+a40d0eaa13355c313351ab40ca53d86b2012abe014b28edebeef4f4edabc2741  docs/evidence/caffeine-probes/local/2026-10-03-serial-publication-01/summary.json
+23dbae5d1cb2a801c223d6d6a849fa7518c33873772080878a9a16fbfaefacd2  docs/evidence/caffeine-probes/local/2026-10-03-publication-worker-01/intent.json
+2abc6631a28c27ec292842436c5c40df670f8680441bd5ff5fb91fdf52bde6a3  docs/evidence/caffeine-probes/local/2026-10-03-publication-worker-01/regression-intent.json
+673f74325fa199545a1e8b7746094a4d3611ce69344feeb61c5743c035fde653  docs/evidence/caffeine-probes/local/2026-10-03-publication-worker-01/summary.json

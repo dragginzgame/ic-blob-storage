@@ -15,6 +15,10 @@ pub mod ops;
 pub mod policy;
 pub mod workflow;
 
+/// Version compiled into this library, independent of the embedding host package.
+/// This identifies the library contract, not the host Wasm or its deployment.
+pub const LIBRARY_VERSION: &str = env!("CARGO_PKG_VERSION");
+
 /// Shared allocation governance and its exact stable-structures substrate.
 ///
 /// The integrating host owns memory bootstrap, policy, bucket configuration and

@@ -1,6 +1,7 @@
 //! Full restricted standalone/browser/native journey with a local provider substitute.
 mod client;
 mod interruption;
+mod serial;
 use crate::browser_driver::{BrowserDriver, BrowserPreparation};
 use client::Trial;
 use ic_blob_storage::{

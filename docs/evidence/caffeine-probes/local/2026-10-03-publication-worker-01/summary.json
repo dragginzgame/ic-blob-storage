@@ -1,0 +1,820 @@
+{
+  "schema": 1,
+  "date": "2026-10-03",
+  "evidence_class": "offline_worker_boundary_and_local_standalone_dedicated_worker_substitute",
+  "intent": "intent.json",
+  "regression_intent": "regression-intent.json",
+  "baseline_release": "0.9.0",
+  "ic_memory": "0.15.6; concurrent selection preserved",
+  "host_and_native_artifacts": "unchanged local draft, not deployed",
+  "sdk": {
+    "caffeine": "1.1.2",
+    "core": "5.4.0",
+    "chromium": "153.0.8010.12",
+    "node": "24.21.0"
+  },
+  "implementation": {
+    "module": "clients/browser/worker.js",
+    "exports": [
+      "createPublicationWorker",
+      "servePublicationWorker"
+    ],
+    "transport": "application-trusted private MessagePort in a real DedicatedWorker",
+    "fixed_authority": [
+      "uploader signer",
+      "service",
+      "tenant",
+      "project",
+      "bucket",
+      "IC origin/root",
+      "gateway origin",
+      "body/request/job/deadline limits"
+    ],
+    "actions": [
+      "upload",
+      "inspect",
+      "recover-certificate",
+      "cancel"
+    ],
+    "max_active_jobs": 1,
+    "dispatch_owner": "maintained certificate/gateway strict IndexedDB journals and patched Caffeine SDK",
+    "response": "validated bounded state and phase/status projection with finite public error codes; no credentials; service_completion_checked:false and retry_authorized:false",
+    "completion_owner": "independent native observation/attestation and persistent session reference status/map"
+  },
+  "offline": {
+    "capture": ".tmp/publication-worker-01/offline-05",
+    "cases": [
+      {
+        "name": "foreign_service",
+        "error": "scope",
+        "reads": 0,
+        "claims": 0,
+        "transport_requests": 0
+      },
+      {
+        "name": "foreign_tenant",
+        "error": "scope",
+        "reads": 0,
+        "claims": 0,
+        "transport_requests": 0
+      },
+      {
+        "name": "foreign_uploader",
+        "error": "scope",
+        "reads": 0,
+        "claims": 0,
+        "transport_requests": 0
+      },
+      {
+        "name": "foreign_project",
+        "error": "scope",
+        "reads": 0,
+        "claims": 0,
+        "transport_requests": 0
+      },
+      {
+        "name": "foreign_bucket",
+        "error": "scope",
+        "reads": 0,
+        "claims": 0,
+        "transport_requests": 0
+      },
+      {
+        "name": "unknown_fields",
+        "error": "message",
+        "reads": 0,
+        "claims": 0,
+        "transport_requests": 0
+      },
+      {
+        "name": "unknown_action",
+        "error": "message",
+        "reads": 0,
+        "claims": 0,
+        "transport_requests": 0
+      },
+      {
+        "name": "corrupt_body",
+        "error": "body-digest",
+        "reads": 1,
+        "claims": 0,
+        "transport_requests": 0
+      },
+      {
+        "name": "changed_manifest",
+        "error": "manifest",
+        "reads": 1,
+        "claims": 0,
+        "transport_requests": 0
+      },
+      {
+        "name": "claimed_or_cancelled",
+        "error": "upload-claimed",
+        "reads": 0,
+        "claims": 0,
+        "transport_requests": 0
+      },
+      {
+        "name": "claimed_or_cancelled",
+        "error": "upload-claimed",
+        "reads": 0,
+        "claims": 0,
+        "transport_requests": 0
+      },
+      {
+        "name": "claimed_or_cancelled",
+        "error": "upload-claimed",
+        "reads": 0,
+        "claims": 0,
+        "transport_requests": 0
+      },
+      {
+        "name": "missing_recovery_history",
+        "error": "history-missing",
+        "reads": 1,
+        "claims": 0,
+        "transport_requests": 0
+      },
+      {
+        "name": "missing_cancellation_history",
+        "error": "history-missing",
+        "reads": 1,
+        "claims": 0,
+        "transport_requests": 0
+      },
+      {
+        "name": "concurrent_guard_and_correlation",
+        "claims": 0,
+        "transport_requests": 0
+      },
+      {
+        "name": "snapshots_and_redacted_failure",
+        "claims": 0,
+        "transport_requests": 0
+      },
+      {
+        "name": "aborted_worker",
+        "error": "aborted",
+        "reads": 0,
+        "claims": 0,
+        "transport_requests": 0
+      },
+      {
+        "name": "idle_deadline_fences_new_jobs",
+        "claims": 0,
+        "transport_requests": 0
+      },
+      {
+        "name": "configuration_roles_origins_and_limits",
+        "claims": 0,
+        "transport_requests": 0
+      },
+      {
+        "name": "bounded_journal_projection",
+        "claims": 0,
+        "transport_requests": 0
+      },
+      {
+        "name": "exported_error_with_private_code",
+        "error": "transport",
+        "reads": 0,
+        "claims": 0,
+        "transport_requests": 0
+      },
+      {
+        "name": "corrupt_projection_refused",
+        "error": "intent-corrupt",
+        "reads": 0,
+        "claims": 0,
+        "transport_requests": 0
+      },
+      {
+        "name": "corrupt_projection_refused",
+        "error": "intent-corrupt",
+        "reads": 0,
+        "claims": 0,
+        "transport_requests": 0
+      },
+      {
+        "name": "corrupt_projection_refused",
+        "error": "intent-corrupt",
+        "reads": 0,
+        "claims": 0,
+        "transport_requests": 0
+      },
+      {
+        "name": "corrupt_projection_refused",
+        "error": "intent-corrupt",
+        "reads": 0,
+        "claims": 0,
+        "transport_requests": 0
+      }
+    ],
+    "provider_requests": 0,
+    "certificate_requests": 0,
+    "claims": 0,
+    "substituted_store": true
+  },
+  "browser_cases": {
+    "worker-complete": {
+      "capture": ".tmp/publication-worker-01/browser-04/worker-complete",
+      "confirmed_map_written": true,
+      "max_active_uploads": 1,
+      "retained_physical_bytes": 3072,
+      "retained_liability_bytes": 3072,
+      "provider_puts": [
+        {
+          "bytes": 4638,
+          "path": "/v1/blob-tree/",
+          "sha256": "de9398c45e331c9470c7c6d2d492f16245e8f25357952b510f5a83d99d3014d2"
+        },
+        {
+          "bytes": 1024,
+          "path": "/v1/chunk/?owner_id=dllsh-pd777-77776-qaaaa-cai&blob_hash=sha256%3Ad53964e58575f66aa53db95000c2d48152b0bf2f22da88274a85788efd5a3b6e&chunk_hash=sha256%3A93beaf743566f9e55d341b9fdcab54250bd8b391f0fab18837ba25accf22a387&chunk_index=0&bucket_name=fixture-bucket&project_id=standalone-trial",
+          "sha256": "b2256110f2c4226de0008dd4382a388e033f211b617bd3237135ab1d59a722b6"
+        },
+        {
+          "bytes": 4879,
+          "path": "/v1/blob-tree/",
+          "sha256": "f2e6baa30fd86831efc38c3d4a4daad65a6a901995907870dfafded63146a0dd"
+        },
+        {
+          "bytes": 2048,
+          "path": "/v1/chunk/?owner_id=dllsh-pd777-77776-qaaaa-cai&blob_hash=sha256%3A85a0606884f4f1d0342661b1ad202541c85182e559daee6fbbbf83268ad52a67&chunk_hash=sha256%3A594750ba8f154f311da90b701b029bebb775099024dee6e11c64cfa0b1ef4cca&chunk_index=0&bucket_name=fixture-bucket&project_id=standalone-trial",
+          "sha256": "0c4af872167e9a2e045d87dc873c6b20936e7fc896ad437cf1ee5266feec40bc"
+        }
+      ],
+      "provider_gets": [
+        "/v1/blob/?blob_hash=sha256%3Ad53964e58575f66aa53db95000c2d48152b0bf2f22da88274a85788efd5a3b6e&owner_id=dllsh-pd777-77776-qaaaa-cai&project_id=standalone-trial",
+        "/v1/blob/?blob_hash=sha256%3Ad53964e58575f66aa53db95000c2d48152b0bf2f22da88274a85788efd5a3b6e&owner_id=dllsh-pd777-77776-qaaaa-cai&project_id=standalone-trial",
+        "/v1/blob/?blob_hash=sha256%3A85a0606884f4f1d0342661b1ad202541c85182e559daee6fbbbf83268ad52a67&owner_id=dllsh-pd777-77776-qaaaa-cai&project_id=standalone-trial",
+        "/v1/blob/?blob_hash=sha256%3A85a0606884f4f1d0342661b1ad202541c85182e559daee6fbbbf83268ad52a67&owner_id=dllsh-pd777-77776-qaaaa-cai&project_id=standalone-trial"
+      ],
+      "browser_restart_preserved": true
+    },
+    "worker-lost": {
+      "capture": ".tmp/publication-worker-01/browser-04/worker-lost",
+      "confirmed_map_written": true,
+      "max_active_uploads": 1,
+      "retained_physical_bytes": 3072,
+      "retained_liability_bytes": 3072,
+      "provider_puts": [
+        {
+          "bytes": 4783,
+          "path": "/v1/blob-tree/",
+          "sha256": "2d927e37f227835758cf943eeb569142826440377bcc718ec3402b86266b99c9"
+        },
+        {
+          "bytes": 1024,
+          "path": "/v1/chunk/?owner_id=dllsh-pd777-77776-qaaaa-cai&blob_hash=sha256%3Ad53964e58575f66aa53db95000c2d48152b0bf2f22da88274a85788efd5a3b6e&chunk_hash=sha256%3A93beaf743566f9e55d341b9fdcab54250bd8b391f0fab18837ba25accf22a387&chunk_index=0&bucket_name=fixture-bucket&project_id=standalone-trial",
+          "sha256": "b2256110f2c4226de0008dd4382a388e033f211b617bd3237135ab1d59a722b6"
+        },
+        {
+          "bytes": 4903,
+          "path": "/v1/blob-tree/",
+          "sha256": "39dae0b165f21d5a634c32fc1541210c7e8b6e5fa4c7756372246ae5e9148084"
+        },
+        {
+          "bytes": 2048,
+          "path": "/v1/chunk/?owner_id=dllsh-pd777-77776-qaaaa-cai&blob_hash=sha256%3A85a0606884f4f1d0342661b1ad202541c85182e559daee6fbbbf83268ad52a67&chunk_hash=sha256%3A594750ba8f154f311da90b701b029bebb775099024dee6e11c64cfa0b1ef4cca&chunk_index=0&bucket_name=fixture-bucket&project_id=standalone-trial",
+          "sha256": "0c4af872167e9a2e045d87dc873c6b20936e7fc896ad437cf1ee5266feec40bc"
+        }
+      ],
+      "provider_gets": [
+        "/v1/blob/?blob_hash=sha256%3Ad53964e58575f66aa53db95000c2d48152b0bf2f22da88274a85788efd5a3b6e&owner_id=dllsh-pd777-77776-qaaaa-cai&project_id=standalone-trial",
+        "/v1/blob/?blob_hash=sha256%3Ad53964e58575f66aa53db95000c2d48152b0bf2f22da88274a85788efd5a3b6e&owner_id=dllsh-pd777-77776-qaaaa-cai&project_id=standalone-trial",
+        "/v1/blob/?blob_hash=sha256%3A85a0606884f4f1d0342661b1ad202541c85182e559daee6fbbbf83268ad52a67&owner_id=dllsh-pd777-77776-qaaaa-cai&project_id=standalone-trial",
+        "/v1/blob/?blob_hash=sha256%3A85a0606884f4f1d0342661b1ad202541c85182e559daee6fbbbf83268ad52a67&owner_id=dllsh-pd777-77776-qaaaa-cai&project_id=standalone-trial"
+      ],
+      "browser_restart_preserved": true
+    },
+    "worker-corrupt": {
+      "capture": ".tmp/publication-worker-01/browser-04/worker-corrupt",
+      "confirmed_map_written": false,
+      "max_active_uploads": 1,
+      "retained_physical_bytes": 1024,
+      "retained_liability_bytes": 1024,
+      "provider_puts": [
+        {
+          "bytes": 4769,
+          "path": "/v1/blob-tree/",
+          "sha256": "128c9a5fd873c64e740bf7318d045da668c7745bfd005d5656ff5ee47605908d"
+        },
+        {
+          "bytes": 1024,
+          "path": "/v1/chunk/?owner_id=dllsh-pd777-77776-qaaaa-cai&blob_hash=sha256%3Ad53964e58575f66aa53db95000c2d48152b0bf2f22da88274a85788efd5a3b6e&chunk_hash=sha256%3A93beaf743566f9e55d341b9fdcab54250bd8b391f0fab18837ba25accf22a387&chunk_index=0&bucket_name=fixture-bucket&project_id=standalone-trial",
+          "sha256": "b2256110f2c4226de0008dd4382a388e033f211b617bd3237135ab1d59a722b6"
+        }
+      ],
+      "provider_gets": [
+        "/v1/blob/?blob_hash=sha256%3Ad53964e58575f66aa53db95000c2d48152b0bf2f22da88274a85788efd5a3b6e&owner_id=dllsh-pd777-77776-qaaaa-cai&project_id=standalone-trial"
+      ],
+      "browser_restart_preserved": true
+    }
+  },
+  "lost_reply": {
+    "gateway_phases": [
+      [
+        "responded",
+        "uncertain"
+      ],
+      [
+        "responded",
+        "responded"
+      ]
+    ],
+    "original_exposed_setup_recovery": {
+      "state": "permission_inactive",
+      "service_updates": 0
+    },
+    "redacted_port_results": [
+      {
+        "action": "upload",
+        "error": "transport",
+        "id": 1,
+        "index": 0,
+        "original_journals_must_survive": true,
+        "retry_authorized": false,
+        "schema": 1,
+        "service_completion_checked": false,
+        "state": "failed"
+      },
+      {
+        "action": "inspect",
+        "id": 2,
+        "index": 0,
+        "journal": {
+          "cancelled": false,
+          "certificate_phase": "observed",
+          "gateway_requests": [
+            {
+              "index": 0,
+              "phase": "responded",
+              "status": 200
+            },
+            {
+              "index": 1,
+              "phase": "uncertain"
+            }
+          ],
+          "present": true
+        },
+        "retry_authorized": false,
+        "schema": 1,
+        "service_completion_checked": false,
+        "state": "inspected"
+      },
+      {
+        "action": "recover-certificate",
+        "certificate_bytes": 1163,
+        "id": 1,
+        "index": 0,
+        "journal": {
+          "cancelled": false,
+          "certificate_phase": "observed",
+          "gateway_requests": [
+            {
+              "index": 0,
+              "phase": "responded",
+              "status": 200
+            },
+            {
+              "index": 1,
+              "phase": "uncertain"
+            }
+          ],
+          "present": true
+        },
+        "requires_verification": true,
+        "retry_authorized": false,
+        "schema": 1,
+        "service_completion_checked": false,
+        "state": "certificate-observed"
+      },
+      {
+        "action": "upload",
+        "error": "upload-claimed",
+        "id": 2,
+        "index": 0,
+        "original_journals_must_survive": true,
+        "retry_authorized": false,
+        "schema": 1,
+        "service_completion_checked": false,
+        "state": "failed"
+      },
+      {
+        "action": "upload",
+        "id": 1,
+        "index": 1,
+        "journal": {
+          "cancelled": false,
+          "certificate_phase": "observed",
+          "gateway_requests": [
+            {
+              "index": 0,
+              "phase": "responded",
+              "status": 200
+            },
+            {
+              "index": 1,
+              "phase": "responded",
+              "status": 200
+            }
+          ],
+          "present": true
+        },
+        "requires_verification": true,
+        "retry_authorized": false,
+        "schema": 1,
+        "service_completion_checked": false,
+        "state": "transfer-observed"
+      },
+      {
+        "action": "inspect",
+        "id": 2,
+        "index": 1,
+        "journal": {
+          "cancelled": false,
+          "certificate_phase": "observed",
+          "gateway_requests": [
+            {
+              "index": 0,
+              "phase": "responded",
+              "status": 200
+            },
+            {
+              "index": 1,
+              "phase": "responded",
+              "status": 200
+            }
+          ],
+          "present": true
+        },
+        "retry_authorized": false,
+        "schema": 1,
+        "service_completion_checked": false,
+        "state": "inspected"
+      },
+      {
+        "action": "recover-certificate",
+        "certificate_bytes": 1201,
+        "id": 1,
+        "index": 1,
+        "journal": {
+          "cancelled": false,
+          "certificate_phase": "observed",
+          "gateway_requests": [
+            {
+              "index": 0,
+              "phase": "responded",
+              "status": 200
+            },
+            {
+              "index": 1,
+              "phase": "responded",
+              "status": 200
+            }
+          ],
+          "present": true
+        },
+        "requires_verification": true,
+        "retry_authorized": false,
+        "schema": 1,
+        "service_completion_checked": false,
+        "state": "certificate-observed"
+      },
+      {
+        "action": "upload",
+        "error": "upload-claimed",
+        "id": 2,
+        "index": 1,
+        "original_journals_must_survive": true,
+        "retry_authorized": false,
+        "schema": 1,
+        "service_completion_checked": false,
+        "state": "failed"
+      },
+      {
+        "action": "inspect",
+        "id": 1,
+        "index": 0,
+        "journal": {
+          "cancelled": false,
+          "certificate_phase": "observed",
+          "gateway_requests": [
+            {
+              "index": 0,
+              "phase": "responded",
+              "status": 200
+            },
+            {
+              "index": 1,
+              "phase": "uncertain"
+            }
+          ],
+          "present": true
+        },
+        "retry_authorized": false,
+        "schema": 1,
+        "service_completion_checked": false,
+        "state": "inspected"
+      },
+      {
+        "action": "inspect",
+        "id": 1,
+        "index": 1,
+        "journal": {
+          "cancelled": false,
+          "certificate_phase": "observed",
+          "gateway_requests": [
+            {
+              "index": 0,
+              "phase": "responded",
+              "status": 200
+            },
+            {
+              "index": 1,
+              "phase": "responded",
+              "status": 200
+            }
+          ],
+          "present": true
+        },
+        "retry_authorized": false,
+        "schema": 1,
+        "service_completion_checked": false,
+        "state": "inspected"
+      }
+    ],
+    "automatic_upload_retries": 0
+  },
+  "cancellation": {
+    "survives_reopen": true,
+    "redacted_port_results": [
+      {
+        "action": "upload",
+        "id": 1,
+        "index": 0,
+        "journal": {
+          "cancelled": false,
+          "certificate_phase": "observed",
+          "gateway_requests": [
+            {
+              "index": 0,
+              "phase": "responded",
+              "status": 200
+            },
+            {
+              "index": 1,
+              "phase": "responded",
+              "status": 200
+            }
+          ],
+          "present": true
+        },
+        "requires_verification": true,
+        "retry_authorized": false,
+        "schema": 1,
+        "service_completion_checked": false,
+        "state": "transfer-observed"
+      },
+      {
+        "action": "cancel",
+        "id": 2,
+        "index": 0,
+        "journal": {
+          "cancelled": true,
+          "certificate_phase": "observed",
+          "gateway_requests": [
+            {
+              "index": 0,
+              "phase": "responded",
+              "status": 200
+            },
+            {
+              "index": 1,
+              "phase": "responded",
+              "status": 200
+            }
+          ],
+          "present": true
+        },
+        "retry_authorized": false,
+        "schema": 1,
+        "service_completion_checked": false,
+        "state": "cancelled"
+      },
+      {
+        "action": "inspect",
+        "id": 3,
+        "index": 0,
+        "journal": {
+          "cancelled": true,
+          "certificate_phase": "observed",
+          "gateway_requests": [
+            {
+              "index": 0,
+              "phase": "responded",
+              "status": 200
+            },
+            {
+              "index": 1,
+              "phase": "responded",
+              "status": 200
+            }
+          ],
+          "present": true
+        },
+        "retry_authorized": false,
+        "schema": 1,
+        "service_completion_checked": false,
+        "state": "inspected"
+      },
+      {
+        "action": "recover-certificate",
+        "certificate_bytes": 1163,
+        "id": 1,
+        "index": 0,
+        "journal": {
+          "cancelled": true,
+          "certificate_phase": "observed",
+          "gateway_requests": [
+            {
+              "index": 0,
+              "phase": "responded",
+              "status": 200
+            },
+            {
+              "index": 1,
+              "phase": "responded",
+              "status": 200
+            }
+          ],
+          "present": true
+        },
+        "requires_verification": true,
+        "retry_authorized": false,
+        "schema": 1,
+        "service_completion_checked": false,
+        "state": "certificate-observed"
+      },
+      {
+        "action": "upload",
+        "error": "upload-claimed",
+        "id": 2,
+        "index": 0,
+        "original_journals_must_survive": true,
+        "retry_authorized": false,
+        "schema": 1,
+        "service_completion_checked": false,
+        "state": "failed"
+      },
+      {
+        "action": "inspect",
+        "id": 1,
+        "index": 0,
+        "journal": {
+          "cancelled": true,
+          "certificate_phase": "observed",
+          "gateway_requests": [
+            {
+              "index": 0,
+              "phase": "responded",
+              "status": 200
+            },
+            {
+              "index": 1,
+              "phase": "responded",
+              "status": 200
+            }
+          ],
+          "present": true
+        },
+        "retry_authorized": false,
+        "schema": 1,
+        "service_completion_checked": false,
+        "state": "inspected"
+      }
+    ],
+    "exposed_physical_and_liability_bytes": 1024,
+    "service_withdrawal_or_deletion_inferred": false
+  },
+  "validation": {
+    "dedicated_worker_journeys": "pass",
+    "all_affected_standalone_chromium_journeys": "pass; thirteen worker/persistent/indexed/single-file success and recovery cases",
+    "offline_authority_snapshot_concurrency_budget_idle_deadline_and_redaction": "pass",
+    "strict_standalone_integration_clippy": "pass",
+    "pinned_sdk_source_patch_and_browser_build": "pass",
+    "format_and_whitespace": "pass",
+    "private_capture_checksums": "pass",
+    "full_ci": false,
+    "final_redaction_and_projection_worker_regressions": "pass; three final source journeys after public-code and projected-value guards",
+    "offline_exported_error_and_corrupt_projection": "pass; private code strings, foreign phase/status values and oversize projections cannot escape",
+    "public_capture_checksums": "pass"
+  },
+  "retained_intermediate_evidence": [
+    {
+      "capture": ".tmp/publication-worker-01/offline-01",
+      "meaning": "Initial worker boundary cases before certificate byte-count result and final completion wording."
+    },
+    {
+      "capture": ".tmp/publication-worker-01/offline-02",
+      "meaning": "Final completion wording; later capture additionally checks idle deadline and creation-time role/origin/limit refusals."
+    },
+    {
+      "capture": ".tmp/publication-worker-01/browser-01",
+      "meaning": "Three successful dedicated-worker journeys before replacing the misleading fixed file_live:false field with service_completion_checked:false. Final complete regression capture retains current wording."
+    },
+    {
+      "capture": ".tmp/publication-worker-01/documentation-patch.txt",
+      "meaning": "First documentation patch could not match a sentence embedded in a table row; no file/effect mutation, corrected propagation retained."
+    },
+    {
+      "capture": ".tmp/publication-worker-01/browser-02",
+      "meaning": "Complete thirteen-case regression before the extra exported-error-code and corrupt projected-state safeguards; final three worker cases pass separately."
+    },
+    {
+      "capture": ".tmp/publication-worker-01/browser-03",
+      "meaning": "Public error vocabulary passes actual worker cases; final capture additionally checks projected phase/status values and count bounds."
+    },
+    {
+      "capture": ".tmp/publication-worker-01/offline-04",
+      "meaning": "Exported error classes with private code strings are redacted; final offline capture also checks corrupt/oversize projections."
+    }
+  ],
+  "retention": {
+    "private_browser_profiles_signed_certificate_and_native_setup_attestation_journals": true,
+    "frozen_bodies_manifests_bindings_query_arguments_and_raw_replies": true,
+    "gateway_opaque_request_fingerprints_and_redacted_worker_results": true,
+    "private_file_hash_manifest": ".tmp/publication-worker-01/capture-sha256.txt",
+    "owned_local_servers_and_browsers_closed": true,
+    "existing_live_owners_profiles_balances_and_obligations_unchanged": true
+  },
+  "limitations": [
+    "Owned HTTPS HTTP/2 gateway and synthetic image-labelled bodies are local substitutes, not deployed Caffeine or real media/serving observations.",
+    "Native parent launcher, production signer/bootstrap, verifier orchestration and durable parent job intent are still required for a complete noninteractive publisher.",
+    "The application must trust private-port bootstrap and preserve its original browser profile. Profile loss/rollback cannot authorize replay.",
+    "Worker deadlines abort transport and fence new jobs; crypto/IndexedDB/host scheduling are cooperative and process termination remains host-owned.",
+    "Job/request limits do not guarantee a provider spending cap; certificate recovery, cancellation, logical release, deletion and billing cessation are separate.",
+    "Worker jobs are bound by original frozen inputs and fixture bootstrap source; full provider PUT payloads are not separately captured, while durable gateway fingerprints and signed certificate claims survive.",
+    "675 distinct Miner blobs/679 emitted identities, real image/GLB serving, release overlap and MIME/CORS/cache/CSP/open-browser retention remain open.",
+    "Canic consumer adoption stays deferred; siblings remain read-only."
+  ],
+  "source_artifact_and_log_sha256": {
+    "clients/browser/worker.js": "5ea4609b63de8f979806f1b61527eb79158ff73f6dea2c3d51d44a595c76cd78",
+    "clients/browser/package.json": "d576b5047e286e1b3b76defb434d5506a1a922fbb9df542326055ffddd17e6b5",
+    "clients/browser/publication.js": "f259ffc707b02454cb56488e68b3129bd490a2f326a29e08fb55c966fa60c493",
+    "clients/browser/certificate.js": "ae26e8b6ea7030d63de0339bece22284603ee8184dd23545d2781f658eeb5109",
+    "clients/browser/gateway.js": "8d1ccb75c576be4585c20cb8cf73ca7171dbba04872454d4f2cd74a33e787370",
+    "clients/browser/intents.js": "59351bb1ccef06bf7d0ac36db12261432bcf4faa42137ff10941528ee1f61f57",
+    "clients/browser/patches/caffeine-1.1.2.patch": "55fc44fe155ec3be888e1bee524ccb931b28c8c9e0119ffc012e270238289364",
+    "tests/browser/worker.mjs": "74cec8d64febaed5de844501c85380540e9105822233ca29bc53ed92f2020dc3",
+    "tests/browser/worker-client.js": "07512e6cef76af71b2e2b2adcc5d376c1b6b2fe09f9c5edf7529a54fe7f7937b",
+    "tests/browser/publication-worker.js": "1fed1cbd5b0ea82d5eeeca02f225fa4f5d678dcbcf0b4093fc0a17525c5883be",
+    "tests/browser/standalone.js": "543be8fc96fcdad203105a2847a3fb9fecb1e395b16656f30abe95c424b4829d",
+    "tests/browser/standalone-gateway.mjs": "c4d75fca70b10e2860fcade57a64aa3c17a1882a83efcbcfd657638304907e10",
+    "tests/browser/serial.mjs": "67ef24477e7d276515eee026751543e383c69b1ea388f87ada2f5b97b9bb71e2",
+    "tests/browser/build.mjs": "c60833341ba4ce1fc7f56149994048c17235f9e5852bd3e4e6d4875a76316fd0",
+    "tests/pocketic/tests/standalone_browser/serial/mod.rs": "2ccb0ae35b977f97deceece2a59eddd72ea51ee5dc0856087979491991e0e1e1",
+    "target/debug/blob-storage": "0cf5f19d25a1b89256d59b6c66cb447b4e32756f5c22f5fb221b111e16c3e9c1",
+    "target/wasm32-unknown-unknown/release/ic_blob_storage_canister.wasm": "e4d6e3f744b27e0530521aab9440a02f636088f4dfd44733ff9e6f69a1183331",
+    ".tmp/browser/publication-worker.js": "df2cf5f50855e4b700b16860dea985f8c3fcca8bdf431df159427846ebebc20e",
+    ".tmp/browser/standalone.js": "9a5947c5cc6bc8f9e4818f0a49c58c099a69067b65d6ac33e54a665b87ff1d74",
+    ".tmp/publication-worker-01/browser-01.log": "602eaac0b3f38fa865423401d3ccf4ca104459cd426b1864e0d9ef1acfa51efa",
+    ".tmp/publication-worker-01/browser-02.log": "b455339997efd12ee87aab1fd3ea7f1728c2aa28a78dd1a61cfd93c2993bda01",
+    ".tmp/publication-worker-01/browser-03.log": "1c984705e905c93351495e87df6d7678923c8d90c50abd95c8abeb70fbd88c3e",
+    ".tmp/publication-worker-01/browser-04.log": "1beb16e21ba6f85beae6367b7bff37c076cf2fab2fdee676c9f681bcc94c3232",
+    ".tmp/publication-worker-01/browser-build-final.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    ".tmp/publication-worker-01/browser-build-offline-final.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    ".tmp/publication-worker-01/browser-build-projection.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    ".tmp/publication-worker-01/browser-build-redaction.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    ".tmp/publication-worker-01/browser-build-worker.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    ".tmp/publication-worker-01/browser-build.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    ".tmp/publication-worker-01/diff-check.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    ".tmp/publication-worker-01/diff-final.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    ".tmp/publication-worker-01/fmt-check.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    ".tmp/publication-worker-01/fmt-final.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    ".tmp/publication-worker-01/offline-01.log": "15c1b958312d7f836eccfc296b69b7b6980e44781ca6dee8b62938d0d178f7c0",
+    ".tmp/publication-worker-01/offline-02.log": "15c1b958312d7f836eccfc296b69b7b6980e44781ca6dee8b62938d0d178f7c0",
+    ".tmp/publication-worker-01/offline-03.log": "15c1b958312d7f836eccfc296b69b7b6980e44781ca6dee8b62938d0d178f7c0",
+    ".tmp/publication-worker-01/offline-04.log": "15c1b958312d7f836eccfc296b69b7b6980e44781ca6dee8b62938d0d178f7c0",
+    ".tmp/publication-worker-01/offline-05.log": "15c1b958312d7f836eccfc296b69b7b6980e44781ca6dee8b62938d0d178f7c0",
+    ".tmp/publication-worker-01/private-evidence-check.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    ".tmp/publication-worker-01/private-evidence-final.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    ".tmp/publication-worker-01/public-evidence-check.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    ".tmp/publication-worker-01/standalone-clippy.log": "4b0d8ff581f693d14479886aae83b29f0c33b53eda769e82e18fb81ce54f884b",
+    ".tmp/publication-worker-01/intent.json": "10bf3bd94e10e560a8ef1233851de6b759096fa01849ffa5114740f91bca5b77",
+    ".tmp/publication-worker-01/regression-intent.json": "38c212822f2a81dd9b05ecdf680eb162415a35a3c896d67c79e185f9e5f83c86",
+    ".tmp/publication-worker-01/capture-sha256.txt": "744da23a7a85b9d6e4c223ef7983ab1422ff126c8163118c185c6bdbcfed5c41",
+    ".tmp/publication-worker-01/documentation-patch.txt": "dd6f3124ef5db48c2555de8836c2bebcf8cbaab61f1124e9eb9792ac119df38d"
+  },
+  "live_provider_requests": 0,
+  "paid_effects": 0,
+  "deployment": false,
+  "version_change": false,
+  "commits": false,
+  "sibling_edits": false,
+  "build_cleanup": false,
+  "feedback": "docs/canic-parity.md#integration-feedback",
+  "intermediate_worker_source_sha256": "5bb3bebb570e2df7a29945c389d153d8262069cb8523b7b869c8e6e08b44634b"
+}

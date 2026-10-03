@@ -1,5 +1,135 @@
 # Caffeine probe ledger
 
+## Private-port browser worker — 2026-10-03
+
+The [local record](local/2026-10-03-publication-worker-01/summary.json) binds
+[original intent](local/2026-10-03-publication-worker-01/intent.json) and
+[regression intent](local/2026-10-03-publication-worker-01/regression-intent.json)
+to offline boundary checks and actual standalone/PocketIC/native/Chromium
+DedicatedWorker journeys against the owned HTTPS HTTP/2 substitute. No live
+Caffeine request or paid effect occurs. The existing patched Caffeine 1.1.2 SDK
+and strict IndexedDB certificate/gateway journals remain dispatch owners.
+
+The worker binds exact signer/service/tenant/project/bucket, trust root and
+origins before jobs, permits one active job, snapshots input and bounds jobs/
+deadline/body/requests. Private-port replies omit credentials and raw provider
+messages; `service_completion_checked:false` prevents an upload result being
+mistaken for native completion evidence. Finite public error codes and validated
+projected phase/status values prevent exported-error payloads or corrupt custom
+store values leaking into replies. Inspection/recovery/cancellation do not
+create missing history; claimed or cancelled uploads cannot redispatch.
+Offline checks use a substituted store and prove no provider/claim behavior.
+
+Three dedicated-worker cases and all thirteen affected browser regressions pass.
+Lost replies preserve uncertain gateway rows across browser/native restart.
+Exact exposed setup recovery performs zero updates; independent observation/
+attestation/reference checks advance without another PUT. Cancellation survives
+reopening; corrupt bytes block the next transfer/map and retain 1,024 exposed
+physical/liability bytes. Complete cases retain 3,072 bytes. No deletion or billing
+cessation is established. Worker transport cancellation is cooperative; process
+termination and profile-loss/rollback fencing remain host responsibilities.
+
+Strict integration lint, pinned SDK/source/patch browser build, formatting and
+whitespace checks pass. Private profiles, native signed claims/raw replies,
+frozen inputs, opaque gateway fingerprints, redacted worker results and a file
+hash manifest survive in `.tmp/publication-worker-01`. Full provider PUT bodies
+are not separately captured; their durable fingerprints and certificate claims
+survive. The initial successful captures used a misleading fixed `file_live:false`
+field, replaced directly with `service_completion_checked:false`; intermediate
+captures remain historical evidence. A thirteen-case regression passes, followed
+by three final worker regressions after the error-code/projection safeguards;
+final offline cases also refuse private code strings and oversized projections.
+The first documentation patch rejection is recorded; no effect occurred.
+
+Native parent launch/signing/bootstrap, durable phase intent and verifier
+automation remain required for complete noninteractive publication. Qualify real
+Miner media, release overlap and public serving separately. Core/host/native
+artifacts and live owners remain unchanged; concurrent dependency changes survive.
+No full CI, version/release/commit/publication, deployment, sibling write or build
+cleanup occurs. Canic adoption remains deferred; owned local servers/browsers close.
+
+## Persistent native publication phases — 2026-10-03
+
+The [local record](local/2026-10-03-publish-session-01/summary.json) binds the
+[original intent](local/2026-10-03-publish-session-01/intent.json),
+[recovery intent](local/2026-10-03-publish-session-01/recovery-intent.json) and
+[capture/regression intent](local/2026-10-03-publish-session-01/regression-intent.json)
+to actual native/PocketIC and owned HTTPS HTTP/2 Chromium results. No live
+Caffeine request or paid effect occurs. The existing patched Caffeine 1.1.2 SDK
+and strict IndexedDB journals retain certificate/gateway dispatch ownership.
+
+`publish-session` validates one complete frozen batch, then holds it across
+bounded setup/status/map frames. Only selected bodies are rehashed before setup;
+the browser snapshots and verifies raw digest/SDK root before certificate intent.
+Exact configured-verifier completion and live first references gate advancement.
+Current-reference observations gate the final whole map. Cached intent is not
+a fresh verification of every current local body copy or a publication lease.
+
+Native cases pass for cached batch reuse, changed selected bytes before admission,
+finite steps, idle deadline with stdin still open, EOF/process restart with exact
+original signed claims/zero updates, and tampered-source refusal. Three persistent
+browser cases and three affected indexed regressions pass with two original roots
+at one active reservation. Lost chunk replies retain uncertain gateway history
+across browser and native restart. Original exposed setup refuses recovery with
+zero updates; independent byte observation/attestation reconciles without another
+PUT. Corruption blocks the second transfer and any complete map. Complete/lost
+cases retain 3,072 physical/liability bytes; corruption retains 1,024 exposed bytes.
+
+Targeted native CLI and affected setup/map/recovery PocketIC checks, strict
+CLI/integration lint, pinned browser build, formatting and whitespace checks pass.
+Private original signed setup/attestation requests, raw query replies, control
+frames, frozen inputs, gateway request hashes and browser profiles are retained
+under `.tmp/publish-session-01`. A private file-hash manifest and source/artifact/
+log hashes bind the captures. Initial disposable native captures lacked retained
+requests; their logs survive and the supplemental final run retains originals.
+The decoder's ignored extra field, strict helper lint and missed capture-helper
+import failures remain separately recorded before corrected runs.
+
+The native controller is ready for composition; production browser-worker and
+verifier-phase automation remain unfinished. Full Miner media, reference overlap
+and public MIME/CORS/cache/CSP/open-browser retention still need consumer
+acceptance. No full CI, version/release/commit/publication, deployment, sibling
+write or cleanup occurs. Live exhausted owners and original obligations survive;
+Canic adoption remains deferred. Owned local servers and browsers close.
+
+## Serial completion and browser restart — 2026-10-03
+
+The [local record](local/2026-10-03-serial-publication-01/summary.json) binds the
+[original intent](local/2026-10-03-serial-publication-01/intent.json) and separate
+[regression intent](local/2026-10-03-serial-publication-01/regression-intent.json)
+to actual standalone PocketIC, native CLI and Chromium results against the owned
+HTTPS HTTP/2 substitute. No live Caffeine request or paid effect occurs. SDK
+source/hash/patch checks precede the browser runs; the same Caffeine 1.1.2 client
+owns preparation/signing/transfer and existing journals own dispatch.
+
+Two original files (1,024 and 2,048 bytes, distinct roots) qualify serial progress
+at one active reservation. SDK success or a lost whole-chunk reply leaves that
+reservation occupied. Independent complete-byte observation, exact configured
+attestation and authenticated `publish-file-status` permit the next setup; only
+the final full-map command writes a complete map. Whole-browser restart preserves
+both strict IndexedDB histories and their original gateway phases, including the
+lost first reply, without another PUT. Corrupt first observation prevents a second
+transfer and any complete map. Completed cases retain 3,072 physical/liability
+bytes; corruption retains the exposed first 1,024 bytes. No deletion or billing
+cessation is established.
+
+Three serial journeys and the four affected single-file regressions pass, together
+with native/indexed-map checks and strict CLI/integration lint. Private original
+requests, signed claims, raw replies, frozen bodies, browser profiles and bounded
+gateway request/hash records survive under `.tmp/serial-publication-01`; the record
+includes source/artifact/log hashes. Socket-denied native cases, PocketIC's
+already-live localhost URL, ambient Node 18 and test-helper lint/extraction compile
+failures remain recorded before corrected runs. Production loopback/TLS policy
+and dispatch ownership are unchanged; owned local servers/browsers close.
+
+This is serial local composition, not a complete production headless publisher or
+Miner acceptance. Independent CLI phases still reverify the full batch; the future
+coordinator must retain one validated batch and original per-file journals.
+Qualify actual consumer media, overlapping references and MIME/CORS/cache/CSP/
+open-browser retention separately. No full CI, release/version/commit/publication,
+deployment, sibling write or build cleanup occurs. Existing live owners/profiles
+and physical/billing obligations remain untouched; Canic adoption stays deferred.
+
 ## Frozen-file transfer and journal capacity — 2026-10-03
 
 The [local record](local/2026-10-03-publish-transfer-01/summary.json) connects

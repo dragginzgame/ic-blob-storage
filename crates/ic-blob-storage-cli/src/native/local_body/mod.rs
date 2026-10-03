@@ -25,11 +25,8 @@ pub(super) struct LocalBody {
 }
 impl LocalBody {
     pub fn open(path: &Path, bytes: u64) -> Result<Self, Failure> {
-        let file = File::open(path).map_err(|_| Failure::File)?;
+        let file = super::open_regular(path)?;
         let metadata = file.metadata().map_err(|_| Failure::File)?;
-        if !metadata.is_file() {
-            return Err(Failure::File);
-        }
         if metadata.len() != bytes {
             return Err(Failure::Content);
         }

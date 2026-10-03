@@ -11,6 +11,66 @@ use crate::{
 use ic_memory::ic_stable_structures::VectorMemory;
 
 const RELEASE: &str = "test-release";
+
+#[test]
+fn complete_requests_preserve_authority_and_match_configuration_and_store_keys() {
+    let requests = super::requests("installation-test").unwrap();
+    let keys: std::collections::BTreeSet<_> =
+        requests.iter().map(|r| r.stable_key().as_str()).collect();
+    let mut expected: std::collections::BTreeSet<_> = grants::requests("installation-test")
+        .unwrap()
+        .iter()
+        .map(|r| r.stable_key().as_str().to_owned())
+        .collect();
+    expected.insert(INSTALLATION_MEMORY_KEY.to_owned());
+    assert_eq!(
+        keys.into_iter()
+            .map(str::to_owned)
+            .collect::<std::collections::BTreeSet<_>>(),
+        expected
+    );
+    assert_eq!(requests.len(), expected.len());
+    assert!(
+        requests
+            .iter()
+            .all(|r| r.authority() == "installation-test")
+    );
+    assert!(super::requests("").is_err());
+}
+
+#[test]
+fn compiled_library_version_binds_installation_and_reopen() {
+    let memory = memory();
+    let validated = ValidatedServiceInstallation::new(
+        candidate().service,
+        ServiceInstallationCandidate {
+            release: crate::LIBRARY_VERSION,
+            ..input()
+        },
+    )
+    .unwrap();
+    let installed = ServiceInstallation::install(memories(&memory), validated).unwrap();
+    let context = UploadContext {
+        service: candidate().service,
+        actor: candidate().operator,
+    };
+    let view = crate::workflow::installation::inspect(&installed, context).unwrap();
+    assert_eq!(view.release, crate::LIBRARY_VERSION);
+    assert_eq!(crate::LIBRARY_VERSION, env!("CARGO_PKG_VERSION"));
+    drop(installed);
+    let reopened = ServiceInstallation::open(
+        memories(&memory),
+        candidate().service,
+        crate::LIBRARY_VERSION,
+    )
+    .unwrap();
+    assert_eq!(
+        crate::workflow::installation::inspect(&reopened, context)
+            .unwrap()
+            .release,
+        crate::LIBRARY_VERSION
+    );
+}
 fn input() -> ServiceInstallationCandidate<'static> {
     ServiceInstallationCandidate {
         platform_installation_version: 0,
