@@ -1,8 +1,9 @@
 # Development plan
 
-Released 0.9.0 supplies the framework-independent library and standalone service,
-configured upload sizes and capacity, trusted issuance, batch setup and ic-memory 0.15.4. Downstream wrappers, deployment
-integration and their tests belong in consumer repositories. Library publication
+Released 0.11.0 supplies the framework-independent library and standalone service,
+configured uploads, exact verifier completion and maintained native/browser
+publication components. Consumer owners supply framework wrappers, deployment
+integration and their composition tests. Library publication
 is separate from qualified live service operation.
 
 ## Starting point
@@ -32,146 +33,30 @@ activation and complete consumer batch delivery remain open.
 
 ## Next action
 
-The 1 KiB integration blocker is removed in released 0.7.0. Issuance uses installed
-object/tenant/global/lifetime limits, with the extra trial envelope and public
-blocker/host field removed in the minor hard cut.
-The same trusted-uploader, exact permission, exposure journal and restore fences
-remain. The fresh live trial now completes both selected sample sizes, preserving
-the old stopped owner and every new provider/billing obligation. Its two-object
-lifetime capacity is full; it cannot be reset to publish additional assets.
-Released 0.8.0 adds [offline batch preparation](operator-guide.md#freeze-a-publication-inventory-offline):
-original input hashes, unique identities, one tenant/provider scope, aggregate
-fresh-installation fit and serial root-verified snapshots. Real SDK 1 KiB/10 MiB
-inputs pass without network traffic. This is not a live capacity observation or
-publication. Released `publish-check` adds bounded authenticated capacity/
-content observations with exact original IDs and explicit blockers, including a
-read-only check against the deployed samples. Indexed `publish-prepare` now connects
-admission/preparation to the original consumer intent and signed service journals;
-explicit resume observes claimed updates without resubmission. The browser frozen-file
-helper now connects certificate exposure and SDK transfer to those inputs; local
-standalone journeys independently verify, attest, download and release the result.
-Released 0.9.0 adds one-pass `publish-prepare-batch`, which retains independent
-file journals but holds active reservations without transferring or completing them.
-Unreleased addresses the [current upstream findings](status/current.md#unreleased-upstream-fixes-and-complete-reference-maps--2026-10-03):
-nonblocking regular-file input validation and passive complete installation/version
-helpers. Its `publish-map` observes installed configuration, exact verifier digests
-and all current first references before writing a complete map. The indexed
-`publish-file-status` shares those authenticated checks without emitting a batch
-map. Local two-file browser/native journeys now prove serial completion at one
-active reservation, browser restart/lost-reply reconciliation without redispatch
-and corrupt-download refusal before the next transfer. Unreleased `publish-session`
-now holds one validated batch across setup/status/map phases, rechecks selected
-bytes and recovers original setup claims across process interruption. Local
-Chromium composition also reconciles lost replies after native/browser restart.
-The browser worker supplies fixed-authority serial jobs over a private MessagePort
-with redacted results and existing dispatch journals. Actual DedicatedWorker tests
-cover restart, uncertain uploads and cancellation. Next implement the native
-parent launcher/bootstrap and verifier phase coordination with
-surviving per-file outcomes, use the map in the
-consumer's asset transaction and qualify consumer acceptance; size
-lifetime release history and client/read budgets from the consumed-media inventory.
-The browser lifetime ceiling is now configurable to one million, independently
-of 4,096-file batches. Actual journal restart evidence covers 675 rows, not a
-million populated service records. The [large-inventory sizing review](operator-guide.md#larger-inventories-and-a-dedicated-storage-owner)
-records stable-index and synchronous reopen costs to benchmark before promising
-that scale; a dedicated storage owner keeps those budgets separate from gameplay.
+Continue from [the current handoff](status/current.md), which owns the exact
+released baseline, active implementation batch and remaining actions. The
+[implementation history](status/history.md) retains trial funding/link/refusal
+captures and superseded next-step instructions; it is not a second work queue.
 
-The maintainer accepted the [restricted standalone contract](standalone-trial.md): one 1 KiB
-file under explicit trusted roles and a restricted fresh-instance lifecycle.
-The maintainer selected a total planning budget of 100T cycles; the proposed
-10T service / 1T initial provider / 89T unallocated split is not a price estimate,
-enforced provider cap or effect authority. Offline 1 KiB preparation and complete
-host-init syntax now pass; the existing 10 MiB rehearsal remains the default.
+The maintained native session composes original setup, verification and reference
+journals. The browser host/worker and callable Chromium bridge bind selected
+signer, profile, asset origin and preparation hints. Complete durable parent
+restart coordination around those owners, without another dispatcher or journal.
+Then qualify real consumer media, publication transactions, overlapping references
+and serving/CSP behavior. Source code and local substitutes do not prove adoption.
 
-Finish the existing upload/download trial prerequisites. Select exact isolated
-service/tenant/uploader/verifier, Cashier/payer, gateway/project/bucket and reviewable
-financial/byte/time limits. The offline checks prepare these inputs but grant no
-platform identity, account authority or provider qualification. The current
-certificate gate checks installed uploader trust, local namespace, an admitted
-reservation within configured quotas and durable current ownership. Provider spending/replay guarantees remain
-outside the accepted contract; client ceilings are not a provider spending cap.
-This semantic/init/API hard cut shipped in the 0.6.0 minor release. The
-[released artifact review](status/current.md#released-artifact-review-and-next-step--2026-10-02)
-binds local installation evidence to frozen source/Wasm/CLI/DID; actual provider
-account and upload/download qualification remain open.
+Keep both frozen live owners and their full provider/billing histories. Their
+lifetime capacity is exhausted; source cleanup cannot reset it. Provider deletion,
+billing cessation and older-backup activation remain separate qualification gaps.
+Use [service gaps](service-gaps.md) and [the probe ledger](evidence/caffeine-probes/README.md)
+for their retained evidence and obligations.
 
-The [isolated mainnet owner](evidence/caffeine-probes/deployed/2026-10-02-trial-install-02/summary.json)
-runs that frozen 0.6.0 with exact role/configuration readback. Initial zero local
-activity is retained in the installation capture; the live trial below now admits
-one upload. Installation alone does not authorize provider effects.
-The [funding review](evidence/caffeine-probes/deployed/2026-10-02-trial-funding-review-01/summary.json)
-prepares independently decoded exact inputs; the later
-[authorized funding](evidence/caffeine-probes/deployed/2026-10-02-trial-funding-01/summary.json)
-completes one 1T-gross deposit and one notification, crediting the new isolated
-account with 999.8B. Zero overdraft/no target refill are observed. Total standing
-spend approval is 100T, with 3.0001T donor debit so far. Next: payer/owner linkage,
-raw expiry terms and gateway/project acceptance before the bounded transfer.
-
-The [live standalone readiness capture](evidence/caffeine-probes/deployed/2026-10-02-trial-link-01/summary.json)
-now completes bounded gateway sync and shared account balance inspection against
-the actual Cashier: one gateway, sequence 1, no pending sync, exact 999.8B payer
-balance. Gateway origin/transport and project/bucket acceptance remain open.
-Budget-check authority is unavailable for anonymous and payer callers; the
-explicit-gateway budget baseline reports OwnerNotFound. No expiry qualification
-follows from these refusals. Automatic approval review blocks the persistent
-provider link before submission until explicit approval for that mutation.
-The maintainer subsequently approves, and the
-[fresh link experiment](evidence/caffeine-probes/deployed/2026-10-02-trial-link-02/summary.json)
-succeeds once with exact payer/owner/raw term readback. Relationship metadata and
-zero gateway-credit replies remain identical before/after candidate expiry. This
-establishes linkage/owner recognition, not expiry enforcement or upload readiness.
-No extension, new donor debit, certificate or object transfer follows; standing
-100T approval remains in force. Next review actual gateway admission/credit and
-namespace/browser readiness before selecting another exact link term or upload.
-
-The [actual-service preparation](evidence/caffeine-probes/local/2026-10-02-gateway-admission-01/summary.json)
-now checks one 1 KiB SDK/native packet and a retained one-slot browser journal
-through process restart, using the installed 0.6.0 carrier. Signing is a substitute;
-no provider request occurs. Public source places budget checks at upload admission,
-so zero per-gateway credit is not treated as proof of empty payer funds or a mandatory
-positive-credit preflight. A concrete existing-link two-hour renewal and bounded
-live-trial plan are prepared; that source/offline capture does not perform effects.
-
-The [subsequently approved live trial](evidence/caffeine-probes/deployed/2026-10-02-trial-live-01/summary.json)
-updates the existing link once to the exact nominal two-hour expiry with its 1T
-daily limit unchanged. Original tenant enrollment, upload permission/manifest and
-one mainnet-verified certificate succeed. The exact streamed SDK tree PUT reaches
-Caffeine and returns HTTP 403 for insufficient owner balance. No chunk, retry,
-download or attestation follows. Payer balance remains 999.8B, relationship unchanged
-and gateway credit/usage zero; the refusal cause is unresolved. The source example's
-10T funding and 5T daily limit are guidance rather than proved admission thresholds.
-
-Next investigate owner/gateway credit allocation before another reviewed trial.
-Preserve the exact original profile's observed certificate/403 claim and the
-service's 1 KiB exposure/liability; do not resend, reset capacity or infer deletion
-or billing cessation. Total donor debit stays 3.0001T under standing 100T authority.
-Independent whole-byte verification, tenant download and disposition remain open.
-
-The maintainer's [larger-cycle comparison](evidence/caffeine-probes/deployed/2026-10-02-trial-funding-02/summary.json)
-then credits 4.0998T from a 4.1T gross deposit, raising the same payer to 5.0996T.
-Its public owner-account balance is independently zero with Prepaid debt target;
-gateway credit/usage and link terms stay unchanged. This does not retest upload
-admission or prove the earlier refusal's cause. Original donor liquidity is only
-1.654605097235T, so the example's 10T funding is not reached. Total donor debit
-is now 7.1001T, remaining authority 92.8999T. The [approved 1T -> 5T allowance comparison](evidence/caffeine-probes/deployed/2026-10-02-trial-limit-01/summary.json)
-then succeeds with unchanged expiry. Payer falls to 4.0996T; owner holds 1T Ledger
-credit, matching the link's 1T period spend. Gateway credit becomes raw 333333333333
-with all reported usage zero. This is observed internal allocation, not another
-donor debit or proof of the earlier refusal's cause. No upload admission is retested.
-Next prepare a separately reviewed fresh-owner upload/download trial without
-replaying the old claimed transfer, resetting its slot or losing its obligations.
-
-Do not add another journal owner, recovery canister or allocator. Prefer the
-single storage owner and its local durable journals. Restored/stale instances stay
-fenced until complete independently surviving evidence proves safe obligations,
-identity allocation and accounting. Source removal and installation retirement
-are separate; cleanup cannot discard uncertain effects or continuing billing.
-
-See [acceptance](acceptance-plan.md), [service contract](service-contract.md),
-[trial inputs](operator-guide.md#isolated-uploaddownload-trial-plan) and the
-[probe ledger](evidence/caffeine-probes/README.md). All probes retain intent,
-requests, results, hashes, failures and cleanup obligations. This plan authorizes
-no deployment, funding, provider effect or upstream repository change.
+The browser lifetime ceiling can be configured to one million, independently of
+4,096-file batches. Actual journal restart evidence covers 675 rows, not a million
+populated service records. Qualify stable reopen and browser memory/transport costs
+against the [consumed inventory](operator-guide.md#larger-inventories-and-a-dedicated-storage-owner)
+before promising that scale. Keep the single storage owner and its local journals;
+restoration needs independent continuity evidence rather than a local counter.
 
 ## Consumer findings that constrain the design
 
@@ -315,15 +200,9 @@ observations reserve nothing and do not prove global absence or fresh admission.
 Production authentication, new-object reference sizing and persisted exact
 operation identities remain outstanding; no upload or funding occurs here.
 
-Reference recovery now has a shared `blob_reference_receipt` query used by the
-local CLI and replicated client. `blob-fixture-reference` journals a bounded exact
-intent with independent upload/object/lifetime/first-reference bindings, then
-queries standalone or durable storage through the same maintained decoder,
-including after release, settlement or fenced restoration. It preserves service
-refusals separately from absence and recorded results without allocating a new request
-or reference. Caller-supplied IDs still need a surviving allocation authority;
-local writes now use an identity-keyed, bounded journal with an exclusive OS lock
-and file/directory sync before acknowledgment. Exact retries recover the same
-record; changed payloads conflict. This protects cooperating writers of one local
-directory, not copies or rollbacks. It is not a registration outbox or
-restored-instance fence. Upload/provider intents and actual dispatch remain open.
+Reference recovery uses the shared `blob_reference_receipt` query and maintained
+native exact-request tools. Signed local tests distinguish historical results,
+current liveness and restoration fences through release and settlement. Native
+create-new claims retain signed packets before one dispatch; interruption or a
+lost reply never authorizes resubmission. The fixture-only append journal is
+retired, with no effect ownership or new identity allocation introduced.

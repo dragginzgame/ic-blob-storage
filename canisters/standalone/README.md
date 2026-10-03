@@ -332,7 +332,7 @@ and leaves mutations fenced. It never repairs missing state or accepts replaceme
 configuration. The ic-memory runtime commits allocation-ledger metadata during
 bootstrap; this is not service reconciliation or freshness authority.
 
-Unreleased captures `ic_cdk::api::canister_version()` during installation in the
+The host captures `ic_cdk::api::canister_version()` during installation in the
 required immutable current v1 record. `blob_resume_current_instance()` lets only
 the installed operator obtain and consume fresh bounded IC management history.
 The window must reach installation and contain no later snapshot load, state

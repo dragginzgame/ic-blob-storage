@@ -1,0 +1,17 @@
+{
+  "schema": 1,
+  "date": "2026-10-03",
+  "purpose": "Hard-cut ambiguous native upload binding and immutable installation layout identities",
+  "evidence_classes": ["source_review", "native_unit", "offline_sdk_substituted_store", "owned_local_pocketic"],
+  "targets": ["native single/batch preparation and session readers", "installation record, exact release guard and synchronous fenced restoration"],
+  "checks": ["one current producer and strict reader", "wrong/missing identity refuses without output or state mutation", "same-format signed journals and populated installation reopen remain valid", "SDK/native preparation handoff", "same-release stop/start and upgrade fences"],
+  "retained_artifacts": "Preserve original binding/journal/profile files and both frozen live owners; no conversion, replay, reset or upgrade",
+  "downstream_scope": "Read-only inspection of local Canic and Toko Miner; adoption is not assumed or authorized",
+  "local_reports": ".tmp/format-identity-01",
+  "deployment": false,
+  "deployed_provider_requests": 0,
+  "paid_cycles": 0,
+  "automatic_effect_retries": false,
+  "limitations": ["Local substitutes do not qualify provider deletion or billing cessation", "New stable format requires fresh installation after retirement; no compatibility reader or migration"],
+  "cleanup": "Retain attempts, artifacts and reports; no cargo clean"
+}

@@ -51,9 +51,13 @@ This file is normative for automated contributors.
   consumers or cross-release upgrade compatibility.
 - Breaking public API or semantic changes require a minor version; a hard cut
   does not justify publishing an incompatible patch.
-- Product protocol/config/stable-state generations remain v1 before 1.0.
-  Replace the current schema directly; do not introduce v2 branches to keep
-  superseded forms readable.
+- Repository-owned models are unversioned or V1 before 1.0; no V2 or higher
+  types, parallel aliases or version-dispatch implementations. External standard
+  and package versions are separate. Keep one current layout and reader.
+- Never reuse an existing wire/storage discriminator for an incompatible layout.
+  A hard cut must identify the frozen layout/release and coordinate its producers;
+  retained installations and effect artifacts still need an explicit disposition.
+  Do not introduce another generation, compatibility reader or migration engine.
 - Cross-release transitions are reinstall-only. Same-release interruption
   recovery, retry, backup and restore remain required within the frozen contract.
 - Source allocation removal and installation retirement are separate. Never

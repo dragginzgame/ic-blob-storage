@@ -11,7 +11,7 @@ See [dependency setup](dependencies.md) for the local server.
 | Save exactly the bytes that were hashed | `prepare_upload --snapshot` |
 | Check downloaded bytes against a trusted claim | `verify_download` example |
 | Observe inventory and service capacity | `blob-fixture-inventory` |
-| Save and inspect original reference intent | `blob-fixture-reference` |
+| Prepare and inspect exact reference intent | Native `reference-inputs`, `reference-receipt` |
 | Inspect local state and blockers | `blob-fixture-status` |
 | Preview or request a controlled balance read | `blob-fixture-refresh` |
 | Preview or request gateway membership sync | `blob-fixture-sync` |
@@ -125,72 +125,14 @@ with no observed blocker, 4 reports blockers, 2 rejects arguments, and 3 reports
 input/query/reply failures without partial results. Production authentication,
 provider transport and operation persistence remain outstanding.
 
-## Save and inspect reference intent
+## Prepare and inspect reference intent
 
-For local standalone and durable storage installations, `blob-fixture-reference`
-can preserve an exact intent and inspect its historical receipt without applying
-it. It uses the shared `blob_reference_receipt` API and bounded reply decoder;
-transport remains PocketIC with a simulated tenant caller:
-
-```sh
-mkdir -m 700 reference-journal
-cargo run --offline --locked -p ic-blob-storage-pocketic-tests \
-  --bin blob-fixture-reference -- save --intent request.json --journal reference-journal
-# Use the returned "saved" path as INTENT.json below.
-cargo run --offline --locked -p ic-blob-storage-pocketic-tests \
-  --bin blob-fixture-reference -- inspect --intent INTENT.json \
-  --server 127.0.0.1:PORT --instance INSTANCE --canister SERVICE --caller TENANT
-```
-
-The strict JSON file (at most 16 KiB) has this shape; supply actual principals,
-root and identities rather than the placeholders:
-
-```json
-{
-  "schema": 1, "scope": "pocketic_fixture", "asset": "image-a",
-  "service": "SERVICE", "tenant": "TENANT", "namespace": "1",
-  "upload": "1", "object": "2", "incarnation": "3", "first_reference": "4",
-  "root": "sha256:ROOT_HEX", "bytes": 3,
-  "reference": "2", "operation": "1", "retain": true
-}
-```
-
-IDs are independent positive canonical decimal strings, preserving their full
-width. The original first reference is required explicitly; no identity is
-inferred from another. `retain: false` names a release. The tool does not allocate IDs or
-prove freshness. Saving requires an existing, durably created, caller-controlled
-local directory. A filename derived from service/tenant/namespace/upload/operation
-binds one exact intent. Changing the object, lifetime, first reference, root,
-target reference, action, size or asset label conflicts;
-an exact retry returns the same record, even after its success output was lost.
-The tool never overwrites existing records or follows record/lock symlinks.
-
-The writer holds an OS file lock, syncs its private file (0600 on Unix), installs
-it without replacing a destination, then syncs the journal directory before
-acknowledgment. Concurrent writers fail with `journal_busy`. Never delete or
-replace `.writer.lock`, including after a crash: the OS releases the held lock
-when the process exits. The journal permits at most 4,096 entries besides the lock;
-interrupted staging files count too. Full journals still permit exact recovery.
-There is no automatic eviction or residue cleanup.
-
-This path is tested on Linux local storage. Unsupported locking/directory syncing
-fails; a storage error can leave a complete record without acknowledgment, so
-preserve the directory and retry the exact intent. Files remain mutable and a
-copied or rolled-back journal has no freshness or restored-writer authority.
-Power-loss behavior depends on the filesystem honoring sync operations; these
-tests cover process interruption, not hardware failure. Dispatch, ID allocation
-and consumer outbox coordination remain unimplemented.
-
-Inspection checks the selected service and simulated tenant against the file,
-then queries only `blob_reference_receipt`. Exit 0 means historical success, 4 means
-an absent receipt or recorded lifecycle failure, 2 rejects arguments and 3 reports
-storage, lock contention, capacity, binding or query failures. Service refusals
-also exit 3 and retain their typed reason under `observation.failure`; an
-unconfirmed upload is never reported as an absent receipt. An old
-successful retain can describe
-a reference that has since been released. Neither success nor absence authorizes
-publication or an uncertain effect; current liveness and consumer coordination
-remain separate requirements.
+Use the maintained native [reference commands](operator-guide.md#generate-reference-inputs-offline)
+for original permission-bound inputs, signed submission and query-only receipt
+recovery. Tests use genuine signed local tenant queries for those same commands.
+The local multi-entry save/lock journal contract is retired; retain existing
+artifact files and original identities rather than converting or redispatching them.
+Historical success still does not prove current reference liveness or retry authority.
 
 ## Save a content snapshot
 

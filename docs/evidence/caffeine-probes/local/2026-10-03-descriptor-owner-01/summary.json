@@ -1,0 +1,127 @@
+{
+  "schema": 1,
+  "date": "2026-10-03",
+  "baseline": "0d14a2638d3f26c26b457bc01dcea2134707158b",
+  "recording": {
+    "pre_run_intent_file_saved": false,
+    "limitation": "Intended pre-run intent was not saved. This summary is retrospective; retained checks were not rerun to manufacture advance evidence.",
+    "verification_correction": "First checksum invocation used the ledger directory rather than repository root. Its failed diagnostic log is retained; paths corrected before final verification."
+  },
+  "evidence_classes": [
+    "source_review",
+    "focused_native_unit_checks",
+    "actual_owned_pocketic_with_scripted_provider_facts"
+  ],
+  "removed": [
+    "workflow::reads::download::describe forwarding public API",
+    "CaffeineDownloadDescriptorView wrapper and public operational error surface",
+    "discarded server request_target construction and cloned serving scope"
+  ],
+  "canonical_owners": {
+    "public_handler": "workflow::reads::download::handle",
+    "operational_authority": "StableUploads::download_descriptor",
+    "retained_metadata": "RetainedUploadDescriptorView",
+    "http_target": "ops::caffeine::download::request_target in clients"
+  },
+  "preserved": [
+    "Exact service/tenant/actor/nonzero request binding before storage access",
+    "Installed scope owner/namespace check, active tenant and restored fence before exact live reference lookup",
+    "Original metadata and immutable request echo in DownloadResponse",
+    "Separate historical descriptor inspection contract",
+    "Client-approved origin and canonical target construction",
+    "All existing frozen layouts and outstanding provider/accounting obligations"
+  ],
+  "validation": {
+    "tests": [
+      {
+        "scope": "scope/metadata/authority/lifecycle unit checks",
+        "passed": 12,
+        "failed": 0,
+        "log": ".tmp/descriptor-owner-01/download-unit.log",
+        "sha256": "75e8831707427864d65d8e3e3ea53293fff226e77c7027fd127818ec9de878a4"
+      },
+      {
+        "scope": "actual owned standalone IC and native refusal checks",
+        "passed": 6,
+        "failed": 0,
+        "log": ".tmp/descriptor-owner-01/standalone-download.log",
+        "sha256": "c2739a7568b88caad8ab112887699303159cdb5ad609da1795d6e78a878449af"
+      },
+      {
+        "scope": "actual owned storage IC and tenant-client checks",
+        "passed": 3,
+        "failed": 0,
+        "log": ".tmp/descriptor-owner-01/storage-download.log",
+        "sha256": "bfc84c8ed8748a22948e2171f53988925757bba9d305a98d833378920bc0e128"
+      },
+      {
+        "scope": "semantic exported/deployment wire contract equality",
+        "passed": 1,
+        "failed": 0,
+        "log": ".tmp/descriptor-owner-01/candid.log",
+        "sha256": "0821f0135e77c26377b40a32538d0b5391d0f5e819f89f87e206e383b1967c8a"
+      }
+    ],
+    "strict_clippy": {
+      "passed": true,
+      "packages": [
+        "ic-blob-storage",
+        "ic-blob-storage-canister",
+        "ic-blob-storage-pocketic-tests",
+        "ic-blob-storage-cli"
+      ],
+      "all_targets": true,
+      "all_features": true,
+      "deny_warnings": true
+    },
+    "fresh_wasm_build": true,
+    "retained_cli": "Current-wire client from preceding format batch, not rebuilt for this descriptor-only source cut",
+    "rustfmt_and_diff_whitespace": "passed",
+    "full_ci_or_release_validation": false
+  },
+  "source": {
+    "manifest": ".tmp/descriptor-owner-01/source.SHA256SUMS",
+    "sha256": "9493e2ab559bea04c2ce1f956182f238d15cf146d51dda6ef3772973a905c7d7",
+    "files": 893,
+    "cargo_toml_sha256": "88861ca0003b8f5f327d727085ec4384cb7f93f41c2b8fe9bf884dc039abd300",
+    "cargo_lock_sha256": "d6f5215721b32f35593214e062794553b1bd4a4643a5b709e8866592ca75ea63"
+  },
+  "unchanged_frozen_owners_and_wire": {
+    "crates/ic-blob-storage-cli/src/native/upload_inputs/mod.rs": "e292938584b18ae829f4889d0d5e1e5afa2759dc328ef8c16166ca71fad83a13",
+    "crates/ic-blob-storage/src/model/service/installation/mod.rs": "d1090818f2849163808493f0f03a0c8dcc14231504252a6294b8e3ba36ab1a41",
+    "crates/ic-blob-storage/src/model/service/installation/record/mod.rs": "fbfd9af3823da9ae7875cf352c5883845fc245cfb1659e27386ed4002699d64f",
+    "crates/ic-blob-storage/src/ops/service/installation/configuration/mod.rs": "ab55e0a0a6f56ffb89f92adf09b2ad941e388c10773bb2dfa3c0a8f08c229997",
+    "crates/ic-blob-storage/src/dto/download/mod.rs": "eeb73b6e4ed6d17a63fe9c8fb167799c8e77c23e533d93026b1edbb1f6c361e5"
+  },
+  "artifacts": {
+    ".tmp/descriptor-owner-01/artifacts/blob-storage": "7a348de98951e0a62f3e453d5e12389ea225cdddbc82a61d458b1e6bf3327cad",
+    ".tmp/descriptor-owner-01/artifacts/blob_storage_probe.wasm": "9196bd2c264139275f01a367d84ed7e132c9d447727acaedcffd3b814f9bf771",
+    ".tmp/descriptor-owner-01/artifacts/ic_blob_storage_canister.wasm": "c24615a45f6a6971054672a1b731f4bbec2e26c8f4caf05ba671a3b065bf9bba"
+  },
+  "logs": {
+    ".tmp/descriptor-owner-01/candid.log": "0821f0135e77c26377b40a32538d0b5391d0f5e819f89f87e206e383b1967c8a",
+    ".tmp/descriptor-owner-01/clippy-cli.log": "95b0cf21c3a4ac94a93eb457ccbdad47366a34ccb8d72dce470229e778420aab",
+    ".tmp/descriptor-owner-01/clippy.log": "b30d7d1172d424fb9debfcdfaef5317efeb17429b875b38e06d4a7921101ccfe",
+    ".tmp/descriptor-owner-01/download-unit.log": "75e8831707427864d65d8e3e3ea53293fff226e77c7027fd127818ec9de878a4",
+    ".tmp/descriptor-owner-01/standalone-download.log": "c2739a7568b88caad8ab112887699303159cdb5ad609da1795d6e78a878449af",
+    ".tmp/descriptor-owner-01/storage-download.log": "bfc84c8ed8748a22948e2171f53988925757bba9d305a98d833378920bc0e128",
+    ".tmp/descriptor-owner-01/wasm-build.log": "b993c34c74ed4576ca3c0c572015d2264881b558568b8f005daab52542a5c353",
+    ".tmp/descriptor-owner-01/ledger-wrong-working-directory.log": "c5cb4824b505a5c9da6a10f02391da59498971fa6c5e35965d84a3b51b4165a8"
+  },
+  "boundaries": {
+    "minor_source_api_cut": true,
+    "wire_change": false,
+    "native_or_stable_layout_change": false,
+    "version_changed": false,
+    "commits_created": false,
+    "sibling_edits": false,
+    "deployment": false,
+    "deployed_provider_requests": 0,
+    "paid_cycles": 0,
+    "cleanup": false,
+    "external_consumer_adoption": "unverified",
+    "provider_guarantees": "Scripted/local facts do not qualify deployed behavior",
+    "performance_or_size_savings_measured": false
+  },
+  "private_retention": "Exact artifacts, source manifest and logs retained. Disposable PocketIC case directories retain logs only."
+}

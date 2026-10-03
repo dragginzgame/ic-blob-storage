@@ -7,7 +7,7 @@ use crate::model::service::installation::record::ConfigurationRecord;
 pub(super) fn record(candidate: &super::ServiceInstallationCandidate<'_>) -> ConfigurationRecord {
     let input = &candidate.configuration;
     ConfigurationRecord {
-        version: 1,
+        format: ConfigurationRecord::FORMAT.to_owned(),
         release: candidate.release.to_owned(),
         platform_installation_version: candidate.platform_installation_version,
         service: input.service,

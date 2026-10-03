@@ -1,6 +1,6 @@
 import { Principal } from '@icp-sdk/core/principal';
 import { validNamespace } from './namespace.js';
-import { certificateBindingFailure, certificateBindingFields, validGatewayLimits } from './validation.js';
+import { certificateBindingFailure, certificateBindingFields, validGatewayLimits, validUtf8Text } from './validation.js';
 export const actions = Object.freeze(['upload', 'inspect', 'recover-certificate', 'cancel']);
 
 /** Local worker refusal; it never establishes completion or retry authority. */
@@ -68,13 +68,16 @@ export function snapshotPublicationJob(request, scope, maxBodyBytes, lastId = 0)
       integer(request.snapshot.body.length, 1, maxBodyBytes), 'body-size');
     require(typeof request.snapshot.bodySha256 === 'string' &&
       /^[0-9a-f]{64}$/.test(request.snapshot.bodySha256), 'body-digest');
-    require(typeof request.snapshot.manifestJSON === 'string' &&
-      request.snapshot.manifestJSON.length <= 256 * 1024, 'manifest-size');
+    require(validUtf8Text(request.snapshot.manifestJSON, 256 * 1024, 1), 'manifest-size');
     for (const key of ['contentType', 'filename']) require(request.snapshot[key] === undefined ||
-      (typeof request.snapshot[key] === 'string' && request.snapshot[key].length <= 4096), 'metadata-hint');
+      validUtf8Text(request.snapshot[key], 4096), 'metadata-hint');
   } else require(!Object.hasOwn(request, 'snapshot'), 'message');
   // A bounded view can have a much larger backing buffer. Own only the selected
   // bytes before structured cloning or transferring to another process.
-  return structuredClone(request.action === 'upload' ? { ...request,
-    snapshot: { ...request.snapshot, body: request.snapshot.body.slice() } } : request);
+  if (request.action !== 'upload') return structuredClone(request);
+  const { body, ...metadata } = request.snapshot;
+  const selected = body.slice();
+  const owned = structuredClone({ ...request, snapshot: metadata });
+  owned.snapshot.body = selected;
+  return owned;
 }

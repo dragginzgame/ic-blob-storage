@@ -34,7 +34,7 @@ pub struct ReadSessionSummary {
     pub last_sequence: u64,
     /// All occupied sessions and reserved response buffers.
     pub usage: ReadSessionUsage,
-    /// Restored owners permanently refuse admission and completion.
+    /// Admission and completion refuse until the installation proves safe recovery.
     pub fenced: bool,
 }
 /// Passive exact occupied-session inspection; cannot be used as a completion ticket.

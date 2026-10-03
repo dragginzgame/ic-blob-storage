@@ -1,0 +1,320 @@
+{
+  "schema": 1,
+  "date": "2026-10-03",
+  "baseline": "0d14a2638d3f26c26b457bc01dcea2134707158b",
+  "intents": [
+    "intent.json",
+    "retirement-intent.json"
+  ],
+  "evidence_classes": [
+    "source_review",
+    "offline_adapted_sdk_substituted_store",
+    "actual_local_chromium_worker_indexeddb",
+    "native_contract_and_filesystem_claim_tests",
+    "owned_pocketic_with_scripted_provider_facts"
+  ],
+  "changes": [
+    "Share bounded UTF-8 metadata rules between publication and private worker boundaries",
+    "Remove the intermediate second selected-body copy in the job snapshot helper",
+    "Keep one semantic Candid equality test outside canister installation",
+    "Retire fixture-only reference JSON/save/inspect/append-lock flow and duplicate journeys; preserve native signed claims and original artifact files",
+    "Separate current handoff/work queue from history; correct current-instance recovery documentation",
+    "Align affected harness MSRV with workspace after removing its sole File::try_lock requirement"
+  ],
+  "validation": {
+    "browser": [
+      {
+        "name": "worker-final",
+        "passed": 37,
+        "cases": [
+          "foreign_service",
+          "foreign_tenant",
+          "foreign_uploader",
+          "foreign_project",
+          "foreign_bucket",
+          "invalid_binding_operation",
+          "invalid_binding_operation",
+          "invalid_binding_root",
+          "invalid_binding_permission",
+          "invalid_binding_permission",
+          "invalid_binding_key",
+          "unknown_fields",
+          "unknown_action",
+          "empty_manifest",
+          "utf8_manifest",
+          "utf8_filename",
+          "utf8_content_type",
+          "null_hint",
+          "utf8_boundary_and_selected_body_ownership",
+          "corrupt_body",
+          "changed_manifest",
+          "claimed_or_cancelled",
+          "claimed_or_cancelled",
+          "claimed_or_cancelled",
+          "missing_recovery_history",
+          "missing_cancellation_history",
+          "concurrent_guard_and_correlation",
+          "snapshots_and_redacted_failure",
+          "aborted_worker",
+          "idle_deadline_fences_new_jobs",
+          "configuration_roles_origins_and_limits",
+          "bounded_journal_projection",
+          "exported_error_with_private_code",
+          "corrupt_projection_refused",
+          "corrupt_projection_refused",
+          "corrupt_projection_refused",
+          "corrupt_projection_refused"
+        ],
+        "summary": ".tmp/simplification-02/worker-final/summary.json",
+        "sha256": "bb52b927c48661a25caafd2365fe79c1ca328747be3d149db77d92fabe9a6979"
+      },
+      {
+        "name": "publication-final",
+        "passed": 20,
+        "cases": [
+          "corrupt_body",
+          "different_expected_digest",
+          "bounded_body",
+          "malformed_digest",
+          "empty_body",
+          "wrong_root",
+          "wrong_metadata_hint",
+          "oversized_metadata_hint",
+          "oversized_utf8_filename",
+          "oversized_utf8_content_type",
+          "null_metadata_hint",
+          "malformed_manifest",
+          "oversized_manifest",
+          "oversized_utf8_manifest",
+          "empty_manifest",
+          "changed_headers",
+          "changed_chunk_hashes",
+          "changed_tree_type",
+          "aborted_before_preparation",
+          "input_snapshots_across_await"
+        ],
+        "summary": ".tmp/simplification-02/publication-final/summary.json",
+        "sha256": "05a46953cdfd5eaad54feca94a0ca3de3c36a37c7ccc32bde7d732c6ccd76779"
+      },
+      {
+        "name": "bootstrap-final",
+        "passed": 15,
+        "cases": [
+          "selected_ed25519_private_port_snapshot_concurrency",
+          "selected_secp256k1_private_port_snapshot_concurrency",
+          "worker_refuses_signer-kind_before_storage",
+          "worker_refuses_signer-json_before_storage",
+          "worker_refuses_key-pair_before_storage",
+          "worker_refuses_uploader_before_storage",
+          "worker_refuses_root_before_storage",
+          "worker_refuses_gateway_before_storage",
+          "worker_refuses_journal_before_storage",
+          "worker_refuses_extra_before_storage",
+          "bounded_body_view_owned_without_detaching_caller",
+          "abort_and_foreign_asset_refuse_before_launch",
+          "close_rejects_outstanding_job_without_retry",
+          "host_deadline_terminates_worker",
+          "same_profile_reopens_original_journal_after_termination"
+        ],
+        "summary": ".tmp/simplification-02/bootstrap-final/summary.json",
+        "sha256": "c111c54b6f0b747177243ed1c210349faf6ca518c806415bc6ea6a37300d05fa"
+      }
+    ],
+    "rust": [
+      {
+        "scope": "semantic deployment/export equality",
+        "passed": 1,
+        "failed": 0,
+        "log": ".tmp/simplification-02/candid.log",
+        "sha256": "bb27110c4a25c6acf1895bdf8d221bbc75287a8ddfffdbc0e3dc6573c88f0dc5"
+      },
+      {
+        "scope": "exact durable signed packets and one-shot claims",
+        "passed": 2,
+        "failed": 0,
+        "log": ".tmp/simplification-02/signed-claims.log",
+        "sha256": "6f9c58b9bd6a63a2edbcddb8c80e624243747849a1a191f599fded0c0e1ad9e3"
+      },
+      {
+        "scope": "remaining fixture inventory/funding/status operations",
+        "passed": 21,
+        "failed": 0,
+        "log": ".tmp/simplification-02/operator-unit.log",
+        "sha256": "8adca12cea89ed9534251626aaa35a7a220b3bfac608040bd1c853b3262a19b7"
+      },
+      {
+        "scope": "signed unknown/unconfirmed/lost/pending reference recovery, initial ic-testkit 0.12",
+        "passed": 3,
+        "failed": 0,
+        "log": ".tmp/simplification-02/standalone-reference.log",
+        "sha256": "7142dd90b73eece7eecab3c3df9ad2a53ca3b220d88110c7583d7c3a15c33b1f"
+      },
+      {
+        "scope": "immutable history through release/settlement/fenced restore, initial ic-testkit 0.12",
+        "passed": 1,
+        "failed": 0,
+        "log": ".tmp/simplification-02/storage-reference.log",
+        "sha256": "51979dfb3b1978b2a20446271799b3167d7cfca0012baca2973dc60b950c1a62"
+      },
+      {
+        "scope": "same four signed-reference cases after ic-testkit 0.13 adoption",
+        "passed": 4,
+        "failed": 0,
+        "log": ".tmp/simplification-02/reference-final.log",
+        "sha256": "77e30f4459ba4edf61fe9377fe283c62bc452118a9c2355d70e1a4e9a8bcbb9d"
+      }
+    ],
+    "affected_clippy": {
+      "passed": true,
+      "packages": [
+        "ic-blob-storage-cli",
+        "ic-blob-storage-pocketic-tests"
+      ],
+      "all_targets": true,
+      "all_features": true,
+      "deny_warnings": true,
+      "log": ".tmp/simplification-02/clippy-final.log",
+      "ic_testkit": "0.13.0"
+    },
+    "msrv": {
+      "passed": true,
+      "compiler": "rustc 1.88.0 (6b00bc388 2025-06-23)",
+      "package": "ic-blob-storage-pocketic-tests",
+      "targets": [
+        "lib",
+        "standalone",
+        "storage"
+      ],
+      "operation": "cargo check --offline --locked",
+      "log": ".tmp/simplification-02/msrv.log"
+    },
+    "fresh_wasm_build": {
+      "passed": true,
+      "roles": [
+        "standalone",
+        "storage_probe"
+      ],
+      "ic_memory": "0.20.0",
+      "log": ".tmp/simplification-02/wasm-build.log"
+    },
+    "cli_build": {
+      "passed": true,
+      "log": ".tmp/simplification-02/cli-build.log"
+    },
+    "rustfmt_and_diff_whitespace": "passed",
+    "full_ci_or_release_validation": false
+  },
+  "dependency_state": {
+    "ownership": "Concurrent maintainer/task updates preserved, not performed by this simplification batch",
+    "ic_memory": "0.20.0",
+    "ic_testkit_initial": "0.12.0",
+    "ic_testkit_final": "0.13.0",
+    "tokio": "1.53.2",
+    "compiler": "rustc 1.99.0 (b940084d7 2026-09-28)",
+    "node": "24.21.0",
+    "pocket_ic": "16.0.0",
+    "adapted_caffeine_sdk": "1.1.2",
+    "cargo_toml_sha256": "88861ca0003b8f5f327d727085ec4384cb7f93f41c2b8fe9bf884dc039abd300",
+    "cargo_lock_sha256": "d6f5215721b32f35593214e062794553b1bd4a4643a5b709e8866592ca75ea63"
+  },
+  "source": {
+    "manifest": ".tmp/simplification-02/source.SHA256SUMS",
+    "sha256": "0f81b2aa58e2c77bbf141ee6537f9bef37e3776ff85f429a5ddd68af08df06a0",
+    "files": 893,
+    "deleted_paths": [
+      "tests/pocketic/src/bin/blob_fixture_reference/main.rs",
+      "tests/pocketic/src/operator/reference/mod.rs",
+      "tests/pocketic/src/operator/reference/observation/mod.rs",
+      "tests/pocketic/src/operator/reference/observation/tests/mod.rs",
+      "tests/pocketic/src/operator/reference/record/journal/mod.rs",
+      "tests/pocketic/src/operator/reference/record/journal/tests/mod.rs",
+      "tests/pocketic/src/operator/reference/record/mod.rs",
+      "tests/pocketic/src/operator/reference/record/tests/mod.rs",
+      "tests/pocketic/tests/reference_journal.rs",
+      "tests/pocketic/tests/standalone_reference_recovery/mod.rs",
+      "tests/pocketic/tests/storage_lifecycle/receipts/cli/mod.rs"
+    ]
+  },
+  "artifacts": {
+    ".tmp/simplification-02/artifacts/blob-storage": "ec1ffafbdda2215ad7c515089f8a5dd8a9a71b91998f246d4f9b78ee68391025",
+    ".tmp/simplification-02/artifacts/ic_blob_storage_canister.wasm": "bc6a7c679708a19068a31c8d7b34c38230ac1cf7190104d5a10b64aa384e6b58",
+    ".tmp/simplification-02/artifacts/blob_storage_probe.wasm": "184d3eaefd1232dd2dcb0a24bd76dc93cd3bc74c6f9aff6d2c219eaffb69f0eb",
+    ".tmp/simplification-02/artifacts/publication-host.js": "2f8d7b66ad7808747a2b7bca24c83ba2e4a99dd283b875355ca2470a5bcdc216",
+    ".tmp/simplification-02/artifacts/publication-worker.js": "dbb74667801c7411106dced5fb4bf13e664f809de487411ca0dcf23c5f0e8978",
+    ".tmp/simplification-02/artifacts/bootstrap.js": "172fbe548ab47d13e5160c852489f93e0a2d4e35ed00ded92b4c1d546b62718d",
+    ".tmp/simplification-02/artifacts/worker.mjs": "d329584285aa0f4af96c0136f658a87d0869e2e9168df81a44019949a29a694f",
+    ".tmp/simplification-02/artifacts/publication.mjs": "eca37646e796fedeac9e4e54981bb60375dfac94bd8c607b8afb7fd9d81fe8ae"
+  },
+  "logs": {
+    ".tmp/simplification-02/bootstrap-final.log": "c14031a3180fa5759e5071afc61332638d8767e8a4bfd70d6ed78ffcf90d5b6b",
+    ".tmp/simplification-02/bootstrap-local.log": "777bd5536b08c8df1a9cc71312e0e6daa383c8c9b84c37ce48e2c28ae18a7f11",
+    ".tmp/simplification-02/bootstrap.log": "a57b675c9aab4b3ee9d469bdc9f905a6e1b2010d58576b7cc4b93f68c50f13dd",
+    ".tmp/simplification-02/browser-build-final.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    ".tmp/simplification-02/browser-build.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    ".tmp/simplification-02/candid.log": "bb27110c4a25c6acf1895bdf8d221bbc75287a8ddfffdbc0e3dc6573c88f0dc5",
+    ".tmp/simplification-02/cli-build.log": "4609bd4fbac9622e759c18a466c61ef4df00e44cc87e095b20d32a04683d523c",
+    ".tmp/simplification-02/clippy-final.log": "298bf6ebe080267bba591d1c4f5b36243692c901cce4a3d386563bda04f326fb",
+    ".tmp/simplification-02/clippy.log": "e33391f2e287a2c04f1e2bb2497e267b12387d5af6083b143ec421269ff7fec6",
+    ".tmp/simplification-02/msrv.log": "efce342948554c173d64846a0d52413c34bb0ee51581a06ea1726e7d9720e146",
+    ".tmp/simplification-02/operator-unit.log": "8adca12cea89ed9534251626aaa35a7a220b3bfac608040bd1c853b3262a19b7",
+    ".tmp/simplification-02/publication-final.log": "6edbcf93eafc3b2c2f0a96d09058f86502fd2f34f95201d50f719665ea3c8bb6",
+    ".tmp/simplification-02/publication.log": "6edbcf93eafc3b2c2f0a96d09058f86502fd2f34f95201d50f719665ea3c8bb6",
+    ".tmp/simplification-02/reference-final.log": "77e30f4459ba4edf61fe9377fe283c62bc452118a9c2355d70e1a4e9a8bcbb9d",
+    ".tmp/simplification-02/signed-claims.log": "6f9c58b9bd6a63a2edbcddb8c80e624243747849a1a191f599fded0c0e1ad9e3",
+    ".tmp/simplification-02/standalone-reference.log": "7142dd90b73eece7eecab3c3df9ad2a53ca3b220d88110c7583d7c3a15c33b1f",
+    ".tmp/simplification-02/storage-reference.log": "51979dfb3b1978b2a20446271799b3167d7cfca0012baca2973dc60b950c1a62",
+    ".tmp/simplification-02/wasm-build.log": "e60af67232f9885af2ad96ba04789a4a9b27682a597420021fe5b9d26746024b",
+    ".tmp/simplification-02/worker-final.log": "15c1b958312d7f836eccfc296b69b7b6980e44781ca6dee8b62938d0d178f7c0",
+    ".tmp/simplification-02/worker.log": "15c1b958312d7f836eccfc296b69b7b6980e44781ca6dee8b62938d0d178f7c0"
+  },
+  "retained_attempts": [
+    {
+      "log": ".tmp/simplification-02/bootstrap.log",
+      "reason": "Initial sandboxed browser fixture could not bind loopback listener: EPERM; original directory and log retained"
+    },
+    {
+      "kind": "automatic_approval_review",
+      "reason": "First escalation rejected using preceding read-only audit scope. Re-request identified latest user implementation instruction and was approved; no bypass or new user approval flow"
+    },
+    {
+      "log": ".tmp/simplification-02/bootstrap-local.log",
+      "summary": ".tmp/simplification-02/bootstrap-local/summary.json",
+      "reason": "First successful browser run retained; final run followed snapshot-order review and final bundle rebuild"
+    },
+    {
+      "logs": [
+        ".tmp/simplification-02/standalone-reference.log",
+        ".tmp/simplification-02/storage-reference.log"
+      ],
+      "reason": "Initial successful ic-testkit 0.12 checks retained separately from final 0.13 revalidation"
+    },
+    {
+      "kind": "evidence_helper",
+      "reason": "Node execFileSync reported spawnSync git EPERM while listing tracked paths; no summary or source manifest written. Read-only Git listings were captured by the shell before the successful filesystem-only evidence writer"
+    }
+  ],
+  "release": {
+    "required_kind": "minor",
+    "reason": "Removal of maintained local fixture command/format",
+    "versions_mutated": false,
+    "service_wire_or_stable_layout_changed": false
+  },
+  "limits": [
+    "Substituted stores do not establish IndexedDB behavior; actual Chromium bootstrap recorded separately",
+    "Local IC and scripted provider facts do not qualify deployed availability, deletion, billing or retention",
+    "No real consumer media/transaction/serving adoption, performance measurements or million-object qualification",
+    "MSRV evidence covers selected harness library and two integration targets, not every workspace target",
+    "No format discriminator change, artifact conversion or coordinated downstream adoption",
+    "Only logs survive disposable PocketIC journey directories; browser profiles and exact CLI/Wasm/bundles retained"
+  ],
+  "outstanding": [
+    "Frozen native/stable format identity and downstream/artifact disposition evidence before incompatible discriminator consolidation",
+    "Durable parent phase/restart coordination without another dispatcher",
+    "Deferred Canic/consumer wrapper, lifecycle and original preparation-hint adoption"
+  ],
+  "deployed_provider_requests": 0,
+  "paid_cycles": 0,
+  "automatic_effect_retries": 0,
+  "deployment_commit_publication_or_sibling_changes": false,
+  "cleanup": "Owned local servers and browser contexts stopped; original profiles, logs, claims and obligations retained. No cargo clean or artifact cleanup."
+}

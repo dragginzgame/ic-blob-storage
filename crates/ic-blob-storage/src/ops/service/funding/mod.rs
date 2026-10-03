@@ -36,7 +36,8 @@ pub struct FundingMemories<M: Memory> {
 /// These local reservations do not establish spendability, provider authority,
 /// account activity, execution-fee coverage or safe dispatch. Hosts must separately
 /// qualify all of those gates before using any attempted operation for an effect.
-/// Reopening validates the complete bounded history and permanently fences mutation.
+/// Reopening validates complete bounded history and fences mutation until the
+/// installation consumes an independent current-instance continuity proof.
 /// This must be the sole journal for its service/account allocation. The host still
 /// owns callback authentication and complete account activity. Canonical Cashier
 /// method/argument binding is local evidence, not provider deployment qualification.

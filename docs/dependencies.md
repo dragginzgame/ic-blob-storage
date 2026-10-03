@@ -3,26 +3,27 @@
 The root `Cargo.toml` owns direct dependency version requirements. The library
 inherits them, and `Cargo.lock` locks the resolved graph. Versions were checked against
 crates.io on 2026-09-25. On 2026-09-26, `serde_json` became a direct dependency
-at its existing locked version for bounded provider reply parsing. Dependency
+at its existing locked version for bounded provider reply parsing. The table reflects
+the current lockfile on 2026-10-03, including concurrent dependency updates;
 availability does not establish provider qualification or service readiness.
 
 | Dependency | Version | Purpose |
 | --- | --- | --- |
-| `candid` | 0.10.36 | IC boundary encoding and principal types |
+| `candid` | 0.10.37 (locked) | IC boundary encoding and principal types |
 | `serde` | 1.0.229 | Serialization derives for explicit boundary/record schemas |
 | `serde_json` | 1.0.151 | Bounded Caffeine chunk-status JSON decoding; reused the existing lockfile version |
 | `sha2` | 0.11.0 | SHA-256; optional allocation/OID features disabled |
 | `thiserror` | 2.0.18 | Typed error derives; matches PocketIC's exact requirement |
 | `ic-cdk` | 0.20.3 | IC platform operations for the ops layer |
-| `ic-memory` | 0.15.7 (locked) | Sole allocation runtime; public typed growth API |
+| `ic-memory` | 0.20.0 (locked) | Sole allocation runtime; public typed growth API |
 | `ic-stable-structures` | 0.7.2 | Exact transitive substrate owned/re-exported by `ic-memory` |
-| `ic-testkit` | 0.11.0 (locked) | Native dependency of the unpublished PocketIC harness; shared helpers and full re-export |
+| `ic-testkit` | 0.13.0 (locked) | Native dependency of the unpublished PocketIC harness; shared helpers and full re-export |
 | `pocket-ic` | 16.0.0 | Transitive through `ic-testkit`; no direct dependency |
 | `ic-agent` | 0.49.2 | Native CLI and harness signing and verification of ingress certificates |
 | `candid_parser` | 0.4.1 | Native harness only; official Candid parser for native request fixtures |
 
 Headless ingress tests add pinned `ic-agent` 0.49.2 (default features disabled),
-plus the already locked `reqwest` 0.13.5, `tokio` 1.53.1 and `serde_cbor` 0.11.2
+plus the locked `reqwest` 0.13.5, `tokio` 1.53.2 and `serde_cbor` 0.11.2
 as native dev dependencies in `tests/pocketic`. The public crates.io index confirmed
 0.49.2 as the latest non-yanked agent release on 2026-09-28. Its cryptographic graph
 adds host-only lockfile entries without changing existing package versions, the
@@ -53,24 +54,21 @@ different purposes:
 | --- | --- | --- |
 | Development, formatting and lint | 1.99.0 | Pinned in `rust-toolchain.toml` |
 | Library, standalone, CLI and examples | 1.88.0 | Inherited from `workspace.package.rust-version` |
-| Unpublished PocketIC harness | 1.89.0 | Native journal uses standard-library file locking |
+| Unpublished PocketIC harness | 1.88.0 | Workspace MSRV; fixture-only file locking removed |
 
 The locked dependencies require at most Rust 1.88.0, including `ic-cdk`,
 `ic-memory`, `ic-agent` and `ic-testkit`. The maintained content codecs also use
-`slice::as_chunks`, stabilized in 1.88. The harness separately uses
-[`File::try_lock`](https://doc.rust-lang.org/stable/std/fs/struct.File.html#method.try_lock),
-stabilized in 1.89; this host-only requirement does not raise the library's MSRV.
-These declarations are checked with the actual older compilers, rather than
-inferred solely from dependency metadata.
+`slice::as_chunks`, stabilized in 1.88. The fixture-only file-lock journal is
+retired, so the harness inherits the workspace floor. Earlier release checks
+used the actual older compilers; repeat them for changed source or dependency
+resolutions rather than treating dependency metadata as execution evidence.
 
 To repeat the locked native and Wasm compatibility checks after explicitly
-provisioning both toolchains and their `wasm32-unknown-unknown` targets:
+provisioning Rust 1.88.0 and its `wasm32-unknown-unknown` target:
 
 ```sh
-cargo +1.88.0 check --offline --locked --workspace --exclude ic-blob-storage-pocketic-tests --all-targets --all-features
-cargo +1.88.0 check --offline --locked --workspace --exclude ic-blob-storage-pocketic-tests --all-features --target wasm32-unknown-unknown
-cargo +1.89.0 check --offline --locked --workspace --all-targets --all-features
-cargo +1.89.0 check --offline --locked --workspace --all-features --target wasm32-unknown-unknown
+cargo +1.88.0 check --offline --locked --workspace --all-targets --all-features
+cargo +1.88.0 check --offline --locked --workspace --all-features --target wasm32-unknown-unknown
 ```
 
 Keep supported source and dependencies within their declared floor when updating
@@ -223,7 +221,7 @@ neither emits a certificate or sends service/gateway traffic. See the
 
 ## Memory composition
 
-Released 0.9.0 selects `ic-memory 0.15.4`; the current working tree selects 0.15.6
+Released 0.9.0 selects `ic-memory 0.15.4`; the current working tree selects 0.20.0
 through the maintainer's concurrent dependency update. The lockfile resolves one registry
 package and its `ic-stable-structures` 0.7.2 substrate.
 Direct `RuntimeMemory::grow` returns a typed result;

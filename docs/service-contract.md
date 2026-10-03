@@ -282,9 +282,19 @@ synchronous certificate commit/reply boundary remains the current contract.
 Prioritize current-state durability, exact-operation receipt recovery and
 state-preserving same-release lifecycle work. The maintainer selects ordinary
 current-instance upgrades as the first supported active recovery path on
-2026-10-02. Unreleased stores the actual IC installation version immutably in
-the current v1 record. Restoration still validates all owners synchronously and
+2026-10-02. The service stores the actual IC installation version immutably in
+the current immutable record. Restoration still validates all owners synchronously and
 enters their fences before any deferred work.
+
+The immutable installation record uses the frozen layout identity
+`ic-blob-storage/installation:platform-anchor`, independently of its exact library
+release. The `blob.configuration.v1` grant key identifies the existing allocation
+slot, not a compatible record layout. A mismatched identity refuses before opening
+the service owners; an undecodable layout traps without initialization or repair.
+Same-layout, same-release reopen still validates every owner and enters all fences.
+This is a stable-format hard cut: retire existing installations with complete
+object/effect/balance/billing disposition before a fresh reinstall. Do not upgrade,
+reset or reinterpret the frozen 0.6.0/0.7.0 live owners with this reader.
 
 The installed operator can invoke `blob_resume_current_instance()` without
 supplying evidence. Shared workflow obtains one replicated IC `canister_info`
@@ -620,7 +630,8 @@ identity, IC trust and atomic durable intent storage. It snapshots original
 permission and full-width operation identity, binds stored intent to the IC origin
 and root key, and retains explicit project/bucket before issuance. Transfer derives
 the SDK namespace from that binding; changed values conflict across setup/reopening.
-Native `upload-inputs` requires these original values and a complete installation
+Native `upload-inputs` requires these original values, the frozen
+`ic-blob-storage/upload-inputs:original-preparation` format identity and a complete installation
 carrier. Shared validation checks proposed service/namespace/project/trusted uploader
 and resource bounds, preserves exact init bytes and checks UTF-8/header bounds.
 This does not observe actual installed state or remaining capacity; neither offline
@@ -1119,8 +1130,11 @@ the platform/CDK initially buffers the response before the application size chec
 Session budgets therefore do not qualify peak heap, instruction or provider costs.
 Production transport, supported recovery and resource sizing remain separate work.
 
-`workflow::reads::download::describe` provides a separate direct-client descriptor
-path without allocating a session or fetching any body. It requires active tenant
+`workflow::reads::download::handle` serves
+`dto::download::{DownloadRequest,DownloadResponse,DownloadFailure}` through the
+canonical `blob_download_descriptor` update. It checks actual service/caller and
+every nonzero identity before the upload owner's operational checks, without
+allocating a session or fetching any body. It requires active tenant
 authority, an unfenced owner and exactly the requested confirmed live reference.
 Its host-supplied `CaffeineDownloadScope` binds an explicit owner/project mapping
 to the installed local namespace. Owner must equal the service, independent of
@@ -1128,8 +1142,9 @@ payment account and tenant. Project text is bounded at 256 UTF-8 bytes before
 copying, with no empty value, controls or surrounding whitespace; this is a local
 representation bound, not a provider naming guarantee or a default assignment.
 
-The original root, length and hash headers accompany an encoded relative Caffeine
-`/v1/blob/` request target. Request fields are individually percent-encoded; no
+The response carries the original root, length and hash headers. Clients use the
+canonical target builder for the relative Caffeine `/v1/blob/` request. Request
+fields are individually percent-encoded. No
 bucket or gateway origin is guessed. HTTP origin authority cannot be inferred from
 the IC gateway principal list. Hosts must provision and retain the same project
 mapping used for uploads, authenticate descriptor delivery, approve the origin and
@@ -1141,15 +1156,11 @@ already downloaded bytes. Passive historical descriptors retain their inspection
 contract. No provider GET, certificate, account operation or body hashing occurs
 in the service descriptor workflow.
 
-`dto::download::{DownloadRequest,DownloadResponse,DownloadFailure}` now owns the
-maintained service boundary. `workflow::reads::download::handle` checks actual
-service/caller plus every nonzero identity and delegates to the same operational
-descriptor workflow. Both the standalone host and unpublished probe export the
-canonical update `blob_download_descriptor`. Standalone uses its immutable installed
+Standalone uses its immutable installed
 project mapping under the same synchronous borrow as the upload owner; the probe
-uses a labelled substitute. The probe's private operational endpoint/DTO is removed.
-The response echoes the full request, owner/project, declared size and original
-headers. It returns no URL, origin, credentials or raw-digest assertion. Adapters
+uses a labelled substitute. The existing retained descriptor moves directly into
+the response, which echoes the full request, owner/project, declared size and
+original headers. It returns no URL, origin, credentials or raw-digest assertion. Adapters
 must bound ingress decoding and supply the installed serving scope; linking the
 library exports no endpoint or lifecycle hook.
 

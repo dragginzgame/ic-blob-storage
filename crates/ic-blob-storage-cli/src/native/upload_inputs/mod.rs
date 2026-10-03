@@ -100,7 +100,7 @@ impl BrowserCertificateBinding {
 #[derive(Deserialize)]
 #[serde(deny_unknown_fields)]
 struct Binding {
-    schema: u8,
+    format: String,
     preparation: PreparationHints,
     project: String,
     bucket: String,
@@ -148,8 +148,11 @@ fn hint<'de, D: serde::Deserializer<'de>>(decoder: D) -> Result<Option<String>, 
 use super::parsing::positive;
 use super::parsing::principal;
 impl Binding {
+    /// Frozen layout identity; a different layout must not reuse this marker.
+    const FORMAT: &str = "ic-blob-storage/upload-inputs:original-preparation";
+
     fn permission(&self) -> Result<UploadAdmissionRequest, Failure> {
-        if self.schema != 1 {
+        if self.format != Self::FORMAT {
             return Err(Failure::Arguments);
         }
         let root: ProviderRootHash = self.root.parse().map_err(|_| Failure::Arguments)?;

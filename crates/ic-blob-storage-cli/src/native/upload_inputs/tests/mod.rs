@@ -8,7 +8,7 @@ const ROOT: &str = "sha256:0e9afaf413b048e40834d5b0e737d80fbf304af2045c7564d96ad
 const LEAF: &str = "sha256:b5b435d47a4cce7dfec493b1e020c5308d9c7fe90add1aff510f9c2a9c4ea8e7";
 
 pub(in crate::native) fn binding() -> Value {
-    json!({"schema":1, "preparation":{"content_type":"text/plain"}, "project":"fixture-project", "bucket":"fixture-bucket",
+    json!({"format":Binding::FORMAT, "preparation":{"content_type":"text/plain"}, "project":"fixture-project", "bucket":"fixture-bucket",
         "service": Principal::self_authenticating([1]).to_text(),
         "namespace": u128::MAX.to_string(),
         "tenant": Principal::self_authenticating([2]).to_text(),
@@ -197,7 +197,7 @@ fn changed_root_length_leaves_or_metadata_refuse_before_output_claim() {
 }
 
 #[test]
-fn binding_requires_canonical_strings_current_schema_and_valid_authority_principals() {
+fn binding_requires_canonical_strings_exact_format_and_valid_authority_principals() {
     for (field, value) in [
         ("upload", json!(1)),
         ("upload", json!("01")),
@@ -206,7 +206,9 @@ fn binding_requires_canonical_strings_current_schema_and_valid_authority_princip
         ("tenant", json!("2vxsx-fae")),
         ("service", json!("aaaaa-aa")),
         ("uploader", json!("2vxsx-fae")),
-        ("schema", json!(2)),
+        ("format", json!("unrecognized-layout")),
+        ("format", json!(1)),
+        ("format", json!(null)),
         ("unexpected", json!(true)),
         ("project", json!("")),
         ("project", json!(" surrounding ")),
@@ -230,6 +232,14 @@ fn binding_requires_canonical_strings_current_schema_and_valid_authority_princip
         ));
         assert!(!base.path().join("output").exists());
     }
+    let base = tempfile::tempdir().unwrap();
+    let mut missing = binding();
+    missing.as_object_mut().unwrap().remove("format");
+    assert_eq!(
+        crate::native::execute(&arguments(base.path(), &missing, &manifest())),
+        Err(Failure::Arguments)
+    );
+    assert!(!base.path().join("output").exists());
 }
 
 #[test]

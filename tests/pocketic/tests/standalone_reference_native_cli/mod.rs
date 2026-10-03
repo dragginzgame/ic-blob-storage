@@ -334,6 +334,15 @@ fn journey(reply: Reply, label: &str) {
         "restored_fenced":true,"reservation_bytes":permission.upload.bytes.to_string(),
         "provider_content":"not_observed","retry_authorized":false}),
     );
+    f.harness.pic.stop_live();
+    for bytes in [b"DIDL".to_vec(), vec![0; 4097]] {
+        let failure = f
+            .harness
+            .pic
+            .query_call(f.service, f.tenant, "blob_reference_receipt", bytes)
+            .unwrap_err();
+        assert_eq!(failure.reject_code, RejectCode::CanisterError);
+    }
 }
 
 #[test]

@@ -7,10 +7,8 @@ pub use funding_lookup::run as run_funding_lookup;
 mod inventory;
 mod model;
 mod ops;
-mod reference;
 pub use funding_preview::run as run_funding_preview;
 pub use inventory::run as run_inventory;
-pub use reference::run as run_reference;
 
 pub use action::{run_refresh, run_sync};
 
@@ -39,9 +37,6 @@ enum Failure {
     Binding,
     Conflict,
     InvalidRequest,
-    Storage,
-    Busy,
-    JournalFull,
 }
 
 impl Failure {
@@ -56,9 +51,6 @@ impl Failure {
             Self::Binding => "binding_mismatch",
             Self::Conflict => "request_conflict",
             Self::InvalidRequest => "invalid_request",
-            Self::Storage => "storage_failure",
-            Self::Busy => "journal_busy",
-            Self::JournalFull => "journal_full",
         }
     }
 }

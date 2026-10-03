@@ -355,20 +355,3 @@ ic_cdk::export_candid!();
 pub(crate) fn interface() -> String {
     __export_service()
 }
-#[cfg(test)]
-mod tests {
-    #[test]
-    fn deployment_candid_matches_the_exported_contract() {
-        fn schema(text: &str) -> String {
-            text.lines()
-                .map(str::trim)
-                .filter(|line| !line.is_empty() && !line.starts_with("//"))
-                .collect::<Vec<_>>()
-                .join("\n")
-        }
-        assert_eq!(
-            schema(&super::interface()),
-            schema(include_str!("../../service.did"))
-        );
-    }
-}

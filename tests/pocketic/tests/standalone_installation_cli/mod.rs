@@ -4,6 +4,17 @@ use crate::authenticated_cli::run;
 use ic_blob_storage::model::identity::ContentDigest;
 use std::path::Path;
 
+#[test]
+fn deployment_candid_matches_the_exported_contract() {
+    candid_parser::utils::service_equal(
+        candid_parser::utils::CandidSource::Text(include_str!(
+            "../../../../canisters/standalone/service.did"
+        )),
+        candid_parser::utils::CandidSource::Text(&ic_blob_storage_canister::candid_interface()),
+    )
+    .unwrap();
+}
+
 fn trial_configuration(f: &Fixture) -> ServiceConfigurationInput {
     let mut template =
         include_str!("../../../../canisters/standalone/trial/configuration.args.template")
@@ -17,12 +28,6 @@ fn trial_configuration(f: &Fixture) -> ServiceConfigurationInput {
         template = template.replace(placeholder, &principal.to_text());
     }
     let declared = include_str!("../../../../canisters/standalone/service.did");
-    let exported = ic_blob_storage_canister::candid_interface();
-    candid_parser::utils::service_equal(
-        candid_parser::utils::CandidSource::Text(declared),
-        candid_parser::utils::CandidSource::Text(&exported),
-    )
-    .unwrap();
     let (env, _) = candid_parser::utils::CandidSource::Text(declared)
         .load()
         .unwrap();

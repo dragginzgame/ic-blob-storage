@@ -1,6 +1,14 @@
 import { Principal } from '@icp-sdk/core/principal';
 import { validNamespace } from './namespace.js';
 
+const utf8 = new TextEncoder();
+
+// String length bounds the encoding allocation first; UTF-8 bytes own the limit.
+export function validUtf8Text(value, maximum, minimum = 0) {
+  return typeof value === 'string' && value.length >= minimum &&
+    value.length <= maximum && utf8.encode(value).length <= maximum;
+}
+
 // Representation rules only. Callers retain their own roles, trust roots,
 // transport restrictions, snapshots and durable transaction boundaries.
 export const certificateBindingFields = Object.freeze(['key', 'service', 'tenant',

@@ -216,4 +216,12 @@ fn signed_history_stays_successful_after_release_while_current_liveness_and_fenc
         candid::encode_one(input).unwrap()
     );
     f.harness.pic.stop_live();
+    for bytes in [b"DIDL".to_vec(), vec![0; 4097]] {
+        let failure = f
+            .harness
+            .pic
+            .query_call(f.service, f.tenant, "blob_reference_receipt", bytes)
+            .unwrap_err();
+        assert_eq!(failure.reject_code, RejectCode::CanisterError);
+    }
 }

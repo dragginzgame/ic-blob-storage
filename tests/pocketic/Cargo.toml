@@ -2,14 +2,9 @@
 name = "ic-blob-storage-pocketic-tests"
 version = "0.0.0"
 edition.workspace = true
-# The native fixture journal uses std::fs::File::try_lock (stable in 1.89).
-rust-version = "1.89.0"
+rust-version.workspace = true
 publish = false
 autobins = false
-
-[[bin]]
-name = "blob-fixture-reference"
-path = "src/bin/blob_fixture_reference/main.rs"
 
 [[bin]]
 name = "blob-fixture-inventory"

@@ -449,7 +449,7 @@ Save `manifestJSON` as `manifest.json`. Supply a `binding.json` with these field
 
 ```json
 {
-  "schema": 1,
+  "format": "ic-blob-storage/upload-inputs:original-preparation",
   "preparation": { "content_type": "image/png", "filename": "original.png" },
   "service": "SERVICE_PRINCIPAL",
   "project": "INSTALLED_PROVIDER_PROJECT",
@@ -473,6 +473,12 @@ expiry. Principals and the provider root use their canonical text representation
 Unknown fields, invalid principals, noncanonical numbers and inconsistent
 metadata/leaves/root refuse before claiming output. The root and length must come
 from the same prepared file; a raw SHA-256 content digest is not a Caffeine root.
+
+The required `format` identifies this frozen layout. `upload-inputs`, batch
+preparation and reopened publication sessions use the same strict reader. There
+is no version dispatch or alternate reader. Preserve existing snapshots and
+operation journals with their original binary; do not relabel or convert them
+to make the new reader accept them. New identities must not replay uncertain work.
 
 The current native contract requires `preparation`: record exactly the SDK
 `prepareFile` arguments as optional `content_type` and `filename` strings, each

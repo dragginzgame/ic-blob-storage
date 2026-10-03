@@ -1,0 +1,15 @@
+{
+  "schema": 1,
+  "purpose": "Qualify fixture-reference source retirement and final selected-body snapshot ordering",
+  "evidence_classes": ["source_review", "offline_sdk_substituted_store", "actual_local_chromium_indexeddb", "actual_local_pocketic_with_provider_substitutes"],
+  "targets": ["maintained native signed reference tools", "storage and standalone local fixtures", "browser publication and bootstrap"],
+  "checks": ["signed immutable history after release/settlement/restore", "unknown/unconfirmed/refused reference inspection", "one-shot signed update claims", "final selected-body mutation protection"],
+  "retired_contract": "Local-only multi-entry reference-save journal and OS lock; no production or provider effect owner",
+  "preserved": ["original local artifact files", "native signed update claims", "service receipt/accounting and restore guards"],
+  "deployed_provider_requests": 0,
+  "paid_cycles": 0,
+  "deployment": false,
+  "automatic_retries": false,
+  "local_reports": ".tmp/simplification-02",
+  "limitations": ["PocketIC and provider facts are labelled substitutes", "consumer adoption and deployed format transitions are not qualified"]
+}

@@ -1,6 +1,7 @@
 import { StorageClient } from '@caffeineai/object-storage';
 import { createCertificateClient } from './certificate.js';
 import { createUploadTransfer } from './transfer.js';
+import { validUtf8Text } from './validation.js';
 
 /** Frozen-input refusal, never evidence of service or provider completion. */
 export class PublicationRefusal extends Error {
@@ -29,12 +30,10 @@ export async function createPublicationUpload(options) {
   require(options.body instanceof Uint8Array && options.body.length > 0 &&
     options.body.length <= maxBodyBytes, 'body-size');
   require(typeof bodySha256 === 'string' && /^[0-9a-f]{64}$/.test(bodySha256), 'body-digest');
-  require(typeof manifestJSON === 'string' && manifestJSON.length > 0 &&
-    new TextEncoder().encode(manifestJSON).length <= 256 * 1024, 'manifest-size');
+  require(validUtf8Text(manifestJSON, 256 * 1024, 1), 'manifest-size');
   require(typeof StorageClient.prepareFile === 'function', 'sdk');
   for (const hint of [contentType, filename]) {
-    require(hint === undefined || (typeof hint === 'string' &&
-      new TextEncoder().encode(hint).length <= 4096), 'metadata-hint');
+    require(hint === undefined || validUtf8Text(hint, 4096), 'metadata-hint');
   }
   // Own the bytes and binding before crypto/SDK awaits; caller mutation cannot
   // substitute another body, principal, root or namespace mid-preparation.

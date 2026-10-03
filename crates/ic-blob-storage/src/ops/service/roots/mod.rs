@@ -211,7 +211,7 @@ impl<M: Memory> StableRootClaims<M> {
         self.roots.contains_key(&root_key(root))
     }
 
-    /// Every reopened store remains inspection-only, with no reset/unfence path.
+    /// Reopening fences mutation; this store cannot independently clear its fence.
     #[must_use]
     pub const fn is_fenced(&self) -> bool {
         self.fenced

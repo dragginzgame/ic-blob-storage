@@ -357,7 +357,7 @@ impl<M: Memory> StableUploads<M> {
             .insert(key(request), UploadStoreRecord::Permission(record));
         Ok(())
     }
-    // Shared by inspection and commit; an inspection can never bypass the permanent
+    // Shared by inspection and commit; an inspection can never bypass the current
     // restore fence, current activation, original uploader/time or prepared phase.
     fn exposure_record(
         &self,
@@ -443,7 +443,7 @@ impl<M: Memory> StableUploads<M> {
             .view()
             .ok_or(UploadStoreError::InvalidRecord)
     }
-    /// Restored owners have no mutation/unfence capability.
+    /// Whether mutation is fenced; only qualified installation recovery clears it.
     #[must_use]
     pub const fn is_fenced(&self) -> bool {
         self.fenced

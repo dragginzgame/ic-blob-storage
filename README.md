@@ -36,17 +36,17 @@ and durable metadata; admission does not require uploading the file body to it.
 | Standalone canister | Shared handlers; trusted-uploader certificate issuance within configured object sizes, quotas and multi-file capacity |
 | Lifecycle | Synchronous fenced restoration; IC-history-proven current-instance recovery and snapshot refusal |
 | Native tooling | Installation/account inputs, verified snapshots and signed setup/recovery; tenant downloads and verifier completion pass live |
-| Batch publication | Frozen inventories, a persistent native session, browser worker and preserved journals; Unreleased adds verifier completion and a Chromium bridge with selected signer and original hints. Durable parent coordination and full consumer acceptance remain open |
+| Batch publication | Frozen inventories, a persistent native session, browser worker and preserved journals; 0.11.0 adds verifier completion and a Chromium bridge with selected signer and original hints. Durable parent coordination and full consumer acceptance remain open |
 | Application integration | Consumer frameworks own their wrappers, asset transactions and integration tests |
 | Browser integration | Caffeine's SDK with certificate intent and bounded persistent journaling; live 1 KiB and ten-chunk 10 MiB transfers pass |
 | Live service acceptance | Still open: complete consumer flow, provider guarantees and operational recovery |
 
-The current library release is **0.10.0**. Configurable certificate sizing shipped
+The current library release is **0.11.0**. Configurable certificate sizing shipped
 in 0.7.0; indexed batch preparation, frozen-file browser transfer and current-instance
 recovery shipped in 0.8.0. Release 0.9.0 adds one-pass batch setup and removes the
 standalone DTO forwarding namespace; consumers import the core configuration types.
 Release 0.10.0 adds persistent publication sessions, authenticated maps and the
-private-port browser worker. The current draft adds verifier-phase composition
+private-port browser worker. Release 0.11.0 adds verifier-phase composition
 and selected-signer browser bootstrap; neither constitutes complete consumer acceptance.
 The frozen 0.6.0 live trial retains its original 1 KiB configuration and stopped
 upload history. A separate
@@ -83,7 +83,7 @@ make test-native
 
 The [toolchain file](rust-toolchain.toml) pins development Rust **1.99.0**, rustfmt,
 Clippy and the Wasm target. The library's minimum supported Rust version is
-**1.88.0**; the local PocketIC harness needs **1.89.0** for file locking.
+**1.88.0**, including the local PocketIC harness.
 `make deps` fetches locked Rust dependencies; validation then uses offline Cargo
 and this repository's `target/` directory.
 
@@ -123,10 +123,10 @@ for the integration details.
 | Prepare one batch file or recover its setup | [Indexed preparation and original journals](docs/operator-guide.md#prepare-one-indexed-file-with-surviving-setup-intent) |
 | Prepare a batch with one verification pass | [Bounded serial setup](docs/operator-guide.md#prepare-a-complete-batch-with-one-verification-pass); active capacity still applies |
 | Complete uploads at concurrency one | [Per-file verification and reference checks](docs/operator-guide.md#complete-one-file-before-preparing-the-next); complete headless publisher still open |
-| Reuse one validated batch across publication phases | [Persistent native session](docs/operator-guide.md#hold-one-validated-batch-across-publication-phases); Unreleased adds an explicitly selected verifier |
-| Offload uploads to a browser worker | [Private-port publication worker](clients/browser/README.md#run-jobs-in-a-browser-worker); Unreleased adds [selected-signer host/bootstrap](clients/browser/README.md#launch-the-maintained-worker-with-a-selected-signer) |
-| Launch a browser from a native parent (Unreleased) | [Chromium bridge](clients/browser/README.md#launch-chromium-from-a-native-parent), with fixed profile/origin and bounded selected-body loading |
-| Confirm every batch file before mapping assets (Unreleased) | [Authenticated complete reference map](docs/operator-guide.md#produce-a-complete-confirmed-reference-map); serving and publication remain consumer responsibilities |
+| Reuse one validated batch across publication phases | [Persistent native session](docs/operator-guide.md#hold-one-validated-batch-across-publication-phases) with an explicitly selected verifier |
+| Offload uploads to a browser worker | [Private-port publication worker](clients/browser/README.md#run-jobs-in-a-browser-worker) and [selected-signer host/bootstrap](clients/browser/README.md#launch-the-maintained-worker-with-a-selected-signer) |
+| Launch a browser from a native parent | [Chromium bridge](clients/browser/README.md#launch-chromium-from-a-native-parent), with fixed profile/origin and bounded selected-body loading |
+| Confirm every batch file before mapping assets | [Authenticated complete reference map](docs/operator-guide.md#produce-a-complete-confirmed-reference-map); serving and publication remain consumer responsibilities |
 | Admit, prepare or cancel an upload | [Signed upload setup](docs/operator-guide.md#admit-and-prepare-an-upload) |
 | Hand a verified upload snapshot to the browser client | [Generated binding](clients/browser/README.md) and [offline check](docs/dependencies.md#offline-nativebrowser-handoff) |
 | Download a verified file | [Tenant downloads](docs/operator-guide.md#download-a-verified-file) |

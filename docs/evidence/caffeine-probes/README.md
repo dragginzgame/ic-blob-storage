@@ -1,5 +1,88 @@
 # Caffeine probe ledger
 
+## Descriptor serving owner — 2026-10-03
+
+The forwarding public descriptor API and operational wrapper are removed. The
+canonical endpoint handler delegates to the upload owner's checks and presents
+the existing retained descriptor under the same borrowed installed scope. Client
+target construction remains authoritative; historical inspection retains its
+different authorization/lifecycle contract. This is a minor source API cut with
+unchanged endpoint wire shapes and native/stable frozen layouts.
+
+Twelve focused unit cases, six standalone and three storage PocketIC cases,
+semantic exported/deployment Candid equality and strict core/standalone/harness/CLI
+Clippy pass. They exercise exact tenant/reference/owner binding, original metadata,
+suspension, release, restored fences and refusal before provider GET. Fresh
+standalone/probe Wasm and the retained current-wire native client were used. These
+are owned local IC fixtures with scripted provider facts; they establish no new
+deployed Caffeine, media, retention, deletion or billing guarantee.
+
+The [summary](local/2026-10-03-descriptor-owner-01/summary.json) records source,
+artifact and log hashes. The intended pre-run intent file was not saved: this is a
+recording gap, not evidence of a pre-recorded probe. The retained logs are not
+overwritten or rerun to conceal that gap. No deployed provider request, paid effect,
+deployment, version change, full CI, commit, sibling edit or cleanup occurred.
+Private artifacts remain under `.tmp/descriptor-owner-01`; disposable PocketIC
+case directories retain their logs. External consumer adoption remains unverified.
+
+## Frozen format identities — 2026-10-03
+
+The [intent](local/2026-10-03-format-identity-01/intent.json) precedes local checks
+for the native/stable-format hard cut. One strict native binding reader now requires
+`ic-blob-storage/upload-inputs:original-preparation`; all maintained producers and
+single/batch/session consumers use it. One immutable installation model requires
+`ic-blob-storage/installation:platform-anchor`, independent of exact release/service
+checks. The allocation key is retained so incompatible occupied memory cannot be
+hidden or replaced. No V2, alternate reader, migration or effect replay is added.
+
+Native preparation/batch/journal and installation checks pass, including wrong/
+missing identity refusal and unchanged owner bytes. Fresh standalone Wasm, strict
+affected Clippy, semantic Candid equality and the offline 1 KiB SDK/native handoff
+pass. Actual local IC checks retain all fences through same-release stop/start and
+repeated upgrade, recover original signed setup after session control loss without
+another update, and recheck selected bytes before setup. These use owned PocketIC
+and scripted provider facts, not deployed Caffeine guarantees.
+
+An archived binding is refused before output creation; original inputs, binaries
+and selected live-trial records still match their hashes. The initial evidence
+checker expected exit 3; argument refusal correctly returns 2. Its log/checker
+correction are retained, with no repeated invocation. The
+[summary](local/2026-10-03-format-identity-01/summary.json) records artifacts,
+source/log hashes, exact scopes and read-only local Canic/Miner inspection. No local
+adopter was found in the inspected code; deployment/external adoption is unknown.
+Miner's separate `prepare_upload` example contract is unchanged.
+
+This requires a minor release and fresh installation after complete retirement.
+Any existing 0.11.0 installation, and the frozen 0.6.0/0.7.0 live owners, must remain
+on their original release until object/effect/balance/billing disposition is proven.
+Original artifacts are not converted or relabelled. There is no full CI/release,
+version change, commit, publication, deployment, deployed provider request, paid
+effect, sibling edit or build cleanup. Private reports and exact tested artifacts
+remain in `.tmp/format-identity-01`; disposable PocketIC case directories leave logs.
+
+## Simplification follow-up — 2026-10-03
+
+The [intent](local/2026-10-03-simplification-02/intent.json) records offline SDK,
+substituted-store, actual local browser and native contract checks before execution.
+This batch shares UTF-8 metadata bounds, removes an intermediate selected-body copy
+and consolidates Candid equality. The [retirement intent](local/2026-10-03-simplification-02/retirement-intent.json)
+also records removing the fixture-only reference format/save/lock flow. Its service
+guarantees stay covered by maintained signed native tests; original artifact files
+and the production signed-packet owners remain intact.
+
+Offline worker/publication and actual Chromium/IndexedDB bootstrap checks pass,
+including Unicode bounds, selected views, mutation, cancellation, restart and
+redaction. Semantic Candid equality, signed-packet claims, remaining operator unit
+checks and local reference history/recovery pass; strict affected Clippy and Rust
+1.88 compilation pass. Local provider facts are substitutes, not deployed deletion
+or billing evidence. No deployed IC/provider request, paid effect, release or
+cleanup occurs. Profiles, exact CLI/Wasm copies and attempted logs remain under
+`.tmp/simplification-02`. The [summary](local/2026-10-03-simplification-02/summary.json)
+records exact scopes, hashes and dependency identities, including a later ic-testkit
+update and focused revalidation. The first Chromium attempt hit sandbox EPERM;
+approval review then rejected the old audit scope before accepting the current
+implementation instruction. Both refusals are retained rather than omitted.
+
 ## Native Chromium process bridge — 2026-10-03
 
 The [intent](local/2026-10-03-native-browser-01/intent.json) and

@@ -268,7 +268,7 @@ fn missing_configuration_and_wrong_row_count_refuse_without_initialization() {
 }
 
 #[test]
-fn wrong_host_release_invalid_retained_project_and_missing_owner_never_repair() {
+fn wrong_host_release_format_project_and_missing_owner_never_repair() {
     let memory = memory();
     drop(ServiceInstallation::install(memories(&memory), validated()).unwrap());
     let before = bytes(&memory);
@@ -300,6 +300,17 @@ fn wrong_host_release_invalid_retained_project_and_missing_owner_never_repair() 
     assert_eq!(bytes(&missing), missing_before);
     let mut records: BTreeMap<u8, ConfigurationRecord, _> = BTreeMap::load(memory[0].clone());
     let mut record = records.get(&0).unwrap();
+    record.format = "unrecognized-layout".to_owned();
+    records.insert(0, record.clone());
+    let before = bytes(&memory);
+    assert!(matches!(
+        ServiceInstallation::open(memories(&memory), candidate().service, RELEASE),
+        Err(ServiceInstallationError::Binding(
+            InstallationBindingError::Format
+        ))
+    ));
+    assert_eq!(bytes(&memory), before);
+    record.format = ConfigurationRecord::FORMAT.to_owned();
     record.project = " invalid-project".to_owned();
     records.insert(0, record);
     let before = bytes(&memory);

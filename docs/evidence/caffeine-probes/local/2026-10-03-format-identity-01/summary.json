@@ -1,0 +1,219 @@
+{
+  "schema": 1,
+  "date": "2026-10-03",
+  "intent": "intent.json",
+  "baseline": "0d14a2638d3f26c26b457bc01dcea2134707158b",
+  "evidence_classes": [
+    "source_review",
+    "native_and_filesystem_unit_checks",
+    "offline_pinned_sdk_substituted_store",
+    "actual_owned_pocketic_with_scripted_provider_facts"
+  ],
+  "identities": {
+    "native": "ic-blob-storage/upload-inputs:original-preparation",
+    "installation": "ic-blob-storage/installation:platform-anchor",
+    "allocation_key": "blob.configuration.v1",
+    "allocation_key_is_layout_identity": false,
+    "exact_release_check_retained": true
+  },
+  "canonical_owners": {
+    "native": "upload_inputs::Binding and PreparedInput::load; used by single preparation, PreparedBatch and reopened native sessions",
+    "installation": "ConfigurationRecord::FORMAT and check_binding, before ServiceInstallation opens any service owner"
+  },
+  "removed": [
+    "Native binding numeric schema marker",
+    "Immutable installation numeric version marker",
+    "InstallationBindingError::Schema; current error is Format"
+  ],
+  "preserved": [
+    "Original hints/omission/empty strings, full-width IDs and exact saved bytes",
+    "Tenant/service/operator/verifier/uploader bindings and exact release refusal",
+    "Synchronous owner validation and restore fences; independent IC-history freshness",
+    "Original signed claims and operation identity; no automatic resubmission",
+    "Occupied allocation slot and all old provider/effect/balance/billing obligations"
+  ],
+  "validation": {
+    "rust": [
+      {
+        "scope": "immutable record identity, exact release/service, populated reopen and refusal without writes",
+        "passed": 8,
+        "failed": 0,
+        "log": ".tmp/format-identity-01/installation-unit.log",
+        "sha256": "629dcbeccb61821fd8d7c67719a335a388f4e98e1f81d25dddb3f6276585d6ca"
+      },
+      {
+        "scope": "single-file identity/hints/root/bounds and saved snapshot validation",
+        "passed": 10,
+        "failed": 0,
+        "log": ".tmp/format-identity-01/upload-inputs-unit.log",
+        "sha256": "5cbd73c17bd2efcd5a11c3d89b8cc6565afbf2d2add1b3fb0a21ca230c433683"
+      },
+      {
+        "scope": "frozen batch and original selected file bindings",
+        "passed": 7,
+        "failed": 0,
+        "log": ".tmp/format-identity-01/publish-inputs-unit.log",
+        "sha256": "f18e3564d3178d08412052fedbd203a9774bb424a734a2add87b520a1aad7003"
+      },
+      {
+        "scope": "original indexed batch binding and permanent one-shot claims",
+        "passed": 4,
+        "failed": 0,
+        "log": ".tmp/format-identity-01/publish-prepare-unit.log",
+        "sha256": "9e269d63562c5288d5d61568d868cc4a705806dd318b4602079cb6927aa8da5f"
+      },
+      {
+        "scope": "actual owned IC same-release stop/start and repeated upgrade preserve all owner fences",
+        "passed": 1,
+        "failed": 0,
+        "log": ".tmp/format-identity-01/lifecycle.log",
+        "sha256": "f6d5b429fb5085f16860628f03cce4ae58ba150aeea918829a4df8bc77501a94"
+      },
+      {
+        "scope": "actual owned IC session control-loss recovery reuses original signed setup and refuses tampering",
+        "passed": 1,
+        "failed": 0,
+        "log": ".tmp/format-identity-01/session-recovery.log",
+        "sha256": "548d18da697f5fb7bd84f529ef35c054f6aa6e556f6235d2812c094be16201cb"
+      },
+      {
+        "scope": "actual owned IC session caches frozen batch and checks selected body before setup",
+        "passed": 1,
+        "failed": 0,
+        "log": ".tmp/format-identity-01/session-selected-body.log",
+        "sha256": "0a3572531f0f97db8b18146be728048d29d5d53d5e533efb8d8deb089b31313a"
+      },
+      {
+        "scope": "semantic exported/deployment contract equality without canister creation",
+        "passed": 1,
+        "failed": 0,
+        "log": ".tmp/format-identity-01/candid.log",
+        "sha256": "0f050f2fa24d9d2f6c18e9799ae096fa94867ece34f1a583ed0d16180cf127a6"
+      }
+    ],
+    "strict_affected_clippy": {
+      "passed": true,
+      "all_targets": true,
+      "all_features": true,
+      "deny_warnings": true,
+      "packages": [
+        "ic-blob-storage-cli",
+        "ic-blob-storage-pocketic-tests"
+      ],
+      "log": ".tmp/format-identity-01/clippy.log"
+    },
+    "fresh_cli_and_standalone_wasm": "passed",
+    "sdk": {
+      "summary": ".tmp/format-identity-01/sdk-inputs/summary.json",
+      "sha256": "c9e65519b9efcf610ceabf01422742f67e65025f4d8408b049088de11345c9c6",
+      "bytes": 1024,
+      "preparations": 2,
+      "native_invocations": 4,
+      "network_requests": 0,
+      "certificate_issued": false,
+      "store": "setup-only in-memory substitute"
+    },
+    "archived_refusal": {
+      "check": ".tmp/format-identity-01/archived-input-check.json",
+      "sha256": "d90bcb7607924bf213475cbdf951871b1cfe72244c8994840017de4e9b38aaab",
+      "error": "arguments",
+      "exit": 2,
+      "output_created": false
+    },
+    "rustfmt_and_diff_whitespace": "passed",
+    "full_ci_or_release_validation": false
+  },
+  "source": {
+    "manifest": ".tmp/format-identity-01/source.SHA256SUMS",
+    "sha256": "692779caef3b9daaa8fc9d5c0327c718a8c7780d2a6ea20a0475b992f75fa9ba",
+    "files": 893,
+    "cargo_toml_sha256": "88861ca0003b8f5f327d727085ec4384cb7f93f41c2b8fe9bf884dc039abd300",
+    "cargo_lock_sha256": "d6f5215721b32f35593214e062794553b1bd4a4643a5b709e8866592ca75ea63"
+  },
+  "artifacts": {
+    ".tmp/format-identity-01/artifacts/blob-storage": "7a348de98951e0a62f3e453d5e12389ea225cdddbc82a61d458b1e6bf3327cad",
+    ".tmp/format-identity-01/artifacts/ic_blob_storage_canister.wasm": "5b3522fc10bbbc1269032ec2d6bd6cb28b25278bac70324fac1754232e344357",
+    ".tmp/format-identity-01/artifacts/native-inputs.mjs": "79bf9e58b95bcd75f1e0b4b34890c6927af0e9b9262de7de4f08d56413fe9764"
+  },
+  "logs": {
+    ".tmp/format-identity-01/archived-input-refusal.log": "f0493bebdf2699695bd139b249489fc87694deb59ebcb331a9c20e19f644adfb",
+    ".tmp/format-identity-01/browser-build.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    ".tmp/format-identity-01/candid.log": "0f050f2fa24d9d2f6c18e9799ae096fa94867ece34f1a583ed0d16180cf127a6",
+    ".tmp/format-identity-01/cli-build.log": "1886548790963e63ba35d761284d73f53716cb4338380a657cbaea240022b61d",
+    ".tmp/format-identity-01/clippy.log": "f432d11407e91ea5efd4d5abe66278067b4ecde586fae76123c696770cd357fe",
+    ".tmp/format-identity-01/installation-unit.log": "629dcbeccb61821fd8d7c67719a335a388f4e98e1f81d25dddb3f6276585d6ca",
+    ".tmp/format-identity-01/lifecycle.log": "f6d5b429fb5085f16860628f03cce4ae58ba150aeea918829a4df8bc77501a94",
+    ".tmp/format-identity-01/publish-inputs-unit.log": "f18e3564d3178d08412052fedbd203a9774bb424a734a2add87b520a1aad7003",
+    ".tmp/format-identity-01/publish-prepare-unit.log": "9e269d63562c5288d5d61568d868cc4a705806dd318b4602079cb6927aa8da5f",
+    ".tmp/format-identity-01/sdk-inputs.log": "24187fbbfd82be3cec6c1c95596465ebe094744ddc0f72754947239c5e1b3a33",
+    ".tmp/format-identity-01/session-recovery.log": "548d18da697f5fb7bd84f529ef35c054f6aa6e556f6235d2812c094be16201cb",
+    ".tmp/format-identity-01/session-selected-body.log": "0a3572531f0f97db8b18146be728048d29d5d53d5e533efb8d8deb089b31313a",
+    ".tmp/format-identity-01/upload-inputs-unit.log": "5cbd73c17bd2efcd5a11c3d89b8cc6565afbf2d2add1b3fb0a21ca230c433683",
+    ".tmp/format-identity-01/wasm-build.log": "f4ebec3bbb4835518abc533390837d24e8b5786fc8390d8affbf1492f1663dd8"
+  },
+  "retained_artifacts_verified_unchanged": {
+    ".tmp/native-browser-01/sdk-inputs/inputs/binding.json": "d59f9819e08894f842f40feb636f40b92791222ba0aeb76e621f609d2a1745ff",
+    ".tmp/native-browser-01/sdk-inputs/inputs/summary.json": "9f580f87533d88467591e3562178f6335822b67bd850eaf1333256093c1b0199",
+    ".tmp/trial-live-01/public-summary.json": "a6fe0d130ef150461bb09dd32854482804c1084fc9ee45b2dfdecd96469dcec1",
+    "docs/evidence/caffeine-probes/deployed/2026-10-02-trial-v070-live-01/summary.json": "d2ff56b40f519824a1063b96822ee54ffa12120ce6f2433b873efc609f6c0064",
+    ".tmp/simplification-02/artifacts/blob-storage": "ec1ffafbdda2215ad7c515089f8a5dd8a9a71b91998f246d4f9b78ee68391025",
+    ".tmp/simplification-02/artifacts/ic_blob_storage_canister.wasm": "bc6a7c679708a19068a31c8d7b34c38230ac1cf7190104d5a10b64aa384e6b58"
+  },
+  "downstream_review": {
+    "read_only": true,
+    "canic_observed_head": "e327ed6f01a07f27f030eaf7e0dc04802e01c17c",
+    "miner_observed_head": "dba00bbf3cb8faa6fa007ad23bdf5a67209a6c34",
+    "sample_source_hashes": {
+      "../canic/Cargo.toml": "06354b2059e330ea778f23a46c41fb65844bb10508ed70f2f0af7afe090506f5",
+      "../canic/crates/canic/src/macros/endpoints/blob_storage.rs": "03ccc6f00c2f0015034aeaba4ef20a61f460d0a177a62e0f39f901f11b62234c",
+      "../toko-miner/Cargo.toml": "11ff392ef6c79ffe8ff3e27009605bb59de3033fb4a7aed1ee98912d8ac74830",
+      "../toko-miner/scripts/dev/install-blob-preparer.py": "62fa88f384dacfdfd3709613155e64398750931837157ecf2d967db8d88fb8ba",
+      "../toko-miner/scripts/release/prepare-media.mjs": "c66722490002dedbf9b565a754ea5f36f88cebc3e025acdb4b3df759daac15fc"
+    },
+    "scope": "Local Canic Rust/TOML/JS/TS outside target/node_modules/.tmp; Miner application/crate/script sources and manifests, preparer installer and media script",
+    "observations": [
+      "No inspected local adopter of ServiceInstallationCandidate or these native binding producers",
+      "Canic still has its own blob endpoint macros, not evidence of adoption of this library",
+      "Miner installs the separate prepare_upload example; that example input is unchanged"
+    ],
+    "deployment_or_external_adoption": "unknown",
+    "sibling_edits_or_upstream_messages": false
+  },
+  "retained_checker_failure": {
+    "log": ".tmp/format-identity-01/archived-input-refusal.log",
+    "status": ".tmp/format-identity-01/archived-input-status.txt",
+    "reason": "Initial checker expected runtime-refusal exit 3; argument refusal correctly uses exit 2. Existing result validated as structured arguments error and absent output, without repeating the archived invocation."
+  },
+  "release": {
+    "required_kind": "minor",
+    "native_input_and_stable_format_breaking": true,
+    "public_rust_error_variant_changed": true,
+    "endpoint_wire_layout_changed": false,
+    "versions_mutated": false,
+    "package_version": "0.11.0",
+    "dependency_updates": "Previously concurrent ic-memory 0.20.0/ic-testkit 0.13.0 work preserved; not changed in this batch"
+  },
+  "transition": {
+    "supported": "Fresh current-format installation, with same-format/same-release interruption recovery",
+    "old_installations": "Remain on original binaries until complete retirement and fresh reinstall; includes any existing 0.11.0 installation and frozen 0.6.0/0.7.0 live owners",
+    "old_input_journals": "Retain original files and binary; no relabelling, conversion, new effect identity or replay",
+    "migration_or_dual_reader": false,
+    "needed_before_retirement": [
+      "Complete deployed installation and external producer inventory",
+      "Disposition of objects, uncertain provider effects, balances and continuing billing",
+      "Consumer producer/readers adopted together with the minor release; fresh grants/install after retirement"
+    ]
+  },
+  "limitations": [
+    "Only inspected local code is covered by consumer conclusions; no deployment inventory or remote adoption claim",
+    "PocketIC/scripted facts do not qualify deployed Caffeine economics, deletion, retention or billing cessation",
+    "Offline 1 KiB SDK check does not measure large-body Chromium/CDP memory or latency",
+    "No whole-workspace MSRV or full CI check in this batch",
+    "Disposable PocketIC case directories retain logs only; SDK/native files, exact tested binaries/Wasm and earlier artifacts are kept"
+  ],
+  "deployed_provider_requests": 0,
+  "paid_cycles": 0,
+  "automatic_effect_retries": 0,
+  "deployment_commit_publication_or_sibling_changes": false,
+  "cleanup": "Owned local PocketIC/live servers stopped; artifacts, SDK snapshots and logs retained. No build cleanup or old artifact deletion."
+}

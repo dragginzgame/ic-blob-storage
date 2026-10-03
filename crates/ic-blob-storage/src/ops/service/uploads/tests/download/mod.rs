@@ -5,7 +5,6 @@ use crate::{
         service::read::download::CaffeineDownloadScope,
     },
     ops::service::uploads::read::download::DownloadDescriptorError,
-    workflow::reads::download::describe,
 };
 fn scope(owner: Principal, namespace: NonZeroU128) -> CaffeineDownloadScope {
     CaffeineDownloadScope::new(owner, namespace, "project/&β").unwrap()
@@ -28,18 +27,18 @@ fn download_descriptor_binds_service_not_payer_or_tenant_and_preserves_original_
     let reference = input.request.object.first;
     let scope = scope(p(1), NonZeroU128::MIN);
     assert_eq!(
-        describe(&store, context(4), &scope, root, reference),
+        store.download_descriptor(context(4), &scope, root, reference),
         Err(DownloadDescriptorError::Unavailable)
     );
     store.confirm_upload(input.request).unwrap();
     let before = store.usage().unwrap();
-    let view = describe(&store, context(4), &scope, root, reference).unwrap();
-    assert_eq!(view.scope, scope);
-    assert_eq!(view.content.reference, reference);
-    assert_eq!(view.content.descriptor.content.request, input.request);
+    let view = store
+        .download_descriptor(context(4), &scope, root, reference)
+        .unwrap();
+    assert_eq!(view.reference, reference);
+    assert_eq!(view.descriptor.content.request, input.request);
     assert_eq!(
-        view.content
-            .descriptor
+        view.descriptor
             .headers
             .iter()
             .map(|h| (h.name.as_str(), h.value.as_str()))
@@ -52,18 +51,18 @@ fn download_descriptor_binds_service_not_payer_or_tenant_and_preserves_original_
     for owner in [p(2), p(4), p(8)] {
         let wrong = CaffeineDownloadScope::new(owner, NonZeroU128::MIN, "project/&β").unwrap();
         assert_eq!(
-            describe(&store, context(4), &wrong, root, reference),
+            store.download_descriptor(context(4), &wrong, root, reference),
             Err(DownloadDescriptorError::Binding)
         );
     }
     let wrong =
         CaffeineDownloadScope::new(p(1), NonZeroU128::new(2).unwrap(), "project/&β").unwrap();
     assert_eq!(
-        describe(&store, context(4), &wrong, root, reference),
+        store.download_descriptor(context(4), &wrong, root, reference),
         Err(DownloadDescriptorError::Binding)
     );
     assert_eq!(
-        describe(&store, context(2), &scope, root, reference),
+        store.download_descriptor(context(2), &scope, root, reference),
         Err(DownloadDescriptorError::Store(UploadStoreError::Admission(
             UploadAdmissionError::NotProject
         )))
@@ -79,7 +78,9 @@ fn operational_download_refuses_suspension_release_and_restore_while_inspection_
     let root = input.request.object.root;
     let reference = input.request.object.first;
     let scope = scope(p(1), NonZeroU128::MIN);
-    let before = describe(&store, context(4), &scope, root, reference).unwrap();
+    let before = store
+        .download_descriptor(context(4), &scope, root, reference)
+        .unwrap();
     let active = store.tenant(context(4), p(4)).unwrap();
     let suspended = store
         .update_tenant(
@@ -92,7 +93,7 @@ fn operational_download_refuses_suspension_release_and_restore_while_inspection_
         )
         .unwrap();
     assert_eq!(
-        describe(&store, context(4), &scope, root, reference),
+        store.download_descriptor(context(4), &scope, root, reference),
         Err(DownloadDescriptorError::Store(UploadStoreError::Admission(
             UploadAdmissionError::Tenant(crate::model::service::tenant::TenantError::Suspended)
         )))
@@ -101,7 +102,7 @@ fn operational_download_refuses_suspension_release_and_restore_while_inspection_
         store
             .retained_content_descriptor(context(4), root, reference)
             .unwrap(),
-        Some(before.content)
+        Some(before)
     );
     store
         .update_tenant(
@@ -133,19 +134,21 @@ fn operational_download_refuses_suspension_release_and_restore_while_inspection_
             .unwrap();
     }
     assert_eq!(
-        describe(&store, context(4), &scope, root, reference),
+        store.download_descriptor(context(4), &scope, root, reference),
         Err(DownloadDescriptorError::Unavailable)
     );
-    let live = describe(&store, context(4), &scope, root, second).unwrap();
+    let live = store
+        .download_descriptor(context(4), &scope, root, second)
+        .unwrap();
     let restored = StableUploads::open(m, config()).unwrap();
     assert_eq!(
-        describe(&restored, context(4), &scope, root, second),
+        restored.download_descriptor(context(4), &scope, root, second),
         Err(DownloadDescriptorError::Store(UploadStoreError::Fenced))
     );
     assert_eq!(
         restored
             .retained_content_descriptor(context(4), root, second)
             .unwrap(),
-        Some(live.content)
+        Some(live)
     );
 }

@@ -2,6 +2,46 @@
 
 ## [Unreleased]
 
+## [0.12.0]
+
+### Breaking
+
+- Remove the superseded `workflow::reads::download::describe` API and public
+  operational descriptor wrapper/error surface. Use the maintained `handle` with
+  `DownloadRequest`/`DownloadResponse`; historical inspection retains its contract.
+- Replace the ambiguous numeric marker on native upload bindings with the frozen
+  `ic-blob-storage/upload-inputs:original-preparation` layout identity. Single/batch
+  preparation and session reopen share one strict reader; update producers together.
+- Identify the immutable installation layout as
+  `ic-blob-storage/installation:platform-anchor` independently of its exact release;
+  replace `InstallationBindingError::Schema` with `Format`. This stable-format hard
+  cut requires retirement before fresh reinstall. Existing artifacts and live
+  owners remain on their original release; no conversion, replay or migration.
+- Retire the local-only `blob-fixture-reference` save/inspect command, its JSON
+  format and append-only filesystem-lock journal. Reference preparation, signed
+  submission and receipt recovery use the maintained native commands. Preserve
+  existing artifact files; no conversion, deletion or effect replay is performed.
+
+### Changed
+
+- Serve download metadata directly from the existing retained descriptor under
+  the checked installed scope. Remove the discarded server HTTP target and scope
+  clone; clients keep the canonical target builder and approved gateway origin.
+- Use the same UTF-8 byte bounds for browser worker and publication metadata;
+  refuse empty/oversized manifests and oversized hints before journal access.
+  Snapshot selected upload bytes once inside the shared job helper while retaining
+  caller-mutation protection and bounded backing-buffer ownership.
+- Keep one semantic exported/deployment Candid equality check independent of
+  canister installation; remove the duplicate generated-text comparison.
+- Separate the current release/operating handoff from implementation history and
+  correct recovery documentation to describe independent current-instance proofs.
+- Clarify contributor policy: maintain one unversioned/V1 model and identify
+  incompatible frozen formats explicitly, without reusing a discriminator or
+  adding compatibility readers. Endpoint request/response layouts remain unchanged.
+- Remove duplicate fixture reference journeys while retaining signed tests for
+  immutable receipts, conflicts, settlement and restored inspection. Align the
+  PocketIC harness MSRV with the workspace after removing its file-lock requirement.
+
 ## [0.11.0] - 2026-10-03
 
 ### Breaking

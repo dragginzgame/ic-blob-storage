@@ -68,7 +68,7 @@ pub(super) fn freeze_files(
         let root = ProviderRootHash::try_from(upload.root.as_slice())
             .unwrap()
             .to_string();
-        let binding = json!({"schema":1,"preparation":{"content_type":"image/png"},"project":host.project,"bucket":"fixture-bucket","service":upload.service.to_text(),"namespace":upload.namespace.to_string(),"tenant":upload.tenant.to_text(),"uploader":permission.uploader.to_text(),"upload":upload.upload.to_string(),"object":upload.object.to_string(),"incarnation":upload.incarnation.to_string(),"first_reference":upload.first_reference.to_string(),"root":root,"bytes":upload.bytes.to_string(),"expires_at_ns":permission.expires_at_ns.to_string()});
+        let binding = json!({"format":"ic-blob-storage/upload-inputs:original-preparation","preparation":{"content_type":"image/png"},"project":host.project,"bucket":"fixture-bucket","service":upload.service.to_text(),"namespace":upload.namespace.to_string(),"tenant":upload.tenant.to_text(),"uploader":permission.uploader.to_text(),"upload":upload.upload.to_string(),"object":upload.object.to_string(),"incarnation":upload.incarnation.to_string(),"first_reference":upload.first_reference.to_string(),"root":root,"bytes":upload.bytes.to_string(),"expires_at_ns":permission.expires_at_ns.to_string()});
         let manifest = json!({"tree_type":"DSBMTWH","tree":{"hash":root},"chunk_hashes":manifest.declaration.chunks.iter().map(|c|CaffeineChunkHash::try_from(c.as_slice()).unwrap().to_string()).collect::<Vec<_>>(),"headers":manifest.declaration.headers.iter().map(|h|format!("{}: {}",h.name,h.value)).collect::<Vec<_>>()});
         let body = vec![42; usize::try_from(size).unwrap()];
         let binding = serde_json::to_vec(&binding).unwrap();

@@ -1,0 +1,15 @@
+{
+  "schema": 1,
+  "purpose": "Verify browser metadata and selected-body simplification plus semantic standalone Candid enforcement",
+  "evidence_classes": ["source_review", "offline_sdk_substituted_store", "actual_local_chromium_indexeddb", "native_contract_test"],
+  "targets": ["pinned adapted Caffeine SDK 1.1.2", "maintained browser worker/publication/bootstrap", "standalone exported and deployment Candid"],
+  "provider_requests": 0,
+  "certificate_requests": 0,
+  "paid_cycles": 0,
+  "deployment": false,
+  "automatic_retries": false,
+  "local_reports": ".tmp/simplification-02",
+  "checks": ["Unicode byte bounds before journal access", "selected-view ownership without detaching caller", "existing private-port bootstrap and profile reopening", "semantic Candid equality without canister creation"],
+  "limitations": ["substituted stores do not prove IndexedDB behavior", "Chromium bootstrap checks have no IC/provider endpoint", "no deployed provider or consumer qualification"],
+  "preservation": "Retain all attempted logs and private browser profiles; no cleanup of original live owners or journals"
+}

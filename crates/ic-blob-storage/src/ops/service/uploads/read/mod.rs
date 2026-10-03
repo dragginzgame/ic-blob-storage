@@ -1,6 +1,6 @@
 //! Indexed tenant reads and bounded current-state traversal; no effect authority.
 mod authority;
-pub mod download;
+pub(crate) mod download;
 pub mod verification;
 use super::{
     Memory, StableUploads, UploadContext, UploadPhase, UploadRequest, UploadStoreError,

@@ -20,7 +20,9 @@ use ic_memory::ic_stable_structures::{BTreeMap, Memory, Storable};
 use ic_memory::{MemoryRequest, SchemaMetadata, StaticMemoryDeclarationError};
 use thiserror::Error;
 
-/// Stable key for the host-granted immutable installation record.
+/// Stable allocation key for the host-granted immutable installation record.
+/// It identifies the slot, not the frozen record layout or release. Preserve the
+/// slot when refusing an incompatible record; never replace its retained state.
 pub const INSTALLATION_MEMORY_KEY: &str = "blob.configuration.v1";
 
 /// Build all seventeen installation memory requests under the host's authority.
@@ -316,7 +318,7 @@ pub enum ServiceInstallationError {
     /// Encoded immutable installation exceeds its maintained envelope.
     #[error("installation record exceeds byte bound")]
     RecordBound,
-    /// Retained service/release/schema binding differs from the running host.
+    /// Retained service/release/layout binding differs from the running host.
     #[error(transparent)]
     Binding(#[from] InstallationBindingError),
     /// Shared candidate identity/resource validation failed.

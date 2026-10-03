@@ -189,3 +189,9 @@ c581481e0999139c7ad9917e1e71aefa9c8993998fe2aebf1613793fff4875f2  docs/evidence/
 41356c28e0af9384927cab2a46ea24acb06009c18860eb0a9045634c518976a3  docs/evidence/caffeine-probes/local/2026-10-03-worker-bootstrap-01/summary.json
 f4ffcc0d6bf4981c0712dd526e67a410d25bf71397aa8e722ffa218105db5bc5  docs/evidence/caffeine-probes/local/2026-10-03-native-browser-01/intent.json
 e2188cd6ca0f1e95a633bb0465939e1abd5e5f8303dd576df68b9e1cdd0f5ea2  docs/evidence/caffeine-probes/local/2026-10-03-native-browser-01/summary.json
+8ca52b91651d9106901802108729c6ea27061a8db4775efd216b9596ee2199c9  docs/evidence/caffeine-probes/local/2026-10-03-simplification-02/intent.json
+9a32903a4a6cbbd711a9bd3fc3e2cca415ed12149ce1493f36012d55a376157c  docs/evidence/caffeine-probes/local/2026-10-03-simplification-02/retirement-intent.json
+a029bbbe178ed367092d01602a2633d223de222ff80028e6b8d34456022a6d3d  docs/evidence/caffeine-probes/local/2026-10-03-simplification-02/summary.json
+578bb2d645593ea602a6af78eadb3acfe53c57a0b2d78a649a8f6f9d1722dd92  docs/evidence/caffeine-probes/local/2026-10-03-format-identity-01/intent.json
+9024413853347013781d471c4c8c867b969142cfd2b3585d7060da7dc0d4bb6c  docs/evidence/caffeine-probes/local/2026-10-03-format-identity-01/summary.json
+b23f9dc32c31c06ddc1963fd805e06c594d7f61a1c2d8c4a8d6100a99a349de0  docs/evidence/caffeine-probes/local/2026-10-03-descriptor-owner-01/summary.json

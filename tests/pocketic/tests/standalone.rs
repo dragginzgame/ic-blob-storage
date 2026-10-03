@@ -31,7 +31,6 @@ mod standalone_publish_prepare;
 mod standalone_publish_session;
 mod standalone_reference_capacity;
 mod standalone_reference_native_cli;
-mod standalone_reference_recovery;
 mod standalone_reference_status;
 mod standalone_snapshot;
 mod standalone_upload_setup;

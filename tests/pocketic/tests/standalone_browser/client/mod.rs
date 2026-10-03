@@ -153,7 +153,7 @@ impl Trial {
         std::fs::write(self.report.join("source.bin"), [42; 1024]).unwrap();
         let p = expected.permission;
         let u = p.upload;
-        self.record("binding.json", &serde_json::json!({"schema":1,"preparation":{"content_type":"image/png"},"project":PROJECT,"bucket":"local-standalone-trial","service":u.service.to_text(),
+        self.record("binding.json", &serde_json::json!({"format":"ic-blob-storage/upload-inputs:original-preparation","preparation":{"content_type":"image/png"},"project":PROJECT,"bucket":"local-standalone-trial","service":u.service.to_text(),
             "namespace":u.namespace.to_string(),"tenant":u.tenant.to_text(),"uploader":p.uploader.to_text(),
             "upload":u.upload.to_string(),"object":u.object.to_string(),"incarnation":u.incarnation.to_string(),
             "first_reference":u.first_reference.to_string(),"root":browser.hash,"bytes":u.bytes.to_string(),

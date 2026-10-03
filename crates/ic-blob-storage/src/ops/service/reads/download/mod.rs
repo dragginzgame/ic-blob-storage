@@ -9,11 +9,14 @@ use crate::{
             ReferenceId,
             binding::{ObjectBinding, ObjectIdentity, ReferenceKey},
         },
-        service::upload::{UploadAdmissionError, UploadContext},
+        service::{
+            read::download::CaffeineDownloadScope,
+            upload::{UploadAdmissionError, UploadContext},
+        },
     },
     ops::service::uploads::{
         UploadStoreError,
-        read::download::{CaffeineDownloadDescriptorView, DownloadDescriptorError},
+        read::{RetainedUploadDescriptorView, download::DownloadDescriptorError},
     },
 };
 use std::num::NonZeroU128;
@@ -48,15 +51,15 @@ pub(crate) fn parse(
 }
 pub(crate) fn present(
     request: DownloadRequest,
-    view: CaffeineDownloadDescriptorView,
+    scope: &CaffeineDownloadScope,
+    view: RetainedUploadDescriptorView,
 ) -> DownloadResponse {
     DownloadResponse {
         request,
-        owner: view.scope.owner(),
-        project: view.scope.project().to_owned(),
-        bytes: view.content.descriptor.content.request.object.bytes,
+        owner: scope.owner(),
+        project: scope.project().to_owned(),
+        bytes: view.descriptor.content.request.object.bytes,
         headers: view
-            .content
             .descriptor
             .headers
             .into_iter()

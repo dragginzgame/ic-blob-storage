@@ -6,7 +6,7 @@ use std::borrow::Cow;
 /// One bounded immutable installation record, never a freshness authority.
 #[derive(Clone, Debug, CandidType, Deserialize)]
 pub(crate) struct ConfigurationRecord {
-    pub(crate) version: u8,
+    pub(crate) format: String,
     pub(crate) release: String,
     pub(crate) platform_installation_version: u64,
     pub(crate) service: Principal,
@@ -47,13 +47,17 @@ pub(crate) struct ConfigurationRecord {
     pub(crate) read_tenant_bytes: u64,
 }
 impl ConfigurationRecord {
+    /// Frozen current layout, independently checked from the installation release.
+    /// The host allocation key names a memory slot, not this record's layout.
+    pub(crate) const FORMAT: &str = "ic-blob-storage/installation:platform-anchor";
+
     pub(crate) fn check_binding(
         &self,
         service: Principal,
         release: &str,
     ) -> Result<(), super::InstallationBindingError> {
-        if self.version != 1 {
-            return Err(super::InstallationBindingError::Schema);
+        if self.format != Self::FORMAT {
+            return Err(super::InstallationBindingError::Format);
         }
         if self.service != service {
             return Err(super::InstallationBindingError::Service);

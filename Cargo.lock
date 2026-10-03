@@ -1676,9 +1676,9 @@ dependencies = [
 
 [[package]]
 name = "ic-memory"
-version = "0.15.7"
+version = "0.21.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "abd0d83da68e786c44cc0c5b7a9c223b00cfb82523f81ed252f5c1d2275b1d08"
+checksum = "4a6e8fc6f51f42560d6ded45f32550d7abbad399ae85fceb94efbdcb65808f0c"
 dependencies = [
  "ciborium",
  "ctor",
@@ -1698,13 +1698,14 @@ dependencies = [
 
 [[package]]
 name = "ic-testkit"
-version = "0.11.0"
+version = "0.13.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c5fadb9e1a58c7fba8af339aec979604b1ff3cedaf2793140de1818cce772219"
+checksum = "fac645ada159a720519eea4157e2812cd7fd5664ceb44e1087625c0dd60c90cd"
 dependencies = [
  "candid",
  "fs2",
  "ic-cdk",
+ "libc",
  "pocket-ic",
  "serde",
  "serde_json",
@@ -3555,9 +3556,9 @@ checksum = "fd3ca314f692efd6c868f8408f53fe444634a845f96c028b97d35f6a1f79f0ee"
 
 [[package]]
 name = "tokio"
-version = "1.53.1"
+version = "1.53.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "202caea871b69668250d242070849eb495be178ed697a3e98aebce5bc81a0bed"
+checksum = "e95f91fcc7a621e8b030f6aa23c71fe9838ae2fb4d8118b75602a328f5144044"
 dependencies = [
  "bytes",
  "libc",

@@ -241,7 +241,7 @@ the owned gateway is not deployed Caffeine.
 
 ### Launch the maintained worker with a selected signer
 
-Unreleased `createPublicationWorkerHost` (`./bootstrap`) launches the explicitly
+Released 0.11.0 `createPublicationWorkerHost` (`./bootstrap`) launches the explicitly
 named same-origin module from `./worker-entry`. Bundle that entry with the reviewed
 Caffeine patch and pinned peers, and serve it from a trusted application asset
 origin. The host transfers one private port; SDK identity JSON and configuration
@@ -288,13 +288,13 @@ and hostile asset-origin isolation are not guarantees of this helper.
 Actual Chromium checks cover both signer kinds, malformed/mismatched bootstrap
 before journal creation, body snapshots, concurrency, hard worker termination and
 reopening the same profile. Serial PocketIC uploads use this host and maintained
-entry with independent native verifier completion. Unreleased also adds the native
+entry with independent native verifier completion. Release 0.11.0 also adds the native
 Chromium bridge below. Complete durable parent restart/phase coordination remains
 unfinished; select SDK identity JSON explicitly rather than inventing a PEM parser.
 
 ## Launch Chromium from a native parent
 
-Unreleased `launchPublicationBrowser` (`./launcher`) owns a persistent Playwright
+Released 0.11.0 `launchPublicationBrowser` (`./launcher`) owns a persistent Playwright
 Chromium context and the maintained host/worker. Supply your installed Chromium
 engine, explicitly selected signer/bootstrap, trusted built bundles, original
 absolute profile path and fixed loopback port. The private client adds no Playwright

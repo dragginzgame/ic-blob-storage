@@ -43,8 +43,13 @@ await refuses('empty_body',{body:new Uint8Array()},'body-size');
 await refuses('wrong_root',{binding:{...base.binding,root:`sha256:${'0'.repeat(64)}`}},'root');
 await refuses('wrong_metadata_hint',{contentType:'text/plain'},'root');
 await refuses('oversized_metadata_hint',{filename:'x'.repeat(4097)},'metadata-hint');
+await refuses('oversized_utf8_filename',{filename:'é'.repeat(2049)},'metadata-hint');
+await refuses('oversized_utf8_content_type',{contentType:'é'.repeat(2049)},'metadata-hint');
+await refuses('null_metadata_hint',{filename:null},'metadata-hint');
 await refuses('malformed_manifest',{manifestJSON:'{'},'manifest');
 await refuses('oversized_manifest',{manifestJSON:'x'.repeat(256*1024+1)},'manifest-size');
+await refuses('oversized_utf8_manifest',{manifestJSON:'é'.repeat(128*1024+1)},'manifest-size');
+await refuses('empty_manifest',{manifestJSON:''},'manifest-size');
 for (const field of ['headers','chunk_hashes','tree_type']) {
   const changed = JSON.parse(prepared.manifestJSON);
   changed[field] = field === 'tree_type' ? 'different' : [];
