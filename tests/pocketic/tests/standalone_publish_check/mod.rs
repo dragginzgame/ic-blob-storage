@@ -13,6 +13,12 @@ use std::fmt::Write as _;
 use std::path::Path;
 
 pub(super) fn setup() -> Fixture {
+    setup_profile(true)
+}
+pub(super) fn setup_batch() -> Fixture {
+    setup_profile(false)
+}
+fn setup_profile(small_envelope: bool) -> Fixture {
     let mut f = Fixture::with_profile(
         Harness::with_builder(
             PocketIcBuilder::new()
@@ -22,7 +28,7 @@ pub(super) fn setup() -> Fixture {
         Fake::principal(5),
         Fake::principal(2),
         uploader(),
-        true,
+        small_envelope,
         Fake::principal(90),
         "publish-check-fixture",
     );
@@ -31,41 +37,68 @@ pub(super) fn setup() -> Fixture {
     f
 }
 pub(super) fn freeze(fixture: &Fixture, directory: &Path) -> UploadAdmissionRequest {
-    let manifest = fixture.small_manifest();
-    let permission = manifest.permission;
-    let upload = permission.upload;
+    freeze_files(fixture, directory, &[1024])[0]
+}
+pub(super) fn freeze_files(
+    fixture: &Fixture,
+    directory: &Path,
+    sizes: &[u64],
+) -> Vec<UploadAdmissionRequest> {
     let host = fixture.configuration(fixture.operator).unwrap();
-    let root = ProviderRootHash::try_from(upload.root.as_slice())
-        .unwrap()
-        .to_string();
-    let binding = json!({"schema":1,"project":host.project,"bucket":"fixture-bucket","service":upload.service.to_text(),"namespace":upload.namespace.to_string(),"tenant":upload.tenant.to_text(),"uploader":permission.uploader.to_text(),"upload":upload.upload.to_string(),"object":upload.object.to_string(),"incarnation":upload.incarnation.to_string(),"first_reference":upload.first_reference.to_string(),"root":root,"bytes":upload.bytes.to_string(),"expires_at_ns":permission.expires_at_ns.to_string()});
-    let manifest = json!({"tree_type":"DSBMTWH","tree":{"hash":root},"chunk_hashes":manifest.declaration.chunks.iter().map(|c|CaffeineChunkHash::try_from(c.as_slice()).unwrap().to_string()).collect::<Vec<_>>(),"headers":manifest.declaration.headers.iter().map(|h|format!("{}: {}",h.name,h.value)).collect::<Vec<_>>()});
-    let body = vec![42; 1024];
-    let binding = serde_json::to_vec(&binding).unwrap();
-    let manifest = serde_json::to_vec(&manifest).unwrap();
-    std::fs::write(directory.join("binding.json"), &binding).unwrap();
-    std::fs::write(directory.join("manifest.json"), &manifest).unwrap();
-    std::fs::write(directory.join("body.bin"), &body).unwrap();
     std::fs::write(
         directory.join("installation.candid"),
         candid::encode_one(ServiceInstallationInput {
             configuration: host.configuration,
-            project: host.project,
+            project: host.project.clone(),
             completion_verifier: host.completion_verifier,
             trusted_uploader: host.trusted_uploader,
         })
         .unwrap(),
     )
     .unwrap();
-    let hash = |b: &[u8]| {
-        Sha256::digest(b)
-            .iter()
-            .fold(String::with_capacity(64), |mut output, byte| {
-                write!(output, "{byte:02x}").unwrap();
-                output
-            })
-    };
-    std::fs::write(directory.join("inventory.json"),json!({"schema":1,"files":[{"binding":"binding.json","binding_sha256":hash(&binding),"manifest":"manifest.json","manifest_sha256":hash(&manifest),"body":"body.bin","body_sha256":hash(&body)}]}).to_string()).unwrap();
+    let mut permissions = Vec::new();
+    let mut entries = Vec::new();
+    for (index, size) in sizes.iter().copied().enumerate() {
+        let mut manifest = fixture.manifest_bytes(size);
+        manifest.permission.upload.upload += index as u128;
+        manifest.permission.upload.object += index as u128;
+        manifest.permission.upload.first_reference += index as u128;
+        let permission = manifest.permission;
+        let upload = permission.upload;
+        let root = ProviderRootHash::try_from(upload.root.as_slice())
+            .unwrap()
+            .to_string();
+        let binding = json!({"schema":1,"project":host.project,"bucket":"fixture-bucket","service":upload.service.to_text(),"namespace":upload.namespace.to_string(),"tenant":upload.tenant.to_text(),"uploader":permission.uploader.to_text(),"upload":upload.upload.to_string(),"object":upload.object.to_string(),"incarnation":upload.incarnation.to_string(),"first_reference":upload.first_reference.to_string(),"root":root,"bytes":upload.bytes.to_string(),"expires_at_ns":permission.expires_at_ns.to_string()});
+        let manifest = json!({"tree_type":"DSBMTWH","tree":{"hash":root},"chunk_hashes":manifest.declaration.chunks.iter().map(|c|CaffeineChunkHash::try_from(c.as_slice()).unwrap().to_string()).collect::<Vec<_>>(),"headers":manifest.declaration.headers.iter().map(|h|format!("{}: {}",h.name,h.value)).collect::<Vec<_>>()});
+        let body = vec![42; usize::try_from(size).unwrap()];
+        let binding = serde_json::to_vec(&binding).unwrap();
+        let manifest = serde_json::to_vec(&manifest).unwrap();
+        std::fs::write(directory.join(format!("binding-{index}.json")), &binding).unwrap();
+        std::fs::write(directory.join(format!("manifest-{index}.json")), &manifest).unwrap();
+        std::fs::write(directory.join(format!("body-{index}.bin")), &body).unwrap();
+        let hash = |b: &[u8]| {
+            Sha256::digest(b)
+                .iter()
+                .fold(String::with_capacity(64), |mut output, byte| {
+                    write!(output, "{byte:02x}").unwrap();
+                    output
+                })
+        };
+        entries.push(
+            json!({"binding":format!("binding-{index}.json"),"binding_sha256":hash(&binding),
+        "manifest":format!("manifest-{index}.json"),"manifest_sha256":hash(&manifest),
+        "body":format!("body-{index}.bin"),"body_sha256":hash(&body)}),
+        );
+        permissions.push(permission);
+    }
+
+    std::fs::write(
+        directory.join("inventory.json"),
+        json!({"schema":1,"files":entries}).to_string(),
+    )
+    .unwrap();
+    let maximum = sizes.iter().max().unwrap().to_string();
+    let total = sizes.iter().sum::<u64>().to_string();
     let args = [
         "publish-inputs",
         "--inventory",
@@ -75,15 +108,15 @@ pub(super) fn freeze(fixture: &Fixture, directory: &Path) -> UploadAdmissionRequ
         "--installation",
         directory.join("installation.candid").to_str().unwrap(),
         "--max-bytes",
-        "1024",
+        &maximum,
         "--max-total-bytes",
-        "1024",
+        &total,
         "--run-dir",
         directory.join("batch").to_str().unwrap(),
     ]
     .map(str::to_owned);
     assert_eq!(run(&args, 0)["all_bodies_verified"], true);
-    permission
+    permissions
 }
 fn args(f: &Fixture, d: &Path, url: &str, label: &str) -> Vec<String> {
     std::fs::write(d.join("tenant.pem"), PEM).unwrap();

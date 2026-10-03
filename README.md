@@ -116,6 +116,7 @@ for the integration details.
 | Size a consumer installation | [Resource limits and lifetime capacity](docs/operator-guide.md#size-a-consumer-installation) |
 | Freeze an upload batch and check live capacity (Unreleased) | [Offline inventory](docs/operator-guide.md#freeze-a-publication-inventory-offline), then [signed batch check](docs/operator-guide.md#check-a-frozen-batch-against-live-capacity) |
 | Prepare one batch file or recover its setup (Unreleased) | [Indexed preparation and original journals](docs/operator-guide.md#prepare-one-indexed-file-with-surviving-setup-intent) |
+| Prepare a batch with one verification pass (Unreleased) | [Bounded serial setup](docs/operator-guide.md#prepare-a-complete-batch-with-one-verification-pass); active capacity still applies |
 | Admit, prepare or cancel an upload | [Signed upload setup](docs/operator-guide.md#admit-and-prepare-an-upload) |
 | Hand a verified upload snapshot to the browser client | [Generated binding](clients/browser/README.md) and [offline check](docs/dependencies.md#offline-nativebrowser-handoff) |
 | Download a verified file | [Tenant downloads](docs/operator-guide.md#download-a-verified-file) |

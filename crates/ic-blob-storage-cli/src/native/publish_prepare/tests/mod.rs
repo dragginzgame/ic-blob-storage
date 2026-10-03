@@ -52,6 +52,24 @@ fn indexed_prepare_requires_canonical_index_explicit_roles_and_original_recovery
     assert_eq!(execute(&resume), Err(Failure::Arguments));
     assert!(!directory.path().join("run").exists());
 }
+
+#[test]
+fn batch_prepare_requires_all_file_selection_without_recovery_or_index_flags() {
+    let directory = tempfile::tempdir().unwrap();
+    let mut args = arguments(directory.path());
+    args[0] = "publish-prepare-batch".into();
+    let index = args.iter().position(|a| a == "--file-index").unwrap();
+    args.drain(index..=index + 1);
+    assert!(matches!(
+        Options::parse(&args).unwrap().command,
+        Command::PublishPrepareBatch(_)
+    ));
+    for extra in ["--file-index", "--source-run"] {
+        let mut changed = args.clone();
+        changed.extend([extra.into(), "0".into()]);
+        assert!(matches!(Options::parse(&changed), Err(Failure::Arguments)));
+    }
+}
 #[test]
 fn original_batch_binding_refuses_changed_manifest_permission_and_index() {
     let directory = tempfile::tempdir().unwrap();

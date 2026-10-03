@@ -134,6 +134,133 @@ fn live(fixture: &mut Fixture) -> String {
         .make_live_with_params(None, None, Some(vec!["127.0.0.1".into()]), None)
         .to_string()
 }
+
+fn batch_args(fixture: &Fixture, directory: &Path, url: &str) -> Vec<String> {
+    let mut args = args(fixture, directory, url, false, "original");
+    args[0] = "publish-prepare-batch".into();
+    let index = args.iter().position(|a| a == "--file-index").unwrap();
+    args.drain(index..=index + 1);
+    for (flag, value) in [("--max-bytes", "2048"), ("--max-total-bytes", "3072")] {
+        let index = args.iter().position(|a| a == flag).unwrap();
+        args[index + 1] = value.into();
+    }
+    args
+}
+
+fn batch_plan(
+    fixture: &Fixture,
+    directory: &Path,
+    lost: Option<usize>,
+) -> Vec<(std::path::PathBuf, Dispatch, Reply)> {
+    (0..2)
+        .flat_map(|index| {
+            let mut replies = [Reply::Pass; 2];
+            if index == 0
+                && let Some(stage) = lost
+            {
+                replies[stage] = Reply::Drop;
+            }
+            plan(fixture, directory, replies)
+                .into_iter()
+                .map(move |(path, dispatch, reply)| {
+                    (
+                        directory
+                            .join("original")
+                            .join(format!("file-{index:04}"))
+                            .join(path.file_name().unwrap()),
+                        dispatch,
+                        reply,
+                    )
+                })
+        })
+        .collect()
+}
+
+#[test]
+fn standalone_batch_prepare_keeps_distinct_file_journals_and_observes_both_manifests() {
+    let mut fixture = crate::standalone_publish_check::setup_batch();
+    let directory = Directory::new("batch-prepared-");
+    let permissions =
+        crate::standalone_publish_check::freeze_files(&fixture, directory.path(), &[1024, 2048]);
+    let backend = live(&mut fixture);
+    let proxy = Proxy::sequence(backend, batch_plan(&fixture, directory.path(), None));
+    let args = batch_args(&fixture, directory.path(), &proxy.url);
+    let report = run(&args, 0);
+    assert_eq!(report["all_files_prepared"], true);
+    assert_eq!(proxy.calls(), 4);
+    for (index, permission) in permissions.into_iter().enumerate() {
+        assert_eq!(
+            report["files"][index]["permission"]["upload"]["upload"],
+            permission.upload.upload.to_string()
+        );
+        assert_eq!(
+            fixture.admission(permission).state,
+            ic_blob_storage::dto::upload::UploadState::Reserved
+        );
+        assert!(
+            directory
+                .path()
+                .join(format!(
+                    "original/file-{index:04}/preparation/signed-request.cbor"
+                ))
+                .is_file()
+        );
+    }
+    assert_eq!(run(&args, 3)["error"], "new_run_required");
+    assert_eq!(proxy.calls(), 4);
+    fixture.harness.pic.stop_live();
+}
+
+#[test]
+fn standalone_batch_prepare_stops_after_lost_ack_and_recovers_only_original_file() {
+    for lost in 0..2 {
+        let mut fixture = crate::standalone_publish_check::setup_batch();
+        let directory = Directory::new("batch-lost-");
+        crate::standalone_publish_check::freeze_files(&fixture, directory.path(), &[1024, 2048]);
+        let backend = live(&mut fixture);
+        let proxy = Proxy::sequence(backend, batch_plan(&fixture, directory.path(), Some(lost)));
+        assert_eq!(
+            run(&batch_args(&fixture, directory.path(), &proxy.url), 3)["error"],
+            "transport"
+        );
+        assert!(!directory.path().join("original/file-0001").exists());
+        let mut recovery = args(&fixture, directory.path(), &proxy.url, true, "recovery");
+        let source = recovery.iter().position(|a| a == "--source-run").unwrap();
+        recovery[source + 1] = directory
+            .path()
+            .join("original/file-0000")
+            .display()
+            .to_string();
+        for (flag, value) in [("--max-bytes", "2048"), ("--max-total-bytes", "3072")] {
+            let index = recovery.iter().position(|a| a == flag).unwrap();
+            recovery[index + 1] = value.into();
+        }
+        assert_eq!(run(&recovery, 0)["prepared"], true);
+        assert_eq!(proxy.calls(), 2);
+        assert!(!directory.path().join("original/file-0001").exists());
+        fixture.harness.pic.stop_live();
+    }
+}
+
+#[test]
+fn standalone_batch_prepare_rejects_corrupt_later_body_before_any_setup_claim() {
+    let fixture = crate::standalone_publish_check::setup_batch();
+    let directory = Directory::new("batch-corrupt-");
+    crate::standalone_publish_check::freeze_files(&fixture, directory.path(), &[1024, 2048]);
+    std::fs::write(
+        directory.path().join("batch/file-0001/body.bin"),
+        vec![41; 2048],
+    )
+    .unwrap();
+    assert_eq!(
+        run(
+            &batch_args(&fixture, directory.path(), "http://127.0.0.1:1"),
+            3
+        )["error"],
+        "content_mismatch"
+    );
+    assert!(!directory.path().join("original").exists());
+}
 #[test]
 fn standalone_indexed_prepare_persists_two_distinct_signed_claims_and_recovery_never_redispatches()
 {

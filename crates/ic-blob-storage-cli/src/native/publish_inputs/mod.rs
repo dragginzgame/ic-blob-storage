@@ -12,11 +12,14 @@ use super::{
 };
 use serde::Deserialize;
 use serde_json::{Value, json};
-use std::{collections::BTreeMap, num::NonZeroU64, path::Path};
+use std::{num::NonZeroU64, path::Path};
 
 const INVENTORY_BYTES: u64 = 2 * 1024 * 1024;
 const METADATA_BYTES: usize = 16 * 1024 * 1024;
-const MAX_FILES: usize = 4096;
+pub(super) const MAX_FILES: usize = 4096;
+pub(super) const MAX_FILE_BYTES: u64 = 1024 * 1024 * 1024;
+pub(super) const MAX_TOTAL_BYTES: u64 = 1024 * 1024 * 1024 * 1024;
+pub(super) const MAX_TIMEOUT_SECONDS: u64 = 3600;
 
 /// One complete frozen batch; caller-supplied identities remain proposals.
 pub(super) struct PreparedBatch {
@@ -103,13 +106,7 @@ struct Entry {
     body_sha256: String,
 }
 
-fn positive(value: &str) -> Result<NonZeroU64, Failure> {
-    let parsed: NonZeroU64 = value.parse().map_err(|_| Failure::Arguments)?;
-    if parsed.to_string() != value {
-        return Err(Failure::Arguments);
-    }
-    Ok(parsed)
-}
+use super::parsing::positive;
 fn checked_hash(value: &str) -> Result<(), Failure> {
     if value.len() != 64
         || !value
@@ -130,24 +127,17 @@ fn metadata(root: &Path, name: &str, hash: &str, maximum: u64) -> Result<Vec<u8>
 }
 
 pub(super) fn run(args: &[String]) -> Result<Value, Failure> {
-    let mut flags = BTreeMap::new();
-    for pair in args[1..].chunks(2) {
-        if pair.len() != 2 || flags.insert(pair[0].as_str(), pair[1].as_str()).is_some() {
-            return Err(Failure::Arguments);
-        }
-    }
+    let mut flags = super::parsing::flags(&args[1..])?;
     let mut take = |name| flags.remove(name).ok_or(Failure::Arguments);
     let inventory_path = Path::new(take("--inventory")?);
     let root = Path::new(take("--root")?)
         .canonicalize()
         .map_err(|_| Failure::File)?;
     let installation_path = Path::new(take("--installation")?);
-    let maximum = positive(take("--max-bytes")?)?;
-    let total_maximum = positive(take("--max-total-bytes")?)?;
+    let maximum: NonZeroU64 = positive(take("--max-bytes")?)?;
+    let total_maximum: NonZeroU64 = positive(take("--max-total-bytes")?)?;
     let directory = Path::new(take("--run-dir")?);
-    if !flags.is_empty()
-        || maximum.get() > 1024 * 1024 * 1024
-        || total_maximum.get() > 1024 * 1024 * 1024 * 1024
+    if !flags.is_empty() || maximum.get() > MAX_FILE_BYTES || total_maximum.get() > MAX_TOTAL_BYTES
     {
         return Err(Failure::Arguments);
     }

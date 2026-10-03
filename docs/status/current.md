@@ -6,9 +6,11 @@ Repository baseline: [0.8.0](../../CHANGELOG.md), dated 2026-10-03, at
 `64804288687a60c39c370984cf0b71e983fdb551`. The maintainer completes that release
 concurrently with the audit below. Local package, tag, origin tracking ref and
 receipt agree; receipt hashes verify against committed release files. No new
-registry-publication or service-deployment observation is inferred. Unreleased
-now contains the standalone DTO forwarding-path removal, requiring another minor
-release. Earlier Unreleased entries below retain their implementation/evidence
+registry-publication or service-deployment observation is inferred. The undated
+0.9.0 changelog draft now contains the standalone DTO forwarding-path removal,
+requiring a minor release, plus the CLI cleanup and bounded batch setup below.
+Unreleased is empty; Cargo and the release receipt remain at 0.8.0. Earlier Unreleased
+entries below retain their implementation/evidence
 history for work now included in 0.8.0. The old isolated owner remains frozen at
 0.6.0 with its original stopped history; the separate live owner was last verified
 at 0.7.0. Both retain their original obligations and exhausted capacity.
@@ -19,6 +21,55 @@ within this repository is exhausted. Continue local core/standalone/native/brows
 implementation and evidence; the [feedback list](../canic-parity.md#integration-feedback)
 is a future consumer backlog, not a prerequisite for this local work. Siblings
 remain read-only and no upstream message is authorized.
+
+## Unreleased: code cleanup and one-pass batch setup — 2026-10-03
+
+Work through the maintainer's four accepted audit findings. Add bounded
+`publish-prepare-batch`, which opens and verifies the complete frozen batch once
+before output or setup effects, then reuses the same indexed service workflow.
+Every file retains its own original signed admission/preparation claim under
+`file-NNNN/`. Stop on the first blocker, pending result or error; the exact file's
+original directory/index remains the source for `publish-prepare-resume`. Retain
+at most two updates/four queries per file and one overall setup deadline. There
+is no whole-batch replay, provider transfer or publication. Active reservations
+still limit setup; this command does not interleave completion to free capacity.
+Single-file setup/recovery continues full batch revalidation. Browser transfer
+still independently verifies the selected body before certificate/provider work.
+
+Consolidate CLI canonical flags, principal/positive-decimal parsing and authoritative
+batch limits without moving role-specific authority into syntax helpers. One
+consumed signed-update helper owns durable claims, synced request/envelope/intent,
+finite dispatch and bounded saved replies for upload setup, reference mutations,
+verifier attestations and gateway decisions. Operation-specific authority, intent
+fields and typed reply correlation remain with their commands. Partial claims and
+lost/pending outcomes never become retry permission; source fingerprints include
+the new shared parsing/dispatch modules.
+
+The heap upload owner is an intentional independent reference model used by
+durable accounting/lifecycle comparisons and local primitive fixtures, not dead
+service storage. Retain it and its shared pure validators; centralize its repeated
+permission-view construction and clarify the absence of persistence/restore
+authority. Production handlers continue using the single durable owner. No API
+shim, stable schema branch, allocator/dependency change or retired-state reset is
+introduced. Extend Unreleased notes and the operator/README recipes.
+
+Targeted validation passes: native CLI suite, heap upload cases, durable upload
+store/parity cases, actual PocketIC indexed/batch setup, reference submission,
+gateway controls and verifier attestation success/lost/pending regressions.
+Fresh standalone Wasm and CLI builds, strict affected core/CLI/integration lint,
+formatting and whitespace checks pass. Existing local Cashier/byte-server
+substitutes remain labelled; this is transport/service regression evidence, not
+a new deployed Caffeine observation. Logs and retained per-file setup journals
+are in `.tmp/code-cleanup-w1mwu3`. Preserve the first batch run's one-object
+fixture refusals and the restricted native run's loopback-denial logs; corrected
+larger-profile and loopback-enabled runs pass without weakening production limits.
+
+The [consumer backlog](../canic-parity.md#integration-feedback) adds one-pass batch
+setup adoption and exact file-journal recovery. Canic adoption remains deferred.
+Next useful consumer work remains a complete transfer/completion/reference/media-map
+pipeline and consumed-workload serving acceptance. No version mutation, release,
+commit, deployment, paid provider call, full CI, sibling edit or build cleanup
+occurs. Existing live installations and physical/billing obligations remain intact.
 
 ## Unreleased: pre-1.0 hard-cut audit — 2026-10-03
 

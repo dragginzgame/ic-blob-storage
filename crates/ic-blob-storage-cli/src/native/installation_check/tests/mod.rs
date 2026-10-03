@@ -1,4 +1,5 @@
 use super::*;
+use candid::Principal;
 use ic_blob_storage::dto::configuration::ServiceConfigurationInput;
 
 fn fixture() -> Vec<u8> {

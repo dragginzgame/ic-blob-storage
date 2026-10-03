@@ -13,7 +13,7 @@ use ic_blob_storage::{
     ops::service::{references::reply, uploads::admission::reply::validate_request},
 };
 use serde_json::{Value, json};
-use std::{collections::BTreeMap, path::Path};
+use std::path::Path;
 
 /// Both read requests name the same exact reference and original object binding.
 pub(super) struct ReferenceFiles {
@@ -46,20 +46,9 @@ impl ReferenceFiles {
             "download_sha256":ContentDigest::compute(&self.download).to_string()})
     }
 }
-fn positive(value: &str) -> Result<u128, Failure> {
-    let parsed = value.parse::<u128>().map_err(|_| Failure::Arguments)?;
-    if parsed == 0 || parsed.to_string() != value {
-        return Err(Failure::Arguments);
-    }
-    Ok(parsed)
-}
+use super::parsing::positive;
 pub(super) fn run(args: &[String]) -> Result<Value, Failure> {
-    let mut flags = BTreeMap::new();
-    for pair in args[1..].chunks(2) {
-        if pair.len() != 2 || flags.insert(pair[0].as_str(), pair[1].as_str()).is_some() {
-            return Err(Failure::Arguments);
-        }
-    }
+    let mut flags = super::parsing::flags(&args[1..])?;
     let mut take = |name| flags.remove(name).ok_or(Failure::Arguments);
     let path = Path::new(take("--permission")?);
     let action = match take("--action")? {

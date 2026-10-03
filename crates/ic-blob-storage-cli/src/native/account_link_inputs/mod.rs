@@ -1,40 +1,19 @@
 //! Offline explicit Cashier account-link inputs; no credentials or dispatch.
 use super::{Failure, artifacts::Run};
-use candid::Principal;
 use ic_blob_storage::{
     model::identity::ContentDigest,
     ops::caffeine::onboarding::{AccountLinkBinding, AccountLinkRequest, AccountLinkTerms},
 };
 use serde_json::{Value, json};
 use std::{
-    collections::BTreeMap,
-    fmt::Display,
     num::{NonZeroU64, NonZeroU128},
     path::Path,
-    str::FromStr,
 };
 
-fn positive<T: FromStr + Display>(value: &str) -> Result<T, Failure> {
-    let result = value.parse::<T>().map_err(|_| Failure::Arguments)?;
-    if result.to_string() != value {
-        return Err(Failure::Arguments);
-    }
-    Ok(result)
-}
-fn principal(value: &str) -> Result<Principal, Failure> {
-    let principal = Principal::from_text(value).map_err(|_| Failure::Arguments)?;
-    if principal.to_text() != value {
-        return Err(Failure::Arguments);
-    }
-    Ok(principal)
-}
+use super::parsing::positive;
+use super::parsing::principal;
 pub(super) fn run(args: &[String]) -> Result<Value, Failure> {
-    let mut flags = BTreeMap::new();
-    for pair in args[1..].chunks(2) {
-        if pair.len() != 2 || flags.insert(pair[0].as_str(), pair[1].as_str()).is_some() {
-            return Err(Failure::Arguments);
-        }
-    }
+    let mut flags = super::parsing::flags(&args[1..])?;
     let mut take = |key| flags.remove(key).ok_or(Failure::Arguments);
     let binding = AccountLinkBinding {
         cashier: principal(take("--cashier")?)?,

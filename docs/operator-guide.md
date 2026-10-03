@@ -393,6 +393,9 @@ Measure stable bytes, peak heap, admission/lookup instructions and full reopen
 instructions at increasing populated sizes before advertising that capacity.
 Also measure browser transaction-count latency, disk/quota and native setup I/O:
 each indexed preparation currently reverifies the full selected frozen batch.
+`publish-prepare-batch` performs one verification pass for a serial setup run;
+active-reservation capacity can stop it before every file is prepared. It does
+not interleave provider transfer/completion to free those reservations.
 At large scale, bounded reopening or partitioning may be needed; do not weaken
 fences or obligation validation to fit an instruction budget.
 
@@ -693,6 +696,40 @@ now composes certificate exposure and SDK transfer for the selected file. It
 does not drive a complete batch or publish the confirmed media mapping.
 No provider call, funding or account-link effect occurs during
 setup; ordinary service updates still consume the service canister's cycles.
+
+### Prepare a complete batch with one verification pass
+
+`publish-prepare-batch` verifies every frozen body and request packet once before
+claiming output or sending setup requests. It then calls the same per-file
+workflow serially, preserving the original identities and signed journals in
+`file-0000/`, `file-0001/`, and so on. This avoids rehashing the entire inventory
+for every file in this invocation. Single-file preparation and recovery continue
+to reverify the whole frozen batch independently.
+
+```sh
+blob-storage publish-prepare-batch --network ic --url https://icp-api.io \
+  --identity tenant.pem --actor TENANT --uploader-identity uploader.pem \
+  --service SERVICE --namespace 1 --inputs publish-inputs \
+  --max-bytes 10485760 --max-total-bytes 1073741824 \
+  --timeout-seconds 3600 --run-dir publication-setup-batch
+```
+
+The setup stage has one overall deadline, at most one hour, and at most two
+updates/four queries per file. Each file still observes current headroom. Preparing
+a manifest leaves its reservation active: use this command only for a batch that
+fits active capacity, or accept a stopped batch. When concurrency is one, use
+indexed setup with transfer/completion between files instead. No provider calls,
+certificate or confirmed media map are produced by this command.
+
+Stop at the first blocked, pending or failed file. Inspect `all_files_prepared`
+even on exit zero; it does not establish upload completion or publication.
+Preserve the batch and all per-file journals. For uncertain setup, invoke
+`publish-prepare-resume` with that file's original index and
+`--source-run publication-setup-batch/file-NNNN`, writing a new recovery directory.
+There is no whole-batch replay or automatic retry. Files not yet started can use
+ordinary indexed preparation with fresh output directories; never reissue a
+claimed step. Reverify bytes immediately before transfer through the maintained
+browser helper, including after any change since the batch's verification pass.
 
 ## Admit and prepare an upload
 

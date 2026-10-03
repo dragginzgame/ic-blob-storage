@@ -1,7 +1,11 @@
 //! One explicit gateway decision, durably claimed before dispatch and never retried.
-use super::{Failure, agent, arguments::Options, artifacts::Run};
+use super::{
+    Failure, agent,
+    arguments::Options,
+    signed_update::{DEADLINE_SECONDS, PreparedUpdate, SMALL_REPLY_BYTES, UpdateInput},
+};
 use candid::{Principal, de::DecoderConfig, decode_one_with_config};
-use ic_agent::{Agent, agent::CallResponse};
+use ic_agent::Agent;
 use ic_blob_storage::{
     dto::{
         gateway::{
@@ -19,7 +23,7 @@ use ic_blob_storage::{
 };
 use serde::Serialize;
 use serde_json::{Value, json};
-use std::{path::PathBuf, time::Duration};
+use std::path::PathBuf;
 
 pub(super) struct Input {
     pub scope: OperatorScope,
@@ -87,30 +91,19 @@ fn scope(scope: OperatorScope) -> Value {
     json!({"service":scope.service.to_text(),"namespace":scope.namespace.to_string(),
         "cashier":scope.cashier.to_text(),"payment_account":scope.payment_account.to_text()})
 }
-fn prepare(
-    options: &Options,
-    input: &Input,
-    agent: &Agent,
-) -> Result<(Run, ic_agent::agent::signed::SignedUpdate), Failure> {
+fn prepare(options: &Options, input: &Input, agent: &Agent) -> Result<PreparedUpdate, Failure> {
     let argument = input.argument()?;
-    let signed = agent
-        .update(&input.scope.service, input.method())
-        .with_arg(argument.clone())
-        .expire_after(Duration::from_secs(120))
-        .sign()
-        .map_err(|_| Failure::Identity)?;
-    let run = Run::create(&input.directory).map_err(|error| {
-        if error == Failure::ExistingRun {
-            Failure::SubmissionClaimed
-        } else {
-            error
-        }
-    })?;
-    run.bytes("request.candid", &argument)?;
-    run.bytes("signed-request.cbor", &signed.signed_update)?;
-    run.json(
-        "intent.json",
-        &DispatchIntentRecord {
+    PreparedUpdate::claim(
+        agent,
+        UpdateInput {
+            service: input.scope.service,
+            method: input.method(),
+            argument: &argument,
+            argument_file: "request.candid",
+            directory: &input.directory,
+            reply_limit: SMALL_REPLY_BYTES,
+        },
+        |signed| DispatchIntentRecord {
             schema: 1,
             runner_version: env!("CARGO_PKG_VERSION"),
             runner_source_sha256: ContentDigest::compute(
@@ -118,6 +111,8 @@ fn prepare(
                     include_str!("mod.rs"),
                     include_str!("../mod.rs"),
                     include_str!("../arguments/mod.rs"),
+                    include_str!("../parsing/mod.rs"),
+                    include_str!("../signed_update/mod.rs"),
                     include_str!("../observe_upload/record/mod.rs"),
                     include_str!("../../../../../Cargo.lock")
                 )
@@ -136,11 +131,10 @@ fn prepare(
             request_sha256: ContentDigest::compute(&argument).to_string(),
             root_key_sha256: ContentDigest::compute(&agent.read_root_key()).to_string(),
             max_update_requests: 1,
-            request_deadline_seconds: 30,
+            request_deadline_seconds: DEADLINE_SECONDS,
             retry_authorized: false,
         },
-    )?;
-    Ok((run, signed))
+    )
 }
 fn decode<T: candid::CandidType + for<'de> serde::Deserialize<'de>>(
     bytes: &[u8],
@@ -219,28 +213,12 @@ fn outcome(input: &Input, id: &str, result: &Result<Option<Value>, Failure>) -> 
 }
 pub(super) async fn run(options: &Options, input: &Input) -> Result<Value, Failure> {
     let agent = agent(options)?;
-    let (run, signed) = prepare(options, input, &agent)?;
-    let result = tokio::time::timeout(
-        Duration::from_secs(30),
-        agent.update_signed(input.scope.service, signed.signed_update),
-    )
-    .await
-    .map_err(|_| Failure::Timeout)
-    .and_then(|reply| reply.map_err(|_| Failure::Transport));
-    let result = match result {
-        Ok(CallResponse::Response(bytes)) => {
-            if bytes.len() > 4096 {
-                Err(Failure::ReplyLimit)
-            } else {
-                run.bytes("response.candid", &bytes)?;
-                acknowledgment(input, &bytes).map(Some)
-            }
-        }
-        Ok(CallResponse::Poll(_)) => Ok(None),
-        Err(error) => Err(error),
-    };
-    let report = outcome(input, &signed.request_id.to_string(), &result);
-    run.json("outcome.json", &report)?;
+    let dispatched = prepare(options, input, &agent)?.dispatch(&agent).await;
+    let result = dispatched
+        .response
+        .and_then(|bytes| bytes.map(|bytes| acknowledgment(input, &bytes)).transpose());
+    let report = outcome(input, &dispatched.request_id, &result);
+    dispatched.run.json("outcome.json", &report)?;
     result?;
     Ok(report)
 }

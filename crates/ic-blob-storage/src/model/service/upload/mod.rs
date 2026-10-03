@@ -90,6 +90,23 @@ struct Permission {
     revoked: bool,
 }
 
+impl Permission {
+    fn view(&self, phase: UploadPhase) -> UploadPermissionView {
+        UploadPermissionView {
+            manifest: if self.manifest.is_some() {
+                UploadManifestState::Bound
+            } else {
+                UploadManifestState::Unprepared
+            },
+            permission: self.original,
+            admitted_at_ns: self.admitted_at_ns,
+            tenant_generation: self.tenant_generation,
+            revoked: self.revoked,
+            phase,
+        }
+    }
+}
+
 /// Single owner of bounded permissions, reservations and confirmed references.
 ///
 /// Each permission consumes its catalog's lifetime operation slot, including
@@ -97,6 +114,8 @@ struct Permission {
 /// No mutable catalog escape, clone, reset or restore is provided.
 /// Only the configured operator can enroll a project. Enrollment and suspension
 /// share this owner; the host must still enforce recovery fences before effects.
+/// This transient reference model supplies independent accounting comparisons for
+/// the durable service owner. It is not the service's persistence or restore path.
 #[derive(Debug)]
 pub struct UploadAdmissions {
     config: ServiceConfiguration,
@@ -254,18 +273,7 @@ impl UploadAdmissions {
         self.check_service(context, request)?;
         let permission = self.permission(request)?;
         let tenant = request.object.first.object().tenant();
-        let view = UploadPermissionView {
-            manifest: if permission.manifest.is_some() {
-                UploadManifestState::Bound
-            } else {
-                UploadManifestState::Unprepared
-            },
-            permission: permission.original,
-            admitted_at_ns: permission.admitted_at_ns,
-            tenant_generation: permission.tenant_generation,
-            revoked: permission.revoked,
-            phase: self.catalog.phase(tenant, request)?,
-        };
+        let view = permission.view(self.catalog.phase(tenant, request)?);
         validation::uploader(
             context,
             &view,
@@ -357,18 +365,7 @@ impl UploadAdmissions {
         if context.actor != tenant && context.actor != permission.original.uploader {
             return Err(UploadAdmissionError::NotObserver);
         }
-        Ok(UploadPermissionView {
-            manifest: if permission.manifest.is_some() {
-                UploadManifestState::Bound
-            } else {
-                UploadManifestState::Unprepared
-            },
-            permission: permission.original,
-            admitted_at_ns: permission.admitted_at_ns,
-            tenant_generation: permission.tenant_generation,
-            revoked: permission.revoked,
-            phase: self.catalog.phase(tenant, request)?,
-        })
+        Ok(permission.view(self.catalog.phase(tenant, request)?))
     }
 
     /// Apply independently authenticated provider completion and exact stored size.

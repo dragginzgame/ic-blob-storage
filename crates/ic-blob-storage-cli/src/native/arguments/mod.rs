@@ -14,6 +14,7 @@ pub(super) struct Options {
 }
 
 pub(super) enum Command {
+    PublishPrepareBatch(super::publish_prepare::Input),
     PublishPrepare(super::publish_prepare::Input),
     PublishCheck(super::publish_check::Input),
     UploadSetup(super::upload_setup::Input),
@@ -51,11 +52,8 @@ pub(super) enum Command {
 }
 
 fn principal(value: &str) -> Result<Principal, Failure> {
-    let principal = Principal::from_text(value).map_err(|_| Failure::Arguments)?;
-    if principal == Principal::anonymous()
-        || principal == Principal::management_canister()
-        || principal.to_text() != value
-    {
+    let principal = super::parsing::principal(value)?;
+    if principal == Principal::anonymous() || principal == Principal::management_canister() {
         return Err(Failure::Arguments);
     }
     Ok(principal)
@@ -70,6 +68,7 @@ impl Options {
                 | "publish-check"
                 | "publish-prepare"
                 | "publish-prepare-resume"
+                | "publish-prepare-batch"
                 | "admit-upload"
                 | "prepare-upload"
                 | "revoke-upload"
@@ -95,12 +94,7 @@ impl Options {
         ) {
             return Err(Failure::Arguments);
         }
-        let mut flags = BTreeMap::new();
-        for pair in args[1..].chunks(2) {
-            if pair.len() != 2 || flags.insert(pair[0].as_str(), pair[1].as_str()).is_some() {
-                return Err(Failure::Arguments);
-            }
-        }
+        let mut flags = super::parsing::flags(&args[1..])?;
         let mut take = |name| flags.remove(name).ok_or(Failure::Arguments);
         let network = match take("--network")? {
             "ic" => "ic",
@@ -116,6 +110,7 @@ impl Options {
                     | "publish-check"
                     | "publish-prepare"
                     | "publish-prepare-resume"
+                    | "publish-prepare-batch"
                     | "admit-upload"
                     | "prepare-upload"
                     | "revoke-upload"
@@ -136,7 +131,7 @@ impl Options {
             },
         )?)?;
         let service = principal(take("--service")?)?;
-        let namespace = positive(take("--namespace")?)?;
+        let namespace = positive::<u128>(take("--namespace")?)?;
         let command = parse_command(command, service, namespace, network, &mut flags)?;
         let root_key = flags.remove("--root-key").map(PathBuf::from);
         if !flags.is_empty() {
@@ -154,17 +149,11 @@ impl Options {
     }
 }
 
-fn positive(value: &str) -> Result<u128, Failure> {
-    let number: u128 = value.parse().map_err(|_| Failure::Arguments)?;
-    if number == 0 || number.to_string() != value {
-        return Err(Failure::Arguments);
-    }
-    Ok(number)
-}
+use super::parsing::positive;
 
 fn maximum(value: &str) -> Result<std::num::NonZeroU64, Failure> {
-    let maximum: std::num::NonZeroU64 = value.parse().map_err(|_| Failure::Arguments)?;
-    if maximum.to_string() != value || maximum.get() > 1024 * 1024 * 1024 {
+    let maximum: std::num::NonZeroU64 = positive(value)?;
+    if maximum.get() > super::publish_inputs::MAX_FILE_BYTES {
         return Err(Failure::Arguments);
     }
     Ok(maximum)
@@ -178,7 +167,7 @@ fn parse_command(
 ) -> Result<Command, Failure> {
     match command {
         "publish-check" => parse_publish_check(service, namespace, flags),
-        "publish-prepare" | "publish-prepare-resume" => {
+        "publish-prepare" | "publish-prepare-resume" | "publish-prepare-batch" => {
             parse_publish_prepare(command, service, namespace, flags)
         }
         _ => parse_scoped_command(command, service, namespace, network, flags),
@@ -297,10 +286,13 @@ fn parse_publish_check(
 ) -> Result<Command, Failure> {
     let mut take = |name| flags.remove(name).ok_or(Failure::Arguments);
     let max_bytes = maximum(take("--max-bytes")?)?;
-    let max_total_bytes = positive(take("--max-total-bytes")?)?;
-    let max_queries = positive(take("--max-queries")?)?;
-    let timeout_seconds = positive(take("--timeout-seconds")?)?;
-    if max_total_bytes > 1024 * 1024 * 1024 * 1024 || max_queries > 4097 || timeout_seconds > 3600 {
+    let max_total_bytes = positive::<u128>(take("--max-total-bytes")?)?;
+    let max_queries = positive::<u128>(take("--max-queries")?)?;
+    let timeout_seconds = positive::<u128>(take("--timeout-seconds")?)?;
+    if max_total_bytes > u128::from(super::publish_inputs::MAX_TOTAL_BYTES)
+        || max_queries > super::publish_inputs::MAX_FILES as u128 + 1
+        || timeout_seconds > u128::from(super::publish_inputs::MAX_TIMEOUT_SECONDS)
+    {
         return Err(Failure::Arguments);
     }
     Ok(Command::PublishCheck(super::publish_check::Input {
@@ -325,19 +317,23 @@ fn parse_publish_prepare(
     flags: &mut BTreeMap<&str, &str>,
 ) -> Result<Command, Failure> {
     let mut take = |name| flags.remove(name).ok_or(Failure::Arguments);
-    let index_text = take("--file-index")?;
+    let index_text = if command == "publish-prepare-batch" {
+        "0"
+    } else {
+        take("--file-index")?
+    };
     let index: usize = index_text.parse().map_err(|_| Failure::Arguments)?;
     let max_bytes = maximum(take("--max-bytes")?)?;
-    let total = positive(take("--max-total-bytes")?)?;
-    let timeout = positive(take("--timeout-seconds")?)?;
+    let total = positive::<u128>(take("--max-total-bytes")?)?;
+    let timeout = positive::<u128>(take("--timeout-seconds")?)?;
     if index.to_string() != index_text
-        || index >= 4096
-        || total > 1024 * 1024 * 1024 * 1024
-        || timeout > 3600
+        || index >= super::publish_inputs::MAX_FILES
+        || total > u128::from(super::publish_inputs::MAX_TOTAL_BYTES)
+        || timeout > u128::from(super::publish_inputs::MAX_TIMEOUT_SECONDS)
     {
         return Err(Failure::Arguments);
     }
-    Ok(Command::PublishPrepare(super::publish_prepare::Input {
+    let input = super::publish_prepare::Input {
         service,
         namespace,
         index,
@@ -355,7 +351,12 @@ fn parse_publish_prepare(
         } else {
             None
         },
-    }))
+    };
+    Ok(if command == "publish-prepare-batch" {
+        Command::PublishPrepareBatch(input)
+    } else {
+        Command::PublishPrepare(input)
+    })
 }
 
 pub(super) fn validate_url(url: &Url, network: &str, explicit_root: bool) -> Result<(), Failure> {
@@ -404,7 +405,7 @@ fn parse_operator_command(
             let action = match command {
                 "sync-gateways" => super::gateway_controls::Action::Sync,
                 "cancel-gateway-sync" => super::gateway_controls::Action::Cancel(
-                    positive(take("--sequence")?)?
+                    positive::<u128>(take("--sequence")?)?
                         .try_into()
                         .map_err(|_| Failure::Arguments)?,
                 ),
@@ -421,9 +422,12 @@ fn parse_operator_command(
                 kind: super::account::kind(take("--kind")?)?,
             })
         } else if matches!(command, "funding-outcome" | "funding-assessment") {
-            let operation = positive(take("--operation")?)?;
-            let offered = positive(take("--offered")?)?;
-            let target_balance = flags.remove("--target-balance").map(positive).transpose()?;
+            let operation = positive::<u128>(take("--operation")?)?;
+            let offered = positive::<u128>(take("--offered")?)?;
+            let target_balance = flags
+                .remove("--target-balance")
+                .map(positive::<u128>)
+                .transpose()?;
             if command == "funding-assessment" {
                 return Ok(Command::FundingAssessment(
                     ic_blob_storage::dto::funding::assessment::FundingPreparationRequest {

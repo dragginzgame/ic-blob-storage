@@ -2,12 +2,34 @@
 
 ## [Unreleased]
 
+## [0.9.0]
+
 ### Breaking
 
 - Remove the standalone crate's public `dto` forwarding namespace. Import
   `HostConfigurationView` and `HostFailure` directly from
-  `ic_blob_storage::dto::configuration`; update host handlers and PocketIC consumers
-  together. The core owns these types without an alternate standalone import path.
+  `ic_blob_storage::dto::configuration`; the core owns these types with no
+  compatibility alias. Update standalone handlers and PocketIC consumers together.
+
+### Added
+
+- Add bounded `publish-prepare-batch`: verify the complete frozen batch once,
+  then reuse the maintained serial setup workflow and independent per-file signed
+  journals. Stop on blocked, pending or failed setup; recover only the exact original
+  file with `publish-prepare-resume`. Retain finite request/deadline budgets and
+  capacity checks without certificate, provider transfer or publication effects.
+  Active reservations still limit progress; single-file setup and recovery
+  independently reverify the complete batch.
+
+### Changed
+
+- Share CLI canonical parsing and batch limits across commands while retaining
+  role-specific authority checks. Consolidate signed claim, durable packet/intent
+  persistence, one-shot dispatch and bounded response storage for upload setup,
+  references, verifier attestations and gateway controls.
+- Centralize transient permission-view construction. Retain the heap reference
+  model and its independent durable accounting comparisons; it is not a service
+  persistence or restore implementation.
 
 ## [0.8.0] - 2026-10-03
 

@@ -13,6 +13,7 @@ mod history;
 mod installation_check;
 mod local_body;
 mod observe_upload;
+mod parsing;
 mod provider_download;
 mod publish_check;
 mod publish_inputs;
@@ -20,6 +21,7 @@ mod publish_prepare;
 mod reference_inputs;
 mod references;
 mod reply;
+mod signed_update;
 mod submit_attestation;
 mod submit_reference;
 #[cfg(test)]
@@ -51,6 +53,8 @@ const USAGE: &str = concat!(
     "publish-check reverifies complete frozen snapshots and request packets before signed sequential capacity/content queries. Retain query intents/replies, blockers and original discovered IDs. Existing roots require recovery, retain or retirement handling; no allocation, reservation, updates, provider calls or retry/publication authority. A blocked summary is an observation, not command failure. Partial runs retain failure evidence and refuse overwrite.\n",
     "blob-storage publish-prepare|publish-prepare-resume --network ic|local --url URL --identity TENANT_PEM --actor TENANT --uploader-identity UPLOADER_PEM --service PRINCIPAL --namespace DECIMAL --inputs COMPLETE_PUBLISH_INPUTS_DIRECTORY --file-index ZERO_BASED_DECIMAL --max-bytes DECIMAL --max-total-bytes DECIMAL --timeout-seconds DECIMAL --run-dir NEW_DIRECTORY [--source-run ORIGINAL_PREPARATION_DIRECTORY] [--root-key DER]\n",
     "Prepare one indexed file serially. Reverify the entire batch, authenticate both roles and retain finite capacity/discovery observations before at most two local updates. Resume requires --source-run, binds the original signed admission, and never resubmits a claimed update; it may send only an unclaimed preparation. Four queries maximum per invocation. No certificate, provider transfer, expiry renewal, allocation or publication. Preserve the original journal; partial claims and unknown state never license redispatch.\n",
+    "blob-storage publish-prepare-batch --network ic|local --url URL --identity TENANT_PEM --actor TENANT --uploader-identity UPLOADER_PEM --service PRINCIPAL --namespace DECIMAL --inputs COMPLETE_PUBLISH_INPUTS_DIRECTORY --max-bytes DECIMAL --max-total-bytes DECIMAL --timeout-seconds DECIMAL --run-dir NEW_DIRECTORY [--root-key DER]\n",
+    "Verify the frozen batch once and serially prepare its files through the same signed setup workflow. Each file has an independent file-NNNN journal, at most two updates and four queries. Stop at the first blocker, uncertainty or failure; never repeat a claimed step or resume the whole batch. The overall deadline covers all setup calls. Recovery uses publish-prepare-resume with the original file directory. No certificate, provider transfer or publication; active reservation capacity still limits progress.\n",
     "blob-storage reference-inputs --permission PERMISSION_CANDID --action retain|release --reference DECIMAL --operation DECIMAL --run-dir NEW_DIRECTORY\n",
     "Offline exact reference.candid, reference-status.candid and download.candid generation from the original saved permission. Canonical positive identities are caller-supplied, never allocated. No signer, network, mutation, liveness, expiry renewal or retry authority; existing or partial directories refuse.\n",
     "blob-storage admit-upload|prepare-upload|revoke-upload --network ic|local --url URL --identity PEM --actor PRINCIPAL --service PRINCIPAL --namespace DECIMAL --request CANDID --run-dir NEW_DIRECTORY [--root-key DER]\n",
@@ -260,6 +264,9 @@ async fn observe(options: &arguments::Options) -> Result<serde_json::Value, Fail
         arguments::Command::UploadSetup(input) => upload_setup::run(options, input).await,
         arguments::Command::PublishCheck(input) => publish_check::run(options, input).await,
         arguments::Command::PublishPrepare(input) => publish_prepare::run(options, input).await,
+        arguments::Command::PublishPrepareBatch(input) => {
+            publish_prepare::batch::run(options, input).await
+        }
         arguments::Command::InspectAccount(input) => account::run(options, *input).await,
         arguments::Command::FundingAssessment(input) => {
             funding_assessment::run(options, *input).await

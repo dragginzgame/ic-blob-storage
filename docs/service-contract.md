@@ -905,6 +905,11 @@ bijection without rebuilding missing entries, then fences all mutations. Tenant
 lookup hides foreign roots. Enrollment and byte-quota admission belong to the
 enclosing workflow, not this index component.
 
+The transient upload model supplies independent accounting comparisons for the
+durable owner. It has no persistence or restore contract; production service
+handlers use the durable owner. Keeping this reference model does not introduce
+an alternate stable schema or a cross-release reader.
+
 `StableUploads` exclusively owns these components plus permission, manifest,
 charged-total, confirmed-lifecycle, reference, receipt and root/request index maps in ten distinct
 host-granted memories. Admission binds

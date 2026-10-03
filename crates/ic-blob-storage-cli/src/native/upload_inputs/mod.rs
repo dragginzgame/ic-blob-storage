@@ -7,6 +7,7 @@ use super::{
     read,
     reference_inputs::ReferenceFiles,
 };
+#[cfg(test)]
 use candid::Principal;
 use ic_blob_storage::{
     dto::{
@@ -26,11 +27,9 @@ use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
 use sha2::{Digest, Sha256};
 use std::{
-    collections::BTreeMap,
-    fmt::{Display, Write},
+    fmt::Write,
     num::NonZeroU64,
     path::{Path, PathBuf},
-    str::FromStr,
 };
 
 pub(super) const MANIFEST_BYTES: u64 = 256 * 1024;
@@ -116,20 +115,8 @@ struct Binding {
     expires_at_ns: String,
 }
 
-fn positive<T: FromStr + Display>(value: &str) -> Result<T, Failure> {
-    let parsed = value.parse::<T>().map_err(|_| Failure::Arguments)?;
-    if parsed.to_string() != value || value == "0" {
-        return Err(Failure::Arguments);
-    }
-    Ok(parsed)
-}
-fn principal(value: &str) -> Result<Principal, Failure> {
-    let result = Principal::from_text(value).map_err(|_| Failure::Arguments)?;
-    if result.to_text() != value {
-        return Err(Failure::Arguments);
-    }
-    Ok(result)
-}
+use super::parsing::positive;
+use super::parsing::principal;
 impl Binding {
     fn permission(&self) -> Result<UploadAdmissionRequest, Failure> {
         if self.schema != 1 {
@@ -188,12 +175,7 @@ fn validate_namespaces(
 }
 
 pub(super) fn run(args: &[String]) -> Result<Value, Failure> {
-    let mut flags = BTreeMap::new();
-    for pair in args[1..].chunks(2) {
-        if pair.len() != 2 || flags.insert(pair[0].as_str(), pair[1].as_str()).is_some() {
-            return Err(Failure::Arguments);
-        }
-    }
+    let mut flags = super::parsing::flags(&args[1..])?;
     let mut take = |name| flags.remove(name).ok_or(Failure::Arguments);
     let binding_path = Path::new(take("--binding")?);
     let installation_path = Path::new(take("--installation")?);

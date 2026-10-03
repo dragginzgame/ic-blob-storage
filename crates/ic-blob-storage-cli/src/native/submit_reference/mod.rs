@@ -1,7 +1,11 @@
 //! One exact tenant mutation, with retained intent and no redispatch or ID allocation.
-use super::{Failure, agent, arguments::Options, artifacts::Run, references};
+use super::{
+    Failure, agent,
+    arguments::Options,
+    references,
+    signed_update::{DEADLINE_SECONDS, PreparedUpdate, SMALL_REPLY_BYTES, UpdateInput},
+};
 use candid::Principal;
-use ic_agent::agent::CallResponse;
 use ic_blob_storage::{
     dto::reference::{ReferenceAction, ReferenceMutationResponse},
     model::identity::ContentDigest,
@@ -9,7 +13,7 @@ use ic_blob_storage::{
 };
 use serde::Serialize;
 use serde_json::{Value, json};
-use std::{path::PathBuf, time::Duration};
+use std::path::PathBuf;
 
 pub(super) struct Input {
     pub service: Principal,
@@ -76,26 +80,17 @@ pub(super) async fn run(options: &Options, input: &Input) -> Result<Value, Failu
         options.actor,
     )?;
     let agent = agent(options)?;
-    let signed = agent
-        .update(&input.service, REFERENCE_APPLY_METHOD)
-        .with_arg(argument.clone())
-        .expire_after(Duration::from_secs(120))
-        .sign()
-        .map_err(|_| Failure::Identity)?;
-    // The claim survives interruption even before the first file. A caller must
-    // reconcile the exact receipt; neither a partial claim nor absence authorizes retry.
-    let run = Run::create(&input.directory).map_err(|error| {
-        if error == Failure::ExistingRun {
-            Failure::SubmissionClaimed
-        } else {
-            error
-        }
-    })?;
-    run.bytes("request.candid", &argument)?;
-    run.bytes("signed-request.cbor", &signed.signed_update)?;
-    run.json(
-        "intent.json",
-        &DispatchIntentRecord {
+    let prepared = PreparedUpdate::claim(
+        &agent,
+        UpdateInput {
+            service: input.service,
+            method: REFERENCE_APPLY_METHOD,
+            argument: &argument,
+            argument_file: "request.candid",
+            directory: &input.directory,
+            reply_limit: SMALL_REPLY_BYTES,
+        },
+        |signed| DispatchIntentRecord {
             schema: 1,
             runner_version: env!("CARGO_PKG_VERSION"),
             runner_source_sha256: ContentDigest::compute(
@@ -103,6 +98,8 @@ pub(super) async fn run(options: &Options, input: &Input) -> Result<Value, Failu
                     include_str!("mod.rs"),
                     include_str!("../mod.rs"),
                     include_str!("../arguments/mod.rs"),
+                    include_str!("../parsing/mod.rs"),
+                    include_str!("../signed_update/mod.rs"),
                     include_str!("../references/mod.rs"),
                     include_str!("../observe_upload/record/mod.rs"),
                     include_str!("../../../../../Cargo.lock")
@@ -129,33 +126,25 @@ pub(super) async fn run(options: &Options, input: &Input) -> Result<Value, Failu
             request_sha256: ContentDigest::compute(&argument).to_string(),
             root_key_sha256: ContentDigest::compute(&agent.read_root_key()).to_string(),
             max_update_requests: 1,
-            request_deadline_seconds: 30,
+            request_deadline_seconds: DEADLINE_SECONDS,
             retry_authorized: false,
         },
     )?;
-    let result = tokio::time::timeout(
-        Duration::from_secs(30),
-        agent.update_signed(input.service, signed.signed_update),
-    )
-    .await
-    .map_err(|_| Failure::Timeout)
-    .and_then(|result| result.map_err(|_| Failure::Transport));
-    let result = match result {
-        Ok(CallResponse::Response(bytes)) => {
-            if bytes.len() > 4096 {
-                Err(Failure::ReplyLimit)
-            } else {
-                run.bytes("response.candid", &bytes)?;
-                reply::decode_mutation(request, &bytes, 4096.try_into().unwrap())
-                    .map(Some)
-                    .map_err(references::failure)
-            }
-        }
-        Ok(CallResponse::Poll(_)) => Ok(None),
-        Err(failure) => Err(failure),
-    };
-    let report = outcome(&signed.request_id.to_string(), &result);
-    run.json("outcome.json", &report)?;
+    let dispatched = prepared.dispatch(&agent).await;
+    let result = dispatched.response.and_then(|bytes| {
+        bytes
+            .map(|bytes| {
+                reply::decode_mutation(
+                    request,
+                    &bytes,
+                    SMALL_REPLY_BYTES.try_into().expect("fixed reply bound"),
+                )
+                .map_err(references::failure)
+            })
+            .transpose()
+    });
+    let report = outcome(&dispatched.request_id, &result);
+    dispatched.run.json("outcome.json", &report)?;
     result?;
     Ok(report)
 }

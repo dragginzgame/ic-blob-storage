@@ -1,4 +1,5 @@
 //! One indexed setup at a time, with original signed-operation claims surviving loss.
+pub(super) mod batch;
 mod journal;
 mod progress;
 #[cfg(test)]
@@ -13,6 +14,7 @@ use candid::Principal;
 use serde_json::{Value, json};
 use std::{num::NonZeroU64, path::PathBuf, time::Duration};
 
+#[derive(Clone)]
 pub(super) struct Input {
     pub service: Principal,
     pub namespace: u128,
@@ -49,6 +51,14 @@ pub(super) async fn run(options: &Options, input: &Input) -> Result<Value, Failu
         input.max_bytes,
         input.max_total_bytes,
     )?;
+    run_selected(options, input, &batch).await
+}
+
+async fn run_selected(
+    options: &Options,
+    input: &Input,
+    batch: &publish_inputs::PreparedBatch,
+) -> Result<Value, Failure> {
     let selected = batch.inputs.get(input.index).ok_or(Failure::Arguments)?;
     let scope = publish_check::observation::scope(
         &batch.inputs,
@@ -72,7 +82,7 @@ pub(super) async fn run(options: &Options, input: &Input) -> Result<Value, Failu
     );
     let agent = super::agent(options)?;
     super::agent(&uploader)?;
-    let binding = journal::binding(options, input, &batch, &agent.read_root_key());
+    let binding = journal::binding(options, input, batch, &agent.read_root_key());
     if input.source.is_some() {
         journal::validate(origin, &binding, selected)?;
         journal::validate_attempt(origin, upload_setup::Kind::Admit, options, selected)?;

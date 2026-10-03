@@ -1,33 +1,21 @@
 //! Offline complete candidate validation and init encoding; no platform or provider effect.
 use super::{Failure, artifacts::Run, candidate_candid, read};
-use candid::Principal;
 use ic_blob_storage::{
     dto::configuration::ServiceInstallationInput,
     model::identity::ContentDigest,
     ops::service::installation::{ServiceInstallationCandidate, ValidatedServiceInstallation},
 };
 use serde_json::{Value, json};
-use std::{collections::BTreeMap, path::Path};
+use std::path::Path;
 
 const CONFIGURATION_BYTES: usize = candidate_candid::MAX_BYTES;
 
-fn principal(value: &str) -> Result<Principal, Failure> {
-    let result = Principal::from_text(value).map_err(|_| Failure::Arguments)?;
-    if result.to_text() != value {
-        return Err(Failure::Arguments);
-    }
-    Ok(result)
-}
+use super::parsing::principal;
 
 use candidate_candid::decode;
 
 pub(super) fn run(args: &[String]) -> Result<Value, Failure> {
-    let mut flags = BTreeMap::new();
-    for pair in args[1..].chunks(2) {
-        if pair.len() != 2 || flags.insert(pair[0].as_str(), pair[1].as_str()).is_some() {
-            return Err(Failure::Arguments);
-        }
-    }
+    let mut flags = super::parsing::flags(&args[1..])?;
     let mut take = |key| flags.remove(key).ok_or(Failure::Arguments);
     let path = Path::new(take("--configuration")?);
     let service = principal(take("--service")?)?;
