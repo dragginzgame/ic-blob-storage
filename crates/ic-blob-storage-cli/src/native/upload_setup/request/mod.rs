@@ -1,23 +1,13 @@
 //! Shared pure validators own permission/metadata/tree invariants before dispatch.
-use super::{Failure, Input, Kind, Request, admission_error, manifest_error};
+use super::{
+    Failure, Input, Kind, Request, admission_error, manifest_error, manifest_reply_limits,
+};
 use candid::{CandidType, Deserialize, Principal, de::DecoderConfig, decode_one_with_config};
 use ic_blob_storage::{
     dto::upload::{admission::UploadAdmissionRequest, manifest::UploadManifestRequest},
-    model::identity::caffeine::manifest::CaffeineManifestLimits,
     ops::service::uploads::{admission::reply as admission, manifests::reply as manifest},
 };
 
-pub(super) fn limits() -> manifest::UploadManifestReplyLimits {
-    manifest::UploadManifestReplyLimits {
-        max_reply_bytes: 65536.try_into().unwrap(),
-        declaration: CaffeineManifestLimits {
-            max_content_bytes: (1024 * 1024 * 1024).try_into().unwrap(),
-            max_chunks: 1024.try_into().unwrap(),
-            max_headers: 16.try_into().unwrap(),
-            max_header_bytes: 4096.try_into().unwrap(),
-        },
-    }
-}
 fn decode<T: CandidType + for<'de> Deserialize<'de>>(bytes: &[u8]) -> Result<T, Failure> {
     let mut config = DecoderConfig::new();
     config
@@ -60,7 +50,12 @@ pub(super) fn load(input: &Input, actor: Principal) -> Result<Request, Failure> 
         return Err(Failure::Binding);
     }
     if let Some(r) = &manifest {
-        manifest::validate_declaration(permission, &r.declaration, limits().declaration)
+        let limits = manifest_reply_limits(
+            (1024 * 1024 * 1024)
+                .try_into()
+                .expect("positive content bound"),
+        );
+        manifest::validate_declaration(permission, &r.declaration, limits.declaration)
             .map_err(manifest_error)?;
     }
     let argument = if let Some(r) = &manifest {

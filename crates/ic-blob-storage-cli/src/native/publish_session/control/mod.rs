@@ -19,6 +19,10 @@ pub(super) enum Frame {
     Status {
         index: usize,
     },
+    Verify {
+        index: usize,
+        source_observation: Option<PathBuf>,
+    },
     Map {},
 }
 

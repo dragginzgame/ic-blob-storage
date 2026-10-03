@@ -14,6 +14,25 @@ use candid::Principal;
 use serde_json::{Value, json};
 use std::{num::NonZeroU64, path::PathBuf, time::Duration};
 
+#[derive(Clone, Copy, Eq, PartialEq, serde::Serialize)]
+#[serde(rename_all = "snake_case")]
+enum PreparationState {
+    Blocked,
+    AdmissionUnobserved,
+    PermissionInactive,
+    Prepared,
+    PreparationUnobserved,
+}
+pub(in crate::native) struct PreparationOutcome {
+    state: PreparationState,
+    pub report: Value,
+}
+impl PreparationOutcome {
+    pub fn prepared(&self) -> bool {
+        self.state == PreparationState::Prepared
+    }
+}
+
 #[derive(Clone)]
 pub(super) struct Input {
     pub service: Principal,
@@ -51,17 +70,18 @@ pub(super) async fn run(options: &Options, input: &Input) -> Result<Value, Failu
         input.max_bytes,
         input.max_total_bytes,
     )?;
-    run_selected(options, input, &batch).await
+    Ok(run_selected(options, input, &batch).await?.report)
 }
 
 pub(in crate::native) async fn run_selected(
     options: &Options,
     input: &Input,
     batch: &publish_inputs::PreparedBatch,
-) -> Result<Value, Failure> {
-    let selected = batch.inputs.get(input.index).ok_or(Failure::Arguments)?;
+) -> Result<PreparationOutcome, Failure> {
+    let file = batch.files.get(input.index).ok_or(Failure::Arguments)?;
+    let selected = &file.input;
     let scope = publish_check::observation::scope(
-        &batch.inputs,
+        &batch.files,
         input.service,
         input.namespace,
         options.actor,
@@ -111,7 +131,7 @@ pub(in crate::native) async fn run_selected(
     let result = tokio::time::timeout(Duration::from_secs(input.timeout_seconds), async {
         let report = publish_check::observation::inspect(
             scope,
-            std::slice::from_ref(selected),
+            std::slice::from_ref(file),
             &run,
             |method, args| {
                 let agent = &agent;
@@ -127,16 +147,16 @@ pub(in crate::native) async fn run_selected(
             },
         )
         .await?;
-        run.json("preflight.json", &report)?;
+        run.json("preflight.json", &report.report)?;
         context.advance(report).await
     })
     .await
     .map_err(|_| Failure::Timeout)
     .and_then(|r| r);
     match result {
-        Ok(report) => {
-            run.json("summary.json", &report)?;
-            Ok(report)
+        Ok(outcome) => {
+            run.json("summary.json", &outcome.report)?;
+            Ok(outcome)
         }
         Err(error) => {
             run.json(

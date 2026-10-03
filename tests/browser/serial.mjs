@@ -17,10 +17,13 @@ const { handle, state } = standaloneGateway(config, bundle, sizes, workerBundle)
 const tls = await loopbackTLS(), gateway = await loopbackH2(tls, handle);
 await writeFile(config.providerRootCertificate, tls.root, { flag: 'wx' });
 const unexpected = [], journals = [], originals = [], workerReports = [];
-let context, page;
+let context, page, certificateCalls = 0;
 async function open() {
+  certificateCalls = 0;
   context = await chromium.launchPersistentContext(config.profile, tls.launch);
   context.on('request', request => {
+    const url = new URL(request.url());
+    if (url.origin === new URL(config.url).origin && url.pathname.endsWith('/call')) certificateCalls++;
     if (![gateway.origin, new URL(config.url).origin].includes(new URL(request.url()).origin))
       unexpected.push(request.url());
   });
@@ -46,7 +49,7 @@ try {
     });
     const lost = config.lostFinalReply && index === 0;
     assert.equal(outcome.uploaded, !lost);
-    assert.equal(await page.evaluate(() => trial.calls()), 1);
+    assert.equal(certificateCalls, 1);
     if (config.worker && config.corruptRead) await page.evaluate(() => trial.cancel());
     const row = await page.evaluate(() => trial.inspect());
     assert.equal(row.phase, 'observed'); assert.equal(row.gateway.requests.length, 2);
@@ -62,7 +65,7 @@ try {
     assert.equal(await page.evaluate(async () => {
       try { await trial.upload(); return 'sent'; } catch (error) { return error.code; }
     }), 'upload-claimed');
-    assert.equal(await page.evaluate(() => trial.calls()), 0);
+    assert.equal(certificateCalls, 0);
     send({ index, gateway: gateway.origin, uploaded: outcome.uploaded,
       finalRequestPhase: row.gateway.requests[1].phase, browserRestarted: true });
     if (index === 1) assert.deepEqual(await next(), { finish: true });
@@ -75,7 +78,7 @@ try {
     await page.evaluate(options => trial.setup(options, 'open'), options);
     assert.deepEqual(await page.evaluate(() => trial.inspect()), journals[index]);
   }
-  assert.equal(await page.evaluate(() => trial.calls()), 0);
+  assert.equal(certificateCalls, 0);
   workerReports.push(...await page.evaluate(() => trial.workerReports()));
   for (const report of workerReports) {
     assert.equal(report.service_completion_checked, false); assert.equal(report.retry_authorized, false);

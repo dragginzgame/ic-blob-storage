@@ -10,14 +10,9 @@ pub(in crate::native) async fn run(options: &Options, input: &Input) -> Result<V
         input.max_bytes,
         input.max_total_bytes,
     )?;
-    publish_check::observation::scope(
-        &batch.inputs,
-        input.service,
-        input.namespace,
-        options.actor,
-    )?;
+    publish_check::observation::scope(&batch.files, input.service, input.namespace, options.actor)?;
     let tenant = agent(options)?;
-    let selected = batch.inputs.first().ok_or(Failure::Arguments)?;
+    let selected = &batch.files.first().ok_or(Failure::Arguments)?.input;
     let uploader = super::setup_options(
         options,
         super::upload_setup::Input {
@@ -39,23 +34,25 @@ pub(in crate::native) async fn run(options: &Options, input: &Input) -> Result<V
         "uploader":selected.permission.uploader.to_text(),"service":input.service.to_text(),
         "namespace":input.namespace.to_string(),"inventory_sha256":digest(&batch.inventory),
         "installation_sha256":digest(&batch.installation),"root_key_sha256":ContentDigest::compute(&tenant.read_root_key()).to_string(),
-        "files":batch.inputs.len(),"max_service_updates":2*batch.inputs.len(),
-        "max_service_queries":4*batch.inputs.len(),"timeout_seconds":input.timeout_seconds,
+        "files":batch.files.len(),"max_service_updates":2*batch.files.len(),
+        "max_service_queries":4*batch.files.len(),"timeout_seconds":input.timeout_seconds,
         "provider_requests":0,"automatic_retries":0,"publication_authorized":false}))?;
     let result = tokio::time::timeout(Duration::from_secs(input.timeout_seconds), async {
-        let mut results = Vec::with_capacity(batch.inputs.len());
-        for index in 0..batch.inputs.len() {
+        let mut results = Vec::with_capacity(batch.files.len());
+        let mut all_prepared = true;
+        for index in 0..batch.files.len() {
             let file = Input {
                 index, directory: input.directory.join(format!("file-{index:04}")),
                 ..input.clone()
             };
-            let report = run_selected(options, &file, &batch).await?;
-            let prepared = report["prepared"] == true;
-            results.push(report);
+            let outcome = run_selected(options, &file, &batch).await?;
+            let prepared = outcome.prepared();
+            all_prepared &= prepared;
+            results.push(outcome.report);
             if !prepared { break; }
         }
         Ok::<_, Failure>(json!({"schema":1,"operation":"publish_prepare_batch",
-            "all_files_prepared":results.len()==batch.inputs.len() && results.iter().all(|r| r["prepared"]==true),
+            "all_files_prepared":results.len()==batch.files.len() && all_prepared,
             "files":results,"provider_requests":0,"retry_authorized":false,"publication_authorized":false}))
     }).await.map_err(|_| Failure::Timeout).and_then(|r| r);
     match result {

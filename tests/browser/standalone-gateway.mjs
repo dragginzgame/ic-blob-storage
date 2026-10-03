@@ -7,6 +7,14 @@ export function standaloneGateway(config, bundle, sizes = [1024], workerBundle) 
   const record = (path, bytes) => ({ path, bytes: bytes.length,
     sha256: createHash('sha256').update(bytes).digest('hex') });
   const handle = (req, res) => {
+    if (config.browserOrigin) {
+      res.setHeader('access-control-allow-origin', config.browserOrigin);
+      if (req.method === 'OPTIONS') {
+        res.writeHead(204, { 'access-control-allow-methods': 'GET, PUT',
+          'access-control-allow-headers': 'content-type, x-caffeine-project-id' });
+        res.end(); return;
+      }
+    }
     const url = new URL(req.url, 'http://localhost');
     if (req.method === 'PUT') {
       assert.equal(req.httpVersion, '2.0');

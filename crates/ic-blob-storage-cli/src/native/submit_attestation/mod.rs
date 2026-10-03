@@ -10,7 +10,7 @@ use super::{
 };
 use candid::Principal;
 use ic_blob_storage::{
-    dto::upload::completion::UploadAttestationMutation,
+    dto::upload::{admission::UploadAdmissionRequest, completion::UploadAttestationMutation},
     model::identity::ContentDigest,
     ops::service::uploads::completion::{UPLOAD_ATTEST_METHOD, reply},
 };
@@ -100,6 +100,73 @@ impl DispatchOutcomeRecord {
 
 pub(super) async fn run(options: &Options, input: &Input) -> Result<Value, Failure> {
     let observed = observation::Observation::open(options, input)?;
+    dispatch(options, input, observed).await
+}
+
+/// A publication session pins both the exact original permission and raw body
+/// digest before allowing the existing one-shot signed attestation claim.
+pub(super) async fn run_for_upload(
+    options: &Options,
+    input: &Input,
+    permission: UploadAdmissionRequest,
+    digest: ContentDigest,
+    gateway: &url::Url,
+) -> Result<Value, Failure> {
+    let observed = bound_observation(options, input, permission, digest, gateway)?;
+    dispatch(options, input, observed).await
+}
+
+fn bound_observation(
+    options: &Options,
+    input: &Input,
+    permission: UploadAdmissionRequest,
+    digest: ContentDigest,
+    gateway: &url::Url,
+) -> Result<observation::Observation, Failure> {
+    let observed = observation::Observation::open(options, input)?;
+    if observed.recovery.statement.permission != permission
+        || observed.recovery.statement.content_digest != *digest.as_bytes()
+        || &observed.gateway != gateway
+    {
+        return Err(Failure::Binding);
+    }
+    Ok(observed)
+}
+
+/// Reconcile the exact original observation against immutable history. No
+/// provider GET, regenerated statement or signed submission occurs here.
+pub(super) async fn recover_for_upload(
+    options: &Options,
+    input: &Input,
+    permission: UploadAdmissionRequest,
+    digest: ContentDigest,
+    gateway: &url::Url,
+    run: &crate::native::artifacts::Run,
+) -> Result<Value, Failure> {
+    let observed = bound_observation(options, input, permission, digest, gateway)?;
+    let (service, method, argument) = observed.recovery.query();
+    run.bytes("attestation-query.candid", &argument)?;
+    let bytes = crate::native::query(options, service, method, argument).await?;
+    if bytes.len() > 4096 {
+        return Err(Failure::ReplyLimit);
+    }
+    run.bytes("attestation-reply.candid", &bytes)?;
+    let inspection =
+        observed
+            .recovery
+            .inspect(&bytes, options.actor, options.network, options.url.as_str())?;
+    run.json("attestation-inspection.json", &inspection.report)?;
+    if !inspection.matched {
+        return Err(Failure::VerificationRefused);
+    }
+    Ok(inspection.report)
+}
+
+async fn dispatch(
+    options: &Options,
+    input: &Input,
+    observed: observation::Observation,
+) -> Result<Value, Failure> {
     let agent = agent(options)?;
     let prepared = PreparedUpdate::claim(
         &agent,
@@ -123,6 +190,8 @@ pub(super) async fn run(options: &Options, input: &Input) -> Result<Value, Failu
                     include_str!("../parsing/mod.rs"),
                     include_str!("../signed_update/mod.rs"),
                     include_str!("../attestation/mod.rs"),
+                    include_str!("../upload_setup/mod.rs"),
+                    include_str!("../references/mod.rs"),
                     include_str!("../observe_upload/record/mod.rs"),
                     include_str!("../../../../../Cargo.lock")
                 )

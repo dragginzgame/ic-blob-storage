@@ -8,7 +8,7 @@ const ROOT: &str = "sha256:0e9afaf413b048e40834d5b0e737d80fbf304af2045c7564d96ad
 const LEAF: &str = "sha256:b5b435d47a4cce7dfec493b1e020c5308d9c7fe90add1aff510f9c2a9c4ea8e7";
 
 pub(in crate::native) fn binding() -> Value {
-    json!({"schema":1, "project":"fixture-project", "bucket":"fixture-bucket",
+    json!({"schema":1, "preparation":{"content_type":"text/plain"}, "project":"fixture-project", "bucket":"fixture-bucket",
         "service": Principal::self_authenticating([1]).to_text(),
         "namespace": u128::MAX.to_string(),
         "tenant": Principal::self_authenticating([2]).to_text(),
@@ -228,6 +228,59 @@ fn binding_requires_canonical_strings_current_schema_and_valid_authority_princip
             crate::native::execute(&args),
             Err(Failure::Arguments)
         ));
+        assert!(!base.path().join("output").exists());
+    }
+}
+
+#[test]
+fn preparation_hints_preserve_omission_empty_values_and_utf8_byte_bounds() {
+    for preparation in [
+        json!({}),
+        json!({"content_type":"text/plain"}),
+        json!({"content_type":"", "filename":""}),
+        json!({"filename":"β".repeat(2048)}),
+    ] {
+        let base = tempfile::tempdir().unwrap();
+        let mut binding = binding();
+        binding["preparation"] = preparation.clone();
+        let args = arguments(base.path(), &binding, &manifest());
+        let output = crate::native::execute(&args).unwrap();
+        let input = PreparedInput::load(
+            InputFiles {
+                binding: std::fs::read(base.path().join("output/binding.json")).unwrap(),
+                manifest: std::fs::read(base.path().join("output/manifest.json")).unwrap(),
+                installation: std::fs::read(base.path().join("output/installation.candid"))
+                    .unwrap(),
+                body: base.path().join("output/body.bin"),
+            },
+            NonZeroU64::new(10).unwrap(),
+        )
+        .unwrap();
+        let transfer = input
+            .transfer_input(
+                output["content_digest"]
+                    .as_str()
+                    .unwrap()
+                    .trim_start_matches("sha256:"),
+            )
+            .unwrap();
+        assert_eq!(transfer["preparation"], preparation);
+    }
+    for preparation in [
+        json!(null),
+        json!({"filename":null}),
+        json!({"filename":12}),
+        json!({"filename":"β".repeat(2049)}),
+        json!({"content_type":"x".repeat(4097)}),
+        json!({"inferred_type":"text/plain"}),
+    ] {
+        let base = tempfile::tempdir().unwrap();
+        let mut binding = binding();
+        binding["preparation"] = preparation;
+        assert_eq!(
+            crate::native::execute(&arguments(base.path(), &binding, &manifest())),
+            Err(Failure::Arguments)
+        );
         assert!(!base.path().join("output").exists());
     }
 }

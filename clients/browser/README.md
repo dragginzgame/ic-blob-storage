@@ -15,6 +15,11 @@ Application authentication, selection of a persistent browser environment and
 deployed Caffeine qualification are still integration requirements. The package
 now supplies the bounded IndexedDB journal described below.
 
+Certificate, journal and worker boundaries share the same canonical binding
+rules; gateway and journal budgets also share their bounds. Each boundary keeps
+its own role checks, input snapshots and durable transaction requirements.
+Malformed worker bindings refuse before journal access, including with a custom store.
+
 ```js
 import { createCertificateClient } from './certificate.js';
 import { createIndexedDBIntentStore } from './intents.js';
@@ -86,7 +91,7 @@ For an indexed `publish-inputs` file after authenticated `publish-prepare`, use
 `createPublicationUpload` (package subpath `./publication`). The consumer must
 validate the full batch/setup report and select the original file; this helper
 accepts one body and owns no ID allocation or setup journal. Independent native
-commands reverify the full batch; Unreleased `publish-session` retains one
+commands reverify the full batch; `publish-session` retains one
 validated batch and supplies the selected cached transfer descriptor instead.
 
 ```js
@@ -103,7 +108,9 @@ const result = await upload.upload(onProgress);
 
 Load `binding` from the selected `file-0000/certificate-binding.json`, body from
 `body.bin`, raw SHA-256 from the frozen inventory, and SDK manifest from
-`manifest.json`. Preserve original preparation hints, including omitted filename;
+`manifest.json`. Load original hints from `binding.json`'s required `preparation`
+object (`content_type`/`filename`), or the native session transfer descriptor.
+Preserve original preparation hints, including omitted filename;
 the SDK rebuild must reproduce exact headers, ordered leaves, root and body length.
 The helper snapshots body/binding/trust root before any await and checks the saved
 raw digest before saving certificate intent. Its body bound is at most 1 GiB;
@@ -137,12 +144,15 @@ An exposed permission refuses setup recovery with zero updates; independent
 verification reconciles the original lost-reply upload before advancement. See
 the [session protocol](../../docs/operator-guide.md#hold-one-validated-batch-across-publication-phases).
 The maintained SDK and strict IndexedDB rows remain the certificate/gateway owners;
-the worker below is implemented; native parent and verifier-phase automation
-remain open.
+the worker below is implemented. The native session can now compose the maintained
+observer and one-shot attestation with an explicitly selected verifier, or inspect
+an original observation without another GET/submission. The maintained host below
+boots a selected SDK signer over its private port; native process launch, PEM/SDK
+selection and durable parent coordination remain open.
 
 ### Run jobs in a browser worker
 
-Unreleased `createPublicationWorker` (package subpath `./worker`) supplies the
+`createPublicationWorker` (package subpath `./worker`) supplies the
 browser job boundary for a headless publisher. It runs in a real DedicatedWorker
 as well as a trusted browser context. Bootstrap with an explicitly selected
 signer and existing strict IndexedDB store. Bind service, tenant, uploader,
@@ -225,9 +235,131 @@ Actual Chromium/PocketIC tests use this implementation in DedicatedWorkers at on
 active reservation. Browser/native restart reconciles lost replies without new
 uploads. Cancellation survives reopening; corrupt observation blocks the next
 transfer/map while preserving exposed bytes. Offline control tests use a substituted
-store and establish boundary checks only. Native parent launch/signing/bootstrap,
-verifier automation, real Miner media and serving acceptance remain unfinished;
+store and establish boundary checks only. Native parent process launch and signer selection,
+real Miner media and serving acceptance remain unfinished;
 the owned gateway is not deployed Caffeine.
+
+### Launch the maintained worker with a selected signer
+
+Unreleased `createPublicationWorkerHost` (`./bootstrap`) launches the explicitly
+named same-origin module from `./worker-entry`. Bundle that entry with the reviewed
+Caffeine patch and pinned peers, and serve it from a trusted application asset
+origin. The host transfers one private port; SDK identity JSON and configuration
+cross only that port. There is no public window handler, HTTP credential route,
+identity discovery or default signer.
+
+```js
+import { createPublicationWorkerHost } from './bootstrap.js';
+
+const host = await createPublicationWorkerHost({
+  workerURL: '/publication-worker.js', signal,
+  bootstrap: {
+    schema: 1, operation: 'bootstrap',
+    signer: { kind: 'ed25519', json: JSON.stringify(selectedIdentity.toJSON()) },
+    configuration: {
+      host: icOrigin, rootKey, service, tenant, uploader, project, bucket,
+      origin: gatewayOrigin, maxBodyBytes, maxRequests, maxRequestBytes,
+      maxTotalRequestBytes, maxJobs, timeoutSeconds,
+    },
+    journal: { database: originalDatabase, maxSlots, mode: 'open' },
+  },
+});
+const report = await host.execute(originalWorkerJob);
+host.close();
+```
+
+Use `ed25519` or `secp256k1` with that SDK identity's canonical JSON. The bootstrap
+recomputes the public key through the SDK, checks the advertised pair and exact
+configured uploader, then validates bindings/budgets before opening IndexedDB.
+The trust root is an explicit `Uint8Array`; preparation hints remain the original
+worker job's `contentType`/`filename`, including their omission. A new journal
+requires explicit `mode:'create'`; reopening uses `open`. Missing/rolled-back
+profiles never authorize a replacement journal or another transfer.
+
+The host owns one outstanding request, exact reply correlation and worker
+termination on close, abort or deadline. It snapshots bounded jobs and transfers
+its own body buffer, leaving caller bytes attached. Small views of larger buffers
+copy only the selected bytes. Closing rejects outstanding work and preserves the
+existing profile/journals; it does not prove that an already exposed effect stopped.
+Replies remain the worker's redacted observations with no completion/retry authority.
+Private signer material lives in trusted process memory; JavaScript key erasure
+and hostile asset-origin isolation are not guarantees of this helper.
+
+Actual Chromium checks cover both signer kinds, malformed/mismatched bootstrap
+before journal creation, body snapshots, concurrency, hard worker termination and
+reopening the same profile. Serial PocketIC uploads use this host and maintained
+entry with independent native verifier completion. Unreleased also adds the native
+Chromium bridge below. Complete durable parent restart/phase coordination remains
+unfinished; select SDK identity JSON explicitly rather than inventing a PEM parser.
+
+## Launch Chromium from a native parent
+
+Unreleased `launchPublicationBrowser` (`./launcher`) owns a persistent Playwright
+Chromium context and the maintained host/worker. Supply your installed Chromium
+engine, explicitly selected signer/bootstrap, trusted built bundles, original
+absolute profile path and fixed loopback port. The private client adds no Playwright
+or framework dependency to the Rust/Wasm graph; the evidence harness uses pinned
+Playwright 1.63.0. Build the reviewed bundles with `tests/browser/build.mjs`.
+
+```js
+import { chromium } from 'playwright';
+import { launchPublicationBrowser } from './launcher.mjs';
+
+const browser = await launchPublicationBrowser(chromium, {
+  profile: originalAbsoluteProfilePath,
+  assetPort: originalLoopbackPort,
+  hostBundle: absolutePublicationHostBundle,
+  workerBundle: absolutePublicationWorkerBundle,
+  bootstrap: selectedBootstrap, // same selected-signer contract above
+});
+try {
+  const report = await browser.execute({
+    id: 1, index: 0, action: 'upload', transfer: prepared.report.transfer,
+  });
+  // Independently verify/attest and inspect the current reference in the native
+  // session. This browser report never grants completion or retry authority.
+} finally {
+  await browser.close();
+}
+```
+
+The native `prepare` phase must have returned `prepared:true` first. Its transfer
+contains `binding`, absolute `body`, `body_sha256`, `manifest_json`, decimal `bytes`
+and the original `preparation` object. The bridge owns this request before awaits,
+opens only the selected regular file with an explicit body ceiling, checks exact
+length/EOF and raw digest, and sends at most 64 KiB per CDP body value. The worker
+then recomputes the SDK root/manifest before certificate intent. No body, signer
+or configuration is exposed through the asset HTTP server; it serves only the
+fixed page and two trusted JavaScript bundles, with no cache, redirects or fallback
+routes. Caller-selected assets and the local processes remain trusted.
+
+For `inspect`, `recover-certificate` or `cancel`, supply `{id,index,action,binding}`.
+Only one job runs at a time. Request IDs are execution correlation, not durable
+operation identity. Replies stay redacted and retain `service_completion_checked`
+and `retry_authorized` as false. Local body refusals cause no dispatch; a browser
+transport/control failure closes the context and leaves its effects uncertain.
+
+First launch requires both a new profile and explicit journal `mode:'create'`.
+Reopening requires the original profile/port/database and `mode:'open'`. Port
+contention refuses before profile creation; it never chooses another origin.
+Missing history refuses without creating a replacement journal. Closing, deadline
+or a process loss never authorizes another upload. Keep every original native
+setup/observer/attestation claim as well as the browser profile. This does not
+prove a profile wasn't rolled back; stale-backup fencing remains required.
+
+Chromium launch/navigation waits and the running context have explicit deadlines;
+local file I/O and Playwright process shutdown are not preemptively bounded.
+Large-file peak heap/CDP latency and hostile local-user/key-memory isolation are
+not qualified. This is a callable process bridge, not a complete noninteractive
+publisher: the durable native parent must still persist its selected origin/profile
+and phase decisions before effects, retain preparation origins and reconcile
+uncertainty on restart. The operator, tenant and verifier still need their original
+native identities and journals; no automatic key discovery or paid authority follows.
+
+Run the scoped owned-profile checks with `make test-browser-launcher
+BLOB_LAUNCHER_REPORT=NEW_DIRECTORY`. The selected serial verifier journeys run
+this bridge through owned PocketIC/HTTPS substitutes and whole-browser restart;
+they do not qualify deployed provider behavior or full Miner/public serving.
 
 On the Rust side, `ops::caffeine::preparation::decode_prepared_manifest` converts
 the upstream `manifestJSON` into the existing service declaration within explicit

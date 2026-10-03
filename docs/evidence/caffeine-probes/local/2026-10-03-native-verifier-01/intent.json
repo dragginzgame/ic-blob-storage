@@ -1,0 +1,35 @@
+{
+  "schema": 1,
+  "date": "2026-10-03",
+  "evidence_class": "local_standalone_native_chromium_substitute",
+  "purpose": "Verify native session exact observation/attestation, read-only original observation recovery and corruption stopping before submission or advancement.",
+  "baseline": "f856a2b138511e695d234c59bb5d9fafcccef794",
+  "starting_diff_sha256": "8cbbc29107b9b9d8340f8840e63cd8d65c230e86d73792d67b2e53cd8a93b9b7",
+  "targets": [
+    "three native-verifier Chromium/PocketIC journeys",
+    "existing native session checks",
+    "native unit tests and strict CLI/integration lint"
+  ],
+  "limits": {
+    "files": 2,
+    "body_bytes": [
+      1024,
+      2048
+    ],
+    "active_upload_reservations": 1,
+    "automatic_retries": 0
+  },
+  "live_provider_requests": 0,
+  "paid_cycles": 0,
+  "retain": [
+    "original session phase/observation/attestation records",
+    "browser profiles and gateway fingerprints",
+    "frozen native binary and source/artifact/log hashes",
+    "failed attempts before corrected reruns"
+  ],
+  "limitations": [
+    "Owned loopback substitutes only; no deployed Caffeine qualification",
+    "Browser launcher/bootstrap and full Miner acceptance remain open",
+    "No full CI, deployment, funding, release or sibling edits"
+  ]
+}

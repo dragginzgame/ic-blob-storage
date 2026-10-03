@@ -24,8 +24,8 @@ pub(super) async fn run(options: &Options, input: &Input) -> Result<Value, Failu
         input.max_bytes,
         input.max_total_bytes,
     )?;
-    let scope = observation::scope(&batch.inputs, input.service, input.namespace, options.actor)?;
-    if input.max_queries < batch.inputs.len() as u64 + 1 {
+    let scope = observation::scope(&batch.files, input.service, input.namespace, options.actor)?;
+    if input.max_queries < batch.files.len() as u64 + 1 {
         return Err(Failure::ReplyLimit);
     }
     // Authentication/root checks precede claiming a run or recording query intent.
@@ -44,7 +44,7 @@ pub(super) async fn run(options: &Options, input: &Input) -> Result<Value, Failu
         "identities_allocated":false,"automatic_retries":0}),
     )?;
     let result = tokio::time::timeout(Duration::from_secs(input.timeout_seconds), async {
-        observation::inspect(scope, &batch.inputs, &run, |method, args| {
+        observation::inspect(scope, &batch.files, &run, |method, args| {
             let agent = &agent;
             async move {
                 tokio::time::timeout(
@@ -62,7 +62,7 @@ pub(super) async fn run(options: &Options, input: &Input) -> Result<Value, Failu
     .map_err(|_| Failure::Timeout)
     .and_then(|v| v);
     let mut report = match result {
-        Ok(value) => value,
+        Ok(observation) => observation.report,
         Err(error) => {
             run.json(
                 "failure.json",

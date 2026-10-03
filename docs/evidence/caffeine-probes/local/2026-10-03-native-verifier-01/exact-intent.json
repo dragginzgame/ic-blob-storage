@@ -1,0 +1,24 @@
+{
+  "schema": 1,
+  "date": "2026-10-03",
+  "evidence_class": "local_standalone_chromium_substitute",
+  "purpose": "After the final native tests passed, verify exact saved-statement recovery refuses a different observation time despite matching upload/digest and an already live reference. Preserve all original captures; modify only a separate test observation copy.",
+  "targets": [
+    "three native-verifier browser scenarios with foreign-upload and statement-time conflict rejection"
+  ],
+  "limits": {
+    "files": 2,
+    "body_bytes": [
+      1024,
+      2048
+    ],
+    "max_gateway_puts": 4,
+    "max_gateway_gets": 4,
+    "automatic_retries": 0
+  },
+  "live_provider_requests": 0,
+  "paid_cycles": 0,
+  "artifacts": ".tmp/native-verifier-01/browser-exact",
+  "native_binary": ".tmp/native-verifier-01/artifacts/blob-storage-final",
+  "changes": "Test consumer only; native production binary unchanged"
+}

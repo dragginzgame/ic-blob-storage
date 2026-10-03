@@ -1,12 +1,9 @@
 //! Compare saved intent to immutable service history without resending it.
-use super::{Failure, read};
+use super::{Failure, read, references::upload_json};
 use candid::{Principal, de::DecoderConfig, decode_one_with_config};
 use ic_blob_storage::{
     dto::upload::completion::{UploadAttestationLookup, UploadAttestationRequest},
-    model::{
-        identity::{ContentDigest, ProviderRootHash},
-        service::upload::completion::CompletionAuthority,
-    },
+    model::{identity::ContentDigest, service::upload::completion::CompletionAuthority},
     ops::service::uploads::completion::reply::{self, UploadAttestationReplyError},
 };
 use serde_json::{Value, json};
@@ -16,6 +13,12 @@ pub(super) struct Recovery {
     pub(super) authority: CompletionAuthority,
     pub(super) statement: UploadAttestationRequest,
     argument: Vec<u8>,
+}
+
+/// Typed receipt correlation; report JSON does not decide recovery authority.
+pub(super) struct RecoveryInspection {
+    pub matched: bool,
+    pub report: Value,
 }
 
 pub(super) fn failure(error: UploadAttestationReplyError) -> Failure {
@@ -101,6 +104,16 @@ impl Recovery {
         network: &str,
         url: &str,
     ) -> Result<Value, Failure> {
+        Ok(self.inspect(bytes, actor, network, url)?.report)
+    }
+
+    pub fn inspect(
+        &self,
+        bytes: &[u8],
+        actor: Principal,
+        network: &str,
+        url: &str,
+    ) -> Result<RecoveryInspection, Failure> {
         let response = reply::inspection(
             self.authority,
             self.statement.permission,
@@ -108,14 +121,12 @@ impl Recovery {
             4096.try_into().expect("positive bound"),
         )
         .map_err(failure)?;
+        let matched = matches!(response.attestation,
+            UploadAttestationLookup::Found(receipt) if receipt.request == self.statement);
         let (outcome, receipt) = match response.attestation {
             UploadAttestationLookup::Absent => ("absent", Value::Null),
             UploadAttestationLookup::Found(receipt) => (
-                if receipt.request == self.statement {
-                    "matched"
-                } else {
-                    "conflict"
-                },
+                if matched { "matched" } else { "conflict" },
                 json!({
                     "verifier":receipt.verifier.to_text(),
                     "content_digest":digest(receipt.request.content_digest),
@@ -125,24 +136,21 @@ impl Recovery {
             ),
         };
         let p = self.statement.permission;
-        let upload = p.upload;
-        Ok(json!({
-            "schema":1,"observation":"upload_attestation","actor":actor.to_text(),
-            "network":network,"url":url,"authentication":"query_signatures",
-            "expected_verifier":self.authority.verifier().to_text(),
-            "upload":{"service":upload.service.to_text(),"namespace":upload.namespace.to_string(),
-                "tenant":upload.tenant.to_text(),"upload":upload.upload.to_string(),
-                "object":upload.object.to_string(),"incarnation":upload.incarnation.to_string(),
-                "first_reference":upload.first_reference.to_string(),
-                "root":ProviderRootHash::try_from(upload.root.as_slice()).expect("fixed root").to_string(),
-                "bytes":upload.bytes.to_string()},
-            "uploader":p.uploader.to_text(),"expires_at_ns":p.expires_at_ns.to_string(),
-            "expected_statement":{"content_digest":digest(self.statement.content_digest),
-                "observed_at_ns":self.statement.observed_at_ns.to_string()},
-            "outcome":outcome,"receipt":receipt,"fenced":response.fenced,
-            "retry_authorized":false,"current_availability":"not_observed",
-            "reference_liveness":"not_observed","billing_cessation":"not_established",
-        }))
+        Ok(RecoveryInspection {
+            matched,
+            report: json!({
+                "schema":1,"observation":"upload_attestation","actor":actor.to_text(),
+                "network":network,"url":url,"authentication":"query_signatures",
+                "expected_verifier":self.authority.verifier().to_text(),
+                "upload":upload_json(p.upload),
+                "uploader":p.uploader.to_text(),"expires_at_ns":p.expires_at_ns.to_string(),
+                "expected_statement":{"content_digest":digest(self.statement.content_digest),
+                    "observed_at_ns":self.statement.observed_at_ns.to_string()},
+                "outcome":outcome,"receipt":receipt,"fenced":response.fenced,
+                "retry_authorized":false,"current_availability":"not_observed",
+                "reference_liveness":"not_observed","billing_cessation":"not_established",
+            }),
+        })
     }
 }
 fn digest(bytes: [u8; 32]) -> String {

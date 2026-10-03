@@ -1,0 +1,9 @@
+{
+  "schema": 1,
+  "date": "2026-10-03",
+  "evidence_class": "source_offline_and_local_browser_substitute",
+  "operation": "selected_native_body_hints_and_browser_process_bridge",
+  "targets": ["offline native input checks", "owned Chromium/IndexedDB", "owned PocketIC/HTTPS serial verifier journeys"],
+  "budget": {"max_files_per_serial_trial": 2, "max_body_bytes_per_serial_trial": 3072, "max_live_provider_requests": 0, "max_paid_effects": 0, "automatic_retries": 0},
+  "obligations": "Retain original profiles, input hints, setup/observer/submission claims and failed attempts. No live owner, sibling edit, cleanup or full CI. Process bridge does not confer replay or publication authority."
+}

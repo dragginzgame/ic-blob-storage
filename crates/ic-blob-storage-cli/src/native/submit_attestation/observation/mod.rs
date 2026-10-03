@@ -9,18 +9,16 @@ use crate::native::{
         DownloadRequestRecord, ObservationPlanRecord, ObservationSummaryRecord,
     },
     read,
+    upload_setup::manifest_reply_limits,
 };
 use ic_blob_storage::{
     model::{
-        identity::{ContentDigest, ProviderRootHash, caffeine::manifest::CaffeineManifestLimits},
+        identity::{ContentDigest, ProviderRootHash},
         service::read::download::CaffeineDownloadScope,
     },
     ops::{
         caffeine::download::request_target,
-        service::uploads::{
-            completion::{reply::inspection_request, verification},
-            manifests::reply::UploadManifestReplyLimits,
-        },
+        service::uploads::completion::{reply::inspection_request, verification},
     },
 };
 use serde::de::DeserializeOwned;
@@ -30,6 +28,7 @@ pub(super) struct Observation {
     pub recovery: Recovery,
     pub statement: Vec<u8>,
     pub hashes: BTreeMap<&'static str, String>,
+    pub gateway: url::Url,
 }
 struct Artifacts<'a> {
     path: &'a Path,
@@ -123,15 +122,7 @@ impl Observation {
             authority,
             permission,
             &service_response,
-            UploadManifestReplyLimits {
-                max_reply_bytes: (64 * 1024).try_into().unwrap(),
-                declaration: CaffeineManifestLimits {
-                    max_content_bytes: maximum.try_into().unwrap(),
-                    max_chunks: 1024.try_into().unwrap(),
-                    max_headers: 16.try_into().unwrap(),
-                    max_header_bytes: 4096.try_into().unwrap(),
-                },
-            },
+            manifest_reply_limits(maximum.try_into().expect("validated positive bound")),
         )
         .map_err(|_| Failure::Observation)?;
         require(
@@ -139,11 +130,12 @@ impl Observation {
                 && records.request.service_reply_sha256
                     == ContentDigest::compute(&service_response).to_string(),
         )?;
-        records.validate(options, input, &recovery, &verified)?;
+        let gateway = records.validate(options, input, &recovery, &verified)?;
         Ok(Self {
             recovery,
             statement,
             hashes: artifacts.hashes,
+            gateway,
         })
     }
 }
@@ -154,7 +146,7 @@ impl Records {
         input: &Input,
         recovery: &Recovery,
         verified: &ic_blob_storage::dto::upload::completion::UploadVerificationPlan,
-    ) -> Result<(), Failure> {
+    ) -> Result<url::Url, Failure> {
         let Self {
             plan,
             summary,
@@ -240,6 +232,6 @@ impl Records {
                     .map_err(|_| Failure::Observation)?
                     .as_str(),
         )?;
-        Ok(())
+        Ok(gateway)
     }
 }

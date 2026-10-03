@@ -435,6 +435,7 @@ fn parse_publish_session(
         return Err(Failure::Arguments);
     }
     Ok(Command::PublishSession(super::publish_session::Input {
+        verifier_identity: flags.remove("--verifier-identity").map(PathBuf::from),
         operator_identity: PathBuf::from(
             flags
                 .remove("--operator-identity")

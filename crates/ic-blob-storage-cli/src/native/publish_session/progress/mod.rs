@@ -2,7 +2,7 @@
 use super::{
     Actors, Failure, Input, Options, PreparedBatch, Run, Value,
     control::{self, Frame},
-    json, publish_map, publish_prepare,
+    json, publish_map, publish_prepare, verification,
 };
 use std::path::PathBuf;
 use tokio::sync::mpsc;
@@ -31,14 +31,14 @@ impl<'a> Session<'a> {
             actors,
             run,
             next: 0,
-            origins: vec![None; batch.inputs.len()],
+            origins: vec![None; batch.files.len()],
         }
     }
     async fn observation(
         &self,
         selection: publish_map::Selection,
         run: &Run,
-    ) -> Result<Value, Failure> {
+    ) -> Result<publish_map::PublicationObservation, Failure> {
         publish_map::inspect(
             self.batch,
             self.options.actor,
@@ -59,7 +59,7 @@ impl<'a> Session<'a> {
         source: Option<PathBuf>,
         directory: PathBuf,
     ) -> Result<Value, Failure> {
-        let selected = self.batch.inputs.get(index).ok_or(Failure::Arguments)?;
+        let selected = self.batch.files.get(index).ok_or(Failure::Arguments)?;
         if index != self.next {
             return Ok(self.blocked("previous_file_unconfirmed"));
         }
@@ -79,21 +79,21 @@ impl<'a> Session<'a> {
         }
         // Startup verification is reused; only this file is checked again before
         // setup. Later files cannot cause O(files²) body I/O or substitute bytes.
-        selected.verify_body(&self.batch.body_digests[index])?;
+        selected.input.verify_body(&selected.body_sha256)?;
         let setup = publish_prepare::Input {
             index,
             directory: directory.join("setup"),
             source: self.origins[index].clone(),
             ..self.input.prepare.clone()
         };
-        let mut report = publish_prepare::run_selected(self.options, &setup, self.batch).await?;
+        let mut outcome = publish_prepare::run_selected(self.options, &setup, self.batch).await?;
         if self.origins[index].is_none() {
             self.origins[index] = Some(setup.directory.canonicalize().map_err(|_| Failure::File)?);
         }
-        if report["prepared"] == true {
-            report["transfer"] = selected.transfer_input(&self.batch.body_digests[index])?;
+        if outcome.prepared() {
+            outcome.report["transfer"] = selected.input.transfer_input(&selected.body_sha256)?;
         }
-        Ok(report)
+        Ok(outcome.report)
     }
     async fn phase(
         &mut self,
@@ -106,29 +106,69 @@ impl<'a> Session<'a> {
                 Ok((self.prepare(index, source_run, directory).await?, false))
             }
             Frame::Status { index } => {
-                self.batch.inputs.get(index).ok_or(Failure::Arguments)?;
+                self.batch.files.get(index).ok_or(Failure::Arguments)?;
                 if index != self.next {
                     return Ok((self.blocked("previous_file_unconfirmed"), false));
                 }
-                let report = self
+                let observation = self
                     .observation(publish_map::Selection::File(index), action)
                     .await?;
-                if report["file_live"] == true {
+                if observation.complete {
                     self.next += 1;
                 }
-                Ok((report, false))
+                Ok((observation.report, false))
+            }
+            Frame::Verify {
+                index,
+                source_observation,
+            } => {
+                let selected = self.batch.files.get(index).ok_or(Failure::Arguments)?;
+                if index != self.next {
+                    return Ok((self.blocked("previous_file_unconfirmed"), false));
+                }
+                let verifier = self.actors.verifier.as_ref().ok_or(Failure::Denied)?;
+                // One create-new owner per original file, independent of step
+                // numbering. Partial observations and pending submissions never
+                // permit another GET or another attestation in this session.
+                let directory = self
+                    .input
+                    .prepare
+                    .directory
+                    .join(format!("verification-{index:04}"));
+                let recovering = source_observation.is_some();
+                let (observed, submitted) = verification::run(
+                    verifier,
+                    self.input,
+                    selected,
+                    directory,
+                    source_observation,
+                )
+                .await?;
+                let publication = self
+                    .observation(publish_map::Selection::File(index), action)
+                    .await?;
+                if publication.complete {
+                    self.next += 1;
+                }
+                Ok((
+                    json!({"schema":1,"operation":"publish_session_verification",
+                    "file_index":index,"observation":observed,"attestation":submitted,
+                    "publication":publication.report,"file_live":publication.complete,
+                    "max_provider_requests_this_phase":u8::from(!recovering),"retry_authorized":false}),
+                    false,
+                ))
             }
             Frame::Map {} => {
-                if self.next != self.batch.inputs.len() {
+                if self.next != self.batch.files.len() {
                     return Ok((self.blocked("files_incomplete"), false));
                 }
-                let report = self
+                let observation = self
                     .observation(publish_map::Selection::Batch, action)
                     .await?;
-                if report["all_references_live"] == true {
-                    self.run.json("media-map.json", &report)?;
+                if observation.complete {
+                    self.run.json("media-map.json", &observation.report)?;
                 }
-                Ok((report, true))
+                Ok((observation.report, true))
             }
         }
     }

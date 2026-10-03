@@ -1,6 +1,7 @@
 //! One verified batch and existing phase owners; no certificate/provider dispatcher.
 mod control;
 mod progress;
+mod verification;
 use crate::native::{
     Failure, agent, agent_for, arguments::Options, artifacts::Run, candidate_candid, publish_check,
     publish_inputs::PreparedBatch, publish_map, publish_prepare, upload_inputs::digest,
@@ -15,6 +16,7 @@ use url::Url;
 pub(super) struct Input {
     pub prepare: publish_prepare::Input,
     pub operator_identity: PathBuf,
+    pub verifier_identity: Option<PathBuf>,
     pub gateway: Url,
     pub max_steps: u64,
 }
@@ -30,6 +32,7 @@ struct SessionIntentRecord<'a> {
     tenant: String,
     uploader: String,
     operator: String,
+    verifier: Option<String>,
     gateway: &'a str,
     inventory_sha256: String,
     installation_sha256: String,
@@ -39,7 +42,7 @@ struct SessionIntentRecord<'a> {
     max_service_updates: usize,
     max_service_queries: u64,
     timeout_seconds: u64,
-    provider_requests: u8,
+    max_provider_requests: usize,
     automatic_retries: u8,
     input_verification: &'static str,
 }
@@ -47,6 +50,7 @@ struct SessionIntentRecord<'a> {
 struct Actors {
     tenant: Agent,
     operator: Agent,
+    verifier: Option<Options>,
 }
 impl Actors {
     async fn query(
@@ -77,12 +81,12 @@ pub(super) async fn run(options: &Options, input: &Input) -> Result<Value, Failu
         input.prepare.max_total_bytes,
     )?;
     let scope = publish_check::observation::scope(
-        &batch.inputs,
+        &batch.files,
         input.prepare.service,
         input.prepare.namespace,
         options.actor,
     )?;
-    if input.max_steps > 8 * batch.inputs.len() as u64 + 1 {
+    if input.max_steps > 8 * batch.files.len() as u64 + 1 {
         return Err(Failure::Arguments);
     }
     let installation: ServiceInstallationInput = candidate_candid::decode(&batch.installation)?;
@@ -93,6 +97,7 @@ pub(super) async fn run(options: &Options, input: &Input) -> Result<Value, Failu
             &input.operator_identity,
             installation.configuration.operator,
         )?,
+        verifier: verification::options(options, input, &installation)?,
     };
     agent_for(
         options,
@@ -114,16 +119,24 @@ pub(super) async fn run(options: &Options, input: &Input) -> Result<Value, Failu
             tenant: scope.tenant.to_text(),
             uploader: installation.trusted_uploader.to_text(),
             operator: installation.configuration.operator.to_text(),
+            verifier: actors
+                .verifier
+                .as_ref()
+                .map(|options| options.actor.to_text()),
             gateway: input.gateway.as_str(),
             inventory_sha256: digest(&batch.inventory),
             installation_sha256: digest(&batch.installation),
             root_key_sha256: digest(&actors.tenant.read_root_key()),
-            files: batch.inputs.len(),
+            files: batch.files.len(),
             max_steps: input.max_steps,
-            max_service_updates: 2 * batch.inputs.len(),
-            max_service_queries: 4 * input.max_steps + 2 * batch.inputs.len() as u64 + 3,
+            max_service_updates: (2 + usize::from(actors.verifier.is_some())) * batch.files.len(),
+            max_service_queries: 5 * input.max_steps + 2 * batch.files.len() as u64 + 3,
             timeout_seconds: input.prepare.timeout_seconds,
-            provider_requests: 0,
+            max_provider_requests: if actors.verifier.is_some() {
+                batch.files.len()
+            } else {
+                0
+            },
             automatic_retries: 0,
             input_verification: "one_complete_startup_pass_and_selected_body_before_setup",
         },
@@ -133,7 +146,7 @@ pub(super) async fn run(options: &Options, input: &Input) -> Result<Value, Failu
         let host = publish_map::configuration(&batch, &preflight, &mut |method,args| actors.query(scope.service,method,args)).await?;
         if host.fenced { return Err(Failure::Denied); }
         let ready = json!({"schema":1,"operation":"publish_session","event":"ready",
-            "files":batch.inputs.len(),"inventory_sha256":digest(&batch.inventory),"installation_sha256":digest(&batch.installation),
+            "files":batch.files.len(),"inventory_sha256":digest(&batch.inventory),"installation_sha256":digest(&batch.installation),
             "max_steps":input.max_steps,"provider_requests":0,"input_verification":"session_start",
             "retry_authorized":false,"publication_lease":false});
         run.json("ready.json",&ready)?;
@@ -148,7 +161,7 @@ pub(super) async fn run(options: &Options, input: &Input) -> Result<Value, Failu
         Err(error) => {
             run.json(
                 "failure.json",
-                &json!({"error":error.code(),"complete":false,"provider_requests":0,
+                &json!({"error":error.code(),"complete":false,
                 "original_journals_must_survive":true,"redispatch_authorized":false}),
             )?;
             Err(error)

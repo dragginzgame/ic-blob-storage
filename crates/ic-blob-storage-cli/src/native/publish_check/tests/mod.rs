@@ -84,7 +84,7 @@ fn inspect(
         .unwrap()
         .block_on(observation::inspect(
             scope,
-            &b.inputs,
+            &b.files,
             &run,
             |method, arg| {
                 let bytes = if method
@@ -97,7 +97,7 @@ fn inspect(
                     candid::encode_one(Ok::<_, UploadDiscoveryFailure>(UploadDiscoveryResponse {
                         request,
                         content: state.map(|state| UploadHistoryEntry {
-                            request: b.inputs[0].permission.upload,
+                            request: b.files[0].input.permission.upload,
                             state,
                         }),
                         fenced: c.fenced,
@@ -108,6 +108,7 @@ fn inspect(
             },
         ))
         .unwrap()
+        .report
 }
 #[test]
 fn snapshots_and_usable_requests_are_reverified_before_identity_or_network() {
@@ -175,7 +176,7 @@ fn absent_existing_and_retired_roots_never_infer_upload_or_retry_authority() {
     ] {
         let d = frozen();
         let b = batch(&d);
-        let u = b.inputs[0].permission.upload;
+        let u = b.files[0].input.permission.upload;
         let scope = TenantScope {
             service: u.service,
             namespace: u.namespace,
@@ -196,7 +197,7 @@ fn absent_existing_and_retired_roots_never_infer_upload_or_retry_authority() {
 fn independent_headroom_fences_and_suspension_are_visible() {
     let d = frozen();
     let b = batch(&d);
-    let u = b.inputs[0].permission.upload;
+    let u = b.files[0].input.permission.upload;
     let scope = TenantScope {
         service: u.service,
         namespace: u.namespace,
@@ -227,7 +228,7 @@ fn independent_headroom_fences_and_suspension_are_visible() {
     }
     assert_eq!(
         observation::scope(
-            &b.inputs,
+            &b.files,
             u.service,
             u.namespace,
             Principal::self_authenticating([9])
@@ -239,7 +240,7 @@ fn independent_headroom_fences_and_suspension_are_visible() {
 fn wrong_reply_scope_remote_errors_and_oversize_refuse() {
     let d = frozen();
     let b = batch(&d);
-    let u = b.inputs[0].permission.upload;
+    let u = b.files[0].input.permission.upload;
     let scope = TenantScope {
         service: u.service,
         namespace: u.namespace,
@@ -271,7 +272,7 @@ fn wrong_reply_scope_remote_errors_and_oversize_refuse() {
     ] {
         let run = Run::create(&d.path().join(format!("bad-{n}"))).unwrap();
         assert_eq!(
-            runtime.block_on(observation::inspect(scope, &b.inputs, &run, |_, _| {
+            runtime.block_on(observation::inspect(scope, &b.files, &run, |_, _| {
                 std::future::ready(Ok(bytes.clone()))
             })),
             Err(expected)
@@ -288,12 +289,12 @@ fn wrong_reply_scope_remote_errors_and_oversize_refuse() {
 fn duplicate_roots_are_blocked_and_query_failures_retain_partial_evidence() {
     let d = frozen();
     let mut b = batch(&d);
-    let mut second = batch(&d).inputs.pop().unwrap();
-    second.permission.upload.upload -= 1;
-    second.permission.upload.object += 1;
-    second.permission.upload.first_reference += 1;
-    b.inputs.push(second);
-    let u = b.inputs[0].permission.upload;
+    let mut second = batch(&d).files.pop().unwrap();
+    second.input.permission.upload.upload -= 1;
+    second.input.permission.upload.object += 1;
+    second.input.permission.upload.first_reference += 1;
+    b.files.push(second);
+    let u = b.files[0].input.permission.upload;
     let scope = TenantScope {
         service: u.service,
         namespace: u.namespace,
@@ -307,7 +308,7 @@ fn duplicate_roots_are_blocked_and_query_failures_retain_partial_evidence() {
     let report = runtime
         .block_on(observation::inspect(
             scope,
-            &b.inputs,
+            &b.files,
             &run,
             |method, argument| {
                 let reply = if method
@@ -325,7 +326,8 @@ fn duplicate_roots_are_blocked_and_query_failures_retain_partial_evidence() {
                 std::future::ready(Ok(reply))
             },
         ))
-        .unwrap();
+        .unwrap()
+        .report;
     assert!(
         report["blockers"]
             .as_array()
@@ -334,7 +336,7 @@ fn duplicate_roots_are_blocked_and_query_failures_retain_partial_evidence() {
     );
     let run = Run::create(&d.path().join("partial")).unwrap();
     let mut calls = 0;
-    let failed = runtime.block_on(observation::inspect(scope, &b.inputs, &run, |_, _| {
+    let failed = runtime.block_on(observation::inspect(scope, &b.files, &run, |_, _| {
         calls += 1;
         std::future::ready(if calls == 1 {
             Ok(candid::encode_one(Ok::<_, UploadCapacityFailure>(capacity(scope))).unwrap())
@@ -352,7 +354,7 @@ fn duplicate_roots_are_blocked_and_query_failures_retain_partial_evidence() {
 fn query_budget_refuses_before_loading_identity_or_claiming_output() {
     let d = frozen();
     let b = batch(&d);
-    let p = b.inputs[0].permission;
+    let p = b.files[0].input.permission;
     let options = crate::native::arguments::Options {
         command: crate::native::arguments::Command::Status {
             scope: ic_blob_storage::dto::operator::OperatorScope {

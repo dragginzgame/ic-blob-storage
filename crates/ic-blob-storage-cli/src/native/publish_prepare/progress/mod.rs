@@ -1,7 +1,15 @@
 //! Stop at uncertainty; recovery observes the original operation without resubmission.
-use super::{Failure, Input, Options, Run, Value, journal, json, upload_setup};
-use crate::native::{references, upload_inputs::PreparedInput};
+use super::{
+    Failure, Input, Options, PreparationOutcome, PreparationState, Run, Value, journal, json,
+    upload_setup,
+};
+use crate::native::{
+    publish_check::observation::PreflightObservation, upload_inputs::PreparedInput,
+};
+use ic_blob_storage::dto::reference::ReferenceUpload;
+use ic_blob_storage::dto::upload::{UploadState, manifest::UploadManifestInspection};
 use std::path::Path;
+use upload_setup::SetupObservation;
 
 pub(super) struct Context<'a> {
     pub options: &'a Options,
@@ -12,22 +20,17 @@ pub(super) struct Context<'a> {
     pub run: &'a Run,
 }
 fn preflight_allows(
-    report: &Value,
-    selected: &PreparedInput,
+    observation: &PreflightObservation,
+    selected: ReferenceUpload,
     recovery: bool,
 ) -> Result<bool, Failure> {
-    let blockers = report["blockers"].as_array().ok_or(Failure::InvalidReply)?;
-    let entry = &report["files"][0];
-    if recovery && entry["status"] == "recover_existing_operation" {
-        if entry["original_upload"] != references::upload_json(selected.permission.upload) {
+    if recovery && let Some(original) = observation.recoverable_upload {
+        if original != selected {
             return Err(Failure::Binding);
         }
-        return Ok(blockers.iter().all(|b| b == "recover_existing_operation"));
+        return Ok(observation.setup_allowed);
     }
-    Ok(!recovery && blockers.is_empty() && entry["status"] == "not_visible")
-}
-fn reserved(observation: &Value) -> bool {
-    observation["state"] == "reserved" && observation["revoked"] == false
+    Ok(!recovery && observation.recoverable_upload.is_none() && observation.setup_allowed)
 }
 impl Context<'_> {
     fn setup(&self, kind: upload_setup::Kind) -> upload_setup::Input {
@@ -45,49 +48,79 @@ impl Context<'_> {
                 .then(|| self.origin.join(journal::name(kind))),
         }
     }
-    fn report(&self, state: &str, updates: u64, preflight: &Value) -> Value {
-        json!({"schema":1,"operation":"publish_prepare","state":state,"file_index":self.input.index,
+    fn report(
+        &self,
+        state: PreparationState,
+        updates: u64,
+        preflight: &Value,
+    ) -> PreparationOutcome {
+        PreparationOutcome {
+            state,
+            report: json!({"schema":1,"operation":"publish_prepare","state":state,"file_index":self.input.index,
             "permission":upload_setup::permission_json(self.selected.permission),"preflight":preflight,
             "original_run":self.origin,"service_updates_this_run":updates,"max_service_queries":4,
-            "prepared":state=="prepared","batch_complete":false,"certificate_issued":false,
-            "provider_requests":0,"retry_authorized":false,"publication_authorized":false})
+            "prepared":state==PreparationState::Prepared,"batch_complete":false,"certificate_issued":false,
+            "provider_requests":0,"retry_authorized":false,"publication_authorized":false}),
+        }
     }
-    pub async fn advance(&self, preflight: Value) -> Result<Value, Failure> {
+    pub async fn advance(
+        &self,
+        preflight: PreflightObservation,
+    ) -> Result<PreparationOutcome, Failure> {
         let recovery = self.input.source.is_some();
-        if !preflight_allows(&preflight, self.selected, recovery)? {
-            return Ok(self.report("blocked", 0, &preflight));
+        if !preflight_allows(&preflight, self.selected.permission.upload, recovery)? {
+            return Ok(self.report(PreparationState::Blocked, 0, &preflight.report));
         }
         let mut updates = 0;
         let permission = if recovery {
-            upload_setup::inspect_recorded(
+            let SetupObservation::Permission(permission) = upload_setup::inspect_recorded(
                 self.options,
                 &self.setup(upload_setup::Kind::Permission),
                 self.run,
                 "permission",
             )
             .await?
+            else {
+                return Err(Failure::InvalidReply);
+            };
+            permission
         } else {
             let result =
                 upload_setup::run(self.options, &self.setup(upload_setup::Kind::Admit)).await?;
             updates += 1;
-            if result["outcome"] != "acknowledged" {
-                return Ok(self.report("admission_unobserved", updates, &preflight));
+            match result.observation {
+                Some(SetupObservation::Admission(admission)) => admission.admission,
+                None => {
+                    return Ok(self.report(
+                        PreparationState::AdmissionUnobserved,
+                        updates,
+                        &preflight.report,
+                    ));
+                }
+                Some(_) => return Err(Failure::InvalidReply),
             }
-            result["observation"]["admission"].clone()
         };
-        if !reserved(&permission) {
-            return Ok(self.report("permission_inactive", updates, &preflight));
+        if permission.state != UploadState::Reserved || permission.revoked {
+            return Ok(self.report(
+                PreparationState::PermissionInactive,
+                updates,
+                &preflight.report,
+            ));
         }
-        let manifest = upload_setup::inspect_recorded(
+        let SetupObservation::Manifest {
+            response: manifest, ..
+        } = upload_setup::inspect_recorded(
             self.options,
             &self.setup(upload_setup::Kind::Manifest),
             self.run,
             "manifest",
         )
-        .await?;
-        let expected = upload_setup::declaration_json(self.selected.declaration());
-        if !manifest["manifest"].is_null() {
-            if manifest["manifest"] != expected {
+        .await?
+        else {
+            return Err(Failure::InvalidReply);
+        };
+        if let UploadManifestInspection::Prepared(declaration) = manifest.manifest {
+            if declaration != *self.selected.declaration() {
                 return Err(Failure::Binding);
             }
             if recovery && journal::claimed(self.origin, upload_setup::Kind::Prepare)? {
@@ -98,7 +131,7 @@ impl Context<'_> {
                     self.selected,
                 )?;
             }
-            return Ok(self.report("prepared", updates, &preflight));
+            return Ok(self.report(PreparationState::Prepared, updates, &preflight.report));
         }
         if journal::claimed(self.origin, upload_setup::Kind::Prepare)? {
             // Unprepared, missing/partial evidence or expiry never licenses another attempt.
@@ -108,16 +141,47 @@ impl Context<'_> {
                 self.options,
                 self.selected,
             )?;
-            return Ok(self.report("preparation_unobserved", updates, &preflight));
+            return Ok(self.report(
+                PreparationState::PreparationUnobserved,
+                updates,
+                &preflight.report,
+            ));
         }
         let result =
             upload_setup::run(self.uploader, &self.setup(upload_setup::Kind::Prepare)).await?;
         updates += 1;
-        let state = if result["outcome"] == "acknowledged" {
-            "prepared"
-        } else {
-            "preparation_unobserved"
+        let state = match result.observation {
+            Some(SetupObservation::Manifest { .. }) => PreparationState::Prepared,
+            None => PreparationState::PreparationUnobserved,
+            Some(_) => return Err(Failure::InvalidReply),
         };
-        Ok(self.report(state, updates, &preflight))
+        Ok(self.report(state, updates, &preflight.report))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::native::publish_check::tests::{batch, frozen};
+
+    #[test]
+    fn recovery_requires_original_identity_even_when_a_fence_blocks_setup() {
+        let directory = frozen();
+        let original = batch(&directory).files[0].input.permission.upload;
+        let mut observation = PreflightObservation {
+            recoverable_upload: Some(original),
+            setup_allowed: false,
+            report: Value::Null,
+        };
+        assert_eq!(preflight_allows(&observation, original, true), Ok(false));
+        let mut changed = original;
+        changed.upload ^= 1;
+        assert_eq!(
+            preflight_allows(&observation, changed, true),
+            Err(Failure::Binding)
+        );
+        observation.setup_allowed = true;
+        assert_eq!(preflight_allows(&observation, original, true), Ok(true));
+        assert_eq!(preflight_allows(&observation, original, false), Ok(false));
     }
 }

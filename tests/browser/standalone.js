@@ -24,7 +24,7 @@ window.trial = {
   async setup(config, mode) {
     publication?.close?.();
     if (config.worker) {
-      publication = await workerPublication(config, mode, () => calls++, workerReports);
+      publication = await workerPublication(config, mode, workerReports);
       return;
     }
     const intents = await createIndexedDBIntentStore({

@@ -1,0 +1,135 @@
+{
+  "schema": 1,
+  "date": "2026-10-03",
+  "evidence_class": "source_offline_actual_indexeddb_and_local_standalone_substitute",
+  "intent": "intent.json",
+  "final_payload_intent": "payload-intent.json",
+  "baseline": "0.10.0 at f856a2b138511e695d234c59bb5d9fafcccef794; earlier simplification/verifier dirty work preserved",
+  "implementation": [
+    "Maintained same-origin browser worker host and one-shot private-port signer/bootstrap",
+    "Pinned SDK Ed25519/secp256k1 key reconstruction verifies the advertised pair and configured uploader before opening IndexedDB",
+    "Canonical worker configuration and bounded job snapshots shared across direct/hosted boundaries",
+    "Copy only selected body/root views; transfer an owned body without detaching caller bytes",
+    "One outstanding host request; correlate replies and terminate on close/abort/deadline without deleting history",
+    "Replace fixture-only bootstrap/control; count certificate calls from observed browser requests"
+  ],
+  "validation": {
+    "offline_worker_passed": 31,
+    "actual_bootstrap_passed": 15,
+    "final_serial_journeys_passed": 3,
+    "bootstrap_summary_sha256": "125ce8c8575b257016dd72b69532c8430b3e573201c9bfb71e50a8567f51e316",
+    "bootstrap_cases": [
+      "selected_ed25519_private_port_snapshot_concurrency",
+      "selected_secp256k1_private_port_snapshot_concurrency",
+      "worker_refuses_signer-kind_before_storage",
+      "worker_refuses_signer-json_before_storage",
+      "worker_refuses_key-pair_before_storage",
+      "worker_refuses_uploader_before_storage",
+      "worker_refuses_root_before_storage",
+      "worker_refuses_gateway_before_storage",
+      "worker_refuses_journal_before_storage",
+      "worker_refuses_extra_before_storage",
+      "bounded_body_view_owned_without_detaching_caller",
+      "abort_and_foreign_asset_refuse_before_launch",
+      "close_rejects_outstanding_job_without_retry",
+      "host_deadline_terminates_worker",
+      "same_profile_reopens_original_journal_after_termination"
+    ],
+    "serial_journeys": [
+      {
+        "name": "native-verifier-complete",
+        "summary_sha256": "c1b9db90440264530315399fc30ad4fec40062465b037b6e7a4fc4c3c4db71b9",
+        "confirmed_map_written": true,
+        "max_active_uploads": 1,
+        "retained_physical_bytes": 3072,
+        "retained_liability_bytes": 3072,
+        "gateway_puts": 4,
+        "gateway_gets": 4,
+        "automatic_retries": 0
+      },
+      {
+        "name": "native-verifier-lost",
+        "summary_sha256": "4ce532c43af54adabfe0af27bd706e97ad84a955d3d33f296f3ff9e47e21e821",
+        "confirmed_map_written": true,
+        "max_active_uploads": 1,
+        "retained_physical_bytes": 3072,
+        "retained_liability_bytes": 3072,
+        "gateway_puts": 4,
+        "gateway_gets": 4,
+        "automatic_retries": 0
+      },
+      {
+        "name": "native-verifier-corrupt",
+        "summary_sha256": "f584da4ebc72495557a5ca806ec2437192a5f936d81fda11f29c0726aabee7d8",
+        "confirmed_map_written": false,
+        "max_active_uploads": 1,
+        "retained_physical_bytes": 1024,
+        "retained_liability_bytes": 1024,
+        "gateway_puts": 2,
+        "gateway_gets": 1,
+        "automatic_retries": 0
+      }
+    ],
+    "pinned_build": "installed peer versions, reviewed Caffeine source hashes and local patch check pass",
+    "format_whitespace_syntax": "passed",
+    "make_target": "opt-in test-browser-bootstrap recipe reviewed by dry run; underlying build/test commands executed"
+  },
+  "retained": {
+    "directory": ".tmp/worker-bootstrap-01",
+    "earlier_attempts": [
+      "bootstrap",
+      "bootstrap-final",
+      "browser"
+    ],
+    "final_attempts": [
+      "bootstrap-payload",
+      "browser-final",
+      "offline-worker-final"
+    ],
+    "sources": 908,
+    "source_manifest_sha256": "0b4711a9d75c38ad8ccae9e3e85f09315b8d37cc4fd63f355040975bba011364",
+    "final_diff_sha256": "14dc15643ff7a87d5fe05d416408f6df5556cf97cb577339e5e92e9cc1ffb95d",
+    "new_source_files": "source-additions/",
+    "logs": {
+      "build-01.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "build-02.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "build-final.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "offline-worker.log": "15c1b958312d7f836eccfc296b69b7b6980e44781ca6dee8b62938d0d178f7c0",
+      "offline-worker-final.log": "15c1b958312d7f836eccfc296b69b7b6980e44781ca6dee8b62938d0d178f7c0",
+      "bootstrap-01.log": "0a298876e153718f2e22c00c444a8f993737b854e17b2edf0b2c3fd0d794ed32",
+      "bootstrap-final.log": "d638a50c5e65e971a957e2758e4492a5c1add2630c44ad989df014b155399e46",
+      "bootstrap-payload.log": "d28be9d03338e4b472552324590cc60c46a700c0418f9dcfad60ed0598bd71d3",
+      "browser-01.log": "2c5f751d93d084a5bd58b0999f91eb76afc0ecab37b3b7ef730aa740aefc6675",
+      "browser-final.log": "f37168d35cb2d49565b1af5da2231e46ba81e7cd80b2e5576d1403a78651fb4a"
+    },
+    "artifacts": {
+      ".tmp/worker-bootstrap-01/artifacts/publication-worker.js": "47bee51e6b8fcdc28ff2c40d32c0962506309aaabca93bd9e68397905f106c6d",
+      ".tmp/worker-bootstrap-01/artifacts/standalone.js": "244717b8b273c7398cc23d15ebf10a55e1d7d691807aeb745015f0b32a821fcc",
+      ".tmp/worker-bootstrap-01/artifacts/bootstrap.js": "bc2608c6fe29b8c9263341232579ea045fd2b4a14b9c6dfb7104b6944605864b",
+      ".tmp/worker-bootstrap-01/artifacts/final/publication-worker.js": "1e645f133724c9b4c7433d26e0d46a8a4134e278e7801cd04c75c6d55e00fe76",
+      ".tmp/worker-bootstrap-01/artifacts/final/standalone.js": "22b09239f1b30d611c3184794bffd8792ba87e28473c9df3ffd96255c5ea7e72",
+      ".tmp/worker-bootstrap-01/artifacts/final/bootstrap.js": "e69b0d6f7efffbe079ca6f7266aefcd123bce999f34d72b4ee189fcaca58a5a8",
+      ".tmp/native-verifier-01/artifacts/blob-storage-final": "45378c083974a429cfb1fb7f0bd4075ada73a8fa88fff6298205c948a3afc1cb",
+      "target/wasm32-unknown-unknown/release/ic_blob_storage_canister.wasm": "a3ce161c8de968e50c058b9e1392ad94f7081aedcf9298660965e50d6a6856a8",
+      "tests/browser/node_modules/@icp-sdk/core/lib/esm/identity/identity/ed25519.js": "0571e554551ff25f273e6b508bcffef06a99191c333d63a83d7461245be0d160",
+      "tests/browser/node_modules/@icp-sdk/core/lib/esm/identity/secp256k1/secp256k1.js": "51745b6e93dee6a32033fe6c40c8081c6d1c88c8a267dea38ea2a21bbddb2b55",
+      ".tmp/tools/node-v24.21.0/bin/node": "7fde7b8afa198da66257f42ee2001d874c7355631e6d1579a5fb5ef1f246df4c",
+      ".tmp/tools/pocket-ic-16.0.0/pocket-ic": "69e324bdb68d32d878b7a9504b1379f08f8d1921272bacb065b0fabb3d0f3792"
+    }
+  },
+  "failed_test_or_probe_attempts": [],
+  "review_correction": "After passing initial tests, final review removed the host second clone of the original bootstrap. It now sends the already owned bounded root payload. Original bundles/profiles/logs survive; final checks use new captures.",
+  "limitations": [
+    "Owned loopback assets/IC/HTTPS substitutes only; no deployed Caffeine behavior, deletion, retention or billing qualification",
+    "Bootstrap Ed25519/secp256k1 reconstruction and local journal behavior are observed; signed certificate/upload journeys use the Ed25519 fixture, not a live secp256k1 trial",
+    "Synthetic image-labelled bytes do not qualify real media or public serving",
+    "Full gateway PUT bodies are represented by byte counts/fingerprints rather than separately retained complete bodies",
+    "Private SDK identity remains trusted process memory; JavaScript key erasure, hostile asset origins and profile rollback safety are not established",
+    "Native OS/browser-process launcher, signer-input selection, original metadata-hint persistence, durable parent restart coordination and full Miner acceptance remain open",
+    "No new native/core/Wasm/dependency build or full CI/release validation this batch; use retained existing native and host artifacts",
+    "No version mutation, commit, publication, deployment, paid effect, sibling edit or build cleanup"
+  ],
+  "live_provider_requests": 0,
+  "paid_cycles": 0,
+  "live_owner_changes": 0
+}

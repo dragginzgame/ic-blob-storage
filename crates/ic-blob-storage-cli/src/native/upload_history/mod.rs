@@ -1,13 +1,12 @@
 //! Explicit bounded service-wide history; no provider calls, sweep or reconciliation claim.
 mod cursor;
-use super::{Failure, arguments::Options, query};
+use super::{Failure, arguments::Options, query, references::upload_json};
 use candid::Principal;
 use ic_blob_storage::{
     dto::upload::history::{
         UploadContentState as S, UploadHistoryFailure as F, UploadHistoryFilter,
         UploadHistoryRequest, UploadHistoryScope,
     },
-    model::identity::ProviderRootHash,
     ops::service::uploads::history::{
         UPLOAD_HISTORY_METHOD,
         reply::{self, UploadHistoryReplyError as R, UploadHistoryReplyLimits},
@@ -89,17 +88,22 @@ fn output(
         },
     )
     .map_err(failure)?;
-    let entries: Vec<_> = page.entries.iter().map(|entry| {
-        let u = entry.request;
-        let state = match entry.state {
-            S::Reserved => "reserved", S::ExposurePossible => "exposure_possible", S::Cancelled => "cancelled",
-            S::Live => "live", S::DeletionPending => "deletion_pending", S::ProviderDeleted => "provider_deleted", S::Settled => "settled",
-        };
-        json!({"upload":{"service":u.service.to_text(),"namespace":u.namespace.to_string(),
-            "tenant":u.tenant.to_text(),"upload":u.upload.to_string(),"object":u.object.to_string(),
-            "incarnation":u.incarnation.to_string(),"first_reference":u.first_reference.to_string(),
-            "root":ProviderRootHash::try_from(u.root.as_slice()).expect("fixed root").to_string(),"bytes":u.bytes.to_string()},"state":state})
-    }).collect();
+    let entries: Vec<_> = page
+        .entries
+        .iter()
+        .map(|entry| {
+            let state = match entry.state {
+                S::Reserved => "reserved",
+                S::ExposurePossible => "exposure_possible",
+                S::Cancelled => "cancelled",
+                S::Live => "live",
+                S::DeletionPending => "deletion_pending",
+                S::ProviderDeleted => "provider_deleted",
+                S::Settled => "settled",
+            };
+            json!({"upload":upload_json(entry.request),"state":state})
+        })
+        .collect();
     Ok(
         json!({"schema":1,"observation":"upload_history","operator":options.actor.to_text(),
         "network":options.network,"url":options.url.as_str(),"verification":"query_signatures",

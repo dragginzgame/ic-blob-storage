@@ -48,6 +48,17 @@ for (const key of ['service', 'tenant', 'uploader', 'project', 'bucket']) {
   await fails(`foreign_${key}`, { ...request, binding: { ...binding, [key]: 'foreign' } }, 'scope');
   assert.equal(reads, 0);
 }
+for (const [field, value, error] of [
+  ['operation', '01', 'operation'],
+  ['operation', (1n << 128n).toString(), 'operation'],
+  ['root', 'sha256:' + 'A'.repeat(64), 'root'],
+  ['permission', [], 'permission'],
+  ['permission', [256], 'permission'],
+  ['key', `${service}:${uploader}:2`, 'key'],
+]) {
+  await fails(`invalid_binding_${field}`, { ...request, binding: { ...binding, [field]: value } }, error);
+  assert.equal(reads, 0);
+}
 await fails('unknown_fields', { ...request, retry: true }, 'message'); assert.equal(reads, 0);
 await fails('unknown_action', { ...request, action: 'resume-upload' }, 'message'); assert.equal(reads, 0);
 await fails('corrupt_body', { ...request, snapshot: { ...request.snapshot, body: new Uint8Array(1024) } }, 'body-digest');

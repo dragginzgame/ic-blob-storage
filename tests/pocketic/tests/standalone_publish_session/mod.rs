@@ -104,6 +104,46 @@ fn phase(session: &mut NativeSession, frame: &Value) -> Value {
 }
 
 #[test]
+fn standalone_publication_session_requires_selected_installed_verifier_before_effects() {
+    use crate::reference_cli::change_native;
+    let directory = Directory::new("session-verifier-authority-");
+    let (mut f, _, url) = fixture(directory.path());
+    let mut args = arguments(
+        &f,
+        directory.path(),
+        &url,
+        "https://127.0.0.1:65530",
+        "missing-verifier",
+    );
+    let before = f.harness.pic.get_stable_memory(f.service);
+    let mut session = NativeSession::start(&args);
+    assert_eq!(session.read()["event"], "ready");
+    session.send(&json!({"phase":"verify","index":0}));
+    assert_eq!(session.finish(3)["error"], "denied");
+    assert!(
+        !directory
+            .path()
+            .join("missing-verifier/verification-0000")
+            .exists()
+    );
+    unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
+    change_native(
+        &mut args,
+        "--run-dir",
+        directory.path().join("wrong-verifier").to_str().unwrap(),
+    );
+    args.extend([
+        "--verifier-identity".into(),
+        directory.path().join("tenant.pem").display().to_string(),
+    ]);
+    let session = NativeSession::start(&args);
+    assert_eq!(session.finish(3)["error"], "identity_binding");
+    assert!(!directory.path().join("wrong-verifier").exists());
+    unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
+    f.harness.pic.stop_live();
+}
+
+#[test]
 fn standalone_publication_session_reuses_cached_batch_and_checks_selected_bytes_before_setup() {
     let directory = Directory::new("session-cached-");
     let (mut f, files, url) = fixture(directory.path());

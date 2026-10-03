@@ -9,22 +9,20 @@ use super::{
     identity,
     provider_download::{self, ExpectedBody},
     query, read,
+    upload_setup::manifest_reply_limits,
 };
 use candid::{Principal, de::DecoderConfig, decode_one_with_config};
 use ic_blob_storage::{
     dto::upload::{admission::UploadAdmissionRequest, completion::UploadAttestationRequest},
     model::{
-        identity::{ContentDigest, ProviderRootHash, caffeine::manifest::CaffeineManifestLimits},
+        identity::{ContentDigest, ProviderRootHash},
         service::{read::download::CaffeineDownloadScope, upload::completion::CompletionAuthority},
     },
     ops::{
         caffeine::download::request_target,
-        service::uploads::{
-            completion::{
-                reply::{UploadAttestationReplyError, inspection_request},
-                verification::{self, UPLOAD_VERIFICATION_PLAN_METHOD},
-            },
-            manifests::reply::UploadManifestReplyLimits,
+        service::uploads::completion::{
+            reply::{UploadAttestationReplyError, inspection_request},
+            verification::{self, UPLOAD_VERIFICATION_PLAN_METHOD},
         },
     },
 };
@@ -101,6 +99,7 @@ pub(super) async fn run(options: &Options, input: &Input) -> Result<Value, Failu
                     include_str!("mod.rs"),
                     include_str!("record/mod.rs"),
                     include_str!("../provider_download/mod.rs"),
+                    include_str!("../upload_setup/mod.rs"),
                     include_str!("../artifacts/mod.rs"),
                     include_str!("../mod.rs"),
                     include_str!("../arguments/mod.rs"),
@@ -158,15 +157,7 @@ async fn capture(
         authority,
         permission,
         &bytes,
-        UploadManifestReplyLimits {
-            max_reply_bytes: (64 * 1024).try_into().unwrap(),
-            declaration: CaffeineManifestLimits {
-                max_content_bytes: input.max_bytes,
-                max_chunks: 1024.try_into().unwrap(),
-                max_headers: 16.try_into().unwrap(),
-                max_header_bytes: 4096.try_into().unwrap(),
-            },
-        },
+        manifest_reply_limits(input.max_bytes),
     )
     .map_err(error)?;
     let scope = CaffeineDownloadScope::new(plan.owner, authority.namespace(), &plan.project)

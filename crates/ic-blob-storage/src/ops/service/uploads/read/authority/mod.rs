@@ -27,6 +27,18 @@ impl<M: Memory> StableUploads<M> {
         root: ProviderRootHash,
         reference: ReferenceKey,
     ) -> Result<Option<NonZeroU64>, UploadStoreError> {
+        let generation = self.active_read_generation(context, reference)?;
+        Ok(self
+            .retained_content(context, root, reference)?
+            .map(|_| generation))
+    }
+    // Current enrollment and owner checks, shared by synchronous serving and
+    // authority captured across an await. Content liveness is checked by callers.
+    pub(crate) fn active_read_generation(
+        &self,
+        context: UploadContext,
+        reference: ReferenceKey,
+    ) -> Result<NonZeroU64, UploadStoreError> {
         let object = reference.object();
         validation::object(&self.config, context, object)?;
         validation::tenant(
@@ -36,9 +48,6 @@ impl<M: Memory> StableUploads<M> {
             object.identity().namespace,
         )?;
         self.mutable()?;
-        let generation = self.generation(object.tenant())?;
-        Ok(self
-            .retained_content(context, root, reference)?
-            .map(|_| generation))
+        self.generation(object.tenant())
     }
 }

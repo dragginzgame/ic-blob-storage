@@ -1,5 +1,187 @@
 # Caffeine probe ledger
 
+## Native Chromium process bridge — 2026-10-03
+
+The [intent](local/2026-10-03-native-browser-01/intent.json) and
+[local record](local/2026-10-03-native-browser-01/summary.json) separate source/offline
+checks, actual Chromium/IndexedDB and owned PocketIC/HTTPS substitutes. No deployed
+Caffeine call, payment or live-owner change occurs. Native input bindings hard-cut
+to exact original preparation hints; service wire/state, host Wasm and dependencies
+remain unchanged. The next release must be minor for that native input contract.
+
+The maintained process bridge uses a selected SDK identity and trusted host/worker
+bundles, fixed asset port/origin, explicit create/open profile and bounded selected
+body/digest checks. It exposes no HTTP credentials/body route and adds no dispatch,
+retry journal or completion authority. Original journals and native phase owners
+still authorize effects/advancement; profile loss never licenses a replacement.
+
+Ninety native cases, eleven actual bridge cases, five PocketIC sessions, a real
+adapted SDK/native 10 MiB input round trip and strict CLI/harness lint pass. Bridge
+cases include request ownership/concurrency, body/hint bounds, digest changes,
+symlink/directory/FIFO refusal, occupied port before profile creation, changed-origin/
+missing/symlink profile refusal, original journal reopening and deadline termination.
+Three actual browser/native-verifier journeys pass through the bridge at one
+active reservation. Completion and exact lost-reply recovery each retain 3,072
+physical/liability bytes with four PUTs/four GETs; corruption stops before attestation
+or the next file, retaining 1,024 bytes after two PUTs/one GET. No upload replay occurs.
+
+`.tmp/native-browser-01` retains profiles, native setup/observer/submission/control
+records, gateway fingerprints, exact tested artifacts, source/log/file hashes and
+all attempts. These include the wrong native `--lib` target, socket-denied unit
+checks, a zero-case storage filter, an unadapted SDK import, unresolved browser-only
+bundle import, a banner identifier collision and a lint length failure, followed
+by corrected checks. The five separate native-session fixtures use disposable
+directories; only their logs survive. Full PUT bodies are not separately captured.
+Synthetic image-labelled bytes and owned CORS allowances do not qualify real media,
+deployed provider CORS/retention/deletion/billing, full Miner adoption or production
+spend. Large-body heap/CDP latency, hostile local-user/key isolation and rollback
+resistance remain unmeasured. Complete durable parent restart/phase coordination
+remains open; Canic adoption is deferred. No full CI/release, version/commit/
+publication, deployment, sibling edit, upstream message or cleanup occurs.
+
+## Maintained browser host and signer bootstrap — 2026-10-03
+
+The [local record](local/2026-10-03-worker-bootstrap-01/summary.json) binds
+[intent](local/2026-10-03-worker-bootstrap-01/intent.json) and
+[final payload intent](local/2026-10-03-worker-bootstrap-01/payload-intent.json) to source review,
+offline worker boundaries, actual Chromium/IndexedDB and owned PocketIC/HTTPS
+substitutes. No deployed provider request or paid effect occurs. Core, native CLI,
+host Wasm and dependency versions remain unchanged this batch.
+
+Replace the fixture-only bootstrap and private-port control with the maintained
+browser host/entry. Send only an explicitly selected SDK identity over a transferred
+private port, recompute its key pair through the pinned SDK, and validate scope/
+root/budgets before journal creation. Existing strict IndexedDB and certificate/
+gateway owners retain dispatch. Shared job snapshots copy bounded selected views
+before cloning/transfer; host close/abort/deadline terminates its worker while
+retaining history and uncertainty.
+
+Pinned peer/source/patch builds, 31 offline worker cases, 15 actual bootstrap cases
+and three native-verifier Chromium/PocketIC journeys pass. Bootstrap checks cover
+both signer kinds, malformed/mismatched payloads with no journal created,
+snapshots, concurrency, foreign worker assets, pre-aborted startup, pending close,
+deadline and reopening the same profile. Actual serial journeys retain original
+setup/observer/submission/profile captures, exact original-statement recovery,
+foreign/conflicting observation refusal and corruption preventing attestation/
+the next file. Success/recovery each retain 3,072 physical/liability bytes and
+four PUTs/four GETs; corruption retains 1,024 after two PUTs/one GET. No retry occurs.
+
+`.tmp/worker-bootstrap-01` retains all bootstrap runs, tested bundles, native/
+browser original phase and dispatch records, profiles, request fingerprints,
+source/artifact/log hashes and a private manifest. The serial fixture counts
+certificate calls from actual browser requests; it no longer relies on diagnostic
+worker events. No failed test/probe occurs this batch. Full PUT bodies are not
+separately captured. Local substitutes and synthetic image-labelled bytes do not
+qualify deployed retention/deletion/billing or real media/public serving. Native
+OS/browser-process launch, signer-input selection, original preparation-hint
+persistence, durable parent restart coordination and full Miner acceptance remain
+open. Canic adoption stays deferred. No full CI/release, version/commit/publication,
+deployment, sibling edit or build cleanup occurs.
+
+## Native session verifier composition — 2026-10-03
+
+The [local record](local/2026-10-03-native-verifier-01/summary.json) binds
+[intent](local/2026-10-03-native-verifier-01/intent.json) and
+[exact-statement regression intent](local/2026-10-03-native-verifier-01/exact-intent.json)
+to owned PocketIC/Chromium/HTTPS substitutes. No deployed Caffeine request,
+paid effect or live-owner change occurs.
+
+An explicitly selected installed verifier enables session composition of the
+maintained observer, one-shot attestation and typed current-reference check.
+Original permission, raw digest and gateway bind before signing. One create-new
+verification directory per original index preserves intent and partial artifacts.
+Recovery uses the original complete observation and exact immutable receipt;
+it performs no GET or submission. Absence/conflict cannot be replaced by another
+statement with the same content digest. SDK/IndexedDB dispatch owners remain intact.
+
+Strict CLI/integration lint, 89 native unit cases, five native session cases and
+three final dedicated-worker journeys pass. The latter cover two-file completion
+at one active reservation, lost upload reply and native/browser restart, original
+observation recovery, foreign-upload rejection, and an explicitly separate altered
+observation-time input refusing despite an already live reference. Final success/
+recovery each use four gateway PUTs and four GETs, without retries; corruption
+stops at two PUTs/one GET before attestation or the second file. Physical/liability
+bytes remain 3,072 after completion and 1,024 after corruption.
+
+`.tmp/native-verifier-01` retains initial/final/exact browser captures, original
+session/observer/signed-submission records, profiles, gateway fingerprints, both
+native binaries, 903 source hashes, logs and a private file manifest. Initial lint
+length failures and extraction compile errors survive before correction. Existing
+native session fixtures use disposable directories; only their logs survive.
+Full PUT bodies are not separately retained. Shared Cargo package-cache waits
+do not change the selected repository target directory. These local trials do not
+qualify deployed retention, deletion, billing cessation, real media or public
+serving. Native browser parent/bootstrap and complete Miner acceptance remain
+open. No full CI/release, version mutation, commit, publication, deployment,
+sibling edit or cleanup occurs; Canic adoption remains deferred.
+
+## Native identity and metadata simplification — 2026-10-03
+
+The [local record](local/2026-10-03-native-cleanup-01/summary.json) binds
+[intent](local/2026-10-03-native-cleanup-01/intent.json) to scoped native and actual
+PocketIC/Chromium checks against owned loopback substitutes. No deployed provider
+traffic or paid effect occurs. The prior simplification work and evidence remain
+intact; this follow-up changes native tools only.
+
+Four report consumers share the existing full-width upload-identity formatter.
+Local byte verification still proves the original provider root before reporting
+that identity. Setup, local verification, provider observation and attestation
+submission share the same manifest reply envelope with their original content
+bounds, distinct authority checks and failure mappings. Source provenance includes
+the shared helper sources. Reference receipt inspection reuses the exact validated
+request loader without a second scope/tenant check. No wire or journal format changes.
+
+All 89 native unit cases, strict native lint and nine selected integration cases
+pass. Reference cases preserve acknowledged, lost and pending replies; other
+checks cover 10 MiB verification, paged/restored history, certificate blockers and
+setup recovery. Two retained browser journeys observe/attest exact content, verify
+tenant downloads and retain physical/liability bytes after logical release. A lost
+chunk reply survives stop/start and certificate recovery without another upload.
+
+`.tmp/native-cleanup-01` retains the intent, native binary frozen before integration,
+browser/reference original requests and replies, profiles, gateway fingerprints,
+source/artifact/log hashes and a private file manifest. Existing standalone
+verify/history/certificate/setup fixtures use disposable directories; only their
+logs survive. Full provider PUT bodies are not separately captured. Local substitutes
+do not qualify deployed Caffeine semantics, deletion, retention or billing cessation.
+No full CI, release, commit, publication, deployment, live-owner change, sibling
+edit or build cleanup occurs. Native parent/verifier automation, complete Miner
+qualification and deferred Canic adoption remain open.
+
+## Implementation simplification regressions — 2026-10-03
+
+The [local record](local/2026-10-03-simplification-01/summary.json) binds
+[original intent](local/2026-10-03-simplification-01/intent.json),
+[fixture correction](local/2026-10-03-simplification-01/regression-intent.json) and
+[refusal-order regression intent](local/2026-10-03-simplification-01/ordering-intent.json)
+to offline, actual IndexedDB and owned PocketIC/HTTPS gateway evidence. No
+deployed Caffeine call or paid effect occurs. SDK 1.1.2, certificate/gateway
+journals, configured verifier and native operation claims retain their roles.
+
+Shared binding and budget predicates reject malformed worker jobs before store
+access. Frozen files carry their raw digests, native publication decisions use
+typed observations, and synchronous download serving drops its repeated content
+lookup. JSON reports and journal formats remain unchanged. Original operation
+identity still rejects before a recovery fence refusal; uncertainty never permits
+redispatch. Existing authority, cancellation, restore and accounting checks remain.
+
+Native unit/core read checks, all selected standalone publication/download cases,
+31 offline worker cases, frozen-input checks and actual IndexedDB persistence pass.
+All thirteen Chromium journeys pass. Four indexed recovery cases and the worker
+lost-reply journey pass after the final refusal-order correction, with the final
+hashed CLI. Strict core/CLI lint and scoped native/Wasm builds pass. The earlier
+browser suite's native binary was not separately frozen; its claims, replies and
+profiles remain, and the record distinguishes the final artifact validation.
+
+`.tmp/simplification-01` retains original journals, query evidence, profiles,
+request fingerprints, failed/successful logs and source/private file manifests.
+The separate IndexedDB profile path is recorded and hashed. Initial sandbox
+listener refusals, missing capture/path setup, function lint limit, full-width
+test overflow and capture-helper child-process failure survive with corrections.
+Full gateway PUT bodies are not separately captured. Owned servers/browsers close.
+No full CI, release, commit, publication, deployment, live-owner change, sibling
+edit or cleanup occurs. Complete Miner serving and Canic adoption remain open.
+
 ## Private-port browser worker — 2026-10-03
 
 The [local record](local/2026-10-03-publication-worker-01/summary.json) binds

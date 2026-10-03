@@ -2,16 +2,21 @@
 
 Date: 2026-10-03
 
-Repository baseline: [0.9.0](../../CHANGELOG.md), dated 2026-10-03, at
-`d4a8759bfa9660ab1362711ec2dec99176b8af89`. Local package, peeled tag,
-origin tracking ref and receipt agree; all three committed release-file hashes verify.
-The receipt binds validated source `3c7fc2bc0d9d4a28bc0f13f7c6ba9ae7b146b1d9`.
+Repository baseline: [0.10.0](../../CHANGELOG.md), dated 2026-10-03, at
+`f856a2b138511e695d234c59bb5d9fafcccef794`.
+The release receipt binds validated source `317b8a3af006b76b15a8a054438b02cdabb7312f`.
 No new registry-publication or service-deployment observation is inferred.
-Unreleased tracks the bounded-input fix, embedding helpers, authenticated
-reference-map/per-file tooling, persistent native phases, the browser worker and
-serial local evidence
-below. Earlier Unreleased entries retain implementation and
-evidence history for work now included in 0.8.0 and 0.9.0.
+The undated [0.11.0 changelog draft](../../CHANGELOG.md) collects the completed
+simplification, verifier composition, signer/bootstrap and Chromium bridge batches
+below. Unreleased is empty; Cargo versions and the release receipt remain at
+0.10.0. The next release is minor because native bindings now require original
+preparation hints. Changelog structure and historical notes are checked for this
+documentation-only pass; no new full CI/release validation or release action occurs.
+The latest handoff is the [native Chromium bridge](#native-chromium-process-bridge--2026-10-03);
+earlier next-step notes describe their original batch and are superseded there.
+Earlier sections retain
+implementation and evidence history now included through 0.10.0; their dependency
+identities and validation scope describe the original runs.
 The old isolated owner remains frozen at
 0.6.0 with its original stopped history; the separate live owner was last verified
 at 0.7.0. Both retain their original obligations and exhausted capacity.
@@ -23,7 +28,191 @@ implementation and evidence; the [feedback list](../canic-parity.md#integration-
 is a future consumer backlog, not a prerequisite for this local work. Siblings
 remain read-only and no upstream message is authorized.
 
-## Unreleased: private-port browser publication worker — 2026-10-03
+## Unreleased: confirmed audit simplifications — 2026-10-03
+
+Download serving checks active tenant authority and retained content once, while
+asynchronous reads retain their captured-generation recheck. Browser certificate,
+journal, gateway and worker boundaries share pure binding/budget predicates;
+role checks, snapshots and durable effect claims remain with their owners.
+Each frozen native file carries its raw digest. Native setup, preparation and
+completion decisions use typed observations rather than reading presentation
+JSON. Public/wire/stable schemas and journal formats remain unchanged.
+
+Focused checks pass: 89 native unit cases, 14 core read cases, 15 standalone
+publication cases and all six selected download cases. All thirteen Chromium
+journeys pass; four indexed recovery cases and a worker lost-reply journey pass
+again after preserving original-identity refusal ordering. Offline worker/frozen
+input and actual IndexedDB checks pass, as do strict core/CLI lint and scoped
+Wasm/native builds. These are targeted checks, not full CI or release validation.
+
+The [local record](../evidence/caffeine-probes/local/2026-10-03-simplification-01/summary.json)
+and [ledger](../evidence/caffeine-probes/README.md#implementation-simplification-regressions--2026-10-03)
+retain intentions, source/artifact/log hashes, original journals/profiles and
+failed attempts under `.tmp/simplification-01`. Sandbox listener refusals, missing
+test capture/path setup, the lint limit, a maximum-width test overflow and a
+capture-helper child-process failure are retained before corrections. No live
+provider call, paid effect, deployment, version mutation, commit, publication,
+sibling edit or build cleanup occurs. Existing live obligations remain intact.
+
+Next product work remains durable native parent phase/restart coordination and complete
+Miner acceptance. The [Canic feedback list](../canic-parity.md#integration-feedback)
+remains deferred consumer work; no sibling changes are included.
+
+### Native follow-up — 2026-10-03
+
+Attestation, certificate assessment, history and local verification now use the
+existing authoritative upload-identity formatter in `native::references`. Local
+verification still checks the computed provider root against the original root
+before presenting that identity. Setup, local verification, provider observation
+and saved observation validation for attestation share one native manifest reply
+envelope. Caller-selected content bounds, distinct actor checks, decoder work
+limits, error mapping and journal/JSON formats remain unchanged. Observer and
+submission provenance includes the shared helper sources. Receipt inspection
+uses its already validated request loader without repeating scope/tenant checks.
+
+Strict native lint, 89 native unit cases and nine selected PocketIC/browser cases
+pass. These include 10 MiB local verification, paged/restored history, certificate
+blockers, lost/pending setup and reference replies, verified browser download and
+lost-chunk recovery without replay. The [local record](../evidence/caffeine-probes/local/2026-10-03-native-cleanup-01/summary.json)
+retains the intent, exact native binary, hashes, browser/reference requests and
+profiles under `.tmp/native-cleanup-01`; disposable fixture limitations are explicit.
+No deployed provider call or paid effect occurs. Full CI/release validation and
+complete Miner qualification remain outstanding; Canic adoption stays deferred.
+
+Review retained the canister read-session owner: callback correlation, occupied
+buffer capacity, post-await authority checks and same-release fencing differ from
+direct tenant descriptors. The derived public descriptor target is still a current
+API convenience; no consumer evidence establishes that removing it is appropriate.
+No compatibility branch, framework dependency, new state owner or release change
+is introduced. Continue with native parent/verifier automation once this coherent
+simplification batch is reviewed; keep the consumer feedback actions above open.
+
+### Native session verifier composition — 2026-10-03
+
+Optional `--verifier-identity` authenticates the installed completion verifier
+before session readiness. The `verify` frame composes the maintained bounded
+whole-download observer and exact one-shot attestation owner, then checks the
+current tenant/reference through the same typed publication observation as
+`status`. Original permission, full-width identity, frozen raw digest and configured
+gateway must match before signing. One private create-new directory per original
+index retains phase intent and the original observer/submission artifacts.
+
+`source_observation` recovery validates the original complete observation and
+queries immutable history without another GET or submission. Exact statement
+correlation is typed; absence or conflict stops before advancement even if another
+observation has the same content digest. Current restore/enrollment/reference
+checks remain separate. Missing/wrong verifier, foreign observations, corruption,
+pending/uncertain claims and deadlines never authorize replay. Existing manual
+verifier tools remain usable with their original one-shot claim ownership.
+
+Strict CLI/integration lint, 89 native unit cases, five native session cases and
+three final Chromium journeys pass. Success and lost-reply recovery each retain
+3,072 physical/liability bytes; corrupt observation stops before attestation and
+the next file while retaining 1,024. Recovery rejects another upload and a distinct
+observation time despite identical verified bytes and an already live reference.
+The [local record](../evidence/caffeine-probes/local/2026-10-03-native-verifier-01/summary.json)
+and [ledger](../evidence/caffeine-probes/README.md#native-session-verifier-composition--2026-10-03)
+retain original phase/observer/submission/profile captures, binaries, hashes and
+failed lint attempts under `.tmp/native-verifier-01`. No deployed provider call,
+paid effect, live-owner change or full CI/release validation occurs.
+
+Native parent browser launch, selected signer/private-port bootstrap, bounded body
+loading with original metadata hints and restart coordination remain unfinished.
+Continue those around this session and the maintained worker; add no second
+certificate/provider dispatcher. Then qualify all 679 Miner identities / 675
+blobs, real media, overlapping references and MIME/CORS/cache/CSP/open-browser
+retention. Canic consumer adoption remains deferred, with open actions in the
+[feedback list](../canic-parity.md#integration-feedback). No sibling edits or
+upstream messages are included.
+
+### Maintained browser host and signer bootstrap — 2026-10-03
+
+The private browser package now owns `createPublicationWorkerHost`,
+`servePublicationBootstrap` and the explicit DedicatedWorker entry. The host
+launches a named same-origin module, transfers one private port and sends an
+explicitly selected Ed25519/secp256k1 SDK identity plus fixed configuration on
+that port only. The SDK recomputes the advertised key pair; the configured uploader,
+scope, root and budgets validate before opening the existing IndexedDB journal.
+Create/open mode remains explicit; there is no identity discovery, credential
+HTTP route, second dispatch owner or replacement-journal fallback.
+
+The fixture-only bootstrap is deleted. Serial Chromium consumers use the
+maintained host/entry; only test identities and private evidence projection remain
+in the fixture. Certificate call counts come from actual browser requests rather
+than diagnostic worker events. Direct and hosted jobs share the same configuration
+and snapshot owner. Selected body/root views copy only their bounded bytes,
+independent of larger backing buffers. The host correlates one outstanding job
+and terminates the worker on close, abort or deadline without erasing history or
+declaring an exposed effect stopped.
+
+Pinned SDK/source/patch builds, 31 offline worker cases, 15 actual Chromium/
+IndexedDB bootstrap cases and three native-verifier Chromium/PocketIC journeys
+pass. Cases include both signer kinds, malformed pairs/configuration refusing
+before journal creation, snapshots, concurrency, foreign assets, pre-abort,
+outstanding close, deadline/profile reopening, exact attestation recovery and
+corruption preserving physical/liability accounting. No deployed provider request,
+paid effect, live-owner change or full CI/release validation occurs. The
+[local record](../evidence/caffeine-probes/local/2026-10-03-worker-bootstrap-01/summary.json)
+and [ledger](../evidence/caffeine-probes/README.md#maintained-browser-host-and-signer-bootstrap--2026-10-03)
+retain original profiles, phase/observer/submission captures, tested bundles,
+source/artifact/log hashes and all bootstrap attempts under `.tmp/worker-bootstrap-01`.
+`make test-browser-bootstrap` provides the scoped opt-in check with an explicit
+new `BLOB_BOOTSTRAP_REPORT`; its recipe was reviewed by dry run.
+
+Next implement native OS/browser-process launch and durable parent coordination
+around this host and the session. Select the signer input explicitly; the browser
+contract accepts maintained SDK identity JSON, and does not require inventing a
+PEM parser. Persist original preparation hints and bound selected body loading;
+do not derive filenames from provider headers or treat redacted browser success
+as completion. Parent restart must retain original profiles/setup/verification
+claims and inspect uncertainty without replay. Full Miner media/reference/serving
+acceptance remains open. Canic adoption stays deferred with actions in the
+[consumer feedback list](../canic-parity.md#integration-feedback); no sibling work
+or upstream message is included.
+
+### Native Chromium process bridge — 2026-10-03
+
+Unreleased adds `launchPublicationBrowser` around the maintained host/worker.
+The caller selects the installed Playwright Chromium engine, trusted bundles,
+SDK signer/bootstrap, original profile and fixed loopback port. Create/open mode
+is explicit; port contention refuses before profile creation, and missing history
+never creates a replacement journal. Only selected regular body bytes are read,
+bounded by exact length/EOF/raw digest, then transferred in 64 KiB CDP values.
+The browser still recomputes the SDK manifest/root before certificate intent.
+One job runs at a time; close/deadline/control failure retains original history
+and uncertainty. The asset server serves no keys, configuration or bodies.
+
+Native v1 bindings now require `preparation` with original optional `content_type`
+and `filename` strings. Preserve omission and empty strings; reject null/unknown
+fields and hints beyond 4,096 UTF-8 bytes. Binding hashes retain these arguments
+and selected session transfer descriptors carry them unchanged. This input hard
+cut requires a minor release; no compatibility reader or schema-generation branch
+is added. Service wire/state, Wasm, dependencies and existing obligations are unchanged.
+
+Ninety native cases, eleven actual Chromium bridge/profile/body cases, five native
+PocketIC sessions and three native-verifier Chromium/PocketIC journeys pass.
+The real adapted SDK/native 10 MiB snapshot round trip passes; strict CLI/harness
+lint, syntax, formatting and whitespace checks pass. Lost-reply recovery performs
+no additional upload/GET/attestation; corruption stops before attestation/next file.
+Success/recovery retain 3,072 physical/liability bytes; corruption retains 1,024.
+The [local record](../evidence/caffeine-probes/local/2026-10-03-native-browser-01/summary.json)
+and [ledger](../evidence/caffeine-probes/README.md#native-chromium-process-bridge--2026-10-03)
+retain exact binaries/bundles, profiles, requests/replies, hashes and failed attempts
+under `.tmp/native-browser-01`. Earlier runs selected zero cases, hit sandbox socket
+restrictions or exposed SDK/bundle packaging and lint issues; none is omitted.
+No deployed provider call, paid effect, full CI/release, cleanup or sibling edit occurs.
+
+Next implement the durable native parent around this bridge/session: persist the
+selected signer/profile/origin and original setup/verification origins before
+effects; on parent restart inspect exact retained evidence before advancing, without
+replaying an uncertain transfer. This callable bridge is not a complete headless
+publisher. Full Miner real media/reference/MIME/CORS/cache/CSP/retention acceptance,
+large-body heap/CDP latency and hostile local-user/profile rollback isolation remain
+unqualified. The open [consumer actions](../canic-parity.md#integration-feedback)
+include adopting original hints and retained process history; Canic remains deferred,
+with no upstream message sent.
+
+## Released 0.10.0: private-port browser publication worker — 2026-10-03
 
 Add `createPublicationWorker` / `servePublicationWorker` in the private browser
 package. Bind uploader signer, service/tenant/project/bucket, IC origin/root,
@@ -86,7 +275,9 @@ The [consumer backlog](../canic-parity.md#integration-feedback) records adoption
 and acceptance actions; Canic remains deferred. No sibling changes or upstream
 messages are authorized.
 
-## Draft 0.10.0 — 2026-10-03
+## 0.10.0 preparation history — 2026-10-03
+
+The following records the pre-release state; the baseline above is authoritative.
 
 Release-lint repair: move `BrowserPublicationPlan` from the shared browser driver
 to its sole consumer, the standalone serial test module. The storage test target

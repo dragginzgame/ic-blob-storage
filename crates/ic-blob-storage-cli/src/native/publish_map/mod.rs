@@ -41,6 +41,13 @@ pub(super) enum Selection {
     File(usize),
 }
 
+/// The checked result owns completion; JSON is only its boundary presentation.
+#[derive(Debug, PartialEq)]
+pub(in crate::native) struct PublicationObservation {
+    pub complete: bool,
+    pub report: Value,
+}
+
 impl Selection {
     const fn operation(self) -> &'static str {
         match self {
@@ -58,15 +65,15 @@ pub(super) async fn run(options: &Options, input: &Input) -> Result<Value, Failu
         limits.max_total_bytes,
     )?;
     let scope = publish_check::observation::scope(
-        &batch.inputs,
+        &batch.files,
         limits.service,
         limits.namespace,
         options.actor,
     )?;
     let required_queries = match input.selection {
-        Selection::Batch => 2 * batch.inputs.len() as u64 + 2,
+        Selection::Batch => 2 * batch.files.len() as u64 + 2,
         Selection::File(index) => {
-            batch.inputs.get(index).ok_or(Failure::Arguments)?;
+            batch.files.get(index).ok_or(Failure::Arguments)?;
             4
         }
     };
@@ -122,12 +129,12 @@ pub(super) async fn run(options: &Options, input: &Input) -> Result<Value, Failu
     .map_err(|_| Failure::Timeout)
     .and_then(|v| v);
     match result {
-        Ok(report) => {
-            if report["all_references_live"] == true {
-                run.json("media-map.json", &report)?;
+        Ok(observation) => {
+            if matches!(input.selection, Selection::Batch) && observation.complete {
+                run.json("media-map.json", &observation.report)?;
             }
-            run.json("summary.json", &report)?;
-            Ok(report)
+            run.json("summary.json", &observation.report)?;
+            Ok(observation.report)
         }
         Err(error) => {
             run.json("failure.json", &json!({"error":error.code(),"complete":false,"map_written":false,"retry_authorized":false}))?;
@@ -143,19 +150,20 @@ pub(in crate::native) async fn inspect<Q, F>(
     selection: Selection,
     run: &Run,
     mut query: Q,
-) -> Result<Value, Failure>
+) -> Result<PublicationObservation, Failure>
 where
     Q: FnMut(&'static str, Vec<u8>) -> F,
     F: Future<Output = Result<Vec<u8>, Failure>>,
 {
     let first = batch
-        .inputs
+        .files
         .first()
         .ok_or(Failure::Arguments)?
+        .input
         .permission
         .upload;
     let scope =
-        publish_check::observation::scope(&batch.inputs, first.service, first.namespace, actor)?;
+        publish_check::observation::scope(&batch.files, first.service, first.namespace, actor)?;
     let host = configuration(batch, run, &mut query).await?;
     let authority = CompletionAuthority::new(
         first.service,
@@ -182,9 +190,9 @@ where
         blockers.push(json!({"code":"tenant_inactive"}));
     }
     let selected = match selection {
-        Selection::Batch => 0..batch.inputs.len(),
+        Selection::Batch => 0..batch.files.len(),
         Selection::File(index) => {
-            batch.inputs.get(index).ok_or(Failure::Arguments)?;
+            batch.files.get(index).ok_or(Failure::Arguments)?;
             index..index + 1
         }
     };
@@ -192,8 +200,8 @@ where
     let mut files = Vec::with_capacity(expected_files);
     if blockers.is_empty() {
         for index in selected {
-            let file = &batch.inputs[index];
-            let digest = &batch.body_digests[index];
+            let file = &batch.files[index].input;
+            let digest = &batch.files[index].body_sha256;
             let blocked = match completion(file, index, authority, digest, run, &mut query).await? {
                 Some(code) => Some(code),
                 None => reference(file, index, run, &mut query).await?,
@@ -205,13 +213,12 @@ where
             files.push(mapping(file, index, digest, gateway)?);
         }
     }
+    let complete = blockers.is_empty() && files.len() == expected_files;
     let mut report = json!({"schema":1,"operation":selection.operation(),"authentication":"query_signatures",
         "inventory_sha256":super::upload_inputs::digest(&batch.inventory),
         "installation_sha256":super::upload_inputs::digest(&batch.installation),
         "files":files,"blockers":blockers,"atomic_snapshot":false,"publication_lease":false,
         "provider_requests":0,"public_serving_qualified":false,"retry_authorized":false});
-    let complete = report["blockers"].as_array().expect("array").is_empty()
-        && report["files"].as_array().expect("array").len() == expected_files;
     match selection {
         Selection::Batch => report["all_references_live"] = json!(complete),
         Selection::File(index) => {
@@ -220,7 +227,7 @@ where
             report["batch_complete"] = json!(false);
         }
     }
-    Ok(report)
+    Ok(PublicationObservation { complete, report })
 }
 
 pub(in crate::native) async fn configuration<Q, F>(

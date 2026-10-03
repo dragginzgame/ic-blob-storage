@@ -24,6 +24,15 @@ enum Driver {
     Indexed,
     Persistent,
     Worker,
+    VerifiedWorker,
+}
+impl Driver {
+    fn script(self) -> &'static str {
+        match self {
+            Self::VerifiedWorker => "../../.tmp/browser/launcher-serial.mjs",
+            _ => "serial.mjs",
+        }
+    }
 }
 
 enum Control {
@@ -46,6 +55,13 @@ struct Serial {
     files: Vec<UploadManifestRequest>,
 }
 impl Serial {
+    fn validate_plan(&self, plans: &BrowserPublicationPlan) {
+        assert_eq!(plans.files.len(), self.files.len());
+        for (plan, file) in plans.files.iter().zip(&self.files) {
+            assert_eq!(plan.byte_length, file.permission.upload.bytes);
+            assert_eq!(plan.hash, crate::standalone_certificate::root(file));
+        }
+    }
     fn refuse_corrupt_map(&self, control: &mut Control, gateway: &str, observation: &Value) {
         assert_eq!(observation["error"], "content_mismatch");
         assert!(
@@ -89,7 +105,7 @@ impl Serial {
         let closed = session.finish(3);
         assert_eq!(closed["error"], "transport");
         self.trial.record("interrupted-session.json", &closed);
-        *control = Control::Persistent(self.session(gateway, "resumed-session"));
+        *control = Control::Persistent(self.session(gateway, "resumed-session", false));
         assert_eq!(
             control.phase(&json!({"phase":"status","index":0}))["file_live"],
             false
@@ -99,7 +115,10 @@ impl Serial {
         assert_eq!(recovered["service_updates_this_run"], 0);
         self.trial.record("exposed-setup-recovery.json", &recovered);
     }
-    fn transfer(&self, index: usize, prepared: &Value) -> Value {
+    fn transfer(&self, driver: Driver, index: usize, prepared: &Value) -> Value {
+        if matches!(driver, Driver::VerifiedWorker) {
+            return json!({"index":index,"transfer":prepared["transfer"]});
+        }
         let transfer = &prepared["transfer"];
         if transfer.is_null() {
             return self.snapshot(index);
@@ -108,7 +127,7 @@ impl Serial {
         json!({"index":index,"binding":transfer["binding"],"snapshot":{"body":body,
             "bodySha256":transfer["body_sha256"],"manifestJSON":transfer["manifest_json"]}})
     }
-    fn session(&self, gateway: &str, label: &str) -> NativeSession {
+    fn session(&self, gateway: &str, label: &str, verify: bool) -> NativeSession {
         let mut args = self
             .trial
             .args("publish-session", "tenant.pem", self.trial.f.tenant);
@@ -123,9 +142,20 @@ impl Serial {
             "--max-steps".into(),
             "17".into(),
         ]);
+        if verify {
+            args.extend([
+                "--verifier-identity".into(),
+                self.trial.report.join("verifier.pem").display().to_string(),
+            ]);
+        }
         self.trial
             .record(&format!("{label}-command.json"), &json!(args));
-        let mut session = NativeSession::start(&args);
+        let mut session = NativeSession::start_with_roots(
+            &args,
+            verify
+                .then(|| self.trial.report.join("gateway-ca.pem"))
+                .as_deref(),
+        );
         let ready = session.read();
         assert_eq!(ready["event"], "ready");
         self.trial.record(&format!("{label}-ready.json"), &ready);
@@ -288,6 +318,10 @@ impl Serial {
             self.files[index].permission.upload.bytes.to_string()
         );
         self.attest(index);
+        let live = self.status_using(control, Some(index), gateway, &format!("confirmed-{index}"));
+        self.confirmed(index, gateway, observation, &live);
+    }
+    fn confirmed(&self, index: usize, gateway: &str, observation: &Value, live: &Value) {
         assert_eq!(
             self.trial.f.admission(self.files[index].permission).state,
             UploadState::Confirmed
@@ -300,7 +334,6 @@ impl Serial {
                 .remaining_active_uploads,
             1
         );
-        let live = self.status_using(control, Some(index), gateway, &format!("confirmed-{index}"));
         assert_eq!(live["file_live"], true);
         assert_eq!(live["file_index"], index);
         assert_eq!(live["batch_complete"], false);
@@ -319,6 +352,159 @@ impl Serial {
             self.trial
                 .download(&self.files[index], gateway, &format!("download-{index}"), 0);
         assert_eq!(delivered["content_digest"], observation["content_digest"]);
+    }
+    fn verify_in_session(
+        &self,
+        control: &mut Control,
+        index: usize,
+        gateway: &str,
+        scenario: Scenario,
+        browser: &mut BrowserDriver,
+    ) -> bool {
+        if matches!(scenario, Scenario::Corrupt) {
+            let Control::Persistent(mut session) = std::mem::replace(control, Control::Indexed)
+            else {
+                panic!("verifying session")
+            };
+            session.send(&json!({"phase":"verify","index":index}));
+            let failure = session.finish(3);
+            self.trial.record("verification-failure.json", &failure);
+            self.refuse_corrupt_map(control, gateway, &failure);
+            assert!(
+                !self
+                    .trial
+                    .report
+                    .join("session/verification-0000/observation/attestation")
+                    .exists()
+            );
+            browser.send(&json!({"finish":true}));
+            return true;
+        }
+        let verified = control.phase(&json!({"phase":"verify","index":index}));
+        self.trial
+            .record(&format!("verified-{index}.json"), &verified);
+        assert_eq!(verified["attestation"]["outcome"], "accepted");
+        assert_eq!(verified["file_live"], true);
+        self.confirmed(
+            index,
+            gateway,
+            &verified["observation"],
+            &verified["publication"],
+        );
+        if index == 0 && matches!(scenario, Scenario::LostReply) {
+            let Control::Persistent(session) = std::mem::replace(control, Control::Indexed) else {
+                panic!("verifying session")
+            };
+            assert_eq!(session.finish(3)["error"], "transport");
+            *control = Control::Persistent(self.session(gateway, "resumed-session", true));
+            let recovered = control.phase(&json!({"phase":"verify","index":0,
+            "source_observation":self.trial.report.join("session/verification-0000/observation")}));
+            self.trial.record("verification-recovery.json", &recovered);
+            assert_eq!(recovered["attestation"]["outcome"], "matched");
+            assert_eq!(recovered["max_provider_requests_this_phase"], 0);
+            assert_eq!(recovered["file_live"], true);
+            assert!(
+                !self
+                    .trial
+                    .report
+                    .join("resumed-session/verification-0000/observation")
+                    .exists()
+            );
+        }
+        if index == 1 {
+            self.complete_map(control, gateway);
+            self.reject_foreign_observation(gateway, scenario);
+            self.reject_conflicting_observation(gateway);
+            browser.send(&json!({"finish":true}));
+        }
+        false
+    }
+    fn reject_foreign_observation(&self, gateway: &str, scenario: Scenario) {
+        let mut session = self.session(gateway, "foreign-observation", true);
+        let original = if matches!(scenario, Scenario::LostReply) {
+            "resumed-session"
+        } else {
+            "session"
+        };
+        session.send(&json!({"phase":"verify","index":0,
+            "source_observation":self.trial.report.join(original).join("verification-0001/observation")}));
+        let failure = session.finish(3);
+        self.trial
+            .record("foreign-observation-failure.json", &failure);
+        assert_eq!(failure["error"], "binding");
+        assert!(
+            !self
+                .trial
+                .report
+                .join("foreign-observation/verification-0000/attestation-query.candid")
+                .exists()
+        );
+    }
+    fn reject_conflicting_observation(&self, gateway: &str) {
+        let source = self
+            .trial
+            .report
+            .join("session/verification-0000/observation");
+        let copy = self.trial.report.join("conflicting-observation-input");
+        std::fs::create_dir(&copy).unwrap();
+        for name in [
+            "plan.json",
+            "summary.json",
+            "permission.candid",
+            "service-response.candid",
+            "download-request.json",
+            "download-outcome.json",
+            "http-response.json",
+            "statement.candid",
+        ] {
+            std::fs::copy(source.join(name), copy.join(name)).unwrap();
+        }
+        // Same upload, verified digest and current live reference, but a distinct
+        // observation time: content equality cannot reconcile another statement.
+        let mut statement: ic_blob_storage::dto::upload::completion::UploadAttestationRequest =
+            candid::decode_one(&std::fs::read(copy.join("statement.candid")).unwrap()).unwrap();
+        statement.observed_at_ns += 1;
+        let encoded = candid::encode_one(statement).unwrap();
+        std::fs::write(copy.join("statement.candid"), &encoded).unwrap();
+        let mut summary: Value =
+            serde_json::from_slice(&std::fs::read(copy.join("summary.json")).unwrap()).unwrap();
+        summary["observed_at_ns"] = json!(statement.observed_at_ns.to_string());
+        summary["statement_sha256"] = json!(ContentDigest::compute(&encoded).to_string());
+        std::fs::write(
+            copy.join("summary.json"),
+            serde_json::to_vec_pretty(&summary).unwrap(),
+        )
+        .unwrap();
+        let mut session = self.session(gateway, "conflicting-observation", true);
+        session.send(&json!({"phase":"verify","index":0,"source_observation":copy}));
+        let failure = session.finish(3);
+        self.trial
+            .record("conflicting-observation-failure.json", &failure);
+        assert_eq!(failure["error"], "verification_refused");
+        let inspected: Value = serde_json::from_slice(
+            &std::fs::read(
+                self.trial
+                    .report
+                    .join("conflicting-observation/verification-0000/attestation-inspection.json"),
+            )
+            .unwrap(),
+        )
+        .unwrap();
+        assert_eq!(inspected["outcome"], "conflict");
+        assert!(
+            !self
+                .trial
+                .report
+                .join("conflicting-observation/media-map.json")
+                .exists()
+        );
+        assert!(
+            !self
+                .trial
+                .report
+                .join("conflicting-observation/verification-0000/observation")
+                .exists()
+        );
     }
     fn finish(&mut self, driver: BrowserDriver, scenario: Scenario) {
         let browser = driver.finish();
@@ -350,29 +536,24 @@ impl Serial {
 fn run(label: &str, scenario: Scenario, driver: Driver) {
     let mut serial = Serial::new(label);
     let config = json!({"url":serial.trial.url,"service":serial.trial.f.service.to_text(),
-        "tenant":serial.trial.f.tenant.to_text(),"bucket":"fixture-bucket","worker":matches!(driver,Driver::Worker),
+        "tenant":serial.trial.f.tenant.to_text(),"bucket":"fixture-bucket","worker":matches!(driver,Driver::Worker | Driver::VerifiedWorker),
         "rootKey":serial.trial.f.harness.pic.root_key().unwrap(),"project":super::client::PROJECT,
         "lostFinalReply":matches!(scenario,Scenario::LostReply),"corruptRead":matches!(scenario,Scenario::Corrupt),
         "providerRootCertificate":serial.trial.report.join("gateway-ca.pem"),
         "profile":serial.trial.report.join("browser-profile")});
-    let mut browser = BrowserDriver::start(&config, "serial.mjs");
+    let mut browser = BrowserDriver::start(&config, driver.script());
     let plans: BrowserPublicationPlan = browser.read(16384);
     let mut control = match driver {
         Driver::Indexed => Control::Indexed,
-        Driver::Persistent | Driver::Worker => {
-            Control::Persistent(serial.session(&plans.gateway, "session"))
+        Driver::Persistent | Driver::Worker | Driver::VerifiedWorker => {
+            Control::Persistent(serial.session(
+                &plans.gateway,
+                "session",
+                matches!(driver, Driver::VerifiedWorker),
+            ))
         }
     };
-    for (index, plan) in plans.files.iter().enumerate() {
-        assert_eq!(
-            plan.byte_length,
-            serial.files[index].permission.upload.bytes
-        );
-        assert_eq!(
-            plan.hash,
-            crate::standalone_certificate::root(&serial.files[index])
-        );
-    }
+    serial.validate_plan(&plans);
     for index in 0..2 {
         let prepared = serial.prepare_using(&mut control, index, &format!("setup-{index}"));
         assert_eq!(prepared["prepared"], true);
@@ -385,7 +566,7 @@ fn run(label: &str, scenario: Scenario, driver: Driver) {
                 .remaining_active_uploads,
             0
         );
-        browser.send(&serial.transfer(index, &prepared));
+        browser.send(&serial.transfer(driver, index, &prepared));
         let uploaded: Value = browser.read(8192);
         serial
             .trial
@@ -420,6 +601,12 @@ fn run(label: &str, scenario: Scenario, driver: Driver) {
             serial.restart_after_exposure(&mut control, gateway, &prepared["original_run"]);
         }
         let corrupt = matches!(scenario, Scenario::Corrupt);
+        if matches!(driver, Driver::VerifiedWorker) {
+            if serial.verify_in_session(&mut control, index, gateway, scenario, &mut browser) {
+                break;
+            }
+            continue;
+        }
         let observation = serial.observe(index, gateway, if corrupt { 3 } else { 0 });
         if corrupt {
             serial.refuse_corrupt_map(&mut control, gateway, &observation);
@@ -494,4 +681,35 @@ fn chromium_standalone_trial_dedicated_worker_lost_reply_recovers_without_anothe
 #[ignore = "Requires pinned browser packages and Chromium; run make test-browser-standalone"]
 fn chromium_standalone_trial_dedicated_worker_cancellation_and_corruption_keep_exposure() {
     run("worker-corrupt", Scenario::Corrupt, Driver::Worker);
+}
+
+#[test]
+#[ignore = "Requires pinned browser packages and Chromium; run make test-browser-standalone"]
+fn chromium_standalone_trial_native_verifier_completes_exact_files_before_advancing() {
+    run(
+        "native-verifier-complete",
+        Scenario::Complete,
+        Driver::VerifiedWorker,
+    );
+}
+
+#[test]
+#[ignore = "Requires pinned browser packages and Chromium; run make test-browser-standalone"]
+fn chromium_standalone_trial_native_verifier_recovers_original_observation_without_another_get_or_update()
+ {
+    run(
+        "native-verifier-lost",
+        Scenario::LostReply,
+        Driver::VerifiedWorker,
+    );
+}
+
+#[test]
+#[ignore = "Requires pinned browser packages and Chromium; run make test-browser-standalone"]
+fn chromium_standalone_trial_native_verifier_corruption_stops_before_attestation_and_next_file() {
+    run(
+        "native-verifier-corrupt",
+        Scenario::Corrupt,
+        Driver::VerifiedWorker,
+    );
 }

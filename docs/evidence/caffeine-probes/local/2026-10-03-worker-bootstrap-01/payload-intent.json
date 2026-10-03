@@ -1,0 +1,22 @@
+{
+  "schema": 1,
+  "date": "2026-10-03",
+  "evidence_class": "local_browser_and_standalone_substitute",
+  "purpose": "Final review found the host was cloning the original bootstrap a second time after validating/owning bounded root bytes. Use the already-owned canonical payload; repeat focused worker/bootstrap/serial checks with new captures and retain every earlier artifact.",
+  "targets": [
+    "offline worker",
+    "15 Chromium bootstrap cases",
+    "three native-verifier serial journeys"
+  ],
+  "limits": {
+    "files": 2,
+    "body_bytes": [
+      1024,
+      2048
+    ],
+    "automatic_retries": 0
+  },
+  "live_provider_requests": 0,
+  "paid_cycles": 0,
+  "changes": "Browser host reuses the canonical bounded bootstrap payload; no native/core/host Wasm or dependency change"
+}

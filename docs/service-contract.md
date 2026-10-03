@@ -21,7 +21,8 @@ The uploader must also hold the exact original tenant permission and
 prepared manifest. Controller/operator status grants none of that authority.
 No public uploader, automatic paid retry, provider spending-cap/replay guarantee
 or operational old-backup activation is supported. Stop/start preserves the owner;
-same-release upgrade restoration is inspection-only. An older management snapshot
+same-release upgrade restoration starts fenced. Explicit current-instance recovery
+requires independent continuity evidence before activation. An older management snapshot
 restores heap authority too and cannot safely resume operation.
 
 Provider provisioning, account controls, retention, deletion and billing cessation
@@ -131,8 +132,9 @@ store. `open_default` checks an existing committed capability before using a
 framework-owned default runtime, so absence cannot silently select a bucket policy
 or create a second manager. These helpers do not grant exclusive access themselves:
 the host must assign the handles to one storage owner. Standalone uses the shared
-mapping with its unchanged configuration grant, range and bucket policy. Managed
-composition is described below; complete endpoint parity remains unqualified.
+mapping with its unchanged configuration grant, range and bucket policy.
+Framework consumers own their generic lifecycle wrapper and endpoint adapter;
+Canic integration is deferred in the [feedback list](canic-parity.md#integration-feedback).
 
 `ops::service::installation::ValidatedServiceInstallation` also validates the
 explicit project, verifier, trusted uploader and bounded library release before allocation.
@@ -875,14 +877,15 @@ authenticated callbacks must still pass the namespace and lifecycle checks.
 Numeric lifetime budgets and retirement remain B1 decisions. Root non-reuse
 does not establish billing cessation or fix loss of history after an old backup.
 
-### Candidate persisted boundaries
+### Current persisted boundaries
 
-Most boundaries below remain proposed v1 responsibilities rather than installed
-records or a frozen wire format. Keep them independent of a consumer framework's memory IDs and store layout.
+The installed owners below use the current v1 records. Their exclusive memory
+grants remain independent of a consumer framework's memory IDs and store layout.
 The maintainer selected `ic-memory` as the sole allocation owner shared with hosts
-and IcyDB. Future core stores use its re-exported stable collections, and the
-integrating host owns bootstrap, policy, grants and bucket profile. This dependency decision
-does not freeze blob schemas/keys/IDs or close the provider and recovery gates.
+and IcyDB. Core stores use its re-exported stable collections, and the
+integrating host owns bootstrap, policy, grants and bucket profile. Cross-release
+schema transitions are reinstall-only, subject to retirement of existing obligations;
+the dependency choice does not close provider and recovery qualification gates.
 
 The first implemented component is `StableTenantEnrollments`. A host supplies one
 exclusive granted memory and a validated service configuration. A reserved map

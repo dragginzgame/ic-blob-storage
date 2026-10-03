@@ -1,17 +1,15 @@
 //! Local byte evidence against an authenticated original declaration, never completion authority.
-use super::{Failure, local_body::LocalBody, read};
+use super::{
+    Failure, local_body::LocalBody, read, references::upload_json,
+    upload_setup::manifest_reply_limits,
+};
 use candid::{Principal, de::DecoderConfig, decode_one_with_config};
 use ic_blob_storage::{
     dto::upload::{admission::UploadAdmissionRequest, manifest::UploadManifestInspection},
-    model::identity::caffeine::manifest::CaffeineManifestLimits,
-    ops::service::uploads::manifests::reply::{
-        self, UploadManifestReplyError, UploadManifestReplyLimits,
-    },
+    ops::service::uploads::manifests::reply::{self, UploadManifestReplyError},
 };
 use serde_json::{Value, json};
 use std::{num::NonZeroU64, path::Path};
-
-const FRAME: usize = 64 * 1024;
 
 pub(super) struct Verification {
     pub permission: UploadAdmissionRequest,
@@ -79,15 +77,7 @@ impl Verification {
         let declaration = reply::inspection(
             self.permission,
             response,
-            UploadManifestReplyLimits {
-                max_reply_bytes: FRAME.try_into().expect("positive reply bound"),
-                declaration: CaffeineManifestLimits {
-                    max_content_bytes: self.max_bytes,
-                    max_chunks: 1024.try_into().expect("positive chunk bound"),
-                    max_headers: 16.try_into().expect("positive header bound"),
-                    max_header_bytes: 4096.try_into().expect("positive metadata bound"),
-                },
-            },
+            manifest_reply_limits(self.max_bytes),
         )
         .map_err(|e| match e {
             UploadManifestReplyError::Limit => Failure::ReplyLimit,
@@ -103,14 +93,11 @@ impl Verification {
         let hashes = self
             .body
             .verify(root, &declaration, self.max_bytes, &mut std::io::sink())?;
+        // Verification proves the computed root equals this original upload root.
         Ok(
             json!({"schema":1,"observation":"local_upload_bytes","actor":actor.to_text(),
             "network":network,"url":url,"manifest_authentication":"query_signatures",
-            "upload":{"service":upload.service.to_text(),"namespace":upload.namespace.to_string(),
-                "tenant":upload.tenant.to_text(),"upload":upload.upload.to_string(),
-                "object":upload.object.to_string(),"incarnation":upload.incarnation.to_string(),
-                "first_reference":upload.first_reference.to_string(),"root":hashes.provider_root.to_string(),
-                "bytes":upload.bytes.to_string()},
+            "upload":upload_json(upload),
             "uploader":self.permission.uploader.to_text(),"expires_at_ns":self.permission.expires_at_ns.to_string(),
             "content_digest":hashes.content_digest.to_string(),"provider_completion":"not_established",
             "provider_availability":"not_observed","retry_authorized":false}),

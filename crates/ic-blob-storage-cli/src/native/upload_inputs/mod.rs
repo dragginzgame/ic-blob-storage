@@ -33,6 +33,7 @@ use std::{
 };
 
 pub(super) const MANIFEST_BYTES: u64 = 256 * 1024;
+pub(super) const BINDING_BYTES: u64 = 12 * 1024;
 
 /// Exact bounded metadata and an unopened body selected by the offline caller.
 pub(super) struct InputFiles {
@@ -100,6 +101,7 @@ impl BrowserCertificateBinding {
 #[serde(deny_unknown_fields)]
 struct Binding {
     schema: u8,
+    preparation: PreparationHints,
     project: String,
     bucket: String,
     service: String,
@@ -113,6 +115,34 @@ struct Binding {
     root: String,
     bytes: String,
     expires_at_ns: String,
+}
+
+/// Exact caller-selected SDK hints; omitted arguments stay omitted on restart.
+#[derive(Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
+struct PreparationHints {
+    #[serde(
+        default,
+        deserialize_with = "hint",
+        skip_serializing_if = "Option::is_none"
+    )]
+    content_type: Option<String>,
+    #[serde(
+        default,
+        deserialize_with = "hint",
+        skip_serializing_if = "Option::is_none"
+    )]
+    filename: Option<String>,
+}
+
+fn hint<'de, D: serde::Deserializer<'de>>(decoder: D) -> Result<Option<String>, D::Error> {
+    let value = String::deserialize(decoder)?;
+    if value.len() > 4096 {
+        return Err(serde::de::Error::custom(
+            "preparation hint exceeds byte bound",
+        ));
+    }
+    Ok(Some(value))
 }
 
 use super::parsing::positive;
@@ -188,7 +218,7 @@ pub(super) fn run(args: &[String]) -> Result<Value, Failure> {
     }
     PreparedInput::load(
         InputFiles {
-            binding: read(binding_path, 4096)?,
+            binding: read(binding_path, BINDING_BYTES)?,
             manifest: read(manifest_path, MANIFEST_BYTES)?,
             installation: read(installation_path, super::candidate_candid::MAX_BYTES as u64)?,
             body: body_path.to_owned(),
@@ -207,6 +237,7 @@ impl PreparedInput {
             .map_err(|_| Failure::Binding)?,
             "body":self.files.body,"body_sha256":body_sha256,
             "manifest_json":std::str::from_utf8(&self.files.manifest).map_err(|_| Failure::Binding)?,
+            "preparation":self.binding.preparation,
             "bytes":self.permission.upload.bytes.to_string()}),
         )
     }

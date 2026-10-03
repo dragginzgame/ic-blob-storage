@@ -1,7 +1,7 @@
 import { HttpAgent, Certificate, Cbor, requestIdOf, lookupResultToBuffer } from '@icp-sdk/core/agent';
 import { Principal } from '@icp-sdk/core/principal';
 import { IDL } from '@icp-sdk/core/candid';
-import { validNamespace } from './namespace.js';
+import { certificateBindingFailure } from './validation.js';
 
 const METHOD = '_immutableObjectStorageCreateCertificate';
 const encoder = new TextEncoder();
@@ -33,20 +33,9 @@ export async function createCertificateClient({ host, identity, rootKey, binding
   const saved = structuredClone(binding);
   saved.icOrigin = endpoint.origin;
   saved.icRootKey = Array.from(trustRoot);
-  require(validNamespace(saved.project, true) && validNamespace(saved.bucket), 'namespace');
-  for (const field of ['service', 'tenant', 'uploader']) {
-    require(typeof saved[field] === 'string' &&
-      Principal.fromText(saved[field]).toText() === saved[field], 'principal');
-  }
-  require(saved.uploader !== Principal.anonymous().toText() &&
-    identity.getPrincipal().toText() === saved.uploader, 'identity');
-  require(typeof saved.operation === 'string' && /^(0|[1-9][0-9]{0,38})$/.test(saved.operation) &&
-    BigInt(saved.operation) < (1n << 128n), 'operation');
-  require(typeof saved.root === 'string' && /^sha256:[0-9a-f]{64}$/.test(saved.root), 'root');
-  require(Array.isArray(saved.permission) && saved.permission.length > 0 &&
-    saved.permission.length <= 64 * 1024 && saved.permission.every(byte =>
-      Number.isInteger(byte) && byte >= 0 && byte <= 255), 'permission');
-  require(saved.key === `${saved.service}:${saved.tenant}:${saved.operation}`, 'key');
+  const refusal = certificateBindingFailure(saved);
+  require(!refusal, refusal);
+  require(identity.getPrincipal().toText() === saved.uploader, 'identity');
   for (const method of ['save', 'inspect', 'claim', 'observe', 'cancel']) {
     require(typeof intents[method] === 'function', 'store');
   }

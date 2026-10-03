@@ -40,13 +40,22 @@ await build({ absWorkingDir: repo, entryPoints: ['tests/browser/standalone.js'],
   format: 'esm', outfile: '.tmp/browser/standalone.js',
   alias: { '@caffeineai/object-storage': `${adapted}/dist/index.js` },
   nodePaths: [fileURLToPath(new URL('node_modules', import.meta.url))] });
-await build({ absWorkingDir: repo, entryPoints: ['tests/browser/publication-worker.js'], bundle: true,
+await build({ absWorkingDir: repo, entryPoints: ['clients/browser/worker-entry.js'], bundle: true,
   format: 'esm', outfile: '.tmp/browser/publication-worker.js',
   alias: { '@caffeineai/object-storage': `${adapted}/dist/index.js` },
   nodePaths: [fileURLToPath(new URL('node_modules', import.meta.url))] });
-for (const name of ['sdk-probe', 'native-inputs', 'publication', 'worker']) await build({ absWorkingDir: repo,
+await build({ absWorkingDir: repo, entryPoints: ['clients/browser/bootstrap.js'], bundle: true,
+  format: 'esm', outfile: '.tmp/browser/publication-host.js',
+  alias: { '@caffeineai/object-storage': `${adapted}/dist/index.js` },
+  nodePaths: [fileURLToPath(new URL('node_modules', import.meta.url))] });
+await build({ absWorkingDir: repo, entryPoints: ['tests/browser/bootstrap.js'], bundle: true,
+  format: 'esm', outfile: '.tmp/browser/bootstrap.js',
+  alias: { '@caffeineai/object-storage': `${adapted}/dist/index.js` },
+  nodePaths: [fileURLToPath(new URL('node_modules', import.meta.url))] });
+for (const name of ['sdk-probe', 'native-inputs', 'publication', 'worker', 'launcher-serial']) await build({ absWorkingDir: repo,
   entryPoints: [`tests/browser/${name}.mjs`], bundle: true,
   format: 'esm', platform: 'node', outfile: `.tmp/browser/${name}.mjs`,
+  external: ['/host.js'], // Executed inside Chromium, not a native module import.
   banner: { js: "import { createRequire } from 'node:module'; const require = createRequire(import.meta.url);" },
   alias: { '@caffeineai/object-storage': `${adapted}/dist/index.js` },
   nodePaths: [fileURLToPath(new URL('node_modules', import.meta.url))] });

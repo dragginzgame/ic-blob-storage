@@ -1,0 +1,534 @@
+{
+  "schema": 1,
+  "date": "2026-10-03",
+  "evidence_class": "offline_and_local_standalone_browser_substitute",
+  "baseline": {
+    "version": "0.10.0",
+    "commit": "f856a2b138511e695d234c59bb5d9fafcccef794",
+    "sources": "uncommitted local simplification batch"
+  },
+  "intents": [
+    "intent.json",
+    "regression-intent.json",
+    "ordering-intent.json"
+  ],
+  "dependencies": {
+    "ic_memory": "0.15.7",
+    "ic_testkit": "0.11.0",
+    "caffeine_sdk": "1.1.2",
+    "core_sdk": "5.4.0",
+    "node": "24.21.0",
+    "chromium": "153.0.8010.12"
+  },
+  "implementation": [
+    "one retained-content lookup for synchronous download serving",
+    "shared browser binding/request-budget rules with boundary-owned authority and claims",
+    "one frozen file/digest pair",
+    "typed setup/preparation/completion decisions; unchanged JSON/journal formats",
+    "original pending identity checked before recovery fence refusal"
+  ],
+  "validation": {
+    "native_unit": {
+      "passed": 89,
+      "log": "native-complete.log"
+    },
+    "core_reads": {
+      "passed": 14,
+      "log": "core-reads.log"
+    },
+    "native_publication": {
+      "passed": 15,
+      "log": "native-integration.log"
+    },
+    "standalone_download": {
+      "passed": 6,
+      "initial": "download-integration.log",
+      "corrected": [
+        "download-native-corrected.log",
+        "download-client-corrected.log"
+      ]
+    },
+    "browser_journeys": {
+      "passed": 13,
+      "log": "browser-integration.log"
+    },
+    "final_refusal_order": {
+      "indexed_recovery": 4,
+      "worker_lost_reply": 1,
+      "logs": [
+        "ordering-recovery.log",
+        "ordering-worker.log"
+      ]
+    },
+    "offline_worker": {
+      "schema": 1,
+      "complete": true,
+      "cases": [
+        {
+          "name": "foreign_service",
+          "error": "scope",
+          "reads": 0,
+          "claims": 0,
+          "transport_requests": 0
+        },
+        {
+          "name": "foreign_tenant",
+          "error": "scope",
+          "reads": 0,
+          "claims": 0,
+          "transport_requests": 0
+        },
+        {
+          "name": "foreign_uploader",
+          "error": "scope",
+          "reads": 0,
+          "claims": 0,
+          "transport_requests": 0
+        },
+        {
+          "name": "foreign_project",
+          "error": "scope",
+          "reads": 0,
+          "claims": 0,
+          "transport_requests": 0
+        },
+        {
+          "name": "foreign_bucket",
+          "error": "scope",
+          "reads": 0,
+          "claims": 0,
+          "transport_requests": 0
+        },
+        {
+          "name": "invalid_binding_operation",
+          "error": "operation",
+          "reads": 0,
+          "claims": 0,
+          "transport_requests": 0
+        },
+        {
+          "name": "invalid_binding_operation",
+          "error": "operation",
+          "reads": 0,
+          "claims": 0,
+          "transport_requests": 0
+        },
+        {
+          "name": "invalid_binding_root",
+          "error": "root",
+          "reads": 0,
+          "claims": 0,
+          "transport_requests": 0
+        },
+        {
+          "name": "invalid_binding_permission",
+          "error": "permission",
+          "reads": 0,
+          "claims": 0,
+          "transport_requests": 0
+        },
+        {
+          "name": "invalid_binding_permission",
+          "error": "permission",
+          "reads": 0,
+          "claims": 0,
+          "transport_requests": 0
+        },
+        {
+          "name": "invalid_binding_key",
+          "error": "key",
+          "reads": 0,
+          "claims": 0,
+          "transport_requests": 0
+        },
+        {
+          "name": "unknown_fields",
+          "error": "message",
+          "reads": 0,
+          "claims": 0,
+          "transport_requests": 0
+        },
+        {
+          "name": "unknown_action",
+          "error": "message",
+          "reads": 0,
+          "claims": 0,
+          "transport_requests": 0
+        },
+        {
+          "name": "corrupt_body",
+          "error": "body-digest",
+          "reads": 1,
+          "claims": 0,
+          "transport_requests": 0
+        },
+        {
+          "name": "changed_manifest",
+          "error": "manifest",
+          "reads": 1,
+          "claims": 0,
+          "transport_requests": 0
+        },
+        {
+          "name": "claimed_or_cancelled",
+          "error": "upload-claimed",
+          "reads": 0,
+          "claims": 0,
+          "transport_requests": 0
+        },
+        {
+          "name": "claimed_or_cancelled",
+          "error": "upload-claimed",
+          "reads": 0,
+          "claims": 0,
+          "transport_requests": 0
+        },
+        {
+          "name": "claimed_or_cancelled",
+          "error": "upload-claimed",
+          "reads": 0,
+          "claims": 0,
+          "transport_requests": 0
+        },
+        {
+          "name": "missing_recovery_history",
+          "error": "history-missing",
+          "reads": 1,
+          "claims": 0,
+          "transport_requests": 0
+        },
+        {
+          "name": "missing_cancellation_history",
+          "error": "history-missing",
+          "reads": 1,
+          "claims": 0,
+          "transport_requests": 0
+        },
+        {
+          "name": "concurrent_guard_and_correlation",
+          "claims": 0,
+          "transport_requests": 0
+        },
+        {
+          "name": "snapshots_and_redacted_failure",
+          "claims": 0,
+          "transport_requests": 0
+        },
+        {
+          "name": "aborted_worker",
+          "error": "aborted",
+          "reads": 0,
+          "claims": 0,
+          "transport_requests": 0
+        },
+        {
+          "name": "idle_deadline_fences_new_jobs",
+          "claims": 0,
+          "transport_requests": 0
+        },
+        {
+          "name": "configuration_roles_origins_and_limits",
+          "claims": 0,
+          "transport_requests": 0
+        },
+        {
+          "name": "bounded_journal_projection",
+          "claims": 0,
+          "transport_requests": 0
+        },
+        {
+          "name": "exported_error_with_private_code",
+          "error": "transport",
+          "reads": 0,
+          "claims": 0,
+          "transport_requests": 0
+        },
+        {
+          "name": "corrupt_projection_refused",
+          "error": "intent-corrupt",
+          "reads": 0,
+          "claims": 0,
+          "transport_requests": 0
+        },
+        {
+          "name": "corrupt_projection_refused",
+          "error": "intent-corrupt",
+          "reads": 0,
+          "claims": 0,
+          "transport_requests": 0
+        },
+        {
+          "name": "corrupt_projection_refused",
+          "error": "intent-corrupt",
+          "reads": 0,
+          "claims": 0,
+          "transport_requests": 0
+        },
+        {
+          "name": "corrupt_projection_refused",
+          "error": "intent-corrupt",
+          "reads": 0,
+          "claims": 0,
+          "transport_requests": 0
+        }
+      ],
+      "certificate_requests": 0,
+      "provider_requests": 0,
+      "claims": 0,
+      "caveat": "Substituted store for boundary checks; actual Worker/IC/IndexedDB is qualified separately."
+    },
+    "offline_publication": {
+      "schema": 1,
+      "complete": true,
+      "cases": [
+        {
+          "name": "corrupt_body",
+          "code": "body-digest",
+          "intentAccess": 0,
+          "transportRequests": 0
+        },
+        {
+          "name": "different_expected_digest",
+          "code": "body-digest",
+          "intentAccess": 0,
+          "transportRequests": 0
+        },
+        {
+          "name": "bounded_body",
+          "code": "body-size",
+          "intentAccess": 0,
+          "transportRequests": 0
+        },
+        {
+          "name": "malformed_digest",
+          "code": "body-digest",
+          "intentAccess": 0,
+          "transportRequests": 0
+        },
+        {
+          "name": "empty_body",
+          "code": "body-size",
+          "intentAccess": 0,
+          "transportRequests": 0
+        },
+        {
+          "name": "wrong_root",
+          "code": "root",
+          "intentAccess": 0,
+          "transportRequests": 0
+        },
+        {
+          "name": "wrong_metadata_hint",
+          "code": "root",
+          "intentAccess": 0,
+          "transportRequests": 0
+        },
+        {
+          "name": "oversized_metadata_hint",
+          "code": "metadata-hint",
+          "intentAccess": 0,
+          "transportRequests": 0
+        },
+        {
+          "name": "malformed_manifest",
+          "code": "manifest",
+          "intentAccess": 0,
+          "transportRequests": 0
+        },
+        {
+          "name": "oversized_manifest",
+          "code": "manifest-size",
+          "intentAccess": 0,
+          "transportRequests": 0
+        },
+        {
+          "name": "changed_headers",
+          "code": "manifest",
+          "intentAccess": 0,
+          "transportRequests": 0
+        },
+        {
+          "name": "changed_chunk_hashes",
+          "code": "manifest",
+          "intentAccess": 0,
+          "transportRequests": 0
+        },
+        {
+          "name": "changed_tree_type",
+          "code": "manifest",
+          "intentAccess": 0,
+          "transportRequests": 0
+        },
+        {
+          "name": "aborted_before_preparation",
+          "code": "AbortError",
+          "intentAccess": 0,
+          "transportRequests": 0
+        },
+        {
+          "name": "input_snapshots_across_await",
+          "reachesOriginalBoundIntent": true,
+          "transportRequests": 0
+        }
+      ],
+      "providerRequests": 0,
+      "certificateRequests": 0,
+      "caveat": "Deliberately refusing store and transport; actual IC/IndexedDB behavior is qualified separately."
+    },
+    "indexeddb": {
+      "outcome": "passed",
+      "browser": "153.0.8010.12",
+      "profile": "/home/adam/projects/ic-blob-storage/.tmp/browser-store-profile-xsi7d5",
+      "facts": [
+        "missing-store refusal",
+        "immutable capacity",
+        "argument snapshots",
+        "cross-tab claim",
+        "permanent cancellation",
+        "bounded gateway history",
+        "browser restart persistence",
+        "immutable project/bucket",
+        "UTF-8 and header byte bounds",
+        "corrupt-history refusal",
+        "675 lifetime rows with strict commits and restart preservation",
+        "one-million configured ceiling with one retained cancelled row across restart"
+      ],
+      "limits": [
+        "graceful restart only",
+        "no eviction/rollback/power-loss guarantee",
+        "no provider requests",
+        "one million populated rows not qualified"
+      ]
+    },
+    "lint": "strict core/CLI all-targets/all-features; clippy-complete.log",
+    "builds": "standalone Wasm, native CLI and gateway/storage/consumer fixtures; retained logs"
+  },
+  "failures_retained": [
+    {
+      "log": "store.log",
+      "reason": "sandbox loopback refusal; authorized local run passed"
+    },
+    {
+      "log": "clippy.log",
+      "reason": "function exceeded line limit; simplified without suppression"
+    },
+    {
+      "log": "download-integration.log",
+      "reason": "two setup failures: missing capture parent and storage fixture environment; four passed, two corrected cases passed separately"
+    },
+    {
+      "log": "native-final.log",
+      "reason": "two sandbox loopback refusals and new test overflow on maximum-width fixture; corrected bit-toggle and local run passed"
+    },
+    {
+      "log": "capture-hash-initial-failure.json",
+      "reason": "Node git child-process EPERM; corrected file-list input; public intents retained"
+    }
+  ],
+  "private_capture": ".tmp/simplification-01",
+  "retained": [
+    "original claims/request/reply files, frozen inputs, native reports and profiles where fixtures support capture",
+    "all failed/successful logs, source hashes and private file manifest",
+    "IndexedDB profile at the recorded path"
+  ],
+  "source_hashes": {
+    "file": ".tmp/simplification-01/source-hashes.json",
+    "sha256": "2d9891f4450824bb156b1770ac4335f8f43156d91543f0679d3c038a6994860e"
+  },
+  "artifact_hashes": {
+    "target/debug/blob-storage": "05bdd4e777243451d2fb474987265c602552dac0eb612a5fbc85ae435117da21",
+    "target/wasm32-unknown-unknown/release/ic_blob_storage_canister.wasm": "a3ce161c8de968e50c058b9e1392ad94f7081aedcf9298660965e50d6a6856a8",
+    "target/wasm32-unknown-unknown/release/blob_storage_probe.wasm": "af2bb81ddb61c248c755754257fc575f601d047232d0e4d5c42d432153dae44c",
+    "target/wasm32-unknown-unknown/release/blob_consumer_probe.wasm": "b0dd8b03f2bed0270e62686d3a8de7765c3ea5aad932ae0646460a32ba92e447",
+    "target/wasm32-unknown-unknown/release/blob_gateway_source.wasm": "4808c2e7f93468fb9315401194a8cf61b433d6d06a57be995a4b1e37d84d6f11",
+    ".tmp/browser/client.js": "9e7a2b74ef95eb93ef60db63893fe9c59c699fa5831f347154d96cfea542df3e",
+    ".tmp/browser/store.js": "0a6926258c76271736a25afe8ce90bcd0e0f37768cd1cebfe4a9449047809981",
+    ".tmp/browser/publication-worker.js": "34ad9bad263214e55bbbb0df5fea189b9efd60e17e1cee9e03adcb8491d7a851",
+    ".tmp/tools/pocket-ic-16.0.0/pocket-ic": "69e324bdb68d32d878b7a9504b1379f08f8d1921272bacb065b0fabb3d0f3792"
+  },
+  "log_hashes": {
+    ".tmp/simplification-01/browser/persistent-complete/browser-profile/Default/IndexedDB/https_127.0.0.1_45831.indexeddb.leveldb/000003.log": "8e867564a5688955b2624d020ca2fc2671c3d3ac83fc3229ba80d25bcaf95eed",
+    ".tmp/simplification-01/browser/persistent-complete/browser-profile/Default/Local Storage/leveldb/000003.log": "8bd2ea70a0b70c91de138a5b87c7936c6a6fa7c4275c54b97f4ef0ccc5b79bb4",
+    ".tmp/simplification-01/browser/persistent-complete/browser-profile/Default/Session Storage/000003.log": "ac7f20464b308d5eb78fe9b4c6b6759e023688fd322e7f7f63352efd112e043f",
+    ".tmp/simplification-01/browser/persistent-complete/browser-profile/Default/shared_proto_db/000003.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    ".tmp/simplification-01/browser/persistent-complete/browser-profile/Default/shared_proto_db/metadata/000003.log": "f913519e79359b4357965f6f1c4e37602f82ae46463e814b0d6695adc85646a5",
+    ".tmp/simplification-01/browser/persistent-corrupt/browser-profile/Default/IndexedDB/https_127.0.0.1_33611.indexeddb.leveldb/000003.log": "30b64c037dee411cd1195472f27c1a34d7bddf0b6ebee4b39b52346dc519c5bf",
+    ".tmp/simplification-01/browser/persistent-corrupt/browser-profile/Default/Local Storage/leveldb/000003.log": "8bd2ea70a0b70c91de138a5b87c7936c6a6fa7c4275c54b97f4ef0ccc5b79bb4",
+    ".tmp/simplification-01/browser/persistent-corrupt/browser-profile/Default/Session Storage/000003.log": "153b8849b572d53cea73a6fe4cc6565cc7a1d6f51d65bf1f2584d6de2c5dc62b",
+    ".tmp/simplification-01/browser/persistent-corrupt/browser-profile/Default/shared_proto_db/000003.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    ".tmp/simplification-01/browser/persistent-corrupt/browser-profile/Default/shared_proto_db/metadata/000003.log": "e502b5cfec41efd008b333ce74eaa10542fe52bef7e9b60cf2b9325fd97bad48",
+    ".tmp/simplification-01/browser/persistent-lost/browser-profile/Default/IndexedDB/https_127.0.0.1_38511.indexeddb.leveldb/000003.log": "3c5ba08eb42cef3d6e49611fc2513eaf504cd054470acc2e42d12cb1076bbfda",
+    ".tmp/simplification-01/browser/persistent-lost/browser-profile/Default/Local Storage/leveldb/000003.log": "8bd2ea70a0b70c91de138a5b87c7936c6a6fa7c4275c54b97f4ef0ccc5b79bb4",
+    ".tmp/simplification-01/browser/persistent-lost/browser-profile/Default/Session Storage/000003.log": "ac7f20464b308d5eb78fe9b4c6b6759e023688fd322e7f7f63352efd112e043f",
+    ".tmp/simplification-01/browser/persistent-lost/browser-profile/Default/shared_proto_db/000003.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    ".tmp/simplification-01/browser/persistent-lost/browser-profile/Default/shared_proto_db/metadata/000003.log": "f913519e79359b4357965f6f1c4e37602f82ae46463e814b0d6695adc85646a5",
+    ".tmp/simplification-01/browser/serial-complete/browser-profile/Default/IndexedDB/https_127.0.0.1_40471.indexeddb.leveldb/000003.log": "fc0d3090e2486b189baf6c847f554d2819c642283217772a693b43dd8280d359",
+    ".tmp/simplification-01/browser/serial-complete/browser-profile/Default/Local Storage/leveldb/000003.log": "8bd2ea70a0b70c91de138a5b87c7936c6a6fa7c4275c54b97f4ef0ccc5b79bb4",
+    ".tmp/simplification-01/browser/serial-complete/browser-profile/Default/Session Storage/000003.log": "ac7f20464b308d5eb78fe9b4c6b6759e023688fd322e7f7f63352efd112e043f",
+    ".tmp/simplification-01/browser/serial-complete/browser-profile/Default/shared_proto_db/000003.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    ".tmp/simplification-01/browser/serial-complete/browser-profile/Default/shared_proto_db/metadata/000003.log": "f913519e79359b4357965f6f1c4e37602f82ae46463e814b0d6695adc85646a5",
+    ".tmp/simplification-01/browser/serial-corrupt/browser-profile/Default/IndexedDB/https_127.0.0.1_35749.indexeddb.leveldb/000003.log": "c11fc678621870021e9060d986b837b0f3c15ec09ef22521441b298d38928ffc",
+    ".tmp/simplification-01/browser/serial-corrupt/browser-profile/Default/Local Storage/leveldb/000003.log": "8bd2ea70a0b70c91de138a5b87c7936c6a6fa7c4275c54b97f4ef0ccc5b79bb4",
+    ".tmp/simplification-01/browser/serial-corrupt/browser-profile/Default/Session Storage/000003.log": "153b8849b572d53cea73a6fe4cc6565cc7a1d6f51d65bf1f2584d6de2c5dc62b",
+    ".tmp/simplification-01/browser/serial-corrupt/browser-profile/Default/shared_proto_db/000003.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    ".tmp/simplification-01/browser/serial-corrupt/browser-profile/Default/shared_proto_db/metadata/000003.log": "e502b5cfec41efd008b333ce74eaa10542fe52bef7e9b60cf2b9325fd97bad48",
+    ".tmp/simplification-01/browser/serial-lost/browser-profile/Default/IndexedDB/https_127.0.0.1_34185.indexeddb.leveldb/000003.log": "2b8c1b2bd9499f3eaa30af459314283bbbcbef57ce922231ad6cd791023e002a",
+    ".tmp/simplification-01/browser/serial-lost/browser-profile/Default/Local Storage/leveldb/000003.log": "8bd2ea70a0b70c91de138a5b87c7936c6a6fa7c4275c54b97f4ef0ccc5b79bb4",
+    ".tmp/simplification-01/browser/serial-lost/browser-profile/Default/Session Storage/000003.log": "ac7f20464b308d5eb78fe9b4c6b6759e023688fd322e7f7f63352efd112e043f",
+    ".tmp/simplification-01/browser/serial-lost/browser-profile/Default/shared_proto_db/000003.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    ".tmp/simplification-01/browser/serial-lost/browser-profile/Default/shared_proto_db/metadata/000003.log": "f913519e79359b4357965f6f1c4e37602f82ae46463e814b0d6695adc85646a5",
+    ".tmp/simplification-01/browser/worker-complete/browser-profile/Default/IndexedDB/https_127.0.0.1_43405.indexeddb.leveldb/000003.log": "741d39d000336948c164eb4caaafd5d3613a3090e4b2d8eb81306c94dfb0e144",
+    ".tmp/simplification-01/browser/worker-complete/browser-profile/Default/Local Storage/leveldb/000003.log": "8bd2ea70a0b70c91de138a5b87c7936c6a6fa7c4275c54b97f4ef0ccc5b79bb4",
+    ".tmp/simplification-01/browser/worker-complete/browser-profile/Default/Session Storage/000003.log": "ac7f20464b308d5eb78fe9b4c6b6759e023688fd322e7f7f63352efd112e043f",
+    ".tmp/simplification-01/browser/worker-complete/browser-profile/Default/shared_proto_db/000003.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    ".tmp/simplification-01/browser/worker-complete/browser-profile/Default/shared_proto_db/metadata/000003.log": "f913519e79359b4357965f6f1c4e37602f82ae46463e814b0d6695adc85646a5",
+    ".tmp/simplification-01/browser/worker-corrupt/browser-profile/Default/IndexedDB/https_127.0.0.1_38035.indexeddb.leveldb/000003.log": "f5281605c60fa5f12e47ede6a274a498d153d3b4b2faec494c57bece57e54d40",
+    ".tmp/simplification-01/browser/worker-corrupt/browser-profile/Default/Local Storage/leveldb/000003.log": "8bd2ea70a0b70c91de138a5b87c7936c6a6fa7c4275c54b97f4ef0ccc5b79bb4",
+    ".tmp/simplification-01/browser/worker-corrupt/browser-profile/Default/Session Storage/000003.log": "153b8849b572d53cea73a6fe4cc6565cc7a1d6f51d65bf1f2584d6de2c5dc62b",
+    ".tmp/simplification-01/browser/worker-corrupt/browser-profile/Default/shared_proto_db/000003.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    ".tmp/simplification-01/browser/worker-corrupt/browser-profile/Default/shared_proto_db/metadata/000003.log": "e502b5cfec41efd008b333ce74eaa10542fe52bef7e9b60cf2b9325fd97bad48",
+    ".tmp/simplification-01/browser/worker-lost/browser-profile/Default/IndexedDB/https_127.0.0.1_36787.indexeddb.leveldb/000003.log": "3a6900ad386c153f28b90d13642823eeb372accc41d11bb2de1be4421ec21416",
+    ".tmp/simplification-01/browser/worker-lost/browser-profile/Default/Local Storage/leveldb/000003.log": "8bd2ea70a0b70c91de138a5b87c7936c6a6fa7c4275c54b97f4ef0ccc5b79bb4",
+    ".tmp/simplification-01/browser/worker-lost/browser-profile/Default/Session Storage/000003.log": "ac7f20464b308d5eb78fe9b4c6b6759e023688fd322e7f7f63352efd112e043f",
+    ".tmp/simplification-01/browser/worker-lost/browser-profile/Default/shared_proto_db/000003.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    ".tmp/simplification-01/browser/worker-lost/browser-profile/Default/shared_proto_db/metadata/000003.log": "f913519e79359b4357965f6f1c4e37602f82ae46463e814b0d6695adc85646a5",
+    ".tmp/simplification-01/browser-build.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    ".tmp/simplification-01/browser-integration.log": "e15399e51036b856336bb02328e395b5729c146bc31efdfa682fed663bdf0b1d",
+    ".tmp/simplification-01/browser-ordering/worker-lost/browser-profile/Default/IndexedDB/https_127.0.0.1_44377.indexeddb.leveldb/000003.log": "26c5f9d92ac9fce4b70beb1808ef9f950f73db6835d8711a05e655bb620a81a0",
+    ".tmp/simplification-01/browser-ordering/worker-lost/browser-profile/Default/Local Storage/leveldb/000003.log": "8bd2ea70a0b70c91de138a5b87c7936c6a6fa7c4275c54b97f4ef0ccc5b79bb4",
+    ".tmp/simplification-01/browser-ordering/worker-lost/browser-profile/Default/Session Storage/000003.log": "ac7f20464b308d5eb78fe9b4c6b6759e023688fd322e7f7f63352efd112e043f",
+    ".tmp/simplification-01/browser-ordering/worker-lost/browser-profile/Default/shared_proto_db/000003.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    ".tmp/simplification-01/browser-ordering/worker-lost/browser-profile/Default/shared_proto_db/metadata/000003.log": "f913519e79359b4357965f6f1c4e37602f82ae46463e814b0d6695adc85646a5",
+    ".tmp/simplification-01/cli-build.log": "6832573ae47bf6d167137458eb13b43e2684b4d59d94c2da4162ef080ba6901f",
+    ".tmp/simplification-01/cli-complete.log": "c7e36d62179dd313a3b3e327a09d9383860386ac9d520d4f5ae9e90584ebdd51",
+    ".tmp/simplification-01/clippy-complete.log": "63e069b7d6d5cbb8542fdfd2b4eb5b1050ec4d76ce630bc01cd925cd62ef679c",
+    ".tmp/simplification-01/clippy-final.log": "cfaae91970e825ee116ef6294053f790bf717ee37570d3673da88b25497ce41b",
+    ".tmp/simplification-01/clippy.log": "66ba087662659a3f2b503ab66c0ea5ea81978d9199bf766ffbc4c2d878608ecd",
+    ".tmp/simplification-01/core-reads.log": "87118151dc0a3ff8a67c8bce584ec143b4adef92d1573178a77fd32abe36632d",
+    ".tmp/simplification-01/download-client-corrected.log": "112b62b45ef1bad103207267d9642600759d8154a22044c257f3cb49a497d6f0",
+    ".tmp/simplification-01/download-integration.log": "1c4915d50ad0a79de7506b070fccb4df881ea5bffe9bea070c79c9d2d9b91c44",
+    ".tmp/simplification-01/download-native-corrected.log": "6b620a95b6dde6948ee8e4146c2a1989a09dfd3e2b165d17512e4cbdeb7dcfa6",
+    ".tmp/simplification-01/fixture-build.log": "72d75323f84c0cdbd0900bd45c0a98f023f1f86171d4b599ede28f3f194f5e00",
+    ".tmp/simplification-01/native-complete.log": "0af16ac332a41cdf83a85606bf739501675d43475e1b680357d16fbc0eae3aa5",
+    ".tmp/simplification-01/native-final.log": "4a7541cfcd01d4a60a8087e02ff34727512900f0743b08371f70542cc0ca5fa7",
+    ".tmp/simplification-01/native-integration.log": "1260cd5c0b843abcd06f2ea8a75f1d5e741bda84ffd0ab034c87cfdfef81b9ca",
+    ".tmp/simplification-01/ordering-recovery.log": "2dfee0f4a7ea869d5d91f0994a6b9e6d6f3c02f5313fd208460e7a0325d12909",
+    ".tmp/simplification-01/ordering-worker.log": "640ea2f781b18741fef2ba1b8b4bfdaec921aebcd7446f0bd63174ebb10c15f2",
+    ".tmp/simplification-01/publication.log": "6edbcf93eafc3b2c2f0a96d09058f86502fd2f34f95201d50f719665ea3c8bb6",
+    ".tmp/simplification-01/storage-fixture-build.log": "da3435face61b7bbd5ea48405bf8d958f3197a836cbf48c0b923e83d760f2122",
+    ".tmp/simplification-01/store-unsandboxed.log": "0daaa320be667ad5d3570db0c89e5567d9b2a81b50e59e545a14633ed7220f8d",
+    ".tmp/simplification-01/store.log": "a57b675c9aab4b3ee9d469bdc9f905a6e1b2010d58576b7cc4b93f68c50f13dd",
+    ".tmp/simplification-01/wasm-build.log": "feba063ee896c7341b5d453970a9f705762503d90cc3d543e7f2a19df1ba663b",
+    ".tmp/simplification-01/worker.log": "15c1b958312d7f836eccfc296b69b7b6980e44781ca6dee8b62938d0d178f7c0"
+  },
+  "live_provider_requests": 0,
+  "paid_cycles": 0,
+  "new_deployments": 0,
+  "limitations": [
+    "Local substitutes do not establish deployed Caffeine behavior, retention, deletion or billing cessation.",
+    "Thirteen-case browser suite preceded final refusal-order correction. Its native binary was not separately frozen; original claims/replies remain. Final indexed recovery and worker lost-reply cases use the final hashed binary.",
+    "Gateway PUT bodies have retained fingerprints, not separate full-body captures.",
+    "No full CI/release validation or complete Miner workload/serving acceptance; Canic adoption deferred.",
+    "Existing live owners and obligations unchanged; no version mutation, commit, publication or cleanup."
+  ]
+}

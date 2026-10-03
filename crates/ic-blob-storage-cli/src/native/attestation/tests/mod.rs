@@ -38,8 +38,8 @@ fn open(path: &Path, statement: &UploadAttestationRequest) -> Result<Recovery, F
     )
 }
 fn output(recovery: &Recovery, attestation: &UploadAttestationLookup, fenced: bool) -> Value {
-    recovery
-        .output(
+    let inspection = recovery
+        .inspect(
             &candid::encode_one(Ok::<_, UploadAttestationFailure>(
                 UploadAttestationResponse {
                     permission: recovery.statement.permission,
@@ -52,7 +52,13 @@ fn output(recovery: &Recovery, attestation: &UploadAttestationLookup, fenced: bo
             "local",
             "http://127.0.0.1",
         )
-        .unwrap()
+        .unwrap();
+    assert_eq!(
+        inspection.matched,
+        matches!(attestation,
+        UploadAttestationLookup::Found(receipt) if receipt.request == recovery.statement)
+    );
+    inspection.report
 }
 
 #[test]

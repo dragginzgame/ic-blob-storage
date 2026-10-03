@@ -69,7 +69,7 @@ fn original_permission_echo_and_typed_refusal_are_required_for_acknowledgment() 
     };
     let encode = |r: &UploadAdmissionMutation| candid::encode_one(Ok::<_, A>(r)).unwrap();
     assert_eq!(
-        observation(&input, &saved, &encode(&reply)).unwrap()["replayed"],
+        observation(&input, &saved, &encode(&reply)).unwrap().json()["replayed"],
         false
     );
     reply.admission.permission.expires_at_ns -= 1;

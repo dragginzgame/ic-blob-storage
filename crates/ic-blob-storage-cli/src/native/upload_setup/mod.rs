@@ -8,19 +8,38 @@ use candid::Principal;
 use ic_blob_storage::{
     dto::upload::{
         UploadState,
-        admission::{UploadAdmissionFailure as A, UploadAdmissionRequest, UploadAdmissionResponse},
+        admission::{
+            UploadAdmissionFailure as A, UploadAdmissionMutation, UploadAdmissionRequest,
+            UploadAdmissionResponse, UploadRevocationResponse,
+        },
         manifest::{
             UploadManifestDeclaration, UploadManifestFailure as M, UploadManifestInspection,
-            UploadManifestRequest,
+            UploadManifestRequest, UploadManifestResponse,
         },
     },
+    model::identity::caffeine::manifest::CaffeineManifestLimits,
     ops::service::uploads::{
         admission::{self, reply as admission_reply},
         manifests::{self, reply as manifest_reply},
     },
 };
 use serde_json::{Value, json};
-use std::path::PathBuf;
+use std::{num::NonZeroU64, path::PathBuf};
+
+/// Shared native upload-metadata envelope; each caller supplies its own body bound.
+pub(super) fn manifest_reply_limits(
+    max_content_bytes: NonZeroU64,
+) -> manifest_reply::UploadManifestReplyLimits {
+    manifest_reply::UploadManifestReplyLimits {
+        max_reply_bytes: (64 * 1024).try_into().expect("positive reply bound"),
+        declaration: CaffeineManifestLimits {
+            max_content_bytes,
+            max_chunks: 1024.try_into().expect("positive chunk bound"),
+            max_headers: 16.try_into().expect("positive header bound"),
+            max_header_bytes: 4096.try_into().expect("positive metadata bound"),
+        },
+    }
+}
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub(super) enum Kind {
@@ -82,43 +101,85 @@ fn admission_json(response: UploadAdmissionResponse) -> Value {
 pub(super) fn declaration_json(d: &UploadManifestDeclaration) -> Value {
     json!({"chunks":d.chunks.iter().map(|h| ic_blob_storage::model::identity::caffeine::manifest::CaffeineChunkHash::try_from(h.as_slice()).expect("fixed hash").to_string()).collect::<Vec<_>>(),"headers":d.headers.iter().map(|h|json!({"name":h.name,"value":h.value})).collect::<Vec<_>>()})
 }
-fn observation(input: &Input, saved: &Request, bytes: &[u8]) -> Result<Value, Failure> {
+#[derive(Debug, PartialEq)]
+pub(super) enum SetupObservation {
+    Admission(UploadAdmissionMutation),
+    Revocation(UploadRevocationResponse),
+    Permission(UploadAdmissionResponse),
+    Manifest {
+        response: UploadManifestResponse,
+        changed: Option<bool>,
+    },
+}
+impl SetupObservation {
+    fn json(&self) -> Value {
+        match self {
+            Self::Admission(r) => {
+                json!({"admission":admission_json(r.admission),"replayed":r.replayed})
+            }
+            Self::Revocation(r) => {
+                json!({"admission":admission_json(r.admission),"changed":r.changed})
+            }
+            Self::Permission(r) => admission_json(*r),
+            Self::Manifest {
+                response: r,
+                changed,
+            } => {
+                let declaration = match &r.manifest {
+                    UploadManifestInspection::Unprepared => Value::Null,
+                    UploadManifestInspection::Prepared(d) => declaration_json(d),
+                };
+                json!({"permission":permission_json(r.permission),"manifest":declaration,"changed":changed})
+            }
+        }
+    }
+}
+pub(super) struct SetupOutcome {
+    pub observation: Option<SetupObservation>,
+    pub report: Value,
+}
+
+fn observation(input: &Input, saved: &Request, bytes: &[u8]) -> Result<SetupObservation, Failure> {
     let max = 4096.try_into().unwrap();
     Ok(match input.kind {
         Kind::Admit => {
             let r =
                 admission_reply::mutation(saved.permission, bytes, max).map_err(admission_error)?;
-            json!({"admission":admission_json(r.admission),"replayed":r.replayed})
+            SetupObservation::Admission(r)
         }
         Kind::Revoke => {
             let r = admission_reply::revocation(saved.permission, bytes, max)
                 .map_err(admission_error)?;
-            json!({"admission":admission_json(r.admission),"changed":r.changed})
+            SetupObservation::Revocation(r)
         }
-        Kind::Permission => admission_json(
+        Kind::Permission => SetupObservation::Permission(
             admission_reply::inspection(saved.permission, bytes, max).map_err(admission_error)?,
         ),
         Kind::Prepare | Kind::Manifest => {
+            let limits = manifest_reply_limits(
+                (1024 * 1024 * 1024)
+                    .try_into()
+                    .expect("positive content bound"),
+            );
             let (r, changed) = if let Some(manifest) = &saved.manifest {
-                let r = manifest_reply::mutation(manifest, bytes, request::limits())
-                    .map_err(manifest_error)?;
+                let r =
+                    manifest_reply::mutation(manifest, bytes, limits).map_err(manifest_error)?;
                 (r.observation, Some(r.changed))
             } else {
                 (
-                    manifest_reply::inspection(saved.permission, bytes, request::limits())
+                    manifest_reply::inspection(saved.permission, bytes, limits)
                         .map_err(manifest_error)?,
                     None,
                 )
             };
-            let declaration = match r.manifest {
-                UploadManifestInspection::Unprepared => Value::Null,
-                UploadManifestInspection::Prepared(d) => declaration_json(&d),
-            };
-            json!({"permission":permission_json(r.permission),"manifest":declaration,"changed":changed})
+            SetupObservation::Manifest {
+                response: r,
+                changed,
+            }
         }
     })
 }
-pub(super) async fn run(options: &Options, input: &Input) -> Result<Value, Failure> {
+pub(super) async fn run(options: &Options, input: &Input) -> Result<SetupOutcome, Failure> {
     let saved = request::load(input, options.actor)?;
     if input.kind.mutation() {
         return dispatch::run(options, input, &saved).await;
@@ -130,11 +191,14 @@ pub(super) async fn run(options: &Options, input: &Input) -> Result<Value, Failu
         saved.argument.clone(),
     )
     .await?;
-    Ok(
-        json!({"schema":1,"operation":input.kind.method(),"authentication":"query_signatures",
-        "observation":observation(input, &saved, &bytes)?,"retry_authorized":false,
-        "certificate_issued":false,"provider_requests":0,"publication_authorized":false}),
-    )
+    let observed = observation(input, &saved, &bytes)?;
+    let report = json!({"schema":1,"operation":input.kind.method(),"authentication":"query_signatures",
+        "observation":observed.json(),"retry_authorized":false,
+        "certificate_issued":false,"provider_requests":0,"publication_authorized":false});
+    Ok(SetupOutcome {
+        observation: Some(observed),
+        report,
+    })
 }
 
 /// Retain exact query arguments and raw replies through the same setup decoder.
@@ -143,7 +207,7 @@ pub(super) async fn inspect_recorded(
     input: &Input,
     run: &crate::native::artifacts::Run,
     label: &str,
-) -> Result<Value, Failure> {
+) -> Result<SetupObservation, Failure> {
     if input.kind.mutation() {
         return Err(Failure::Arguments);
     }

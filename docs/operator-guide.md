@@ -450,6 +450,7 @@ Save `manifestJSON` as `manifest.json`. Supply a `binding.json` with these field
 ```json
 {
   "schema": 1,
+  "preparation": { "content_type": "image/png", "filename": "original.png" },
   "service": "SERVICE_PRINCIPAL",
   "project": "INSTALLED_PROVIDER_PROJECT",
   "bucket": "SELECTED_PROVIDER_BUCKET",
@@ -472,6 +473,16 @@ expiry. Principals and the provider root use their canonical text representation
 Unknown fields, invalid principals, noncanonical numbers and inconsistent
 metadata/leaves/root refuse before claiming output. The root and length must come
 from the same prepared file; a raw SHA-256 content digest is not a Caffeine root.
+
+The current native contract requires `preparation`: record exactly the SDK
+`prepareFile` arguments as optional `content_type` and `filename` strings, each
+at most 4,096 UTF-8 bytes. Use `{}` when both were omitted. Empty strings remain
+empty; null and unknown hint fields refuse. The complete binding has a 12 KiB
+byte ceiling. Do not infer hints from manifest headers: SDK defaults and filename
+encoding are preparation decisions. Frozen binding hashes cover these hints and
+the session's transfer descriptor carries them unchanged. This is a pre-1.0 hard
+cut requiring a minor release, with no old-input reader or migration. Retain old
+operation journals and obligations; changing input format never authorizes replay.
 
 ```sh
 cargo run --offline --locked -p ic-blob-storage-cli --bin blob-storage -- \
@@ -819,21 +830,26 @@ while stored bytes and billing obligations remain accounted for.
 
 ### Hold one validated batch across publication phases
 
-Unreleased `publish-session` keeps the validated batch in one native process.
+`publish-session` keeps the validated batch in one native process.
 It authenticates the tenant, uploader and operator, compares the actual installed
 configuration/release, and refuses a fenced host before its `ready` event.
 It handles setup, indexed completion checks and final-map observations through
-the same maintained command implementations. Certificate/SDK transfer,
-independent whole-download observation and configured-verifier attestation still
-run through the existing browser and verifier tools. This command is the native
+the same maintained command implementations. Optional `--verifier-identity`
+authenticates the installed completion verifier before `ready` and enables a
+`verify` phase that composes the existing whole-download observer and one-shot
+attestation owner. Certificate/SDK transfer stays with the browser. This command is the native
 phase controller. The browser [publication worker](../clients/browser/README.md#run-jobs-in-a-browser-worker)
-now supplies a fixed-authority job boundary; native parent launch/bootstrap and
-verifier-phase automation remain unfinished.
+now supplies a fixed-authority job boundary. Unreleased adds a
+[selected-signer browser host/bootstrap](../clients/browser/README.md#launch-the-maintained-worker-with-a-selected-signer).
+Unreleased also provides the [native Chromium bridge](../clients/browser/README.md#launch-chromium-from-a-native-parent)
+with selected SDK identity JSON, bounded file loading and fixed profile/origin.
+Complete durable parent phase/restart coordination remains unfinished.
 
 ```sh
 blob-storage publish-session --network ic --url https://icp-api.io \
   --identity tenant.pem --actor TENANT --operator-identity operator.pem \
   --uploader-identity uploader.pem --service SERVICE --namespace 1 \
+  --verifier-identity verifier.pem \
   --inputs publish-inputs --gateway https://REVIEWED_GATEWAY \
   --max-bytes 10485760 --max-total-bytes 1073741824 \
   --max-steps 2701 --timeout-seconds 3600 --run-dir publication-session
@@ -850,6 +866,8 @@ the final CLI result and exits. Errors emit the normal redacted failure result.
 | --- | --- |
 | `{"phase":"prepare","index":0}` | Require `report.prepared:true`; use its `transfer` descriptor with the maintained browser helper |
 | `{"phase":"status","index":0}` | After independent verification/attestation, require `report.file_live:true` before moving to index 1 |
+| `{"phase":"verify","index":0}` | With a selected verifier, perform at most one bounded GET and one attestation; advance only if the exact current reference passes |
+| `{"phase":"verify","index":0,"source_observation":"/absolute/original/verification-0000/observation"}` | Inspect the original complete observation and immutable attestation history, then current reference; no GET or submission |
 | `{"phase":"prepare","index":0,"source_run":"/absolute/original/setup"}` | Recover the exact original per-file setup, preserving its signed journals; never name a recovery-report directory |
 | `{"phase":"map"}` | After every original index passes, inspect `all_references_live`; only complete success writes the root `media-map.json` |
 
@@ -872,10 +890,24 @@ authorizes redispatch. An already-exposed permission refuses preparation; reconc
 the original object through the independent verifier instead. Keep original
 browser profiles and all setup/observation/attestation journals.
 
+Verification binds the original permission, raw body digest, configured gateway
+and installed verifier before signing. Each original index has one create-new
+`verification-NNNN` directory, separate from process step numbers. Corrupt bytes,
+partial observations, refused/uncertain submissions and exhausted deadlines stop
+the session without advancing. Pending submissions can produce `file_live:false`;
+inspect status explicitly, without repeating `verify`. A second verification of
+that index refuses its existing directory. Recovery retains the original observer
+and signed attestation files; it never regenerates a statement or submits it again.
+An absent historical receipt does not authorize another update. A complete
+observation without a submission can still be passed explicitly to the existing
+one-shot `submit-attestation` tool; its original create-new claim owns dispatch.
+A new session/root is not authority to repeat an interrupted verification: use
+`source_observation`, or inspect already confirmed indices with `status`.
+
 Full-batch bodies and metadata are validated once at startup. Setup rehashes the
 selected body against that frozen digest; completed and unrelated bodies are not
 rescanned for each phase. The returned `transfer` includes cached binding,
-manifest JSON, original raw digest/byte count and the body path. The browser must
+manifest JSON, original preparation hints, raw digest/byte count and the body path. The browser must
 snapshot that body and recheck raw digest and SDK root before certificate intent,
 using `createPublicationUpload`; a path alone is not verified content. Final maps
 describe the initially validated intent and current reference observations, not
@@ -883,10 +915,13 @@ the present integrity of every local body copy or an atomic publication lease.
 
 Intent, exact control requests and query replies are saved under a private
 create-new root, with existing signed setup journals below each step. The recorded
-maximum is two setup updates per original file and a conservative
-`4 × max_steps + 2 × files + 3` service-query bound. No provider request, verifier
-attestation, funding or retry is performed by the session. External transfers and
-verification need their own budgets. Exit zero may describe blocked/incomplete
+maximum is two setup updates per original file, plus one attestation when a verifier
+is selected, and a conservative `5 × max_steps + 2 × files + 3` service-query bound.
+With a verifier, budget at most one provider GET per original file; reads may incur
+charges. Without that explicit identity, verification refuses before effects.
+Recovery performs no provider request or attestation update. External transfers
+need their own budgets; no funding, automatic retry or guaranteed spend cap follows.
+Exit zero may describe blocked/incomplete
 work; inspect typed report fields before continuing or publishing.
 
 ## Admit and prepare an upload

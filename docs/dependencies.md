@@ -14,11 +14,11 @@ availability does not establish provider qualification or service readiness.
 | `sha2` | 0.11.0 | SHA-256; optional allocation/OID features disabled |
 | `thiserror` | 2.0.18 | Typed error derives; matches PocketIC's exact requirement |
 | `ic-cdk` | 0.20.3 | IC platform operations for the ops layer |
-| `ic-memory` | 0.15.2 (locked) | Sole allocation runtime; public typed growth API |
+| `ic-memory` | 0.15.7 (locked) | Sole allocation runtime; public typed growth API |
 | `ic-stable-structures` | 0.7.2 | Exact transitive substrate owned/re-exported by `ic-memory` |
-| `ic-testkit` | 0.10.1 | Native dependency of the unpublished PocketIC harness; shared helpers and full re-export |
+| `ic-testkit` | 0.11.0 (locked) | Native dependency of the unpublished PocketIC harness; shared helpers and full re-export |
 | `pocket-ic` | 16.0.0 | Transitive through `ic-testkit`; no direct dependency |
-| `ic-agent` | 0.49.2 | Native test-only signing and verification of local ingress certificates |
+| `ic-agent` | 0.49.2 | Native CLI and harness signing and verification of ingress certificates |
 | `candid_parser` | 0.4.1 | Native harness only; official Candid parser for native request fixtures |
 
 Headless ingress tests add pinned `ic-agent` 0.49.2 (default features disabled),
@@ -130,6 +130,17 @@ requires the same provisioned Node/packages/Chromium but no Rust build or Pocket
 it tests explicit create/reopen and a graceful browser-process restart with an
 isolated retained profile under `.tmp/`.
 See the [client contract](../clients/browser/README.md).
+
+`make test-browser-launcher BLOB_LAUNCHER_REPORT=NEW_DIRECTORY` checks the maintained
+native Chromium bridge with owned loopback assets and an explicitly retained
+profile. It covers bounded selected-body reads, FIFO/symlink refusals, fixed-origin
+reopening, missing-history refusal, port contention and deadlines without IC or
+provider traffic. It uses the same provisioned Node/Playwright/Chromium; the private
+client accepts the caller's Chromium engine and adds nothing to Cargo's graph.
+`build.mjs` emits maintained `publication-host.js` / `publication-worker.js` plus
+the adapted native serial evidence driver. Its Chromium-only `/host.js` import
+remains external to the native bundle; executable SDK peer/source/patch checks
+still run before every build. See the [process bridge contract](../clients/browser/README.md#launch-chromium-from-a-native-parent).
 
 `make test-browser-publication BLOB_PUBLICATION_REPORT=NEW_DIRECTORY` runs the
 frozen-file helper's offline body/manifest/metadata/root/abort refusals and input
@@ -296,6 +307,6 @@ Cargo packages only; it does not provision this binary.
 
 The library and its tests have no downstream framework dependency. The
 [Caffeine baseline](provider-baseline.json) remains the upstream integration
-reference. No npm/Motoko package is installed into this Rust-only scaffold;
-browser dependencies belong to a concrete browser client or compatibility
-harness when one is added.
+reference. No npm/Motoko package enters the Rust/Wasm dependency graph;
+browser peers belong to the maintained private client and its concrete evidence
+harness.

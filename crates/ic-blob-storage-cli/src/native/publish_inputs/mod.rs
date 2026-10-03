@@ -8,7 +8,7 @@ use super::{
     Failure,
     artifacts::{FailureRecord, Run},
     candidate_candid, read,
-    upload_inputs::{InputFiles, MANIFEST_BYTES, PreparedInput, digest},
+    upload_inputs::{BINDING_BYTES, InputFiles, MANIFEST_BYTES, PreparedInput, digest},
 };
 use serde::Deserialize;
 use serde_json::{Value, json};
@@ -23,10 +23,14 @@ pub(super) const MAX_TIMEOUT_SECONDS: u64 = 3600;
 
 /// One complete frozen batch; caller-supplied identities remain proposals.
 pub(super) struct PreparedBatch {
-    pub inputs: Vec<PreparedInput>,
-    pub body_digests: Vec<String>,
+    pub files: Vec<FrozenFile>,
     pub inventory: Vec<u8>,
     pub installation: Vec<u8>,
+}
+/// Keep the verified input and its original expected raw digest inseparable.
+pub(super) struct FrozenFile {
+    pub input: PreparedInput,
+    pub body_sha256: String,
 }
 impl PreparedBatch {
     pub fn open_frozen(
@@ -82,8 +86,14 @@ impl PreparedBatch {
             )?;
         }
         Ok(Self {
-            inputs,
-            body_digests: inventory.files.into_iter().map(|e| e.body_sha256).collect(),
+            files: inputs
+                .into_iter()
+                .zip(inventory.files)
+                .map(|(input, entry)| FrozenFile {
+                    input,
+                    body_sha256: entry.body_sha256,
+                })
+                .collect(),
             inventory: inventory_bytes,
             installation,
         })
@@ -193,7 +203,7 @@ fn preflight(
     let mut metadata_bytes = 0_usize;
     for entry in &inventory.files {
         checked_hash(&entry.body_sha256)?;
-        let binding = metadata(root, &entry.binding, &entry.binding_sha256, 4096)?;
+        let binding = metadata(root, &entry.binding, &entry.binding_sha256, BINDING_BYTES)?;
         let manifest = metadata(
             root,
             &entry.manifest,

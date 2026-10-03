@@ -1,5 +1,4 @@
-import { Principal } from '@icp-sdk/core/principal';
-import { validNamespace } from './namespace.js';
+import { certificateBindingFailure, certificateBindingFields, validGatewayLimits, validJournalConfiguration } from './validation.js';
 
 /** Local journal refusal. Never authorizes repeating a certificate or provider request. */
 export class IntentRefusal extends Error {
@@ -23,29 +22,19 @@ function origin(value) {
     (url.protocol === 'http:' && ['localhost', '127.0.0.1', '[::1]'].includes(url.hostname))), 'origin');
 }
 function binding(value) {
-  fields(value, ['key', 'service', 'tenant', 'uploader', 'operation', 'root',
-    'project', 'bucket', 'permission', 'icOrigin', 'icRootKey']);
-  require(validNamespace(value.project, true) && validNamespace(value.bucket), 'namespace');
-  for (const field of ['service', 'tenant', 'uploader']) {
-    require(typeof value[field] === 'string' && value[field].length <= 63 &&
-      Principal.fromText(value[field]).toText() === value[field], 'principal');
-  }
-  require(value.uploader !== Principal.anonymous().toText(), 'principal');
-  require(typeof value.operation === 'string' && /^(0|[1-9][0-9]{0,38})$/.test(value.operation) &&
-    BigInt(value.operation) < (1n << 128n), 'operation');
-  require(typeof value.root === 'string' && /^sha256:[0-9a-f]{64}$/.test(value.root), 'root');
-  require(value.key === `${value.service}:${value.tenant}:${value.operation}`, 'key');
-  require(bytes(value.permission, 65536) && bytes(value.icRootKey, 1024), 'bytes');
+  const names = [...certificateBindingFields, 'icOrigin', 'icRootKey'];
+  fields(value, names);
+  const refusal = certificateBindingFailure(value);
+  require(!refusal, refusal === 'permission' ? 'bytes' : refusal === 'identity' ? 'principal' : refusal);
+  require(bytes(value.icRootKey, 1024), 'bytes');
   origin(value.icOrigin);
   // Canonical property order makes comparisons independent of caller property order.
-  return Object.fromEntries(['key', 'service', 'tenant', 'uploader', 'operation', 'root',
-    'project', 'bucket', 'permission', 'icOrigin', 'icRootKey'].map(key => [key, value[key]]));
+  return Object.fromEntries(names.map(key => [key, value[key]]));
 }
 function scope(value) {
   fields(value, ['origin', 'maxRequests', 'maxRequestBytes', 'maxTotalRequestBytes']);
   origin(value.origin);
-  require(integer(value.maxRequests, 1, 256) && integer(value.maxRequestBytes, 1, 2 * 1024 * 1024) &&
-    integer(value.maxTotalRequestBytes, 1, value.maxRequests * value.maxRequestBytes), 'limits');
+  require(validGatewayLimits(value), 'limits');
   return { origin: value.origin, maxRequests: value.maxRequests,
     maxRequestBytes: value.maxRequestBytes, maxTotalRequestBytes: value.maxTotalRequestBytes };
 }
@@ -111,8 +100,7 @@ const bound = (value, saved) => require(value && equal(value.binding, saved), 'i
  */
 export async function createIndexedDBIntentStore({ database, maxSlots, mode,
   indexedDB: factory = globalThis.indexedDB }) {
-  require(typeof database === 'string' && database.length > 0 && database.length <= 128 &&
-    integer(maxSlots, 1, 1_000_000) && ['create', 'open'].includes(mode) && factory, 'configuration');
+  require(validJournalConfiguration({ database, maxSlots, mode }) && factory, 'configuration');
   const db = await new Promise((resolve, reject) => {
     let created = false, failure, settled = false;
     const fail = error => { settled = true; clearTimeout(timer); reject(error); };

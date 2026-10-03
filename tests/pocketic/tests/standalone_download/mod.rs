@@ -1,5 +1,5 @@
 //! Operational descriptor delivery uses the installed scope and the shared live-reference gate.
-//! Successful confirmed serving is covered by labelled storage fixtures until completion is wired.
+//! Verified serving and withheld delivery are exercised by standalone browser journeys.
 mod native;
 use super::*;
 use ic_blob_storage::{

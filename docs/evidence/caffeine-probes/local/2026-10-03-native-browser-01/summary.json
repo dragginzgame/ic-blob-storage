@@ -1,0 +1,155 @@
+{
+  "schema": 1,
+  "date": "2026-10-03",
+  "evidence_class": "source_offline_actual_chromium_indexeddb_and_owned_pocketic_https_substitute",
+  "intent": "intent.json",
+  "baseline": "0.10.0 at f856a2b138511e695d234c59bb5d9fafcccef794; earlier dirty simplification/verifier/bootstrap preserved",
+  "implementation": [
+    "Required original preparation hints in native v1 bindings and cached transfer descriptors",
+    "Maintained Chromium process bridge with explicit SDK signer, fixed asset port/origin and original persistent profile",
+    "Bounded regular selected-body read, exact length/EOF/digest and 64 KiB CDP handoff before SDK root/manifest checks",
+    "Single outstanding job and finite redacted process errors; close/deadline preserves original uncertainty/history",
+    "Reuse maintained host, worker, strict IndexedDB, native setup/verifier/map and exact effect journals"
+  ],
+  "release": {
+    "required_kind": "minor",
+    "reason": "Hard-cut required preparation input field; no old reader or migration",
+    "versions_mutated": false,
+    "service_wire_and_stable_generations_changed": false,
+    "dependencies_changed": false
+  },
+  "validation": {
+    "native": [
+      {
+        "passed": 90,
+        "failed": 0
+      }
+    ],
+    "native_sessions": [
+      {
+        "passed": 5,
+        "failed": 0
+      }
+    ],
+    "actual_bridge_cases": [
+      "occupied_port_refuses_before_profile",
+      "explicit_profile_and_origin_start_without_effects",
+      "owned_request_and_single_job",
+      "changed_truncated_oversized_and_noncanonical_body_refuse",
+      "symlinks_and_directories_are_not_bodies",
+      "fifo_without_writer_refuses_without_blocking",
+      "metadata_hints_have_exact_fields_and_utf8_bounds",
+      "close_preserves_profile_and_refuses_replacement",
+      "changed_origin_missing_and_symlink_profiles_refuse_without_replacement",
+      "same_origin_and_profile_reopen_original_journal",
+      "deadline_closes_browser_without_erasing_profile"
+    ],
+    "bridge_summary_sha256": "16b214147e8ac219608b043c1f9daad4da6e2469c935b18f0b2d55a19fca12fd",
+    "sdk_native_content_bytes": 10485760,
+    "sdk_native_summary_sha256": "8806d1c67e07a55262fda381a7a943dd47577a0d8039027ebc2b5e41083247ff",
+    "serial_journeys": [
+      {
+        "name": "native-verifier-complete",
+        "summary_sha256": "4bed112cc51b1586325c5f3fd13ea3696d8b9c37d610d2902f0f7178bd4cb655",
+        "confirmed_map_written": true,
+        "browser_bridge": true,
+        "asset_origin": "http://127.0.0.1:44081",
+        "physical_bytes": 3072,
+        "liability_bytes": 3072,
+        "gateway_puts": 4,
+        "gateway_gets": 4,
+        "automatic_retries": 0
+      },
+      {
+        "name": "native-verifier-lost",
+        "summary_sha256": "d39c1a6221c43e47d65a575c00a4d0a3719cee6815d29966812cb6740125501b",
+        "confirmed_map_written": true,
+        "browser_bridge": true,
+        "asset_origin": "http://127.0.0.1:40737",
+        "physical_bytes": 3072,
+        "liability_bytes": 3072,
+        "gateway_puts": 4,
+        "gateway_gets": 4,
+        "automatic_retries": 0
+      },
+      {
+        "name": "native-verifier-corrupt",
+        "summary_sha256": "65bf894f89ace66da9781206b8ccc45dae14d81f5dcd2df49554b631d2d2143c",
+        "confirmed_map_written": false,
+        "browser_bridge": true,
+        "asset_origin": "http://127.0.0.1:40373",
+        "physical_bytes": 1024,
+        "liability_bytes": 1024,
+        "gateway_puts": 2,
+        "gateway_gets": 1,
+        "automatic_retries": 0
+      }
+    ],
+    "strict_cli_and_harness_all_targets_lint": "passed",
+    "syntax_format_whitespace": "passed",
+    "full_ci_or_release_validation": false
+  },
+  "artifacts": {
+    ".tmp/native-browser-01/artifacts/blob-storage": "a75cafa3ce4ad411e2b0f5f31a8a9d2d8c17c69fb0eb450a76821acfe9393d69",
+    ".tmp/native-browser-01/artifacts/publication-host.js": "ab9780c5a10695b5b4be5bbe993c782d5f76d7d921b4724947b38e3190c933e9",
+    ".tmp/native-browser-01/artifacts/publication-worker.js": "1e645f133724c9b4c7433d26e0d46a8a4134e278e7801cd04c75c6d55e00fe76",
+    ".tmp/native-browser-01/artifacts/launcher-serial.mjs": "4741fbd4e9a5b891c96d3bab1ae8dd8ae29e280d4a24b76b98b77bfdef0324a9",
+    "target/wasm32-unknown-unknown/release/ic_blob_storage_canister.wasm": "a3ce161c8de968e50c058b9e1392ad94f7081aedcf9298660965e50d6a6856a8",
+    ".tmp/tools/node-v24.21.0/bin/node": "7fde7b8afa198da66257f42ee2001d874c7355631e6d1579a5fb5ef1f246df4c",
+    ".tmp/tools/pocket-ic-16.0.0/pocket-ic": "69e324bdb68d32d878b7a9504b1379f08f8d1921272bacb065b0fabb3d0f3792"
+  },
+  "source_manifest_sha256": "2af1a86644446f9cfc9af9fd0919d25584f739d62e97a2f53991e39bc7948f13",
+  "source_files": 918,
+  "retained_failures": [
+    {
+      "log": "native.log",
+      "reason": "CLI package has no --lib target"
+    },
+    {
+      "log": "native-final.log",
+      "reason": "Two owned socket listeners denied by sandbox; corrected socket-enabled run passes"
+    },
+    {
+      "log": "browser-01.log",
+      "reason": "Storage target filter selected zero browser cases"
+    },
+    {
+      "log": "browser-02.log",
+      "captures": "browser-02",
+      "reason": "Unadapted SDK lacked prepareFile; failed profiles/captures retained"
+    },
+    {
+      "log": "browser-build-02.log",
+      "reason": "Native bundler tried to resolve browser-only /host.js import"
+    },
+    {
+      "log": "browser-03.log",
+      "captures": "browser-03",
+      "reason": "Duplicate createRequire banner/import identifier"
+    },
+    {
+      "log": "clippy-01.log",
+      "reason": "Serial test orchestration exceeded maintained function-length lint; local driver ownership extracted"
+    }
+  ],
+  "evidence_limits": [
+    "Owned substitutes do not qualify deployed provider behavior",
+    "Synthetic image-labelled bytes do not qualify real media or full Miner/public serving",
+    "Native 10 MiB SDK round trip does not measure large-body Chromium/CDP peak memory or latency",
+    "No automatic retries or guaranteed provider spending cap",
+    "Profile rollback, hostile local-user isolation and JavaScript key erasure are not guaranteed",
+    "Full PUT bodies not separately captured; original bodies/manifests and request fingerprints retained",
+    "Five separate native-session fixture directories are disposable; their logs are retained",
+    "Local file I/O and Playwright shutdown are not preemptively bounded"
+  ],
+  "outstanding": [
+    "Durable native parent intent, selected signer/profile/origin persistence and exact phase/restart coordination",
+    "Full Miner media/reference/MIME/CORS/cache/CSP/retention acceptance",
+    "Deferred consumer adoption; no upstream message"
+  ],
+  "cleanup": "Owned servers and Chromium contexts stopped. Original profiles, histories, partial attempts and obligations retained; no build cleanup.",
+  "live_provider_requests": 0,
+  "paid_effects": 0,
+  "automatic_retries": 0,
+  "deployment_version_commit_publication_or_sibling_changes": false
+}

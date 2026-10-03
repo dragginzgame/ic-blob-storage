@@ -1,0 +1,163 @@
+{
+  "schema": 1,
+  "date": "2026-10-03",
+  "evidence_class": "native_and_local_standalone_browser_substitute",
+  "intent": "intent.json",
+  "baseline": "0.10.0 at f856a2b138511e695d234c59bb5d9fafcccef794; uncommitted simplification work preserved",
+  "implementation": [
+    "one full-width upload identity formatter for attestation, certificate assessment, history and verification",
+    "one native manifest reply envelope, with caller-selected body bounds and existing error mappings",
+    "reference receipt scope/tenant checks owned by the exact request loader",
+    "observer/submission source provenance includes the shared helper sources"
+  ],
+  "validation": {
+    "native_unit": {
+      "passed": 89,
+      "log": "native-tests.log"
+    },
+    "integration": [
+      {
+        "selection": "standalone_reference_native_cli",
+        "passed": 3,
+        "log_sha256": "f1fbfcf7b3c18e5caf1f884ff88f0cf55c3c652d6d71d7e08b12f0e3218de470"
+      },
+      {
+        "selection": "standalone_verify_upload",
+        "passed": 1,
+        "log_sha256": "308f0a370f827e05d831fa76b5e43cf61bf1bb0cc227338937e8e02441ef388e"
+      },
+      {
+        "selection": "standalone_history_cli",
+        "passed": 1,
+        "log_sha256": "86185a926d989250372b091aedf7eb844d5dd91dc119b0a38b5d7539cb6c4992"
+      },
+      {
+        "selection": "standalone_certificate_cli",
+        "passed": 1,
+        "log_sha256": "214477ebe235c90d3cc830b5ca37c2da9e17e33d1c68defaf83ff804a0853e99"
+      },
+      {
+        "selection": "standalone_upload_setup",
+        "passed": 1,
+        "log_sha256": "5d840bf3cd8ed3f4a1e3e1dffac1ede0e5e171e58e43c69dead0948e60ef6b0f"
+      },
+      {
+        "selection": "browser-complete",
+        "passed": 1,
+        "log_sha256": "06c42877b92000b5c812cc8f5bb33d561e91e6d7db13bc3cc289cf1a4bbf9b71"
+      },
+      {
+        "selection": "browser-recovery",
+        "passed": 1,
+        "log_sha256": "5c17ca8043cf6c875325fd1e47c8282e6b552f4ca69bf950566530eb69975c64"
+      }
+    ],
+    "lint": "strict offline locked CLI all targets/features; clippy.log",
+    "browser_complete": {
+      "attestation_accepted": true,
+      "billing_cessation_established": false,
+      "browser_journal": "maintained_one_slot_indexeddb",
+      "certificate_issuer": "actual_installed_standalone_facts",
+      "content_bytes": 1024,
+      "content_digest": "sha256:b2256110f2c4226de0008dd4382a388e033f211b617bd3237135ab1d59a722b6",
+      "evidence": "actual_standalone_chromium_native_local_provider_substitute",
+      "independent_observation": true,
+      "liability_bytes_retained": 1024,
+      "live_provider_requests": 0,
+      "paid_effects": 0,
+      "physical_bytes_retained": 1024,
+      "provider_deletion_established": false,
+      "provider_gets": [
+        "/v1/blob/?blob_hash=sha256%3Ad53964e58575f66aa53db95000c2d48152b0bf2f22da88274a85788efd5a3b6e&owner_id=dllsh-pd777-77776-qaaaa-cai&project_id=standalone-trial",
+        "/v1/blob/?blob_hash=sha256%3Ad53964e58575f66aa53db95000c2d48152b0bf2f22da88274a85788efd5a3b6e&owner_id=dllsh-pd777-77776-qaaaa-cai&project_id=standalone-trial",
+        "/v1/blob/?blob_hash=sha256%3Ad53964e58575f66aa53db95000c2d48152b0bf2f22da88274a85788efd5a3b6e&owner_id=dllsh-pd777-77776-qaaaa-cai&project_id=standalone-trial"
+      ],
+      "provider_puts": [
+        {
+          "bytes": 4764,
+          "path": "/v1/blob-tree/",
+          "sha256": "907c1b6bdfeccd697cabea966c41700feb6d9433281e09e328034a7444dca519"
+        },
+        {
+          "bytes": 1024,
+          "path": "/v1/chunk/?owner_id=dllsh-pd777-77776-qaaaa-cai&blob_hash=sha256%3Ad53964e58575f66aa53db95000c2d48152b0bf2f22da88274a85788efd5a3b6e&chunk_hash=sha256%3A93beaf743566f9e55d341b9fdcab54250bd8b391f0fab18837ba25accf22a387&chunk_index=0&bucket_name=local-standalone-trial&project_id=standalone-trial",
+          "sha256": "b2256110f2c4226de0008dd4382a388e033f211b617bd3237135ab1d59a722b6"
+        }
+      ],
+      "reference_released": true,
+      "schema": 1,
+      "tenant_download_verified": true
+    },
+    "browser_lost_reply": {
+      "attestation_accepted": true,
+      "billing_cessation_established": false,
+      "browser_upload_acknowledged": false,
+      "certificate_recovered_without_reissue": true,
+      "evidence": "actual_standalone_lost_response_local_gateway_substitute",
+      "final_gateway_request_phase": "uncertain",
+      "independent_observation": true,
+      "liability_bytes_retained": 1024,
+      "live_provider_requests": 0,
+      "owner_stop_start_preserved": true,
+      "paid_effects": 0,
+      "physical_bytes_retained": 1024,
+      "provider_deletion_established": false,
+      "provider_gets": [
+        "/v1/blob/?blob_hash=sha256%3Ad53964e58575f66aa53db95000c2d48152b0bf2f22da88274a85788efd5a3b6e&owner_id=dllsh-pd777-77776-qaaaa-cai&project_id=standalone-trial",
+        "/v1/blob/?blob_hash=sha256%3Ad53964e58575f66aa53db95000c2d48152b0bf2f22da88274a85788efd5a3b6e&owner_id=dllsh-pd777-77776-qaaaa-cai&project_id=standalone-trial"
+      ],
+      "provider_puts": [
+        {
+          "bytes": 4788,
+          "path": "/v1/blob-tree/",
+          "sha256": "5c7efb743c52e5800e5f6506c0143861622a5ac311eeff322e8f1971f4697d14"
+        },
+        {
+          "bytes": 1024,
+          "path": "/v1/chunk/?owner_id=dllsh-pd777-77776-qaaaa-cai&blob_hash=sha256%3Ad53964e58575f66aa53db95000c2d48152b0bf2f22da88274a85788efd5a3b6e&chunk_hash=sha256%3A93beaf743566f9e55d341b9fdcab54250bd8b391f0fab18837ba25accf22a387&chunk_index=0&bucket_name=local-standalone-trial&project_id=standalone-trial",
+          "sha256": "b2256110f2c4226de0008dd4382a388e033f211b617bd3237135ab1d59a722b6"
+        }
+      ],
+      "reference_released": true,
+      "schema": 1,
+      "tenant_download_verified": true
+    }
+  },
+  "sources": {
+    "file": ".tmp/native-cleanup-01/source-hashes.json",
+    "sha256": "c71c6766ba8ad712b60c2573e7649c02d9d9cbd767a6e842f8953bd45efe5d08"
+  },
+  "artifact_hashes": {
+    ".tmp/native-cleanup-01/artifacts/blob-storage": "be7f7a65b114b0cb5ecbd91561e53141f904362b80655d4624c61116809e1e46",
+    "target/wasm32-unknown-unknown/release/ic_blob_storage_canister.wasm": "a3ce161c8de968e50c058b9e1392ad94f7081aedcf9298660965e50d6a6856a8",
+    "target/wasm32-unknown-unknown/release/blob_storage_probe.wasm": "af2bb81ddb61c248c755754257fc575f601d047232d0e4d5c42d432153dae44c",
+    "target/wasm32-unknown-unknown/release/blob_consumer_probe.wasm": "b0dd8b03f2bed0270e62686d3a8de7765c3ea5aad932ae0646460a32ba92e447",
+    "target/wasm32-unknown-unknown/release/blob_gateway_source.wasm": "4808c2e7f93468fb9315401194a8cf61b433d6d06a57be995a4b1e37d84d6f11",
+    ".tmp/browser/standalone.js": "b7d1cf13ae8af98c102799e68aa529554a1b4d3017f0f6db4a4e2155b3c221d8",
+    ".tmp/tools/pocket-ic-16.0.0/pocket-ic": "69e324bdb68d32d878b7a9504b1379f08f8d1921272bacb065b0fabb3d0f3792"
+  },
+  "log_hashes": {
+    ".tmp/native-cleanup-01/browser-complete.log": "06c42877b92000b5c812cc8f5bb33d561e91e6d7db13bc3cc289cf1a4bbf9b71",
+    ".tmp/native-cleanup-01/browser-recovery.log": "5c17ca8043cf6c875325fd1e47c8282e6b552f4ca69bf950566530eb69975c64",
+    ".tmp/native-cleanup-01/cli-build.log": "d9e362302259a7c7c44c3ee6b00cbd60eac84cb1e554f05abbdd92baebea80e5",
+    ".tmp/native-cleanup-01/clippy.log": "d7dae192715495fa89ccbe279af3efb9792c1dae1768228e369035e68a1df673",
+    ".tmp/native-cleanup-01/native-tests.log": "6b9e1acc79635a492720ee043cf344ef66f4e59a79a384aefb36085c2b2a5470",
+    ".tmp/native-cleanup-01/standalone_certificate_cli.log": "214477ebe235c90d3cc830b5ca37c2da9e17e33d1c68defaf83ff804a0853e99",
+    ".tmp/native-cleanup-01/standalone_history_cli.log": "86185a926d989250372b091aedf7eb844d5dd91dc119b0a38b5d7539cb6c4992",
+    ".tmp/native-cleanup-01/standalone_reference_native_cli.log": "f1fbfcf7b3c18e5caf1f884ff88f0cf55c3c652d6d71d7e08b12f0e3218de470",
+    ".tmp/native-cleanup-01/standalone_upload_setup.log": "5d840bf3cd8ed3f4a1e3e1dffac1ede0e5e171e58e43c69dead0948e60ef6b0f",
+    ".tmp/native-cleanup-01/standalone_verify_upload.log": "308f0a370f827e05d831fa76b5e43cf61bf1bb0cc227338937e8e02441ef388e"
+  },
+  "private_capture": ".tmp/native-cleanup-01",
+  "live_provider_requests": 0,
+  "paid_cycles": 0,
+  "limitations": [
+    "Owned local gateway and PocketIC facts do not establish deployed Caffeine guarantees.",
+    "Browser and reference claims, raw replies, profiles and gateway fingerprints retained; full PUT bodies are not separately captured.",
+    "Existing standalone verify/history/certificate/setup fixtures use disposable directories; original artifacts for those cases are not retained, only test logs.",
+    "Core/host/SDK/browser implementation unchanged in this follow-up; native binary frozen before its integration runs.",
+    "No full CI, release, commit, publication, deployment, live-owner change, sibling edit or build cleanup.",
+    "Read-session callback/capacity/recovery contracts retained; descriptor target remains a current public convenience.",
+    "Native parent/verifier automation and complete Miner qualification remain open; Canic adoption deferred."
+  ]
+}

@@ -1,3 +1,5 @@
+import { validGatewayLimits } from './validation.js';
+
 const hex = bytes => Array.from(bytes, b => b.toString(16).padStart(2, '0')).join('');
 const equal = (a, b) => JSON.stringify(a) === JSON.stringify(b);
 
@@ -28,10 +30,7 @@ export async function createGatewayTransport({ certificate, intents, origin,
     }), get duplex() { duplex = true; return 'half'; } });
     require(duplex && !probe.headers.has('content-type'), 'request-streaming');
   } catch { throw new GatewayRefusal('request-streaming'); }
-  require(Number.isSafeInteger(maxRequests) && maxRequests > 0 && maxRequests <= 256 &&
-    Number.isSafeInteger(maxRequestBytes) && maxRequestBytes > 0 &&
-    maxRequestBytes <= 2 * 1024 * 1024 && Number.isSafeInteger(maxTotalRequestBytes) &&
-    maxTotalRequestBytes > 0 && maxTotalRequestBytes <= maxRequests * maxRequestBytes, 'limits');
+  require(validGatewayLimits({ maxRequests, maxRequestBytes, maxTotalRequestBytes }), 'limits');
   for (const method of ['claimGateway', 'observeGateway']) {
     require(typeof intents[method] === 'function', 'store');
   }

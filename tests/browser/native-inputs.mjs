@@ -38,7 +38,7 @@ writeFileSync(body, bytes, { flag: 'wx', mode: 0o600 });
 const identity = Ed25519KeyIdentity.generate(new Uint8Array(32).fill(42));
 const prepared = await StorageClient.prepareFile(bytes, 'application/octet-stream', 'fixture.bin');
 assert.equal(prepared.byteLength, bytes.length);
-const binding = { schema: 1, project: 'fixture-project', bucket: 'fixture-bucket', service: 'rrkah-fqaaa-aaaaa-aaaaq-cai',
+const binding = { schema: 1, preparation: { content_type: 'application/octet-stream', filename: 'fixture.bin' }, project: 'fixture-project', bucket: 'fixture-bucket', service: 'rrkah-fqaaa-aaaaa-aaaaq-cai',
   namespace: ((1n << 128n) - 1n).toString(), tenant: Principal.selfAuthenticating(new Uint8Array([3])).toText(),
   uploader: identity.getPrincipal().toText(), upload: ((1n << 128n) - 2n).toString(),
   object: ((1n << 128n) - 3n).toString(), incarnation: '1', first_reference: '2',

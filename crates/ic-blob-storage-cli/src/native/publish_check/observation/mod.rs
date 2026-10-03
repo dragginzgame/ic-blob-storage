@@ -1,8 +1,9 @@
 //! Strict reply correlation and conservative planning over sequential observations.
 use super::{Failure, Run};
-use crate::native::upload_inputs::PreparedInput;
+use crate::native::publish_inputs::FrozenFile;
 use candid::{CandidType, DecoderConfig, Deserialize, Principal, decode_one_with_config};
 use ic_blob_storage::dto::{
+    reference::ReferenceUpload,
     tenant::TenantScope,
     upload::{
         capacity::{UploadCapacityFailure, UploadCapacityResponse},
@@ -16,13 +17,26 @@ use ic_blob_storage::ops::service::uploads::{
 use serde_json::{Value, json};
 use std::{collections::BTreeSet, future::Future};
 
+#[derive(Debug, PartialEq)]
+pub(in crate::native) struct PreflightObservation {
+    // Preserve the original pending identity even when a fence blocks recovery.
+    pub recoverable_upload: Option<ReferenceUpload>,
+    pub setup_allowed: bool,
+    pub report: Value,
+}
+
 pub(in crate::native) fn scope(
-    inputs: &[PreparedInput],
+    inputs: &[FrozenFile],
     service: Principal,
     namespace: u128,
     actor: Principal,
 ) -> Result<TenantScope, Failure> {
-    let first = inputs.first().ok_or(Failure::Arguments)?.permission.upload;
+    let first = inputs
+        .first()
+        .ok_or(Failure::Arguments)?
+        .input
+        .permission
+        .upload;
     if first.service != service || first.namespace != namespace {
         return Err(Failure::Binding);
     }
@@ -125,10 +139,10 @@ where
 }
 pub(in crate::native) async fn inspect<Q, F>(
     scope: TenantScope,
-    inputs: &[PreparedInput],
+    inputs: &[FrozenFile],
     run: &Run,
     mut query: Q,
-) -> Result<Value, Failure>
+) -> Result<PreflightObservation, Failure>
 where
     Q: FnMut(&'static str, Vec<u8>) -> F,
     F: Future<Output = Result<Vec<u8>, Failure>>,
@@ -156,7 +170,9 @@ where
     let mut demand_objects = 0u64;
     let mut roots = BTreeSet::new();
     let mut entries = Vec::new();
-    for (index, input) in inputs.iter().enumerate() {
+    let mut original_upload = None;
+    for (index, file) in inputs.iter().enumerate() {
+        let input = &file.input;
         let p = input.permission;
         let request = UploadDiscoveryRequest {
             scope,
@@ -195,7 +211,8 @@ where
             }
             ("not_visible", None)
         };
-        entries.push(json!({"directory":format!("file-{index:04}"),"proposed_permission":crate::native::upload_setup::permission_json(p),"status":status,"original_upload":existing,"discovery_fenced":r.fenced}));
+        original_upload = existing;
+        entries.push(json!({"directory":format!("file-{index:04}"),"proposed_permission":crate::native::upload_setup::permission_json(p),"status":status,"original_upload":existing.map(crate::native::references::upload_json),"discovery_fenced":r.fenced}));
     }
     if demand_objects > c.remaining_objects {
         blockers.insert("object_history_capacity");
@@ -209,8 +226,14 @@ where
     if demand_objects > 0 && c.remaining_active_uploads == 0 {
         blockers.insert("no_active_upload_slot");
     }
-    Ok(
-        json!({"schema":1,"observation":"publish_check","complete":true,
+    let recoverable_upload = original_upload
+        .filter(|_| inputs.len() == 1 && blockers.contains("recover_existing_operation"));
+    let setup_allowed = inputs.len() == 1
+        && (blockers.is_empty() || (recoverable_upload.is_some() && blockers.len() == 1));
+    Ok(PreflightObservation {
+        recoverable_upload,
+        setup_allowed,
+        report: json!({"schema":1,"observation":"publish_check","complete":true,
         "authentication":"query_signatures","consistency":"sequential_observations",
         "scope":{"service":scope.service.to_text(),"namespace":scope.namespace.to_string(),"tenant":scope.tenant.to_text()},
         "capacity":{"remaining_objects":c.remaining_objects,"remaining_active_uploads":c.remaining_active_uploads,"remaining_manifest_chunks":c.remaining_manifest_chunks,"remaining_bytes":c.remaining_bytes.to_string(),"max_object_bytes":c.max_object_bytes.to_string(),"tenant_active":c.enrollment.active,"tenant_generation":c.enrollment.generation.to_string(),"fenced":c.fenced},
@@ -219,14 +242,14 @@ where
         "queries":inputs.len()+1,"snapshot_bodies_verified":true,"identities_allocated":false,
         "capacity_reserved":false,"admission_proven":false,"installed_project_or_uploader_verified":false,
         "provider_requests":0,"service_updates":0,"retry_authorized":false,"publication_authorized":false}),
-    )
+    })
 }
 
 fn existing(
     content: UploadHistoryEntry,
     bytes: u64,
     blockers: &mut BTreeSet<&'static str>,
-) -> Result<(&'static str, Value), Failure> {
+) -> Result<(&'static str, ReferenceUpload), Failure> {
     if content.request.bytes != bytes {
         return Err(Failure::Binding);
     }
@@ -241,8 +264,5 @@ fn existing(
         | UploadContentState::Settled => "retired_root",
     };
     blockers.insert(status);
-    Ok((
-        status,
-        crate::native::references::upload_json(content.request),
-    ))
+    Ok((status, content.request))
 }

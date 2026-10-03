@@ -43,26 +43,29 @@ fn decode<T: CandidType + for<'de> Deserialize<'de>>(bytes: &[u8]) -> Result<T, 
     decode_one_with_config(bytes, &config).map_err(|_| Failure::Arguments)
 }
 fn open(input: &Input, actor: Principal) -> Result<Inspection, Failure> {
-    let (request, upload, argument) = match input.kind {
+    let request: ReferenceStatusRequest = match input.kind {
         Kind::Receipt => {
             let (request, argument) =
                 command(input.service, input.namespace, &input.request, actor)?;
-            (Request::Receipt(request), request.upload, argument)
+            return Ok(Inspection {
+                request: Request::Receipt(request),
+                argument,
+            });
         }
-        Kind::Status => {
-            let bytes = read(&input.request, 4096)?;
-            let request: ReferenceStatusRequest = decode(&bytes)?;
-            let argument = reply::status_request(request).map_err(|_| Failure::Arguments)?;
-            (Request::Status(request), request.upload, argument)
-        }
+        Kind::Status => decode(&read(&input.request, 4096)?)?,
     };
+    let argument = reply::status_request(request).map_err(|_| Failure::Arguments)?;
+    let upload = request.upload;
     if upload.service != input.service || upload.namespace != input.namespace {
         return Err(Failure::Binding);
     }
     if upload.tenant != actor {
         return Err(Failure::Denied);
     }
-    Ok(Inspection { request, argument })
+    Ok(Inspection {
+        request: Request::Status(request),
+        argument,
+    })
 }
 pub(super) fn command(
     service: Principal,

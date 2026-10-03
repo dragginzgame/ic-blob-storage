@@ -2,6 +2,55 @@
 
 ## [Unreleased]
 
+## [0.11.0]
+
+### Breaking
+
+- Require `preparation` in native upload/publication bindings, containing the
+  original optional `content_type`/`filename` strings. Preserve omitted arguments
+  and empty strings through frozen inputs and session transfers; reject null,
+  unknown fields and oversized UTF-8 hints. Replace the current v1 input contract
+  directly, without compatibility readers. Service wire/state generations remain
+  unchanged; original journals and outstanding obligations must still be retained.
+
+### Added
+
+- Add a native Playwright Chromium bridge around the maintained browser host:
+  explicit persistent profile and fixed asset origin, bounded selected-body reads
+  and digest checks, chunked process handoff, finite redacted failures and profile
+  retention on close/deadline. Keep service phases and completion/retry authority
+  with the native session and original journals.
+- Add an optional configured-verifier phase to `publish-session`: observe exact
+  provider bytes, bind the original upload and raw digest before one attestation,
+  then advance only on authenticated live-reference evidence. Recover original
+  observations through read-only history checks without another GET/submission;
+  retain all partial claims and stop on corruption or uncertain effects.
+- Add a maintained browser worker host and private-port bootstrap with explicitly
+  selected Ed25519/secp256k1 SDK identities. Validate signer pairs, exact uploader,
+  bindings and budgets before opening the existing IndexedDB journal; terminate
+  on close/abort/deadline while retaining original history. Replace fixture-only
+  bootstrap/control with this host and worker entry.
+
+### Changed
+
+- Share browser certificate-binding and gateway-budget rules across the client,
+  durable journals and worker; reject malformed worker bindings before store access.
+- Pair each frozen publication input with its raw digest and use typed native
+  setup/preparation/completion outcomes for control decisions. Keep JSON reports,
+  durable claims and original-operation recovery unchanged.
+- Remove the repeated retained-content lookup when serving a download descriptor;
+  preserve tenant authority, restore fences and asynchronous read rechecks.
+- Correct current release/dependency and persisted-owner documentation while
+  retaining historical probe evidence.
+- Use one native upload-identity formatter for attestation, certificate assessment,
+  history and local verification. Share manifest reply bounds across setup,
+  verification, provider observation and attestation submission; preserve each
+  command's content limit, authority checks, error mapping and JSON shape.
+- Remove repeated scope/tenant validation from reference-receipt inspection;
+  reuse the exact request loader that also serves reference submission.
+- Bound private job/root snapshots to selected byte views before cloning, and
+  share worker configuration/job predicates between direct and hosted boundaries.
+
 ## [0.10.0] - 2026-10-03
 
 ### Added

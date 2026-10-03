@@ -1,0 +1,129 @@
+{
+  "schema": 1,
+  "date": "2026-10-03",
+  "evidence_class": "local_standalone_native_chromium_substitute",
+  "intent": "intent.json",
+  "exact_statement_regression_intent": "exact-intent.json",
+  "baseline": "0.10.0 at f856a2b138511e695d234c59bb5d9fafcccef794; prior simplification changes preserved",
+  "implementation": [
+    "Optional explicitly selected installed-verifier identity authenticated before readiness",
+    "One create-new verification directory per original file; existing observer and signed attestation own effects",
+    "Bind exact permission/raw digest/gateway before signing; authenticated current live reference owns advancement",
+    "Recover complete original observation through exact typed immutable receipt correlation; no provider GET or submission",
+    "Absence/conflict of original statement cannot be replaced by another observation with matching content digest"
+  ],
+  "validation": {
+    "native_unit_passed": 89,
+    "session_cases_passed": 5,
+    "final_browser_cases_passed": 3,
+    "strict_lint": "offline locked CLI and PocketIC all targets/features",
+    "format_and_whitespace": "passed",
+    "cases": [
+      {
+        "name": "native-verifier-complete",
+        "summary_sha256": "cdf1f3c350fecfc81716a52a7eb2c35e8602493b48a7dab60564326b9ce27b0a",
+        "max_active_uploads": 1,
+        "confirmed_map_written": true,
+        "retained_physical_bytes": 3072,
+        "retained_liability_bytes": 3072,
+        "gateway_puts": 4,
+        "gateway_gets": 4,
+        "automatic_upload_retries": 0,
+        "foreign_upload_recovery_failure": {
+          "error": "binding"
+        },
+        "distinct_statement_recovery_failure": {
+          "error": "verification_refused"
+        }
+      },
+      {
+        "name": "native-verifier-lost",
+        "summary_sha256": "462c4e8ca52ca10dbd14128812290e8e6702f374ed0baf6fbc1d00dfbedeaed3",
+        "max_active_uploads": 1,
+        "confirmed_map_written": true,
+        "retained_physical_bytes": 3072,
+        "retained_liability_bytes": 3072,
+        "gateway_puts": 4,
+        "gateway_gets": 4,
+        "automatic_upload_retries": 0,
+        "foreign_upload_recovery_failure": {
+          "error": "binding"
+        },
+        "distinct_statement_recovery_failure": {
+          "error": "verification_refused"
+        },
+        "original_statement_recovery": {
+          "outcome": "matched",
+          "file_live": true,
+          "max_provider_requests_this_phase": 0
+        }
+      },
+      {
+        "name": "native-verifier-corrupt",
+        "summary_sha256": "e1b0d1842d1c22a39d9aaabe881126160600d9b76a8795d4b40e3f932da2114e",
+        "max_active_uploads": 1,
+        "confirmed_map_written": false,
+        "retained_physical_bytes": 1024,
+        "retained_liability_bytes": 1024,
+        "gateway_puts": 2,
+        "gateway_gets": 1,
+        "automatic_upload_retries": 0,
+        "failure": {
+          "error": "content_mismatch"
+        }
+      }
+    ]
+  },
+  "retained": {
+    "directory": ".tmp/native-verifier-01",
+    "original_browser_attempts": [
+      "browser",
+      "browser-final",
+      "browser-exact"
+    ],
+    "sources": 903,
+    "source_manifest_sha256": "20c0d56b6dd007508986a4e36a5c7a25daa84fa38f5834f10bc1739d4fd5bf61",
+    "logs": {
+      "native-tests.log": "dafd6c83b8feb0a5a84e0f11adb395144c0b75ebd25ef775020ab6fddfd24545",
+      "sessions-final.log": "49ce0bc0754a2410ab68a1b94b8528410fa4d062c828c86cfc932b6a044d11d4",
+      "browser-01.log": "37e3af42fdb24cf500b09ea76bcc38223c128d357d7c3baa06f73e7288a71d98",
+      "browser-final.log": "646a50b254443ec8010a1ed3cc4298665f121c86b779e8cfed23a5243ed7715e",
+      "browser-exact.log": "f94a46cd45cacea1ee76b283237117ea38a2a6089cc8a2bb00414a3814fcb3e2",
+      "clippy-final.log": "4e8649bde17ef42e13399b1a16541a0a87215a676035d68527011c7d067e42e3",
+      "clippy-exact.log": "d7298e6c4f3fb57135f7e34403c7c1407925e761c3c26afccf50cb05eae16d6e",
+      "build-final.log": "4932af9b498f7e34dc989ace30020036dda416b373656574547cef8ddfd81b34",
+      "clippy-01.log": "4842c0ef9410269c6bc4432835cc799a36b9f68a5bbadcd843a0fd65f8edbd53",
+      "clippy-02.log": "3754efc385ab4471fde0e52b36d4ee74e25331860c1cb3122b10540689f29d6c",
+      "clippy-03.log": "1ca0424521e4834097963a792c3e60de2498c3890cc4da69a1216e50116d139b",
+      "clippy-04.log": "62a9d34e18a12145692c0956051b86ff6bdacec931249b1d2d9b833e35a48790",
+      "clippy-05.log": "1cb77af40a505b52dd591ae873b08ab877c942a6442836c47ec26a9b023fa69b"
+    },
+    "artifacts": {
+      ".tmp/native-verifier-01/artifacts/blob-storage": "c24abe97d012f33a1a0d000e40a152159f409679f72589b8764a898a1b09e57c",
+      ".tmp/native-verifier-01/artifacts/blob-storage-final": "45378c083974a429cfb1fb7f0bd4075ada73a8fa88fff6298205c948a3afc1cb",
+      "target/wasm32-unknown-unknown/release/ic_blob_storage_canister.wasm": "a3ce161c8de968e50c058b9e1392ad94f7081aedcf9298660965e50d6a6856a8",
+      ".tmp/browser/standalone.js": "b7d1cf13ae8af98c102799e68aa529554a1b4d3017f0f6db4a4e2155b3c221d8",
+      ".tmp/browser/publication-worker.js": "34ad9bad263214e55bbbb0df5fea189b9efd60e17e1cee9e03adcb8491d7a851",
+      ".tmp/tools/node-v24.21.0/bin/node": "7fde7b8afa198da66257f42ee2001d874c7355631e6d1579a5fb5ef1f246df4c",
+      ".tmp/tools/pocket-ic-16.0.0/pocket-ic": "69e324bdb68d32d878b7a9504b1379f08f8d1921272bacb065b0fabb3d0f3792"
+    }
+  },
+  "failed_attempts": [
+    "Initial lint rejected expanded test driver length",
+    "Extraction left three stale local identifiers, rejected by compilation",
+    "After fixing identifiers, lint reported two remaining lines over the function bound; explicit browser plan validation resolved it"
+  ],
+  "limitations": [
+    "Owned local IC/HTTPS provider substitutes only; no deployed Caffeine qualification or paid effects",
+    "The first browser/native artifacts precede stricter original-statement correlation; final and exact runs use retained blob-storage-final",
+    "Existing session fixtures use disposable directories: logs survive, original session fixture files do not; browser session/observation/attestation/profile captures survive",
+    "Full gateway PUT bodies are represented by byte counts/fingerprints, not retained complete bodies",
+    "Separate altered observation copies are test inputs, not new provider observations",
+    "Brief shared Cargo package-cache lock waits occurred; builds use this repository target directory",
+    "No full CI/release validation, version mutation, commit, publication, deployment, sibling edit or cleanup",
+    "Browser parent launch/signer/private-port bootstrap and complete Miner media/serving acceptance remain open"
+  ],
+  "live_provider_requests": 0,
+  "paid_cycles": 0,
+  "live_owner_changes": 0
+}

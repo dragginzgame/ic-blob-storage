@@ -1,0 +1,17 @@
+{
+  "schema": 1,
+  "evidence_class": "local_substitute",
+  "reason": "Original download run: four cases passed; two fixture setup failures (missing capture parent and consumer Wasm env), retained unchanged. Correct harness configuration and rerun only these two, then run planned Chromium cases.",
+  "targets": [
+    "two affected standalone download cases",
+    "13 planned Chromium standalone journeys"
+  ],
+  "live_provider_requests": 0,
+  "paid_cycles": 0,
+  "automatic_retries": 0,
+  "failed_logs": [
+    "download-integration.log",
+    "clippy.log",
+    "store.log"
+  ]
+}

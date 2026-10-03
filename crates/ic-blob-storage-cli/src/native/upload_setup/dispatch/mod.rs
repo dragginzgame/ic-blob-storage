@@ -1,18 +1,18 @@
 //! Persist the exact signed local update before dispatch; never resubmit or poll it.
-use super::{Failure, Input, Request, observation, permission_json};
+use super::{Failure, Input, Request, SetupOutcome, observation, permission_json};
 use crate::native::{
     agent,
     arguments::Options,
     signed_update::{DEADLINE_SECONDS, MANIFEST_REPLY_BYTES, PreparedUpdate, UpdateInput},
 };
 use ic_blob_storage::model::identity::ContentDigest;
-use serde_json::{Value, json};
+use serde_json::json;
 
 pub(super) async fn run(
     options: &Options,
     input: &Input,
     saved: &Request,
-) -> Result<Value, Failure> {
+) -> Result<SetupOutcome, Failure> {
     let agent = agent(options)?;
     let directory = input.directory.as_ref().ok_or(Failure::Arguments)?;
     let prepared = PreparedUpdate::claim(
@@ -60,7 +60,7 @@ pub(super) async fn run(
         Ok(Some(observed)) => {
             report["authentication"] = "ic_update_certificate".into();
             report["outcome"] = "acknowledged".into();
-            report["observation"] = observed.clone();
+            report["observation"] = observed.json();
         }
         Ok(None) => {}
         Err(e) => {
@@ -83,6 +83,8 @@ pub(super) async fn run(
         }
     }
     dispatched.run.json("outcome.json", &report)?;
-    result?;
-    Ok(report)
+    Ok(SetupOutcome {
+        observation: result?,
+        report,
+    })
 }

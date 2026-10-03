@@ -24,9 +24,9 @@ enum Replies {
 fn observe(replies: &Replies) -> Result<Value, Failure> {
     let directory = fixture::frozen();
     let batch = fixture::batch(&directory);
-    let permission = batch.inputs[0].permission;
+    let permission = batch.files[0].input.permission;
     let scope = publish_check::observation::scope(
-        &batch.inputs,
+        &batch.files,
         permission.upload.service,
         permission.upload.namespace,
         permission.upload.tenant,
@@ -104,6 +104,7 @@ fn observe(replies: &Replies) -> Result<Value, Failure> {
                 std::future::ready(Ok(value))
             },
         ))
+        .map(|observation| observation.report)
 }
 
 #[test]

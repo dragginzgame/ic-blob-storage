@@ -1,12 +1,11 @@
 //! One authenticated read-only assessment; no certificate update or provider effect.
-use super::{Failure, arguments::Options, query, read};
+use super::{Failure, arguments::Options, query, read, references::upload_json};
 use candid::{Principal, de::DecoderConfig, decode_one_with_config};
 use ic_blob_storage::{
     dto::upload::{
         admission::{UploadAdmissionFailure as A, UploadAdmissionRequest},
         exposure::{UploadExposureBlocker as B, UploadExposureFailure as E},
     },
-    model::identity::ProviderRootHash,
     ops::service::uploads::certificate::reply::{self, UploadCertificateAssessmentReplyError as R},
     workflow::uploads::certificate::UPLOAD_CERTIFICATE_ASSESSMENT_METHOD,
 };
@@ -65,7 +64,6 @@ fn output(
         R::Binding => Failure::Binding,
         R::Remote(error) => Failure::AssessmentRefused(error),
     })?;
-    let u = permission.upload;
     let blockers: Vec<_> = response
         .blockers
         .into_iter()
@@ -80,11 +78,7 @@ fn output(
     Ok(json!({
         "schema":1,"observation":"certificate_assessment","actor":options.actor.to_text(),
         "network":options.network,"url":options.url.as_str(),"authentication":"query_signatures",
-        "upload":{"service":u.service.to_text(),"tenant":u.tenant.to_text(),
-            "namespace":u.namespace.to_string(),"upload":u.upload.to_string(),
-            "object":u.object.to_string(),"incarnation":u.incarnation.to_string(),
-            "first_reference":u.first_reference.to_string(),"bytes":u.bytes.to_string(),
-            "root":ProviderRootHash::try_from(u.root.as_slice()).expect("fixed root").to_string()},
+        "upload":upload_json(permission.upload),
         "uploader":permission.uploader.to_text(),"expires_at_ns":permission.expires_at_ns.to_string(),
         "assessed_at_ns":response.assessed_at_ns.to_string(),"blockers":blockers,
         "issuance_authorized":false,"retry_authorized":false,
