@@ -1,0 +1,16 @@
+{
+  "schema": 1,
+  "date": "2026-10-03",
+  "purpose": "Bind a restarted native publication session to retained original phase sources without another dispatch or retry journal",
+  "targets": ["native source-history unit checks", "owned local PocketIC session recovery and refusal checks"],
+  "bindings": ["original inventory and installation", "tenant/operator/uploader/verifier", "service and namespace", "gateway and IC trust root"],
+  "failure_checks": ["missing or partial control history", "changed binding", "conflicting explicit source", "partial verification observation"],
+  "evidence_classes": ["source_review", "offline_unit_checks", "actual_owned_pocketic_with_scripted_provider_facts"],
+  "private_directory": ".tmp/session-sources-01",
+  "deployed_provider_requests": 0,
+  "paid_cycles": 0,
+  "deployment": false,
+  "automatic_retries": false,
+  "limitations": "Original local history is required; rollback resistance, deployed Caffeine behavior and complete durable browser-parent coordination are not qualified",
+  "cleanup": "Retain intent, summaries, exact artifacts and logs; no build cleanup"
+}

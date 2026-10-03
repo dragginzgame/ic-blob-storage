@@ -1,0 +1,137 @@
+{
+  "baseline": "a67f22a3f36c706563f5b546308d75e887a2f296",
+  "reportedArtifactRelease": "0.12.0",
+  "evidence": "source review, native checks and owned local IC/Chromium/gateway execution",
+  "contract": {
+    "sessionIntent": "ic-blob-storage/publication-session:selected-browser-sources",
+    "browserSelection": "ic-blob-storage/browser-selection",
+    "profile": "ic-blob-storage/browser-profile:native-session-selection",
+    "optionalNativeBrowserSelection": "explicitly absent for native-only operations",
+    "launcherNativeSession": "required original path or explicit null for browser-only creation",
+    "intentBoundBytes": 16384,
+    "onePhaseEffectOwner": true,
+    "serviceWireOrStableLayoutChanged": false,
+    "minorContractCut": true
+  },
+  "checks": {
+    "sessionUnitCases": 7,
+    "launcherCases": [
+      "occupied_port_refuses_before_profile",
+      "launch_selection_owned_before_filesystem_awaits",
+      "private_passive_binding_retains_scope_without_signer_secret",
+      "explicit_profile_and_origin_start_without_effects",
+      "owned_request_and_single_job",
+      "changed_truncated_oversized_and_noncanonical_body_refuse",
+      "symlinks_and_directories_are_not_bodies",
+      "fifo_without_writer_refuses_without_blocking",
+      "metadata_hints_have_exact_fields_and_utf8_bounds",
+      "close_preserves_profile_and_refuses_replacement",
+      "changed_origin_missing_and_symlink_profiles_refuse_without_replacement",
+      "changed_signer_trust_scope_journal_and_assets_refuse_before_chromium",
+      "partial_missing_symlink_and_relocated_bindings_refuse_without_replacement",
+      "same_origin_and_profile_reopen_original_journal",
+      "deadline_closes_browser_without_erasing_profile",
+      "launch_failure_retains_binding_before_browser_and_reopen_never_replaces_it",
+      "mismatched_or_partial_native_intent_refuses_before_profile_and_chromium",
+      "original_native_session_binding_reopens_and_cannot_be_bypassed_or_rewritten"
+    ],
+    "nativeIcCases": 6,
+    "affectedStrictClippy": "passed",
+    "formatter": "passed",
+    "whitespace": "passed"
+  },
+  "finalJourney": {
+    "puts": 4,
+    "gets": 4,
+    "automaticUploadRetries": 0,
+    "browserRestartPreserved": true,
+    "confirmedMapWritten": true,
+    "retainedPhysicalBytes": 3072,
+    "retainedLiabilityBytes": 3072
+  },
+  "attempts": [
+    {
+      "logs": [
+        "unit.log",
+        "unit-final.log"
+      ],
+      "outcome": "passed before readable fresh-profile predicate and bounded complete writer"
+    },
+    {
+      "log": "launcher.log",
+      "outcome": "passed 18 cases before full current native intent/ready shape checks"
+    },
+    {
+      "log": "browser-verifier.log",
+      "outcome": "passed initial local journey with prior equivalent fresh-profile predicate and unbounded complete writer; bundles and CLI retained as intermediate artifacts"
+    },
+    {
+      "log": "clippy.log",
+      "outcome": "failed test-only missing closure semicolon; retained and fixed"
+    },
+    {
+      "logs": [
+        "unit-verified.log",
+        "pocketic.log",
+        "clippy-final.log"
+      ],
+      "outcome": "passed final native contract with fresh CLI"
+    },
+    {
+      "logs": [
+        "launcher-final.log",
+        "browser-verifier-final.log"
+      ],
+      "outcome": "passed final strict launcher and fresh CLI; original native selection retained across recovery"
+    }
+  ],
+  "hashes": {
+    "sourceManifest": "9c2b5e393499f6e2c28359fa060ab2f3489514b70fb199a4ab6b0e647de0b479",
+    "retainedManifest": "329fb0497b6dbd08927dcdc8d82bd834395b4b0b66dc4baaac73c4ff39877b69",
+    "logs": {
+      "unit.log": "a429ad17f595854ecc0f78e9f4fbb2dcaf349ad3c8fcb76bb81f341697117300",
+      "unit-final.log": "efb8a3a4b74977bb91128fc7951a543379251e155fc2f21148ebc7bf6245d525",
+      "unit-verified.log": "5a2de1806dff4a63ec266fddeffcc1c7af7ca2cf2b15daf3ec34c8d87136398c",
+      "cli-build.log": "6916b8d680ce25541358521914dc5033541137fa5b4041392b23d33aebe646d4",
+      "cli-build-final.log": "505a83ef93d9e4dd8cddf462aa12a4860eba8a99aa34696eafbea5d7ccb98f4d",
+      "browser-build.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "browser-build-final.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "launcher.log": "d2b09be0e635f2b65f549e7a16239183e03463d50a016732be6479485c0b40ee",
+      "launcher-final.log": "d2b09be0e635f2b65f549e7a16239183e03463d50a016732be6479485c0b40ee",
+      "browser-verifier.log": "d4a07332442ae60a2a39303fbc8fcec4f780c3e5d3bbc48d3767c8bb65797727",
+      "browser-verifier-final.log": "7f898b1f345af0fc8a44218f3bb44eeb6bb574b9c507dab81bfe4820fea1d416",
+      "pocketic.log": "cd6e6fb56e94f8d038a7c13cb721d7386b35b49990010b5b142fdf6d125859a9",
+      "clippy.log": "74162e8a5a194f42dffb8050f19f7c8ce24e4e71fe6e1071ac63c4bc41032760",
+      "clippy-final.log": "b60dd3ea3c04502321ab8d943954903e22006f83c007be849a2f32856dac69a6"
+    },
+    "artifacts": {
+      "blob-storage": "d409e467c8dc63f12113cce14782cf3a91e203235994d6df19f88efcf6066f83",
+      "blob-storage-intermediate": "f4b94cba6363f0ffd1a451b9dad393549102fbe1d849445a036fb70b3218c09e",
+      "ic_blob_storage_canister.wasm": "0a339057b7a47cd070330507379fabcd10ded840878d36b32f3a03a7fe98ccc8",
+      "launcher.mjs": "bd8a53a98a907067a60fb247dc7451ad195cd98b1e83c4ee83e2a3e6cbfae630",
+      "launcher-intermediate.mjs": "35c432d881b23faa0073be759fa83468276ec4e4fbdaf8841179c93f6d9e71e6",
+      "publication-host.js": "2f8d7b66ad7808747a2b7bca24c83ba2e4a99dd283b875355ca2470a5bcdc216",
+      "publication-worker.js": "dbb74667801c7411106dced5fb4bf13e664f809de487411ca0dcf23c5f0e8978",
+      "launcher-serial.mjs": "00c9ade221ea8e53720e0ae0d09e49f466d646f66fde62121e1d70a2a6fd732b",
+      "launcher-serial-intermediate.mjs": "bb73afe19c86089371368004285e01340027b553f387a6462bc139bdd7351503"
+    }
+  },
+  "retention": {
+    "directory": ".tmp/session-browser-01",
+    "profiles": "original profiles retained; excluded from regular-file manifest except binding fingerprint below",
+    "profileBindingSha256": "d3325c3f614b15fe1961784a4b3c3e2129c882d262e4d27c4bd63d3bd5ae899e",
+    "originalIntentSha256": "f0a64ee8b0b2ee8d4b843e17ed10c4ef6679e58284c6f765a34e4f7e6aa98022",
+    "resumedIntentSha256": "c3787d49c1b22bff180217308f0ee8311fbe9218ededdc30d3e3ed3bf25083c1"
+  },
+  "limitations": [
+    "no automatic parent phase controller or key discovery",
+    "provenance is not fresh completion, authenticated local storage or rollback resistance",
+    "owned provider substitutes and synthetic image-labelled bytes only",
+    "full provider PUT bodies not separately retained",
+    "older artifacts keep original binaries; no conversion or inferred binding",
+    "core/standalone/Wasm source unchanged; retained Wasm reused; no new wire-equality suite claimed",
+    "no full CI, version/dependency/commit/publication/deployment or sibling changes; no build cleanup"
+  ],
+  "liveProviderRequests": 0,
+  "paidCycles": 0
+}

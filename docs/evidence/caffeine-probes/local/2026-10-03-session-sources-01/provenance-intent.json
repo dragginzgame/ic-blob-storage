@@ -1,0 +1,18 @@
+{
+  "schema": 1,
+  "date": "2026-10-03",
+  "purpose": "Validate the final frozen session-intent/provenance contract and loss of unused source references",
+  "native_format": "ic-blob-storage/publication-session:original-phase-sources",
+  "checks": ["status-only recovery carries original sources", "missing required provenance refuses", "original setup repeated without updates", "native verifier original observation recovery", "browser lost-reply setup recovery"],
+  "private_reports": ".tmp/session-sources-01/browser-final",
+  "revalidation_reason": "The retained intermediate verifier journey passed before adding complete source provenance and a strict format identity; final cases use a newly frozen CLI and fresh local fixtures",
+  "provider": "Owned local HTTPS HTTP/2 substitute",
+  "maximum_puts_per_browser_journey": 4,
+  "maximum_gets_per_browser_journey": 4,
+  "deployed_provider_requests": 0,
+  "paid_cycles": 0,
+  "deployment": false,
+  "automatic_retries": false,
+  "stable_layout_or_endpoint_wire_change": false,
+  "limitations": "Native intent format is a minor hard cut; old artifacts remain with original binaries. Same-release original local history is required, without rollback or full durable browser-parent qualification"
+}

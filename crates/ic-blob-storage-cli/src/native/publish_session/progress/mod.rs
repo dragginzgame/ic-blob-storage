@@ -2,7 +2,9 @@
 use super::{
     Actors, Failure, Input, Options, PreparedBatch, Run, Value,
     control::{self, Frame},
-    json, publish_map, publish_prepare, verification,
+    json, publish_map, publish_prepare,
+    sources::Sources,
+    verification,
 };
 use std::path::PathBuf;
 use tokio::sync::mpsc;
@@ -14,7 +16,8 @@ pub(super) struct Session<'a> {
     actors: &'a Actors,
     run: &'a Run,
     next: usize,
-    origins: Vec<Option<PathBuf>>,
+    sources: Sources,
+    browser: Option<&'a super::browser::BrowserSelectionRecord>,
 }
 impl<'a> Session<'a> {
     pub fn new(
@@ -23,6 +26,8 @@ impl<'a> Session<'a> {
         batch: &'a PreparedBatch,
         actors: &'a Actors,
         run: &'a Run,
+        sources: Sources,
+        browser: Option<&'a super::browser::BrowserSelectionRecord>,
     ) -> Self {
         Self {
             options,
@@ -31,7 +36,8 @@ impl<'a> Session<'a> {
             actors,
             run,
             next: 0,
-            origins: vec![None; batch.files.len()],
+            sources,
+            browser,
         }
     }
     async fn observation(
@@ -53,47 +59,51 @@ impl<'a> Session<'a> {
         json!({"schema":1,"operation":"publish_session","state":"blocked","code":code,
             "next_index":self.next,"provider_requests":0,"retry_authorized":false,"batch_complete":false})
     }
-    async fn prepare(
-        &mut self,
-        index: usize,
-        source: Option<PathBuf>,
-        directory: PathBuf,
-    ) -> Result<Value, Failure> {
+    async fn prepare(&mut self, index: usize, directory: PathBuf) -> Result<Value, Failure> {
         let selected = self.batch.files.get(index).ok_or(Failure::Arguments)?;
-        if index != self.next {
-            return Ok(self.blocked("previous_file_unconfirmed"));
-        }
-        if let Some(source) = source {
-            let metadata = std::fs::symlink_metadata(&source).map_err(|_| Failure::File)?;
-            if !metadata.is_dir() || metadata.file_type().is_symlink() {
-                return Err(Failure::Binding);
-            }
-            let source = source.canonicalize().map_err(|_| Failure::File)?;
-            if self.origins[index]
-                .as_ref()
-                .is_some_and(|original| original != &source)
-            {
-                return Err(Failure::Binding);
-            }
-            self.origins[index] = Some(source);
-        }
         // Startup verification is reused; only this file is checked again before
         // setup. Later files cannot cause O(files²) body I/O or substitute bytes.
         selected.input.verify_body(&selected.body_sha256)?;
         let setup = publish_prepare::Input {
             index,
             directory: directory.join("setup"),
-            source: self.origins[index].clone(),
+            source: self.sources.setup[index].clone(),
             ..self.input.prepare.clone()
         };
         let mut outcome = publish_prepare::run_selected(self.options, &setup, self.batch).await?;
-        if self.origins[index].is_none() {
-            self.origins[index] = Some(setup.directory.canonicalize().map_err(|_| Failure::File)?);
+        if self.sources.setup[index].is_none() {
+            self.sources.setup[index] =
+                Some(setup.directory.canonicalize().map_err(|_| Failure::File)?);
         }
-        if outcome.prepared() {
+        if outcome.prepared() && self.input.browser_selection.is_none() {
             outcome.report["transfer"] = selected.input.transfer_input(&selected.body_sha256)?;
         }
         Ok(outcome.report)
+    }
+    fn transfer(
+        &mut self,
+        index: usize,
+        action: &Run,
+        directory: &std::path::Path,
+        source: Option<&std::path::Path>,
+    ) -> Result<Value, Failure> {
+        let report = super::transfer::Context {
+            options: self.options,
+            input: self.input,
+            batch: self.batch,
+            browser: self.browser.ok_or(Failure::Denied)?,
+        }
+        .run(
+            index,
+            action,
+            directory,
+            self.sources.setup[index].as_deref(),
+            source,
+        )?;
+        if self.sources.transfers[index].is_none() {
+            self.sources.transfers[index] = Some(super::sources::directory(directory)?);
+        }
+        Ok(report)
     }
     async fn phase(
         &mut self,
@@ -102,8 +112,13 @@ impl<'a> Session<'a> {
         directory: PathBuf,
     ) -> Result<(Value, bool), Failure> {
         match frame {
-            Frame::Prepare { index, source_run } => {
-                Ok((self.prepare(index, source_run, directory).await?, false))
+            Frame::Prepare { index, .. } => {
+                self.batch.files.get(index).ok_or(Failure::Arguments)?;
+                if index != self.next {
+                    control::record_unattempted(action, index, self.next)?;
+                    return Ok((self.blocked("previous_file_unconfirmed"), false));
+                }
+                Ok((self.prepare(index, directory).await?, false))
             }
             Frame::Status { index } => {
                 self.batch.files.get(index).ok_or(Failure::Arguments)?;
@@ -118,12 +133,26 @@ impl<'a> Session<'a> {
                 }
                 Ok((observation.report, false))
             }
+            Frame::Transfer {
+                index,
+                source_transfer,
+            } => {
+                self.batch.files.get(index).ok_or(Failure::Arguments)?;
+                if index != self.next {
+                    control::record_unattempted(action, index, self.next)?;
+                    return Ok((self.blocked("previous_file_unconfirmed"), false));
+                }
+                let report =
+                    self.transfer(index, action, &directory, source_transfer.as_deref())?;
+                Ok((report, false))
+            }
             Frame::Verify {
                 index,
                 source_observation,
             } => {
                 let selected = self.batch.files.get(index).ok_or(Failure::Arguments)?;
                 if index != self.next {
+                    control::record_unattempted(action, index, self.next)?;
                     return Ok((self.blocked("previous_file_unconfirmed"), false));
                 }
                 let verifier = self.actors.verifier.as_ref().ok_or(Failure::Denied)?;
@@ -178,6 +207,9 @@ impl<'a> Session<'a> {
     ) -> Result<Value, Failure> {
         for step in 0..self.input.max_steps {
             let frame = input.recv().await.ok_or(Failure::Transport)??;
+            // Persist the resolved original source before execution, so the next
+            // parent can recover this run without following session chains.
+            let frame = self.sources.resolve(frame)?;
             let directory = self.input.prepare.directory.join(format!("step-{step:04}"));
             let action = Run::create(&directory)?;
             action.json("request.json", &frame)?;

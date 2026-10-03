@@ -4,8 +4,8 @@ Date: 2026-10-03
 
 ## Released baseline
 
-This batch started from released **0.11.0**, at `0d14a26`, with validated source
-`cc5c9937e697dd9ca4b9c0d8c7dde73bb916f34b`. Read
+This batch started from released **0.12.0**, at `a67f22a`, with validated source
+`a46241ffb869518ad573e5faf42a49a49824cc9b`. Read
 [Cargo](../../Cargo.toml), [the release receipt](../release.json) and
 [the changelog](../../CHANGELOG.md) for authoritative release metadata.
 A repository release does not establish registry publication or deployed behavior.
@@ -30,63 +30,77 @@ compatibility fallback.
 
 ## Current work
 
-The simplification batch shares browser UTF-8 bounds and refuses malformed metadata
-before journal access. The job helper owns the selected body once, before cloning
-metadata. One semantic Candid test replaces the duplicate generated-text check.
-The current handoff and roadmap no longer mix historical instructions with active work.
+Released 0.12.0 consolidates descriptor serving, removes the fixture-only reference
+journal and identifies frozen native/stable formats. Its
+[simplification](../evidence/caffeine-probes/README.md#simplification-follow-up--2026-10-03),
+[format](../evidence/caffeine-probes/README.md#frozen-format-identities--2026-10-03) and
+[descriptor](../evidence/caffeine-probes/README.md#descriptor-serving-owner--2026-10-03)
+records retain their exact validation scopes and limitations. Any older installation,
+including 0.11.0, stays on its original release until complete retirement precedes
+fresh reinstall; no conversion or upgrade is supported.
 
-The fixture-only reference save/inspect command, JSON record and append
-journal contract are retired. Signed native receipt tests cover its service guarantees;
-their journeys retain malformed-ingress checks. Native create-new signed claims
-remain authoritative and old artifact files are untouched. Tests for the retired
-save/lock mechanism are removed, with no replacement abstraction or reader.
-The harness now inherits the workspace MSRV after removing its file-lock requirement.
+The current native follow-up adds explicit source-session recovery. Original
+inventory/installation bytes, actors, gateway, trust root and saved host release
+must match before allocating a new run. Resolved setup/observation paths are
+recorded before execution and unused references survive status-only recovery.
+Ordering refusal facts live in existing step directories; missing claim history
+is never treated as proof that a phase did not run. The existing setup, observer
+and attestation owners remain authoritative, with no automatic replay or inherited
+completion cursor. Fresh authenticated status starts at index zero.
 
-Focused browser, semantic Candid, native claim/operator and signed reference
-recovery checks pass, together with strict affected Clippy and Rust 1.88 harness
-compilation. Exact scopes and retained evidence are recorded in
-[the local ledger entry](../evidence/caffeine-probes/README.md#simplification-follow-up--2026-10-03).
-Concurrent ic-memory/ic-testkit dependency updates are preserved and their tested
-identities are recorded in the local evidence; they are separate work.
-No version mutation, full CI, deployment or provider effect
-is included. The fixture command removal belongs in a minor release.
-
-The format follow-up replaces reused numeric markers with one frozen identity per
-current layout: `ic-blob-storage/upload-inputs:original-preparation` for native
-bindings and `ic-blob-storage/installation:platform-anchor` for immutable stable
-installation records. Current producers and single/batch/session readers converge
-on these contracts. Exact release and service checks remain independent. A missing
-or mismatched identity refuses without repair, replacement or effect redispatch.
-The host grant key still names the same slot, so old allocations are not hidden.
-
-This is a minor native/stable-format hard cut, not a deployment or upgrade plan.
-Preserve retained snapshots/journals and original binaries. Existing installations,
-including any 0.11.0 deployment, cannot upgrade to this format; retirement and full
-obligation disposition precede a fresh reinstall. Consumer adoption and deployed
-inventory remain unverified. No V2, dual reader, journal conversion or migration
-engine is added. Native preparation, frozen-batch/journal checks, strict affected
-Clippy, offline SDK/native handoff, semantic Candid and actual local IC lifecycle/
-session recovery pass. The [format evidence](../evidence/caffeine-probes/README.md#frozen-format-identities--2026-10-03)
-records exact scopes and unchanged retained-artifact hashes under `.tmp/format-identity-01`.
-
-The descriptor follow-up removes the forwarding public `describe` API, the second
-operational view and an HTTP target that the service response discarded. The shared
-`handle` checks ingress identity and calls the upload owner's existing operational
-checks, then presents the retained descriptor under the same trusted borrowed scope.
-Clients retain canonical target construction. Historical inspection remains distinct
-from active, unfenced serving. Native/stable frozen layouts and endpoint wire shapes
-are unchanged; this public source API cut joins the current minor draft. Twelve
-focused unit cases, nine actual local IC cases, semantic Candid equality and strict
-core/standalone/harness/CLI Clippy pass. The [descriptor evidence](../evidence/caffeine-probes/README.md#descriptor-serving-owner--2026-10-03)
-retains the exact tested artifacts and logs under `.tmp/descriptor-owner-01`, and
-explicitly records the missing pre-run intent file. Consumer source adoption remains
-unverified; no live provider request or paid effect occurred.
+One frozen native session intent identifies the current original-source layout;
+old session artifacts stay with their original binaries. This is a minor native
+format cut with unchanged service endpoint and stable layouts. Five session unit
+cases, six actual local IC cases, two actual Chromium recovery journeys and strict
+affected Clippy pass. The [source-session evidence](../evidence/caffeine-probes/README.md#native-session-original-sources--2026-10-03)
+retains exact artifacts, logs, profiles and phase claims under `.tmp/session-sources-01`.
+The Chromium launcher now persists a passive selected-launch binding inside the
+original profile before browser access. Exact signer/scope/trust/journal/bundle
+fingerprints and canonical profile/origin must match on reopen. It owns one input
+snapshot before awaits and retains the record after failed launch. Partial or
+missing provenance refuses rather than opening replacement history. Existing
+profiles stay with their original launcher; this adds a minor browser contract cut.
+The [browser binding evidence](../evidence/caffeine-probes/README.md#browser-profile-launch-binding--2026-10-03)
+retains focused actual Chromium refusals and the maintained upload/verifier
+lost-reply journey, including the initial local report-directory failure.
+The current joint selection uses `publish-session --browser-selection`: native
+intent retains original session/profile/port, signer/bundle fingerprints, journal
+and exact batch project/bucket. Recovery requires the same selection. The launcher
+checks the original complete intent/ready shapes and actual input hashes before
+Chromium, then binds the exact original intent bytes into its profile. Browser-only
+operation is explicit and cannot bypass an existing native binding. One current
+native intent/profile layout replaces intermediate source-only/launch-only forms;
+retain their original binaries and profiles. Service wire/stable layouts are unchanged.
+Seven session unit cases, eighteen actual Chromium boundary cases, six native IC
+cases, the maintained actual IC/Chromium verifier lost-reply journey and strict
+affected Clippy pass. The [joint selection evidence](../evidence/caffeine-probes/README.md#native-session-browser-selection--2026-10-03)
+retains exact artifacts, intermediate passes, a lint failure and final validation.
+The next follow-up retains native browser handoffs before dispatch. A selected
+session's `prepare` phase no longer returns a raw transfer descriptor; `transfer`
+validates the original signed setup and synchronizes `transfer.json` before
+returning its step directory. The current native intent and source provenance use
+the `retained-browser-handoffs` layouts. The launcher requires that handoff for
+native-bound uploads; repeated/recovered phases request certificate recovery
+through the existing browser journal only. Missing browser history refuses without
+starting an upload. No new effect journal or completion cursor is introduced.
+Focused session units, seven native IC cases and nineteen actual Chromium boundary
+cases pass. The actual IC/Chromium lost-reply journey passes through the new native
+handoff/recovery path, preserving four PUTs/four GETs and original claims. A second
+journey refuses corrupt bytes before attestation or the next file. Strict affected
+Clippy passes. The
+[handoff evidence](../evidence/caffeine-probes/README.md#native-browser-transfer-handoffs--2026-10-03)
+retains logs, exact artifacts and the preliminary native fixture-retention gap.
+The parent still needs to retain its keys/original session location, select phases
+and reconcile uncertainty. These records do not complete that coordination or
+establish rollback resistance.
 
 ## Remaining product work
 
 - Durable native parent coordination around the session and Chromium bridge:
-  retain signer/profile/origin and original setup/verification sources before
-  effects, then reconcile exact surviving evidence on restart without redispatch.
+  select/drive phases with original keys and the retained original session, then
+  reconcile exact surviving evidence on restart without redispatch. Native intent,
+  handoffs and profile retain/check the joint selection; they do not discover keys, select
+  phases or grant completion/retry authority.
 - Consumer acceptance with real media, complete asset transactions, overlapping
   references and MIME/CORS/cache/CSP/retention behavior. Local substitutes and
   synthetic image-labelled bytes do not qualify those guarantees.

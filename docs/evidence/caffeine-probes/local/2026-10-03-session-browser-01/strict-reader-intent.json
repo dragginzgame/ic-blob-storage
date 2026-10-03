@@ -1,0 +1,10 @@
+{
+  "purpose": "Check the full current native intent/ready boundary shapes, rejecting partial/unknown fields rather than accepting a second model",
+  "scope": "one final actual Chromium boundary suite; the final IC/Chromium journey remains within final-intent budget",
+  "budget": {
+    "launcherSuites": 1,
+    "liveProviderRequests": 0,
+    "paidCycles": 0
+  },
+  "retain": "initial successful suite and existing intermediate bundles"
+}

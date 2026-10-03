@@ -1,0 +1,19 @@
+{
+  "schema": 1,
+  "date": "2026-10-03",
+  "purpose": "Exercise explicit source-session recovery in the existing Chromium/native serial journeys",
+  "targets": ["native verifier original-observation recovery", "persistent-session exposed setup after lost browser reply"],
+  "provider": "Owned local HTTPS HTTP/2 scripted gateway, not deployed Caffeine",
+  "bodies": [1024, 2048],
+  "maximum_puts_per_journey": 4,
+  "maximum_gets_per_journey": 4,
+  "expected_automatic_retries": 0,
+  "expected_retained_physical_bytes": 3072,
+  "expected_retained_liability_bytes": 3072,
+  "private_reports": ".tmp/session-sources-01/browser",
+  "deployed_provider_requests": 0,
+  "paid_cycles": 0,
+  "deployment": false,
+  "limitations": "Synthetic media-labelled bytes and owned CORS; no complete consumer acceptance, live retention, deletion or billing guarantee",
+  "cleanup": "Retain profiles, exact phase journals, commands, responses and all logs; do not silently rerun a failed case"
+}

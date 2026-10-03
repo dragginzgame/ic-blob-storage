@@ -195,3 +195,17 @@ a029bbbe178ed367092d01602a2633d223de222ff80028e6b8d34456022a6d3d  docs/evidence/
 578bb2d645593ea602a6af78eadb3acfe53c57a0b2d78a649a8f6f9d1722dd92  docs/evidence/caffeine-probes/local/2026-10-03-format-identity-01/intent.json
 9024413853347013781d471c4c8c867b969142cfd2b3585d7060da7dc0d4bb6c  docs/evidence/caffeine-probes/local/2026-10-03-format-identity-01/summary.json
 b23f9dc32c31c06ddc1963fd805e06c594d7f61a1c2d8c4a8d6100a99a349de0  docs/evidence/caffeine-probes/local/2026-10-03-descriptor-owner-01/summary.json
+0127a98c3c103e0ffe5966dc538255adbd9c4e9362628eb7b9631065e389da81  docs/evidence/caffeine-probes/local/2026-10-03-session-sources-01/intent.json
+902b045866a38a6358914b0b5ad97ef7d7055ef10c77c0dd8bb179bdbd9e1f29  docs/evidence/caffeine-probes/local/2026-10-03-session-sources-01/browser-intent.json
+235e04a2e0bad754bbd7601ec30ce8487ae6966d3d7d63cc79439b79748bd3e8  docs/evidence/caffeine-probes/local/2026-10-03-session-sources-01/provenance-intent.json
+07196ecea3568940fda411f3f3ac69d490a4a2f31a401bcb127242cbe117b1d1  docs/evidence/caffeine-probes/local/2026-10-03-session-sources-01/summary.json
+0cbd7be057a22e95838a4aca7e6b00fb9d4f009bb159fb6f7ed6303997348ad3  docs/evidence/caffeine-probes/local/2026-10-03-browser-binding-01/intent.json
+c73a37076d97c1e000d68a1de1c62ede0a0acae3a9d4b0319c5caaccaca1bb5a  docs/evidence/caffeine-probes/local/2026-10-03-browser-binding-01/final-intent.json
+561e7d0a64072a8d69023dee1ab2a4cfc42c120806bd351f4b17a504f99e319d  docs/evidence/caffeine-probes/local/2026-10-03-browser-binding-01/summary.json
+1f83fe055897faa85092a646c6c624f465826196aa21b9992938312537366094  docs/evidence/caffeine-probes/local/2026-10-03-session-browser-01/intent.json
+f22269a2209e42f221470572b90e0fccb92b79aad39c6f6232903043c00fac6f  docs/evidence/caffeine-probes/local/2026-10-03-session-browser-01/final-intent.json
+ce05af9f69bfe46a5aedd04a31b94f5fbae95e3a139ab9ea6b329d9b7f6cec65  docs/evidence/caffeine-probes/local/2026-10-03-session-browser-01/strict-reader-intent.json
+af942ca7ef7613816f5fa0ba80f80264525fda14ae3d26bbcc1a8e42fbd99103  docs/evidence/caffeine-probes/local/2026-10-03-session-browser-01/summary.json
+effe15421af9426f400cc8fe6cb889531c4d0a3d8a5721ffebd08fe589256a1c  docs/evidence/caffeine-probes/local/2026-10-03-transfer-handoff-01/intent.json
+784a6d57496408748af6bb5bfcc6859f05ff7da0a05a296f0aaa785eca73a63d  docs/evidence/caffeine-probes/local/2026-10-03-transfer-handoff-01/retention-intent.json
+75558028d33a08951eac6831b2267ccb92c3b214179a9f2415ca49773f273ba1  docs/evidence/caffeine-probes/local/2026-10-03-transfer-handoff-01/summary.json

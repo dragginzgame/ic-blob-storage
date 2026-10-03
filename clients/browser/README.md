@@ -147,8 +147,9 @@ The maintained SDK and strict IndexedDB rows remain the certificate/gateway owne
 the worker below is implemented. The native session can now compose the maintained
 observer and one-shot attestation with an explicitly selected verifier, or inspect
 an original observation without another GET/submission. The maintained host below
-boots a selected SDK signer over its private port; native process launch, PEM/SDK
-selection and durable parent coordination remain open.
+boots a selected SDK signer over its private port. The Chromium bridge below owns
+process launch and checks the native session's immutable selection. Automatic
+key discovery and durable parent phase coordination remain open.
 
 ### Run jobs in a browser worker
 
@@ -235,7 +236,7 @@ Actual Chromium/PocketIC tests use this implementation in DedicatedWorkers at on
 active reservation. Browser/native restart reconciles lost replies without new
 uploads. Cancellation survives reopening; corrupt observation blocks the next
 transfer/map while preserving exposed bytes. Offline control tests use a substituted
-store and establish boundary checks only. Native parent process launch and signer selection,
+store and establish boundary checks only. Automatic parent phase coordination,
 real Miner media and serving acceptance remain unfinished;
 the owned gateway is not deployed Caffeine.
 
@@ -311,10 +312,11 @@ const browser = await launchPublicationBrowser(chromium, {
   hostBundle: absolutePublicationHostBundle,
   workerBundle: absolutePublicationWorkerBundle,
   bootstrap: selectedBootstrap, // same selected-signer contract above
+  nativeSession: originalAbsoluteSessionPath, // explicit null for browser-only operation
 });
 try {
   const report = await browser.execute({
-    id: 1, index: 0, action: 'upload', transfer: prepared.report.transfer,
+    id: 1, index: 0, action: 'transfer', nativePhase: transferPhase.report.native_phase,
   });
   // Independently verify/attest and inspect the current reference in the native
   // session. This browser report never grants completion or retry authority.
@@ -323,7 +325,19 @@ try {
 }
 ```
 
-The native `prepare` phase must have returned `prepared:true` first. Its transfer
+The native `prepare` phase must have returned `prepared:true` first. For a
+browser-selected session, request its `transfer` phase next and pass the returned
+absolute `native_phase` step directory. Native-bound launchers refuse direct
+`upload` commands. They read the retained control/handoff records, check the exact
+original session and current immutable inputs, and send one initial upload or
+certificate recovery to the existing worker. Repeated/recovered native phases
+never request another upload; missing browser history returns `history-missing`.
+Keep original handoffs and profile claims. Reusing an archived initial handoff is
+not retry permission; the existing worker also refuses an already claimed upload.
+
+With explicit `nativeSession:null`, browser-only callers use
+`{id,index,action:'upload',transfer}` from their independently validated setup.
+The transfer
 contains `binding`, absolute `body`, `body_sha256`, `manifest_json`, decimal `bytes`
 and the original `preparation` object. The bridge owns this request before awaits,
 opens only the selected regular file with an explicit body ceiling, checks exact
@@ -340,7 +354,34 @@ and `retry_authorized` as false. Local body refusals cause no dispatch; a browse
 transport/control failure closes the context and leaves its effects uncertain.
 
 First launch requires both a new profile and explicit journal `mode:'create'`.
-Reopening requires the original profile/port/database and `mode:'open'`. Port
+Unreleased adds a private `publication-binding.json` in that profile before
+Chromium starts. Its frozen `ic-blob-storage/browser-profile:native-session-selection`
+identity binds the canonical profile path, asset origin, selected signer JSON
+fingerprint, host/service/tenant/uploader/project/bucket/gateway, root-key fingerprint,
+journal database/capacity and both executable bundle fingerprints. No signer key
+is stored. Exclusive creation, file synchronization and profile-directory
+synchronization precede browser access. Failed launch retains the record.
+
+For native publication, first start `publish-session --browser-selection FILE`
+using the [selection contract](../../docs/operator-guide.md#bind-browser-selection-to-the-native-session)
+and wait for its ready event. Then launch with `nativeSession` pointing to that
+original session directory. Before profile creation or Chromium access, the
+launcher checks the complete current intent/ready shapes, actual input hashes,
+scope/trust and selected signer/journal/bundles. Its profile record retains the
+original session path and exact intent-byte fingerprint. Recovered native sessions
+carry the same selection; keep the launcher pointed at the original session.
+An explicit `nativeSession:null` selects browser-only operation at first creation.
+Once created, a profile cannot switch between those contracts or change its native
+session. Neither the ready record nor the profile fingerprint grants a lease,
+fresh completion, rollback resistance or replay permission.
+
+Reopening requires the original profile/port/database, matching immutable inputs
+and `mode:'open'`. Missing, partial, changed or relocated bindings refuse before
+Chromium starts; the launcher never synthesizes or repairs provenance. Keep old
+profiles with their original launcher/bundles; there is no conversion or adoption
+of existing history by the new reader. This is a minor browser contract cut.
+Runtime request/body/job budgets and deadlines may change on each execution;
+the worker still validates them before jobs. Port
 contention refuses before profile creation; it never chooses another origin.
 Missing history refuses without creating a replacement journal. Closing, deadline
 or a process loss never authorizes another upload. Keep every original native
@@ -351,9 +392,14 @@ Chromium launch/navigation waits and the running context have explicit deadlines
 local file I/O and Playwright process shutdown are not preemptively bounded.
 Large-file peak heap/CDP latency and hostile local-user/key-memory isolation are
 not qualified. This is a callable process bridge, not a complete noninteractive
-publisher: the durable native parent must still persist its selected origin/profile
-and phase decisions before effects, retain preparation origins and reconcile
-uncertainty on restart. The operator, tenant and verifier still need their original
+publisher: the durable native parent must still retain its keys and original
+session location, select the next phase and reconcile uncertainty on restart.
+Native intent and profile now retain the immutable joint selection. They do not
+discover keys, select the next phase or replace the original phase claims.
+The native session's Unreleased
+[`--source-session`](../../docs/operator-guide.md#hold-one-validated-batch-across-publication-phases)
+retains original setup/verification/transfer paths and rejects lost provenance; it does not
+select or recover browser profiles, signer keys or origins. The operator, tenant and verifier still need their original
 native identities and journals; no automatic key discovery or paid authority follows.
 
 Run the scoped owned-profile checks with `make test-browser-launcher

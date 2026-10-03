@@ -9,6 +9,34 @@ use tokio::sync::mpsc;
 
 const MAX_FRAME_BYTES: u64 = 8192;
 
+/// Durable fact written only when ordering rejects a phase before its owner
+/// is called. Absence of its claim directory alone never proves an unattempted phase.
+#[derive(Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
+pub(super) struct UnattemptedPhaseRecord {
+    pub format: String,
+    pub index: usize,
+    pub next_index: usize,
+}
+impl UnattemptedPhaseRecord {
+    pub const FORMAT: &'static str = "ic-blob-storage/unattempted-publication-phase";
+}
+
+pub(super) fn record_unattempted(
+    run: &crate::native::artifacts::Run,
+    index: usize,
+    next_index: usize,
+) -> Result<(), Failure> {
+    run.json(
+        "unattempted.json",
+        &UnattemptedPhaseRecord {
+            format: UnattemptedPhaseRecord::FORMAT.into(),
+            index,
+            next_index,
+        },
+    )
+}
+
 #[derive(Debug, Deserialize, Serialize)]
 #[serde(tag = "phase", rename_all = "snake_case", deny_unknown_fields)]
 pub(super) enum Frame {
@@ -18,6 +46,10 @@ pub(super) enum Frame {
     },
     Status {
         index: usize,
+    },
+    Transfer {
+        index: usize,
+        source_transfer: Option<PathBuf>,
     },
     Verify {
         index: usize,

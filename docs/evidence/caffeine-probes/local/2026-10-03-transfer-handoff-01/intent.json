@@ -1,0 +1,18 @@
+{
+  "purpose": "Persist native transfer handoff before browser dispatch and converge repeated/recovered phases on observation",
+  "scope": "focused native units, existing native recovery cases and actual IC/Chromium verifier lost-reply journey",
+  "budget": {
+    "icBrowserJourneys": 2,
+    "maxPutArrivalsPerJourney": 4,
+    "maxGetArrivalsPerJourney": 4,
+    "launcherSuites": 1,
+    "liveProviderRequests": 0,
+    "paidCycles": 0
+  },
+  "retention": "all partial claims, failed attempts, profiles and original signed journals",
+  "limitations": [
+    "no automatic parent process launcher or phase loop",
+    "no local-history rollback resistance",
+    "owned substitutes only"
+  ]
+}

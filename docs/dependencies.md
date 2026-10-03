@@ -15,7 +15,7 @@ availability does not establish provider qualification or service readiness.
 | `sha2` | 0.11.0 | SHA-256; optional allocation/OID features disabled |
 | `thiserror` | 2.0.18 | Typed error derives; matches PocketIC's exact requirement |
 | `ic-cdk` | 0.20.3 | IC platform operations for the ops layer |
-| `ic-memory` | 0.20.0 (locked) | Sole allocation runtime; public typed growth API |
+| `ic-memory` | 0.21.0 (locked) | Sole allocation runtime; public typed growth API |
 | `ic-stable-structures` | 0.7.2 | Exact transitive substrate owned/re-exported by `ic-memory` |
 | `ic-testkit` | 0.13.0 (locked) | Native dependency of the unpublished PocketIC harness; shared helpers and full re-export |
 | `pocket-ic` | 16.0.0 | Transitive through `ic-testkit`; no direct dependency |
@@ -221,8 +221,7 @@ neither emits a certificate or sends service/gateway traffic. See the
 
 ## Memory composition
 
-Released 0.9.0 selects `ic-memory 0.15.4`; the current working tree selects 0.20.0
-through the maintainer's concurrent dependency update. The lockfile resolves one registry
+Released 0.12.0 selects `ic-memory 0.21.0`. The lockfile resolves one registry
 package and its `ic-stable-structures` 0.7.2 substrate.
 Direct `RuntimeMemory::grow` returns a typed result;
 generic `Memory` wrappers preserve the upstream -1 sentinel contract.

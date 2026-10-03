@@ -1,0 +1,10 @@
+{
+  "purpose": "Retain the new focused native handoff/recovery fixture after the complete native session suite passed with default temporary fixture directories",
+  "scope": "one focused handoff case using BLOB_PUBLICATION_REPORT plus the planned two IC/Chromium journeys",
+  "budget": {
+    "liveProviderRequests": 0,
+    "paidCycles": 0
+  },
+  "limitation": "The preliminary native suite log survives, but its temporary fixture directories were not retained. Add an original-transfer copy before the maintained tampering check.",
+  "tooling": "An initial Node heredoc for this intent had a syntax error before file creation; no probe ran from that attempt."
+}

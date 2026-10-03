@@ -19,7 +19,7 @@ pub(super) fn binding(
         "root_key_sha256":ContentDigest::compute(root).to_string(),"max_service_updates":2,"max_service_queries":4,
         "provider_requests":0,"automatic_retries":0,"certificate_issued":false,"publication_authorized":false})
 }
-fn read_at(origin: &Path, name: &str, maximum: u64) -> Result<Vec<u8>, Failure> {
+pub(super) fn read_at(origin: &Path, name: &str, maximum: u64) -> Result<Vec<u8>, Failure> {
     let mut path = origin.to_path_buf();
     for part in name.split('/') {
         path.push(part);

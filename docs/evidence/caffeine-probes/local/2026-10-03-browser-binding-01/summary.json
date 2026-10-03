@@ -1,0 +1,110 @@
+{
+  "baseline": "a67f22a3f36c706563f5b546308d75e887a2f296",
+  "releaseReportedByArtifacts": "0.12.0",
+  "evidence": "source review and owned local Chromium/IC/gateway execution",
+  "maintainedChanges": [
+    "one passive frozen profile binding before Chromium starts",
+    "exclusive 0600 bounded record with file/directory sync",
+    "immutable signer/scope/trust/journal/assets/profile/origin checked before reopen",
+    "one launch snapshot owned before filesystem awaits"
+  ],
+  "launcherCases": [
+    "occupied_port_refuses_before_profile",
+    "launch_selection_owned_before_filesystem_awaits",
+    "private_passive_binding_retains_scope_without_signer_secret",
+    "explicit_profile_and_origin_start_without_effects",
+    "owned_request_and_single_job",
+    "changed_truncated_oversized_and_noncanonical_body_refuse",
+    "symlinks_and_directories_are_not_bodies",
+    "fifo_without_writer_refuses_without_blocking",
+    "metadata_hints_have_exact_fields_and_utf8_bounds",
+    "close_preserves_profile_and_refuses_replacement",
+    "changed_origin_missing_and_symlink_profiles_refuse_without_replacement",
+    "changed_signer_trust_scope_journal_and_assets_refuse_before_chromium",
+    "partial_missing_symlink_and_relocated_bindings_refuse_without_replacement",
+    "same_origin_and_profile_reopen_original_journal",
+    "deadline_closes_browser_without_erasing_profile",
+    "launch_failure_retains_binding_before_browser_and_reopen_never_replaces_it"
+  ],
+  "finalJourney": {
+    "puts": 4,
+    "gets": 4,
+    "browserRestartPreserved": true,
+    "confirmedMapWritten": true,
+    "automaticUploadRetries": 0,
+    "retainedPhysicalBytes": 3072,
+    "retainedLiabilityBytes": 3072
+  },
+  "attempts": [
+    {
+      "log": "launcher.log",
+      "outcome": "passed intermediate 14-case suite",
+      "limitation": "original directly imported launcher snapshot not frozen separately"
+    },
+    {
+      "log": "launcher-final.log",
+      "outcome": "passed 16-case suite before redundant bootstrap-clone removal"
+    },
+    {
+      "log": "browser-setup.log",
+      "outcome": "failed before browser start: missing report parent",
+      "limitation": "selected persistent-session driver does not use launcher; no coverage claimed"
+    },
+    {
+      "log": "browser-verifier.log",
+      "outcome": "passed maintained launcher journey before redundant bootstrap-clone removal",
+      "artifact": "artifacts-intermediate/launcher-serial.mjs"
+    },
+    {
+      "log": "launcher-verified.log",
+      "outcome": "passed final 16-case suite"
+    },
+    {
+      "log": "browser-verifier-final.log",
+      "outcome": "passed final maintained launcher journey"
+    }
+  ],
+  "hashes": {
+    "sourceManifest": "efa28bcdb7ca0a86cb28188c65fe3fb06cd5db95f3dc9902db788668cef91432",
+    "retainedManifest": "5ceb1788a96ecc71912c3f377abc98b253fc167666ae46852eacceb51f61e08f",
+    "artifacts": {
+      "launcher.mjs": "d91c34931a3c9bb39e1596592f6db3e197177e0353b5b808ee016d3fb976e1dd",
+      "publication-host.js": "2f8d7b66ad7808747a2b7bca24c83ba2e4a99dd283b875355ca2470a5bcdc216",
+      "publication-worker.js": "dbb74667801c7411106dced5fb4bf13e664f809de487411ca0dcf23c5f0e8978",
+      "launcher-serial.mjs": "2f5e59b0f334eabdbcba47ff74f5ca68ddfc1193ad63b45c60c570e09e98261d",
+      "blob-storage": "72d8541bd7d58835b7c62c8dd0243a7351345e704c505f10ac4bb958c56bfa17",
+      "ic_blob_storage_canister.wasm": "0a339057b7a47cd070330507379fabcd10ded840878d36b32f3a03a7fe98ccc8"
+    },
+    "logs": {
+      "build.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "build-final.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "launcher.log": "f18392322addfda59afcdea5b73b05c0a28a00e1ed5cd7c80e6b36f3ceb6cefe",
+      "launcher-final.log": "75b9d2440e417bec38734695e04dc759a36bf3d4279e2fbb5b23f0c9e7c2cb52",
+      "launcher-verified.log": "75b9d2440e417bec38734695e04dc759a36bf3d4279e2fbb5b23f0c9e7c2cb52",
+      "browser-setup.log": "7e655a7a23ff30b136c8ff9b3522ca79c59ebc97d69d887a7e15cb3f526ef936",
+      "browser-verifier.log": "733b64866b29db18e11ccbdf06216cfde76c713d5123bcb8d3a6aa099f4f6fc3",
+      "browser-verifier-final.log": "5813bf01982cd33bf9a676976b785cdf52258fc106e939e59e10e5b668aea1ec"
+    }
+  },
+  "retention": {
+    "directory": ".tmp/browser-binding-01",
+    "profiles": "all original browser/test profiles retained; excluded from file manifest except binding hashes below",
+    "bindings": {
+      "launcher-verified/profile/publication-binding.json": "3025fc7745e748219e9cf975511b06e90a1fde78193765155d2a8507ef02d1d7",
+      "launcher-verified/interrupted-profile/publication-binding.json": "c002c82b76b8e3e6fb20ffed39bc71c2efcacf9958f3c3b3a21ad108c5dd5a19",
+      "browser-final/native-verifier-lost/browser-profile/publication-binding.json": "67519ad4a24c1524645daac7e53872ba9d51b3b609f425046d44262b1d146198"
+    }
+  },
+  "limitations": [
+    "caller still selects profile/port/key/native session; no complete parent orchestration",
+    "not authenticated provenance or rollback resistance against a hostile local process",
+    "frozen exact selected signer JSON and executable assets; no adoption of old profiles",
+    "synthetic image-labelled bytes and owned provider substitutes only",
+    "full provider PUT bodies not separately retained",
+    "no full CI, dependency/version/publication/commit/deployment/cleanup or sibling edits"
+  ],
+  "liveProviderRequests": 0,
+  "paidCycles": 0,
+  "serviceWireOrStableLayoutChanges": false,
+  "minorBrowserContractCut": true
+}

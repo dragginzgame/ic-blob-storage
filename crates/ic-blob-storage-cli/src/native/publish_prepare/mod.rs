@@ -33,6 +33,37 @@ impl PreparationOutcome {
     }
 }
 
+/// Validate the retained prepared handoff without executing any setup step.
+/// Fresh service/certificate authority remains with the existing issuer.
+pub(in crate::native) fn transfer_source(
+    options: &Options,
+    input: &Input,
+    batch: &publish_inputs::PreparedBatch,
+) -> Result<(), Failure> {
+    let origin = input.source.as_ref().ok_or(Failure::Unprepared)?;
+    let selected = &batch
+        .files
+        .get(input.index)
+        .ok_or(Failure::Arguments)?
+        .input;
+    let root = super::agent(options)?.read_root_key();
+    journal::validate(
+        origin,
+        &journal::binding(options, input, batch, &root),
+        selected,
+    )?;
+    for kind in [upload_setup::Kind::Admit, upload_setup::Kind::Prepare] {
+        journal::validate_attempt(origin, kind, options, selected)?;
+    }
+    let report: Value =
+        serde_json::from_slice(&journal::read_at(origin, "summary.json", 1024 * 1024)?)
+            .map_err(|_| Failure::Binding)?;
+    if report["prepared"] != true || report["state"] != "prepared" {
+        return Err(Failure::Unprepared);
+    }
+    Ok(())
+}
+
 #[derive(Clone)]
 pub(super) struct Input {
     pub service: Principal,

@@ -110,15 +110,13 @@ impl Serial {
             control.phase(&json!({"phase":"status","index":0}))["file_live"],
             false
         );
-        let recovered = control.phase(&json!({"phase":"prepare","index":0,"source_run":original}));
+        let recovered = control.phase(&json!({"phase":"prepare","index":0}));
+        assert_eq!(recovered["original_run"], *original);
         assert_eq!(recovered["state"], "permission_inactive");
         assert_eq!(recovered["service_updates_this_run"], 0);
         self.trial.record("exposed-setup-recovery.json", &recovered);
     }
-    fn transfer(&self, driver: Driver, index: usize, prepared: &Value) -> Value {
-        if matches!(driver, Driver::VerifiedWorker) {
-            return json!({"index":index,"transfer":prepared["transfer"]});
-        }
+    fn transfer(&self, index: usize, prepared: &Value) -> Value {
         let transfer = &prepared["transfer"];
         if transfer.is_null() {
             return self.snapshot(index);
@@ -126,6 +124,33 @@ impl Serial {
         let body = std::fs::read(transfer["body"].as_str().unwrap()).unwrap();
         json!({"index":index,"binding":transfer["binding"],"snapshot":{"body":body,
             "bodySha256":transfer["body_sha256"],"manifestJSON":transfer["manifest_json"]}})
+    }
+    fn grant(
+        &self,
+        control: &mut Control,
+        browser: &mut BrowserDriver,
+        driver: Driver,
+        index: usize,
+        prepared: &Value,
+    ) {
+        if !matches!(driver, Driver::VerifiedWorker) {
+            browser.send(&self.transfer(index, prepared));
+            return;
+        }
+        assert!(prepared["transfer"].is_null());
+        let handoff = control.phase(&json!({"phase":"transfer","index":index}));
+        assert_eq!(handoff["recovery"], false);
+        self.trial
+            .record(&format!("transfer-{index}-phase.json"), &handoff);
+        let recovery = control.phase(&json!({"phase":"transfer","index":index}));
+        assert_eq!(recovery["recovery"], true);
+        assert_eq!(recovery["service_updates"], 0);
+        self.trial
+            .record(&format!("transfer-{index}-recovery.json"), &recovery);
+        browser.send(
+            &json!({"index":index,"native_phase":handoff["native_phase"],
+            "recovery_phase":recovery["native_phase"]}),
+        );
     }
     fn session(&self, gateway: &str, label: &str, verify: bool) -> NativeSession {
         let mut args = self
@@ -146,6 +171,21 @@ impl Serial {
             args.extend([
                 "--verifier-identity".into(),
                 self.trial.report.join("verifier.pem").display().to_string(),
+            ]);
+        }
+        let browser_selection = self.trial.report.join("browser-selection.json");
+        let selected_browser =
+            browser_selection.is_file() && matches!(label, "session" | "resumed-session");
+        if selected_browser {
+            args.extend([
+                "--browser-selection".into(),
+                browser_selection.display().to_string(),
+            ]);
+        }
+        if label == "resumed-session" {
+            args.extend([
+                "--source-session".into(),
+                self.trial.report.join("session").display().to_string(),
             ]);
         }
         self.trial
@@ -397,8 +437,7 @@ impl Serial {
             };
             assert_eq!(session.finish(3)["error"], "transport");
             *control = Control::Persistent(self.session(gateway, "resumed-session", true));
-            let recovered = control.phase(&json!({"phase":"verify","index":0,
-            "source_observation":self.trial.report.join("session/verification-0000/observation")}));
+            let recovered = control.phase(&json!({"phase":"verify","index":0}));
             self.trial.record("verification-recovery.json", &recovered);
             assert_eq!(recovered["attestation"]["outcome"], "matched");
             assert_eq!(recovered["max_provider_requests_this_phase"], 0);
@@ -540,7 +579,9 @@ fn run(label: &str, scenario: Scenario, driver: Driver) {
         "rootKey":serial.trial.f.harness.pic.root_key().unwrap(),"project":super::client::PROJECT,
         "lostFinalReply":matches!(scenario,Scenario::LostReply),"corruptRead":matches!(scenario,Scenario::Corrupt),
         "providerRootCertificate":serial.trial.report.join("gateway-ca.pem"),
-        "profile":serial.trial.report.join("browser-profile")});
+        "profile":serial.trial.report.join("browser-profile"),
+        "session":serial.trial.report.join("session"),
+        "browserSelection":serial.trial.report.join("browser-selection.json")});
     let mut browser = BrowserDriver::start(&config, driver.script());
     let plans: BrowserPublicationPlan = browser.read(16384);
     let mut control = match driver {
@@ -566,7 +607,7 @@ fn run(label: &str, scenario: Scenario, driver: Driver) {
                 .remaining_active_uploads,
             0
         );
-        browser.send(&serial.transfer(driver, index, &prepared));
+        serial.grant(&mut control, &mut browser, driver, index, &prepared);
         let uploaded: Value = browser.read(8192);
         serial
             .trial

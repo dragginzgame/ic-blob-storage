@@ -1,6 +1,6 @@
 # Implementation history
 
-This is the retained handoff history through preparation of 0.11.0. Release,
+This is the retained handoff history through the 0.12.0 simplification batch. Release,
 dependency, validation and next-step statements below describe their original
 batch; they are not current operating instructions. Start with
 [the current handoff](current.md) for maintained behavior and remaining work.
@@ -1923,3 +1923,62 @@ sealed captures. Their former adapters, commands and acceptance claims are histo
 not a maintained integration contract. This batch retains the fresh public source
 review and failed read-only unit query separately from local preparation. No paid
 effect, live certificate issuance or provider object request occurs.
+
+
+## Completed in 0.12.0: simplification and frozen formats — 2026-10-03
+
+These are the original pre-release handoff notes. Their draft and validation
+statements describe that batch; the released baseline is now 0.12.0.
+
+
+The simplification batch shares browser UTF-8 bounds and refuses malformed metadata
+before journal access. The job helper owns the selected body once, before cloning
+metadata. One semantic Candid test replaces the duplicate generated-text check.
+The current handoff and roadmap no longer mix historical instructions with active work.
+
+The fixture-only reference save/inspect command, JSON record and append
+journal contract are retired. Signed native receipt tests cover its service guarantees;
+their journeys retain malformed-ingress checks. Native create-new signed claims
+remain authoritative and old artifact files are untouched. Tests for the retired
+save/lock mechanism are removed, with no replacement abstraction or reader.
+The harness now inherits the workspace MSRV after removing its file-lock requirement.
+
+Focused browser, semantic Candid, native claim/operator and signed reference
+recovery checks pass, together with strict affected Clippy and Rust 1.88 harness
+compilation. Exact scopes and retained evidence are recorded in
+[the local ledger entry](../evidence/caffeine-probes/README.md#simplification-follow-up--2026-10-03).
+Concurrent ic-memory/ic-testkit dependency updates are preserved and their tested
+identities are recorded in the local evidence; they are separate work.
+No version mutation, full CI, deployment or provider effect
+is included. The fixture command removal belongs in a minor release.
+
+The format follow-up replaces reused numeric markers with one frozen identity per
+current layout: `ic-blob-storage/upload-inputs:original-preparation` for native
+bindings and `ic-blob-storage/installation:platform-anchor` for immutable stable
+installation records. Current producers and single/batch/session readers converge
+on these contracts. Exact release and service checks remain independent. A missing
+or mismatched identity refuses without repair, replacement or effect redispatch.
+The host grant key still names the same slot, so old allocations are not hidden.
+
+This is a minor native/stable-format hard cut, not a deployment or upgrade plan.
+Preserve retained snapshots/journals and original binaries. Existing installations,
+including any 0.11.0 deployment, cannot upgrade to this format; retirement and full
+obligation disposition precede a fresh reinstall. Consumer adoption and deployed
+inventory remain unverified. No V2, dual reader, journal conversion or migration
+engine is added. Native preparation, frozen-batch/journal checks, strict affected
+Clippy, offline SDK/native handoff, semantic Candid and actual local IC lifecycle/
+session recovery pass. The [format evidence](../evidence/caffeine-probes/README.md#frozen-format-identities--2026-10-03)
+records exact scopes and unchanged retained-artifact hashes under `.tmp/format-identity-01`.
+
+The descriptor follow-up removes the forwarding public `describe` API, the second
+operational view and an HTTP target that the service response discarded. The shared
+`handle` checks ingress identity and calls the upload owner's existing operational
+checks, then presents the retained descriptor under the same trusted borrowed scope.
+Clients retain canonical target construction. Historical inspection remains distinct
+from active, unfenced serving. Native/stable frozen layouts and endpoint wire shapes
+are unchanged; this public source API cut joins the current minor draft. Twelve
+focused unit cases, nine actual local IC cases, semantic Candid equality and strict
+core/standalone/harness/CLI Clippy pass. The [descriptor evidence](../evidence/caffeine-probes/README.md#descriptor-serving-owner--2026-10-03)
+retains the exact tested artifacts and logs under `.tmp/descriptor-owner-01`, and
+explicitly records the missing pre-run intent file. Consumer source adoption remains
+unverified; no live provider request or paid effect occurred.

@@ -104,6 +104,118 @@ fn phase(session: &mut NativeSession, frame: &Value) -> Value {
 }
 
 #[test]
+fn standalone_publication_session_retains_transfer_before_dispatch_and_recovers_without_upload() {
+    use crate::reference_cli::change_native;
+    let directory = Directory::new("session-transfer-");
+    let path = directory.path();
+    let (mut f, _, url) = fixture(path);
+    let mut args = arguments(&f, path, &url, "https://127.0.0.1:65530", "original");
+    let binding: Value =
+        serde_json::from_slice(&std::fs::read(path.join("batch/file-0000/binding.json")).unwrap())
+            .unwrap();
+    let selection = json!({"format":"ic-blob-storage/browser-selection",
+        "session":path.join("original"),"profile":path.join("profile"),
+        "project":binding["project"],"bucket":binding["bucket"],
+        "asset_port":65529,"signer_sha256":"1".repeat(64),"host_sha256":"2".repeat(64),
+        "worker_sha256":"3".repeat(64),"database":"native-transfer-fixture","max_slots":2});
+    std::fs::write(
+        path.join("selection.json"),
+        serde_json::to_vec(&selection).unwrap(),
+    )
+    .unwrap();
+    args.extend([
+        "--browser-selection".into(),
+        path.join("selection.json").display().to_string(),
+    ]);
+    let mut session = NativeSession::start(&args);
+    assert_eq!(session.read()["event"], "ready");
+    assert_eq!(
+        phase(&mut session, &json!({"phase":"transfer","index":1}))["state"],
+        "blocked"
+    );
+    let prepared = phase(&mut session, &json!({"phase":"prepare","index":0}));
+    assert_eq!(prepared["prepared"], true);
+    assert!(prepared["transfer"].is_null());
+    let first = phase(&mut session, &json!({"phase":"transfer","index":0}));
+    assert_eq!(first["recovery"], false);
+    let original = Path::new(first["native_phase"].as_str().unwrap());
+    let bytes = std::fs::read(original.join("transfer.json")).unwrap();
+    let handoff: Value = serde_json::from_slice(&bytes).unwrap();
+    assert!(handoff["source_transfer"].is_null());
+    assert_eq!(handoff["source_run"], prepared["original_run"]);
+    let repeated = phase(&mut session, &json!({"phase":"transfer","index":0}));
+    assert_eq!(repeated["recovery"], true);
+    assert_eq!(repeated["service_updates"], 0);
+    assert_eq!(session.finish(3)["error"], "transport");
+    // No browser was launched: the proposed fingerprints above are fixture
+    // metadata, not evidence of real browser or provider authority.
+    std::fs::create_dir(path.join("profile")).unwrap();
+    let before = f.harness.pic.get_stable_memory(f.service);
+    args.extend([
+        "--source-session".into(),
+        path.join("original").display().to_string(),
+    ]);
+    change_native(
+        &mut args,
+        "--run-dir",
+        path.join("recovered").to_str().unwrap(),
+    );
+    let mut session = NativeSession::start(&args);
+    assert_eq!(session.read()["event"], "ready");
+    let recovered = phase(&mut session, &json!({"phase":"transfer","index":0}));
+    assert_eq!(recovered["recovery"], true);
+    assert_eq!(recovered["provider_requests"], 0);
+    let record: Value = serde_json::from_slice(
+        &std::fs::read(
+            Path::new(recovered["native_phase"].as_str().unwrap()).join("transfer.json"),
+        )
+        .unwrap(),
+    )
+    .unwrap();
+    assert_eq!(record["source_transfer"], original.display().to_string());
+    assert_eq!(record["transfer"], handoff["transfer"]);
+    assert_eq!(session.finish(3)["error"], "transport");
+    unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
+    assert_eq!(
+        std::fs::read(original.join("transfer.json")).unwrap(),
+        bytes
+    );
+    std::fs::write(path.join("original-transfer.json"), &bytes).unwrap();
+    std::fs::write(original.join("transfer.json"), b"{").unwrap();
+    change_native(
+        &mut args,
+        "--run-dir",
+        path.join("partial").to_str().unwrap(),
+    );
+    assert_eq!(NativeSession::start(&args).finish(3)["error"], "binding");
+    assert!(!path.join("partial").exists());
+    unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
+    f.harness.pic.stop_live();
+}
+
+fn recover_preparation(
+    args: &mut [String],
+    directory: &Path,
+    source: &str,
+    label: &str,
+    original: &str,
+) {
+    use crate::reference_cli::change_native;
+    change_native(
+        args,
+        "--source-session",
+        directory.join(source).to_str().unwrap(),
+    );
+    change_native(args, "--run-dir", directory.join(label).to_str().unwrap());
+    let mut session = NativeSession::start(args);
+    assert_eq!(session.read()["event"], "ready");
+    let recovered = phase(&mut session, &json!({"phase":"prepare","index":0}));
+    assert_eq!(recovered["original_run"], original);
+    assert_eq!(recovered["service_updates_this_run"], 0);
+    assert_eq!(session.finish(0)["code"], "step_budget_exhausted");
+}
+
+#[test]
 fn standalone_publication_session_requires_selected_installed_verifier_before_effects() {
     use crate::reference_cli::change_native;
     let directory = Directory::new("session-verifier-authority-");
@@ -306,12 +418,13 @@ fn standalone_publication_session_recovers_original_setup_after_control_loss_and
         directory.path().join("recovery").to_str().unwrap(),
     );
     change_native(&mut args, "--max-steps", "1");
+    args.extend([
+        "--source-session".into(),
+        directory.path().join("original").display().to_string(),
+    ]);
     let mut session = NativeSession::start(&args);
     assert_eq!(session.read()["event"], "ready");
-    let recovered = phase(
-        &mut session,
-        &json!({"phase":"prepare","index":0,"source_run":original}),
-    );
+    let recovered = phase(&mut session, &json!({"phase":"prepare","index":0}));
     assert_eq!(recovered["prepared"], true);
     assert_eq!(recovered["service_updates_this_run"], 0);
     assert_eq!(recovered["original_run"], original);
@@ -320,6 +433,43 @@ fn standalone_publication_session_recovers_original_setup_after_control_loss_and
         std::fs::read(Path::new(original).join("admission/signed-request.cbor")).unwrap(),
         signed
     );
+    // Reopen the recovery run itself. Its resolved control record names the
+    // original claim directly, with no recursive session-history traversal.
+    let before = f.harness.pic.get_stable_memory(f.service);
+    recover_preparation(
+        &mut args,
+        directory.path(),
+        "recovery",
+        "repeated-recovery",
+        original,
+    );
+    unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
+    // A status-only recovery must retain sources that this run never used.
+    change_native(
+        &mut args,
+        "--source-session",
+        directory.path().join("repeated-recovery").to_str().unwrap(),
+    );
+    change_native(
+        &mut args,
+        "--run-dir",
+        directory.path().join("status-only").to_str().unwrap(),
+    );
+    let mut session = NativeSession::start(&args);
+    assert_eq!(session.read()["event"], "ready");
+    assert_eq!(
+        phase(&mut session, &json!({"phase":"status","index":0}))["file_live"],
+        false
+    );
+    assert_eq!(session.finish(0)["code"], "step_budget_exhausted");
+    recover_preparation(
+        &mut args,
+        directory.path(),
+        "status-only",
+        "after-status",
+        original,
+    );
+    unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
     std::fs::write(Path::new(original).join("manifest.candid"), b"DIDL").unwrap();
     change_native(
         &mut args,
@@ -329,9 +479,55 @@ fn standalone_publication_session_recovers_original_setup_after_control_loss_and
     let mut session = NativeSession::start(&args);
     assert_eq!(session.read()["event"], "ready");
     let before = f.harness.pic.get_stable_memory(f.service);
-    session.send(&json!({"phase":"prepare","index":0,"source_run":original}));
+    session.send(&json!({"phase":"prepare","index":0}));
     assert_eq!(session.finish(3)["error"], "binding");
     unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
     assert!(!directory.path().join("tampered/step-0000/setup").exists());
+    f.harness.pic.stop_live();
+}
+
+#[test]
+fn standalone_publication_session_refuses_changed_or_partial_source_before_new_run() {
+    use crate::reference_cli::change_native;
+    let directory = Directory::new("session-source-binding-");
+    let (mut f, _, url) = fixture(directory.path());
+    let mut args = arguments(
+        &f,
+        directory.path(),
+        &url,
+        "https://127.0.0.1:65530",
+        "original",
+    );
+    let mut session = NativeSession::start(&args);
+    assert_eq!(session.read()["event"], "ready");
+    let prepared = phase(&mut session, &json!({"phase":"prepare","index":0}));
+    let signed_path =
+        Path::new(prepared["original_run"].as_str().unwrap()).join("admission/signed-request.cbor");
+    let signed = std::fs::read(&signed_path).unwrap();
+    assert_eq!(session.finish(3)["error"], "transport");
+    args.extend([
+        "--source-session".into(),
+        directory.path().join("original").display().to_string(),
+    ]);
+    change_native(
+        &mut args,
+        "--run-dir",
+        directory.path().join("changed").to_str().unwrap(),
+    );
+    change_native(&mut args, "--gateway", "https://127.0.0.1:65529");
+    let before = f.harness.pic.get_stable_memory(f.service);
+    assert_eq!(NativeSession::start(&args).finish(3)["error"], "binding");
+    assert!(!directory.path().join("changed").exists());
+    change_native(&mut args, "--gateway", "https://127.0.0.1:65530");
+    change_native(
+        &mut args,
+        "--run-dir",
+        directory.path().join("partial").to_str().unwrap(),
+    );
+    std::fs::create_dir(directory.path().join("original/step-0001")).unwrap();
+    assert_eq!(NativeSession::start(&args).finish(3)["error"], "binding");
+    assert!(!directory.path().join("partial").exists());
+    assert_eq!(std::fs::read(signed_path).unwrap(), signed);
+    unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
     f.harness.pic.stop_live();
 }

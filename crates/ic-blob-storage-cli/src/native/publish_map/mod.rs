@@ -239,7 +239,6 @@ where
     Q: FnMut(&'static str, Vec<u8>) -> F,
     F: Future<Output = Result<Vec<u8>, Failure>>,
 {
-    let installation: ServiceInstallationInput = candidate_candid::decode(&batch.installation)?;
     let bytes = publish_check::observation::observe(
         run,
         0,
@@ -248,11 +247,20 @@ where
         query,
     )
     .await?;
+    decode_configuration(batch, &bytes)
+}
+
+/// Shared immutable installation/release check for fresh and retained host replies.
+pub(in crate::native) fn decode_configuration(
+    batch: &publish_inputs::PreparedBatch,
+    bytes: &[u8],
+) -> Result<HostConfigurationView, Failure> {
+    let installation: ServiceInstallationInput = candidate_candid::decode(&batch.installation)?;
     if bytes.len() > candidate_candid::MAX_BYTES {
         return Err(Failure::ReplyLimit);
     }
     let host: Result<HostConfigurationView, HostFailure> =
-        candidate_candid::decode(&bytes).map_err(|_| Failure::InvalidReply)?;
+        candidate_candid::decode(bytes).map_err(|_| Failure::InvalidReply)?;
     let host = host.map_err(|_| Failure::Denied)?;
     if host.configuration != installation.configuration
         || host.project != installation.project

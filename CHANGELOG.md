@@ -2,6 +2,64 @@
 
 ## [Unreleased]
 
+## [0.13.0]
+
+### Breaking
+
+- Require the original `publication-binding.json` when reopening a Chromium
+  profile. One frozen launch binding identifies signer, origin/profile, scope,
+  trust root, journal, executable bundles and original native session (or explicit
+  browser-only operation); missing or changed history refuses
+  before Chromium starts. Old profiles remain with their original launcher and
+  bundles; no inferred binding or conversion.
+- Identify native publication-session intent as
+  `ic-blob-storage/publication-session:retained-browser-handoffs`, with explicit
+  source-session, nullable browser selection and original transfer provenance.
+  Old session intents are not converted or accepted by
+  the new reader; retain their original binaries and phase journals. Service
+  endpoint and stable layouts are unchanged.
+
+### Added
+
+- Add a native `transfer` phase that saves a bounded, synchronized handoff after
+  validating the original signed setup. Native-bound launchers require that phase
+  directory; repeated or recovered handoffs request certificate recovery only.
+  Missing browser history refuses without starting another upload. Existing
+  IndexedDB claims remain the sole browser effect owner.
+- Add `publish-session --browser-selection` to retain original session/profile/port,
+  signer and bundle fingerprints, and journal/project/bucket selection before phases.
+  Recovery requires the same selection. The launcher checks the original intent,
+  ready record and input hashes before Chromium; a native-bound profile cannot
+  reopen in browser-only mode. This adds provenance, not dispatch or completion authority.
+- Persist a private, bounded launch binding before opening Chromium, with exclusive
+  creation and file/directory synchronization. Store signer and bundle fingerprints,
+  never signer keys. Preserve the record on launch failure and require exact
+  immutable inputs on restart; runtime budgets remain per execution.
+- Add `publish-session --source-session` to recover original setup and verifier
+  observation paths from a retained same-release run. Validate frozen inputs,
+  actors, installation/release, gateway and trust root before creating output;
+  retain unused sources through status-only restarts and refuse conflicting,
+  partial or missing provenance without authorizing replay.
+
+### Changed
+
+- Native sessions with a browser selection return transfer descriptors only through
+  the retained transfer phase. The launcher refuses direct-upload bypasses and
+  checks original/current native binding, index, control frame and recovery source
+  before delegating to the existing worker. Native-only and browser-only operations
+  retain their distinct supported contracts.
+- Own the complete browser launch selection before filesystem awaits, preventing
+  caller mutation of profile, origin or bootstrap during launch. Use that one
+  snapshot rather than cloning bootstrap again.
+- Bound the complete native session intent before output allocation so startup
+  cannot write a record that its same-release recovery reader cannot consume.
+- Give source selection one owner and persist resolved paths before phases.
+  Record ordering refusals in the existing step history so absence of a phase
+  directory cannot be mistaken for permission to start again. Setup, verification
+  and attestation claims remain authoritative; recovery inherits no completion cursor.
+- Share immutable host configuration/release decoding between fresh observations
+  and retained session history. Refresh release/dependency documentation.
+
 ## [0.12.0] - 2026-10-03
 
 ### Breaking

@@ -1,0 +1,21 @@
+{
+  "purpose": "Bind existing Chromium profile to selected immutable launch inputs before journal access",
+  "scope": "owned local Chromium assets plus two owned IC/HTTPS substitute recovery journeys",
+  "budget": {
+    "launcherRuns": 2,
+    "icJourneys": 2,
+    "maxPutArrivalsPerJourney": 4,
+    "maxGetArrivalsPerJourney": 4,
+    "liveProviderRequests": 0,
+    "paidCycles": 0
+  },
+  "preserve": [
+    "all failed logs and profiles",
+    "original effect journals"
+  ],
+  "limitations": [
+    "no profile rollback resistance",
+    "no complete parent phase coordination",
+    "no deployed provider qualification"
+  ]
+}

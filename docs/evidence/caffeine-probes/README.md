@@ -1,5 +1,167 @@
 # Caffeine probe ledger
 
+## Native browser transfer handoffs — 2026-10-03
+
+The [intent](local/2026-10-03-transfer-handoff-01/intent.json) precedes the focused
+checks and bounds two local IC/Chromium journeys plus one launcher suite, with
+no live provider requests or paid cycles. A browser-selected native session now
+retains the exact transfer handoff after validating its original signed setup,
+before returning the step directory to its parent. Preparation no longer returns
+a competing raw descriptor. Repeated/recovered phases name the original directly
+and request certificate recovery through the existing browser journal only. The
+launcher checks original/current native binding, exact frame/index and complete
+handoff before worker execution; native-bound direct uploads refuse.
+
+Seven native session unit checks, seven actual local IC cases, nineteen actual
+Chromium boundary cases and strict affected Clippy pass. An empty browser journal
+refuses handoff recovery with `history-missing`, never a fresh upload. Native
+interruption preserves the first handoff; partial original history refuses before
+new output allocation. The lost-reply actual IC/Chromium journey completes two
+files with four planned PUT arrivals, four GETs, original claims and 3,072 retained
+physical/liability bytes. A second journey refuses corrupt content before
+attestation or the next file, with two PUTs, one GET and 1,024 retained bytes.
+These are synthetic image-labelled bytes and owned HTTPS/HTTP2/CORS/provider
+substitutes, not deployed Caffeine, real-media or billing qualification.
+
+The preliminary native suite used temporary fixture directories: its log survives,
+but those directories do not. The [retention intent](local/2026-10-03-transfer-handoff-01/retention-intent.json)
+records this gap before a focused retained rerun. That rerun preserves the original
+handoff bytes separately before the intentional corruption check. Private
+profiles, original/resumed native journals, CLI/Wasm/bundles and all logs remain
+under `.tmp/transfer-handoff-01`; the [summary](local/2026-10-03-transfer-handoff-01/summary.json)
+binds their identities. Two line-count lint failures and a pre-probe metadata
+heredoc syntax error are recorded before correction. Initial summary generation
+also refused a Node child-process spawn in the sandbox; no manifest or summary
+was written. Its missing-manifest check log remains, and shell enumeration
+replaces that metadata step. Owned browsers/test sockets
+close; build and evidence artifacts remain.
+
+One current native intent/source layout uses `retained-browser-handoffs`; the
+profile keeps its current `native-session-selection` shape. Old contracts stay
+with their original artifacts/binaries; no old reader or conversion exists. This
+joins the minor native/browser contract cut with unchanged service wire/stable
+layouts and reused Wasm. The handoff is passive provenance, not a new paid-effect
+journal, completion cursor or retry controller. An archived first handoff is not
+retry permission. Automatic parent launch/phase selection, local-history rollback
+resistance and consumer adoption remain unfinished. No live provider, paid effect,
+full CI, version/dependency change, commit/publication/deployment, sibling edit or
+build cleanup occurs.
+
+## Native session browser selection — 2026-10-03
+
+The [intent](local/2026-10-03-session-browser-01/intent.json),
+[final native intent](local/2026-10-03-session-browser-01/final-intent.json) and
+[strict-reader intent](local/2026-10-03-session-browser-01/strict-reader-intent.json)
+precede their respective checks. Native intent now owns the original browser
+selection: session/profile/port, signer/bundle fingerprints, journal and exact
+batch project/bucket. Initial paths are fresh and have canonical existing parents;
+source-session recovery retains the same selection rather than creating another.
+The launcher checks the complete current original intent/ready shapes, actual
+input hashes and scope/trust before Chromium, then binds the exact original intent
+bytes into the profile. Explicit browser-only creation cannot bypass an existing
+native binding. No new dispatcher, retry owner or completion cursor is introduced.
+
+Seven final session unit cases, eighteen actual Chromium boundary cases, six
+existing native PocketIC recovery/refusal cases and strict affected Clippy pass.
+The maintained final native/IC/Chromium verifier lost-reply journey also passes
+with the joint selection: four planned PUT arrivals, four GETs, original browser
+and verifier claims retained, no upload retry, a confirmed map and 3,072 retained
+physical/liability bytes. Native intent is bounded before allocating output.
+These are synthetic image-labelled bytes and owned HTTPS/HTTP2/CORS/provider
+substitutes, not deployed Caffeine, real-media or billing qualification.
+
+The [summary](local/2026-10-03-session-browser-01/summary.json) retains exact source,
+artifact, log and binding hashes. Private profiles and original/resumed native
+journals remain under `.tmp/session-browser-01`. Intermediate passing checks and
+their CLI/launcher bundles remain separately from final artifacts; the test-only
+closure-semicolon lint failure is retained before correction. The first journey
+uses the earlier equivalent fresh-profile expression and precedes the complete
+intent-writer bound; the final journey uses the fresh final CLI and strict reader.
+Full PUT bodies are not separately retained. Owned browsers, servers and test IC
+processes close; retained source/build/evidence artifacts are not cleaned.
+
+One current native intent/profile layout replaces the intermediate source-only
+and launch-only forms. Retain older artifacts with their original binaries;
+no conversion, alternative reader or inferred provenance exists. This is a minor
+native/browser contract cut with unchanged core/standalone wire and stable layouts;
+retained Wasm is reused unchanged. The parent still needs its keys/original session
+location, explicit phase selection and fresh completion/reconciliation decisions.
+Provenance grants no replay permission or rollback resistance. No live provider
+request, paid effect, full CI, version/dependency change, commit/publication/
+deployment, sibling edit or build cleanup occurs. Consumer adoption remains open.
+
+## Browser profile launch binding — 2026-10-03
+
+The [intent](local/2026-10-03-browser-binding-01/intent.json) precedes the
+initial focused checks; the [final intent](local/2026-10-03-browser-binding-01/final-intent.json)
+precedes final single-snapshot checks. One passive profile record binds the
+selected canonical profile/origin, signer fingerprint, scope, root, journal and
+trusted executable bundles before Chromium opens. It grants no effect, retry or
+completion authority. Exclusive private creation and file/directory synchronization
+precede browser access; missing, partial, changed, symlinked or relocated provenance
+refuses without replacement. Runtime budgets/deadlines remain per execution.
+
+Sixteen final actual Chromium boundary cases pass, including selected-input
+mutation during launch, changed authority/assets refusal before context creation,
+original-profile reopening and retained binding before an injected launch failure.
+The maintained Chromium/IC/native verifier lost-reply journey passes: four planned
+PUT arrivals, four GETs, original gateway/certificate and verifier claims retained,
+no upload retry, a confirmed map and 3,072 physical/liability bytes still accounted.
+These use synthetic image-labelled bytes and owned HTTPS/HTTP2/CORS/provider
+substitutes; they establish no deployed Caffeine, real-media or billing guarantee.
+
+All attempts remain in `.tmp/browser-binding-01`. The initial IC invocation fails
+before browser start because its report parent is missing; it also selects the
+persistent-session driver rather than the maintained launcher. No coverage is
+claimed from that invocation. The corrected selection uses a fresh fixture and
+the maintained launcher. Intermediate passing logs/bundles remain; final checks
+follow removal of a redundant bootstrap clone. The initial directly imported
+launcher snapshot was not frozen separately. Final source/artifact/log hashes,
+private profiles and native journals are retained; see the
+[summary](local/2026-10-03-browser-binding-01/summary.json).
+
+This is a minor browser contract cut. Older profiles stay with their original
+launcher/bundles; no binding is inferred for existing history. Service wire/stable
+layouts and retained provider obligations are unchanged. The caller still selects
+the profile/port/key and native source session; coordinated parent phase/restart
+ownership and rollback resistance remain open. No live provider request, paid
+effect, full CI, dependency/version change, commit/publication/deployment, sibling
+edit or build cleanup occurs. Owned browser/server processes close; profiles and
+evidence remain. Full PUT bodies are not separately retained.
+
+## Native session original sources — 2026-10-03
+
+The [intent](local/2026-10-03-session-sources-01/intent.json),
+[browser intent](local/2026-10-03-session-sources-01/browser-intent.json) and
+[final provenance intent](local/2026-10-03-session-sources-01/provenance-intent.json)
+precede their respective checks. Explicit source-session recovery binds original
+native input bytes, roles, gateway/root and installed release before a new output
+run. Resolved original phase paths and unused sources survive repeated and
+status-only restarts. One owner selects sources; existing setup, observer and
+attestation claims still authorize phases. Unattempted ordering facts extend the
+existing step records without a second dispatch/retry journal. Missing or conflicting
+history refuses; a fresh authenticated completion cursor still starts at zero.
+
+Five session unit cases, one maintained map correlation case, six actual owned IC
+session cases and strict CLI/harness Clippy pass. Two final actual Chromium/IC
+journeys recover exposed setup and original verifier observation after lost replies
+without upload replay or another recovery GET/attestation update. Each retains
+3,072 physical/liability bytes after four PUTs and four GETs. These are synthetic
+media-labelled bytes, owned HTTPS/HTTP2/CORS and scripted provider facts; they
+establish no new deployed Caffeine or full consumer guarantee.
+
+The native session intent has one strict frozen identity. This requires a minor
+native-format hard cut; old artifacts remain with original binaries. Service
+endpoint/stable layouts and uploaded-object/balance/billing obligations are unchanged.
+The [summary](local/2026-10-03-session-sources-01/summary.json) retains source,
+artifact and log hashes and all attempts, including intermediate passing checks
+before final provenance and function-length lint failures before correction.
+Private final journals/profiles remain under `.tmp/session-sources-01/browser-final`;
+the intermediate browser journey has retained logs/journals but no frozen CLI copy.
+No live provider call, paid effect, deployment, version/commit/publication, sibling
+edit, full CI or build cleanup occurs. Browser signer/profile/origin provenance,
+complete parent integration, rollback resistance and consumer acceptance remain open.
+
 ## Descriptor serving owner — 2026-10-03
 
 The forwarding public descriptor API and operational wrapper are removed. The

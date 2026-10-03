@@ -1,0 +1,17 @@
+{
+  "purpose": "Validate final bounded native intent writer and readable fresh-profile predicate with a fresh frozen CLI",
+  "scope": "session unit/native IC suite, existing native verifier Chromium recovery journey, strict affected Clippy",
+  "budget": {
+    "icBrowserJourneys": 1,
+    "maxPutArrivals": 4,
+    "maxGetArrivals": 4,
+    "liveProviderRequests": 0,
+    "paidCycles": 0
+  },
+  "retainedAttempts": [
+    "initial seven passing units",
+    "18 passing Chromium checks",
+    "initial passing actual IC/browser journey",
+    "test closure semicolon lint failure"
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "purpose": "Verify final single-owned launch snapshot after removing its redundant bootstrap clone",
+  "scope": "one focused local Chromium suite and one maintained IC/Chromium verifier recovery journey",
+  "budget": {
+    "launcherRuns": 1,
+    "icJourneys": 1,
+    "maxPutArrivals": 4,
+    "maxGetArrivals": 4,
+    "paidCycles": 0,
+    "liveProviderRequests": 0
+  },
+  "priorAttempts": "Retain both passed Chromium logs and the missing-parent IC failure; its persistent-session case uses another browser driver, so final selection uses launcher-serial."
+}

@@ -751,7 +751,7 @@ browser helper, including after any change since the batch's verification pass.
 ### Produce a complete confirmed-reference map
 
 After each indexed file has transferred and the configured verifier has independently
-observed and attested its complete bytes, use Unreleased `publish-map` for the final
+observed and attested its complete bytes, use `publish-map` for the final
 batch observation. The command reverifies all frozen files once before signing
 queries or claiming output. Authenticate the tenant and operator independently;
 the expected operator comes from the frozen installation input. It must match the
@@ -804,7 +804,7 @@ browser, observation and signed-attestation journals, including uncertain claims
 Use the approved provider read budget and handle pending attestations through
 `upload-attestation` with the saved statement, without resubmitting it.
 
-Unreleased `publish-file-status` supplies the authenticated per-file check:
+`publish-file-status` supplies the authenticated per-file check:
 
 ```sh
 blob-storage publish-file-status --network ic --url https://icp-api.io \
@@ -845,10 +845,14 @@ authenticates the installed completion verifier before `ready` and enables a
 `verify` phase that composes the existing whole-download observer and one-shot
 attestation owner. Certificate/SDK transfer stays with the browser. This command is the native
 phase controller. The browser [publication worker](../clients/browser/README.md#run-jobs-in-a-browser-worker)
-now supplies a fixed-authority job boundary. Unreleased adds a
+supplies a fixed-authority job boundary. Released 0.11.0 adds a
 [selected-signer browser host/bootstrap](../clients/browser/README.md#launch-the-maintained-worker-with-a-selected-signer).
-Unreleased also provides the [native Chromium bridge](../clients/browser/README.md#launch-chromium-from-a-native-parent)
+That release also provides the [native Chromium bridge](../clients/browser/README.md#launch-chromium-from-a-native-parent)
 with selected SDK identity JSON, bounded file loading and fixed profile/origin.
+Unreleased persists the original immutable launch binding inside the profile
+before Chromium opens, rejecting changed signer/scope/trust/journal/assets or
+missing history. Keep older profiles with their original launcher and bundles;
+the new reader does not create a binding for pre-existing history.
 Complete durable parent phase/restart coordination remains unfinished.
 
 ```sh
@@ -870,7 +874,9 @@ the final CLI result and exits. Errors emit the normal redacted failure result.
 
 | Control frame | Required handling |
 | --- | --- |
-| `{"phase":"prepare","index":0}` | Require `report.prepared:true`; use its `transfer` descriptor with the maintained browser helper |
+| `{"phase":"prepare","index":0}` | Require `report.prepared:true`; a browser-selected session next requires `transfer`; native-only setup retains its descriptor |
+| `{"phase":"transfer","index":0}` | With a browser selection, retain `report.native_phase` and pass its directory to the launcher; a repeated phase requests recovery only |
+| `{"phase":"transfer","index":0,"source_transfer":"/absolute/original/step-NNNN"}` | Recover the exact original handoff; no certificate submission or upload dispatch is authorized |
 | `{"phase":"status","index":0}` | After independent verification/attestation, require `report.file_live:true` before moving to index 1 |
 | `{"phase":"verify","index":0}` | With a selected verifier, perform at most one bounded GET and one attestation; advance only if the exact current reference passes |
 | `{"phase":"verify","index":0,"source_observation":"/absolute/original/verification-0000/observation"}` | Inspect the original complete observation and immutable attestation history, then current reference; no GET or submission |
@@ -880,7 +886,8 @@ the final CLI result and exits. Errors emit the normal redacted failure result.
 Frames are bounded to 8 KiB including newline; unknown fields/phases and truncated
 frames fail. The control queue holds one frame. Choose a positive step budget of
 at most `8 × files + 1`; 2,701 allows four phases per file plus the map for 675
-files. A blocked status or setup consumes a step; there is no automatic polling.
+files. Include transfer/recovery phases in the budget. A blocked phase consumes
+a step; there is no automatic polling.
 The finite session deadline includes configuration checks, control waits and
 network phases after synchronous startup input verification. Filesystem I/O and
 stdout writes are synchronous; this is not a preemptive filesystem deadline.
@@ -889,12 +896,83 @@ Idle stdin does not keep the process alive beyond the tested control deadline.
 The session starts at index zero and advances only on authenticated exact
 completion/reference evidence. It rejects out-of-order setup/status and premature
 maps. A restarted session must inspect already-confirmed original indices again;
-for uncertain setup, name the original `step-NNNN/setup/` directory explicitly.
+Unreleased `--source-session /absolute/retained-session` recovers original setup
+and observation/transfer paths for omitted `source_run`/`source_observation`/
+`source_transfer` frame fields.
+Use a new `--run-dir`, the same frozen batch, principals, service/namespace,
+gateway and trust root. The original installed configuration/release must match,
+and fresh authenticated preflight still precedes readiness. Control budgets may
+change within their bounds; they never renew effect authority.
+The existing setup owner can still execute an originally unclaimed preparation
+after matching admission evidence; it never repeats a claimed or uncertain step.
+
+The strict native intent format is
+`ic-blob-storage/publication-session:retained-browser-handoffs`. Source provenance
+uses `ic-blob-storage/publication-session-sources:retained-browser-handoffs`.
+No old session intent
+reader or conversion exists. Retain original binaries and claims for old runs.
+Recovery records carry direct original paths, including unused sources through a
+status-only run, without following a session chain. A required provenance file,
+control record or claim directory that is missing/partial refuses; an explicit
+unattempted ordering fact distinguishes a phase that never called its owner.
+History traversal and the provenance file are bounded; provenance is at most
+8 MiB. Existing summaries do not establish completion or replay authority.
+Without a source session, name each original `step-NNNN/setup/` or observation
+explicitly in its frame. Both routes converge on the same source and phase owners.
 Within a running session, repeated preparation uses its pinned original directory.
+With a browser selection, setup does not return a transfer descriptor. The
+`transfer` phase validates the original setup's input and signed admission/
+preparation claims, then saves `transfer.json` before returning its canonical step
+directory. This passive handoff is at most 512 KiB; no service query/update or
+provider request runs in this phase. The certificate endpoint still checks fresh
+authority when issuance occurs. The first handoff can be consumed once by the
+maintained parent; repeat/recovery handoffs name the original directly and request
+certificate recovery only, even if the browser journal is absent. Preserve the
+original handoff; an archived first handoff is never retry permission. Browser
+claims, not native summaries, remain authoritative for paid-effect dispatch.
 Neither a restarted process, expired signed ingress nor a lost browser reply
 authorizes redispatch. An already-exposed permission refuses preparation; reconcile
 the original object through the independent verifier instead. Keep original
 browser profiles and all setup/observation/attestation journals.
+
+### Bind browser selection to the native session
+
+Unreleased `publish-session --browser-selection FILE` accepts one passive JSON
+selection, at most 16 KiB. The complete native intent has the same bound and is
+checked before output allocation. The selection is copied into that intent before
+configuration checks or phase execution; it never contains signer keys or effect
+claims. Omit this flag for native-only inspection/verification use.
+
+| Field | Required selection |
+| --- | --- |
+| `format` | `ic-blob-storage/browser-selection` |
+| `session` | Absolute canonical planned original session directory, equal to the initial `--run-dir` |
+| `profile` | Distinct absolute canonical planned profile directory; both paths have existing canonical parents |
+| `project`, `bucket` | Exact original namespace for every file in this browser batch |
+| `asset_port` | Fixed positive loopback port, at most 65535 |
+| `signer_sha256` | Lowercase SHA-256 of `JSON.stringify(selectedBootstrap.signer)`; preserve its exact selected serialization |
+| `host_sha256`, `worker_sha256` | Lowercase SHA-256 of the actual trusted bundle bytes |
+| `database`, `max_slots` | Original IndexedDB database name and positive capacity, within maintained browser bounds |
+
+The first native session requires a fresh profile path. Wait for its `ready`
+event before calling the launcher with `nativeSession` set to the original session
+directory and journal `mode:'create'`. This persists a profile binding to the exact
+original intent and checks namespace, identity, root and inputs before Chromium.
+The launcher accepts only the complete current intent/ready shapes; it never
+reconstructs partial native history.
+
+On native restart, pass the same selection file plus `--source-session` and a new
+`--run-dir`. The original profile/session directories must survive, and saved
+source intent must match the selection exactly. The browser reopens with
+`mode:'open'`, still pointing at the original native session; no profile or binding
+is regenerated. Browser-only operation uses explicit `nativeSession:null` when
+first creating its profile and cannot bypass an existing native binding.
+Keep signer keys separately. Neither startup readiness nor provenance establishes
+current completion or permission to repeat an uncertain effect. Phase control,
+original setup/observation/attestation claims and fresh authenticated completion
+remain authoritative; automatic parent phase/restart coordination is unfinished.
+
+### Verify original session uploads
 
 Verification binds the original permission, raw body digest, configured gateway
 and installed verifier before signing. Each original index has one create-new

@@ -436,6 +436,8 @@ fn parse_publish_session(
     }
     Ok(Command::PublishSession(super::publish_session::Input {
         verifier_identity: flags.remove("--verifier-identity").map(PathBuf::from),
+        source_session: flags.remove("--source-session").map(PathBuf::from),
+        browser_selection: flags.remove("--browser-selection").map(PathBuf::from),
         operator_identity: PathBuf::from(
             flags
                 .remove("--operator-identity")

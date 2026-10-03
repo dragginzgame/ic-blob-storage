@@ -1,0 +1,202 @@
+{
+  "schema": 1,
+  "date": "2026-10-03",
+  "baseline": "a67f22a3f36c706563f5b546308d75e887a2f296",
+  "intents": [
+    "intent.json",
+    "browser-intent.json",
+    "provenance-intent.json"
+  ],
+  "evidence_classes": [
+    "source_review",
+    "offline_native_unit_checks",
+    "actual_owned_pocketic",
+    "actual_chromium_with_owned_https_http2_scripted_provider"
+  ],
+  "canonical_owners": {
+    "source_selection": "native::publish_session::sources::Sources",
+    "setup": "native::publish_prepare and original signed setup claims",
+    "verification": "native::observe_upload and submit_attestation original observation/claim",
+    "completion": "native::publish_map authenticated current receipt/reference observations",
+    "browser": "maintained browser certificate and gateway journals"
+  },
+  "native_intent_format": "ic-blob-storage/publication-session:original-phase-sources",
+  "source_provenance_format": "ic-blob-storage/publication-session-sources",
+  "unattempted_fact_format": "ic-blob-storage/unattempted-publication-phase",
+  "removed": [
+    "Duplicate in-session setup-source selection/validation",
+    "Need to reconstruct every original phase path manually after restart"
+  ],
+  "added": [
+    "Explicit source-session binding and required direct provenance",
+    "Original sources carried through status-only recovery",
+    "Exact ordering refusal facts in existing step directories"
+  ],
+  "retained_obligations": [
+    "Existing signed claims and exact operation identity; no uncertain effect replay",
+    "Previously unclaimed preparation still uses its existing one-shot owner",
+    "No inherited completion cursor: authenticate current evidence from index zero",
+    "All original provider object/balance/billing obligations and browser journals remain"
+  ],
+  "validation": {
+    "tests": [
+      {
+        "scope": "native source bindings, loss of provenance, exact unattempted facts and required source field",
+        "passed": 5,
+        "failed": 0,
+        "log": ".tmp/session-sources-01/unit-final-contract.log",
+        "sha256": "d402ab785590b9935bb6ebb608c9d10daec0b7bc3dd92c926df1d1f0e87a4d71"
+      },
+      {
+        "scope": "maintained immutable configuration/completion/reference correlation",
+        "passed": 1,
+        "failed": 0,
+        "log": ".tmp/session-sources-01/map-unit.log",
+        "sha256": "927768648f478ed5501aef32057cc9f0c027f6bcad262f31f298d119663f9af0"
+      },
+      {
+        "scope": "actual IC original-setup recovery, repeated and status-only recovery, original claim and stable-state preservation, malformed-source refusal",
+        "passed": 6,
+        "failed": 0,
+        "log": ".tmp/session-sources-01/pocketic-final-contract.log",
+        "sha256": "d5a62aeb106eecf427d215901547c6ac77747be70a51665892d09961541b19c9"
+      },
+      {
+        "scope": "actual Chromium/IC exposed setup after a lost browser reply",
+        "passed": 1,
+        "failed": 0,
+        "log": ".tmp/session-sources-01/browser-setup-final.log",
+        "sha256": "8467645e9ee3661fc92371ab9db0db8c60f6e5c3ead4dcd8df25e9e2178ddad0"
+      },
+      {
+        "scope": "actual Chromium/IC original verifier observation after control restart",
+        "passed": 1,
+        "failed": 0,
+        "log": ".tmp/session-sources-01/browser-verifier-final.log",
+        "sha256": "6116e9202b64e20219e27303136850f8b30d2ac3e742043e7617db4bfed2ce83"
+      }
+    ],
+    "browser": [
+      {
+        "name": "persistent-lost",
+        "summary": ".tmp/session-sources-01/browser-final/persistent-lost/summary.json",
+        "sha256": "5c17769ea4f2e91f5eb632f2c4b89b341c985ef7cc5582060540715331e44246",
+        "puts": 4,
+        "gets": 4,
+        "retained_physical_bytes": 3072,
+        "retained_liability_bytes": 3072,
+        "automatic_upload_retries": 0,
+        "complete_production_publisher": false
+      },
+      {
+        "name": "native-verifier-lost",
+        "summary": ".tmp/session-sources-01/browser-final/native-verifier-lost/summary.json",
+        "sha256": "e3a4050e54f10ed2dd6ca6cbe744a3eaac72fd2fd446cca592e1dc1ccc1cc656",
+        "puts": 4,
+        "gets": 4,
+        "retained_physical_bytes": 3072,
+        "retained_liability_bytes": 3072,
+        "automatic_upload_retries": 0,
+        "complete_production_publisher": false
+      }
+    ],
+    "strict_clippy": {
+      "passed": true,
+      "all_targets": true,
+      "all_features": true,
+      "deny_warnings": true,
+      "packages": [
+        "ic-blob-storage-cli",
+        "ic-blob-storage-pocketic-tests"
+      ],
+      "log": ".tmp/session-sources-01/clippy-verified.log"
+    },
+    "rustfmt": "passed",
+    "diff_whitespace": "passed",
+    "full_ci_or_release": false
+  },
+  "source": {
+    "manifest": ".tmp/session-sources-01/source.SHA256SUMS",
+    "sha256": "fe2a3b6315ca326adf428ca5ee99754ce571605aee607a078e1bd9ac4bb15f34",
+    "files": 895,
+    "cargo_toml_sha256": "974ba4843921d128ab39f06a4431f0b1ed63733cca56e6005036812f4422e04c",
+    "cargo_lock_sha256": "59a2c7d78294082b6aa0ce647dddee5cb16638dcfcb83517693283898a3076ed"
+  },
+  "artifacts": {
+    ".tmp/session-sources-01/artifacts/blob-storage": "72d8541bd7d58835b7c62c8dd0243a7351345e704c505f10ac4bb958c56bfa17",
+    ".tmp/session-sources-01/artifacts/ic_blob_storage_canister.wasm": "0a339057b7a47cd070330507379fabcd10ded840878d36b32f3a03a7fe98ccc8"
+  },
+  "browser_artifact_manifest": {
+    "path": ".tmp/session-sources-01/browser-final.SHA256SUMS",
+    "sha256": "eda2b368c43a2de42d49a0c4d7a202484842bf948af3d82586876e63e2ba6418",
+    "files": 605,
+    "profiles_retained_but_not_hashed": true,
+    "full_put_bodies_separately_captured": false
+  },
+  "logs": {
+    ".tmp/session-sources-01/browser-setup-final.log": "8467645e9ee3661fc92371ab9db0db8c60f6e5c3ead4dcd8df25e9e2178ddad0",
+    ".tmp/session-sources-01/browser-verifier-final.log": "6116e9202b64e20219e27303136850f8b30d2ac3e742043e7617db4bfed2ce83",
+    ".tmp/session-sources-01/browser-verifier.log": "0faafe16974a6571f3f46548022df91ed0f5e0da0bec928811e01ae5d64863bb",
+    ".tmp/session-sources-01/check.log": "6ce18285b8aa4fa0c8f7cbfe5fd7f541a36a54bd864c601542a42c3f9f6a190f",
+    ".tmp/session-sources-01/cli-build-canonical.log": "8b43da1fc3e9db4f1de74d597bfc2e8156b63d98030cbd34d893dac8822e7614",
+    ".tmp/session-sources-01/cli-build-final.log": "05585625df48d03e34d5f144fef8ffb7fd1ede4f9fd85a5cd11cc58a4c090b87",
+    ".tmp/session-sources-01/cli-build-provenance.log": "4d2fd4ab89cbc1aa7b8391cd45fa8c07706ecb9053d7582f596fc401ae707aaa",
+    ".tmp/session-sources-01/cli-build.log": "685354be4d82bda9676b5288073e9dafc03a4c3f756b8d2cd4ea341e0929d642",
+    ".tmp/session-sources-01/cli-final-contract.log": "64d62d474f0841f47e00cef4c6c39bc3e9c6a635b6f9c7030de469ed9c607ce9",
+    ".tmp/session-sources-01/cli-verified.log": "a16f4c06eb8a87f4286045026b9a8ff37f97a24e20fe0a78ca18d72bfcd9f9b2",
+    ".tmp/session-sources-01/clippy-canonical.log": "4ef49d3bf637de24ef88d5ba1af14f0db7c7ec1de3abd6973cc3070d81dbbdcc",
+    ".tmp/session-sources-01/clippy-final-contract.log": "8d7453ff4cb0a0ce27e1050a662c659f64f085d04237cbd55a94759fb1ab526a",
+    ".tmp/session-sources-01/clippy-final.log": "199a9d6129e0ae4665e5c6c6e9f0852861148d81b48b5b90786be8daf92c158a",
+    ".tmp/session-sources-01/clippy-provenance.log": "752068a190e5a50387d02c99ddc8439eca3843447d59053f22d0cecfbce64327",
+    ".tmp/session-sources-01/clippy-recheck.log": "5e4276b80028109027de045362a158f6e2bc2196759e87f07469bb2af3c156f5",
+    ".tmp/session-sources-01/clippy-verified.log": "99d04449b9ed1da1a8b263ee702451d94537a16e80aeb82fdd5884bda55d136b",
+    ".tmp/session-sources-01/clippy.log": "6c3742370622c868aaa2af579b3c911e4c756632e00dde8e7d9ae38c81752477",
+    ".tmp/session-sources-01/fmt.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    ".tmp/session-sources-01/map-unit.log": "927768648f478ed5501aef32057cc9f0c027f6bcad262f31f298d119663f9af0",
+    ".tmp/session-sources-01/pocketic-canonical.log": "1f6f688a2e191923d38923534af7c148caaa3ce1a168fdfd368dbfd6efac601a",
+    ".tmp/session-sources-01/pocketic-final-contract.log": "d5a62aeb106eecf427d215901547c6ac77747be70a51665892d09961541b19c9",
+    ".tmp/session-sources-01/pocketic.log": "54e3a395e6606f97736af05af9b56678143c195f7c3cf9917297f68b26aea204",
+    ".tmp/session-sources-01/service-contract-unchanged.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    ".tmp/session-sources-01/unit-canonical.log": "0e443e8761b8363951eea5889ca97a45fab4ec5eae6f362d29f65863570c9ad1",
+    ".tmp/session-sources-01/unit-complete.log": "42d9d807eaee0c514494233f8863540d92412d7a1286729b5275de8988d18ed9",
+    ".tmp/session-sources-01/unit-final-contract.log": "d402ab785590b9935bb6ebb608c9d10daec0b7bc3dd92c926df1d1f0e87a4d71",
+    ".tmp/session-sources-01/unit-final.log": "b5f0f6f41ac34d86854aea000893951e2d2f1156ad3cd01fcc4410e33f5bdd14",
+    ".tmp/session-sources-01/unit-provenance.log": "f5781d6a9194632c1e91248ba9714a118c9f8beacdf360f4fb8e8953079a13b2",
+    ".tmp/session-sources-01/unit.log": "00dcea3a4399b8b7d0818b2e17745c83d9e9b2099e28169133c6029f26e86e6b",
+    ".tmp/session-sources-01/wasm-build.log": "6aed795bb49b51d6398225e76937dcb34acb9c706301462608b0802823369f36",
+    ".tmp/session-sources-01/whitespace.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "retained_attempts": {
+    "function_length_lint_failures": [
+      "clippy-final.log",
+      "clippy-provenance.log",
+      "clippy-final-contract.log"
+    ],
+    "intermediate_passing_verifier_journey": ".tmp/session-sources-01/browser-verifier.log",
+    "intermediate_journals": ".tmp/session-sources-01/browser",
+    "intermediate_cli_frozen": false,
+    "revalidation": "Final provenance/layout changed; final tests use independent fresh local fixtures with exact frozen CLI/Wasm, without overwriting earlier reports"
+  },
+  "boundaries": {
+    "requires_minor_release": true,
+    "old_intents_converted": false,
+    "service_endpoint_or_stable_layout_change": false,
+    "service_source_diff_empty": true,
+    "version_changed": false,
+    "commits_created": false,
+    "publication": false,
+    "deployment": false,
+    "deployed_provider_requests": 0,
+    "paid_cycles": 0,
+    "sibling_edits_or_upstream_messages": false,
+    "cleanup": false,
+    "recursive_session_chain_followed": false
+  },
+  "limitations": [
+    "Complete browser-parent signer/profile/origin and phase coordination remains open",
+    "Trusted original local files required; hostile local user, key-memory isolation and rollback resistance are not qualified",
+    "Synthetic media-labelled bytes, owned CORS and scripted provider facts do not qualify consumer media, public serving, provider retention/deletion/billing or full Miner adoption",
+    "Old session artifacts remain with original binaries; no compatibility reader or migration",
+    "Million-object and large-body heap/CDP performance remain unmeasured"
+  ]
+}

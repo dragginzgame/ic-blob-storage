@@ -1,0 +1,161 @@
+{
+  "baseline": "a67f22a3f36c706563f5b546308d75e887a2f296",
+  "reportedArtifactRelease": "0.12.0",
+  "evidence": "source review, focused native checks and owned local IC/Chromium/provider substitutes",
+  "contract": {
+    "nativeIntent": "ic-blob-storage/publication-session:retained-browser-handoffs",
+    "sourceProvenance": "ic-blob-storage/publication-session-sources:retained-browser-handoffs",
+    "handoff": "ic-blob-storage/browser-handoff",
+    "profile": "ic-blob-storage/browser-profile:native-session-selection",
+    "handoffBoundBytes": 524288,
+    "originalClaimsAuthoritative": true,
+    "automaticParentComplete": false,
+    "serviceWireOrStableLayoutChanged": false,
+    "minorContractCut": true
+  },
+  "checks": {
+    "sessionUnitCases": 7,
+    "nativeIcCases": 7,
+    "launcherCases": [
+      "occupied_port_refuses_before_profile",
+      "launch_selection_owned_before_filesystem_awaits",
+      "private_passive_binding_retains_scope_without_signer_secret",
+      "explicit_profile_and_origin_start_without_effects",
+      "owned_request_and_single_job",
+      "changed_truncated_oversized_and_noncanonical_body_refuse",
+      "symlinks_and_directories_are_not_bodies",
+      "fifo_without_writer_refuses_without_blocking",
+      "metadata_hints_have_exact_fields_and_utf8_bounds",
+      "close_preserves_profile_and_refuses_replacement",
+      "changed_origin_missing_and_symlink_profiles_refuse_without_replacement",
+      "changed_signer_trust_scope_journal_and_assets_refuse_before_chromium",
+      "partial_missing_symlink_and_relocated_bindings_refuse_without_replacement",
+      "same_origin_and_profile_reopen_original_journal",
+      "deadline_closes_browser_without_erasing_profile",
+      "launch_failure_retains_binding_before_browser_and_reopen_never_replaces_it",
+      "mismatched_or_partial_native_intent_refuses_before_profile_and_chromium",
+      "native_handoff_recovery_without_browser_history_never_becomes_upload_and_tampering_refuses",
+      "original_native_session_binding_reopens_and_cannot_be_bypassed_or_rewritten"
+    ],
+    "affectedStrictClippy": "passed",
+    "formatter": "passed",
+    "whitespace": "passed",
+    "priorEvidenceHashes": "passed"
+  },
+  "journeys": {
+    "native-verifier-lost": {
+      "puts": 4,
+      "gets": 4,
+      "confirmedMapWritten": true,
+      "retainedPhysicalBytes": 3072,
+      "retainedLiabilityBytes": 3072,
+      "automaticUploadRetries": 0
+    },
+    "native-verifier-corrupt": {
+      "puts": 2,
+      "gets": 1,
+      "confirmedMapWritten": false,
+      "retainedPhysicalBytes": 1024,
+      "retainedLiabilityBytes": 1024,
+      "automaticUploadRetries": 0
+    }
+  },
+  "attempts": [
+    {
+      "logs": [
+        "clippy.log"
+      ],
+      "outcome": "native phase function line-count lint failure; extracted the transfer operation"
+    },
+    {
+      "logs": [
+        "clippy-final.log"
+      ],
+      "outcome": "integration run function line-count lint failure; extracted its browser grant operation"
+    },
+    {
+      "logs": [
+        "clippy-complete.log",
+        "cli-build-final.log",
+        "unit-final.log",
+        "native-ic.log",
+        "launcher.log"
+      ],
+      "outcome": "passed; preliminary native suite fixture directories were temporary and not retained"
+    },
+    {
+      "logs": [
+        "clippy-retention.log",
+        "native-retained.log"
+      ],
+      "outcome": "passed after test-only original-handoff retention was added, with retained focused fixture"
+    },
+    {
+      "logs": [
+        "browser-verifier.log",
+        "browser-corruption.log"
+      ],
+      "outcome": "both planned actual IC/Chromium journeys passed through native transfer/recovery handoffs"
+    }
+  ],
+  "toolingFailures": [
+    "Initial Node metadata heredoc failed syntax parsing before intent-file creation or a probe; corrected in retention-intent.json",
+    "Initial summary generation could not use Node spawnSync rg in the sandbox; no summary or manifest was written. The following missing-manifest hash-check log is retained. File enumeration now comes from the shell instead."
+  ],
+  "sourceManifest": {
+    "path": ".tmp/transfer-handoff-01/source-SHA256SUMS",
+    "sha256": "12944c5739b65abf240c9dafe4a94b2d0b1148ee48f6880fc439cb8f53fa20ad"
+  },
+  "artifacts": {
+    "blob-storage": "030841d10c1ac5b8d67299d96d7b32b57226d1fd261f7a37bafbd50a71364b65",
+    "ic_blob_storage_canister.wasm": "0a339057b7a47cd070330507379fabcd10ded840878d36b32f3a03a7fe98ccc8",
+    "launcher-serial.mjs": "027c132a568370bc0b411b26852b2147e6341450c3d7fe3da22d8c221031623a",
+    "launcher.mjs": "696059d4615a636bfca0644adca55e6a830ff40625da0ab1d53ea1d950060ed4",
+    "publication-host.js": "2f8d7b66ad7808747a2b7bca24c83ba2e4a99dd283b875355ca2470a5bcdc216",
+    "publication-worker.js": "dbb74667801c7411106dced5fb4bf13e664f809de487411ca0dcf23c5f0e8978"
+  },
+  "logs": {
+    "browser-build-final.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "browser-build.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "browser-corruption.log": "4456ab3df06c9cedb0c60304e3a48a420c722cead86f89982f9fefd7cdd632ec",
+    "browser-verifier.log": "ee36d80b9b100b4b985e9a509f3131c828ead0e9bd109386343df9f7580d1eb9",
+    "cli-build-final.log": "732186322402325172940531d8d6d7cfac85dc902585b2bef6715ad6839dacfd",
+    "cli-build.log": "bf61b43164ec22dcab29332cecb3f2d4b2dc82f97487a62e6e413f6962a184e3",
+    "clippy-complete.log": "3f0dbd33f2a162834bf1506fa2f293a5292429d0174b8f0dc0199fc9c5505aff",
+    "clippy-final.log": "90f453112a5c6e3caf67027e8efd9648a70898c0c9967385f4045cfaa0712bad",
+    "clippy-retention.log": "850280fe952e14fb03b6c047cb70102c907bf08839960f4823dd7e2746b52ac8",
+    "clippy.log": "3ffbdd7577dd56050becef86953b347e17738c58fce57f5f44e657a695eb55a4",
+    "evidence-verified.log": "1eada00d811720368581ab007eccc98281751008a281f9b9ca411d7b41f66646",
+    "launcher.log": "3fc8829d364a6d3cbdc22388a87acebba69ad081e4ca7b8510ad6c75b5b0dc86",
+    "native-ic.log": "8de557a315288f6755d5a92869a2b7ec302c132a52e7f743bdf7f5ca3076708a",
+    "native-retained.log": "1a99c3c5e11fa46c2ad0bb382c9237ffa04b28c42c0db6ecd840a75b6e8e948a",
+    "prior-evidence-hashes.log": "1eada00d811720368581ab007eccc98281751008a281f9b9ca411d7b41f66646",
+    "source-verified.log": "ccb4a1531c2cb57dcb7c0bec6ddd18fe8cf18ae41d60ada3fb2cb37d6fec11c3",
+    "unit-final.log": "f4aeb0acce6fd6a230f52d0c32cd8413bc65bd3c9aee2b6ca3fc91ec83d2e15a",
+    "unit.log": "d343c166f1df0c5f530b8a4ee8636d6258a0c8b6e3c3ea8bb30e7e98448172f2"
+  },
+  "profileBindings": {
+    "native-verifier-lost": "fbd919f376d72dc9f400fccdf9efe2ae91e765fd6c285b76d816380582b14c47",
+    "native-verifier-corrupt": "75e11cce0798beed7c0d0a1ded9b815bf6ea0a47538846b28a2001c35e0fa452"
+  },
+  "retainedNativeFixture": ".tmp/transfer-handoff-01/native-retained/session-transfer-KwSwG3",
+  "originalNativeHandoffSha256": "fddb5726d41fe6e537b12e7cc86068eca037ef5552d28506da2fed12018143b9",
+  "limits": [
+    "synthetic image-labelled bytes, no real-media adoption",
+    "owned HTTPS/HTTP2/CORS/gateway/account substitutes, not deployed Caffeine",
+    "preliminary native fixture directories not retained",
+    "no automatic parent process launcher/phase loop",
+    "no local-history rollback resistance",
+    "PUT bodies are not separately retained"
+  ],
+  "effects": {
+    "liveProviderRequests": 0,
+    "paidCycles": 0,
+    "fullCi": false,
+    "versionOrDependencyChanges": false,
+    "commits": false,
+    "deployment": false,
+    "siblingEdits": false,
+    "buildCleanup": false
+  }
+}
