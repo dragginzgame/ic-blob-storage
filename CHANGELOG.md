@@ -43,6 +43,8 @@
 
 ### Fixed
 
+- Keep the serial browser publication plan in its consuming test module so
+  shared browser helpers compile without dead-code errors in the storage suite.
 - Open native inputs nonblocking on Unix, then validate the same descriptor as
   a regular file before reading. Share the check with streaming body snapshots
   so FIFOs without writers cannot hang before validation or transport deadlines.

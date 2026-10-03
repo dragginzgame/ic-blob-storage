@@ -88,6 +88,13 @@ messages are authorized.
 
 ## Draft 0.10.0 — 2026-10-03
 
+Release-lint repair: move `BrowserPublicationPlan` from the shared browser driver
+to its sole consumer, the standalone serial test module. The storage test target
+no longer compiles an unused plan type; no lint suppression or behavior change
+is needed. Strict offline/locked Clippy passes for all targets/features of the
+PocketIC test package with the current dependency selections. Targeted formatting
+and whitespace checks pass; this does not constitute full release validation.
+
 The undated [0.10.0 changelog](../../CHANGELOG.md) collects the completed
 embedding helpers, authenticated publication map/status checks, persistent native
 sessions, private-port browser worker and nonblocking native-input fix.

@@ -1,9 +1,16 @@
 //! Serial native/browser composition; provider and public-serving facts remain local.
 use super::{BrowserDriver, Trial, UploadState};
 use crate::{Envelope, UploadManifestRequest, standalone_publish_check::freeze_files};
-use crate::{browser_driver::BrowserPublicationPlan, native_session::NativeSession};
+use crate::{browser_driver::BrowserPreparation, native_session::NativeSession};
 use ic_blob_storage::model::identity::ContentDigest;
 use serde_json::{Value, json};
+
+#[derive(serde::Deserialize)]
+#[serde(deny_unknown_fields)]
+struct BrowserPublicationPlan {
+    gateway: String,
+    files: Vec<BrowserPreparation>,
+}
 
 #[derive(Clone, Copy)]
 enum Scenario {

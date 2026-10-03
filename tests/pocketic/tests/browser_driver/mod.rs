@@ -14,13 +14,6 @@ pub(crate) struct BrowserPreparation {
     pub(crate) manifest_json: String,
 }
 
-#[derive(serde::Deserialize)]
-#[serde(deny_unknown_fields)]
-pub(crate) struct BrowserPublicationPlan {
-    pub(crate) gateway: String,
-    pub(crate) files: Vec<BrowserPreparation>,
-}
-
 pub(crate) struct BrowserDriver {
     child: Option<Child>,
     reader: Option<BufReader<ChildStdout>>,
