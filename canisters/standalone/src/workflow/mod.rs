@@ -125,6 +125,7 @@ use ic_blob_storage::{
 };
 use ic_blob_storage::{
     dto::{
+        configuration::{HostConfigurationView, HostFailure},
         reference::{
             ReferenceCommand, ReferenceFailure, ReferenceMutationResponse, ReferenceReceiptLookup,
         },
@@ -208,7 +209,7 @@ pub(crate) fn local_status(
 }
 pub(crate) fn configuration(
     actor: candid::Principal,
-) -> Result<crate::dto::HostConfigurationView, crate::dto::HostFailure> {
+) -> Result<HostConfigurationView, HostFailure> {
     ops::with_installation(|installation| {
         ic_blob_storage::workflow::installation::inspect(
             installation,

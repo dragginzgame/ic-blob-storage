@@ -29,6 +29,9 @@ limits, not proof of provider assignment. Owner is the actual service, never the
 payer or tenant. Validation precedes allocation and runs again on restoration.
 This replaces the previous host init/schema and requires a minor release;
 cross-release transitions are reinstall-only, without migration or fallback.
+Host observation types come directly from
+`ic_blob_storage::dto::configuration::{HostConfigurationView, HostFailure}`;
+the standalone crate exports only its Candid interface helper.
 Management-canister installation authorization remains the platform's responsibility.
 There are no deployment defaults, provider namespace provisioning or account changes.
 Operator-only `blob_configuration` returns the installed values, package release
@@ -351,8 +354,8 @@ an old heap without lifecycle hooks, but the version guard blocks operational
 return and IC history refuses `SnapshotRestored`. Old snapshots/backups remain
 inspection-only: their missing later objects, effects and liabilities require a
 separately surviving complete inventory and freshness authority. Package release
-is not a module hash. This API/schema/lifecycle hard cut requires a future minor
-release and does not change the frozen live 0.7.0 host.
+is not a module hash. This API/schema/lifecycle hard cut ships in 0.8.0 and
+does not change the frozen live 0.7.0 host.
 Cross-release transitions require reinstall after the separately
 defined installation-retirement requirements; controllers can erase state through
 the management canister, so these hooks cannot enforce retirement on their behalf.

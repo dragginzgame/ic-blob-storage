@@ -32,7 +32,7 @@ owner access; `SnapshotRestored`, `IncompleteHistory` or another typed refusal
 leave activation unavailable. Do not rotate the anchor or reset the owner to
 recover an exhausted history window.
 
-This record/candidate/API/lifecycle hard cut requires a future minor release;
+This record/candidate/API/lifecycle hard cut ships in 0.8.0;
 cross-release transitions remain reinstall-only after obligation disposition.
 Older snapshot/backup activation remains unsupported and needs an independently
 surviving complete inventory. See the [gap review](service-gaps.md) for separate

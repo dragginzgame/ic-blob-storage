@@ -41,8 +41,8 @@ use candid::Principal;
 use ic_blob_storage::{
     dto::{
         configuration::{
-            ServiceBillingInput, ServiceConfigurationInput, ServiceFundingInput,
-            ServiceInstallationInput, ServiceReadInput, ServiceResourceInput,
+            HostConfigurationView, HostFailure, ServiceBillingInput, ServiceConfigurationInput,
+            ServiceFundingInput, ServiceInstallationInput, ServiceReadInput, ServiceResourceInput,
         },
         reference::{
             ReferenceAction, ReferenceCommand, ReferenceFailure, ReferenceMutationResponse,
@@ -64,7 +64,6 @@ use ic_blob_storage::{
         CaffeineHashLimits, CaffeineHeader, manifest::builder::CaffeineManifestBuilder,
     },
 };
-use ic_blob_storage_canister::dto::{HostConfigurationView, HostFailure};
 use ic_testkit::{
     Fake,
     pic::CandidCallExt,

@@ -4,7 +4,7 @@
     clippy::large_types_passed_by_value,
     reason = "Candid endpoint macros own decoded inputs"
 )]
-use crate::{dto, ops, workflow};
+use crate::{ops, workflow};
 use ic_blob_storage::dto::funding::assessment::{
     FundingPreparationFailure, FundingPreparationRequest, FundingPreparationResponse,
 };
@@ -20,7 +20,7 @@ use ic_blob_storage::dto::upload::history::{
 };
 use ic_blob_storage::{
     dto::{
-        configuration::ServiceInstallationInput,
+        configuration::{HostConfigurationView, HostFailure, ServiceInstallationInput},
         reference::{
             ReferenceCommand, ReferenceFailure, ReferenceMutationResponse, ReferenceReceiptLookup,
         },
@@ -62,7 +62,7 @@ async fn blob_resume_current_instance()
     outcome
 }
 #[ic_cdk::query]
-fn blob_configuration() -> Result<dto::HostConfigurationView, dto::HostFailure> {
+fn blob_configuration() -> Result<HostConfigurationView, HostFailure> {
     workflow::configuration(ic_cdk::api::msg_caller())
 }
 #[ic_cdk::query(hidden = true, decode_with = "ops::decode")]

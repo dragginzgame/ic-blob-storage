@@ -261,8 +261,10 @@ the same shared blob API and tenant rules.
 Classify each behavior as existing behavior preserved, a safety correction
 required for extraction, or a new capability deferred. B2 is bounded by this
 journey and necessary corrections; optional ambitions do not gate extraction.
-Shared cross-tenant deduplication, generic provider plugins, cross-release
-migration, multi-Fleet indexing and new confidentiality guarantees are deferred.
+Shared cross-tenant deduplication, generic provider plugins, multi-Fleet indexing
+and new confidentiality guarantees are deferred. Pre-1.0 cross-release migration
+is excluded: retire installations with surviving obligations accounted for, then
+reinstall against the current contract.
 
 ## Recovery scope — maintainer decision, 2026-09-30
 

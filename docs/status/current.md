@@ -2,15 +2,16 @@
 
 Date: 2026-10-03
 
-Released baseline: [0.7.0](../../CHANGELOG.md), dated 2026-10-02, at
-`a6f7e408933e96d11c95a170805bca5a5a6edf7e`. The maintainer reports it live;
-local package, exact tag, dated changelog and release receipt agree, and the
-receipt's release-file hashes verify. Unreleased contains offline batch preparation,
-an independent deployment-release guard and successful fresh live journeys;
-the next undated changelog draft is 0.8.0 for the breaking recovery contract.
-Package versions and release receipt remain 0.7.0 pending the maintainer's release
-flow. The old isolated owner remains frozen at 0.6.0 with its
-original stopped history. A separate owner now runs verified 0.7.0.
+Repository baseline: [0.8.0](../../CHANGELOG.md), dated 2026-10-03, at
+`64804288687a60c39c370984cf0b71e983fdb551`. The maintainer completes that release
+concurrently with the audit below. Local package, tag, origin tracking ref and
+receipt agree; receipt hashes verify against committed release files. No new
+registry-publication or service-deployment observation is inferred. Unreleased
+now contains the standalone DTO forwarding-path removal, requiring another minor
+release. Earlier Unreleased entries below retain their implementation/evidence
+history for work now included in 0.8.0. The old isolated owner remains frozen at
+0.6.0 with its original stopped history; the separate live owner was last verified
+at 0.7.0. Both retain their original obligations and exhausted capacity.
 Commits and release operations belong to the maintainer.
 
 Canic integration is deferred by the maintainer on 2026-10-02 until useful work
@@ -19,7 +20,39 @@ implementation and evidence; the [feedback list](../canic-parity.md#integration-
 is a future consumer backlog, not a prerequisite for this local work. Siblings
 remain read-only and no upstream message is authorized.
 
-## Unreleased: frozen-file transfer and larger journals — 2026-10-03
+## Unreleased: pre-1.0 hard-cut audit — 2026-10-03
+
+The maintainer requires current-contract-only behavior. Audit maintained Rust
+exports, endpoint/init DTOs, CLI flags and JSON journals, stable record readers,
+installation release binding and browser stores/exports. No intentional legacy
+reader, deprecated/Serde alias, old-payload fallback, migration engine or schema
+version-dispatch branch is found. Current records read v1 only; installation
+restore requires the exact compiled release. Same-release receipt/restart recovery
+is the maintained contract, not cross-release compatibility. Historical evidence,
+old live installations and unresolved obligations must still survive retirement.
+
+Remove the redundant public `ic_blob_storage_canister::dto` forwarding namespace
+entirely. Host handlers and PocketIC consumers import `HostConfigurationView` and
+`HostFailure` directly from `ic_blob_storage::dto::configuration`. Update current
+library/host comments and clarify that pre-1.0 cross-release migration is excluded,
+not a deferred implementation. Canonical exports from private implementation
+modules, the exact ic-memory substrate export and current provider wire naming
+remain current API structure; none preserves superseded names or payload forms.
+
+Wait for the other task's validation before source edits; its 0.8.0 commit/tag
+and dependency updates are preserved. Keep this new API removal in Unreleased,
+leaving completed 0.8.0 notes unchanged. Strict host/standalone-test Clippy, fresh
+host Wasm/CLI builds and the existing actual PocketIC installation-carrier case
+pass. The latter verifies declared/exported Candid equality, exact core DTO
+readback, compiled 0.8.0 identity, wrong-service refusal and controller denial.
+Formatting and whitespace checks pass. Audit intent/findings, baseline verification,
+local installation/readback and logs are in `.tmp/hard-cut-audit-01`.
+No obsolete-form tests, compatibility shim, version mutation, commit, deployment,
+provider action, full CI, sibling edit or cleanup is introduced by this audit.
+The [consumer backlog](../canic-parity.md#integration-feedback) records the canonical
+import change and released 0.8.0 recovery adoption; Canic remains deferred.
+
+## Completed in 0.8.0: frozen-file transfer and larger journals — 2026-10-03
 
 Browser `createPublicationUpload` now bridges one original native frozen file
 to maintained Caffeine SDK preparation, certificate exposure and guarded transfer.

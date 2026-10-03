@@ -5,10 +5,9 @@
 //! available. Shared funding preparation composes journal facts with host evidence;
 //! production service qualification and complete adapters remain unfinished.
 //!
-//! The intended service owns tenant authorization, content references, quotas,
-//! provider effects, billing, retention, and deletion. Standalone and managed
-//! canister adapters will delegate to the same implementation after the service
-//! contract is frozen.
+//! The service owns tenant authorization, content references, quotas, provider
+//! effects, billing, retention, and deletion. The standalone adapter delegates
+//! to shared workflows; consumer frameworks own their wrappers externally.
 
 pub mod dto;
 pub mod model;

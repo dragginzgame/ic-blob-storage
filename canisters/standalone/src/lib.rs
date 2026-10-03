@@ -1,6 +1,5 @@
-//! Explicit standalone canister host. Provider effects and operational recovery remain disabled.
+//! Explicit standalone canister host for shared blob-storage workflows.
 mod api;
-pub mod dto;
 mod ops;
 mod workflow;
 

@@ -2,6 +2,13 @@
 
 ## [Unreleased]
 
+### Breaking
+
+- Remove the standalone crate's public `dto` forwarding namespace. Import
+  `HostConfigurationView` and `HostFailure` directly from
+  `ic_blob_storage::dto::configuration`; update host handlers and PocketIC consumers
+  together. The core owns these types without an alternate standalone import path.
+
 ## [0.8.0] - 2026-10-03
 
 ### Breaking
