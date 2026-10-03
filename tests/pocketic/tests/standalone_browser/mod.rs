@@ -35,11 +35,8 @@ fn upload(
     let mut driver = BrowserDriver::start(&config, "standalone.mjs");
     let plan: BrowserPreparation = driver.read(8192);
     let generated = trial.inputs(&input, &plan);
-    trial.admit(&generated);
-    driver.send(&serde_json::json!({"manifest": candid::encode_one(&generated).unwrap()}));
-    let reply: client::PreparationReply = driver.read(32768);
-    trial.prepared(&generated, &reply);
-    driver.send(&serde_json::json!({"binding": trial.binding()}));
+    trial.setup(&generated);
+    driver.send(&trial.transfer_inputs());
     let uploaded: client::UploadReport = driver.read(8192);
     let lost = matches!(scenario, Scenario::LostFinal | Scenario::Withdrawn);
     assert_eq!(uploaded.uploaded, !lost);

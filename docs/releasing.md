@@ -46,6 +46,16 @@ CHANGELOG.md and writes docs/release.json with the source commit, release
 version/date and release-file hashes. Failures restore the original files.
 It never stages, commits or publishes. Review the resulting diff.
 
+Validation builds use the source version **before** this transaction. Preserved
+`target/` binaries therefore may report the previous version after a successful
+release. Before deployment, rebuild the standalone at the selected released
+version, freeze its bytes, and run the maintained PocketIC installation carrier
+case with `BLOB_EXPECTED_HOST_RELEASE` set independently to that version. Require
+its actual compiled-release readback and reviewed module hash to match before
+mainnet installation. A tag, receipt or filename does not establish a Wasm's
+compiled release. Make supplies the current workspace version for local checks;
+direct deployment reviews must supply their explicitly selected release.
+
 ## Maintainer one-shot releases
 
 From committed, clean main with the intended origin configured:

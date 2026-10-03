@@ -80,6 +80,7 @@ fn standalone_certificate_issues_configured_multifile_uploads_and_preserves_quot
         .pic
         .start_canister(f.service, Some(f.controller))
         .unwrap();
+    f.resume(f.operator).unwrap();
     assert_eq!(
         inspect(&f, f.uploader, &root).unwrap().blockers,
         assessment.blockers
@@ -266,6 +267,7 @@ fn standalone_small_configuration_issues_once_and_retains_uncertainty_across_sto
         .pic
         .start_canister(f.service, Some(f.controller))
         .unwrap();
+    f.resume(f.operator).unwrap();
     refuses(&f, f.uploader, &root);
     f.harness
         .pic
@@ -293,6 +295,14 @@ fn standalone_small_configuration_issues_once_and_retains_uncertainty_across_sto
         Err(E::Permission(UploadAdmissionFailure::Fenced))
     );
     unchanged(&f.harness.pic.get_stable_memory(f.service), &restored);
+    f.resume(f.operator).unwrap();
+    assert_eq!(f.admission(manifest.permission), retained);
+    assert_eq!(
+        f.local_status(f.operator, f.operator_scope()).unwrap(),
+        usage
+    );
+    refuses(&f, f.uploader, &root);
+    assert_eq!(inspect(&f, f.uploader, &root), Err(E::Revoked));
 }
 
 #[test]

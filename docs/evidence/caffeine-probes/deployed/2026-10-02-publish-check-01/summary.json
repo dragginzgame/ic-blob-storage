@@ -1,0 +1,163 @@
+{
+  "schema": 1,
+  "date": "2026-10-02",
+  "evidence": "authenticated_frozen_batch_checker_with_local_tests_and_actual_read_only_service_observation",
+  "capture": ".tmp/publish-check-01",
+  "implementation": {
+    "command": "Unreleased publish-check",
+    "frozen_input_command": "Unreleased publish-inputs",
+    "contract": "Reverify complete frozen metadata, bodies and exact request packets before identity or network; retain finite signed capacity/discovery observations, original IDs and conservative blockers.",
+    "allocation": "Caller-supplied IDs survive in frozen inputs; authoritative reservation remains the service admission journal. No fresh-ID allocator or second journal is introduced.",
+    "query_limit": 4097,
+    "overall_timeout_max_seconds": 3600,
+    "per_query_timeout_seconds": 30,
+    "decoded_reply_bytes": 4096,
+    "transport_response_max_bytes": 262144,
+    "existing_root_handling": [
+      "recover_existing_operation",
+      "live_requires_retain",
+      "retired_root"
+    ],
+    "complete_report_does_not_reserve_or_authorize_publication": true
+  },
+  "local_evidence": {
+    "class": "native_and_actual_pocketic",
+    "frozen_standalone_release": "0.7.0",
+    "frozen_standalone_wasm_sha256": "772e28b754eb59e58fd0db0ad38e4bf21de3e1d4515823099bb79e938101bae9",
+    "native_frozen_input_and_checker_tests": true,
+    "native_single_input_regressions": true,
+    "changed_bodies_metadata_and_request_packets_refuse": true,
+    "partial_and_incomplete_batches_refuse": true,
+    "scope_and_remote_failure_not_absence": true,
+    "duplicate_roots_and_independent_capacity_fence_and_suspension_blockers": true,
+    "query_budget_refuses_before_identity": true,
+    "partial_query_evidence_retained": true,
+    "actual_signed_standalone_cli_tests": true,
+    "read_only_stable_memory_unchanged": true,
+    "original_reservation_discovered": true,
+    "cancellation_preserves_lifetime_history": true,
+    "same_release_restore_fence_observed": true,
+    "strict_cli_all_target_lint": true,
+    "strict_standalone_test_target_lint": true,
+    "format_check": true,
+    "full_ci": false
+  },
+  "deployed_service_evidence": {
+    "class": "actual_existing_standalone_read_only",
+    "service": "5gsmp-viaaa-aaaak-qzhfa-cai",
+    "namespace": "2",
+    "tenant": "jaqw3-42pqs-5bivi-nj3xg-5row5-gpluj-sbn54-vthud-pyb5v-sm2rs-bae",
+    "logical_service_queries": 3,
+    "verification": "Mainnet query signatures verified by native agent; independent exact Candid argument/reply decode afterward",
+    "independent_verification": {
+      "schema": 1,
+      "checked_at": "2026-10-02T17:27:02.832Z",
+      "completed": true,
+      "independent_candid_argument_and_reply_decode": true,
+      "exact_original_scope_ids_bytes_and_roots": true,
+      "actual_states": [
+        "deletion_pending",
+        "deletion_pending"
+      ],
+      "remaining_lifetime_objects": 0,
+      "retired_roots_block_fresh_upload": true,
+      "service_updates": 0,
+      "provider_requests": 0
+    },
+    "observed_states": [
+      "deletion_pending",
+      "deletion_pending"
+    ],
+    "blockers": [
+      "retired_root"
+    ],
+    "remaining_objects": 0,
+    "remaining_manifest_chunks": 9,
+    "remaining_bytes": "10484736",
+    "not_visible_demand": {
+      "bytes": "0",
+      "manifest_chunks": 0,
+      "objects": 0
+    },
+    "original_uploads": [
+      {
+        "bytes": "1024",
+        "first_reference": "1",
+        "incarnation": "1",
+        "namespace": "2",
+        "object": "1",
+        "root": "sha256:4286340c32cc760d90cd3f03fbee0fd0d15ccf0ef99665ef2b974470315adbe1",
+        "service": "5gsmp-viaaa-aaaak-qzhfa-cai",
+        "tenant": "jaqw3-42pqs-5bivi-nj3xg-5row5-gpluj-sbn54-vthud-pyb5v-sm2rs-bae",
+        "upload": "1"
+      },
+      {
+        "bytes": "10485760",
+        "first_reference": "2",
+        "incarnation": "1",
+        "namespace": "2",
+        "object": "2",
+        "root": "sha256:333f902f7be3bc98be0b81f6a6f4e5fe551532af4fca3b0face37057c18492f0",
+        "service": "5gsmp-viaaa-aaaak-qzhfa-cai",
+        "tenant": "jaqw3-42pqs-5bivi-nj3xg-5row5-gpluj-sbn54-vthud-pyb5v-sm2rs-bae",
+        "upload": "2"
+      }
+    ],
+    "private_binary_sha256": "5871e651ae82586d169ce4b8a6c47a8dfbde1fda692b7858d63824584c3ae8e4",
+    "binary_origin": "Retained Unreleased development binary from shared worktree, not a released artifact or reproducible-build claim",
+    "query_reply_sha256": [
+      "360b31fee8fd08fbc4e457b900446b8a459abc0b0f1177cb5e31b95c1e9c751b",
+      "26a4c146da71dc0436ebdcbebb126ae3f653bc109aea94303acc1dab2cb7a490",
+      "ea60f75ee118aa6a89580a9ccc8aee4eb6f652338e9e6cfd9a61de4343e0e055"
+    ]
+  },
+  "effects": {
+    "service_updates": 0,
+    "caffeine_provider_calls": 0,
+    "new_creation_funding_link_certificate_put_get_attestation_or_reference_effects": 0,
+    "automatic_paid_retries": 0,
+    "existing_owner_profile_accounts_and_obligations_preserved": true,
+    "new_donor_debit_cycles": "0",
+    "no_private_key_export_or_default_identity_change": true
+  },
+  "failures": [
+    {
+      "class": "local_output_directory",
+      "outcome": "Two initial file-write attempts omit a new module directory and refuse locally; corrected create-directory writes succeed."
+    },
+    {
+      "class": "shared_build_lock",
+      "record": "native-tests-01.log",
+      "outcome": "Sandbox PID view misses concurrent Cargo and causes a brief build-lock wait; subsequent checks use host-visible Cargo PID/cwd, preserve the other recovery task and avoid competing builds."
+    },
+    {
+      "class": "strict_function_length",
+      "record": "clippy-01.log",
+      "outcome": "Split argument parsing and existing-root classification into named helpers; strict CLI all-target lint passes."
+    },
+    {
+      "class": "offline_fixture_project",
+      "record": "pocketic-01.log",
+      "outcome": "Non-ByteString fixture project is correctly refused offline before networking. ASCII SDK-compatible fixture passes both actual signed tests in pocketic-02.log."
+    },
+    {
+      "class": "strict_integration_style",
+      "record": "pocketic-clippy.log",
+      "outcome": "Concurrent test-style corrections replace short fixture variable names and repeated format allocation; unrelated lifecycle assertion lint also resolves. Final strict standalone-test target lint passes; preserve the other task changes."
+    }
+  ],
+  "limitations": [
+    "Sequential observations are not a transaction, live reservation, ID freshness, actual installed project/uploader proof, provider availability, upload permission or retry/publication authority.",
+    "Live roots remain retired with continuing physical/billing obligations and full lifetime object capacity; no owner/profile reset or additional upload occurs.",
+    "Serial batch admission/preparation, provider transfer, exact interruption recovery and consumer serving/media-map acceptance remain next work.",
+    "Concurrent recovery/dependency/host/test changes are preserved and not qualified by this narrowly selected batch check."
+  ],
+  "consumer_feedback": "docs/canic-parity.md#integration-feedback; Canic adoption remains deferred, no sibling writes or upstream messages",
+  "source_sha256": {
+    "checker": "b6260d404d6a14fa07e9c011be4dfc35231cdde104188c9a8f1a8f957e4569a3",
+    "observations": "50f09f6752369c491d131d1ce10947d708b91dac9b25909a5d662d6ae7c1c3f8",
+    "tests": "167b05e9a1466ced55ea08f1c2cf362f42f798e8b6d8e691f2e361be50a38965",
+    "frozen_reader": "4edcb8b768b426fc8ba457b2eb15f001727a9c6b22d4b64dee1de92de8b55ac3",
+    "pocketic_tests": "f9beeb2b5e842a54a1d2e0a0b8b251935f2f1992bdaf3ef1f1a3b52cb70c2222"
+  }
+}

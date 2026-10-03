@@ -1,5 +1,29 @@
 //! Thin host composition; all tenant and blob transitions use shared workflows.
 use crate::ops;
+pub(crate) async fn before_update() {
+    if let Some(request) = ops::begin_update() {
+        if let Ok(proof) = ic_blob_storage::ops::service::recovery::prove_current_instance(
+            request.installation_version,
+        )
+        .await
+        {
+            // Refusal retains the fence. The original endpoint workflow then
+            // reports its own typed fenced outcome without changing a journal.
+            let _ = ops::resume_continuous_active(proof);
+        }
+        ops::observe_version();
+    }
+}
+pub(crate) async fn resume_current_instance(
+    context: UploadContext,
+) -> Result<(), ic_blob_storage::dto::recovery::CurrentInstanceRecoveryFailure> {
+    ic_blob_storage::workflow::installation::recovery::resume_current_instance(
+        &ops::RecoveryHost,
+        context,
+    )
+    .await
+    .map_err(ic_blob_storage::ops::service::recovery::failure)
+}
 pub(crate) fn certificate_assessment(
     context: UploadContext,
     root: &str,

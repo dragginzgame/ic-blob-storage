@@ -131,6 +131,12 @@ it tests explicit create/reopen and a graceful browser-process restart with an
 isolated retained profile under `.tmp/`.
 See the [client contract](../clients/browser/README.md).
 
+`make test-browser-publication BLOB_PUBLICATION_REPORT=NEW_DIRECTORY` runs the
+frozen-file helper's offline body/manifest/metadata/root/abort refusals and input
+snapshot checks. It requires the pinned packages and Node, without Chromium,
+Rust builds or network traffic. The refusing store/transport are explicit test
+substitutes; the standalone browser target supplies actual IC/IndexedDB evidence.
+
 `make test-browser-transport BLOB_BROWSER_TRANSPORT_REPORT=NEW_DIRECTORY` runs
 owned TLS HTTP/1.1 and HTTP/2 replay checks without Rust/PocketIC builds. Each
 case has a fresh context and one maintained journal claim. Buffered/XHR controls

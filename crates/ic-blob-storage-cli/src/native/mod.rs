@@ -14,6 +14,9 @@ mod installation_check;
 mod local_body;
 mod observe_upload;
 mod provider_download;
+mod publish_check;
+mod publish_inputs;
+mod publish_prepare;
 mod reference_inputs;
 mod references;
 mod reply;
@@ -42,6 +45,12 @@ const USAGE: &str = concat!(
     "installation-check is offline. It validates the complete proposed installation, preserving original configuration.candid and full installation.candid with hashes and a passive summary. It does not authenticate platform/release identity, grant memory, deploy, provision, fund or qualify provider facts. Existing/partial output refuses.\n",
     "blob-storage upload-inputs --installation INSTALLATION_CANDID --binding JSON --manifest UPSTREAM_MANIFEST_JSON --body FILE --max-bytes DECIMAL --run-dir NEW_DIRECTORY\n",
     "Offline preparation checks the complete installation candidate against the original service/namespace/project/trusted uploader and installed resource bounds. It saves installation.candid, permission.candid, manifest.candid, first-reference requests, certificate-binding.json and a root-verified body.bin snapshot. No authentication, actual installed-state/provisioning proof, signer, network, ID allocation or certificate. Failed snapshots remain private body.part; existing or partial directories refuse.\n",
+    "blob-storage publish-inputs --inventory JSON --root DIRECTORY --installation INSTALLATION_CANDID --max-bytes DECIMAL --max-total-bytes DECIMAL --run-dir NEW_DIRECTORY\n",
+    "Offline batch preparation verifies frozen input hashes, unique identities, one tenant/provider scope and aggregate fresh-installation capacity before serial root-verified snapshots. Final summary appears only on complete success; failures retain partial evidence and refuse overwrite. No remaining-live-capacity proof, allocation, certificate, network, publication or retry authority.\n",
+    "blob-storage publish-check --network ic|local --url URL --identity PEM --actor TENANT --service PRINCIPAL --namespace DECIMAL --inputs COMPLETE_PUBLISH_INPUTS_DIRECTORY --max-bytes DECIMAL --max-total-bytes DECIMAL --max-queries DECIMAL --timeout-seconds DECIMAL --run-dir NEW_DIRECTORY [--root-key DER]\n",
+    "publish-check reverifies complete frozen snapshots and request packets before signed sequential capacity/content queries. Retain query intents/replies, blockers and original discovered IDs. Existing roots require recovery, retain or retirement handling; no allocation, reservation, updates, provider calls or retry/publication authority. A blocked summary is an observation, not command failure. Partial runs retain failure evidence and refuse overwrite.\n",
+    "blob-storage publish-prepare|publish-prepare-resume --network ic|local --url URL --identity TENANT_PEM --actor TENANT --uploader-identity UPLOADER_PEM --service PRINCIPAL --namespace DECIMAL --inputs COMPLETE_PUBLISH_INPUTS_DIRECTORY --file-index ZERO_BASED_DECIMAL --max-bytes DECIMAL --max-total-bytes DECIMAL --timeout-seconds DECIMAL --run-dir NEW_DIRECTORY [--source-run ORIGINAL_PREPARATION_DIRECTORY] [--root-key DER]\n",
+    "Prepare one indexed file serially. Reverify the entire batch, authenticate both roles and retain finite capacity/discovery observations before at most two local updates. Resume requires --source-run, binds the original signed admission, and never resubmits a claimed update; it may send only an unclaimed preparation. Four queries maximum per invocation. No certificate, provider transfer, expiry renewal, allocation or publication. Preserve the original journal; partial claims and unknown state never license redispatch.\n",
     "blob-storage reference-inputs --permission PERMISSION_CANDID --action retain|release --reference DECIMAL --operation DECIMAL --run-dir NEW_DIRECTORY\n",
     "Offline exact reference.candid, reference-status.candid and download.candid generation from the original saved permission. Canonical positive identities are caller-supplied, never allocated. No signer, network, mutation, liveness, expiry renewal or retry authority; existing or partial directories refuse.\n",
     "blob-storage admit-upload|prepare-upload|revoke-upload --network ic|local --url URL --identity PEM --actor PRINCIPAL --service PRINCIPAL --namespace DECIMAL --request CANDID --run-dir NEW_DIRECTORY [--root-key DER]\n",
@@ -93,6 +102,7 @@ enum Failure {
     InvalidReply,
     Binding,
     Denied,
+    NotEnrolled,
     ServiceInternal,
     ServiceInvalid,
     FundingConflict,
@@ -132,6 +142,7 @@ impl Failure {
             Self::InvalidReply => "invalid_reply",
             Self::Binding => "binding",
             Self::Denied => "denied",
+            Self::NotEnrolled => "not_enrolled",
             Self::ServiceInternal => "service_internal",
             Self::ServiceInvalid => "service_invalid",
             Self::FundingConflict => "funding_conflict",
@@ -208,6 +219,12 @@ fn identity(path: &Path, expected: Principal) -> Result<Box<dyn Identity>, Failu
 fn execute(args: &[String]) -> Result<serde_json::Value, Failure> {
     if args
         .first()
+        .is_some_and(|command| command == "publish-inputs")
+    {
+        return publish_inputs::run(args);
+    }
+    if args
+        .first()
         .is_some_and(|command| command == "installation-check")
     {
         return installation_check::run(args);
@@ -241,6 +258,8 @@ fn execute(args: &[String]) -> Result<serde_json::Value, Failure> {
 async fn observe(options: &arguments::Options) -> Result<serde_json::Value, Failure> {
     match &options.command {
         arguments::Command::UploadSetup(input) => upload_setup::run(options, input).await,
+        arguments::Command::PublishCheck(input) => publish_check::run(options, input).await,
+        arguments::Command::PublishPrepare(input) => publish_prepare::run(options, input).await,
         arguments::Command::InspectAccount(input) => account::run(options, *input).await,
         arguments::Command::FundingAssessment(input) => {
             funding_assessment::run(options, *input).await

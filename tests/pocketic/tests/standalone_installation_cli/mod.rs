@@ -110,6 +110,11 @@ fn carrier(f: &Fixture, directory: &Path, project: &str, verifier: Principal) ->
 fn standalone_installs_cli_carrier_and_independently_rejects_wrong_actual_service() {
     let mut f = Fixture::small(Harness::new(), Fake::principal(4));
     let before = f.configuration(f.operator).unwrap();
+    // Deployment review supplies its independently selected release: retained
+    // target/ artifacts may predate the release helper's version transaction.
+    if let Ok(expected) = std::env::var("BLOB_EXPECTED_HOST_RELEASE") {
+        assert_eq!(before.release, expected);
+    }
     let stable = f.harness.pic.get_stable_memory(f.service);
     f.config = trial_configuration(&f);
     let directory = tempfile::tempdir().unwrap();

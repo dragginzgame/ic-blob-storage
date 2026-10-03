@@ -8,11 +8,8 @@ use crate::{
 use ic_agent::{Identity, identity::BasicIdentity};
 use ic_blob_storage::{
     dto::download::DownloadRequest,
-    model::identity::caffeine::manifest::CaffeineManifestLimits,
-    ops::{
-        caffeine::preparation::{PreparedManifestLimits, decode_prepared_manifest},
-        service::uploads::manifests::reply::{self, UploadManifestReplyLimits},
-    },
+    model::identity::{ContentDigest, caffeine::manifest::CaffeineManifestLimits},
+    ops::caffeine::preparation::{PreparedManifestLimits, decode_prepared_manifest},
 };
 use std::{
     num::{NonZeroU64, NonZeroUsize},
@@ -21,11 +18,6 @@ use std::{
 pub(super) const PROJECT: &str = "standalone-trial";
 // Fixed test-only seed [44;32], distinct from uploader [42;32] and tenant [43;32].
 const VERIFIER_PEM: &str = "-----BEGIN PRIVATE KEY-----\nMC4CAQAwBQYDK2VwBCIEICwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCws\n-----END PRIVATE KEY-----\n";
-#[derive(serde::Deserialize)]
-#[serde(deny_unknown_fields)]
-pub(super) struct PreparationReply {
-    preparation: Vec<u8>,
-}
 #[derive(serde::Deserialize, serde::Serialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub(super) struct UploadReport {
@@ -159,24 +151,6 @@ impl Trial {
             "upload":u.upload.to_string(),"object":u.object.to_string(),"incarnation":u.incarnation.to_string(),
             "first_reference":u.first_reference.to_string(),"root":browser.hash,"bytes":u.bytes.to_string(),
             "expires_at_ns":p.expires_at_ns.to_string()}));
-        let args = [
-            "upload-inputs",
-            "--installation",
-            self.report.join("installation.candid").to_str().unwrap(),
-            "--binding",
-            self.report.join("binding.json").to_str().unwrap(),
-            "--manifest",
-            self.report.join("manifest.json").to_str().unwrap(),
-            "--body",
-            self.report.join("source.bin").to_str().unwrap(),
-            "--max-bytes",
-            "1024",
-            "--run-dir",
-            self.report.join("inputs").to_str().unwrap(),
-        ]
-        .into_iter()
-        .map(str::to_owned)
-        .collect::<Vec<_>>();
         let host = self.f.configuration(self.f.operator).unwrap();
         let carrier = ServiceInstallationInput {
             configuration: host.configuration,
@@ -189,47 +163,73 @@ impl Trial {
             candid::encode_one(carrier).unwrap(),
         )
         .unwrap();
-        let result = self.invoke("inputs", &args, 0);
-        assert_eq!(result["body_verified"], true);
-        assert_eq!(result["installation_binding_checked"], true);
+        self.freeze();
         assert_eq!(
             std::fs::read(self.report.join("inputs/installation.candid")).unwrap(),
             std::fs::read(self.report.join("installation.candid")).unwrap()
         );
-        let generated =
-            candid::decode_one(&std::fs::read(self.report.join("inputs/manifest.candid")).unwrap())
-                .unwrap();
+        let generated = candid::decode_one(
+            &std::fs::read(self.report.join("inputs/file-0000/manifest.candid")).unwrap(),
+        )
+        .unwrap();
         assert_eq!(expected, &generated);
         generated
     }
-    pub fn admit(&self, input: &UploadManifestRequest) {
-        let mut args = self.args("admit-upload", "tenant.pem", self.f.tenant);
+    fn freeze(&self) {
+        let hash = |name: &str| {
+            ContentDigest::compute(&std::fs::read(self.report.join(name)).unwrap())
+                .to_string()
+                .trim_start_matches("sha256:")
+                .to_owned()
+        };
+        self.record(
+            "inventory.json",
+            &serde_json::json!({"schema":1,"files":[{
+            "binding":"binding.json","binding_sha256":hash("binding.json"),
+            "manifest":"manifest.json","manifest_sha256":hash("manifest.json"),
+            "body":"source.bin","body_sha256":hash("source.bin")}]}),
+        );
+        let args = [
+            "publish-inputs",
+            "--inventory",
+            self.report.join("inventory.json").to_str().unwrap(),
+            "--root",
+            self.report.to_str().unwrap(),
+            "--installation",
+            self.report.join("installation.candid").to_str().unwrap(),
+            "--max-bytes",
+            "1024",
+            "--max-total-bytes",
+            "1024",
+            "--run-dir",
+            self.report.join("inputs").to_str().unwrap(),
+        ]
+        .map(str::to_owned);
+        assert_eq!(self.invoke("inputs", &args, 0)["all_bodies_verified"], true);
+    }
+    pub fn setup(&self, input: &UploadManifestRequest) {
+        let mut args = self.args("publish-prepare", "tenant.pem", self.f.tenant);
         args.extend([
-            "--request".into(),
-            self.report
-                .join("inputs/permission.candid")
-                .display()
-                .to_string(),
+            "--inputs".into(),
+            self.report.join("inputs").display().to_string(),
+            "--uploader-identity".into(),
+            self.report.join("uploader.pem").display().to_string(),
+            "--file-index".into(),
+            "0".into(),
+            "--max-bytes".into(),
+            "1024".into(),
+            "--max-total-bytes".into(),
+            "1024".into(),
+            "--timeout-seconds".into(),
+            "30".into(),
             "--run-dir".into(),
-            self.report.join("admission").display().to_string(),
+            self.report.join("setup").display().to_string(),
         ]);
-        self.invoke("admission", &args, 0);
+        assert_eq!(self.invoke("setup", &args, 0)["state"], "prepared");
         assert_eq!(
             self.f.admission(input.permission).state,
             ic_blob_storage::dto::upload::UploadState::Reserved
         );
-    }
-    pub fn prepared(&self, input: &UploadManifestRequest, response: &PreparationReply) {
-        let reply = reply::mutation(
-            input,
-            &response.preparation,
-            UploadManifestReplyLimits {
-                max_reply_bytes: NonZeroUsize::new(4096).unwrap(),
-                declaration: limits(),
-            },
-        )
-        .unwrap();
-        assert!(reply.changed);
         assert_eq!(
             crate::standalone_certificate::inspect(
                 &self.f,
@@ -241,11 +241,15 @@ impl Trial {
             []
         );
     }
-    pub fn binding(&self) -> serde_json::Value {
-        serde_json::from_slice(
-            &std::fs::read(self.report.join("inputs/certificate-binding.json")).unwrap(),
-        )
-        .unwrap()
+    pub fn transfer_inputs(&self) -> serde_json::Value {
+        let root = self.report.join("inputs/file-0000");
+        let body = std::fs::read(root.join("body.bin")).unwrap();
+        let binding: serde_json::Value =
+            serde_json::from_slice(&std::fs::read(root.join("certificate-binding.json")).unwrap())
+                .unwrap();
+        serde_json::json!({"binding":binding,"snapshot":{"body":body,
+            "bodySha256":ContentDigest::compute(&body).to_string().trim_start_matches("sha256:"),
+            "manifestJSON":std::fs::read_to_string(root.join("manifest.json")).unwrap()}})
     }
     pub fn observe(
         &self,
@@ -292,7 +296,7 @@ impl Trial {
         args.extend([
             "--permission".into(),
             self.report
-                .join("inputs/permission.candid")
+                .join("inputs/file-0000/permission.candid")
                 .display()
                 .to_string(),
             "--gateway".into(),

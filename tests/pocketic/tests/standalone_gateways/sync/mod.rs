@@ -153,4 +153,11 @@ fn standalone_restore_preserves_failed_sync_and_blocks_refresh_and_cancellation(
     assert_eq!(restored.last_sequence, pending.last_sequence);
     assert_eq!(restored.members, pending.members);
     unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
+    f.resume(f.operator).unwrap();
+    assert_eq!(f.local_status(f.operator, scope).unwrap().gateways, pending);
+    assert_eq!(cancel(&f, f.operator, 1), Ok(()));
+    let active = f.local_status(f.operator, scope).unwrap().gateways;
+    assert_eq!(active.pending_sequence, None);
+    assert_eq!(active.last_sequence, pending.last_sequence);
+    assert_eq!(active.members, pending.members);
 }

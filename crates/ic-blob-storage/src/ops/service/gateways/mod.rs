@@ -43,6 +43,9 @@ pub struct StableGatewayRegistry<M: Memory> {
     fenced: bool,
 }
 impl<M: Memory> StableGatewayRegistry<M> {
+    pub(crate) fn set_recovery_fence(&mut self, fenced: bool) {
+        self.fenced = fenced;
+    }
     pub(crate) const fn inspection_configuration(&self) -> &ServiceConfiguration {
         &self.config
     }

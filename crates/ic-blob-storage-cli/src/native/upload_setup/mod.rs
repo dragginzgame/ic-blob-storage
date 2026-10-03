@@ -9,7 +9,10 @@ use ic_blob_storage::{
     dto::upload::{
         UploadState,
         admission::{UploadAdmissionFailure as A, UploadAdmissionRequest, UploadAdmissionResponse},
-        manifest::{UploadManifestFailure as M, UploadManifestInspection, UploadManifestRequest},
+        manifest::{
+            UploadManifestDeclaration, UploadManifestFailure as M, UploadManifestInspection,
+            UploadManifestRequest,
+        },
     },
     ops::service::uploads::{
         admission::{self, reply as admission_reply},
@@ -51,6 +54,7 @@ impl Kind {
         }
     }
 }
+#[derive(Clone)]
 pub(super) struct Input {
     pub kind: Kind,
     pub service: Principal,
@@ -74,6 +78,9 @@ fn admission_json(response: UploadAdmissionResponse) -> Value {
         UploadState::Cancelled => "cancelled",
     };
     json!({"permission":permission_json(response.permission),"state":state,"revoked":response.revoked})
+}
+pub(super) fn declaration_json(d: &UploadManifestDeclaration) -> Value {
+    json!({"chunks":d.chunks.iter().map(|h| ic_blob_storage::model::identity::caffeine::manifest::CaffeineChunkHash::try_from(h.as_slice()).expect("fixed hash").to_string()).collect::<Vec<_>>(),"headers":d.headers.iter().map(|h|json!({"name":h.name,"value":h.value})).collect::<Vec<_>>()})
 }
 fn observation(input: &Input, saved: &Request, bytes: &[u8]) -> Result<Value, Failure> {
     let max = 4096.try_into().unwrap();
@@ -105,9 +112,7 @@ fn observation(input: &Input, saved: &Request, bytes: &[u8]) -> Result<Value, Fa
             };
             let declaration = match r.manifest {
                 UploadManifestInspection::Unprepared => Value::Null,
-                UploadManifestInspection::Prepared(d) => {
-                    json!({"chunks":d.chunks.iter().map(|h| ic_blob_storage::model::identity::caffeine::manifest::CaffeineChunkHash::try_from(h.as_slice()).expect("fixed hash").to_string()).collect::<Vec<_>>(),"headers":d.headers.iter().map(|h|json!({"name":h.name,"value":h.value})).collect::<Vec<_>>()})
-                }
+                UploadManifestInspection::Prepared(d) => declaration_json(&d),
             };
             json!({"permission":permission_json(r.permission),"manifest":declaration,"changed":changed})
         }
@@ -130,6 +135,34 @@ pub(super) async fn run(options: &Options, input: &Input) -> Result<Value, Failu
         "observation":observation(input, &saved, &bytes)?,"retry_authorized":false,
         "certificate_issued":false,"provider_requests":0,"publication_authorized":false}),
     )
+}
+
+/// Retain exact query arguments and raw replies through the same setup decoder.
+pub(super) async fn inspect_recorded(
+    options: &Options,
+    input: &Input,
+    run: &crate::native::artifacts::Run,
+    label: &str,
+) -> Result<Value, Failure> {
+    if input.kind.mutation() {
+        return Err(Failure::Arguments);
+    }
+    let saved = request::load(input, options.actor)?;
+    run.bytes(&format!("{label}-args.candid"), &saved.argument)?;
+    run.json(
+        &format!("{label}-intent.json"),
+        &json!({"method":input.kind.method(),
+        "argument_sha256":crate::native::upload_inputs::digest(&saved.argument),"updates":0}),
+    )?;
+    let bytes = query(
+        options,
+        input.service,
+        input.kind.method(),
+        saved.argument.clone(),
+    )
+    .await?;
+    run.bytes(&format!("{label}-reply.candid"), &bytes)?;
+    observation(input, &saved, &bytes)
 }
 fn admission_error(error: admission_reply::UploadAdmissionReplyError) -> Failure {
     use admission_reply::UploadAdmissionReplyError as R;

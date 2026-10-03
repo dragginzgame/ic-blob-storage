@@ -29,11 +29,33 @@ use std::{
     collections::BTreeMap,
     fmt::{Display, Write},
     num::NonZeroU64,
-    path::Path,
+    path::{Path, PathBuf},
     str::FromStr,
 };
 
-const MANIFEST_BYTES: u64 = 256 * 1024;
+pub(super) const MANIFEST_BYTES: u64 = 256 * 1024;
+
+/// Exact bounded metadata and an unopened body selected by the offline caller.
+pub(super) struct InputFiles {
+    pub binding: Vec<u8>,
+    pub manifest: Vec<u8>,
+    pub installation: Vec<u8>,
+    pub body: PathBuf,
+}
+
+/// Shared one-file validation and streaming snapshot for single and batch input tools.
+pub(super) struct PreparedInput {
+    files: InputFiles,
+    binding: Binding,
+    pub permission: UploadAdmissionRequest,
+    request: UploadManifestRequest,
+    pub resources: ic_blob_storage::dto::configuration::ServiceResourceInput,
+    maximum: NonZeroU64,
+    admission: Vec<u8>,
+    preparation: Vec<u8>,
+    references: ReferenceFiles,
+    browser: Vec<u8>,
+}
 
 /// Existing browser client's passive original binding; no store or authority.
 #[derive(Serialize)]
@@ -182,79 +204,200 @@ pub(super) fn run(args: &[String]) -> Result<Value, Failure> {
     if !flags.is_empty() || maximum.get() > 1024 * 1024 * 1024 {
         return Err(Failure::Arguments);
     }
-    let binding_bytes = read(binding_path, 4096)?;
-    let binding: Binding =
-        serde_json::from_slice(&binding_bytes).map_err(|_| Failure::Arguments)?;
-    let permission = binding.permission()?;
-    validate_namespaces(&binding, permission)?;
-    let installation =
-        installation::Installation::load(installation_path, &binding, permission, maximum)?;
-    let manifest_bytes = read(manifest_path, MANIFEST_BYTES)?;
-    let limits = installation.limits;
-    let declaration = decode_prepared_manifest(
-        binding.root.parse().map_err(|_| Failure::Arguments)?,
-        permission.upload.bytes,
-        &manifest_bytes,
-        PreparedManifestLimits {
-            max_json_bytes: usize::try_from(MANIFEST_BYTES)
-                .expect("256 KiB fits usize")
-                .try_into()
-                .expect("positive JSON bound"),
-            manifest: limits,
+    PreparedInput::load(
+        InputFiles {
+            binding: read(binding_path, 4096)?,
+            manifest: read(manifest_path, MANIFEST_BYTES)?,
+            installation: read(installation_path, super::candidate_candid::MAX_BYTES as u64)?,
+            body: body_path.to_owned(),
         },
-    )
-    .map_err(|_| Failure::PreparedManifest)?;
-    validate_declaration(permission, &declaration, limits)
-        .map_err(|_| Failure::PreparedManifest)?;
-    let request = UploadManifestRequest {
-        permission,
-        declaration,
-    };
-    let admission = candid::encode_one(permission).map_err(|_| Failure::Arguments)?;
-    let references = ReferenceFiles::new(permission.upload, permission.upload.first_reference)?;
-    let preparation = candid::encode_one(&request).map_err(|_| Failure::Arguments)?;
-    if admission.len() > 4096 || preparation.len() > 65536 {
-        return Err(Failure::ReplyLimit);
+        maximum,
+    )?
+    .publish(directory, None)
+}
+
+impl PreparedInput {
+    /// Original maintained request packets for durable indexed setup.
+    pub fn setup_requests(&self) -> (&[u8], &[u8]) {
+        (&self.admission, &self.preparation)
     }
-    let browser = serde_json::to_vec(&BrowserCertificateBinding::new(
-        permission,
-        admission.clone(),
-        &binding.project,
-        &binding.bucket,
-    ))
-    .map_err(|_| Failure::Arguments)?;
-    let source = LocalBody::open(body_path, permission.upload.bytes)?;
-    // All bounded decoding and canonical conversion precedes claiming the output.
-    let run = Run::create(directory)?;
-    run.bytes("binding.json", &binding_bytes)?;
-    run.bytes("manifest.json", &manifest_bytes)?;
-    run.bytes("installation.candid", &installation.bytes)?;
-    let hashes = snapshot(source, &request, maximum, &run)?;
-    run.bytes("permission.candid", &admission)?;
-    run.bytes("manifest.candid", &preparation)?;
-    references.save(&run)?;
-    run.bytes("certificate-binding.json", &browser)?;
-    let result = json!({
-        "schema": 1, "observation": "local_upload_inputs",
-        "installation_file": "installation.candid",
-        "installation_sha256": digest(&installation.bytes),
-        "installation_binding_checked": true,
-        "installed_state_observed": false, "namespace_provisioned": false,
-        "binding_sha256": digest(&binding_bytes), "manifest_sha256": digest(&manifest_bytes),
-        "permission_sha256": digest(&admission), "preparation_sha256": digest(&preparation),
-        "root": binding.root, "bytes": binding.bytes,
-        "chunks": request.declaration.chunks.len(),
-        "permission_file": "permission.candid", "preparation_file": "manifest.candid",
-        "first_reference": references.summary(),
-        "certificate_binding_file": "certificate-binding.json",
-        "project": binding.project, "bucket": binding.bucket,
-        "certificate_binding_sha256": digest(&browser),
-        "body_file": "body.bin", "content_digest": hashes.content_digest.to_string(),
-        "authenticated": false, "identities_allocated": false, "body_verified": true,
-        "service_dispatched": false, "provider_dispatched": false,
-    });
-    run.json("summary.json", &result)?;
-    Ok(result)
+    pub fn declaration(
+        &self,
+    ) -> &ic_blob_storage::dto::upload::manifest::UploadManifestDeclaration {
+        &self.request.declaration
+    }
+    pub fn check_requests(
+        &self,
+        permission: &[u8],
+        manifest: &[u8],
+        browser: &[u8],
+        installation: &[u8],
+    ) -> Result<(), Failure> {
+        if permission != self.admission
+            || manifest != self.preparation
+            || browser != self.browser
+            || installation != self.files.installation
+        {
+            return Err(Failure::Binding);
+        }
+        Ok(())
+    }
+
+    pub fn metadata_demand(&self) -> (u64, u64) {
+        (
+            self.request.declaration.headers.len() as u64,
+            self.request
+                .declaration
+                .headers
+                .iter()
+                .map(|h| (h.name.len() + h.value.len() + 3) as u64)
+                .sum(),
+        )
+    }
+
+    pub fn verify_body(&self, expected: &str) -> Result<(), Failure> {
+        let hashes = LocalBody::open(&self.files.body, self.permission.upload.bytes)?.verify(
+            ProviderRootHash::try_from(self.permission.upload.root.as_slice()).expect("fixed root"),
+            &self.request.declaration,
+            self.maximum,
+            &mut std::io::sink(),
+        )?;
+        if hashes.content_digest.to_string() != format!("sha256:{expected}") {
+            return Err(Failure::Content);
+        }
+        Ok(())
+    }
+
+    pub fn project(&self) -> &str {
+        &self.binding.project
+    }
+    pub fn bucket(&self) -> &str {
+        &self.binding.bucket
+    }
+    pub fn chunks(&self) -> usize {
+        self.request.declaration.chunks.len()
+    }
+
+    pub fn load(files: InputFiles, maximum: NonZeroU64) -> Result<Self, Failure> {
+        let binding_bytes = &files.binding;
+        let binding: Binding =
+            serde_json::from_slice(binding_bytes).map_err(|_| Failure::Arguments)?;
+        let permission = binding.permission()?;
+        validate_namespaces(&binding, permission)?;
+        let installation =
+            installation::Installation::decode(&files.installation, &binding, permission, maximum)?;
+        let manifest_bytes = &files.manifest;
+        let limits = installation.limits;
+        let declaration = decode_prepared_manifest(
+            binding.root.parse().map_err(|_| Failure::Arguments)?,
+            permission.upload.bytes,
+            manifest_bytes,
+            PreparedManifestLimits {
+                max_json_bytes: usize::try_from(MANIFEST_BYTES)
+                    .expect("256 KiB fits usize")
+                    .try_into()
+                    .expect("positive JSON bound"),
+                manifest: limits,
+            },
+        )
+        .map_err(|_| Failure::PreparedManifest)?;
+        validate_declaration(permission, &declaration, limits)
+            .map_err(|_| Failure::PreparedManifest)?;
+        let request = UploadManifestRequest {
+            permission,
+            declaration,
+        };
+        let admission = candid::encode_one(permission).map_err(|_| Failure::Arguments)?;
+        let references = ReferenceFiles::new(permission.upload, permission.upload.first_reference)?;
+        let preparation = candid::encode_one(&request).map_err(|_| Failure::Arguments)?;
+        if admission.len() > 4096 || preparation.len() > 65536 {
+            return Err(Failure::ReplyLimit);
+        }
+        let browser = serde_json::to_vec(&BrowserCertificateBinding::new(
+            permission,
+            admission.clone(),
+            &binding.project,
+            &binding.bucket,
+        ))
+        .map_err(|_| Failure::Arguments)?;
+        Ok(Self {
+            resources: installation.resources,
+            files,
+            binding,
+            permission,
+            request,
+            maximum,
+            admission,
+            preparation,
+            references,
+            browser,
+        })
+    }
+
+    pub fn check_body(&self) -> Result<(), Failure> {
+        LocalBody::open(&self.files.body, self.permission.upload.bytes).map(drop)
+    }
+
+    pub fn publish(
+        self,
+        directory: &Path,
+        expected_digest: Option<&str>,
+    ) -> Result<Value, Failure> {
+        let Self {
+            files,
+            binding,
+            request,
+            maximum,
+            admission,
+            preparation,
+            references,
+            browser,
+            ..
+        } = self;
+        let source = LocalBody::open(&files.body, request.permission.upload.bytes)?;
+        // All bounded decoding and canonical conversion precedes claiming the output.
+        let run = Run::create(directory)?;
+        run.bytes("binding.json", &files.binding)?;
+        run.bytes("manifest.json", &files.manifest)?;
+        run.bytes("installation.candid", &files.installation)?;
+        let hashes = snapshot(source, &request, maximum, &run)?;
+        if expected_digest.is_some_and(|expected| {
+            hashes.content_digest.to_string() != format!("sha256:{expected}")
+        }) {
+            run.json(
+                "failure.json",
+                &FailureRecord {
+                    error: Failure::Content.code(),
+                },
+            )?;
+            return Err(Failure::Content);
+        }
+        run.bytes("permission.candid", &admission)?;
+        run.bytes("manifest.candid", &preparation)?;
+        references.save(&run)?;
+        run.bytes("certificate-binding.json", &browser)?;
+        let result = json!({
+            "schema": 1, "observation": "local_upload_inputs",
+            "installation_file": "installation.candid",
+            "installation_sha256": digest(&files.installation),
+            "installation_binding_checked": true,
+            "installed_state_observed": false, "namespace_provisioned": false,
+            "binding_sha256": digest(&files.binding), "manifest_sha256": digest(&files.manifest),
+            "permission_sha256": digest(&admission), "preparation_sha256": digest(&preparation),
+            "root": binding.root, "bytes": binding.bytes,
+            "chunks": request.declaration.chunks.len(),
+            "permission_file": "permission.candid", "preparation_file": "manifest.candid",
+            "first_reference": references.summary(),
+            "certificate_binding_file": "certificate-binding.json",
+            "project": binding.project, "bucket": binding.bucket,
+            "certificate_binding_sha256": digest(&browser),
+            "body_file": "body.bin", "content_digest": hashes.content_digest.to_string(),
+            "authenticated": false, "identities_allocated": false, "body_verified": true,
+            "service_dispatched": false, "provider_dispatched": false,
+        });
+        run.json("summary.json", &result)?;
+        Ok(result)
+    }
 }
 
 /// Publish verified bytes before any usable request or browser binding output.
@@ -284,7 +427,7 @@ fn snapshot(
     run.publish_body()?;
     Ok(hashes)
 }
-fn digest(bytes: &[u8]) -> String {
+pub(super) fn digest(bytes: &[u8]) -> String {
     Sha256::digest(bytes)
         .iter()
         .fold(String::with_capacity(64), |mut result, byte| {
@@ -294,4 +437,4 @@ fn digest(bytes: &[u8]) -> String {
 }
 
 #[cfg(test)]
-mod tests;
+pub(in crate::native) mod tests;

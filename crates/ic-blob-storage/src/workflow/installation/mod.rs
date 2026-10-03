@@ -1,4 +1,5 @@
 //! Shared passive installation readback; hosts authenticate actual caller and service.
+pub mod recovery;
 use crate::{
     dto::configuration::{HostConfigurationView, HostFailure},
     model::service::upload::UploadContext,

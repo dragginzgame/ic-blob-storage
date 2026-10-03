@@ -9,6 +9,7 @@ pub(super) fn record(candidate: &super::ServiceInstallationCandidate<'_>) -> Con
     ConfigurationRecord {
         version: 1,
         release: candidate.release.to_owned(),
+        platform_installation_version: candidate.platform_installation_version,
         service: input.service,
         operator: input.operator,
         payment_account: input.payment_account,

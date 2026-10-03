@@ -36,6 +36,9 @@ pub struct ServiceInstallationCandidate<'a> {
     pub trusted_uploader: Principal,
     /// Host-supplied frozen package release, never an ingress override on restore.
     pub release: &'a str,
+    /// Actual IC version observed in init; zero means an offline/native candidate
+    /// has no qualified platform anchor. Never accept this value from ingress.
+    pub platform_installation_version: u64,
 }
 
 /// Completely validated installation, produced before a host grants or opens memory.
@@ -165,6 +168,7 @@ impl<M: Memory> ServiceInstallation<M> {
                 completion_verifier: record.completion_verifier,
                 trusted_uploader: record.trusted_uploader,
                 release,
+                platform_installation_version: record.platform_installation_version,
             },
         )?;
         let stores = ServiceStores::open(memories.stores, candidate.limits)?;
@@ -247,6 +251,33 @@ impl<M: Memory> ServiceInstallation<M> {
     /// Borrow all owners for synchronous shared transitions, preserving each owner's fence.
     pub fn stores_mut(&mut self) -> &mut ServiceStores<M> {
         &mut self.stores
+    }
+    /// Immutable platform anchor captured by the installing host. It becomes
+    /// useful only with independently obtained complete IC management history.
+    #[must_use]
+    pub const fn platform_installation_version(&self) -> u64 {
+        self.configuration.platform_installation_version
+    }
+    /// Enter an inspection-only fence for every owner. This never changes
+    /// reservations, pending work, history, accounting or external obligations.
+    pub fn fence(&mut self) {
+        self.stores.set_recovery_fence(true);
+    }
+    /// Resume the exact current installation after an independently obtained IC
+    /// continuity proof, in the same replicated callback and without an await.
+    /// Uncertain effects and occupied sessions remain held; this authorizes no retry.
+    /// # Errors
+    /// Rejects proofs from another service, anchor or platform execution version.
+    pub fn resume_current_instance(
+        &mut self,
+        proof: super::recovery::CurrentInstanceProof,
+    ) -> Result<(), super::recovery::CurrentInstanceRecoveryError> {
+        proof.check(
+            self.configuration.service,
+            self.configuration.platform_installation_version,
+        )?;
+        self.stores.set_recovery_fence(false);
+        Ok(())
     }
 }
 

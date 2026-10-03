@@ -13,6 +13,7 @@ use ic_memory::ic_stable_structures::VectorMemory;
 const RELEASE: &str = "test-release";
 fn input() -> ServiceInstallationCandidate<'static> {
     ServiceInstallationCandidate {
+        platform_installation_version: 0,
         configuration: candidate(),
         project: "project/β?&=",
         completion_verifier: Principal::from_slice(&[5, 1]),

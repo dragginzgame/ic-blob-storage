@@ -1,0 +1,15 @@
+{
+  "schema": 1,
+  "evidence_class": "source_review_and_local_validation",
+  "question": "Identify repository-owned closure work for host composition, operational restoration, physical deletion and billing cessation without reintroducing consumer frameworks or repeating the concurrently owned live trial.",
+  "targets": ["caffeinelabs/skills main and exact object-storage backend source", "IC management/system API specification", "maintained framework-free memory and lifecycle tests"],
+  "max_source_requests": 3,
+  "max_bytes_per_source_request": 1048576,
+  "max_seconds_per_source_request": 30,
+  "max_live_provider_requests": 0,
+  "max_mutations_or_paid_effects": 0,
+  "prior_live_read_observations": "Three bounded mainnet-verified payer/owner/budget reads were retained in .tmp/trial-v070-live-01/query-journey-*. No service or provider mutation was submitted by this session.",
+  "prior_web_search": "One exploratory search for IC snapshot/version semantics and provider deletion returned primary IC references and no usable provider deletion/billing result; no actual-provider guarantee was established.",
+  "stop": "Do not invent provider final-settlement evidence, accept local-backup counters as freshness, clear fences, or repeat the other session's upload/attestation/download.",
+  "cleanup": "Preserve all unrelated work, journals and obligations. Retain failed browser preflights and their original unsigned profile; it is not used for transfer. No sibling changes, commits, release, deployment, reset or build cleanup."
+}

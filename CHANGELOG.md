@@ -2,6 +2,81 @@
 
 ## [Unreleased]
 
+## [0.8.0]
+
+### Breaking
+
+- Require the host's immutable IC installation version in the current v1
+  configuration record and installation candidate. Add operator-only
+  `blob_resume_current_instance`, backed by bounded replicated IC management
+  history and a sealed same-execution proof. Same-release upgrades remain fenced
+  until this proof succeeds; every journal, reservation and unresolved obligation
+  survives activation. Snapshot loads, state replacement and incomplete/unknown
+  history refuse recovery. The standalone host fences management-version gaps,
+  including stop/start and old heap restoration. Previously active owners qualify
+  ambiguous execution gaps with one independent preflight before mutation; restored
+  owners still require explicit operator recovery. Capture ingress caller before
+  the await and reject history invalidated by intervening execution/management.
+  Cross-release transitions remain
+  reinstall-only; existing installations cannot upgrade across this hard cut.
+
+### Added
+
+- Add browser `createPublicationUpload` for a frozen native file. Verify the
+  saved body digest, exact metadata/leaves and rebuilt Caffeine SDK root before
+  certificate intent; reuse the existing certificate, transfer and durable gateway
+  journals. Local single-file frozen-batch journeys cover upload, independent
+  verification, attestation, download, release and interrupted/corrupt outcomes
+  without redispatch. Add opt-in `test-browser-publication` for offline frozen-input
+  refusal and snapshot checks; complete batch publication remains unfinished.
+- Add indexed `publish-prepare` and `publish-prepare-resume` for complete frozen
+  batches. Authenticate tenant and uploader independently, check the selected
+  root/capacity and reuse signed admission/preparation journals. Recovery binds
+  exact original scope and packets, never resubmits a claimed update, and can
+  complete only a previously unclaimed preparation. No certificate or provider
+  transfer occurs; partial claims, retired content and fences remain blocked.
+- Add authenticated `publish-check` for complete frozen batches. Reverify saved
+  bodies and request packets before networking; retain bounded capacity/content
+  queries and replies, original discovered IDs, partial failures and explicit
+  recovery/reuse/retirement blockers. Separate history, bytes, leaves, concurrency,
+  suspension and restore fencing. No ID allocation, reservation or provider calls.
+- Add offline `publish-inputs` for a frozen, explicitly bound upload inventory.
+  Reuse the existing installation/manifest validators and streaming body verifier;
+  check input hashes, unique operation/object/reference identities, one tenant/
+  provider scope and aggregate fresh-installation object/leaf/byte capacity.
+  Save serial verified snapshots and original request files; retain partial failure
+  evidence, refuse overwrite and emit a batch summary only after every file passes.
+  This prepares inputs without observing live capacity, allocating IDs or uploading.
+- Prepare a separate frozen 0.7.0 trial packet and exercise real Caffeine SDK
+  preparation plus native batch verification for 1 KiB and 10 MiB files. Retain
+  the original 0.6.0 owner's failed upload, balances and liabilities.
+- Complete live 1 KiB and ten-chunk 10 MiB Caffeine uploads on a separate 0.7.0
+  owner, independent whole-byte verification, accepted verifier attestations and
+  authenticated tenant downloads matching the original snapshots. Retain exact
+  requests, browser journals, financial observations and failed preparations.
+  Logical reference releases retain all physical bytes and billing liabilities;
+  production consumer acceptance, deletion and billing cessation remain open.
+
+### Changed
+
+- Raise the configurable browser journal ceiling to 1,000,000 lifetime attempts,
+  independent of the 4,096-file native batch bound and service capacity. Preserve
+  immutable capacities and cancelled/dispatched history. Actual Chromium checks
+  retain 675 rows across restart; one million populated rows remains unqualified.
+
+### Fixed
+
+- Remove the unused Canic build-lock artifact; production code and dependency
+  resolution remain independent of downstream frameworks. Record consumer-owned
+  adapter/Toko hard-cut actions and separate provider deletion/billing evidence
+  requirements in the service-gap review.
+- Independently check the selected compiled host release in the PocketIC
+  installation carrier test. Make supplies the current workspace version;
+  deployment reviews supply their selected version. Catch stale preserved build
+  artifacts after release-file version changes and document rebuilding and
+  qualifying deployment bytes. The live trial catches a 0.6.1 artifact before
+  provider exposure, then qualifies 0.7.0 and corrects only the empty new owner.
+
 ## [0.7.0] - 2026-10-02
 
 ### Breaking

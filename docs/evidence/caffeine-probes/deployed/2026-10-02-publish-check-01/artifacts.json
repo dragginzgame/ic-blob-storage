@@ -1,0 +1,9 @@
+{
+  "schema": 1,
+  "date": "2026-10-02",
+  "capture": ".tmp/publish-check-01",
+  "private_manifest_sha256": "a9a824cd06e2d6bc80e3506e9d5249f8ab0c8f878a83695542a401d60bcef415",
+  "private_regular_files": 39,
+  "summary_sha256": "c13ec52e251df66ea5f0bff96343fc334d24aeec4553651178a974efb0b61808",
+  "retention": "Original frozen batch inputs, finite read-only query intents and arguments, three raw replies, verified report, development binary, independent decoder and successful and failed targeted checks are sealed privately. Existing owner, browser profiles, reservations and physical/billing obligations remain unchanged. No new provider effect is authorized by this check."
+}

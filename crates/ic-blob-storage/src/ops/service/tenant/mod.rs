@@ -29,6 +29,9 @@ pub struct StableTenantEnrollments<M: Memory> {
 }
 
 impl<M: Memory> StableTenantEnrollments<M> {
+    pub(crate) fn set_recovery_fence(&mut self, fenced: bool) {
+        self.fenced = fenced;
+    }
     /// Install in a fresh host-granted memory. This never initializes over old data.
     /// # Errors
     /// Rejects any allocated memory, even if its schema or records are missing.

@@ -1,0 +1,186 @@
+{
+  "schema": 1,
+  "date": "2026-10-02",
+  "evidence": "offline_sdk_native_batch_and_fresh_trial_preparation",
+  "capture": ".tmp/trial-v070-preparation-01",
+  "release": "0.7.0",
+  "release_commit": "a6f7e408933e96d11c95a170805bca5a5a6edf7e",
+  "artifact_origin": "Existing target CLI/Wasm retained before source edits; declared DID and source archive from released baseline. No reproducible-build claim or live installation readback.",
+  "development_binary": "Unreleased publish-inputs compiled from the local working tree; separate from released CLI artifact.",
+  "inputs": {
+    "local_only": true,
+    "service_standin": "rrkah-fqaaa-aaaaa-aaaaq-cai",
+    "must_not_deploy": true,
+    "namespace": "2",
+    "project": "d0770e45-29b6-4449-b499-961aea5daa47",
+    "bucket": "ic-blob-storage-trial-d0770e45-29b6-4449-b499-961aea5daa47",
+    "files": [
+      {
+        "directory": "file-0000",
+        "bytes": "1024",
+        "chunks": 1,
+        "root": "sha256:4286340c32cc760d90cd3f03fbee0fd0d15ccf0ef99665ef2b974470315adbe1",
+        "content_digest": "sha256:61aa76423b117ea657e0eb29aabb169aa8eaa6b82c22885a3293af5e30e07be8"
+      },
+      {
+        "directory": "file-0001",
+        "bytes": "10485760",
+        "chunks": 10,
+        "root": "sha256:333f902f7be3bc98be0b81f6a6f4e5fe551532af4fca3b0face37057c18492f0",
+        "content_digest": "sha256:00ce00b1feed01000b86378750cf8e03fb91059e23ecf354bb7733004d334a59"
+      }
+    ]
+  },
+  "checks": {
+    "complete_installation_candidate_validated": true,
+    "independent_declared_did_encode_decode": true,
+    "actual_sdk_preparations": 2,
+    "body_sizes": [
+      1024,
+      10485760
+    ],
+    "total_bytes": "10486784",
+    "retained_chunks": 11,
+    "serial_snapshots_exact": true,
+    "candidate_capacity_only": true,
+    "native_single_and_batch_tests": true,
+    "scope_duplicate_identity_capacity_hash_and_path_refusals": true,
+    "partial_failure_retained": true,
+    "digest_mismatch_before_request_outputs": true,
+    "repeat_refuses_overwrite": true,
+    "strict_cli_all_targets_all_features_lint": true,
+    "format_check": true
+  },
+  "fresh_trial_proposal": {
+    "source_identity": "canic-mainnet-recovered",
+    "max_creation_gross_cycles": "1000100000000",
+    "daily_limit_cycles": "5000000000000",
+    "nominal_expiry": "Two hours from fresh actual-target selection",
+    "current_creation_fee_liquidity_and_account_allocation_unobserved": true,
+    "old_owner_preserved": "4wyfo-qaaaa-aaaam-qjlpq-cai",
+    "old_profile_link_balances_liabilities_preserved": true,
+    "standing_total_spend_authority_cycles": "100000000000000",
+    "historical_gross_donor_debit_cycles": "7100100000000",
+    "new_deployment_and_relationship_selection_pending": true
+  },
+  "effects": {
+    "external_network_requests": 0,
+    "provider_requests": 0,
+    "attached_cycles": "0",
+    "mainnet_creation": false,
+    "installation": false,
+    "link": false,
+    "funding": false,
+    "certificate": false,
+    "upload": false,
+    "download": false
+  },
+  "failures": [
+    {
+      "class": "local_edit",
+      "record": "tool transcript",
+      "outcome": "Two patch attempts referenced absent lines; neither applied. Corrected patches applied without losing work."
+    },
+    {
+      "class": "sandbox_loopback",
+      "record": "native-tests-01.log",
+      "outcome": "New and other offline cases passed; two existing HTTP listener tests could not bind in the sandbox. Authorized loopback reruns passed."
+    },
+    {
+      "class": "strict_lint",
+      "record": "clippy-01.log",
+      "outcome": "Removed an unused installation byte field and two redundant borrows."
+    },
+    {
+      "class": "strict_lint",
+      "record": "clippy-02.log",
+      "outcome": "Changed the installation decoder to a borrowed byte slice; strict final lint passes."
+    }
+  ],
+  "artifacts": [
+    {
+      "private_path": "released-source.tar",
+      "bytes": 7905280,
+      "sha256": "956ed174b2f775c32977d39de1e2877dbb8a00d11744dadb64d19a002814b59b"
+    },
+    {
+      "private_path": "artifacts/blob-storage",
+      "bytes": 156475512,
+      "sha256": "fd730e9476933b944dda78619bf107dc7301e40c064b7da63078d623fbe1e08b"
+    },
+    {
+      "private_path": "artifacts/ic_blob_storage_canister.wasm",
+      "bytes": 4008847,
+      "sha256": "eb2afbfbea3473ee9f6766fec3b4ed139adf1dffc341fa60d4d5d2eb221a1b9c"
+    },
+    {
+      "private_path": "artifacts/service.did",
+      "bytes": 53978,
+      "sha256": "28d84c104579a5ab06571c2f1a8816dd186595b0d13824183dbf60f4b3848c93"
+    },
+    {
+      "private_path": "artifacts/release.json",
+      "bytes": 447,
+      "sha256": "685eb8219e59b3e1deee0c1b3188d8a9b3bd0b42f8924ff362563141bd72fc70"
+    },
+    {
+      "private_path": "candidate/configuration.candid",
+      "bytes": 446,
+      "sha256": "896f96a3ca04676e35c9f4b67915f2e8a14b7f341bf34a0cc258074963e4abff"
+    },
+    {
+      "private_path": "candidate/checked/installation.candid",
+      "bytes": 571,
+      "sha256": "c7ba1de57587eebc381031302e69f6161627919c8a3568d82b0aea8942d198ba"
+    },
+    {
+      "private_path": "candidate/account-link/account-link.candid",
+      "bytes": 96,
+      "sha256": "0aa512b29ee8572d79cfdff62fd84414aed78b076fadd7ac1f8bafc6bfc1dd51"
+    },
+    {
+      "private_path": "candidate/proposal.json",
+      "bytes": 2060,
+      "sha256": "4a3be9ba46dd92ebb9ae8ea299faf33a78ab8ff8316f3a4deb4799895fd22175"
+    },
+    {
+      "private_path": "candidate/inventory.json",
+      "bytes": 807,
+      "sha256": "4c28cebc1e6f1dbf4ee06cf43862f51c3077aecf73222f746f73c02a04a73667"
+    },
+    {
+      "private_path": "development-artifacts/blob-storage",
+      "bytes": 157088176,
+      "sha256": "e1447545e014e6855190e102e40716b93d5cc271bf645465c00302f3d78c80a1"
+    },
+    {
+      "private_path": "batch/summary.json",
+      "bytes": 4829,
+      "sha256": "dc7bdcd8f8c4f9f944479db3f3a4c8cb4e9bf71f27b013a0516c524cf379a270"
+    },
+    {
+      "private_path": "native-tests-03.log",
+      "bytes": 8745,
+      "sha256": "ae7c4c358be74fc9795c56a0cfc9cb488c5477949a0a9e689eb302b9544c8b17"
+    },
+    {
+      "private_path": "clippy-04.log",
+      "bytes": 177,
+      "sha256": "d66aaddc745ebc099607e8df6566bb87d77478fc1dd22483725031566eb976f7"
+    },
+    {
+      "private_path": "format-check.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "limitations": [
+    "Offline candidate fit does not observe remaining live capacity, grant IDs or authenticate a tenant.",
+    "The actual service, compiled release, provider namespace, account allocation and permission clock must be checked after exact deployment/link selection.",
+    "10 MiB preparation/snapshot verification does not qualify complete large browser/native transfers.",
+    "Serial publication, exact network interruption recovery and consumer media-map/delivery acceptance remain open.",
+    "The historical creation balance reduction is not a current fee quote; current fee/cost/liquidity must be refreshed before effects."
+  ],
+  "cleanup": "No provider/account/installation resources created. Private artifact packet retained; original trial owner, identities, profile and histories unchanged. No build cleanup.",
+  "next": "Review concrete deployment/new-link trial proposal, regenerate for actual new owner/deadline after approval, then small upload/verify/attest/download before large trial."
+}

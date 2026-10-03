@@ -1,0 +1,32 @@
+{
+  "schema": 1,
+  "evidence_class": "source_review",
+  "revision": "98cbeb63aceaf3e1ae74d9dff64235445643bbdb",
+  "source_requests": 3,
+  "provider_paid_effects": 0,
+  "reviewed_contracts": [
+    {
+      "completed_at": "2026-10-02T16:59:50.546Z",
+      "url": "https://raw.githubusercontent.com/caffeinelabs/skills/98cbeb63aceaf3e1ae74d9dff64235445643bbdb/packages/object-storage/backend/src/Mixin.mo",
+      "status": 200,
+      "bytes": 2493,
+      "sha256": "175c6b98672a83054fc08855062d1a7b7f2bd3713bf11a60d5319ac5afefe2b3"
+    },
+    {
+      "completed_at": "2026-10-02T16:59:50.797Z",
+      "url": "https://raw.githubusercontent.com/caffeinelabs/skills/98cbeb63aceaf3e1ae74d9dff64235445643bbdb/packages/object-storage/backend/src/Storage.mo",
+      "status": 200,
+      "bytes": 2291,
+      "sha256": "0c757f4cb30ebe8e30b42a59b130a1662b47e403b9664f44e98d14b08b20af42"
+    }
+  ],
+  "findings": {
+    "deletion_callbacks": "Authorized gateway, roots only, retained dead-root enumeration and prune/GC acknowledgement; no live provider deletion is observed.",
+    "final_billing_receipt": "Not present in these reviewed public contracts or retained Cashier DID; this is scoped source absence, not a claim that the provider cannot supply further evidence.",
+    "logical_release": "Separate from provider deletion and billing cessation; all deployed trial obligations survive."
+  },
+  "deployed_journeys": "../../deployed/2026-10-02-trial-v070-live-01/summary.json",
+  "deletion_and_billing_qualified": false,
+  "required_acceptance": "../../../../service-gaps.md",
+  "retained_private_capture": ".tmp/service-gap-review-01"
+}

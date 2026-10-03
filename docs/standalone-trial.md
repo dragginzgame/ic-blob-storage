@@ -53,6 +53,84 @@ Removing the former public trial gate requires a minor release and cross-release
 reinstall after obligations are preserved or discharged; it does not reconfigure
 the existing live owner or authorize deploying a consumer installation.
 
+## Fresh 0.7.0 trial proposal
+
+The [offline preparation record](evidence/caffeine-probes/local/2026-10-02-trial-v070-preparation-01/summary.json)
+retains frozen source/Wasm/DID/CLI artifacts and a complete validated candidate.
+It uses the local service stand-in `rrkah-fqaaa-aaaaa-aaaaq-cai`; **never deploy
+its init or use its account-link/upload inputs on mainnet**. Regenerate exact
+bindings for the fresh creation receipt's principal and a current deadline.
+Existing identities remain in their original private files; no keys are exported.
+
+| Selection | Proposed value |
+| --- | --- |
+| Operator/controller and source | Existing `canic-mainnet-recovered`, `o5trf-oqyg7-cawjp-xs4pw-aomb3-iwki5-hyezf-qahfz-j3ffd-jh4fc-oqe` |
+| Payer, tenant and trusted uploader | Existing isolated `jaqw3-42pqs-5bivi-nj3xg-5row5-gpluj-sbn54-vthud-pyb5v-sm2rs-bae` |
+| Independent verifier | Existing `n67bb-yqikw-jbye7-anfpz-tgws7-akhqy-kdpln-ihuix-hzdjf-3ghwy-4ae` |
+| Provider | Cashier `72ch2-fiaaa-aaaar-qbsvq-cai`, gateway `https://blob.caffeine.ai`, verified mainnet IC root |
+| Owner | One newly created standalone 0.7.0 canister; no upgrade/reinstall of the old owner |
+| Namespace / project | Local namespace `2`; candidate project `d0770e45-29b6-4449-b499-961aea5daa47` |
+| Bucket | `ic-blob-storage-trial-d0770e45-29b6-4449-b499-961aea5daa47`; provider acceptance unqualified |
+| Creation proposal | 1T amount, maximum 1.0001T gross source debit including the historical 100M ledger fee; stop if refreshed fee, liquidity or creation cost cannot support it |
+| New relationship | Existing payer to the fresh owner; raw daily allowance 5T, nominal expiry two hours from fresh selection, one submission; no alteration of the old link |
+| Installation capacity | One tenant, two lifetime objects, 20 retained leaves, 10 MiB per object, 20 MiB physical/liability/logical bytes; one active upload |
+| Cleanup history | Two references / three receipts per object; retain provider/billing obligations after logical release |
+| Read capacity | One session, 10 MiB byte budget, 1 KiB reply bound; native streaming/verifier limits independently 10 MiB |
+| Service attachments | One-cycle allocation entirely reserved; no attachment offer or automatic provider top-up |
+
+The previous 2T creation yielded about 1.5T in the owner before later runtime
+costs. Creation amount is not retained canister balance; this comparison does
+not establish a current creation price. Last donor liquidity is only 1.654605097235T.
+The existing 100T total trial authority persists, with 7.1001T gross donor debit
+recorded; neither number proves current liquid funds. No additional payer deposit
+or alternative funding identity is selected. Refresh original payer/donor/owner/
+gateway balances, actual fee, link expiry and terms before signing anything.
+
+Run the small known 1 KiB file first. Only after independent verification,
+verifier attestation, successful tenant download and reconciled financial readback
+may the second 10 MiB/ten-chunk file proceed. The offline SDK/native preparation
+checks both bodies, eleven aggregate leaves and 10,486,784 total bytes; it does
+not qualify complete large-file transfer. New upload IDs/object IDs/first-reference
+IDs `1` and `2` are proposed for the fresh owner only, never allocated by local
+preparation. Select a new persistent browser profile/database with two slots;
+preserve the old profile and its certificate/403 claim unchanged.
+
+Bound the two transfers together to two certificate claims, thirteen serial PUT
+dispatches, 2 MiB per PUT and 16 MiB aggregate request bodies. Bound independent
+verification and tenant downloads to four GET dispatches and 20,973,568 content
+bytes total, with existing request/reply deadlines. Capture live account/setup
+queries and updates under a new intent with separate finite transport/time budgets
+before effects. Stop at any refusal, mismatch, uncertainty or exhausted budget;
+no automatic retry or fresh operation replaces an uncertain one. Release each
+exact first reference after its successful download, preserving exposure, physical
+bytes and liability; this is not provider deletion or billing cessation.
+
+The maintainer explicitly approves this fresh-owner trial and covered actions
+below 100T total or 20T/day, without repeat confirmation. Keep this selected run
+within both limits; remind the maintainer when available balances are below 100T.
+The approved actual owner is `5gsmp-viaaa-aaaak-qzhfa-cai`, with the same roles,
+namespace and project. Its new link is 5T/day, nominal expiry
+`2026-10-02T18:40:17.685Z` (raw `1790966417685000000`); expiry enforcement
+remains unqualified. The run is retained in `.tmp/trial-v070-live-01`.
+Actual principal, fresh terms and verified readback replace stand-in inputs before
+setup. The old 0.6.0 owner, old link, balances, failed transfer and continuing
+obligations survive. No additional permission is needed for covered actions.
+
+The [completed live record](evidence/caffeine-probes/deployed/2026-10-02-trial-v070-live-01/summary.json)
+qualifies both selected sample journeys, including exact tenant body comparison
+and logical release. The large sample repeats one chunk hash ten times; distinct
+consumer assets and complete publication batches remain open. Final accounting
+retains 10,486,784 physical/liability bytes and zero logical/reserved bytes.
+Both lifetime object slots and browser slots are consumed; do not reset/reinstall
+the owner or browser history to make another upload. Preserve surviving provider
+objects, credits and billing obligations until owned disposition is proved.
+
+The preserved preparation Wasm initially reports 0.6.1. Before any tenant/link/
+certificate exposure, the empty new owner is independently verified and corrected
+once with rebuilt, PocketIC-qualified 0.7.0 bytes. Original mismatch and outcomes
+remain. Deployments must independently check the selected compiled release and
+module hash; a tag or release receipt cannot prove preserved target bytes.
+
 ## Recorded 0.6.0 prototype envelope
 
 The original isolated trial selected these assumptions together. They describe

@@ -13,6 +13,7 @@ export BLOB_GATEWAY_SOURCE_WASM := $(CARGO_TARGET_DIR)/wasm32-unknown-unknown/re
 export BLOB_FUNDING_PROBE_WASM := $(CARGO_TARGET_DIR)/wasm32-unknown-unknown/release/blob_funding_probe.wasm
 export BLOB_STANDALONE_WASM := $(CARGO_TARGET_DIR)/wasm32-unknown-unknown/release/ic_blob_storage_canister.wasm
 export BLOB_CLI_BIN := $(CARGO_TARGET_DIR)/debug/blob-storage
+export BLOB_EXPECTED_HOST_RELEASE := $(shell perl scripts/release/release-data.pl version)
 export BLOB_BROWSER_NODE ?= node
 BLOB_SDK_INPUTS_BYTES ?= 10485760
 VERSION ?=
@@ -20,7 +21,7 @@ RELEASE := bash scripts/release/release.sh
 CI_TARGETS := shell-check release-check fmt-check check clippy probe-check docs-check test wasm-check package
 
 .PHONY: help version deps cloc fmt fmt-check check clippy docs-check test test-native test-pocketic test-browser test-browser-store test-browser-transport test-browser-standalone test-sdk-probe test-sdk-inputs test-fixture test-standalone build-standalone test-admission-resources test-read-resources wasm-check \
-	build package clean shell-check release-check probe-check ci validate release-verify \
+	build package clean shell-check release-check probe-check ci validate release-verify test-browser-publication \
 	release-plan ensure-clean patch minor major bump-x release-patch \
 	release-minor release-major release-x release-stage release-commit \
 	release-tag-check release-push publish publish-dry-run
@@ -34,6 +35,7 @@ help:
 	@echo "build-standalone / test-standalone   Standalone host Wasm or focused local IC tests"
 	@echo "test-browser                  Opt-in Chromium certificate/IndexedDB evidence"
 	@echo "test-browser-store            Opt-in Chromium journal persistence without Rust builds"
+	@echo "test-browser-publication      Opt-in offline frozen-file checks; BLOB_PUBLICATION_REPORT=NEW_DIRECTORY"
 	@echo "test-browser-transport        Opt-in owned TLS transport checks; BLOB_BROWSER_TRANSPORT_REPORT=NEW_DIRECTORY"
 	@echo "test-browser-standalone       Opt-in local standalone upload/verified download rehearsal"
 	@echo "test-sdk-probe                Opt-in local SDK fault probe; BLOB_SDK_PROBE_REPORT=NEW_DIRECTORY"
@@ -126,6 +128,11 @@ test-browser-transport:
 	@test -n "$(BLOB_BROWSER_TRANSPORT_REPORT)" || { echo 'Set BLOB_BROWSER_TRANSPORT_REPORT to a new directory beneath an existing parent'; exit 1; }
 	$(BLOB_BROWSER_NODE) tests/browser/build.mjs
 	$(BLOB_BROWSER_NODE) tests/browser/transport.mjs "$(BLOB_BROWSER_TRANSPORT_REPORT)"
+
+test-browser-publication:
+	@test -n "$(BLOB_PUBLICATION_REPORT)" || { echo 'Set BLOB_PUBLICATION_REPORT to a new directory beneath an existing parent'; exit 1; }
+	$(BLOB_BROWSER_NODE) tests/browser/build.mjs
+	$(BLOB_BROWSER_NODE) .tmp/browser/publication.mjs "$(BLOB_PUBLICATION_REPORT)"
 
 test-browser-store:
 	$(BLOB_BROWSER_NODE) tests/browser/build.mjs

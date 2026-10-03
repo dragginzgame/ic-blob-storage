@@ -93,11 +93,8 @@ try {
   const load = async () => { await page.goto(origin); await page.waitForFunction(() => !!window.trial); };
   await load();
   send(await page.evaluate(() => trial.plan()));
-  const preparation = await next();
-  send({ preparation: await page.evaluate(({ config, bytes }) => trial.prepare(config, bytes),
-    { config, bytes: preparation.manifest }) });
   const grant = await next();
-  const options = { ...config, binding: grant.binding, gateway: uploads.origin };
+  const options = { ...config, binding: grant.binding, snapshot: grant.snapshot, gateway: uploads.origin };
   await page.evaluate(config => trial.setup(config, 'create'), options);
   assert.equal((await page.evaluate(() => trial.inspect())).phase, 'saved');
   const saved = await page.evaluate(() => trial.inspect());
@@ -134,11 +131,8 @@ try {
   const recovered = await page.evaluate(() => trial.recover());
   assert.deepEqual(recovered.row, uploaded); assert(recovered.certificateBytes > 0);
   assert.equal(await page.evaluate(async () => {
-    try { await trial.issue(); return 'sent'; } catch (error) { return error.code; }
-  }), 'dispatch-blocked');
-  assert.equal(await page.evaluate(async () => {
-    try { await trial.probe(); return 'sent'; } catch (error) { return error.code; }
-  }), 'gateway-session');
+    try { await trial.upload(); return 'sent'; } catch (error) { return error.code; }
+  }), 'upload-claimed');
   assert.equal(await page.evaluate(() => trial.calls()), 0);
   send({ gateway: origin, uploaded: outcome.uploaded, recovered: true, root: grant.binding.root,
     puts, providerCompletion: false, uploadFailure: outcome.failure ?? null,

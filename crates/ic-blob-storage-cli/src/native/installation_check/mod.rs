@@ -47,6 +47,7 @@ pub(super) fn run(args: &[String]) -> Result<Value, Failure> {
         completion_verifier: verifier,
         trusted_uploader,
         release,
+        platform_installation_version: 0,
     };
     // This is a proposed platform identity, not an authenticated actual host.
     ValidatedServiceInstallation::new(service, candidate).map_err(|_| Failure::Arguments)?;

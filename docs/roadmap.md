@@ -1,7 +1,7 @@
 # Development plan
 
-Released 0.6.1 supplies the framework-independent library and standalone service,
-the restricted upload contract and ic-memory 0.15.3. Downstream wrappers, deployment
+Released 0.7.0 supplies the framework-independent library and standalone service,
+configured upload sizes and capacity, trusted issuance and ic-memory 0.15.3. Downstream wrappers, deployment
 integration and their tests belong in consumer repositories. Library publication
 is separate from qualified live service operation.
 
@@ -13,28 +13,51 @@ those handlers and restores all owners synchronously into fences. Native tooling
 prepares exact inputs and verified snapshots, inspects signed service state,
 performs reference/verifier operations once and recovers uncertain acknowledgments.
 Browser transfer composes the maintained Caffeine SDK with the certificate intent
-and bounded gateway journal. Actual live certificate/upload/download remains open.
+and bounded gateway journal. A separate [0.7.0 live trial](evidence/caffeine-probes/deployed/2026-10-02-trial-v070-live-01/summary.json)
+completes 1 KiB and ten-chunk 10 MiB uploads, independent verification, verifier
+attestations and tenant downloads. Logical releases retain physical/billing
+obligations. Unreleased qualifies operator-only current-instance upgrade recovery
+against independent IC history and fences old heap snapshots; older-backup
+activation and complete consumer batch delivery remain open.
 
 ## Milestones and completion evidence
 
 | Milestone | Maintained implementation | Remaining evidence |
 | --- | --- | --- |
 | Provider contract | Caffeine is the sole provider; request/callback definitions have one owner, retained probes separate source/local/live observations | Pre-charge limits, namespace authority, escaped-certificate/replay economics, deletion and billing cessation |
-| Durable service | Shared installation and bounded owners, exact replay/history, separate logical/physical/liability accounting and local IC rollback | Qualified operational recovery with complete surviving obligations and freshness authority |
-| Standalone prototype | Explicit endpoints and installation, native upload setup/download/verifier/reference tooling and browser preparation | One bounded actual upload and independent verified download under an accepted operating contract |
+| Durable service | Shared installation and bounded owners, exact replay/history, separate logical/physical/liability accounting; Unreleased current-instance IC-history recovery and old-snapshot refusal | Release/adoption of the hard cut; older-backup activation with complete surviving obligations and freshness authority |
+| Standalone prototype | Explicit endpoints; live 1 KiB/10 MiB upload, independent verification, attestation, tenant download and logical release; Unreleased current-instance recovery | Distinct consumer media, complete publication batch and older-backup recovery |
 | Consumer acceptance | Framework-free public library and generic host grants/handlers | Concrete consumer, accountable owner, its wrapper/outbox tests and real asset transaction |
 | Retirement | Fences, exact history and obligation-preserving release semantics | Per-installation inventory, owned settlement/disposition and actual billing-cessation evidence |
 
 ## Next action
 
-The maintainer now requests removing the 1 KiB integration blocker. Current source
-uses installed object/tenant/global/lifetime limits for issuance, removing the extra
-trial envelope and its public blocker/host field in a pending minor hard cut.
+The 1 KiB integration blocker is removed in released 0.7.0. Issuance uses installed
+object/tenant/global/lifetime limits, with the extra trial envelope and public
+blocker/host field removed in the minor hard cut.
 The same trusted-uploader, exact permission, exposure journal and restore fences
-remain. A 10 MiB configured object issues in local IC checks; this does not qualify
-larger live transfers or production Miner adoption. Publish the minor contract
-before consumers adopt it; size lifetime release history and client/read budgets
-from their frozen consumed-media inventory. The original live owner stays frozen.
+remain. The fresh live trial now completes both selected sample sizes, preserving
+the old stopped owner and every new provider/billing obligation. Its two-object
+lifetime capacity is full; it cannot be reset to publish additional assets.
+Unreleased adds [offline batch preparation](operator-guide.md#freeze-a-publication-inventory-offline):
+original input hashes, unique identities, one tenant/provider scope, aggregate
+fresh-installation fit and serial root-verified snapshots. Real SDK 1 KiB/10 MiB
+inputs pass without network traffic. This is not a live capacity observation or
+publication. Unreleased `publish-check` now adds bounded authenticated capacity/
+content observations with exact original IDs and explicit blockers, including a
+read-only check against the deployed samples. Indexed `publish-prepare` now connects
+admission/preparation to the original consumer intent and signed service journals;
+explicit resume observes claimed updates without resubmission. The browser frozen-file
+helper now connects certificate exposure and SDK transfer to those inputs; local
+standalone journeys independently verify, attest, download and release the result.
+Next automate the complete frozen batch with surviving per-file outcomes and
+confirmed reference/media mapping, then qualify consumer acceptance; size
+lifetime release history and client/read budgets from the consumed-media inventory.
+The browser lifetime ceiling is now configurable to one million, independently
+of 4,096-file batches. Actual journal restart evidence covers 675 rows, not a
+million populated service records. The [large-inventory sizing review](operator-guide.md#larger-inventories-and-a-dedicated-storage-owner)
+records stable-index and synchronous reopen costs to benchmark before promising
+that scale; a dedicated storage owner keeps those budgets separate from gameplay.
 
 The maintainer accepted the [restricted standalone contract](standalone-trial.md): one 1 KiB
 file under explicit trusted roles and a restricted fresh-instance lifecycle.
@@ -47,8 +70,8 @@ Finish the existing upload/download trial prerequisites. Select exact isolated
 service/tenant/uploader/verifier, Cashier/payer, gateway/project/bucket and reviewable
 financial/byte/time limits. The offline checks prepare these inputs but grant no
 platform identity, account authority or provider qualification. The current
-certificate gate checks installed uploader trust, local namespace, restricted
-envelope and durable current ownership. Provider spending/replay guarantees remain
+certificate gate checks installed uploader trust, local namespace, an admitted
+reservation within configured quotas and durable current ownership. Provider spending/replay guarantees remain
 outside the accepted contract; client ceilings are not a provider spending cap.
 This semantic/init/API hard cut shipped in the 0.6.0 minor release. The
 [released artifact review](status/current.md#released-artifact-review-and-next-step--2026-10-02)
@@ -163,6 +186,22 @@ no deployment, funding, provider effect or upstream repository change.
 
 ### Toko Miner feedback — 2026-09-27
 
+The 2026-10-03 read-only review finds local HEAD
+`3354dfc6b9fe791884ec69e8dd344de313b36940`, clean feedback SHA-256
+`62b8cede95cfc1dc5bcac8e33eac07c8b20647767ade2aa0875a7eb5dadb1a91`.
+Miner's single-build emitted workload is 679 asset identities / 675 distinct
+blobs / 221,173,950 bytes / 763 distinct leaves, with 767 leaves before
+deduplication. This recorded measurement is more useful than the 816-file source
+envelope; this review does not rerun its build or qualify provider deduplication.
+Miner recognises both live sample journeys and Unreleased inputs/checker work.
+BLOB-002/003/004 remain open: full frozen publication/recovery, public delivery
+and release retention/reintroduction. Its maintained preparation uses registry
+0.7.0; dirty publisher/recovery changes here are not that package. The immutable
+installation anchor's twenty-change management-history horizon also needs an
+operating/retirement plan. Canic wrapper adoption remains deferred until its
+independent blob code's published removal. No sibling write, build or provider
+experiment occurs. See the [consumer backlog](canic-parity.md#integration-feedback).
+
 The 2026-10-02 read-only follow-up finds local HEAD
 `dcc4b0131a928092f39be45d06d5397f3045f8ff` and uncommitted feedback SHA-256
 `cd187187521a88392b052eed265ee7d4dc16130120e5f892a369123760703c35`.
@@ -170,7 +209,7 @@ Its latest recorded survey reports 816 media files/271,176,671 bytes, largest
 8,362,256 bytes. This supersedes the earlier survey for sizing guidance only;
 it is not a refreshed asset measurement or production consumed-media inventory.
 The current source's configured issuance removes the deliberate size/capacity
-policy blocker, pending minor publication. Headless publication, delivery/trust,
+policy blocker, released in 0.7.0. Headless publication, delivery/trust,
 retention/reintroduction and consumer wrapper acceptance remain open.
 
 The maintainer requested review of `../toko-miner/docs/upstream/ic-blob-storage.md`.

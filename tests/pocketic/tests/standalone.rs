@@ -24,6 +24,8 @@ mod standalone_history_cli;
 mod standalone_installation_cli;
 mod standalone_lifecycle;
 mod standalone_operator;
+mod standalone_publish_check;
+mod standalone_publish_prepare;
 mod standalone_reference_capacity;
 mod standalone_reference_native_cli;
 mod standalone_reference_recovery;
@@ -288,6 +290,15 @@ impl Fixture {
             .pic
             .upgrade_canister(self.service, wasm(), args, Some(self.controller))
     }
+    fn resume(
+        &self,
+        actor: Principal,
+    ) -> Result<(), ic_blob_storage::dto::recovery::CurrentInstanceRecoveryFailure> {
+        self.harness
+            .pic
+            .update_candid_as(self.service, actor, "blob_resume_current_instance", ())
+            .unwrap()
+    }
     fn manifest(&self) -> UploadManifestRequest {
         self.manifest_bytes(10 * 1024 * 1024)
     }
@@ -433,6 +444,8 @@ fn standalone_admission_manifest_and_restore_use_shared_authority() {
         .pic
         .start_canister(f.service, Some(f.controller))
         .unwrap();
+    assert!(f.configuration(f.operator).unwrap().fenced);
+    f.resume(f.operator).unwrap();
     assert_eq!(f.configuration(f.operator).unwrap(), installed);
     assert!(!f.prepare(f.uploader, &request).unwrap().changed);
     unchanged(&f.harness.pic.get_stable_memory(f.service), &bytes);

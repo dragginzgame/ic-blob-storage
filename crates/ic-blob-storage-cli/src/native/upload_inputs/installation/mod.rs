@@ -1,25 +1,24 @@
 //! Bind local preparation to one complete candidate, without installed-state authority.
-use super::{Binding, Failure, NonZeroU64, Path, UploadAdmissionRequest};
-use crate::native::{candidate_candid, read};
+use super::{Binding, Failure, NonZeroU64, UploadAdmissionRequest};
+use crate::native::candidate_candid;
 use ic_blob_storage::{
-    dto::configuration::ServiceInstallationInput,
+    dto::configuration::{ServiceInstallationInput, ServiceResourceInput},
     model::identity::caffeine::manifest::CaffeineManifestLimits,
     ops::service::installation::{ServiceInstallationCandidate, ValidatedServiceInstallation},
 };
 
 pub(super) struct Installation {
-    pub bytes: Vec<u8>,
     pub limits: CaffeineManifestLimits,
+    pub resources: ServiceResourceInput,
 }
 impl Installation {
-    pub fn load(
-        path: &Path,
+    pub fn decode(
+        bytes: &[u8],
         binding: &Binding,
         permission: UploadAdmissionRequest,
         maximum: NonZeroU64,
     ) -> Result<Self, Failure> {
-        let bytes = read(path, candidate_candid::MAX_BYTES as u64)?;
-        let input: ServiceInstallationInput = candidate_candid::decode(&bytes)?;
+        let input: ServiceInstallationInput = candidate_candid::decode(bytes)?;
         ValidatedServiceInstallation::new(
             permission.upload.service,
             ServiceInstallationCandidate {
@@ -30,6 +29,7 @@ impl Installation {
                 // Offline syntax/model validation only; the actual host supplies
                 // its own compiled release and independently authenticates init.
                 release: env!("CARGO_PKG_VERSION"),
+                platform_installation_version: 0,
             },
         )
         .map_err(|_| Failure::Arguments)?;
@@ -59,6 +59,9 @@ impl Installation {
                 .try_into()
                 .expect("validated positive metadata bound"),
         };
-        Ok(Self { bytes, limits })
+        Ok(Self {
+            limits,
+            resources: r,
+        })
     }
 }

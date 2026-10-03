@@ -1,4 +1,4 @@
-//! Explicit standalone host. Paid provider effects and operational recovery remain disabled.
+//! Explicit standalone host, including IC-proven current-instance recovery.
 #![expect(
     clippy::needless_pass_by_value,
     clippy::large_types_passed_by_value,
@@ -54,6 +54,13 @@ fn init(input: ServiceInstallationInput) {
 fn post_upgrade() {
     workflow::restore();
 }
+#[ic_cdk::update]
+async fn blob_resume_current_instance()
+-> Result<(), ic_blob_storage::dto::recovery::CurrentInstanceRecoveryFailure> {
+    let outcome = workflow::resume_current_instance(context()).await;
+    ops::observe_version();
+    outcome
+}
 #[ic_cdk::query]
 fn blob_configuration() -> Result<dto::HostConfigurationView, dto::HostFailure> {
     workflow::configuration(ic_cdk::api::msg_caller())
@@ -65,10 +72,12 @@ fn blob_local_status(input: OperatorScope) -> Result<LocalServiceStatus, LocalSt
 }
 #[ic_cdk::update(hidden = true, decode_with = "ops::decode")]
 #[candid::candid_method(update)]
-fn blob_update_tenant(
+async fn blob_update_tenant(
     input: TenantUpdateRequest,
 ) -> Result<TenantEnrollmentResponse, TenantFailure> {
-    workflow::update_tenant(context(), input)
+    let call_context = context();
+    workflow::before_update().await;
+    workflow::update_tenant(call_context, input)
 }
 #[ic_cdk::query(hidden = true, decode_with = "ops::decode")]
 #[candid::candid_method(query)]
@@ -77,10 +86,12 @@ fn blob_tenant(input: TenantScope) -> Result<TenantEnrollmentResponse, TenantFai
 }
 #[ic_cdk::update(hidden = true, decode_with = "ops::decode")]
 #[candid::candid_method(update)]
-fn blob_admit_upload(
+async fn blob_admit_upload(
     input: UploadAdmissionRequest,
 ) -> Result<UploadAdmissionMutation, UploadAdmissionFailure> {
-    workflow::admit(context(), input, ic_cdk::api::time())
+    let call_context = context();
+    workflow::before_update().await;
+    workflow::admit(call_context, input, ic_cdk::api::time())
 }
 #[ic_cdk::query(hidden = true, decode_with = "ops::decode")]
 #[candid::candid_method(query)]
@@ -101,17 +112,21 @@ fn blob_upload_status(
 }
 #[ic_cdk::update(hidden = true, decode_with = "ops::decode")]
 #[candid::candid_method(update)]
-fn blob_revoke_upload(
+async fn blob_revoke_upload(
     input: UploadAdmissionRequest,
 ) -> Result<UploadRevocationResponse, UploadAdmissionFailure> {
-    workflow::revoke(context(), input)
+    let call_context = context();
+    workflow::before_update().await;
+    workflow::revoke(call_context, input)
 }
 #[ic_cdk::update(hidden = true, decode_with = "ops::decode_manifest")]
 #[candid::candid_method(update)]
-fn blob_prepare_upload(
+async fn blob_prepare_upload(
     input: UploadManifestRequest,
 ) -> Result<UploadManifestMutation, UploadManifestFailure> {
-    workflow::prepare(context(), &input, ic_cdk::api::time())
+    let call_context = context();
+    workflow::before_update().await;
+    workflow::prepare(call_context, &input, ic_cdk::api::time())
 }
 #[ic_cdk::query(hidden = true, decode_with = "ops::decode")]
 #[candid::candid_method(query)]
@@ -129,12 +144,14 @@ fn blob_upload_certificate_assessment(
     decode_with = "ops::decode"
 )]
 #[candid::candid_method(update, rename = "_immutableObjectStorageCreateCertificate")]
-fn caffeine_upload_certificate(
+async fn caffeine_upload_certificate(
     root: String,
 ) -> ic_blob_storage::dto::upload::certificate::CaffeineUploadCertificateResponse {
+    let call_context = context();
+    workflow::before_update().await;
     // Never encode an error as a successful provider reply. Shared workflow
     // rechecks current authority/evidence and commits exposure synchronously.
-    workflow::certificate(context(), &root, ic_cdk::api::time())
+    workflow::certificate(call_context, &root, ic_cdk::api::time())
         .unwrap_or_else(|_| ic_cdk::trap("certificate issuance refused"))
 }
 #[ic_cdk::query(hidden = true, decode_with = "ops::decode")]
@@ -146,10 +163,12 @@ fn blob_upload_manifest(
 }
 #[ic_cdk::update(hidden = true, decode_with = "ops::decode")]
 #[candid::candid_method(update)]
-fn blob_apply_reference(
+async fn blob_apply_reference(
     input: ReferenceCommand,
 ) -> Result<ReferenceMutationResponse, ReferenceFailure> {
-    workflow::reference(context(), input)
+    let call_context = context();
+    workflow::before_update().await;
+    workflow::reference(call_context, input)
 }
 #[ic_cdk::query(hidden = true, decode_with = "ops::decode")]
 #[candid::candid_method(query)]
@@ -188,13 +207,15 @@ fn blob_funding_preparation_assessment(
 }
 #[ic_cdk::update(hidden = true, decode_with = "ops::decode")]
 #[candid::candid_method(update)]
-fn blob_revoke_gateway(
+async fn blob_revoke_gateway(
     input: ic_blob_storage::dto::gateway::GatewayRevocationRequest,
 ) -> Result<
     ic_blob_storage::dto::gateway::GatewayRevocationResponse,
     ic_blob_storage::dto::gateway::GatewayRevocationFailure,
 > {
-    workflow::revoke_gateway(context(), input)
+    let call_context = context();
+    workflow::before_update().await;
+    workflow::revoke_gateway(call_context, input)
 }
 #[ic_cdk::update(hidden = true, decode_with = "ops::decode")]
 #[candid::candid_method(update)]
@@ -204,14 +225,20 @@ async fn blob_sync_gateways(
     ic_blob_storage::dto::gateway::sync::GatewaySyncResponse,
     ic_blob_storage::dto::gateway::sync::GatewaySyncFailure,
 > {
-    workflow::sync_gateways(context(), input).await
+    let call_context = context();
+    workflow::before_update().await;
+    let outcome = workflow::sync_gateways(call_context, input).await;
+    ops::observe_version();
+    outcome
 }
 #[ic_cdk::update(hidden = true, decode_with = "ops::decode")]
 #[candid::candid_method(update)]
-fn blob_cancel_gateway_sync(
+async fn blob_cancel_gateway_sync(
     input: ic_blob_storage::dto::gateway::sync::GatewaySyncCancellation,
 ) -> Result<(), ic_blob_storage::dto::gateway::sync::GatewaySyncFailure> {
-    workflow::cancel_gateway_sync(context(), input)
+    let call_context = context();
+    workflow::before_update().await;
+    workflow::cancel_gateway_sync(call_context, input)
 }
 #[ic_cdk::query(hidden = true, decode_with = "ops::decode")]
 #[candid::candid_method(query)]
@@ -246,13 +273,15 @@ fn blob_lookup_content(
 
 #[ic_cdk::update(hidden = true, decode_with = "ops::decode")]
 #[candid::candid_method(update)]
-fn blob_download_descriptor(
+async fn blob_download_descriptor(
     input: ic_blob_storage::dto::download::DownloadRequest,
 ) -> Result<
     ic_blob_storage::dto::download::DownloadResponse,
     ic_blob_storage::dto::download::DownloadFailure,
 > {
-    workflow::download(context(), input)
+    let call_context = context();
+    workflow::before_update().await;
+    workflow::download(call_context, input)
 }
 #[ic_cdk::query(hidden = true, decode_with = "ops::decode")]
 #[candid::candid_method(query)]
@@ -273,18 +302,24 @@ async fn blob_inspect_account(
     ic_blob_storage::dto::account::AccountInspectionResponse,
     ic_blob_storage::dto::account::AccountInspectionFailure,
 > {
-    workflow::inspect_account(context(), input).await
+    let call_context = context();
+    workflow::before_update().await;
+    let outcome = workflow::inspect_account(call_context, input).await;
+    ops::observe_version();
+    outcome
 }
 
 #[ic_cdk::update(hidden = true, decode_with = "ops::decode")]
 #[candid::candid_method(update)]
-fn blob_attest_upload(
+async fn blob_attest_upload(
     input: ic_blob_storage::dto::upload::completion::UploadAttestationRequest,
 ) -> Result<
     ic_blob_storage::dto::upload::completion::UploadAttestationMutation,
     ic_blob_storage::dto::upload::completion::UploadAttestationFailure,
 > {
-    workflow::attest(context(), &input)
+    let call_context = context();
+    workflow::before_update().await;
+    workflow::attest(call_context, &input)
 }
 #[ic_cdk::query(hidden = true, decode_with = "ops::decode")]
 #[candid::candid_method(query)]

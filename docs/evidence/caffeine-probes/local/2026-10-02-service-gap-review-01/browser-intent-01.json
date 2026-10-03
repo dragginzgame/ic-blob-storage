@@ -1,0 +1,14 @@
+{
+  "schema": 1,
+  "recorded_at": "2026-10-02T17:48:09.455Z",
+  "evidence_class": "local_browser_and_provider_substitute",
+  "target": "Existing ignored standalone lost-final-reply browser journey after stop/start and explicit current-instance recovery",
+  "network": "Owned local PocketIC, Chromium and TLS/HTTP gateway fixtures only",
+  "cases": 1,
+  "provider_effects": 0,
+  "deployments": 0,
+  "actual_mainnet_requests": 0,
+  "limits": "Existing 1 KiB fixture, two bounded upload PUT dispatches, retained transport/journal budgets and complete local verification/download",
+  "stop": "Preserve a failed run; no real Caffeine certificate/transfer/retry, source mutation, reset or build cleanup",
+  "capture": ".tmp/service-gap-review-01/browser-01"
+}

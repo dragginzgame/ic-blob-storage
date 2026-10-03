@@ -1,0 +1,259 @@
+{
+  "schema": 1,
+  "date": "2026-10-03",
+  "complete": true,
+  "evidence_class": "local_standalone_pocketic_chromium_with_owned_https_http2_gateway_substitute",
+  "intent": ".tmp/publish-transfer-01/intent.json",
+  "implementation": {
+    "frozen_body_digest_and_sdk_root_checked_before_certificate_intent": true,
+    "exact_metadata_and_ordered_leaves": true,
+    "input_snapshots_before_await": true,
+    "existing_certificate_and_gateway_journals_own_dispatch": true,
+    "claimed_or_cancelled_upload_refused": true,
+    "automatic_gateway_resume": false,
+    "sdk_success_establishes_completion_or_publication": false
+  },
+  "local_evidence": {
+    "journeys": [
+      {
+        "case": "success",
+        "root": "sha256:d53964e58575f66aa53db95000c2d48152b0bf2f22da88274a85788efd5a3b6e",
+        "sdk_uploaded": true,
+        "gateway_put_arrivals": 2,
+        "gateway_get_attempts": 3,
+        "final_request_phase": "responded",
+        "recovered_certificate": true,
+        "provider_completion_claimed": false,
+        "browser": "153.0.8010.12"
+      },
+      {
+        "case": "corrupt",
+        "root": "sha256:d53964e58575f66aa53db95000c2d48152b0bf2f22da88274a85788efd5a3b6e",
+        "sdk_uploaded": true,
+        "gateway_put_arrivals": 2,
+        "gateway_get_attempts": 1,
+        "final_request_phase": "responded",
+        "recovered_certificate": true,
+        "provider_completion_claimed": false,
+        "browser": "153.0.8010.12"
+      },
+      {
+        "case": "lost-final",
+        "root": "sha256:d53964e58575f66aa53db95000c2d48152b0bf2f22da88274a85788efd5a3b6e",
+        "sdk_uploaded": false,
+        "gateway_put_arrivals": 2,
+        "gateway_get_attempts": 2,
+        "final_request_phase": "uncertain",
+        "recovered_certificate": true,
+        "provider_completion_claimed": false,
+        "browser": "153.0.8010.12"
+      },
+      {
+        "case": "withdrawn",
+        "root": "sha256:d53964e58575f66aa53db95000c2d48152b0bf2f22da88274a85788efd5a3b6e",
+        "sdk_uploaded": false,
+        "gateway_put_arrivals": 2,
+        "gateway_get_attempts": 1,
+        "final_request_phase": "uncertain",
+        "recovered_certificate": true,
+        "provider_completion_claimed": false,
+        "browser": "153.0.8010.12"
+      }
+    ],
+    "offline_cases": [
+      {
+        "name": "corrupt_body",
+        "code": "body-digest",
+        "intentAccess": 0,
+        "transportRequests": 0
+      },
+      {
+        "name": "different_expected_digest",
+        "code": "body-digest",
+        "intentAccess": 0,
+        "transportRequests": 0
+      },
+      {
+        "name": "bounded_body",
+        "code": "body-size",
+        "intentAccess": 0,
+        "transportRequests": 0
+      },
+      {
+        "name": "malformed_digest",
+        "code": "body-digest",
+        "intentAccess": 0,
+        "transportRequests": 0
+      },
+      {
+        "name": "empty_body",
+        "code": "body-size",
+        "intentAccess": 0,
+        "transportRequests": 0
+      },
+      {
+        "name": "wrong_root",
+        "code": "root",
+        "intentAccess": 0,
+        "transportRequests": 0
+      },
+      {
+        "name": "wrong_metadata_hint",
+        "code": "root",
+        "intentAccess": 0,
+        "transportRequests": 0
+      },
+      {
+        "name": "oversized_metadata_hint",
+        "code": "metadata-hint",
+        "intentAccess": 0,
+        "transportRequests": 0
+      },
+      {
+        "name": "malformed_manifest",
+        "code": "manifest",
+        "intentAccess": 0,
+        "transportRequests": 0
+      },
+      {
+        "name": "oversized_manifest",
+        "code": "manifest-size",
+        "intentAccess": 0,
+        "transportRequests": 0
+      },
+      {
+        "name": "changed_headers",
+        "code": "manifest",
+        "intentAccess": 0,
+        "transportRequests": 0
+      },
+      {
+        "name": "changed_chunk_hashes",
+        "code": "manifest",
+        "intentAccess": 0,
+        "transportRequests": 0
+      },
+      {
+        "name": "changed_tree_type",
+        "code": "manifest",
+        "intentAccess": 0,
+        "transportRequests": 0
+      },
+      {
+        "name": "aborted_before_preparation",
+        "code": "AbortError",
+        "intentAccess": 0,
+        "transportRequests": 0
+      },
+      {
+        "name": "input_snapshots_across_await",
+        "reachesOriginalBoundIntent": true,
+        "transportRequests": 0
+      }
+    ],
+    "journal": {
+      "facts": [
+        "missing-store refusal",
+        "immutable capacity",
+        "argument snapshots",
+        "cross-tab claim",
+        "permanent cancellation",
+        "bounded gateway history",
+        "browser restart persistence",
+        "immutable project/bucket",
+        "UTF-8 and header byte bounds",
+        "corrupt-history refusal",
+        "675 lifetime rows with strict commits and restart preservation",
+        "one-million configured ceiling with one retained cancelled row across restart"
+      ],
+      "populated_rows": 675,
+      "configured_ceiling": 1000000,
+      "ceiling_configuration_test_populated_rows": 1,
+      "whole_browser_restart": true,
+      "limits": [
+        "graceful restart only",
+        "no eviction/rollback/power-loss guarantee",
+        "no provider requests",
+        "one million populated rows not qualified"
+      ],
+      "profiles": "Retained separately outside the sealed capture; no rollback/power-loss qualification."
+    },
+    "strict_affected_standalone_test_lint": true,
+    "syntax_format_whitespace_checks": true,
+    "opt_in_make_target": "test-browser-publication"
+  },
+  "artifacts": {
+    "native_binary_sha256": "4c11872339c68d96e158f2a150d682fca50c07950cada769bc80de5a4debb572",
+    "standalone_wasm_sha256": "2bae84fc10b4cd8af972c7d7f04fcc426081f705a7b29e539da3760c80556ab5",
+    "origin": "Retained Unreleased development CLI/Wasm from sealed publish-prepare capture; unchanged package label is not released 0.7.0 artifact identity."
+  },
+  "scaling": {
+    "production_indexes": "stable-memory B-trees",
+    "reopen": "synchronous complete retained-record validation with temporary heap sets",
+    "million_populated_blobs_qualified": false,
+    "native_batch_files": 4096,
+    "next_measurements": [
+      "stable bytes",
+      "peak heap",
+      "admission and lookup instructions",
+      "full reopen instructions",
+      "browser quota and count latency",
+      "full-batch native setup I/O"
+    ]
+  },
+  "failures": [
+    {
+      "class": "disk_exhaustion",
+      "outcome": "Tools and automatic approval review could not initialize. Maintainer freed space."
+    },
+    {
+      "record": "store-large-ceiling.log",
+      "class": "sandbox_loopback_refusal",
+      "outcome": "Scoped local test passes with approved loopback execution in store-large-ceiling-02.log."
+    },
+    {
+      "record": "chromium-final.log",
+      "class": "missing_generated_serde_output_during_maintainer_cleanup",
+      "outcome": "Maintainer confirms cleanup complete; final rebuild and four journeys pass in chromium-final-02.log."
+    },
+    {
+      "class": "documentation_patch_selection",
+      "outcome": "One multi-file patch refused before edits; corrected patches applied."
+    }
+  ],
+  "effects": {
+    "live_service_updates": 0,
+    "caffeine_requests": 0,
+    "new_donor_debit_cycles": "0",
+    "deployment": false,
+    "version_mutation": false,
+    "commit": false,
+    "publication": false,
+    "full_ci": false,
+    "sibling_edits": false,
+    "agent_cleanup": false
+  },
+  "limitations": [
+    "Owned gateway/account substitutes are not deployed Caffeine evidence.",
+    "One-file frozen batch journeys do not qualify a complete Miner batch, confirmed media map or public MIME/CORS/cache/CSP serving.",
+    "The million lifetime ceiling is configurable, not million-row service/browser qualification; history is never refunded.",
+    "Provider retention, deletion, billing cessation and expiry enforcement remain open; existing live owners and liabilities survive.",
+    "Canic adoption remains deferred and unrelated shared recovery/dependency work is preserved."
+  ],
+  "feedback": "docs/canic-parity.md#integration-feedback",
+  "source_sha256": {
+    "clients/browser/publication.js": "f259ffc707b02454cb56488e68b3129bd490a2f326a29e08fb55c966fa60c493",
+    "clients/browser/intents.js": "59351bb1ccef06bf7d0ac36db12261432bcf4faa42137ff10941528ee1f61f57",
+    "clients/browser/package.json": "4864a6eaab76d06ed6cfb4093460b98e8ccb13945fc25175f5bb455d547caade",
+    "clients/browser/README.md": "27b560a12ecefcd55c1f68fb15c147398a70d3d6997f3e8780b8642739b5edbb",
+    "tests/browser/publication.mjs": "2b34d86d0b6a11a1391a407333c6e1ab24b67f8d3c29c2c0ffbf2c78f6be151d",
+    "tests/browser/store.mjs": "c0d4d6b714c8d74776609c5885405c31055f66d3dcb41f237e2594ff871b1b04",
+    "tests/browser/standalone.js": "a8a19d6bd1a069146b8190409e6b39ceeb30303e7638c276d10e2d8afb6a53f2",
+    "tests/browser/standalone.mjs": "e38b7598ad0f11a66292272b7c177ce3f94863b938c399f0052be6def0d506cf",
+    "tests/browser/build.mjs": "c5b0badcc2edb130442853d1dd8a8a735591ac74b62cff8d1460a96b5c7d8aa6",
+    "tests/pocketic/tests/standalone_browser/mod.rs": "73c7376560e1a830282800611d7c858cdbce411d4abaf8bfb606cc2ae7c04275",
+    "tests/pocketic/tests/standalone_browser/client/mod.rs": "67fa8a26f31cc3c3d4f4d76d93c9cd829d5b7e74b068a824315a4c363a6a70eb",
+    "Makefile": "f289271c09852f936902d04c345bf29667e02790d81f846da11530ef4084ca80",
+    "docs/operator-guide.md": "bd66ea443a3a6c20a99f016087f729a7337bcffa53b6c44b6c642f947dbc5d7b"
+  }
+}

@@ -1,0 +1,259 @@
+{
+  "schema": 1,
+  "date": "2026-10-02",
+  "completed_at": "2026-10-02T17:02:30.970Z",
+  "evidence": "actual_fresh_070_two_file_upload_verification_attestation_tenant_download_and_logical_release",
+  "capture": ".tmp/trial-v070-live-01",
+  "authority": {
+    "maintainer": "Explicit approval of covered actions below 100T total or 20T/day; no repeat confirmation, remind below 100T",
+    "selected_run_stays_within_both_limits": true,
+    "standing_total_cycles": "100000000000000",
+    "standing_daily_cycles": "20000000000000",
+    "new_relationship_daily_cycles": "5000000000000",
+    "balance_reminder_delivered": true
+  },
+  "release": "0.7.0",
+  "release_commit": "a6f7e408933e96d11c95a170805bca5a5a6edf7e",
+  "service": "5gsmp-viaaa-aaaak-qzhfa-cai",
+  "namespace": "2",
+  "payer": "jaqw3-42pqs-5bivi-nj3xg-5row5-gpluj-sbn54-vthud-pyb5v-sm2rs-bae",
+  "verifier": "n67bb-yqikw-jbye7-anfpz-tgws7-akhqy-kdpln-ihuix-hzdjf-3ghwy-4ae",
+  "cashier": "72ch2-fiaaa-aaaar-qbsvq-cai",
+  "gateway": "https://blob.caffeine.ai",
+  "project": "d0770e45-29b6-4449-b499-961aea5daa47",
+  "bucket": "ic-blob-storage-trial-d0770e45-29b6-4449-b499-961aea5daa47",
+  "creation": {
+    "request_id": "4a66a51037c58821bc1fb36ed472b6eb76c9f481edd97f25595b9104898bb323",
+    "block": "16752069",
+    "amount_cycles": "1000000000000",
+    "gross_cycles": "1000100000000",
+    "exact_original_donor_block_and_balance_reconciled": true,
+    "submissions": 1
+  },
+  "artifact_review": {
+    "original_preparation_record": "../../local/2026-10-02-trial-v070-preparation-01/summary.json",
+    "old_preserved_wasm_compiled_release": "0.6.1",
+    "original_installation_acknowledged": true,
+    "halt_before_tenant_link_or_exposure": true,
+    "new_owner_empty_and_no_provider_account_verified": true,
+    "correction_reinstalls": 1,
+    "corrected_compiled_release": "0.7.0",
+    "actual_mainnet_module_hash": "0x4e785758f01a43f179d7507b2c3bd9306071e675c707338a7f42ffde9c88c63c",
+    "qualified_wasm_sha256": "772e28b754eb59e58fd0db0ad38e4bf21de3e1d4515823099bb79e938101bae9",
+    "qualified_gzip_sha256": "4e785758f01a43f179d7507b2c3bd9306071e675c707338a7f42ffde9c88c63c",
+    "local_actual_installation_and_independent_release_guard_pass": true,
+    "stale_artifact_guard_refusal_observed": true,
+    "production_sources_match_tag": true,
+    "native_cli": "Separately retained Unreleased development artifact; authenticated workflows unchanged from 0.7.0, not a published CLI claim",
+    "native_cli_sha256": "e1447545e014e6855190e102e40716b93d5cc271bf645465c00302f3d78c80a1"
+  },
+  "link": {
+    "request_id": "4eb63457b3e3028693f35a8f88a3b947ebf5a600bc5ae420abb8b1a036c6bf22",
+    "submissions": 1,
+    "result": "Ok",
+    "daily_cycles": "5000000000000",
+    "raw_expiry_ns": "1790966417685000000",
+    "nominal_expiry": "2026-10-02T18:40:17.685Z",
+    "expiry_enforcement_qualified": false,
+    "payer_to_owner_allocation_cycles": "1000000000000",
+    "no_new_payer_deposit": true
+  },
+  "journeys": [
+    {
+      "schema": 1,
+      "completed": true,
+      "checked_at": "2026-10-02T16:52:08.266Z",
+      "bytes": 1024,
+      "root": "sha256:4286340c32cc760d90cd3f03fbee0fd0d15ccf0ef99665ef2b974470315adbe1",
+      "content_digest": "sha256:61aa76423b117ea657e0eb29aabb169aa8eaa6b82c22885a3293af5e30e07be8",
+      "certificate_request_id": "c171d1924b374abe449e16608a56c2a734034ec618907932d3053be749e09480",
+      "gateway_calls": 2,
+      "gateway_bytes": 8588,
+      "verifier_attestation_request_id": "24547db256abf61785cf9cb30901a94630866f1948c2bd8be9bf0a3d989678ac",
+      "tenant_body_matches_original": true,
+      "logical_release_request_id": "fafea640984ae74af46645cd4240c224353deec35744b6764e8e9b0cfa196d80",
+      "payer_cycles": "3099600000000",
+      "owner_cycles": "999345491698",
+      "gateway_available_credit": "333115163899",
+      "gateway_reported_usage": {
+        "bytes_downloaded": "0",
+        "bytes_uploaded": "0",
+        "write_requests": "0",
+        "read_requests": "0"
+      },
+      "relationship_daily_cycles": "5000000000000",
+      "relationship_allocated_cycles": "1000000000000",
+      "provider_deletion": false,
+      "billing_cessation": false,
+      "future_retention": false
+    },
+    {
+      "schema": 1,
+      "completed": true,
+      "checked_at": "2026-10-02T16:58:24.094Z",
+      "bytes": 10485760,
+      "root": "sha256:333f902f7be3bc98be0b81f6a6f4e5fe551532af4fca3b0face37057c18492f0",
+      "content_digest": "sha256:00ce00b1feed01000b86378750cf8e03fb91059e23ecf354bb7733004d334a59",
+      "certificate_request_id": "237b328a37cb1b1f8a52322342c2819cacdea4a4a7753d586a20f810fd2b7c86",
+      "gateway_calls": 11,
+      "gateway_bytes": 10496057,
+      "verifier_attestation_request_id": "b6d477572eb9ce091bbacee36fd3f2ddcac8e5753ae7b93b14dc117442d96d86",
+      "tenant_body_matches_original": true,
+      "logical_release_request_id": "0fbcf8f27b1d3c30e787569f0464e7ca20e65a9b16be392fd256ebcfc7b951fb",
+      "payer_cycles": "3099600000000",
+      "owner_cycles": "995381342792",
+      "gateway_available_credit": "331793780930",
+      "gateway_reported_usage": {
+        "bytes_downloaded": "0",
+        "bytes_uploaded": "0",
+        "write_requests": "0",
+        "read_requests": "0"
+      },
+      "relationship_daily_cycles": "5000000000000",
+      "relationship_allocated_cycles": "1000000000000",
+      "provider_deletion": false,
+      "billing_cessation": false,
+      "future_retention": false
+    }
+  ],
+  "effects": {
+    "gateway_put_dispatches": 13,
+    "gateway_put_request_bytes": 10504645,
+    "certificate_claims": 2,
+    "provider_whole_file_get_dispatches": 4,
+    "whole_file_get_content_bytes": 20973568,
+    "accepted_attestations": 2,
+    "successful_logical_releases": 2,
+    "automatic_paid_retries": 0,
+    "service_cycle_attachments": "0",
+    "physical_wire_attempt_count_measured": false
+  },
+  "observations": {
+    "logical_provider_queries": 28,
+    "query_and_verification_transports": 56,
+    "all_query_signatures_verified": true,
+    "donor_liquidity_cycles": "654505097235",
+    "payer_credit_cycles": "3099600000000",
+    "new_owner_provider_credit_cycles": "995381342792",
+    "old_owner_provider_credit_cycles": "1000000000000",
+    "new_canister_cycles": "474432286137",
+    "new_gateway_available_credit_raw": "331793780930",
+    "new_gateway_reported_usage": {
+      "bytes_downloaded": "0",
+      "bytes_uploaded": "0",
+      "write_requests": "0",
+      "read_requests": "0"
+    },
+    "new_owner_credit_decrease_since_link_cycles": "4618657208",
+    "credit_delta_not_itemized_bill": true,
+    "gross_trial_donor_debit_cycles": "8100200000000",
+    "remaining_total_authority_cycles": "91899800000000",
+    "internal_allocation_not_double_counted": true,
+    "available_balances_below_100T": true
+  },
+  "final_accounting": {
+    "schema": 1,
+    "checked_at": "2026-10-02T16:59:41.597Z",
+    "same_service_namespace": true,
+    "operations": "2",
+    "logical_bytes": "0",
+    "physical_bytes": "10486784",
+    "liability_bytes": "10486784",
+    "active_reservations": "0",
+    "reserved_bytes": "0",
+    "all_owners_unfenced": true,
+    "no_service_funding_intents": true,
+    "provider_bytes_and_liabilities_retained": true,
+    "object_lifetime_capacity_exhausted": true,
+    "do_not_reset_or_reinstall": true
+  },
+  "cleanup": {
+    "old_owner": "4wyfo-qaaaa-aaaam-qjlpq-cai",
+    "old_owner_profile_link_accounts_exposure_and_liabilities_preserved": true,
+    "new_browser_profile": ".tmp/trial-v070-browser-01",
+    "origin": "http://127.0.0.1:43024",
+    "database": "ic-blob-storage-mainnet-v070-trial-v1",
+    "journal_slots": 2,
+    "retain_original_certificates_gateway_claims_and_lifetime_history": true,
+    "owned_local_browsers_and_servers_closed": true,
+    "temporary_password_files_removed": true,
+    "no_private_key_export_or_global_identity_change": true,
+    "new_owner_object_lifetime_capacity_exhausted": true,
+    "no_further_object_or_reset_authorized_by_this_capture": true
+  },
+  "limitations": [
+    "10 MiB known body repeats one 1 MiB chunk hash ten times; distinct real media, provider deduplication economics and complete Miner batch acceptance are not qualified.",
+    "Actual successful HTTPS streaming and normal-TLS native reads are observed for this selected environment; physical wire retry count and other consumer environments are not qualified.",
+    "Gateway usage counters remain zero despite successful transfers and credit debit; freshness/meaning and itemized billing remain unqualified.",
+    "No future retention, provider deletion, billing cessation, enforced provider spending cap, expiry enforcement or stale-backup activation guarantee.",
+    "Logical releases preserve physical bytes and liabilities; installations cannot be reset or retired without obligation disposition."
+  ],
+  "failures": [
+    {
+      "class": "capture_path",
+      "record": "local-path-failure-01.json",
+      "outcome": "Three new successful read-only captures initially land in the prior directory because of a local path-edit failure. Newly created, unmanifested files move intact to this capture; original sealed files and manifest remain unchanged. No successful query is repeated."
+    },
+    {
+      "class": "identity_settings_lock",
+      "record": "create-sign.stderr",
+      "outcome": "Initial offline signing cannot open the sandboxed ICP settings lock. Authorized signing succeeds separately; no dispatch or private-key export occurs in the failed invocation."
+    },
+    {
+      "class": "local_edit",
+      "record": "tool transcript",
+      "outcome": "Perl parser and private-file permission refusals precede corrected edits of only this new capture copy. No previous sealed source is modified."
+    },
+    {
+      "class": "compiled_release_mismatch",
+      "record": "stale-build-and-correction-intent.json",
+      "outcome": "Preserved target Wasm reports 0.6.1 after a 0.7.0 release-file transaction. Halt before tenant enrollment, provider link and exposure; verify zero obligations and absent provider account, rebuild/locally qualify 0.7.0, then reinstall only the empty new owner once. Original acknowledged install is retained."
+    },
+    {
+      "class": "empty_local_test_selection",
+      "record": "local-installation-01.log",
+      "outcome": "Wrong exact filter selects no tests. Correct full module path in local-installation-02.log executes and passes the real PocketIC installation case."
+    },
+    {
+      "class": "local_review_hash_format",
+      "record": "tool transcript",
+      "outcome": "Initial reviewer omits the CLI module hash 0x prefix. Correct strict comparison uses the same retained readback; no additional query."
+    },
+    {
+      "class": "offline_browser_budget",
+      "record": "browser-0-preflight.log",
+      "outcome": "Transport rejects a 16 MiB total limit for two 2 MiB requests before any network call. Corrected 4 MiB budget opens the existing unsigned journal; separate preflight-02 capture succeeds."
+    },
+    {
+      "class": "offline_manifest_shape",
+      "record": "setup-0-verification.log",
+      "outcome": "Ad hoc verifier initially expects chunk objects and header tuples rather than actual SDK chunk_hashes/header strings. Corrected verifier passes against original retained packets; no service/provider retry."
+    },
+    {
+      "class": "expected_stale_artifact_refusal",
+      "record": "stale-release-refusal.log",
+      "outcome": "Maintained compiled-release guard intentionally rejects old 0.6.1 artifact when selected release is 0.7.0. Qualified 0.7.0 artifact passes; targeted strict lint and formatting pass."
+    },
+    {
+      "class": "local_final_read_arguments",
+      "record": [
+        "local-status-final.stderr",
+        "local-status-final-02.stderr",
+        "local-status-final-03.stderr"
+      ],
+      "outcome": "CLI syntax, wrong DID path and missing typed scope each refuse locally before network dispatch. Corrected observation uses the original OperatorScope bytes; both planned final reads succeed."
+    }
+  ],
+  "checks": {
+    "targeted_actual_pocketic_installation": true,
+    "independent_mainnet_release_and_module_readback": true,
+    "exact_signed_setup_response_checks": true,
+    "real_uploader_browser_signature_and_journal_preflight": true,
+    "all_download_bytes_match_original": true,
+    "exact_reference_release_and_liability_accounting": true,
+    "strict_pocketic_standalone_target_lint": true,
+    "format_check": true,
+    "full_ci": false
+  },
+  "private_artifact_policy": "Raw requests/replies, signed envelopes, certificates and browser journals remain private in .tmp; public records contain identities, results and hashes, never credentials."
+}

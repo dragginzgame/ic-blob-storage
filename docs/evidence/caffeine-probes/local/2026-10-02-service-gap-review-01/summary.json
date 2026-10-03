@@ -1,0 +1,180 @@
+{
+  "schema": 1,
+  "date": "2026-10-02",
+  "completed_at": "2026-10-02T18:20:01.703Z",
+  "capture": ".tmp/service-gap-review-01",
+  "evidence_classes": [
+    "source_review",
+    "native_validation",
+    "actual_local_ic",
+    "local_gateway_and_verifier_substitutes"
+  ],
+  "authority": "Repository-only implementation; qualify ordinary current-instance upgrades first. Siblings remain read-only.",
+  "release": {
+    "package": "0.7.0",
+    "source": "Unreleased",
+    "future_minor_required": true,
+    "schema_generation": 1,
+    "version_changed": false,
+    "commits": false,
+    "publication": false,
+    "deployment": false
+  },
+  "dependency_audit": {
+    "schema": 1,
+    "packages": 433,
+    "workspace_members": 11,
+    "canic_packages": [],
+    "all_features": true,
+    "offline": true,
+    "locked": true
+  },
+  "recovery": {
+    "scope": "Maintained host ordinary same-release reopening of existing current journals; no arbitrary backup copying during upgrade",
+    "operator_only_upgrade_activation": true,
+    "independent_replicated_ic_history": true,
+    "max_recent_changes": 20,
+    "history_timeout_seconds": 30,
+    "max_application_reply_bytes": 65536,
+    "anchor": "Required immutable actual platform installation version; offline zero remains unqualified",
+    "proof": "Single-use opaque capability bound to actual self, retained anchor and same callback version; request/callback must advance exactly once",
+    "held_state": [
+      "tenant activation and permissions",
+      "root and lifetime operation identities",
+      "manifests and reservations",
+      "possible exposure and revocation",
+      "exact receipts",
+      "released physical and billing bytes",
+      "pending gateway work",
+      "all owner journals and accounting"
+    ],
+    "older_backup_activation": false,
+    "snapshot_load_refused": true,
+    "expired_history_refused": true,
+    "intervening_management_refused": true,
+    "active_gap_preflight": "One independent continuity check before delegation only for a previously active owner; already-fenced upgrade restoration requires explicit operator recovery",
+    "no_paid_retry": true
+  },
+  "checks": {
+    "core_unit_tests": 429,
+    "native_composition_and_binding_tests": 7,
+    "standalone_nonignored": 54,
+    "standalone_initially_ignored": 4,
+    "affected_ignored_browser": 1,
+    "final_focused_after_layering": 7,
+    "declared_exported_candid": true,
+    "strict_affected_package_all_target_all_feature_lint": true,
+    "format": true,
+    "diff": true,
+    "full_ci": false
+  },
+  "logs": {
+    "core": {
+      "path": ".tmp/service-gap-review-01/recovery-core-01.log",
+      "sha256": "2a20d25df72d1bec58ea64d79bb4430617f400173b18154d2282e8e6122c52e9"
+    },
+    "composition": {
+      "path": ".tmp/service-gap-review-01/native-boundaries.log",
+      "sha256": "d96e2ddae225ac19800442a58afbd23dbd49190b7dae2a50c1de8eccf68692f3"
+    },
+    "standalone": {
+      "path": ".tmp/service-gap-review-01/recovery-standalone-02.log",
+      "sha256": "e3e4c28e69ad52053058f6310056b824d651f6826671ce162310036208656236"
+    },
+    "final_focused": {
+      "path": ".tmp/service-gap-review-01/recovery-final-focused.log",
+      "sha256": "0a0c735092e597899fd9967322f19420bc5f5519b68ca65835159ae1e7d9d995"
+    },
+    "browser": {
+      "path": ".tmp/service-gap-review-01/recovery-browser-01.log",
+      "sha256": "e33fb15771eeb52f7fe79771a485addfdb073111cec6bd07c4a41627478b8deb"
+    },
+    "candid": {
+      "path": ".tmp/service-gap-review-01/candid-final.log",
+      "sha256": "f71ed1db2b4c23605a23c7663282017127b6310befe585b64c4f2fa415b7796b"
+    },
+    "clippy": {
+      "path": ".tmp/service-gap-review-01/recovery-clippy-03.log",
+      "sha256": "e15ebb0fac92a14cd3d50f47f6772d3c829c3c13ac6ecce5a103337c12b1f799"
+    },
+    "format": {
+      "path": ".tmp/service-gap-review-01/recovery-format-final.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "wasm": {
+    "path": "target/wasm32-unknown-unknown/release/ic_blob_storage_canister.wasm",
+    "sha256": "2bae84fc10b4cd8af972c7d7f04fcc426081f705a7b29e539da3760c80556ab5",
+    "unreleased_despite_unchanged_package_version": true
+  },
+  "source_review": "source-review.json",
+  "live_journeys": "../../deployed/2026-10-02-trial-v070-live-01/summary.json",
+  "local_browser": {
+    "attestation_accepted": true,
+    "billing_cessation_established": false,
+    "browser_upload_acknowledged": false,
+    "certificate_recovered_without_reissue": true,
+    "evidence": "actual_standalone_lost_response_local_gateway_substitute",
+    "final_gateway_request_phase": "uncertain",
+    "independent_observation": true,
+    "liability_bytes_retained": 1024,
+    "live_provider_requests": 0,
+    "owner_stop_start_preserved": true,
+    "paid_effects": 0,
+    "physical_bytes_retained": 1024,
+    "provider_deletion_established": false,
+    "provider_gets": [
+      "/v1/blob/?blob_hash=sha256%3Ad53964e58575f66aa53db95000c2d48152b0bf2f22da88274a85788efd5a3b6e&owner_id=dllsh-pd777-77776-qaaaa-cai&project_id=standalone-trial",
+      "/v1/blob/?blob_hash=sha256%3Ad53964e58575f66aa53db95000c2d48152b0bf2f22da88274a85788efd5a3b6e&owner_id=dllsh-pd777-77776-qaaaa-cai&project_id=standalone-trial"
+    ],
+    "provider_puts": [
+      {
+        "bytes": 4775,
+        "path": "/v1/blob-tree/",
+        "sha256": "8c1ca894441e51fc5b2b10fb39a01a337c6040715965b0c46bb5b39fa016456a"
+      },
+      {
+        "bytes": 1024,
+        "path": "/v1/chunk/?owner_id=dllsh-pd777-77776-qaaaa-cai&blob_hash=sha256%3Ad53964e58575f66aa53db95000c2d48152b0bf2f22da88274a85788efd5a3b6e&chunk_hash=sha256%3A93beaf743566f9e55d341b9fdcab54250bd8b391f0fab18837ba25accf22a387&chunk_index=0&bucket_name=local-standalone-trial&project_id=standalone-trial",
+        "sha256": "b2256110f2c4226de0008dd4382a388e033f211b617bd3237135ab1d59a722b6"
+      }
+    ],
+    "reference_released": true,
+    "schema": 1,
+    "tenant_download_verified": true
+  },
+  "provider": {
+    "new_actual_provider_mutations": 0,
+    "earlier_readonly_observations": 3,
+    "paid_provider_effects": 0,
+    "deletion_qualified": false,
+    "billing_cessation_qualified": false
+  },
+  "remaining_actions": [
+    "Canic-owned adapter, memory/lifecycle/guard/exact-Candid composition qualification after release",
+    "Toko removal of direct Canic blob and billing APIs, consumer publication/outbox/serving acceptance and old-obligation disposition",
+    "Provider exact deletion identity/outcome plus separate final object billing evidence",
+    "Independently surviving complete inventory before any future older-backup active path"
+  ],
+  "failures_retained": [
+    "candid-01.log: initial declared contract mismatch",
+    "recovery-lifecycle-01.log through -03.log: concurrently unfinished test SHA LowerHex compilation",
+    "recovery-lifecycle-04.log: sandbox denied loopback; authorized loopback run succeeds",
+    "recovery-snapshot-01.log: guard already returns typed Fenced instead of eligibility blockers",
+    "recovery-pocketic-clippy-01.log: assertion/format/fixture naming lint corrected",
+    "recovery-standalone-01.log: ordinary replicated query/callback gaps caused false fences; corrected independently qualified active preflight",
+    "recovery-lifecycle-07.log and failed-duplicate-exports.rs: platform rejects duplicate query/update exports; approach removed completely",
+    "recovery-wasm-03.log: guarded local generation selection missing module; recovery-wasm-06.log: wrong local view field; corrected builds retained",
+    "Tool transcript: wrong patch contexts and guarded source-generation selection refusal; no provider effect",
+    "Original separate offline browser preflight failures and unsigned profile remain in the private live capture"
+  ],
+  "cleanup": {
+    "owned_local_servers_and_browser_closed": true,
+    "old_and_new_live_owners_preserved": true,
+    "all_journals_and_obligations_preserved": true,
+    "failed_preflight_profile_preserved": true,
+    "build_artifacts_preserved": true,
+    "sibling_edits": false,
+    "upstream_messages": false
+  }
+}

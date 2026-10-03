@@ -5,9 +5,10 @@ and a standalone canister. **Caffeine is the storage
 provider.** The service owns tenant access, upload permissions, references,
 quotas and accounting.
 
-**Status: a working local prototype, with production integration still in progress.**
-Standalone and storage lifecycle tests run in PocketIC. A complete live Caffeine
-upload and download journey is still being qualified.
+**Status: a working prototype with successful live uploads and downloads.**
+The isolated 0.7.0 trial completes 1 KiB and 10 MiB Caffeine uploads, independent
+verification, verifier attestation and tenant downloads. Production integration
+and operational recovery remain in progress; lifecycle tests run in PocketIC.
 
 [Current status](docs/status/current.md) · [Changelog](CHANGELOG.md) ·
 [Development plan](docs/roadmap.md) · [Service contract](docs/service-contract.md)
@@ -21,7 +22,7 @@ upload and download journey is still being qualified.
 | References and cleanup | Track which assets remain in use and retain exact mutation receipts |
 | Quotas and accounting | Bound objects, bytes, uploads, references and retained history |
 | Provider bookkeeping | Preserve gateway state, funding intents, refunds and uncertain outcomes |
-| Recovery inspection | Keep records available after restore while blocking unsafe mutations |
+| Recovery | Inspect restored records; Unreleased proves current-instance activation from IC history |
 
 The design sends file bytes directly from the uploader to Caffeine. Hashing and
 whole-file verification can run off-canister. The canister coordinates permissions
@@ -33,26 +34,38 @@ and durable metadata; admission does not require uploading the file body to it.
 | --- | --- |
 | Shared Rust core | Implemented, with native and local IC evidence |
 | Standalone canister | Shared handlers; trusted-uploader certificate issuance within configured object sizes, quotas and multi-file capacity |
-| Lifecycle | Synchronous installation, inspection-only restoration and local rollback tests |
-| Native tooling | Offline installation checks, account-link inputs and verified snapshots; signed setup/recovery, tenant downloads and verifier completion tested locally |
+| Lifecycle | Synchronous fenced restoration; Unreleased adds IC-history-proven current-instance recovery and snapshot refusal |
+| Native tooling | Installation/account inputs, verified snapshots and signed setup/recovery; tenant downloads and verifier completion pass live |
+| Batch publication | Unreleased: frozen inventories, signed capacity/content checks, indexed setup and browser transfer with preserved journals; local verification/download journeys pass, complete batch publication remains unfinished |
 | Application integration | Consumer frameworks own their wrappers, asset transactions and integration tests |
-| Browser integration | Reusable upload composition binds Caffeine's SDK to certificate intent, serial transfer and bounded request journaling; locally tested |
+| Browser integration | Caffeine's SDK with certificate intent and bounded persistent journaling; live 1 KiB and ten-chunk 10 MiB transfers pass |
 | Live service acceptance | Still open: complete consumer flow, provider guarantees and operational recovery |
 
-Configurable certificate sizing is **Unreleased** and requires a minor release.
-Published 0.6.1 and the frozen live trial retain their earlier 1 KiB restriction.
+The released **0.7.0** supports configurable certificate sizing. Batch preparation
+and current-instance recovery are **Unreleased** and join the next minor release.
+The frozen 0.6.0 live trial retains its original 1 KiB configuration and stopped
+upload history. A separate
+[0.7.0 trial](docs/evidence/caffeine-probes/deployed/2026-10-02-trial-v070-live-01/summary.json)
+qualifies the two sample journeys without resetting those obligations.
 
 The public library has no downstream framework dependency. Consumer frameworks
 wrap its shared workflows and own integration testing in their repositories.
+Canic adoption is deferred; the [consumer integration backlog](docs/canic-parity.md#integration-feedback)
+tracks required wrapper, publication, serving and lifecycle work.
 The [issuance contract and retained trial](docs/standalone-trial.md) distinguish
 configurable upload limits from the first live owner's 1 KiB configuration.
-The trial's 100T-cycle budget and exact live inputs remain separate decisions.
-Provider spending limits and old-backup recovery remain outside its guarantees.
+Exact trial authority, budgets and retained obligations are recorded in the
+[current handoff](docs/status/current.md). Provider spending caps remain unqualified.
 
 Local tests use controlled provider substitutes where stated. A verifier's
 attestation records observed content availability; it does not promise future
 retention. Releasing a reference, deleting provider bytes and ending billing are
-separate events. Restored owners currently allow inspection only.
+separate events. Frozen 0.7.0 restores inspection-only; Unreleased adds operator-only
+current-instance recovery from IC management history. Its twenty-change window must
+still reach the immutable installation anchor; older snapshots/backups stay fenced.
+See the [recovery guide](docs/operator-guide.md#current-instance-recovery-in-unreleased)
+for operating limits and the [gap review](docs/service-gaps.md) for consumer and
+provider acceptance still required.
 
 ## 🚀 Get started locally
 
@@ -75,6 +88,7 @@ Choose the local canister path you want to exercise:
 | --- | --- | --- |
 | Standalone | `make test-standalone` | PocketIC server |
 | Browser certificate flow | `make test-browser` | PocketIC, browser packages, Node and Chromium |
+| Standalone upload/download rehearsal | `make test-browser-standalone` | PocketIC, browser packages, Node and Chromium |
 
 Follow [dependency setup](docs/dependencies.md) to provision those tools.
 The test targets use local canisters and do not deploy a live service.
@@ -87,7 +101,7 @@ The standalone host and external consumers use the same service workflows and te
 | --- | --- |
 | [Rust core](crates/ic-blob-storage) | Content, policy, durable state and shared workflows; no downstream framework dependency |
 | [Standalone host](canisters/standalone/README.md) | Explicit endpoints, installation, memory and lifecycle |
-| [Native CLI](crates/ic-blob-storage-cli) | Signed inspection, tenant reference submission and verifier tooling |
+| [Native CLI](crates/ic-blob-storage-cli) | Offline snapshots and batch inputs, signed setup/inspection, tenant references, verified downloads and verifier tooling |
 | [Browser client](clients/browser/README.md) | Certificate transport and durable intent boundary; reuses Caffeine's upload SDK |
 | [PocketIC harness](tests/pocketic) | Actual local canister, lifecycle and inter-canister tests |
 
@@ -99,6 +113,9 @@ for the integration details.
 
 | I want to… | Start here |
 | --- | --- |
+| Size a consumer installation | [Resource limits and lifetime capacity](docs/operator-guide.md#size-a-consumer-installation) |
+| Freeze an upload batch and check live capacity (Unreleased) | [Offline inventory](docs/operator-guide.md#freeze-a-publication-inventory-offline), then [signed batch check](docs/operator-guide.md#check-a-frozen-batch-against-live-capacity) |
+| Prepare one batch file or recover its setup (Unreleased) | [Indexed preparation and original journals](docs/operator-guide.md#prepare-one-indexed-file-with-surviving-setup-intent) |
 | Admit, prepare or cancel an upload | [Signed upload setup](docs/operator-guide.md#admit-and-prepare-an-upload) |
 | Hand a verified upload snapshot to the browser client | [Generated binding](clients/browser/README.md) and [offline check](docs/dependencies.md#offline-nativebrowser-handoff) |
 | Download a verified file | [Tenant downloads](docs/operator-guide.md#download-a-verified-file) |
@@ -114,6 +131,7 @@ for the integration details.
 | Prepare file manifests, inventories or saved bodies | [Local preparation guide](docs/local-tools.md#prepare-one-file) |
 | Inspect or exercise a running PocketIC fixture | [Fixture tools](docs/local-tools.md#inspect-a-running-pocketic-fixture) |
 | Integrate the standalone canister | [Host configuration and endpoint contract](canisters/standalone/README.md) |
+| Resume a fenced current instance (Unreleased) | [Operator recovery and finite IC history](docs/operator-guide.md#current-instance-recovery-in-unreleased) |
 
 These guides retain the exact command examples, input formats, limits and recovery
 behavior. The native client requires explicit signing identities and installation
@@ -148,6 +166,8 @@ Releases preserve build artifacts; cleanup is a separate `make clean` action.
 | [Development plan](docs/roadmap.md) | Milestones and consumer integration direction |
 | [Service contract](docs/service-contract.md) | Authority, accounting, verifier trust and recovery rules |
 | [Acceptance plan](docs/acceptance-plan.md) | What must be demonstrated before service qualification |
+| [Service gaps](docs/service-gaps.md) | Remaining consumer, recovery, deletion and billing acceptance |
+| [Consumer integration backlog](docs/canic-parity.md#integration-feedback) | Open wrapper, publication, serving and retirement actions |
 | [Provider review](docs/provider-review.md) | Reviewed Caffeine interfaces and unresolved guarantees |
 | [Probe ledger](docs/evidence/caffeine-probes/README.md) | Tracked investigations, retained artifacts and limitations |
 | [Core evidence](docs/evidence/core-primitives.md) | Source-bound local implementation and test results |

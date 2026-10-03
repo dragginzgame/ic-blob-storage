@@ -7,7 +7,7 @@ use ic_blob_storage::dto::upload::manifest::UploadManifestRequest;
 const ROOT: &str = "sha256:0e9afaf413b048e40834d5b0e737d80fbf304af2045c7564d96ad8aebaf74dfd";
 const LEAF: &str = "sha256:b5b435d47a4cce7dfec493b1e020c5308d9c7fe90add1aff510f9c2a9c4ea8e7";
 
-fn binding() -> Value {
+pub(in crate::native) fn binding() -> Value {
     json!({"schema":1, "project":"fixture-project", "bucket":"fixture-bucket",
         "service": Principal::self_authenticating([1]).to_text(),
         "namespace": u128::MAX.to_string(),
@@ -17,11 +17,11 @@ fn binding() -> Value {
         "first_reference": "4", "root": ROOT, "bytes": "3",
         "expires_at_ns": u64::MAX.to_string()})
 }
-fn manifest() -> Value {
+pub(in crate::native) fn manifest() -> Value {
     json!({"tree_type":"DSBMTWH", "chunk_hashes":[LEAF],
         "tree":{"hash":ROOT}, "headers":["Content-Length: 3", "Content-Type: text/plain"]})
 }
-fn installation(binding: &Value) -> ServiceInstallationInput {
+pub(in crate::native) fn installation(binding: &Value) -> ServiceInstallationInput {
     let fixture = include_str!(concat!(
         env!("CARGO_MANIFEST_DIR"),
         "/tests/fixtures/installation/configuration.hex"

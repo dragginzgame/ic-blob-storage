@@ -107,6 +107,12 @@ pub struct ServiceStores<M: Memory> {
     pub reads: StableReadSessions<M>,
 }
 impl<M: Memory> ServiceStores<M> {
+    pub(crate) fn set_recovery_fence(&mut self, fenced: bool) {
+        self.uploads.set_recovery_fence(fenced);
+        self.funding.set_recovery_fence(fenced);
+        self.gateways.set_recovery_fence(fenced);
+        self.reads.set_recovery_fence(fenced);
+    }
     /// Install all owners in one synchronous IC message under validated limits.
     /// The host must grant distinct exclusive memories and propagate traps for IC
     /// rollback. This function provides no native-memory transaction guarantee.

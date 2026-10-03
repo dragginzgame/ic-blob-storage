@@ -37,6 +37,10 @@ impl Proxy {
         dispatch: Dispatch,
         reply: Reply,
     ) -> Self {
+        Self::sequence(backend, vec![(directory, dispatch, reply)])
+    }
+    /// Finite ordered updates, each bound to its own durable signed claim.
+    pub fn sequence(backend: String, plan: Vec<(std::path::PathBuf, Dispatch, Reply)>) -> Self {
         let listener = TcpListener::bind("127.0.0.1:0").unwrap();
         let url = format!("http://{}/", listener.local_addr().unwrap());
         listener.set_nonblocking(true).unwrap();
@@ -75,12 +79,12 @@ impl Proxy {
                     .unwrap();
                 let (path, body) = request(&mut stream);
                 let update = path.ends_with("/call");
+                let mut reply = Reply::Pass;
                 if update {
-                    assert_eq!(
-                        requests.fetch_add(1, Ordering::SeqCst),
-                        0,
-                        "never resend update"
-                    );
+                    let index = requests.fetch_add(1, Ordering::SeqCst);
+                    let (directory, dispatch, selected) =
+                        plan.get(index).expect("never resend update");
+                    reply = *selected;
                     let intent: serde_json::Value = serde_json::from_slice(
                         &std::fs::read(directory.join("intent.json")).unwrap(),
                     )

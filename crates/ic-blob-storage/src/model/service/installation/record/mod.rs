@@ -8,6 +8,7 @@ use std::borrow::Cow;
 pub(crate) struct ConfigurationRecord {
     pub(crate) version: u8,
     pub(crate) release: String,
+    pub(crate) platform_installation_version: u64,
     pub(crate) service: Principal,
     pub(crate) operator: Principal,
     pub(crate) payment_account: Principal,

@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "evidence_class": "local_ic_and_native",
+  "authority": "User selects current-instance upgrades first and confines work to this repository",
+  "question": "Qualify operator-only current-instance recovery from independent bounded IC history, fence heap rollback, and preserve every local obligation without retrying provider effects",
+  "targets": ["new pure history policy", "shared installation and all owner fences", "actual standalone Wasm, Candid and PocketIC management history/snapshots"],
+  "max_external_provider_requests": 0,
+  "max_deployments_or_paid_effects": 0,
+  "budgets": "Targeted native/policy, affected-package strict lint, current standalone Wasm and affected PocketIC cases; repository target directory only",
+  "stop": "Keep failed runs, reject incomplete/unknown platform history and all snapshot loads since installation; never reset journals or release obligations",
+  "schema_contract": "Replace the current v1 installation record directly with a required immutable platform anchor; offline/native candidate zero is unqualified. No old-state reader, shim or migration",
+  "release": "Public candidate/schema/lifecycle/endpoint changes require a future minor release; no version, commit, publication, deployment or cleanup is performed"
+}

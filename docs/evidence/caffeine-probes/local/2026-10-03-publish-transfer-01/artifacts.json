@@ -1,0 +1,9 @@
+{
+  "schema": 1,
+  "date": "2026-10-03",
+  "capture": ".tmp/publish-transfer-01",
+  "private_manifest_sha256": "fdab0fdf64c619f8b5e29cd00d6a84a5fa872785be813467abc1f40f73571e2a",
+  "private_regular_files": 807,
+  "summary_sha256": "5be5f1a3381b2116bd34e5dd13b9a8be4525f51cb9fcbfd42f4fa8d280de8bc4",
+  "retention": "Original intent, success/failure logs, frozen inputs, signed synthetic local setup journals, raw replies, browser/gateway observations, affected source and generated bundles. CLI/Wasm remain in prior sealed capture; browser profiles remain separately retained. No private deployment identity captured."
+}

@@ -104,6 +104,11 @@ pub struct StableUploads<M: Memory> {
     fenced: bool,
 }
 impl<M: Memory> StableUploads<M> {
+    pub(crate) fn set_recovery_fence(&mut self, fenced: bool) {
+        self.fenced = fenced;
+        self.tenants.set_recovery_fence(fenced);
+        self.roots.set_recovery_fence(fenced);
+    }
     /// Install in ten fresh memories after checking the complete upload envelope.
     /// # Errors
     /// Rejects allocated memory or an envelope exceeding the bounded manifest codec.

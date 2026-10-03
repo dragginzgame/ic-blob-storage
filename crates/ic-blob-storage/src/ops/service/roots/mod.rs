@@ -35,6 +35,9 @@ pub struct StableRootClaims<M: Memory> {
 }
 
 impl<M: Memory> StableRootClaims<M> {
+    pub(crate) fn set_recovery_fence(&mut self, fenced: bool) {
+        self.fenced = fenced;
+    }
     /// Install only in two fresh memories supplied by the host's `ic-memory` runtime.
     /// # Errors
     /// Rejects either allocated memory, never overwriting existing obligations.

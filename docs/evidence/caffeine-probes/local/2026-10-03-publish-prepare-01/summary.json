@@ -1,0 +1,183 @@
+{
+  "schema": 1,
+  "date": "2026-10-03",
+  "evidence": "consumer_source_review_and_actual_local_indexed_signed_setup_recovery",
+  "capture": ".tmp/publish-prepare-01",
+  "consumer": {
+    "repository": "toko-miner",
+    "head": "3354dfc6b9fe791884ec69e8dd344de313b36940",
+    "feedback_sha256": "62b8cede95cfc1dc5bcac8e33eac07c8b20647767ade2aa0875a7eb5dadb1a91",
+    "feedback_and_scan_log_clean": true,
+    "evidence_class": "read_only_recorded_consumer_measurements_not_repeated_build_or_live_provider_acceptance",
+    "prepared_asset_identities": 679,
+    "distinct_blobs": 675,
+    "distinct_bytes": "221173950",
+    "distinct_leaves": 763,
+    "leaves_before_deduplication": 767,
+    "open_actions": [
+      "complete_frozen_publication_and_recovery",
+      "public_mime_cors_cache_csp_serving",
+      "overlap_and_open_browser_retention",
+      "retired_root_reintroduction",
+      "finite_management_history_and_obligation_preserving_retirement"
+    ],
+    "canic_wrapper_deferred_until_independent_blob_code_published_removal": true,
+    "sibling_writes": false
+  },
+  "implementation": {
+    "commands": [
+      "publish-prepare",
+      "publish-prepare-resume"
+    ],
+    "status": "Unreleased",
+    "whole_frozen_batch_reverified": true,
+    "selection": "explicit_zero_based_index",
+    "separate_authenticated_tenant_and_uploader": true,
+    "original_setup_owner": "existing_signed_admission_and_preparation_journals",
+    "max_initial_updates": 2,
+    "max_resume_updates": 1,
+    "max_service_queries_per_invocation": 4,
+    "per_request_deadline_seconds": 30,
+    "explicit_overall_deadline_max_seconds": 3600,
+    "resume_binding": [
+      "inventory",
+      "installation",
+      "index",
+      "tenant",
+      "service",
+      "namespace",
+      "transport_url",
+      "trusted_root",
+      "permission",
+      "manifest",
+      "original_signed_envelope"
+    ],
+    "claimed_update_resubmission": false,
+    "unclaimed_preparation_may_follow_observed_original_reserved_permission": true,
+    "partial_claim_or_absence_authorizes_retry": false,
+    "certificate_or_provider_dispatch": false
+  },
+  "local_evidence": {
+    "class": "actual_signed_standalone_pocketic_with_owned_http_fault_transport",
+    "provider_substitute": "none_no_provider_effect",
+    "native_publisher_regressions": true,
+    "native_single_setup_regressions": true,
+    "actual_lost_admission_reply_recovered_without_resubmission": true,
+    "actual_lost_preparation_reply_recovered_without_resubmission": true,
+    "repeated_recovery_dispatches_zero_updates": true,
+    "partial_preparation_claim_stops_before_update": true,
+    "wrong_role_refuses_before_run_claim": true,
+    "changed_original_journal_refuses": true,
+    "withdrawn_permission_blocks": true,
+    "existing_one_update_proxy_lost_pending_regression": true,
+    "capacity_discovery_restore_regressions": true,
+    "strict_cli_all_target_all_feature_lint": true,
+    "strict_standalone_test_lint": true,
+    "format_and_diff_checks": true,
+    "retained_test_observations": [
+      {
+        "case": "acknowledged",
+        "admission_outcome": "acknowledged",
+        "preparation_outcome": "acknowledged",
+        "recovery_state": "prepared",
+        "recovery_updates": 0
+      },
+      {
+        "case": "lost-admission",
+        "admission_outcome": "uncertain",
+        "preparation_outcome": "acknowledged",
+        "recovery_state": "prepared",
+        "recovery_updates": 1
+      },
+      {
+        "case": "lost-preparation",
+        "admission_outcome": "acknowledged",
+        "preparation_outcome": "uncertain",
+        "recovery_state": "prepared",
+        "recovery_updates": 0
+      },
+      {
+        "case": "partial_claim",
+        "refused_before_preparation_dispatch": true
+      },
+      {
+        "case": "authority_tamper_and_withdrawal",
+        "withdrawn_state": "blocked"
+      }
+    ]
+  },
+  "artifacts": {
+    "native_binary_sha256": "4c11872339c68d96e158f2a150d682fca50c07950cada769bc80de5a4debb572",
+    "standalone_wasm_sha256": "2bae84fc10b4cd8af972c7d7f04fcc426081f705a7b29e539da3760c80556ab5",
+    "origin": "Retained Unreleased development CLI and standalone artifact from shared worktree; unchanged 0.7.0 package label does not make these released 0.7.0 bytes. Affected source snapshots survive, without a reproducible-build claim."
+  },
+  "failures": [
+    {
+      "record": "native-tests-01.log",
+      "class": "local_compile_visibility_and_test_import",
+      "outcome": "Corrected shared helper visibility and test Options paths; focused tests pass."
+    },
+    {
+      "record": "pocketic-01.log",
+      "class": "local_test_macro_import",
+      "outcome": "Corrected missing json macro before any IC dispatch; signed tests pass."
+    },
+    {
+      "record": "clippy-01.log",
+      "class": "local_lint",
+      "outcome": "Use explicit imports and borrowed report inputs, remove unnecessary test allocations, and extract a named scoped parser."
+    },
+    {
+      "record": "clippy-02.log",
+      "class": "local_parser_length",
+      "outcome": "Named parser extraction completes the strict CLI lint fix."
+    },
+    {
+      "record": "pocketic-clippy-01.log",
+      "class": "local_bool_conversion_lint",
+      "outcome": "Use typed bool conversion; strict test-target lint passes."
+    },
+    {
+      "class": "documentation_patch_selection",
+      "outcome": "One multi-file patch failed verification without applying edits; corrected patch succeeds."
+    }
+  ],
+  "effects": {
+    "live_network_requests": 0,
+    "live_service_updates": 0,
+    "caffeine_requests": 0,
+    "new_donor_debit_cycles": "0",
+    "deployment": false,
+    "version_mutation": false,
+    "commit": false,
+    "publication": false,
+    "cleanup": false,
+    "full_ci": false
+  },
+  "limitations": [
+    "Setup is not certificate exposure, transfer, independent content availability, retained-reference publication or a complete media map.",
+    "Selected-file preflight is sequential and does not reserve the whole workload; consumer must retain the full frozen batch and surviving original journals.",
+    "No automatic update retry or global filesystem-independent redispatch prevention. Deleting journals or using a new initial run after uncertainty is outside the maintained recovery contract.",
+    "Existing or retired roots require separate exact reuse/retirement handling. Existing live owners, capacity and physical/billing obligations remain unchanged.",
+    "No long-term retention, deletion, billing cessation, public serving, distinct media economics or Miner adoption is established.",
+    "Unrelated concurrent recovery/dependency/host work is preserved and not newly qualified by this scoped batch."
+  ],
+  "feedback": "docs/canic-parity.md#integration-feedback",
+  "source_sha256": {
+    "crates/ic-blob-storage-cli/src/native/publish_prepare/mod.rs": "2d80711f372497e063d1be7048d845394df59123e7f2ab602a5c0a97868fe1a5",
+    "crates/ic-blob-storage-cli/src/native/publish_prepare/journal/mod.rs": "dc31ff83c08eeb5b4163e9f2ca2b1b6df5a682d0f30dab09af1d697a12cfb9c1",
+    "crates/ic-blob-storage-cli/src/native/publish_prepare/progress/mod.rs": "66fe429fb8daf3d71e2318e4d6f86085c119dd5b3f9ed088d2e239a5c17d43b1",
+    "crates/ic-blob-storage-cli/src/native/publish_prepare/tests/mod.rs": "01eca9bd8e20fe93a4d4c42f462be176cab90019b9d15ccfe1d175f3cfbb7c11",
+    "crates/ic-blob-storage-cli/src/native/mod.rs": "7e99a8a16e14a942a583e675ff38d421a828ad43ffc87592cf3e3ca30cb0f2d7",
+    "crates/ic-blob-storage-cli/src/native/arguments/mod.rs": "fd73be94a25020da12fc8e0ab3407866140c08c59b7966cd01e61f3618f402fb",
+    "crates/ic-blob-storage-cli/src/native/upload_setup/mod.rs": "d83195cbd4304b9d40b6278d0eb454c3ecac7cb9dc451e6adb27c0631f108897",
+    "crates/ic-blob-storage-cli/src/native/upload_setup/dispatch/mod.rs": "bff7235c1f79a3a391f0be38b04c1e7dabcdf4addbb647f59121cdc02c214a68",
+    "crates/ic-blob-storage-cli/src/native/upload_setup/request/mod.rs": "02b72f0d01cb23ab21cd2915d9079e715dc437a867206e2a0809a60758c37088",
+    "crates/ic-blob-storage-cli/src/native/upload_inputs/mod.rs": "9eb447a043bc83b47ef6a8e65ad0f2d9898d4a0bae0331360befc658e5774c3b",
+    "crates/ic-blob-storage-cli/src/native/publish_check/mod.rs": "01783aef025c4d15fead86999361c6ca09086204ac21a051292be59eb69b2dad",
+    "crates/ic-blob-storage-cli/src/native/publish_check/observation/mod.rs": "57269c8a1566123032d2ec7a2e43e242bbd7c612b2141227bbcf6fb335bc6b14",
+    "tests/pocketic/tests/standalone_publish_prepare/mod.rs": "b40d23b11dbf84f1eee1bcac62e4e8c389789e2179f42dd54f9f89a5bb911668",
+    "tests/pocketic/tests/standalone_publish_check/mod.rs": "24dfae5a6c310879bacda78195231ded9844f7c32863b4717f767047581f586a",
+    "tests/pocketic/tests/submission_proxy/mod.rs": "549461a75e4155382b1b7f0814c57f80a699284ea0b8894238d8620337f54008"
+  }
+}

@@ -1,13 +1,16 @@
 # Current status
 
-Date: 2026-10-02
+Date: 2026-10-03
 
-Released baseline: [0.6.1](../../CHANGELOG.md), dated 2026-10-02, at
-`a1e2c9ba69cc058526541e38da5f9884c6a2baac`. Package, tag and receipt agree;
-the maintainer completed the release. The maintainer now requests the undated
-[0.7.0 changelog draft](../../CHANGELOG.md); Unreleased is empty. Package/version
-and release receipt remain 0.6.1. The isolated deployed owner still runs frozen 0.6.0; its DID is byte
-identical to released 0.6.1. This continuation does not update that installation.
+Released baseline: [0.7.0](../../CHANGELOG.md), dated 2026-10-02, at
+`a6f7e408933e96d11c95a170805bca5a5a6edf7e`. The maintainer reports it live;
+local package, exact tag, dated changelog and release receipt agree, and the
+receipt's release-file hashes verify. Unreleased contains offline batch preparation,
+an independent deployment-release guard and successful fresh live journeys;
+the next undated changelog draft is 0.8.0 for the breaking recovery contract.
+Package versions and release receipt remain 0.7.0 pending the maintainer's release
+flow. The old isolated owner remains frozen at 0.6.0 with its
+original stopped history. A separate owner now runs verified 0.7.0.
 Commits and release operations belong to the maintainer.
 
 Canic integration is deferred by the maintainer on 2026-10-02 until useful work
@@ -16,7 +19,317 @@ implementation and evidence; the [feedback list](../canic-parity.md#integration-
 is a future consumer backlog, not a prerequisite for this local work. Siblings
 remain read-only and no upstream message is authorized.
 
-## Configurable upload limits for Toko Miner — 2026-10-02
+## Unreleased: frozen-file transfer and larger journals — 2026-10-03
+
+Browser `createPublicationUpload` now bridges one original native frozen file
+to maintained Caffeine SDK preparation, certificate exposure and guarded transfer.
+Snapshot body/binding/trusted root before awaits; verify raw SHA-256 and exact
+SDK metadata, ordered leaves, provider root and byte length before certificate
+intent access. The existing certificate/gateway journals remain dispatch owners.
+Reopened claimed/cancelled rows refuse upload; historical certificate recovery
+never resumes an uncertain gateway request. Keep complete batch/setup validation
+and original identities/journals in the caller. SDK success alone cannot publish.
+See the [browser recipe](../../clients/browser/README.md#transfer-a-frozen-publication-file).
+
+The configurable browser lifetime ceiling is now 1,000,000 attempts, independent
+of service limits and 4,096-file native batches. Actual Chromium strict IndexedDB
+commits preserve 675 synthetic rows, claim/cancellation history and capacity
+refusals across a whole-browser restart. A one-row million-capacity journal
+reopens with its cancelled row and refuses capacity changes; this does not
+qualify a million populated rows. The [sizing review](../operator-guide.md#larger-inventories-and-a-dedicated-storage-owner)
+recommends a dedicated metadata/storage owner at that scale, with bytes on Caffeine
+and an off-canister publisher. Production indexes are stable B-trees; synchronous
+reopen still scans complete retained history and builds temporary validation sets.
+Measure stable bytes, peak heap, per-operation and reopen instructions, browser
+quota/count latency and full-batch native preparation I/O before claiming support.
+
+All four actual standalone PocketIC/Chromium frozen-batch journeys pass against
+the owned HTTPS HTTP/2 gateway substitute: success through independent verification,
+attestation, tenant download and logical release; corrupt read refusal; lost-final
+reply through stop/start/operator recovery without redispatch; and withdrawn/late
+completion preserving release. Offline frozen-input refusal/snapshot tests and
+their opt-in Make target, strict affected standalone-test lint, formatting, JS
+syntax and whitespace checks pass. The [local record](../evidence/caffeine-probes/local/2026-10-03-publish-transfer-01/summary.json)
+and `.tmp/publish-transfer-01` retain exact local requests, snapshots, signed native
+setup/recovery journals, browser history and failures. Disk exhaustion temporarily
+blocks tools; the maintainer frees space and confirms cleanup finished. A sandbox
+loopback refusal and a missing generated Serde file during cleanup remain recorded;
+the final test rerun passes without agent cleanup or dependency changes.
+
+Next drive a complete frozen batch through transfer, independent completion,
+retained references and a confirmed media map, then qualify actual Miner assets
+and public serving. Local gateway results do not qualify deployed provider
+retention, deletion, billing or consumer adoption. Canic remains deferred; the
+[consumer actions](../canic-parity.md#integration-feedback) now include frozen-file
+adoption and large-inventory operating evidence. No live service/provider effect,
+balance refresh, funding, deployment, version/release/commit, full CI, sibling edit
+or agent cleanup occurs. Existing live owners, expired nominal links, exhausted
+capacity, profiles and all physical/billing obligations remain unchanged. The
+prior below-100T balance reminder persists without a new balance observation.
+
+## Unreleased: Miner follow-up and indexed publication setup — 2026-10-03
+
+Read-only Miner review finds local HEAD
+`3354dfc6b9fe791884ec69e8dd344de313b36940`; its feedback and scan-log files are
+clean. Retained feedback SHA-256 is
+`62b8cede95cfc1dc5bcac8e33eac07c8b20647767ade2aa0875a7eb5dadb1a91`.
+The recorded consumed workload is 679 asset identities, 675 distinct blobs,
+221,173,950 bytes and 763 distinct leaves (767 before deduplication). This review
+does not rerun the consumer build. Miner recognises the live sample journeys and
+Unreleased batch tooling, while maintaining its registry 0.7.0 preparer and
+publication gate. BLOB-002/003/004 remain open: whole-workload publication/recovery,
+public MIME/CORS/cache/CSP delivery, release overlap and retired-root reintroduction.
+Canic wrapper work remains deferred until its independent blob code's published
+removal. Source review is consumer feedback, not provider or adoption evidence.
+
+Native `publish-prepare` fully reverifies the frozen batch and prepares one explicit
+zero-based index. Authenticate tenant and uploader independently before claiming
+output; retain finite selected-root/capacity observations. Reuse maintained signed
+admission/preparation commands and original per-step claims: at most two updates
+and four service queries, no certificate or provider traffic. `publish-prepare-resume`
+requires the original run, exact inventory/installation/index/scope/transport/root,
+request packets and signed admission envelope. It never resubmits a claimed update;
+only a previously unclaimed preparation may be sent after observing the original
+reserved, unrevoked permission. A partial claim or absence never authorizes retry.
+Keep the complete frozen inputs and original journals, including after failure.
+Historical `prepared` is not expiry renewal, upload completion or publication.
+
+The [operator recipe](../operator-guide.md#prepare-one-indexed-file-with-surviving-setup-intent)
+describes budgets and recovery. The [consumer backlog](../canic-parity.md#integration-feedback)
+adds exact setup-journal adoption, consumed-workload/serving and the finite
+twenty-management-change operating horizon. Recovery never rotates installation
+anchoring; plan retirement with surviving obligations before history exhaustion.
+Next connect certificate exposure, direct transfer, independent completion,
+retained references and confirmed media mapping; then qualify the actual Miner
+workload and browser serving. Preserve both existing live owners and exhausted
+capacity. No live write, paid/provider request, sibling change, version/release,
+commit, full CI or build cleanup occurs in this batch. Validation outcome and
+retained local evidence are recorded in the
+[completed local record](../evidence/caffeine-probes/local/2026-10-03-publish-prepare-01/summary.json)
+and `.tmp/publish-prepare-01`. Six actual signed PocketIC batch tests and the
+existing lost/pending single-setup journey pass, along with sixteen focused
+native publisher cases, two native setup regressions and strict affected CLI/
+standalone-test lint. Tests deliberately drop real admission and preparation
+responses: resume uses the original IDs and never repeats either claimed update.
+Wrong roles and changed journals refuse; withdrawn permission blocks; a partial
+preparation directory remains untouched and prevents any update. Original test
+packets, signed claims, raw replies, uncertain/refused outcomes and corrected
+compile/lint/patch failures survive. Formatting and whitespace checks pass.
+
+Both live links' recorded nominal expiry is now historical; expiry enforcement
+and continuing billing are still unqualified. Do not renew terms, reset either
+owner/profile or infer free retention from this local setup evidence. Standing
+spend authority persists; the prior below-100T reminder remains based on its
+last recorded balances, without a new balance observation in this batch.
+
+## Unreleased: service gaps and current-instance recovery — 2026-10-02
+
+The maintainer confines this work to this repository and selects ordinary
+current-instance upgrades as the first active recovery path. The
+[gap review](../service-gaps.md) records all five requested areas and explicit
+consumer/provider acceptance still open. Production sources and all-feature
+dependency resolution have no Canic dependency; the unused `.canic` build-lock
+artifact is removed. Framework adapters, Canic composition tests and Toko's
+blob/billing hard cut remain consumer-owned; no sibling edit or message occurs.
+
+Shared recovery now obtains one bounded replicated IC `canister_info` reply
+against a required immutable actual installation-version anchor in the current v1
+record. The installed operator can call `blob_resume_current_instance()` with no
+ingress evidence. Complete ordered history must reach installation and exclude
+snapshot loads, replacement and unknown changes. A sealed proof is consumed in
+the same executing callback/version after rechecking operator and installation.
+All owner fences clear together, retaining IDs, reservations, journals, receipts,
+balances and liabilities, with no provider effect or automatic retry. The host
+fences platform-version reversals/gaps before owner access. A previously active
+owner qualifies an ambiguous execution gap once before mutation; already-fenced
+upgrade restoration still requires explicit operator recovery. Capture ingress
+caller before the await; intervening execution or management invalidates the
+history reply. Expired history has no anchor override. The maintained host opens
+existing journals; arbitrary backup copying during upgrade is outside this path.
+
+Targeted PocketIC proves repeated ordinary upgrade activation, controller denial,
+preserved released physical/billing obligations and pending gateway work,
+history-window exhaustion, management-change races and old-heap snapshot refusal.
+All 429 core unit tests, seven native composition/binding tests, 54 nonignored
+standalone tests, declared/exported Candid and strict affected-package lint pass.
+The affected ignored Chromium lost-final-reply journey also passes after
+stop/start and operator recovery, with two local PUTs and no redispatch. Initial
+ordinary-traffic false fences, the rejected duplicate-export approach and all
+other failed selections/builds/checks survive in `.tmp/service-gap-review-01`.
+Frozen 0.7.0 remains inspection-only on restore. This required
+candidate/record/API/lifecycle hard cut joins a future minor release, with no
+version change, commit, deployment, publication or build cleanup. Current target
+Wasm is Unreleased despite reporting the unchanged package version; frozen live
+bytes remain in `.tmp/trial-v070-live-01/qualified-artifacts` and must not be
+replaced by current target bytes in a 0.7.0 deployment.
+
+The separately completed fresh frozen 0.7.0 live record below closes the two
+sample upload/download journeys; this session does not repeat its certificate,
+transfer, attestation or release. Three earlier bounded verified payer/owner/
+gateway reads remain in its private `query-journey-*` captures. Failed independent
+offline browser preflights and their separate unsigned profile are retained;
+no certificate/upload was sent from those attempts.
+
+Fresh source review at Caffeine revision
+`98cbeb63aceaf3e1ae74d9dff64235445643bbdb` retains three bounded public reads.
+Reviewed root-only authorized deletion callbacks contain no final object billing
+receipt. This is source evidence, not a deployed deletion/cessation result.
+Deletion and billing qualification still need separate exact evidence; logical
+release and zero gateway usage cannot supply either. Both trial owners and all
+physical/liability obligations survive. Consumer actions include the new
+installation anchor and explicit host guard/recovery composition after release;
+see the [feedback list](../canic-parity.md#integration-feedback).
+
+## Next: headless frozen-release publication
+
+Standing authority — 2026-10-02: the maintainer explicitly approves the fresh
+trial and covered deployment, account/link and provider work below 100T total or
+20T/day, and asks that covered actions proceed without repeat confirmation.
+Keep the selected trial within both limits, retain exact intents and reconciliation,
+and remind the maintainer when available cycles are below 100T. Authority persists
+across continuations; a balance reminder is not a request for permission.
+The new live capture is `.tmp/trial-v070-live-01`; no sibling edits, commits,
+release/version/publication or build cleanup are authorized by this spending scope.
+
+The [fresh live record](../evidence/caffeine-probes/deployed/2026-10-02-trial-v070-live-01/summary.json)
+completes both selected journeys: 1 KiB, then ten-chunk 10 MiB browser uploads,
+independent whole-byte verification, accepted verifier attestations and tenant
+downloads matching the original snapshots. Thirteen gateway PUT dispatches and
+four GETs complete without automatic retry. Both exact first references are
+released; final local accounting retains 10,486,784 physical/liability bytes,
+zero logical/reserved bytes and two lifetime operations. Do not reset/reinstall
+this owner or attempt a third object: its two-object lifetime capacity is full.
+
+Actual new owner: `5gsmp-viaaa-aaaak-qzhfa-cai`, namespace 2, project
+`d0770e45-29b6-4449-b499-961aea5daa47`. Its link remains 5T/day with nominal
+expiry `2026-10-02T18:40:17.685Z` (raw `1790966417685000000`). Original roles,
+selected limits, signed operations, raw responses and the separate two-slot
+browser profile `.tmp/trial-v070-browser-01` survive. The 10 MiB body repeats
+one chunk hash; distinct consumer media and production serving remain unqualified.
+
+Latest balances are below 100T and the maintainer has been reminded: donor
+0.654505097235T, payer 3.0996T, new provider owner 0.995381342792T, old provider
+owner 1T, new canister 0.474432286137T. Creation costs 1.0001T gross; cumulative
+gross donor debit is 8.1002T, remaining standing authority 91.8998T. The new
+1T payer-to-owner allocation is internal, not another donor debit. New provider
+credit falls 4,618,657,208 cycles between link and final observations; this is
+a temporal debit, not an itemized bill. Gateway usage counters remain zero
+despite the proven transfers and credit reduction. Their accounting semantics,
+future retention, deletion, billing cessation and expiry enforcement remain open.
+
+Preserved release artifacts initially report 0.6.1 despite the 0.7.0 tag. Before
+tenant/link/certificate exposure, verified zero local obligations and absent
+provider account permit one recorded correction of only the empty new owner.
+Rebuilt 0.7.0 Wasm passes independent PocketIC compiled-release readback, and
+actual mainnet module/configuration readback matches. The maintained guard also
+rejects the stale artifact locally. Never reuse the earlier preparation Wasm as
+a 0.7.0 deployment artifact; its immutable record remains historical.
+
+Prepare concrete installation, account/link, byte/time/spend and surviving-history
+inputs before deployment or a new relationship. Standing total trial spend
+authority remains 100T; it does not make the donor's liquid balance larger.
+Preserve the old owner's stopped certificate/403 browser claim, payment accounts,
+allocated credit and exposure/liability. Its one lifetime slot cannot be reset or
+replayed to make a fresh trial. The explicit standing authority above now covers
+the selected fresh-owner trial; the release notification alone did not.
+
+Complete the headless frozen-release publisher using
+the existing service handlers, manifests and journals: inventory/capacity dry run,
+serial publication and exact lost-response recovery. Miner then owns its consumer
+wrapper and serving/CSP acceptance. Canic adoption remains deferred; the
+[open consumer feedback](../canic-parity.md#integration-feedback) records current
+0.7.0 types, resource sizing, lifecycle and delivery obligations.
+The feedback list adds independent deployment-artifact checks and limitations of
+the successful live samples. No sibling edits or upstream messages occur.
+
+## Unreleased: frozen publication inputs and fresh-trial preparation — 2026-10-02
+
+Native `publish-inputs` now consumes a bounded inventory of exact binding/manifest/
+body paths and hashes. It reuses single-file preparation through one shared
+installation validator, Caffeine manifest decoder and streaming verifier. Preflight
+checks unique upload/object/first-reference identities, one tenant/provider scope,
+per-file constraints and aggregate fresh-installation object/leaf/byte capacity.
+No ID allocation, live-capacity reservation, certificate or network occurs.
+Serial private snapshots require both the Caffeine root and raw inventory digest;
+completed files survive a later failure, with retained failure evidence and no batch
+success summary. Existing/partial output refuses overwrite. See the
+[operator recipe](../operator-guide.md#freeze-a-publication-inventory-offline).
+
+The [new preparation record](../evidence/caffeine-probes/local/2026-10-02-trial-v070-preparation-01/summary.json)
+and `.tmp/trial-v070-preparation-01` retain frozen 0.7.0 source and preserved build
+artifacts, independent
+Candid encode/decode, a complete candidate with 10 MiB upload/read budgets, and
+real SDK 1 KiB/10 MiB bodies verified through the native batch. Exact snapshots
+match all 10,486,784 bytes and eleven leaves; zero network requests. The batch CLI
+is a separately retained Unreleased development artifact, not a released 0.7.0 tool.
+Stand-in installation/link/upload bytes are local-only and must never be deployed.
+The later live review above discovers that the preserved Wasm reports 0.6.1;
+use the independently qualified replacement in the new capture for 0.7.0.
+
+Targeted native tests and strict CLI all-target/all-feature lint pass, including
+duplicate IDs/scope changes, aggregate bounds, input hash/path refusals, later-body
+corruption and digest disagreement before usable requests. The sandbox initially
+blocks two existing local HTTP listeners; an authorized loopback rerun passes.
+Initial patch-selection and lint failures remain recorded. Formatting/diff checks
+pass. No full CI, paid/live calls, deployment/link, version/release/commit, sibling
+edit or build cleanup occurs.
+
+The [concrete fresh-trial proposal](../standalone-trial.md#fresh-070-trial-proposal)
+selects the original operator/payer/uploader/verifier, one new 0.7.0 owner, namespace
+2 and a separate project/bucket. Propose 1T creation amount (at most 1.0001T gross
+with historical fee), a new payer link at 5T/day with nominal two-hour expiry, then
+small upload/verification/attestation/download before the 10 MiB file. Refresh
+actual fee, liquidity, account allocation and terms before effects; the 100T total
+spend approval persists and is not liquid balance. The prior link's recorded
+nominal expiry has passed; expiry enforcement is still unqualified.
+The maintainer subsequently approves this new deployment/relationship and covered
+trial actions under the standing limits above; no further confirmation is needed.
+Do not touch the old owner, payment records, browser history or liabilities.
+
+Authenticated batch capacity/discovery now exists in `publish-check`; see below.
+Next connect serial admission and preparation to the original frozen permissions
+and existing signed-operation journals, then provider transfer and exact
+lost-response recovery. Keep IDs owned by the surviving consumer intent and
+the service's admission journal; do not derive freshness from an old counter. The
+[consumer feedback](../canic-parity.md#integration-feedback) records complete-batch
+and media-map acceptance; Canic integration remains deferred. The selected live
+samples pass, while a complete publisher and Miner delivery remain unqualified.
+
+## Unreleased: authenticated frozen-batch check — 2026-10-02
+
+Native `publish-check` opens only a complete `publish-inputs` batch. Reverify its
+inventory/installation hashes, complete body roots/raw digests and exact saved
+permission/manifest/browser packets before identity loading or networking.
+Explicit finite query/time budgets cover one capacity and one indexed content
+query per file. Private create-new output retains original inputs, intent, every
+argument/reply and a complete blocker report; partial failures remain without a
+success summary. No ID allocation, reservation, service update or provider call.
+
+Discovery keeps exact original IDs and distinguishes unseen, pending/exposed,
+live-needing-retain and retired roots. Fences, suspension, duplicate planned roots,
+object/metadata limits and independent object/leaf/byte/concurrency headroom are
+explicit blockers. Exit zero includes blocked observations; sequential replies
+are not a transactional reservation, permission to retry or publication authority.
+Actual installed project/uploader and provider availability remain unproved.
+
+Focused native input/publisher tests and strict CLI all-target lint pass. Actual
+signed PocketIC tests pass against the frozen qualified 0.7.0 Wasm, including
+unchanged storage, original reservation discovery, cancellation without history
+refund and restored fences. The [new live read-only record](../evidence/caffeine-probes/deployed/2026-10-02-publish-check-01/summary.json)
+uses three authenticated queries on the existing owner: both released sample
+roots are retired, original IDs survive, remaining lifetime objects are zero,
+and fresh demand is zero. No write, provider traffic or additional funding occurs.
+
+The initial fixture uses a non-ByteString project and correctly refuses offline;
+the corrected ASCII fixture passes. Function-length and test-style lint failures
+are retained and corrected. Concurrent recovery/dependency/host/test work is
+preserved; a brief build-lock wait leads to host-visible PID/cwd checks before
+subsequent edits/builds. No sibling edit, full CI, version/release/commit or cleanup.
+The [operator recipe](../operator-guide.md#check-a-frozen-batch-against-live-capacity)
+and [consumer feedback](../canic-parity.md#integration-feedback) carry the new
+contract. Next is serial admission/preparation and exact interruption recovery.
+
+## Completed in 0.7.0: configurable upload limits for Toko Miner — 2026-10-02
 
 The maintainer explicitly requests relaxing the 1 KiB cap because it delays Miner
 integration. Current source removes the extra certificate-policy envelope, including
@@ -28,8 +341,8 @@ one-time exposure, durability, deadlines/revocation and restore fences remain.
 
 The former policy envelope, host-evidence field and public blocker are removed
 from core, standalone Candid, native JSON, fixtures and tests. There is no parallel
-mode or bypass. This public semantic/API hard cut is in the requested 0.7.0
-minor-release draft; package/release receipt and the deployed 0.6.0 owner remain frozen.
+mode or bypass. This public semantic/API hard cut shipped in the 0.7.0
+minor release; the deployed 0.6.0 owner remains frozen.
 Its stopped browser claim, configured 1 KiB slot, link/balances and liabilities
 are not reset or upgraded. Implementation authority here includes no deployment
 or new provider traffic.
@@ -45,7 +358,7 @@ This is consumer source feedback, not measured live provider or Miner acceptance
 See [current sizing](../standalone-trial.md#current-upload-sizing),
 [configuration guidance](../operator-guide.md#size-a-consumer-installation) and
 the [consumer feedback](../canic-parity.md#integration-feedback). Consumers must
-adopt the removed field/variant after publication and choose their own explicit
+adopt the 0.7.0 field/variant removal and choose their own explicit
 limits. Canic integration remains deferred and sibling repositories remain read-only.
 
 Focused validation passes: core upload/admission/manifest/exposure/recovery cases,
@@ -982,13 +1295,15 @@ inputs/snapshots, authenticates service requests, verifies complete downloads an
 records/retrieves verifier statements. Browser tooling composes the maintained
 Caffeine SDK with one certificate/gateway journal and disabled retries.
 
-A complete live Caffeine upload/download trial remains unqualified. Restricted local
-issuance is implemented under the accepted trusted-uploader/fresh-owner contract.
-Select exact live identities, account/namespace, raw provider terms, bounded client
-traffic, the actual persistent browser environment and funded obligation ownership
-before effects. Use the maintained journal with one lifetime slot for the trial,
-explicitly reopen it after reload, and stop if the selected history is missing.
-The 100T-cycle planning ceiling is not a guaranteed maximum external bill.
+The separate 0.7.0 live owner now completes 1 KiB/10 MiB upload, independent
+verification, attestation and tenant download; see the current record at the top.
+Consumer publication, serving, operational recovery and provider guarantees remain
+open. Preserve exact live identities, scope, terms, bounded traffic and surviving
+obligation ownership. Reopen the selected journal after restart and stop if its
+history is missing. The current two-slot browser trial and two-object service
+lifetime history are consumed; do not reset either to make new attempts.
+The standing 100T/20T approval is recorded above; no repeat confirmation is needed
+for covered actions. It is not a guaranteed maximum external bill.
 Offline installation-check requires --trusted-uploader, writes complete init bytes
 and does not deploy.
 See the [trial plan](../operator-guide.md#isolated-uploaddownload-trial-plan),

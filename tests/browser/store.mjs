@@ -48,7 +48,7 @@ try {
   const a = await page(), b = await page();
   assert.equal(await a.evaluate(() => refusal(() => createIntentStore({ ...options, mode: 'open' }))), 'store-missing');
   assert.equal(await a.evaluate(async () => (await indexedDB.databases()).some(db => db.name === options.database)), false);
-  assert.equal(await a.evaluate(() => refusal(() => createIntentStore({ ...options, maxSlots: 65, mode: 'create' }))), 'configuration');
+  assert.equal(await a.evaluate(() => refusal(() => createIntentStore({ ...options, maxSlots: 1_000_001, mode: 'create' }))), 'configuration');
   await a.evaluate(async () => { window.store = await createIntentStore({ ...options, mode: 'create' }); });
   await b.evaluate(async () => { window.store = await createIntentStore({ ...options, mode: 'open' }); });
   assert.equal(await b.evaluate(() => refusal(() => createIntentStore({ ...options, mode: 'create' }))), 'store-exists');
@@ -103,6 +103,25 @@ try {
   assert.equal(await b.evaluate(() => refusal(() => store.save(binding('4')))), 'capacity');
   const retained = await b.evaluate(() => store.inspect(binding('2')));
   const extended = await b.evaluate(() => store.inspect(binding('3')));
+  // Miner's recorded distinct-root count, with actual strict IndexedDB commits.
+  // Synthetic bindings exercise client storage only; no service/provider admission.
+  const workload = { database: 'miner-publication-capacity-v1', maxSlots: 675 };
+  // Configure the larger lifetime ceiling without allocating a million rows.
+  // This tests configuration persistence, not capacity/performance qualification.
+  const ceiling = { database: 'large-publication-journal-v1', maxSlots: 1_000_000 };
+  await a.evaluate(async ceiling => {
+    const journal = await createIntentStore({ ...ceiling, mode: 'create' });
+    await journal.save(binding('1')); await journal.cancel(binding('1')); journal.close();
+  }, ceiling);
+  await a.evaluate(async workload => {
+    const batch = await createIntentStore({ ...workload, mode: 'create' });
+    for (let index = 1; index <= workload.maxSlots; index++) await batch.save(binding(String(index)));
+    await batch.claim(binding('1'), [1, 2], id);
+    await batch.observe(binding('1'), id);
+    await batch.cancel(binding('675'));
+    if (await refusal(() => batch.save(binding('676'))) !== 'capacity') throw new Error('lifetime bound');
+    batch.close();
+  }, workload);
   await context.close(); // Entire browser process exits; reopen the same profile and origin.
   await launch();
   const c = await page();
@@ -119,6 +138,28 @@ try {
   assert.equal(await c.evaluate(() => refusal(() => store.claim(binding('2'), [1], id))), 'dispatch-blocked');
   assert.equal(await c.evaluate(() => refusal(() => store.claimGateway(binding('2'), scope,
     '22222222-2222-4222-8222-222222222222', 2, request('third')))), 'gateway-session');
+  const batchHistory = await c.evaluate(async workload => {
+    const batch = await createIntentStore({ ...workload, mode: 'open' });
+    const result = { first: await batch.inspect(binding('1')), last: await batch.inspect(binding('675')),
+      atCapacity: await refusal(() => batch.save(binding('676'))),
+      repeat: await refusal(() => batch.claim(binding('1'), [1, 2], id)),
+      changedCapacity: await refusal(() => createIntentStore({ ...workload, maxSlots: 676, mode: 'open' })) };
+    batch.close(); return result;
+  }, workload);
+  assert.equal(batchHistory.first.phase, 'observed');
+  assert.equal(batchHistory.last.cancelled, true);
+  assert.equal(batchHistory.atCapacity, 'capacity');
+  assert.equal(batchHistory.repeat, 'dispatch-blocked');
+  assert.equal(batchHistory.changedCapacity, 'store-configuration');
+  await c.evaluate(async ceiling => {
+    const journal = await createIntentStore({ ...ceiling, mode: 'open' });
+    if (!(await journal.inspect(binding('1'))).cancelled) throw new Error('lost cancellation');
+    if (await refusal(() => journal.claim(binding('1'), [1], id)) !== 'dispatch-blocked')
+      throw new Error('cancelled attempt dispatched');
+    if (await refusal(() => createIntentStore({ ...ceiling, maxSlots: 999_999, mode: 'open' })) !== 'store-configuration')
+      throw new Error('capacity changed');
+    journal.close();
+  }, ceiling);
   // Deliberate origin-owner tampering is a substitute, not an authentic storage fault.
   await c.evaluate(() => new Promise((resolve, reject) => {
     const opening = indexedDB.open(options.database, 1);
@@ -140,8 +181,11 @@ try {
   console.log(JSON.stringify({ outcome: 'passed', browser: context.browser().version(), profile,
     facts: ['missing-store refusal', 'immutable capacity', 'argument snapshots', 'cross-tab claim',
       'permanent cancellation', 'bounded gateway history', 'browser restart persistence',
-      'immutable project/bucket', 'UTF-8 and header byte bounds', 'corrupt-history refusal'],
-    limits: ['graceful restart only', 'no eviction/rollback/power-loss guarantee', 'no provider requests'] }));
+      'immutable project/bucket', 'UTF-8 and header byte bounds', 'corrupt-history refusal',
+      '675 lifetime rows with strict commits and restart preservation',
+      'one-million configured ceiling with one retained cancelled row across restart'],
+    limits: ['graceful restart only', 'no eviction/rollback/power-loss guarantee', 'no provider requests',
+      'one million populated rows not qualified'] }));
 } finally {
   clearTimeout(deadline); await context?.close(); await new Promise(resolve => server.close(resolve));
 }

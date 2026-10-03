@@ -80,15 +80,55 @@ Use the saved `body.bin` if rebuilding a Caffeine prepared handle, retain the
 original metadata and require the rebuilt root and byte length to match before
 any certificate/gateway effect. The SDK continues to own preparation and transfer.
 
+### Transfer a frozen publication file
+
+For an indexed `publish-inputs` file after authenticated `publish-prepare`, use
+`createPublicationUpload` (package subpath `./publication`). The consumer must
+reverify the full batch/setup report and select the original file; this helper
+accepts one body and owns no ID allocation or setup journal.
+
+```js
+import { createPublicationUpload } from './publication.js';
+
+const upload = await createPublicationUpload({
+  host, identity, rootKey, binding, intents,
+  body: new Uint8Array(savedBody), bodySha256: savedRawSha256,
+  manifestJSON: originalSdkManifestJSON, contentType, filename, maxBodyBytes,
+  origin: gatewayOrigin, maxRequests, maxRequestBytes, maxTotalRequestBytes, signal,
+});
+const result = await upload.upload(onProgress);
+```
+
+Load `binding` from the selected `file-0000/certificate-binding.json`, body from
+`body.bin`, raw SHA-256 from the frozen inventory, and SDK manifest from
+`manifest.json`. Preserve original preparation hints, including omitted filename;
+the SDK rebuild must reproduce exact headers, ordered leaves, root and body length.
+The helper snapshots body/binding/trust root before any await and checks the saved
+raw digest before saving certificate intent. Its body bound is at most 1 GiB;
+actual browser memory and gateway budgets need separate qualification.
+
+The existing certificate and gateway journals own dispatch, with no retry and
+one SDK upload per helper. Reopening supports `recoverCertificate()` for historical
+certificate inspection; `.upload()` refuses claimed or cancelled rows and cannot
+resume an uncertain gateway effect. `inspect()` and `cancel()` use the same journal.
+SDK success remains an observation: independently download/verify, submit the
+configured verifier attestation, and confirm tenant references before publishing
+the media map. Keep all native and browser journals after any failure.
+
+The standalone Chromium fixture now uses frozen native batch preparation and this
+helper. Its HTTPS HTTP/2 gateway is an owned substitute; success, lost-final-reply,
+corrupt-read and withdrawn/late-completion journeys establish local composition,
+not production provider behavior or a complete Miner publication.
+
 On the Rust side, `ops::caffeine::preparation::decode_prepared_manifest` converts
 the upstream `manifestJSON` into the existing service declaration within explicit
 JSON/content/leaf/header limits. It reuses metadata and root checks; it grants no
 tenant or uploader authority. The receiving transport must bound buffering too.
-The Chromium fixture passes that actual browser output through signed admission
+The consumer Chromium fixture passes that actual browser output through signed admission
 to the existing consumer canister, which retains asset intent and admits as the
 tenant. The browser then signs uploader preparation directly to the service before
 certificate issuance. Rust supplies/validates opaque Candid using maintained types;
-the fixture does not duplicate those schemas in JavaScript. This local handshake
+the fixture does not duplicate those schemas in JavaScript. This consumer handshake
 is not a production consumer API, and never sends file bytes to the service.
 After transfer attempts, the fixture calls the existing consumer registration
 handler and verifies that HTTP success cannot publish an unconfirmed asset.
@@ -152,11 +192,18 @@ Never catch that refusal by creating a replacement or choosing another name for
 the same permission. Retain the selected database/profile/origin outside transient
 page state and preserve any outstanding obligations when retiring it.
 
-`maxSlots` is an immutable lifetime bound from 1 to 64. Cancelled and dispatched
+`maxSlots` is an immutable lifetime bound from 1 to 1,000,000. Cancelled and dispatched
 rows still occupy slots; capacity is never refunded. The current v1 schema has no
 migration, deletion, reset or old-profile activation API. `close()` releases the
 connection only. The optional `indexedDB` factory is a trusted platform boundary,
 defaulting to the browser's own IndexedDB implementation.
+
+The ceiling does not preallocate rows or qualify a million-row workload. Actual
+Chromium evidence covers 675 synthetic lifetime rows across browser restart and
+the one-million configuration with one cancelled row. Browser disk/quota,
+transaction-count latency and profile durability still require consumer sizing.
+Native publication batches remain bounded to 4,096 files; service object capacity
+is configured independently. Never reset an exhausted journal to repeat an attempt.
 
 Writes require a `strict` durability transaction and resolve after transaction
 completion, never after an individual request succeeds. Binding, phase, gateway

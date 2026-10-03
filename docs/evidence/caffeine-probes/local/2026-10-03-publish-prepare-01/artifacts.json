@@ -1,0 +1,9 @@
+{
+  "schema": 1,
+  "date": "2026-10-03",
+  "capture": ".tmp/publish-prepare-01",
+  "private_manifest_sha256": "0e4ffe63ae01f0bc1d84d82fcbd0c47e4e73b3e022bdc2532eb2101a4d525bab",
+  "private_regular_files": 388,
+  "summary_sha256": "9fbb8a26629ed1e2640e1055d8bfd1d320bcf0f4e5aaeebad96945b3f14212c2",
+  "retention": "Retained consumer feedback, affected source snapshots, Unreleased development CLI/Wasm, exact signed local setup journals, original request packets, raw replies, uncertain/refused outcomes and successful/failed targeted checks. Test identities are fixed synthetic keys. No deployed provider action, private deployment key or certificate is captured."
+}

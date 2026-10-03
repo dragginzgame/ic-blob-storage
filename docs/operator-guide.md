@@ -1,5 +1,43 @@
 # Operator and verifier guide
 
+## Current-instance recovery in Unreleased
+
+Frozen live 0.7.0 installations restore inspection-only. The next minor-release
+draft adds operator-only `blob_resume_current_instance()` with empty arguments.
+Same-release upgrade restoration remains synchronous and fenced before deferred
+work. Invoke this endpoint as the installed operator on the current canister;
+controller status supplies no authority. It reads IC-owned history once with
+twenty requested changes, a thirty-second bound and a 64 KiB application reply
+bound. The window must cover the immutable actual installation version and contain
+no later snapshot load, state replacement or unqualified change. Supplied counters,
+backup files and manual overrides cannot establish continuity.
+
+The twenty-change limit is a management-event horizon, not a time guarantee.
+Upgrade/controller churn can push installation outside it; repeated successful
+recovery reads do not move the anchor. Plan obligation-preserving retirement and
+retain the complete surviving inventory before this horizon is exhausted. Current
+code offers no active older-backup recovery or reset shortcut.
+
+A successful call clears every owner's fence together, preserving exact IDs,
+permissions, reservations, journals, receipts, balances and liabilities. It does
+not repeat provider requests or settle uncertain effects. Inspect the retained
+original operations afterward and use their existing exact recovery workflows.
+Stop/start preserves state and uses the same continuity checks. Standalone queries
+conservatively report a fence on platform-version gaps. Before delegation, a
+previously active owner may obtain one independent continuity preflight; already
+fenced upgrade restoration never activates this way. Intervening execution or
+management changes invalidate a history reply and require a fresh explicit read.
+Old heap restoration fences before
+owner access; `SnapshotRestored`, `IncompleteHistory` or another typed refusal
+leave activation unavailable. Do not rotate the anchor or reset the owner to
+recover an exhausted history window.
+
+This record/candidate/API/lifecycle hard cut requires a future minor release;
+cross-release transitions remain reinstall-only after obligation disposition.
+Older snapshot/backup activation remains unsupported and needs an independently
+surviving complete inventory. See the [gap review](service-gaps.md) for separate
+deletion, billing-cessation and consumer adoption requirements.
+
 Use the native `blob-storage` client to inspect a service, submit tenant reference
 operations, check content and submit an explicitly trusted verifier's statement. Run examples from the
 repository root. Replace environment variables and input files with the exact
@@ -10,6 +48,9 @@ installation scope and original saved requests.
 | Check a complete proposed installation | `installation-check` | Offline shared validation, exact configuration and complete init bytes with hashes |
 | Prepare an explicit Cashier account link | `account-link-inputs` | Offline Candid and summary; no signature, submission or funding |
 | Save verified upload bytes and service requests | `upload-inputs` | Offline installation consistency/root verification and fresh private files |
+| Freeze a bounded upload batch | `publish-inputs` | Offline input-hash, identity and aggregate candidate-capacity checks; serial verified snapshots |
+| Check a frozen batch against its live owner | `publish-check` | Signed capacity/content queries, retained replies and conservative blockers; no reservation or provider traffic |
+| Prepare one frozen batch file or recover its setup | `publish-prepare`, `publish-prepare-resume` | At most two local updates, four queries; separate tenant/uploader identities and original signed journals, no certificate or provider transfer |
 | Reserve, prepare or withdraw an exact upload | `admit-upload`, `prepare-upload`, `revoke-upload` | One local service update and saved signed intent; no provider call |
 | Recover original permission or manifest | `upload-permission`, `upload-manifest` | Signed exact query; never redispatches |
 | Inspect local counters and restore fences | `status` | Signed service query |
@@ -27,26 +68,14 @@ installation scope and original saved requests.
 | Check provider bytes and retain a statement | `observe-upload` | Signed service query, provider GET and local evidence writes |
 | Submit the saved statement once | `submit-attestation` | Signed service update and local intent writes |
 
-The standalone and managed fixture expose the same maintained blob method types;
-see [current status](status/current.md) before selecting a target. Service
-observations preserve local facts and fences; they do not grant retry or payment
-authority. Provider reads require a selected installation, approved origin and
-budget under the [probe ledger](evidence/caffeine-probes/README.md).
-Local signed managed evidence now covers `status`, `funding-history`,
-`upload-history`, `certificate-assessment` and `verify-upload`, including exact
-saved permissions, trust refusal and passive fenced restore. These same maintained
-commands also have standalone evidence. File bytes in that managed case are local
-substitutes. Managed `observe-upload`, `submit-attestation` and
-`upload-attestation` now also have actual signed local evidence with one source
-GET and one update, including dropped/pending reply recovery without resend.
-Those bytes/exposure remain substitutes; deployed provider and complete consumer
-acceptance are separate work. See [inspection evidence](evidence/core-primitives.md#managed-signed-client-and-local-byte-verification--2026-09-30)
-and [verifier evidence](evidence/core-primitives.md#managed-signed-verifier-observation-submission-and-recovery--2026-09-30).
-Managed tenant reference submission/receipt/status now also run with a distinct
-signer beside verifier completion. Lost/pending acknowledgments recover without
-resend; cleanup at capacity during suspension preserves physical/billing liabilities,
-and fenced restore preserves historical results without reviving references.
-See [tenant reference evidence](evidence/core-primitives.md#managed-signed-tenant-reference-submission-and-cleanup--2026-09-30).
+The standalone host exposes the maintained blob method types; consumer frameworks
+own their wrappers elsewhere. See [current status](status/current.md) before
+selecting a target. Signed local standalone/browser journeys cover setup,
+independent verification, attestation, tenant reads and interruption recovery
+against a gateway substitute. They do not qualify deployed Caffeine behavior.
+Service observations preserve local facts and fences; they do not grant retry or
+payment authority. Provider reads require a selected installation, approved origin
+and budget under the [probe ledger](evidence/caffeine-probes/README.md).
 
 ## Check installation inputs offline
 
@@ -340,6 +369,33 @@ status grants no upload authority. This sizing change requires a minor release
 and an appropriately configured consumer installation, not an in-place reset of
 the old trial owner. It does not qualify provider economics or public delivery.
 
+### Larger inventories and a dedicated storage owner
+
+For a million distinct blobs, plan a dedicated storage canister owning tenant
+policy, permissions, references, durable journals and physical/billing accounting.
+Caffeine holds the blob bytes; the publisher runs off-canister. The core can also
+be embedded in an application canister, but shared heap, instruction and lifecycle
+budgets then need joint qualification. No additional journal/controller canister
+is needed for this design.
+
+Keep three independent bounds: service lifetime objects/leaves, browser lifetime
+attempts, and files/bytes in each publication batch. Unreleased browser journals
+can be configured up to 1,000,000 attempts; native batches remain at most 4,096
+files with explicit byte budgets. Process larger datasets as separately frozen,
+bounded batches with globally distinct original IDs and all journals retained.
+Cancelled attempts and overlapping release history need headroom beyond the live
+blob count. Never erase an old batch/journal to reclaim history or repeat work.
+
+This is a sizing direction, not million-object qualification. Production indexes
+are stable-memory B-trees, but reopening synchronously scans root/permission,
+manifest, reference and receipt history and builds temporary validation sets.
+Measure stable bytes, peak heap, admission/lookup instructions and full reopen
+instructions at increasing populated sizes before advertising that capacity.
+Also measure browser transaction-count latency, disk/quota and native setup I/O:
+each indexed preparation currently reverifies the full selected frozen batch.
+At large scale, bounded reopening or partitioning may be needed; do not weaken
+fences or obligation validation to fit an instruction budget.
+
 ## Generate account-link inputs offline
 
 The isolated standalone owner is installed and its payer account is funded. This command
@@ -477,6 +533,166 @@ an upload. Keep the snapshot and binding under the application's intent/allocati
 policy. Saved files remain mutable local data: use signed `verify-upload` against
 the service's original declaration before future effects; snapshot creation does
 not authenticate subsequent file edits. No certificate or provider request occurs.
+
+## Freeze a publication inventory offline
+
+`publish-inputs` prepares multiple caller-bound files through the same pipeline
+as `upload-inputs`. First prepare each file with Caffeine's SDK and save its
+original binding, manifest and body under one input directory. Supply a bounded
+inventory with their lowercase raw SHA-256 hashes:
+
+```json
+{
+  "schema": 1,
+  "files": [
+    {
+      "binding": "asset/binding.json",
+      "binding_sha256": "LOWERCASE_64_HEX",
+      "manifest": "asset/manifest.json",
+      "manifest_sha256": "LOWERCASE_64_HEX",
+      "body": "asset/source.bin",
+      "body_sha256": "LOWERCASE_64_HEX"
+    }
+  ]
+}
+```
+
+Paths are relative regular files beneath `--root`; absolute paths, parent-directory
+components and symlinks refuse. The inventory has at most 4,096 files
+and 2 MiB of JSON; combined binding/manifest input is limited to 16 MiB.
+The original IDs are supplied by the consumer's surviving allocation authority,
+never generated by this command. Upload, object and first-reference IDs must each
+be unique within the batch. All entries must share one service, local namespace,
+tenant, trusted uploader, project and bucket. Duplicate content is counted as
+separate proposed objects and bytes; this command does not deduplicate or discover
+existing provider objects.
+
+```sh
+blob-storage publish-inputs --inventory inventory.json --root frozen-inputs \
+  --installation reviewed-installation/installation.candid \
+  --max-bytes 10485760 --max-total-bytes 335544320 \
+  --run-dir new-publication-inputs
+```
+
+Preflight checks bounded metadata hashes and per-file declarations, then sums
+objects, retained leaves and physical/liability/tenant-logical bytes against the
+validated candidate and explicit total ceiling. It plans one concurrent upload.
+This checks whether the batch fits a **fresh installation**; it neither observes
+remaining live capacity nor reserves anything. Cancelled history, other tenants
+and overlapping releases can consume additional capacity on an installed service.
+Per-file maximum is at most 1 GiB; total maximum is at most 1 TiB.
+
+After preflight, a new private directory retains `inventory.json`, exact
+`installation.candid` and `plan.json`. Serial `file-0000`, `file-0001`, … directories
+contain the same verified body and request files as single-file preparation.
+Each raw body digest must also match the inventory before usable request files
+are written. Root/digest failure preserves that file's evidence and the batch's
+`failure.json`, alongside earlier completed files. Only complete success writes
+the final batch `summary.json`; existing and partial directories refuse overwrite.
+Do not consume an incomplete batch automatically or interpret its completed files
+as uploaded objects. Frozen local files still require verification before effects.
+
+No signer, network, certificate, provider request or publication occurs. Live
+serial admission/transfer/recovery and atomic publication of the consumer's media
+map remain separate publisher work. Caller-supplied IDs are retained in frozen
+inputs; authoritative reservations belong to the service's admission journal.
+
+### Check a frozen batch against live capacity
+
+`publish-check` consumes a **complete** `publish-inputs` directory. Before identity
+loading or networking, it rechecks inventory/installation hashes, each saved body
+against its Caffeine root and raw digest, and exact saved permission, manifest and
+browser-binding packets. Missing summaries, changed files and symlinks refuse.
+
+```sh
+blob-storage publish-check --network ic --url https://icp-api.io \
+  --identity tenant.pem --actor TENANT --service SERVICE --namespace 1 \
+  --inputs publish-inputs --max-bytes 10485760 --max-total-bytes 1073741824 \
+  --max-queries 817 --timeout-seconds 1800 --run-dir publish-check
+```
+
+Select finite limits for the actual batch: one capacity query plus one indexed
+discovery per file, at most 4,097 queries and one hour overall. Each query also has
+a 30-second deadline. The same authenticated tenant and trusted IC root apply to
+every query. Intent, original inventory/installation, exact arguments and raw
+replies survive in a private create-new directory. Failure leaves no complete
+summary; existing/partial runs refuse overwrite. A later inspection needs a new
+directory and an explicitly bounded observation window.
+
+| Observation | Publisher implication |
+| --- | --- |
+| `not_visible` | Count proposed object, leaf and byte demand against observed headroom; admission is still unproved |
+| `recover_existing_operation` | Retain the discovered original IDs and inspect the original permission/journal; no fresh upload or automatic retry |
+| `live_requires_retain` | Reuse needs explicit reference-capacity checks and a tenant retain; this upload-only check remains blocked |
+| `retired_root` | Preserve lifetime history and provider/billing obligations; do not reallocate that root |
+
+Fences, suspension, duplicate planned roots, object/metadata ceilings, lifetime
+history/leaves/bytes and lack of an active slot appear as separate blockers.
+Concurrency is a serial-upload ceiling, not the number of files in the batch.
+`blocked: true` is a successful **observation**, so exit zero does not permit a
+publisher to proceed. Queries are sequential, not a transactional snapshot; even
+an empty blocker list reserves no capacity, allocates no IDs, proves no actual
+installed project/uploader, and authorizes no certificate, publication or retry.
+The service must validate and persist each exact admission before effects.
+
+### Prepare one indexed file with surviving setup intent
+
+`publish-prepare` reverifies the **entire** complete batch, then checks the selected
+file's current root and independent capacity before local admission/preparation.
+First inspect the complete batch with `publish-check`; a selected-file check is
+not an aggregate reservation. Choose the original zero-based inventory index and
+explicit tenant/uploader PEM identities. Both must authenticate before any output
+claim or service mutation. IDs and expiry remain exactly those frozen in the batch.
+
+```sh
+blob-storage publish-prepare --network ic --url https://icp-api.io \
+  --identity tenant.pem --actor TENANT --uploader-identity uploader.pem \
+  --service SERVICE --namespace 1 --inputs publish-inputs --file-index 0 \
+  --max-bytes 10485760 --max-total-bytes 1073741824 \
+  --timeout-seconds 120 --run-dir publication-file-0000
+
+blob-storage publish-prepare-resume --network ic --url https://icp-api.io \
+  --identity tenant.pem --actor TENANT --uploader-identity uploader.pem \
+  --service SERVICE --namespace 1 --inputs publish-inputs --file-index 0 \
+  --max-bytes 10485760 --max-total-bytes 1073741824 \
+  --timeout-seconds 120 --source-run publication-file-0000 \
+  --run-dir publication-file-0000-recovery-01
+```
+
+Initial setup makes at most two updates; resume makes at most one **previously
+unclaimed** preparation update. Each invocation performs at most four queries,
+with 30-second per-request deadlines and an explicit overall deadline of at most
+one hour. Admission requires the tenant; preparation uses the separately checked
+uploader. The existing maintained setup commands own signed request, raw response
+and outcome journals under the original run's `admission/` and `preparation/`.
+Each claim is durable before its exact signed envelope is sent once.
+
+Resume binds the original inventory, installation, index, scope, transport/root,
+permission, manifest and signed admission envelope. It observes the original
+permission/manifest once, without polling or resubmitting either claimed step.
+It may complete preparation only when that directory has never been claimed.
+An existing empty/partial claim, unprepared/unknown result or expired ingress
+cannot authorize another attempt. New inspection output is create-new; the source
+must remain the original preparation run, never an intervening recovery report.
+Keep all journals; deleting them or starting a new initial run after uncertainty
+is outside this recovery contract. The service still enforces admission and IDs.
+
+| State | Meaning |
+| --- | --- |
+| `prepared` | Exact original declaration is saved; no certificate or provider bytes |
+| `admission_unobserved` | Original update is pending; preserve its signed claim and resume inspection |
+| `preparation_unobserved` | Preparation is pending or historically unobserved; never resubmit it |
+| `blocked` / `permission_inactive` | Stop and preserve the original root, journals and obligations |
+
+Inspect the state even on exit zero. Historical preparation does not renew expiry,
+confirm current issuance authority or establish publication. Live/retired roots
+and fences remain blocked. Drive one file through certificate/transfer/verification/
+completion and retained references before admitting the next when concurrency is
+one. The browser [frozen-file helper](../clients/browser/README.md#transfer-a-frozen-publication-file)
+now composes certificate exposure and SDK transfer for the selected file. It
+does not drive a complete batch or publish the confirmed media mapping.
+No provider call, funding or account-link effect occurs during
+setup; ordinary service updates still consume the service canister's cycles.
 
 ## Admit and prepare an upload
 

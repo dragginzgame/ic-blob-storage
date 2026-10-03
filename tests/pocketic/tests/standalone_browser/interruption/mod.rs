@@ -40,6 +40,7 @@ fn chromium_standalone_trial_lost_chunk_reply_verifies_after_stop_start_without_
         .pic
         .start_canister(trial.f.service, Some(trial.f.controller))
         .unwrap();
+    trial.f.resume(trial.f.operator).unwrap();
     assert_eq!(
         trial.f.configuration(trial.f.operator).unwrap(),
         configuration

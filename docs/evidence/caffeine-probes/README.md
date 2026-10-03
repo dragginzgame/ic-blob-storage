@@ -1,5 +1,206 @@
 # Caffeine probe ledger
 
+## Frozen-file transfer and journal capacity — 2026-10-03
+
+The [local record](local/2026-10-03-publish-transfer-01/summary.json) connects
+native frozen batch/setup to maintained Caffeine SDK preparation and the existing
+browser certificate/gateway journal. Raw body SHA-256, exact metadata/leaves and
+rebuilt provider root must match before intent access. Offline corrupt/tampered/
+aborted inputs refuse; caller mutation cannot change the snapshotted body/root.
+No provider format, new dispatch journal or retry owner is introduced.
+
+Actual standalone PocketIC/Chromium success, corrupt-read, lost-final-reply and
+withdrawn/late-completion journeys pass against an owned HTTPS HTTP/2 gateway
+substitute. Independent verification, attestation, tenant download and logical
+release reuse maintained native commands. Lost replies survive stop/start and
+operator recovery without another upload; SDK success alone cannot confirm.
+These are local composition results, not deployed provider observations.
+
+The configurable browser lifetime ceiling is now 1,000,000, independent of service
+capacity and 4,096-file batches. Actual strict IndexedDB commits retain 675
+synthetic rows across whole-browser restart. A separate one-row journal proves
+the million configuration/cancelled history survives reopening, not populated
+million-row performance. The [sizing review](../../operator-guide.md#larger-inventories-and-a-dedicated-storage-owner)
+records stable indexes, synchronous full validation, temporary heap sets and
+native full-batch I/O as remaining scale measurements. Preserve existing owners,
+profiles, exhausted capacity and liabilities; full Miner publication/serving and
+provider deletion/billing remain open. No live write/provider call, payment,
+deployment, version/commit/publication, full CI, sibling edit or cleanup occurs.
+
+## Miner follow-up and indexed setup recovery — 2026-10-03
+
+The [local record](local/2026-10-03-publish-prepare-01/summary.json) separates
+read-only Miner feedback from actual signed PocketIC setup/recovery. Miner local
+HEAD is `3354dfc6b9fe791884ec69e8dd344de313b36940`; its clean feedback records
+679 emitted identities, 675 distinct blobs, 221,173,950 bytes and 763 leaves.
+No consumer build or provider experiment is rerun. Complete publication, public
+serving, release/open-browser retention and retired-root reintroduction remain
+open; the [consumer backlog](../../canic-parity.md#integration-feedback) adds these
+and the immutable installation anchor's finite management-history horizon.
+
+`publish-prepare` rechecks complete frozen inputs and independently authenticates
+tenant/uploader before bounded indexed admission/preparation. Resume binds the
+original signed claims and never resubmits either claimed update; it may send only
+a previously unclaimed preparation. Real local HTTP fault transport drops IC
+admission/preparation replies: exact recovery and repeated inspection pass without
+redispatch. Wrong roles, journal changes, revocation and partial claims refuse or
+block. Existing capacity/discovery/restore and single-setup proxy regressions pass.
+Native focused tests, strict CLI/test lint and formatting/whitespace checks pass.
+No provider substitute or deployed provider response is used for this setup step.
+
+Compile visibility/import, parser/style lint, missing test macro, bool conversion
+and one rejected documentation patch remain recorded and corrected in
+`.tmp/publish-prepare-01`. Exact signed local journals, requests, raw replies and
+uncertain/refused outcomes survive privately with retained development artifacts.
+No live network request, service mutation, provider call, deployment, payment,
+version/commit/publication, full CI, sibling write or cleanup occurs. Existing live
+owners, expired nominal links, browser profiles and physical/billing obligations
+remain unchanged. These local results do not qualify full publication or serving.
+
+## Service gap review and current-instance recovery — 2026-10-02
+
+The [review record](local/2026-10-02-service-gap-review-01/summary.json) separates
+source and local IC evidence. Source intent precedes three bounded public GitHub
+reads at revision `98cbeb63aceaf3e1ae74d9dff64235445643bbdb`; reviewed Caffeine
+deletion callbacks are root-only authorized prune/GC acknowledgements without
+final object billing evidence. This establishes neither deployed deletion nor
+cessation. The [gap matrix](../../service-gaps.md) names required provider evidence
+and consumer-owned Canic/Toko actions. No downstream dependency is added.
+
+Local recovery intent follows the maintainer's selection of ordinary current-instance
+upgrades. Actual PocketIC qualifies operator-only activation after synchronous
+fenced reopening, retained reservations/exposure/released liabilities/pending
+gateway work, controller denial, expired history, management changes during the
+await and old-heap snapshot refusal. Native core and memory/binding checks, the
+standalone suite, declared/exported Candid and strict affected lint pass. The
+affected Chromium lost-final-reply journey verifies and downloads through
+stop/start/recovery without redispatch: two local PUTs and two GETs; physical and
+billing bytes survive logical release. Gateway/verifier facts are labelled local
+substitutes, never deployed Caffeine deletion/billing evidence.
+
+Initial Candid mismatch, concurrent unfinished test compilation, denied loopback,
+ordinary-traffic false fences, rejected duplicate exports and local build/lint/
+selection/patch failures survive in `.tmp/service-gap-review-01`. The maintained
+guard independently qualifies ambiguous active execution gaps before delegation;
+upgrade-restored owners require explicit operator recovery. Intervening execution
+invalidates history. No old-backup activation, provider retry, version/release/
+commit/publication, deployment or build cleanup occurs. Owned local servers/browser
+close; trial owners, private journals, failed preflights and unsigned profile survive.
+Three earlier read-only provider observations remain in the separate live capture;
+this review submits no live mutation. The required v1 schema/API/lifecycle change
+joins a future minor release; current target bytes are Unreleased.
+
+## Authenticated frozen-batch check — 2026-10-02
+
+The [new record](deployed/2026-10-02-publish-check-01/summary.json) separates native
+checks, actual signed PocketIC queries against frozen 0.7.0 Wasm and three
+read-only mainnet service queries. Intents precede the selected live reads in
+`.tmp/publish-check-01/live-read-intent.json`; no Caffeine provider call or
+creation/funding/link/certificate/transfer/attestation/reference effect occurs.
+This does not repeat either original paid transfer or alter a completed capture.
+
+Unreleased `publish-check` reverifies complete batch snapshots and exact request
+packets before bounded tenant capacity/discovery. It retains query intent,
+arguments, replies, original IDs and explicit blockers; partial failures produce
+no complete summary. The live owner reports both exact sample roots as
+`DeletionPending`, zero remaining lifetime objects and zero unseen demand.
+The checker correctly blocks `retired_root`, preserving continuing obligations.
+Query signatures verify; independent Candid decode confirms scope, IDs, roots,
+byte lengths, states and headroom. This is deployed service observation, not
+new provider-behavior or billing qualification.
+
+Affected native tests, unchanged-memory/cancellation/restore PocketIC checks,
+strict CLI and standalone-test target lint, formatting and evidence hashes pass.
+Initial directory-write, function-length and test-style failures survive, as does
+the correctly refused non-ByteString project fixture before its ASCII correction.
+A brief build-lock wait leads to host-visible PID/cwd checks; concurrent recovery/
+dependency/host/test work is preserved. No full CI, sibling edit, release/version/
+commit/publication, new donor debit, identity export or build cleanup occurs.
+Serial publication/recovery and consumer serving remain open; see the
+[operator recipe](../../operator-guide.md#check-a-frozen-batch-against-live-capacity)
+and [consumer feedback](../../canic-parity.md#integration-feedback).
+
+## Approved fresh 0.7.0 live journey — 2026-10-02
+
+Intent precedes effects in `.tmp/trial-v070-live-01/intent.json`. The maintainer
+explicitly approves the selected fresh owner and covered actions below 100T total
+or 20T/day without repeat confirmation; this run stays within both limits.
+One 1T creation amount plus 100M ledger fee, one new 5T/day nominal two-hour
+payer link, two bounded uploads, four whole-file GETs, exact verifier attestations
+and logical reference releases are selected. No automatic paid retries; retain
+old owner, original failed browser history and all provider/billing obligations.
+
+The original preserved build unexpectedly reports 0.6.1. Before tenant enrollment,
+linkage or certificate exposure, verified zero activity and absent provider account
+justify one explicitly recorded correction: rebuild at 0.7.0, independently
+qualify compiled-release readback in PocketIC, then reinstall only the empty new
+owner. Original installation, mismatch, correction intent and outcomes survive.
+The new maintained release guard also rejects that stale artifact locally.
+Neither the old owner nor a completed capture is rewritten.
+
+The actual fresh owner is `5gsmp-viaaa-aaaak-qzhfa-cai`, namespace 2, with project
+`d0770e45-29b6-4449-b499-961aea5daa47`. The new link allocates 1T internally
+from payer to owner; donor creation debit and internal credit are counted separately.
+Available balances are below 100T and the maintainer has been reminded.
+The [completed live record](deployed/2026-10-02-trial-v070-live-01/summary.json)
+qualifies both 1 KiB and ten-chunk 10 MiB samples: thirteen successful PUT
+dispatches, four independently verified whole-file GETs, two accepted verifier
+attestations and two exact logical releases. All bytes match original snapshots;
+final service accounting retains 10,486,784 physical/liability bytes with zero
+logical/reserved bytes. Two lifetime object slots are consumed; do not reset or
+reinstall this owner to publish more files. The large body repeats one chunk
+hash, so distinct consumer media and deduplication economics remain open.
+
+Twenty-eight verified logical provider queries use 56 bounded transports.
+Payer credit remains 3.0996T after link allocation; new owner provider credit
+falls from 1T to 0.995381342792T. Gateway available credit falls, but its usage
+counters remain zero despite successful transfer; meaning/freshness and itemized
+billing are unqualified. Gross donor debit is 8.1002T, remaining total authority
+91.8998T; internal allocation is not counted twice. Donor liquidity is
+0.654505097235T, and the new canister has 0.474432286137T. These balances are
+below 100T; the reminder is delivered without asking permission again.
+
+Local syntax/path/budget/manifest-review failures remain separately retained;
+corrected preparations and final observations succeed. Compiled-release guard,
+targeted strict standalone-test lint, formatting and evidence hashes pass.
+No automatic paid retry, full CI, version/release/commit/publication, sibling edit,
+key export/default-identity change or build cleanup occurs. Owned browsers/servers
+close and ephemeral password files are removed. Provider objects, accounts,
+certificates, claims and liabilities survive; no deletion, billing cessation,
+future retention or enforced provider-spending cap is established.
+
+## Fresh 0.7.0 offline batch and trial preparation — 2026-10-02
+
+Intent precedes preparation in `.tmp/trial-v070-preparation-01/intent.json`:
+zero network requests/effects, bounded SDK/native invocations, frozen 0.7.0
+source/artifacts and separate trial inputs. The
+[preparation record](local/2026-10-02-trial-v070-preparation-01/summary.json)
+retains exact hashes, independent declared-DID encode/decode and a complete
+local-only installation/account-link candidate. New project/bucket selection
+does not establish provider provisioning. The service principal is a local
+stand-in; none of these candidate inputs may be deployed.
+
+The Unreleased native `publish-inputs` command shares single-file validation and
+streaming verification. Actual Caffeine SDK 1.1.2 preparations at 1 KiB and 10 MiB
+produce eleven leaves and 10,486,784 verified snapshot bytes with zero network
+requests. Targeted native/lint checks cover unique identities, common scope,
+candidate aggregate capacity, metadata/body hashes, path refusal, partial failure
+and overwrite refusal. Initial blocked local HTTP listeners, patch-selection
+failures and lint failures remain; authorized loopback/final checks pass.
+An initial private manifest includes its own unfinished output and fails verification;
+the failed manifest/reason survive, and the corrected output-excluding manifest verifies.
+No complete large transfer or remaining-live-capacity evidence is established.
+
+The [fresh-trial proposal](../../standalone-trial.md#fresh-070-trial-proposal)
+is reviewable: original trial roles/payer, one new 0.7.0 owner, up to 1.0001T gross
+creation debit, new 5T/day nominal two-hour link, then small verified journey before
+the 10 MiB file. Existing 100T spending approval persists; current fees, liquidity,
+allocation and raw expiry need fresh observation before effects. The old link's
+recorded nominal expiry has passed without qualifying server enforcement.
+No live observation/effect occurs in this capture; preserve old owner/profile/
+payment/link/exposure/liability records. Canic integration stays deferred and
+[consumer feedback](../../canic-parity.md#integration-feedback) remains open.
+
 ## Configurable issuance — local implementation, 2026-10-02
 
 The maintainer requests relaxing the 1 KiB cap for Miner integration. The
@@ -1774,6 +1975,12 @@ That checksum check establishes artifact integrity, not scenario correctness or
 provider authenticity; rerunning the opt-in test establishes current local behavior.
 
 ## Run index
+
+`trial-v070-preparation-01` / 2026-10-02: offline frozen artifacts, complete
+stand-in installation/link candidate and SDK/native 1 KiB/10 MiB batch verification;
+[hashes, failed checks, results and limitations](local/2026-10-02-trial-v070-preparation-01/summary.json).
+Zero network/effects; no live owner or relationship selected. Private
+`.tmp/trial-v070-preparation-01` retains the packet and immutable manifest.
 
 `standalone-trial-review-01` / 2026-10-02: public source, retained-interface and
 offline preparation observations stay separately identified in the

@@ -1,0 +1,17 @@
+{
+  "schema": 1,
+  "date": "2026-10-02",
+  "capture": ".tmp/trial-v070-live-01",
+  "private_manifest_sha256": "350549c6918802785ac3a733079a028c2c4895d25e34e209686cf78d2fe67aff",
+  "private_regular_files": 775,
+  "summary_sha256": "d2ff56b40f519824a1063b96822ee54ffa12120ce6f2433b873efc609f6c0064",
+  "runner_sha256": {
+    "query": "6881aaac4449273b38cf0bcdeade3f2fb2793d9a0ba5e2393e3307b539d00d90",
+    "browser_entry": "a049a2785d7308a4e1a8e3d1bccf6393fc58d7590a603477a10613252d6c6c58",
+    "browser_run": "f323bb2076312a412048117a71739977a0ddd55eea974bbd45ef21eee3316e86",
+    "setup_verifier": "f0410bfe91071a471b86740873172ee4f10c30a49cfa04f2c80b8b58b715f0f6",
+    "journey_verifier": "a09eec18cd0d667f5e6c47b794a168c2074a580ab384f31c0f2c0bfa3b79423a",
+    "final_accounting_verifier": "14e94c3f51374a74c14ccfd412da139d2c34aac103f832fe2bd4baf2a521ee16"
+  },
+  "retention": "Original raw responses, intent/signature/request-ID reviews, requests, certificates, setup, whole-byte observations, exact references, accounting, failures and targeted checks are sealed privately. Persistent browser profile survives separately; no secret or certificate is published."
+}

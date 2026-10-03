@@ -14,6 +14,8 @@ pub(super) struct Options {
 }
 
 pub(super) enum Command {
+    PublishPrepare(super::publish_prepare::Input),
+    PublishCheck(super::publish_check::Input),
     UploadSetup(super::upload_setup::Input),
     Download(super::download::Input),
     GatewayControl(super::gateway_controls::Input),
@@ -65,6 +67,9 @@ impl Options {
         if !matches!(
             command,
             "status"
+                | "publish-check"
+                | "publish-prepare"
+                | "publish-prepare-resume"
                 | "admit-upload"
                 | "prepare-upload"
                 | "revoke-upload"
@@ -108,6 +113,9 @@ impl Options {
             if matches!(
                 command,
                 "verify-upload"
+                    | "publish-check"
+                    | "publish-prepare"
+                    | "publish-prepare-resume"
                     | "admit-upload"
                     | "prepare-upload"
                     | "revoke-upload"
@@ -162,6 +170,22 @@ fn maximum(value: &str) -> Result<std::num::NonZeroU64, Failure> {
     Ok(maximum)
 }
 fn parse_command(
+    command: &str,
+    service: Principal,
+    namespace: u128,
+    network: &str,
+    flags: &mut BTreeMap<&str, &str>,
+) -> Result<Command, Failure> {
+    match command {
+        "publish-check" => parse_publish_check(service, namespace, flags),
+        "publish-prepare" | "publish-prepare-resume" => {
+            parse_publish_prepare(command, service, namespace, flags)
+        }
+        _ => parse_scoped_command(command, service, namespace, network, flags),
+    }
+}
+
+fn parse_scoped_command(
     command: &str,
     service: Principal,
     namespace: u128,
@@ -264,6 +288,74 @@ fn parse_command(
             parse_operator_command(command, service, namespace, flags)?
         },
     )
+}
+
+fn parse_publish_check(
+    service: Principal,
+    namespace: u128,
+    flags: &mut BTreeMap<&str, &str>,
+) -> Result<Command, Failure> {
+    let mut take = |name| flags.remove(name).ok_or(Failure::Arguments);
+    let max_bytes = maximum(take("--max-bytes")?)?;
+    let max_total_bytes = positive(take("--max-total-bytes")?)?;
+    let max_queries = positive(take("--max-queries")?)?;
+    let timeout_seconds = positive(take("--timeout-seconds")?)?;
+    if max_total_bytes > 1024 * 1024 * 1024 * 1024 || max_queries > 4097 || timeout_seconds > 3600 {
+        return Err(Failure::Arguments);
+    }
+    Ok(Command::PublishCheck(super::publish_check::Input {
+        service,
+        namespace,
+        inputs: PathBuf::from(take("--inputs")?),
+        directory: PathBuf::from(take("--run-dir")?),
+        max_bytes,
+        max_total_bytes: std::num::NonZeroU64::new(
+            max_total_bytes.try_into().map_err(|_| Failure::Arguments)?,
+        )
+        .ok_or(Failure::Arguments)?,
+        max_queries: max_queries.try_into().map_err(|_| Failure::Arguments)?,
+        timeout_seconds: timeout_seconds.try_into().map_err(|_| Failure::Arguments)?,
+    }))
+}
+
+fn parse_publish_prepare(
+    command: &str,
+    service: Principal,
+    namespace: u128,
+    flags: &mut BTreeMap<&str, &str>,
+) -> Result<Command, Failure> {
+    let mut take = |name| flags.remove(name).ok_or(Failure::Arguments);
+    let index_text = take("--file-index")?;
+    let index: usize = index_text.parse().map_err(|_| Failure::Arguments)?;
+    let max_bytes = maximum(take("--max-bytes")?)?;
+    let total = positive(take("--max-total-bytes")?)?;
+    let timeout = positive(take("--timeout-seconds")?)?;
+    if index.to_string() != index_text
+        || index >= 4096
+        || total > 1024 * 1024 * 1024 * 1024
+        || timeout > 3600
+    {
+        return Err(Failure::Arguments);
+    }
+    Ok(Command::PublishPrepare(super::publish_prepare::Input {
+        service,
+        namespace,
+        index,
+        max_bytes,
+        max_total_bytes: std::num::NonZeroU64::new(
+            total.try_into().map_err(|_| Failure::Arguments)?,
+        )
+        .ok_or(Failure::Arguments)?,
+        timeout_seconds: timeout.try_into().map_err(|_| Failure::Arguments)?,
+        inputs: PathBuf::from(take("--inputs")?),
+        directory: PathBuf::from(take("--run-dir")?),
+        uploader_identity: PathBuf::from(take("--uploader-identity")?),
+        source: if command == "publish-prepare-resume" {
+            Some(PathBuf::from(take("--source-run")?))
+        } else {
+            None
+        },
+    }))
 }
 
 pub(super) fn validate_url(url: &Url, network: &str, explicit_root: bool) -> Result<(), Failure> {

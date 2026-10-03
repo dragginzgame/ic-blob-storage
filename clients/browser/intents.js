@@ -103,7 +103,8 @@ const bound = (value, saved) => require(value && equal(value.binding, saved), 'i
 
 /**
  * Create a fresh v1 journal or reopen an explicitly named existing journal.
- * Capacity (1..64 lifetime rows) is immutable; no deletion, reset or retry API exists.
+ * Capacity (1..1,000,000 lifetime rows) is immutable. This is a configurable
+ * ceiling, not a qualified workload size; no deletion, reset or retry API exists.
  * Strict IndexedDB commits serialize certificate, cancellation and gateway history
  * across tabs. Profile loss/rollback, eviction and hostile origin scripts remain
  * outside this local contract. See README.md before selecting trial storage.
@@ -111,7 +112,7 @@ const bound = (value, saved) => require(value && equal(value.binding, saved), 'i
 export async function createIndexedDBIntentStore({ database, maxSlots, mode,
   indexedDB: factory = globalThis.indexedDB }) {
   require(typeof database === 'string' && database.length > 0 && database.length <= 128 &&
-    integer(maxSlots, 1, 64) && ['create', 'open'].includes(mode) && factory, 'configuration');
+    integer(maxSlots, 1, 1_000_000) && ['create', 'open'].includes(mode) && factory, 'configuration');
   const db = await new Promise((resolve, reject) => {
     let created = false, failure, settled = false;
     const fail = error => { settled = true; clearTimeout(timer); reject(error); };

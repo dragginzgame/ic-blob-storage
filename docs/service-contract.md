@@ -273,19 +273,54 @@ recovery-controller canisters and additional metadata calls are deferred. The
 synchronous certificate commit/reply boundary remains the current contract.
 
 Prioritize current-state durability, exact-operation receipt recovery and
-state-preserving same-release lifecycle work. Stop/start preserves the current
-owner; today's upgrade restoration validates the retained state and remains
-inspection-only. Operational upgrade recovery is still unfinished. This decision
-does not introduce an unfence command or establish provider qualification.
+state-preserving same-release lifecycle work. The maintainer selects ordinary
+current-instance upgrades as the first supported active recovery path on
+2026-10-02. Unreleased stores the actual IC installation version immutably in
+the current v1 record. Restoration still validates all owners synchronously and
+enters their fences before any deferred work.
 
-Loading an older whole-canister snapshot remains unsupported for operation. It
-can restore an unfenced heap and lose later records; the hook does not automatically
-detect that path. Keep the installation stopped during snapshot recovery and
-require complete independent reconciliation before any active return to service.
-A local counter, elapsed time, operator assertion or missing root is insufficient.
+The installed operator can invoke `blob_resume_current_instance()` without
+supplying evidence. Shared workflow obtains one replicated IC `canister_info`
+reply, requested history bounded to twenty changes, thirty-second wait and
+64 KiB decoded-input bound. It requires coverage through installation, ordered
+versions and no subsequent snapshot load, state replacement or unknown change.
+Ordinary upgrades and controller changes preserve the state boundary. The proof
+is sealed, consumed once in the same callback's executing version and bound to
+the actual canister and retained anchor. Operator and installation are rechecked
+after the await. Activation changes only owner fences; it never modifies IDs,
+reservations, journals, receipts, balances or liabilities, and dispatches no
+provider effect. An expired history window is not rotated or replaced by a
+local counter. Hosts own their explicit lifecycle/endpoint and heap-version guard.
+
+This path qualifies the maintained host's ordinary same-release reopening of its
+existing journals. It cannot attest to arbitrary host-code stable-memory writes
+or authorize copying an older backup into those journals during an upgrade.
+Such backup replacement remains inspection-only regardless of management history;
+consumer wrappers must enforce and qualify this same lifecycle boundary.
+
+The standalone host observes actual platform version before each owner access.
+A reversal or gap greater than one fences every owner. Queries conservatively
+report that fence. A later update captures its caller before any await; if this
+was an active owner, it independently checks IC continuity once before delegation.
+Successful continuity preserves that active instance without modifying journals.
+Already-fenced upgrade restoration never activates through this preflight and
+requires the installed operator's explicit recovery. Callback completion also
+retains the version checkpoint on provider-reply refusals. The request-to-callback
+version must advance exactly once; intervening execution or management changes
+invalidate potentially stale history. Certificate exposure and reply still commit
+synchronously in one callback, with no await after exposure. Stop/start preserves
+records and uses the same continuity checks. Actual
+PocketIC loads restore old heaps without upgrade hooks, yet enter this fence
+before certificate eligibility or mutation. A snapshot load in IC history refuses
+activation even when the restored heap forgot the later operation. Keep older
+snapshots/backups inspection-only and require complete independently surviving
+reconciliation before any future active path. A local counter, elapsed time,
+operator assertion or missing root is insufficient.
 Uncertain effects, balances, provider objects and continuing billing remain retained
-obligations. Same-release backup/restore remains an open requirement; deferring the
-distributed design does not mark recovery or extraction complete.
+obligations. Older-backup activation remains an open requirement. This local
+current-instance qualification does not upgrade frozen 0.7.0 installations or
+establish provider qualification. The required record/candidate and lifecycle
+hard cut joins the next minor release; cross-release transitions are reinstall-only.
 
 Revisit the architecture when a named consumer actually needs active restoration
 of an older storage-owner backup after later external effects, and available
@@ -515,7 +550,7 @@ and atomic durable commit. These facts must be established from the installed ow
 current execution, never accepted from production ingress. Timestamp mismatch blocks
 exposure; equal time is not proof of freshness or provenance. All missing host
 prerequisites remain visible. Commit rechecks current uploader, bound manifest,
-activation, expiry, phase and permanent restore fence, then writes possible exposure
+activation, expiry, phase and current restore fence, then writes possible exposure
 before any later effect can escape. A preview is not an authorization token.
 Historical inspection survives revocation and restore but cannot authorize issuance
 or an uncertain retry. A committed exposure rejects repetition even after a lost

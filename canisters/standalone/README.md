@@ -324,22 +324,41 @@ Same-release upgrade takes Candid empty arguments `()`. It loads the saved
 configuration, checks service and package-release identity, validates every owner
 and leaves mutations fenced. It never repairs missing state or accepts replacement
 configuration. The ic-memory runtime commits allocation-ledger metadata during
-bootstrap; this is not service reconciliation or freshness authority. Stop/start
-preserves the active owner. Actual PocketIC management snapshot tests demonstrate
-that loading an older snapshot also restores the heap owner: it bypasses these
-upgrade hooks, can restore `fenced = false`, undo a revocation and lose later
-admissions/accounting. A clear fence is therefore not evidence of fresh state.
-Snapshot loading can also restore certificate eligibility under the restricted
-contract: local gates cannot detect an older heap. Loading is unsupported for
-operation; do not restart a loaded snapshot as an active
-service. Package release is not a module hash. Operational recovery requires a
-surviving complete obligation inventory and independent freshness authority, and remains
-unfinished. Cross-release transitions require reinstall after the separately
+bootstrap; this is not service reconciliation or freshness authority.
+
+Unreleased captures `ic_cdk::api::canister_version()` during installation in the
+required immutable current v1 record. `blob_resume_current_instance()` lets only
+the installed operator obtain and consume fresh bounded IC management history.
+The window must reach installation and contain no later snapshot load, state
+replacement or unknown change. No evidence or anchor is accepted from ingress.
+Ordinary same-release upgrade activation clears all owner fences together and
+retains every journal, permission, reservation and physical/billing obligation;
+it dispatches no provider work or retry. History is limited to twenty changes,
+a thirty-second call and a 64 KiB application reply bound. Missing coverage
+leaves recovery refused; there is no anchor rotation or override.
+
+Before each owner access the host fences platform-version reversals or gaps
+greater than one. Queries conservatively report this fence. An update captures
+its actual caller before awaiting; a previously active owner gets one bounded
+IC continuity preflight before delegation. This handles replicated queries that
+discard their heap checkpoint and failed callbacks without treating local counters
+as freshness. Already-fenced upgrade restoration still requires explicit operator
+recovery. Intervening execution/management invalidates the history reply; certificate
+exposure and reply still commit together without an await after exposure.
+Stop/start retains the state and uses these continuity checks.
+Actual PocketIC tests show that snapshot loading restores
+an old heap without lifecycle hooks, but the version guard blocks operational
+return and IC history refuses `SnapshotRestored`. Old snapshots/backups remain
+inspection-only: their missing later objects, effects and liabilities require a
+separately surviving complete inventory and freshness authority. Package release
+is not a module hash. This API/schema/lifecycle hard cut requires a future minor
+release and does not change the frozen live 0.7.0 host.
+Cross-release transitions require reinstall after the separately
 defined installation-retirement requirements; controllers can erase state through
 the management canister, so these hooks cannot enforce retirement on their behalf.
 
 The maintainer's current scope keeps this single authoritative owner and its local
 durable journals. Extra journal/controller canisters and metadata calls are deferred
 until a clear use case justifies them. Current-state durability, receipt recovery
-and state-preserving lifecycle work take priority. No old-snapshot activation,
-unfencing or provider economic guarantee is part of the accepted prototype.
+and proven current-instance lifecycle work take priority. Old-snapshot activation
+and provider economic guarantees remain outside the accepted prototype.
