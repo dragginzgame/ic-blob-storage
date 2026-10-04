@@ -48,7 +48,7 @@ fn local_funding_summary_preserves_old_uncredited_amounts_through_returns_traps_
         .upgrade_canister(
             f.service,
             Fixture::wasm(),
-            candid::encode_one(f.operator).unwrap(),
+            Fixture::installation(f.operator),
             Some(f.controller),
         )
         .unwrap();
@@ -114,7 +114,7 @@ fn empty_summary_rejects_foreign_scope_and_clear_restored_history_stays_fenced()
         .upgrade_canister(
             f.service,
             Fixture::wasm(),
-            candid::encode_one(f.operator).unwrap(),
+            Fixture::installation(f.operator),
             Some(f.controller),
         )
         .unwrap();

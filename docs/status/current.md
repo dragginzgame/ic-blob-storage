@@ -4,10 +4,10 @@ Date: 2026-10-04
 
 ## Released baseline
 
-Released **0.14.6** is at `edc8a9b4df672569b03e1454d620c70dbbf4fa52`,
-with validated source `c23609f264ed34c6885106d08657bb83c062aa32`.
+Released **0.14.7** is at `cb4cd5a1253f53e9daed0e4a51bcf894a4f0ccd6`,
+with validated source `af5140a97c32ccadd2fbf7c4e6a00e6aa3deb42e`.
 The local tag and [release receipt](../release.json) agree; the maintainer reports
-it live. [Cargo](../../Cargo.toml) and [the changelog](../../CHANGELOG.md) own release
+it pushed. [Cargo](../../Cargo.toml) and [the changelog](../../CHANGELOG.md) own release
 metadata. The release does not establish registry publication, consumer adoption
 or deployed provider behavior. The lock uses ic-memory 0.25.0 and ic-testkit 0.14.11.
 
@@ -57,11 +57,11 @@ No release relabels those observations. The new
 separately qualifies complete 0.14.6 service/CLI/browser journeys on ic-memory
 0.25.0 and ic-testkit 0.14.11. Earlier journeys keep their original identities.
 
-## Active 0.14.7 draft
+## Released 0.14.7 batch evidence
 
-The maintainer requested the undated 0.14.7 changelog. Cargo and the release
-receipt remain at 0.14.6; version preparation and full release validation remain
-maintainer-operated.
+The maintainer completed the 0.14.7 release. The observations below retain their
+original compiled versions and source identities; the release does not relabel
+earlier binaries or profiles. The new resource batch below builds on this baseline.
 
 The [browser journal profile](../evidence/caffeine-probes/README.md#populated-browser-journal-profile--2026-10-04)
 uses the maintained store, synthetic bindings and strict individual IndexedDB
@@ -131,8 +131,75 @@ million-object measurement is claimed. The acceptance plan now reflects retained
 trials and current recovery rather than obsolete 0.5/0.15/Unreleased assumptions.
 Consumer adoption/certified registration and provider retirement remain open.
 
+## Current draft: 0.14.8 resource measurements and simplifications
+
+[0.14.8](../../CHANGELOG.md) is an undated draft; Cargo, the release receipt and
+Git release identity remain 0.14.7. No publication or consumer adoption is implied.
+
+The [initial resource record](../evidence/caffeine-probes/README.md#bounded-service-and-browser-resource-profile--2026-10-04)
+measures the sixteen-store assembly at 100/1,000/10,000 operations on normal
+PocketIC application limits. Equal uncertain, live, logically released and
+cancelled populations preserve selected permissions, references, receipts,
+accounting and mutation fences through actual same-release upgrades. The
+unpublished fixture accepts one bounded installation record; ordinary callers
+keep their two-object envelope, without an old reader. Profiling is opt-in and
+retains checkpoints before proceeding, outside default CI.
+
+The [follow-up record](../evidence/caffeine-probes/README.md#transfer-memory-and-restoration-read-attribution--2026-10-04)
+adds fixture-only per-memory read attribution. At 10,000 operations, repeated
+enrollment lookup accounts for 90,020 tenant-memory reads. Keeping the decoded
+activation generation in the existing per-tenant scratch totals reduces that to
+29; instrumented initialization falls from 17,986,173,576 to 17,265,226,781
+instructions (4.0%). Every permission still checks its generation; independent
+tenants, older activations and a later corrupt future generation are covered.
+Corruption refuses without repair. No persistent cache, record layout, authority
+or freshness/resume claim changes. Allocated heap remains 1,376,256 bytes and
+physical stable memory remains 72,417,280 bytes at that tier.
+
+Wrapped reads account for about 13% of the instrumented baseline initialization;
+they exclude tree traversal, Candid decoding and other work. The test wrapper
+also differs from production RuntimeMemory's unsafe-read delegation. These
+figures include observer overhead and are not standalone production costs.
+Dependency source review finds no temporary array in the stable-memory default
+unsafe-read path; no allocator or unsafe implementation change is justified.
+Larger manifests, many tenants and occupied funding/read histories remain open.
+
+One shared bounded observer now serves preparation and successful-transfer
+fixtures. Fresh 1/8/32 MiB preparation still refuses before intent with zero
+provider calls. Complete GLB/WebP and PNG/JPEG lost-reply journeys pass before
+and after both simplifications, with eleven PUTs/nine GETs and seven PUTs/ten GETs
+respectively; recovery makes no extra PUT. Exact original bytes, roots/leaves,
+metadata, recovered maps, browser serving and reference liabilities agree.
+
+The full GLB journey identifies a fixture-only numeric byte bridge and duplicate
+decode. Removing it keeps native byte equality and browser whole-response SHA-256
+plus one public-response decode. Sampled Node RSS in the reopened delivery
+context falls from 2,293,227,520 to 252,026,880 bytes. Summed owned Chromium RSS
+growth falls from 767,049,728 to 126,234,624 bytes. Actual upload code and its
+observed worker backing-storage peak (about 50.9 MB) are unchanged. These sampled
+peaks are lower bounds, summed RSS can double-count shared pages, and neither
+local substitute delivery nor graceful reopen qualifies deployed provider
+behavior, sustained load, eviction, power loss or million-object use.
+
+Scoped upload-owner unit tests, strict core/fixture/harness Clippy, matching
+Wasm/CLI/browser builds, both fresh media journeys, the restoration profile and
+four PocketIC rollback/reopen/client regressions pass. Initial visibility/doc
+lint failures from the first profile and the follow-up core function-length
+Clippy failure remain retained with their corrections. Original profiles,
+commands, artifacts, sources and hashes stay under `.tmp/service-restore-profile-01`,
+`.tmp/browser-memory-profile-01` / `-02`, `.tmp/restore-read-profile-01` and
+`.tmp/transfer-memory-profile-01`. No full CI, version mutation, commit, deployment,
+live provider request, paid cycle, sibling edit/message or build cleanup occurs.
+Consumer adoption, certified registration and provider retirement remain open.
+
 ## Remaining product work
 
+- Next repository batch: qualify restoration costs with representative larger
+  manifests and more tenants before choosing another optimization. Preserve
+  synchronous validation, durable effect identities and byte ownership at
+  independent boundaries. The measured
+  10,000-operation workload passes but does not qualify million-object operation.
+  Journal rows count lifetime permissions, not necessarily stored service objects.
 - Qualify selected tools in a consumer-owned prefix/build, then replace its registry
   0.7.0 preparer upon adoption. Preserve explicit binary/trust/history selection.
   Recover existing profiles with their original tools and bundles.
@@ -144,16 +211,12 @@ Consumer adoption/certified registration and provider retirement remain open.
 - Provider deletion/final billing and surviving inventory/freshness remain separate
   gaps. Missing downloads and zero usage counters prove neither deletion nor billing
   cessation. See [service gaps](../service-gaps.md).
-- Measure populated service reopen and full browser/worker memory before promising
-  million-object operation. Journal rows count lifetime upload permissions; service
-  objects have separate configured limits. The current journal measurements do not
-  qualify canister instruction budgets or a dedicated-canister sizing decision.
 
 ## Consumer feedback and GitHub disposition
 
 The [last retained issue review](../evidence/caffeine-probes/local/2026-10-04-gh-issues-review-01/summary.json)
 found seven issues/seventeen comments and verified remote main at 0.14.3. No new
-remote refresh or issue write is claimed; local release records establish 0.14.6.
+remote refresh or issue write is claimed; local release records establish 0.14.7.
 
 | Issue | Repository result | Remaining action |
 | --- | --- | --- |

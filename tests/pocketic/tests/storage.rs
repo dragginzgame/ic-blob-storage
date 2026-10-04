@@ -13,6 +13,7 @@ mod storage_growth;
 mod storage_manifests;
 mod storage_observe_cli;
 mod storage_reference_native_cli;
+mod storage_resources;
 mod storage_tenants;
 mod submission_proxy;
 mod support;
@@ -48,6 +49,15 @@ struct Fixture {
     other: Principal,
 }
 impl Fixture {
+    fn installation(operator: Principal) -> Vec<u8> {
+        candid::encode_one(
+            blob_test_protocol::storage::resources::StorageProbeInstallation {
+                operator,
+                max_objects: 2,
+            },
+        )
+        .unwrap()
+    }
     fn local_status(&self) -> ic_blob_storage::dto::operator::LocalServiceStatus {
         self.harness
             .pic
@@ -80,7 +90,7 @@ impl Fixture {
         harness.pic.install_canister(
             service,
             Self::wasm(),
-            candid::encode_one(operator).unwrap(),
+            Self::installation(operator),
             Some(controller),
         );
         Self {
@@ -485,7 +495,7 @@ fn upgrade_preserves_complete_pending_obligations_and_fences_all_mutations() {
         .upgrade_canister(
             f.service,
             Fixture::wasm(),
-            candid::encode_one(f.other).unwrap(),
+            Fixture::installation(f.other),
             Some(f.controller),
         )
         .unwrap_err();
@@ -497,7 +507,7 @@ fn upgrade_preserves_complete_pending_obligations_and_fences_all_mutations() {
         .upgrade_canister(
             f.service,
             Fixture::wasm(),
-            candid::encode_one(f.operator).unwrap(),
+            Fixture::installation(f.operator),
             Some(f.controller),
         )
         .unwrap();

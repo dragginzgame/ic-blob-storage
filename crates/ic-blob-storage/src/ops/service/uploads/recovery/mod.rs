@@ -6,7 +6,17 @@ use super::{
     UploadStoreRecord, UploadUsageRecord, key, metadata, validation,
 };
 use crate::model::lifecycle::{LifecyclePhase, ReferenceState};
-use std::collections::BTreeMap as HeapMap;
+use std::{
+    collections::{BTreeMap as HeapMap, btree_map::Entry},
+    num::NonZeroU64,
+};
+
+/// Same-callback scratch totals and the activation already read for that tenant.
+/// Validation never awaits or mutates enrollment; this is not freshness evidence.
+struct TenantRestoreTotal {
+    generation: NonZeroU64,
+    usage: UploadUsageRecord,
+}
 
 pub(crate) fn envelope(config: &ServiceConfiguration) -> Result<(), UploadStoreError> {
     let limits = config.manifest_limits();
@@ -56,8 +66,8 @@ impl<M: Memory> StableUploads<M> {
         {
             return Err(UploadStoreError::InvalidRecord);
         }
-        let mut totals =
-            HeapMap::from([(Principal::management_canister(), UploadUsageRecord::empty())]);
+        let mut global = UploadUsageRecord::empty();
+        let mut totals = HeapMap::new();
         let mut manifest_count = 0;
         let mut confirmed_count = 0;
         let mut reference_count = 0;
@@ -92,10 +102,7 @@ impl<M: Memory> StableUploads<M> {
                 .map_err(|_| UploadStoreError::InvalidRecord)?;
             validation::fresh(&self.config, input, view.admitted_at_ns)
                 .map_err(|_| UploadStoreError::InvalidRecord)?;
-            let tenant = self
-                .tenants
-                .enrollment_for_owner(object.tenant())?
-                .ok_or(UploadStoreError::InvalidRecord)?;
+            let tenant = self.tenant_restore_total(&mut totals, object.tenant())?;
             if view.tenant_generation > tenant.generation
                 || self.roots.lookup(context, input.request.object.root)? != Some(object)
             {
@@ -109,10 +116,7 @@ impl<M: Memory> StableUploads<M> {
                 reference_count += record.counts().0;
                 receipt_count += record.counts().2;
             }
-            for tenant in [Principal::management_canister(), object.tenant()] {
-                let total = totals
-                    .entry(tenant)
-                    .or_insert_with(UploadUsageRecord::empty);
+            for total in [&mut global, &mut tenant.usage] {
                 total.admit(input.request.object.bytes);
                 if view.phase == UploadPhase::Cancelled {
                     total.cancel(input.request.object.bytes);
@@ -128,14 +132,33 @@ impl<M: Memory> StableUploads<M> {
             }
         }
         if manifest_count != self.manifests.len()
-            || totals.len() as u64 != self.usage.len()
+            || totals.len() as u64 + 1 != self.usage.len()
             || confirmed_count != self.confirmed.len()
             || reference_count != self.references.len()
             || receipt_count != self.receipts.len()
         {
             return Err(UploadStoreError::InvalidRecord);
         }
-        self.validate_totals(totals)
+        self.validate_totals(global, totals)
+    }
+    fn tenant_restore_total<'a>(
+        &self,
+        totals: &'a mut HeapMap<Principal, TenantRestoreTotal>,
+        tenant: Principal,
+    ) -> Result<&'a mut TenantRestoreTotal, UploadStoreError> {
+        Ok(match totals.entry(tenant) {
+            Entry::Occupied(entry) => entry.into_mut(),
+            Entry::Vacant(entry) => {
+                let enrollment = self
+                    .tenants
+                    .enrollment_for_owner(tenant)?
+                    .ok_or(UploadStoreError::InvalidRecord)?;
+                entry.insert(TenantRestoreTotal {
+                    generation: enrollment.generation,
+                    usage: UploadUsageRecord::empty(),
+                })
+            }
+        })
     }
     fn validate_manifest(
         &self,
@@ -154,9 +177,15 @@ impl<M: Memory> StableUploads<M> {
     }
     fn validate_totals(
         &self,
-        totals: HeapMap<Principal, UploadUsageRecord>,
+        global: UploadUsageRecord,
+        totals: HeapMap<Principal, TenantRestoreTotal>,
     ) -> Result<(), UploadStoreError> {
         let limit = self.config.limits();
+        let totals = std::iter::once((Principal::management_canister(), global)).chain(
+            totals
+                .into_iter()
+                .map(|(tenant, total)| (tenant, total.usage)),
+        );
         for (tenant, expected) in totals {
             if self.usage.get(&tenant) != Some(expected) {
                 return Err(UploadStoreError::InvalidRecord);

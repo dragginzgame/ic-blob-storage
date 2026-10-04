@@ -178,7 +178,7 @@ fn signed_attestation_recovery_preserves_lost_reply_conflicts_and_settled_restor
         .upgrade_canister(
             f.service,
             Fixture::wasm(),
-            candid::encode_one(f.operator).unwrap(),
+            Fixture::installation(f.operator),
             Some(f.controller),
         )
         .unwrap();

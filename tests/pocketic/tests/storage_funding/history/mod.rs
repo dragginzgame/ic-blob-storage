@@ -103,7 +103,7 @@ fn funding_history_recovers_original_requests_and_reserved_intents_across_upgrad
         .upgrade_canister(
             f.service,
             Fixture::wasm(),
-            candid::encode_one(f.operator).unwrap(),
+            Fixture::installation(f.operator),
             Some(f.controller),
         )
         .unwrap();

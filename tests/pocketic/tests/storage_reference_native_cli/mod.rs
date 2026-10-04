@@ -194,7 +194,7 @@ fn signed_history_stays_successful_after_release_while_current_liveness_and_fenc
         .upgrade_canister(
             f.service,
             Fixture::wasm(),
-            candid::encode_one(f.operator).unwrap(),
+            Fixture::installation(f.operator),
             Some(f.controller),
         )
         .unwrap();

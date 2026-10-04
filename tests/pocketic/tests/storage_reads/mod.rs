@@ -158,7 +158,7 @@ fn durable_descriptors_require_the_consumers_exact_live_reference_through_upgrad
         .upgrade_canister(
             f.service,
             Fixture::wasm(),
-            candid::encode_one(f.operator).unwrap(),
+            Fixture::installation(f.operator),
             Some(f.controller),
         )
         .unwrap();
@@ -295,7 +295,7 @@ fn bounded_cleanup_pages_reject_changed_cursors_and_require_new_sweeps() {
         .upgrade_canister(
             f.service,
             Fixture::wasm(),
-            candid::encode_one(f.operator).unwrap(),
+            Fixture::installation(f.operator),
             Some(f.controller),
         )
         .unwrap();

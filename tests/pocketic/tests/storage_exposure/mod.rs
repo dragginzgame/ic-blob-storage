@@ -177,7 +177,7 @@ fn exposure_write_and_response_traps_roll_back_but_lost_committed_acknowledgment
         .upgrade_canister(
             f.service,
             Fixture::wasm(),
-            candid::encode_one(f.operator).unwrap(),
+            Fixture::installation(f.operator),
             Some(f.controller),
         )
         .unwrap();

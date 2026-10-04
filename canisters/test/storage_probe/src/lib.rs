@@ -10,7 +10,6 @@ use blob_test_protocol::{
     admission::Request,
     storage::{Failure, FaultAdmission, FaultPreparation, Observation, Status},
 };
-use candid::Principal;
 use ic_blob_storage::dto::operator::{LocalServiceStatus, LocalStatusFailure, OperatorScope};
 use ic_blob_storage::dto::tenant::{
     TenantEnrollmentResponse, TenantFailure, TenantScope, TenantUpdateRequest,
@@ -30,12 +29,25 @@ fn context() -> UploadContext {
     }
 }
 #[ic_cdk::init(decode_with = "ops::decode")]
-fn init(operator: Principal) {
-    workflow::initialize(operator, false);
+fn init(input: blob_test_protocol::storage::resources::StorageProbeInstallation) {
+    workflow::initialize(input, false);
 }
 #[ic_cdk::post_upgrade(decode_with = "ops::decode")]
-fn post_upgrade(operator: Principal) {
-    workflow::initialize(operator, true);
+fn post_upgrade(input: blob_test_protocol::storage::resources::StorageProbeInstallation) {
+    workflow::initialize(input, true);
+}
+
+#[ic_cdk::update(decode_with = "ops::decode")]
+fn populate_resources(
+    input: blob_test_protocol::storage::resources::PopulationBatch,
+) -> Result<Vec<Request>, Failure> {
+    workflow::populate_resources(context(), input)
+}
+
+#[ic_cdk::query(decode_with = "ops::decode")]
+fn restoration_resources()
+-> Result<blob_test_protocol::storage::resources::RestorationResources, Failure> {
+    workflow::restoration_resources(context())
 }
 #[ic_cdk::update(decode_with = "ops::decode")]
 fn blob_admit_upload(

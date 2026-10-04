@@ -117,7 +117,7 @@ fn manifest_client_recovers_committed_preparation_without_redispatch_after_reply
             .upgrade_canister(
                 f.service,
                 Fixture::wasm(),
-                candid::encode_one(f.operator).unwrap(),
+                Fixture::installation(f.operator),
                 Some(f.controller),
             )
             .unwrap();

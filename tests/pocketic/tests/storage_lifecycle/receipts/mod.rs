@@ -7,7 +7,7 @@ fn consumer() -> Fixture {
     f.harness.pic.install_canister(
         client,
         Fixture::wasm(),
-        candid::encode_one(f.operator).unwrap(),
+        Fixture::installation(f.operator),
         None,
     );
     f.tenant = client;
@@ -81,7 +81,7 @@ fn replicated_receipt_preserves_historical_success_through_release_suspension_an
         .upgrade_canister(
             f.service,
             Fixture::wasm(),
-            candid::encode_one(f.operator).unwrap(),
+            Fixture::installation(f.operator),
             Some(f.controller),
         )
         .unwrap();

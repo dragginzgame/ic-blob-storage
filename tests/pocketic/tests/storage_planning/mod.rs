@@ -195,7 +195,7 @@ fn durable_headroom_preserves_cleanup_slots_and_billing_until_settlement() {
         .upgrade_canister(
             f.service,
             Fixture::wasm(),
-            candid::encode_one(f.operator).unwrap(),
+            Fixture::installation(f.operator),
             Some(f.controller),
         )
         .unwrap();
@@ -289,7 +289,7 @@ fn operator_root_batches_are_bounded_authorized_and_preserved_after_upgrade() {
         .upgrade_canister(
             f.service,
             Fixture::wasm(),
-            candid::encode_one(f.operator).unwrap(),
+            Fixture::installation(f.operator),
             Some(f.controller),
         )
         .unwrap();

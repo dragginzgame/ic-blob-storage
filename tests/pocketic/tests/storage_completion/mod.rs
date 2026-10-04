@@ -129,7 +129,7 @@ fn verifier_attestation_rolls_back_replays_without_resurrection_and_survives_res
         .upgrade_canister(
             f.service,
             Fixture::wasm(),
-            candid::encode_one(f.operator).unwrap(),
+            Fixture::installation(f.operator),
             Some(f.controller),
         )
         .unwrap();

@@ -195,7 +195,13 @@ fn standalone_download_client_propagates_inactive_unconfirmed_and_restored_refus
     f.harness.pic.install_canister(
         client,
         std::fs::read(fixture_path("BLOB_STORAGE_PROBE_WASM")).unwrap(),
-        candid::encode_one(f.operator).unwrap(),
+        candid::encode_one(
+            blob_test_protocol::storage::resources::StorageProbeInstallation {
+                operator: f.operator,
+                max_objects: 2,
+            },
+        )
+        .unwrap(),
         None,
     );
     f.tenant = client;

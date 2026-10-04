@@ -233,7 +233,7 @@ fn upload_status_rejects_foreign_and_changed_bindings_and_remains_historical_aft
         .upgrade_canister(
             f.service,
             Fixture::wasm(),
-            candid::encode_one(f.operator).unwrap(),
+            Fixture::installation(f.operator),
             Some(f.controller),
         )
         .unwrap();

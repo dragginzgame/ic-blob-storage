@@ -1,5 +1,126 @@
 # Caffeine probe ledger
 
+## Transfer memory and restoration read attribution — 2026-10-04
+
+The [intent](local/2026-10-04-transfer-memory-01/intent.json) precedes local
+read attribution and full media memory measurements on the 0.14.7 graph.
+[Restoration](local/2026-10-04-transfer-memory-01/restoration-candidate-intent.json)
+and [media](local/2026-10-04-transfer-memory-01/media-candidate-intent.json)
+candidate intents precede the subsequent changes and fresh comparisons. Every
+run uses normal PocketIC application limits or owned Chromium with local HTTPS
+HTTP/2 provider substitutes; there are zero live requests and paid cycles.
+
+The fixture counts safe logical-memory reads during synchronous store opening.
+One-tenant 100/1,000/10,000-operation mixtures preserve exposure, live overlapping
+references, released objects with physical/billing liabilities and cancellation.
+Keeping each decoded activation generation in the existing per-tenant scratch
+totals removes repeated enrollment reads; each permission still checks generation.
+There is no persistent cache, format/API change, new recovery path or relaxed
+fence. Independent tenants, older activations and a later future-generation row
+are tested; corruption refuses without memory repair.
+
+| Operations | Instrumented initialization before / after | Tenant-memory reads before / after |
+| ---: | ---: | ---: |
+| 100 | 126,735,060 / 119,735,434 | 920 / 29 |
+| 1,000 | 1,506,327,172 / 1,435,064,894 | 9,020 / 29 |
+| 10,000 | 17,986,173,576 / 17,265,226,781 | 90,020 / 29 |
+
+Every tier passes actual same-release upgrade, accounting, exact selected
+permissions/references/receipts and fenced refusal. Allocated heap and stable
+pages are unchanged. At 10,000 operations, initialization drops 4.0%; wrapped
+reads account for about 13% of the instrumented baseline. These counters exclude
+traversal, decoding and other work. Their safe-read wrapper also differs from
+production RuntimeMemory's unsafe-read delegation, so neither the totals nor
+the attribution are production costs. The earlier uninstrumented baseline remains
+separately recorded. Pinned dependency source shows destination initialization,
+not a temporary array, in the default unsafe-read path. No allocator or unsafe
+implementation change is justified by this review.
+
+A shared bounded read-only observer serves fresh 1/8/32 MiB preparation and both
+existing full media journeys. Preparation still refuses before certificate intent.
+Before and after changes, GLB/WebP completes with eleven PUTs/nine GETs; PNG/JPEG
+lost-final-reply/control-interruption recovery uses seven PUTs/ten GETs and no
+additional PUT on recovery. Original roots/leaves/bytes/cache metadata, recovered
+maps, public delivery and retained physical/liability accounting agree.
+
+Full GLB delivery identifies a fixture-only numeric byte bridge and duplicate
+decode. Native downloads already equal original bytes exactly; whole-response
+SHA-256 binds the browser's public-response decode to the same bytes. Removing
+that bridge keeps MIME/cache/CORS/CSP/opaque-origin assertions and decodes once.
+
+| GLB reopened delivery context | Before | After |
+| --- | ---: | ---: |
+| Sampled Node peak RSS | 2,293,227,520 B | 252,026,880 B |
+| Sampled summed Chromium RSS growth | 767,049,728 B | 126,234,624 B |
+
+This improvement belongs to the fixture. Actual upload code and its observed
+worker backing-storage peak (about 50.9 MB) are unchanged. Samples are lower
+bounds; process RSS can double-count shared pages and observer requests can wait
+behind worker CPU work. No sustained-load, eviction, power-loss, many-tenant,
+maximum-manifest, occupied funding/read-history or million-object claim follows.
+
+The [summary](local/2026-10-04-transfer-memory-01/summary.json) binds exact selected
+commands, before/after artifacts, source archive/patch, dependency snapshots,
+checkpoints, raw samples, complete results and retained logs/profiles under
+`.tmp/restore-read-profile-01` and `.tmp/transfer-memory-profile-01`.
+Strict core/fixture/harness Clippy, upload-owner unit tests, matching Wasm/CLI/browser
+builds, independent installation readback, four PocketIC rollback/reopen/client
+regressions and both fresh media journeys pass. The initial function-length Clippy
+failure remains alongside the correction. This extends the 0.14.8 draft while
+compiled artifacts remain 0.14.7. No full CI, version mutation, commit, publication,
+deployment, live probe, sibling edit/message or build cleanup occurs. Consumer
+adoption, certified asset registration and provider retirement remain open.
+
+## Bounded service and browser resource profile — 2026-10-04
+
+The [intent](local/2026-10-04-service-resources-01/intent.json) precedes local
+measurements on the 0.14.7 graph. The existing unpublished storage probe installs
+one bounded current configuration and opens the same sixteen service memories
+through `ServiceStores::open`. It adds no production hook, record layout, cache,
+partial restore, retry or extra controller. The fixture's explicit installation
+record replaces its bare-principal input; every caller is updated, with ordinary
+tests retaining their two-object bounds.
+
+| Lifetime operations | Initialization instructions | Allocated heap after reopen | Physical stable memory |
+| ---: | ---: | ---: | ---: |
+| 100 | 113,980,058 | 1,376,256 B | 18,939,904 B |
+| 1,000 | 1,317,267,806 | 1,376,256 B | 22,085,632 B |
+| 10,000 | 15,476,426,969 | 1,376,256 B | 72,417,280 B |
+
+All tiers pass actual same-release upgrades on a normal application subnet.
+Equal populations retain possible exposure, two-reference live objects, released
+objects with continuing physical/billing liabilities and unexposed cancellation.
+Aggregate accounting, selected exact permissions, reference liveness and historical
+receipts agree after restoration; mutations still refuse behind the fence.
+Population uses bounded 100-operation steps and preserves checkpoints before
+reopen. Counters separate host initialization from store install/open; heap means
+allocated linear memory, and stable pages include allocation overhead. These are
+single local observations with one tenant and ten-byte single-leaf objects, not
+maximum-manifest/many-tenant/funding/read-history or million-object qualification.
+
+Two fresh actual Chromium profiles measure 1/8/32 MiB preparation through the
+maintained launcher, worker and patched SDK. The [follow-up intent](local/2026-10-04-service-resources-01/followup-intent.json)
+precedes preserving in-progress samples on failure and correcting process-relative
+timestamp labels; the first profile remains untouched. The follow-up's 32 MiB
+sample reaches 174,799,063 B worker backing storage and a 375,865,344 B rise in
+summed owned Chromium RSS over baseline. Worker backing storage returns to
+734,630 B after forced GC. This indicates temporary amplification in this run;
+it is neither a sustained-load leak test nor proof that an ownership copy can
+safely disappear. Peaks are sampled lower bounds; worker replies can wait behind
+CPU work and summed RSS can double-count shared pages. Every upload refuses its
+synthetic wrong root before certificate intent. Successful-transfer memory remains
+unmeasured; no provider request or paid cycle occurs.
+
+The [summary](local/2026-10-04-service-resources-01/summary.json) binds exact
+commands, source/artifact hashes, completed tiers, both browser profiles and
+retained preparation failures. The resource fixture is opt-in, excluded from
+default CI. Strict scoped Clippy, matching 0.14.7 builds and four focused PocketIC
+rollback/reopen/client checks pass. There is no full CI, version change, commit,
+publication, deployment, live probe, sibling edit/message or cleanup. Production
+validation and trust-boundary copies remain intact; scan-cost isolation and
+successful-transfer memory are the next evidence gaps, alongside consumer
+adoption/certified registration and provider deletion/final billing.
+
 ## Matching 0.14.6 media rehearsal — 2026-10-04
 
 The [intent](local/2026-10-04-released-media-v0146-01/intent.json) precedes rebuilding

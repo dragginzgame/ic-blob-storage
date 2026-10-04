@@ -217,7 +217,7 @@ fn gateway_callback_write_trap_keeps_pending_state_and_restoration_blocks_resend
         .upgrade_canister(
             f.service,
             Fixture::wasm(),
-            candid::encode_one(f.operator).unwrap(),
+            Fixture::installation(f.operator),
             Some(f.controller),
         )
         .unwrap();

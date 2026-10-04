@@ -2,6 +2,37 @@
 
 ## [Unreleased]
 
+## [0.14.8]
+
+### Added
+
+- Add an opt-in PocketIC resource profile for 100, 1,000 and 10,000 lifetime
+  operations, mixing uncertain uploads, live references, released objects with
+  continuing liabilities and cancelled reservations. Measure the maintained
+  synchronous store-opening path under normal application limits; preserve
+  checkpoints, failures, accounting, receipts and restored mutation fences.
+  Fixture-only per-memory read counters help attribute restoration costs.
+  Default CI does not populate these workloads.
+- Share bounded Node, dedicated-worker and owned Chromium memory sampling between
+  1/8/32 MiB preparation and existing successful/lost-reply media journeys.
+  Retain fresh profiles, partial observations and observer failures. These local
+  substitute measurements do not qualify deployed Caffeine or million-object use.
+
+### Changed
+
+- Give the unpublished durable-storage fixture one explicit installation record
+  with a bounded object ceiling. Ordinary tests retain their two-object envelope;
+  all installation/reopen callers use the current record without a fallback reader.
+- Reuse each tenant's activation generation within the existing synchronous
+  restoration totals scan. Remove repeated enrollment reads while preserving
+  every permission's generation check, accounting and recovery fences. No
+  persistent cache, storage layout or public contract changes.
+- Remove the media fixture's numeric byte bridge and duplicate browser decode.
+  Keep exact native-download byte equality, public-response SHA-256, original
+  metadata and browser delivery checks. The GLB delivery context's sampled Node
+  RSS falls from 2.29 GB to 252 MB locally; production upload/download code is
+  unchanged by this fixture simplification.
+
 ## [0.14.7] - 2026-10-04
 
 ### Added

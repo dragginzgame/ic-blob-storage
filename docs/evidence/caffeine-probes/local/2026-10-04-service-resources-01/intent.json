@@ -1,0 +1,14 @@
+{
+  "schema": 1,
+  "date": "2026-10-04",
+  "baseline": "0.14.7",
+  "evidence_class": "local IC and browser measurements with synthetic provider facts",
+  "target": "existing storage probe on normal PocketIC application subnet; owned Chromium preparation profile",
+  "workload": "100, 1000, 10000 lifetime permissions: equal uncertain, live-two-reference, released-liability and cancelled populations; 1, 8, 32 MiB browser bodies",
+  "purpose": "measure synchronous restoration instructions and allocated heap/stable bytes; sample browser and dedicated worker memory",
+  "live_provider_requests": 0,
+  "paid_cycles": "0",
+  "limits": "bounded batches; normal application instruction limits; stop and retain failed tiers; browser root refusal before certificate intent",
+  "artifacts": ".tmp/service-restore-profile-01; fresh browser profile selected separately",
+  "limitations": "synthetic ten-byte objects with one leaf, one tenant, local completion substitutes; browser preparation is not full successful upload or live Caffeine qualification"
+}

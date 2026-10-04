@@ -1,0 +1,20 @@
+{
+  "schema": 1,
+  "archive": {
+    "path": ".tmp/service-restore-profile-01/source.tar.gz",
+    "sha256": "5ce017be32e51c0a0d1a2fa52d5f41a4d3b7f8cdcdc64f893aaa513fea4b7b1e"
+  },
+  "tracked_patch": {
+    "path": ".tmp/service-restore-profile-01/tracked-source.patch",
+    "sha256": "4f024441f22580957e062f6157dc9d25ba1ab8722c5964339244dce6ce63f474"
+  },
+  "initial_browser_source": {
+    "path": ".tmp/service-restore-profile-01/launcher-profile.mjs",
+    "sha256": "a9d19c8fdee8b5117b216aa94ad0f466af6016bbc1f55dbf22cf687e014df73a"
+  },
+  "followup_browser_source": {
+    "path": ".tmp/service-restore-profile-01/launcher-profile-followup.mjs",
+    "sha256": "d2cd8ef7ca74fead6eaf34445025bf37e32129efe8db2e8f53a457f3f53d6e91"
+  },
+  "note": "Original browser run retains its pre-followup profiler source; the current source archive contains the followup. Production browser bundles are identical in both runs."
+}

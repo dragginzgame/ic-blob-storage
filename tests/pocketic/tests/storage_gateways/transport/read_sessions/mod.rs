@@ -147,7 +147,7 @@ fn read_authority_rejects_restored_instances_and_wrong_callers_before_sending() 
         .upgrade_canister(
             f.service,
             Fixture::wasm(),
-            candid::encode_one(f.operator).unwrap(),
+            Fixture::installation(f.operator),
             Some(f.controller),
         )
         .unwrap();
@@ -387,7 +387,7 @@ fn upgrade_preserves_upload_funding_gateway_and_interrupted_read_obligations() {
         .upgrade_canister(
             f.service,
             Fixture::wasm(),
-            candid::encode_one(f.operator).unwrap(),
+            Fixture::installation(f.operator),
             Some(f.controller),
         )
         .unwrap();

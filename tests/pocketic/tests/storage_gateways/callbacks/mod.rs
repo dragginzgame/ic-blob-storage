@@ -180,7 +180,7 @@ fn gateway_root_reads_use_current_membership_and_refuse_restored_instances() {
         .upgrade_canister(
             f.service,
             Fixture::wasm(),
-            candid::encode_one(f.operator).unwrap(),
+            Fixture::installation(f.operator),
             Some(f.controller),
         )
         .unwrap();

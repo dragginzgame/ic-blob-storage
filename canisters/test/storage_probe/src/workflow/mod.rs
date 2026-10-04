@@ -51,7 +51,6 @@ use blob_test_protocol::{
     admission::Request,
     storage::{Failure, Observation, Status, WriteFault},
 };
-use candid::Principal;
 use ic_blob_storage::dto::tenant::{
     TenantEnrollmentResponse, TenantFailure, TenantScope, TenantUpdateRequest,
 };
@@ -59,8 +58,22 @@ use ic_blob_storage::dto::upload::manifest::{
     UploadManifestFailure, UploadManifestMutation, UploadManifestRequest,
 };
 use ic_blob_storage::model::service::upload::UploadContext;
-pub(crate) fn initialize(operator: Principal, restored: bool) {
-    ops::initialize(operator, restored);
+pub(crate) fn initialize(
+    input: blob_test_protocol::storage::resources::StorageProbeInstallation,
+    restored: bool,
+) {
+    ops::initialize(input, restored);
+}
+pub(crate) fn populate_resources(
+    context: UploadContext,
+    input: blob_test_protocol::storage::resources::PopulationBatch,
+) -> Result<Vec<Request>, Failure> {
+    ops::resources::populate(context, input)
+}
+pub(crate) fn restoration_resources(
+    context: UploadContext,
+) -> Result<blob_test_protocol::storage::resources::RestorationResources, Failure> {
+    ops::resources::inspect(context)
 }
 pub(crate) fn admit(
     context: UploadContext,

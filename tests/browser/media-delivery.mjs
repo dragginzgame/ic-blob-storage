@@ -20,7 +20,10 @@ export async function verifyMediaDelivery(context, config, bodies, gateway, stat
       pixel: index === 0 ? [200, 30, 60, 255] : [20, 180, 210, 255] };
     const delivered = await readFile(join(config.report, `download-${index}`, 'body.bin'));
     assert(delivered.equals(body));
-    const sampled = await page.evaluate(async ({ bytes, url, mime }) => {
+    // Native download is already compared byte-for-byte above. The public body's
+    // whole digest below binds the browser decode to those same original bytes;
+    // no second numeric byte handoff or second decode is needed.
+    const sampled = await page.evaluate(async ({ url }) => {
       async function sample(body, type) {
         if (type === 'model/gltf-binary') {
           const bytes = body instanceof Uint8Array ? body : new Uint8Array(body);
@@ -40,16 +43,16 @@ export async function verifyMediaDelivery(context, config, bodies, gateway, stat
           return { width: image.width, height: image.height, pixel: [...painter.getImageData(0, 0, 1, 1).data] };
         } finally { image.close(); }
       }
-      const decoded = await sample(new Uint8Array(bytes), mime);
       const response = await fetch(url, { credentials: 'omit', redirect: 'error', cache: 'no-store',
         signal: AbortSignal.timeout(10000) });
       const body = await response.arrayBuffer(), hash = await crypto.subtle.digest('SHA-256', body);
+      const decoded = await sample(body, response.headers.get('content-type'));
       return { decoded, served: { origin: location.origin, status: response.status, type: response.type, url: response.url,
         mime: response.headers.get('content-type'), declaredBytes: response.headers.get('content-length'),
         cacheControl: response.headers.get('cache-control'),
         bytes: body.byteLength, sha256: [...new Uint8Array(hash)].map(value => value.toString(16).padStart(2, '0')).join(''),
-        ...await sample(body, response.headers.get('content-type')) } };
-    }, { bytes: [...delivered], url: requests[index].url, mime });
+        ...decoded } };
+    }, { url: requests[index].url });
     if (expected) for (const [key, value] of Object.entries(expected)) assert.deepEqual(sampled.decoded[key], value);
     assert.deepEqual(sampled.served, { origin: config.browserOrigin, status: 200, type: 'cors', url: requests[index].url,
       mime, declaredBytes: String(body.length), cacheControl: config.cacheControls[index],

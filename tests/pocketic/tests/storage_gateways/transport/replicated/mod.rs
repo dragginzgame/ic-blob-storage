@@ -143,7 +143,7 @@ fn replicated_query_callback_trap_preserves_pending_and_restored_transport_stays
         .upgrade_canister(
             f.service,
             Fixture::wasm(),
-            candid::encode_one(f.operator).unwrap(),
+            Fixture::installation(f.operator),
             Some(f.controller),
         )
         .unwrap();

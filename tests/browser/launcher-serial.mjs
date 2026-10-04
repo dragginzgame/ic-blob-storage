@@ -15,6 +15,7 @@ import { createHash } from 'node:crypto';
 import { loopbackTLS, loopbackH2 } from './tls.mjs';
 import { standaloneGateway } from './standalone-gateway.mjs';
 import { verifyMediaDelivery } from './media-delivery.mjs';
+import { attachBrowserMemory, sampleBrowserMemory } from './memory.mjs';
 
 const config = JSON.parse(await readFile(process.argv[2], 'utf8'));
 assert(Number.isSafeInteger(config.timeoutSeconds) && config.timeoutSeconds >= 1 && config.timeoutSeconds <= 600);
@@ -44,15 +45,35 @@ await writeFile(config.browserSelection, JSON.stringify({
   database: 'standalone-trial-v1', max_slots: 2,
 }), { flag: 'wx', mode: 0o600 });
 const workerReports = [], journals = [], originals = [], unexpected = [];
-let bridge, native, context, certificateCalls = 0, allCertificateCalls = 0, id = 0;
+let bridge, native, context, memoryOwner, memorySequence = 0,
+  certificateCalls = 0, allCertificateCalls = 0, id = 0;
+const memoryReports = [];
 const engine = { async launchPersistentContext(...args) {
   context = await chromium.launchPersistentContext(...args);
+  const owner = { context };
+  memoryOwner = owner;
   context.on('request', request => {
     const url = new URL(request.url());
     if (url.origin === new URL(config.url).origin && url.pathname.endsWith('/call')) { certificateCalls++; allCertificateCalls++; }
     if (![config.browserOrigin, gateway.origin, new URL(config.url).origin].includes(url.origin)) unexpected.push(url.origin);
   });
-  return context;
+  return process.env.BLOB_BROWSER_MEMORY_PROFILE === '1' ? {
+    newPage: (...args) => owner.context.newPage(...args),
+    async close() {
+      try {
+        if (owner.sample) {
+          const result = await owner.sample.stop();
+          memoryReports.push(result);
+          await writeFile(join(config.report, `browser-memory-${++memorySequence}.json`),
+            JSON.stringify(result, null, 2) + '\n', { flag: 'wx', mode: 0o600 });
+        }
+      } finally {
+        owner.sample = undefined;
+        try { await owner.monitor?.close(); }
+        finally { owner.monitor = undefined; await owner.context.close(); }
+      }
+    },
+  } : context;
 } };
 async function open(mode) {
   certificateCalls = 0; id = 0;
@@ -64,6 +85,10 @@ async function open(mode) {
         uploader: signer.getPrincipal().toText(), project: config.project, bucket: config.bucket, origin: gateway.origin,
         maxBodyBytes, maxRequests, maxRequestBytes, maxTotalRequestBytes: maxBodyBytes + 65536, maxJobs: 32, timeoutSeconds: config.timeoutSeconds },
       journal: { database: 'standalone-trial-v1', maxSlots: 2, mode } } }, tls.launch);
+  if (process.env.BLOB_BROWSER_MEMORY_PROFILE === '1') {
+    memoryOwner.monitor = await attachBrowserMemory(memoryOwner.context, config.browserOrigin);
+    memoryOwner.sample = await sampleBrowserMemory(memoryOwner.monitor);
+  }
 }
 async function job(grant, action) {
   const request = { id: ++id, index: grant.index, action,
@@ -170,6 +195,11 @@ try {
   assert.equal(state.gets.length, config.corruptRead ? 1 : 4 + (config.overlap ? 1 : 0) + media.publicDelivery.length + (media.csp?.images.length ?? 0) + Number(media.opaqueOriginRefused));
   assert.equal(state.failure, undefined); assert.deepEqual(unexpected, []);
   for (const [index, grant] of originals.entries()) assert.deepEqual((await job(grant, 'inspect')).journal, journals[index]);
+  // Seal the last context before reporting success, including observer failures.
+  if (process.env.BLOB_BROWSER_MEMORY_PROFILE === '1') {
+    await bridge.close();
+    assert(memoryReports.every(report => report.error === null));
+  }
   send({ outcome: 'passed', provider: 'local HTTPS HTTP/2 substitute', browserBridge: true,
     assetOrigin: config.browserOrigin, puts: state.puts, gets: state.gets, arrivals: state.arrivals,
     journals, workerReports, ...media, reads: state.reads,
@@ -182,6 +212,7 @@ try {
     await writeFile(join(config.report, 'browser-delivery-trace.json'), JSON.stringify({
       puts: state.puts, gets: state.gets, arrivals: state.arrivals, reads: state.reads,
       failure: state.failure ?? null, journals, workerReports, ...media,
+      memoryProfiles: memoryReports.map((report, index) => ({ file: `browser-memory-${index + 1}.json`, error: report.error })),
     }, null, 2), { flag: 'wx', mode: 0o600 });
   } finally {
     await bridge?.close(); await gateway.close(); await tls.close();

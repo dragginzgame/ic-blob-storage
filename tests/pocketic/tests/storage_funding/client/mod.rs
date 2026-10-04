@@ -179,7 +179,7 @@ fn funding_client_reads_pages_and_exact_outcomes_through_both_restorations() {
         .upgrade_canister(
             f.service,
             Fixture::wasm(),
-            candid::encode_one(f.operator).unwrap(),
+            Fixture::installation(f.operator),
             Some(f.controller),
         )
         .unwrap();

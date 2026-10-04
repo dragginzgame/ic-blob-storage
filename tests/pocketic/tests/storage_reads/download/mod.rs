@@ -149,7 +149,7 @@ fn operational_download_rejects_released_suspended_and_restored_content() {
         .upgrade_canister(
             f.service,
             Fixture::wasm(),
-            candid::encode_one(f.operator).unwrap(),
+            Fixture::installation(f.operator),
             Some(f.controller),
         )
         .unwrap();
