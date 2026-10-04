@@ -116,7 +116,6 @@ fn standalone_installs_cli_carrier_and_independently_rejects_wrong_actual_servic
     let mut f = Fixture::small(Harness::new(), Fake::principal(4));
     let before = f.configuration(f.operator).unwrap();
     assert_eq!(before.release, ic_blob_storage::LIBRARY_VERSION);
-    assert_ne!(ic_blob_storage::LIBRARY_VERSION, env!("CARGO_PKG_VERSION"));
     // Deployment review supplies its independently selected release: retained
     // target/ artifacts may predate the release helper's version transaction.
     if let Ok(expected) = std::env::var("BLOB_EXPECTED_HOST_RELEASE") {

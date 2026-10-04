@@ -114,6 +114,13 @@ with all targets/features and Wasm workspace checks with all features pass.
 Captures remain under
 `.tmp/workspace-manifests-01`; this does not change frozen runtime artifacts.
 
+The installation carrier regression exposed an obsolete assertion that harness
+and library package versions must differ. Removed that assertion; installed-Wasm
+release readback, independently selected release, wrong-service refusal with
+unchanged state and exact carrier installation remain checked. Both installation
+module cases pass with the current 0.13.0 artifacts. Reproduction, rebuild and
+focused rerun logs remain under `.tmp/installation-version-01`; no full CI run.
+
 ## Remaining product work
 
 - Consumer adoption of the callable driver and native subprocess helper, with

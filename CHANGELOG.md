@@ -42,6 +42,13 @@
   adaptation; fresh standalone lifecycle/recovery and snapshot refusal retain
   their behavior.
 
+### Fixed
+
+- Remove the installation test's obsolete requirement that the harness and
+  library versions differ. Preserve installed-Wasm release verification,
+  wrong-service rejection, unchanged state on refusal and exact CLI carrier
+  installation after workspace version inheritance.
+
 ## [0.13.0] - 2026-10-03
 
 ### Breaking
