@@ -6,6 +6,9 @@
 
 ### Fixed
 
+- Return typed `native-control` refusals for unknown/non-string continuation
+  phases and unserializable native results. Check phase and final replies through
+  one 8 MiB boundary; preserve context shutdown, profiles and original claims.
 - Validate native local-verification permissions through the core's canonical
   validator before body access or queries, including invalid service principals.
   Preserve explicit role/scope refusals, byte bounds and original open-file ownership.

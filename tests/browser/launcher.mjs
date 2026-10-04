@@ -263,10 +263,18 @@ try {
   assert.equal(controls, 1); assert.equal(budgeted.code, 'step_budget_exhausted');
   assert.equal(budgeted.browser_jobs, 0);
   assert.deepEqual(budgeted.native_result, stoppedFinal);
+  const circularFrame = { phase: 'map' }; circularFrame.extra = circularFrame;
   for (const next_frame of [{ phase: 'transfer', index: 1, source_transfer: null },
-    { phase: 'map', retry: true }, { phase: 'prepare', index: 0, source_run: 'relative' }]) {
+    { phase: 'map', retry: true }, { phase: 'prepare', index: 0, source_run: 'relative' },
+    { phase: 'constructor' }, { phase: 'isPrototypeOf' },
+    { phase: { toString: 'PRIVATE_PHASE_DIAGNOSTIC' } },
+    { phase: 'map', PRIVATE_VALUE: 1n }, circularFrame]) {
+    let finished = false;
     await assert.rejects(bridge.driveSession(peer(async () => ({ schema: 1, event: 'phase',
-      step: 0, next_index: 0, report: {}, next_frame }))), refusal('native-control'));
+      step: 0, next_index: 0, report: {}, next_frame }), nativeReady,
+    async () => { finished = true; return stoppedFinal; })),
+    error => refusal('native-control')(error) && !String(error).includes('PRIVATE_'));
+    assert.equal(finished, false);
     native.bootstrap.journal.mode = 'open'; bridge = await launchPublicationBrowser(engine, native);
   }
   let unblock;
@@ -290,13 +298,18 @@ try {
     async () => ({ report: { ...map, files: [] }, exit_code: 0 }),
     async () => ({ report: { error: 'transport' }, exit_code: 3 }),
     async () => ({ report: map, exit_code: 7 }),
+    async () => ({ report: { ...map, PRIVATE_VALUE: 1n }, exit_code: 0 }),
+    async () => {
+      const final = { report: { ...map }, exit_code: 0 }; final.report.extra = final; return final;
+    },
     async () => { throw new Error('lost final'); },
   ]) {
     await assert.rejects(bridge.driveSession(mapPeer(map, finish)), refusal('native-control'));
     bridge = await launchPublicationBrowser(engine, native);
   }
   for (const change of [{ inventory_sha256: '0'.repeat(64) }, { files: [] },
-    { files: [{ index: 1 }] }, { blockers: [{ code: 'incomplete' }] }, { publication_lease: true }]) {
+    { files: [{ index: 1 }] }, { blockers: [{ code: 'incomplete' }] }, { publication_lease: true },
+    { files: [{ index: 0, details: 'x'.repeat(8 * 1024 * 1024) }] }]) {
     await assert.rejects(bridge.driveSession(mapPeer({ ...map, ...change })), refusal('native-control'));
     bridge = await launchPublicationBrowser(engine, native);
   }

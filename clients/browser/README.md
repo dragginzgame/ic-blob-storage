@@ -459,8 +459,12 @@ the signed completion/reference checks. Manual `execute`
 jobs and another driver invocation refuse while this loop owns the context.
 The launcher allocates monotonic worker correlation IDs; they grant no replay.
 
-Replies must have the complete current phase-event shape and fit 8 MiB. Current
-ready metadata must match the original input hashes/file count, with a positive
+Replies must have the complete current phase-event shape and fit 8 MiB. Native
+phase and final results share one serialization/size boundary; unknown or non-string
+continuation phases, cyclic values and unsupported JSON values return redacted
+`native-control` refusals. Invalid continuations do not advance to another native
+phase or browser job, and do not finish the native run as a successful result.
+Current ready metadata must match the original input hashes/file count, with a positive
 step budget at most `8 × files + 1`. There is no polling or unbounded phase loop.
 The existing context deadline/close signal interrupts even a pending control or
 final-exit wait; pass that signal through your transport and stop the owned native process

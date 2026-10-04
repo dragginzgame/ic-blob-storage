@@ -134,6 +134,22 @@ failed intermediate checks and final source hashes remain under
 `.tmp/native-request-decoding-01`. These are offline/local HTTP checks, with no live
 IC/provider calls or paid cycles; they do not qualify deployed provider behavior.
 
+The 0.14.5 driver follow-up also refuses unknown/non-string continuation phases
+through the finite `native-control` boundary. Phase and final replies now share
+the same serialization/8 MiB guard, removing two parallel size checks. A real
+launcher check reproduced a `closed` refusal for an invalid phase before the fix.
+Current Chromium launcher checks pass for unknown/object phases, cyclic/BigInt
+phase and final values, over-limit replies, matching successful final results,
+cancellation and original profile binding preservation. Browser bundles rebuild;
+JavaScript syntax, changelog and diff checks pass. Original failure, final logs,
+source/bundle hashes and profiles remain under `.tmp/native-phase-validation-01`.
+Only owned loopback assets are requested, with no live IC/provider request or paid
+cycle. Consumer adoption and certified registration remain open.
+
+The concurrent Cargo.lock update to ic-memory 0.24.14 and ic-testkit 0.14.11 was
+preserved. This JavaScript batch does not requalify that Rust graph; earlier native
+and Wasm observations retain their original dependency identities.
+
 ### GitHub issue disposition
 
 The latest read-only refresh still finds seven open issues and seventeen comments,
