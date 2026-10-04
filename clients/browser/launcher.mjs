@@ -4,6 +4,7 @@ import { createServer } from 'node:http';
 import { createHash } from 'node:crypto';
 import { isAbsolute, join, dirname, basename } from 'node:path';
 import { isDeepStrictEqual } from 'node:util';
+import { driveSession } from './session.mjs';
 
 /** Finite process-bridge refusal; never includes keys, paths or remote errors. */
 export class LauncherRefusal extends Error {
@@ -20,6 +21,18 @@ const nativeIntentFields = ['format', 'source_session', 'browser', 'operation', 
   'inventory_sha256', 'installation_sha256', 'root_key_sha256', 'files', 'max_steps',
   'max_service_updates', 'max_service_queries', 'timeout_seconds', 'max_provider_requests',
   'automatic_retries', 'input_verification'];
+
+function nativeReady(ready, intent) {
+  exact(ready, ['schema', 'operation', 'event', 'files', 'inventory_sha256', 'installation_sha256',
+    'max_steps', 'provider_requests', 'input_verification', 'retry_authorized', 'publication_lease']);
+  require(ready.schema === 1 && ready.operation === 'publish_session' && ready.event === 'ready' &&
+    ready.retry_authorized === false && ready.publication_lease === false &&
+    ready.provider_requests === 0 && ready.input_verification === 'session_start' &&
+    integer(ready.files, 4096) && ready.files === intent.files &&
+    integer(ready.max_steps, 8 * ready.files + 1) &&
+    ready.inventory_sha256 === intent.inventory_sha256 &&
+    ready.installation_sha256 === intent.installation_sha256, 'native-session');
+}
 
 // Open once, reject special files before reading, and never allocate past the
 // caller's ceiling. A selected body is checked again in the browser before intent.
@@ -93,12 +106,8 @@ async function nativeSelection(options, bootstrap, hostBundle, workerBundle) {
       new URL(intent.gateway).origin === new URL(config.origin).origin &&
       intent.root_key_sha256 === digest(config.rootKey), 'native-session');
     const ready = JSON.parse(await boundedFile(join(session, 'ready.json'), 16384));
-    exact(ready, ['schema', 'operation', 'event', 'files', 'inventory_sha256', 'installation_sha256',
-      'max_steps', 'provider_requests', 'input_verification', 'retry_authorized', 'publication_lease']);
-    require(ready.schema === 1 && ready.operation === 'publish_session' && ready.event === 'ready' &&
-      ready.retry_authorized === false && ready.publication_lease === false &&
-      ready.files === intent.files && ready.inventory_sha256 === intent.inventory_sha256 &&
-      ready.installation_sha256 === intent.installation_sha256 &&
+    nativeReady(ready, intent);
+    require(ready.max_steps === intent.max_steps &&
       digest(await boundedFile(join(session, 'inventory.json'), 2 * 1024 * 1024)) === intent.inventory_sha256 &&
       digest(await boundedFile(join(session, 'installation.candid'), 16384)) === intent.installation_sha256,
     'native-session');
@@ -183,8 +192,9 @@ async function nativeTransfer(native, request) {
 
 /** Own one persistent Playwright Chromium context and fixed loopback asset origin.
  * The caller supplies its installed Chromium engine, trusted bundles, exact SDK
- * signer/bootstrap and original profile/origin. This bridge owns no durable phase,
- * service dispatch, retry, verifier or publication decision. Browser results remain
+ * signer/bootstrap and original profile/origin. Native owns phase decisions and
+ * signed service dispatch; the bridge follows them without a durable cursor,
+ * retry owner or verifier implementation. Browser results remain
  * redacted observations; the native session must independently establish completion.
  */
 export async function launchPublicationBrowser(chromium, options, browserOptions = {}) {
@@ -221,10 +231,11 @@ export async function launchPublicationBrowser(chromium, options, browserOptions
       response.writeHead(200, { 'content-type': 'text/html' }); response.end('<!doctype html><title>Publication worker</title>');
     } else { response.writeHead(404); response.end(); }
   });
-  let context, page, closed = false, busy = false, timer, closing;
+  let context, page, closed = false, busy = false, timer, closing, lastId = 0;
+  const lifetime = new AbortController();
   function close() {
     if (closing) return closing;
-    closed = true; clearTimeout(timer);
+    closed = true; clearTimeout(timer); lifetime.abort();
     // Closing the whole context kills the worker and preserves its profile.
     closing = (async () => {
       try { await context?.close(); } finally {
@@ -257,41 +268,53 @@ export async function launchPublicationBrowser(chromium, options, browserOptions
     if (error instanceof LauncherRefusal) throw error;
     throw new LauncherRefusal('launch');
   }
+  async function execute(request) {
+    request = structuredClone(request);
+    if (integer(request?.id, 1_000_000)) lastId = Math.max(lastId, request.id);
+    if (request?.action === 'transfer') request = await nativeTransfer(native, request);
+    else if (native && request?.action === 'upload') throw new LauncherRefusal('native-phase');
+    let job;
+    if (request?.action === 'upload') {
+      exact(request, ['id', 'index', 'action', 'transfer']);
+      // Own metadata before filesystem awaits; caller mutation cannot change
+      // the selected binding, hints or digest while reading the body.
+      const owned = await snapshot(request.transfer, maximum);
+      job = { schema: 1, id: request.id, index: request.index, action: 'upload', ...owned.job };
+      await page.evaluate(size => { globalThis.publicationBody = new Uint8Array(size); }, owned.bytes.length);
+      // Bound each CDP value; no giant JSON byte array or HTTP body route.
+      for (let offset = 0; offset < owned.bytes.length; offset += 65536) {
+        await page.evaluate(({ offset, bytes }) => publicationBody.set(bytes, offset),
+          { offset, bytes: Array.from(owned.bytes.subarray(offset, offset + 65536)) });
+      }
+    } else {
+      exact(request, ['id', 'index', 'action', 'binding']); job = { schema: 1, ...structuredClone(request) };
+    }
+    return await page.evaluate(async job => {
+      if (job.action === 'upload') { job.snapshot.body = globalThis.publicationBody; delete globalThis.publicationBody; }
+      return publicationHost.execute(job);
+    }, job);
+  }
+  async function own(action) {
+    require(!closed, 'closed'); require(!busy, 'busy'); busy = true;
+    try { return await action(); }
+    catch (error) {
+      if (error instanceof LauncherRefusal) throw error;
+      const code = closed ? 'closed' : 'browser';
+      await close();
+      throw new LauncherRefusal(code);
+    } finally { busy = false; }
+  }
   return Object.freeze({
     origin,
-    async execute(request) {
-      require(!closed, 'closed'); require(!busy, 'busy'); busy = true;
-      try {
-        request = structuredClone(request);
-        if (request?.action === 'transfer') request = await nativeTransfer(native, request);
-        else if (native && request?.action === 'upload') throw new LauncherRefusal('native-phase');
-        let job;
-        if (request?.action === 'upload') {
-          exact(request, ['id', 'index', 'action', 'transfer']);
-          // Own metadata before filesystem awaits; caller mutation cannot change
-          // the selected binding, hints or digest while reading the body.
-          const owned = await snapshot(request.transfer, maximum);
-          job = { schema: 1, id: request.id, index: request.index, action: 'upload', ...owned.job };
-          await page.evaluate(size => { globalThis.publicationBody = new Uint8Array(size); }, owned.bytes.length);
-          // Bound each CDP value; no giant JSON byte array or HTTP body route.
-          for (let offset = 0; offset < owned.bytes.length; offset += 65536) {
-            await page.evaluate(({ offset, bytes }) => publicationBody.set(bytes, offset),
-              { offset, bytes: Array.from(owned.bytes.subarray(offset, offset + 65536)) });
-          }
-        } else {
-          exact(request, ['id', 'index', 'action', 'binding']); job = { schema: 1, ...structuredClone(request) };
-        }
-        return await page.evaluate(async job => {
-          if (job.action === 'upload') { job.snapshot.body = globalThis.publicationBody; delete globalThis.publicationBody; }
-          return publicationHost.execute(job);
-        }, job);
-      } catch (error) {
-        if (error instanceof LauncherRefusal) throw error;
-        const code = closed ? 'closed' : 'browser';
-        await close();
-        throw new LauncherRefusal(code);
-      } finally { busy = false; }
-    },
+    execute: request => own(() => execute(request)),
+    driveSession: control => own(async () => {
+      const { ready: currentReady, phase, finish } = control ?? {};
+      require(native && native.intent.verifier !== null && typeof phase === 'function' && typeof finish === 'function', 'native-session');
+      const ready = structuredClone(currentReady); nativeReady(ready, native.intent);
+      try { return await driveSession({ ready, phase, finish, execute: request => execute({ ...request, id: lastId + 1 }), signal: lifetime.signal,
+        refuse: code => { throw new LauncherRefusal(code); } }); }
+      catch (error) { await close(); throw error; }
+    }),
     close,
   });
 }

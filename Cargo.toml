@@ -23,18 +23,28 @@ repository = "https://github.com/dragginzgame/ic-blob-storage"
 publish = ["crates-io"]
 
 [workspace.dependencies]
+blob-test-protocol = { path = "tests/protocol" }
 candid = "0.10.36"
+candid_parser = "=0.4.1"
+ic-agent = { version = "=0.49.2", default-features = false }
+ic-blob-storage = { path = "crates/ic-blob-storage" }
+ic-blob-storage-canister = { path = "canisters/standalone" }
 ic-cdk = "0.20.3"
-ic-management-canister-types = "0.8.0"
-ic-memory = "0.21"
-ic-testkit = "0.13"
+ic-management-canister-types = "0.10.0"
+ic-memory = "0.24"
+ic-testkit = "0.14"
+libc = "0.2.190"
+reqwest = { version = "0.13.5", default-features = false }
 serde = { version = "1.0.229", features = ["derive"] }
 serde_bytes = "0.11.19"
+serde_cbor = "0.11.2"
 serde_json = "1.0.151"
 sha2 = { version = "=0.11.0", default-features = false }
 # PocketIC 16 requires this exact compatible release.
 thiserror = "=2.0.18"
 tempfile = "3.27.0"
+tokio = "1.53.1"
+url = "2.5.8"
 
 [workspace.lints.rust]
 missing_docs = "deny"

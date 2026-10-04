@@ -1,0 +1,19 @@
+{
+  "purpose": "Make browser session completion require the native final report and successful subprocess exit",
+  "baseline": "31c1a36 release 0.13.0 with retained guidance and private native-pipe work",
+  "scope": "focused pipe and Chromium completion boundaries plus the two retained direct-process IC journeys",
+  "budget": {
+    "launcherSuites": 1,
+    "icBrowserJourneys": 2,
+    "maxPutArrivalsPerJourney": 4,
+    "maxGetArrivalsPerJourney": 4,
+    "liveProviderRequests": 0,
+    "paidCycles": 0
+  },
+  "retention": "Keep original profiles, journals, frozen artifacts and all failed attempts",
+  "limitations": [
+    "native session owns authenticated completion; browser checks the selected private peer's current report",
+    "consumer asset registration, real media, provider economics and stale-history activation remain separate",
+    "no new journal, automatic restart, deployment or paid effects"
+  ]
+}

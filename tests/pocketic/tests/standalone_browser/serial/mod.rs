@@ -25,11 +25,14 @@ enum Driver {
     Persistent,
     Worker,
     VerifiedWorker,
+    CoordinatedWorker,
 }
 impl Driver {
     fn script(self) -> &'static str {
         match self {
-            Self::VerifiedWorker => "../../.tmp/browser/launcher-serial.mjs",
+            Self::VerifiedWorker | Self::CoordinatedWorker => {
+                "../../.tmp/browser/launcher-serial.mjs"
+            }
             _ => "serial.mjs",
         }
     }
@@ -152,7 +155,7 @@ impl Serial {
             "recovery_phase":recovery["native_phase"]}),
         );
     }
-    fn session(&self, gateway: &str, label: &str, verify: bool) -> NativeSession {
+    fn session_args(&self, gateway: &str, label: &str, verify: bool) -> Vec<String> {
         let mut args = self
             .trial
             .args("publish-session", "tenant.pem", self.trial.f.tenant);
@@ -190,6 +193,10 @@ impl Serial {
         }
         self.trial
             .record(&format!("{label}-command.json"), &json!(args));
+        args
+    }
+    fn session(&self, gateway: &str, label: &str, verify: bool) -> NativeSession {
+        let args = self.session_args(gateway, label, verify);
         let mut session = NativeSession::start_with_roots(
             &args,
             verify
@@ -208,6 +215,24 @@ impl Serial {
         };
         self.trial.record(&format!("{label}-phase.json"), &report);
         report
+    }
+    fn unconfirmed(&self, control: &mut Control, index: usize, gateway: &str) {
+        let before = self.status_using(
+            control,
+            Some(index),
+            gateway,
+            &format!("unconfirmed-{index}"),
+        );
+        assert_eq!(before["file_live"], false);
+        assert_eq!(before["blockers"][0]["code"], "completion_unmatched");
+        // A successful or lost SDK response occupies the same reservation.
+        if index == 0 {
+            assert_eq!(
+                self.prepare_using(control, 1, "blocked-setup-1")["state"],
+                "blocked"
+            );
+            assert!(!self.trial.report.join("blocked-setup-1/admission").exists());
+        }
     }
     fn status_using(
         &self,
@@ -545,6 +570,85 @@ impl Serial {
                 .exists()
         );
     }
+    fn coordinate(
+        &self,
+        control: &mut Control,
+        browser: &mut BrowserDriver,
+        gateway: &str,
+        scenario: Scenario,
+    ) {
+        let repo = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../..");
+        browser.send(&json!({"native": {
+            "binary":std::env::var("BLOB_CLI_BIN").unwrap(),
+            "cwd":repo.canonicalize().unwrap(),
+            "timeoutSeconds":120,
+            "args":self.session_args(gateway,"session",true),
+            "env":{"SSL_CERT_FILE":self.trial.report.join("gateway-ca.pem"),
+                "SSL_CERT_DIR":null,"HTTP_PROXY":"http://127.0.0.1:9",
+                "HTTPS_PROXY":"http://127.0.0.1:9","ALL_PROXY":"http://127.0.0.1:9","NO_PROXY":""}
+        },"resumedArgs":self.session_args(gateway,"resumed-session",true)}));
+        for ordinal in 0..34 {
+            let request: Value = browser.read(8192);
+            if !request["ready"].is_null() {
+                assert_eq!(request["ready"]["event"], "ready");
+                self.trial.record(
+                    &format!("{}-ready.json", request["label"].as_str().unwrap()),
+                    &request["ready"],
+                );
+                browser.send(&json!({"accepted":true}));
+                continue;
+            }
+            if !request["restart"].is_null() {
+                assert!(matches!(scenario, Scenario::LostReply));
+                assert_eq!(request["restart"]["report"]["error"], "transport");
+                assert_eq!(request["restart"]["exit_code"], 3);
+                self.trial
+                    .record("driver-interruption.json", &request["restart"]);
+                browser.send(&json!({"accepted":true}));
+                continue;
+            }
+            if !request["finished"].is_null() {
+                let final_result = &request["finished"];
+                self.trial.record("driver-native-result.json", final_result);
+                assert_eq!(
+                    final_result["exit_code"],
+                    if matches!(scenario, Scenario::Corrupt) {
+                        3
+                    } else {
+                        0
+                    }
+                );
+                browser.send(&json!({"accepted":true}));
+                if !matches!(scenario, Scenario::Corrupt) {
+                    assert_eq!(final_result["report"]["all_references_live"], true);
+                    return;
+                }
+                let failure = &final_result["report"];
+                assert_eq!(failure["error"], "content_mismatch");
+                self.trial
+                    .record("driver-verification-failure.json", failure);
+                self.refuse_corrupt_map(control, gateway, failure);
+                return;
+            }
+            let frame = &request["frame"];
+            let event = &request["event"];
+            assert_eq!(event["event"], "phase");
+            self.trial
+                .record(&format!("driver-phase-{ordinal:04}.json"), event);
+            if frame["phase"] == "verify" {
+                let index = usize::try_from(frame["index"].as_u64().unwrap()).unwrap();
+                assert_eq!(event["report"]["file_live"], true);
+                self.confirmed(
+                    index,
+                    gateway,
+                    &event["report"]["observation"],
+                    &event["report"]["publication"],
+                );
+            }
+            browser.send(&json!({"accepted":true}));
+        }
+        panic!("driver must finish within the two selected session budgets");
+    }
     fn finish(&mut self, driver: BrowserDriver, scenario: Scenario) {
         let browser = driver.finish();
         assert_eq!(browser["outcome"], "passed");
@@ -575,7 +679,8 @@ impl Serial {
 fn run(label: &str, scenario: Scenario, driver: Driver) {
     let mut serial = Serial::new(label);
     let config = json!({"url":serial.trial.url,"service":serial.trial.f.service.to_text(),
-        "tenant":serial.trial.f.tenant.to_text(),"bucket":"fixture-bucket","worker":matches!(driver,Driver::Worker | Driver::VerifiedWorker),
+        "tenant":serial.trial.f.tenant.to_text(),"bucket":"fixture-bucket","worker":matches!(driver,Driver::Worker | Driver::VerifiedWorker | Driver::CoordinatedWorker),
+        "coordinated":matches!(driver,Driver::CoordinatedWorker),
         "rootKey":serial.trial.f.harness.pic.root_key().unwrap(),"project":super::client::PROJECT,
         "lostFinalReply":matches!(scenario,Scenario::LostReply),"corruptRead":matches!(scenario,Scenario::Corrupt),
         "providerRootCertificate":serial.trial.report.join("gateway-ca.pem"),
@@ -585,7 +690,7 @@ fn run(label: &str, scenario: Scenario, driver: Driver) {
     let mut browser = BrowserDriver::start(&config, driver.script());
     let plans: BrowserPublicationPlan = browser.read(16384);
     let mut control = match driver {
-        Driver::Indexed => Control::Indexed,
+        Driver::Indexed | Driver::CoordinatedWorker => Control::Indexed,
         Driver::Persistent | Driver::Worker | Driver::VerifiedWorker => {
             Control::Persistent(serial.session(
                 &plans.gateway,
@@ -595,6 +700,11 @@ fn run(label: &str, scenario: Scenario, driver: Driver) {
         }
     };
     serial.validate_plan(&plans);
+    if matches!(driver, Driver::CoordinatedWorker) {
+        serial.coordinate(&mut control, &mut browser, &plans.gateway, scenario);
+        serial.finish(browser, scenario);
+        return;
+    }
     for index in 0..2 {
         let prepared = serial.prepare_using(&mut control, index, &format!("setup-{index}"));
         assert_eq!(prepared["prepared"], true);
@@ -613,28 +723,7 @@ fn run(label: &str, scenario: Scenario, driver: Driver) {
             .trial
             .record(&format!("browser-upload-{index}.json"), &uploaded);
         let gateway = uploaded["gateway"].as_str().unwrap();
-        let before = serial.status_using(
-            &mut control,
-            Some(index),
-            gateway,
-            &format!("unconfirmed-{index}"),
-        );
-        assert_eq!(before["file_live"], false);
-        assert_eq!(before["blockers"][0]["code"], "completion_unmatched");
-        // A successful or lost SDK response occupies the same single reservation.
-        if index == 0 {
-            assert_eq!(
-                serial.prepare_using(&mut control, 1, "blocked-setup-1")["state"],
-                "blocked"
-            );
-            assert!(
-                !serial
-                    .trial
-                    .report
-                    .join("blocked-setup-1/admission")
-                    .exists()
-            );
-        }
+        serial.unconfirmed(&mut control, index, gateway);
         if index == 0
             && matches!(scenario, Scenario::LostReply)
             && matches!(driver, Driver::Persistent | Driver::Worker)
@@ -752,5 +841,25 @@ fn chromium_standalone_trial_native_verifier_corruption_stops_before_attestation
         "native-verifier-corrupt",
         Scenario::Corrupt,
         Driver::VerifiedWorker,
+    );
+}
+
+#[test]
+#[ignore = "Requires pinned browser packages and Chromium; run make test-browser-standalone"]
+fn chromium_native_phase_driver_restarts_with_original_handoff_without_another_upload() {
+    run(
+        "native-driver-restart",
+        Scenario::LostReply,
+        Driver::CoordinatedWorker,
+    );
+}
+
+#[test]
+#[ignore = "Requires pinned browser packages and Chromium; run make test-browser-standalone"]
+fn chromium_native_phase_driver_stops_on_corruption_before_attestation_and_next_file() {
+    run(
+        "native-driver-corrupt",
+        Scenario::Corrupt,
+        Driver::CoordinatedWorker,
     );
 }

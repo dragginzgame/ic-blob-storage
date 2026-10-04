@@ -1,6 +1,6 @@
 [package]
 name = "blob-authority-probe"
-version = "0.0.0"
+version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
 publish = false
@@ -11,8 +11,8 @@ crate-type = ["cdylib"]
 [dependencies]
 candid.workspace = true
 ic-cdk.workspace = true
-ic-blob-storage = { path = "../../../crates/ic-blob-storage" }
-blob-test-protocol = { path = "../../../tests/protocol" }
+ic-blob-storage.workspace = true
+blob-test-protocol.workspace = true
 serde.workspace = true
 serde_bytes.workspace = true
 serde_json.workspace = true

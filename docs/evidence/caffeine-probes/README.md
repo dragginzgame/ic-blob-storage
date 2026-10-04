@@ -1,5 +1,134 @@
 # Caffeine probe ledger
 
+## One publication completion boundary — 2026-10-04
+
+The [intent](local/2026-10-04-driver-final-01/intent.json) precedes focused pipe,
+Chromium and two actual local IC/provider-substitute journeys. The current
+`browser.driveSession(nativeControl)` captures ready/phase/finish before awaits
+and owns final acceptance. Only an exact current `publish_map` with original
+input hashes, all ordered indices, no blockers and neutral lease/serving flags,
+plus an identical final native report and exit zero, returns `complete`. Stopped
+outcomes retain their native result. The interim caller-owned final comparison
+is removed from current code/examples; old run records stay with their exact bundles.
+Native Rust still owns authenticated completion and references. No new journal,
+retry, cursor, provider contract or asset-registration owner is added.
+
+Eleven real child-pipe substitute checks and twenty-one actual Chromium boundary
+cases pass. Final-record cancellation terminates the owned native child; the
+browser retains its single-job gate through final exit. Metadata-only scripted
+peers reject changed maps, missing/wrong indices, blockers, lease claims,
+failed/mismatched final records and lost final replies; they establish boundary
+behavior, not service authority. Both retained actual IC/Chromium direct-process
+journeys pass: explicit source-session restart after a lost upload reply completes
+two files without another upload (four PUTs/four GETs, 3,072 physical/liability
+bytes); corruption stops before attestation/next file (two PUTs/one GET, 1,024 bytes).
+These use synthetic image-labelled bytes and owned HTTPS/HTTP2/CORS substitutes.
+They do not establish consumer asset registration, deployed Caffeine or real media.
+
+The [summary](local/2026-10-04-driver-final-01/summary.json) binds exact sources,
+bundles, logs, profiles and phase/final results in `.tmp/driver-final-01`. Original
+keys, claims and profiles survive; owned test processes/sockets have exited.
+The journeys deliberately use the retained prior 0.13.0 CLI/Wasm/test harness.
+After the maintainer's dependency update, a separate source review/check builds
+the core/standalone/CLI against direct management types 0.10.0, ic-memory 0.24.0
+and ic-testkit 0.14.1 without adaptation. Fresh Wasm then passes four actual local
+IC lifecycle/recovery cases and snapshot rollback refusal, with separate intent,
+logs and artifact hashes under `.tmp/management-types-010`. Those checks exercise
+platform history and fences; they are not a Caffeine upload/provider probe.
+No full CI, registry/release action, deployment, sibling edit, live provider request
+or paid cycle occurs. Consumer key/history selection, authenticated asset
+transactions, real serving, rollback resistance and provider economics remain open.
+
+## Private native subprocess control — 2026-10-04
+
+The [intent](local/2026-10-04-native-control-01/intent.json) precedes focused private
+pipe checks and two local IC/Chromium journeys. `startPublicationSession` owns one
+explicitly selected native binary over bounded private pipes, accepts one phase
+at a time, stops on cancellation/deadline and requires final output plus exit.
+It snapshots arguments/environment without logging them; keys remain selected
+native PEM paths and separate browser SDK identity JSON. No additional effect
+journal, persisted cursor, automatic restart or retry is added.
+
+Ten real child-process substitute checks pass under retained Node 24.21.0,
+including split UTF-8, coalesced phase/final records, incomplete/malformed output,
+unsolicited replies, oversized records/frames, busy refusal, startup/phase abort,
+deadline and a successful-looking final record without process exit. The first
+sandboxed attempts (system Node 18 and retained Node 24) could not receive Node
+child stdout; a minimal child-write diagnostic isolated that execution restriction.
+The same initial sources pass with local socket-backed stdio outside the sandbox.
+Those failures/logs and the initial source snapshot are retained, not discarded.
+
+The first IC test invocation failed because its evidence parent directory was
+missing, before browser/provider access. A separately retained invocation uses
+the already built test executable and a new existing parent. Both actual
+IC/Chromium journeys then pass through maintained native pipes, replacing the
+fixture's Rust phase proxy. The fixture retains ready/events/final results and
+checks independent tenant downloads; it does not choose phases. Lost-reply
+interruption is explicitly selected by the fixture, finishes the original native
+run, then starts a new source-session and reopens the original profile. It confirms
+two files with four PUTs/four GETs and 3,072 physical/liability bytes without another
+upload. Corruption finishes with native `content_mismatch`/exit 3 before attestation
+or the next file, with two PUTs/one GET and 1,024 retained bytes.
+
+The [summary](local/2026-10-04-native-control-01/summary.json) binds exact artifacts,
+logs, phase/results and current source. Profiles, original native claims, keys and
+bodies remain in `.tmp/native-control-01`; owned test processes/sockets are closed.
+The integrated bundle precedes the final additional configuration-type guards;
+those guards and the non-exiting-child case pass the final pipe suite. Actual
+journeys use retained 0.13.0 CLI/Wasm; concurrent dependency changes to ic-memory
+0.24/ic-testkit 0.14 are preserved and reflected in the new harness, not qualified
+as rebuilt service artifacts. Strict affected fixture Clippy passed before that
+dependency update. No full CI, release, sibling edit, deployment, paid effect or
+deployed Caffeine request occurs. These are synthetic bytes and owned substitutes;
+consumer key/history selection, asset transaction, real-media serving, rollback
+resistance and provider economics still require separate evidence.
+
+## Native phase guidance and browser driver — 2026-10-03
+
+The [intent](local/2026-10-03-session-driver-01/intent.json) precedes focused checks
+and bounds three local IC/Chromium journeys plus one launcher suite. No live
+provider request or paid cycle is planned. Native `next_frame` guidance now derives
+from checked phase results and original sources: fresh status starts at zero,
+original observation/handoff recovery precedes setup, and current exact completion
+advances the cursor. Indexed phases share one ordering guard, preserving durable
+unattempted facts for claim-owning phases. Existing phase/effect owners remain.
+
+The callable bridge `driveSession` follows that guidance through the existing
+worker/verification/map paths. Current ready/input binding, complete phase replies,
+metadata and steps are bounded. One execution gate excludes concurrent jobs;
+closing/deadline interrupts a pending control wait. Correlation IDs remain process
+metadata, not a new operation identity. No persisted cursor, dispatch journal,
+retry controller, native key/process discovery or automatic restart is added.
+
+Seven native units, seven retained actual native IC cases, twenty actual Chromium
+boundary cases and strict affected CLI/harness Clippy pass. Metadata-only native
+peer substitutes in the launcher suite test control rejection, budget exhaustion
+and cancellation; they do not establish IC authority. Fresh 0.13.0 CLI/Wasm artifacts
+then pass two actual coordinated IC/Chromium cases: restart after a lost SDK reply
+and before verification recovers the original handoff, confirms two files with
+four planned PUTs/four GETs and keeps 3,072 physical/liability bytes. Corrupt bytes
+stop before attestation/next file with two PUTs/one GET and 1,024 retained bytes.
+The third maintained manual verifier/observation recovery journey also passes
+with four PUTs/four GETs. No upload is retried. All three use synthetic image-labelled
+bytes and owned HTTPS/HTTP2/CORS/provider substitutes; they do not qualify deployed
+Caffeine, real media, consumer registration, serving or billing guarantees.
+
+The [summary](local/2026-10-03-session-driver-01/summary.json) binds source/artifact,
+log, profile and phase evidence. Private keys/profiles, original/resumed native
+journals and runtime artifacts remain under `.tmp/session-driver-01`. Initial
+native/test line-count lint failures and an initial launcher syntax-check failure
+remain recorded before correction. A final documentation-only launcher comment
+does not change its built serial bundle; byte equality is checked before the
+third journey. Owned browsers and test IC/socket processes close; retained build
+and evidence artifacts are not cleaned.
+
+Service endpoint, native intent/source/profile and stable layouts are unchanged.
+Phase events add derived guidance without another stored reader or version branch.
+Consumer adoption and caller-owned process/control integration remain open, as do
+rollback resistance and measured large-inventory behavior. No live provider,
+payment, full CI, version/dependency change, commit/publication/deployment, sibling
+edit or build cleanup occurs.
+
 ## Native browser transfer handoffs — 2026-10-03
 
 The [intent](local/2026-10-03-transfer-handoff-01/intent.json) precedes the focused

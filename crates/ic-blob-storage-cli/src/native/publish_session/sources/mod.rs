@@ -152,6 +152,10 @@ fn steps(source: &Path, max_steps: u64, files: usize) -> Result<BTreeMap<u64, Pa
 }
 
 impl Sources {
+    pub fn has_observation(&self, index: usize) -> bool {
+        self.observations[index].is_some()
+    }
+
     pub fn record(&self, run: &Run, source: &Path) -> Result<(), Failure> {
         let record = SessionSourcesRecord {
             format: SessionSourcesRecord::FORMAT.into(),

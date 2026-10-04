@@ -113,6 +113,9 @@ This file is normative for automated contributors.
 
 ## Style and checks
 
+- Cargo package versions and dependency declarations inherit from the root
+  workspace. Keep dependency versions and local paths there; members select
+  their target conditions, features and publication policy.
 - Use Rust edition 2024, directory modules with mod.rs and named boundary types.
   Do not use path attributes to work around module layout.
 - Document public types and meaningful invariants. Prefer expect over allow

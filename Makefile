@@ -21,7 +21,7 @@ RELEASE := bash scripts/release/release.sh
 CI_TARGETS := shell-check release-check fmt-check check clippy probe-check docs-check test wasm-check package
 
 .PHONY: help version deps cloc fmt fmt-check check clippy docs-check test test-native test-pocketic test-browser test-browser-store test-browser-transport test-browser-standalone test-sdk-probe test-sdk-inputs test-fixture test-standalone build-standalone test-admission-resources test-read-resources wasm-check \
-	build package clean shell-check release-check probe-check ci validate release-verify test-browser-publication test-browser-bootstrap test-browser-launcher \
+	build package clean shell-check release-check probe-check ci validate release-verify test-browser-publication test-browser-bootstrap test-browser-launcher test-browser-native \
 	release-plan ensure-clean patch minor major bump-x release-patch \
 	release-minor release-major release-x release-stage release-commit \
 	release-tag-check release-push publish publish-dry-run
@@ -39,6 +39,7 @@ help:
 	@echo "test-browser-transport        Opt-in owned TLS transport checks; BLOB_BROWSER_TRANSPORT_REPORT=NEW_DIRECTORY"
 	@echo "test-browser-bootstrap        Opt-in owned worker/IndexedDB checks; BLOB_BOOTSTRAP_REPORT=NEW_DIRECTORY"
 	@echo "test-browser-launcher         Opt-in native Chromium/profile/body checks; BLOB_LAUNCHER_REPORT=NEW_DIRECTORY"
+	@echo "test-browser-native           Owned native pipe checks; BLOB_NATIVE_REPORT=NEW_DIRECTORY"
 	@echo "test-browser-standalone       Opt-in local standalone upload/verified download rehearsal"
 	@echo "test-sdk-probe                Opt-in local SDK fault probe; BLOB_SDK_PROBE_REPORT=NEW_DIRECTORY"
 	@echo "test-sdk-inputs               Opt-in offline native/browser handoff; BLOB_SDK_INPUTS_REPORT=NEW_DIRECTORY"
@@ -149,6 +150,10 @@ test-browser-launcher:
 	@test -n "$(BLOB_LAUNCHER_REPORT)" || { echo 'Set BLOB_LAUNCHER_REPORT to a new directory beneath an existing parent'; exit 1; }
 	$(BLOB_BROWSER_NODE) tests/browser/build.mjs
 	$(BLOB_BROWSER_NODE) tests/browser/launcher.mjs "$(BLOB_LAUNCHER_REPORT)"
+
+test-browser-native:
+	@test -n "$(BLOB_NATIVE_REPORT)" || { echo 'Set BLOB_NATIVE_REPORT to a new directory beneath an existing parent'; exit 1; }
+	$(BLOB_BROWSER_NODE) tests/browser/native.mjs "$(BLOB_NATIVE_REPORT)"
 
 test-browser-standalone:
 	$(BLOB_BROWSER_NODE) tests/browser/build.mjs

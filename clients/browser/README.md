@@ -148,8 +148,9 @@ the worker below is implemented. The native session can now compose the maintain
 observer and one-shot attestation with an explicitly selected verifier, or inspect
 an original observation without another GET/submission. The maintained host below
 boots a selected SDK signer over its private port. The Chromium bridge below owns
-process launch and checks the native session's immutable selection. Automatic
-key discovery and durable parent phase coordination remain open.
+process launch and checks the native session's immutable selection. Current native
+guidance, the callable driver and the private subprocess helper compose these
+owners; consumer key/history selection and explicit restart remain responsibilities.
 
 ### Run jobs in a browser worker
 
@@ -236,8 +237,8 @@ Actual Chromium/PocketIC tests use this implementation in DedicatedWorkers at on
 active reservation. Browser/native restart reconciles lost replies without new
 uploads. Cancellation survives reopening; corrupt observation blocks the next
 transfer/map while preserving exposed bytes. Offline control tests use a substituted
-store and establish boundary checks only. Automatic parent phase coordination,
-real Miner media and serving acceptance remain unfinished;
+store and establish boundary checks only. Consumer integration with selected
+keys/history, real Miner media and serving acceptance remain unfinished;
 the owned gateway is not deployed Caffeine.
 
 ### Launch the maintained worker with a selected signer
@@ -290,8 +291,9 @@ Actual Chromium checks cover both signer kinds, malformed/mismatched bootstrap
 before journal creation, body snapshots, concurrency, hard worker termination and
 reopening the same profile. Serial PocketIC uploads use this host and maintained
 entry with independent native verifier completion. Release 0.11.0 also adds the native
-Chromium bridge below. Complete durable parent restart/phase coordination remains
-unfinished; select SDK identity JSON explicitly rather than inventing a PEM parser.
+Chromium bridge below. Current native guidance and subprocess control are callable;
+consumer adoption remains open. Select SDK identity JSON explicitly; native PEM
+and browser SDK identity formats remain separate selected inputs.
 
 ## Launch Chromium from a native parent
 
@@ -354,7 +356,7 @@ and `retry_authorized` as false. Local body refusals cause no dispatch; a browse
 transport/control failure closes the context and leaves its effects uncertain.
 
 First launch requires both a new profile and explicit journal `mode:'create'`.
-Unreleased adds a private `publication-binding.json` in that profile before
+Released 0.13.0 adds a private `publication-binding.json` in that profile before
 Chromium starts. Its frozen `ic-blob-storage/browser-profile:native-session-selection`
 identity binds the canonical profile path, asset origin, selected signer JSON
 fingerprint, host/service/tenant/uploader/project/bucket/gateway, root-key fingerprint,
@@ -393,14 +395,130 @@ local file I/O and Playwright process shutdown are not preemptively bounded.
 Large-file peak heap/CDP latency and hostile local-user/key-memory isolation are
 not qualified. This is a callable process bridge, not a complete noninteractive
 publisher: the durable native parent must still retain its keys and original
-session location, select the next phase and reconcile uncertainty on restart.
+session location, own its native process and choose explicit restart after uncertainty.
 Native intent and profile now retain the immutable joint selection. They do not
 discover keys, select the next phase or replace the original phase claims.
-The native session's Unreleased
+The native session's released 0.13.0
 [`--source-session`](../../docs/operator-guide.md#hold-one-validated-batch-across-publication-phases)
 retains original setup/verification/transfer paths and rejects lost provenance; it does not
 select or recover browser profiles, signer keys or origins. The operator, tenant and verifier still need their original
 native identities and journals; no automatic key discovery or paid authority follows.
+
+### Follow native phase guidance
+
+Unreleased adds `browser.driveSession(nativeControl)` for a native-bound profile
+with an explicitly selected verifier. Pass the maintained native subprocess handle
+below, or a trusted private peer with `ready`, `phase(frame, signal)` and
+`finish(signal)`. `phase` returns the current native process's full next phase
+event; `finish` returns its final `{report, exit_code}` only after exit. Both
+callbacks honor cancellation. The driver captures their references and ready
+metadata before awaiting; they supply transport, not another phase planner.
+
+```js
+const result = await browser.driveSession(nativeControl);
+// 'complete' requires the exact current complete map AND matching final report/exit 0.
+// result.native_result retains the final report and exit alongside the observation.
+```
+
+The driver starts with `status` at index zero and follows native `next_frame`
+guidance. Rust derives that guidance from checked phase results and original
+setup/handoff/observation paths; it never persists another cursor or retry owner.
+Each retained transfer goes through the same `execute`/worker path. Successful
+or uncertain SDK results still need the independent native verifier. A null
+continuation or exhausted current step budget stops phase selection and finishes
+the native run. The final result must be bounded and consistent with its exit.
+`complete` also requires an exact current `publish_map`, original input hashes,
+every ordered index, no blockers, neutral lease/serving claims, a matching final
+report and exit zero. This boundary validates passive peer facts; native Rust owns
+the signed completion/reference checks. Manual `execute`
+jobs and another driver invocation refuse while this loop owns the context.
+The launcher allocates monotonic worker correlation IDs; they grant no replay.
+
+Replies must have the complete current phase-event shape and fit 8 MiB. Current
+ready metadata must match the original input hashes/file count, with a positive
+step budget at most `8 × files + 1`. There is no polling or unbounded phase loop.
+The existing context deadline/close signal interrupts even a pending control or
+final-exit wait; pass that signal through your transport and stop the owned native process
+as appropriate. Native/control failure closes Chromium and preserves history.
+There is no automatic process restart, upload retry or replacement profile.
+
+For explicit restart, retain the original keys/profile/session and start a new
+native run with `--source-session`. Reopen the same profile with `mode:'open'`
+and keep `nativeSession` pointed at the original session. Pass the new native
+handle to a new driver invocation. Fresh status rechecks completed indices;
+an incomplete original handoff/observation requests its existing recovery owner.
+The subprocess helper below supplies this transport. Consumer key/history
+selection and full acceptance remain unfinished; a complete map is not an
+asset-registration transaction or serving lease.
+
+### Own the native subprocess
+
+Unreleased `startPublicationSession` (`./native`) launches one explicitly selected
+native CLI over private stdin/stdout pipes. Select an absolute binary and working
+directory and the complete `publish-session` arguments, including your original
+native PEM paths, input/output paths, verifier and browser-selection file. The
+helper discovers no identity and parses no key. The separate browser bootstrap
+still takes explicitly selected SDK identity JSON.
+
+```js
+import { startPublicationSession } from './native.mjs';
+
+const native = await startPublicationSession({
+  binary: selectedAbsoluteCli, cwd: selectedAbsoluteWorkingDirectory,
+  args: selectedPublishSessionArguments, // begins with 'publish-session'
+  timeoutSeconds: 120,
+});
+let browser;
+try {
+  // Launch only after ready; point nativeSession at the ORIGINAL session.
+  browser = await launchPublicationBrowser(chromium, originalBrowserOptions);
+  const driven = await browser.driveSession(native);
+  if (driven.state !== 'complete') throw new Error('publication stopped');
+  // Persist/consume the complete map in your authenticated asset transaction.
+} finally {
+  await browser?.close();
+  await native.close();
+}
+```
+
+`ready` comes from that process. `phase(frame, signal)` snapshots a frame before
+writing, permits one outstanding response, and passes the complete native phase
+event to the existing driver. Frames including newline fit 8 KiB; the initial
+record fits 16 KiB and later records fit 8 MiB. Framing handles split UTF-8 and
+coalesced lines, rejects malformed/truncated/unsolicited replies and binds phase
+steps in order. It never buffers a second phase queue. The driver still validates
+the full ready/phase contract and the native CLI validates control arguments.
+
+`finish()` closes stdin and waits for both the final record and subprocess exit;
+it returns `{report, exit_code}`. A successful-looking phase alone cannot qualify
+completion. An unfinished run can return the native redacted failure with exit
+2 or 3; exit zero can also report a blocked run. The maintained driver owns the
+complete-map/final-report/exit check, so callers need only accept its `complete`
+result before consuming the map. Unexpected exit, missing
+final output or contradictory error/exit status refuses. Keep native artifacts
+after any error; subprocess shutdown does not roll back an exposed effect.
+
+Use the startup `signal` for whole-run cancellation; a phase/finish signal, `close()` or
+the selected 1–600 second deadline terminates the owned native process and rejects
+pending work. `close()` waits for child termination and is repeatable. It preserves
+all output/profile claims. No shell, public control socket, stderr logging, argument
+logging, automatic restart or upload retry is supplied. `env` optionally overlays
+the inherited environment using string values or null to remove a variable; select
+trust/proxy settings explicitly and keep signing secrets out of environment/arguments.
+The selected native binary is trusted; descendant process supervision and hostile
+local-user isolation are not guarantees.
+
+On an explicit same-release restart, choose a NEW output directory and pass
+`--source-session` with the original surviving run. Call this helper again, reopen
+the original browser profile with `mode:'open'`, and pass the new ready event to
+the driver. Retain `native_result` with the outcome; after a driver exception,
+the native helper's separate `finish()` remains available for diagnostic failure
+inspection where the process produced a final record. It cannot turn a failed
+driver into completion. Do not derive a replacement key, profile, journal or inherited cursor.
+The retained actual IC/Chromium journeys exercise these direct pipes after a lost
+reply and stop on corrupt content. The fixtures explicitly select restart; the
+helper does not. Run the dependency-free pipe checks with `make test-browser-native
+BLOB_NATIVE_REPORT=NEW_DIRECTORY` using Node 20.19 or later.
 
 Run the scoped owned-profile checks with `make test-browser-launcher
 BLOB_LAUNCHER_REPORT=NEW_DIRECTORY`. The selected serial verifier journeys run

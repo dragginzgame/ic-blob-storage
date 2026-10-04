@@ -2,6 +2,46 @@
 
 ## [Unreleased]
 
+## [0.14.0]
+
+### Added
+
+- Return native `next_frame` guidance from checked publication phase results and
+  original source paths. Start each execution with fresh status at index zero;
+  recover original observations/handoffs before considering setup, and advance
+  only on authenticated exact completion/reference evidence.
+- Add Chromium `driveSession(nativeControl)` to follow native guidance through the
+  existing transfer/verifier/map owners. Bound the loop by the selected step
+  budget, validate current peer replies, exclude concurrent browser jobs and stop
+  control waits when the context closes. Keep process/key selection and explicit
+  restart with the caller; no automatic retry or new durable journal.
+- Require the exact current complete map, matching native final report and exit
+  zero before the browser driver returns `complete`. Keep stopped outcomes with
+  their final native result; bind inventory/installation, ordered indices and
+  neutral lease/serving facts at the peer boundary. Cancel pending final-exit waits.
+- Add `startPublicationSession` for an explicitly selected native binary, key-file
+  arguments and environment. Own private bounded pipes, one outstanding phase,
+  abort/deadline shutdown and the final report plus exit status. Add the focused
+  `test-browser-native` target; no key discovery or process restart is inferred.
+
+### Changed
+
+- Centralize every Cargo dependency version and local dependency path at the
+  workspace root. All members, including unpublished fixtures, inherit the
+  workspace package version; preserve existing pins, features and target scopes.
+- Give all indexed native phases one ordering guard while preserving durable
+  unattempted facts for phases that own claims. Share startup/current ready checks
+  and one execution gate between manual browser jobs and session driving.
+- Keep browser request correlation monotonic when the driver follows manual jobs;
+  request IDs remain execution metadata, never effect identity or replay authority.
+- Run the coordinated local IC/Chromium journeys through the maintained native
+  subprocess helper. The fixture observes effects and completion rather than
+  forwarding phase commands through a separate Rust control proxy.
+- Update ic-memory to 0.24.0, ic-testkit to 0.14.1 and direct
+  ic-management-canister-types to 0.10.0. Core/standalone/CLI compile without
+  adaptation; fresh standalone lifecycle/recovery and snapshot refusal retain
+  their behavior.
+
 ## [0.13.0] - 2026-10-03
 
 ### Breaking

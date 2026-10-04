@@ -1,0 +1,168 @@
+{
+  "date": "2026-10-04",
+  "evidenceClass": "owned_local_child_pipes_and_actual_ic_chromium_provider_substitutes",
+  "baseline": "31c1a36 release 0.13.0 plus retained session-driver work",
+  "contract": {
+    "helper": "startPublicationSession",
+    "binaryAndKeysExplicit": true,
+    "nativeOwnsPhaseDecisions": true,
+    "outstandingPhases": 1,
+    "frameBytes": 8192,
+    "readyBytes": 16384,
+    "subsequentRecordBytes": 8388608,
+    "finalRecordAndExitRequired": true,
+    "automaticRestart": false,
+    "automaticUploadRetry": false,
+    "newJournal": false,
+    "frozenNativeIntentProfileServiceLayoutsChanged": false
+  },
+  "checks": {
+    "childPipeCases": 10,
+    "icChromiumJourneys": [
+      {
+        "name": "native-driver-restart",
+        "directory": ".tmp/native-control-01/browser-02/native-driver-restart",
+        "puts": 4,
+        "gets": 4,
+        "retainedPhysicalBytes": 3072,
+        "retainedLiabilityBytes": 3072,
+        "confirmedMap": true,
+        "automaticUploadRetries": 0,
+        "nativeExitCode": 0,
+        "nativeError": null,
+        "independentTenantDownloads": 2
+      },
+      {
+        "name": "native-driver-corrupt",
+        "directory": ".tmp/native-control-01/browser-02/native-driver-corrupt",
+        "puts": 2,
+        "gets": 1,
+        "retainedPhysicalBytes": 1024,
+        "retainedLiabilityBytes": 1024,
+        "confirmedMap": false,
+        "automaticUploadRetries": 0,
+        "nativeExitCode": 3,
+        "nativeError": "content_mismatch",
+        "independentTenantDownloads": 0
+      }
+    ],
+    "strictAffectedFixtureClippy": "passed before concurrent dependency update",
+    "syntax": "passed",
+    "formatting": "passed",
+    "diffWhitespace": "passed",
+    "fullCi": false
+  },
+  "attempts": [
+    {
+      "log": ".tmp/native-control-01/pipes.log",
+      "result": "failed",
+      "cause": "sandboxed system Node 18 child stdout unavailable"
+    },
+    {
+      "log": ".tmp/native-control-01/pipes-node24.log",
+      "result": "failed",
+      "cause": "sandboxed Node 24 child stdout unavailable; same sources pass outside sandbox"
+    },
+    {
+      "log": ".tmp/native-control-01/pipes-unsandboxed.log",
+      "result": "passed",
+      "cases": 9
+    },
+    {
+      "log": ".tmp/native-control-01/pipes-final.log",
+      "result": "passed",
+      "cases": 10
+    },
+    {
+      "log": ".tmp/native-control-01/journeys.log",
+      "result": "failed",
+      "cause": "missing evidence parent directory before browser/provider access",
+      "providerRequests": 0
+    },
+    {
+      "log": ".tmp/native-control-01/journeys-02.log",
+      "result": "passed",
+      "journeys": 2
+    }
+  ],
+  "sourceManifest": {
+    "path": ".tmp/native-control-01/source-SHA256SUMS",
+    "sha256": "24bc2fa44413cbfed0e00ede465ae6e25a07420bb0efcc05f268cd47575975b2"
+  },
+  "retainedHashes": {
+    ".tmp/native-control-01/blob-storage": "acf4ae336e7966b2674a25fb168df7cfb09dc4ae866801b742ab144c036356de",
+    ".tmp/native-control-01/standalone-tests": "e0eb83f6703d0f8450300749bc5c77cd983971f87fc47c3a6b776e89729d08a7",
+    ".tmp/native-control-01/launcher-serial-tested.mjs": "31edc6d83a15044f8e4ef4c4d860d518e4341f1de5afc436f5003bb162a8d71d",
+    ".tmp/native-control-01/artifacts/native.mjs": "2b097c1969cfc8723e6859b91d716f08ea0a32a15d19e3321dac276e5204e06d",
+    ".tmp/native-control-01/artifacts/session.mjs": "835b616a8e03f24a0a743cf4bb2cc89e5458cd9c745fe52547cb3bb0dceb1aad",
+    ".tmp/native-control-01/artifacts/publication-host.js": "2f8d7b66ad7808747a2b7bca24c83ba2e4a99dd283b875355ca2470a5bcdc216",
+    ".tmp/native-control-01/artifacts/publication-worker.js": "dbb74667801c7411106dced5fb4bf13e664f809de487411ca0dcf23c5f0e8978",
+    ".tmp/session-driver-01/artifacts/ic_blob_storage_canister.wasm": "9d1dae26513331fa969d5172a45fcf35d491cc91364caab9b2c940c16488e0f2",
+    ".tmp/tools/node-v24.21.0/bin/node": "7fde7b8afa198da66257f42ee2001d874c7355631e6d1579a5fb5ef1f246df4c",
+    ".tmp/tools/pocket-ic-16.0.0/pocket-ic": "69e324bdb68d32d878b7a9504b1379f08f8d1921272bacb065b0fabb3d0f3792",
+    ".tmp/native-control-01/initial-source/native.mjs": "285608c03e323fda4927875722204710266af910cee57889ffacaeb00222cae8",
+    ".tmp/native-control-01/initial-source/native-test.mjs": "20defb6b033438b77e67966aecf7634e0e8dad780981046f670c4a2c80be8adf",
+    ".tmp/native-control-01/initial-source/native-child.mjs": "a83df4784af2c3cd77c4f28f71cf0ffc4718213430274ba194337cfbde03ecde",
+    ".tmp/native-control-01/pipes.log": "ae09bb20b6b9d957431fa2d5bca33e11f6a26df356165e473bf1348b88f71cc5",
+    ".tmp/native-control-01/pipes-node24.log": "20b49d29aab347192fe3f42fc1ee9c19628de8d73917c08fe77de9284e2aaacf",
+    ".tmp/native-control-01/pipes-unsandboxed.log": "24aad87fed51a413fa34ea38b7c76f0878b7b7d240d23b4a40f45a18b70d051e",
+    ".tmp/native-control-01/pipes-final.log": "5367fcef43126b53cfcc12832d0b69e919e0de080ff90e9d09095eb75efda4b3",
+    ".tmp/native-control-01/bundle.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    ".tmp/native-control-01/clippy.log": "bc86ff2887496c3996214fa2d8df79771da3b3e3007dc493307beedfd30ef124",
+    ".tmp/native-control-01/journeys.log": "98dbdfd6ff1747423bfd7132ee63d8d1280d94a30abc667f7f33e48b5ade8a0c",
+    ".tmp/native-control-01/journeys-02.log": "8891472e474154047f6e6a018da8b1678f476574f8ba5fff40ea908362e2f9c6",
+    ".tmp/native-control-01/dependency-change.diff": "c1d3ac25d8c3b03cba937d5bd9b5822e1d6bb507151776c965a53fe2681a74b8",
+    ".tmp/native-control-01/browser-02/native-driver-restart/summary.json": "a30b2e622316454a8f6d2f83dbb81167abeb641caf2d034d4e07c58a47572ac0",
+    ".tmp/native-control-01/browser-02/native-driver-restart/driver-native-result.json": "a2a5dd567035ed6333595266478c588f23765eeb49c68b489043320786677298",
+    ".tmp/native-control-01/browser-02/native-driver-restart/browser-result.json": "821d03e3e9b3ff705f75afae78ef6c43a931b5ad9221973fe278fdee237d73b3",
+    ".tmp/native-control-01/browser-02/native-driver-restart/session-command.json": "290b8c7023e745f5c639724004e802c039efe06027b9ece51c3f7086fe629177",
+    ".tmp/native-control-01/browser-02/native-driver-restart/resumed-session-command.json": "53b3314a8f72e194384d935dac004ab23fe1a942d06f1a2c17266c2b16897436",
+    ".tmp/native-control-01/browser-02/native-driver-restart/session-ready.json": "9a679b65f03864c12426076027ec95c78927653eb8e7ddd50fc17ae78067fc8f",
+    ".tmp/native-control-01/browser-02/native-driver-restart/browser-profile/publication-binding.json": "6a0360f734981a256b8e1dfb60d974649fa8fd5383ff1ea10c72e303851ef2c5",
+    ".tmp/native-control-01/browser-02/native-driver-restart/driver-interruption.json": "09e3adb4fcef81a54aa4c747da6d0aec4f47e11bcb80a8175559bb517d97e391",
+    ".tmp/native-control-01/browser-02/native-driver-restart/driver-phase-0001.json": "3b4a9807a8ee611ce16ac4ae3b6e0193cde0d777d4d5df7ed1cedca8244166e3",
+    ".tmp/native-control-01/browser-02/native-driver-restart/driver-phase-0002.json": "ff1d551a78c90d9c0346c21cbe11844cdfca0d3c47e24fe3b8a468a4d18c7880",
+    ".tmp/native-control-01/browser-02/native-driver-restart/driver-phase-0003.json": "a187ad26577805b5617a4dca603b5873bdaca16b547188bd32beead87b288c62",
+    ".tmp/native-control-01/browser-02/native-driver-restart/driver-phase-0006.json": "41bd404200af9807d8252e542008d01e6102fdedd56f9f27f73d1976b6ef6a2d",
+    ".tmp/native-control-01/browser-02/native-driver-restart/driver-phase-0007.json": "e3f6113fe33139cd2a624ac255762730c6e1d789c8b5d17fd2ea89ef44bc63f8",
+    ".tmp/native-control-01/browser-02/native-driver-restart/driver-phase-0008.json": "39a88c68d1b63d8b06b4acfc90457c0ce077d69df4b3237b8248b6a87fe3dba4",
+    ".tmp/native-control-01/browser-02/native-driver-restart/driver-phase-0009.json": "93a47e174bd90df4018ebeabd4fdee8bddae997a29535573ecb296bc9f56b4b2",
+    ".tmp/native-control-01/browser-02/native-driver-restart/driver-phase-0010.json": "7c5ca8a7edffc117c1e2cc49430256ffd3a0110daf203d82bcc22d65c6f34cdf",
+    ".tmp/native-control-01/browser-02/native-driver-restart/driver-phase-0011.json": "3c672dea0abc064f64b205e7647a74acd848077cccc7af2beb2acacd0cafca2e",
+    ".tmp/native-control-01/browser-02/native-driver-restart/driver-phase-0012.json": "c48d6fc36acd9e3a50e99ab5d96717aadfc37fcb8fd32c28c0877d8a07e43d02",
+    ".tmp/native-control-01/browser-02/native-driver-restart/driver-phase-0013.json": "5974a559dcedf31106af0a2953a0ba289630a958671a975e3de1717155bdfa31",
+    ".tmp/native-control-01/browser-02/native-driver-restart/resumed-session-ready.json": "9a679b65f03864c12426076027ec95c78927653eb8e7ddd50fc17ae78067fc8f",
+    ".tmp/native-control-01/browser-02/native-driver-corrupt/summary.json": "4786c52882cb93760baf0007a69be79251b1be2ba123c996134eb4135bdb2df1",
+    ".tmp/native-control-01/browser-02/native-driver-corrupt/driver-native-result.json": "9a7a3ede227aea88fed17a8709d283539e8e049ed2a254e2cca197158d1d33ff",
+    ".tmp/native-control-01/browser-02/native-driver-corrupt/browser-result.json": "d7f9dc6054abd6d28f470405927390c05481bb2c47e2f209b79fe3e5889ada2d",
+    ".tmp/native-control-01/browser-02/native-driver-corrupt/session-command.json": "f8f3c72cb98df2deea1a31a32604caa79ceba9429b52bd0a8c910758e5e058a8",
+    ".tmp/native-control-01/browser-02/native-driver-corrupt/resumed-session-command.json": "92d3f3648aafd99589023e79808012e18b89055edb65acda0281b6270ac1b0e7",
+    ".tmp/native-control-01/browser-02/native-driver-corrupt/session-ready.json": "9a679b65f03864c12426076027ec95c78927653eb8e7ddd50fc17ae78067fc8f",
+    ".tmp/native-control-01/browser-02/native-driver-corrupt/browser-profile/publication-binding.json": "1065eef7e4701ef6d6955c3add453719831282180b0f8f195022f007459b2a15",
+    ".tmp/native-control-01/browser-02/native-driver-corrupt/driver-phase-0001.json": "3b4a9807a8ee611ce16ac4ae3b6e0193cde0d777d4d5df7ed1cedca8244166e3",
+    ".tmp/native-control-01/browser-02/native-driver-corrupt/driver-phase-0002.json": "864f645a59675775a6887fc50bbd2025fa028efba162c405cecedc13bf43d1b2",
+    ".tmp/native-control-01/browser-02/native-driver-corrupt/driver-phase-0003.json": "1d6e5aba7e258d96bb3f5cfc7d995ca35c805faecf89d7cf4d314446aad60ef7",
+    ".tmp/native-control-01/browser-02/native-driver-corrupt/driver-verification-failure.json": "b1c793a6b99c4c4c71cdecf3fd94f0427ae88a07a262b3ab9d97d04e7001e24e"
+  },
+  "concurrentDependencyChange": {
+    "preserved": true,
+    "icMemory": "0.24.0",
+    "icTestkit": "0.14.0",
+    "harness": "built with updated dependencies",
+    "nativeCliAndWasm": "unchanged retained 0.13.0 artifacts from prior batch",
+    "deploymentArtifactsWithUpdatedDependenciesQualified": false
+  },
+  "limitations": [
+    "Integrated bundle predates final additional configuration-type guards; guards and non-exiting-child case pass final pipe suite",
+    "Synthetic image-labelled bytes and owned HTTPS/HTTP2/CORS substitutes; not deployed Caffeine or real consumer media",
+    "Caller selects native keys/binary and separate browser SDK identity; explicit same-release restart remains caller choice",
+    "No consumer asset registration, public serving, rollback resistance, provider deletion or billing qualification",
+    "Trusted selected binary; no descendant supervision or hostile local-user isolation guarantee"
+  ],
+  "liveProviderRequests": 0,
+  "paidCycles": 0,
+  "deployments": 0,
+  "releaseActions": 0,
+  "siblingEdits": 0,
+  "cleanup": false
+}

@@ -1,6 +1,6 @@
 [package]
 name = "ic-blob-storage-pocketic-tests"
-version = "0.0.0"
+version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
 publish = false
@@ -33,21 +33,21 @@ path = "src/bin/blob_fixture_sync/main.rs"
 [target.'cfg(not(target_family = "wasm"))'.dependencies]
 ic-testkit.workspace = true
 candid.workspace = true
-blob-test-protocol = { path = "../protocol" }
+blob-test-protocol.workspace = true
 serde_json.workspace = true
 serde.workspace = true
-ic-blob-storage = { path = "../../crates/ic-blob-storage" }
+ic-blob-storage.workspace = true
 tempfile.workspace = true
 sha2.workspace = true
 
 [target.'cfg(not(target_family = "wasm"))'.dev-dependencies]
-candid_parser = "=0.4.1"
-ic-blob-storage-canister = { path = "../../canisters/standalone" }
+candid_parser.workspace = true
+ic-blob-storage-canister.workspace = true
 # Headless certificate evidence only; never part of the published library/Wasm graph.
-ic-agent = { version = "=0.49.2", default-features = false }
-reqwest = { version = "0.13.5", default-features = false }
-serde_cbor = "0.11.2"
-tokio = { version = "1.53.1", features = ["rt", "time"] }
+ic-agent.workspace = true
+reqwest.workspace = true
+serde_cbor.workspace = true
+tokio = { workspace = true, features = ["rt", "time"] }
 
 [lints]
 workspace = true

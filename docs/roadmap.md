@@ -1,6 +1,6 @@
 # Development plan
 
-Released 0.12.0 supplies the framework-independent library and standalone service,
+Released 0.13.0 supplies the framework-independent library and standalone service,
 configured uploads, exact verifier completion and maintained native/browser
 publication components. Consumer owners supply framework wrappers, deployment
 integration and their composition tests. Library publication
@@ -40,14 +40,17 @@ captures and superseded next-step instructions; it is not a second work queue.
 
 The maintained native session composes original setup, verification and reference
 journals. The browser host/worker and callable Chromium bridge bind selected
-signer, profile, asset origin and preparation hints. Unreleased source-session
+signer, profile, asset origin and preparation hints. Released 0.13.0 source-session
 recovery retains original native phase paths, including through status-only
 restarts. Native intent now retains explicit browser selection; the launcher checks
 the original native intent/ready/input hashes and binds that session to its profile.
 The native transfer phase retains the exact handoff before browser dispatch;
 repeated/recovered phases request observation through the existing browser claims.
-Complete durable parent phase/restart
-coordination around those owners, without another dispatcher or effect journal.
+Unreleased native guidance and the bounded `driveSession` bridge now select/run
+phases using those same owners. The bounded native subprocess helper now supplies
+private phase transport and checked final exit. Consumers select their binaries,
+keys and original history and choose explicit restart; qualify that adoption
+without another dispatcher or effect journal.
 Then qualify real consumer media, publication transactions, overlapping references
 and serving/CSP behavior. Source code and local substitutes do not prove adoption.
 

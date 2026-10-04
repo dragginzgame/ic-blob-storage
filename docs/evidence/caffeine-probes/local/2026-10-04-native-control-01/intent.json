@@ -1,0 +1,18 @@
+{
+  "purpose": "Own bounded private native subprocess transport for the existing browser session driver",
+  "baseline": "31c1a36 release 0.13.0 plus retained session-driver work",
+  "scope": "local pipe boundary checks and two retained actual IC/Chromium driver journeys",
+  "budget": {
+    "icBrowserJourneys": 2,
+    "maxPutArrivalsPerJourney": 4,
+    "maxGetArrivalsPerJourney": 4,
+    "liveProviderRequests": 0,
+    "paidCycles": 0
+  },
+  "retention": "Retain binaries, original session/profile claims, commands, failures and outcomes; do not rerun silently",
+  "limitations": [
+    "caller explicitly selects binary, native key paths and browser signer",
+    "private pipe checks use child-process substitutes; IC journeys use owned local provider substitutes",
+    "no automatic restart, upload retry, new durable state or real provider qualification"
+  ]
+}

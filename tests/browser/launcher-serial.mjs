@@ -10,6 +10,7 @@ import { createInterface } from 'node:readline';
 import { once } from 'node:events';
 import assert from 'node:assert/strict';
 import { launchPublicationBrowser } from '../../clients/browser/launcher.mjs';
+import { startPublicationSession } from '../../clients/browser/native.mjs';
 import { createHash } from 'node:crypto';
 import { loopbackTLS, loopbackH2 } from './tls.mjs';
 import { standaloneGateway } from './standalone-gateway.mjs';
@@ -37,12 +38,12 @@ await writeFile(config.browserSelection, JSON.stringify({
   database: 'standalone-trial-v1', max_slots: 2,
 }), { flag: 'wx', mode: 0o600 });
 const workerReports = [], journals = [], originals = [], unexpected = [];
-let bridge, certificateCalls = 0, id = 0;
+let bridge, native, certificateCalls = 0, allCertificateCalls = 0, id = 0;
 const engine = { async launchPersistentContext(...args) {
   const context = await chromium.launchPersistentContext(...args);
   context.on('request', request => {
     const url = new URL(request.url());
-    if (url.origin === new URL(config.url).origin && url.pathname.endsWith('/call')) certificateCalls++;
+    if (url.origin === new URL(config.url).origin && url.pathname.endsWith('/call')) { certificateCalls++; allCertificateCalls++; }
     if (![config.browserOrigin, gateway.origin, new URL(config.url).origin].includes(url.origin)) unexpected.push(url.origin);
   });
   return context;
@@ -63,6 +64,58 @@ async function job(grant, action) {
     ...(action === 'upload' ? { nativePhase: grant.native_phase, action: 'transfer' } : { binding: grant.transfer.binding }) };
   const result = await bridge.execute(request); workerReports.push(result); return result;
 }
+async function coordinate() {
+  const selected = await next();
+  let interrupted = false;
+  const observed = async value => { send(value); assert.deepEqual(await next(), { accepted: true }); };
+  const start = async (args, label) => {
+    native = await startPublicationSession({ ...selected.native, args });
+    await observed({ ready: native.ready, label });
+  };
+  await start(selected.native.args, 'session');
+  await open('create');
+  const phase = async (frame, signal) => {
+    if (config.lostFinalReply && frame.phase === 'verify' && frame.index === 0 && !interrupted) {
+      interrupted = true;
+      await observed({ restart: await native.finish() }); await native.close();
+      throw new Error('fixture control loss after browser transfer, before verification');
+    }
+    const event = await native.phase(frame, signal);
+    await observed({ frame, event });
+    if (frame.phase === 'transfer') {
+      const grant = { index: frame.index, native_phase: event.report.native_phase };
+      grant.transfer = JSON.parse(await readFile(resolve(grant.native_phase, 'transfer.json'))).transfer;
+      if (!originals.some(original => original.index === grant.index)) originals.push(grant);
+    }
+    return event;
+  };
+  let result;
+  try { result = await bridge.driveSession({ ...native, phase }); }
+  catch (error) {
+    assert.equal(error.code, 'native-control');
+    if (interrupted) {
+      await start(selected.resumedArgs, 'resumed-session');
+      await open('open'); result = await bridge.driveSession({ ...native, phase });
+    } else { assert(config.corruptRead); result = { state: 'failed', error: error.code }; }
+  }
+  assert.equal(result.state, config.corruptRead ? 'failed' : 'complete');
+  assert.equal(interrupted, !!config.lostFinalReply);
+  const final = config.corruptRead ? await native.finish() : result.native_result;
+  await observed({ finished: final }); await native.close();
+  // Inspect the preserved original claims in a freshly opened worker. Correlation
+  // IDs restart per context; none grants permission to dispatch again.
+  await bridge.close(); await open('open');
+  for (const original of originals) {
+    const inspected = await job(original, 'inspect');
+    assert.equal(inspected.state, 'inspected');
+    const row = inspected.journal;
+    assert.equal(row.certificate_phase, 'observed'); assert.equal(row.gateway_requests.length, 2);
+    assert.equal(row.gateway_requests[1].phase, config.lostFinalReply && original.index === 0 ? 'uncertain' : 'responded');
+    journals.push(row);
+  }
+  assert.equal(allCertificateCalls, config.corruptRead ? 1 : 2);
+  workerReports.push(result);
+}
 const deadline = setTimeout(() => { console.error('Native browser bridge trial exceeded 180 seconds'); process.exit(1); }, 180000);
 try {
   const files = await Promise.all([1024, 2048].map(async size => {
@@ -70,7 +123,8 @@ try {
     return { hash: prepared.hash, byteLength: prepared.byteLength, manifestJSON: prepared.manifestJSON };
   }));
   send({ gateway: gateway.origin, files });
-  for (const index of [0, 1]) {
+  if (config.coordinated) await coordinate();
+  else for (const index of [0, 1]) {
     const grant = await next();
     if (grant.finish) { assert(config.corruptRead && index === 1); break; }
     assert.equal(grant.index, index);
@@ -102,4 +156,5 @@ try {
 } finally {
   clearTimeout(deadline); input.close(); process.stdin.pause();
   await bridge?.close(); await gateway.close(); await tls.close();
+  await native?.close();
 }

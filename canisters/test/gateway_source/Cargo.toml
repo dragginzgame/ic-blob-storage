@@ -1,6 +1,6 @@
 [package]
 name = "blob-gateway-source"
-version = "0.0.0"
+version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
 publish = false
@@ -11,9 +11,9 @@ crate-type = ["cdylib"]
 [dependencies]
 candid.workspace = true
 ic-cdk.workspace = true
-ic-blob-storage = { path = "../../../crates/ic-blob-storage" }
+ic-blob-storage.workspace = true
 serde.workspace = true
-blob-test-protocol = { path = "../../../tests/protocol" }
+blob-test-protocol.workspace = true
 
 [lints]
 workspace = true

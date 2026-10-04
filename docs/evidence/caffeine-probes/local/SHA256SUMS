@@ -209,3 +209,9 @@ af942ca7ef7613816f5fa0ba80f80264525fda14ae3d26bbcc1a8e42fbd99103  docs/evidence/
 effe15421af9426f400cc8fe6cb889531c4d0a3d8a5721ffebd08fe589256a1c  docs/evidence/caffeine-probes/local/2026-10-03-transfer-handoff-01/intent.json
 784a6d57496408748af6bb5bfcc6859f05ff7da0a05a296f0aaa785eca73a63d  docs/evidence/caffeine-probes/local/2026-10-03-transfer-handoff-01/retention-intent.json
 75558028d33a08951eac6831b2267ccb92c3b214179a9f2415ca49773f273ba1  docs/evidence/caffeine-probes/local/2026-10-03-transfer-handoff-01/summary.json
+42a2e81e48247d7e66d0f9554189f4280b3399b97b9c3a9d6b89bb471c577c2a  docs/evidence/caffeine-probes/local/2026-10-03-session-driver-01/intent.json
+db58754e959b7abdbe60f275cacbc199832ec8718daa6d96f61bf8d183a2af12  docs/evidence/caffeine-probes/local/2026-10-03-session-driver-01/summary.json
+e88745a59d8997e62133744735f2567254cf102a70dc4f75ca33bc6966cc841e  docs/evidence/caffeine-probes/local/2026-10-04-native-control-01/intent.json
+29b1f1b1b0f503e132626380c1e701ae87f912d11ab5ddcfe8b40327fa012ab4  docs/evidence/caffeine-probes/local/2026-10-04-native-control-01/summary.json
+1b1904d53b71c9dda6e515a4dadfbb0f7f5f0dee4d1ba4b11345c78cc2af42d6  docs/evidence/caffeine-probes/local/2026-10-04-driver-final-01/intent.json
+286246f2aa7d9318991f1f9d52cb3884fc651b753463a9ec1bd0ecee56ec9f9d  docs/evidence/caffeine-probes/local/2026-10-04-driver-final-01/summary.json

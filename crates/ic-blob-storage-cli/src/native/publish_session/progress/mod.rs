@@ -9,6 +9,13 @@ use super::{
 use std::path::PathBuf;
 use tokio::sync::mpsc;
 
+/// A derived continuation, never a persisted cursor or renewed effect authority.
+struct PhaseOutcome {
+    report: Value,
+    finished: bool,
+    next_frame: Option<Frame>,
+}
+
 pub(super) struct Session<'a> {
     options: &'a Options,
     input: &'a Input,
@@ -59,7 +66,32 @@ impl<'a> Session<'a> {
         json!({"schema":1,"operation":"publish_session","state":"blocked","code":code,
             "next_index":self.next,"provider_requests":0,"retry_authorized":false,"batch_complete":false})
     }
-    async fn prepare(&mut self, index: usize, directory: PathBuf) -> Result<Value, Failure> {
+    fn following_file(&self) -> Frame {
+        if self.next == self.batch.files.len() {
+            Frame::Map {}
+        } else {
+            Frame::Status { index: self.next }
+        }
+    }
+    fn incomplete_file(&self, index: usize) -> Frame {
+        if self.sources.has_observation(index) {
+            Frame::Verify {
+                index,
+                source_observation: None,
+            }
+        } else if self.sources.transfers[index].is_some() {
+            Frame::Transfer {
+                index,
+                source_transfer: None,
+            }
+        } else {
+            Frame::Prepare {
+                index,
+                source_run: None,
+            }
+        }
+    }
+    async fn prepare(&mut self, index: usize, directory: PathBuf) -> Result<PhaseOutcome, Failure> {
         let selected = self.batch.files.get(index).ok_or(Failure::Arguments)?;
         // Startup verification is reused; only this file is checked again before
         // setup. Later files cannot cause O(files²) body I/O or substitute bytes.
@@ -78,7 +110,16 @@ impl<'a> Session<'a> {
         if outcome.prepared() && self.input.browser_selection.is_none() {
             outcome.report["transfer"] = selected.input.transfer_input(&selected.body_sha256)?;
         }
-        Ok(outcome.report)
+        let next_frame =
+            (outcome.prepared() && self.browser.is_some()).then_some(Frame::Transfer {
+                index,
+                source_transfer: None,
+            });
+        Ok(PhaseOutcome {
+            report: outcome.report,
+            finished: false,
+            next_frame,
+        })
     }
     fn transfer(
         &mut self,
@@ -86,7 +127,7 @@ impl<'a> Session<'a> {
         action: &Run,
         directory: &std::path::Path,
         source: Option<&std::path::Path>,
-    ) -> Result<Value, Failure> {
+    ) -> Result<PhaseOutcome, Failure> {
         let report = super::transfer::Context {
             options: self.options,
             input: self.input,
@@ -103,58 +144,69 @@ impl<'a> Session<'a> {
         if self.sources.transfers[index].is_none() {
             self.sources.transfers[index] = Some(super::sources::directory(directory)?);
         }
-        Ok(report)
+        Ok(PhaseOutcome {
+            report,
+            finished: false,
+            next_frame: self.actors.verifier.as_ref().map(|_| Frame::Verify {
+                index,
+                source_observation: None,
+            }),
+        })
+    }
+    async fn status(&mut self, index: usize, action: &Run) -> Result<PhaseOutcome, Failure> {
+        let observation = self
+            .observation(publish_map::Selection::File(index), action)
+            .await?;
+        let next_frame = if observation.complete {
+            self.next += 1;
+            self.following_file()
+        } else {
+            self.incomplete_file(index)
+        };
+        Ok(PhaseOutcome {
+            report: observation.report,
+            finished: false,
+            next_frame: Some(next_frame),
+        })
     }
     async fn phase(
         &mut self,
         frame: Frame,
         action: &Run,
         directory: PathBuf,
-    ) -> Result<(Value, bool), Failure> {
-        match frame {
-            Frame::Prepare { index, .. } => {
-                self.batch.files.get(index).ok_or(Failure::Arguments)?;
-                if index != self.next {
+    ) -> Result<PhaseOutcome, Failure> {
+        let index = match &frame {
+            Frame::Prepare { index, .. }
+            | Frame::Transfer { index, .. }
+            | Frame::Verify { index, .. }
+            | Frame::Status { index } => Some(*index),
+            Frame::Map {} => None,
+        };
+        if let Some(index) = index {
+            self.batch.files.get(index).ok_or(Failure::Arguments)?;
+            if index != self.next {
+                if !matches!(&frame, Frame::Status { .. }) {
                     control::record_unattempted(action, index, self.next)?;
-                    return Ok((self.blocked("previous_file_unconfirmed"), false));
                 }
-                Ok((self.prepare(index, directory).await?, false))
+                return Ok(PhaseOutcome {
+                    report: self.blocked("previous_file_unconfirmed"),
+                    finished: false,
+                    next_frame: None,
+                });
             }
-            Frame::Status { index } => {
-                self.batch.files.get(index).ok_or(Failure::Arguments)?;
-                if index != self.next {
-                    return Ok((self.blocked("previous_file_unconfirmed"), false));
-                }
-                let observation = self
-                    .observation(publish_map::Selection::File(index), action)
-                    .await?;
-                if observation.complete {
-                    self.next += 1;
-                }
-                Ok((observation.report, false))
-            }
+        }
+        match frame {
+            Frame::Prepare { index, .. } => self.prepare(index, directory).await,
+            Frame::Status { index } => self.status(index, action).await,
             Frame::Transfer {
                 index,
                 source_transfer,
-            } => {
-                self.batch.files.get(index).ok_or(Failure::Arguments)?;
-                if index != self.next {
-                    control::record_unattempted(action, index, self.next)?;
-                    return Ok((self.blocked("previous_file_unconfirmed"), false));
-                }
-                let report =
-                    self.transfer(index, action, &directory, source_transfer.as_deref())?;
-                Ok((report, false))
-            }
+            } => self.transfer(index, action, &directory, source_transfer.as_deref()),
             Frame::Verify {
                 index,
                 source_observation,
             } => {
                 let selected = self.batch.files.get(index).ok_or(Failure::Arguments)?;
-                if index != self.next {
-                    control::record_unattempted(action, index, self.next)?;
-                    return Ok((self.blocked("previous_file_unconfirmed"), false));
-                }
                 let verifier = self.actors.verifier.as_ref().ok_or(Failure::Denied)?;
                 // One create-new owner per original file, independent of step
                 // numbering. Partial observations and pending submissions never
@@ -179,17 +231,22 @@ impl<'a> Session<'a> {
                 if publication.complete {
                     self.next += 1;
                 }
-                Ok((
-                    json!({"schema":1,"operation":"publish_session_verification",
+                Ok(PhaseOutcome {
+                    report: json!({"schema":1,"operation":"publish_session_verification",
                     "file_index":index,"observation":observed,"attestation":submitted,
                     "publication":publication.report,"file_live":publication.complete,
                     "max_provider_requests_this_phase":u8::from(!recovering),"retry_authorized":false}),
-                    false,
-                ))
+                    finished: false,
+                    next_frame: publication.complete.then(|| self.following_file()),
+                })
             }
             Frame::Map {} => {
                 if self.next != self.batch.files.len() {
-                    return Ok((self.blocked("files_incomplete"), false));
+                    return Ok(PhaseOutcome {
+                        report: self.blocked("files_incomplete"),
+                        finished: false,
+                        next_frame: None,
+                    });
                 }
                 let observation = self
                     .observation(publish_map::Selection::Batch, action)
@@ -197,7 +254,11 @@ impl<'a> Session<'a> {
                 if observation.complete {
                     self.run.json("media-map.json", &observation.report)?;
                 }
-                Ok((observation.report, true))
+                Ok(PhaseOutcome {
+                    report: observation.report,
+                    finished: true,
+                    next_frame: None,
+                })
             }
         }
     }
@@ -214,7 +275,11 @@ impl<'a> Session<'a> {
             let action = Run::create(&directory)?;
             action.json("request.json", &frame)?;
             let result = self.phase(frame, &action, directory).await;
-            let (report, finished) = match result {
+            let PhaseOutcome {
+                report,
+                finished,
+                next_frame,
+            } = match result {
                 Ok(result) => result,
                 Err(error) => {
                     action.json(
@@ -226,7 +291,8 @@ impl<'a> Session<'a> {
             };
             action.json("summary.json", &report)?;
             control::output(
-                &json!({"schema":1,"event":"phase","step":step,"next_index":self.next,"report":report}),
+                &json!({"schema":1,"event":"phase","step":step,"next_index":self.next,
+                    "report":report,"next_frame":next_frame}),
             )?;
             if finished {
                 return Ok(report);

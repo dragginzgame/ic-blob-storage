@@ -1,0 +1,283 @@
+{
+  "baseline": "31c1a360832de9cf9ce7457a1f2a7ad934d35390",
+  "reportedArtifactRelease": "0.13.0",
+  "evidence": "source review, focused native checks and owned local IC/Chromium/provider substitutes",
+  "contract": {
+    "phaseGuidance": "derived next_frame on phase events",
+    "guidancePersisted": false,
+    "driver": "launchPublicationBrowser(...).driveSession(currentReady,privateNativePhaseTransport)",
+    "peerReplyBoundBytes": 8388608,
+    "maxSteps": "positive and at most 8 * original files + 1",
+    "serviceWireAndStableLayoutsChanged": false,
+    "nativeIntentSourceProfileLayoutsChanged": false,
+    "originalPhaseClaimsAuthoritative": true,
+    "newDispatchJournal": false,
+    "automaticRestart": false,
+    "callerOwnsKeysAndNativeProcess": true
+  },
+  "checks": {
+    "sessionUnitCases": 7,
+    "retainedNativeIcCases": 7,
+    "launcherCases": [
+      "occupied_port_refuses_before_profile",
+      "launch_selection_owned_before_filesystem_awaits",
+      "private_passive_binding_retains_scope_without_signer_secret",
+      "explicit_profile_and_origin_start_without_effects",
+      "owned_request_and_single_job",
+      "changed_truncated_oversized_and_noncanonical_body_refuse",
+      "symlinks_and_directories_are_not_bodies",
+      "fifo_without_writer_refuses_without_blocking",
+      "metadata_hints_have_exact_fields_and_utf8_bounds",
+      "close_preserves_profile_and_refuses_replacement",
+      "changed_origin_missing_and_symlink_profiles_refuse_without_replacement",
+      "changed_signer_trust_scope_journal_and_assets_refuse_before_chromium",
+      "partial_missing_symlink_and_relocated_bindings_refuse_without_replacement",
+      "same_origin_and_profile_reopen_original_journal",
+      "deadline_closes_browser_without_erasing_profile",
+      "launch_failure_retains_binding_before_browser_and_reopen_never_replaces_it",
+      "mismatched_or_partial_native_intent_refuses_before_profile_and_chromium",
+      "native_handoff_recovery_without_browser_history_never_becomes_upload_and_tampering_refuses",
+      "native_driver_bounds_control_hints_and_excludes_concurrent_jobs_until_closed",
+      "original_native_session_binding_reopens_and_cannot_be_bypassed_or_rewritten"
+    ],
+    "affectedStrictClippy": "passed",
+    "formatter": "passed",
+    "whitespace": "passed",
+    "priorEvidenceHashes": "passed"
+  },
+  "journeys": {
+    "native-driver-restart": {
+      "puts": 4,
+      "gets": 4,
+      "confirmedMapWritten": true,
+      "retainedPhysicalBytes": 3072,
+      "retainedLiabilityBytes": 3072,
+      "automaticUploadRetries": 0
+    },
+    "native-driver-corrupt": {
+      "puts": 2,
+      "gets": 1,
+      "confirmedMapWritten": false,
+      "retainedPhysicalBytes": 1024,
+      "retainedLiabilityBytes": 1024,
+      "automaticUploadRetries": 0
+    },
+    "native-verifier-lost": {
+      "puts": 4,
+      "gets": 4,
+      "confirmedMapWritten": true,
+      "retainedPhysicalBytes": 3072,
+      "retainedLiabilityBytes": 3072,
+      "automaticUploadRetries": 0
+    }
+  },
+  "decisions": [
+    {
+      "file": "driver-phase-0000.json",
+      "step": 0,
+      "nextIndex": 0,
+      "operation": "publish_file_status",
+      "nextFrame": {
+        "index": 0,
+        "phase": "prepare",
+        "source_run": null
+      }
+    },
+    {
+      "file": "driver-phase-0001.json",
+      "step": 1,
+      "nextIndex": 0,
+      "operation": "publish_prepare",
+      "nextFrame": {
+        "index": 0,
+        "phase": "transfer",
+        "source_transfer": null
+      }
+    },
+    {
+      "file": "driver-phase-0002.json",
+      "step": 2,
+      "nextIndex": 0,
+      "operation": "publish_session_transfer",
+      "nextFrame": {
+        "index": 0,
+        "phase": "verify",
+        "source_observation": null
+      }
+    },
+    {
+      "file": "driver-phase-0004.json",
+      "step": 0,
+      "nextIndex": 0,
+      "operation": "publish_file_status",
+      "nextFrame": {
+        "index": 0,
+        "phase": "transfer",
+        "source_transfer": null
+      }
+    },
+    {
+      "file": "driver-phase-0005.json",
+      "step": 1,
+      "nextIndex": 0,
+      "operation": "publish_session_transfer",
+      "nextFrame": {
+        "index": 0,
+        "phase": "verify",
+        "source_observation": null
+      }
+    },
+    {
+      "file": "driver-phase-0006.json",
+      "step": 2,
+      "nextIndex": 1,
+      "operation": "publish_session_verification",
+      "nextFrame": {
+        "index": 1,
+        "phase": "status"
+      }
+    },
+    {
+      "file": "driver-phase-0007.json",
+      "step": 3,
+      "nextIndex": 1,
+      "operation": "publish_file_status",
+      "nextFrame": {
+        "index": 1,
+        "phase": "prepare",
+        "source_run": null
+      }
+    },
+    {
+      "file": "driver-phase-0008.json",
+      "step": 4,
+      "nextIndex": 1,
+      "operation": "publish_prepare",
+      "nextFrame": {
+        "index": 1,
+        "phase": "transfer",
+        "source_transfer": null
+      }
+    },
+    {
+      "file": "driver-phase-0009.json",
+      "step": 5,
+      "nextIndex": 1,
+      "operation": "publish_session_transfer",
+      "nextFrame": {
+        "index": 1,
+        "phase": "verify",
+        "source_observation": null
+      }
+    },
+    {
+      "file": "driver-phase-0010.json",
+      "step": 6,
+      "nextIndex": 2,
+      "operation": "publish_session_verification",
+      "nextFrame": {
+        "phase": "map"
+      }
+    },
+    {
+      "file": "driver-phase-0011.json",
+      "step": 7,
+      "nextIndex": 2,
+      "operation": "publish_map",
+      "nextFrame": null
+    }
+  ],
+  "attempts": [
+    {
+      "log": "clippy-initial.log",
+      "outcome": "native phase line-count lint failed; consolidated existing indexed ordering guards"
+    },
+    {
+      "log": "clippy-integrated.log",
+      "outcome": "test driver run line-count lint failed; grouped the existing unconfirmed-capacity invariant"
+    },
+    {
+      "note": "initial-syntax-failure.json",
+      "outcome": "launcher initial syntax failure fixed before runtime probes; failed source was not separately frozen"
+    },
+    {
+      "logs": [
+        "clippy-final.log",
+        "cli-build.log",
+        "wasm-build.log",
+        "unit.log",
+        "native-ic.log",
+        "launcher.log",
+        "driver-journeys.log",
+        "manual-verifier-regression.log"
+      ],
+      "outcome": "all focused final checks passed"
+    },
+    {
+      "log": "browser-build-documented.log",
+      "outcome": "documentation-only launcher comment changes leave the frozen serial bundle byte-identical before the final manual regression"
+    }
+  ],
+  "artifactHashes": {
+    "blob-storage": "acf4ae336e7966b2674a25fb168df7cfb09dc4ae866801b742ab144c036356de",
+    "ic_blob_storage_canister.wasm": "9d1dae26513331fa969d5172a45fcf35d491cc91364caab9b2c940c16488e0f2",
+    "launcher-documented.mjs": "8e187fa02debc049e9ba52dc7911b7bbb08f39a7cefa06c997cd5cf8fd27295b",
+    "launcher-serial.mjs": "cf76a45579d22e46750ed46b9af6e383a10d32e1fadfde583fef072383980274",
+    "launcher.mjs": "5e8f1492f74126dd62973832951510e79ae9e861cbd943ab4c36bdd6d1c0e17c",
+    "publication-host.js": "2f8d7b66ad7808747a2b7bca24c83ba2e4a99dd283b875355ca2470a5bcdc216",
+    "publication-worker.js": "dbb74667801c7411106dced5fb4bf13e664f809de487411ca0dcf23c5f0e8978",
+    "session.mjs": "835b616a8e03f24a0a743cf4bb2cc89e5458cd9c745fe52547cb3bb0dceb1aad"
+  },
+  "logHashes": {
+    "browser-build-documented.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "browser-build-final.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "browser-build.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "cli-build.log": "8d22db24a64dda9f0215d7a04c3430be49c84b27f1a9830fe32a1b3b9d0753ac",
+    "clippy-final.log": "68106d8c99ff7b8120686cfd2573c04f369f7a731340e037bb71f6362095a3a8",
+    "clippy-initial.log": "b1dd02633c1bdc79836165bf02119ecf70b46e0abeb01930989631259925d81f",
+    "clippy-integrated.log": "54b02ab01d1f2167e4d765f198ea593e48db6fdad530141584d3f352227c014e",
+    "clippy-native.log": "4da33c422e8369dc32071cbbb026fa3fe28843f22ddd2f01ba0578ead9cc4f78",
+    "driver-journeys.log": "8db1849e1eca1c1cbd0112dda03068f36090050e29436b128bda74f60f882b65",
+    "driver-syntax.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "launcher-syntax-final.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "launcher.log": "5e7dc60538adfbc1efcf2fc8024a1da12a8e0ed9f77318a1c0fab91533a1a20d",
+    "manual-verifier-regression.log": "2de4e47e2f46a71f983e8c0a50851c1694a9ce700dc097987d61374deccf1e45",
+    "native-ic.log": "8159a62b9a5e62d1fba26822fe7d15ce0f8c8a5fe7ab0d1b407a65aa8159b0e5",
+    "prior-evidence-check.log": "134c6ffd37d0519b23621bd62f8802b834c9625825d6880fe48bfe51fd3bfd50",
+    "unit.log": "efeb0f1d772d513865ef8ad5629fb5fa552d0695026425cba5d649f855446c2b",
+    "wasm-build.log": "54682de968c211263c0dc658a74959a06d81689a13e84e7bddf35a6eb4f68d35"
+  },
+  "profileBindingHashes": {
+    "native-driver-restart": "b2db96ab4a18728d1a126c605d9df07d5c6aa5790a6e53fa73a4001cf0469274",
+    "native-driver-corrupt": "ed1a7cac2a1348abfe60432f3b69c48c19c2439647303a0477f948f7a334a7b7",
+    "native-verifier-lost": "3e1d984bbd940d4c4bce5dd002f5e910c590e45afe9dedcdc4988836f75ca41a"
+  },
+  "sourceManifest": {
+    "path": ".tmp/session-driver-01/source-SHA256SUMS",
+    "sha256": "186d594180f83943707b3052a3e3267751127ddf884bdfed5caf5ef68d9ffc10"
+  },
+  "retention": {
+    "nativeFixtures": ".tmp/session-driver-01/native",
+    "browserProfilesAndOriginalClaims": ".tmp/session-driver-01/browser",
+    "failedSourceSnapshotAvailable": false
+  },
+  "limitations": [
+    "synthetic image-labelled bytes, no real media or consumer registration",
+    "owned IC/HTTPS/HTTP2/CORS/provider substitutes, not deployed Caffeine",
+    "metadata-only native peer substitutes in the boundary suite establish local guard behavior only",
+    "caller owns process creation, private pipe, keys, final native result and explicit restart",
+    "no local-history rollback resistance or measured million-object behavior",
+    "full PUT bodies not separately retained"
+  ],
+  "effects": {
+    "liveProviderRequests": 0,
+    "paidCycles": 0,
+    "fullCi": false,
+    "versionOrDependencyChanges": false,
+    "commits": false,
+    "publication": false,
+    "deployment": false,
+    "siblingEdits": false,
+    "buildCleanup": false
+  }
+}

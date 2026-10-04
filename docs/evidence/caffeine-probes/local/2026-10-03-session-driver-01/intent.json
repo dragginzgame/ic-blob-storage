@@ -1,0 +1,19 @@
+{
+  "purpose": "Converge parent phase selection on native session decisions and drive the existing Chromium bridge",
+  "baseline": "31c1a36 release 0.13.0",
+  "scope": "focused native checks, launcher boundary cases and actual local IC/Chromium coordination",
+  "budget": {
+    "icBrowserJourneys": 3,
+    "maxPutArrivalsPerJourney": 4,
+    "maxGetArrivalsPerJourney": 4,
+    "launcherSuites": 1,
+    "liveProviderRequests": 0,
+    "paidCycles": 0
+  },
+  "retention": "Keep original profiles, signed claims, source paths, artifacts, all failed attempts and inconclusive results",
+  "limitations": [
+    "owned local IC and HTTPS/provider substitutes only",
+    "caller still selects keys, launches the native process and supplies its private control transport",
+    "no automatic process restart, redispatch or local-history rollback resistance"
+  ]
+}

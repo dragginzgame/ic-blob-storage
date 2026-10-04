@@ -181,7 +181,7 @@ try {
   const inventory = Buffer.from('{}'), installation = Buffer.from([68, 73, 68, 76]);
   const nativeIntent = { format: 'ic-blob-storage/publication-session:retained-browser-handoffs',
     operation: 'publish_session', source_session: null, files: 1,
-    network: 'local', namespace: '1', operator: binding.uploader, verifier: null,
+    network: 'local', namespace: '1', operator: binding.uploader, verifier: binding.uploader,
     max_steps: 9, max_service_updates: 2, max_service_queries: 50, timeout_seconds: 30,
     max_provider_requests: 0, automatic_retries: 0,
     input_verification: 'one_complete_startup_pass_and_selected_body_before_setup',
@@ -248,6 +248,70 @@ try {
   await assert.rejects(launchPublicationBrowser(engine, native), refusal('profile-binding'));
   await writeFile(intentPath, JSON.stringify(nativeIntent));
   bridge = await launchPublicationBrowser(engine, native);
+  let controls = 0;
+  const stoppedFinal = { report: { operation: 'publish_session', state: 'blocked' }, exit_code: 0 };
+  const peer = (phase, ready = nativeReady, finish = async () => stoppedFinal) => ({ ready, phase, finish });
+  await assert.rejects(bridge.driveSession(peer(async () => { controls++; },
+    { ...nativeReady, inventory_sha256: '0'.repeat(64) })), refusal('native-session'));
+  assert.equal(controls, 0);
+  const budgeted = await bridge.driveSession(peer(async selected => {
+    controls++; assert.deepEqual(selected, { phase: 'status', index: 0 });
+    return { schema: 1, event: 'phase', step: 0, next_index: 0, report: { file_live: false },
+      next_frame: { phase: 'prepare', index: 0, source_run: null } };
+  }, { ...nativeReady, max_steps: 1 }));
+  assert.equal(controls, 1); assert.equal(budgeted.code, 'step_budget_exhausted');
+  assert.equal(budgeted.browser_jobs, 0);
+  assert.deepEqual(budgeted.native_result, stoppedFinal);
+  for (const next_frame of [{ phase: 'transfer', index: 1, source_transfer: null },
+    { phase: 'map', retry: true }, { phase: 'prepare', index: 0, source_run: 'relative' }]) {
+    await assert.rejects(bridge.driveSession(peer(async () => ({ schema: 1, event: 'phase',
+      step: 0, next_index: 0, report: {}, next_frame }))), refusal('native-control'));
+    native.bootstrap.journal.mode = 'open'; bridge = await launchPublicationBrowser(engine, native);
+  }
+  let unblock;
+  const driving = bridge.driveSession(peer(async () => new Promise(resolve => { unblock = resolve; })));
+  await assert.rejects(bridge.execute({ id: 1, index: 0, action: 'inspect', binding }), refusal('busy'));
+  await bridge.close(); await assert.rejects(driving, refusal('closed'));
+  unblock({ schema: 1, event: 'phase', step: 0, next_index: 0, report: {}, next_frame: null });
+  bridge = await launchPublicationBrowser(engine, native);
+  cases.push('native_driver_bounds_control_hints_and_excludes_concurrent_jobs_until_closed');
+  // Metadata-only peers exercise the completion boundary, not service authority.
+  const map = { schema: 1, operation: 'publish_map', authentication: 'query_signatures',
+    inventory_sha256: nativeReady.inventory_sha256, installation_sha256: nativeReady.installation_sha256,
+    files: [{ index: 0 }], blockers: [], atomic_snapshot: false, publication_lease: false,
+    provider_requests: 0, public_serving_qualified: false, retry_authorized: false, all_references_live: true };
+  const mapPeer = (report = map, finish = async () => ({ report, exit_code: 0 })) => peer(async selected => ({
+    schema: 1, event: 'phase', step: selected.phase === 'status' ? 0 : 1,
+    next_index: 1, report: selected.phase === 'map' ? report : { file_live: true },
+    next_frame: selected.phase === 'map' ? null : { phase: 'map' },
+  }), nativeReady, finish);
+  for (const finish of [
+    async () => ({ report: { ...map, files: [] }, exit_code: 0 }),
+    async () => ({ report: { error: 'transport' }, exit_code: 3 }),
+    async () => ({ report: map, exit_code: 7 }),
+    async () => { throw new Error('lost final'); },
+  ]) {
+    await assert.rejects(bridge.driveSession(mapPeer(map, finish)), refusal('native-control'));
+    bridge = await launchPublicationBrowser(engine, native);
+  }
+  for (const change of [{ inventory_sha256: '0'.repeat(64) }, { files: [] },
+    { files: [{ index: 1 }] }, { blockers: [{ code: 'incomplete' }] }, { publication_lease: true }]) {
+    await assert.rejects(bridge.driveSession(mapPeer({ ...map, ...change })), refusal('native-control'));
+    bridge = await launchPublicationBrowser(engine, native);
+  }
+  const complete = await bridge.driveSession(mapPeer());
+  assert.equal(complete.state, 'complete'); assert.deepEqual(complete.native_result, { report: map, exit_code: 0 });
+  let finalSignal, releaseFinal, enterFinal;
+  const atFinal = new Promise(resolve => { enterFinal = resolve; });
+  const finishing = bridge.driveSession(mapPeer(map, signal => {
+    finalSignal = signal; enterFinal(); return new Promise(resolve => { releaseFinal = resolve; });
+  }));
+  await Promise.race([atFinal, finishing.then(() => assert.fail('expected pending final result'))]);
+  await assert.rejects(bridge.execute({ id: 1, index: 0, action: 'inspect', binding }), refusal('busy'));
+  await bridge.close(); await assert.rejects(finishing, refusal('closed')); assert.equal(finalSignal.aborted, true);
+  releaseFinal({ report: map, exit_code: 0 });
+  bridge = await launchPublicationBrowser(engine, native);
+  cases.push('native_driver_requires_exact_current_complete_map_final_report_and_exit_and_cancels_finish');
   await bridge.close(); assert.deepEqual(await readFile(join(native.profile, 'publication-binding.json')), originalNativeBinding);
   cases.push('original_native_session_binding_reopens_and_cannot_be_bypassed_or_rewritten');
   assert.deepEqual(unexpected, []); assert(requests.every(request => request.method === 'GET'));

@@ -1,11 +1,11 @@
 # Current status
 
-Date: 2026-10-03
+Date: 2026-10-04
 
 ## Released baseline
 
-This batch started from released **0.12.0**, at `a67f22a`, with validated source
-`a46241ffb869518ad573e5faf42a49a49824cc9b`. Read
+Released **0.13.0** is at `31c1a36`, with validated source
+`ce93a83ef5e3b9b2c83b51d0d512c6682fac189f`. Read
 [Cargo](../../Cargo.toml), [the release receipt](../release.json) and
 [the changelog](../../CHANGELOG.md) for authoritative release metadata.
 A repository release does not establish registry publication or deployed behavior.
@@ -21,86 +21,104 @@ Same-release restoration validates every owner synchronously and fences mutation
 only an independent current-execution IC-history proof can resume the current
 installation. Older-snapshot activation and cross-release upgrades are unsupported.
 
-Native publication sessions compose retained setup, verification and reference
-owners. The browser host/worker and callable Chromium bridge retain the original
-profile and certificate/gateway journals; they grant no retry or completion authority.
-Native bindings require their exact frozen format and original optional preparation
-hints, preserving omission and empty strings. Existing input/state readers have no
-compatibility fallback.
+Released 0.13.0 retains original native setup/observation/transfer sources, exact
+native/browser selection and the profile binding before Chromium access. Native
+transfer handoffs are passive provenance; the existing browser journal owns paid
+claims. Repeated/recovered handoffs request certificate recovery only. Missing or
+changed history refuses without replacement, redispatch or an inherited cursor.
+Old contracts stay with their original binaries/artifacts; no conversion exists.
+The [source](../evidence/caffeine-probes/README.md#native-session-original-sources--2026-10-03),
+[binding](../evidence/caffeine-probes/README.md#browser-profile-launch-binding--2026-10-03),
+[selection](../evidence/caffeine-probes/README.md#native-session-browser-selection--2026-10-03)
+and [handoff](../evidence/caffeine-probes/README.md#native-browser-transfer-handoffs--2026-10-03)
+records retain their exact checks, failures, artifacts and qualification limits.
 
 ## Current work
 
-Released 0.12.0 consolidates descriptor serving, removes the fixture-only reference
-journal and identifies frozen native/stable formats. Its
-[simplification](../evidence/caffeine-probes/README.md#simplification-follow-up--2026-10-03),
-[format](../evidence/caffeine-probes/README.md#frozen-format-identities--2026-10-03) and
-[descriptor](../evidence/caffeine-probes/README.md#descriptor-serving-owner--2026-10-03)
-records retain their exact validation scopes and limitations. Any older installation,
-including 0.11.0, stays on its original release until complete retirement precedes
-fresh reinstall; no conversion or upgrade is supported.
+Completed changes are grouped in the undated **0.14.0** changelog draft.
+Cargo and the release receipt remain at 0.13.0 until maintainer release preparation.
 
-The current native follow-up adds explicit source-session recovery. Original
-inventory/installation bytes, actors, gateway, trust root and saved host release
-must match before allocating a new run. Resolved setup/observation paths are
-recorded before execution and unused references survive status-only recovery.
-Ordering refusal facts live in existing step directories; missing claim history
-is never treated as proof that a phase did not run. The existing setup, observer
-and attestation owners remain authoritative, with no automatic replay or inherited
-completion cursor. Fresh authenticated status starts at index zero.
+Native phase events now include derived `next_frame` guidance. Fresh status starts
+at index zero; original observation/handoff recovery precedes setup, and only
+checked completion/reference evidence advances the cursor. All indexed phases
+share one ordering guard while retaining their required unattempted facts.
+The Chromium bridge's `driveSession(nativeControl)` follows those native decisions
+through the existing transfer/verifier/map owners. It checks current ready/input
+binding and phase replies, bounds steps and metadata, excludes concurrent jobs,
+and stops pending control/final-exit waits on context close/deadline. Correlation IDs remain
+execution metadata; no new dispatch journal, persisted cursor or retry owner exists.
 
-One frozen native session intent identifies the current original-source layout;
-old session artifacts stay with their original binaries. This is a minor native
-format cut with unchanged service endpoint and stable layouts. Five session unit
-cases, six actual local IC cases, two actual Chromium recovery journeys and strict
-affected Clippy pass. The [source-session evidence](../evidence/caffeine-probes/README.md#native-session-original-sources--2026-10-03)
-retains exact artifacts, logs, profiles and phase claims under `.tmp/session-sources-01`.
-The Chromium launcher now persists a passive selected-launch binding inside the
-original profile before browser access. Exact signer/scope/trust/journal/bundle
-fingerprints and canonical profile/origin must match on reopen. It owns one input
-snapshot before awaits and retains the record after failed launch. Partial or
-missing provenance refuses rather than opening replacement history. Existing
-profiles stay with their original launcher; this adds a minor browser contract cut.
-The [browser binding evidence](../evidence/caffeine-probes/README.md#browser-profile-launch-binding--2026-10-03)
-retains focused actual Chromium refusals and the maintained upload/verifier
-lost-reply journey, including the initial local report-directory failure.
-The current joint selection uses `publish-session --browser-selection`: native
-intent retains original session/profile/port, signer/bundle fingerprints, journal
-and exact batch project/bucket. Recovery requires the same selection. The launcher
-checks the original complete intent/ready shapes and actual input hashes before
-Chromium, then binds the exact original intent bytes into its profile. Browser-only
-operation is explicit and cannot bypass an existing native binding. One current
-native intent/profile layout replaces intermediate source-only/launch-only forms;
-retain their original binaries and profiles. Service wire/stable layouts are unchanged.
-Seven session unit cases, eighteen actual Chromium boundary cases, six native IC
-cases, the maintained actual IC/Chromium verifier lost-reply journey and strict
-affected Clippy pass. The [joint selection evidence](../evidence/caffeine-probes/README.md#native-session-browser-selection--2026-10-03)
-retains exact artifacts, intermediate passes, a lint failure and final validation.
-The next follow-up retains native browser handoffs before dispatch. A selected
-session's `prepare` phase no longer returns a raw transfer descriptor; `transfer`
-validates the original signed setup and synchronizes `transfer.json` before
-returning its step directory. The current native intent and source provenance use
-the `retained-browser-handoffs` layouts. The launcher requires that handoff for
-native-bound uploads; repeated/recovered phases request certificate recovery
-through the existing browser journal only. Missing browser history refuses without
-starting an upload. No new effect journal or completion cursor is introduced.
-Focused session units, seven native IC cases and nineteen actual Chromium boundary
-cases pass. The actual IC/Chromium lost-reply journey passes through the new native
-handoff/recovery path, preserving four PUTs/four GETs and original claims. A second
-journey refuses corrupt bytes before attestation or the next file. Strict affected
-Clippy passes. The
-[handoff evidence](../evidence/caffeine-probes/README.md#native-browser-transfer-handoffs--2026-10-03)
-retains logs, exact artifacts and the preliminary native fixture-retention gap.
-The parent still needs to retain its keys/original session location, select phases
-and reconcile uncertainty. These records do not complete that coordination or
-establish rollback resistance.
+The new `startPublicationSession` helper owns the explicitly selected native
+subprocess/private control transport: bounded split/coalesced UTF-8 records, one
+outstanding phase, cancellation/deadline, and final report plus checked exit.
+The driver now owns completion acceptance: exact current map, original input hashes,
+all ordered indices, no blockers, neutral lease/serving facts, matching final report
+and exit zero. `native_result` accompanies complete/stopped results. The caller
+selects keys/binaries, consumes only a complete driver result and chooses an
+explicit same-release restart. Native Rust remains the authority for verification
+and references; the browser checks the private peer's passive output contract.
+There is no automatic process discovery/restart or upload retry. A complete map
+is a current observation, not a serving lease or completed consumer asset transaction.
+Service wire, native intent/source/profile and stable layouts are unchanged.
+
+Seven native session unit checks, seven retained native IC cases, twenty actual
+Chromium boundary cases and strict affected Clippy pass. The actual IC/Chromium
+driver restart completes two files with four PUTs/four GETs and 3,072 retained
+physical/liability bytes, without another upload. Corrupt content stops before
+attestation or the next file with two PUTs/one GET and 1,024 retained bytes.
+The maintained manual verifier/observation recovery journey also passes.
+The [driver evidence](../evidence/caffeine-probes/README.md#native-phase-guidance-and-browser-driver--2026-10-03)
+retains fresh 0.13.0 CLI/Wasm/bundles, profiles, journals and all validation attempts
+under `.tmp/session-driver-01`. These are local substitutes and synthetic bytes.
+
+Ten real child-pipe boundary checks pass, including incomplete output, unsolicited
+records, contradictory exit, cancellation and a final report whose child never
+exits. The two coordinated IC/Chromium journeys now use the maintained subprocess
+helper directly; the Rust fixture only observes results and independent downloads.
+They preserve the same request/accounting totals and no repeated upload. The
+[native control evidence](../evidence/caffeine-probes/README.md#private-native-subprocess-control--2026-10-04)
+retains `.tmp/native-control-01` artifacts and all attempts, including sandboxed
+Node output failures and the missing evidence-parent refusal before provider access.
+Current configuration guards are pipe-tested; actual IC journeys bind their exact
+retained integrated bundle. No endpoint, stable, native intent or profile cut is added.
+
+The maintained driver now accepts one native control handle with ready/phase/finish;
+the interim separate caller completion check is removed from current consumers and
+examples. Eleven child-pipe and twenty-one actual Chromium boundary checks pass.
+Changed/incomplete maps, blockers, lease claims, mismatched/failed final results
+and lost final replies refuse; a pending final wait still owns the browser gate
+and cancellation reaches the native child. Both direct IC/Chromium journeys pass
+with the same request/accounting totals and no repeated upload. The
+[completion evidence](../evidence/caffeine-probes/README.md#one-publication-completion-boundary--2026-10-04)
+retains exact sources, artifacts, outcomes and original history under
+`.tmp/driver-final-01`. The phase driver has no public pre-exit completion state.
+
+Maintainer dependency edits are preserved: ic-memory 0.24.0, ic-testkit 0.14.1
+and direct ic-management-canister-types 0.10.0. Core/standalone/CLI checks pass
+without adaptation. Fresh standalone Wasm passes all four lifecycle/recovery
+cases and the snapshot rollback refusal under the new dependencies. Logs, intent
+and Wasm remain under `.tmp/management-types-010`. The recovery owner is the only
+production consumer of management types; its request/history decoding and fail-closed
+classification still use the maintained platform API. No recovery schema changes.
+The publication journeys use unchanged retained 0.13.0 CLI/Wasm and the retained
+test harness; their results are separate from the fresh recovery-artifact checks.
+No full CI or deployment qualification is claimed.
+
+All eleven Cargo members now inherit the root package version and dependency
+declarations. CLI/test-only version pins and local dependency paths have one
+workspace owner; members keep their existing features, targets and publish policy.
+Eight unpublished fixtures inherit 0.13.0 instead of carrying independent 0.0.0
+labels. Before/after Cargo metadata confirms unchanged external packages,
+per-member dependency settings and resolved features. Native workspace checks
+with all targets/features and Wasm workspace checks with all features pass.
+Captures remain under
+`.tmp/workspace-manifests-01`; this does not change frozen runtime artifacts.
 
 ## Remaining product work
 
-- Durable native parent coordination around the session and Chromium bridge:
-  select/drive phases with original keys and the retained original session, then
-  reconcile exact surviving evidence on restart without redispatch. Native intent,
-  handoffs and profile retain/check the joint selection; they do not discover keys, select
-  phases or grant completion/retry authority.
+- Consumer adoption of the callable driver and native subprocess helper, with
+  explicitly selected native/browser identities, binary/trust inputs, same-release
+  restart and exact original history retention.
 - Consumer acceptance with real media, complete asset transactions, overlapping
   references and MIME/CORS/cache/CSP/retention behavior. Local substitutes and
   synthetic image-labelled bytes do not qualify those guarantees.
@@ -114,8 +132,9 @@ establish rollback resistance.
 
 Canic adoption remains deferred until useful repository-local work is exhausted.
 The [feedback list](../canic-parity.md#integration-feedback) records wrapper/lifecycle,
-one-runtime memory composition, current recovery and original preparation-hint
-adoption. Siblings remain read-only; no upstream message is authorized.
+one-runtime memory composition, current formats/recovery, original preparation
+hints and adoption of native guidance/callable driving/subprocess control. Siblings remain read-only;
+no upstream message is authorized.
 
 The old isolated owner remains frozen at 0.6.0 with stopped original history;
 the separate live owner was last verified at 0.7.0. Both retain exhausted lifetime

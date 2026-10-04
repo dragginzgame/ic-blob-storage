@@ -2,6 +2,6 @@
   "name": "@dragginzgame/blob-storage-browser",
   "private": true,
   "type": "module",
-  "exports": { ".": "./certificate.js", "./gateway": "./gateway.js", "./transfer": "./transfer.js", "./publication": "./publication.js", "./worker": "./worker.js", "./bootstrap": "./bootstrap.js", "./worker-entry": "./worker-entry.js", "./launcher": "./launcher.mjs", "./intents": "./intents.js" },
+  "exports": { ".": "./certificate.js", "./gateway": "./gateway.js", "./transfer": "./transfer.js", "./publication": "./publication.js", "./worker": "./worker.js", "./bootstrap": "./bootstrap.js", "./worker-entry": "./worker-entry.js", "./launcher": "./launcher.mjs", "./native": "./native.mjs", "./intents": "./intents.js" },
   "peerDependencies": { "@icp-sdk/core": "5.4.0", "@caffeineai/object-storage": "1.1.2" }
 }

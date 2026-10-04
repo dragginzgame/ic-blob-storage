@@ -849,11 +849,15 @@ supplies a fixed-authority job boundary. Released 0.11.0 adds a
 [selected-signer browser host/bootstrap](../clients/browser/README.md#launch-the-maintained-worker-with-a-selected-signer).
 That release also provides the [native Chromium bridge](../clients/browser/README.md#launch-chromium-from-a-native-parent)
 with selected SDK identity JSON, bounded file loading and fixed profile/origin.
-Unreleased persists the original immutable launch binding inside the profile
+Released 0.13.0 persists the original immutable launch binding inside the profile
 before Chromium opens, rejecting changed signer/scope/trust/journal/assets or
 missing history. Keep older profiles with their original launcher and bundles;
 the new reader does not create a binding for pre-existing history.
 Complete durable parent phase/restart coordination remains unfinished.
+Unreleased native `next_frame` guidance and the bridge's
+[`driveSession`](../clients/browser/README.md#follow-native-phase-guidance)
+now select and run phases around the existing owners. Native process/key selection
+and explicit restart remain caller responsibilities.
 
 ```sh
 blob-storage publish-session --network ic --url https://icp-api.io \
@@ -869,7 +873,8 @@ A parent process supplies one JSON object per newline on stdin and reads flushed
 JSON lines on stdout. Keep stdin open until the final map or an intentional stop;
 EOF ends with a typed transport failure and retained journals. Wait for `ready`
 before sending frames. Each phase produces an `event:"phase"` line containing
-`step`, `next_index` and `report`. Map completion or step exhaustion then emits
+`step`, `next_index` and `report`. Unreleased adds `next_frame`: a passive derived
+continuation, or null when this phase has no automatic continuation. Map completion or step exhaustion then emits
 the final CLI result and exits. Errors emit the normal redacted failure result.
 
 | Control frame | Required handling |
@@ -896,7 +901,7 @@ Idle stdin does not keep the process alive beyond the tested control deadline.
 The session starts at index zero and advances only on authenticated exact
 completion/reference evidence. It rejects out-of-order setup/status and premature
 maps. A restarted session must inspect already-confirmed original indices again;
-Unreleased `--source-session /absolute/retained-session` recovers original setup
+Released 0.13.0 `--source-session /absolute/retained-session` recovers original setup
 and observation/transfer paths for omitted `source_run`/`source_observation`/
 `source_transfer` frame fields.
 Use a new `--run-dir`, the same frozen batch, principals, service/namespace,
@@ -937,7 +942,7 @@ browser profiles and all setup/observation/attestation journals.
 
 ### Bind browser selection to the native session
 
-Unreleased `publish-session --browser-selection FILE` accepts one passive JSON
+Released 0.13.0 `publish-session --browser-selection FILE` accepts one passive JSON
 selection, at most 16 KiB. The complete native intent has the same bound and is
 checked before output allocation. The selection is copied into that intent before
 configuration checks or phase execution; it never contains signer keys or effect

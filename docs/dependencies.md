@@ -1,10 +1,12 @@
 # Dependency setup
 
-The root `Cargo.toml` owns direct dependency version requirements. The library
-inherits them, and `Cargo.lock` locks the resolved graph. Versions were checked against
+The root `Cargo.toml` owns all package and direct dependency version requirements
+and local dependency paths. Every member, including unpublished fixtures, inherits
+its package version and dependencies from the workspace. Members select features
+and target conditions; `Cargo.lock` locks the resolved graph. Versions were checked against
 crates.io on 2026-09-25. On 2026-09-26, `serde_json` became a direct dependency
 at its existing locked version for bounded provider reply parsing. The table reflects
-the current lockfile on 2026-10-03, including concurrent dependency updates;
+the current lockfile on 2026-10-04, including maintainer dependency updates;
 availability does not establish provider qualification or service readiness.
 
 | Dependency | Version | Purpose |
@@ -15,9 +17,10 @@ availability does not establish provider qualification or service readiness.
 | `sha2` | 0.11.0 | SHA-256; optional allocation/OID features disabled |
 | `thiserror` | 2.0.18 | Typed error derives; matches PocketIC's exact requirement |
 | `ic-cdk` | 0.20.3 | IC platform operations for the ops layer |
-| `ic-memory` | 0.21.0 (locked) | Sole allocation runtime; public typed growth API |
+| `ic-management-canister-types` | 0.10.0 (direct, locked) | Bounded current-instance IC-history request/reply types |
+| `ic-memory` | 0.24.0 (locked) | Sole allocation runtime; public typed growth API |
 | `ic-stable-structures` | 0.7.2 | Exact transitive substrate owned/re-exported by `ic-memory` |
-| `ic-testkit` | 0.13.0 (locked) | Native dependency of the unpublished PocketIC harness; shared helpers and full re-export |
+| `ic-testkit` | 0.14.1 (locked) | Native dependency of the unpublished PocketIC harness; shared helpers and full re-export |
 | `pocket-ic` | 16.0.0 | Transitive through `ic-testkit`; no direct dependency |
 | `ic-agent` | 0.49.2 | Native CLI and harness signing and verification of ingress certificates |
 | `candid_parser` | 0.4.1 | Native harness only; official Candid parser for native request fixtures |
@@ -31,6 +34,14 @@ published library dependency graph, Wasm allocation or memory grants. Tests trus
 the explicitly owned PocketIC NNS key, never a root key fetched from mainnet, and
 send no request to a Caffeine gateway. This is headless Rust evidence, not browser
 or production uploader qualification.
+
+The 2026-10-04 management-types update requires no recovery-owner adaptation.
+Core/standalone/CLI checks and fresh standalone Wasm pass; four lifecycle/recovery
+cases and snapshot rollback refusal pass under the current lockfile. PocketIC 16
+still brings its own management-types 0.8.0 transitively. That native-only type
+dependency is separate from the core's direct 0.10.0 and is not a second memory
+runtime. Current browser publication evidence uses explicitly retained artifacts;
+these focused platform checks do not replace full release or MSRV validation.
 
 The native CLI explicitly enables reqwest 0.13.5's `rustls` and `http2` features;
 CLI-only builds must support HTTPS/HTTP/2 independently of the harness or agent's
@@ -221,8 +232,9 @@ neither emits a certificate or sends service/gateway traffic. See the
 
 ## Memory composition
 
-Released 0.12.0 selects `ic-memory 0.21.0`. The lockfile resolves one registry
-package and its `ic-stable-structures` 0.7.2 substrate.
+Released 0.12.0 selected `ic-memory 0.21.0`; current development selects 0.24.0.
+The current lockfile resolves one registry memory package and its
+`ic-stable-structures` 0.7.2 substrate.
 Direct `RuntimeMemory::grow` returns a typed result;
 generic `Memory` wrappers preserve the upstream -1 sentinel contract.
 
