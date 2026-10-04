@@ -2,6 +2,27 @@
 
 ## [Unreleased]
 
+## [0.14.4]
+
+### Added
+
+- Qualify source installation from clean Git release 0.14.3 with a fresh native
+  prefix and pinned npm directory, without Git discovery. Exact installed tools
+  and matching Wasm complete original-cache-root GLB/WebP and recover PNG/JPEG
+  lost replies without another PUT. Consumer-owned installation remains separate.
+
+### Fixed
+
+- Keep browser shutdown and native argument/control serialization failures inside
+  the redacted refusal boundary. Preserve the original startup/control failure
+  during cleanup, release the asset server even when Chromium close rejects, and
+  reject invalid native frames without writing or consuming a phase. Preserve
+  profiles and uncertain claims; add no retry or replacement history.
+- Give the serial publication fixture one 120-second session deadline for native
+  original/recovery intents, browser bootstrap and subprocess ownership. Preserve
+  shorter single-step bounds and the whole-fixture timer. Retain effective limits
+  with completion/recovery evidence; production timeout defaults are unchanged.
+
 ## [0.14.3] - 2026-10-04
 
 ### Changed

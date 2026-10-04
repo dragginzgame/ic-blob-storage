@@ -239,7 +239,9 @@ export async function launchPublicationBrowser(chromium, options, browserOptions
     closed = true; clearTimeout(timer); lifetime.abort();
     // Closing the whole context kills the worker and preserves its profile.
     closing = (async () => {
-      try { await context?.close(); } finally {
+      try { await context?.close(); }
+      catch { throw new LauncherRefusal('browser'); }
+      finally {
         server.closeAllConnections(); await new Promise(resolve => server.close(resolve));
       }
     })();
@@ -265,7 +267,8 @@ export async function launchPublicationBrowser(chromium, options, browserOptions
     }, { ...bootstrap, configuration: { ...bootstrap.configuration,
       rootKey: Array.from(bootstrap.configuration.rootKey) } });
   } catch (error) {
-    await close();
+    // Cleanup diagnostics must not replace the original finite refusal.
+    await close().catch(() => {});
     if (error instanceof LauncherRefusal) throw error;
     throw new LauncherRefusal('launch');
   }
@@ -301,7 +304,7 @@ export async function launchPublicationBrowser(chromium, options, browserOptions
     catch (error) {
       if (error instanceof LauncherRefusal) throw error;
       const code = closed ? 'closed' : 'browser';
-      await close();
+      await close().catch(() => {});
       throw new LauncherRefusal(code);
     } finally { busy = false; }
   }
@@ -314,7 +317,7 @@ export async function launchPublicationBrowser(chromium, options, browserOptions
       const ready = structuredClone(currentReady); nativeReady(ready, native.intent);
       try { return await driveSession({ ready, phase, finish, execute: request => execute({ ...request, id: lastId + 1 }), signal: lifetime.signal,
         refuse: code => { throw new LauncherRefusal(code); } }); }
-      catch (error) { await close(); throw error; }
+      catch (error) { await close().catch(() => {}); throw error; }
     }),
     close,
   });

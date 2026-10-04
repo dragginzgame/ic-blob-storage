@@ -13,6 +13,10 @@ use ic_blob_storage::model::identity::ContentDigest;
 use ic_testkit::pic::CandidCallExt;
 use serde_json::{Value, json};
 
+// One complete-session deadline, shared with browser bootstrap and subprocess
+// ownership. Individual preparation/query calls retain their shorter bound.
+const SESSION_TIMEOUT_SECONDS: u64 = 120;
+
 #[derive(serde::Deserialize)]
 #[serde(deny_unknown_fields)]
 struct BrowserPublicationPlan {
@@ -185,7 +189,7 @@ impl Serial {
         let mut args = self
             .trial
             .args("publish-session", "tenant.pem", self.trial.f.tenant);
-        self.limits(&mut args, label);
+        self.limits(&mut args, label, SESSION_TIMEOUT_SECONDS);
         args.extend([
             "--operator-identity".into(),
             self.trial.report.join("uploader.pem").display().to_string(),
@@ -330,7 +334,7 @@ impl Serial {
             image_expectations: None,
         }
     }
-    fn limits(&self, args: &mut Vec<String>, label: &str) {
+    fn limits(&self, args: &mut Vec<String>, label: &str, timeout_seconds: u64) {
         args.extend([
             "--inputs".into(),
             self.trial.report.join("batch").display().to_string(),
@@ -348,7 +352,7 @@ impl Serial {
                 .sum::<u64>()
                 .to_string(),
             "--timeout-seconds".into(),
-            "30".into(),
+            timeout_seconds.to_string(),
             "--run-dir".into(),
             self.trial.report.join(label).display().to_string(),
         ]);
@@ -357,7 +361,7 @@ impl Serial {
         let mut args = self
             .trial
             .args("publish-prepare", "tenant.pem", self.trial.f.tenant);
-        self.limits(&mut args, label);
+        self.limits(&mut args, label, 30);
         args.extend([
             "--uploader-identity".into(),
             self.trial.report.join("uploader.pem").display().to_string(),
@@ -384,7 +388,7 @@ impl Serial {
             "publish-map"
         };
         let mut args = self.trial.args(command, "tenant.pem", self.trial.f.tenant);
-        self.limits(&mut args, label);
+        self.limits(&mut args, label, 30);
         args.extend([
             "--operator-identity".into(),
             self.trial.report.join("uploader.pem").display().to_string(),
@@ -664,7 +668,7 @@ impl Serial {
         browser.send(&json!({"native": {
             "binary":std::env::var("BLOB_CLI_BIN").unwrap(),
             "cwd":repo.canonicalize().unwrap(),
-            "timeoutSeconds":120,
+            "timeoutSeconds":SESSION_TIMEOUT_SECONDS,
             "args":self.session_args(gateway,"session",true),
             "env":{"SSL_CERT_FILE":self.trial.report.join("gateway-ca.pem"),
                 "SSL_CERT_DIR":null,"HTTP_PROXY":"http://127.0.0.1:9",
@@ -910,7 +914,8 @@ impl Serial {
         assert_eq!(retained.uploads.liability_bytes, bytes);
         self.trial.record("summary.json", &json!({"schema":1,
         "evidence":"serial_actual_standalone_native_chromium_local_provider_substitute",
-        "max_active_uploads":1,"confirmed_map_written":!matches!(scenario,Scenario::Corrupt),
+        "max_active_uploads":1,"session_timeout_seconds":SESSION_TIMEOUT_SECONDS,
+        "confirmed_map_written":!matches!(scenario,Scenario::Corrupt),
         "retained_physical_bytes":bytes,"retained_liability_bytes":bytes,
         "provider_puts":browser["puts"],"provider_gets":browser["gets"],
         "browser_restart_preserved":true,"automatic_upload_retries":0,
@@ -927,6 +932,7 @@ fn run_serial(mut serial: Serial, scenario: Scenario, driver: Driver, media: boo
     let config = json!({"url":serial.trial.url,"service":serial.trial.f.service.to_text(),
         "tenant":serial.trial.f.tenant.to_text(),"bucket":"fixture-bucket","worker":matches!(driver,Driver::Worker | Driver::VerifiedWorker | Driver::CoordinatedWorker),
         "coordinated":matches!(driver,Driver::CoordinatedWorker),
+        "timeoutSeconds":SESSION_TIMEOUT_SECONDS,
         "bodies":(0..serial.files.len()).map(|index|serial.trial.report.join(format!("batch/file-{index:04}/body.bin"))).collect::<Vec<_>>(),
         "media":media,"report":serial.trial.report,
         "contentTypes":serial.files.iter().map(|file|file.declaration.headers.iter().find(|header|header.name == "Content-Type").unwrap().value.clone()).collect::<Vec<_>>(),

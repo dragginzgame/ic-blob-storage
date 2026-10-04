@@ -315,6 +315,42 @@ try {
   cases.push('native_driver_requires_exact_current_complete_map_final_report_and_exit_and_cancels_finish');
   await bridge.close(); assert.deepEqual(await readFile(join(native.profile, 'publication-binding.json')), originalNativeBinding);
   cases.push('original_native_session_binding_reopens_and_cannot_be_bypassed_or_rewritten');
+  const shutdownEngine = mode => ({ async launchPersistentContext(...args) {
+    const context = await engine.launchPersistentContext(...args);
+    return {
+      async close() { await context.close(); throw new Error('PRIVATE_SHUTDOWN_DIAGNOSTIC'); },
+      async newPage() {
+        if (mode === 'startup') throw new Error('PRIVATE_STARTUP_DIAGNOSTIC');
+        const page = await context.newPage(); let evaluations = 0;
+        return {
+          goto: (...args) => page.goto(...args),
+          evaluate: (...args) => {
+            if (mode === 'execute' && ++evaluations > 1) throw new Error('PRIVATE_JOB_DIAGNOSTIC');
+            return page.evaluate(...args);
+          },
+        };
+      },
+    };
+  } });
+  const redacted = code => error => refusal(code)(error) && !String(error).includes('PRIVATE_');
+  // Inject only shutdown diagnostics around real contexts; no platform effects
+  // or journal outcomes are substituted. Cleanup must release the original port.
+  await assert.rejects(launchPublicationBrowser(shutdownEngine('startup'), options('open')), redacted('launch'));
+  bridge = await launchPublicationBrowser(shutdownEngine('execute'), options('open'));
+  await assert.rejects(bridge.execute({ id: 1, index: 0, action: 'inspect', binding }), redacted('browser'));
+  await assert.rejects(bridge.execute({ id: 2, index: 0, action: 'inspect', binding }), redacted('closed'));
+  await assert.rejects(bridge.close(), redacted('browser'));
+  bridge = await launchPublicationBrowser(shutdownEngine('close'), options('open'));
+  await assert.rejects(bridge.close(), redacted('browser'));
+  await assert.rejects(bridge.close(), redacted('browser'));
+  bridge = await launchPublicationBrowser(shutdownEngine('close'), native);
+  await assert.rejects(bridge.driveSession(peer(async () => { throw new Error('PRIVATE_CONTROL_DIAGNOSTIC'); })),
+    redacted('native-control'));
+  await assert.rejects(bridge.close(), redacted('browser'));
+  bridge = await launchPublicationBrowser(engine, options('open'));
+  assert.deepEqual((await bridge.execute({ id: 1, index: 0, action: 'inspect', binding })).journal, { present: false });
+  await bridge.close(); assert.deepEqual(await readFile(bindingPath), profileBinding);
+  cases.push('shutdown_diagnostics_are_redacted_preserve_primary_failure_and_release_original_port_and_profile');
   assert.deepEqual(unexpected, []); assert(requests.every(request => request.method === 'GET'));
   await writeFile(join(report, 'summary.json'), JSON.stringify({ schema: 1, cases, requests,
     assetOrigin: origin, unexpected, liveProviderRequests: 0, paidEffects: 0, automaticRetries: 0 }, null, 2), { flag: 'wx', mode: 0o600 });

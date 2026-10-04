@@ -47,8 +47,13 @@ and complete consumer publication remain unqualified. The
 now has a fresh-prefix locked CLI/handoff check and an
 [isolated-source qualification](evidence/caffeine-probes/README.md#isolated-source-tool-installation--2026-10-04)
 with fresh npm dependencies, no Git metadata and matching local media completion/
-recovery. This uses unreleased source and retained Cargo/platform tools; a clean
-released downstream installation and consumer adoption remain open.
+recovery. A separate [clean-release recipe check](evidence/caffeine-probes/README.md#clean-released-source-tool-installation--2026-10-04)
+now qualifies tagged 0.14.3 source, fresh installed tools and matching local media
+completion/recovery. Its prefix and retained Cargo/platform tools belong to this
+repository; consumer-owned installation, adoption and asset registration remain
+open. The [fixture deadline follow-up](evidence/caffeine-probes/README.md#publication-fixture-session-deadline--2026-10-04)
+uses one explicit session bound across original/recovery, browser and parent,
+without changing production timeouts or provider retry authority.
 
 Deletion qualification must retain the exact original service, namespace, object,
 root, incarnation and operation identity before any destructive effect. Record

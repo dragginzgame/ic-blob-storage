@@ -371,6 +371,11 @@ Only one job runs at a time. Request IDs are execution correlation, not durable
 operation identity. Replies stay redacted and retain `service_completion_checked`
 and `retry_authorized` as false. Local body refusals cause no dispatch; a browser
 transport/control failure closes the context and leaves its effects uncertain.
+Shutdown diagnostics are redacted: a rejected context close returns
+`LauncherRefusal('browser')`, while cleanup preserves the original startup or
+control refusal. The asset server is closed even if context close rejects, and
+the profile remains intact. A failed shutdown does not prove worker termination
+or roll back an effect; the caller still owns process cleanup.
 
 First launch requires both a new profile and explicit journal `mode:'create'`.
 Released 0.13.0 adds a private `publication-binding.json` in that profile before
@@ -505,6 +510,9 @@ record fits 16 KiB and later records fit 8 MiB. Framing handles split UTF-8 and
 coalesced lines, rejects malformed/truncated/unsolicited replies and binds phase
 steps in order. It never buffers a second phase queue. The driver still validates
 the full ready/phase contract and the native CLI validates control arguments.
+Unserializable arguments or frames return `NativeSessionRefusal('configuration')`
+without exposing clone/JSON diagnostics. A frame that cannot be encoded writes
+nothing and does not consume a phase; the same session can accept a valid frame.
 
 `finish()` closes stdin and waits for both the final record and subprocess exit;
 it returns `{report, exit_code}`. A successful-looking phase alone cannot qualify

@@ -1,5 +1,60 @@
 # Caffeine probe ledger
 
+## Publication fixture session deadline — 2026-10-04
+
+The [intent](local/2026-10-04-publication-deadline-01/intent.json) precedes two
+local IC/Chromium journeys after a fixture-only deadline consolidation. The
+released fixture supplied 30 seconds to a complete CLI session but 120 seconds
+to browser/subprocess owners. Miner's [reported earlier timeout](https://github.com/dragginzgame/ic-blob-storage/issues/5#issuecomment-5979572702)
+and original claims remain with that consumer; successful runs do not erase it.
+
+One fixture constant now supplies 120 seconds before original/recovery intent,
+browser bootstrap and subprocess ownership. Single-step preparation/query calls
+remain at 30 seconds, and the distinct whole-fixture timer remains 180 seconds.
+No production default, authority, claim, retry policy or provider limit changes.
+
+Matching rebuilt fixture harness/browser tools use the retained released 0.14.3
+CLI/Wasm. Original cached GLB/WebP completes with eleven PUTs/nine GETs and
+8,389,774 physical/liability bytes. PNG/JPEG lost-reply/control-interruption
+recovery passes with seven PUTs/ten GETs and 4,318,116 retained bytes; it adds no
+PUT. Original/recovery commands, saved intents and browser results agree on the
+120-second selection. Complete maps, roots/leaves/whole bytes/cache metadata and
+reference cleanup preserve their maintained behavior. Strict affected Clippy,
+formatting, syntax and exact retained artifact/result hashes pass.
+
+The [summary](local/2026-10-04-publication-deadline-01/summary.json) retains exact
+source/artifact/profiles/results under `.tmp/publication-deadline-01`. Both cases
+pass without a failed probe. This is unreleased fixture evidence, distinct from
+the clean-release check below. Full CI remains pending; no live request, paid
+cycle, release, publication, deployment, sibling change/message or cleanup occurs.
+
+## Clean released source-tool installation — 2026-10-04
+
+The [intent](local/2026-10-04-released-tools-01/intent.json) precedes a clean
+Git archive of `v0.14.3` at `cba9f3da3846758e0bb6aa5fe114786867426911`.
+The released receipt/file hashes match; local tag and remote main agree. A fresh
+native installation prefix reports compiled 0.14.3. Fresh pinned npm dependencies
+build the paired browser tools with Git discovery disabled. Actual SDK/native
+snapshot handoff, repeat-output and corrupt-source refusals pass offline.
+
+Fresh matching release Wasm/harness and exact installed tools complete original
+cached GLB/WebP and recover PNG/JPEG lost replies/control interruption without
+another PUT. Counts and retained bytes match the two deadline journeys above;
+all four original roots, ordered leaves, whole-content digests, cache headers,
+complete maps and original uncertain claims are verified independently.
+
+The [summary](local/2026-10-04-released-tools-01/summary.json) binds all 1,341
+released source files, archive/receipt, toolchain/profiles, binaries/bundles,
+commands, results and original browser profiles under `.tmp/released-tools-01`.
+Both cases pass without a failed probe. These original artifacts retain the
+released fixture's 30-second native and 120-second browser/parent selections.
+This qualifies the clean release recipe in this repository, using existing Cargo
+cache and provisioned Node/Chromium/PocketIC; it is neither a cold machine nor
+consumer-owned installation/adoption. It does not qualify consumer registration,
+game rendering, deployed Caffeine serving/deletion/billing or registry publication.
+No live/paid request, commit, release/deployment, sibling change/message or cleanup
+occurs. Earlier unreleased-source and failed consumer records remain unchanged.
+
 ## GitHub feedback review — 2026-10-04
 
 The [review](local/2026-10-04-gh-issues-review-01/summary.json) captures all seven

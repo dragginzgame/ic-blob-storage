@@ -1,0 +1,97 @@
+{
+  "schema": 1,
+  "date": "2026-10-04",
+  "evidence_class": "local_ic_chromium_fixture_session_deadline_coherence",
+  "source": {
+    "schema": 1,
+    "release": "0.14.3",
+    "baseline": "cba9f3da3846758e0bb6aa5fe114786867426911",
+    "changed": [
+      "tests/browser/launcher-serial.mjs",
+      "tests/pocketic/tests/standalone_browser/serial/mod.rs"
+    ],
+    "production_sources_match_release": true,
+    "memory": "0.24.10",
+    "testkit": "0.14.7",
+    "profiles": "test current harness/browser fixture; released debug CLI and release Wasm",
+    "session_timeout_seconds": 120,
+    "single_step_timeout_seconds": 30,
+    "whole_fixture_timeout_seconds": 180,
+    "released_artifacts": ".tmp/released-tools-01/artifact-SHA256SUMS"
+  },
+  "implementation": "One fixture-owned 120-second session deadline supplies original/recovery native intent, browser bootstrap and native subprocess ownership. Single-step preparation/query calls remain 30 seconds; the distinct whole-fixture timer remains 180 seconds. No production default or retry policy changes.",
+  "journeys": [
+    {
+      "label": "model-complete",
+      "directory": ".tmp/publication-deadline-01/model-complete/multichunk-complete",
+      "roots": [
+        "sha256:cbe3f72987558eba01c56930b49d76ae71a2e79c9ef63d7d2614640ffa3f62e7",
+        "sha256:03d976951b47a9404f819f991697f512085075073ae84172c0baf37c1fe0066c"
+      ],
+      "puts": 11,
+      "gets": 9,
+      "physical_bytes": 8389774,
+      "liability_bytes": 8389774,
+      "confirmed_map": true,
+      "upload_retries": 0,
+      "exact_selected_bundles": true,
+      "original_roots_leaves_and_complete_bytes": true,
+      "cache_control": "public, max-age=31536000, immutable"
+    },
+    {
+      "label": "images-lost",
+      "directory": ".tmp/publication-deadline-01/images-lost/multichunk-lost",
+      "roots": [
+        "sha256:3221bd9a69bda5b6c0a6822a8ae732b0ea780b293f641d8ae8a77ec1505d9102",
+        "sha256:ae002fcd0c2b97b72e9f9f6d013f9b267d4dc6be57dd54e47c6997f6c7fc7f63"
+      ],
+      "puts": 7,
+      "gets": 10,
+      "physical_bytes": 4318116,
+      "liability_bytes": 4318116,
+      "confirmed_map": true,
+      "upload_retries": 0,
+      "exact_selected_bundles": true,
+      "original_roots_leaves_and_complete_bytes": true,
+      "cache_control": "public, max-age=31536000, immutable"
+    }
+  ],
+  "checks": [
+    "Strict affected PocketIC harness Clippy",
+    "Formatting and JavaScript syntax",
+    "Matching rebuilt current fixture harness/browser with released 0.14.3 CLI/Wasm",
+    "Effective original/recovery commands, saved intents and browser reports agree on 120 seconds",
+    "Exact original roots, leaves, whole-content verification and cache headers",
+    "Complete maps, overlapping references and physical/billing obligations",
+    "Lost-reply recovery preserves original uncertain claim with no redispatch"
+  ],
+  "retention": {
+    "root": ".tmp/publication-deadline-01",
+    "source_manifest": ".tmp/publication-deadline-01/source-SHA256SUMS",
+    "artifact_manifest": ".tmp/publication-deadline-01/retained-artifact-SHA256SUMS",
+    "pre_probe_artifact_manifest": ".tmp/publication-deadline-01/artifact-SHA256SUMS",
+    "results_manifest": ".tmp/publication-deadline-01/results-SHA256SUMS",
+    "manifest_hashes": {
+      "source": "e7af49f5080f1250fe5c86052ff5b9755f47d7f3c56f63e207af3551b33d55d8",
+      "retained_artifacts": "1ab7f652cc4319f8ab77d7052cf179b4ac1de6b619192bbd35afffc76697015e",
+      "results": "43d7fc110b0a1cd40830b35849516ae4f42c479f6ba1b30a3f3eb6c99d488e11"
+    },
+    "profiles": "Original profiles retained; excluded from regular-file hashing"
+  },
+  "probe_failures": [],
+  "limits": [
+    "Fixture-only unreleased change; prior clean-release journeys retain their original mixed-deadline artifacts",
+    "Original consumer timeout failure/claims remain with Miner and authorize no replay",
+    "Local provider substitute and repository-owned prefix do not establish consumer adoption, deployed Caffeine guarantees or game rendering"
+  ],
+  "live_provider_requests": 0,
+  "paid_cycles": 0,
+  "full_ci": false,
+  "commits": false,
+  "version_mutation": false,
+  "publication": false,
+  "deployment": false,
+  "sibling_edits": false,
+  "sibling_messages": false,
+  "build_cleanup": false
+}

@@ -17,6 +17,7 @@ import { standaloneGateway } from './standalone-gateway.mjs';
 import { verifyMediaDelivery } from './media-delivery.mjs';
 
 const config = JSON.parse(await readFile(process.argv[2], 'utf8'));
+assert(Number.isSafeInteger(config.timeoutSeconds) && config.timeoutSeconds >= 1 && config.timeoutSeconds <= 600);
 const reservation = createServer();
 await new Promise(resolve => reservation.listen(0, '127.0.0.1', resolve));
 const port = reservation.address().port;
@@ -61,7 +62,7 @@ async function open(mode) {
     bootstrap: { schema: 1, operation: 'bootstrap', signer: { kind: 'ed25519', json: JSON.stringify(signer.toJSON()) },
       configuration: { host: config.url, rootKey: config.rootKey, service: config.service, tenant: config.tenant,
         uploader: signer.getPrincipal().toText(), project: config.project, bucket: config.bucket, origin: gateway.origin,
-        maxBodyBytes, maxRequests, maxRequestBytes, maxTotalRequestBytes: maxBodyBytes + 65536, maxJobs: 32, timeoutSeconds: 120 },
+        maxBodyBytes, maxRequests, maxRequestBytes, maxTotalRequestBytes: maxBodyBytes + 65536, maxJobs: 32, timeoutSeconds: config.timeoutSeconds },
       journal: { database: 'standalone-trial-v1', maxSlots: 2, mode } } }, tls.launch);
 }
 async function job(grant, action) {
@@ -71,6 +72,7 @@ async function job(grant, action) {
 }
 async function coordinate() {
   const selected = await next();
+  assert.equal(selected.native.timeoutSeconds, config.timeoutSeconds);
   let interrupted = false;
   const observed = async value => { send(value); assert.deepEqual(await next(), { accepted: true }); };
   const start = async (args, label) => {
@@ -171,7 +173,8 @@ try {
   send({ outcome: 'passed', provider: 'local HTTPS HTTP/2 substitute', browserBridge: true,
     assetOrigin: config.browserOrigin, puts: state.puts, gets: state.gets, arrivals: state.arrivals,
     journals, workerReports, ...media, reads: state.reads,
-    browserRestarted: true, uploadRetries: 0, liveProviderRequests: 0, paidEffects: 0 });
+    browserRestarted: true, sessionTimeoutSeconds: config.timeoutSeconds,
+    uploadRetries: 0, liveProviderRequests: 0, paidEffects: 0 });
 } finally {
   clearTimeout(deadline); input.close(); process.stdin.pause();
   try {

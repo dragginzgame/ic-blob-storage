@@ -67,7 +67,10 @@ downstream before claiming consumer adoption. Local fresh-prefix installation,
 and predictable transfer-budget refusal now pass. The source copy uses fresh npm
 dependencies and builds without Git metadata; exact installed tools complete
 cached media and recover lost replies. This is unreleased local source, not a
-released downstream installation. Active requests are [publisher #4](https://github.com/dragginzgame/ic-blob-storage/issues/4),
+released downstream installation. The separate [clean-release check](evidence/caffeine-probes/README.md#clean-released-source-tool-installation--2026-10-04)
+now qualifies tagged 0.14.3 tools with a fresh prefix/npm directory and matching
+local completion/recovery in this repository. Consumer-owned installation and
+adoption remain open. Active requests are [publisher #4](https://github.com/dragginzgame/ic-blob-storage/issues/4),
 [delivery #5](https://github.com/dragginzgame/ic-blob-storage/issues/5) and
 [lifetime #6](https://github.com/dragginzgame/ic-blob-storage/issues/6); local package
 reports in Miner are archived, not the active feedback owner.

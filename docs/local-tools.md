@@ -91,6 +91,13 @@ unreleased source and reuses the Cargo cache and provisioned Chromium/PocketIC;
 it is not a cold machine, released-tag acceptance or consumer adoption. A later
 workspace dependency update cannot relabel the frozen tools or their results.
 
+The separate [clean-release check](evidence/caffeine-probes/README.md#clean-released-source-tool-installation--2026-10-04)
+now verifies this recipe from `v0.14.3`, with a fresh native prefix and pinned npm
+directory, no Git discovery and matching 0.14.3 CLI/Wasm. Original cached
+GLB/WebP completes and PNG/JPEG recovers a lost reply without another PUT.
+The prefix/build cache belong to this repository; downstream installation and
+application registration still require consumer acceptance.
+
 ## Prepare one file
 
 Local headless preparation computes the declaration needed for upload admission:
