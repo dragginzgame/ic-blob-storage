@@ -1,6 +1,6 @@
 //! Explicit tenant queries keep historical results separate from current liveness.
 use super::{Failure, arguments::Options, query, read};
-use candid::{CandidType, Deserialize, Principal, de::DecoderConfig, decode_one_with_config};
+use candid::Principal;
 use ic_blob_storage::{
     dto::reference::{
         ReferenceAction, ReferenceChange, ReferenceCommand, ReferenceFailure,
@@ -32,16 +32,6 @@ struct Inspection {
     argument: Vec<u8>,
 }
 
-fn decode<T: CandidType + for<'de> Deserialize<'de>>(bytes: &[u8]) -> Result<T, Failure> {
-    let mut config = DecoderConfig::new();
-    config
-        .set_decoding_quota(100_000)
-        .set_skipping_quota(0)
-        .set_max_type_len(64)
-        .set_max_header_len(4096)
-        .set_full_error_message(false);
-    decode_one_with_config(bytes, &config).map_err(|_| Failure::Arguments)
-}
 fn open(input: &Input, actor: Principal) -> Result<Inspection, Failure> {
     let request: ReferenceStatusRequest = match input.kind {
         Kind::Receipt => {
@@ -52,7 +42,9 @@ fn open(input: &Input, actor: Principal) -> Result<Inspection, Failure> {
                 argument,
             });
         }
-        Kind::Status => decode(&read(&input.request, 4096)?)?,
+        Kind::Status => {
+            crate::native::exact_candid::decode(&read(&input.request, 4096)?, 4096, 64, 100_000)?
+        }
     };
     let argument = reply::status_request(request).map_err(|_| Failure::Arguments)?;
     let upload = request.upload;
@@ -73,7 +65,8 @@ pub(super) fn command(
     path: &Path,
     actor: Principal,
 ) -> Result<(ReferenceCommand, Vec<u8>), Failure> {
-    let request: ReferenceCommand = decode(&read(path, 4096)?)?;
+    let request: ReferenceCommand =
+        crate::native::exact_candid::decode(&read(path, 4096)?, 4096, 64, 100_000)?;
     let argument = reply::receipt_request(request).map_err(|_| Failure::Arguments)?;
     if request.upload.service != service || request.upload.namespace != namespace {
         return Err(Failure::Binding);

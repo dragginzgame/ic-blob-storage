@@ -2,6 +2,27 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- Validate native local-verification permissions through the core's canonical
+  validator before body access or queries, including invalid service principals.
+  Preserve explicit role/scope refusals, byte bounds and original open-file ownership.
+
+- Fence retained browser journal handles when IndexedDB invalidates or closes
+  their connection. Use the same close owner as explicit shutdown, return typed
+  `store-closed` refusals, and refuse a handle invalidated during startup checks.
+  Preserve existing transactions and claims; opening missing storage still refuses.
+
+### Changed
+
+- Consolidate native saved-request and exact installation decoding into one
+  bounded helper. Preserve command-specific byte/work/type limits, no skipped
+  fields, exact single-argument inputs and separate authenticated reply contracts.
+
+- Snapshot browser bootstrap input once and reuse one validated scope and trust
+  root for host jobs and the private payload. Remove the repeated local validation
+  while preserving independent worker checks before storage access.
+
 ## [0.14.4] - 2026-10-04
 
 ### Added

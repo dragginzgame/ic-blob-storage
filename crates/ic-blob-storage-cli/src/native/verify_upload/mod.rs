@@ -3,10 +3,13 @@ use super::{
     Failure, local_body::LocalBody, read, references::upload_json,
     upload_setup::manifest_reply_limits,
 };
-use candid::{Principal, de::DecoderConfig, decode_one_with_config};
+use candid::Principal;
 use ic_blob_storage::{
     dto::upload::{admission::UploadAdmissionRequest, manifest::UploadManifestInspection},
-    ops::service::uploads::manifests::reply::{self, UploadManifestReplyError},
+    ops::service::uploads::{
+        admission::reply::validate_request,
+        manifests::reply::{self, UploadManifestReplyError},
+    },
 };
 use serde_json::{Value, json};
 use std::{num::NonZeroU64, path::Path};
@@ -26,15 +29,8 @@ impl Verification {
         max_bytes: NonZeroU64,
     ) -> Result<Self, Failure> {
         let encoded = read(permission, 4096)?;
-        let mut config = DecoderConfig::new();
-        config
-            .set_decoding_quota(100_000)
-            .set_skipping_quota(0)
-            .set_max_type_len(32)
-            .set_max_header_len(4096)
-            .set_full_error_message(false);
         let permission: UploadAdmissionRequest =
-            decode_one_with_config(&encoded, &config).map_err(|_| Failure::Arguments)?;
+            crate::native::exact_candid::decode(&encoded, 4096, 32, 100_000)?;
         let upload = permission.upload;
         if upload.service != service || upload.namespace != namespace {
             return Err(Failure::Binding);
@@ -42,20 +38,8 @@ impl Verification {
         if actor != upload.tenant && actor != permission.uploader {
             return Err(Failure::Denied);
         }
-        if [
-            upload.namespace,
-            upload.upload,
-            upload.object,
-            upload.incarnation,
-            upload.first_reference,
-        ]
-        .contains(&0)
-            || upload.bytes == 0
-            || upload.bytes > max_bytes.get()
-            || [upload.tenant, permission.uploader]
-                .iter()
-                .any(|p| *p == Principal::anonymous() || *p == Principal::management_canister())
-        {
+        validate_request(permission).map_err(|_| Failure::Arguments)?;
+        if upload.bytes > max_bytes.get() {
             return Err(Failure::Arguments);
         }
         let body = LocalBody::open(body, upload.bytes)?;

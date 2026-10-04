@@ -29,6 +29,21 @@ neither worker termination nor rollback. Scoped pipe/real Chromium checks pass
 without IC/provider requests. Consumer-owned installation/adoption remains open;
 no sibling change or upstream message was made.
 
+The active post-0.14.4 browser batch uses one journal close owner: platform
+invalidation fences retained handles with `store-closed`, and missing storage
+still cannot become a replacement journal. Bootstrap reuses one checked snapshot;
+the worker independently validates its private boundary before storage. Consumers
+must preserve original effect history, stop on invalidation and retain their
+own process/transaction ownership. Closure is not cancellation or rollback.
+Scoped real Chromium checks pass; consumer adoption remains open.
+
+The same batch consolidates native saved-request decoding without changing packet
+formats or command-specific ceilings. Local byte verification now applies the
+core permission validator before opening a body or querying. Consumers should
+keep handling typed structural/scope/role refusals and preserve original journals;
+this change supplies no retry or completion authority. Native offline/local HTTP
+checks pass, with no live provider effects. Adoption remains consumer-owned.
+
 The [local PNG journeys](evidence/caffeine-probes/README.md#distinct-png-publication-and-verified-decoding--2026-10-04)
 now cover distinct decodable images, exact verified downloads and lost-reply/
 corruption behavior through the same driver. Consumers still need their own real

@@ -229,7 +229,10 @@ pub(super) fn run(args: &[String]) -> Result<Value, Failure> {
         InputFiles {
             binding: read(binding_path, BINDING_BYTES)?,
             manifest: read(manifest_path, MANIFEST_BYTES)?,
-            installation: read(installation_path, super::candidate_candid::MAX_BYTES as u64)?,
+            installation: read(
+                installation_path,
+                super::exact_candid::INSTALLATION_BYTES as u64,
+            )?,
             body: body_path.to_owned(),
         },
         maximum,

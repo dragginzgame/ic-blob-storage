@@ -102,6 +102,18 @@ local verifier input, not portable authentication or a distributed submission lo
 the canister's immutable receipt remains authoritative. This command introduces no
 new installation, public DTO or stable-state schema.
 
+Native saved-request and exact installation decoding share `native::exact_candid`.
+It checks total bytes before decoding, rejects skipped fields, extra arguments and
+trailing bytes, and suppresses payload diagnostics. Each caller keeps its existing
+ceilings: 4 KiB small inputs, 16 KiB installation inputs/replies and 64 KiB manifest
+decoding; 100,000 work units, or 2,000,000 for setup; 32 type-table entries for byte
+verification/observation permissions and 64 elsewhere. Setup still reads ordinary
+permissions with a 4 KiB file bound before its shared manifest decoder. File,
+binding and remote-reply refusals stay distinct. Authenticated reply decoders retain
+their separate contracts. Local byte verification uses the core permission validator
+before opening the body or querying; role checks and its own byte ceiling remain
+local. This structural validation grants no completion or retry authority.
+
 ## Service configuration and host
 
 `dto::configuration::ServiceConfigurationInput` supplies explicit service, operator,

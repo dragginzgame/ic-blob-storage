@@ -7,7 +7,7 @@ mod tests;
 use super::{
     Failure,
     artifacts::{FailureRecord, Run},
-    candidate_candid, read,
+    exact_candid, read,
     upload_inputs::{BINDING_BYTES, InputFiles, MANIFEST_BYTES, PreparedInput, digest},
 };
 use serde::Deserialize;
@@ -42,7 +42,7 @@ impl PreparedBatch {
         let inventory_bytes = read(&paths::resolve(&root, "inventory.json")?, INVENTORY_BYTES)?;
         let installation = read(
             &paths::resolve(&root, "installation.candid")?,
-            candidate_candid::MAX_BYTES as u64,
+            exact_candid::INSTALLATION_BYTES as u64,
         )?;
         let summary: Value = serde_json::from_slice(&read(
             &paths::resolve(&root, "summary.json")?,
@@ -82,7 +82,10 @@ impl PreparedBatch {
                 &load("permission.candid", 4096)?,
                 &load("manifest.candid", 65536)?,
                 &load("certificate-binding.json", 65536)?,
-                &load("installation.candid", candidate_candid::MAX_BYTES as u64)?,
+                &load(
+                    "installation.candid",
+                    exact_candid::INSTALLATION_BYTES as u64,
+                )?,
             )?;
         }
         Ok(Self {
@@ -159,7 +162,7 @@ pub(super) fn run(args: &[String]) -> Result<Value, Failure> {
     if inventory.schema != 1 || inventory.files.is_empty() || inventory.files.len() > MAX_FILES {
         return Err(Failure::Arguments);
     }
-    let installation = read(installation_path, candidate_candid::MAX_BYTES as u64)?;
+    let installation = read(installation_path, exact_candid::INSTALLATION_BYTES as u64)?;
     let (prepared, capacity) = preflight(&inventory, &root, &installation, maximum, total_maximum)?;
     let run = Run::create(directory)?;
     run.bytes("inventory.json", &inventory_bytes)?;

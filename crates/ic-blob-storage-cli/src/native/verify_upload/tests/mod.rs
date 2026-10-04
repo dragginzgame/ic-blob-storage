@@ -152,6 +152,39 @@ fn permission_scope_actor_and_resource_bounds_reject_before_query() {
         ),
         Err(Failure::Arguments)
     ));
+    let mutations: [fn(&mut UploadAdmissionRequest); 9] = [
+        |p| p.upload.namespace = 0,
+        |p| p.upload.upload = 0,
+        |p| p.upload.object = 0,
+        |p| p.upload.incarnation = 0,
+        |p| p.upload.first_reference = 0,
+        |p| p.upload.bytes = 0,
+        |p| p.upload.tenant = Principal::anonymous(),
+        |p| p.uploader = Principal::management_canister(),
+        |p| p.upload.service = Principal::anonymous(),
+    ];
+    for mutate in mutations {
+        let mut invalid = p;
+        mutate(&mut invalid);
+        std::fs::write(
+            dir.path().join("permission"),
+            candid::encode_one(invalid).unwrap(),
+        )
+        .unwrap();
+        assert_eq!(
+            Verification::open(
+                invalid.upload.service,
+                invalid.upload.namespace,
+                p.upload.tenant,
+                &dir.path().join("permission"),
+                &dir.path().join("missing-body"),
+                3.try_into().unwrap(),
+            )
+            .map(|_| ()),
+            Err(Failure::Arguments),
+            "{invalid:?}"
+        );
+    }
     std::fs::write(dir.path().join("permission"), vec![0; 4097]).unwrap();
     assert!(matches!(open(dir.path(), p), Err(Failure::File)));
 }

@@ -13,6 +13,8 @@ const require = (condition, code) => { if (!condition) throw new BootstrapRefusa
 
 function input(value) {
   fields(value, ['schema', 'operation', 'signer', 'configuration', 'journal']);
+  // Own one passive bootstrap before reading its fields or constructing identity.
+  value = structuredClone(value);
   require(value.schema === 1 && value.operation === 'bootstrap', 'bootstrap');
   fields(value.signer, ['kind', 'json']);
   require(['ed25519', 'secp256k1'].includes(value.signer.kind) &&
@@ -31,12 +33,12 @@ function input(value) {
     'maxTotalRequestBytes', 'maxJobs', 'timeoutSeconds']);
   fields(value.journal, ['database', 'maxSlots', 'mode']);
   require(validJournalConfiguration(value.journal), 'journal');
-  const checked = publicationConfiguration({ ...value.configuration, identity, intents: null });
-  const owned = structuredClone({ ...value,
-    configuration: { ...value.configuration, rootKey: checked.rootKey } });
-  const options = { ...owned.configuration, identity, intents: null };
-  const worker = publicationConfiguration(options); // Validate every binding/budget before storage.
-  return { options, worker, journal: owned.journal, payload: owned };
+  // Validate every binding/budget before storage; reuse that checked scope for
+  // host jobs. The independently launched worker still validates its boundary.
+  const worker = publicationConfiguration({ ...value.configuration, identity, intents: null });
+  value.configuration.rootKey = worker.rootKey;
+  const options = { ...value.configuration, identity, intents: null };
+  return { options, worker, journal: value.journal, payload: value };
 }
 
 /** Serve one bootstrap on an already trusted private port, then maintained jobs.

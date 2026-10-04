@@ -4,9 +4,9 @@ Date: 2026-10-04
 
 ## Released baseline
 
-Released **0.14.3** is at `cba9f3da3846758e0bb6aa5fe114786867426911`,
-with validated source `7e569f4c0e87b40ec60a58cd2e18140790990b5a`.
-Local tag and remote main agree. [Cargo](../../Cargo.toml),
+Released **0.14.4** is at `0c185fd1acdabba11d83a0a72f7ead1b24b4b506`,
+with validated source `8bf827f4622f9723d09c538ea407f155e86a6bc7`.
+Local tag and HEAD agree; the maintainer reports the release live. [Cargo](../../Cargo.toml),
 [the release receipt](../release.json) and [the changelog](../../CHANGELOG.md)
 own release metadata. This source release does not prove registry publication,
 consumer adoption or deployed provider behavior.
@@ -66,7 +66,9 @@ harness/browser and released CLI/Wasm identities remain under
 `.tmp/publication-deadline-01`, separately from clean-release observations.
 No full CI, version mutation, commit, GitHub write, registry publication,
 deployment, live provider request, paid cycle, sibling edit/message or cleanup
-occurs in this batch.
+occurred in those retained qualification runs. The maintainer subsequently
+released the fixture and failure-boundary fixes as 0.14.4; their frozen artifacts
+retain their original 0.14.3 identities.
 
 The follow-up browser/native failure-boundary fixes redact Chromium shutdown
 diagnostics and preserve the original startup/control refusal during cleanup.
@@ -90,11 +92,50 @@ They do not requalify the frozen media/provider observations above. A rejected
 Chromium close does not prove worker termination; consumers still own cleanup
 and adoption of the selected tools.
 
+### Active batch after 0.14.4
+
+Browser journal handles now have one close owner for explicit shutdown, platform
+version-change and unexpected connection closure. New operations return typed
+`store-closed` after invalidation; startup also refuses an invalidated connection.
+Already-started transactions may finish, with no cancellation, rollback, reset or
+replacement history. A real Chromium version-change event reproduced numeric
+DOMException code 11 before the fix; the updated check uses only an empty dedicated
+fixture database. All retained effect journals stay intact.
+
+Bootstrap now owns one passive snapshot and validates one scope/trust root for
+host jobs and its private payload. Independent worker boundary validation remains.
+Actual Chromium store, bootstrap and launcher checks pass, including cross-tab
+claims, cancelled/uncertain history, missing-store refusal, 675-row restart
+preservation, invalid signer/scope controls before storage and profile/control
+failures. Browser bundles rebuild; JavaScript syntax and diff checks pass.
+Original failure and final logs/profiles remain under `.tmp/browser-journal-lifecycle-01`
+and its recorded store profile. No IC/provider request, paid effect, full CI,
+dependency/version change, commit, deployment or sibling change is performed.
+Consumer-owned installation/adoption and certified asset transactions remain open.
+
+Native saved-request and exact installation decoding now use one bounded helper,
+replacing repeated decoder setup. Each caller retains its byte/work/type ceilings;
+exact arity, no skipped fields and redacted diagnostics have one owner. Ordinary
+authenticated reply decoders retain their separate contracts. The extra-argument
+suspect was ruled out by the original focused test; this is consolidation, not a
+claimed arity vulnerability. No packet, journal, wire or stable-state layout changes.
+
+Local byte verification also delegates permission structure to the core validator,
+preserving scope/actor checks, its local byte bound and original open-file ownership.
+The original verifier fails the new invalid-permission regression before body/query
+access; the maintained validator passes. Native CLI tests pass, including original
+recovery/signed claims, exact installation checks, corrupt/changing files and owned
+loopback transport fixtures. Strict CLI Clippy and formatting pass. Original logs,
+failed intermediate checks and final source hashes remain under
+`.tmp/native-request-decoding-01`. These are offline/local HTTP checks, with no live
+IC/provider calls or paid cycles; they do not qualify deployed provider behavior.
+
 ### GitHub issue disposition
 
 The latest read-only refresh still finds seven open issues and seventeen comments,
 with no newer discussion than the [retained review](../evidence/caffeine-probes/local/2026-10-04-gh-issues-review-01/summary.json).
-This batch verifies remote main is now released 0.14.3; no issue/comment is changed.
+That review verified remote main at 0.14.3; the current 0.14.4 baseline is established
+from local release records and the maintainer's report. No issue/comment is changed.
 
 | Issue | Repository result | Remaining action |
 | --- | --- | --- |

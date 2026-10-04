@@ -130,6 +130,8 @@ fn malformed_or_invalid_permission_refuses_and_partial_runs_are_never_resumed() 
     let args = args(base.path(), permission(), "release");
     for bytes in [
         b"invalid".to_vec(),
+        candid::encode_args((permission(), candid::Reserved)).unwrap(),
+        candid::encode_args((permission(), ())).unwrap(),
         candid::encode_one(ReferenceCommand {
             upload: permission().upload,
             reference: 1,

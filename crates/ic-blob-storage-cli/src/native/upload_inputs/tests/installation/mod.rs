@@ -39,7 +39,7 @@ fn exact_candidate_decoding_and_file_bounds_refuse_before_output() {
         (b"not candid".to_vec(), Failure::Arguments),
         (vec![], Failure::File),
         (
-            vec![0; crate::native::candidate_candid::MAX_BYTES + 1],
+            vec![0; crate::native::exact_candid::INSTALLATION_BYTES + 1],
             Failure::File,
         ),
         (

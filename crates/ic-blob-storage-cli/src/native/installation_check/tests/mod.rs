@@ -72,10 +72,9 @@ fn complete_offline_check_preserves_proposal_without_allocating_or_replacing() {
         ContentDigest::compute(&installation).to_string()
     );
     let encoded: ServiceInstallationInput = candid::decode_one(&installation).unwrap();
-    assert_eq!(
-        encoded.configuration,
-        decode::<ServiceConfigurationInput>(&original).unwrap()
-    );
+    let decoded: ServiceConfigurationInput =
+        exact_candid::decode(&original, CONFIGURATION_BYTES, 64, 100_000).unwrap();
+    assert_eq!(encoded.configuration, decoded);
     assert_eq!(encoded.project, "isolated local fixture/β");
     assert_eq!(
         encoded.completion_verifier.to_text(),
@@ -147,7 +146,8 @@ fn complete_offline_check_preserves_proposal_without_allocating_or_replacing() {
 
 #[test]
 fn complete_validator_refuses_inconsistent_limits_bindings_and_authorities_before_output() {
-    let original: ServiceConfigurationInput = decode(&fixture()).unwrap();
+    let original: ServiceConfigurationInput =
+        exact_candid::decode(&fixture(), CONFIGURATION_BYTES, 64, 100_000).unwrap();
     let setters: [fn(&mut ServiceConfigurationInput); 6] = [
         |input| input.namespace = 0,
         |input| input.operator = Principal::anonymous(),
@@ -189,7 +189,8 @@ fn complete_validator_refuses_inconsistent_limits_bindings_and_authorities_befor
 
 #[test]
 fn bounded_exact_input_refuses_malformed_extra_or_ambiguous_arguments() {
-    let input: ServiceConfigurationInput = decode(&fixture()).unwrap();
+    let input: ServiceConfigurationInput =
+        exact_candid::decode(&fixture(), CONFIGURATION_BYTES, 64, 100_000).unwrap();
     let mut trailing = fixture();
     trailing.push(0);
     for (bytes, expected) in [

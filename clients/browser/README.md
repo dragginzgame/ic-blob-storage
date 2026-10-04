@@ -266,6 +266,9 @@ Caffeine patch and pinned peers, and serve it from a trusted application asset
 origin. The host transfers one private port; SDK identity JSON and configuration
 cross only that port. There is no public window handler, HTTP credential route,
 identity discovery or default signer.
+Each bootstrap owns one input snapshot and validates its scope and trust root
+before opening storage. Host jobs reuse that checked scope; the separately
+launched worker validates its own private-port boundary independently.
 
 ```js
 import { createPublicationWorkerHost } from './bootstrap.js';
@@ -703,7 +706,11 @@ page state and preserve any outstanding obligations when retiring it.
 `maxSlots` is an immutable lifetime bound from 1 to 1,000,000. Cancelled and dispatched
 rows still occupy slots; capacity is never refunded. The current v1 schema has no
 migration, deletion, reset or old-profile activation API. `close()` releases the
-connection only. The optional `indexedDB` factory is a trusted platform boundary,
+connection only. Explicit close, IndexedDB version-change and unexpected connection
+closure fence the same retained handle; subsequent operations return `store-closed`.
+Already-started transactions may finish, so closure is neither cancellation nor
+rollback. Startup refuses if its connection is invalidated during validation.
+The optional `indexedDB` factory is a trusted platform boundary,
 defaulting to the browser's own IndexedDB implementation.
 
 The ceiling does not preallocate rows or qualify a million-row workload. Actual

@@ -6,7 +6,7 @@ mod sources;
 mod transfer;
 mod verification;
 use crate::native::{
-    Failure, agent, agent_for, arguments::Options, artifacts::Run, candidate_candid, publish_check,
+    Failure, agent, agent_for, arguments::Options, artifacts::Run, exact_candid, publish_check,
     publish_inputs::PreparedBatch, publish_map, publish_prepare, upload_inputs::digest,
 };
 use ic_agent::Agent;
@@ -103,7 +103,12 @@ pub(super) async fn run(options: &Options, input: &Input) -> Result<Value, Failu
     if input.max_steps > 8 * batch.files.len() as u64 + 1 {
         return Err(Failure::Arguments);
     }
-    let installation: ServiceInstallationInput = candidate_candid::decode(&batch.installation)?;
+    let installation: ServiceInstallationInput = exact_candid::decode(
+        &batch.installation,
+        exact_candid::INSTALLATION_BYTES,
+        64,
+        100_000,
+    )?;
     let actors = Actors {
         tenant: agent(options)?,
         operator: agent_for(

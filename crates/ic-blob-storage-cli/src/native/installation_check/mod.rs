@@ -1,5 +1,5 @@
 //! Offline complete candidate validation and init encoding; no platform or provider effect.
-use super::{Failure, artifacts::Run, candidate_candid, read};
+use super::{Failure, artifacts::Run, exact_candid, read};
 use ic_blob_storage::{
     dto::configuration::ServiceInstallationInput,
     model::identity::ContentDigest,
@@ -8,11 +8,9 @@ use ic_blob_storage::{
 use serde_json::{Value, json};
 use std::path::Path;
 
-const CONFIGURATION_BYTES: usize = candidate_candid::MAX_BYTES;
+const CONFIGURATION_BYTES: usize = exact_candid::INSTALLATION_BYTES;
 
 use super::parsing::principal;
-
-use candidate_candid::decode;
 
 pub(super) fn run(args: &[String]) -> Result<Value, Failure> {
     let mut flags = super::parsing::flags(&args[1..])?;
@@ -28,7 +26,7 @@ pub(super) fn run(args: &[String]) -> Result<Value, Failure> {
         return Err(Failure::Arguments);
     }
     let bytes = read(path, CONFIGURATION_BYTES as u64)?;
-    let configuration = decode(&bytes)?;
+    let configuration = exact_candid::decode(&bytes, CONFIGURATION_BYTES, 64, 100_000)?;
     let candidate = ServiceInstallationCandidate {
         configuration,
         project,

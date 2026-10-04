@@ -1,6 +1,6 @@
 //! Compare saved intent to immutable service history without resending it.
 use super::{Failure, read, references::upload_json};
-use candid::{Principal, de::DecoderConfig, decode_one_with_config};
+use candid::Principal;
 use ic_blob_storage::{
     dto::upload::completion::{UploadAttestationLookup, UploadAttestationRequest},
     model::{identity::ContentDigest, service::upload::completion::CompletionAuthority},
@@ -57,18 +57,8 @@ impl Recovery {
         actor: Principal,
         bytes: &[u8],
     ) -> Result<Self, Failure> {
-        if bytes.len() > 4096 {
-            return Err(Failure::Arguments);
-        }
-        let mut config = DecoderConfig::new();
-        config
-            .set_decoding_quota(100_000)
-            .set_skipping_quota(0)
-            .set_max_type_len(64)
-            .set_max_header_len(4096)
-            .set_full_error_message(false);
         let statement: UploadAttestationRequest =
-            decode_one_with_config(bytes, &config).map_err(|_| Failure::Arguments)?;
+            crate::native::exact_candid::decode(bytes, 4096, 64, 100_000)?;
         let authority = CompletionAuthority::new(
             service,
             namespace.try_into().map_err(|_| Failure::Arguments)?,

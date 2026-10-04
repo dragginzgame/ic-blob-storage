@@ -1,6 +1,6 @@
 //! Complete authenticated reference observations; never a serving or publication lease.
 use super::{
-    Failure, arguments::Options, artifacts::Run, candidate_candid, publish_check, publish_inputs,
+    Failure, arguments::Options, artifacts::Run, exact_candid, publish_check, publish_inputs,
 };
 use candid::Principal;
 use ic_blob_storage::{
@@ -80,7 +80,12 @@ pub(super) async fn run(options: &Options, input: &Input) -> Result<Value, Failu
     if limits.max_queries < required_queries {
         return Err(Failure::ReplyLimit);
     }
-    let installation: ServiceInstallationInput = candidate_candid::decode(&batch.installation)?;
+    let installation: ServiceInstallationInput = exact_candid::decode(
+        &batch.installation,
+        exact_candid::INSTALLATION_BYTES,
+        64,
+        100_000,
+    )?;
     let agent = super::agent(options)?;
     let operator = super::agent_for(
         options,
@@ -255,12 +260,18 @@ pub(in crate::native) fn decode_configuration(
     batch: &publish_inputs::PreparedBatch,
     bytes: &[u8],
 ) -> Result<HostConfigurationView, Failure> {
-    let installation: ServiceInstallationInput = candidate_candid::decode(&batch.installation)?;
-    if bytes.len() > candidate_candid::MAX_BYTES {
+    let installation: ServiceInstallationInput = exact_candid::decode(
+        &batch.installation,
+        exact_candid::INSTALLATION_BYTES,
+        64,
+        100_000,
+    )?;
+    if bytes.len() > exact_candid::INSTALLATION_BYTES {
         return Err(Failure::ReplyLimit);
     }
     let host: Result<HostConfigurationView, HostFailure> =
-        candidate_candid::decode(bytes).map_err(|_| Failure::InvalidReply)?;
+        exact_candid::decode(bytes, exact_candid::INSTALLATION_BYTES, 64, 100_000)
+            .map_err(|_| Failure::InvalidReply)?;
     let host = host.map_err(|_| Failure::Denied)?;
     if host.configuration != installation.configuration
         || host.project != installation.project

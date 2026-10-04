@@ -51,6 +51,24 @@ try {
   assert.equal(await a.evaluate(() => refusal(() => createIntentStore({ ...options, maxSlots: 1_000_001, mode: 'create' }))), 'configuration');
   await a.evaluate(async () => { window.store = await createIntentStore({ ...options, mode: 'create' }); });
   await b.evaluate(async () => { window.store = await createIntentStore({ ...options, mode: 'open' }); });
+  // A real version-change event invalidates the old connection. Destroy only
+  // this empty dedicated fixture database; retained effect journals stay intact.
+  const invalidated = await a.evaluate(async () => {
+    const selected = { database: 'invalidated-empty-journal-v1', maxSlots: 1 };
+    const journal = await createIntentStore({ ...selected, mode: 'create' });
+    await new Promise((resolve, reject) => {
+      const deletion = indexedDB.deleteDatabase(selected.database);
+      deletion.onsuccess = resolve; deletion.onerror = () => reject(deletion.error);
+    });
+    const inspect = await refusal(() => journal.inspect(binding('1')));
+    const save = await refusal(() => journal.save(binding('1')));
+    journal.close(); journal.close();
+    const reopen = await refusal(() => createIntentStore({ ...selected, mode: 'open' }));
+    const present = (await indexedDB.databases()).some(db => db.name === selected.database);
+    return { inspect, save, reopen, present };
+  });
+  assert.deepEqual(invalidated, { inspect: 'store-closed', save: 'store-closed',
+    reopen: 'store-missing', present: false });
   assert.equal(await b.evaluate(() => refusal(() => createIntentStore({ ...options, mode: 'create' }))), 'store-exists');
   assert.equal(await b.evaluate(() => refusal(() => createIntentStore({ ...options, maxSlots: 2, mode: 'open' }))), 'store-configuration');
   await a.evaluate(async () => {
@@ -181,6 +199,7 @@ try {
   console.log(JSON.stringify({ outcome: 'passed', browser: context.browser().version(), profile,
     facts: ['missing-store refusal', 'immutable capacity', 'argument snapshots', 'cross-tab claim',
       'permanent cancellation', 'bounded gateway history', 'browser restart persistence',
+      'version-change closure fences retained handles without recreating missing storage',
       'immutable project/bucket', 'UTF-8 and header byte bounds', 'corrupt-history refusal',
       '675 lifetime rows with strict commits and restart preservation',
       'one-million configured ceiling with one retained cancelled row across restart'],

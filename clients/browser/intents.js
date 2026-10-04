@@ -127,8 +127,15 @@ export async function createIndexedDBIntentStore({ database, maxSlots, mode,
       settled = true; resolve(result);
     };
   });
-  db.onversionchange = () => db.close();
   let closed = false;
+  function close() {
+    if (closed) return;
+    closed = true; db.close();
+  }
+  // Platform invalidation must fence retained handles just like explicit close.
+  // Already-started transactions may finish; closing never clears their claims.
+  db.onversionchange = close;
+  db.onclose = close;
   function transaction(saved, mutate) {
     require(!closed, 'store-closed');
     return new Promise((resolve, reject) => {
@@ -177,12 +184,13 @@ export async function createIndexedDBIntentStore({ database, maxSlots, mode,
       require(store.keyPath === 'key' && store.indexNames.length === 0, 'store-schema');
     }
     await transaction();
-  } catch (error) { db.close(); throw error; }
+    require(!closed, 'store-closed');
+  } catch (error) { close(); throw error; }
   // Validate and snapshot all caller-owned arguments before the first storage await.
   const snapshot = value => binding(structuredClone(value));
   const change = (saved, fn) => transaction(saved, fn);
   return Object.freeze({
-    close() { closed = true; db.close(); },
+    close,
     inspect(input) { return transaction(snapshot(input)); },
     save(input) {
       const saved = snapshot(input);

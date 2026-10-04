@@ -28,6 +28,16 @@ fn input() -> (tempfile::TempDir, Input, DownloadRequest) {
 fn download_binds_exact_reference_and_project_before_any_output_or_provider_request() {
     let (_temp, input, request) = input();
     let (_, scope) = open(&input, request.tenant).unwrap();
+    std::fs::write(
+        &input.request,
+        candid::encode_args((request, candid::Reserved)).unwrap(),
+    )
+    .unwrap();
+    assert!(matches!(
+        open(&input, request.tenant),
+        Err(Failure::Arguments)
+    ));
+    std::fs::write(&input.request, candid::encode_one(request).unwrap()).unwrap();
     assert_eq!(
         open(&input, Principal::self_authenticating([2])).unwrap_err(),
         Failure::Binding
