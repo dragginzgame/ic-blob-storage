@@ -1,5 +1,55 @@
 # Caffeine probe ledger
 
+## PNG image loading under CSP — 2026-10-04
+
+The [intent](local/2026-10-04-media-csp-01/intent.json) precedes seven bounded
+local IC/Chromium/SDK attempts using the owned HTTPS/HTTP2 substitute. One test
+helper now owns PNG expectations, downloaded-byte decoding, direct fetch checks
+and ordinary anonymous image loading. It consumes canonical retained native
+download URLs; provider targets, native verification and paid-claim journals
+retain their existing owners. No product API, wire/storage layout or retry owner
+changes.
+
+Separate same-publication-origin pages use `default-src 'none'` with an explicit
+allowed provider `img-src`. Images decode with expected dimensions/pixels and
+readable canvas data. A page with `img-src 'none'` refuses the image, reports the
+enforced directive and makes zero provider GETs. Raw policy events remain
+retained; sampled pixels and DOM decoding do not replace native whole-content
+verification. Direct fetch and opaque-origin CORS checks remain maintained.
+
+All six final journeys pass: multi-chunk completion/lost-final-reply recovery,
+small-PNG completion/recovery, tail-corruption refusal and original synthetic
+restart. Multi-chunk successes each make five PUTs/ten GETs; small-PNG successes
+make four PUTs/nine GETs. No recovery adds a PUT. Tail corruption retains three
+PUTs/one GET and stops before the next admission; synthetic restart retains four
+PUTs/four GETs. Both large success cases retain 1,050,157 physical/liability bytes
+after final first-object reference release, with 1,102 logical bytes. Saved public
+URLs and ordinary images still work after release although descriptors refuse;
+neither CORS nor CSP grants service revocation of public URLs or copies.
+
+The initial large completion attempt failed after five PUTs/nine GETs because
+the fixture expected an origin-only CSP `blockedURI`; Chromium reported the full
+canonical URL. The corrected assertion checks its parsed origin and typed
+directive/disposition, retaining the raw event. The failed attempt, exact earlier
+source/bundle and request trace remain preserved. Bounded private traces are now
+written even when a fixture assertion fails; original histories remain intact.
+
+Fresh CLI/Wasm/harness/browser builds, syntax and Rust formatting pass. Two
+installation/Candid checks pass with independently selected expected release
+0.14.1, exact configuration readback, controller denial and wrong-service
+refusal. These artifacts use ic-memory 0.24.5 and ic-testkit 0.14.4; previous
+records retain their original 0.14.0 binaries. The
+[summary](local/2026-10-04-media-csp-01/summary.json) binds every attempt, source,
+artifact, request trace, original profile/journal and downloaded bytes under
+`.tmp/media-csp-01`; public intent/summary hashes join the local manifest.
+
+Owned processes/sockets have exited and temporary TLS keys are removed; retained
+evidence and build artifacts remain. Authored PNGs and policy do not qualify
+consumer assets/transactions, deployed Caffeine replies/MIME/CORS/cache/CSP,
+future retention, deletion or billing cessation. No full CI, sibling edit/message,
+release/publication, deployment, live provider request, paid cycle or build cleanup
+occurs. Both frozen live owners retain their original obligations unchanged.
+
 ## Direct browser URL delivery — 2026-10-04
 
 The [intent](local/2026-10-04-public-delivery-01/intent.json) precedes six bounded

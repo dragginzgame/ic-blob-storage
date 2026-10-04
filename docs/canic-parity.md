@@ -31,6 +31,13 @@ Consumers must not treat CORS or reference release as public-access revocation:
 saved URLs may remain accessible after authenticated descriptors refuse. Qualify
 the deployed origin, cache/CSP and access policy with real consumer media.
 
+The [local image/CSP checks](evidence/caffeine-probes/README.md#png-image-loading-under-csp--2026-10-04)
+load ordinary anonymous images under an explicit allowed provider origin and
+refuse blocked images before any provider request. Consumers must choose and
+qualify their actual image/fetch origins and CSP with real assets. This authored
+policy does not establish their production policy, asset transaction or serving
+guarantees; native whole-content verification retains its separate authority.
+
 | Action | Required consumer work | State |
 | --- | --- | --- |
 | Native phase guidance and callable driver | Released 0.14.0 `next_frame` comes from checked native results/original sources. Use `startPublicationSession` with explicitly selected binary/native key paths and `browser.driveSession(native)` with the selected verifier. The driver owns exact complete-map/final-report/exit-zero acceptance; retain its `native_result` and consume only `state:'complete'`. Private peers must implement ready/phase/finish with cancellation. Keep original keys/profile/session for explicit restart. Fresh status starts at index zero; original recovery never authorizes another upload. Do not recreate pipe transport, phase policy, completion checks or a dispatch journal downstream. | Direct native-pipe IC/Chromium restart and corruption cases pass; consumer key/history selection, asset transaction, adoption and rollback resistance remain open |

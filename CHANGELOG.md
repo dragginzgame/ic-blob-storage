@@ -2,6 +2,34 @@
 
 ## [Unreleased]
 
+## [0.14.2]
+
+### Added
+
+- Exercise ordinary PNG image loading from canonical native download URLs under
+  an explicit local Content Security Policy. Allowed anonymous images decode
+  with readable canvas pixels; blocked images produce an enforced `img-src`
+  violation without reaching the provider substitute. Cover small/multi-chunk
+  completion and lost-reply recovery; native whole-content verification remains
+  authoritative and deployed consumer serving policies remain unqualified.
+
+### Changed
+
+- Give browser media fixtures one helper for downloaded-byte decoding, direct
+  URL checks and CSP image checks. Reuse frozen body expectations and the native
+  target owner instead of reconstructing download routes or duplicating sampling.
+- Retain private bounded browser request traces when fixture assertions fail,
+  alongside original profiles, journals and native evidence. Keep failed attempts
+  and their exact source/bundle identities in the probe ledger.
+
+### Fixed
+
+- Fetch locked Rust dependencies before the CI, validation and release gate's
+  offline checks. Dependency updates no longer require manual cache preparation
+  for that gate; failed fetching stops before validation or version mutation.
+  Keep scoped checks offline, preserve versions/build artifacts and test both
+  ordering and failure handling with isolated Cargo substitutes.
+
 ## [0.14.1] - 2026-10-04
 
 ### Added

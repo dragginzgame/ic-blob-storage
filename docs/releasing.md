@@ -29,8 +29,10 @@ qualification. PocketIC requires the explicitly provisioned server and local
 loopback access; see [dependency setup](dependencies.md). Install the pinned Rust
 toolchain, rustfmt, Clippy, wasm32-unknown-unknown target, ShellCheck, Perl (with
 core JSON::PP and Digest::SHA), ripgrep, Bash, flock, Git and Make beforehand.
-Library validation uses offline Cargo commands; future dependency changes
-must populate the local Cargo cache before release.
+The gate first runs `make deps` (`cargo fetch --locked`) to populate the local
+cache for the current lockfile, including after dependency updates. Fetching may
+use the network and stops the release on failure before validation or version
+mutation. Compilation/tests then use offline, locked Cargo commands.
 
 `make release-check` tests the release helpers using isolated fixtures and
 substituted Git/Cargo/validation commands. Successful runs print a fixture

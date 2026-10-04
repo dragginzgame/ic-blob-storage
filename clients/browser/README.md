@@ -549,6 +549,14 @@ final reference release. The service controls descriptor issuance; it cannot
 recall saved URLs or copies. These fixture checks do not qualify deployed
 Caffeine MIME/CORS/cache/CSP, retention or a consumer access policy.
 
+The [local image/CSP checks](../../docs/evidence/caffeine-probes/README.md#png-image-loading-under-csp--2026-10-04)
+also load ordinary anonymous `<img>` elements on the publication origin under
+`default-src 'none'` and an explicit provider `img-src`. Allowed images decode
+with readable canvas pixels; `img-src 'none'` prevents any provider request and
+reports an enforced policy violation. Decoding and sampled pixels do not replace
+native whole-content verification. Consumers still need to choose and qualify
+their actual image/fetch origins, CSP and real assets against deployed serving.
+
 On the Rust side, `ops::caffeine::preparation::decode_prepared_manifest` converts
 the upstream `manifestJSON` into the existing service declaration within explicit
 JSON/content/leaf/header limits. It reuses metadata and root checks; it grants no

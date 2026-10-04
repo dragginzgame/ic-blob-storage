@@ -14,6 +14,7 @@ import { startPublicationSession } from '../../clients/browser/native.mjs';
 import { createHash } from 'node:crypto';
 import { loopbackTLS, loopbackH2 } from './tls.mjs';
 import { standaloneGateway } from './standalone-gateway.mjs';
+import { verifyMediaDelivery } from './media-delivery.mjs';
 
 const config = JSON.parse(await readFile(process.argv[2], 'utf8'));
 const reservation = createServer();
@@ -121,9 +122,7 @@ async function coordinate() {
   workerReports.push(result);
 }
 const deadline = setTimeout(() => { console.error('Native browser bridge trial exceeded 180 seconds'); process.exit(1); }, 180000);
-const decodedMedia = [];
-const publicDelivery = [];
-let opaqueOriginRefused = false;
+let media = { decodedMedia: [], publicDelivery: [], opaqueOriginRefused: false, csp: null };
 try {
   const files = await Promise.all(bodies.map(async body => {
     const prepared = await StorageClient.prepareFile(body, 'image/png');
@@ -157,79 +156,30 @@ try {
   assert.equal(state.failure, undefined); assert.deepEqual(unexpected, []);
   assert.equal(state.puts.length, config.corruptRead ? requestCounts[0] : requestCounts.reduce((sum, count) => sum + count, 0));
   if (config.media && !config.corruptRead) {
-    const page = context.pages().find(page => page.url() === `${config.browserOrigin}/`);
-    assert(page); // The persistent context also has an unrelated about:blank page.
-    for (const index of [0, 1]) {
-      const expected = { width: bodies[index].readUInt32BE(16), height: bodies[index].readUInt32BE(20),
-        pixel: index === 0 ? [200, 30, 60, 255] : [20, 180, 210, 255] };
-      const delivered = await readFile(join(config.report, `download-${index}`, 'body.bin'));
-      assert.deepEqual(delivered, bodies[index]);
-      const decoded = await context.pages()[0].evaluate(async bytes => {
-        const image = await createImageBitmap(new Blob([new Uint8Array(bytes)], { type: 'image/png' }));
-        try {
-          const canvas = new OffscreenCanvas(image.width, image.height), painter = canvas.getContext('2d');
-          painter.drawImage(image, 0, 0);
-          return { width: image.width, height: image.height, pixel: [...painter.getImageData(0, 0, 1, 1).data] };
-        } finally { image.close(); }
-      }, [...delivered]);
-      assert.deepEqual(decoded, expected);
-      decodedMedia.push({ index, sha256: digest(delivered), ...decoded });
-      const request = JSON.parse(await readFile(join(config.report, `download-${index}`, 'download-request.json')));
-      assert.equal(new URL(request.url).origin, gateway.origin);
-      assert.equal(request.method, 'GET');
-      // Use the native owner's retained target, including after logical release.
-      // This is an owned serving substitute, not a public-access revocation test.
-      const served = await page.evaluate(async url => {
-        const response = await fetch(url, { credentials: 'omit', redirect: 'error', cache: 'no-store',
-          signal: AbortSignal.timeout(10000) });
-        const bytes = await response.arrayBuffer();
-        const hash = await crypto.subtle.digest('SHA-256', bytes);
-        const image = await createImageBitmap(new Blob([bytes], { type: response.headers.get('content-type') }));
-        try {
-          const canvas = new OffscreenCanvas(image.width, image.height), painter = canvas.getContext('2d');
-          painter.drawImage(image, 0, 0);
-          return { origin: location.origin, status: response.status, type: response.type, url: response.url,
-            mime: response.headers.get('content-type'), declaredBytes: response.headers.get('content-length'),
-            bytes: bytes.byteLength, sha256: [...new Uint8Array(hash)].map(value => value.toString(16).padStart(2, '0')).join(''),
-            width: image.width, height: image.height, pixel: [...painter.getImageData(0, 0, 1, 1).data] };
-        } finally { image.close(); }
-      }, request.url);
-      assert.deepEqual(served, { origin: config.browserOrigin, status: 200, type: 'cors', url: request.url,
-        mime: 'image/png', declaredBytes: String(bodies[index].length), bytes: bodies[index].length,
-        sha256: digest(bodies[index]), ...expected });
-      publicDelivery.push({ index, afterFinalRelease: !!config.overlap && index === 0, ...served });
-    }
+    media = await verifyMediaDelivery(context, config, bodies, gateway.origin, state);
     assert.notEqual(files[0].hash, files[1].hash);
     if (bodies[0].length > 1024 * 1024) {
       const chunks = JSON.parse(files[0].manifestJSON).chunk_hashes;
       assert.equal(chunks.length, 2); assert.notEqual(chunks[0], chunks[1]);
     }
-    const opaque = await context.newPage();
-    try {
-      const request = JSON.parse(await readFile(join(config.report, 'download-0', 'download-request.json')));
-      const refused = await opaque.evaluate(async url => {
-        try {
-          await fetch(url, { credentials: 'omit', redirect: 'error', cache: 'no-store', signal: AbortSignal.timeout(10000) });
-          return { origin: location.origin, readable: true };
-        } catch (error) { return { origin: location.origin, readable: false, error: error.name }; }
-      }, request.url);
-      assert.deepEqual(refused, { origin: 'null', readable: false, error: 'TypeError' });
-      opaqueOriginRefused = true;
-    } finally { await opaque.close(); }
-    const reads = state.reads.filter(read => read.origin !== null);
-    assert.equal(reads.length, bodies.length + 1);
-    assert.deepEqual(reads.map(read => read.origin), [config.browserOrigin, config.browserOrigin, 'null']);
-    for (const read of reads) { assert.equal(read.cookie, null); assert.equal(read.authorization, null); }
   }
-  assert.equal(state.gets.length, config.corruptRead ? 1 : 4 + (config.overlap ? 1 : 0) + publicDelivery.length + Number(opaqueOriginRefused));
+  assert.equal(state.gets.length, config.corruptRead ? 1 : 4 + (config.overlap ? 1 : 0) + media.publicDelivery.length + (media.csp?.images.length ?? 0) + Number(media.opaqueOriginRefused));
   assert.equal(state.failure, undefined); assert.deepEqual(unexpected, []);
   for (const [index, grant] of originals.entries()) assert.deepEqual((await job(grant, 'inspect')).journal, journals[index]);
   send({ outcome: 'passed', provider: 'local HTTPS HTTP/2 substitute', browserBridge: true,
     assetOrigin: config.browserOrigin, puts: state.puts, gets: state.gets, arrivals: state.arrivals,
-    journals, workerReports, decodedMedia, publicDelivery, opaqueOriginRefused, reads: state.reads,
+    journals, workerReports, ...media, reads: state.reads,
     browserRestarted: true, uploadRetries: 0, liveProviderRequests: 0, paidEffects: 0 });
 } finally {
   clearTimeout(deadline); input.close(); process.stdin.pause();
-  await bridge?.close(); await gateway.close(); await tls.close();
-  await native?.close();
+  try {
+    // Retain bounded request fingerprints even when a delivery assertion fails.
+    await writeFile(join(config.report, 'browser-delivery-trace.json'), JSON.stringify({
+      puts: state.puts, gets: state.gets, arrivals: state.arrivals, reads: state.reads,
+      failure: state.failure ?? null, journals, workerReports, ...media,
+    }, null, 2), { flag: 'wx', mode: 0o600 });
+  } finally {
+    await bridge?.close(); await gateway.close(); await tls.close();
+    await native?.close();
+  }
 }

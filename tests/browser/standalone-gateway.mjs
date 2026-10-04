@@ -75,7 +75,7 @@ export function standaloneGateway(config, bundle, sizes = [1024], workerBundle,
       try {
         assert.equal(req.httpVersion, '2.0'); assert.equal(req.method, 'GET');
         const object = state.objects.get(url.searchParams.get('blob_hash')); assert(object?.body);
-        const browserReads = config.media && !config.corruptRead ? sizes.length + 1 : 0;
+        const browserReads = config.media && !config.corruptRead ? 2 * sizes.length + 1 : 0;
         assert(state.gets.length < (config.refuseFirstRead ? 3 : 2 * sizes.length + (config.overlap ? 1 : 0) + browserReads));
         assert.equal(url.searchParams.get('owner_id'), config.service);
         assert.equal(url.searchParams.get('project_id'), config.project);

@@ -1,0 +1,29 @@
+{
+  "purpose": "Qualify ordinary cross-origin PNG image loading under an explicit local Content Security Policy without changing provider or service ownership",
+  "baseline": "6c9875f release 0.14.1 plus the current dependency-bootstrap tooling fix",
+  "evidenceClass": "actual_local_ic_chromium_sdk_owned_https_http2_substitute",
+  "budget": {
+    "maxIcBrowserJourneys": 8,
+    "maxPutArrivalsPerJourney": 5,
+    "maxGetArrivalsPerJourney": 10,
+    "liveProviderRequests": 0,
+    "paidCycles": 0
+  },
+  "requiredFacts": [
+    "Reuse canonical retained native URLs and the existing publication/verifier/reference/journal owners",
+    "Allowed image origin loads through ordinary anonymous cross-origin img elements under default-src none",
+    "Canvas reads match PNG dimensions and original sampled pixels without origin taint",
+    "A denied img-src origin emits an enforced policy violation and image error without a provider request",
+    "Lost-final-reply recovery still performs no additional upload",
+    "Corruption still stops before attestation or the next admission",
+    "Reference release refuses new descriptors while saved public URLs and byte liabilities can survive",
+    "One test helper owns PNG expectations and local/fetch decoding instead of repeated launcher checks"
+  ],
+  "retention": "Retain every attempt/failure, exact sources/binaries/bundles, original profiles/journals/native requests/downloads and browser CSP observations under .tmp/media-csp-01",
+  "limitations": [
+    "Authored PNGs and explicit local fixture policies do not qualify the consumer's assets, transaction or deployed CSP",
+    "Image decoding and sampled pixels alone are not independent whole-content verification; native verification remains separate",
+    "No deployed provider MIME/CORS/cache/retention, deletion, billing cessation or public access-revocation guarantee",
+    "No new product API, provider format, journal, retry owner, paid effect, deployment or sibling edit"
+  ]
+}

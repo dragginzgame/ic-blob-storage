@@ -4,8 +4,8 @@ Date: 2026-10-04
 
 ## Released baseline
 
-Released **0.14.0** is at `2b3c85c`, with validated source
-`eb1cf35231509f436c8744c1f200d1750b1fe376`. Read
+Released **0.14.1** is at `6c9875f`, with validated source
+`53a4bd9eac712db4770f3ca15cbaa014490ca605`. Read
 [Cargo](../../Cargo.toml), [the release receipt](../release.json) and
 [the changelog](../../CHANGELOG.md) for authoritative release metadata.
 A repository release does not establish registry publication or deployed behavior.
@@ -46,61 +46,57 @@ records retain exact artifacts, checks, failed attempts and local qualification 
 The release fixes the stale installation-test package-version inequality; actual
 release readback, wrong-service refusal and unchanged state remain checked.
 
-## Current work
+Released 0.14.1 groups the
+[distinct-PNG](../evidence/caffeine-probes/README.md#distinct-png-publication-and-verified-decoding--2026-10-04),
+[multi-chunk/reference](../evidence/caffeine-probes/README.md#multi-chunk-png-and-overlapping-references--2026-10-04)
+and [direct browser-delivery](../evidence/caffeine-probes/README.md#direct-browser-url-delivery--2026-10-04)
+checks. These authored local fixtures qualify exact verified bytes, lost-reply
+recovery without another PUT, tail-corruption refusal and overlapping-reference
+cleanup. Logical release refuses descriptors while preserving physical/liability
+bytes; saved public URLs still serve under the substitute. Their original
+observations use retained 0.14.0 CLI/Wasm binaries, not a live 0.14.1 installation.
+The current 0.14.1 lock selects ic-memory 0.24.5 and ic-testkit 0.14.4; historical
+records retain their own exact graph/artifact identities.
 
-Two distinct valid PNG fixtures now pass the maintained driver, independent
-whole-file verification and tenant downloads. Successful/lost-reply runs retain
-2,103 physical/liability bytes and four PUTs/four GETs; Chromium decodes the exact
-downloaded bytes and checks dimensions/pixels. Corruption stops with two PUTs/one
-GET and 1,001 retained bytes. Actual service queries prove the first upload stays
-exposure-possible and the second is never admitted. Existing synthetic journeys
-retain their request/accounting totals. Fixture freezing has one body-based
-manifest owner, with budgets/accounting derived from files.
+## Current work — 0.14.2 draft
 
-Three PNG, two original synthetic and two strengthened corruption journeys pass.
-Fresh CLI/Wasm/harness builds, strict affected Clippy, syntax and formatting pass;
-two installation/Candid cases confirm actual Wasm release 0.14.0. The
-[media evidence](../evidence/caffeine-probes/README.md#distinct-png-publication-and-verified-decoding--2026-10-04)
-retains intents, every attempt, exact artifacts, original profiles/journals and
-downloaded media under `.tmp/media-driver-01`. These are small authored local
-fixtures, not consumer assets or deployed serving qualification. Multi-chunk
-acceptance is recorded below.
-The maintainer's ic-memory lockfile update to 0.24.3 is preserved. Cargo remains
-0.14.0; completed work joins the undated 0.14.1 draft. No sibling edit, full CI,
-release, deployment or paid provider call occurs.
+The tooling fix adds the existing `deps` target first in the shared CI/validate/
+release-verify gate. Locked fetching may use the network, fails before validation
+or version mutation and selects no new versions; compilation/tests stay offline.
+Scoped `make check` or direct `cargo --offline` still require `make deps` after
+dependency changes/cache removal. Isolated actual-Make/Cargo tests cover empty
+cache preparation and failed fetching without release-file changes or lost build
+artifacts. The real scoped gate (`make ci CI_TARGETS='deps check'`), release-helper
+suite, Bash syntax and ShellCheck pass. Full CI has not been rerun.
 
-The [multi-chunk/reference evidence](../evidence/caffeine-probes/README.md#multi-chunk-png-and-overlapping-references--2026-10-04)
-now covers a valid 1,049,055-byte PNG with distinct 1 MiB/479-byte chunks. Success
-and lost-final-reply recovery make five PUTs/five GETs, without another upload.
-Corruption beyond the first full chunk refuses before attestation or the second
-admission. Successful cases retain a second reference, download after releasing
-the first, then refuse both released descriptors. A fresh map becomes incomplete;
-the original map/retain receipt remains historical. Final logical bytes are
-1,102; all 1,050,157 physical/liability bytes stay accounted for.
+The [image/CSP evidence](../evidence/caffeine-probes/README.md#png-image-loading-under-csp--2026-10-04)
+adds ordinary anonymous PNG loading under an explicit local policy. Allowed images
+decode with readable canvas pixels; blocked images report enforced `img-src`
+refusal with zero provider GETs. A single fixture helper owns media expectations,
+decoding/fetch sampling and these image checks, consuming canonical native URLs.
+Native whole-content verification, paid-claim journals and completion/reference
+owners remain unchanged. Private bounded request traces survive assertion failures.
 
-Eight focused local IC/browser attempts and final strict affected Clippy pass,
-including original synthetic, small-PNG and withdrawal/late-attestation behavior.
-Initial/final source/harness captures, all logs (including two Clippy failures),
-profiles, exact reference intents/results and bytes stay under
-`.tmp/multichunk-driver-01`. The shared substitute accepts exact ordered chunks
-and fixture budgets derive from bodies. Production CLI/Wasm remain the retained
-0.14.0 artifacts; no product contract/layout/dependency or retry owner changes.
-This qualifies local authored multi-chunk media and reference cleanup, not
-consumer transactions or deployed provider serving/deletion/billing guarantees.
+All six final local IC/browser journeys pass: small/multi-chunk completion and
+lost-reply recovery, tail-corruption refusal and original synthetic restart.
+Successful large cases make five PUTs/ten GETs; small cases four PUTs/nine GETs.
+No recovery adds a PUT. The initial attempt's origin-only CSP-event assertion
+failed; Chromium correctly reported the full canonical URL. Its source/bundle,
+log and request trace remain preserved alongside the corrected final checks.
+All seven attempts, original profiles/journals and exact bytes remain under
+`.tmp/media-csp-01`; the public intent/summary and private source/artifact/result
+manifests retain their hashes. Owned processes have exited and temporary TLS keys
+are removed; evidence and build artifacts remain.
 
-The [direct browser-delivery record](../evidence/caffeine-probes/README.md#direct-browser-url-delivery--2026-10-04)
-now fetches canonical native URLs from the exact publication origin without
-credentials/redirects/cache, checking PNG MIME, length, digest and decoded pixels.
-An opaque origin cannot read the substitute's response. After final reference
-release, descriptors refuse but the saved public URL still serves: release and
-CORS are not public-access revocation. Multi-chunk success/recovery makes five
-PUTs/eight GETs, with all physical/liability bytes retained. Six focused journeys,
-strict affected Clippy, current harness/browser builds, syntax and formatting pass.
-Original evidence stays under `.tmp/public-delivery-01`. A concurrent ic-testkit
-lock update to 0.14.2 is preserved and qualified by the final rebuilt-harness
-journey; earlier retained harnesses remain bound to 0.14.1. The undated 0.14.1
-changelog groups the PNG, chunk/reference and direct-delivery batch. Cargo and
-release receipt stay 0.14.0. No full CI, release or paid effect occurs.
+Fresh CLI/Wasm/harness/browser builds, syntax and Rust formatting pass. Two
+installation/Candid cases pass with independently expected compiled release
+0.14.1, exact configuration readback, controller denial and wrong-service refusal.
+These fresh artifacts use ic-memory 0.24.5 and ic-testkit 0.14.4. Cargo and the
+release receipt remain 0.14.1; the undated changelog groups this work under 0.14.2.
+No full CI, commit, version mutation, publication, deployment, live provider
+request, paid cycle, sibling edit/message or build cleanup occurs. Authored local
+policy/PNGs do not establish consumer adoption, real asset transactions or deployed
+Caffeine serving/cache/CSP/retention/deletion/billing guarantees.
 
 ## Remaining product work
 
@@ -124,6 +120,10 @@ one-runtime memory composition, current formats/recovery, original preparation
 hints, adoption of native guidance/callable driving/subprocess control and the
 public URL/access-policy distinction. Siblings remain read-only; no upstream
 message is authorized.
+
+Consumers must also select and qualify their actual image/fetch origins and CSP
+with real assets. The new authored-policy image checks are local evidence only;
+the [feedback list](../canic-parity.md#integration-feedback) retains that action.
 
 The old isolated owner remains frozen at 0.6.0 with stopped original history;
 the separate live owner was last verified at 0.7.0. Both retain exhausted lifetime

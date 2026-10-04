@@ -41,7 +41,7 @@ and durable metadata; admission does not require uploading the file body to it.
 | Browser integration | Caffeine's SDK with certificate intent and bounded persistent journaling; live 1 KiB and ten-chunk 10 MiB transfers pass |
 | Live service acceptance | Still open: complete consumer flow, provider guarantees and operational recovery |
 
-The current library release is **0.14.0**. Configurable certificate sizing shipped
+The current library release is **0.14.1**. Configurable certificate sizing shipped
 in 0.7.0; indexed batch preparation, frozen-file browser transfer and current-instance
 recovery shipped in 0.8.0. Release 0.9.0 adds one-pass batch setup and removes the
 standalone DTO forwarding namespace; consumers import the core configuration types.

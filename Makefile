@@ -18,7 +18,7 @@ export BLOB_BROWSER_NODE ?= node
 BLOB_SDK_INPUTS_BYTES ?= 10485760
 VERSION ?=
 RELEASE := bash scripts/release/release.sh
-CI_TARGETS := shell-check release-check fmt-check check clippy probe-check docs-check test wasm-check package
+CI_TARGETS := deps shell-check release-check fmt-check check clippy probe-check docs-check test wasm-check package
 
 .PHONY: help version deps cloc fmt fmt-check check clippy docs-check test test-native test-pocketic test-browser test-browser-store test-browser-transport test-browser-standalone test-sdk-probe test-sdk-inputs test-fixture test-standalone build-standalone test-admission-resources test-read-resources wasm-check \
 	build package clean shell-check release-check probe-check ci validate release-verify test-browser-publication test-browser-bootstrap test-browser-launcher test-browser-native \
@@ -48,7 +48,7 @@ help:
 	@echo "clean                        Explicitly remove build artifacts"
 	@echo "docs-check / wasm-check       Check docs or the Wasm library build"
 	@echo "probe-check                  Verify retained Caffeine probe artifacts offline"
-	@echo "ci / validate                Run the current repository validation gate"
+	@echo "ci / validate                Fetch locked dependencies, then validate"
 	@echo "release-check                Test release tooling without publication"
 	@echo "release-plan VERSION=minor   Preview patch/minor/major or an exact version"
 	@echo "patch / minor / major         Validate and update release files for review"

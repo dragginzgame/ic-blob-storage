@@ -1,0 +1,628 @@
+{
+  "date": "2026-10-04",
+  "baseline": "6c9875f release 0.14.1",
+  "evidenceClass": "actual_local_ic_chromium_sdk_owned_https_http2_substitute",
+  "contract": {
+    "sameNativeUrlsSdkVerifierReferencesAndJournals": true,
+    "productionApiWireStorageChanges": false,
+    "newDispatchRetryOrJournalOwner": false,
+    "localAndFetchedBitmapSamplingHaveOneHelper": true,
+    "ordinaryAnonymousCrossOriginImagesUnderDefaultSrcNone": true,
+    "allowedImageOriginCanvasReadable": true,
+    "enforcedImgSrcRefusalMakesNoProviderRequest": true,
+    "savedPublicUrlsSurviveLogicalRelease": true,
+    "byteAndBillingLiabilityRemain": true
+  },
+  "validation": {
+    "journeys": [
+      {
+        "directory": ".tmp/media-csp-01/browser-final/multichunk-complete",
+        "log": ".tmp/media-csp-01/multichunk-complete-final.log",
+        "puts": 5,
+        "gets": 10,
+        "csp": {
+          "blockedImage": {
+            "loaded": false,
+            "origin": "http://127.0.0.1:37511",
+            "violations": [
+              {
+                "blockedURI": "https://127.0.0.1:41447/v1/blob/?blob_hash=sha256%3A484d7a8cc9165a997f8ebfeafd1cd7c5fc388828499f10f3f5c15ccac51f8369&owner_id=dllsh-pd777-77776-qaaaa-cai&project_id=standalone-trial",
+                "directive": "img-src",
+                "disposition": "enforce"
+              }
+            ]
+          },
+          "blockedProviderRequests": 0,
+          "images": [
+            {
+              "afterFinalRelease": true,
+              "height": 256,
+              "index": 0,
+              "loaded": true,
+              "origin": "http://127.0.0.1:37511",
+              "pixel": [
+                200,
+                30,
+                60,
+                255
+              ],
+              "violations": [],
+              "width": 1024
+            },
+            {
+              "afterFinalRelease": false,
+              "height": 12,
+              "index": 1,
+              "loaded": true,
+              "origin": "http://127.0.0.1:37511",
+              "pixel": [
+                20,
+                180,
+                210,
+                255
+              ],
+              "violations": [],
+              "width": 24
+            }
+          ]
+        },
+        "opaqueOriginRefused": true,
+        "decodedMedia": [
+          {
+            "height": 256,
+            "index": 0,
+            "pixel": [
+              200,
+              30,
+              60,
+              255
+            ],
+            "sha256": "1235cbba920c5cfb24ff592d5ef1223d68d6340a0a4d65a909d263914d9e1f6b",
+            "width": 1024
+          },
+          {
+            "height": 12,
+            "index": 1,
+            "pixel": [
+              20,
+              180,
+              210,
+              255
+            ],
+            "sha256": "f1a16a5adabc5008d5adff083bfcf4d70dc6c49e17a29d0ba42f3bd37128f02a",
+            "width": 24
+          }
+        ],
+        "publicDelivery": [
+          {
+            "afterFinalRelease": true,
+            "bytes": 1049055,
+            "declaredBytes": "1049055",
+            "height": 256,
+            "index": 0,
+            "mime": "image/png",
+            "origin": "http://127.0.0.1:37511",
+            "pixel": [
+              200,
+              30,
+              60,
+              255
+            ],
+            "sha256": "1235cbba920c5cfb24ff592d5ef1223d68d6340a0a4d65a909d263914d9e1f6b",
+            "status": 200,
+            "type": "cors",
+            "url": "https://127.0.0.1:41447/v1/blob/?blob_hash=sha256%3A484d7a8cc9165a997f8ebfeafd1cd7c5fc388828499f10f3f5c15ccac51f8369&owner_id=dllsh-pd777-77776-qaaaa-cai&project_id=standalone-trial",
+            "width": 1024
+          },
+          {
+            "afterFinalRelease": false,
+            "bytes": 1102,
+            "declaredBytes": "1102",
+            "height": 12,
+            "index": 1,
+            "mime": "image/png",
+            "origin": "http://127.0.0.1:37511",
+            "pixel": [
+              20,
+              180,
+              210,
+              255
+            ],
+            "sha256": "f1a16a5adabc5008d5adff083bfcf4d70dc6c49e17a29d0ba42f3bd37128f02a",
+            "status": 200,
+            "type": "cors",
+            "url": "https://127.0.0.1:41447/v1/blob/?blob_hash=sha256%3A77bb616fa371f72f60b5300017c7ac0ecac38a355e40cb52cb3128b73ea25106&owner_id=dllsh-pd777-77776-qaaaa-cai&project_id=standalone-trial",
+            "width": 24
+          }
+        ],
+        "firstUploadPhases": [
+          "responded",
+          "responded",
+          "responded"
+        ],
+        "physicalBytes": 1050157,
+        "liabilityBytes": 1050157
+      },
+      {
+        "directory": ".tmp/media-csp-01/browser-final/multichunk-lost",
+        "log": ".tmp/media-csp-01/chromium_standalone_trial_multichunk_png_lost_final_reply_recovers_without_another_chunk.log",
+        "puts": 5,
+        "gets": 10,
+        "csp": {
+          "blockedImage": {
+            "loaded": false,
+            "origin": "http://127.0.0.1:35709",
+            "violations": [
+              {
+                "blockedURI": "https://127.0.0.1:33205/v1/blob/?blob_hash=sha256%3A484d7a8cc9165a997f8ebfeafd1cd7c5fc388828499f10f3f5c15ccac51f8369&owner_id=dllsh-pd777-77776-qaaaa-cai&project_id=standalone-trial",
+                "directive": "img-src",
+                "disposition": "enforce"
+              }
+            ]
+          },
+          "blockedProviderRequests": 0,
+          "images": [
+            {
+              "afterFinalRelease": true,
+              "height": 256,
+              "index": 0,
+              "loaded": true,
+              "origin": "http://127.0.0.1:35709",
+              "pixel": [
+                200,
+                30,
+                60,
+                255
+              ],
+              "violations": [],
+              "width": 1024
+            },
+            {
+              "afterFinalRelease": false,
+              "height": 12,
+              "index": 1,
+              "loaded": true,
+              "origin": "http://127.0.0.1:35709",
+              "pixel": [
+                20,
+                180,
+                210,
+                255
+              ],
+              "violations": [],
+              "width": 24
+            }
+          ]
+        },
+        "opaqueOriginRefused": true,
+        "decodedMedia": [
+          {
+            "height": 256,
+            "index": 0,
+            "pixel": [
+              200,
+              30,
+              60,
+              255
+            ],
+            "sha256": "1235cbba920c5cfb24ff592d5ef1223d68d6340a0a4d65a909d263914d9e1f6b",
+            "width": 1024
+          },
+          {
+            "height": 12,
+            "index": 1,
+            "pixel": [
+              20,
+              180,
+              210,
+              255
+            ],
+            "sha256": "f1a16a5adabc5008d5adff083bfcf4d70dc6c49e17a29d0ba42f3bd37128f02a",
+            "width": 24
+          }
+        ],
+        "publicDelivery": [
+          {
+            "afterFinalRelease": true,
+            "bytes": 1049055,
+            "declaredBytes": "1049055",
+            "height": 256,
+            "index": 0,
+            "mime": "image/png",
+            "origin": "http://127.0.0.1:35709",
+            "pixel": [
+              200,
+              30,
+              60,
+              255
+            ],
+            "sha256": "1235cbba920c5cfb24ff592d5ef1223d68d6340a0a4d65a909d263914d9e1f6b",
+            "status": 200,
+            "type": "cors",
+            "url": "https://127.0.0.1:33205/v1/blob/?blob_hash=sha256%3A484d7a8cc9165a997f8ebfeafd1cd7c5fc388828499f10f3f5c15ccac51f8369&owner_id=dllsh-pd777-77776-qaaaa-cai&project_id=standalone-trial",
+            "width": 1024
+          },
+          {
+            "afterFinalRelease": false,
+            "bytes": 1102,
+            "declaredBytes": "1102",
+            "height": 12,
+            "index": 1,
+            "mime": "image/png",
+            "origin": "http://127.0.0.1:35709",
+            "pixel": [
+              20,
+              180,
+              210,
+              255
+            ],
+            "sha256": "f1a16a5adabc5008d5adff083bfcf4d70dc6c49e17a29d0ba42f3bd37128f02a",
+            "status": 200,
+            "type": "cors",
+            "url": "https://127.0.0.1:33205/v1/blob/?blob_hash=sha256%3A77bb616fa371f72f60b5300017c7ac0ecac38a355e40cb52cb3128b73ea25106&owner_id=dllsh-pd777-77776-qaaaa-cai&project_id=standalone-trial",
+            "width": 24
+          }
+        ],
+        "firstUploadPhases": [
+          "responded",
+          "responded",
+          "uncertain"
+        ],
+        "physicalBytes": 1050157,
+        "liabilityBytes": 1050157
+      },
+      {
+        "directory": ".tmp/media-csp-01/browser-final/media-complete",
+        "log": ".tmp/media-csp-01/chromium_standalone_trial_distinct_png_media_complete_and_decode_verified_downloads.log",
+        "puts": 4,
+        "gets": 9,
+        "csp": {
+          "blockedImage": {
+            "loaded": false,
+            "origin": "http://127.0.0.1:36669",
+            "violations": [
+              {
+                "blockedURI": "https://127.0.0.1:34015/v1/blob/?blob_hash=sha256%3A346b9f0c6267eeb45fe61b6d6f622c56ad0a2fcf765e2c69f48277877a576d3d&owner_id=dllsh-pd777-77776-qaaaa-cai&project_id=standalone-trial",
+                "directive": "img-src",
+                "disposition": "enforce"
+              }
+            ]
+          },
+          "blockedProviderRequests": 0,
+          "images": [
+            {
+              "afterFinalRelease": false,
+              "height": 16,
+              "index": 0,
+              "loaded": true,
+              "origin": "http://127.0.0.1:36669",
+              "pixel": [
+                200,
+                30,
+                60,
+                255
+              ],
+              "violations": [],
+              "width": 16
+            },
+            {
+              "afterFinalRelease": false,
+              "height": 12,
+              "index": 1,
+              "loaded": true,
+              "origin": "http://127.0.0.1:36669",
+              "pixel": [
+                20,
+                180,
+                210,
+                255
+              ],
+              "violations": [],
+              "width": 24
+            }
+          ]
+        },
+        "opaqueOriginRefused": true,
+        "decodedMedia": [
+          {
+            "height": 16,
+            "index": 0,
+            "pixel": [
+              200,
+              30,
+              60,
+              255
+            ],
+            "sha256": "7eaba2f357804ca6ff77aec5677394e6578e1d8cf1c2861b63c0751ac46cdcf0",
+            "width": 16
+          },
+          {
+            "height": 12,
+            "index": 1,
+            "pixel": [
+              20,
+              180,
+              210,
+              255
+            ],
+            "sha256": "f1a16a5adabc5008d5adff083bfcf4d70dc6c49e17a29d0ba42f3bd37128f02a",
+            "width": 24
+          }
+        ],
+        "publicDelivery": [
+          {
+            "afterFinalRelease": false,
+            "bytes": 1001,
+            "declaredBytes": "1001",
+            "height": 16,
+            "index": 0,
+            "mime": "image/png",
+            "origin": "http://127.0.0.1:36669",
+            "pixel": [
+              200,
+              30,
+              60,
+              255
+            ],
+            "sha256": "7eaba2f357804ca6ff77aec5677394e6578e1d8cf1c2861b63c0751ac46cdcf0",
+            "status": 200,
+            "type": "cors",
+            "url": "https://127.0.0.1:34015/v1/blob/?blob_hash=sha256%3A346b9f0c6267eeb45fe61b6d6f622c56ad0a2fcf765e2c69f48277877a576d3d&owner_id=dllsh-pd777-77776-qaaaa-cai&project_id=standalone-trial",
+            "width": 16
+          },
+          {
+            "afterFinalRelease": false,
+            "bytes": 1102,
+            "declaredBytes": "1102",
+            "height": 12,
+            "index": 1,
+            "mime": "image/png",
+            "origin": "http://127.0.0.1:36669",
+            "pixel": [
+              20,
+              180,
+              210,
+              255
+            ],
+            "sha256": "f1a16a5adabc5008d5adff083bfcf4d70dc6c49e17a29d0ba42f3bd37128f02a",
+            "status": 200,
+            "type": "cors",
+            "url": "https://127.0.0.1:34015/v1/blob/?blob_hash=sha256%3A77bb616fa371f72f60b5300017c7ac0ecac38a355e40cb52cb3128b73ea25106&owner_id=dllsh-pd777-77776-qaaaa-cai&project_id=standalone-trial",
+            "width": 24
+          }
+        ],
+        "firstUploadPhases": [
+          "responded",
+          "responded"
+        ],
+        "physicalBytes": 2103,
+        "liabilityBytes": 2103
+      },
+      {
+        "directory": ".tmp/media-csp-01/browser-final/media-lost",
+        "log": ".tmp/media-csp-01/chromium_standalone_trial_distinct_png_media_recover_lost_reply_without_another_upload.log",
+        "puts": 4,
+        "gets": 9,
+        "csp": {
+          "blockedImage": {
+            "loaded": false,
+            "origin": "http://127.0.0.1:46571",
+            "violations": [
+              {
+                "blockedURI": "https://127.0.0.1:43011/v1/blob/?blob_hash=sha256%3A346b9f0c6267eeb45fe61b6d6f622c56ad0a2fcf765e2c69f48277877a576d3d&owner_id=dllsh-pd777-77776-qaaaa-cai&project_id=standalone-trial",
+                "directive": "img-src",
+                "disposition": "enforce"
+              }
+            ]
+          },
+          "blockedProviderRequests": 0,
+          "images": [
+            {
+              "afterFinalRelease": false,
+              "height": 16,
+              "index": 0,
+              "loaded": true,
+              "origin": "http://127.0.0.1:46571",
+              "pixel": [
+                200,
+                30,
+                60,
+                255
+              ],
+              "violations": [],
+              "width": 16
+            },
+            {
+              "afterFinalRelease": false,
+              "height": 12,
+              "index": 1,
+              "loaded": true,
+              "origin": "http://127.0.0.1:46571",
+              "pixel": [
+                20,
+                180,
+                210,
+                255
+              ],
+              "violations": [],
+              "width": 24
+            }
+          ]
+        },
+        "opaqueOriginRefused": true,
+        "decodedMedia": [
+          {
+            "height": 16,
+            "index": 0,
+            "pixel": [
+              200,
+              30,
+              60,
+              255
+            ],
+            "sha256": "7eaba2f357804ca6ff77aec5677394e6578e1d8cf1c2861b63c0751ac46cdcf0",
+            "width": 16
+          },
+          {
+            "height": 12,
+            "index": 1,
+            "pixel": [
+              20,
+              180,
+              210,
+              255
+            ],
+            "sha256": "f1a16a5adabc5008d5adff083bfcf4d70dc6c49e17a29d0ba42f3bd37128f02a",
+            "width": 24
+          }
+        ],
+        "publicDelivery": [
+          {
+            "afterFinalRelease": false,
+            "bytes": 1001,
+            "declaredBytes": "1001",
+            "height": 16,
+            "index": 0,
+            "mime": "image/png",
+            "origin": "http://127.0.0.1:46571",
+            "pixel": [
+              200,
+              30,
+              60,
+              255
+            ],
+            "sha256": "7eaba2f357804ca6ff77aec5677394e6578e1d8cf1c2861b63c0751ac46cdcf0",
+            "status": 200,
+            "type": "cors",
+            "url": "https://127.0.0.1:43011/v1/blob/?blob_hash=sha256%3A346b9f0c6267eeb45fe61b6d6f622c56ad0a2fcf765e2c69f48277877a576d3d&owner_id=dllsh-pd777-77776-qaaaa-cai&project_id=standalone-trial",
+            "width": 16
+          },
+          {
+            "afterFinalRelease": false,
+            "bytes": 1102,
+            "declaredBytes": "1102",
+            "height": 12,
+            "index": 1,
+            "mime": "image/png",
+            "origin": "http://127.0.0.1:46571",
+            "pixel": [
+              20,
+              180,
+              210,
+              255
+            ],
+            "sha256": "f1a16a5adabc5008d5adff083bfcf4d70dc6c49e17a29d0ba42f3bd37128f02a",
+            "status": 200,
+            "type": "cors",
+            "url": "https://127.0.0.1:43011/v1/blob/?blob_hash=sha256%3A77bb616fa371f72f60b5300017c7ac0ecac38a355e40cb52cb3128b73ea25106&owner_id=dllsh-pd777-77776-qaaaa-cai&project_id=standalone-trial",
+            "width": 24
+          }
+        ],
+        "firstUploadPhases": [
+          "responded",
+          "uncertain"
+        ],
+        "physicalBytes": 2103,
+        "liabilityBytes": 2103
+      },
+      {
+        "directory": ".tmp/media-csp-01/browser-final/multichunk-corrupt",
+        "log": ".tmp/media-csp-01/chromium_standalone_trial_multichunk_png_tail_corruption_stops_before_next_admission.log",
+        "puts": 3,
+        "gets": 1,
+        "csp": null,
+        "opaqueOriginRefused": false,
+        "decodedMedia": [],
+        "publicDelivery": [],
+        "firstUploadPhases": [
+          "responded",
+          "responded",
+          "responded"
+        ],
+        "physicalBytes": 1049055,
+        "liabilityBytes": 1049055
+      },
+      {
+        "directory": ".tmp/media-csp-01/browser-final/native-driver-restart",
+        "log": ".tmp/media-csp-01/chromium_native_phase_driver_restarts_with_original_handoff_without_another_upload.log",
+        "puts": 4,
+        "gets": 4,
+        "csp": null,
+        "opaqueOriginRefused": false,
+        "decodedMedia": [],
+        "publicDelivery": [],
+        "firstUploadPhases": [
+          "responded",
+          "uncertain"
+        ],
+        "physicalBytes": 3072,
+        "liabilityBytes": 3072
+      }
+    ],
+    "installation": {
+      "controller_denied": true,
+      "declared_and_exported_did_equal": true,
+      "deployment_authorized": false,
+      "evidence_class": "actual_local_trial_template_installation",
+      "exact_configuration_readback": true,
+      "live_provider_qualified": false,
+      "local_only_init": true,
+      "release": "0.14.1",
+      "schema": 1,
+      "service": "xp3jw-ot777-77777-aaaaa-cai",
+      "wrong_service_rejected": true
+    },
+    "independentlyExpectedCompiledRelease": "0.14.1",
+    "dependencies": {
+      "icMemory": "0.24.5",
+      "icTestkit": "0.14.4"
+    },
+    "cliWasmHarnessBrowserBuilds": "passed",
+    "syntaxAndRustFormatting": "passed",
+    "failedAttempts": [
+      {
+        "directory": ".tmp/media-csp-01/browser/multichunk-complete",
+        "log": ".tmp/media-csp-01/multichunk-complete.log",
+        "puts": 5,
+        "gets": 9,
+        "providerFailure": null,
+        "reason": "Fixture expected an origin-only CSP blockedURI; Chromium supplied the full canonical URL. Image/CSP behavior completed before the assertion failure. Corrected test binds the reported origin, directive/disposition and zero provider arrivals; raw event is retained."
+      }
+    ],
+    "totalIcBrowserAttempts": 7,
+    "finalIcBrowserJourneysPassed": 6,
+    "fullCi": false
+  },
+  "retention": {
+    "root": ".tmp/media-csp-01",
+    "initialSource": ".tmp/media-csp-01/source",
+    "failedAttemptSource": ".tmp/media-csp-01/source-complete",
+    "finalSource": ".tmp/media-csp-01/source-final",
+    "sourceHashes": [
+      ".tmp/media-csp-01/source-SHA256SUMS",
+      ".tmp/media-csp-01/complete-source-SHA256SUMS",
+      ".tmp/media-csp-01/final-source-SHA256SUMS"
+    ],
+    "artifacts": ".tmp/media-csp-01/artifacts/SHA256SUMS",
+    "finalBundle": ".tmp/media-csp-01/final-bundle-SHA256SUMS",
+    "results": ".tmp/media-csp-01/results-SHA256SUMS",
+    "history": "Original keys/profiles/journals/native commands/requests/downloads remain in every attempt directory. New bounded request traces survive assertion failures. Owned sockets/processes closed and temporary TLS private keys removed; build/evidence artifacts retained."
+  },
+  "limitations": [
+    "Authored PNGs and selected local CSP are not consumer asset/transaction/deployed-policy acceptance",
+    "DOM image decoding/sampled pixels are not independent whole-content verification; the native verifier remains authoritative",
+    "Deployed Caffeine MIME/CORS/cache/retention and provider chunk replies remain unqualified",
+    "No public access revocation, deletion, billing cessation or future serving lease is established"
+  ],
+  "effects": {
+    "liveProviderRequests": 0,
+    "paidCycles": 0,
+    "deployments": false,
+    "siblingEdits": false,
+    "commits": false,
+    "versionMutation": false,
+    "publication": false,
+    "buildCleanup": false,
+    "oldLiveOwners": "unchanged; preserve their original provider/billing obligations"
+  }
+}

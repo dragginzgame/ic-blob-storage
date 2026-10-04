@@ -23,6 +23,11 @@ Use targeted checks while implementing. Full CI or release validation requires
 an explicit request or an explicitly authorized version/release target.
 Primitive Make targets do only their named operation. The complete current
 gate is make ci (also make validate and make release-verify).
+That gate first runs `make deps` (`cargo fetch --locked`) to populate the cache
+for the selected lockfile; this step may use the network and does not select new
+versions. Fetch failure stops before validation or release-file mutation. Rust
+compilation/tests then use `--offline --locked`. Scoped targets remain offline;
+run `make deps` before them after dependency changes or cache removal.
 Its offline `probe-check` verifies retained Caffeine run artifacts; it never runs
 new network probes. The [probe ledger](../evidence/caffeine-probes/README.md) governs
 continuous evidence recording and separates source/local/live observations.

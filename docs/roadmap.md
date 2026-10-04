@@ -1,6 +1,6 @@
 # Development plan
 
-Released 0.14.0 supplies the framework-independent library and standalone service,
+Released 0.14.1 supplies the framework-independent library and standalone service,
 configured uploads, exact verifier completion and maintained native/browser
 publication components. Consumer owners supply framework wrappers, deployment
 integration and their composition tests. Library publication

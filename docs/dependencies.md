@@ -18,9 +18,9 @@ availability does not establish provider qualification or service readiness.
 | `thiserror` | 2.0.18 | Typed error derives; matches PocketIC's exact requirement |
 | `ic-cdk` | 0.20.3 | IC platform operations for the ops layer |
 | `ic-management-canister-types` | 0.10.0 (direct, locked) | Bounded current-instance IC-history request/reply types |
-| `ic-memory` | 0.24.3 (locked) | Sole allocation runtime; public typed growth API |
+| `ic-memory` | 0.24.5 (locked) | Sole allocation runtime; public typed growth API |
 | `ic-stable-structures` | 0.7.2 | Exact transitive substrate owned/re-exported by `ic-memory` |
-| `ic-testkit` | 0.14.2 (locked) | Native dependency of the unpublished PocketIC harness; shared helpers and full re-export |
+| `ic-testkit` | 0.14.4 (locked) | Native dependency of the unpublished PocketIC harness; shared helpers and full re-export |
 | `pocket-ic` | 16.0.0 | Transitive through `ic-testkit`; no direct dependency |
 | `ic-agent` | 0.49.2 | Native CLI and harness signing and verification of ingress certificates |
 | `candid_parser` | 0.4.1 | Native harness only; official Candid parser for native request fixtures |
@@ -232,7 +232,7 @@ neither emits a certificate or sends service/gateway traffic. See the
 
 ## Memory composition
 
-Released 0.12.0 selected `ic-memory 0.21.0`; current development selects 0.24.3.
+Released 0.12.0 selected `ic-memory 0.21.0`; current development selects 0.24.5.
 The current lockfile resolves one registry memory package and its
 `ic-stable-structures` 0.7.2 substrate.
 Direct `RuntimeMemory::grow` returns a typed result;
@@ -279,14 +279,19 @@ make wasm-check
 ```
 
 The toolchain file declares rustfmt, Clippy and `wasm32-unknown-unknown`.
-`make deps` fetches the locked graph and may use the network. Normal validation
-uses `--offline --locked` and this repository's `target/`. Updating a dependency
-requires an intentional manifest/lockfile change; normal setup does not select
-new versions. `make ci` remains a separately authorized full validation gate.
+`make deps` fetches the locked graph and may use the network. The complete
+`make ci`/`make validate`/`make release-verify` gate runs this step automatically
+before offline validation, stopping immediately if fetching fails. Rust checks
+use `--offline --locked` and this repository's `target/`. Scoped targets such as
+`make check` and direct `cargo --offline` commands still require a populated cache;
+run `make deps` before them after dependency changes or cache removal. Updating
+a dependency requires an intentional manifest/lockfile change; setup does not
+select new versions. Full validation remains separately authorized.
 
 Testkit and PocketIC are excluded from the production/Wasm graph. Their Rust
-libraries are fetched and compiled by the native check. The local canister test additionally needs a compatible
-PocketIC server: this library accepts >=16.0.0,<17 and defaults to 16.0.0.
+libraries are fetched by `make deps` and compiled by the native check. The local
+canister test additionally needs a compatible PocketIC server: this library
+accepts >=16.0.0,<17 and defaults to 16.0.0.
 The checksum-verified Linux x86_64 server is installed locally at
 `.tmp/tools/pocket-ic-16.0.0/pocket-ic`; its
 [provenance record](evidence/pocketic-toolchain.json) includes archive and binary

@@ -26,6 +26,13 @@ under the substitute, while authenticated descriptors refuse. CORS is a browser
 read policy, not confidentiality or provider deletion. Deployed cache/CSP,
 retention and consumer access-policy acceptance remain open.
 
+The [local image/CSP checks](evidence/caffeine-probes/README.md#png-image-loading-under-csp--2026-10-04)
+exercise ordinary anonymous images, readable canvas pixels and explicit policy
+refusal with zero provider requests. They qualify only the authored local policy
+and substitute. Consumer image/fetch origins, real assets and deployed CSP/cache/
+retention still need acceptance; image decoding does not replace independent
+whole-content verification or establish public-access revocation.
+
 Deletion qualification must retain the exact original service, namespace, object,
 root, incarnation and operation identity before any destructive effect. Record
 the request, callback/result, hashes and uncertain outcome; never redispatch from

@@ -2,6 +2,8 @@
 set -Eeuo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+TEST_REAL_MAKE="$(command -v make)"
+export TEST_REAL_MAKE
 mkdir -p "$ROOT/target"
 TEMPORARY="$(mktemp -d "$ROOT/target/release-tests.XXXXXX")"
 mkdir -p "$TEMPORARY/bin"
@@ -73,7 +75,7 @@ NOTES
     : > "$TEST_LOG"
     : > "$TEST_EFFECTS"
     printf 'retained build artifact\n' > target/debug/cache-sentinel
-    unset TEST_DIRTY TEST_TAG_EXISTS TEST_GATE_FAIL TEST_UPDATE_FAIL TEST_GATE_DIRTY TEST_GATE_HEAD TEST_METADATA_FAIL TEST_PUSH_FAIL
+    unset TEST_DIRTY TEST_TAG_EXISTS TEST_GATE_FAIL TEST_UPDATE_FAIL TEST_GATE_DIRTY TEST_GATE_HEAD TEST_METADATA_FAIL TEST_PUSH_FAIL TEST_FETCH_FAIL
 }
 
 expect_failure() {
@@ -175,6 +177,15 @@ cat > "$TEMPORARY/bin/cargo" <<'MOCK'
 set -euo pipefail
 echo "cargo $*" >> "$TEST_LOG"
 case "$*" in
+    'fetch --locked')
+        echo fetch >> "$TEST_EFFECTS"
+        [[ "${TEST_FETCH_FAIL:-0}" != 1 ]]
+        touch target/mock-cargo-cache
+        ;;
+    'check --offline --locked --workspace --all-targets --all-features')
+        [[ -f target/mock-cargo-cache ]]
+        echo check >> "$TEST_EFFECTS"
+        ;;
     'update --offline -p ic-blob-storage')
         [[ "${TEST_UPDATE_FAIL:-0}" != 1 ]]
         next="$(perl scripts/release/release-data.pl version)"
@@ -194,6 +205,43 @@ esac
 MOCK
 chmod +x "$TEMPORARY/bin/"*
 export PATH="$TEMPORARY/bin:$PATH"
+
+test_dependency_bootstrap() {
+    # Exercise the actual Make gate/recipes against an initially empty cache.
+    # Skip unrelated validation; neither network nor compilation is needed.
+    cp "$ROOT/Makefile" Makefile
+    cat > target/gate-make <<'MOCK'
+#!/usr/bin/env bash
+set -euo pipefail
+echo "gate $*" >> "$TEST_LOG"
+case "$*" in
+    '--no-print-directory deps' | '--no-print-directory check')
+        exec "$TEST_REAL_MAKE" "$@" ;;
+esac
+MOCK
+    chmod +x target/gate-make
+    before="$(fingerprint)"
+    if [[ "$1" == failure ]]; then
+        export TEST_FETCH_FAIL=1
+        if "$TEST_REAL_MAKE" --no-print-directory validate "MAKE=$FIXTURE/target/gate-make" >target/fetch-rejection.log 2>&1; then
+            echo 'expected fetch failure to stop validation' >&2
+            exit 1
+        else
+            [[ "$?" == 2 ]]
+        fi
+        cat target/fetch-rejection.log
+        [[ "$(cat "$TEST_EFFECTS")" == fetch ]]
+        [[ "$(rg '^gate ' "$TEST_LOG")" == 'gate --no-print-directory deps' ]]
+        [[ ! -f target/mock-cargo-cache ]]
+    else
+        "$TEST_REAL_MAKE" --no-print-directory release-verify "MAKE=$FIXTURE/target/gate-make"
+        printf '%s\n' fetch check >target/expected-effects
+        diff -u target/expected-effects "$TEST_EFFECTS"
+        [[ "$(rg '^gate ' "$TEST_LOG" | head -n 1)" == 'gate --no-print-directory deps' ]]
+    fi
+    assert_unchanged
+    assert_cache_retained
+}
 
 test_versions() {
     local requested expected
@@ -367,6 +415,9 @@ test_push_retry() {
 }
 
 echo "Release-helper tests: isolated fixtures; no real commits, tags or uploads."
+for outcome in success failure; do
+    run_case "dependency-bootstrap-$outcome" test_dependency_bootstrap "$outcome"
+done
 run_case versions test_versions
 for invalid in duplicate empty competing; do
     run_case "changelog-$invalid" test_invalid_changelog "$invalid"
@@ -387,4 +438,4 @@ for invalid in dirty missing-tag changed-release; do
     run_case "publish-$invalid" test_invalid_publish "$invalid"
 done
 run_case push-retry test_push_retry
-echo "Release-helper tests: PASS (preparation, rollback, publication and retry)."
+echo "Release-helper tests: PASS (dependency bootstrap, preparation, rollback, publication and retry)."
