@@ -2,6 +2,25 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- Avoid a second full-body array copy when the patched Caffeine SDK constructs
+  its Blob. Keep the snapshot before MIME detection awaits, exact selected bytes,
+  upstream hashing/chunking and one-shot preparation handles. Chromium mutation
+  checks and substitute SDK payload/lost-reply/budget checks pass.
+- Send bounded base64 strings through the native-to-browser body bridge instead
+  of serializing every byte as a Playwright argument element. Preserve the 64 KiB
+  raw-frame bound, exact original bytes, SHA checks and SDK preparation before
+  certificate intent. Binary-byte and existing Chromium failure/recovery checks pass.
+
+### Added
+
+- Add opt-in launcher/CDP/SDK profiling with retained original profiles and
+  zero provider effects. Instrumented local preparation/refusal observations for
+  1/8/32 MiB bodies improve from 2.99/22.88/86.41 seconds to 0.08/0.48/1.83 seconds.
+  These measure the client bridge before issuance, not successful upload latency
+  or Canic execution; worker/process peak memory and populated-store scale remain open.
+
 ## [0.14.5] - 2026-10-04
 
 ### Fixed

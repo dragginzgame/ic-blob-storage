@@ -4,8 +4,8 @@ Date: 2026-10-04
 
 ## Released baseline
 
-Released **0.14.4** is at `0c185fd1acdabba11d83a0a72f7ead1b24b4b506`,
-with validated source `8bf827f4622f9723d09c538ea407f155e86a6bc7`.
+Released **0.14.5** is at `8e1cfed48327b9da56aadf417a179549a33c6602`,
+with validated source `ec49a86b5a76c9a2bc00f7d083cd6631b25f57eb`.
 The local release tag identifies that commit; the maintainer reports the release live. [Cargo](../../Cargo.toml),
 [the release receipt](../release.json) and [the changelog](../../CHANGELOG.md)
 own release metadata. This source release does not prove registry publication,
@@ -92,11 +92,11 @@ They do not requalify the frozen media/provider observations above. A rejected
 Chromium close does not prove worker termination; consumers still own cleanup
 and adoption of the selected tools.
 
-### 0.14.5 draft
+### 0.14.5 implementation evidence
 
-[The changelog](../../CHANGELOG.md) now groups this completed batch under undated
-0.14.5. Cargo remains at 0.14.4; full release validation and preparation remain
-with the maintainer's release flow. The scoped evidence below is unchanged.
+The maintainer released this batch as 0.14.5. Its pre-release scoped records
+below retain their original 0.14.4 source/artifact identities; release does not
+relabel those observations.
 
 Browser journal handles now have one close owner for explicit shutdown, platform
 version-change and unexpected connection closure. New operations return typed
@@ -146,15 +146,65 @@ source/bundle hashes and profiles remain under `.tmp/native-phase-validation-01`
 Only owned loopback assets are requested, with no live IC/provider request or paid
 cycle. Consumer adoption and certified registration remain open.
 
-The concurrent Cargo.lock update to ic-memory 0.24.14 and ic-testkit 0.14.11 was
-preserved. This JavaScript batch does not requalify that Rust graph; earlier native
-and Wasm observations retain their original dependency identities.
+The released lock uses ic-memory 0.24.14 and ic-testkit 0.14.11. Earlier scoped
+native/Wasm records retain their original dependency identities; the JavaScript
+checks above did not requalify that Rust graph.
+
+### Active batch after 0.14.5
+
+The native-to-browser launcher now sends one bounded base64 string per 64 KiB
+raw frame, removing Playwright's per-element byte-array serialization. Native
+regular-file ownership, exact length/EOF/SHA checks, worker digest/SDK preparation
+and certificate-intent ordering remain unchanged. No alternative handoff, new
+profile format, retry or provider contract is introduced.
+
+The [handoff profile record](../evidence/caffeine-probes/README.md#browser-body-handoff-profile--2026-10-04)
+retains before/after actual Chromium runs with identical 1/8/32 MiB bodies.
+Instrumented execution through deliberate root refusal improves from
+2.99/22.88/86.41 seconds to 0.08/0.48/1.83 seconds. Worker wait/preparation stays
+similar; these are client bridge observations, not Canic server measurements
+or successful upload latency. Each refusal precedes certificate intent and leaves
+no journal row. Only owned loopback assets are requested, with zero provider/IC
+requests and paid cycles. Original profiles, bodies, logs and source/bundle hashes
+remain under `.tmp/browser-handoff-profile-01`.
+
+The existing Chromium launcher checks pass with NUL/high binary body bytes,
+profile binding, cancellation, control/serialization failures and shutdown.
+Bundles rebuild; scoped syntax, changelog and diff checks pass. An opt-in maintained
+profiling fixture records frame counts, elapsed time, sampled Node memory and
+page heap without imposing timing thresholds or adding default CI work.
+Page heap excludes the dedicated worker/browser RSS; sampled Node memory is not
+an exact peak. Full worker/process memory, populated service reopen, concurrent
+publishers and million-object scale remain unqualified. No Rust build/full CI,
+version change, commit, deployment, sibling edit/message or cleanup is performed.
+Consumer adoption of selected tools and certified asset registration remain open.
+
+The [SDK owned-Blob record](../evidence/caffeine-probes/README.md#sdk-owned-blob-preparation--2026-10-04)
+also removes one second full-body array copy at Blob construction. The SDK keeps
+its private snapshot before awaiting MIME detection. Actual Chromium explicit/sniffed
+MIME checks match original roots/manifests for selected views, NUL/high bytes and a
+distinct multi-chunk tail after immediate caller mutation. Substitute SDK uploads
+preserve exact original binary payloads, one-shot handles, lost replies, failed HTTP
+replies and budget refusals. The retained native byte verifier is an earlier binary,
+bound by its exact hash, not a requalification of the current Rust graph.
+Publication/worker and actual Chromium launcher boundaries pass; bundles rebuild,
+syntax/changelog/diff checks pass. Original sources, logs and profiles remain under
+`.tmp/sdk-owned-blob-01`, with zero live IC/provider requests or paid effects.
+This removes an allocation, without claiming measured peak-memory savings.
+The SDK change alters executable bundle fingerprints: select the rebuilt matching
+tools for new histories and recover retained profiles with their original tools.
+Do not replace profile bindings or journals. Consumer adoption and certified asset
+registration remain open.
+
+Concurrent worktree changes now select ic-memory 0.25 and lock 0.25.0. They are
+preserved separately; this browser batch does not qualify that Rust graph. Frozen
+evidence retains its captured Cargo identities.
 
 ### GitHub issue disposition
 
 The latest read-only refresh still finds seven open issues and seventeen comments,
 with no newer discussion than the [retained review](../evidence/caffeine-probes/local/2026-10-04-gh-issues-review-01/summary.json).
-That review verified remote main at 0.14.3; the current 0.14.4 baseline is established
+That review verified remote main at 0.14.3; the current 0.14.5 baseline is established
 from local release records and the maintainer's report. No issue/comment is changed.
 
 | Issue | Repository result | Remaining action |
@@ -187,9 +237,10 @@ independent work/header exhaustion. Original scoped logs/artifacts remain under
 - Provider deletion/final billing and surviving inventory/freshness remain separate
   gaps. Missing downloads or zero usage counters prove neither deletion nor billing
   cessation. See [service gaps](../service-gaps.md).
-- Measure populated service reopen and browser memory/CDP costs before promising
-  million-object operation; configurable ceilings and 675-row restart evidence
-  are not that qualification. Keep one storage owner and its local journals.
+- Measure populated service reopen and full browser/worker memory before promising
+  million-object operation. Bounded 1/8/32 MiB CDP observations, configurable ceilings
+  and 675-row restart evidence are not that qualification. Keep one storage owner
+  and its local journals.
 
 ## Consumer integration feedback
 

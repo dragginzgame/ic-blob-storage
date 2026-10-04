@@ -38,8 +38,9 @@ const options = mode => ({ profile: join(report, 'profile'), assetPort: port, na
 const binding = { key: 'aaaaa-aa:rrkah-fqaaa-aaaaa-aaaaq-cai:1', service: 'aaaaa-aa',
   tenant: 'rrkah-fqaaa-aaaaa-aaaaq-cai', uploader: signer.getPrincipal().toText(),
   project: 'bootstrap-fixture', bucket: 'test', operation: '1', root: 'sha256:' + '1'.repeat(64), permission: [68, 73, 68, 76] };
-const body = join(report, 'body.bin'); await writeFile(body, 'abc', { flag: 'wx', mode: 0o600 });
-const transfer = { binding, body, bytes: '3', body_sha256: createHash('sha256').update('abc').digest('hex'),
+const bodyBytes = Buffer.from([0, 128, 255]);
+const body = join(report, 'body.bin'); await writeFile(body, bodyBytes, { flag: 'wx', mode: 0o600 });
+const transfer = { binding, body, bytes: '3', body_sha256: createHash('sha256').update(bodyBytes).digest('hex'),
   manifest_json: '{"tree_type":"DSBMTWH"}', preparation: {} };
 const refusal = code => error => error instanceof LauncherRefusal && error.code === code;
 let bridge;
@@ -69,7 +70,7 @@ try {
   await assert.rejects(bridge.execute({ id: 3, index: 0, action: 'inspect', binding }), refusal('busy'));
   transfer.body_sha256 = '0'.repeat(64); // The bridge already owns the original request.
   const result = await pending; assert.equal(result.error, 'root'); assert.equal(result.id, 2);
-  transfer.body_sha256 = createHash('sha256').update('abc').digest('hex'); cases.push('owned_request_and_single_job');
+  transfer.body_sha256 = createHash('sha256').update(bodyBytes).digest('hex'); cases.push('owned_request_and_single_job');
   const changed = structuredClone(transfer); changed.body_sha256 = '0'.repeat(64);
   await assert.rejects(bridge.execute({ id: 3, index: 0, action: 'upload', transfer: changed }), refusal('body-digest'));
   changed.body_sha256 = transfer.body_sha256; changed.bytes = '2';

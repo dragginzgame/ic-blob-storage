@@ -285,10 +285,15 @@ export async function launchPublicationBrowser(chromium, options, browserOptions
       const owned = await snapshot(request.transfer, maximum);
       job = { schema: 1, id: request.id, index: request.index, action: 'upload', ...owned.job };
       await page.evaluate(size => { globalThis.publicationBody = new Uint8Array(size); }, owned.bytes.length);
-      // Bound each CDP value; no giant JSON byte array or HTTP body route.
+      // Bound raw frames and send one base64 string per CDP value. Avoid
+      // Playwright's per-element argument serialization; keep the same bytes.
       for (let offset = 0; offset < owned.bytes.length; offset += 65536) {
-        await page.evaluate(({ offset, bytes }) => publicationBody.set(bytes, offset),
-          { offset, bytes: Array.from(owned.bytes.subarray(offset, offset + 65536)) });
+        await page.evaluate(({ offset, base64 }) => {
+          const frame = atob(base64);
+          for (let index = 0; index < frame.length; index++) {
+            publicationBody[offset + index] = frame.charCodeAt(index);
+          }
+        }, { offset, base64: owned.bytes.subarray(offset, offset + 65536).toString('base64') });
       }
     } else {
       exact(request, ['id', 'index', 'action', 'binding']); job = { schema: 1, ...structuredClone(request) };

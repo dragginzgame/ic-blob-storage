@@ -1,5 +1,72 @@
 # Caffeine probe ledger
 
+## SDK owned Blob preparation — 2026-10-04
+
+The [intent](local/2026-10-04-sdk-owned-blob-01/intent.json) precedes a focused
+source review and local SDK/Chromium checks. Caffeine 1.1.2's maintained patch
+copied the input before MIME detection awaited, then constructed another full
+array for Blob. The first copy remains necessary to own caller bytes across that
+await. Blob now snapshots the already-private array directly; upstream sniffing,
+chunking, hashing, metadata, wire formats and one-shot handles remain unchanged.
+Installed npm files remain untouched; the build verifies original upstream hashes
+and applies the maintained patch to its private copy.
+
+Actual Chromium explicit/sniffed MIME preparation preserves identical roots and
+manifests for a selected 1 MiB + 479-byte view with NUL/high bytes and a distinct
+tail, even after immediate caller mutation. Caller backing storage remains attached.
+The maintained SDK probe exercises selected-view mutation in all six substitute
+journeys: exact single/multi-chunk payloads, incomplete-status return, lost final
+reply, failed HTTP reply and byte-budget refusal. Original journals retain their
+uncertain/responded states and no retry is dispatched. The retained native verifier
+accepts original bytes and rejects corrupted/truncated bytes; its earlier binary
+hash is recorded separately, without claiming current Rust qualification.
+
+The [summary](local/2026-10-04-sdk-owned-blob-01/summary.json) retains original
+patch/generated sources, final source/bundle/result hashes, SDK request/response
+records and Chromium profiles under `.tmp/sdk-owned-blob-01`. Frozen-input/worker
+checks and actual Chromium launcher boundaries pass. Bundles rebuild and scoped
+syntax/changelog/diff checks pass. No probe fails; zero live IC/provider requests
+or paid cycles occur. There is no measured peak-memory saving, successful deployed
+upload, consumer adoption, provider retention/billing or million-object qualification.
+No Rust build/full CI, version/dependency change, commit, deployment, sibling
+edit/message or cleanup is performed. Retained profiles keep their original bundles;
+new tools do not replace their executable bindings or effect history.
+
+## Browser body handoff profile — 2026-10-04
+
+The [intent](local/2026-10-04-browser-handoff-profile-01/intent.json) precedes an
+actual Chromium/maintained SDK baseline on released 0.14.5. A separate
+[follow-up intent](local/2026-10-04-browser-handoff-profile-01/followup-intent.json)
+precedes the base64 handoff and binary-byte checks. Both profiles retain identical
+body hashes and 64 KiB raw-frame bounds. Deliberate root mismatch follows original
+SHA/SDK preparation and refuses before certificate intent; inspection finds no
+journal row. Only three owned loopback asset GETs occur per profiling run.
+
+| Body | Released byte-array bridge | Base64 bridge |
+| --- | ---: | ---: |
+| 1 MiB | 2.99 s | 0.08 s |
+| 8 MiB | 22.88 s | 0.48 s |
+| 32 MiB | 86.41 s | 1.83 s |
+
+These are single instrumented ascending passes through preparation/refusal, not
+successful uploads or guaranteed production timings. Worker wait/preparation is
+similar (32 MiB: 0.36 s before, 0.37 s after), supporting the inference that the
+byte-array CDP serialization dominated the original client handoff. No Canic
+execution was measured. Page assembled V8 used heap at 32 MiB falls from
+264,107,808 to 47,873,000 bytes; this excludes worker heap and browser process RSS,
+and is not a peak-memory measurement. Node peaks are sampled separately.
+
+The [summary](local/2026-10-04-browser-handoff-profile-01/summary.json) binds
+original samples, logs, source and bundle hashes under
+`.tmp/browser-handoff-profile-01`. Both profiling runs and maintained actual
+Chromium launcher checks pass, including NUL/high binary bytes, original profile
+bindings, cancellation and failure boundaries. Browser bundles rebuild; syntax,
+changelog and diff checks pass. The opt-in fixture adds no default CI run.
+This is local Chromium/SDK evidence with zero provider/IC requests and paid
+cycles. No successful transfer, populated store, full worker/process memory,
+concurrent publisher or million-object qualification is claimed. No release,
+dependency change, commit, deployment, sibling change/message or cleanup occurs.
+
 ## Publication fixture session deadline — 2026-10-04
 
 The [intent](local/2026-10-04-publication-deadline-01/intent.json) precedes two

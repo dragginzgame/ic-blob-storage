@@ -40,7 +40,15 @@ const cases = [];
 
 async function probe(name, size, mode) {
   const bytes = new Uint8Array(size).fill(17);
-  const prepared = await StorageClient.prepareFile(bytes, 'application/octet-stream');
+  if (name === 'single') bytes.set([0, 128, 255]);
+  const backing = new Uint8Array(size + 34).fill(99);
+  backing.set(bytes, 17);
+  const selected = backing.subarray(17, 17 + size);
+  const preparing = StorageClient.prepareFile(selected, 'application/octet-stream');
+  backing.fill(255); // Own the selected view before MIME detection awaits.
+  const prepared = await preparing;
+  assert.equal(prepared.byteLength, size);
+  assert.equal(backing.byteLength, size + 34); // Caller storage remains attached.
   const manifest = JSON.parse(prepared.manifestJSON);
   const binding = { key: name, root: prepared.hash, service: 'rrkah-fqaaa-aaaaa-aaaaq-cai',
     project: 'fixture-project', bucket: 'fixture-bucket' };
@@ -50,7 +58,8 @@ async function probe(name, size, mode) {
   let requests = 0, certificateCalls = 0, uploaded = 0;
   const progress = [];
   const maxTotalRequestBytes = mode === 'budget' ? 512 * 1024 : 3 * 1024 * 1024;
-  record(`${name}-input.json`, { size, byte: 17, sha256: digest(bytes), root: prepared.hash,
+  record(`${name}-input.json`, { size, bytes_pattern: name === 'single' ? [0, 128, 255] : { fill: 17 },
+    selected_view: true, caller_mutated_after_start: true, sha256: digest(bytes), root: prepared.hash,
     manifest, maxTotalRequestBytes, mode, expected: 'local observation only' });
   const options = { certificate, intents, origin,
     maxRequests: 3, maxRequestBytes: 2 * 1024 * 1024, maxTotalRequestBytes,

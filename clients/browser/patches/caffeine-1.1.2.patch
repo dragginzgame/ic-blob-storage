@@ -86,6 +86,14 @@
          // HTTP headers for fetch requests (used for the PUT request to gateway)
          const httpHeaders = {
              "Content-Type": "application/json",
+@@ -382,6 +400,6 @@
+         };
+         const contentType = await resolveBlobContentType(blobBytes, contentTypeHint);
+-        const file = new Blob([new Uint8Array(blobBytes)], {
++        const file = new Blob([blobBytes], {
+             type: contentType,
+         });
+         const fileHeaders = {
 @@ -395,6 +413,22 @@
 +        if (cacheControlHint !== undefined) {
 +            fileHeaders["Cache-Control"] = cacheControlHint;

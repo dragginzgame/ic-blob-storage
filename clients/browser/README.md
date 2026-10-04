@@ -363,7 +363,8 @@ The transfer
 contains `binding`, absolute `body`, `body_sha256`, `manifest_json`, decimal `bytes`
 and the original `preparation` object. The bridge owns this request before awaits,
 opens only the selected regular file with an explicit body ceiling, checks exact
-length/EOF and raw digest, and sends at most 64 KiB per CDP body value. The worker
+length/EOF and raw digest, and sends at most 64 KiB of raw bytes per CDP frame as
+one base64 string. This avoids Playwright's per-byte argument serialization. The worker
 then recomputes the SDK root/manifest before certificate intent. No body, signer
 or configuration is exposed through the asset HTTP server; it serves only the
 fixed page and two trusted JavaScript bundles, with no cache, redirects or fallback
@@ -417,8 +418,15 @@ prove a profile wasn't rolled back; stale-backup fencing remains required.
 
 Chromium launch/navigation waits and the running context have explicit deadlines;
 local file I/O and Playwright process shutdown are not preemptively bounded.
-Large-file peak heap/CDP latency and hostile local-user/key-memory isolation are
-not qualified. This is a callable process bridge, not a complete noninteractive
+The [local handoff measurements](../../docs/evidence/caffeine-probes/README.md#browser-body-handoff-profile--2026-10-04)
+cover instrumented 1/8/32 MiB preparation/refusals before certificate intent.
+Full worker/browser process peak memory, successful transfer latency, concurrent
+publishers and hostile local-user/key-memory isolation remain unqualified.
+After building the paired tools, run the opt-in measurement with
+`node tests/browser/launcher-profile.mjs NEW_DIRECTORY` from the repository root;
+it preserves a fresh profile, bodies and results and allows only owned loopback
+assets. It is not part of the default checks or a production timing threshold.
+This is a callable process bridge, not a complete noninteractive
 publisher: the durable native parent must still retain its keys and original
 session location, own its native process and choose explicit restart after uncertainty.
 Native intent and profile now retain the immutable joint selection. They do not
