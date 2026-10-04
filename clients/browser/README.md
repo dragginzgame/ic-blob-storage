@@ -725,17 +725,26 @@ rollback. Startup refuses if its connection is invalidated during validation.
 The optional `indexedDB` factory is a trusted platform boundary,
 defaulting to the browser's own IndexedDB implementation.
 
-The ceiling does not preallocate rows or qualify a million-row workload. Actual
-Chromium evidence covers 675 synthetic lifetime rows across browser restart and
-the one-million configuration with one cancelled row. Browser disk/quota,
-transaction-count latency and profile durability still require consumer sizing.
+The ceiling does not preallocate rows or qualify a million-row workload. The
+[populated journal measurements](../../docs/evidence/caffeine-probes/README.md#populated-browser-journal-profile--2026-10-04)
+cover 675/5,000/10,000 compact synthetic lifetime rows across graceful browser
+restart, preserving uncertain and cancelled history at full capacity. The original
+20,000-row population exceeded the fixture's three-minute deadline; its profile and
+partial results remain intact. The one-million configuration is checked separately
+with one cancelled row. Actual envelope/history sizes, browser disk/quota and
+profile durability still require consumer sizing. Run the opt-in profile after
+building the paired tools with `node tests/browser/store-profile.mjs NEW_DIRECTORY`
+from the repository root; it preserves original profiles/results and permits only
+owned loopback assets. It adds no default CI workload or production timing threshold.
 Native publication batches remain bounded to 4,096 files; service object capacity
 is configured independently. Never reset an exhausted journal to repeat an attempt.
 
 Writes require a `strict` durability transaction and resolve after transaction
 completion, never after an individual request succeeds. Binding, phase, gateway
 history and capacity checks share that transaction across tabs. The implementation
-uses a point lookup and count, never a full-store scan, validates bounded rows and
+uses a point lookup and IndexedDB count without walking or materializing the whole
+store in JavaScript. The count API does not promise constant-cost engine work.
+The implementation validates bounded rows and
 snapshots caller-owned arguments before storage awaits. Store opening and each
 transaction have ten-second local timeouts. Missing/configuration-conflicting/
 structurally corrupt records refuse; `IntentRefusal.code` reports local failures,

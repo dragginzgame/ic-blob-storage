@@ -6,7 +6,7 @@ use super::{
     UploadStoreRecord, UploadUsageRecord, key, metadata, validation,
 };
 use crate::model::lifecycle::{LifecyclePhase, ReferenceState};
-use std::collections::{BTreeMap as HeapMap, BTreeSet};
+use std::collections::BTreeMap as HeapMap;
 
 pub(crate) fn envelope(config: &ServiceConfiguration) -> Result<(), UploadStoreError> {
     let limits = config.manifest_limits();
@@ -58,7 +58,6 @@ impl<M: Memory> StableUploads<M> {
         }
         let mut totals =
             HeapMap::from([(Principal::management_canister(), UploadUsageRecord::empty())]);
-        let mut roots = BTreeSet::new();
         let mut manifest_count = 0;
         let mut confirmed_count = 0;
         let mut reference_count = 0;
@@ -77,9 +76,13 @@ impl<M: Memory> StableUploads<M> {
                 service: self.config.bindings().service,
                 actor: object.tenant(),
             };
-            if key(input.request) != *entry.key() || !roots.insert(input.request.object.root) {
+            if key(input.request) != *entry.key() {
                 return Err(UploadStoreError::InvalidRecord);
             }
+            // The opened root owner binds each root to one exact object/tenant.
+            // This index binds it to one request ID, and the permission key binds
+            // that tenant/ID pair. Together they rule out duplicate roots without
+            // retaining another per-object heap index during restoration.
             if self.root_requests.get(input.request.object.root.as_bytes())
                 != Some(input.request.id.get().get())
             {
@@ -99,7 +102,8 @@ impl<M: Memory> StableUploads<M> {
                 return Err(UploadStoreError::InvalidRecord);
             }
             manifest_count += u64::from(self.validate_manifest(input.request, view.manifest)?);
-            let confirmed = self.validate_confirmed(input.request, view.phase)?;
+            let confirmed =
+                self.validate_confirmed(input.request, view.phase, view.admitted_at_ns)?;
             if let Some(record) = confirmed {
                 confirmed_count += 1;
                 reference_count += record.counts().0;
@@ -180,6 +184,7 @@ impl<M: Memory> StableUploads<M> {
         &self,
         upload: UploadRequest,
         phase: UploadPhase,
+        admitted_at_ns: u64,
     ) -> Result<Option<ConfirmedLifecycleRecord>, UploadStoreError> {
         let owner = key(upload);
         let retained = self.confirmed.get(&owner);
@@ -196,14 +201,9 @@ impl<M: Memory> StableUploads<M> {
         if let crate::model::service::upload::record::lifecycle::CompletionRecord::Attested(
             evidence,
         ) = record.completion()
+            && evidence.observed_at_ns < admitted_at_ns
         {
-            let permission = self
-                .required(upload)?
-                .view()
-                .ok_or(UploadStoreError::InvalidRecord)?;
-            if evidence.observed_at_ns < permission.admitted_at_ns {
-                return Err(UploadStoreError::InvalidRecord);
-            }
+            return Err(UploadStoreError::InvalidRecord);
         }
         let mut references = 0;
         let mut active = 0;

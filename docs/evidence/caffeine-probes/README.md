@@ -1,5 +1,97 @@
 # Caffeine probe ledger
 
+## Matching 0.14.6 media rehearsal — 2026-10-04
+
+The [intent](local/2026-10-04-released-media-v0146-01/intent.json) precedes rebuilding
+and freezing the released 0.14.6 CLI, standalone Wasm, maintained PocketIC harness
+and paired browser tools. Production and selected harness sources match the
+released commit before/after execution; Cargo/receipt stay unchanged. The graph
+locks ic-memory 0.25.0 and ic-testkit 0.14.11. PocketIC independently checks the
+Wasm's compiled release against explicitly selected 0.14.6 and rejects installation
+inputs bound to the wrong actual service before allocation.
+
+| Journey | PUTs / GETs | Retained physical / liability bytes | Result |
+| --- | ---: | ---: | --- |
+| Original GLB/WebP completion | 11 / 9 | 8,389,774 / 8,389,774 | Complete verified downloads and recovered map |
+| Original PNG/JPEG lost reply/control interruption | 7 / 10 | 4,318,116 / 4,318,116 | Original uncertain claim survives; no additional PUT on recovery |
+
+All four original roots, chunk manifests, whole-content hashes and immutable cache
+headers agree with retained original-cache preparation. Actual Chromium/worker,
+native verifier and standalone service participate. Reopening preserves original
+bindings and journals. Occupied local map output refuses without undoing service
+completion; another output recovers the complete map. Overlapping references keep
+delivery after first release; final release refuses tenant downloads while retaining
+physical/billing obligations and historical receipts. Sessions retain the shared
+120-second bound and distinct whole-fixture 180-second bound.
+
+The [summary](local/2026-10-04-released-media-v0146-01/summary.json) binds the released
+source archive, exact frozen artifacts, selected original media, commands, logs,
+requests/results and retained original profiles under `.tmp/released-media-v0146-01`.
+A preparation command used the unsupported `version` argument; its Node child
+error/typed CLI refusal and the subsequent missing-runner attempt are retained.
+Direct `--version` readback corrects selection before any journey. Installation
+readback and both actual journeys pass; no failed provider effect is replayed.
+
+This is local IC/provider-substitute evidence from repository-built tools, not a
+second clean-prefix/no-Git installation check, consumer adoption, game rendering,
+production-origin qualification or deployed Caffeine behavior. It adds no runtime
+flow or schema and makes no successful-upload performance or peak-memory claim.
+Earlier clean-source and deadline records retain their original 0.14.3 identities.
+No full CI, version/dependency change, commit, publication, deployment, live provider
+request, paid cycle, sibling edit/message or build cleanup occurs. Certified consumer
+registration, deployed retention/deletion/final billing and large-scale service
+restoration remain open.
+
+## Populated browser journal profile — 2026-10-04
+
+The [intent](local/2026-10-04-browser-journal-profile-01/intent.json) precedes an
+actual maintained IndexedDB journal run on released 0.14.6. The first attempt
+populates 675/5,000 rows, then reaches the whole fixture's 180-second deadline
+following the 17,500-row checkpoint of its 20,000-row tier. Its failure, checkpoints
+and original profile remain intact. No per-transaction timeout is reported and no
+restart qualification is claimed for that run.
+
+The [follow-up intent](local/2026-10-04-browser-journal-profile-01/followup-intent.json)
+precedes a fresh 675/5,000/10,000-row pass. The maintained opt-in fixture now reopens
+each completed tier before starting another, retaining completed evidence if a
+later workload fails. It uses public journal methods and strict individual commits,
+with synthetic compact bindings/envelopes and no certificate or gateway dispatch.
+
+| Lifetime rows | Population | Reopen including CDP call | Median selected read after restart |
+| ---: | ---: | ---: | ---: |
+| 675 | 2.08 s | 13.3 ms | 1.4 ms |
+| 5,000 | 22.60 s | 39.4 ms | 4.4 ms |
+| 10,000 | 63.67 s | 20.7 ms | 7.0 ms |
+
+Each is one local instrumented observation; reopening is not an OS cold-cache
+measurement and the timings are not production thresholds. Thirty sequential
+selected reads per tier are measured inside the page, excluding the outer CDP
+handoff. Population blocks contain at most 500 strict saves. Page heap excludes
+native IndexedDB storage and browser RSS; it is not a peak-memory measurement.
+
+Exact uncertain certificate, permanently cancelled saved and observed-certificate/
+uncertain-gateway rows survive process restart. New admission at full lifetime
+capacity, certificate replay, cancelled dispatch and continuation after an uncertain
+gateway request return their typed refusals. Existing save at capacity returns the
+unchanged original row. These are synthetic client records, not authenticated
+certificates, provider objects or canister lifecycle evidence.
+
+The [summary](local/2026-10-04-browser-journal-profile-01/summary.json) binds released
+source/receipt, original and final fixture sources, bundle, failure, checkpoints,
+results and original profiles under `.tmp/browser-journal-profile-01`. Paired tools
+build; scoped syntax/changelog/diff and artifact checks pass. All requests are owned
+loopback asset GETs, with zero live IC/provider requests or paid cycles. Production
+capacity/durability/replay checks and schema remain unchanged; no counter, cache,
+retry or reset is added. The documentation no longer implies that IndexedDB count
+is guaranteed constant-cost or cannot scan internally. Precise engine cost remains
+unattributed; these timings do not justify deleting a correctness check.
+
+No full CI/Rust build, version/dependency change, commit, deployment, sibling edit/
+message or build cleanup occurs. Million-row capacity, large real envelopes,
+eviction/power loss/profile rollback, full worker/browser memory and service-canister
+reopen/instruction budgets remain unqualified. Consumer adoption and certified asset
+registration remain open; no retained effect profile is replaced or erased.
+
 ## SDK owned Blob preparation — 2026-10-04
 
 The [intent](local/2026-10-04-sdk-owned-blob-01/intent.json) precedes a focused

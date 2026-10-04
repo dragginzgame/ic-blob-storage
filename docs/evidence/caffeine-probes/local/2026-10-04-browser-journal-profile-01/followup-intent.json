@@ -1,0 +1,27 @@
+{
+  "schema": 1,
+  "evidence_class": "local_chromium_indexeddb",
+  "original_result": "fixture deadline expired during 20000-row population",
+  "original_completed_population_capacities": [
+    675,
+    5000
+  ],
+  "original_reopened_capacities": [],
+  "last_20000_row_checkpoint": 17500,
+  "original_source_sha256": "836e3cf42b3ddc39e02a3ce64a2f58f085a7a6792c368112011792c41c08ab82",
+  "plan": "Keep failed run, original profile and checkpoints intact. Use fresh profile and capacities 675/5000/10000. Reopen each completed capacity before starting the next, so a larger-workload failure cannot prevent completed restart evidence. Retain all checkpoints/results and distinguish fixture timeout from journal transaction timeout. Keep all production capacity, durability, ownership and replay checks unchanged.",
+  "rows": [
+    675,
+    5000,
+    10000
+  ],
+  "fixture_deadline_seconds": 180,
+  "cycles_budget": "0",
+  "live_ic_requests": 0,
+  "live_provider_requests": 0,
+  "limitations": [
+    "No retry of provider/certificate effects; synthetic history only",
+    "No million-row or canister restoration qualification",
+    "No measured cause attribution to the browser storage engine; count-cost scaling remains an investigation"
+  ]
+}

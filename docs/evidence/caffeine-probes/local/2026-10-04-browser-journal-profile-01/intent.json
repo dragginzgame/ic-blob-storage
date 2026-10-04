@@ -1,0 +1,29 @@
+{
+  "schema": 1,
+  "evidence_class": "local_chromium_indexeddb",
+  "source_release": "0.14.6",
+  "source_commit": "edc8a9b4df672569b03e1454d620c70dbbf4fa52",
+  "target": "Maintained browser journal strict commits, selected reads and graceful process reopen at populated capacities",
+  "rows": [
+    675,
+    5000,
+    20000
+  ],
+  "cycles_budget": "0",
+  "live_ic_requests": 0,
+  "live_provider_requests": 0,
+  "plan": "Use fresh synthetic bindings and actual maintained journal methods only. Populate each lifetime capacity with individual strict commits; retain uncertain certificate, cancelled saved and observed certificate/uncertain gateway rows. Measure population blocks and selected reads. Close Chromium, reopen the same profile/origin, compare retained rows and typed capacity/replay refusals. Capture heap samples without interpreting them as full-browser peaks. Retain each checkpoint and all profiles/failures. No deletion/reset, migration, counter change or provider effect.",
+  "limits": {
+    "rows": 25675,
+    "fixture_deadline_seconds": 180,
+    "transaction_deadline_seconds": 10,
+    "read_samples_per_capacity": 30
+  },
+  "limitations": [
+    "Synthetic compact journal bindings and envelopes; no actual certificate or provider object",
+    "Single local instrumented observations; not timing thresholds or million-row qualification",
+    "Graceful browser restart, not power-loss, eviction, profile rollback or OS cold-cache qualification",
+    "Page heap excludes browser native storage/RSS; population does not exercise service canister restoration"
+  ],
+  "retained_directory": ".tmp/browser-journal-profile-01"
+}

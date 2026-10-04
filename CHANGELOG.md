@@ -2,6 +2,38 @@
 
 ## [Unreleased]
 
+## [0.14.7]
+
+### Added
+
+- Add opt-in populated browser journal profiling through strict commits and
+  graceful process restart. Preserve exact uncertain/cancelled histories and
+  capacity/replay refusals at 675, 5,000 and 10,000 rows. Retain the earlier
+  20,000-row attempt that exceeded the fixture deadline; no default CI workload,
+  state counter, schema change or provider effect is introduced.
+- Requalify complete GLB/WebP delivery and PNG/JPEG lost-reply/control-interruption
+  recovery with matching rebuilt 0.14.6 CLI, standalone Wasm and browser tools on
+  ic-memory 0.25.0 and ic-testkit 0.14.11. Verify the installed release, original
+  roots/chunks/whole bytes/cache headers, recovered maps and reference liabilities;
+  recovery dispatches no additional PUT. Retain hashes, logs and original profiles
+  as local/substitute evidence, without claiming deployed provider qualification.
+
+### Changed
+
+- Simplify synchronous upload restoration: remove the temporary set of every blob
+  root and reuse the decoded permission's admission time for attestation validation.
+  Keep durable index, tenant/request uniqueness, accounting and recovery-fence
+  checks. Corrupt duplicate bindings and pre-admission attestations still refuse
+  without repair; storage layouts and public contracts remain unchanged.
+- Refresh the acceptance plan to reflect retained live trials, current same-release
+  recovery and local media qualification, while keeping consumer adoption,
+  production serving and provider retirement obligations explicit.
+- Clarify that IndexedDB point lookups and count do not guarantee constant-cost
+  operations. Keep journal capacity checks and distinguish measured browser
+  workloads from service-canister or million-object qualification.
+- Move the completed 0.14.6 handoff narrative into retained history and keep the
+  current handoff focused on release identity, qualification and remaining work.
+
 ## [0.14.6] - 2026-10-04
 
 ### Fixed

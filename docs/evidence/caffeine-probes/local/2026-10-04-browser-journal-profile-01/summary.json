@@ -1,0 +1,287 @@
+{
+  "schema": 1,
+  "evidence_class": "local_chromium_indexeddb",
+  "outcome": "bounded_followup_pass_with_retained_initial_failure",
+  "source_release": "0.14.6",
+  "source_commit": "edc8a9b4df672569b03e1454d620c70dbbf4fa52",
+  "validated_source": "c23609f264ed34c6885106d08657bb83c062aa32",
+  "retained_directory": ".tmp/browser-journal-profile-01",
+  "intent_sha256": "ef5ad1dbf033775f9fbf9930bfeaefc34d8aefd86051e542918389d2da9f3fce",
+  "followup_intent_sha256": "074c3fae0f8ff494aa837b89e792d37a30a18170ddda7bdb7dd7a34d5bde01eb",
+  "initial_run": {
+    "outcome": "failed",
+    "expired": true,
+    "completed_population_capacities": [
+      675,
+      5000
+    ],
+    "reopened_capacities": [],
+    "last_completed_20000_row_checkpoint": 17500,
+    "actual_partial_row_count": "unmeasured after interruption",
+    "cause": "whole fixture deadline; no per-transaction timeout reported",
+    "profile": ".tmp/browser-journal-profile-01/run/profile"
+  },
+  "followup_run": {
+    "outcome": "pass",
+    "measurements": [
+      {
+        "rows": 675,
+        "population_ms": 2076.2000000001863,
+        "reopen_with_cdp_ms": 13.331567000000177,
+        "reads_before_median_ms": 1.2999999998137355,
+        "reads_after_median_ms": 1.400000000372529,
+        "reads_after_min_ms": 1.2000000001862645,
+        "reads_after_max_ms": 2.300000000745058,
+        "read_samples": 30,
+        "page_heap_sample": {
+          "usedSize": 4587440,
+          "totalSize": 8450048,
+          "embedderHeapUsedSize": 5915792,
+          "backingStorageSize": 67208
+        },
+        "retained_states": [
+          "uncertain certificate",
+          "cancelled saved",
+          "observed certificate with uncertain gateway"
+        ],
+        "refusals": [
+          "capacity",
+          "dispatch-blocked",
+          "dispatch-blocked",
+          "gateway-uncertain"
+        ]
+      },
+      {
+        "rows": 5000,
+        "population_ms": 22601.89999999944,
+        "reopen_with_cdp_ms": 39.415148000000045,
+        "reads_before_median_ms": 4.599999999627471,
+        "reads_after_median_ms": 4.3999999994412065,
+        "reads_after_min_ms": 3.900000000372529,
+        "reads_after_max_ms": 8.299999999813735,
+        "read_samples": 30,
+        "page_heap_sample": {
+          "usedSize": 16312588,
+          "totalSize": 25489408,
+          "embedderHeapUsedSize": 34863272,
+          "backingStorageSize": 241492
+        },
+        "retained_states": [
+          "uncertain certificate",
+          "cancelled saved",
+          "observed certificate with uncertain gateway"
+        ],
+        "refusals": [
+          "capacity",
+          "dispatch-blocked",
+          "dispatch-blocked",
+          "gateway-uncertain"
+        ]
+      },
+      {
+        "rows": 10000,
+        "population_ms": 63671.20000000112,
+        "reopen_with_cdp_ms": 20.651601999998093,
+        "reads_before_median_ms": 7.2999999998137355,
+        "reads_after_median_ms": 7,
+        "reads_after_min_ms": 6.599999999627471,
+        "reads_after_max_ms": 8,
+        "read_samples": 30,
+        "page_heap_sample": {
+          "usedSize": 10491140,
+          "totalSize": 31256576,
+          "embedderHeapUsedSize": 5726000,
+          "backingStorageSize": 80370
+        },
+        "retained_states": [
+          "uncertain certificate",
+          "cancelled saved",
+          "observed certificate with uncertain gateway"
+        ],
+        "refusals": [
+          "capacity",
+          "dispatch-blocked",
+          "dispatch-blocked",
+          "gateway-uncertain"
+        ]
+      }
+    ],
+    "profile": "/home/adam/projects/ic-blob-storage/.tmp/browser-journal-profile-01/followup-run/profile",
+    "origin": "http://127.0.0.1:46871",
+    "requests": [
+      {
+        "method": "GET",
+        "url": "http://127.0.0.1:46871/"
+      },
+      {
+        "method": "GET",
+        "url": "http://127.0.0.1:46871/store.js"
+      },
+      {
+        "method": "GET",
+        "url": "http://127.0.0.1:46871/"
+      },
+      {
+        "method": "GET",
+        "url": "http://127.0.0.1:46871/store.js"
+      },
+      {
+        "method": "GET",
+        "url": "http://127.0.0.1:46871/"
+      },
+      {
+        "method": "GET",
+        "url": "http://127.0.0.1:46871/store.js"
+      },
+      {
+        "method": "GET",
+        "url": "http://127.0.0.1:46871/"
+      },
+      {
+        "method": "GET",
+        "url": "http://127.0.0.1:46871/store.js"
+      }
+    ],
+    "blocked": [],
+    "chromium": "153.0.8010.12",
+    "node": "v24.21.0",
+    "store_bundle_sha256": "48d2e87fc35ad8ec0597c42dbe74689db4c51eca8403d76feacf0dc467271928"
+  },
+  "source_hashes": {
+    "tests/browser/store-profile.mjs": "f895e2a73403f873df48ca825d0b91775e78c59264e93b3f5a883ea3da129f51",
+    "tests/browser/store.js": "0b3529e8055a1fecf3a23c851e296fe66e4970728edec938b84dab9845eacbf2",
+    "tests/browser/build.mjs": "9f7b82f4f0992d87c39463a2df644a768e61e1ce9e54f061aaab337b4a9e41c1",
+    "clients/browser/intents.js": "46072e9469adbdee19a587caacb6e3b1ee9d5b8fe4708fade67a558a7e7773d4",
+    "clients/browser/validation.js": "88f870c04ce304b2641268937c7fb9badda51644aa803418b2f31c76619bd773",
+    "clients/browser/namespace.js": "068539b89d51f3fa4067900c54154a54fcfe424abb908aa828e1e64640720360",
+    "clients/browser/README.md": "2fba63425967a931dcd37e98c5cb2a2a5fc7ae7c029e7711533677925e99c888",
+    "tests/browser/package.json": "b7b95569430c4e8d24dbd2fb7249b5b4e04a9d4a87bbc558eafeacf9d2e54977",
+    "tests/browser/package-lock.json": "79bd78166f2c95aa341742d833d42eefb510adba1078d5136cda1211740d9a2d",
+    "docs/status/current.md": "46d53624067ada0a4ab8708debb6b2c743f7d4d1970139e21a386848e7c2448d",
+    "docs/status/history.md": "a9f1b553e5a33c5265782ff887b868769d48b9c3e079dc3593ed50585d7c919b",
+    "docs/evidence/caffeine-probes/README.md": "8f1f618f00b580c892cc67dee00d3eddaffbc8de97cc381fb87cee31dce11a70",
+    "CHANGELOG.md": "471f8b04ce055f99dfd180a0c3d80b4291cf7214e0fbd6f0f1343d153b831a5e",
+    "Cargo.toml": "af914c63153474924808e6896ce306d6b327b7e89e405d359a6d3732389a4a5a",
+    "Cargo.lock": "a682c010158b26031e1c6b95101bc30edf5a269c65481a95d84c92a971b23643",
+    "docs/release.json": "c14f049f17c6d6906509c9f007540edd9144e3af2ebb6fc3f1e0dfa57618469d"
+  },
+  "artifact_hashes": {
+    "build.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "run.log": "5ce6e1a815f02956b29f8daffb9be3145504b12489431def39be77902c33a229",
+    "followup.log": "03da07a26da8e2cee5ebbcbd119750e69547bb78757c259351e63af91620bc98",
+    "initial-store-profile.mjs": "836e3cf42b3ddc39e02a3ce64a2f58f085a7a6792c368112011792c41c08ab82",
+    "released-current.md": "a306e0c855f6372207418549796e3ac18297c6b8f9d9f8a682e0809db346fc98",
+    "released-changelog.md": "b97c9af18526ca8813c03ad2f9575b3a654baa4b22ead5a464abde58e8ba16fd",
+    "released-history.md": "ad416064b68a457db7ee97b22e5699576ee5747a9a73832a8fa8818f55cc9f10",
+    "run/failure.json": "e2cca86d6aeb45170d485077100ee0fdf11b2da6a009ae3eafd88292f432d38e",
+    "run/populated-5000.json": "79445dbd68f1730eb142a06e7d6d6f252086e1c7f94135f0b95ee43e70ed2c41",
+    "run/populated-675.json": "1c4bbf276c52ec7034e64ee53afa6efe22e86bdaa4b1103e319c6919bdab05c0",
+    "run/population-20000-1000.json": "98900d6b5427e8f68b66d2648c47d8619f5042fcaf7e97a044886c66e01c7662",
+    "run/population-20000-10000.json": "7492ad637bd89aa0157bd320459ba909ef86f9889d5c38ab2d27c5c41bd8172a",
+    "run/population-20000-10500.json": "884269a319f5208dab5f40f646d86ed316cc90f9a320af7b21017f0dfa41c362",
+    "run/population-20000-11000.json": "bd4f3caf7a6338021e554822bed1cab06cf0471a86ca5670190a9acf0c52a1b0",
+    "run/population-20000-11500.json": "2803e8757a60be06f41c33344e8223739b5b69095389e21eaac8598518a7e6bb",
+    "run/population-20000-12000.json": "ec41424b8cd08c7630fe5a5e63ca9bca227d6796201ac89f968cbe72179b2bde",
+    "run/population-20000-12500.json": "56844d7c99114a18d2f45872eed3314fe27994f8283f14602a443b726e5628ef",
+    "run/population-20000-13000.json": "2bb1c2863eb2228b5053d212fcc89b02336f0e3ea60a46d78d75f71d515828bd",
+    "run/population-20000-13500.json": "42e6916023d394c59ec2328a7805815d43ad8c59d44c59ef5d51a5eaa4152a41",
+    "run/population-20000-14000.json": "7c1c2f0dde5cf24c71558ee60219060cb6ae6fa66fd7939299606488384440e6",
+    "run/population-20000-14500.json": "9ef6d9d2697dffb00d3ca4df6d10bfd0152ffaaacb0ad031f9a97f52775a8586",
+    "run/population-20000-1500.json": "47d0f6591480750454456bd49381412a18ed5a91d0bf2545b3cf2fad3e5d6540",
+    "run/population-20000-15000.json": "8d128dd5bab9e56cfeaab3239938f51702eadcd1738b1040740fe1edbd621e6a",
+    "run/population-20000-15500.json": "333eb7289a7eaef1ad5a91e5a5ade3fd010904c1a029310625d427c2f6daa041",
+    "run/population-20000-16000.json": "ec226e6db4abd07bb4f44f12eddbc6c8d5c96e99ae8c788d7a4a23d0615a26b6",
+    "run/population-20000-16500.json": "507a00c138e832e0dbb962b6c3d077374067816425eadbcd7444b8a8394caa12",
+    "run/population-20000-17000.json": "1d7740fd5c438bd8f6a86f3c71e6cd20b19bfdebeb52c54364637f870089b056",
+    "run/population-20000-17500.json": "6bd72c48c473a212c7e26a782f3be12b463b305661d3ba988d36a6a98fbe6a24",
+    "run/population-20000-2000.json": "74590e399828a9cd4d2c503cfdab6a34854469258183d9c994ffdd21a3b20169",
+    "run/population-20000-2500.json": "2caedf817684d68f0bb4338dcea0a76daae9adb41f3c8b4467132796edfd45f5",
+    "run/population-20000-3000.json": "7cce6af0e3b98f14dc9c9232c34ca16b7ff523a09dca4a2651af5924af1c6ec9",
+    "run/population-20000-3500.json": "15d61b65f153987ace47a5b4a53f9db760f0abe0bd4f36a16c55b7663d889f24",
+    "run/population-20000-4000.json": "c3590dfc848b2f3b7fd526b14ef17ebcbef2c9dbfaa6700448f626b71798fb5f",
+    "run/population-20000-4500.json": "17b81129ab51915769b13d919ff8146128f463f9833462db681b0e20a436d09b",
+    "run/population-20000-500.json": "3cefcca2cb0436e6523aa024d3e994cea66e7fc274d38aebbd60d1a92e92c180",
+    "run/population-20000-5000.json": "da390f47692ed86eeac4acffaa67255726303468181fea5ba5c8bb06b07ffc9f",
+    "run/population-20000-5500.json": "b895e1e65727d3fc7764c95512cedd568fb0c7b7d05f363021c6c8cd151d58f9",
+    "run/population-20000-6000.json": "9549ed40b2d23715b6c065b3f34a2e65dfa49a670a17c28f9ead9cd1951ebdaa",
+    "run/population-20000-6500.json": "706f8e08c4b369d3ef2ba86695a34fe55f98791d109baf750023629a6c78f47b",
+    "run/population-20000-7000.json": "4cf8ea7e0a7cb60fb35fc3678c4638326d49bccfd2bc794b293b031629a9d336",
+    "run/population-20000-7500.json": "5ac85402fbc8b91ad8cc581a5009b52a546471c3df709aadd14c06ef170a4f38",
+    "run/population-20000-8000.json": "dbe9fb40bf9905d9c656fcba3233186898565899318eb8ca7b56c7ee1d997539",
+    "run/population-20000-8500.json": "6b4a63a517b46cb4a4aa3a37d92a47485ba732efa019a28416239cd3d578dfb9",
+    "run/population-20000-9000.json": "1b5e12e5941e2bdfadeaabcf7ee7a0294cfc9aad2c158adf3082977ae6f29317",
+    "run/population-20000-9500.json": "403c2acbedc154a4724e15fae1a77d062e7bd1e90d48119c909f8682e0636f9e",
+    "run/population-5000-1000.json": "5a40f7f7f20e3fa20e61db6bfeac392e15eccb3e6f7e2bb32c45ed3b7cefb63a",
+    "run/population-5000-1500.json": "522816c8df14bce4e6c0e33562ed4fc343da8adfa60c628f5f6a8fa603acc3d5",
+    "run/population-5000-2000.json": "e7c7642fba454da540c39ac7541f7c851e113a42c255d86eeb28be23103772cc",
+    "run/population-5000-2500.json": "6f98ae31658af85ebbd1284e4f48639e5f8f1f5be8a4da9c3ab1f0f8996f49d8",
+    "run/population-5000-3000.json": "504821a75764d849124d25275849f4146913f8d26d5c79f2760a448d7028291d",
+    "run/population-5000-3500.json": "e96e3347fad94c0cbaae1248db457fe9714f0c0e2c3b51ec9f6d15e902f62917",
+    "run/population-5000-4000.json": "e179245bf73eff0bdf7f85b24ae5f9a65604f38ce4c04d675f6cd7c6e0d01ae2",
+    "run/population-5000-4500.json": "c78d59631b66ae03fb3785b2df0d04abb5f0914e24087c4a7e763c37b26e7c61",
+    "run/population-5000-500.json": "30b7a168cb987a6abaab7356725a9e225cf84d18c4105f0847188f5447fcdbde",
+    "run/population-5000-5000.json": "6b6814ce1d782fa13c242ed45cefa1fe85821510c50f5ef8a5408b30bdd8e815",
+    "run/population-675-500.json": "1f6445256ded4e431f917f474ffaa2bbb796dd22254e955f87c261401588a520",
+    "run/population-675-675.json": "c4ccd7a4b9f1bcd0965a77cc79b9b5abfa2b51dfbf4c3c16e8ce72a682c1c5a9",
+    "followup-run/populated-10000.json": "240148cd148fd9997671866c96eedbb52954c71c0a94e1ab69900bbce5d8f497",
+    "followup-run/populated-5000.json": "90e1b32fdc85f31d73adf4295dee07b1cb08fe5c7e7fca23c531a556facdb643",
+    "followup-run/populated-675.json": "2b9c448198bec5afde3e1c9014abb7eaa9afea99b1471cc0837a189da5d5e644",
+    "followup-run/population-10000-1000.json": "5027642b2c8f7ba82517124ad98aef148fb8e2b7c4839fab7561e72f8f36e5b3",
+    "followup-run/population-10000-10000.json": "946353b6046cf0525f3e76fd3dd50b578a73d498cd0047f5ce985181c5cb779e",
+    "followup-run/population-10000-1500.json": "7ac5062a3ef1df37071962f02811c644d31d44461f9ffa5e6dd16725c0d13166",
+    "followup-run/population-10000-2000.json": "1fa6395c700dd576c0bc77494d6d8bc3d7006da4bdbfead82b4f3b70e649a1cb",
+    "followup-run/population-10000-2500.json": "a456bba5434ea1968a8bcd624f623478f4dcec5a9f4be7b98b6efb06e314164e",
+    "followup-run/population-10000-3000.json": "6421f3b2e961e0970fd61641182170ebe7b82ee56873cfffe37d31e5b860b11c",
+    "followup-run/population-10000-3500.json": "5e8e1629b0be466cad2f5bd69edf8db91bca1951ebd5f15c90b78916149a08b2",
+    "followup-run/population-10000-4000.json": "c601e1f7ef576ee124d97e1faf17edbae86b677d5883913c33bacb02ad5a8432",
+    "followup-run/population-10000-4500.json": "bf05d5029ea00a5393f9d204ead93ee7c9c0ab19656d9ee7930c677273e8952b",
+    "followup-run/population-10000-500.json": "1a0e2368d53da4dd511f17d4b23bb49b91b904ce03c622e4ef2651c4f5b04ba8",
+    "followup-run/population-10000-5000.json": "2c93134fcd22c7a56d5ab0028cb3b0ede380b1a6fe9ca3740ce8a26b84140197",
+    "followup-run/population-10000-5500.json": "eef88da41108a77bfd0430fda5544ede890d869c280fe86087353ec5a33c2a88",
+    "followup-run/population-10000-6000.json": "c9df6d9dfdaa1aa4d43d949e8f7d345fde664038098be2325bf6378c92e0ade9",
+    "followup-run/population-10000-6500.json": "e373ebe3e7a950f4db0d535f4de65b77935c64f3bbb9467c0232fd126f21b96a",
+    "followup-run/population-10000-7000.json": "dddbae854142e2e199932a60ef5ecf5c7ac3d718109c40019406e32283947f88",
+    "followup-run/population-10000-7500.json": "4c2edc545e6a9acfa3fe2477b15ac9d5165bf591addf01ff3c18b8bb2c237226",
+    "followup-run/population-10000-8000.json": "63e482574b40070381289f291a88707100487182d3a7754615c92c55498057b6",
+    "followup-run/population-10000-8500.json": "7f977f2c9a4c52366bb9c89198ce93da70f5d022d4a40403a985d3b4ca3e3d86",
+    "followup-run/population-10000-9000.json": "6df5aabde3fc698db2c25a5c7dbfdff5a2966d2095ac6e8516486a7eb40c8590",
+    "followup-run/population-10000-9500.json": "4aea279881a1187a7994318f21054f913326ad97d1af8ebb9bff6cdb1ab158f4",
+    "followup-run/population-5000-1000.json": "8530c65547fd5fe6fbb54bb049e62b7936a9e2f932352463f5f325d2bc4235b1",
+    "followup-run/population-5000-1500.json": "d2a53a6673238730b7ce80447d1188164b9a4173d4ec8c436e78207a7e26e89d",
+    "followup-run/population-5000-2000.json": "915b57c567c5d7f36768e8a3a74e65611591dd7c107086223a81b2b876aa6352",
+    "followup-run/population-5000-2500.json": "43d4435b355801fbee59505bc390a9d1ed4f8a61d3d7ce5ca5c7d037efbc8785",
+    "followup-run/population-5000-3000.json": "f0e30c86ce8f3495800856784edfddb8331676a08352448515beb7c42979dbef",
+    "followup-run/population-5000-3500.json": "5dc0b7de0a5a2c3cd26d21517ca7ea9b71368fdfdace55420925f75691e20b46",
+    "followup-run/population-5000-4000.json": "35b7b4a99db0674000cd1ef1502486ccc2fa004817cd4316b790560647e20bb9",
+    "followup-run/population-5000-4500.json": "768cb0cefbc0e9b4659997179b83a7192860801ac5583d7ca6404b9b2afd36cd",
+    "followup-run/population-5000-500.json": "e49629d891d6369c98fe93eddb7980e8a85d07d0a701a2d544505dac887f561c",
+    "followup-run/population-5000-5000.json": "35a039b98820ea97c386dec445a45489b43b8f6f7ef85064f6c99bc2280a3c31",
+    "followup-run/population-675-500.json": "6897ca4a52bfe2498782b749b44f60f0bc8759117be0893a8d1699d0bcfe80a0",
+    "followup-run/population-675-675.json": "ecf0b8789b094ce2a1b9d93e06c742b72ff0fe84d88c1a7ec9b5e9a26148bc2a",
+    "followup-run/reopened-10000.json": "3b596cd239790b4fafeffb94a919851716b39ccc08236826e6156f46aa77cb41",
+    "followup-run/reopened-5000.json": "ef6011847532c6db774dbb2953f8882a9dfce99f545e259d57d8f3c52ca0fcef",
+    "followup-run/reopened-675.json": "b9d16033cbff114b2853053e50436710ca1dae029236532b184cec003303c3d0",
+    "followup-run/summary.json": "7d08e7344e21c789402615c87376daafb3b7f2447f6697aa58877934848c277d"
+  },
+  "checks": [
+    "paired browser tools build",
+    "actual maintained store strict population and same-profile/origin process reopening pass for all bounded follow-up tiers",
+    "exact uncertain/cancelled history and typed capacity/replay refusals retained",
+    "fixture JavaScript syntax/changelog/diff checks pass",
+    "release files, unchanged historical notes and complete archived handoff verified"
+  ],
+  "live_ic_requests": 0,
+  "live_provider_requests": 0,
+  "paid_cycles": "0",
+  "automatic_retries": 0,
+  "production_changes": "none; capacity/durability/history/timeout/schema unchanged",
+  "limitations": [
+    "Synthetic compact records and opaque envelopes; no certificate or provider effect",
+    "Single instrumented local pass, not timing thresholds or million-row qualification",
+    "Graceful process restart, not power loss, eviction, profile rollback or cold OS cache",
+    "Page heap excludes browser native storage/RSS; no canister reopen measurement",
+    "No attribution of measured growth to specific browser-engine operations",
+    "No larger real-envelope or concurrent-tab workload qualification",
+    "Consumer tool adoption and certified asset registration remain open"
+  ]
+}

@@ -2,7 +2,34 @@
 
 This file retains source-bound history. Sections describing the removed Canic
 adapter and its former commands are historical; current library/standalone scope
-and validation are recorded in the 2026-10-02 independent-library section below.
+and validation are recorded in the [current handoff](../status/current.md).
+
+## Upload restoration simplification — 2026-10-04
+
+The [source/artifact record](upload-restoration-simplification.json) identifies
+released 0.14.6 plus the 0.14.7 draft, still compiled with package version 0.14.6.
+`StableUploads::open` opens and validates the root/object owner before validating
+permissions. Each permission must match its tenant/request key, its root's original
+request ID and its root's exact object/tenant. A shared root therefore implies one
+tenant and one request key; a second temporary heap set adds no uniqueness fact.
+That set is removed. The already decoded admission time also replaces a second
+permission read during attested-completion validation.
+
+The [recovery tests](../../crates/ic-blob-storage/src/ops/service/uploads/tests/recovery/mod.rs)
+accept distinct roots with shared request IDs across tenants, then reject same-root
+corruption both within and across tenants while preserving all ten memories. The
+[completion tests](../../crates/ic-blob-storage/src/ops/service/uploads/tests/completion/mod.rs)
+retain valid late attestations and reject observations before original admission.
+Existing malformed root/request indexes, manifests, references/receipts, totals,
+fences and storage assembly remain covered. Scoped native checks, strict core
+Clippy, rebuilt Wasm and actual PocketIC same-release restoration checks pass.
+An initial compile mistake and the broad-filter missing-fixture run remain recorded;
+all five missing-fixture cases pass after provisioning the maintained substitutes.
+
+This removes transient bookkeeping, not a durable index or validation scan. No
+wire/storage layout, API, recovery authority, repair path or provider effect changes.
+There is no measured instruction/heap saving or million-object qualification.
+Older released-media artifacts and all previous records retain their identities.
 
 The original core candidate is recorded below; subsequent local ports have
 separate source hashes in their sections.
