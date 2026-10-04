@@ -12,7 +12,7 @@ await mkdir(directory, { mode: 0o700 });
 const record = (name, value) => writeFile(join(directory, name), JSON.stringify(value,null,2)+'\n', { flag:'wx', mode:0o600 });
 const digest = bytes => createHash('sha256').update(bytes).digest('hex');
 await record('intent.json', { schema:1, evidence:'offline_sdk_frozen_input_refusals',
-  maxBodyBytes:1024, providerRequests:0, certificateRequests:0, intentClaims:0,
+  maxBodyBytes:1024*1024+479, providerRequests:0, certificateRequests:0, intentClaims:0,
   sourceSha256:digest(await readFile(new URL('../../clients/browser/publication.js',import.meta.url))) });
 const body = new Uint8Array(1024).fill(42);
 const prepared = await StorageClient.prepareFile(body,'image/png');
@@ -46,6 +46,8 @@ await refuses('oversized_metadata_hint',{filename:'x'.repeat(4097)},'metadata-hi
 await refuses('oversized_utf8_filename',{filename:'é'.repeat(2049)},'metadata-hint');
 await refuses('oversized_utf8_content_type',{contentType:'é'.repeat(2049)},'metadata-hint');
 await refuses('null_metadata_hint',{filename:null},'metadata-hint');
+await refuses('null_cache_hint',{cacheControl:null},'metadata-hint');
+await refuses('oversized_utf8_cache_hint',{cacheControl:'é'.repeat(2049)},'metadata-hint');
 await refuses('malformed_manifest',{manifestJSON:'{'},'manifest');
 await refuses('oversized_manifest',{manifestJSON:'x'.repeat(256*1024+1)},'manifest-size');
 await refuses('oversized_utf8_manifest',{manifestJSON:'é'.repeat(128*1024+1)},'manifest-size');
@@ -55,10 +57,42 @@ for (const field of ['headers','chunk_hashes','tree_type']) {
   changed[field] = field === 'tree_type' ? 'different' : [];
   await refuses(`changed_${field}`,{manifestJSON:JSON.stringify(changed)},'manifest');
 }
+await refuses('insufficient_tree_and_chunk_requests',{maxRequests:1,maxTotalRequestBytes:65536},'transfer-budget');
+await refuses('insufficient_chunk_request_bytes',{maxRequestBytes:1023,maxTotalRequestBytes:2046},'transfer-budget');
+await refuses('insufficient_total_chunk_bytes',{maxTotalRequestBytes:1023},'transfer-budget');
+await refuses('invalid_budget_bounds',{maxRequests:257},'transfer-budget');
+// A distinct partial tail ensures request count and largest-chunk demand come
+// from the SDK's full preparation, not from a one-chunk fixture assumption.
+const largeBody = new Uint8Array(1024*1024+479).fill(17);
+largeBody.fill(29,1024*1024);
+const largePrepared = await StorageClient.prepareFile(largeBody,'image/png');
+const large = {body:largeBody,bodySha256:digest(largeBody),manifestJSON:largePrepared.manifestJSON,
+  binding:{...base.binding,root:largePrepared.hash},maxBodyBytes:largeBody.length,
+  maxRequests:3,maxRequestBytes:1024*1024,maxTotalRequestBytes:largeBody.length};
+await refuses('multichunk_insufficient_requests',{...large,maxRequests:2},'transfer-budget');
+await refuses('multichunk_insufficient_largest_chunk',{...large,maxRequestBytes:1024*1024-1},'transfer-budget');
+await refuses('multichunk_insufficient_total',{...large,maxTotalRequestBytes:largeBody.length-1},'transfer-budget');
+const cacheControl = 'public, max-age=31536000, immutable';
+const cachedPrepared = await StorageClient.prepareFile(body,'image/png',undefined,cacheControl);
+const cached = {cacheControl,manifestJSON:cachedPrepared.manifestJSON,binding:{...base.binding,root:cachedPrepared.hash}};
+await refuses('omitted_original_cache_hint',{...cached,cacheControl:undefined},'root');
+await refuses('changed_original_cache_hint',{...cached,cacheControl:'no-store'},'root');
+await refuses('cache_hint_changes_uncached_root',{cacheControl},'root');
 const controller = new AbortController(); controller.abort();
 await assert.rejects(createPublicationUpload({...base,signal:controller.signal}), error => error.name==='AbortError');
 assert.equal(storeCalls,0); assert.equal(transportCalls,0);
 cases.push({name:'aborted_before_preparation',code:'AbortError',intentAccess:0,transportRequests:0});
+for (const [name,changes] of [
+  ['single_chunk_exact_lower_bounds',{maxRequestBytes:body.length,maxTotalRequestBytes:body.length}],
+  ['multichunk_exact_lower_bounds',large],
+  ['exact_original_cache_metadata',cached],
+]) {
+  await assert.rejects(createPublicationUpload({...base,...changes}), error => error === intentTrap);
+  assert.equal(storeCalls,1); assert.equal(transportCalls,0);
+  assert.equal(savedBinding.root,(changes.binding ?? base.binding).root);
+  cases.push({name,reachesOriginalBoundIntent:true,transportRequests:0});
+  storeCalls = 0;
+}
 // Mutation during the crypto/SDK await cannot substitute the frozen input. The
 // deliberately refusing store is reached only after the original bytes/root match.
 const bytes = body.slice(), binding = structuredClone(base.binding), rootKey = base.rootKey.slice();
@@ -71,4 +105,4 @@ assert.deepEqual(savedBinding.icRootKey, [1]);
 cases.push({name:'input_snapshots_across_await',reachesOriginalBoundIntent:true,transportRequests:0});
 await record('summary.json',{schema:1,complete:true,cases,providerRequests:0,certificateRequests:0,
   caveat:'Deliberately refusing store and transport; actual IC/IndexedDB behavior is qualified separately.'});
-console.log('PASS frozen-input refusal and mutation checks');
+console.log('PASS frozen-input, transfer-budget and mutation checks');

@@ -87,7 +87,11 @@ export function standaloneGateway(config, bundle, sizes = [1024], workerBundle,
         }
         const reply = Buffer.from(object.body);
         if (config.corruptRead) reply[reply.length > chunkBytes ? chunkBytes + 10 : 0] ^= 1;
-        res.writeHead(200, { 'content-type': 'image/png', 'content-length': reply.length }); res.end(reply);
+        const headers = Object.fromEntries(object.tree.blob_tree.headers.map(header => {
+          const colon = header.indexOf(':');
+          return [header.slice(0, colon).toLowerCase(), header.slice(colon + 1).trim()];
+        }));
+        res.writeHead(200, headers); res.end(reply);
       } catch (error) { state.failure = String(error); res.writeHead(500); res.end(); }
       return;
     }

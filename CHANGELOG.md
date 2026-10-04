@@ -2,6 +2,59 @@
 
 ## [Unreleased]
 
+## [0.14.3]
+
+### Changed
+
+- Let the existing local publication fixture consume an explicitly selected,
+  hash-bound two-file media set. Derive installation byte limits from the bodies,
+  retain original MIME through native/SDK preparation and serve the uploaded
+  metadata. Keep authored PNG and synthetic cases on the same workflow.
+- Extend browser delivery checks to JPEG/WebP images and complete GLB bytes with
+  structural inspection. Retain independent whole-file verification, canonical
+  URLs, selected-origin CORS and explicit local image CSP checks. Private consumer
+  media stays outside the repository; game rendering and deployed serving remain
+  separate acceptance.
+
+### Added
+
+- Exercise valid byte-bounded Candid skipped-value and type-table refusals at
+  standalone query/update, manifest, certificate and installation boundaries.
+  Preserve owner state on rejection and failed reinstall, include valid controls
+  and check dense near-limit manifests reach the domain count refusal. Document
+  the subsumed header ceiling and limits of decoding-work coverage.
+- Add offline machine-readable `blob-storage --version` and document one selected
+  source checkout for native installation, pinned browser builds and retained
+  artifact identities. Verify a fresh-prefix CLI installation with the actual
+  SDK/native snapshot handoff, then qualify an isolated source copy with fresh
+  npm dependencies and no Git metadata. Use its exact installed CLI, matching
+  browser bundles and Wasm for cached media completion and lost-reply recovery
+  without another PUT. Retain build-profile/toolchain provenance; downstream
+  adoption remains separate.
+- Qualify the concurrently selected ic-memory 0.24.10 graph with matching Wasm
+  initialization, same-release stop/start/upgrade fences, obligation-preserving
+  recovery and stale-snapshot refusal. Retain its source/artifact identities
+  separately from earlier media publication observations.
+- Exercise native map-output refusal after completed uploads, then recover a
+  complete map through fresh signed queries without another upload. Preserve the
+  occupied output, exact completion history and overlapping-reference cleanup.
+- Record representative frozen consumer-byte completion, lost-final-reply recovery
+  and tail-corruption refusal. Qualify an eight-chunk model and actual image
+  decoding locally; reference release retains physical/billing liabilities.
+- Preserve explicit original `Cache-Control` metadata through native bindings,
+  transfer descriptors, browser snapshots and the same SDK preparation. Qualify
+  all four retained consumer roots/headers/leaves, local cached model completion,
+  lost-image-reply recovery and corruption refusal. Changed or omitted required
+  hints refuse before certificate intent; omission still adds no cache header.
+
+### Fixed
+
+- Refuse predictably impossible publication transfer budgets before saving
+  certificate intent. Use SDK-owned chunk sizes and the rebuilt manifest to
+  check tree/chunk request count, largest chunk and total body bytes. Preserve
+  exact gateway checks for later envelope overhead, existing claims and lost-reply
+  recovery; return the specific refusal through the worker without dispatch.
+
 ## [0.14.2] - 2026-10-04
 
 ### Added

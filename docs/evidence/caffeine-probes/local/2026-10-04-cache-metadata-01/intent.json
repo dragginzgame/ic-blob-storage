@@ -1,0 +1,31 @@
+{
+  "schema": 1,
+  "date": "2026-10-04",
+  "baseline": "556b52f / released 0.14.2 plus retained 0.14.3 draft",
+  "evidence_class": "offline_actual_sdk_native_and_local_ic_chromium_owned_substitute",
+  "target": "Existing optional preparation hints, SDK hashing/prepared handle, native transfer and browser worker; retained representative media inputs",
+  "budget": {
+    "max_offline_runs": 5,
+    "max_ic_browser_attempts": 5,
+    "max_files_per_attempt": 2,
+    "max_bytes_per_file": 10485760,
+    "max_puts_per_attempt": 12,
+    "max_gets_per_attempt": 12,
+    "live_provider_requests": 0,
+    "paid_cycles": 0
+  },
+  "checks": [
+    "Optional explicit cache hint preserves omitted behavior and exact original headers, leaves and roots for four selected media bodies",
+    "Native saved binding and transfer descriptor preserve cache hint; malformed hints refuse",
+    "Changed or omitted required cache hint refuses before certificate intent",
+    "Actual model/image completion, lost reply recovery without another PUT, and corruption refusal with original cache roots",
+    "Browser reads exact hashed cache header from uploaded local metadata"
+  ],
+  "limitations": [
+    "No inferred cache policy or header-dropping fallback",
+    "Optional current metadata extension; no incompatible replacement or parallel reader",
+    "Local cache/header observations do not prove deployed retention, cache operation, game rendering, consumer transaction or adoption",
+    "No change to old live owners"
+  ],
+  "retention": ".tmp/cache-metadata-01; retain every attempt, exact inputs, source/binary/bundle hashes, original profiles, journals and request results"
+}

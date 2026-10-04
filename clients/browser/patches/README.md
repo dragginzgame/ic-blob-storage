@@ -15,10 +15,15 @@ build. A new upstream version requires an explicit patch/dependency review.
 
 The extension supplies:
 
-- `StorageClient.prepareFile(bytes, contentTypeHint?, filenameHint?)`, a static,
-  network-free call returning a frozen `{ hash, byteLength, manifestJSON }` handle.
+- `StorageClient.prepareFile(bytes, contentTypeHint?, filenameHint?, cacheControlHint?)`, a static,
+  network-free call returning a frozen `{ hash, byteLength, maxChunkBytes, manifestJSON }` handle.
   Input bytes are copied before the first await. The internal tree and chunks are
   retained privately, so later caller mutation cannot change the upload.
+  `maxChunkBytes` reports the largest retained SDK chunk for a local transfer-budget
+  lower bound; it does not size the later certificate/tree request envelope.
+  The optional cache hint supplies the exact `Cache-Control` value to upstream
+  metadata hashing/tree construction. Omission adds no header; no cache policy is
+  inferred. Retain the original hint with the manifest and require root agreement.
 - `storage.uploadPrepared(handle, onProgress?)`, which consumes that original handle
   once before certificate issuance. Copied/unknown/consumed handles are refused.
   The handle is ephemeral, not a durable recovery record; it grants no permission.
@@ -48,8 +53,8 @@ or chunk can still be uncertain. Neither a fresh preparation nor certificate
 recovery authorizes replaying it. These prerequisites remain before live transfer.
 
 The separate [gateway guard](../README.md#gateway-request-coordination) now journals
-opaque requests through this existing fetch hook. The package patch and upstream
-wire implementation remain unchanged. Journal transactions are demonstrated only
+opaque requests through this existing fetch hook. Upstream code still owns the
+wire implementation. Journal transactions are demonstrated only
 with the local fixture store; production persistence and provider reconciliation
 remain open.
 

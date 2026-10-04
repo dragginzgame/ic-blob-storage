@@ -20,6 +20,77 @@ See [dependency setup](dependencies.md) for the local server.
 Fixture outcomes are local test evidence. Live provider behavior and operational
 recovery remain separately qualified in the [acceptance plan](acceptance-plan.md).
 
+## Install the native and browser tools
+
+The supported source path uses one explicitly selected checkout for the native
+CLI, browser modules and patched SDK build. Select a clean release tag, retain
+its commit identity and keep that checkout with the installed tools. The CLI and
+private browser package are not registry distributions; the separate library's
+packaged `prepare_upload` example is not the publication driver.
+
+From that checkout, select a fresh absolute installation prefix. This recipe
+uses the development profile and the repository's own build cache:
+
+```sh
+set -e
+BLOB_TOOLS_ROOT="$PWD/.tmp/selected-tools"
+test ! -e "$BLOB_TOOLS_ROOT"
+cargo fetch --locked
+CARGO_TARGET_DIR="$PWD/target" cargo install --offline --locked \
+  --path crates/ic-blob-storage-cli --bin blob-storage --debug \
+  --root "$BLOB_TOOLS_ROOT"
+"$BLOB_TOOLS_ROOT/bin/blob-storage" --version > "$BLOB_TOOLS_ROOT/version.json"
+cat "$BLOB_TOOLS_ROOT/version.json"
+rustc --version > "$BLOB_TOOLS_ROOT/rust-version.txt"
+printf '%s\n' debug > "$BLOB_TOOLS_ROOT/build-profile.txt"
+```
+
+`--version` returns JSON with `tool: "blob-storage"` and the compiled library
+`version`, without reading identities or making requests. Compare that value
+with the selected checkout's workspace release. It does not authenticate an
+installed canister. An optimized build may omit `--debug`; retain that binary's
+own hash rather than substituting a hash from another build profile.
+
+Use Node 24 and the pinned browser dependencies from the same checkout:
+
+```sh
+npm ci --prefix tests/browser --ignore-scripts --no-audit --no-fund
+node tests/browser/build.mjs
+node --version > "$BLOB_TOOLS_ROOT/node-version.txt"
+git rev-parse HEAD > "$BLOB_TOOLS_ROOT/source-commit.txt"
+git status --porcelain > "$BLOB_TOOLS_ROOT/source-status.txt"
+sha256sum Cargo.lock tests/browser/package-lock.json \
+  "$BLOB_TOOLS_ROOT/version.json" "$BLOB_TOOLS_ROOT/rust-version.txt" \
+  "$BLOB_TOOLS_ROOT/node-version.txt" "$BLOB_TOOLS_ROOT/build-profile.txt" \
+  "$BLOB_TOOLS_ROOT/bin/blob-storage" \
+  .tmp/browser/publication-host.js .tmp/browser/publication-worker.js \
+  clients/browser/launcher.mjs clients/browser/native.mjs \
+  clients/browser/session.mjs clients/browser/package.json \
+  clients/browser/patches/caffeine-1.1.2.patch \
+  > "$BLOB_TOOLS_ROOT/SHA256SUMS"
+```
+
+The existing bundler verifies original SDK hashes and peer versions, applies the
+maintained patch to a build copy, and emits the host/worker bundles. Installed npm
+files stay unchanged. A consumer imports `launcher.mjs` and `native.mjs` from this
+retained checkout and selects the installed binary and those bundle paths
+explicitly. See the [callable driver](../clients/browser/README.md#follow-native-phase-guidance)
+and [native process contract](../clients/browser/README.md#launch-chromium-from-a-native-parent).
+Provision Chromium separately as described in [dependency setup](dependencies.md#browser-certificate-evidence).
+
+The recipe records Node/Rust versions and the selected build profile with these
+hashes. If you omit `--debug`, record `release` in `build-profile.txt` instead.
+Keep original binary, bundles, profile and signed/effect history together for
+recovery. Installing new tools never authorizes reopening old release artifacts,
+replacing their identities, retrying uncertain effects, or registering assets.
+The [isolated-source check](evidence/caffeine-probes/README.md#isolated-source-tool-installation--2026-10-04)
+installs into a fresh prefix with fresh npm dependencies and builds without Git
+metadata. The exact installed CLI and matching browser/Wasm tools complete real
+local media and recover a lost reply without another PUT. That check captures
+unreleased source and reuses the Cargo cache and provisioned Chromium/PocketIC;
+it is not a cold machine, released-tag acceptance or consumer adoption. A later
+workspace dependency update cannot relabel the frozen tools or their results.
+
 ## Prepare one file
 
 Local headless preparation computes the declaration needed for upload admission:

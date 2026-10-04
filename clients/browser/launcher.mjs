@@ -66,7 +66,7 @@ async function snapshot(transfer, maximum) {
     /^[0-9a-f]{64}$/.test(transfer.body_sha256), 'body-size');
   require(typeof transfer.manifest_json === 'string' &&
     Buffer.byteLength(transfer.manifest_json) <= 256 * 1024, 'manifest-size');
-  exact(transfer.preparation, [], ['content_type', 'filename']);
+  exact(transfer.preparation, [], ['content_type', 'filename', 'cache_control']);
   for (const value of Object.values(transfer.preparation)) require(typeof value === 'string' &&
     Buffer.byteLength(value) <= 4096, 'metadata-hint');
   const bytes = await boundedFile(transfer.body, maximum, size);
@@ -75,7 +75,8 @@ async function snapshot(transfer, maximum) {
   return { bytes, job: { binding: structuredClone(transfer.binding), snapshot: {
     bodySha256: transfer.body_sha256, manifestJSON: transfer.manifest_json,
     ...(Object.hasOwn(hints, 'content_type') ? { contentType: hints.content_type } : {}),
-    ...(Object.hasOwn(hints, 'filename') ? { filename: hints.filename } : {}) } } };
+    ...(Object.hasOwn(hints, 'filename') ? { filename: hints.filename } : {}),
+    ...(Object.hasOwn(hints, 'cache_control') ? { cacheControl: hints.cache_control } : {}) } } };
 }
 
 // Passive launch binding, not an effect journal. Write before Chromium can open

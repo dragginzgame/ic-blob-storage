@@ -1,0 +1,117 @@
+{
+  "schema": 1,
+  "date": "2026-10-04",
+  "evidence_class": "github_issue_registry_source_review_and_local_native_file_subprocesses",
+  "repository": "dragginzgame/ic-blob-storage",
+  "review": {
+    "open_issues": 7,
+    "comments": 17,
+    "completeness": "Paginated REST issue counts and update timestamps match captured full discussions",
+    "remote_main": "556b52fd6a3eccc5efd7e687ffd2e9cde0f41126",
+    "remote_release": "0.14.2",
+    "draft": "0.14.3, not released",
+    "github_writes": 0,
+    "sibling_inspection": false
+  },
+  "issues": [
+    {
+      "number": 7,
+      "title": "Cover standalone Candid decoder-budget refusals before service effects",
+      "url": "https://github.com/dragginzgame/ic-blob-storage/issues/7",
+      "updated_at": "2026-10-04T11:06:51Z",
+      "state": "next_repository_local_work",
+      "evidence": "Production budgets configured but maintained endpoint tests cover oversized/malformed/type-confused inputs rather than explicit work/skip/type-table exhaustion",
+      "remaining": "Extend existing PocketIC query/update/init cases with valid bounded inputs, positive controls and unchanged owner state. Header bound equals total byte bound and is subsumed; decoding-work reachability remains unresolved"
+    },
+    {
+      "number": 6,
+      "title": "Release reuse and lifetime capacity need a concrete contract",
+      "url": "https://github.com/dragginzgame/ic-blob-storage/issues/6",
+      "updated_at": "2026-10-04T09:33:07Z",
+      "state": "partial_keep_open",
+      "evidence": "Reference recipe, retired-root refusal, bounded lifetime capacity/history and local overlap evidence implemented",
+      "remaining": "Concrete consumer retention/retirement policy, unsupported retired-content reintroduction disposition, complete workload and actual deletion/final billing proof; preserve exhausted live owners"
+    },
+    {
+      "number": 5,
+      "title": "Qualify browser serving and integrity, not only upload admission",
+      "url": "https://github.com/dragginzgame/ic-blob-storage/issues/5",
+      "updated_at": "2026-10-04T11:43:26Z",
+      "state": "partial_keep_open",
+      "evidence": "Cache hint gap fixed in current source; latest consumer comment reports original-root GLB/WebP production loaders, cached byte verification, Blob revocation and zero local-shell CSP violations",
+      "remaining": "Certified asset transaction, production bindings/CSP/full inventory, game rendering and actual deployed serving acceptance"
+    },
+    {
+      "number": 4,
+      "title": "Support a non-interactive release publisher",
+      "url": "https://github.com/dragginzgame/ic-blob-storage/issues/4",
+      "updated_at": "2026-10-04T11:43:30Z",
+      "state": "partial_keep_open",
+      "evidence": "Existing native/browser driver and current source-installation recipe locally qualified; latest consumer comments report original-root completion and recovery",
+      "remaining": "Clean released downstream installation/adoption and complete consumer mapping transaction"
+    },
+    {
+      "number": 3,
+      "title": "Reject FIFO inputs without blocking before the CLI regular-file check",
+      "url": "https://github.com/dragginzgame/ic-blob-storage/issues/3",
+      "updated_at": "2026-10-03T12:28:15Z",
+      "state": "ready_to_close_upstream_request",
+      "evidence": "Shared O_NONBLOCK descriptor owner and FIFO regression exist in Git 0.10.0; current cursor and body subprocess checks return exit 3 and typed file refusal",
+      "remaining": "CLI is source-installed; library registry publication is not binary distribution"
+    },
+    {
+      "number": 2,
+      "title": "Reject impossible publication transfer budgets before certificate issuance",
+      "url": "https://github.com/dragginzgame/ic-blob-storage/issues/2",
+      "updated_at": "2026-10-04T09:31:42Z",
+      "state": "fixed_in_unreleased_0143_draft",
+      "evidence": "SDK-owned preflight precedes certificate-client construction; focused single/multi-chunk refusal/exact-lower-bound and worker evidence retained",
+      "remaining": "Release the draft before treating this as a released fix"
+    },
+    {
+      "number": 1,
+      "title": "Embedding API feedback: complete installation grants and compiled library version",
+      "url": "https://github.com/dragginzgame/ic-blob-storage/issues/1",
+      "updated_at": "2026-10-03T12:28:02Z",
+      "state": "ready_to_close_upstream_request",
+      "evidence": "Both passive embedding helpers in Git 0.10.0 and checksum-verified published 0.14.2; packaged implementations match the release source",
+      "remaining": "Consumer wrapper adoption remains a separate integration action"
+    }
+  ],
+  "publication": false,
+  "local_checks": {
+    "intent": ".tmp/gh-issues-review-2026-10-04-01/fifo-check-intent.json",
+    "cursor": ".tmp/gh-issues-review-2026-10-04-01/cursor-result.json",
+    "body": ".tmp/gh-issues-review-2026-10-04-01/body-result.json",
+    "compiled_cli": "0.14.2 from previously frozen draft source; shared file reader verified present at released 0.10.0",
+    "network_requests": 0,
+    "typed_results": "exit 3, {error:file}, no signal and no stderr"
+  },
+  "consumer_report": {
+    "source": "https://github.com/dragginzgame/ic-blob-storage/issues/5#issuecomment-5979572702",
+    "class": "Attributed consumer-reported local qualification; not independently executed by this review",
+    "application_release_acceptance": false,
+    "live_provider_acceptance": false
+  },
+  "retention": {
+    "root": ".tmp/gh-issues-review-2026-10-04-01",
+    "manifest": ".tmp/gh-issues-review-2026-10-04-01/SHA256SUMS",
+    "special_files": "cursor.fifo/body.fifo retained without writers and excluded from hash reads"
+  },
+  "failures": [],
+  "limitations": [
+    "Review only, no new repository production change or build",
+    "Native subprocess checks do not claim published CLI binaries",
+    "Original issue examples and old missing-cache refusals remain historical evidence for their exact artifact identities",
+    "No fresh SDK/IC/browser/provider probe, full CI, consumer transaction or live owner retirement was performed"
+  ],
+  "provider_behavior_probes": 0,
+  "live_provider_requests": 0,
+  "paid_cycles": 0,
+  "issue_comments_posted": 0,
+  "issues_closed": 0,
+  "commits": false,
+  "version_mutation": false,
+  "deployment": false,
+  "sibling_edits": false
+}

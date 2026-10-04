@@ -677,7 +677,6 @@ version = "1.0.13"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "914a755b7c2d4af2bdcff7ce1739e2db9a1b81a9b07123d8015786ae03c0980d"
 dependencies = [
- "link-section",
  "linktime-proc-macro",
 ]
 
@@ -1687,9 +1686,9 @@ dependencies = [
 
 [[package]]
 name = "ic-memory"
-version = "0.24.5"
+version = "0.24.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6c6215467973496f01d249f96d71c4a20e9da79f644542f9a8e35f3b00b5e597"
+checksum = "40a944ec63419887a81a1f248e07d223a1c6a4c63189619dd25326190be00ecd"
 dependencies = [
  "ciborium",
  "ctor",
@@ -1709,9 +1708,9 @@ dependencies = [
 
 [[package]]
 name = "ic-testkit"
-version = "0.14.4"
+version = "0.14.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7f64b3d3bff503fbdfa1ad3234f28743866a77c151c119d3c45c601419627511"
+checksum = "1bb25e8bc0f134058c291cec9d90a04140af21558e2f4ebbead7d28dbccbbc8d"
 dependencies = [
  "candid",
  "fs2",
@@ -2082,12 +2081,6 @@ checksum = "61ff90caf6077a803a240f62fdbe88645a890bbca49ef8174c3cb0404362171d"
 dependencies = [
  "libc",
 ]
-
-[[package]]
-name = "link-section"
-version = "0.19.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "39c29a617ce3df32c08497bdc1ab6e2376e0b17948ac166a2fbe5977c5954cd9"
 
 [[package]]
 name = "linktime-proc-macro"

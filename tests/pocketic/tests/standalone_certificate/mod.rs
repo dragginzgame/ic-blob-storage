@@ -157,7 +157,7 @@ fn check_authority(f: &Fixture, root: &str) {
         Err(E::Permission(UploadAdmissionFailure::Denied))
     );
     refuses(f, f.uploader, &unknown);
-    malformed(f);
+    malformed(f, root);
 }
 
 fn second_upload_at_capacity(f: &Fixture, first: &UploadManifestRequest) -> UploadManifestRequest {
@@ -237,7 +237,7 @@ fn standalone_small_configuration_issues_once_and_retains_uncertainty_across_sto
     for actor in [f.controller, f.operator, f.tenant, Principal::anonymous()] {
         refuses(&f, actor, &root);
     }
-    malformed(&f);
+    malformed(&f, &root);
     unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
     let usage = f.local_status(f.operator, f.operator_scope()).unwrap();
     let reply: CaffeineUploadCertificateResponse = f
@@ -332,12 +332,19 @@ fn standalone_tenant_permission_cannot_grant_installed_uploader_trust() {
     unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
 }
 
-fn malformed(f: &Fixture) {
+fn malformed(f: &Fixture, root: &str) {
     // Oversized ingress and type confusion must never create provider reply bytes.
+    let before = f.harness.pic.get_stable_memory(f.service);
+    let assessment = inspect(f, f.uploader, root).unwrap();
     for argument in [
         candid::encode_one("x".repeat(4097)).unwrap(),
         candid::encode_one(true).unwrap(),
-    ] {
+    ]
+    .into_iter()
+    .chain(super::standalone_ingress::refusal_arguments(
+        &root.to_owned(),
+        4096,
+    )) {
         for method in [ISSUE, INSPECT] {
             let error = if method == ISSUE {
                 f.harness
@@ -351,6 +358,26 @@ fn malformed(f: &Fixture) {
                     .unwrap_err()
             };
             assert_eq!(error.reject_code, RejectCode::CanisterError);
+            let current = inspect(f, f.uploader, root).unwrap();
+            assert_eq!(current.permission, assessment.permission);
+            assert_eq!(current.blockers, assessment.blockers);
+            unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
         }
     }
+    let reply = f
+        .harness
+        .pic
+        .query_call(
+            f.service,
+            f.uploader,
+            INSPECT,
+            candid::encode_args((root, "small")).unwrap(),
+        )
+        .unwrap();
+    let current = candid::decode_one::<Result<UploadCertificateAssessmentResponse, E>>(&reply)
+        .unwrap()
+        .unwrap();
+    assert_eq!(current.permission, assessment.permission);
+    assert_eq!(current.blockers, assessment.blockers);
+    unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
 }

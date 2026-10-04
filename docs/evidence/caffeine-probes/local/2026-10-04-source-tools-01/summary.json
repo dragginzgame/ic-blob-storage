@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "date": "2026-10-04",
+  "evidence_class": "fresh_prefix_local_source_install_and_offline_actual_sdk_native_handoff",
+  "installation": {
+    "prefix": ".tmp/source-tools-01/install",
+    "command": "CARGO_TARGET_DIR=$PWD/target cargo install --offline --locked --path crates/ic-blob-storage-cli --bin blob-storage --debug --root $PWD/.tmp/source-tools-01/install",
+    "profile": "debug",
+    "selected_source": "556b52f plus captured draft working tree",
+    "compiled_identity": {
+      "tool": "blob-storage",
+      "version": "0.14.2"
+    },
+    "binary_sha256": "ff40ffa5917e87c1da670c559523802148b7cea5c00e67e6d39b8e9b6b67eed0",
+    "clean_downstream_environment": false,
+    "existing_dependency_cache": true,
+    "registry_distribution": false
+  },
+  "handoff": {
+    "summary": ".tmp/source-tools-01/handoff/summary.json",
+    "body_bytes": 1049055,
+    "chunks": 2,
+    "network_requests": 0,
+    "snapshot_repreparation": true,
+    "repeat_and_corrupt_source_refusal": true
+  },
+  "validation": [
+    "Fresh-prefix installation/version readback",
+    "Pinned browser build and actual SDK/native handoff",
+    "Strict affected CLI bin Clippy",
+    "CLI formatting and production JavaScript syntax"
+  ],
+  "retention": {
+    "root": ".tmp/source-tools-01",
+    "source_manifest": ".tmp/source-tools-01/source-SHA256SUMS",
+    "browser_modules_artifacts": ".tmp/source-tools-01/artifacts/SHA256SUMS",
+    "results_manifest": ".tmp/source-tools-01/results-SHA256SUMS"
+  },
+  "limitations": [
+    "Recipe does not prove clean released downstream installation, cold cache, application transaction or consumer adoption",
+    "Original hashed Cache-Control metadata remains unsupported",
+    "Tool/source identities do not authorize changing old installations or original signed/effect artifacts"
+  ],
+  "live_provider_requests": 0,
+  "paid_cycles": 0,
+  "full_ci": false,
+  "version_mutation": false,
+  "publication": false,
+  "deployment": false
+}

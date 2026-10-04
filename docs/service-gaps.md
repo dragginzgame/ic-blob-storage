@@ -33,6 +33,23 @@ and substitute. Consumer image/fetch origins, real assets and deployed CSP/cache
 retention still need acceptance; image decoding does not replace independent
 whole-content verification or establish public-access revocation.
 
+The [representative emitted-media record](evidence/caffeine-probes/README.md#representative-emitted-media--2026-10-04)
+adds local PNG/JPEG/WebP and an eight-chunk GLB from frozen consumer bytes,
+without a consumer build or framework wrapper. Lost replies add no PUT; tail
+corruption prevents the next admission. An occupied native map output refuses,
+then fresh signed queries recover the map with completion/reference history
+intact. This does not qualify an application asset-registration transaction.
+The [original-cache metadata checks](evidence/caffeine-probes/README.md#original-cache-metadata--2026-10-04)
+now reproduce all four retained original roots through the same SDK preparation.
+Local cached completion/recovery and browser headers pass; deployed cache operation
+and complete consumer publication remain unqualified. The
+[selected-source installation recipe](local-tools.md#install-the-native-and-browser-tools)
+now has a fresh-prefix locked CLI/handoff check and an
+[isolated-source qualification](evidence/caffeine-probes/README.md#isolated-source-tool-installation--2026-10-04)
+with fresh npm dependencies, no Git metadata and matching local media completion/
+recovery. This uses unreleased source and retained Cargo/platform tools; a clean
+released downstream installation and consumer adoption remain open.
+
 Deletion qualification must retain the exact original service, namespace, object,
 root, incarnation and operation identity before any destructive effect. Record
 the request, callback/result, hashes and uncertain outcome; never redispatch from

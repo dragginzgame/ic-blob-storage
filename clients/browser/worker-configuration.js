@@ -63,13 +63,13 @@ export function snapshotPublicationJob(request, scope, maxBodyBytes, lastId = 0)
   const refusal = certificateBindingFailure(binding);
   require(!refusal, refusal);
   if (request.action === 'upload') {
-    fields(request.snapshot, ['body', 'bodySha256', 'manifestJSON'], ['contentType', 'filename']);
+    fields(request.snapshot, ['body', 'bodySha256', 'manifestJSON'], ['contentType', 'filename', 'cacheControl']);
     require(request.snapshot.body instanceof Uint8Array &&
       integer(request.snapshot.body.length, 1, maxBodyBytes), 'body-size');
     require(typeof request.snapshot.bodySha256 === 'string' &&
       /^[0-9a-f]{64}$/.test(request.snapshot.bodySha256), 'body-digest');
     require(validUtf8Text(request.snapshot.manifestJSON, 256 * 1024, 1), 'manifest-size');
-    for (const key of ['contentType', 'filename']) require(request.snapshot[key] === undefined ||
+    for (const key of ['contentType', 'filename', 'cacheControl']) require(request.snapshot[key] === undefined ||
       validUtf8Text(request.snapshot[key], 4096), 'metadata-hint');
   } else require(!Object.hasOwn(request, 'snapshot'), 'message');
   // A bounded view can have a much larger backing buffer. Own only the selected

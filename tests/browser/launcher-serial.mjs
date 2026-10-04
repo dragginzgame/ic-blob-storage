@@ -124,8 +124,8 @@ async function coordinate() {
 const deadline = setTimeout(() => { console.error('Native browser bridge trial exceeded 180 seconds'); process.exit(1); }, 180000);
 let media = { decodedMedia: [], publicDelivery: [], opaqueOriginRefused: false, csp: null };
 try {
-  const files = await Promise.all(bodies.map(async body => {
-    const prepared = await StorageClient.prepareFile(body, 'image/png');
+  const files = await Promise.all(bodies.map(async (body, index) => {
+    const prepared = await StorageClient.prepareFile(body, config.contentTypes[index], undefined, config.cacheControls[index] ?? undefined);
     return { hash: prepared.hash, byteLength: prepared.byteLength, manifestJSON: prepared.manifestJSON };
   }));
   send({ gateway: gateway.origin, files });
@@ -137,7 +137,8 @@ try {
     grant.transfer = JSON.parse(await readFile(resolve(grant.native_phase, 'transfer.json'))).transfer;
     originals.push(grant);
     if (!bridge) await open('create');
-    assert.deepEqual(grant.transfer.preparation, { content_type: 'image/png' });
+    assert.deepEqual(grant.transfer.preparation, { content_type: config.contentTypes[index],
+      ...(config.cacheControls[index] === null ? {} : { cache_control: config.cacheControls[index] }) });
     const outcome = await job(grant, 'upload'), lost = config.lostFinalReply && index === 0;
     assert.equal(outcome.state, lost ? 'failed' : 'transfer-observed'); assert.equal(certificateCalls, 1);
     if (config.corruptRead) assert.equal((await job(grant, 'cancel')).state, 'cancelled');
@@ -160,7 +161,8 @@ try {
     assert.notEqual(files[0].hash, files[1].hash);
     if (bodies[0].length > 1024 * 1024) {
       const chunks = JSON.parse(files[0].manifestJSON).chunk_hashes;
-      assert.equal(chunks.length, 2); assert.notEqual(chunks[0], chunks[1]);
+      assert.equal(chunks.length, Math.ceil(bodies[0].length / (1024 * 1024)));
+      assert(new Set(chunks).size > 1);
     }
   }
   assert.equal(state.gets.length, config.corruptRead ? 1 : 4 + (config.overlap ? 1 : 0) + media.publicDelivery.length + (media.csp?.images.length ?? 0) + Number(media.opaqueOriginRefused));

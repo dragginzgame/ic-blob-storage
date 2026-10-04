@@ -88,7 +88,8 @@ try {
   await promisify(execFile)('mkfifo', [changed.body]);
   await assert.rejects(bridge.execute({ id: 3, index: 0, action: 'upload', transfer: changed }), refusal('body-size'));
   cases.push('fifo_without_writer_refuses_without_blocking');
-  for (const hints of [{ filename: null }, { filename: 'β'.repeat(2049) }, { inferred_type: 'text/plain' }]) {
+  for (const hints of [{ filename: null }, { filename: 'β'.repeat(2049) },
+    {cache_control:null}, {cache_control:'β'.repeat(2049)}, { inferred_type: 'text/plain' }]) {
     changed.body = body; changed.preparation = hints;
     await assert.rejects(bridge.execute({ id: 3, index: 0, action: 'upload', transfer: changed }),
       refusal(Object.hasOwn(hints, 'inferred_type') ? 'configuration' : 'metadata-hint'));

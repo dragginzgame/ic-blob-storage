@@ -174,6 +174,34 @@ snapshot activation is outside the accepted contract. See the historical
 [recorded recovery evidence](evidence/caffeine-probes/local/2026-09-30-snapshot-01/summary.json).
 Operational recovery and remaining provider/operator integration are still open.
 
+### Standalone ingress decoding
+
+The standalone adapter's `ops::bounded` owns decoding for typed endpoint inputs:
+4 KiB for ordinary requests, 16 KiB for installation and 128 KiB for manifest
+preparation. It rejects total bytes before decoding, then sets 2,000,000 Candid
+decoding units, 1,024 skipped-value units and 64 type-table entries. These are
+decoder work counters, not IC instruction or paid-provider spending limits.
+Its header-byte ceiling equals the corresponding whole-message ceiling. A valid
+header cannot exceed that ceiling independently of the earlier whole-message
+check; tests must not relax production bounds to manufacture a separate failure.
+
+The existing standalone PocketIC suite exercises structurally valid extra text
+and absent optional-record types, under the byte ceiling. Each payload first
+round-trips with only its targeted decoder budget relaxed. Actual query/update,
+manifest, certificate and failed-reinstall refusals then preserve owner state;
+small extra-argument controls reach maintained handlers and valid initialization.
+Certificate assessments carry a fresh timestamp, so unchanged permission and
+blockers are checked independently of that timestamp.
+
+A dense manifest with 65,379 empty name/value pairs fits just under 128 KiB and
+uses between 1.8 and 2 million decoding units under locked Candid 0.10.37, with
+no skipping. It reaches the maintained typed `UploadManifestFailure::Limit`
+without stable mutation. Independent work-quota exhaustion has not been
+reproduced under current byte/type/skipping limits; this case is not proof for
+every Candid subtype or a reason to remove the work ceiling. Any additional case
+must demonstrate a valid byte-bounded input, isolate the exhausted budget and
+preserve the same trust/state boundaries without production test hooks.
+
 ### Library host integration
 
 This repository owns the storage core and standalone canister. Consumer frameworks

@@ -36,9 +36,10 @@ record('plan.json', { schema: 1, evidence: 'offline_sdk_native_browser_handoff',
   cleanup: 'No network, key file, account, provider object or external resource' });
 writeFileSync(body, bytes, { flag: 'wx', mode: 0o600 });
 const identity = Ed25519KeyIdentity.generate(new Uint8Array(32).fill(42));
-const prepared = await StorageClient.prepareFile(bytes, 'application/octet-stream', 'fixture.bin');
+const cacheControl = 'public, max-age=31536000, immutable';
+const prepared = await StorageClient.prepareFile(bytes, 'application/octet-stream', 'fixture.bin', cacheControl);
 assert.equal(prepared.byteLength, bytes.length);
-const binding = { format: 'ic-blob-storage/upload-inputs:original-preparation', preparation: { content_type: 'application/octet-stream', filename: 'fixture.bin' }, project: 'fixture-project', bucket: 'fixture-bucket', service: 'rrkah-fqaaa-aaaaa-aaaaq-cai',
+const binding = { format: 'ic-blob-storage/upload-inputs:original-preparation', preparation: { content_type: 'application/octet-stream', filename: 'fixture.bin', cache_control: cacheControl }, project: 'fixture-project', bucket: 'fixture-bucket', service: 'rrkah-fqaaa-aaaaa-aaaaq-cai',
   namespace: ((1n << 128n) - 1n).toString(), tenant: Principal.selfAuthenticating(new Uint8Array([3])).toText(),
   uploader: identity.getPrincipal().toText(), upload: ((1n << 128n) - 2n).toString(),
   object: ((1n << 128n) - 3n).toString(), incarnation: '1', first_reference: '2',
@@ -105,7 +106,9 @@ bytes[0] ^= 1;
 writeFileSync(body, bytes); // Deliberate later source change; the verified snapshot is separate.
 const snapshot = readFileSync(join(input, 'body.bin'));
 assert.equal(digest(snapshot), original['body.bin']);
-const rebuilt = await StorageClient.prepareFile(new Uint8Array(snapshot), 'application/octet-stream', 'fixture.bin');
+const hints = JSON.parse(readFileSync(join(input,'binding.json'),'utf8')).preparation;
+assert.deepEqual(hints,binding.preparation);
+const rebuilt = await StorageClient.prepareFile(new Uint8Array(snapshot), hints.content_type, hints.filename, hints.cache_control);
 assert.equal(rebuilt.hash, prepared.hash);
 assert.equal(rebuilt.byteLength, prepared.byteLength);
 assert.equal(rebuilt.manifestJSON, prepared.manifestJSON);

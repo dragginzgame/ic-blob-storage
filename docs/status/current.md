@@ -4,8 +4,8 @@ Date: 2026-10-04
 
 ## Released baseline
 
-Released **0.14.1** is at `6c9875f`, with validated source
-`53a4bd9eac712db4770f3ca15cbaa014490ca605`. Read
+Released **0.14.2** is at `556b52f`, with validated source
+`11ee45684ae90a96d8711fccbb81838a37bbb517`. Read
 [Cargo](../../Cargo.toml), [the release receipt](../release.json) and
 [the changelog](../../CHANGELOG.md) for authoritative release metadata.
 A repository release does not establish registry publication or deployed behavior.
@@ -58,45 +58,170 @@ observations use retained 0.14.0 CLI/Wasm binaries, not a live 0.14.1 installati
 The current 0.14.1 lock selects ic-memory 0.24.5 and ic-testkit 0.14.4; historical
 records retain their own exact graph/artifact identities.
 
-## Current work — 0.14.2 draft
+Released 0.14.2 groups the locked-dependency bootstrap and
+[local image/CSP checks](../evidence/caffeine-probes/README.md#png-image-loading-under-csp--2026-10-04).
+The CI/validate/release gate fetches the selected lockfile before offline checks;
+scoped offline commands still need cache preparation. One fixture helper owns
+media sampling, canonical direct URLs and ordinary anonymous image checks under
+an authored policy. Private bounded request traces survive assertion failures.
+Its original six final browser journeys and installation observations retain their
+0.14.1 CLI/Wasm identities; source release does not relabel historical artifacts.
 
-The tooling fix adds the existing `deps` target first in the shared CI/validate/
-release-verify gate. Locked fetching may use the network, fails before validation
-or version mutation and selects no new versions; compilation/tests stay offline.
-Scoped `make check` or direct `cargo --offline` still require `make deps` after
-dependency changes/cache removal. Isolated actual-Make/Cargo tests cover empty
-cache preparation and failed fetching without release-file changes or lost build
-artifacts. The real scoped gate (`make ci CI_TARGETS='deps check'`), release-helper
-suite, Bash syntax and ShellCheck pass. Full CI has not been rerun.
+## Current work — 0.14.3 draft
 
-The [image/CSP evidence](../evidence/caffeine-probes/README.md#png-image-loading-under-csp--2026-10-04)
-adds ordinary anonymous PNG loading under an explicit local policy. Allowed images
-decode with readable canvas pixels; blocked images report enforced `img-src`
-refusal with zero provider GETs. A single fixture helper owns media expectations,
-decoding/fetch sampling and these image checks, consuming canonical native URLs.
-Native whole-content verification, paid-claim journals and completion/reference
-owners remain unchanged. Private bounded request traces survive assertion failures.
+The [representative emitted-media record](../evidence/caffeine-probes/README.md#representative-emitted-media--2026-10-04)
+now covers selected frozen consumer PNG/JPEG/WebP/GLB bytes through the same
+native/browser publisher, verifier, journal and reference owners. Fixture MIME
+and installation limits derive from the selected bodies. Private assets remain
+ignored; no consumer framework dependency, wrapper or build is added here.
 
-All six final local IC/browser journeys pass: small/multi-chunk completion and
-lost-reply recovery, tail-corruption refusal and original synthetic restart.
-Successful large cases make five PUTs/ten GETs; small cases four PUTs/nine GETs.
-No recovery adds a PUT. The initial attempt's origin-only CSP-event assertion
-failed; Chromium correctly reported the full canonical URL. Its source/bundle,
-log and request trace remain preserved alongside the corrected final checks.
-All seven attempts, original profiles/journals and exact bytes remain under
-`.tmp/media-csp-01`; the public intent/summary and private source/artifact/result
-manifests retain their hashes. Owned processes have exited and temporary TLS keys
-are removed; evidence and build artifacts remain.
+Seven local IC/browser journeys pass: both real pairs complete and recover lost
+final replies without another PUT, PNG tail corruption refuses before the next
+admission, and authored-PNG/synthetic regressions preserve their behavior.
+The real image pair retains 4,318,116 physical/liability bytes; the eight-chunk
+GLB/WebP pair retains 8,389,774. Native whole-content verification and complete
+browser digests agree. Images decode/display under the authored local CSP;
+GLB structural inspection does not establish game rendering. Occupied native map
+output refuses and preserves existing content, then fresh signed queries recover
+a complete map without upload. Overlapping references retain their cleanup/history
+and physical/billing obligations. This is not a consumer registration transaction.
 
-Fresh CLI/Wasm/harness/browser builds, syntax and Rust formatting pass. Two
-installation/Candid cases pass with independently expected compiled release
-0.14.1, exact configuration readback, controller denial and wrong-service refusal.
-These fresh artifacts use ic-memory 0.24.5 and ic-testkit 0.14.4. Cargo and the
-release receipt remain 0.14.1; the undated changelog groups this work under 0.14.2.
-No full CI, commit, version mutation, publication, deployment, live provider
-request, paid cycle, sibling edit/message or build cleanup occurs. Authored local
-policy/PNGs do not establish consumer adoption, real asset transactions or deployed
-Caffeine serving/cache/CSP/retention/deletion/billing guarantees.
+Fresh CLI/Wasm/harness/browser builds and strict affected Clippy pass. Installation/
+Candid cases and the final exact artifact capture pass with independently expected
+compiled release 0.14.2. Initial compilation/lint/capture failures remain retained,
+including the rejected precreated capture directory. All exact frozen inputs,
+source/bundle/binary identities, profiles, claims, maps and downloads remain under
+`.tmp/representative-media-01`; separate manifests retain their hashes. Cargo and
+the release receipt remain 0.14.2. No full CI, commit, version mutation, publication,
+deployment, live provider request, paid cycle, sibling edit/message or build cleanup
+occurs; both old live owners remain unchanged.
+
+## Current checks and next work
+
+The [transfer-budget record](../evidence/caffeine-probes/README.md#publication-transfer-budget-preflight--2026-10-04)
+qualifies refusal before certificate-client construction for known tree/chunk
+count, largest-chunk and total-body shortages. Chunk size comes from the retained
+SDK preparation, without a second chunker or provider serializer. Exact-fit lower
+bounds reach the original intent boundary; worker refusal saves/claims nothing
+and preserves its finite error code. Existing gateway checks still bound opaque
+tree/certificate overhead at dispatch. Actual local eight-chunk model completion
+and real-image lost-reply recovery pass without another PUT.
+
+The [source-tool record](../evidence/caffeine-probes/README.md#source-tool-installation--2026-10-04)
+qualifies a fresh-prefix locked CLI installation, offline JSON version readback
+and existing two-chunk SDK/native snapshot handoff. The
+[source installation recipe](../local-tools.md#install-the-native-and-browser-tools)
+selects native/browser tools from one checkout and retains their artifact hashes.
+This uses captured dirty source and an existing dependency cache; clean released
+downstream installation and consumer adoption remain unqualified. Strict affected
+CLI Clippy, formatting and browser checks pass. Both probe records retain exact
+source/artifact identities; no full CI or live/paid effect occurs.
+
+The [isolated-source tool record](../evidence/caffeine-probes/README.md#isolated-source-tool-installation--2026-10-04)
+now qualifies a separate regular-file snapshot, fresh CLI installation prefix and
+fresh pinned npm dependencies. The browser build works with Git discovery disabled;
+the exact installed CLI passes cached two-chunk SDK/native snapshot checks. Matching
+Wasm/harness/browser tools complete the cached eight-chunk GLB/WebP pair and recover
+the cached PNG/JPEG lost final reply without another PUT. Original roots, ordered
+leaves, complete bodies/cache headers, complete maps and reference liabilities
+match the retained consumer evidence. No installation correction or new mechanism
+was needed. Toolchain/profile/binary/bundle provenance remains captured.
+
+That source is the unreleased draft with compiled release 0.14.2, ic-memory 0.24.7
+and ic-testkit 0.14.7; it reuses this repository's Cargo cache and provisioned
+Chromium/PocketIC. During execution the workspace lock changed independently to
+ic-memory 0.24.10, retaining ic-testkit 0.14.7. Both locks and the rejected
+post-check equality assertion remain recorded. Separate locked fetch and strict
+affected CLI/standalone Clippy pass on the current 0.24.10 graph; the successful
+runtime journeys keep their original 0.24.7 identities. Initial sandbox DNS fetch
+failure and successful network preparation remain retained. This is not a cold
+machine, clean released downstream installation or consumer adoption. Full CI
+remains pending; no live/paid request, release or sibling edit occurs.
+
+The separate [current-memory record](../evidence/caffeine-probes/README.md#current-memory-initialization-and-lifecycle--2026-10-04)
+now qualifies actual 0.24.10 Wasm initialization and same-release restoration.
+Matching captured source/Wasm/harness pass the existing stop/start/repeated-upgrade
+fence case, recovery with released physical/billing obligations and stale-snapshot
+refusal without stable mutation. No production correction or new test is needed.
+This is focused local IC lifecycle evidence; media publication keeps its original
+0.24.7 artifacts and full current CI remains pending.
+
+The [original-cache metadata record](../evidence/caffeine-probes/README.md#original-cache-metadata--2026-10-04)
+now qualifies all four retained consumer roots, headers and leaves with the actual
+SDK. Optional native `preparation.cache_control` passes unchanged through saved
+bindings/descriptors into browser `cacheControl` and the same SDK preparation.
+Omission adds no header and preserves the existing contract; malformed hints and
+changed/omitted required cache metadata refuse. No inferred policy, parallel
+preparer, layout replacement or compatibility reader is added.
+
+Four local IC/Chromium journeys pass using the original cached roots: GLB/WebP
+completion, PNG/JPEG lost-reply recovery without another PUT, PNG corruption before
+next admission and the authored uncached regression. Browser fetches observe the
+exact cache header and complete bytes. Physical/liability and reference history
+remain unchanged by logical release. Native hint tests, SDK/native snapshot
+handoff, browser/worker/launcher checks, strict affected Clippy and formatting pass.
+Fresh CLI/harness/browser artifacts and the retained unchanged 0.14.2 Wasm remain
+under `.tmp/cache-metadata-01`. These are local facts, not deployed cache behavior,
+game rendering, a consumer asset transaction or adoption. Full CI remains pending.
+
+The [GitHub issue review](../evidence/caffeine-probes/local/2026-10-04-gh-issues-review-01/summary.json)
+reads all seven open issues and discussion against remote main `556b52f`
+(released 0.14.2), published package contents and current draft source. The
+published crate checksum and both embedding helper sources match 0.14.2.
+Both native FIFO/no-writer boundaries return typed `file` without transport.
+No GitHub issue/comment is changed. Latest Miner acceptance is reported by its
+issue comments, not independently rerun by this review.
+
+| Issue | Current disposition | Next action |
+| --- | --- | --- |
+| [#1 embedding helpers](https://github.com/dragginzgame/ic-blob-storage/issues/1) | Both helpers implemented since 0.10.0 and verified in published 0.14.2 | Ready to close the upstream request; host adoption remains separate |
+| [#2 transfer budgets](https://github.com/dragginzgame/ic-blob-storage/issues/2) | Fixed and qualified in the 0.14.3 draft; absent from released 0.14.2 | Release the current draft before closing as a released fix |
+| [#3 FIFO inputs](https://github.com/dragginzgame/ic-blob-storage/issues/3) | Shared descriptor fix and regression in Git release 0.10.0; both reader/body refusals confirmed | Ready to close; the CLI is source-installed, not a registry package |
+| [#4 publisher](https://github.com/dragginzgame/ic-blob-storage/issues/4) | Existing driver and isolated installation pass locally; Miner reports real original-root recovery | Clean released downstream installation and adoption; complete consumer mapping transaction |
+| [#5 serving/integrity](https://github.com/dragginzgame/ic-blob-storage/issues/5) | Original cache metadata fixed locally; Miner reports model/image loading, verified cache reads and Blob revocation | Certified asset transaction, actual production bindings/CSP, full inventory and deployed serving acceptance |
+| [#6 lifetime/reuse](https://github.com/dragginzgame/ic-blob-storage/issues/6) | Reference recipe, retired-root refusal, bounded capacity/history and local overlap implemented | Consumer retention/retirement policy and actual provider deletion/billing evidence; preserve both exhausted owners |
+| [#7 decoder budgets](https://github.com/dragginzgame/ic-blob-storage/issues/7) | Valid byte-bounded skip/type refusals now pass across actual standalone boundaries; no reproduced bypass | Retain the new coverage with this draft; independent work-quota exhaustion remains unreproduced, and header exhaustion is subsumed by the byte gate |
+
+For #7, the existing standalone harness now covers valid skipped-text and
+excessive type-table requests at tenant query/update, manifest preparation,
+certificate assessment/issuance and installation. Each payload round-trips with
+only its target budget relaxed. Actual IC refusals preserve stable bytes,
+tenant/configuration, prepared permission and certificate eligibility; failed
+management reinstall retains its original owner. Small extra-argument controls
+reach valid query/update/init handlers. Production code and limits are unchanged.
+
+The [decoding contract](../service-contract.md#standalone-ingress-decoding)
+documents that Candid 0.10.37 header exhaustion is subsumed by the equal ingress
+ceiling. A 65,379-header manifest fits just below 128 KiB, decodes within the
+2-million-unit ceiling with zero skipping and reaches typed domain `Limit`
+without mutation. Independent work-quota exhaustion remains unreproduced;
+canonical dense input is not proof covering every possible wire subtype.
+Do not weaken limits or add production hooks to manufacture that failure.
+
+Both new ingress cases, both extended certificate cases and the existing invalid
+installation/malformed-ingress regression pass in actual PocketIC. Strict affected
+Clippy passes. Matching harness/source/lock identities and full outputs remain in
+`.tmp/decoder-budgets-01`, using the retained current-memory Wasm on the unchanged
+0.24.10 graph. Initial compilation, fixture isolation and fresh-timestamp assertion
+failures are retained, including the first work candidate which did not exhaust
+its quota. These are decoder-only local IC checks, with no provider calls or
+new Caffeine observations. Full CI remains pending; no GitHub write, release,
+deployment, paid effect, sibling change or cleanup occurs.
+
+- Consumer producers must retain their original hashed cache value as
+  `preparation.cache_control` and use the matching native/browser tool source.
+  All four selected roots work locally; Miner's latest #5 comment also reports
+  original-root GLB/WebP consumer acceptance. Complete production publication
+  and deployed serving remain unqualified.
+- Qualify a clean released tag downstream and replace Miner's registry 0.7.0
+  packaged-preparer installation only upon adoption. Isolated source installation
+  and matching native/browser composition now pass locally; they are not published
+  tool distribution or a consumer publication transaction.
+- Consumer owners must qualify their asset transaction and production fetch/CSP
+  bindings. Miner's latest #5 comment reports production loaders exercised in a
+  local shell, verified cached image bytes and Blob URL revocation, with zero CSP
+  violations. That shell/map is not certified or an asset-registration transaction;
+  no game-rendering or deployed Caffeine acceptance is reported.
 
 ## Remaining product work
 
@@ -104,8 +229,8 @@ Caffeine serving/cache/CSP/retention/deletion/billing guarantees.
   explicitly selected native/browser identities, binary/trust inputs, same-release
   restart and exact original history retention.
 - Consumer acceptance with real media, complete asset transactions, overlapping
-  references and MIME/CORS/cache/CSP/retention behavior. Local substitutes,
-  synthetic bytes and authored PNG fixtures do not qualify those guarantees.
+  references and MIME/CORS/cache/CSP/retention behavior. Selected emitted bodies
+  pass locally; consumer transactions and deployed serving remain unqualified.
 - Provider deletion and final billing evidence; surviving inventory and independent
   freshness for any proposed older-backup activation. See
   [service gaps](../service-gaps.md) and [the contract](../service-contract.md).

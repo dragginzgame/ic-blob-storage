@@ -152,7 +152,7 @@ remains external to the native bundle; executable SDK peer/source/patch checks
 still run before every build. See the [process bridge contract](../clients/browser/README.md#launch-chromium-from-a-native-parent).
 
 `make test-browser-publication BLOB_PUBLICATION_REPORT=NEW_DIRECTORY` runs the
-frozen-file helper's offline body/manifest/metadata/root/abort refusals and input
+frozen-file helper's offline body/manifest/metadata/root/transfer-budget/abort refusals and input
 snapshot checks. It requires the pinned packages and Node, without Chromium,
 Rust builds or network traffic. The refusing store/transport are explicit test
 substitutes; the standalone browser target supplies actual IC/IndexedDB evidence.

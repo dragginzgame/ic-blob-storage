@@ -58,7 +58,7 @@ impl Trial {
                     .with_application_subnet(),
             ),
             Fake::principal(5),
-            if matches!(envelope, Envelope::Serial) {
+            if matches!(envelope, Envelope::Serial { .. }) {
                 principal(42)
             } else {
                 Fake::principal(2)

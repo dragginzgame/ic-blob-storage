@@ -43,6 +43,8 @@ use serde_json::json;
 use std::{fs::File, io::Read, path::Path, process::ExitCode, time::Duration};
 
 const USAGE: &str = concat!(
+    "blob-storage --version\n",
+    "Offline JSON tool/version identity; not installed-service or provider qualification.\n",
     "blob-storage account-link-inputs --cashier PRINCIPAL --caller PRINCIPAL --owner PRINCIPAL --payer PRINCIPAL --daily-limit DECIMAL --expiry DECIMAL --run-dir NEW_DIRECTORY\n",
     "account-link-inputs is offline. It encodes explicit positive raw provider terms with an explicit payer/expiry, never selects units, signs, links or funds an account. Existing/partial output refuses; generated input is not an effect journal, financial cap proof or retry permit.\n",
     "blob-storage installation-check --configuration CONFIGURATION_CANDID --service PRINCIPAL --project PROJECT --verifier PRINCIPAL --trusted-uploader PRINCIPAL --release HOST_RELEASE --run-dir NEW_DIRECTORY\n",
@@ -242,6 +244,9 @@ fn identity(path: &Path, expected: Principal) -> Result<Box<dyn Identity>, Failu
 }
 
 fn execute(args: &[String]) -> Result<serde_json::Value, Failure> {
+    if args == ["--version"] {
+        return Ok(json!({"tool":"blob-storage","version":ic_blob_storage::LIBRARY_VERSION}));
+    }
     if args
         .first()
         .is_some_and(|command| command == "publish-inputs")
