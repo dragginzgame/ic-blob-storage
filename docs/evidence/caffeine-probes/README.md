@@ -1,5 +1,21 @@
 # Caffeine probe ledger
 
+## Funding fixture upgrade correction — 2026-10-04
+
+The [intent](local/2026-10-04-storage-funding-upgrade-01/intent.json) precedes
+reproducing a reported local funding failure. All five reported cases use one
+helper still sending the superseded bare-principal upgrade input. The callback
+case reaches actual post-upgrade decoding refusal after its funding assertions
+pass. Using the shared current installation encoder fixes the helper; all eleven
+funding transport/guarded-dispatch cases now pass, including acceptance, refunds,
+callback uncertainty and restored fences. No reader, policy or production change.
+
+The [summary](local/2026-10-04-storage-funding-upgrade-01/summary.json) retains the
+failed reproduction, frozen before/after harnesses, unchanged fixture Wasm, hashes
+and scoped build/Clippy/formatting results in `.tmp/storage-funding-upgrade-01`.
+There are zero live requests or paid cycles. This extends the 0.14.8 draft; no
+full CI, release/version mutation, commit, deployment or cleanup occurs.
+
 ## Transfer memory and restoration read attribution — 2026-10-04
 
 The [intent](local/2026-10-04-transfer-memory-01/intent.json) precedes local

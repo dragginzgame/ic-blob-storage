@@ -1,0 +1,120 @@
+{
+  "schema": 1,
+  "date": "2026-10-04",
+  "source_base": "a2b19c4c62d9fb939f4a16db8c4e46b015be78ff",
+  "compiled_release": "0.14.7",
+  "draft": "0.14.8",
+  "evidence_class": "local PocketIC with Cashier substitute",
+  "intent": "intent.json",
+  "root_cause": {
+    "symbol": "Fixture::upgrade_storage",
+    "file": "tests/pocketic/tests/storage_funding/transport/mod.rs",
+    "observation": "All five reported failures call a helper still encoding a bare Principal after the fixture hard-cut to StorageProbeInstallation. Reproduced callback case reaches post_upgrade input rejection after its acceptance/refund/uncertainty assertions pass.",
+    "fix": "Use Self::installation(self.operator), the same canonical current record encoder as initial installation, retaining the two-object ceiling. No compatibility reader or production change."
+  },
+  "reproduction": {
+    "test": "storage_funding::transport::cashier_callback_write_trap_preserves_uncertainty_after_receiver_acceptance --exact --nocapture",
+    "runner": ".tmp/storage-funding-upgrade-01/before-storage",
+    "log": ".tmp/storage-funding-upgrade-01/before-reproduction.log",
+    "result": "failed at the shared upgrade helper; actual canister post_upgrade rejects fixture input"
+  },
+  "verification": {
+    "test": "storage_funding::transport:: --nocapture",
+    "runner": ".tmp/storage-funding-upgrade-01/after-storage",
+    "log": ".tmp/storage-funding-upgrade-01/after-transport.log",
+    "result": "all eleven funding transport tests pass, including all five reported cases",
+    "preserved_behavior": [
+      "exact Cashier arguments and refunds independent of reply decoding",
+      "callback write traps retain uncertainty after remote acceptance",
+      "earlier accepted cycles survive later fully refunded calls",
+      "complete holds and explicit operator authority before dispatch",
+      "restored outcomes and fences survive actual fixture upgrade",
+      "marker trap sends nothing; delayed callback retains exact reservation; mismatched callbacks cannot release uncertainty"
+    ],
+    "strict_storage_harness_clippy": "pass",
+    "formatting": "pass",
+    "changelog_check": "pass",
+    "full_ci_run": false
+  },
+  "environment": {
+    "POCKET_IC_BIN": "$PWD/.tmp/tools/pocket-ic-16.0.0/pocket-ic",
+    "BLOB_STORAGE_PROBE_WASM": "$PWD/.tmp/storage-funding-upgrade-01/storage.wasm",
+    "BLOB_FUNDING_PROBE_WASM": "$PWD/.tmp/storage-funding-upgrade-01/funding.wasm"
+  },
+  "builds": [
+    "CARGO_TARGET_DIR=$PWD/target cargo test --offline --locked -p ic-blob-storage-pocketic-tests --test storage --no-run --message-format=json",
+    "CARGO_TARGET_DIR=$PWD/target cargo clippy --offline --locked -p ic-blob-storage-pocketic-tests --test storage -- -D warnings"
+  ],
+  "budget": {
+    "live_provider_requests": 0,
+    "paid_cycles": "0"
+  },
+  "limitations": [
+    "Frozen fixture Wasm is reused unchanged; only the test caller changes.",
+    "No full storage suite or release gate is rerun; the maintained funding transport group covers every affected caller.",
+    "Local substitute transport is not deployed provider qualification.",
+    "No version mutation, commit, deployment, publication, sibling edit/message or cleanup."
+  ],
+  "private_hashes": [
+    {
+      "path": ".tmp/storage-funding-upgrade-01/after-artifacts.json",
+      "sha256": "040ce0530a8cf3d53f33c4e2d0f8ee095aef7d197435ee86e0947d7f9607a369"
+    },
+    {
+      "path": ".tmp/storage-funding-upgrade-01/after-artifacts.jsonl",
+      "sha256": "5e7e43930e1f35518b251e996fcba3c246a89b3011a155f1d1d8886d10034494"
+    },
+    {
+      "path": ".tmp/storage-funding-upgrade-01/after-build.log",
+      "sha256": "39e151319c6440fc6f559e4e1c70edfbafec279a3cd49b2323233dc3370cf5fb"
+    },
+    {
+      "path": ".tmp/storage-funding-upgrade-01/after-storage",
+      "sha256": "f9543cc720eaff6ad58203ccf0d1fd671b62341a23e8b1b323c71717a368db64"
+    },
+    {
+      "path": ".tmp/storage-funding-upgrade-01/after-transport.log",
+      "sha256": "aed7fcf304f4cde0b6fdee39f455ca77bceb9d28944e0a5ffc30e45ab4fe670e"
+    },
+    {
+      "path": ".tmp/storage-funding-upgrade-01/after-transport.rs",
+      "sha256": "d15a4cf87e49186490e0ef5ad7cdaef016aafb1602bb18aadb8e3525cf868d7b"
+    },
+    {
+      "path": ".tmp/storage-funding-upgrade-01/before-artifacts.json",
+      "sha256": "d70ac859eca3dbeee16661223a9d05073b81565e742bb0fc46e3333a5b0c9285"
+    },
+    {
+      "path": ".tmp/storage-funding-upgrade-01/before-reproduction.log",
+      "sha256": "bb8b3ca7f86e33d174594ead6435805bc9105050d1dfd66b7f11b9250840fb6f"
+    },
+    {
+      "path": ".tmp/storage-funding-upgrade-01/before-storage",
+      "sha256": "f6d56d638940b50cb52b4bc0115bfa1f5ebc0d4606951ea3f463a610e518c5e2"
+    },
+    {
+      "path": ".tmp/storage-funding-upgrade-01/before-transport.rs",
+      "sha256": "ab8f8627687af18bf04018b5c827678a9fa36ef35ea36cf6d1ba85a78a8268e7"
+    },
+    {
+      "path": ".tmp/storage-funding-upgrade-01/clippy.log",
+      "sha256": "389614d5f64d49ecf4469373fd5f3bc68acf3737131a5b5a4b3acfade893e003"
+    },
+    {
+      "path": ".tmp/storage-funding-upgrade-01/fmt-check.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".tmp/storage-funding-upgrade-01/funding.wasm",
+      "sha256": "2d9d1109a46e520a3f708af5c79afef087594f8210f629fc2a2c5bd6426ee2e7"
+    },
+    {
+      "path": ".tmp/storage-funding-upgrade-01/storage-fixture.rs",
+      "sha256": "a24fbd0bf5c1e52a1169371a392f33ac9cee1e2e0acbbd8f050e10ad89042bb5"
+    },
+    {
+      "path": ".tmp/storage-funding-upgrade-01/storage.wasm",
+      "sha256": "21a11bb3910ff96bf66d13c0b8aadd024e5807d05554d30f24e42c903379c02f"
+    }
+  ]
+}

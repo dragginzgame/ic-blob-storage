@@ -192,6 +192,15 @@ commands, artifacts, sources and hashes stay under `.tmp/service-restore-profile
 live provider request, paid cycle, sibling edit/message or build cleanup occurs.
 Consumer adoption, certified registration and provider retirement remain open.
 
+The subsequent [funding fixture correction](../evidence/caffeine-probes/local/2026-10-04-storage-funding-upgrade-01/summary.json)
+fixes one missed propagation caller: the shared Cashier test upgrade helper still
+sent a bare principal. A retained actual PocketIC reproduction rejects that input
+during post-upgrade decoding, after funding assertions pass. The helper now uses
+the existing current installation encoder. All eleven funding transport cases,
+including the five reported failures, pass; strict storage harness Clippy and
+format/changelog checks pass. Production funding behavior and fixture Wasm are
+unchanged. No full storage suite or CI rerun, release, live effect or cleanup.
+
 ## Remaining product work
 
 - Next repository batch: qualify restoration costs with representative larger

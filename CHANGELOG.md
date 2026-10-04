@@ -4,6 +4,12 @@
 
 ## [0.14.8]
 
+### Fixed
+
+- Use the shared current installation encoder when funding transport tests
+  upgrade their storage fixture. Preserve accepted/refunded cycle accounting,
+  callback uncertainty and restored fences without an obsolete input reader.
+
 ### Added
 
 - Add an opt-in PocketIC resource profile for 100, 1,000 and 10,000 lifetime

@@ -1,0 +1,10 @@
+{
+  "schema": 1,
+  "date": "2026-10-04",
+  "target": "shared funding transport fixture upgrade helper and its actual PocketIC recovery callers",
+  "purpose": "reproduce stale bare-principal upgrade input, use the canonical current installation record, then run storage_funding::transport:: cases",
+  "evidence_class": "local IC transport with cashier substitute",
+  "budget": "zero live provider requests and paid cycles; fresh isolated PocketIC canisters only",
+  "retention": ".tmp/storage-funding-upgrade-01",
+  "limitations": "test fixture wiring only, no funding policy or deployed provider change"
+}
