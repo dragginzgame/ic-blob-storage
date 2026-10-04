@@ -1,0 +1,17 @@
+{
+  "evidenceClass": "local_artifact_retention_verification",
+  "directory": ".tmp/media-driver-01",
+  "sourceSnapshots": {
+    "initial": "source-initial",
+    "strengthenedRefusal": "source-refusal",
+    "initialMaterialization": "Materialized after strengthening by removing only the documented additional service assertions/imports; matches the original pre-strengthening SHA-256 manifest exactly"
+  },
+  "verification": {
+    "initialManifestAgainstCurrentTree": "Expected mismatch only in serial/mod.rs after adding service-state assertions; all other initial source entries match",
+    "initialManifestAgainstHistoricalSnapshot": "passed",
+    "strengthenedManifestAgainstCurrentTreeAndSnapshot": "passed",
+    "initialAndStrengthenedBinaries": "passed",
+    "publicLedgerSeals": "passed"
+  },
+  "effect": "Read-only checksum verification; no provider request, replay or artifact mutation"
+}

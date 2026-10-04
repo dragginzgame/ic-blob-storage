@@ -1,0 +1,351 @@
+{
+  "date": "2026-10-04",
+  "baseline": "2b3c85c release 0.14.0 plus local PNG/reference work",
+  "evidenceClass": "actual_local_ic_chromium_sdk_owned_https_http2_substitute",
+  "contract": {
+    "canonicalNativeTargets": true,
+    "credentialsOmitted": true,
+    "redirectsRefused": true,
+    "cache": "no-store",
+    "browserReadDeadlineMilliseconds": 10000,
+    "exactPublicationOrigin": true,
+    "pngMimeLengthDigestDimensionsPixels": true,
+    "selectedOriginCors": true,
+    "opaqueOriginReadRefused": true,
+    "finalLogicalReleaseDoesNotRevokeSavedPublicUrl": true,
+    "physicalAndBillingLiabilityPreserved": true,
+    "productionApiWireStorageChanges": false,
+    "newDispatchRetryOrJournalOwner": false
+  },
+  "validation": {
+    "journeys": [
+      {
+        "directory": ".tmp/public-delivery-01/browser/multichunk-complete",
+        "log": ".tmp/public-delivery-01/multichunk-complete.log",
+        "testkit": "0.14.1",
+        "puts": 5,
+        "gets": 8,
+        "publicDelivery": [
+          {
+            "afterFinalRelease": true,
+            "bytes": 1049055,
+            "declaredBytes": "1049055",
+            "height": 256,
+            "index": 0,
+            "mime": "image/png",
+            "origin": "http://127.0.0.1:40185",
+            "pixel": [
+              200,
+              30,
+              60,
+              255
+            ],
+            "sha256": "1235cbba920c5cfb24ff592d5ef1223d68d6340a0a4d65a909d263914d9e1f6b",
+            "status": 200,
+            "type": "cors",
+            "url": "https://127.0.0.1:40783/v1/blob/?blob_hash=sha256%3A484d7a8cc9165a997f8ebfeafd1cd7c5fc388828499f10f3f5c15ccac51f8369&owner_id=dllsh-pd777-77776-qaaaa-cai&project_id=standalone-trial",
+            "width": 1024
+          },
+          {
+            "afterFinalRelease": false,
+            "bytes": 1102,
+            "declaredBytes": "1102",
+            "height": 12,
+            "index": 1,
+            "mime": "image/png",
+            "origin": "http://127.0.0.1:40185",
+            "pixel": [
+              20,
+              180,
+              210,
+              255
+            ],
+            "sha256": "f1a16a5adabc5008d5adff083bfcf4d70dc6c49e17a29d0ba42f3bd37128f02a",
+            "status": 200,
+            "type": "cors",
+            "url": "https://127.0.0.1:40783/v1/blob/?blob_hash=sha256%3A77bb616fa371f72f60b5300017c7ac0ecac38a355e40cb52cb3128b73ea25106&owner_id=dllsh-pd777-77776-qaaaa-cai&project_id=standalone-trial",
+            "width": 24
+          }
+        ],
+        "opaqueOriginRefused": true,
+        "retainedPhysicalBytes": 1050157,
+        "retainedLiabilityBytes": 1050157,
+        "firstUploadGatewayPhases": [
+          "responded",
+          "responded",
+          "responded"
+        ],
+        "references": {
+          "billing_cessation": false,
+          "current_map_complete": false,
+          "historical_retain_receipt_preserved": true,
+          "liability_bytes": 1050157,
+          "logical_bytes": 1102,
+          "physical_bytes": 1050157,
+          "provider_deletion": false,
+          "released_downloads_refused": true,
+          "schema": 1,
+          "second_reference_survives_first_release": true
+        }
+      },
+      {
+        "directory": ".tmp/public-delivery-01/browser/multichunk-lost",
+        "log": ".tmp/public-delivery-01/chromium_standalone_trial_multichunk_png_lost_final_reply_recovers_without_another_chunk.log",
+        "testkit": "0.14.1",
+        "puts": 5,
+        "gets": 8,
+        "publicDelivery": [
+          {
+            "afterFinalRelease": true,
+            "bytes": 1049055,
+            "declaredBytes": "1049055",
+            "height": 256,
+            "index": 0,
+            "mime": "image/png",
+            "origin": "http://127.0.0.1:33375",
+            "pixel": [
+              200,
+              30,
+              60,
+              255
+            ],
+            "sha256": "1235cbba920c5cfb24ff592d5ef1223d68d6340a0a4d65a909d263914d9e1f6b",
+            "status": 200,
+            "type": "cors",
+            "url": "https://127.0.0.1:35335/v1/blob/?blob_hash=sha256%3A484d7a8cc9165a997f8ebfeafd1cd7c5fc388828499f10f3f5c15ccac51f8369&owner_id=dllsh-pd777-77776-qaaaa-cai&project_id=standalone-trial",
+            "width": 1024
+          },
+          {
+            "afterFinalRelease": false,
+            "bytes": 1102,
+            "declaredBytes": "1102",
+            "height": 12,
+            "index": 1,
+            "mime": "image/png",
+            "origin": "http://127.0.0.1:33375",
+            "pixel": [
+              20,
+              180,
+              210,
+              255
+            ],
+            "sha256": "f1a16a5adabc5008d5adff083bfcf4d70dc6c49e17a29d0ba42f3bd37128f02a",
+            "status": 200,
+            "type": "cors",
+            "url": "https://127.0.0.1:35335/v1/blob/?blob_hash=sha256%3A77bb616fa371f72f60b5300017c7ac0ecac38a355e40cb52cb3128b73ea25106&owner_id=dllsh-pd777-77776-qaaaa-cai&project_id=standalone-trial",
+            "width": 24
+          }
+        ],
+        "opaqueOriginRefused": true,
+        "retainedPhysicalBytes": 1050157,
+        "retainedLiabilityBytes": 1050157,
+        "firstUploadGatewayPhases": [
+          "responded",
+          "responded",
+          "uncertain"
+        ],
+        "references": {
+          "billing_cessation": false,
+          "current_map_complete": false,
+          "historical_retain_receipt_preserved": true,
+          "liability_bytes": 1050157,
+          "logical_bytes": 1102,
+          "physical_bytes": 1050157,
+          "provider_deletion": false,
+          "released_downloads_refused": true,
+          "schema": 1,
+          "second_reference_survives_first_release": true
+        }
+      },
+      {
+        "directory": ".tmp/public-delivery-01/browser/media-complete",
+        "log": ".tmp/public-delivery-01/chromium_standalone_trial_distinct_png_media_complete_and_decode_verified_downloads.log",
+        "testkit": "0.14.1",
+        "puts": 4,
+        "gets": 7,
+        "publicDelivery": [
+          {
+            "afterFinalRelease": false,
+            "bytes": 1001,
+            "declaredBytes": "1001",
+            "height": 16,
+            "index": 0,
+            "mime": "image/png",
+            "origin": "http://127.0.0.1:46515",
+            "pixel": [
+              200,
+              30,
+              60,
+              255
+            ],
+            "sha256": "7eaba2f357804ca6ff77aec5677394e6578e1d8cf1c2861b63c0751ac46cdcf0",
+            "status": 200,
+            "type": "cors",
+            "url": "https://127.0.0.1:44303/v1/blob/?blob_hash=sha256%3A346b9f0c6267eeb45fe61b6d6f622c56ad0a2fcf765e2c69f48277877a576d3d&owner_id=dllsh-pd777-77776-qaaaa-cai&project_id=standalone-trial",
+            "width": 16
+          },
+          {
+            "afterFinalRelease": false,
+            "bytes": 1102,
+            "declaredBytes": "1102",
+            "height": 12,
+            "index": 1,
+            "mime": "image/png",
+            "origin": "http://127.0.0.1:46515",
+            "pixel": [
+              20,
+              180,
+              210,
+              255
+            ],
+            "sha256": "f1a16a5adabc5008d5adff083bfcf4d70dc6c49e17a29d0ba42f3bd37128f02a",
+            "status": 200,
+            "type": "cors",
+            "url": "https://127.0.0.1:44303/v1/blob/?blob_hash=sha256%3A77bb616fa371f72f60b5300017c7ac0ecac38a355e40cb52cb3128b73ea25106&owner_id=dllsh-pd777-77776-qaaaa-cai&project_id=standalone-trial",
+            "width": 24
+          }
+        ],
+        "opaqueOriginRefused": true,
+        "retainedPhysicalBytes": 2103,
+        "retainedLiabilityBytes": 2103,
+        "firstUploadGatewayPhases": [
+          "responded",
+          "responded"
+        ]
+      },
+      {
+        "directory": ".tmp/public-delivery-01/browser/multichunk-corrupt",
+        "log": ".tmp/public-delivery-01/chromium_standalone_trial_multichunk_png_tail_corruption_stops_before_next_admission.log",
+        "testkit": "0.14.1",
+        "puts": 3,
+        "gets": 1,
+        "publicDelivery": [],
+        "opaqueOriginRefused": false,
+        "retainedPhysicalBytes": 1049055,
+        "retainedLiabilityBytes": 1049055,
+        "firstUploadGatewayPhases": [
+          "responded",
+          "responded",
+          "responded"
+        ]
+      },
+      {
+        "directory": ".tmp/public-delivery-01/browser/native-driver-restart",
+        "log": ".tmp/public-delivery-01/chromium_native_phase_driver_restarts_with_original_handoff_without_another_upload.log",
+        "testkit": "0.14.1",
+        "puts": 4,
+        "gets": 4,
+        "publicDelivery": [],
+        "opaqueOriginRefused": false,
+        "retainedPhysicalBytes": 3072,
+        "retainedLiabilityBytes": 3072,
+        "firstUploadGatewayPhases": [
+          "responded",
+          "uncertain"
+        ]
+      },
+      {
+        "directory": ".tmp/public-delivery-01/browser-current/multichunk-lost",
+        "log": ".tmp/public-delivery-01/current-multichunk-lost.log",
+        "testkit": "0.14.2",
+        "puts": 5,
+        "gets": 8,
+        "publicDelivery": [
+          {
+            "afterFinalRelease": true,
+            "bytes": 1049055,
+            "declaredBytes": "1049055",
+            "height": 256,
+            "index": 0,
+            "mime": "image/png",
+            "origin": "http://127.0.0.1:38699",
+            "pixel": [
+              200,
+              30,
+              60,
+              255
+            ],
+            "sha256": "1235cbba920c5cfb24ff592d5ef1223d68d6340a0a4d65a909d263914d9e1f6b",
+            "status": 200,
+            "type": "cors",
+            "url": "https://127.0.0.1:46623/v1/blob/?blob_hash=sha256%3A484d7a8cc9165a997f8ebfeafd1cd7c5fc388828499f10f3f5c15ccac51f8369&owner_id=dllsh-pd777-77776-qaaaa-cai&project_id=standalone-trial",
+            "width": 1024
+          },
+          {
+            "afterFinalRelease": false,
+            "bytes": 1102,
+            "declaredBytes": "1102",
+            "height": 12,
+            "index": 1,
+            "mime": "image/png",
+            "origin": "http://127.0.0.1:38699",
+            "pixel": [
+              20,
+              180,
+              210,
+              255
+            ],
+            "sha256": "f1a16a5adabc5008d5adff083bfcf4d70dc6c49e17a29d0ba42f3bd37128f02a",
+            "status": 200,
+            "type": "cors",
+            "url": "https://127.0.0.1:46623/v1/blob/?blob_hash=sha256%3A77bb616fa371f72f60b5300017c7ac0ecac38a355e40cb52cb3128b73ea25106&owner_id=dllsh-pd777-77776-qaaaa-cai&project_id=standalone-trial",
+            "width": 24
+          }
+        ],
+        "opaqueOriginRefused": true,
+        "retainedPhysicalBytes": 1050157,
+        "retainedLiabilityBytes": 1050157,
+        "firstUploadGatewayPhases": [
+          "responded",
+          "responded",
+          "uncertain"
+        ],
+        "references": {
+          "billing_cessation": false,
+          "current_map_complete": false,
+          "historical_retain_receipt_preserved": true,
+          "liability_bytes": 1050157,
+          "logical_bytes": 1102,
+          "physical_bytes": 1050157,
+          "provider_deletion": false,
+          "released_downloads_refused": true,
+          "schema": 1,
+          "second_reference_survives_first_release": true
+        }
+      }
+    ],
+    "strictAffectedClippy": "passed against current ic-testkit 0.14.2 lock",
+    "currentHarnessBuild": "passed",
+    "browserBuild": "passed",
+    "syntax": "passed",
+    "formatting": "passed",
+    "changelog": "undated 0.14.1; Cargo and receipt remain 0.14.0",
+    "failedAttempts": [],
+    "fullCi": false
+  },
+  "retention": {
+    "directory": ".tmp/public-delivery-01",
+    "source": ".tmp/public-delivery-01/source",
+    "sourceHashes": ".tmp/public-delivery-01/source-SHA256SUMS",
+    "artifacts": ".tmp/public-delivery-01/artifacts/SHA256SUMS",
+    "currentArtifacts": ".tmp/public-delivery-01/current-artifacts-SHA256SUMS",
+    "results": ".tmp/public-delivery-01/results-SHA256SUMS",
+    "dependencyChange": "Concurrent ic-testkit lock update 0.14.1 -> 0.14.2 after initial snapshot; preserved separately in current-Cargo.lock. First five journeys use retained prior harness; sixth uses newly built current harness. Production CLI/Wasm reused unchanged from the media record with ic-memory 0.24.3.",
+    "histories": "Original profiles/journals/native requests/downloads remain in each journey directory; owned browser/socket processes exited and temporary TLS private keys removed."
+  },
+  "limitations": [
+    "Owned substitute responses do not qualify deployed Caffeine MIME/CORS/chunk acknowledgment behavior",
+    "Consumer adoption, real asset transactions, deployed cache/CSP/retention/access policy remain open",
+    "No confidentiality, public serving lease, provider deletion or billing cessation guarantee"
+  ],
+  "effects": {
+    "liveProviderRequests": 0,
+    "paidCycles": 0,
+    "deployment": false,
+    "siblingEdits": false,
+    "releaseOrPublication": false,
+    "commits": false,
+    "buildCleanup": false,
+    "oldLiveOwners": "unchanged; retain provider/billing obligations"
+  }
+}

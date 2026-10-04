@@ -14,6 +14,18 @@ Framework wrappers and their composition tests belong to their consumer owners.
 | Billing cessation | Logical release or a provider deletion callback cannot clear economic liability. Fresh live samples retain 10,486,784 physical/liability bytes after logical release. | Provider/service owner: obtain exact final object billing evidence, settlement amount/cutoff, and treatment of delayed charges. Current reviewed contracts and zero usage counters supply no such proof. |
 | Existing consumers | The [integration backlog](canic-parity.md#integration-feedback) records the required hard cut; siblings remain read-only. | Toko/Canic owners: remove direct Canic blob and billing APIs, adopt the released shared contract and explicitly disposition old installations and obligations. No compatibility layer or cross-release migration is supplied. |
 
+The [local multi-chunk/reference journeys](evidence/caffeine-probes/README.md#multi-chunk-png-and-overlapping-references--2026-10-04)
+verify distinct full/partial PNG chunks and signed overlapping-reference cleanup.
+They establish local format/reference/accounting behavior, not consumer asset
+transactions or deployed provider acknowledgments, public serving or retirement.
+
+The [direct browser-delivery checks](evidence/caffeine-probes/README.md#direct-browser-url-delivery--2026-10-04)
+add local PNG MIME/bytes and selected-origin CORS observations using the canonical
+native URLs. The saved public URL still serves after logical reference release
+under the substitute, while authenticated descriptors refuse. CORS is a browser
+read policy, not confidentiality or provider deletion. Deployed cache/CSP,
+retention and consumer access-policy acceptance remain open.
+
 Deletion qualification must retain the exact original service, namespace, object,
 root, incarnation and operation identity before any destructive effect. Record
 the request, callback/result, hashes and uncertain outcome; never redispatch from

@@ -58,7 +58,13 @@ fn upload(
         UploadState::ExposurePossible
     );
     // HTTP success cannot expose a tenant download before independent verification.
-    trial.download(&input, &uploaded.gateway, "unconfirmed", 3);
+    trial.download(
+        &input,
+        input.permission.upload.first_reference,
+        &uploaded.gateway,
+        "unconfirmed",
+        3,
+    );
     (driver, input, uploaded)
 }
 fn finish(trial: &Trial, mut driver: BrowserDriver) -> serde_json::Value {
@@ -106,14 +112,26 @@ fn chromium_standalone_trial_upload_verification_download_and_release() {
         trial.f.admission(input.permission).state,
         UploadState::Confirmed
     );
-    let delivered = trial.download(&input, &uploaded.gateway, "download", 0);
+    let delivered = trial.download(
+        &input,
+        input.permission.upload.first_reference,
+        &uploaded.gateway,
+        "download",
+        0,
+    );
     assert_eq!(delivered["content_digest"], observation["content_digest"]);
     assert_eq!(
         std::fs::read(trial.report.join("download/body.bin")).unwrap(),
         [42; 1024]
     );
     trial.release(&input);
-    trial.download(&input, &uploaded.gateway, "released", 3);
+    trial.download(
+        &input,
+        input.permission.upload.first_reference,
+        &uploaded.gateway,
+        "released",
+        3,
+    );
     // Logical release retains the provider object and its physical/liability records.
     let status = trial
         .f
@@ -153,7 +171,13 @@ fn chromium_standalone_trial_corrupt_provider_download_cannot_confirm_or_free_ob
     ] {
         assert!(!trial.report.join(path).exists());
     }
-    trial.download(&input, &uploaded.gateway, "after-corrupt", 3);
+    trial.download(
+        &input,
+        input.permission.upload.first_reference,
+        &uploaded.gateway,
+        "after-corrupt",
+        3,
+    );
     let revoked: Result<super::UploadRevocationResponse, super::UploadAdmissionFailure> = trial
         .f
         .harness

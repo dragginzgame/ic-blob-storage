@@ -1,8 +1,16 @@
 //! Serial native/browser composition; provider and public-serving facts remain local.
 use super::{BrowserDriver, Trial, UploadState};
-use crate::{Envelope, UploadManifestRequest, standalone_publish_check::freeze_files};
+use crate::{
+    Envelope, UploadAdmissionFailure, UploadAdmissionResponse, UploadManifestRequest,
+    standalone_publish_check::freeze_bodies,
+};
 use crate::{browser_driver::BrowserPreparation, native_session::NativeSession};
+use ic_blob_storage::dto::reference::{
+    ReferenceAction, ReferenceChange, ReferenceCommand, ReferenceMutationResponse,
+    ReferenceReceiptLookup,
+};
 use ic_blob_storage::model::identity::ContentDigest;
+use ic_testkit::pic::CandidCallExt;
 use serde_json::{Value, json};
 
 #[derive(serde::Deserialize)]
@@ -67,6 +75,23 @@ impl Serial {
     }
     fn refuse_corrupt_map(&self, control: &mut Control, gateway: &str, observation: &Value) {
         assert_eq!(observation["error"], "content_mismatch");
+        assert_eq!(
+            self.trial.f.admission(self.files[0].permission).state,
+            UploadState::ExposurePossible
+        );
+        let second: Result<UploadAdmissionResponse, UploadAdmissionFailure> = self
+            .trial
+            .f
+            .harness
+            .pic
+            .query_candid_as(
+                self.trial.f.service,
+                self.trial.f.tenant,
+                "blob_upload_admission",
+                (self.files[1].permission,),
+            )
+            .unwrap();
+        assert_eq!(second, Err(UploadAdmissionFailure::Unknown));
         assert!(
             !self
                 .trial
@@ -252,9 +277,12 @@ impl Serial {
         report
     }
     fn new(label: &str) -> Self {
+        Self::with_bodies(label, &[vec![42; 1024], vec![42; 2048]])
+    }
+    fn with_bodies(label: &str, bodies: &[Vec<u8>]) -> Self {
         let trial = Trial::with_envelope(label, Envelope::Serial);
         // This local operator also signs as the uploader; tenant/verifier differ.
-        freeze_files(&trial.f, &trial.report, &[1024, 2048]);
+        freeze_bodies(&trial.f, &trial.report, bodies);
         let files = (0..2)
             .map(|index| {
                 candid::decode_one(
@@ -275,9 +303,18 @@ impl Serial {
             "--inputs".into(),
             self.trial.report.join("batch").display().to_string(),
             "--max-bytes".into(),
-            "2048".into(),
+            self.files
+                .iter()
+                .map(|file| file.permission.upload.bytes)
+                .max()
+                .unwrap()
+                .to_string(),
             "--max-total-bytes".into(),
-            "3072".into(),
+            self.files
+                .iter()
+                .map(|file| file.permission.upload.bytes)
+                .sum::<u64>()
+                .to_string(),
             "--timeout-seconds".into(),
             "30".into(),
             "--run-dir".into(),
@@ -413,10 +450,23 @@ impl Serial {
             live["files"][0]["body_sha256"],
             self.snapshot(index)["snapshot"]["bodySha256"]
         );
-        let delivered =
-            self.trial
-                .download(&self.files[index], gateway, &format!("download-{index}"), 0);
+        let delivered = self.trial.download(
+            &self.files[index],
+            self.files[index].permission.upload.first_reference,
+            gateway,
+            &format!("download-{index}"),
+            0,
+        );
         assert_eq!(delivered["content_digest"], observation["content_digest"]);
+        crate::unchanged(
+            &std::fs::read(self.trial.report.join(format!("download-{index}/body.bin"))).unwrap(),
+            &std::fs::read(
+                self.trial
+                    .report
+                    .join(format!("batch/file-{index:04}/body.bin")),
+            )
+            .unwrap(),
+        );
     }
     fn verify_in_session(
         &self,
@@ -576,6 +626,7 @@ impl Serial {
         browser: &mut BrowserDriver,
         gateway: &str,
         scenario: Scenario,
+        overlap: bool,
     ) {
         let repo = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../..");
         browser.send(&json!({"native": {
@@ -618,11 +669,15 @@ impl Serial {
                         0
                     }
                 );
-                browser.send(&json!({"accepted":true}));
                 if !matches!(scenario, Scenario::Corrupt) {
                     assert_eq!(final_result["report"]["all_references_live"], true);
+                    if overlap {
+                        self.overlapping_references(gateway);
+                    }
+                    browser.send(&json!({"accepted":true}));
                     return;
                 }
+                browser.send(&json!({"accepted":true}));
                 let failure = &final_result["report"];
                 assert_eq!(failure["error"], "content_mismatch");
                 self.trial
@@ -649,6 +704,144 @@ impl Serial {
         }
         panic!("driver must finish within the two selected session budgets");
     }
+    fn reference(&self, command: ReferenceCommand, label: &str) -> ReferenceMutationResponse {
+        let request = self.trial.report.join(format!("{label}.candid"));
+        std::fs::write(&request, candid::encode_one(command).unwrap()).unwrap();
+        let mut args = self
+            .trial
+            .args("submit-reference", "tenant.pem", self.trial.f.tenant);
+        args.extend([
+            "--request".into(),
+            request.display().to_string(),
+            "--run-dir".into(),
+            self.trial.report.join(label).display().to_string(),
+        ]);
+        let report = self.trial.invoke(label, &args, 0);
+        assert_eq!(report["outcome"], "recorded");
+        let response: Result<ReferenceMutationResponse, crate::ReferenceFailure> =
+            candid::decode_one(
+                &std::fs::read(self.trial.report.join(label).join("response.candid")).unwrap(),
+            )
+            .unwrap();
+        let response = response.unwrap();
+        assert_eq!(response.receipt.request, command);
+        assert_eq!(response.receipt.result, Ok(ReferenceChange::Changed));
+        assert!(!response.replayed);
+        response
+    }
+    fn overlapping_references(&self, gateway: &str) {
+        let input = &self.files[0];
+        let upload = input.permission.upload;
+        let retain = ReferenceCommand {
+            upload,
+            reference: upload.first_reference + 100,
+            operation: 201,
+            action: ReferenceAction::Retain,
+        };
+        let original = self.reference(retain, "shared-retain");
+        self.reference(
+            ReferenceCommand {
+                upload,
+                reference: upload.first_reference,
+                operation: 202,
+                action: ReferenceAction::Release,
+            },
+            "shared-release-first",
+        );
+        self.trial.download(
+            input,
+            upload.first_reference,
+            gateway,
+            "shared-first-refused",
+            3,
+        );
+        self.trial
+            .download(input, retain.reference, gateway, "shared-download", 0);
+        crate::unchanged(
+            &std::fs::read(self.trial.report.join("shared-download/body.bin")).unwrap(),
+            &std::fs::read(self.trial.report.join("batch/file-0000/body.bin")).unwrap(),
+        );
+        let before = self
+            .trial
+            .f
+            .local_status(self.trial.f.operator, self.trial.f.operator_scope())
+            .unwrap();
+        let total: u128 = self
+            .files
+            .iter()
+            .map(|file| u128::from(file.permission.upload.bytes))
+            .sum();
+        assert_eq!(before.uploads.logical_bytes, total);
+        self.reference(
+            ReferenceCommand {
+                operation: 203,
+                action: ReferenceAction::Release,
+                ..retain
+            },
+            "shared-release-last",
+        );
+        for (reference, label) in [
+            (upload.first_reference, "shared-first-still-refused"),
+            (retain.reference, "shared-last-refused"),
+        ] {
+            self.trial.download(input, reference, gateway, label, 3);
+        }
+        self.historical_reference(retain, &original);
+        let current = self.status(None, gateway, "shared-current-map");
+        assert_eq!(current["all_references_live"], false);
+        assert!(
+            !self
+                .trial
+                .report
+                .join("shared-current-map/media-map.json")
+                .exists()
+        );
+        let after = self
+            .trial
+            .f
+            .local_status(self.trial.f.operator, self.trial.f.operator_scope())
+            .unwrap();
+        assert_eq!(
+            after.uploads.logical_bytes,
+            u128::from(self.files[1].permission.upload.bytes)
+        );
+        assert_eq!(after.uploads.physical_bytes, total);
+        assert_eq!(after.uploads.liability_bytes, total);
+        self.trial.record("shared-reference-summary.json", &json!({"schema":1,
+            "second_reference_survives_first_release":true,"released_downloads_refused":true,
+            "historical_retain_receipt_preserved":true,"current_map_complete":false,
+            "logical_bytes":after.uploads.logical_bytes,"physical_bytes":after.uploads.physical_bytes,
+            "liability_bytes":after.uploads.liability_bytes,"provider_deletion":false,"billing_cessation":false}));
+    }
+    fn historical_reference(&self, retain: ReferenceCommand, original: &ReferenceMutationResponse) {
+        let mut receipt = self
+            .trial
+            .args("reference-receipt", "tenant.pem", self.trial.f.tenant);
+        receipt.extend([
+            "--request".into(),
+            self.trial
+                .report
+                .join("shared-retain.candid")
+                .display()
+                .to_string(),
+        ]);
+        let historical = self.trial.invoke("shared-historical-receipt", &receipt, 0);
+        assert_eq!(historical["outcome"], "found");
+        assert_eq!(historical["reference_liveness"], "not_observed");
+        let lookup: Result<ReferenceReceiptLookup, crate::ReferenceFailure> = self
+            .trial
+            .f
+            .harness
+            .pic
+            .query_candid_as(
+                self.trial.f.service,
+                self.trial.f.tenant,
+                "blob_reference_receipt",
+                (retain,),
+            )
+            .unwrap();
+        assert_eq!(lookup, Ok(ReferenceReceiptLookup::Found(original.receipt)));
+    }
     fn finish(&mut self, driver: BrowserDriver, scenario: Scenario) {
         let browser = driver.finish();
         assert_eq!(browser["outcome"], "passed");
@@ -659,9 +852,12 @@ impl Serial {
             .local_status(self.trial.f.operator, self.trial.f.operator_scope())
             .unwrap();
         let bytes = if matches!(scenario, Scenario::Corrupt) {
-            1024
+            u128::from(self.files[0].permission.upload.bytes)
         } else {
-            3072
+            self.files
+                .iter()
+                .map(|file| u128::from(file.permission.upload.bytes))
+                .sum()
         };
         assert_eq!(retained.uploads.physical_bytes, bytes);
         assert_eq!(retained.uploads.liability_bytes, bytes);
@@ -677,10 +873,16 @@ impl Serial {
 }
 
 fn run(label: &str, scenario: Scenario, driver: Driver) {
-    let mut serial = Serial::new(label);
+    run_serial(Serial::new(label), scenario, driver, false, false);
+}
+
+fn run_serial(mut serial: Serial, scenario: Scenario, driver: Driver, media: bool, overlap: bool) {
     let config = json!({"url":serial.trial.url,"service":serial.trial.f.service.to_text(),
         "tenant":serial.trial.f.tenant.to_text(),"bucket":"fixture-bucket","worker":matches!(driver,Driver::Worker | Driver::VerifiedWorker | Driver::CoordinatedWorker),
         "coordinated":matches!(driver,Driver::CoordinatedWorker),
+        "bodies":(0..serial.files.len()).map(|index|serial.trial.report.join(format!("batch/file-{index:04}/body.bin"))).collect::<Vec<_>>(),
+        "media":media,"report":serial.trial.report,
+        "overlap":overlap,
         "rootKey":serial.trial.f.harness.pic.root_key().unwrap(),"project":super::client::PROJECT,
         "lostFinalReply":matches!(scenario,Scenario::LostReply),"corruptRead":matches!(scenario,Scenario::Corrupt),
         "providerRootCertificate":serial.trial.report.join("gateway-ca.pem"),
@@ -701,7 +903,13 @@ fn run(label: &str, scenario: Scenario, driver: Driver) {
     };
     serial.validate_plan(&plans);
     if matches!(driver, Driver::CoordinatedWorker) {
-        serial.coordinate(&mut control, &mut browser, &plans.gateway, scenario);
+        serial.coordinate(
+            &mut control,
+            &mut browser,
+            &plans.gateway,
+            scenario,
+            overlap,
+        );
         serial.finish(browser, scenario);
         return;
     }
@@ -861,5 +1069,66 @@ fn chromium_native_phase_driver_stops_on_corruption_before_attestation_and_next_
         "native-driver-corrupt",
         Scenario::Corrupt,
         Driver::CoordinatedWorker,
+    );
+}
+
+#[test]
+#[ignore = "Requires pinned browser packages and Chromium; run make test-browser-standalone"]
+fn chromium_standalone_trial_distinct_png_media_complete_and_decode_verified_downloads() {
+    run_media("media-complete", Scenario::Complete);
+}
+
+#[test]
+#[ignore = "Requires pinned browser packages and Chromium; run make test-browser-standalone"]
+fn chromium_standalone_trial_distinct_png_media_recover_lost_reply_without_another_upload() {
+    run_media("media-lost", Scenario::LostReply);
+}
+
+#[test]
+#[ignore = "Requires pinned browser packages and Chromium; run make test-browser-standalone"]
+fn chromium_standalone_trial_distinct_png_media_corruption_stops_before_attestation() {
+    run_media("media-corrupt", Scenario::Corrupt);
+}
+
+fn run_media(label: &str, scenario: Scenario) {
+    let bodies = [
+        include_bytes!("../../../../fixtures/media/warm.png").to_vec(),
+        include_bytes!("../../../../fixtures/media/cool.png").to_vec(),
+    ];
+    run_serial(
+        Serial::with_bodies(label, &bodies),
+        scenario,
+        Driver::CoordinatedWorker,
+        true,
+        false,
+    );
+}
+
+#[test]
+#[ignore = "Requires pinned browser packages and Chromium; run make test-browser-standalone"]
+fn chromium_standalone_trial_multichunk_png_shared_references_preserve_delivery_and_liability() {
+    run_multichunk("multichunk-complete", Scenario::Complete);
+}
+#[test]
+#[ignore = "Requires pinned browser packages and Chromium; run make test-browser-standalone"]
+fn chromium_standalone_trial_multichunk_png_lost_final_reply_recovers_without_another_chunk() {
+    run_multichunk("multichunk-lost", Scenario::LostReply);
+}
+#[test]
+#[ignore = "Requires pinned browser packages and Chromium; run make test-browser-standalone"]
+fn chromium_standalone_trial_multichunk_png_tail_corruption_stops_before_next_admission() {
+    run_multichunk("multichunk-corrupt", Scenario::Corrupt);
+}
+fn run_multichunk(label: &str, scenario: Scenario) {
+    let bodies = [
+        include_bytes!("../../../../fixtures/media/wide.png").to_vec(),
+        include_bytes!("../../../../fixtures/media/cool.png").to_vec(),
+    ];
+    run_serial(
+        Serial::with_bodies(label, &bodies),
+        scenario,
+        Driver::CoordinatedWorker,
+        true,
+        !matches!(scenario, Scenario::Corrupt),
     );
 }

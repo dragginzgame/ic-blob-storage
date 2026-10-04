@@ -1,0 +1,19 @@
+{
+  "purpose": "Exercise distinct valid PNG fixtures through the maintained native/browser driver and independently verified tenant downloads",
+  "baseline": "2b3c85c release 0.14.0",
+  "scope": "Actual local IC, Chromium and owned HTTPS/HTTP2 provider substitutes; no external provider calls",
+  "budget": {
+    "icBrowserJourneys": 5,
+    "maxPutArrivalsPerJourney": 4,
+    "maxGetArrivalsPerJourney": 4,
+    "liveProviderRequests": 0,
+    "paidCycles": 0
+  },
+  "retention": "Retain each attempt, exact binaries/bundles, original profiles, journals, media and downloaded bytes",
+  "limitations": [
+    "PNG fixtures are authored test media, not consumer assets",
+    "Browser decoding of independently verified bytes does not qualify deployed provider MIME/CORS/cache/CSP behavior",
+    "Consumer asset registration, overlapping references, billing cessation and older-backup activation remain open",
+    "No new dispatcher, retry owner, journal, deployment or paid effect"
+  ]
+}

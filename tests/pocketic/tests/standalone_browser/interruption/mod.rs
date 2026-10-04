@@ -57,7 +57,13 @@ fn chromium_standalone_trial_lost_chunk_reply_verifies_after_stop_start_without_
         trial.f.admission(input.permission).state,
         UploadState::Confirmed
     );
-    let delivered = trial.download(&input, &uploaded.gateway, "download", 0);
+    let delivered = trial.download(
+        &input,
+        input.permission.upload.first_reference,
+        &uploaded.gateway,
+        "download",
+        0,
+    );
     assert_eq!(delivered["content_digest"], observation["content_digest"]);
     assert_eq!(
         std::fs::read(trial.report.join("download/body.bin")).unwrap(),
@@ -88,6 +94,7 @@ fn chromium_standalone_trial_lost_chunk_reply_verifies_after_stop_start_without_
 fn chromium_standalone_trial_withdrawal_and_late_completion_preserve_release() {
     let mut trial = Trial::new("withdrawn");
     let (driver, input, uploaded) = upload(&trial, Scenario::Withdrawn);
+    let reference = input.permission.upload.first_reference;
     let observation = trial.observe(&input, &uploaded.gateway, 0);
     assert_eq!(
         observation["content_digest"],
@@ -160,7 +167,7 @@ fn chromium_standalone_trial_withdrawal_and_late_completion_preserve_release() {
     let replay = replay.unwrap();
     assert!(!replay.changed);
     assert_eq!(replay.receipt, receipt);
-    trial.download(&input, &uploaded.gateway, "after-withdrawal", 3);
+    trial.download(&input, reference, &uploaded.gateway, "after-withdrawal", 3);
     retained_bytes(&trial, 0);
     let browser = finish(&trial, driver);
     assert_eq!(browser["journal"]["cancelled"], true);

@@ -36,12 +36,12 @@ and durable metadata; admission does not require uploading the file body to it.
 | Standalone canister | Shared handlers; trusted-uploader certificate issuance within configured object sizes, quotas and multi-file capacity |
 | Lifecycle | Synchronous fenced restoration; IC-history-proven current-instance recovery and snapshot refusal |
 | Native tooling | Installation/account inputs, verified snapshots and signed setup/recovery; tenant downloads and verifier completion pass live |
-| Batch publication | Frozen inventories, native session, SDK worker and original source/profile/handoff bindings; current development adds a callable phase driver and bounded native subprocess helper. Consumer key/history selection and acceptance remain open |
+| Batch publication | Frozen inventories, native session, SDK worker and original source/profile/handoff bindings; callable phase driver and bounded native subprocess helper. Consumer key/history selection and acceptance remain open |
 | Application integration | Consumer frameworks own their wrappers, asset transactions and integration tests |
 | Browser integration | Caffeine's SDK with certificate intent and bounded persistent journaling; live 1 KiB and ten-chunk 10 MiB transfers pass |
 | Live service acceptance | Still open: complete consumer flow, provider guarantees and operational recovery |
 
-The current library release is **0.13.0**. Configurable certificate sizing shipped
+The current library release is **0.14.0**. Configurable certificate sizing shipped
 in 0.7.0; indexed batch preparation, frozen-file browser transfer and current-instance
 recovery shipped in 0.8.0. Release 0.9.0 adds one-pass batch setup and removes the
 standalone DTO forwarding namespace; consumers import the core configuration types.
@@ -51,7 +51,7 @@ and selected-signer browser bootstrap; neither constitutes complete consumer acc
 Release 0.12.0 consolidates descriptor serving, retires fixture-only reference
 journals and identifies the frozen native/stable formats explicitly. Release
 0.13.0 adds original session recovery and native/browser selection/transfer
-handoffs. Current development follows native phase guidance through a bounded
+handoffs. Release 0.14.0 follows native phase guidance through a bounded
 browser driver with private native pipes and one complete-map/final-report/exit
 acceptance boundary. Consumer
 key/history selection and full acceptance remain open.

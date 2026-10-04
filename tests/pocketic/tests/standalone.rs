@@ -92,11 +92,11 @@ fn wasm() -> Vec<u8> {
     std::fs::read(fixture_path("BLOB_STANDALONE_WASM")).unwrap()
 }
 fn unchanged(actual: &[u8], expected: &[u8]) {
-    assert_eq!(actual.len(), expected.len(), "stable memory length");
+    assert_eq!(actual.len(), expected.len(), "byte length");
     assert_eq!(
         actual.iter().zip(expected).position(|(a, b)| a != b),
         None,
-        "first changed stable-memory offset"
+        "first changed byte offset"
     );
 }
 impl Fixture {
@@ -209,12 +209,16 @@ impl Fixture {
             r.max_active = 1;
             r.max_tenant_active = 1;
             if matches!(envelope, Envelope::Serial) {
-                r.max_object_bytes = 2048;
+                r.max_object_bytes = 2 * 1024 * 1024;
                 r.max_objects = 2;
                 r.max_tenant_objects = 2;
-                r.max_physical_bytes = 3072;
-                r.max_liability_bytes = 3072;
-                r.max_tenant_logical_bytes = 3072;
+                r.max_physical_bytes = 4 * 1024 * 1024;
+                r.max_liability_bytes = 4 * 1024 * 1024;
+                r.max_tenant_logical_bytes = 4 * 1024 * 1024;
+                r.max_references_per_object = 2;
+                r.max_receipts_per_object = 4;
+                config.reads.bytes = 4 * 1024 * 1024;
+                config.reads.tenant_bytes = 4 * 1024 * 1024;
             }
         }
         let mut input: ServiceInstallationInput =
@@ -321,6 +325,10 @@ impl Fixture {
         self.manifest_bytes(1024)
     }
     fn manifest_bytes(&self, bytes: u64) -> UploadManifestRequest {
+        self.manifest_body(&vec![42; usize::try_from(bytes).unwrap()])
+    }
+    fn manifest_body(&self, body: &[u8]) -> UploadManifestRequest {
+        let bytes = u64::try_from(body.len()).unwrap();
         let length = bytes.to_string();
         let headers = [
             CaffeineHeader {
@@ -347,10 +355,10 @@ impl Fixture {
                 .unwrap(),
         )
         .unwrap();
-        let chunk = vec![42; 1024 * 1024];
-        for offset in (0..bytes).step_by(1024 * 1024) {
-            let take = usize::try_from((bytes - offset).min(1024 * 1024)).unwrap();
-            builder.append(offset, &chunk[..take]).unwrap();
+        for (index, chunk) in body.chunks(1024 * 1024).enumerate() {
+            builder
+                .append(u64::try_from(index * 1024 * 1024).unwrap(), chunk)
+                .unwrap();
         }
         let prepared = builder.finish().unwrap();
         UploadManifestRequest {

@@ -1,0 +1,17 @@
+{
+  "purpose": "Strengthen corruption evidence with actual service facts rather than relying on phase-directory absence",
+  "priorAttempts": "The first five browser journeys passed; retain their original logs, profiles and harness",
+  "scope": "Two additional local IC/Chromium corruption cases, synthetic and PNG; fresh evidence parent and rebuilt harness",
+  "budget": {
+    "icBrowserJourneys": 2,
+    "maxPutArrivalsPerJourney": 2,
+    "maxGetArrivalsPerJourney": 1,
+    "liveProviderRequests": 0,
+    "paidCycles": 0
+  },
+  "requiredFacts": [
+    "First upload remains exposure-possible after content mismatch",
+    "Second upload's exact admission is Unknown",
+    "No complete map or upload retry"
+  ]
+}

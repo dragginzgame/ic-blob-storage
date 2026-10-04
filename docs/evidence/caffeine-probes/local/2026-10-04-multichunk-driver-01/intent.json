@@ -1,0 +1,27 @@
+{
+  "purpose": "Qualify distinct multi-chunk PNG publication, uncertain final-chunk recovery and overlapping reference cleanup locally",
+  "baseline": "2b3c85c release 0.14.0 plus retained small-PNG driver work",
+  "scope": "Existing native/browser driver and SDK, exact native reference commands, local IC and owned HTTPS/HTTP2 provider substitute",
+  "budget": {
+    "maxIcBrowserJourneys": 8,
+    "maxPutArrivalsPerJourney": 5,
+    "maxGetArrivalsPerJourney": 5,
+    "liveProviderRequests": 0,
+    "paidCycles": 0
+  },
+  "requiredFacts": [
+    "Two distinct chunks including a partial final chunk match original bytes and SDK manifest",
+    "Complete verified tenant downloads decode as PNG in Chromium",
+    "Lost final-chunk reply resumes original claims without another PUT",
+    "Corruption after the first full chunk refuses before attestation or second admission",
+    "A second reference survives first-reference release without uploading again",
+    "Final release refuses descriptors but preserves physical and billing liability bytes",
+    "Historical retain receipt does not establish current liveness or renew a complete map"
+  ],
+  "retention": "Retain every attempt, sources/binaries/bundles, original keys/profiles/journals, native reference intents and downloaded media",
+  "limitations": [
+    "Authored PNG fixtures and owned provider substitute do not establish deployed Caffeine chunk-response or serving semantics",
+    "Consumer asset transactions/adoption, real media, public CSP/cache/MIME, retention, deletion and billing cessation remain open",
+    "No new production journal, retry owner, provider contract, deployment or paid effect"
+  ]
+}

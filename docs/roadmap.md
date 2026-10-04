@@ -1,6 +1,6 @@
 # Development plan
 
-Released 0.13.0 supplies the framework-independent library and standalone service,
+Released 0.14.0 supplies the framework-independent library and standalone service,
 configured uploads, exact verifier completion and maintained native/browser
 publication components. Consumer owners supply framework wrappers, deployment
 integration and their composition tests. Library publication
@@ -46,7 +46,7 @@ restarts. Native intent now retains explicit browser selection; the launcher che
 the original native intent/ready/input hashes and binds that session to its profile.
 The native transfer phase retains the exact handoff before browser dispatch;
 repeated/recovered phases request observation through the existing browser claims.
-Unreleased native guidance and the bounded `driveSession` bridge now select/run
+Released 0.14.0 native guidance and the bounded `driveSession` bridge select/run
 phases using those same owners. The bounded native subprocess helper now supplies
 private phase transport and checked final exit. Consumers select their binaries,
 keys and original history and choose explicit restart; qualify that adoption

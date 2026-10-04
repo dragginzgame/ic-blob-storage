@@ -4,8 +4,8 @@ Date: 2026-10-04
 
 ## Released baseline
 
-Released **0.13.0** is at `31c1a36`, with validated source
-`ce93a83ef5e3b9b2c83b51d0d512c6682fac189f`. Read
+Released **0.14.0** is at `2b3c85c`, with validated source
+`eb1cf35231509f436c8744c1f200d1750b1fe376`. Read
 [Cargo](../../Cargo.toml), [the release receipt](../release.json) and
 [the changelog](../../CHANGELOG.md) for authoritative release metadata.
 A repository release does not establish registry publication or deployed behavior.
@@ -33,93 +33,74 @@ The [source](../evidence/caffeine-probes/README.md#native-session-original-sourc
 and [handoff](../evidence/caffeine-probes/README.md#native-browser-transfer-handoffs--2026-10-03)
 records retain their exact checks, failures, artifacts and qualification limits.
 
+Released 0.14.0 adds native next-phase guidance, the callable Chromium driver
+and explicit native subprocess control. One exact current complete map, matching
+native final report and exit zero establish driver completion. Native Rust owns
+authenticated completion/references; the existing browser journal owns paid claims.
+No second dispatch/retry owner, persisted cursor or asset-registration owner exists.
+All Cargo members inherit root package/dependency versions and local paths.
+The [guidance](../evidence/caffeine-probes/README.md#native-phase-guidance-and-browser-driver--2026-10-03),
+[native pipes](../evidence/caffeine-probes/README.md#private-native-subprocess-control--2026-10-04)
+and [completion](../evidence/caffeine-probes/README.md#one-publication-completion-boundary--2026-10-04)
+records retain exact artifacts, checks, failed attempts and local qualification limits.
+The release fixes the stale installation-test package-version inequality; actual
+release readback, wrong-service refusal and unchanged state remain checked.
+
 ## Current work
 
-Completed changes are grouped in the undated **0.14.0** changelog draft.
-Cargo and the release receipt remain at 0.13.0 until maintainer release preparation.
+Two distinct valid PNG fixtures now pass the maintained driver, independent
+whole-file verification and tenant downloads. Successful/lost-reply runs retain
+2,103 physical/liability bytes and four PUTs/four GETs; Chromium decodes the exact
+downloaded bytes and checks dimensions/pixels. Corruption stops with two PUTs/one
+GET and 1,001 retained bytes. Actual service queries prove the first upload stays
+exposure-possible and the second is never admitted. Existing synthetic journeys
+retain their request/accounting totals. Fixture freezing has one body-based
+manifest owner, with budgets/accounting derived from files.
 
-Native phase events now include derived `next_frame` guidance. Fresh status starts
-at index zero; original observation/handoff recovery precedes setup, and only
-checked completion/reference evidence advances the cursor. All indexed phases
-share one ordering guard while retaining their required unattempted facts.
-The Chromium bridge's `driveSession(nativeControl)` follows those native decisions
-through the existing transfer/verifier/map owners. It checks current ready/input
-binding and phase replies, bounds steps and metadata, excludes concurrent jobs,
-and stops pending control/final-exit waits on context close/deadline. Correlation IDs remain
-execution metadata; no new dispatch journal, persisted cursor or retry owner exists.
+Three PNG, two original synthetic and two strengthened corruption journeys pass.
+Fresh CLI/Wasm/harness builds, strict affected Clippy, syntax and formatting pass;
+two installation/Candid cases confirm actual Wasm release 0.14.0. The
+[media evidence](../evidence/caffeine-probes/README.md#distinct-png-publication-and-verified-decoding--2026-10-04)
+retains intents, every attempt, exact artifacts, original profiles/journals and
+downloaded media under `.tmp/media-driver-01`. These are small authored local
+fixtures, not consumer assets or deployed serving qualification. Multi-chunk
+acceptance is recorded below.
+The maintainer's ic-memory lockfile update to 0.24.3 is preserved. Cargo remains
+0.14.0; completed work joins the undated 0.14.1 draft. No sibling edit, full CI,
+release, deployment or paid provider call occurs.
 
-The new `startPublicationSession` helper owns the explicitly selected native
-subprocess/private control transport: bounded split/coalesced UTF-8 records, one
-outstanding phase, cancellation/deadline, and final report plus checked exit.
-The driver now owns completion acceptance: exact current map, original input hashes,
-all ordered indices, no blockers, neutral lease/serving facts, matching final report
-and exit zero. `native_result` accompanies complete/stopped results. The caller
-selects keys/binaries, consumes only a complete driver result and chooses an
-explicit same-release restart. Native Rust remains the authority for verification
-and references; the browser checks the private peer's passive output contract.
-There is no automatic process discovery/restart or upload retry. A complete map
-is a current observation, not a serving lease or completed consumer asset transaction.
-Service wire, native intent/source/profile and stable layouts are unchanged.
+The [multi-chunk/reference evidence](../evidence/caffeine-probes/README.md#multi-chunk-png-and-overlapping-references--2026-10-04)
+now covers a valid 1,049,055-byte PNG with distinct 1 MiB/479-byte chunks. Success
+and lost-final-reply recovery make five PUTs/five GETs, without another upload.
+Corruption beyond the first full chunk refuses before attestation or the second
+admission. Successful cases retain a second reference, download after releasing
+the first, then refuse both released descriptors. A fresh map becomes incomplete;
+the original map/retain receipt remains historical. Final logical bytes are
+1,102; all 1,050,157 physical/liability bytes stay accounted for.
 
-Seven native session unit checks, seven retained native IC cases, twenty actual
-Chromium boundary cases and strict affected Clippy pass. The actual IC/Chromium
-driver restart completes two files with four PUTs/four GETs and 3,072 retained
-physical/liability bytes, without another upload. Corrupt content stops before
-attestation or the next file with two PUTs/one GET and 1,024 retained bytes.
-The maintained manual verifier/observation recovery journey also passes.
-The [driver evidence](../evidence/caffeine-probes/README.md#native-phase-guidance-and-browser-driver--2026-10-03)
-retains fresh 0.13.0 CLI/Wasm/bundles, profiles, journals and all validation attempts
-under `.tmp/session-driver-01`. These are local substitutes and synthetic bytes.
+Eight focused local IC/browser attempts and final strict affected Clippy pass,
+including original synthetic, small-PNG and withdrawal/late-attestation behavior.
+Initial/final source/harness captures, all logs (including two Clippy failures),
+profiles, exact reference intents/results and bytes stay under
+`.tmp/multichunk-driver-01`. The shared substitute accepts exact ordered chunks
+and fixture budgets derive from bodies. Production CLI/Wasm remain the retained
+0.14.0 artifacts; no product contract/layout/dependency or retry owner changes.
+This qualifies local authored multi-chunk media and reference cleanup, not
+consumer transactions or deployed provider serving/deletion/billing guarantees.
 
-Ten real child-pipe boundary checks pass, including incomplete output, unsolicited
-records, contradictory exit, cancellation and a final report whose child never
-exits. The two coordinated IC/Chromium journeys now use the maintained subprocess
-helper directly; the Rust fixture only observes results and independent downloads.
-They preserve the same request/accounting totals and no repeated upload. The
-[native control evidence](../evidence/caffeine-probes/README.md#private-native-subprocess-control--2026-10-04)
-retains `.tmp/native-control-01` artifacts and all attempts, including sandboxed
-Node output failures and the missing evidence-parent refusal before provider access.
-Current configuration guards are pipe-tested; actual IC journeys bind their exact
-retained integrated bundle. No endpoint, stable, native intent or profile cut is added.
-
-The maintained driver now accepts one native control handle with ready/phase/finish;
-the interim separate caller completion check is removed from current consumers and
-examples. Eleven child-pipe and twenty-one actual Chromium boundary checks pass.
-Changed/incomplete maps, blockers, lease claims, mismatched/failed final results
-and lost final replies refuse; a pending final wait still owns the browser gate
-and cancellation reaches the native child. Both direct IC/Chromium journeys pass
-with the same request/accounting totals and no repeated upload. The
-[completion evidence](../evidence/caffeine-probes/README.md#one-publication-completion-boundary--2026-10-04)
-retains exact sources, artifacts, outcomes and original history under
-`.tmp/driver-final-01`. The phase driver has no public pre-exit completion state.
-
-Maintainer dependency edits are preserved: ic-memory 0.24.0, ic-testkit 0.14.1
-and direct ic-management-canister-types 0.10.0. Core/standalone/CLI checks pass
-without adaptation. Fresh standalone Wasm passes all four lifecycle/recovery
-cases and the snapshot rollback refusal under the new dependencies. Logs, intent
-and Wasm remain under `.tmp/management-types-010`. The recovery owner is the only
-production consumer of management types; its request/history decoding and fail-closed
-classification still use the maintained platform API. No recovery schema changes.
-The publication journeys use unchanged retained 0.13.0 CLI/Wasm and the retained
-test harness; their results are separate from the fresh recovery-artifact checks.
-No full CI or deployment qualification is claimed.
-
-All eleven Cargo members now inherit the root package version and dependency
-declarations. CLI/test-only version pins and local dependency paths have one
-workspace owner; members keep their existing features, targets and publish policy.
-Eight unpublished fixtures inherit 0.13.0 instead of carrying independent 0.0.0
-labels. Before/after Cargo metadata confirms unchanged external packages,
-per-member dependency settings and resolved features. Native workspace checks
-with all targets/features and Wasm workspace checks with all features pass.
-Captures remain under
-`.tmp/workspace-manifests-01`; this does not change frozen runtime artifacts.
-
-The installation carrier regression exposed an obsolete assertion that harness
-and library package versions must differ. Removed that assertion; installed-Wasm
-release readback, independently selected release, wrong-service refusal with
-unchanged state and exact carrier installation remain checked. Both installation
-module cases pass with the current 0.13.0 artifacts. Reproduction, rebuild and
-focused rerun logs remain under `.tmp/installation-version-01`; no full CI run.
+The [direct browser-delivery record](../evidence/caffeine-probes/README.md#direct-browser-url-delivery--2026-10-04)
+now fetches canonical native URLs from the exact publication origin without
+credentials/redirects/cache, checking PNG MIME, length, digest and decoded pixels.
+An opaque origin cannot read the substitute's response. After final reference
+release, descriptors refuse but the saved public URL still serves: release and
+CORS are not public-access revocation. Multi-chunk success/recovery makes five
+PUTs/eight GETs, with all physical/liability bytes retained. Six focused journeys,
+strict affected Clippy, current harness/browser builds, syntax and formatting pass.
+Original evidence stays under `.tmp/public-delivery-01`. A concurrent ic-testkit
+lock update to 0.14.2 is preserved and qualified by the final rebuilt-harness
+journey; earlier retained harnesses remain bound to 0.14.1. The undated 0.14.1
+changelog groups the PNG, chunk/reference and direct-delivery batch. Cargo and
+release receipt stay 0.14.0. No full CI, release or paid effect occurs.
 
 ## Remaining product work
 
@@ -127,8 +108,8 @@ focused rerun logs remain under `.tmp/installation-version-01`; no full CI run.
   explicitly selected native/browser identities, binary/trust inputs, same-release
   restart and exact original history retention.
 - Consumer acceptance with real media, complete asset transactions, overlapping
-  references and MIME/CORS/cache/CSP/retention behavior. Local substitutes and
-  synthetic image-labelled bytes do not qualify those guarantees.
+  references and MIME/CORS/cache/CSP/retention behavior. Local substitutes,
+  synthetic bytes and authored PNG fixtures do not qualify those guarantees.
 - Provider deletion and final billing evidence; surviving inventory and independent
   freshness for any proposed older-backup activation. See
   [service gaps](../service-gaps.md) and [the contract](../service-contract.md).
@@ -140,8 +121,9 @@ focused rerun logs remain under `.tmp/installation-version-01`; no full CI run.
 Canic adoption remains deferred until useful repository-local work is exhausted.
 The [feedback list](../canic-parity.md#integration-feedback) records wrapper/lifecycle,
 one-runtime memory composition, current formats/recovery, original preparation
-hints and adoption of native guidance/callable driving/subprocess control. Siblings remain read-only;
-no upstream message is authorized.
+hints, adoption of native guidance/callable driving/subprocess control and the
+public URL/access-policy distinction. Siblings remain read-only; no upstream
+message is authorized.
 
 The old isolated owner remains frozen at 0.6.0 with stopped original history;
 the separate live owner was last verified at 0.7.0. Both retain exhausted lifetime

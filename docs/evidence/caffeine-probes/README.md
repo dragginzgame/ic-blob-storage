@@ -1,5 +1,130 @@
 # Caffeine probe ledger
 
+## Direct browser URL delivery — 2026-10-04
+
+The [intent](local/2026-10-04-public-delivery-01/intent.json) precedes six bounded
+local IC/Chromium/SDK journeys using the owned HTTPS/HTTP2 substitute. PNG cases
+now fetch the exact retained native `download-request.json` URLs from the selected
+publication origin: omitted credentials, refused redirects, no-store and a
+ten-second deadline. Chromium observes CORS responses and checks PNG MIME,
+declared length, SHA-256, dimensions and pixels. No new provider route builder,
+product API, stable layout, journal or retry owner exists.
+
+Successful multi-chunk completion and lost-final-reply recovery each make five
+PUTs/eight GETs, including two browser reads and one opaque-origin CORS refusal.
+Signed reference operations already refuse both released descriptors; afterward
+the saved public URL still serves the first image under the substitute. Logical
+bytes remain 1,102 and physical/liability bytes remain 1,050,157. CORS controls
+browser reading; neither it nor logical release establishes confidentiality or
+revokes saved URLs/copies. No provider deletion or billing cessation is inferred.
+
+All six journeys pass: multi-chunk completion/recovery/corruption, small PNG
+completion, original synthetic restart and a current-lock multi-chunk recovery.
+Small PNG completion makes four PUTs/seven GETs. Corruption and synthetic
+restart retain three PUTs/one GET and four PUTs/four GETs respectively. Strict
+affected Clippy, browser build, current harness build, syntax, formatting and
+the undated 0.14.1 changelog check pass. Cargo/receipt remain 0.14.0.
+
+The [summary](local/2026-10-04-public-delivery-01/summary.json) retains every
+attempt, observed serving metadata, exact sources/binaries/bundles, hashes,
+original profiles/journals, native requests and downloaded bytes under
+`.tmp/public-delivery-01`. The first five journeys use the retained prior
+harness; a concurrent ic-testkit 0.14.2 lock update is preserved separately and
+the sixth uses the newly built current harness. Production CLI/Wasm remain the
+same retained 0.14.0 artifacts with ic-memory 0.24.3. No attempts failed.
+
+Owned processes/sockets have exited; histories remain retained. These authored
+fixtures and substitutes do not qualify deployed MIME/CORS/chunk replies,
+consumer adoption/transactions, cache/CSP, access policy or retention. No full
+CI, sibling edit/message, release/publication, deployment, live provider request,
+paid cycle or build cleanup occurs. Both frozen live owners remain unchanged.
+
+## Multi-chunk PNG and overlapping references — 2026-10-04
+
+The [intent](local/2026-10-04-multichunk-driver-01/intent.json) precedes bounded
+local IC/Chromium/SDK checks through the existing native driver, verifier and
+reference owners. The shared owned HTTPS/HTTP2 substitute now validates each
+bounded chunk's index, manifest hash, project and exact frozen byte slice; it
+assembles complete content only after all ordered chunks. Caller transport limits
+and journal request counts derive from the selected bodies. Test installation
+limits remain bounded at two objects/one active upload, with room for two
+references and their exact cleanup receipts. No product API, wire/stable layout,
+dependency or dispatch/retry owner changes.
+
+The authored 1,024 × 256 PNG is 1,049,055 bytes: a full 1,048,576-byte chunk and
+a distinct 479-byte final chunk. Paired with the smaller cool PNG, success and
+lost-final-reply recovery each make five PUTs/five GETs, retaining 1,050,157
+physical/liability bytes. Both independently verified tenant downloads decode in
+Chromium. Recovery retains responded/responded/uncertain first-upload claims
+and makes no additional PUT. Corrupting byte 1,048,586, beyond the first complete
+chunk, stops before attestation or the second admission with three PUTs/one GET
+and 1,049,055 retained bytes.
+
+Successful cases submit signed exact second-reference retain and both release
+commands through the maintained native CLI. The second reference downloads after
+first-reference release; all released references refuse descriptors. A fresh
+signed map is incomplete although the original map and historical retain receipt
+remain retained. Logical bytes fall to the second image's 1,102 bytes; all
+physical/liability bytes remain. These are local reference/accounting facts,
+not provider deletion, billing cessation or an application asset transaction.
+
+Eight browser/IC attempts pass: initial complete journey, three final multi-chunk
+cases, both original synthetic cases, small-PNG completion and withdrawal/late
+attestation cleanup. Strict affected Clippy, browser/harness builds, syntax and
+formatting pass. Two failed Clippy attempts are retained: expanded fixture line
+count/large value passing, then manual byte-equality assertions. Final fixtures
+reuse the existing length/first-difference helper, keeping large failure output
+bounded. The [summary](local/2026-10-04-multichunk-driver-01/summary.json) binds
+every attempt, initial/final sources and harnesses, exact bundles, original
+claims/reference intents and downloaded bytes under `.tmp/multichunk-driver-01`.
+Production CLI/Wasm are the retained 0.14.0 artifacts from the prior record.
+
+Owned test processes have exited and histories remain retained. Small authored
+media and provider substitutes do not qualify consumer assets/adoption, deployed
+Caffeine chunk acknowledgments or direct public MIME/CORS/cache/CSP/retention.
+No full CI, sibling edit/message, deployment, release/registry action, live
+provider request or paid cycle occurs. Both frozen live owners remain unchanged.
+
+## Distinct PNG publication and verified decoding — 2026-10-04
+
+The [intent](local/2026-10-04-media-driver-01/intent.json) precedes five local
+IC/Chromium journeys through the maintained SDK, driver and owned HTTPS/HTTP2
+substitute. Publication fixtures now freeze arbitrary selected bytes through one
+body-based manifest owner; budgets/accounting derive from those files. Native
+tenant downloads are compared with the frozen originals. Two authored PNGs have
+different dimensions, pixels and roots; Chromium decodes the verified downloaded
+bytes and checks dimensions/first pixels. No new production flow, dependency,
+journal, retry owner or contract layout is introduced.
+
+Complete and explicit lost-reply recovery both retain 2,103 physical/liability
+bytes and make four PUTs/four GETs, with no extra upload. Corruption stops before
+attestation/next file with two PUTs/one GET and 1,001 retained bytes. Both original
+synthetic driver journeys also pass, preserving their request/accounting totals.
+The [refusal intent](local/2026-10-04-media-driver-01/refusal-intent.json) records
+two additional corruption journeys after strengthening checks to query actual
+service facts: the first upload stays exposure-possible and the second exact
+admission is Unknown. Both pass with new profiles/artifacts; all original attempts
+remain retained. No failed/inconclusive attempt occurs in this batch.
+
+The [summary](local/2026-10-04-media-driver-01/summary.json) identifies measurements,
+exact fixtures, sources, binaries/bundles, original histories and logs under
+`.tmp/media-driver-01`. Fresh 0.14.0 CLI/Wasm/harness builds, strict affected
+Clippy, syntax and formatting pass with the preserved maintainer ic-memory 0.24.3
+lockfile update. Two installation/Candid checks independently confirm actual
+Wasm release 0.14.0, wrong-service refusal and exact carrier installation.
+Owned test processes have exited; keys/profiles/journals/downloads stay retained.
+The [retention record](local/2026-10-04-media-driver-01/retention.json) distinguishes
+initial and strengthened source snapshots, including the expected old-manifest
+mismatch against the changed current source. Both snapshots match their exact
+retained hashes; initial test artifacts remain alongside the strengthened harness.
+
+These small authored images establish local PNG format handling, not consumer
+assets, distinct multi-chunk media, direct public delivery or deployed provider
+MIME/CORS/cache/CSP, retention or economics. Consumer adoption/transactions,
+overlapping references, deletion and billing cessation remain open. No full CI,
+release, registry action, sibling edit/message, deployment or paid/live provider
+effect occurs. Both frozen live owners and their obligations are unchanged.
+
 ## One publication completion boundary — 2026-10-04
 
 The [intent](local/2026-10-04-driver-final-01/intent.json) precedes focused pipe,

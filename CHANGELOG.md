@@ -2,6 +2,42 @@
 
 ## [Unreleased]
 
+## [0.14.1]
+
+### Added
+
+- Exercise distinct valid PNGs through the maintained native/Chromium publication
+  driver, whole-file verification and tenant downloads. Compare downloaded bytes
+  with frozen originals and decode dimensions/pixels in Chromium. Qualify local
+  success, lost-reply recovery without another upload and corruption before
+  attestation; consumer media and deployed serving guarantees remain open.
+- Extend local publication acceptance to a PNG with distinct full/partial chunks,
+  lost final-chunk recovery and corruption beyond the first chunk. Exercise
+  signed second-reference retention, download after first-reference release,
+  final descriptor refusal and unchanged physical/billing-liability accounting.
+  Fresh maps become incomplete after release; historical retain success remains
+  an observation of the original operation.
+- Fetch the canonical native download URLs directly from Chromium under the
+  local substitute's selected-origin CORS policy. Check PNG MIME, length,
+  digest, dimensions and pixels without credentials; another origin cannot read
+  the response. Saved public URLs remain accessible after logical release even
+  when service descriptors refuse. Deployed serving/cache/CSP remains unqualified.
+
+### Changed
+
+- Refresh the locked ic-memory dependency to 0.24.3 and ic-testkit to 0.14.2;
+  keep package/dependency versions inherited from the root workspace.
+- Give publication fixtures one body-based manifest/freezing path. Derive byte
+  budgets and retained accounting from the selected files; preserve the existing
+  synthetic restart/corruption journeys and compare their downloaded bytes too.
+- Let the shared HTTPS/HTTP2 substitute validate bounded ordered chunks against
+  frozen bodies and SDK manifests. Derive transport limits/request counts from
+  selected files and pass exact reference identities to the download fixture.
+  Compare large byte buffers using the existing length/first-difference checks
+  to keep failure diagnostics bounded.
+- Refresh release/status documentation for 0.14.0 and distinguish its released
+  driver from unfinished consumer adoption.
+
 ## [0.14.0] - 2026-10-04
 
 ### Added

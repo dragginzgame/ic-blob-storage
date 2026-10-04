@@ -1,0 +1,26 @@
+{
+  "purpose": "Qualify direct Chromium delivery of canonical native download URLs and distinguish descriptor release from public access",
+  "baseline": "2b3c85c release 0.14.0 plus retained PNG and overlapping-reference work",
+  "evidenceClass": "actual_local_ic_chromium_sdk_owned_https_http2_substitute",
+  "budget": {
+    "maxIcBrowserJourneys": 6,
+    "maxPutArrivalsPerJourney": 5,
+    "maxGetArrivalsPerJourney": 8,
+    "liveProviderRequests": 0,
+    "paidCycles": 0
+  },
+  "requiredFacts": [
+    "Use retained canonical native request URLs, without another provider route builder",
+    "Fetch with omitted credentials, redirect refusal, no-store and a finite deadline from the exact publication origin",
+    "Observe CORS responses, PNG MIME, declared length, byte digest, dimensions and pixels",
+    "An opaque origin cannot read the same response under the substitute's selected-origin CORS policy",
+    "Public bytes can remain accessible after final logical release even when authenticated descriptors refuse",
+    "Original upload claims, PUT counts and physical/liability accounting remain unchanged"
+  ],
+  "retention": "Retain every attempt/log, original profiles/journals/native requests, source snapshots, exact harness/bundles/CLI/Wasm and browser observations under .tmp/public-delivery-01",
+  "limitations": [
+    "Owned substitute MIME/CORS behavior does not establish deployed Caffeine serving behavior",
+    "No public serving lease, confidentiality, cache policy, CSP, retention, deletion or billing-cessation guarantee",
+    "No new product API, provider contract, retry owner, live deployment, paid effect or sibling edit"
+  ]
+}

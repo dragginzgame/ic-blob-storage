@@ -13,9 +13,27 @@ have occurred. The 2026-10-03 read-only remote review confirms unchanged Miner/C
 feedback and open GitHub issue #1; the [review history](status/history.md#released-090-upstream-feedback-review--2026-10-03)
 records exact source identities, current-code gaps and validation limits.
 
+The [local PNG journeys](evidence/caffeine-probes/README.md#distinct-png-publication-and-verified-decoding--2026-10-04)
+now cover distinct decodable images, exact verified downloads and lost-reply/
+corruption behavior through the same driver. Consumers still need their own real
+media, asset transaction and direct public-serving/CSP acceptance; these authored
+fixtures and provider substitutes do not close those actions.
+
+The [multi-chunk/reference checks](evidence/caffeine-probes/README.md#multi-chunk-png-and-overlapping-references--2026-10-04)
+add distinct full/partial chunks and signed overlapping-reference cleanup.
+Consumers must still own their asset transaction, reference lifetime and fresh
+publication decision. A completed map or historical retain receipt cannot replace
+current reference status; logical release retains provider/billing obligations.
+
+The [direct browser-delivery checks](evidence/caffeine-probes/README.md#direct-browser-url-delivery--2026-10-04)
+exercise canonical native URLs, PNG MIME/bytes and selected-origin CORS locally.
+Consumers must not treat CORS or reference release as public-access revocation:
+saved URLs may remain accessible after authenticated descriptors refuse. Qualify
+the deployed origin, cache/CSP and access policy with real consumer media.
+
 | Action | Required consumer work | State |
 | --- | --- | --- |
-| Native phase guidance and callable driver | Unreleased `next_frame` comes from checked native results/original sources. Use `startPublicationSession` with explicitly selected binary/native key paths and `browser.driveSession(native)` with the selected verifier. The driver owns exact complete-map/final-report/exit-zero acceptance; retain its `native_result` and consume only `state:'complete'`. Private peers must implement ready/phase/finish with cancellation. Keep original keys/profile/session for explicit restart. Fresh status starts at index zero; original recovery never authorizes another upload. Do not recreate pipe transport, phase policy, completion checks or a dispatch journal downstream. | Direct native-pipe IC/Chromium restart and corruption cases pass; consumer key/history selection, asset transaction, adoption and rollback resistance remain open |
+| Native phase guidance and callable driver | Released 0.14.0 `next_frame` comes from checked native results/original sources. Use `startPublicationSession` with explicitly selected binary/native key paths and `browser.driveSession(native)` with the selected verifier. The driver owns exact complete-map/final-report/exit-zero acceptance; retain its `native_result` and consume only `state:'complete'`. Private peers must implement ready/phase/finish with cancellation. Keep original keys/profile/session for explicit restart. Fresh status starts at index zero; original recovery never authorizes another upload. Do not recreate pipe transport, phase policy, completion checks or a dispatch journal downstream. | Direct native-pipe IC/Chromium restart and corruption cases pass; consumer key/history selection, asset transaction, adoption and rollback resistance remain open |
 | Native parent restart sources | Adopt the strict current session intent and `publish-session --source-session` with the original batch, roles, gateway and root. Retain all original phase claims and direct provenance; recheck current completion from index zero. Native sources do not select or recover browser signer/profile/origin, authorize replay or qualify a complete publisher. Old session artifacts stay with their original binaries. | Implemented locally; minor native format cut. Full parent and consumer adoption remain open |
 | Joint native/browser selection and transfer handoffs | Use the current retained-browser-handoffs intent/provenance with `--browser-selection` and the same selection on source-session recovery. Launchers require explicit `nativeSession` (original session path, or null for browser-only creation), validate original intent/ready/input hashes and bind exact intent bytes, signer/scope/trust/journal/bundle fingerprints and profile/origin before Chromium. Native-selected setup returns no raw transfer: request `transfer` and forward `{id,index,action:'transfer',nativePhase:report.native_phase}`. Repeated/recovered phases request certificate recovery only; absent browser history cannot become an upload. Old profiles stay with original launchers/bundles; no replacement binding, relocated profile or inferred key. Keep original keys and claims; automatic process restart and rollback resistance remain unqualified. | Implemented locally; minor native/browser contract cut. Consumer adoption remains open |
 | Descriptor handler ownership | Embedding hosts use `workflow::reads::download::handle` with `DownloadRequest` and their trusted installed scope. The forwarding `describe` API and public operational view/error are removed; DTO failures remain the boundary. Keep historical inspection separate from active/unfenced serving. Clients build targets through `ops::caffeine::download::request_target` under an independently approved origin. | Implemented locally; minor source API cut. No inspected local Canic/Miner caller of the removed API; external adoption remains unverified |

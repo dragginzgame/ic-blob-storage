@@ -406,7 +406,7 @@ native identities and journals; no automatic key discovery or paid authority fol
 
 ### Follow native phase guidance
 
-Unreleased adds `browser.driveSession(nativeControl)` for a native-bound profile
+Release 0.14.0 adds `browser.driveSession(nativeControl)` for a native-bound profile
 with an explicitly selected verifier. Pass the maintained native subprocess handle
 below, or a trusted private peer with `ready`, `phase(frame, signal)` and
 `finish(signal)`. `phase` returns the current native process's full next phase
@@ -453,7 +453,7 @@ asset-registration transaction or serving lease.
 
 ### Own the native subprocess
 
-Unreleased `startPublicationSession` (`./native`) launches one explicitly selected
+Released 0.14.0 `startPublicationSession` (`./native`) launches one explicitly selected
 native CLI over private stdin/stdout pipes. Select an absolute binary and working
 directory and the complete `publish-session` arguments, including your original
 native PEM paths, input/output paths, verifier and browser-selection file. The
@@ -524,6 +524,30 @@ Run the scoped owned-profile checks with `make test-browser-launcher
 BLOB_LAUNCHER_REPORT=NEW_DIRECTORY`. The selected serial verifier journeys run
 this bridge through owned PocketIC/HTTPS substitutes and whole-browser restart;
 they do not qualify deployed provider behavior or full Miner/public serving.
+
+The distinct-PNG cases also use this driver. They compare independently verified
+tenant downloads with frozen originals and decode dimensions/pixels in Chromium;
+lost replies recover without another upload and corruption leaves the first upload
+unconfirmed and the second unadmitted. These are small authored test images and
+owned provider substitutes. See the [media evidence](../../docs/evidence/caffeine-probes/README.md#distinct-png-publication-and-verified-decoding--2026-10-04);
+consumer asset registration and deployed public serving remain separate work.
+
+The [multi-chunk/reference cases](../../docs/evidence/caffeine-probes/README.md#multi-chunk-png-and-overlapping-references--2026-10-04)
+cross the 1 MiB boundary with distinct chunks, recover a lost final reply without
+another PUT, and reject tail corruption before the next admission. Signed native
+reference operations keep a second reference available after first release;
+final release refuses new descriptors while retaining physical/liability bytes.
+The completed map remains an observation: a fresh map refuses after release even
+when historical retain success survives. These are owned local substitute checks.
+
+The [direct URL checks](../../docs/evidence/caffeine-probes/README.md#direct-browser-url-delivery--2026-10-04)
+fetch each retained native `download-request.json` URL from the exact publication
+origin, without credentials, redirects or cached responses. Chromium checks CORS,
+PNG MIME/length/digest and decoded dimensions/pixels. An opaque origin cannot read
+the response under the substitute's policy, but the public URL still serves after
+final reference release. The service controls descriptor issuance; it cannot
+recall saved URLs or copies. These fixture checks do not qualify deployed
+Caffeine MIME/CORS/cache/CSP, retention or a consumer access policy.
 
 On the Rust side, `ops::caffeine::preparation::decode_prepared_manifest` converts
 the upstream `manifestJSON` into the existing service declaration within explicit

@@ -829,8 +829,12 @@ Independent CLI invocations reverify the complete frozen batch; this is bounded
 but repeats file I/O. The persistent session below retains one validated batch
 and reuses these phase owners. The current commands and local serial harness
 are components, not a complete production headless publisher.
-The local two-file trials use an owned HTTPS HTTP/2 substitute and synthetic bytes
-with image metadata; they do not qualify Miner's real media or public serving.
+The local two-file trials use an owned HTTPS HTTP/2 substitute, synthetic bytes
+and authored PNGs, including distinct full/partial chunks. Chromium fetches the
+canonical native URLs and checks MIME/CORS/decoded bytes locally; these checks
+do not qualify Miner's real media or deployed cache/CSP/retention behavior.
+Logical release refuses new service descriptors but cannot revoke a saved public
+URL. Treat the URL and downloaded copies according to the consumer's access policy.
 Keep independent physical/liability limits: confirmation frees active concurrency,
 while stored bytes and billing obligations remain accounted for.
 
@@ -854,7 +858,7 @@ before Chromium opens, rejecting changed signer/scope/trust/journal/assets or
 missing history. Keep older profiles with their original launcher and bundles;
 the new reader does not create a binding for pre-existing history.
 Complete durable parent phase/restart coordination remains unfinished.
-Unreleased native `next_frame` guidance and the bridge's
+Released 0.14.0 native `next_frame` guidance and the bridge's
 [`driveSession`](../clients/browser/README.md#follow-native-phase-guidance)
 now select and run phases around the existing owners. Native process/key selection
 and explicit restart remain caller responsibilities.

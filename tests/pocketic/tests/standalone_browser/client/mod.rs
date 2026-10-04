@@ -331,6 +331,7 @@ impl Trial {
     pub fn download(
         &self,
         input: &UploadManifestRequest,
+        reference: u128,
         gateway: &str,
         label: &str,
         code: i32,
@@ -343,7 +344,7 @@ impl Trial {
             root: u.root,
             object: u.object,
             incarnation: u.incarnation,
-            reference: u.first_reference,
+            reference,
         };
         let file = self.report.join(format!("{label}.candid"));
         std::fs::write(&file, candid::encode_one(request).unwrap()).unwrap();

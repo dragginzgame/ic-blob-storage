@@ -1,0 +1,218 @@
+{
+  "date": "2026-10-04",
+  "baseline": "2b3c85c release 0.14.0",
+  "evidenceClass": "actual_local_ic_chromium_sdk_owned_provider_substitutes",
+  "fixtureMedia": [
+    {
+      "path": "tests/fixtures/media/warm.png",
+      "bytes": 1001,
+      "sha256": "7eaba2f357804ca6ff77aec5677394e6578e1d8cf1c2861b63c0751ac46cdcf0"
+    },
+    {
+      "path": "tests/fixtures/media/cool.png",
+      "bytes": 1102,
+      "sha256": "f1a16a5adabc5008d5adff083bfcf4d70dc6c49e17a29d0ba42f3bd37128f02a"
+    }
+  ],
+  "contract": {
+    "oneBodyBasedFixtureManifestOwner": true,
+    "downloadedBytesEqualFrozenBodies": true,
+    "pngDimensionsAndPixelsCheckedInChromium": true,
+    "newDispatchOrRetryOwner": false,
+    "serviceAndNativeWireOrStableLayoutChanges": false,
+    "newProductionDependencies": false
+  },
+  "validation": {
+    "journeys": [
+      {
+        "directory": ".tmp/media-driver-01/browser/media-complete",
+        "label": "media-complete",
+        "puts": 4,
+        "gets": 4,
+        "physicalBytes": 2103,
+        "liabilityBytes": 2103,
+        "decodedMedia": [
+          {
+            "height": 16,
+            "index": 0,
+            "pixel": [
+              200,
+              30,
+              60,
+              255
+            ],
+            "sha256": "7eaba2f357804ca6ff77aec5677394e6578e1d8cf1c2861b63c0751ac46cdcf0",
+            "width": 16
+          },
+          {
+            "height": 12,
+            "index": 1,
+            "pixel": [
+              20,
+              180,
+              210,
+              255
+            ],
+            "sha256": "f1a16a5adabc5008d5adff083bfcf4d70dc6c49e17a29d0ba42f3bd37128f02a",
+            "width": 24
+          }
+        ],
+        "completeMap": true,
+        "nativeExit": 0,
+        "nativeError": null,
+        "uploadRetries": 0
+      },
+      {
+        "directory": ".tmp/media-driver-01/browser/media-lost",
+        "label": "media-lost",
+        "puts": 4,
+        "gets": 4,
+        "physicalBytes": 2103,
+        "liabilityBytes": 2103,
+        "decodedMedia": [
+          {
+            "height": 16,
+            "index": 0,
+            "pixel": [
+              200,
+              30,
+              60,
+              255
+            ],
+            "sha256": "7eaba2f357804ca6ff77aec5677394e6578e1d8cf1c2861b63c0751ac46cdcf0",
+            "width": 16
+          },
+          {
+            "height": 12,
+            "index": 1,
+            "pixel": [
+              20,
+              180,
+              210,
+              255
+            ],
+            "sha256": "f1a16a5adabc5008d5adff083bfcf4d70dc6c49e17a29d0ba42f3bd37128f02a",
+            "width": 24
+          }
+        ],
+        "completeMap": true,
+        "nativeExit": 0,
+        "nativeError": null,
+        "uploadRetries": 0
+      },
+      {
+        "directory": ".tmp/media-driver-01/browser/media-corrupt",
+        "label": "media-corrupt",
+        "puts": 2,
+        "gets": 1,
+        "physicalBytes": 1001,
+        "liabilityBytes": 1001,
+        "decodedMedia": [],
+        "completeMap": false,
+        "nativeExit": 3,
+        "nativeError": "content_mismatch",
+        "uploadRetries": 0
+      },
+      {
+        "directory": ".tmp/media-driver-01/browser/native-driver-restart",
+        "label": "native-driver-restart",
+        "puts": 4,
+        "gets": 4,
+        "physicalBytes": 3072,
+        "liabilityBytes": 3072,
+        "decodedMedia": [],
+        "completeMap": true,
+        "nativeExit": 0,
+        "nativeError": null,
+        "uploadRetries": 0
+      },
+      {
+        "directory": ".tmp/media-driver-01/browser/native-driver-corrupt",
+        "label": "native-driver-corrupt",
+        "puts": 2,
+        "gets": 1,
+        "physicalBytes": 1024,
+        "liabilityBytes": 1024,
+        "decodedMedia": [],
+        "completeMap": false,
+        "nativeExit": 3,
+        "nativeError": "content_mismatch",
+        "uploadRetries": 0
+      },
+      {
+        "directory": ".tmp/media-driver-01/refusal-browser/media-corrupt",
+        "label": "media-corrupt",
+        "puts": 2,
+        "gets": 1,
+        "physicalBytes": 1001,
+        "liabilityBytes": 1001,
+        "decodedMedia": [],
+        "completeMap": false,
+        "nativeExit": 3,
+        "nativeError": "content_mismatch",
+        "uploadRetries": 0,
+        "firstUploadExposurePossible": true,
+        "secondAdmissionUnknown": true
+      },
+      {
+        "directory": ".tmp/media-driver-01/refusal-browser/native-driver-corrupt",
+        "label": "native-driver-corrupt",
+        "puts": 2,
+        "gets": 1,
+        "physicalBytes": 1024,
+        "liabilityBytes": 1024,
+        "decodedMedia": [],
+        "completeMap": false,
+        "nativeExit": 3,
+        "nativeError": "content_mismatch",
+        "uploadRetries": 0,
+        "firstUploadExposurePossible": true,
+        "secondAdmissionUnknown": true
+      }
+    ],
+    "installationCarrierAndCandidCases": 2,
+    "actualHostRelease": "0.14.0",
+    "wasmBuild": "passed",
+    "cliBuild": "passed",
+    "harnessBuild": "passed",
+    "strictAffectedClippy": "passed",
+    "formatting": "passed",
+    "syntax": "passed",
+    "fullCi": false,
+    "icMemory": "0.24.3"
+  },
+  "artifacts": {
+    "directory": ".tmp/media-driver-01/artifacts",
+    "initial": ".tmp/media-driver-01/artifacts/SHA256SUMS",
+    "refusalHarness": ".tmp/media-driver-01/artifacts/refusal-SHA256SUMS",
+    "sources": [
+      ".tmp/media-driver-01/source-SHA256SUMS",
+      ".tmp/media-driver-01/refusal-source-SHA256SUMS"
+    ],
+    "logDirectory": ".tmp/media-driver-01"
+  },
+  "attempts": {
+    "initialMedia": ".tmp/media-driver-01/media.log",
+    "initialSynthetic": ".tmp/media-driver-01/synthetic.log",
+    "installation": ".tmp/media-driver-01/installation.log",
+    "strengthenedRefusals": [
+      ".tmp/media-driver-01/chromium_native_phase_driver_stops_on_corruption_before_attestation_and_next_file.log",
+      ".tmp/media-driver-01/chromium_standalone_trial_distinct_png_media_corruption_stops_before_attestation.log"
+    ],
+    "failedOrInconclusive": []
+  },
+  "limitations": [
+    "Authored PNG fixtures are not real consumer assets or a large/multichunk media qualification",
+    "Decoding independently verified bytes does not test direct public URLs or deployed provider MIME/CORS/cache/CSP",
+    "Consumer transaction/adoption, overlapping references, retention, billing cessation and older-backup activation remain open"
+  ],
+  "disposition": {
+    "originalProfilesJournalsAndBytesRetained": true,
+    "liveProviderRequests": 0,
+    "paidCycles": 0,
+    "deployment": false,
+    "siblingEditsOrMessages": false,
+    "registryOrReleaseAction": false,
+    "oldLiveInstallationsAndObligationsUnchanged": true
+  }
+}

@@ -1,0 +1,484 @@
+{
+  "date": "2026-10-04",
+  "baseline": "2b3c85c release 0.14.0 plus small-PNG work",
+  "evidenceClass": "actual_local_ic_chromium_sdk_owned_https_http2_provider_substitutes",
+  "fixture": {
+    "path": "tests/fixtures/media/wide.png",
+    "bytes": 1049055,
+    "width": 1024,
+    "height": 256,
+    "sha256": "1235cbba920c5cfb24ff592d5ef1223d68d6340a0a4d65a909d263914d9e1f6b",
+    "fullChunkBytes": 1048576,
+    "finalChunkBytes": 479,
+    "distinctChunkHashes": true,
+    "corruptionOffset": 1048586
+  },
+  "contract": {
+    "sameDriverSdkVerifierAndReferenceOwners": true,
+    "exactOrderedChunkBodiesAndManifestBindings": true,
+    "requestBudgetsDerivedFromBodies": true,
+    "secondReferenceSurvivesFirstRelease": true,
+    "finalReleaseRefusesDescriptorsAndIncompleteFreshMap": true,
+    "historicalRetainReceiptNotLiveness": true,
+    "physicalAndLiabilityRetained": true,
+    "productApiWireOrStorageChanges": false,
+    "newProductionDependenciesOrDispatchRetryOwners": false
+  },
+  "validation": {
+    "journeys": [
+      {
+        "directory": ".tmp/multichunk-driver-01/browser/multichunk-complete",
+        "label": "multichunk-complete",
+        "puts": 5,
+        "gets": 5,
+        "physicalBytes": 1050157,
+        "liabilityBytes": 1050157,
+        "decodedMedia": [
+          {
+            "height": 256,
+            "index": 0,
+            "pixel": [
+              200,
+              30,
+              60,
+              255
+            ],
+            "sha256": "1235cbba920c5cfb24ff592d5ef1223d68d6340a0a4d65a909d263914d9e1f6b",
+            "width": 1024
+          },
+          {
+            "height": 12,
+            "index": 1,
+            "pixel": [
+              20,
+              180,
+              210,
+              255
+            ],
+            "sha256": "f1a16a5adabc5008d5adff083bfcf4d70dc6c49e17a29d0ba42f3bd37128f02a",
+            "width": 24
+          }
+        ],
+        "nativeExit": 0,
+        "nativeError": null,
+        "originalMapComplete": true,
+        "sharedReferences": {
+          "billing_cessation": false,
+          "current_map_complete": false,
+          "historical_retain_receipt_preserved": true,
+          "liability_bytes": 1050157,
+          "logical_bytes": 1102,
+          "physical_bytes": 1050157,
+          "provider_deletion": false,
+          "released_downloads_refused": true,
+          "schema": 1,
+          "second_reference_survives_first_release": true
+        },
+        "firstUploadGatewayPhases": [
+          "responded",
+          "responded",
+          "responded"
+        ],
+        "chunkRequests": [
+          {
+            "bytes": 1048576,
+            "path": "/v1/chunk/?owner_id=dllsh-pd777-77776-qaaaa-cai&blob_hash=sha256%3A484d7a8cc9165a997f8ebfeafd1cd7c5fc388828499f10f3f5c15ccac51f8369&chunk_hash=sha256%3Aaef5576c2f9b21e34d328b42653250185359145402dd3fe12c1461832be353ed&chunk_index=0&bucket_name=fixture-bucket&project_id=standalone-trial",
+            "sha256": "75b7484b3ccef08558278a8f02665cf2bd589f0a084693784bd301e1d2980681"
+          },
+          {
+            "bytes": 479,
+            "path": "/v1/chunk/?owner_id=dllsh-pd777-77776-qaaaa-cai&blob_hash=sha256%3A484d7a8cc9165a997f8ebfeafd1cd7c5fc388828499f10f3f5c15ccac51f8369&chunk_hash=sha256%3A5f0d3d365d8237c63a58b09b7d35b9eb66e609afd6427cb912cbd55aad4d7476&chunk_index=1&bucket_name=fixture-bucket&project_id=standalone-trial",
+            "sha256": "f53d573959e120ea6373dd127a0064e5b5e93a594119aa85d1a6e775985e66a6"
+          },
+          {
+            "bytes": 1102,
+            "path": "/v1/chunk/?owner_id=dllsh-pd777-77776-qaaaa-cai&blob_hash=sha256%3A77bb616fa371f72f60b5300017c7ac0ecac38a355e40cb52cb3128b73ea25106&chunk_hash=sha256%3Aac00045a9f1a504178fd4987bc736fc0cee174b220eee8980ea3e4e767779eab&chunk_index=0&bucket_name=fixture-bucket&project_id=standalone-trial",
+            "sha256": "f1a16a5adabc5008d5adff083bfcf4d70dc6c49e17a29d0ba42f3bd37128f02a"
+          }
+        ],
+        "automaticUploadRetries": 0
+      },
+      {
+        "directory": ".tmp/multichunk-driver-01/browser-complete/multichunk-complete",
+        "label": "multichunk-complete",
+        "puts": 5,
+        "gets": 5,
+        "physicalBytes": 1050157,
+        "liabilityBytes": 1050157,
+        "decodedMedia": [
+          {
+            "height": 256,
+            "index": 0,
+            "pixel": [
+              200,
+              30,
+              60,
+              255
+            ],
+            "sha256": "1235cbba920c5cfb24ff592d5ef1223d68d6340a0a4d65a909d263914d9e1f6b",
+            "width": 1024
+          },
+          {
+            "height": 12,
+            "index": 1,
+            "pixel": [
+              20,
+              180,
+              210,
+              255
+            ],
+            "sha256": "f1a16a5adabc5008d5adff083bfcf4d70dc6c49e17a29d0ba42f3bd37128f02a",
+            "width": 24
+          }
+        ],
+        "nativeExit": 0,
+        "nativeError": null,
+        "originalMapComplete": true,
+        "sharedReferences": {
+          "billing_cessation": false,
+          "current_map_complete": false,
+          "historical_retain_receipt_preserved": true,
+          "liability_bytes": 1050157,
+          "logical_bytes": 1102,
+          "physical_bytes": 1050157,
+          "provider_deletion": false,
+          "released_downloads_refused": true,
+          "schema": 1,
+          "second_reference_survives_first_release": true
+        },
+        "firstUploadGatewayPhases": [
+          "responded",
+          "responded",
+          "responded"
+        ],
+        "chunkRequests": [
+          {
+            "bytes": 1048576,
+            "path": "/v1/chunk/?owner_id=dllsh-pd777-77776-qaaaa-cai&blob_hash=sha256%3A484d7a8cc9165a997f8ebfeafd1cd7c5fc388828499f10f3f5c15ccac51f8369&chunk_hash=sha256%3Aaef5576c2f9b21e34d328b42653250185359145402dd3fe12c1461832be353ed&chunk_index=0&bucket_name=fixture-bucket&project_id=standalone-trial",
+            "sha256": "75b7484b3ccef08558278a8f02665cf2bd589f0a084693784bd301e1d2980681"
+          },
+          {
+            "bytes": 479,
+            "path": "/v1/chunk/?owner_id=dllsh-pd777-77776-qaaaa-cai&blob_hash=sha256%3A484d7a8cc9165a997f8ebfeafd1cd7c5fc388828499f10f3f5c15ccac51f8369&chunk_hash=sha256%3A5f0d3d365d8237c63a58b09b7d35b9eb66e609afd6427cb912cbd55aad4d7476&chunk_index=1&bucket_name=fixture-bucket&project_id=standalone-trial",
+            "sha256": "f53d573959e120ea6373dd127a0064e5b5e93a594119aa85d1a6e775985e66a6"
+          },
+          {
+            "bytes": 1102,
+            "path": "/v1/chunk/?owner_id=dllsh-pd777-77776-qaaaa-cai&blob_hash=sha256%3A77bb616fa371f72f60b5300017c7ac0ecac38a355e40cb52cb3128b73ea25106&chunk_hash=sha256%3Aac00045a9f1a504178fd4987bc736fc0cee174b220eee8980ea3e4e767779eab&chunk_index=0&bucket_name=fixture-bucket&project_id=standalone-trial",
+            "sha256": "f1a16a5adabc5008d5adff083bfcf4d70dc6c49e17a29d0ba42f3bd37128f02a"
+          }
+        ],
+        "automaticUploadRetries": 0
+      },
+      {
+        "directory": ".tmp/multichunk-driver-01/browser-complete/multichunk-lost",
+        "label": "multichunk-lost",
+        "puts": 5,
+        "gets": 5,
+        "physicalBytes": 1050157,
+        "liabilityBytes": 1050157,
+        "decodedMedia": [
+          {
+            "height": 256,
+            "index": 0,
+            "pixel": [
+              200,
+              30,
+              60,
+              255
+            ],
+            "sha256": "1235cbba920c5cfb24ff592d5ef1223d68d6340a0a4d65a909d263914d9e1f6b",
+            "width": 1024
+          },
+          {
+            "height": 12,
+            "index": 1,
+            "pixel": [
+              20,
+              180,
+              210,
+              255
+            ],
+            "sha256": "f1a16a5adabc5008d5adff083bfcf4d70dc6c49e17a29d0ba42f3bd37128f02a",
+            "width": 24
+          }
+        ],
+        "nativeExit": 0,
+        "nativeError": null,
+        "originalMapComplete": true,
+        "sharedReferences": {
+          "billing_cessation": false,
+          "current_map_complete": false,
+          "historical_retain_receipt_preserved": true,
+          "liability_bytes": 1050157,
+          "logical_bytes": 1102,
+          "physical_bytes": 1050157,
+          "provider_deletion": false,
+          "released_downloads_refused": true,
+          "schema": 1,
+          "second_reference_survives_first_release": true
+        },
+        "firstUploadGatewayPhases": [
+          "responded",
+          "responded",
+          "uncertain"
+        ],
+        "chunkRequests": [
+          {
+            "bytes": 1048576,
+            "path": "/v1/chunk/?owner_id=dllsh-pd777-77776-qaaaa-cai&blob_hash=sha256%3A484d7a8cc9165a997f8ebfeafd1cd7c5fc388828499f10f3f5c15ccac51f8369&chunk_hash=sha256%3Aaef5576c2f9b21e34d328b42653250185359145402dd3fe12c1461832be353ed&chunk_index=0&bucket_name=fixture-bucket&project_id=standalone-trial",
+            "sha256": "75b7484b3ccef08558278a8f02665cf2bd589f0a084693784bd301e1d2980681"
+          },
+          {
+            "bytes": 479,
+            "path": "/v1/chunk/?owner_id=dllsh-pd777-77776-qaaaa-cai&blob_hash=sha256%3A484d7a8cc9165a997f8ebfeafd1cd7c5fc388828499f10f3f5c15ccac51f8369&chunk_hash=sha256%3A5f0d3d365d8237c63a58b09b7d35b9eb66e609afd6427cb912cbd55aad4d7476&chunk_index=1&bucket_name=fixture-bucket&project_id=standalone-trial",
+            "sha256": "f53d573959e120ea6373dd127a0064e5b5e93a594119aa85d1a6e775985e66a6"
+          },
+          {
+            "bytes": 1102,
+            "path": "/v1/chunk/?owner_id=dllsh-pd777-77776-qaaaa-cai&blob_hash=sha256%3A77bb616fa371f72f60b5300017c7ac0ecac38a355e40cb52cb3128b73ea25106&chunk_hash=sha256%3Aac00045a9f1a504178fd4987bc736fc0cee174b220eee8980ea3e4e767779eab&chunk_index=0&bucket_name=fixture-bucket&project_id=standalone-trial",
+            "sha256": "f1a16a5adabc5008d5adff083bfcf4d70dc6c49e17a29d0ba42f3bd37128f02a"
+          }
+        ],
+        "automaticUploadRetries": 0
+      },
+      {
+        "directory": ".tmp/multichunk-driver-01/browser-complete/multichunk-corrupt",
+        "label": "multichunk-corrupt",
+        "puts": 3,
+        "gets": 1,
+        "physicalBytes": 1049055,
+        "liabilityBytes": 1049055,
+        "decodedMedia": [],
+        "nativeExit": 3,
+        "nativeError": "content_mismatch",
+        "originalMapComplete": false,
+        "sharedReferences": null,
+        "firstUploadGatewayPhases": [
+          "responded",
+          "responded",
+          "responded"
+        ],
+        "chunkRequests": [
+          {
+            "bytes": 1048576,
+            "path": "/v1/chunk/?owner_id=dllsh-pd777-77776-qaaaa-cai&blob_hash=sha256%3A484d7a8cc9165a997f8ebfeafd1cd7c5fc388828499f10f3f5c15ccac51f8369&chunk_hash=sha256%3Aaef5576c2f9b21e34d328b42653250185359145402dd3fe12c1461832be353ed&chunk_index=0&bucket_name=fixture-bucket&project_id=standalone-trial",
+            "sha256": "75b7484b3ccef08558278a8f02665cf2bd589f0a084693784bd301e1d2980681"
+          },
+          {
+            "bytes": 479,
+            "path": "/v1/chunk/?owner_id=dllsh-pd777-77776-qaaaa-cai&blob_hash=sha256%3A484d7a8cc9165a997f8ebfeafd1cd7c5fc388828499f10f3f5c15ccac51f8369&chunk_hash=sha256%3A5f0d3d365d8237c63a58b09b7d35b9eb66e609afd6427cb912cbd55aad4d7476&chunk_index=1&bucket_name=fixture-bucket&project_id=standalone-trial",
+            "sha256": "f53d573959e120ea6373dd127a0064e5b5e93a594119aa85d1a6e775985e66a6"
+          }
+        ],
+        "automaticUploadRetries": 0
+      },
+      {
+        "directory": ".tmp/multichunk-driver-01/browser-complete/native-driver-restart",
+        "label": "native-driver-restart",
+        "puts": 4,
+        "gets": 4,
+        "physicalBytes": 3072,
+        "liabilityBytes": 3072,
+        "decodedMedia": [],
+        "nativeExit": 0,
+        "nativeError": null,
+        "originalMapComplete": true,
+        "sharedReferences": null,
+        "firstUploadGatewayPhases": [
+          "responded",
+          "uncertain"
+        ],
+        "chunkRequests": [
+          {
+            "bytes": 1024,
+            "path": "/v1/chunk/?owner_id=dllsh-pd777-77776-qaaaa-cai&blob_hash=sha256%3Ad53964e58575f66aa53db95000c2d48152b0bf2f22da88274a85788efd5a3b6e&chunk_hash=sha256%3A93beaf743566f9e55d341b9fdcab54250bd8b391f0fab18837ba25accf22a387&chunk_index=0&bucket_name=fixture-bucket&project_id=standalone-trial",
+            "sha256": "b2256110f2c4226de0008dd4382a388e033f211b617bd3237135ab1d59a722b6"
+          },
+          {
+            "bytes": 2048,
+            "path": "/v1/chunk/?owner_id=dllsh-pd777-77776-qaaaa-cai&blob_hash=sha256%3A85a0606884f4f1d0342661b1ad202541c85182e559daee6fbbbf83268ad52a67&chunk_hash=sha256%3A594750ba8f154f311da90b701b029bebb775099024dee6e11c64cfa0b1ef4cca&chunk_index=0&bucket_name=fixture-bucket&project_id=standalone-trial",
+            "sha256": "0c4af872167e9a2e045d87dc873c6b20936e7fc896ad437cf1ee5266feec40bc"
+          }
+        ],
+        "automaticUploadRetries": 0
+      },
+      {
+        "directory": ".tmp/multichunk-driver-01/browser-complete/native-driver-corrupt",
+        "label": "native-driver-corrupt",
+        "puts": 2,
+        "gets": 1,
+        "physicalBytes": 1024,
+        "liabilityBytes": 1024,
+        "decodedMedia": [],
+        "nativeExit": 3,
+        "nativeError": "content_mismatch",
+        "originalMapComplete": false,
+        "sharedReferences": null,
+        "firstUploadGatewayPhases": [
+          "responded",
+          "responded"
+        ],
+        "chunkRequests": [
+          {
+            "bytes": 1024,
+            "path": "/v1/chunk/?owner_id=dllsh-pd777-77776-qaaaa-cai&blob_hash=sha256%3Ad53964e58575f66aa53db95000c2d48152b0bf2f22da88274a85788efd5a3b6e&chunk_hash=sha256%3A93beaf743566f9e55d341b9fdcab54250bd8b391f0fab18837ba25accf22a387&chunk_index=0&bucket_name=fixture-bucket&project_id=standalone-trial",
+            "sha256": "b2256110f2c4226de0008dd4382a388e033f211b617bd3237135ab1d59a722b6"
+          }
+        ],
+        "automaticUploadRetries": 0
+      },
+      {
+        "directory": ".tmp/multichunk-driver-01/browser-complete/media-complete",
+        "label": "media-complete",
+        "puts": 4,
+        "gets": 4,
+        "physicalBytes": 2103,
+        "liabilityBytes": 2103,
+        "decodedMedia": [
+          {
+            "height": 16,
+            "index": 0,
+            "pixel": [
+              200,
+              30,
+              60,
+              255
+            ],
+            "sha256": "7eaba2f357804ca6ff77aec5677394e6578e1d8cf1c2861b63c0751ac46cdcf0",
+            "width": 16
+          },
+          {
+            "height": 12,
+            "index": 1,
+            "pixel": [
+              20,
+              180,
+              210,
+              255
+            ],
+            "sha256": "f1a16a5adabc5008d5adff083bfcf4d70dc6c49e17a29d0ba42f3bd37128f02a",
+            "width": 24
+          }
+        ],
+        "nativeExit": 0,
+        "nativeError": null,
+        "originalMapComplete": true,
+        "sharedReferences": null,
+        "firstUploadGatewayPhases": [
+          "responded",
+          "responded"
+        ],
+        "chunkRequests": [
+          {
+            "bytes": 1001,
+            "path": "/v1/chunk/?owner_id=dllsh-pd777-77776-qaaaa-cai&blob_hash=sha256%3A346b9f0c6267eeb45fe61b6d6f622c56ad0a2fcf765e2c69f48277877a576d3d&chunk_hash=sha256%3A31236384292f07576c10bb3877175091dc7726cd0b255c4030bd77fa8f46f546&chunk_index=0&bucket_name=fixture-bucket&project_id=standalone-trial",
+            "sha256": "7eaba2f357804ca6ff77aec5677394e6578e1d8cf1c2861b63c0751ac46cdcf0"
+          },
+          {
+            "bytes": 1102,
+            "path": "/v1/chunk/?owner_id=dllsh-pd777-77776-qaaaa-cai&blob_hash=sha256%3A77bb616fa371f72f60b5300017c7ac0ecac38a355e40cb52cb3128b73ea25106&chunk_hash=sha256%3Aac00045a9f1a504178fd4987bc736fc0cee174b220eee8980ea3e4e767779eab&chunk_index=0&bucket_name=fixture-bucket&project_id=standalone-trial",
+            "sha256": "f1a16a5adabc5008d5adff083bfcf4d70dc6c49e17a29d0ba42f3bd37128f02a"
+          }
+        ],
+        "automaticUploadRetries": 0
+      }
+    ],
+    "withdrawal": {
+      "attestation_replay_leaves_reference_inactive": true,
+      "authoritative_receipt_preserved": true,
+      "billing_cessation_established": false,
+      "browser_cancelled": true,
+      "browser_upload_acknowledged": false,
+      "evidence": "actual_standalone_withdrawal_after_verified_observation_local_substitute",
+      "final_gateway_request_phase": "uncertain",
+      "late_attestation_accepted_for_reconciliation": true,
+      "liability_bytes_retained": 1024,
+      "live_provider_requests": 0,
+      "logical_bytes": 0,
+      "original_statement_preserved": true,
+      "paid_effects": 0,
+      "permission_revoked": true,
+      "physical_bytes_retained": 1024,
+      "provider_deletion_established": false,
+      "provider_gets": [
+        "/v1/blob/?blob_hash=sha256%3Ad53964e58575f66aa53db95000c2d48152b0bf2f22da88274a85788efd5a3b6e&owner_id=dllsh-pd777-77776-qaaaa-cai&project_id=standalone-trial"
+      ],
+      "provider_puts": [
+        {
+          "bytes": 4664,
+          "path": "/v1/blob-tree/",
+          "sha256": "f509eccf55d3aa2252a4a9f7c6411f32e31e3cee869eb04f93868ccf6aa080cf"
+        },
+        {
+          "bytes": 1024,
+          "path": "/v1/chunk/?owner_id=dllsh-pd777-77776-qaaaa-cai&blob_hash=sha256%3Ad53964e58575f66aa53db95000c2d48152b0bf2f22da88274a85788efd5a3b6e&chunk_hash=sha256%3A93beaf743566f9e55d341b9fdcab54250bd8b391f0fab18837ba25accf22a387&chunk_index=0&bucket_name=local-standalone-trial&project_id=standalone-trial",
+          "sha256": "b2256110f2c4226de0008dd4382a388e033f211b617bd3237135ab1d59a722b6"
+        }
+      ],
+      "reference_explicitly_released": true,
+      "schema": 1,
+      "second_submission_blocked": true,
+      "state": "Confirmed",
+      "tenant_download_unavailable": true,
+      "whole_body_observed": true
+    },
+    "totalIcBrowserAttempts": 8,
+    "failedProviderJourneys": [],
+    "strictAffectedClippy": "passed",
+    "nativeHarnessBuild": "passed",
+    "browserBuild": "passed",
+    "syntax": "passed",
+    "formatting": "passed",
+    "fullCi": false,
+    "hostAndCliRelease": "0.14.0",
+    "icMemory": "0.24.3"
+  },
+  "attempts": {
+    "initialJourney": ".tmp/multichunk-driver-01/complete.log",
+    "finalJourneys": [
+      ".tmp/multichunk-driver-01/chromium_standalone_trial_multichunk_png.log",
+      ".tmp/multichunk-driver-01/chromium_native_phase_driver.log",
+      ".tmp/multichunk-driver-01/chromium_standalone_trial_distinct_png_media_complete_and_decode_verified_downloads.log",
+      ".tmp/multichunk-driver-01/chromium_standalone_trial_withdrawal_and_late_completion_preserve_release.log"
+    ],
+    "failedTooling": [
+      {
+        "log": ".tmp/multichunk-driver-01/clippy.log",
+        "reason": "expanded withdrawal test exceeds line bound; large reference response passed by value"
+      },
+      {
+        "log": ".tmp/multichunk-driver-01/clippy-final.log",
+        "reason": "manual byte equality asserts refused; existing bounded first-difference helper reused"
+      }
+    ],
+    "finalClippy": ".tmp/multichunk-driver-01/clippy-complete.log"
+  },
+  "artifacts": {
+    "initial": ".tmp/multichunk-driver-01/artifacts/SHA256SUMS",
+    "finalHarness": ".tmp/multichunk-driver-01/artifacts/complete-SHA256SUMS",
+    "originalSources": ".tmp/multichunk-driver-01/source",
+    "finalSources": ".tmp/multichunk-driver-01/source-complete",
+    "sourceManifests": [
+      ".tmp/multichunk-driver-01/source-SHA256SUMS",
+      ".tmp/multichunk-driver-01/complete-source-SHA256SUMS"
+    ],
+    "nativeCliAndWasm": ".tmp/media-driver-01/artifacts"
+  },
+  "limitations": [
+    "Authored PNG fixtures do not establish real consumer asset/transaction adoption",
+    "Owned substitute validates selected chunk status/binding; deployed Caffeine behavior remains separate",
+    "Decoding verified byte files does not qualify direct public URLs, MIME/CORS/cache/CSP or retention",
+    "Logical release does not delete provider content or end billing; older-backup activation remains unsupported"
+  ],
+  "disposition": {
+    "privateKeysProfilesJournalsRequestsResultsAndBytesRetained": true,
+    "testProcessesExited": true,
+    "liveProviderRequests": 0,
+    "paidCycles": 0,
+    "deployment": false,
+    "fullCiOrRelease": false,
+    "siblingEditsOrMessages": false,
+    "oldLiveInstallationsUnchanged": true
+  }
+}
