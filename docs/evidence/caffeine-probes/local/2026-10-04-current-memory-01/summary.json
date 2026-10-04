@@ -1,0 +1,69 @@
+{
+  "schema": 1,
+  "date": "2026-10-04",
+  "evidence_class": "local_ic_current_dependency_initialization_and_same_release_lifecycle",
+  "source": {
+    "baseline_commit": "556b52fd6a3eccc5efd7e687ffd2e9cde0f41126",
+    "selection": "Captured unreleased current source; compiled package 0.14.2",
+    "memory": "0.24.10",
+    "testkit": "0.14.7",
+    "lock_sha256": "fb1516384748d4aa95d588b4795dd1139df3894720854d2939d2e2cfca597bc5",
+    "snapshot": ".tmp/current-memory-01/source",
+    "cargo_target": "Repository target/",
+    "rust": "1.99.0"
+  },
+  "artifacts": {
+    "wasm": ".tmp/current-memory-01/artifacts/ic_blob_storage_canister.wasm",
+    "harness": ".tmp/current-memory-01/artifacts/standalone",
+    "profiles": {
+      "wasm": "release",
+      "harness": "test"
+    },
+    "manifest": ".tmp/current-memory-01/artifact-SHA256SUMS"
+  },
+  "cases": [
+    {
+      "name": "standalone_lifecycle::stop_start_and_repeated_upgrade_preserve_installation_and_all_owner_fences",
+      "result": "PASS",
+      "log": ".tmp/current-memory-01/lifecycle.log"
+    },
+    {
+      "name": "standalone_lifecycle::active_current_instance_recovery_retains_released_physical_and_billing_obligations",
+      "result": "PASS",
+      "log": ".tmp/current-memory-01/obligations.log"
+    },
+    {
+      "name": "standalone_snapshot::standalone_snapshot_rollback_stays_fenced_and_refuses_current_instance_recovery",
+      "result": "PASS",
+      "log": ".tmp/current-memory-01/snapshot.log"
+    }
+  ],
+  "observations": [
+    "Actual matching Wasm installs and initializes its owners",
+    "Stop/start, rejected replacement configuration and repeated same-release upgrades preserve installation, reservations and all owner fences",
+    "Operator current-execution IC-history recovery preserves released physical/liability bytes and original admission; released certificate path remains refused",
+    "Old prepared and earlier snapshots remain fenced; current-instance recovery refuses without stable-state mutation"
+  ],
+  "compile_checks": "Matching fresh Wasm/harness builds pass; separate strict affected Clippy captured under .tmp/isolated-tools-01/current-lock-check",
+  "retention": {
+    "source_manifest": ".tmp/current-memory-01/source-SHA256SUMS",
+    "artifact_manifest": ".tmp/current-memory-01/artifact-SHA256SUMS",
+    "results_manifest": ".tmp/current-memory-01/results-SHA256SUMS",
+    "fixture_state": "Transient PocketIC test state; source, selected cases, binary/Wasm and full output retained. No live installation or provider history replaced."
+  },
+  "limits": [
+    "Focused maintained local IC tests, not full CI or cross-release migration",
+    "No new browser publication probe on 0.24.10; successful media observations retain frozen 0.24.7 source and artifacts",
+    "No deployed Caffeine/cache/retention/deletion/billing or consumer adoption qualification"
+  ],
+  "failed_attempts": [],
+  "live_provider_requests": 0,
+  "paid_cycles": 0,
+  "commits": false,
+  "version_mutation": false,
+  "publication": false,
+  "deployment": false,
+  "sibling_edits": false,
+  "sibling_messages": false,
+  "build_cleanup": false
+}

@@ -1,5 +1,474 @@
 # Caffeine probe ledger
 
+## Matching 0.14.6 media rehearsal — 2026-10-04
+
+The [intent](local/2026-10-04-released-media-v0146-01/intent.json) precedes rebuilding
+and freezing the released 0.14.6 CLI, standalone Wasm, maintained PocketIC harness
+and paired browser tools. Production and selected harness sources match the
+released commit before/after execution; Cargo/receipt stay unchanged. The graph
+locks ic-memory 0.25.0 and ic-testkit 0.14.11. PocketIC independently checks the
+Wasm's compiled release against explicitly selected 0.14.6 and rejects installation
+inputs bound to the wrong actual service before allocation.
+
+| Journey | PUTs / GETs | Retained physical / liability bytes | Result |
+| --- | ---: | ---: | --- |
+| Original GLB/WebP completion | 11 / 9 | 8,389,774 / 8,389,774 | Complete verified downloads and recovered map |
+| Original PNG/JPEG lost reply/control interruption | 7 / 10 | 4,318,116 / 4,318,116 | Original uncertain claim survives; no additional PUT on recovery |
+
+All four original roots, chunk manifests, whole-content hashes and immutable cache
+headers agree with retained original-cache preparation. Actual Chromium/worker,
+native verifier and standalone service participate. Reopening preserves original
+bindings and journals. Occupied local map output refuses without undoing service
+completion; another output recovers the complete map. Overlapping references keep
+delivery after first release; final release refuses tenant downloads while retaining
+physical/billing obligations and historical receipts. Sessions retain the shared
+120-second bound and distinct whole-fixture 180-second bound.
+
+The [summary](local/2026-10-04-released-media-v0146-01/summary.json) binds the released
+source archive, exact frozen artifacts, selected original media, commands, logs,
+requests/results and retained original profiles under `.tmp/released-media-v0146-01`.
+A preparation command used the unsupported `version` argument; its Node child
+error/typed CLI refusal and the subsequent missing-runner attempt are retained.
+Direct `--version` readback corrects selection before any journey. Installation
+readback and both actual journeys pass; no failed provider effect is replayed.
+
+This is local IC/provider-substitute evidence from repository-built tools, not a
+second clean-prefix/no-Git installation check, consumer adoption, game rendering,
+production-origin qualification or deployed Caffeine behavior. It adds no runtime
+flow or schema and makes no successful-upload performance or peak-memory claim.
+Earlier clean-source and deadline records retain their original 0.14.3 identities.
+No full CI, version/dependency change, commit, publication, deployment, live provider
+request, paid cycle, sibling edit/message or build cleanup occurs. Certified consumer
+registration, deployed retention/deletion/final billing and large-scale service
+restoration remain open.
+
+## Populated browser journal profile — 2026-10-04
+
+The [intent](local/2026-10-04-browser-journal-profile-01/intent.json) precedes an
+actual maintained IndexedDB journal run on released 0.14.6. The first attempt
+populates 675/5,000 rows, then reaches the whole fixture's 180-second deadline
+following the 17,500-row checkpoint of its 20,000-row tier. Its failure, checkpoints
+and original profile remain intact. No per-transaction timeout is reported and no
+restart qualification is claimed for that run.
+
+The [follow-up intent](local/2026-10-04-browser-journal-profile-01/followup-intent.json)
+precedes a fresh 675/5,000/10,000-row pass. The maintained opt-in fixture now reopens
+each completed tier before starting another, retaining completed evidence if a
+later workload fails. It uses public journal methods and strict individual commits,
+with synthetic compact bindings/envelopes and no certificate or gateway dispatch.
+
+| Lifetime rows | Population | Reopen including CDP call | Median selected read after restart |
+| ---: | ---: | ---: | ---: |
+| 675 | 2.08 s | 13.3 ms | 1.4 ms |
+| 5,000 | 22.60 s | 39.4 ms | 4.4 ms |
+| 10,000 | 63.67 s | 20.7 ms | 7.0 ms |
+
+Each is one local instrumented observation; reopening is not an OS cold-cache
+measurement and the timings are not production thresholds. Thirty sequential
+selected reads per tier are measured inside the page, excluding the outer CDP
+handoff. Population blocks contain at most 500 strict saves. Page heap excludes
+native IndexedDB storage and browser RSS; it is not a peak-memory measurement.
+
+Exact uncertain certificate, permanently cancelled saved and observed-certificate/
+uncertain-gateway rows survive process restart. New admission at full lifetime
+capacity, certificate replay, cancelled dispatch and continuation after an uncertain
+gateway request return their typed refusals. Existing save at capacity returns the
+unchanged original row. These are synthetic client records, not authenticated
+certificates, provider objects or canister lifecycle evidence.
+
+The [summary](local/2026-10-04-browser-journal-profile-01/summary.json) binds released
+source/receipt, original and final fixture sources, bundle, failure, checkpoints,
+results and original profiles under `.tmp/browser-journal-profile-01`. Paired tools
+build; scoped syntax/changelog/diff and artifact checks pass. All requests are owned
+loopback asset GETs, with zero live IC/provider requests or paid cycles. Production
+capacity/durability/replay checks and schema remain unchanged; no counter, cache,
+retry or reset is added. The documentation no longer implies that IndexedDB count
+is guaranteed constant-cost or cannot scan internally. Precise engine cost remains
+unattributed; these timings do not justify deleting a correctness check.
+
+No full CI/Rust build, version/dependency change, commit, deployment, sibling edit/
+message or build cleanup occurs. Million-row capacity, large real envelopes,
+eviction/power loss/profile rollback, full worker/browser memory and service-canister
+reopen/instruction budgets remain unqualified. Consumer adoption and certified asset
+registration remain open; no retained effect profile is replaced or erased.
+
+## SDK owned Blob preparation — 2026-10-04
+
+The [intent](local/2026-10-04-sdk-owned-blob-01/intent.json) precedes a focused
+source review and local SDK/Chromium checks. Caffeine 1.1.2's maintained patch
+copied the input before MIME detection awaited, then constructed another full
+array for Blob. The first copy remains necessary to own caller bytes across that
+await. Blob now snapshots the already-private array directly; upstream sniffing,
+chunking, hashing, metadata, wire formats and one-shot handles remain unchanged.
+Installed npm files remain untouched; the build verifies original upstream hashes
+and applies the maintained patch to its private copy.
+
+Actual Chromium explicit/sniffed MIME preparation preserves identical roots and
+manifests for a selected 1 MiB + 479-byte view with NUL/high bytes and a distinct
+tail, even after immediate caller mutation. Caller backing storage remains attached.
+The maintained SDK probe exercises selected-view mutation in all six substitute
+journeys: exact single/multi-chunk payloads, incomplete-status return, lost final
+reply, failed HTTP reply and byte-budget refusal. Original journals retain their
+uncertain/responded states and no retry is dispatched. The retained native verifier
+accepts original bytes and rejects corrupted/truncated bytes; its earlier binary
+hash is recorded separately, without claiming current Rust qualification.
+
+The [summary](local/2026-10-04-sdk-owned-blob-01/summary.json) retains original
+patch/generated sources, final source/bundle/result hashes, SDK request/response
+records and Chromium profiles under `.tmp/sdk-owned-blob-01`. Frozen-input/worker
+checks and actual Chromium launcher boundaries pass. Bundles rebuild and scoped
+syntax/changelog/diff checks pass. No probe fails; zero live IC/provider requests
+or paid cycles occur. There is no measured peak-memory saving, successful deployed
+upload, consumer adoption, provider retention/billing or million-object qualification.
+No Rust build/full CI, version/dependency change, commit, deployment, sibling
+edit/message or cleanup is performed. Retained profiles keep their original bundles;
+new tools do not replace their executable bindings or effect history.
+
+## Browser body handoff profile — 2026-10-04
+
+The [intent](local/2026-10-04-browser-handoff-profile-01/intent.json) precedes an
+actual Chromium/maintained SDK baseline on released 0.14.5. A separate
+[follow-up intent](local/2026-10-04-browser-handoff-profile-01/followup-intent.json)
+precedes the base64 handoff and binary-byte checks. Both profiles retain identical
+body hashes and 64 KiB raw-frame bounds. Deliberate root mismatch follows original
+SHA/SDK preparation and refuses before certificate intent; inspection finds no
+journal row. Only three owned loopback asset GETs occur per profiling run.
+
+| Body | Released byte-array bridge | Base64 bridge |
+| --- | ---: | ---: |
+| 1 MiB | 2.99 s | 0.08 s |
+| 8 MiB | 22.88 s | 0.48 s |
+| 32 MiB | 86.41 s | 1.83 s |
+
+These are single instrumented ascending passes through preparation/refusal, not
+successful uploads or guaranteed production timings. Worker wait/preparation is
+similar (32 MiB: 0.36 s before, 0.37 s after), supporting the inference that the
+byte-array CDP serialization dominated the original client handoff. No Canic
+execution was measured. Page assembled V8 used heap at 32 MiB falls from
+264,107,808 to 47,873,000 bytes; this excludes worker heap and browser process RSS,
+and is not a peak-memory measurement. Node peaks are sampled separately.
+
+The [summary](local/2026-10-04-browser-handoff-profile-01/summary.json) binds
+original samples, logs, source and bundle hashes under
+`.tmp/browser-handoff-profile-01`. Both profiling runs and maintained actual
+Chromium launcher checks pass, including NUL/high binary bytes, original profile
+bindings, cancellation and failure boundaries. Browser bundles rebuild; syntax,
+changelog and diff checks pass. The opt-in fixture adds no default CI run.
+This is local Chromium/SDK evidence with zero provider/IC requests and paid
+cycles. No successful transfer, populated store, full worker/process memory,
+concurrent publisher or million-object qualification is claimed. No release,
+dependency change, commit, deployment, sibling change/message or cleanup occurs.
+
+## Publication fixture session deadline — 2026-10-04
+
+The [intent](local/2026-10-04-publication-deadline-01/intent.json) precedes two
+local IC/Chromium journeys after a fixture-only deadline consolidation. The
+released fixture supplied 30 seconds to a complete CLI session but 120 seconds
+to browser/subprocess owners. Miner's [reported earlier timeout](https://github.com/dragginzgame/ic-blob-storage/issues/5#issuecomment-5979572702)
+and original claims remain with that consumer; successful runs do not erase it.
+
+One fixture constant now supplies 120 seconds before original/recovery intent,
+browser bootstrap and subprocess ownership. Single-step preparation/query calls
+remain at 30 seconds, and the distinct whole-fixture timer remains 180 seconds.
+No production default, authority, claim, retry policy or provider limit changes.
+
+Matching rebuilt fixture harness/browser tools use the retained released 0.14.3
+CLI/Wasm. Original cached GLB/WebP completes with eleven PUTs/nine GETs and
+8,389,774 physical/liability bytes. PNG/JPEG lost-reply/control-interruption
+recovery passes with seven PUTs/ten GETs and 4,318,116 retained bytes; it adds no
+PUT. Original/recovery commands, saved intents and browser results agree on the
+120-second selection. Complete maps, roots/leaves/whole bytes/cache metadata and
+reference cleanup preserve their maintained behavior. Strict affected Clippy,
+formatting, syntax and exact retained artifact/result hashes pass.
+
+The [summary](local/2026-10-04-publication-deadline-01/summary.json) retains exact
+source/artifact/profiles/results under `.tmp/publication-deadline-01`. Both cases
+pass without a failed probe. This is unreleased fixture evidence, distinct from
+the clean-release check below. Full CI remains pending; no live request, paid
+cycle, release, publication, deployment, sibling change/message or cleanup occurs.
+
+## Clean released source-tool installation — 2026-10-04
+
+The [intent](local/2026-10-04-released-tools-01/intent.json) precedes a clean
+Git archive of `v0.14.3` at `cba9f3da3846758e0bb6aa5fe114786867426911`.
+The released receipt/file hashes match; local tag and remote main agree. A fresh
+native installation prefix reports compiled 0.14.3. Fresh pinned npm dependencies
+build the paired browser tools with Git discovery disabled. Actual SDK/native
+snapshot handoff, repeat-output and corrupt-source refusals pass offline.
+
+Fresh matching release Wasm/harness and exact installed tools complete original
+cached GLB/WebP and recover PNG/JPEG lost replies/control interruption without
+another PUT. Counts and retained bytes match the two deadline journeys above;
+all four original roots, ordered leaves, whole-content digests, cache headers,
+complete maps and original uncertain claims are verified independently.
+
+The [summary](local/2026-10-04-released-tools-01/summary.json) binds all 1,341
+released source files, archive/receipt, toolchain/profiles, binaries/bundles,
+commands, results and original browser profiles under `.tmp/released-tools-01`.
+Both cases pass without a failed probe. These original artifacts retain the
+released fixture's 30-second native and 120-second browser/parent selections.
+This qualifies the clean release recipe in this repository, using existing Cargo
+cache and provisioned Node/Chromium/PocketIC; it is neither a cold machine nor
+consumer-owned installation/adoption. It does not qualify consumer registration,
+game rendering, deployed Caffeine serving/deletion/billing or registry publication.
+No live/paid request, commit, release/deployment, sibling change/message or cleanup
+occurs. Earlier unreleased-source and failed consumer records remain unchanged.
+
+## GitHub feedback review — 2026-10-04
+
+The [review](local/2026-10-04-gh-issues-review-01/summary.json) captures all seven
+open issues and seventeen comments, verifies the released 0.14.2 registry package
+and checks both native FIFO boundaries locally. These are source/registry/native
+file facts, not new provider probes. The latest
+[consumer report](https://github.com/dragginzgame/ic-blob-storage/issues/5#issuecomment-5979572702)
+also records original-cache-root GLB/WebP through existing model/image loaders,
+verified cached bytes, Blob revocation and zero local-shell CSP violations. That
+reported qualification was not independently rerun here; its earlier failed
+attempts and original artifacts remain with the consumer. It does not establish a
+certified registration transaction, deployed serving or final deletion/billing.
+The [current triage](../../status/current.md#current-checks-and-next-work) separates
+resolved upstream implementation from release/adoption/operating acceptance and
+new decoder-budget coverage #7. No GitHub write or live/paid effect occurs.
+
+## Current memory initialization and lifecycle — 2026-10-04
+
+The [intent](local/2026-10-04-current-memory-01/intent.json) precedes a separate
+current-source capture with ic-memory 0.24.10 and ic-testkit 0.14.7. The concurrent
+lock update changes the memory/constructor graph; native Clippy alone cannot
+establish Wasm initialization or synchronous owner restoration. Matching fresh
+standalone Wasm and harness builds pass, followed by three existing PocketIC cases.
+
+Actual installation, stop/start and repeated same-release upgrades preserve
+installation, reservations and all owner fences; replacement configuration is
+rejected. Current-execution operator recovery preserves released physical/billing
+liabilities and original admission, while released certificate access refuses.
+Rolled-back prepared/earlier snapshots stay fenced and cannot use current-instance
+recovery; rejected recovery preserves stable state. No production change or new
+test mechanism is needed.
+
+The [summary](local/2026-10-04-current-memory-01/summary.json) binds frozen source,
+lock, exact Wasm/harness, selected test cases and full output under
+`.tmp/current-memory-01`. Test state is transient PocketIC state, not a retained
+live provider installation. The package remains compiled release 0.14.2 from
+unreleased source. Separate affected strict Clippy on this graph passes in the
+isolated-tool record. These checks do not relabel earlier media journeys as
+0.24.10 or qualify cross-release restoration, consumer adoption or deployed
+provider behavior. Full CI remains pending. No failed case, live request, paid
+cycle, release/publication/deployment, sibling edit/message or cleanup occurs.
+
+## Isolated source tool installation — 2026-10-04
+
+The [intent](local/2026-10-04-isolated-tools-01/intent.json) precedes a separate
+1,327-file source snapshot, fresh CLI prefix and fresh pinned npm installation.
+The browser build passes both nested under a checkout and with Git discovery
+disabled. The installed CLI reports compiled release 0.14.2 and passes the actual
+cached two-chunk SDK/native snapshot handoff, repeated-output refusal and corrupt
+source refusal. The installation recipe now retains machine-readable release,
+Node/Rust versions and build profile alongside source and artifact identities.
+
+Matching fresh Wasm/harness/browser artifacts from that snapshot complete cached
+GLB/WebP with eleven PUTs/nine GETs and 8,389,774 physical/liability bytes. Cached
+PNG/JPEG lost-final-reply recovery passes with seven PUTs/ten GETs and 4,318,116;
+the original uncertain final request remains recorded and recovery adds no PUT.
+Exact selected bundle hashes, all four original roots/ordered leaves, complete
+body hashes/cache headers, completed maps and overlapping-reference cleanup pass.
+The same maintained native/browser/effect owners are used; no installation bug,
+replacement dispatcher or extra journal is introduced.
+
+The [summary](local/2026-10-04-isolated-tools-01/summary.json) binds exact source,
+installed binary, bundles, matching Wasm/harness, inputs, logs, profiles and
+original claims/maps under `.tmp/isolated-tools-01`. The source is the unreleased
+draft with ic-memory 0.24.7 and ic-testkit 0.14.7, using the retained Cargo cache
+and provisioned Chromium/PocketIC. Fresh npm dependencies do not establish a cold
+machine, a clean released tag or downstream adoption.
+
+The initial sandbox DNS fetch failure remains retained; network preparation
+succeeds before probes. The workspace lock changes independently to ic-memory
+0.24.10 during execution. A post-probe equality assertion refuses; both locks and
+the failure remain recorded. Separate locked fetch and strict affected Clippy
+pass on that current graph. No probe is rerun and no runtime observation is
+relabelled as 0.24.10. Frozen-source strict Clippy and formatting also pass.
+Local serving does not qualify deployed retention/cache, consumer registration
+or game rendering. Full CI remains pending. No commit, version change, publication,
+deployment, live/paid provider effect, sibling edit/message or cleanup occurs.
+
+## Original cache metadata — 2026-10-04
+
+The [intent](local/2026-10-04-cache-metadata-01/intent.json) precedes offline
+SDK/native checks and four bounded local IC/Chromium journeys. The same SDK
+preparation now accepts an optional explicit cache hint before upstream metadata
+hashing/tree construction. Native `preparation.cache_control` is preserved in
+saved bindings and transfer descriptors; launcher/host/worker snapshots carry
+browser `cacheControl`. Omission adds no header. This optional addition preserves
+existing field meanings and serialization when absent; no incompatible layout,
+alternate reader, inferred policy or parallel preparer is introduced.
+
+Actual SDK checks reproduce all four retained consumer PNG/JPEG/GLB/WebP roots,
+exact headers and ordered leaves. Changed or omitted required cache hints refuse
+before intent access. Native hint bounds/omission tests, the two-chunk SDK/native
+snapshot handoff, publication/worker refusals and launcher checks pass. The native
+snapshot re-prepares from its saved hints, including filename/cache, after the
+original source changes. Strict affected CLI/standalone Clippy, formatting,
+JavaScript syntax and fresh CLI/harness/browser builds pass.
+
+Original cached GLB/WebP completion makes eleven PUTs/nine GETs with 8,389,774
+retained physical/liability bytes. PNG/JPEG lost-final-reply recovery makes seven
+PUTs/ten GETs with 4,318,116; recovery adds no PUT. Browser reads expose the exact
+hashed `public, max-age=31536000, immutable` value and matching complete bytes.
+PNG corruption stops before attestation/next admission with five PUTs/one GET and
+3,554,987 retained bytes. The authored uncached regression retains five PUTs/ten
+GETs and 1,050,157 bytes, with no cache header. Reference cleanup/history and
+occupied native output recovery retain their established behavior.
+
+The [summary](local/2026-10-04-cache-metadata-01/summary.json) binds frozen inputs,
+source, CLI/harness/browser artifacts, original profiles, journals, maps, request
+histories and downloads under `.tmp/cache-metadata-01`. The unchanged standalone
+Wasm is retained from the 0.14.2 representative-media record; new native/browser
+artifacts also retain compiled package release 0.14.2. Both artifact-capture
+failures remain recorded: hashing blocked on the launcher's refusal-test FIFO,
+then an active stdout log changed after its initial hash. The owned blocked
+process was stopped, special entries excluded, and a final manifest seals closed
+regular artifacts. Initial captures, exclusions and verification failures remain;
+no provider probe is rerun or omitted.
+
+These local substitute observations do not qualify deployed cache operation,
+future retention, game rendering, complete consumer registration or adoption.
+Producers must explicitly retain their original cache hint and select matching
+tools. Full CI and clean released downstream tool installation remain pending.
+No version mutation, commit, publication/deployment, live provider request, paid
+cycle, sibling edit/message or build cleanup occurs; old live owners are unchanged.
+
+## Publication transfer-budget preflight — 2026-10-04
+
+The [intent](local/2026-10-04-transfer-budget-01/intent.json) precedes offline
+actual SDK and two bounded local IC/Chromium attempts. Frozen-file preparation
+now compares valid shared gateway limits against one tree plus all SDK chunks,
+the largest retained SDK chunk and total body bytes before the certificate client
+saves intent. The patched SDK reports its own chunk size; hashing, chunking and
+wire construction retain their original owner. Opaque tree/certificate overhead
+is still checked by the existing gateway guard at dispatch; these lower bounds
+are not a sufficiency or provider spending guarantee.
+
+Single- and multi-chunk shortages refuse with zero intent access or transport.
+Exact-fit lower-bound controls reach the original deliberately refusing store;
+no certificate is issued. The worker preserves its initial claim inspection,
+then returns finite `transfer-budget` with no save/claim/transport. Existing
+snapshot, authority and private-error redaction checks pass.
+
+Local GLB/WebP completion makes eleven PUTs/nine GETs and retains 8,389,774
+physical/liability bytes. PNG/JPEG lost-final-reply recovery makes seven PUTs/ten
+GETs and retains 4,318,116; no repeat PUT occurs. Native verification, complete
+maps and overlapping-reference cleanup pass using retained 0.14.2 CLI/Wasm/harness
+artifacts and newly captured browser bundles. Final worker error propagation is
+qualified separately offline; it does not relabel the earlier browser bundle.
+
+The [summary](local/2026-10-04-transfer-budget-01/summary.json) binds each attempt,
+source, bundle, native artifact, original profile/journal and request history
+under `.tmp/transfer-budget-01`. An exclusive artifact capture refused a basename
+collision between source and bundled `worker.mjs`; partial capture and typed
+failure remain retained, and a fresh capture preserves relative paths. No probe
+is rerun for that capture failure. Local substitutes do not establish consumer
+adoption or deployed serving/billing. No full CI, live/paid request, release,
+publication/deployment, sibling edit/message or cleanup occurs.
+
+## Source tool installation — 2026-10-04
+
+The [intent](local/2026-10-04-source-tools-01/intent.json) precedes a fresh-prefix
+locked installation of the existing CLI in the development profile, using this
+repository's retained target directory. Offline `blob-storage --version` reports
+the compiled library identity as JSON without identities or requests. The
+[selected-checkout recipe](../../local-tools.md#install-the-native-and-browser-tools)
+keeps native installation, browser modules, pinned SDK build and artifact hashes
+under one selected source identity; it adds no registry package or retry owner.
+
+The installed binary passes the existing actual SDK/native/browser snapshot
+handoff with 1,049,055 bytes/two chunks, exact re-preparation, repeat/corrupt-source
+refusal and zero network requests. Pinned browser builds, strict affected CLI
+Clippy, formatting and production JavaScript syntax pass. This uses captured
+dirty source with compiled release 0.14.2 and an existing dependency cache, not
+a clean released checkout or fully cold environment.
+
+The [summary](local/2026-10-04-source-tools-01/summary.json) binds source snapshots,
+installed binary, version, bundles/modules, command logs and original handoff
+artifacts under `.tmp/source-tools-01`. Clean downstream installation, consumer
+adoption and original hashed cache metadata remain open. No full CI, release,
+registry publication, deployment, live/paid provider request or cleanup occurs.
+
+## Representative emitted media — 2026-10-04
+
+The [intent](local/2026-10-04-representative-media-01/intent.json) precedes seven
+bounded local IC/Chromium journeys using the owned HTTPS/HTTP2 substitute. The
+read-only consumer review finds Miner HEAD
+`0ce77a555f7d106ab127bfe1e78b889de4a46c5b` with 34 dirty paths; those unrelated
+changes are excluded from released-source claims. Active feedback moved to
+GitHub [publisher #4](https://github.com/dragginzgame/ic-blob-storage/issues/4),
+[delivery #5](https://github.com/dragginzgame/ic-blob-storage/issues/5) and
+[lifetime #6](https://github.com/dragginzgame/ic-blob-storage/issues/6). Exact bodies,
+comments, source identities and dirty-state captures are retained privately;
+no upstream message or issue change occurs.
+
+Four selected emitted bodies match the clean asset checkout at
+`a91b709edc80554fa758f5e5a972179f48172ec7` and Miner's saved raw digests: a
+3,554,987-byte PNG, 763,129-byte JPEG, 8,362,256-byte GLB and 27,518-byte WebP.
+The existing emitted inventory/preparation is retained and hashed, not rebuilt
+or qualified as a current application release. Private copies are frozen before
+the probes; no consumer asset is committed here. The same two-file fixture now
+derives installation byte limits and uses each original MIME. Native and SDK
+hash/manifest owners remain authoritative; the substitute serves uploaded metadata.
+
+Offline actual SDK/helper execution confirms a consumer boundary: Miner's
+original hashed `Cache-Control` cannot be reproduced by current preparation
+hints. All four original roots refuse with `root` before intent-store access or
+certificate requests. The trial explicitly prepares the same bodies under current
+MIME/length metadata and retains both sets of roots/headers; it does not silently
+drop metadata or adopt the original prepared map. Supported version/provenance-bound
+native/browser tool installation is also still requested under #4.
+
+Additional source review retains [transfer-budget #2](https://github.com/dragginzgame/ic-blob-storage/issues/2):
+the current publication helper rebuilds exact SDK metadata but does not compare
+locally predictable transfer demand before composing certificate/transfer owners.
+Its supplied negative reproduction was not rerun here. These trials use sufficient
+derived budgets and do not qualify refusal of insufficient budgets; the handoff
+and integration backlog retain that next implementation action.
+
+PNG/JPEG completion and lost-final-reply recovery each make seven PUTs/ten GETs,
+retaining 4,318,116 physical/liability bytes. Chromium observes correct MIME,
+complete digests, dimensions/pixels, ordinary image loading under authored CSP
+and refusal with zero provider requests. GLB/WebP completion/recovery each make
+eleven PUTs/nine GETs, retaining 8,389,774 physical/liability bytes. The eight-chunk
+GLB has matching complete native/browser digests and observed container structure;
+WebP decodes at 256 × 256. Structural inspection is not game rendering acceptance.
+Neither lost reply adds a PUT; original final claims remain uncertain.
+
+Before reference changes, occupied native map output refuses `new_run_required`
+and preserves the original marker. Fresh signed queries then recover a complete
+map without another upload. Second references survive first release; final release
+refuses descriptors and fresh maps while preserving physical/liability bytes and
+historical receipts. These are native output/reference facts, not a completed
+application registration transaction or a serving lease.
+
+Tail corruption of the real PNG stops before attestation/next admission with five
+PUTs/one GET and 3,554,987 retained bytes. Authored PNG and original synthetic
+regressions retain five PUTs/ten GETs and four PUTs/four GETs. All seven browser
+journeys pass. Fresh CLI/Wasm/browser/harness builds, strict affected Clippy and
+two installation/Candid checks pass with independently expected release 0.14.2.
+The exact final installation capture retains Candid/configuration/readback bytes.
+
+Every failed development check remains retained: the initial fixture compilation
+used u128 for u64 read bounds; strict Clippy then required an explicit justified
+line-limit expectation for the coherent constructor. An installation capture used
+an unsupported report variable, then a precreated output directory was rejected;
+a fresh output capture passes. None is omitted or described as a provider failure.
+The [summary](local/2026-10-04-representative-media-01/summary.json) binds all source,
+artifact, request, original profile/journal/map/download and failure histories
+under `.tmp/representative-media-01` with separate hash manifests.
+
+Consumer metadata/adoption/tool installation, actual application transactions and
+verified Blob lifetimes, deployed MIME/CORS/cache/CSP, game rendering, retention,
+deletion and billing cessation remain open. No full CI, version mutation, commit,
+publication/deployment, live provider request, paid cycle, sibling edit/message
+or build cleanup occurs. Both frozen live owners retain their original obligations.
+
 ## PNG image loading under CSP — 2026-10-04
 
 The [intent](local/2026-10-04-media-csp-01/intent.json) precedes seven bounded

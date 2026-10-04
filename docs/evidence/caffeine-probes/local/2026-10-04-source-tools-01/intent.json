@@ -1,0 +1,34 @@
+{
+  "schema": 1,
+  "date": "2026-10-04",
+  "baseline": "556b52f / released 0.14.2",
+  "evidence_class": "local_source_installation_and_offline_actual_sdk_native_handoff",
+  "target": "Fresh private install prefix for existing blob-storage CLI; existing pinned browser bundler and native control modules",
+  "budget": {
+    "max_install_attempts": 2,
+    "max_offline_handoff_runs": 2,
+    "max_handoff_body_bytes": 1049055,
+    "live_provider_requests": 0,
+    "paid_cycles": 0
+  },
+  "checks": [
+    "Install locked workspace CLI into fresh prefix with this repository target directory",
+    "Read machine-readable compiled version without identity, input or network",
+    "Use installed CLI for existing actual SDK/native snapshot handoff",
+    "Retain source/binary/browser/module hashes; do not infer immutable release or registry publication"
+  ],
+  "limitations": [
+    "This is current dirty source with exact retained identities, not a clean released checkout or fully cold dependency cache",
+    "Browser runtime still needs explicitly selected identity, profile, Chromium, origins and trust; no registry distribution",
+    "Existing consumer adoption and cache metadata are separate"
+  ],
+  "retention": ".tmp/source-tools-01",
+  "effects": {
+    "commits": false,
+    "version_mutation": false,
+    "publication": false,
+    "deployment": false,
+    "sibling_edits": false,
+    "build_cleanup": false
+  }
+}

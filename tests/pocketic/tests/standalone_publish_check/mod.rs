@@ -48,13 +48,23 @@ pub(super) fn freeze_files(
         .iter()
         .map(|size| vec![42; usize::try_from(*size).unwrap()])
         .collect();
-    freeze_bodies(fixture, directory, &bodies)
+    freeze_bodies(
+        fixture,
+        directory,
+        &bodies,
+        &vec!["image/png"; bodies.len()],
+        &vec![None; bodies.len()],
+    )
 }
 pub(super) fn freeze_bodies(
     fixture: &Fixture,
     directory: &Path,
     bodies: &[Vec<u8>],
+    content_types: &[&str],
+    cache_controls: &[Option<&str>],
 ) -> Vec<UploadAdmissionRequest> {
+    assert_eq!(bodies.len(), content_types.len());
+    assert_eq!(bodies.len(), cache_controls.len());
     let host = fixture.configuration(fixture.operator).unwrap();
     std::fs::write(
         directory.join("installation.candid"),
@@ -70,7 +80,8 @@ pub(super) fn freeze_bodies(
     let mut permissions = Vec::new();
     let mut entries = Vec::new();
     for (index, body) in bodies.iter().enumerate() {
-        let mut manifest = fixture.manifest_body(body);
+        let content_type = content_types[index];
+        let mut manifest = fixture.manifest_body(body, content_type, cache_controls[index]);
         manifest.permission.upload.upload += index as u128;
         manifest.permission.upload.object += index as u128;
         manifest.permission.upload.first_reference += index as u128;
@@ -79,7 +90,11 @@ pub(super) fn freeze_bodies(
         let root = ProviderRootHash::try_from(upload.root.as_slice())
             .unwrap()
             .to_string();
-        let binding = json!({"format":"ic-blob-storage/upload-inputs:original-preparation","preparation":{"content_type":"image/png"},"project":host.project,"bucket":"fixture-bucket","service":upload.service.to_text(),"namespace":upload.namespace.to_string(),"tenant":upload.tenant.to_text(),"uploader":permission.uploader.to_text(),"upload":upload.upload.to_string(),"object":upload.object.to_string(),"incarnation":upload.incarnation.to_string(),"first_reference":upload.first_reference.to_string(),"root":root,"bytes":upload.bytes.to_string(),"expires_at_ns":permission.expires_at_ns.to_string()});
+        let mut hints = json!({"content_type":content_type});
+        if let Some(value) = cache_controls[index] {
+            hints["cache_control"] = json!(value);
+        }
+        let binding = json!({"format":"ic-blob-storage/upload-inputs:original-preparation","preparation":hints,"project":host.project,"bucket":"fixture-bucket","service":upload.service.to_text(),"namespace":upload.namespace.to_string(),"tenant":upload.tenant.to_text(),"uploader":permission.uploader.to_text(),"upload":upload.upload.to_string(),"object":upload.object.to_string(),"incarnation":upload.incarnation.to_string(),"first_reference":upload.first_reference.to_string(),"root":root,"bytes":upload.bytes.to_string(),"expires_at_ns":permission.expires_at_ns.to_string()});
         let manifest = json!({"tree_type":"DSBMTWH","tree":{"hash":root},"chunk_hashes":manifest.declaration.chunks.iter().map(|c|CaffeineChunkHash::try_from(c.as_slice()).unwrap().to_string()).collect::<Vec<_>>(),"headers":manifest.declaration.headers.iter().map(|h|format!("{}: {}",h.name,h.value)).collect::<Vec<_>>()});
         let binding = serde_json::to_vec(&binding).unwrap();
         let manifest = serde_json::to_vec(&manifest).unwrap();

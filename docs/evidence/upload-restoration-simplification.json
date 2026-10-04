@@ -1,0 +1,184 @@
+{
+  "schema": 1,
+  "date": "2026-10-04",
+  "evidence_class": "source_review_native_storage_and_local_ic_lifecycle_tests",
+  "source": {
+    "baseline_release": "0.14.6",
+    "baseline_commit": "edc8a9b4df672569b03e1454d620c70dbbf4fa52",
+    "draft": "0.14.7",
+    "compiled_package_version": "0.14.6",
+    "memory": "0.25.0",
+    "testkit": "0.14.11",
+    "files": [
+      {
+        "path": "crates/ic-blob-storage/src/ops/service/uploads/recovery/mod.rs",
+        "captured": ".tmp/upload-restore-simplification-01/source/crates/ic-blob-storage/src/ops/service/uploads/recovery/mod.rs",
+        "sha256": "e62d2c7b60b3143af16879d4c379857639d3f4e5d8b3a990df392103849f748f"
+      },
+      {
+        "path": "crates/ic-blob-storage/src/ops/service/uploads/tests/recovery/mod.rs",
+        "captured": ".tmp/upload-restore-simplification-01/source/crates/ic-blob-storage/src/ops/service/uploads/tests/recovery/mod.rs",
+        "sha256": "db7faa7888a412c25a36e993576a6533fcb2a22cba14b744a5139974577c1275"
+      },
+      {
+        "path": "crates/ic-blob-storage/src/ops/service/uploads/tests/completion/mod.rs",
+        "captured": ".tmp/upload-restore-simplification-01/source/crates/ic-blob-storage/src/ops/service/uploads/tests/completion/mod.rs",
+        "sha256": "a2ba15fb4587f0f658bc31a022e3d87ad95577d717054ee3456a39f06ec76674"
+      },
+      {
+        "path": "crates/ic-blob-storage/src/ops/service/uploads/tests/mod.rs",
+        "captured": ".tmp/upload-restore-simplification-01/source/crates/ic-blob-storage/src/ops/service/uploads/tests/mod.rs",
+        "sha256": "6f5429511a4b6580de30730519b65f17c46ee800e478a9985bab6724d7d86580"
+      },
+      {
+        "path": "docs/acceptance-plan.md",
+        "captured": ".tmp/upload-restore-simplification-01/source/docs/acceptance-plan.md",
+        "sha256": "d169c1a567cba4272f36fd1417b476f95e88939e36b1a567e8fdf24711a1905e"
+      },
+      {
+        "path": "docs/status/current.md",
+        "captured": ".tmp/upload-restore-simplification-01/source/docs/status/current.md",
+        "sha256": "77f9e7e3d1ab7d478cda1bdc8f33da140e1d6c8f94c0d64aca65d36bb6d6667f"
+      },
+      {
+        "path": "docs/evidence/core-primitives.md",
+        "captured": ".tmp/upload-restore-simplification-01/source/docs/evidence/core-primitives.md",
+        "sha256": "6cca4e216ea3fb439b41b50a1cf406f94ff5a2f2bb127e7bab66974a60ec381d"
+      },
+      {
+        "path": "CHANGELOG.md",
+        "captured": ".tmp/upload-restore-simplification-01/source/CHANGELOG.md",
+        "sha256": "93fdc8128a24a3840f1dee31788647f0952aba927802d3d18c25664ed0290a33"
+      },
+      {
+        "path": "Cargo.toml",
+        "captured": ".tmp/upload-restore-simplification-01/source/Cargo.toml",
+        "sha256": "af914c63153474924808e6896ce306d6b327b7e89e405d359a6d3732389a4a5a"
+      },
+      {
+        "path": "Cargo.lock",
+        "captured": ".tmp/upload-restore-simplification-01/source/Cargo.lock",
+        "sha256": "a682c010158b26031e1c6b95101bc30edf5a269c65481a95d84c92a971b23643"
+      }
+    ]
+  },
+  "simplifications": [
+    "Remove temporary per-blob-root heap set; validated durable root/object and root/request indexes plus permission key already prove uniqueness",
+    "Reuse decoded admission time instead of rereading/decoding the same permission during attestation validation"
+  ],
+  "proof": {
+    "root_owner": "StableRootClaims::open validates forward/reverse bijection and scope before upload restoration",
+    "permission": "StableUploads::validate checks exact tenant/request key, root-to-original-request ID and root-to-exact-object/tenant binding",
+    "conclusion": "Equal blob roots imply equal tenants and request IDs, hence equal permission keys; the BTreeMap cannot hold two entries under that key"
+  },
+  "preserved": [
+    "Current storage/wire layouts and public APIs",
+    "Synchronous full record validation and fencing",
+    "Corrupt duplicate/foreign bindings, manifests, references, receipts and totals refuse without repair",
+    "Attestation observation must follow original admission",
+    "Provider objects, uncertain effects, physical bytes and continuing liabilities remain accounted",
+    "Same-release recovery; no cross-release or older-backup activation"
+  ],
+  "checks": {
+    "native_logs": [
+      ".tmp/upload-restore-simplification-01/uploads-final.log",
+      ".tmp/upload-restore-simplification-01/roots.log",
+      ".tmp/upload-restore-simplification-01/stores.log",
+      ".tmp/upload-restore-simplification-01/installed-release.log"
+    ],
+    "strict_clippy": ".tmp/upload-restore-simplification-01/clippy.log",
+    "wasm_build": ".tmp/upload-restore-simplification-01/wasm-build.log",
+    "fixture_build": ".tmp/upload-restore-simplification-01/fixture-build.log",
+    "standalone_original": ".tmp/upload-restore-simplification-01/standalone-restore.log",
+    "original_outcome": "16 lifecycle cases pass; five cases fail before execution because required gateway/storage fixture paths were not provisioned",
+    "resolved_cases": [
+      {
+        "name": "standalone_account::native_cli::standalone_native_account_observations_keep_scope_reports_and_restore_fences",
+        "outcome": "pass",
+        "log": ".tmp/upload-restore-simplification-01/followup-0.log"
+      },
+      {
+        "name": "standalone_download::standalone_download_client_propagates_inactive_unconfirmed_and_restored_refusals",
+        "outcome": "pass",
+        "log": ".tmp/upload-restore-simplification-01/followup-1.log"
+      },
+      {
+        "name": "standalone_gateways::funding_assessment::standalone_signed_funding_assessment_preserves_occupied_and_restored_state",
+        "outcome": "pass",
+        "log": ".tmp/upload-restore-simplification-01/followup-2.log"
+      },
+      {
+        "name": "standalone_gateways::native_cli::standalone_signed_gateway_decisions_preserve_uncertainty_and_occupied_restore_fences",
+        "outcome": "pass",
+        "log": ".tmp/upload-restore-simplification-01/followup-3.log"
+      },
+      {
+        "name": "standalone_gateways::sync::standalone_restore_preserves_failed_sync_and_blocks_refresh_and_cancellation",
+        "outcome": "pass",
+        "log": ".tmp/upload-restore-simplification-01/followup-4.log"
+      }
+    ],
+    "installation_carrier_and_independent_release_readback": "pass"
+  },
+  "retention": {
+    "root": ".tmp/upload-restore-simplification-01",
+    "manifest": ".tmp/upload-restore-simplification-01/SHA256SUMS",
+    "manifest_sha256": "80d7c85b56de587a464a61a2119396bef3bad19497767302d16b7db73bb76ac2",
+    "before_source": ".tmp/upload-restore-simplification-01/recovery-before.rs",
+    "source_diff": ".tmp/upload-restore-simplification-01/source.diff",
+    "commands": [
+      ".tmp/upload-restore-simplification-01/run.sh",
+      ".tmp/upload-restore-simplification-01/run-followup.sh"
+    ],
+    "artifacts": [
+      {
+        "path": ".tmp/upload-restore-simplification-01/standalone",
+        "sha256": "2980c4bb5ba1d27ac0e14709fdbfbac48e10abfdc1dc45391ef7842c19d592c3"
+      },
+      {
+        "path": ".tmp/upload-restore-simplification-01/ic_blob_storage_canister.wasm",
+        "sha256": "f0d310746f47cf257da36d89f8733602150f1ca4bf3545608b874cbc11cddf98"
+      },
+      {
+        "path": ".tmp/upload-restore-simplification-01/blob_gateway_source.wasm",
+        "sha256": "c5a2ab33b97182c602a0b2971e927babbc1eb57ef113270da1554c970f4ac204"
+      },
+      {
+        "path": ".tmp/upload-restore-simplification-01/blob_storage_probe.wasm",
+        "sha256": "4c36f8b9913e7f4b3291aaa9bf06f2903387f2d32f120e996b8e76c3dd2e8f9b"
+      }
+    ],
+    "cli": {
+      "path": ".tmp/released-media-v0146-01/artifacts/blob-storage",
+      "sha256": "41faf5c2197cdd2577dbf27761c17f74cbd4894efc1d61d142cf521ed5905830"
+    }
+  },
+  "failures_retained": [
+    {
+      "path": ".tmp/upload-restore-simplification-01/initial-test-compile-failure.json",
+      "evidence": "Transcribed tool diagnostic; extra unwrap in a new test corrected"
+    },
+    {
+      "path": ".tmp/upload-restore-simplification-01/standalone-restore.log",
+      "evidence": "Original broad-filter run with missing fixture paths; no test/source weakening; provisioned substitutes and reran failed cases only"
+    }
+  ],
+  "limits": [
+    "No measured instruction or heap savings; restoration still scans and validates all maintained records synchronously",
+    "No million-object, consumer-wrapper, populated-canister or new provider behavior qualification",
+    "Existing lifecycle assertions/logs are retained; transient per-test CLI files were not separately captured as provider probe evidence",
+    "Older released media/profiles retain original immutable tools and results"
+  ],
+  "consumer_actions": [
+    "Adopt current wrapper/tools and qualify synchronous restoration in the consumer repository",
+    "Complete certified asset-registration transaction and retained reference/installation retirement obligations"
+  ],
+  "live_provider_requests": 0,
+  "paid_cycles": 0,
+  "full_ci": false,
+  "version_mutation": false,
+  "commits": false,
+  "deployment": false,
+  "sibling_edits": false,
+  "build_cleanup": false
+}

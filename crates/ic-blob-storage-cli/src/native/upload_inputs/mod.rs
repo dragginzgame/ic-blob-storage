@@ -133,6 +133,12 @@ struct PreparationHints {
         skip_serializing_if = "Option::is_none"
     )]
     filename: Option<String>,
+    #[serde(
+        default,
+        deserialize_with = "hint",
+        skip_serializing_if = "Option::is_none"
+    )]
+    cache_control: Option<String>,
 }
 
 fn hint<'de, D: serde::Deserializer<'de>>(decoder: D) -> Result<Option<String>, D::Error> {
@@ -223,7 +229,10 @@ pub(super) fn run(args: &[String]) -> Result<Value, Failure> {
         InputFiles {
             binding: read(binding_path, BINDING_BYTES)?,
             manifest: read(manifest_path, MANIFEST_BYTES)?,
-            installation: read(installation_path, super::candidate_candid::MAX_BYTES as u64)?,
+            installation: read(
+                installation_path,
+                super::exact_candid::INSTALLATION_BYTES as u64,
+            )?,
             body: body_path.to_owned(),
         },
         maximum,

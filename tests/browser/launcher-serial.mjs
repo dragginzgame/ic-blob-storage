@@ -17,6 +17,7 @@ import { standaloneGateway } from './standalone-gateway.mjs';
 import { verifyMediaDelivery } from './media-delivery.mjs';
 
 const config = JSON.parse(await readFile(process.argv[2], 'utf8'));
+assert(Number.isSafeInteger(config.timeoutSeconds) && config.timeoutSeconds >= 1 && config.timeoutSeconds <= 600);
 const reservation = createServer();
 await new Promise(resolve => reservation.listen(0, '127.0.0.1', resolve));
 const port = reservation.address().port;
@@ -61,7 +62,7 @@ async function open(mode) {
     bootstrap: { schema: 1, operation: 'bootstrap', signer: { kind: 'ed25519', json: JSON.stringify(signer.toJSON()) },
       configuration: { host: config.url, rootKey: config.rootKey, service: config.service, tenant: config.tenant,
         uploader: signer.getPrincipal().toText(), project: config.project, bucket: config.bucket, origin: gateway.origin,
-        maxBodyBytes, maxRequests, maxRequestBytes, maxTotalRequestBytes: maxBodyBytes + 65536, maxJobs: 32, timeoutSeconds: 120 },
+        maxBodyBytes, maxRequests, maxRequestBytes, maxTotalRequestBytes: maxBodyBytes + 65536, maxJobs: 32, timeoutSeconds: config.timeoutSeconds },
       journal: { database: 'standalone-trial-v1', maxSlots: 2, mode } } }, tls.launch);
 }
 async function job(grant, action) {
@@ -71,6 +72,7 @@ async function job(grant, action) {
 }
 async function coordinate() {
   const selected = await next();
+  assert.equal(selected.native.timeoutSeconds, config.timeoutSeconds);
   let interrupted = false;
   const observed = async value => { send(value); assert.deepEqual(await next(), { accepted: true }); };
   const start = async (args, label) => {
@@ -124,8 +126,8 @@ async function coordinate() {
 const deadline = setTimeout(() => { console.error('Native browser bridge trial exceeded 180 seconds'); process.exit(1); }, 180000);
 let media = { decodedMedia: [], publicDelivery: [], opaqueOriginRefused: false, csp: null };
 try {
-  const files = await Promise.all(bodies.map(async body => {
-    const prepared = await StorageClient.prepareFile(body, 'image/png');
+  const files = await Promise.all(bodies.map(async (body, index) => {
+    const prepared = await StorageClient.prepareFile(body, config.contentTypes[index], undefined, config.cacheControls[index] ?? undefined);
     return { hash: prepared.hash, byteLength: prepared.byteLength, manifestJSON: prepared.manifestJSON };
   }));
   send({ gateway: gateway.origin, files });
@@ -137,7 +139,8 @@ try {
     grant.transfer = JSON.parse(await readFile(resolve(grant.native_phase, 'transfer.json'))).transfer;
     originals.push(grant);
     if (!bridge) await open('create');
-    assert.deepEqual(grant.transfer.preparation, { content_type: 'image/png' });
+    assert.deepEqual(grant.transfer.preparation, { content_type: config.contentTypes[index],
+      ...(config.cacheControls[index] === null ? {} : { cache_control: config.cacheControls[index] }) });
     const outcome = await job(grant, 'upload'), lost = config.lostFinalReply && index === 0;
     assert.equal(outcome.state, lost ? 'failed' : 'transfer-observed'); assert.equal(certificateCalls, 1);
     if (config.corruptRead) assert.equal((await job(grant, 'cancel')).state, 'cancelled');
@@ -160,7 +163,8 @@ try {
     assert.notEqual(files[0].hash, files[1].hash);
     if (bodies[0].length > 1024 * 1024) {
       const chunks = JSON.parse(files[0].manifestJSON).chunk_hashes;
-      assert.equal(chunks.length, 2); assert.notEqual(chunks[0], chunks[1]);
+      assert.equal(chunks.length, Math.ceil(bodies[0].length / (1024 * 1024)));
+      assert(new Set(chunks).size > 1);
     }
   }
   assert.equal(state.gets.length, config.corruptRead ? 1 : 4 + (config.overlap ? 1 : 0) + media.publicDelivery.length + (media.csp?.images.length ?? 0) + Number(media.opaqueOriginRefused));
@@ -169,7 +173,8 @@ try {
   send({ outcome: 'passed', provider: 'local HTTPS HTTP/2 substitute', browserBridge: true,
     assetOrigin: config.browserOrigin, puts: state.puts, gets: state.gets, arrivals: state.arrivals,
     journals, workerReports, ...media, reads: state.reads,
-    browserRestarted: true, uploadRetries: 0, liveProviderRequests: 0, paidEffects: 0 });
+    browserRestarted: true, sessionTimeoutSeconds: config.timeoutSeconds,
+    uploadRetries: 0, liveProviderRequests: 0, paidEffects: 0 });
 } finally {
   clearTimeout(deadline); input.close(); process.stdin.pause();
   try {

@@ -1,0 +1,986 @@
+{
+  "schema": 1,
+  "date": "2026-10-04",
+  "baseline": {
+    "release": "0.14.2",
+    "commit": "556b52fd6a3eccc5efd7e687ffd2e9cde0f41126",
+    "validatedSource": "11ee45684ae90a96d8711fccbb81838a37bbb517"
+  },
+  "evidenceClasses": [
+    "read-only local consumer source and GitHub feedback review",
+    "frozen emitted bodies matched to clean asset sources and existing raw digests",
+    "offline actual patched SDK metadata refusal",
+    "actual local IC/Chromium with owned HTTPS/HTTP2 provider substitute"
+  ],
+  "consumer": {
+    "minerHead": "0ce77a555f7d106ab127bfe1e78b889de4a46c5b",
+    "minerDirtyPaths": 34,
+    "assetHead": "a91b709edc80554fa758f5e5a972179f48172ec7",
+    "assetWorktree": "clean",
+    "activeFeedback": "GitHub issues 4/5/6; local package report is archived",
+    "feedbackRoot": ".tmp/representative-media-01/feedback",
+    "buildScope": "existing emitted media verified, no Miner rebuild/current application release qualification"
+  },
+  "selected": [
+    {
+      "pair": "images",
+      "index": 0,
+      "asset": "character/robot-light-rust.png",
+      "source": "assets/robot-light-rust-jPY9wuHB.png",
+      "bytes": 3554987,
+      "body_sha256": "8b9e0ba748cbf7c1c9c20a597084bc03e1b5e94d2a6028cf21cfc5facb70d60a",
+      "originalRoot": "sha256:3221bd9a69bda5b6c0a6822a8ae732b0ea780b293f641d8ae8a77ec1505d9102",
+      "originalHeaders": [
+        {
+          "name": "Content-Length",
+          "value": "3554987"
+        },
+        {
+          "name": "Content-Type",
+          "value": "image/png"
+        },
+        {
+          "name": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
+    {
+      "pair": "images",
+      "index": 1,
+      "asset": "locations/idylla-location.jpg",
+      "source": "assets/idylla-location-DdgnK4Ls.jpg",
+      "bytes": 763129,
+      "body_sha256": "702f70b9a6fd74e8f6fe4f8c9130db3cccfef74fc5008dc74cbf2ad80a33736f",
+      "originalRoot": "sha256:ae002fcd0c2b97b72e9f9f6d013f9b267d4dc6be57dd54e47c6997f6c7fc7f63",
+      "originalHeaders": [
+        {
+          "name": "Content-Length",
+          "value": "763129"
+        },
+        {
+          "name": "Content-Type",
+          "value": "image/jpeg"
+        },
+        {
+          "name": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
+    {
+      "pair": "model-image",
+      "index": 0,
+      "asset": "models/planets/tok/locations/hangar-17/structures/engine-platform.glb",
+      "source": "assets/engine-platform-C1FdVpAL.glb",
+      "bytes": 8362256,
+      "body_sha256": "c910153c29739cd719cc5d41ff57eefd141feb1a3b18ab460ee07e81b5fd9c32",
+      "originalRoot": "sha256:cbe3f72987558eba01c56930b49d76ae71a2e79c9ef63d7d2614640ffa3f62e7",
+      "originalHeaders": [
+        {
+          "name": "Content-Length",
+          "value": "8362256"
+        },
+        {
+          "name": "Content-Type",
+          "value": "model/gltf-binary"
+        },
+        {
+          "name": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
+    {
+      "pair": "model-image",
+      "index": 1,
+      "asset": "customers/fa7848a0c88021dafefd06a0.webp",
+      "source": "assets/fa7848a0c88021dafefd06a0-BaFGmQgk.webp",
+      "bytes": 27518,
+      "body_sha256": "58a6ffb23114c24b9a79ae485f6eb1ae23f99027ae20bd4d877617d92e0ec4a1",
+      "originalRoot": "sha256:03d976951b47a9404f819f991697f512085075073ae84172c0baf37c1fe0066c",
+      "originalHeaders": [
+        {
+          "name": "Content-Length",
+          "value": "27518"
+        },
+        {
+          "name": "Content-Type",
+          "value": "image/webp"
+        },
+        {
+          "name": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    }
+  ],
+  "metadataDiagnostic": {
+    "evidence_class": "offline_actual_patched_sdk_and_publication_helper",
+    "observations": [
+      {
+        "asset": "character/robot-light-rust.png",
+        "originalRoot": "sha256:3221bd9a69bda5b6c0a6822a8ae732b0ea780b293f641d8ae8a77ec1505d9102",
+        "currentRoot": "sha256:9da5d6ce44b6bcb59280ea20badb34e42b3333990f175329f445ade89671b15d",
+        "originalHeaders": [
+          "Cache-Control: public, max-age=31536000, immutable",
+          "Content-Length: 3554987",
+          "Content-Type: image/png"
+        ],
+        "currentHeaders": [
+          "Content-Length: 3554987",
+          "Content-Type: image/png"
+        ],
+        "error": "root"
+      },
+      {
+        "asset": "locations/idylla-location.jpg",
+        "originalRoot": "sha256:ae002fcd0c2b97b72e9f9f6d013f9b267d4dc6be57dd54e47c6997f6c7fc7f63",
+        "currentRoot": "sha256:aa2a827ea517b89cff11a0688357f08e3053f4c16d9d55cf169573576d1bfa3e",
+        "originalHeaders": [
+          "Cache-Control: public, max-age=31536000, immutable",
+          "Content-Length: 763129",
+          "Content-Type: image/jpeg"
+        ],
+        "currentHeaders": [
+          "Content-Length: 763129",
+          "Content-Type: image/jpeg"
+        ],
+        "error": "root"
+      },
+      {
+        "asset": "models/planets/tok/locations/hangar-17/structures/engine-platform.glb",
+        "originalRoot": "sha256:cbe3f72987558eba01c56930b49d76ae71a2e79c9ef63d7d2614640ffa3f62e7",
+        "currentRoot": "sha256:9968f6da5da6c3114e2ecded2ad33b5509fc00540eb4d383f7cb4d4f41e1964d",
+        "originalHeaders": [
+          "Cache-Control: public, max-age=31536000, immutable",
+          "Content-Length: 8362256",
+          "Content-Type: model/gltf-binary"
+        ],
+        "currentHeaders": [
+          "Content-Length: 8362256",
+          "Content-Type: model/gltf-binary"
+        ],
+        "error": "root"
+      },
+      {
+        "asset": "customers/fa7848a0c88021dafefd06a0.webp",
+        "originalRoot": "sha256:03d976951b47a9404f819f991697f512085075073ae84172c0baf37c1fe0066c",
+        "currentRoot": "sha256:67253c8431c98e013fbc84234b8bf4764d63094ef77f429285b2a6800d8fea54",
+        "originalHeaders": [
+          "Cache-Control: public, max-age=31536000, immutable",
+          "Content-Length: 27518",
+          "Content-Type: image/webp"
+        ],
+        "currentHeaders": [
+          "Content-Length: 27518",
+          "Content-Type: image/webp"
+        ],
+        "error": "root"
+      }
+    ],
+    "certificateCalls": 0,
+    "intentAccess": 0,
+    "liveProviderRequests": 0,
+    "paidCycles": 0
+  },
+  "validation": {
+    "icBrowserAttempts": 7,
+    "allIcBrowserJourneysPassed": true,
+    "journeys": [
+      {
+        "label": "images-complete",
+        "directory": ".tmp/representative-media-01/images-complete/multichunk-complete",
+        "log": ".tmp/representative-media-01/images-complete.log",
+        "puts": 7,
+        "gets": 10,
+        "decodedMedia": [
+          {
+            "height": 1254,
+            "index": 0,
+            "pixel": [
+              168,
+              151,
+              133,
+              255
+            ],
+            "sha256": "8b9e0ba748cbf7c1c9c20a597084bc03e1b5e94d2a6028cf21cfc5facb70d60a",
+            "width": 1254
+          },
+          {
+            "height": 1024,
+            "index": 1,
+            "pixel": [
+              49,
+              54,
+              14,
+              255
+            ],
+            "sha256": "702f70b9a6fd74e8f6fe4f8c9130db3cccfef74fc5008dc74cbf2ad80a33736f",
+            "width": 1536
+          }
+        ],
+        "csp": {
+          "blockedImage": {
+            "loaded": false,
+            "origin": "http://127.0.0.1:36799",
+            "violations": [
+              {
+                "blockedURI": "https://127.0.0.1:37079/v1/blob/?blob_hash=sha256%3A9da5d6ce44b6bcb59280ea20badb34e42b3333990f175329f445ade89671b15d&owner_id=dllsh-pd777-77776-qaaaa-cai&project_id=standalone-trial",
+                "directive": "img-src",
+                "disposition": "enforce"
+              }
+            ]
+          },
+          "blockedProviderRequests": 0,
+          "images": [
+            {
+              "afterFinalRelease": true,
+              "height": 1254,
+              "index": 0,
+              "loaded": true,
+              "origin": "http://127.0.0.1:36799",
+              "pixel": [
+                168,
+                151,
+                133,
+                255
+              ],
+              "violations": [],
+              "width": 1254
+            },
+            {
+              "afterFinalRelease": false,
+              "height": 1024,
+              "index": 1,
+              "loaded": true,
+              "origin": "http://127.0.0.1:36799",
+              "pixel": [
+                49,
+                54,
+                14,
+                255
+              ],
+              "violations": [],
+              "width": 1536
+            }
+          ]
+        },
+        "publicDelivery": [
+          {
+            "afterFinalRelease": true,
+            "bytes": 3554987,
+            "declaredBytes": "3554987",
+            "height": 1254,
+            "index": 0,
+            "mime": "image/png",
+            "origin": "http://127.0.0.1:36799",
+            "pixel": [
+              168,
+              151,
+              133,
+              255
+            ],
+            "sha256": "8b9e0ba748cbf7c1c9c20a597084bc03e1b5e94d2a6028cf21cfc5facb70d60a",
+            "status": 200,
+            "type": "cors",
+            "url": "https://127.0.0.1:37079/v1/blob/?blob_hash=sha256%3A9da5d6ce44b6bcb59280ea20badb34e42b3333990f175329f445ade89671b15d&owner_id=dllsh-pd777-77776-qaaaa-cai&project_id=standalone-trial",
+            "width": 1254
+          },
+          {
+            "afterFinalRelease": false,
+            "bytes": 763129,
+            "declaredBytes": "763129",
+            "height": 1024,
+            "index": 1,
+            "mime": "image/jpeg",
+            "origin": "http://127.0.0.1:36799",
+            "pixel": [
+              49,
+              54,
+              14,
+              255
+            ],
+            "sha256": "702f70b9a6fd74e8f6fe4f8c9130db3cccfef74fc5008dc74cbf2ad80a33736f",
+            "status": 200,
+            "type": "cors",
+            "url": "https://127.0.0.1:37079/v1/blob/?blob_hash=sha256%3Aaa2a827ea517b89cff11a0688357f08e3053f4c16d9d55cf169573576d1bfa3e&owner_id=dllsh-pd777-77776-qaaaa-cai&project_id=standalone-trial",
+            "width": 1536
+          }
+        ],
+        "firstUploadPhases": [
+          "responded",
+          "responded",
+          "responded",
+          "responded",
+          "responded"
+        ],
+        "physicalBytes": 4318116,
+        "liabilityBytes": 4318116,
+        "references": {
+          "billing_cessation": false,
+          "current_map_complete": false,
+          "historical_retain_receipt_preserved": true,
+          "liability_bytes": 4318116,
+          "logical_bytes": 763129,
+          "physical_bytes": 4318116,
+          "provider_deletion": false,
+          "released_downloads_refused": true,
+          "schema": 1,
+          "second_reference_survives_first_release": true
+        },
+        "mapOutputRefusal": {
+          "error": "new_run_required"
+        },
+        "recoveredMapComplete": true
+      },
+      {
+        "label": "images-lost",
+        "directory": ".tmp/representative-media-01/images-lost/multichunk-lost",
+        "log": ".tmp/representative-media-01/images-lost.log",
+        "puts": 7,
+        "gets": 10,
+        "decodedMedia": [
+          {
+            "height": 1254,
+            "index": 0,
+            "pixel": [
+              168,
+              151,
+              133,
+              255
+            ],
+            "sha256": "8b9e0ba748cbf7c1c9c20a597084bc03e1b5e94d2a6028cf21cfc5facb70d60a",
+            "width": 1254
+          },
+          {
+            "height": 1024,
+            "index": 1,
+            "pixel": [
+              49,
+              54,
+              14,
+              255
+            ],
+            "sha256": "702f70b9a6fd74e8f6fe4f8c9130db3cccfef74fc5008dc74cbf2ad80a33736f",
+            "width": 1536
+          }
+        ],
+        "csp": {
+          "blockedImage": {
+            "loaded": false,
+            "origin": "http://127.0.0.1:34851",
+            "violations": [
+              {
+                "blockedURI": "https://127.0.0.1:33801/v1/blob/?blob_hash=sha256%3A9da5d6ce44b6bcb59280ea20badb34e42b3333990f175329f445ade89671b15d&owner_id=dllsh-pd777-77776-qaaaa-cai&project_id=standalone-trial",
+                "directive": "img-src",
+                "disposition": "enforce"
+              }
+            ]
+          },
+          "blockedProviderRequests": 0,
+          "images": [
+            {
+              "afterFinalRelease": true,
+              "height": 1254,
+              "index": 0,
+              "loaded": true,
+              "origin": "http://127.0.0.1:34851",
+              "pixel": [
+                168,
+                151,
+                133,
+                255
+              ],
+              "violations": [],
+              "width": 1254
+            },
+            {
+              "afterFinalRelease": false,
+              "height": 1024,
+              "index": 1,
+              "loaded": true,
+              "origin": "http://127.0.0.1:34851",
+              "pixel": [
+                49,
+                54,
+                14,
+                255
+              ],
+              "violations": [],
+              "width": 1536
+            }
+          ]
+        },
+        "publicDelivery": [
+          {
+            "afterFinalRelease": true,
+            "bytes": 3554987,
+            "declaredBytes": "3554987",
+            "height": 1254,
+            "index": 0,
+            "mime": "image/png",
+            "origin": "http://127.0.0.1:34851",
+            "pixel": [
+              168,
+              151,
+              133,
+              255
+            ],
+            "sha256": "8b9e0ba748cbf7c1c9c20a597084bc03e1b5e94d2a6028cf21cfc5facb70d60a",
+            "status": 200,
+            "type": "cors",
+            "url": "https://127.0.0.1:33801/v1/blob/?blob_hash=sha256%3A9da5d6ce44b6bcb59280ea20badb34e42b3333990f175329f445ade89671b15d&owner_id=dllsh-pd777-77776-qaaaa-cai&project_id=standalone-trial",
+            "width": 1254
+          },
+          {
+            "afterFinalRelease": false,
+            "bytes": 763129,
+            "declaredBytes": "763129",
+            "height": 1024,
+            "index": 1,
+            "mime": "image/jpeg",
+            "origin": "http://127.0.0.1:34851",
+            "pixel": [
+              49,
+              54,
+              14,
+              255
+            ],
+            "sha256": "702f70b9a6fd74e8f6fe4f8c9130db3cccfef74fc5008dc74cbf2ad80a33736f",
+            "status": 200,
+            "type": "cors",
+            "url": "https://127.0.0.1:33801/v1/blob/?blob_hash=sha256%3Aaa2a827ea517b89cff11a0688357f08e3053f4c16d9d55cf169573576d1bfa3e&owner_id=dllsh-pd777-77776-qaaaa-cai&project_id=standalone-trial",
+            "width": 1536
+          }
+        ],
+        "firstUploadPhases": [
+          "responded",
+          "responded",
+          "responded",
+          "responded",
+          "uncertain"
+        ],
+        "physicalBytes": 4318116,
+        "liabilityBytes": 4318116,
+        "references": {
+          "billing_cessation": false,
+          "current_map_complete": false,
+          "historical_retain_receipt_preserved": true,
+          "liability_bytes": 4318116,
+          "logical_bytes": 763129,
+          "physical_bytes": 4318116,
+          "provider_deletion": false,
+          "released_downloads_refused": true,
+          "schema": 1,
+          "second_reference_survives_first_release": true
+        },
+        "mapOutputRefusal": {
+          "error": "new_run_required"
+        },
+        "recoveredMapComplete": true
+      },
+      {
+        "label": "model-complete",
+        "directory": ".tmp/representative-media-01/model-complete/multichunk-complete",
+        "log": ".tmp/representative-media-01/model-complete.log",
+        "puts": 11,
+        "gets": 9,
+        "decodedMedia": [
+          {
+            "bytes": 8362256,
+            "index": 0,
+            "kind": "glb",
+            "meshes": 35,
+            "nodes": 36,
+            "scenes": 1,
+            "sha256": "c910153c29739cd719cc5d41ff57eefd141feb1a3b18ab460ee07e81b5fd9c32"
+          },
+          {
+            "height": 256,
+            "index": 1,
+            "pixel": [
+              7,
+              12,
+              53,
+              255
+            ],
+            "sha256": "58a6ffb23114c24b9a79ae485f6eb1ae23f99027ae20bd4d877617d92e0ec4a1",
+            "width": 256
+          }
+        ],
+        "csp": {
+          "blockedImage": {
+            "loaded": false,
+            "origin": "http://127.0.0.1:36875",
+            "violations": [
+              {
+                "blockedURI": "https://127.0.0.1:46031/v1/blob/?blob_hash=sha256%3A67253c8431c98e013fbc84234b8bf4764d63094ef77f429285b2a6800d8fea54&owner_id=dllsh-pd777-77776-qaaaa-cai&project_id=standalone-trial",
+                "directive": "img-src",
+                "disposition": "enforce"
+              }
+            ]
+          },
+          "blockedProviderRequests": 0,
+          "images": [
+            {
+              "afterFinalRelease": false,
+              "height": 256,
+              "index": 1,
+              "loaded": true,
+              "origin": "http://127.0.0.1:36875",
+              "pixel": [
+                7,
+                12,
+                53,
+                255
+              ],
+              "violations": [],
+              "width": 256
+            }
+          ]
+        },
+        "publicDelivery": [
+          {
+            "afterFinalRelease": true,
+            "bytes": 8362256,
+            "declaredBytes": "8362256",
+            "index": 0,
+            "kind": "glb",
+            "meshes": 35,
+            "mime": "model/gltf-binary",
+            "nodes": 36,
+            "origin": "http://127.0.0.1:36875",
+            "scenes": 1,
+            "sha256": "c910153c29739cd719cc5d41ff57eefd141feb1a3b18ab460ee07e81b5fd9c32",
+            "status": 200,
+            "type": "cors",
+            "url": "https://127.0.0.1:46031/v1/blob/?blob_hash=sha256%3A9968f6da5da6c3114e2ecded2ad33b5509fc00540eb4d383f7cb4d4f41e1964d&owner_id=dllsh-pd777-77776-qaaaa-cai&project_id=standalone-trial"
+          },
+          {
+            "afterFinalRelease": false,
+            "bytes": 27518,
+            "declaredBytes": "27518",
+            "height": 256,
+            "index": 1,
+            "mime": "image/webp",
+            "origin": "http://127.0.0.1:36875",
+            "pixel": [
+              7,
+              12,
+              53,
+              255
+            ],
+            "sha256": "58a6ffb23114c24b9a79ae485f6eb1ae23f99027ae20bd4d877617d92e0ec4a1",
+            "status": 200,
+            "type": "cors",
+            "url": "https://127.0.0.1:46031/v1/blob/?blob_hash=sha256%3A67253c8431c98e013fbc84234b8bf4764d63094ef77f429285b2a6800d8fea54&owner_id=dllsh-pd777-77776-qaaaa-cai&project_id=standalone-trial",
+            "width": 256
+          }
+        ],
+        "firstUploadPhases": [
+          "responded",
+          "responded",
+          "responded",
+          "responded",
+          "responded",
+          "responded",
+          "responded",
+          "responded",
+          "responded"
+        ],
+        "physicalBytes": 8389774,
+        "liabilityBytes": 8389774,
+        "references": {
+          "billing_cessation": false,
+          "current_map_complete": false,
+          "historical_retain_receipt_preserved": true,
+          "liability_bytes": 8389774,
+          "logical_bytes": 27518,
+          "physical_bytes": 8389774,
+          "provider_deletion": false,
+          "released_downloads_refused": true,
+          "schema": 1,
+          "second_reference_survives_first_release": true
+        },
+        "mapOutputRefusal": {
+          "error": "new_run_required"
+        },
+        "recoveredMapComplete": true
+      },
+      {
+        "label": "model-lost",
+        "directory": ".tmp/representative-media-01/model-lost/multichunk-lost",
+        "log": ".tmp/representative-media-01/model-lost.log",
+        "puts": 11,
+        "gets": 9,
+        "decodedMedia": [
+          {
+            "bytes": 8362256,
+            "index": 0,
+            "kind": "glb",
+            "meshes": 35,
+            "nodes": 36,
+            "scenes": 1,
+            "sha256": "c910153c29739cd719cc5d41ff57eefd141feb1a3b18ab460ee07e81b5fd9c32"
+          },
+          {
+            "height": 256,
+            "index": 1,
+            "pixel": [
+              7,
+              12,
+              53,
+              255
+            ],
+            "sha256": "58a6ffb23114c24b9a79ae485f6eb1ae23f99027ae20bd4d877617d92e0ec4a1",
+            "width": 256
+          }
+        ],
+        "csp": {
+          "blockedImage": {
+            "loaded": false,
+            "origin": "http://127.0.0.1:33207",
+            "violations": [
+              {
+                "blockedURI": "https://127.0.0.1:39797/v1/blob/?blob_hash=sha256%3A67253c8431c98e013fbc84234b8bf4764d63094ef77f429285b2a6800d8fea54&owner_id=dllsh-pd777-77776-qaaaa-cai&project_id=standalone-trial",
+                "directive": "img-src",
+                "disposition": "enforce"
+              }
+            ]
+          },
+          "blockedProviderRequests": 0,
+          "images": [
+            {
+              "afterFinalRelease": false,
+              "height": 256,
+              "index": 1,
+              "loaded": true,
+              "origin": "http://127.0.0.1:33207",
+              "pixel": [
+                7,
+                12,
+                53,
+                255
+              ],
+              "violations": [],
+              "width": 256
+            }
+          ]
+        },
+        "publicDelivery": [
+          {
+            "afterFinalRelease": true,
+            "bytes": 8362256,
+            "declaredBytes": "8362256",
+            "index": 0,
+            "kind": "glb",
+            "meshes": 35,
+            "mime": "model/gltf-binary",
+            "nodes": 36,
+            "origin": "http://127.0.0.1:33207",
+            "scenes": 1,
+            "sha256": "c910153c29739cd719cc5d41ff57eefd141feb1a3b18ab460ee07e81b5fd9c32",
+            "status": 200,
+            "type": "cors",
+            "url": "https://127.0.0.1:39797/v1/blob/?blob_hash=sha256%3A9968f6da5da6c3114e2ecded2ad33b5509fc00540eb4d383f7cb4d4f41e1964d&owner_id=dllsh-pd777-77776-qaaaa-cai&project_id=standalone-trial"
+          },
+          {
+            "afterFinalRelease": false,
+            "bytes": 27518,
+            "declaredBytes": "27518",
+            "height": 256,
+            "index": 1,
+            "mime": "image/webp",
+            "origin": "http://127.0.0.1:33207",
+            "pixel": [
+              7,
+              12,
+              53,
+              255
+            ],
+            "sha256": "58a6ffb23114c24b9a79ae485f6eb1ae23f99027ae20bd4d877617d92e0ec4a1",
+            "status": 200,
+            "type": "cors",
+            "url": "https://127.0.0.1:39797/v1/blob/?blob_hash=sha256%3A67253c8431c98e013fbc84234b8bf4764d63094ef77f429285b2a6800d8fea54&owner_id=dllsh-pd777-77776-qaaaa-cai&project_id=standalone-trial",
+            "width": 256
+          }
+        ],
+        "firstUploadPhases": [
+          "responded",
+          "responded",
+          "responded",
+          "responded",
+          "responded",
+          "responded",
+          "responded",
+          "responded",
+          "uncertain"
+        ],
+        "physicalBytes": 8389774,
+        "liabilityBytes": 8389774,
+        "references": {
+          "billing_cessation": false,
+          "current_map_complete": false,
+          "historical_retain_receipt_preserved": true,
+          "liability_bytes": 8389774,
+          "logical_bytes": 27518,
+          "physical_bytes": 8389774,
+          "provider_deletion": false,
+          "released_downloads_refused": true,
+          "schema": 1,
+          "second_reference_survives_first_release": true
+        },
+        "mapOutputRefusal": {
+          "error": "new_run_required"
+        },
+        "recoveredMapComplete": true
+      },
+      {
+        "label": "images-corrupt",
+        "directory": ".tmp/representative-media-01/images-corrupt/multichunk-corrupt",
+        "log": ".tmp/representative-media-01/images-corrupt.log",
+        "puts": 5,
+        "gets": 1,
+        "decodedMedia": [],
+        "csp": null,
+        "publicDelivery": [],
+        "firstUploadPhases": [
+          "responded",
+          "responded",
+          "responded",
+          "responded",
+          "responded"
+        ],
+        "physicalBytes": 3554987,
+        "liabilityBytes": 3554987
+      },
+      {
+        "label": "authored-regression",
+        "directory": ".tmp/representative-media-01/authored-regression/multichunk-complete",
+        "log": ".tmp/representative-media-01/authored-regression.log",
+        "puts": 5,
+        "gets": 10,
+        "decodedMedia": [
+          {
+            "height": 256,
+            "index": 0,
+            "pixel": [
+              200,
+              30,
+              60,
+              255
+            ],
+            "sha256": "1235cbba920c5cfb24ff592d5ef1223d68d6340a0a4d65a909d263914d9e1f6b",
+            "width": 1024
+          },
+          {
+            "height": 12,
+            "index": 1,
+            "pixel": [
+              20,
+              180,
+              210,
+              255
+            ],
+            "sha256": "f1a16a5adabc5008d5adff083bfcf4d70dc6c49e17a29d0ba42f3bd37128f02a",
+            "width": 24
+          }
+        ],
+        "csp": {
+          "blockedImage": {
+            "loaded": false,
+            "origin": "http://127.0.0.1:38171",
+            "violations": [
+              {
+                "blockedURI": "https://127.0.0.1:37071/v1/blob/?blob_hash=sha256%3A484d7a8cc9165a997f8ebfeafd1cd7c5fc388828499f10f3f5c15ccac51f8369&owner_id=dllsh-pd777-77776-qaaaa-cai&project_id=standalone-trial",
+                "directive": "img-src",
+                "disposition": "enforce"
+              }
+            ]
+          },
+          "blockedProviderRequests": 0,
+          "images": [
+            {
+              "afterFinalRelease": true,
+              "height": 256,
+              "index": 0,
+              "loaded": true,
+              "origin": "http://127.0.0.1:38171",
+              "pixel": [
+                200,
+                30,
+                60,
+                255
+              ],
+              "violations": [],
+              "width": 1024
+            },
+            {
+              "afterFinalRelease": false,
+              "height": 12,
+              "index": 1,
+              "loaded": true,
+              "origin": "http://127.0.0.1:38171",
+              "pixel": [
+                20,
+                180,
+                210,
+                255
+              ],
+              "violations": [],
+              "width": 24
+            }
+          ]
+        },
+        "publicDelivery": [
+          {
+            "afterFinalRelease": true,
+            "bytes": 1049055,
+            "declaredBytes": "1049055",
+            "height": 256,
+            "index": 0,
+            "mime": "image/png",
+            "origin": "http://127.0.0.1:38171",
+            "pixel": [
+              200,
+              30,
+              60,
+              255
+            ],
+            "sha256": "1235cbba920c5cfb24ff592d5ef1223d68d6340a0a4d65a909d263914d9e1f6b",
+            "status": 200,
+            "type": "cors",
+            "url": "https://127.0.0.1:37071/v1/blob/?blob_hash=sha256%3A484d7a8cc9165a997f8ebfeafd1cd7c5fc388828499f10f3f5c15ccac51f8369&owner_id=dllsh-pd777-77776-qaaaa-cai&project_id=standalone-trial",
+            "width": 1024
+          },
+          {
+            "afterFinalRelease": false,
+            "bytes": 1102,
+            "declaredBytes": "1102",
+            "height": 12,
+            "index": 1,
+            "mime": "image/png",
+            "origin": "http://127.0.0.1:38171",
+            "pixel": [
+              20,
+              180,
+              210,
+              255
+            ],
+            "sha256": "f1a16a5adabc5008d5adff083bfcf4d70dc6c49e17a29d0ba42f3bd37128f02a",
+            "status": 200,
+            "type": "cors",
+            "url": "https://127.0.0.1:37071/v1/blob/?blob_hash=sha256%3A77bb616fa371f72f60b5300017c7ac0ecac38a355e40cb52cb3128b73ea25106&owner_id=dllsh-pd777-77776-qaaaa-cai&project_id=standalone-trial",
+            "width": 24
+          }
+        ],
+        "firstUploadPhases": [
+          "responded",
+          "responded",
+          "responded"
+        ],
+        "physicalBytes": 1050157,
+        "liabilityBytes": 1050157,
+        "references": {
+          "billing_cessation": false,
+          "current_map_complete": false,
+          "historical_retain_receipt_preserved": true,
+          "liability_bytes": 1050157,
+          "logical_bytes": 1102,
+          "physical_bytes": 1050157,
+          "provider_deletion": false,
+          "released_downloads_refused": true,
+          "schema": 1,
+          "second_reference_survives_first_release": true
+        },
+        "mapOutputRefusal": {
+          "error": "new_run_required"
+        },
+        "recoveredMapComplete": true
+      },
+      {
+        "label": "synthetic-regression",
+        "directory": ".tmp/representative-media-01/synthetic-regression/native-driver-restart",
+        "log": ".tmp/representative-media-01/synthetic-regression.log",
+        "puts": 4,
+        "gets": 4,
+        "decodedMedia": [],
+        "csp": null,
+        "publicDelivery": [],
+        "firstUploadPhases": [
+          "responded",
+          "uncertain"
+        ],
+        "physicalBytes": 3072,
+        "liabilityBytes": 3072
+      }
+    ],
+    "installation": {
+      "controller_denied": true,
+      "declared_and_exported_did_equal": true,
+      "deployment_authorized": false,
+      "evidence_class": "actual_local_trial_template_installation",
+      "exact_configuration_readback": true,
+      "live_provider_qualified": false,
+      "local_only_init": true,
+      "release": "0.14.2",
+      "schema": 1,
+      "service": "xp3jw-ot777-77777-aaaaa-cai",
+      "wrong_service_rejected": true
+    },
+    "independentlyExpectedRelease": "0.14.2",
+    "installationChecks": "Candid/exported contract and actual carrier/wrong service passed; exact readback retained in installation-final",
+    "installationCaptureHistory": [
+      "installation.log: both cases pass; unsupported report variable produced no capture",
+      "installation-capture.log: precreated directory rejected by create-new capture, retained",
+      "installation-capture-final.log: fresh output directory passes and retains exact artifacts"
+    ],
+    "builds": "fresh CLI/Wasm/browser and final scoped harness passed",
+    "clippy": "final strict standalone harness check passed",
+    "failedDevelopmentChecks": [
+      {
+        "log": ".tmp/representative-media-01/harness-build.log",
+        "reason": "fixture read quota is u64 while physical/liability counters are u128; corrected typed conversion"
+      },
+      {
+        "log": ".tmp/representative-media-01/clippy.log",
+        "reason": "expanded coherent fixture constructor exceeds line lint; explicit justified expect retains the single constructor"
+      }
+    ],
+    "fullCi": false
+  },
+  "retention": {
+    "root": ".tmp/representative-media-01",
+    "assetHashes": ".tmp/representative-media-01/assets/SHA256SUMS",
+    "initialSource": ".tmp/representative-media-01/source",
+    "initialSourceHashes": ".tmp/representative-media-01/source-SHA256SUMS",
+    "finalSource": ".tmp/representative-media-01/source-final",
+    "finalSourceHashes": ".tmp/representative-media-01/final-source-SHA256SUMS",
+    "initialArtifacts": ".tmp/representative-media-01/artifacts/SHA256SUMS",
+    "finalSelectionAndArtifacts": ".tmp/representative-media-01/selection-and-final-artifacts-SHA256SUMS",
+    "results": ".tmp/representative-media-01/results-SHA256SUMS",
+    "validationLogs": ".tmp/representative-media-01/validation-logs-SHA256SUMS",
+    "feedback": ".tmp/representative-media-01/feedback/SHA256SUMS",
+    "history": "Original private bodies, SDK preparations, profiles, journals, native requests/handoffs/observations/maps/downloads and every failure remain retained. No reset/replay or deletion of originals."
+  },
+  "boundaries": [
+    "Current native/browser metadata lacks Miner Cache-Control; selected bytes were freshly prepared with current MIME/length, producing explicitly different roots. No original prepared mapping adoption is claimed.",
+    "Occupied map-output refusal and fresh query-only recovery are native behavior, not a completed consumer asset-registration transaction.",
+    "GLB complete-byte/structural observation is not game rendering or externally loaded texture acceptance.",
+    "Authored local CSP/provider headers are not production consumer CSP/deployed Caffeine MIME/CORS/cache/retention acceptance.",
+    "Supported provenance-bound native/browser tool distribution, actual consumer adoption, deletion, billing cessation and retired-content reintroduction remain open.",
+    "Model 2.0 is an external glTF standard, not a repository-owned type generation."
+  ],
+  "effects": {
+    "liveProviderRequests": 0,
+    "paidCycles": 0,
+    "deployment": false,
+    "publication": false,
+    "versionMutation": false,
+    "commits": false,
+    "siblingEdits": false,
+    "buildCleanup": false,
+    "oldLiveOwners": "unchanged; preserve original obligations"
+  }
+}

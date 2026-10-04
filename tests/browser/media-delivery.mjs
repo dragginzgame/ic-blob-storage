@@ -1,4 +1,4 @@
-// Authored PNG/CSP acceptance only. Rust owns canonical provider targets.
+// Local media/CSP acceptance only. Rust owns canonical provider targets.
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
@@ -15,12 +15,24 @@ export async function verifyMediaDelivery(context, config, bodies, gateway, stat
     return request;
   }));
   for (const [index, body] of bodies.entries()) {
-    const expected = { width: body.readUInt32BE(16), height: body.readUInt32BE(20),
+    const mime = config.contentTypes[index], isImage = mime.startsWith('image/');
+    const expected = config.imageExpectations ? config.imageExpectations[index] : { width: body.readUInt32BE(16), height: body.readUInt32BE(20),
       pixel: index === 0 ? [200, 30, 60, 255] : [20, 180, 210, 255] };
     const delivered = await readFile(join(config.report, `download-${index}`, 'body.bin'));
     assert(delivered.equals(body));
-    const sampled = await page.evaluate(async ({ bytes, url }) => {
+    const sampled = await page.evaluate(async ({ bytes, url, mime }) => {
       async function sample(body, type) {
+        if (type === 'model/gltf-binary') {
+          const bytes = body instanceof Uint8Array ? body : new Uint8Array(body);
+          const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+          if (view.getUint32(0, true) !== 0x46546c67 || view.getUint32(4, true) !== 2 ||
+            view.getUint32(8, true) !== bytes.length || view.getUint32(16, true) !== 0x4e4f534a) throw new Error('fixture GLB header');
+          const document = JSON.parse(new TextDecoder().decode(bytes.subarray(20, 20 + view.getUint32(12, true))));
+          if (document.asset.version !== '2.0') throw new Error('fixture glTF version');
+          // Structural observation only; no renderer or application adoption is implied.
+          return { kind: 'glb', bytes: bytes.length, scenes: document.scenes.length,
+            nodes: document.nodes.length, meshes: document.meshes.length };
+        }
         const image = await createImageBitmap(new Blob([body], { type }));
         try {
           const canvas = new OffscreenCanvas(image.width, image.height), painter = canvas.getContext('2d');
@@ -28,33 +40,38 @@ export async function verifyMediaDelivery(context, config, bodies, gateway, stat
           return { width: image.width, height: image.height, pixel: [...painter.getImageData(0, 0, 1, 1).data] };
         } finally { image.close(); }
       }
-      const decoded = await sample(new Uint8Array(bytes), 'image/png');
+      const decoded = await sample(new Uint8Array(bytes), mime);
       const response = await fetch(url, { credentials: 'omit', redirect: 'error', cache: 'no-store',
         signal: AbortSignal.timeout(10000) });
       const body = await response.arrayBuffer(), hash = await crypto.subtle.digest('SHA-256', body);
       return { decoded, served: { origin: location.origin, status: response.status, type: response.type, url: response.url,
         mime: response.headers.get('content-type'), declaredBytes: response.headers.get('content-length'),
+        cacheControl: response.headers.get('cache-control'),
         bytes: body.byteLength, sha256: [...new Uint8Array(hash)].map(value => value.toString(16).padStart(2, '0')).join(''),
         ...await sample(body, response.headers.get('content-type')) } };
-    }, { bytes: [...delivered], url: requests[index].url });
-    assert.deepEqual(sampled.decoded, expected);
+    }, { bytes: [...delivered], url: requests[index].url, mime });
+    if (expected) for (const [key, value] of Object.entries(expected)) assert.deepEqual(sampled.decoded[key], value);
     assert.deepEqual(sampled.served, { origin: config.browserOrigin, status: 200, type: 'cors', url: requests[index].url,
-      mime: 'image/png', declaredBytes: String(body.length), bytes: body.length, sha256: digest(body), ...expected });
-    decodedMedia.push({ index, sha256: digest(body), ...expected });
+      mime, declaredBytes: String(body.length), cacheControl: config.cacheControls[index],
+      bytes: body.length, sha256: digest(body), ...sampled.decoded });
+    decodedMedia.push({ index, sha256: digest(body), ...sampled.decoded });
     publicDelivery.push({ index, afterFinalRelease: !!config.overlap && index === 0, ...sampled.served });
-    const imagePage = await context.newPage();
-    try {
-      await imagePage.goto(config.browserOrigin);
-      const loaded = await image(imagePage, requests[index].url, gateway);
-      assert.deepEqual(loaded, { origin: config.browserOrigin, loaded: true, violations: [], ...expected });
-      images.push({ index, afterFinalRelease: !!config.overlap && index === 0, ...loaded });
-    } finally { await imagePage.close(); }
+    if (isImage) {
+      const imagePage = await context.newPage();
+      try {
+        await imagePage.goto(config.browserOrigin);
+        const loaded = await image(imagePage, requests[index].url, gateway);
+        assert.deepEqual(loaded, { origin: config.browserOrigin, loaded: true, violations: [], ...sampled.decoded });
+        images.push({ index, afterFinalRelease: !!config.overlap && index === 0, ...loaded });
+      } finally { await imagePage.close(); }
+    }
   }
   const blockedPage = await context.newPage(), before = state.gets.length;
   let blockedImage, blockedProviderRequests;
   try {
     await blockedPage.goto(config.browserOrigin);
-    blockedImage = await image(blockedPage, requests[0].url, "'none'");
+    assert(images.length > 0);
+    blockedImage = await image(blockedPage, requests[images[0].index].url, "'none'");
     const { violations, ...outcome } = blockedImage;
     assert.deepEqual(outcome, { origin: config.browserOrigin, loaded: false });
     assert.equal(violations.length, 1);
@@ -75,7 +92,8 @@ export async function verifyMediaDelivery(context, config, bodies, gateway, stat
     assert.deepEqual(refused, { origin: 'null', readable: false, error: 'TypeError' });
   } finally { await opaque.close(); }
   const reads = state.reads.filter(read => read.origin !== null);
-  assert.deepEqual(reads.map(read => read.origin), [...bodies.flatMap(() => [config.browserOrigin, config.browserOrigin]), 'null']);
+  assert.deepEqual(reads.map(read => read.origin), [...config.contentTypes.flatMap(mime =>
+    Array(mime.startsWith('image/') ? 2 : 1).fill(config.browserOrigin)), 'null']);
   for (const read of reads) { assert.equal(read.cookie, null); assert.equal(read.authorization, null); }
   return { decodedMedia, publicDelivery, opaqueOriginRefused: true,
     csp: { images, blockedImage, blockedProviderRequests } };

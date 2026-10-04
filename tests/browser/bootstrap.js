@@ -2,8 +2,10 @@
 import { Ed25519KeyIdentity } from '@icp-sdk/core/identity';
 import { Secp256k1KeyIdentity } from '@icp-sdk/core/identity/secp256k1';
 import { createPublicationWorkerHost } from '../../clients/browser/bootstrap.js';
+import { StorageClient } from '@caffeineai/object-storage';
 window.bootstrapFixture = {
   host: createPublicationWorkerHost,
+  prepare: (...args) => StorageClient.prepareFile(...args),
   input(kind, database, mode = 'create', timeoutSeconds = 120) {
     const type = kind === 'ed25519' ? Ed25519KeyIdentity : Secp256k1KeyIdentity;
     const identity = type.fromSecretKey(new Uint8Array(32).fill(42));

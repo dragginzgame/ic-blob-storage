@@ -22,6 +22,7 @@ mod standalone_funding_cli;
 mod standalone_gateways;
 mod standalone_history;
 mod standalone_history_cli;
+mod standalone_ingress;
 mod standalone_installation_cli;
 mod standalone_lifecycle;
 mod standalone_operator;
@@ -86,7 +87,10 @@ struct Fixture {
 enum Envelope {
     Regular,
     Single,
-    Serial,
+    Serial {
+        max_object_bytes: u64,
+        total_bytes: u64,
+    },
 }
 fn wasm() -> Vec<u8> {
     std::fs::read(fixture_path("BLOB_STANDALONE_WASM")).unwrap()
@@ -135,6 +139,10 @@ impl Fixture {
             PROJECT,
         )
     }
+    #[expect(
+        clippy::too_many_lines,
+        reason = "One fixture constructor binds the envelope, principals and installed service"
+    )]
     fn with_profile(
         harness: Harness,
         cashier: Principal,
@@ -195,7 +203,7 @@ impl Fixture {
                 tenant_bytes: 2048,
             },
         };
-        if matches!(envelope, Envelope::Single | Envelope::Serial) {
+        if matches!(envelope, Envelope::Single | Envelope::Serial { .. }) {
             let r = &mut config.resources;
             r.max_tenants = 1;
             r.max_object_bytes = 1024;
@@ -208,17 +216,21 @@ impl Fixture {
             r.max_receipts_per_object = 2;
             r.max_active = 1;
             r.max_tenant_active = 1;
-            if matches!(envelope, Envelope::Serial) {
-                r.max_object_bytes = 2 * 1024 * 1024;
+            if let Envelope::Serial {
+                max_object_bytes,
+                total_bytes,
+            } = envelope
+            {
+                r.max_object_bytes = max_object_bytes;
                 r.max_objects = 2;
                 r.max_tenant_objects = 2;
-                r.max_physical_bytes = 4 * 1024 * 1024;
-                r.max_liability_bytes = 4 * 1024 * 1024;
-                r.max_tenant_logical_bytes = 4 * 1024 * 1024;
+                r.max_physical_bytes = u128::from(total_bytes);
+                r.max_liability_bytes = u128::from(total_bytes);
+                r.max_tenant_logical_bytes = u128::from(total_bytes);
                 r.max_references_per_object = 2;
                 r.max_receipts_per_object = 4;
-                config.reads.bytes = 4 * 1024 * 1024;
-                config.reads.tenant_bytes = 4 * 1024 * 1024;
+                config.reads.bytes = total_bytes;
+                config.reads.tenant_bytes = total_bytes;
             }
         }
         let mut input: ServiceInstallationInput =
@@ -325,21 +337,37 @@ impl Fixture {
         self.manifest_bytes(1024)
     }
     fn manifest_bytes(&self, bytes: u64) -> UploadManifestRequest {
-        self.manifest_body(&vec![42; usize::try_from(bytes).unwrap()])
+        self.manifest_body(
+            &vec![42; usize::try_from(bytes).unwrap()],
+            "image/png",
+            None,
+        )
     }
-    fn manifest_body(&self, body: &[u8]) -> UploadManifestRequest {
+    fn manifest_body(
+        &self,
+        body: &[u8],
+        content_type: &str,
+        cache_control: Option<&str>,
+    ) -> UploadManifestRequest {
         let bytes = u64::try_from(body.len()).unwrap();
         let length = bytes.to_string();
-        let headers = [
+        let mut headers = vec![
             CaffeineHeader {
                 name: "Content-Length",
                 value: &length,
             },
             CaffeineHeader {
                 name: "Content-Type",
-                value: "image/png",
+                value: content_type,
             },
         ];
+        if let Some(value) = cache_control {
+            headers.push(CaffeineHeader {
+                name: "Cache-Control",
+                value,
+            });
+        }
+        headers.sort_unstable_by(|a, b| a.name.cmp(b.name));
         let mut builder = CaffeineManifestBuilder::new(
             bytes,
             &headers,

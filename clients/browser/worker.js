@@ -11,7 +11,7 @@ const require = (condition, code) => { if (!condition) throw new WorkerRefusal(c
 // code strings; class identity alone does not make their payload safe to return.
 const publicCodes = new Set(['message', 'origin', 'principal', 'identity', 'namespace',
   'trust-root', 'limits', 'store', 'scope', 'binding', 'body-size', 'body-digest',
-  'body-limit', 'manifest', 'manifest-size', 'metadata-hint', 'root', 'job-budget',
+  'body-limit', 'manifest', 'manifest-size', 'metadata-hint', 'root', 'job-budget', 'transfer-budget',
   'worker-busy', 'upload-claimed', 'history-missing', 'port', 'intent-binding', 'operation', 'permission', 'key',
   'dispatch-blocked', 'gateway-blocked', 'gateway-uncertain', 'store-timeout',
   'store-blocked', 'store-missing', 'store-capacity', 'store-closed', 'intent-corrupt']);

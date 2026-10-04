@@ -5,7 +5,7 @@ use super::{
     Failure, PreparedBatch, SessionIntentRecord,
     control::{Frame, UnattemptedPhaseRecord},
 };
-use crate::native::{artifacts::Run, candidate_candid, publish_map, read};
+use crate::native::{artifacts::Run, exact_candid, publish_map, read};
 use serde::{Deserialize, Serialize};
 use std::{
     collections::BTreeMap,
@@ -119,7 +119,7 @@ fn history_binding(
         batch,
         &packet(
             &configuration.join("query-0000-reply.candid"),
-            candidate_candid::MAX_BYTES as u64,
+            exact_candid::INSTALLATION_BYTES as u64,
         )?,
     )?;
     if host.fenced {

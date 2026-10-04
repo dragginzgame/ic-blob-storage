@@ -1,0 +1,130 @@
+{
+  "schema": 1,
+  "date": "2026-10-04",
+  "evidence_class": "isolated_source_installation_offline_actual_sdk_native_and_local_ic_chromium_owned_substitute",
+  "source": {
+    "baseline_commit": "556b52fd6a3eccc5efd7e687ffd2e9cde0f41126",
+    "release": "Unreleased 0.14.3 draft; compiled package 0.14.2",
+    "snapshot": ".tmp/isolated-tools-01/source",
+    "files": 1327,
+    "git_metadata": false,
+    "git_discovery_disabled_browser_build": true,
+    "fresh_node_modules": true,
+    "cargo_target": "Repository target/",
+    "cold_machine": false,
+    "memory": "0.24.7",
+    "testkit": "0.14.7",
+    "node": "v24.21.0",
+    "rust": "rustc 1.99.0 (b940084d7 2026-09-28)",
+    "profiles": {
+      "native": "debug",
+      "harness": "test",
+      "wasm": "release"
+    }
+  },
+  "installation": {
+    "prefix": ".tmp/isolated-tools-01/install",
+    "binary": ".tmp/isolated-tools-01/install/bin/blob-storage",
+    "version": {
+      "tool": "blob-storage",
+      "version": "0.14.2"
+    },
+    "offline_handoff": ".tmp/isolated-tools-01/native-handoff/summary.json",
+    "offline_bytes": 1049055,
+    "offline_chunks": 2,
+    "repeat_and_corrupt_refusal": true,
+    "snapshot_repreparation_matches": true,
+    "offline_network_requests": 0
+  },
+  "journeys": [
+    {
+      "label": "model-complete",
+      "directory": ".tmp/isolated-tools-01/model-complete/multichunk-complete",
+      "roots": [
+        "sha256:cbe3f72987558eba01c56930b49d76ae71a2e79c9ef63d7d2614640ffa3f62e7",
+        "sha256:03d976951b47a9404f819f991697f512085075073ae84172c0baf37c1fe0066c"
+      ],
+      "puts": 11,
+      "gets": 9,
+      "physical_bytes": 8389774,
+      "liability_bytes": 8389774,
+      "confirmed_map": true,
+      "upload_retries": 0,
+      "exact_selected_bundles": true,
+      "original_roots_leaves_and_complete_bytes": true,
+      "cache_control": "public, max-age=31536000, immutable"
+    },
+    {
+      "label": "images-lost",
+      "directory": ".tmp/isolated-tools-01/images-lost/multichunk-lost",
+      "roots": [
+        "sha256:3221bd9a69bda5b6c0a6822a8ae732b0ea780b293f641d8ae8a77ec1505d9102",
+        "sha256:ae002fcd0c2b97b72e9f9f6d013f9b267d4dc6be57dd54e47c6997f6c7fc7f63"
+      ],
+      "puts": 7,
+      "gets": 10,
+      "physical_bytes": 4318116,
+      "liability_bytes": 4318116,
+      "confirmed_map": true,
+      "upload_retries": 0,
+      "exact_selected_bundles": true,
+      "original_roots_leaves_and_complete_bytes": true,
+      "cache_control": "public, max-age=31536000, immutable"
+    }
+  ],
+  "checks": [
+    "Isolated browser build nested under a checkout and with Git discovery disabled",
+    "Locked installed CLI plus matching fresh Wasm/harness",
+    "Strict affected CLI/standalone Clippy and formatting on frozen source",
+    "Exact bundle selection, original roots/leaves/complete bytes/cache and completed maps",
+    "Preserved original lost-reply uncertain journal without redispatch",
+    "Prior public seals and frozen source/artifact verification"
+  ],
+  "concurrent_workspace": {
+    "memory": "0.24.10",
+    "testkit": "0.14.7",
+    "lock_capture": ".tmp/isolated-tools-01/current-lock-check/Cargo.lock",
+    "fetch": "PASS",
+    "affected_clippy": "PASS",
+    "runtime_probe_rerun": false,
+    "qualification": "Current graph compiles under affected strict Clippy; runtime journeys remain frozen on 0.24.7"
+  },
+  "failures": [
+    {
+      "stage": "Dependency preparation",
+      "artifact": ".tmp/isolated-tools-01/cargo-fetch.log",
+      "result": "Sandbox DNS prevented locked fetch; escalated fetch succeeded before any probe"
+    },
+    {
+      "stage": "Post-probe lock equality",
+      "artifact": ".tmp/isolated-tools-01/postcheck-failure.json",
+      "result": "Current workspace changed independently; retained original graph and separate current check, no probe rerun"
+    }
+  ],
+  "retention": {
+    "root": ".tmp/isolated-tools-01",
+    "source_manifest": ".tmp/isolated-tools-01/source-SHA256SUMS",
+    "artifact_manifest": ".tmp/isolated-tools-01/artifact-SHA256SUMS",
+    "provenance_manifest": ".tmp/isolated-tools-01/provenance-SHA256SUMS",
+    "input_manifest": ".tmp/isolated-tools-01/input-SHA256SUMS",
+    "results_manifest": ".tmp/isolated-tools-01/results-SHA256SUMS",
+    "profiles": "Original browser profiles retained; result manifest excludes profiles, npm dependencies and special files"
+  },
+  "implementation_changes": "No production correction, installer framework, replacement dispatcher or extra effect journal needed. Extend existing installation provenance recipe and draft evidence.",
+  "limits": [
+    "Unreleased source, not clean released-tag qualification or consumer adoption",
+    "Uses existing Cargo cache, provisioned Node/Chromium/PocketIC; fresh npm directory is not a cold environment",
+    "Local HTTPS/HTTP2 substitute does not establish deployed Caffeine cache/retention, deletion/billing cessation or consumer rendering/registration",
+    "Current 0.24.10 graph has separate compile evidence only, not these frozen runtime observations"
+  ],
+  "live_provider_requests": 0,
+  "paid_cycles": 0,
+  "full_ci": false,
+  "commits": false,
+  "version_mutation": false,
+  "publication": false,
+  "deployment": false,
+  "sibling_edits": false,
+  "sibling_messages": false,
+  "build_cleanup": false
+}

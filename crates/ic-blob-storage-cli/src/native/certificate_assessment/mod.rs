@@ -1,6 +1,6 @@
 //! One authenticated read-only assessment; no certificate update or provider effect.
 use super::{Failure, arguments::Options, query, read, references::upload_json};
-use candid::{Principal, de::DecoderConfig, decode_one_with_config};
+use candid::Principal;
 use ic_blob_storage::{
     dto::upload::{
         admission::{UploadAdmissionFailure as A, UploadAdmissionRequest},
@@ -20,15 +20,8 @@ pub(super) struct Input {
 
 fn open(input: &Input, actor: Principal) -> Result<(UploadAdmissionRequest, Vec<u8>), Failure> {
     let bytes = read(&input.permission, 4096)?;
-    let mut config = DecoderConfig::new();
-    config
-        .set_decoding_quota(100_000)
-        .set_skipping_quota(0)
-        .set_max_type_len(64)
-        .set_max_header_len(4096)
-        .set_full_error_message(false);
     let permission: UploadAdmissionRequest =
-        decode_one_with_config(&bytes, &config).map_err(|_| Failure::Arguments)?;
+        crate::native::exact_candid::decode(&bytes, 4096, 64, 100_000)?;
     let argument = reply::assessment_request(permission).map_err(|_| Failure::Arguments)?;
     if permission.upload.service != input.service || permission.upload.namespace != input.namespace
     {

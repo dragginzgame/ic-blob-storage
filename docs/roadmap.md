@@ -1,6 +1,6 @@
 # Development plan
 
-Released 0.14.1 supplies the framework-independent library and standalone service,
+Released 0.14.2 supplies the framework-independent library and standalone service,
 configured uploads, exact verifier completion and maintained native/browser
 publication components. Consumer owners supply framework wrappers, deployment
 integration and their composition tests. Library publication
@@ -53,6 +53,27 @@ keys and original history and choose explicit restart; qualify that adoption
 without another dispatcher or effect journal.
 Then qualify real consumer media, publication transactions, overlapping references
 and serving/CSP behavior. Source code and local substitutes do not prove adoption.
+
+The [representative-byte trial](evidence/caffeine-probes/README.md#representative-emitted-media--2026-10-04)
+now qualifies selected emitted PNG/JPEG/WebP/GLB bodies locally, including lost
+replies, corruption, native map-output recovery and reference cleanup. Its initial
+observations retain their explicitly different trial roots. The
+[cache-metadata batch](evidence/caffeine-probes/README.md#original-cache-metadata--2026-10-04)
+now reproduces all four retained original roots through explicit cache hints,
+with local cached completion/recovery and browser header checks. Qualify the
+[selected-source tool recipe](local-tools.md#install-the-native-and-browser-tools)
+downstream before claiming consumer adoption. Local fresh-prefix installation,
+[isolated-source native/browser composition](evidence/caffeine-probes/README.md#isolated-source-tool-installation--2026-10-04)
+and predictable transfer-budget refusal now pass. The source copy uses fresh npm
+dependencies and builds without Git metadata; exact installed tools complete
+cached media and recover lost replies. This is unreleased local source, not a
+released downstream installation. The separate [clean-release check](evidence/caffeine-probes/README.md#clean-released-source-tool-installation--2026-10-04)
+now qualifies tagged 0.14.3 tools with a fresh prefix/npm directory and matching
+local completion/recovery in this repository. Consumer-owned installation and
+adoption remain open. Active requests are [publisher #4](https://github.com/dragginzgame/ic-blob-storage/issues/4),
+[delivery #5](https://github.com/dragginzgame/ic-blob-storage/issues/5) and
+[lifetime #6](https://github.com/dragginzgame/ic-blob-storage/issues/6); local package
+reports in Miner are archived, not the active feedback owner.
 
 Keep both frozen live owners and their full provider/billing histories. Their
 lifetime capacity is exhausted; source cleanup cannot reset it. Provider deletion,

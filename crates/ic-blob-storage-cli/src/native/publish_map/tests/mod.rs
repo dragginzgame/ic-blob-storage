@@ -32,7 +32,13 @@ fn observe(replies: &Replies) -> Result<Value, Failure> {
         permission.upload.tenant,
     )
     .unwrap();
-    let input: ServiceInstallationInput = candidate_candid::decode(&batch.installation).unwrap();
+    let input: ServiceInstallationInput = exact_candid::decode(
+        &batch.installation,
+        exact_candid::INSTALLATION_BYTES,
+        64,
+        100_000,
+    )
+    .unwrap();
     let mut host = HostConfigurationView {
         configuration: input.configuration,
         project: input.project,

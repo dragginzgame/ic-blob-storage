@@ -1,0 +1,865 @@
+{
+  "schema": 1,
+  "evidence_class": "source_review_and_local_sdk_chromium",
+  "outcome": "pass",
+  "baseline_release": "0.14.5",
+  "baseline_commit": "8e1cfed48327b9da56aadf417a179549a33c6602",
+  "retained_directory": ".tmp/sdk-owned-blob-01",
+  "intent_sha256": "86620733d765b3d2def271bff69b774022e691236304e3616a977ead5d96a4c6",
+  "node": "v24.21.0",
+  "dependencies": {
+    "@caffeineai/object-storage": "1.1.2",
+    "@icp-sdk/core": "5.4.0",
+    "esbuild": "0.28.2",
+    "playwright": "1.63.0"
+  },
+  "source_hashes": {
+    "clients/browser/patches/caffeine-1.1.2.patch": "e02bbb3950e706fa7e1216eb73212adc5de7be814637d25048571f60e5b18379",
+    "clients/browser/patches/README.md": "a84aba55d5002899f226163a75eecd9f99bc1a10a25458b8a71ae23491f28066",
+    "clients/browser/publication.js": "0cb7ff9202254ec1ce650e68ff84b792d5cfcc005c23d81b06d3e040052cb4cb",
+    "clients/browser/worker-configuration.js": "7df73afdc217465fd128c129eada7889bd5c5cce14972e158d2eae97b23c3907",
+    "clients/browser/launcher.mjs": "473e2877200a695dd9a05cb1a3ad650fbeb52dc52f1906d789d21aef79468f1a",
+    "tests/browser/sdk-probe.mjs": "81d63cdc189fb03798e6c058ec25431fa6673cd59debc505bc1564faafc3bbd4",
+    "tests/browser/bootstrap.js": "aab321d88c000ad355a1720b169b29079bb4964654e525488788f2707f9eacae",
+    "tests/browser/bootstrap.mjs": "47e3100230b54bc73f07eb529ca0bd66bbd2af48ea895e8ee3e62c9e982deab3",
+    "tests/browser/build.mjs": "9f7b82f4f0992d87c39463a2df644a768e61e1ce9e54f061aaab337b4a9e41c1",
+    "tests/browser/package.json": "b7b95569430c4e8d24dbd2fb7249b5b4e04a9d4a87bbc558eafeacf9d2e54977",
+    "tests/browser/package-lock.json": "79bd78166f2c95aa341742d833d42eefb510adba1078d5136cda1211740d9a2d",
+    "docs/evidence/caffeine-browser-reuse.json": "6119105a7642c246e628140b37991727a93411c94531198f88e7ed93aa65a39d",
+    "docs/status/current.md": "639cb6008a4daf25c094895cd3e9e69b55757fc400510b80f7d6fbd43d0611a0",
+    "docs/evidence/caffeine-probes/README.md": "1b999cfb101a35b3b0b9a4a7bcfc5060ed5e8280838d36a6c6ac4e4ab6953ec0",
+    "CHANGELOG.md": "6e68d6da77d0283c7f46cf1f0bd1d93f2d9a73438ba6ee7b162725fbeabe98c4",
+    "Cargo.toml": "30f2d003dfdeacabfebac18535ff70a9da0d107cfbf08e31ecb68f9388013520",
+    "Cargo.lock": "fc4c3d4883f51cf9f1d38595bd0723b246e1600a0d0cf9ce1640d0c04e08ea36",
+    "docs/release.json": "5c96e7ad513508902964c8deba91fff0cf6e95800d780bb2893d0a35ff7ef379"
+  },
+  "bundle_hashes": {
+    "publication-host.js": "2f9d766b026717efa1b3d0e2c21855cdcbdbc3e89fda778d3552873a54bb2d80",
+    "publication-worker.js": "e237ddb297dc18b87af59abf2ce2518a094054c83d687e667daa11d43ec9abd2",
+    "launcher-serial.mjs": "e45d63956e2d9ffc877175dd27030c99b5e6a82249fd6396e27075f3637c1b8f",
+    "bootstrap.js": "1faec2ea7b4284a88f5161ce4b2f3a91b073faafe2df2f1371853ab05ff00bdb",
+    "sdk-probe.mjs": "33dda41d71b6a3ed701b72e6ca8f7f6525752844ff94d945a19278c9d9bc3498",
+    "publication.mjs": "8330c789fa7947832a38981b075a940ea82d584e12399f96fd8d0df1ba267703",
+    "worker.mjs": "16c1235582566d19d9c0bbb4812cd18aedcb602ea61a95fd9c9bb1782c7ea794"
+  },
+  "artifact_hashes": {
+    "build.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "sdk.log": "ae7cac29b1e6c806fd439c88bd2ee7b04046a8c76d4c20bb5fa422c83aa44f82",
+    "chromium.log": "d0cc48df09d5c11aab6b356958733ffb1565495f5f063274ff4c2aa9cccfc931",
+    "publication.log": "630be948d634d25598dc280ede2dbdfe83e15bc843fa5c1687d896dc3f01dbba",
+    "worker.log": "15c1b958312d7f836eccfc296b69b7b6980e44781ca6dee8b62938d0d178f7c0",
+    "launcher.log": "f4da9df02607787210849d882b447d6c6ee25a0ce568402a197265c0b54d7563",
+    "before.patch": "9809a3a70d2b4c97387a49b42afce8f653f4dc48e233281bc934bf6a7a1a7bef",
+    "before-StorageClient.js": "65209eacac20d23df2506455905971d6ae48d2dc0f37b05424da8999bdab33b7",
+    "before-sdk-probe.mjs": "d8f6b55c66a32340b3b6eb33eefe67991cfec631fcf80fc24a55c9b4d0521143",
+    "before-bootstrap.mjs": "78c461db1e987612f0d81451b635c51bdff2336db911c0f1aaa68cb7580391a0",
+    "before-bootstrap.js": "98b74a030815efbe5b1383acfd336e7f908e80a4e2295865f1e92767651a56e4",
+    "sdk-run/summary.json": "1d231f5c19b6a995634fdaa501f9c04a8ca3a0716bd168519569b97888e0bffb",
+    "sdk-run/plan.json": "90ac1bfd3eb0e9194955cbe9c605ade8cdc51381145c48cce0b5b4668f63829f",
+    "chromium-run/summary.json": "4ca2bb308ec639f0eb969cb418bdc0ce186489cfca37ce719cb50d6282733969",
+    "publication-run/intent.json": "dc8214b17f638797186ec08b46e5a434d3aefc4a607b90932444410e484ccd20",
+    "publication-run/summary.json": "f90e53688325591cabb87a0f32b47e8ee424a9d1da540e0cac5a56e261b6dde6",
+    "worker-run/summary.json": "3a4dca4e10e017b00b06c944e8b358c80b2d65094daa53ffa515a52987502357",
+    "launcher-run/summary.json": "245db74aa7f5064cbf7dfaf6c9e4fc562d7daf4a388da4c7135bf417a275fff9",
+    "artifacts/StorageClient.js": "632115d71e720302963b8e23836c923c7d1426d860e43f77d186522ac7c74603",
+    "artifacts/verify_download": "520401679acb2174fe0f03301ad40d9c5abfd23969bdb0b35f71947673d70185",
+    "sdk-run/single-input.json": "20d823e9db116381256583911c1e850e4b4acfb8d4713d600531abec5518708e",
+    "sdk-run/single-result.json": "d15cb255a04d4d89eff48442aedf0933eb2c90140ea97df044c02a40d9e0cae3",
+    "sdk-run/single-request-0.json": "45ffc920ea78a71c1444569e825a44e08880ec349d4a49392024b1a4b63b3244",
+    "sdk-run/single-response-0.json": "8936fcfd49322c77ca8c0171302a85587e4528bc41df22c21b5cdf1461a24781",
+    "sdk-run/single-request-1.json": "46d01dce9dbd68c2fa27ef63876983a7ab75cf63e1fc46e4e6b7be806ad843c6",
+    "sdk-run/single-response-1.json": "3a9dd6df58bad7494015d3725f8ddce5cfbd2ebd42634dcd2ed809acb3e66a7f",
+    "sdk-run/single-claim.json": "2186bbabb5808ee7e569f25080203076b43878a29e99b4fb1a9eab087f78c3ce",
+    "sdk-run/single-verification.json": "d067a6d754755a06aac29ba4b9488e9febc0aa7e00d8c2bdfc878de09e643bef",
+    "sdk-run/multi-input.json": "9c4449139b34de84242044767a08517982f357cde1496fecaf4baba89321d367",
+    "sdk-run/multi-result.json": "5b46c6d3ecd6e3dccebcf1168f38690b2f8e02d1d465b36f77a7d66920f77e01",
+    "sdk-run/multi-request-0.json": "c1c5613ed22a1968fd882e6c9f4ad35de10bd7092498847614230c34ffe2b8a7",
+    "sdk-run/multi-response-0.json": "42a543df98bb6f01169ef9d3e455d364f41a9458336e2878d61502b5604ec3df",
+    "sdk-run/multi-request-1.json": "40c5f0bf71ddbf3054ff256f70bc033666f68f017cb54cf5ca5ca0cc99af8717",
+    "sdk-run/multi-response-1.json": "0f42b3d59335fbacc192789ac8014bbb0c7d819f956acf6e14968e16fa2df36b",
+    "sdk-run/multi-request-2.json": "a49c93ae87d4198277b1fe368cd609ddb4e5e8611c4d0eecb5a93a2fc24dcf72",
+    "sdk-run/multi-response-2.json": "2f5222b07119c7ecb065571a0685b5221c6444eb28d3e3c135f16fa207a05747",
+    "sdk-run/multi-claim.json": "de35b72b900e7c4cd714cb21f529bce54ee98ca06d3f1bceb93543633c60fec8",
+    "sdk-run/multi-verification.json": "253122f855fcd67b65317c607b7d13ca404078bd8feba60d37a2f87959987214",
+    "sdk-run/not-complete-input.json": "1b152a24123951316049fc6672aa5f9b789473d5d97956518b4162d498c4b007",
+    "sdk-run/not-complete-result.json": "e667dc7dc16bd89cdc175921347d4db41ca3d52198d0e9f77a01ebaaa8338e64",
+    "sdk-run/not-complete-request-0.json": "9bf09b8e4611d880d869c7bf7f2e00a8b14b4b78299070935fe25814d0115276",
+    "sdk-run/not-complete-response-0.json": "238d77f18a282ea694d830ef2249f8cca1875d9f6d0581b8df2cb1e83089225b",
+    "sdk-run/not-complete-request-1.json": "b3ccffea226dcd8c4bb43141458a29b80fe55da1277121475b49135b0d6671b0",
+    "sdk-run/not-complete-response-1.json": "4721806570987f43f75a6ba28d325d2eb5a19b3b5ca94b821156cbfc7c62da33",
+    "sdk-run/not-complete-claim.json": "bf517b0909c59ceee34508e2323b0701fafaf723e2481f1af1f5c3927487dee8",
+    "sdk-run/not-complete-verification.json": "47e886f564df7772a6576b58b2fdc6ee89f622e8e01c1e20650fba620ed8b7fa",
+    "sdk-run/lost-final-input.json": "827b6ee0fc18932e9617e3816f7d959a93fe8139e9301d284c2e8fb7b11199d8",
+    "sdk-run/lost-final-result.json": "37b5a829598938dd64c8b09344a72cff8bf01c7e077330cb6011551605689cc3",
+    "sdk-run/lost-final-request-0.json": "c1c5613ed22a1968fd882e6c9f4ad35de10bd7092498847614230c34ffe2b8a7",
+    "sdk-run/lost-final-response-0.json": "42a543df98bb6f01169ef9d3e455d364f41a9458336e2878d61502b5604ec3df",
+    "sdk-run/lost-final-request-1.json": "40c5f0bf71ddbf3054ff256f70bc033666f68f017cb54cf5ca5ca0cc99af8717",
+    "sdk-run/lost-final-response-1.json": "0f42b3d59335fbacc192789ac8014bbb0c7d819f956acf6e14968e16fa2df36b",
+    "sdk-run/lost-final-request-2.json": "a49c93ae87d4198277b1fe368cd609ddb4e5e8611c4d0eecb5a93a2fc24dcf72",
+    "sdk-run/lost-final-response-2.json": "fabc102a6f195dec679b842e4bbb16f9d6782d416ead28d43a56d11635a57f32",
+    "sdk-run/lost-final-claim.json": "de35b72b900e7c4cd714cb21f529bce54ee98ca06d3f1bceb93543633c60fec8",
+    "sdk-run/lost-final-verification.json": "253122f855fcd67b65317c607b7d13ca404078bd8feba60d37a2f87959987214",
+    "sdk-run/http-failure-input.json": "f40dac505a4eecca4f9b8a296dade5b9d5823c26597b024e12bcecc92e317bff",
+    "sdk-run/http-failure-result.json": "665236a02b4aa1bfb340ee461227dc0c3ae8cd29a1087f5747e2c2e4c19f86e6",
+    "sdk-run/http-failure-request-0.json": "c1c5613ed22a1968fd882e6c9f4ad35de10bd7092498847614230c34ffe2b8a7",
+    "sdk-run/http-failure-response-0.json": "42a543df98bb6f01169ef9d3e455d364f41a9458336e2878d61502b5604ec3df",
+    "sdk-run/http-failure-request-1.json": "40c5f0bf71ddbf3054ff256f70bc033666f68f017cb54cf5ca5ca0cc99af8717",
+    "sdk-run/http-failure-response-1.json": "f5857761d6e7d22678c9ad53db2737d4e7b3290ce4d8b671c7ea958fea7efa22",
+    "sdk-run/byte-budget-input.json": "32acb0c420f3ad45b8dd0152cba076db5cc056c3926b940bd083558873931aee",
+    "sdk-run/byte-budget-result.json": "458551623f3253514ea5119643a0ad163a81d1ef4198cdf74cf3fe74ff90ee6b",
+    "sdk-run/byte-budget-request-0.json": "c1c5613ed22a1968fd882e6c9f4ad35de10bd7092498847614230c34ffe2b8a7",
+    "sdk-run/byte-budget-response-0.json": "42a543df98bb6f01169ef9d3e455d364f41a9458336e2878d61502b5604ec3df"
+  },
+  "original_upstream_hashes_match": true,
+  "generated_js_delta": "Only remove the second Uint8Array construction at Blob creation",
+  "native_verifier": {
+    "original": ".tmp/browser-namespace-01/artifacts/verify_download",
+    "retained": ".tmp/sdk-owned-blob-01/artifacts/verify_download",
+    "sha256": "520401679acb2174fe0f03301ad40d9c5abfd23969bdb0b35f71947673d70185",
+    "qualification": "Earlier retained binary; no current Rust build/graph qualification"
+  },
+  "sdk_cases": [
+    {
+      "name": "single",
+      "mode": "success",
+      "size": 3,
+      "requests": 2,
+      "uploaded": 767,
+      "returned": true,
+      "refusal": null,
+      "progress": [
+        100
+      ],
+      "finalRequestPhase": "responded",
+      "verified": {
+        "original": true,
+        "corrupted": false,
+        "truncated": false
+      },
+      "retryDispatched": false,
+      "compositionPreflightRefusals": true,
+      "providerCompletion": "not_established",
+      "providerCharges": "not_observed"
+    },
+    {
+      "name": "multi",
+      "mode": "success",
+      "size": 1048577,
+      "requests": 3,
+      "uploaded": 1049639,
+      "returned": true,
+      "refusal": null,
+      "progress": [
+        50,
+        100
+      ],
+      "finalRequestPhase": "responded",
+      "verified": {
+        "original": true,
+        "corrupted": false,
+        "truncated": false
+      },
+      "retryDispatched": false,
+      "compositionPreflightRefusals": true,
+      "providerCompletion": "not_established",
+      "providerCharges": "not_observed"
+    },
+    {
+      "name": "not-complete",
+      "mode": "non-complete",
+      "size": 3,
+      "requests": 2,
+      "uploaded": 767,
+      "returned": true,
+      "refusal": null,
+      "progress": [
+        100
+      ],
+      "finalRequestPhase": "responded",
+      "verified": {
+        "original": true,
+        "corrupted": false,
+        "truncated": false
+      },
+      "retryDispatched": false,
+      "compositionPreflightRefusals": true,
+      "providerCompletion": "not_established",
+      "providerCharges": "not_observed"
+    },
+    {
+      "name": "lost-final",
+      "mode": "lost-final",
+      "size": 1048577,
+      "requests": 3,
+      "uploaded": 1049639,
+      "returned": false,
+      "refusal": "TypeError",
+      "progress": [
+        50
+      ],
+      "finalRequestPhase": "uncertain",
+      "verified": {
+        "original": true,
+        "corrupted": false,
+        "truncated": false
+      },
+      "retryDispatched": false,
+      "compositionPreflightRefusals": true,
+      "providerCompletion": "not_established",
+      "providerCharges": "not_observed"
+    },
+    {
+      "name": "http-failure",
+      "mode": "http-failure",
+      "size": 1048577,
+      "requests": 2,
+      "uploaded": 1049638,
+      "returned": false,
+      "refusal": "Error",
+      "progress": [],
+      "finalRequestPhase": "responded",
+      "verified": null,
+      "retryDispatched": false,
+      "compositionPreflightRefusals": true,
+      "providerCompletion": "not_established",
+      "providerCharges": "not_observed"
+    },
+    {
+      "name": "byte-budget",
+      "mode": "budget",
+      "size": 1048577,
+      "requests": 1,
+      "uploaded": 1062,
+      "returned": false,
+      "refusal": "request-budget",
+      "progress": [],
+      "finalRequestPhase": "responded",
+      "verified": null,
+      "retryDispatched": false,
+      "compositionPreflightRefusals": true,
+      "providerCompletion": "not_established",
+      "providerCharges": "not_observed"
+    }
+  ],
+  "chromium_cases": [
+    {
+      "name": "sdk_owned_selected_view_image/png",
+      "expected": {
+        "hash": "sha256:3f386439312d1593a9807ccf9bd9809b398b0d32ed2f4bb20772c883b551bb68",
+        "byteLength": 1049055,
+        "maxChunkBytes": 1048576,
+        "manifestJSON": "{\"tree_type\":\"DSBMTWH\",\"chunk_hashes\":[\"sha256:4d6434c1d07ca92c08e856db270ae337df084dbd5fe3fb96fa9939117ccb3e52\",\"sha256:d8add26132ff9371a5f59c09b77cbed6af591af0ce9e966831c7e481f428efa0\"],\"tree\":{\"hash\":\"sha256:3f386439312d1593a9807ccf9bd9809b398b0d32ed2f4bb20772c883b551bb68\",\"left\":{\"hash\":\"sha256:8cf909059d7eb07a55892f490ff61b931dbd2aec6992c264f7ac237217c23636\",\"left\":{\"hash\":\"sha256:4d6434c1d07ca92c08e856db270ae337df084dbd5fe3fb96fa9939117ccb3e52\",\"left\":null,\"right\":null},\"right\":{\"hash\":\"sha256:d8add26132ff9371a5f59c09b77cbed6af591af0ce9e966831c7e481f428efa0\",\"left\":null,\"right\":null}},\"right\":{\"hash\":\"sha256:28f7ed33b8eb55519096d7096992e18c1ca16583cb318a485ddf236c25f5b236\",\"left\":null,\"right\":null}},\"headers\":[\"Cache-Control: no-store\",\"Content-Disposition: attachment; filename=selected.bin\",\"Content-Length: 1049055\",\"Content-Type: image/png\"]}"
+      },
+      "actual": {
+        "hash": "sha256:3f386439312d1593a9807ccf9bd9809b398b0d32ed2f4bb20772c883b551bb68",
+        "byteLength": 1049055,
+        "maxChunkBytes": 1048576,
+        "manifestJSON": "{\"tree_type\":\"DSBMTWH\",\"chunk_hashes\":[\"sha256:4d6434c1d07ca92c08e856db270ae337df084dbd5fe3fb96fa9939117ccb3e52\",\"sha256:d8add26132ff9371a5f59c09b77cbed6af591af0ce9e966831c7e481f428efa0\"],\"tree\":{\"hash\":\"sha256:3f386439312d1593a9807ccf9bd9809b398b0d32ed2f4bb20772c883b551bb68\",\"left\":{\"hash\":\"sha256:8cf909059d7eb07a55892f490ff61b931dbd2aec6992c264f7ac237217c23636\",\"left\":{\"hash\":\"sha256:4d6434c1d07ca92c08e856db270ae337df084dbd5fe3fb96fa9939117ccb3e52\",\"left\":null,\"right\":null},\"right\":{\"hash\":\"sha256:d8add26132ff9371a5f59c09b77cbed6af591af0ce9e966831c7e481f428efa0\",\"left\":null,\"right\":null}},\"right\":{\"hash\":\"sha256:28f7ed33b8eb55519096d7096992e18c1ca16583cb318a485ddf236c25f5b236\",\"left\":null,\"right\":null}},\"headers\":[\"Cache-Control: no-store\",\"Content-Disposition: attachment; filename=selected.bin\",\"Content-Length: 1049055\",\"Content-Type: image/png\"]}"
+      },
+      "caller_bytes": 1049089,
+      "frozen": true
+    },
+    {
+      "name": "sdk_owned_selected_view_sniffed",
+      "expected": {
+        "hash": "sha256:519e6c2672446bf87deb231efcbadf186974f382fb6ffc77037b111754b58cd0",
+        "byteLength": 1049055,
+        "maxChunkBytes": 1048576,
+        "manifestJSON": "{\"tree_type\":\"DSBMTWH\",\"chunk_hashes\":[\"sha256:4d6434c1d07ca92c08e856db270ae337df084dbd5fe3fb96fa9939117ccb3e52\",\"sha256:d8add26132ff9371a5f59c09b77cbed6af591af0ce9e966831c7e481f428efa0\"],\"tree\":{\"hash\":\"sha256:519e6c2672446bf87deb231efcbadf186974f382fb6ffc77037b111754b58cd0\",\"left\":{\"hash\":\"sha256:8cf909059d7eb07a55892f490ff61b931dbd2aec6992c264f7ac237217c23636\",\"left\":{\"hash\":\"sha256:4d6434c1d07ca92c08e856db270ae337df084dbd5fe3fb96fa9939117ccb3e52\",\"left\":null,\"right\":null},\"right\":{\"hash\":\"sha256:d8add26132ff9371a5f59c09b77cbed6af591af0ce9e966831c7e481f428efa0\",\"left\":null,\"right\":null}},\"right\":{\"hash\":\"sha256:0a5c4959b9175d86ab29195b407405e2b336e167c78c6a7489a3fe3743740f38\",\"left\":null,\"right\":null}},\"headers\":[\"Cache-Control: no-store\",\"Content-Disposition: attachment; filename=selected.bin\",\"Content-Length: 1049055\",\"Content-Type: application/octet-stream\"]}"
+      },
+      "actual": {
+        "hash": "sha256:519e6c2672446bf87deb231efcbadf186974f382fb6ffc77037b111754b58cd0",
+        "byteLength": 1049055,
+        "maxChunkBytes": 1048576,
+        "manifestJSON": "{\"tree_type\":\"DSBMTWH\",\"chunk_hashes\":[\"sha256:4d6434c1d07ca92c08e856db270ae337df084dbd5fe3fb96fa9939117ccb3e52\",\"sha256:d8add26132ff9371a5f59c09b77cbed6af591af0ce9e966831c7e481f428efa0\"],\"tree\":{\"hash\":\"sha256:519e6c2672446bf87deb231efcbadf186974f382fb6ffc77037b111754b58cd0\",\"left\":{\"hash\":\"sha256:8cf909059d7eb07a55892f490ff61b931dbd2aec6992c264f7ac237217c23636\",\"left\":{\"hash\":\"sha256:4d6434c1d07ca92c08e856db270ae337df084dbd5fe3fb96fa9939117ccb3e52\",\"left\":null,\"right\":null},\"right\":{\"hash\":\"sha256:d8add26132ff9371a5f59c09b77cbed6af591af0ce9e966831c7e481f428efa0\",\"left\":null,\"right\":null}},\"right\":{\"hash\":\"sha256:0a5c4959b9175d86ab29195b407405e2b336e167c78c6a7489a3fe3743740f38\",\"left\":null,\"right\":null}},\"headers\":[\"Cache-Control: no-store\",\"Content-Disposition: attachment; filename=selected.bin\",\"Content-Length: 1049055\",\"Content-Type: application/octet-stream\"]}"
+      },
+      "caller_bytes": 1049089,
+      "frozen": true
+    },
+    {
+      "name": "selected_ed25519_private_port_snapshot_concurrency"
+    },
+    {
+      "name": "selected_secp256k1_private_port_snapshot_concurrency"
+    },
+    {
+      "name": "worker_refuses_signer-kind_before_storage"
+    },
+    {
+      "name": "worker_refuses_signer-json_before_storage"
+    },
+    {
+      "name": "worker_refuses_key-pair_before_storage"
+    },
+    {
+      "name": "worker_refuses_uploader_before_storage"
+    },
+    {
+      "name": "worker_refuses_root_before_storage"
+    },
+    {
+      "name": "worker_refuses_gateway_before_storage"
+    },
+    {
+      "name": "worker_refuses_journal_before_storage"
+    },
+    {
+      "name": "worker_refuses_extra_before_storage"
+    },
+    {
+      "name": "bounded_body_view_owned_without_detaching_caller"
+    },
+    {
+      "name": "abort_and_foreign_asset_refuse_before_launch"
+    },
+    {
+      "name": "close_rejects_outstanding_job_without_retry"
+    },
+    {
+      "name": "host_deadline_terminates_worker"
+    },
+    {
+      "name": "same_profile_reopens_original_journal_after_termination"
+    }
+  ],
+  "launcher_cases": [
+    "occupied_port_refuses_before_profile",
+    "launch_selection_owned_before_filesystem_awaits",
+    "private_passive_binding_retains_scope_without_signer_secret",
+    "explicit_profile_and_origin_start_without_effects",
+    "owned_request_and_single_job",
+    "changed_truncated_oversized_and_noncanonical_body_refuse",
+    "symlinks_and_directories_are_not_bodies",
+    "fifo_without_writer_refuses_without_blocking",
+    "metadata_hints_have_exact_fields_and_utf8_bounds",
+    "close_preserves_profile_and_refuses_replacement",
+    "changed_origin_missing_and_symlink_profiles_refuse_without_replacement",
+    "changed_signer_trust_scope_journal_and_assets_refuse_before_chromium",
+    "partial_missing_symlink_and_relocated_bindings_refuse_without_replacement",
+    "same_origin_and_profile_reopen_original_journal",
+    "deadline_closes_browser_without_erasing_profile",
+    "launch_failure_retains_binding_before_browser_and_reopen_never_replaces_it",
+    "mismatched_or_partial_native_intent_refuses_before_profile_and_chromium",
+    "native_handoff_recovery_without_browser_history_never_becomes_upload_and_tampering_refuses",
+    "native_driver_bounds_control_hints_and_excludes_concurrent_jobs_until_closed",
+    "native_driver_requires_exact_current_complete_map_final_report_and_exit_and_cancels_finish",
+    "original_native_session_binding_reopens_and_cannot_be_bypassed_or_rewritten",
+    "shutdown_diagnostics_are_redacted_preserve_primary_failure_and_release_original_port_and_profile"
+  ],
+  "publication_cases": [
+    {
+      "name": "corrupt_body",
+      "code": "body-digest",
+      "intentAccess": 0,
+      "transportRequests": 0
+    },
+    {
+      "name": "different_expected_digest",
+      "code": "body-digest",
+      "intentAccess": 0,
+      "transportRequests": 0
+    },
+    {
+      "name": "bounded_body",
+      "code": "body-size",
+      "intentAccess": 0,
+      "transportRequests": 0
+    },
+    {
+      "name": "malformed_digest",
+      "code": "body-digest",
+      "intentAccess": 0,
+      "transportRequests": 0
+    },
+    {
+      "name": "empty_body",
+      "code": "body-size",
+      "intentAccess": 0,
+      "transportRequests": 0
+    },
+    {
+      "name": "wrong_root",
+      "code": "root",
+      "intentAccess": 0,
+      "transportRequests": 0
+    },
+    {
+      "name": "wrong_metadata_hint",
+      "code": "root",
+      "intentAccess": 0,
+      "transportRequests": 0
+    },
+    {
+      "name": "oversized_metadata_hint",
+      "code": "metadata-hint",
+      "intentAccess": 0,
+      "transportRequests": 0
+    },
+    {
+      "name": "oversized_utf8_filename",
+      "code": "metadata-hint",
+      "intentAccess": 0,
+      "transportRequests": 0
+    },
+    {
+      "name": "oversized_utf8_content_type",
+      "code": "metadata-hint",
+      "intentAccess": 0,
+      "transportRequests": 0
+    },
+    {
+      "name": "null_metadata_hint",
+      "code": "metadata-hint",
+      "intentAccess": 0,
+      "transportRequests": 0
+    },
+    {
+      "name": "null_cache_hint",
+      "code": "metadata-hint",
+      "intentAccess": 0,
+      "transportRequests": 0
+    },
+    {
+      "name": "oversized_utf8_cache_hint",
+      "code": "metadata-hint",
+      "intentAccess": 0,
+      "transportRequests": 0
+    },
+    {
+      "name": "malformed_manifest",
+      "code": "manifest",
+      "intentAccess": 0,
+      "transportRequests": 0
+    },
+    {
+      "name": "oversized_manifest",
+      "code": "manifest-size",
+      "intentAccess": 0,
+      "transportRequests": 0
+    },
+    {
+      "name": "oversized_utf8_manifest",
+      "code": "manifest-size",
+      "intentAccess": 0,
+      "transportRequests": 0
+    },
+    {
+      "name": "empty_manifest",
+      "code": "manifest-size",
+      "intentAccess": 0,
+      "transportRequests": 0
+    },
+    {
+      "name": "changed_headers",
+      "code": "manifest",
+      "intentAccess": 0,
+      "transportRequests": 0
+    },
+    {
+      "name": "changed_chunk_hashes",
+      "code": "manifest",
+      "intentAccess": 0,
+      "transportRequests": 0
+    },
+    {
+      "name": "changed_tree_type",
+      "code": "manifest",
+      "intentAccess": 0,
+      "transportRequests": 0
+    },
+    {
+      "name": "insufficient_tree_and_chunk_requests",
+      "code": "transfer-budget",
+      "intentAccess": 0,
+      "transportRequests": 0
+    },
+    {
+      "name": "insufficient_chunk_request_bytes",
+      "code": "transfer-budget",
+      "intentAccess": 0,
+      "transportRequests": 0
+    },
+    {
+      "name": "insufficient_total_chunk_bytes",
+      "code": "transfer-budget",
+      "intentAccess": 0,
+      "transportRequests": 0
+    },
+    {
+      "name": "invalid_budget_bounds",
+      "code": "transfer-budget",
+      "intentAccess": 0,
+      "transportRequests": 0
+    },
+    {
+      "name": "multichunk_insufficient_requests",
+      "code": "transfer-budget",
+      "intentAccess": 0,
+      "transportRequests": 0
+    },
+    {
+      "name": "multichunk_insufficient_largest_chunk",
+      "code": "transfer-budget",
+      "intentAccess": 0,
+      "transportRequests": 0
+    },
+    {
+      "name": "multichunk_insufficient_total",
+      "code": "transfer-budget",
+      "intentAccess": 0,
+      "transportRequests": 0
+    },
+    {
+      "name": "omitted_original_cache_hint",
+      "code": "root",
+      "intentAccess": 0,
+      "transportRequests": 0
+    },
+    {
+      "name": "changed_original_cache_hint",
+      "code": "root",
+      "intentAccess": 0,
+      "transportRequests": 0
+    },
+    {
+      "name": "cache_hint_changes_uncached_root",
+      "code": "root",
+      "intentAccess": 0,
+      "transportRequests": 0
+    },
+    {
+      "name": "aborted_before_preparation",
+      "code": "AbortError",
+      "intentAccess": 0,
+      "transportRequests": 0
+    },
+    {
+      "name": "single_chunk_exact_lower_bounds",
+      "reachesOriginalBoundIntent": true,
+      "transportRequests": 0
+    },
+    {
+      "name": "multichunk_exact_lower_bounds",
+      "reachesOriginalBoundIntent": true,
+      "transportRequests": 0
+    },
+    {
+      "name": "exact_original_cache_metadata",
+      "reachesOriginalBoundIntent": true,
+      "transportRequests": 0
+    },
+    {
+      "name": "input_snapshots_across_await",
+      "reachesOriginalBoundIntent": true,
+      "transportRequests": 0
+    }
+  ],
+  "worker_cases": [
+    {
+      "name": "foreign_service",
+      "error": "scope",
+      "reads": 0,
+      "claims": 0,
+      "transport_requests": 0
+    },
+    {
+      "name": "foreign_tenant",
+      "error": "scope",
+      "reads": 0,
+      "claims": 0,
+      "transport_requests": 0
+    },
+    {
+      "name": "foreign_uploader",
+      "error": "scope",
+      "reads": 0,
+      "claims": 0,
+      "transport_requests": 0
+    },
+    {
+      "name": "foreign_project",
+      "error": "scope",
+      "reads": 0,
+      "claims": 0,
+      "transport_requests": 0
+    },
+    {
+      "name": "foreign_bucket",
+      "error": "scope",
+      "reads": 0,
+      "claims": 0,
+      "transport_requests": 0
+    },
+    {
+      "name": "invalid_binding_operation",
+      "error": "operation",
+      "reads": 0,
+      "claims": 0,
+      "transport_requests": 0
+    },
+    {
+      "name": "invalid_binding_operation",
+      "error": "operation",
+      "reads": 0,
+      "claims": 0,
+      "transport_requests": 0
+    },
+    {
+      "name": "invalid_binding_root",
+      "error": "root",
+      "reads": 0,
+      "claims": 0,
+      "transport_requests": 0
+    },
+    {
+      "name": "invalid_binding_permission",
+      "error": "permission",
+      "reads": 0,
+      "claims": 0,
+      "transport_requests": 0
+    },
+    {
+      "name": "invalid_binding_permission",
+      "error": "permission",
+      "reads": 0,
+      "claims": 0,
+      "transport_requests": 0
+    },
+    {
+      "name": "invalid_binding_key",
+      "error": "key",
+      "reads": 0,
+      "claims": 0,
+      "transport_requests": 0
+    },
+    {
+      "name": "unknown_fields",
+      "error": "message",
+      "reads": 0,
+      "claims": 0,
+      "transport_requests": 0
+    },
+    {
+      "name": "unknown_action",
+      "error": "message",
+      "reads": 0,
+      "claims": 0,
+      "transport_requests": 0
+    },
+    {
+      "name": "empty_manifest",
+      "error": "manifest-size",
+      "reads": 0,
+      "claims": 0,
+      "transport_requests": 0
+    },
+    {
+      "name": "utf8_manifest",
+      "error": "manifest-size",
+      "reads": 0,
+      "claims": 0,
+      "transport_requests": 0
+    },
+    {
+      "name": "utf8_filename",
+      "error": "metadata-hint",
+      "reads": 0,
+      "claims": 0,
+      "transport_requests": 0
+    },
+    {
+      "name": "utf8_content_type",
+      "error": "metadata-hint",
+      "reads": 0,
+      "claims": 0,
+      "transport_requests": 0
+    },
+    {
+      "name": "null_hint",
+      "error": "metadata-hint",
+      "reads": 0,
+      "claims": 0,
+      "transport_requests": 0
+    },
+    {
+      "name": "utf8_cache_control",
+      "error": "metadata-hint",
+      "reads": 0,
+      "claims": 0,
+      "transport_requests": 0
+    },
+    {
+      "name": "null_cache_control",
+      "error": "metadata-hint",
+      "reads": 0,
+      "claims": 0,
+      "transport_requests": 0
+    },
+    {
+      "name": "utf8_boundary_and_selected_body_ownership",
+      "claims": 0,
+      "transport_requests": 0
+    },
+    {
+      "name": "corrupt_body",
+      "error": "body-digest",
+      "reads": 1,
+      "claims": 0,
+      "transport_requests": 0
+    },
+    {
+      "name": "changed_manifest",
+      "error": "manifest",
+      "reads": 1,
+      "claims": 0,
+      "transport_requests": 0
+    },
+    {
+      "name": "insufficient_requests",
+      "error": "transfer-budget",
+      "reads": 1,
+      "claims": 0,
+      "transport_requests": 0
+    },
+    {
+      "name": "insufficient_chunk_bytes",
+      "error": "transfer-budget",
+      "reads": 1,
+      "claims": 0,
+      "transport_requests": 0
+    },
+    {
+      "name": "insufficient_total_bytes",
+      "error": "transfer-budget",
+      "reads": 1,
+      "claims": 0,
+      "transport_requests": 0
+    },
+    {
+      "name": "claimed_or_cancelled",
+      "error": "upload-claimed",
+      "reads": 0,
+      "claims": 0,
+      "transport_requests": 0
+    },
+    {
+      "name": "claimed_or_cancelled",
+      "error": "upload-claimed",
+      "reads": 0,
+      "claims": 0,
+      "transport_requests": 0
+    },
+    {
+      "name": "claimed_or_cancelled",
+      "error": "upload-claimed",
+      "reads": 0,
+      "claims": 0,
+      "transport_requests": 0
+    },
+    {
+      "name": "missing_recovery_history",
+      "error": "history-missing",
+      "reads": 1,
+      "claims": 0,
+      "transport_requests": 0
+    },
+    {
+      "name": "missing_cancellation_history",
+      "error": "history-missing",
+      "reads": 1,
+      "claims": 0,
+      "transport_requests": 0
+    },
+    {
+      "name": "concurrent_guard_and_correlation",
+      "claims": 0,
+      "transport_requests": 0
+    },
+    {
+      "name": "snapshots_and_redacted_failure",
+      "claims": 0,
+      "transport_requests": 0
+    },
+    {
+      "name": "aborted_worker",
+      "error": "aborted",
+      "reads": 0,
+      "claims": 0,
+      "transport_requests": 0
+    },
+    {
+      "name": "idle_deadline_fences_new_jobs",
+      "claims": 0,
+      "transport_requests": 0
+    },
+    {
+      "name": "configuration_roles_origins_and_limits",
+      "claims": 0,
+      "transport_requests": 0
+    },
+    {
+      "name": "bounded_journal_projection",
+      "claims": 0,
+      "transport_requests": 0
+    },
+    {
+      "name": "exported_error_with_private_code",
+      "error": "transport",
+      "reads": 0,
+      "claims": 0,
+      "transport_requests": 0
+    },
+    {
+      "name": "corrupt_projection_refused",
+      "error": "intent-corrupt",
+      "reads": 0,
+      "claims": 0,
+      "transport_requests": 0
+    },
+    {
+      "name": "corrupt_projection_refused",
+      "error": "intent-corrupt",
+      "reads": 0,
+      "claims": 0,
+      "transport_requests": 0
+    },
+    {
+      "name": "corrupt_projection_refused",
+      "error": "intent-corrupt",
+      "reads": 0,
+      "claims": 0,
+      "transport_requests": 0
+    },
+    {
+      "name": "corrupt_projection_refused",
+      "error": "intent-corrupt",
+      "reads": 0,
+      "claims": 0,
+      "transport_requests": 0
+    }
+  ],
+  "checks": [
+    "pinned upstream source hashes unchanged and generated JS has only the intended delta",
+    "browser bundles rebuild",
+    "SDK substitute payload/mutation/lost-reply/budget checks pass",
+    "actual Chromium selected view/MIME/root/manifest/bootstrap checks pass",
+    "publication frozen-input and worker boundaries pass",
+    "actual Chromium launcher binary/profile/control/recovery boundaries pass",
+    "JavaScript syntax, changelog and diff checks pass"
+  ],
+  "live_ic_requests": 0,
+  "live_provider_requests": 0,
+  "paid_cycles": "0",
+  "automatic_retries": 0,
+  "failures": [],
+  "original_profiles": [
+    ".tmp/sdk-owned-blob-01/chromium-run/profile",
+    ".tmp/sdk-owned-blob-01/launcher-run/profile"
+  ],
+  "limitations": [
+    "Gateway/certificate/store substitutes do not qualify deployed provider effects",
+    "One array allocation removed; no measured overall peak-memory or throughput improvement",
+    "No current Rust build, full CI, populated-store or million-object qualification",
+    "Consumer selected tools and certified asset registration remain open; retained profiles require original executable bundles"
+  ]
+}

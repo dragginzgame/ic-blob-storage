@@ -119,3 +119,39 @@ fn late_attestation_survives_revocation_and_fenced_restore_as_immutable_evidence
     );
     assert_eq!(restored.usage().unwrap(), usage);
 }
+
+#[test]
+fn restoration_rejects_attestation_observed_before_its_original_admission() {
+    use crate::model::service::upload::record::lifecycle::{AttestationRecord, CompletionRecord};
+    let m = memory();
+    let mut store = StableUploads::install(clone_memory(&m), config()).unwrap();
+    enroll(&mut store);
+    let manifest = manifest_boundary::input();
+    let permission = manifest.permission;
+    let model = admission::parse_binding(p(1), permission).unwrap();
+    admit(&mut store, context(4), permission, 1).unwrap();
+    prepare(&mut store, context(5), &manifest, 2).unwrap();
+    store.expose(context(5), model.request, 3).unwrap();
+    let statement = UploadAttestationRequest {
+        permission,
+        content_digest: [18; 32],
+        observed_at_ns: 4,
+    };
+    attest(&mut store, authority(), context(9), &statement, 5).unwrap();
+    store.confirmed.insert(
+        key(model.request),
+        ConfirmedLifecycleRecord::new(CompletionRecord::Attested(AttestationRecord {
+            verifier: p(9),
+            content_digest: statement.content_digest,
+            observed_at_ns: 0,
+            accepted_at_ns: 5,
+        })),
+    );
+    drop(store);
+    let before = m.confirmed.borrow().clone();
+    assert!(matches!(
+        StableUploads::open(clone_memory(&m), config()),
+        Err(UploadStoreError::InvalidRecord)
+    ));
+    assert_eq!(*m.confirmed.borrow(), before);
+}

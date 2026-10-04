@@ -2,6 +2,161 @@
 
 ## [Unreleased]
 
+## [0.14.7] - 2026-10-04
+
+### Added
+
+- Add opt-in populated browser journal profiling through strict commits and
+  graceful process restart. Preserve exact uncertain/cancelled histories and
+  capacity/replay refusals at 675, 5,000 and 10,000 rows. Retain the earlier
+  20,000-row attempt that exceeded the fixture deadline; no default CI workload,
+  state counter, schema change or provider effect is introduced.
+- Requalify complete GLB/WebP delivery and PNG/JPEG lost-reply/control-interruption
+  recovery with matching rebuilt 0.14.6 CLI, standalone Wasm and browser tools on
+  ic-memory 0.25.0 and ic-testkit 0.14.11. Verify the installed release, original
+  roots/chunks/whole bytes/cache headers, recovered maps and reference liabilities;
+  recovery dispatches no additional PUT. Retain hashes, logs and original profiles
+  as local/substitute evidence, without claiming deployed provider qualification.
+
+### Changed
+
+- Simplify synchronous upload restoration: remove the temporary set of every blob
+  root and reuse the decoded permission's admission time for attestation validation.
+  Keep durable index, tenant/request uniqueness, accounting and recovery-fence
+  checks. Corrupt duplicate bindings and pre-admission attestations still refuse
+  without repair; storage layouts and public contracts remain unchanged.
+- Refresh the acceptance plan to reflect retained live trials, current same-release
+  recovery and local media qualification, while keeping consumer adoption,
+  production serving and provider retirement obligations explicit.
+- Clarify that IndexedDB point lookups and count do not guarantee constant-cost
+  operations. Keep journal capacity checks and distinguish measured browser
+  workloads from service-canister or million-object qualification.
+- Move the completed 0.14.6 handoff narrative into retained history and keep the
+  current handoff focused on release identity, qualification and remaining work.
+
+## [0.14.6] - 2026-10-04
+
+### Fixed
+
+- Avoid a second full-body array copy when the patched Caffeine SDK constructs
+  its Blob. Keep the snapshot before MIME detection awaits, exact selected bytes,
+  upstream hashing/chunking and one-shot preparation handles. Chromium mutation
+  checks and substitute SDK payload/lost-reply/budget checks pass.
+- Send bounded base64 strings through the native-to-browser body bridge instead
+  of serializing every byte as a Playwright argument element. Preserve the 64 KiB
+  raw-frame bound, exact original bytes, SHA checks and SDK preparation before
+  certificate intent. Binary-byte and existing Chromium failure/recovery checks pass.
+
+### Added
+
+- Add opt-in launcher/CDP/SDK profiling with retained original profiles and
+  zero provider effects. Instrumented local preparation/refusal observations for
+  1/8/32 MiB bodies improve from 2.99/22.88/86.41 seconds to 0.08/0.48/1.83 seconds.
+  These measure the client bridge before issuance, not successful upload latency
+  or Canic execution; worker/process peak memory and populated-store scale remain open.
+
+### Changed
+
+- Update the workspace ic-memory dependency to 0.25, locking 0.25.0.
+
+## [0.14.5] - 2026-10-04
+
+### Fixed
+
+- Return typed `native-control` refusals for unknown/non-string continuation
+  phases and unserializable native results. Check phase and final replies through
+  one 8 MiB boundary; preserve context shutdown, profiles and original claims.
+- Validate native local-verification permissions through the core's canonical
+  validator before body access or queries, including invalid service principals.
+  Preserve explicit role/scope refusals, byte bounds and original open-file ownership.
+- Fence retained browser journal handles when IndexedDB invalidates or closes
+  their connection. Use the same close owner as explicit shutdown, return typed
+  `store-closed` refusals, and refuse a handle invalidated during startup checks.
+  Preserve existing transactions and claims; opening missing storage still refuses.
+
+### Changed
+
+- Consolidate native saved-request and exact installation decoding into one
+  bounded helper. Preserve command-specific byte/work/type limits, no skipped
+  fields, exact single-argument inputs and separate authenticated reply contracts.
+- Snapshot browser bootstrap input once and reuse one validated scope and trust
+  root for host jobs and the private payload. Remove the repeated local validation
+  while preserving independent worker checks before storage access.
+
+## [0.14.4] - 2026-10-04
+
+### Added
+
+- Qualify source installation from clean Git release 0.14.3 with a fresh native
+  prefix and pinned npm directory, without Git discovery. Exact installed tools
+  and matching Wasm complete original-cache-root GLB/WebP and recover PNG/JPEG
+  lost replies without another PUT. Consumer-owned installation remains separate.
+
+### Fixed
+
+- Keep browser shutdown and native argument/control serialization failures inside
+  the redacted refusal boundary. Preserve the original startup/control failure
+  during cleanup, release the asset server even when Chromium close rejects, and
+  reject invalid native frames without writing or consuming a phase. Preserve
+  profiles and uncertain claims; add no retry or replacement history.
+- Give the serial publication fixture one 120-second session deadline for native
+  original/recovery intents, browser bootstrap and subprocess ownership. Preserve
+  shorter single-step bounds and the whole-fixture timer. Retain effective limits
+  with completion/recovery evidence; production timeout defaults are unchanged.
+
+## [0.14.3] - 2026-10-04
+
+### Changed
+
+- Let the existing local publication fixture consume an explicitly selected,
+  hash-bound two-file media set. Derive installation byte limits from the bodies,
+  retain original MIME through native/SDK preparation and serve the uploaded
+  metadata. Keep authored PNG and synthetic cases on the same workflow.
+- Extend browser delivery checks to JPEG/WebP images and complete GLB bytes with
+  structural inspection. Retain independent whole-file verification, canonical
+  URLs, selected-origin CORS and explicit local image CSP checks. Private consumer
+  media stays outside the repository; game rendering and deployed serving remain
+  separate acceptance.
+
+### Added
+
+- Exercise valid byte-bounded Candid skipped-value and type-table refusals at
+  standalone query/update, manifest, certificate and installation boundaries.
+  Preserve owner state on rejection and failed reinstall, include valid controls
+  and check dense near-limit manifests reach the domain count refusal. Document
+  the subsumed header ceiling and limits of decoding-work coverage.
+- Add offline machine-readable `blob-storage --version` and document one selected
+  source checkout for native installation, pinned browser builds and retained
+  artifact identities. Verify a fresh-prefix CLI installation with the actual
+  SDK/native snapshot handoff, then qualify an isolated source copy with fresh
+  npm dependencies and no Git metadata. Use its exact installed CLI, matching
+  browser bundles and Wasm for cached media completion and lost-reply recovery
+  without another PUT. Retain build-profile/toolchain provenance; downstream
+  adoption remains separate.
+- Qualify the concurrently selected ic-memory 0.24.10 graph with matching Wasm
+  initialization, same-release stop/start/upgrade fences, obligation-preserving
+  recovery and stale-snapshot refusal. Retain its source/artifact identities
+  separately from earlier media publication observations.
+- Exercise native map-output refusal after completed uploads, then recover a
+  complete map through fresh signed queries without another upload. Preserve the
+  occupied output, exact completion history and overlapping-reference cleanup.
+- Record representative frozen consumer-byte completion, lost-final-reply recovery
+  and tail-corruption refusal. Qualify an eight-chunk model and actual image
+  decoding locally; reference release retains physical/billing liabilities.
+- Preserve explicit original `Cache-Control` metadata through native bindings,
+  transfer descriptors, browser snapshots and the same SDK preparation. Qualify
+  all four retained consumer roots/headers/leaves, local cached model completion,
+  lost-image-reply recovery and corruption refusal. Changed or omitted required
+  hints refuse before certificate intent; omission still adds no cache header.
+
+### Fixed
+
+- Refuse predictably impossible publication transfer budgets before saving
+  certificate intent. Use SDK-owned chunk sizes and the rebuilt manifest to
+  check tree/chunk request count, largest chunk and total body bytes. Preserve
+  exact gateway checks for later envelope overhead, existing claims and lost-reply
+  recovery; return the specific refusal through the worker without dispatch.
+
 ## [0.14.2] - 2026-10-04
 
 ### Added

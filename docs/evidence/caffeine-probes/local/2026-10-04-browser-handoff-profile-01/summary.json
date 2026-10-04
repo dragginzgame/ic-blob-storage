@@ -1,0 +1,209 @@
+{
+  "schema": 1,
+  "evidence_class": "local_chromium_and_sdk",
+  "result": "pass",
+  "baseline_release": "0.14.5",
+  "baseline_commit": "8e1cfed48327b9da56aadf417a179549a33c6602",
+  "release_validated_source": "ec49a86b5a76c9a2bc00f7d083cd6631b25f57eb",
+  "retained_directory": ".tmp/browser-handoff-profile-01",
+  "intent_sha256": "c6c292efa0638432e015140c35a545ba721219a9827e8488586bc476b96ea147",
+  "followup_intent_sha256": "e6c4594ce356e3a6e152d69d545c4da6d0ce6541002d55fb710fba52fd28f65e",
+  "node": "v24.21.0",
+  "chromium_after": {
+    "protocolVersion": "1.3",
+    "product": "HeadlessChrome/153.0.8010.12",
+    "revision": "@971a7443b0c9b0a9b2860529b33331b76077ec62",
+    "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36",
+    "jsVersion": "15.3.76.4"
+  },
+  "chromium_baseline_executable": "/home/adam/.cache/ms-playwright/chromium-1243/chrome-linux64/chrome",
+  "dependencies": {
+    "@caffeineai/object-storage": "1.1.2",
+    "@icp-sdk/core": "5.4.0",
+    "esbuild": "0.28.2",
+    "playwright": "1.63.0"
+  },
+  "measurements": [
+    {
+      "bytes": 1048576,
+      "body_sha256": "c3070dcb1dda20909da760dd3b189aa61b2c9363c02375257f25dbbc10022ea1",
+      "cdp_frames": 16,
+      "max_raw_frame_bytes": 65536,
+      "before": {
+        "elapsed_ms": 2985.8485180000002,
+        "worker_wait_ms": 21.254343999999946,
+        "page_assembled": {
+          "usedSize": 13412392,
+          "totalSize": 21663744,
+          "embedderHeapUsedSize": 1506184,
+          "backingStorageSize": 1786686
+        },
+        "sampled_node_peak_rss": 364097536,
+        "sampled_node_peak_array_buffers": 3518319
+      },
+      "after": {
+        "elapsed_ms": 80.19460600000002,
+        "worker_wait_ms": 19.629707000000053,
+        "page_assembled": {
+          "usedSize": 6917280,
+          "totalSize": 10747904,
+          "embedderHeapUsedSize": 1506008,
+          "backingStorageSize": 1939932
+        },
+        "sampled_node_peak_rss": 170369024,
+        "sampled_node_peak_array_buffers": 4007898
+      }
+    },
+    {
+      "bytes": 8388608,
+      "body_sha256": "e3a11c16e9d07fed8f5a3e647be1636a27632ff3a6708c1c9815b73407ccfeab",
+      "cdp_frames": 128,
+      "max_raw_frame_bytes": 65536,
+      "before": {
+        "elapsed_ms": 22880.968415,
+        "worker_wait_ms": 100.82738400000017,
+        "page_assembled": {
+          "usedSize": 74870976,
+          "totalSize": 83628032,
+          "embedderHeapUsedSize": 310864,
+          "backingStorageSize": 9126336
+        },
+        "sampled_node_peak_rss": 585920512,
+        "sampled_node_peak_array_buffers": 11906917
+      },
+      "after": {
+        "elapsed_ms": 484.6757879999999,
+        "worker_wait_ms": 103.62774600000012,
+        "page_assembled": {
+          "usedSize": 14376264,
+          "totalSize": 34340864,
+          "embedderHeapUsedSize": 309696,
+          "backingStorageSize": 9279256
+        },
+        "sampled_node_peak_rss": 193961984,
+        "sampled_node_peak_array_buffers": 15614364
+      }
+    },
+    {
+      "bytes": 33554432,
+      "body_sha256": "8efaaec3a3970acfc376540f4a2aace25a68d32e50819cc3f97ee6b1c6503700",
+      "cdp_frames": 512,
+      "max_raw_frame_bytes": 65536,
+      "before": {
+        "elapsed_ms": 86410.220904,
+        "worker_wait_ms": 359.86789300000237,
+        "page_assembled": {
+          "usedSize": 264107808,
+          "totalSize": 286773248,
+          "embedderHeapUsedSize": 310808,
+          "backingStorageSize": 34292160
+        },
+        "sampled_node_peak_rss": 666243072,
+        "sampled_node_peak_array_buffers": 43822449
+      },
+      "after": {
+        "elapsed_ms": 1833.005161,
+        "worker_wait_ms": 370.1902789999999,
+        "page_assembled": {
+          "usedSize": 47873000,
+          "totalSize": 137101312,
+          "embedderHeapUsedSize": 309640,
+          "backingStorageSize": 34445080
+        },
+        "sampled_node_peak_rss": 229613568,
+        "sampled_node_peak_array_buffers": 49006856
+      }
+    }
+  ],
+  "source_hashes": {
+    "clients/browser/launcher.mjs": "473e2877200a695dd9a05cb1a3ad650fbeb52dc52f1906d789d21aef79468f1a",
+    "tests/browser/launcher.mjs": "e1b680864f9c99838d16319ee734635818317f05d05ce208b556973ba05b3888",
+    "tests/browser/launcher-profile.mjs": "54664facbf88581b132a5fdc935b1d079ffec5b7cecc2314ad68f7dfa0ba9ab9",
+    "clients/browser/README.md": "64561f26d22341d4ca700a2710841abb51d0fe6b7c2a02456916fe0666f2d414",
+    "CHANGELOG.md": "1147fffc9eb9ee4d80a6dcd1b717b77d8111f9dc418c07c9e3c109b9eea17e50",
+    "docs/status/current.md": "e4c4361304b6a1ba79ad35fb2a868aba85cadaa7d88a67a366c079c7bc517bc6",
+    "docs/evidence/caffeine-probes/README.md": "5ddb9999d9230a01c44977cdf849e1ee7fbe929131182f990253fc3f5bac6cff",
+    "tests/browser/package.json": "b7b95569430c4e8d24dbd2fb7249b5b4e04a9d4a87bbc558eafeacf9d2e54977",
+    "tests/browser/package-lock.json": "79bd78166f2c95aa341742d833d42eefb510adba1078d5136cda1211740d9a2d",
+    "clients/browser/package.json": "0da33a35d5ede9b3bdd6a5dc3de9c6c5a06ca391a85e3a03bc2259acc3663f06",
+    "clients/browser/patches/caffeine-1.1.2.patch": "9809a3a70d2b4c97387a49b42afce8f653f4dc48e233281bc934bf6a7a1a7bef",
+    "docs/evidence/caffeine-browser-reuse.json": "6119105a7642c246e628140b37991727a93411c94531198f88e7ed93aa65a39d",
+    "Cargo.toml": "f3511f1069c03f5aa9610aa9098d3c43313abb56f6bde0e806399db40842535f",
+    "Cargo.lock": "982a81f3e0daedb8196c510735ebe43607b793252511f8fc088898f0b6b334c6",
+    "docs/release.json": "5c96e7ad513508902964c8deba91fff0cf6e95800d780bb2893d0a35ff7ef379"
+  },
+  "bundle_hashes": {
+    ".tmp/browser/launcher-serial.mjs": "060e6a4d1618fccc117772d4983cbdc43a810e00e27dc76b5f214086d3da9960",
+    ".tmp/browser/publication-host.js": "f91b42808ab98052726265ff3b9af18634df78655ce07b061d3808c06dd2f3f8",
+    ".tmp/browser/publication-worker.js": "5856904d1e4f0bbe934f572dc9f18b0e8fca3765fb1e517497b5739faad20f57"
+  },
+  "artifact_hashes": {
+    "run.log": "472bb8822e5936160b301df4b7e118d754da567a056a1cee28cf8bbfef2b3823",
+    "base64.log": "a48bd56d09034cec17b48455afdd5f6f894e3751db383f7d945dd809e94d3878",
+    "build.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "launcher.log": "f4da9df02607787210849d882b447d6c6ee25a0ce568402a197265c0b54d7563",
+    "run/summary.json": "4848729470b52308a35ac81249ca1d5f5836e393336ab1b09be71ce56dac649b",
+    "base64-run/summary.json": "faa83777a736dc599a0f060e23722f4143fa013bdff48610e17558d8552b4d0a",
+    "launcher-check/summary.json": "d35d07e988d70c0d9ac5a423228ff84d0f289302bdc0be16d5c3df08abe220a2",
+    "before-launcher.mjs": "e7bff08334bf7b2f72965d0db10ed359ae586deff95160de3a1df1729b087344",
+    "before-profile.mjs": "b7739b6a7779bfba6d3d0454c53bc5eb9e61b2266670bf81859424d54e73a266",
+    "released-changelog.md": "29a3569d93d9fe151bba7acdb63a2fc6d138e7bfaf7139a31e9ae2fc41caf4c5",
+    "released-launcher.mjs": "e7bff08334bf7b2f72965d0db10ed359ae586deff95160de3a1df1729b087344",
+    "run/sample-1048576.json": "b92482005448f4c9a1d75daf5066c3ecdd350a232091775ebfdeb1255ec52904",
+    "run/sample-8388608.json": "606e96881acb59d6bc9583a82475e863f5461ac2fd6235f48e9aee334ae70b34",
+    "run/sample-33554432.json": "eccdb043eabad4e712be30bc7c12fae750d6117095d300f57c40d0015e102ba1",
+    "base64-run/sample-1048576.json": "cfaf883cedb8c7fca625d957ad1ca05866b9bc01a0bca0eb9f36db8ca4eb35b7",
+    "base64-run/sample-8388608.json": "cd0f8a7a2105ec3b31ddbbaae993f88bdb936d7188add571cbc14e52e4decec0",
+    "base64-run/sample-33554432.json": "bf9aa09014a1064725be769e34b1ef924f9ac44eeca93a36f75da6db7cf57332"
+  },
+  "focused_checks": [
+    "baseline and base64 actual Chromium/SDK profiles pass",
+    "binary-byte maintained launcher checks pass",
+    "paired browser bundles rebuild",
+    "changed JavaScript syntax checks pass",
+    "changelog eligibility and diff checks pass",
+    "historical changelog, released launcher preimage and release lock/manifest hashes match"
+  ],
+  "launcher_cases": [
+    "occupied_port_refuses_before_profile",
+    "launch_selection_owned_before_filesystem_awaits",
+    "private_passive_binding_retains_scope_without_signer_secret",
+    "explicit_profile_and_origin_start_without_effects",
+    "owned_request_and_single_job",
+    "changed_truncated_oversized_and_noncanonical_body_refuse",
+    "symlinks_and_directories_are_not_bodies",
+    "fifo_without_writer_refuses_without_blocking",
+    "metadata_hints_have_exact_fields_and_utf8_bounds",
+    "close_preserves_profile_and_refuses_replacement",
+    "changed_origin_missing_and_symlink_profiles_refuse_without_replacement",
+    "changed_signer_trust_scope_journal_and_assets_refuse_before_chromium",
+    "partial_missing_symlink_and_relocated_bindings_refuse_without_replacement",
+    "same_origin_and_profile_reopen_original_journal",
+    "deadline_closes_browser_without_erasing_profile",
+    "launch_failure_retains_binding_before_browser_and_reopen_never_replaces_it",
+    "mismatched_or_partial_native_intent_refuses_before_profile_and_chromium",
+    "native_handoff_recovery_without_browser_history_never_becomes_upload_and_tampering_refuses",
+    "native_driver_bounds_control_hints_and_excludes_concurrent_jobs_until_closed",
+    "native_driver_requires_exact_current_complete_map_final_report_and_exit_and_cancels_finish",
+    "original_native_session_binding_reopens_and_cannot_be_bypassed_or_rewritten",
+    "shutdown_diagnostics_are_redacted_preserve_primary_failure_and_release_original_port_and_profile"
+  ],
+  "live_ic_requests": 0,
+  "live_provider_requests": 0,
+  "paid_cycles": "0",
+  "automatic_retries": 0,
+  "failures": [],
+  "limitations": [
+    "Single instrumented ascending pass per bridge with identical bodies and fresh profiles",
+    "Stops at deliberate root refusal before certificate intent; no successful upload or Canic server measurement",
+    "Page heap excludes dedicated worker/browser process RSS; assembled sample is not peak",
+    "Node peak memory is sampled, not exact; worker wait includes dispatch/preparation/result",
+    "No populated store, concurrent publisher, million-object qualification or full CI",
+    "Consumer installation/adoption and certified asset transaction remain external"
+  ],
+  "original_profiles": [
+    "run/profile",
+    "base64-run/profile",
+    "launcher-check/profile"
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "schema": 1,
+  "date": "2026-10-04",
+  "evidence_class": "isolated_source_installation_offline_sdk_native_and_local_ic_chromium",
+  "target": "Existing native CLI and matching browser tools from a regular-file source snapshot without its own Git metadata or inherited npm dependencies",
+  "source": "Current unreleased 0.14.3 draft; compiled package remains 0.14.2",
+  "lock": "Preserve current ic-memory 0.24.7 and ic-testkit 0.14.7 selection",
+  "budgets": {
+    "live_provider_requests": 0,
+    "paid_cycles": 0,
+    "local_ic_journeys": 2,
+    "offline_sdk_preparations": 2
+  },
+  "preparation": "Fetch existing locked Cargo selection; fresh npm ci; use only this repository target cache",
+  "checks": [
+    "Fresh prefix installation and offline version",
+    "Browser build outside a Git checkout and while nested under a checkout",
+    "SDK/native snapshot and repeat/corrupt refusal",
+    "Matching installed CLI/browser local completion and lost-reply recovery"
+  ],
+  "limits": [
+    "Snapshot includes unreleased changes, not a clean released tag",
+    "Cargo cache and system Chromium/PocketIC are retained; not a cold machine",
+    "Local provider substitute does not qualify deployed Caffeine or downstream adoption"
+  ],
+  "retention": ".tmp/isolated-tools-01",
+  "effects": {
+    "commits": false,
+    "version_mutation": false,
+    "publication": false,
+    "deployment": false,
+    "sibling_edits": false,
+    "build_cleanup": false
+  }
+}

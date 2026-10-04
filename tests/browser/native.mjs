@@ -35,6 +35,25 @@ test('one phase, bounded outgoing frame and graceful unfinished result', async (
     assert.deepEqual(await session.finish(), { report: { error: 'transport' }, exit_code: 3 });
   } finally { await session.close(); }
 });
+test('unserializable arguments and frames refuse without exposing data or sending a phase', async () => {
+  const PRIVATE_ARGUMENT = function PRIVATE_ARGUMENT() {};
+  for (const options of [undefined, null]) {
+    await assert.rejects(startPublicationSession(options), refusal('configuration'));
+  }
+  await assert.rejects(startPublicationSession({ ...options('complete'),
+    args: ['publish-session', PRIVATE_ARGUMENT] }), refusal('configuration'));
+  const session = await startPublicationSession(options('complete'));
+  try {
+    const circular = { phase: 'map' }; circular.PRIVATE_ARGUMENT = circular;
+    for (const frame of [{ phase: 'map', PRIVATE_ARGUMENT },
+      { phase: 'map', PRIVATE_ARGUMENT: 1n }, circular]) {
+      await assert.rejects(session.phase(frame), refusal('configuration'));
+    }
+    const event = await session.phase({ phase: 'map' });
+    assert.equal(event.step, 0);
+    assert.deepEqual(await session.finish(), { report: event.report, exit_code: 0 });
+  } finally { await session.close(); }
+});
 test('abort cancels an idle outstanding phase and owns child shutdown', async () => {
   const session = await startPublicationSession(options('hang')), controller = new AbortController();
   const waiting = session.phase({ phase: 'status', index: 0 }, controller.signal);

@@ -481,13 +481,18 @@ operation journals with their original binary; do not relabel or convert them
 to make the new reader accept them. New identities must not replay uncertain work.
 
 The current native contract requires `preparation`: record exactly the SDK
-`prepareFile` arguments as optional `content_type` and `filename` strings, each
-at most 4,096 UTF-8 bytes. Use `{}` when both were omitted. Empty strings remain
-empty; null and unknown hint fields refuse. The complete binding has a 12 KiB
-byte ceiling. Do not infer hints from manifest headers: SDK defaults and filename
-encoding are preparation decisions. Frozen binding hashes cover these hints and
-the session's transfer descriptor carries them unchanged. This is a pre-1.0 hard
-cut requiring a minor release, with no old-input reader or migration. Retain old
+`prepareFile` arguments as optional `content_type`, `filename` and `cache_control`
+strings, each at most 4,096 UTF-8 bytes. Use `{}` when all were omitted. Empty
+strings remain empty; null and unknown hint fields refuse. The complete binding
+has a 12 KiB byte ceiling. Do not infer hints from manifest headers: SDK defaults,
+filename encoding and explicit cache metadata are preparation decisions. `cache_control`
+supplies the original hashed `Cache-Control` value; omission adds no header.
+The browser names this hint `cacheControl` and passes it as the SDK's fourth
+`prepareFile` argument. Changed or omitted required metadata refuses root
+agreement before certificate intent. Frozen binding hashes cover these hints and
+the session's transfer descriptor carries them unchanged. The required hint object
+entered in the 0.11.0 hard cut; the optional cache hint extends the current model
+without replacing existing fields or their meaning. There is one reader. Retain old
 operation journals and obligations; changing input format never authorizes replay.
 
 ```sh

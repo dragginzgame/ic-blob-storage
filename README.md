@@ -61,7 +61,7 @@ and durable metadata; admission does not require uploading the file body to it.
 | Browser integration | Caffeine's SDK with certificate intent and bounded persistent journaling; live 1 KiB and ten-chunk 10 MiB transfers pass |
 | Live service acceptance | Still open: complete consumer flow, provider guarantees and operational recovery |
 
-The current library release is **0.14.1**. Configurable certificate sizing shipped
+The current library release is **0.14.2**. Configurable certificate sizing shipped
 in 0.7.0; indexed batch preparation, frozen-file browser transfer and current-instance
 recovery shipped in 0.8.0. Release 0.9.0 adds one-pass batch setup and removes the
 standalone DTO forwarding namespace; consumers import the core configuration types.
@@ -145,6 +145,7 @@ for the integration details.
 
 | I want to… | Start here |
 | --- | --- |
+| Install the native and browser publisher tools | [One selected source checkout](docs/local-tools.md#install-the-native-and-browser-tools), with compiled version and artifact hashes |
 | Size a consumer installation | [Resource limits and lifetime capacity](docs/operator-guide.md#size-a-consumer-installation) |
 | Freeze an upload batch and check live capacity | [Offline inventory](docs/operator-guide.md#freeze-a-publication-inventory-offline), then [signed batch check](docs/operator-guide.md#check-a-frozen-batch-against-live-capacity) |
 | Prepare one batch file or recover its setup | [Indexed preparation and original journals](docs/operator-guide.md#prepare-one-indexed-file-with-surviving-setup-intent) |

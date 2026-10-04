@@ -14,6 +14,9 @@ The peer is SDK 5.4.0, within Caffeine 1.1.2's declared `^5.3.0` dependency rang
 Application authentication, selection of a persistent browser environment and
 deployed Caffeine qualification are still integration requirements. The package
 now supplies the bounded IndexedDB journal described below.
+Use the [source installation recipe](../../docs/local-tools.md#install-the-native-and-browser-tools)
+to select the CLI, browser modules, pinned SDK build and retained artifact hashes
+from one checkout. Neither tool is installed from a published browser/CLI registry package.
 
 Certificate, journal and worker boundaries share the same canonical binding
 rules; gateway and journal budgets also share their bounds. Each boundary keeps
@@ -100,7 +103,7 @@ import { createPublicationUpload } from './publication.js';
 const upload = await createPublicationUpload({
   host, identity, rootKey, binding, intents,
   body: new Uint8Array(savedBody), bodySha256: savedRawSha256,
-  manifestJSON: originalSdkManifestJSON, contentType, filename, maxBodyBytes,
+  manifestJSON: originalSdkManifestJSON, contentType, filename, cacheControl, maxBodyBytes,
   origin: gatewayOrigin, maxRequests, maxRequestBytes, maxTotalRequestBytes, signal,
 });
 const result = await upload.upload(onProgress);
@@ -109,12 +112,26 @@ const result = await upload.upload(onProgress);
 Load `binding` from the selected `file-0000/certificate-binding.json`, body from
 `body.bin`, raw SHA-256 from the frozen inventory, and SDK manifest from
 `manifest.json`. Load original hints from `binding.json`'s required `preparation`
-object (`content_type`/`filename`), or the native session transfer descriptor.
+object (`content_type`/`filename`/`cache_control`), or the native session transfer descriptor.
 Preserve original preparation hints, including omitted filename;
 the SDK rebuild must reproduce exact headers, ordered leaves, root and body length.
 The helper snapshots body/binding/trust root before any await and checks the saved
 raw digest before saving certificate intent. Its body bound is at most 1 GiB;
 actual browser memory and gateway budgets need separate qualification.
+
+An explicit `cacheControl` is the original hashed `Cache-Control` value, passed
+to the same SDK preparation. Its native name is `preparation.cache_control`;
+the launcher preserves it in the worker snapshot. Each hint is optional and
+bounded to 4,096 UTF-8 bytes. Omission adds no cache header. Do not infer a policy,
+drop original metadata or reuse a root prepared with different headers. A changed
+or omitted required cache hint refuses before saving certificate intent.
+
+Before saving certificate intent, the helper refuses `transfer-budget` if the
+configured gateway limits cannot fit one tree request plus every SDK chunk,
+the largest retained chunk, or the total body bytes. These are lower bounds:
+the certificate/tree request envelope adds bytes that are checked by the existing
+gateway guard at dispatch. Passing preflight does not guarantee budget sufficiency
+or provider spending bounds. Recovery continues to inspect original claims.
 
 The existing certificate and gateway journals own dispatch, with no retry and
 one SDK upload per helper. Reopening supports `recoverCertificate()` for historical
@@ -187,7 +204,7 @@ const result = await worker.execute({
   schema: 1, id: 1, action: 'upload', index: 0, binding,
   snapshot: {
     body: selectedBytes, bodySha256: originalRawSha256,
-    manifestJSON: originalSdkManifestJSON, contentType, filename,
+    manifestJSON: originalSdkManifestJSON, contentType, filename, cacheControl,
   },
 });
 ```
@@ -249,6 +266,9 @@ Caffeine patch and pinned peers, and serve it from a trusted application asset
 origin. The host transfers one private port; SDK identity JSON and configuration
 cross only that port. There is no public window handler, HTTP credential route,
 identity discovery or default signer.
+Each bootstrap owns one input snapshot and validates its scope and trust root
+before opening storage. Host jobs reuse that checked scope; the separately
+launched worker validates its own private-port boundary independently.
 
 ```js
 import { createPublicationWorkerHost } from './bootstrap.js';
@@ -274,7 +294,7 @@ Use `ed25519` or `secp256k1` with that SDK identity's canonical JSON. The bootst
 recomputes the public key through the SDK, checks the advertised pair and exact
 configured uploader, then validates bindings/budgets before opening IndexedDB.
 The trust root is an explicit `Uint8Array`; preparation hints remain the original
-worker job's `contentType`/`filename`, including their omission. A new journal
+worker job's `contentType`/`filename`/`cacheControl`, including their omission. A new journal
 requires explicit `mode:'create'`; reopening uses `open`. Missing/rolled-back
 profiles never authorize a replacement journal or another transfer.
 
@@ -343,7 +363,8 @@ The transfer
 contains `binding`, absolute `body`, `body_sha256`, `manifest_json`, decimal `bytes`
 and the original `preparation` object. The bridge owns this request before awaits,
 opens only the selected regular file with an explicit body ceiling, checks exact
-length/EOF and raw digest, and sends at most 64 KiB per CDP body value. The worker
+length/EOF and raw digest, and sends at most 64 KiB of raw bytes per CDP frame as
+one base64 string. This avoids Playwright's per-byte argument serialization. The worker
 then recomputes the SDK root/manifest before certificate intent. No body, signer
 or configuration is exposed through the asset HTTP server; it serves only the
 fixed page and two trusted JavaScript bundles, with no cache, redirects or fallback
@@ -354,6 +375,11 @@ Only one job runs at a time. Request IDs are execution correlation, not durable
 operation identity. Replies stay redacted and retain `service_completion_checked`
 and `retry_authorized` as false. Local body refusals cause no dispatch; a browser
 transport/control failure closes the context and leaves its effects uncertain.
+Shutdown diagnostics are redacted: a rejected context close returns
+`LauncherRefusal('browser')`, while cleanup preserves the original startup or
+control refusal. The asset server is closed even if context close rejects, and
+the profile remains intact. A failed shutdown does not prove worker termination
+or roll back an effect; the caller still owns process cleanup.
 
 First launch requires both a new profile and explicit journal `mode:'create'`.
 Released 0.13.0 adds a private `publication-binding.json` in that profile before
@@ -392,8 +418,15 @@ prove a profile wasn't rolled back; stale-backup fencing remains required.
 
 Chromium launch/navigation waits and the running context have explicit deadlines;
 local file I/O and Playwright process shutdown are not preemptively bounded.
-Large-file peak heap/CDP latency and hostile local-user/key-memory isolation are
-not qualified. This is a callable process bridge, not a complete noninteractive
+The [local handoff measurements](../../docs/evidence/caffeine-probes/README.md#browser-body-handoff-profile--2026-10-04)
+cover instrumented 1/8/32 MiB preparation/refusals before certificate intent.
+Full worker/browser process peak memory, successful transfer latency, concurrent
+publishers and hostile local-user/key-memory isolation remain unqualified.
+After building the paired tools, run the opt-in measurement with
+`node tests/browser/launcher-profile.mjs NEW_DIRECTORY` from the repository root;
+it preserves a fresh profile, bodies and results and allows only owned loopback
+assets. It is not part of the default checks or a production timing threshold.
+This is a callable process bridge, not a complete noninteractive
 publisher: the durable native parent must still retain its keys and original
 session location, own its native process and choose explicit restart after uncertainty.
 Native intent and profile now retain the immutable joint selection. They do not
@@ -434,8 +467,12 @@ the signed completion/reference checks. Manual `execute`
 jobs and another driver invocation refuse while this loop owns the context.
 The launcher allocates monotonic worker correlation IDs; they grant no replay.
 
-Replies must have the complete current phase-event shape and fit 8 MiB. Current
-ready metadata must match the original input hashes/file count, with a positive
+Replies must have the complete current phase-event shape and fit 8 MiB. Native
+phase and final results share one serialization/size boundary; unknown or non-string
+continuation phases, cyclic values and unsupported JSON values return redacted
+`native-control` refusals. Invalid continuations do not advance to another native
+phase or browser job, and do not finish the native run as a successful result.
+Current ready metadata must match the original input hashes/file count, with a positive
 step budget at most `8 × files + 1`. There is no polling or unbounded phase loop.
 The existing context deadline/close signal interrupts even a pending control or
 final-exit wait; pass that signal through your transport and stop the owned native process
@@ -488,6 +525,9 @@ record fits 16 KiB and later records fit 8 MiB. Framing handles split UTF-8 and
 coalesced lines, rejects malformed/truncated/unsolicited replies and binds phase
 steps in order. It never buffers a second phase queue. The driver still validates
 the full ready/phase contract and the native CLI validates control arguments.
+Unserializable arguments or frames return `NativeSessionRefusal('configuration')`
+without exposing clone/JSON diagnostics. A frame that cannot be encoded writes
+nothing and does not consume a phase; the same session can accept a valid frame.
 
 `finish()` closes stdin and waits for both the final record and subprocess exit;
 it returns `{report, exit_code}`. A successful-looking phase alone cannot qualify
@@ -556,6 +596,52 @@ with readable canvas pixels; `img-src 'none'` prevents any provider request and
 reports an enforced policy violation. Decoding and sampled pixels do not replace
 native whole-content verification. Consumers still need to choose and qualify
 their actual image/fetch origins, CSP and real assets against deployed serving.
+
+The [representative emitted-media checks](../../docs/evidence/caffeine-probes/README.md#representative-emitted-media--2026-10-04)
+use selected private PNG/JPEG/WebP/GLB bodies through those same owners. MIME and
+installation byte limits follow the selected inputs; native verification and
+browser complete-byte digests agree. GLB checks inspect its container/structure,
+not game rendering. Native map-output refusal recovers through fresh queries
+without another upload, then overlapping-reference cleanup preserves liabilities.
+
+The current SDK preparation hints cannot reproduce arbitrary original headers.
+In particular, Miner's prepared `Cache-Control` changes its provider roots;
+those inputs refuse before intent/certificate access. The local trial explicitly
+uses current MIME/length metadata and different roots. Do not drop an original
+header or replace its root while claiming to adopt a frozen prepared inventory.
+Supported tool installation, consumer asset transactions, verified Blob display
+under the consumer CSP and deployed serving still need their own acceptance.
+
+The existing `chromium_standalone_trial_media_` cases accept an optional
+`BLOB_PUBLICATION_FIXTURE` pointing to a private two-entry JSON array. Each entry
+names an absolute frozen `body` path, its raw lowercase `body_sha256`, original
+`content_type` (PNG/JPEG/WebP/GLB) and an `image` geometry object or null. For example:
+
+```json
+[
+  { "body": "/absolute/frozen/first.png", "body_sha256": "<64 lowercase hex digits>",
+    "content_type": "image/png", "image": { "width": 1254, "height": 1254 } },
+  { "body": "/absolute/frozen/second.jpg", "body_sha256": "<64 lowercase hex digits>",
+    "content_type": "image/jpeg", "image": { "width": 1536, "height": 1024 } }
+]
+```
+
+This selects fixture bytes, not production publisher bindings. Keep at least one
+image, two distinct roots, at most 10 MiB per body and the selected originals.
+Provision the maintained browser/PocketIC tools and build the CLI/Wasm/bundles
+first; supply their explicit environment variables as described in
+[dependency setup](../../docs/dependencies.md). With a fresh report parent, run
+only these cases:
+
+```sh
+BLOB_PUBLICATION_FIXTURE=/absolute/frozen/fixture.json \
+BLOB_STANDALONE_BROWSER_REPORT=/absolute/new/report-parent \
+cargo test --offline --locked -p ic-blob-storage-pocketic-tests --test standalone \
+  chromium_standalone_trial_media_ -- --ignored --test-threads=1
+```
+
+Omitting the selection keeps the maintained authored multi-chunk PNG inputs.
+Private bodies and reports stay ignored; no consumer/framework dependency is added.
 
 On the Rust side, `ops::caffeine::preparation::decode_prepared_manifest` converts
 the upstream `manifestJSON` into the existing service declaration within explicit
@@ -632,20 +718,33 @@ page state and preserve any outstanding obligations when retiring it.
 `maxSlots` is an immutable lifetime bound from 1 to 1,000,000. Cancelled and dispatched
 rows still occupy slots; capacity is never refunded. The current v1 schema has no
 migration, deletion, reset or old-profile activation API. `close()` releases the
-connection only. The optional `indexedDB` factory is a trusted platform boundary,
+connection only. Explicit close, IndexedDB version-change and unexpected connection
+closure fence the same retained handle; subsequent operations return `store-closed`.
+Already-started transactions may finish, so closure is neither cancellation nor
+rollback. Startup refuses if its connection is invalidated during validation.
+The optional `indexedDB` factory is a trusted platform boundary,
 defaulting to the browser's own IndexedDB implementation.
 
-The ceiling does not preallocate rows or qualify a million-row workload. Actual
-Chromium evidence covers 675 synthetic lifetime rows across browser restart and
-the one-million configuration with one cancelled row. Browser disk/quota,
-transaction-count latency and profile durability still require consumer sizing.
+The ceiling does not preallocate rows or qualify a million-row workload. The
+[populated journal measurements](../../docs/evidence/caffeine-probes/README.md#populated-browser-journal-profile--2026-10-04)
+cover 675/5,000/10,000 compact synthetic lifetime rows across graceful browser
+restart, preserving uncertain and cancelled history at full capacity. The original
+20,000-row population exceeded the fixture's three-minute deadline; its profile and
+partial results remain intact. The one-million configuration is checked separately
+with one cancelled row. Actual envelope/history sizes, browser disk/quota and
+profile durability still require consumer sizing. Run the opt-in profile after
+building the paired tools with `node tests/browser/store-profile.mjs NEW_DIRECTORY`
+from the repository root; it preserves original profiles/results and permits only
+owned loopback assets. It adds no default CI workload or production timing threshold.
 Native publication batches remain bounded to 4,096 files; service object capacity
 is configured independently. Never reset an exhausted journal to repeat an attempt.
 
 Writes require a `strict` durability transaction and resolve after transaction
 completion, never after an individual request succeeds. Binding, phase, gateway
 history and capacity checks share that transaction across tabs. The implementation
-uses a point lookup and count, never a full-store scan, validates bounded rows and
+uses a point lookup and IndexedDB count without walking or materializing the whole
+store in JavaScript. The count API does not promise constant-cost engine work.
+The implementation validates bounded rows and
 snapshots caller-owned arguments before storage awaits. Store opening and each
 transaction have ten-second local timeouts. Missing/configuration-conflicting/
 structurally corrupt records refuse; `IntentRefusal.code` reports local failures,

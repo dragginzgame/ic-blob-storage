@@ -68,22 +68,35 @@ for (const [name, changes, error] of [
   ['utf8_filename', { filename: 'é'.repeat(2049) }, 'metadata-hint'],
   ['utf8_content_type', { contentType: 'é'.repeat(2049) }, 'metadata-hint'],
   ['null_hint', { filename: null }, 'metadata-hint'],
+  ['utf8_cache_control', { cacheControl: 'é'.repeat(2049) }, 'metadata-hint'],
+  ['null_cache_control', { cacheControl: null }, 'metadata-hint'],
 ]) {
   await fails(name, { ...request, snapshot: { ...request.snapshot, ...changes } }, error);
   assert.equal(reads, 0); // Malformed metadata never reaches the journal.
 }
 const backing = new Uint8Array(4096).fill(42), selected = backing.subarray(17, 49);
 const ownedJob = snapshotPublicationJob({ ...request, snapshot: { ...request.snapshot,
-  body: selected, filename: 'é'.repeat(2048), contentType: '' } },
+  body: selected, filename: 'é'.repeat(2048), contentType: '', cacheControl: 'no-store' } },
   { service, tenant: uploader, uploader, project: binding.project, bucket: binding.bucket }, 1024);
 assert.equal(ownedJob.snapshot.body.buffer.byteLength, 32);
 assert.equal(ownedJob.snapshot.filename, 'é'.repeat(2048));
 assert.equal(ownedJob.snapshot.contentType, '');
+assert.equal(ownedJob.snapshot.cacheControl, 'no-store');
 selected.fill(0); assert(ownedJob.snapshot.body.every(byte => byte === 42));
 assert.equal(backing.byteLength, 4096);
 cases.push({ name: 'utf8_boundary_and_selected_body_ownership', claims: 0, transport_requests: 0 });
 await fails('corrupt_body', { ...request, snapshot: { ...request.snapshot, body: new Uint8Array(1024) } }, 'body-digest');
 await fails('changed_manifest', { ...request, snapshot: { ...request.snapshot, manifestJSON: '{}' } }, 'manifest');
+for (const [name, settings] of [
+  ['insufficient_requests', {maxRequests:1,maxTotalRequestBytes:65536}],
+  ['insufficient_chunk_bytes', {maxRequestBytes:1023,maxTotalRequestBytes:2046}],
+  ['insufficient_total_bytes', {maxTotalRequestBytes:1023}],
+]) {
+  await fails(name,request,'transfer-budget',settings);
+  // The worker inspects existing claims first; it saves/claims nothing for a
+  // predictably impossible new upload, and returns the finite refusal code.
+  assert.equal(reads,1);
+}
 for (const row of [{ phase: 'observed' }, { phase: 'saved', cancelled: true }, { phase: 'saved', gateway: {} }])
   await fails('claimed_or_cancelled', request, 'upload-claimed', { intents: { ...intents, inspect: async () => row } });
 const lookup = { schema: 1, id: 1, action: 'inspect', index: 0, binding };

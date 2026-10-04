@@ -1,0 +1,23 @@
+{
+  "schema": 1,
+  "date": "2026-10-04",
+  "evidence_class": "clean_released_source_installation_and_local_ic_browser_substitute",
+  "target": "Native/browser tools from Git tag v0.14.3 at cba9f3da3846758e0bb6aa5fe114786867426911",
+  "reason": "GitHub publisher issue #4 still needs released-source installation qualification; earlier local qualification used unreleased source compiled as 0.14.2",
+  "selection": "Fresh Git archive without Git metadata or inherited npm dependencies; fresh native installation prefix; repository-owned Cargo cache",
+  "checks": [
+    "Locked source CLI installation and offline version 0.14.3",
+    "Pinned fresh npm installation and browser build with Git discovery disabled",
+    "Actual SDK/native snapshot handoff with repeat/corrupt refusals",
+    "Matching released-source Wasm/harness and installed tools for original-cache-root GLB/WebP completion",
+    "Matching tools for original-cache-root PNG/JPEG lost-reply recovery without another PUT"
+  ],
+  "budgets": {"local_ic_browser_journeys": 2, "offline_sdk_preparations": 2, "live_provider_requests": 0, "paid_cycles": 0},
+  "retention": ".tmp/released-tools-01",
+  "limits": [
+    "This repository owns the prefix and target; not downstream adoption or a cold machine",
+    "Local provider substitute cannot establish deployed Caffeine serving, deletion or billing",
+    "Old live owners and old trial artifacts remain frozen"
+  ],
+  "effects": {"commits": false, "version_mutation": false, "publication": false, "deployment": false, "sibling_edits": false, "build_cleanup": false}
+}

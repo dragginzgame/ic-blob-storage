@@ -1,0 +1,108 @@
+{
+  "schema": 1,
+  "date": "2026-10-04",
+  "evidence_class": "clean_released_source_installation_offline_sdk_native_and_local_ic_chromium_owned_substitute",
+  "source": {
+    "schema": 1,
+    "tag": "v0.14.3",
+    "commit": "cba9f3da3846758e0bb6aa5fe114786867426911",
+    "compiled_release": "0.14.3",
+    "source_files": 1341,
+    "source": "Git archive; no inherited npm dependencies or Git metadata",
+    "git_discovery_disabled_browser_build": true,
+    "cargo_target": "/home/adam/projects/ic-blob-storage/target",
+    "memory": "0.24.10",
+    "testkit": "0.14.7",
+    "node": "v24.21.0",
+    "rust": "rustc 1.99.0 (b940084d7 2026-09-28)",
+    "profiles": "debug native, test harness, release Wasm"
+  },
+  "installation": {
+    "prefix": ".tmp/released-tools-01/install",
+    "version": {
+      "tool": "blob-storage",
+      "version": "0.14.3"
+    },
+    "offline_handoff": ".tmp/released-tools-01/native-handoff/summary.json",
+    "network_requests": 0
+  },
+  "journeys": [
+    {
+      "label": "model-complete",
+      "directory": ".tmp/released-tools-01/model-complete/multichunk-complete",
+      "roots": [
+        "sha256:cbe3f72987558eba01c56930b49d76ae71a2e79c9ef63d7d2614640ffa3f62e7",
+        "sha256:03d976951b47a9404f819f991697f512085075073ae84172c0baf37c1fe0066c"
+      ],
+      "puts": 11,
+      "gets": 9,
+      "physical_bytes": 8389774,
+      "liability_bytes": 8389774,
+      "confirmed_map": true,
+      "upload_retries": 0,
+      "exact_selected_bundles": true,
+      "original_roots_leaves_and_complete_bytes": true,
+      "cache_control": "public, max-age=31536000, immutable"
+    },
+    {
+      "label": "images-lost",
+      "directory": ".tmp/released-tools-01/images-lost/multichunk-lost",
+      "roots": [
+        "sha256:3221bd9a69bda5b6c0a6822a8ae732b0ea780b293f641d8ae8a77ec1505d9102",
+        "sha256:ae002fcd0c2b97b72e9f9f6d013f9b267d4dc6be57dd54e47c6997f6c7fc7f63"
+      ],
+      "puts": 7,
+      "gets": 10,
+      "physical_bytes": 4318116,
+      "liability_bytes": 4318116,
+      "confirmed_map": true,
+      "upload_retries": 0,
+      "exact_selected_bundles": true,
+      "original_roots_leaves_and_complete_bytes": true,
+      "cache_control": "public, max-age=31536000, immutable"
+    }
+  ],
+  "checks": [
+    "Clean tagged source archive matches released file receipt",
+    "Fresh locked native prefix and pinned npm directory",
+    "Browser build with Git discovery disabled",
+    "SDK/native snapshot handoff, repeated-output and corrupt-source refusals",
+    "Exact installed CLI and selected bundles with matching fresh Wasm/harness",
+    "Original roots, leaves, whole bytes, cache metadata and complete maps",
+    "Lost-reply recovery preserves uncertain original journal without another PUT"
+  ],
+  "retention": {
+    "root": ".tmp/released-tools-01",
+    "source_manifest": ".tmp/released-tools-01/source-SHA256SUMS",
+    "artifact_manifest": ".tmp/released-tools-01/artifact-SHA256SUMS",
+    "input_manifest": ".tmp/released-tools-01/input-SHA256SUMS",
+    "media_manifest": ".tmp/released-tools-01/media-SHA256SUMS",
+    "results_manifest": ".tmp/released-tools-01/results-SHA256SUMS",
+    "manifest_hashes": {
+      "source": "3847d0c61f7f24b2443a87cdf0c44ca8a4ff4562a3142779b40ab7c8f99482a4",
+      "artifact": "f5be44fd54c42dc8ffa2e34ab410271687b628d731ff58e29a439637729eaac0",
+      "input": "ad34c8f81d92ff51f2c5e4ffa58411bbbc0af07a2be67c5c6e4e1c1496f6725c",
+      "media": "91c1c08334ec8bd4555c3a496fc0eef6da7ced4180c9c4a42bddfef2eb0c05b9",
+      "results": "8b011412adde025a9a7f160d6954e24fc895b5937022ed4e7a1cbb1ca240afd3"
+    },
+    "profiles": "Retained unchanged; excluded from regular-file hashing"
+  },
+  "probe_failures": [],
+  "qualification": "Clean 0.14.3 source installation/composition succeeds in this repository. No installer correction or replacement mechanism is needed.",
+  "limits": [
+    "Uses this repository Cargo cache and provisioned Node/Chromium/PocketIC, not a cold machine",
+    "Prefix and target belong to this repository, not downstream adoption",
+    "Local HTTPS/HTTP2 substitute does not establish deployed Caffeine serving/cache/retention/deletion/billing or consumer asset registration/game rendering",
+    "Frozen released fixture still selects CLI session 30 seconds and browser/parent 120 seconds; these successful runs do not erase the earlier consumer timeout failure"
+  ],
+  "live_provider_requests": 0,
+  "paid_cycles": 0,
+  "full_ci": false,
+  "commits": false,
+  "version_mutation": false,
+  "publication": false,
+  "deployment": false,
+  "sibling_edits": false,
+  "sibling_messages": false,
+  "build_cleanup": false
+}

@@ -151,6 +151,7 @@ fn invalid_saved_intent_scope_actor_and_input_limits_refuse_before_transport() {
         candid::encode_one(invalid).unwrap(),
         b"DIDL".to_vec(),
         candid::encode_args((s, 1_u8)).unwrap(),
+        candid::encode_args((s, candid::Reserved)).unwrap(),
     ] {
         std::fs::write(file.path(), bytes).unwrap();
         assert!(matches!(open(file.path(), &s), Err(Failure::Arguments)));

@@ -249,6 +249,9 @@ fn preparation_hints_preserve_omission_empty_values_and_utf8_byte_bounds() {
         json!({"content_type":"text/plain"}),
         json!({"content_type":"", "filename":""}),
         json!({"filename":"β".repeat(2048)}),
+        json!({"content_type":"text/plain", "cache_control":"public, max-age=31536000, immutable"}),
+        json!({"cache_control":""}),
+        json!({"cache_control":"β".repeat(2048)}),
     ] {
         let base = tempfile::tempdir().unwrap();
         let mut binding = binding();
@@ -282,6 +285,9 @@ fn preparation_hints_preserve_omission_empty_values_and_utf8_byte_bounds() {
         json!({"filename":12}),
         json!({"filename":"β".repeat(2049)}),
         json!({"content_type":"x".repeat(4097)}),
+        json!({"cache_control":null}),
+        json!({"cache_control":12}),
+        json!({"cache_control":"β".repeat(2049)}),
         json!({"inferred_type":"text/plain"}),
     ] {
         let base = tempfile::tempdir().unwrap();

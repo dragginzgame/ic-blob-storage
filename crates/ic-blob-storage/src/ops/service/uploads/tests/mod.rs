@@ -6,6 +6,7 @@ mod completion;
 mod discovery_boundary;
 mod exposure_boundary;
 mod manifest_boundary;
+mod recovery;
 mod reference_capacity_boundary;
 mod reference_status_boundary;
 mod revocation;

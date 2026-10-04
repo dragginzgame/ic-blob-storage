@@ -1,6 +1,5 @@
 //! Offline exact-reference inputs; supplied identities never allocate authority.
 use super::{Failure, artifacts::Run, read, references};
-use candid::{de::DecoderConfig, decode_one_with_config};
 use ic_blob_storage::{
     dto::{
         download::DownloadRequest,
@@ -63,15 +62,8 @@ pub(super) fn run(args: &[String]) -> Result<Value, Failure> {
         return Err(Failure::Arguments);
     }
     let permission_bytes = read(path, 4096)?;
-    let mut config = DecoderConfig::new();
-    config
-        .set_decoding_quota(100_000)
-        .set_skipping_quota(0)
-        .set_max_type_len(64)
-        .set_max_header_len(4096)
-        .set_full_error_message(false);
     let permission: UploadAdmissionRequest =
-        decode_one_with_config(&permission_bytes, &config).map_err(|_| Failure::Arguments)?;
+        crate::native::exact_candid::decode(&permission_bytes, 4096, 64, 100_000)?;
     validate_request(permission).map_err(|_| Failure::Arguments)?;
     let request = ReferenceCommand {
         upload: permission.upload,

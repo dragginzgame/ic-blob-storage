@@ -38,8 +38,9 @@ const options = mode => ({ profile: join(report, 'profile'), assetPort: port, na
 const binding = { key: 'aaaaa-aa:rrkah-fqaaa-aaaaa-aaaaq-cai:1', service: 'aaaaa-aa',
   tenant: 'rrkah-fqaaa-aaaaa-aaaaq-cai', uploader: signer.getPrincipal().toText(),
   project: 'bootstrap-fixture', bucket: 'test', operation: '1', root: 'sha256:' + '1'.repeat(64), permission: [68, 73, 68, 76] };
-const body = join(report, 'body.bin'); await writeFile(body, 'abc', { flag: 'wx', mode: 0o600 });
-const transfer = { binding, body, bytes: '3', body_sha256: createHash('sha256').update('abc').digest('hex'),
+const bodyBytes = Buffer.from([0, 128, 255]);
+const body = join(report, 'body.bin'); await writeFile(body, bodyBytes, { flag: 'wx', mode: 0o600 });
+const transfer = { binding, body, bytes: '3', body_sha256: createHash('sha256').update(bodyBytes).digest('hex'),
   manifest_json: '{"tree_type":"DSBMTWH"}', preparation: {} };
 const refusal = code => error => error instanceof LauncherRefusal && error.code === code;
 let bridge;
@@ -69,7 +70,7 @@ try {
   await assert.rejects(bridge.execute({ id: 3, index: 0, action: 'inspect', binding }), refusal('busy'));
   transfer.body_sha256 = '0'.repeat(64); // The bridge already owns the original request.
   const result = await pending; assert.equal(result.error, 'root'); assert.equal(result.id, 2);
-  transfer.body_sha256 = createHash('sha256').update('abc').digest('hex'); cases.push('owned_request_and_single_job');
+  transfer.body_sha256 = createHash('sha256').update(bodyBytes).digest('hex'); cases.push('owned_request_and_single_job');
   const changed = structuredClone(transfer); changed.body_sha256 = '0'.repeat(64);
   await assert.rejects(bridge.execute({ id: 3, index: 0, action: 'upload', transfer: changed }), refusal('body-digest'));
   changed.body_sha256 = transfer.body_sha256; changed.bytes = '2';
@@ -88,7 +89,8 @@ try {
   await promisify(execFile)('mkfifo', [changed.body]);
   await assert.rejects(bridge.execute({ id: 3, index: 0, action: 'upload', transfer: changed }), refusal('body-size'));
   cases.push('fifo_without_writer_refuses_without_blocking');
-  for (const hints of [{ filename: null }, { filename: 'β'.repeat(2049) }, { inferred_type: 'text/plain' }]) {
+  for (const hints of [{ filename: null }, { filename: 'β'.repeat(2049) },
+    {cache_control:null}, {cache_control:'β'.repeat(2049)}, { inferred_type: 'text/plain' }]) {
     changed.body = body; changed.preparation = hints;
     await assert.rejects(bridge.execute({ id: 3, index: 0, action: 'upload', transfer: changed }),
       refusal(Object.hasOwn(hints, 'inferred_type') ? 'configuration' : 'metadata-hint'));
@@ -262,10 +264,18 @@ try {
   assert.equal(controls, 1); assert.equal(budgeted.code, 'step_budget_exhausted');
   assert.equal(budgeted.browser_jobs, 0);
   assert.deepEqual(budgeted.native_result, stoppedFinal);
+  const circularFrame = { phase: 'map' }; circularFrame.extra = circularFrame;
   for (const next_frame of [{ phase: 'transfer', index: 1, source_transfer: null },
-    { phase: 'map', retry: true }, { phase: 'prepare', index: 0, source_run: 'relative' }]) {
+    { phase: 'map', retry: true }, { phase: 'prepare', index: 0, source_run: 'relative' },
+    { phase: 'constructor' }, { phase: 'isPrototypeOf' },
+    { phase: { toString: 'PRIVATE_PHASE_DIAGNOSTIC' } },
+    { phase: 'map', PRIVATE_VALUE: 1n }, circularFrame]) {
+    let finished = false;
     await assert.rejects(bridge.driveSession(peer(async () => ({ schema: 1, event: 'phase',
-      step: 0, next_index: 0, report: {}, next_frame }))), refusal('native-control'));
+      step: 0, next_index: 0, report: {}, next_frame }), nativeReady,
+    async () => { finished = true; return stoppedFinal; })),
+    error => refusal('native-control')(error) && !String(error).includes('PRIVATE_'));
+    assert.equal(finished, false);
     native.bootstrap.journal.mode = 'open'; bridge = await launchPublicationBrowser(engine, native);
   }
   let unblock;
@@ -289,13 +299,18 @@ try {
     async () => ({ report: { ...map, files: [] }, exit_code: 0 }),
     async () => ({ report: { error: 'transport' }, exit_code: 3 }),
     async () => ({ report: map, exit_code: 7 }),
+    async () => ({ report: { ...map, PRIVATE_VALUE: 1n }, exit_code: 0 }),
+    async () => {
+      const final = { report: { ...map }, exit_code: 0 }; final.report.extra = final; return final;
+    },
     async () => { throw new Error('lost final'); },
   ]) {
     await assert.rejects(bridge.driveSession(mapPeer(map, finish)), refusal('native-control'));
     bridge = await launchPublicationBrowser(engine, native);
   }
   for (const change of [{ inventory_sha256: '0'.repeat(64) }, { files: [] },
-    { files: [{ index: 1 }] }, { blockers: [{ code: 'incomplete' }] }, { publication_lease: true }]) {
+    { files: [{ index: 1 }] }, { blockers: [{ code: 'incomplete' }] }, { publication_lease: true },
+    { files: [{ index: 0, details: 'x'.repeat(8 * 1024 * 1024) }] }]) {
     await assert.rejects(bridge.driveSession(mapPeer({ ...map, ...change })), refusal('native-control'));
     bridge = await launchPublicationBrowser(engine, native);
   }
@@ -314,6 +329,42 @@ try {
   cases.push('native_driver_requires_exact_current_complete_map_final_report_and_exit_and_cancels_finish');
   await bridge.close(); assert.deepEqual(await readFile(join(native.profile, 'publication-binding.json')), originalNativeBinding);
   cases.push('original_native_session_binding_reopens_and_cannot_be_bypassed_or_rewritten');
+  const shutdownEngine = mode => ({ async launchPersistentContext(...args) {
+    const context = await engine.launchPersistentContext(...args);
+    return {
+      async close() { await context.close(); throw new Error('PRIVATE_SHUTDOWN_DIAGNOSTIC'); },
+      async newPage() {
+        if (mode === 'startup') throw new Error('PRIVATE_STARTUP_DIAGNOSTIC');
+        const page = await context.newPage(); let evaluations = 0;
+        return {
+          goto: (...args) => page.goto(...args),
+          evaluate: (...args) => {
+            if (mode === 'execute' && ++evaluations > 1) throw new Error('PRIVATE_JOB_DIAGNOSTIC');
+            return page.evaluate(...args);
+          },
+        };
+      },
+    };
+  } });
+  const redacted = code => error => refusal(code)(error) && !String(error).includes('PRIVATE_');
+  // Inject only shutdown diagnostics around real contexts; no platform effects
+  // or journal outcomes are substituted. Cleanup must release the original port.
+  await assert.rejects(launchPublicationBrowser(shutdownEngine('startup'), options('open')), redacted('launch'));
+  bridge = await launchPublicationBrowser(shutdownEngine('execute'), options('open'));
+  await assert.rejects(bridge.execute({ id: 1, index: 0, action: 'inspect', binding }), redacted('browser'));
+  await assert.rejects(bridge.execute({ id: 2, index: 0, action: 'inspect', binding }), redacted('closed'));
+  await assert.rejects(bridge.close(), redacted('browser'));
+  bridge = await launchPublicationBrowser(shutdownEngine('close'), options('open'));
+  await assert.rejects(bridge.close(), redacted('browser'));
+  await assert.rejects(bridge.close(), redacted('browser'));
+  bridge = await launchPublicationBrowser(shutdownEngine('close'), native);
+  await assert.rejects(bridge.driveSession(peer(async () => { throw new Error('PRIVATE_CONTROL_DIAGNOSTIC'); })),
+    redacted('native-control'));
+  await assert.rejects(bridge.close(), redacted('browser'));
+  bridge = await launchPublicationBrowser(engine, options('open'));
+  assert.deepEqual((await bridge.execute({ id: 1, index: 0, action: 'inspect', binding })).journal, { present: false });
+  await bridge.close(); assert.deepEqual(await readFile(bindingPath), profileBinding);
+  cases.push('shutdown_diagnostics_are_redacted_preserve_primary_failure_and_release_original_port_and_profile');
   assert.deepEqual(unexpected, []); assert(requests.every(request => request.method === 'GET'));
   await writeFile(join(report, 'summary.json'), JSON.stringify({ schema: 1, cases, requests,
     assetOrigin: origin, unexpected, liveProviderRequests: 0, paidEffects: 0, automaticRetries: 0 }, null, 2), { flag: 'wx', mode: 0o600 });

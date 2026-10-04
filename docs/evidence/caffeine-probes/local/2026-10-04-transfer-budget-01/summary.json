@@ -1,0 +1,62 @@
+{
+  "schema": 1,
+  "date": "2026-10-04",
+  "evidence_class": "offline_actual_patched_sdk_and_local_ic_chromium_owned_substitute",
+  "implementation": {
+    "boundary": "createPublicationUpload before createCertificateClient saves intent",
+    "chunk_owner": "SDK prepared handle maxChunkBytes and rebuilt manifest ordered leaves",
+    "checks": [
+      "valid shared gateway limit bounds",
+      "one tree plus all chunk requests",
+      "largest retained SDK chunk fits one request",
+      "body bytes fit total request budget"
+    ],
+    "remaining": "Exact opaque tree/certificate envelope overhead remains guarded at dispatch; passing lower bounds is not sufficiency or provider spending proof",
+    "worker": "transfer-budget finite code; existing claim inspection retained, no save/claim/transport on impossible new upload"
+  },
+  "offline": {
+    "publication": ".tmp/transfer-budget-01/offline/summary.json",
+    "worker": ".tmp/transfer-budget-01/worker/summary.json",
+    "exact_fit": "Single and multi-chunk lower bounds reach original deliberately refusing intent store, without transport"
+  },
+  "journeys": [
+    {
+      "name": "model_complete",
+      "summary": ".tmp/transfer-budget-01/model-complete/multichunk-complete/summary.json",
+      "puts": 11,
+      "gets": 9,
+      "physical_bytes": 8389774,
+      "liability_bytes": 8389774,
+      "confirmed_map": true,
+      "automatic_upload_retries": 0
+    },
+    {
+      "name": "images_lost_reply",
+      "summary": ".tmp/transfer-budget-01/images-lost/multichunk-lost/summary.json",
+      "puts": 7,
+      "gets": 10,
+      "physical_bytes": 4318116,
+      "liability_bytes": 4318116,
+      "confirmed_map": true,
+      "automatic_upload_retries": 0
+    }
+  ],
+  "retention": {
+    "root": ".tmp/transfer-budget-01",
+    "initial_source_manifest": ".tmp/transfer-budget-01/source-SHA256SUMS",
+    "final_source_manifest": ".tmp/source-tools-01/source-SHA256SUMS",
+    "artifacts": ".tmp/transfer-budget-01/artifacts-complete/SHA256SUMS",
+    "results": ".tmp/transfer-budget-01/results-SHA256SUMS",
+    "native_wasm_harness": ".tmp/representative-media-01/artifacts and selection-and-final-artifacts-SHA256SUMS"
+  },
+  "failed_attempts": [
+    ".tmp/transfer-budget-01/artifact-capture-failure.json"
+  ],
+  "qualification": "Local/offline only. No consumer adoption, deployed provider behavior or billing qualification.",
+  "live_provider_requests": 0,
+  "paid_cycles": 0,
+  "full_ci": false,
+  "version_mutation": false,
+  "publication": false,
+  "deployment": false
+}

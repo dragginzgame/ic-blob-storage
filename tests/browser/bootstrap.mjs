@@ -36,6 +36,31 @@ async function open() {
 }
 try {
   let page = await open();
+  const preparation = await page.evaluate(async () => {
+    const bytes = new Uint8Array(1024 * 1024 + 479).fill(17);
+    bytes.set([0, 128, 255]); bytes.fill(29, 1024 * 1024);
+    const results = [];
+    for (const hint of ['image/png', undefined]) {
+      const expected = await bootstrapFixture.prepare(bytes, hint, 'selected.bin', 'no-store');
+      const backing = new Uint8Array(bytes.length + 34).fill(99);
+      backing.set(bytes, 17);
+      const selected = backing.subarray(17, 17 + bytes.length);
+      const pending = bootstrapFixture.prepare(selected, hint, 'selected.bin', 'no-store');
+      backing.fill(255);
+      const actual = await pending;
+      results.push({ mime: hint ?? 'sniffed', expected, actual, frozen: Object.isFrozen(actual),
+        caller_bytes: backing.byteLength });
+    }
+    return results;
+  });
+  for (const result of preparation) {
+    assert.deepEqual(result.actual, result.expected);
+    assert.equal(result.actual.byteLength, 1024 * 1024 + 479);
+    assert.equal(result.actual.maxChunkBytes, 1024 * 1024);
+    assert.equal(result.frozen, true);
+    assert.equal(result.caller_bytes, 1024 * 1024 + 479 + 34);
+    cases.push({ name: `sdk_owned_selected_view_${result.mime}`, ...result });
+  }
   for (const kind of ['ed25519', 'secp256k1']) {
     const result = await page.evaluate(async kind => {
       const f = bootstrapFixture, config = f.input(kind, `bootstrap-${kind}`);

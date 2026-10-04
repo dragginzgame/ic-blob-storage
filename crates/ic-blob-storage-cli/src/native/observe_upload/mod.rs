@@ -11,7 +11,7 @@ use super::{
     query, read,
     upload_setup::manifest_reply_limits,
 };
-use candid::{Principal, de::DecoderConfig, decode_one_with_config};
+use candid::Principal;
 use ic_blob_storage::{
     dto::upload::{admission::UploadAdmissionRequest, completion::UploadAttestationRequest},
     model::{
@@ -52,15 +52,8 @@ fn now() -> Result<u64, Failure> {
 }
 fn permission(input: &Input) -> Result<UploadAdmissionRequest, Failure> {
     let bytes = read(&input.permission, 4096)?;
-    let mut config = DecoderConfig::new();
-    config
-        .set_decoding_quota(100_000)
-        .set_skipping_quota(0)
-        .set_max_type_len(32)
-        .set_max_header_len(4096)
-        .set_full_error_message(false);
     let permission: UploadAdmissionRequest =
-        decode_one_with_config(&bytes, &config).map_err(|_| Failure::Arguments)?;
+        crate::native::exact_candid::decode(&bytes, 4096, 32, 100_000)?;
     if permission.upload.bytes > input.max_bytes.get() {
         return Err(Failure::Arguments);
     }

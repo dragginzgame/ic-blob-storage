@@ -7,8 +7,13 @@ use ic_blob_storage::dto::configuration::{
 use serde_json::json;
 
 fn intent(batch: &PreparedBatch) -> SessionIntentRecord {
-    let installation: ServiceInstallationInput =
-        candidate_candid::decode(&batch.installation).unwrap();
+    let installation: ServiceInstallationInput = exact_candid::decode(
+        &batch.installation,
+        exact_candid::INSTALLATION_BYTES,
+        64,
+        100_000,
+    )
+    .unwrap();
     let upload = batch.files[0].input.permission.upload;
     serde_json::from_value(json!({"format":"ic-blob-storage/publication-session:retained-browser-handoffs",
         "source_session":null,"browser":null,"operation":"publish_session",
@@ -30,8 +35,13 @@ fn history(path: &Path, batch: &PreparedBatch, expected: &SessionIntentRecord) -
     run.bytes("inventory.json", &batch.inventory).unwrap();
     run.bytes("installation.candid", &batch.installation)
         .unwrap();
-    let installation: ServiceInstallationInput =
-        candidate_candid::decode(&batch.installation).unwrap();
+    let installation: ServiceInstallationInput = exact_candid::decode(
+        &batch.installation,
+        exact_candid::INSTALLATION_BYTES,
+        64,
+        100_000,
+    )
+    .unwrap();
     let host = HostConfigurationView {
         configuration: installation.configuration,
         project: installation.project,

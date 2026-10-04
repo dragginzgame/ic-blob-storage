@@ -7,7 +7,7 @@ use super::{
     provider_download::{self, ExpectedBody},
     read,
 };
-use candid::{Principal, de::DecoderConfig, decode_one_with_config};
+use candid::Principal;
 use ic_blob_storage::{
     dto::download::{DownloadFailure as E, DownloadRequest, DownloadResponse},
     model::{
@@ -42,15 +42,7 @@ fn open(
     actor: Principal,
 ) -> Result<(DownloadRequest, CaffeineDownloadScope), Failure> {
     let bytes = read(&input.request, 4096)?;
-    let mut config = DecoderConfig::new();
-    config
-        .set_decoding_quota(100_000)
-        .set_skipping_quota(0)
-        .set_max_type_len(64)
-        .set_max_header_len(4096)
-        .set_full_error_message(false);
-    let request: DownloadRequest =
-        decode_one_with_config(&bytes, &config).map_err(|_| Failure::Arguments)?;
+    let request: DownloadRequest = crate::native::exact_candid::decode(&bytes, 4096, 64, 100_000)?;
     if request.service != input.service
         || request.namespace != input.namespace
         || request.tenant != actor

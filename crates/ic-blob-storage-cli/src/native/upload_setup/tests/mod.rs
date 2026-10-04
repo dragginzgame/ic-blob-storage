@@ -34,6 +34,16 @@ fn saved(kind: Kind) -> (tempfile::TempDir, Input, UploadAdmissionRequest) {
 fn exact_roles_scope_and_invalid_ids_refuse_before_artifact_claim() {
     let (_temp, mut input, p) = saved(Kind::Admit);
     assert!(request::load(&input, p.upload.tenant).is_ok());
+    std::fs::write(
+        &input.request,
+        candid::encode_args((p, candid::Reserved)).unwrap(),
+    )
+    .unwrap();
+    assert!(matches!(
+        request::load(&input, p.upload.tenant),
+        Err(Failure::Arguments)
+    ));
+    std::fs::write(&input.request, candid::encode_one(p).unwrap()).unwrap();
     assert!(matches!(
         request::load(&input, p.uploader),
         Err(Failure::Binding)

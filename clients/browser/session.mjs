@@ -8,9 +8,11 @@ export async function driveSession({ ready, phase, finish, execute, refuse, sign
   const exact = (value, fields) => value && Object.getPrototypeOf(value) === Object.prototype &&
     Object.keys(value).length === fields.length && fields.every(field => Object.hasOwn(value, field));
   function frame(value) {
-    const fields = { status: ['phase', 'index'], prepare: ['phase', 'index', 'source_run'],
-      transfer: ['phase', 'index', 'source_transfer'], verify: ['phase', 'index', 'source_observation'], map: ['phase'] }[value?.phase];
-    require(fields && exact(value, fields));
+    const shapes = { status: ['phase', 'index'], prepare: ['phase', 'index', 'source_run'],
+      transfer: ['phase', 'index', 'source_transfer'], verify: ['phase', 'index', 'source_observation'], map: ['phase'] };
+    require(typeof value?.phase === 'string' && Object.hasOwn(shapes, value.phase));
+    const fields = shapes[value.phase];
+    require(exact(value, fields));
     if (value.phase !== 'map') require(integer(value.index, ready.files - 1));
     for (const field of fields.filter(field => field.startsWith('source_'))) {
       require(value[field] === null || (typeof value[field] === 'string' && isAbsolute(value[field])));
@@ -25,7 +27,9 @@ export async function driveSession({ ready, phase, finish, execute, refuse, sign
     });
     try {
       signal.throwIfAborted();
-      return structuredClone(await Promise.race([action(), stopped]));
+      const value = structuredClone(await Promise.race([action(), stopped]));
+      require(Buffer.byteLength(JSON.stringify(value)) <= 8 * 1024 * 1024);
+      return value;
     } catch { refuse(signal.aborted ? 'closed' : 'native-control'); }
     finally { signal.removeEventListener('abort', abort); }
   }
@@ -33,7 +37,6 @@ export async function driveSession({ ready, phase, finish, execute, refuse, sign
     const final = await response(() => finish(signal));
     require(exact(final, ['report', 'exit_code']) && final.report &&
       Object.getPrototypeOf(final.report) === Object.prototype &&
-      Buffer.byteLength(JSON.stringify(final)) <= 8 * 1024 * 1024 &&
       (final.exit_code === 0 ? !Object.hasOwn(final.report, 'error') :
         [2, 3].includes(final.exit_code) && typeof final.report.error === 'string'));
     if (complete) {
@@ -58,8 +61,7 @@ export async function driveSession({ ready, phase, finish, execute, refuse, sign
     require(exact(event, ['schema', 'event', 'step', 'next_index', 'report', 'next_frame']) &&
       event.schema === 1 && event.event === 'phase' && event.step === step &&
       integer(event.next_index, ready.files) && event.report &&
-      Object.getPrototypeOf(event.report) === Object.prototype &&
-      Buffer.byteLength(JSON.stringify(event)) <= 8 * 1024 * 1024);
+      Object.getPrototypeOf(event.report) === Object.prototype);
     const next = event.next_frame === null ? null : frame(event.next_frame);
     if (selected.phase === 'transfer' && event.report.operation === 'publish_session_transfer') {
       require(event.report.file_index === selected.index && typeof event.report.native_phase === 'string' &&

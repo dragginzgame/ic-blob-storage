@@ -11,8 +11,11 @@ export class NativeSessionRefusal extends Error {
 /** Launch one explicitly selected native session. No discovery, restart or retry. */
 export async function startPublicationSession(options) {
   const refuse = code => { throw new NativeSessionRefusal(code); };
+  if (!options || typeof options !== 'object') refuse('configuration');
   const { binary, cwd, timeoutSeconds, signal } = options;
-  const args = structuredClone(options.args), env = { ...process.env };
+  let args;
+  try { args = structuredClone(options.args); } catch { refuse('configuration'); }
+  const env = { ...process.env };
   if (typeof binary !== 'string' || !isAbsolute(binary) || typeof cwd !== 'string' || !isAbsolute(cwd) ||
       !Number.isSafeInteger(timeoutSeconds) || timeoutSeconds < 1 || timeoutSeconds > 600 ||
       !Array.isArray(args) || args[0] !== 'publish-session' || args.length > 128 ||
@@ -95,7 +98,9 @@ export async function startPublicationSession(options) {
         if (failure) throw failure;
         if (terminal || ending) refuse('closed');
         if (pending) refuse('busy');
-        const record = JSON.stringify(structuredClone(frame)) + '\n';
+        let record;
+        try { record = JSON.stringify(structuredClone(frame)) + '\n'; }
+        catch { refuse('configuration'); }
         if (Buffer.byteLength(record) > 8192) refuse('frame-limit');
         if (phaseSignal !== undefined && !(phaseSignal instanceof AbortSignal)) refuse('configuration');
         if (phaseSignal?.aborted) { stop('closed'); throw failure; }

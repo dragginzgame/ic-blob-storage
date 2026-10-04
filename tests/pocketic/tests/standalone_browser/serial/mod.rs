@@ -13,6 +13,10 @@ use ic_blob_storage::model::identity::ContentDigest;
 use ic_testkit::pic::CandidCallExt;
 use serde_json::{Value, json};
 
+// One complete-session deadline, shared with browser bootstrap and subprocess
+// ownership. Individual preparation/query calls retain their shorter bound.
+const SESSION_TIMEOUT_SECONDS: u64 = 120;
+
 #[derive(serde::Deserialize)]
 #[serde(deny_unknown_fields)]
 struct BrowserPublicationPlan {
@@ -64,6 +68,7 @@ impl Control {
 struct Serial {
     trial: Trial,
     files: Vec<UploadManifestRequest>,
+    image_expectations: Option<Value>,
 }
 impl Serial {
     fn validate_plan(&self, plans: &BrowserPublicationPlan) {
@@ -184,7 +189,7 @@ impl Serial {
         let mut args = self
             .trial
             .args("publish-session", "tenant.pem", self.trial.f.tenant);
-        self.limits(&mut args, label);
+        self.limits(&mut args, label, SESSION_TIMEOUT_SECONDS);
         args.extend([
             "--operator-identity".into(),
             self.trial.report.join("uploader.pem").display().to_string(),
@@ -267,7 +272,7 @@ impl Serial {
         label: &str,
     ) -> Value {
         let report = match control {
-            Control::Indexed => self.status(index, gateway, label),
+            Control::Indexed => self.status(index, gateway, label, 0),
             Control::Persistent(_) => control.phase(&index.map_or_else(
                 || json!({"phase":"map"}),
                 |index| json!({"phase":"status","index":index}),
@@ -277,12 +282,39 @@ impl Serial {
         report
     }
     fn new(label: &str) -> Self {
-        Self::with_bodies(label, &[vec![42; 1024], vec![42; 2048]])
+        Self::with_bodies(
+            label,
+            &[vec![42; 1024], vec![42; 2048]],
+            &["image/png"; 2],
+            &[None; 2],
+        )
     }
-    fn with_bodies(label: &str, bodies: &[Vec<u8>]) -> Self {
-        let trial = Trial::with_envelope(label, Envelope::Serial);
+    fn with_bodies(
+        label: &str,
+        bodies: &[Vec<u8>],
+        content_types: &[&str],
+        cache_controls: &[Option<&str>],
+    ) -> Self {
+        assert_eq!(bodies.len(), 2);
+        let trial = Trial::with_envelope(
+            label,
+            Envelope::Serial {
+                max_object_bytes: u64::try_from(bodies.iter().map(Vec::len).max().unwrap())
+                    .unwrap(),
+                total_bytes: bodies
+                    .iter()
+                    .map(|body| u64::try_from(body.len()).unwrap())
+                    .sum(),
+            },
+        );
         // This local operator also signs as the uploader; tenant/verifier differ.
-        freeze_bodies(&trial.f, &trial.report, bodies);
+        freeze_bodies(
+            &trial.f,
+            &trial.report,
+            bodies,
+            content_types,
+            cache_controls,
+        );
         let files = (0..2)
             .map(|index| {
                 candid::decode_one(
@@ -296,9 +328,13 @@ impl Serial {
                 .unwrap()
             })
             .collect();
-        Self { trial, files }
+        Self {
+            trial,
+            files,
+            image_expectations: None,
+        }
     }
-    fn limits(&self, args: &mut Vec<String>, label: &str) {
+    fn limits(&self, args: &mut Vec<String>, label: &str, timeout_seconds: u64) {
         args.extend([
             "--inputs".into(),
             self.trial.report.join("batch").display().to_string(),
@@ -316,7 +352,7 @@ impl Serial {
                 .sum::<u64>()
                 .to_string(),
             "--timeout-seconds".into(),
-            "30".into(),
+            timeout_seconds.to_string(),
             "--run-dir".into(),
             self.trial.report.join(label).display().to_string(),
         ]);
@@ -325,7 +361,7 @@ impl Serial {
         let mut args = self
             .trial
             .args("publish-prepare", "tenant.pem", self.trial.f.tenant);
-        self.limits(&mut args, label);
+        self.limits(&mut args, label, 30);
         args.extend([
             "--uploader-identity".into(),
             self.trial.report.join("uploader.pem").display().to_string(),
@@ -345,14 +381,14 @@ impl Serial {
             "bodySha256":ContentDigest::compute(&body).to_string().trim_start_matches("sha256:"),
             "manifestJSON":std::fs::read_to_string(directory.join("manifest.json")).unwrap()}})
     }
-    fn status(&self, index: Option<usize>, gateway: &str, label: &str) -> Value {
+    fn status(&self, index: Option<usize>, gateway: &str, label: &str, code: i32) -> Value {
         let command = if index.is_some() {
             "publish-file-status"
         } else {
             "publish-map"
         };
         let mut args = self.trial.args(command, "tenant.pem", self.trial.f.tenant);
-        self.limits(&mut args, label);
+        self.limits(&mut args, label, 30);
         args.extend([
             "--operator-identity".into(),
             self.trial.report.join("uploader.pem").display().to_string(),
@@ -364,7 +400,7 @@ impl Serial {
         if let Some(index) = index {
             args.extend(["--file-index".into(), index.to_string()]);
         }
-        self.trial.invoke(label, &args, 0)
+        self.trial.invoke(label, &args, code)
     }
     fn observe(&self, index: usize, gateway: &str, code: i32) -> Value {
         let verifier = self
@@ -632,7 +668,7 @@ impl Serial {
         browser.send(&json!({"native": {
             "binary":std::env::var("BLOB_CLI_BIN").unwrap(),
             "cwd":repo.canonicalize().unwrap(),
-            "timeoutSeconds":120,
+            "timeoutSeconds":SESSION_TIMEOUT_SECONDS,
             "args":self.session_args(gateway,"session",true),
             "env":{"SSL_CERT_FILE":self.trial.report.join("gateway-ca.pem"),
                 "SSL_CERT_DIR":null,"HTTP_PROXY":"http://127.0.0.1:9",
@@ -730,6 +766,21 @@ impl Serial {
         response
     }
     fn overlapping_references(&self, gateway: &str) {
+        // Service completion survives failure to create the local map output.
+        let occupied = self.trial.report.join("occupied-map");
+        std::fs::create_dir(&occupied).unwrap();
+        std::fs::write(occupied.join("original"), b"preserved").unwrap();
+        let failed = self.status(None, gateway, "occupied-map", 3);
+        assert_eq!(failed["error"], "new_run_required");
+        assert_eq!(
+            std::fs::read(occupied.join("original")).unwrap(),
+            b"preserved"
+        );
+        assert!(!occupied.join("media-map.json").exists());
+        assert_eq!(
+            self.status(None, gateway, "recovered-map", 0)["all_references_live"],
+            true
+        );
         let input = &self.files[0];
         let upload = input.permission.upload;
         let retain = ReferenceCommand {
@@ -787,7 +838,7 @@ impl Serial {
             self.trial.download(input, reference, gateway, label, 3);
         }
         self.historical_reference(retain, &original);
-        let current = self.status(None, gateway, "shared-current-map");
+        let current = self.status(None, gateway, "shared-current-map", 0);
         assert_eq!(current["all_references_live"], false);
         assert!(
             !self
@@ -863,7 +914,8 @@ impl Serial {
         assert_eq!(retained.uploads.liability_bytes, bytes);
         self.trial.record("summary.json", &json!({"schema":1,
         "evidence":"serial_actual_standalone_native_chromium_local_provider_substitute",
-        "max_active_uploads":1,"confirmed_map_written":!matches!(scenario,Scenario::Corrupt),
+        "max_active_uploads":1,"session_timeout_seconds":SESSION_TIMEOUT_SECONDS,
+        "confirmed_map_written":!matches!(scenario,Scenario::Corrupt),
         "retained_physical_bytes":bytes,"retained_liability_bytes":bytes,
         "provider_puts":browser["puts"],"provider_gets":browser["gets"],
         "browser_restart_preserved":true,"automatic_upload_retries":0,
@@ -880,8 +932,12 @@ fn run_serial(mut serial: Serial, scenario: Scenario, driver: Driver, media: boo
     let config = json!({"url":serial.trial.url,"service":serial.trial.f.service.to_text(),
         "tenant":serial.trial.f.tenant.to_text(),"bucket":"fixture-bucket","worker":matches!(driver,Driver::Worker | Driver::VerifiedWorker | Driver::CoordinatedWorker),
         "coordinated":matches!(driver,Driver::CoordinatedWorker),
+        "timeoutSeconds":SESSION_TIMEOUT_SECONDS,
         "bodies":(0..serial.files.len()).map(|index|serial.trial.report.join(format!("batch/file-{index:04}/body.bin"))).collect::<Vec<_>>(),
         "media":media,"report":serial.trial.report,
+        "contentTypes":serial.files.iter().map(|file|file.declaration.headers.iter().find(|header|header.name == "Content-Type").unwrap().value.clone()).collect::<Vec<_>>(),
+        "cacheControls":serial.files.iter().map(|file|file.declaration.headers.iter().find(|header|header.name == "Cache-Control").map(|header|header.value.clone())).collect::<Vec<_>>(),
+        "imageExpectations":serial.image_expectations,
         "overlap":overlap,
         "rootKey":serial.trial.f.harness.pic.root_key().unwrap(),"project":super::client::PROJECT,
         "lostFinalReply":matches!(scenario,Scenario::LostReply),"corruptRead":matches!(scenario,Scenario::Corrupt),
@@ -1096,7 +1152,7 @@ fn run_media(label: &str, scenario: Scenario) {
         include_bytes!("../../../../fixtures/media/cool.png").to_vec(),
     ];
     run_serial(
-        Serial::with_bodies(label, &bodies),
+        Serial::with_bodies(label, &bodies, &["image/png"; 2], &[None; 2]),
         scenario,
         Driver::CoordinatedWorker,
         true,
@@ -1106,29 +1162,93 @@ fn run_media(label: &str, scenario: Scenario) {
 
 #[test]
 #[ignore = "Requires pinned browser packages and Chromium; run make test-browser-standalone"]
-fn chromium_standalone_trial_multichunk_png_shared_references_preserve_delivery_and_liability() {
+fn chromium_standalone_trial_media_shared_references_preserve_delivery_and_liability() {
     run_multichunk("multichunk-complete", Scenario::Complete);
 }
 #[test]
 #[ignore = "Requires pinned browser packages and Chromium; run make test-browser-standalone"]
-fn chromium_standalone_trial_multichunk_png_lost_final_reply_recovers_without_another_chunk() {
+fn chromium_standalone_trial_media_lost_final_reply_recovers_without_another_chunk() {
     run_multichunk("multichunk-lost", Scenario::LostReply);
 }
 #[test]
 #[ignore = "Requires pinned browser packages and Chromium; run make test-browser-standalone"]
-fn chromium_standalone_trial_multichunk_png_tail_corruption_stops_before_next_admission() {
+fn chromium_standalone_trial_media_tail_corruption_stops_before_next_admission() {
     run_multichunk("multichunk-corrupt", Scenario::Corrupt);
 }
 fn run_multichunk(label: &str, scenario: Scenario) {
+    if let Some(path) = std::env::var_os("BLOB_PUBLICATION_FIXTURE") {
+        let serial = selected_media(label, &std::path::PathBuf::from(path));
+        run_serial(
+            serial,
+            scenario,
+            Driver::CoordinatedWorker,
+            true,
+            !matches!(scenario, Scenario::Corrupt),
+        );
+        return;
+    }
     let bodies = [
         include_bytes!("../../../../fixtures/media/wide.png").to_vec(),
         include_bytes!("../../../../fixtures/media/cool.png").to_vec(),
     ];
     run_serial(
-        Serial::with_bodies(label, &bodies),
+        Serial::with_bodies(label, &bodies, &["image/png"; 2], &[None; 2]),
         scenario,
         Driver::CoordinatedWorker,
         true,
         !matches!(scenario, Scenario::Corrupt),
     );
+}
+
+/// Private opt-in bodies; this is fixture selection, not a publisher input format.
+#[derive(serde::Deserialize)]
+#[serde(deny_unknown_fields)]
+struct MediaFixture {
+    body: std::path::PathBuf,
+    body_sha256: String,
+    content_type: String,
+    cache_control: Option<String>,
+    image: Option<Value>,
+}
+
+fn selected_media(label: &str, path: &std::path::Path) -> Serial {
+    assert!(std::fs::metadata(path).unwrap().len() <= 65536);
+    let bytes = std::fs::read(path).unwrap();
+    assert!(bytes.len() <= 65536);
+    let selection: Vec<MediaFixture> = serde_json::from_slice(&bytes).unwrap();
+    assert_eq!(selection.len(), 2);
+    let bodies: Vec<_> = selection
+        .iter()
+        .map(|file| {
+            assert!(std::fs::metadata(&file.body).unwrap().len() <= 10 * 1024 * 1024);
+            let body = std::fs::read(&file.body).unwrap();
+            assert!(!body.is_empty() && body.len() <= 10 * 1024 * 1024);
+            assert_eq!(
+                ContentDigest::compute(&body).to_string(),
+                format!("sha256:{}", file.body_sha256)
+            );
+            assert!(matches!(
+                file.content_type.as_str(),
+                "image/png" | "image/jpeg" | "image/webp" | "model/gltf-binary"
+            ));
+            body
+        })
+        .collect();
+    let types: Vec<_> = selection
+        .iter()
+        .map(|file| file.content_type.as_str())
+        .collect();
+    let caches: Vec<_> = selection
+        .iter()
+        .map(|file| file.cache_control.as_deref())
+        .collect();
+    let mut serial = Serial::with_bodies(label, &bodies, &types, &caches);
+    serial.image_expectations = Some(json!(
+        selection.iter().map(|file| &file.image).collect::<Vec<_>>()
+    ));
+    serial.trial.record(
+        "selected-media.json",
+        &serde_json::from_slice::<Value>(&bytes).unwrap(),
+    );
+    serial
 }

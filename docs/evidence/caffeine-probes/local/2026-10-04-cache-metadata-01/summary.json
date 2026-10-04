@@ -1,0 +1,246 @@
+{
+  "schema": 1,
+  "date": "2026-10-04",
+  "evidence_class": "offline_actual_sdk_native_and_local_ic_chromium_owned_substitute",
+  "implementation": {
+    "native": "optional preparation.cache_control, preserved in saved binding and transfer descriptor",
+    "browser": "optional cacheControl, bounded and snapshotted through launcher/host/worker/publication",
+    "sdk": "optional fourth prepareFile argument adds exact Cache-Control before the same upstream metadata hashing and tree construction",
+    "contract": "One current model; optional additive hint preserves omitted behavior and existing field meanings. No incompatible discriminator/layout reuse, alternate reader, inferred policy or second preparer.",
+    "service_changes": false
+  },
+  "offline": {
+    "original_roots": ".tmp/cache-metadata-01/metadata-check.json",
+    "publication": ".tmp/cache-metadata-01/publication/summary.json",
+    "worker": ".tmp/cache-metadata-01/worker/summary.json",
+    "native_handoff": ".tmp/cache-metadata-01/native-handoff/summary.json",
+    "launcher": ".tmp/cache-metadata-01/launcher/summary.json",
+    "negative": "Changed/omitted required cache metadata refuses before certificate intent; null/oversized hints refuse at native/browser boundaries",
+    "native_hints": "preparation_hints_preserve_omission_empty_values_and_utf8_byte_bounds passes"
+  },
+  "journeys": [
+    {
+      "name": "model_complete",
+      "directory": ".tmp/cache-metadata-01/model-complete/multichunk-complete",
+      "roots": [
+        "sha256:cbe3f72987558eba01c56930b49d76ae71a2e79c9ef63d7d2614640ffa3f62e7",
+        "sha256:03d976951b47a9404f819f991697f512085075073ae84172c0baf37c1fe0066c"
+      ],
+      "puts": 11,
+      "gets": 9,
+      "physical_bytes": 8389774,
+      "liability_bytes": 8389774,
+      "confirmed_map": true,
+      "automatic_upload_retries": 0,
+      "delivery": [
+        {
+          "afterFinalRelease": true,
+          "bytes": 8362256,
+          "cacheControl": "public, max-age=31536000, immutable",
+          "declaredBytes": "8362256",
+          "index": 0,
+          "kind": "glb",
+          "meshes": 35,
+          "mime": "model/gltf-binary",
+          "nodes": 36,
+          "origin": "http://127.0.0.1:32787",
+          "scenes": 1,
+          "sha256": "c910153c29739cd719cc5d41ff57eefd141feb1a3b18ab460ee07e81b5fd9c32",
+          "status": 200,
+          "type": "cors",
+          "url": "https://127.0.0.1:38929/v1/blob/?blob_hash=sha256%3Acbe3f72987558eba01c56930b49d76ae71a2e79c9ef63d7d2614640ffa3f62e7&owner_id=dllsh-pd777-77776-qaaaa-cai&project_id=standalone-trial"
+        },
+        {
+          "afterFinalRelease": false,
+          "bytes": 27518,
+          "cacheControl": "public, max-age=31536000, immutable",
+          "declaredBytes": "27518",
+          "height": 256,
+          "index": 1,
+          "mime": "image/webp",
+          "origin": "http://127.0.0.1:32787",
+          "pixel": [
+            7,
+            12,
+            53,
+            255
+          ],
+          "sha256": "58a6ffb23114c24b9a79ae485f6eb1ae23f99027ae20bd4d877617d92e0ec4a1",
+          "status": 200,
+          "type": "cors",
+          "url": "https://127.0.0.1:38929/v1/blob/?blob_hash=sha256%3A03d976951b47a9404f819f991697f512085075073ae84172c0baf37c1fe0066c&owner_id=dllsh-pd777-77776-qaaaa-cai&project_id=standalone-trial",
+          "width": 256
+        }
+      ]
+    },
+    {
+      "name": "images_lost",
+      "directory": ".tmp/cache-metadata-01/images-lost/multichunk-lost",
+      "roots": [
+        "sha256:3221bd9a69bda5b6c0a6822a8ae732b0ea780b293f641d8ae8a77ec1505d9102",
+        "sha256:ae002fcd0c2b97b72e9f9f6d013f9b267d4dc6be57dd54e47c6997f6c7fc7f63"
+      ],
+      "puts": 7,
+      "gets": 10,
+      "physical_bytes": 4318116,
+      "liability_bytes": 4318116,
+      "confirmed_map": true,
+      "automatic_upload_retries": 0,
+      "delivery": [
+        {
+          "afterFinalRelease": true,
+          "bytes": 3554987,
+          "cacheControl": "public, max-age=31536000, immutable",
+          "declaredBytes": "3554987",
+          "height": 1254,
+          "index": 0,
+          "mime": "image/png",
+          "origin": "http://127.0.0.1:40093",
+          "pixel": [
+            168,
+            151,
+            133,
+            255
+          ],
+          "sha256": "8b9e0ba748cbf7c1c9c20a597084bc03e1b5e94d2a6028cf21cfc5facb70d60a",
+          "status": 200,
+          "type": "cors",
+          "url": "https://127.0.0.1:45851/v1/blob/?blob_hash=sha256%3A3221bd9a69bda5b6c0a6822a8ae732b0ea780b293f641d8ae8a77ec1505d9102&owner_id=dllsh-pd777-77776-qaaaa-cai&project_id=standalone-trial",
+          "width": 1254
+        },
+        {
+          "afterFinalRelease": false,
+          "bytes": 763129,
+          "cacheControl": "public, max-age=31536000, immutable",
+          "declaredBytes": "763129",
+          "height": 1024,
+          "index": 1,
+          "mime": "image/jpeg",
+          "origin": "http://127.0.0.1:40093",
+          "pixel": [
+            49,
+            54,
+            14,
+            255
+          ],
+          "sha256": "702f70b9a6fd74e8f6fe4f8c9130db3cccfef74fc5008dc74cbf2ad80a33736f",
+          "status": 200,
+          "type": "cors",
+          "url": "https://127.0.0.1:45851/v1/blob/?blob_hash=sha256%3Aae002fcd0c2b97b72e9f9f6d013f9b267d4dc6be57dd54e47c6997f6c7fc7f63&owner_id=dllsh-pd777-77776-qaaaa-cai&project_id=standalone-trial",
+          "width": 1536
+        }
+      ]
+    },
+    {
+      "name": "images_corrupt",
+      "directory": ".tmp/cache-metadata-01/images-corrupt/multichunk-corrupt",
+      "roots": [
+        "sha256:3221bd9a69bda5b6c0a6822a8ae732b0ea780b293f641d8ae8a77ec1505d9102",
+        "sha256:ae002fcd0c2b97b72e9f9f6d013f9b267d4dc6be57dd54e47c6997f6c7fc7f63"
+      ],
+      "puts": 5,
+      "gets": 1,
+      "physical_bytes": 3554987,
+      "liability_bytes": 3554987,
+      "confirmed_map": false,
+      "automatic_upload_retries": 0,
+      "delivery": []
+    },
+    {
+      "name": "uncached_authored",
+      "directory": ".tmp/cache-metadata-01/authored-regression/multichunk-complete",
+      "roots": [
+        "sha256:484d7a8cc9165a997f8ebfeafd1cd7c5fc388828499f10f3f5c15ccac51f8369",
+        "sha256:77bb616fa371f72f60b5300017c7ac0ecac38a355e40cb52cb3128b73ea25106"
+      ],
+      "puts": 5,
+      "gets": 10,
+      "physical_bytes": 1050157,
+      "liability_bytes": 1050157,
+      "confirmed_map": true,
+      "automatic_upload_retries": 0,
+      "delivery": [
+        {
+          "afterFinalRelease": true,
+          "bytes": 1049055,
+          "cacheControl": null,
+          "declaredBytes": "1049055",
+          "height": 256,
+          "index": 0,
+          "mime": "image/png",
+          "origin": "http://127.0.0.1:36239",
+          "pixel": [
+            200,
+            30,
+            60,
+            255
+          ],
+          "sha256": "1235cbba920c5cfb24ff592d5ef1223d68d6340a0a4d65a909d263914d9e1f6b",
+          "status": 200,
+          "type": "cors",
+          "url": "https://127.0.0.1:35591/v1/blob/?blob_hash=sha256%3A484d7a8cc9165a997f8ebfeafd1cd7c5fc388828499f10f3f5c15ccac51f8369&owner_id=dllsh-pd777-77776-qaaaa-cai&project_id=standalone-trial",
+          "width": 1024
+        },
+        {
+          "afterFinalRelease": false,
+          "bytes": 1102,
+          "cacheControl": null,
+          "declaredBytes": "1102",
+          "height": 12,
+          "index": 1,
+          "mime": "image/png",
+          "origin": "http://127.0.0.1:36239",
+          "pixel": [
+            20,
+            180,
+            210,
+            255
+          ],
+          "sha256": "f1a16a5adabc5008d5adff083bfcf4d70dc6c49e17a29d0ba42f3bd37128f02a",
+          "status": 200,
+          "type": "cors",
+          "url": "https://127.0.0.1:35591/v1/blob/?blob_hash=sha256%3A77bb616fa371f72f60b5300017c7ac0ecac38a355e40cb52cb3128b73ea25106&owner_id=dllsh-pd777-77776-qaaaa-cai&project_id=standalone-trial",
+          "width": 24
+        }
+      ]
+    }
+  ],
+  "validation": [
+    "Pinned SDK/browser build",
+    "Native optional-hint unit test",
+    "Fresh native CLI/harness builds",
+    "Strict affected CLI and standalone-test Clippy",
+    "Formatting, JavaScript syntax and diff checks"
+  ],
+  "retention": {
+    "root": ".tmp/cache-metadata-01",
+    "source_manifest": ".tmp/cache-metadata-01/source-SHA256SUMS",
+    "input_manifest": ".tmp/cache-metadata-01/input-SHA256SUMS",
+    "artifact_manifest": ".tmp/cache-metadata-01/artifacts/SHA256SUMS",
+    "results_manifest": ".tmp/cache-metadata-01/results-final-SHA256SUMS",
+    "profiles": "Original profiles remain retained; regular result manifest excludes profiles and special entries listed in capture-exclusions.json",
+    "wasm": "Retained unchanged standalone 0.14.2 Wasm from representative-media-01; new CLI/harness/browser source artifacts retain compiled package release 0.14.2",
+    "initial_capture_manifest": ".tmp/cache-metadata-01/results-SHA256SUMS",
+    "initial_unsealed_summary": ".tmp/cache-metadata-01/summary-initial-capture.json"
+  },
+  "failed_probe_attempts": [],
+  "failed_capture": [
+    ".tmp/cache-metadata-01/capture-failure.json",
+    ".tmp/cache-metadata-01/capture-log-failure.json"
+  ],
+  "limits": [
+    "All serving facts use owned loopback provider substitute, not deployed Caffeine cache or retention",
+    "GLB structure is not game rendering acceptance",
+    "Complete consumer transaction/adoption and clean released downstream tool installation remain open",
+    "No permission to change original live installations, profiles or old signed/effect history"
+  ],
+  "live_provider_requests": 0,
+  "paid_cycles": 0,
+  "full_ci": false,
+  "commits": false,
+  "version_mutation": false,
+  "publication": false,
+  "deployment": false,
+  "sibling_edits": false,
+  "build_cleanup": false
+}

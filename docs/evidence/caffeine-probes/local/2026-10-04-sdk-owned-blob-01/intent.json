@@ -1,0 +1,31 @@
+{
+  "schema": 1,
+  "evidence_class": "source_review_and_local_sdk_chromium",
+  "target": "Caffeine 1.1.2 maintained preparation patch: Blob construction from the already-owned bytes",
+  "source_release": "0.14.5",
+  "prior_changes": "retained base64 launcher batch",
+  "cycles_budget": "0",
+  "live_ic_requests": 0,
+  "live_provider_requests": 0,
+  "plan": "Keep the pre-await snapshot, remove only the second full-array copy at Blob construction. Use original pinned package/hash checks and retain old patch/generated JS. Check real Chromium explicit and sniffed MIME preparation with caller mutation, selected views, binary bytes and multichunk tails. Exercise actual patched SDK PUT payloads, lost replies, failed replies, request budgets and one-shot handles against labelled local substitutes with an existing retained native verifier. Rebuild paired browser tools; run focused publication/worker and launcher boundaries. Preserve profiles and original effect histories.",
+  "source_hashes": {
+    "clients/browser/patches/caffeine-1.1.2.patch": "9809a3a70d2b4c97387a49b42afce8f653f4dc48e233281bc934bf6a7a1a7bef",
+    ".tmp/browser/caffeine/dist/StorageClient.js": "65209eacac20d23df2506455905971d6ae48d2dc0f37b05424da8999bdab33b7",
+    "tests/browser/sdk-probe.mjs": "d8f6b55c66a32340b3b6eb33eefe67991cfec631fcf80fc24a55c9b4d0521143",
+    "tests/browser/bootstrap.mjs": "78c461db1e987612f0d81451b635c51bdff2336db911c0f1aaa68cb7580391a0",
+    "tests/browser/bootstrap.js": "98b74a030815efbe5b1383acfd336e7f908e80a4e2295865f1e92767651a56e4"
+  },
+  "retained_directory": ".tmp/sdk-owned-blob-01",
+  "limits": {
+    "chromium_selected_body_bytes": 1049055,
+    "sdk_body_bytes": 1048577,
+    "sdk_cases": 6,
+    "provider_requests": 0
+  },
+  "limitations": [
+    "No live provider, IC call, payment or deployment",
+    "Native byte verifier is a retained earlier binary; record its exact hash, not a current Rust qualification",
+    "No claimed peak-memory or throughput improvement without measurements",
+    "No provider retention/billing or consumer adoption qualification"
+  ]
+}

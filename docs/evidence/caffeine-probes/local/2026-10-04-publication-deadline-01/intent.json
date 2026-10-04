@@ -1,0 +1,14 @@
+{
+  "schema": 1,
+  "date": "2026-10-04",
+  "evidence_class": "local_ic_browser_publication_fixture_deadline_coherence",
+  "source": "Released 0.14.3 plus fixture-only deadline consolidation",
+  "reason": "Released serial fixture uses 30 seconds for a complete native session but 120 for browser/parent. Miner issue #5 reports an earlier deadline failure; preserve that failure and all released observations.",
+  "target": "One fixture-owned 120-second session deadline supplied before intent to native original/recovery, browser bootstrap and subprocess owner; single-step preparation/query bounds and whole-fixture safety timer stay separate",
+  "checks": ["Eight-chunk original-cache-root GLB/WebP completion", "Original-cache-root PNG/JPEG lost-final-reply/control-interruption recovery without another PUT", "Effective original/recovery intents and browser reports agree on the selected deadline"],
+  "budgets": {"local_ic_browser_journeys": 2, "live_provider_requests": 0, "paid_cycles": 0},
+  "artifacts": "Use retained released 0.14.3 CLI and Wasm with newly built matching fixture harness/browser sources; retain both identities",
+  "retention": ".tmp/publication-deadline-01",
+  "limits": ["Fixture-only change; no production timeout default or retry policy change", "No consumer adoption or deployed provider qualification", "Keep all earlier successful and failed claims immutable"],
+  "effects": {"commits": false, "version_mutation": false, "publication": false, "deployment": false, "sibling_edits": false, "build_cleanup": false}
+}

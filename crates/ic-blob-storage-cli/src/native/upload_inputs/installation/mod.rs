@@ -1,6 +1,6 @@
 //! Bind local preparation to one complete candidate, without installed-state authority.
 use super::{Binding, Failure, NonZeroU64, UploadAdmissionRequest};
-use crate::native::candidate_candid;
+use crate::native::exact_candid;
 use ic_blob_storage::{
     dto::configuration::{ServiceInstallationInput, ServiceResourceInput},
     model::identity::caffeine::manifest::CaffeineManifestLimits,
@@ -18,7 +18,8 @@ impl Installation {
         permission: UploadAdmissionRequest,
         maximum: NonZeroU64,
     ) -> Result<Self, Failure> {
-        let input: ServiceInstallationInput = candidate_candid::decode(bytes)?;
+        let input: ServiceInstallationInput =
+            exact_candid::decode(bytes, exact_candid::INSTALLATION_BYTES, 64, 100_000)?;
         ValidatedServiceInstallation::new(
             permission.upload.service,
             ServiceInstallationCandidate {
