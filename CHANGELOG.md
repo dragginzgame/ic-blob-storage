@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.14.6]
+
 ### Fixed
 
 - Avoid a second full-body array copy when the patched Caffeine SDK constructs
@@ -20,6 +22,10 @@
   1/8/32 MiB bodies improve from 2.99/22.88/86.41 seconds to 0.08/0.48/1.83 seconds.
   These measure the client bridge before issuance, not successful upload latency
   or Canic execution; worker/process peak memory and populated-store scale remain open.
+
+### Changed
+
+- Update the workspace ic-memory dependency to 0.25, locking 0.25.0.
 
 ## [0.14.5] - 2026-10-04
 

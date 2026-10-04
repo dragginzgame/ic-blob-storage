@@ -150,7 +150,13 @@ The released lock uses ic-memory 0.24.14 and ic-testkit 0.14.11. Earlier scoped
 native/Wasm records retain their original dependency identities; the JavaScript
 checks above did not requalify that Rust graph.
 
-### Active batch after 0.14.5
+### 0.14.6 draft
+
+[The changelog](../../CHANGELOG.md) groups the completed browser performance and
+SDK copy fixes, profiling evidence and ic-memory dependency update under undated
+0.14.6. Cargo remains at 0.14.5; full release validation and version preparation
+remain with the maintainer's release flow. Scoped records below retain their
+original identities.
 
 The native-to-browser launcher now sends one bounded base64 string per 64 KiB
 raw frame, removing Playwright's per-element byte-array serialization. Native
