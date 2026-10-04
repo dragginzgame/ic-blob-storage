@@ -6,7 +6,7 @@ Date: 2026-10-04
 
 Released **0.14.4** is at `0c185fd1acdabba11d83a0a72f7ead1b24b4b506`,
 with validated source `8bf827f4622f9723d09c538ea407f155e86a6bc7`.
-Local tag and HEAD agree; the maintainer reports the release live. [Cargo](../../Cargo.toml),
+The local release tag identifies that commit; the maintainer reports the release live. [Cargo](../../Cargo.toml),
 [the release receipt](../release.json) and [the changelog](../../CHANGELOG.md)
 own release metadata. This source release does not prove registry publication,
 consumer adoption or deployed provider behavior.
@@ -92,7 +92,11 @@ They do not requalify the frozen media/provider observations above. A rejected
 Chromium close does not prove worker termination; consumers still own cleanup
 and adoption of the selected tools.
 
-### Active batch after 0.14.4
+### 0.14.5 draft
+
+[The changelog](../../CHANGELOG.md) now groups this completed batch under undated
+0.14.5. Cargo remains at 0.14.4; full release validation and preparation remain
+with the maintainer's release flow. The scoped evidence below is unchanged.
 
 Browser journal handles now have one close owner for explicit shutdown, platform
 version-change and unexpected connection closure. New operations return typed
