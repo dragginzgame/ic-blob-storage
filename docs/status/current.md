@@ -1,6 +1,23 @@
+<p align="center">
+  <img src="https://raw.githubusercontent.com/dragginzgame/shared-assets/main/ic-blob-storage/ic-blob-storage-readme-header.svg" alt="IC Blob Storage — Uploads, verifies, and tracks large files" width="100%">
+</p>
+
 # Current status
 
 Date: 2026-10-05
+
+## At a glance
+
+- Released baseline: `0.14.9`; the changelog and release receipt own exact
+  release metadata.
+- Product state: working library and standalone prototype with retained live
+  upload/download evidence, not a fully accepted production service.
+- Current composition: framework-independent core, explicit standalone host,
+  native operator tools and browser publication components.
+- Recovery: same-release restoration opens fenced; current-instance activation
+  requires independent IC history, and older-snapshot activation is unsupported.
+- Main remaining work: consumer adoption, complete publication transactions,
+  provider deletion and billing evidence, production sizing and retirement.
 
 ## Retained release baseline
 

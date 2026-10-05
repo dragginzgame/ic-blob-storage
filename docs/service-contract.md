@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="https://raw.githubusercontent.com/dragginzgame/shared-assets/main/ic-blob-storage/ic-blob-storage-readme-header.svg" alt="IC Blob Storage — Uploads, verifies, and tracks large files" width="100%">
+</p>
+
 # Service contract
 
 This defines the maintained library and standalone operating contract. The
@@ -5,6 +9,41 @@ This defines the maintained library and standalone operating contract. The
 Candidate validation composes the local models without installing state or
 proving provider behavior. Library publication and live service acceptance are
 separate.
+
+## Current contract at a glance
+
+- The shared library owns tenant policy, upload records, manifests, references,
+  quotas, provider accounting and durable workflow state. A host owns endpoints,
+  caller authentication, memory grants and lifecycle integration.
+- File bytes travel between the client and Caffeine. The service stores the
+  permissions, verification evidence and usage records needed to control them.
+- Tenant, uploader, verifier and operator are separate roles. Controller status
+  alone grants none of those application authorities.
+- Completion requires the configured verifier to fetch and check the complete
+  file before submitting its statement. That statement proves an observation,
+  not future provider retention.
+- Restored state opens fenced. Current-instance recovery requires independent IC
+  history; active recovery from an older snapshot remains unsupported.
+- Releasing the last application reference, deleting provider bytes and ending
+  billing are separate transitions with separate evidence.
+- Uncertain paid or provider effects are inspected and reconciled from their
+  original records; absence of a reply never authorizes an automatic retry.
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/dragginzgame/shared-assets/main/ic-blob-storage/ic-blob-storage-authority-boundaries.svg" alt="Authority boundaries between the tenant, uploader, verifier, operator, storage provider and application" width="800">
+</p>
+
+## Terms used in this contract
+
+| Term | Meaning here |
+| --- | --- |
+| Tenant | The application account or organization that owns permissions and references |
+| Permission | A bounded authorization for one exact upload request |
+| Manifest | The expected file length, content identity and ordered provider chunks |
+| Reference | A durable record that an application use still depends on a confirmed file |
+| Verifier | The configured identity trusted to fetch and check the complete provider object |
+| Fence | A state that permits inspection but blocks mutation until recovery is proven safe |
+| Obligation | Provider bytes, uncertain effects, balances or billing that must remain accounted for |
 
 ## Configured certificate issuance — accepted 2026-10-02
 

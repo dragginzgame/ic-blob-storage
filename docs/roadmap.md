@@ -1,10 +1,28 @@
+<p align="center">
+  <img src="https://raw.githubusercontent.com/dragginzgame/shared-assets/main/ic-blob-storage/ic-blob-storage-readme-header.svg" alt="IC Blob Storage — Uploads, verifies, and tracks large files" width="100%">
+</p>
+
 # Development plan
 
-Released 0.14.2 supplies the framework-independent library and standalone service,
-configured uploads, exact verifier completion and maintained native/browser
-publication components. Consumer owners supply framework wrappers, deployment
-integration and their composition tests. Library publication
-is separate from qualified live service operation.
+The [current status](status/current.md) owns the exact released baseline and
+active implementation work. The maintained product supplies a
+framework-independent library and standalone service, configured uploads, exact
+verifier completion and native/browser publication components. Consumer owners
+supply framework wrappers, deployment integration and their composition tests.
+Library publication is separate from qualified live service operation.
+
+## At a glance
+
+- **Available now:** shared policy and durable state, standalone endpoints,
+  bounded native/browser workflows and retained live trial evidence.
+- **Next acceptance boundary:** a real consumer must integrate the current
+  contract and qualify complete publication, serving and recovery journeys.
+- **Still open:** provider deletion and billing cessation, production sizing,
+  older-backup recovery and accountable retirement of retained installations.
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/dragginzgame/shared-assets/main/ic-blob-storage/ic-blob-storage-integration-topology.svg" alt="Integration topology showing browser and native clients, embedded and standalone hosting, the shared library, ic-memory, Caffeine and PocketIC" width="800">
+</p>
 
 ## Starting point
 

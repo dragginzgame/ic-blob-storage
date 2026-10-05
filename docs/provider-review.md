@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="https://raw.githubusercontent.com/dragginzgame/shared-assets/main/ic-blob-storage/ic-blob-storage-readme-header.svg" alt="IC Blob Storage — Uploads, verifies, and tracks large files" width="100%">
+</p>
+
 # Caffeine provider review — 2026-09-28
 
 Decision update, 2026-09-29: the maintainer selected independent qualification
@@ -28,6 +32,10 @@ Local response decoding and immutable root claims now address the source-level
 false-success/reassociation paths; their production prerequisites remain below.
 The [post-0.1.18 integration decision](#integration-decision-after-0118) records
 the current binding review and the next production implementation boundary.
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/dragginzgame/shared-assets/main/ic-blob-storage/ic-blob-storage-provider-boundary.svg" alt="Boundary between facts recorded by IC Blob Storage and external facts that require independent provider evidence" width="800">
+</p>
 
 ## Selected integration baseline
 

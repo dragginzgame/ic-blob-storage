@@ -1,9 +1,24 @@
+<p align="center">
+  <img src="https://raw.githubusercontent.com/dragginzgame/shared-assets/main/ic-blob-storage/ic-blob-storage-readme-header.svg" alt="IC Blob Storage — Uploads, verifies, and tracks large files" width="100%">
+</p>
+
 # Implementation history
 
 This is retained implementation and evidence handoff history. Release,
 dependency, validation and next-step statements below describe their original
 batch; they are not current operating instructions. Start with
 [the current handoff](current.md) for maintained behavior and remaining work.
+
+## How to use this history
+
+- Search for the release number, date or feature named by the evidence you are
+  reviewing.
+- Treat each section's commands, dependency graph and conclusions as scoped to
+  its recorded source revision.
+- Do not use an earlier “next step” as current direction; return to
+  [current status](current.md).
+- Use the [probe ledger](../evidence/caffeine-probes/README.md) for retained
+  provider observations and artifacts.
 
 Date: 2026-10-03
 

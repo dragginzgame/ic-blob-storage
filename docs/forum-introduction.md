@@ -1,15 +1,29 @@
-# 📦 Introducing ic-blob-storage: a storage service foundation for Internet Computer apps
+<p align="center">
+  <img src="https://raw.githubusercontent.com/dragginzgame/shared-assets/main/ic-blob-storage/ic-blob-storage-readme-header.svg" alt="IC Blob Storage — Uploads, verifies, and tracks large files" width="100%">
+</p>
+
+# Introducing ic-blob-storage: a storage service foundation for Internet Computer apps
+
+> **Historical announcement:** This document describes the project around
+> version `0.1.7`. It is retained as an early design and communication record,
+> not as current product or operating guidance. Start with the
+> [project overview](../README.md) and [current status](status/current.md) for
+> maintained behavior.
 
 I wanted to share an early introduction to **ic-blob-storage**, an open-source Rust project building toward an independent blob-storage service for Internet Computer canisters.
 
 The intended developer experience is straightforward: an application uploads an object, keeps references to it, reads and verifies its contents, and releases it when it is no longer needed. The service handles the shared responsibilities around authorization, quotas, provider access, billing, and deletion.
 
-The project is currently at **0.1.7**. There is an implemented and tested Rust core, but the complete canister service is still ahead. Persistent workflows, provider communication, upload/read clients, and deployment adapters have not been implemented yet.
+At the time of this announcement, the project was at **0.1.7**. It had an
+implemented and tested Rust core, while the complete canister service,
+persistent workflows, provider communication, upload/read clients and deployment
+adapters were still future work.
 
 This is a good point to introduce the direction and get feedback from people building applications that need it.
 
-🔗 **Repository:** https://github.com/dragginzgame/ic-blob-storage  
-📄 **License:** MIT
+**Repository:** https://github.com/dragginzgame/ic-blob-storage
+
+**License:** MIT
 
 ## Why build this?
 
@@ -28,7 +42,7 @@ These responsibilities are easy to spread across application code, deployment to
 
 The work grows out of blob-storage capabilities in **Canic**, while reviewing the design independently. Existing capabilities provide a useful starting point; the new service needs its own ownership rules, recovery behavior, and evidence.
 
-## 🧱 Where we are today
+## Where it stood at 0.1.7
 
 The current library implements the foundations for reasoning about objects, references, access, and resource usage.
 
@@ -63,7 +77,7 @@ The catalog currently starts with objects treated as already confirmed. Upload r
 
 [/details]
 
-## 🔄 The lifecycle matters
+## The lifecycle matters
 
 One central design choice is to keep three events separate:
 
@@ -93,7 +107,7 @@ The current implementation tracks byte-based obligations. A complete monetary le
 
 [/details]
 
-## 🧭 Where it is going
+## Where it was going
 
 The target is a complete application journey:
 
@@ -139,7 +153,7 @@ Retiring existing installations is a separate responsibility: removing code does
 
 [/details]
 
-## ☕ What about the storage provider?
+## What about the storage provider?
 
 **Caffeine is the current integration candidate.** The repository includes a reviewed integration baseline and local decoding and validation for selected provider replies.
 
@@ -160,7 +174,7 @@ A client library or a successfully decoded response does not answer all of these
 
 [/details]
 
-## 🔍 Some deliberate boundaries
+## Some deliberate boundaries
 
 The initial scope is a bounded storage journey with clear ownership and recovery rules.
 
@@ -180,7 +194,7 @@ Repeated content, multiple references, delete-and-reupload behavior, and provide
 
 [/details]
 
-## 💬 Feedback welcome
+## Feedback requested at the time
 
 I would especially like to hear from developers with concrete storage workflows:
 

@@ -22,14 +22,12 @@
 </p>
 <!-- helper-navigation:end -->
 
-# 🗃️ ic-blob-storage
-
 `ic-blob-storage` helps Internet Computer apps handle large files such as
 images, videos, audio, 3D models and downloads.
 
 Internet Computer apps run in services called *canisters*. Canisters can keep
 their own data, but large files are often better handled by a dedicated storage
-provider. This project uses [Caffeine](docs/provider-review.md) to hold the file
+provider. This project uses Caffeine to hold the file
 contents while the app keeps control of upload permissions, file checks, usage
 records, storage limits and accounting.
 
@@ -38,10 +36,7 @@ demonstrated, but application integration, provider guarantees, deletion,
 billing and production recovery are still being qualified. This is not yet a
 finished production service.
 
-[Current status](docs/status/current.md) · [Changelog](CHANGELOG.md) ·
-[Development plan](docs/roadmap.md) · [Service contract](docs/service-contract.md)
-
-## ✨ What it does
+## What it does
 
 | What you need | What `ic-blob-storage` does |
 | --- | --- |
@@ -49,8 +44,8 @@ finished production service.
 | Check files | Confirms that a stored file matches the original |
 | Reuse files safely | Tracks every place that still depends on a file |
 | Control storage growth | Enforces limits for files, bytes and upload activity |
-| Recover safely | Preserves important records across interruptions and upgrades |
-| Track costs and provider activity | Records funding, refunds, storage use and operations with uncertain outcomes |
+| Keep records through interruptions | Preserves important records across interruptions and upgrades |
+| Track costs and provider activity | Records storage use, payments, refunds and operations that may need checking |
 
 After an upload is approved, the file travels directly from the uploader to
 Caffeine. It does not pass through the app's canister. The canister instead
@@ -58,8 +53,9 @@ keeps the smaller records needed to control the upload, verify the result and
 remember whether the file is still in use.
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/dragginzgame/shared-assets/main/ic-blob-storage/ic-blob-storage-how-it-works.svg" alt="How an upload moves from permission through direct Caffeine storage and verification to a file reference the app can safely use" width="900">
+  <img src="https://raw.githubusercontent.com/dragginzgame/shared-assets/main/ic-blob-storage/ic-blob-storage-how-it-works.svg" alt="How an upload moves from permission through direct Caffeine storage and verification to a file reference the app can safely use" width="800">
 </p>
+<p align="center"><em>File contents go directly to Caffeine while ic-blob-storage manages permission, verification and usage records.</em></p>
 
 ## When it may be useful
 
@@ -73,8 +69,9 @@ Consider `ic-blob-storage` when:
 - you need reliable records for recovery after an interruption or upgrade.
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/dragginzgame/shared-assets/main/ic-blob-storage/ic-blob-storage-decision-guide.svg" alt="Decision guide for whether an app handling large files would benefit from upload control, verification, quotas or reuse tracking" width="900">
+  <img src="https://raw.githubusercontent.com/dragginzgame/shared-assets/main/ic-blob-storage/ic-blob-storage-decision-guide.svg" alt="Decision guide for whether an app handling large files would benefit from upload control, verification, quotas or reuse tracking" width="800">
 </p>
+<p align="center"><em>It is most useful when large files need more control than ordinary application storage provides.</em></p>
 
 ## What it is not
 
@@ -88,15 +85,19 @@ Consider `ic-blob-storage` when:
   promise that the provider will retain the file forever.
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/dragginzgame/shared-assets/main/ic-blob-storage/ic-blob-storage-file-lifecycle.svg" alt="File lifecycle showing approval, upload, verification, app references, reference release, provider deletion and billing confirmation as separate events" width="900">
+  <img src="https://raw.githubusercontent.com/dragginzgame/shared-assets/main/ic-blob-storage/ic-blob-storage-file-lifecycle.svg" alt="File lifecycle showing approval, upload, verification, app references, reference release, provider deletion and billing confirmation as separate events" width="800">
 </p>
+<p align="center"><em>Releasing the app's reference, deleting the provider copy and ending billing are separate events.</em></p>
 
 ---
 
 The remaining sections are for developers and operators who want to integrate,
 test or maintain the project.
 
-## 🚧 Technical status
+[Current status](docs/status/current.md) · [Changelog](CHANGELOG.md) ·
+[Development plan](docs/roadmap.md) · [Service contract](docs/service-contract.md)
+
+## Technical status
 
 | Area | Current state |
 | --- | --- |
@@ -134,7 +135,7 @@ See the [recovery guide](docs/operator-guide.md#current-instance-recovery)
 for operating limits and the [gap review](docs/service-gaps.md) for consumer and
 provider acceptance still required.
 
-## 🚀 Get started locally
+## Get started locally
 
 Install rustup and Cargo, then run from the repository root:
 
@@ -160,7 +161,7 @@ Choose the local canister path you want to exercise:
 Follow [dependency setup](docs/dependencies.md) to provision those tools.
 The test targets use local canisters and do not deploy a live service.
 
-## 🧩 Repository layout
+## Repository layout
 
 The standalone host and external consumers use the same service workflows and tenant rules.
 
@@ -176,7 +177,7 @@ The host owns one `ic-memory` runtime and its allocation policy. Linking a libra
 See [memory composition](docs/dependencies.md#memory-composition)
 for the integration details.
 
-## 🛠️ Tools and examples
+## Tools and examples
 
 | I want to… | Start here |
 | --- | --- |
@@ -211,7 +212,7 @@ These guides retain the exact command examples, input formats, limits and recove
 behavior. The native client requires explicit signing identities and installation
 scope; controller status does not grant tenant access.
 
-## ✅ Development checks
+## Development checks
 
 | Command | What it checks |
 | --- | --- |
@@ -233,10 +234,11 @@ Run focused checks during development. Full validation and release commands foll
 [development governance](docs/governance/development.md).
 Releases preserve build artifacts; cleanup is a separate `make clean` action.
 
-## 📚 Further reading
+## Further reading
 
 | Document | Use it for |
 | --- | --- |
+| [Documentation index](docs/README.md) | Choose the right conceptual, integration, operations or evidence guide |
 | [Current status](docs/status/current.md) | Latest handoff, validation evidence and next work |
 | [Development plan](docs/roadmap.md) | Milestones and consumer integration direction |
 | [Service contract](docs/service-contract.md) | Authority, accounting, verifier trust and recovery rules |
@@ -254,6 +256,6 @@ engine. Breaking changes use minor releases; cross-release installations require
 reinstall after obligations are safely retained or discharged. Source removal
 and retirement of an existing storage installation are separate decisions.
 
-## 📄 License
+## License
 
 MIT — see [LICENSE](LICENSE).
