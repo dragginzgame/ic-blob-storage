@@ -1,0 +1,9 @@
+{
+  "date": "2026-10-05",
+  "parent": "intent.json",
+  "reason": "The ordinary profile filter matched both its intended case and the new scaled case. The ordinary case completed all four workloads; the scaled case then refused before effects because its separate report environment was absent. Preserve that failed aggregate invocation and every completed ordinary workload.",
+  "target": "Rerun only storage_gateways::transport::read_sessions::resources::occupied_history_restoration_profile with --exact, a fresh ordinary-02 report directory and the same frozen artifacts; then resume the previously planned combined-owner and standalone recovery regressions",
+  "budget": {"additional_ordinary_workloads": 4, "additional_ordinary_upgrades": 4, "additional_local_ingress_ceiling": 300, "live_provider_requests": 0, "paid_cycles": "0"},
+  "artifacts": ".tmp/restoration-scale-01/ordinary-01.log and ordinary-01/ retained; follow-up uses ordinary-02.log and ordinary-02/",
+  "limitations": ["No source/artifact rebuild or dependency change", "No automatic reuse or overwrite of the first report directory", "Failed scaled selection performed no population or upgrade"]
+}

@@ -39,9 +39,9 @@ availability does not establish provider qualification or service readiness.
 | `thiserror` | 2.0.18 | Typed error derives; matches PocketIC's exact requirement |
 | `ic-cdk` | 0.20.3 | IC platform operations for the ops layer |
 | `ic-management-canister-types` | 0.11.0 (direct, locked) | Bounded current-instance IC-history request/reply types |
-| `ic-memory` | 0.25.5 (locked) | Sole allocation runtime; public typed growth API |
+| `ic-memory` | 0.25.9 (locked) | Sole allocation runtime; public typed growth API |
 | `ic-stable-structures` | 0.7.2 | Exact transitive substrate owned/re-exported by `ic-memory` |
-| `ic-testkit` | 0.15.4 (locked) | Native dependency of the unpublished PocketIC harness; shared helpers and full re-export |
+| `ic-testkit` | 0.15.8 (locked) | Native dependency of the unpublished PocketIC harness; shared helpers and full re-export |
 | `pocket-ic` | 16.0.0 | Transitive through `ic-testkit`; no direct dependency |
 | `ic-agent` | 0.49.2 | Native CLI and harness signing and verification of ingress certificates |
 | `candid_parser` | 0.4.1 | Native harness only; official Candid parser for native request fixtures |
@@ -75,10 +75,26 @@ than attributed to the earlier recovery artifacts.
 
 The [0.14.10 batch preflight](evidence/release-preflight-01410.json) passes the
 complete configured `make ci` gate and actual native/Wasm checks with Rust
-1.88.0 on this selected graph, still compiled as 0.14.9. These Linux results
+1.88.0 on its captured 0.25.5/0.15.4 graph, still compiled as 0.14.9. These Linux results
 preserve the source patch, artifacts and logs; release preparation from clean
 committed source remains a separate transaction. Native macOS and opt-in browser
 or scale profiles are not rerun by this gate.
+
+The [0.14.11 occupied-history record](evidence/caffeine-probes/README.md#larger-occupied-fundingread-histories--2026-10-05)
+separately qualifies scoped local restoration and recovery on selected ic-memory
+0.25.9/ic-testkit 0.15.8, still compiled as 0.14.10. Memory's checked metadata
+construction/decoding owns validity formerly rescanned later; this service uses
+none of the removed APIs. Testkit tightens artifact acquisition and simplifies
+install retry bookkeeping; our explicit Make builds use `--release --lib` and
+the maintained harness uses an explicitly selected server. Neither dependency
+change introduces a consumer adapter or another state owner here.
+
+Thirty core funding/read tests, seven standalone recovery/history/snapshot cases,
+the combined-owner regression and ordinary/scale profiles pass. Scoped actual
+Rust 1.88 native checks cover core, standalone and harness tests; scoped Wasm
+checks cover core, standalone and storage fixture. These Linux checks preserve
+the selected lock and do not replace full CI, full-workspace MSRV, native macOS
+or deployed-provider qualification. Prior evidence retains its original graph.
 
 The native CLI explicitly enables reqwest 0.13.5's `rustls` and `http2` features;
 CLI-only builds must support HTTPS/HTTP/2 independently of the harness or agent's

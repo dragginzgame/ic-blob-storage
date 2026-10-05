@@ -1,4 +1,5 @@
 //! Bounded synthetic population through the maintained durable operations; no provider effects.
+pub(crate) mod histories;
 use super::{STATE, conversion};
 use blob_test_protocol::storage::{
     Failure,

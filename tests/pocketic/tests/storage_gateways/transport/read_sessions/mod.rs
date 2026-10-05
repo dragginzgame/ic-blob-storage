@@ -1,4 +1,5 @@
 //! Real local chunks validate durable sessions, verification and callback authority.
+mod resources;
 use super::*;
 use blob_test_protocol::{
     admission::{

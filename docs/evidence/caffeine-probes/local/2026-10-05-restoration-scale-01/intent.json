@@ -1,0 +1,22 @@
+{
+  "date": "2026-10-05",
+  "source_base": "baee7a13208390f590871e97874337afaf5867b4",
+  "source_disposition": "Preserve staged entry patch and current maintainer-selected lock; development stays compiled as 0.14.10 for the chosen 0.14.11 batch",
+  "evidence_class": "source review and local PocketIC normal application subnet; synthetic funding outcomes and undispatched read intents",
+  "target": "Larger bounded lifetime funding histories and concurrent read occupancy before selecting any production restoration optimization",
+  "workloads": [
+    {"name": "funding-100", "funding": 100, "reads": 0, "tenants": 1, "final_phase": "Prepared"},
+    {"name": "funding-1000", "funding": 1000, "reads": 0, "tenants": 1, "final_phase": "Uncertain"},
+    {"name": "funding-10000", "funding": 10000, "reads": 0, "tenants": 1, "final_phase": "Uncertain"},
+    {"name": "reads-32", "funding": 4, "reads": 32, "tenants": 1, "final_phase": "Uncertain"},
+    {"name": "reads-1024-tenants-32", "funding": 1000, "reads": 1024, "tenants": 32, "final_phase": "Uncertain"}
+  ],
+  "scope": "One explicit current private fixture installation record adds bounded funding/read ceilings; all producers use it, ordinary callers retain four funding intents and one read. Bounded population delegates to maintained journal methods and read-session workflow without constructing persisted records, dispatching calls or retaining completion tickets. Actual upgrades compare complete accounting, selected exact funding requests/phases and every occupied read identity/target through bounded operator pages; reject wrong actors, stale population counters, capacity and restored mutations without repair.",
+  "dependencies": {"ic_memory": "0.25.9", "ic_testkit": "0.15.8", "management_types": "0.11.0", "pocket_ic": "16.0.0"},
+  "budget": {"local_workloads": 5, "local_upgrades": 5, "local_ingress_ceiling": 2000, "batch_items": 16, "ingress_bytes": 4096, "live_provider_requests": 0, "paid_cycles": "0"},
+  "checks": "Focused builds and strict Clippy, existing ordinary-envelope profile and combined-owner recovery regression on the selected graph; core funding/read corruption checks and selected standalone continuity/history/snapshot regressions if dependency review reaches those contracts. No full CI or version transaction.",
+  "authority": "User continuation for 0.14.11; in-repository development and scoped verification only",
+  "retention": "Fresh run directories, every measured packet before dispatch, original results/checkpoints/failures, source/lock inputs, frozen binary/Wasm/server and commands; no silent retries or overwrite",
+  "artifacts": ".tmp/restoration-scale-01",
+  "limitations": ["Synthetic local funding outcomes; no deployed provider credit or payment evidence", "Read intents are admitted by the real workflow but deliberately undispatched and remain occupied", "Instrumented read costs include observer overhead; allocated heap is not live heap", "No million-object, production restore, macOS or stale-backup activation qualification", "Frozen prior fixtures/profile remain on their original private contract; only fresh new-contract installations are used"]
+}

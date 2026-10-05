@@ -1,0 +1,14 @@
+{
+  "date": "2026-10-05",
+  "source_base": "baee7a13208390f590871e97874337afaf5867b4",
+  "compiled_release": "0.14.10",
+  "evidence_class": "source review and local PocketIC normal application subnet with labelled funding and chunk substitutes",
+  "target": "Representative occupied funding/read stores through existing ordinary fixture limits before selecting a restoration optimization",
+  "scope": "Four same-release upgrades: empty journals; four terminal funding intents and 64 completed reads; three terminal intents plus a prepared final intent and one interrupted read; the same with an uncertain final intent. Completed reads must leave no occupied session rows; the interrupted callback must retain its slot and exact 2048-byte reservation. Compare whole-service observations, exact funding phases/requests, read high-water identity and mutation/authority refusals.",
+  "dependencies": {"ic_memory": "0.25.5", "ic_testkit": "0.15.4", "management_types": "0.11.0", "pocket_ic": "16.0.0"},
+  "budget": {"local_workloads": 4, "local_upgrades": 4, "funding_intents_per_workload": 4, "completed_reads_per_populated_workload": 64, "occupied_reads_per_workload": 1, "local_ingress_ceiling": 500, "live_provider_requests": 0, "paid_cycles": "0"},
+  "authority": "Ordinary continuation: scoped in-repository implementation and local validation; no release mutation, publication, deployment or paid effects",
+  "artifacts": ".tmp/restoration-histories-01",
+  "retention": "Freeze source patch, dependency inputs, test executable, both Wasm modules, server, logs and fresh workload request/result files. Retain intentional callback traps and unexpected failures separately; no automatic reruns or overwrites.",
+  "limitations": ["Existing private fixture envelope: four lifetime funding intents, one occupied read and two tenants", "64 completions exercise sequence history, not retained read rows", "Instrumented reads include observer overhead and allocated heap is not live heap", "No large occupied-history, production restore, macOS or deployed-provider qualification", "Synchronous validation and independent durable owners remain unchanged"]
+}

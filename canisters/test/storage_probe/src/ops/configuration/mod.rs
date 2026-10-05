@@ -14,7 +14,10 @@ pub(super) fn configuration(
     assert!(
         (1..=10_000).contains(&input.max_objects)
             && (1..=32).contains(&input.max_tenants)
-            && (10..=67_108_864).contains(&input.max_object_bytes),
+            && (10..=67_108_864).contains(&input.max_object_bytes)
+            && (1..=10_000).contains(&input.max_funding_attempts)
+            && (1..=1024).contains(&input.max_read_sessions)
+            && (1..=input.max_read_sessions).contains(&input.max_tenant_read_sessions),
         "bounded fixture capacity"
     );
     let objects = input.max_objects;
@@ -61,14 +64,14 @@ pub(super) fn configuration(
             funding: ServiceFundingInput {
                 allocated: 1000,
                 reserve: 100,
-                max_attempts: 4,
+                max_attempts: input.max_funding_attempts,
             },
             reads: ServiceReadInput {
-                sessions: 1,
-                tenant_sessions: 1,
+                sessions: input.max_read_sessions,
+                tenant_sessions: input.max_tenant_read_sessions,
                 reply_bytes: 2048,
-                bytes: 2048,
-                tenant_bytes: 2048,
+                bytes: 2048 * u64::from(input.max_read_sessions),
+                tenant_bytes: 2048 * u64::from(input.max_tenant_read_sessions),
             },
         },
     )

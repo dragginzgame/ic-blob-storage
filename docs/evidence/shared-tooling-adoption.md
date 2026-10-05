@@ -8,6 +8,25 @@ Date: 2026-10-05. This records a completed source review and local tooling
 adoption, not an issue tracker. GitHub issues in their owning repositories track
 future work. Historical release notes retain their original meaning.
 
+## Post-release snapshot integrity — 2026-10-05
+
+After release 0.14.10, documentation merge `baee7a1` added consumer banners to
+the five declared principle guides, `docs/consuming-snapshots.md` and
+`docs/supported-hosts.md`. The offline snapshot check refused their changed
+bytes. The pinned manifest itself remained unchanged.
+
+The original guide bytes, exact banner diff and refusal are retained under
+`.tmp/restoration-histories-01`. The canonical `refresh-consumer.sh` helper from
+clean Shared Tooling `41e1fd0ba41460bd2127cbf98ac8a4b2b2020d3e` restores the
+existing eleven-file snapshot. Only the seven guide contents change; manifest,
+source revision, file set, executable modes and tooling stay pinned. The offline
+guard then verifies all eleven files. Repository-owned documentation keeps its
+banners. Keep local branding outside shared snapshot files; do not bless drift by
+changing declared hashes. The
+[supporting summary](caffeine-probes/local/2026-10-05-restoration-histories-01/summary.json)
+binds the refusal, preserved bytes, refresh and success separately from local
+restoration measurements.
+
 ## Source identities
 
 The consumer starts at release 0.14.9,

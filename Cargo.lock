@@ -1686,9 +1686,9 @@ dependencies = [
 
 [[package]]
 name = "ic-memory"
-version = "0.25.5"
+version = "0.25.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "81241ee8a89172007cf5667a3c0db6aa6899f9ba3cd4116418399d5de00ea998"
+checksum = "3aef1120bf96287e7e7a3d94d5928af982d5c4da55f946a560468611c73b25aa"
 dependencies = [
  "ciborium",
  "ctor",
@@ -1708,9 +1708,9 @@ dependencies = [
 
 [[package]]
 name = "ic-testkit"
-version = "0.15.4"
+version = "0.17.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "589c8c0b754f45721b0a289d44cc01ed291d3f9d7302aab42e2cd35e458103bc"
+checksum = "06967b57ce980dd359c4ce329c0dd82b353221bf19f681071f8e20643b007347"
 dependencies = [
  "candid",
  "fs2",
@@ -3842,9 +3842,9 @@ checksum = "2896d95c02a80c6d6a5d6e953d479f5ddf2dfdb6a244441010e373ac0fb88971"
 
 [[package]]
 name = "unicase"
-version = "2.9.0"
+version = "2.10.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "dbc4bc3a9f746d862c45cb89d705aa10f187bb96c76001afab07a0d35ce60142"
+checksum = "357cc3acc6a036009fd6c973ed009037c732d60d0b4f6c673e9041497482a28f"
 
 [[package]]
 name = "unicode-ident"

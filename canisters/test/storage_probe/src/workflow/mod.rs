@@ -70,6 +70,18 @@ pub(crate) fn populate_resources(
 ) -> Result<(), Failure> {
     ops::resources::populate(context, input)
 }
+pub(crate) fn populate_histories(
+    context: UploadContext,
+    input: blob_test_protocol::storage::resources::HistoryPopulationBatch,
+) -> Result<(), Failure> {
+    ops::resources::histories::populate(context, input)
+}
+pub(crate) fn restoration_read_page(
+    context: UploadContext,
+    input: blob_test_protocol::storage::resources::RestorationReadPage,
+) -> Result<Vec<blob_test_protocol::storage::resources::RestorationRead>, Failure> {
+    ops::resources::histories::inspect(context, input)
+}
 pub(crate) fn restoration_resources(
     context: UploadContext,
 ) -> Result<blob_test_protocol::storage::resources::RestorationResources, Failure> {

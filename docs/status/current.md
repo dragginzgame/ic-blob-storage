@@ -8,8 +8,10 @@ Date: 2026-10-05
 
 ## At a glance
 
-- Released baseline: `0.14.9`; the changelog and release receipt own exact
+- Released baseline: `0.14.10`; the changelog and release receipt own exact
   release metadata.
+- Current development target: `0.14.11`; its undated changelog collects scoped
+  work. Cargo and the release receipt remain at 0.14.10.
 - Product state: working library and standalone prototype with retained live
   upload/download evidence, not a fully accepted production service.
 - Current composition: framework-independent core, explicit standalone host,
@@ -21,16 +23,20 @@ Date: 2026-10-05
 
 ## Retained release baseline
 
-Released **0.14.9** is at `c3a16529d161547987c138b15bf75cac70b54c55`,
-with validated source `760568efd3ad42b0fb5d39ebb554aec306fb883f`.
-The local annotated tag, [Cargo](../../Cargo.toml) and
-[receipt](../release.json) agree; the maintainer reports it pushed. No new remote
-publication or deployment observation is inferred. [The changelog](../../CHANGELOG.md)
-owns release notes. The released lock uses ic-memory 0.25.0 and ic-testkit 0.14.11.
-The post-release workspace selects ic-memory 0.25.5 and ic-testkit 0.15.4;
-the authorized management-types upgrade also selects 0.11.0. Earlier retained
-profiles keep their original graphs; the new scoped recovery checks below
-identify the updated graph explicitly.
+Released **0.14.10** is at annotated tag
+`95f102c02b6e6f5f3e4f43e1c132e1928c541055`, directly following validated source
+`c3143d6c803b5bc31c2a300f81f5b68deba64953`. The release-file hashes, date and
+version in the [receipt](../release.json) verified at task entry. The maintainer
+reports 0.14.10 live; local main and cached origin/main agree at the subsequent
+documentation merge `baee7a13208390f590871e97874337afaf5867b4`. This is not a new
+registry or deployment observation. [The changelog](../../CHANGELOG.md) owns
+release notes; its undated 0.14.11 heading is ordinary post-release work.
+The released lock selects ic-memory 0.25.5, ic-testkit 0.15.4, management types
+0.11.0 and transitive powerfmt 0.2.1. Earlier retained profiles keep their
+original compiled releases and dependency graphs.
+During the earlier ordinary-history batch, the maintainer's concurrent lockfile
+update selected ic-memory 0.25.9 and ic-testkit 0.15.8. That frozen profile uses
+0.25.5/0.15.4; the new 0.14.11 record below separately checks the selected graph.
 Retained observations below keep their original source and artifact identities.
 
 The core owns tenant policy, uploads, manifests, references, quotas, provider
@@ -185,7 +191,9 @@ also differs from production RuntimeMemory's unsafe-read delegation. These
 figures include observer overhead and are not standalone production costs.
 Dependency source review finds no temporary array in the stable-memory default
 unsafe-read path; no allocator or unsafe implementation change is justified.
-Larger manifests, many tenants and occupied funding/read histories remain open.
+Those original measurements did not cover larger manifests, many tenants or
+occupied funding/read histories; the later bounded profiles below cover those
+shapes separately and retain their own source and artifact identities.
 
 One shared bounded observer now serves preparation and successful-transfer
 fixtures. Fresh 1/8/32 MiB preparation still refuses before intent with zero
@@ -224,17 +232,16 @@ including the five reported failures, pass; strict storage harness Clippy and
 format/changelog checks pass. Production funding behavior and fixture Wasm are
 unchanged. No full storage suite or CI rerun, release, live effect or cleanup.
 
-## Current tooling work
+## Retained 0.14.10 tooling work
 
 Released 0.14.9 removes the mandatory Unreleased queue and section-order checks.
 Preparation selects one draft in place, preserves history and refuses ambiguous
-notes. The selected undated 0.14.10 draft collects completed tooling, dependency
-and qualification work; Cargo and the receipt remain at the released version.
-The earlier draft batch is committed at `83a2742`; it did not change the package
-version or receipt. The subsequent snapshot refresh below remains uncommitted.
-Release preparation requires the maintainer to commit the outstanding batch first,
-then run the full validation/version transaction from clean source. Earlier evidence
-keeps its original compiled versions and dependency bindings.
+notes. The former 0.14.10 draft collected the tooling, dependency and
+qualification work recorded below. Its earlier source batch at `83a2742` did
+not change the package version or receipt; subsequent source was committed at
+`c3143d6`, validated from clean input and released as 0.14.10. The following
+records describe their original pre-release batches and retain their compiled
+versions and dependency bindings.
 
 The 0.14.10 review corrects release-bootstrap fixtures that still expected
 dependency fetching as the first gate. The fixtures now observe snapshot
@@ -395,24 +402,112 @@ All compiled artifacts remain 0.14.9, and Cargo.toml/Cargo.lock/receipt match
 task-entry hashes. These are current Linux gate/MSRV observations, not new
 native macOS, opt-in browser/scale or deployed-provider qualification.
 
-The effect-free 0.14.10 release preview passes. Version preparation has not run:
-the outstanding batch needs the maintainer's source commit under the baseline's
-no-agent-commit rule. Once source is committed and clean, the authorized next
-step is `make bump-x VERSION=0.14.10`; that helper validates the exact committed
-source before updating the release files and receipt. No commit, tag, push,
-publication, deployment, remote metadata write, paid effect or destructive
-cleanup occurs. This preflight does not relabel earlier profiles or create a
-0.14.10 release receipt from dirty source.
+After this dirty-source preflight, the maintainer committed the batch as
+`c3143d6`. Authorized `make bump-x VERSION=0.14.10` passed the full current gate
+again from that exact clean source, then prepared only the four release files.
+The maintainer subsequently created annotated `v0.14.10`; its release receipt
+binds the clean-source validation separately from this earlier preflight.
+Preserved gate binaries still compiled as 0.14.9. The new occupied-history
+profile below rebuilds and freezes its own 0.14.10 fixtures; neither release
+receipt nor tag relabels earlier evidence.
+
+## Occupied funding/read restoration and snapshot integrity
+
+The [intent](../evidence/caffeine-probes/local/2026-10-05-restoration-histories-01/intent.json)
+precedes a focused ordinary-envelope PocketIC profile on compiled 0.14.10.
+Source review confirms that funding restoration validates retained lifetime
+intents in order and reconstructs their exact allocation; read restoration
+validates only occupied sessions and rebuilds global/per-tenant counters.
+Completed read rows are removed, leaving their monotonic high-water sequence.
+
+Four actual same-release upgrades pass: empty journals, four terminal funding
+intents after 64 completed reads, and three terminal intents followed by either
+a prepared or uncertain intent with one interrupted read. Exact funding
+requests/phases and whole-service accounting survive. Both interrupted cases
+retain sequence 65, one occupied slot and its 2,048-byte reservation; capacity
+and post-restore mutations refuse without another chunk request or lost state.
+Instrumented initialization measures 7,056,415 / 7,996,320 / 8,148,753 /
+8,148,232 instructions respectively. Allocated heap stays 1,376,256 bytes and
+physical stable memory stays 18,939,904 bytes in all four cases.
+
+The [summary](../evidence/caffeine-probes/local/2026-10-05-restoration-histories-01/summary.json)
+binds source, dependencies, frozen test/Wasm/server bytes, exact measured
+requests/results, two intentional callback traps and logs under
+`.tmp/restoration-histories-01`. The existing combined-owner interrupted-read
+upgrade regression, focused builds and strict harness Clippy also pass.
+The profile is opt-in; ordinary fixture limits and production code are unchanged.
+Four lifetime funding rows and one occupied read do not justify a production
+optimization or qualify large occupied histories. No full CI, macOS or deployed
+provider observation is claimed; live provider requests and paid cycles are zero.
+
+The post-release documentation merge added banners to seven vendored guides,
+causing the offline snapshot guard to fail. Original bytes/diff and failure are
+retained. The canonical helper refreshed the existing eleven-file snapshot from
+the same clean Shared Tooling revision `41e1fd0`, restoring only the seven guides'
+pinned bytes. Source, manifest, file set, tools and repository-owned banners are
+unchanged; the offline integrity guard now passes. Keep branding in locally
+owned documentation rather than changing declared shared files.
+
+## 0.14.11 larger occupied histories and selected dependencies
+
+The [intent](../evidence/caffeine-probes/local/2026-10-05-restoration-scale-01/intent.json)
+precedes five larger normal-application PocketIC workloads on selected ic-memory
+0.25.9/ic-testkit 0.15.8, still compiled as 0.14.10. The single current private
+installation record declares funding, global read and per-tenant read ceilings;
+all producers use it. Ordinary tests keep four funding intents and one read.
+Frozen earlier fixtures retain their original contracts; this batch uses only
+fresh current-contract installations, then upgrades the identical module/input.
+
+At 100/1,000/10,000 lifetime funding intents, instrumented initialization takes
+31,018,948 / 225,225,252 / 2,157,705,728 instructions. Four intents plus 32 reads
+take 13,417,273; 1,000 intents plus 1,024 reads across 32 tenants take 482,113,535.
+Allocated heap stays 1,376,256 bytes. Physical stable memory reaches 35,717,120
+bytes at 10,000 funding rows and 23,134,208 bytes in the combined 32-tenant case.
+
+Every actual same-release upgrade preserves whole-service accounting, selected
+exact funding requests/phases and every occupied read identity/target through
+bounded operator pages. The largest read case retains 2,097,152 reserved bytes.
+Tenant capacity refuses while global room remains; global capacity later refuses.
+Wrong operators, stale population counters, excessive inspection pages and
+restored mutations refuse. A later invalid item traps and rolls back all earlier
+funding/read writes in its batch. Population uses maintained journal operations
+and read-admission workflow, sends no calls and exports no completion tickets.
+These are synthetic outcomes and deliberately undispatched read intents, not
+concurrent deployed traffic or provider credit evidence.
+
+The [summary](../evidence/caffeine-probes/local/2026-10-05-restoration-scale-01/summary.json)
+binds exact source/lock inputs, upstream source comparisons, frozen test binaries,
+three Wasm modules, server, requests/results/checkpoints and logs under
+`.tmp/restoration-scale-01`. Two initial Clippy failures are retained and fixed.
+The ordinary-profile filter first also selected the new scale test; the ordinary
+case completed, then the extra test stopped before effects for its absent report
+path. The [follow-up intent](../evidence/caffeine-probes/local/2026-10-05-restoration-scale-01/followup-intent.json)
+uses the exact selector, same frozen artifacts and a fresh report directory.
+Both attempts remain retained.
+
+Thirty scoped core funding/read tests, seven existing standalone continuity,
+history and snapshot cases, the combined-owner regression and both profiles
+pass. Strict fixture/harness Clippy and scoped actual Rust 1.88 native/Wasm
+checks pass. Upstream metadata checks move to constructor/decode boundaries;
+this repository uses none of the removed APIs. Artifact acquisition changes have
+no current consumer here; explicit builds use `--release --lib`.
+
+No production restore optimization is selected from this bounded evidence.
+Synchronous validation, durable layouts, mutation fences and ownership remain.
+This is Linux local/substitute qualification with zero live provider requests
+and paid cycles, not full CI, native macOS, production restoration, stale-backup
+activation or million-object evidence. Cargo, release receipt, toolchain and
+maintainer-selected lock are unchanged by the batch; no commit or publication.
 
 ## Remaining product work
 
-- Next repository batch: inspect representative occupied funding/read histories
-  before choosing another restoration optimization. Preserve synchronous
-  validation, durable effect identities and byte ownership at independent
-  boundaries. Larger manifests and 32 tenants now pass the bounded local profile
-  above; neither the 10,000-operation tier nor these smaller shapes qualify
-  million-object operation. Journal rows count lifetime permissions, not
-  necessarily stored service objects.
+- Restoration now has bounded evidence through 10,000 lifetime funding rows and
+  1,024 occupied reads across 32 tenants. Further performance work needs a
+  representative production-host measurement and evidence for the proposed change;
+  fixture observer counters do not qualify production restore costs. Preserve
+  synchronous validation, durable identities and byte ownership at independent
+  boundaries. None of these tiers qualifies million-object operation. Journal
+  rows count lifetime operations, not necessarily stored service objects.
 - Qualify selected tools in a consumer-owned prefix/build, then replace its registry
   0.7.0 preparer upon adoption. Preserve explicit binary/trust/history selection.
   Recover existing profiles with their original tools and bundles.

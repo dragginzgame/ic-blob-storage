@@ -1,5 +1,40 @@
 # Changelog
 
+## [0.14.11]
+
+### Added
+
+- Add an opt-in restoration profile for occupied funding and read stores under
+  the ordinary fixture envelope. Exact terminal, prepared and uncertain funding
+  histories, interrupted read reservations and completion high-water identities
+  survive actual same-release upgrades with mutation fences preserved. Retain
+  local requests, callback traps, results and resource measurements.
+- Extend occupied-history profiling to 100/1,000/10,000 lifetime funding
+  intents and up to 1,024 occupied reads across 32 tenants. Preserve complete
+  accounting, selected exact funding requests and every read target through
+  actual same-release upgrades; verify atomic batch rollback, separate tenant
+  and global capacity, operator authority, stale counters and restore fences.
+  The private fixture declares explicit funding/read ceilings and admits local
+  history through maintained owners; ordinary tests retain four intents and one
+  read. No provider dispatch, production layout change or default scale workload.
+
+### Changed
+
+- Qualify the maintainer-selected ic-memory 0.25.9 and ic-testkit 0.15.8 graph
+  through focused funding/read, standalone continuity/history/snapshot and
+  ordinary/scale restoration checks. Scoped actual Rust 1.88 native and Wasm
+  compilation passes. Retain upstream source comparison and prior artifact
+  identities; no local adapter or production restore optimization is introduced.
+
+### Fixed
+
+- Restore seven vendored Shared Tooling guides through the pinned snapshot
+  refresh helper after documentation banners changed their recorded bytes.
+  Preserve repository-owned documentation banners and the original source
+  revision, manifest hashes and file set.
+- Point three retained consumer-feedback references at their exact pre-removal
+  Git source rather than the retired local backlog file.
+
 ## [0.14.10] - 2026-10-05
 
 ### Fixed

@@ -1,0 +1,305 @@
+{
+   "bindings_sha256" : {
+      "Cargo.lock" : "2923f97b32463c384e4ece5c1bb57d6c96729aadd3e37d07dfb82937b52c4dc4",
+      "Cargo.toml" : "dc3719eee1b9187f0cf3ba1b67db14e08ab54a970068c42db89d1f0e284e96b2",
+      "artifact-check-01.log" : "ab80c043e12fd7b2442a6f6f607bacebb63a4706262117dae710ea2d9c9cb6f9",
+      "artifacts.sha256" : "ba739864ba0a60811b743856d376f1fdb95e4a820d286ae73296ded356f3f910",
+      "base-source.tar" : "1696ee743ceaa9775f62e228a7a266657d97f34ad0955b8020f9b749251388dc",
+      "build-test-01.log" : "4c129f638d61984079bce16ed17a89bdee5a2942030091dbcb2be6d07e48a1de",
+      "build-test-02.log" : "940eb78d3a412d53c8221d1b28f82e834bdc8ced9bb12e903e549ebafd2791cf",
+      "build-wasm.log" : "dcee5781caf60b6f25737c2b680b6dfe87bed32ae32a528d5dcd85e58e34740b",
+      "clippy-01.log" : "19ab4019def613a7c0b2c671b127b67b7123678b82c5612b2a38359367d5a097",
+      "commands.txt" : "4467a3e824e6587f44ecc9e08b7bfb571e5afa9aaf9d53523f8a28a570b0e1bf",
+      "doc-link-check-01.log" : "53986652480c1e28f1cd651ed9435a0f29a979558c3c292b9cd37a1854ab3bf4",
+      "final-verification-01.log" : "a7cd54c42a21fda1cc1d083934dbb51d48a03293e8a946fde859d4100734d80a",
+      "fmt-check-01.log" : "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "intent.json" : "eac3f2032b208b434231cba92db2d2b3953666067292c75b899a56f8cb4d4eaa",
+      "log-check-01.log" : "5d182bb3cde69a921a1cb5ff2542347377598f59a5a5f4ca769b74ec78703c74",
+      "logs.sha256" : "917f42b5e9c202d36093fd67995ee6faa5a52e5e6172d0d79dbef775ac0de8d3",
+      "regression-01.log" : "bbf39eb9997bf010b12048e3289b3106cffb4c9f61b1280f1aa0fa5165809df8",
+      "report-check-01.log" : "722e37048e29bc00f1965f360e35214e67f9a70d3f77efb6656caf1bbb6faa60",
+      "reports.sha256" : "a878ef1ae5e9123d5ebade7e3c5b5f1c0b34c096f8c84619a3ee91efa1f7a6b9",
+      "run-01.log" : "48ae19dd812c5baa6fd3234c4ab40ff0a762c0d20fabdb7c4570fcf581059286",
+      "rust-toolchain.toml" : "534534eae843b71d7179bb84da66da314b53bded9c218bb1bb3f526008b27c87",
+      "snapshot-check-01.log" : "6eee4ccb57fe3db28007aec8a54412a9934cb04af8e7f4fba44c0c9c29b4ef21",
+      "snapshot-check-02.log" : "ecc364133dabecd31380a9a4f7822680936aab3fe46c9c9a40a4caf67162c87a",
+      "snapshot-entry-diff.patch" : "d13c5415da11abe47a4f4ba4f13035408b59de6376943d8968869f48889f5e30",
+      "snapshot-entry.tar" : "03df7d2b1b7b01c610eb2948377ad0752b9642248e4385ef4d49037e353212ca",
+      "snapshot-refresh-01.log" : "439a96c0742515d02ead242ad8ec0e84a38bb8eded6771130edf5cde55b08e3a",
+      "tested-source.patch" : "e5a143804cf0b0231ed7e17a904d9237be04142e89f17de7a8505a1a07cdd6d3"
+   },
+   "checks" : {
+      "evidence_bindings" : "passed source/artifact/report/log SHA-256 verification",
+      "existing_combined_owner_regression" : "1 passed",
+      "focused_test_build" : "passed twice (before and after request/result retention refinement)",
+      "focused_wasm_build" : "passed",
+      "formatting" : "passed cargo fmt --all -- --check",
+      "full_ci" : "not run; scoped continuation only",
+      "harness_clippy" : "passed with -D warnings",
+      "local_document_links" : "initially failed on three pre-existing retired backlog links; retargeted to verified exact pre-removal Git source, then all local handoff/adoption/ledger links passed",
+      "opt_in_profile" : "1 passed, four workloads",
+      "snapshot_after_refresh" : "11 files passed",
+      "snapshot_entry" : "failed on consumer banner drift; original refusal and seven-guide bytes preserved"
+   },
+   "cleanup" : "no deployment, publication, paid effects, provider cleanup or deletion of existing evidence; no functions, methods or types removed",
+   "compiled_release" : "0.14.10",
+   "concurrent_lockfile" : {
+      "current_sha256" : "caaf8409678f8ff910f0d6a0c1e528303daf3df3ebe40dac242e64af2301f6b0",
+      "disposition" : "Preserved unrelated change observed after frozen profile started. This evidence uses the captured released lock, not the concurrent graph.",
+      "ic_memory" : "0.25.9",
+      "ic_testkit" : "0.15.8"
+   },
+   "date" : "2026-10-05",
+   "dependencies" : {
+      "declared_msrv" : "1.88.0",
+      "ic_memory" : "0.25.5",
+      "ic_testkit" : "0.15.4",
+      "management_types" : "0.11.0",
+      "pocket_ic" : "16.0.0",
+      "rust" : "1.99.0"
+   },
+   "evidence_class" : "source review and local PocketIC normal application subnet",
+   "frozen_artifacts_sha256" : {
+      "blob_gateway_source.wasm" : "b94345bb875721625188f31e4c8ff7fa9e3e181f0cdc856fb2f46a17eb081144",
+      "blob_storage_probe.wasm" : "5366e25d620dcf6d9a489c020a65492d45699177c9b5a456501f679ff65c753d",
+      "pocket-ic" : "69e324bdb68d32d878b7a9504b1379f08f8d1921272bacb065b0fabb3d0f3792",
+      "storage-tests" : "ff0b026cc3c94d8af7ec871fa4a22477ade753d530120f92dd5206dd380166ca"
+   },
+   "intentional_failures" : [
+      "run-01/prepared/interrupted-read.json",
+      "run-01/uncertain/interrupted-read.json"
+   ],
+   "limitations" : [
+      "four lifetime funding intents and one occupied read at ordinary fixture limits",
+      "one tenant is occupied; no concurrent multi-tenant read scaling",
+      "completed reads do not populate retained session history",
+      "local labelled chunk substitute and injected funding outcomes; no deployed provider guarantees",
+      "measured funding/read/refusal packets and results retained; ordinary setup uses the frozen existing read_input helper",
+      "instrumented reads include observer overhead; allocated Wasm memory is not live heap",
+      "no production restore, expanded-scale, macOS, new MSRV or full-CI qualification",
+      "concurrent newly selected 0.25.9/0.15.8 graph is not qualified here"
+   ],
+   "measurements" : [
+      {
+         "allocated_heap_bytes" : 1376256,
+         "elapsed_ms" : 360,
+         "funding_intents" : 0,
+         "initialization_instructions" : 7056415,
+         "local_chunk_calls" : 0,
+         "occupied_reads" : 0,
+         "owner_reads" : [
+            {
+               "bytes" : 284,
+               "calls" : 7,
+               "instructions" : 83508,
+               "memory" : "fixture.funding_accounting.v1"
+            },
+            {
+               "bytes" : 76,
+               "calls" : 2,
+               "instructions" : 81072,
+               "memory" : "fixture.funding_intents.v1"
+            },
+            {
+               "bytes" : 301,
+               "calls" : 7,
+               "instructions" : 83542,
+               "memory" : "fixture.read_journal.v1"
+            },
+            {
+               "bytes" : 76,
+               "calls" : 2,
+               "instructions" : 81072,
+               "memory" : "fixture.read_sessions.v1"
+            },
+            {
+               "bytes" : 76,
+               "calls" : 2,
+               "instructions" : 81072,
+               "memory" : "fixture.read_tenants.v1"
+            }
+         ],
+         "physical_stable_bytes" : 18939904,
+         "read_sequence" : 0,
+         "report" : ".tmp/restoration-histories-01/run-01/empty/reopened.json",
+         "report_sha256" : "dce0c6fccd4330da9d29b190e3d4c15ae738049e92ad4a5451dc409c62c0aa41",
+         "reserved_read_bytes" : 0,
+         "result" : "passed exact funding, complete service counters, high-water/read reservations and refusals",
+         "stores_instructions" : 3424825,
+         "workload" : "empty"
+      },
+      {
+         "allocated_heap_bytes" : 1376256,
+         "elapsed_ms" : 356,
+         "funding_intents" : 4,
+         "initialization_instructions" : 7996320,
+         "local_chunk_calls" : 64,
+         "occupied_reads" : 0,
+         "owner_reads" : [
+            {
+               "bytes" : 285,
+               "calls" : 7,
+               "instructions" : 83510,
+               "memory" : "fixture.funding_accounting.v1"
+            },
+            {
+               "bytes" : 1310,
+               "calls" : 16,
+               "instructions" : 89196,
+               "memory" : "fixture.funding_intents.v1"
+            },
+            {
+               "bytes" : 301,
+               "calls" : 7,
+               "instructions" : 83542,
+               "memory" : "fixture.read_journal.v1"
+            },
+            {
+               "bytes" : 76,
+               "calls" : 2,
+               "instructions" : 81072,
+               "memory" : "fixture.read_sessions.v1"
+            },
+            {
+               "bytes" : 76,
+               "calls" : 2,
+               "instructions" : 81072,
+               "memory" : "fixture.read_tenants.v1"
+            }
+         ],
+         "physical_stable_bytes" : 18939904,
+         "read_sequence" : 64,
+         "report" : ".tmp/restoration-histories-01/run-01/terminal/reopened.json",
+         "report_sha256" : "ec6f72b4c08597a570c73ce65f717d1c205b174cb27a0dcdd43af8f8ac11a5a1",
+         "reserved_read_bytes" : 0,
+         "result" : "passed exact funding, complete service counters, high-water/read reservations and refusals",
+         "stores_instructions" : 4365011,
+         "workload" : "terminal"
+      },
+      {
+         "allocated_heap_bytes" : 1376256,
+         "elapsed_ms" : 359,
+         "funding_intents" : 4,
+         "initialization_instructions" : 8148753,
+         "local_chunk_calls" : 65,
+         "occupied_reads" : 1,
+         "owner_reads" : [
+            {
+               "bytes" : 284,
+               "calls" : 7,
+               "instructions" : 83508,
+               "memory" : "fixture.funding_accounting.v1"
+            },
+            {
+               "bytes" : 1309,
+               "calls" : 16,
+               "instructions" : 89194,
+               "memory" : "fixture.funding_intents.v1"
+            },
+            {
+               "bytes" : 301,
+               "calls" : 7,
+               "instructions" : 83542,
+               "memory" : "fixture.read_journal.v1"
+            },
+            {
+               "bytes" : 334,
+               "calls" : 7,
+               "instructions" : 83608,
+               "memory" : "fixture.read_sessions.v1"
+            },
+            {
+               "bytes" : 161,
+               "calls" : 8,
+               "instructions" : 83666,
+               "memory" : "fixture.read_tenants.v1"
+            }
+         ],
+         "physical_stable_bytes" : 18939904,
+         "read_sequence" : 65,
+         "report" : ".tmp/restoration-histories-01/run-01/prepared/reopened.json",
+         "report_sha256" : "3d26049ad60d97df4f4e3b83c0e0449471755e98a54f99301f5247acf88de40f",
+         "reserved_read_bytes" : 2048,
+         "result" : "passed exact funding, complete service counters, high-water/read reservations and refusals",
+         "stores_instructions" : 4517197,
+         "workload" : "prepared"
+      },
+      {
+         "allocated_heap_bytes" : 1376256,
+         "elapsed_ms" : 354,
+         "funding_intents" : 4,
+         "initialization_instructions" : 8148232,
+         "local_chunk_calls" : 65,
+         "occupied_reads" : 1,
+         "owner_reads" : [
+            {
+               "bytes" : 284,
+               "calls" : 7,
+               "instructions" : 83508,
+               "memory" : "fixture.funding_accounting.v1"
+            },
+            {
+               "bytes" : 1309,
+               "calls" : 16,
+               "instructions" : 89194,
+               "memory" : "fixture.funding_intents.v1"
+            },
+            {
+               "bytes" : 301,
+               "calls" : 7,
+               "instructions" : 83542,
+               "memory" : "fixture.read_journal.v1"
+            },
+            {
+               "bytes" : 334,
+               "calls" : 7,
+               "instructions" : 83608,
+               "memory" : "fixture.read_sessions.v1"
+            },
+            {
+               "bytes" : 161,
+               "calls" : 8,
+               "instructions" : 83666,
+               "memory" : "fixture.read_tenants.v1"
+            }
+         ],
+         "physical_stable_bytes" : 18939904,
+         "read_sequence" : 65,
+         "report" : ".tmp/restoration-histories-01/run-01/uncertain/reopened.json",
+         "report_sha256" : "16c15a56c0f76a744c5639e352c6e37325c100eb2c43159dc3c986cf1d30aece",
+         "reserved_read_bytes" : 2048,
+         "result" : "passed exact funding, complete service counters, high-water/read reservations and refusals",
+         "stores_instructions" : 4516676,
+         "workload" : "uncertain"
+      }
+   ],
+   "paid_cycles" : "0",
+   "provider_requests" : 0,
+   "retained_directory" : ".tmp/restoration-histories-01",
+   "schema" : 1,
+   "snapshot_repair" : {
+      "changed_files" : [
+         "docs/principles/README.md",
+         "docs/principles/decision-artifact-discipline.md",
+         "docs/principles/reviewable-changes.md",
+         "docs/principles/rust-code-hygiene.md",
+         "docs/principles/simplicity-and-maintainability.md",
+         "docs/consuming-snapshots.md",
+         "docs/supported-hosts.md"
+      ],
+      "manifest_revision_file_set_and_tools" : "unchanged",
+      "manifest_sha256" : "d140042232bf9697eac1936a142e7fbb28d5b91b79478df79cf9561be1067914",
+      "method" : "canonical refresh helper from clean exact source checkout; no sibling mutations",
+      "source_revision" : "41e1fd0ba41460bd2127cbf98ac8a4b2b2020d3e"
+   },
+   "source_base" : "baee7a13208390f590871e97874337afaf5867b4",
+   "source_review" : {
+      "configuration_owner" : "canisters/test/storage_probe/src/ops/configuration/mod.rs",
+      "decision" : "No production optimization selected from this ordinary-limit measurement. Preserve synchronous corruption/authority validation and independent owners; larger retained funding histories and concurrent-read occupancy need separate bounded evidence.",
+      "funding_observation" : "One ordered pass validates each exact intent and reconstructs sequential allocation, including terminal and pending records; complete reconstruction must equal the durable accounting row.",
+      "funding_owner" : "crates/ic-blob-storage/src/ops/service/funding/mod.rs: StableFundingJournal::open",
+      "read_observation" : "One pass over occupied sessions validates exact binding and high-water identity, then compares rebuilt global/per-tenant usage to durable rows. Completion removes the session and empty tenant row; sequence history remains in the journal.",
+      "read_owner" : "crates/ic-blob-storage/src/ops/service/reads/mod.rs: StableReadSessions::open and complete"
+   },
+   "unexpected_probe_failures" : []
+}

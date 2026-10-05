@@ -56,6 +56,9 @@ impl Fixture {
                 max_objects: 2,
                 max_tenants: 2,
                 max_object_bytes: 10,
+                max_funding_attempts: 4,
+                max_read_sessions: 1,
+                max_tenant_read_sessions: 1,
             },
         )
         .unwrap()

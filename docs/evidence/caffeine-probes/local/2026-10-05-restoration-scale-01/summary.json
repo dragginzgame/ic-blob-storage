@@ -1,0 +1,407 @@
+{
+   "bindings_sha256" : {
+      "Cargo.lock" : "caaf8409678f8ff910f0d6a0c1e528303daf3df3ebe40dac242e64af2301f6b0",
+      "Cargo.toml" : "dc3719eee1b9187f0cf3ba1b67db14e08ab54a970068c42db89d1f0e284e96b2",
+      "active_current_instance_recovery_retains_released_physical_and_billing_obligations.log" : "cc7fc46e5f91fe9fc2fb9574ea06bb0b517285855233b3d972d401ea832bc81a",
+      "artifacts-check-01.log" : "d296828ccd0344862c4e411e4f576d1fbfcfa4ea18f6cebf5c712ba7d2ae9d50",
+      "artifacts.sha256" : "bd18f22dd7f44c269a1d55a8051d2afcce5a66236c46ecdccdf62ae1f049e80c",
+      "base-source.tar" : "1696ee743ceaa9775f62e228a7a266657d97f34ad0955b8020f9b749251388dc",
+      "build-tests-01.log" : "f8340e562e34cf10f34abec7e78fd4f31cb7d103a6ae54df8337d2b603bf38f3",
+      "build-tests-02.log" : "34ae6f6f0481a39d46d99c37fa17e4e7b4d0e8fc722d11aa24cc391eb1b53f3b",
+      "build-wasm-01.log" : "12eb88c4df0da08373bdae9d431c47b981fb6efb0b942e9de976a59520d3cd25",
+      "check-fixture-01.log" : "dbe6a97b0d6f2f8fb9c230aa8e631bba56bd3671c25fb04d729de08b97f0a085",
+      "clippy-fixture-01.log" : "7d2750cb7e6ccf6829902fc3f9ddd621b1b434d1bdfd2d71579b132323bbca2f",
+      "clippy-fixture-02.log" : "4495f03fe7b1874ac9290f71f2bd7d871569577dfa4988e820eb7eac4fc88c45",
+      "clippy-tests-01.log" : "7a491dd7abe4327b499eff41c129190495bc608caa3b83d47cff7c2be003b90b",
+      "clippy-tests-02.log" : "0584d974357fc5b9754b501b9552c950acfc1d8b498bfdf1f2e85c7c957d0156",
+      "combined-regression-01.log" : "f4f1fd4b0f9ed03f3eb31410a5da623f37a97106501cf2740c22245f33114b80",
+      "commands.txt" : "8c60b6ffb6396e360c14df654438770b3c1776686fa930ff598230da2ba8d888",
+      "core-funding-01.log" : "a15df05279b9e4a50dfcc4f1e2fe705715d914ae4d75c921d50b574100d07854",
+      "core-reads-01.log" : "7075aadf83f24c0d7f4b804b3c61252c10e628aa4dac84bc3eb3e4dcc1b0e6b0",
+      "current_instance_recovery_refuses_expired_platform_history_without_rotating_anchor.log" : "a4d5ae591813e9c569d4b8a8d061039ff5b54b1c09a46c05a59dd169a1c8d911",
+      "current_instance_recovery_rejects_management_change_during_history_await.log" : "4aa611ccb19725a7449f7cd720b2d1e43c00d762bd258fc0a1526f9deb5d2eb3",
+      "deps-01.log" : "2a1daf17d939d50fffa05ae5e5bd236f9686b1fa7ed9810c86eadc08ee87eb10",
+      "entry.patch" : "1a650797192e6350b3f02bd563eda9e80ebe2155c21c6ad72d10e08455e83e85",
+      "failed-source-01.patch" : "61747f73bcc74a8a8766d04312afc5427f3f992353cf202f34aa18aebfdf3de6",
+      "failed-source-02.patch" : "3e037ee4caf58ac9ae68c54a15f7f08106f71382dc3e640ed1b90e4be6c89ed3",
+      "final-evidence-check-01.log" : "ca0878f45d59d9c3f4694ac5ce274836331dd454cd92b871dce4b27b4ddce27a",
+      "fmt-check-01.log" : "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "followup-intent.json" : "e87cbca587cb24fbcba3cc54c545790acc05e6271e63c135af842cff5ab36977",
+      "ic-memory-0.25.9.crate" : "29a4f4a7a504c03270b65398a03e8de2f23a8971c75d81345376c37ab6f7aa38",
+      "ic-memory-source.diff" : "1d34114e9619ea985fa18b18601e9a5ccd03096c784c088661c3879e8bc74804",
+      "ic-testkit-0.15.8.crate" : "3cc6a96a23d8fb2c7013c959438e5e6790aeff24012522b13d67a6ab3f9e8cc2",
+      "ic-testkit-source.diff" : "68a4d0e21ce15292856052d3966d75286ce5f2c63a0e8c006a81bc90f9ed5edb",
+      "intent.json" : "50cc2e6dadb4674e962a888a1a098e34c237b5ebcf7a10c7347f450ca1b29287",
+      "logs.sha256" : "a585340cbc79bac17178efbc9bcbe385bfd39585244559cb18ad659bea073447",
+      "msrv-native-01.log" : "da29285af3d52cbcef5d637b86063c5ee9188d12fced92ffac057541d328421c",
+      "msrv-wasm-01.log" : "9d9a9c0ce25ee76ceba4338950190843d6447bc3348ac5f7e4fa0a5245c24396",
+      "ordinary-01.log" : "52c37035e1259823a1d978241686dded7cb82fede5870f596f5e27e20dbf9a1c",
+      "ordinary-02.log" : "77198c376e36050029a00aee35b8696af6629ca9ee1479511443baec2985660b",
+      "reports-check-01.log" : "4009de7abab9a5c764e0fe4614fd6b99049e47fd364307acec24f5a0f27599b9",
+      "reports.sha256" : "7d0e38c32f9be2e6b7fa57178c354fc619bbfe57c8bae64c70db6dcf722d6f2b",
+      "run-01.log" : "fb6ad12dd33b142695d87c7fbea00db6a18991ce4ef00ef646b8f2cf26d5ffc6",
+      "rust-toolchain.toml" : "534534eae843b71d7179bb84da66da314b53bded9c218bb1bb3f526008b27c87",
+      "snapshot-01.log" : "ecc364133dabecd31380a9a4f7822680936aab3fe46c9c9a40a4caf67162c87a",
+      "snapshot-02.log" : "ecc364133dabecd31380a9a4f7822680936aab3fe46c9c9a40a4caf67162c87a",
+      "standalone_history_preserves_distinct_full_width_ids_and_fenced_suspended_inspection.log" : "8b164da64f349b615fa1da9666c41457d6fac9f11cdc005e5079e2a210449446",
+      "standalone_restore_rejects_foreign_and_missing_installation_memory.log" : "78ced4fb9d580bacac64dbd44658710c781fc46d0d35a700e0a07b3ed462d6ec",
+      "standalone_snapshot_rollback_stays_fenced_and_refuses_current_instance_recovery.log" : "663756124d5a4ce362cf408a5a9cd5ca55184225f24ab88713e21954db2ad317",
+      "stop_start_and_repeated_upgrade_preserve_installation_and_all_owner_fences.log" : "47b25b58a435e73320d533341cc1b94aafe38b84906469906bc535ad66aead3e",
+      "tested-source.patch" : "62b3b9b857f2820e01624d0b19c54d4acc07c28200fe6f501670b8f4f9c64721"
+   },
+   "checks" : {
+      "combined_owner_regression" : "1 passed",
+      "core_funding" : "28 passed",
+      "core_reads" : "2 passed",
+      "document_links" : "268 local links resolve",
+      "final_evidence" : "JSON, retained intents, all hash bindings/manifests, expected traps and measurement reports verified",
+      "fixture_clippy" : "passed after retained doc-markdown failure",
+      "formatting" : "cargo fmt --all -- --check passed",
+      "full_ci" : "not run; scoped continuation only",
+      "harness_clippy" : "passed after retained assert-is-empty failure",
+      "msrv_native" : "actual Rust 1.88 core/standalone/harness tests with all features passed",
+      "msrv_wasm" : "actual Rust 1.88 core/standalone/storage fixture all features passed",
+      "native_and_wasm_builds" : "passed",
+      "ordinary_profile" : "exact-selector follow-up passed; four actual upgrades",
+      "scale_profile" : "1 passed; five actual same-release upgrades",
+      "shared_snapshot" : "all 11 pinned files verified",
+      "standalone_regressions" : "7 passed: ordinary upgrade/stop-start, expired history, management change during await, physical/billing obligations, snapshot rollback refusal, full-width history and foreign/missing memory refusal",
+      "tested_source" : "781 Rust files and root build inputs match reconstructed tested archive plus patch"
+   },
+   "compiled_release" : "0.14.10",
+   "date" : "2026-10-05",
+   "decision" : "No production restore optimization selected. Larger histories pass on normal local application limits. Preserve synchronous validation, independent corruption/authority boundaries, durable identities and accounting; fixture observer results do not establish production-host costs.",
+   "dependencies" : {
+      "actual_scoped_msrv" : "1.88.0",
+      "ic_memory" : "0.25.9",
+      "ic_testkit" : "0.15.8",
+      "management_types" : "0.11.0",
+      "pocket_ic" : "16.0.0",
+      "rust" : "1.99.0"
+   },
+   "dependency_review" : {
+      "ic_memory" : "Checked declarations, snapshots, authority records and generation fingerprints now enforce metadata validity at constructor/decode boundaries. Later redundant metadata scans and error variants are removed upstream; ledger allocation, chain, staging, protected commits and policy checks remain. No use of removed APIs was found here. Public growth/memory contracts used here are unchanged; no unsafe delegation or local adapter introduced.",
+      "ic_testkit" : "Artifact acquisition rejects non-building commands, target selectors and mismatched profile outputs before resolution/cache work; retry and metrics bookkeeping are simplified. This repository uses explicit --release --lib Cargo builds, selected fixture paths and managed server startup; it does not use changed WasmBuildSpec acquisition here.",
+      "scope" : "Primary local published sources and full source diffs retained; focused downstream execution, not upstream test reruns or consumer/sibling qualification"
+   },
+   "development_target" : "0.14.11",
+   "disposition" : "Maintainer-selected Cargo.lock unchanged; staged entry work preserved. No code functions/methods/types removed, no sibling changes, no commit/release/publication/deployment or provider cleanup.",
+   "evidence_class" : "source review and local PocketIC normal application subnet; explicit synthetic funding outcomes and workflow-admitted undispatched reads",
+   "failures" : [
+      {
+         "class" : "development lint",
+         "disposition" : "fixed documentation markup; corrected check passed",
+         "log" : "clippy-fixture-01.log",
+         "source" : "failed-source-01.patch"
+      },
+      {
+         "class" : "development lint",
+         "disposition" : "use value-reporting empty comparison; corrected check passed",
+         "log" : "clippy-tests-01.log",
+         "source" : "failed-source-02.patch"
+      },
+      {
+         "class" : "selection error",
+         "disposition" : "ordinary case passed all four workloads; unrelated scaled test refused absent environment before effects. Follow-up intent recorded, exact selector and fresh ordinary-02 directory passed.",
+         "log" : "ordinary-01.log"
+      }
+   ],
+   "frozen_artifacts_sha256" : {
+      "blob_gateway_source.wasm" : "c8bce6e578418d8ca79309f3f36bf50397081d057afbe437a457c1d8960d1aab",
+      "blob_storage_probe.wasm" : "56e816a2a4f65f770116d6ab26a0ca227d6d60def0e3dc07f82a2d033038df5e",
+      "ic_blob_storage_canister.wasm" : "190d69194ec7297854b613480259b2245cf1d0bd4f6837eb11008a61194776fb",
+      "pocket-ic" : "69e324bdb68d32d878b7a9504b1379f08f8d1921272bacb065b0fabb3d0f3792",
+      "standalone-tests" : "726175dcec7b55bbb258d63cb3be56dbc053e93097c66c1322a21504f518a52c",
+      "storage-tests" : "76fa90015ec474ca522196562ef14deb00aa8534670f9dd416c329c826be731c"
+   },
+   "intentional_rollback_traps" : [
+      "run-01/funding-100/funding-rollback.json",
+      "run-01/funding-1000/funding-rollback.json",
+      "run-01/funding-10000/funding-rollback.json",
+      "run-01/reads-32/funding-rollback.json",
+      "run-01/reads-1024-tenants-32/funding-rollback.json",
+      "run-01/reads-32/read-rollback.json",
+      "run-01/reads-1024-tenants-32/read-rollback.json"
+   ],
+   "limitations" : [
+      "synthetic funding outcomes do not establish provider credit or payments",
+      "read intents deliberately remain undispatched; no actual concurrent read/callback traffic qualification",
+      "instrumented read costs include observer overhead; allocated heap is not live/peak working heap",
+      "single local observation per scale workload; no production, million-object, macOS or stale-backup activation qualification",
+      "no full CI or full-workspace MSRV gate",
+      "upstream removed APIs belong to dependencies; only maintained downstream use qualified here",
+      "old frozen evidence is not relabelled; Cargo and release receipt remain 0.14.10"
+   ],
+   "live_provider_requests" : 0,
+   "measurements" : [
+      {
+         "allocated_heap_bytes" : 1376256,
+         "before_report" : ".tmp/restoration-scale-01/run-01/funding-100/before-reopen.json",
+         "before_report_sha256" : "1d804a4f2fec7bf62e8a069ad4939eba6c7f93d9e150c9644a5493a9e56a6234",
+         "funding_intents" : 100,
+         "initialization_instructions" : 31018948,
+         "name" : "funding-100",
+         "occupied_reads" : 0,
+         "owner_reads" : [
+            {
+               "bytes" : 322,
+               "calls" : 7,
+               "instructions" : 83584,
+               "memory" : "fixture.funding_accounting.v1"
+            },
+            {
+               "bytes" : 32855,
+               "calls" : 344,
+               "instructions" : 444798,
+               "memory" : "fixture.funding_intents.v1"
+            },
+            {
+               "bytes" : 339,
+               "calls" : 7,
+               "instructions" : 83618,
+               "memory" : "fixture.read_journal.v1"
+            },
+            {
+               "bytes" : 76,
+               "calls" : 2,
+               "instructions" : 81072,
+               "memory" : "fixture.read_sessions.v1"
+            },
+            {
+               "bytes" : 76,
+               "calls" : 2,
+               "instructions" : 81072,
+               "memory" : "fixture.read_tenants.v1"
+            }
+         ],
+         "physical_stable_bytes" : 18939904,
+         "report" : ".tmp/restoration-scale-01/run-01/funding-100/reopened.json",
+         "report_sha256" : "f8a8db92b86165cb67bed8b9401650dada8df64cfdb86a4ea00ca0e9ec4ac807",
+         "reserved_read_bytes" : 0,
+         "result" : "passed complete service accounting, selected exact funding, every read target, atomic rollback and refusals",
+         "stores_instructions" : 27435320,
+         "tenants" : 1
+      },
+      {
+         "allocated_heap_bytes" : 1376256,
+         "before_report" : ".tmp/restoration-scale-01/run-01/funding-1000/before-reopen.json",
+         "before_report_sha256" : "b4a5cdd20f7d25819b5db8ccfa9407f238978ad535b4a74ee7e1dd56d06389fa",
+         "funding_intents" : 1000,
+         "initialization_instructions" : 225225252,
+         "name" : "funding-1000",
+         "occupied_reads" : 0,
+         "owner_reads" : [
+            {
+               "bytes" : 325,
+               "calls" : 7,
+               "instructions" : 83590,
+               "memory" : "fixture.funding_accounting.v1"
+            },
+            {
+               "bytes" : 328995,
+               "calls" : 3433,
+               "instructions" : 4207286,
+               "memory" : "fixture.funding_intents.v1"
+            },
+            {
+               "bytes" : 339,
+               "calls" : 7,
+               "instructions" : 83618,
+               "memory" : "fixture.read_journal.v1"
+            },
+            {
+               "bytes" : 76,
+               "calls" : 2,
+               "instructions" : 81072,
+               "memory" : "fixture.read_sessions.v1"
+            },
+            {
+               "bytes" : 76,
+               "calls" : 2,
+               "instructions" : 81072,
+               "memory" : "fixture.read_tenants.v1"
+            }
+         ],
+         "physical_stable_bytes" : 19988480,
+         "report" : ".tmp/restoration-scale-01/run-01/funding-1000/reopened.json",
+         "report_sha256" : "c5a57f9f9a0ca35c3a2b246435444b0ac0ac7f7190324183114d16c7d84aca2e",
+         "reserved_read_bytes" : 0,
+         "result" : "passed complete service accounting, selected exact funding, every read target, atomic rollback and refusals",
+         "stores_instructions" : 221641828,
+         "tenants" : 1
+      },
+      {
+         "allocated_heap_bytes" : 1376256,
+         "before_report" : ".tmp/restoration-scale-01/run-01/funding-10000/before-reopen.json",
+         "before_report_sha256" : "59fdfb5e72bf2476b5bbcf4929eda02863829a5619f326d0a4058e4e79e1f0e3",
+         "funding_intents" : 10000,
+         "initialization_instructions" : 2157705728,
+         "name" : "funding-10000",
+         "occupied_reads" : 0,
+         "owner_reads" : [
+            {
+               "bytes" : 325,
+               "calls" : 7,
+               "instructions" : 83590,
+               "memory" : "fixture.funding_accounting.v1"
+            },
+            {
+               "bytes" : 3290872,
+               "calls" : 34327,
+               "instructions" : 41837804,
+               "memory" : "fixture.funding_intents.v1"
+            },
+            {
+               "bytes" : 339,
+               "calls" : 7,
+               "instructions" : 83618,
+               "memory" : "fixture.read_journal.v1"
+            },
+            {
+               "bytes" : 76,
+               "calls" : 2,
+               "instructions" : 81072,
+               "memory" : "fixture.read_sessions.v1"
+            },
+            {
+               "bytes" : 76,
+               "calls" : 2,
+               "instructions" : 81072,
+               "memory" : "fixture.read_tenants.v1"
+            }
+         ],
+         "physical_stable_bytes" : 35717120,
+         "report" : ".tmp/restoration-scale-01/run-01/funding-10000/reopened.json",
+         "report_sha256" : "c0972522bd3ec9ebdbf0d635981a6ffcaaf28c45ca40f68a768b993fe081891d",
+         "reserved_read_bytes" : 0,
+         "result" : "passed complete service accounting, selected exact funding, every read target, atomic rollback and refusals",
+         "stores_instructions" : 2154120125,
+         "tenants" : 1
+      },
+      {
+         "allocated_heap_bytes" : 1376256,
+         "before_report" : ".tmp/restoration-scale-01/run-01/reads-32/before-reopen.json",
+         "before_report_sha256" : "c4cc4c36cf39b3a3b74266a39c7a12b33204a3f6fe145d49e609d0c220e98359",
+         "funding_intents" : 4,
+         "initialization_instructions" : 13417273,
+         "name" : "reads-32",
+         "occupied_reads" : 32,
+         "owner_reads" : [
+            {
+               "bytes" : 322,
+               "calls" : 7,
+               "instructions" : 83584,
+               "memory" : "fixture.funding_accounting.v1"
+            },
+            {
+               "bytes" : 1385,
+               "calls" : 16,
+               "instructions" : 89346,
+               "memory" : "fixture.funding_intents.v1"
+            },
+            {
+               "bytes" : 339,
+               "calls" : 7,
+               "instructions" : 83618,
+               "memory" : "fixture.read_journal.v1"
+            },
+            {
+               "bytes" : 8334,
+               "calls" : 111,
+               "instructions" : 221624,
+               "memory" : "fixture.read_sessions.v1"
+            },
+            {
+               "bytes" : 134,
+               "calls" : 8,
+               "instructions" : 83612,
+               "memory" : "fixture.read_tenants.v1"
+            }
+         ],
+         "physical_stable_bytes" : 18939904,
+         "report" : ".tmp/restoration-scale-01/run-01/reads-32/reopened.json",
+         "report_sha256" : "03b962fe15af22a39c3b6cb112df426a69950fc5d49e489ff0de63f677e685dc",
+         "reserved_read_bytes" : 65536,
+         "result" : "passed complete service accounting, selected exact funding, every read target, atomic rollback and refusals",
+         "stores_instructions" : 9833940,
+         "tenants" : 1
+      },
+      {
+         "allocated_heap_bytes" : 1376256,
+         "before_report" : ".tmp/restoration-scale-01/run-01/reads-1024-tenants-32/before-reopen.json",
+         "before_report_sha256" : "3cbcdca03d76724739181834859f4b6e8fab690233448a00eab28efb85003a57",
+         "funding_intents" : 1000,
+         "initialization_instructions" : 482113535,
+         "name" : "reads-1024-tenants-32",
+         "occupied_reads" : 1024,
+         "owner_reads" : [
+            {
+               "bytes" : 325,
+               "calls" : 7,
+               "instructions" : 83590,
+               "memory" : "fixture.funding_accounting.v1"
+            },
+            {
+               "bytes" : 328995,
+               "calls" : 3433,
+               "instructions" : 4207286,
+               "memory" : "fixture.funding_intents.v1"
+            },
+            {
+               "bytes" : 339,
+               "calls" : 7,
+               "instructions" : 83618,
+               "memory" : "fixture.read_journal.v1"
+            },
+            {
+               "bytes" : 264833,
+               "calls" : 3516,
+               "instructions" : 6195072,
+               "memory" : "fixture.read_sessions.v1"
+            },
+            {
+               "bytes" : 6232,
+               "calls" : 1062,
+               "instructions" : 521624,
+               "memory" : "fixture.read_tenants.v1"
+            }
+         ],
+         "physical_stable_bytes" : 23134208,
+         "report" : ".tmp/restoration-scale-01/run-01/reads-1024-tenants-32/reopened.json",
+         "report_sha256" : "1e52809bfea5d2a4b753ba9fb97f39f54f7f8605c27afd8a9b4dc83d7aa43c9f",
+         "reserved_read_bytes" : 2097152,
+         "result" : "passed complete service accounting, selected exact funding, every read target, atomic rollback and refusals",
+         "stores_instructions" : 478529545,
+         "tenants" : 32
+      }
+   ],
+   "paid_cycles" : "0",
+   "private_contract" : {
+      "bounds" : {
+         "batch_items" : 16,
+         "funding_intents" : 10000,
+         "ingress_bytes" : 4096,
+         "inspection_page" : 64,
+         "reads" : 1024,
+         "tenants" : 32
+      },
+      "installation" : "One current StorageProbeInstallation adds explicit max_funding_attempts, max_read_sessions and max_tenant_read_sessions; all three producers updated without fallback reader. Only fresh current-contract installations used; earlier frozen fixtures remain untouched.",
+      "ordinary_limits" : {
+         "funding_intents" : 4,
+         "object_bytes" : 10,
+         "objects" : 2,
+         "reads" : 1,
+         "tenants" : 2
+      },
+      "population" : "Operator-authenticated counter-bound atomic batches use canonical journal operations and workflow read admission. Domain failures trap for whole-message IC rollback. No persisted record manufacture, dispatch or completion-ticket export."
+   },
+   "retained_directory" : ".tmp/restoration-scale-01",
+   "scale_packets" : {
+      "complete_ingress_ceiling" : 4096,
+      "count" : 872,
+      "max_bytes" : 2503,
+      "min_bytes" : 110
+   },
+   "schema" : 1,
+   "source_base" : "baee7a13208390f590871e97874337afaf5867b4"
+}

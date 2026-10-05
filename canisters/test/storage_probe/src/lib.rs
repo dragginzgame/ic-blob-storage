@@ -44,6 +44,20 @@ fn populate_resources(
     workflow::populate_resources(context(), input)
 }
 
+#[ic_cdk::update(decode_with = "ops::decode")]
+fn populate_histories(
+    input: blob_test_protocol::storage::resources::HistoryPopulationBatch,
+) -> Result<(), Failure> {
+    workflow::populate_histories(context(), input)
+}
+
+#[ic_cdk::query(decode_with = "ops::decode")]
+fn restoration_read_page(
+    input: blob_test_protocol::storage::resources::RestorationReadPage,
+) -> Result<Vec<blob_test_protocol::storage::resources::RestorationRead>, Failure> {
+    workflow::restoration_read_page(context(), input)
+}
+
 #[ic_cdk::query(decode_with = "ops::decode")]
 fn restoration_resources()
 -> Result<blob_test_protocol::storage::resources::RestorationResources, Failure> {

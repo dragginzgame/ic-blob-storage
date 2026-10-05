@@ -14,6 +14,118 @@ maintained release and open work.
 [acceptance plan](../../acceptance-plan.md) ·
 [service gaps](../../service-gaps.md)
 
+## Larger occupied funding/read histories — 2026-10-05
+
+The [intent](local/2026-10-05-restoration-scale-01/intent.json) precedes five
+normal-application PocketIC workloads for the chosen 0.14.11 batch, still
+compiled as 0.14.10 on selected ic-memory 0.25.9/ic-testkit 0.15.8. One current
+private installation record adds explicit funding/global-read/per-tenant-read
+ceilings. Every producer uses it; ordinary tests keep four intents and one read.
+Earlier frozen fixtures keep their original contracts. These installations are
+fresh, and each upgrade uses identical compiled bytes and installation input.
+
+| Lifetime funding intents | Occupied reads | Tenants | Initialization instructions | Store-open instructions | Physical stable bytes |
+| ---: | ---: | ---: | ---: | ---: | ---: |
+| 100 | 0 | 1 | 31,018,948 | 27,435,320 | 18,939,904 |
+| 1,000 | 0 | 1 | 225,225,252 | 221,641,828 | 19,988,480 |
+| 10,000 | 0 | 1 | 2,157,705,728 | 2,154,120,125 | 35,717,120 |
+| 4 | 32 | 1 | 13,417,273 | 9,833,940 | 18,939,904 |
+| 1,000 | 1,024 | 32 | 482,113,535 | 478,529,545 | 23,134,208 |
+
+Allocated heap is 1,376,256 bytes in all five runs, not a live-heap estimate.
+Every actual same-release upgrade preserves complete service accounting, selected
+exact funding request bytes/phases and every occupied read identity/target through
+bounded operator pages. The largest read population retains 2,097,152 reserved
+bytes. Tenant capacity refuses while global capacity has room, then global
+capacity refuses at full occupancy. Wrong callers, stale counters, excessive
+inspection pages and restored mutations refuse without changing accounting.
+Seven intentional invalid-later-item traps prove whole-message rollback of
+earlier funding/read writes. Their requests and failures remain retained.
+
+Population uses existing funding operations and the real read-admission workflow.
+Funding outcomes are explicit synthetic facts; read tickets are deliberately
+dropped without dispatch and slots remain occupied. No records are manufactured,
+completion tickets exported or provider effects repeated. Local bounded packets,
+results, checkpoints, source/lock inputs, upstream comparisons, frozen executables,
+three Wasm modules and server are bound by the
+[summary](local/2026-10-05-restoration-scale-01/summary.json) under
+`.tmp/restoration-scale-01`.
+
+Two initial Clippy failures (documentation markup and the empty-observation
+assertion) remain with their source patches and corrected runs. The ordinary
+profile's first filter also selected the new scale test; its four workloads
+completed, then the extra case stopped before effects for the absent report
+environment. The [follow-up intent](local/2026-10-05-restoration-scale-01/followup-intent.json)
+uses an exact selector, fresh directory and the same frozen artifacts. Neither
+invocation nor its observations are overwritten.
+
+Strict fixture/harness Clippy, focused builds, thirty core funding/read tests,
+seven existing standalone continuity/history/snapshot cases, the combined-owner
+upgrade regression, both profiles and scoped actual Rust 1.88 native/Wasm checks
+pass. Source review finds metadata validity now owned by checked upstream
+construction/decoding, no consumer of removed APIs, and no use of testkit's changed
+artifact acquisition here. Explicit Make builds use `--release --lib`.
+No local compatibility adapter, state owner, cache or production optimization
+is introduced; synchronous corruption checks and mutation fences remain.
+
+This is Linux local/substitute qualification, with zero live provider requests
+and paid cycles. It does not qualify deployed provider credit, actual concurrent
+read traffic, production restore, native macOS, stale-backup activation or
+million-object operation, and it does not replace full CI or full-workspace MSRV.
+Earlier records retain their source, contract, dependency and artifact identities.
+
+## Occupied funding/read restoration — 2026-10-05
+
+The [intent](local/2026-10-05-restoration-histories-01/intent.json) precedes
+source review and four local normal-application PocketIC workloads on compiled
+0.14.10. This uses the existing ordinary fixture envelope: four lifetime funding
+intents, one occupied read, two tenants and ten-byte objects. No production model,
+store layout, installation contract or default CI workload changes.
+
+Funding's canonical owner scans retained intents once, validates exact scope,
+identity and state, then reconstructs allocation in operation order. Read's owner
+scans currently occupied records and checks rebuilt global/per-tenant counters.
+Completed read rows disappear; elapsed sequence history is not another retained
+journal. Neither path is replaced with cached totals or deferred validation.
+
+| Funding/read shape | Initialization instructions | Store-open instructions | Occupied reads | Read sequence |
+| --- | ---: | ---: | ---: | ---: |
+| Empty journals | 7,056,415 | 3,424,825 | 0 | 0 |
+| Four terminal intents, 64 completed reads | 7,996,320 | 4,365,011 | 0 | 64 |
+| Three terminal intents, final prepared, interrupted read | 8,148,753 | 4,517,197 | 1 | 65 |
+| Three terminal intents, final uncertain, interrupted read | 8,148,232 | 4,516,676 | 1 | 65 |
+
+Every actual same-release upgrade preserves whole-service accounting and exact
+funding request bytes/phases. The interrupted cases retain their single slot and
+2,048-byte reservation after intentional callback traps. Capacity refuses before
+upgrade; all owners restore fenced and read/funding mutations refuse afterward
+without another chunk request or changed accounting. Foreign funding inspection
+and changed immutable intent refuse. All four workloads allocate 1,376,256 heap
+bytes and 18,939,904 physical stable bytes. These are observed allocations, not
+live-heap estimates or production/provider costs.
+
+The [summary](local/2026-10-05-restoration-histories-01/summary.json) binds the
+base archive plus tested source patch, selected dependencies, frozen executable,
+two Wasm modules, server and retained logs/requests/results. Two intentional
+callback failures remain individually recorded; there is no silent rerun.
+The profile and existing combined-owner upgrade regression pass, as do focused
+builds and strict harness Clippy. Live provider requests and paid cycles are zero;
+the local chunk calls and injected funding outcomes are labelled substitutes.
+
+The measurements establish representative ordinary-limit behavior, not larger
+funding history or concurrent-read scaling. No production restore optimization
+is selected. Full CI, macOS, deployed provider behavior, stale-backup activation
+and million-object operation remain outside this evidence. A concurrent lockfile
+update to ic-memory 0.25.9/ic-testkit 0.15.8 is preserved; these frozen observations
+remain bound to 0.25.5/0.15.4 and do not qualify the newly selected graph.
+
+The post-release documentation merge also changed seven declared Shared Tooling
+guides by adding banners. The failed snapshot check and original bytes/diff are
+retained. The canonical refresh helper restores the same reviewed revision and
+eleven-file manifest without changing source, hashes or repository-owned banners;
+offline snapshot verification then passes. This is tooling integrity evidence,
+separate from the frozen local IC measurements.
+
 ## Management-canister types 0.11.0 — 2026-10-05
 
 The [intent](local/2026-10-05-management-types-011-01/intent.json) precedes scoped
@@ -1601,7 +1713,7 @@ HEAD is `3354dfc6b9fe791884ec69e8dd344de313b36940`; its clean feedback records
 679 emitted identities, 675 distinct blobs, 221,173,950 bytes and 763 leaves.
 No consumer build or provider experiment is rerun. Complete publication, public
 serving, release/open-browser retention and retired-root reintroduction remain
-open; the [consumer backlog](../../canic-parity.md#integration-feedback) adds these
+open; the [historical consumer backlog](https://github.com/dragginzgame/ic-blob-storage/blob/c3a16529d161547987c138b15bf75cac70b54c55/docs/canic-parity.md#integration-feedback) adds these
 and the immutable installation anchor's finite management-history horizon.
 
 `publish-prepare` rechecks complete frozen inputs and independently authenticates
@@ -1684,7 +1796,7 @@ dependency/host/test work is preserved. No full CI, sibling edit, release/versio
 commit/publication, new donor debit, identity export or build cleanup occurs.
 Serial publication/recovery and consumer serving remain open; see the
 [operator recipe](../../operator-guide.md#check-a-frozen-batch-against-live-capacity)
-and [consumer feedback](../../canic-parity.md#integration-feedback).
+and [historical consumer feedback](https://github.com/dragginzgame/ic-blob-storage/blob/c3a16529d161547987c138b15bf75cac70b54c55/docs/canic-parity.md#integration-feedback).
 
 ## Approved fresh 0.7.0 live journey — 2026-10-02
 
@@ -1765,7 +1877,7 @@ allocation and raw expiry need fresh observation before effects. The old link's
 recorded nominal expiry has passed without qualifying server enforcement.
 No live observation/effect occurs in this capture; preserve old owner/profile/
 payment/link/exposure/liability records. Canic integration stays deferred and
-[consumer feedback](../../canic-parity.md#integration-feedback) remains open.
+[historical consumer feedback](https://github.com/dragginzgame/ic-blob-storage/blob/c3a16529d161547987c138b15bf75cac70b54c55/docs/canic-parity.md#integration-feedback) remains open.
 
 ## Configurable issuance — local implementation, 2026-10-02
 

@@ -1,4 +1,5 @@
 //! Opt-in population/reopen measurements on normal application limits, outside default CI.
+mod histories;
 use super::*;
 use blob_test_protocol::{
     admission::input::ReferenceInput,
@@ -14,13 +15,13 @@ use ic_blob_storage::{
 };
 use std::{fs::OpenOptions, io::Write, path::Path, time::Instant};
 
-fn retain(directory: &Path, name: &str, value: &serde_json::Value) {
+pub(super) fn retain(directory: &Path, name: &str, value: &serde_json::Value) {
     let mut bytes = serde_json::to_vec_pretty(value).unwrap();
     bytes.push(b'\n');
     retain_bytes(directory, name, &bytes);
 }
 
-fn retain_bytes(directory: &Path, name: &str, bytes: &[u8]) {
+pub(super) fn retain_bytes(directory: &Path, name: &str, bytes: &[u8]) {
     let mut output = OpenOptions::new()
         .write(true)
         .create_new(true)
@@ -30,7 +31,7 @@ fn retain_bytes(directory: &Path, name: &str, bytes: &[u8]) {
     output.sync_all().unwrap();
 }
 
-fn resources(f: &Fixture) -> serde_json::Value {
+pub(super) fn resources(f: &Fixture) -> serde_json::Value {
     let result: Result<RestorationResources, Failure> = f
         .harness
         .pic
@@ -255,6 +256,9 @@ fn profile_workload(directory: &Path, workload: Workload) -> bool {
         max_objects: count,
         max_tenants: workload.tenants,
         max_object_bytes: workload.bytes,
+        max_funding_attempts: 4,
+        max_read_sessions: 1,
+        max_tenant_read_sessions: 1,
     })
     .unwrap();
     harness.pic.install_canister(
