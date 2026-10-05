@@ -1,6 +1,104 @@
 # Changelog
 
-## [Unreleased]
+## [0.14.10]
+
+### Fixed
+
+- Update release-gate bootstrap fixtures for snapshot verification before
+  dependency fetching. Verify that snapshot or fetch failure stops validation
+  without changing release files or discarding retained build artifacts.
+
+### Added
+
+- Extend opt-in service restoration profiling to 32 tenants with overlapping
+  request IDs and 16/64 MiB multi-chunk manifests. Actual same-release upgrades
+  preserve accounting, exact selected manifests, permissions, references and
+  receipts, while refusing foreign callers and fenced mutations. Retain all six
+  local workloads, requests, checkpoints and the initial bounded-input failure;
+  default CI work and production contracts are unchanged.
+
+### Changed
+
+- Upgrade management-canister types to 0.11.0, select ic-memory 0.25.5 and
+  update the test harness to ic-testkit 0.15.4. Verify current-instance recovery,
+  interrupted history reads, retained liabilities and actual snapshot refusal
+  on this dependency graph. Public APIs, persisted layouts and bounded
+  IC-history acquisition are unchanged.
+- Adopt a reviewed Shared Tooling snapshot with the canonical engineering
+  baseline, its linked guides and unchanged portable tools. Keep service-specific
+  instructions in the local AGENTS overlay and verify snapshot integrity offline.
+- Report Rust file and test-attribute counts for every Cargo workspace member,
+  including canisters and test crates, with offline metadata discovery.
+- Remove superseded local feedback/integration queues. Use GitHub issues as the
+  tracker, retain historical source references and keep supporting evidence with
+  its existing owner.
+- Prepare synthetic population manifests off-canister through the existing
+  Caffeine manifest builder. The private fixture accepts the complete bounded
+  declaration and returns no duplicate requests. Its one current installation
+  record declares tenant and object-byte ceilings; ordinary callers retain their
+  two-object, two-tenant, ten-byte limits and the existing 4 KiB decoder bound.
+
+## [0.14.9] - 2026-10-05
+
+### Fixed
+
+- Remove the mandatory Unreleased section and changelog section-order checks
+  from release preparation. Finalize one current draft in place while preserving
+  historical notes and rejecting duplicate, empty, conflicting or mismatched
+  release drafts.
+
+### Changed
+
+- Allow an undated draft to omit its patch number or use an undecided label until
+  release preparation assigns the selected version and date. Align governance and
+  release fixtures with the Dragginzgame convention: latest notes first, no extra
+  notes queue and no deployment gate for changelog presentation.
+
+### Added
+
+- Add a consumer-owned shared-tooling feedback record with evidence, proposals
+  and adoption actions, linked from agent instructions and the handoff. Record the
+  reviewed upstream engineering baseline's exact source identity and distinguish
+  implementation, publication and consumer adoption. Local architecture and
+  validation remain authoritative; no automation or mutable sibling build
+  dependency is introduced.
+
+## [0.14.8] - 2026-10-04
+
+### Fixed
+
+- Use the shared current installation encoder when funding transport tests
+  upgrade their storage fixture. Preserve accepted/refunded cycle accounting,
+  callback uncertainty and restored fences without an obsolete input reader.
+
+### Added
+
+- Add an opt-in PocketIC resource profile for 100, 1,000 and 10,000 lifetime
+  operations, mixing uncertain uploads, live references, released objects with
+  continuing liabilities and cancelled reservations. Measure the maintained
+  synchronous store-opening path under normal application limits; preserve
+  checkpoints, failures, accounting, receipts and restored mutation fences.
+  Fixture-only per-memory read counters help attribute restoration costs.
+  Default CI does not populate these workloads.
+- Share bounded Node, dedicated-worker and owned Chromium memory sampling between
+  1/8/32 MiB preparation and existing successful/lost-reply media journeys.
+  Retain fresh profiles, partial observations and observer failures. These local
+  substitute measurements do not qualify deployed Caffeine or million-object use.
+
+### Changed
+
+- Give the unpublished durable-storage fixture one explicit installation record
+  with a bounded object ceiling. Ordinary tests retain their two-object envelope;
+  all installation/reopen callers use the current record without a fallback reader.
+- Reuse each tenant's activation generation within the existing synchronous
+  restoration totals scan. Remove repeated enrollment reads while preserving
+  every permission's generation check, accounting and recovery fences. No
+  persistent cache, storage layout or public contract changes.
+- Remove the media fixture's numeric byte bridge and duplicate browser decode.
+  Keep exact native-download byte equality, public-response SHA-256, original
+  metadata and browser delivery checks. The GLB delivery context's sampled Node
+  RSS falls from 2.29 GB to 252 MB locally; production upload/download code is
+  unchanged by this fixture simplification.
 
 ## [0.14.7] - 2026-10-04
 

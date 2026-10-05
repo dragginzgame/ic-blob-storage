@@ -55,7 +55,7 @@ fn refused_backing_growth_rolls_back_admission_and_neighbor_then_exact_retry_suc
         .upgrade_canister(
             f.service,
             Fixture::wasm(),
-            candid::encode_one(f.operator).unwrap(),
+            Fixture::installation(f.operator),
             Some(f.controller),
         )
         .unwrap();

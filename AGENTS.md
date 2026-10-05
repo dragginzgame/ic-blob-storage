@@ -1,6 +1,10 @@
 # AGENTS.md
 
 This file is normative for automated contributors.
+Read and apply [the shared engineering baseline](DRAGGINZGAME.md) first.
+[The snapshot manifest](.shared-tooling.snapshot) records its reviewed revision
+and exact files. This file is the local overlay for service contracts and commands;
+it does not override shared rules or depend on a mutable sibling checkout.
 
 ## Session handoff and scope
 
@@ -9,61 +13,28 @@ This file is normative for automated contributors.
 - Work only in this repository. Sibling repositories, including Canic,
   ic-memory and ic-timers, are read-only unless separately named and authorized.
   Inspect/review/audit requests never authorize sibling edits.
-- Preserve unrelated dirty worktree state.
-- Record actionable consumer integration feedback in the current handoff and
-  remind the maintainer of open actions in delivery summaries. Recording feedback
-  does not authorize sibling edits or sending upstream messages.
+- GitHub issues in the owning repository track integration and shared-tooling
+  feedback. Handoffs link to them; evidence remains with its existing owner.
+  Recording a finding does not authorize issue writes or upstream messages.
 
 ## Delivery and release
 
 - Follow [development governance](docs/governance/development.md) for command
   authority, validation, batch cadence, changelog and release policy.
-- Never create or amend Git commits, including through scripts or one-shot
-  Make targets. The maintainer owns commits.
-- Do not infer versioning, publication, deployment or paid provider authority
-  from ordinary implementation, continuation or push-readiness requests.
-- An explicit maintainer instruction is sufficient for the exact action it
-  names, subject to the commit prohibition. Do not demand a magic phrase or
-  repeat confirmation when the target and effect are clear.
-- Keep implementation, adversarial/recovery evidence, propagation and cleanup
-  together. Do not allocate one version per focused slice.
-- Maintain CHANGELOG.md for completed meaningful code/behavior/tooling changes.
-  Extend the current draft; leave version mutation to the requested release flow.
 - Read [the release guide](docs/releasing.md) before version or publication work.
   Agents may inspect plans and test helpers, but must not execute
   release-commit or commit-producing release-* targets.
 - Registry publication is enabled for crates.io and remains an explicit
   maintainer action. B1 ownership and service qualification do not gate library
   publication; publishing the package does not qualify the service.
-- Release and publication commands preserve build artifacts. Run cleanup only
-  when explicitly requested; never append cargo clean to a release/deployment.
 
-## Pre-1.0 hard cuts
+## Service hard-cut disposition
 
-- Pre-1.0 is 100% hard cut. Maintain only the current contract; backward
-  compatibility is not an implementation goal.
-- Remove superseded public/internal APIs, DTOs, schemas, configuration, state
-  paths, fixtures and tests completely. Update consumers and documentation in
-  the same batch; do not leave both implementations available.
-- No deprecated aliases, compatibility shims, dual readers/writers, legacy
-  payload support, version-dispatch branches, fallback conversions, staged
-  deprecations or migration engines. Do not retain old paths for hypothetical
-  consumers or cross-release upgrade compatibility.
-- Breaking public API or semantic changes require a minor version; a hard cut
-  does not justify publishing an incompatible patch.
-- Repository-owned models are unversioned or V1 before 1.0; no V2 or higher
-  types, parallel aliases or version-dispatch implementations. External standard
-  and package versions are separate. Keep one current layout and reader.
-- Never reuse an existing wire/storage discriminator for an incompatible layout.
-  A hard cut must identify the frozen layout/release and coordinate its producers;
-  retained installations and effect artifacts still need an explicit disposition.
-  Do not introduce another generation, compatibility reader or migration engine.
 - Cross-release transitions are reinstall-only. Same-release interruption
   recovery, retry, backup and restore remain required within the frozen contract.
 - Source allocation removal and installation retirement are separate. Never
   erase the only records of provider objects, uncertain effects, balances or
   continuing billing. Apply the retirement contract before reset.
-- No anti-resurrection tests for removed forms; test the maintained contract.
 
 ## Ownership and layering
 
@@ -113,23 +84,14 @@ This file is normative for automated contributors.
 
 ## Style and checks
 
-- Cargo package versions and dependency declarations inherit from the root
-  workspace. Keep dependency versions and local paths there; members select
-  their target conditions, features and publication policy.
 - Use Rust edition 2024, directory modules with mod.rs and named boundary types.
   Do not use path attributes to work around module layout.
 - Document public types and meaningful invariants. Prefer expect over allow
   for lint suppressions. Keep authority predicates readable and independently
   testable rather than long mixed boolean expressions.
-- Check for an active build before compilation or source mutation; never
-  compete for a build lock. Use this repository's own target directory.
 - Run targeted checks during development. Do not infer full CI/release
   validation authority from generic continuation or readiness wording.
 - Keep unit tests next to code and integration tests in tests/. Canister
   creation/install/lifecycle/inter-canister tests use PocketIC.
-- Assert typed errors or observable behavior, not error text or fixed aggregate
-  test counts. Do not fake platform behavior through production cfg(test).
-- Guards enforce structured facts, versions, hashes and executable behavior;
-  never freeze explanatory prose or require manual status-marker rotation.
-- No Python tooling. Keep shell wrappers small; use Rust for substantial
-  durable tooling. The release helper uses Perl for bounded text/JSON handling.
+- Use Rust for substantial durable tooling. The release helper uses Perl for
+  bounded text/JSON handling.

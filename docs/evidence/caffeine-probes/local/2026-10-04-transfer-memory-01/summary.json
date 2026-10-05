@@ -1,0 +1,1797 @@
+{
+  "schema": 1,
+  "date": "2026-10-04",
+  "source_base": "cb4cd5a1253f53e9daed0e4a51bcf894a4f0ccd6",
+  "compiled_release": "0.14.7",
+  "target_changelog_draft": "0.14.8",
+  "evidence_class": "local PocketIC and Chromium with HTTPS HTTP/2 provider substitute",
+  "live_provider_qualified": false,
+  "live_provider_requests": 0,
+  "paid_cycles": "0",
+  "intents": [
+    "intent.json",
+    "restoration-candidate-intent.json",
+    "media-candidate-intent.json"
+  ],
+  "source_archive": {
+    "path": ".tmp/transfer-memory-profile-01/source.tar.gz",
+    "sha256": "7ed9d1d0cd4c164e93b62049210eed8cc26708729c2c346c673159a470d5450c"
+  },
+  "tracked_source_patch": {
+    "path": ".tmp/transfer-memory-profile-01/tracked-source.patch",
+    "sha256": "a0a848f15288cf2700a1241ad68857a4d7b51a420559d9f69334f01dd78fb8d5"
+  },
+  "dependency_source_review": [
+    {
+      "source": "/home/adam/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ic-memory-0.25.0/src/runtime/backing.rs",
+      "symbols": "Memory for RuntimeMemory::{size,read,read_unsafe}",
+      "conclusion": "Size and safe reads delegate to VirtualMemory; unsafe reads delegate directly. The fixture safe-read wrapper does not reproduce this raw-read path.",
+      "snapshot": {
+        "path": ".tmp/restore-read-profile-01/ic-memory-backing.rs",
+        "sha256": "0130fcf3b00062bc1bccd1fc8524e9c9763a721d8e1a2b250ce505a5238c7c99"
+      }
+    },
+    {
+      "source": "/home/adam/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ic-stable-structures-0.7.2/src/lib.rs",
+      "symbols": "Memory::read_unsafe and read_to_vec",
+      "conclusion": "Default unsafe read initializes the caller-provided destination then performs safe read, without a temporary array. No unsafe or allocator change follows from this source review.",
+      "snapshot": {
+        "path": ".tmp/restore-read-profile-01/stable-structures-memory.rs",
+        "sha256": "d6cbef435c86306f895f4c3a1ee1b810d005b2d156fb6d5ebfd7416dbc1f059d"
+      }
+    }
+  ],
+  "changes": {
+    "restoration": "Retain each decoded activation generation in existing same-callback per-tenant totals. Preserve every generation check and all owner, index, accounting and fence validation; no persistent cache or wire/storage/API change.",
+    "media_fixture": "Delete numeric native-download byte bridge and duplicate browser decode. Keep native byte equality, whole public-response SHA-256 equality, MIME/cache/CORS/CSP/opaque-origin checks and one decode of matching public bytes.",
+    "instrumentation": "Share bounded read-only worker/process/Node memory sampling; fixture-only logical-memory read counters during synchronous opening, no production profiling hook."
+  },
+  "restoration": {
+    "tiers": [
+      {
+        "count": 100,
+        "before": {
+          "initialization_instructions": 126735060,
+          "stores_instructions": 122985375,
+          "heap_bytes": 1376256,
+          "stable_bytes": 18939904,
+          "tenant_reads": {
+            "bytes": 11951,
+            "calls": 920,
+            "instructions": 465188,
+            "memory": "fixture.tenants.v1"
+          },
+          "total_wrapped_read_calls": 26957,
+          "total_wrapped_read_instructions": 13457574,
+          "accounting_observations_references_receipts_preserved": true,
+          "fenced_mutation_refused": true
+        },
+        "after": {
+          "initialization_instructions": 119735434,
+          "stores_instructions": 115785125,
+          "heap_bytes": 1376256,
+          "stable_bytes": 18939904,
+          "tenant_reads": {
+            "bytes": 467,
+            "calls": 29,
+            "instructions": 92453,
+            "memory": "fixture.tenants.v1"
+          },
+          "total_wrapped_read_calls": 26066,
+          "total_wrapped_read_instructions": 13084839,
+          "accounting_observations_references_receipts_preserved": true,
+          "fenced_mutation_refused": true
+        },
+        "initialization_instruction_reduction": 6999626,
+        "reduction_percent": 5.523038376278829
+      },
+      {
+        "count": 1000,
+        "before": {
+          "initialization_instructions": 1506327172,
+          "stores_instructions": 1502577113,
+          "heap_bytes": 1376256,
+          "stable_bytes": 22085632,
+          "tenant_reads": {
+            "bytes": 116351,
+            "calls": 9020,
+            "instructions": 3853688,
+            "memory": "fixture.tenants.v1"
+          },
+          "total_wrapped_read_calls": 399693,
+          "total_wrapped_read_instructions": 182262814,
+          "accounting_observations_references_receipts_preserved": true,
+          "fenced_mutation_refused": true
+        },
+        "after": {
+          "initialization_instructions": 1435064894,
+          "stores_instructions": 1431114656,
+          "heap_bytes": 1376256,
+          "stable_bytes": 22085632,
+          "tenant_reads": {
+            "bytes": 467,
+            "calls": 29,
+            "instructions": 92453,
+            "memory": "fixture.tenants.v1"
+          },
+          "total_wrapped_read_calls": 390702,
+          "total_wrapped_read_instructions": 178501579,
+          "accounting_observations_references_receipts_preserved": true,
+          "fenced_mutation_refused": true
+        },
+        "initialization_instruction_reduction": 71262278,
+        "reduction_percent": 4.730863209841905
+      },
+      {
+        "count": 10000,
+        "before": {
+          "initialization_instructions": 17986173576,
+          "stores_instructions": 17982418275,
+          "heap_bytes": 1376256,
+          "stable_bytes": 72417280,
+          "tenant_reads": {
+            "bytes": 1160351,
+            "calls": 90020,
+            "instructions": 37738688,
+            "memory": "fixture.tenants.v1"
+          },
+          "total_wrapped_read_calls": 5306009,
+          "total_wrapped_read_instructions": 2397545850,
+          "accounting_observations_references_receipts_preserved": true,
+          "fenced_mutation_refused": true
+        },
+        "after": {
+          "initialization_instructions": 17265226781,
+          "stores_instructions": 17261271100,
+          "heap_bytes": 1376256,
+          "stable_bytes": 72417280,
+          "tenant_reads": {
+            "bytes": 467,
+            "calls": 29,
+            "instructions": 92453,
+            "memory": "fixture.tenants.v1"
+          },
+          "total_wrapped_read_calls": 5216018,
+          "total_wrapped_read_instructions": 2359899615,
+          "accounting_observations_references_receipts_preserved": true,
+          "fenced_mutation_refused": true
+        },
+        "initialization_instruction_reduction": 720946795,
+        "reduction_percent": 4.008338916299581
+      }
+    ],
+    "baseline_wrapped_read_instruction_fraction": 0.13329938354421228,
+    "scope": "One tenant; ten-byte single-leaf objects, equal exposed pending, confirmed two-reference, confirmed released/deletion-pending and cancelled populations. Normal PocketIC application subnet. Actual same-Wasm upgrade per tier.",
+    "previous_uninstrumented_baseline": "2026-10-04-service-resources-01 retains original results; these higher instrumented costs are not a replacement production baseline."
+  },
+  "browser": {
+    "preparation": {
+      "directory": ".tmp/transfer-memory-profile-01/preparation",
+      "tiers": [
+        {
+          "bytes": 1048576,
+          "elapsed_ms": 71.3068310000001,
+          "error": null
+        },
+        {
+          "bytes": 8388608,
+          "elapsed_ms": 414.02214000000004,
+          "error": null
+        },
+        {
+          "bytes": 33554432,
+          "elapsed_ms": 1550.507774,
+          "error": null
+        }
+      ],
+      "provider_requests": 0,
+      "paid_cycles": "0"
+    },
+    "journeys": [
+      {
+        "name": "model-complete",
+        "directory": ".tmp/transfer-memory-profile-01/model-complete/multichunk-complete",
+        "outcome": "passed",
+        "provider": "local HTTPS HTTP/2 substitute",
+        "puts": 11,
+        "gets": 9,
+        "live_provider_requests": 0,
+        "paid_effects": 0,
+        "application_upload_retries": 0,
+        "session_timeout_seconds": 120,
+        "browser_restarted": true,
+        "contexts": [
+          {
+            "context": 1,
+            "role": "original preparation, upload and native completion",
+            "elapsed_ms": 10111.136253,
+            "sampled_node_peak_rss_bytes": 230014976,
+            "sampled_worker_peak_backing_storage_bytes": 50926196,
+            "sampled_browser_peak_sum_rss_bytes": 653185024,
+            "browser_start_sum_rss_bytes": 503750656,
+            "sampled_browser_rss_growth_bytes": 149434368,
+            "worker_start_backing_storage_bytes": 736125,
+            "worker_end_backing_storage_bytes": 862371,
+            "observer_error": null
+          },
+          {
+            "context": 2,
+            "role": "reopened journal, inspection and public media delivery",
+            "elapsed_ms": 23356.920963,
+            "sampled_node_peak_rss_bytes": 2293227520,
+            "sampled_worker_peak_backing_storage_bytes": 741412,
+            "sampled_browser_peak_sum_rss_bytes": 1270951936,
+            "browser_start_sum_rss_bytes": 503902208,
+            "sampled_browser_rss_growth_bytes": 767049728,
+            "worker_start_backing_storage_bytes": 736122,
+            "worker_end_backing_storage_bytes": 741412,
+            "observer_error": null
+          }
+        ]
+      },
+      {
+        "name": "after-model",
+        "directory": ".tmp/transfer-memory-profile-01/after-model/multichunk-complete",
+        "outcome": "passed",
+        "provider": "local HTTPS HTTP/2 substitute",
+        "puts": 11,
+        "gets": 9,
+        "live_provider_requests": 0,
+        "paid_effects": 0,
+        "application_upload_retries": 0,
+        "session_timeout_seconds": 120,
+        "browser_restarted": true,
+        "contexts": [
+          {
+            "context": 1,
+            "role": "original preparation, upload and native completion",
+            "elapsed_ms": 10429.418496999999,
+            "sampled_node_peak_rss_bytes": 235773952,
+            "sampled_worker_peak_backing_storage_bytes": 50925972,
+            "sampled_browser_peak_sum_rss_bytes": 656027648,
+            "browser_start_sum_rss_bytes": 507240448,
+            "sampled_browser_rss_growth_bytes": 148787200,
+            "worker_start_backing_storage_bytes": 735901,
+            "worker_end_backing_storage_bytes": 862359,
+            "observer_error": null
+          },
+          {
+            "context": 2,
+            "role": "reopened journal, inspection and public media delivery",
+            "elapsed_ms": 260.8885370000007,
+            "sampled_node_peak_rss_bytes": 252026880,
+            "sampled_worker_peak_backing_storage_bytes": 741412,
+            "sampled_browser_peak_sum_rss_bytes": 631066624,
+            "browser_start_sum_rss_bytes": 504832000,
+            "sampled_browser_rss_growth_bytes": 126234624,
+            "worker_start_backing_storage_bytes": 736122,
+            "worker_end_backing_storage_bytes": 741412,
+            "observer_error": null
+          }
+        ]
+      },
+      {
+        "name": "images-lost",
+        "directory": ".tmp/transfer-memory-profile-01/images-lost/multichunk-lost",
+        "outcome": "passed",
+        "provider": "local HTTPS HTTP/2 substitute",
+        "puts": 7,
+        "gets": 10,
+        "live_provider_requests": 0,
+        "paid_effects": 0,
+        "application_upload_retries": 0,
+        "session_timeout_seconds": 120,
+        "browser_restarted": true,
+        "contexts": [
+          {
+            "context": 1,
+            "role": "original preparation, upload and native completion",
+            "elapsed_ms": 1637.8157710000003,
+            "sampled_node_peak_rss_bytes": 190590976,
+            "sampled_worker_peak_backing_storage_bytes": 29209012,
+            "sampled_browser_peak_sum_rss_bytes": 594800640,
+            "browser_start_sum_rss_bytes": 506597376,
+            "sampled_browser_rss_growth_bytes": 88203264,
+            "worker_start_backing_storage_bytes": 736125,
+            "worker_end_backing_storage_bytes": 29209012,
+            "observer_error": null
+          },
+          {
+            "context": 2,
+            "role": "reopened journal, inspection and public media delivery",
+            "elapsed_ms": 6681.136248,
+            "sampled_node_peak_rss_bytes": 197931008,
+            "sampled_worker_peak_backing_storage_bytes": 6878167,
+            "sampled_browser_peak_sum_rss_bytes": 546279424,
+            "browser_start_sum_rss_bytes": 504217600,
+            "sampled_browser_rss_growth_bytes": 42061824,
+            "worker_start_backing_storage_bytes": 736122,
+            "worker_end_backing_storage_bytes": 6878167,
+            "observer_error": null
+          }
+        ]
+      },
+      {
+        "name": "after-images-lost",
+        "directory": ".tmp/transfer-memory-profile-01/after-images-lost/multichunk-lost",
+        "outcome": "passed",
+        "provider": "local HTTPS HTTP/2 substitute",
+        "puts": 7,
+        "gets": 10,
+        "live_provider_requests": 0,
+        "paid_effects": 0,
+        "application_upload_retries": 0,
+        "session_timeout_seconds": 120,
+        "browser_restarted": true,
+        "contexts": [
+          {
+            "context": 1,
+            "role": "original preparation, upload and native completion",
+            "elapsed_ms": 1653.2681859999998,
+            "sampled_node_peak_rss_bytes": 198221824,
+            "sampled_worker_peak_backing_storage_bytes": 29208668,
+            "sampled_browser_peak_sum_rss_bytes": 594169856,
+            "browser_start_sum_rss_bytes": 505249792,
+            "sampled_browser_rss_growth_bytes": 88920064,
+            "worker_start_backing_storage_bytes": 736125,
+            "worker_end_backing_storage_bytes": 29208668,
+            "observer_error": null
+          },
+          {
+            "context": 2,
+            "role": "reopened journal, inspection and public media delivery",
+            "elapsed_ms": 6508.885225999999,
+            "sampled_node_peak_rss_bytes": 206352384,
+            "sampled_worker_peak_backing_storage_bytes": 6877973,
+            "sampled_browser_peak_sum_rss_bytes": 546930688,
+            "browser_start_sum_rss_bytes": 504352768,
+            "sampled_browser_rss_growth_bytes": 42577920,
+            "worker_start_backing_storage_bytes": 735726,
+            "worker_end_backing_storage_bytes": 6877973,
+            "observer_error": null
+          }
+        ]
+      }
+    ],
+    "after_exit_status": {
+      "installation": 0,
+      "model": 0,
+      "images": 0
+    }
+  },
+  "commands": {
+    "builds": [
+      "CARGO_TARGET_DIR=$PWD/target cargo clippy --offline --locked -p ic-blob-storage --lib --tests -- -D warnings",
+      "CARGO_TARGET_DIR=$PWD/target cargo clippy --offline --locked -p blob-storage-probe --lib -- -D warnings",
+      "CARGO_TARGET_DIR=$PWD/target cargo clippy --offline --locked -p ic-blob-storage-pocketic-tests --test storage --test standalone -- -D warnings",
+      "CARGO_TARGET_DIR=$PWD/target cargo build --offline --locked --release --target wasm32-unknown-unknown -p blob-storage-probe -p ic-blob-storage-canister --lib",
+      "CARGO_TARGET_DIR=$PWD/target cargo test --offline --locked -p ic-blob-storage-pocketic-tests --test storage --test standalone --no-run --message-format=json",
+      "CARGO_TARGET_DIR=$PWD/target cargo build --offline --locked -p ic-blob-storage-cli --bin blob-storage",
+      ".tmp/tools/node-v24.21.0/bin/node tests/browser/build.mjs"
+    ],
+    "native_upload_owner": "CARGO_TARGET_DIR=$PWD/target cargo test --offline --locked -p ic-blob-storage --lib ops::service::uploads::tests::",
+    "execution_common": {
+      "POCKET_IC_BIN": "$PWD/.tmp/tools/pocket-ic-16.0.0/pocket-ic",
+      "BLOB_BROWSER_NODE": "$PWD/.tmp/tools/node-v24.21.0/bin/node",
+      "BLOB_EXPECTED_HOST_RELEASE": "0.14.7",
+      "BLOB_BROWSER_MEMORY_PROFILE": "1"
+    },
+    "restoration_runs": [
+      {
+        "runner": ".tmp/restore-read-profile-01/storage",
+        "wasm": ".tmp/restore-read-profile-01/storage.wasm",
+        "report": ".tmp/restore-read-profile-01/results",
+        "test": "storage_resources::populated_service_restoration_profile --exact --ignored --nocapture",
+        "environment_mapping": {
+          "wasm": "BLOB_STORAGE_PROBE_WASM",
+          "report": "BLOB_RESTORE_RESOURCE_REPORT"
+        }
+      },
+      {
+        "runner": ".tmp/restore-read-profile-01/after-storage",
+        "wasm": ".tmp/restore-read-profile-01/after-storage.wasm",
+        "report": ".tmp/restore-read-profile-01/after",
+        "test": "storage_resources::populated_service_restoration_profile --exact --ignored --nocapture",
+        "environment_mapping": {
+          "wasm": "BLOB_STORAGE_PROBE_WASM",
+          "report": "BLOB_RESTORE_RESOURCE_REPORT"
+        }
+      }
+    ],
+    "media_runs": [
+      {
+        "runner": ".tmp/transfer-memory-profile-01/standalone",
+        "cli": ".tmp/transfer-memory-profile-01/blob-storage",
+        "wasm": ".tmp/transfer-memory-profile-01/standalone.wasm",
+        "report": ".tmp/transfer-memory-profile-01/model-complete",
+        "selection": ".tmp/transfer-memory-profile-01/model-image.json",
+        "test": "standalone_browser::serial::chromium_standalone_trial_media_shared_references_preserve_delivery_and_liability --exact --ignored --nocapture",
+        "environment_mapping": {
+          "cli": "BLOB_CLI_BIN",
+          "wasm": "BLOB_STANDALONE_WASM",
+          "report": "BLOB_STANDALONE_BROWSER_REPORT",
+          "selection": "BLOB_PUBLICATION_FIXTURE"
+        }
+      },
+      {
+        "runner": ".tmp/transfer-memory-profile-01/after-standalone",
+        "cli": ".tmp/transfer-memory-profile-01/after-blob-storage",
+        "wasm": ".tmp/transfer-memory-profile-01/after-standalone.wasm",
+        "report": ".tmp/transfer-memory-profile-01/after-model",
+        "selection": ".tmp/transfer-memory-profile-01/model-image.json",
+        "test": "standalone_browser::serial::chromium_standalone_trial_media_shared_references_preserve_delivery_and_liability --exact --ignored --nocapture",
+        "environment_mapping": {
+          "cli": "BLOB_CLI_BIN",
+          "wasm": "BLOB_STANDALONE_WASM",
+          "report": "BLOB_STANDALONE_BROWSER_REPORT",
+          "selection": "BLOB_PUBLICATION_FIXTURE"
+        }
+      },
+      {
+        "runner": ".tmp/transfer-memory-profile-01/standalone",
+        "cli": ".tmp/transfer-memory-profile-01/blob-storage",
+        "wasm": ".tmp/transfer-memory-profile-01/standalone.wasm",
+        "report": ".tmp/transfer-memory-profile-01/images-lost",
+        "selection": ".tmp/transfer-memory-profile-01/images.json",
+        "test": "standalone_browser::serial::chromium_standalone_trial_media_lost_final_reply_recovers_without_another_chunk --exact --ignored --nocapture",
+        "environment_mapping": {
+          "cli": "BLOB_CLI_BIN",
+          "wasm": "BLOB_STANDALONE_WASM",
+          "report": "BLOB_STANDALONE_BROWSER_REPORT",
+          "selection": "BLOB_PUBLICATION_FIXTURE"
+        }
+      },
+      {
+        "runner": ".tmp/transfer-memory-profile-01/after-standalone",
+        "cli": ".tmp/transfer-memory-profile-01/after-blob-storage",
+        "wasm": ".tmp/transfer-memory-profile-01/after-standalone.wasm",
+        "report": ".tmp/transfer-memory-profile-01/after-images-lost",
+        "selection": ".tmp/transfer-memory-profile-01/images.json",
+        "test": "standalone_browser::serial::chromium_standalone_trial_media_lost_final_reply_recovers_without_another_chunk --exact --ignored --nocapture",
+        "environment_mapping": {
+          "cli": "BLOB_CLI_BIN",
+          "wasm": "BLOB_STANDALONE_WASM",
+          "report": "BLOB_STANDALONE_BROWSER_REPORT",
+          "selection": "BLOB_PUBLICATION_FIXTURE"
+        }
+      }
+    ],
+    "focused_pocketic": [
+      "admission_write_traps_roll_back_identity_permission_and_both_totals --exact --nocapture",
+      "upgrade_preserves_complete_pending_obligations_and_fences_all_mutations --exact --nocapture",
+      "storage_lifecycle::status::reference_status_client_authenticates_exact_replies_and_preserves_live_restore_fences --exact --nocapture",
+      "standalone_download::standalone_download_client_propagates_inactive_unconfirmed_and_restored_refusals --exact --nocapture"
+    ]
+  },
+  "verification": {
+    "upload_owner_tests": "pass; includes independent tenant/activation and later corrupt future-generation rejection without memory repair",
+    "strict_core_fixture_harness_clippy": "pass",
+    "matching_wasm_cli_browser_builds": "pass",
+    "installation_readback_and_wrong_service_rejection": "pass before and after",
+    "four_focused_pocketic_regressions": "pass",
+    "formatting_node_syntax_changelog": "pass",
+    "full_ci_run": false
+  },
+  "retained_failures": [
+    {
+      "path": ".tmp/restore-read-profile-01/core-clippy.log",
+      "result": "strict core Clippy rejects newly lengthened validate function; corrected by extracting the tenant scratch lookup, then core/test/harness Clippy passes",
+      "provider_effects": 0
+    }
+  ],
+  "limitations": [
+    "Single instrumented local observations; sampled peaks are lower bounds and process RSS can double-count shared pages.",
+    "Read counters cover fixture safe Memory::read only, not all memory work, traversal, Candid decoding or production unsafe delegation; observer overhead is included.",
+    "Do not infer production instruction costs from instrumented fixture totals, or production transfer improvement from deleting a test-only numeric-byte bridge.",
+    "The preparation profile stops before certificate intent; full journeys use fresh local substitutes and retained original media, not deployed Caffeine.",
+    "More tenants, maximum manifests, funded/read-history occupancy, sustained load, power loss, eviction and million objects remain unqualified.",
+    "Original before/after executables, sources, requests/results, failed logs and browser profiles remain separately retained; current tools never replace an older profile binding.",
+    "No version mutation, commit, full CI, publication, deployment, live provider request, paid effect, sibling edit/message or build cleanup."
+  ],
+  "open_actions": [
+    "Consumer-owned tool adoption and certified asset registration",
+    "Explicit provider deletion/final billing and old installation retirement dispositions"
+  ],
+  "private_hashes": [
+    {
+      "path": ".tmp/restore-read-profile-01/after-artifacts.jsonl",
+      "sha256": "3debbc5f5d622bb70f953882ac7d3d8318ca04d5aa336ad63ac029cf923d75dc"
+    },
+    {
+      "path": ".tmp/restore-read-profile-01/after-download-client.log",
+      "sha256": "14fc28c6fd21e8c9a5f9f4b7b69035bb934ddda8a79d8963ed7773383a523aa3"
+    },
+    {
+      "path": ".tmp/restore-read-profile-01/after-harness-build.log",
+      "sha256": "7d0126739800baff46712281be04a0fbb6cbf367314976c76e9f9313fc10df54"
+    },
+    {
+      "path": ".tmp/restore-read-profile-01/after-harness-clippy.log",
+      "sha256": "1e21a56676bba253f27b1260c763c6de77ef8616655b14e3153486d3ffb5965e"
+    },
+    {
+      "path": ".tmp/restore-read-profile-01/after-probe-clippy.log",
+      "sha256": "194804b3c24911fdb220b9d9a933f149d60252bdcf88ca78e6eb42eafd451062"
+    },
+    {
+      "path": ".tmp/restore-read-profile-01/after-profile.log",
+      "sha256": "b588f9dc08e4cc37827f5a82c053e3b34482309f666735381a2a73877f878cdd"
+    },
+    {
+      "path": ".tmp/restore-read-profile-01/after-reference-client.log",
+      "sha256": "e0b380bf401f8e27b9a59101fc64f6887a12e6665185bca364c3876898f5fde9"
+    },
+    {
+      "path": ".tmp/restore-read-profile-01/after-reopen.log",
+      "sha256": "9e6fe67521089f1bfd2794c0e27264259798ba947aa81f300f35c52608caa84a"
+    },
+    {
+      "path": ".tmp/restore-read-profile-01/after-rollback.log",
+      "sha256": "673d248a408175320fc9ed1813e3ba8085f76ca249f7f343940bef79226e00fb"
+    },
+    {
+      "path": ".tmp/restore-read-profile-01/after-storage",
+      "sha256": "f6d56d638940b50cb52b4bc0115bfa1f5ebc0d4606951ea3f463a610e518c5e2"
+    },
+    {
+      "path": ".tmp/restore-read-profile-01/after-storage.wasm",
+      "sha256": "21a11bb3910ff96bf66d13c0b8aadd024e5807d05554d30f24e42c903379c02f"
+    },
+    {
+      "path": ".tmp/restore-read-profile-01/after-unit.log",
+      "sha256": "19143cb3dfc635cc00d559d3899381c11be397d522b2cc3b33d3b031d5ce85fe"
+    },
+    {
+      "path": ".tmp/restore-read-profile-01/after-wasm-build.log",
+      "sha256": "691f859b12fc1dc290b35977c4f960a68269d11ddfd2bd7d1fa1d69018a29e9c"
+    },
+    {
+      "path": ".tmp/restore-read-profile-01/after/before-reopen-100.json",
+      "sha256": "99dd05f63256977aef9ebb2762342d07c532ba234e3c4e2db56ba072ce0d7b11"
+    },
+    {
+      "path": ".tmp/restore-read-profile-01/after/before-reopen-1000.json",
+      "sha256": "58d6122f13b4d24d5c6ff46b49198d55c6208380e022f8bbea2c612b34a20957"
+    },
+    {
+      "path": ".tmp/restore-read-profile-01/after/before-reopen-10000.json",
+      "sha256": "7386f734d051611e7b14f84b271be8f5c4837bc076f866564753a679d6dc0b51"
+    },
+    {
+      "path": ".tmp/restore-read-profile-01/after/checkpoint-100-100.json",
+      "sha256": "5611f67bcc85573c8af08dc567fa5ed74b5871b247f5a0bff1e936eca7a3f976"
+    },
+    {
+      "path": ".tmp/restore-read-profile-01/after/checkpoint-1000-1000.json",
+      "sha256": "a63db1f0d3be0b964faac4329c3081e3131117c4d9f976ab7094a0480626bf75"
+    },
+    {
+      "path": ".tmp/restore-read-profile-01/after/checkpoint-10000-1000.json",
+      "sha256": "ba17b06d0886f880c4488746b153e66742ee620dd42a02a9aa02d6b48f8508dd"
+    },
+    {
+      "path": ".tmp/restore-read-profile-01/after/checkpoint-10000-10000.json",
+      "sha256": "4ae05e55c7126640b8f71d57b03b0d9873e1c646cc9751f9e5a015f5e222a215"
+    },
+    {
+      "path": ".tmp/restore-read-profile-01/after/checkpoint-10000-2000.json",
+      "sha256": "90e22d1a32ecd46f7b37bbe2b870f58cf6914f4afb8d058aa6ec80d1abe51148"
+    },
+    {
+      "path": ".tmp/restore-read-profile-01/after/checkpoint-10000-3000.json",
+      "sha256": "4d79b56242c85ce9cc9686d5869e58c7b0ba3d6f1325d6867cdedc357e9dd612"
+    },
+    {
+      "path": ".tmp/restore-read-profile-01/after/checkpoint-10000-4000.json",
+      "sha256": "2d31132dc0862b0a663f1bcf875631f2016ad91a3404f215493ccb932261bc01"
+    },
+    {
+      "path": ".tmp/restore-read-profile-01/after/checkpoint-10000-5000.json",
+      "sha256": "76c48e7ccd5119e9d13b1e4696c253bb7d1934d5065e3e52a747465d7a92be03"
+    },
+    {
+      "path": ".tmp/restore-read-profile-01/after/checkpoint-10000-6000.json",
+      "sha256": "09d93a8e15693ace73eff2b9c39c331b1e82e19c8824d1747688c7def5e21454"
+    },
+    {
+      "path": ".tmp/restore-read-profile-01/after/checkpoint-10000-7000.json",
+      "sha256": "20973710636965b93d2c1c9709510e5ee9d28e9d8723ec56e90832975ac91875"
+    },
+    {
+      "path": ".tmp/restore-read-profile-01/after/checkpoint-10000-8000.json",
+      "sha256": "ddb5ecd59ddf96fd098da0fd8fd66f97319f17acfeac215aa2c19822766bb852"
+    },
+    {
+      "path": ".tmp/restore-read-profile-01/after/checkpoint-10000-9000.json",
+      "sha256": "f55b219b590c30403a0560add7dca1dd17b504740458ce662b2826bae56f3390"
+    },
+    {
+      "path": ".tmp/restore-read-profile-01/after/reopened-100.json",
+      "sha256": "e258c78004f526a12bc7b99cc65459391c01718fdb399cbad2e1ffc573827dad"
+    },
+    {
+      "path": ".tmp/restore-read-profile-01/after/reopened-1000.json",
+      "sha256": "6b35b350a1125d8433277e99d777ba1a0cd87398bdd82573dc87fd7b8f0c2d43"
+    },
+    {
+      "path": ".tmp/restore-read-profile-01/after/reopened-10000.json",
+      "sha256": "958bde2219b8bfe5367fffc5656c2a4b158d78504bc74db2e4beaef806c137b1"
+    },
+    {
+      "path": ".tmp/restore-read-profile-01/after/summary.json",
+      "sha256": "8b301762fed64ef58a1502c9fad577159dd42500e85db6a699039d210824d033"
+    },
+    {
+      "path": ".tmp/restore-read-profile-01/before-recovery.rs",
+      "sha256": "e62d2c7b60b3143af16879d4c379857639d3f4e5d8b3a990df392103849f748f"
+    },
+    {
+      "path": ".tmp/restore-read-profile-01/candidate-unit.log",
+      "sha256": "088cf6a9c3dbd7f87c4d5ea5438c8f874c53674e5b4b472f80c6dcb033ed1d5b"
+    },
+    {
+      "path": ".tmp/restore-read-profile-01/core-clippy-followup.log",
+      "sha256": "215e7a7ce53a687013ca4418b427a7201148b25670929d5d77eafe97967e437f"
+    },
+    {
+      "path": ".tmp/restore-read-profile-01/core-clippy.log",
+      "sha256": "a930a5f0c8d0e8a5b1b48a6ce786951863518b2a3a0d54757557d69fd0371c98"
+    },
+    {
+      "path": ".tmp/restore-read-profile-01/harness-artifacts.jsonl",
+      "sha256": "fe437323ca630e2bbdbd5879258cc2ce87d354791e51447076addcf151a222e0"
+    },
+    {
+      "path": ".tmp/restore-read-profile-01/harness-build.log",
+      "sha256": "049e0c8f620516bb1ca896f33338e3144179c11d8102424e309911c87ff27eb0"
+    },
+    {
+      "path": ".tmp/restore-read-profile-01/ic-memory-backing.rs",
+      "sha256": "0130fcf3b00062bc1bccd1fc8524e9c9763a721d8e1a2b250ce505a5238c7c99"
+    },
+    {
+      "path": ".tmp/restore-read-profile-01/probe-clippy.log",
+      "sha256": "30d66d0d58f3160af9761cda9520584dc2e23a582a3bd66bef1020e58281d768"
+    },
+    {
+      "path": ".tmp/restore-read-profile-01/profile.log",
+      "sha256": "3749e7d8bc9a9c51950329bea4dfac8ed9fa17f3524ec8d6d56a95235188af56"
+    },
+    {
+      "path": ".tmp/restore-read-profile-01/results/before-reopen-100.json",
+      "sha256": "8519e37caaf937072596b6528dfff8dc1db5cba23af6b2783577320f8879a9c1"
+    },
+    {
+      "path": ".tmp/restore-read-profile-01/results/before-reopen-1000.json",
+      "sha256": "73bf1e6accad0eee9048d339c752b12b4abc1282f0009021e0dd329ac024ec12"
+    },
+    {
+      "path": ".tmp/restore-read-profile-01/results/before-reopen-10000.json",
+      "sha256": "3f415e29f98baa0a760ae9cd8fa21c430fea64fed97e3889e2172f8f3f8bd546"
+    },
+    {
+      "path": ".tmp/restore-read-profile-01/results/checkpoint-100-100.json",
+      "sha256": "62eb8801bf0992cfb8e8a3012c232f2806c95a4f883d6755d9af3a181677bd1b"
+    },
+    {
+      "path": ".tmp/restore-read-profile-01/results/checkpoint-1000-1000.json",
+      "sha256": "6f4e869f59f4755c2f534d9c63cd216911350eb2df5f8649e7b84d12c6f09648"
+    },
+    {
+      "path": ".tmp/restore-read-profile-01/results/checkpoint-10000-1000.json",
+      "sha256": "d69e29f9f5427e63cb59ce455c991393fd30a8ec6f8f47019c5e4a1bfc4c756c"
+    },
+    {
+      "path": ".tmp/restore-read-profile-01/results/checkpoint-10000-10000.json",
+      "sha256": "307410ba16e19243ed3473dc380f28a7616ffeb17d369e80817fa9b887f067c1"
+    },
+    {
+      "path": ".tmp/restore-read-profile-01/results/checkpoint-10000-2000.json",
+      "sha256": "e7c3b1f102188fe9fb43e05d490d97effe53ade103f49a464bc8a89b960daff5"
+    },
+    {
+      "path": ".tmp/restore-read-profile-01/results/checkpoint-10000-3000.json",
+      "sha256": "b0ec59550abb24b9f37ddb32262264d9850301c901b631f4c457154e813e9dfe"
+    },
+    {
+      "path": ".tmp/restore-read-profile-01/results/checkpoint-10000-4000.json",
+      "sha256": "ab3dee9407e8f40f4a84104ad67991fe734b5f9261d5ce9c6b010536c80625dc"
+    },
+    {
+      "path": ".tmp/restore-read-profile-01/results/checkpoint-10000-5000.json",
+      "sha256": "842d1b5493ded951c39bae2de04d0921d085a8ef8b0822b4c1ace2fc32a8d5b8"
+    },
+    {
+      "path": ".tmp/restore-read-profile-01/results/checkpoint-10000-6000.json",
+      "sha256": "49090afb211a3f9ff7463ce65e8fd55751b9d310fc07d463e9ed6d8ef30278a7"
+    },
+    {
+      "path": ".tmp/restore-read-profile-01/results/checkpoint-10000-7000.json",
+      "sha256": "aa11f5083855da190302ec16bae1045db9e1edd585a41e765de1a8750b693d90"
+    },
+    {
+      "path": ".tmp/restore-read-profile-01/results/checkpoint-10000-8000.json",
+      "sha256": "1b860c043368607eaaf9379d01de51b0715c56190a29b81530c15db24d9bf750"
+    },
+    {
+      "path": ".tmp/restore-read-profile-01/results/checkpoint-10000-9000.json",
+      "sha256": "c48ac9e10675708835136eee6f6dc66b3b01f13a18ba22a8e6e9f497024d78ed"
+    },
+    {
+      "path": ".tmp/restore-read-profile-01/results/reopened-100.json",
+      "sha256": "0705ba1ab6f8a6a419ac73591596532a22beaa1045df7fb0450b2647643479cb"
+    },
+    {
+      "path": ".tmp/restore-read-profile-01/results/reopened-1000.json",
+      "sha256": "528d6dfc03cc6fb11205a482d64d3d50799e599022307af59d5c5b700b59efb1"
+    },
+    {
+      "path": ".tmp/restore-read-profile-01/results/reopened-10000.json",
+      "sha256": "8253985a0bd155e1abfdb5a96da31bc466f8ae00e2513edbb8f05c8e9d72d9bb"
+    },
+    {
+      "path": ".tmp/restore-read-profile-01/results/summary.json",
+      "sha256": "8b301762fed64ef58a1502c9fad577159dd42500e85db6a699039d210824d033"
+    },
+    {
+      "path": ".tmp/restore-read-profile-01/stable-structures-memory.rs",
+      "sha256": "d6cbef435c86306f895f4c3a1ee1b810d005b2d156fb6d5ebfd7416dbc1f059d"
+    },
+    {
+      "path": ".tmp/restore-read-profile-01/storage",
+      "sha256": "7cf857065dcccd543c6e45b2435d6aab2e2040f1f1d8497857bcf984218a3121"
+    },
+    {
+      "path": ".tmp/restore-read-profile-01/storage-clippy.log",
+      "sha256": "09d1d7c7f05c7d94c2182547b0881ab3b955f3b46ed0cb1ca5821d90766bd51b"
+    },
+    {
+      "path": ".tmp/restore-read-profile-01/storage.wasm",
+      "sha256": "bf6096ba28bfc2711e30fa2f137871cea074ba1a15c534c9bdc373757d736295"
+    },
+    {
+      "path": ".tmp/restore-read-profile-01/wasm-build.log",
+      "sha256": "073ea096a403aaa54e17df157e7f73b913e7d10ec5921fcc5e54a2644da12f9e"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/after-artifacts.json",
+      "sha256": "37698ca419d3dcbad8d82a599fb15429073eb0ddf4e15b6594a6a845cff83af5"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/after-blob-storage",
+      "sha256": "12c1696ae1a26695a367f8b949a41d59e9e521bedbefafbec5ad2ab77221141d"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/after-browser-build.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/after-cli-build.log",
+      "sha256": "96f730c980ac68795c167f287a584b293b7fd47414461dfae770d893f9af88cc"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/after-exit-status.json",
+      "sha256": "bc4249c003e75eb4bb0c1f20d5873f7ebc75275e42197a3ee785f7a3e4a3ce97"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/after-images-lost.log",
+      "sha256": "df68570c83224247d503b608f31db68697b22c2c0b0e09b4a24db7be5e0e57b4"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/after-images-lost/multichunk-lost/binding-0.json",
+      "sha256": "48202fa8b30b1ca35d3d23e89639a93ecef5be7d2210fcadff68b75ade959bfc"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/after-images-lost/multichunk-lost/binding-1.json",
+      "sha256": "97bef1c1302c7d1419f424ce0bb0c2d40a7788757714bd378fcbc99c5c57a1b9"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/after-images-lost/multichunk-lost/browser-delivery-trace.json",
+      "sha256": "21f38a9c476be8f0376e359b10bbb3e08499a9cbf5c2e93f41550360ecdad43c"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/after-images-lost/multichunk-lost/browser-memory-1.json",
+      "sha256": "18883c7e0bed9021176d83ad1f3533fe1a551fcf2d19e7d238790c768a62ad27"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/after-images-lost/multichunk-lost/browser-memory-2.json",
+      "sha256": "c435c29f4bf8957f9a25557e3874bb5dacea2966d9604c29241331b2faf141f5"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/after-images-lost/multichunk-lost/browser-memory-3.json",
+      "sha256": "ec696dfab902cd4547a7d6df5b8d02abd0f985abe9cf5a79916c557d84f9fc30"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/after-images-lost/multichunk-lost/browser-result.json",
+      "sha256": "6d734a62eff64dba96d44f176a866e25e018923747aca4360245bdc64283f43d"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/after-images-lost/multichunk-lost/browser-selection.json",
+      "sha256": "a151243824c818b74f2840e4eef6e753163b940200ae9d3534b72215e4d504ed"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/after-images-lost/multichunk-lost/download-0-command.json",
+      "sha256": "9be03cd18272622910ddf2934b5e5eaacb832f459dd98a5badd9bdfdb235e526"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/after-images-lost/multichunk-lost/download-0-result.json",
+      "sha256": "e393bdae8109a4957c35dd12e10568389742d4e863cf623e9883424e7219e23f"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/after-images-lost/multichunk-lost/download-1-command.json",
+      "sha256": "b5e9172afa28ac1eca6d99cd33783a9cfaada42ccc4e444fe5e0025703080d35"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/after-images-lost/multichunk-lost/download-1-result.json",
+      "sha256": "7fc20c2be030835733e74aa9dd12c6c71c64fe249cfd98e9c8e7674d739cb08f"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/after-images-lost/multichunk-lost/driver-interruption.json",
+      "sha256": "09e3adb4fcef81a54aa4c747da6d0aec4f47e11bcb80a8175559bb517d97e391"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/after-images-lost/multichunk-lost/driver-native-result.json",
+      "sha256": "bd88d39d58a73c0295a67b85f581f04b5ab4eef058e7279d1d2b9c97bb1c2136"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/after-images-lost/multichunk-lost/driver-phase-0001.json",
+      "sha256": "9674adc84340fbb96c6fb358e8f4232d48f135de07bb3f6c3ff90c74da716a41"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/after-images-lost/multichunk-lost/driver-phase-0002.json",
+      "sha256": "aaebe330a8668c0ef42a0f401fadd30c25861e1b21921c0416186d781c419e87"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/after-images-lost/multichunk-lost/driver-phase-0003.json",
+      "sha256": "8cf88b189a096e3b14dd5dc4ede1df36758007c498066c675488c7bbe791218a"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/after-images-lost/multichunk-lost/driver-phase-0006.json",
+      "sha256": "92aa14ca92bd06d6adcf3f15eeb984d18c602bd28a431ca841715d55acccff4b"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/after-images-lost/multichunk-lost/driver-phase-0007.json",
+      "sha256": "42e5ae9e9a4f1c2f7685d9fad6d7f928549877969cbd667bdb4ed71b5eb6f19c"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/after-images-lost/multichunk-lost/driver-phase-0008.json",
+      "sha256": "9f8a6a994d1bb42e7d8b43c3079eecdc763638198bc593926db5a2945d1eb44c"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/after-images-lost/multichunk-lost/driver-phase-0009.json",
+      "sha256": "9a5a263db15b15dfec9413e5621664a0586f7eecbc09eabb05846ddbf9fd1820"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/after-images-lost/multichunk-lost/driver-phase-0010.json",
+      "sha256": "088a30db1663e6685986074f51a424c5fa2b3a208cd2d44860ef05293d04498c"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/after-images-lost/multichunk-lost/driver-phase-0011.json",
+      "sha256": "9ec341fba4e19799e77cdf24574a704be77d99e7e2aa305a016ea1fe7b505626"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/after-images-lost/multichunk-lost/driver-phase-0012.json",
+      "sha256": "206349f74f4f4eea35c3e6e9f5c1585a6fc2514c706423c5edb1561d2bebda54"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/after-images-lost/multichunk-lost/driver-phase-0013.json",
+      "sha256": "d0e5613f28554cab82bc75af2fde78f5a697c2e80633bdb3f904e45edd861280"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/after-images-lost/multichunk-lost/inventory.json",
+      "sha256": "995d3a8d50630e788a79decc0d7d9944176bb5fa94d423afd0b2741f49d0c071"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/after-images-lost/multichunk-lost/manifest-0.json",
+      "sha256": "302dbcaf8ab8fd58bf42373a6bcd343a552e022f556553686b323f9d7089cba0"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/after-images-lost/multichunk-lost/manifest-1.json",
+      "sha256": "29be1098cd15a5c7102bba901ec9d3f77d3f3ead717f122377f4edf0bfceab1a"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/after-images-lost/multichunk-lost/occupied-map-command.json",
+      "sha256": "520c570faede8726045c2fa601914c155640a100ab3ceb05c69f68ed1f24fbf2"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/after-images-lost/multichunk-lost/occupied-map-result.json",
+      "sha256": "ef2d49bd2127bcccc1d68726bdc9e3f2607c1354c76e21941594a733bb833540"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/after-images-lost/multichunk-lost/recovered-map-command.json",
+      "sha256": "dc5a174ffa9eadc0390467cc79f756e5260e4608a79d0c21e51155bb43b3d8a6"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/after-images-lost/multichunk-lost/recovered-map-result.json",
+      "sha256": "c05c258bc5b8055d17a7240dfd0ef9c000a2bd7c32da76907af751cb28ba3eda"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/after-images-lost/multichunk-lost/resumed-session-command.json",
+      "sha256": "6a3feb80f542f06acd84a0909701afb79e98a1fc6b4238e368d50e958d203c0f"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/after-images-lost/multichunk-lost/resumed-session-ready.json",
+      "sha256": "0f064542874f31cd0c64b8f8d8dfa8af4f5343a10860cdb00ea55edbca65f93d"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/after-images-lost/multichunk-lost/selected-media.json",
+      "sha256": "11512613bac8294db348691673f0aefccfd5f3a607b0ef6c0d01e0cf5361baaa"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/after-images-lost/multichunk-lost/session-command.json",
+      "sha256": "2a052a652814196697f3c6272cb4c4c0398faa4eabf092a4b7f1d029e2c6b9c9"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/after-images-lost/multichunk-lost/session-ready.json",
+      "sha256": "0f064542874f31cd0c64b8f8d8dfa8af4f5343a10860cdb00ea55edbca65f93d"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/after-images-lost/multichunk-lost/shared-current-map-command.json",
+      "sha256": "0cc4e754a50cc359f700a14ecc74ac17adf724a3f11da6953bc85f745ee70376"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/after-images-lost/multichunk-lost/shared-current-map-result.json",
+      "sha256": "2f32dceb69d9e60bcf0601a5fd44b5bfc1f86096a506712089672a31f3dd2dff"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/after-images-lost/multichunk-lost/shared-download-command.json",
+      "sha256": "9fdf92046c9a5825af352c756ab50a423ade20585925543586ce345a4d51d370"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/after-images-lost/multichunk-lost/shared-download-result.json",
+      "sha256": "88ae6b76b293a4b416183422d0866083866ad5bbb486a7f76472f760eebc0dd7"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/after-images-lost/multichunk-lost/shared-first-refused-command.json",
+      "sha256": "8f29da76022381b7282a469b7759e13f2009104880d61bcfe50826db3171a8bb"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/after-images-lost/multichunk-lost/shared-first-refused-result.json",
+      "sha256": "eb37f4e18f9f3008367705c64c9fe2296632484fc354d942d34d9159f8835b96"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/after-images-lost/multichunk-lost/shared-first-still-refused-command.json",
+      "sha256": "ababcdca05d152fe908ec774f98cbb79b4eb8e14af54fb239a6099fb4e5922fc"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/after-images-lost/multichunk-lost/shared-first-still-refused-result.json",
+      "sha256": "eb37f4e18f9f3008367705c64c9fe2296632484fc354d942d34d9159f8835b96"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/after-images-lost/multichunk-lost/shared-historical-receipt-command.json",
+      "sha256": "306485260145b548d84e4d0c3ab2b67ea45ee5a571e7859a9f7def126eea837c"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/after-images-lost/multichunk-lost/shared-historical-receipt-result.json",
+      "sha256": "1699dec7afab78a600b3482766d0991ee08380abe65a99643d32b5ca311baebf"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/after-images-lost/multichunk-lost/shared-last-refused-command.json",
+      "sha256": "ff2e718608481eebdc1cb9627aadd224202d1042ff4bb2f44b0d72806ae47f16"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/after-images-lost/multichunk-lost/shared-last-refused-result.json",
+      "sha256": "eb37f4e18f9f3008367705c64c9fe2296632484fc354d942d34d9159f8835b96"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/after-images-lost/multichunk-lost/shared-reference-summary.json",
+      "sha256": "1a9cf1af32abe98cdd83ade86a120a1edc54c81184c89c2a524bffcd083c1e6e"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/after-images-lost/multichunk-lost/shared-release-first-command.json",
+      "sha256": "4a820f83288e5a4d0c55b4d28b7f1fcb9b2d229287f2cc035502b849207addb0"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/after-images-lost/multichunk-lost/shared-release-first-result.json",
+      "sha256": "bc605be6ed141dafbab7d5ab6fc891301ef5ca955f46817a68e9ee09162830aa"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/after-images-lost/multichunk-lost/shared-release-last-command.json",
+      "sha256": "b983fffeccd979e2c3979d1a9c3ab59445cd272e5283861c3e456c3b4dfee81e"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/after-images-lost/multichunk-lost/shared-release-last-result.json",
+      "sha256": "0affe06f8144008a491e71b6f8e1e8089595410e2d864a607747a7737d2cd6fc"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/after-images-lost/multichunk-lost/shared-retain-command.json",
+      "sha256": "fc72730998332d66446398bc448ee026967bd772add06bf5d022b90337ed1690"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/after-images-lost/multichunk-lost/shared-retain-result.json",
+      "sha256": "b7e1f406353448bfd9fd2a441922af10e910fc5a5586d7c340a7890446c9ace0"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/after-images-lost/multichunk-lost/summary.json",
+      "sha256": "20e421a078dd2a2bb4bcdf7da6ff9ca0761fcfb1abf63dc1ba1dcd3ccecc8755"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/after-installation-readback.log",
+      "sha256": "68a79e69f2f65aaeefd1d27903ada7fee2993489704c2dd3147afc299431a304"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/after-launcher-serial.mjs",
+      "sha256": "46f5701d9de7ca03420e94b163aec4b753e50f7a3124239a41e7d1fd69ca43d5"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/after-model.log",
+      "sha256": "1581e269e9e7adb0b0772f1621089ad124a5c582cb3315e1d867297847c8fecf"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/after-model/multichunk-complete/binding-0.json",
+      "sha256": "4294ebc187dcd86306480cf26e92a10ba2fae491742f75373cd99f1f2af0e79f"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/after-model/multichunk-complete/binding-1.json",
+      "sha256": "46cd45405c245aac72eeea59f0ab46470dd12122ffa2eb60a57753eb484e3875"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/after-model/multichunk-complete/browser-delivery-trace.json",
+      "sha256": "91fe9ef5a5723814241016d47bb57e6bc488c0c7c9bf6b4875fae6ea1d1b469c"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/after-model/multichunk-complete/browser-memory-1.json",
+      "sha256": "173c3c69f0f2b4e786704cd62b35df7650a80e2ee5e198ae2f62bc3e0ec72e74"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/after-model/multichunk-complete/browser-memory-2.json",
+      "sha256": "5b8bb99a64536a32fa4c6bb5517e7288edf37faf9b868d985093b83c76c5c73e"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/after-model/multichunk-complete/browser-result.json",
+      "sha256": "7f66a46deef546c3b353c012144c034f6dfeec99946433b63a116108928bda6e"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/after-model/multichunk-complete/browser-selection.json",
+      "sha256": "5c0d56f1b789f5e7987a5af2715decb710b63053eb47a70aa5566cc4a50368b5"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/after-model/multichunk-complete/download-0-command.json",
+      "sha256": "b29c73758509004ef635adf010d8dd6a8711789b7e83423951b833c0329a850c"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/after-model/multichunk-complete/download-0-result.json",
+      "sha256": "f3a1dd3e9089ad3264ff77e566ae94268350c446c475b829b09b62f0d22bc639"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/after-model/multichunk-complete/download-1-command.json",
+      "sha256": "e1100dfb1dbf34a6519dcaf70ba82ea86c8278e6a859b61af36938a521c1fcd5"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/after-model/multichunk-complete/download-1-result.json",
+      "sha256": "53f820d5623e219e43dfa4b4f56bd99a4dbc7d83596c8ea7372297d32cac1f1e"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/after-model/multichunk-complete/driver-native-result.json",
+      "sha256": "85f772d8af8e41138d5416252239bb005995ae544897d2953303b50bf2c745fa"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/after-model/multichunk-complete/driver-phase-0001.json",
+      "sha256": "d4a3bba5ae57bd9da95a8e50c2ff66016de81683b6a3b97b1f8569ec84c27069"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/after-model/multichunk-complete/driver-phase-0002.json",
+      "sha256": "54fdca73ff86efea433f6c0edc8c66f47460f716f25e2c376774e34d7b26d20a"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/after-model/multichunk-complete/driver-phase-0003.json",
+      "sha256": "3bbdecd9c43f42d60053d24ce56bff3581f98856d21764b446254c465f4326e2"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/after-model/multichunk-complete/driver-phase-0004.json",
+      "sha256": "5ba7a062cd8ecdc95162e42088e89d1f03deeb4d90bfc39909cad50f13fda7bf"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/after-model/multichunk-complete/driver-phase-0005.json",
+      "sha256": "5d59de2abbef6eaf1798df4ea628e992e48bf8c379118616d5b378596785ea5c"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/after-model/multichunk-complete/driver-phase-0006.json",
+      "sha256": "1f3fa3b58545aa0ba5e4093fc57ddee47d3b9ba0b6cac69bf9956598da92d37d"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/after-model/multichunk-complete/driver-phase-0007.json",
+      "sha256": "c4c245130dc9b298ec640f135791e14e110f913492fc8a60a501e5959ed47509"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/after-model/multichunk-complete/driver-phase-0008.json",
+      "sha256": "ef3d95e4118858eb6c63461b824ce038c6c9a83085741fabce6cfc69075020f5"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/after-model/multichunk-complete/driver-phase-0009.json",
+      "sha256": "336421e6e8eaaa40975465469c4e3e956410aed01552fcb9f5a7917997a72c88"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/after-model/multichunk-complete/inventory.json",
+      "sha256": "068f115017626126ddca9892a669e8c3bc3565e6468a0609ff7edc5a0116f286"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/after-model/multichunk-complete/manifest-0.json",
+      "sha256": "d831ee70f3aba55a2ea9b280213d4bd097196e0c92c8e9a8ac8076a0d5e11180"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/after-model/multichunk-complete/manifest-1.json",
+      "sha256": "c613428afe1fd9d687b3255fcd93a7ef692ce6c17690ebed999554edeea7fcca"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/after-model/multichunk-complete/occupied-map-command.json",
+      "sha256": "fa5bb17396ab6adfd3fd6ba763c97dacf78061fc69239ee1a803543e59658a2f"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/after-model/multichunk-complete/occupied-map-result.json",
+      "sha256": "ef2d49bd2127bcccc1d68726bdc9e3f2607c1354c76e21941594a733bb833540"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/after-model/multichunk-complete/recovered-map-command.json",
+      "sha256": "db93054a75e51f97eb3de94a40ee850ceabda84e013ab8ef9469a353340227a4"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/after-model/multichunk-complete/recovered-map-result.json",
+      "sha256": "6ec14d0a57455337066a194123948eaa1cb97fae1be61df3f2899e50c7ad9f5b"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/after-model/multichunk-complete/resumed-session-command.json",
+      "sha256": "2f030b4ddb1469eba9d308cbcc48b4eeba02bde99d0d7a58007e71e1f55205c7"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/after-model/multichunk-complete/selected-media.json",
+      "sha256": "a1ec77b7b9fd7c7db92e9538f1d5801b449536f309d2fd4eb3e51c4e590184dd"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/after-model/multichunk-complete/session-command.json",
+      "sha256": "122dc808e6fb3d7f1e905c050a1cd4a05d85775783459b974ef2c610213afd82"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/after-model/multichunk-complete/session-ready.json",
+      "sha256": "39859ede6215bf242c26caf8031c66fe9f929ba8d3e82574ea2eb28318cbb297"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/after-model/multichunk-complete/shared-current-map-command.json",
+      "sha256": "636e30a3c0d1eb5d3b7e4a1c783f9a4f9bb3f3ec465e68020a502103dd95f4c1"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/after-model/multichunk-complete/shared-current-map-result.json",
+      "sha256": "c3c54b310fb8c1e993b63f8ebbacf526260d779c993e84d61b54714f377c50e1"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/after-model/multichunk-complete/shared-download-command.json",
+      "sha256": "666df440a5749ce82f4b7f7ef9d671ab7a0dc35c750410d6ce2771038f1f5887"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/after-model/multichunk-complete/shared-download-result.json",
+      "sha256": "41f832f3f9543241165e07d6d8c0542533e788193ee21a8ca08a6cb74f11786b"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/after-model/multichunk-complete/shared-first-refused-command.json",
+      "sha256": "9f9b4477ea418e7c4a30f58a6f8e88af82f4cd17563cd64fd6002a45edbb7016"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/after-model/multichunk-complete/shared-first-refused-result.json",
+      "sha256": "eb37f4e18f9f3008367705c64c9fe2296632484fc354d942d34d9159f8835b96"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/after-model/multichunk-complete/shared-first-still-refused-command.json",
+      "sha256": "c5ed9b7ff02487b3d019536dae98dde525506e2fa149bde749ce17ad44361b8c"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/after-model/multichunk-complete/shared-first-still-refused-result.json",
+      "sha256": "eb37f4e18f9f3008367705c64c9fe2296632484fc354d942d34d9159f8835b96"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/after-model/multichunk-complete/shared-historical-receipt-command.json",
+      "sha256": "a87dd8a278bd91c22d1a2300d673d55af26d48402849d84bab5d73b53d5d9691"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/after-model/multichunk-complete/shared-historical-receipt-result.json",
+      "sha256": "698f91d323f37b00455b515c4a3e8ec2d33b22dc669ed8adc28c19c67ae1a3e5"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/after-model/multichunk-complete/shared-last-refused-command.json",
+      "sha256": "75880b19a552b905573283bdaec841557d083a427b639408efd39d74bc23104f"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/after-model/multichunk-complete/shared-last-refused-result.json",
+      "sha256": "eb37f4e18f9f3008367705c64c9fe2296632484fc354d942d34d9159f8835b96"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/after-model/multichunk-complete/shared-reference-summary.json",
+      "sha256": "48173965ab99ca19ec548131b85452480dfeb5bc77949461ea59387ca871d179"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/after-model/multichunk-complete/shared-release-first-command.json",
+      "sha256": "5cf2e3bd85c4215e70fb29d8565586f7d4460f5834104e725c9176a69eec1581"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/after-model/multichunk-complete/shared-release-first-result.json",
+      "sha256": "bd326e15270c9450066419d537c194e89ccbd6ca8d19bf911c396e0adafa9d1f"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/after-model/multichunk-complete/shared-release-last-command.json",
+      "sha256": "8575bcba271e34f22df77009e0f7b1587dde93d1c70c9d1ffb6c8c8a6f226e28"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/after-model/multichunk-complete/shared-release-last-result.json",
+      "sha256": "2396f24cd64d3b76da8ed9cc8fe6b99e1d35cb006cb60140575a43d6f69dc6c4"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/after-model/multichunk-complete/shared-retain-command.json",
+      "sha256": "24a7990af92e8d80d1919c4d429fe9bc8132e993956d5e8b53dbeee80c08dc9c"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/after-model/multichunk-complete/shared-retain-result.json",
+      "sha256": "f5e37b88f36141219244dd2bb5bf017277dcab59fc493ded3decc6a88b353e88"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/after-model/multichunk-complete/summary.json",
+      "sha256": "38140bbc186cf131a7e8e2fd9d1b0a494f6f29104aaa5d5cdce69c88cd691382"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/after-publication-host.js",
+      "sha256": "2f9d766b026717efa1b3d0e2c21855cdcbdbc3e89fda778d3552873a54bb2d80"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/after-publication-worker.js",
+      "sha256": "e237ddb297dc18b87af59abf2ce2518a094054c83d687e667daa11d43ec9abd2"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/after-standalone",
+      "sha256": "ba2256a95fbf61f2db4c2006813be20400e07e8676ad1f8da56013aa51cc86c7"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/after-standalone.wasm",
+      "sha256": "4dd34c9d2bf4f0e4d841af44a1804b59df6028397ee9f0f0ed5e24e2272c917a"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/artifacts.json",
+      "sha256": "15ae7412fb8581168784ab23b080a60882afdba9fd665908572032a533ee1223"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/before-media-delivery.mjs",
+      "sha256": "57e086d4ecf3fb0ae7794d80aa1adadc4b49942ddecfa8a5e24cf63942031fd4"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/blob-storage",
+      "sha256": "1c9d4153c31af48d465434ea3ea728ead757684a5b5613145795f35a48b84fb2"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/browser-build-owned-context.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/browser-build.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/cli-build.log",
+      "sha256": "bf1c8388e191ce26f2b85ef16dfd60dfefa966202881ab2ca9ea4e0b5e1f11c3"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/fmt-check.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/harness-artifacts.jsonl",
+      "sha256": "07be2f59ea8ff4a4d56cedcdea926964d2a78774000156d30994d69da360f0c1"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/harness-build.log",
+      "sha256": "34f375c446c7478968aac8f579fc6d264f1762c2d42eb603f4a696fe21905858"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/images-lost.log",
+      "sha256": "4c0c99250845922b2e42378b577e0542e214b5755f23f6ab482e300f9348f10d"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/images-lost/multichunk-lost/binding-0.json",
+      "sha256": "48202fa8b30b1ca35d3d23e89639a93ecef5be7d2210fcadff68b75ade959bfc"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/images-lost/multichunk-lost/binding-1.json",
+      "sha256": "97bef1c1302c7d1419f424ce0bb0c2d40a7788757714bd378fcbc99c5c57a1b9"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/images-lost/multichunk-lost/browser-delivery-trace.json",
+      "sha256": "53c063f729c4f0933de4a9ed9692da04c5fbe647fe009228159e65c5e3274733"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/images-lost/multichunk-lost/browser-memory-1.json",
+      "sha256": "6b3c1aca97d8c57be9f5925fb7b1e9e83ed9e2de8be1da9863e990c6b686f9a3"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/images-lost/multichunk-lost/browser-memory-2.json",
+      "sha256": "fa227b22c2374ca9a0593e8d0eb0a16e4bd9809678f1b13575874fdca7ccdd25"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/images-lost/multichunk-lost/browser-memory-3.json",
+      "sha256": "5d4cd008fe04e2ab796db00bf60c0b8c413ffbcacbfd97db8b31029e46d13df0"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/images-lost/multichunk-lost/browser-result.json",
+      "sha256": "89e10a455d336f4c351d90cc6710fdd7a2d2310d16e015d3c8700d6b11582435"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/images-lost/multichunk-lost/browser-selection.json",
+      "sha256": "ec2caf2f48888d47be4126dd456547459a59a3aef71897102744cb5130420fe7"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/images-lost/multichunk-lost/download-0-command.json",
+      "sha256": "7794ef63aeb0dba7d547ab62348ee74b6681a9d2c8da2fabba3bb0efc65ac90b"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/images-lost/multichunk-lost/download-0-result.json",
+      "sha256": "61107ad566cc33cc8974a9eb14c9f483776ea2428c2fa24422500aa6097a9e4b"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/images-lost/multichunk-lost/download-1-command.json",
+      "sha256": "71b33ddcf408a66ef7c26af312ff64109768c9301cf31355a02633efff28e646"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/images-lost/multichunk-lost/download-1-result.json",
+      "sha256": "d906e5c61b2e522bd81229246f153b6674551478c81bdd89eaeb10b9ac429021"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/images-lost/multichunk-lost/driver-interruption.json",
+      "sha256": "09e3adb4fcef81a54aa4c747da6d0aec4f47e11bcb80a8175559bb517d97e391"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/images-lost/multichunk-lost/driver-native-result.json",
+      "sha256": "cad952adc01ab49f488ab7135d772af2306682e58efaa5f16b2de895c8d8367b"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/images-lost/multichunk-lost/driver-phase-0001.json",
+      "sha256": "9674adc84340fbb96c6fb358e8f4232d48f135de07bb3f6c3ff90c74da716a41"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/images-lost/multichunk-lost/driver-phase-0002.json",
+      "sha256": "b4b308a3f44a91f8165440e9c0796aceba3f27699e6a42a6e1860f4c81e0fb7b"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/images-lost/multichunk-lost/driver-phase-0003.json",
+      "sha256": "ebe084d36212d188f38a0f9c68e8b333c198f225f86e0af9678c3017783ee28a"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/images-lost/multichunk-lost/driver-phase-0006.json",
+      "sha256": "92aa14ca92bd06d6adcf3f15eeb984d18c602bd28a431ca841715d55acccff4b"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/images-lost/multichunk-lost/driver-phase-0007.json",
+      "sha256": "0187813bdcba51fb7c7ea54c7e8b030660f0b523af1d5e136bd1ee657e8e7374"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/images-lost/multichunk-lost/driver-phase-0008.json",
+      "sha256": "5839f40cdaedbff68ec93edb26cadb243574834b18f1e21df40e338e40722f4c"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/images-lost/multichunk-lost/driver-phase-0009.json",
+      "sha256": "9a5a263db15b15dfec9413e5621664a0586f7eecbc09eabb05846ddbf9fd1820"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/images-lost/multichunk-lost/driver-phase-0010.json",
+      "sha256": "f9cc1b3e0a611e86b8a742221390ba87a14826a9c2c10b604544a6f2bbdca2c6"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/images-lost/multichunk-lost/driver-phase-0011.json",
+      "sha256": "c7b9bdc5c633c71d4b907cd2ee6704b39a0d1c0f61017b1d0de73e3d63cf6989"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/images-lost/multichunk-lost/driver-phase-0012.json",
+      "sha256": "d8b3f9f7c236cf56c798f98bea6774634db0c5d44302b5cf422910d8d5c7ea3d"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/images-lost/multichunk-lost/driver-phase-0013.json",
+      "sha256": "797e1b94b3644784cd3752e0460fc798e24d694302ff7b638fa5425a86c876ce"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/images-lost/multichunk-lost/inventory.json",
+      "sha256": "995d3a8d50630e788a79decc0d7d9944176bb5fa94d423afd0b2741f49d0c071"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/images-lost/multichunk-lost/manifest-0.json",
+      "sha256": "302dbcaf8ab8fd58bf42373a6bcd343a552e022f556553686b323f9d7089cba0"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/images-lost/multichunk-lost/manifest-1.json",
+      "sha256": "29be1098cd15a5c7102bba901ec9d3f77d3f3ead717f122377f4edf0bfceab1a"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/images-lost/multichunk-lost/occupied-map-command.json",
+      "sha256": "7e947080e9a9ea022390bf772b998db68ce0a70400b6daa2392979bb0f9727d2"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/images-lost/multichunk-lost/occupied-map-result.json",
+      "sha256": "ef2d49bd2127bcccc1d68726bdc9e3f2607c1354c76e21941594a733bb833540"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/images-lost/multichunk-lost/recovered-map-command.json",
+      "sha256": "049bc67951b80173f5c65127485a59cb45811a6b8f494bbdd973cda21d5bca81"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/images-lost/multichunk-lost/recovered-map-result.json",
+      "sha256": "c5ebf64853ff3bff4852c547154b9f66fbe56452c53b8ccfb34651be7605da5c"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/images-lost/multichunk-lost/resumed-session-command.json",
+      "sha256": "2e6aec7733a9f8b4e033e4c07d1f952b11348a84d4976cd5a508d13367d892d7"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/images-lost/multichunk-lost/resumed-session-ready.json",
+      "sha256": "0f064542874f31cd0c64b8f8d8dfa8af4f5343a10860cdb00ea55edbca65f93d"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/images-lost/multichunk-lost/selected-media.json",
+      "sha256": "11512613bac8294db348691673f0aefccfd5f3a607b0ef6c0d01e0cf5361baaa"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/images-lost/multichunk-lost/session-command.json",
+      "sha256": "d7a1106255daa41840a732d849e6bd8d6be7a0fdcab82ae5993288ba07de3897"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/images-lost/multichunk-lost/session-ready.json",
+      "sha256": "0f064542874f31cd0c64b8f8d8dfa8af4f5343a10860cdb00ea55edbca65f93d"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/images-lost/multichunk-lost/shared-current-map-command.json",
+      "sha256": "f713384614a88f4a013afab91bee1bbfed8f2b145809a652ae4748e377e9a753"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/images-lost/multichunk-lost/shared-current-map-result.json",
+      "sha256": "2f32dceb69d9e60bcf0601a5fd44b5bfc1f86096a506712089672a31f3dd2dff"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/images-lost/multichunk-lost/shared-download-command.json",
+      "sha256": "5c18591cb6c5e5cd90e0ba1eb55a8a5fa309829ed3de560f7cc1ff71fb308f9e"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/images-lost/multichunk-lost/shared-download-result.json",
+      "sha256": "c46a82f64699cff086d3b9ba9cec147007cfb6fcc512133850f84c7506c73e61"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/images-lost/multichunk-lost/shared-first-refused-command.json",
+      "sha256": "6af6656a9b4c9ccd906d1c686b3e4de4a0b48b752d3fe09265b09812587eecad"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/images-lost/multichunk-lost/shared-first-refused-result.json",
+      "sha256": "eb37f4e18f9f3008367705c64c9fe2296632484fc354d942d34d9159f8835b96"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/images-lost/multichunk-lost/shared-first-still-refused-command.json",
+      "sha256": "af5670f57d8632e0a22f485d20f718520bc94cf37c4d4e629cb296b2b446b0d9"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/images-lost/multichunk-lost/shared-first-still-refused-result.json",
+      "sha256": "eb37f4e18f9f3008367705c64c9fe2296632484fc354d942d34d9159f8835b96"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/images-lost/multichunk-lost/shared-historical-receipt-command.json",
+      "sha256": "e7ae94157ae70dbda7424f02b1b9954b62c71908d63007a92037e67863dffa44"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/images-lost/multichunk-lost/shared-historical-receipt-result.json",
+      "sha256": "d76b244b0109f60c8a94ffc8846025ab249b283cfe8d33415debcb10e5840dcf"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/images-lost/multichunk-lost/shared-last-refused-command.json",
+      "sha256": "1e76adf4c88a28b0a8bb88f210d2294bd86418f805b132b9963e6fe01efa088d"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/images-lost/multichunk-lost/shared-last-refused-result.json",
+      "sha256": "eb37f4e18f9f3008367705c64c9fe2296632484fc354d942d34d9159f8835b96"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/images-lost/multichunk-lost/shared-reference-summary.json",
+      "sha256": "1a9cf1af32abe98cdd83ade86a120a1edc54c81184c89c2a524bffcd083c1e6e"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/images-lost/multichunk-lost/shared-release-first-command.json",
+      "sha256": "d7911d54e4067db03eb5428f7e8f521af5e7633fb0b2ff6d5c4073566863480e"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/images-lost/multichunk-lost/shared-release-first-result.json",
+      "sha256": "f75e0f45b373107ca5110972b30e52935f1d78d270c7c61677cbd24c6e9d7aed"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/images-lost/multichunk-lost/shared-release-last-command.json",
+      "sha256": "a1024a8831e0bf83ae4b028b85ce54a63b70a87aef6c29df5afc1832afb60a43"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/images-lost/multichunk-lost/shared-release-last-result.json",
+      "sha256": "3311f1ea0625b93669c2f57135043549dfb691a1fae06c0b880fe25fed5d36bb"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/images-lost/multichunk-lost/shared-retain-command.json",
+      "sha256": "0189c1401a1790700f06f661c8a7d682d71ad6701a52de96fc510e916264b52f"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/images-lost/multichunk-lost/shared-retain-result.json",
+      "sha256": "e5b96155d59c71aeedf8e17bc0b72f2ed0c29703e99b95d19ecf7501545b8590"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/images-lost/multichunk-lost/summary.json",
+      "sha256": "e6ebd12fa4f788611a0cee8e2d1ee9605eea8289da2ddb8a6e531dfdc4a3de57"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/images.json",
+      "sha256": "8b6a1ecb7551a1d0b5f5beade3493c8477f72810520f69ffad9d3c745e78d852"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/installation-readback.log",
+      "sha256": "94cfc353c4c0ec37eb60412a65bf622e6bef730b8b0e4784be0123ab94be08b1"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/launcher-serial.mjs",
+      "sha256": "ab64628160aae4b414f66aba32d7c62af12eea03647c4fd9f96633624187d02c"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/model-complete.log",
+      "sha256": "7622432030c9299ae84420a48d8df1c57eac77b4ae98695d6c5d094d7b015b7f"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/model-complete/multichunk-complete/binding-0.json",
+      "sha256": "4294ebc187dcd86306480cf26e92a10ba2fae491742f75373cd99f1f2af0e79f"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/model-complete/multichunk-complete/binding-1.json",
+      "sha256": "46cd45405c245aac72eeea59f0ab46470dd12122ffa2eb60a57753eb484e3875"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/model-complete/multichunk-complete/browser-delivery-trace.json",
+      "sha256": "88b5190cb8ad3b70b6c927ec40d9faab5f5f87d8c5503157ecfa99e279711137"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/model-complete/multichunk-complete/browser-memory-1.json",
+      "sha256": "925cc4e288522043a36761dfea7a7fd58475955e5af0a1853b86602542788b79"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/model-complete/multichunk-complete/browser-memory-2.json",
+      "sha256": "f6d3dca402affc8462d4906d62f0428a2a6ff549ddf44f0c806dbeac7b518159"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/model-complete/multichunk-complete/browser-result.json",
+      "sha256": "bd747964f1502d1ba97a9f7f51afe17b5febbb2432ade39fa0260dc9056abc5a"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/model-complete/multichunk-complete/browser-selection.json",
+      "sha256": "7fefcbb50de230dfb578e6e80266b4bfd4489c3cd6f8002a49b7b3951b355203"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/model-complete/multichunk-complete/download-0-command.json",
+      "sha256": "1198573c14a6f01bd2df6b276b15dc9670eb693d3ac51dbc4d9ed7ea8c4d5400"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/model-complete/multichunk-complete/download-0-result.json",
+      "sha256": "4833187c33c998133400108569240401d93222583103011e55fb8c4193b548b7"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/model-complete/multichunk-complete/download-1-command.json",
+      "sha256": "a6b737d1c094977fa6f64a34ef16dcdfed387d89958b7a9ebad66607d33f2bfd"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/model-complete/multichunk-complete/download-1-result.json",
+      "sha256": "8aa197fbb2efb035e85e1473538a6a3691590bd1cc98420197797491d6ab3573"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/model-complete/multichunk-complete/driver-native-result.json",
+      "sha256": "f03ed84e5c270869b7f01317aa42cac97eb820b45c7d1b83944a150ee002284c"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/model-complete/multichunk-complete/driver-phase-0001.json",
+      "sha256": "d4a3bba5ae57bd9da95a8e50c2ff66016de81683b6a3b97b1f8569ec84c27069"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/model-complete/multichunk-complete/driver-phase-0002.json",
+      "sha256": "12bd650b567841f46cc904becf2f8f1cba7b85831b278840e5021cdd281a95eb"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/model-complete/multichunk-complete/driver-phase-0003.json",
+      "sha256": "acf865d594e047f4c2830d9a913c19a0a89728c7cc5c13896074ca9e59761c49"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/model-complete/multichunk-complete/driver-phase-0004.json",
+      "sha256": "7f1be3d2bc46c81d49631783b1639f8014b8a1ae1ccd061cc67fb289155650cc"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/model-complete/multichunk-complete/driver-phase-0005.json",
+      "sha256": "5d59de2abbef6eaf1798df4ea628e992e48bf8c379118616d5b378596785ea5c"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/model-complete/multichunk-complete/driver-phase-0006.json",
+      "sha256": "0e159a28f69dc6f4b9e233e9003cd618d24b64a6aab9eab524e19538cd473995"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/model-complete/multichunk-complete/driver-phase-0007.json",
+      "sha256": "14546d8d92238a7041f516fa7334cfc2d44f6019fe8bc9475782354c360cfae7"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/model-complete/multichunk-complete/driver-phase-0008.json",
+      "sha256": "e197754a90fa19013614173f60ddf2221a17953839e415b4351f07921ce9c0e1"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/model-complete/multichunk-complete/driver-phase-0009.json",
+      "sha256": "3c3569d93e274ff75555db0ed6e356d74ff9b3738e83760ee51aba83fb5ea792"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/model-complete/multichunk-complete/inventory.json",
+      "sha256": "068f115017626126ddca9892a669e8c3bc3565e6468a0609ff7edc5a0116f286"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/model-complete/multichunk-complete/manifest-0.json",
+      "sha256": "d831ee70f3aba55a2ea9b280213d4bd097196e0c92c8e9a8ac8076a0d5e11180"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/model-complete/multichunk-complete/manifest-1.json",
+      "sha256": "c613428afe1fd9d687b3255fcd93a7ef692ce6c17690ebed999554edeea7fcca"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/model-complete/multichunk-complete/occupied-map-command.json",
+      "sha256": "c2128c2f15f9f54b27425b962797eac1038f60b5d6a7f8d7b75da55443c7bf2b"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/model-complete/multichunk-complete/occupied-map-result.json",
+      "sha256": "ef2d49bd2127bcccc1d68726bdc9e3f2607c1354c76e21941594a733bb833540"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/model-complete/multichunk-complete/recovered-map-command.json",
+      "sha256": "5e3059b53adee98588dd4d0a5a887085d7a295d9ec174768286f1b066245cbeb"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/model-complete/multichunk-complete/recovered-map-result.json",
+      "sha256": "34e295fac8865bb08710ba95423b71b5e9d53c44dfbb6796744ee9f5e82919f2"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/model-complete/multichunk-complete/resumed-session-command.json",
+      "sha256": "6d095b2b5966f6c045625214ecb5befcdff61139041e030f314cf115ffddd00b"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/model-complete/multichunk-complete/selected-media.json",
+      "sha256": "a1ec77b7b9fd7c7db92e9538f1d5801b449536f309d2fd4eb3e51c4e590184dd"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/model-complete/multichunk-complete/session-command.json",
+      "sha256": "7680758598f0e9aee2d9034ab9c53d4a0d536700df12eab006f7f956f76cbfeb"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/model-complete/multichunk-complete/session-ready.json",
+      "sha256": "39859ede6215bf242c26caf8031c66fe9f929ba8d3e82574ea2eb28318cbb297"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/model-complete/multichunk-complete/shared-current-map-command.json",
+      "sha256": "d95865a2ae2492eec32cf5363b4ae2ffeea3941a0c2ce7adb3b49576edc3be37"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/model-complete/multichunk-complete/shared-current-map-result.json",
+      "sha256": "c3c54b310fb8c1e993b63f8ebbacf526260d779c993e84d61b54714f377c50e1"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/model-complete/multichunk-complete/shared-download-command.json",
+      "sha256": "2b436a34df91b98f16cde737c34784804e27dd98eadbff482305ad83c6c2e831"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/model-complete/multichunk-complete/shared-download-result.json",
+      "sha256": "c4ecd69dbd02e0c9cfe2424a5dc704276a045781c38cf781564a51ead7afc35c"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/model-complete/multichunk-complete/shared-first-refused-command.json",
+      "sha256": "3fad96ae33bb416549115ab3a86a3eb45137d0cad78afc57c674b920c5d32268"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/model-complete/multichunk-complete/shared-first-refused-result.json",
+      "sha256": "eb37f4e18f9f3008367705c64c9fe2296632484fc354d942d34d9159f8835b96"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/model-complete/multichunk-complete/shared-first-still-refused-command.json",
+      "sha256": "4010d071f17070b47468a0f499915f494f127126aa3f048d7fcf73e2a2406fb2"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/model-complete/multichunk-complete/shared-first-still-refused-result.json",
+      "sha256": "eb37f4e18f9f3008367705c64c9fe2296632484fc354d942d34d9159f8835b96"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/model-complete/multichunk-complete/shared-historical-receipt-command.json",
+      "sha256": "ed4dc90f935b4732dede6c0df1421f9d422a40eb6709192fe3e81d590d48391f"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/model-complete/multichunk-complete/shared-historical-receipt-result.json",
+      "sha256": "61ec499254611a0c78ee4d9924d6787b3dcc6d6bfb911eac75a35fb0b126c1e3"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/model-complete/multichunk-complete/shared-last-refused-command.json",
+      "sha256": "e7faf787c3f8e7c0b9a9df1a3e7ffdf110dc566dc5a5a01aee6457a37e4fa130"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/model-complete/multichunk-complete/shared-last-refused-result.json",
+      "sha256": "eb37f4e18f9f3008367705c64c9fe2296632484fc354d942d34d9159f8835b96"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/model-complete/multichunk-complete/shared-reference-summary.json",
+      "sha256": "48173965ab99ca19ec548131b85452480dfeb5bc77949461ea59387ca871d179"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/model-complete/multichunk-complete/shared-release-first-command.json",
+      "sha256": "0c7ca5ef6554acf1efe32256edaca7a2e95085f0d53cdbc3fafa3a1f7bc1a819"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/model-complete/multichunk-complete/shared-release-first-result.json",
+      "sha256": "52a053acf0f55abc860d5293ae61130c9c48f961c8b2f0f6f8d325edad276cbf"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/model-complete/multichunk-complete/shared-release-last-command.json",
+      "sha256": "2793054f5d659e4ca3b980e4b09fe5fc9fa5295d8a85abd24d62a8239aca2666"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/model-complete/multichunk-complete/shared-release-last-result.json",
+      "sha256": "ccaf778b4f8b9dc79c3642ec1dc2032a422b9824ad599a23886ca3160eef702d"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/model-complete/multichunk-complete/shared-retain-command.json",
+      "sha256": "9069dbe11d7163fc4166941cf072a61c10faa298ae59c03f21df26a31267a00e"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/model-complete/multichunk-complete/shared-retain-result.json",
+      "sha256": "dbf9d4e85a477309bea2813bd2e27ffad746c185d686882089bbe0fa44bb12f5"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/model-complete/multichunk-complete/summary.json",
+      "sha256": "cf57f7a0f2e23d0a63100a402f8ddfa3dc5cffb4009f8deb72f6a1dbc5753f18"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/model-image.json",
+      "sha256": "fad5bcec4f408d47e734527df58d68db6d40b22cabc82477e1830bfa25de4344"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/preparation.log",
+      "sha256": "02e032bed51dada72a588e95e394669f40c6eb762af4639bca54915e5a799ae2"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/preparation/sample-1048576.json",
+      "sha256": "9e4a18d56db6385e07dbdcc6d54465514cd583c108796df79d3a0a2f39209029"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/preparation/sample-33554432.json",
+      "sha256": "d0ff1671a3d2f007a0a5a461293a3d85e15a9436911d5a4f0dac6a232a81f60e"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/preparation/sample-8388608.json",
+      "sha256": "04f34dc183d1ebcf74da9e3ecda2621d8658e7bea079bd07e97005f97594810e"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/preparation/summary.json",
+      "sha256": "78bbc83ea4f8481be0ed4b76f9c250cc5fc4c83542bb335275545463fadc89d7"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/publication-host.js",
+      "sha256": "2f9d766b026717efa1b3d0e2c21855cdcbdbc3e89fda778d3552873a54bb2d80"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/publication-worker.js",
+      "sha256": "e237ddb297dc18b87af59abf2ce2518a094054c83d687e667daa11d43ec9abd2"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/source-launcher-profile.mjs",
+      "sha256": "9b9f0c4355fa11989ac6fe6549a62858c7f59190c20b009dc35427aa32b93fb3"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/source-launcher-serial.mjs",
+      "sha256": "a86a2c24313e1f8bcf5eb26de5c69ee6fa255a399c864f951eb16f8007404412"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/source-memory.mjs",
+      "sha256": "2a8c64735c8d0220f51f1eed7d60ed81cf7ecab683b58eecd2c6f6dd79472d11"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/source.tar.gz",
+      "sha256": "7ed9d1d0cd4c164e93b62049210eed8cc26708729c2c346c673159a470d5450c"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/standalone",
+      "sha256": "759afe9f3754f9fa22f3a0a73b54d496cfd8dd25850aecdd32f517480e71fad2"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/standalone.wasm",
+      "sha256": "eb19835ad20aa1bfb7ca343608c43da258d846cebad3d79032b3e8e83cdb9d00"
+    },
+    {
+      "path": ".tmp/transfer-memory-profile-01/tracked-source.patch",
+      "sha256": "a0a848f15288cf2700a1241ad68857a4d7b51a420559d9f69334f01dd78fb8d5"
+    }
+  ]
+}

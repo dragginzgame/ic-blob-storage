@@ -15,7 +15,7 @@ fn consumer() -> Fixture {
     f.harness.pic.install_canister(
         client,
         Fixture::wasm(),
-        candid::encode_one(f.operator).unwrap(),
+        Fixture::installation(f.operator),
         None,
     );
     f.tenant = client;
@@ -104,7 +104,7 @@ fn actual_tenant_canister_fetches_bound_descriptor_and_refuses_wrong_contexts() 
         .upgrade_canister(
             f.service,
             Fixture::wasm(),
-            candid::encode_one(f.operator).unwrap(),
+            Fixture::installation(f.operator),
             Some(f.controller),
         )
         .unwrap();

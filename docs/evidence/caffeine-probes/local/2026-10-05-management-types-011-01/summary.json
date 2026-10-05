@@ -1,0 +1,279 @@
+{
+  "schema": 1,
+  "date": "2026-10-05",
+  "source_base": "c3a16529d161547987c138b15bf75cac70b54c55",
+  "compiled_release": "0.14.9",
+  "evidence_class": "source review and local PocketIC normal application subnet; existing local completion substitute",
+  "intents": [
+    "intent.json"
+  ],
+  "authority": "Explicit upgrade and evaluation request; scoped local implementation/checks only",
+  "live_provider_qualified": false,
+  "live_provider_requests": 0,
+  "paid_cycles": "0",
+  "source_archive": {
+    "path": ".tmp/management-types-011-01/source-base.tar.gz",
+    "bytes": 2223596,
+    "sha256": "8fe5d85d43572c9c2fd6c829dbdd1a4da8b6c4a049ea58ff8821a3c3547f4650"
+  },
+  "source_patch": {
+    "path": ".tmp/management-types-011-01/source.patch",
+    "bytes": 41543,
+    "sha256": "bf0bdc644792227ec5c7f640102a90ec79f76169aba15cfde40bb5deb5f6bbee"
+  },
+  "dependencies": {
+    "before_manifest": {
+      "path": ".tmp/management-types-011-01/before-Cargo.toml",
+      "bytes": 1539,
+      "sha256": "11f1ba0031aa0933204f1a360498379399de6be8d246bb0437cc70a4f9ab7c09"
+    },
+    "before_lock": {
+      "path": ".tmp/management-types-011-01/before-Cargo.lock",
+      "bytes": 105731,
+      "sha256": "29bea255676480b37cd1e8a09919250d8b2d480f078ce05d34504d26ad461d53"
+    },
+    "compiled_manifest": {
+      "path": ".tmp/management-types-011-01/compiled-Cargo.toml",
+      "bytes": 1539,
+      "sha256": "93ce30c91632fe3206678d67921a24aa8314d4957618fabea33258bbeb7e3618"
+    },
+    "compiled_lock": {
+      "path": ".tmp/management-types-011-01/compiled-Cargo.lock",
+      "bytes": 105731,
+      "sha256": "6f0f0979d377220ce62906c2b90cef59e2a72882fa6233901d5f6b55acca22ab"
+    },
+    "ic_management_canister_types": "0.11.0",
+    "ic_memory": "0.25.5",
+    "ic_testkit": "0.15.4",
+    "pocket_ic": "16.0.0",
+    "toolchain": {
+      "path": ".tmp/management-types-011-01/toolchain.log",
+      "bytes": 196,
+      "sha256": "b569b0c98ea3133c7252b4b8ea6b39b7b353813df0dd5f5c412c355691424112"
+    },
+    "declared_msrv": "1.88.0",
+    "separate_msrv_toolchain_tested": false
+  },
+  "frozen_artifacts": {
+    "wasm": {
+      "path": ".tmp/management-types-011-01/standalone.wasm",
+      "bytes": 4173149,
+      "sha256": "80290c5f12235a27f29839f899161774ee9a3429b965f2440e8ce0b3c6b04c38"
+    },
+    "harness": {
+      "path": ".tmp/management-types-011-01/standalone",
+      "bytes": 288177576,
+      "sha256": "a7774d75a9ae831b81f6d576f7e7d49fe2bcf4c7c2d4172d0a575bf4674ffd60"
+    },
+    "server": {
+      "path": ".tmp/tools/pocket-ic-16.0.0/pocket-ic",
+      "bytes": 124304016,
+      "sha256": "69e324bdb68d32d878b7a9504b1379f08f8d1921272bacb065b0fabb3d0f3792"
+    }
+  },
+  "artifact_inventory": {
+    "path": ".tmp/management-types-011-01/artifact-inventory.json",
+    "bytes": 4605,
+    "sha256": "5970587f8cf96d44431eb8a61f771ad62cd3d4ea86fc986a69934ced412ae6e9"
+  },
+  "evaluation": {
+    "owner": "crates/ic-blob-storage/src/ops/service/recovery/mod.rs::prove_current_instance",
+    "policy_owner": "crates/ic-blob-storage/src/policy/recovery/mod.rs::assess_instance_continuity",
+    "upstream": {
+      "package": "ic-management-canister-types 0.11.0",
+      "checksum": "b3e3162bdfbdbc6ca3b4bfa8145f9ba19cddaf3eb8d1af8dc7be6a39557b76c2",
+      "source": {
+        "path": ".tmp/management-types-011-01/upstream-lib.rs",
+        "bytes": 77816,
+        "sha256": "11f1c93fc9034e3dbcc35ff377e2356a07439382bbcfad8ad213327d83c1c554"
+      },
+      "changelog": {
+        "path": ".tmp/management-types-011-01/upstream-CHANGELOG.md",
+        "bytes": 7041,
+        "sha256": "055da06fd207e60a606e04720bdf1042fede4e447bd9023c27746585ea55f7a2"
+      },
+      "comparison": {
+        "path": ".tmp/management-types-011-01/upstream-source.diff",
+        "bytes": 3707,
+        "sha256": "1946194b3d5f891660e19cd526fcb424f9fac1c60ec9e76b87fe40d9120f7e73"
+      }
+    },
+    "maintained_contract": "Use upstream CanisterInfoArgs/CanisterInfoResult/ChangeDetails/CodeDeploymentMode directly at the platform boundary; keep the pure continuity policy and sealed same-execution proof.",
+    "upstream_history_types_changed": false,
+    "subnet_metrics": {
+      "new_field": "million_round_instructions_total",
+      "current_consumer": false,
+      "decision": "Do not add a read or telemetry owner. The experimental result measures previous-round aggregate subnet work including scheduler and non-Wasm charges, rather than a service operation; it is not continuity or provider billing evidence."
+    },
+    "ecdsa": {
+      "new_variant": "Secp256r1",
+      "current_consumer": false,
+      "decision": "No cryptographic-flow change. The current blob-storage contracts do not use threshold ECDSA P-256; availability of a key is an upstream governance concern, not established by a type definition."
+    },
+    "cycles_metrics": {
+      "decision": "IC cycles-consumed metrics and their historical windows do not replace durable Caffeine provider effects or storage liabilities."
+    },
+    "native_dependency": "PocketIC 16 retains its upstream 0.8.0 types; no repository-owned compatibility shim or forced patch introduced.",
+    "no_new_runtime_flow": true,
+    "no_production_rust_change": true,
+    "no_public_api_change": true,
+    "no_persisted_layout_change": true,
+    "no_measured_performance_change_claimed": true
+  },
+  "verification": [
+    {
+      "command": "cargo update --offline -p ic-management-canister-types@0.10.0 --precise 0.11.0",
+      "log": {
+        "path": ".tmp/management-types-011-01/update.log",
+        "bytes": 130,
+        "sha256": "0dc49abc379c9acc7dc13336462c6927429aabea368cd4f12a272a7a6c135b25"
+      },
+      "result": "PASS; only the authorized package changes relative to the pre-upgrade lock"
+    },
+    {
+      "command": "make deps",
+      "log": {
+        "path": ".tmp/management-types-011-01/deps.log",
+        "bytes": 73,
+        "sha256": "5ad0973c00177e4c907709b4b5b447030106944a0034ff9d8b6e0eef0b70e169"
+      },
+      "result": "PASS locked cache preparation; brief shared package-cache lock wait, no build-lock competition"
+    },
+    {
+      "command": "cargo tree --offline --locked -p ic-blob-storage --target wasm32-unknown-unknown -i ic-management-canister-types@0.11.0",
+      "log": {
+        "path": ".tmp/management-types-011-01/core-management-tree.log",
+        "bytes": 132,
+        "sha256": "17e7fa92e68b5bf738c9cef52adc1ae494e33938c7138e0bfeaa174d79d5da86"
+      },
+      "result": "Core Wasm uses 0.11.0"
+    },
+    {
+      "command": "cargo tree --offline --locked -p ic-blob-storage-pocketic-tests -i ic-management-canister-types@0.8.0",
+      "log": {
+        "path": ".tmp/management-types-011-01/pocketic-management-tree.log",
+        "bytes": 207,
+        "sha256": "175f2d09c9da52f2cd7ec20676f26ffba7e561320685bd6c92f1cdfed84edb59"
+      },
+      "result": "Native PocketIC 16 owns 0.8.0 through ic-testkit 0.15.4"
+    },
+    {
+      "command": "cargo test --offline --locked -p ic-blob-storage --lib policy::recovery::tests",
+      "log": {
+        "path": ".tmp/management-types-011-01/recovery-unit.log",
+        "bytes": 2199,
+        "sha256": "5ac64783d44962e8462b50fd603e3704a3a8a767a2ff2653ebc0b0c30eaef572"
+      },
+      "result": "PASS three existing continuity tests"
+    },
+    {
+      "command": "cargo clippy --offline --locked -p ic-blob-storage --all-targets --all-features -- -D warnings",
+      "log": {
+        "path": ".tmp/management-types-011-01/core-clippy.log",
+        "bytes": 1292,
+        "sha256": "6f3c7dc3048d0d9ac061f7dc152f18eabbadf6ad6aa8626806df9ace7bd9bb3a"
+      },
+      "result": "PASS"
+    },
+    {
+      "command": "cargo clippy --offline --locked -p ic-blob-storage-canister --target wasm32-unknown-unknown --lib -- -D warnings",
+      "log": {
+        "path": ".tmp/management-types-011-01/wasm-clippy.log",
+        "bytes": 356,
+        "sha256": "a45fcb1c08ba1953ab092fc6a89dfae018c3c12f723de14dbf1addff17a8274b"
+      },
+      "result": "PASS"
+    },
+    {
+      "command": "cargo build --offline --locked --release --target wasm32-unknown-unknown -p ic-blob-storage-canister --lib",
+      "log": {
+        "path": ".tmp/management-types-011-01/wasm-build.log",
+        "bytes": 347,
+        "sha256": "52d9af2da71a8654e8018a58cbeae30d132f403171281bb2fb27f391927a7fb6"
+      },
+      "result": "PASS"
+    },
+    {
+      "command": "cargo clippy --offline --locked -p ic-blob-storage-pocketic-tests --test standalone -- -D warnings",
+      "log": {
+        "path": ".tmp/management-types-011-01/harness-clippy.log",
+        "bytes": 474,
+        "sha256": "079407a01b1f54dba3373affee0ccfc4715ca3c7fa2d753e6ad4ca005bb58ee4"
+      },
+      "result": "PASS"
+    },
+    {
+      "command": "cargo test --offline --locked -p ic-blob-storage-pocketic-tests --test standalone --no-run --message-format=json",
+      "log": {
+        "path": ".tmp/management-types-011-01/harness-build.log",
+        "bytes": 588,
+        "sha256": "8fcd9a42396c60afc3d3f2d0b9e6fb700389a6fdb5029cdb8846483375ec94da"
+      },
+      "artifacts": {
+        "path": ".tmp/management-types-011-01/harness-artifacts.jsonl",
+        "bytes": 368104,
+        "sha256": "c0d567954d397426e6e2a8b0e90db07042e57a9474745c7233c53e95ff614865"
+      },
+      "result": "PASS"
+    },
+    {
+      "command": "POCKET_IC_BIN=\"$PWD/.tmp/tools/pocket-ic-16.0.0/pocket-ic\" BLOB_STANDALONE_WASM=\"$PWD/.tmp/management-types-011-01/standalone.wasm\" .tmp/management-types-011-01/standalone standalone_lifecycle:: --test-threads=1 --nocapture",
+      "log": {
+        "path": ".tmp/management-types-011-01/lifecycle.log",
+        "bytes": 565,
+        "sha256": "bfae1390ce3fba6b6a3f54ceed0ee9c38ce8d668dcb35542cb4f2b70d5ebdf5b"
+      },
+      "result": "PASS four existing lifecycle/history/liability cases",
+      "elapsed_seconds": 15.38
+    },
+    {
+      "command": "POCKET_IC_BIN=\"$PWD/.tmp/tools/pocket-ic-16.0.0/pocket-ic\" BLOB_STANDALONE_WASM=\"$PWD/.tmp/management-types-011-01/standalone.wasm\" .tmp/management-types-011-01/standalone standalone_snapshot::standalone_snapshot_rollback_stays_fenced_and_refuses_current_instance_recovery --exact --nocapture",
+      "log": {
+        "path": ".tmp/management-types-011-01/snapshot.log",
+        "bytes": 226,
+        "sha256": "e64bafe285384367487e3b263332957a5733c8ba33264dd101630ac2b6f71608"
+      },
+      "result": "PASS actual snapshot rollback stays fenced without repair",
+      "elapsed_seconds": 3.43
+    },
+    {
+      "command": "perl scripts/release/release-data.pl changelog-check 0.14.10 2026-10-05",
+      "log": {
+        "path": ".tmp/management-types-011-01/changelog-check.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "result": "PASS read-only draft check; no version selected or mutated"
+    },
+    {
+      "command": "git diff --check",
+      "log": {
+        "path": ".tmp/management-types-011-01/diff-check.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "result": "PASS"
+    }
+  ],
+  "behavior": {
+    "ordinary_upgrades_and_stop_start": true,
+    "operator_denial": true,
+    "expired_history_refusal_without_anchor_rotation": true,
+    "management_change_during_await_refused": true,
+    "physical_and_billing_obligations_preserved": true,
+    "actual_snapshot_refused_without_memory_repair": true
+  },
+  "failures": [],
+  "limitations": [
+    "Scoped existing cases only; no full CI or full standalone suite.",
+    "No production deployment, live provider availability, retention, deletion or final billing qualification.",
+    "No expanded-scale or native macOS qualification.",
+    "Earlier restoration and media profiles retain their original dependency graphs and binaries.",
+    "Declared MSRV and toolchain unchanged; no separate minimum-version compiler run."
+  ],
+  "version_mutated": false,
+  "commit_created": false,
+  "deployed": false,
+  "sibling_modified": false,
+  "cleanup": "none; retained inputs, source comparison, logs and frozen artifacts preserved"
+}

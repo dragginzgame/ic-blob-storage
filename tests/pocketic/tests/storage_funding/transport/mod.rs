@@ -67,7 +67,7 @@ impl Fixture {
             .upgrade_canister(
                 self.service,
                 Self::wasm(),
-                candid::encode_one(self.operator).unwrap(),
+                Self::installation(self.operator),
                 Some(self.controller),
             )
             .unwrap();

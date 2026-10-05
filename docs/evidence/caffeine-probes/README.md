@@ -1,5 +1,227 @@
 # Caffeine probe ledger
 
+## Management-canister types 0.11.0 — 2026-10-05
+
+The [intent](local/2026-10-05-management-types-011-01/intent.json) precedes scoped
+local PocketIC recovery checks after the authorized dependency upgrade. Relative
+to the captured pre-upgrade lock, only management types change from 0.10.0 to
+0.11.0. Existing ic-memory 0.25.5 and ic-testkit 0.15.4 updates are preserved;
+PocketIC 16 owns its separate native 0.8.0 types. The core Wasm path selects
+0.11.0 through the workspace declaration, without an adapter or version reader.
+
+The upstream source diff leaves our `canister_info` contracts unchanged. The new
+instruction metric aggregates previous-round subnet work, including scheduler
+and non-Wasm charges; it cannot replace operation profiling, independent history
+or Caffeine accounting. P-256 ECDSA has no current consumer here. No new metrics
+call, polling loop, state owner or runtime flow is introduced.
+
+Three existing continuity unit tests and five existing actual PocketIC cases
+pass: ordinary stop/start/repeated upgrades and operator refusal, truncated
+history, a management change during the await, retained physical/billing
+obligations, and snapshot rollback refusal without repair. Strict scoped core,
+standalone-Wasm and harness Clippy plus matching builds pass. The
+[summary](local/2026-10-05-management-types-011-01/summary.json) binds exact commands,
+source archive/patch, before/after dependency inputs, upstream source comparison,
+frozen executable/Wasm/server and logs under `.tmp/management-types-011-01`.
+
+This is local history/recovery evidence with explicit local completion facts,
+zero live provider calls and paid cycles. No production Rust source, public API,
+persisted layout, package version, toolchain, declared MSRV or release receipt
+changes. Full CI, native macOS, scale and deployed provider behavior are not
+qualified. Earlier profiles retain their original graphs. No deployment,
+sibling edit/message or cleanup occurs; consumer adoption, certified asset
+registration and provider retirement remain separate obligations.
+
+## Multi-tenant and multi-chunk restoration — 2026-10-05
+
+The [intent](local/2026-10-05-restoration-shapes-01/intent.json) precedes extending
+the existing opt-in sixteen-store profile on compiled 0.14.9. The private fixture
+uses one current bounded installation record; ordinary callers keep two objects,
+two tenants and ten-byte objects. Existing native Caffeine manifest preparation
+supplies complete declarations, so population no longer hashes bodies in the
+canister or returns requests already owned by the caller. No production model,
+public API, memory layout or default CI workload changes.
+
+The first 100-object packet traps at the fixture's existing 4 KiB ingress bound
+before population. Its log, refusal and frozen artifacts remain; that first
+packet was not saved. The [follow-up intent](local/2026-10-05-restoration-shapes-01/followup-intent.json)
+keeps all decoder byte/header/work/type limits. Sixteen small-object or one
+multi-chunk-object batches pass, retaining each exact request before dispatch.
+All 795 population packets measure 703–2,519 bytes. No failure is overwritten.
+
+| Lifetime operations | Tenants | Object bytes | Instrumented initialization instructions | Allocated heap | Physical stable memory |
+| ---: | ---: | ---: | ---: | ---: | ---: |
+| 100 | 1 | 10 | 119,709,644 | 1,376,256 B | 18,939,904 B |
+| 1,000 | 1 | 10 | 1,437,289,093 | 1,376,256 B | 22,085,632 B |
+| 10,000 | 1 | 10 | 17,328,500,885 | 1,376,256 B | 72,417,280 B |
+| 1,024 | 32 | 10 | 1,495,367,763 | 1,376,256 B | 21,037,056 B |
+| 32 | 4 | 16 MiB | 45,040,110 | 1,376,256 B | 18,939,904 B |
+| 4 | 1 | 64 MiB | 12,638,294 | 1,376,256 B | 18,939,904 B |
+
+Every workload passes actual same-release upgrade with equal uncertain, live,
+logically released and cancelled populations. Global accounting and selected
+tenant-bound permissions, exact full manifests, overlapping references and
+historical receipts survive. Request IDs deliberately overlap across tenants;
+roots and leaves are distinct. Foreign callers refuse, and restored mutation
+refuses without altering accounting or restoration counters. Normal application
+limits are unchanged; no independent freshness/resume claim follows.
+
+The [summary](local/2026-10-05-restoration-shapes-01/summary.json) binds frozen
+artifacts, source patch, dependencies, exact successful population requests,
+checkpoints, results and all failed attempts under `.tmp/restoration-shapes-01`.
+Scoped fixture/harness Clippy, matching builds, formatting and the final ordinary
+rollback/reopen regression pass. Initial lint and local loopback-binding failures
+remain recorded. This is synthetic local completion evidence, with zero live
+provider requests or paid cycles; no provider availability or retention claim.
+
+These different populations do not isolate tenant or manifest overhead, and
+instrumentation includes observer overhead. Allocated linear memory is not live
+heap or peak working memory. No million-object, populated funding/read-history,
+production-cost, macOS or stale-backup qualification follows. The new measurements
+justify no allocator, unsafe path, cache or partial-restoration change. Production
+sources, version and receipt are unchanged by this work. A concurrent task
+updated workspace dependencies after the frozen profile build; its new graph is
+not qualified by these artifacts. No full CI, deployment,
+sibling edit/message or cleanup occurs. Consumer adoption, certified asset
+registration and provider retirement remain separate obligations.
+
+## Funding fixture upgrade correction — 2026-10-04
+
+The [intent](local/2026-10-04-storage-funding-upgrade-01/intent.json) precedes
+reproducing a reported local funding failure. All five reported cases use one
+helper still sending the superseded bare-principal upgrade input. The callback
+case reaches actual post-upgrade decoding refusal after its funding assertions
+pass. Using the shared current installation encoder fixes the helper; all eleven
+funding transport/guarded-dispatch cases now pass, including acceptance, refunds,
+callback uncertainty and restored fences. No reader, policy or production change.
+
+The [summary](local/2026-10-04-storage-funding-upgrade-01/summary.json) retains the
+failed reproduction, frozen before/after harnesses, unchanged fixture Wasm, hashes
+and scoped build/Clippy/formatting results in `.tmp/storage-funding-upgrade-01`.
+There are zero live requests or paid cycles. This extends the 0.14.8 draft; no
+full CI, release/version mutation, commit, deployment or cleanup occurs.
+
+## Transfer memory and restoration read attribution — 2026-10-04
+
+The [intent](local/2026-10-04-transfer-memory-01/intent.json) precedes local
+read attribution and full media memory measurements on the 0.14.7 graph.
+[Restoration](local/2026-10-04-transfer-memory-01/restoration-candidate-intent.json)
+and [media](local/2026-10-04-transfer-memory-01/media-candidate-intent.json)
+candidate intents precede the subsequent changes and fresh comparisons. Every
+run uses normal PocketIC application limits or owned Chromium with local HTTPS
+HTTP/2 provider substitutes; there are zero live requests and paid cycles.
+
+The fixture counts safe logical-memory reads during synchronous store opening.
+One-tenant 100/1,000/10,000-operation mixtures preserve exposure, live overlapping
+references, released objects with physical/billing liabilities and cancellation.
+Keeping each decoded activation generation in the existing per-tenant scratch
+totals removes repeated enrollment reads; each permission still checks generation.
+There is no persistent cache, format/API change, new recovery path or relaxed
+fence. Independent tenants, older activations and a later future-generation row
+are tested; corruption refuses without memory repair.
+
+| Operations | Instrumented initialization before / after | Tenant-memory reads before / after |
+| ---: | ---: | ---: |
+| 100 | 126,735,060 / 119,735,434 | 920 / 29 |
+| 1,000 | 1,506,327,172 / 1,435,064,894 | 9,020 / 29 |
+| 10,000 | 17,986,173,576 / 17,265,226,781 | 90,020 / 29 |
+
+Every tier passes actual same-release upgrade, accounting, exact selected
+permissions/references/receipts and fenced refusal. Allocated heap and stable
+pages are unchanged. At 10,000 operations, initialization drops 4.0%; wrapped
+reads account for about 13% of the instrumented baseline. These counters exclude
+traversal, decoding and other work. Their safe-read wrapper also differs from
+production RuntimeMemory's unsafe-read delegation, so neither the totals nor
+the attribution are production costs. The earlier uninstrumented baseline remains
+separately recorded. Pinned dependency source shows destination initialization,
+not a temporary array, in the default unsafe-read path. No allocator or unsafe
+implementation change is justified by this review.
+
+A shared bounded read-only observer serves fresh 1/8/32 MiB preparation and both
+existing full media journeys. Preparation still refuses before certificate intent.
+Before and after changes, GLB/WebP completes with eleven PUTs/nine GETs; PNG/JPEG
+lost-final-reply/control-interruption recovery uses seven PUTs/ten GETs and no
+additional PUT on recovery. Original roots/leaves/bytes/cache metadata, recovered
+maps, public delivery and retained physical/liability accounting agree.
+
+Full GLB delivery identifies a fixture-only numeric byte bridge and duplicate
+decode. Native downloads already equal original bytes exactly; whole-response
+SHA-256 binds the browser's public-response decode to the same bytes. Removing
+that bridge keeps MIME/cache/CORS/CSP/opaque-origin assertions and decodes once.
+
+| GLB reopened delivery context | Before | After |
+| --- | ---: | ---: |
+| Sampled Node peak RSS | 2,293,227,520 B | 252,026,880 B |
+| Sampled summed Chromium RSS growth | 767,049,728 B | 126,234,624 B |
+
+This improvement belongs to the fixture. Actual upload code and its observed
+worker backing-storage peak (about 50.9 MB) are unchanged. Samples are lower
+bounds; process RSS can double-count shared pages and observer requests can wait
+behind worker CPU work. No sustained-load, eviction, power-loss, many-tenant,
+maximum-manifest, occupied funding/read-history or million-object claim follows.
+
+The [summary](local/2026-10-04-transfer-memory-01/summary.json) binds exact selected
+commands, before/after artifacts, source archive/patch, dependency snapshots,
+checkpoints, raw samples, complete results and retained logs/profiles under
+`.tmp/restore-read-profile-01` and `.tmp/transfer-memory-profile-01`.
+Strict core/fixture/harness Clippy, upload-owner unit tests, matching Wasm/CLI/browser
+builds, independent installation readback, four PocketIC rollback/reopen/client
+regressions and both fresh media journeys pass. The initial function-length Clippy
+failure remains alongside the correction. This extends the 0.14.8 draft while
+compiled artifacts remain 0.14.7. No full CI, version mutation, commit, publication,
+deployment, live probe, sibling edit/message or build cleanup occurs. Consumer
+adoption, certified asset registration and provider retirement remain open.
+
+## Bounded service and browser resource profile — 2026-10-04
+
+The [intent](local/2026-10-04-service-resources-01/intent.json) precedes local
+measurements on the 0.14.7 graph. The existing unpublished storage probe installs
+one bounded current configuration and opens the same sixteen service memories
+through `ServiceStores::open`. It adds no production hook, record layout, cache,
+partial restore, retry or extra controller. The fixture's explicit installation
+record replaces its bare-principal input; every caller is updated, with ordinary
+tests retaining their two-object bounds.
+
+| Lifetime operations | Initialization instructions | Allocated heap after reopen | Physical stable memory |
+| ---: | ---: | ---: | ---: |
+| 100 | 113,980,058 | 1,376,256 B | 18,939,904 B |
+| 1,000 | 1,317,267,806 | 1,376,256 B | 22,085,632 B |
+| 10,000 | 15,476,426,969 | 1,376,256 B | 72,417,280 B |
+
+All tiers pass actual same-release upgrades on a normal application subnet.
+Equal populations retain possible exposure, two-reference live objects, released
+objects with continuing physical/billing liabilities and unexposed cancellation.
+Aggregate accounting, selected exact permissions, reference liveness and historical
+receipts agree after restoration; mutations still refuse behind the fence.
+Population uses bounded 100-operation steps and preserves checkpoints before
+reopen. Counters separate host initialization from store install/open; heap means
+allocated linear memory, and stable pages include allocation overhead. These are
+single local observations with one tenant and ten-byte single-leaf objects, not
+maximum-manifest/many-tenant/funding/read-history or million-object qualification.
+
+Two fresh actual Chromium profiles measure 1/8/32 MiB preparation through the
+maintained launcher, worker and patched SDK. The [follow-up intent](local/2026-10-04-service-resources-01/followup-intent.json)
+precedes preserving in-progress samples on failure and correcting process-relative
+timestamp labels; the first profile remains untouched. The follow-up's 32 MiB
+sample reaches 174,799,063 B worker backing storage and a 375,865,344 B rise in
+summed owned Chromium RSS over baseline. Worker backing storage returns to
+734,630 B after forced GC. This indicates temporary amplification in this run;
+it is neither a sustained-load leak test nor proof that an ownership copy can
+safely disappear. Peaks are sampled lower bounds; worker replies can wait behind
+CPU work and summed RSS can double-count shared pages. Every upload refuses its
+synthetic wrong root before certificate intent. Successful-transfer memory remains
+unmeasured; no provider request or paid cycle occurs.
+
+The [summary](local/2026-10-04-service-resources-01/summary.json) binds exact
+commands, source/artifact hashes, completed tiers, both browser profiles and
+retained preparation failures. The resource fixture is opt-in, excluded from
+default CI. Strict scoped Clippy, matching 0.14.7 builds and four focused PocketIC
+rollback/reopen/client checks pass. There is no full CI, version change, commit,
+publication, deployment, live probe, sibling edit/message or cleanup. Production
+validation and trust-boundary copies remain intact; scan-cost isolation and
+successful-transfer memory are the next evidence gaps, alongside consumer
+adoption/certified registration and provider deletion/final billing.
+
 ## Matching 0.14.6 media rehearsal — 2026-10-04
 
 The [intent](local/2026-10-04-released-media-v0146-01/intent.json) precedes rebuilding

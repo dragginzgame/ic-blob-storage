@@ -18,9 +18,9 @@ export BLOB_BROWSER_NODE ?= node
 BLOB_SDK_INPUTS_BYTES ?= 10485760
 VERSION ?=
 RELEASE := bash scripts/release/release.sh
-CI_TARGETS := deps shell-check release-check fmt-check check clippy probe-check docs-check test wasm-check package
+CI_TARGETS := shared-tooling-check deps shell-check release-check fmt-check check clippy probe-check docs-check test wasm-check package
 
-.PHONY: help version deps cloc fmt fmt-check check clippy docs-check test test-native test-pocketic test-browser test-browser-store test-browser-transport test-browser-standalone test-sdk-probe test-sdk-inputs test-fixture test-standalone build-standalone test-admission-resources test-read-resources wasm-check \
+.PHONY: help version deps cloc shared-tooling-check fmt fmt-check check clippy docs-check test test-native test-pocketic test-browser test-browser-store test-browser-transport test-browser-standalone test-sdk-probe test-sdk-inputs test-fixture test-standalone build-standalone test-admission-resources test-read-resources wasm-check \
 	build package clean shell-check release-check probe-check ci validate release-verify test-browser-publication test-browser-bootstrap test-browser-launcher test-browser-native \
 	release-plan ensure-clean patch minor major bump-x release-patch \
 	release-minor release-major release-x release-stage release-commit \
@@ -28,7 +28,8 @@ CI_TARGETS := deps shell-check release-check fmt-check check clippy probe-check 
 
 help:
 	@echo "deps                         Fetch locked Rust dependencies (network)"
-	@echo "cloc                         Rust runtime/test file counts under crates/"
+	@echo "cloc                         Offline Rust runtime/test counts for every workspace member"
+	@echo "shared-tooling-check          Verify the reviewed shared snapshot offline"
 	@echo "fmt / fmt-check              Format Rust or check formatting"
 	@echo "check / clippy / test         Compile, lint, or test the workspace"
 	@echo "test-native / test-pocketic   Native core tests or local IC fixtures"
@@ -65,7 +66,10 @@ deps:
 	cargo fetch --locked
 
 cloc:
-	bash scripts/dev/cloc.sh
+	CARGO_NET_OFFLINE=true bash scripts/dev/cloc.sh "$(CURDIR)"
+
+shared-tooling-check:
+	bash scripts/ci/verify-shared-tooling-snapshot.sh
 
 fmt:
 	cargo fmt --all
@@ -200,7 +204,9 @@ clean:
 shell-check:
 	bash -n scripts/release/*.sh
 	bash -n scripts/dev/cloc.sh
-	shellcheck scripts/release/*.sh scripts/dev/cloc.sh
+	bash -n scripts/ci/verify-file-checksum.sh
+	bash -n scripts/ci/verify-shared-tooling-snapshot.sh
+	shellcheck scripts/release/*.sh scripts/dev/cloc.sh scripts/ci/*.sh
 	perl -c scripts/release/release-data.pl
 
 release-check:

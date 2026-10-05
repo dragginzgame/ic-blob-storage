@@ -82,7 +82,7 @@ fn committed_mutation_with_unusable_reply_recovers_exact_receipt_and_cleanup_at_
         .upgrade_canister(
             f.service,
             Fixture::wasm(),
-            candid::encode_one(f.operator).unwrap(),
+            Fixture::installation(f.operator),
             Some(f.controller),
         )
         .unwrap();

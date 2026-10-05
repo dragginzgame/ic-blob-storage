@@ -333,7 +333,7 @@ fn gateway_scope_is_operator_only_and_restore_retains_members_and_unresolved_syn
         .upgrade_canister(
             f.service,
             Fixture::wasm(),
-            candid::encode_one(f.operator).unwrap(),
+            Fixture::installation(f.operator),
             Some(f.controller),
         )
         .unwrap();

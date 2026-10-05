@@ -8,6 +8,7 @@ pub(crate) mod lifecycle;
 pub(crate) mod planning;
 pub(crate) mod read;
 pub(crate) mod references;
+pub(crate) mod resources;
 use blob_test_protocol::{
     admission::{Permission, Request},
     storage::{Failure, Observation, Status, WriteFault},
@@ -53,6 +54,7 @@ impl Memory for ProbeBackingMemory {
 pub(crate) struct ProbeMemory {
     memory: RuntimeMemory<ProbeBackingMemory>,
     fault: Option<WriteFault>,
+    index: usize,
 }
 impl Memory for ProbeMemory {
     fn size(&self) -> u64 {
@@ -62,7 +64,9 @@ impl Memory for ProbeMemory {
         Memory::grow(&self.memory, pages)
     }
     fn read(&self, offset: u64, dst: &mut [u8]) {
+        let started = resources::start_read();
         self.memory.read(offset, dst);
+        resources::finish_read(self.index, dst.len(), started);
     }
     fn write(&self, offset: u64, src: &[u8]) {
         if self.fault.is_some() && self.fault == TRAP_WRITE.get() {
@@ -79,6 +83,7 @@ struct State {
     gateways: ic_blob_storage::ops::service::gateways::StableGatewayRegistry<ProbeMemory>,
     gateway_attempts: Vec<ic_blob_storage::ops::service::gateways::reply::GatewaySyncRequest>,
     read_sessions: ic_blob_storage::ops::service::reads::StableReadSessions<ProbeMemory>,
+    resources: blob_test_protocol::storage::resources::RestorationResources,
 }
 thread_local! {
     static STATE:RefCell<Option<State>>=const { RefCell::new(None) };
@@ -98,9 +103,14 @@ pub(crate) fn with_operator_stores<R>(
         })
     })
 }
-pub(crate) fn initialize(operator: Principal, restored: bool) {
+pub(crate) fn initialize(
+    input: blob_test_protocol::storage::resources::StorageProbeInstallation,
+    restored: bool,
+) {
+    let started = ic_cdk::api::call_context_instruction_counter();
+    let operator = input.operator;
     // Reject invalid candidates before even bootstrapping the host memory runtime.
-    let config = configuration::configuration(operator);
+    let config = configuration::configuration(input);
     STATE.with_borrow(|state| assert!(state.is_none(), "initialization is not reset"));
     let (runtime, memory) = granted_memories();
     let neighbor = runtime.open_memory_by_key("fixture.neighbor.v1").unwrap();
@@ -111,6 +121,8 @@ pub(crate) fn initialize(operator: Principal, restored: bool) {
     let mut bytes = [0; 8];
     neighbor.read(0, &mut bytes);
     assert_eq!(&bytes, b"neighbor");
+    let stores_started = ic_cdk::api::call_context_instruction_counter();
+    resources::begin_read_profile(restored);
     let ServiceStores {
         uploads,
         funding,
@@ -122,6 +134,8 @@ pub(crate) fn initialize(operator: Principal, restored: bool) {
         ServiceStores::install(memory, config)
     }
     .unwrap();
+    let stores_instructions = ic_cdk::api::call_context_instruction_counter() - stores_started;
+    let reads = resources::finish_read_profile();
     STATE.with_borrow_mut(|state| {
         *state = Some(State {
             runtime,
@@ -131,32 +145,46 @@ pub(crate) fn initialize(operator: Principal, restored: bool) {
             gateways,
             gateway_attempts: Vec::new(),
             read_sessions,
+            resources: blob_test_protocol::storage::resources::RestorationResources {
+                restored,
+                initialization_instructions: 0,
+                stores_instructions,
+                heap_bytes: 0,
+                stable_bytes: ic_cdk::api::stable_size() * 65_536,
+                reads,
+            },
         });
     });
+    STATE.with_borrow_mut(|state| {
+        let resources = &mut state.as_mut().unwrap().resources;
+        resources.heap_bytes = resources::heap_bytes();
+        resources.initialization_instructions =
+            ic_cdk::api::call_context_instruction_counter() - started;
+    });
 }
+const MEMORY_KEYS: [&str; 16] = [
+    "fixture.tenants.v1",
+    "fixture.roots.v1",
+    "fixture.root_objects.v1",
+    "fixture.permissions.v1",
+    "fixture.usage.v1",
+    "fixture.manifests.v1",
+    "fixture.confirmed.v1",
+    "fixture.references.v1",
+    "fixture.receipts.v1",
+    "fixture.root_requests.v1",
+    "fixture.funding_accounting.v1",
+    "fixture.funding_intents.v1",
+    "fixture.gateways.v1",
+    "fixture.read_journal.v1",
+    "fixture.read_sessions.v1",
+    "fixture.read_tenants.v1",
+];
 fn granted_memories() -> (
     MemoryRuntime<ProbeBackingMemory>,
     ServiceMemories<ProbeMemory>,
 ) {
-    let keys = [
-        "fixture.tenants.v1",
-        "fixture.roots.v1",
-        "fixture.root_objects.v1",
-        "fixture.permissions.v1",
-        "fixture.usage.v1",
-        "fixture.manifests.v1",
-        "fixture.confirmed.v1",
-        "fixture.references.v1",
-        "fixture.receipts.v1",
-        "fixture.root_requests.v1",
-        "fixture.funding_accounting.v1",
-        "fixture.funding_intents.v1",
-        "fixture.gateways.v1",
-        "fixture.read_journal.v1",
-        "fixture.read_sessions.v1",
-        "fixture.read_tenants.v1",
-    ];
-    let mut requests = keys
+    let mut requests = MEMORY_KEYS
         .map(|key| MemoryRequest::new("fixture", key, SchemaMetadata::default()).unwrap())
         .to_vec();
     requests.push(
@@ -208,7 +236,7 @@ fn granted_memories() -> (
         read_journal,
         read_sessions,
         read_tenants,
-    ] = keys.map(|key| probe_memory(&mut runtime, key));
+    ] = std::array::from_fn(|index| probe_memory(&mut runtime, MEMORY_KEYS[index], index));
     let uploads = UploadMemories {
         tenants,
         roots,
@@ -236,9 +264,14 @@ fn granted_memories() -> (
     };
     (runtime, memory)
 }
-fn probe_memory(runtime: &mut MemoryRuntime<ProbeBackingMemory>, key: &str) -> ProbeMemory {
+fn probe_memory(
+    runtime: &mut MemoryRuntime<ProbeBackingMemory>,
+    key: &str,
+    index: usize,
+) -> ProbeMemory {
     ProbeMemory {
         memory: runtime.open_memory_by_key(key).unwrap(),
+        index,
         fault: match key {
             "fixture.tenants.v1" => Some(WriteFault::Tenants),
             "fixture.root_objects.v1" => Some(WriteFault::Objects),
@@ -264,7 +297,7 @@ fn probe_memory(runtime: &mut MemoryRuntime<ProbeBackingMemory>, key: &str) -> P
     reason = "CDK decoder owns the argument buffer"
 )]
 pub(crate) fn decode<T: CandidType + for<'de> Deserialize<'de>>(bytes: Vec<u8>) -> T {
-    if bytes.len() > 4096 {
+    if bytes.len() > blob_test_protocol::storage::resources::STORAGE_PROBE_INPUT_BYTES {
         ic_cdk::trap("fixture input byte bound");
     }
     let mut config = DecoderConfig::new();

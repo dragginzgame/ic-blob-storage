@@ -4,6 +4,7 @@ pub mod funding;
 pub mod gateways;
 pub mod read;
 pub mod reference;
+pub mod resources;
 use crate::{
     admission::{Permission, Phase, Request},
     journey::JourneyUsage,

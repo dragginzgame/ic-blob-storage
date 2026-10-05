@@ -247,7 +247,7 @@ fn tenant_write_traps_preserve_generation_then_restore_keeps_inspection_only() {
         .upgrade_canister(
             f.service,
             Fixture::wasm(),
-            candid::encode_one(f.operator).unwrap(),
+            Fixture::installation(f.operator),
             Some(f.controller),
         )
         .unwrap();

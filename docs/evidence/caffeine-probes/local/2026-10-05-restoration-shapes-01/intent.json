@@ -1,0 +1,23 @@
+{
+  "date": "2026-10-05",
+  "evidence_class": "local PocketIC application subnet; synthetic prepared manifests and local completion substitute",
+  "source_base": "c3a16529d161547987c138b15bf75cac70b54c55",
+  "target": "existing durable storage fixture and synchronous ServiceStores::open",
+  "scope": "retain existing one-tenant tiers; add 32-tenant small-object and multi-chunk workloads; preserve accounting, selected tenant-bound manifests, references, receipts and fenced mutation refusal",
+  "budget": {
+    "live_provider_requests": 0,
+    "paid_cycles": "0",
+    "population_batch_objects": 100,
+    "max_lifetime_operations": 10000,
+    "max_tenants": 32,
+    "max_object_bytes": 67108864
+  },
+  "authority": "local implementation and focused offline builds/tests only",
+  "limitations": [
+    "instrumented fixture costs include observer overhead",
+    "no deployed provider availability or freshness resume",
+    "no million-object qualification"
+  ],
+  "preparation_failure": "Initial intent generator could not launch git from Node (EPERM); no probe or artifact overwrite occurred. Verified source identity is supplied explicitly.",
+  "artifacts": ".tmp/restoration-shapes-01"
+}

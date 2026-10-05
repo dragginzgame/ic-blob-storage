@@ -108,7 +108,7 @@ fn guarded_first_attempt_preserves_unknowns_and_exact_reservation_through_restor
         .upgrade_canister(
             f.service,
             Fixture::wasm(),
-            candid::encode_one(f.operator).unwrap(),
+            Fixture::installation(f.operator),
             Some(f.controller),
         )
         .unwrap();
@@ -258,7 +258,7 @@ fn funding_preparation_reports_history_limits_and_restoration_without_clearing_u
         .upgrade_canister(
             f.service,
             Fixture::wasm(),
-            candid::encode_one(f.operator).unwrap(),
+            Fixture::installation(f.operator),
             Some(f.controller),
         )
         .unwrap();

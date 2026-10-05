@@ -1,5 +1,6 @@
 /target/
 /.tmp/
+/.shared-tooling-refresh.*/
 /tests/browser/node_modules/
 **/*.rs.bk
 .DS_Store

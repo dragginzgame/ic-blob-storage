@@ -1,0 +1,464 @@
+{
+  "schema": 1,
+  "date": "2026-10-04",
+  "compiled_release": "0.14.7",
+  "source_base": "cb4cd5a1253f53e9daed0e4a51bcf894a4f0ccd6",
+  "evidence_class": "local PocketIC plus Chromium preparation; completion facts are substitutes",
+  "artifacts": {
+    "baseline": "0.14.7",
+    "runner_source": "/home/adam/projects/ic-blob-storage/target/debug/deps/storage-c9b95a7ac50424b2",
+    "hashes": {
+      ".tmp/service-restore-profile-01/storage-harness": "e21f54bbaa675fd5c6f570efead2509e2b9a73f31e53d282eaef405d924e713e",
+      ".tmp/service-restore-profile-01/storage.wasm": "9528c91f411ed9cb31dddcf4c098a4544f06e83bbe94276e75911d854d005995",
+      ".tmp/browser/publication-host.js": "2f9d766b026717efa1b3d0e2c21855cdcbdbc3e89fda778d3552873a54bb2d80",
+      ".tmp/browser/publication-worker.js": "e237ddb297dc18b87af59abf2ce2518a094054c83d687e667daa11d43ec9abd2",
+      "tests/browser/launcher-profile.mjs": "a9d19c8fdee8b5117b216aa94ad0f466af6016bbc1f55dbf22cf687e014df73a",
+      "clients/browser/launcher.mjs": "473e2877200a695dd9a05cb1a3ad650fbeb52dc52f1906d789d21aef79468f1a",
+      "Cargo.lock": "dd6ceb355997475b268a8af45fe29a0365342e2a9df75067e39aecafd3bbef98",
+      "Cargo.toml": "72fdb5b48722b3f4215595ffec8ea9c4987f485893be5771c84febbeff94bfba"
+    }
+  },
+  "followup_artifacts": {
+    "baseline": "0.14.7",
+    "runner_source": "/home/adam/projects/ic-blob-storage/target/debug/deps/standalone-99087ae62800c332",
+    "hashes": {
+      ".tmp/service-restore-profile-01/standalone-harness": "1dcfc258712e35751c6c07d58771326fa890bfbe5919e9e3c83198c7f9418cb8",
+      ".tmp/service-restore-profile-01/standalone.wasm": "eb19835ad20aa1bfb7ca343608c43da258d846cebad3d79032b3e8e83cdb9d00",
+      "tests/browser/launcher-profile.mjs": "d2cd8ef7ca74fead6eaf34445025bf37e32129efe8db2e8f53a457f3f53d6e91"
+    }
+  },
+  "source_hashes_file": {
+    "path": ".tmp/service-restore-profile-01/source-hashes.json",
+    "sha256": "c287c50c7318aee7dda1ad9d0cf85cdff86636605f4aece054ab648de527bc81"
+  },
+  "private_hashes": {
+    ".tmp/service-restore-profile-01/browser-followup.log": "391e0d3115847edae0c8fe7b819e4e1c530df33cf7170b89f29b233f658a6fc1",
+    ".tmp/service-restore-profile-01/browser-run.log": "9d8b14df3c05ddeafe6374689c210c18e5cebbc4875c364fc3619efaede0165f",
+    ".tmp/service-restore-profile-01/build-native.log": "f6f24b84666a04592dacfb35ced2ec3c9a0917fd5edc37b73b664582dc8b39ce",
+    ".tmp/service-restore-profile-01/build-wasm-final.log": "1e5b26ab4c6f0b2279a40a2cf28dc0b9873ec8f77295337ab127cdeb9d42c8e4",
+    ".tmp/service-restore-profile-01/build-wasm.log": "26736c24d91a3ace522b0fc5366cac15b7ea651837cff1d02550853549f2b128",
+    ".tmp/service-restore-profile-01/client-reopen-check.log": "1ba11d8ad88934b7e25f661948f23aac4188452e0e2a5d9f1c42e13a2fc41da4",
+    ".tmp/service-restore-profile-01/clippy-followup.log": "64a8779fe4b7e9baf08c9cf78ed2a5399b82ddd9b8a5256e65b76ff3216a2026",
+    ".tmp/service-restore-profile-01/clippy.log": "3aa61a1cbee9c5ff17e0540b212a64683f65810f2621bac498da40007a16f45c",
+    ".tmp/service-restore-profile-01/initial-check-failure.txt": "a8ad1aa38060dbeae4b731ce403a4d95500af0af74f1fe04a2ea8ecd1160871a",
+    ".tmp/service-restore-profile-01/probe-clippy.log": "ea269dea07afb3936ee4fd7872bf6b24771728c6a2be035a4292908f884ee7ef",
+    ".tmp/service-restore-profile-01/reopen-check.log": "66d11e08a73e16751b016004178de2ab44b74126966be8f1e149bd9e57f0c2d5",
+    ".tmp/service-restore-profile-01/restoration-run.log": "a2f096873137272bbf4e485706355bd7c41455ad0f2f20bc989191caf3c989b8",
+    ".tmp/service-restore-profile-01/rollback-check.log": "c7dfe17d06d2d8b999cd18ed7c0f5a0e735f24d7d2648605058bcf7cc09f52e8",
+    ".tmp/service-restore-profile-01/standalone-build.log": "1f414d103585bc96d581798576b587ea6e469dcc66ae9537c1cbd2d09b228ca1",
+    ".tmp/service-restore-profile-01/standalone-client-check.log": "6da774660c68c096910905d6663e701003ebedec6920e9d4eb865489fda73b23",
+    ".tmp/service-restore-profile-01/standalone-clippy.log": "4dd2f0829f04946c3f4a5ef915669d8d3907b92a7ac708a1d098c04b602fa6ea",
+    ".tmp/service-restore-profile-01/standalone-native-build.log": "848a68b287c38b2d9ae7f23b3934590bb693fb7b6e386ff934722d6b0ec4a9af",
+    ".tmp/service-restore-profile-01/results/before-reopen-100.json": "534cd9f26a55aa98143505577775f0b32dbff92b94ecaacf2af1ebc818455bcf",
+    ".tmp/service-restore-profile-01/results/before-reopen-1000.json": "7cc768b519225ec9ae858c547283ecb854176ccd394f1b3d46ecb2c9febdab73",
+    ".tmp/service-restore-profile-01/results/before-reopen-10000.json": "f23577fdddd36cafb4370eb59c5cf7b0106ae36e06b8a7a42b66096b2dce1af6",
+    ".tmp/service-restore-profile-01/results/checkpoint-100-100.json": "141733a8c2d4e742f29a8bd25294205b9c218ce284d68d63fe4033058943561c",
+    ".tmp/service-restore-profile-01/results/checkpoint-1000-1000.json": "eb057a5f1caffcac0cf0161ceec82589b3583d69d68325ee5a9b396b08dba1e0",
+    ".tmp/service-restore-profile-01/results/checkpoint-10000-1000.json": "41274e3992f0bc56f5b5f229cb362fe3ac748d18b6e61ce57676a31aa9046ff4",
+    ".tmp/service-restore-profile-01/results/checkpoint-10000-10000.json": "8d3f1eadfe40e0d2395c03d8cfdcf5980fccb1c0aee7bc97e398fceb3ebb3ab4",
+    ".tmp/service-restore-profile-01/results/checkpoint-10000-2000.json": "c80677d56c99e962a55ad8cf23c67e7d4cffc1d3a99765c9f42db20d17ed0abd",
+    ".tmp/service-restore-profile-01/results/checkpoint-10000-3000.json": "fd2d0939337d45c04c3382fcdc6f606178a4f60cb1dfe305f68bb7dda2b2c93d",
+    ".tmp/service-restore-profile-01/results/checkpoint-10000-4000.json": "2803700a0c25b1a63f9efea683478ef7173ba2655aa7ae0b05ee4d4178ef1376",
+    ".tmp/service-restore-profile-01/results/checkpoint-10000-5000.json": "3f1c6f044b4f4ac715792409675d30d69e3078adda3cbaf929a2fdb833eb8f73",
+    ".tmp/service-restore-profile-01/results/checkpoint-10000-6000.json": "dc55a5a0a7d53f45e9acd1ae770ca5f072e239d88fcf28e7d6bc3455e166ec56",
+    ".tmp/service-restore-profile-01/results/checkpoint-10000-7000.json": "23a5cc2a200662174e4cc833263c846542d50399a9fbf8d4469ee491864da608",
+    ".tmp/service-restore-profile-01/results/checkpoint-10000-8000.json": "4aee917fc767cdd198656a3d9669c2aa26fc67f8a7af75491580284677ecc8ff",
+    ".tmp/service-restore-profile-01/results/checkpoint-10000-9000.json": "fc0a21dfafe8573be25874c13b0cf119daa8068c0e50f5e09b63d4507b675ae3",
+    ".tmp/service-restore-profile-01/results/reopened-100.json": "47a5ba52316a969013b2108d9f9532e3d2a952a464507001d0dd988616abb950",
+    ".tmp/service-restore-profile-01/results/reopened-1000.json": "19f16a52d6a939cbc477677a704abe3febcc75b1ef25850fbdc538ee347cde53",
+    ".tmp/service-restore-profile-01/results/reopened-10000.json": "ebd7625314523498dfce4b6b9174eb00ef0e65152441ecdb2ed0525c37fac02e",
+    ".tmp/service-restore-profile-01/results/summary.json": "8b301762fed64ef58a1502c9fad577159dd42500e85db6a699039d210824d033"
+  },
+  "tiers": [
+    {
+      "count": 100,
+      "initial": {
+        "current_heap_bytes": "1376256",
+        "current_stable_bytes": "18939904",
+        "initialization_heap_bytes": 1376256,
+        "initialization_instructions": 5328191,
+        "initialization_stable_bytes": 18939904,
+        "restored": false,
+        "stores_instructions": 3589229
+      },
+      "populated": {
+        "current_heap_bytes": "1376256",
+        "current_stable_bytes": "18939904",
+        "initialization_heap_bytes": 1376256,
+        "initialization_instructions": 5328191,
+        "initialization_stable_bytes": 18939904,
+        "restored": false,
+        "stores_instructions": 3589229
+      },
+      "status": "Status { operations: 100, active: 25, bytes: 250, usage: JourneyUsage { logical: 500, physical: 750, liability: 750 }, fenced: false }",
+      "population_ms": 134,
+      "accounting_observations_references_receipts_preserved": true,
+      "elapsed_ms": 492,
+      "fenced_mutation_refused": true,
+      "restored": {
+        "current_heap_bytes": "1376256",
+        "current_stable_bytes": "18939904",
+        "initialization_heap_bytes": 1376256,
+        "initialization_instructions": 113980058,
+        "initialization_stable_bytes": 18939904,
+        "restored": true,
+        "stores_instructions": 110234949
+      }
+    },
+    {
+      "count": 1000,
+      "initial": {
+        "current_heap_bytes": "1376256",
+        "current_stable_bytes": "18939904",
+        "initialization_heap_bytes": 1376256,
+        "initialization_instructions": 5328191,
+        "initialization_stable_bytes": 18939904,
+        "restored": false,
+        "stores_instructions": 3589229
+      },
+      "populated": {
+        "current_heap_bytes": "1376256",
+        "current_stable_bytes": "22085632",
+        "initialization_heap_bytes": 1376256,
+        "initialization_instructions": 5328191,
+        "initialization_stable_bytes": 18939904,
+        "restored": false,
+        "stores_instructions": 3589229
+      },
+      "status": "Status { operations: 1000, active: 250, bytes: 2500, usage: JourneyUsage { logical: 5000, physical: 7500, liability: 7500 }, fenced: false }",
+      "population_ms": 752,
+      "accounting_observations_references_receipts_preserved": true,
+      "elapsed_ms": 615,
+      "fenced_mutation_refused": true,
+      "restored": {
+        "current_heap_bytes": "1376256",
+        "current_stable_bytes": "22085632",
+        "initialization_heap_bytes": 1376256,
+        "initialization_instructions": 1317267806,
+        "initialization_stable_bytes": 22085632,
+        "restored": true,
+        "stores_instructions": 1313522559
+      }
+    },
+    {
+      "count": 10000,
+      "initial": {
+        "current_heap_bytes": "1376256",
+        "current_stable_bytes": "18939904",
+        "initialization_heap_bytes": 1376256,
+        "initialization_instructions": 5328350,
+        "initialization_stable_bytes": 18939904,
+        "restored": false,
+        "stores_instructions": 3589388
+      },
+      "populated": {
+        "current_heap_bytes": "1376256",
+        "current_stable_bytes": "72417280",
+        "initialization_heap_bytes": 1376256,
+        "initialization_instructions": 5328350,
+        "initialization_stable_bytes": 18939904,
+        "restored": false,
+        "stores_instructions": 3589388
+      },
+      "status": "Status { operations: 10000, active: 2500, bytes: 25000, usage: JourneyUsage { logical: 50000, physical: 75000, liability: 75000 }, fenced: false }",
+      "population_ms": 8584,
+      "accounting_observations_references_receipts_preserved": true,
+      "elapsed_ms": 1948,
+      "fenced_mutation_refused": true,
+      "restored": {
+        "current_heap_bytes": "1376256",
+        "current_stable_bytes": "72417280",
+        "initialization_heap_bytes": 1376256,
+        "initialization_instructions": 15476426969,
+        "initialization_stable_bytes": 72417280,
+        "restored": true,
+        "stores_instructions": 15472676253
+      }
+    }
+  ],
+  "browsers": [
+    {
+      "path": ".tmp/browser-memory-profile-01/summary.json",
+      "sha256": "4a86910e263509f346780028ae8f14971cb03c7ccf4f94079fc5ed978105ccc0",
+      "chromium": {
+        "protocolVersion": "1.3",
+        "product": "HeadlessChrome/153.0.8010.12",
+        "revision": "@971a7443b0c9b0a9b2860529b33331b76077ec62",
+        "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36",
+        "jsVersion": "15.3.76.4"
+      },
+      "samples": [
+        {
+          "bytes": 1048576,
+          "elapsed_ms": 76.95012699999984,
+          "node_peak_rss": 173707264,
+          "worker_peak_backing_storage": 7035704,
+          "worker_after_gc": {
+            "usedSize": 2105924,
+            "totalSize": 2359296,
+            "embedderHeapUsedSize": 26232,
+            "backingStorageSize": 734630
+          },
+          "browser_before_sum_rss": 505233408,
+          "browser_peak_sum_rss": 516202496,
+          "browser_after_gc_sum_rss": 502718464,
+          "worker_samples": 4,
+          "browser_samples": 4,
+          "outcome": {
+            "schema": 1,
+            "id": 1,
+            "index": 0,
+            "action": "upload",
+            "state": "failed",
+            "error": "root",
+            "original_journals_must_survive": true,
+            "service_completion_checked": false,
+            "retry_authorized": false
+          }
+        },
+        {
+          "bytes": 8388608,
+          "elapsed_ms": 501.04883299999983,
+          "node_peak_rss": 198873088,
+          "worker_peak_backing_storage": 44783309,
+          "worker_after_gc": {
+            "usedSize": 2145340,
+            "totalSize": 2359296,
+            "embedderHeapUsedSize": 26144,
+            "backingStorageSize": 734630
+          },
+          "browser_before_sum_rss": 502718464,
+          "browser_peak_sum_rss": 595836928,
+          "browser_after_gc_sum_rss": 502312960,
+          "worker_samples": 23,
+          "browser_samples": 22,
+          "outcome": {
+            "schema": 1,
+            "id": 3,
+            "index": 0,
+            "action": "upload",
+            "state": "failed",
+            "error": "root",
+            "original_journals_must_survive": true,
+            "service_completion_checked": false,
+            "retry_authorized": false
+          }
+        },
+        {
+          "bytes": 33554432,
+          "elapsed_ms": 1796.0660629999998,
+          "node_peak_rss": 236621824,
+          "worker_peak_backing_storage": 172701868,
+          "worker_after_gc": {
+            "usedSize": 2262384,
+            "totalSize": 2621440,
+            "embedderHeapUsedSize": 26264,
+            "backingStorageSize": 734630
+          },
+          "browser_before_sum_rss": 502321152,
+          "browser_peak_sum_rss": 877969408,
+          "browser_after_gc_sum_rss": 503230464,
+          "worker_samples": 83,
+          "browser_samples": 81,
+          "outcome": {
+            "schema": 1,
+            "id": 5,
+            "index": 0,
+            "action": "upload",
+            "state": "failed",
+            "error": "root",
+            "original_journals_must_survive": true,
+            "service_completion_checked": false,
+            "retry_authorized": false
+          }
+        }
+      ],
+      "requests": [
+        {
+          "method": "GET",
+          "url": "http://127.0.0.1:37899/"
+        },
+        {
+          "method": "GET",
+          "url": "http://127.0.0.1:37899/host.js"
+        },
+        {
+          "method": "GET",
+          "url": "http://127.0.0.1:37899/worker.js"
+        }
+      ],
+      "blocked": [],
+      "limitations": [
+        "All peaks are sampled lower bounds; worker replies can wait behind CPU work",
+        "Summed per-process RSS can double-count shared pages; allocated memory is not live bytes",
+        "Instrumented timing; root refusal before intent, not successful transfer",
+        "No populated journal or million-object qualification"
+      ]
+    },
+    {
+      "path": ".tmp/browser-memory-profile-02/summary.json",
+      "sha256": "14fcd2fc04b31cfaaee0d72d92093158e4900845b48b61695451daa40dc2d3cc",
+      "chromium": {
+        "protocolVersion": "1.3",
+        "product": "HeadlessChrome/153.0.8010.12",
+        "revision": "@971a7443b0c9b0a9b2860529b33331b76077ec62",
+        "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36",
+        "jsVersion": "15.3.76.4"
+      },
+      "samples": [
+        {
+          "bytes": 1048576,
+          "elapsed_ms": 73.76515199999994,
+          "node_peak_rss": 174338048,
+          "worker_peak_backing_storage": 7035704,
+          "worker_after_gc": {
+            "usedSize": 2105400,
+            "totalSize": 2621440,
+            "embedderHeapUsedSize": 26232,
+            "backingStorageSize": 734630
+          },
+          "browser_before_sum_rss": 501870592,
+          "browser_peak_sum_rss": 515268608,
+          "browser_after_gc_sum_rss": 499019776,
+          "worker_samples": 4,
+          "browser_samples": 4,
+          "outcome": {
+            "schema": 1,
+            "id": 1,
+            "index": 0,
+            "action": "upload",
+            "state": "failed",
+            "error": "root",
+            "original_journals_must_survive": true,
+            "service_completion_checked": false,
+            "retry_authorized": false
+          }
+        },
+        {
+          "bytes": 8388608,
+          "elapsed_ms": 496.03238299999987,
+          "node_peak_rss": 197931008,
+          "worker_peak_backing_storage": 42686114,
+          "worker_after_gc": {
+            "usedSize": 2144816,
+            "totalSize": 2359296,
+            "embedderHeapUsedSize": 26144,
+            "backingStorageSize": 734630
+          },
+          "browser_before_sum_rss": 499023872,
+          "browser_peak_sum_rss": 590999552,
+          "browser_after_gc_sum_rss": 498966528,
+          "worker_samples": 24,
+          "browser_samples": 23,
+          "outcome": {
+            "schema": 1,
+            "id": 3,
+            "index": 0,
+            "action": "upload",
+            "state": "failed",
+            "error": "root",
+            "original_journals_must_survive": true,
+            "service_completion_checked": false,
+            "retry_authorized": false
+          }
+        },
+        {
+          "bytes": 33554432,
+          "elapsed_ms": 1866.258407,
+          "node_peak_rss": 235679744,
+          "worker_peak_backing_storage": 174799063,
+          "worker_after_gc": {
+            "usedSize": 2261860,
+            "totalSize": 2621440,
+            "embedderHeapUsedSize": 26264,
+            "backingStorageSize": 734630
+          },
+          "browser_before_sum_rss": 498966528,
+          "browser_peak_sum_rss": 874831872,
+          "browser_after_gc_sum_rss": 500469760,
+          "worker_samples": 85,
+          "browser_samples": 83,
+          "outcome": {
+            "schema": 1,
+            "id": 5,
+            "index": 0,
+            "action": "upload",
+            "state": "failed",
+            "error": "root",
+            "original_journals_must_survive": true,
+            "service_completion_checked": false,
+            "retry_authorized": false
+          }
+        }
+      ],
+      "requests": [
+        {
+          "method": "GET",
+          "url": "http://127.0.0.1:41841/"
+        },
+        {
+          "method": "GET",
+          "url": "http://127.0.0.1:41841/host.js"
+        },
+        {
+          "method": "GET",
+          "url": "http://127.0.0.1:41841/worker.js"
+        }
+      ],
+      "blocked": [],
+      "limitations": [
+        "All peaks are sampled lower bounds; worker replies can wait behind CPU work",
+        "Summed per-process RSS can double-count shared pages; allocated memory is not live bytes",
+        "Instrumented timing; root refusal before intent, not successful transfer",
+        "No populated journal or million-object qualification"
+      ]
+    }
+  ],
+  "commands": [
+    "CARGO_TARGET_DIR=$PWD/target cargo clippy --offline --locked -p blob-storage-probe --lib -- -D warnings",
+    "CARGO_TARGET_DIR=$PWD/target cargo clippy --offline --locked -p blob-storage-probe -p ic-blob-storage-pocketic-tests --test storage -- -D warnings",
+    "CARGO_TARGET_DIR=$PWD/target cargo clippy --offline --locked -p ic-blob-storage-pocketic-tests --test standalone -- -D warnings",
+    "CARGO_TARGET_DIR=$PWD/target cargo build --offline --locked --release --target wasm32-unknown-unknown -p blob-storage-probe --lib",
+    "CARGO_TARGET_DIR=$PWD/target cargo test --offline --locked -p ic-blob-storage-pocketic-tests --test storage --no-run --message-format=json",
+    "CARGO_TARGET_DIR=$PWD/target cargo build --offline --locked --release --target wasm32-unknown-unknown -p ic-blob-storage-canister --lib",
+    "CARGO_TARGET_DIR=$PWD/target cargo test --offline --locked -p ic-blob-storage-pocketic-tests --test standalone --no-run --message-format=json",
+    "POCKET_IC_BIN=$PWD/.tmp/tools/pocket-ic-16.0.0/pocket-ic BLOB_STORAGE_PROBE_WASM=$PWD/.tmp/service-restore-profile-01/storage.wasm BLOB_RESTORE_RESOURCE_REPORT=$PWD/.tmp/service-restore-profile-01/results .tmp/service-restore-profile-01/storage-harness storage_resources::populated_service_restoration_profile --exact --ignored --nocapture",
+    "POCKET_IC_BIN=$PWD/.tmp/tools/pocket-ic-16.0.0/pocket-ic BLOB_STORAGE_PROBE_WASM=$PWD/.tmp/service-restore-profile-01/storage.wasm .tmp/service-restore-profile-01/storage-harness admission_write_traps_roll_back_identity_permission_and_both_totals --exact --nocapture",
+    "POCKET_IC_BIN=$PWD/.tmp/tools/pocket-ic-16.0.0/pocket-ic BLOB_STORAGE_PROBE_WASM=$PWD/.tmp/service-restore-profile-01/storage.wasm .tmp/service-restore-profile-01/storage-harness upgrade_preserves_complete_pending_obligations_and_fences_all_mutations --exact --nocapture",
+    "POCKET_IC_BIN=$PWD/.tmp/tools/pocket-ic-16.0.0/pocket-ic BLOB_STORAGE_PROBE_WASM=$PWD/.tmp/service-restore-profile-01/storage.wasm .tmp/service-restore-profile-01/storage-harness storage_lifecycle::status::reference_status_client_authenticates_exact_replies_and_preserves_live_restore_fences --exact --nocapture",
+    "POCKET_IC_BIN=$PWD/.tmp/tools/pocket-ic-16.0.0/pocket-ic BLOB_STORAGE_PROBE_WASM=$PWD/.tmp/service-restore-profile-01/storage.wasm BLOB_STANDALONE_WASM=$PWD/.tmp/service-restore-profile-01/standalone.wasm .tmp/service-restore-profile-01/standalone-harness standalone_download::standalone_download_client_propagates_inactive_unconfirmed_and_restored_refusals --exact --nocapture",
+    ".tmp/tools/node-v24.21.0/bin/node tests/browser/launcher-profile.mjs .tmp/browser-memory-profile-01",
+    ".tmp/tools/node-v24.21.0/bin/node tests/browser/launcher-profile.mjs .tmp/browser-memory-profile-02"
+  ],
+  "failures": [
+    {
+      "stage": "initial native check",
+      "error": "E0624: existing fixture live/receipt helpers were private to storage_lifecycle; eight diagnostics",
+      "retained": ".tmp/service-restore-profile-01/initial-check-failure.txt",
+      "resolution": "use parent-visible existing helpers; all later checks pass"
+    },
+    {
+      "stage": "initial scoped Clippy",
+      "error": "doc_markdown requires backticks around ServiceStores",
+      "retained": ".tmp/service-restore-profile-01/clippy.log",
+      "resolution": "correct documentation; scoped follow-up passes"
+    }
+  ],
+  "limitations": [
+    "Initialization counters start inside fixture ops initialization and exclude CDK entry/Candid argument decoding",
+    "One tenant, ten-byte single-leaf operations; other owners open but their histories are empty",
+    "Selected exact reference/receipt checks plus complete owner validation, not independent readback of every record",
+    "Allocated heap and stable pages are not live bytes or encoded metadata sizes",
+    "Browser observations stop at wrong-root refusal before certificate intent; successful transfer and download memory remain unmeasured",
+    "Forced GC and single local runs do not qualify sustained load, automatic GC or million-object operation",
+    "All browser peaks are sampled lower bounds; summed process RSS can double-count shared pages"
+  ],
+  "live_provider_requests": 0,
+  "paid_cycles": "0",
+  "cleanup": "Owned PocketIC/browser processes closed; original local profiles/artifacts retained; no live objects created",
+  "next": [
+    "Isolate synchronous restore scan costs with representative manifests and tenants without weakening validation",
+    "Measure successful substitute transfer memory before changing independent byte-ownership boundaries",
+    "Consumer adoption/certified registration and provider retirement remain open"
+  ]
+}

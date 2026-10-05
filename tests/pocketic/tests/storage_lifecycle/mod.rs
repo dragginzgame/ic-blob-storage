@@ -46,7 +46,10 @@ impl Fixture {
             )
             .unwrap()
     }
-    fn receipt(&self, request: ReferenceInput) -> Result<ReferenceReceiptLookup, ReferenceFailure> {
+    pub(super) fn receipt(
+        &self,
+        request: ReferenceInput,
+    ) -> Result<ReferenceReceiptLookup, ReferenceFailure> {
         self.harness
             .pic
             .query_candid_as(
@@ -57,7 +60,7 @@ impl Fixture {
             )
             .unwrap()
     }
-    fn live(&self, input: ReferenceInput) -> Result<bool, ReferenceFailure> {
+    pub(super) fn live(&self, input: ReferenceInput) -> Result<bool, ReferenceFailure> {
         use ic_blob_storage::dto::reference::status::{
             ReferenceStatusRequest, ReferenceStatusResponse,
         };
@@ -314,7 +317,7 @@ fn upgrade_retains_each_confirmed_phase_and_receipts_under_the_restore_fence() {
             .upgrade_canister(
                 f.service,
                 Fixture::wasm(),
-                candid::encode_one(f.operator).unwrap(),
+                Fixture::installation(f.operator),
                 Some(f.controller),
             )
             .unwrap();

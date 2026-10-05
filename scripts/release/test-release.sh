@@ -68,14 +68,14 @@ LOCK
     cat > CHANGELOG.md <<'NOTES'
 # Changelog
 
-## [Unreleased]
+## [0.1]
 
 - Test release notes.
 NOTES
     : > "$TEST_LOG"
     : > "$TEST_EFFECTS"
     printf 'retained build artifact\n' > target/debug/cache-sentinel
-    unset TEST_DIRTY TEST_TAG_EXISTS TEST_GATE_FAIL TEST_UPDATE_FAIL TEST_GATE_DIRTY TEST_GATE_HEAD TEST_METADATA_FAIL TEST_PUSH_FAIL TEST_FETCH_FAIL
+    unset TEST_DIRTY TEST_TAG_EXISTS TEST_GATE_FAIL TEST_UPDATE_FAIL TEST_GATE_DIRTY TEST_GATE_HEAD TEST_METADATA_FAIL TEST_PUSH_FAIL TEST_FETCH_FAIL TEST_SNAPSHOT_FAIL
 }
 
 expect_failure() {
@@ -215,29 +215,39 @@ test_dependency_bootstrap() {
 set -euo pipefail
 echo "gate $*" >> "$TEST_LOG"
 case "$*" in
+    '--no-print-directory shared-tooling-check')
+        echo snapshot >> "$TEST_EFFECTS"
+        [[ "${TEST_SNAPSHOT_FAIL:-0}" != 1 ]] ;;
     '--no-print-directory deps' | '--no-print-directory check')
         exec "$TEST_REAL_MAKE" "$@" ;;
 esac
 MOCK
     chmod +x target/gate-make
     before="$(fingerprint)"
-    if [[ "$1" == failure ]]; then
-        export TEST_FETCH_FAIL=1
+    if [[ "$1" != success ]]; then
+        if [[ "$1" == snapshot-failure ]]; then
+            export TEST_SNAPSHOT_FAIL=1
+            printf '%s\n' snapshot >target/expected-effects
+            printf '%s\n' 'gate --no-print-directory shared-tooling-check' >target/expected-gates
+        else
+            export TEST_FETCH_FAIL=1
+            printf '%s\n' snapshot fetch >target/expected-effects
+            printf '%s\n' 'gate --no-print-directory shared-tooling-check' 'gate --no-print-directory deps' >target/expected-gates
+        fi
         if "$TEST_REAL_MAKE" --no-print-directory validate "MAKE=$FIXTURE/target/gate-make" >target/fetch-rejection.log 2>&1; then
-            echo 'expected fetch failure to stop validation' >&2
+            echo 'expected bootstrap failure to stop validation' >&2
             exit 1
         else
             [[ "$?" == 2 ]]
         fi
         cat target/fetch-rejection.log
-        [[ "$(cat "$TEST_EFFECTS")" == fetch ]]
-        [[ "$(rg '^gate ' "$TEST_LOG")" == 'gate --no-print-directory deps' ]]
+        diff -u target/expected-effects "$TEST_EFFECTS"
+        diff -u target/expected-gates <(rg '^gate ' "$TEST_LOG")
         [[ ! -f target/mock-cargo-cache ]]
     else
         "$TEST_REAL_MAKE" --no-print-directory release-verify "MAKE=$FIXTURE/target/gate-make"
-        printf '%s\n' fetch check >target/expected-effects
+        printf '%s\n' snapshot fetch check >target/expected-effects
         diff -u target/expected-effects "$TEST_EFFECTS"
-        [[ "$(rg '^gate ' "$TEST_LOG" | head -n 1)" == 'gate --no-print-directory deps' ]]
     fi
     assert_unchanged
     assert_cache_retained
@@ -259,8 +269,8 @@ test_versions() {
 
 test_invalid_changelog() {
     case "$1" in
-        duplicate) printf '\n## [Unreleased]\n' >> CHANGELOG.md ;;
-        empty) printf '# Changelog\n\n## [Unreleased]\n' > CHANGELOG.md ;;
+        duplicate) printf '\n## [0.1]\n' >> CHANGELOG.md ;;
+        empty) printf '# Changelog\n\n## [0.1]\n' > CHANGELOG.md ;;
         competing)
             perl "$DATA" set-version 0.9.0
             cat >> CHANGELOG.md <<'NOTES'
@@ -281,17 +291,39 @@ NOTES
 }
 
 test_preparation() {
-    if [[ "$1" == named ]]; then
-        cat > CHANGELOG.md <<'NOTES'
+    case "$1" in
+        named)
+            cat > CHANGELOG.md <<'NOTES'
 # Changelog
-
-## [Unreleased]
 
 ## [0.1.1]
 
 - Named release.
 NOTES
-    fi
+            ;;
+        undecided)
+            cat > CHANGELOG.md <<'NOTES'
+# Changelog
+
+## [Draft]
+
+- The next major, minor or patch release is not chosen yet.
+NOTES
+            ;;
+        after-history)
+            cat > CHANGELOG.md <<'NOTES'
+# Changelog
+
+## [0.0.8] - 2026-09-20
+
+- Historical notes before the draft.
+
+## [0.1]
+
+- Release notes without a patch number.
+NOTES
+            ;;
+    esac
     # Undated imported history remains supported regardless of today's version.
     cat >> CHANGELOG.md <<'NOTES'
 
@@ -415,14 +447,14 @@ test_push_retry() {
 }
 
 echo "Release-helper tests: isolated fixtures; no real commits, tags or uploads."
-for outcome in success failure; do
+for outcome in success failure snapshot-failure; do
     run_case "dependency-bootstrap-$outcome" test_dependency_bootstrap "$outcome"
 done
 run_case versions test_versions
 for invalid in duplicate empty competing; do
     run_case "changelog-$invalid" test_invalid_changelog "$invalid"
 done
-for notes in unreleased named; do
+for notes in partial named undecided after-history; do
     run_case "prepare-$notes" test_preparation "$notes"
 done
 for failure in TEST_DIRTY TEST_TAG_EXISTS TEST_GATE_FAIL TEST_UPDATE_FAIL TEST_GATE_DIRTY TEST_GATE_HEAD TEST_METADATA_FAIL; do

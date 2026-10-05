@@ -1,0 +1,12 @@
+{
+  "schema": 1,
+  "date": "2026-10-04",
+  "baseline": "0.14.7 with the current 0.14.8 draft",
+  "evidence_class": "local PocketIC and Chromium with an HTTPS HTTP/2 provider substitute",
+  "target": "existing coordinated GLB/WebP complete and PNG/JPEG lost-reply media journeys; existing compact restoration profile",
+  "purpose": "sample full browser/worker transfer memory and attribute restoration stable reads without production hooks",
+  "budget": "zero live provider requests and zero paid cycles; normal application subnet; existing 120-second session and 180-second whole-fixture bounds",
+  "artifacts": ".tmp/transfer-memory-profile-01 and .tmp/restore-read-profile-01; fresh session/profile per journey",
+  "limits": "opt-in instrumentation only; bounded 100-operation population steps and 100/1000/10000 tiers; retain each result or failure before proceeding",
+  "limitations": "local substitute is not deployed Caffeine behavior; sampled peaks are lower bounds; summed RSS can double-count shared pages; instrumented instruction totals include observer overhead"
+}

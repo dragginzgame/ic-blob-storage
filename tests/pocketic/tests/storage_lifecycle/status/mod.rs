@@ -83,7 +83,7 @@ fn reference_status_keeps_history_distinct_from_live_references_through_settleme
         .upgrade_canister(
             f.service,
             Fixture::wasm(),
-            candid::encode_one(f.operator).unwrap(),
+            Fixture::installation(f.operator),
             Some(f.controller),
         )
         .unwrap();
@@ -108,7 +108,7 @@ fn reference_status_client_authenticates_exact_replies_and_preserves_live_restor
     f.harness.pic.install_canister(
         client,
         Fixture::wasm(),
-        candid::encode_one(f.operator).unwrap(),
+        Fixture::installation(f.operator),
         None,
     );
     f.tenant = client;
@@ -193,7 +193,7 @@ fn reference_status_client_authenticates_exact_replies_and_preserves_live_restor
         .upgrade_canister(
             f.service,
             Fixture::wasm(),
-            candid::encode_one(f.operator).unwrap(),
+            Fixture::installation(f.operator),
             Some(f.controller),
         )
         .unwrap();
@@ -207,7 +207,7 @@ fn reference_status_client_authenticates_exact_replies_and_preserves_live_restor
         .upgrade_canister(
             client,
             Fixture::wasm(),
-            candid::encode_one(f.operator).unwrap(),
+            Fixture::installation(f.operator),
             None,
         )
         .unwrap();

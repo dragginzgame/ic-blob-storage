@@ -1,0 +1,11 @@
+{
+  "schema": 1,
+  "date": "2026-10-04",
+  "baseline": ".tmp/restore-read-profile-01/results; frozen .tmp/restore-read-profile-01/storage.wasm and storage harness",
+  "observation": "10000 operations reread the tenant memory 90020 times; same-callback enrollment lookup repeats once per permission",
+  "candidate": "retain each tenant activation generation in the existing per-tenant restoration totals; keep all per-permission generation checks and synchronous fencing",
+  "target": "native upload restoration checks plus normal-PocketIC 100/1000/10000 mixed workloads, fresh .tmp/restore-read-profile-01/after results",
+  "budget": "zero live provider requests and paid cycles",
+  "limitations": "read-only scratch state exists only during synchronous validation; no format/API change, no persistent cache; instrumented fixture timings are not production instruction costs",
+  "retention": "preserve before/after sources, artifacts, every checkpoint, result and failure independently"
+}

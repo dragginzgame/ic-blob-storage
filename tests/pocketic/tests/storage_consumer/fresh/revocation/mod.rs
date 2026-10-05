@@ -174,7 +174,7 @@ fn revocation_rejects_changed_permissions_and_restored_service_without_claiming_
         .upgrade_canister(
             f.service,
             Fixture::wasm(),
-            candid::encode_one(f.operator).unwrap(),
+            Fixture::installation(f.operator),
             Some(f.controller),
         )
         .unwrap();

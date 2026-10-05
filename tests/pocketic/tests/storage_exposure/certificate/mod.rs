@@ -176,7 +176,7 @@ fn certificate_response_traps_rollback_and_lost_committed_reply_cannot_reissue()
         .upgrade_canister(
             f.service,
             Fixture::wasm(),
-            candid::encode_one(f.operator).unwrap(),
+            Fixture::installation(f.operator),
             Some(f.controller),
         )
         .unwrap();

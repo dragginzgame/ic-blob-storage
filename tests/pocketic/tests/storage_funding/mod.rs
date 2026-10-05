@@ -181,7 +181,7 @@ fn funding_journal_upgrades_preserve_every_phase_and_reject_late_outcomes() {
             .upgrade_canister(
                 f.service,
                 Fixture::wasm(),
-                candid::encode_one(f.operator).unwrap(),
+                Fixture::installation(f.operator),
                 Some(f.controller),
             )
             .unwrap();
@@ -297,7 +297,7 @@ fn canonical_funding_request_survives_upgrade_and_mismatched_outcomes_keep_the_o
         .upgrade_canister(
             f.service,
             Fixture::wasm(),
-            candid::encode_one(f.operator).unwrap(),
+            Fixture::installation(f.operator),
             Some(f.controller),
         )
         .unwrap();

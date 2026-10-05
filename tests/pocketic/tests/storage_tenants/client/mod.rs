@@ -156,7 +156,7 @@ fn tenant_client_retains_command_after_success_small_reply_or_callback_trap() {
             .upgrade_canister(
                 f.service,
                 Fixture::wasm(),
-                candid::encode_one(f.operator).unwrap(),
+                Fixture::installation(f.operator),
                 Some(f.controller),
             )
             .unwrap();

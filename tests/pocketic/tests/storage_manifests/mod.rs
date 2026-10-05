@@ -120,7 +120,7 @@ fn manifest_lost_ack_recovers_original_declaration_after_exposure_revocation_and
         .upgrade_canister(
             f.service,
             Fixture::wasm(),
-            candid::encode_one(f.operator).unwrap(),
+            Fixture::installation(f.operator),
             Some(f.controller),
         )
         .unwrap();
