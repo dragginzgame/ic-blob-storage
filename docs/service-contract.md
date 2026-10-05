@@ -29,6 +29,10 @@ separate.
 - Uncertain paid or provider effects are inspected and reconciled from their
   original records; absence of a reply never authorizes an automatic retry.
 
+<p align="center">
+  <img src="https://raw.githubusercontent.com/dragginzgame/shared-assets/main/ic-blob-storage/ic-blob-storage-authority-boundaries.svg" alt="Authority boundaries between the tenant, uploader, verifier, operator, storage provider and application" width="800">
+</p>
+
 ## Terms used in this contract
 
 | Term | Meaning here |

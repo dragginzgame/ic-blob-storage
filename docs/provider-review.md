@@ -33,6 +33,10 @@ false-success/reassociation paths; their production prerequisites remain below.
 The [post-0.1.18 integration decision](#integration-decision-after-0118) records
 the current binding review and the next production implementation boundary.
 
+<p align="center">
+  <img src="https://raw.githubusercontent.com/dragginzgame/shared-assets/main/ic-blob-storage/ic-blob-storage-provider-boundary.svg" alt="Boundary between facts recorded by IC Blob Storage and external facts that require independent provider evidence" width="800">
+</p>
+
 ## Selected integration baseline
 
 ### Local SDK fault observations — 2026-09-29

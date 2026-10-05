@@ -20,6 +20,10 @@ Library publication is separate from qualified live service operation.
 - **Still open:** provider deletion and billing cessation, production sizing,
   older-backup recovery and accountable retirement of retained installations.
 
+<p align="center">
+  <img src="https://raw.githubusercontent.com/dragginzgame/shared-assets/main/ic-blob-storage/ic-blob-storage-integration-topology.svg" alt="Integration topology showing browser and native clients, embedded and standalone hosting, the shared library, ic-memory, Caffeine and PocketIC" width="800">
+</p>
+
 ## Starting point
 
 The shared service owns tenant policy, permissions/manifests, references, receipts,

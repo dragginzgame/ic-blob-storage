@@ -20,6 +20,10 @@ is one actual upload, an independent verified fetch, and a tenant download.
 The [existing run sequence](operator-guide.md#isolated-uploaddownload-trial-plan)
 and [probe ledger](evidence/caffeine-probes/README.md) own command/evidence handling.
 
+<p align="center">
+  <img src="https://raw.githubusercontent.com/dragginzgame/shared-assets/main/ic-blob-storage/ic-blob-storage-trial-sequence.svg" alt="Standalone trial sequence from provisioning and upload permission through direct storage, independent verification and tenant download" width="800">
+</p>
+
 ## Local issuance prerequisites and provider limitations
 
 | Blocker | What we have | What is still needed |

@@ -12,6 +12,10 @@ The [acceptance plan](acceptance-plan.md) defines the target evidence. This file
 records the gaps that remain open; [current status](status/current.md) owns the
 active release and implementation handoff.
 
+<p align="center">
+  <img src="https://raw.githubusercontent.com/dragginzgame/shared-assets/main/ic-blob-storage/ic-blob-storage-qualification-layers.svg" alt="Four qualification layers covering native checks, PocketIC evidence, live provider evidence and consumer deployment acceptance" width="800">
+</p>
+
 ## Open gaps
 
 | Gap | Repository result | Remaining acceptance and owner |

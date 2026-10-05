@@ -22,6 +22,10 @@ traffic by themselves.
 | Verify provider content and submit completion | [Observe provider content](#observe-provider-content), then [submit an attestation](#submit-an-attestation) |
 | Resume after an upgrade | [Current-instance recovery](#current-instance-recovery) |
 
+<p align="center">
+  <img src="https://raw.githubusercontent.com/dragginzgame/shared-assets/main/ic-blob-storage/ic-blob-storage-operator-workflow.svg" alt="Operator workflow from preparing and admitting an upload through verification, references, release and reconciliation" width="800">
+</p>
+
 ## Current-instance recovery
 
 Frozen live 0.7.0 installations restore inspection-only. The current contract,
