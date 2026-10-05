@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/dragginzgame/shared-assets/main/ic-blob-storage/ic-blob-storage-readme-header.svg" alt="IC Blob Storage — Internet Computer helper library" width="100%">
+  <img src="https://raw.githubusercontent.com/dragginzgame/shared-assets/main/ic-blob-storage/ic-blob-storage-readme-header.svg" alt="IC Blob Storage — Uploads, verifies, and tracks large files" width="100%">
 </p>
 
 <!-- helper-navigation:start -->
@@ -24,35 +24,79 @@
 
 # 🗃️ ic-blob-storage
 
-Blob storage for Internet Computer canisters, with a shared Rust service core
-and a standalone canister. **Caffeine is the storage
-provider.** The service owns tenant access, upload permissions, references,
-quotas and accounting.
+`ic-blob-storage` helps Internet Computer apps handle large files such as
+images, videos, audio, 3D models and downloads.
 
-**Status: a working prototype with successful live uploads and downloads.**
-The isolated 0.7.0 trial completes 1 KiB and 10 MiB Caffeine uploads, independent
-verification, verifier attestation and tenant downloads. Production integration
-and operational recovery remain in progress; lifecycle tests run in PocketIC.
+Internet Computer apps run in services called *canisters*. Canisters can keep
+their own data, but large files are often better handled by a dedicated storage
+provider. This project uses [Caffeine](docs/provider-review.md) to hold the file
+contents while the app keeps control of upload permissions, file checks, usage
+records, storage limits and accounting.
+
+**Project status: working prototype.** Live uploads and downloads have been
+demonstrated, but application integration, provider guarantees, deletion,
+billing and production recovery are still being qualified. This is not yet a
+finished production service.
 
 [Current status](docs/status/current.md) · [Changelog](CHANGELOG.md) ·
 [Development plan](docs/roadmap.md) · [Service contract](docs/service-contract.md)
 
 ## ✨ What it does
 
-| Capability | Purpose |
+| What you need | What `ic-blob-storage` does |
 | --- | --- |
-| Tenant and uploader permissions | Bind each upload to its tenant, uploader and expiry |
-| Content verification | Build manifests and verify Caffeine roots, chunk hashes and complete content |
-| References and cleanup | Track which assets remain in use and retain exact mutation receipts |
-| Quotas and accounting | Bound objects, bytes, uploads, references and retained history |
-| Provider bookkeeping | Preserve gateway state, funding intents, refunds and uncertain outcomes |
-| Recovery | Inspect restored records; prove current-instance activation from IC history |
+| Control uploads | Decides who may upload files and how much they may store |
+| Check files | Confirms that a stored file matches the original |
+| Reuse files safely | Tracks every place that still depends on a file |
+| Control storage growth | Enforces limits for files, bytes and upload activity |
+| Recover safely | Preserves important records across interruptions and upgrades |
+| Track costs and provider activity | Records funding, refunds, storage use and operations with uncertain outcomes |
 
-The design sends file bytes directly from the uploader to Caffeine. Hashing and
-whole-file verification can run off-canister. The canister coordinates permissions
-and durable metadata; admission does not require uploading the file body to it.
+After an upload is approved, the file travels directly from the uploader to
+Caffeine. It does not pass through the app's canister. The canister instead
+keeps the smaller records needed to control the upload, verify the result and
+remember whether the file is still in use.
 
-## 🚧 Where we are today
+<p align="center">
+  <img src="https://raw.githubusercontent.com/dragginzgame/shared-assets/main/ic-blob-storage/ic-blob-storage-how-it-works.svg" alt="How an upload moves from permission through direct Caffeine storage and verification to a file reference the app can safely use" width="900">
+</p>
+
+## When it may be useful
+
+Consider `ic-blob-storage` when:
+
+- your app handles images, videos, audio, 3D models or other large downloads;
+- users, teams or organizations upload their own files;
+- the same stored file may be used in several places;
+- you need to confirm that uploaded files are complete and unchanged;
+- you need limits on file sizes, total storage or upload activity; or
+- you need reliable records for recovery after an interruption or upgrade.
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/dragginzgame/shared-assets/main/ic-blob-storage/ic-blob-storage-decision-guide.svg" alt="Decision guide for whether an app handling large files would benefit from upload control, verification, quotas or reuse tracking" width="900">
+</p>
+
+## What it is not
+
+- It is not a consumer-facing file manager like Dropbox or Google Drive.
+- It is not a finished hosted service; a developer must integrate it into an
+  application.
+- It does not store the large file contents inside the application's canister.
+- Releasing a file from the app, deleting the provider's copy and ending billing
+  are separate steps. The last two still require further provider qualification.
+- A successful file check confirms what was observed at that time; it cannot
+  promise that the provider will retain the file forever.
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/dragginzgame/shared-assets/main/ic-blob-storage/ic-blob-storage-file-lifecycle.svg" alt="File lifecycle showing approval, upload, verification, app references, reference release, provider deletion and billing confirmation as separate events" width="900">
+</p>
+
+---
+
+The remaining sections are for developers and operators who want to integrate,
+test or maintain the project.
+
+## 🚧 Technical status
 
 | Area | Current state |
 | --- | --- |
@@ -65,24 +109,10 @@ and durable metadata; admission does not require uploading the file body to it.
 | Browser integration | Caffeine's SDK with certificate intent and bounded persistent journaling; live 1 KiB and ten-chunk 10 MiB transfers pass |
 | Live service acceptance | Still open: complete consumer flow, provider guarantees and operational recovery |
 
-The current library release is **0.14.2**. Configurable certificate sizing shipped
-in 0.7.0; indexed batch preparation, frozen-file browser transfer and current-instance
-recovery shipped in 0.8.0. Release 0.9.0 adds one-pass batch setup and removes the
-standalone DTO forwarding namespace; consumers import the core configuration types.
-Release 0.10.0 adds persistent publication sessions, authenticated maps and the
-private-port browser worker. Release 0.11.0 adds verifier-phase composition
-and selected-signer browser bootstrap; neither constitutes complete consumer acceptance.
-Release 0.12.0 consolidates descriptor serving, retires fixture-only reference
-journals and identifies the frozen native/stable formats explicitly. Release
-0.13.0 adds original session recovery and native/browser selection/transfer
-handoffs. Release 0.14.0 follows native phase guidance through a bounded
-browser driver with private native pipes and one complete-map/final-report/exit
-acceptance boundary. Consumer
-key/history selection and full acceptance remain open.
-The frozen 0.6.0 live trial retains its original 1 KiB configuration and stopped
-upload history. A separate
-[0.7.0 trial](docs/evidence/caffeine-probes/deployed/2026-10-02-trial-v070-live-01/summary.json)
-qualifies the two sample journeys without resetting those obligations.
+The [changelog](CHANGELOG.md) contains the release history. Detailed validation,
+open integration work and retained trial obligations are recorded in the
+[current status](docs/status/current.md). Earlier live trials remain frozen and
+do not establish production readiness for the current release.
 
 The public library has no downstream framework dependency. Consumer frameworks
 wrap its shared workflows and own integration testing in their repositories.
