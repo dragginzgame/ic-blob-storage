@@ -237,6 +237,7 @@ Releases preserve build artifacts; cleanup is a separate `make clean` action.
 
 | Document | Use it for |
 | --- | --- |
+| [Documentation index](docs/README.md) | Choose the right conceptual, integration, operations or evidence guide |
 | [Current status](docs/status/current.md) | Latest handoff, validation evidence and next work |
 | [Development plan](docs/roadmap.md) | Milestones and consumer integration direction |
 | [Service contract](docs/service-contract.md) | Authority, accounting, verifier trust and recovery rules |

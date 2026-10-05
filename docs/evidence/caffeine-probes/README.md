@@ -1,4 +1,18 @@
+<p align="center">
+  <img src="https://raw.githubusercontent.com/dragginzgame/shared-assets/main/ic-blob-storage/ic-blob-storage-readme-header.svg" alt="IC Blob Storage — Uploads, verifies, and tracks large files" width="100%">
+</p>
+
 # Caffeine probe ledger
+
+This ledger preserves source review, local substitutes and deployed observations
+as different evidence classes. It is intentionally detailed and ordered with the
+newest records first. Start with [current status](../../status/current.md) for the
+maintained release and open work.
+
+**Quick links:** [recording rule](#recording-rule) ·
+[probe command](#probe-command) · [run index](#run-index) ·
+[acceptance plan](../../acceptance-plan.md) ·
+[service gaps](../../service-gaps.md)
 
 ## Management-canister types 0.11.0 — 2026-10-05
 

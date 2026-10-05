@@ -1,8 +1,18 @@
+<p align="center">
+  <img src="https://raw.githubusercontent.com/dragginzgame/shared-assets/main/ic-blob-storage/ic-blob-storage-readme-header.svg" alt="IC Blob Storage — Uploads, verifies, and tracks large files" width="100%">
+</p>
+
 # Content and billing primitives — native evidence
 
 This file retains source-bound history. Sections describing the removed Canic
 adapter and its former commands are historical; current library/standalone scope
 and validation are recorded in the [current handoff](../status/current.md).
+
+This is an append-only implementation evidence record, not a tutorial or current
+API reference. Search by release, feature or date, and follow each section's
+source and artifact links against the revision it names. For current behavior,
+start with the [service contract](../service-contract.md),
+[operator guide](../operator-guide.md) or [documentation index](../README.md).
 
 ## Upload restoration simplification — 2026-10-04
 

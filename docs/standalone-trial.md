@@ -1,4 +1,14 @@
+<p align="center">
+  <img src="https://raw.githubusercontent.com/dragginzgame/shared-assets/main/ic-blob-storage/ic-blob-storage-readme-header.svg" alt="IC Blob Storage — Uploads, verifies, and tracks large files" width="100%">
+</p>
+
 # First standalone Caffeine trial
+
+> **Historical trial record:** This document preserves the first accepted
+> standalone contract, its live-trial preparation and its retained obligations.
+> It is not the current operating guide. Use the
+> [operator guide](operator-guide.md) for maintained commands and
+> [current status](status/current.md) for the active release and open work.
 
 The maintainer **accepted the initial restricted contract on 2026-10-02**; it
 shipped in 0.6.0. The later request to relax the 1 KiB limit for Toko Miner changes

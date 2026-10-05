@@ -1,4 +1,25 @@
+<p align="center">
+  <img src="https://raw.githubusercontent.com/dragginzgame/shared-assets/main/ic-blob-storage/ic-blob-storage-readme-header.svg" alt="IC Blob Storage — Uploads, verifies, and tracks large files" width="100%">
+</p>
+
 # Dependency setup
+
+## Quick setup
+
+For ordinary development from the repository root:
+
+1. Install `rustup`; the checked-in `rust-toolchain.toml` selects the maintained
+   development compiler and required components.
+2. Run `make deps` to fetch the exact locked Rust dependencies.
+3. Run `make test-native` for the focused native library checks used by local
+   development.
+
+Browser and standalone rehearsals additionally require PocketIC, Node, browser
+packages and Chromium. Follow [setup and checks](#setup-and-checks) for those
+paths. Consumers embedding the library should also read
+[memory composition](#memory-composition) before assigning stable memory.
+
+## Locked dependency inventory
 
 The root `Cargo.toml` owns all package and direct dependency version requirements
 and local dependency paths. Every member, including unpublished fixtures, inherits

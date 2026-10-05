@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="https://raw.githubusercontent.com/dragginzgame/shared-assets/main/ic-blob-storage/ic-blob-storage-readme-header.svg" alt="IC Blob Storage — Uploads, verifies, and tracks large files" width="100%">
+</p>
+
 # Caffeine provider review — 2026-09-28
 
 Decision update, 2026-09-29: the maintainer selected independent qualification

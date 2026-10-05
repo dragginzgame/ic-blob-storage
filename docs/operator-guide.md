@@ -1,4 +1,26 @@
+<p align="center">
+  <img src="https://raw.githubusercontent.com/dragginzgame/shared-assets/main/ic-blob-storage/ic-blob-storage-readme-header.svg" alt="IC Blob Storage — Uploads, verifies, and tracks large files" width="100%">
+</p>
+
 # Operator and verifier guide
+
+This guide is organized by operator task. Commands act on an explicitly selected
+installation and identity; examples do not grant authority or authorize provider
+traffic by themselves.
+
+## Choose a task
+
+| Goal | Start here |
+| --- | --- |
+| Validate and size an installation | [Check installation inputs offline](#check-installation-inputs-offline), then [size a consumer installation](#size-a-consumer-installation) |
+| Prepare and publish several files | [Freeze a publication inventory](#freeze-a-publication-inventory-offline) |
+| Admit or resume one upload | [Admit and prepare an upload](#admit-and-prepare-an-upload) |
+| Download and verify stored content | [Download a verified file](#download-a-verified-file) |
+| Inspect identities, limits and fences | [Identity, trust and service status](#identity-trust-and-service-status) |
+| Inspect provider accounts or gateways | [Account inspection](#account-inspection) and [gateway controls](#gateway-controls) |
+| Retain, share or release a file reference | [Generate reference inputs](#generate-reference-inputs-offline) and [share a confirmed blob](#share-a-confirmed-blob-within-a-tenant) |
+| Verify provider content and submit completion | [Observe provider content](#observe-provider-content), then [submit an attestation](#submit-an-attestation) |
+| Resume after an upgrade | [Current-instance recovery](#current-instance-recovery) |
 
 ## Current-instance recovery
 

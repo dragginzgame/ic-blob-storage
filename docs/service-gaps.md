@@ -1,8 +1,18 @@
+<p align="center">
+  <img src="https://raw.githubusercontent.com/dragginzgame/shared-assets/main/ic-blob-storage/ic-blob-storage-readme-header.svg" alt="IC Blob Storage — Uploads, verifies, and tracks large files" width="100%">
+</p>
+
 # Service qualification gaps — 2026-10-02
 
 This review stays within this repository. The core and standalone host have no
 Canic dependency, endpoint registration or lifecycle ownership on linkage.
 Framework wrappers and their composition tests belong to their consumer owners.
+
+The [acceptance plan](acceptance-plan.md) defines the target evidence. This file
+records the gaps that remain open; [current status](status/current.md) owns the
+active release and implementation handoff.
+
+## Open gaps
 
 | Gap | Repository result | Remaining acceptance and owner |
 | --- | --- | --- |
@@ -13,6 +23,8 @@ Framework wrappers and their composition tests belong to their consumer owners.
 | Provider deletion | Final-reference release retains physical bytes. Core deletion acknowledgement and billing settlement remain separate transitions. Reviewed public Caffeine callbacks do not establish an executed live deletion. | Provider/service owner: qualify exact-object authority, deletion request/callback identity, uncertain-result reconciliation and authoritative deployed deletion evidence before decrementing physical accounting. |
 | Billing cessation | Logical release or a provider deletion callback cannot clear economic liability. Fresh live samples retain 10,486,784 physical/liability bytes after logical release. | Provider/service owner: obtain exact final object billing evidence, settlement amount/cutoff, and treatment of delayed charges. Current reviewed contracts and zero usage counters supply no such proof. |
 | Existing consumers | The [service contract](service-contract.md) defines the current format and lifetime rules; siblings remain read-only. | Toko/Canic owners: remove direct Canic blob and billing APIs, adopt the released shared contract and explicitly disposition old installations and obligations. No compatibility layer or cross-release migration is supplied. |
+
+## Recent local evidence
 
 The [local multi-chunk/reference journeys](evidence/caffeine-probes/README.md#multi-chunk-png-and-overlapping-references--2026-10-04)
 verify distinct full/partial PNG chunks and signed overlapping-reference cleanup.
@@ -55,6 +67,8 @@ open. The [fixture deadline follow-up](evidence/caffeine-probes/README.md#public
 uses one explicit session bound across original/recovery, browser and parent,
 without changing production timeouts or provider retry authority.
 
+## Deletion and billing qualification
+
 Deletion qualification must retain the exact original service, namespace, object,
 root, incarnation and operation identity before any destructive effect. Record
 the request, callback/result, hashes and uncertain outcome; never redispatch from
@@ -67,6 +81,8 @@ final charge boundary and treatment of obligations already incurred. Check local
 logical, physical and liability accounting independently before and after each
 transition. Keep both old and new trial owners and their original histories until
 retirement obligations are satisfied; do not reset exhausted lifetime capacity.
+
+## Consumer responsibility
 
 The [probe ledger](evidence/caffeine-probes/README.md) distinguishes source review,
 local IC execution, substitutes and deployed observations. Missing provider

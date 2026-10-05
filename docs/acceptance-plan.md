@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="https://raw.githubusercontent.com/dragginzgame/shared-assets/main/ic-blob-storage/ic-blob-storage-readme-header.svg" alt="IC Blob Storage — Uploads, verifies, and tracks large files" width="100%">
+</p>
+
 # Service acceptance plan
 
 Qualification follows the [Caffeine probe ledger](evidence/caffeine-probes/README.md).
@@ -5,6 +9,11 @@ Public source review, local substitutes and deployed observations are different
 evidence classes. Unsupported guarantees require an explicit operating-contract
 review. Repeated success is not a universal retry, retention or billing guarantee.
 This plan authorizes no deployment or paid trial; full service acceptance is open.
+
+This document defines the evidence required for acceptance. The
+[service qualification gaps](service-gaps.md) record which requirements remain
+open, while [current status](status/current.md) identifies the active released
+baseline and current work.
 
 ## Current evidence and open gates
 
