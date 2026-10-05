@@ -226,7 +226,8 @@ scope; controller status does not grant tenant access.
 | `make docs-check` | Rust API documentation |
 | `make wasm-check` | Wasm compilation |
 | `make ci` | Complete repository validation gate |
-| `make cloc` | Rust LOC and test-function counts under `crates/`; requires cloc and jq |
+| `make shared-tooling-check` | Offline integrity of the reviewed shared snapshot |
+| `make cloc` | Rust LOC and test-attribute counts for every Cargo workspace member; requires cloc and jq |
 
 Run focused checks during development. Full validation and release commands follow
 [development governance](docs/governance/development.md).

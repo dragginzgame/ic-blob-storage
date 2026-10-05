@@ -24,6 +24,10 @@ cannot change the exported bytes. The manifest
 records format version `1`, source remote, source commit, and the SHA-256 digest
 and executable state of every vendored file.
 
+Use `--manifest <relative-path>` to choose a different manifest location. Its
+parent directories are created before consumer files are replaced. Pass the
+same option to subsequent refreshes and drift verification.
+
 File paths are intentionally identical in source and consumer. A repository
 that needs a different path or behavior owns an adapter rather than a patched
 shared copy.

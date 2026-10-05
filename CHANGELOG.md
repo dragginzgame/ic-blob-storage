@@ -7,6 +7,14 @@
 - Update release-gate bootstrap fixtures for snapshot verification before
   dependency fetching. Verify that snapshot or fetch failure stops validation
   without changing release files or discarding retained build artifacts.
+- Refresh the reviewed Shared Tooling snapshot to 0.1.0. Adopt the Bash 3.2
+  snapshot-verifier fix and package-relative LOC classification with nested
+  workspace members excluded from parent counts. Correct the README's LOC
+  command scope to include every Cargo workspace member.
+- Align dependency documentation with the selected management-types 0.11.0,
+  ic-memory 0.25.5 and ic-testkit 0.15.4 graph. Correct release setup to verify
+  the shared snapshot before fetching dependencies, preserving original
+  qualification records and their artifact bindings.
 
 ### Added
 
@@ -24,9 +32,13 @@
   interrupted history reads, retained liabilities and actual snapshot refusal
   on this dependency graph. Public APIs, persisted layouts and bounded
   IC-history acquisition are unchanged.
+- Retain the transitive powerfmt update to 0.2.1. Its declared Rust floor of
+  1.79.0 remains below the workspace's 1.88.0 MSRV.
 - Adopt a reviewed Shared Tooling snapshot with the canonical engineering
-  baseline, its linked guides and unchanged portable tools. Keep service-specific
+  baseline, its linked guides and portable tools. Keep service-specific
   instructions in the local AGENTS overlay and verify snapshot integrity offline.
+- Adopt the shared requirements to review GitHub repository descriptions and
+  enumerate removed functions, methods and types in cleanup reports.
 - Report Rust file and test-attribute counts for every Cargo workspace member,
   including canisters and test crates, with offline metadata discovery.
 - Remove superseded local feedback/integration queues. Use GitHub issues as the

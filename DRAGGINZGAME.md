@@ -23,6 +23,11 @@ Consumer choices described in those guides remain subject to this baseline.
   Read the current handoff for accepted work and implementation status. Treat
   historical documents as evidence, not current authority. Verify documentation
   against implementation; distinguish supported behavior from unfinished plans.
+- Every repository must have a concise, accurate GitHub description of its
+  current purpose and scope, consistent with its README and implementation.
+  Review it during baseline adoption and whenever the repository's purpose,
+  scope or maintenance status changes. Correct missing, stale or misleading
+  descriptions; do not present retired behavior or planned features as current.
 
 ## Scope and authorization
 
@@ -73,6 +78,11 @@ Consumer choices described in those guides remain subject to this baseline.
 - Remove superseded paths completely when their obligations permit retirement.
   Name any remaining consumer or deployment blocker and the evidence needed to
   close it. Do not leave replacement and old implementation indefinitely active.
+- When cleaning up code, list every removed function, method and type in the final
+  user-facing output, including private symbols and those inside deleted files.
+  Give exact names, their former file or module, why each was removed and its
+  replacement when applicable. Distinguish deletions from moves or renames.
+  Shared reasons may be grouped, but every removed name must still be listed.
 - Meaningful completed behavior and tooling changes belong in the current
   changelog draft. Do not choose a new release version for every focused slice.
 

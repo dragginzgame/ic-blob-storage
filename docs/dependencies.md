@@ -6,7 +6,7 @@ its package version and dependencies from the workspace. Members select features
 and target conditions; `Cargo.lock` locks the resolved graph. Versions were checked against
 crates.io on 2026-09-25. On 2026-09-26, `serde_json` became a direct dependency
 at its existing locked version for bounded provider reply parsing. The table reflects
-the current lockfile on 2026-10-04, including maintainer dependency updates;
+the selected lockfile on 2026-10-05, including maintainer dependency updates;
 availability does not establish provider qualification or service readiness.
 
 | Dependency | Version | Purpose |
@@ -17,10 +17,10 @@ availability does not establish provider qualification or service readiness.
 | `sha2` | 0.11.0 | SHA-256; optional allocation/OID features disabled |
 | `thiserror` | 2.0.18 | Typed error derives; matches PocketIC's exact requirement |
 | `ic-cdk` | 0.20.3 | IC platform operations for the ops layer |
-| `ic-management-canister-types` | 0.10.0 (direct, locked) | Bounded current-instance IC-history request/reply types |
-| `ic-memory` | 0.24.5 (locked) | Sole allocation runtime; public typed growth API |
+| `ic-management-canister-types` | 0.11.0 (direct, locked) | Bounded current-instance IC-history request/reply types |
+| `ic-memory` | 0.25.5 (locked) | Sole allocation runtime; public typed growth API |
 | `ic-stable-structures` | 0.7.2 | Exact transitive substrate owned/re-exported by `ic-memory` |
-| `ic-testkit` | 0.14.4 (locked) | Native dependency of the unpublished PocketIC harness; shared helpers and full re-export |
+| `ic-testkit` | 0.15.4 (locked) | Native dependency of the unpublished PocketIC harness; shared helpers and full re-export |
 | `pocket-ic` | 16.0.0 | Transitive through `ic-testkit`; no direct dependency |
 | `ic-agent` | 0.49.2 | Native CLI and harness signing and verification of ingress certificates |
 | `candid_parser` | 0.4.1 | Native harness only; official Candid parser for native request fixtures |
@@ -35,13 +35,29 @@ the explicitly owned PocketIC NNS key, never a root key fetched from mainnet, an
 send no request to a Caffeine gateway. This is headless Rust evidence, not browser
 or production uploader qualification.
 
-The 2026-10-04 management-types update requires no recovery-owner adaptation.
-Core/standalone/CLI checks and fresh standalone Wasm pass; four lifecycle/recovery
-cases and snapshot rollback refusal pass under the current lockfile. PocketIC 16
-still brings its own management-types 0.8.0 transitively. That native-only type
-dependency is separate from the core's direct 0.10.0 and is not a second memory
-runtime. Current browser publication evidence uses explicitly retained artifacts;
-these focused platform checks do not replace full release or MSRV validation.
+The retained 2026-10-04 management-types checks used the then-direct 0.10.0.
+The [2026-10-05 upgrade record](evidence/caffeine-probes/README.md#management-canister-types-0110--2026-10-05)
+separately qualifies the direct 0.11.0 graph with ic-memory 0.25.5 and ic-testkit
+0.15.4. Three continuity unit tests, strict scoped Clippy, matching Wasm/harness
+builds and five actual PocketIC recovery cases pass on that frozen graph.
+PocketIC 16 still brings its own native management-types 0.8.0 transitively;
+it is separate from the core's direct 0.11.0 and is not a second memory runtime.
+These records retain their actual dependency and artifact identities; they do
+not qualify a later lockfile change or replace full release or MSRV validation.
+
+The selected lock also retains the maintainer's powerfmt 0.2.0-to-0.2.1 update.
+Its declared Rust floor rises from 1.67.0 to 1.79.0, below this workspace's 1.88.0
+MSRV. Source review finds formatting-buffer implementation and inlining changes
+without changing the selected public API; optional macros are not selected by
+this graph. Current graph checks are recorded in the release handoff rather
+than attributed to the earlier recovery artifacts.
+
+The [0.14.10 batch preflight](evidence/release-preflight-01410.json) passes the
+complete configured `make ci` gate and actual native/Wasm checks with Rust
+1.88.0 on this selected graph, still compiled as 0.14.9. These Linux results
+preserve the source patch, artifacts and logs; release preparation from clean
+committed source remains a separate transaction. Native macOS and opt-in browser
+or scale profiles are not rerun by this gate.
 
 The native CLI explicitly enables reqwest 0.13.5's `rustls` and `http2` features;
 CLI-only builds must support HTTPS/HTTP/2 independently of the harness or agent's
@@ -95,7 +111,7 @@ use ic_testkit::pocket_ic::{PocketIc, PocketIcBuilder};
 use ic_testkit::pic::{CandidCallExt, CanisterInstallExt};
 ```
 
-The [published export](https://docs.rs/ic-testkit/0.10.0/ic_testkit/index.html)
+The original [0.10.0 export](https://docs.rs/ic-testkit/0.10.0/ic_testkit/index.html)
 exposes the complete PocketIC crate. Keep the dependency under native dev
 dependencies; neither the production library nor its Wasm build needs testkit.
 With the dedicated harness in place, the core package's native dev graph also
@@ -280,8 +296,9 @@ make wasm-check
 
 The toolchain file declares rustfmt, Clippy and `wasm32-unknown-unknown`.
 `make deps` fetches the locked graph and may use the network. The complete
-`make ci`/`make validate`/`make release-verify` gate runs this step automatically
-before offline validation, stopping immediately if fetching fails. Rust checks
+`make ci`/`make validate`/`make release-verify` gate first verifies the reviewed
+shared snapshot, then runs this fetch step before offline validation. Snapshot
+or fetch failure stops the gate. Rust checks
 use `--offline --locked` and this repository's `target/`. Scoped targets such as
 `make check` and direct `cargo --offline` commands still require a populated cache;
 run `make deps` before them after dependency changes or cache removal. Updating

@@ -10,7 +10,7 @@ The local annotated tag, [Cargo](../../Cargo.toml) and
 [receipt](../release.json) agree; the maintainer reports it pushed. No new remote
 publication or deployment observation is inferred. [The changelog](../../CHANGELOG.md)
 owns release notes. The released lock uses ic-memory 0.25.0 and ic-testkit 0.14.11.
-A concurrent workspace update now selects ic-memory 0.25.5 and ic-testkit 0.15.4;
+The post-release workspace selects ic-memory 0.25.5 and ic-testkit 0.15.4;
 the authorized management-types upgrade also selects 0.11.0. Earlier retained
 profiles keep their original graphs; the new scoped recovery checks below
 identify the updated graph explicitly.
@@ -213,8 +213,10 @@ Released 0.14.9 removes the mandatory Unreleased queue and section-order checks.
 Preparation selects one draft in place, preserves history and refuses ambiguous
 notes. The selected undated 0.14.10 draft collects completed tooling, dependency
 and qualification work; Cargo and the receipt remain at the released version.
-Release preparation requires the maintainer to commit this batch first, then
-run the full validation/version transaction from clean source. Earlier evidence
+The earlier draft batch is committed at `83a2742`; it did not change the package
+version or receipt. The subsequent snapshot refresh below remains uncommitted.
+Release preparation requires the maintainer to commit the outstanding batch first,
+then run the full validation/version transaction from clean source. Earlier evidence
 keeps its original compiled versions and dependency bindings.
 
 The 0.14.10 review corrects release-bootstrap fixtures that still expected
@@ -226,28 +228,55 @@ The initial failed fixture remains at `target/release-tests.E9wLZs`; initial and
 follow-up logs are under `.tmp/v01410-changelog-01`. This review performs no
 full CI, version transaction, commit, publication or deployment.
 
-This repository adopts Shared Tooling revision
-`e16c9c99bd800567189c8024eaf4242a5d1c9e29` through
-[the snapshot manifest](../../.shared-tooling.snapshot). It includes the canonical
-DRAGGINZGAME baseline, complete linked guides, integrity verifiers and unchanged
-workspace-aware LOC script. AGENTS.md is a local service overlay; build and
-validation do not depend on a sibling checkout. The
-[adoption evidence](../evidence/shared-tooling-adoption.md) retains reviewed source
-identities and focused commands. Snapshot verification runs before dependency
-fetching in configured CI; no full CI was executed for this batch.
+This repository adopts Shared Tooling 0.1.0 revision
+`41e1fd0ba41460bd2127cbf98ac8a4b2b2020d3e` through
+[the snapshot manifest](../../.shared-tooling.snapshot). The same eleven-file set
+includes the canonical DRAGGINZGAME baseline, complete linked guides, integrity
+verifiers and workspace-aware LOC script. AGENTS.md is a local service overlay;
+build and validation do not depend on a sibling checkout. The
+[adoption evidence](../evidence/shared-tooling-adoption.md) retains the initial
+`e16c9c99bd800567189c8024eaf4242a5d1c9e29` adoption and this refresh separately.
+Snapshot verification runs before dependency fetching in the complete validation
+gate. The scoped adoption records do not claim full CI; the later current-graph
+preflight below records that validation separately.
 
 The offline LOC report covers all eleven Cargo members rather than two crates.
 Make supplies the explicit root and offline metadata policy. Counts are path-based
 Rust file/test-attribute observations, not production code size or executed test
 counts. This tooling work changes no lockfile, package version or receipt;
-the concurrent dependency update above remains separate.
+dependency changes remain separate from snapshot validation.
 
-Snapshot verification, all-member coverage/totals, deliberate isolated corruption
-refusal, ShellCheck/syntax, instruction links and draft checks pass. Logs remain
-under `.tmp/shared-tooling-adoption-01`. The shared checkout acquired further
-uncommitted changes after selection; this snapshot exports the reviewed committed
-bytes and does not incorporate those edits. No Rust build, full CI, source version
-change, live effect or cleanup was performed.
+For the initial adoption, snapshot verification, all-member coverage/totals,
+deliberate isolated corruption refusal, ShellCheck/syntax, instruction links and
+draft checks pass. Logs remain under `.tmp/shared-tooling-adoption-01`. At that
+adoption the shared checkout acquired further uncommitted changes after selection;
+the initial snapshot exported only the selected committed bytes. No Rust build,
+full CI, source version change, live effect or cleanup was performed.
+
+The 0.1.0 refresh exports committed blobs from a clean Shared Tooling checkout,
+with the reviewed source URL changed from SSH to HTTPS for the same repository.
+The first remote-spelling refusal remains retained. The Bash 3.2 verifier fix,
+package-relative LOC classification and nested-member exclusion are adopted
+without patching shared copies. All eleven snapshot files, scoped upstream
+snapshot/LOC regressions, ShellCheck/syntax, member coverage/report totals,
+instruction links, changelog selection and diff checks pass locally on Linux.
+Package-relative paths reclassify 3,221 Rust lines in the protocol and PocketIC
+harness packages; total LOC remains 115,370 and test attributes remain 1,004.
+These are lexical/path counts, not production size or executed test counts.
+
+Commands, source archive, package digests, before/after reports and logs remain
+under `.tmp/shared-tooling-refresh-01`. Missing cloc/jq and Perl prerequisites
+were provisioned there from checksum-pinned Ubuntu packages, without system or
+sibling changes. The pre-existing powerfmt 0.2.0-to-0.2.1 lockfile change is
+preserved exactly and is not qualified by these tooling checks. Cargo version
+and receipt remain 0.14.9. No Rust build, full CI, release mutation, commit,
+publication, provider effect or native macOS qualification occurs.
+
+The new shared requirements cover exact cleanup symbol reporting and repository
+description review. A public GitHub read observes an empty repository description;
+the [adoption record](../evidence/shared-tooling-adoption.md#shared-tooling-010-refresh)
+retains that observation and a proposed description. No remote metadata write or
+issue submission is authorized by this continuation.
 
 The adopted baseline uses GitHub issues as the sole work tracker. Superseded
 local shared-feedback and consumer-integration queues are removed; old history
@@ -323,6 +352,40 @@ bindings and logs remain under `.tmp/management-types-011-01`. This is local
 evidence with no live provider call or paid cycles. It does not relabel the earlier
 restoration profiles, qualify new scale/macOS behavior or replace full CI.
 The package version, release receipt, Rust toolchain and declared MSRV are unchanged.
+
+## 0.14.10 batch preflight
+
+The [preflight record](../evidence/release-preflight-01410.json) binds base
+`8e3704bfee6edbf68c30d467c2c552951521ebbc` plus the retained uncommitted source
+patch. Dependency documentation now names the selected 0.11.0/0.25.5/0.15.4
+graph and preserves earlier artifact identities. Release setup now correctly
+verifies the snapshot before fetching dependencies. The existing transitive
+powerfmt update to 0.2.1 is retained: its public API is preserved, optional
+features are unselected and its 1.79.0 Rust floor remains below our 1.88.0 MSRV.
+
+The pinned Linux PocketIC 16.0.0 archive and executable match both original
+recorded hashes; the version check passes before use. Authorized full `make ci`
+passes snapshot/fetch, shell/release helpers, formatting, native compilation,
+strict Clippy, retained probe integrity, docs, native/PocketIC tests, Wasm
+checking and package verification. Test summaries report 962 passed, zero
+failed and 26 intentionally ignored opt-in cases. Actual Rust 1.88.0 native
+all-target/all-feature and workspace Wasm checks also pass on the same lock.
+
+Source archive/patch, dependency inputs, upstream powerfmt comparison, logs,
+test binaries, CLI, verifier, seven Wasm modules, PocketIC server and package
+are frozen under `.tmp/v01410-preflight-01`; hashes bind their actual identities.
+All compiled artifacts remain 0.14.9, and Cargo.toml/Cargo.lock/receipt match
+task-entry hashes. These are current Linux gate/MSRV observations, not new
+native macOS, opt-in browser/scale or deployed-provider qualification.
+
+The effect-free 0.14.10 release preview passes. Version preparation has not run:
+the outstanding batch needs the maintainer's source commit under the baseline's
+no-agent-commit rule. Once source is committed and clean, the authorized next
+step is `make bump-x VERSION=0.14.10`; that helper validates the exact committed
+source before updating the release files and receipt. No commit, tag, push,
+publication, deployment, remote metadata write, paid effect or destructive
+cleanup occurs. This preflight does not relabel earlier profiles or create a
+0.14.10 release receipt from dirty source.
 
 ## Remaining product work
 

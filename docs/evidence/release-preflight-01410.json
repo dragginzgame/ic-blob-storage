@@ -1,0 +1,97 @@
+{
+  "schema": 1,
+  "date": "2026-10-05",
+  "scope": "Authorized local preflight for the 0.14.10 batch; not release preparation, publication or deployed-provider qualification.",
+  "compiled_package_version": "0.14.9",
+  "prospective_release": "0.14.10",
+  "host": "Linux x86_64",
+  "development_rust": "1.99.0",
+  "checked_msrv": "1.88.0",
+  "source": {
+    "base_commit": "8e3704bfee6edbf68c30d467c2c552951521ebbc",
+    "working_tree": "Uncommitted batch; executable sources and validation inputs unchanged during validation. Subsequent evidence/handoff prose records the result.",
+    "archive": {
+      "path": ".tmp/v01410-preflight-01/base-source.tar",
+      "sha256": "1ef97e22cb88348a5b6814e4fc0fb1c19502c0425baa5d5a0e56c1412cb7c27d"
+    },
+    "patch": {
+      "path": ".tmp/v01410-preflight-01/validated-source.patch",
+      "sha256": "7c3e7818648646f46784a627fdf6ca4dfd58c3c0194bf37b7795db2d35c6ac54"
+    },
+    "cargo_lock_sha256": "7600d6d2ce134a303d6dc056f4ebfa19739cabe0448e4c4dfd377353d84ce06e",
+    "shared_snapshot_revision": "41e1fd0ba41460bd2127cbf98ac8a4b2b2020d3e"
+  },
+  "selected_dependencies": {
+    "ic-management-canister-types_core": "0.11.0",
+    "ic-management-canister-types_pocketic": "0.8.0",
+    "ic-memory": "0.25.5",
+    "ic-testkit": "0.15.4",
+    "pocket-ic": "16.0.0",
+    "powerfmt": "0.2.1"
+  },
+  "powerfmt_disposition": {
+    "decision": "Keep the existing 0.2.0-to-0.2.1 lockfile update in this batch.",
+    "review": "Cached upstream source comparison preserves the selected public API, changes buffer implementation/inlining and fixes alternate formatter-option handling. Declared Rust floor rises from 1.67.0 to 1.79.0, below the workspace floor. No optional features are selected.",
+    "dependency_path": "Native CLI/harness through time 0.3.55; no direct service dependency added.",
+    "evidence": ".tmp/v01410-preflight-01/powerfmt-source.diff, powerfmt-tree.log, powerfmt-crates.sha256 and frozen upstream crate archives"
+  },
+  "pocketic_provisioning": {
+    "url": "https://github.com/dfinity/pocketic/releases/download/16.0.0/pocket-ic-x86_64-linux.gz",
+    "archive_sha256": "268ba79ec7fe9a563a575adf4983c69627093cce2711d142e476cdc7ad04249e",
+    "executable_sha256": "69e324bdb68d32d878b7a9504b1379f08f8d1921272bacb065b0fabb3d0f3792",
+    "version_output": "pocket-ic-server 16.0.0",
+    "path": ".tmp/tools/pocket-ic-16.0.0/pocket-ic",
+    "verification": "Archive hash checked before decompression; executable hash and version checked before validation. Original installation evidence is preserved."
+  },
+  "checks": [
+    {
+      "command": "make ci",
+      "exit_code": 0,
+      "log": ".tmp/v01410-preflight-01/ci-01.log",
+      "log_sha256": "5ade56672a003d994914f6abcbb577d41ee1042536a5ac162c77fd6d37835fbc",
+      "coverage": "Snapshot integrity, locked dependency fetching, shell/release helpers, formatting, all-target/all-feature native compilation and Clippy, retained probe integrity, Rust docs, native/PocketIC tests, workspace Wasm checking and package verification.",
+      "test_observation": {
+        "passed": 962,
+        "failed": 0,
+        "ignored": 26,
+        "interpretation": "Aggregate of reported test summaries, including doctests. Ignored opt-in browser/profiling cases are not executed. Counts are observations, not fixed-count acceptance guards."
+      }
+    },
+    {
+      "command": "cargo +1.88.0 check --offline --locked --workspace --all-targets --all-features",
+      "exit_code": 0,
+      "log": ".tmp/v01410-preflight-01/msrv-native-01.log",
+      "log_sha256": "29ad21b83e4f9cacfd031e7e1919f6aef773e811ffa45ef5a89ac745a99b4f87"
+    },
+    {
+      "command": "cargo +1.88.0 check --offline --locked --workspace --all-features --target wasm32-unknown-unknown",
+      "exit_code": 0,
+      "log": ".tmp/v01410-preflight-01/msrv-wasm-01.log",
+      "log_sha256": "5e9471a2f5eda151edcb397148a7ab56eea0b8e7ca45dca12926780470481211"
+    },
+    {
+      "command": "make release-plan VERSION=0.14.10",
+      "exit_code": 0,
+      "log": ".tmp/v01410-preflight-01/release-plan.log",
+      "result": "Current 0.14.9, target 0.14.10; effect-free preview."
+    }
+  ],
+  "retained_artifacts": {
+    "directory": ".tmp/v01410-preflight-01/artifacts",
+    "manifest": ".tmp/v01410-preflight-01/artifacts.sha256",
+    "manifest_sha256": "9357bbc0da0f8512b607225de070186566c28447a12cae0e28b64732548bc6eb",
+    "contents": "CLI, probe verifier, seven Wasm modules, native test binaries, PocketIC server and verified 0.14.9 crate package. Source, lockfile, metadata, upstream source comparisons and command logs are retained separately in the same evidence directory."
+  },
+  "release_boundary": {
+    "preparation_run": false,
+    "reason": "The baseline reserves commits to the maintainer. Release preparation requires committed clean source and validates that exact source again before changing release files.",
+    "next_after_maintainer_commit": "make bump-x VERSION=0.14.10",
+    "package_version_and_receipt": "Remain 0.14.9; Cargo.toml, Cargo.lock and docs/release.json hashes match task entry."
+  },
+  "limitations": [
+    "No native macOS execution or upstream CI status observation.",
+    "No opt-in browser/media/scale profiling rerun and no relabeling of older evidence.",
+    "No Git commit, tag, push, registry publication, deployment or remote metadata write.",
+    "No live provider request, paid effect or destructive cleanup. Local PocketIC/substitute regressions do not establish deployed-provider guarantees."
+  ]
+}
