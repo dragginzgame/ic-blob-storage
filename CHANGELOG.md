@@ -1,5 +1,43 @@
 # Changelog
 
+## [0.14.10]
+
+### Fixed
+
+- Update release-gate bootstrap fixtures for snapshot verification before
+  dependency fetching. Verify that snapshot or fetch failure stops validation
+  without changing release files or discarding retained build artifacts.
+
+### Added
+
+- Extend opt-in service restoration profiling to 32 tenants with overlapping
+  request IDs and 16/64 MiB multi-chunk manifests. Actual same-release upgrades
+  preserve accounting, exact selected manifests, permissions, references and
+  receipts, while refusing foreign callers and fenced mutations. Retain all six
+  local workloads, requests, checkpoints and the initial bounded-input failure;
+  default CI work and production contracts are unchanged.
+
+### Changed
+
+- Upgrade management-canister types to 0.11.0, select ic-memory 0.25.5 and
+  update the test harness to ic-testkit 0.15.4. Verify current-instance recovery,
+  interrupted history reads, retained liabilities and actual snapshot refusal
+  on this dependency graph. Public APIs, persisted layouts and bounded
+  IC-history acquisition are unchanged.
+- Adopt a reviewed Shared Tooling snapshot with the canonical engineering
+  baseline, its linked guides and unchanged portable tools. Keep service-specific
+  instructions in the local AGENTS overlay and verify snapshot integrity offline.
+- Report Rust file and test-attribute counts for every Cargo workspace member,
+  including canisters and test crates, with offline metadata discovery.
+- Remove superseded local feedback/integration queues. Use GitHub issues as the
+  tracker, retain historical source references and keep supporting evidence with
+  its existing owner.
+- Prepare synthetic population manifests off-canister through the existing
+  Caffeine manifest builder. The private fixture accepts the complete bounded
+  declaration and returns no duplicate requests. Its one current installation
+  record declares tenant and object-byte ceilings; ordinary callers retain their
+  two-object, two-tenant, ten-byte limits and the existing 4 KiB decoder bound.
+
 ## [0.14.9] - 2026-10-05
 
 ### Fixed

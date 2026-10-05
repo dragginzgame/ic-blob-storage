@@ -82,8 +82,9 @@ qualifies the two sample journeys without resetting those obligations.
 
 The public library has no downstream framework dependency. Consumer frameworks
 wrap its shared workflows and own integration testing in their repositories.
-Canic adoption is deferred; the [consumer integration backlog](docs/canic-parity.md#integration-feedback)
-tracks required wrapper, publication, serving and lifecycle work.
+Canic adoption is deferred. The [service contract](docs/service-contract.md)
+defines wrapper and lifecycle obligations; [GitHub issues](https://github.com/dragginzgame/ic-blob-storage/issues)
+track publication, serving and consumer integration work.
 The [issuance contract and retained trial](docs/standalone-trial.md) distinguish
 configurable upload limits from the first live owner's 1 KiB configuration.
 Exact trial authority, budgets and retained obligations are recorded in the
@@ -206,7 +207,8 @@ Releases preserve build artifacts; cleanup is a separate `make clean` action.
 | [Service contract](docs/service-contract.md) | Authority, accounting, verifier trust and recovery rules |
 | [Acceptance plan](docs/acceptance-plan.md) | What must be demonstrated before service qualification |
 | [Service gaps](docs/service-gaps.md) | Remaining consumer, recovery, deletion and billing acceptance |
-| [Consumer integration backlog](docs/canic-parity.md#integration-feedback) | Open wrapper, publication, serving and retirement actions |
+| [GitHub issues](https://github.com/dragginzgame/ic-blob-storage/issues) | Consumer integration, publication, serving and retirement work |
+| [Shared engineering baseline](DRAGGINZGAME.md) | Reviewed common rules; AGENTS.md supplies the local overlay |
 | [Provider review](docs/provider-review.md) | Reviewed Caffeine interfaces and unresolved guarantees |
 | [Probe ledger](docs/evidence/caffeine-probes/README.md) | Tracked investigations, retained artifacts and limitations |
 | [Core evidence](docs/evidence/core-primitives.md) | Source-bound local implementation and test results |

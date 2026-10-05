@@ -110,7 +110,7 @@ pub(crate) fn initialize(
     let started = ic_cdk::api::call_context_instruction_counter();
     let operator = input.operator;
     // Reject invalid candidates before even bootstrapping the host memory runtime.
-    let config = configuration::configuration(operator, input.max_objects);
+    let config = configuration::configuration(input);
     STATE.with_borrow(|state| assert!(state.is_none(), "initialization is not reset"));
     let (runtime, memory) = granted_memories();
     let neighbor = runtime.open_memory_by_key("fixture.neighbor.v1").unwrap();
@@ -297,7 +297,7 @@ fn probe_memory(
     reason = "CDK decoder owns the argument buffer"
 )]
 pub(crate) fn decode<T: CandidType + for<'de> Deserialize<'de>>(bytes: Vec<u8>) -> T {
-    if bytes.len() > 4096 {
+    if bytes.len() > blob_test_protocol::storage::resources::STORAGE_PROBE_INPUT_BYTES {
         ic_cdk::trap("fixture input byte bound");
     }
     let mut config = DecoderConfig::new();

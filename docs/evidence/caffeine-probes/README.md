@@ -1,5 +1,90 @@
 # Caffeine probe ledger
 
+## Management-canister types 0.11.0 — 2026-10-05
+
+The [intent](local/2026-10-05-management-types-011-01/intent.json) precedes scoped
+local PocketIC recovery checks after the authorized dependency upgrade. Relative
+to the captured pre-upgrade lock, only management types change from 0.10.0 to
+0.11.0. Existing ic-memory 0.25.5 and ic-testkit 0.15.4 updates are preserved;
+PocketIC 16 owns its separate native 0.8.0 types. The core Wasm path selects
+0.11.0 through the workspace declaration, without an adapter or version reader.
+
+The upstream source diff leaves our `canister_info` contracts unchanged. The new
+instruction metric aggregates previous-round subnet work, including scheduler
+and non-Wasm charges; it cannot replace operation profiling, independent history
+or Caffeine accounting. P-256 ECDSA has no current consumer here. No new metrics
+call, polling loop, state owner or runtime flow is introduced.
+
+Three existing continuity unit tests and five existing actual PocketIC cases
+pass: ordinary stop/start/repeated upgrades and operator refusal, truncated
+history, a management change during the await, retained physical/billing
+obligations, and snapshot rollback refusal without repair. Strict scoped core,
+standalone-Wasm and harness Clippy plus matching builds pass. The
+[summary](local/2026-10-05-management-types-011-01/summary.json) binds exact commands,
+source archive/patch, before/after dependency inputs, upstream source comparison,
+frozen executable/Wasm/server and logs under `.tmp/management-types-011-01`.
+
+This is local history/recovery evidence with explicit local completion facts,
+zero live provider calls and paid cycles. No production Rust source, public API,
+persisted layout, package version, toolchain, declared MSRV or release receipt
+changes. Full CI, native macOS, scale and deployed provider behavior are not
+qualified. Earlier profiles retain their original graphs. No deployment,
+sibling edit/message or cleanup occurs; consumer adoption, certified asset
+registration and provider retirement remain separate obligations.
+
+## Multi-tenant and multi-chunk restoration — 2026-10-05
+
+The [intent](local/2026-10-05-restoration-shapes-01/intent.json) precedes extending
+the existing opt-in sixteen-store profile on compiled 0.14.9. The private fixture
+uses one current bounded installation record; ordinary callers keep two objects,
+two tenants and ten-byte objects. Existing native Caffeine manifest preparation
+supplies complete declarations, so population no longer hashes bodies in the
+canister or returns requests already owned by the caller. No production model,
+public API, memory layout or default CI workload changes.
+
+The first 100-object packet traps at the fixture's existing 4 KiB ingress bound
+before population. Its log, refusal and frozen artifacts remain; that first
+packet was not saved. The [follow-up intent](local/2026-10-05-restoration-shapes-01/followup-intent.json)
+keeps all decoder byte/header/work/type limits. Sixteen small-object or one
+multi-chunk-object batches pass, retaining each exact request before dispatch.
+All 795 population packets measure 703–2,519 bytes. No failure is overwritten.
+
+| Lifetime operations | Tenants | Object bytes | Instrumented initialization instructions | Allocated heap | Physical stable memory |
+| ---: | ---: | ---: | ---: | ---: | ---: |
+| 100 | 1 | 10 | 119,709,644 | 1,376,256 B | 18,939,904 B |
+| 1,000 | 1 | 10 | 1,437,289,093 | 1,376,256 B | 22,085,632 B |
+| 10,000 | 1 | 10 | 17,328,500,885 | 1,376,256 B | 72,417,280 B |
+| 1,024 | 32 | 10 | 1,495,367,763 | 1,376,256 B | 21,037,056 B |
+| 32 | 4 | 16 MiB | 45,040,110 | 1,376,256 B | 18,939,904 B |
+| 4 | 1 | 64 MiB | 12,638,294 | 1,376,256 B | 18,939,904 B |
+
+Every workload passes actual same-release upgrade with equal uncertain, live,
+logically released and cancelled populations. Global accounting and selected
+tenant-bound permissions, exact full manifests, overlapping references and
+historical receipts survive. Request IDs deliberately overlap across tenants;
+roots and leaves are distinct. Foreign callers refuse, and restored mutation
+refuses without altering accounting or restoration counters. Normal application
+limits are unchanged; no independent freshness/resume claim follows.
+
+The [summary](local/2026-10-05-restoration-shapes-01/summary.json) binds frozen
+artifacts, source patch, dependencies, exact successful population requests,
+checkpoints, results and all failed attempts under `.tmp/restoration-shapes-01`.
+Scoped fixture/harness Clippy, matching builds, formatting and the final ordinary
+rollback/reopen regression pass. Initial lint and local loopback-binding failures
+remain recorded. This is synthetic local completion evidence, with zero live
+provider requests or paid cycles; no provider availability or retention claim.
+
+These different populations do not isolate tenant or manifest overhead, and
+instrumentation includes observer overhead. Allocated linear memory is not live
+heap or peak working memory. No million-object, populated funding/read-history,
+production-cost, macOS or stale-backup qualification follows. The new measurements
+justify no allocator, unsafe path, cache or partial-restoration change. Production
+sources, version and receipt are unchanged by this work. A concurrent task
+updated workspace dependencies after the frozen profile build; its new graph is
+not qualified by these artifacts. No full CI, deployment,
+sibling edit/message or cleanup occurs. Consumer adoption, certified asset
+registration and provider retirement remain separate obligations.
+
 ## Funding fixture upgrade correction — 2026-10-04
 
 The [intent](local/2026-10-04-storage-funding-upgrade-01/intent.json) precedes

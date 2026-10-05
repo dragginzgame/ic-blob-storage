@@ -146,7 +146,8 @@ or create a second manager. These helpers do not grant exclusive access themselv
 the host must assign the handles to one storage owner. Standalone uses the shared
 mapping with its unchanged configuration grant, range and bucket policy.
 Framework consumers own their generic lifecycle wrapper and endpoint adapter;
-Canic integration is deferred in the [feedback list](canic-parity.md#integration-feedback).
+Canic integration remains deferred; [GitHub issues](https://github.com/dragginzgame/ic-blob-storage/issues)
+track consumer adoption. This contract owns the required service behavior.
 
 `ops::service::installation::ValidatedServiceInstallation` also validates the
 explicit project, verifier, trusted uploader and bounded library release before allocation.

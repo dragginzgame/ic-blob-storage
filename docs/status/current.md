@@ -4,13 +4,17 @@ Date: 2026-10-05
 
 ## Retained release baseline
 
-Released **0.14.7** is at `cb4cd5a1253f53e9daed0e4a51bcf894a4f0ccd6`,
-with validated source `af5140a97c32ccadd2fbf7c4e6a00e6aa3deb42e`.
-The prior handoff checked that tag/source identity and recorded the maintainer's
-push report. [Cargo](../../Cargo.toml) and [the receipt](../release.json) now record
-0.14.8; this tooling batch does not freshly verify its tag or remote publication.
-[The changelog](../../CHANGELOG.md) owns release notes. A release does not establish registry publication, consumer adoption
-or deployed provider behavior. The lock uses ic-memory 0.25.0 and ic-testkit 0.14.11.
+Released **0.14.9** is at `c3a16529d161547987c138b15bf75cac70b54c55`,
+with validated source `760568efd3ad42b0fb5d39ebb554aec306fb883f`.
+The local annotated tag, [Cargo](../../Cargo.toml) and
+[receipt](../release.json) agree; the maintainer reports it pushed. No new remote
+publication or deployment observation is inferred. [The changelog](../../CHANGELOG.md)
+owns release notes. The released lock uses ic-memory 0.25.0 and ic-testkit 0.14.11.
+A concurrent workspace update now selects ic-memory 0.25.5 and ic-testkit 0.15.4;
+the authorized management-types upgrade also selects 0.11.0. Earlier retained
+profiles keep their original graphs; the new scoped recovery checks below
+identify the updated graph explicitly.
+Retained observations below keep their original source and artifact identities.
 
 The core owns tenant policy, uploads, manifests, references, quotas, provider
 economics and local durable journals. Standalone authenticates platform context
@@ -205,60 +209,130 @@ unchanged. No full storage suite or CI rerun, release, live effect or cleanup.
 
 ## Current tooling work
 
-The maintainer's changelog rule is recorded in the explicitly authorized
-`../shared-tooling/AGENTS.md` and adopted locally. Latest release/draft notes stay
-at the top without Unreleased or a separate notes queue. One undated draft may
-omit its patch number or use an undecided label; release preparation assigns its
-chosen version/date in place. Section-order and mandatory-queue checks are gone.
-Presentation and undecided draft labels do not gate deployment; release
-preparation still rejects conflicting drafts rather than relabeling history.
+Released 0.14.9 removes the mandatory Unreleased queue and section-order checks.
+Preparation selects one draft in place, preserves history and refuses ambiguous
+notes. The selected undated 0.14.10 draft collects completed tooling, dependency
+and qualification work; Cargo and the receipt remain at the released version.
+Release preparation requires the maintainer to commit this batch first, then
+run the full validation/version transaction from clean source. Earlier evidence
+keeps its original compiled versions and dependency bindings.
 
-The current notes are the named, undated 0.14.9 draft, selected by the maintainer
-on 2026-10-05. Cargo and the receipt remain at 0.14.8; release preparation owns
-their mutation and final dating. This batch changes release tooling and
-documentation, not the service API or stored layouts. Isolated helper tests
-cover partial, named and undecided labels, historical-note preservation,
-rollback/publication/retry and a non-first draft without an order guard. The
-helper tests, Perl syntax, ShellCheck and effect-free current draft check pass;
-logs remain under `.tmp/changelog-section-order-01`. No actual commit, tag, version
-mutation, deployment, provider effect or full CI occurs. Shared tooling changes
-only its named instruction file; other consumers still need to adopt the rule.
-Existing consumer tool adoption, certified registration and provider retirement
-actions remain open.
+The 0.14.10 review corrects release-bootstrap fixtures that still expected
+dependency fetching as the first gate. The fixtures now observe snapshot
+verification before fetching and compilation; snapshot/fetch failures preserve
+release files and the retained build sentinel. Release-helper tests, snapshot
+integrity, shell checks, formatting, changelog selection and diff checks pass.
+The initial failed fixture remains at `target/release-tests.E9wLZs`; initial and
+follow-up logs are under `.tmp/v01410-changelog-01`. This review performs no
+full CI, version transaction, commit, publication or deployment.
 
-The [shared-tooling feedback record](../governance/shared-tooling-feedback.md)
-now owns reusable feedback and its dispositions. The maintainer subsequently
-authorized a shared AGENTS.md baseline for all Dragginzgame repositories. Its
-working file now includes feedback intake, artifact/evidence identity, contract
-propagation through recovery, offline cache prerequisites, scope/authority,
-canonical ownership and pre-1.0 hard cuts/unversioned-or-V1 models. The record
-binds its exact uncommitted bytes separately from shared HEAD; no published
-revision or adoption by other consumers is claimed.
+This repository adopts Shared Tooling revision
+`e16c9c99bd800567189c8024eaf4242a5d1c9e29` through
+[the snapshot manifest](../../.shared-tooling.snapshot). It includes the canonical
+DRAGGINZGAME baseline, complete linked guides, integrity verifiers and unchanged
+workspace-aware LOC script. AGENTS.md is a local service overlay; build and
+validation do not depend on a sibling checkout. The
+[adoption evidence](../evidence/shared-tooling-adoption.md) retains reviewed source
+identities and focused commands. Snapshot verification runs before dependency
+fetching in configured CI; no full CI was executed for this batch.
 
-Shared Tooling's own validation commands remain separate from consumer policy.
-Only its named AGENTS.md changed: automatic approval review rejected accompanying
-CONTRIBUTING and principle-index edits as outside that sibling-file authority.
-The baseline is self-contained; those supporting clarifications remain proposals.
-Documentation links/diffs and the local draft check pass. No scripts, platform
-qualification, commits, tags, publication, deployment or cleanup occur.
+The offline LOC report covers all eleven Cargo members rather than two crates.
+Make supplies the explicit root and offline metadata policy. Counts are path-based
+Rust file/test-attribute observations, not production code size or executed test
+counts. This tooling work changes no lockfile, package version or receipt;
+the concurrent dependency update above remains separate.
 
-Local action L1 is to adopt the already available workspace-aware LOC script via
-a reviewed snapshot. The current copy counts only crates/ while this workspace
-also has canisters/ and tests/ members. No script adoption, issue submission or
-portable-tool execution occurred. After the maintainer commits the upstream
-baseline, consumers need to record a reviewed revision and reconcile their local
-overlays; this does not authorize edits across the organization. Update the
-canonical record and distinguish shared decisions from verified consumer adoption.
-Existing product integration and retirement actions remain open.
+Snapshot verification, all-member coverage/totals, deliberate isolated corruption
+refusal, ShellCheck/syntax, instruction links and draft checks pass. Logs remain
+under `.tmp/shared-tooling-adoption-01`. The shared checkout acquired further
+uncommitted changes after selection; this snapshot exports the reviewed committed
+bytes and does not incorporate those edits. No Rust build, full CI, source version
+change, live effect or cleanup was performed.
+
+The adopted baseline uses GitHub issues as the sole work tracker. Superseded
+local shared-feedback and consumer-integration queues are removed; old history
+links bind their released source. Evidence remains with its owning probe/contract,
+without new local issue IDs or triage tables. No issue submission or upstream
+message is authorized by this adoption. Native macOS behavior and host-specific
+prerequisites are not qualified by Linux checks; the shared requirement remains.
+
+## Current restoration qualification
+
+The [multi-tenant/multi-chunk record](../evidence/caffeine-probes/README.md#multi-tenant-and-multi-chunk-restoration--2026-10-05)
+extends the existing opt-in sixteen-store PocketIC profile. All six workloads
+pass on normal application limits: 100/1,000/10,000 one-tenant operations,
+1,024 operations across 32 tenants, 32 operations with 16 MiB manifests across
+four tenants, and four operations with 64 MiB manifests. Request IDs overlap
+across tenants; roots and leaves remain distinct.
+
+Actual same-release upgrades preserve global accounting and selected tenant-bound
+permissions, exact chunk/header declarations, reference liveness and receipts.
+Foreign callers refuse; restored mutations remain fenced without changing state.
+Instrumented initialization is 17,328,500,885 instructions at 10,000 operations,
+1,495,367,763 for the 32-tenant workload, 45,040,110 for 16 MiB manifests and
+12,638,294 for 64 MiB manifests. Different populations are not controlled
+comparisons. Allocated heap is 1,376,256 bytes in each workload; that is linear
+memory allocation, not live heap or peak working memory.
+
+The private fixture now accepts existing client-prepared manifests instead of
+hashing bodies in the canister or returning duplicate requests. One current
+installation record declares bounded object/tenant/byte ceilings; all callers
+are updated and ordinary tests keep their two-object/two-tenant/ten-byte limits.
+The first 100-object input exceeds the existing 4 KiB decoder limit and fails
+before mutation; it remains retained. Smaller batches preserve every decoder
+limit. The successful follow-up retains all 795 exact population packets before
+dispatch (703–2,519 bytes), checkpoints, original/follow-up binaries and logs
+under `.tmp/restoration-shapes-01`.
+
+Strict scoped fixture/harness Clippy, matching builds, formatting and the ordinary
+two-object rollback/reopen regression pass. The failed initial lints and sandbox
+loopback attempt also remain recorded. This work changes no production sources,
+dependency lock, release version or receipt; artifacts compile as 0.14.9 with the
+retained fixture source patch and original released dependency graph. The
+concurrent dependency update above is preserved and not qualified by this run.
+There is no new cache, partial restore, relaxed fence or default CI workload.
+This run is synthetic local completion evidence,
+with zero live provider calls or paid cycles. It does not qualify occupied
+funding/read histories, production restore costs, macOS, stale-backup activation,
+freshness resume, future retention or million-object use. No further production
+optimization is justified by this workload extension alone.
+
+## Management-canister types upgrade
+
+The [upgrade record](../evidence/caffeine-probes/README.md#management-canister-types-0110--2026-10-05)
+qualifies scoped current-instance recovery on management types 0.11.0, ic-memory
+0.25.5, ic-testkit 0.15.4 and PocketIC 16. The workspace owns the version; every
+member inherits it. PocketIC's native 0.8.0 dependency remains upstream-owned,
+while the core Wasm path selects 0.11.0. Only the authorized package changes
+relative to the captured pre-upgrade lock; concurrent updates are preserved.
+
+Upstream source comparison leaves the maintained `canister_info` types unchanged.
+The new instruction total measures aggregate subnet work, including scheduler
+and non-Wasm charges, with prior-round freshness. It cannot attribute a service
+operation, prove continuity or replace provider accounting. The new ECDSA curve
+has no current blob-storage consumer. Keep the existing bounded, authenticated
+history proof without adding metrics polling, management calls or a new state
+owner. No public API, persisted layout or production Rust source changes.
+
+Three continuity unit tests, strict core/standalone-Wasm/harness Clippy, matching
+Wasm/harness builds and five existing PocketIC recovery cases pass. These cover
+operator denial, ordinary stop/start/repeated upgrades, expired history without
+anchor rotation, management changes during the await, retained physical/billing
+obligations and actual snapshot refusal. Frozen artifacts, source/dependency
+bindings and logs remain under `.tmp/management-types-011-01`. This is local
+evidence with no live provider call or paid cycles. It does not relabel the earlier
+restoration profiles, qualify new scale/macOS behavior or replace full CI.
+The package version, release receipt, Rust toolchain and declared MSRV are unchanged.
 
 ## Remaining product work
 
-- Next repository batch: qualify restoration costs with representative larger
-  manifests and more tenants before choosing another optimization. Preserve
-  synchronous validation, durable effect identities and byte ownership at
-  independent boundaries. The measured
-  10,000-operation workload passes but does not qualify million-object operation.
-  Journal rows count lifetime permissions, not necessarily stored service objects.
+- Next repository batch: inspect representative occupied funding/read histories
+  before choosing another restoration optimization. Preserve synchronous
+  validation, durable effect identities and byte ownership at independent
+  boundaries. Larger manifests and 32 tenants now pass the bounded local profile
+  above; neither the 10,000-operation tier nor these smaller shapes qualify
+  million-object operation. Journal rows count lifetime permissions, not
+  necessarily stored service objects.
 - Qualify selected tools in a consumer-owned prefix/build, then replace its registry
   0.7.0 preparer upon adoption. Preserve explicit binary/trust/history selection.
   Recover existing profiles with their original tools and bundles.
@@ -271,27 +345,26 @@ Existing product integration and retirement actions remain open.
   gaps. Missing downloads and zero usage counters prove neither deletion nor billing
   cessation. See [service gaps](../service-gaps.md).
 
-## Consumer feedback and GitHub disposition
+## Consumer feedback and GitHub references
 
-The [last retained issue review](../evidence/caffeine-probes/local/2026-10-04-gh-issues-review-01/summary.json)
-found seven issues/seventeen comments and verified remote main at 0.14.3. No new
-remote refresh or issue write is claimed; local release records establish 0.14.7.
-
-| Issue | Repository result | Remaining action |
-| --- | --- | --- |
-| [#1 embedding](https://github.com/dragginzgame/ic-blob-storage/issues/1) | Complete installation requests and library-owned version implemented; published 0.14.2 contents verified | Original request ready to close; wrapper adoption separate |
-| [#2 budgets](https://github.com/dragginzgame/ic-blob-storage/issues/2) | Transfer preflight and zero-effect negatives released in 0.14.3 | Original implementation request ready to close; no provider spending-cap claim |
-| [#3 FIFO](https://github.com/dragginzgame/ic-blob-storage/issues/3) | Same-descriptor nonblocking reader; both FIFO boundaries confirmed | Original request ready to close; CLI remains source-installed |
-| [#4 publisher](https://github.com/dragginzgame/ic-blob-storage/issues/4) | Clean release recipe and callable driver/recovery qualified here | Consumer adoption, certified mapping transaction and deployed bindings |
-| [#5 serving](https://github.com/dragginzgame/ic-blob-storage/issues/5) | Original metadata and real-media delivery pass locally | Actual origins/CSP, inventory, transaction, game rendering and deployed serving |
-| [#6 lifetime](https://github.com/dragginzgame/ic-blob-storage/issues/6) | Overlapping references, retired-root refusal and bounded history implemented | Consumer retention/retirement; provider deletion/final billing |
-| [#7 decoding](https://github.com/dragginzgame/ic-blob-storage/issues/7) | Structurally valid skip/type refusals at real standalone boundaries | Header ceiling subsumed; independent work exhaustion remains unreproduced |
+GitHub owns issue status and triage. The
+[last retained issue review](../evidence/caffeine-probes/local/2026-10-04-gh-issues-review-01/summary.json)
+records its original remote/source observations; no current issue refresh or
+external write is claimed. Use the existing issues for
+[embedding #1](https://github.com/dragginzgame/ic-blob-storage/issues/1),
+[budgets #2](https://github.com/dragginzgame/ic-blob-storage/issues/2),
+[FIFO #3](https://github.com/dragginzgame/ic-blob-storage/issues/3),
+[publishing #4](https://github.com/dragginzgame/ic-blob-storage/issues/4),
+[serving #5](https://github.com/dragginzgame/ic-blob-storage/issues/5),
+[lifetime #6](https://github.com/dragginzgame/ic-blob-storage/issues/6) and
+[decoding #7](https://github.com/dragginzgame/ic-blob-storage/issues/7).
 
 For #7, preserve the [decoder contract](../service-contract.md#standalone-ingress-decoding)
 and original `.tmp/decoder-budgets-01` evidence. Do not weaken bounds or add test
 hooks to force exhaustion. Native batch publication remains bounded to 4,096 files.
-Canic adoption stays deferred; the [feedback list](../canic-parity.md#integration-feedback)
-retains wrapper/lifecycle, one-memory-runtime, current-format and recovery actions.
+Canic adoption stays deferred. The [service contract](../service-contract.md)
+and original retained evidence define wrapper/lifecycle, one-memory-runtime,
+current-format and recovery obligations; consumer issues own adoption status.
 No upstream message or sibling edit is authorized.
 
 The old isolated owner stays frozen at 0.6.0 with original stopped history; the

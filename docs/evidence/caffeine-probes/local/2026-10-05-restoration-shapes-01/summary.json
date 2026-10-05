@@ -1,0 +1,932 @@
+{
+  "schema": 1,
+  "date": "2026-10-05",
+  "source_base": "c3a16529d161547987c138b15bf75cac70b54c55",
+  "compiled_release": "0.14.9",
+  "changelog": "current undecided Draft",
+  "evidence_class": "local PocketIC normal application subnet; synthetic client-prepared manifests and explicit local completion substitute",
+  "live_provider_qualified": false,
+  "live_provider_requests": 0,
+  "paid_cycles": "0",
+  "intents": [
+    "intent.json",
+    "followup-intent.json"
+  ],
+  "dependencies": {
+    "ic_memory": "0.25.0",
+    "ic_testkit": "0.14.11",
+    "pocket_ic": "16.0.0",
+    "manifest": {
+      "path": ".tmp/restoration-shapes-01/compiled-Cargo.toml",
+      "bytes": 1539,
+      "sha256": "6d4de203f0dae177c1222a7fce727d7e278c81dca3d87faab8e3d0ab3e36e66d"
+    },
+    "lock": {
+      "path": ".tmp/restoration-shapes-01/compiled-Cargo.lock",
+      "bytes": 105732,
+      "sha256": "78446f7017416373f0df190bb773dea128b08fe4887209b4326b45df62a3da24"
+    },
+    "concurrent_update": {
+      "ic_memory": "0.25.5",
+      "ic_testkit": "0.15.4",
+      "qualified_by_this_run": false,
+      "observed_patch": {
+        "path": ".tmp/restoration-shapes-01/concurrent-dependencies.patch",
+        "bytes": 1296,
+        "sha256": "5c674f7ff96a686203eddd2fff3065234df5d8669ed97a15343c0de5b92d9de1"
+      }
+    }
+  },
+  "source_patch": {
+    "path": ".tmp/restoration-shapes-01/followup-source.patch",
+    "bytes": 39484,
+    "sha256": "afc2df8bcba3520ddedaa7101cb7c25ddb8dd3919a00ab44410f1ce023ccd3f1"
+  },
+  "frozen_artifacts": {
+    "original_wasm": {
+      "path": ".tmp/restoration-shapes-01/storage.wasm",
+      "bytes": 4781970,
+      "sha256": "2fbcade5d5571fb63691fd2d92170f547e654bbfb9b0363a9a779a66176800a3"
+    },
+    "original_harness": {
+      "path": ".tmp/restoration-shapes-01/storage",
+      "bytes": 261681616,
+      "sha256": "d6cf07bb0bc18f2eecc2b47cb794e6965778c91b70294b25a379d4be14f3b2f9"
+    },
+    "followup_wasm": {
+      "path": ".tmp/restoration-shapes-01/followup-storage.wasm",
+      "bytes": 4781970,
+      "sha256": "2fbcade5d5571fb63691fd2d92170f547e654bbfb9b0363a9a779a66176800a3"
+    },
+    "followup_harness": {
+      "path": ".tmp/restoration-shapes-01/followup-storage",
+      "bytes": 261700608,
+      "sha256": "e8e332e118078c346b38b23b8dea3c5907347435f82ff9e89b636696235933cd"
+    },
+    "server": {
+      "path": ".tmp/tools/pocket-ic-16.0.0/pocket-ic",
+      "bytes": 124304016,
+      "sha256": "69e324bdb68d32d878b7a9504b1379f08f8d1921272bacb065b0fabb3d0f3792"
+    }
+  },
+  "artifact_inventory": {
+    "path": ".tmp/restoration-shapes-01/artifact-inventory.json",
+    "bytes": 170846,
+    "sha256": "2db9ee1d18209409266f8fbe44730041f4d10afd3e264cd8c7c833559c881c67"
+  },
+  "changes": [
+    "Replace private population count with existing complete PreparationInput values; count derives from the inputs and the endpoint returns unit.",
+    "Prepare bodies/manifests off-canister with the maintained native CaffeineManifestBuilder and one bounded frame.",
+    "Extend the single current private installation contract with explicit bounded tenant/object-byte ceilings; propagate every installer/reopen caller.",
+    "Preserve all existing decoder limits with sixteen small-object or one multi-chunk-object batches and a shared fixture byte-bound constant.",
+    "No production sources, persisted record layouts, public APIs, cache, partial restore or default CI work change."
+  ],
+  "failures": [
+    {
+      "stage": "Intent preparation",
+      "result": "Node git subprocess launch returned EPERM; no probe took place; explicit verified identity supplied in intent."
+    },
+    {
+      "stage": "Initial compilation/lint",
+      "logs": [
+        {
+          "path": ".tmp/restoration-shapes-01/wasm-build.log",
+          "bytes": 3559,
+          "sha256": "00bd101bad128554ba9acb0cd36d6b27958693e79b846c57ff8c350a656f18ad"
+        },
+        {
+          "path": ".tmp/restoration-shapes-01/probe-clippy.log",
+          "bytes": 3716,
+          "sha256": "bdb6df6a0fae36f880177d7b6bd6a3e271adac8f5b4e4b10a2149c983baa0753"
+        },
+        {
+          "path": ".tmp/restoration-shapes-01/harness-clippy.log",
+          "bytes": 12920,
+          "sha256": "7881de62bfd7e19df21ddc4f733e60432c14266d2b3397660f1575519183cb18"
+        }
+      ],
+      "result": "Unused import warning and strict lint refusals for manual multiple-of/chunks-exact forms; corrected before the initial run."
+    },
+    {
+      "stage": "Ordinary local regression first attempt",
+      "log": {
+        "path": ".tmp/restoration-shapes-01/ordinary-upgrade.log",
+        "bytes": 969,
+        "sha256": "4b077c2bf854ef5e1a6c3f38dc72a649036f98dfa3c14882d0d63b520e66a31b"
+      },
+      "result": "PocketIC localhost binding denied by sandbox; failed attempt retained; loopback-authorized frozen-artifact execution passes.",
+      "followup": {
+        "path": ".tmp/restoration-shapes-01/ordinary-upgrade-loopback.log",
+        "bytes": 198,
+        "sha256": "373e4ae7083572ed8ba47dcf2a5c37a50d8343281ca204c488db4359e46114b2"
+      }
+    },
+    {
+      "stage": "Initial population profile",
+      "log": {
+        "path": ".tmp/restoration-shapes-01/profile.log",
+        "bytes": 539,
+        "sha256": "d26be8ba18360bc687142bc8f576f8fa603a6a5003f7fb137e3b164e50c25fc5"
+      },
+      "result": {
+        "path": ".tmp/restoration-shapes-01/results/population-failure-single-100-0.json",
+        "bytes": 1544,
+        "sha256": "de6d78d8ec28370deb0a07b18b1d553e22d35fa93de40552b5c5835f89dd0e32"
+      },
+      "finding": "First 100-object input exceeds the existing 4096-byte decoder ceiling and traps before population.",
+      "limitation": "Initial exact request bytes were not retained. Original harness/Wasm and full refusal remain; follow-up retains every exact population packet."
+    }
+  ],
+  "verification": {
+    "fixture_clippy": {
+      "path": ".tmp/restoration-shapes-01/followup-probe-clippy.log",
+      "bytes": 272,
+      "sha256": "0cda8181ef5c8ea5aff934b8de6275097c1fea3c84c09fda70e2708d7a6b0094"
+    },
+    "fixture_build": {
+      "path": ".tmp/restoration-shapes-01/followup-wasm.log",
+      "bytes": 263,
+      "sha256": "797815603825d0fe372babde82fd263fa73ccdc515d46ab4c5b338af71e6b34d"
+    },
+    "harness_clippy": {
+      "path": ".tmp/restoration-shapes-01/retained-harness-clippy.log",
+      "bytes": 177,
+      "sha256": "26aef66930b5bff9c5b0058003895cb13a66b3f575ad41dfa00dcca06c7534b1"
+    },
+    "harness_build": {
+      "path": ".tmp/restoration-shapes-01/retained-harness-build.log",
+      "bytes": 178,
+      "sha256": "63d4c489da63d4ab1584a88f1107601b39304d857dd7874d8aeb04cd0d300c0c"
+    },
+    "format": {
+      "path": ".tmp/restoration-shapes-01/format-check.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "changelog": {
+      "path": ".tmp/restoration-shapes-01/changelog-check.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "diff": {
+      "path": ".tmp/restoration-shapes-01/diff-check.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "executions": [
+    {
+      "command": "POCKET_IC_BIN=\"$PWD/.tmp/tools/pocket-ic-16.0.0/pocket-ic\" BLOB_STORAGE_PROBE_WASM=\"$PWD/.tmp/restoration-shapes-01/followup-storage.wasm\" BLOB_RESTORE_RESOURCE_REPORT=\"$PWD/.tmp/restoration-shapes-01/followup-results\" .tmp/restoration-shapes-01/followup-storage storage_resources::populated_service_restoration_profile --exact --ignored --nocapture",
+      "log": {
+        "path": ".tmp/restoration-shapes-01/followup-profile.log",
+        "bytes": 9845,
+        "sha256": "a2634e0f7c559c8dd8786300f421445479e789e0fc5c4af1ae49da31aaf9db1d"
+      },
+      "result": "PASS all six workloads",
+      "elapsed_seconds": 88.1
+    },
+    {
+      "command": "POCKET_IC_BIN=\"$PWD/.tmp/tools/pocket-ic-16.0.0/pocket-ic\" BLOB_STORAGE_PROBE_WASM=\"$PWD/.tmp/restoration-shapes-01/followup-storage.wasm\" .tmp/restoration-shapes-01/followup-storage upgrade_preserves_complete_pending_obligations_and_fences_all_mutations --exact --nocapture",
+      "log": {
+        "path": ".tmp/restoration-shapes-01/final-ordinary-upgrade.log",
+        "bytes": 198,
+        "sha256": "03c3ee7cdd4dce89114bcd4afccbada23647a86a49be0657b02aa16adcddd77d"
+      },
+      "result": "PASS rollback and actual ordinary two-object reopen/fenced mutations",
+      "elapsed_seconds": 2.64
+    }
+  ],
+  "successful_population_requests": {
+    "count": 795,
+    "min_bytes": 703,
+    "max_bytes": 2519,
+    "existing_byte_bound": 4096,
+    "exact_hashes_in_inventory": true,
+    "retained_before_dispatch": true
+  },
+  "workloads": [
+    {
+      "name": "single-100",
+      "accounting_observations_manifests_references_receipts_preserved": true,
+      "count": 100,
+      "elapsed_ms": 549,
+      "fenced_mutation_refused": true,
+      "foreign_tenant_observation_refused": true,
+      "object_bytes": 10,
+      "restored": {
+        "current_heap_bytes": "1376256",
+        "current_stable_bytes": "18939904",
+        "initialization_heap_bytes": 1376256,
+        "initialization_instructions": 119709644,
+        "initialization_stable_bytes": 18939904,
+        "reads": [
+          {
+            "bytes": 467,
+            "calls": 29,
+            "instructions": 92453,
+            "memory": "fixture.tenants.v1"
+          },
+          {
+            "bytes": 59432,
+            "calls": 3265,
+            "instructions": 1598036,
+            "memory": "fixture.roots.v1"
+          },
+          {
+            "bytes": 56765,
+            "calls": 4264,
+            "instructions": 1916298,
+            "memory": "fixture.root_objects.v1"
+          },
+          {
+            "bytes": 43408,
+            "calls": 486,
+            "instructions": 683272,
+            "memory": "fixture.permissions.v1"
+          },
+          {
+            "bytes": 322,
+            "calls": 20,
+            "instructions": 88630,
+            "memory": "fixture.usage.v1"
+          },
+          {
+            "bytes": 58925,
+            "calls": 3855,
+            "instructions": 1755382,
+            "memory": "fixture.manifests.v1"
+          },
+          {
+            "bytes": 51943,
+            "calls": 3534,
+            "instructions": 1611734,
+            "memory": "fixture.confirmed.v1"
+          },
+          {
+            "bytes": 91385,
+            "calls": 5752,
+            "instructions": 2586690,
+            "memory": "fixture.references.v1"
+          },
+          {
+            "bytes": 34361,
+            "calls": 1958,
+            "instructions": 939866,
+            "memory": "fixture.receipts.v1"
+          },
+          {
+            "bytes": 38253,
+            "calls": 2876,
+            "instructions": 1318522,
+            "memory": "fixture.root_requests.v1"
+          },
+          {
+            "bytes": 322,
+            "calls": 7,
+            "instructions": 83584,
+            "memory": "fixture.funding_accounting.v1"
+          },
+          {
+            "bytes": 76,
+            "calls": 2,
+            "instructions": 81072,
+            "memory": "fixture.funding_intents.v1"
+          },
+          {
+            "bytes": 299,
+            "calls": 7,
+            "instructions": 83538,
+            "memory": "fixture.gateways.v1"
+          },
+          {
+            "bytes": 339,
+            "calls": 7,
+            "instructions": 83618,
+            "memory": "fixture.read_journal.v1"
+          },
+          {
+            "bytes": 76,
+            "calls": 2,
+            "instructions": 81072,
+            "memory": "fixture.read_sessions.v1"
+          },
+          {
+            "bytes": 76,
+            "calls": 2,
+            "instructions": 81072,
+            "memory": "fixture.read_tenants.v1"
+          }
+        ],
+        "restored": true,
+        "stores_instructions": 115764397
+      },
+      "tenants": 1,
+      "population_ms": 227
+    },
+    {
+      "name": "single-1000",
+      "accounting_observations_manifests_references_receipts_preserved": true,
+      "count": 1000,
+      "elapsed_ms": 672,
+      "fenced_mutation_refused": true,
+      "foreign_tenant_observation_refused": true,
+      "object_bytes": 10,
+      "restored": {
+        "current_heap_bytes": "1376256",
+        "current_stable_bytes": "22085632",
+        "initialization_heap_bytes": 1376256,
+        "initialization_instructions": 1437289093,
+        "initialization_stable_bytes": 22085632,
+        "reads": [
+          {
+            "bytes": 467,
+            "calls": 29,
+            "instructions": 92453,
+            "memory": "fixture.tenants.v1"
+          },
+          {
+            "bytes": 822529,
+            "calls": 47440,
+            "instructions": 21610930,
+            "memory": "fixture.roots.v1"
+          },
+          {
+            "bytes": 836269,
+            "calls": 61033,
+            "instructions": 26969982,
+            "memory": "fixture.root_objects.v1"
+          },
+          {
+            "bytes": 426690,
+            "calls": 4498,
+            "instructions": 6915514,
+            "memory": "fixture.permissions.v1"
+          },
+          {
+            "bytes": 322,
+            "calls": 20,
+            "instructions": 88630,
+            "memory": "fixture.usage.v1"
+          },
+          {
+            "bytes": 884839,
+            "calls": 59977,
+            "instructions": 26240498,
+            "memory": "fixture.manifests.v1"
+          },
+          {
+            "bytes": 795997,
+            "calls": 54922,
+            "instructions": 24420594,
+            "memory": "fixture.confirmed.v1"
+          },
+          {
+            "bytes": 1427543,
+            "calls": 88539,
+            "instructions": 38864954,
+            "memory": "fixture.references.v1"
+          },
+          {
+            "bytes": 514720,
+            "calls": 29842,
+            "instructions": 13485720,
+            "memory": "fixture.receipts.v1"
+          },
+          {
+            "bytes": 615368,
+            "calls": 44375,
+            "instructions": 19318348,
+            "memory": "fixture.root_requests.v1"
+          },
+          {
+            "bytes": 322,
+            "calls": 7,
+            "instructions": 83584,
+            "memory": "fixture.funding_accounting.v1"
+          },
+          {
+            "bytes": 76,
+            "calls": 2,
+            "instructions": 81072,
+            "memory": "fixture.funding_intents.v1"
+          },
+          {
+            "bytes": 299,
+            "calls": 7,
+            "instructions": 83538,
+            "memory": "fixture.gateways.v1"
+          },
+          {
+            "bytes": 339,
+            "calls": 7,
+            "instructions": 83618,
+            "memory": "fixture.read_journal.v1"
+          },
+          {
+            "bytes": 76,
+            "calls": 2,
+            "instructions": 81072,
+            "memory": "fixture.read_sessions.v1"
+          },
+          {
+            "bytes": 76,
+            "calls": 2,
+            "instructions": 81072,
+            "memory": "fixture.read_tenants.v1"
+          }
+        ],
+        "restored": true,
+        "stores_instructions": 1433343727
+      },
+      "tenants": 1,
+      "population_ms": 1542
+    },
+    {
+      "name": "single-10000",
+      "accounting_observations_manifests_references_receipts_preserved": true,
+      "count": 10000,
+      "elapsed_ms": 2436,
+      "fenced_mutation_refused": true,
+      "foreign_tenant_observation_refused": true,
+      "object_bytes": 10,
+      "restored": {
+        "current_heap_bytes": "1376256",
+        "current_stable_bytes": "72417280",
+        "initialization_heap_bytes": 1376256,
+        "initialization_instructions": 17328500885,
+        "initialization_stable_bytes": 72417280,
+        "reads": [
+          {
+            "bytes": 467,
+            "calls": 29,
+            "instructions": 92453,
+            "memory": "fixture.tenants.v1"
+          },
+          {
+            "bytes": 10747476,
+            "calls": 632997,
+            "instructions": 289102432,
+            "memory": "fixture.roots.v1"
+          },
+          {
+            "bytes": 11471715,
+            "calls": 795914,
+            "instructions": 352638144,
+            "memory": "fixture.root_objects.v1"
+          },
+          {
+            "bytes": 4257405,
+            "calls": 44412,
+            "instructions": 69069388,
+            "memory": "fixture.permissions.v1"
+          },
+          {
+            "bytes": 330,
+            "calls": 20,
+            "instructions": 88646,
+            "memory": "fixture.usage.v1"
+          },
+          {
+            "bytes": 11906740,
+            "calls": 796341,
+            "instructions": 348809730,
+            "memory": "fixture.manifests.v1"
+          },
+          {
+            "bytes": 10885525,
+            "calls": 765851,
+            "instructions": 339217974,
+            "memory": "fixture.confirmed.v1"
+          },
+          {
+            "bytes": 19574731,
+            "calls": 1165694,
+            "instructions": 513877282,
+            "memory": "fixture.references.v1"
+          },
+          {
+            "bytes": 6905628,
+            "calls": 407544,
+            "instructions": 182823420,
+            "memory": "fixture.receipts.v1"
+          },
+          {
+            "bytes": 8670861,
+            "calls": 607189,
+            "instructions": 263686190,
+            "memory": "fixture.root_requests.v1"
+          },
+          {
+            "bytes": 322,
+            "calls": 7,
+            "instructions": 83584,
+            "memory": "fixture.funding_accounting.v1"
+          },
+          {
+            "bytes": 76,
+            "calls": 2,
+            "instructions": 81072,
+            "memory": "fixture.funding_intents.v1"
+          },
+          {
+            "bytes": 299,
+            "calls": 7,
+            "instructions": 83538,
+            "memory": "fixture.gateways.v1"
+          },
+          {
+            "bytes": 339,
+            "calls": 7,
+            "instructions": 83618,
+            "memory": "fixture.read_journal.v1"
+          },
+          {
+            "bytes": 76,
+            "calls": 2,
+            "instructions": 81072,
+            "memory": "fixture.read_sessions.v1"
+          },
+          {
+            "bytes": 76,
+            "calls": 2,
+            "instructions": 81072,
+            "memory": "fixture.read_tenants.v1"
+          }
+        ],
+        "restored": true,
+        "stores_instructions": 17324550076
+      },
+      "tenants": 1,
+      "population_ms": 25729
+    },
+    {
+      "name": "tenants-32",
+      "accounting_observations_manifests_references_receipts_preserved": true,
+      "count": 1024,
+      "elapsed_ms": 2832,
+      "fenced_mutation_refused": true,
+      "foreign_tenant_observation_refused": true,
+      "object_bytes": 10,
+      "restored": {
+        "current_heap_bytes": "1376256",
+        "current_stable_bytes": "21037056",
+        "initialization_heap_bytes": 1376256,
+        "initialization_instructions": 1495367763,
+        "initialization_stable_bytes": 21037056,
+        "reads": [
+          {
+            "bytes": 11342,
+            "calls": 1275,
+            "instructions": 617278,
+            "memory": "fixture.tenants.v1"
+          },
+          {
+            "bytes": 844328,
+            "calls": 48778,
+            "instructions": 22195080,
+            "memory": "fixture.roots.v1"
+          },
+          {
+            "bytes": 906076,
+            "calls": 68561,
+            "instructions": 30070908,
+            "memory": "fixture.root_objects.v1"
+          },
+          {
+            "bytes": 434418,
+            "calls": 4530,
+            "instructions": 6400040,
+            "memory": "fixture.permissions.v1"
+          },
+          {
+            "bytes": 8384,
+            "calls": 1131,
+            "instructions": 553289,
+            "memory": "fixture.usage.v1"
+          },
+          {
+            "bytes": 945394,
+            "calls": 67491,
+            "instructions": 29397264,
+            "memory": "fixture.manifests.v1"
+          },
+          {
+            "bytes": 851961,
+            "calls": 61650,
+            "instructions": 27090634,
+            "memory": "fixture.confirmed.v1"
+          },
+          {
+            "bytes": 1515038,
+            "calls": 98431,
+            "instructions": 43036312,
+            "memory": "fixture.references.v1"
+          },
+          {
+            "bytes": 543966,
+            "calls": 33150,
+            "instructions": 14800644,
+            "memory": "fixture.receipts.v1"
+          },
+          {
+            "bytes": 633887,
+            "calls": 45561,
+            "instructions": 19834530,
+            "memory": "fixture.root_requests.v1"
+          },
+          {
+            "bytes": 322,
+            "calls": 7,
+            "instructions": 83584,
+            "memory": "fixture.funding_accounting.v1"
+          },
+          {
+            "bytes": 76,
+            "calls": 2,
+            "instructions": 81072,
+            "memory": "fixture.funding_intents.v1"
+          },
+          {
+            "bytes": 299,
+            "calls": 7,
+            "instructions": 83538,
+            "memory": "fixture.gateways.v1"
+          },
+          {
+            "bytes": 339,
+            "calls": 7,
+            "instructions": 83618,
+            "memory": "fixture.read_journal.v1"
+          },
+          {
+            "bytes": 76,
+            "calls": 2,
+            "instructions": 81072,
+            "memory": "fixture.read_sessions.v1"
+          },
+          {
+            "bytes": 76,
+            "calls": 2,
+            "instructions": 81072,
+            "memory": "fixture.read_tenants.v1"
+          }
+        ],
+        "restored": true,
+        "stores_instructions": 1491422059
+      },
+      "tenants": 32,
+      "population_ms": 3339
+    },
+    {
+      "name": "manifests-16mib",
+      "accounting_observations_manifests_references_receipts_preserved": true,
+      "count": 32,
+      "elapsed_ms": 695,
+      "fenced_mutation_refused": true,
+      "foreign_tenant_observation_refused": true,
+      "object_bytes": 16777216,
+      "restored": {
+        "current_heap_bytes": "1376256",
+        "current_stable_bytes": "18939904",
+        "initialization_heap_bytes": 1376256,
+        "initialization_instructions": 45040110,
+        "initialization_stable_bytes": 18939904,
+        "reads": [
+          {
+            "bytes": 1244,
+            "calls": 113,
+            "instructions": 127634,
+            "memory": "fixture.tenants.v1"
+          },
+          {
+            "bytes": 15629,
+            "calls": 891,
+            "instructions": 471334,
+            "memory": "fixture.roots.v1"
+          },
+          {
+            "bytes": 12750,
+            "calls": 1067,
+            "instructions": 536680,
+            "memory": "fixture.root_objects.v1"
+          },
+          {
+            "bytes": 14518,
+            "calls": 186,
+            "instructions": 264292,
+            "memory": "fixture.permissions.v1"
+          },
+          {
+            "bytes": 884,
+            "calls": 92,
+            "instructions": 118533,
+            "memory": "fixture.usage.v1"
+          },
+          {
+            "bytes": 28071,
+            "calls": 1177,
+            "instructions": 611762,
+            "memory": "fixture.manifests.v1"
+          },
+          {
+            "bytes": 12103,
+            "calls": 923,
+            "instructions": 477210,
+            "memory": "fixture.confirmed.v1"
+          },
+          {
+            "bytes": 21512,
+            "calls": 1512,
+            "instructions": 733984,
+            "memory": "fixture.references.v1"
+          },
+          {
+            "bytes": 8128,
+            "calls": 503,
+            "instructions": 299580,
+            "memory": "fixture.receipts.v1"
+          },
+          {
+            "bytes": 8667,
+            "calls": 748,
+            "instructions": 399638,
+            "memory": "fixture.root_requests.v1"
+          },
+          {
+            "bytes": 322,
+            "calls": 7,
+            "instructions": 83584,
+            "memory": "fixture.funding_accounting.v1"
+          },
+          {
+            "bytes": 76,
+            "calls": 2,
+            "instructions": 81072,
+            "memory": "fixture.funding_intents.v1"
+          },
+          {
+            "bytes": 299,
+            "calls": 7,
+            "instructions": 83538,
+            "memory": "fixture.gateways.v1"
+          },
+          {
+            "bytes": 339,
+            "calls": 7,
+            "instructions": 83618,
+            "memory": "fixture.read_journal.v1"
+          },
+          {
+            "bytes": 76,
+            "calls": 2,
+            "instructions": 81072,
+            "memory": "fixture.read_sessions.v1"
+          },
+          {
+            "bytes": 76,
+            "calls": 2,
+            "instructions": 81072,
+            "memory": "fixture.read_tenants.v1"
+          }
+        ],
+        "restored": true,
+        "stores_instructions": 41094430
+      },
+      "tenants": 4,
+      "population_ms": 26637
+    },
+    {
+      "name": "manifests-64mib",
+      "accounting_observations_manifests_references_receipts_preserved": true,
+      "count": 4,
+      "elapsed_ms": 487,
+      "fenced_mutation_refused": true,
+      "foreign_tenant_observation_refused": true,
+      "object_bytes": 67108864,
+      "restored": {
+        "current_heap_bytes": "1376256",
+        "current_stable_bytes": "18939904",
+        "initialization_heap_bytes": 1376256,
+        "initialization_instructions": 12638294,
+        "initialization_stable_bytes": 18939904,
+        "reads": [
+          {
+            "bytes": 467,
+            "calls": 29,
+            "instructions": 92453,
+            "memory": "fixture.tenants.v1"
+          },
+          {
+            "bytes": 1677,
+            "calls": 71,
+            "instructions": 112150,
+            "memory": "fixture.roots.v1"
+          },
+          {
+            "bytes": 815,
+            "calls": 55,
+            "instructions": 103962,
+            "memory": "fixture.root_objects.v1"
+          },
+          {
+            "bytes": 2453,
+            "calls": 39,
+            "instructions": 100774,
+            "memory": "fixture.permissions.v1"
+          },
+          {
+            "bytes": 338,
+            "calls": 20,
+            "instructions": 88662,
+            "memory": "fixture.usage.v1"
+          },
+          {
+            "bytes": 7536,
+            "calls": 75,
+            "instructions": 125484,
+            "memory": "fixture.manifests.v1"
+          },
+          {
+            "bytes": 752,
+            "calls": 34,
+            "instructions": 95352,
+            "memory": "fixture.confirmed.v1"
+          },
+          {
+            "bytes": 1290,
+            "calls": 70,
+            "instructions": 110972,
+            "memory": "fixture.references.v1"
+          },
+          {
+            "bytes": 556,
+            "calls": 20,
+            "instructions": 89304,
+            "memory": "fixture.receipts.v1"
+          },
+          {
+            "bytes": 552,
+            "calls": 39,
+            "instructions": 96972,
+            "memory": "fixture.root_requests.v1"
+          },
+          {
+            "bytes": 322,
+            "calls": 7,
+            "instructions": 83584,
+            "memory": "fixture.funding_accounting.v1"
+          },
+          {
+            "bytes": 76,
+            "calls": 2,
+            "instructions": 81072,
+            "memory": "fixture.funding_intents.v1"
+          },
+          {
+            "bytes": 299,
+            "calls": 7,
+            "instructions": 83538,
+            "memory": "fixture.gateways.v1"
+          },
+          {
+            "bytes": 339,
+            "calls": 7,
+            "instructions": 83618,
+            "memory": "fixture.read_journal.v1"
+          },
+          {
+            "bytes": 76,
+            "calls": 2,
+            "instructions": 81072,
+            "memory": "fixture.read_sessions.v1"
+          },
+          {
+            "bytes": 76,
+            "calls": 2,
+            "instructions": 81072,
+            "memory": "fixture.read_tenants.v1"
+          }
+        ],
+        "restored": true,
+        "stores_instructions": 8692890
+      },
+      "tenants": 1,
+      "population_ms": 12923
+    }
+  ],
+  "limitations": [
+    "Distinct workload populations do not isolate tenant or manifest overhead; no improvement comparison claimed.",
+    "Instrumented logical-memory reads include observer overhead and differ from production RuntimeMemory unsafe-read delegation; totals are not production-cost qualifications.",
+    "Allocated linear memory is not live heap, maximum working memory or host RSS.",
+    "Global accounting is checked completely; selected manifests/permissions/references/receipts cover the first four operations of every tenant, not an exhaustive public inspection of every row.",
+    "No occupied funding/read-history, million-object, native macOS, stale-backup activation or freshness-resume qualification.",
+    "Local completion substitutes do not establish deployed provider availability, retention, deletion or billing cessation.",
+    "Concurrent workspace dependency changes are preserved and not qualified by the earlier frozen binaries."
+  ],
+  "full_ci_executed": false,
+  "version_mutated": false,
+  "commit_created": false,
+  "deployed": false,
+  "sibling_modified": false,
+  "cleanup": "none; all artifacts and failures retained; no provider cleanup obligations introduced"
+}

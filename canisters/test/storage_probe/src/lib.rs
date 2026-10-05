@@ -40,7 +40,7 @@ fn post_upgrade(input: blob_test_protocol::storage::resources::StorageProbeInsta
 #[ic_cdk::update(decode_with = "ops::decode")]
 fn populate_resources(
     input: blob_test_protocol::storage::resources::PopulationBatch,
-) -> Result<Vec<Request>, Failure> {
+) -> Result<(), Failure> {
     workflow::populate_resources(context(), input)
 }
 

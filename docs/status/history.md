@@ -29,7 +29,7 @@ Commits and release operations belong to the maintainer.
 
 Canic integration is deferred by the maintainer on 2026-10-02 until useful work
 within this repository is exhausted. Continue local core/standalone/native/browser
-implementation and evidence; the [feedback list](../canic-parity.md#integration-feedback)
+implementation and evidence; the [feedback list](https://github.com/dragginzgame/ic-blob-storage/blob/c3a16529d161547987c138b15bf75cac70b54c55/docs/canic-parity.md#integration-feedback)
 is a future consumer backlog, not a prerequisite for this local work. Siblings
 remain read-only and no upstream message is authorized.
 
@@ -60,7 +60,7 @@ provider call, paid effect, deployment, version mutation, commit, publication,
 sibling edit or build cleanup occurs. Existing live obligations remain intact.
 
 Next product work remains durable native parent phase/restart coordination and complete
-Miner acceptance. The [Canic feedback list](../canic-parity.md#integration-feedback)
+Miner acceptance. The [Canic feedback list](https://github.com/dragginzgame/ic-blob-storage/blob/c3a16529d161547987c138b15bf75cac70b54c55/docs/canic-parity.md#integration-feedback)
 remains deferred consumer work; no sibling changes are included.
 
 ### Native follow-up — 2026-10-03
@@ -127,7 +127,7 @@ Continue those around this session and the maintained worker; add no second
 certificate/provider dispatcher. Then qualify all 679 Miner identities / 675
 blobs, real media, overlapping references and MIME/CORS/cache/CSP/open-browser
 retention. Canic consumer adoption remains deferred, with open actions in the
-[feedback list](../canic-parity.md#integration-feedback). No sibling edits or
+[feedback list](https://github.com/dragginzgame/ic-blob-storage/blob/c3a16529d161547987c138b15bf75cac70b54c55/docs/canic-parity.md#integration-feedback). No sibling edits or
 upstream messages are included.
 
 ### Maintained browser host and signer bootstrap — 2026-10-03
@@ -172,7 +172,7 @@ do not derive filenames from provider headers or treat redacted browser success
 as completion. Parent restart must retain original profiles/setup/verification
 claims and inspect uncertainty without replay. Full Miner media/reference/serving
 acceptance remains open. Canic adoption stays deferred with actions in the
-[consumer feedback list](../canic-parity.md#integration-feedback); no sibling work
+[consumer feedback list](https://github.com/dragginzgame/ic-blob-storage/blob/c3a16529d161547987c138b15bf75cac70b54c55/docs/canic-parity.md#integration-feedback); no sibling work
 or upstream message is included.
 
 ### Native Chromium process bridge — 2026-10-03
@@ -213,7 +213,7 @@ effects; on parent restart inspect exact retained evidence before advancing, wit
 replaying an uncertain transfer. This callable bridge is not a complete headless
 publisher. Full Miner real media/reference/MIME/CORS/cache/CSP/retention acceptance,
 large-body heap/CDP latency and hostile local-user/profile rollback isolation remain
-unqualified. The open [consumer actions](../canic-parity.md#integration-feedback)
+unqualified. The open [consumer actions](https://github.com/dragginzgame/ic-blob-storage/blob/c3a16529d161547987c138b15bf75cac70b54c55/docs/canic-parity.md#integration-feedback)
 include adopting original hints and retained process history; Canic remains deferred,
 with no upstream message sent.
 
@@ -276,7 +276,7 @@ with original metadata hints, independent observation/attestation and exact
 per-file journals. Do not claim a complete noninteractive publisher from the
 library worker alone. Then qualify all 679 Miner identities / 675 blobs, real
 media, overlapping references and MIME/CORS/cache/CSP/open-browser retention.
-The [consumer backlog](../canic-parity.md#integration-feedback) records adoption
+The [consumer backlog](https://github.com/dragginzgame/ic-blob-storage/blob/c3a16529d161547987c138b15bf75cac70b54c55/docs/canic-parity.md#integration-feedback) records adoption
 and acceptance actions; Canic remains deferred. No sibling changes or upstream
 messages are authorized.
 
@@ -303,7 +303,7 @@ their original dependency identities; they do not validate this newer selection.
 This changelog-only pass checks release-note structure and whitespace, without
 compilation or full CI. Next work remains native parent/verifier automation and
 complete Miner acceptance; Canic adoption remains deferred with open actions in
-the [feedback list](../canic-parity.md#integration-feedback).
+the [feedback list](https://github.com/dragginzgame/ic-blob-storage/blob/c3a16529d161547987c138b15bf75cac70b54c55/docs/canic-parity.md#integration-feedback).
 
 ## Unreleased: persistent native publication phases — 2026-10-03
 
@@ -354,7 +354,7 @@ these components, coordinating independent observation/attestation and exact
 original journals without automatic upload retries. Then qualify all 679 Miner
 asset identities / 675 blobs, real media, overlapping references and public
 MIME/CORS/cache/CSP/open-browser retention in the consumer transaction. The
-[integration feedback](../canic-parity.md#integration-feedback) records adoption
+[integration feedback](https://github.com/dragginzgame/ic-blob-storage/blob/c3a16529d161547987c138b15bf75cac70b54c55/docs/canic-parity.md#integration-feedback) records adoption
 and those open acceptance actions. Canic remains deferred; the complete
 production headless publisher and Miner readiness are not yet claimed.
 
@@ -407,7 +407,7 @@ body scans. Retain one validated batch in the coordinator, revalidate the select
 body before transfer and recover only exact original claims/receipts. Then qualify
 all 679 Miner asset identities / 675 distinct blobs, release overlap, cancellation
 and public MIME/CORS/cache/CSP/open-browser retention in the consumer transaction.
-The [integration feedback](../canic-parity.md#integration-feedback) records released
+The [integration feedback](https://github.com/dragginzgame/ic-blob-storage/blob/c3a16529d161547987c138b15bf75cac70b54c55/docs/canic-parity.md#integration-feedback) records released
 adoption still pending. Canic remains deferred; live exhausted owners and all
 original physical/billing obligations remain untouched.
 
@@ -459,7 +459,7 @@ interruption recovery, freeing active reservations before the next indexed setup
 Use the complete map within the consumer's asset transaction and qualify all
 679 Miner asset identities / 675 distinct blobs, overlapping references and
 public MIME/CORS/cache/CSP/open-browser retention. The
-[consumer backlog](../canic-parity.md#integration-feedback) records released adoption
+[consumer backlog](https://github.com/dragginzgame/ic-blob-storage/blob/c3a16529d161547987c138b15bf75cac70b54c55/docs/canic-parity.md#integration-feedback) records released adoption
 still required; Canic wrapper work remains deferred. No live service/provider
 effect, deployment, funding, full CI, version/release/commit, sibling edit or
 build cleanup occurs. Existing physical and billing obligations remain intact.
@@ -505,7 +505,7 @@ confirmed media-map output using existing dispatch owners. Interleave completion
 to free active reservations; `publish-prepare-batch` alone does not do this.
 Qualify actual Miner media, interrupted publication, overlapping releases and
 public MIME/CORS/cache/CSP before claiming consumer readiness. The
-[feedback list](../canic-parity.md#integration-feedback) records these actions;
+[feedback list](https://github.com/dragginzgame/ic-blob-storage/blob/c3a16529d161547987c138b15bf75cac70b54c55/docs/canic-parity.md#integration-feedback) records these actions;
 Canic wrapper adoption remains deferred. Refresh current release wording in the
 README, roadmap and guides while preserving dated evidence. No provider probe,
 paid effect, deployment, build, full CI, sibling edit or upstream message occurs.
@@ -552,7 +552,7 @@ are in `.tmp/code-cleanup-w1mwu3`. Preserve the first batch run's one-object
 fixture refusals and the restricted native run's loopback-denial logs; corrected
 larger-profile and loopback-enabled runs pass without weakening production limits.
 
-The [consumer backlog](../canic-parity.md#integration-feedback) adds one-pass batch
+The [consumer backlog](https://github.com/dragginzgame/ic-blob-storage/blob/c3a16529d161547987c138b15bf75cac70b54c55/docs/canic-parity.md#integration-feedback) adds one-pass batch
 setup adoption and exact file-journal recovery. Canic adoption remains deferred.
 Next useful consumer work remains a complete transfer/completion/reference/media-map
 pipeline and consumed-workload serving acceptance. No version mutation, release,
@@ -588,7 +588,7 @@ Formatting and whitespace checks pass. Audit intent/findings, baseline verificat
 local installation/readback and logs are in `.tmp/hard-cut-audit-01`.
 No obsolete-form tests, compatibility shim, version mutation, commit, deployment,
 provider action, full CI, sibling edit or cleanup is introduced by this audit.
-The [consumer backlog](../canic-parity.md#integration-feedback) records the canonical
+The [consumer backlog](https://github.com/dragginzgame/ic-blob-storage/blob/c3a16529d161547987c138b15bf75cac70b54c55/docs/canic-parity.md#integration-feedback) records the canonical
 import change and released 0.8.0 recovery adoption; Canic remains deferred.
 
 ## Completed in 0.8.0: frozen-file transfer and larger journals — 2026-10-03
@@ -632,7 +632,7 @@ Next drive a complete frozen batch through transfer, independent completion,
 retained references and a confirmed media map, then qualify actual Miner assets
 and public serving. Local gateway results do not qualify deployed provider
 retention, deletion, billing or consumer adoption. Canic remains deferred; the
-[consumer actions](../canic-parity.md#integration-feedback) now include frozen-file
+[consumer actions](https://github.com/dragginzgame/ic-blob-storage/blob/c3a16529d161547987c138b15bf75cac70b54c55/docs/canic-parity.md#integration-feedback) now include frozen-file
 adoption and large-inventory operating evidence. No live service/provider effect,
 balance refresh, funding, deployment, version/release/commit, full CI, sibling edit
 or agent cleanup occurs. Existing live owners, expired nominal links, exhausted
@@ -667,7 +667,7 @@ Keep the complete frozen inputs and original journals, including after failure.
 Historical `prepared` is not expiry renewal, upload completion or publication.
 
 The [operator recipe](../operator-guide.md#prepare-one-indexed-file-with-surviving-setup-intent)
-describes budgets and recovery. The [consumer backlog](../canic-parity.md#integration-feedback)
+describes budgets and recovery. The [consumer backlog](https://github.com/dragginzgame/ic-blob-storage/blob/c3a16529d161547987c138b15bf75cac70b54c55/docs/canic-parity.md#integration-feedback)
 adds exact setup-journal adoption, consumed-workload/serving and the finite
 twenty-management-change operating horizon. Recovery never rotates installation
 anchoring; plan retirement with surviving obligations before history exhaustion.
@@ -750,7 +750,7 @@ Deletion and billing qualification still need separate exact evidence; logical
 release and zero gateway usage cannot supply either. Both trial owners and all
 physical/liability obligations survive. Consumer actions include the new
 installation anchor and explicit host guard/recovery composition after release;
-see the [feedback list](../canic-parity.md#integration-feedback).
+see the [feedback list](https://github.com/dragginzgame/ic-blob-storage/blob/c3a16529d161547987c138b15bf75cac70b54c55/docs/canic-parity.md#integration-feedback).
 
 ## Next: headless frozen-release publication
 
@@ -809,7 +809,7 @@ Complete the headless frozen-release publisher using
 the existing service handlers, manifests and journals: inventory/capacity dry run,
 serial publication and exact lost-response recovery. Miner then owns its consumer
 wrapper and serving/CSP acceptance. Canic adoption remains deferred; the
-[open consumer feedback](../canic-parity.md#integration-feedback) records current
+[open consumer feedback](https://github.com/dragginzgame/ic-blob-storage/blob/c3a16529d161547987c138b15bf75cac70b54c55/docs/canic-parity.md#integration-feedback) records current
 0.7.0 types, resource sizing, lifecycle and delivery obligations.
 The feedback list adds independent deployment-artifact checks and limitations of
 the successful live samples. No sibling edits or upstream messages occur.
@@ -863,7 +863,7 @@ Next connect serial admission and preparation to the original frozen permissions
 and existing signed-operation journals, then provider transfer and exact
 lost-response recovery. Keep IDs owned by the surviving consumer intent and
 the service's admission journal; do not derive freshness from an old counter. The
-[consumer feedback](../canic-parity.md#integration-feedback) records complete-batch
+[consumer feedback](https://github.com/dragginzgame/ic-blob-storage/blob/c3a16529d161547987c138b15bf75cac70b54c55/docs/canic-parity.md#integration-feedback) records complete-batch
 and media-map acceptance; Canic integration remains deferred. The selected live
 samples pass, while a complete publisher and Miner delivery remain unqualified.
 
@@ -898,7 +898,7 @@ are retained and corrected. Concurrent recovery/dependency/host/test work is
 preserved; a brief build-lock wait leads to host-visible PID/cwd checks before
 subsequent edits/builds. No sibling edit, full CI, version/release/commit or cleanup.
 The [operator recipe](../operator-guide.md#check-a-frozen-batch-against-live-capacity)
-and [consumer feedback](../canic-parity.md#integration-feedback) carry the new
+and [consumer feedback](https://github.com/dragginzgame/ic-blob-storage/blob/c3a16529d161547987c138b15bf75cac70b54c55/docs/canic-parity.md#integration-feedback) carry the new
 contract. Next is serial admission/preparation and exact interruption recovery.
 
 ## Completed in 0.7.0: configurable upload limits for Toko Miner — 2026-10-02
@@ -929,7 +929,7 @@ This is consumer source feedback, not measured live provider or Miner acceptance
 
 See [current sizing](../standalone-trial.md#current-upload-sizing),
 [configuration guidance](../operator-guide.md#size-a-consumer-installation) and
-the [consumer feedback](../canic-parity.md#integration-feedback). Consumers must
+the [consumer feedback](https://github.com/dragginzgame/ic-blob-storage/blob/c3a16529d161547987c138b15bf75cac70b54c55/docs/canic-parity.md#integration-feedback). Consumers must
 adopt the 0.7.0 field/variant removal and choose their own explicit
 limits. Canic integration remains deferred and sibling repositories remain read-only.
 
@@ -978,7 +978,7 @@ positive owner/gateway credit is observed. Preserve the original owner, payment
 accounts/link, stopped certificate/403 browser claim and 1 KiB exposure/liability;
 never resend its claimed transfer or reset its lifetime slot. A fresh deployment or
 new link is a separate effect, not authorized by this allowance update. Canic stays
-deferred; its [open feedback](../canic-parity.md#integration-feedback) records that
+deferred; its [open feedback](https://github.com/dragginzgame/ic-blob-storage/blob/c3a16529d161547987c138b15bf75cac70b54c55/docs/canic-parity.md#integration-feedback) records that
 allowance updates can move provider credit even without an upload request.
 
 ## Earlier larger payer balance; owner/gateway credit still zero — 2026-10-02
@@ -1031,7 +1031,7 @@ link approval changed expiry while preserving 1T. Standing spend authority persi
 Re-read terms/roles and nominal expiry before signing; changed/expired state or any
 uncertainty stops without a fresh retry. Do not fund the owner directly, change
 the configured payer or bypass the stopped browser history. Canic stays deferred;
-its [feedback](../canic-parity.md#integration-feedback) records separate balances.
+its [feedback](https://github.com/dragginzgame/ic-blob-storage/blob/c3a16529d161547987c138b15bf75cac70b54c55/docs/canic-parity.md#integration-feedback) records separate balances.
 
 ## Earlier live certificate succeeds; gateway refuses credit — 2026-10-02
 
@@ -1079,7 +1079,7 @@ helpers are not retry authority. Gross donor debit remains 3.0001T, authority 96
 Next: investigate actual owner/gateway credit allocation and documented funding/
 daily-limit guidance before a separately reviewed trial. Preserve this stopped
 history and its liabilities; do not resend or reset its lifetime slot. Canic stays
-deferred, with updated [consumer feedback](../canic-parity.md#integration-feedback)
+deferred, with updated [consumer feedback](https://github.com/dragginzgame/ic-blob-storage/blob/c3a16529d161547987c138b15bf75cac70b54c55/docs/canic-parity.md#integration-feedback)
 on admission/refusal handling. Targeted browser/signature/decoding/integrity checks
 apply; no build/full CI, version/release/commit, sibling change or build cleanup.
 
@@ -1129,7 +1129,7 @@ payer, relationship, capture and private unsigned profile as owned resources;
 reference release will not prove provider deletion/billing cessation. Targeted
 SDK/native decoding, actual browser persistence and integrity checks apply here;
 no Cargo build/full CI, release/commit, sibling change or build cleanup occurs.
-Canic and its [consumer feedback](../canic-parity.md#integration-feedback) remain deferred/open.
+Canic and its [consumer feedback](https://github.com/dragginzgame/ic-blob-storage/blob/c3a16529d161547987c138b15bf75cac70b54c55/docs/canic-parity.md#integration-feedback) remain deferred/open.
 
 ## Approved payer link; expiry experiment inconclusive — 2026-10-02
 
@@ -1166,7 +1166,7 @@ frozen 0.6.0 is reused and concurrent ic-memory 0.15.3 work preserved.
 Next: review actual gateway credit allocation/admission and project/bucket/browser
 readiness before selecting another exact link term or upload. Do not impersonate
 the listed gateway or extend this inconclusive probe. Canic and its
-[consumer feedback](../canic-parity.md#integration-feedback) remain deferred/open.
+[consumer feedback](https://github.com/dragginzgame/ic-blob-storage/blob/c3a16529d161547987c138b15bf75cac70b54c55/docs/canic-parity.md#integration-feedback) remain deferred/open.
 
 ## Live standalone gateway and balance observations — 2026-10-02
 
@@ -1215,7 +1215,7 @@ Temporary password files are removed and original participant/verifier keys stay
 private. Preserve concurrent Cargo.toml/Cargo.lock ic-memory 0.15.3 work; frozen
 0.6.0 artifacts are used without compilation. No full CI, version/release/commit,
 sibling change, reset or build cleanup occurs. Canic and its
-[consumer actions](../canic-parity.md#integration-feedback) remain deferred/open.
+[consumer actions](https://github.com/dragginzgame/ic-blob-storage/blob/c3a16529d161547987c138b15bf75cac70b54c55/docs/canic-parity.md#integration-feedback) remain deferred/open.
 
 ## Funded isolated payer; standing 100T spending authority — 2026-10-02
 
@@ -1261,7 +1261,7 @@ expiry, then qualify gateway membership/project/bucket and the bounded transfer.
 The exact fresh-account direct deposit/credit path is observed; notification replay,
 lost-response recovery, future bills and billing cessation are not qualified.
 No account linkage, certificate or live upload has occurred. Canic stays deferred;
-its [consumer actions](../canic-parity.md#integration-feedback) remain open.
+its [consumer actions](https://github.com/dragginzgame/ic-blob-storage/blob/c3a16529d161547987c138b15bf75cac70b54c55/docs/canic-parity.md#integration-feedback) remain open.
 
 ## Earlier selected payer funding proposal — 2026-10-02
 
@@ -1299,7 +1299,7 @@ Account linkage, expiry units, project/bucket acceptance and uploads remain open
 This earlier preparation performs no provider
 mutation, transfer, certificate, deployment, build/CI, release/commit, key export,
 sibling change or artifact cleanup occurs. Canic stays deferred; its
-[consumer actions](../canic-parity.md#integration-feedback) remain open.
+[consumer actions](https://github.com/dragginzgame/ic-blob-storage/blob/c3a16529d161547987c138b15bf75cac70b54c55/docs/canic-parity.md#integration-feedback) remain open.
 
 ## Installed isolated standalone owner — 2026-10-02
 
@@ -1337,7 +1337,7 @@ See the [installation evidence](../evidence/caffeine-probes/deployed/2026-10-02-
 Next: review the isolated payer's bounded funding/deposit/notification and actual
 provider account/project binding. No Caffeine funding, mutation, certificate or
 upload is authorized/performed by installation. Canic stays deferred; its
-[consumer actions](../canic-parity.md#integration-feedback) remain open. No build,
+[consumer actions](https://github.com/dragginzgame/ic-blob-storage/blob/c3a16529d161547987c138b15bf75cac70b54c55/docs/canic-parity.md#integration-feedback) remain open. No build,
 full CI, release/commit, sibling edits or artifact cleanup occurs.
 
 ## Earlier creation and installation preparation — 2026-10-02
@@ -1376,7 +1376,7 @@ artifact/init hashes pass; local stand-in inputs are not reused. See the
 The separately authorized installation and readback above complete this proposal.
 Creation authority is fulfilled and permits no second owner; provider/account
 effects remain separate. Canic stays deferred, with
-[consumer actions](../canic-parity.md#integration-feedback) open. No build, full CI,
+[consumer actions](https://github.com/dragginzgame/ic-blob-storage/blob/c3a16529d161547987c138b15bf75cac70b54c55/docs/canic-parity.md#integration-feedback) open. No build, full CI,
 release/commit, sibling edits or artifact cleanup occurs.
 
 ## Authorized creation preflight — 2026-10-02
@@ -1415,7 +1415,7 @@ reply requires inspection of the original request/block; never create another
 owner or regenerate a paid transaction to obtain a clearer result. Capture any
 returned principal, creation block and actual balance before offline init generation.
 Installation remains separately authorized; Canic stays deferred and its
-[consumer actions](../canic-parity.md#integration-feedback) remain open.
+[consumer actions](https://github.com/dragginzgame/ic-blob-storage/blob/c3a16529d161547987c138b15bf75cac70b54c55/docs/canic-parity.md#integration-feedback) remain open.
 
 ## Released artifact review and next step — 2026-10-02
 
@@ -1446,7 +1446,7 @@ the creation above is complete. After successful creation,
 replace the stand-in with the actual principal and
 recheck the exact init before separately authorized installation. No deployment,
 funding, provider request, live certificate/upload, full CI or cleanup occurs here.
-Canic stays deferred; its [consumer actions](../canic-parity.md#integration-feedback)
+Canic stays deferred; its [consumer actions](https://github.com/dragginzgame/ic-blob-storage/blob/c3a16529d161547987c138b15bf75cac70b54c55/docs/canic-parity.md#integration-feedback)
 remain open. The implementation history below records pre-release artifacts;
 its earlier 0.5.0 labels do not identify the current release packet.
 
@@ -1497,7 +1497,7 @@ First deposit/notification remains a separately reviewed effect with unresolved
 credit/authorization/fee semantics. The 100T planning split is
 unchanged and no initial funding amount/refill is selected. Monitoring and
 continuing-obligation disposition remain open. Canic stays deferred; its
-[consumer actions](../canic-parity.md#integration-feedback) remain a future backlog.
+[consumer actions](https://github.com/dragginzgame/ic-blob-storage/blob/c3a16529d161547987c138b15bf75cac70b54c55/docs/canic-parity.md#integration-feedback) remain a future backlog.
 
 ## Current transport result — 2026-10-02
 
@@ -1529,7 +1529,7 @@ certificate issuance, deployment or payment is performed against the live provid
 Next: finalize isolated live roles/account/project/gateway and persistent browser/
 cleanup ownership, then review exact bounded effects. Local transport readiness is
 established; further repetitions of the same substitute cannot qualify Caffeine's
-authenticated behavior. Future [consumer actions](../canic-parity.md#integration-feedback)
+authenticated behavior. Future [consumer actions](https://github.com/dragginzgame/ic-blob-storage/blob/c3a16529d161547987c138b15bf75cac70b54c55/docs/canic-parity.md#integration-feedback)
 include preserving streams, normal TLS trust and native HTTP2 support; Canic stays
 deferred. No full CI, minimum-compiler rerun, release/version/commit, sibling edits
 or build cleanup occurs in that run. Those changes shipped in 0.6.0.
@@ -1686,7 +1686,7 @@ Initial patch and function-length lint failures remain in `.tmp/browser-namespac
 See the [retained summary](../evidence/caffeine-probes/local/2026-10-02-browser-namespace-01/summary.json).
 
 Consumers must supply these original fields and use the tightened transfer API;
-the [feedback list](../canic-parity.md#integration-feedback) records that open action.
+the [feedback list](https://github.com/dragginzgame/ic-blob-storage/blob/c3a16529d161547987c138b15bf75cac70b54c55/docs/canic-parity.md#integration-feedback) records that open action.
 Review project against actual installation and bucket against provider provisioning.
 Live roles/account/project/browser/cleanup targets are still unselected; existing
 `canic-mainnet` metadata supplies only a signer candidate. No deployment, payment,
@@ -1719,7 +1719,7 @@ No live effect, full CI, minimum-compiler rerun, release/commit or cleanup occur
 
 Canic adoption remains explicitly deferred. Its future consumer must supply the
 complete reviewed carrier when invoking native preparation; the
-[feedback list](../canic-parity.md#integration-feedback) records that action without
+[feedback list](https://github.com/dragginzgame/ic-blob-storage/blob/c3a16529d161547987c138b15bf75cac70b54c55/docs/canic-parity.md#integration-feedback) records that action without
 requiring sibling work now. Continue repository-local readiness work before that
 integration. Live account/gateway/project/browser/roles/cleanup remain unselected.
 
@@ -1754,7 +1754,7 @@ and `.tmp/standalone-interruption-01` separate actual host facts, local browser
 transport observations and gateway/account substitutes. No live effects, full CI,
 minimum-compiler rerun, version/release/commit, sibling work or build cleanup.
 
-Canic adoption remains deferred. The [feedback list](../canic-parity.md#integration-feedback)
+Canic adoption remains deferred. The [feedback list](https://github.com/dragginzgame/ic-blob-storage/blob/c3a16529d161547987c138b15bf75cac70b54c55/docs/canic-parity.md#integration-feedback)
 adds future cancellation cleanup and transport-budget actions: consumers must keep
 exact release intent for exposed work and cannot infer wire-attempt caps from SDK
 retry settings. Continue useful repository-local readiness work; live account/
@@ -1790,7 +1790,7 @@ See the [repair summary](../evidence/caffeine-probes/local/2026-10-02-browser-re
 and [ledger](../evidence/caffeine-probes/README.md#browser-replay-repair--2026-10-02).
 
 Future consumers must preserve the outgoing stream in trusted fetch hooks and
-select compatible HTTPS gateways/browsers; the [feedback list](../canic-parity.md#integration-feedback)
+select compatible HTTPS gateways/browsers; the [feedback list](https://github.com/dragginzgame/ic-blob-storage/blob/c3a16529d161547987c138b15bf75cac70b54c55/docs/canic-parity.md#integration-feedback)
 records this alongside exact cancellation/reference-release ownership. Canic
 adoption remains deferred. Live bindings/stream support, provider economics and
 persistent-browser qualification remain open. No live effects, release/commit,
@@ -1884,7 +1884,7 @@ See the [trial plan](../operator-guide.md#isolated-uploaddownload-trial-plan),
 
 ## Consumer integration feedback
 
-The [current action list](../canic-parity.md#integration-feedback) records these
+The [current action list](https://github.com/dragginzgame/ic-blob-storage/blob/c3a16529d161547987c138b15bf75cac70b54c55/docs/canic-parity.md#integration-feedback) records these
 open Canic consumer actions; no sibling work or messages are authorized.
 Wrappers now import `ServiceInstallationInput` from the core and independently
 check actual service/compiled release; the former standalone type has no alias.
@@ -2229,7 +2229,7 @@ deployment, paid effect, sibling change or cleanup occurs.
 ### Consumer integration feedback
 
 Canic adoption remains deferred until useful repository-local work is exhausted.
-The [feedback list](../canic-parity.md#integration-feedback) records wrapper/lifecycle,
+The [feedback list](https://github.com/dragginzgame/ic-blob-storage/blob/c3a16529d161547987c138b15bf75cac70b54c55/docs/canic-parity.md#integration-feedback) records wrapper/lifecycle,
 one-runtime memory composition, current formats/recovery, original preparation
 hints, adoption of native guidance/callable driving/subprocess control and the
 public URL/access-policy distinction. Siblings remain read-only; no upstream
@@ -2237,7 +2237,7 @@ message is authorized.
 
 Consumers must also select and qualify their actual image/fetch origins and CSP
 with real assets. The new authored-policy image checks are local evidence only;
-the [feedback list](../canic-parity.md#integration-feedback) retains that action.
+the [feedback list](https://github.com/dragginzgame/ic-blob-storage/blob/c3a16529d161547987c138b15bf75cac70b54c55/docs/canic-parity.md#integration-feedback) retains that action.
 
 The old isolated owner remains frozen at 0.6.0 with stopped original history;
 the separate live owner was last verified at 0.7.0. Both retain exhausted lifetime
@@ -2508,7 +2508,7 @@ independent work/header exhaustion. Original scoped logs/artifacts remain under
 
 ### Consumer integration feedback
 
-Canic adoption remains deferred; the [feedback list](../canic-parity.md#integration-feedback)
+Canic adoption remains deferred; the [feedback list](https://github.com/dragginzgame/ic-blob-storage/blob/c3a16529d161547987c138b15bf75cac70b54c55/docs/canic-parity.md#integration-feedback)
 retains wrapper/lifecycle, one-memory-runtime, current formats and recovery actions.
 Siblings are read-only. Record feedback here; no upstream message is authorized.
 

@@ -133,7 +133,8 @@ and release retention/reintroduction. Its maintained preparation uses registry
 installation anchor's twenty-change management-history horizon also needs an
 operating/retirement plan. Canic wrapper adoption remains deferred until its
 independent blob code's published removal. No sibling write, build or provider
-experiment occurs. See the [consumer backlog](canic-parity.md#integration-feedback).
+experiment occurs. The [retained integration review](https://github.com/dragginzgame/ic-blob-storage/blob/c3a16529d161547987c138b15bf75cac70b54c55/docs/canic-parity.md#integration-feedback)
+records that historical assessment; current work is tracked in GitHub issues.
 
 The 2026-10-02 read-only follow-up finds local HEAD
 `dcc4b0131a928092f39be45d06d5397f3045f8ff` and uncommitted feedback SHA-256

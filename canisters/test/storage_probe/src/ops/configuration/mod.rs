@@ -1,5 +1,4 @@
 //! Explicit small fixture envelope through the shared host boundary, not deployment defaults.
-use candid::Principal;
 use ic_blob_storage::{
     dto::configuration::{
         ServiceBillingInput, ServiceConfigurationInput, ServiceFundingInput, ServiceReadInput,
@@ -9,12 +8,23 @@ use ic_blob_storage::{
     ops::service::stores::ServiceStoreConfiguration,
 };
 
-pub(super) fn configuration(operator: Principal, max_objects: u32) -> ServiceStoreConfiguration {
+pub(super) fn configuration(
+    input: blob_test_protocol::storage::resources::StorageProbeInstallation,
+) -> ServiceStoreConfiguration {
     assert!(
-        (1..=10_000).contains(&max_objects),
+        (1..=10_000).contains(&input.max_objects)
+            && (1..=32).contains(&input.max_tenants)
+            && (10..=67_108_864).contains(&input.max_object_bytes),
         "bounded fixture capacity"
     );
-    let objects = max_objects;
+    let objects = input.max_objects;
+    let operator = input.operator;
+    let bytes = input.max_object_bytes;
+    let chunks = u32::try_from(
+        bytes.div_ceil(ic_blob_storage::model::identity::caffeine::CAFFEINE_CHUNK_BYTES as u64),
+    )
+    .unwrap()
+        * objects;
     let service = ic_cdk::api::canister_self();
     validate_candidate(
         service,
@@ -24,17 +34,17 @@ pub(super) fn configuration(operator: Principal, max_objects: u32) -> ServiceSto
             payment_account: service,
             namespace: 1,
             resources: ServiceResourceInput {
-                max_tenants: 2,
-                max_object_bytes: 10,
+                max_tenants: input.max_tenants,
+                max_object_bytes: bytes,
                 max_headers: 8,
                 max_header_bytes: 1024,
-                max_chunks: objects,
-                max_tenant_chunks: objects,
+                max_chunks: chunks,
+                max_tenant_chunks: chunks,
                 max_objects: objects,
                 max_tenant_objects: objects,
-                max_physical_bytes: u128::from(objects) * 10,
-                max_liability_bytes: u128::from(objects) * 10,
-                max_tenant_logical_bytes: u128::from(objects) * 10,
+                max_physical_bytes: u128::from(objects) * u128::from(bytes),
+                max_liability_bytes: u128::from(objects) * u128::from(bytes),
+                max_tenant_logical_bytes: u128::from(objects) * u128::from(bytes),
                 max_references_per_object: 2,
                 max_receipts_per_object: 3,
                 max_active: objects,

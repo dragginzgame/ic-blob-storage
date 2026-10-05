@@ -67,7 +67,7 @@ pub(crate) fn initialize(
 pub(crate) fn populate_resources(
     context: UploadContext,
     input: blob_test_protocol::storage::resources::PopulationBatch,
-) -> Result<Vec<Request>, Failure> {
+) -> Result<(), Failure> {
     ops::resources::populate(context, input)
 }
 pub(crate) fn restoration_resources(

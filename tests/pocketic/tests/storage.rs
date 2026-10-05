@@ -54,6 +54,8 @@ impl Fixture {
             blob_test_protocol::storage::resources::StorageProbeInstallation {
                 operator,
                 max_objects: 2,
+                max_tenants: 2,
+                max_object_bytes: 10,
             },
         )
         .unwrap()
