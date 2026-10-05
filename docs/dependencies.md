@@ -11,8 +11,20 @@ For ordinary development from the repository root:
 1. Install `rustup`; the checked-in `rust-toolchain.toml` selects the maintained
    development compiler and required components.
 2. Run `make deps` to fetch the exact locked Rust dependencies.
-3. Run `make test-native` for the focused native library checks used by local
+3. Prepare the manifest formatter with `cargo install cargo-sort --version 2.1.4
+   --locked`, then run `make install-hooks` once per clone (also after updating
+   developer setup). The reviewed hook uses `make fmt`; CI and release validation
+   independently use `make fmt-check`. Both sort all twelve manifests and format
+   Rust, without fetching dependencies, compiling or cleaning artifacts.
+4. Run `make test-native` for the focused native library checks used by local
    development.
+
+Keep `$HOME/.cargo/bin` and `$HOME/.local/bin` on PATH when using user-local tools.
+Release shell checks require ShellCheck; `SHELLCHECK=/absolute/path` may select
+an already prepared binary. Missing prerequisites fail rather than being installed
+during a hook or validation. Cargo-sort's exact reviewed version is recorded in
+[tool versions](../ci/tool-versions.env). The other installer selections in that
+file do not install or select tools implicitly.
 
 Browser and standalone rehearsals additionally require PocketIC, Node, browser
 packages and Chromium. Follow [setup and checks](#setup-and-checks) for those
@@ -378,3 +390,18 @@ The library and its tests have no downstream framework dependency. The
 reference. No npm/Motoko package enters the Rust/Wasm dependency graph;
 browser peers belong to the maintained private client and its concrete evidence
 harness.
+
+## Release and formatting host checks
+
+[The tooling workflow](../.github/workflows/tooling.yml) prepares the selected Rust
+and cargo-sort tools explicitly, then independently checks the snapshot,
+manifest/Rust formatting, release adapters and real consumer hook behavior on
+Ubuntu 24.04 and macOS 15 (Apple Silicon and Intel). Both local formatting targets
+use cargo-sort 2.1.4. The declared matrix does not establish a passing native run;
+its matching GitHub execution is required for qualification. This focused job
+neither publishes a release nor replaces the complete `make ci` gate.
+
+The [0.14.12 adoption record](evidence/shared-tooling-adoption.md#01412-release-and-formatting-adoption)
+records scoped Linux execution separately from the pending native macOS jobs.
+The local consumer hook fixture keeps the existing Cargo.lock and uses the actual
+Make formatter; upstream's synthetic suite assumes its shell-only source tree.

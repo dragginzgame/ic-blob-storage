@@ -8,10 +8,10 @@ Date: 2026-10-05
 
 ## At a glance
 
-- Released baseline: `0.14.10`; the changelog and release receipt own exact
+- Released baseline: `0.14.11`; the changelog and release receipt own exact
   release metadata.
-- Current development target: `0.14.11`; its undated changelog collects scoped
-  work. Cargo and the release receipt remain at 0.14.10.
+- Current development target: `0.14.12`; its undated changelog collects release
+  and formatting tooling. Cargo and the receipt remain at 0.14.11.
 - Product state: working library and standalone prototype with retained live
   upload/download evidence, not a fully accepted production service.
 - Current composition: framework-independent core, explicit standalone host,
@@ -23,14 +23,30 @@ Date: 2026-10-05
 
 ## Retained release baseline
 
+Released **0.14.11** is at commit `b526ca5bcc2e7976281c60880f83a12bd216c12d`,
+directly following source `08783a2d537bf25de02da2faabddc6bd2c1eebee`. Cargo,
+the dated changelog and [receipt](../release.json) record 0.14.11. The maintainer
+reports it live; this handoff does not independently establish registry or
+service deployment. The selected graph includes ic-memory 0.25.9 and ic-testkit
+0.15.8. Its pre-release profiles retain their actual compiled 0.14.10 identity.
+
+The chosen 0.14.12 draft is compatible internal maintainer tooling; no published
+Rust API, blob CLI, service DTO or persisted layout changes. The old manual
+release phase targets are retired in favor of the common runner and saved
+recovery; see [the release guide](../releasing.md). Formatting changes source
+manifest presentation without reselecting locked dependencies.
+
+### Earlier 0.14.10 baseline
+
 Released **0.14.10** is at annotated tag
 `95f102c02b6e6f5f3e4f43e1c132e1928c541055`, directly following validated source
 `c3143d6c803b5bc31c2a300f81f5b68deba64953`. The release-file hashes, date and
-version in the [receipt](../release.json) verified at task entry. The maintainer
-reports 0.14.10 live; local main and cached origin/main agree at the subsequent
+version in the [historical receipt](https://github.com/dragginzgame/ic-blob-storage/blob/v0.14.10/docs/release.json)
+verified at that task's entry. The maintainer reported 0.14.10 live; local main
+and cached origin/main then agreed at the subsequent
 documentation merge `baee7a13208390f590871e97874337afaf5867b4`. This is not a new
 registry or deployment observation. [The changelog](../../CHANGELOG.md) owns
-release notes; its undated 0.14.11 heading is ordinary post-release work.
+release notes; its then-undated 0.14.11 heading collected post-release work.
 The released lock selects ic-memory 0.25.5, ic-testkit 0.15.4, management types
 0.11.0 and transitive powerfmt 0.2.1. Earlier retained profiles keep their
 original compiled releases and dependency graphs.
@@ -252,9 +268,9 @@ The initial failed fixture remains at `target/release-tests.E9wLZs`; initial and
 follow-up logs are under `.tmp/v01410-changelog-01`. This review performs no
 full CI, version transaction, commit, publication or deployment.
 
-This repository adopts Shared Tooling 0.1.0 revision
+The 0.14.10 batch adopted Shared Tooling 0.1.0 revision
 `41e1fd0ba41460bd2127cbf98ac8a4b2b2020d3e` through
-[the snapshot manifest](../../.shared-tooling.snapshot). The same eleven-file set
+[its snapshot manifest](https://github.com/dragginzgame/ic-blob-storage/blob/c3143d6c803b5bc31c2a300f81f5b68deba64953/.shared-tooling.snapshot). The same eleven-file set
 includes the canonical DRAGGINZGAME baseline, complete linked guides, integrity
 verifiers and workspace-aware LOC script. AGENTS.md is a local service overlay;
 build and validation do not depend on a sibling checkout. The
@@ -448,7 +464,7 @@ pinned bytes. Source, manifest, file set, tools and repository-owned banners are
 unchanged; the offline integrity guard now passes. Keep branding in locally
 owned documentation rather than changing declared shared files.
 
-## 0.14.11 larger occupied histories and selected dependencies
+## Released 0.14.11 larger occupied histories and selected dependencies
 
 The [intent](../evidence/caffeine-probes/local/2026-10-05-restoration-scale-01/intent.json)
 precedes five larger normal-application PocketIC workloads on selected ic-memory
@@ -498,6 +514,39 @@ This is Linux local/substitute qualification with zero live provider requests
 and paid cycles, not full CI, native macOS, production restoration, stale-backup
 activation or million-object evidence. Cargo, release receipt, toolchain and
 maintainer-selected lock are unchanged by the batch; no commit or publication.
+
+## Current 0.14.12 tooling batch
+
+The reviewed Shared Tooling revision is `f52c0e2476aee094359ed21de91c468540d3969f`,
+exported from a clean isolated copy rather than the sibling's unrelated dirty
+work. The snapshot contains 22 committed files, including the common release
+runner, rules, formatting hook and exact tool selections. No shared copy is
+patched; the local overlay retains service policy and command authority.
+
+Standard patch/minor/major releases have one Git owner. The consumer adapter
+keeps the four release metadata files and source-bound receipt, restores a failed
+metadata transaction and changes only workspace package versions in Cargo.lock.
+Rerunning the same release target reconciles exact saved intent; remote readback
+prevents repeating a completed uncertain push. Push explicitly disables implicit
+tag following and selects only the saved branch/tag. Publishing and cleanup
+remain separate. Agents never invoke commit-producing release or resume targets.
+
+`make fmt` and `make fmt-check` use pinned cargo-sort 2.1.4 and rustfmt across
+all twelve manifests. The repository-local hook is activated in this clone;
+other clones run `make install-hooks` explicitly. The actual consumer hook test
+preserves its lock, unrelated edits and untracked files, rejects partial staging
+and leaves the index/working tree intact when formatting fails. The independent
+[tooling workflow](../../.github/workflows/tooling.yml) declares Linux and both
+macOS 15 architectures; native results remain pending.
+
+The [adoption evidence](../evidence/shared-tooling-adoption.md#01412-release-and-formatting-adoption)
+retains original failures, source/manifest inputs and scoped checks under
+`.tmp/shared-tooling-v01412-01`. Source/dependency/feature/target comparisons
+preserve all eleven workspace members; a real isolated version transaction
+preserves every external lock byte. Consumer and upstream hook checks, common
+runner and local adapter fixtures, formatting, shell checks and workflow lint
+pass locally. No Rust build, full CI, package bump, commit, tag, push, publication,
+provider effect, sibling edit or consumer artifact cleanup occurs.
 
 ## Remaining product work
 

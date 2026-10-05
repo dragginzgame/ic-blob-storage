@@ -1,0 +1,54 @@
+name: Release and formatting tooling
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: tooling-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  tooling:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, macos-15, macos-15-intel]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    defaults:
+      run:
+        shell: /bin/bash --noprofile --norc -e -o pipefail {0}
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+        with:
+          persist-credentials: false
+      - name: Prepare fixture utilities on Linux
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ripgrep
+      - name: Prepare fixture utilities on macOS
+        if: runner.os == 'macOS'
+        run: brew install ripgrep
+      - name: Prepare the selected Rust and formatter tools
+        run: |
+          rustup show active-toolchain
+          source ci/tool-versions.env
+          cargo install cargo-sort --version "$SHARED_TOOLING_CARGO_SORT_VERSION" \
+            --locked --root "$RUNNER_TEMP/blob-format-tools"
+          echo "$RUNNER_TEMP/blob-format-tools/bin" >> "$GITHUB_PATH"
+      - name: Check the snapshot, formatter and release/hook fixtures
+        env:
+          CARGO_NET_OFFLINE: 'true'
+          RUSTUP_AUTO_INSTALL: '0'
+        run: |
+          /bin/bash --version
+          make shared-tooling-check
+          make fmt-check
+          make release-check
+          make hooks-check

@@ -18,13 +18,22 @@ export BLOB_BROWSER_NODE ?= node
 BLOB_SDK_INPUTS_BYTES ?= 10485760
 VERSION ?=
 RELEASE := bash scripts/release/release.sh
-CI_TARGETS := shared-tooling-check deps shell-check release-check fmt-check check clippy probe-check docs-check test wasm-check package
+RELEASE_REMOTE ?= origin
+RELEASE_BRANCH ?= main
+export RELEASE_KIND RELEASE_PREVIOUS RELEASE_VERSION RELEASE_DATE RELEASE_SOURCE RELEASE_REMOTE RELEASE_BRANCH
+SHELLCHECK ?= shellcheck
+CI_TARGETS := shared-tooling-check deps shell-check release-check hooks-check fmt-check check clippy probe-check docs-check test wasm-check package
 
 .PHONY: help version deps cloc shared-tooling-check fmt fmt-check check clippy docs-check test test-native test-pocketic test-browser test-browser-store test-browser-transport test-browser-standalone test-sdk-probe test-sdk-inputs test-fixture test-standalone build-standalone test-admission-resources test-read-resources wasm-check \
 	build package clean shell-check release-check probe-check ci validate release-verify test-browser-publication test-browser-bootstrap test-browser-launcher test-browser-native \
-	release-plan ensure-clean patch minor major bump-x release-patch \
-	release-minor release-major release-x release-stage release-commit \
-	release-tag-check release-push publish publish-dry-run
+	release-plan ensure-clean release-patch release-minor release-major release-resume \
+	release-version release-preflight release-prepare-version release-prepared-check release-files \
+	release-commit-check release-committed-check release-tagged-check release-push-check \
+	release-tag-check publish publish-dry-run install-hooks format-tools-check hooks-check
+
+ifneq ($(word 2,$(filter release-patch release-minor release-major release-resume,$(MAKECMDGOALS))),)
+$(error Select exactly one release target)
+endif
 
 help:
 	@echo "deps                         Fetch locked Rust dependencies (network)"
@@ -51,12 +60,10 @@ help:
 	@echo "probe-check                  Verify retained Caffeine probe artifacts offline"
 	@echo "ci / validate                Fetch locked dependencies, then validate"
 	@echo "release-check                Test release tooling without publication"
-	@echo "release-plan VERSION=minor   Preview patch/minor/major or an exact version"
-	@echo "patch / minor / major         Validate and update release files for review"
-	@echo "bump-x VERSION=x.y.z          Prepare an exact release (including the first)"
+	@echo "release-plan VERSION=minor   Preview patch/minor/major without effects"
 	@echo "release-{patch,minor,major}   Maintainer: prepare, commit, tag, push"
-	@echo "release-x VERSION=x.y.z       Maintainer: release an exact version"
-	@echo "release-stage / release-commit / release-push   Individual release steps"
+	@echo "release-resume VERSION=x.y.z Maintainer: reconcile a saved release"
+	@echo "install-hooks                Enable the repository-local formatting hook"
 	@echo "publish / publish-dry-run     Separately publish or verify registry upload"
 
 version:
@@ -71,10 +78,21 @@ cloc:
 shared-tooling-check:
 	bash scripts/ci/verify-shared-tooling-snapshot.sh
 
-fmt:
+format-tools-check:
+	@bash -c 'source ci/tool-versions.env; [[ "$$(cargo sort --version)" == "cargo-sort $$SHARED_TOOLING_CARGO_SORT_VERSION" ]] || { echo "Install cargo-sort $$SHARED_TOOLING_CARGO_SORT_VERSION before formatting." >&2; exit 1; }'
+
+install-hooks:
+	bash scripts/dev/install-git-hooks.sh
+
+hooks-check:
+	bash scripts/ci/check-format-hooks.sh
+
+fmt: format-tools-check
+	cargo sort --workspace
 	cargo fmt --all
 
-fmt-check:
+fmt-check: format-tools-check
+	cargo sort --workspace --check
 	cargo fmt --all -- --check
 
 check:
@@ -202,14 +220,12 @@ clean:
 	cargo clean
 
 shell-check:
-	bash -n scripts/release/*.sh
-	bash -n scripts/dev/cloc.sh
-	bash -n scripts/ci/verify-file-checksum.sh
-	bash -n scripts/ci/verify-shared-tooling-snapshot.sh
-	shellcheck scripts/release/*.sh scripts/dev/cloc.sh scripts/ci/*.sh
+	@for script in scripts/release/*.sh scripts/dev/*.sh scripts/ci/*.sh .githooks/pre-commit; do bash -n "$$script" || exit $$?; done
+	$(SHELLCHECK) scripts/release/*.sh scripts/dev/*.sh scripts/ci/*.sh .githooks/pre-commit
 	perl -c scripts/release/release-data.pl
 
 release-check:
+	bash scripts/ci/test-release-runner.sh
 	bash scripts/release/test-release.sh
 
 ci:
@@ -227,41 +243,38 @@ release-plan:
 ensure-clean:
 	@$(RELEASE) ensure-clean
 
-patch:
-	$(RELEASE) bump patch
+release-patch release-minor release-major:
+	+@bash scripts/ci/run-release.sh "$(@:release-%=%)" "$(RELEASE_REMOTE)" "$(RELEASE_BRANCH)"
 
-minor:
-	$(RELEASE) bump minor
+release-resume:
+	+@bash scripts/ci/run-release.sh resume "$(VERSION)" "$(RELEASE_REMOTE)" "$(RELEASE_BRANCH)"
 
-major:
-	$(RELEASE) bump major
+release-version:
+	@$(RELEASE) version
 
-bump-x:
-	$(RELEASE) bump "$(VERSION)"
+release-preflight:
+	@$(RELEASE) preflight
 
-release-patch:
-	$(RELEASE) release patch
+release-prepare-version:
+	@$(RELEASE) prepare
 
-release-minor:
-	$(RELEASE) release minor
+release-prepared-check:
+	@$(RELEASE) prepared-check
 
-release-major:
-	$(RELEASE) release major
+release-files:
+	@$(RELEASE) files
 
-release-x:
-	$(RELEASE) release "$(VERSION)"
+release-commit-check:
+	@$(RELEASE) commit-check
 
-release-stage:
-	$(RELEASE) stage
+release-committed-check:
+	@$(RELEASE) committed-check
 
-release-commit:
-	$(RELEASE) commit
+release-tagged-check release-push-check:
+	@$(RELEASE) tagged-check
 
 release-tag-check:
 	$(RELEASE) tag-check
-
-release-push:
-	$(RELEASE) push
 
 publish:
 	$(RELEASE) publish

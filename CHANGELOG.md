@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.14.12]
+
+### Changed
+
+- Adopt the reviewed Shared Tooling release workflow. Patch, minor and major
+  releases share validation and reconcile an interrupted attempt at its saved
+  version when the same target is rerun. Push only the selected branch and tag;
+  keep package publication and artifact cleanup separate.
+- Add repository-local pre-commit formatting and Cargo manifest sorting, with
+  matching independent checks. Install hooks once per clone and prepare the
+  pinned formatter before running them. Hook setup resolves physical path
+  aliases ([Shared Tooling #1](https://github.com/dragginzgame/shared-tooling/issues/1)).
+- Replace manual release staging/commit/push steps with the common runner and
+  explicit saved-release recovery. Version preparation updates workspace lock
+  entries without reselecting dependency versions.
+
 ## [0.14.11] - 2026-10-05
 
 ### Added

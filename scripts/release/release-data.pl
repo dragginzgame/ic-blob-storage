@@ -34,23 +34,6 @@ sub parts {
     return ($1, $2, $3);
 }
 
-sub next_version {
-    my ($requested) = @_;
-    my @old = parts(version());
-    my @new;
-    if ($requested eq 'patch') { @new = ($old[0], $old[1], $old[2] + 1); }
-    elsif ($requested eq 'minor') { @new = ($old[0], $old[1] + 1, 0); }
-    elsif ($requested eq 'major') { @new = ($old[0] + 1, 0, 0); }
-    else { @new = parts($requested); }
-    my $next = join '.', @new;
-    parts($next);
-    for my $i (0..2) {
-        last if $new[$i] > $old[$i];
-        die "target version must not decrease\n" if $new[$i] < $old[$i];
-    }
-    return $next;
-}
-
 sub compare_versions {
     my ($left, $right) = @_;
     my @left = parts($left);
@@ -101,18 +84,49 @@ if ($command eq 'version') {
     my $value = version();
     parts($value);
     print "$value\n";
-} elsif ($command eq 'next') {
-    print next_version($args[0] // ''), "\n";
 } elsif ($command eq 'changelog-check' || $command eq 'finalize') {
     my $text = changelog(@args);
     write_file('CHANGELOG.md', $text) if $command eq 'finalize';
 } elsif ($command eq 'set-version') {
-    my ($target) = @args;
+    my ($target, $metadata_path) = @args;
     parts($target);
+    my $old = version();
+    my $metadata = decode_json(read_file($metadata_path));
+    my %ids = map { $_ => 1 } @{$metadata->{workspace_members}};
+    my %names;
+    for my $package (@{$metadata->{packages}}) {
+        next unless $ids{$package->{id}};
+        die "workspace member has independent version or source\n"
+            unless $package->{version} eq $old && !defined($package->{source});
+        die "duplicate workspace package name\n" if $names{$package->{name}}++;
+    }
+    die "incomplete workspace metadata\n"
+        unless keys(%names) && keys(%names) == keys(%ids);
+    my $lock = read_file('Cargo.lock');
+    my %updated;
+    my @sections = split /(?=^\[\[package\]\]\n)/m, $lock;
+    for my $section (@sections) {
+        next if $section =~ /^source = /m;
+        next unless $section =~ /^name = "([^"]+)"$/m && $names{$1};
+        my $name = $1;
+        die "duplicate local lock package\n" if $updated{$name}++;
+        $section =~ s/^version = "\Q$old\E"$/version = "$target"/m
+            or die "local lock version mismatch: $name\n";
+    }
+    die "workspace member missing from lock\n" unless keys(%updated) == keys(%names);
+    $lock = join '', @sections;
+    for my $name (keys %names) {
+        $lock =~ s/^( "\Q$name\E \Q$old\E")([,]?)$/' "' . $name . ' ' . $target . '"' . $2/gme;
+    }
     my $text = read_file('Cargo.toml');
     $text =~ s/(^\[workspace\.package\]\n(?:(?!^\[).)*?^version = ")[^"]+(")$/$1$target$2/ms
         or die "cannot update workspace version\n";
     write_file('Cargo.toml', $text);
+    write_file('Cargo.lock', $lock);
+} elsif ($command eq 'index-check') {
+    my @paths = split /\0/, read_file($args[0]);
+    die "unexpected release index\n" unless join(',', sort @paths)
+        eq 'CHANGELOG.md,Cargo.lock,Cargo.toml,docs/release.json';
 } elsif ($command eq 'receipt') {
     my ($source, $date) = @args;
     my %hashes = map { $_ => sha256_hex(read_file($_)) }
@@ -129,6 +143,12 @@ if ($command eq 'version') {
     die "invalid release source\n" unless $receipt->{source} =~ /\A[0-9a-f]{40,64}\z/;
     die "invalid release gate\n" unless $receipt->{gate} eq 'release-verify';
     die "invalid release date\n" unless $receipt->{date} =~ /\A[0-9]{4}-[0-9]{2}-[0-9]{2}\z/;
+    if (@args) {
+        die "expected source, version and date\n" unless @args == 3;
+        die "receipt differs from saved release identity\n"
+            unless $receipt->{source} eq $args[0] && $receipt->{version} eq $args[1]
+                && $receipt->{date} eq $args[2];
+    }
     my @files = sort keys %{$receipt->{files}};
     die "unexpected receipt files\n"
         unless join(',', @files) eq 'CHANGELOG.md,Cargo.lock,Cargo.toml';

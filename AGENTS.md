@@ -23,7 +23,8 @@ it does not override shared rules or depend on a mutable sibling checkout.
   authority, validation, batch cadence, changelog and release policy.
 - Read [the release guide](docs/releasing.md) before version or publication work.
   Agents may inspect plans and test helpers, but must not execute
-  release-commit or commit-producing release-* targets.
+  release-patch, release-minor, release-major or release-resume: the common
+  runner owns commit creation, including interruption recovery.
 - Registry publication is enabled for crates.io and remains an explicit
   maintainer action. B1 ownership and service qualification do not gate library
   publication; publishing the package does not qualify the service.

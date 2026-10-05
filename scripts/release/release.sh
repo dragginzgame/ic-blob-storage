@@ -1,200 +1,146 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+# Consumer metadata and qualification only. Shared Tooling owns every Git effect.
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd -P)"
 cd "$ROOT"
 export CARGO_TARGET_DIR="$ROOT/target"
 DATA="$ROOT/scripts/release/release-data.pl"
 RELEASE_FILES=(Cargo.toml Cargo.lock CHANGELOG.md docs/release.json)
 
-fail() {
-    echo "error: $*" >&2
-    exit 1
-}
-
+fail() { echo "release metadata refused: $*" >&2; exit 1; }
 version() { perl "$DATA" version; }
-
 ensure_clean() {
-    git rev-parse --verify HEAD >/dev/null 2>&1 ||
-        fail "repository has no commit; the maintainer must commit the source first"
-    [[ -z "$(git status --porcelain --untracked-files=all)" ]] ||
-        fail "worktree must be clean, including untracked files"
+    git rev-parse --verify HEAD >/dev/null
+    [[ -z "$(git status --porcelain --untracked-files=all)" ]] || fail 'commit the implementation and notes before releasing'
 }
-
-tag_absent() {
-    if git rev-parse --verify --quiet "refs/tags/v$1" >/dev/null; then
-        fail "tag v$1 already exists"
-    fi
-}
-
-# Serialize release mutations in this repository. Normal build ownership must
-# still be observed by the maintainer before starting a release.
-lock_release() {
-    mkdir -p target
-    exec 9>target/release.lock
-    flock -n 9 || fail "another release command is active"
-}
-
 allowed_changes() {
-    local base="$1" path
-    while IFS= read -r path; do
+    local base="$1" path paths invalid=""
+    paths="$(mktemp "${TMPDIR:-/tmp}/blob-release-paths.XXXXXX")"
+    git diff --name-only -z "$base" -- > "$paths"
+    git ls-files --others --exclude-standard -z >> "$paths"
+    while IFS= read -r -d '' path; do
         case "$path" in
-            Cargo.toml | Cargo.lock | CHANGELOG.md | docs/release.json) ;;
-            *) fail "non-release path changed since validation: $path" ;;
+            Cargo.toml|Cargo.lock|CHANGELOG.md|docs/release.json) ;;
+            *) invalid="$path"; break ;;
         esac
-    done < <(git diff --name-only "$base" --)
-    while IFS= read -r path; do
-        [[ "$path" == docs/release.json ]] ||
-            fail "untracked file must be reviewed before release: $path"
-    done < <(git ls-files --others --exclude-standard)
+    done < "$paths"
+    rm -f "$paths"
+    [[ -z "$invalid" ]] || fail "non-release path changed: $invalid"
 }
-
-verify_prepared() {
-    perl "$DATA" verify
-    local source head
-    source="$(perl "$DATA" source)"
-    head="$(git rev-parse HEAD)"
-    git merge-base --is-ancestor "$source" "$head" ||
-        fail "validated source is not an ancestor of HEAD"
-    allowed_changes "$source"
-    cargo metadata --offline --locked --no-deps --format-version 1 >/dev/null
+preflight() {
+    ensure_clean
+    [[ "$(git rev-parse HEAD)" == "${RELEASE_SOURCE:?}" ]]
+    [[ "$(version)" == "${RELEASE_PREVIOUS:?}" ]]
+    perl "$DATA" changelog-check "${RELEASE_VERSION:?}" "${RELEASE_DATE:?}"
+    # The complete gate verifies the snapshot and fetches the selected lock before
+    # any offline validation. Do not fetch again on post-validation preparation.
 }
-
-bump() {
-    local requested="${1:-}" next previous source release_date
-    RELEASE_HAD_RECEIPT=0
-    next="$(perl "$DATA" next "$requested")"
-    previous="$(version)"
+prepare() {
+    [[ "$(git rev-parse HEAD)" == "${RELEASE_SOURCE:?}" ]]
     ensure_clean
-    tag_absent "$next"
-    # Reusing the initial unpublished scaffold version is supported only before
-    # any version tag or completed local release receipt exists.
-    if [[ "$next" == "$previous" ]]; then
-        [[ ! -f docs/release.json && -z "$(git tag --list 'v*')" ]] ||
-            fail "an existing release requires a strictly greater version"
-    fi
-    release_date="$(date -u +%F)"
-    perl "$DATA" changelog-check "$next" "$release_date"
-    source="$(git rev-parse HEAD)"
-    make --no-print-directory release-verify
-    ensure_clean
-    [[ "$(git rev-parse HEAD)" == "$source" ]] ||
-        fail "HEAD changed during validation"
-    tag_absent "$next"
-
+    [[ "$(version)" == "${RELEASE_PREVIOUS:?}" ]]
+    perl "$DATA" changelog-check "${RELEASE_VERSION:?}" "${RELEASE_DATE:?}"
+    mkdir -p "$CARGO_TARGET_DIR"
     RELEASE_BACKUP_DIR="$(mktemp -d "$CARGO_TARGET_DIR/release-backup.XXXXXX")"
     cp Cargo.toml Cargo.lock CHANGELOG.md "$RELEASE_BACKUP_DIR/"
+    RELEASE_HAD_RECEIPT=no
     if [[ -f docs/release.json ]]; then
         cp docs/release.json "$RELEASE_BACKUP_DIR/release.json"
-        RELEASE_HAD_RECEIPT=1
+        RELEASE_HAD_RECEIPT=yes
     fi
-    # Failed version mutation restores the exact clean input. No staging or
-    # external effect occurs in this transaction.
+    # The canonical runner has already persisted exact intent. Roll back a
+    # failed bounded metadata transaction, retaining its input/evidence for retry.
     trap 'cp "$RELEASE_BACKUP_DIR/Cargo.toml" Cargo.toml
           cp "$RELEASE_BACKUP_DIR/Cargo.lock" Cargo.lock
           cp "$RELEASE_BACKUP_DIR/CHANGELOG.md" CHANGELOG.md
-          if [[ "$RELEASE_HAD_RECEIPT" == 1 ]]; then
+          if [[ "$RELEASE_HAD_RECEIPT" == yes ]]; then
               cp "$RELEASE_BACKUP_DIR/release.json" docs/release.json
           else
               rm -f docs/release.json
           fi
-          rm -rf "$RELEASE_BACKUP_DIR"' EXIT
-    perl "$DATA" set-version "$next"
-    cargo update --offline -p ic-blob-storage
+          echo "Failed preparation restored; inputs retained: $RELEASE_BACKUP_DIR" >&2' EXIT
+    cargo metadata --offline --locked --no-deps --format-version 1 > "$RELEASE_BACKUP_DIR/metadata.json"
+    perl "$DATA" set-version "$RELEASE_VERSION" "$RELEASE_BACKUP_DIR/metadata.json"
     cargo metadata --offline --locked --no-deps --format-version 1 >/dev/null
-    perl "$DATA" finalize "$next" "$release_date"
-    perl "$DATA" receipt "$source" "$release_date"
+    perl "$DATA" finalize "$RELEASE_VERSION" "$RELEASE_DATE"
+    make --no-print-directory fmt-check
+    perl "$DATA" receipt "$RELEASE_SOURCE" "$RELEASE_DATE"
     perl "$DATA" verify
     trap - EXIT
     rm -rf "$RELEASE_BACKUP_DIR"
-    echo "Prepared $previous -> $next; review the release-file diff."
 }
-
-stage() {
-    verify_prepared
-    [[ "$(git rev-parse HEAD)" == "$(perl "$DATA" source)" ]] ||
-        fail "stage must start from the exact validated source"
-    git add -- "${RELEASE_FILES[@]}"
+verify_prepared() {
+    perl "$DATA" verify "${RELEASE_SOURCE:?}" "${RELEASE_VERSION:?}" "${RELEASE_DATE:?}"
+    [[ "$(version)" == "${RELEASE_VERSION:?}" ]]
+    [[ "$(perl "$DATA" source)" == "${RELEASE_SOURCE:?}" ]]
+    [[ "$(git rev-parse HEAD)" == "$RELEASE_SOURCE" ]]
+    allowed_changes "$RELEASE_SOURCE"
+    cargo metadata --offline --locked --no-deps --format-version 1 >/dev/null
+    make --no-print-directory fmt-check
 }
-
-commit_release() {
+commit_check() {
     verify_prepared
+    git diff --quiet -- || fail 'unstaged release edits remain'
+    local paths
+    paths="$(mktemp "${TMPDIR:-/tmp}/blob-release-index.XXXXXX")"
+    git diff --cached --name-only -z -- > "$paths"
+    if ! perl "$DATA" index-check "$paths"; then
+        rm -f "$paths"
+        fail 'index must contain exactly the declared release files'
+    fi
+    rm -f "$paths"
+}
+committed_check() {
+    perl "$DATA" verify "${RELEASE_SOURCE:?}" "${RELEASE_VERSION:?}" "${RELEASE_DATE:?}"
+    [[ "$(version)" == "${RELEASE_VERSION:?}" ]]
+    [[ "$(perl "$DATA" source)" == "${RELEASE_SOURCE:?}" ]]
+    [[ "$(git rev-parse HEAD^)" == "$RELEASE_SOURCE" ]]
+    ensure_clean
+}
+tag_check() {
+    ensure_clean
+    perl "$DATA" verify
     local current source
     current="$(version)"
     source="$(perl "$DATA" source)"
-    [[ "$(git rev-parse HEAD)" == "$source" ]] ||
-        fail "release commit must directly follow the validated source"
-    git diff --quiet || fail "unstaged changes remain"
-    git diff --cached --quiet && fail "no staged release changes"
-    tag_absent "$current"
-    git commit -m "Release $current"
-    git tag -a "v$current" -m "Release $current"
+    [[ "$(git rev-parse HEAD^)" == "$source" ]]
+    [[ "$(git cat-file -t "refs/tags/v$current")" == tag ]]
+    [[ "$(git rev-parse "refs/tags/v$current^{commit}")" == "$(git rev-parse HEAD)" ]]
 }
-
-tag_check() {
-    ensure_clean
-    verify_prepared
-    local current head tagged source parent
-    current="$(version)"
-    head="$(git rev-parse HEAD)"
-    tagged="$(git rev-parse --verify "refs/tags/v$current^{commit}")"
-    [[ "$tagged" == "$head" ]] || fail "current version tag is not at HEAD"
-    [[ "$(git cat-file -t "refs/tags/v$current")" == tag ]] ||
-        fail "release tag must be annotated"
-    source="$(perl "$DATA" source)"
-    parent="$(git rev-parse HEAD^)"
-    [[ "$parent" == "$source" ]] ||
-        fail "release commit does not directly follow the validated source"
-}
-
-remote_preflight() {
-    [[ "$(git symbolic-ref --quiet --short HEAD)" == main ]] ||
-        fail "release push requires branch main"
-    git remote get-url origin >/dev/null ||
-        fail "configure the intended origin before a one-shot release"
-}
-
-push_release() {
-    remote_preflight
-    tag_check
-    # Push exactly this branch and release tag; never unrelated local tags.
-    git push --atomic origin HEAD:refs/heads/main "refs/tags/v$(version)"
-}
-
 publish() {
-    case "${1:-}" in "" | --dry-run) ;; *) fail "expected publish [--dry-run]" ;; esac
+    case "${1:-}" in ''|--dry-run) ;; *) fail 'expected publish [--dry-run]' ;; esac
+    # Separate registry authority still shares the release lock: never publish
+    # while another process may be changing this package's release metadata.
+    PUBLICATION_STATE_ROOT="$(git rev-parse --git-path release-state)"
+    [[ ! -L "$PUBLICATION_STATE_ROOT" ]] || fail 'release state directory is symlinked'
+    mkdir -p "$PUBLICATION_STATE_ROOT"
+    mkdir "$PUBLICATION_STATE_ROOT/lock" 2>/dev/null || fail 'release/publication lock is occupied'
+    printf '%s\n' "$$" > "$PUBLICATION_STATE_ROOT/lock/owner"
+    trap 'rm -f "$PUBLICATION_STATE_ROOT/lock/owner"; rmdir "$PUBLICATION_STATE_ROOT/lock"' EXIT
     tag_check
-    # Cargo owns registry eligibility and authentication. Service qualification
-    # is tracked separately from publishing the current library package.
     cargo publish --locked --registry crates-io -p ic-blob-storage ${1:+"$1"}
 }
-
 command="${1:-}"
 shift || true
 case "$command" in
     version) version ;;
     plan)
-        next="$(perl "$DATA" next "${1:-patch}")"
-        echo "Current: $(version)"
-        echo "Target:  $next"
-        echo "Bump: clean source -> release-verify -> Cargo/lockfile/changelog/receipt"
-        echo "One-shot: bump -> stage -> commit -> annotated tag -> atomic push"
-        echo "Registry publication is a separate command; no effects performed."
+        previous="$(version)"
+        candidate="$(bash scripts/ci/next-release-version.sh "$previous" "${1:-patch}")"
+        printf 'Current: %s\nTarget: %s\nRemote: %s\nBranch: %s\n' "$previous" "$candidate" "${RELEASE_REMOTE:-origin}" "${RELEASE_BRANCH:-main}"
+        echo 'Maintainer workflow: preflight, complete validation, prepare, stage, commit/tag, exact atomic push.'
+        echo 'Saved unfinished intent takes precedence when executing the same target; publication and cleanup are separate.'
         ;;
     ensure-clean) ensure_clean ;;
-    bump) lock_release; bump "${1:-}" ;;
-    stage) lock_release; stage ;;
-    commit) lock_release; commit_release ;;
+    preflight) preflight ;;
+    prepare) prepare ;;
+    prepared-check) verify_prepared ;;
+    files) printf '%s\0' "${RELEASE_FILES[@]}" ;;
+    commit-check) commit_check ;;
+    committed-check) committed_check ;;
+    tagged-check) committed_check; tag_check ;;
     tag-check) tag_check ;;
-    push) lock_release; push_release ;;
-    publish) lock_release; publish "${1:-}" ;;
-    release)
-        lock_release
-        remote_preflight
-        bump "${1:-}"
-        stage
-        commit_release
-        push_release
-        ;;
-    *) fail "expected version, plan, ensure-clean, bump, stage, commit, tag-check, push, publish, or release" ;;
+    publish) publish "${1:-}" ;;
+    *) fail 'expected a metadata/check operation; use the common Make release targets for Git effects' ;;
 esac

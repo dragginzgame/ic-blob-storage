@@ -57,14 +57,13 @@ though removed contracts are hard-cut. Compatible fixes may use patch.
 Do not version each implementation slice or bump Cargo during routine coding.
 
 Maintain CHANGELOG.md for meaningful behavior and maintained tooling changes.
-Keep the latest release or current draft notes at the top. Do not use Unreleased
-or an extra notes queue. If the next major, minor or patch version is undecided,
-use one undated heading without a patch number, such as `## [Draft]` or
-`## [0.14]`. A chosen target uses its full undated version heading. The release
-helper assigns the selected version and date during preparation; it does not
-enforce heading position. Changelog presentation and undecided draft versions
-must not gate deployment. Historical release notes remain immutable, including
-imported undated entries at or below the current package version.
+Follow [the shared changelog rules](../../rules/changelogs.md). Keep one numbered,
+undated next release at the top, automatically selected from the latest finalized
+release and the complete pending batch. Compatible pre-1.0 work uses the next
+patch; a breaking public contract requires the next minor. This documentation
+choice changes no package metadata or release authority. Presentation must not
+gate deployment; preparation checks exact release identity and finalizes its
+date. Historical entries, including imported undated releases, remain immutable.
 
 Repository-only work normally joins the next coherent release. An explicit
 maintainer version/release request may choose a repository-only release.
@@ -74,11 +73,19 @@ Never claim that changing the version establishes service or provider safety.
 
 Release preparation requires committed clean input and full current validation.
 It updates only Cargo.toml, Cargo.lock, CHANGELOG.md and docs/release.json.
-Failed preparation restores these files; success leaves them for review.
+Failed metadata preparation restores these files and retains its failed inputs.
 The receipt binds exact release-file hashes to the validated source commit.
 Release staging/commit reject unrelated changes. Push requires a clean main
 branch, annotated current-version tag at HEAD and the validated source as its
-direct parent. Push exactly main and that tag atomically without force.
+direct parent. The [common runner](../releases.md) owns staging, commit/tag and
+the exact atomic branch/tag push, with implicit tag following disabled and no
+force. One-shot releases default to main/origin; branch and remote are explicit
+saved inputs. Before preparation, a failed gate starts fresh through the same
+target. From preparation onward, rerunning that target reconciles saved intent
+at its original version; an uncertain push requires remote readback. The local
+adapter owns workspace metadata and the receipt, not another release state
+machine. Formatter prerequisites are prepared before validation; `fmt-check`
+and `hooks-check` run independently in the complete gate.
 
 Release and publication preserve build artifacts on success, failure and retry.
 Cleanup is a separate explicit `make clean` action. Registry publication is

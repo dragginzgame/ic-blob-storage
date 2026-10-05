@@ -1,16 +1,16 @@
 [workspace]
 members = [
+    "canisters/standalone",
+    "canisters/test/admission_probe",
+    "canisters/test/authority_probe",
+    "canisters/test/consumer_probe",
+    "canisters/test/funding_probe",
+    "canisters/test/gateway_source",
+    "canisters/test/storage_probe",
     "crates/ic-blob-storage",
     "crates/ic-blob-storage-cli",
-    "canisters/standalone",
-    "canisters/test/authority_probe",
-    "canisters/test/admission_probe",
-    "canisters/test/storage_probe",
-    "canisters/test/consumer_probe",
-    "canisters/test/gateway_source",
-    "canisters/test/funding_probe",
-    "tests/protocol",
     "tests/pocketic",
+    "tests/protocol",
 ]
 resolver = "3"
 
@@ -40,9 +40,9 @@ serde_bytes = "0.11.19"
 serde_cbor = "0.11.2"
 serde_json = "1.0.151"
 sha2 = { version = "=0.11.0", default-features = false }
+tempfile = "3.27.0"
 # PocketIC 16 requires this exact compatible release.
 thiserror = "=2.0.18"
-tempfile = "3.27.0"
 tokio = "1.53.1"
 url = "2.5.8"
 

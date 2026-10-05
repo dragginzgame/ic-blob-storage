@@ -9,10 +9,10 @@ publish = false
 crate-type = ["cdylib"]
 
 [dependencies]
-candid.workspace = true
-ic-cdk.workspace = true
-ic-blob-storage.workspace = true
 blob-test-protocol.workspace = true
+candid.workspace = true
+ic-blob-storage.workspace = true
+ic-cdk.workspace = true
 serde.workspace = true
 serde_bytes.workspace = true
 serde_json.workspace = true
