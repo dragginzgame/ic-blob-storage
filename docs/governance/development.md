@@ -50,11 +50,14 @@ though removed contracts are hard-cut. Compatible fixes may use patch.
 Do not version each implementation slice or bump Cargo during routine coding.
 
 Maintain CHANGELOG.md for meaningful behavior and maintained tooling changes.
-Group work in Unreleased until a target is named, then use one undated
-numbered section immediately below the empty Unreleased section. The release
-helper dates that section, or promotes populated Unreleased notes,
-automatically. Historical release notes remain immutable, including imported
-undated entries at or below the current package version.
+Keep the latest release or current draft notes at the top. Do not use Unreleased
+or an extra notes queue. If the next major, minor or patch version is undecided,
+use one undated heading without a patch number, such as `## [Draft]` or
+`## [0.14]`. A chosen target uses its full undated version heading. The release
+helper assigns the selected version and date during preparation; it does not
+enforce heading position. Changelog presentation and undecided draft versions
+must not gate deployment. Historical release notes remain immutable, including
+imported undated entries at or below the current package version.
 
 Repository-only work normally joins the next coherent release. An explicit
 maintainer version/release request may choose a repository-only release.

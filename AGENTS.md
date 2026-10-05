@@ -13,6 +13,10 @@ This file is normative for automated contributors.
 - Record actionable consumer integration feedback in the current handoff and
   remind the maintainer of open actions in delivery summaries. Recording feedback
   does not authorize sibling edits or sending upstream messages.
+- Keep shared-tooling feedback in docs/governance/shared-tooling-feedback.md and
+  link open actions from the handoff. Update the existing item rather than keeping
+  competing copies. Record the reviewed revision, symptom, evidence, smallest
+  proposal and disposition; distinguish upstream acceptance from local adoption.
 
 ## Delivery and release
 
@@ -29,6 +33,11 @@ This file is normative for automated contributors.
   together. Do not allocate one version per focused slice.
 - Maintain CHANGELOG.md for completed meaningful code/behavior/tooling changes.
   Extend the current draft; leave version mutation to the requested release flow.
+- Keep the latest release or draft notes at the top, without Unreleased. When the
+  next major, minor or patch version is undecided, use one undated draft without
+  a patch number. Changelog presentation must not block deployment. Follow the
+  maintainer's shared-tooling convention as adopted here. Reviewed source details
+  belong in the feedback record; a mutable sibling checkout is no build dependency.
 - Read [the release guide](docs/releasing.md) before version or publication work.
   Agents may inspect plans and test helpers, but must not execute
   release-commit or commit-producing release-* targets.

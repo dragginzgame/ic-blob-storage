@@ -1,14 +1,15 @@
 # Current status
 
-Date: 2026-10-04
+Date: 2026-10-05
 
-## Released baseline
+## Retained release baseline
 
 Released **0.14.7** is at `cb4cd5a1253f53e9daed0e4a51bcf894a4f0ccd6`,
 with validated source `af5140a97c32ccadd2fbf7c4e6a00e6aa3deb42e`.
-The local tag and [release receipt](../release.json) agree; the maintainer reports
-it pushed. [Cargo](../../Cargo.toml) and [the changelog](../../CHANGELOG.md) own release
-metadata. The release does not establish registry publication, consumer adoption
+The prior handoff checked that tag/source identity and recorded the maintainer's
+push report. [Cargo](../../Cargo.toml) and [the receipt](../release.json) now record
+0.14.8; this tooling batch does not freshly verify its tag or remote publication.
+[The changelog](../../CHANGELOG.md) owns release notes. A release does not establish registry publication, consumer adoption
 or deployed provider behavior. The lock uses ic-memory 0.25.0 and ic-testkit 0.14.11.
 
 The core owns tenant policy, uploads, manifests, references, quotas, provider
@@ -131,10 +132,11 @@ million-object measurement is claimed. The acceptance plan now reflects retained
 trials and current recovery rather than obsolete 0.5/0.15/Unreleased assumptions.
 Consumer adoption/certified registration and provider retirement remain open.
 
-## Current draft: 0.14.8 resource measurements and simplifications
+## 0.14.8 resource measurements and simplifications
 
-[0.14.8](../../CHANGELOG.md) is an undated draft; Cargo, the release receipt and
-Git release identity remain 0.14.7. No publication or consumer adoption is implied.
+[0.14.8](../../CHANGELOG.md) is now dated and Cargo/the receipt record that version.
+The observations below retain their original compiled versions and source
+identities; this does not establish registry publication or consumer adoption.
 
 The [initial resource record](../evidence/caffeine-probes/README.md#bounded-service-and-browser-resource-profile--2026-10-04)
 measures the sixteen-store assembly at 100/1,000/10,000 operations on normal
@@ -200,6 +202,54 @@ the existing current installation encoder. All eleven funding transport cases,
 including the five reported failures, pass; strict storage harness Clippy and
 format/changelog checks pass. Production funding behavior and fixture Wasm are
 unchanged. No full storage suite or CI rerun, release, live effect or cleanup.
+
+## Current tooling work
+
+The maintainer's changelog rule is recorded in the explicitly authorized
+`../shared-tooling/AGENTS.md` and adopted locally. Latest release/draft notes stay
+at the top without Unreleased or a separate notes queue. One undated draft may
+omit its patch number or use an undecided label; release preparation assigns its
+chosen version/date in place. Section-order and mandatory-queue checks are gone.
+Presentation and undecided draft labels do not gate deployment; release
+preparation still rejects conflicting drafts rather than relabeling history.
+
+The current notes are the named, undated 0.14.9 draft, selected by the maintainer
+on 2026-10-05. Cargo and the receipt remain at 0.14.8; release preparation owns
+their mutation and final dating. This batch changes release tooling and
+documentation, not the service API or stored layouts. Isolated helper tests
+cover partial, named and undecided labels, historical-note preservation,
+rollback/publication/retry and a non-first draft without an order guard. The
+helper tests, Perl syntax, ShellCheck and effect-free current draft check pass;
+logs remain under `.tmp/changelog-section-order-01`. No actual commit, tag, version
+mutation, deployment, provider effect or full CI occurs. Shared tooling changes
+only its named instruction file; other consumers still need to adopt the rule.
+Existing consumer tool adoption, certified registration and provider retirement
+actions remain open.
+
+The [shared-tooling feedback record](../governance/shared-tooling-feedback.md)
+now owns reusable feedback and its dispositions. The maintainer subsequently
+authorized a shared AGENTS.md baseline for all Dragginzgame repositories. Its
+working file now includes feedback intake, artifact/evidence identity, contract
+propagation through recovery, offline cache prerequisites, scope/authority,
+canonical ownership and pre-1.0 hard cuts/unversioned-or-V1 models. The record
+binds its exact uncommitted bytes separately from shared HEAD; no published
+revision or adoption by other consumers is claimed.
+
+Shared Tooling's own validation commands remain separate from consumer policy.
+Only its named AGENTS.md changed: automatic approval review rejected accompanying
+CONTRIBUTING and principle-index edits as outside that sibling-file authority.
+The baseline is self-contained; those supporting clarifications remain proposals.
+Documentation links/diffs and the local draft check pass. No scripts, platform
+qualification, commits, tags, publication, deployment or cleanup occur.
+
+Local action L1 is to adopt the already available workspace-aware LOC script via
+a reviewed snapshot. The current copy counts only crates/ while this workspace
+also has canisters/ and tests/ members. No script adoption, issue submission or
+portable-tool execution occurred. After the maintainer commits the upstream
+baseline, consumers need to record a reviewed revision and reconcile their local
+overlays; this does not authorize edits across the organization. Update the
+canonical record and distinguish shared decisions from verified consumer adoption.
+Existing product integration and retirement actions remain open.
 
 ## Remaining product work
 

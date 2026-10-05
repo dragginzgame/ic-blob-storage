@@ -1,5 +1,30 @@
 # Changelog
 
+## [0.14.9]
+
+### Fixed
+
+- Remove the mandatory Unreleased section and changelog section-order checks
+  from release preparation. Finalize one current draft in place while preserving
+  historical notes and rejecting duplicate, empty, conflicting or mismatched
+  release drafts.
+
+### Changed
+
+- Allow an undated draft to omit its patch number or use an undecided label until
+  release preparation assigns the selected version and date. Align governance and
+  release fixtures with the Dragginzgame convention: latest notes first, no extra
+  notes queue and no deployment gate for changelog presentation.
+
+### Added
+
+- Add a consumer-owned shared-tooling feedback record with evidence, proposals
+  and adoption actions, linked from agent instructions and the handoff. Record the
+  reviewed upstream engineering baseline's exact source identity and distinguish
+  implementation, publication and consumer adoption. Local architecture and
+  validation remain authoritative; no automation or mutable sibling build
+  dependency is introduced.
+
 ## [0.14.8] - 2026-10-04
 
 ### Fixed

@@ -15,7 +15,14 @@ is rejected after any version tag or generated release record exists.
 
 The initial 0.1.0 changelog is undated history. Preparation preserves undated
 entries at or below the current package version; any other undated future
-version remains a competing draft. A named target must follow empty Unreleased.
+version remains a competing draft. Keep the latest release or current draft at
+the top, without Unreleased or an extra notes queue. Until the next major, minor
+or patch version is chosen, use one undated heading such as `## [Draft]` or
+`## [0.14]`; preparation gives it the selected version and date in place. A fully
+numbered draft must match the selected target. There is no heading-position
+check or deployment gate for changelog presentation or undecided draft labels.
+Release preparation still refuses ambiguous drafts, duplicate headings and
+missing notes rather than silently attributing history to a new release.
 Drafting notes does not bump Cargo or create a release receipt: commit the
 implementation and draft first, then run `make patch` or the exact-version
 preparation command from clean source. Agents can prepare the draft and validate
