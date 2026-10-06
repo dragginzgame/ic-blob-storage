@@ -247,3 +247,16 @@ a157689e4d9e175194c1a7736f3efa30febadf2e35ecc56618b4255736550cb4  docs/evidence/
 82c09db8dcc8e7c3145511d1b6fbe397e6f4c3c8d1dae322dfde51f37365ecaf  docs/evidence/caffeine-probes/local/2026-10-05-restoration-shapes-01/summary.json
 918f1ed4a9476d3de5c277fc5bdd7a62c02eb6fa59ccaab9c007d9172be0f957  docs/evidence/caffeine-probes/local/2026-10-05-management-types-011-01/intent.json
 f342cdbca1394482a1e6b793b9399434e8d7556fef01df0fd0cb11cfd0d6284a  docs/evidence/caffeine-probes/local/2026-10-05-management-types-011-01/summary.json
+6d1118f06831dbe21fba598bcafea4c960cd8d7710dd3ee042fd2f4b5a270494  docs/evidence/caffeine-probes/local/2026-10-06-hard-cut-media-01/followup-intent.json
+e326ed23272c873979a55395cdad251b0effbee47e95b60b993e9c2664cd3e94  docs/evidence/caffeine-probes/local/2026-10-06-hard-cut-media-01/intent.json
+05bb2547b08f4742095532c1a89e16762eba0eb9789e3b358e6067351c214615  docs/evidence/caffeine-probes/local/2026-10-06-hard-cut-media-01/summary.json
+5e9d75aa5b70cd51d9969bf1594ac9de5f366129685d0a7a6595e2c58f136b5b  docs/evidence/caffeine-probes/local/2026-10-06-hard-cut-media-01/validation-intent.json
+8f9a694a918b4ef129bfad268945641638d912ece3ca60a5b684392492aa6957  docs/evidence/caffeine-probes/local/2026-10-06-funding-credit-review-01/intent.json
+6245640520b3e5c08beb51fc908103745f6ebc3abcecbfa24be190cec7c84aaf  docs/evidence/caffeine-probes/local/2026-10-06-funding-credit-review-01/summary.json
+33ef856c18e02c3c033ed1e919cc8f3baae9f0bbfb554e253c2acd97111a0b50  docs/evidence/caffeine-probes/local/2026-10-06-funding-credit-0150-01/intent.json
+bd8efecd76e35a1b55ad9f2ee8af49ba0f33b2279598d2f5dfd4bb257573861f  docs/evidence/caffeine-probes/local/2026-10-06-funding-credit-0150-01/regression-intent.json
+f9aacd8824760b282275adb93cafdb099ab4cb6d71d6760660b677259472afd3  docs/evidence/caffeine-probes/local/2026-10-06-funding-credit-0150-01/summary.json
+e5a3a145b005316b214c372ce9c7549b1615e13bcb15fb7d605c11176ff08d94  docs/evidence/caffeine-probes/local/2026-10-06-funding-receipts-0150-01/index-intent.json
+08e3c7ad324ecf39fc59eb793d1c27ab99a83762b6a77e8df828cbe2626c2a2a  docs/evidence/caffeine-probes/local/2026-10-06-funding-receipts-0150-01/intent.json
+31b8f3c6e2fb024c40c76a3742df83c01c6d6d4a02f665fde7ca450f38f4b5c0  docs/evidence/caffeine-probes/local/2026-10-06-funding-receipts-0150-01/renewal-intent.json
+4c467794524a8bf83029c5ff7196f88081dd75815f1e1365bb6094aceb0b99a2  docs/evidence/caffeine-probes/local/2026-10-06-funding-receipts-0150-01/summary.json

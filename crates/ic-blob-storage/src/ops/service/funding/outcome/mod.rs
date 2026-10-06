@@ -25,6 +25,10 @@ pub struct FundingOutcomeView {
     pub response: Option<CashierTopUpStatus>,
     /// Validated attachment facts for the workflow's independent reconciliation policy.
     pub transfer: FundingTransfer,
+    /// Exact immutable host credit confirmation, separate from provider reports.
+    pub credit: Option<crate::model::billing::journal::credit::FundingCreditReceipt>,
+    /// Immutable local budget increase for this intent, separate from spent cycles.
+    pub renewed_allocation: Option<std::num::NonZeroU128>,
 }
 
 impl<M: Memory> StableFundingJournal<M> {
@@ -83,6 +87,8 @@ impl<M: Memory> StableFundingJournal<M> {
                     state: view.state,
                     response: conversion::view(record.response()),
                     transfer,
+                    credit: record.credit(),
+                    renewed_allocation: record.renewed_allocation(),
                 })
             })
             .transpose()
@@ -119,7 +125,7 @@ impl<M: Memory> StableFundingJournal<M> {
             totals.resolve(next.transfer().ok_or(FundingJournalError::InvalidRecord)?)?
         };
         self.intents.insert(input.operation.get(), next);
-        self.accounting.insert(0, totals);
+        self.write_totals(&totals);
         Ok(true)
     }
 }

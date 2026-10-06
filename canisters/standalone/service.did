@@ -264,6 +264,9 @@ type FundingOutcomeResponse = record {
   fenced : bool;
   // Complete original intent checked before disclosure.
   request : FundingOutcomeRequest;
+  // Immutable local budget authorization increase; zero means no grant.
+  // This is neither refunded cycles nor provider credit.
+  renewed_allocation : nat;
   // Absent when no structured response was durably retained.
   response : opt FundingResponse;
   // Local transport progress.
@@ -324,6 +327,13 @@ type FundingPreparationResponse = record {
 type FundingReconciliation = variant {
   // Full original attachment remains potentially spent.
   TransferUnknown : nat;
+  // Immutable receipt established by the trusted host, not inferred from balance.
+  CreditConfirmed : record {
+    // Exact positive transport-accepted attachment covered by the evidence.
+    accepted_cycles : nat;
+    // SHA-256 of preserved provider credit evidence; not a proof token.
+    receipt_digest : blob;
+  };
   // Exact transport acceptance still requires independent provider-credit evidence.
   CreditRequired : nat;
   // No attached cycles transferred; execution fees are separate.
@@ -465,6 +475,10 @@ type LocalFundingStatus = record {
   transport_accepted : nat;
   // Funding owner refuses mutations after restoration.
   fenced : bool;
+  // Installed upper bound, not cycle liquidity or authority for another effect.
+  renewal_ceiling : nat;
+  // Cumulative local authorization, including immutable budget grants.
+  cumulative_allocation : nat;
   // Lifetime exact refunds, already included in available allocation.
   refunded : nat;
   // Highest retained identity; not a restore-safe allocator.
@@ -477,6 +491,8 @@ type LocalFundingStatus = record {
   attachment_allowance : nat;
   // Lifetime proven unsent attachments, not callback refunds.
   not_enqueued : nat;
+  // Accepted attachments still awaiting exact host credit confirmation.
+  uncredited_accepted : nat;
   // Installed lifetime intent capacity.
   intent_capacity : nat64;
 };
@@ -828,8 +844,11 @@ type ServiceConfigurationInput = record {
 };
 // Local attachment budget, not platform liquidity or provider credit.
 type ServiceFundingInput = record {
-  // Total lifetime attachment allocation in cycles.
+  // Initial attachment authorization in cycles, not available platform liquidity.
   allocated : nat;
+  // Immutable cumulative ceiling including host-authorized budget increases.
+  // Equal to allocated disables increases; spent history and slots never reset.
+  renewal_ceiling : nat;
   // Positive amount kept out of attachment offers within this allocation.
   reserve : nat;
   // Positive lifetime journal capacity, including uncertain and completed attempts.

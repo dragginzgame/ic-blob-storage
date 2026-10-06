@@ -113,7 +113,7 @@ pub(crate) fn inspect<M: Memory>(
             liability_bytes: uploads.liability_bytes,
             fenced: stores.uploads.is_fenced(),
         },
-        funding: funding_status(funding),
+        funding: funding_status(&funding),
         gateways: LocalGatewayStatus {
             members: gateways.principals,
             last_sequence: gateways.sync.last_sequence,
@@ -129,12 +129,15 @@ pub(crate) fn inspect<M: Memory>(
     })
 }
 pub(crate) fn funding_status(
-    funding: crate::ops::service::funding::summary::FundingJournalSummary,
+    funding: &crate::ops::service::funding::summary::FundingJournalSummary,
 ) -> LocalFundingStatus {
     LocalFundingStatus {
+        cumulative_allocation: funding.allocation.allocated(),
+        renewal_ceiling: funding.allocation.renewal_ceiling(),
         available_allocation: funding.allocation.available(),
         attachment_allowance: funding.allocation.transferable(),
         transport_accepted: funding.allocation.accepted(),
+        uncredited_accepted: funding.allocation.uncredited(),
         refunded: funding.allocation.refunded(),
         not_enqueued: funding.allocation.not_enqueued(),
         reserved_or_uncertain: funding.allocation.reserved_or_uncertain(),

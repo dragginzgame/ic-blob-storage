@@ -1,0 +1,254 @@
+{
+  "schema": 1,
+  "date": "2026-10-06",
+  "evidence_class": "Source review, native checks and actual local PocketIC with synthetic host/Cashier receipts; no deployed-provider or Toko workload qualification",
+  "source": {
+    "head": "ebd535eaa2015407319fd330f559b2808ea01588",
+    "pending_release": "0.15.0",
+    "compiled_release": "0.14.12",
+    "ic_memory": "0.27.1",
+    "ic_testkit": "0.18.3",
+    "cargo_lock_sha256": "e89c95be2bebffc4da8f59ab521069acf94a4f627d2a02cd4be9355221dc8a0e",
+    "lock_selection_changed_this_batch": false,
+    "final_source_archive": {
+      "path": ".tmp/funding-renewal-0150-01/final-source-04.tar.gz",
+      "sha256": "d2a8814f68cda3158efeeac9c766b93c9993bfaf59f69ce0c8ba3e90314cb843"
+    },
+    "profile_bindings": ".tmp/funding-renewal-0150-01/indexed-bindings-02.json",
+    "historical_refusal_bindings": ".tmp/funding-renewal-0150-01/validation-bindings-03.json",
+    "note": "Indexed profile 01 preserves its pre-lint artifacts/source; profile 02 freezes the final production/index/fixture implementation. Later changes propagate independent CLI/browser fixtures, historical-test raw projection and lint annotation, without changing production or measured Wasm. All source archives and original attempts remain."
+  },
+  "shared_tooling": {
+    "revision": "a7efade1a68e43f148252a1a73908a46c4cbe9e9",
+    "files": 28,
+    "snapshot_sha256": "ab45d13007abf0d980fc799d2eb9be0864f5ea876dbf2a114f919d31bf1d9be8",
+    "adoption": "Canonical reviewed refresh export from a clean detached source into an isolated empty consumer, including the four new pinning/parser files; verify old snapshot before adoption and new snapshot afterward. No vendor hand patch or sibling edits.",
+    "excluded": "Uncommitted sibling audit drafts",
+    "registry_selectors_relaxed": [
+      "candid_parser",
+      "ic-agent",
+      "sha2",
+      "thiserror"
+    ],
+    "exceptions": [],
+    "upstream_ci": {
+      "run": 37443591873,
+      "conclusion": "success",
+      "url": "https://github.com/dragginzgame/shared-tooling/actions/runs/37443591873",
+      "jobs": [
+        "ubuntu-24.04",
+        "macos-15",
+        "macos-15-intel",
+        "lint-and-security"
+      ]
+    },
+    "dirty_consumer_native_ci_qualified": false,
+    "local_bash32_pass": true
+  },
+  "contract": {
+    "installation_format": "ic-blob-storage/installation:platform-anchor-funding-credit-index-renewal",
+    "owner": "One existing local durable funding journal; receipt index in existing accounting memory",
+    "credit": "Exact full original accepted attachment and immutable nonzero receipt; index binds digest to original operation. Refuse conflict/reuse; replay unchanged. Reopen validates index and complete accounting, without repair.",
+    "grant": "Host internal, one immutable positive grant per latest fully credited intent; all history reconciled; amount bounded by original acceptance and fixed installed cumulative renewal_ceiling. Replay after later intents is unchanged.",
+    "preserved": [
+      "gross acceptance",
+      "credit receipts",
+      "refund/unsent totals",
+      "operation high-water mark",
+      "lifetime count/slots",
+      "installation reserve",
+      "restoration fences"
+    ],
+    "new_memory_grants": 0,
+    "public_credit_or_renewal_endpoints": 0,
+    "new_mandatory_boundaries": [
+      "funding.renewal_ceiling",
+      "LocalFundingStatus.cumulative_allocation",
+      "LocalFundingStatus.renewal_ceiling",
+      "FundingOutcomeResponse.renewed_allocation"
+    ],
+    "cross_release_disposition": "Retire obligations then reinstall; no migration or compatibility reader"
+  },
+  "profiles": {
+    "indexed_final": [
+      {
+        "intents": 100,
+        "population_ms": 295,
+        "confirmation_instructions": 3808692,
+        "replay_instructions": 2075260,
+        "restore_instructions": 49378216,
+        "restore_heap_bytes": 1376256,
+        "physical_stable_bytes": 18939904
+      },
+      {
+        "intents": 1000,
+        "population_ms": 2719,
+        "confirmation_instructions": 4840460,
+        "replay_instructions": 2439668,
+        "restore_instructions": 463270694,
+        "restore_heap_bytes": 1376256,
+        "physical_stable_bytes": 21037056
+      },
+      {
+        "intents": 10000,
+        "population_ms": 23339,
+        "confirmation_instructions": 4949504,
+        "replay_instructions": 2716045,
+        "restore_instructions": 4763717162,
+        "restore_heap_bytes": 1376256,
+        "physical_stable_bytes": 47251456
+      }
+    ],
+    "scan_baseline": {
+      "100_confirmation_instructions": 31767201,
+      "1000_confirmation_instructions": 291652376,
+      "1000_population_ms": 13015,
+      "10000_population_completed": false,
+      "10000_completed_intents": 3920,
+      "10000_last_checkpoint_start": 3904,
+      "10000_elapsed_ms": 180402
+    },
+    "1000_confirmation_reduction_percent": 98.3403,
+    "comparison": "Two unreleased credit implementations, not current Toko. Restore does more durable index validation; the 10k observation costs 4.76 billion instructions and 47.25MB physical stable memory.",
+    "provider_requests": 0,
+    "paid_cycles": "0"
+  },
+  "checks": {
+    "core_funding": {
+      "log": ".tmp/funding-renewal-0150-01/final-core-funding-01.log",
+      "passed": 48
+    },
+    "configuration": {
+      "log": ".tmp/funding-renewal-0150-01/configuration-tests-01.log",
+      "passed": 8
+    },
+    "installation": {
+      "log": ".tmp/funding-renewal-0150-01/installation-tests-01.log",
+      "passed": 8
+    },
+    "billing_policy": {
+      "log": ".tmp/funding-renewal-0150-01/policy-tests-01.log",
+      "passed": 24
+    },
+    "allocation": {
+      "log": ".tmp/funding-renewal-0150-01/allocation-tests-01.log",
+      "passed": 5
+    },
+    "cli": {
+      "log": ".tmp/funding-renewal-0150-01/native-cli-03.log",
+      "passed": 100
+    },
+    "storage_funding": {
+      "log": ".tmp/funding-renewal-0150-01/storage-funding-01.log",
+      "passed": 32
+    },
+    "standalone_funding": {
+      "log": ".tmp/funding-renewal-0150-01/standalone-funding-01.log",
+      "passed": 5
+    },
+    "standalone_candid_and_trial": {
+      "log": ".tmp/funding-renewal-0150-01/standalone-installation-01.log",
+      "passed": 2
+    },
+    "pinned_hard_cut": {
+      "log": ".tmp/funding-renewal-0150-01/hard-cut-02.log",
+      "passed": 1
+    },
+    "final_receipt_tiers": {
+      "log": ".tmp/funding-renewal-0150-01/indexed-profile-02.log",
+      "passed": 1
+    }
+  },
+  "additional_checks": {
+    "strict_relevant_clippy": ".tmp/funding-renewal-0150-01/clippy-03.log",
+    "strict_harness_clippy": ".tmp/funding-renewal-0150-01/harness-clippy-02.log",
+    "msrv_native_1_88": ".tmp/funding-renewal-0150-01/msrv-native-01.log",
+    "msrv_wasm_1_88": ".tmp/funding-renewal-0150-01/msrv-wasm-01.log",
+    "rustdoc": ".tmp/funding-renewal-0150-01/rustdoc-01.log",
+    "snapshot_pins_format": ".tmp/funding-renewal-0150-01/final-format-pins-02.log",
+    "shell": ".tmp/funding-renewal-0150-01/final-shell-01.log",
+    "actionlint": ".tmp/funding-renewal-0150-01/actionlint-02.log",
+    "release_command_stubs": ".tmp/funding-renewal-0150-01/tooling-fixtures-01.log",
+    "bash_3_2": ".tmp/funding-renewal-0150-01/bash32-tooling-01.log",
+    "browser_configuration_cli": ".tmp/funding-renewal-0150-01/browser-configuration-01.log",
+    "browser_syntax": ".tmp/funding-renewal-0150-01/browser-syntax-01.log",
+    "diff": ".tmp/funding-renewal-0150-01/diff-check-01.log"
+  },
+  "hard_cut": {
+    "cross_release_upgrade_supported": false,
+    "evidence_class": "local PocketIC; synthetic verifier; no provider effects",
+    "liability_bytes": "10486784",
+    "old_memory": "0.25.5",
+    "old_owner_and_exact_admissions_preserved": true,
+    "old_release": "0.14.9",
+    "old_wasm": "sha256:80290c5f12235a27f29839f899161774ee9a3429b965f2440e8ce0b3c6b04c38",
+    "physical_bytes": "10486784",
+    "reserved_bytes": "10485760",
+    "stable_after": "sha256:b7fd9f8596cddeac299c366f2b95945363bc9cdcc377c21623592f1595a7ecaa",
+    "stable_before": "sha256:b7fd9f8596cddeac299c366f2b95945363bc9cdcc377c21623592f1595a7ecaa",
+    "target_compiled_release": "0.14.12",
+    "target_wasm": "sha256:012adcf981dcee4bd0b0f8894528f26a14acbe53ebb28ac28453790e822b7403",
+    "upgrade_refused": true
+  },
+  "consumer_review": {
+    "raw": ".tmp/funding-renewal-0150-01/consumer-source-review.json",
+    "recipe": "docs/funding-consumer-qualification.md",
+    "toko_selected_blob": "0.14.9",
+    "acquisition": "Reviewed success/balance does not supply authenticated uniquely attributable receipt or complete activity. Consumer owner must qualify acquisition and two real guarded top-ups; maintainer is not working on Toko.",
+    "sibling_mutations": 0,
+    "consumer_builds": 0
+  },
+  "failures_retained": [
+    "scan-profile-01 failed fixture assertion comparing post-upgrade anchor writes to pre-upgrade bytes; raw oversized diff retained",
+    "scan-profile-02 10k population budget exhausted; incomplete tier retained with no success claim",
+    "indexed-profile-01 completed on its original artifacts; final source change prompted fresh indexed-profile-02",
+    "renewal-check compile corrections and native-funding-01 consistency-fixture failures",
+    "clippy-01/02 private enum/fixture lint failures and harness-clippy-01 long journey",
+    "final-harness-03/04 wrong package selector setup failures before corrected 05",
+    "hard-cut-01 tried to decode pinned old configuration as current DTO before upgrade; corrected test uses unchanged release projection and full raw-byte comparison"
+  ],
+  "raw_retention": {
+    "manifest": ".tmp/funding-renewal-0150-01/RAW-SHA256SUMS",
+    "sha256": "1feaca8bbd28c12b093eb3a4c7fd28c7b906bccaf0373a2d292d33a308734817",
+    "files": 5621,
+    "total_bytes": 3081359106,
+    "exclusions": "Expanded shared-source/shared-export/scan-source trees excluded; frozen source archives, export snapshot, all original logs, raw packets, stable snapshots and artifacts included. Manifest itself excluded to avoid self-reference."
+  },
+  "limitations": [
+    "Synthetic receipts/Cashier do not qualify deployed provider credit",
+    "Single local Linux observation with fixture observer overhead; no Toko gameplay/upload benchmark or production-size acceptance",
+    "No consumer integration, unique provider receipt acquisition or complete live account activity proven",
+    "Lifetime slots and fixed cumulative ceiling remain finite; no indefinite funding",
+    "Native memory alone has no IC message rollback guarantee",
+    "No full CI, version mutation, release, commit, push, publication, deployment, paid effect or sibling edit; no named function/method/type removals"
+  ],
+  "execution_commands": {
+    "receipt_profile": "POCKET_IC_BIN=<final-artifacts-02>/pocket-ic BLOB_STORAGE_PROBE_WASM=<final-artifacts-02>/blob_storage_probe.wasm BLOB_FUNDING_RECEIPT_PROFILE=<root>/indexed-profile-02 <final-artifacts-02>/storage-tests storage_resources::credits::receipt_populated_confirmation_and_restoration_profile --ignored --exact --test-threads=1",
+    "storage_funding": "Frozen artifact env selects storage/funding/consumer/gateway Wasms and CLI, BLOB_FUNDING_CREDIT_REPORT=<root>/credit-regressions-01; <final-artifacts-02>/storage-tests storage_funding:: --test-threads=1",
+    "standalone_funding": "Frozen artifact env selects standalone/funding/gateway Wasms and CLI; <final-artifacts-02>/standalone-tests funding --test-threads=1",
+    "candid_and_trial": "BLOB_TRIAL_INSTALLATION_REPORT=<root>/trial-installation-01 BLOB_EXPECTED_HOST_RELEASE=0.14.12 <final-artifacts-02>/standalone-tests standalone_installation_cli:: --test-threads=1",
+    "pinned_historical_refusal": "BLOB_PRE_CUT_STANDALONE_WASM=.tmp/v01410-preflight-01/artifacts/ic_blob_storage_canister.wasm BLOB_HARD_CUT_REPORT=<root>/hard-cut-02 <root>/standalone-tests-03 standalone_hard_cut::older_allocation_ledger_upgrade_preserves_bytes_and_obligations_on_refusal --ignored --exact --test-threads=1",
+    "native_cli": "cargo test --locked --offline -p ic-blob-storage-cli --bin blob-storage",
+    "msrv_native": "cargo +1.88.0 check --locked --offline -p ic-blob-storage -p ic-blob-storage-cli -p ic-blob-storage-canister -p blob-test-protocol -p blob-storage-probe -p blob-funding-probe -p blob-consumer-probe -p blob-gateway-source",
+    "msrv_wasm": "cargo +1.88.0 check --locked --offline --target wasm32-unknown-unknown -p ic-blob-storage -p ic-blob-storage-canister -p blob-test-protocol -p blob-storage-probe -p blob-funding-probe -p blob-consumer-probe -p blob-gateway-source",
+    "rustdoc": "RUSTDOCFLAGS=\"-D warnings\" cargo doc --locked --offline --no-deps -p ic-blob-storage -p ic-blob-storage-canister",
+    "harness_clippy": "cargo clippy --locked --offline -p ic-blob-storage-pocketic-tests --test storage --test standalone -- -D warnings",
+    "final_tooling": "make shared-tooling-check dependency-pins-check fmt-check; make shell-check; actionlint .github/workflows/tooling.yml; node --check tests/browser/installation.js; git diff --check",
+    "raw_and_tracked_evidence": "sha256sum --quiet -c .tmp/funding-renewal-0150-01/RAW-SHA256SUMS; make evidence-check",
+    "path_substitutions": {
+      "root": ".tmp/funding-renewal-0150-01",
+      "final-artifacts-02": ".tmp/funding-renewal-0150-01/final-artifacts-02"
+    },
+    "execution_class": "Local loopback-only IC/HTTP tests; offline Cargo and prepared verified tools; no external-provider calls."
+  },
+  "final_evidence_verification": {
+    "raw_files_verified": 5621,
+    "tracked_local_files_verified": 262,
+    "tracked_deployed_files_verified": 39,
+    "logs": {
+      ".tmp/funding-renewal-0150-01/raw-verification-01.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      ".tmp/funding-renewal-0150-01/evidence-check-01.log": "94b6c3ed118cb543bb3f163207ee9523ecbc8f1b6ad6f372e6cec7c828dbd174",
+      ".tmp/funding-renewal-0150-01/diff-check-02.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  }
+}

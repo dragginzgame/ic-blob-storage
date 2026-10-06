@@ -67,6 +67,13 @@ pub enum FundingResponse {
 /// Conservative follow-up derived only from retained attachment facts.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
 pub enum FundingReconciliation {
+    /// Immutable receipt established by the trusted host, not inferred from balance.
+    CreditConfirmed {
+        /// Exact positive transport-accepted attachment covered by the evidence.
+        accepted_cycles: u128,
+        /// SHA-256 of preserved provider credit evidence; not a proof token.
+        receipt_digest: [u8; 32],
+    },
     /// No attached cycles transferred; execution fees are separate.
     NoTransfer,
     /// Exact transport acceptance still requires independent provider-credit evidence.
@@ -85,6 +92,9 @@ pub struct FundingOutcomeResponse {
     pub response: Option<FundingResponse>,
     /// Independent diagnosis; a success report cannot clear accepted attachment.
     pub reconciliation: FundingReconciliation,
+    /// Immutable local budget authorization increase; zero means no grant.
+    /// This is neither refunded cycles nor provider credit.
+    pub renewed_allocation: u128,
     /// Restored journal permits inspection only.
     pub fenced: bool,
 }

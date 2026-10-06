@@ -14,6 +14,8 @@ use candid::{CandidType, Deserialize};
 /// Test-only stable write boundary; no production fault control is exported.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
 pub enum WriteFault {
+    /// Trap after all credit/renewal writes, proving rollback includes the receipt index.
+    FundingCommit,
     /// Enrollment write, including activation generation changes.
     Tenants,
     /// Reverse root index, after the forward root write.

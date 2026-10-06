@@ -1,5 +1,7 @@
 //! Exact local funding intents. These values supply no permission to spend cycles.
+pub mod credit;
 pub(crate) mod record;
+pub mod renewal;
 use candid::Principal;
 use std::num::NonZeroU128;
 use thiserror::Error;

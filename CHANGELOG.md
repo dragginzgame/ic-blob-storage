@@ -1,5 +1,77 @@
 # Changelog
 
+## [0.15.0]
+
+### Breaking
+
+- Adopt ic-memory 0.27's current ownership ledger through the public memory
+  re-export. Hosts must update removed history/timestamp APIs and fixtures;
+  earlier durable ledgers are unsupported. Preserve or discharge installation
+  obligations before reinstalling; do not clear the ledger to bypass recovery.
+  See [the service contract](docs/service-contract.md#current-persisted-boundaries).
+- Replace funding records with mandatory immutable credit receipts and confirmed
+  totals, a bounded receipt index and immutable allocation grants. Install explicit
+  `funding.renewal_ceiling`; regenerate DTOs for cumulative/ceiling status,
+  `uncredited_accepted`, `CreditConfirmed` and `renewed_allocation`,
+  use matching tools, and retire prior installations before reinstalling. The
+  installation format explicitly refuses earlier layouts.
+
+### Added
+
+- Add [host-internal funding credit confirmation](docs/funding-credit.md) for
+  exact original top-ups. A verified, uniquely attributed receipt clears that
+  operation's uncredited blocker so a subsequent guarded top-up can proceed.
+  Replay is idempotent; wrong amounts, conflicting receipts and receipt reuse
+  refuse. Accepted cycles remain spent, and recovery fences remain enforced.
+  Hosts own provider verification and integration; no public credit setter is added.
+- Add [bounded host-authorized budget increases](docs/funding-credit.md#bounded-host-authorized-allocation-increases)
+  after exact credit confirmation. Preserve spent totals, receipts and lifetime
+  slots; exact grant replay changes nothing. Fixed installation ceilings and
+  original accepted amounts bound every grant.
+
+### Changed
+
+- Check dependency selectors and tracked workspace lockfiles offline with
+  `make dependency-pins-check`, including native macOS CI. Adopt the reviewed
+  Shared Tooling snapshot and verified parser setup; use compatible registry
+  requirements without changing locked selections.
+- Select ic-testkit 0.18.3 for the unpublished local IC harness alongside the
+  new memory contract. Keep earlier validation artifacts bound to their
+  original dependency graphs.
+- Add an [operator retirement runbook](docs/retiring-installations.md) for exact
+  objects, references, uncertain effects, balances and continuing billing before
+  hard-cut reinstalls. Document overlapping-release retention, cleanup receipts
+  and interrupted publication using existing owners
+  ([#6](https://github.com/dragginzgame/ic-blob-storage/issues/6)); actual provider
+  deletion/billing and consumer adoption remain separate work.
+
+### Testing
+
+- Add opt-in `make test-funding-receipt-resources` for receipt-populated confirmation
+  and restoration. Keep digest uniqueness in the existing funding owner and cover
+  index corruption, bounded grants and rollback after complete synchronous writes.
+- Cover repeated local IC dispatch after synthetic host credit confirmation,
+  accounting-write rollback, receipt/authority refusal and fenced restoration.
+  These substitute checks do not qualify deployed provider credit evidence.
+- Add opt-in `make test-hard-cut` using a hash-pinned pre-cut Wasm to prove actual
+  upgrade refusal preserves stable bytes and old obligations. Allow an explicit
+  installed Chromium-family executable for serial media evidence and validate
+  credential-free delivery without assuming cache-dependent GET counts.
+
+### Fixed
+
+- Verify retained evidence on macOS using the reviewed checksum helper's Perl
+  fallback. Add an offline `make evidence-check` for hashes and refusal checks
+  without compiling Rust or making provider requests.
+- Enforce release identity and publication refusals under Apple's Bash, and stop
+  validation after a failed prerequisite even when a cache exists. Run focused
+  CI checks independently and retain failed fixtures for diagnosis.
+- Adopt Shared Tooling's fixed formatting hook and automatic release recovery
+  across newer committed fixes. Verify older receipts at the selected release
+  commit before validating the next increment
+  ([Shared Tooling #5](https://github.com/dragginzgame/shared-tooling/issues/5)).
+  Retain actual failed release-gate logs across retries.
+
 ## [0.14.12] - 2026-10-05
 
 ### Changed

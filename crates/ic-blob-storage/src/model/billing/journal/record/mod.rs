@@ -1,5 +1,7 @@
 //! Bounded v1 journal schemas and transitions; no storage or transport effects.
 pub(crate) mod response;
+use super::credit::{FundingCreditConfirmation, FundingCreditError, FundingCreditReceipt};
+use super::renewal::{FundingBudgetRenewal, FundingRenewalError};
 use super::{
     FundingIntent, FundingIntentError, FundingIntentState, FundingIntentView,
     FundingTransportOutcome,
@@ -27,6 +29,14 @@ pub(crate) enum FundingPhaseRecord {
     Callback { refunded: u128 },
 }
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+enum FundingCreditRecord {
+    Required,
+    Confirmed {
+        accepted: u128,
+        receipt_digest: [u8; 32],
+    },
+}
+#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
 enum FundingMethodRecord {
     AccountTopUpV1,
 }
@@ -43,6 +53,8 @@ pub(crate) struct FundingIntentRecord {
     target_balance: Option<u128>,
     phase: FundingPhaseRecord,
     response: FundingResponseRecord,
+    credit: FundingCreditRecord,
+    renewed_allocation: u128,
 }
 impl FundingIntentRecord {
     pub(crate) fn new(input: FundingIntent) -> Self {
@@ -58,6 +70,8 @@ impl FundingIntentRecord {
             target_balance: input.target_balance.map(NonZeroU128::get),
             phase: FundingPhaseRecord::Prepared,
             response: FundingResponseRecord::Missing,
+            credit: FundingCreditRecord::Required,
+            renewed_allocation: 0,
         }
     }
     pub(crate) fn view(self) -> Option<FundingIntentView> {
@@ -85,6 +99,28 @@ impl FundingIntentRecord {
                 FundingIntentState::Callback { refunded }
             }
         };
+        if let FundingCreditRecord::Confirmed {
+            accepted,
+            receipt_digest,
+        } = self.credit
+        {
+            let FundingIntentState::Callback { refunded } = state else {
+                return None;
+            };
+            if accepted == 0
+                || accepted != intent.offered.get() - refunded
+                || receipt_digest == [0; 32]
+            {
+                return None;
+            }
+        }
+        if self.renewed_allocation != 0
+            && self
+                .credit()
+                .is_none_or(|credit| self.renewed_allocation > credit.accepted_cycles().get())
+        {
+            return None;
+        }
         Some(FundingIntentView { intent, state })
     }
     pub(crate) fn attempted(mut self) -> Result<Self, FundingIntentError> {
@@ -128,6 +164,60 @@ impl FundingIntentRecord {
                 FundingTransfer::unbounded_callback(view.intent.offered, refunded).ok()?
             }
         })
+    }
+    pub(crate) fn credit(self) -> Option<FundingCreditReceipt> {
+        match self.credit {
+            FundingCreditRecord::Required => None,
+            FundingCreditRecord::Confirmed {
+                accepted,
+                receipt_digest,
+            } => Some(FundingCreditReceipt {
+                accepted_cycles: NonZeroU128::new(accepted).expect("validated credit receipt"),
+                receipt_digest,
+            }),
+        }
+    }
+    pub(crate) fn confirm_credit(
+        mut self,
+        confirmation: FundingCreditConfirmation,
+    ) -> Result<Self, FundingCreditError> {
+        let accepted = self
+            .transfer()
+            .and_then(FundingTransfer::accepted)
+            .and_then(NonZeroU128::new)
+            .ok_or(FundingCreditError::AcceptanceRequired)?;
+        if accepted != confirmation.accepted_cycles {
+            return Err(FundingCreditError::AmountMismatch);
+        }
+        if confirmation.receipt_digest == [0; 32] {
+            return Err(FundingCreditError::EmptyReceipt);
+        }
+        let next = FundingCreditRecord::Confirmed {
+            accepted: accepted.get(),
+            receipt_digest: confirmation.receipt_digest,
+        };
+        if self.credit != FundingCreditRecord::Required && self.credit != next {
+            return Err(FundingCreditError::Conflict);
+        }
+        self.credit = next;
+        Ok(self)
+    }
+    pub(crate) const fn renewed_allocation(self) -> Option<NonZeroU128> {
+        NonZeroU128::new(self.renewed_allocation)
+    }
+    pub(crate) fn renew(
+        mut self,
+        input: FundingBudgetRenewal,
+    ) -> Result<Self, FundingRenewalError> {
+        let credit = self.credit().ok_or(FundingRenewalError::CreditRequired)?;
+        if input.additional.get() > credit.accepted_cycles().get() {
+            return Err(FundingRenewalError::Amount);
+        }
+        if self.renewed_allocation != 0 && self.renewed_allocation != input.additional.get() {
+            return Err(FundingRenewalError::Conflict);
+        }
+        self.renewed_allocation = input.additional.get();
+        Ok(self)
     }
     pub(crate) const fn response(self) -> FundingResponseRecord {
         self.response
@@ -217,12 +307,42 @@ impl FundingJournalRecord {
         self.last = input.operation.get();
         Ok(self)
     }
+    pub(crate) fn renew(mut self, additional: NonZeroU128) -> Result<Self, FundingAllocationError> {
+        self.allocation = self.allocation.renew(additional)?;
+        Ok(self)
+    }
+    pub(crate) fn confirm_credit(
+        mut self,
+        accepted: NonZeroU128,
+    ) -> Result<Self, FundingAllocationError> {
+        self.allocation = self.allocation.confirm_credit(accepted)?;
+        Ok(self)
+    }
     pub(crate) fn resolve(
         mut self,
         transfer: FundingTransfer,
     ) -> Result<Self, FundingAllocationError> {
         self.allocation = self.allocation.resolve(transfer)?;
         Ok(self)
+    }
+}
+/// The accounting row and its bounded receipt index share one existing memory.
+/// Zero digest belongs exclusively to accounting; receipts always have nonzero keys.
+#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[expect(
+    clippy::large_enum_variant,
+    reason = "One bounded persisted union keeps the sole totals row and receipt index together without heap boxing each accounting decode"
+)]
+pub(crate) enum FundingAccountingRecord {
+    Totals(FundingJournalRecord),
+    Receipt { operation: u128 },
+}
+impl FundingAccountingRecord {
+    pub(crate) const fn totals(self) -> Option<FundingJournalRecord> {
+        match self {
+            Self::Totals(totals) => Some(totals),
+            Self::Receipt { .. } => None,
+        }
     }
 }
 macro_rules! codec {
@@ -256,3 +376,5 @@ macro_rules! codec {
 }
 codec!(FundingIntentRecord, 1024);
 codec!(FundingJournalRecord, 1024);
+
+codec!(FundingAccountingRecord, 1024);

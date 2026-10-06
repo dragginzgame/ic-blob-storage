@@ -72,6 +72,13 @@ pub(crate) fn present(
         },
         response: view.response.map(response),
         reconciliation: match reconciliation {
+            FundingReconciliation::CreditConfirmed {
+                accepted_cycles,
+                receipt_digest,
+            } => Reconciliation::CreditConfirmed {
+                accepted_cycles: accepted_cycles.get(),
+                receipt_digest,
+            },
             FundingReconciliation::NoTransfer => Reconciliation::NoTransfer,
             FundingReconciliation::CreditRequired { accepted_cycles } => {
                 Reconciliation::CreditRequired(accepted_cycles.get())
@@ -80,6 +87,7 @@ pub(crate) fn present(
                 Reconciliation::TransferUnknown(offered_cycles.get())
             }
         },
+        renewed_allocation: view.renewed_allocation.map_or(0, NonZeroU128::get),
         fenced,
     }
 }

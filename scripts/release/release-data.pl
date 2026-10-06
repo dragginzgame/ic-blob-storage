@@ -5,10 +5,18 @@ use JSON::PP;
 use Digest::SHA qw(sha256_hex);
 
 sub read_file {
-    my ($path) = @_;
-    open my $fh, '<', $path or die "$path: $!\n";
+    my ($path, $commit) = @_;
+    my $fh;
+    if (defined $commit) {
+        open $fh, '-|', 'git', 'show', "$commit:$path" or die "$path: $!\n";
+    } else {
+        open $fh, '<', $path or die "$path: $!\n";
+    }
+    binmode $fh;
     local $/;
-    return <$fh>;
+    my $text = <$fh>;
+    close $fh or die "cannot read $path" . (defined $commit ? " at $commit" : '') . "\n";
+    return $text;
 }
 
 sub write_file {
@@ -19,7 +27,8 @@ sub write_file {
 }
 
 sub version {
-    my $text = read_file('Cargo.toml');
+    my ($commit) = @_;
+    my $text = read_file('Cargo.toml', $commit);
     $text =~ /^\[workspace\.package\]\n(.*?)(?=^\[|\z)/ms
         or die "missing workspace.package\n";
     my $section = $1;
@@ -136,10 +145,17 @@ if ($command eq 'version') {
         gate => 'release-verify', files => \%hashes,
     };
     write_file('docs/release.json', JSON::PP->new->canonical->pretty->encode($receipt));
-} elsif ($command eq 'verify' || $command eq 'source') {
-    my $receipt = decode_json(read_file('docs/release.json'));
+} elsif ($command eq 'verify' || $command eq 'verify-commit' || $command eq 'source') {
+    # Recovery checks the original committed payload, even after newer fixes.
+    my $commit;
+    if ($command eq 'verify-commit') {
+        die "expected commit, source, version and date\n" unless @args == 4;
+        $commit = shift @args;
+        die "invalid release commit\n" unless $commit =~ /\A[0-9a-f]{40,64}\z/;
+    }
+    my $receipt = decode_json(read_file('docs/release.json', $commit));
     die "unsupported release receipt\n" unless $receipt->{schema} == 1;
-    die "release version mismatch\n" unless $receipt->{version} eq version();
+    die "release version mismatch\n" unless $receipt->{version} eq version($commit);
     die "invalid release source\n" unless $receipt->{source} =~ /\A[0-9a-f]{40,64}\z/;
     die "invalid release gate\n" unless $receipt->{gate} eq 'release-verify';
     die "invalid release date\n" unless $receipt->{date} =~ /\A[0-9]{4}-[0-9]{2}-[0-9]{2}\z/;
@@ -154,9 +170,9 @@ if ($command eq 'version') {
         unless join(',', @files) eq 'CHANGELOG.md,Cargo.lock,Cargo.toml';
     for my $path (@files) {
         die "release file changed after validation: $path\n"
-            unless sha256_hex(read_file($path)) eq $receipt->{files}{$path};
+            unless sha256_hex(read_file($path, $commit)) eq $receipt->{files}{$path};
     }
-    my $notes = read_file('CHANGELOG.md');
+    my $notes = read_file('CHANGELOG.md', $commit);
     my $heading = "## [$receipt->{version}] - $receipt->{date}";
     die "dated changelog missing\n" unless $notes =~ /^\Q$heading\E$/m;
     print "$receipt->{source}\n" if $command eq 'source';

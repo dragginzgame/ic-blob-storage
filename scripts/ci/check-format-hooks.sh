@@ -42,19 +42,19 @@ printf '\nUnrelated working edit.\n' >> README.md
 cp README.md before-readme
 printf 'untracked bytes\n' > untracked.rs
 bash .githooks/pre-commit > "$TEMPORARY/refresh.log" 2>&1
-[[ "$(git show ":$selected" | tail -n 1)" == 'pub fn hook_fixture() {}' ]]
+[[ "$(git show ":$selected" | tail -n 1)" == 'pub fn hook_fixture() {}' ]] || exit 1
 cmp README.md before-readme
-[[ "$(cat untracked.rs)" == 'untracked bytes' && -z "$(git ls-files -- untracked.rs)" ]]
+[[ "$(cat untracked.rs)" == 'untracked bytes' && -z "$(git ls-files -- untracked.rs)" ]] || exit 1
 cmp Cargo.lock "$TEMPORARY/refresh.selected-lock"
 tree="$(git write-tree)"
 bash .githooks/pre-commit >> "$TEMPORARY/refresh.log" 2>&1
-[[ "$(git write-tree)" == "$tree" && ! -d target ]]
+[[ "$(git write-tree)" == "$tree" && ! -d target ]] || exit 1
 new_fixture partial
 printf '\n// Keep this unstaged.\n' >> "$selected"
 cp "$selected" before-selected
 tree="$(git write-tree)"
 expect_failure bash .githooks/pre-commit
-[[ "$(git write-tree)" == "$tree" ]]
+[[ "$(git write-tree)" == "$tree" ]] || exit 1
 cmp "$selected" before-selected
 new_fixture failed-formatter
 # A deliberately failing consumer formatter operates only inside the export.
@@ -63,15 +63,15 @@ git add Makefile
 tree="$(git write-tree)"
 cp "$selected" before-selected
 expect_failure bash .githooks/pre-commit
-[[ "$(git write-tree)" == "$tree" ]]
+[[ "$(git write-tree)" == "$tree" ]] || exit 1
 cmp "$selected" before-selected
 cmp Cargo.lock "$TEMPORARY/failed-formatter.selected-lock"
 new_fixture installer
 bash scripts/dev/install-git-hooks.sh > "$TEMPORARY/install.log" 2>&1
-[[ "$(git config --local --get core.hooksPath)" == .githooks ]]
+[[ "$(git config --local --get core.hooksPath)" == .githooks ]] || exit 1
 ln -s "$PWD" "$TEMPORARY/alias"
 (cd "$TEMPORARY/alias"; bash scripts/dev/install-git-hooks.sh >> "$TEMPORARY/install.log" 2>&1)
 git config --local core.hooksPath existing-hooks
 expect_failure bash scripts/dev/install-git-hooks.sh
-[[ "$(git config --local --get core.hooksPath)" == existing-hooks ]]
+[[ "$(git config --local --get core.hooksPath)" == existing-hooks ]] || exit 1
 printf 'Consumer hook refresh, refusal, formatter failure, lock preservation and installation checks passed.\n'

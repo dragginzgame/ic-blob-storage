@@ -172,7 +172,8 @@ pub fn validate_candidate(
         input.funding.allocated,
         scalar(input.funding.reserve, ConfigurationScalar::FundingReserve)?,
         attempts,
-    )?;
+    )?
+    .with_renewal_ceiling(input.funding.renewal_ceiling)?;
     let reads = read_limits(input.reads).map_err(ServiceStoreError::from)?;
     Ok(ServiceStoreConfiguration::new(service, funding, reads)?)
 }

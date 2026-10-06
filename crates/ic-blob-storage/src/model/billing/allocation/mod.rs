@@ -13,6 +13,7 @@ pub(crate) mod record;
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub struct FundingAllocation {
     allocated: u128,
+    renewal_ceiling: u128,
     reserve: NonZeroU128,
     max_attempts: NonZeroUsize,
 }
@@ -31,9 +32,25 @@ impl FundingAllocation {
         }
         Ok(Self {
             allocated,
+            renewal_ceiling: allocated,
             reserve,
             max_attempts,
         })
+    }
+
+    /// Set the immutable ceiling for cumulative host-authorized allocation.
+    /// Equal to initial allocation disables increases. This supplies no cycles.
+    /// # Errors
+    /// Rejects a ceiling below the initial allocation.
+    pub const fn with_renewal_ceiling(
+        mut self,
+        ceiling: u128,
+    ) -> Result<Self, FundingAllocationError> {
+        if ceiling < self.allocated {
+            return Err(FundingAllocationError::RenewalCeiling);
+        }
+        self.renewal_ceiling = ceiling;
+        Ok(self)
     }
 
     /// Reconstruct allocation use from the complete, ordered, sequential journal.
@@ -48,6 +65,8 @@ impl FundingAllocation {
     /// detect omitted history, establish freshness or release a recovery fence.
     /// Incoming receipts, gross cycle top-ups and provider balance reports are not
     /// inputs and cannot replenish the installed allocation.
+    /// This transport-only projection has no confirmed credits. The durable
+    /// journal additionally reconstructs its validated immutable credit receipts.
     /// # Errors
     /// Rejects excess history, invalid sequencing, an original reserve violation
     /// or overflowing lifetime return totals. No partial projection is returned.
@@ -68,9 +87,12 @@ impl FundingAllocation {
 
     pub(crate) const fn empty(self) -> FundingAllocationView {
         FundingAllocationView {
+            allocated: self.allocated,
+            renewal_ceiling: self.renewal_ceiling,
             reserve: self.reserve.get(),
             available: self.allocated,
             accepted: 0,
+            credit_confirmed: 0,
             refunded: 0,
             not_enqueued: 0,
             reserved_or_uncertain: 0,
@@ -79,19 +101,40 @@ impl FundingAllocation {
 }
 
 /// Complete attachment projection; never evidence of credit or spendable cycles.
-/// Available + accepted + reserved/uncertain equals the original allocation.
+/// Available + accepted + reserved/uncertain equals the cumulative authorized allocation.
 /// Historical refunded/unsent totals are separate and must not be added again.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub struct FundingAllocationView {
+    allocated: u128,
+    renewal_ceiling: u128,
     reserve: u128,
     available: u128,
     accepted: u128,
+    credit_confirmed: u128,
     refunded: u128,
     not_enqueued: u128,
     reserved_or_uncertain: u128,
 }
 
 impl FundingAllocationView {
+    /// Cumulative authorized allocation, including retained budget increases.
+    #[must_use]
+    pub const fn allocated(self) -> u128 {
+        self.allocated
+    }
+    /// Immutable installed ceiling, not liquidity or provider credit.
+    #[must_use]
+    pub const fn renewal_ceiling(self) -> u128 {
+        self.renewal_ceiling
+    }
+    pub(crate) fn renew(mut self, additional: NonZeroU128) -> Result<Self, FundingAllocationError> {
+        if additional.get() > self.renewal_ceiling - self.allocated {
+            return Err(FundingAllocationError::RenewalCeiling);
+        }
+        self.allocated += additional.get();
+        self.available += additional.get();
+        Ok(self)
+    }
     pub(crate) fn reserve(
         mut self,
         offered: NonZeroU128,
@@ -152,6 +195,30 @@ impl FundingAllocationView {
         self.accepted
     }
 
+    /// Transport-accepted attachments with exact retained host credit evidence.
+    /// Confirmation never replenishes available allocation or erases acceptance.
+    #[must_use]
+    pub const fn credit_confirmed(self) -> u128 {
+        self.credit_confirmed
+    }
+
+    /// Accepted attachments still awaiting independent credit reconciliation.
+    #[must_use]
+    pub const fn uncredited(self) -> u128 {
+        self.accepted - self.credit_confirmed
+    }
+
+    pub(crate) fn confirm_credit(
+        mut self,
+        accepted: NonZeroU128,
+    ) -> Result<Self, FundingAllocationError> {
+        if accepted.get() > self.uncredited() {
+            return Err(FundingAllocationError::CreditExceedsAcceptance);
+        }
+        self.credit_confirmed += accepted.get();
+        Ok(self)
+    }
+
     /// Lifetime exact callback refunds; already returned to available allocation.
     #[must_use]
     pub const fn refunded(self) -> u128 {
@@ -174,6 +241,12 @@ impl FundingAllocationView {
 /// A journal cannot supply a complete, valid attachment projection.
 #[derive(Clone, Copy, Debug, Eq, Error, PartialEq)]
 pub enum FundingAllocationError {
+    /// A budget increase cannot exceed the immutable installed ceiling.
+    #[error("funding renewal ceiling exceeded")]
+    RenewalCeiling,
+    /// Confirmations cannot exceed retained accepted attachments.
+    #[error("confirmed credit exceeds accepted attachments")]
+    CreditExceedsAcceptance,
     /// The positive reserve exceeds the original allocation.
     #[error("reserve exceeds attachment allocation")]
     ReserveExceedsAllocation,

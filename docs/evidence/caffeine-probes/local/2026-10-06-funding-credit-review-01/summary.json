@@ -1,0 +1,128 @@
+{
+  "schema": 1,
+  "date": "2026-10-06",
+  "question": "Repeated provider funding with the guarded blob workflow",
+  "evidence_class": "Source review plus existing native tests; no deployed provider observation",
+  "outcome": "Confirmed missing authoritative credit settlement; first positive acceptance blocks the next guarded top-up",
+  "source": {
+    "head": "ebd535eaa2015407319fd330f559b2808ea01588",
+    "pending_release": "0.15.0",
+    "compiled_release": "0.14.12",
+    "memory": "0.27.1",
+    "note": "Maintainer-selected lock now differs from the earlier 0.27.0 media preflight; that historical record is unchanged. No dependency selection performed in this review.",
+    "inputs": {
+      "path": ".tmp/funding-credit-review-01/source-bindings.json",
+      "sha256": "0f2b6ef38f8d5a30c78c2e2410db4d994f2498f3cf9c3f6e3c4a0c1d2d660e49"
+    },
+    "entry_patch": {
+      "path": ".tmp/funding-credit-review-01/entry.patch",
+      "sha256": "f84158030e9bf23c9371d64c43d3251469512948f09549d2799f921cf3a598d3"
+    },
+    "tagged_0149_commit": "c3a16529d161547987c138b15bf75cac70b54c55",
+    "tagged_0149_sources": [
+      {
+        "path": ".tmp/funding-credit-review-01/tagged-0149/crates/ic-blob-storage/src/policy/billing/reconciliation/mod.rs",
+        "sha256": "5ae50eae7017d6bbbbd8293cc7febe84e7803c0ea1997a83cf00cc616e19ef3a"
+      },
+      {
+        "path": ".tmp/funding-credit-review-01/tagged-0149/crates/ic-blob-storage/src/policy/billing/admission/journal/mod.rs",
+        "sha256": "87a4609c3af05f9920f48b347c0869e47f42b3edc493d1e3bbfd1f33e6f609b7"
+      },
+      {
+        "path": ".tmp/funding-credit-review-01/tagged-0149/crates/ic-blob-storage/src/ops/service/funding/mod.rs",
+        "sha256": "4949899969988de11f0209272193ea63eb1b7991e5855570c452fe93d9580811"
+      }
+    ]
+  },
+  "findings": [
+    {
+      "fact": "Any accepted amount or reserved/uncertain attachment yields FundingActivity::Uncertain",
+      "owner": "policy/billing/reconciliation::assess_uncredited_allocation"
+    },
+    {
+      "fact": "Guarded preparation maps that activity to JournalUncredited, even with external host activity Clear",
+      "owner": "policy/billing/admission/journal::assess_journal_preparation; workflow/funding::prepare_new"
+    },
+    {
+      "fact": "Guarded first-attempt marking also refuses earlier accepted cycles; low-level prepare cannot be used as a workaround",
+      "owner": "policy/billing/admission/attempt; workflow/funding/attempt"
+    },
+    {
+      "fact": "Persistent phases and mutation APIs record preparation, attempted uncertainty and exact callback/refund; no durable provider-credit reconciliation transition or confirmation mutation exists",
+      "owner": "model/billing/journal/record; ops/service/funding::StableFundingJournal"
+    },
+    {
+      "fact": "Settled dispatch result is local transport accounting, not verified credit; success/balance reports do not clear credit evidence",
+      "owner": "workflow/funding/dispatch; ops/caffeine/funding"
+    },
+    {
+      "fact": "Standalone funding endpoints are read-only history, outcome and preparation assessment; production host evidence acquisition and automatic funding dispatch are not exposed",
+      "owner": "canisters/standalone/src/api/mod.rs; ops/service/funding/assessment"
+    },
+    {
+      "fact": "Upload completion verifier is an independent authority and does not reconcile funding credit",
+      "owner": "service contract; funding scope/guards"
+    }
+  ],
+  "consumer_review": {
+    "bindings": {
+      "path": ".tmp/funding-credit-review-01/consumer-bindings.json",
+      "sha256": "3b886e3f776643fb8c3b9457951f71f849ae57669239df9e0032f47c06da3932"
+    },
+    "toko_head": "061cfb6e3702a7075ab3c118bfaf315d7d2b0053",
+    "toko_clean_on_review": true,
+    "toko_locked_blob": "0.14.9",
+    "canic_head": "e1a211a00f01568ccc99bedc494c62a7141444dd",
+    "canic_dirty_on_review": true,
+    "wrapper": "canic_blob_service::canister!(); local wrapper exposes funding inspection only",
+    "automatic_component_topup": "Configured Canic top-ups fund component canister cycles via management deposit_cycles; this is separate from provider Cashier/account credit",
+    "limit": "No deployed Toko timer, provider top-up or live failure observed. Tagged 0.14.9 sources reviewed locally, not registry archive rebuilt."
+  },
+  "tests": {
+    "preparation": {
+      "cases": 1,
+      "outcome": "pass",
+      "log": {
+        "path": ".tmp/funding-credit-review-01/preparation.log",
+        "sha256": "60f759c2e0b421e0365d3558289cf30d953774a98e0b526aff6662402b6212e3"
+      }
+    },
+    "attempt": {
+      "cases": 1,
+      "outcome": "pass",
+      "log": {
+        "path": ".tmp/funding-credit-review-01/attempt.log",
+        "sha256": "e42f8ab8148aafe86bc248eb50d91b565cf874e6e585f4917e55ffbd634b6714"
+      }
+    },
+    "reconciliation": {
+      "cases": 4,
+      "outcome": "pass",
+      "log": {
+        "path": ".tmp/funding-credit-review-01/reconciliation.log",
+        "sha256": "086f1e44d40d7cc0eaa3b16d21551804853b642e74dbbb759aa2b439f27f17c1"
+      }
+    },
+    "summary": {
+      "cases": 1,
+      "outcome": "pass",
+      "log": {
+        "path": ".tmp/funding-credit-review-01/summary.log",
+        "sha256": "b58548a3cf26d0a2ab34461034b56a7adb138d7db1d25fda3fddd9c52cd6b4bf"
+      }
+    }
+  },
+  "required_work": "Define and implement an authenticated, exactly scoped durable credit-reconciliation transition; preserve original transport evidence, lifetime accounting, replay identity and restore fences; qualify how the provider establishes credit. Then integrate repeated provider top-ups in the consumer-owned wrapper/timer. A caller flag, balance report, new operation ID or journal reset cannot substitute for that work.",
+  "effects": {
+    "live_provider_requests": 0,
+    "paid_cycles": 0,
+    "production_changes": 0,
+    "sibling_edits": 0
+  },
+  "cleanup": "Native processes exited; source snapshots and logs retained. No provider object, balance, journal or owner changed.",
+  "limitations": [
+    "This verifies the guarded journal path, not every low-level funding primitive or all blob uploads.",
+    "Provider-specific credit evidence and full consumer publication/service qualification remain open.",
+    "This review does not implement reconciliation or qualify deployed provider behavior."
+  ]
+}

@@ -3,7 +3,7 @@ use crate::{
     dto::funding::outcome::{FundingOutcomeFailure, FundingOutcomeRequest, FundingOutcomeResponse},
     model::service::upload::UploadContext,
     ops::service::funding::{StableFundingJournal, outcome::boundary},
-    policy::billing::reconciliation::assess_funding_reconciliation,
+    policy::billing::reconciliation::assess_reconciled_funding,
 };
 use ic_memory::ic_stable_structures::Memory;
 /// Inspect as the configured operator with actual caller/service supplied by the host.
@@ -22,7 +22,7 @@ pub fn inspect<M: Memory>(
         boundary::present(
             input,
             &view,
-            assess_funding_reconciliation(view.transfer),
+            assess_reconciled_funding(view.transfer, view.credit),
             journal.is_fenced(),
         )
     }))

@@ -1,0 +1,83 @@
+{
+   "bindings_sha256" : {
+      "actionlint-01.log" : "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "actionlint-02.log" : "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "commands.txt" : "214859c1c45e19f881f7116b444daeed2c2ad9a8a47789d645fe96cd30c1d1d4",
+      "entry-receipt-check.log" : "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "entry-refs.txt" : "c8eb0e871b0dca1d46b87d9a090bca37369d2fd37780f5d979d3aca14200bf22",
+      "entry-source.tar" : "dc4fd82c218fcb34195b3325546a43cabd50e6f7480b2cd1cc0e52960a059b51",
+      "entry.CHANGELOG.md" : "a7dc736ce1f0e881099f267102b0261ea582ba8270424aef9d3edbc3927edb33",
+      "entry.Cargo.lock" : "4f1a8a13d0e250ee19436d27485b1050ef0acf71397bb08cc942cc93780cdf27",
+      "entry.deployed.SHA256SUMS" : "f8411d65bbf6b245283855f0b6c02d101a6b683eeddf6ce86050c26ab0a14a18",
+      "entry.local.SHA256SUMS" : "f84850ec72773fcf7012549c253ebf8dd9295434246d0ad55bf4d28561250b99",
+      "entry.release.json" : "47a86e1ecaa31cc8a07ca0c52ce50c8d6d869e7af69e046aec3ae760c22a0ab3",
+      "evidence-check-01.log" : "e60867ccff35c490ac67219db4e2bdc2013839ebfc7f1030c3844d71c94f6623",
+      "final-review-source.txt" : "b2dc5e9fc1b17ba432a4b4a72b8ddf768f8f762298e677b5748171457a19371b",
+      "final-review.log" : "949eff114d490f7cc564735dcf54b06204e826ca33a883344ac600fed35d49a9",
+      "format-check-01.log" : "4b7fcabe077c9b2a1fac323b101fa83323fbde4db72cf6dab7fad24d6b910d3f",
+      "github-run-01.json" : "022ebab43ee5a9887bd6b7082a3c2014b392a2e2700689049e05ab9adb7687d3",
+      "github-run-02.json" : "1d19f7717b43584170a779410fe58a5b1c07a3d7255bbca022b2a16ed184fdda",
+      "macos-arm-release-log-01.txt" : "83a8c291b38b7a85da9c3dcd50b588f425dc3ff7259b22a7cd4cebff26d183f3",
+      "macos-intel-release-log-01.txt" : "2436214f0d97f6600b30a244c2301fd92fa51e23ff91e1d05b0616a4b5d1abf9",
+      "release-adapters-01.log" : "f9d4ce54e4aa58986c1f8d4aafb9a8e033d6b5a2b5c7438c7372a2107587d9cd",
+      "release-adapters-02.log" : "f9d4ce54e4aa58986c1f8d4aafb9a8e033d6b5a2b5c7438c7372a2107587d9cd",
+      "release-adapters-03.log" : "f9d4ce54e4aa58986c1f8d4aafb9a8e033d6b5a2b5c7438c7372a2107587d9cd",
+      "retained-shasum-01.log" : "520a06d50d183906c991159cf905efb3687e7ad3060399995f3f61a5582e6fba",
+      "shell-check-01.log" : "10bbffea13f7ba9d2b4f3827a61f9e9ebc2a5be6ac57b37e1448acc7fc5983e5",
+      "shell-check-02.log" : "31015cf6355b248bcd0b14d305bc0a5fcacfbf0e458ae1ebd7d4681d6d24f187",
+      "shell-check-03.log" : "10bbffea13f7ba9d2b4f3827a61f9e9ebc2a5be6ac57b37e1448acc7fc5983e5",
+      "snapshot-check-01.log" : "19df33fb83046dd6025ecc500a6e91f628ee785ed813af3886a019de3c396871",
+      "tested-source.patch" : "6c322f1626306408d9650b51e08cebccf3283c11016782b1e45f7b10d5511b82",
+      "upload-artifact-action.yml" : "29b21270ff44638a165ea12abb4481796770c629e513217af7b4df1aa3821177"
+   },
+   "checks" : {
+      "checksum_fixtures" : "text/binary markers, spaced filenames, no final newline; corruption, missing input, malformed/empty manifest and unavailable backend refuse without evidence writes",
+      "final_review" : "79 rendered local links pass; index, Rust, Cargo metadata, toolchain, snapshot, released history and retained inputs unchanged",
+      "formatting" : "cargo-sort 2.1.4 and rustfmt checks pass",
+      "release_adapters" : "21 cases pass including failed fetch with existing cache and no Cargo check",
+      "retained_evidence" : "249 local and 39 deployed files pass GNU and forced Perl hashing",
+      "shell" : "final strict syntax/ShellCheck/Perl checks pass",
+      "snapshot" : "22 original shared hashes/modes pass",
+      "workflow" : "actionlint 1.7.12 passes"
+   },
+   "compatibility" : "internal host tooling; no Rust API, blob CLI, wire or storage contract change",
+   "date" : "2026-10-05",
+   "development_target" : "0.14.13",
+   "entry_source" : "ebd535eaa2015407319fd330f559b2808ea01588",
+   "evidence_class" : "Linux execution, isolated command substitutes, and original native GitHub logs",
+   "evidence_directory" : ".tmp/checksum-portability-v01413-01",
+   "failures" : [
+      "initial restricted-network GitHub read could not connect; network-enabled read succeeded",
+      "original macOS release logs preserve both bootstrap-fetch failures; .12 did not upload ephemeral fixtures and those fixtures are unavailable",
+      "shell-check-02.log: negated rg assertion could ignore failure under errexit; explicit conditional fixes assertion, shell-check-03.log passes"
+   ],
+   "limitations" : [
+      "local forced Perl backend is not native macOS qualification",
+      "corrected native GitHub jobs and failure artifact upload await maintainer push",
+      "Git/Cargo substitutes do not establish live release or publication",
+      "no provider behavior investigated or qualified"
+   ],
+   "native_run" : {
+      "corrected_source" : "not pushed; native execution pending",
+      "diagnosis" : "injected fetch refusal was followed by cache creation; explicit substitute exits and prerequisite-loop failure propagation added",
+      "macos_15_arm" : "failed bootstrap-fetch after snapshot, formatting and common runner pass",
+      "macos_15_intel" : "failed bootstrap-fetch after snapshot, formatting and common runner pass",
+      "source" : "ebd535eaa2015407319fd330f559b2808ea01588",
+      "ubuntu_24_04" : "cancelled",
+      "url" : "https://github.com/dragginzgame/ic-blob-storage/actions/runs/37368942870"
+   },
+   "package_version" : "0.14.12",
+   "schema" : 1,
+   "scope" : {
+      "commits_tags_pushes" : "none",
+      "dependency_changes" : "none",
+      "existing_artifact_cleanup" : "none",
+      "full_ci" : "not run",
+      "package_bump" : "none",
+      "publication_or_provider_effects" : "none",
+      "removed_functions_methods_types" : [],
+      "rust_builds" : "none",
+      "sibling_edits_or_external_writes" : "none"
+   },
+   "shared_revision" : "f52c0e2476aee094359ed21de91c468540d3969f"
+}

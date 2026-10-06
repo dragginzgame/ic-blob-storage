@@ -1,5 +1,6 @@
 //! Local funding bookkeeping and shared transport against a labelled substitute.
 pub(crate) mod admission;
+pub(crate) mod credit;
 pub(crate) mod dispatch;
 pub(crate) mod summary;
 pub(crate) mod transport;
@@ -37,6 +38,17 @@ pub(crate) fn failure(error: FundingJournalError) -> Failure {
         allocation::FundingAllocationError, journal::FundingIntentError,
     };
     match error {
+        FundingJournalError::Credit(error) => match error {
+            ic_blob_storage::model::billing::journal::credit::FundingCreditError::Conflict
+            | ic_blob_storage::model::billing::journal::credit::FundingCreditError::ReceiptReused => Failure::Conflict,
+            ic_blob_storage::model::billing::journal::credit::FundingCreditError::AcceptanceRequired => Failure::Phase,
+            _ => Failure::Invalid,
+        },
+        FundingJournalError::Renewal(error) => match error {
+            ic_blob_storage::model::billing::journal::renewal::FundingRenewalError::Conflict => Failure::Conflict,
+            ic_blob_storage::model::billing::journal::renewal::FundingRenewalError::Amount => Failure::Invalid,
+            _ => Failure::Phase,
+        },
         FundingJournalError::NotOperator => Failure::Denied,
         FundingJournalError::Binding | FundingJournalError::TransportBinding => Failure::Binding,
         FundingJournalError::Fenced => Failure::Fenced,
@@ -51,6 +63,7 @@ pub(crate) fn failure(error: FundingJournalError) -> Failure {
         | FundingJournalError::Allocation(FundingAllocationError::PendingNotLast) => Failure::Phase,
         FundingJournalError::Allocation(
             FundingAllocationError::Capacity
+            | FundingAllocationError::RenewalCeiling
             | FundingAllocationError::ReserveWouldBeViolated { .. },
         ) => Failure::Capacity,
         _ => Failure::Invalid,

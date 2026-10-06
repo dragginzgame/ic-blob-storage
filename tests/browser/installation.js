@@ -17,7 +17,8 @@ export function configuration(service, namespace) {
     billing: IDL.Record({ cashier: IDL.Principal,
       ...fields(['reserve', 'minimum_balance', 'target_balance'], IDL.Nat),
       ...fields(['max_gateway_entries', 'max_gateway_unique'], IDL.Nat32) }),
-    funding: IDL.Record({ allocated: IDL.Nat, reserve: IDL.Nat, max_attempts: IDL.Nat32 }),
+    funding: IDL.Record({ allocated: IDL.Nat, renewal_ceiling: IDL.Nat,
+      reserve: IDL.Nat, max_attempts: IDL.Nat32 }),
     reads: IDL.Record({ ...fields(['sessions', 'tenant_sessions', 'reply_bytes'], IDL.Nat32),
       bytes: IDL.Nat64, tenant_bytes: IDL.Nat64 }),
   });
@@ -30,7 +31,7 @@ export function configuration(service, namespace) {
       max_references_per_object: 2, max_receipts_per_object: 3, max_active: 1, max_tenant_active: 1 },
     billing: { cashier: Principal.fromText('72ch2-fiaaa-aaaar-qbsvq-cai'), reserve: 100n,
       minimum_balance: 100n, target_balance: 200n, max_gateway_entries: 2, max_gateway_unique: 1 },
-    funding: { allocated: 1000n, reserve: 100n, max_attempts: 1 },
+    funding: { allocated: 1000n, renewal_ceiling: 1000n, reserve: 100n, max_attempts: 1 },
     reads: { sessions: 1, tenant_sessions: 1, reply_bytes: 1024, bytes: 1024n, tenant_bytes: 1024n },
   }]));
 }

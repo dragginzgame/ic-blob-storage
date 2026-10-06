@@ -1,10 +1,12 @@
-//! Incremental durable funding bookkeeping, without dispatch or credit authority.
+//! Incremental durable funding bookkeeping with explicit host credit evidence.
 pub mod access;
 mod admission;
 pub mod assessment;
 pub mod client;
+pub mod credit;
 pub mod history;
 pub mod outcome;
+pub mod renewal;
 pub mod reply;
 pub mod summary;
 use crate::model::{
@@ -13,7 +15,7 @@ use crate::model::{
         journal::{
             FundingIntent, FundingIntentAdmission, FundingIntentError, FundingIntentView,
             FundingTransportContext, FundingTransportOutcome,
-            record::{FundingIntentRecord, FundingJournalRecord},
+            record::{FundingAccountingRecord, FundingIntentRecord, FundingJournalRecord},
         },
     },
     service::{configuration::ServiceConfiguration, upload::UploadContext},
@@ -24,7 +26,7 @@ use thiserror::Error;
 
 /// Two distinct, exclusively owned memories granted by the integrating host.
 pub struct FundingMemories<M: Memory> {
-    /// Single configuration/accounting row; committed after each intent row.
+    /// Configuration/accounting and bounded receipt index; one authoritative owner.
     pub accounting: M,
     /// Bounded lifetime exact intent/outcome history, keyed by operation identity.
     pub intents: M,
@@ -42,7 +44,7 @@ pub struct FundingMemories<M: Memory> {
 /// owns callback authentication and complete account activity. Canonical Cashier
 /// method/argument binding is local evidence, not provider deployment qualification.
 pub struct StableFundingJournal<M: Memory> {
-    accounting: BTreeMap<u8, FundingJournalRecord, M>,
+    accounting: BTreeMap<[u8; 32], FundingAccountingRecord, M>,
     intents: BTreeMap<u128, FundingIntentRecord, M>,
     config: ServiceConfiguration,
     fenced: bool,
@@ -72,7 +74,7 @@ impl<M: Memory> StableFundingJournal<M> {
         let mut accounting = BTreeMap::new(memory.accounting);
         assert_eq!(memory.intents.size(), 0, "distinct funding memories");
         let intents = BTreeMap::new(memory.intents);
-        accounting.insert(0, record);
+        accounting.insert([0; 32], FundingAccountingRecord::Totals(record));
         Ok(Self {
             accounting,
             intents,
@@ -107,12 +109,10 @@ impl<M: Memory> StableFundingJournal<M> {
         if !recorded.matches(&config, allocation) {
             return Err(FundingJournalError::Binding);
         }
-        if store.accounting.len() != 1
-            || store.intents.len() > recorded.limit()
-            || store.intents.len() != recorded.count()
-        {
+        if store.intents.len() > recorded.limit() || store.intents.len() != recorded.count() {
             return Err(FundingJournalError::InvalidRecord);
         }
+        let mut receipts = 0_u64;
         for entry in store.intents.iter() {
             let record = entry.value();
             let view = record.view().ok_or(FundingJournalError::InvalidRecord)?;
@@ -125,8 +125,22 @@ impl<M: Memory> StableFundingJournal<M> {
                     .transfer()
                     .ok_or(FundingJournalError::InvalidRecord)?,
             )?;
+            if let Some(credit) = record.credit() {
+                if store.accounting.get(&credit.receipt_digest())
+                    != Some(FundingAccountingRecord::Receipt {
+                        operation: view.intent.operation.get(),
+                    })
+                {
+                    return Err(FundingJournalError::InvalidRecord);
+                }
+                receipts += 1;
+                reconstructed = reconstructed.confirm_credit(credit.accepted_cycles())?;
+            }
+            if let Some(additional) = record.renewed_allocation() {
+                reconstructed = reconstructed.renew(additional)?;
+            }
         }
-        if reconstructed != recorded {
+        if reconstructed != recorded || store.accounting.len() != receipts + 1 {
             return Err(FundingJournalError::InvalidRecord);
         }
         Ok(store)
@@ -162,7 +176,7 @@ impl<M: Memory> StableFundingJournal<M> {
         let next = totals.reserve(input)?;
         self.intents
             .insert(input.operation.get(), FundingIntentRecord::new(input));
-        self.accounting.insert(0, next);
+        self.write_totals(&next);
         Ok(FundingIntentAdmission::Created)
     }
     /// Persist possible dispatch before the host's separately authorized effect.
@@ -292,8 +306,13 @@ impl<M: Memory> StableFundingJournal<M> {
     }
     fn totals(&self) -> Result<FundingJournalRecord, FundingJournalError> {
         self.accounting
-            .get(&0)
+            .get(&[0; 32])
+            .and_then(FundingAccountingRecord::totals)
             .ok_or(FundingJournalError::InvalidRecord)
+    }
+    fn write_totals(&mut self, totals: &FundingJournalRecord) {
+        self.accounting
+            .insert([0; 32], FundingAccountingRecord::Totals(*totals));
     }
     fn exact(
         &self,
@@ -319,6 +338,12 @@ impl<M: Memory> StableFundingJournal<M> {
 /// Typed journal rejection before any write; binary/storage failures trap.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Error)]
 pub enum FundingJournalError {
+    /// Original credit, exact grant identity or chronology prevents budget renewal.
+    #[error(transparent)]
+    Renewal(#[from] crate::model::billing::journal::renewal::FundingRenewalError),
+    /// Invalid or conflicting host credit evidence.
+    #[error(transparent)]
+    Credit(#[from] crate::model::billing::journal::credit::FundingCreditError),
     /// Fresh installation cannot overwrite allocated memory.
     #[error("funding memory allocated")]
     AlreadyAllocated,

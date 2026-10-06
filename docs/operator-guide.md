@@ -1390,12 +1390,25 @@ provider errors remain separate from attachment accounting.
 `transfer_unknown` keeps the entire original offer potentially spent.
 `credit_required` names the exact accepted attachment still needing independent
 provider-credit evidence. `no_transfer` concerns attached cycles only; execution
-fees are separate. Every output sets `retry_authorized: false` and
-`provider_credit: not_established`. Empty, uncertain and fenced observations
+fees are separate. `credit_confirmed` carries the accepted amount and original
+receipt SHA-256 fingerprint retained by the trusted host; it sets
+`provider_credit: host_confirmed`. Other states retain `not_established`.
+Every output sets `retry_authorized: false`. Empty, uncertain and fenced observations
 exit 0; authenticated service refusals exit 3. The bounded decoder checks exact
 intent and transport/reconciliation consistency within 4 KiB, with the same
 30-second signed-query and 256 KiB HTTP limits as status. No payment, provider
 query, polling, journal write or automatic retry occurs.
+
+Hosts can use the [internal credit-confirmation contract](funding-credit.md) after
+independently establishing exact provider credit. No standalone credit setter is
+exposed. Status separates lifetime `transport_accepted` from `uncredited_accepted`;
+confirmation clears only the covered local blocker, without replenishing the
+funding allocation or releasing recovery fences. A separate host-authorized
+[bounded budget grant](funding-credit.md#bounded-host-authorized-allocation-increases)
+can increase authorization within the installed ceiling after complete credit
+reconciliation and before the next intent. It preserves spent totals and lifetime
+slots. Status shows cumulative authorization and the ceiling; exact outcomes show
+the original intent's immutable grant.
 
 ## Upload history
 
@@ -1587,6 +1600,58 @@ descriptors are observations, not leases or future-availability guarantees.
 The [local signed journey](evidence/core-primitives.md#shared-native-reference-downloads--2026-10-01)
 checks this flow using the existing labelled exposure/content substitute; real
 provider issuance, deletion and billing cessation remain separate gates.
+
+### Overlapping application releases and lifetime capacity
+
+Use the application’s existing release/asset manifest to associate each supported
+release with its exact service, tenant, permission and reference. References are
+the storage owner; this recipe adds no service-side release journal. Keep the old
+release’s reference while its assets or rollback remain supported. Before
+advertising a new release, retain a fresh reference for each reused confirmed root
+and verify its current status. Publish the consumer mapping using the consumer’s
+own transaction. Only after that transaction and its rollback window finish may
+the old reference be released. A URL is not the reference identity.
+
+Inspect `blob_reference_capacity` using the tenant-authenticated
+`ReferenceCapacityRequest { scope, root }` and its typed response. This is an
+existing standalone/core boundary; the CLI has no dedicated capacity command.
+It returns `headroom: None` for unknown, foreign or unconfirmed roots, which does
+not prove global absence or authorize a replacement allocation. Check the
+separate root discovery state and original records. Retired roots cannot be
+uploaded again; restored owners are inspection-only.
+
+| Headroom field | Planning use |
+| --- | --- |
+| `reference_slots` | Remaining lifetime identities; released IDs remain occupied |
+| `unreserved_receipts` | Receipt slots not already committed to active-reference cleanup |
+| `release_reserved_receipts` | Cleanup slots held for existing live references |
+| `fresh_retains` | For a live root, `min(reference_slots, unreserved_receipts / 2)`; otherwise zero |
+
+Each new retain consumes a receipt and reserves another for eventual release.
+Three free reference slots and five unreserved receipts permit two fresh retains.
+Releasing old references does not recycle IDs or historical receipts. Budget
+release churn over the installation lifetime, rather than only simultaneous
+releases. Headroom is an observation, not a reservation: enrollment, scope,
+identity, current liveness and fencing are checked again at mutation time.
+A capacity refusal stops publication; changing operation IDs or resetting the
+owner is not a remedy. Preserve cleanup reservations and apply the
+[retirement runbook](retiring-installations.md) at lifetime exhaustion.
+
+| Interruption | Recovery using existing owners |
+| --- | --- |
+| Retain reply lost or pending | Inspect the saved exact command’s receipt and current reference status; keep dispatch uncertain until reconciled |
+| Retain succeeded, mapping not published | Resume the consumer transaction from original evidence, or release that exact unused reference with its saved cleanup operation |
+| Mapping publication outcome uncertain | Inspect the consumer transaction before cleanup; keep references needed by either possible advertised result |
+| Old-release cleanup reply uncertain | Inspect the exact release receipt; historical retain success cannot establish current liveness |
+| Final reference released | Both service downloads refuse; physical bytes and liabilities persist until separate provider disposition |
+
+Upload-only `publish-check` reports `live_requires_retain` for reused content;
+it does not perform the reference transaction. `publish-map` observes original
+first references and is neither an atomic availability lease nor the consumer’s
+publication commit. Additional-reference mappings belong to that consumer.
+The local media overlap regression checks stored bytes and cleanup liability;
+consumer adoption and actual deletion/final billing remain open under
+[#6](https://github.com/dragginzgame/ic-blob-storage/issues/6).
 
 ## Certificate assessment
 

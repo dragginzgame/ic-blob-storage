@@ -1,19 +1,19 @@
-//! Diagnostic funding follow-up from transport facts, never settlement authority.
+//! Pure funding diagnosis from transport facts and retained host confirmations.
 
 use std::num::NonZeroU128;
 
 use super::admission::FundingActivity;
 use crate::model::billing::allocation::FundingAllocationView;
-use crate::model::billing::transfer::FundingTransfer;
+use crate::model::billing::{journal::credit::FundingCreditReceipt, transfer::FundingTransfer};
 
 /// Diagnose the complete maintained totals of one uncredited local journal.
-/// Equivalent to inspecting all retained transfers, including old accepted work.
+/// Equivalent to inspecting all retained transfers and credit confirmations.
 /// Prepared/uncertain reservations conservatively block alongside accepted amounts.
 /// A local `Clear` establishes neither account-wide completeness nor freshness,
 /// provider credit, spendability or permission to release a restoration fence.
 #[must_use]
 pub const fn assess_uncredited_allocation(allocation: FundingAllocationView) -> FundingActivity {
-    if allocation.accepted() != 0 || allocation.reserved_or_uncertain() != 0 {
+    if allocation.uncredited() != 0 || allocation.reserved_or_uncertain() != 0 {
         FundingActivity::Uncertain
     } else {
         FundingActivity::Clear
@@ -30,10 +30,12 @@ pub const fn assess_uncredited_allocation(allocation: FundingAllocationView) -> 
 pub fn assess_uncredited_activity(
     attempts: impl IntoIterator<Item = FundingReconciliation>,
 ) -> FundingActivity {
-    if attempts
-        .into_iter()
-        .any(|attempt| attempt != FundingReconciliation::NoTransfer)
-    {
+    if attempts.into_iter().any(|attempt| {
+        !matches!(
+            attempt,
+            FundingReconciliation::NoTransfer | FundingReconciliation::CreditConfirmed { .. }
+        )
+    }) {
         FundingActivity::Uncertain
     } else {
         FundingActivity::Clear
@@ -46,6 +48,14 @@ pub fn assess_uncredited_activity(
 /// Identity/recovery fences and other liabilities remain the workflow's concern.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum FundingReconciliation {
+    /// Exact immutable credit receipt was established by the trusted host.
+    /// Spent attachments remain charged and other activity is independent.
+    CreditConfirmed {
+        /// Full transport-accepted attachment covered by the receipt.
+        accepted_cycles: NonZeroU128,
+        /// Preserved evidence fingerprint, not a self-authenticating proof.
+        receipt_digest: [u8; 32],
+    },
     /// This attempt transferred no attached cycles. Execution fees are separate.
     NoTransfer,
     /// Transport acceptance is exact, but provider credit is still unestablished.
@@ -76,6 +86,24 @@ pub const fn assess_funding_reconciliation(transfer: FundingTransfer) -> Funding
             offered_cycles: transfer.offered(),
         },
     }
+}
+
+/// Combine exact transport facts with a validated immutable journal receipt.
+/// Reported balances and provider response decoding are deliberately not inputs.
+#[must_use]
+pub fn assess_reconciled_funding(
+    transfer: FundingTransfer,
+    credit: Option<FundingCreditReceipt>,
+) -> FundingReconciliation {
+    if let Some(credit) = credit
+        && transfer.accepted() == Some(credit.accepted_cycles().get())
+    {
+        return FundingReconciliation::CreditConfirmed {
+            accepted_cycles: credit.accepted_cycles(),
+            receipt_digest: credit.receipt_digest(),
+        };
+    }
+    assess_funding_reconciliation(transfer)
 }
 
 #[cfg(test)]

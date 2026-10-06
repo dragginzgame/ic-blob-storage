@@ -115,6 +115,17 @@ open integration work and retained trial obligations are recorded in the
 [current status](docs/status/current.md). Earlier live trials remain frozen and
 do not establish production readiness for the current release.
 
+The pending 0.15.0 batch selects ic-memory 0.27 through the public memory
+re-export and changes its durable ledger contract. Update host callers and
+fixtures; earlier ledgers cannot be reopened by this contract. Existing
+installations require safe obligation disposition before reinstall, as described
+in the [service contract](docs/service-contract.md#current-persisted-boundaries).
+
+It also adds [host-internal funding credit confirmation](docs/funding-credit.md).
+Hosts can reconcile exact accepted top-ups using independently verified receipts
+and then admit subsequent guarded funding. Accepted cycles remain spent;
+provider verification and consumer integration remain host-owned.
+
 The public library has no downstream framework dependency. Consumer frameworks
 wrap its shared workflows and own integration testing in their repositories.
 Canic adoption is deferred. The [service contract](docs/service-contract.md)

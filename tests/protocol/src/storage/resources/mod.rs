@@ -39,6 +39,8 @@ pub struct FundingPopulationIntent {
     pub intent: super::funding::Intent,
     /// Desired local state; pending states can occur only at the end of history.
     pub phase: super::funding::Phase,
+    /// Optional synthetic host receipt; never deployed-provider evidence.
+    pub credit_digest: Option<[u8; 32]>,
 }
 
 /// At most sixteen local funding/read admissions in one atomic fixture update.
@@ -100,4 +102,19 @@ pub struct RestorationMemoryReads {
     pub bytes: u64,
     /// Instructions inside the wrapped read; excludes B-tree decoding/traversal outside it.
     pub instructions: u64,
+}
+
+/// Private local measurements around the maintained host confirmation workflow.
+#[derive(Clone, Debug, CandidType, Deserialize)]
+pub struct FundingCreditResources {
+    /// Exact workflow result, including refused authority and recovery fences.
+    pub result: Result<Option<bool>, super::Failure>,
+    /// Instructions through confirmation, including observer overhead.
+    pub instructions: u64,
+    /// Allocated Wasm linear memory after the call, not live heap.
+    pub heap_bytes: u64,
+    /// Physical stable memory after the call.
+    pub stable_bytes: u64,
+    /// Logical reads around this call only, excluding previous population.
+    pub reads: Vec<RestorationMemoryReads>,
 }

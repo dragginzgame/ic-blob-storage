@@ -357,6 +357,7 @@ fn outcome_preserves_uncertainty_and_rejects_inconsistent_transport_claims() {
         phase: FundingPhase::Prepared,
         response: None,
         reconciliation: FundingReconciliation::TransferUnknown(u128::MAX),
+        renewed_allocation: 0,
         fenced: true,
     };
     for phase in [FundingPhase::Prepared, FundingPhase::Uncertain] {
@@ -458,4 +459,72 @@ fn check_callback(mut view: FundingOutcomeResponse) {
         ),
         Err(FundingReplyError::Limit)
     );
+}
+
+#[test]
+fn confirmed_credit_decoder_requires_exact_known_acceptance_and_nonempty_receipt() {
+    let view = FundingOutcomeResponse {
+        request: request(),
+        phase: FundingPhase::Callback {
+            refunded: u128::MAX - 1,
+        },
+        response: None,
+        reconciliation: FundingReconciliation::CreditConfirmed {
+            accepted_cycles: 1,
+            receipt_digest: [1; 32],
+        },
+        renewed_allocation: 0,
+        fenced: true,
+    };
+    assert_eq!(decode_outcome(&view), Ok(Some(view)));
+    for (phase, amount, digest) in [
+        (FundingPhase::Prepared, 1, [1; 32]),
+        (FundingPhase::Uncertain, 1, [1; 32]),
+        (FundingPhase::NotEnqueued, 1, [1; 32]),
+        (view.phase, 0, [1; 32]),
+        (view.phase, 2, [1; 32]),
+        (view.phase, 1, [0; 32]),
+    ] {
+        assert_eq!(
+            decode_outcome(&FundingOutcomeResponse {
+                phase,
+                reconciliation: FundingReconciliation::CreditConfirmed {
+                    accepted_cycles: amount,
+                    receipt_digest: digest,
+                },
+                ..view
+            }),
+            Err(FundingReplyError::Invalid)
+        );
+    }
+}
+
+#[test]
+fn renewed_allocation_requires_exact_confirmed_credit_and_cannot_exceed_acceptance() {
+    let valid = FundingOutcomeResponse {
+        request: request(),
+        phase: FundingPhase::Callback {
+            refunded: u128::MAX - 100,
+        },
+        response: None,
+        reconciliation: FundingReconciliation::CreditConfirmed {
+            accepted_cycles: 100,
+            receipt_digest: [1; 32],
+        },
+        renewed_allocation: 50,
+        fenced: true,
+    };
+    assert_eq!(decode_outcome(&valid), Ok(Some(valid)));
+    for changed in [
+        FundingOutcomeResponse {
+            renewed_allocation: 101,
+            ..valid
+        },
+        FundingOutcomeResponse {
+            reconciliation: FundingReconciliation::CreditRequired(100),
+            ..valid
+        },
+    ] {
+        assert_eq!(decode_outcome(&changed), Err(FundingReplyError::Invalid));
+    }
 }

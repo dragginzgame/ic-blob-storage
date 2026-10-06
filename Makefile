@@ -20,16 +20,17 @@ VERSION ?=
 RELEASE := bash scripts/release/release.sh
 RELEASE_REMOTE ?= origin
 RELEASE_BRANCH ?= main
-export RELEASE_KIND RELEASE_PREVIOUS RELEASE_VERSION RELEASE_DATE RELEASE_SOURCE RELEASE_REMOTE RELEASE_BRANCH
+export RELEASE_KIND RELEASE_PREVIOUS RELEASE_VERSION RELEASE_DATE RELEASE_SOURCE RELEASE_COMMIT RELEASE_REMOTE RELEASE_BRANCH
 SHELLCHECK ?= shellcheck
-CI_TARGETS := shared-tooling-check deps shell-check release-check hooks-check fmt-check check clippy probe-check docs-check test wasm-check package
+CI_TARGETS := shared-tooling-check dependency-pins-check deps shell-check release-check hooks-check fmt-check check clippy probe-check docs-check test wasm-check package
 
-.PHONY: help version deps cloc shared-tooling-check fmt fmt-check check clippy docs-check test test-native test-pocketic test-browser test-browser-store test-browser-transport test-browser-standalone test-sdk-probe test-sdk-inputs test-fixture test-standalone build-standalone test-admission-resources test-read-resources wasm-check \
+.PHONY: help version deps cloc shared-tooling-check dependency-pins-check fmt fmt-check check clippy docs-check test test-native test-pocketic test-browser test-browser-store test-browser-transport test-browser-standalone test-sdk-probe test-sdk-inputs test-fixture test-standalone build-standalone test-admission-resources test-read-resources test-funding-receipt-resources wasm-check \
 	build package clean shell-check release-check probe-check ci validate release-verify test-browser-publication test-browser-bootstrap test-browser-launcher test-browser-native \
 	release-plan ensure-clean release-patch release-minor release-major release-resume \
 	release-version release-preflight release-prepare-version release-prepared-check release-files \
 	release-commit-check release-committed-check release-tagged-check release-push-check \
-	release-tag-check publish publish-dry-run install-hooks format-tools-check hooks-check
+	release-tag-check publish publish-dry-run install-hooks format-tools-check hooks-check evidence-check
+.PHONY: test-hard-cut
 
 ifneq ($(word 2,$(filter release-patch release-minor release-major release-resume,$(MAKECMDGOALS))),)
 $(error Select exactly one release target)
@@ -38,11 +39,14 @@ endif
 help:
 	@echo "deps                         Fetch locked Rust dependencies (network)"
 	@echo "cloc                         Offline Rust runtime/test counts for every workspace member"
+	@echo "test-funding-receipt-resources  Measure populated receipt confirmation and restore (opt-in)"
 	@echo "shared-tooling-check          Verify the reviewed shared snapshot offline"
+	@echo "dependency-pins-check         Check dependency selectors and workspace lockfiles offline"
 	@echo "fmt / fmt-check              Format Rust or check formatting"
 	@echo "check / clippy / test         Compile, lint, or test the workspace"
 	@echo "test-native / test-pocketic   Native core tests or local IC fixtures"
 	@echo "build-standalone / test-standalone   Standalone host Wasm or focused local IC tests"
+	@echo "test-hard-cut                Old-ledger refusal; explicit pinned Wasm and fresh BLOB_HARD_CUT_REPORT"
 	@echo "test-browser                  Opt-in Chromium certificate/IndexedDB evidence"
 	@echo "test-browser-store            Opt-in Chromium journal persistence without Rust builds"
 	@echo "test-browser-publication      Opt-in offline frozen-file checks; BLOB_PUBLICATION_REPORT=NEW_DIRECTORY"
@@ -58,6 +62,7 @@ help:
 	@echo "clean                        Explicitly remove build artifacts"
 	@echo "docs-check / wasm-check       Check docs or the Wasm library build"
 	@echo "probe-check                  Verify retained Caffeine probe artifacts offline"
+	@echo "evidence-check               Check retained evidence hashes without Rust builds"
 	@echo "ci / validate                Fetch locked dependencies, then validate"
 	@echo "release-check                Test release tooling without publication"
 	@echo "release-plan VERSION=minor   Preview patch/minor/major without effects"
@@ -77,6 +82,9 @@ cloc:
 
 shared-tooling-check:
 	bash scripts/ci/verify-shared-tooling-snapshot.sh
+
+dependency-pins-check:
+	bash scripts/ci/check-dependency-pins.sh
 
 format-tools-check:
 	@bash -c 'source ci/tool-versions.env; [[ "$$(cargo sort --version)" == "cargo-sort $$SHARED_TOOLING_CARGO_SORT_VERSION" ]] || { echo "Install cargo-sort $$SHARED_TOOLING_CARGO_SORT_VERSION before formatting." >&2; exit 1; }'
@@ -106,8 +114,11 @@ probe-check:
 	@for run in docs/evidence/caffeine-probes/runs/*; do \
 		"$(CARGO_TARGET_DIR)/debug/caffeine-probe" verify "$$run" || exit $$?; \
 	done
-	sha256sum --check --strict --quiet docs/evidence/caffeine-probes/local/SHA256SUMS
-	sha256sum --check --strict --quiet docs/evidence/caffeine-probes/deployed/SHA256SUMS
+	+$(MAKE) --no-print-directory evidence-check
+
+evidence-check:
+	bash scripts/ci/test-evidence-checksums.sh
+	bash scripts/ci/verify-evidence-checksums.sh docs/evidence/caffeine-probes/local/SHA256SUMS docs/evidence/caffeine-probes/deployed/SHA256SUMS
 
 docs-check:
 	RUSTDOCFLAGS="-D warnings" cargo doc --offline --locked -p ic-blob-storage -p ic-blob-storage-canister --all-features --no-deps
@@ -130,6 +141,12 @@ test-pocketic:
 
 build-standalone:
 	cargo build --offline --locked --release --target wasm32-unknown-unknown -p ic-blob-storage-canister --lib
+
+test-hard-cut:
+	@test -n "$(BLOB_PRE_CUT_STANDALONE_WASM)" -a -n "$(BLOB_HARD_CUT_REPORT)" || { echo 'Set BLOB_PRE_CUT_STANDALONE_WASM and a fresh BLOB_HARD_CUT_REPORT'; exit 1; }
+	+$(MAKE) --no-print-directory build-standalone
+	BLOB_PRE_CUT_STANDALONE_WASM="$(BLOB_PRE_CUT_STANDALONE_WASM)" BLOB_HARD_CUT_REPORT="$(BLOB_HARD_CUT_REPORT)" \
+		cargo test --offline --locked -p ic-blob-storage-pocketic-tests --test standalone standalone_hard_cut::older_allocation_ledger_upgrade_preserves_bytes_and_obligations_on_refusal -- --ignored --exact --test-threads=1
 
 test-standalone:
 	cargo build --offline --locked --release --target wasm32-unknown-unknown -p ic-blob-storage-canister -p blob-gateway-source -p blob-storage-probe -p blob-consumer-probe --lib
@@ -200,6 +217,11 @@ test-admission-resources:
 	cargo test --offline --locked -p ic-blob-storage-pocketic-tests --test admission admission_resources -- --test-threads=2
 	@echo "Local resource reports in .tmp/: admission-resources.json, admission-history.json, release-history.json, reference-history.json, descriptor-resources.json (not provider pricing)"
 
+test-funding-receipt-resources:
+	@test -n "$(BLOB_FUNDING_RECEIPT_PROFILE)" || { echo "Set BLOB_FUNDING_RECEIPT_PROFILE to a fresh report directory." >&2; exit 1; }
+	cargo build --offline --locked --release --target wasm32-unknown-unknown -p blob-storage-probe --lib
+	cargo test --offline --locked -p ic-blob-storage-pocketic-tests --test storage storage_resources::credits::receipt_populated_confirmation_and_restoration_profile -- --ignored --exact --test-threads=1
+
 test-read-resources:
 	cargo build --offline --locked --release --target wasm32-unknown-unknown -p blob-authority-probe -p blob-gateway-source --lib
 	@mkdir -p .tmp
@@ -230,12 +252,14 @@ release-check:
 
 ci:
 	+@set -e; for target in $(CI_TARGETS); do \
-		$(MAKE) --no-print-directory "$$target"; \
+		$(MAKE) --no-print-directory "$$target" || exit $$?; \
 	done
 
 validate: ci
 
-release-verify: ci
+release-verify:
+	+VALIDATION_FAILURE_LOG_DIR="$$(git rev-parse --git-path release-state)/validation-failures" \
+		bash scripts/ci/run-validation-targets.sh ci
 
 release-plan:
 	@$(RELEASE) plan "$(if $(VERSION),$(VERSION),patch)"

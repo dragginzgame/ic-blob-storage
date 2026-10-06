@@ -65,6 +65,8 @@ fn local_funding_summary_preserves_old_uncredited_amounts_through_returns_traps_
     assert_eq!(
         f.local_status().funding,
         ic_blob_storage::dto::operator::LocalFundingStatus {
+            cumulative_allocation: 1000,
+            renewal_ceiling: 2000,
             fenced: true,
             ..local
         }

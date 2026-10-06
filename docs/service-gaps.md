@@ -30,6 +30,13 @@ active release and implementation handoff.
 
 ## Recent local evidence
 
+The [host-internal credit contract](funding-credit.md) provides a durable,
+exactly bound settlement transition for repeated guarded funding. Its local
+Cashier/credit tests use synthetic evidence. Provider/service hosts still need
+qualified credit acquisition and complete account activity; consumers own their
+integration and repeated-dispatch acceptance. A balance or success reply alone
+does not establish the required independent credit.
+
 The [local multi-chunk/reference journeys](evidence/caffeine-probes/README.md#multi-chunk-png-and-overlapping-references--2026-10-04)
 verify distinct full/partial PNG chunks and signed overlapping-reference cleanup.
 They establish local format/reference/accounting behavior, not consumer asset

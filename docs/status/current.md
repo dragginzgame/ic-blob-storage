@@ -4,33 +4,49 @@
 
 # Current status
 
-Date: 2026-10-05
+Date: 2026-10-06
 
 ## At a glance
 
-- Released baseline: `0.14.11`; the changelog and release receipt own exact
+- Released baseline: `0.14.12`; the changelog and release receipt own exact
   release metadata.
-- Current development target: `0.14.12`; its undated changelog collects release
-  and formatting tooling. Cargo and the receipt remain at 0.14.11.
+- Current development target: `0.15.0`; its undated changelog carries the tooling
+  batch and the maintainer-selected ic-memory 0.27 durable/public API hard cut.
+  Cargo package versions and the release receipt remain at 0.14.12.
 - Product state: working library and standalone prototype with retained live
   upload/download evidence, not a fully accepted production service.
 - Current composition: framework-independent core, explicit standalone host,
   native operator tools and browser publication components.
 - Recovery: same-release restoration opens fenced; current-instance activation
   requires independent IC history, and older-snapshot activation is unsupported.
-- Main remaining work: consumer adoption, complete publication transactions,
-  provider deletion and billing evidence, production sizing and retirement.
+- Latest completed batch: bounded host-internal funding grants, indexed credit
+  receipts and 100/1,000/10,000-intent local qualification. The reviewed 28-file
+  Shared Tooling snapshot is now `a7efade`; locked dependencies are unchanged.
+- Main remaining work: provider credit evidence and consumer funding integration,
+  consumer adoption, complete publication transactions, provider deletion and
+  billing evidence, production sizing and retirement.
 
 ## Retained release baseline
 
+Released **0.14.12** is at commit `ebd535eaa2015407319fd330f559b2808ea01588`,
+directly following source `91ac488a0e04cf219eafec6b396e728ea0a0890a`. Annotated
+`v0.14.12` is `e556c96f7e445bf23b43bb9268b5f4a69cbeaf61`; local HEAD and cached
+origin/main agree. The maintainer reports the push complete. Its release receipt
+and file hashes verify at this task's clean entry; new draft notes do not rewrite
+that historical receipt. This does not establish registry publication or service
+deployment. Earlier validation artifacts retain their original compiled versions.
+
+### Earlier 0.14.11 baseline
+
 Released **0.14.11** is at commit `b526ca5bcc2e7976281c60880f83a12bd216c12d`,
 directly following source `08783a2d537bf25de02da2faabddc6bd2c1eebee`. Cargo,
-the dated changelog and [receipt](../release.json) record 0.14.11. The maintainer
+the dated changelog and [historical receipt](https://github.com/dragginzgame/ic-blob-storage/blob/v0.14.11/docs/release.json)
+recorded 0.14.11. The maintainer
 reports it live; this handoff does not independently establish registry or
 service deployment. The selected graph includes ic-memory 0.25.9 and ic-testkit
 0.15.8. Its pre-release profiles retain their actual compiled 0.14.10 identity.
 
-The chosen 0.14.12 draft is compatible internal maintainer tooling; no published
+The released 0.14.12 batch is compatible internal maintainer tooling; no published
 Rust API, blob CLI, service DTO or persisted layout changes. The old manual
 release phase targets are retired in favor of the common runner and saved
 recovery; see [the release guide](../releasing.md). Formatting changes source
@@ -515,7 +531,7 @@ and paid cycles, not full CI, native macOS, production restoration, stale-backup
 activation or million-object evidence. Cargo, release receipt, toolchain and
 maintainer-selected lock are unchanged by the batch; no commit or publication.
 
-## Current 0.14.12 tooling batch
+## Retained 0.14.12 tooling batch
 
 The reviewed Shared Tooling revision is `f52c0e2476aee094359ed21de91c468540d3969f`,
 exported from a clean isolated copy rather than the sibling's unrelated dirty
@@ -537,7 +553,8 @@ other clones run `make install-hooks` explicitly. The actual consumer hook test
 preserves its lock, unrelated edits and untracked files, rejects partial staging
 and leaves the index/working tree intact when formatting fails. The independent
 [tooling workflow](../../.github/workflows/tooling.yml) declares Linux and both
-macOS 15 architectures; native results remain pending.
+macOS 15 architectures. Native results were pending at that batch's handoff;
+the subsequent release run is recorded in the 0.14.13 section below.
 
 The [adoption evidence](../evidence/shared-tooling-adoption.md#01412-release-and-formatting-adoption)
 retains original failures, source/manifest inputs and scoped checks under
@@ -548,10 +565,330 @@ runner and local adapter fixtures, formatting, shell checks and workflow lint
 pass locally. No Rust build, full CI, package bump, commit, tag, push, publication,
 provider effect, sibling edit or consumer artifact cleanup occurs.
 
+## Tooling batch originally prepared for 0.14.13
+
+These records precede the dependency hard cut below. Their original source,
+dependency and artifact identities remain unchanged; the pending tooling work
+now joins 0.15.0 rather than a separate 0.14.13 release.
+
+The next patch is compatible internal tooling: no published Rust API, blob CLI,
+service DTO, wire or persisted layout change. `make evidence-check` checks the
+retained local/deployed manifests without Rust builds or provider calls. A small
+consumer-owned parser delegates hashing to the unchanged reviewed checksum
+helper. Both GNU and forced Perl paths verify all 288 retained files locally;
+corruption, missing files, malformed/empty records and unavailable hashing refuse.
+The installation recipe uses portable Perl hashing. No original evidence,
+manifest, dependency selection or release receipt changes.
+
+The pushed [0.14.12 native tooling run](https://github.com/dragginzgame/ic-blob-storage/actions/runs/37368942870)
+finishes with both macOS jobs failing `bootstrap-fetch`; Linux is cancelled.
+Both macOS hosts pass snapshot integrity, formatting and the common-runner suite
+before that failure. Logs show the injected Cargo fetch refusal continuing to
+the cache write. Consumer substitutes now exit explicitly on those failures,
+and the validation loop explicitly stops when a prerequisite fails. A new
+cached-fetch refusal verifies no Cargo check runs and old cache bytes survive.
+Twenty-one adapter cases pass on Linux after the fix; corrected native execution
+remains pending. The original runner fixtures are unavailable after teardown;
+downloaded native console logs remain bound to the original release/run.
+
+The host workflow now includes evidence checks and retains failed release/hook/
+checksum fixtures as artifacts for 30 days, with the host and attempt in each
+name. [The batch summary](../evidence/checksum-portability-v01413.json) binds entry
+source, unchanged evidence inputs, scoped logs and the tested patch under
+`.tmp/checksum-portability-v01413-01`. The first added assertion's ShellCheck
+refusal remains retained; the explicit conditional and final shell check pass.
+Formatting, actionlint and shared snapshot checks pass locally. No full CI,
+Rust compilation, version bump, commit/tag/push, publication, provider probe,
+sibling edit or preexisting artifact cleanup occurs. No functions, methods or
+types are removed.
+
+The [Bash 3.2 follow-up](../evidence/bash32-v01413.json) builds GNU Bash 3.2.57
+from signature-verified source inside the repository's temporary tooling area.
+It reproduces a failed conditional guard continuing into simulated registry
+publication. Release identity/tag guards and fixture assertions now refuse
+explicitly. Twenty-three adapter cases pass on Bash 3.2 and Bash 5; the common
+runner and all 288 evidence hashes pass on Bash 3.2. These are Linux shell
+observations, not native macOS qualification. Prior logs and failed fixtures remain.
+
+The same run finds a separate pinned Shared Tooling hook defect: on Bash 3.2,
+formatter failure still refreshes selected files. The one-line proposal in
+`.tmp/bash32-v01413-01/shared-hook-fix.patch` passes the full consumer hook fixture
+in an isolated candidate. After explicit authorization, the same fix is applied
+in Shared Tooling, with its existing unrelated edits and index preserved. The
+required upstream portable suite passes on Bash 3.2, and ShellCheck passes. Both
+prerequisite failures remain in the follow-up evidence. The maintainer then
+committed the fix in Shared Tooling `9437bab201bb6071da0bdc4de0336daf553113f5`.
+The [subsequent adoption](../evidence/shared-tooling-recovery-v01413.json) first
+refreshes 23 files from an isolated clean checkout of that exact revision, leaving
+new unrelated sibling edits untouched. The requested latest refresh then selects
+`cb86188c5956866564de4fb6ec6be67b27981ab9` with 24 files and its validation logger.
+The canonical helper protects local destination changes; the two prior generated
+shared guide updates are preserved and reconciled before refreshing. The fixed
+hook and complete linked agent maintenance rules are adopted. Native consumer
+execution remains pending.
+The snapshot gate still precedes all host checks; after that gate, a failed check
+does not hide the remaining focused results. Shell/workflow/format/snapshot checks
+pass. No Rust build, full CI, package bump, real release, commit/push, provider
+effect or preexisting artifact cleanup occurs. Temporary Bash/parser tool builds
+and their original preparation failures are retained separately.
+
+Late release adapters now export `RELEASE_COMMIT`, verify the original committed
+Cargo/notes/receipt bytes and bind the selected sole parent and annotated tag.
+The canonical runner reconciles an older committed release before fresh gates
+for newer fixes or a different increment; explicit resume finishes only its
+selected release. Package publication still checks the clean current HEAD.
+The real release gate now runs the same complete CI target through the shared
+logger, retaining unique failed logs across retries and preserving temporary logs
+if retention fails. The private fixtures keep real Git/Cargo release effects
+substituted; a real Git index fixture checks unrelated staged bytes hidden by a
+restored working file without creating a commit.
+This is compatible maintainer tooling in the existing 0.14.13 draft, with no
+library API, stored format, package version or dependency selection change.
+Matching [upstream native CI](https://github.com/dragginzgame/shared-tooling/actions/runs/37428740374)
+passes on Linux and both macOS architectures; it does not qualify this consumer's
+new callbacks. The later [cb86188 CI run](https://github.com/dragginzgame/shared-tooling/actions/runs/37431805988)
+has a macOS ARM snapshot-fixture failure: a logical temporary path misses its
+fake source identity after physical-path normalization. A symlinked Linux temp
+directory reproduces the same refusal. This belongs to the upstream fixture;
+the consumer's guarded refresh succeeds. Latest upstream native and new consumer
+native acceptance are not established. Local adapter checks pass on Bash 3.2
+and Bash 5, including real index inventory and actual failed-gate log retention
+across retry; hook, all 288 evidence hashes, formatting and shell checks pass.
+The mock tag-path and real-index log-directory setup failures remain retained.
+No GitHub issue writes, real release, commit, tag, push or paid
+effect is performed.
+
+## Current 0.15.0 dependency hard cut and validation
+
+The maintainer selected ic-memory 0.27.0 and ic-testkit 0.18.3, then explicitly
+chose to include the upgrade in the next minor release. The undated changelog
+is now 0.15.0 and carries the entire earlier tooling draft; 0.14.13 is not a
+separate release. Cargo package versions and docs/release.json remain 0.14.12.
+The selected lock also updates want and zerocopy; no dependency is reselected
+during these checks.
+
+The [new record](../evidence/release-preflight-0150.json) binds the selected graph,
+entry source patch, raw logs and artifact hashes under `.tmp/v01413-final-01`.
+The complete local `make ci` gate passes on Rust 1.99.0/Linux, including release
+and actual hook fixtures, formatting, all-target compilation, strict Clippy,
+retained evidence, Rustdoc, native/PocketIC tests, workspace Wasm and package
+verification. Scoped actual Rust 1.88 checks pass for core/standalone/harness
+native targets and core/standalone Wasm. No caller adjustment is needed here.
+Gate inputs still have the earlier draft heading; subsequent documentation
+records the approved 0.15.0 decision. Compiled tools and Wasm still identify
+0.14.12. These observations do not relabel earlier artifacts or qualify macOS.
+
+ic-memory 0.27 removes allocation history/timestamp APIs and replaces the
+durable ledger layout visible through this library's public memory re-export.
+That makes the complete batch breaking before 1.0. Hosts must update affected
+callers and fixtures, and retained installations require obligation disposition
+before reinstall under [the persisted contract](../service-contract.md#current-persisted-boundaries).
+Do not clear allocation ID 0 or add a compatibility reader. Same-release fences,
+backup and interruption recovery remain required; frozen live trials retain
+their original tools and all provider/billing obligations.
+
+The authorized Shared Tooling fix normalizes the snapshot fixture's temporary
+directory before assigning fake Git identities. The alias failure reproduces
+before the fix and the complete upstream portable suite passes afterward on
+actual Bash 3.2 through the aliased directory; ShellCheck passes. Missing cloc,
+jq shared libraries and cloc Perl prerequisites initially prevent the full
+suite; all failed logs survive and the prepared-tool retry passes. The upstream
+fix and draft note remain uncommitted in Shared Tooling. Commit creation is
+maintainer-owned, so consumer adoption of that fix's revision awaits its commit.
+The current 24-file pin remains cb86188. Its original native CI has completed
+with both macOS jobs failing the fixture; the corrected native upstream and
+new consumer jobs still need committed/pushed inputs. No full CI is rerun merely
+for a documentation change. No real release, version bump, commit, tag, push,
+publication, provider effect, GitHub write or function/method/type removal occurs.
+
+## Current 0.15.0 refusal, media and operator batch
+
+The [new intent and results](../evidence/caffeine-probes/README.md#selected-hard-cut-graph-and-media-rehearsal--2026-10-06)
+complete the requested repository-owned hard-cut checks on the selected graph.
+An actual hash-pinned preflight image compiled 0.14.9/ic-memory 0.25.5 refuses
+upgrade to the current 0.27 image at memory bootstrap. Every stable byte and the
+old configuration, released object, pending manifest and conservative holds
+survive. `make test-hard-cut` is opt-in and requires the retained historical Wasm;
+default CI cannot replace that input with a generated approximation.
+
+Matching current tools still compile as 0.14.12. The installation carrier checks
+that release independently and rejects the wrong actual service. Original
+GLB/WebP and PNG/JPEG bytes complete local serial publication, verified download,
+browser decoding/CORS/CSP and overlapping-reference cleanup. Lost-final-reply and
+control recovery add no PUT. The last reference's release refuses service
+downloads while stored bytes/liabilities and public substitute delivery persist.
+Installed Brave 154.1.96.61 is recorded explicitly; HTTP cache reuse exposed and
+corrected two fixed GET-count assertions without weakening byte/origin checks.
+
+The [summary](../evidence/caffeine-probes/local/2026-10-06-hard-cut-media-01/summary.json)
+retains every preparation, path, accounting, cache and Clippy failure, successive
+artifact generations, signed packets, stable bytes and final results. Fresh
+substitute retries exceeded the initial two-owner plan; a follow-up records the
+actual four owners and the final bounds. Two core capacity cases, six standalone
+reference cases, same-release obligation recovery, strict harness Clippy and
+actual Rust 1.88 harness compilation pass. No full CI is repeated for this batch.
+
+The [retirement runbook](../retiring-installations.md) supplies exact inventory,
+disposition and stop criteria before reset. The
+[overlap/capacity recipe](../operator-guide.md#overlapping-application-releases-and-lifetime-capacity)
+uses existing references/receipts and the consumer's existing publication owner;
+it adds no journal, release API, compatibility reader or downstream dependency.
+[#6](https://github.com/dragginzgame/ic-blob-storage/issues/6) remains open for
+consumer acceptance and actual provider deletion/final billing. No live owner,
+provider effect, version bump, release, commit, push or GitHub write occurs.
+Public function/method/type removals: none in this batch. Shared Tooling adoption
+still awaits the maintainer-owned upstream fix commit described above.
+
+## Repeated provider funding review
+
+The [source/native review](../evidence/caffeine-probes/README.md#repeated-funding-credit-gap-review--2026-10-06)
+confirmed the pre-implementation guarded funding credit-settlement gap.
+After the first positive accepted attachment, `CreditRequired` and maintained
+accepted totals block the next guarded top-up with `JournalUncredited`.
+Host activity `Clear`, a success/balance report or low-level reservation cannot
+safely remove the blocker. The reviewed journal mutation and standalone funding
+surface contained no authoritative credit transition. Seven focused existing native
+regressions pass; this review changes no production code.
+
+The current lock selects ic-memory 0.27.1; these checks keep that selection and
+compile 0.14.12. Earlier 0.27.0 full-gate/media records remain historical and
+are not validation of this later graph. Toko locally selects blob 0.14.9 through
+Canic's inspection-only funding wrapper; the tagged library has the same gap.
+Its automatic component-cycle replenishment is distinct from provider-account
+funding. No deployed Toko provider timer or live funding failure was observed.
+
+The review called for an authenticated, exactly bound durable credit-reconciliation
+contract and qualified provider evidence, followed by consumer-owned repeated
+dispatch integration. Keep transport history, lifetime accounting, uncertainty
+and restoration fences. The upload verifier remains separate. Wiring alone
+cannot complete this provider funding path; no journal reset or guard bypass is
+an acceptable substitute.
+
+## Host-internal funding credit implementation
+
+The maintainer selected the [host-internal confirmation boundary](../funding-credit.md).
+`workflow::funding::credit::confirm` and the journal's `record_credit` authenticate
+the exact original operation and commit an immutable evidence fingerprint with
+confirmed totals. Wrong amounts, conflicting or reused receipts refuse. Replay
+is idempotent; lifetime acceptance stays charged, with uncredited acceptance
+tracked separately. Existing allocation limits, uncertainty and fences remain.
+Standalone exposes inspection only; consumer hosts own evidence acquisition.
+
+The [new evidence](../evidence/caffeine-probes/README.md#host-internal-funding-credit-confirmation--2026-10-06)
+retains source/artifact hashes and every failed preparation. Four new actual local
+IC cases pass for repeated dispatch, atomic write-trap rollback, refusal and fenced
+restoration. All 26 existing storage funding cases and five standalone funding
+cases pass across the initial run and focused setup retries. Native funding,
+billing policy, installation and all 98 CLI cases pass. Strict relevant Clippy,
+Rust 1.88 native/Wasm checks, rustdoc, formatting and generated Candid equality pass.
+The pinned pre-cut image still refuses upgrade with all stable bytes/obligations
+preserved. These are local/synthetic observations, not deployed provider credit.
+
+Pending 0.15.0 adds mandatory receipt/accounting fields, `uncredited_accepted`
+and `CreditConfirmed`; update hosts, codecs and matching tools together. The
+installation format changes to refuse prior layouts. Compilation remains 0.14.12
+on the unchanged maintainer-selected ic-memory 0.27.1 graph. No full CI, release,
+commit, push, publication, live effect, sibling edit or symbol removal occurs.
+
+## Shared Tooling and remaining hard-cut review
+
+The 2026-10-06 read-only recheck finds upstream main at
+[`a7efade`](https://github.com/dragginzgame/shared-tooling/commit/a7efade1a68e43f148252a1a73908a46c4cbe9e9),
+with an undated 0.1.5 draft and no remote `v0.1.5` tag. This committed source
+contains the previously awaited temporary-path fix, nested validation isolation
+and dependency-pinning rules/checker. Our 24-file cb86188 snapshot still verifies.
+The sibling also has uncommitted audit-method/baseline changes; those are excluded
+from the committed review. Its
+[matching CI run](https://github.com/dragginzgame/shared-tooling/actions/runs/37443591873)
+has successful Linux portable and lint/security jobs; both macOS jobs remain
+in progress at inspection. This is not complete native acceptance.
+
+The committed checker was exported by exact Git archive and run read-only against
+this repository with hash-matching yq 4.47.2. It flags the four exact constraints
+for `candid_parser`, `ic-agent`, `sha2` and `thiserror`; adoption needs compatible
+ranges or explicitly reviewed compatibility exceptions, not a dependency upgrade
+or blanket exemption. Raw GitHub/checker evidence is in `.tmp/v0150-review-02`.
+Snapshot adoption also needs the new policy/checker files, gate and native-host
+parser setup. This inspection changes no shared snapshot, dependency or code.
+
+Before freezing 0.15.0, measure receipt-populated confirmation/restoration and
+qualify the host receipt acquisition path in its consumer-owned integration.
+The continuing-funding contract needs a deliberate operational choice: credit
+confirmation does not replenish the finite allocation or lifetime intent slots.
+If a consumer requires budget renewal, define its bounded authority and durable
+accounting before changing the layout; do not reset history or refund spent cycles.
+No additional missing reconciliation API or required hard cut is confirmed by
+this review. Existing retirement/reference contracts still require actual
+consumer and provider acceptance under
+[#6](https://github.com/dragginzgame/ic-blob-storage/issues/6).
+
+## Indexed receipts, bounded grants and tooling adoption
+
+The [new retained record](../evidence/caffeine-probes/README.md#indexed-funding-receipts-and-bounded-grants--2026-10-06)
+completes the authorized in-repository batch. The original scan-based credit
+implementation measured 291,652,376 instructions at 1,000 intents and exhausted
+the 180-second population budget before reaching 10,000. The current index uses
+the existing accounting memory and one journal owner; confirmation now measures
+3,808,692 / 4,840,460 / 4,949,504 instructions at 100 / 1,000 / 10,000 intents.
+Exact replay, refusal, corrupt-index rejection and actual fenced restoration retain
+receipt identity and spent accounting. Every failed/incomplete attempt remains.
+
+Synchronous restoration still validates the entire history and index: the current
+10,000-intent tier costs 4,763,717,162 instructions, with 1,376,256 measured heap
+bytes and 47,251,456 physical stable bytes. This is local fixture evidence with
+synthetic receipts and observer overhead, not production sizing or a Toko benchmark.
+The improvement compares two unreleased credit implementations; reviewed Toko
+still selects blob 0.14.9 and has no qualified provider-credit acquisition flow.
+
+The maintainer selected [bounded host-authorized increases](../funding-credit.md#bounded-host-authorized-allocation-increases).
+Every installation supplies a mandatory cumulative `renewal_ceiling`; setting it
+equal to initial allocation disables grants. One immutable grant per latest fully
+credited intent is bounded by its accepted amount and the installed ceiling.
+Exact replay remains unchanged after later intents. Grants preserve lifetime
+spend, receipts, refunds, operation identity and fixed intent slots; real cycles
+and dispatch authority remain independent. Reopening reconstructs grants in order.
+No public grant endpoint, new owner or extra memory grant is introduced.
+
+The frozen installation format is now
+`ic-blob-storage/installation:platform-anchor-funding-credit-index-renewal`.
+Configuration, cumulative/ceiling status and grant outcome fields are mandatory;
+generated Candid, native/browser fixtures and offline installation proposals agree.
+Update consumers together and retire old obligations before reinstalling.
+The [consumer acceptance recipe](../funding-consumer-qualification.md) records the
+read-only Toko/Canic review; provider success/balances remain insufficient credit
+evidence. That integration remains with its consumer owner.
+
+Shared Tooling `a7efade1a68e43f148252a1a73908a46c4cbe9e9` is adopted through the
+canonical reviewed export with 28 exact files, excluding sibling audit drafts.
+The snapshot and new offline pinning checker pass. Four exact registry selectors
+are compatible ranges, with the selected Cargo.lock unchanged from batch entry.
+The owning gate and native-host parser setup are propagated. Upstream CI run
+37443591873 passed Linux, both macOS 15 architectures and lint/security; the new
+dirty consumer workflow has not run remotely. Local Bash 3.2/tooling fixtures pass.
+
+Scoped funding/configuration/installation/policy/allocation checks, all 100 CLI
+tests, all 32 storage funding and five standalone funding cases, generated Candid
+equality and the actual trial-template installation pass. Two new local IC cases
+cover bounded grants and rollback after complete synchronous credit/index writes.
+The pinned old image refuses upgrade with exact stable bytes and obligations
+preserved. Strict relevant and harness Clippy, Rust 1.88 native/Wasm checks,
+rustdoc and browser-configuration encoding checks pass. All original setup,
+fixture/schema and lint failures are retained with their scoped corrections.
+No package version change, full CI, release, commit, push, publication, paid/live
+provider effect, sibling mutation or named symbol removal occurs.
+
 ## Remaining product work
 
-- Restoration now has bounded evidence through 10,000 lifetime funding rows and
-  1,024 occupied reads across 32 tenants. Further performance work needs a
+- Qualify host acquisition of uniquely attributed provider credit and complete
+  account activity, then adopt the internal confirmation workflow in consumer-owned
+  repeated funding integration. Current transport success/balances alone remain
+  insufficient; upload verifier configuration stays independent.
+
+- Earlier restoration profiles cover 10,000 lifetime funding rows and
+  1,024 occupied reads across 32 tenants under their retained source/graphs.
+  The current receipt-populated tiers now cover 100/1,000/10,000 intents; the
+  10,000-intent synchronous restore costs 4.76 billion fixture instructions.
+  Further performance work needs a
   representative production-host measurement and evidence for the proposed change;
   fixture observer counters do not qualify production restore costs. Preserve
   synchronous validation, durable identities and byte ownership at independent
@@ -572,16 +909,27 @@ provider effect, sibling edit or consumer artifact cleanup occurs.
 ## Consumer feedback and GitHub references
 
 GitHub owns issue status and triage. The
-[last retained issue review](../evidence/caffeine-probes/local/2026-10-04-gh-issues-review-01/summary.json)
-records its original remote/source observations; no current issue refresh or
-external write is claimed. Use the existing issues for
+[earlier retained issue review](../evidence/caffeine-probes/local/2026-10-04-gh-issues-review-01/summary.json)
+keeps its original remote/source observations. The 2026-10-06 read-only review
+in the [tooling adoption evidence](../evidence/shared-tooling-recovery-v01413.json)
+finds eight open owning-repository issues and no open Shared Tooling issues or
+owning-repository PRs. Use the existing issues for
 [embedding #1](https://github.com/dragginzgame/ic-blob-storage/issues/1),
 [budgets #2](https://github.com/dragginzgame/ic-blob-storage/issues/2),
 [FIFO #3](https://github.com/dragginzgame/ic-blob-storage/issues/3),
 [publishing #4](https://github.com/dragginzgame/ic-blob-storage/issues/4),
 [serving #5](https://github.com/dragginzgame/ic-blob-storage/issues/5),
 [lifetime #6](https://github.com/dragginzgame/ic-blob-storage/issues/6) and
-[decoding #7](https://github.com/dragginzgame/ic-blob-storage/issues/7).
+[decoding #7](https://github.com/dragginzgame/ic-blob-storage/issues/7) and
+[description #8](https://github.com/dragginzgame/ic-blob-storage/issues/8).
+
+Source review finds the complete installation helpers, FIFO refusal, direct
+publication budget refusal and standalone decoder-budget cases already present
+for #1/#2/#3/#7; their issue acceptance must be reconciled with existing evidence,
+rather than duplicating implementations. #4/#5 request complete consumer-owned
+same-command publication, mapping and verified delivery; live acceptance remains
+separate from retained local media evidence. The GitHub description is still
+empty. This review changes no issue status, repository metadata or sibling code.
 
 For #7, preserve the [decoder contract](../service-contract.md#standalone-ingress-decoding)
 and original `.tmp/decoder-budgets-01` evidence. Do not weaken bounds or add test

@@ -38,6 +38,7 @@ pub(crate) struct ConfigurationRecord {
     pub(crate) billing_max_gateway_entries: u32,
     pub(crate) billing_max_gateway_unique: u32,
     pub(crate) funding_allocated: u128,
+    pub(crate) funding_renewal_ceiling: u128,
     pub(crate) funding_reserve: u128,
     pub(crate) funding_max_attempts: u32,
     pub(crate) read_sessions: u32,
@@ -49,7 +50,8 @@ pub(crate) struct ConfigurationRecord {
 impl ConfigurationRecord {
     /// Frozen current layout, independently checked from the installation release.
     /// The host allocation key names a memory slot, not this record's layout.
-    pub(crate) const FORMAT: &str = "ic-blob-storage/installation:platform-anchor";
+    pub(crate) const FORMAT: &str =
+        "ic-blob-storage/installation:platform-anchor-funding-credit-index-renewal";
 
     pub(crate) fn check_binding(
         &self,

@@ -42,6 +42,7 @@ pub(crate) fn candidate() -> ServiceConfigurationInput {
         },
         funding: ServiceFundingInput {
             allocated: u128::MAX,
+            renewal_ceiling: u128::MAX,
             reserve: 100,
             max_attempts: 4,
         },
@@ -355,4 +356,21 @@ fn read_limits_and_stable_codec_envelopes_are_checked_at_candidate_boundary() {
             )
         ))
     );
+}
+
+#[test]
+fn renewal_ceiling_is_installed_authority_and_cannot_be_below_initial_allocation() {
+    let mut input = candidate();
+    input.funding.renewal_ceiling = u128::MAX - 1;
+    assert_eq!(
+        decoded(&input),
+        Err(ConfigurationInputError::Allocation(
+            FundingAllocationError::RenewalCeiling
+        ))
+    );
+    input.funding.allocated = 1000;
+    input.funding.renewal_ceiling = 2000;
+    let config = decoded(&input).unwrap();
+    let view = config.funding().reconstruct(&[]).unwrap();
+    assert_eq!((view.allocated(), view.renewal_ceiling()), (1000, 2000));
 }

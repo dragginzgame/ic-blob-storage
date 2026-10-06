@@ -1,5 +1,6 @@
 //! End-to-end shared workflow, using actual local IC calls and synthetic host facts.
 use super::*;
+mod credit;
 use blob_test_protocol::storage::funding::{
     admission::Blocker as B,
     transport::{DispatchInput, DispatchResult, EvidenceScenario},
@@ -20,15 +21,20 @@ impl Fixture {
         actor: Principal,
         input: DispatchInput,
     ) -> Result<DispatchResult, Failure> {
-        self.harness
+        let request = candid::encode_one(input).unwrap();
+        credit::retain_packet("dispatch-request", &request);
+        let reply = self
+            .harness
             .pic
-            .update_candid_as(
+            .update_call(
                 self.service,
                 actor,
                 "fixture_guarded_funding_dispatch",
-                (input,),
+                request,
             )
-            .unwrap()
+            .unwrap();
+        credit::retain_packet("dispatch-reply", &reply);
+        candid::decode_one(&reply).unwrap()
     }
 }
 fn settled(value: Result<DispatchResult, Failure>) -> Observation {

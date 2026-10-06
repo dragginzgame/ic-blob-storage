@@ -18,9 +18,12 @@ fn response() -> Response {
     Response {
         request: request(),
         journal: LocalFundingStatus {
+            cumulative_allocation: u128::MAX,
+            renewal_ceiling: u128::MAX,
             available_allocation: u128::MAX,
             attachment_allowance: u128::MAX - 1,
             transport_accepted: 0,
+            uncredited_accepted: 0,
             refunded: 0,
             not_enqueued: 0,
             reserved_or_uncertain: 0,
@@ -164,6 +167,16 @@ fn occupied_fenced_journal_keeps_uncredited_capacity_and_retained_identity_visib
     reply.journal.retained_intents = u64::MAX;
     reply.journal.last_operation = Some(u128::MAX);
     reply.journal.reserved_or_uncertain = 1;
+    reply.journal.available_allocation -= 1;
+    reply.journal.attachment_allowance -= 1;
+    for blocker in &mut reply.blockers {
+        if let B::AllocationReserve {
+            transferable_cycles,
+        } = blocker
+        {
+            *transferable_cycles = reply.journal.attachment_allowance;
+        }
+    }
     reply.blockers.extend([
         B::JournalFenced,
         B::JournalFull,
@@ -176,4 +189,28 @@ fn occupied_fenced_journal_keeps_uncredited_capacity_and_retained_identity_visib
         decode(request(), &bytes(&reply)),
         Err(Failure::InvalidReply)
     );
+}
+
+#[test]
+fn confirmed_acceptance_clears_only_local_credit_blocker_and_invalid_totals_refuse() {
+    let mut view = response();
+    view.journal.transport_accepted = 100;
+    view.journal.available_allocation -= 100;
+    view.journal.attachment_allowance -= 100;
+    for blocker in &mut view.blockers {
+        if let B::AllocationReserve {
+            transferable_cycles,
+        } = blocker
+        {
+            *transferable_cycles = view.journal.attachment_allowance;
+        }
+    }
+    view.journal.uncredited_accepted = 0;
+    assert_eq!(decode(request(), &bytes(&view)), Ok(view.clone()));
+    let options = Options::parse(&arguments()).unwrap();
+    let value = output(&options, &view);
+    assert_eq!(value["journal"]["uncredited_accepted"], "0");
+    assert_eq!(value["preparation_authorized"], false);
+    view.journal.uncredited_accepted = 101;
+    assert_eq!(decode(request(), &bytes(&view)), Err(Failure::InvalidReply));
 }

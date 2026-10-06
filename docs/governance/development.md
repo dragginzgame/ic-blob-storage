@@ -24,13 +24,21 @@ its local target directory; do not redirect builds into Canic.
 
 ## Development and evidence
 
+Agent requests such as `check CI`, `check issues` and `check for work` follow the
+[user-triggered maintenance rules](../../rules/agent-maintenance.md). Inspect this
+repository's `Release and formatting tooling` workflow at the selected source; dirty changes have no
+remote result. Session instructions can enable inspections after each completed
+batch. Explicit repair requests authorize scoped fixes and focused checks;
+full gates and GitHub writes retain their separate authority.
+
 Use targeted checks while implementing. Full CI or release validation requires
 an explicit request or an explicitly authorized version/release target.
 Primitive Make targets do only their named operation. The complete current
 gate is make ci (also make validate and make release-verify).
 That gate first runs the offline `make shared-tooling-check`, verifying the
 declared files, hashes and executable modes without a sibling checkout. It then
-runs `make deps` (`cargo fetch --locked`) to populate the cache
+runs the offline `make dependency-pins-check` (prepared Git/jq/yq required), then
+`make deps` (`cargo fetch --locked`) to populate the cache
 for the selected lockfile; this step may use the network and does not select new
 versions. Fetch failure stops before validation or release-file mutation. Rust
 compilation/tests then use `--offline --locked`. Scoped targets remain offline;
@@ -75,17 +83,27 @@ Release preparation requires committed clean input and full current validation.
 It updates only Cargo.toml, Cargo.lock, CHANGELOG.md and docs/release.json.
 Failed metadata preparation restores these files and retains its failed inputs.
 The receipt binds exact release-file hashes to the validated source commit.
-Release staging/commit reject unrelated changes. Push requires a clean main
-branch, annotated current-version tag at HEAD and the validated source as its
-direct parent. The [common runner](../releases.md) owns staging, commit/tag and
+Release staging/commit reject unrelated changes. Push requires a clean selected
+branch, the exact release commit with its validated source as sole parent, and
+its matching annotated tag. Recovery can select an older release on HEAD's
+descendant history; late adapters verify committed files via `RELEASE_COMMIT`.
+The [common runner](../releases.md) owns staging, commit/tag and
 the exact atomic branch/tag push, with implicit tag following disabled and no
 force. One-shot releases default to main/origin; branch and remote are explicit
 saved inputs. Before preparation, a failed gate starts fresh through the same
-target. From preparation onward, rerunning that target reconciles saved intent
-at its original version; an uncertain push requires remote readback. The local
+target. Uncommitted preparation stays bound to the saved source and increment.
+Once committed, a normal target reconciles saved intent at its original version;
+newer fixes or a different requested increment then get fresh gates for the next
+version. Explicit resume finishes only its selected release. An uncertain push
+requires remote readback. The local
 adapter owns workspace metadata and the receipt, not another release state
 machine. Formatter prerequisites are prepared before validation; `fmt-check`
 and `hooks-check` run independently in the complete gate.
+
+`release-verify` runs that same complete `ci` gate through the reviewed validation
+logger. Actual failed commands retain unique raw logs under Git's
+`release-state/validation-failures`, and successful retries preserve them. If the
+retention destination fails, the logger reports and preserves its temporary logs.
 
 Release and publication preserve build artifacts on success, failure and retry.
 Cleanup is a separate explicit `make clean` action. Registry publication is

@@ -62,7 +62,8 @@ pub(super) fn configuration(
                 max_gateway_unique: 4,
             },
             funding: ServiceFundingInput {
-                allocated: 1000,
+                allocated: 1000_u128.max(u128::from(input.max_funding_attempts) + 100),
+                renewal_ceiling: 2000_u128.max(u128::from(input.max_funding_attempts) + 100),
                 reserve: 100,
                 max_attempts: input.max_funding_attempts,
             },

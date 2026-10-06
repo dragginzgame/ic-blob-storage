@@ -1,0 +1,28 @@
+{
+  "date": "2026-10-06",
+  "pending_release": "0.15.0",
+  "compiled_release": "0.14.12",
+  "source_base": "ebd535eaa2015407319fd330f559b2808ea01588",
+  "evidence_class": "local PocketIC and installed Brave Chromium-family browser; owned HTTPS/HTTP2 provider substitutes",
+  "selected_dependencies": {"ic-memory":"0.27.0","ic-testkit":"0.18.3","playwright":"1.63.0"},
+  "question": "Does old-ledger rejection preserve an old owner, and do matching new-graph media tools retain bytes, identity, lost-reply history, references and liabilities?",
+  "bindings": "Fresh local canisters and fixture-scoped synthetic operator/tenant/uploader/verifier/account identities; actual service binding checked by the maintained carrier test. Frozen consumer asset bytes are copied read-only, never built or edited upstream.",
+  "planned_checks": [
+    "Pinned pre-cut 0.14.9 / memory 0.25.5 Wasm, old released object and pending manifest; reject new image and compare exact stable bytes and owner views",
+    "Current installation carrier readback and wrong-service refusal",
+    "GLB/WebP complete serial publication, browser whole-byte verification and overlapping reference cleanup",
+    "PNG/JPEG lost-final-reply and control interruption with no additional PUT during recovery",
+    "Reference capacity/refusal and lost-reply/restore cases using maintained standalone/core fixtures"
+  ],
+  "budgets": {
+    "live_provider_requests":0,"paid_cycles":0,"external_mutations":0,
+    "fresh_local_media_owners":2,"files_per_owner":2,"max_file_bytes":10485760,
+    "provider_substitute_requests_per_media_journey":40,"substitute_total_body_bytes_per_journey":268435456,
+    "session_seconds":120,"whole_media_fixture_seconds":180,"single_call_seconds":30,
+    "old_ledger_cases":1,"old_ledger_case_seconds":180,"max_old_stable_bytes":33554432
+  },
+  "preparation": "Locked npm packages prepared without install scripts; offline attempt fails for an uncached package and its log is retained. Use already installed Brave 154.1.96.61 explicitly, recording its binary digest and version; no browser executable download or user-profile reuse.",
+  "stop_conditions": "Unexpected external origin, hash/identity mismatch, bounded refusal, timeout or incomplete result stops that attempt. Retain every failed/inconclusive run and use new directories for retries; no uncertain upload is repeated.",
+  "retention": ".tmp/v0150-hard-cut-01; immutable earlier records unchanged; current binaries and reports frozen before/after execution.",
+  "cleanup": "Fixture-owned local processes/canisters stop on completion; reports, raw stable bytes and source/artifact hashes remain. No live owner, balance, object, journal or provider obligation is retired by this work."
+}

@@ -39,6 +39,7 @@ pub(super) fn record(candidate: &super::ServiceInstallationCandidate<'_>) -> Con
         billing_max_gateway_entries: input.billing.max_gateway_entries,
         billing_max_gateway_unique: input.billing.max_gateway_unique,
         funding_allocated: input.funding.allocated,
+        funding_renewal_ceiling: input.funding.renewal_ceiling,
         funding_reserve: input.funding.reserve,
         funding_max_attempts: input.funding.max_attempts,
         read_sessions: input.reads.sessions,
@@ -81,6 +82,7 @@ pub(super) fn input(record: &ConfigurationRecord) -> ServiceConfigurationInput {
         },
         funding: ServiceFundingInput {
             allocated: record.funding_allocated,
+            renewal_ceiling: record.funding_renewal_ceiling,
             reserve: record.funding_reserve,
             max_attempts: record.funding_max_attempts,
         },

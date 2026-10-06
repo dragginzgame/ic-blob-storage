@@ -43,6 +43,8 @@ fn validate(response: &Response) -> Result<(), Failure> {
         || (journal.retained_intents == 0) != journal.last_operation.is_none()
         || journal.last_operation == Some(0)
         || journal.attachment_allowance > journal.available_allocation
+        || !super::reply::valid_funding_budget(&journal)
+        || journal.uncredited_accepted > journal.transport_accepted
     {
         return Err(Failure::InvalidReply);
     }
@@ -60,7 +62,7 @@ fn validate(response: &Response) -> Result<(), Failure> {
         (B::JournalFenced, journal.fenced),
         (
             B::JournalUncredited,
-            journal.transport_accepted > 0 || journal.reserved_or_uncertain > 0,
+            journal.uncredited_accepted > 0 || journal.reserved_or_uncertain > 0,
         ),
         (
             B::JournalFull,

@@ -49,12 +49,18 @@ pub struct LocalUploadStatus {
 /// Complete maintained totals for this local funding journal only.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
 pub struct LocalFundingStatus {
+    /// Cumulative local authorization, including immutable budget grants.
+    pub cumulative_allocation: u128,
+    /// Installed upper bound, not cycle liquidity or authority for another effect.
+    pub renewal_ceiling: u128,
     /// Remaining attachment allocation including its reserve.
     pub available_allocation: u128,
     /// Remaining attachment allowance after reserve; never dispatch authority.
     pub attachment_allowance: u128,
     /// Transport-accepted attachments; not necessarily credited by the provider.
     pub transport_accepted: u128,
+    /// Accepted attachments still awaiting exact host credit confirmation.
+    pub uncredited_accepted: u128,
     /// Lifetime exact refunds, already included in available allocation.
     pub refunded: u128,
     /// Lifetime proven unsent attachments, not callback refunds.

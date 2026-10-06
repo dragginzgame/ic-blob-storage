@@ -31,6 +31,29 @@ packages and Chromium. Follow [setup and checks](#setup-and-checks) for those
 paths. Consumers embedding the library should also read
 [memory composition](#memory-composition) before assigning stable memory.
 
+## Dependency selector checks
+
+`make dependency-pins-check` checks declarations and tracked workspace lockfiles
+without downloading, upgrading or changing them. It runs in the complete gate
+and the Linux/macOS tooling workflow. Prepare Git, jq and Mike Farah yq 4.47.2
+before invoking it; select an existing parser with `YQ=/absolute/path/yq`.
+The [shared pinning rules](../rules/dependency-pinning.md) define checked inputs
+and scoped exceptions. This repository currently needs no pinning exception.
+
+For explicit parser installation, source `ci/tool-versions.env`, select its
+`SHARED_TOOLING_YQ_SHA256_*` value matching your OS/architecture, then run
+`bash scripts/ci/install-yq.sh --version "$SHARED_TOOLING_YQ_VERSION"
+--sha256 "$parser_digest" --install-dir /chosen/prefix/bin`. The installer
+verifies the release binary's checksum before execution and its exact version
+before installation. Validation never installs missing prerequisites.
+
+Registry requirements use compatible ranges. The maintained lockfile continues
+to select candid_parser 0.4.1, ic-agent 0.49.2, sha2 0.11.0 and thiserror 2.0.18.
+PocketIC 16's own exact thiserror requirement remains part of the locked native
+test graph; duplicating it in the library catalog is unnecessary. This adoption
+does not reselect a dependency. Published library consumers resolve their own
+compatible graphs, so the repository's tests do not qualify every future release.
+
 ## Locked dependency inventory
 
 The root `Cargo.toml` owns all package and direct dependency version requirements
@@ -39,7 +62,7 @@ its package version and dependencies from the workspace. Members select features
 and target conditions; `Cargo.lock` locks the resolved graph. Versions were checked against
 crates.io on 2026-09-25. On 2026-09-26, `serde_json` became a direct dependency
 at its existing locked version for bounded provider reply parsing. The table reflects
-the selected lockfile on 2026-10-05, including maintainer dependency updates;
+the selected lockfile on 2026-10-06, including maintainer dependency updates;
 availability does not establish provider qualification or service readiness.
 
 | Dependency | Version | Purpose |
@@ -48,15 +71,25 @@ availability does not establish provider qualification or service readiness.
 | `serde` | 1.0.229 | Serialization derives for explicit boundary/record schemas |
 | `serde_json` | 1.0.151 | Bounded Caffeine chunk-status JSON decoding; reused the existing lockfile version |
 | `sha2` | 0.11.0 | SHA-256; optional allocation/OID features disabled |
-| `thiserror` | 2.0.18 | Typed error derives; matches PocketIC's exact requirement |
+| `thiserror` | 2.0.18 (locked) | Typed error derives; PocketIC constrains its own requirement exactly |
 | `ic-cdk` | 0.20.3 | IC platform operations for the ops layer |
 | `ic-management-canister-types` | 0.11.0 (direct, locked) | Bounded current-instance IC-history request/reply types |
-| `ic-memory` | 0.25.9 (locked) | Sole allocation runtime; public typed growth API |
+| `ic-memory` | 0.27.1 (locked) | Sole allocation runtime; current ownership ledger and public typed growth API |
 | `ic-stable-structures` | 0.7.2 | Exact transitive substrate owned/re-exported by `ic-memory` |
-| `ic-testkit` | 0.15.8 (locked) | Native dependency of the unpublished PocketIC harness; shared helpers and full re-export |
+| `ic-testkit` | 0.18.3 (locked) | Native dependency of the unpublished PocketIC harness; shared helpers and full re-export |
 | `pocket-ic` | 16.0.0 | Transitive through `ic-testkit`; no direct dependency |
 | `ic-agent` | 0.49.2 | Native CLI and harness signing and verification of ingress certificates |
 | `candid_parser` | 0.4.1 | Native harness only; official Candid parser for native request fixtures |
+
+The maintainer-selected ic-memory 0.27 upgrade removes history/timestamp APIs
+and changes the durable ledger layout exposed through the public re-export.
+The complete pending batch therefore targets 0.15.0, carrying forward the
+tooling work originally drafted for 0.14.13. Hosts must update affected callers
+and fixtures; retained installations require obligation disposition and
+reinstall, never a ledger reset or compatibility reader. See the
+[persisted contract](service-contract.md#current-persisted-boundaries) and
+[new validation record](evidence/release-preflight-0150.json). Earlier evidence
+continues to qualify only its original selected graph.
 
 Headless ingress tests add pinned `ic-agent` 0.49.2 (default features disabled),
 plus the locked `reqwest` 0.13.5, `tokio` 1.53.2 and `serde_cbor` 0.11.2
@@ -243,7 +276,14 @@ or qualification of a consumer's CSP/authentication/storage environment.
 ### Complete local standalone rehearsal
 
 `make test-browser-standalone` uses the same provisioned browser tools and PocketIC.
-It builds the standalone Wasm/CLI and explicitly runs four ignored cases against a
+For the serial media driver, `BLOB_BROWSER_EXECUTABLE=/absolute/path/to/browser`
+can explicitly select an installed Chromium-family executable. Record its actual
+version and binary hash separately from the pinned Playwright package; this does
+not qualify it as Playwright's bundled Chromium. The default selection is
+unchanged, and each run still owns a fresh profile. Image delivery assertions
+permit HTTP-cache reuse while checking exact object bytes, origins and credentials.
+
+The target builds the standalone Wasm/CLI and explicitly runs ignored cases against a
 local gateway substitute. Actual installed host facts issue the certificate; no
 operator-supplied provider flags or consumer framework are involved. One-slot
 IndexedDB survives reload, while native tools verify uploaded bytes, submit the
@@ -266,6 +306,13 @@ and refuse existing child directories. Otherwise they use temporary directories.
 The capture contains fixed test keys and signed local requests; these identities
 are never deployment identities. The ordinary Rust/CI suite does not require this
 opt-in browser target, and no deployed provider/account request occurs.
+
+For a separate old-ledger refusal check, `make test-hard-cut` requires an explicit
+`BLOB_PRE_CUT_STANDALONE_WASM` and fresh `BLOB_HARD_CUT_REPORT` beneath an existing
+parent. See the [pinned fixture](../tests/fixtures/standalone-pre-cut/README.md).
+It runs one ignored local PocketIC test; the historical Wasm is retained externally
+and default CI cannot establish this check without it. It compares full stable
+bytes and old obligations after actual upgrade rejection, with no provider calls.
 
 ### Offline native/browser handoff
 
@@ -402,6 +449,39 @@ its matching GitHub execution is required for qualification. This focused job
 neither publishes a release nor replaces the complete `make ci` gate.
 
 The [0.14.12 adoption record](evidence/shared-tooling-adoption.md#01412-release-and-formatting-adoption)
-records scoped Linux execution separately from the pending native macOS jobs.
+records scoped Linux execution separately from native macOS qualification.
 The local consumer hook fixture keeps the existing Cargo.lock and uses the actual
 Make formatter; upstream's synthetic suite assumes its shell-only source tree.
+
+`make evidence-check` independently verifies the retained local/deployed SHA-256
+manifests, without building Rust or making provider requests. It uses the reviewed
+checksum helper, choosing GNU `sha256sum` when available and Perl `shasum` on
+macOS. Manifests contain lowercase digests, a space and text/binary marker, then
+the exact filename; escaped filenames and malformed or empty manifests refuse.
+The regression fixture also requires `shasum` to exercise that fallback explicitly.
+The focused host matrix runs this check; `make probe-check` includes it after
+checking recorded probe directories. Existing evidence stays unchanged.
+
+Failed host tooling fixtures are uploaded for 30 days under an artifact name
+containing the host and run attempt. This preserves command logs, inputs and
+fixture state beyond the ephemeral runner. Local failures remain at the path
+printed by their helper; successful checks clean only their own temporary files.
+The [0.14.13 record](evidence/checksum-portability-v01413.json) distinguishes local
+checksum/failure checks from the original native failures and pending corrected
+macOS execution.
+
+The [Bash 3.2 follow-up](evidence/bash32-v01413.json) checks explicit release
+identity/publication refusals with the actual older shell on Linux. It also
+records the pinned hook's formatter-failure defect and a passing isolated
+one-line proposal. The subsequent [committed adoption](evidence/shared-tooling-recovery-v01413.json)
+first adopts Shared Tooling `9437bab`, then refreshes to `cb86188` with 24 files,
+including the fixed hook, user-triggered agent maintenance rules and validation
+logger. Late release callbacks export
+`RELEASE_COMMIT` and verify its original files, source parent and tag even when
+HEAD contains newer fixes. The release gate retains actual failed command logs
+across retries. Upstream native CI for `9437bab` passes on all three hosts; the
+newer revision has a macOS temporary-path alias regression in its snapshot test
+fixture; consumer native qualification remains pending. The refresh and focused
+local consumer checks pass. Host CI
+stops at snapshot failure, then collects all remaining focused check outcomes
+before reporting failure and retaining available fixtures.

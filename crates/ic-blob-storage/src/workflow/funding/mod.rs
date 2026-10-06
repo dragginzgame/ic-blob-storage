@@ -1,9 +1,11 @@
 //! Synchronous preparation gates, without provider dispatch or automatic retry.
 pub mod assessment;
 pub mod attempt;
+pub mod credit;
 pub mod dispatch;
 pub mod history;
 pub mod outcome;
+pub mod renewal;
 use crate::{
     model::{
         billing::journal::{FundingIntent, FundingIntentAdmission},

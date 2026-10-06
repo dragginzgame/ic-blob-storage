@@ -1,0 +1,20 @@
+{
+  "date": "2026-10-06",
+  "authority": "Maintainer selected bounded host-authorized increases within fixed installation ceilings.",
+  "purpose": "Qualify one immutable grant per latest fully credited intent, amount bounded by original acceptance and installed cumulative ceiling; preserve gross spend, credit/refunds and lifetime history. Replay after later intents is unchanged; no grant repeats provider dispatch.",
+  "boundary": "Host internal only; no public grant endpoint. Consumer wrapper/live receipt acquisition remains unqualified and read-only.",
+  "planned_checks": [
+    "targeted native funding/allocation/configuration/install/CLI tests",
+    "two new actual local IC grant and full-credit post-commit rollback cases plus existing funding regressions",
+    "three indexed receipt tiers at 100,1000,10000 followed by same-image restore",
+    "current Candid regeneration/equality and pinned old-format actual upgrade refusal"
+  ],
+  "budget": {
+    "live_provider_requests": 0,
+    "paid_cycles": "0",
+    "release_commit_push_publication": false,
+    "tier_population_seconds": 180,
+    "local_call_timeout_seconds": 30
+  },
+  "retention": ".tmp/funding-renewal-0150-01; unique logs/artifacts/raw requests/results for every attempt"
+}

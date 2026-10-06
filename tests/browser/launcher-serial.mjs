@@ -49,7 +49,11 @@ let bridge, native, context, memoryOwner, memorySequence = 0,
   certificateCalls = 0, allCertificateCalls = 0, id = 0;
 const memoryReports = [];
 const engine = { async launchPersistentContext(...args) {
-  context = await chromium.launchPersistentContext(...args);
+  // An explicit installed Chromium-family executable avoids hidden downloads in local evidence.
+  const [profile, options] = args;
+  context = await chromium.launchPersistentContext(profile, {
+    ...options, ...(process.env.BLOB_BROWSER_EXECUTABLE ? { executablePath: process.env.BLOB_BROWSER_EXECUTABLE } : {}),
+  });
   const owner = { context };
   memoryOwner = owner;
   context.on('request', request => {
@@ -192,7 +196,8 @@ try {
       assert(new Set(chunks).size > 1);
     }
   }
-  assert.equal(state.gets.length, config.corruptRead ? 1 : 4 + (config.overlap ? 1 : 0) + media.publicDelivery.length + (media.csp?.images.length ?? 0) + Number(media.opaqueOriginRefused));
+  assert.equal(state.gets.length, config.corruptRead ? 1 : 4 + (config.overlap ? 1 : 0) +
+    (media.observedReads?.length ?? media.publicDelivery.length));
   assert.equal(state.failure, undefined); assert.deepEqual(unexpected, []);
   for (const [index, grant] of originals.entries()) assert.deepEqual((await job(grant, 'inspect')).journal, journals[index]);
   // Seal the last context before reporting success, including observer failures.

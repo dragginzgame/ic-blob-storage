@@ -1,0 +1,19 @@
+{
+  "date": "2026-10-06",
+  "prior_attempts": "Model 01 stopped before effects for wrong selector path; model 02 and 03 completed transfer/cleanup but failed cache-dependent GET assertions. Model 04 passes after both assertions correlate exact object/origin observations instead. Reports and artifact generations are retained separately. Every attempt used a fresh local owner; no uncertain provider effect was retried on an earlier owner.",
+  "budget_accounting": "The original two-owner plan did not include these fresh substitute retries. Three actual model owners have now been created, plus one pre-effect path refusal. This follow-up authorizes no provider effects and records the deviation explicitly.",
+  "next": "One fresh local images owner, exact lost-final-reply case, same frozen Rust artifacts and final browser bundle.",
+  "bounds": {
+    "fresh_media_owners_remaining": 1,
+    "files": 2,
+    "max_file_bytes": 10485760,
+    "provider_substitute_requests": 40,
+    "substitute_body_bytes": 268435456,
+    "session_seconds": 120,
+    "fixture_seconds": 180,
+    "live_provider_requests": 0,
+    "paid_cycles": 0
+  },
+  "retention": ".tmp/v0150-hard-cut-01/images-lost-01; new directories only; retain all failed local attempts",
+  "stop": "Any unexpected external origin, changed hashes, timeout or incomplete result; do not continue an uncertain prior owner"
+}

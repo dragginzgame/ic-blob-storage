@@ -221,7 +221,7 @@ fn current_instance_recovery_rejects_management_change_during_history_await() {
     assert!(!f.configuration(f.operator).unwrap().fenced);
 }
 
-fn confirm_and_release_locally(f: &Fixture) {
+pub(super) fn confirm_and_release_locally(f: &Fixture) {
     use ic_blob_storage::dto::upload::{
         certificate::CaffeineUploadCertificateResponse,
         completion::{

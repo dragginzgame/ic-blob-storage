@@ -1,0 +1,119 @@
+{
+   "bindings_sha256" : {
+      "adapter-bash32-01.log" : "80af83b6e385e85392d64f8984cd209f22cdacad8d397ff161f827742b3d2885",
+      "adapter-bash32-02.log" : "f9d4ce54e4aa58986c1f8d4aafb9a8e033d6b5a2b5c7438c7372a2107587d9cd",
+      "alias-base.path" : "9f4c2417a156bca6dfb6db6c3f4c789ae8764911582b8aa7743eca5ee268c7d7",
+      "cb86188-adapter-bash32-02.log" : "f9d4ce54e4aa58986c1f8d4aafb9a8e033d6b5a2b5c7438c7372a2107587d9cd",
+      "cb86188-adapter-bash5-02.log" : "f9d4ce54e4aa58986c1f8d4aafb9a8e033d6b5a2b5c7438c7372a2107587d9cd",
+      "cb86188-adapter-bash5.log" : "b0fd4be9604336da40831d60d4e4f789f3445c71138904eed7126635e240ec90",
+      "cb86188-focused-tooling.log" : "27164cdb36d8030c82199e327ce1ddb18c781745d93effb031407b768336bd85",
+      "cb86188-release-bash32.log" : "7aff3b3b4fcac30800329902ac422d09d012a011949bb20fa5e9a3e874285f13",
+      "commands.txt" : "51516accbbe6c128de216b4c4683d6f88abcc331524a44052020d8389f4c5bf8",
+      "consuming-snapshots.md.9437bab" : "35152f5e1a93d3bc3cdd60bd7bf835ede48f1ceb1450998fa17f5bc2b4012bcc",
+      "entry-status.txt" : "5de2f9ba708f0adc7caf314fe362381e57364801b742a5c1895c8a9b0e047fd6",
+      "entry.bash32.json" : "34eb7e78c6a5a4b975ca8e03277af619e6ae6dd5e7801ccd8ebcdfc3bde06903",
+      "entry.checksum.json" : "55d49835359bc4257bf156a2ff75186f94d4341dbdaa4d8c3bdbf8f7e74f5662",
+      "entry.patch" : "6b5c0fdb5cf786826fc9037ea3df8df69c415aab8c77622d6082b70d5726e309",
+      "entry.snapshot" : "6984c3bbc4cc1deb8bdaaa4d0a0d2fba564f3dad6650289f26e881f81f03c08e",
+      "final-adapter-bash5.log" : "f9d4ce54e4aa58986c1f8d4aafb9a8e033d6b5a2b5c7438c7372a2107587d9cd",
+      "final-focused-tooling.log" : "fb53772377405ba87579442fedd462280544f5caca6b743ab0383bbd9f67ca3c",
+      "final-preservation-links-02.log" : "90a0ceb9421e590267012384fe124c7aa0f3987b756687461b65f043db16023d",
+      "final-preservation-links.log" : "0ac08946d50f19331c0a0dd15b186c0e96ff5b33320e3c422a0d31de8c883888",
+      "final-release-bash32.log" : "3e9a950d1018ce2f7ba3848aa96747a3bee5cfdd03fe5f06dbae5a656d34fab5",
+      "final-shellcheck.log" : "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "intermediate-9437bab.snapshot" : "329ca755d2b081186e5429f91e3a28d907cd7fb6f032e33ab544f5f2509d69a6",
+      "open-prs.json" : "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "owning-issues.json" : "14de150abf15b883d195ce50ef8eb5537af84b61c51872ac112a8ba33b2d55c5",
+      "preserved.SHA256SUMS" : "943f48547aa8cc54b1d3b13079b41df6e779b998ab289e721bf219ae5621516c",
+      "previous-shared-doc" : "35152f5e1a93d3bc3cdd60bd7bf835ede48f1ceb1450998fa17f5bc2b4012bcc",
+      "refresh-cb86188.log" : "5f25a15f9fd584b7a79ca34e06fb0cc990880522369557c96a8b7a275ebfe13a",
+      "refresh.log" : "825a9a300f03d4b3e655a39e836105abe69eb5d178b662c06a8b6ebe9de96d5a",
+      "released-receipt.log" : "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "releases.md.9437bab" : "9c6d6b0f575898e09c1953feb74299df7c6ef25a837703797efc1ff97d087c57",
+      "reviewed-baseline.md" : "3a36efbfd50a75d252b533f5dccb0c0447b833a315fe1badb1e9c9be2e37bf86",
+      "shellcheck-01.log" : "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "tested-source.patch" : "5b7cc8ba3526f08c7198eed3b99107b31752530873ac5b3518ca6fe2b1efd5f7",
+      "upstream-alias-repro-02.log" : "9691f4e96091eac70aa6b5b3e380b2c471434b869eb6a1d890eb610f704b4326",
+      "upstream-alias-repro.log" : "8265666161f04b971119dbc4155d1e8a2dfa76e429acf8829551ed87f5133b27",
+      "upstream-cb86188-ci-final.json" : "55c2dd29903a1378004c5788153f3faac22a0d0ff45b85a8ba8408019c5b5edb",
+      "upstream-cb86188-ci.json" : "c06ec7bcac07d872de3b1212898e3828b97e583e2335bbfb795d2fd60d546c34",
+      "upstream-cb86188-macos-failure.log" : "b1913830ec1c788c3164c14204a7aa58a844cad653d4eb93e3b19cc2ed1cc4bb",
+      "upstream-cb86188-macos-job-api.log" : "092e569aeda51c36e8539db253c71a01ba8a8ee1568f3fb41cce4e4c3fc23c79",
+      "upstream-issues.json" : "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "upstream-native-ci.json" : "661a56a3d12236c4bdcd1b497518a38834aba95843b48a81d327fc43ee31c131",
+      "upstream-recovery-issue.json" : "92674155202f608ff1252d55237de4f7c7c0a0dd28d3a4c7f4c2b15388da4aa3"
+   },
+   "checks" : {
+      "actual_git" : "historical 0.14.12 receipt passes against selected committed bytes; real index admits exactly release files and rejects hidden unrelated staged content without creating commits",
+      "format_shell" : "manifest/Rust format checks, shell syntax, ShellCheck and Perl syntax pass",
+      "formatting_hook" : "actual consumer formatting/refusal/failure/lock/installation fixture passes Bash 3.2",
+      "gate_logs" : "actual Make release-verify uses reviewed logger around unchanged ci; raw failed gate log survives successful retry",
+      "recovery" : "older selected receipts/sole parent/tag, newer descendant plus normal patch, failed next validation/retry, missing old tag, exact resume and publication refusals",
+      "release" : "common runner passes; final adapter suites pass Bash 3.2 and Bash 5 with actual Make callback dispatch",
+      "retained_evidence" : "GNU/Perl refusal fixtures and all 288 existing hashes pass",
+      "snapshot" : "24 files verify at cb86188"
+   },
+   "date" : "2026-10-06",
+   "development_target" : "0.14.13",
+   "entry_source" : "ebd535eaa2015407319fd330f559b2808ea01588",
+   "evidence_class" : "Linux GNU Bash 3.2 and Bash 5 execution; substituted release effects; real Git index and historical receipt; read-only GitHub observations",
+   "evidence_directory" : ".tmp/shared-tooling-adoption-v01413-01",
+   "failures" : [
+      "adapter-bash32-01.log: mock tag ref suffix; fixture target/release-tests.Ul6kFJ retained",
+      "cb86188-release-bash32.log and cb86188-adapter-bash5.log: real-index rejection log directory absent; fixtures target/release-tests.oYxCx2 and target/release-tests.OEDCM2 retained; corrected -02 suites pass",
+      "initial sandbox GitHub access unavailable; authorized read-only access succeeded",
+      "gh run view withheld logs while matrix active; direct completed-job API log succeeded",
+      "both upstream alias reproductions retained; upstream fixture deletes its own scratch on failure",
+      "final-preservation-links.log ran before new summary existed; final follow-up verifies links"
+   ],
+   "github_readback" : {
+      "description" : "empty at API readback; issue 8 owns correction",
+      "implementation_review" : "existing source/test coverage for owning issues 1,2,3,7; no new Rust/browser qualification or issue closure",
+      "owning_open_issues" : 8,
+      "owning_open_prs" : 0,
+      "upstream_open_issues" : 0,
+      "writes" : "none"
+   },
+   "limitations" : [
+      "new consumer native CI and full release gate not run",
+      "latest upstream native macOS snapshot fixture is failing",
+      "Git/Cargo release effects are substitutes, not publication evidence"
+   ],
+   "native_upstream" : {
+      "intermediate" : {
+         "conclusion" : "success on Linux, macOS ARM and Intel",
+         "run" : 37428740374,
+         "sha" : "9437bab201bb6071da0bdc4de0336daf553113f5"
+      },
+      "latest" : {
+         "diagnosis" : "logical TMPDIR fixture identity differs from helper physical path; stub delegates fake source to real Git",
+         "failed_job" : 112164162496,
+         "next_action" : "upstream fixture must normalize its temporary source identity; no upstream edit performed",
+         "run" : 37431805988,
+         "sha" : "cb86188c5956866564de4fb6ec6be67b27981ab9",
+         "status" : "in progress at readback; lint/Linux passed, macOS ARM failed, Intel pending",
+         "substitute" : "same failure reproduced on Linux with owned /tmp symlink alias; within-repository alias finds wrong enclosing root",
+         "symptom" : "snapshot fixture: source is not a Git checkout"
+      }
+   },
+   "package_version" : "0.14.12",
+   "schema" : 1,
+   "scope" : {
+      "commits_tags_pushes" : "none",
+      "full_ci" : "not run",
+      "preexisting_artifact_cleanup" : "none",
+      "provider_registry_effects" : "none",
+      "removed_functions_methods_types" : [],
+      "rust_builds" : "none",
+      "sibling_edits" : "none",
+      "version_dependency_changes" : "none"
+   },
+   "shared_tooling" : {
+      "adopted_revision" : "cb86188c5956866564de4fb6ec6be67b27981ab9",
+      "entry_revision" : "f52c0e2476aee094359ed21de91c468540d3969f",
+      "files" : 24,
+      "intermediate_revision" : "9437bab201bb6071da0bdc4de0336daf553113f5",
+      "preservation" : "prior generated guides saved and reconciled for new overwrite guard; unrelated sibling work untouched",
+      "refresh" : "canonical helper from isolated clean committed checkout; added maintenance rule and validation logger to reviewed file set"
+   }
+}

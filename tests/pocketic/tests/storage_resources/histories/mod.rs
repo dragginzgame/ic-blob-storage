@@ -60,6 +60,7 @@ fn populate(
 
 fn funding(f: &Fixture, workload: HistoryWorkload, index: u32) -> FundingPopulationIntent {
     FundingPopulationIntent {
+        credit_digest: None,
         intent: Intent {
             service: f.service,
             cashier: f.operator,

@@ -30,7 +30,7 @@ fn selection() -> Selection {
         },
     }
 }
-fn encode(view: FundingLookupView) -> Vec<u8> {
+fn encode(view: &FundingLookupView) -> Vec<u8> {
     candid::encode_one(Ok::<_, FundingLookupFailure>(view)).unwrap()
 }
 
@@ -47,7 +47,7 @@ fn lookup_preserves_exact_width_unknowns_and_all_request_bindings() {
             reconciliation: FundingReconciliationView::CreditRequired(u128::MAX),
         }),
     };
-    let result = report(&selection, &encode(view)).unwrap();
+    let result = report(&selection, &encode(&view)).unwrap();
     assert!(!result.blocked);
     assert_eq!(result.value["request"]["id"], u64::MAX.to_string());
     assert_eq!(
@@ -60,7 +60,7 @@ fn lookup_preserves_exact_width_unknowns_and_all_request_bindings() {
     );
     assert_eq!(result.value["fenced"], true);
     for state in [FundingLookupState::Absent, FundingLookupState::Pending] {
-        let result = report(&selection, &encode(FundingLookupView { state, ..view })).unwrap();
+        let result = report(&selection, &encode(&FundingLookupView { state, ..view })).unwrap();
         assert!(result.blocked);
         assert!(result.value["observation"].is_null());
     }
@@ -103,7 +103,7 @@ fn lookup_preserves_exact_width_unknowns_and_all_request_bindings() {
         },
     ] {
         assert_eq!(
-            report(&selection, &encode(FundingLookupView { request, ..view })),
+            report(&selection, &encode(&FundingLookupView { request, ..view })),
             Err(Failure::Binding)
         );
     }

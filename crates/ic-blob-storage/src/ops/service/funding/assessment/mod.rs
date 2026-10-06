@@ -79,7 +79,7 @@ fn blocker(b: B) -> Result<D, E> {
 }
 pub(crate) fn present(
     request: FundingPreparationRequest,
-    journal: FundingJournalSummary,
+    journal: &FundingJournalSummary,
     blockers: &[B],
 ) -> Result<FundingPreparationResponse, E> {
     Ok(FundingPreparationResponse {

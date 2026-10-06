@@ -4,6 +4,21 @@ pub mod summary;
 pub mod transport;
 use super::WriteFault;
 use candid::{CandidType, Deserialize, Principal};
+
+/// Private synthetic host-credit fixture input; never a production endpoint DTO.
+#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+pub struct CreditCommand {
+    /// Original exact funding scope and identity.
+    pub intent: Intent,
+    /// Full accepted attachment covered by the synthetic independent receipt.
+    pub accepted: u128,
+    /// Fingerprint retained to test replay and reuse refusal.
+    pub receipt_digest: [u8; 32],
+    /// Simulate whether the trusted host established independent credit.
+    pub established: bool,
+    /// Optional stable write trap for whole-message rollback evidence.
+    pub fault: Option<super::WriteFault>,
+}
 /// Complete exact local identity, without inferred payer/provider scope.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
 pub struct Intent {
@@ -75,7 +90,7 @@ pub struct Request {
 pub struct Allocation {
     /// Available installed attachment allocation, including reserve.
     pub available: u128,
-    /// Transport accepted, not independently credited.
+    /// Lifetime transport acceptance, still charged after host credit confirmation.
     pub accepted: u128,
     /// Exact lifetime callback refunds.
     pub refunded: u128,
@@ -85,4 +100,15 @@ pub struct Allocation {
     pub uncertain: u128,
     /// Permanent restore fence.
     pub fenced: bool,
+}
+
+/// Private fixture request for one local host-authorized budget increase.
+#[derive(Clone, Copy, Debug, candid::CandidType, candid::Deserialize)]
+pub struct RenewalCommand {
+    /// Exact original credited intent; not a new payment.
+    pub intent: Intent,
+    /// Additional allowance, not received/refunded cycles.
+    pub additional: u128,
+    /// Explicit atomic-write fault, absent in ordinary execution.
+    pub fault: Option<super::WriteFault>,
 }

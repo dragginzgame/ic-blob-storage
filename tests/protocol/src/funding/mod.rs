@@ -155,6 +155,13 @@ pub struct FundingObservation {
 /// Passive projection of shared reconciliation policy for the experiment.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
 pub enum FundingReconciliationView {
+    /// Exact receipt retained by the trusted host, separate from balance reports.
+    CreditConfirmed {
+        /// Exact known positive attachment accepted by this operation.
+        accepted_cycles: u128,
+        /// Fingerprint of uniquely attributed synthetic host evidence.
+        receipt_digest: [u8; 32],
+    },
     /// No attached cycles were transferred; execution fees remain separate.
     NoTransfer,
     /// Exact accepted amount still needs provider credit evidence.

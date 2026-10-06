@@ -338,6 +338,27 @@ async fn fixture_guarded_funding_dispatch(
     workflow::funding::dispatch::run(context(), input).await
 }
 
+#[ic_cdk::update(decode_with = "ops::decode")]
+fn fixture_confirm_funding_credit(
+    input: blob_test_protocol::storage::funding::CreditCommand,
+) -> Result<Option<bool>, Failure> {
+    workflow::funding::confirm_credit(context(), input)
+}
+
+#[ic_cdk::update(decode_with = "ops::decode")]
+fn fixture_renew_funding_budget(
+    input: blob_test_protocol::storage::funding::RenewalCommand,
+) -> Result<bool, Failure> {
+    workflow::funding::renew_budget(context(), input)
+}
+
+#[ic_cdk::update(decode_with = "ops::decode")]
+fn fixture_measure_funding_credit(
+    input: blob_test_protocol::storage::funding::CreditCommand,
+) -> blob_test_protocol::storage::resources::FundingCreditResources {
+    workflow::funding::measure_credit(context(), input)
+}
+
 #[ic_cdk::query(decode_with = "ops::decode")]
 fn blob_funding_outcome(
     input: ic_blob_storage::dto::funding::outcome::FundingOutcomeRequest,

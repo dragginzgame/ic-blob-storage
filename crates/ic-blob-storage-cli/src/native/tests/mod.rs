@@ -97,9 +97,12 @@ fn status() -> LocalServiceStatus {
             fenced: true,
         },
         funding: LocalFundingStatus {
+            cumulative_allocation: u128::MAX,
+            renewal_ceiling: u128::MAX,
             available_allocation: u128::MAX,
             attachment_allowance: 0,
             transport_accepted: 0,
+            uncredited_accepted: 0,
             refunded: 0,
             not_enqueued: 0,
             reserved_or_uncertain: 0,
@@ -198,4 +201,44 @@ fn identity_and_root_files_are_bounded_without_private_diagnostics() {
     std::fs::write(file.path(), b"ok").unwrap();
     assert_eq!(read(file.path(), 2), Ok(b"ok".to_vec()));
     assert_eq!(read(file.path().parent().unwrap(), 2), Err(Failure::File));
+}
+
+#[test]
+fn status_refuses_inconsistent_budget_grants_and_overflowing_spent_totals() {
+    let mut value = status();
+    value.funding.cumulative_allocation = 1000;
+    value.funding.renewal_ceiling = 2000;
+    value.funding.available_allocation = 700;
+    value.funding.transport_accepted = 300;
+    let encoded = candid::encode_one(Ok::<_, LocalStatusFailure>(&value)).unwrap();
+    assert_eq!(reply::decode(&encoded, value.scope), Ok(value.clone()));
+    for changed in [
+        LocalFundingStatus {
+            renewal_ceiling: 999,
+            ..value.funding
+        },
+        LocalFundingStatus {
+            available_allocation: 1001,
+            ..value.funding
+        },
+        LocalFundingStatus {
+            reserved_or_uncertain: 1,
+            ..value.funding
+        },
+        LocalFundingStatus {
+            transport_accepted: u128::MAX,
+            reserved_or_uncertain: 1,
+            ..value.funding
+        },
+    ] {
+        let altered = LocalServiceStatus {
+            funding: changed,
+            ..value.clone()
+        };
+        let encoded = candid::encode_one(Ok::<_, LocalStatusFailure>(altered)).unwrap();
+        assert_eq!(
+            reply::decode(&encoded, value.scope),
+            Err(Failure::InvalidReply)
+        );
+    }
 }

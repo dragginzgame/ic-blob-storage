@@ -1,0 +1,9 @@
+{
+  "compiled_release": "0.14.9",
+  "ic_memory": "0.25.5",
+  "wasm_sha256": "80290c5f12235a27f29839f899161774ee9a3429b965f2440e8ce0b3c6b04c38",
+  "source_evidence": "docs/evidence/release-preflight-01410.json",
+  "source_base": "8e3704bfee6edbf68c30d467c2c552951521ebbc",
+  "source_patch_sha256": "7c3e7818648646f46784a627fdf6ca4dfd58c3c0194bf37b7795db2d35c6ac54",
+  "historical_artifact": ".tmp/v01410-preflight-01/artifacts/ic_blob_storage_canister.wasm"
+}

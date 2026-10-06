@@ -1,5 +1,11 @@
 //! Delegate current-state admission to the shared handler, not a saved preview.
 pub(crate) mod dispatch;
+pub(crate) fn confirm_credit(
+    execution: UploadContext,
+    input: blob_test_protocol::storage::funding::CreditCommand,
+) -> Result<Option<bool>, Failure> {
+    funding::credit::run(execution, input)
+}
 use crate::ops::funding::{self, admission};
 use blob_test_protocol::storage::{
     Failure,
@@ -80,4 +86,21 @@ pub(crate) fn mark_attempt(
         }
         FundingAttemptResult::Marked(_) => Attempt::Marked,
     })
+}
+
+pub(crate) fn measure_credit(
+    execution: UploadContext,
+    input: blob_test_protocol::storage::funding::CreditCommand,
+) -> blob_test_protocol::storage::resources::FundingCreditResources {
+    crate::ops::resources::begin_read_profile(true);
+    let started = ic_cdk::api::call_context_instruction_counter();
+    let result = confirm_credit(execution, input);
+    crate::ops::resources::credit_resources(started, result)
+}
+
+pub(crate) fn renew_budget(
+    execution: UploadContext,
+    input: blob_test_protocol::storage::funding::RenewalCommand,
+) -> Result<bool, Failure> {
+    funding::credit::renew(execution, input)
 }

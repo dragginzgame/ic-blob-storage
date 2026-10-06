@@ -95,10 +95,16 @@ export async function verifyMediaDelivery(context, config, bodies, gateway, stat
     assert.deepEqual(refused, { origin: 'null', readable: false, error: 'TypeError' });
   } finally { await opaque.close(); }
   const reads = state.reads.filter(read => read.origin !== null);
-  assert.deepEqual(reads.map(read => read.origin), [...config.contentTypes.flatMap(mime =>
-    Array(mime.startsWith('image/') ? 2 : 1).fill(config.browserOrigin)), 'null']);
+  // An image element may reuse the verified fetch response from HTTP cache.
+  // Require each object's authenticated-origin fetch, rather than a fixed GET count.
+  assert(reads.every(read => [config.browserOrigin, 'null'].includes(read.origin)));
+  for (const request of requests) {
+    const target = new URL(request.url);
+    assert(reads.some(read => read.origin === config.browserOrigin && read.path === target.pathname + target.search));
+  }
+  assert.equal(reads.filter(read => read.origin === 'null').length, 1);
   for (const read of reads) { assert.equal(read.cookie, null); assert.equal(read.authorization, null); }
-  return { decodedMedia, publicDelivery, opaqueOriginRefused: true,
+  return { decodedMedia, publicDelivery, observedReads: reads, opaqueOriginRefused: true,
     csp: { images, blockedImage, blockedProviderRequests } };
 }
 

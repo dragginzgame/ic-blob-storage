@@ -1,0 +1,276 @@
+{
+  "date": "2026-10-06",
+  "pending_release": "0.15.0",
+  "compiled_package_version": "0.14.12",
+  "evidence_class": "source review and local Linux execution; provider effects are substituted",
+  "source": {
+    "head": "ebd535eaa2015407319fd330f559b2808ea01588",
+    "gate_patch": ".tmp/v01413-final-01/entry.patch",
+    "later_documentation_patch": ".tmp/v01413-final-01/final.patch",
+    "untracked_inputs": ".tmp/v01413-final-01/untracked-inputs",
+    "note": "The full gate used the earlier 0.14.13 draft heading. After its start, the maintainer approved carrying the whole pending batch into 0.15.0 because ic-memory is a public re-export and 0.27 changes its API and durable ledger. Later repository edits were documentation only."
+  },
+  "selected_dependencies": {
+    "ic-memory": "0.27.0",
+    "ic-testkit": "0.18.3",
+    "want": "0.3.2",
+    "zerocopy": "0.8.60",
+    "ic-stable-structures": "0.7.2",
+    "pocket-ic": "16.0.0"
+  },
+  "compatibility": {
+    "breaking": true,
+    "reason": "ic-memory 0.27 removes history/timestamp APIs and changes the durable ledger layout exposed through the public memory re-export.",
+    "disposition": "Update affected host callers/fixtures. Earlier ledgers cannot be reopened; preserve or discharge installation/provider/billing obligations before reinstall. No automatic reset or compatibility reader.",
+    "in_repository_caller_changes": "None required by compilation and tests.",
+    "prior_evidence": "Original .13 tooling summaries and earlier memory/provider trials retain their actual versions, dependency selections and artifacts."
+  },
+  "checks": [
+    {
+      "command": "make deps",
+      "exit_code": 0,
+      "log": ".tmp/v01413-final-01/deps.log"
+    },
+    {
+      "command": "make ci",
+      "toolchain": "Rust 1.99.0",
+      "host": "Linux x86_64",
+      "exit_code": 0,
+      "log": ".tmp/v01413-final-01/ci-01.log",
+      "scope": "Complete configured gate, including snapshot, fetch, release/hook/format/shell checks, workspace check and strict Clippy, retained probes and 288 evidence hashes, docs, native/PocketIC tests, Wasm and package verification."
+    },
+    {
+      "command": "cargo +1.88.0 check --offline --locked -p ic-blob-storage -p ic-blob-storage-canister -p ic-blob-storage-pocketic-tests --all-targets --all-features",
+      "exit_code": 0,
+      "log": ".tmp/v01413-final-01/msrv-native.log"
+    },
+    {
+      "command": "cargo +1.88.0 check --offline --locked -p ic-blob-storage -p ic-blob-storage-canister --all-features --target wasm32-unknown-unknown",
+      "exit_code": 0,
+      "log": ".tmp/v01413-final-01/msrv-wasm.log"
+    },
+    {
+      "command": "make shared-tooling-check fmt-check release-plan VERSION=minor",
+      "exit_code": 0,
+      "log": ".tmp/v01413-final-01/final-focused.log",
+      "preview_target": "0.15.0"
+    }
+  ],
+  "upstream_fixture": {
+    "repository": "/home/adam/projects/shared-tooling",
+    "committed_base": "cb86188c5956866564de4fb6ec6be67b27981ab9",
+    "state": "Two-file uncommitted fix; maintainer commit requested. Consumer still pins cb86188.",
+    "patch": ".tmp/v01413-final-01/upstream-fix.patch",
+    "change": "Normalize the snapshot fixture's temporary root with pwd -P before assigning fake Git source identities.",
+    "before": {
+      "exit_code": 1,
+      "log": ".tmp/v01413-final-01/upstream-alias-before.log",
+      "symptom": "--source must name the checkout root under an aliased temporary path."
+    },
+    "after": {
+      "exit_code": 0,
+      "log": ".tmp/v01413-final-01/upstream-alias-after.log"
+    },
+    "full_portable_suite": {
+      "shell": "GNU Bash 3.2.57(2)",
+      "temporary_directory": "Aliased path under the owning repository",
+      "exit_code": 0,
+      "log": ".tmp/v01413-final-01/upstream-portable-bash32-alias-04.log"
+    },
+    "shellcheck": {
+      "exit_code": 0,
+      "log": ".tmp/v01413-final-01/upstream-shellcheck.log"
+    },
+    "prerequisite_failures": [
+      {
+        "exit_code": 1,
+        "symptom": "cloc missing",
+        "log": ".tmp/v01413-final-01/upstream-portable-bash32-alias.log"
+      },
+      {
+        "exit_code": 127,
+        "symptom": "jq shared libraries missing",
+        "log": ".tmp/v01413-final-01/upstream-portable-bash32-alias-02.log"
+      },
+      {
+        "exit_code": 2,
+        "symptom": "cloc Perl prerequisites missing",
+        "log": ".tmp/v01413-final-01/upstream-portable-bash32-alias-03.log",
+        "diagnostic": ".tmp/v01413-final-01/upstream-cloc-diagnostic.log"
+      }
+    ],
+    "native_ci": {
+      "sha": "cb86188c5956866564de4fb6ec6be67b27981ab9",
+      "status": "completed",
+      "conclusion": "failure",
+      "url": "https://github.com/dragginzgame/shared-tooling/actions/runs/37431805988",
+      "jobs": [
+        {
+          "name": "lint-and-security",
+          "conclusion": "success"
+        },
+        {
+          "name": "portable-regression (macos-15)",
+          "conclusion": "failure"
+        },
+        {
+          "name": "portable-regression (macos-15-intel)",
+          "conclusion": "failure"
+        },
+        {
+          "name": "portable-regression (ubuntu-24.04)",
+          "conclusion": "success"
+        }
+      ],
+      "raw": ".tmp/v01413-final-01/upstream-native-ci.json"
+    }
+  },
+  "retained_artifacts": [
+    {
+      "path": "Cargo.toml",
+      "sha256": "fd3cf0ad4df9fbeadac976d0b06c6ed2cc4ceddbb9457cd0f7a7b2c6f3f82e53"
+    },
+    {
+      "path": "Cargo.lock",
+      "sha256": "542ef126175fd27687f8e69a9f50fc61952d57be2979e33ef1f251116d56f638"
+    },
+    {
+      "path": "docs/release.json",
+      "sha256": "47a86e1ecaa31cc8a07ca0c52ce50c8d6d869e7af69e046aec3ae760c22a0ab3"
+    },
+    {
+      "path": ".shared-tooling.snapshot",
+      "sha256": "a0f1e7305948b12b4fa58cc79a4c4c7acf1ded8031081c47c3552cd556a9a598"
+    },
+    {
+      "path": ".tmp/v01413-final-01/ci-01.log",
+      "sha256": "27fbf4a974c9966c75e56e2401654d13bc35079ae0d4dabd02f84b977b3abbbd"
+    },
+    {
+      "path": ".tmp/v01413-final-01/deps.log",
+      "sha256": "5ad0973c00177e4c907709b4b5b447030106944a0034ff9d8b6e0eef0b70e169"
+    },
+    {
+      "path": ".tmp/v01413-final-01/final-focused.log",
+      "sha256": "da6ba0ce09ba4b0ee44ca94171f4d7748d87f9330b2c6b31b442cb1ea2b3157a"
+    },
+    {
+      "path": ".tmp/v01413-final-01/msrv-native.log",
+      "sha256": "8194ad9720310c2979e9c8b0d72cf19f445fb14528a0254dd46736e86987c934"
+    },
+    {
+      "path": ".tmp/v01413-final-01/msrv-wasm.log",
+      "sha256": "c80bb58232a405d1e2f38e9c1114c2e677ece5c81dfcef937d3cad108b0a3181"
+    },
+    {
+      "path": ".tmp/v01413-final-01/upstream-alias-after.log",
+      "sha256": "6096b5b3b9106854d47e5526f86872d32d377d2b8f167340e54d5d5c0ae5529f"
+    },
+    {
+      "path": ".tmp/v01413-final-01/upstream-alias-before.log",
+      "sha256": "52e1196016339e40edcbe00099c0acfb7fa44a14b0161667a082381a8acd7179"
+    },
+    {
+      "path": ".tmp/v01413-final-01/upstream-cloc-diagnostic.log",
+      "sha256": "27077d5d7bafb92dbbac255d4df765a6a83862393bb2966879daac2743a81272"
+    },
+    {
+      "path": ".tmp/v01413-final-01/upstream-portable-bash32-alias-02.log",
+      "sha256": "d9aa8e2d0ad4a29968e152bd0b75e73de6bca584800f9c49baaf95a9e1eabb3a"
+    },
+    {
+      "path": ".tmp/v01413-final-01/upstream-portable-bash32-alias-03.log",
+      "sha256": "458e4496d7fb4eca83e20f0cb2a83b3420303523d513dbf435ba3ae016d0afb5"
+    },
+    {
+      "path": ".tmp/v01413-final-01/upstream-portable-bash32-alias-04.log",
+      "sha256": "5079d070e437bddb6f049eb9ab561ac034e468615e9a7ee5d5d8d435305629d9"
+    },
+    {
+      "path": ".tmp/v01413-final-01/upstream-portable-bash32-alias.log",
+      "sha256": "1ba87c2d283e534e6e98d5d86befee74f812ed028add04b9f6f59f338903cfb5"
+    },
+    {
+      "path": ".tmp/v01413-final-01/upstream-shellcheck.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".tmp/v01413-final-01/entry.patch",
+      "sha256": "dba6fbc71d9568b90fe891ea82992800109d3650ee9195f19c528e27c2ce8238"
+    },
+    {
+      "path": ".tmp/v01413-final-01/final.patch",
+      "sha256": "43d95f428fa3cae6c7812cb376700c4b9956668f5e5e0aa2d9933e6314e6f5d2"
+    },
+    {
+      "path": ".tmp/v01413-final-01/upstream-fix.patch",
+      "sha256": "0fee1ca936b2a0b8622f43b0d3e1edcfcd845e20581cd0bd8bdafd52cc8cb4cb"
+    },
+    {
+      "path": ".tmp/v01413-final-01/ic-memory-0.27.0-CHANGELOG.md",
+      "sha256": "b85cd8edeb30ebac84a43a3b1c7d23636c03b10c319dcaec7f088d10e5e3e7d9"
+    },
+    {
+      "path": ".tmp/v01413-final-01/ic-memory-0.27.0-details.md",
+      "sha256": "cb12f002e08824679a222a10f2d1e519e06aa41c00b84132f4f1bacdda9ef266"
+    },
+    {
+      "path": ".tmp/v01413-final-01/ic-testkit-0.18.3-CHANGELOG.md",
+      "sha256": "f8f52e2a2481545947381f1e1a6faab75017124d93dd5d04921fd665fa1e2d52"
+    },
+    {
+      "path": ".tmp/v01413-final-01/upstream-native-ci.json",
+      "sha256": "4ddcb3329f17f40672a4177a2ea0e1d24a3ffb612c375dfbd45090d8d35bb902"
+    },
+    {
+      "path": ".tmp/v01413-final-01/entry.SHA256SUMS",
+      "sha256": "b91833ef7fa88fc6ce08bc12a27f8e156c1599a40b4f92e0dd67353aead2bcfa"
+    },
+    {
+      "path": ".tmp/v01413-final-01/artifacts/ic-blob-storage-0.14.12-memory027.crate",
+      "sha256": "da22dfe597cb23d464ee3486e767d047e2d92444b1d47418fb9ccd362f9efe96"
+    },
+    {
+      "path": ".tmp/v01413-final-01/artifacts/standalone-compiled-v01412-memory027.wasm",
+      "sha256": "c1ee55d61d41835d63de858c38ed981245339806376e83c62d083656413ef2bc"
+    },
+    {
+      "path": ".tmp/v01413-final-01/untracked-inputs/rules/agent-maintenance.md",
+      "sha256": "0de19d6eb5b3dea57d46cd6412dc49ce6a1b5fb591b551dbec16cdb25ee181df"
+    },
+    {
+      "path": ".tmp/v01413-final-01/untracked-inputs/scripts/ci/run-validation-targets.sh",
+      "sha256": "4dedff3e569c06ac379696bd520a85a4831474b3e0543c16c455bfeb913e5e9d"
+    },
+    {
+      "path": ".tmp/v01413-final-01/untracked-inputs/scripts/ci/test-evidence-checksums.sh",
+      "sha256": "43e2b571a909c2d63b2e3b11d208744995997575b34f0c1fbe5ea3104d40bcca"
+    },
+    {
+      "path": ".tmp/v01413-final-01/untracked-inputs/scripts/ci/verify-evidence-checksums.sh",
+      "sha256": "22bf8001f496799c0e26795479b9e313fe3ceddec2e47b8444f8af8e7bc32bae"
+    },
+    {
+      "path": ".tmp/v01413-final-01/commands.txt",
+      "sha256": "c81aec17aec298e655863c5e97b3abeded2afbecee579bb36a4223836dca506f"
+    },
+    {
+      "path": ".tmp/v01413-final-01/final-review.log",
+      "sha256": "90930dc8d9e3becd0cb6004efe9b004e09745afb8f614d8e716f160c5562dc03"
+    }
+  ],
+  "commands": ".tmp/v01413-final-01/commands.txt",
+  "limitations": [
+    "Upstream fix not yet committed or adopted at a new revision; native CI has not run against the fix.",
+    "Current consumer changes are uncommitted, so they have no native GitHub matrix result.",
+    "Rust 1.88 evidence is scoped to the named packages, not a full-workspace MSRV gate.",
+    "Compiled artifacts retain 0.14.12 identity; no release/version mutation, commit, tag, push, publication, deployment or paid/provider effect.",
+    "Configured opt-in/ignored browser and scale trials are not rerun by this gate.",
+    "Package/standalone artifact copies are preserved separately; no historical evidence is relabelled and no source cleanup removes functions, methods or types."
+  ],
+  "final_review": {
+    "result": "pass",
+    "log": ".tmp/v01413-final-01/final-review.log",
+    "scope": "Artifact digests, relative documentation links, immutable released changelog history, whitespace and unchanged staged inventory."
+  }
+}

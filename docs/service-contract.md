@@ -367,7 +367,7 @@ the current immutable record. Restoration still validates all owners synchronous
 enters their fences before any deferred work.
 
 The immutable installation record uses the frozen layout identity
-`ic-blob-storage/installation:platform-anchor`, independently of its exact library
+`ic-blob-storage/installation:platform-anchor-funding-credit-index-renewal`, independently of its exact library
 release. The `blob.configuration.v1` grant key identifies the existing allocation
 slot, not a compatible record layout. A mismatched identity refuses before opening
 the service owners; an undecodable layout traps without initialization or repair.
@@ -978,6 +978,28 @@ integrating host owns bootstrap, policy, grants and bucket profile. Cross-releas
 schema transitions are reinstall-only, subject to retirement of existing obligations;
 the dependency choice does not close provider and recovery qualification gates.
 
+The pending 0.15.0 contract selects ic-memory 0.27.1 through the library's public
+re-export. Its allocation ledger retains current ownership and latest schema
+metadata, without per-upgrade/schema audit trails or observation timestamps.
+Hosts using those removed APIs or diagnostic DTOs must update their callers and
+fixtures. The dependency's earlier logical layouts cannot be reopened, despite
+its current envelope still using version 1. There is no dual reader, migration
+or automatic reset. Do not clear allocation ID 0 to bypass failed recovery.
+
+Funding intents additionally require the current credit record and accounting
+requires `credit_confirmed`; absent fields refuse, with no legacy reader. The
+installation format above changes alongside these owners, even while development
+artifacts still compile as 0.14.12. Update hosts, passive DTOs/codecs, tools and
+fixtures together. Frozen prior Wasms and records retain their original identities.
+
+Before a cross-release reinstall, apply the installation retirement contract and
+[operator runbook](retiring-installations.md):
+preserve or discharge provider objects, uncertain effects, balances and continuing
+billing obligations. Keep the frozen old installation and its evidence with
+their original tools until that disposition is complete. Same-release backup,
+restoration fences and interruption recovery remain required under the new
+contract; ledger simplification grants no authority to reactivate a stale backup.
+
 The first implemented component is `StableTenantEnrollments`. A host supplies one
 exclusive granted memory and a validated service configuration. A reserved map
 entry binds schema v1, service, operator, namespace and lifetime tenant limit;
@@ -1281,9 +1303,10 @@ journals, deployed verified-read delivery, operational recovery and resource qua
 remain required.
 
 `ops::service::funding::StableFundingJournal` owns a separate attachment allocation
-through two exclusively owned, host-granted memories: exact intent history and one
-configuration/accounting row. It binds service, operator, Cashier candidate, payment
-account, namespace, allocation, positive reserve and lifetime history limit. Hosts
+through two exclusively owned, host-granted memories: exact intent history and
+accounting with its bounded receipt-to-operation index. It binds service, operator,
+Cashier candidate, payment account, namespace, initial allocation, immutable renewal
+ceiling, positive reserve and lifetime history limit. Hosts
 must provide a single journal for that allocation and propagate stable-write traps
 inside synchronous IC updates. This component neither shares nor refunds upload
 byte quotas and does not claim complete service economics.
@@ -1313,6 +1336,16 @@ granting dispatch authority. Changed target-balance options reject on every exac
 intent lookup/mutation rather than silently changing the encoded call.
 Unknown transport retains the entire attachment. Returned amounts release only
 their own allocation; accepted amounts remain charged and never imply credit.
+
+The [host funding contract](funding-credit.md) defines synchronous credit confirmation
+and separate bounded allocation increases. Confirmation does not refund acceptance.
+A host-authorized grant belongs to one exact latest credited intent, precedes the
+next reservation and cannot exceed that acceptance or the installed cumulative
+ceiling. Exact replay leaves every total unchanged; lifetime slots are never
+recycled. Available + accepted + reserved/uncertain equals cumulative authorization.
+Same-release reopen replays original offers and grants in order and validates all
+receipt index bindings/cardinality without initialization or repair. Fresh
+confirmation uses the existing owner's index rather than scanning all intent rows.
 
 `workflow::funding::history::inspect` exposes the existing bounded journal traversal
 as `blob_funding_history` through both the standalone host and storage fixture.
@@ -1360,7 +1393,7 @@ The configured operator supplies the complete original scope, operation, positiv
 offer and exact optional target balance; mismatched retained arguments reject.
 The response preserves local phase, typed balance components/provider errors/decode
 failures, and the restore fence. Workflow applies the existing reconciliation policy
-to retained transfer facts, independently of reply classification. Missing history
+to retained transfer facts and host credit receipts, independently of reply classification. Missing history
 and missing structured replies remain distinct; neither permits another payment.
 The fixture's private outcome DTO and endpoint conversion are removed.
 
@@ -1373,6 +1406,15 @@ the found journal's restore fence. Absence has no record and therefore no fence
 observation; it must not be interpreted as an unfenced owner. Full-width amounts
 remain decimal strings. One signed query has a 4 KiB decoded outcome bound and
 grants no provider-credit, retry, payment or unfencing authority.
+
+The [host-internal credit workflow](funding-credit.md) authenticates the live
+operator and complete original intent before invoking trusted evidence acquisition.
+It commits a full positive accepted amount and immutable evidence fingerprint
+with confirmed accounting in one synchronous IC update. Exact replay is unchanged;
+wrong amounts, receipt conflicts and reuse across local intents refuse. Accepted
+cycles remain spent. Confirmation clears only that local uncredited obligation,
+never unknown transport, allocation/capacity limits, external activity or fences.
+No public ingress credit setter, extra journal or provider credential is added.
 
 `workflow::funding::assessment::inspect` now exposes the existing preparation
 policy synchronously through the shared `blob_funding_preparation_assessment` standalone endpoint.
@@ -1439,7 +1481,7 @@ amount and optional target. Other-activity observations exclude only that exact
 unattempted intent; available-for-offer funds include its still-unsent attachment
 and retain every other liability. The service does not add a reservation back to
 an arbitrary balance. Prepared state, the last retained identity and its complete
-hold must agree. Earlier accepted amounts, external unknowns and the actual fence
+hold must agree. Earlier uncredited accepted amounts, external unknowns and the actual fence
 independently block marking. Full history and exhausted unreserved allocation do
 not charge this already-reserved intent again. Uncertain and terminal states
 always reject another attempt, including fully refunded or proven-unsent results.
@@ -1469,11 +1511,11 @@ endpoint, timer or lifecycle ownership.
 
 Operator `outcome` inspection works while fenced and supplies validated transfer
 facts alongside the independent response. The probe workflow applies shared
-reconciliation policy to that transfer alone. Reported success never clears required
+reconciliation policy to the transfer and retained host receipt. Reported success never clears required
 credit evidence; missing transport retains the full offered amount as potentially
 spent. The v1 record schema is replaced directly, without migration or dual
 readers; cross-release transitions remain reinstall-only. Production provider
-authentication, independent credit reconciliation, account-wide
+authentication, independently verified credit acquisition, account-wide
 uncredited activity, spendability and dispatch admission remain separate work before
 a production call can use this journal. Local simulated transfers do not qualify
 deployed Cashier behavior or authorize a paid trial.

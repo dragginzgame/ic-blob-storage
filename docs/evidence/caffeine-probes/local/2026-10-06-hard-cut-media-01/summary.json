@@ -1,0 +1,406 @@
+{
+  "schema": 1,
+  "date": "2026-10-06",
+  "pending_release": "0.15.0",
+  "compiled_release": "0.14.12",
+  "evidence_class": "Linux local PocketIC; installed Brave Chromium-family browser; synthetic verifier and owned HTTPS/HTTP2 substitutes",
+  "outcome": "old-ledger refusal, current installation, both media journeys, reference boundaries and same-release obligation recovery pass",
+  "source": {
+    "base": "ebd535eaa2015407319fd330f559b2808ea01588",
+    "dirty": true,
+    "memory": "0.27.0",
+    "testkit": "0.18.3",
+    "playwright": "1.63.0",
+    "node": "v24.21.0",
+    "browser": "Brave Browser 154.1.96.61 unknown",
+    "source_bindings": {
+      "path": ".tmp/v0150-hard-cut-01/final-source-bindings.json",
+      "sha256": "11bb476545239f6e62045ed927134901e043f491c1e9c9f98bf58958666a496b"
+    },
+    "source_patch": {
+      "path": ".tmp/v0150-hard-cut-01/final-source.patch",
+      "sha256": "91dc4b441bbe3d7dbdf930d603c8f18821ef8ee868289f582334332a9eaab87f"
+    },
+    "media_entry_patch": {
+      "path": ".tmp/v0150-hard-cut-01/source-at-probe.patch",
+      "sha256": "5b4988d3b49a4712ae5ebd05a6bb6fef6ce22b88e96e1413958065a1f3988a74"
+    },
+    "final_browser_patch": {
+      "path": ".tmp/v0150-hard-cut-01/source-at-final-media.patch",
+      "sha256": "f0b5732f365648c62bc4a2e0a31bdacbb1aecbddcfe515fe57102ed167e62ee2"
+    },
+    "media_artifacts": {
+      "path": ".tmp/v0150-hard-cut-01/artifact-bindings.json",
+      "sha256": "02d726d973aab8d5143855d33bd38a293bdd16fce14b96d0efb98f0e3fbbc427"
+    },
+    "intermediate_browser_artifacts": {
+      "path": ".tmp/v0150-hard-cut-01/browser-retry-bindings.json",
+      "sha256": "432578ce3e0e0c44a7a944f0179c3b25c610de9e410eb513e91ffe4deabad91e"
+    },
+    "final_browser_artifacts": {
+      "path": ".tmp/v0150-hard-cut-01/browser-final-bindings.json",
+      "sha256": "08b391f4a66b60a571010c1f1439827e1de96ee2981144b4949eb238875e2d9e"
+    },
+    "final_test": {
+      "path": ".tmp/v0150-hard-cut-01/artifacts/standalone-final-test",
+      "sha256": "25d88583c0480f99891a4fe97967b5f8cfa7c7e2b7adb7e4bfaf7a21832e3ba5"
+    },
+    "scope": "Matching repository builds; not a new clean-prefix consumer build or released 0.15.0 image"
+  },
+  "inputs": {
+    "retained_descriptors": {
+      "path": ".tmp/v0150-hard-cut-01/media-provenance.json",
+      "sha256": "f9fafc099ae767231d495feda8cb85da5a2f7bddda638ef060d58d6280e77974"
+    },
+    "prior_evidence": "docs/evidence/caffeine-probes/local/2026-10-04-representative-media-01/summary.json",
+    "read_only_asset_checkout": "/home/adam/projects/toko-miner-assets",
+    "asset_checkout_head": "79e2407ed0d74840658530a0dd04a0c0c69c9ba0",
+    "raw_assets_match_prior_selected_bytes": true,
+    "consumer_rebuilt_or_edited": false
+  },
+  "hard_cut": {
+    "report": ".tmp/v0150-hard-cut-01/refusal-03",
+    "result": {
+      "cross_release_upgrade_supported": false,
+      "evidence_class": "local PocketIC; synthetic verifier; no provider effects",
+      "liability_bytes": "10486784",
+      "old_memory": "0.25.5",
+      "old_owner_and_exact_admissions_preserved": true,
+      "old_release": "0.14.9",
+      "old_wasm": "sha256:80290c5f12235a27f29839f899161774ee9a3429b965f2440e8ce0b3c6b04c38",
+      "physical_bytes": "10486784",
+      "reserved_bytes": "10485760",
+      "stable_after": "sha256:9642c321c12c67ee146e81f315dd85c5562bf2a78c96590ee88190ff37d1f996",
+      "stable_before": "sha256:9642c321c12c67ee146e81f315dd85c5562bf2a78c96590ee88190ff37d1f996",
+      "target_compiled_release": "0.14.12",
+      "target_wasm": "sha256:c1ee55d61d41835d63de858c38ed981245339806376e83c62d083656413ef2bc",
+      "upgrade_refused": true
+    },
+    "summary": {
+      "path": ".tmp/v0150-hard-cut-01/refusal-03/summary.json",
+      "sha256": "423761b695dd9d9f9cb8a7f84851c7380a252ae34b418a0880e1177cdd28633b"
+    },
+    "raw_refusal": {
+      "path": ".tmp/v0150-hard-cut-01/refusal-03/upgrade-refusal.txt",
+      "sha256": "498308b7f6b9fb3b9895ca9641143a137397aa4f486327f57b473586481a21e4"
+    },
+    "stable_bytes": 18939904,
+    "failure_stage_observed": "host memory bootstrap rejects the old ledger payload envelope",
+    "old_image_manifest": {
+      "path": "tests/fixtures/standalone-pre-cut/manifest.json",
+      "sha256": "fa664f7840913e9c1ff62ff996164ccd33faa435593b84cb1c990ae374cb9212"
+    },
+    "old_image_identity": "Frozen pre-0.14.10 preflight image compiled 0.14.9; not claimed to be tagged 0.14.9"
+  },
+  "carrier": {
+    "summary": {
+      "path": ".tmp/v0150-hard-cut-01/carrier-01/summary.json",
+      "sha256": "9679eb68632b1a1424f7a35729fa274325a898e4d7820ac6ba1fcc6852d36389"
+    },
+    "expected_release": "0.14.12",
+    "readback": true,
+    "wrong_actual_service_refused": true
+  },
+  "journeys": [
+    {
+      "label": "GLB/WebP complete",
+      "report": ".tmp/v0150-hard-cut-01/model-complete-04/multichunk-complete",
+      "summary": {
+        "path": ".tmp/v0150-hard-cut-01/model-complete-04/multichunk-complete/summary.json",
+        "sha256": "db4b6bfebac8f83e743487fabe8632218b21b37553d66ce4f90aead7a2d25be8"
+      },
+      "delivery_trace": {
+        "path": ".tmp/v0150-hard-cut-01/model-complete-04/multichunk-complete/browser-delivery-trace.json",
+        "sha256": "7f1cbda9f8efff40eae60e8b8125b59e554355b9017ce1df58c0b4857c8b2cf0"
+      },
+      "references": {
+        "billing_cessation": false,
+        "current_map_complete": false,
+        "historical_retain_receipt_preserved": true,
+        "liability_bytes": 8389774,
+        "logical_bytes": 27518,
+        "physical_bytes": 8389774,
+        "provider_deletion": false,
+        "released_downloads_refused": true,
+        "schema": 1,
+        "second_reference_survives_first_release": true
+      },
+      "puts": 11,
+      "gets": 8,
+      "decoded_media": [
+        {
+          "index": 0,
+          "sha256": "c910153c29739cd719cc5d41ff57eefd141feb1a3b18ab460ee07e81b5fd9c32",
+          "kind": "glb",
+          "bytes": 8362256,
+          "scenes": 1,
+          "nodes": 36,
+          "meshes": 35
+        },
+        {
+          "index": 1,
+          "sha256": "58a6ffb23114c24b9a79ae485f6eb1ae23f99027ae20bd4d877617d92e0ec4a1",
+          "width": 256,
+          "height": 256,
+          "pixel": [
+            7,
+            13,
+            52,
+            255
+          ]
+        }
+      ],
+      "original_roots": [
+        "sha256:cbe3f72987558eba01c56930b49d76ae71a2e79c9ef63d7d2614640ffa3f62e7",
+        "sha256:03d976951b47a9404f819f991697f512085075073ae84172c0baf37c1fe0066c"
+      ],
+      "original_body_digests_and_cache_headers_preserved": true,
+      "browser_restarted": true,
+      "automatic_upload_retries": 0,
+      "retained_physical_bytes": "8389774",
+      "retained_liability_bytes": "8389774",
+      "consumer_publication_qualified": false,
+      "substitute_put_and_get_requests": 19,
+      "substitute_request_and_response_body_bytes": 50295509
+    },
+    {
+      "label": "PNG/JPEG lost final reply",
+      "report": ".tmp/v0150-hard-cut-01/images-lost-01/multichunk-lost",
+      "summary": {
+        "path": ".tmp/v0150-hard-cut-01/images-lost-01/multichunk-lost/summary.json",
+        "sha256": "5895bb69747429689b03ee1cb11cdd0879f5fc605faf37af7c1a54aa19456ad1"
+      },
+      "delivery_trace": {
+        "path": ".tmp/v0150-hard-cut-01/images-lost-01/multichunk-lost/browser-delivery-trace.json",
+        "sha256": "4b2752fae85b1dcc6f84296420764fd476c68deada4d8bdfdd78e24e932791e0"
+      },
+      "references": {
+        "billing_cessation": false,
+        "current_map_complete": false,
+        "historical_retain_receipt_preserved": true,
+        "liability_bytes": 4318116,
+        "logical_bytes": 763129,
+        "physical_bytes": 4318116,
+        "provider_deletion": false,
+        "released_downloads_refused": true,
+        "schema": 1,
+        "second_reference_survives_first_release": true
+      },
+      "puts": 7,
+      "gets": 8,
+      "decoded_media": [
+        {
+          "index": 0,
+          "sha256": "8b9e0ba748cbf7c1c9c20a597084bc03e1b5e94d2a6028cf21cfc5facb70d60a",
+          "width": 1254,
+          "height": 1254,
+          "pixel": [
+            169,
+            150,
+            133,
+            255
+          ]
+        },
+        {
+          "index": 1,
+          "sha256": "702f70b9a6fd74e8f6fe4f8c9130db3cccfef74fc5008dc74cbf2ad80a33736f",
+          "width": 1536,
+          "height": 1024,
+          "pixel": [
+            48,
+            55,
+            14,
+            255
+          ]
+        }
+      ],
+      "original_roots": [
+        "sha256:3221bd9a69bda5b6c0a6822a8ae732b0ea780b293f641d8ae8a77ec1505d9102",
+        "sha256:ae002fcd0c2b97b72e9f9f6d013f9b267d4dc6be57dd54e47c6997f6c7fc7f63"
+      ],
+      "original_body_digests_and_cache_headers_preserved": true,
+      "browser_restarted": true,
+      "automatic_upload_retries": 0,
+      "retained_physical_bytes": "4318116",
+      "retained_liability_bytes": "4318116",
+      "consumer_publication_qualified": false,
+      "substitute_put_and_get_requests": 15,
+      "substitute_request_and_response_body_bytes": 24393206
+    }
+  ],
+  "checks": {
+    "strict_harness_clippy": "pass",
+    "rust_1_88_selected_harness": "pass",
+    "core_capacity_cases": 2,
+    "standalone_reference_cases": 6,
+    "same_release_obligation_recovery_cases": 1,
+    "full_ci_repeated": false,
+    "relative_file_links": 358,
+    "retained_artifact_bindings": "pass"
+  },
+  "retained_failures": [
+    {
+      "log": ".tmp/v0150-hard-cut-01/npm-offline.log",
+      "reason": "uncached uint8array-extras package; locked online preparation without scripts succeeds"
+    },
+    {
+      "log": ".tmp/v0150-hard-cut-01/hard-cut-01.log",
+      "reason": "incorrect test expectation omitted pending upload conservative holds; stops before upgrade"
+    },
+    {
+      "log": ".tmp/v0150-hard-cut-01/model-complete-01.log",
+      "reason": "wrong selector path; stops before local owner or provider effects"
+    },
+    {
+      "log": ".tmp/v0150-hard-cut-01/model-complete-02.log",
+      "reason": "Brave image HTTP-cache reuse violates old fixed browser GET-count assumption; raw transfer/delivery trace retained"
+    },
+    {
+      "log": ".tmp/v0150-hard-cut-01/model-complete-03.log",
+      "reason": "second aggregate GET-count assertion in launcher; raw delivery trace retained"
+    },
+    {
+      "log": ".tmp/v0150-hard-cut-01/clippy-01.log",
+      "reason": "test function exceeds 100-line lint; split coherent helpers"
+    },
+    {
+      "log": ".tmp/v0150-hard-cut-01/clippy-03.log",
+      "reason": "two needless borrowed Copy packets; corrected"
+    },
+    {
+      "log": ".tmp/v0150-hard-cut-01/summary-bounds-01.log",
+      "reason": "post-run summary calculation used image decode record without byte length; corrected to verified delivery length before indexing"
+    }
+  ],
+  "logs": [
+    {
+      "path": ".tmp/v0150-hard-cut-01/npm-offline.log",
+      "sha256": "607a8815f2d23deef681c14d26c3518f2193fd7fd83f98a72ef70ddddb8108cd"
+    },
+    {
+      "path": ".tmp/v0150-hard-cut-01/npm-locked.log",
+      "sha256": "afeca178bdfe125c41b23758ac487f2cfd3a64d880d079237d5fe431932617c4"
+    },
+    {
+      "path": ".tmp/v0150-hard-cut-01/hard-cut-01.log",
+      "sha256": "b54b218511f42fd620bee8384e2f569bd2822aa743ad5a408dff67369c745195"
+    },
+    {
+      "path": ".tmp/v0150-hard-cut-01/hard-cut-02.log",
+      "sha256": "3758ecfbe2e2624fbe874f8b5343b1ec54f72724faeddc8d4d22795505df5777"
+    },
+    {
+      "path": ".tmp/v0150-hard-cut-01/hard-cut-03.log",
+      "sha256": "40727997d020b1745c79273ccf93f750a123e5ac6039964ac376aae7b51c6e30"
+    },
+    {
+      "path": ".tmp/v0150-hard-cut-01/browser-build.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".tmp/v0150-hard-cut-01/browser-build-02.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".tmp/v0150-hard-cut-01/browser-build-03.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".tmp/v0150-hard-cut-01/browser-build-04.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".tmp/v0150-hard-cut-01/cli-build.log",
+      "sha256": "a41051563a4cb5fc1b1bcdd9aa0ba28ca80f7736d629d90cc138218756e8e3a9"
+    },
+    {
+      "path": ".tmp/v0150-hard-cut-01/carrier-01.log",
+      "sha256": "13eaded7662efa202a630009ce70b55a35947ff4199375adae8dbfbbbeccc447"
+    },
+    {
+      "path": ".tmp/v0150-hard-cut-01/model-complete-01.log",
+      "sha256": "f9aa0260696024d780b0cd3a2afcd816e0cd699d51e552062fa7bcc30656833a"
+    },
+    {
+      "path": ".tmp/v0150-hard-cut-01/model-complete-02.log",
+      "sha256": "147b397fdc5dda4dba177f4e1e5bf86f7e7b109b5712298685a4d23643619183"
+    },
+    {
+      "path": ".tmp/v0150-hard-cut-01/model-complete-03.log",
+      "sha256": "4cbb9048fa891c1af7023889bf3c031006d65d438fe1eeccddde8545e1c48a74"
+    },
+    {
+      "path": ".tmp/v0150-hard-cut-01/model-complete-04.log",
+      "sha256": "9cbf62b2fe5ebc2ea137771991054db1209b81edd96c4fd39fc9042089c2b157"
+    },
+    {
+      "path": ".tmp/v0150-hard-cut-01/images-lost-01.log",
+      "sha256": "e80d5fc5a6e9ee55742de7dd2643632367daaac1b16b4e520665828ee1fcde42"
+    },
+    {
+      "path": ".tmp/v0150-hard-cut-01/clippy-01.log",
+      "sha256": "bc574f88e507c75ed4cc8eca01da846730f2caa95c6b30282b6f60710b55e60c"
+    },
+    {
+      "path": ".tmp/v0150-hard-cut-01/clippy-02.log",
+      "sha256": "6a5ff92378121f0dac041cfe69a92e8c9c3e4b3ca69f4a5e2e42c212fffc8849"
+    },
+    {
+      "path": ".tmp/v0150-hard-cut-01/clippy-03.log",
+      "sha256": "131181639c44a7309a9440bd50e5b4474a067c9de0b32ff8c0a25a71f7876a43"
+    },
+    {
+      "path": ".tmp/v0150-hard-cut-01/clippy-04.log",
+      "sha256": "2e2e1f07ffe434838af175c96448460a372b3f5840c7d86ba4959afd0d50ddf9"
+    },
+    {
+      "path": ".tmp/v0150-hard-cut-01/core-reference-capacity.log",
+      "sha256": "d135b49b790cfbaf1d6f6b01fab8e6ce7a65af46a68133e187cbdd89ffb53ba2"
+    },
+    {
+      "path": ".tmp/v0150-hard-cut-01/reference-boundaries.log",
+      "sha256": "dddfc8c1b0b3a3436320c26c59201234cf19d10b3676c0d492e97e30faf42dad"
+    },
+    {
+      "path": ".tmp/v0150-hard-cut-01/same-release-obligations.log",
+      "sha256": "f7833b343bd9d696afc622c8cc8e9d93a79702fa375f0301609fcaad5b6df61f"
+    },
+    {
+      "path": ".tmp/v0150-hard-cut-01/msrv-harness.log",
+      "sha256": "9b5fe3d6ea8e0c334670b78b4c10ff25428f60ed65d9b6584102dc1003d49bb0"
+    },
+    {
+      "path": ".tmp/v0150-hard-cut-01/summary-bounds-01.log",
+      "sha256": "f7e01d6fbc40e6f30d83df738d470bef3a981de917368211515dd2dc6b212f0d"
+    },
+    {
+      "path": ".tmp/v0150-hard-cut-01/final-docs-check.log",
+      "sha256": "4679372aea07f0c35337bb3f9e0230e79b80991ffb1c2a94d7e2e7925233f804"
+    }
+  ],
+  "budget_disposition": {
+    "initial_plan_media_owners": 2,
+    "actual_media_owners": 4,
+    "pre_effect_selector_refusals": 1,
+    "deviation": "Fresh substitute-only retries exceeded the initial owner plan; followup-intent.json records the deviation and bounds final images case. All prior attempts remain, with no replay on an uncertain prior owner.",
+    "hard_cut_attempts": 3,
+    "hard_cut_actual_upgrades": 2,
+    "live_provider_requests": 0,
+    "paid_cycles": 0,
+    "external_mutations": 0
+  },
+  "cleanup": "Owned local fixture/browser/server processes close; raw reports, packets, stable bytes, profiles and binaries retained. Historical live owners and all provider obligations unchanged.",
+  "limitations": [
+    "Brave is explicit installed browser evidence, not the bundled Playwright Chromium or native macOS qualification.",
+    "Substitutes do not establish deployed provider replay, billing, deletion, credit or retention.",
+    "Actual consumer publication/rollback transaction and wrapper adoption remain consumer-owned.",
+    "Cross-release upgrades and stale-backup activation are unsupported.",
+    "Old historical Wasm is required for the opt-in test; its absence is missing evidence, not a generated replacement.",
+    "Native Shared Tooling adoption awaits a committed upstream temporary-path fix; unrelated full-gate and prior evidence keep their original identities."
+  ],
+  "retained_run_manifest": {
+    "path": ".tmp/v0150-hard-cut-01/SHA256SUMS",
+    "sha256": "24e7bb755f57c88b025fa6f994efd48b11d10bc3264c9518fcba0823236c1b03",
+    "files": 2319
+  }
+}

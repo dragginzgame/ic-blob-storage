@@ -103,6 +103,7 @@ fn absence_and_transport_facts_never_establish_credit_or_retry_authority() {
             phase,
             response: None,
             reconciliation: FundingReconciliation::TransferUnknown(u128::MAX),
+            renewed_allocation: 0,
             fenced: true,
         }));
         assert_eq!(value["record"]["response"], Value::Null);
@@ -126,6 +127,7 @@ fn absence_and_transport_facts_never_establish_credit_or_retry_authority() {
             ledger: 0,
         })),
         reconciliation: FundingReconciliation::CreditRequired(1),
+        renewed_allocation: 0,
         fenced: false,
     }));
     assert_eq!(
@@ -148,6 +150,7 @@ fn absence_and_transport_facts_never_establish_credit_or_retry_authority() {
         },
         response: Some(FundingResponse::InvalidBalance(FundingBalanceField::Ledger)),
         reconciliation: FundingReconciliation::NoTransfer,
+        renewed_allocation: 0,
         fenced: false,
     }));
     assert_eq!(
@@ -175,6 +178,7 @@ fn exact_intent_conflict_binding_and_decode_failure_remain_observable() {
         phase: FundingPhase::NotEnqueued,
         response: Some(FundingResponse::NotEnqueued),
         reconciliation: FundingReconciliation::NoTransfer,
+        renewed_allocation: 0,
         fenced: false,
     };
     assert_eq!(
@@ -193,4 +197,50 @@ fn exact_intent_conflict_binding_and_decode_failure_remain_observable() {
         output(input(), &vec![0; 4097], &options),
         Err(Failure::ReplyLimit)
     );
+}
+
+#[test]
+fn host_confirmed_credit_is_distinct_from_reported_success_and_preserves_no_retry() {
+    let value = render(Some(&FundingOutcomeResponse {
+        request: input(),
+        phase: FundingPhase::Callback {
+            refunded: u128::MAX - 1,
+        },
+        response: None,
+        reconciliation: FundingReconciliation::CreditConfirmed {
+            accepted_cycles: 1,
+            receipt_digest: [1; 32],
+        },
+        renewed_allocation: 0,
+        fenced: true,
+    }));
+    assert_eq!(
+        value["record"]["reconciliation"]["state"],
+        "credit_confirmed"
+    );
+    assert_eq!(value["record"]["reconciliation"]["accepted"], "1");
+    assert_eq!(value["provider_credit"], "host_confirmed");
+    assert_eq!(value["retry_authorized"], false);
+    assert_eq!(value["record"]["fenced"], true);
+}
+
+#[test]
+fn grant_is_reported_as_decimal_authorization_without_retry_or_refund_claim() {
+    let view = FundingOutcomeResponse {
+        request: input(),
+        phase: FundingPhase::Callback {
+            refunded: u128::MAX - 100,
+        },
+        response: None,
+        reconciliation: FundingReconciliation::CreditConfirmed {
+            accepted_cycles: 100,
+            receipt_digest: [1; 32],
+        },
+        renewed_allocation: 50,
+        fenced: true,
+    };
+    let value = render(Some(&view));
+    assert_eq!(value["record"]["renewed_allocation"], "50");
+    assert_eq!(value["retry_authorized"], false);
+    assert_eq!(value["provider_credit"], "host_confirmed");
 }

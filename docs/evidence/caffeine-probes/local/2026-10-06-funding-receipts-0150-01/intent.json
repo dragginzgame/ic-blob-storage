@@ -1,0 +1,24 @@
+{
+  "date": "2026-10-06",
+  "class": "local PocketIC and synthetic host/provider facts",
+  "target": "0.15.0 pending, compiled 0.14.12; ic-memory 0.27.1 and ic-testkit 0.18.3",
+  "purpose": "Measure fully receipt-populated funding confirmation/reuse refusal/replay and synchronous same-image restoration at 100,1000,10000 lifetime intents. Populate only through maintained public journal mutations, no raw stable-state injection.",
+  "budget": {
+    "tiers": [
+      100,
+      1000,
+      10000
+    ],
+    "population_wall_seconds_per_tier": 180,
+    "local_call_timeout_seconds": 30,
+    "paid_cycles": "0",
+    "live_provider_requests": 0,
+    "downstream_writes": 0
+  },
+  "retention": ".tmp/funding-renewal-0150-01; unique attempt directories/logs and source/artifact hashes, including failed or incomplete tiers",
+  "limitations": [
+    "synthetic receipts do not prove actual provider credit",
+    "observer overhead is included; no production acceptance",
+    "no consumer builds or external workflows qualified"
+  ]
+}

@@ -1,0 +1,152 @@
+{
+  "schema": 1,
+  "date": "2026-10-06",
+  "question": "Can repeated guarded funding continue after exact host-established credit without erasing spent allocation, obligations or fences?",
+  "evidence_class": "Source implementation, native checks and actual local PocketIC calls using synthetic Cashier and host credit facts; no deployed-provider qualification",
+  "source": {
+    "head": "ebd535eaa2015407319fd330f559b2808ea01588",
+    "pending_release": "0.15.0",
+    "compiled_release": "0.14.12",
+    "ic_memory": "0.27.1",
+    "ic_testkit": "0.18.3",
+    "dependency_selection_changed": false,
+    "frozen_source": {
+      "path": ".tmp/funding-credit-0150-01/source.tar.gz",
+      "sha256": "8e8d4edf77a5f42e39e42451676d1a506ad97b9d02e467810b5b221fea373e4a"
+    },
+    "note": "Implementation extends the existing dirty pending release. Cargo metadata and maintainer-selected lock remain unchanged. Earlier memory 0.27.0 and released-image evidence retains its original identity."
+  },
+  "contract": {
+    "boundary": "Host-internal workflow::funding::credit::confirm and StableFundingJournal::record_credit; no production ingress credit setter.",
+    "bindings": "Full original intent, positive exact transport-accepted amount, nonzero SHA-256 fingerprint of independently authenticated uniquely attributable immutable provider credit evidence.",
+    "replay": "Identical confirmation is idempotent. Conflicting amount/fingerprint or reuse across local intents refuses before writes. Unknown, unsent or fully refunded attachments cannot be confirmed.",
+    "accounting": "Lifetime accepted remains spent. Separate credit_confirmed totals determine outstanding uncredited acceptance; no budget replenishment, uncertainty erasure, increased capacity or unfencing.",
+    "recovery": "Intent and accounting writes share IC rollback; reopen validates exact receipts, unique fingerprints and recomputed totals, then fences even exact replay.",
+    "hard_cut": "Mandatory persisted credit/accounting fields, mandatory uncredited_accepted status field, CreditConfirmed outcome variant, generated Candid, matching codecs and installation:platform-anchor-funding-credit format; prior formats refuse."
+  },
+  "results": {
+    "new_local_cases": {
+      "passed": 4,
+      "log": ".tmp/funding-credit-0150-01/credit-run-01.log",
+      "report": ".tmp/funding-credit-0150-01/credit-run-01",
+      "repeat": "Two actual Cashier requests, operations 1 and 2, accept 300 then 200 cycles. Exact first receipt permits second dispatch; aggregate lifetime acceptance stays 500, available allocation 500; second acceptance needs its own distinct receipt.",
+      "rollback": "FundingAccounting write trap after the receipt write preserves every stable byte and CreditRequired. Retrying confirmation succeeds without another provider request.",
+      "refusal": "Wrong authority, namespace, original offer, amount, neutral digest, changed receipt and cross-operation reuse preserve stable bytes.",
+      "restoration": "Actual same-image upgrade preserves receipt and totals, opens fenced and rejects exact confirmation replay."
+    },
+    "existing_local_cases": {
+      "storage": {
+        "distinct_passed": 26,
+        "initial_log": ".tmp/funding-credit-0150-01/storage-regression-01.log",
+        "retry_log": ".tmp/funding-credit-0150-01/storage-client-retry-01.log"
+      },
+      "standalone": {
+        "distinct_passed": 5,
+        "initial_log": ".tmp/funding-credit-0150-01/standalone-regression-01.log",
+        "retry_logs": [
+          ".tmp/funding-credit-0150-01/standalone-account-retry-01.log",
+          ".tmp/funding-credit-0150-01/standalone-assessment-retry-01.log"
+        ]
+      }
+    },
+    "native": {
+      "funding": 42,
+      "billing_policy": 24,
+      "installation": 10,
+      "cli": 98,
+      "logs": [
+        ".tmp/funding-credit-0150-01/core-tests-03.log",
+        ".tmp/funding-credit-0150-01/policy-tests-01.log",
+        ".tmp/funding-credit-0150-01/installation-tests-01.log",
+        ".tmp/funding-credit-0150-01/cli-tests-03.log"
+      ]
+    },
+    "pinned_refusal": {
+      "passed": true,
+      "log": ".tmp/funding-credit-0150-01/hard-cut-01.log",
+      "report": ".tmp/funding-credit-0150-01/hard-cut-run-01/summary.json",
+      "old_release": "0.14.9",
+      "old_memory": "0.25.5",
+      "old_wasm_sha256": "80290c5f12235a27f29839f899161774ee9a3429b965f2440e8ce0b3c6b04c38",
+      "physical_and_liability_bytes": "10486784",
+      "reserved_bytes": "10485760",
+      "stable_before_sha256": "b7fd9f8596cddeac299c366f2b95945363bc9cdcc377c21623592f1595a7ecaa",
+      "stable_after_sha256": "b7fd9f8596cddeac299c366f2b95945363bc9cdcc377c21623592f1595a7ecaa"
+    },
+    "validation": [
+      "Strict relevant all-target Clippy: clippy-05.log",
+      "Actual Rust 1.88 native and Wasm compilation: msrv-native-01.log, msrv-wasm-01.log",
+      "Current release Wasms: wasm-02.log, fixture-deps-build-01.log",
+      "Generated Candid equals maintained export: candid-test-01.log",
+      "Core rustdoc warnings denied: rustdoc-01.log",
+      "Rust formatting: fmt-01.log",
+      "Diff whitespace: diff-check-01.log"
+    ],
+    "full_ci_rerun": false
+  },
+  "failed_attempts": [
+    {
+      "logs": [
+        "fixture-check-01.log",
+        "fixture-check-02.log"
+      ],
+      "reason": "Protocol receipt fields needed public documentation and its renderer needed the added variant; fixed and fixture-check-03.log passes."
+    },
+    {
+      "logs": [
+        "clippy-01.log",
+        "clippy-02.log"
+      ],
+      "reason": "Larger views crossed value-passing threshold; callers now borrow. Simplified acceptance predicate. clippy-03/04/05 pass."
+    },
+    {
+      "log": "cli-tests-02.log",
+      "reason": "Two native local HTTP tests could not bind sockets in sandbox; all 98 pass with loopback permission in cli-tests-03.log."
+    },
+    {
+      "logs": [
+        "storage-regression-01.log",
+        "standalone-regression-01.log"
+      ],
+      "reason": "Two consumer and two gateway-source cases lacked explicit fixture paths. Built/froze matching fixture dependencies and retried only those four cases; original remaining cases passed."
+    },
+    {
+      "path": ".tmp/funding-credit-0150-01/SHA256SUMS-self-inclusion-01",
+      "reason": "Initial raw-manifest assembly included its own output path. Preserved that manifest; final manifest excludes itself and all 124 listed files verify."
+    }
+  ],
+  "retention": {
+    "raw_manifest": {
+      "path": ".tmp/funding-credit-0150-01/SHA256SUMS",
+      "sha256": "8a529d32cc3a2b7ff42678ed1c32935e27eadcfccf64910289388702ab54de26",
+      "files": 124
+    },
+    "artifact_manifest": {
+      "path": ".tmp/funding-credit-0150-01/artifacts.sha256",
+      "sha256": "563d5152d04bd48f38b3403018bfe9682d4a88172b9a6a2958c86a5561f7832b"
+    },
+    "fixture_dependency_manifest": {
+      "path": ".tmp/funding-credit-0150-01/fixture-deps.sha256",
+      "sha256": "711cdc4555a461929018781ff11ed5115ebef7cd8bf2fb9fd5b8fd4e9759b2d4"
+    },
+    "notes": "Requests and normal replies are raw Candid; credit-trap-result.candid retains textual RejectResponse bytes despite its suffix. Stable snapshots and observed original Cashier requests are retained per new case. No failed evidence is replaced."
+  },
+  "effects": {
+    "live_provider_requests": 0,
+    "paid_cycles": 0,
+    "git_commits": 0,
+    "pushes": 0,
+    "releases": 0,
+    "publications": 0,
+    "sibling_edits": 0,
+    "symbol_removals": []
+  },
+  "limitations": [
+    "Host facts/fingerprints are synthetic and not self-authenticating. Actual provider evidence, authority, unique attribution and account-wide completeness remain host qualification work.",
+    "Toko/Canic source was not changed. Consumer adoption, repeated production dispatch and upload verifier configuration remain their owners' work.",
+    "Fresh receipt reuse checks scan configured bounded lifetime history; scale/production confirmation costs and new receipt-populated restore tiers are not measured by this four-intent fixture.",
+    "Zero additional stable grants; local receipt uniqueness does not establish global uniqueness across installations.",
+    "Linux native/local runtime checks do not establish native macOS execution. Earlier supported-host records remain historical.",
+    "Cross-release upgrades and active stale backups remain unsupported. Retire original provider objects, balances and billing obligations before reinstall."
+  ]
+}

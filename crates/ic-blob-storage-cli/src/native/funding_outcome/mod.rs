@@ -69,8 +69,18 @@ fn response_json(response: FundingResponse) -> Value {
 fn output(input: FundingOutcomeRequest, bytes: &[u8], options: &Options) -> Result<Value, Failure> {
     let observed = outcome::inspect(input, bytes, 4096.try_into().expect("positive reply bound"))
         .map_err(failure)?;
+    let credit_confirmed = observed.is_some_and(|view| {
+        matches!(
+            view.reconciliation,
+            FundingReconciliation::CreditConfirmed { .. }
+        )
+    });
     let record = observed.map(|view| {
         let reconciliation = match view.reconciliation {
+            FundingReconciliation::CreditConfirmed { accepted_cycles, receipt_digest } => {
+                json!({"state":"credit_confirmed","accepted":accepted_cycles.to_string(),
+                    "receipt_sha256":ic_blob_storage::model::identity::ContentDigest::try_from(receipt_digest.as_slice()).expect("fixed receipt digest").to_string()})
+            }
             FundingReconciliation::NoTransfer => json!({"state":"no_transfer"}),
             FundingReconciliation::CreditRequired(amount) => {
                 json!({"state":"credit_required","accepted":amount.to_string()})
@@ -80,7 +90,7 @@ fn output(input: FundingOutcomeRequest, bytes: &[u8], options: &Options) -> Resu
             }
         };
         json!({"phase":history::phase_json(view.phase),"response":view.response.map(response_json),
-            "reconciliation":reconciliation,"fenced":view.fenced})
+            "reconciliation":reconciliation,"renewed_allocation":view.renewed_allocation.to_string(),"fenced":view.fenced})
     });
     Ok(
         json!({"schema":1,"observation":"funding_outcome","operator":options.actor.to_text(),
@@ -88,7 +98,7 @@ fn output(input: FundingOutcomeRequest, bytes: &[u8], options: &Options) -> Resu
         "scope":history::scope_json(input.scope),"operation":input.operation.to_string(),
         "offered":input.offered.to_string(),"target_balance":input.target_balance.map(|n|n.to_string()),
         "outcome":if record.is_some() {"found"} else {"absent"},"record":record,
-        "retry_authorized":false,"provider_credit":"not_established"}),
+        "retry_authorized":false,"provider_credit":if credit_confirmed { "host_confirmed" } else { "not_established" }}),
     )
 }
 

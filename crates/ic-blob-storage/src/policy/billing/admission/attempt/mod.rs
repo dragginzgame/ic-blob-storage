@@ -112,7 +112,7 @@ pub fn assess_first_attempt(
         }
         Some(_) => blockers.push(B::AlreadyAttempted),
     }
-    if local.allocation.accepted() != 0 {
+    if local.allocation.uncredited() != 0 {
         blockers.push(B::JournalUncredited);
     }
     blockers.extend(

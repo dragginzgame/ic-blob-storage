@@ -32,7 +32,7 @@
   };
   // Reserve the entire local allocation: no service attachment offer is available.
   // This does not cap provider charges or recall an escaped certificate.
-  funding = record { allocated = 1; reserve = 1; max_attempts = 1; };
+  funding = record { allocated = 1; renewal_ceiling = 1; reserve = 1; max_attempts = 1; };
   reads = record {
     sessions = 1;
     tenant_sessions = 1;

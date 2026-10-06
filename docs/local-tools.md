@@ -63,7 +63,7 @@ node tests/browser/build.mjs
 node --version > "$BLOB_TOOLS_ROOT/node-version.txt"
 git rev-parse HEAD > "$BLOB_TOOLS_ROOT/source-commit.txt"
 git status --porcelain > "$BLOB_TOOLS_ROOT/source-status.txt"
-sha256sum Cargo.lock tests/browser/package-lock.json \
+shasum -a 256 Cargo.lock tests/browser/package-lock.json \
   "$BLOB_TOOLS_ROOT/version.json" "$BLOB_TOOLS_ROOT/rust-version.txt" \
   "$BLOB_TOOLS_ROOT/node-version.txt" "$BLOB_TOOLS_ROOT/build-profile.txt" \
   "$BLOB_TOOLS_ROOT/bin/blob-storage" \
@@ -403,3 +403,20 @@ Preview `liquidity` figures are observations, possibly cached, and can change
 without a budget revision. The update rechecks its own exact encoded call. These
 local installed holds do not prove complete production liabilities, provider credit
 or recovery; top-level spendability remains unknown. Restored owners stay fenced.
+
+## Opt-in receipt-history resources
+
+With the selected locked caches, Rust Wasm target and PocketIC binary prepared,
+run `BLOB_FUNDING_RECEIPT_PROFILE="$PWD/.tmp/receipt-profile-unique"
+make test-funding-receipt-resources`. The report directory must not already exist.
+This scoped target builds the storage fixture and measures 100/1,000/10,000
+synthetic credited lifetime intents through maintained journal operations. It
+retains bounded population requests/results, selected confirmation/reuse refusal,
+replay, synchronous same-image restore, fences and resource counters.
+
+Each tier has a 180-second population budget and existing calls have 30-second
+bounds. Failures and incomplete tiers remain intact; select another fresh report
+for an explicitly chosen retry. The observer includes its overhead and reports
+allocated Wasm memory, not live heap/RSS. There are no provider calls, paid cycles,
+production timing thresholds or default CI scale workload. This does not qualify
+provider receipts or consumer integration.

@@ -1,0 +1,15 @@
+{
+  "date": "2026-10-06",
+  "class": "local validation follow-up; zero provider effects",
+  "next": "One fresh pinned old-ledger test after helper refactoring and exact packet retention; one existing same-release obligation recovery case. Retain the first accounting assertion failure, earlier passing refusal and all Clippy outcomes.",
+  "bounds": {
+    "old_ledger_cases_remaining": 1,
+    "max_old_stable_bytes": 33554432,
+    "case_seconds": 180,
+    "same_release_cases_remaining": 1,
+    "live_provider_requests": 0,
+    "paid_cycles": 0
+  },
+  "identity": "Final source snapshot and executable hashes retained separately from the earlier media test binary; no old ledger decoder or live reinstall",
+  "stop": "Missing pinned historical artifact, changed hashes, timeout, unexpected rejection or lost obligation; retain report and stop"
+}

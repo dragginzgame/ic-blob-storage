@@ -1,4 +1,5 @@
 //! Opt-in population/reopen measurements on normal application limits, outside default CI.
+mod credits;
 mod histories;
 use super::*;
 use blob_test_protocol::{

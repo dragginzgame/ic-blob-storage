@@ -1,0 +1,23 @@
+{
+  "date": "2026-10-06",
+  "question": "Can exact host-established credit confirmations enable subsequent guarded top-ups without returning spent cycles, reusing receipts or weakening restoration?",
+  "class": "source development, native and PocketIC synthetic host/provider evidence; not deployed provider qualification",
+  "source_base": "ebd535eaa2015407319fd330f559b2808ea01588",
+  "pending_release": "0.15.0",
+  "compiled_release": "0.14.12",
+  "host_boundary": "Maintainer selected host-internal confirmation; no public credit-fact endpoint or downstream edits. Host independently qualifies, authenticates and correlates immutable provider credit evidence before confirmation.",
+  "budgets": {
+    "paid_cycles": 0,
+    "live_provider_requests": 0,
+    "local_cashier_requests_per_case": 4,
+    "max_local_reply_bytes": 65536,
+    "local_case_seconds": 180,
+    "native_validation_seconds": 180,
+    "new_local_cases": 4,
+    "historical_refusal_cases": 1,
+    "max_old_stable_bytes": 33554432
+  },
+  "retention": ".tmp/funding-credit-0150-01; new report paths for failures/retries; retain requests, logs and source/artifact hashes",
+  "stop": "Unexpected external request, uncertainty, failing invariant, timeout or mismatched artifact; no paid retry or reset",
+  "cleanup": "Only owned local fixtures exit; all historical installations, evidence and provider obligations remain"
+}

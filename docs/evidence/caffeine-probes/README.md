@@ -14,6 +14,186 @@ maintained release and open work.
 [acceptance plan](../../acceptance-plan.md) ·
 [service gaps](../../service-gaps.md)
 
+## Indexed funding receipts and bounded grants — 2026-10-06
+
+The [profile intent](local/2026-10-06-funding-receipts-0150-01/intent.json),
+[index intent](local/2026-10-06-funding-receipts-0150-01/index-intent.json) and
+[grant intent](local/2026-10-06-funding-receipts-0150-01/renewal-intent.json) bound
+this batch before its respective local checks. The
+[summary](local/2026-10-06-funding-receipts-0150-01/summary.json) binds frozen source,
+artifacts, selected graph and raw attempts in `.tmp/funding-renewal-0150-01`.
+Everything uses local PocketIC and synthetic host/Cashier facts: zero paid cycles,
+live provider requests or consumer mutations. Compiled release remains 0.14.12
+for pending 0.15.0, with ic-memory 0.27.1 and ic-testkit 0.18.3 unchanged.
+
+The initial scan-based credit path costs 291,652,376 instructions at 1,000 intents.
+Its 10,000-intent population stops at 3,920 intents after 180,402 ms; that incomplete
+tier makes no confirmation/restore claim. An earlier bad post-upgrade byte-equality
+assertion and its complete raw log remain. The digest index now belongs to the
+existing accounting memory, with no new grant/owner. Reopen rejects missing,
+misdirected or orphan entries without repair.
+
+The fresh final profile passes all three tiers:
+
+| Lifetime intents | Population ms | Confirmation instructions | Replay instructions | Restore instructions | Physical stable bytes |
+| --- | --- | --- | --- | --- | --- |
+| 100 | 295 | 3,808,692 | 2,075,260 | 49,378,216 | 18,939,904 |
+| 1,000 | 2,719 | 4,840,460 | 2,439,668 | 463,270,694 | 21,037,056 |
+| 10,000 | 23,339 | 4,949,504 | 2,716,045 | 4,763,717,162 | 47,251,456 |
+
+Measured restoration heap is 1,376,256 bytes at each tier. Confirmation improves
+about 98% at 1,000 intents against the unreleased scan implementation; restoration
+still validates all history and costs more with the durable index. Fixture observers
+are included. This is neither a Toko workload benchmark nor production/provider
+qualification; the reviewed consumer still selects blob 0.14.9.
+
+The maintainer-selected bounded grants preserve gross acceptance, receipts,
+refunds and lifetime slots. One immutable grant requires the latest fully credited
+intent and is bounded by its accepted amount and installed cumulative ceiling.
+Actual IC traps after intent/index/accounting writes roll back all local bytes;
+grant replay after later dispatch never repeats payment. Same-image restore retains
+those records and refuses even exact mutation replay while fenced.
+
+All 32 storage funding and five standalone funding regressions, 100 CLI tests,
+focused native checks, strict relevant/harness Clippy, Rust 1.88 native/Wasm checks,
+rustdoc, Candid equality and actual trial-template installation pass. The initial
+historical test decoded an old configuration as a new DTO and failed; its corrected
+test compares the entire raw configuration reply and exact stable bytes. The pinned
+0.14.9/0.25.5 image refuses upgrade, preserving 10,486,784 physical/liability bytes
+and 10,485,760 reserved bytes. Independent provider evidence acquisition remains
+with the [consumer owner](../../funding-consumer-qualification.md).
+
+Canonical adoption exports 28 Shared Tooling files at `a7efade`, excluding dirty
+sibling audit drafts. Snapshot, offline dependency declarations, Bash 3.2 fixtures
+and workflow syntax checks pass without reselecting the lock. Matching upstream
+Linux/macOS CI is successful; dirty consumer CI is unqualified. Every failed
+compile/lint/setup/profile remains; no full CI, release, commit, push, publication,
+live effect, sibling edit or named symbol removal occurs.
+
+## Host-internal funding credit confirmation — 2026-10-06
+
+The [development intent](local/2026-10-06-funding-credit-0150-01/intent.json)
+bounds native and actual local PocketIC checks before execution: zero paid/live
+provider effects, four new local cases and one pinned historical refusal.
+The trusted-host credit input and Cashier are explicit synthetic substitutes;
+this work does not qualify deployed provider receipts or consumer integration.
+Logs and every failed preparation remain under `.tmp/funding-credit-0150-01`.
+
+The [summary](local/2026-10-06-funding-credit-0150-01/summary.json) binds 124 raw
+files, frozen source and matching Wasms/tools to unchanged ic-memory 0.27.1,
+compiled 0.14.12 for pending 0.15.0. Four new IC cases pass: exact credit allows
+a second dispatch; accepted cycles remain charged; conflicting/reused receipts
+and wrong authority refuse; accounting-write traps roll back both records; actual
+same-image restore retains receipts but fences even exact replay. Raw requests,
+replies, stable bytes and original substitute Cashier receipts survive.
+
+The [regression intent](local/2026-10-06-funding-credit-0150-01/regression-intent.json)
+separately bounds existing cases. All 26 storage funding and five standalone
+funding cases pass across initial runs and focused missing-fixture retries.
+Native funding/policy/installation and all 98 CLI cases, strict relevant Clippy,
+actual Rust 1.88 native/Wasm checks, rustdoc, formatting and exported Candid pass.
+The pinned 0.14.9/0.25.5 image again refuses upgrade without changing stable bytes
+or its 10,486,784 physical/liability bytes and 10,485,760 reserved bytes.
+
+Every missing-documentation, exhaustive-match, lint, denied loopback, absent
+fixture-path and initial self-including manifest attempt remains recorded.
+Only affected local IC cases are retried after preparing matching fixtures.
+No paid/live effect, full CI, release, commit, push, sibling edit or symbol removal
+occurs. Qualified provider evidence, consumer adoption and production receipt
+scan/restore sizing remain separate; confirmation never replenishes allocation
+or bypasses uncertainty, capacity, activity/spendability requirements or fences.
+
+## Repeated funding credit gap review — 2026-10-06
+
+The [review intent](local/2026-10-06-funding-credit-review-01/intent.json) bounds
+seven existing native regressions after initial source inspection. The
+[summary](local/2026-10-06-funding-credit-review-01/summary.json) binds current
+sources, tagged 0.14.9 source, read-only Toko/Canic wrapper observations and raw
+logs under `.tmp/funding-credit-review-01`. The selected lock now uses ic-memory
+0.27.1, still compiled 0.14.12 for pending 0.15.0; earlier graph records retain
+their original 0.27.0 identity. No dependency is reselected by this review.
+
+The reported library gap is confirmed. A positive accepted attachment remains
+`CreditRequired`; complete local accepted or reserved/uncertain totals yield
+`JournalUncredited` for the next guarded preparation/attempt. External host
+activity `Clear` does not override those totals. Persistent phases and mutation
+APIs contain no provider-credit confirmation/reconciliation transition. Dispatch
+`Settled` records transport and refund accounting, not verified provider credit.
+Balances, success replies, later refunds and new operation IDs cannot clear an
+earlier accepted amount. Low-level bookkeeping is not a safe guard bypass.
+
+All seven regressions pass: guarded preparation after acceptance, attempted
+exclusion of older acceptance, four reconciliation cases and summary preservation
+through later no-transfer attempts/restoration. This is native/synthetic evidence;
+no provider call, paid effect or production mutation occurs.
+
+Toko's clean local checkout at `061cfb6e3702a7075ab3c118bfaf315d7d2b0053`
+selects registry blob 0.14.9 through the local Canic wrapper, which currently
+exposes funding inspection queries only. Tagged 0.14.9 has the same blocking
+policy and absent journal settlement API. Canic's component automatic top-ups
+use management `deposit_cycles`, distinct from provider account funding. This
+review does not observe a deployed Toko provider-funding timer or a live failure.
+The Canic checkout is dirty; its exact reviewed wrapper files are separately
+hashed, with no sibling edits or builds.
+
+Repeated provider funding needs an authenticated, exactly scoped durable credit
+reconciliation contract, qualified provider evidence and consumer-owned dispatch
+integration. Preserve original transport records, lifetime accounting and restore
+fences. The upload completion verifier is a separate integration requirement.
+This finding narrows the claim to the guarded funding path; it does not imply
+that the upload library is entirely broken or qualify a deployed provider.
+
+## Selected hard-cut graph and media rehearsal — 2026-10-06
+
+The [intent](local/2026-10-06-hard-cut-media-01/intent.json) records the local
+old-ledger refusal and matching media bounds before execution. This work uses
+the selected ic-memory 0.27 graph, still compiled as 0.14.12 for pending 0.15.0.
+Fresh PocketIC owners, synthetic verification and local HTTP substitutes are
+separate from deployed provider evidence. Raw failures and retries are retained
+under `.tmp/v0150-hard-cut-01`; no paid or live provider effects are authorized.
+
+The [summary](local/2026-10-06-hard-cut-media-01/summary.json) binds the matching
+CLI/Wasm/test binaries, pinned SDK bundles, installed Brave 154.1.96.61, Node
+24.21.0, original consumer body hashes, raw signed packets and all failed attempts.
+The historical preflight Wasm is compiled 0.14.9 on ic-memory 0.25.5, rather than
+asserted to be tagged 0.14.9. An actual upgrade rejects in memory bootstrap and
+preserves all 18,939,904 stable bytes, old configuration, exact released/pending
+admissions, 10,486,784 physical/liability bytes and 10,485,760 reserved bytes.
+The opt-in [fixture](../../../tests/fixtures/standalone-pre-cut/README.md) requires
+that exact old image; it is not synthesized or added as a compatibility reader.
+
+The current carrier independently reads compiled 0.14.12 and rejects the wrong
+actual service. GLB/WebP complete with 11 PUTs and 8 observed GETs; PNG/JPEG lose
+the final reply and recover control with 7 PUTs and 8 GETs, without another PUT.
+All four original roots, whole bodies and immutable cache headers agree. Browser
+image decoding, GLB structure, credential-free CORS and enforced CSP pass.
+Retain/release overlap keeps the second reference usable; final-reference release
+refuses service downloads while provider URLs can still serve bytes. Physical
+and liability totals remain 8,389,774 and 4,318,116 respectively, including the
+separate second object still referenced in each journey.
+
+The first hard-cut assertion omitted conservative pending holds and stopped
+before upgrade. One model selector path failed before effects; two fresh model
+owners then completed transfers but failed fixed GET-count expectations because
+Brave reused an image response from HTTP cache. Both assertions now correlate
+exact object/origin observations; counts remain evidence rather than guarantees.
+The [follow-up intent](local/2026-10-06-hard-cut-media-01/followup-intent.json)
+explicitly records four actual fresh media owners instead of the initial two.
+No uncertain prior owner was replayed. The offline npm cache miss and two Clippy
+failures remain retained; corrected checks pass. The
+[validation intent](local/2026-10-06-hard-cut-media-01/validation-intent.json)
+bounds the final packet-retaining old-ledger case and same-release recovery.
+
+Two core capacity cases, six standalone reference refusal/recovery cases,
+same-release physical/billing obligation recovery, strict harness Clippy and
+actual Rust 1.88 harness compilation pass. The
+[retirement runbook](../../retiring-installations.md) and
+[overlap recipe](../../operator-guide.md#overlapping-application-releases-and-lifetime-capacity)
+use existing owners. This is Linux local/substitute qualification, not a repeated
+full gate, released 0.15.0 binary, native macOS result, consumer transaction,
+provider deletion or billing cessation. No historical record, live owner,
+balance or obligation is removed.
+
 ## Larger occupied funding/read histories — 2026-10-05
 
 The [intent](local/2026-10-05-restoration-scale-01/intent.json) precedes five

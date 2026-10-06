@@ -31,7 +31,14 @@ thread_local! {
     static READS: RefCell<[ReadCounter; 16]> = const { RefCell::new([ReadCounter { calls: 0, bytes: 0, instructions: 0 }; 16]) };
 }
 
-pub(super) fn begin_read_profile(restored: bool) {
+pub(crate) fn begin_read_profile(restored: bool) {
+    READS.with_borrow_mut(|reads| {
+        reads.fill(ReadCounter {
+            calls: 0,
+            bytes: 0,
+            instructions: 0,
+        });
+    });
     MEASURE_READS.set(restored);
 }
 pub(super) fn start_read() -> Option<u64> {
@@ -50,7 +57,7 @@ pub(super) fn finish_read(index: usize, bytes: usize, started: Option<u64>) {
         });
     }
 }
-pub(super) fn finish_read_profile() -> Vec<RestorationMemoryReads> {
+pub(crate) fn finish_read_profile() -> Vec<RestorationMemoryReads> {
     if !MEASURE_READS.replace(false) {
         return Vec::new();
     }
@@ -68,7 +75,7 @@ pub(super) fn finish_read_profile() -> Vec<RestorationMemoryReads> {
     })
 }
 
-pub(super) fn heap_bytes() -> u64 {
+pub(crate) fn heap_bytes() -> u64 {
     #[cfg(target_arch = "wasm32")]
     {
         (core::arch::wasm32::memory_size(0) as u64) * 65_536
@@ -222,4 +229,17 @@ fn populate_upload(
             result: Ok(_)
         }
     ));
+}
+
+pub(crate) fn credit_resources(
+    started: u64,
+    result: Result<Option<bool>, Failure>,
+) -> blob_test_protocol::storage::resources::FundingCreditResources {
+    blob_test_protocol::storage::resources::FundingCreditResources {
+        result,
+        instructions: ic_cdk::api::call_context_instruction_counter() - started,
+        heap_bytes: heap_bytes(),
+        stable_bytes: ic_cdk::api::stable_size() * 65_536,
+        reads: finish_read_profile(),
+    }
 }

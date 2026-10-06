@@ -90,6 +90,7 @@ pub(crate) fn populate(
                     )
                     .unwrap();
             }
+            record_synthetic_credit(state, context, input);
         }
         for input in batch.reads {
             let tenant = UploadContext {
@@ -155,4 +156,28 @@ pub(crate) fn inspect(
             })
             .collect()
     })
+}
+
+fn record_synthetic_credit(
+    state: &mut super::super::State,
+    context: UploadContext,
+    input: blob_test_protocol::storage::resources::FundingPopulationIntent,
+) {
+    let Some(receipt_digest) = input.credit_digest else {
+        return;
+    };
+    let Phase::Callback(refunded) = input.phase else {
+        panic!("synthetic credit requires known callback");
+    };
+    state
+        .funding
+        .record_credit(
+            context,
+            ic_blob_storage::model::billing::journal::credit::FundingCreditConfirmation {
+                intent: funding::intent(input.intent).unwrap(),
+                accepted_cycles: NonZeroU128::new(input.intent.offered - refunded).unwrap(),
+                receipt_digest,
+            },
+        )
+        .unwrap();
 }

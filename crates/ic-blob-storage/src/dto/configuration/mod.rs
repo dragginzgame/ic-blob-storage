@@ -65,8 +65,11 @@ pub struct ServiceConfigurationInput {
 /// Local attachment budget, not platform liquidity or provider credit.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
 pub struct ServiceFundingInput {
-    /// Total lifetime attachment allocation in cycles.
+    /// Initial attachment authorization in cycles, not available platform liquidity.
     pub allocated: u128,
+    /// Immutable cumulative ceiling including host-authorized budget increases.
+    /// Equal to allocated disables increases; spent history and slots never reset.
+    pub renewal_ceiling: u128,
     /// Positive amount kept out of attachment offers within this allocation.
     pub reserve: u128,
     /// Positive lifetime journal capacity, including uncertain and completed attempts.

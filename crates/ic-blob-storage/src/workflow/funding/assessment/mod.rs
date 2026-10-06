@@ -21,5 +21,5 @@ pub fn inspect<M: Memory>(
     let (intent, evidence) = assessment::input(request)?;
     let view = super::inspect_preparation(journal, context, intent, evidence)
         .map_err(assessment::failure)?;
-    assessment::present(request, view.journal, view.assessment.blockers())
+    assessment::present(request, &view.journal, view.assessment.blockers())
 }

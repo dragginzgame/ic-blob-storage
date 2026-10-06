@@ -18,7 +18,7 @@
     reserve = 100; minimum_balance = 100; target_balance = 200;
     max_gateway_entries = 2; max_gateway_unique = 1;
   };
-  funding = record { allocated = 1000; reserve = 100; max_attempts = 1; };
+  funding = record { allocated = 1000; renewal_ceiling = 1000; reserve = 100; max_attempts = 1; };
   reads = record {
     sessions = 1; tenant_sessions = 1; reply_bytes = 1024;
     bytes = 1024; tenant_bytes = 1024;

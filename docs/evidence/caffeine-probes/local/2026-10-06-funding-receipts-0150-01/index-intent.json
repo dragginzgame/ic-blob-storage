@@ -1,0 +1,22 @@
+{
+  "date": "2026-10-06",
+  "purpose": "Use a digest-to-original-operation index in the existing funding accounting memory. Preserve one journal owner, no new memory grant or provider request. Validate both directions/cardinality on same-release reopen; receipts remain immutable on intent records.",
+  "basis": {
+    "100_confirmation_instructions": 31767201,
+    "1000_confirmation_instructions": 291652376,
+    "1000_population_ms": 13001,
+    "10000_population": "incomplete: 180-second tier budget exhausted; original raw requests/results/checkpoints retained"
+  },
+  "budget": {
+    "tiers": [
+      100,
+      1000,
+      10000
+    ],
+    "tier_population_seconds": 180,
+    "paid_cycles": "0",
+    "live_provider_requests": 0,
+    "targeted_native_and_IC_regressions_only": true
+  },
+  "raw": ".tmp/funding-renewal-0150-01"
+}

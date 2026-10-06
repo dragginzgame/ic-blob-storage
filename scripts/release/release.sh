@@ -30,16 +30,16 @@ allowed_changes() {
 }
 preflight() {
     ensure_clean
-    [[ "$(git rev-parse HEAD)" == "${RELEASE_SOURCE:?}" ]]
-    [[ "$(version)" == "${RELEASE_PREVIOUS:?}" ]]
+    [[ "$(git rev-parse HEAD)" == "${RELEASE_SOURCE:?}" ]] || fail 'source commit does not match release intent'
+    [[ "$(version)" == "${RELEASE_PREVIOUS:?}" ]] || fail 'previous version does not match release intent'
     perl "$DATA" changelog-check "${RELEASE_VERSION:?}" "${RELEASE_DATE:?}"
     # The complete gate verifies the snapshot and fetches the selected lock before
     # any offline validation. Do not fetch again on post-validation preparation.
 }
 prepare() {
-    [[ "$(git rev-parse HEAD)" == "${RELEASE_SOURCE:?}" ]]
+    [[ "$(git rev-parse HEAD)" == "${RELEASE_SOURCE:?}" ]] || fail 'source commit does not match release intent'
     ensure_clean
-    [[ "$(version)" == "${RELEASE_PREVIOUS:?}" ]]
+    [[ "$(version)" == "${RELEASE_PREVIOUS:?}" ]] || fail 'previous version does not match release intent'
     perl "$DATA" changelog-check "${RELEASE_VERSION:?}" "${RELEASE_DATE:?}"
     mkdir -p "$CARGO_TARGET_DIR"
     RELEASE_BACKUP_DIR="$(mktemp -d "$CARGO_TARGET_DIR/release-backup.XXXXXX")"
@@ -72,9 +72,9 @@ prepare() {
 }
 verify_prepared() {
     perl "$DATA" verify "${RELEASE_SOURCE:?}" "${RELEASE_VERSION:?}" "${RELEASE_DATE:?}"
-    [[ "$(version)" == "${RELEASE_VERSION:?}" ]]
-    [[ "$(perl "$DATA" source)" == "${RELEASE_SOURCE:?}" ]]
-    [[ "$(git rev-parse HEAD)" == "$RELEASE_SOURCE" ]]
+    [[ "$(version)" == "${RELEASE_VERSION:?}" ]] || fail 'prepared version does not match release intent'
+    [[ "$(perl "$DATA" source)" == "${RELEASE_SOURCE:?}" ]] || fail 'receipt source does not match release intent'
+    [[ "$(git rev-parse HEAD)" == "$RELEASE_SOURCE" ]] || fail 'source commit does not match release intent'
     allowed_changes "$RELEASE_SOURCE"
     cargo metadata --offline --locked --no-deps --format-version 1 >/dev/null
     make --no-print-directory fmt-check
@@ -92,11 +92,16 @@ commit_check() {
     rm -f "$paths"
 }
 committed_check() {
-    perl "$DATA" verify "${RELEASE_SOURCE:?}" "${RELEASE_VERSION:?}" "${RELEASE_DATE:?}"
-    [[ "$(version)" == "${RELEASE_VERSION:?}" ]]
-    [[ "$(perl "$DATA" source)" == "${RELEASE_SOURCE:?}" ]]
-    [[ "$(git rev-parse HEAD^)" == "$RELEASE_SOURCE" ]]
     ensure_clean
+    local commit="${RELEASE_COMMIT:?}"
+    [[ "$commit" =~ ^[0-9a-f]{40,64}$ ]] || fail 'release commit must be an exact Git identity'
+    perl "$DATA" verify-commit "$commit" "${RELEASE_SOURCE:?}" "${RELEASE_VERSION:?}" "${RELEASE_DATE:?}"
+    [[ "$(git log -1 --format=%P "$commit")" == "$RELEASE_SOURCE" ]] || fail 'release parent does not match validated source'
+}
+verify_tag() {
+    local commit="$1" current="$2"
+    [[ "$(git cat-file -t "refs/tags/v$current")" == tag ]] || fail 'release tag is not annotated'
+    [[ "$(git rev-parse "refs/tags/v$current^{commit}")" == "$commit" ]] || fail 'release tag does not select the release commit'
 }
 tag_check() {
     ensure_clean
@@ -104,9 +109,8 @@ tag_check() {
     local current source
     current="$(version)"
     source="$(perl "$DATA" source)"
-    [[ "$(git rev-parse HEAD^)" == "$source" ]]
-    [[ "$(git cat-file -t "refs/tags/v$current")" == tag ]]
-    [[ "$(git rev-parse "refs/tags/v$current^{commit}")" == "$(git rev-parse HEAD)" ]]
+    [[ "$(git log -1 --format=%P HEAD)" == "$source" ]] || fail 'release parent does not match validated source'
+    verify_tag "$(git rev-parse HEAD)" "$current"
 }
 publish() {
     case "${1:-}" in ''|--dry-run) ;; *) fail 'expected publish [--dry-run]' ;; esac
@@ -130,7 +134,7 @@ case "$command" in
         candidate="$(bash scripts/ci/next-release-version.sh "$previous" "${1:-patch}")"
         printf 'Current: %s\nTarget: %s\nRemote: %s\nBranch: %s\n' "$previous" "$candidate" "${RELEASE_REMOTE:-origin}" "${RELEASE_BRANCH:-main}"
         echo 'Maintainer workflow: preflight, complete validation, prepare, stage, commit/tag, exact atomic push.'
-        echo 'Saved unfinished intent takes precedence when executing the same target; publication and cleanup are separate.'
+        echo 'Committed unfinished releases reconcile first; newer fixes or a different increment receive fresh validation. Publication and cleanup are separate.'
         ;;
     ensure-clean) ensure_clean ;;
     preflight) preflight ;;
@@ -139,7 +143,7 @@ case "$command" in
     files) printf '%s\0' "${RELEASE_FILES[@]}" ;;
     commit-check) commit_check ;;
     committed-check) committed_check ;;
-    tagged-check) committed_check; tag_check ;;
+    tagged-check) committed_check; verify_tag "$RELEASE_COMMIT" "$RELEASE_VERSION" ;;
     tag-check) tag_check ;;
     publish) publish "${1:-}" ;;
     *) fail 'expected a metadata/check operation; use the common Make release targets for Git effects' ;;

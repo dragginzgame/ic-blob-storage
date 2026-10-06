@@ -122,6 +122,13 @@ pub(crate) fn view(
 
 pub(crate) const fn reconciliation(value: FundingReconciliation) -> FundingReconciliationView {
     match value {
+        FundingReconciliation::CreditConfirmed {
+            accepted_cycles,
+            receipt_digest,
+        } => FundingReconciliationView::CreditConfirmed {
+            accepted_cycles: accepted_cycles.get(),
+            receipt_digest,
+        },
         FundingReconciliation::NoTransfer => FundingReconciliationView::NoTransfer,
         FundingReconciliation::CreditRequired { accepted_cycles } => {
             FundingReconciliationView::CreditRequired(accepted_cycles.get())

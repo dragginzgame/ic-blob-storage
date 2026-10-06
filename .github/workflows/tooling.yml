@@ -31,10 +31,10 @@ jobs:
         if: runner.os == 'Linux'
         run: |
           sudo apt-get update
-          sudo apt-get install -y ripgrep
+          sudo apt-get install -y ripgrep jq libdigest-sha-perl
       - name: Prepare fixture utilities on macOS
         if: runner.os == 'macOS'
-        run: brew install ripgrep
+        run: brew install ripgrep jq
       - name: Prepare the selected Rust and formatter tools
         run: |
           rustup show active-toolchain
@@ -42,13 +42,40 @@ jobs:
           cargo install cargo-sort --version "$SHARED_TOOLING_CARGO_SORT_VERSION" \
             --locked --root "$RUNNER_TEMP/blob-format-tools"
           echo "$RUNNER_TEMP/blob-format-tools/bin" >> "$GITHUB_PATH"
+      - name: Prepare the reviewed YAML and TOML parser
+        run: |
+          source ci/tool-versions.env
+          case "$(uname -s):$(uname -m)" in
+            Linux:x86_64) parser_digest="$SHARED_TOOLING_YQ_SHA256_LINUX_AMD64" ;;
+            Darwin:x86_64) parser_digest="$SHARED_TOOLING_YQ_SHA256_DARWIN_AMD64" ;;
+            Darwin:arm64) parser_digest="$SHARED_TOOLING_YQ_SHA256_DARWIN_ARM64" ;;
+            *) echo 'Unsupported parser host' >&2; exit 1 ;;
+          esac
+          bash scripts/ci/install-yq.sh --version "$SHARED_TOOLING_YQ_VERSION" \
+            --sha256 "$parser_digest" --install-dir "$RUNNER_TEMP/blob-parser-tools"
+          echo "$RUNNER_TEMP/blob-parser-tools" >> "$GITHUB_PATH"
       - name: Check the snapshot, formatter and release/hook fixtures
         env:
           CARGO_NET_OFFLINE: 'true'
           RUSTUP_AUTO_INSTALL: '0'
+          TMPDIR: ${{ runner.temp }}
         run: |
           /bin/bash --version
           make shared-tooling-check
-          make fmt-check
-          make release-check
-          make hooks-check
+          failed=0
+          for target in dependency-pins-check evidence-check fmt-check release-check hooks-check; do
+            if make "$target"; then :; else failed=1; fi
+          done
+          exit "$failed"
+      - name: Retain failed tooling fixtures
+        if: failure()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: tooling-failure-${{ matrix.os }}-${{ github.run_attempt }}
+          path: |
+            target/release-tests.*/
+            ${{ runner.temp }}/blob-format-hooks.*/
+            ${{ runner.temp }}/blob-evidence-checksums.*/
+          include-hidden-files: true
+          if-no-files-found: ignore
+          retention-days: 30

@@ -20,6 +20,7 @@ mod standalone_download;
 mod standalone_funding;
 mod standalone_funding_cli;
 mod standalone_gateways;
+mod standalone_hard_cut;
 mod standalone_history;
 mod standalone_history_cli;
 mod standalone_ingress;
@@ -192,6 +193,7 @@ impl Fixture {
             },
             funding: ServiceFundingInput {
                 allocated: u128::from(u64::MAX) + 1,
+                renewal_ceiling: u128::from(u64::MAX) + 1,
                 reserve: 100,
                 max_attempts: 4,
             },

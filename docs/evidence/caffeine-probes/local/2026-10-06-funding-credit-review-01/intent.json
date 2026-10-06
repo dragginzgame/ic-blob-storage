@@ -1,0 +1,26 @@
+{
+  "date": "2026-10-06",
+  "question": "Does the guarded funding workflow admit repeated top-ups after a positive accepted attachment, and is there an authoritative credit-confirmation mutation?",
+  "evidence_class": "local source review and existing native unit regressions; no deployed provider observations",
+  "source_base": "ebd535eaa2015407319fd330f559b2808ea01588",
+  "source_dirty": true,
+  "scope": "ic-blob-storage current pending 0.15.0 source, compiled 0.14.12; read-only Toko/Canic consumer source observations separate from execution",
+  "planned_checks": [
+    "guarded preparation after earlier accepted cycles",
+    "attempt marking cannot hide older accepted cycles",
+    "reconciliation classifications and non-clearing no-transfer attempts",
+    "summary preservation through return/refund and restore"
+  ],
+  "budgets": {
+    "native_cases": 7,
+    "fixture_seconds": 120,
+    "live_provider_requests": 0,
+    "paid_cycles": 0,
+    "external_mutations": 0
+  },
+  "bindings": "Synthetic service/operator/Cashier/account identities supplied by maintained unit fixtures. No real provider target or paid request.",
+  "timing": "Initial source inspection precedes this record; this intent is recorded before executing local regressions.",
+  "stop": "Any failing regression, unexpected network/paid effect or evidence mismatch; retain logs, no reset/retry against a live owner",
+  "retention": ".tmp/funding-credit-review-01; existing historical records and obligations unchanged",
+  "cleanup": "Native test processes exit; logs and source bindings retained. No provider cleanup needed."
+}

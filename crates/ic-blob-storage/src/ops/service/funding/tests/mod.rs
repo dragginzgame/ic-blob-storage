@@ -2,9 +2,11 @@ use super::*;
 mod admission;
 mod assessment;
 mod attempt;
+mod credit;
 mod history;
 mod history_boundary;
 mod outcome;
+mod renewal;
 mod summary;
 use crate::{
     model::billing::{
@@ -359,7 +361,7 @@ fn orphaned_changed_and_omitted_history_rejects_without_repair() {
                     .insert(1, FundingIntentRecord::new(input(1, 399)));
             }
             _ => {
-                store.accounting.remove(&0);
+                store.accounting.remove(&[0; 32]);
             }
         }
         drop(store);

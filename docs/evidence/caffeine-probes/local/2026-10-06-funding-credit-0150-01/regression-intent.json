@@ -1,0 +1,10 @@
+{
+  "date":"2026-10-06",
+  "phase":"Required propagation and existing-regression validation after four new local credit cases pass",
+  "class":"native and local PocketIC, synthetic hosts/Cashier; no deployed provider qualification",
+  "frozen_artifacts":".tmp/funding-credit-0150-01/artifacts.sha256",
+  "budgets":{"live_provider_requests":0,"paid_cycles":0,"existing_storage_funding_cases":26,"existing_standalone_funding_cases":5,"candid_contract_cases":1,"max_local_cashier_calls_per_case":8,"case_seconds":180,"native_command_seconds":180},
+  "commands":"storage_funding filtered to skip its already retained four new credit cases; standalone funding; generated Candid equality; scoped native, Rust 1.88, strict Clippy and rustdoc",
+  "retention":"new raw command logs and original failed native checks; frozen artifacts and source stay immutable",
+  "cleanup":"owned local fixture lifecycle only; no reset of existing provider installations or obligations"
+}
