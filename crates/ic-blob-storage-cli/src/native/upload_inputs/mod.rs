@@ -23,11 +23,10 @@ use ic_blob_storage::{
         },
     },
 };
+use ic_host_tools::artifact::Sha256Digest;
 use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
-use sha2::{Digest, Sha256};
 use std::{
-    fmt::Write,
     num::NonZeroU64,
     path::{Path, PathBuf},
 };
@@ -464,12 +463,7 @@ fn snapshot(
     Ok(hashes)
 }
 pub(super) fn digest(bytes: &[u8]) -> String {
-    Sha256::digest(bytes)
-        .iter()
-        .fold(String::with_capacity(64), |mut result, byte| {
-            write!(result, "{byte:02x}").expect("String writes cannot fail");
-            result
-        })
+    Sha256Digest::compute(bytes).to_string()
 }
 
 #[cfg(test)]

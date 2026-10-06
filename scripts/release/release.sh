@@ -33,6 +33,7 @@ preflight() {
     [[ "$(git rev-parse HEAD)" == "${RELEASE_SOURCE:?}" ]] || fail 'source commit does not match release intent'
     [[ "$(version)" == "${RELEASE_PREVIOUS:?}" ]] || fail 'previous version does not match release intent'
     perl "$DATA" changelog-check "${RELEASE_VERSION:?}" "${RELEASE_DATE:?}"
+    make --no-print-directory release-tools-check
     # The complete gate verifies the snapshot and fetches the selected lock before
     # any offline validation. Do not fetch again on post-validation preparation.
 }
@@ -99,9 +100,7 @@ committed_check() {
     [[ "$(git log -1 --format=%P "$commit")" == "$RELEASE_SOURCE" ]] || fail 'release parent does not match validated source'
 }
 verify_tag() {
-    local commit="$1" current="$2"
-    [[ "$(git cat-file -t "refs/tags/v$current")" == tag ]] || fail 'release tag is not annotated'
-    [[ "$(git rev-parse "refs/tags/v$current^{commit}")" == "$commit" ]] || fail 'release tag does not select the release commit'
+    bash scripts/ci/check-release-tag.sh "$1" "$2" || fail 'release tag does not match exact release identity'
 }
 tag_check() {
     ensure_clean

@@ -1,5 +1,6 @@
 /target/
 /.tmp/
+/.tools/
 /.shared-tooling-refresh.*/
 /tests/browser/node_modules/
 **/*.rs.bk

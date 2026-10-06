@@ -1,9 +1,8 @@
+use ic_host_tools::artifact::{ArtifactError, Sha256Digest};
 use serde::{Deserialize, Serialize};
-use sha2::{Digest, Sha256};
-use std::fmt::Write as _;
 use std::{
     fs::{File, OpenOptions},
-    io::{Read, Write},
+    io::Write,
     path::Path,
     time::{SystemTime, UNIX_EPOCH},
 };
@@ -61,11 +60,7 @@ pub(super) fn now() -> Result<u64, String> {
         .map_err(|_| "clock".into())
 }
 pub(super) fn hash(bytes: &[u8]) -> String {
-    let mut hex = String::with_capacity(64);
-    for byte in Sha256::digest(bytes) {
-        write!(hex, "{byte:02x}").expect("format into string");
-    }
-    hex
+    Sha256Digest::compute(bytes).to_string()
 }
 pub(super) fn save(directory: &Path, name: &str, bytes: &[u8]) -> Result<(), String> {
     let mut file = OpenOptions::new()
@@ -95,16 +90,15 @@ pub(super) fn read(directory: &Path, name: &str, limit: usize) -> Result<Vec<u8>
     {
         return Err("record_not_file".into());
     }
-    let mut bytes = Vec::new();
-    File::open(directory.join(name))
-        .map_err(|_| "read_record")?
-        .take((limit + 1) as u64)
-        .read_to_end(&mut bytes)
-        .map_err(|_| "read_record")?;
-    if bytes.len() > limit {
-        return Err("record_limit".into());
-    }
-    Ok(bytes)
+    #[cfg(unix)]
+    let result = ic_host_tools::artifact::read_file_no_follow(&directory.join(name), limit);
+    #[cfg(not(unix))]
+    let result = ic_host_tools::artifact::read_file(&directory.join(name), limit);
+    result.map_err(|error| match error {
+        ArtifactError::LimitExceeded { .. } => "record_limit".into(),
+        ArtifactError::NotRegularFile => "record_not_file".into(),
+        _ => "read_record".into(),
+    })
 }
 pub(super) fn decode<T: for<'de> Deserialize<'de>>(
     directory: &Path,

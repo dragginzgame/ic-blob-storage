@@ -13,10 +13,14 @@ maintainer action; a library release does not qualify the storage service.
 
 Follow [dependency setup](dependencies.md), including pinned cargo-sort 2.1.4,
 rustfmt, ShellCheck, Perl with JSON::PP/Digest::SHA, Git, GNU Make and Bash 3.2 or
-newer. Put prepared tools on PATH; for user-local installs:
+newer. Provision the reviewed repository-local executables explicitly; for
+user-local formatter and shell tools:
 
 ```bash
 export PATH="$HOME/.cargo/bin:$HOME/.local/bin:$PATH"
+make install-tools
+make tools-check
+make release-tools-check
 make install-hooks
 make release-plan VERSION=patch
 ```
@@ -26,11 +30,16 @@ obligations. `release-plan` previews arithmetic and selected branch/remote witho
 Git effects. Execution checks saved unfinished intent before choosing another
 version. Maintain one numbered undated changelog entry under
 [the shared rules](../rules/changelogs.md); preserve released history.
+Release preflight runs `release-tools-check` before full validation: the selected
+ShellCheck executable must run and cargo-sort must match the reviewed version.
+Missing or incorrect tools report explicit installation commands; the check
+does not install, compile, mutate release files or replace the full gate.
+`SHELLCHECK=/absolute/path/to/shellcheck` selects an existing executable.
 
-The current pending batch is 0.15.0 because the ic-memory 0.27 public re-export
-and durable ledger contract, funding receipt records and operator DTOs are breaking. Use the minor increment for this
-batch after committing the implementation; a patch increment cannot include
-this hard cut. Package metadata stays at 0.14.12 until release preparation.
+The released baseline is 0.15.0, including the ic-memory 0.27 and funding hard
+cut. The current pending batch is 0.15.1: compatible developer tooling and native
+CLI internals, with no service DTO or durable layout change. Package metadata
+and the release receipt stay at 0.15.0 until release preparation.
 
 Commit the implementation and notes before releasing. Agents never create those
 commits or invoke the one-shot commands below. The explicit metadata/check
@@ -55,10 +64,11 @@ commit and annotated tag, then atomically pushes exactly that branch and tag.
 Publication, deployment and cleanup are separate.
 
 The complete gate is `make release-verify` (also `make ci` / `make validate`). It
-verifies the shared snapshot, fetches the selected lock with `make deps`, then
+verifies the shared snapshot, local executables and dependency declarations,
+fetches the selected lock with `make deps`, then
 runs shell/helper checks, hook regressions, manifest/Rust formatting, compilation,
 Clippy, retained-probe checks, docs, native/PocketIC tests, Wasm and packaging.
-Snapshot or fetch failure stops before compilation or version mutation. Offline
+Prerequisite or fetch failure stops before compilation or version mutation. Offline
 checks never select newer dependencies. The metadata transaction updates only
 workspace versions and local version-qualified references in Cargo.lock, then
 checks Cargo metadata with `--offline --locked`; external selections stay fixed.

@@ -4,7 +4,10 @@ SHELL := /bin/bash
 # Keep all builds in this repository, including calls from another workspace.
 export CARGO_TARGET_DIR := $(CURDIR)/target
 # Explicit path prevents PocketIC from downloading a server during tests.
-export POCKET_IC_BIN ?= $(CURDIR)/.tmp/tools/pocket-ic-16.0.0/pocket-ic
+export POCKET_IC_BIN ?= $(CURDIR)/.tools/ic/bin/pocket-ic
+IC_TOOL_PINS ?= ci/ic-tools.tsv
+HOST_TOOL_VERSIONS ?= ci/tool-versions.env
+export PATH := $(CURDIR)/.tools/host/bin:$(CURDIR)/.tools/ic/bin:$(PATH)
 export BLOB_AUTHORITY_PROBE_WASM := $(CARGO_TARGET_DIR)/wasm32-unknown-unknown/release/blob_authority_probe.wasm
 export BLOB_ADMISSION_PROBE_WASM := $(CARGO_TARGET_DIR)/wasm32-unknown-unknown/release/blob_admission_probe.wasm
 export BLOB_STORAGE_PROBE_WASM := $(CARGO_TARGET_DIR)/wasm32-unknown-unknown/release/blob_storage_probe.wasm
@@ -22,21 +25,26 @@ RELEASE_REMOTE ?= origin
 RELEASE_BRANCH ?= main
 export RELEASE_KIND RELEASE_PREVIOUS RELEASE_VERSION RELEASE_DATE RELEASE_SOURCE RELEASE_COMMIT RELEASE_REMOTE RELEASE_BRANCH
 SHELLCHECK ?= shellcheck
-CI_TARGETS := shared-tooling-check dependency-pins-check deps shell-check release-check hooks-check fmt-check check clippy probe-check docs-check test wasm-check package
+CI_TARGETS := shared-tooling-check tools-check dependency-pins-check deps shell-check release-check hooks-check fmt-check check clippy probe-check docs-check test wasm-check package
 
 .PHONY: help version deps cloc shared-tooling-check dependency-pins-check fmt fmt-check check clippy docs-check test test-native test-pocketic test-browser test-browser-store test-browser-transport test-browser-standalone test-sdk-probe test-sdk-inputs test-fixture test-standalone build-standalone test-admission-resources test-read-resources test-funding-receipt-resources wasm-check \
 	build package clean shell-check release-check probe-check ci validate release-verify test-browser-publication test-browser-bootstrap test-browser-launcher test-browser-native \
 	release-plan ensure-clean release-patch release-minor release-major release-resume \
 	release-version release-preflight release-prepare-version release-prepared-check release-files \
 	release-commit-check release-committed-check release-tagged-check release-push-check \
-	release-tag-check publish publish-dry-run install-hooks format-tools-check hooks-check evidence-check
-.PHONY: test-hard-cut
+	release-tag-check publish publish-dry-run install-hooks format-tools-check release-tools-check hooks-check evidence-check
+.PHONY: test-hard-cut test-native-host install-tools tools-check install-host-tools host-tools-check install-ic-tools ic-tools-check
 
 ifneq ($(word 2,$(filter release-patch release-minor release-major release-resume,$(MAKECMDGOALS))),)
 $(error Select exactly one release target)
 endif
 
 help:
+	@echo "release-tools-check          Check ShellCheck and the pinned manifest formatter without building"
+	@echo "test-native-host             CLI boundaries and actual local installation qualification"
+	@echo "install-tools / tools-check   Explicit local tool installation / offline verification"
+	@echo "install-host-tools / host-tools-check   Pinned repo-local jq/yq setup / verification"
+	@echo "install-ic-tools / ic-tools-check       Pinned repo-local IC setup / verification"
 	@echo "deps                         Fetch locked Rust dependencies (network)"
 	@echo "cloc                         Offline Rust runtime/test counts for every workspace member"
 	@echo "test-funding-receipt-resources  Measure populated receipt confirmation and restore (opt-in)"
@@ -74,6 +82,26 @@ help:
 version:
 	@$(RELEASE) version
 
+install-tools:
+	+$(MAKE) --no-print-directory install-host-tools
+	+$(MAKE) --no-print-directory install-ic-tools
+
+tools-check:
+	+$(MAKE) --no-print-directory host-tools-check
+	+$(MAKE) --no-print-directory ic-tools-check
+
+install-host-tools:
+	bash scripts/dev/install-host-tools.sh --versions "$(HOST_TOOL_VERSIONS)"
+
+host-tools-check:
+	bash scripts/dev/install-host-tools.sh --versions "$(HOST_TOOL_VERSIONS)" --check
+
+install-ic-tools:
+	bash scripts/dev/install-ic-tools.sh --pins "$(IC_TOOL_PINS)"
+
+ic-tools-check:
+	bash scripts/dev/install-ic-tools.sh --pins "$(IC_TOOL_PINS)" --check
+
 deps:
 	cargo fetch --locked
 
@@ -87,7 +115,10 @@ dependency-pins-check:
 	bash scripts/ci/check-dependency-pins.sh
 
 format-tools-check:
-	@bash -c 'source ci/tool-versions.env; [[ "$$(cargo sort --version)" == "cargo-sort $$SHARED_TOOLING_CARGO_SORT_VERSION" ]] || { echo "Install cargo-sort $$SHARED_TOOLING_CARGO_SORT_VERSION before formatting." >&2; exit 1; }'
+	@bash -c 'source ci/tool-versions.env; [[ "$$(cargo sort --version 2>/dev/null)" == "cargo-sort $$SHARED_TOOLING_CARGO_SORT_VERSION" ]] || { echo "Install the reviewed formatter: cargo install cargo-sort --version $$SHARED_TOOLING_CARGO_SORT_VERSION --locked" >&2; exit 1; }'
+
+release-tools-check: format-tools-check
+	@command -v "$(SHELLCHECK)" >/dev/null 2>&1 && "$(SHELLCHECK)" --version >/dev/null 2>&1 || { echo "Prepare ShellCheck: sudo apt-get install shellcheck (Debian/Ubuntu) or brew install shellcheck (macOS)." >&2; echo "Select an existing executable with SHELLCHECK=/absolute/path/to/shellcheck." >&2; exit 1; }
 
 install-hooks:
 	bash scripts/dev/install-git-hooks.sh
@@ -128,7 +159,13 @@ test:
 	+$(MAKE) --no-print-directory test-pocketic
 
 test-native:
-	cargo test --offline --locked -p ic-blob-storage -p blob-consumer-probe -p ic-blob-storage-canister -p ic-blob-storage-cli --all-features
+	bash scripts/ci/run-nonempty-cargo-test.sh --offline --locked -p ic-blob-storage -p blob-consumer-probe -p ic-blob-storage-canister -p ic-blob-storage-cli --all-features
+
+test-native-host:
+	+$(MAKE) --no-print-directory build-standalone
+	cargo build --offline --locked -p ic-blob-storage-cli
+	bash scripts/ci/run-nonempty-cargo-test.sh --offline --locked -p ic-blob-storage-cli --bins
+	bash scripts/ci/run-nonempty-cargo-test.sh --offline --locked -p ic-blob-storage-pocketic-tests --test standalone standalone_installation_cli:: -- --test-threads=1
 
 test-fixture:
 	cargo build --offline --locked --release --target wasm32-unknown-unknown -p blob-authority-probe -p blob-admission-probe -p blob-storage-probe -p blob-consumer-probe -p blob-gateway-source -p blob-funding-probe --lib
@@ -137,7 +174,7 @@ test-pocketic:
 	+$(MAKE) --no-print-directory test-fixture
 	+$(MAKE) --no-print-directory build-standalone
 	cargo build --offline --locked -p ic-blob-storage-cli
-	cargo test --offline --locked -p ic-blob-storage-pocketic-tests
+	bash scripts/ci/run-nonempty-cargo-test.sh --offline --locked -p ic-blob-storage-pocketic-tests
 
 build-standalone:
 	cargo build --offline --locked --release --target wasm32-unknown-unknown -p ic-blob-storage-canister --lib
@@ -146,12 +183,12 @@ test-hard-cut:
 	@test -n "$(BLOB_PRE_CUT_STANDALONE_WASM)" -a -n "$(BLOB_HARD_CUT_REPORT)" || { echo 'Set BLOB_PRE_CUT_STANDALONE_WASM and a fresh BLOB_HARD_CUT_REPORT'; exit 1; }
 	+$(MAKE) --no-print-directory build-standalone
 	BLOB_PRE_CUT_STANDALONE_WASM="$(BLOB_PRE_CUT_STANDALONE_WASM)" BLOB_HARD_CUT_REPORT="$(BLOB_HARD_CUT_REPORT)" \
-		cargo test --offline --locked -p ic-blob-storage-pocketic-tests --test standalone standalone_hard_cut::older_allocation_ledger_upgrade_preserves_bytes_and_obligations_on_refusal -- --ignored --exact --test-threads=1
+		bash scripts/ci/run-nonempty-cargo-test.sh --offline --locked -p ic-blob-storage-pocketic-tests --test standalone standalone_hard_cut::older_allocation_ledger_upgrade_preserves_bytes_and_obligations_on_refusal -- --ignored --exact --test-threads=1
 
 test-standalone:
 	cargo build --offline --locked --release --target wasm32-unknown-unknown -p ic-blob-storage-canister -p blob-gateway-source -p blob-storage-probe -p blob-consumer-probe --lib
 	cargo build --offline --locked -p ic-blob-storage-cli
-	cargo test --offline --locked -p ic-blob-storage-pocketic-tests --test standalone -- --test-threads=1
+	bash scripts/ci/run-nonempty-cargo-test.sh --offline --locked -p ic-blob-storage-pocketic-tests --test standalone -- --test-threads=1
 
 # Browser tooling is explicitly provisioned; this target performs no downloads.
 test-sdk-probe:
@@ -198,13 +235,13 @@ test-browser-standalone:
 	$(BLOB_BROWSER_NODE) tests/browser/build.mjs
 	cargo build --offline --locked --release --target wasm32-unknown-unknown -p ic-blob-storage-canister --lib
 	cargo build --offline --locked -p ic-blob-storage-cli --bin blob-storage
-	cargo test --offline --locked -p ic-blob-storage-pocketic-tests --test standalone chromium_standalone_trial -- --ignored --test-threads=1
+	bash scripts/ci/run-nonempty-cargo-test.sh --offline --locked -p ic-blob-storage-pocketic-tests --test standalone chromium_standalone_trial -- --ignored --test-threads=1
 
 test-browser:
 	$(BLOB_BROWSER_NODE) tests/browser/build.mjs
 	$(BLOB_BROWSER_NODE) tests/browser/store.mjs
 	cargo build --offline --locked --release --target wasm32-unknown-unknown -p blob-storage-probe -p blob-consumer-probe --lib
-	cargo test --offline --locked -p ic-blob-storage-pocketic-tests --test storage chromium_certificate_intent -- --ignored --test-threads=1
+	bash scripts/ci/run-nonempty-cargo-test.sh --offline --locked -p ic-blob-storage-pocketic-tests --test storage chromium_certificate_intent -- --ignored --test-threads=1
 
 test-admission-resources:
 	cargo build --offline --locked --release --target wasm32-unknown-unknown -p blob-admission-probe --lib
@@ -214,19 +251,19 @@ test-admission-resources:
 	BLOB_RELEASE_HISTORY_REPORT="$(CURDIR)/.tmp/release-history.json" \
 	BLOB_REFERENCE_HISTORY_REPORT="$(CURDIR)/.tmp/reference-history.json" \
 	BLOB_DESCRIPTOR_RESOURCE_REPORT="$(CURDIR)/.tmp/descriptor-resources.json" \
-	cargo test --offline --locked -p ic-blob-storage-pocketic-tests --test admission admission_resources -- --test-threads=2
+	bash scripts/ci/run-nonempty-cargo-test.sh --offline --locked -p ic-blob-storage-pocketic-tests --test admission admission_resources -- --test-threads=2
 	@echo "Local resource reports in .tmp/: admission-resources.json, admission-history.json, release-history.json, reference-history.json, descriptor-resources.json (not provider pricing)"
 
 test-funding-receipt-resources:
 	@test -n "$(BLOB_FUNDING_RECEIPT_PROFILE)" || { echo "Set BLOB_FUNDING_RECEIPT_PROFILE to a fresh report directory." >&2; exit 1; }
 	cargo build --offline --locked --release --target wasm32-unknown-unknown -p blob-storage-probe --lib
-	cargo test --offline --locked -p ic-blob-storage-pocketic-tests --test storage storage_resources::credits::receipt_populated_confirmation_and_restoration_profile -- --ignored --exact --test-threads=1
+	bash scripts/ci/run-nonempty-cargo-test.sh --offline --locked -p ic-blob-storage-pocketic-tests --test storage storage_resources::credits::receipt_populated_confirmation_and_restoration_profile -- --ignored --exact --test-threads=1
 
 test-read-resources:
 	cargo build --offline --locked --release --target wasm32-unknown-unknown -p blob-authority-probe -p blob-gateway-source --lib
 	@mkdir -p .tmp
 	BLOB_READ_RESOURCE_REPORT="$(CURDIR)/.tmp/read-resources.json" \
-	cargo test --offline --locked -p ic-blob-storage-pocketic-tests --test journey readback -- --test-threads=2
+	bash scripts/ci/run-nonempty-cargo-test.sh --offline --locked -p ic-blob-storage-pocketic-tests --test journey readback -- --test-threads=2
 	@echo "Local read report: .tmp/read-resources.json (not a production read protocol or provider pricing)"
 
 wasm-check:
@@ -243,7 +280,7 @@ clean:
 
 shell-check:
 	@for script in scripts/release/*.sh scripts/dev/*.sh scripts/ci/*.sh .githooks/pre-commit; do bash -n "$$script" || exit $$?; done
-	$(SHELLCHECK) scripts/release/*.sh scripts/dev/*.sh scripts/ci/*.sh .githooks/pre-commit
+	"$(SHELLCHECK)" scripts/release/*.sh scripts/dev/*.sh scripts/ci/*.sh .githooks/pre-commit
 	perl -c scripts/release/release-data.pl
 
 release-check:

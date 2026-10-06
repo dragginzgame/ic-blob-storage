@@ -1085,6 +1085,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "28dea519a9695b9977216879a3ebfddf92f1c08c05d984f8996aecd6ecdc811d"
 
 [[package]]
+name = "filetime"
+version = "0.2.29"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5c287a33c7f0a620c38e641e7f60827713987b3c0f26e8ddc9462cc69cf75759"
+dependencies = [
+ "cfg-if",
+ "libc",
+]
+
+[[package]]
 name = "find-msvc-tools"
 version = "0.1.14"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1552,11 +1562,11 @@ dependencies = [
  "candid",
  "ic-agent",
  "ic-blob-storage",
+ "ic-host-tools",
  "libc",
  "reqwest",
  "serde",
  "serde_json",
- "sha2 0.11.0",
  "tempfile",
  "tokio",
  "url",
@@ -1663,6 +1673,21 @@ dependencies = [
 ]
 
 [[package]]
+name = "ic-host-tools"
+version = "0.1.12"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2bab59e3414ce35a7bfea837752dffe680cb957c6796ba9daf0b0b763c3786f0"
+dependencies = [
+ "flate2",
+ "rustix",
+ "serde",
+ "serde_json",
+ "sha2 0.10.9",
+ "tar",
+ "wasmparser",
+]
+
+[[package]]
 name = "ic-management-canister-types"
 version = "0.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1686,9 +1711,9 @@ dependencies = [
 
 [[package]]
 name = "ic-memory"
-version = "0.27.1"
+version = "0.28.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6834e001dd05ad69d3f727c76210afdf2ed4f7928933a3a4df286c77894b2861"
+checksum = "61ad8a40a390ca911814c76ad83363d936177224ffcc40eced89f9afce834cb5"
 dependencies = [
  "ciborium",
  "ctor",
@@ -3422,6 +3447,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "tar"
+version = "0.4.46"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3f6221d9a6003c78398e3b239969f352578258df48c8eb051caadae0015bc840"
+dependencies = [
+ "filetime",
+ "libc",
+]
+
+[[package]]
 name = "tempfile"
 version = "3.27.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4004,6 +4039,16 @@ dependencies = [
  "wasm-bindgen",
  "wasm-bindgen-futures",
  "web-sys",
+]
+
+[[package]]
+name = "wasmparser"
+version = "0.253.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "19db11f87d2486580e1e8b6f494c54df7e0566b87d0b599db843c24019667339"
+dependencies = [
+ "bitflags",
+ "indexmap",
 ]
 
 [[package]]

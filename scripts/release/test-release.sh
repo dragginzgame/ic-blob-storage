@@ -41,7 +41,7 @@ create_fixture() {
     mkdir -p "$FIXTURE/scripts/release" "$FIXTURE/scripts/ci" "$FIXTURE/ci" "$FIXTURE/docs" "$FIXTURE/target/debug"
     cp "$ROOT/scripts/release/release.sh" "$ROOT/scripts/release/release-data.pl" "$FIXTURE/scripts/release/"
     cp "$ROOT/scripts/ci/run-release.sh" "$ROOT/scripts/ci/next-release-version.sh" \
-        "$ROOT/scripts/ci/run-validation-targets.sh" "$FIXTURE/scripts/ci/"
+        "$ROOT/scripts/ci/run-validation-targets.sh" "$ROOT/scripts/ci/check-release-tag.sh" "$FIXTURE/scripts/ci/"
     cp "$ROOT/ci/tool-versions.env" "$FIXTURE/ci/"
     cp "$ROOT/Makefile" "$FIXTURE/Makefile"
     cd "$FIXTURE"
@@ -130,6 +130,7 @@ case "$1" in
             HEAD^) cat "target/history/$(resolve HEAD).parent" ;;
             *'^{tree}') echo "$tree" ;;
             refs/tags/*'^{commit}') ref="${*: -1}"; ref="${ref%%^*}"; cat "target/tags/${ref#refs/tags/}.commit" ;;
+            *'^{commit}') ref="${*: -1}"; resolve "${ref%%^*}" ;;
             refs/tags/*) ref="${*: -1}"; cat "target/tags/${ref#refs/tags/}.sha" ;;
             *) exit 97 ;;
         esac ;;
@@ -208,7 +209,7 @@ case "$*" in
         [[ "${TEST_METADATA_FAIL:-0}" != 1 ]] || exit 1
         current="$(perl scripts/release/release-data.pl version)"
         printf '{"workspace_members":["local"],"packages":[{"id":"local","name":"ic-blob-storage","version":"%s","source":null}]}\n' "$current" ;;
-    'sort --version') echo 'cargo-sort 2.1.4' ;;
+    'sort --version') [[ "${TEST_SORT_FAIL:-0}" != 1 ]] || exit 1; echo "cargo-sort ${TEST_SORT_VERSION:-2.1.4}" ;;
     'sort --workspace --check') [[ "${TEST_PREPARE_FAIL:-0}" != 1 ]] ;;
     'fmt --all -- --check') ;;
     'fetch --locked') echo fetch >> "$TEST_EFFECTS"; [[ "${TEST_FETCH_FAIL:-0}" != 1 ]] || exit 1; touch target/mock-cargo-cache ;;
@@ -216,6 +217,12 @@ case "$*" in
     'publish --locked --registry crates-io -p ic-blob-storage'|'publish --locked --registry crates-io -p ic-blob-storage --dry-run') echo publish >> "$TEST_EFFECTS" ;;
     *) echo "unsupported Cargo substitute: $*" >&2; exit 97 ;;
 esac
+MOCK
+cat > "$TEMPORARY/bin/shellcheck" <<'MOCK'
+#!/usr/bin/env bash
+set -euo pipefail
+[[ "$*" == --version && "${TEST_SHELLCHECK_FAIL:-0}" != 1 ]] || exit 1
+echo 'ShellCheck version: 0.11.0'
 MOCK
 chmod +x "$TEMPORARY/bin/"*
 export PATH="$TEMPORARY/bin:$PATH"
@@ -227,6 +234,8 @@ test_dependency_bootstrap() {
 set -euo pipefail
 case "$*" in
     '--no-print-directory shared-tooling-check') echo snapshot >> "$TEST_EFFECTS"; [[ "${TEST_SNAPSHOT_FAIL:-0}" != 1 ]] ;;
+    '--no-print-directory tools-check') echo tools >> "$TEST_EFFECTS"; [[ "${TEST_TOOLS_FAIL:-0}" != 1 ]] ;;
+    '--no-print-directory dependency-pins-check') echo pins >> "$TEST_EFFECTS"; [[ "${TEST_PINS_FAIL:-0}" != 1 ]] ;;
     '--no-print-directory deps'|'--no-print-directory check') exec "$TEST_REAL_MAKE" "$@" ;;
     *) exit 97 ;;
 esac
@@ -235,17 +244,19 @@ MOCK
     before="$(fingerprint)"
     case "$1" in
         snapshot) export TEST_SNAPSHOT_FAIL=1; expected=snapshot ;;
-        fetch) export TEST_FETCH_FAIL=1; expected=$'snapshot\nfetch' ;;
+        tools) export TEST_TOOLS_FAIL=1; expected=$'snapshot\ntools' ;;
+        pins) export TEST_PINS_FAIL=1; expected=$'snapshot\ntools\npins' ;;
+        fetch) export TEST_FETCH_FAIL=1; expected=$'snapshot\ntools\npins\nfetch' ;;
         fetch-cached)
-            export TEST_FETCH_FAIL=1; expected=$'snapshot\nfetch'
+            export TEST_FETCH_FAIL=1; expected=$'snapshot\ntools\npins\nfetch'
             echo retained-cache > target/mock-cargo-cache
             ;;
-        success) expected=$'snapshot\nfetch\ncheck' ;;
+        success) expected=$'snapshot\ntools\npins\nfetch\ncheck' ;;
     esac
     if [[ "$1" == success ]]; then
-        "$TEST_REAL_MAKE" --no-print-directory ci 'CI_TARGETS=shared-tooling-check deps check' "MAKE=$PWD/target/gate-make"
+        "$TEST_REAL_MAKE" --no-print-directory ci 'CI_TARGETS=shared-tooling-check tools-check dependency-pins-check deps check' "MAKE=$PWD/target/gate-make"
     else
-        expect_failure "$TEST_REAL_MAKE" --no-print-directory ci 'CI_TARGETS=shared-tooling-check deps check' "MAKE=$PWD/target/gate-make"
+        expect_failure "$TEST_REAL_MAKE" --no-print-directory ci 'CI_TARGETS=shared-tooling-check tools-check dependency-pins-check deps check' "MAKE=$PWD/target/gate-make"
         if [[ "$1" == fetch-cached ]]; then
             [[ "$(cat target/mock-cargo-cache)" == retained-cache ]] || exit 1
         else [[ ! -f target/mock-cargo-cache ]] || exit 1; fi
@@ -256,6 +267,29 @@ MOCK
     fi
     [[ "$(cat "$TEST_EFFECTS")" == "$expected" ]] || exit 1
     assert_unchanged; assert_cache_retained
+}
+test_preflight_tools() {
+    before="$(fingerprint)"
+    case "$1" in
+        shellcheck-missing) export SHELLCHECK="$PWD/target/missing-shellcheck" ;;
+        shellcheck-broken) export TEST_SHELLCHECK_FAIL=1 ;;
+        sort-missing) export TEST_SORT_FAIL=1 ;;
+        sort-wrong) export TEST_SORT_VERSION=0.0.0 ;;
+    esac
+    expect_failure "$TEST_REAL_MAKE" --no-print-directory release-patch
+    assert_unchanged; assert_cache_retained
+    [[ ! -s "$TEST_EFFECTS" && ! -e target/release-state/0.1.1.plan ]] || exit 1
+    case "$1" in
+        shellcheck-*) rg -F 'SHELLCHECK=/absolute/path/to/shellcheck' target/rejection.log >/dev/null ;;
+        sort-*) rg -F 'cargo install cargo-sort --version 2.1.4 --locked' target/rejection.log >/dev/null ;;
+    esac
+    unset SHELLCHECK TEST_SHELLCHECK_FAIL TEST_SORT_FAIL TEST_SORT_VERSION
+    # A selected executable with spaces in its path must survive Make dispatch.
+    cp "$TEMPORARY/bin/shellcheck" 'target/selected shellcheck'
+    export SHELLCHECK="$PWD/target/selected shellcheck"
+    "$TEST_REAL_MAKE" --no-print-directory release-patch
+    [[ "$(cat "$TEST_EFFECTS")" == $'validate\nstage\ncommit\ntag\npush' ]] || exit 1
+    assert_cache_retained
 }
 test_versions() {
     local kind expected
@@ -487,8 +521,13 @@ test_followup_release() {
 }
 run_case bootstrap-success test_dependency_bootstrap success
 run_case bootstrap-snapshot test_dependency_bootstrap snapshot
+run_case bootstrap-tools test_dependency_bootstrap tools
+run_case bootstrap-pins test_dependency_bootstrap pins
 run_case bootstrap-fetch test_dependency_bootstrap fetch
 run_case bootstrap-fetch-cached test_dependency_bootstrap fetch-cached
+for tool in shellcheck-missing shellcheck-broken sort-missing sort-wrong; do
+    run_case "preflight-$tool" test_preflight_tools "$tool"
+done
 run_case versions test_versions
 for shape in duplicate empty competing; do run_case "notes-$shape" test_invalid_changelog "$shape"; done
 for kind in patch minor major; do run_case "$kind" test_release "$kind"; done

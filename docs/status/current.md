@@ -8,25 +8,36 @@ Date: 2026-10-06
 
 ## At a glance
 
-- Released baseline: `0.14.12`; the changelog and release receipt own exact
+- Released baseline: `0.15.0`; the changelog and release receipt own exact
   release metadata.
-- Current development target: `0.15.0`; its undated changelog carries the tooling
-  batch and the maintainer-selected ic-memory 0.27 durable/public API hard cut.
-  Cargo package versions and the release receipt remain at 0.14.12.
+- Current development target: `0.15.1`; compatible local developer tooling and
+  native CLI internals. Cargo package versions and the release receipt remain
+  at released 0.15.0; service DTOs and the durable layout are unchanged.
 - Product state: working library and standalone prototype with retained live
   upload/download evidence, not a fully accepted production service.
 - Current composition: framework-independent core, explicit standalone host,
   native operator tools and browser publication components.
 - Recovery: same-release restoration opens fenced; current-instance activation
   requires independent IC history, and older-snapshot activation is unsupported.
-- Latest completed batch: bounded host-internal funding grants, indexed credit
-  receipts and 100/1,000/10,000-intent local qualification. The reviewed 28-file
-  Shared Tooling snapshot is now `a7efade`; locked dependencies are unchanged.
+- Latest batch: reviewed local host/IC executable setup, Shared Tooling's shared
+  verification helpers and native CLI adoption of ic-host-tools 0.1.11, followed
+  by early release prerequisites and native CI failure-log retention. The
+  43-file snapshot is `a37771f`; four host-only lock identities are added without
+  reselecting existing versions. See the retained tooling record below.
 - Main remaining work: provider credit evidence and consumer funding integration,
   consumer adoption, complete publication transactions, provider deletion and
   billing evidence, production sizing and retirement.
 
 ## Retained release baseline
+
+Released **0.15.0** is at commit `6ba6cbc8e6fa87b5e8d2836dd69c0012fffa9e66`,
+directly following source `1a1139e5ae4fadb7cd082c7c929b8909b618fae6`. Annotated
+`v0.15.0` is `5835e7db7b23f6a1db3245b2f99529fc49db8fb5`. Cargo, dated notes
+and the release receipt agree at clean task entry; the read-only tag/receipt
+check passes. This is Git release evidence, not registry publication or service
+deployment. Earlier funding profiles keep their original compiled versions.
+
+### Earlier 0.14.12 baseline
 
 Released **0.14.12** is at commit `ebd535eaa2015407319fd330f559b2808ea01588`,
 directly following source `91ac488a0e04cf219eafec6b396e728ea0a0890a`. Annotated
@@ -876,6 +887,85 @@ rustdoc and browser-configuration encoding checks pass. All original setup,
 fixture/schema and lint failures are retained with their scoped corrections.
 No package version change, full CI, release, commit, push, publication, paid/live
 provider effect, sibling mutation or named symbol removal occurs.
+
+## Local host tooling and artifact adoption — 2026-10-06
+
+The [retained record](../evidence/tooling-host-0151.json) adopts Shared Tooling
+[`a37771f`](https://github.com/dragginzgame/shared-tooling/commit/a37771f1b6b5fc9a88ed6ab3b705bdda35cd8fa3)
+through the canonical export: 43 exact files, including the common audit methods,
+provenance guidance, local installers and verification helpers. The matching
+[upstream run](https://github.com/dragginzgame/shared-tooling/actions/runs/37450707625)
+passes. Its commit subject and undated notes mention 0.1.6; this record does not
+assert a published or tagged Shared Tooling 0.1.6 release. Audit adoption adds no
+automatic product audit or broad gate. Earlier sections retain their original
+pre-release pending versions and compiled-source observations.
+
+`make install-tools` explicitly provisions jq/yq and the common IC executables
+under ignored `.tools/`; `make tools-check` verifies them offline. Make and the
+Linux/macOS workflow select those local paths, with one reviewed IC pin matrix.
+The complete gate checks the snapshot, local tools and declarations before
+locked cache preparation; failed prerequisites stop before compilation or
+metadata mutation. ShellCheck and cargo-sort remain separate setup prerequisites.
+The new default PocketIC 16.0.0 executable matches the earlier retained binary
+hash. Prior local tools and evidence remain untouched.
+
+Published ic-host-tools 0.1.11 owns bounded CLI artifact reads and raw SHA-256
+formatting. Native inputs still follow selected links and refuse special/empty
+files; Unix probe records reject final-component links at open. Existing error
+codes and persisted hash formats remain. This is not path confinement, immutable
+content, Caffeine verification or a new provider/recovery owner. The core and
+Wasm graph exclude the dependency. The lock adds four identities without
+reselecting existing versions; the Rust minimum stays 1.88.0.
+
+All 106 CLI cases and two standalone installation/Candid cases pass on the final
+dependency, including actual compiled 0.15.0 installation and wrong-service
+refusal. Strict CLI Clippy, scoped Rust 1.88 native/Wasm checks, retained probe
+verification and all 301 local/deployed checksum bindings pass. Shared installer
+and verification refusal fixtures pass on Bash 5 and Linux-built Bash 3.2;
+release adapters use isolated effects. The initial missing raw-hash import build
+failure is retained alongside its corrected runs. The new Cargo test wrapper
+refuses zero passing tests and preserves Cargo/logging failures; the release
+adapter delegates exact annotated-tag verification to its shared owner.
+
+Pending 0.15.1 is compatible host/developer tooling, with no service DTO, public
+core API or durable layout change and no canister instruction-count claim.
+The changed consumer workflow still needs its native macOS 15 ARM/Intel and
+Linux remote execution. No full CI, package version change, commit, push,
+publication, deployment, paid/live provider effect, sibling edit or named symbol
+removal occurs. The latest description readback remains empty; existing
+[#8](https://github.com/dragginzgame/ic-blob-storage/issues/8) owns that correction.
+
+## Release prerequisites and full-gate follow-up — 2026-10-06
+
+The [follow-up record](../evidence/release-preflight-0151.json) adds
+`make release-tools-check` to release preflight. It checks the existing pinned
+formatter owner and the selected ShellCheck executable before full validation,
+with explicit setup commands on refusal. Missing/broken ShellCheck and
+missing/wrong cargo-sort leave release files, cache and release intent untouched;
+corrected retries accept an explicit ShellCheck path containing spaces. No tool
+installation or compilation is hidden in preflight.
+
+Native CI now sets `TMPDIR` to `runner.temp`, matching the failure uploader's
+`nonempty-cargo-test.*` pattern. Its Linux/macOS bootstrap prepares ShellCheck,
+and the focused tooling loop exercises the same prerequisite target. Full native
+host qualification of this changed workflow still needs its committed GitHub run.
+The released 0.15.0 workflow independently passes all three hosts at
+[run 37453740999](https://github.com/dragginzgame/ic-blob-storage/actions/runs/37453740999);
+that earlier workflow does not qualify these dirty changes.
+
+The explicitly authorized Linux `make ci` gate passes: all 627 native and 361
+PocketIC cases, strict workspace Clippy, rustdoc, retained probes/checksums,
+formatting, release/hook fixtures, workspace Wasm checking and package verification.
+Sources remain compiled as 0.15.0 on the selected lock. Opt-in browser, hard-cut
+and scale cases remain outside that gate and retain their earlier evidence.
+A Bash 3.2 follow-up initially found the new ShellCheck test double continuing
+after a failed conditional; the failure and fixture are retained. Its explicit
+failure return is corrected and checked under the older shell.
+
+The compatible draft remains 0.15.1. The original host-tooling record above is
+historical and unchanged; the new record binds this follow-up separately.
+No release command, real commit/tag/push, registry publication, deployment,
+paid/live provider effect, sibling mutation or named symbol removal occurs.
 
 ## Remaining product work
 

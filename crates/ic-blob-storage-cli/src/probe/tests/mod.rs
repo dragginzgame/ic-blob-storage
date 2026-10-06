@@ -5,6 +5,52 @@ use std::{
 };
 
 #[test]
+fn shared_artifact_reads_keep_record_limits_and_raw_hashes() {
+    let directory = tempfile::tempdir().unwrap();
+    let path = directory.path().join("selected");
+    std::fs::write(&path, b"abc").unwrap();
+    assert_eq!(
+        record::read(directory.path(), "selected", 3).unwrap(),
+        b"abc"
+    );
+    assert_eq!(
+        record::read(directory.path(), "selected", 2),
+        Err("record_limit".into())
+    );
+    assert_eq!(
+        record::hash(b"abc"),
+        "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad"
+    );
+    std::fs::write(&path, b"").unwrap();
+    assert_eq!(record::read(directory.path(), "selected", 0).unwrap(), b"");
+}
+
+#[cfg(unix)]
+#[test]
+fn probe_records_reject_links_and_special_files_with_existing_codes() {
+    let directory = tempfile::tempdir().unwrap();
+    let target = directory.path().join("target");
+    std::fs::write(&target, b"ok").unwrap();
+    std::os::unix::fs::symlink(&target, directory.path().join("link")).unwrap();
+    assert_eq!(
+        record::read(directory.path(), "link", 2),
+        Err("record_not_file".into())
+    );
+    let fifo = directory.path().join("fifo");
+    assert!(
+        std::process::Command::new("mkfifo")
+            .arg(&fifo)
+            .status()
+            .unwrap()
+            .success()
+    );
+    assert_eq!(
+        record::read(directory.path(), "fifo", 2),
+        Err("record_not_file".into())
+    );
+}
+
+#[test]
 fn immutable_records_detect_tampering_and_incomplete_runs() {
     let dir = tempfile::tempdir().unwrap();
     let p = dir.path();

@@ -1,0 +1,120 @@
+{
+   "artifacts_sha256" : {
+      "target/debug/blob-storage" : "c9c22ca5dddd5fea69a3decefca7663a626e8bd7e3fbe8016204edb98fbe8e19",
+      "target/debug/caffeine-probe" : "47882a245f254d599d54e5db46ffe102f98ee20f84212a5dfbe5072a3bb85eb4",
+      "target/package/ic-blob-storage-0.15.0.crate" : "a3132d30d1c6de48907a2c8bb8be2bfe1db75cb329b453cd0821102cd59a8cc3",
+      "target/wasm32-unknown-unknown/release/ic_blob_storage_canister.wasm" : "b830e6ca7d9534eab46b8ce765e40c26563135b4fc8842395376c9b0ce9b0975"
+   },
+   "bindings_sha256" : {
+      "actionlint-final.log" : "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bash32-conditional-proposal.log" : "cf205dbb8cea84897b488abcc281bf96698d5e94b1096b16657b4caba9082a22",
+      "bash32-conditional-repro.log" : "81f9bc9e20dd4d1c755440a54c476cffedf5217cf5a14e2737a0eb431366e998",
+      "final-source.patch" : "f23dc129500a26ea5251954296a5d8baae9c225d0518ef7ecd4b4c5e464b2d72",
+      "final-tested-source.patch" : "f23dc129500a26ea5251954296a5d8baae9c225d0518ef7ecd4b4c5e464b2d72",
+      "focused-01.log" : "3b1a45bf08e742010150a64a98110e9b5dd5cc87ce42b1b3a118d2c523599efa",
+      "full-ci-01.crate" : "807e6fbac68b314abf9328a56b62acf2b5749860e674b15753584aba026ec52f",
+      "full-ci-01.log" : "59be62185a91eb09dcd7eecdb3721db48a87df9437fb8681bb8b57c1ea590012",
+      "full-ci-02.crate" : "a3132d30d1c6de48907a2c8bb8be2bfe1db75cb329b453cd0821102cd59a8cc3",
+      "full-ci-02.log" : "bbeeccfad95d76c912c7e1b33a3840b6ee829ac95baaf98e5dc91e2b5323d1b3",
+      "release-01.log" : "3e9a950d1018ce2f7ba3848aa96747a3bee5cfdd03fe5f06dbae5a656d34fab5",
+      "release-bash32-01.log" : "0e862a776e1090cf240d45382c9daa3779297cfec52b0c7386de4193d6384670",
+      "release-bash32-02.log" : "3e9a950d1018ce2f7ba3848aa96747a3bee5cfdd03fe5f06dbae5a656d34fab5",
+      "tested-source.patch" : "b04d104c003db732551a26bbb6185932a1815b9ce85d65b3cf6ae01d9c22762b",
+      "tested.Cargo.lock" : "bf2676eb613c8f1d557f92d73584b5149bdade870a1116d9b9f1bd69fcad3510",
+      "tested.snapshot" : "d6032a50c742703fff3929b5cce9ceff6e4777b6883f89c19f91becf7eee3805",
+      "tool-versions.log" : "097d8191e2191294c728f7b4151f2eb4eb8761c315116070d12ac47b65d1703c",
+      "workflow-retention.json" : "c2124a728a9f29298c43bd9f0b0e019637c9f90f1f4fa11dd6fb1ededd878bcc",
+      "write-evidence.pl" : "743afb4725a326711a4635d2c6c9bf04f4af497bf7a9c2ed0ff57c8e2236aedd"
+   },
+   "changes" : [
+      "release preflight delegates ShellCheck availability and pinned cargo-sort checks to make release-tools-check",
+      "explicit setup guidance and quoted ShellCheck selection",
+      "native CI TMPDIR bound to runner.temp to match retained test-log upload selection",
+      "native host bootstrap and focused tooling loop prepare/check ShellCheck"
+   ],
+   "checks" : {
+      "bash32" : "release-bash32-02.log passes corrected refusal, retry, selected-receipt, recovery and publication boundary fixtures",
+      "full_gate" : {
+         "command" : "TMPDIR=<owned evidence directory> CARGO_NET_OFFLINE=true RUSTUP_AUTO_INSTALL=0 make ci",
+         "logs" : [
+            "full-ci-01.log",
+            "full-ci-02.log"
+         ],
+         "nonempty_test_totals" : [
+            "627",
+            "361"
+         ],
+         "outcome" : "both pass; second run binds final corrected source",
+         "scope" : "default complete gate: snapshot/local tools/pins/cache, shell/release/hooks/format, workspace check/Clippy, retained probes/checksums, docs, native/PocketIC tests, workspace Wasm and offline package verification"
+      },
+      "locked_graph" : "unchanged from this follow-up entry; ic-host-tools 0.1.11 remains native-only",
+      "preflight" : "missing/broken ShellCheck and missing/wrong cargo-sort refuse before validation, release-file changes or retained intent; corrected retries accept selected executable paths containing spaces",
+      "workflow" : "actionlint and parsed native TMPDIR/upload pattern pass; source inspection rather than a remote run"
+   },
+   "date" : "2026-10-06",
+   "development_target" : "0.15.1",
+   "evidence_class" : "local Linux full-gate execution; Bash 5 and Linux-built GNU Bash 3.2 release adapters with substituted Git/Cargo effects; structured workflow inspection",
+   "evidence_directory" : ".tmp/v0151-preflight-01",
+   "failures" : [
+      "release-bash32-01.log and retained target/release-tests.BLBqpI: new ShellCheck test double continued after failed Bash 3.2 conditional; explicit exit corrected, focused reproduction and final suites retained"
+   ],
+   "limitations" : [
+      "new dirty consumer workflow has no remote CI result; native macOS 15 ARM/Intel qualification requires the committed/pushed workflow",
+      "released 0.15.0 run 37453740999 passes Linux and both macOS hosts but tests the earlier workflow",
+      "opt-in browser, hard-cut and scale cases are excluded from the default gate and retain earlier evidence",
+      "full local validation does not establish registry publication, deployed provider behavior, Toko adoption or a performance improvement"
+   ],
+   "package_version" : "0.15.0",
+   "retained_previous_record" : "docs/evidence/tooling-host-0151.json remains unchanged and binds the original adoption source/evidence",
+   "schema" : 1,
+   "scope" : {
+      "cleanup" : "successful fixtures clean only their own temporary state; failed fixture, prior evidence and builds preserved",
+      "commits_tags_pushes" : "none; release fixture effects are substitutes",
+      "publication_deployment_paid_live_provider_effects" : "none",
+      "removed_functions_methods_types" : [],
+      "sibling_mutation" : "none",
+      "version_change" : "none"
+   },
+   "source_commit" : "6ba6cbc8e6fa87b5e8d2836dd69c0012fffa9e66",
+   "source_files_sha256" : {
+      ".github/workflows/tooling.yml" : "1ae4b8d12364a4533257ca626d6f20c2bd6f2b4e0fbd63289c1125fd13b3af6d",
+      ".gitignore" : "e0032916baea0ce35d1c2f062a538bcaf3fe7f8ac3a0516fa2e8b105f4aee6f2",
+      ".shared-tooling.snapshot" : "d6032a50c742703fff3929b5cce9ceff6e4777b6883f89c19f91becf7eee3805",
+      "CHANGELOG.md" : "db9ea0c70dd355041606d87fcf2a438db092d412ee3fd1a95a54ca7601fee60b",
+      "Cargo.lock" : "bf2676eb613c8f1d557f92d73584b5149bdade870a1116d9b9f1bd69fcad3510",
+      "Cargo.toml" : "dbc2186d606ed301a6ffb6a81c2cc6ac4ad302f4d1510cfcd7a773246db26bdb",
+      "DRAGGINZGAME.md" : "4c711609d1e8b30ccd2ddff3974b1418cced91a4484be3911c2a36c7631e31ee",
+      "Makefile" : "42cc94107d48811b46489fe9267a10c67e925399f1ed690764499a8a20684349",
+      "README.md" : "834e9c7045ac183ff1b7cc2f9bd3fa31cff4f60b42b4443d5d15f6d2e60b2379",
+      "audits/README.md" : "926d5a39ea62a3becd19ff0326c63987b2929d3a1a728e2a0ef8a7180824d231",
+      "audits/code-hygiene.md" : "518d890bf485bef06c316b4cf26ac6bf357ed52bcce995e8d9b1232a103d0ea3",
+      "audits/complexity-and-technical-debt.md" : "ffdca09602c44c8aff8fc2a17588b20eb6a56e2e71fb6d42ad75087fdd65819b",
+      "audits/flow-convergence-and-duplication.md" : "35fd87d36a09ed0971841abf28535d43470c713a82581c2251b924da1ab8f484",
+      "audits/module-cleanup.md" : "d229519014823ad804070e55f7bb5316d7612e1d77a9dc8bf962d564e7b2a5e7",
+      "audits/module-surface-hardening.md" : "1b64cf2ba0393ab329ec29eb05a696d47ef5933f5ab9bff6e1fe4a7e7b294075",
+      "ci/ic-tools.tsv" : "5b1ef6bc9e344139f5e171cc1a3783bcee3650275de2f44fe0f8fa10f2bfef87",
+      "ci/tool-versions.env" : "c08f9f6385f87a08eb552f57c5e3a701620370ca79c7d495d87d63e7dca62f39",
+      "crates/ic-blob-storage-cli/Cargo.toml" : "4f3e8b05b0ef26b656207fef8fc58f232e9420d66e5e2d7fd65cf33542065a6f",
+      "crates/ic-blob-storage-cli/src/native/mod.rs" : "556cd9d1acc750911195a36c54e2c50194ef835d4b577b748bd7927b93a398b3",
+      "crates/ic-blob-storage-cli/src/native/tests/mod.rs" : "ac66e40a00c7d735d56127b2ffd654c024ad9df1d5171389de40c6c42065d9dd",
+      "crates/ic-blob-storage-cli/src/native/upload_inputs/mod.rs" : "c632110c4dff2d377546723c17e1b792aaeb56bf95160977950d2babfef665be",
+      "crates/ic-blob-storage-cli/src/probe/record/mod.rs" : "3ad85d702e434776838227e695497801cc82545a60a4cd479302ddd429716df5",
+      "crates/ic-blob-storage-cli/src/probe/tests/mod.rs" : "e699acdba4b0471927cdb541b1bd8f381eff34988b7d4913a931097657d5db2f",
+      "docs/consuming-snapshots.md" : "9d887dab06416f24179e98e80eb2f0d552b8148bb030df5e9c4135a5fb35e540",
+      "docs/dependencies.md" : "0de83f2c2eaca3d23f0f2c9f53ea2838ca7ed6c915fa61418aaee2f4ae21f2bf",
+      "docs/evidence/tooling-host-0151.json" : "dea09a2cc44b3a945f7da42adeb5792cdf1b0fb468da281f511fe82b5405d100",
+      "docs/governance/development.md" : "e31c263edb3e7aae48cac8237a4b6f8936eb0bf7966f4914583dbd313ec9a2be",
+      "docs/ic-tools.md" : "89243ae92927e7c036fa8938e42acdd4a8f3dc4060600d2fff495fcd844486a9",
+      "docs/local-setup.md" : "99ca134c61064ec37cf3d22eaaac3476b15c3438461de8819262fb82c9a5d327",
+      "docs/provenance.md" : "127bad6fa5ac468ba034005a254594da9f60716bdd366c24f41937e2b5b6eb63",
+      "docs/releasing.md" : "42b523e4ef08f61d1b959c6c1638c56f5ecaa71f70fac2f879891f3ed635972d",
+      "docs/status/current.md" : "50614da71b45cfec6074f37e93a9c6c8946fcdd922208711b6367523dc5f9891",
+      "docs/supported-hosts.md" : "6262e98da48f1ae8038c6ce42dbed22ce18fc2b55cce50aa410505d8532c1878",
+      "scripts/ci/check-release-tag.sh" : "ad8cab2b5a460d8b28fbae691bbb58f03e4939b1696766239bdbc442085cdb32",
+      "scripts/ci/run-nonempty-cargo-test.sh" : "4e7e0a3a93bf4f922a292619dad7deee9c78c24a4bd2812040dd564271862039",
+      "scripts/dev/install-host-tools.sh" : "c6e5383483b2e82bdcaefdb09fbba05c0b2872e8577d10924b0c16ccf66f4108",
+      "scripts/dev/install-ic-tools.sh" : "cd785d281d1ecd76804f25adbd92532469260a632aedad6ecef72bfef2c7a3c3",
+      "scripts/release/release.sh" : "496c79cda4ce5f4bb198bbb6417c336bcfa7d54c3a38d9829f7eedd5572aa7a3",
+      "scripts/release/test-release.sh" : "a413183a6333ed4506dd31387e086b0275bed40bf21129fd0b553bfce6397fb7"
+   }
+}

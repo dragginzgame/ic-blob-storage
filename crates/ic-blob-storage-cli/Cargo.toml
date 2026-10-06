@@ -9,10 +9,10 @@ publish = false
 candid.workspace = true
 ic-agent = { workspace = true, features = ["pem"] }
 ic-blob-storage.workspace = true
+ic-host-tools.workspace = true
 reqwest = { workspace = true, features = ["rustls", "http2"] }
 serde.workspace = true
 serde_json.workspace = true
-sha2.workspace = true
 tokio = { workspace = true, features = ["rt", "time", "sync"] }
 url.workspace = true
 

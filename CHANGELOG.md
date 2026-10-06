@@ -1,5 +1,26 @@
 # Changelog
 
+## [0.15.1]
+
+### Changed
+
+- Provision reviewed jq, yq and IC executables with `make install-tools`, and
+  verify them offline with `make tools-check`. Use repository-local tools and
+  one IC pin matrix on Linux and macOS; validation never installs them implicitly.
+  See [#9](https://github.com/dragginzgame/ic-blob-storage/issues/9).
+- Reuse ic-host-tools for bounded native CLI file reads and raw artifact hashes,
+  preserving file-selection rules, error codes and retained evidence formats.
+- Adopt Shared Tooling's exact annotated-tag checker and reject Cargo test
+  selections that execute no passing tests. Add focused native CLI and PocketIC
+  installation qualification to the host CI matrix.
+
+### Fixed
+
+- Check ShellCheck and the reviewed cargo-sort version during release preflight,
+  with explicit setup guidance before validation or version preparation starts.
+- Retain native CI test failure logs in the same directory searched by the
+  artifact uploader on Linux and macOS.
+
 ## [0.15.0] - 2026-10-06
 
 ### Breaking

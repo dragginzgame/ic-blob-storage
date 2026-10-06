@@ -10,21 +10,34 @@ For ordinary development from the repository root:
 
 1. Install `rustup`; the checked-in `rust-toolchain.toml` selects the maintained
    development compiler and required components.
-2. Run `make deps` to fetch the exact locked Rust dependencies.
-3. Prepare the manifest formatter with `cargo install cargo-sort --version 2.1.4
+2. Install the bootstrap packages described in [local setup](local-setup.md),
+   including Perl's Digest::SHA, curl, archive utilities and xz. Run
+   `make install-tools` to provision checksum-pinned jq/yq and the common IC
+   executables under `.tools/`, then `make tools-check` to verify them offline.
+3. Run `make deps` to fetch the exact locked Rust dependencies.
+4. Prepare the manifest formatter with `cargo install cargo-sort --version 2.1.4
    --locked`, then run `make install-hooks` once per clone (also after updating
    developer setup). The reviewed hook uses `make fmt`; CI and release validation
    independently use `make fmt-check`. Both sort all twelve manifests and format
    Rust, without fetching dependencies, compiling or cleaning artifacts.
-4. Run `make test-native` for the focused native library checks used by local
-   development.
+5. Run `make test-native` for native development checks, or
+   `make test-native-host` for CLI boundaries and an actual PocketIC installation.
 
 Keep `$HOME/.cargo/bin` and `$HOME/.local/bin` on PATH when using user-local tools.
 Release shell checks require ShellCheck; `SHELLCHECK=/absolute/path` may select
-an already prepared binary. Missing prerequisites fail rather than being installed
+an already prepared binary. Install it with `sudo apt-get install shellcheck` on
+Debian/Ubuntu or `brew install shellcheck` on macOS. The common local executable
+setup covers jq/yq and the IC tools; ShellCheck and the Rust formatter are separate
+prerequisites. Missing prerequisites fail rather than being installed
 during a hook or validation. Cargo-sort's exact reviewed version is recorded in
-[tool versions](../ci/tool-versions.env). The other installer selections in that
-file do not install or select tools implicitly.
+[tool versions](../ci/tool-versions.env). That file also owns jq/yq selections;
+[the IC matrix](../ci/ic-tools.tsv) owns executable versions and archive digests.
+Make prepends `.tools/host/bin` and `.tools/ic/bin` to PATH. Missing local tools
+fail validation; provisioning is explicit and separate from locked Cargo fetching.
+`make release-tools-check` verifies ShellCheck availability and the reviewed
+cargo-sort version without compiling. Release preflight runs the same check
+before entering full validation. It gives setup commands and supports the
+explicit `SHELLCHECK` selection, including executable paths containing spaces.
 
 Browser and standalone rehearsals additionally require PocketIC, Node, browser
 packages and Chromium. Follow [setup and checks](#setup-and-checks) for those
@@ -35,17 +48,16 @@ paths. Consumers embedding the library should also read
 
 `make dependency-pins-check` checks declarations and tracked workspace lockfiles
 without downloading, upgrading or changing them. It runs in the complete gate
-and the Linux/macOS tooling workflow. Prepare Git, jq and Mike Farah yq 4.47.2
-before invoking it; select an existing parser with `YQ=/absolute/path/yq`.
+and the Linux/macOS tooling workflow. Prepare Git and run `make install-host-tools`
+before invoking it. `make host-tools-check` verifies the selected local jq 1.8.2
+and Mike Farah yq 4.47.2 without downloading.
 The [shared pinning rules](../rules/dependency-pinning.md) define checked inputs
 and scoped exceptions. This repository currently needs no pinning exception.
 
-For explicit parser installation, source `ci/tool-versions.env`, select its
-`SHARED_TOOLING_YQ_SHA256_*` value matching your OS/architecture, then run
-`bash scripts/ci/install-yq.sh --version "$SHARED_TOOLING_YQ_VERSION"
---sha256 "$parser_digest" --install-dir /chosen/prefix/bin`. The installer
-verifies the release binary's checksum before execution and its exact version
-before installation. Validation never installs missing prerequisites.
+The common installer verifies downloaded bytes before execution and checks exact
+versions before activating the complete local tool set. Interrupted or refused
+installation preserves the prior active set and its failed preparation evidence.
+Validation never installs missing prerequisites.
 
 Registry requirements use compatible ranges. The maintained lockfile continues
 to select candid_parser 0.4.1, ic-agent 0.49.2, sha2 0.11.0 and thiserror 2.0.18.
@@ -79,17 +91,33 @@ availability does not establish provider qualification or service readiness.
 | `ic-testkit` | 0.18.3 (locked) | Native dependency of the unpublished PocketIC harness; shared helpers and full re-export |
 | `pocket-ic` | 16.0.0 | Transitive through `ic-testkit`; no direct dependency |
 | `ic-agent` | 0.49.2 | Native CLI and harness signing and verification of ingress certificates |
+| `ic-host-tools` | 0.1.11 (locked) | Native CLI bounded artifact reads and raw SHA-256 identities; excluded from Wasm |
 | `candid_parser` | 0.4.1 | Native harness only; official Candid parser for native request fixtures |
 
 The maintainer-selected ic-memory 0.27 upgrade removes history/timestamp APIs
 and changes the durable ledger layout exposed through the public re-export.
-The complete pending batch therefore targets 0.15.0, carrying forward the
+Released 0.15.0 contains that hard cut, carrying forward the
 tooling work originally drafted for 0.14.13. Hosts must update affected callers
 and fixtures; retained installations require obligation disposition and
 reinstall, never a ledger reset or compatibility reader. See the
 [persisted contract](service-contract.md#current-persisted-boundaries) and
 [new validation record](evidence/release-preflight-0150.json). Earlier evidence
 continues to qualify only its original selected graph.
+
+The pending 0.15.1 tooling batch adds published ic-host-tools 0.1.11 to the
+native CLI only. It delegates bounded reads from the locally selected descriptor
+and raw lowercase SHA-256 formatting. Native inputs retain link following,
+nonblocking special-file refusal and empty-input refusal. Probe records retain
+their error codes and reject final-component links on Unix, including at open.
+This is not path confinement or a content snapshot; ancestors may follow links
+and concurrent writers remain possible. Caffeine content trees, credentials,
+recovery journals and service ownership remain local.
+
+The [adoption record](evidence/tooling-host-0151.json) binds the registry source,
+locked graph and local checks. Four package identities are added: ic-host-tools
+0.1.11, tar 0.4.46, filetime 0.2.29 and wasmparser 0.253.0. No existing locked
+package version is reselected. The production core and Wasm graph do not acquire
+this host dependency; the workspace's minimum Rust version remains 1.88.0.
 
 Headless ingress tests add pinned `ic-agent` 0.49.2 (default features disabled),
 plus the locked `reqwest` 0.13.5, `tokio` 1.53.2 and `serde_cbor` 0.11.2
@@ -393,8 +421,9 @@ make wasm-check
 The toolchain file declares rustfmt, Clippy and `wasm32-unknown-unknown`.
 `make deps` fetches the locked graph and may use the network. The complete
 `make ci`/`make validate`/`make release-verify` gate first verifies the reviewed
-shared snapshot, then runs this fetch step before offline validation. Snapshot
-or fetch failure stops the gate. Rust checks
+shared snapshot, verifies local executables and dependency declarations, then
+runs this fetch step before offline validation. Prerequisite or fetch failure
+stops the gate. Rust checks
 use `--offline --locked` and this repository's `target/`. Scoped targets such as
 `make check` and direct `cargo --offline` commands still require a populated cache;
 run `make deps` before them after dependency changes or cache removal. Updating
@@ -405,32 +434,32 @@ Testkit and PocketIC are excluded from the production/Wasm graph. Their Rust
 libraries are fetched by `make deps` and compiled by the native check. The local
 canister test additionally needs a compatible PocketIC server: this library
 accepts >=16.0.0,<17 and defaults to 16.0.0.
-The checksum-verified Linux x86_64 server is installed locally at
-`.tmp/tools/pocket-ic-16.0.0/pocket-ic`; its
-[provenance record](evidence/pocketic-toolchain.json) includes archive and binary
-hashes. The original record covers tool installation only; the later
+The original Linux x86_64 installation at
+`.tmp/tools/pocket-ic-16.0.0/pocket-ic` and its
+[provenance record](evidence/pocketic-toolchain.json) remain historical evidence.
+The original record covers tool installation only; the later
 [authority fixture evidence](evidence/core-primitives.md#pocketic-authority-probe-after-018)
 records actual local canister execution.
 
-Make exports that path as the default `POCKET_IC_BIN`, preventing automatic
+Make exports `.tools/ic/bin/pocket-ic` as the default `POCKET_IC_BIN`, preventing automatic
 server downloads during tests. A caller-supplied `POCKET_IC_BIN` overrides it.
 The binary is ignored local tooling, so fresh checkouts need provisioning.
-For Linux x86_64, from the repository root:
+Provision the complete reviewed IC tool set from the repository root:
 
 ```sh
-set -e
-mkdir -p .tmp/tools/pocket-ic-16.0.0
-curl --fail --location --output .tmp/tools/pocket-ic-16.0.0/pocket-ic.gz \
-  https://github.com/dfinity/pocketic/releases/download/16.0.0/pocket-ic-x86_64-linux.gz
-printf '%s\n' '268ba79ec7fe9a563a575adf4983c69627093cce2711d142e476cdc7ad04249e  .tmp/tools/pocket-ic-16.0.0/pocket-ic.gz' | sha256sum --check
-gzip -dc .tmp/tools/pocket-ic-16.0.0/pocket-ic.gz > .tmp/tools/pocket-ic-16.0.0/pocket-ic
-chmod u+x .tmp/tools/pocket-ic-16.0.0/pocket-ic
-.tmp/tools/pocket-ic-16.0.0/pocket-ic --version
+make install-ic-tools
+make ic-tools-check
 ```
 
-Other platforms must use the corresponding official 16.0.0 release asset and
-verify its published digest before setting `POCKET_IC_BIN`. `make deps` fetches
-Cargo packages only; it does not provision this binary.
+The [common setup](ic-tools.md) and [single pin matrix](../ci/ic-tools.tsv)
+select platform assets for Linux and macOS on x86_64 and ARM64. The current
+matrix selects PocketIC 16.0.0, Quill 0.5.4, ICP CLI 1.6.0, didc 0.6.2,
+ic-wasm 0.11.1 and wasm-opt 132. Installation verifies archives before extraction,
+checks versions and activates a complete set; `ic-tools-check` is offline.
+The new Linux PocketIC executable matches the earlier retained binary hash.
+Only PocketIC is exercised by the service installation tests; setup and version
+checks alone do not qualify deployment or other tools' product workflows.
+`make deps` fetches Cargo packages only; it does not provision executables.
 
 The library and its tests have no downstream framework dependency. The
 [Caffeine baseline](provider-baseline.json) remains the upstream integration
@@ -441,12 +470,21 @@ harness.
 ## Release and formatting host checks
 
 [The tooling workflow](../.github/workflows/tooling.yml) prepares the selected Rust
-and cargo-sort tools explicitly, then independently checks the snapshot,
-manifest/Rust formatting, release adapters and real consumer hook behavior on
+and cargo-sort/ShellCheck tools explicitly, installs and verifies local host/IC executables,
+then independently checks the snapshot, declarations, evidence, formatting,
+release adapters and real consumer hook behavior on
 Ubuntu 24.04 and macOS 15 (Apple Silicon and Intel). Both local formatting targets
 use cargo-sort 2.1.4. The declared matrix does not establish a passing native run;
 its matching GitHub execution is required for qualification. This focused job
 neither publishes a release nor replaces the complete `make ci` gate.
+It then fetches the selected Cargo lock and runs `make test-native-host` offline
+to exercise both CLI binaries and an actual standalone installation. The
+native step sets `TMPDIR` to the runner's artifact directory so retained
+`nonempty-cargo-test.*` logs match the failure uploader's selection. The
+[0.15.1 adoption record](evidence/tooling-host-0151.json) records Linux execution;
+this changed consumer workflow has no remote result yet. Native macOS acceptance
+remains required for the selected consumer source, separately from passing
+Shared Tooling's own upstream matrix.
 
 The [0.14.12 adoption record](evidence/shared-tooling-adoption.md#01412-release-and-formatting-adoption)
 records scoped Linux execution separately from native macOS qualification.

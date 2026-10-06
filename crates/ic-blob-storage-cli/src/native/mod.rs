@@ -40,7 +40,7 @@ use ic_agent::{
 };
 use ic_blob_storage::ops::service::operator::LOCAL_STATUS_METHOD;
 use serde_json::json;
-use std::{fs::File, io::Read, path::Path, process::ExitCode, time::Duration};
+use std::{fs::File, path::Path, process::ExitCode, time::Duration};
 
 const USAGE: &str = concat!(
     "blob-storage --version\n",
@@ -219,12 +219,11 @@ fn open_regular(path: &Path) -> Result<File, Failure> {
 }
 
 fn read(path: &Path, maximum: u64) -> Result<Vec<u8>, Failure> {
-    let mut bytes = Vec::new();
     let file = open_regular(path)?;
-    file.take(maximum + 1)
-        .read_to_end(&mut bytes)
-        .map_err(|_| Failure::File)?;
-    if bytes.is_empty() || bytes.len() as u64 > maximum {
+    let maximum = usize::try_from(maximum).map_err(|_| Failure::File)?;
+    let bytes =
+        ic_host_tools::artifact::read_opened_file(file, maximum).map_err(|_| Failure::File)?;
+    if bytes.is_empty() {
         return Err(Failure::File);
     }
     Ok(bytes)

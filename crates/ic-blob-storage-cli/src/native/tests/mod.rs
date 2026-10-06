@@ -199,8 +199,31 @@ fn identity_and_root_files_are_bounded_without_private_diagnostics() {
     ));
     assert_eq!(read(file.path(), 2), Err(Failure::File));
     std::fs::write(file.path(), b"ok").unwrap();
+    assert_eq!(read(file.path(), 0), Err(Failure::File));
+    assert_eq!(read(file.path(), 1), Err(Failure::File));
     assert_eq!(read(file.path(), 2), Ok(b"ok".to_vec()));
+    assert_eq!(read(file.path(), u64::MAX), Ok(b"ok".to_vec()));
     assert_eq!(read(file.path().parent().unwrap(), 2), Err(Failure::File));
+}
+
+#[cfg(unix)]
+#[test]
+fn bounded_reader_preserves_native_link_following_without_following_special_files() {
+    let directory = tempfile::tempdir().unwrap();
+    let target = directory.path().join("target");
+    let link = directory.path().join("selected-link");
+    std::fs::write(&target, b"ok").unwrap();
+    std::os::unix::fs::symlink(&target, &link).unwrap();
+    assert_eq!(read(&link, 2), Ok(b"ok".to_vec()));
+    let fifo = directory.path().join("fifo");
+    assert!(
+        std::process::Command::new("mkfifo")
+            .arg(&fifo)
+            .status()
+            .unwrap()
+            .success()
+    );
+    assert_eq!(read(&fifo, 2), Err(Failure::File));
 }
 
 #[test]

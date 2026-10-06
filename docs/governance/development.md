@@ -37,12 +37,17 @@ Primitive Make targets do only their named operation. The complete current
 gate is make ci (also make validate and make release-verify).
 That gate first runs the offline `make shared-tooling-check`, verifying the
 declared files, hashes and executable modes without a sibling checkout. It then
-runs the offline `make dependency-pins-check` (prepared Git/jq/yq required), then
+runs offline `make tools-check` and `make dependency-pins-check`, then
 `make deps` (`cargo fetch --locked`) to populate the cache
 for the selected lockfile; this step may use the network and does not select new
 versions. Fetch failure stops before validation or release-file mutation. Rust
 compilation/tests then use `--offline --locked`. Scoped targets remain offline;
 run `make deps` before them after dependency changes or cache removal.
+Provision the reviewed jq/yq and common IC executables explicitly with
+`make install-tools` before validation. Make selects `.tools/host/bin` and
+`.tools/ic/bin`; the offline checkers never download missing tools.
+`make test-native-host` is the focused CLI/PocketIC installation check used by
+the native host CI matrix, separate from the complete gate.
 Its offline `probe-check` verifies retained Caffeine run artifacts; it never runs
 new network probes. The [probe ledger](../evidence/caffeine-probes/README.md) governs
 continuous evidence recording and separates source/local/live observations.
@@ -99,6 +104,10 @@ requires remote readback. The local
 adapter owns workspace metadata and the receipt, not another release state
 machine. Formatter prerequisites are prepared before validation; `fmt-check`
 and `hooks-check` run independently in the complete gate.
+Release preflight invokes `make release-tools-check` for the selected ShellCheck
+executable and reviewed cargo-sort version before entering full validation.
+Missing or unusable tools refuse with setup guidance before release-file mutation;
+the prerequisite check never installs or compiles.
 
 `release-verify` runs that same complete `ci` gate through the reviewed validation
 logger. Actual failed commands retain unique raw logs under Git's

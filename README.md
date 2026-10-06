@@ -151,6 +151,8 @@ provider acceptance still required.
 Install rustup and Cargo, then run from the repository root:
 
 ```sh
+make install-tools
+make tools-check
 make deps
 make test-native
 ```
@@ -160,6 +162,8 @@ Clippy and the Wasm target. The library's minimum supported Rust version is
 **1.88.0**, including the local PocketIC harness.
 `make deps` fetches locked Rust dependencies; validation then uses offline Cargo
 and this repository's `target/` directory.
+`make install-tools` explicitly provisions checksum-pinned host and IC executables
+under `.tools/`; `make tools-check` verifies them without downloading.
 
 Choose the local canister path you want to exercise:
 
@@ -239,6 +243,9 @@ scope; controller status does not grant tenant access.
 | `make wasm-check` | Wasm compilation |
 | `make ci` | Complete repository validation gate |
 | `make shared-tooling-check` | Offline integrity of the reviewed shared snapshot |
+| `make release-tools-check` | ShellCheck availability and reviewed cargo-sort version before release validation |
+| `make install-tools` / `make tools-check` | Explicit local executable setup / offline verification |
+| `make test-native-host` | Native CLI boundaries and actual PocketIC installation |
 | `make cloc` | Rust LOC and test-attribute counts for every Cargo workspace member; requires cloc and jq |
 
 Run focused checks during development. Full validation and release commands follow
