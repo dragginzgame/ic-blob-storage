@@ -8,11 +8,13 @@ Date: 2026-10-06
 
 ## At a glance
 
-- Released baseline: `0.15.1`; the changelog and release receipt own exact
+- Released baseline: `0.15.2`; the changelog and release receipt own exact
   release metadata.
-- Current development target: `0.15.2`; compatible Shared Tooling verification,
-  native fixture repair and dependency qualification. Cargo's package version
-  and the release receipt remain at 0.15.1. The selected graph now uses ic-memory
+- Current development target: `0.15.3`; compatible shared formatter prerequisite and release-note
+  finalizer adoption under [#12](https://github.com/dragginzgame/ic-blob-storage/issues/12)
+  and [#13](https://github.com/dragginzgame/ic-blob-storage/issues/13).
+  Cargo's package version and the release receipt remain at 0.15.2.
+  The selected graph still uses ic-memory
   0.28.2, direct native ic-host-tools 0.2.0 and native harness ic-testkit 0.19.2
   (which retains transitive ic-host-tools 0.1.14).
   The earlier accidental Cargo rollback was restored;
@@ -23,16 +25,18 @@ Date: 2026-10-06
   native operator tools and browser publication components.
 - Recovery: same-release restoration opens fenced; current-instance activation
   requires independent IC history, and older-snapshot activation is unsupported.
-- Latest batch: canonical Shared Tooling adoption now records 54 files at
+- Released tooling batch: canonical Shared Tooling adoption records 54 files at
   `d957d1f`, including shared lockfile rewriting, formatting-hook adoption and
   Cargo inheritance checks. Focused Linux Bash 5/Bash 3.2 checks pass; the consumer's
-  native macOS run remains required. Fresh checks pass 106 native CLI cases,
+  complete native Linux and both macOS jobs pass on the pushed 0.15.2 source,
+  including CLI/PocketIC. That does not qualify pending 0.15.3. Fresh local checks
+  pass 106 native CLI cases,
   the FIFO subprocess, eight core installation cases, two PocketIC decoder cases
   and 35 offline browser cases. CLI Clippy and Rust 1.88 compilation pass with the
   current direct host-tools selection. Earlier installation/funding/restore/Wasm
   records retain their original graphs. Tool pins, public core/service contracts
   and durable records are unchanged. GitHub owns the reconciled issue disposition.
-- Finishing checks now also qualify the actual CLI-generated installation carrier
+- Its finishing checks also qualify the actual CLI-generated installation carrier
   against fresh matching standalone Wasm on the direct ic-host-tools 0.2.0 graph.
   Both selected PocketIC cases pass, including wrong-service/state preservation
   and exact configuration readback. Native CI now uploads failed shared metadata
@@ -41,7 +45,134 @@ Date: 2026-10-06
   consumer adoption, complete publication transactions, provider deletion and
   billing evidence, production sizing and retirement.
 
+## Tooling ownership cleanup
+
+The latest 0.15.3 cleanup removes `scripts/ci/install-yq.sh` and its snapshot
+entry: no maintained command calls it, and the shared host-tool bundle owns
+jq/yq setup. Its removed private function is `usage`; installed tools are not
+changed. The byte-identical `scripts/ci/test-evidence-checksums.sh` is now declared
+in the snapshot, retaining `finish` and `expect_failure` under their canonical
+shared owner. Its Make caller and GNU/Perl success/refusal coverage are unchanged.
+
+The snapshot still has 56 files at `21f3ec3`, exchanging the optional installer
+for the existing checksum fixture. The earlier formatter record retains its
+original file set and source hashes. Bash 5/Bash 3.2 checksum fixtures pass;
+`make evidence-check` verifies all 265 local and 39 deployed retained files
+read-only, and `make host-tools-check` verifies the existing parser bundle
+without installation. Syntax, ShellCheck, snapshot and local-link checks pass.
+The [cleanup record](../evidence/tooling-cleanup-0153.json) binds exact inputs,
+logs, the removed source and the unchanged earlier evidence records. No new
+Rust build, full CI gate, release, provider request or GitHub write occurred.
+Matching native macOS CI remains required for the pending source as described
+below; this cleanup does not relabel earlier qualification.
+
+## Pending formatter adoption batch
+
+The formatter batch adopted **56 files from Shared Tooling 0.1.10**, commit
+`21f3ec3dd97f2968c9f0b08924451bb2f71770d1`, including the common formatter
+checker and its refusal fixtures. A clean private checkout exports committed
+bytes; newer uncommitted sibling work is excluded and the sibling is unchanged.
+The shared changelog finalizer and formatter helpers remain byte-identical across
+0.1.9/0.1.10. The later commit only changes three adopted documents and the
+shared runner fixture's failed-input retention. Initial 0.1.9 checks retain their
+exact bindings; final snapshot and changed-fixture checks are recorded separately.
+
+[#12](https://github.com/dragginzgame/ic-blob-storage/issues/12) is implemented
+locally for 0.15.3. `format-tools-check` delegates to the shared offline owner
+using the existing cargo-sort pin. Both formatting targets and release preflight
+now require successful exact cargo-sort and rustfmt availability probes.
+The consumer still owns workspace selection, ShellCheck and setup. Hook fixtures
+carry the new helper explicitly; CI exercises its refusal suite and uploads
+retained `format-tools-test.*` failures. No tool installation or compilation is
+performed by formatter admission.
+
+Focused checks pass real manifest/Rust formatting, hook sorting, partially staged
+refusal, unrelated edit/lock preservation and formatter rollback. Formatter
+prerequisite, release-adapter and shared runner suites pass under Linux Bash 5
+and Linux-built Bash 3.2. A failed rustfmt probe refuses before validation or
+metadata writes, retains evidence and succeeds on exact retry. The new release
+suites requalify the pending #13 finalizer against this snapshot. Snapshot,
+syntax, ShellCheck, release routing and local links pass. The
+[source-bound adoption record](../evidence/formatter-owner-0153.json) preserves
+exact inputs, both completed refusal/retry fixtures and the deliberately failed
+shared fixture. The earlier finalizer record remains immutable below.
+
+Cargo, the lock and receipt stay at 0.15.2; public API, durable format, tool pins
+and installed hook selection are unchanged. No full local gate, Rust build,
+commit, release, publication or provider effect occurred. #12/#13 stay open for
+matching committed-source consumer native macOS qualification; the existing
+workflow will provide it after the maintainer commits and pushes this batch.
+
+The selected upstream [0.1.10 run](https://github.com/dragginzgame/shared-tooling/actions/runs/37491682760)
+passes Linux and lint/security, but both macOS portable jobs fail and retain the
+new fixture-retention self-test directories. Their raw logs report successful
+formatter and hook checks; they do not identify the precise failed retention
+assertion. That self-test is outside this declared file set. Retained source,
+logs and focused checks are separate evidence; no green complete upstream
+matrix or new native consumer qualification is claimed.
+
+## Earlier release-note finalizer qualification
+
+[#13](https://github.com/dragginzgame/ic-blob-storage/issues/13) is implemented
+locally for 0.15.3. The release adapter delegates selection/rewriting to the
+already-adopted shared AWK owner, passing the exact saved previous version,
+target and date before and after metadata changes. It captures output and checks
+successful process completion before writing; preflight is non-mutating.
+Independent duplicate release-identity checks remain. Empty/missing note content
+is maintained under the shared changelog rules rather than gating release.
+Prepared-state recovery uses its frozen receipt; `allow_finalized=0` prevents
+re-finalization, including same-date calls. Metadata rollback and retained failed
+preparation inputs remain with the existing transaction.
+
+Focused release fixtures pass on Linux Bash 5 and Linux-built Bash 3.2, including
+saved-intent history classification, competing candidates, duplicate identities,
+wrong/same-date refusal, complete candidate output followed by failure in both
+preflight and post-bump preparation, rollback and exact retry. The original
+selector reproduces the post-bump competing-draft bug. Syntax, ShellCheck,
+release routing, snapshot, local documentation links and committed release
+identity checks are recorded in the
+[source-bound record](../evidence/changelog-owner-0153.json). Private Git/Cargo
+substitutes establish local release mechanics only. There is no new full gate,
+Rust build, native macOS qualification, release or publication for this batch.
+At that qualification, Cargo, the lock and receipt remained at 0.15.2 and the
+54-file snapshot was unchanged. The later formatter batch above has its own
+56-file snapshot record.
+#13 remains open for committed-source native macOS qualification.
+
+Under the earlier authorized issue reconciliation, owning issues
+[#10](https://github.com/dragginzgame/ic-blob-storage/issues/10) and
+[#11](https://github.com/dragginzgame/ic-blob-storage/issues/11) are now closed.
+The pushed 0.15.2 workflow's snapshot/formatter/release/hook step succeeds on
+Linux and both native macOS hosts, covering the remaining adoption acceptance.
+Closure used that step success while native CLI/PocketIC checks were still
+running; the complete 0.15.2 matrix has since passed. Closure comments and exact readbacks are
+retained with the post-push evidence, not attributed to dirty 0.15.3 source.
+
+Shared Tooling has now committed 0.1.9 at
+[`b32d303`](https://github.com/dragginzgame/shared-tooling/commit/b32d3038c850a7c53470c326b0f7f11263b31669).
+Read-only comparison confirms the AWK finalizer itself is unchanged. Its formatter
+prerequisite helper and applicable docs/fixtures are now adopted in the separately
+qualified batch above under
+[#12](https://github.com/dragginzgame/ic-blob-storage/issues/12). Provider/consumer issues #4–#6 retain their
+existing evidence and unresolved external acceptance; no provider probe occurred.
+
 ## Retained release baseline
+
+Released **0.15.2** is at `cdf983c17bb7fb60fe2afb69e2d80e9f1b627108`, directly
+following validated source `daf53d11b32f51b2751d88205dc3794c2667015e`. Annotated
+`v0.15.2` is `547bb679e64b674c605487e5e2c2b59dbeed06e1`; remote main and the
+local release commit agree. Receipt/file hashes, exact tag and the unchanged
+54-file snapshot verify read-only at clean task entry. The crates.io sparse
+index independently lists 0.15.2. Neither Git nor registry publication qualifies
+deployed service behavior or consumer adoption. Its
+[native CI run](https://github.com/dragginzgame/ic-blob-storage/actions/runs/37488854847)
+was initially queued, then passed the tooling steps while native checks ran.
+The completed readback now shows success for the Linux job and both native
+macOS jobs, including CLI/PocketIC. This qualifies the committed 0.15.2 source;
+it is not CI for pending 0.15.3.
+Earlier local evidence retains its compiled 0.15.1 identity.
+
+### Earlier 0.15.1 baseline
 
 Released **0.15.1** is at commit `c3e271449753f782a0193314f4ed3d4db21c453f`,
 directly following source `ee7eed5298e072a0278886cf06970e10009c3d40`. Annotated

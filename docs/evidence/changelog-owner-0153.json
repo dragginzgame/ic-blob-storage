@@ -1,0 +1,392 @@
+{
+  "authorized_github_closures": {
+    "evidence": [
+      {
+        "bytes": 1476,
+        "path": ".tmp/post-push-0152-01/close-10.md",
+        "sha256": "a1876aa0d33e3c78b5161385fa9968630e93816315fd089fb3d020b660aca0d4"
+      },
+      {
+        "bytes": 1610,
+        "path": ".tmp/post-push-0152-01/close-11.md",
+        "sha256": "90801dbbdef4179ffe8e1d4ccdf1cf23a1009616744771e2c86981f7f2db2bf9"
+      },
+      {
+        "bytes": 82,
+        "path": ".tmp/post-push-0152-01/close-10-comment.log",
+        "sha256": "4cc4df92d7fc8564fbd02c9ac1a32077359464acec9a9f190bd45355c9a467d4"
+      },
+      {
+        "bytes": 82,
+        "path": ".tmp/post-push-0152-01/close-11-comment.log",
+        "sha256": "4f7da32f06bd946434762b07852d5e7d3690100dba1de61231c0bf3cb4b05644"
+      },
+      {
+        "bytes": 82,
+        "path": ".tmp/post-push-0152-01/close-10.log",
+        "sha256": "34f825e45598e089717950762bc0a2b7dee05385454f2ba4bb5fe587f5536221"
+      },
+      {
+        "bytes": 93,
+        "path": ".tmp/post-push-0152-01/close-11.log",
+        "sha256": "963ff41a5ab0487f72e806136251e412b1cb6f936f6776440ab6e44e42f3320a"
+      },
+      {
+        "bytes": 2214,
+        "path": ".tmp/post-push-0152-01/issues-batch-complete.json",
+        "sha256": "6a490f5937c42e738790dca43c7dcd141e15456c763e49e466c1f0eb5892aef6"
+      }
+    ],
+    "issues": [
+      10,
+      11
+    ],
+    "qualification": "released 0.15.2 native tooling step success on Linux and both macOS hosts; complete matrix remains running"
+  },
+  "checks": {
+    "bash_syntax": "passed",
+    "committed_receipt_and_exact_tag": "passed",
+    "diff_whitespace": "passed",
+    "documentation_links": "passed",
+    "perl_syntax": "passed",
+    "release_bash5": "passed",
+    "release_command_routing": "passed",
+    "release_linux_built_bash32": "passed",
+    "shellcheck": "passed",
+    "snapshot": "passed"
+  },
+  "classification": "Local release-tooling substitutes and source review; separate live read-only release/registry/CI observations",
+  "collector": {
+    "bytes": 5302,
+    "path": ".tmp/changelog-owner-0153-01/record.py",
+    "sha256": "b9e707cdf40268cd9932c54a30bbd66c0648261bcb2e6cf4979042951e4ee47d"
+  },
+  "commands": {
+    "bytes": 1502,
+    "path": ".tmp/changelog-owner-0153-01/commands.txt",
+    "sha256": "775e04b2226be0461c2ae846a3a8d9b461b4d53b38059566a4ba9b0c64af3bb8"
+  },
+  "date": "2026-10-06",
+  "excluded_effects": [
+    "real commits/tags/pushes",
+    "release",
+    "publication",
+    "sibling edits",
+    "live provider probes",
+    "paid effects"
+  ],
+  "fixture_retention": "Successful private suites clean their directories. Controlled failure backup/candidate/plan retention is asserted before successful retry and suite cleanup. Aggregate suite logs and exact source inputs remain.",
+  "head": "cdf983c17bb7fb60fe2afb69e2d80e9f1b627108",
+  "inputs": [
+    {
+      "bytes": 3410,
+      "path": ".tmp/changelog-owner-0153-01/frozen-final/.github/workflows/tooling.yml",
+      "sha256": "fd5481bd9d126bd44f6810d95d1dbe37ddf57722fcec6fe41478bafa3a57ec36"
+    },
+    {
+      "bytes": 5692,
+      "path": ".tmp/changelog-owner-0153-01/frozen-final/.shared-tooling.snapshot",
+      "sha256": "3ca137ebc7c87e24e604270beda8b9d1d8e83f986e3ed7e1f2c80c224fa3278f"
+    },
+    {
+      "bytes": 185841,
+      "path": ".tmp/changelog-owner-0153-01/frozen-final/CHANGELOG.md",
+      "sha256": "debe208dda578cdf13f1cf646d8f16edfc474fb93d128801217554a7cdc988e3"
+    },
+    {
+      "bytes": 107329,
+      "path": ".tmp/changelog-owner-0153-01/frozen-final/Cargo.lock",
+      "sha256": "74e24d806599c2ddb7804a6aa41b4359021f74f3a949233989164a5a36ca7cf3"
+    },
+    {
+      "bytes": 1580,
+      "path": ".tmp/changelog-owner-0153-01/frozen-final/Cargo.toml",
+      "sha256": "1b9aa4709ba1ea93923713fefea32b8df1fe11c32cbb5263336fbc130bc41f93"
+    },
+    {
+      "bytes": 19273,
+      "path": ".tmp/changelog-owner-0153-01/frozen-final/Makefile",
+      "sha256": "4a143d2a55bcb586c82970f419e488567c5e15379a36ceefa4c1f007592700d9"
+    },
+    {
+      "bytes": 2337,
+      "path": ".tmp/changelog-owner-0153-01/frozen-final/ci/tool-versions.env",
+      "sha256": "4923b939b682de2311217c232d56fa0cf1c8f37e19e16c16d41be7626cff1285"
+    },
+    {
+      "bytes": 35928,
+      "path": ".tmp/changelog-owner-0153-01/frozen-final/docs/dependencies.md",
+      "sha256": "ce4a7f6f6a107ed759778c1ca7857f2f09d8e0749f3f652395e4150a556ac1ab"
+    },
+    {
+      "bytes": 448,
+      "path": ".tmp/changelog-owner-0153-01/frozen-final/docs/release.json",
+      "sha256": "224b7807316ee9b1cd64295f66b33960a3efd0b33d9a09d03276d855b9c4afa5"
+    },
+    {
+      "bytes": 9366,
+      "path": ".tmp/changelog-owner-0153-01/frozen-final/docs/releasing.md",
+      "sha256": "eb92fd87cbb023f8c46abfafefbeaa23dff6da27f7f696441ee75791d4f93bc7"
+    },
+    {
+      "bytes": 87510,
+      "path": ".tmp/changelog-owner-0153-01/frozen-final/docs/status/current.md",
+      "sha256": "18b8cc825c2812b6a6de0b4f2e30ced5e3c0a3c0cc6c85be568013f573195873"
+    },
+    {
+      "bytes": 732,
+      "path": ".tmp/changelog-owner-0153-01/frozen-final/scripts/ci/check-release-tag.sh",
+      "sha256": "d7b179f9ceaec6e11c690c975b61f91bedc80526415f71571615064db14f0c9c"
+    },
+    {
+      "bytes": 1778,
+      "path": ".tmp/changelog-owner-0153-01/frozen-final/scripts/ci/finalize-release-changelog.awk",
+      "sha256": "edda63b29cbdd88c7f1f0b5ab21dbae0635087a4ab6345392d99138c26b28206"
+    },
+    {
+      "bytes": 1016,
+      "path": ".tmp/changelog-owner-0153-01/frozen-final/scripts/ci/next-release-version.sh",
+      "sha256": "37e028e2d9fee271ffdc06d06fc15d7a148ec524def3d9ed2afcd9910c0ec642"
+    },
+    {
+      "bytes": 2307,
+      "path": ".tmp/changelog-owner-0153-01/frozen-final/scripts/ci/rewrite-local-lock-versions.pl",
+      "sha256": "236f9b2d7fe391a73d03cfe355c0d26fa73de8db1553c7e670f7b19aeb65d086"
+    },
+    {
+      "bytes": 16698,
+      "path": ".tmp/changelog-owner-0153-01/frozen-final/scripts/ci/run-release.sh",
+      "sha256": "cffa84575afcd74836f59f9d8db4be083010048de03c338ec2448857d85dab5e"
+    },
+    {
+      "bytes": 9798,
+      "path": ".tmp/changelog-owner-0153-01/frozen-final/scripts/ci/run-validation-targets.sh",
+      "sha256": "43b649ed7a196e46e6acf60e6307c474c34aa4dfeeb9729e2f37b4ecedca3aba"
+    },
+    {
+      "bytes": 6519,
+      "path": ".tmp/changelog-owner-0153-01/frozen-final/scripts/release/release-data.pl",
+      "sha256": "f5f0a6957dfbc4e98d237400c63856c8c12a644a4b58f9f8030b827ff537953f"
+    },
+    {
+      "bytes": 8454,
+      "path": ".tmp/changelog-owner-0153-01/frozen-final/scripts/release/release.sh",
+      "sha256": "74b522133e8a1d8064edd548640acf768d7bc11f7bf757ebb7d40f6c088d5615"
+    },
+    {
+      "bytes": 33996,
+      "path": ".tmp/changelog-owner-0153-01/frozen-final/scripts/release/test-release.sh",
+      "sha256": "5009fd10d20ef589defd7ad78d08f6ba88acda92715edda297239114bca8b532"
+    }
+  ],
+  "limitations": [
+    "No full CI gate or Rust compilation for dirty 0.15.3 source.",
+    "Linux-built Bash 3.2 does not prove native macOS. Released 0.15.2 remote CI does not qualify pending 0.15.3.",
+    "Issue #13 remains open for committed-source native host qualification.",
+    "No service/provider or consumer deployment acceptance established."
+  ],
+  "negative_control": {
+    "inputs": [
+      {
+        "bytes": 142,
+        "path": ".tmp/changelog-owner-0153-01/old-selector-negative/CHANGELOG.md",
+        "sha256": "b337ca860946227e36148b26051b1289221af5c13271265ff1af99612de25554"
+      },
+      {
+        "bytes": 38,
+        "path": ".tmp/changelog-owner-0153-01/old-selector-negative/Cargo.toml",
+        "sha256": "8e63e00cb12f3c6eb02ce74e5c9f7e5943f122a7e50182c2947b621c5d1c6d62"
+      },
+      {
+        "bytes": 129,
+        "path": ".tmp/changelog-owner-0153-01/old-selector-negative/before.md",
+        "sha256": "a1729bc16384d0fa32da4393318a1acde742ba536e188d48b9f334539f4ead14"
+      },
+      {
+        "bytes": 6894,
+        "path": ".tmp/changelog-owner-0153-01/old-selector-negative/release-data.pl",
+        "sha256": "585760658444c9f0ad78831c21bef2a88b510ee3dafd1bd86ff984384c1f817f"
+      }
+    ],
+    "result": "released selector accepts target 0.2.0 after package bump and overlooks competing undated 0.1.1 above saved previous 0.1.0"
+  },
+  "owning_issue": {
+    "bytes": 2729,
+    "path": ".tmp/post-push-0152-01/issue13-current.json",
+    "sha256": "4949f6520574f66f3cbdefdbb930888fff12547bcb344b8b9c67bc2350f312fa"
+  },
+  "package_version": "0.15.2",
+  "pending_version": "0.15.3",
+  "release_baseline_observations": [
+    {
+      "bytes": 78,
+      "path": ".tmp/post-push-0152-01/remote-head.json",
+      "sha256": "391eab9cbf613bf53e4f4234b75c1a481180eabb6795cd861502da17241e7936"
+    },
+    {
+      "bytes": 0,
+      "path": ".tmp/post-push-0152-01/receipt-check.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 0,
+      "path": ".tmp/post-push-0152-01/tag-check.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 45,
+      "path": ".tmp/post-push-0152-01/snapshot-check.log",
+      "sha256": "ebf74ed1a01d2dabcaa16ee4e143065e8014359036c0e5f0afa3bc993bc71c1f"
+    },
+    {
+      "bytes": 55430,
+      "path": ".tmp/post-push-0152-01/registry-index.jsonl",
+      "sha256": "df66acb0ff7d0a0cb2b03dc53455768c1e365c81939d09eb920b2c76b416b5ad"
+    }
+  ],
+  "release_fixture_behaviors": [
+    "non-mutating preflight and preserved imported undated history at/below saved previous version",
+    "duplicate current/historical release identities and competing drafts refuse before mutation",
+    "empty/missing note content is admitted without rewriting history",
+    "post-bump finalization uses saved previous version; byte-exact expected notes",
+    "same-date and wrong-date re-finalization refuse; prepared recovery uses receipt",
+    "complete valid finalizer output followed by failed process refuses at preflight and after version bump",
+    "post-bump failure restores metadata and retains backup, metadata JSON, candidate and saved prepare intent; retry succeeds with one substitute commit",
+    "existing metadata, staging, source-read, exact tag/push identity and recovery fixtures remain passing"
+  ],
+  "released_ci": {
+    "conclusion": "",
+    "head_sha": "cdf983c17bb7fb60fe2afb69e2d80e9f1b627108",
+    "jobs": [
+      {
+        "conclusion": "",
+        "name": "tooling (macos-15)",
+        "status": "in_progress"
+      },
+      {
+        "conclusion": "success",
+        "name": "tooling (ubuntu-24.04)",
+        "status": "completed"
+      },
+      {
+        "conclusion": "",
+        "name": "tooling (macos-15-intel)",
+        "status": "in_progress"
+      }
+    ],
+    "readback": {
+      "bytes": 4757,
+      "path": ".tmp/post-push-0152-01/ci-batch-complete.json",
+      "sha256": "0710b9fec177b37e35ed175585e429cac26ebdf9dd916f383ade983790065847"
+    },
+    "status": "in_progress",
+    "url": "https://github.com/dragginzgame/ic-blob-storage/actions/runs/37488854847"
+  },
+  "removed_symbols": [
+    {
+      "former_file": "scripts/release/release-data.pl",
+      "name": "compare_versions",
+      "reason": "local selector/version comparison is superseded by canonical shared finalizer",
+      "replacement": "historical() in scripts/ci/finalize-release-changelog.awk"
+    }
+  ],
+  "retained_logs": [
+    {
+      "bytes": 0,
+      "path": ".tmp/changelog-owner-0153-01/bash-syntax.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 0,
+      "path": ".tmp/changelog-owner-0153-01/committed-receipt.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 0,
+      "path": ".tmp/changelog-owner-0153-01/diff-check.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 47,
+      "path": ".tmp/changelog-owner-0153-01/documentation-links.log",
+      "sha256": "5e667dbc7234c70927f5eec2239e0640b13de0d4b5dc17103046025f4f29c1b7"
+    },
+    {
+      "bytes": 0,
+      "path": ".tmp/changelog-owner-0153-01/exact-tag.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 158,
+      "path": ".tmp/changelog-owner-0153-01/old-selector-negative.log",
+      "sha256": "93ddcced453afdfb2b8a400d99723a9fca37314888d912babf05adfe4c735a02"
+    },
+    {
+      "bytes": 42,
+      "path": ".tmp/changelog-owner-0153-01/perl-syntax-final.log",
+      "sha256": "1b62e99cd7e1922ebb53c4d6429e3151614ef19ecf82d5156c898128f34a99c6"
+    },
+    {
+      "bytes": 42,
+      "path": ".tmp/changelog-owner-0153-01/perl-syntax.log",
+      "sha256": "1b62e99cd7e1922ebb53c4d6429e3151614ef19ecf82d5156c898128f34a99c6"
+    },
+    {
+      "bytes": 98,
+      "path": ".tmp/changelog-owner-0153-01/release-bash32.log",
+      "sha256": "f9d4ce54e4aa58986c1f8d4aafb9a8e033d6b5a2b5c7438c7372a2107587d9cd"
+    },
+    {
+      "bytes": 98,
+      "path": ".tmp/changelog-owner-0153-01/release-bash5.log",
+      "sha256": "f9d4ce54e4aa58986c1f8d4aafb9a8e033d6b5a2b5c7438c7372a2107587d9cd"
+    },
+    {
+      "bytes": 201,
+      "path": ".tmp/changelog-owner-0153-01/release-commands.log",
+      "sha256": "6150065a3bb60c2d6e80a788aef120e8bd9ca9eb84e39d0c76fe0839b79ae18b"
+    },
+    {
+      "bytes": 0,
+      "path": ".tmp/changelog-owner-0153-01/shellcheck-final.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 0,
+      "path": ".tmp/changelog-owner-0153-01/shellcheck-initial.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 0,
+      "path": ".tmp/changelog-owner-0153-01/shellcheck.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 45,
+      "path": ".tmp/changelog-owner-0153-01/snapshot.log",
+      "sha256": "ebf74ed1a01d2dabcaa16ee4e143065e8014359036c0e5f0afa3bc993bc71c1f"
+    }
+  ],
+  "snapshot": {
+    "changed": false,
+    "files": 54,
+    "revision": "d957d1f8801885c5b69e4a9ef900155f5f2a8a9d"
+  },
+  "upstream": {
+    "comparison": {
+      "bytes": 38789,
+      "path": ".tmp/post-push-0152-01/shared-latest-compare.json",
+      "sha256": "192fd3eaa7e8984fa58f32fa8095538e1c9522c9a31a16ee5aa641ac6e0056e2"
+    },
+    "disposition": "0.1.9 newly committed; AWK helper unchanged. No new snapshot adoption in this batch; formatter prerequisite issue #12 is next.",
+    "latest": {
+      "message": "0.1.9",
+      "sha": "b32d3038c850a7c53470c326b0f7f11263b31669"
+    },
+    "latest_readback": {
+      "bytes": 69,
+      "path": ".tmp/post-push-0152-01/shared-head-final.json",
+      "sha256": "39053840acbb665daf101d34c38d24e4abfcf4cdbbddba38c28d633d161af57e"
+    }
+  }
+}

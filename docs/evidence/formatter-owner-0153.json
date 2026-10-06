@@ -1,0 +1,1462 @@
+{
+  "behavior": [
+    "Exact successful cargo-sort and available rustfmt required offline; matching stdout from failed commands refuses.",
+    "Common prerequisite used by fmt, fmt-check and release preflight; local pins, workspace selection, toolchain and ShellCheck stay local.",
+    "Rustfmt probe failure stops before validation, release intent or metadata writes; cache survives and one exact substitute release succeeds on retry.",
+    "Actual manifest sorting and Rust formatting; partial staging refusal, unrelated edits and lock preservation; consumer formatter rollback.",
+    "CI now runs shared formatter fixtures and selects format-tools-test.* failures for upload; live artifact upload is not exercised locally.",
+    "Final shared runner controlled failures preserve exact status 23 and inputs; successes clean their own fixture."
+  ],
+  "checks": {
+    "committed_receipt_exact_tag": "passed",
+    "controlled_final_shared_runner_status23_retention_both_shells": "passed",
+    "controlled_formatter_retention": "passed",
+    "diff_whitespace": "passed",
+    "documentation_links": "passed",
+    "failed_rustfmt_preflight_and_retry": "passed",
+    "formatter_bash5_and_linux_bash32": "passed",
+    "real_format_and_release_prerequisites": "passed",
+    "real_hooks_bash5_and_linux_bash32": "passed",
+    "release_adapters_bash5_and_linux_bash32": "passed",
+    "release_routing": "passed",
+    "shared_runner_initial_and_final_both_shells": "passed",
+    "syntax_shellcheck_snapshot": "passed"
+  },
+  "classification": "Local focused release/formatter substitutes and actual formatter execution; separate GitHub CI source observations",
+  "collector": {
+    "bytes": 6610,
+    "path": ".tmp/formatter-0153-01/record.py",
+    "sha256": "ba60cb5de84ae0b996d42786ac4ba11ae4919423adc8ed77f0fc25b0351d723a"
+  },
+  "commands": {
+    "bytes": 3130,
+    "path": ".tmp/formatter-0153-01/commands.txt",
+    "sha256": "843f302d52fca574a07bb2afecae7d829ebb7b7841153dc8b60b2fd13e73dbf0"
+  },
+  "controlled_formatter_failure": [
+    {
+      "bytes": 413,
+      "path": ".tmp/formatter-0153-01/controlled-failure/format-tools-test.ky4LoG/bin/cargo",
+      "sha256": "79ad7f10ac40d4d5c814fc5dc7a855f50faffb9fb122e6c662c9bb97b1197890"
+    },
+    {
+      "bytes": 29,
+      "path": ".tmp/formatter-0153-01/controlled-failure/format-tools-test.ky4LoG/calls",
+      "sha256": "3b88d932093e817ebca0f1459cd5347f8a2b9cb25a1d830af481077385428e21"
+    }
+  ],
+  "controlled_shared_runner_failures": [
+    {
+      "bytes": 5394,
+      "path": ".tmp/formatter-0153-01/runner-failure-bash5/release-runner-test.B5p622/bin/git",
+      "sha256": "b54995ecfdf1b46554f9ba6ad96a5c94f49d97530770ba66de9253febee2f263"
+    },
+    {
+      "bytes": 1472,
+      "path": ".tmp/formatter-0153-01/runner-failure-bash5/release-runner-test.B5p622/bin/make",
+      "sha256": "21ab73317d592451928363698c595b5fc7c828ce2831ce8bd2f5e0ac851e65cb"
+    },
+    {
+      "bytes": 41,
+      "path": ".tmp/formatter-0153-01/runner-failure-bash5/release-runner-test.B5p622/patch/head",
+      "sha256": "5a84b79716842f146f7533d890cc7308cad7b21abdc29c1852c6b3bb8ad66672"
+    },
+    {
+      "bytes": 0,
+      "path": ".tmp/formatter-0153-01/runner-failure-bash5/release-runner-test.B5p622/patch/output",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 24,
+      "path": ".tmp/formatter-0153-01/runner-failure-bash5/release-runner-test.B5p622/patch/release file.txt",
+      "sha256": "97dc125f1d3e27770902c04f0b47a4a8bff8c97407e9b04fa754c32aeaaf8df6"
+    },
+    {
+      "bytes": 6,
+      "path": ".tmp/formatter-0153-01/runner-failure-bash5/release-runner-test.B5p622/patch/version",
+      "sha256": "e9dd8507f4bf0c6f42458e41aea833ad0bd3f6127272335eee9bf4d58541ed67"
+    },
+    {
+      "bytes": 5394,
+      "path": ".tmp/formatter-0153-01/runner-failure-bash32/release-runner-test.it4MKT/bin/git",
+      "sha256": "b54995ecfdf1b46554f9ba6ad96a5c94f49d97530770ba66de9253febee2f263"
+    },
+    {
+      "bytes": 1472,
+      "path": ".tmp/formatter-0153-01/runner-failure-bash32/release-runner-test.it4MKT/bin/make",
+      "sha256": "21ab73317d592451928363698c595b5fc7c828ce2831ce8bd2f5e0ac851e65cb"
+    },
+    {
+      "bytes": 41,
+      "path": ".tmp/formatter-0153-01/runner-failure-bash32/release-runner-test.it4MKT/patch/head",
+      "sha256": "5a84b79716842f146f7533d890cc7308cad7b21abdc29c1852c6b3bb8ad66672"
+    },
+    {
+      "bytes": 0,
+      "path": ".tmp/formatter-0153-01/runner-failure-bash32/release-runner-test.it4MKT/patch/output",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 24,
+      "path": ".tmp/formatter-0153-01/runner-failure-bash32/release-runner-test.it4MKT/patch/release file.txt",
+      "sha256": "97dc125f1d3e27770902c04f0b47a4a8bff8c97407e9b04fa754c32aeaaf8df6"
+    },
+    {
+      "bytes": 6,
+      "path": ".tmp/formatter-0153-01/runner-failure-bash32/release-runner-test.it4MKT/patch/version",
+      "sha256": "e9dd8507f4bf0c6f42458e41aea833ad0bd3f6127272335eee9bf4d58541ed67"
+    },
+    {
+      "bytes": 145,
+      "path": ".tmp/formatter-0153-01/runner-failure-bin/git",
+      "sha256": "a22348c9ba6ca691a377ba57a7119ea0fda505c8997e4ecec5b09d0ec2667052"
+    }
+  ],
+  "date": "2026-10-06",
+  "excluded_effects": [
+    "real commits/tags/pushes",
+    "release",
+    "publication",
+    "GitHub writes",
+    "sibling edits",
+    "live provider probes",
+    "paid effects"
+  ],
+  "final_documentation_inputs": [
+    {
+      "bytes": 36252,
+      "path": ".tmp/formatter-0153-01/frozen-docs/docs/dependencies.md",
+      "sha256": "f467d2bbc2cf0f19b883911f1b98750008a451cd44c06a678f539473cb066125"
+    },
+    {
+      "bytes": 8712,
+      "path": ".tmp/formatter-0153-01/frozen-docs/docs/governance/development.md",
+      "sha256": "781d8bc976bc0a58bbfea9c288cfbd0e466f437a107eb7897eab34728f6651b9"
+    },
+    {
+      "bytes": 9469,
+      "path": ".tmp/formatter-0153-01/frozen-docs/docs/releasing.md",
+      "sha256": "25259e3aedd2402f4d76e55127799709e598091ecf6cd6a2ef119faa33e6dc88"
+    },
+    {
+      "bytes": 90670,
+      "path": ".tmp/formatter-0153-01/frozen-docs/docs/status/current.md",
+      "sha256": "a62d641942ed53ee207653b3f6be62f59921f6ac0eee7e1e38e9a0a25fc2e99b"
+    }
+  ],
+  "final_inputs": [
+    {
+      "bytes": 2774,
+      "path": ".tmp/formatter-0153-01/frozen-final/.githooks/pre-commit",
+      "sha256": "6d5bb9cc5ea9a8fdc4b1e075b691f6293d0654483ea3f9e019f2b2f86913ca7c"
+    },
+    {
+      "bytes": 3462,
+      "path": ".tmp/formatter-0153-01/frozen-final/.github/workflows/tooling.yml",
+      "sha256": "b09267e8ca32263f6bb47d093d567cbaba911fa074af250ee504e434e4dfaa06"
+    },
+    {
+      "bytes": 5901,
+      "path": ".tmp/formatter-0153-01/frozen-final/.shared-tooling.snapshot",
+      "sha256": "a33e9cbdc0466a3e243d2d364dfa9769d4b672d514b2f9d95ce8108af0d14219"
+    },
+    {
+      "bytes": 186198,
+      "path": ".tmp/formatter-0153-01/frozen-final/CHANGELOG.md",
+      "sha256": "e4adc956bb4c541621bbc77f68f7c344736277bdff42ce977c30a1f3bf38c898"
+    },
+    {
+      "bytes": 107329,
+      "path": ".tmp/formatter-0153-01/frozen-final/Cargo.lock",
+      "sha256": "74e24d806599c2ddb7804a6aa41b4359021f74f3a949233989164a5a36ca7cf3"
+    },
+    {
+      "bytes": 1580,
+      "path": ".tmp/formatter-0153-01/frozen-final/Cargo.toml",
+      "sha256": "1b9aa4709ba1ea93923713fefea32b8df1fe11c32cbb5263336fbc130bc41f93"
+    },
+    {
+      "bytes": 19117,
+      "path": ".tmp/formatter-0153-01/frozen-final/DRAGGINZGAME.md",
+      "sha256": "4c711609d1e8b30ccd2ddff3974b1418cced91a4484be3911c2a36c7631e31ee"
+    },
+    {
+      "bytes": 19138,
+      "path": ".tmp/formatter-0153-01/frozen-final/Makefile",
+      "sha256": "a4bd6182cdc1a20c9b1be79dd3e7cbbb4c6a1d040f11958d32d34a08feae768e"
+    },
+    {
+      "bytes": 7055,
+      "path": ".tmp/formatter-0153-01/frozen-final/audits/README.md",
+      "sha256": "926d5a39ea62a3becd19ff0326c63987b2929d3a1a728e2a0ef8a7180824d231"
+    },
+    {
+      "bytes": 2666,
+      "path": ".tmp/formatter-0153-01/frozen-final/audits/code-hygiene.md",
+      "sha256": "518d890bf485bef06c316b4cf26ac6bf357ed52bcce995e8d9b1232a103d0ea3"
+    },
+    {
+      "bytes": 2426,
+      "path": ".tmp/formatter-0153-01/frozen-final/audits/complexity-and-technical-debt.md",
+      "sha256": "ffdca09602c44c8aff8fc2a17588b20eb6a56e2e71fb6d42ad75087fdd65819b"
+    },
+    {
+      "bytes": 2399,
+      "path": ".tmp/formatter-0153-01/frozen-final/audits/flow-convergence-and-duplication.md",
+      "sha256": "35fd87d36a09ed0971841abf28535d43470c713a82581c2251b924da1ab8f484"
+    },
+    {
+      "bytes": 2176,
+      "path": ".tmp/formatter-0153-01/frozen-final/audits/module-cleanup.md",
+      "sha256": "d229519014823ad804070e55f7bb5316d7612e1d77a9dc8bf962d564e7b2a5e7"
+    },
+    {
+      "bytes": 3619,
+      "path": ".tmp/formatter-0153-01/frozen-final/audits/module-surface-hardening.md",
+      "sha256": "1b64cf2ba0393ab329ec29eb05a696d47ef5933f5ab9bff6e1fe4a7e7b294075"
+    },
+    {
+      "bytes": 1763,
+      "path": ".tmp/formatter-0153-01/frozen-final/ci/ic-tools.tsv",
+      "sha256": "5b1ef6bc9e344139f5e171cc1a3783bcee3650275de2f44fe0f8fa10f2bfef87"
+    },
+    {
+      "bytes": 2337,
+      "path": ".tmp/formatter-0153-01/frozen-final/ci/tool-versions.env",
+      "sha256": "4923b939b682de2311217c232d56fa0cf1c8f37e19e16c16d41be7626cff1285"
+    },
+    {
+      "bytes": 14293,
+      "path": ".tmp/formatter-0153-01/frozen-final/docs/consuming-snapshots.md",
+      "sha256": "44a23eec5c7d043b374117d9585c0fc5da09134b717d33fb9937731b8b524261"
+    },
+    {
+      "bytes": 5381,
+      "path": ".tmp/formatter-0153-01/frozen-final/docs/ic-tools.md",
+      "sha256": "89243ae92927e7c036fa8938e42acdd4a8f3dc4060600d2fff495fcd844486a9"
+    },
+    {
+      "bytes": 4544,
+      "path": ".tmp/formatter-0153-01/frozen-final/docs/local-setup.md",
+      "sha256": "e1bf529c4610d7a26b86506a831c4c2e09d75c1e6076f527bdd2ad09027501d1"
+    },
+    {
+      "bytes": 1074,
+      "path": ".tmp/formatter-0153-01/frozen-final/docs/principles/README.md",
+      "sha256": "59f6cb0b47fcfa698396776bbb391737292ebf34457ad7c65803fe7b36961499"
+    },
+    {
+      "bytes": 1987,
+      "path": ".tmp/formatter-0153-01/frozen-final/docs/principles/decision-artifact-discipline.md",
+      "sha256": "9315c9faffa4f36cfab496342535bf49d728ddd2111e8e127cbc44b3fac89ce7"
+    },
+    {
+      "bytes": 3739,
+      "path": ".tmp/formatter-0153-01/frozen-final/docs/principles/reviewable-changes.md",
+      "sha256": "56701aba8ce851ac4cce32fb55ce721698a94218b1e46636818f6b43debcb719"
+    },
+    {
+      "bytes": 2688,
+      "path": ".tmp/formatter-0153-01/frozen-final/docs/principles/rust-code-hygiene.md",
+      "sha256": "7e5fd8a3c3b1dc5a829a19ad1a4933fdc17792c8e923871da1e9f36586baff41"
+    },
+    {
+      "bytes": 4455,
+      "path": ".tmp/formatter-0153-01/frozen-final/docs/principles/simplicity-and-maintainability.md",
+      "sha256": "457fd38e0073c91ba470b918d4facd9faac3c5200ebd38c97e9d6b76acdaea55"
+    },
+    {
+      "bytes": 11590,
+      "path": ".tmp/formatter-0153-01/frozen-final/docs/provenance.md",
+      "sha256": "fa7e67815383cefc6952c70197d66a454b976c6f102d3e47026200ee2da619a3"
+    },
+    {
+      "bytes": 448,
+      "path": ".tmp/formatter-0153-01/frozen-final/docs/release.json",
+      "sha256": "224b7807316ee9b1cd64295f66b33960a3efd0b33d9a09d03276d855b9c4afa5"
+    },
+    {
+      "bytes": 19421,
+      "path": ".tmp/formatter-0153-01/frozen-final/docs/releases.md",
+      "sha256": "681b830cf44aa1842ab68aeafc6e4ae8d2867fe189bbf405cbd74a6f4720d91a"
+    },
+    {
+      "bytes": 7461,
+      "path": ".tmp/formatter-0153-01/frozen-final/docs/supported-hosts.md",
+      "sha256": "9573ed9ed4383b72a2b568118433454917697e346dac714452ed2074c23e731a"
+    },
+    {
+      "bytes": 5396,
+      "path": ".tmp/formatter-0153-01/frozen-final/docs/tag-maintenance.md",
+      "sha256": "1063002468575e2f821cfec71524bde06a64634bf30455d64d2d9fed872969d6"
+    },
+    {
+      "bytes": 22104,
+      "path": ".tmp/formatter-0153-01/frozen-final/docs/verification-helpers.md",
+      "sha256": "c5ffc7c8304da38d3d55289183a5a80a0d61f6218d9157d73d54bc2cdb2fdd91"
+    },
+    {
+      "bytes": 5551,
+      "path": ".tmp/formatter-0153-01/frozen-final/rules/agent-maintenance.md",
+      "sha256": "0de19d6eb5b3dea57d46cd6412dc49ce6a1b5fb591b551dbec16cdb25ee181df"
+    },
+    {
+      "bytes": 5052,
+      "path": ".tmp/formatter-0153-01/frozen-final/rules/cargo-dependencies.md",
+      "sha256": "b0dfb6f6a1caf0f47f166523a3703bdd88a7667f8b0901e549620eb31adb7a7a"
+    },
+    {
+      "bytes": 10465,
+      "path": ".tmp/formatter-0153-01/frozen-final/rules/changelogs.md",
+      "sha256": "9c95f254c59a1ef312d37981dcd8af2dadf4eda34cf9026cfeda4092a2716858"
+    },
+    {
+      "bytes": 7671,
+      "path": ".tmp/formatter-0153-01/frozen-final/rules/dependency-pinning.md",
+      "sha256": "403c595f0e60bbf81c265c1b1a5732d20534361bd3203d8a84083d0816f5f0e4"
+    },
+    {
+      "bytes": 7697,
+      "path": ".tmp/formatter-0153-01/frozen-final/rules/git-hooks.md",
+      "sha256": "fcaa0fef984f57853c2672a787fc2ac3c690dcb912ed475c1c4e95453cfdf00f"
+    },
+    {
+      "bytes": 7591,
+      "path": ".tmp/formatter-0153-01/frozen-final/scripts/ci/check-dependency-pins.sh",
+      "sha256": "4d875dd6b8822f68ae86a357cde9af67b33302331a11333e31941eb1c41a6929"
+    },
+    {
+      "bytes": 2282,
+      "path": ".tmp/formatter-0153-01/frozen-final/scripts/ci/check-documentation-links.pl",
+      "sha256": "a04ef3105e7851b83bb682120873e29a6c3c604183c275bc53051dd9e4b300a7"
+    },
+    {
+      "bytes": 2622,
+      "path": ".tmp/formatter-0153-01/frozen-final/scripts/ci/check-format-hooks.sh",
+      "sha256": "0a0cf54e0b5ff2b0979d8dc114ccbc1c11519134c6866bb8e9afee69286fb87e"
+    },
+    {
+      "bytes": 862,
+      "path": ".tmp/formatter-0153-01/frozen-final/scripts/ci/check-format-tools.sh",
+      "sha256": "a52db278800a9f02d85a6b8a780a9b1eed860c49d5442cef9db1f7f9d7ddee0a"
+    },
+    {
+      "bytes": 5714,
+      "path": ".tmp/formatter-0153-01/frozen-final/scripts/ci/check-formatting-hooks.sh",
+      "sha256": "a74951308598b86742672409c261e7adc62f8243c0fa8a60363124eae7ae67f8"
+    },
+    {
+      "bytes": 3122,
+      "path": ".tmp/formatter-0153-01/frozen-final/scripts/ci/check-release-commands.sh",
+      "sha256": "5dd38585740657f98f655c15c4f617ca05dc4b6304e0925675a44376ec33309b"
+    },
+    {
+      "bytes": 732,
+      "path": ".tmp/formatter-0153-01/frozen-final/scripts/ci/check-release-tag.sh",
+      "sha256": "d7b179f9ceaec6e11c690c975b61f91bedc80526415f71571615064db14f0c9c"
+    },
+    {
+      "bytes": 5427,
+      "path": ".tmp/formatter-0153-01/frozen-final/scripts/ci/dependency-pins.jq",
+      "sha256": "43b22d137421962ab6b34634e60d94b8cc6cf5483f9bc55afa8a0d1cd0964a28"
+    },
+    {
+      "bytes": 1778,
+      "path": ".tmp/formatter-0153-01/frozen-final/scripts/ci/finalize-release-changelog.awk",
+      "sha256": "edda63b29cbdd88c7f1f0b5ab21dbae0635087a4ab6345392d99138c26b28206"
+    },
+    {
+      "bytes": 1951,
+      "path": ".tmp/formatter-0153-01/frozen-final/scripts/ci/install-yq.sh",
+      "sha256": "46f8e4f70fae37391354c7d0d9b6bcd128412ae9c0d14d48131a0fe0fe0acef5"
+    },
+    {
+      "bytes": 1016,
+      "path": ".tmp/formatter-0153-01/frozen-final/scripts/ci/next-release-version.sh",
+      "sha256": "37e028e2d9fee271ffdc06d06fc15d7a148ec524def3d9ed2afcd9910c0ec642"
+    },
+    {
+      "bytes": 1650,
+      "path": ".tmp/formatter-0153-01/frozen-final/scripts/ci/read-cargo-workspace-version.sh",
+      "sha256": "40f31a19d6115411ebffe7c26e3ed30b8af7eead10dd4830de8d5a9312291222"
+    },
+    {
+      "bytes": 2307,
+      "path": ".tmp/formatter-0153-01/frozen-final/scripts/ci/rewrite-local-lock-versions.pl",
+      "sha256": "236f9b2d7fe391a73d03cfe355c0d26fa73de8db1553c7e670f7b19aeb65d086"
+    },
+    {
+      "bytes": 907,
+      "path": ".tmp/formatter-0153-01/frozen-final/scripts/ci/run-nonempty-cargo-test.sh",
+      "sha256": "4e7e0a3a93bf4f922a292619dad7deee9c78c24a4bd2812040dd564271862039"
+    },
+    {
+      "bytes": 16698,
+      "path": ".tmp/formatter-0153-01/frozen-final/scripts/ci/run-release.sh",
+      "sha256": "cffa84575afcd74836f59f9d8db4be083010048de03c338ec2448857d85dab5e"
+    },
+    {
+      "bytes": 9798,
+      "path": ".tmp/formatter-0153-01/frozen-final/scripts/ci/run-validation-targets.sh",
+      "sha256": "43b649ed7a196e46e6acf60e6307c474c34aa4dfeeb9729e2f37b4ecedca3aba"
+    },
+    {
+      "bytes": 4713,
+      "path": ".tmp/formatter-0153-01/frozen-final/scripts/ci/test-cargo-metadata.sh",
+      "sha256": "1719211830ee32ef422e12e226179ccf37c1b6a9e2c9a41bb2b71766cad52c3e"
+    },
+    {
+      "bytes": 3309,
+      "path": ".tmp/formatter-0153-01/frozen-final/scripts/ci/test-file-digests.sh",
+      "sha256": "fe64efb6af09c7b3182ed709700472ff803f6b5d54df0473a675b07597dcbb31"
+    },
+    {
+      "bytes": 1971,
+      "path": ".tmp/formatter-0153-01/frozen-final/scripts/ci/test-format-tools.sh",
+      "sha256": "bf3ac5d22e63798ffe67539b138d277cc3364a4665babff5b494b210b1e140ce"
+    },
+    {
+      "bytes": 7933,
+      "path": ".tmp/formatter-0153-01/frozen-final/scripts/ci/test-ic-tools.sh",
+      "sha256": "0d4a45581e26987baaaa91cd49748e3b7b3ffa76b01f32d1db84560bd5baa68a"
+    },
+    {
+      "bytes": 4031,
+      "path": ".tmp/formatter-0153-01/frozen-final/scripts/ci/test-local-lock-versions.pl",
+      "sha256": "d4b498337bfd681466e7b541cb2783779aad2a8b326e927450d98f3b570fb5c6"
+    },
+    {
+      "bytes": 30473,
+      "path": ".tmp/formatter-0153-01/frozen-final/scripts/ci/test-release-runner.sh",
+      "sha256": "8cf1de0e9ff2001f931b168a384a83d5c6f86d05d33abc39bd72adee5589f269"
+    },
+    {
+      "bytes": 1102,
+      "path": ".tmp/formatter-0153-01/frozen-final/scripts/ci/verify-evidence-checksums.sh",
+      "sha256": "22bf8001f496799c0e26795479b9e313fe3ceddec2e47b8444f8af8e7bc32bae"
+    },
+    {
+      "bytes": 1884,
+      "path": ".tmp/formatter-0153-01/frozen-final/scripts/ci/verify-file-checksum.sh",
+      "sha256": "4c981184847462ab3c01cac087e28309f8e054253fd95c7bbe56f643877aa708"
+    },
+    {
+      "bytes": 5187,
+      "path": ".tmp/formatter-0153-01/frozen-final/scripts/ci/verify-shared-tooling-snapshot.sh",
+      "sha256": "4024efa6850788102bbfa97c471ea3b45d760e547a31b11e7c6a91a79e3eaca8"
+    },
+    {
+      "bytes": 6297,
+      "path": ".tmp/formatter-0153-01/frozen-final/scripts/dev/cloc.sh",
+      "sha256": "955db0c3b1ba072ddf5334ed584da74c645119a3af354b7223b28921ecb924a2"
+    },
+    {
+      "bytes": 1506,
+      "path": ".tmp/formatter-0153-01/frozen-final/scripts/dev/install-git-hooks.sh",
+      "sha256": "c48e767cb16fce756bea55492e33c62fd1e57560310d63bfb8a1adc118be2212"
+    },
+    {
+      "bytes": 6650,
+      "path": ".tmp/formatter-0153-01/frozen-final/scripts/dev/install-host-tools.sh",
+      "sha256": "591a5d5fc0b8bf0d48179a9d265245ea727ee318894bd10ed962137761465eea"
+    },
+    {
+      "bytes": 8332,
+      "path": ".tmp/formatter-0153-01/frozen-final/scripts/dev/install-ic-tools.sh",
+      "sha256": "7a78004b2fa56448ffa8a4fc9aac8e7e9343a0243bf857a3db908fb2f59cfb4f"
+    },
+    {
+      "bytes": 6519,
+      "path": ".tmp/formatter-0153-01/frozen-final/scripts/release/release-data.pl",
+      "sha256": "f5f0a6957dfbc4e98d237400c63856c8c12a644a4b58f9f8030b827ff537953f"
+    },
+    {
+      "bytes": 8454,
+      "path": ".tmp/formatter-0153-01/frozen-final/scripts/release/release.sh",
+      "sha256": "74b522133e8a1d8064edd548640acf768d7bc11f7bf757ebb7d40f6c088d5615"
+    },
+    {
+      "bytes": 34112,
+      "path": ".tmp/formatter-0153-01/frozen-final/scripts/release/test-release.sh",
+      "sha256": "1c19ff478f2e8f7cf881a57ec75f59d4b6cea4fd4bb8336237dfcb372f3338b3"
+    }
+  ],
+  "head": "cdf983c17bb7fb60fe2afb69e2d80e9f1b627108",
+  "hook_activation": "Existing core.hooksPath=.githooks remains unchanged; installer is exercised only inside private hook fixtures.",
+  "initial_qualified_inputs": [
+    {
+      "bytes": 2774,
+      "path": ".tmp/formatter-0153-01/frozen-inputs/.githooks/pre-commit",
+      "sha256": "6d5bb9cc5ea9a8fdc4b1e075b691f6293d0654483ea3f9e019f2b2f86913ca7c"
+    },
+    {
+      "bytes": 3462,
+      "path": ".tmp/formatter-0153-01/frozen-inputs/.github/workflows/tooling.yml",
+      "sha256": "b09267e8ca32263f6bb47d093d567cbaba911fa074af250ee504e434e4dfaa06"
+    },
+    {
+      "bytes": 5901,
+      "path": ".tmp/formatter-0153-01/frozen-inputs/.shared-tooling.snapshot",
+      "sha256": "3f4e093b28cc4dc8eb279231b1bd153928d05bdc14ed5545ff844ef452ba3087"
+    },
+    {
+      "bytes": 186197,
+      "path": ".tmp/formatter-0153-01/frozen-inputs/CHANGELOG.md",
+      "sha256": "f4e87bd1199cdf57e64de91a436e3b273c658fabaead95ffc877f17a5ff62693"
+    },
+    {
+      "bytes": 107329,
+      "path": ".tmp/formatter-0153-01/frozen-inputs/Cargo.lock",
+      "sha256": "74e24d806599c2ddb7804a6aa41b4359021f74f3a949233989164a5a36ca7cf3"
+    },
+    {
+      "bytes": 1580,
+      "path": ".tmp/formatter-0153-01/frozen-inputs/Cargo.toml",
+      "sha256": "1b9aa4709ba1ea93923713fefea32b8df1fe11c32cbb5263336fbc130bc41f93"
+    },
+    {
+      "bytes": 19117,
+      "path": ".tmp/formatter-0153-01/frozen-inputs/DRAGGINZGAME.md",
+      "sha256": "4c711609d1e8b30ccd2ddff3974b1418cced91a4484be3911c2a36c7631e31ee"
+    },
+    {
+      "bytes": 19138,
+      "path": ".tmp/formatter-0153-01/frozen-inputs/Makefile",
+      "sha256": "a4bd6182cdc1a20c9b1be79dd3e7cbbb4c6a1d040f11958d32d34a08feae768e"
+    },
+    {
+      "bytes": 7055,
+      "path": ".tmp/formatter-0153-01/frozen-inputs/audits/README.md",
+      "sha256": "926d5a39ea62a3becd19ff0326c63987b2929d3a1a728e2a0ef8a7180824d231"
+    },
+    {
+      "bytes": 2666,
+      "path": ".tmp/formatter-0153-01/frozen-inputs/audits/code-hygiene.md",
+      "sha256": "518d890bf485bef06c316b4cf26ac6bf357ed52bcce995e8d9b1232a103d0ea3"
+    },
+    {
+      "bytes": 2426,
+      "path": ".tmp/formatter-0153-01/frozen-inputs/audits/complexity-and-technical-debt.md",
+      "sha256": "ffdca09602c44c8aff8fc2a17588b20eb6a56e2e71fb6d42ad75087fdd65819b"
+    },
+    {
+      "bytes": 2399,
+      "path": ".tmp/formatter-0153-01/frozen-inputs/audits/flow-convergence-and-duplication.md",
+      "sha256": "35fd87d36a09ed0971841abf28535d43470c713a82581c2251b924da1ab8f484"
+    },
+    {
+      "bytes": 2176,
+      "path": ".tmp/formatter-0153-01/frozen-inputs/audits/module-cleanup.md",
+      "sha256": "d229519014823ad804070e55f7bb5316d7612e1d77a9dc8bf962d564e7b2a5e7"
+    },
+    {
+      "bytes": 3619,
+      "path": ".tmp/formatter-0153-01/frozen-inputs/audits/module-surface-hardening.md",
+      "sha256": "1b64cf2ba0393ab329ec29eb05a696d47ef5933f5ab9bff6e1fe4a7e7b294075"
+    },
+    {
+      "bytes": 1763,
+      "path": ".tmp/formatter-0153-01/frozen-inputs/ci/ic-tools.tsv",
+      "sha256": "5b1ef6bc9e344139f5e171cc1a3783bcee3650275de2f44fe0f8fa10f2bfef87"
+    },
+    {
+      "bytes": 2337,
+      "path": ".tmp/formatter-0153-01/frozen-inputs/ci/tool-versions.env",
+      "sha256": "4923b939b682de2311217c232d56fa0cf1c8f37e19e16c16d41be7626cff1285"
+    },
+    {
+      "bytes": 14293,
+      "path": ".tmp/formatter-0153-01/frozen-inputs/docs/consuming-snapshots.md",
+      "sha256": "44a23eec5c7d043b374117d9585c0fc5da09134b717d33fb9937731b8b524261"
+    },
+    {
+      "bytes": 5381,
+      "path": ".tmp/formatter-0153-01/frozen-inputs/docs/ic-tools.md",
+      "sha256": "89243ae92927e7c036fa8938e42acdd4a8f3dc4060600d2fff495fcd844486a9"
+    },
+    {
+      "bytes": 4544,
+      "path": ".tmp/formatter-0153-01/frozen-inputs/docs/local-setup.md",
+      "sha256": "e1bf529c4610d7a26b86506a831c4c2e09d75c1e6076f527bdd2ad09027501d1"
+    },
+    {
+      "bytes": 1074,
+      "path": ".tmp/formatter-0153-01/frozen-inputs/docs/principles/README.md",
+      "sha256": "59f6cb0b47fcfa698396776bbb391737292ebf34457ad7c65803fe7b36961499"
+    },
+    {
+      "bytes": 1987,
+      "path": ".tmp/formatter-0153-01/frozen-inputs/docs/principles/decision-artifact-discipline.md",
+      "sha256": "9315c9faffa4f36cfab496342535bf49d728ddd2111e8e127cbc44b3fac89ce7"
+    },
+    {
+      "bytes": 3739,
+      "path": ".tmp/formatter-0153-01/frozen-inputs/docs/principles/reviewable-changes.md",
+      "sha256": "56701aba8ce851ac4cce32fb55ce721698a94218b1e46636818f6b43debcb719"
+    },
+    {
+      "bytes": 2688,
+      "path": ".tmp/formatter-0153-01/frozen-inputs/docs/principles/rust-code-hygiene.md",
+      "sha256": "7e5fd8a3c3b1dc5a829a19ad1a4933fdc17792c8e923871da1e9f36586baff41"
+    },
+    {
+      "bytes": 4455,
+      "path": ".tmp/formatter-0153-01/frozen-inputs/docs/principles/simplicity-and-maintainability.md",
+      "sha256": "457fd38e0073c91ba470b918d4facd9faac3c5200ebd38c97e9d6b76acdaea55"
+    },
+    {
+      "bytes": 10823,
+      "path": ".tmp/formatter-0153-01/frozen-inputs/docs/provenance.md",
+      "sha256": "4f4b3620d043c147da29c55e955e9513691dac57adb3cfd7fb2eb6016685d03b"
+    },
+    {
+      "bytes": 448,
+      "path": ".tmp/formatter-0153-01/frozen-inputs/docs/release.json",
+      "sha256": "224b7807316ee9b1cd64295f66b33960a3efd0b33d9a09d03276d855b9c4afa5"
+    },
+    {
+      "bytes": 19421,
+      "path": ".tmp/formatter-0153-01/frozen-inputs/docs/releases.md",
+      "sha256": "681b830cf44aa1842ab68aeafc6e4ae8d2867fe189bbf405cbd74a6f4720d91a"
+    },
+    {
+      "bytes": 7156,
+      "path": ".tmp/formatter-0153-01/frozen-inputs/docs/supported-hosts.md",
+      "sha256": "2795a20d998711cad318d5333c57de3a95edac9c6ca4645092272a78f75e18a3"
+    },
+    {
+      "bytes": 5396,
+      "path": ".tmp/formatter-0153-01/frozen-inputs/docs/tag-maintenance.md",
+      "sha256": "1063002468575e2f821cfec71524bde06a64634bf30455d64d2d9fed872969d6"
+    },
+    {
+      "bytes": 20130,
+      "path": ".tmp/formatter-0153-01/frozen-inputs/docs/verification-helpers.md",
+      "sha256": "e3f3d3987da5ad4300c3308f4047fdec6bd647f34d04159d3c967fbaf055e00a"
+    },
+    {
+      "bytes": 5551,
+      "path": ".tmp/formatter-0153-01/frozen-inputs/rules/agent-maintenance.md",
+      "sha256": "0de19d6eb5b3dea57d46cd6412dc49ce6a1b5fb591b551dbec16cdb25ee181df"
+    },
+    {
+      "bytes": 5052,
+      "path": ".tmp/formatter-0153-01/frozen-inputs/rules/cargo-dependencies.md",
+      "sha256": "b0dfb6f6a1caf0f47f166523a3703bdd88a7667f8b0901e549620eb31adb7a7a"
+    },
+    {
+      "bytes": 10465,
+      "path": ".tmp/formatter-0153-01/frozen-inputs/rules/changelogs.md",
+      "sha256": "9c95f254c59a1ef312d37981dcd8af2dadf4eda34cf9026cfeda4092a2716858"
+    },
+    {
+      "bytes": 7671,
+      "path": ".tmp/formatter-0153-01/frozen-inputs/rules/dependency-pinning.md",
+      "sha256": "403c595f0e60bbf81c265c1b1a5732d20534361bd3203d8a84083d0816f5f0e4"
+    },
+    {
+      "bytes": 7697,
+      "path": ".tmp/formatter-0153-01/frozen-inputs/rules/git-hooks.md",
+      "sha256": "fcaa0fef984f57853c2672a787fc2ac3c690dcb912ed475c1c4e95453cfdf00f"
+    },
+    {
+      "bytes": 7591,
+      "path": ".tmp/formatter-0153-01/frozen-inputs/scripts/ci/check-dependency-pins.sh",
+      "sha256": "4d875dd6b8822f68ae86a357cde9af67b33302331a11333e31941eb1c41a6929"
+    },
+    {
+      "bytes": 2282,
+      "path": ".tmp/formatter-0153-01/frozen-inputs/scripts/ci/check-documentation-links.pl",
+      "sha256": "a04ef3105e7851b83bb682120873e29a6c3c604183c275bc53051dd9e4b300a7"
+    },
+    {
+      "bytes": 2622,
+      "path": ".tmp/formatter-0153-01/frozen-inputs/scripts/ci/check-format-hooks.sh",
+      "sha256": "0a0cf54e0b5ff2b0979d8dc114ccbc1c11519134c6866bb8e9afee69286fb87e"
+    },
+    {
+      "bytes": 862,
+      "path": ".tmp/formatter-0153-01/frozen-inputs/scripts/ci/check-format-tools.sh",
+      "sha256": "a52db278800a9f02d85a6b8a780a9b1eed860c49d5442cef9db1f7f9d7ddee0a"
+    },
+    {
+      "bytes": 5714,
+      "path": ".tmp/formatter-0153-01/frozen-inputs/scripts/ci/check-formatting-hooks.sh",
+      "sha256": "a74951308598b86742672409c261e7adc62f8243c0fa8a60363124eae7ae67f8"
+    },
+    {
+      "bytes": 3122,
+      "path": ".tmp/formatter-0153-01/frozen-inputs/scripts/ci/check-release-commands.sh",
+      "sha256": "5dd38585740657f98f655c15c4f617ca05dc4b6304e0925675a44376ec33309b"
+    },
+    {
+      "bytes": 732,
+      "path": ".tmp/formatter-0153-01/frozen-inputs/scripts/ci/check-release-tag.sh",
+      "sha256": "d7b179f9ceaec6e11c690c975b61f91bedc80526415f71571615064db14f0c9c"
+    },
+    {
+      "bytes": 5427,
+      "path": ".tmp/formatter-0153-01/frozen-inputs/scripts/ci/dependency-pins.jq",
+      "sha256": "43b22d137421962ab6b34634e60d94b8cc6cf5483f9bc55afa8a0d1cd0964a28"
+    },
+    {
+      "bytes": 1778,
+      "path": ".tmp/formatter-0153-01/frozen-inputs/scripts/ci/finalize-release-changelog.awk",
+      "sha256": "edda63b29cbdd88c7f1f0b5ab21dbae0635087a4ab6345392d99138c26b28206"
+    },
+    {
+      "bytes": 1951,
+      "path": ".tmp/formatter-0153-01/frozen-inputs/scripts/ci/install-yq.sh",
+      "sha256": "46f8e4f70fae37391354c7d0d9b6bcd128412ae9c0d14d48131a0fe0fe0acef5"
+    },
+    {
+      "bytes": 1016,
+      "path": ".tmp/formatter-0153-01/frozen-inputs/scripts/ci/next-release-version.sh",
+      "sha256": "37e028e2d9fee271ffdc06d06fc15d7a148ec524def3d9ed2afcd9910c0ec642"
+    },
+    {
+      "bytes": 1650,
+      "path": ".tmp/formatter-0153-01/frozen-inputs/scripts/ci/read-cargo-workspace-version.sh",
+      "sha256": "40f31a19d6115411ebffe7c26e3ed30b8af7eead10dd4830de8d5a9312291222"
+    },
+    {
+      "bytes": 2307,
+      "path": ".tmp/formatter-0153-01/frozen-inputs/scripts/ci/rewrite-local-lock-versions.pl",
+      "sha256": "236f9b2d7fe391a73d03cfe355c0d26fa73de8db1553c7e670f7b19aeb65d086"
+    },
+    {
+      "bytes": 907,
+      "path": ".tmp/formatter-0153-01/frozen-inputs/scripts/ci/run-nonempty-cargo-test.sh",
+      "sha256": "4e7e0a3a93bf4f922a292619dad7deee9c78c24a4bd2812040dd564271862039"
+    },
+    {
+      "bytes": 16698,
+      "path": ".tmp/formatter-0153-01/frozen-inputs/scripts/ci/run-release.sh",
+      "sha256": "cffa84575afcd74836f59f9d8db4be083010048de03c338ec2448857d85dab5e"
+    },
+    {
+      "bytes": 9798,
+      "path": ".tmp/formatter-0153-01/frozen-inputs/scripts/ci/run-validation-targets.sh",
+      "sha256": "43b649ed7a196e46e6acf60e6307c474c34aa4dfeeb9729e2f37b4ecedca3aba"
+    },
+    {
+      "bytes": 4713,
+      "path": ".tmp/formatter-0153-01/frozen-inputs/scripts/ci/test-cargo-metadata.sh",
+      "sha256": "1719211830ee32ef422e12e226179ccf37c1b6a9e2c9a41bb2b71766cad52c3e"
+    },
+    {
+      "bytes": 3309,
+      "path": ".tmp/formatter-0153-01/frozen-inputs/scripts/ci/test-file-digests.sh",
+      "sha256": "fe64efb6af09c7b3182ed709700472ff803f6b5d54df0473a675b07597dcbb31"
+    },
+    {
+      "bytes": 1971,
+      "path": ".tmp/formatter-0153-01/frozen-inputs/scripts/ci/test-format-tools.sh",
+      "sha256": "bf3ac5d22e63798ffe67539b138d277cc3364a4665babff5b494b210b1e140ce"
+    },
+    {
+      "bytes": 7933,
+      "path": ".tmp/formatter-0153-01/frozen-inputs/scripts/ci/test-ic-tools.sh",
+      "sha256": "0d4a45581e26987baaaa91cd49748e3b7b3ffa76b01f32d1db84560bd5baa68a"
+    },
+    {
+      "bytes": 4031,
+      "path": ".tmp/formatter-0153-01/frozen-inputs/scripts/ci/test-local-lock-versions.pl",
+      "sha256": "d4b498337bfd681466e7b541cb2783779aad2a8b326e927450d98f3b570fb5c6"
+    },
+    {
+      "bytes": 30366,
+      "path": ".tmp/formatter-0153-01/frozen-inputs/scripts/ci/test-release-runner.sh",
+      "sha256": "e6a1e11c19ca3885e5899bec89d1d8f6498bbbe0ef3e2753b4f52b34f9539c61"
+    },
+    {
+      "bytes": 1102,
+      "path": ".tmp/formatter-0153-01/frozen-inputs/scripts/ci/verify-evidence-checksums.sh",
+      "sha256": "22bf8001f496799c0e26795479b9e313fe3ceddec2e47b8444f8af8e7bc32bae"
+    },
+    {
+      "bytes": 1884,
+      "path": ".tmp/formatter-0153-01/frozen-inputs/scripts/ci/verify-file-checksum.sh",
+      "sha256": "4c981184847462ab3c01cac087e28309f8e054253fd95c7bbe56f643877aa708"
+    },
+    {
+      "bytes": 5187,
+      "path": ".tmp/formatter-0153-01/frozen-inputs/scripts/ci/verify-shared-tooling-snapshot.sh",
+      "sha256": "4024efa6850788102bbfa97c471ea3b45d760e547a31b11e7c6a91a79e3eaca8"
+    },
+    {
+      "bytes": 6297,
+      "path": ".tmp/formatter-0153-01/frozen-inputs/scripts/dev/cloc.sh",
+      "sha256": "955db0c3b1ba072ddf5334ed584da74c645119a3af354b7223b28921ecb924a2"
+    },
+    {
+      "bytes": 1506,
+      "path": ".tmp/formatter-0153-01/frozen-inputs/scripts/dev/install-git-hooks.sh",
+      "sha256": "c48e767cb16fce756bea55492e33c62fd1e57560310d63bfb8a1adc118be2212"
+    },
+    {
+      "bytes": 6650,
+      "path": ".tmp/formatter-0153-01/frozen-inputs/scripts/dev/install-host-tools.sh",
+      "sha256": "591a5d5fc0b8bf0d48179a9d265245ea727ee318894bd10ed962137761465eea"
+    },
+    {
+      "bytes": 8332,
+      "path": ".tmp/formatter-0153-01/frozen-inputs/scripts/dev/install-ic-tools.sh",
+      "sha256": "7a78004b2fa56448ffa8a4fc9aac8e7e9343a0243bf857a3db908fb2f59cfb4f"
+    },
+    {
+      "bytes": 6519,
+      "path": ".tmp/formatter-0153-01/frozen-inputs/scripts/release/release-data.pl",
+      "sha256": "f5f0a6957dfbc4e98d237400c63856c8c12a644a4b58f9f8030b827ff537953f"
+    },
+    {
+      "bytes": 8454,
+      "path": ".tmp/formatter-0153-01/frozen-inputs/scripts/release/release.sh",
+      "sha256": "74b522133e8a1d8064edd548640acf768d7bc11f7bf757ebb7d40f6c088d5615"
+    },
+    {
+      "bytes": 34112,
+      "path": ".tmp/formatter-0153-01/frozen-inputs/scripts/release/test-release.sh",
+      "sha256": "1c19ff478f2e8f7cf881a57ec75f59d4b6cea4fd4bb8336237dfcb372f3338b3"
+    }
+  ],
+  "initial_to_final_changed_paths": [
+    ".shared-tooling.snapshot",
+    "CHANGELOG.md",
+    "docs/provenance.md",
+    "docs/supported-hosts.md",
+    "docs/verification-helpers.md",
+    "scripts/ci/test-release-runner.sh"
+  ],
+  "limitations": [
+    "Linux-built Bash 3.2 is not native macOS qualification.",
+    "Released 0.15.2 complete consumer CI and upstream CI do not qualify dirty 0.15.3 source; issues #12/#13 remain open for matching committed-source native macOS checks.",
+    "No full local gate or Rust compilation; service/provider and consumer deployment acceptance are separate.",
+    "Optional compiler-cache tools are not adopted; no tool pin or installed tool is changed.",
+    "Upstream 0.1.10 Linux and lint/security pass; both macOS portable jobs fail with retained new fixture-retention self-test directories. Formatter and hook messages pass; raw logs do not identify the exact failed assertion. This unadopted self-test is not patched downstream."
+  ],
+  "logs": [
+    {
+      "bytes": 0,
+      "path": ".tmp/formatter-0153-01/bash-syntax.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 71,
+      "path": ".tmp/formatter-0153-01/checkout-0110.log",
+      "sha256": "0ce1c5622b4597af6e4addf3af361e94b412c6ac5e4df480174a62204519fec3"
+    },
+    {
+      "bytes": 29,
+      "path": ".tmp/formatter-0153-01/checkout.log",
+      "sha256": "ab51487a965640edc8cbf3e33e9149452ab848e100295d982430819fdf71a09a"
+    },
+    {
+      "bytes": 61,
+      "path": ".tmp/formatter-0153-01/clone.log",
+      "sha256": "ff499c67e76a7914195112cf30ba8ae759c697af0175d1b67faab38a4dd7f189"
+    },
+    {
+      "bytes": 0,
+      "path": ".tmp/formatter-0153-01/committed-receipt.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 231,
+      "path": ".tmp/formatter-0153-01/controlled-format-failure.log",
+      "sha256": "2e1701d7a8bb5f99cfaa763f1ac8dc9b7d71f8a2377eebc48c03a83a5f6abdbc"
+    },
+    {
+      "bytes": 0,
+      "path": ".tmp/formatter-0153-01/diff-check.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 47,
+      "path": ".tmp/formatter-0153-01/documentation-links.log",
+      "sha256": "3a6cea4697962996b9f7e16b9cf36734ffeef2a40e6dc1b527da8ab86174a616"
+    },
+    {
+      "bytes": 0,
+      "path": ".tmp/formatter-0153-01/exact-tag.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 116,
+      "path": ".tmp/formatter-0153-01/fetch-0110.log",
+      "sha256": "7eca01cbb9dc597c2ac5271e75b6d503dbc37d313a7e959c0efc94bdfd73f28b"
+    },
+    {
+      "bytes": 37,
+      "path": ".tmp/formatter-0153-01/format-tools-bash32.log",
+      "sha256": "35fd5824d313c38768f75cc7b51aa9922bdb90398c965e67937d8086d805e5a7"
+    },
+    {
+      "bytes": 37,
+      "path": ".tmp/formatter-0153-01/format-tools-bash5.log",
+      "sha256": "35fd5824d313c38768f75cc7b51aa9922bdb90398c965e67937d8086d805e5a7"
+    },
+    {
+      "bytes": 221,
+      "path": ".tmp/formatter-0153-01/hooks-bash32.log",
+      "sha256": "973ea67a0576755ebb88e771dc7455db6a265e337685c594fa114a3bb5791bb2"
+    },
+    {
+      "bytes": 221,
+      "path": ".tmp/formatter-0153-01/hooks-bash5.log",
+      "sha256": "973ea67a0576755ebb88e771dc7455db6a265e337685c594fa114a3bb5791bb2"
+    },
+    {
+      "bytes": 373,
+      "path": ".tmp/formatter-0153-01/real-format-check.log",
+      "sha256": "4b7fcabe077c9b2a1fac323b101fa83323fbde4db72cf6dab7fad24d6b910d3f"
+    },
+    {
+      "bytes": 137,
+      "path": ".tmp/formatter-0153-01/refresh-0110.log",
+      "sha256": "ce04caa4acd6650b28dbd800df2dad1b6937994860fe43929f134e1ad220d442"
+    },
+    {
+      "bytes": 137,
+      "path": ".tmp/formatter-0153-01/refresh.log",
+      "sha256": "1f68d7227cc65f636a1ff3d326d5bddddb16fd03b7160b6a2f9a528cb3ad370d"
+    },
+    {
+      "bytes": 98,
+      "path": ".tmp/formatter-0153-01/release-bash32.log",
+      "sha256": "f9d4ce54e4aa58986c1f8d4aafb9a8e033d6b5a2b5c7438c7372a2107587d9cd"
+    },
+    {
+      "bytes": 98,
+      "path": ".tmp/formatter-0153-01/release-bash5.log",
+      "sha256": "f9d4ce54e4aa58986c1f8d4aafb9a8e033d6b5a2b5c7438c7372a2107587d9cd"
+    },
+    {
+      "bytes": 201,
+      "path": ".tmp/formatter-0153-01/release-commands.log",
+      "sha256": "6150065a3bb60c2d6e80a788aef120e8bd9ca9eb84e39d0c76fe0839b79ae18b"
+    },
+    {
+      "bytes": 50213,
+      "path": ".tmp/formatter-0153-01/shared-ci-0110-failed.log",
+      "sha256": "1c86ebf846bb6dce6ebdce93c75f23a6115877d7489c207b0a4f347083b2adac"
+    },
+    {
+      "bytes": 0,
+      "path": ".tmp/formatter-0153-01/shared-clean.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 41,
+      "path": ".tmp/formatter-0153-01/shared-release-0110-bash32.log",
+      "sha256": "ae44a54a9ec3879324d6d50381533a91c0888c202b4ece961d0961864652f922"
+    },
+    {
+      "bytes": 41,
+      "path": ".tmp/formatter-0153-01/shared-release-0110-bash5.log",
+      "sha256": "ae44a54a9ec3879324d6d50381533a91c0888c202b4ece961d0961864652f922"
+    },
+    {
+      "bytes": 41,
+      "path": ".tmp/formatter-0153-01/shared-release-bash32.log",
+      "sha256": "ae44a54a9ec3879324d6d50381533a91c0888c202b4ece961d0961864652f922"
+    },
+    {
+      "bytes": 41,
+      "path": ".tmp/formatter-0153-01/shared-release-bash5.log",
+      "sha256": "ae44a54a9ec3879324d6d50381533a91c0888c202b4ece961d0961864652f922"
+    },
+    {
+      "bytes": 184,
+      "path": ".tmp/formatter-0153-01/shared-runner-failure-bash32.log",
+      "sha256": "d5d848ae76034058352b3de7818b847f56c5855d94c32255bc0553f20b404a17"
+    },
+    {
+      "bytes": 183,
+      "path": ".tmp/formatter-0153-01/shared-runner-failure-bash5.log",
+      "sha256": "2ce34482c155d343b4e670c64d0ba0e85766ea20549d79743b5a4a5a6d305690"
+    },
+    {
+      "bytes": 0,
+      "path": ".tmp/formatter-0153-01/shellcheck-0110.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 0,
+      "path": ".tmp/formatter-0153-01/shellcheck.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 45,
+      "path": ".tmp/formatter-0153-01/snapshot-0110.log",
+      "sha256": "2eec404ee0efd9791260dff06d18bdb7a51b142aab8ab1da2da2468012434079"
+    },
+    {
+      "bytes": 45,
+      "path": ".tmp/formatter-0153-01/snapshot-final.log",
+      "sha256": "2eec404ee0efd9791260dff06d18bdb7a51b142aab8ab1da2da2468012434079"
+    },
+    {
+      "bytes": 45,
+      "path": ".tmp/formatter-0153-01/snapshot.log",
+      "sha256": "2eec404ee0efd9791260dff06d18bdb7a51b142aab8ab1da2da2468012434079"
+    }
+  ],
+  "package_version": "0.15.2",
+  "pending_version": "0.15.3",
+  "prior_finalizer_record": {
+    "bytes": 14884,
+    "path": "docs/evidence/changelog-owner-0153.json",
+    "sha256": "a3b955086bf3d7eea84dff9c1ca8370e199ae2aa5cc995c6b4fbdb4d2b8a8093"
+  },
+  "released_ci": {
+    "conclusion": "success",
+    "head_sha": "cdf983c17bb7fb60fe2afb69e2d80e9f1b627108",
+    "readback": {
+      "bytes": 4978,
+      "path": ".tmp/formatter-0153-01/consumer-ci.json",
+      "sha256": "0917c9767e3842b22c2ef384db904c50b0f80b14e99d69157fd784dbb91f0cda"
+    },
+    "url": "https://github.com/dragginzgame/ic-blob-storage/actions/runs/37488854847"
+  },
+  "removed_mechanism": "Inline Make cargo-sort version comparison; retained format-tools-check delegates to shared checker.",
+  "removed_symbols": [],
+  "repository_observations": [
+    {
+      "bytes": 255,
+      "path": ".tmp/formatter-0153-01/consumer-runs.json",
+      "sha256": "f7a4c4ad2eaaf63e8a65e87e49f98c8fe40a7cac84b12b9ab5f77eea58d8c285"
+    },
+    {
+      "bytes": 173,
+      "path": ".tmp/formatter-0153-01/description.json",
+      "sha256": "599057ee858a430e4b475ca6bb24683ea22fbc9187ded4a024e448b4d8bae3d8"
+    },
+    {
+      "bytes": 743,
+      "path": ".tmp/formatter-0153-01/issues.json",
+      "sha256": "95094dd320a5ac0cf8c38c955bf637019465c90fb22e8497dffa8e23c1f4f790"
+    }
+  ],
+  "retained_preflight_cases": [
+    {
+      "bytes": 93,
+      "path": ".tmp/formatter-0153-01/retained-preflight/release-tests.ghLVkL/CHANGELOG.md",
+      "sha256": "4021ef2ff6a63b3db04533ab925576546a031f72a0202cb3aca4de64f4701ed0"
+    },
+    {
+      "bytes": 261,
+      "path": ".tmp/formatter-0153-01/retained-preflight/release-tests.ghLVkL/Cargo.lock",
+      "sha256": "464060b002e7b082d56468025ccc7ddc41997a6578464170a33da6cb8e87a667"
+    },
+    {
+      "bytes": 104,
+      "path": ".tmp/formatter-0153-01/retained-preflight/release-tests.ghLVkL/Cargo.toml",
+      "sha256": "d2e25f6ba08af43f1832c35dc27addd3017ae062125d392934618afa49ab63e5"
+    },
+    {
+      "bytes": 19212,
+      "path": ".tmp/formatter-0153-01/retained-preflight/release-tests.ghLVkL/Makefile",
+      "sha256": "41d55404aba01d58104e5b48192d7f98bcb2c77cf4ca36c8670aab78fb513402"
+    },
+    {
+      "bytes": 2337,
+      "path": ".tmp/formatter-0153-01/retained-preflight/release-tests.ghLVkL/ci/tool-versions.env",
+      "sha256": "4923b939b682de2311217c232d56fa0cf1c8f37e19e16c16d41be7626cff1285"
+    },
+    {
+      "bytes": 6510,
+      "path": ".tmp/formatter-0153-01/retained-preflight/release-tests.ghLVkL/commands.log",
+      "sha256": "5c89e796010bb5cb505c12ba60a59464fe614c3da8d98d478f1637d3c45b665a"
+    },
+    {
+      "bytes": 447,
+      "path": ".tmp/formatter-0153-01/retained-preflight/release-tests.ghLVkL/docs/release.json",
+      "sha256": "b03a4c16a0a4819e769413f512c7925ae52874fac2e7157d2ba0e5776768c1ff"
+    },
+    {
+      "bytes": 31,
+      "path": ".tmp/formatter-0153-01/retained-preflight/release-tests.ghLVkL/effects.log",
+      "sha256": "e0a2b1d3c5aaf8831b6deb5b216b30e7193230968f52aa2d86e23f6b424baa62"
+    },
+    {
+      "bytes": 862,
+      "path": ".tmp/formatter-0153-01/retained-preflight/release-tests.ghLVkL/scripts/ci/check-format-tools.sh",
+      "sha256": "a52db278800a9f02d85a6b8a780a9b1eed860c49d5442cef9db1f7f9d7ddee0a"
+    },
+    {
+      "bytes": 732,
+      "path": ".tmp/formatter-0153-01/retained-preflight/release-tests.ghLVkL/scripts/ci/check-release-tag.sh",
+      "sha256": "d7b179f9ceaec6e11c690c975b61f91bedc80526415f71571615064db14f0c9c"
+    },
+    {
+      "bytes": 1778,
+      "path": ".tmp/formatter-0153-01/retained-preflight/release-tests.ghLVkL/scripts/ci/finalize-release-changelog.awk",
+      "sha256": "edda63b29cbdd88c7f1f0b5ab21dbae0635087a4ab6345392d99138c26b28206"
+    },
+    {
+      "bytes": 1016,
+      "path": ".tmp/formatter-0153-01/retained-preflight/release-tests.ghLVkL/scripts/ci/next-release-version.sh",
+      "sha256": "37e028e2d9fee271ffdc06d06fc15d7a148ec524def3d9ed2afcd9910c0ec642"
+    },
+    {
+      "bytes": 2307,
+      "path": ".tmp/formatter-0153-01/retained-preflight/release-tests.ghLVkL/scripts/ci/rewrite-local-lock-versions.pl",
+      "sha256": "236f9b2d7fe391a73d03cfe355c0d26fa73de8db1553c7e670f7b19aeb65d086"
+    },
+    {
+      "bytes": 16698,
+      "path": ".tmp/formatter-0153-01/retained-preflight/release-tests.ghLVkL/scripts/ci/run-release.sh",
+      "sha256": "cffa84575afcd74836f59f9d8db4be083010048de03c338ec2448857d85dab5e"
+    },
+    {
+      "bytes": 9798,
+      "path": ".tmp/formatter-0153-01/retained-preflight/release-tests.ghLVkL/scripts/ci/run-validation-targets.sh",
+      "sha256": "43b649ed7a196e46e6acf60e6307c474c34aa4dfeeb9729e2f37b4ecedca3aba"
+    },
+    {
+      "bytes": 6519,
+      "path": ".tmp/formatter-0153-01/retained-preflight/release-tests.ghLVkL/scripts/release/release-data.pl",
+      "sha256": "f5f0a6957dfbc4e98d237400c63856c8c12a644a4b58f9f8030b827ff537953f"
+    },
+    {
+      "bytes": 8454,
+      "path": ".tmp/formatter-0153-01/retained-preflight/release-tests.ghLVkL/scripts/release/release.sh",
+      "sha256": "74b522133e8a1d8064edd548640acf768d7bc11f7bf757ebb7d40f6c088d5615"
+    },
+    {
+      "bytes": 9,
+      "path": ".tmp/formatter-0153-01/retained-preflight/release-tests.ghLVkL/target/debug/cache-sentinel",
+      "sha256": "d25a40aa4f234dff3cf60d2afe65a6596d7232e6603ef7cf36984836fd6046aa"
+    },
+    {
+      "bytes": 0,
+      "path": ".tmp/formatter-0153-01/retained-preflight/release-tests.ghLVkL/target/gate-ran",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 93,
+      "path": ".tmp/formatter-0153-01/retained-preflight/release-tests.ghLVkL/target/history/3333333333333333333333333333333333333333.files/CHANGELOG.md",
+      "sha256": "4021ef2ff6a63b3db04533ab925576546a031f72a0202cb3aca4de64f4701ed0"
+    },
+    {
+      "bytes": 261,
+      "path": ".tmp/formatter-0153-01/retained-preflight/release-tests.ghLVkL/target/history/3333333333333333333333333333333333333333.files/Cargo.lock",
+      "sha256": "464060b002e7b082d56468025ccc7ddc41997a6578464170a33da6cb8e87a667"
+    },
+    {
+      "bytes": 104,
+      "path": ".tmp/formatter-0153-01/retained-preflight/release-tests.ghLVkL/target/history/3333333333333333333333333333333333333333.files/Cargo.toml",
+      "sha256": "d2e25f6ba08af43f1832c35dc27addd3017ae062125d392934618afa49ab63e5"
+    },
+    {
+      "bytes": 447,
+      "path": ".tmp/formatter-0153-01/retained-preflight/release-tests.ghLVkL/target/history/3333333333333333333333333333333333333333.files/docs/release.json",
+      "sha256": "b03a4c16a0a4819e769413f512c7925ae52874fac2e7157d2ba0e5776768c1ff"
+    },
+    {
+      "bytes": 41,
+      "path": ".tmp/formatter-0153-01/retained-preflight/release-tests.ghLVkL/target/history/3333333333333333333333333333333333333333.parent",
+      "sha256": "0e4f6f5ffe8ab285266465bd48989e24fae411b9a759de839aee5dcab192beb7"
+    },
+    {
+      "bytes": 14,
+      "path": ".tmp/formatter-0153-01/retained-preflight/release-tests.ghLVkL/target/history/3333333333333333333333333333333333333333.subject",
+      "sha256": "340aba7b5531a0fc6fc089e321a567760ece7e3f56d8d7ae2f2dc34e58888f20"
+    },
+    {
+      "bytes": 41,
+      "path": ".tmp/formatter-0153-01/retained-preflight/release-tests.ghLVkL/target/mock-head",
+      "sha256": "95e87d23355b3d8281ba05df7193277b2501925269e2bb30854c53cfd5e95026"
+    },
+    {
+      "bytes": 351,
+      "path": ".tmp/formatter-0153-01/retained-preflight/release-tests.ghLVkL/target/rejection.log",
+      "sha256": "24cb90837e9d021d18a60120039302bf572bb0d2feb9a6f79c1722c43493a5f3"
+    },
+    {
+      "bytes": 188,
+      "path": ".tmp/formatter-0153-01/retained-preflight/release-tests.ghLVkL/target/release-state/0.1.1.plan",
+      "sha256": "79ad199083bb7479973617b60b47deb28239eb3c06c0b53820c0ede1a79ebcec"
+    },
+    {
+      "bytes": 53,
+      "path": ".tmp/formatter-0153-01/retained-preflight/release-tests.ghLVkL/target/release-state/0.1.1.plan.files",
+      "sha256": "a4586cfcacc6eb887b66fc5e813b9d62263dbac5faf6be411d5984dd50832402"
+    },
+    {
+      "bytes": 41,
+      "path": ".tmp/formatter-0153-01/retained-preflight/release-tests.ghLVkL/target/remote-head",
+      "sha256": "95e87d23355b3d8281ba05df7193277b2501925269e2bb30854c53cfd5e95026"
+    },
+    {
+      "bytes": 41,
+      "path": ".tmp/formatter-0153-01/retained-preflight/release-tests.ghLVkL/target/remote-tags/v0.1.1",
+      "sha256": "c77a9cef10911e7434f558e3e8a01ac9223747912faf6d81563b7a076f04b360"
+    },
+    {
+      "bytes": 143,
+      "path": ".tmp/formatter-0153-01/retained-preflight/release-tests.ghLVkL/target/selected shellcheck",
+      "sha256": "bfe1f130c8106f5bf3ab98216a4825bac07516aafe66ac075e8454b5e3605be4"
+    },
+    {
+      "bytes": 41,
+      "path": ".tmp/formatter-0153-01/retained-preflight/release-tests.ghLVkL/target/tags/v0.1.1.commit",
+      "sha256": "95e87d23355b3d8281ba05df7193277b2501925269e2bb30854c53cfd5e95026"
+    },
+    {
+      "bytes": 41,
+      "path": ".tmp/formatter-0153-01/retained-preflight/release-tests.ghLVkL/target/tags/v0.1.1.sha",
+      "sha256": "c77a9cef10911e7434f558e3e8a01ac9223747912faf6d81563b7a076f04b360"
+    },
+    {
+      "bytes": 60,
+      "path": ".tmp/formatter-0153-01/retained-preflight/release-tests.ghLVkL/target/validation.1.log",
+      "sha256": "2d3ab91b0837433298dbaf5f95110b16b04e1a78400c7562382c0955ebdfc19b"
+    },
+    {
+      "bytes": 331,
+      "path": ".tmp/formatter-0153-01/retained-preflight/release-tests.ghLVkL/target/verify-fixture",
+      "sha256": "1bea835041cc7b8458bef8e9a0e2e29ffcb2276548d563e63c32019e00ed2628"
+    },
+    {
+      "bytes": 986,
+      "path": ".tmp/formatter-0153-01/retained-preflight/release-tests.ghLVkL.log",
+      "sha256": "1b6583f3a173d6cb843d06e0ad89ac87f65c1e7344e7c1a1fd5dad6cefcd06ee"
+    },
+    {
+      "bytes": 93,
+      "path": ".tmp/formatter-0153-01/retained-preflight/release-tests.w9cboO/CHANGELOG.md",
+      "sha256": "4021ef2ff6a63b3db04533ab925576546a031f72a0202cb3aca4de64f4701ed0"
+    },
+    {
+      "bytes": 261,
+      "path": ".tmp/formatter-0153-01/retained-preflight/release-tests.w9cboO/Cargo.lock",
+      "sha256": "464060b002e7b082d56468025ccc7ddc41997a6578464170a33da6cb8e87a667"
+    },
+    {
+      "bytes": 104,
+      "path": ".tmp/formatter-0153-01/retained-preflight/release-tests.w9cboO/Cargo.toml",
+      "sha256": "d2e25f6ba08af43f1832c35dc27addd3017ae062125d392934618afa49ab63e5"
+    },
+    {
+      "bytes": 19212,
+      "path": ".tmp/formatter-0153-01/retained-preflight/release-tests.w9cboO/Makefile",
+      "sha256": "41d55404aba01d58104e5b48192d7f98bcb2c77cf4ca36c8670aab78fb513402"
+    },
+    {
+      "bytes": 2337,
+      "path": ".tmp/formatter-0153-01/retained-preflight/release-tests.w9cboO/ci/tool-versions.env",
+      "sha256": "4923b939b682de2311217c232d56fa0cf1c8f37e19e16c16d41be7626cff1285"
+    },
+    {
+      "bytes": 6510,
+      "path": ".tmp/formatter-0153-01/retained-preflight/release-tests.w9cboO/commands.log",
+      "sha256": "d90d49dfe419fcb0942f32a2b7ec9e88db5b594671efd3ce2c352172b112a4d9"
+    },
+    {
+      "bytes": 447,
+      "path": ".tmp/formatter-0153-01/retained-preflight/release-tests.w9cboO/docs/release.json",
+      "sha256": "b03a4c16a0a4819e769413f512c7925ae52874fac2e7157d2ba0e5776768c1ff"
+    },
+    {
+      "bytes": 31,
+      "path": ".tmp/formatter-0153-01/retained-preflight/release-tests.w9cboO/effects.log",
+      "sha256": "e0a2b1d3c5aaf8831b6deb5b216b30e7193230968f52aa2d86e23f6b424baa62"
+    },
+    {
+      "bytes": 862,
+      "path": ".tmp/formatter-0153-01/retained-preflight/release-tests.w9cboO/scripts/ci/check-format-tools.sh",
+      "sha256": "a52db278800a9f02d85a6b8a780a9b1eed860c49d5442cef9db1f7f9d7ddee0a"
+    },
+    {
+      "bytes": 732,
+      "path": ".tmp/formatter-0153-01/retained-preflight/release-tests.w9cboO/scripts/ci/check-release-tag.sh",
+      "sha256": "d7b179f9ceaec6e11c690c975b61f91bedc80526415f71571615064db14f0c9c"
+    },
+    {
+      "bytes": 1778,
+      "path": ".tmp/formatter-0153-01/retained-preflight/release-tests.w9cboO/scripts/ci/finalize-release-changelog.awk",
+      "sha256": "edda63b29cbdd88c7f1f0b5ab21dbae0635087a4ab6345392d99138c26b28206"
+    },
+    {
+      "bytes": 1016,
+      "path": ".tmp/formatter-0153-01/retained-preflight/release-tests.w9cboO/scripts/ci/next-release-version.sh",
+      "sha256": "37e028e2d9fee271ffdc06d06fc15d7a148ec524def3d9ed2afcd9910c0ec642"
+    },
+    {
+      "bytes": 2307,
+      "path": ".tmp/formatter-0153-01/retained-preflight/release-tests.w9cboO/scripts/ci/rewrite-local-lock-versions.pl",
+      "sha256": "236f9b2d7fe391a73d03cfe355c0d26fa73de8db1553c7e670f7b19aeb65d086"
+    },
+    {
+      "bytes": 16698,
+      "path": ".tmp/formatter-0153-01/retained-preflight/release-tests.w9cboO/scripts/ci/run-release.sh",
+      "sha256": "cffa84575afcd74836f59f9d8db4be083010048de03c338ec2448857d85dab5e"
+    },
+    {
+      "bytes": 9798,
+      "path": ".tmp/formatter-0153-01/retained-preflight/release-tests.w9cboO/scripts/ci/run-validation-targets.sh",
+      "sha256": "43b649ed7a196e46e6acf60e6307c474c34aa4dfeeb9729e2f37b4ecedca3aba"
+    },
+    {
+      "bytes": 6519,
+      "path": ".tmp/formatter-0153-01/retained-preflight/release-tests.w9cboO/scripts/release/release-data.pl",
+      "sha256": "f5f0a6957dfbc4e98d237400c63856c8c12a644a4b58f9f8030b827ff537953f"
+    },
+    {
+      "bytes": 8454,
+      "path": ".tmp/formatter-0153-01/retained-preflight/release-tests.w9cboO/scripts/release/release.sh",
+      "sha256": "74b522133e8a1d8064edd548640acf768d7bc11f7bf757ebb7d40f6c088d5615"
+    },
+    {
+      "bytes": 9,
+      "path": ".tmp/formatter-0153-01/retained-preflight/release-tests.w9cboO/target/debug/cache-sentinel",
+      "sha256": "d25a40aa4f234dff3cf60d2afe65a6596d7232e6603ef7cf36984836fd6046aa"
+    },
+    {
+      "bytes": 0,
+      "path": ".tmp/formatter-0153-01/retained-preflight/release-tests.w9cboO/target/gate-ran",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 93,
+      "path": ".tmp/formatter-0153-01/retained-preflight/release-tests.w9cboO/target/history/3333333333333333333333333333333333333333.files/CHANGELOG.md",
+      "sha256": "4021ef2ff6a63b3db04533ab925576546a031f72a0202cb3aca4de64f4701ed0"
+    },
+    {
+      "bytes": 261,
+      "path": ".tmp/formatter-0153-01/retained-preflight/release-tests.w9cboO/target/history/3333333333333333333333333333333333333333.files/Cargo.lock",
+      "sha256": "464060b002e7b082d56468025ccc7ddc41997a6578464170a33da6cb8e87a667"
+    },
+    {
+      "bytes": 104,
+      "path": ".tmp/formatter-0153-01/retained-preflight/release-tests.w9cboO/target/history/3333333333333333333333333333333333333333.files/Cargo.toml",
+      "sha256": "d2e25f6ba08af43f1832c35dc27addd3017ae062125d392934618afa49ab63e5"
+    },
+    {
+      "bytes": 447,
+      "path": ".tmp/formatter-0153-01/retained-preflight/release-tests.w9cboO/target/history/3333333333333333333333333333333333333333.files/docs/release.json",
+      "sha256": "b03a4c16a0a4819e769413f512c7925ae52874fac2e7157d2ba0e5776768c1ff"
+    },
+    {
+      "bytes": 41,
+      "path": ".tmp/formatter-0153-01/retained-preflight/release-tests.w9cboO/target/history/3333333333333333333333333333333333333333.parent",
+      "sha256": "0e4f6f5ffe8ab285266465bd48989e24fae411b9a759de839aee5dcab192beb7"
+    },
+    {
+      "bytes": 14,
+      "path": ".tmp/formatter-0153-01/retained-preflight/release-tests.w9cboO/target/history/3333333333333333333333333333333333333333.subject",
+      "sha256": "340aba7b5531a0fc6fc089e321a567760ece7e3f56d8d7ae2f2dc34e58888f20"
+    },
+    {
+      "bytes": 41,
+      "path": ".tmp/formatter-0153-01/retained-preflight/release-tests.w9cboO/target/mock-head",
+      "sha256": "95e87d23355b3d8281ba05df7193277b2501925269e2bb30854c53cfd5e95026"
+    },
+    {
+      "bytes": 351,
+      "path": ".tmp/formatter-0153-01/retained-preflight/release-tests.w9cboO/target/rejection.log",
+      "sha256": "24cb90837e9d021d18a60120039302bf572bb0d2feb9a6f79c1722c43493a5f3"
+    },
+    {
+      "bytes": 188,
+      "path": ".tmp/formatter-0153-01/retained-preflight/release-tests.w9cboO/target/release-state/0.1.1.plan",
+      "sha256": "79ad199083bb7479973617b60b47deb28239eb3c06c0b53820c0ede1a79ebcec"
+    },
+    {
+      "bytes": 53,
+      "path": ".tmp/formatter-0153-01/retained-preflight/release-tests.w9cboO/target/release-state/0.1.1.plan.files",
+      "sha256": "a4586cfcacc6eb887b66fc5e813b9d62263dbac5faf6be411d5984dd50832402"
+    },
+    {
+      "bytes": 41,
+      "path": ".tmp/formatter-0153-01/retained-preflight/release-tests.w9cboO/target/remote-head",
+      "sha256": "95e87d23355b3d8281ba05df7193277b2501925269e2bb30854c53cfd5e95026"
+    },
+    {
+      "bytes": 41,
+      "path": ".tmp/formatter-0153-01/retained-preflight/release-tests.w9cboO/target/remote-tags/v0.1.1",
+      "sha256": "c77a9cef10911e7434f558e3e8a01ac9223747912faf6d81563b7a076f04b360"
+    },
+    {
+      "bytes": 143,
+      "path": ".tmp/formatter-0153-01/retained-preflight/release-tests.w9cboO/target/selected shellcheck",
+      "sha256": "bfe1f130c8106f5bf3ab98216a4825bac07516aafe66ac075e8454b5e3605be4"
+    },
+    {
+      "bytes": 41,
+      "path": ".tmp/formatter-0153-01/retained-preflight/release-tests.w9cboO/target/tags/v0.1.1.commit",
+      "sha256": "95e87d23355b3d8281ba05df7193277b2501925269e2bb30854c53cfd5e95026"
+    },
+    {
+      "bytes": 41,
+      "path": ".tmp/formatter-0153-01/retained-preflight/release-tests.w9cboO/target/tags/v0.1.1.sha",
+      "sha256": "c77a9cef10911e7434f558e3e8a01ac9223747912faf6d81563b7a076f04b360"
+    },
+    {
+      "bytes": 60,
+      "path": ".tmp/formatter-0153-01/retained-preflight/release-tests.w9cboO/target/validation.1.log",
+      "sha256": "2d3ab91b0837433298dbaf5f95110b16b04e1a78400c7562382c0955ebdfc19b"
+    },
+    {
+      "bytes": 331,
+      "path": ".tmp/formatter-0153-01/retained-preflight/release-tests.w9cboO/target/verify-fixture",
+      "sha256": "1bea835041cc7b8458bef8e9a0e2e29ffcb2276548d563e63c32019e00ed2628"
+    },
+    {
+      "bytes": 986,
+      "path": ".tmp/formatter-0153-01/retained-preflight/release-tests.w9cboO.log",
+      "sha256": "1b6583f3a173d6cb843d06e0ad89ac87f65c1e7344e7c1a1fd5dad6cefcd06ee"
+    }
+  ],
+  "snapshot": {
+    "added_paths": [
+      "scripts/ci/check-format-tools.sh",
+      "scripts/ci/test-format-tools.sh"
+    ],
+    "files": 56,
+    "initial_revision": "b32d3038c850a7c53470c326b0f7f11263b31669",
+    "initial_version": "0.1.9",
+    "provenance": "Committed clean private checkout and common exporter; sibling remains read-only; same file set refreshed for newly committed 0.1.10 after separate review.",
+    "revision": "21f3ec3dd97f2968c9f0b08924451bb2f71770d1",
+    "version": "0.1.10"
+  },
+  "unchanged_execution_owners": [
+    "Makefile",
+    "scripts/ci/check-format-tools.sh",
+    "scripts/ci/test-format-tools.sh",
+    "scripts/ci/finalize-release-changelog.awk",
+    "scripts/ci/check-format-hooks.sh",
+    "scripts/release/release.sh",
+    "scripts/release/release-data.pl",
+    "scripts/release/test-release.sh"
+  ],
+  "upstream_observations": [
+    {
+      "bytes": 5595,
+      "path": ".tmp/formatter-0153-01/shared-ci.json",
+      "sha256": "0a1aab2b44a63df173322d9d958d8a902166c50d2f99edd292e11959cd9430cc"
+    },
+    {
+      "bytes": 70,
+      "path": ".tmp/formatter-0153-01/shared-remote-head.json",
+      "sha256": "97e868051a2238c38aca1b2d1edccb4df80ff474bbc008b8cbd90f4b7b3f792a"
+    },
+    {
+      "bytes": 44991,
+      "path": ".tmp/formatter-0153-01/shared-latest-compare.json",
+      "sha256": "29b5c6f9feb1f529dce40480b166f5301ff4ed9917a637573b79e4a5bfc60b6c"
+    },
+    {
+      "bytes": 5595,
+      "path": ".tmp/formatter-0153-01/shared-ci-0110.json",
+      "sha256": "7873a282f17a77d206b092f802916556f0a124f40ef472d7d01e8adfe0ba8e08"
+    },
+    {
+      "bytes": 50213,
+      "path": ".tmp/formatter-0153-01/shared-ci-0110-failed.log",
+      "sha256": "1c86ebf846bb6dce6ebdce93c75f23a6115877d7489c207b0a4f347083b2adac"
+    }
+  ]
+}

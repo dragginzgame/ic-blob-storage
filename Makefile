@@ -41,7 +41,7 @@ $(error Select exactly one release target)
 endif
 
 help:
-	@echo "release-tools-check          Check ShellCheck and the pinned manifest formatter without building"
+	@echo "release-tools-check          Check ShellCheck, pinned cargo-sort and rustfmt without building"
 	@echo "test-native-host             CLI boundaries and actual local installation qualification"
 	@echo "install-tools / tools-check   Explicit local tool installation / offline verification"
 	@echo "install-host-tools / host-tools-check   Pinned repo-local jq/yq setup / verification"
@@ -116,6 +116,7 @@ shared-tooling-check:
 	bash scripts/ci/verify-shared-tooling-snapshot.sh
 
 shared-tooling-tests:
+	bash scripts/ci/test-format-tools.sh
 	bash scripts/ci/test-file-digests.sh
 	bash scripts/ci/test-ic-tools.sh
 	perl scripts/ci/test-local-lock-versions.pl
@@ -132,7 +133,7 @@ dependency-pins-check:
 	bash scripts/ci/check-dependency-pins.sh --cargo-inheritance
 
 format-tools-check:
-	@bash -c 'source ci/tool-versions.env; [[ "$$(cargo sort --version 2>/dev/null)" == "cargo-sort $$SHARED_TOOLING_CARGO_SORT_VERSION" ]] || { echo "Install the reviewed formatter: cargo install cargo-sort --version $$SHARED_TOOLING_CARGO_SORT_VERSION --locked" >&2; exit 1; }'
+	@source ci/tool-versions.env; bash scripts/ci/check-format-tools.sh "$$SHARED_TOOLING_CARGO_SORT_VERSION"
 
 release-tools-check: format-tools-check
 	@command -v "$(SHELLCHECK)" >/dev/null 2>&1 && "$(SHELLCHECK)" --version >/dev/null 2>&1 || { echo "Prepare ShellCheck: sudo apt-get install shellcheck (Debian/Ubuntu) or brew install shellcheck (macOS)." >&2; echo "Select an existing executable with SHELLCHECK=/absolute/path/to/shellcheck." >&2; exit 1; }

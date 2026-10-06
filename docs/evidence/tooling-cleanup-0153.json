@@ -1,0 +1,216 @@
+{
+  "checks": {
+    "bash_syntax": "passed",
+    "checksum_bash5": "passed",
+    "checksum_linux_built_bash32": "passed",
+    "diff_whitespace": "passed",
+    "documentation_links": "passed",
+    "offline_host_tool_bundle": "passed",
+    "retained_evidence": "265 local and 39 deployed files verified read-only",
+    "shellcheck": "passed",
+    "snapshot": "passed"
+  },
+  "classification": "Local focused offline execution and committed-source ownership review",
+  "collector": {
+    "bytes": 3124,
+    "path": ".tmp/prune-tooling-0153-01/record.py",
+    "sha256": "d9aaf609e11eed6cba887327656552003d41b79e775e0369ccfbabe0b12e7a8a"
+  },
+  "commands": {
+    "bytes": 1069,
+    "path": ".tmp/prune-tooling-0153-01/commands.txt",
+    "sha256": "ec1ee68419a3321ef834d2db0577be5c246c1f7146093a6a36dd9fb9d5fb6195"
+  },
+  "date": "2026-10-06",
+  "excluded_effects": [
+    "commits/tags/pushes",
+    "release",
+    "publication",
+    "tool installation",
+    "GitHub writes",
+    "sibling edits",
+    "live provider requests",
+    "paid effects"
+  ],
+  "head": "cdf983c17bb7fb60fe2afb69e2d80e9f1b627108",
+  "inputs": [
+    {
+      "bytes": 5914,
+      "path": ".tmp/prune-tooling-0153-01/frozen-inputs/.shared-tooling.snapshot",
+      "sha256": "a31a619dc9cb6f2924486eeda5a655c2d75f58c49ed7bd2af8c964b4bd1cc1c9"
+    },
+    {
+      "bytes": 186411,
+      "path": ".tmp/prune-tooling-0153-01/frozen-inputs/CHANGELOG.md",
+      "sha256": "22c2d9bd41674fd1024a014c52a37f1f69e8e7aadc7a10537e696e7647f96605"
+    },
+    {
+      "bytes": 107329,
+      "path": ".tmp/prune-tooling-0153-01/frozen-inputs/Cargo.lock",
+      "sha256": "74e24d806599c2ddb7804a6aa41b4359021f74f3a949233989164a5a36ca7cf3"
+    },
+    {
+      "bytes": 1580,
+      "path": ".tmp/prune-tooling-0153-01/frozen-inputs/Cargo.toml",
+      "sha256": "1b9aa4709ba1ea93923713fefea32b8df1fe11c32cbb5263336fbc130bc41f93"
+    },
+    {
+      "bytes": 19138,
+      "path": ".tmp/prune-tooling-0153-01/frozen-inputs/Makefile",
+      "sha256": "a4bd6182cdc1a20c9b1be79dd3e7cbbb4c6a1d040f11958d32d34a08feae768e"
+    },
+    {
+      "bytes": 2337,
+      "path": ".tmp/prune-tooling-0153-01/frozen-inputs/ci/tool-versions.env",
+      "sha256": "4923b939b682de2311217c232d56fa0cf1c8f37e19e16c16d41be7626cff1285"
+    },
+    {
+      "bytes": 36389,
+      "path": ".tmp/prune-tooling-0153-01/frozen-inputs/docs/dependencies.md",
+      "sha256": "8258a5a59065a84cca31b0f26ed22668264f0044b32b2d9323c65de2d18a56de"
+    },
+    {
+      "bytes": 5844,
+      "path": ".tmp/prune-tooling-0153-01/frozen-inputs/docs/evidence/caffeine-probes/deployed/SHA256SUMS",
+      "sha256": "f8411d65bbf6b245283855f0b6c02d101a6b683eeddf6ce86050c26ab0a14a18"
+    },
+    {
+      "bytes": 39246,
+      "path": ".tmp/prune-tooling-0153-01/frozen-inputs/docs/evidence/caffeine-probes/local/SHA256SUMS",
+      "sha256": "a9baf58c0422a8a33031a900a152969aa73b7f2f656aae4aec1ada60e235c80c"
+    },
+    {
+      "bytes": 448,
+      "path": ".tmp/prune-tooling-0153-01/frozen-inputs/docs/release.json",
+      "sha256": "224b7807316ee9b1cd64295f66b33960a3efd0b33d9a09d03276d855b9c4afa5"
+    },
+    {
+      "bytes": 92010,
+      "path": ".tmp/prune-tooling-0153-01/frozen-inputs/docs/status/current.md",
+      "sha256": "919d3a1bb64311640384b3c3247abbadfba078f791181b474fbb1db4098e01d8"
+    },
+    {
+      "bytes": 2502,
+      "path": ".tmp/prune-tooling-0153-01/frozen-inputs/scripts/ci/test-evidence-checksums.sh",
+      "sha256": "43e2b571a909c2d63b2e3b11d208744995997575b34f0c1fbe5ea3104d40bcca"
+    },
+    {
+      "bytes": 1102,
+      "path": ".tmp/prune-tooling-0153-01/frozen-inputs/scripts/ci/verify-evidence-checksums.sh",
+      "sha256": "22bf8001f496799c0e26795479b9e313fe3ceddec2e47b8444f8af8e7bc32bae"
+    },
+    {
+      "bytes": 1884,
+      "path": ".tmp/prune-tooling-0153-01/frozen-inputs/scripts/ci/verify-file-checksum.sh",
+      "sha256": "4c981184847462ab3c01cac087e28309f8e054253fd95c7bbe56f643877aa708"
+    },
+    {
+      "bytes": 5187,
+      "path": ".tmp/prune-tooling-0153-01/frozen-inputs/scripts/ci/verify-shared-tooling-snapshot.sh",
+      "sha256": "4024efa6850788102bbfa97c471ea3b45d760e547a31b11e7c6a91a79e3eaca8"
+    },
+    {
+      "bytes": 6650,
+      "path": ".tmp/prune-tooling-0153-01/frozen-inputs/scripts/dev/install-host-tools.sh",
+      "sha256": "591a5d5fc0b8bf0d48179a9d265245ea727ee318894bd10ed962137761465eea"
+    }
+  ],
+  "limitations": [
+    "Linux-built Bash 3.2 does not qualify native macOS; new committed-source consumer CI is still required.",
+    "No new full local gate or Rust build; checks do not establish deployed provider behavior."
+  ],
+  "logs": [
+    {
+      "bytes": 0,
+      "path": ".tmp/prune-tooling-0153-01/bash-syntax.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 71,
+      "path": ".tmp/prune-tooling-0153-01/checksums-bash32.log",
+      "sha256": "e5c0d54e6bd8df4e7da4562c8e67ed7a809d4ce0d3d1f94d6d0f281649199b7d"
+    },
+    {
+      "bytes": 0,
+      "path": ".tmp/prune-tooling-0153-01/diff-check.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 47,
+      "path": ".tmp/prune-tooling-0153-01/documentation-links.log",
+      "sha256": "3399aa975006592482b9a6fe2fd4d7ae7be3679d37074a4a59c9f2c7a51322d2"
+    },
+    {
+      "bytes": 434,
+      "path": ".tmp/prune-tooling-0153-01/evidence-check-bash5.log",
+      "sha256": "d8a4a08761cf9a833ca0bdd513508f23b6ecb656111278e8ec5be51304e8b41c"
+    },
+    {
+      "bytes": 133,
+      "path": ".tmp/prune-tooling-0153-01/host-tools-check.log",
+      "sha256": "d51c23c57ea4cf8963a7c537b2ed22ec68f981623206c8c87fbe42cc5495bee2"
+    },
+    {
+      "bytes": 137,
+      "path": ".tmp/prune-tooling-0153-01/refresh.log",
+      "sha256": "ce04caa4acd6650b28dbd800df2dad1b6937994860fe43929f134e1ad220d442"
+    },
+    {
+      "bytes": 0,
+      "path": ".tmp/prune-tooling-0153-01/shellcheck.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 45,
+      "path": ".tmp/prune-tooling-0153-01/snapshot.log",
+      "sha256": "2eec404ee0efd9791260dff06d18bdb7a51b142aab8ab1da2da2468012434079"
+    }
+  ],
+  "ownership_transfer": {
+    "disposition": "same functions/bytes/path and Make caller, now committed shared snapshot ownership; no deletion or rename",
+    "path": "scripts/ci/test-evidence-checksums.sh",
+    "retained_functions": [
+      "finish",
+      "expect_failure"
+    ]
+  },
+  "package_version": "0.15.2",
+  "pending_version": "0.15.3",
+  "prior_records": [
+    {
+      "bytes": 14884,
+      "path": "docs/evidence/changelog-owner-0153.json",
+      "sha256": "a3b955086bf3d7eea84dff9c1ca8370e199ae2aa5cc995c6b4fbdb4d2b8a8093"
+    },
+    {
+      "bytes": 60105,
+      "path": "docs/evidence/formatter-owner-0153.json",
+      "sha256": "f700bb188f76f1816e53f8aa974064f3ab6e5c1a39fb323732e674c838ecdc4c"
+    }
+  ],
+  "prior_snapshot": {
+    "bytes": 5901,
+    "path": ".tmp/prune-tooling-0153-01/entry/.shared-tooling.snapshot",
+    "sha256": "a33e9cbdc0466a3e243d2d364dfa9769d4b672d514b2f9d95ce8108af0d14219"
+  },
+  "removed_source": {
+    "bytes": 1951,
+    "path": ".tmp/prune-tooling-0153-01/entry/install-yq.sh",
+    "sha256": "46f8e4f70fae37391354c7d0d9b6bcd128412ae9c0d14d48131a0fe0fe0acef5"
+  },
+  "removed_symbols": [
+    {
+      "former_file": "scripts/ci/install-yq.sh",
+      "name": "usage",
+      "reason": "standalone installer has no maintained consumer callers and is removed from the selected file set",
+      "replacement": "make install-host-tools / shared scripts/dev/install-host-tools.sh owns jq/yq provisioning"
+    }
+  ],
+  "snapshot": {
+    "added_path": "scripts/ci/test-evidence-checksums.sh",
+    "checksum_fixture_bytes_changed": false,
+    "files": 56,
+    "removed_path": "scripts/ci/install-yq.sh",
+    "revision": "21f3ec3dd97f2968c9f0b08924451bb2f71770d1"
+  }
+}

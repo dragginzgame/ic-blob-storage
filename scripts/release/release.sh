@@ -37,7 +37,7 @@ preflight() {
     previous="$(version)" || fail 'cannot read previous version'
     [[ "$head" == "${RELEASE_SOURCE:?}" ]] || fail 'source commit does not match release intent'
     [[ "$previous" == "${RELEASE_PREVIOUS:?}" ]] || fail 'previous version does not match release intent'
-    perl "$DATA" changelog-check "${RELEASE_VERSION:?}" "${RELEASE_DATE:?}"
+    perl "$DATA" changelog-check "${RELEASE_VERSION:?}" "${RELEASE_PREVIOUS:?}" "${RELEASE_DATE:?}"
     make --no-print-directory release-tools-check
     # The complete gate verifies the snapshot and fetches the selected lock before
     # any offline validation. Do not fetch again on post-validation preparation.
@@ -49,7 +49,7 @@ prepare() {
     ensure_clean
     previous="$(version)" || fail 'cannot read previous version'
     [[ "$previous" == "${RELEASE_PREVIOUS:?}" ]] || fail 'previous version does not match release intent'
-    perl "$DATA" changelog-check "${RELEASE_VERSION:?}" "${RELEASE_DATE:?}"
+    perl "$DATA" changelog-check "${RELEASE_VERSION:?}" "${RELEASE_PREVIOUS:?}" "${RELEASE_DATE:?}"
     mkdir -p "$CARGO_TARGET_DIR"
     RELEASE_BACKUP_DIR="$(mktemp -d "$CARGO_TARGET_DIR/release-backup.XXXXXX")"
     cp Cargo.toml Cargo.lock CHANGELOG.md "$RELEASE_BACKUP_DIR/"
@@ -72,7 +72,7 @@ prepare() {
     cargo metadata --offline --locked --no-deps --format-version 1 > "$RELEASE_BACKUP_DIR/metadata.json"
     perl "$DATA" set-version "$RELEASE_VERSION" "$RELEASE_BACKUP_DIR/metadata.json"
     cargo metadata --offline --locked --no-deps --format-version 1 >/dev/null
-    perl "$DATA" finalize "$RELEASE_VERSION" "$RELEASE_DATE"
+    perl "$DATA" finalize "$RELEASE_VERSION" "$RELEASE_PREVIOUS" "$RELEASE_DATE"
     make --no-print-directory fmt-check
     perl "$DATA" receipt "$RELEASE_SOURCE" "$RELEASE_DATE"
     perl "$DATA" verify

@@ -31,18 +31,29 @@ Git effects. Execution checks saved unfinished intent before choosing another
 version. Maintain one numbered undated changelog entry under
 [the shared rules](../rules/changelogs.md); preserve released history.
 Release preflight runs `release-tools-check` before full validation: the selected
-ShellCheck executable must run and cargo-sort must match the reviewed version.
+ShellCheck executable must run, cargo-sort must match the reviewed version and
+rustfmt must report availability through the shared offline prerequisite helper.
 Missing or incorrect tools report explicit installation commands; the check
 does not install, compile, mutate release files or replace the full gate.
 `SHELLCHECK=/absolute/path/to/shellcheck` selects an existing executable.
 
-The released baseline is 0.15.1, following the ic-memory 0.27 and funding hard
-cut in 0.15.0. Released 0.15.1 adds compatible developer tooling and native CLI
-internals, with no repository-owned service DTO or durable layout change. Keep
-package metadata at the released version during ordinary development. The
-current 0.15.2 draft adds compatible Shared Tooling verification, native fixture
-fixes, dependency qualification and release admission checks;
-package metadata and the release receipt remain at 0.15.1 until preparation.
+The released baseline is 0.15.2, following the ic-memory 0.27 and funding hard
+cut in 0.15.0. Released 0.15.2 adds compatible Shared Tooling verification,
+native fixture fixes, dependency qualification and release admission checks,
+with no repository-owned service DTO or durable layout change. Keep package
+metadata at the released version during ordinary development. Pending 0.15.3
+converges formatter prerequisites and release-note finalization on their shared
+owners;
+package metadata and the release receipt remain at 0.15.2 until preparation.
+
+Changelog preflight captures a candidate without writing, using the exact saved
+`RELEASE_PREVIOUS`, `RELEASE_VERSION` and `RELEASE_DATE`. Finalization uses those
+same inputs even after package metadata changes; failed process output is never
+written. Historical duplicate release identities still refuse independently.
+The shared owner can create a missing heading or finalize empty notes; maintain
+meaningful notes under the changelog rules, rather than making presentation a
+release gate. This adapter selects `allow_finalized=0`: prepared-state recovery
+verifies the frozen receipt/payload instead of re-finalizing or changing dates.
 
 Consumer admission requires successful working-tree, HEAD, parent, version and
 receipt-source reads before comparing their output. Matching output from a failed

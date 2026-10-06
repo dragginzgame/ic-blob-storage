@@ -87,6 +87,7 @@ jobs:
             ${{ runner.temp }}/release-commands.*/
             ${{ runner.temp }}/cargo-metadata-test.*/
             ${{ runner.temp }}/local-lock-test.*/
+            ${{ runner.temp }}/format-tools-test.*/
           include-hidden-files: true
           if-no-files-found: ignore
           retention-days: 30

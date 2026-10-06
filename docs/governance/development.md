@@ -55,7 +55,7 @@ continuous evidence recording and separates source/local/live observations.
 
 `make documentation-links-check` selects root Markdown and all Markdown under
 docs, audits and rules; it verifies supported local targets, not anchors or remote
-URLs. `make shared-tooling-tests` exercises portable digest, IC installer, local
+URLs. `make shared-tooling-tests` exercises formatter prerequisite, portable digest, IC installer, local
 lockfile and Cargo metadata refusals with offline substitutes. The declaration
 gate opts in to shared Cargo package/dependency inheritance checks.
 `make hooks-check` supplies the consumer's real formatter inputs to the shared
@@ -118,7 +118,9 @@ adapter owns workspace metadata and the receipt, not another release state
 machine. Formatter prerequisites are prepared before validation; `fmt-check`
 and `hooks-check` run independently in the complete gate.
 Release preflight invokes `make release-tools-check` for the selected ShellCheck
-executable and reviewed cargo-sort version before entering full validation.
+executable, reviewed cargo-sort version and rustfmt availability before entering
+full validation. Both formatting targets delegate formatter prerequisites to
+the shared offline checker; setup and CI retain the same consumer pin.
 Missing or unusable tools refuse with setup guidance before release-file mutation;
 the prerequisite check never installs or compiles.
 

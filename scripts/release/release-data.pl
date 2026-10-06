@@ -43,20 +43,11 @@ sub parts {
     return ($1, $2, $3);
 }
 
-sub compare_versions {
-    my ($left, $right) = @_;
-    my @left = parts($left);
-    my @right = parts($right);
-    for my $i (0..2) {
-        my $order = $left[$i] <=> $right[$i];
-        return $order if $order;
-    }
-    return 0;
-}
-
 sub changelog {
-    my ($target, $date) = @_;
+    die "expected target, saved previous version and date\n" unless @_ == 3;
+    my ($target, $previous, $date) = @_;
     parts($target);
+    parts($previous);
     $date =~ /\A[0-9]{4}-[0-9]{2}-[0-9]{2}\z/ or die "invalid release date\n";
     my $text = read_file('CHANGELOG.md');
     my @sections = $text =~ /^## \[([^\]]+)\](?: - [0-9]{4}-[0-9]{2}-[0-9]{2})?$/mg;
@@ -64,27 +55,17 @@ sub changelog {
     for my $section (@sections) {
         die "duplicate changelog section: $section\n" if $seen{$section}++;
     }
-    die "release is already dated\n"
-        if $text =~ /^## \[\Q$target\E\] - /m;
-    # Imported history can be undated. Only versions newer than the current
-    # package (or an undecided label) are drafts; never rewrite historical notes.
-    my $current = version();
-    my @undated = $text =~ /^## \[([^\]]+)\]$/mg;
-    my @drafts = grep {
-        $_ eq $target || $_ !~ /\A[0-9]+\.[0-9]+\.[0-9]+\z/
-            || compare_versions($_, $current) > 0
-    } @undated;
-    die "release notes are missing\n" unless @drafts;
-    die "multiple release drafts are open\n"
-        if @drafts > 1;
-    my $draft = $drafts[0];
-    die "named release does not match target\n"
-        if $draft =~ /\A[0-9]+\.[0-9]+\.[0-9]+\z/ && $draft ne $target;
-    $text =~ /^## \[\Q$draft\E\]\n(.*?)(?=^## \[|\z)/ms
-        or die "release notes are missing\n";
-    die "release notes are empty\n" unless $1 =~ /\S/;
-    $text =~ s/^## \[\Q$draft\E\]$/## [$target] - $date/m;
-    return $text;
+    # The saved intent remains authoritative after package metadata is bumped.
+    # Recovery verifies prepared bytes; it never re-finalizes an already dated
+    # candidate. Note content is maintained separately, not a release gate.
+    open my $finalizer, '-|', 'awk', '-v', "version=$target", '-v',
+        "previous=$previous", '-v', "date=$date", '-v', 'allow_finalized=0',
+        '-f', 'scripts/ci/finalize-release-changelog.awk', 'CHANGELOG.md'
+        or die "cannot start changelog finalizer: $!\n";
+    my $candidate = do { local $/; <$finalizer> };
+    close $finalizer or die "changelog finalization failed\n";
+    defined($candidate) && length($candidate) or die "empty finalizer output\n";
+    return $candidate;
 }
 
 my ($command, @args) = @ARGV;

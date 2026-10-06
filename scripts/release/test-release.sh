@@ -5,7 +5,8 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd -P)"
 TEST_REAL_MAKE="$(command -v make)"
 TEST_REAL_GIT="$(command -v git)"
 TEST_REAL_PERL="$(command -v perl)"
-export TEST_REAL_MAKE TEST_REAL_GIT TEST_REAL_PERL
+TEST_REAL_AWK="$(command -v awk)"
+export TEST_REAL_MAKE TEST_REAL_GIT TEST_REAL_PERL TEST_REAL_AWK
 mkdir -p "$ROOT/target"
 TEMPORARY="$(mktemp -d "$ROOT/target/release-tests.XXXXXX")"
 mkdir "$TEMPORARY/bin"
@@ -43,7 +44,9 @@ create_fixture() {
     cp "$ROOT/scripts/release/release.sh" "$ROOT/scripts/release/release-data.pl" "$FIXTURE/scripts/release/"
     cp "$ROOT/scripts/ci/run-release.sh" "$ROOT/scripts/ci/next-release-version.sh" \
         "$ROOT/scripts/ci/run-validation-targets.sh" "$ROOT/scripts/ci/check-release-tag.sh" \
-        "$ROOT/scripts/ci/rewrite-local-lock-versions.pl" "$FIXTURE/scripts/ci/"
+        "$ROOT/scripts/ci/rewrite-local-lock-versions.pl" \
+        "$ROOT/scripts/ci/finalize-release-changelog.awk" \
+        "$ROOT/scripts/ci/check-format-tools.sh" "$FIXTURE/scripts/ci/"
     cp "$ROOT/ci/tool-versions.env" "$FIXTURE/ci/"
     cp "$ROOT/Makefile" "$FIXTURE/Makefile"
     cd "$FIXTURE"
@@ -89,6 +92,8 @@ LOCK
     echo retained > target/debug/cache-sentinel
     unset TEST_DIRTY TEST_GATE_FAIL TEST_GATE_DIRTY TEST_METADATA_FAIL TEST_PREPARE_FAIL TEST_INDEX_EXTRA TEST_PUSH_FAIL TEST_FETCH_FAIL TEST_SNAPSHOT_FAIL TEST_TAG_TYPE
     unset TEST_GIT_FAIL_CALL TEST_DATA_FAIL_COMMAND
+    unset TEST_FINALIZER_FAIL
+    unset TEST_FMT_FAIL
 }
 expect_failure() {
     local status
@@ -218,6 +223,7 @@ case "$*" in
         current="$(perl scripts/release/release-data.pl version)"
         printf '{"workspace_members":["local"],"packages":[{"id":"local","name":"ic-blob-storage","version":"%s","source":null}]}\n' "$current" ;;
     'sort --version') [[ "${TEST_SORT_FAIL:-0}" != 1 ]] || exit 1; echo "cargo-sort ${TEST_SORT_VERSION:-2.1.4}" ;;
+    'fmt --version') echo rustfmt; [[ "${TEST_FMT_FAIL:-0}" != 1 ]] ;;
     'sort --workspace --check') [[ "${TEST_PREPARE_FAIL:-0}" != 1 ]] ;;
     'fmt --all -- --check') ;;
     'fetch --locked') echo fetch >> "$TEST_EFFECTS"; [[ "${TEST_FETCH_FAIL:-0}" != 1 ]] || exit 1; touch target/mock-cargo-cache ;;
@@ -234,6 +240,20 @@ if [[ $# -ge 2 && "${1##*/}" == release-data.pl && "$2" == "${TEST_DATA_FAIL_COM
     exit 1
 fi
 exec "$TEST_REAL_PERL" "$@"
+MOCK
+cat > "$TEMPORARY/bin/awk" <<'MOCK'
+#!/usr/bin/env bash
+set -euo pipefail
+if [[ "$*" == *scripts/ci/finalize-release-changelog.awk* ]]; then
+    if [[ "${TEST_FINALIZER_FAIL:-}" == preflight ]] ||
+       { [[ "${TEST_FINALIZER_FAIL:-}" == after-bump ]] &&
+         [[ "$("$TEST_REAL_PERL" scripts/release/release-data.pl version)" == 0.1.1 ]]; }; then
+        "$TEST_REAL_AWK" "$@" | tee target/failed-finalizer-candidate
+        echo 'Controlled finalizer failure after complete candidate output' >&2
+        exit 1
+    fi
+fi
+exec "$TEST_REAL_AWK" "$@"
 MOCK
 cat > "$TEMPORARY/bin/shellcheck" <<'MOCK'
 #!/usr/bin/env bash
@@ -292,15 +312,15 @@ test_preflight_tools() {
         shellcheck-broken) export TEST_SHELLCHECK_FAIL=1 ;;
         sort-missing) export TEST_SORT_FAIL=1 ;;
         sort-wrong) export TEST_SORT_VERSION=0.0.0 ;;
+        rustfmt-broken) export TEST_FMT_FAIL=1 ;;
     esac
     expect_failure "$TEST_REAL_MAKE" --no-print-directory release-patch
     assert_unchanged; assert_cache_retained
     [[ ! -s "$TEST_EFFECTS" && ! -e target/release-state/0.1.1.plan ]] || exit 1
     case "$1" in
         shellcheck-*) rg -F 'SHELLCHECK=/absolute/path/to/shellcheck' target/rejection.log >/dev/null ;;
-        sort-*) rg -F 'cargo install cargo-sort --version 2.1.4 --locked' target/rejection.log >/dev/null ;;
     esac
-    unset SHELLCHECK TEST_SHELLCHECK_FAIL TEST_SORT_FAIL TEST_SORT_VERSION
+    unset SHELLCHECK TEST_SHELLCHECK_FAIL TEST_SORT_FAIL TEST_SORT_VERSION TEST_FMT_FAIL
     # A selected executable with spaces in its path must survive Make dispatch.
     cp "$TEMPORARY/bin/shellcheck" 'target/selected shellcheck'
     export SHELLCHECK="$PWD/target/selected shellcheck"
@@ -318,13 +338,72 @@ test_versions() {
 test_invalid_changelog() {
     case "$1" in
         duplicate) printf '\n## [0.1.1]\n- Duplicate.\n' >> CHANGELOG.md ;;
-        empty) printf '# Changelog\n\n## [0.1.1]\n' > CHANGELOG.md ;;
+        historical-duplicate) printf '\n## [0.1.0]\n- Duplicate history.\n' >> CHANGELOG.md ;;
         competing) printf '\n## [0.2.0]\n- Competing.\n' >> CHANGELOG.md ;;
     esac
     before="$(fingerprint)"
     expect_failure "$TEST_REAL_MAKE" --no-print-directory release-patch
     assert_unchanged; assert_cache_retained
     [[ ! -e target/release-state/0.1.1.plan ]] || exit 1
+}
+test_changelog_content() {
+    case "$1" in
+        empty) printf '# Changelog\n\n## [0.1.1]\n\n## [0.1.0]\n\n- Imported undated history.\n' > CHANGELOG.md ;;
+        missing) printf '# Changelog\n\n## [0.1.0]\n\n- Imported undated history.\n' > CHANGELOG.md ;;
+    esac
+    before="$(fingerprint)"
+    perl scripts/release/release-data.pl changelog-check 0.1.1 0.1.0 2040-01-02
+    assert_unchanged
+    "$TEST_REAL_MAKE" --no-print-directory release-patch
+    perl scripts/release/release-data.pl verify
+    rg -q '^## \[0.1.0\]$' CHANGELOG.md
+    [[ "$(cat "$TEST_EFFECTS")" == $'validate\nstage\ncommit\ntag\npush' ]] || exit 1
+    assert_cache_retained
+}
+test_changelog_intent() {
+    # Preparation has already bumped package metadata; historical classification
+    # must still use the previous version saved in the release intent.
+    sed 's/version = "0.1.0"/version = "0.1.1"/' Cargo.toml > target/manifest
+    cp target/manifest Cargo.toml
+    before="$(fingerprint)"
+    perl scripts/release/release-data.pl changelog-check 0.1.1 0.1.0 2040-01-02
+    assert_unchanged
+    perl scripts/release/release-data.pl finalize 0.1.1 0.1.0 2040-01-02
+    printf '# Changelog\n\n## [0.1.1] - 2040-01-02\n\n- Test notes.\n\n## [0.1.0]\n\n- Imported undated history.\n' > target/expected-changelog
+    cmp CHANGELOG.md target/expected-changelog
+    before="$(fingerprint)"
+    # Prepared-state recovery verifies its frozen receipt; it does not call this
+    # finalizer again, even for the same date.
+    expect_failure perl scripts/release/release-data.pl finalize 0.1.1 0.1.0 2040-01-02
+    assert_unchanged
+    expect_failure perl scripts/release/release-data.pl finalize 0.1.1 0.1.0 2040-01-03
+    assert_unchanged
+    printf '# Changelog\n\n## [0.2.0]\n- Target.\n\n## [0.1.1]\n- Competing.\n\n## [0.1.0]\n- Historical.\n' > CHANGELOG.md
+    sed 's/version = "0.1.1"/version = "0.2.0"/' Cargo.toml > target/manifest
+    cp target/manifest Cargo.toml
+    before="$(fingerprint)"
+    expect_failure perl scripts/release/release-data.pl finalize 0.2.0 0.1.0 2040-01-02
+    assert_unchanged
+}
+test_finalizer_failure() {
+    export TEST_FINALIZER_FAIL="$1"
+    before="$(fingerprint)"
+    expect_failure "$TEST_REAL_MAKE" --no-print-directory release-patch
+    assert_unchanged; assert_cache_retained
+    [[ -s target/failed-finalizer-candidate ]] || exit 1
+    if [[ "$1" == after-bump ]]; then
+        [[ "$(tail -n 1 target/release-state/0.1.1.plan)" == prepare ]] || exit 1
+        local backup
+        backup="$(find target -maxdepth 1 -type d -name 'release-backup.*')"
+        [[ -n "$backup" && -f "$backup/metadata.json" ]] || exit 1
+        cmp "$backup/CHANGELOG.md" CHANGELOG.md
+    else
+        [[ ! -s "$TEST_EFFECTS" && ! -e target/release-state/0.1.1.plan ]] || exit 1
+    fi
+    unset TEST_FINALIZER_FAIL
+    "$TEST_REAL_MAKE" --no-print-directory release-patch
+    perl scripts/release/release-data.pl verify
+    [[ "$(awk '$0 == "commit" { n++ } END { print n }' "$TEST_EFFECTS")" == 1 ]] || exit 1
 }
 test_release() {
     local kind="$1" expected
@@ -580,11 +659,14 @@ run_case bootstrap-tools test_dependency_bootstrap tools
 run_case bootstrap-pins test_dependency_bootstrap pins
 run_case bootstrap-fetch test_dependency_bootstrap fetch
 run_case bootstrap-fetch-cached test_dependency_bootstrap fetch-cached
-for tool in shellcheck-missing shellcheck-broken sort-missing sort-wrong; do
+for tool in shellcheck-missing shellcheck-broken sort-missing sort-wrong rustfmt-broken; do
     run_case "preflight-$tool" test_preflight_tools "$tool"
 done
 run_case versions test_versions
-for shape in duplicate empty competing; do run_case "notes-$shape" test_invalid_changelog "$shape"; done
+for shape in duplicate historical-duplicate competing; do run_case "notes-$shape" test_invalid_changelog "$shape"; done
+for shape in empty missing; do run_case "notes-$shape" test_changelog_content "$shape"; done
+run_case notes-saved-intent test_changelog_intent
+for phase in preflight after-bump; do run_case "finalizer-$phase" test_finalizer_failure "$phase"; done
 for kind in patch minor major; do run_case "$kind" test_release "$kind"; done
 for failure in TEST_GATE_FAIL TEST_METADATA_FAIL TEST_PREPARE_FAIL; do run_case "$failure" test_rejected_preparation "$failure"; done
 run_case exact-index test_preparation

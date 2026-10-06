@@ -1,5 +1,23 @@
 # Changelog
 
+## [0.15.3]
+
+### Changed
+
+- Retire the unused standalone yq installer; the shared host-tool bundle remains
+  the setup owner. Record the unchanged evidence-checksum fixture in the shared
+  snapshot instead of maintaining it as local code.
+- Refresh the reviewed Shared Tooling snapshot to 0.1.10 and use its offline
+  formatter prerequisite check for formatting and release preflight. Require
+  pinned cargo-sort and working rustfmt before validation or metadata changes;
+  retain hook rollback and failed fixture evidence. See
+  [#12](https://github.com/dragginzgame/ic-blob-storage/issues/12).
+- Finalize release notes through the shared owner using the previous version,
+  target and date saved in release intent. Preserve imported history, metadata
+  rollback and exact prepared-state recovery. Note content no longer gates a
+  release; ambiguous identities and failed transformations still refuse without
+  writing. See [#13](https://github.com/dragginzgame/ic-blob-storage/issues/13).
+
 ## [0.15.2] - 2026-10-06
 
 ### Changed

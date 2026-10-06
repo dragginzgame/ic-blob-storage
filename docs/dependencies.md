@@ -34,8 +34,13 @@ during a hook or validation. Cargo-sort's exact reviewed version is recorded in
 [the IC matrix](../ci/ic-tools.tsv) owns executable versions and archive digests.
 Make prepends `.tools/host/bin` and `.tools/ic/bin` to PATH. Missing local tools
 fail validation; provisioning is explicit and separate from locked Cargo fetching.
+This consumer uses the shared host-tool bundle for jq/yq; the optional upstream
+standalone yq installer is not included in its snapshot.
 `make release-tools-check` verifies ShellCheck availability and the reviewed
-cargo-sort version without compiling. Release preflight runs the same check
+cargo-sort version plus working rustfmt without compiling. The shared
+`check-format-tools.sh` performs both formatter probes offline, using the same
+consumer pin as setup and CI. Both `fmt` and `fmt-check` depend on this check.
+Release preflight runs the same check
 before entering full validation. It gives setup commands and supports the
 explicit `SHELLCHECK` selection, including executable paths containing spaces.
 
@@ -75,7 +80,7 @@ its package version and dependencies from the workspace. Members select features
 and target conditions; `Cargo.lock` locks the resolved graph. Versions were checked against
 crates.io on 2026-09-25. On 2026-09-26, `serde_json` became a direct dependency
 at its existing locked version for bounded provider reply parsing. The table reflects
-the maintainer-selected pending 0.15.2 graph on 2026-10-06;
+the maintainer-selected released 0.15.2 graph on 2026-10-06;
 availability does not establish provider qualification or service readiness.
 
 | Dependency | Version | Purpose |
@@ -507,9 +512,10 @@ to exercise both CLI binaries and an actual standalone installation. The
 native step sets `TMPDIR` to the runner's artifact directory so retained
 `nonempty-cargo-test.*` logs match the failure uploader's selection. The
 [0.15.1 adoption record](evidence/tooling-host-0151.json) records Linux execution;
-this changed consumer workflow has no remote result yet. Native macOS acceptance
-remains required for the selected consumer source, separately from passing
-Shared Tooling's own upstream matrix.
+the [0.15.2 run](https://github.com/dragginzgame/ic-blob-storage/actions/runs/37488854847)
+now passes on Linux and both native macOS hosts, including native CLI/PocketIC.
+The pending 0.15.3 snapshot/caller changes still require their own matching
+consumer run; upstream CI and an earlier consumer run do not qualify new source.
 
 The [0.14.12 adoption record](evidence/shared-tooling-adoption.md#01412-release-and-formatting-adoption)
 records scoped Linux execution separately from native macOS qualification.

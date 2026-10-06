@@ -12,7 +12,7 @@ finish() {
 trap finish EXIT
 selected=crates/ic-blob-storage/src/lib.rs
 (cd "$ROOT"; rg --files -g Cargo.toml) > "$TEMPORARY/manifests"
-overlays=(ci/tool-versions.env Cargo.lock)
+overlays=(ci/tool-versions.env scripts/ci/check-format-tools.sh Cargo.lock)
 while IFS= read -r path; do overlays+=("$path"); done < "$TEMPORARY/manifests"
 # Swap two adjacent dependency declarations without changing their values.
 perl -0777 -pe 's/^(ic-cdk = [^\n]*\n)(ic-host-tools = [^\n]*\n)/$2$1/m or die "cannot prepare ordering-only manifest\n"' \
