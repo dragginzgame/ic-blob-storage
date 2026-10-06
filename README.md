@@ -243,6 +243,9 @@ scope; controller status does not grant tenant access.
 | `make wasm-check` | Wasm compilation |
 | `make ci` | Complete repository validation gate |
 | `make shared-tooling-check` | Offline integrity of the reviewed shared snapshot |
+| `make shared-tooling-tests` | Offline digest and IC installer refusal/preservation cases |
+| `make documentation-links-check` | Local Markdown targets; no network or build |
+| `make release-commands-check` | Make release routing with a substitute runner; no release effects |
 | `make release-tools-check` | ShellCheck availability and reviewed cargo-sort version before release validation |
 | `make install-tools` / `make tools-check` | Explicit local executable setup / offline verification |
 | `make test-native-host` | Native CLI boundaries and actual PocketIC installation |

@@ -37,7 +37,8 @@ Primitive Make targets do only their named operation. The complete current
 gate is make ci (also make validate and make release-verify).
 That gate first runs the offline `make shared-tooling-check`, verifying the
 declared files, hashes and executable modes without a sibling checkout. It then
-runs offline `make tools-check` and `make dependency-pins-check`, then
+runs offline `make tools-check`, `make dependency-pins-check`,
+`make documentation-links-check` and `make shared-tooling-tests`, then
 `make deps` (`cargo fetch --locked`) to populate the cache
 for the selected lockfile; this step may use the network and does not select new
 versions. Fetch failure stops before validation or release-file mutation. Rust
@@ -51,6 +52,18 @@ the native host CI matrix, separate from the complete gate.
 Its offline `probe-check` verifies retained Caffeine run artifacts; it never runs
 new network probes. The [probe ledger](../evidence/caffeine-probes/README.md) governs
 continuous evidence recording and separates source/local/live observations.
+
+`make documentation-links-check` selects root Markdown and all Markdown under
+docs, audits and rules; it verifies supported local targets, not anchors or remote
+URLs. `make shared-tooling-tests` exercises portable digest, IC installer, local
+lockfile and Cargo metadata refusals with offline substitutes. The declaration
+gate opts in to shared Cargo package/dependency inheritance checks.
+`make hooks-check` supplies the consumer's real formatter inputs to the shared
+adoption checker and retains the additional mutating-formatter rollback case.
+`make release-commands-check` copies the
+reviewed Makefile and its explicit parse-time inputs into a private fixture,
+then uses a substitute runner. `make release-check` includes that shared routing
+check and retains the repository's metadata, publication and recovery fixtures.
 
 Keep implementation, relevant success/rejection/recovery evidence and cleanup
 in one coherent batch. Tests assert typed failures or observable behavior;

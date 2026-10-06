@@ -62,9 +62,10 @@ Validation never installs missing prerequisites.
 Registry requirements use compatible ranges. The maintained lockfile continues
 to select candid_parser 0.4.1, ic-agent 0.49.2, sha2 0.11.0 and thiserror 2.0.18.
 PocketIC 16's own exact thiserror requirement remains part of the locked native
-test graph; duplicating it in the library catalog is unnecessary. This adoption
-does not reselect a dependency. Published library consumers resolve their own
-compatible graphs, so the repository's tests do not qualify every future release.
+test graph; duplicating it in the library catalog is unnecessary. Shared Tooling
+adoption itself does not reselect dependencies. Published library consumers
+resolve their own compatible graphs, so the repository's tests do not qualify
+every future release.
 
 ## Locked dependency inventory
 
@@ -74,7 +75,7 @@ its package version and dependencies from the workspace. Members select features
 and target conditions; `Cargo.lock` locks the resolved graph. Versions were checked against
 crates.io on 2026-09-25. On 2026-09-26, `serde_json` became a direct dependency
 at its existing locked version for bounded provider reply parsing. The table reflects
-the selected lockfile on 2026-10-06, including maintainer dependency updates;
+the maintainer-selected pending 0.15.2 graph on 2026-10-06;
 availability does not establish provider qualification or service readiness.
 
 | Dependency | Version | Purpose |
@@ -86,12 +87,12 @@ availability does not establish provider qualification or service readiness.
 | `thiserror` | 2.0.18 (locked) | Typed error derives; PocketIC constrains its own requirement exactly |
 | `ic-cdk` | 0.20.3 | IC platform operations for the ops layer |
 | `ic-management-canister-types` | 0.11.0 (direct, locked) | Bounded current-instance IC-history request/reply types |
-| `ic-memory` | 0.27.1 (locked) | Sole allocation runtime; current ownership ledger and public typed growth API |
+| `ic-memory` | 0.28.2 (locked) | Sole allocation runtime; current ownership ledger and public typed growth API |
 | `ic-stable-structures` | 0.7.2 | Exact transitive substrate owned/re-exported by `ic-memory` |
-| `ic-testkit` | 0.18.3 (locked) | Native dependency of the unpublished PocketIC harness; shared helpers and full re-export |
+| `ic-testkit` | 0.19.2 (locked) | Native dependency of the unpublished PocketIC harness; shared helpers and full re-export |
 | `pocket-ic` | 16.0.0 | Transitive through `ic-testkit`; no direct dependency |
 | `ic-agent` | 0.49.2 | Native CLI and harness signing and verification of ingress certificates |
-| `ic-host-tools` | 0.1.11 (locked) | Native CLI bounded artifact reads and raw SHA-256 identities; excluded from Wasm |
+| `ic-host-tools` | 0.2.0 (direct, locked); 0.1.14 (harness transitive) | Native CLI bounded artifact reads and raw SHA-256 identities; excluded from production Wasm |
 | `candid_parser` | 0.4.1 | Native harness only; official Candid parser for native request fixtures |
 
 The maintainer-selected ic-memory 0.27 upgrade removes history/timestamp APIs
@@ -104,8 +105,9 @@ reinstall, never a ledger reset or compatibility reader. See the
 [new validation record](evidence/release-preflight-0150.json). Earlier evidence
 continues to qualify only its original selected graph.
 
-The pending 0.15.1 tooling batch adds published ic-host-tools 0.1.11 to the
-native CLI only. It delegates bounded reads from the locally selected descriptor
+The original 0.15.1 adoption batch added published ic-host-tools 0.1.11 to the
+native CLI only; the maintainer's released lock selects 0.1.12. It delegates
+bounded reads from the locally selected descriptor
 and raw lowercase SHA-256 formatting. Native inputs retain link following,
 nonblocking special-file refusal and empty-input refusal. Probe records retain
 their error codes and reject final-component links on Unix, including at open.
@@ -113,11 +115,32 @@ This is not path confinement or a content snapshot; ancestors may follow links
 and concurrent writers remain possible. Caffeine content trees, credentials,
 recovery journals and service ownership remain local.
 
-The [adoption record](evidence/tooling-host-0151.json) binds the registry source,
-locked graph and local checks. Four package identities are added: ic-host-tools
+The [adoption record](evidence/tooling-host-0151.json) binds its original registry
+source, locked graph and local checks. Four package identities were added: ic-host-tools
 0.1.11, tar 0.4.46, filetime 0.2.29 and wasmparser 0.253.0. No existing locked
-package version is reselected. The production core and Wasm graph do not acquire
+package version was reselected in that recorded batch. It does not qualify later
+dependency updates or the released graph by itself. The production core and
+Wasm graph do not acquire
 this host dependency; the workspace's minimum Rust version remains 1.88.0.
+
+The [0.15.2 native qualification record](evidence/caffeine-probes/local/2026-10-06-native-download-0152-01/summary.json)
+binds ic-memory 0.28.2, ic-host-tools 0.1.14 and ic-testkit 0.19.1 to their actual
+cached sources, selected lock, matching artifacts and focused Linux checks.
+ic-memory's published runtime source is unchanged from 0.28.0. ic-host-tools
+adds typed rejection of impossible reader/writer byte counts. ic-testkit 0.19's
+removed executable resolver and changed bounded Wasm reader have no callers
+here; the used harness APIs compile and execute. Its breaking APIs are confined
+to the unpublished harness, so the pending library patch remains compatible.
+Native CLI, actual installation/funding/restore, strict relevant Clippy and
+Rust 1.88 native/Wasm checks pass without lock reselection. The new native macOS
+run remains required; Linux substitutes do not qualify the supported Apple hosts.
+
+The later [release-guard and host record](evidence/release-guards-0152.json)
+separately qualifies the task-entry ic-testkit 0.19.2 selection. Its published
+runtime source matches 0.19.1; the patch changes developer/release tooling.
+All 106 CLI and two actual installation cases, harness Clippy and Rust 1.88
+native harness compilation pass. The lock stays unchanged during this batch;
+earlier funding/restore and Wasm records retain their original source and graph.
 
 Headless ingress tests add pinned `ic-agent` 0.49.2 (default features disabled),
 plus the locked `reqwest` 0.13.5, `tokio` 1.53.2 and `serde_cbor` 0.11.2
@@ -422,7 +445,8 @@ The toolchain file declares rustfmt, Clippy and `wasm32-unknown-unknown`.
 `make deps` fetches the locked graph and may use the network. The complete
 `make ci`/`make validate`/`make release-verify` gate first verifies the reviewed
 shared snapshot, verifies local executables and dependency declarations, then
-runs this fetch step before offline validation. Prerequisite or fetch failure
+checks local documentation links and shared digest/installer fixtures before
+running this fetch step. Prerequisite or fetch failure
 stops the gate. Rust checks
 use `--offline --locked` and this repository's `target/`. Scoped targets such as
 `make check` and direct `cargo --offline` commands still require a populated cache;
@@ -472,7 +496,8 @@ harness.
 [The tooling workflow](../.github/workflows/tooling.yml) prepares the selected Rust
 and cargo-sort/ShellCheck tools explicitly, installs and verifies local host/IC executables,
 then independently checks the snapshot, declarations, evidence, formatting,
-release adapters and real consumer hook behavior on
+local documentation links, shared digest/installer fixtures, release adapters
+and real consumer hook behavior on
 Ubuntu 24.04 and macOS 15 (Apple Silicon and Intel). Both local formatting targets
 use cargo-sort 2.1.4. The declared matrix does not establish a passing native run;
 its matching GitHub execution is required for qualification. This focused job
@@ -504,9 +529,21 @@ Failed host tooling fixtures are uploaded for 30 days under an artifact name
 containing the host and run attempt. This preserves command logs, inputs and
 fixture state beyond the ephemeral runner. Local failures remain at the path
 printed by their helper; successful checks clean only their own temporary files.
+The failure uploader also retains `file-digests.*`, `ic-tools-test.*` and
+`release-commands.*` fixtures under the native step's selected `TMPDIR`.
 The [0.14.13 record](evidence/checksum-portability-v01413.json) distinguishes local
 checksum/failure checks from the original native failures and pending corrected
 macOS execution.
+
+The [0.15.2 snapshot record](evidence/shared-tooling-adoption-0152.json) adopts
+48 exact files from Shared Tooling `47cd2cc`. `make documentation-links-check`
+checks root Markdown and Markdown under docs, audits and rules without fetching
+links or building Rust; anchors and full Markdown grammar are outside its
+contract. `make release-commands-check` supplies only the copied Cargo manifest
+and release-data script needed by Make's read-only version expression, with a
+substitute runner and no Git effects. `make shared-tooling-tests` exercises both
+GNU/Perl digest backends when available and finite IC installer substitutes.
+The IC pin matrix, active local tools and Cargo dependency selections are unchanged.
 
 The [Bash 3.2 follow-up](evidence/bash32-v01413.json) checks explicit release
 identity/publication refusals with the actual older shell on Linux. It also
@@ -523,3 +560,9 @@ fixture; consumer native qualification remains pending. The refresh and focused
 local consumer checks pass. Host CI
 stops at snapshot failure, then collects all remaining focused check outcomes
 before reporting failure and retaining available fixtures.
+
+The later shared-owner/issue acceptance batch preserves the concurrently selected
+direct ic-host-tools 0.2.0 and harness-transitive 0.1.14. Fresh offline native CLI
+checks, the FIFO subprocess, strict CLI Clippy and Rust 1.88 compilation pass;
+[the bound record](evidence/shared-tooling-owners-0152.json) retains that graph.
+The earlier 0.1.14 records are historical, not qualification of 0.2.0.

@@ -25,7 +25,7 @@ RELEASE_REMOTE ?= origin
 RELEASE_BRANCH ?= main
 export RELEASE_KIND RELEASE_PREVIOUS RELEASE_VERSION RELEASE_DATE RELEASE_SOURCE RELEASE_COMMIT RELEASE_REMOTE RELEASE_BRANCH
 SHELLCHECK ?= shellcheck
-CI_TARGETS := shared-tooling-check tools-check dependency-pins-check deps shell-check release-check hooks-check fmt-check check clippy probe-check docs-check test wasm-check package
+CI_TARGETS := shared-tooling-check tools-check dependency-pins-check documentation-links-check shared-tooling-tests deps shell-check release-check hooks-check fmt-check check clippy probe-check docs-check test wasm-check package
 
 .PHONY: help version deps cloc shared-tooling-check dependency-pins-check fmt fmt-check check clippy docs-check test test-native test-pocketic test-browser test-browser-store test-browser-transport test-browser-standalone test-sdk-probe test-sdk-inputs test-fixture test-standalone build-standalone test-admission-resources test-read-resources test-funding-receipt-resources wasm-check \
 	build package clean shell-check release-check probe-check ci validate release-verify test-browser-publication test-browser-bootstrap test-browser-launcher test-browser-native \
@@ -34,6 +34,7 @@ CI_TARGETS := shared-tooling-check tools-check dependency-pins-check deps shell-
 	release-commit-check release-committed-check release-tagged-check release-push-check \
 	release-tag-check publish publish-dry-run install-hooks format-tools-check release-tools-check hooks-check evidence-check
 .PHONY: test-hard-cut test-native-host install-tools tools-check install-host-tools host-tools-check install-ic-tools ic-tools-check
+.PHONY: documentation-links-check release-commands-check shared-tooling-tests
 
 ifneq ($(word 2,$(filter release-patch release-minor release-major release-resume,$(MAKECMDGOALS))),)
 $(error Select exactly one release target)
@@ -49,6 +50,9 @@ help:
 	@echo "cloc                         Offline Rust runtime/test counts for every workspace member"
 	@echo "test-funding-receipt-resources  Measure populated receipt confirmation and restore (opt-in)"
 	@echo "shared-tooling-check          Verify the reviewed shared snapshot offline"
+	@echo "shared-tooling-tests          Exercise shared digest, IC installer, lockfile and metadata refusals offline"
+	@echo "documentation-links-check     Check local Markdown targets without a build or network"
+	@echo "release-commands-check        Check Make routing with a substitute release runner"
 	@echo "dependency-pins-check         Check dependency selectors and workspace lockfiles offline"
 	@echo "fmt / fmt-check              Format Rust or check formatting"
 	@echo "check / clippy / test         Compile, lint, or test the workspace"
@@ -111,8 +115,21 @@ cloc:
 shared-tooling-check:
 	bash scripts/ci/verify-shared-tooling-snapshot.sh
 
+shared-tooling-tests:
+	bash scripts/ci/test-file-digests.sh
+	bash scripts/ci/test-ic-tools.sh
+	perl scripts/ci/test-local-lock-versions.pl
+	bash scripts/ci/test-cargo-metadata.sh
+
+documentation-links-check:
+	@set -o pipefail; find docs audits rules -type f -name '*.md' -print0 | \
+		xargs -0 perl scripts/ci/check-documentation-links.pl --root . *.md
+
+release-commands-check:
+	bash scripts/ci/check-release-commands.sh "$(CURDIR)" Cargo.toml scripts/release/release-data.pl
+
 dependency-pins-check:
-	bash scripts/ci/check-dependency-pins.sh
+	bash scripts/ci/check-dependency-pins.sh --cargo-inheritance
 
 format-tools-check:
 	@bash -c 'source ci/tool-versions.env; [[ "$$(cargo sort --version 2>/dev/null)" == "cargo-sort $$SHARED_TOOLING_CARGO_SORT_VERSION" ]] || { echo "Install the reviewed formatter: cargo install cargo-sort --version $$SHARED_TOOLING_CARGO_SORT_VERSION --locked" >&2; exit 1; }'
@@ -282,8 +299,9 @@ shell-check:
 	@for script in scripts/release/*.sh scripts/dev/*.sh scripts/ci/*.sh .githooks/pre-commit; do bash -n "$$script" || exit $$?; done
 	"$(SHELLCHECK)" scripts/release/*.sh scripts/dev/*.sh scripts/ci/*.sh .githooks/pre-commit
 	perl -c scripts/release/release-data.pl
+	perl -c scripts/ci/check-documentation-links.pl
 
-release-check:
+release-check: release-commands-check
 	bash scripts/ci/test-release-runner.sh
 	bash scripts/release/test-release.sh
 

@@ -14,6 +14,34 @@ maintained release and open work.
 [acceptance plan](../../acceptance-plan.md) ·
 [service gaps](../../service-gaps.md)
 
+## Native download fixture and selected graph — 2026-10-06
+
+The [intent](local/2026-10-06-native-download-0152-01/intent.json) and
+[summary](local/2026-10-06-native-download-0152-01/summary.json) bind source,
+dependencies, artifacts and raw attempts in `.tmp/native-dependencies-0152-01`.
+This is source review and a Linux loopback substitute: zero paid cycles, live
+provider requests or deployed-provider qualification. The initial sandbox socket
+and download-test denials remain; permitted loopback retries are separate.
+An [inventory preparation failure](local/2026-10-06-native-download-0152-01/preparation-failure.json)
+also remains distinct from the completed qualification record.
+
+Both released macOS CI hosts rejected the valid 2 MiB + 7-byte body. Apple kernel
+source and Rust's accept path support an inherited nonblocking fixture socket
+as the cause. A bounded Linux substitute explicitly models that state: the
+16 MiB write stops at 2,634,240 bytes with `WouldBlock`, while explicit blocking
+delivers the complete body. This is a mechanism reproduction, not a native macOS
+observation of the repaired fixture. The maintained fixture now clears nonblocking
+mode before timed reads/writes and requires a successful full write for verified
+cases. Production root, original-metadata, byte-count and EOF checks are unchanged.
+
+All 106 CLI cases, two PocketIC installation cases, two standalone funding cases,
+one foreign/missing-memory restore refusal and 23 Caffeine cases pass on selected
+ic-memory 0.28.2, ic-host-tools 0.1.14 and ic-testkit 0.19.1. Relevant strict Clippy
+and Rust 1.88 native/Wasm checks pass; the selected lock is preserved. Compiled
+identity remains 0.15.1 for pending 0.15.2. Earlier evidence keeps its own graph.
+Native macOS confirmation still needs a new committed CI run. No full gate,
+publication, paid/live effect, sibling mutation or named symbol removal occurs.
+
 ## Indexed funding receipts and bounded grants — 2026-10-06
 
 The [profile intent](local/2026-10-06-funding-receipts-0150-01/intent.json),
@@ -3833,6 +3861,12 @@ That checksum check establishes artifact integrity, not scenario correctness or
 provider authenticity; rerunning the opt-in test establishes current local behavior.
 
 ## Run index
+
+`native-download-0152-01` / 2026-10-06: source review and local Linux socket/PocketIC
+substitutes, selected dependency graph and exact artifact qualification;
+[intent](local/2026-10-06-native-download-0152-01/intent.json) and
+[summary](local/2026-10-06-native-download-0152-01/summary.json).
+Zero paid/live requests; macOS confirmation remains a separate native CI obligation.
 
 `trial-v070-preparation-01` / 2026-10-02: offline frozen artifacts, complete
 stand-in installation/link candidate and SDK/native 1 KiB/10 MiB batch verification;

@@ -1,0 +1,266 @@
+{
+   "artifacts" : [
+      {
+         "bytes" : 181689768,
+         "path" : ".tmp/continuation-0152-02/artifacts/blob-storage-tests",
+         "sha256" : "7fd87888a5e0457cfab45ae35c7bc3d2d3ba2900938a1b9660e39eda9d8ebd92"
+      },
+      {
+         "bytes" : 181689768,
+         "path" : ".tmp/continuation-0152-02/artifacts/blob_storage-bfb9a91c5a1342cd",
+         "sha256" : "7fd87888a5e0457cfab45ae35c7bc3d2d3ba2900938a1b9660e39eda9d8ebd92"
+      },
+      {
+         "bytes" : 77493248,
+         "path" : ".tmp/continuation-0152-02/artifacts/caffeine_probe-f63e7e68b00409d2",
+         "sha256" : "7f64b287c6f48de65d48fe01cfeebd1be0935f58fc54d294b6e5fbeb795c2891"
+      },
+      {
+         "bytes" : 4230598,
+         "path" : ".tmp/continuation-0152-02/artifacts/ic_blob_storage_canister.wasm",
+         "sha256" : "57e8d085c3ba3aa5c0b36461edabf78ec273980d57abc545033580589a11097c"
+      },
+      {
+         "bytes" : 292674240,
+         "path" : ".tmp/continuation-0152-02/artifacts/standalone-eb1a6d1b29a76d06",
+         "sha256" : "655c9ecb4a204e0d5de697aeb8e5481cc55cc7e9183c649490109ab15dc6781b"
+      }
+   ],
+   "attempts" : [
+      "Initial ShellCheck reports SC2155 in test date export; assignment/export are separated.",
+      "Initial suite passes before final regression refinement: candidate version is corrected to 0.1.1 for all admission cases, and fixtures additionally refuse any Cargo dispatch after the failed read. Complete final suites pass on Bash 5 and 3.2; initial log remains.",
+      "First evidence inventory refuses comparison against the historical 0.19.1 Cargo.lock. The task-entry lock already selects 0.19.2 and remains unchanged. A separate native-host, harness Clippy and MSRV qualification is completed before the final record; the historical record is not edited."
+   ],
+   "baseline" : {
+      "bytes" : 322256,
+      "path" : "docs/evidence/caffeine-probes/local/2026-10-06-native-download-0152-01/summary.json",
+      "sha256" : "17e3794352b25cf3a9b21ef28490520de0d6fec6bd5252e691ea1db816c1bbb6"
+   },
+   "checks" : {
+      "actual_installation_cases" : 2,
+      "bash_syntax" : "passed",
+      "cli_clippy" : "passed with warnings denied",
+      "native_backpressure_cases" : 1,
+      "native_cli_cases" : 106,
+      "new_failed_read_cases" : 17,
+      "release_bash5" : "passed",
+      "release_linux_built_bash32" : "passed",
+      "rust_format" : "passed",
+      "shellcheck" : "passed",
+      "testkit_harness_clippy" : "passed with warnings denied",
+      "testkit_harness_msrv" : "Rust 1.88 passed"
+   },
+   "collector_failure" : "A second inventory attempt uses an invalid relative lookup while File::Find changes directory. The final collector disables that directory change. No runtime source, dependency or check result changes.",
+   "commands" : {
+      "bytes" : 1148,
+      "path" : ".tmp/continuation-0152-02/commands.txt",
+      "sha256" : "635164cd97a4cecae25877071c3b97fb59a4a47aff3a30f781bcb2884fb92aed"
+   },
+   "compiled_test_version" : "0.15.1",
+   "date" : "2026-10-06",
+   "evidence_collector" : {
+      "bytes" : 4829,
+      "path" : ".tmp/continuation-0152-02/record.pl",
+      "sha256" : "67a50334670cc71303942c19e4c2c88328d7834c316b36e8f20983826b9f2feb"
+   },
+   "excluded_effects" : [
+      "release",
+      "real commits/tags/pushes",
+      "publication",
+      "GitHub writes",
+      "sibling edits",
+      "live provider requests",
+      "paid effects"
+   ],
+   "head" : "c3e271449753f782a0193314f4ed3d4db21c453f",
+   "inputs" : [
+      {
+         "bytes" : 5041,
+         "path" : ".tmp/continuation-0152-02/frozen-final/.shared-tooling.snapshot",
+         "sha256" : "ae1d07b89905b8edf5524de1f91a4bbc233bcbf39d8948586b1d1059141db696"
+      },
+      {
+         "bytes" : 106757,
+         "path" : ".tmp/continuation-0152-02/frozen-final/Cargo.lock",
+         "sha256" : "c9106e20a5f93eedb5e48adb1187c83246a6149781553627c5aafe45ed987500"
+      },
+      {
+         "bytes" : 1580,
+         "path" : ".tmp/continuation-0152-02/frozen-final/Cargo.toml",
+         "sha256" : "24beb2f6c9f8c6790e503ce43cc8f88d9485c78fcd794c66ab39d81c98caf35b"
+      },
+      {
+         "bytes" : 19148,
+         "path" : ".tmp/continuation-0152-02/frozen-final/Makefile",
+         "sha256" : "065dc44b9c219968aa00b04f566f9653b8c505a00e65c293dda26f6f1422b977"
+      },
+      {
+         "bytes" : 4047,
+         "path" : ".tmp/continuation-0152-02/frozen-final/crates/ic-blob-storage-cli/src/native/tests/http/mod.rs",
+         "sha256" : "926a352154fb27299fea99b5312e65a2e3e3e147e38a92157753c3560c9e0554"
+      },
+      {
+         "bytes" : 7257,
+         "path" : ".tmp/continuation-0152-02/frozen-final/scripts/release/release-data.pl",
+         "sha256" : "5cd84da5fa8e2db48c4ace8ab758911abe15656abc41dff49f2bf088c5577bc3"
+      },
+      {
+         "bytes" : 8386,
+         "path" : ".tmp/continuation-0152-02/frozen-final/scripts/release/release.sh",
+         "sha256" : "d39ac5cd9cfa520b28c51e072fa05f0c628c8bc6e53aae84e42cf3cf82c26eb6"
+      },
+      {
+         "bytes" : 29935,
+         "path" : ".tmp/continuation-0152-02/frozen-final/scripts/release/test-release.sh",
+         "sha256" : "eec667282fde5cecd02ebfe2f201e186434c5a14fcb486b0c017f0d0e2ccd2f4"
+      }
+   ],
+   "limitations" : [
+      "Linux native execution and Linux-built Bash 3.2 do not establish native macOS qualification.",
+      "Shared Tooling lock rewrite/hook helpers and common Bash 3.2 fixes remain uncommitted; reviewed snapshot adoption for issue #10 remains pending.",
+      "No new full gate, Wasm MSRV, provider or complete funding qualification; earlier records retain their exact source/artifact bindings."
+   ],
+   "negative_control" : {
+      "fixture" : ".tmp/continuation-0152-02/baseline/target/release-tests.4l03Hu",
+      "log" : {
+         "bytes" : 375,
+         "path" : ".tmp/continuation-0152-02/old-adapter-negative.log",
+         "sha256" : "bf5a9831f721dde831fd3697160eb30ff30f27be3900efd06b9330e79b692a54"
+      },
+      "result" : "old adapter accepts expected version output from failed helper and continues to cargo-sort check",
+      "source" : {
+         "bytes" : 7289,
+         "path" : ".tmp/continuation-0152-02/frozen-entry/release.sh",
+         "sha256" : "496c79cda4ce5f4bb198bbb6417c336bcfa7d54c3a38d9829f7eedd5572aa7a3"
+      }
+   },
+   "pending_version" : "0.15.2",
+   "prior_compiled_source_differences" : [
+      "Cargo.lock",
+      "crates/ic-blob-storage-cli/src/native/tests/http/mod.rs"
+   ],
+   "remote" : {
+      "open_prs" : 0,
+      "run" : "https://github.com/dragginzgame/ic-blob-storage/actions/runs/37460326994",
+      "shared_tooling_sha" : "47cd2ccaf0e8b428f06e6db0262df76cfc1581de",
+      "status" : "unchanged completed failure; prior macOS fixture failures",
+      "tested_sha" : "c3e271449753f782a0193314f4ed3d4db21c453f"
+   },
+   "removed_symbols" : [],
+   "retained_commands_and_logs" : [
+      {
+         "bytes" : 485,
+         "path" : ".tmp/continuation-0152-02/backpressure-tests.log",
+         "sha256" : "bfc22de2e93d0dcb6a675b05cd4f2d6af5d9bf5d329df3587d5182a7db7eb0ca"
+      },
+      {
+         "bytes" : 0,
+         "path" : ".tmp/continuation-0152-02/bash-syntax.log",
+         "sha256" : "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+         "bytes" : 0,
+         "path" : ".tmp/continuation-0152-02/cache-preparation.log",
+         "sha256" : "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+         "bytes" : 2963,
+         "path" : ".tmp/continuation-0152-02/cli-clippy.log",
+         "sha256" : "fc5455b704050c14e6951129db42d65b197958cc89f993786b0b4d5d4444b71f"
+      },
+      {
+         "bytes" : 1148,
+         "path" : ".tmp/continuation-0152-02/commands.txt",
+         "sha256" : "635164cd97a4cecae25877071c3b97fb59a4a47aff3a30f781bcb2884fb92aed"
+      },
+      {
+         "bytes" : 59,
+         "path" : ".tmp/continuation-0152-02/input-preservation.log",
+         "sha256" : "14d79baa94d88be8f4408ed998cf2e8f5fbf39d105b9e7331f1e0c783d00750c"
+      },
+      {
+         "bytes" : 1886,
+         "path" : ".tmp/continuation-0152-02/issues.json",
+         "sha256" : "3c012f67fc067db4a6a5738d3e11f75ba7014e9fee9adb0684da31f319e180a4"
+      },
+      {
+         "bytes" : 375,
+         "path" : ".tmp/continuation-0152-02/old-adapter-negative.log",
+         "sha256" : "bf5a9831f721dde831fd3697160eb30ff30f27be3900efd06b9330e79b692a54"
+      },
+      {
+         "bytes" : 356,
+         "path" : ".tmp/continuation-0152-02/owning-ci.json",
+         "sha256" : "345e75b30873e479fc6e6bc42859419e13dbd3f395f47ede79a17397a71f3951"
+      },
+      {
+         "bytes" : 3,
+         "path" : ".tmp/continuation-0152-02/prs.json",
+         "sha256" : "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      {
+         "bytes" : 98,
+         "path" : ".tmp/continuation-0152-02/release-tests-bash32.log",
+         "sha256" : "f9d4ce54e4aa58986c1f8d4aafb9a8e033d6b5a2b5c7438c7372a2107587d9cd"
+      },
+      {
+         "bytes" : 98,
+         "path" : ".tmp/continuation-0152-02/release-tests-bash5-final.log",
+         "sha256" : "f9d4ce54e4aa58986c1f8d4aafb9a8e033d6b5a2b5c7438c7372a2107587d9cd"
+      },
+      {
+         "bytes" : 98,
+         "path" : ".tmp/continuation-0152-02/release-tests-bash5.log",
+         "sha256" : "f9d4ce54e4aa58986c1f8d4aafb9a8e033d6b5a2b5c7438c7372a2107587d9cd"
+      },
+      {
+         "bytes" : 0,
+         "path" : ".tmp/continuation-0152-02/rust-format.log",
+         "sha256" : "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+         "bytes" : 41,
+         "path" : ".tmp/continuation-0152-02/shared-head.txt",
+         "sha256" : "feb2fd0f9bfe39e0bd86bfcbfdfe55ace1ef9856c5b44f040dc669590ab12f84"
+      },
+      {
+         "bytes" : 0,
+         "path" : ".tmp/continuation-0152-02/shellcheck.log",
+         "sha256" : "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+         "bytes" : 144,
+         "path" : ".tmp/continuation-0152-02/test-artifacts.txt",
+         "sha256" : "52434db134ce6bb4cd82a5e7325780d6483c149e861b232d3b749d53fa8b2fde"
+      },
+      {
+         "bytes" : 558,
+         "path" : ".tmp/continuation-0152-02/testkit-0192-clippy.log",
+         "sha256" : "cb5898122bc0ea50e8462605d42f239062cc8d293136132a2921eda0f727299a"
+      },
+      {
+         "bytes" : 294,
+         "path" : ".tmp/continuation-0152-02/testkit-0192-msrv.log",
+         "sha256" : "26395a7c3a8a592f5e62f7e90ede2f1f043cf13a142fd0b08a73c258408502c6"
+      },
+      {
+         "bytes" : 14045,
+         "path" : ".tmp/continuation-0152-02/testkit-0192-native-host.log",
+         "sha256" : "0d5b89e67751ff2a009557359fdfeca1adf8c7e8604e16f17f698d2bbe18857d"
+      }
+   ],
+   "schema" : 1,
+   "scope" : "consumer release admission and local native backpressure fixture; no provider behavior investigation",
+   "selected_graph" : {
+      "ic-host-tools" : "0.1.14",
+      "ic-memory" : "0.28.2",
+      "ic-testkit" : "0.19.2",
+      "preserved_from_task_entry" : true
+   },
+   "testkit_archive" : {
+      "bytes" : 300278,
+      "path" : "/home/adam/.cargo/registry/cache/index.crates.io-1949cf8c6b5b557f/ic-testkit-0.19.2.crate",
+      "sha256" : "4a6fa765920608adb447e6929fd2f633671ded5fa15ca74796428866bdd7ee37"
+   },
+   "testkit_source_review" : "Cached published ic-testkit 0.19.1 and 0.19.2 src trees compare byte-for-byte equal. The patch changes shared developer/release tooling and CI prerequisites."
+}

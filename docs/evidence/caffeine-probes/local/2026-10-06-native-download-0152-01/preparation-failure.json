@@ -1,0 +1,7 @@
+{
+  "evidence_class": "evidence inventory preparation failure; no test or provider effect",
+  "attempt": ".tmp/native-dependencies-0152-01/record-initial.pl",
+  "outcome": "Initial inventory generation exits 2 because this cache does not contain ic-memory-0.28.2/.cargo-checksum.json. The incomplete empty output is not qualification evidence.",
+  "correction": "The final inventory hashes the actual expanded runtime files, normalized Cargo.toml and cached crate archives. No dependency, compiled source or validation result changes.",
+  "corrected_record": "summary.json"
+}

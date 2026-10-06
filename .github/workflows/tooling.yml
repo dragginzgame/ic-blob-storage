@@ -57,7 +57,7 @@ jobs:
           /bin/bash --version
           make shared-tooling-check
           failed=0
-          for target in tools-check release-tools-check dependency-pins-check evidence-check fmt-check release-check hooks-check; do
+          for target in tools-check release-tools-check dependency-pins-check documentation-links-check shared-tooling-tests evidence-check fmt-check release-check hooks-check; do
             if make "$target"; then :; else failed=1; fi
           done
           exit "$failed"
@@ -79,8 +79,14 @@ jobs:
             .tools/ic-set.*/
             target/release-tests.*/
             ${{ runner.temp }}/blob-format-hooks.*/
+            ${{ runner.temp }}/formatting-adoption.*/
             ${{ runner.temp }}/blob-evidence-checksums.*/
             ${{ runner.temp }}/nonempty-cargo-test.*
+            ${{ runner.temp }}/file-digests.*/
+            ${{ runner.temp }}/ic-tools-test.*/
+            ${{ runner.temp }}/release-commands.*/
+            ${{ runner.temp }}/cargo-metadata-test.*/
+            ${{ runner.temp }}/local-lock-test.*/
           include-hidden-files: true
           if-no-files-found: ignore
           retention-days: 30

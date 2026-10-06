@@ -1,0 +1,739 @@
+{
+   "adopted_inputs" : [
+      {
+         "bytes" : 2774,
+         "path" : ".tmp/issues-0152-01/frozen-final/.githooks/pre-commit",
+         "sha256" : "6d5bb9cc5ea9a8fdc4b1e075b691f6293d0654483ea3f9e019f2b2f86913ca7c"
+      },
+      {
+         "bytes" : 3306,
+         "path" : ".tmp/issues-0152-01/frozen-final/.github/workflows/tooling.yml",
+         "sha256" : "a200486b179283d1ce14319beeb59f8ab9e218273f55eff88c8e9e4eaa8e337f"
+      },
+      {
+         "bytes" : 5692,
+         "path" : ".tmp/issues-0152-01/frozen-final/.shared-tooling.snapshot",
+         "sha256" : "3ca137ebc7c87e24e604270beda8b9d1d8e83f986e3ed7e1f2c80c224fa3278f"
+      },
+      {
+         "bytes" : 185135,
+         "path" : ".tmp/issues-0152-01/frozen-final/CHANGELOG.md",
+         "sha256" : "0a453da2a5e870e0d439ca475ef4650d088022ef7ce121c9bba0c85e6208e988"
+      },
+      {
+         "bytes" : 107329,
+         "path" : ".tmp/issues-0152-01/frozen-final/Cargo.lock",
+         "sha256" : "07c440c7bbb1ae18f2fcce6d4d54ddc9b88395e2fe61d62cbc04f257a9e3316e"
+      },
+      {
+         "bytes" : 1580,
+         "path" : ".tmp/issues-0152-01/frozen-final/Cargo.toml",
+         "sha256" : "f5a4aa751c89ecaef3656fac39f095b3626ba7af70e40490f16341b63d2038d8"
+      },
+      {
+         "bytes" : 19117,
+         "path" : ".tmp/issues-0152-01/frozen-final/DRAGGINZGAME.md",
+         "sha256" : "4c711609d1e8b30ccd2ddff3974b1418cced91a4484be3911c2a36c7631e31ee"
+      },
+      {
+         "bytes" : 19273,
+         "path" : ".tmp/issues-0152-01/frozen-final/Makefile",
+         "sha256" : "4a143d2a55bcb586c82970f419e488567c5e15379a36ceefa4c1f007592700d9"
+      },
+      {
+         "bytes" : 7055,
+         "path" : ".tmp/issues-0152-01/frozen-final/audits/README.md",
+         "sha256" : "926d5a39ea62a3becd19ff0326c63987b2929d3a1a728e2a0ef8a7180824d231"
+      },
+      {
+         "bytes" : 2666,
+         "path" : ".tmp/issues-0152-01/frozen-final/audits/code-hygiene.md",
+         "sha256" : "518d890bf485bef06c316b4cf26ac6bf357ed52bcce995e8d9b1232a103d0ea3"
+      },
+      {
+         "bytes" : 2426,
+         "path" : ".tmp/issues-0152-01/frozen-final/audits/complexity-and-technical-debt.md",
+         "sha256" : "ffdca09602c44c8aff8fc2a17588b20eb6a56e2e71fb6d42ad75087fdd65819b"
+      },
+      {
+         "bytes" : 2399,
+         "path" : ".tmp/issues-0152-01/frozen-final/audits/flow-convergence-and-duplication.md",
+         "sha256" : "35fd87d36a09ed0971841abf28535d43470c713a82581c2251b924da1ab8f484"
+      },
+      {
+         "bytes" : 2176,
+         "path" : ".tmp/issues-0152-01/frozen-final/audits/module-cleanup.md",
+         "sha256" : "d229519014823ad804070e55f7bb5316d7612e1d77a9dc8bf962d564e7b2a5e7"
+      },
+      {
+         "bytes" : 3619,
+         "path" : ".tmp/issues-0152-01/frozen-final/audits/module-surface-hardening.md",
+         "sha256" : "1b64cf2ba0393ab329ec29eb05a696d47ef5933f5ab9bff6e1fe4a7e7b294075"
+      },
+      {
+         "bytes" : 1763,
+         "path" : ".tmp/issues-0152-01/frozen-final/ci/ic-tools.tsv",
+         "sha256" : "5b1ef6bc9e344139f5e171cc1a3783bcee3650275de2f44fe0f8fa10f2bfef87"
+      },
+      {
+         "bytes" : 2337,
+         "path" : ".tmp/issues-0152-01/frozen-final/ci/tool-versions.env",
+         "sha256" : "4923b939b682de2311217c232d56fa0cf1c8f37e19e16c16d41be7626cff1285"
+      },
+      {
+         "bytes" : 14293,
+         "path" : ".tmp/issues-0152-01/frozen-final/docs/consuming-snapshots.md",
+         "sha256" : "44a23eec5c7d043b374117d9585c0fc5da09134b717d33fb9937731b8b524261"
+      },
+      {
+         "bytes" : 35927,
+         "path" : ".tmp/issues-0152-01/frozen-final/docs/dependencies.md",
+         "sha256" : "3ff62a0eee13f5a27ea73496486870e3a8d0e34eb39e79e438cf0e70377b90ec"
+      },
+      {
+         "bytes" : 25182,
+         "path" : ".tmp/issues-0152-01/frozen-final/docs/evidence/shared-tooling-adoption.md",
+         "sha256" : "826a3fb97e4fe4557a48c9e4064c451a7617dfad52b335e6c5d8d2c199dd6ffc"
+      },
+      {
+         "bytes" : 8535,
+         "path" : ".tmp/issues-0152-01/frozen-final/docs/governance/development.md",
+         "sha256" : "32b62756e8c3a126a820eb521f9fe721cca8254d3c10f6dff308e455122bdaa6"
+      },
+      {
+         "bytes" : 5381,
+         "path" : ".tmp/issues-0152-01/frozen-final/docs/ic-tools.md",
+         "sha256" : "89243ae92927e7c036fa8938e42acdd4a8f3dc4060600d2fff495fcd844486a9"
+      },
+      {
+         "bytes" : 4469,
+         "path" : ".tmp/issues-0152-01/frozen-final/docs/local-setup.md",
+         "sha256" : "b99e4bb2f9e4b95abee6533ef46b39fa5efbce63e13c4b4eb8edba551369f2a7"
+      },
+      {
+         "bytes" : 1074,
+         "path" : ".tmp/issues-0152-01/frozen-final/docs/principles/README.md",
+         "sha256" : "59f6cb0b47fcfa698396776bbb391737292ebf34457ad7c65803fe7b36961499"
+      },
+      {
+         "bytes" : 1987,
+         "path" : ".tmp/issues-0152-01/frozen-final/docs/principles/decision-artifact-discipline.md",
+         "sha256" : "9315c9faffa4f36cfab496342535bf49d728ddd2111e8e127cbc44b3fac89ce7"
+      },
+      {
+         "bytes" : 3739,
+         "path" : ".tmp/issues-0152-01/frozen-final/docs/principles/reviewable-changes.md",
+         "sha256" : "56701aba8ce851ac4cce32fb55ce721698a94218b1e46636818f6b43debcb719"
+      },
+      {
+         "bytes" : 2688,
+         "path" : ".tmp/issues-0152-01/frozen-final/docs/principles/rust-code-hygiene.md",
+         "sha256" : "7e5fd8a3c3b1dc5a829a19ad1a4933fdc17792c8e923871da1e9f36586baff41"
+      },
+      {
+         "bytes" : 4455,
+         "path" : ".tmp/issues-0152-01/frozen-final/docs/principles/simplicity-and-maintainability.md",
+         "sha256" : "457fd38e0073c91ba470b918d4facd9faac3c5200ebd38c97e9d6b76acdaea55"
+      },
+      {
+         "bytes" : 9861,
+         "path" : ".tmp/issues-0152-01/frozen-final/docs/provenance.md",
+         "sha256" : "3d3cc3691619cb1d7bcbdceb6f92bb9545e1a4ff5b05bee4e2fd3f6d381729e9"
+      },
+      {
+         "bytes" : 17497,
+         "path" : ".tmp/issues-0152-01/frozen-final/docs/releases.md",
+         "sha256" : "837a6d9b6a07224a47b852c073244bbd001abadf91116ab47d86796c017b4e3b"
+      },
+      {
+         "bytes" : 80773,
+         "path" : ".tmp/issues-0152-01/frozen-final/docs/status/current.md",
+         "sha256" : "fa41222e1f65dbe3eff094c2521098cb8ad4b61ec2d50494a57a59e8611d6267"
+      },
+      {
+         "bytes" : 6985,
+         "path" : ".tmp/issues-0152-01/frozen-final/docs/supported-hosts.md",
+         "sha256" : "e634228d24e93c879ae9ae7a06c9ca8d13023f2d9f174f334d6b689f65633192"
+      },
+      {
+         "bytes" : 5396,
+         "path" : ".tmp/issues-0152-01/frozen-final/docs/tag-maintenance.md",
+         "sha256" : "1063002468575e2f821cfec71524bde06a64634bf30455d64d2d9fed872969d6"
+      },
+      {
+         "bytes" : 18583,
+         "path" : ".tmp/issues-0152-01/frozen-final/docs/verification-helpers.md",
+         "sha256" : "245644e7d093bff5b66435fae71bf0db3386619a91b8a6715ba8c50c28876785"
+      },
+      {
+         "bytes" : 5551,
+         "path" : ".tmp/issues-0152-01/frozen-final/rules/agent-maintenance.md",
+         "sha256" : "0de19d6eb5b3dea57d46cd6412dc49ce6a1b5fb591b551dbec16cdb25ee181df"
+      },
+      {
+         "bytes" : 5052,
+         "path" : ".tmp/issues-0152-01/frozen-final/rules/cargo-dependencies.md",
+         "sha256" : "b0dfb6f6a1caf0f47f166523a3703bdd88a7667f8b0901e549620eb31adb7a7a"
+      },
+      {
+         "bytes" : 10465,
+         "path" : ".tmp/issues-0152-01/frozen-final/rules/changelogs.md",
+         "sha256" : "9c95f254c59a1ef312d37981dcd8af2dadf4eda34cf9026cfeda4092a2716858"
+      },
+      {
+         "bytes" : 7671,
+         "path" : ".tmp/issues-0152-01/frozen-final/rules/dependency-pinning.md",
+         "sha256" : "403c595f0e60bbf81c265c1b1a5732d20534361bd3203d8a84083d0816f5f0e4"
+      },
+      {
+         "bytes" : 7372,
+         "path" : ".tmp/issues-0152-01/frozen-final/rules/git-hooks.md",
+         "sha256" : "f81c0eeb2407ec012f9f8f693c8a2787843f213d6b2ad7f76b4777ef29795d1b"
+      },
+      {
+         "bytes" : 7591,
+         "path" : ".tmp/issues-0152-01/frozen-final/scripts/ci/check-dependency-pins.sh",
+         "sha256" : "4d875dd6b8822f68ae86a357cde9af67b33302331a11333e31941eb1c41a6929"
+      },
+      {
+         "bytes" : 2282,
+         "path" : ".tmp/issues-0152-01/frozen-final/scripts/ci/check-documentation-links.pl",
+         "sha256" : "a04ef3105e7851b83bb682120873e29a6c3c604183c275bc53051dd9e4b300a7"
+      },
+      {
+         "bytes" : 2589,
+         "path" : ".tmp/issues-0152-01/frozen-final/scripts/ci/check-format-hooks.sh",
+         "sha256" : "f5dbeb304173326864b6f37fbf699664abdd37f204b9bc1b426efcb6e8ebd9da"
+      },
+      {
+         "bytes" : 5714,
+         "path" : ".tmp/issues-0152-01/frozen-final/scripts/ci/check-formatting-hooks.sh",
+         "sha256" : "a74951308598b86742672409c261e7adc62f8243c0fa8a60363124eae7ae67f8"
+      },
+      {
+         "bytes" : 3122,
+         "path" : ".tmp/issues-0152-01/frozen-final/scripts/ci/check-release-commands.sh",
+         "sha256" : "5dd38585740657f98f655c15c4f617ca05dc4b6304e0925675a44376ec33309b"
+      },
+      {
+         "bytes" : 732,
+         "path" : ".tmp/issues-0152-01/frozen-final/scripts/ci/check-release-tag.sh",
+         "sha256" : "d7b179f9ceaec6e11c690c975b61f91bedc80526415f71571615064db14f0c9c"
+      },
+      {
+         "bytes" : 5427,
+         "path" : ".tmp/issues-0152-01/frozen-final/scripts/ci/dependency-pins.jq",
+         "sha256" : "43b22d137421962ab6b34634e60d94b8cc6cf5483f9bc55afa8a0d1cd0964a28"
+      },
+      {
+         "bytes" : 1778,
+         "path" : ".tmp/issues-0152-01/frozen-final/scripts/ci/finalize-release-changelog.awk",
+         "sha256" : "edda63b29cbdd88c7f1f0b5ab21dbae0635087a4ab6345392d99138c26b28206"
+      },
+      {
+         "bytes" : 1951,
+         "path" : ".tmp/issues-0152-01/frozen-final/scripts/ci/install-yq.sh",
+         "sha256" : "46f8e4f70fae37391354c7d0d9b6bcd128412ae9c0d14d48131a0fe0fe0acef5"
+      },
+      {
+         "bytes" : 1016,
+         "path" : ".tmp/issues-0152-01/frozen-final/scripts/ci/next-release-version.sh",
+         "sha256" : "37e028e2d9fee271ffdc06d06fc15d7a148ec524def3d9ed2afcd9910c0ec642"
+      },
+      {
+         "bytes" : 1650,
+         "path" : ".tmp/issues-0152-01/frozen-final/scripts/ci/read-cargo-workspace-version.sh",
+         "sha256" : "40f31a19d6115411ebffe7c26e3ed30b8af7eead10dd4830de8d5a9312291222"
+      },
+      {
+         "bytes" : 2307,
+         "path" : ".tmp/issues-0152-01/frozen-final/scripts/ci/rewrite-local-lock-versions.pl",
+         "sha256" : "236f9b2d7fe391a73d03cfe355c0d26fa73de8db1553c7e670f7b19aeb65d086"
+      },
+      {
+         "bytes" : 907,
+         "path" : ".tmp/issues-0152-01/frozen-final/scripts/ci/run-nonempty-cargo-test.sh",
+         "sha256" : "4e7e0a3a93bf4f922a292619dad7deee9c78c24a4bd2812040dd564271862039"
+      },
+      {
+         "bytes" : 16698,
+         "path" : ".tmp/issues-0152-01/frozen-final/scripts/ci/run-release.sh",
+         "sha256" : "cffa84575afcd74836f59f9d8db4be083010048de03c338ec2448857d85dab5e"
+      },
+      {
+         "bytes" : 9798,
+         "path" : ".tmp/issues-0152-01/frozen-final/scripts/ci/run-validation-targets.sh",
+         "sha256" : "43b649ed7a196e46e6acf60e6307c474c34aa4dfeeb9729e2f37b4ecedca3aba"
+      },
+      {
+         "bytes" : 4713,
+         "path" : ".tmp/issues-0152-01/frozen-final/scripts/ci/test-cargo-metadata.sh",
+         "sha256" : "1719211830ee32ef422e12e226179ccf37c1b6a9e2c9a41bb2b71766cad52c3e"
+      },
+      {
+         "bytes" : 3309,
+         "path" : ".tmp/issues-0152-01/frozen-final/scripts/ci/test-file-digests.sh",
+         "sha256" : "fe64efb6af09c7b3182ed709700472ff803f6b5d54df0473a675b07597dcbb31"
+      },
+      {
+         "bytes" : 7933,
+         "path" : ".tmp/issues-0152-01/frozen-final/scripts/ci/test-ic-tools.sh",
+         "sha256" : "0d4a45581e26987baaaa91cd49748e3b7b3ffa76b01f32d1db84560bd5baa68a"
+      },
+      {
+         "bytes" : 4031,
+         "path" : ".tmp/issues-0152-01/frozen-final/scripts/ci/test-local-lock-versions.pl",
+         "sha256" : "d4b498337bfd681466e7b541cb2783779aad2a8b326e927450d98f3b570fb5c6"
+      },
+      {
+         "bytes" : 29316,
+         "path" : ".tmp/issues-0152-01/frozen-final/scripts/ci/test-release-runner.sh",
+         "sha256" : "1d20624590b6459ec2bd20163bbc6fb69f57dd8e1769dcca2c0d77cf68a510cb"
+      },
+      {
+         "bytes" : 1102,
+         "path" : ".tmp/issues-0152-01/frozen-final/scripts/ci/verify-evidence-checksums.sh",
+         "sha256" : "22bf8001f496799c0e26795479b9e313fe3ceddec2e47b8444f8af8e7bc32bae"
+      },
+      {
+         "bytes" : 1884,
+         "path" : ".tmp/issues-0152-01/frozen-final/scripts/ci/verify-file-checksum.sh",
+         "sha256" : "4c981184847462ab3c01cac087e28309f8e054253fd95c7bbe56f643877aa708"
+      },
+      {
+         "bytes" : 5187,
+         "path" : ".tmp/issues-0152-01/frozen-final/scripts/ci/verify-shared-tooling-snapshot.sh",
+         "sha256" : "4024efa6850788102bbfa97c471ea3b45d760e547a31b11e7c6a91a79e3eaca8"
+      },
+      {
+         "bytes" : 6297,
+         "path" : ".tmp/issues-0152-01/frozen-final/scripts/dev/cloc.sh",
+         "sha256" : "955db0c3b1ba072ddf5334ed584da74c645119a3af354b7223b28921ecb924a2"
+      },
+      {
+         "bytes" : 1506,
+         "path" : ".tmp/issues-0152-01/frozen-final/scripts/dev/install-git-hooks.sh",
+         "sha256" : "c48e767cb16fce756bea55492e33c62fd1e57560310d63bfb8a1adc118be2212"
+      },
+      {
+         "bytes" : 6650,
+         "path" : ".tmp/issues-0152-01/frozen-final/scripts/dev/install-host-tools.sh",
+         "sha256" : "591a5d5fc0b8bf0d48179a9d265245ea727ee318894bd10ed962137761465eea"
+      },
+      {
+         "bytes" : 8332,
+         "path" : ".tmp/issues-0152-01/frozen-final/scripts/dev/install-ic-tools.sh",
+         "sha256" : "7a78004b2fa56448ffa8a4fc9aac8e7e9343a0243bf857a3db908fb2f59cfb4f"
+      },
+      {
+         "bytes" : 6894,
+         "path" : ".tmp/issues-0152-01/frozen-final/scripts/release/release-data.pl",
+         "sha256" : "585760658444c9f0ad78831c21bef2a88b510ee3dafd1bd86ff984384c1f817f"
+      },
+      {
+         "bytes" : 29995,
+         "path" : ".tmp/issues-0152-01/frozen-final/scripts/release/test-release.sh",
+         "sha256" : "c7d4ade73a289cd78442491442b39c1475f4bb2e431a48421453762146ab9084"
+      }
+   ],
+   "attempts" : [
+      "Registry version-specific API returns HTTP 403/curl exit 22. Separate successful sparse index lists published 0.10.0 and 0.15.1; no registry write.",
+      "Initial PocketIC tests fail before installation because sandbox refuses localhost bind; permitted local-server retry passes both tests.",
+      "First combined documentation patch fails context verification before any file is written; corrected exact-context patch succeeds."
+   ],
+   "browser" : {
+      "bundle" : {
+         "bytes" : 557922,
+         "path" : ".tmp/issues-0152-01/publication.mjs",
+         "sha256" : "8330c789fa7947832a38981b075a940ea82d584e12399f96fd8d0df1ba267703"
+      },
+      "certificate_requests" : 0,
+      "intent" : {
+         "bytes" : 256,
+         "path" : ".tmp/issues-0152-01/browser-publication/intent.json",
+         "sha256" : "dc8214b17f638797186ec08b46e5a434d3aefc4a607b90932444410e484ccd20"
+      },
+      "provider_requests" : 0,
+      "summary" : {
+         "bytes" : 4962,
+         "path" : ".tmp/issues-0152-01/browser-publication/summary.json",
+         "sha256" : "f90e53688325591cabb87a0f32b47e8ee424a9d1da540e0cac5a56e261b6dde6"
+      }
+   },
+   "checks" : {
+      "browser" : 35,
+      "cli_clippy" : "passed with warnings denied",
+      "cli_msrv" : "Rust 1.88 passed",
+      "core_installation" : 8,
+      "digest_ic_host_verification" : "passed scoped offline fixtures",
+      "fifo" : 1,
+      "hook_sorting_refusal_preservation" : "passed Bash 5 and Linux-built Bash 3.2, final revision",
+      "lockfile_fixtures" : "19 passed; real Cargo accepts transformed exact graph without updating lock",
+      "metadata_inheritance_fixtures" : "passed Bash 5 and Linux-built Bash 3.2",
+      "native_cli" : 106,
+      "native_macos_consumer" : "pending committed consumer execution; neither Linux Bash 3.2 nor upstream substitutes qualify it",
+      "pocketic_ingress" : 2,
+      "release_recovery" : "passed Bash 5 and Linux-built Bash 3.2 at intermediate revision; final release-owner bytes unchanged, final Make routing separately checked"
+   },
+   "collector" : {
+      "bytes" : 5060,
+      "path" : ".tmp/issues-0152-01/record.pl",
+      "sha256" : "879edf2516aa10b25add120840f7380690eaa43108efb793421c07381af5e0ca"
+   },
+   "commands" : {
+      "bytes" : 2648,
+      "path" : ".tmp/issues-0152-01/commands.txt",
+      "sha256" : "a85e245e2ccbec3b4442a5447cae80be50b6636da60ade0bb34126d7dabfdc7b"
+   },
+   "compiled_version" : "0.15.1",
+   "date" : "2026-10-06",
+   "head" : "c3e271449753f782a0193314f4ed3d4db21c453f",
+   "limitations" : [
+      "Local SDK and PocketIC evidence is not deployed provider or consumer adoption.",
+      "Final upstream Linux/lint pass; both macOS portable jobs fail before host fixture success, without identifying the exact assertion.",
+      "No full CI, release, real commit/tag/push, registry publication, deployment, paid/live provider request or sibling mutation."
+   ],
+   "observations" : [
+      {
+         "bytes" : 0,
+         "path" : ".tmp/issues-0152-01/browser-build.log",
+         "sha256" : "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+         "bytes" : 295,
+         "path" : ".tmp/issues-0152-01/browser-inputs.sha256",
+         "sha256" : "c07d4a2ce9934b2becc93b9859c43dc633b19937cf933cc5cc51815a8b608f9b"
+      },
+      {
+         "bytes" : 55,
+         "path" : ".tmp/issues-0152-01/browser-publication.log",
+         "sha256" : "630be948d634d25598dc280ede2dbdfe83e15bc843fa5c1687d896dc3f01dbba"
+      },
+      {
+         "bytes" : 0,
+         "path" : ".tmp/issues-0152-01/cache-preparation.log",
+         "sha256" : "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+         "bytes" : 137,
+         "path" : ".tmp/issues-0152-01/canonical-export-final.log",
+         "sha256" : "7ad0a4d5e5691aa6aff008b093192dfa3f1945e3aa6db7e51c5b58c137315c25"
+      },
+      {
+         "bytes" : 137,
+         "path" : ".tmp/issues-0152-01/canonical-export.log",
+         "sha256" : "243edba940b351d52c89f61182cfb89d625138aaae47041f25944af2fff75d80"
+      },
+      {
+         "bytes" : 310,
+         "path" : ".tmp/issues-0152-01/cli-clippy-020.log",
+         "sha256" : "d57a2be11c0811c9dcc66a71b12d0cc6c8e302c27593dda7586de579dc5b6c13"
+      },
+      {
+         "bytes" : 3533,
+         "path" : ".tmp/issues-0152-01/cli-msrv-020.log",
+         "sha256" : "b579dd7c731da08b5419b25a33ed876db5083fdfbcdd0e4b7e97456312a0a669"
+      },
+      {
+         "bytes" : 2648,
+         "path" : ".tmp/issues-0152-01/commands.txt",
+         "sha256" : "a85e245e2ccbec3b4442a5447cae80be50b6636da60ade0bb34126d7dabfdc7b"
+      },
+      {
+         "bytes" : 9484,
+         "path" : ".tmp/issues-0152-01/consumer-ci-jobs.json",
+         "sha256" : "0cd79dadb78ca5e2678a2b0fad0c89e800ab27fbb654eb5d639992c651ac439b"
+      },
+      {
+         "bytes" : 221,
+         "path" : ".tmp/issues-0152-01/description-readback.json",
+         "sha256" : "ae232b27b304d02db9f0bcd66f3a5dbccba8ca23befe2ea4592e979348b7c6e0"
+      },
+      {
+         "bytes" : 85,
+         "path" : ".tmp/issues-0152-01/digests-bash32.log",
+         "sha256" : "08a6437cdb7e8ef76f6fd092c59c9698de0a897ac898167558d8ecdff044c4c7"
+      },
+      {
+         "bytes" : 45,
+         "path" : ".tmp/issues-0152-01/entry-snapshot-check.log",
+         "sha256" : "9b169fd617673fa4c1d8432da6178bc35c43fef2f2613af9363b25c562cb9e91"
+      },
+      {
+         "bytes" : 568,
+         "path" : ".tmp/issues-0152-01/fifo.log",
+         "sha256" : "9d659d7b2cdeb866c314d607f4fbcad1212a782bb5f217fd2421b37547c88d0c"
+      },
+      {
+         "bytes" : 183,
+         "path" : ".tmp/issues-0152-01/final-hooks-bash32.log",
+         "sha256" : "d699abe93e294a323a36ec2115a6928a9d8e3e801da0fe02265dd2db9415b7c4"
+      },
+      {
+         "bytes" : 1505,
+         "path" : ".tmp/issues-0152-01/final-owner-checks-bash5.log",
+         "sha256" : "fd2746f00169f3d0660251931525c58e101bec3cdf0784799fe165401fb11e90"
+      },
+      {
+         "bytes" : 153,
+         "path" : ".tmp/issues-0152-01/hooks-bash32.log",
+         "sha256" : "b83b7fce3687b460b546e7159c395b6ff85493323f07b68e7c9cb4938979c2af"
+      },
+      {
+         "bytes" : 191,
+         "path" : ".tmp/issues-0152-01/hooks-bash5.log",
+         "sha256" : "b05c797bb74066b417967c5cc1ea859a62c28d44219d91e4393db5e8ab1b438c"
+      },
+      {
+         "bytes" : 82,
+         "path" : ".tmp/issues-0152-01/ic-tools-bash32.log",
+         "sha256" : "603a1612778255c5b8b3a39e8d7ec386ba738150cfda7dd9b9249b4120a6acd5"
+      },
+      {
+         "bytes" : 562,
+         "path" : ".tmp/issues-0152-01/ingress-loopback.log",
+         "sha256" : "90b6b6c17d2e8230980a95f05f56e37918640590769b304b5a627a0616fe9318"
+      },
+      {
+         "bytes" : 2489,
+         "path" : ".tmp/issues-0152-01/ingress.log",
+         "sha256" : "398c1d16ddeebafd40b2701374f345b8ea722d66afef85ed3f44c527ed350dc7"
+      },
+      {
+         "bytes" : 1267,
+         "path" : ".tmp/issues-0152-01/installation.log",
+         "sha256" : "60cbdbe1075c2437ff737882dcd28a1a08f5656f70903331622d5885c32fa919"
+      },
+      {
+         "bytes" : 45,
+         "path" : ".tmp/issues-0152-01/intermediate-snapshot-check.log",
+         "sha256" : "586e6edcd331225926e5a96fb2b8400538163e66d1f09ced7383c6000042bd6f"
+      },
+      {
+         "bytes" : 62534,
+         "path" : ".tmp/issues-0152-01/issues-entry.json",
+         "sha256" : "4a168e3022c09cb599d437b14e5159ba713e53f1794b9d7b1ceaea07de025290"
+      },
+      {
+         "bytes" : 28,
+         "path" : ".tmp/issues-0152-01/metadata-bash32.log",
+         "sha256" : "a12031a789d06ccbba0a7e7d28f6c3788dc7df4f40a09f4c6e1788e7e5ff87f3"
+      },
+      {
+         "bytes" : 12683,
+         "path" : ".tmp/issues-0152-01/native-cli-020.log",
+         "sha256" : "98684aa1096340c3025a050c82d37d932e0bf6a0f4fc8cf698b256e4827c1242"
+      },
+      {
+         "bytes" : 106,
+         "path" : ".tmp/issues-0152-01/pins-bash32.log",
+         "sha256" : "893cdbcdcb40c95549ef13ca0afea31337b33291b4980fca1dd2362a2711fb77"
+      },
+      {
+         "bytes" : 161,
+         "path" : ".tmp/issues-0152-01/registry-api-refusal.txt",
+         "sha256" : "2f627a0724632ab263cc95933d3512265a50e8796a10b7e0802e2aabb1657fe9"
+      },
+      {
+         "bytes" : 54108,
+         "path" : ".tmp/issues-0152-01/registry-index.jsonl",
+         "sha256" : "2ec2a7df9da62f98e3e9cf578975f5c36a2b85948a3c8bf11d54e11a8821bb8a"
+      },
+      {
+         "bytes" : 98,
+         "path" : ".tmp/issues-0152-01/release-bash32.log",
+         "sha256" : "f9d4ce54e4aa58986c1f8d4aafb9a8e033d6b5a2b5c7438c7372a2107587d9cd"
+      },
+      {
+         "bytes" : 98,
+         "path" : ".tmp/issues-0152-01/release-bash5.log",
+         "sha256" : "f9d4ce54e4aa58986c1f8d4aafb9a8e033d6b5a2b5c7438c7372a2107587d9cd"
+      },
+      {
+         "bytes" : 78,
+         "path" : ".tmp/issues-0152-01/release-commands-bash32.log",
+         "sha256" : "6777b0b68375f318e8951a64ac1f3a95d8607cf1d02077068a8ce9cb736e1eb8"
+      },
+      {
+         "bytes" : 114302,
+         "path" : ".tmp/issues-0152-01/runtime-inputs.sha256",
+         "sha256" : "702f1999742eb3e62a98b21bf476da6d00586223355407e58f7ccd3ea71f6be2"
+      },
+      {
+         "bytes" : 56456,
+         "path" : ".tmp/issues-0152-01/runtime-preservation-complete.log",
+         "sha256" : "8d31c52e1fb5b8ac06e2ca23c303e88753e30a21e707e042722cbe4152b109a1"
+      },
+      {
+         "bytes" : 56456,
+         "path" : ".tmp/issues-0152-01/runtime-preservation-final.log",
+         "sha256" : "8d31c52e1fb5b8ac06e2ca23c303e88753e30a21e707e042722cbe4152b109a1"
+      },
+      {
+         "bytes" : 56456,
+         "path" : ".tmp/issues-0152-01/runtime-preservation-msrv.log",
+         "sha256" : "8d31c52e1fb5b8ac06e2ca23c303e88753e30a21e707e042722cbe4152b109a1"
+      },
+      {
+         "bytes" : 56456,
+         "path" : ".tmp/issues-0152-01/runtime-preservation.log",
+         "sha256" : "8d31c52e1fb5b8ac06e2ca23c303e88753e30a21e707e042722cbe4152b109a1"
+      },
+      {
+         "bytes" : 3111,
+         "path" : ".tmp/issues-0152-01/shared-ci-final-failures.log",
+         "sha256" : "6edbcf3f1c6dd00010b68cc65f05286f520fbb0fed7f20094dda23f7d732b761"
+      },
+      {
+         "bytes" : 10379,
+         "path" : ".tmp/issues-0152-01/shared-ci-final-jobs.json",
+         "sha256" : "0be19cf95c637607a4e76419e2658ca0e1f9fda114c339ac4f51fbedcc6b06fe"
+      },
+      {
+         "bytes" : 226,
+         "path" : ".tmp/issues-0152-01/shared-ci-final.json",
+         "sha256" : "89fd129302c109d149a788151836fa5142ef23f82c3f13e97275fccc8e575bd6"
+      },
+      {
+         "bytes" : 10379,
+         "path" : ".tmp/issues-0152-01/shared-ci-jobs.json",
+         "sha256" : "2abb0068557103f3b7b51521e7e6999a33deeadd223f00c6436bf0c502a1c2e9"
+      },
+      {
+         "bytes" : 226,
+         "path" : ".tmp/issues-0152-01/shared-ci.json",
+         "sha256" : "aab5a81268af95a7a57b085c0f136aaaf400b0bddcfb0746f7f7a836259c6a23"
+      },
+      {
+         "bytes" : 1640,
+         "path" : ".tmp/issues-0152-01/shared-focused-bash5.log",
+         "sha256" : "9726c6c90ecd2811f5bade8eeda37f719bb36756f3ff517a9fdbf42211b3f81c"
+      },
+      {
+         "bytes" : 41,
+         "path" : ".tmp/issues-0152-01/shared-head-final.txt",
+         "sha256" : "a89143c4d824d8381679594e7e09884ef60377855e039da9a2ea721ba7585b19"
+      },
+      {
+         "bytes" : 41,
+         "path" : ".tmp/issues-0152-01/shared-head.txt",
+         "sha256" : "8f36e97087c604bac941eedcc97c254f682cf6fe7e893f3c7dc50126c90a9a5f"
+      },
+      {
+         "bytes" : 73,
+         "path" : ".tmp/issues-0152-01/shared-host-source-bash32.log",
+         "sha256" : "bb08d1284b592e9b853f26bc96b23cc3c3e5e0f31c8a2fc7854cf00df55a16e2"
+      },
+      {
+         "bytes" : 73,
+         "path" : ".tmp/issues-0152-01/shared-host-source-bash5.log",
+         "sha256" : "bb08d1284b592e9b853f26bc96b23cc3c3e5e0f31c8a2fc7854cf00df55a16e2"
+      },
+      {
+         "bytes" : 5091,
+         "path" : ".tmp/issues-0152-01/shared-metadata-issue.json",
+         "sha256" : "1e21063372c0dbc6f4c5922d1b0f756bed483cfe223c72b38fd2b74fb42cc088"
+      },
+      {
+         "bytes" : 64,
+         "path" : ".tmp/issues-0152-01/shared-verification-source-bash32.log",
+         "sha256" : "19a9a1801b855c4b5c02f21a27e7de0cd3f4340aa1e478cecfc55d561c3bbf5f"
+      },
+      {
+         "bytes" : 64,
+         "path" : ".tmp/issues-0152-01/shared-verification-source-bash5.log",
+         "sha256" : "19a9a1801b855c4b5c02f21a27e7de0cd3f4340aa1e478cecfc55d561c3bbf5f"
+      },
+      {
+         "bytes" : 0,
+         "path" : ".tmp/issues-0152-01/shellcheck.log",
+         "sha256" : "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+         "bytes" : 243,
+         "path" : ".tmp/issues-0152-01/test-artifacts.txt",
+         "sha256" : "152c9a429f49c5e9307acdb751d6608dc33b1e76a83ec4b1d5e800d31b373747"
+      }
+   ],
+   "pending_version" : "0.15.2",
+   "removed_symbols" : [
+      {
+         "former_file" : "scripts/ci/check-format-hooks.sh",
+         "name" : "new_fixture",
+         "replacement" : "shared check-formatting-hooks.sh fixture mechanics and inline consumer rollback case"
+      },
+      {
+         "former_file" : "scripts/ci/check-format-hooks.sh",
+         "name" : "expect_failure",
+         "replacement" : "shared check-formatting-hooks.sh fixture mechanics and inline consumer rollback case"
+      }
+   ],
+   "runtime" : {
+      "artifacts" : [
+         {
+            "bytes" : 182055496,
+            "path" : ".tmp/issues-0152-01/artifacts/blob_storage-8da6e23b82b859c1",
+            "sha256" : "a93230f4c88caa3dd2c4501c00e053f25ae7cc6c5fb1175d42063e033eebe425"
+         },
+         {
+            "bytes" : 77901616,
+            "path" : ".tmp/issues-0152-01/artifacts/caffeine_probe-fa5752ec891b19b8",
+            "sha256" : "6cf4d48d237f64b05be104012efdb92beb650a1dd5f6cc3a96210af3b640a24f"
+         },
+         {
+            "bytes" : 89400240,
+            "path" : ".tmp/issues-0152-01/artifacts/ic_blob_storage-d592a53780a97892",
+            "sha256" : "12f89f681ebebc9bc52f7edbd82574b4ef8ca1894e035f9492ca52072c9d173f"
+         },
+         {
+            "bytes" : 4230598,
+            "path" : ".tmp/issues-0152-01/artifacts/ic_blob_storage_canister.wasm",
+            "sha256" : "57e8d085c3ba3aa5c0b36461edabf78ec273980d57abc545033580589a11097c"
+         },
+         {
+            "bytes" : 22829216,
+            "path" : ".tmp/issues-0152-01/artifacts/native_files-40dd427a1417a431",
+            "sha256" : "3cae5871b747bd38771be67c60145008746fece6a47f2994e1a813a31219f2c2"
+         },
+         {
+            "bytes" : 292674240,
+            "path" : ".tmp/issues-0152-01/artifacts/standalone-eb1a6d1b29a76d06",
+            "sha256" : "655c9ecb4a204e0d5de697aeb8e5481cc55cc7e9183c649490109ab15dc6781b"
+         }
+      ],
+      "frozen_source_directory" : ".tmp/issues-0152-01/frozen-runtime",
+      "inventory" : {
+         "bytes" : 114302,
+         "path" : ".tmp/issues-0152-01/runtime-inputs.sha256",
+         "sha256" : "702f1999742eb3e62a98b21bf476da6d00586223355407e58f7ccd3ea71f6be2"
+      },
+      "wasm_original_binding" : {
+         "bytes" : 11507,
+         "path" : "docs/evidence/release-guards-0152.json",
+         "sha256" : "c15f1b32afca2f6af47619636f0961938ec0e75456f4049379039a9cf5dd5468"
+      }
+   },
+   "schema" : 1,
+   "scope" : "reviewed shared developer-tool owners and owning issue acceptance; no provider behavior investigation",
+   "selected_graph" : {
+      "cargo_inputs_preserved" : true,
+      "ic-host-tools-direct" : "0.2.0",
+      "ic-host-tools-harness-transitive" : "0.1.14",
+      "ic-memory" : "0.28.2",
+      "ic-testkit" : "0.19.2"
+   },
+   "snapshot" : {
+      "bytes" : 5692,
+      "path" : ".shared-tooling.snapshot",
+      "sha256" : "3ca137ebc7c87e24e604270beda8b9d1d8e83f986e3ed7e1f2c80c224fa3278f"
+   },
+   "source" : {
+      "export" : "Canonical clean-source export into owned empty Git consumers; copied exact bytes/modes after verifying the existing accepted snapshot. Intermediate and final exports remain separate.",
+      "final" : "d957d1f8801885c5b69e4a9ef900155f5f2a8a9d",
+      "final_files" : 54,
+      "intermediate" : "9f8c7c768793f4ce8f25be9e88282c0f63a06e7f",
+      "intermediate_files" : 52,
+      "sibling_edits" : false
+   },
+   "static_followup" : "Post-record static check logs stay under the same owned evidence directory; they do not relabel runtime qualification."
+}

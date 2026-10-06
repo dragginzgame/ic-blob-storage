@@ -279,3 +279,130 @@ owns arithmetic); and `test_staging` / `test_initial_version` in
 `scripts/release/test-release.sh` (exact-index and common-runner increment cases
 replace superseded manual/initial release fixtures). No Rust functions, methods
 or types are removed. Other retained test functions are changed, not renamed.
+
+## 0.15.2 verification adoption — 2026-10-06
+
+The [new record](shared-tooling-adoption-0152.json) binds the adoption separately
+from the preceding release and tooling observations. A clean, owned detached
+copy of Shared Tooling `47cd2ccaf0e8b428f06e6db0262df76cfc1581de` runs the canonical
+export against the existing consumer manifest, intentionally expanded from 43
+to 48 files. Every installed byte and executable mode comes from that committed
+revision; no sibling or vendored file is patched. The earlier dirty local
+documentation is preserved. Cargo, tool versions and the active tool set remain
+at their released selections.
+
+The added files are the verification guide, local documentation-link and release
+Make routing checkers, and shared digest/IC installer fixtures. Local targets
+select documentation and explicit Make parse-time inputs; release routing uses
+a private copied Makefile and substitute runner. The shared check now owns
+conflicting entry-point coverage, replacing the single duplicate assertion in
+the retained `test_versions` function. The local adapter continues to own exact
+metadata, receipt, publication, interruption and follow-up release checks.
+Optional registry observation and RustSec preparation have no local caller and
+are not added. Linking shared tooling creates no service or lifecycle owner.
+
+Snapshot, local tools, declarations, retained evidence, shell syntax/ShellCheck,
+workflow lint and documentation links pass. Digest vectors, unusual filenames,
+backend failures and installer refusal/preservation fixtures pass on Linux with
+Bash 5 and Linux-built Bash 3.2. Shared routing and the local release adapter also
+pass on both shells; the canonical runner's substitute suite passes on Bash 5.
+These are offline fixtures, not a real install/download, Git release or native
+macOS execution. Native CI now runs the added checks and retains their failed
+fixtures under the selected runner `TMPDIR` for 30 days.
+
+Upstream [run 37458968809](https://github.com/dragginzgame/shared-tooling/actions/runs/37458968809)
+has failed Linux RustSec preparation and macOS ARM version-file adapter cases.
+Raw job logs remain under `.tmp/shared-tooling-0152-01`. Neither failing owner is
+included here: this consumer retains its Cargo/Perl release adapter and has no
+RustSec flow. The selected Linux upstream digest and IC installer fixtures pass;
+the scoped local older-shell checks qualify only the files used here. This does
+not claim that the complete upstream run or either native macOS matrix passes.
+The new dirty consumer workflow still requires its own committed native run.
+
+Pending 0.15.2 is compatible developer tooling. No public core API, service DTO,
+durable layout, Rust dependency or IC executable pin changes. Full CI and Rust
+builds are not run for this shell/documentation-only batch. No real commit, tag,
+push, registry publication, deployment, paid/live provider effect, GitHub write
+or sibling edit occurs. No function, method or type is removed; the common
+checksum verifier's existing interface is extended, not replaced with an alias.
+
+## 0.15.2 shared owners and issue acceptance — 2026-10-06
+
+The [bound record](shared-tooling-owners-0152.json) records two distinct canonical
+exports: 52 files at `9f8c7c7`, then 54 files at
+[`d957d1f`](https://github.com/dragginzgame/shared-tooling/commit/d957d1f8801885c5b69e4a9ef900155f5f2a8a9d)
+after the metadata helpers were committed during this review. Clean owned source
+and empty owned consumer exports avoid overwriting accepted dirty work through
+Git staging. Exact exported bytes/modes and manifests are verified before use;
+no dirty sibling bytes or patched shared files are adopted. The earlier 48-file
+record and every failed/inconclusive attempt remain unchanged.
+
+The release adapter retains workspace discovery, metadata admission, writes,
+receipts, Git payload selection and interruption recovery. Its inline local
+lockfile transformation delegates to the shared stdout-only owner and requires
+successful completion before either manifest or lockfile mutation. Generic hook
+cases use the shared checker with explicit current Rust, manifests, lockfile and
+formatter pins, plus an ordering-only unsorted manifest. The consumer's additional
+formatter-mutates-before-failure case still requires byte/index/lock preservation.
+Private local functions `new_fixture` and `expect_failure` in
+`scripts/ci/check-format-hooks.sh` are removed with the overlapping cases; shared
+fixture mechanics and the remaining inline consumer regression replace them.
+
+The normal declaration gate now opts in to Cargo inheritance. Shared metadata
+fixtures cover ordinary/inline tables, aliases, dev/build/target dependencies,
+independent workspace discovery and version/parser refusals. The shared version
+reader is used by those fixtures. Consumer release-data still owns its existing
+working/committed payload reads and release metadata transaction. This repository
+has no actionlint/ShellCheck/gitleaks installer entry-point copies to migrate;
+its reviewed OS bootstrap remains separate, and the unused CI installer family
+is not added. The tag-maintenance guide is included to satisfy the canonical host
+matrix's local documentation link; no tag deletion helper or effect is adopted.
+
+Hook sorting/refusal/preservation, declarations, metadata, digest and IC installer
+fixtures pass under Bash 5 and Linux-built Bash 3.2. Local release/recovery fixtures
+pass at the intermediate adoption; the final shared release-owner files are
+unchanged and final Make routing is checked separately. Upstream-source host and
+verification fixtures also pass locally, recorded as upstream fixture execution.
+They do not qualify native macOS. Final upstream
+[run 37484175750](https://github.com/dragginzgame/shared-tooling/actions/runs/37484175750)
+passes Linux and lint/security; both native macOS portable jobs fail after the IC
+installer success and before the host fixture's success message. The logs identify
+that location, not a precise failed assertion. Consumer native qualification for
+[#10](https://github.com/dragginzgame/ic-blob-storage/issues/10) and
+[#11](https://github.com/dragginzgame/ic-blob-storage/issues/11) remains separate.
+
+Owning issue acceptance is reconciled using released source and fresh focused
+checks. The sparse crates.io index independently lists 0.10.0 and 0.15.1;
+the version-specific API's HTTP 403 is retained as a separate failed observation.
+The GitHub description correction is verified through the repository API.
+The current Cargo files also contain a concurrent direct ic-host-tools 0.2.0
+selection, preserving transitive 0.1.14 through the harness. Fresh native CLI/FIFO,
+Clippy and Rust 1.88 checks qualify that selection locally; older records are not
+relabelled. Eight installation cases, two actual PocketIC ingress cases and 35
+offline browser cases pass. The initial sandbox-denied PocketIC loopback bind and
+successful permitted retry are both retained; the Wasm hash matches the earlier
+bound artifact. This is service decoder/helper evidence, not provider behavior.
+No certificate/provider request is issued by the browser refusal checks.
+
+Pending 0.15.2 remains compatible native/developer tooling. No package version,
+public core API, service DTO, durable format or production Wasm dependency changes.
+No full CI, commit, tag, push, release, publication, deployment, paid/live provider
+effect or sibling mutation occurs. Owning GitHub metadata/comments/closures were
+explicitly requested; issue status stays with GitHub rather than a local queue.
+
+## 0.15.2 native installation and failure uploads — 2026-10-06
+
+The [separate bound record](native-installation-0152.json) closes the local
+installation evidence gap for the final direct ic-host-tools 0.2.0 selection.
+Fresh matching native CLI/standalone artifacts pass the two maintained actual
+PocketIC installation/Candid cases. Exact generated init bytes, configuration
+readback, wrong-service refusal and controller denial remain with their existing
+test owner. Earlier installation records retain their original graphs/artifacts.
+
+The consumer failure uploader now includes the shared metadata and local-lock
+fixture families. Controlled offline Cargo refusals retain actual fixture inputs
+and diagnostics under an owned runner-temporary substitute; both paths match the
+configured uploader selection. Workflow lint passes. No real GitHub upload or
+native macOS execution is claimed. The committed consumer run still needs to
+qualify [#10](https://github.com/dragginzgame/ic-blob-storage/issues/10) and
+[#11](https://github.com/dragginzgame/ic-blob-storage/issues/11).

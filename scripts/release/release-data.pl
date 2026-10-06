@@ -111,22 +111,12 @@ if ($command eq 'version') {
     }
     die "incomplete workspace metadata\n"
         unless keys(%names) && keys(%names) == keys(%ids);
-    my $lock = read_file('Cargo.lock');
-    my %updated;
-    my @sections = split /(?=^\[\[package\]\]\n)/m, $lock;
-    for my $section (@sections) {
-        next if $section =~ /^source = /m;
-        next unless $section =~ /^name = "([^"]+)"$/m && $names{$1};
-        my $name = $1;
-        die "duplicate local lock package\n" if $updated{$name}++;
-        $section =~ s/^version = "\Q$old\E"$/version = "$target"/m
-            or die "local lock version mismatch: $name\n";
-    }
-    die "workspace member missing from lock\n" unless keys(%updated) == keys(%names);
-    $lock = join '', @sections;
-    for my $name (keys %names) {
-        $lock =~ s/^( "\Q$name\E \Q$old\E")([,]?)$/' "' . $name . ' ' . $target . '"' . $2/gme;
-    }
+    open my $rewriter, '-|', $^X, 'scripts/ci/rewrite-local-lock-versions.pl',
+        'Cargo.lock', $old, $target, sort keys %names
+        or die "cannot start lockfile transformer: $!\n";
+    my $lock = do { local $/; <$rewriter> };
+    close $rewriter or die "lockfile transformation failed\n";
+    defined($lock) && length($lock) or die "empty transformed lockfile\n";
     my $text = read_file('Cargo.toml');
     $text =~ s/(^\[workspace\.package\]\n(?:(?!^\[).)*?^version = ")[^"]+(")$/$1$target$2/ms
         or die "cannot update workspace version\n";

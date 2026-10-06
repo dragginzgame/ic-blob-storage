@@ -36,10 +36,18 @@ Missing or incorrect tools report explicit installation commands; the check
 does not install, compile, mutate release files or replace the full gate.
 `SHELLCHECK=/absolute/path/to/shellcheck` selects an existing executable.
 
-The released baseline is 0.15.0, including the ic-memory 0.27 and funding hard
-cut. The current pending batch is 0.15.1: compatible developer tooling and native
-CLI internals, with no service DTO or durable layout change. Package metadata
-and the release receipt stay at 0.15.0 until release preparation.
+The released baseline is 0.15.1, following the ic-memory 0.27 and funding hard
+cut in 0.15.0. Released 0.15.1 adds compatible developer tooling and native CLI
+internals, with no repository-owned service DTO or durable layout change. Keep
+package metadata at the released version during ordinary development. The
+current 0.15.2 draft adds compatible Shared Tooling verification, native fixture
+fixes, dependency qualification and release admission checks;
+package metadata and the release receipt remain at 0.15.1 until preparation.
+
+Consumer admission requires successful working-tree, HEAD, parent, version and
+receipt-source reads before comparing their output. Matching output from a failed
+command is refused before proceeding. These checks preserve existing metadata
+and build inputs; they do not replace full validation or exact tag verification.
 
 Commit the implementation and notes before releasing. Agents never create those
 commits or invoke the one-shot commands below. The explicit metadata/check
@@ -65,6 +73,7 @@ Publication, deployment and cleanup are separate.
 
 The complete gate is `make release-verify` (also `make ci` / `make validate`). It
 verifies the shared snapshot, local executables and dependency declarations,
+checks local documentation links and shared digest/installer fixtures,
 fetches the selected lock with `make deps`, then
 runs shell/helper checks, hook regressions, manifest/Rust formatting, compilation,
 Clippy, retained-probe checks, docs, native/PocketIC tests, Wasm and packaging.
@@ -115,6 +124,10 @@ retired. Use the standard semantic release target and its saved recovery, rather
 than creating a second release workflow. `make release-tag-check` remains a
 read-only check of an already completed source/receipt/tag. `make release-check`
 uses isolated Git/Cargo substitutes: no real commit, tag, push or publication.
+It also invokes `make release-commands-check`, which exercises all entry points
+and conflicting selections against a substitute runner in a private Makefile
+copy. The repository's exact metadata, receipts and interrupted effects remain
+covered by its own fixtures.
 Failed local fixtures and preparation inputs remain at the printed paths.
 
 ## Publication and deployment

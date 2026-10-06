@@ -1,0 +1,323 @@
+{
+   "cache_preparation" : "explicit offline locked fetch passed; selected Cargo and snapshot inputs preserved",
+   "collector" : {
+      "bytes" : 3948,
+      "path" : ".tmp/installation-0152-03/record.pl",
+      "sha256" : "c84eb10d57152e9f01d1b57c1e2d6ee277bf3b881ca0a5907d407bad50b63b8b"
+   },
+   "commands" : {
+      "bytes" : 1577,
+      "path" : ".tmp/installation-0152-03/commands.txt",
+      "sha256" : "372cbfae043490bff8958bd37404ff68bc2567028abed56afbd7cfd622cfafbc"
+   },
+   "compiled_release" : "0.15.1",
+   "date" : "2026-10-06",
+   "evidence_class" : "local_cli_to_pocketic_installation_and_failure_retention",
+   "failure_retention" : {
+      "actual_hosted_upload" : "not executed; dirty workflow has no CI result",
+      "evidence" : "controlled offline Cargo exit 73; maintained fixtures retain actual inputs/diagnostics, and directories match configured artifact selection",
+      "lock_status" : 3,
+      "metadata_status" : 1,
+      "retained_files" : [
+         {
+            "bytes" : 55,
+            "path" : ".tmp/installation-0152-03/runner-temp/cargo-metadata-test.YBg4zW/Cargo.toml",
+            "sha256" : "e9dd13824da3a3a4aab8c756907a2673a61d472290fca26287258214f81b53e2"
+         },
+         {
+            "bytes" : 0,
+            "path" : ".tmp/installation-0152-03/runner-temp/local-lock-test.ZWZFPc/Cargo.lock",
+            "sha256" : "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+         },
+         {
+            "bytes" : 129,
+            "path" : ".tmp/installation-0152-03/runner-temp/local-lock-test.ZWZFPc/Cargo.toml",
+            "sha256" : "06891c870b71c6fead2cdbc827322b27c669e273eba126a02a810fc9bc88383e"
+         },
+         {
+            "bytes" : 140,
+            "path" : ".tmp/installation-0152-03/runner-temp/local-lock-test.ZWZFPc/cargo-errors",
+            "sha256" : "8fb03b96bf0ee40ee4d154592aaf439bfe4122d1f1125c666c83477633f62aa1"
+         },
+         {
+            "bytes" : 0,
+            "path" : ".tmp/installation-0152-03/runner-temp/local-lock-test.ZWZFPc/cargo-output",
+            "sha256" : "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+         },
+         {
+            "bytes" : 59,
+            "path" : ".tmp/installation-0152-03/runner-temp/local-lock-test.ZWZFPc/core/Cargo.toml",
+            "sha256" : "1680787f8d25b5798c1623ca4b357e5b819c9b7e493ead3d4b6a601de57bcc86"
+         },
+         {
+            "bytes" : 17,
+            "path" : ".tmp/installation-0152-03/runner-temp/local-lock-test.ZWZFPc/core/src/lib.rs",
+            "sha256" : "75c24ee7cf322b9fb800359829cbe3d3aeead5531e89be736a754399e0fbd9dd"
+         },
+         {
+            "bytes" : 26,
+            "path" : ".tmp/installation-0152-03/runner-temp/local-lock-test.ZWZFPc/error",
+            "sha256" : "e81a7d0e01c704224bc4087280297152d63f4500d9ba75a45c21b881b3051f5f"
+         },
+         {
+            "bytes" : 0,
+            "path" : ".tmp/installation-0152-03/runner-temp/local-lock-test.ZWZFPc/output",
+            "sha256" : "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+         },
+         {
+            "bytes" : 16,
+            "path" : ".tmp/installation-0152-03/runner-temp/local-lock-test.ZWZFPc/src/lib.rs",
+            "sha256" : "c4c3149e53a0ddb3ea84d000d8dc8af8449143c56f2bca1ff41c12de82b32d6b"
+         }
+      ],
+      "selection" : {
+         "bytes" : 128,
+         "path" : ".tmp/installation-0152-03/matched-artifact-paths.txt",
+         "sha256" : "52fcfe71b124007fbbcafde99aa72fb3bc226aea90f0e381849715f56822249d"
+      },
+      "workflow_lint" : "passed"
+   },
+   "head" : "c3e271449753f782a0193314f4ed3d4db21c453f",
+   "installation" : {
+      "artifacts" : [
+         {
+            "bytes" : 169786352,
+            "path" : ".tmp/installation-0152-03/artifacts/blob-storage",
+            "sha256" : "d5f7efaf2087440cfc6f172f64bc50127dd905ec5488e3da0b04d316c5a56256"
+         },
+         {
+            "bytes" : 4230598,
+            "path" : ".tmp/installation-0152-03/artifacts/ic_blob_storage_canister.wasm",
+            "sha256" : "57e8d085c3ba3aa5c0b36461edabf78ec273980d57abc545033580589a11097c"
+         },
+         {
+            "bytes" : 292674240,
+            "path" : ".tmp/installation-0152-03/artifacts/standalone-eb1a6d1b29a76d06",
+            "sha256" : "655c9ecb4a204e0d5de697aeb8e5481cc55cc7e9183c649490109ab15dc6781b"
+         },
+         {
+            "bytes" : 466,
+            "path" : ".tmp/installation-0152-03/trial-installation/configuration.candid",
+            "sha256" : "f4cb6750465cd971eb48665264a4f33c3e1f53bb729976054c3b3d4e358c1a9f"
+         },
+         {
+            "bytes" : 571,
+            "path" : ".tmp/installation-0152-03/trial-installation/installation.candid",
+            "sha256" : "faa3f468b97c043b733e7edca77597c4db8975c1fa98d6f25c12603a5b033e62"
+         },
+         {
+            "bytes" : 591,
+            "path" : ".tmp/installation-0152-03/trial-installation/readback.candid",
+            "sha256" : "fa1226f02a681e7e535d276b80fe45e252afa425afb92c1a0b03353c502224d2"
+         },
+         {
+            "bytes" : 391,
+            "path" : ".tmp/installation-0152-03/trial-installation/summary.json",
+            "sha256" : "0d77e986002fe39cc3d574230fbf8c880c7b403cd956c36286383e58c436f0b4"
+         }
+      ],
+      "loopback" : "explicitly permitted local PocketIC server; no denied attempt in this batch",
+      "result" : "passed",
+      "selected_cases" : 2,
+      "summary" : {
+         "controller_denied" : true,
+         "declared_and_exported_did_equal" : true,
+         "deployment_authorized" : false,
+         "evidence_class" : "actual_local_trial_template_installation",
+         "exact_configuration_readback" : true,
+         "live_provider_qualified" : false,
+         "local_only_init" : true,
+         "release" : "0.15.1",
+         "schema" : 1,
+         "service" : "xp3jw-ot777-77777-aaaaa-cai",
+         "wrong_service_rejected" : true
+      }
+   },
+   "limits" : [
+      "Local IC qualification only; no provider or consumer deployment evidence.",
+      "Native macOS consumer qualification remains pending.",
+      "Controlled fixture failures are intentional evidence, not unexpected regressions.",
+      "No full CI, package version mutation, release, commit/tag/push, registry publication, paid/live provider request, sibling mutation or named symbol removal."
+   ],
+   "observations" : [
+      {
+         "bytes" : 0,
+         "path" : ".tmp/installation-0152-03/actionlint.log",
+         "sha256" : "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+         "bytes" : 0,
+         "path" : ".tmp/installation-0152-03/active-cargo.txt",
+         "sha256" : "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+         "bytes" : 0,
+         "path" : ".tmp/installation-0152-03/active-rustc.txt",
+         "sha256" : "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+         "bytes" : 55836,
+         "path" : ".tmp/installation-0152-03/build-input-preservation.log",
+         "sha256" : "36f97fe1b58522c07647177d16e6c3f95baded84063c5f351d3103d70d33fc82"
+      },
+      {
+         "bytes" : 0,
+         "path" : ".tmp/installation-0152-03/cache-preparation.log",
+         "sha256" : "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+         "bytes" : 212,
+         "path" : ".tmp/installation-0152-03/cli-build.log",
+         "sha256" : "6daa6829173b2d6585adeb1abb87d4e05b0b330253580f5e617e6ab4608de656"
+      },
+      {
+         "bytes" : 1577,
+         "path" : ".tmp/installation-0152-03/commands.txt",
+         "sha256" : "372cbfae043490bff8958bd37404ff68bc2567028abed56afbd7cfd622cfafbc"
+      },
+      {
+         "bytes" : 270,
+         "path" : ".tmp/installation-0152-03/consumer-ci-entry.json",
+         "sha256" : "1ca5a7ea75eec8de65d5a58c6332a0bcf1c0c1a57e0eccd3e8d5b7b922a6ebfc"
+      },
+      {
+         "bytes" : 41,
+         "path" : ".tmp/installation-0152-03/head.txt",
+         "sha256" : "237c0c514c5140a391b85a388fbe7410c8f434f136815daf36b4075805499ab1"
+      },
+      {
+         "bytes" : 525,
+         "path" : ".tmp/installation-0152-03/installation-tests.log",
+         "sha256" : "855789dfc2cfc0f77a2ff8cc98fbec366346c5cb6227864ea20d1d1ce57ca0db"
+      },
+      {
+         "bytes" : 901,
+         "path" : ".tmp/installation-0152-03/intent.json",
+         "sha256" : "60fbaff85233c04794ec5f6f68934d89a2ea8a0e11db789d31708f4358d0a383"
+      },
+      {
+         "bytes" : 48734,
+         "path" : ".tmp/installation-0152-03/issues-entry.json",
+         "sha256" : "6ab8ed6c33e75a8092be4ff3bce33a6f815949c631f0204ff06a3882054fc8c7"
+      },
+      {
+         "bytes" : 1422,
+         "path" : ".tmp/installation-0152-03/lock-fixture-intentional-failure.log",
+         "sha256" : "8f0a63b98bbeb65e8cccb8ab1418eb3f94c5ff307121c86d44800bcd10fd0123"
+      },
+      {
+         "bytes" : 2,
+         "path" : ".tmp/installation-0152-03/lock-fixture-status.txt",
+         "sha256" : "1121cfccd5913f0a63fec40a6ffd44ea64f9dc135c66634ba001d10bcf4302a2"
+      },
+      {
+         "bytes" : 128,
+         "path" : ".tmp/installation-0152-03/matched-artifact-paths.txt",
+         "sha256" : "52fcfe71b124007fbbcafde99aa72fb3bc226aea90f0e381849715f56822249d"
+      },
+      {
+         "bytes" : 205,
+         "path" : ".tmp/installation-0152-03/metadata-fixture-intentional-failure.log",
+         "sha256" : "7704e6c1a3b9082f06c36fd72602955c5a953321745c9dcd821e46fc59111efb"
+      },
+      {
+         "bytes" : 2,
+         "path" : ".tmp/installation-0152-03/metadata-fixture-status.txt",
+         "sha256" : "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865"
+      },
+      {
+         "bytes" : 3,
+         "path" : ".tmp/installation-0152-03/prs-entry.json",
+         "sha256" : "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      {
+         "bytes" : 149,
+         "path" : ".tmp/installation-0152-03/retention-check.txt",
+         "sha256" : "d95d464910e3e850d37049bd0a19c1330e0b870d47a09598e92068fdf28abde7"
+      },
+      {
+         "bytes" : 112566,
+         "path" : ".tmp/installation-0152-03/runtime-inputs.sha256",
+         "sha256" : "ba9f876628bf4fe873bc241e6ca9d3691cb0734e7570e40d83f784904343447e"
+      },
+      {
+         "bytes" : 41,
+         "path" : ".tmp/installation-0152-03/shared-head.txt",
+         "sha256" : "a89143c4d824d8381679594e7e09884ef60377855e039da9a2ea721ba7585b19"
+      },
+      {
+         "bytes" : 62,
+         "path" : ".tmp/installation-0152-03/standalone-build.log",
+         "sha256" : "b65d97c967cb13bb2fd061b2f5b86011ef366acea387375a92a9808f93395384"
+      },
+      {
+         "bytes" : 46,
+         "path" : ".tmp/installation-0152-03/test-artifacts.txt",
+         "sha256" : "94fc38a69a3b97996ff4389802a7bc00c87ba7c91fcc8ddc33be1bfac3446e24"
+      },
+      {
+         "bytes" : 55836,
+         "path" : ".tmp/installation-0152-03/test-input-preservation.log",
+         "sha256" : "36f97fe1b58522c07647177d16e6c3f95baded84063c5f351d3103d70d33fc82"
+      },
+      {
+         "bytes" : 420,
+         "path" : ".tmp/installation-0152-03/upload-paths.txt",
+         "sha256" : "4e0141459f1da9eb31b66817933ae719073b6d2a9c9ca57a8167aa7556b255e5"
+      }
+   ],
+   "pending_release" : "0.15.2",
+   "post_record_verification" : "Static and record-integrity logs retained in the same owned directory after this record is created.",
+   "prior_record_unchanged" : {
+      "bytes" : 30771,
+      "path" : "docs/evidence/shared-tooling-owners-0152.json",
+      "sha256" : "f68a61009f6d221edc964edc2a29f164c223156a2e63992b70488c7065a1b7ca"
+   },
+   "schema" : 1,
+   "selected_graph" : {
+      "ic-host-tools-direct" : "0.2.0",
+      "ic-host-tools-harness-transitive" : "0.1.14",
+      "ic-memory" : "0.28.2",
+      "ic-testkit" : "0.19.2"
+   },
+   "source" : {
+      "entry_diff" : {
+         "bytes" : 120343,
+         "path" : ".tmp/installation-0152-03/entry.diff",
+         "sha256" : "da553cc3c3aa9f438718b8f8af75de0107b68e90e8c20b0e70261977a80ca32b"
+      },
+      "frozen_runtime" : ".tmp/installation-0152-03/frozen-runtime",
+      "inputs" : [
+         {
+            "bytes" : 3410,
+            "path" : ".tmp/installation-0152-03/frozen-final/.github/workflows/tooling.yml",
+            "sha256" : "fd5481bd9d126bd44f6810d95d1dbe37ddf57722fcec6fe41478bafa3a57ec36"
+         },
+         {
+            "bytes" : 185406,
+            "path" : ".tmp/installation-0152-03/frozen-final/CHANGELOG.md",
+            "sha256" : "405b4bfcc5f4d1456e2bf2339f7d119638302dc0ae0cb28469d10a9ffd3ca20f"
+         },
+         {
+            "bytes" : 26260,
+            "path" : ".tmp/installation-0152-03/frozen-final/docs/evidence/shared-tooling-adoption.md",
+            "sha256" : "eec0814fe93ab156335850db3ec4811ebb026b84b0c047c537c6885ec38991db"
+         },
+         {
+            "bytes" : 83525,
+            "path" : ".tmp/installation-0152-03/frozen-final/docs/status/current.md",
+            "sha256" : "de6d7945a2bb9a09e4c3ea6a54495428aa2e2172ea6cd27ff6eb9bce2b7ff21c"
+         }
+      ],
+      "inventory" : {
+         "bytes" : 112566,
+         "path" : ".tmp/installation-0152-03/runtime-inputs.sha256",
+         "sha256" : "ba9f876628bf4fe873bc241e6ca9d3691cb0734e7570e40d83f784904343447e"
+      },
+      "snapshot" : {
+         "bytes" : 5692,
+         "path" : ".shared-tooling.snapshot",
+         "sha256" : "3ca137ebc7c87e24e604270beda8b9d1d8e83f986e3ed7e1f2c80c224fa3278f"
+      }
+   }
+}

@@ -11,14 +11,16 @@ RELEASE_FILES=(Cargo.toml Cargo.lock CHANGELOG.md docs/release.json)
 fail() { echo "release metadata refused: $*" >&2; exit 1; }
 version() { perl "$DATA" version; }
 ensure_clean() {
-    git rev-parse --verify HEAD >/dev/null
-    [[ -z "$(git status --porcelain --untracked-files=all)" ]] || fail 'commit the implementation and notes before releasing'
+    local status
+    git rev-parse --verify HEAD >/dev/null || fail 'cannot resolve release HEAD'
+    status="$(git status --porcelain --untracked-files=all)" || fail 'cannot read release working tree'
+    [[ -z "$status" ]] || fail 'commit the implementation and notes before releasing'
 }
 allowed_changes() {
     local base="$1" path paths invalid=""
     paths="$(mktemp "${TMPDIR:-/tmp}/blob-release-paths.XXXXXX")"
-    git diff --name-only -z "$base" -- > "$paths"
-    git ls-files --others --exclude-standard -z >> "$paths"
+    git diff --name-only -z "$base" -- > "$paths" || fail 'cannot read release changes'
+    git ls-files --others --exclude-standard -z >> "$paths" || fail 'cannot read untracked release paths'
     while IFS= read -r -d '' path; do
         case "$path" in
             Cargo.toml|Cargo.lock|CHANGELOG.md|docs/release.json) ;;
@@ -29,18 +31,24 @@ allowed_changes() {
     [[ -z "$invalid" ]] || fail "non-release path changed: $invalid"
 }
 preflight() {
+    local head previous
     ensure_clean
-    [[ "$(git rev-parse HEAD)" == "${RELEASE_SOURCE:?}" ]] || fail 'source commit does not match release intent'
-    [[ "$(version)" == "${RELEASE_PREVIOUS:?}" ]] || fail 'previous version does not match release intent'
+    head="$(git rev-parse HEAD)" || fail 'cannot resolve release source'
+    previous="$(version)" || fail 'cannot read previous version'
+    [[ "$head" == "${RELEASE_SOURCE:?}" ]] || fail 'source commit does not match release intent'
+    [[ "$previous" == "${RELEASE_PREVIOUS:?}" ]] || fail 'previous version does not match release intent'
     perl "$DATA" changelog-check "${RELEASE_VERSION:?}" "${RELEASE_DATE:?}"
     make --no-print-directory release-tools-check
     # The complete gate verifies the snapshot and fetches the selected lock before
     # any offline validation. Do not fetch again on post-validation preparation.
 }
 prepare() {
-    [[ "$(git rev-parse HEAD)" == "${RELEASE_SOURCE:?}" ]] || fail 'source commit does not match release intent'
+    local head previous
+    head="$(git rev-parse HEAD)" || fail 'cannot resolve release source'
+    [[ "$head" == "${RELEASE_SOURCE:?}" ]] || fail 'source commit does not match release intent'
     ensure_clean
-    [[ "$(version)" == "${RELEASE_PREVIOUS:?}" ]] || fail 'previous version does not match release intent'
+    previous="$(version)" || fail 'cannot read previous version'
+    [[ "$previous" == "${RELEASE_PREVIOUS:?}" ]] || fail 'previous version does not match release intent'
     perl "$DATA" changelog-check "${RELEASE_VERSION:?}" "${RELEASE_DATE:?}"
     mkdir -p "$CARGO_TARGET_DIR"
     RELEASE_BACKUP_DIR="$(mktemp -d "$CARGO_TARGET_DIR/release-backup.XXXXXX")"
@@ -72,10 +80,14 @@ prepare() {
     rm -rf "$RELEASE_BACKUP_DIR"
 }
 verify_prepared() {
+    local current source head
     perl "$DATA" verify "${RELEASE_SOURCE:?}" "${RELEASE_VERSION:?}" "${RELEASE_DATE:?}"
-    [[ "$(version)" == "${RELEASE_VERSION:?}" ]] || fail 'prepared version does not match release intent'
-    [[ "$(perl "$DATA" source)" == "${RELEASE_SOURCE:?}" ]] || fail 'receipt source does not match release intent'
-    [[ "$(git rev-parse HEAD)" == "$RELEASE_SOURCE" ]] || fail 'source commit does not match release intent'
+    current="$(version)" || fail 'cannot read prepared version'
+    source="$(perl "$DATA" source)" || fail 'cannot read receipt source'
+    head="$(git rev-parse HEAD)" || fail 'cannot resolve release source'
+    [[ "$current" == "${RELEASE_VERSION:?}" ]] || fail 'prepared version does not match release intent'
+    [[ "$source" == "${RELEASE_SOURCE:?}" ]] || fail 'receipt source does not match release intent'
+    [[ "$head" == "$RELEASE_SOURCE" ]] || fail 'source commit does not match release intent'
     allowed_changes "$RELEASE_SOURCE"
     cargo metadata --offline --locked --no-deps --format-version 1 >/dev/null
     make --no-print-directory fmt-check
@@ -94,10 +106,11 @@ commit_check() {
 }
 committed_check() {
     ensure_clean
-    local commit="${RELEASE_COMMIT:?}"
+    local commit="${RELEASE_COMMIT:?}" parent
     [[ "$commit" =~ ^[0-9a-f]{40,64}$ ]] || fail 'release commit must be an exact Git identity'
     perl "$DATA" verify-commit "$commit" "${RELEASE_SOURCE:?}" "${RELEASE_VERSION:?}" "${RELEASE_DATE:?}"
-    [[ "$(git log -1 --format=%P "$commit")" == "$RELEASE_SOURCE" ]] || fail 'release parent does not match validated source'
+    parent="$(git log -1 --format=%P "$commit")" || fail 'cannot read release parent'
+    [[ "$parent" == "$RELEASE_SOURCE" ]] || fail 'release parent does not match validated source'
 }
 verify_tag() {
     bash scripts/ci/check-release-tag.sh "$1" "$2" || fail 'release tag does not match exact release identity'
@@ -105,17 +118,19 @@ verify_tag() {
 tag_check() {
     ensure_clean
     perl "$DATA" verify
-    local current source
-    current="$(version)"
-    source="$(perl "$DATA" source)"
-    [[ "$(git log -1 --format=%P HEAD)" == "$source" ]] || fail 'release parent does not match validated source'
-    verify_tag "$(git rev-parse HEAD)" "$current"
+    local current source parent head
+    current="$(version)" || fail 'cannot read published version'
+    source="$(perl "$DATA" source)" || fail 'cannot read receipt source'
+    parent="$(git log -1 --format=%P HEAD)" || fail 'cannot read release parent'
+    head="$(git rev-parse HEAD)" || fail 'cannot resolve publication HEAD'
+    [[ "$parent" == "$source" ]] || fail 'release parent does not match validated source'
+    verify_tag "$head" "$current"
 }
 publish() {
     case "${1:-}" in ''|--dry-run) ;; *) fail 'expected publish [--dry-run]' ;; esac
     # Separate registry authority still shares the release lock: never publish
     # while another process may be changing this package's release metadata.
-    PUBLICATION_STATE_ROOT="$(git rev-parse --git-path release-state)"
+    PUBLICATION_STATE_ROOT="$(git rev-parse --git-path release-state)" || fail 'cannot resolve publication lock path'
     [[ ! -L "$PUBLICATION_STATE_ROOT" ]] || fail 'release state directory is symlinked'
     mkdir -p "$PUBLICATION_STATE_ROOT"
     mkdir "$PUBLICATION_STATE_ROOT/lock" 2>/dev/null || fail 'release/publication lock is occupied'
@@ -129,8 +144,8 @@ shift || true
 case "$command" in
     version) version ;;
     plan)
-        previous="$(version)"
-        candidate="$(bash scripts/ci/next-release-version.sh "$previous" "${1:-patch}")"
+        previous="$(version)" || fail 'cannot read previous version'
+        candidate="$(bash scripts/ci/next-release-version.sh "$previous" "${1:-patch}")" || fail 'cannot derive release version'
         printf 'Current: %s\nTarget: %s\nRemote: %s\nBranch: %s\n' "$previous" "$candidate" "${RELEASE_REMOTE:-origin}" "${RELEASE_BRANCH:-main}"
         echo 'Maintainer workflow: preflight, complete validation, prepare, stage, commit/tag, exact atomic push.'
         echo 'Committed unfinished releases reconcile first; newer fixes or a different increment receive fresh validation. Publication and cleanup are separate.'

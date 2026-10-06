@@ -22,8 +22,13 @@ fn server(status: u16) -> (String, mpsc::Sender<()>, thread::JoinHandle<Vec<Stri
             }
             match listener.accept() {
                 Ok((mut stream, _)) => {
+                    // Darwin inherits the listener's nonblocking state at accept.
+                    stream.set_nonblocking(false).unwrap();
                     stream
                         .set_read_timeout(Some(Duration::from_secs(2)))
+                        .unwrap();
+                    stream
+                        .set_write_timeout(Some(Duration::from_secs(2)))
                         .unwrap();
                     let mut request = [0; 4096];
                     let length = stream.read(&mut request).unwrap();

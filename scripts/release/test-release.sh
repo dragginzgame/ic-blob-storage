@@ -4,7 +4,8 @@ set -Eeuo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd -P)"
 TEST_REAL_MAKE="$(command -v make)"
 TEST_REAL_GIT="$(command -v git)"
-export TEST_REAL_MAKE TEST_REAL_GIT
+TEST_REAL_PERL="$(command -v perl)"
+export TEST_REAL_MAKE TEST_REAL_GIT TEST_REAL_PERL
 mkdir -p "$ROOT/target"
 TEMPORARY="$(mktemp -d "$ROOT/target/release-tests.XXXXXX")"
 mkdir "$TEMPORARY/bin"
@@ -41,7 +42,8 @@ create_fixture() {
     mkdir -p "$FIXTURE/scripts/release" "$FIXTURE/scripts/ci" "$FIXTURE/ci" "$FIXTURE/docs" "$FIXTURE/target/debug"
     cp "$ROOT/scripts/release/release.sh" "$ROOT/scripts/release/release-data.pl" "$FIXTURE/scripts/release/"
     cp "$ROOT/scripts/ci/run-release.sh" "$ROOT/scripts/ci/next-release-version.sh" \
-        "$ROOT/scripts/ci/run-validation-targets.sh" "$ROOT/scripts/ci/check-release-tag.sh" "$FIXTURE/scripts/ci/"
+        "$ROOT/scripts/ci/run-validation-targets.sh" "$ROOT/scripts/ci/check-release-tag.sh" \
+        "$ROOT/scripts/ci/rewrite-local-lock-versions.pl" "$FIXTURE/scripts/ci/"
     cp "$ROOT/ci/tool-versions.env" "$FIXTURE/ci/"
     cp "$ROOT/Makefile" "$FIXTURE/Makefile"
     cd "$FIXTURE"
@@ -86,6 +88,7 @@ LOCK
     : > "$TEST_LOG"; : > "$TEST_EFFECTS"
     echo retained > target/debug/cache-sentinel
     unset TEST_DIRTY TEST_GATE_FAIL TEST_GATE_DIRTY TEST_METADATA_FAIL TEST_PREPARE_FAIL TEST_INDEX_EXTRA TEST_PUSH_FAIL TEST_FETCH_FAIL TEST_SNAPSHOT_FAIL TEST_TAG_TYPE
+    unset TEST_GIT_FAIL_CALL TEST_DATA_FAIL_COMMAND
 }
 expect_failure() {
     local status
@@ -105,6 +108,11 @@ cat > "$TEMPORARY/bin/git" <<'MOCK'
 #!/usr/bin/env bash
 set -euo pipefail
 echo "git $*" >> "$TEST_LOG"
+if [[ "${TEST_GIT_FAIL_CALL:-}" == "$*" ]]; then
+    unset TEST_GIT_FAIL_CALL
+    "$0" "$@"
+    exit 1
+fi
 release_head=3333333333333333333333333333333333333333
 tag_sha=4444444444444444444444444444444444444444
 tree=5555555555555555555555555555555555555555
@@ -218,6 +226,15 @@ case "$*" in
     *) echo "unsupported Cargo substitute: $*" >&2; exit 97 ;;
 esac
 MOCK
+cat > "$TEMPORARY/bin/perl" <<'MOCK'
+#!/usr/bin/env bash
+set -euo pipefail
+if [[ $# -ge 2 && "${1##*/}" == release-data.pl && "$2" == "${TEST_DATA_FAIL_COMMAND:-}" ]]; then
+    "$TEST_REAL_PERL" "$@"
+    exit 1
+fi
+exec "$TEST_REAL_PERL" "$@"
+MOCK
 cat > "$TEMPORARY/bin/shellcheck" <<'MOCK'
 #!/usr/bin/env bash
 set -euo pipefail
@@ -297,7 +314,6 @@ test_versions() {
         case "$kind" in patch) expected=0.1.1 ;; minor) expected=0.2.0 ;; major) expected=1.0.0 ;; esac
         [[ "$(bash scripts/ci/next-release-version.sh 0.1.0 "$kind")" == "$expected" ]] || exit 1
     done
-    expect_failure "$TEST_REAL_MAKE" release-patch release-minor
 }
 test_invalid_changelog() {
     case "$1" in
@@ -328,6 +344,45 @@ test_release() {
     assert_cache_retained
 }
 prepare_tagged_release() { test_release patch; : > "$TEST_EFFECTS"; }
+test_failed_guard_read() {
+    local operation="$1" read="$2"
+    case "$operation" in
+        prepared-check)
+            export TEST_INDEX_EXTRA=1
+            expect_failure "$TEST_REAL_MAKE" --no-print-directory release-patch
+            unset TEST_INDEX_EXTRA
+            : > "$TEST_EFFECTS"
+            ;;
+        committed-check|publish) prepare_tagged_release ;;
+    esac
+    : > "$TEST_LOG"
+    before="$(fingerprint)"
+    if [[ -f docs/release.json ]]; then cp docs/release.json target/before-receipt; fi
+    case "$read" in
+        version|source) export TEST_DATA_FAIL_COMMAND="$read" ;;
+        head) export TEST_GIT_FAIL_CALL='rev-parse HEAD' ;;
+        verified-head) export TEST_GIT_FAIL_CALL='rev-parse --verify HEAD' ;;
+        status) export TEST_GIT_FAIL_CALL='status --porcelain --untracked-files=all' ;;
+        parent)
+            if [[ "$operation" == committed-check ]]; then
+                export TEST_GIT_FAIL_CALL='log -1 --format=%P 3333333333333333333333333333333333333333'
+            else export TEST_GIT_FAIL_CALL='log -1 --format=%P HEAD'; fi
+            ;;
+    esac
+    export RELEASE_SOURCE="$TEST_SOURCE" RELEASE_PREVIOUS=0.1.0
+    export RELEASE_VERSION=0.1.1 RELEASE_COMMIT=3333333333333333333333333333333333333333
+    RELEASE_DATE="$(date -u +%F)"
+    export RELEASE_DATE
+    expect_failure bash scripts/release/release.sh "$operation"
+    [[ "$(fingerprint)" == "$before" && ! -s "$TEST_EFFECTS" ]] || exit 1
+    if rg -q '^cargo ' "$TEST_LOG"; then
+        echo 'Cargo dispatched after a failed admission read' >&2; exit 1
+    fi
+    if [[ -f target/before-receipt ]]; then cmp target/before-receipt docs/release.json;
+    else [[ ! -e docs/release.json ]] || exit 1; fi
+    [[ ! -d target/release-state/lock ]] || exit 1
+    assert_cache_retained
+}
 test_rejected_preparation() {
     before="$(fingerprint)"
     export "$1=1"
@@ -544,4 +599,17 @@ for shape in valid missing invalid source parent merge receipt absent tag tag-ty
     run_case "selected-$shape" test_selected_commit "$shape"
 done
 for shape in success gate-fail missing-tag resume; do run_case "followup-$shape" test_followup_release "$shape"; done
+for operation in preflight prepare prepared-check committed-check publish plan; do
+    case "$operation" in
+        preflight) reads='version head verified-head status' ;;
+        prepare) reads='version head status' ;;
+        prepared-check) reads='version source head' ;;
+        committed-check) reads='parent' ;;
+        publish) reads='version source head parent status' ;;
+        plan) reads='version' ;;
+    esac
+    for read in $reads; do
+        run_case "failed-read-$operation-$read" test_failed_guard_read "$operation" "$read"
+    done
+done
 printf 'Release-adapter tests: PASS (isolated Git/Cargo effects; no real commits, pushes or publication).\n'

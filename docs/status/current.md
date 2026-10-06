@@ -8,27 +8,80 @@ Date: 2026-10-06
 
 ## At a glance
 
-- Released baseline: `0.15.0`; the changelog and release receipt own exact
+- Released baseline: `0.15.1`; the changelog and release receipt own exact
   release metadata.
-- Current development target: `0.15.1`; compatible local developer tooling and
-  native CLI internals. Cargo package versions and the release receipt remain
-  at released 0.15.0; service DTOs and the durable layout are unchanged.
+- Current development target: `0.15.2`; compatible Shared Tooling verification,
+  native fixture repair and dependency qualification. Cargo's package version
+  and the release receipt remain at 0.15.1. The selected graph now uses ic-memory
+  0.28.2, direct native ic-host-tools 0.2.0 and native harness ic-testkit 0.19.2
+  (which retains transitive ic-host-tools 0.1.14).
+  The earlier accidental Cargo rollback was restored;
+  its diff and original files remain under `.tmp/post-release-0151-01`.
 - Product state: working library and standalone prototype with retained live
   upload/download evidence, not a fully accepted production service.
 - Current composition: framework-independent core, explicit standalone host,
   native operator tools and browser publication components.
 - Recovery: same-release restoration opens fenced; current-instance activation
   requires independent IC history, and older-snapshot activation is unsupported.
-- Latest batch: reviewed local host/IC executable setup, Shared Tooling's shared
-  verification helpers and native CLI adoption of ic-host-tools 0.1.11, followed
-  by early release prerequisites and native CI failure-log retention. The
-  43-file snapshot is `a37771f`; four host-only lock identities are added without
-  reselecting existing versions. See the retained tooling record below.
+- Latest batch: canonical Shared Tooling adoption now records 54 files at
+  `d957d1f`, including shared lockfile rewriting, formatting-hook adoption and
+  Cargo inheritance checks. Focused Linux Bash 5/Bash 3.2 checks pass; the consumer's
+  native macOS run remains required. Fresh checks pass 106 native CLI cases,
+  the FIFO subprocess, eight core installation cases, two PocketIC decoder cases
+  and 35 offline browser cases. CLI Clippy and Rust 1.88 compilation pass with the
+  current direct host-tools selection. Earlier installation/funding/restore/Wasm
+  records retain their original graphs. Tool pins, public core/service contracts
+  and durable records are unchanged. GitHub owns the reconciled issue disposition.
+- Finishing checks now also qualify the actual CLI-generated installation carrier
+  against fresh matching standalone Wasm on the direct ic-host-tools 0.2.0 graph.
+  Both selected PocketIC cases pass, including wrong-service/state preservation
+  and exact configuration readback. Native CI now uploads failed shared metadata
+  and lockfile fixtures; controlled refusals retain both complete directories.
 - Main remaining work: provider credit evidence and consumer funding integration,
   consumer adoption, complete publication transactions, provider deletion and
   billing evidence, production sizing and retirement.
 
 ## Retained release baseline
+
+Released **0.15.1** is at commit `c3e271449753f782a0193314f4ed3d4db21c453f`,
+directly following source `ee7eed5298e072a0278886cf06970e10009c3d40`. Annotated
+`v0.15.1` is `5554613d3d0034cb2391420729acf4ea412a5a20`; remote main and the
+peeled remote tag match the local release commit. The committed receipt hashes
+and exact annotated tag verify read-only, independently of dirty Cargo files.
+The maintainer reports it live; this is Git release evidence, not independent
+registry publication or service deployment evidence.
+
+The released lock selects ic-memory 0.28.0, ic-host-tools 0.1.12 and ic-testkit
+0.18.3. Earlier local records below keep their actual 0.27.1/0.1.11 graph and
+compiled 0.15.0 identities. They are not relabelled as qualification of these
+later dependency selections. The new
+[native CI run](https://github.com/dragginzgame/ic-blob-storage/actions/runs/37460326994)
+has completed: Linux passes, while both macOS hosts fail the valid large-body
+download fixture with `Content`; their PocketIC installation steps are not reached.
+Raw logs remain in `.tmp/v0152-review-02`. The pending fixture repair and selected
+dependency qualification below are separate local evidence; no green native
+macOS matrix or new release is established by them.
+
+The post-release follow-up updates this handoff, the release guide and the
+committed dependency inventory. The release receipt/tag, unchanged 43-file
+snapshot, restored Cargo files and all 81 supported local references in those
+three documents pass focused checks. No Rust source changes or rebuild occur;
+the prior full gate is not attributed to a new source or dependency graph.
+Its earlier CI readback preceded the completed macOS failures above.
+
+Shared Tooling main is now
+[`47cd2cc`](https://github.com/dragginzgame/shared-tooling/commit/47cd2ccaf0e8b428f06e6db0262df76cfc1581de),
+one committed batch after the earlier adopted `a37771f`. Source review finds portable
+digest generation, IC receipt traversal refusal and optional documentation,
+release-command, registry-observation and RustSec preparation helpers. Its
+[matching CI](https://github.com/dragginzgame/shared-tooling/actions/runs/37458968809)
+has completed with Linux RustSec and both macOS version-file fixture failures.
+That initial post-release review left the snapshot unchanged and used the
+documentation helper read-only, retaining its source under
+`.tmp/post-release-0151-01`. The later 48-file adoption below is distinct; neither
+a newer commit nor undated 0.1.7 notes establishes complete native qualification.
+
+### Earlier 0.15.0 baseline
 
 Released **0.15.0** is at commit `6ba6cbc8e6fa87b5e8d2836dd69c0012fffa9e66`,
 directly following source `1a1139e5ae4fadb7cd082c7c929b8909b618fae6`. Annotated
@@ -966,6 +1019,157 @@ The compatible draft remains 0.15.1. The original host-tooling record above is
 historical and unchanged; the new record binds this follow-up separately.
 No release command, real commit/tag/push, registry publication, deployment,
 paid/live provider effect, sibling mutation or named symbol removal occurs.
+
+## Shared Tooling verification adoption — 2026-10-06
+
+The [adoption evidence](../evidence/shared-tooling-adoption.md#0152-verification-adoption--2026-10-06)
+and [bound record](../evidence/shared-tooling-adoption-0152.json) cover the canonical
+48-file export at `47cd2cc`, the local documentation and release-command targets,
+portable digest generation and IC receipt traversal refusal. Local tests cover
+GNU/Perl hashing, installer preservation, release routing and the consumer's
+unchanged metadata/recovery owner under Bash 5 and Linux-built Bash 3.2. Shell
+and workflow lint, snapshot/tool checks and retained evidence checks pass.
+
+The full upstream run has Linux RustSec and macOS ARM version-file adapter
+failures, retained separately. Those owners are not adopted. No complete upstream
+or native macOS acceptance is claimed; this dirty consumer workflow awaits its
+committed native run. Released 0.15.1's owning Linux CI job passed; both macOS
+hosts later failed the native download fixture. That run tests the released
+snapshot, not this adoption. This adoption batch retained the released Cargo
+graph, IC pins and active tools. Pending 0.15.2 is compatible, with no service,
+public core API or durable-format change. In this earlier batch no full gate,
+Rust build, release, publication, paid/live effect, sibling edit or named symbol
+removal occurred.
+
+## Native download and selected dependency qualification — 2026-10-06
+
+The [intent](../evidence/caffeine-probes/local/2026-10-06-native-download-0152-01/intent.json)
+and [bound record](../evidence/caffeine-probes/local/2026-10-06-native-download-0152-01/summary.json)
+retain the actual selected graph and fresh matching Linux artifacts under
+`.tmp/native-dependencies-0152-01`. The local socket substitute models Darwin's
+inherited nonblocking accept: a 16 MiB write stops at 2,634,240 bytes with
+`WouldBlock`; explicit blocking delivers all bytes. Apple kernel source and
+Rust's Darwin accept path support the inferred cause of the two hosted failures.
+The fixture now clears nonblocking mode before timed IO and checks the full
+write on successful verification. Production downloader behavior is unchanged.
+
+All 106 CLI cases, two actual installation cases, two standalone funding cases,
+one foreign/missing-memory restore refusal and 23 Caffeine cases pass. Relevant
+all-target/all-feature Clippy, current native/Wasm compilation and Rust 1.88
+native/Wasm checks pass. Explicit offline cache preparation succeeds; validation
+preserves the selected lock. ic-memory 0.28.2 runtime source matches 0.28.0;
+the used ic-testkit 0.19.1 APIs need no caller changes. Host tools 0.1.14 remains
+native-only. Compiled artifacts identify 0.15.1 for pending 0.15.2, and earlier
+records keep their original graph and artifact identities.
+
+Shared Tooling remote main still resolves to `47cd2cc`. The additional lockfile
+rewrite and formatting-hook helpers and Bash 3.2 assertion fixes remain dirty
+upstream work. Adoption for [#10](https://github.com/dragginzgame/ic-blob-storage/issues/10)
+requires their reviewed committed revision; no dirty upstream bytes or local
+copies of those helpers enter the snapshot. The earlier negative Bash 3.2
+release-command fixture result remains in `.tmp/v0152-review-02`.
+Native macOS confirmation awaits the new committed consumer run. Initial sandbox
+loopback denials and the failed sandbox GitHub read remain recorded separately
+from permitted local/read-only retries. No full CI, release, commit, push,
+publication, paid/live request, sibling edit or named symbol removal occurs.
+
+## Release admission and backpressure follow-up — 2026-10-06
+
+The [bound record](../evidence/release-guards-0152.json) retains the source,
+commands, matching native test artifacts and every attempt in
+`.tmp/continuation-0152-02`. The old consumer adapter accepts expected version
+output from a failed helper and proceeds to the formatter prerequisite check.
+The fixed adapter requires successful working-tree, HEAD, parent, version and
+receipt-source reads before comparing values. Seventeen failed-read cases refuse
+without Cargo dispatch, metadata mutation or publication; existing release and
+recovery fixtures also pass under Bash 5 and Linux-built Bash 3.2. All Git/Cargo
+release effects in those fixtures are substitutes; no real commits are created.
+
+The native backpressure server now clears inherited nonblocking state and bounds
+both reads and writes. Its existing query/update cases still observe one service
+operation for both 429 and 503 replies. Production transport is unchanged.
+The initial ShellCheck warning, corrected candidate/dispatch assertions and two
+evidence-inventory preparation failures remain recorded separately.
+
+The selected ic-testkit 0.19.2 was already in Cargo.lock at task entry. Its cached
+published runtime source matches 0.19.1. Fresh native host checks pass all 106 CLI
+cases and two actual PocketIC installation cases; CLI/harness Clippy and Rust 1.88
+native harness compilation pass. The task-entry lock and snapshot are preserved;
+the earlier 0.19.1 evidence is not relabelled. Compiled identity remains 0.15.1
+for pending 0.15.2. Native macOS confirmation and committed Shared Tooling helpers
+for [#10](https://github.com/dragginzgame/ic-blob-storage/issues/10) remain pending.
+The owning CI run is unchanged and failed at the released source; there are no
+open owning PRs. No full CI, release, push, publication, paid/live request, sibling
+edit or named symbol removal occurs.
+
+## Shared-owner adoption and issue acceptance — 2026-10-06
+
+The [new source-bound record](../evidence/shared-tooling-owners-0152.json) and
+[adoption narrative](../evidence/shared-tooling-adoption.md#0152-shared-owners-and-issue-acceptance--2026-10-06)
+retain the intermediate `9f8c7c7` and final `d957d1f` canonical exports separately.
+The final snapshot includes shared lockfile rewriting, formatting-hook mechanics,
+Cargo inheritance and metadata refusal fixtures. Release writes, receipts,
+committed source selection and recovery remain local; the mutating-formatter
+rollback case remains consumer-owned. Unused CI installer entry points and tag
+deletion tooling are not added. Tool pins and active tool selections are unchanged.
+
+Fresh focused checks pass on Linux with Bash 5 and Linux-built Bash 3.2. The current
+direct ic-host-tools 0.2.0 selection was a concurrent Cargo edit and is preserved;
+106 CLI cases, the FIFO subprocess, strict Clippy and Rust 1.88 compilation pass.
+Eight core installation cases, two PocketIC ingress cases and 35 browser refusal/
+control cases pass. Browser certificate/provider requests are zero. The first
+PocketIC attempt is denied a localhost bind; its retained failure is distinct
+from the permitted successful retry. The selected Wasm hash matches the earlier
+bound artifact. Earlier 0.1.14 and 0.19.1 evidence is not relabelled.
+
+The crates.io sparse index independently lists published 0.10.0 and 0.15.1;
+the version-specific API still returns HTTP 403. This publication observation
+does not establish service deployment or consumer adoption. The repository API
+now confirms the prototype description. Owning GitHub issues hold the requested
+acceptance comments and disposition; this handoff is not another issue queue.
+Consumer publication, serving, retirement and billing evidence remain separate.
+
+Final upstream CI passes Linux/lint and fails both macOS portable jobs after IC
+installer success, before host fixture success. Logs do not identify the exact
+assertion. The changed consumer workflow requires its own committed native
+macOS run for [#10](https://github.com/dragginzgame/ic-blob-storage/issues/10) and
+[#11](https://github.com/dragginzgame/ic-blob-storage/issues/11). No full gate,
+version mutation, commit/tag/push/release/publication, deployment, paid/live
+provider effect or sibling mutation occurs. Keep artifacts and original failures.
+
+## Native installation and failure artifact follow-up — 2026-10-06
+
+The [bound record](../evidence/native-installation-0152.json) retains the exact
+runtime inputs, selected graph, native executable, standalone Wasm, harness test
+binary and generated Candid/readback under `.tmp/installation-0152-03`.
+Explicit offline cache preparation succeeds without changing the selected lock.
+The actual native CLI produces the installation bytes; the local IC fixture
+rejects the wrong actual service without replacing state, accepts the exact
+correct carrier, reads back the complete configuration/project/verifier/uploader
+and compiled 0.15.1 release, and denies controller-only authority. The declared
+and exported Candid services agree. Both selected cases pass. This is local IC
+installation qualification for pending 0.15.2, not provider or consumer deployment.
+
+Native CI's failure uploader now includes `cargo-metadata-test.*` and
+`local-lock-test.*` under the explicit runner temporary directory. A controlled
+offline Cargo refusal makes each maintained fixture fail and retain its inputs
+and diagnostics. The actual retained directories match the added upload paths;
+workflow lint passes. This verifies retention and path selection, not an actual
+GitHub upload from dirty source. Earlier records remain unchanged.
+
+The GitHub recheck finds the existing owning issue discussions unchanged and no
+open PRs. [#10](https://github.com/dragginzgame/ic-blob-storage/issues/10) and
+[#11](https://github.com/dragginzgame/ic-blob-storage/issues/11) still require the
+changed consumer's committed native macOS run; publication/serving/lifetime
+acceptance remains with [#4](https://github.com/dragginzgame/ic-blob-storage/issues/4),
+[#5](https://github.com/dragginzgame/ic-blob-storage/issues/5) and
+[#6](https://github.com/dragginzgame/ic-blob-storage/issues/6). Shared Tooling main
+still resolves to adopted `d957d1f`; owning CI still tests the released `c3e2714`
+and has its previously recorded macOS download-fixture failures. No new remote
+green result is attributed to these working changes. Pending 0.15.2 stays
+compatible; no public core/service/durable contract or tool pin changes.
+No full CI, release, commit/tag/push, registry publication, deployment, paid/live
+provider effect, sibling mutation or named symbol removal occurs in this follow-up.
 
 ## Remaining product work
 

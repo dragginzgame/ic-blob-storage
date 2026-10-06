@@ -81,7 +81,7 @@ fn plan(bytes: &[u8]) -> UploadVerificationPlan {
         },
     }
 }
-fn serve(listener: &TcpListener, headers: &str, bytes: &[u8]) {
+fn serve(listener: &TcpListener, headers: &str, bytes: &[u8]) -> std::io::Result<()> {
     listener.set_nonblocking(true).unwrap();
     let deadline = Instant::now() + Duration::from_secs(5);
     let mut stream = loop {
@@ -93,6 +93,9 @@ fn serve(listener: &TcpListener, headers: &str, bytes: &[u8]) {
             other => panic!("expected local HTTP request: {other:?}"),
         }
     };
+    // Darwin accepts inherit the listener's nonblocking mode. The fixture uses
+    // blocking reads/writes with timeouts so a full response cannot stop at WouldBlock.
+    stream.set_nonblocking(false).unwrap();
     stream
         .set_read_timeout(Some(Duration::from_secs(5)))
         .unwrap();
@@ -109,10 +112,9 @@ fn serve(listener: &TcpListener, headers: &str, bytes: &[u8]) {
     let request = String::from_utf8(request).unwrap().to_ascii_lowercase();
     assert!(request.contains("accept-encoding: identity"));
     assert!(!request.contains("authorization:"));
-    // The verifier may reject headers/length and close without accepting the supplied body.
-    let _ = stream
+    stream
         .write_all(headers.as_bytes())
-        .and_then(|()| stream.write_all(bytes));
+        .and_then(|()| stream.write_all(bytes))
 }
 fn run_case(
     plan: &UploadVerificationPlan,
@@ -160,7 +162,11 @@ fn run_case(
             )),
             expected
         );
-        server.join().unwrap();
+        let sent = server.join().unwrap();
+        // Rejection may close early; a successful verification requires a full write.
+        if expected.is_ok() {
+            sent.unwrap();
+        }
     });
     let outcome: serde_json::Value =
         serde_json::from_slice(&std::fs::read(path.join("download-outcome.json")).unwrap())

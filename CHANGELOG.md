@@ -1,5 +1,40 @@
 # Changelog
 
+## [0.15.2]
+
+### Changed
+
+- Refresh the reviewed Shared Tooling snapshot. Add offline local documentation
+  link checks and shared release-command routing checks to validation and native
+  host CI, while retaining the repository's release and recovery checks.
+- Delegate local lockfile version rewriting and generic formatting-hook checks
+  to their shared owners, preserving release recovery and the consumer's failed
+  formatter rollback case. See [#10](https://github.com/dragginzgame/ic-blob-storage/issues/10).
+- Check Cargo package/dependency inheritance through the shared declaration gate;
+  include its metadata refusal fixtures in native host CI. See
+  [#11](https://github.com/dragginzgame/ic-blob-storage/issues/11).
+- Qualify ic-memory 0.28.2, native ic-host-tools 0.2.0 and the unpublished
+  PocketIC harness's ic-testkit 0.19.2. Preserve the library API, durable format
+  and Rust 1.88 minimum; host tooling remains excluded from production Wasm.
+
+### Fixed
+
+- Generate and verify file digests through one portable backend. Reject failed
+  receipt traversal and filenames that the IC tool receipt format cannot
+  represent before activating a tool set; retain failures and the previous set.
+- Switch accepted local download-fixture sockets explicitly to blocking mode,
+  avoiding inherited nonblocking writes on macOS. Require complete writes for
+  successful verification while preserving early-close refusal cases.
+- Apply the same explicit blocking mode and bounded IO to the native backpressure
+  fixture, retaining its one-request query/update refusal checks on macOS.
+- Reject failed Git and metadata reads during release admission even when they
+  print matching values. Stop before validation, metadata preparation or registry
+  publication and preserve the selected inputs.
+- Upload failed shared Cargo metadata and lockfile fixtures from native host CI,
+  preserving their input files and diagnostics for
+  [#10](https://github.com/dragginzgame/ic-blob-storage/issues/10) and
+  [#11](https://github.com/dragginzgame/ic-blob-storage/issues/11).
+
 ## [0.15.1] - 2026-10-06
 
 ### Changed
