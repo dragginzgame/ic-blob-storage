@@ -1,0 +1,989 @@
+{
+  "date": "2026-10-06",
+  "classification": "Published-source review and focused Linux native host execution; no deployed provider evidence",
+  "entry_head": "279b863b127168d20e610129619b78d474098659",
+  "entry_clean": true,
+  "development_target": "0.15.3",
+  "compiled_package_identity": "0.15.2",
+  "selected_graph": {
+    "h2": "0.4.20",
+    "hyper": "1.12.0",
+    "ic-host-artifacts": "0.3.0",
+    "ic-host-fs": "0.3.0",
+    "ic-host-tools": "0.1.14",
+    "ic-memory": "0.28.4",
+    "ic-testkit": "0.19.2"
+  },
+  "graph_change": "Only unused direct ic-host-tools 0.3.0 and ic-host-process 0.3.0 identities removed; all retained selected versions unchanged.",
+  "reviewed_host_source": {
+    "release_commit": "0456b40e116c7d070428b070d1c3befc36a9345d",
+    "observed_sibling_head": "efd402e0063ccbbf8a143cc970be52ab41b1766d",
+    "implementation_source": "Cached published registry 0.3.0; dirty sibling 0.3.1 APIs excluded",
+    "files": {
+      "ic-host-artifacts": [
+        {
+          "path": "/home/adam/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ic-host-artifacts-0.3.0/src/archive/mod.rs",
+          "bytes": 11800,
+          "sha256": "0aa25f26c92962cb8d7c937a45520d70ab08cbeffcb19346b43e0c76560bd1d1"
+        },
+        {
+          "path": "/home/adam/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ic-host-artifacts-0.3.0/src/archive/tests.rs",
+          "bytes": 11100,
+          "sha256": "f421faa806b90ad5ae9190b31cd8be4254b0e762b5f7dfd4b673251747d5f87c"
+        },
+        {
+          "path": "/home/adam/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ic-host-artifacts-0.3.0/src/artifact/copy/mod.rs",
+          "bytes": 3251,
+          "sha256": "f19f7cd091b07071243aba912e39b540efc6b255dd6ab95eeec5009dacc79891"
+        },
+        {
+          "path": "/home/adam/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ic-host-artifacts-0.3.0/src/artifact/copy/tests.rs",
+          "bytes": 5828,
+          "sha256": "937b40f6b9a5d1095158006565409091156f2e2f247a8596b33b23255180fe3c"
+        },
+        {
+          "path": "/home/adam/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ic-host-artifacts-0.3.0/src/artifact/gzip/mod.rs",
+          "bytes": 2859,
+          "sha256": "19e1dbea20a1762d7b32e5e10186264703503934c6a2ac39edb670f5a4555e22"
+        },
+        {
+          "path": "/home/adam/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ic-host-artifacts-0.3.0/src/artifact/gzip/tests.rs",
+          "bytes": 4110,
+          "sha256": "9c8fc4e8f0eb746f340f47c8b2a9ab11fd8e091459a229587e864375f1239974"
+        },
+        {
+          "path": "/home/adam/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ic-host-artifacts-0.3.0/src/artifact/mod.rs",
+          "bytes": 8404,
+          "sha256": "2654ab26856127f45cc03e3f724363027fb96461443cfa88a7e2e52915cd3742"
+        },
+        {
+          "path": "/home/adam/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ic-host-artifacts-0.3.0/src/artifact/tests.rs",
+          "bytes": 4752,
+          "sha256": "63d48e04f56ef6208a3eab2c1fb4b2221ec3a3aea6a866aaf68631af7fd707e4"
+        },
+        {
+          "path": "/home/adam/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ic-host-artifacts-0.3.0/src/artifact/writer/mod.rs",
+          "bytes": 4244,
+          "sha256": "e68f3cd9081699ec327e6ce39c6d6477846815321eca3730ccfc5367de7392bf"
+        },
+        {
+          "path": "/home/adam/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ic-host-artifacts-0.3.0/src/artifact/writer/tests.rs",
+          "bytes": 5589,
+          "sha256": "1deed1e755d459b275cfdb0b2553d930f56980e2381b7b14325c405a54b649af"
+        },
+        {
+          "path": "/home/adam/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ic-host-artifacts-0.3.0/src/lib.rs",
+          "bytes": 183,
+          "sha256": "eb2fbc7e97d2c03a714c08ce8abcb54ab302370a9bab34828ac05f7c70579af2"
+        },
+        {
+          "path": "/home/adam/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ic-host-artifacts-0.3.0/src/wasm/mod.rs",
+          "bytes": 11545,
+          "sha256": "a87a8b5a8d6dd1e4920cce4389822b16ee64148d871ca18835fe05794208f295"
+        },
+        {
+          "path": "/home/adam/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ic-host-artifacts-0.3.0/src/wasm/tests.rs",
+          "bytes": 7002,
+          "sha256": "2c6c24dab2e53e5a6f797c638c95725e9af8ab808d7490c86c655c39457c0039"
+        },
+        {
+          "path": "/home/adam/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ic-host-artifacts-0.3.0/tests/consumer_contracts.rs",
+          "bytes": 11683,
+          "sha256": "73284325f81c682b42409e66d7560ee06ee2a303c1a9e635776bf93eba04b1a9"
+        },
+        {
+          "path": "/home/adam/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ic-host-artifacts-0.3.0/Cargo.toml",
+          "bytes": 1983,
+          "sha256": "647d2fce1c3410cde7adf7c4c037eef12865bc45116931bedd66534d978f283d"
+        }
+      ],
+      "ic-host-fs": [
+        {
+          "path": "/home/adam/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ic-host-fs-0.3.0/src/durable/mod.rs",
+          "bytes": 24149,
+          "sha256": "afb3aff19d0e78c797ae005a903b82e85ac9365ffdd3059b954fe362a0063788"
+        },
+        {
+          "path": "/home/adam/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ic-host-fs-0.3.0/src/durable/tests.rs",
+          "bytes": 16917,
+          "sha256": "a20635e787e0123aff3ac080a4578699fb16e11ca176085eb295b9d5798774b6"
+        },
+        {
+          "path": "/home/adam/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ic-host-fs-0.3.0/src/lib.rs",
+          "bytes": 148,
+          "sha256": "6e54e6dec42546e414a59a44e3f6ab2981364636803d268fff5fd5864c5207d2"
+        },
+        {
+          "path": "/home/adam/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ic-host-fs-0.3.0/src/read/mod.rs",
+          "bytes": 2987,
+          "sha256": "f82a03e12524e88059fae4e3b893a374f4eb890eaa7d8e7192bb5c729383386b"
+        },
+        {
+          "path": "/home/adam/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ic-host-fs-0.3.0/src/read/no_follow/mod.rs",
+          "bytes": 1658,
+          "sha256": "a694e905f2b1bf14554bda2d29884d35eb48fdb0a919b5aaf3eb132df9d21813"
+        },
+        {
+          "path": "/home/adam/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ic-host-fs-0.3.0/src/read/no_follow/tests.rs",
+          "bytes": 5984,
+          "sha256": "90381736d1d6e65d64066b1aaec08d5f02b07b6c42662ae1b5841605a90cd7a5"
+        },
+        {
+          "path": "/home/adam/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ic-host-fs-0.3.0/src/read/tests.rs",
+          "bytes": 1049,
+          "sha256": "b759c8db2c123d4eccbde43847866d8dd867990684f5e0cc9fac65064895a74d"
+        },
+        {
+          "path": "/home/adam/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ic-host-fs-0.3.0/src/test_support/mod.rs",
+          "bytes": 665,
+          "sha256": "9f6fe53974cacc49439f776abd6148a21fce7812a36d3b0fac800b585ab8e0c5"
+        },
+        {
+          "path": "/home/adam/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ic-host-fs-0.3.0/Cargo.toml",
+          "bytes": 1419,
+          "sha256": "8e859f3842a6b6ec64b385f49c6823bad8f2d163539aa309e2dcb6e7154210b5"
+        }
+      ],
+      "ic-host-process": [
+        {
+          "path": "/home/adam/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ic-host-process-0.3.0/src/lib.rs",
+          "bytes": 187,
+          "sha256": "60dbf830b1b38a2cef3e924d196897ff9393c0652aa8a41b0ec82447d4a14fe0"
+        },
+        {
+          "path": "/home/adam/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ic-host-process-0.3.0/src/provenance/mod.rs",
+          "bytes": 9408,
+          "sha256": "a2b6e39bf61556d23ea85f7ad891d10cdc066bb0c0dc7563f3d9184242fa9e1e"
+        },
+        {
+          "path": "/home/adam/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ic-host-process-0.3.0/src/provenance/tests.rs",
+          "bytes": 5920,
+          "sha256": "66ab228d60f8c34c95161739451aca29737525bec08adaf0f99dc9e79fddcb5d"
+        },
+        {
+          "path": "/home/adam/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ic-host-process-0.3.0/src/test_support/mod.rs",
+          "bytes": 2437,
+          "sha256": "bca4f83cb1658068c138073dafe5c1529146674e84b84e76592b18443f9e10cd"
+        },
+        {
+          "path": "/home/adam/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ic-host-process-0.3.0/src/tool/mod.rs",
+          "bytes": 16524,
+          "sha256": "165975315735d6bbcd017a684b35e7b515b96b48cbdf9fa6361a96d11d16fbe3"
+        },
+        {
+          "path": "/home/adam/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ic-host-process-0.3.0/src/tool/process.rs",
+          "bytes": 5882,
+          "sha256": "1267ce370c2ae34c2d427739f2e2e8335517d6372bf8fa572298f2e386fb4045"
+        },
+        {
+          "path": "/home/adam/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ic-host-process-0.3.0/src/tool/resolution/mod.rs",
+          "bytes": 6872,
+          "sha256": "46014bab71680c81fc6640960d31f88ae459004a3dba230e852e4c0ba42c9e1a"
+        },
+        {
+          "path": "/home/adam/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ic-host-process-0.3.0/src/tool/resolution/tests.rs",
+          "bytes": 9544,
+          "sha256": "11323ff9bb0d7cc74973aa7ac506320c4801049f7d5f7cc97b655a24048c7cf0"
+        },
+        {
+          "path": "/home/adam/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ic-host-process-0.3.0/src/tool/tests.rs",
+          "bytes": 11797,
+          "sha256": "b8c16cf729ec6279ac08d0dbf4f475f3a9324cbe7676405bba013e3b64ff94cf"
+        },
+        {
+          "path": "/home/adam/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ic-host-process-0.3.0/Cargo.toml",
+          "bytes": 1509,
+          "sha256": "98164ff0505f7ae4808824ac351d5d6717784c12e7c6da55db07d45f890d4fb1"
+        }
+      ],
+      "ic-host-tools": [
+        {
+          "path": "/home/adam/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ic-host-tools-0.3.0/examples/extract_candid.rs",
+          "bytes": 2635,
+          "sha256": "a9000ceeacae988062e48e46611ec5800f5e354d91c73d89c52b325b324dff66"
+        },
+        {
+          "path": "/home/adam/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ic-host-tools-0.3.0/examples/hash_serialized_json.rs",
+          "bytes": 964,
+          "sha256": "63eb9b7a260d7ac9140fbe8bbb3e00fa95f6dcb438e3e1149f641c90ee5f7bd4"
+        },
+        {
+          "path": "/home/adam/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ic-host-tools-0.3.0/examples/inspect_archive.rs",
+          "bytes": 1738,
+          "sha256": "18859522282c51b217741496c1fd29f50e87ad1790889c2b02f7936e7fe63552"
+        },
+        {
+          "path": "/home/adam/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ic-host-tools-0.3.0/examples/inspect_artifact.rs",
+          "bytes": 2532,
+          "sha256": "42f9a602fa42efd84503f6669b402c1e6e14f6797b7a8ed9b6f9ecbf3d8bdfda"
+        },
+        {
+          "path": "/home/adam/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ic-host-tools-0.3.0/examples/inspect_git.rs",
+          "bytes": 3482,
+          "sha256": "27c80076717eb8d599191a61bf3f9de999beaab5d4a1510597e088c25467ab1e"
+        },
+        {
+          "path": "/home/adam/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ic-host-tools-0.3.0/examples/inspect_gzip.rs",
+          "bytes": 1460,
+          "sha256": "8fa20cebb73e5101f0992097fac41469bcfe8228ade43d5ae8ca0d5f715cf00b"
+        },
+        {
+          "path": "/home/adam/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ic-host-tools-0.3.0/examples/inspect_regular_file.rs",
+          "bytes": 1326,
+          "sha256": "a95cdeb1d15808d0bb3be82f487eff9265fa2150801fee3df1f30a585408cbe2"
+        },
+        {
+          "path": "/home/adam/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ic-host-tools-0.3.0/examples/inspect_response.rs",
+          "bytes": 1807,
+          "sha256": "cc70660eadb436491351f72f3587e2e8c75db8643ea37f4588fad8dea80c66c6"
+        },
+        {
+          "path": "/home/adam/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ic-host-tools-0.3.0/examples/resolve_tool.rs",
+          "bytes": 1436,
+          "sha256": "6f2b07e973793eadf2b9d3b7a98429cbd04b8c4811c5256de3bdcc62fca48220"
+        },
+        {
+          "path": "/home/adam/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ic-host-tools-0.3.0/src/candid/mod.rs",
+          "bytes": 9033,
+          "sha256": "743044af466ba6ee69807f5809ed8cc3506145586bcaaae201a029dc7a832943"
+        },
+        {
+          "path": "/home/adam/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ic-host-tools-0.3.0/src/candid/tests.rs",
+          "bytes": 9863,
+          "sha256": "211a0b0d167ed3610d52939c319ba64614d03528538badba07d319fa67d11610"
+        },
+        {
+          "path": "/home/adam/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ic-host-tools-0.3.0/src/lib.rs",
+          "bytes": 168,
+          "sha256": "a8a77d8a0cb4a5fb09ac59e8a42dfa55308c2e8e54e4f5a8ee17166c7cf6e322"
+        },
+        {
+          "path": "/home/adam/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ic-host-tools-0.3.0/src/response/mod.rs",
+          "bytes": 9851,
+          "sha256": "0939e03b121b05597fdac1bb4389fb23c0045550f1ebe39c95c7479a9fd83795"
+        },
+        {
+          "path": "/home/adam/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ic-host-tools-0.3.0/src/response/tests.rs",
+          "bytes": 8835,
+          "sha256": "cba3f1a6eff16c03dd3a7b8698bc7d9dc43aee3904e7dc61d4f56c31228f957e"
+        },
+        {
+          "path": "/home/adam/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ic-host-tools-0.3.0/src/test_support/mod.rs",
+          "bytes": 2626,
+          "sha256": "ac8b89bd80e3b3e1d121143570da132f6680b5b8bf1e3cc5b70335d5a48df86b"
+        },
+        {
+          "path": "/home/adam/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ic-host-tools-0.3.0/Cargo.toml",
+          "bytes": 2543,
+          "sha256": "e1d3c38e256fda3762d7ed80827a0aa7e92e74e6ff03d0f2d8431e30399e8708"
+        }
+      ]
+    }
+  },
+  "checks": {
+    "explicit_locked_cache_preparation": "passed",
+    "cli_and_probe_bins": "108 passed on permitted retry",
+    "fifo_subprocess": "1 passed",
+    "strict_cli_clippy_all_targets": "passed",
+    "rust_1_88_cli_all_targets": "passed",
+    "probe_artifacts": "retained runs verified offline",
+    "retained_checksums": "265 local and 39 deployed files verified read-only",
+    "native_dependencies_excluded_from_wasm_cli": "normal-edge tree has only the CLI root",
+    "dependency_declarations": "passed",
+    "documentation_links": "passed after creating the new evidence target",
+    "snapshot": "56 files at 21f3ec3, unchanged",
+    "rust_and_manifest_format": "passed",
+    "diff_whitespace": "passed"
+  },
+  "attempts": [
+    {
+      "log": "cli-tests.log",
+      "outcome": "101 passed; two owned HTTP fixture binds denied by sandbox; probe binary not reached"
+    },
+    {
+      "log": "initial-test-failure.log",
+      "outcome": "original nonempty-test raw failure retained"
+    },
+    {
+      "log": "cli-tests-retry.log",
+      "outcome": "103 native CLI plus 5 probe tests passed with permitted local loopback"
+    },
+    {
+      "log": "admission.log",
+      "outcome": "declarations passed; two documentation links failed before evidence file existed; snapshot not reached"
+    },
+    {
+      "log": "admission-retry.log",
+      "outcome": "declarations, all documentation links and unchanged snapshot passed"
+    },
+    {
+      "log": "preparation-failures.log",
+      "outcome": "collector copytree/file mismatch retained and corrected with copy2"
+    }
+  ],
+  "bound_inputs": [
+    {
+      "path": "Cargo.toml",
+      "bytes": 1603,
+      "sha256": "b9d15f4806ad0cb6d8e76ec92393ecd496c8d3603dcc8ee75c0297567806a393"
+    },
+    {
+      "path": "Cargo.lock",
+      "bytes": 107258,
+      "sha256": "e3b3879fd46aeb41ee1af0001daba1e61c8903fd82bc7c792021689f9bd46e87"
+    },
+    {
+      "path": "CHANGELOG.md",
+      "bytes": 186792,
+      "sha256": "2f9853553bddc8025f36f769c9695ac75190ae7f2f8bbb4ce084b3c3d49d7877"
+    },
+    {
+      "path": ".shared-tooling.snapshot",
+      "bytes": 5914,
+      "sha256": "a31a619dc9cb6f2924486eeda5a655c2d75f58c49ed7bd2af8c964b4bd1cc1c9"
+    },
+    {
+      "path": "docs/dependencies.md",
+      "bytes": 39003,
+      "sha256": "ac8c67b75b3e34c3abce525f6d1c74c468cc46cac26fde81d3c10056ffec5729"
+    },
+    {
+      "path": "docs/status/current.md",
+      "bytes": 94421,
+      "sha256": "0b1795662ac9f06d70a7c08067d328a433aefbe31de63b021b99e5cc9a1e91f8"
+    },
+    {
+      "path": "scripts/ci/run-nonempty-cargo-test.sh",
+      "bytes": 907,
+      "sha256": "4e7e0a3a93bf4f922a292619dad7deee9c78c24a4bd2812040dd564271862039"
+    },
+    {
+      "path": "Makefile",
+      "bytes": 19138,
+      "sha256": "a4bd6182cdc1a20c9b1be79dd3e7cbbb4c6a1d040f11958d32d34a08feae768e"
+    },
+    {
+      "path": "crates/ic-blob-storage-cli/src/main.rs",
+      "bytes": 344,
+      "sha256": "2234b71f7603890ece0a6801356ffab3aa762f605dc90cb5c3fa026337b4cbc8"
+    },
+    {
+      "path": "crates/ic-blob-storage-cli/src/native/account/mod.rs",
+      "bytes": 6087,
+      "sha256": "0010bcb04c383e2cebf9b47b2ac741aa15468cfe106afe7f6c87f120897a659d"
+    },
+    {
+      "path": "crates/ic-blob-storage-cli/src/native/account/tests/mod.rs",
+      "bytes": 7413,
+      "sha256": "91d924ffddef30d53ca79d377cd2f3198d441ad4767b59846702d2a9b5a91c3e"
+    },
+    {
+      "path": "crates/ic-blob-storage-cli/src/native/account_link_inputs/mod.rs",
+      "bytes": 2225,
+      "sha256": "4d1a313c432cb717ba2bf655083d9878d46512c21e53052f6df04e9361639d6e"
+    },
+    {
+      "path": "crates/ic-blob-storage-cli/src/native/account_link_inputs/tests/mod.rs",
+      "bytes": 4277,
+      "sha256": "be8812e6436bc62e783c239f79b13e300c1186add8019d8263095fb88f954080"
+    },
+    {
+      "path": "crates/ic-blob-storage-cli/src/native/arguments/mod.rs",
+      "bytes": 20493,
+      "sha256": "b8fa51b7c2aa49ebcd8c1e7277561ee26787da7b8be15c558971d4b67f9166f8"
+    },
+    {
+      "path": "crates/ic-blob-storage-cli/src/native/artifacts/mod.rs",
+      "bytes": 3725,
+      "sha256": "fc3fb2c1f08210e7df96a1ac750a4aedf7dba55ad5ef3623cabd9d3bc714effb"
+    },
+    {
+      "path": "crates/ic-blob-storage-cli/src/native/artifacts/tests/mod.rs",
+      "bytes": 1958,
+      "sha256": "a8da289aeb0bb81a7ae13ed4f3500131802936d64499df625cf9c306cf9d95e9"
+    },
+    {
+      "path": "crates/ic-blob-storage-cli/src/native/attestation/mod.rs",
+      "bytes": 5374,
+      "sha256": "9e6b7c155b65167262255446a7e1a8cd2a7bd157a54d52b58443b9117a01f957"
+    },
+    {
+      "path": "crates/ic-blob-storage-cli/src/native/attestation/tests/mod.rs",
+      "bytes": 6867,
+      "sha256": "621ddc4a0afdb486b78b7ee6db500ebd21a55ca57ea45e6035ce4a35fccfa3cf"
+    },
+    {
+      "path": "crates/ic-blob-storage-cli/src/native/certificate_assessment/mod.rs",
+      "bytes": 4004,
+      "sha256": "ceb8131f9c6f5470a59b453448c0ec45456fd354546d8b9f19efe419855f3002"
+    },
+    {
+      "path": "crates/ic-blob-storage-cli/src/native/certificate_assessment/tests/mod.rs",
+      "bytes": 4120,
+      "sha256": "557d077f79d5a6d6fcb07f39056b425507e7ef636adf1834176ea7612555226d"
+    },
+    {
+      "path": "crates/ic-blob-storage-cli/src/native/download/mod.rs",
+      "bytes": 7063,
+      "sha256": "3c2651beadfaa9fa19ed33a1baf5d308599d458eb767782f7c21faca15568c27"
+    },
+    {
+      "path": "crates/ic-blob-storage-cli/src/native/download/tests/mod.rs",
+      "bytes": 5035,
+      "sha256": "a1e22889ab81b998cbdb6398a62cf504b2d10975ba064cde3719a4dcaba6d422"
+    },
+    {
+      "path": "crates/ic-blob-storage-cli/src/native/exact_candid/mod.rs",
+      "bytes": 1144,
+      "sha256": "9d9805ec8bb18d465fe1234dcbb56b4c22c3378d909f3c0940af477c60be809a"
+    },
+    {
+      "path": "crates/ic-blob-storage-cli/src/native/funding_assessment/mod.rs",
+      "bytes": 6077,
+      "sha256": "91d8e9996163edc680c66ee4ffa7edd6e9864983bdd560de9a8a08872db0955e"
+    },
+    {
+      "path": "crates/ic-blob-storage-cli/src/native/funding_assessment/tests/mod.rs",
+      "bytes": 6808,
+      "sha256": "05cdebaa515c064c2d712547b10e9104f262addcdc41700489f32b8d72d7808a"
+    },
+    {
+      "path": "crates/ic-blob-storage-cli/src/native/funding_outcome/mod.rs",
+      "bytes": 5241,
+      "sha256": "6ca596ee37687cc80899f4a385a765e3b6336e01c3d1d0824df21b30d4b16388"
+    },
+    {
+      "path": "crates/ic-blob-storage-cli/src/native/funding_outcome/tests/mod.rs",
+      "bytes": 8059,
+      "sha256": "ba54ab35638550e7f51c751873adb296aef98eaaa6e40cf2a58b003f2fa0018a"
+    },
+    {
+      "path": "crates/ic-blob-storage-cli/src/native/gateway_controls/mod.rs",
+      "bytes": 9256,
+      "sha256": "d87d0650ff8016fac87d6aedac2d6539ad70e4c3645802540a5acf16d9d01de1"
+    },
+    {
+      "path": "crates/ic-blob-storage-cli/src/native/gateway_controls/tests/mod.rs",
+      "bytes": 7365,
+      "sha256": "c09e11a1ca237ecf23ec862465eadf6717189c365ed3365e05d69ab86e9a510e"
+    },
+    {
+      "path": "crates/ic-blob-storage-cli/src/native/history/mod.rs",
+      "bytes": 4430,
+      "sha256": "7c6e17d1c5c9353e003ae892f25cdc21bfe3e2622b2ac4c39cbc58baa1d6f193"
+    },
+    {
+      "path": "crates/ic-blob-storage-cli/src/native/history/tests/mod.rs",
+      "bytes": 5178,
+      "sha256": "19a817fb688270dd163677d5e81c5fe79b733c1c7de19fc93b825525940aa860"
+    },
+    {
+      "path": "crates/ic-blob-storage-cli/src/native/installation_check/mod.rs",
+      "bytes": 3325,
+      "sha256": "86b572c2bdf7bec9d2e8fc0e8298b0e74a3c6ddc50351f3670e011ffdb445b82"
+    },
+    {
+      "path": "crates/ic-blob-storage-cli/src/native/installation_check/tests/mod.rs",
+      "bytes": 8494,
+      "sha256": "a1d0c2cde9edd18576064ce4bea909d70a6609a7110151e64dd1a71ecbcb21ed"
+    },
+    {
+      "path": "crates/ic-blob-storage-cli/src/native/local_body/mod.rs",
+      "bytes": 2596,
+      "sha256": "7a869106dcfc517a89b1a2f53dc2b36df36a7199cde40c612657ac051eead20a"
+    },
+    {
+      "path": "crates/ic-blob-storage-cli/src/native/local_body/tests/mod.rs",
+      "bytes": 2498,
+      "sha256": "2f825af9241386c9c8f05b3942ce34b5506cfcecb90bbe66cf5a3d53cbbc66b7"
+    },
+    {
+      "path": "crates/ic-blob-storage-cli/src/native/mod.rs",
+      "bytes": 31471,
+      "sha256": "c67c1b49992e35afdeed5948e185a004111e0a8482ec28ac2dc7b4c4fabe1531"
+    },
+    {
+      "path": "crates/ic-blob-storage-cli/src/native/observe_upload/mod.rs",
+      "bytes": 8233,
+      "sha256": "e28830bff4526f4a82c9a851c6bc111689f6c6ba052066d18754173364ed6505"
+    },
+    {
+      "path": "crates/ic-blob-storage-cli/src/native/observe_upload/record/mod.rs",
+      "bytes": 1669,
+      "sha256": "bf3ca94cf19c6a352e6450801ffe048c8444c62675a76f451fc1700db8b1339f"
+    },
+    {
+      "path": "crates/ic-blob-storage-cli/src/native/observe_upload/tests/mod.rs",
+      "bytes": 1951,
+      "sha256": "f692a85f76fd3701c44252b31734f256a8fdf61b0ee7de617825a148f6d67d2e"
+    },
+    {
+      "path": "crates/ic-blob-storage-cli/src/native/parsing/mod.rs",
+      "bytes": 1154,
+      "sha256": "223150b905027504f66f8de7e2f3000cc6b666a8a2fa415a7ef1c05ad8ca1334"
+    },
+    {
+      "path": "crates/ic-blob-storage-cli/src/native/parsing/tests/mod.rs",
+      "bytes": 784,
+      "sha256": "5609e6b2b5339efe0fafb3df787ef2a092163f11e284fa3815bb51c38fe154df"
+    },
+    {
+      "path": "crates/ic-blob-storage-cli/src/native/provider_download/mod.rs",
+      "bytes": 3941,
+      "sha256": "7bba79dcd5f14108466a7982c0030232e4c134b0256933b4036c2a2b7ba700e2"
+    },
+    {
+      "path": "crates/ic-blob-storage-cli/src/native/provider_download/tests/mod.rs",
+      "bytes": 7971,
+      "sha256": "fc9447e6b06f494fd082367d28376b5b93bb635ca76f144c138eafcd3c3a57f9"
+    },
+    {
+      "path": "crates/ic-blob-storage-cli/src/native/publish_check/mod.rs",
+      "bytes": 3194,
+      "sha256": "ed179022cee1bca8f2c1b53cc39920a68ecf85b417442f077e073d5fb9a1d3f6"
+    },
+    {
+      "path": "crates/ic-blob-storage-cli/src/native/publish_check/observation/mod.rs",
+      "bytes": 10049,
+      "sha256": "f612d03e0b2f36d41a458de24c630cfc7370f4f221cb48a80ad4058869fb11da"
+    },
+    {
+      "path": "crates/ic-blob-storage-cli/src/native/publish_check/tests/mod.rs",
+      "bytes": 12969,
+      "sha256": "6cbb7e0360f0a40bf72c0d7c4f070394a7eae85ff6b008e8d8b97a49876410b5"
+    },
+    {
+      "path": "crates/ic-blob-storage-cli/src/native/publish_inputs/capacity/mod.rs",
+      "bytes": 3022,
+      "sha256": "5641e48a480ad39a953f3b97ac4fac6bcb1f4ec7311548de8cd938f3f41f0ebb"
+    },
+    {
+      "path": "crates/ic-blob-storage-cli/src/native/publish_inputs/mod.rs",
+      "bytes": 8956,
+      "sha256": "5fc8a46e79a9ec9a0bdcda903201a2886c79d1a34f0e3d2fa2e1a482f7b98e0d"
+    },
+    {
+      "path": "crates/ic-blob-storage-cli/src/native/publish_inputs/paths/mod.rs",
+      "bytes": 938,
+      "sha256": "cade55d4098229f9c4fb08b057adf91d7b5fa9f23e2e4bed916ff23f855f0fc7"
+    },
+    {
+      "path": "crates/ic-blob-storage-cli/src/native/publish_inputs/tests/mod.rs",
+      "bytes": 9774,
+      "sha256": "89040337d9f7f97e89c29f2ee433f49fb657f2f1d38b29ed53347fcb40437769"
+    },
+    {
+      "path": "crates/ic-blob-storage-cli/src/native/publish_map/mod.rs",
+      "bytes": 13745,
+      "sha256": "ec68f5208ea91ac4d9a74a99444727ea872bd8aafb99b8b1cfee44b6bd28822d"
+    },
+    {
+      "path": "crates/ic-blob-storage-cli/src/native/publish_map/tests/mod.rs",
+      "bytes": 5422,
+      "sha256": "d3c9d37e22dcb557b75a7a92abc649f16d7c59ff925c033e37132f7dbed15e96"
+    },
+    {
+      "path": "crates/ic-blob-storage-cli/src/native/publish_prepare/batch/mod.rs",
+      "bytes": 3487,
+      "sha256": "00a21ffb750809b13cebc01e15b726b5507394c6907dbba5ccd4e6c397952e5d"
+    },
+    {
+      "path": "crates/ic-blob-storage-cli/src/native/publish_prepare/journal/mod.rs",
+      "bytes": 5178,
+      "sha256": "7ea2e52fb283169bf12631766c11af26bd192ff6a6bd182e33fdc44eaf2d7a5f"
+    },
+    {
+      "path": "crates/ic-blob-storage-cli/src/native/publish_prepare/mod.rs",
+      "bytes": 6256,
+      "sha256": "8e633b736f34136f0fa4edd97e71f14adfca375ac173837771f8c1a2e6a0644f"
+    },
+    {
+      "path": "crates/ic-blob-storage-cli/src/native/publish_prepare/progress/mod.rs",
+      "bytes": 7062,
+      "sha256": "cdac37a190d89bdc8eeace309eecca9e144d29228d70f5d5b416fa15f3a60d8a"
+    },
+    {
+      "path": "crates/ic-blob-storage-cli/src/native/publish_prepare/tests/mod.rs",
+      "bytes": 4806,
+      "sha256": "9b9a5ba3eda36c96c41b68a47060fd2a0a91373d8509ced954d146ffe644d3ac"
+    },
+    {
+      "path": "crates/ic-blob-storage-cli/src/native/publish_session/browser/mod.rs",
+      "bytes": 3091,
+      "sha256": "e1f0ab7f1080c50ff5321cdca1e35ec0937422f35fb5f908a6de77d98281ad5a"
+    },
+    {
+      "path": "crates/ic-blob-storage-cli/src/native/publish_session/browser/tests/mod.rs",
+      "bytes": 2924,
+      "sha256": "41a79c4d892c8e02683d621817f50f55bbdd93040c589863fd2be02aaf6f41b2"
+    },
+    {
+      "path": "crates/ic-blob-storage-cli/src/native/publish_session/control/mod.rs",
+      "bytes": 4288,
+      "sha256": "55add5796e9be04ff89663c965d890f7d0f73f12f74cb2f6aef1532837ede1fe"
+    },
+    {
+      "path": "crates/ic-blob-storage-cli/src/native/publish_session/mod.rs",
+      "bytes": 7281,
+      "sha256": "9c6a7775fc496ee1e26ee676c977fbbdb24020efdb2f64f43ffe5f1af4eae333"
+    },
+    {
+      "path": "crates/ic-blob-storage-cli/src/native/publish_session/progress/mod.rs",
+      "bytes": 11079,
+      "sha256": "5e6c1c60b7a0c3f90d9fd78ad1bb8d47ccd9cbcc6b0270857b031cc38f1e69ad"
+    },
+    {
+      "path": "crates/ic-blob-storage-cli/src/native/publish_session/sources/mod.rs",
+      "bytes": 13244,
+      "sha256": "c7812aae6a2cf4d8bbf3c42e1fa6309c0005a2da771c68aa6252cb4ceaa5da3e"
+    },
+    {
+      "path": "crates/ic-blob-storage-cli/src/native/publish_session/sources/tests/mod.rs",
+      "bytes": 12857,
+      "sha256": "b7a1d75e6a3f4ea8601ae7afbeab18d9e4c5ab696f16f24e6e43d735c6a52fd1"
+    },
+    {
+      "path": "crates/ic-blob-storage-cli/src/native/publish_session/transfer/mod.rs",
+      "bytes": 3026,
+      "sha256": "5470f9e4992c9ed8f99fe9c8d61d778047911c0e3482638870500b9ed817c6df"
+    },
+    {
+      "path": "crates/ic-blob-storage-cli/src/native/publish_session/verification/mod.rs",
+      "bytes": 3929,
+      "sha256": "5aa9a2400561d935faeb2a4148f8f611e8e19abf5f35e2984f56e70c594221df"
+    },
+    {
+      "path": "crates/ic-blob-storage-cli/src/native/reference_inputs/mod.rs",
+      "bytes": 4120,
+      "sha256": "70714303aba554fbca15f226b9d0d3acd3f4cb5075e9b61581fa7caab654b955"
+    },
+    {
+      "path": "crates/ic-blob-storage-cli/src/native/reference_inputs/tests/mod.rs",
+      "bytes": 6282,
+      "sha256": "212eb0b901737504058776099c4a0639c84f4dea09cb6994678446d5b0225c96"
+    },
+    {
+      "path": "crates/ic-blob-storage-cli/src/native/references/mod.rs",
+      "bytes": 7123,
+      "sha256": "d0bb4b96414e77a46b126b833b00c924eb8b6e6dd66d90f0af6270388d688ccf"
+    },
+    {
+      "path": "crates/ic-blob-storage-cli/src/native/references/tests/mod.rs",
+      "bytes": 7088,
+      "sha256": "5e508339d565fdc451b946d3e1853dc062981c78da39c3bb6484c993ff7e2052"
+    },
+    {
+      "path": "crates/ic-blob-storage-cli/src/native/reply/mod.rs",
+      "bytes": 3930,
+      "sha256": "4f0c0770b7f5b6602d40ae7ede6a7c0f14fd980301a678ec23ac5b765e4eec0c"
+    },
+    {
+      "path": "crates/ic-blob-storage-cli/src/native/signed_update/mod.rs",
+      "bytes": 3358,
+      "sha256": "9e1bf202ba528462b6635403ff8903c934651b608cef1365082e332a34ce0e88"
+    },
+    {
+      "path": "crates/ic-blob-storage-cli/src/native/signed_update/tests/mod.rs",
+      "bytes": 3584,
+      "sha256": "ffa3a1c4dff618330f918d41f74689855d98ce596e6c8f2d68a02b9c134210ca"
+    },
+    {
+      "path": "crates/ic-blob-storage-cli/src/native/submit_attestation/mod.rs",
+      "bytes": 8221,
+      "sha256": "0c503270e042408dba630e5b88bdff818199464ff0abd2bcf2ef2f39518bf5b0"
+    },
+    {
+      "path": "crates/ic-blob-storage-cli/src/native/submit_attestation/observation/mod.rs",
+      "bytes": 9110,
+      "sha256": "7ea57551ce21abbec4cefaafe7e89863b52e046c7aaf8c9b07a454d04fa3036e"
+    },
+    {
+      "path": "crates/ic-blob-storage-cli/src/native/submit_attestation/tests/mod.rs",
+      "bytes": 2196,
+      "sha256": "b27ebbc7fd2e31410db25d6ac55ccc52dbe89e7e939e6bea9ee655547c0eae4f"
+    },
+    {
+      "path": "crates/ic-blob-storage-cli/src/native/submit_reference/mod.rs",
+      "bytes": 5342,
+      "sha256": "88a040eaf690e7fb43d2c39edaf33b2929794fc05039e7f91fe0c21516d65054"
+    },
+    {
+      "path": "crates/ic-blob-storage-cli/src/native/submit_reference/tests/mod.rs",
+      "bytes": 4259,
+      "sha256": "79e5952f31ec5d5471f59820c84e4344d3451628bfbf06b1244933838ed26f50"
+    },
+    {
+      "path": "crates/ic-blob-storage-cli/src/native/tests/http/mod.rs",
+      "bytes": 4047,
+      "sha256": "926a352154fb27299fea99b5312e65a2e3e3e147e38a92157753c3560c9e0554"
+    },
+    {
+      "path": "crates/ic-blob-storage-cli/src/native/tests/mod.rs",
+      "bytes": 8372,
+      "sha256": "ac66e40a00c7d735d56127b2ffd654c024ad9df1d5171389de40c6c42065d9dd"
+    },
+    {
+      "path": "crates/ic-blob-storage-cli/src/native/upload_history/cursor/mod.rs",
+      "bytes": 2067,
+      "sha256": "03b2ae99ad4e64342ed9fdbe51306106dfaeb948f7c67253673f3922fee51cda"
+    },
+    {
+      "path": "crates/ic-blob-storage-cli/src/native/upload_history/mod.rs",
+      "bytes": 4340,
+      "sha256": "ac86a0f28d491e3aa97b3c9b73eeadad7f7a9fef7f3fdc4c5814054482445177"
+    },
+    {
+      "path": "crates/ic-blob-storage-cli/src/native/upload_history/tests/mod.rs",
+      "bytes": 5167,
+      "sha256": "9e559f62f5c4f4710ef494817e1cf18485c25f3253794166113516279efd0952"
+    },
+    {
+      "path": "crates/ic-blob-storage-cli/src/native/upload_inputs/installation/mod.rs",
+      "bytes": 3050,
+      "sha256": "9cd1bb31dcebd5414882e3b26c9d17018d2b0f979470bb2ea39281242c19a3cd"
+    },
+    {
+      "path": "crates/ic-blob-storage-cli/src/native/upload_inputs/mod.rs",
+      "bytes": 16216,
+      "sha256": "34f4991b43f07e2c99c01932870e2b79ffe21f6623562dc8450807687a552ed6"
+    },
+    {
+      "path": "crates/ic-blob-storage-cli/src/native/upload_inputs/tests/installation/mod.rs",
+      "bytes": 3718,
+      "sha256": "52623f89aba191d31e2435524114341f6b574300a12351088097cc84cd963628"
+    },
+    {
+      "path": "crates/ic-blob-storage-cli/src/native/upload_inputs/tests/mod.rs",
+      "bytes": 15742,
+      "sha256": "737f7f1095aed28d5d0329eeb357cd6ebf912548452aba84812f6ba5adea4aaa"
+    },
+    {
+      "path": "crates/ic-blob-storage-cli/src/native/upload_setup/dispatch/mod.rs",
+      "bytes": 3943,
+      "sha256": "ebc3d8b4f15c8b0642d015a6105e8807989759c402000c5acea4d95b9e1a422b"
+    },
+    {
+      "path": "crates/ic-blob-storage-cli/src/native/upload_setup/mod.rs",
+      "bytes": 9961,
+      "sha256": "ac28f736ba10c50bfe5781bfb5e5705df378b7bbb639604e87ac48a53a8eaf8b"
+    },
+    {
+      "path": "crates/ic-blob-storage-cli/src/native/upload_setup/request/mod.rs",
+      "bytes": 2236,
+      "sha256": "0a990218ee0011bb413652ae029c43caf5b3fdd45a67a511069a556251c13a05"
+    },
+    {
+      "path": "crates/ic-blob-storage-cli/src/native/upload_setup/tests/mod.rs",
+      "bytes": 3363,
+      "sha256": "46b7cd5dfa87c473dfcbf2ee87afe530bec3dbd0fdd54e649e23c38b2ca0ab2a"
+    },
+    {
+      "path": "crates/ic-blob-storage-cli/src/native/verify_upload/mod.rs",
+      "bytes": 3503,
+      "sha256": "51401c70d599454a7c5975ffbbcc4533aa5c76a6cd018ae74628ae96b6eddaf4"
+    },
+    {
+      "path": "crates/ic-blob-storage-cli/src/native/verify_upload/tests/mod.rs",
+      "bytes": 6469,
+      "sha256": "ab812c31009e82c87e9425f7327c06e5d1e3bb29329f6a7ed6216f13f24d4a83"
+    },
+    {
+      "path": "crates/ic-blob-storage-cli/src/probe/mod.rs",
+      "bytes": 7737,
+      "sha256": "f3bfea4cec614be0e9ab2bd77cd80d021b520fe606ca126227354a06b655d308"
+    },
+    {
+      "path": "crates/ic-blob-storage-cli/src/probe/record/mod.rs",
+      "bytes": 7086,
+      "sha256": "e424d7161f4b1f7b060581369db88a74f502b1cb824db5356f888da024e5d1e3"
+    },
+    {
+      "path": "crates/ic-blob-storage-cli/src/probe/tests/mod.rs",
+      "bytes": 5623,
+      "sha256": "e699acdba4b0471927cdb541b1bd8f381eff34988b7d4913a931097657d5db2f"
+    },
+    {
+      "path": "crates/ic-blob-storage-cli/src/probe_main.rs",
+      "bytes": 266,
+      "sha256": "fdb7022dd68614e47984f8e8e949b4c9bbb339b5f1505a60b2c869b7cd6e00d7"
+    },
+    {
+      "path": "crates/ic-blob-storage-cli/tests/native_files.rs",
+      "bytes": 1951,
+      "sha256": "ab884822a8be2d9039556a76b5a619999db56753a1478b498d73f00e9c32035b"
+    },
+    {
+      "path": "crates/ic-blob-storage-cli/Cargo.toml",
+      "bytes": 847,
+      "sha256": "a35d06c305f993954599982fe92deb523d81b7cb83cb865a690821bbf8201daf"
+    }
+  ],
+  "entry_inputs": [
+    {
+      "path": ".tmp/host-owners-0153-01/entry/CHANGELOG.md",
+      "bytes": 186411,
+      "sha256": "22c2d9bd41674fd1024a014c52a37f1f69e8e7aadc7a10537e696e7647f96605"
+    },
+    {
+      "path": ".tmp/host-owners-0153-01/entry/Cargo.lock",
+      "bytes": 107816,
+      "sha256": "f0c7ef30a0bca37bbc8b1432aed87952195dd8c5b8f4f0ee6be4452e5bcbc7aa"
+    },
+    {
+      "path": ".tmp/host-owners-0153-01/entry/Cargo.toml",
+      "bytes": 1580,
+      "sha256": "8e8fa504191aea10088a36c7bd80f2864a909685acfb4d372f7ff8402d8102a7"
+    },
+    {
+      "path": ".tmp/host-owners-0153-01/entry/diff",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".tmp/host-owners-0153-01/entry/head",
+      "bytes": 41,
+      "sha256": "b2bab2bdc31c184a0962f2e0b77531fc73984b063f7d21416b144e4cc7036f7a"
+    }
+  ],
+  "collector": {
+    "path": ".tmp/host-owners-0153-01/collect.py",
+    "bytes": 6129,
+    "sha256": "4450679c8fd610909f96862232cf8b32c1b1c644e91ade5a9178bacba1dbe72d"
+  },
+  "logs": [
+    {
+      "path": ".tmp/host-owners-0153-01/admission-retry.log",
+      "bytes": 310,
+      "sha256": "5462b3bf6ecd28ca2e4b235d49116b0c38eea85c7e52004e3ba331761818aec6"
+    },
+    {
+      "path": ".tmp/host-owners-0153-01/admission.log",
+      "bytes": 418,
+      "sha256": "331c49e4d6ad5c6c059cd24ccb64f2451ea724caffe1873d6f819a40ecf5c16e"
+    },
+    {
+      "path": ".tmp/host-owners-0153-01/cli-tests-retry.log",
+      "bytes": 12789,
+      "sha256": "5e1a8d0213b0ecd28efde7a5202c02fdb8e3a8937bad2e1b5282d8fdd79f9e7d"
+    },
+    {
+      "path": ".tmp/host-owners-0153-01/cli-tests.log",
+      "bytes": 13753,
+      "sha256": "506dfeb426d2df8b2ab5142c6f76c73907a393139d0a8decd766488042cbd6a9"
+    },
+    {
+      "path": ".tmp/host-owners-0153-01/clippy.log",
+      "bytes": 2742,
+      "sha256": "06a9aa840dd0643c6f8a28719a44ece7caea8edb9b1de0dbac2a6bdc6f9c6e01"
+    },
+    {
+      "path": ".tmp/host-owners-0153-01/deps.log",
+      "bytes": 21,
+      "sha256": "ac525de4e84eb8d73cbd291e90e90c6915a23caa88c4880178eaa270e4f04422"
+    },
+    {
+      "path": ".tmp/host-owners-0153-01/fifo.log",
+      "bytes": 501,
+      "sha256": "32f91df972c769c264802115d12cb42d4aa37c67f798ba9441a1c50301292df4"
+    },
+    {
+      "path": ".tmp/host-owners-0153-01/final-links.log",
+      "bytes": 48,
+      "sha256": "6c8650d6f92783d0e325d4727b11d2ffd60652fbb12103b6a1081c8614ea56e7"
+    },
+    {
+      "path": ".tmp/host-owners-0153-01/fmt.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".tmp/host-owners-0153-01/graph-check.log",
+      "bytes": 137,
+      "sha256": "0c1cbc62ccd0c1e793df3f3b9f2d93bf3a736b304d97dfb84236be2c3cf64cac"
+    },
+    {
+      "path": ".tmp/host-owners-0153-01/initial-test-failure.log",
+      "bytes": 13699,
+      "sha256": "3ad2fdde4c20a21f9f480887be66fe1ae5f0efa7868ad8c28170dd34079e09bc"
+    },
+    {
+      "path": ".tmp/host-owners-0153-01/msrv.log",
+      "bytes": 8543,
+      "sha256": "a3769e84cfd26ef81cc367ce67a420650b5fa769d5f87824751cb6f70551b9f5"
+    },
+    {
+      "path": ".tmp/host-owners-0153-01/preparation-failures.log",
+      "bytes": 374,
+      "sha256": "18aa252835277f7174d91ac3efb802273a09072461002647d06b7dd176a86d8f"
+    },
+    {
+      "path": ".tmp/host-owners-0153-01/probe-check.log",
+      "bytes": 1867,
+      "sha256": "1243dc432bd888cb05134490f4a163ca9d039aa7ebdded2c28c484c25e1f03a2"
+    },
+    {
+      "path": ".tmp/host-owners-0153-01/sort.log",
+      "bytes": 315,
+      "sha256": "49a1b10b2b879b5bc874f0995db8975ebdb8653a33bc8666eff0cc351491de99"
+    },
+    {
+      "path": ".tmp/host-owners-0153-01/wasm-cli-tree.log",
+      "bytes": 93,
+      "sha256": "f7c74b5a23e30fd008f82423bb47b378d8ec192cf6e2dce1623dd4f0c9cd8439"
+    },
+    {
+      "path": ".tmp/host-owners-0153-01/whitespace.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "remote_readbacks": [
+    {
+      "path": ".tmp/host-owners-0153-01/owning-runs.json",
+      "bytes": 617,
+      "sha256": "715723e9e8d61bc4a5abbd4a5cdc1588a916c6a71eb900b09b4b61fdb15b38d1"
+    },
+    {
+      "path": ".tmp/host-owners-0153-01/shared-head.json",
+      "bytes": 70,
+      "sha256": "da50c69f530d91ced1878df431a6a3eff3f72691b2f2131d84c2b7ba5285afb2"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "target/debug/blob-storage",
+      "bytes": 164491240,
+      "sha256": "e48d7ebb332f2c4fef2245cfdda0b466208e04a1c293f19968d946322e612705"
+    },
+    {
+      "path": "target/debug/caffeine-probe",
+      "bytes": 68905880,
+      "sha256": "607cde374550f011308ffc6f0c45c82f68d34dc87e9333cbaf1c121e3d58e001"
+    }
+  ],
+  "symbol_removals": [],
+  "ownership_transfer": "Run::bytes retains its boundary; complete private record staging/publication/sync mechanics delegate to ic-host-fs. Existing bounded-read/hash callers move to their split owners.",
+  "local_contracts_retained": [
+    "link-following nonblocking input admission",
+    "probe record failure stages, bounded no-follow read errors and interruption inventory",
+    "private body.part retention and verified no-replacement publication",
+    "provider-root verification and domain Candid reply decoding",
+    "service authority, durable journals and host lifecycle ownership"
+  ],
+  "limitations": [
+    "No matching pending-source native macOS run; latest owning CI still qualifies released cdf983c only.",
+    "No complete local gate, new core/PocketIC qualification or live provider qualification.",
+    "Trusted ancestors and exclusion of concurrent filesystem writers remain caller-owned.",
+    "Shared durable staging is cleaned on ordinary write failure; interruption can retain staging and post-publication sync failure is not success or retry authority.",
+    "ic-host-process one-shot/null-stdin and ic-host-tools ICP CLI/Candid extraction APIs do not replace a matching current CLI abstraction."
+  ],
+  "excluded_effects": [
+    "sibling writes",
+    "commits/tags/pushes",
+    "release/version changes",
+    "publication",
+    "deployment",
+    "paid/live provider requests",
+    "GitHub writes"
+  ]
+}

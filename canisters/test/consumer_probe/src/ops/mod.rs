@@ -4,7 +4,7 @@ pub(crate) mod manifests;
 pub(crate) mod tenants;
 use crate::model::ConsumerRecord;
 use blob_test_protocol::consumer::{AssetView, Failure, Fault};
-use candid::{CandidType, Deserialize, Principal, de::DecoderConfig};
+use candid::{CandidType, Principal, de::DecoderConfig};
 use ic_blob_storage::{
     dto::{
         download::DownloadRequest,
@@ -22,6 +22,7 @@ use ic_blob_storage::{
         references::client::ReplicatedReferenceClient,
     },
 };
+use serde::Deserialize;
 use std::cell::{Cell, RefCell};
 const KEY: &str = "fixture.consumer.v1";
 const MAX: usize = 16_384;

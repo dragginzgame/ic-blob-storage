@@ -3,7 +3,6 @@ use super::Failure;
 use serde::{Deserialize, Serialize};
 use std::{
     fs::{File, OpenOptions},
-    io::Write,
     path::{Path, PathBuf},
 };
 
@@ -85,16 +84,17 @@ impl Run {
         })
     }
     pub fn bytes(&self, name: &str, bytes: &[u8]) -> Result<(), Failure> {
-        let mut file = OpenOptions::new()
-            .create_new(true)
-            .write(true)
-            .open(self.path.join(name))
-            .map_err(|_| Failure::File)?;
-        file.write_all(bytes)
-            .and_then(|()| file.sync_all())
-            .map_err(|_| Failure::File)?;
-        File::open(&self.path)
-            .and_then(|f| f.sync_all())
+        // The shared writer can create parents. A run must already be claimed;
+        // never recreate a removed run or follow a substituted directory link.
+        if !std::fs::symlink_metadata(&self.path)
+            .map_err(|_| Failure::File)?
+            .is_dir()
+        {
+            return Err(Failure::File);
+        }
+        // Trusted ancestors and exclusion of concurrent directory writers remain
+        // caller-owned, as for body.part. Complete records publish without replacement.
+        ic_host_fs::durable::create_private_bytes_with_parents(&self.path.join(name), bytes)
             .map_err(|_| Failure::File)
     }
     pub fn json(&self, name: &str, value: &impl Serialize) -> Result<(), Failure> {
@@ -104,3 +104,6 @@ impl Run {
         )
     }
 }
+
+#[cfg(test)]
+mod tests;

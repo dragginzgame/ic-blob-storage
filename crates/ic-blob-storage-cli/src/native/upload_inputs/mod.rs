@@ -23,7 +23,7 @@ use ic_blob_storage::{
         },
     },
 };
-use ic_host_tools::artifact::Sha256Digest;
+use ic_host_artifacts::artifact::Sha256Digest;
 use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
 use std::{

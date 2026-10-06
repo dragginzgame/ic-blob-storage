@@ -2,10 +2,11 @@
 pub(crate) mod manifests;
 pub(crate) mod tenants;
 use blob_test_protocol::consumer::{AssetView, Failure, Registration, RegistrationSource};
-use candid::{CandidType, Deserialize, Principal};
+use candid::{CandidType, Principal};
 use ic_blob_storage::dto::reference::{
     ReferenceAction, ReferenceCommand, ReferenceReceiptResponse, ReferenceUpload,
 };
+use serde::Deserialize;
 
 #[derive(Clone, CandidType, Deserialize)]
 pub(crate) struct ConsumerRecord {

@@ -92,13 +92,53 @@ availability does not establish provider qualification or service readiness.
 | `thiserror` | 2.0.18 (locked) | Typed error derives; PocketIC constrains its own requirement exactly |
 | `ic-cdk` | 0.20.3 | IC platform operations for the ops layer |
 | `ic-management-canister-types` | 0.11.0 (direct, locked) | Bounded current-instance IC-history request/reply types |
-| `ic-memory` | 0.28.2 (locked) | Sole allocation runtime; current ownership ledger and public typed growth API |
+| `ic-memory` | 0.28.4 (locked) | Sole allocation runtime; current ownership ledger and public typed growth API |
 | `ic-stable-structures` | 0.7.2 | Exact transitive substrate owned/re-exported by `ic-memory` |
 | `ic-testkit` | 0.19.2 (locked) | Native dependency of the unpublished PocketIC harness; shared helpers and full re-export |
 | `pocket-ic` | 16.0.0 | Transitive through `ic-testkit`; no direct dependency |
 | `ic-agent` | 0.49.2 | Native CLI and harness signing and verification of ingress certificates |
-| `ic-host-tools` | 0.2.0 (direct, locked); 0.1.14 (harness transitive) | Native CLI bounded artifact reads and raw SHA-256 identities; excluded from production Wasm |
+| `ic-host-artifacts` | 0.3.0 (direct, locked) | Native CLI raw SHA-256 identities; optional archive/gzip/Wasm features disabled |
+| `ic-host-fs` | 0.3.0 (direct, locked) | Native CLI bounded descriptor/no-follow reads and private durable create-new records |
+| `ic-host-tools` | 0.1.14 (harness transitive) | Owned by ic-testkit; no direct CLI facade dependency |
 | `candid_parser` | 0.4.1 | Native harness only; official Candid parser for native request fixtures |
+
+### Pending 0.15.3 host crate split
+
+The maintainer-selected direct ic-host-tools 0.3.0 removed the old artifact
+facade. Its four published host crates were reviewed against cached registry
+0.3.0 source and the sibling's committed extraction provenance. Native callers
+now depend directly on ic-host-artifacts and ic-host-fs. This removes the unused
+direct ic-host-tools 0.3.0 and ic-host-process 0.3.0 packages from the lock;
+ic-testkit's older transitive owner remains unchanged. Native-only dependency
+placement keeps these crates out of production Wasm.
+
+Run records use the shared private atomic create-new writer after checking the
+already-claimed directory. Existing destinations and directory substitutions
+refuse; records publish complete bytes with file/directory synchronization.
+A sync failure after publication remains a failure, without automatic retry.
+Private body.part output, EOF/provider-root verification, create-new body
+publication and interruption evidence remain local. The shared writer owns
+its staging cleanup; a process interruption can retain staging inside the
+claimed run, which cannot be reopened as a fresh run. Trusted ancestors and
+exclusion of concurrent directory writers remain caller responsibilities.
+Probe record writes remain local because their exact failure stages and
+interruption inventory are part of the retained probe contract.
+
+The two remaining 0.3 crates do not replace a current matching abstraction:
+ic-host-process admits bounded one-shot tools with null stdin; the browser
+driver exchanges continuing messages. ic-host-tools owns explicit ICP CLI
+response decoding and Candid extraction; this CLI uses ic-agent and the service's
+bounded Candid decoder. Neither crate owns provider authority, durable service
+journals or the provider-root verifier. No unused direct dependency or new
+execution wrapper is introduced. Dirty sibling 0.3.1 APIs are excluded.
+
+The [focused adoption record](evidence/host-owners-0153.json) binds the actual
+selected graph, including the pre-existing ic-memory 0.28.4, h2 0.4.20 and
+hyper 1.12.0 selections. CLI/probe, FIFO, Clippy and Rust 1.88 checks pass on
+Linux; retained probes and checksums verify read-only. These checks qualify
+native callers, not new service deployment or full core/PocketIC behavior.
+Earlier qualification retains its original graphs. Matching native macOS CI
+remains outstanding for this pending source.
 
 The maintainer-selected ic-memory 0.27 upgrade removes history/timestamp APIs
 and changes the durable ledger layout exposed through the public re-export.

@@ -4,6 +4,14 @@
 
 ### Changed
 
+- Remove the unused standalone canister serde dependency; retain the consumer
+  fixture's required derives through explicit serde imports. Update the formatter
+  adoption fixture for the current host crate catalog.
+- Adopt the published ic-host-artifacts/ic-host-fs 0.3 split for native CLI
+  hashes and bounded file reads. Publish complete private run records through
+  the shared durable create-new owner, preserving claimed directories,
+  nonreplacement, error codes and interrupted body evidence. Remove the unused
+  direct ic-host-tools facade and its process dependency from the CLI graph.
 - Retire the unused standalone yq installer; the shared host-tool bundle remains
   the setup owner. Record the unchanged evidence-checksum fixture in the shared
   snapshot instead of maintaining it as local code.

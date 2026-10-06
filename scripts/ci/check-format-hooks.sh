@@ -15,7 +15,7 @@ selected=crates/ic-blob-storage/src/lib.rs
 overlays=(ci/tool-versions.env scripts/ci/check-format-tools.sh Cargo.lock)
 while IFS= read -r path; do overlays+=("$path"); done < "$TEMPORARY/manifests"
 # Swap two adjacent dependency declarations without changing their values.
-perl -0777 -pe 's/^(ic-cdk = [^\n]*\n)(ic-host-tools = [^\n]*\n)/$2$1/m or die "cannot prepare ordering-only manifest\n"' \
+perl -0777 -pe 's/^(ic-cdk = [^\n]*\n)(ic-host-artifacts = [^\n]*\n)/$2$1/m or die "cannot prepare ordering-only manifest\n"' \
     "$ROOT/Cargo.toml" > "$TEMPORARY/unsorted-Cargo.toml"
 bash "$ROOT/scripts/ci/check-formatting-hooks.sh" "$ROOT" "$selected" Cargo.toml \
     "$TEMPORARY/unsorted-Cargo.toml" "${overlays[@]}"

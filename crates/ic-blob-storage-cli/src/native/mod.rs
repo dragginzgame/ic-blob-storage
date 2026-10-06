@@ -221,8 +221,7 @@ fn open_regular(path: &Path) -> Result<File, Failure> {
 fn read(path: &Path, maximum: u64) -> Result<Vec<u8>, Failure> {
     let file = open_regular(path)?;
     let maximum = usize::try_from(maximum).map_err(|_| Failure::File)?;
-    let bytes =
-        ic_host_tools::artifact::read_opened_file(file, maximum).map_err(|_| Failure::File)?;
+    let bytes = ic_host_fs::read::read_opened_file(file, maximum).map_err(|_| Failure::File)?;
     if bytes.is_empty() {
         return Err(Failure::File);
     }

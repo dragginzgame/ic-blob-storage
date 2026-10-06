@@ -1552,7 +1552,6 @@ dependencies = [
  "candid",
  "ic-blob-storage",
  "ic-cdk",
- "serde",
 ]
 
 [[package]]
@@ -1562,7 +1561,8 @@ dependencies = [
  "candid",
  "ic-agent",
  "ic-blob-storage",
- "ic-host-tools 0.3.0",
+ "ic-host-artifacts",
+ "ic-host-fs",
  "libc",
  "reqwest",
  "serde",
@@ -1692,17 +1692,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "ic-host-process"
-version = "0.3.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d54485970e9cbbe6ef1259c4210e9418953503f63f5ec3415aa5888a2fcb3e7c"
-dependencies = [
- "ic-host-artifacts",
- "ic-host-fs",
- "rustix",
-]
-
-[[package]]
 name = "ic-host-tools"
 version = "0.1.14"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1715,19 +1704,6 @@ dependencies = [
  "sha2 0.10.9",
  "tar",
  "wasmparser",
-]
-
-[[package]]
-name = "ic-host-tools"
-version = "0.3.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "66c2b5337bcfc3bdbdf14fd113826c95345212059de22d65797cf0af1d6e83eb"
-dependencies = [
- "ic-host-artifacts",
- "ic-host-fs",
- "ic-host-process",
- "serde",
- "serde_json",
 ]
 
 [[package]]
@@ -1783,7 +1759,7 @@ dependencies = [
  "candid",
  "fs2",
  "ic-cdk",
- "ic-host-tools 0.1.14",
+ "ic-host-tools",
  "libc",
  "pocket-ic",
  "serde",

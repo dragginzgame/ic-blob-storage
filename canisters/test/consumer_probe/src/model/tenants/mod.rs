@@ -1,8 +1,9 @@
 //! One lifetime command in the existing fixture store, never a production operator journal.
 use super::ConsumerRecord;
 use blob_test_protocol::consumer::Failure;
-use candid::{CandidType, Deserialize, Principal};
+use candid::{CandidType, Principal};
 use ic_blob_storage::dto::tenant::{TenantEnrollment, TenantScope, TenantUpdateRequest};
+use serde::Deserialize;
 
 #[derive(Clone, CandidType, Deserialize)]
 pub(crate) struct TenantCommandRecord {

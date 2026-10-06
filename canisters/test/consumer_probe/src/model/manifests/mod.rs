@@ -6,7 +6,7 @@ use blob_test_protocol::consumer::{
     Failure,
     manifests::{ManifestIntent, ManifestIntentView},
 };
-use candid::{CandidType, Deserialize, Principal};
+use candid::{CandidType, Principal};
 use ic_blob_storage::{
     dto::upload::manifest::{
         UploadManifestDeclaration, UploadManifestFailure, UploadManifestInspection,
@@ -23,6 +23,7 @@ use ic_blob_storage::{
         service::upload::manifest::validate_upload_metadata,
     },
 };
+use serde::Deserialize;
 
 #[derive(Clone, CandidType, Deserialize)]
 pub(crate) struct ManifestIntentRecord {

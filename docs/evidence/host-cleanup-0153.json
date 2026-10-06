@@ -1,0 +1,403 @@
+{
+   "attempts" : [
+      {
+         "log" : ".tmp/host-cleanup-0153-01/machete.log",
+         "result" : "initial two candidates; standalone genuinely unused, consumer macro dependency required"
+      },
+      {
+         "log" : ".tmp/host-cleanup-0153-01/hooks-before.log",
+         "result" : "reproduced stale ordering fixture refusal before shared hook tests"
+      },
+      {
+         "path" : ".tmp/host-cleanup-0153-01/initial-hook-refusal",
+         "result" : "complete failed fixture copied and retained; original /tmp/blob-format-hooks.CjEcUX retained"
+      },
+      {
+         "log" : ".tmp/host-cleanup-0153-01/links.log",
+         "result" : "new bound-record link refused before the target was generated; final retry retained separately"
+      }
+   ],
+   "changes" : [
+      "Remove unused standalone serde direct dependency edge; retain all selected package versions.",
+      "Import serde::Deserialize explicitly for required consumer fixture derives; no scanner ignore configuration.",
+      "Replace formatter fixture reference to removed ic-host-tools with current adjacent ic-host-artifacts declaration."
+   ],
+   "checks" : {
+      "candid_parity" : "1 passed; native exported contract compared with declaration, no canister installation",
+      "consumer_tests" : "6 passed",
+      "declaration_snapshot_links" : "passed on final retry",
+      "dependency_scan" : "cargo-machete 0.9.2: no unused direct dependencies after reviewed correction",
+      "explicit_locked_cache_preparation" : "passed",
+      "formatting" : "Rust and manifest checks passed",
+      "hooks" : "sorting, selected bytes/index/lock preservation, failed-formatter rollback passed",
+      "metadata" : "offline workspace metadata passed",
+      "rust_1_88_wasm" : "standalone/consumer libraries passed",
+      "shell" : "syntax and ShellCheck passed",
+      "strict_native_clippy" : "standalone/consumer, all targets and features passed"
+   },
+   "classification" : "Source/caller inspection and focused Linux native/Wasm checks",
+   "collector" : {
+      "bytes" : 5632,
+      "path" : ".tmp/host-cleanup-0153-01/collect.pl",
+      "sha256" : "407981b8b4482742323f5ed435b3fa43cf087cea987a04dc06dcbcbade2151cf"
+   },
+   "compiled_package_identity" : "0.15.2",
+   "date" : "2026-10-06",
+   "development_target" : "0.15.3",
+   "entry_changes" : {
+      "bytes" : 16319,
+      "path" : ".tmp/host-cleanup-0153-01/entry.diff",
+      "sha256" : "8337f4e527f3459133ad856e89853a5b35c9e2a3d742c3239c46d84720b47a2a"
+   },
+   "excluded_effects" : [
+      "release/version changes",
+      "commits/tags/pushes",
+      "publication",
+      "paid/live provider effects",
+      "sibling writes",
+      "GitHub writes"
+   ],
+   "graph" : {
+      "bytes" : 2021930,
+      "path" : ".tmp/host-cleanup-0153-01/metadata.json",
+      "sha256" : "499e1dd52f5698048ca2b966593e9875717ec2b8bcc1e9ffc4f942e9e7cc0b6c"
+   },
+   "head" : "279b863b127168d20e610129619b78d474098659",
+   "inputs" : [
+      {
+         "bytes" : 5914,
+         "path" : ".shared-tooling.snapshot",
+         "sha256" : "a31a619dc9cb6f2924486eeda5a655c2d75f58c49ed7bd2af8c964b4bd1cc1c9"
+      },
+      {
+         "bytes" : 5862,
+         "path" : "AGENTS.md",
+         "sha256" : "6c49f651f8f5f1409cfa1fb155bfff450eba992ad09a66e2fc4919ea3bced399"
+      },
+      {
+         "bytes" : 187007,
+         "path" : "CHANGELOG.md",
+         "sha256" : "f04c210f3da53094f1b298ed3b586ba04e036e4d2a8d1209414e5e7f1e840778"
+      },
+      {
+         "bytes" : 107248,
+         "path" : "Cargo.lock",
+         "sha256" : "7cb8f12fe18617bfcf3986d715e70ec7ea8ec7b1ea8534c0f466af3ac3fa8111"
+      },
+      {
+         "bytes" : 1603,
+         "path" : "Cargo.toml",
+         "sha256" : "b9d15f4806ad0cb6d8e76ec92393ecd496c8d3603dcc8ee75c0297567806a393"
+      },
+      {
+         "bytes" : 19117,
+         "path" : "DRAGGINZGAME.md",
+         "sha256" : "4c711609d1e8b30ccd2ddff3974b1418cced91a4484be3911c2a36c7631e31ee"
+      },
+      {
+         "bytes" : 19138,
+         "path" : "Makefile",
+         "sha256" : "a4bd6182cdc1a20c9b1be79dd3e7cbbb4c6a1d040f11958d32d34a08feae768e"
+      },
+      {
+         "bytes" : 7055,
+         "path" : "audits/README.md",
+         "sha256" : "926d5a39ea62a3becd19ff0326c63987b2929d3a1a728e2a0ef8a7180824d231"
+      },
+      {
+         "bytes" : 2176,
+         "path" : "audits/module-cleanup.md",
+         "sha256" : "d229519014823ad804070e55f7bb5316d7612e1d77a9dc8bf962d564e7b2a5e7"
+      },
+      {
+         "bytes" : 3619,
+         "path" : "audits/module-surface-hardening.md",
+         "sha256" : "1b64cf2ba0393ab329ec29eb05a696d47ef5933f5ab9bff6e1fe4a7e7b294075"
+      },
+      {
+         "bytes" : 302,
+         "path" : "canisters/standalone/Cargo.toml",
+         "sha256" : "a5ef983bf1153040efda1b58a7d7183abdfd5e6bfb5a6460e872f4a4d82c0940"
+      },
+      {
+         "bytes" : 13428,
+         "path" : "canisters/standalone/src/api/mod.rs",
+         "sha256" : "5947f7731e081224d2ec7c7e97d7a6c4447e4079321e5a92d7296cb6f6189e6e"
+      },
+      {
+         "bytes" : 251,
+         "path" : "canisters/standalone/src/lib.rs",
+         "sha256" : "eeaca0626ab6a4fc6ab28ca4317a0e5804f046e9a344a41f6ffb1771444ed510"
+      },
+      {
+         "bytes" : 779,
+         "path" : "canisters/standalone/src/ops/account/mod.rs",
+         "sha256" : "cb65d355f391ac83e46f7c6174553f42b792be52ec09a54cc2956a51ef9cec0c"
+      },
+      {
+         "bytes" : 828,
+         "path" : "canisters/standalone/src/ops/gateways/mod.rs",
+         "sha256" : "33f0316ef0609bf7b0ccf642ac15fc85f9ce00e0fa2808286a3cdd154fa61e37"
+      },
+      {
+         "bytes" : 2097,
+         "path" : "canisters/standalone/src/ops/memory/mod.rs",
+         "sha256" : "2088935f606243cd5a1d9da1f3c59d595c62f65cf99ca56139298c1299758e9f"
+      },
+      {
+         "bytes" : 8684,
+         "path" : "canisters/standalone/src/ops/mod.rs",
+         "sha256" : "0bcc37606c603d9697b94e1d0ebb874f6259646c7e9db68acd58699b54404690"
+      },
+      {
+         "bytes" : 15387,
+         "path" : "canisters/standalone/src/workflow/mod.rs",
+         "sha256" : "a203b4141c21e9de6c0e2e49fff08ced6a19f2df95c28f2e2102bc9effdee11d"
+      },
+      {
+         "bytes" : 348,
+         "path" : "canisters/test/consumer_probe/Cargo.toml",
+         "sha256" : "bd904bac2f9bb091e29faed0cab8f75b8714004f5e6989c0c7b907cec5865b0c"
+      },
+      {
+         "bytes" : 6423,
+         "path" : "canisters/test/consumer_probe/src/lib.rs",
+         "sha256" : "adbc67da24fddd01f4f74f887455232eb5f91b14f18a8670e6ec5e4aa8d76ba8"
+      },
+      {
+         "bytes" : 7832,
+         "path" : "canisters/test/consumer_probe/src/model/manifests/mod.rs",
+         "sha256" : "66a664f685675762004228c3484229049e70ab9a3ce50b58d2c15c847a4b1830"
+      },
+      {
+         "bytes" : 7254,
+         "path" : "canisters/test/consumer_probe/src/model/manifests/tests/mod.rs",
+         "sha256" : "11f76e5d8e9fd4df7552064bdddeeba0da11b8126fb49eaba34dd23e5b50243b"
+      },
+      {
+         "bytes" : 18548,
+         "path" : "canisters/test/consumer_probe/src/model/mod.rs",
+         "sha256" : "cddd205a35e5446994d43f4a198e39f055d25355e139ebc0779768e0048db64e"
+      },
+      {
+         "bytes" : 2650,
+         "path" : "canisters/test/consumer_probe/src/model/tenants/mod.rs",
+         "sha256" : "926bfddc7df019c9eabe2a166bd57d5f231b214a8fc1ad7fbbe4e882d4d04aba"
+      },
+      {
+         "bytes" : 5742,
+         "path" : "canisters/test/consumer_probe/src/model/tests/mod.rs",
+         "sha256" : "b977cf609ca86b561d28e29d3e6da73ae61c05e7b50b61dfd5e5764006f8ae6f"
+      },
+      {
+         "bytes" : 1591,
+         "path" : "canisters/test/consumer_probe/src/ops/funding/mod.rs",
+         "sha256" : "5fb3873abd5d7b682af5d541cb95a544a35b7d8235c2243ae55bf0a4a728ad93"
+      },
+      {
+         "bytes" : 2332,
+         "path" : "canisters/test/consumer_probe/src/ops/manifests/mod.rs",
+         "sha256" : "4ebddc54af4830af3ac74670ae28e355f1da2eacd7440e2b4b83e4e9168ed47e"
+      },
+      {
+         "bytes" : 10823,
+         "path" : "canisters/test/consumer_probe/src/ops/mod.rs",
+         "sha256" : "671b812d9e19019b599ae85b0d78cc2941b64ab7f48c4268fa94f004307eb11a"
+      },
+      {
+         "bytes" : 1600,
+         "path" : "canisters/test/consumer_probe/src/ops/tenants/mod.rs",
+         "sha256" : "342b9af8090e6402c2637ce945c169d15bdbb5140d93fbd0f1755f37be8d96da"
+      },
+      {
+         "bytes" : 685,
+         "path" : "canisters/test/consumer_probe/src/workflow/funding/mod.rs",
+         "sha256" : "78a2b237314db64253e0b6eae493c98fc45b4262fa406422f48127e127214526"
+      },
+      {
+         "bytes" : 2364,
+         "path" : "canisters/test/consumer_probe/src/workflow/manifests/mod.rs",
+         "sha256" : "ac9c573d5c7ee8c5922ae74051330b9286ff4914a2d4ee2760d08a21e1bf6d78"
+      },
+      {
+         "bytes" : 5093,
+         "path" : "canisters/test/consumer_probe/src/workflow/mod.rs",
+         "sha256" : "b7ed8fdffa8563b731c9f1e986c65cc2750ec5645b79d71cd4169f18b8ffe5ba"
+      },
+      {
+         "bytes" : 952,
+         "path" : "canisters/test/consumer_probe/src/workflow/tenants/mod.rs",
+         "sha256" : "9124b5ad85ea7a5a42cffdb62f8fdd8b21f5969c62dccc76b2a7c8871c12c211"
+      },
+      {
+         "bytes" : 5066,
+         "path" : "docs/evidence/host-cleanup-0153.md",
+         "sha256" : "3e3f0e708fab79fb4c89514328ce2bfa8fa9023f4ac3aeedc982b176c413e553"
+      },
+      {
+         "bytes" : 41043,
+         "path" : "docs/evidence/host-owners-0153.json",
+         "sha256" : "da44b44e33b0cde4cc3153f2ef8953d0ebc0e9f8e62f6d532a740cfe4e36601c"
+      },
+      {
+         "bytes" : 8712,
+         "path" : "docs/governance/development.md",
+         "sha256" : "781d8bc976bc0a58bbfea9c288cfbd0e466f437a107eb7897eab34728f6651b9"
+      },
+      {
+         "bytes" : 95961,
+         "path" : "docs/status/current.md",
+         "sha256" : "8f5d8f12b7a74dab828c457dfa959e10b9c7bc70c89816a1a75f2d3e67a2cd0b"
+      },
+      {
+         "bytes" : 2626,
+         "path" : "scripts/ci/check-format-hooks.sh",
+         "sha256" : "277f96e2e65f7155970cebca248595ef14f738bb3c81189e2a7438853f1384fc"
+      },
+      {
+         "bytes" : 5714,
+         "path" : "scripts/ci/check-formatting-hooks.sh",
+         "sha256" : "a74951308598b86742672409c261e7adc62f8243c0fa8a60363124eae7ae67f8"
+      },
+      {
+         "bytes" : 7076,
+         "path" : "tests/pocketic/tests/standalone_installation_cli/mod.rs",
+         "sha256" : "895f8fe9ef1df7b3930ef1101ca676f6ae01c1f4cdac6db9f6cee6724511e9d6"
+      }
+   ],
+   "intentional_retention" : [
+      "Public/generated/persisted service contracts retain external and recovery authority.",
+      "Nonblocking descriptor input admission, private run claims, body.part retention and verified publication remain product-owned.",
+      "Probe write stages and interruption inventory cannot be replaced by shared byte publication cleanup.",
+      "Required consumer serde derives remain local; harness ic-host-tools remains ic-testkit-owned.",
+      "dependency-pins.jq is called through include \"dependency-pins\", not its filename; all 32 tracked scripts/helpers have maintained callers.",
+      "Prior host-owner evidence stays immutable and source-bound to its original lock."
+   ],
+   "limitations" : [
+      "No complete local gate or new PocketIC lifecycle qualification.",
+      "No native macOS qualification for pending source.",
+      "No claim that source reachability proves service safety or performance."
+   ],
+   "logs" : [
+      {
+         "bytes" : 262,
+         "path" : ".tmp/host-cleanup-0153-01/admission.log",
+         "sha256" : "9688b3c7b23fc357676aa435938f7f0a1f3f7951b6ee320f060ba94bd8fa1486"
+      },
+      {
+         "bytes" : 0,
+         "path" : ".tmp/host-cleanup-0153-01/bash-syntax.log",
+         "sha256" : "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+         "bytes" : 837,
+         "path" : ".tmp/host-cleanup-0153-01/candid-parity.log",
+         "sha256" : "78c337cee9aa3475002014aa8839079223369bc9565b91bd2caacdece353b37f"
+      },
+      {
+         "bytes" : 508,
+         "path" : ".tmp/host-cleanup-0153-01/clippy.log",
+         "sha256" : "0d8b55fb6abf86ee6a22267f7228ba1dd98d237d741c00b7010a62fbd2ceacee"
+      },
+      {
+         "bytes" : 1370,
+         "path" : ".tmp/host-cleanup-0153-01/consumer-tests.log",
+         "sha256" : "11eeec05f0d29c0389c5bf67723d4e21bc47c3540da371620bc2a93f14aaa98c"
+      },
+      {
+         "bytes" : 21,
+         "path" : ".tmp/host-cleanup-0153-01/deps.log",
+         "sha256" : "ac525de4e84eb8d73cbd291e90e90c6915a23caa88c4880178eaa270e4f04422"
+      },
+      {
+         "bytes" : 0,
+         "path" : ".tmp/host-cleanup-0153-01/fmt.log",
+         "sha256" : "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+         "bytes" : 221,
+         "path" : ".tmp/host-cleanup-0153-01/hooks-after.log",
+         "sha256" : "973ea67a0576755ebb88e771dc7455db6a265e337685c594fa114a3bb5791bb2"
+      },
+      {
+         "bytes" : 186,
+         "path" : ".tmp/host-cleanup-0153-01/hooks-before.log",
+         "sha256" : "e99c33d3d61ba6bf385c9fdd8edc1501a404d28487b9d1847a01057db4888ea1"
+      },
+      {
+         "bytes" : 48,
+         "path" : ".tmp/host-cleanup-0153-01/links-final.log",
+         "sha256" : "ba0d5efacb56c4400f2aeb0905e4c0e07828283907a09f02cbb76f5c5744bf9f"
+      },
+      {
+         "bytes" : 178,
+         "path" : ".tmp/host-cleanup-0153-01/links.log",
+         "sha256" : "71702bff79c64f8915eae672a8ed98a3be74b2c02c80c47b871ac4443fc18950"
+      },
+      {
+         "bytes" : 139,
+         "path" : ".tmp/host-cleanup-0153-01/machete-after.log",
+         "sha256" : "17df39991aecc87a6a60263e0759e8e8d09559c2e7e27fa29219b7bbb7f15a64"
+      },
+      {
+         "bytes" : 696,
+         "path" : ".tmp/host-cleanup-0153-01/machete.log",
+         "sha256" : "de32cfee70e33088c8ff2d78f2959b05041889ffbaeda081ea2c56d4b0ebdfac"
+      },
+      {
+         "bytes" : 0,
+         "path" : ".tmp/host-cleanup-0153-01/metadata.log",
+         "sha256" : "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+         "bytes" : 3301,
+         "path" : ".tmp/host-cleanup-0153-01/msrv-wasm.log",
+         "sha256" : "0a36700be58b87a8bfb782f5235fd603e12dd64987a1eb40cb527171b9e585b6"
+      },
+      {
+         "bytes" : 0,
+         "path" : ".tmp/host-cleanup-0153-01/old-host-references.log",
+         "sha256" : "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+         "bytes" : 60,
+         "path" : ".tmp/host-cleanup-0153-01/script-callers.log",
+         "sha256" : "6b83ad033c2a24d74aac3a0a35dd14b55c4df9f3b88320bece91142e37a64a17"
+      },
+      {
+         "bytes" : 0,
+         "path" : ".tmp/host-cleanup-0153-01/shellcheck.log",
+         "sha256" : "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+         "bytes" : 315,
+         "path" : ".tmp/host-cleanup-0153-01/sort.log",
+         "sha256" : "49a1b10b2b879b5bc874f0995db8975ebdb8653a33bc8666eff0cc351491de99"
+      },
+      {
+         "bytes" : 0,
+         "path" : ".tmp/host-cleanup-0153-01/whitespace.log",
+         "sha256" : "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+   ],
+   "method" : {
+      "implementation" : "audits/module-cleanup.md",
+      "path" : "audits/module-surface-hardening.md",
+      "snapshot_commit" : "21f3ec3dd97f2968c9f0b08924451bb2f71770d1"
+   },
+   "scope" : "Workspace dependency declarations; maintained script/CI callers; host adoption imports and native filesystem/hash/decoding helpers",
+   "symbol_removals" : [],
+   "test_artifacts" : [
+      {
+         "bytes" : 55358816,
+         "path" : "target/debug/deps/blob_consumer_probe-a081f2d8101013da",
+         "sha256" : "4f3e7bc2bcc1b73d7ed71894db86b447c8ea78cfea48e9bfa6467be4efef1eab"
+      },
+      {
+         "bytes" : 292419400,
+         "path" : "target/debug/deps/standalone-9328e8a4390947cf",
+         "sha256" : "83ece2bc16db5c28912028630760d78d1d84f41e99d4cd441a3c2e039fd0fa9f"
+      }
+   ],
+   "verdict" : "PASS within the declared cleanup scope"
+}

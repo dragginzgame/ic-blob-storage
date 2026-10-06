@@ -10,12 +10,12 @@ Date: 2026-10-06
 
 - Released baseline: `0.15.2`; the changelog and release receipt own exact
   release metadata.
-- Current development target: `0.15.3`; compatible shared formatter prerequisite and release-note
+- Current development target: `0.15.3`; compatible native host crate split, shared formatter prerequisite and release-note
   finalizer adoption under [#12](https://github.com/dragginzgame/ic-blob-storage/issues/12)
   and [#13](https://github.com/dragginzgame/ic-blob-storage/issues/13).
   Cargo's package version and the release receipt remain at 0.15.2.
-  The selected graph still uses ic-memory
-  0.28.2, direct native ic-host-tools 0.2.0 and native harness ic-testkit 0.19.2
+  The selected graph uses ic-memory
+  0.28.4, direct native ic-host-artifacts/ic-host-fs 0.3.0 and native harness ic-testkit 0.19.2
   (which retains transitive ic-host-tools 0.1.14).
   The earlier accidental Cargo rollback was restored;
   its diff and original files remain under `.tmp/post-release-0151-01`.
@@ -33,7 +33,7 @@ Date: 2026-10-06
   pass 106 native CLI cases,
   the FIFO subprocess, eight core installation cases, two PocketIC decoder cases
   and 35 offline browser cases. CLI Clippy and Rust 1.88 compilation pass with the
-  current direct host-tools selection. Earlier installation/funding/restore/Wasm
+  then-selected direct host-tools 0.2.0 graph. Earlier installation/funding/restore/Wasm
   records retain their original graphs. Tool pins, public core/service contracts
   and durable records are unchanged. GitHub owns the reconciled issue disposition.
 - Its finishing checks also qualify the actual CLI-generated installation carrier
@@ -44,6 +44,67 @@ Date: 2026-10-06
 - Main remaining work: provider credit evidence and consumer funding integration,
   consumer adoption, complete publication transactions, provider deletion and
   billing evidence, production sizing and retirement.
+
+## Host adoption cleanup review — pending 0.15.3
+
+The [cleanup review](../evidence/host-cleanup-0153.md) traces all workspace
+direct dependencies, maintained scripts/CI callers and retained native helper
+contracts. It removes the standalone canister's unused serde dependency edge.
+The consumer fixture still needs serde for its Deserialize derives; explicit
+owner imports eliminate the scanner false positive without ignoring it.
+The local formatter fixture now selects ic-host-artifacts instead of the removed
+ic-host-tools declaration. Its original refusal is retained separately from
+successful sorting, index/lock preservation and failed-formatter rollback checks.
+No function, method or type is deleted. Private run claims, nonblocking input
+admission, streamed body evidence, provider verification, probe failure stages
+and public/generated/persisted contracts retain their existing authority.
+
+Cargo-machete finds no unused direct dependencies. Strict standalone/consumer
+Clippy, Rust 1.88 Wasm compilation, six consumer recovery/model cases and one
+native Candid parity case pass. Metadata, formatting, hook fixtures, syntax,
+ShellCheck, dependency declarations, documentation links and the unchanged
+56-file snapshot pass. Package versions and prior evidence records are unchanged;
+the new source-bound record owns this later lock edge removal. No full gate,
+new PocketIC lifecycle qualification, native macOS execution, release or
+publication occurs. Matching native macOS CI remains outstanding for pending
+committed source.
+
+## Published host crate ownership — pending 0.15.3
+
+Task entry was clean at `279b863`, with direct ic-host-tools 0.3.0 already
+selected. Its removed artifact facade made our old imports invalid. Review of
+all four published host crates selects ic-host-artifacts for raw hashes and
+ic-host-fs for bounded reads and complete private create-new run records.
+The unused direct tools/process packages are pruned; the harness's transitive
+ic-host-tools 0.1.14 and all other selected package versions are preserved.
+The dependency inventory records fit and exclusions. Siblings stay read-only;
+their dirty 0.3.1 additions are not adopted.
+
+Run::bytes delegates staging, nonreplacement and file/directory synchronization
+to the shared owner. It refuses removed or substituted run directories before
+dispatch; trusted ancestors and exclusion of concurrent writers remain local.
+New tests preserve original destination/link bytes, private record permissions
+and the run claim. Streaming body.part files, verified publication, the
+provider-root verifier, probe write failure stages and service journals remain
+with their existing owners. No function, method or type is deleted; Run::bytes
+retains its boundary while its low-level write implementation is replaced.
+
+All 108 native CLI/probe cases, one FIFO subprocess, strict CLI Clippy and
+Rust 1.88 native CLI compilation pass on the selected graph. The first local
+test attempt retains its two sandbox loopback refusals; the permitted retry
+passes. Probe verification and all 265 local/39 deployed evidence checksums
+pass read-only. The [source-bound record](../evidence/host-owners-0153.json)
+retains source, graph, published owner hashes and every raw attempt.
+Compiled package identity remains 0.15.2; no full gate, core/PocketIC or native
+macOS qualification is claimed for this batch.
+
+Read-only GitHub inspection still finds the latest owning workflow at released
+`cdf983c`, passing Linux and both macOS jobs. There is no remote result for
+pending `279b863` or these edits. Shared Tooling main remains committed 0.1.11
+at `46c0277`; the declared 56-file snapshot remains reviewed 0.1.10 at `21f3ec3`.
+No version bump, commit, release, push, publication, provider request, paid
+effect, issue write or sibling edit occurs. Maintainer commit/push and matching
+native macOS qualification remain the next delivery boundary.
 
 ## Tooling ownership cleanup
 

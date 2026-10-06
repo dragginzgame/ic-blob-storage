@@ -1,4 +1,4 @@
-use ic_host_tools::artifact::{ArtifactError, Sha256Digest};
+use ic_host_artifacts::artifact::{ArtifactError, Sha256Digest};
 use serde::{Deserialize, Serialize};
 use std::{
     fs::{File, OpenOptions},
@@ -91,9 +91,9 @@ pub(super) fn read(directory: &Path, name: &str, limit: usize) -> Result<Vec<u8>
         return Err("record_not_file".into());
     }
     #[cfg(unix)]
-    let result = ic_host_tools::artifact::read_file_no_follow(&directory.join(name), limit);
+    let result = ic_host_fs::read::read_file_no_follow(&directory.join(name), limit);
     #[cfg(not(unix))]
-    let result = ic_host_tools::artifact::read_file(&directory.join(name), limit);
+    let result = ic_host_fs::read::read_file(&directory.join(name), limit);
     result.map_err(|error| match error {
         ArtifactError::LimitExceeded { .. } => "record_limit".into(),
         ArtifactError::NotRegularFile => "record_not_file".into(),
