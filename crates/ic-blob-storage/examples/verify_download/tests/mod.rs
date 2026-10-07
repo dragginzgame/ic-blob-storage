@@ -1,5 +1,46 @@
 use super::*;
 
+#[test]
+fn claim_collection_preserves_json_bounds_and_stream_failures() {
+    const JSON: &[u8] = br#"{"root":"sha256:example","bytes":3,"headers":[]}"#;
+    let mut exact = JSON.to_vec();
+    exact.resize(CLAIM_BYTES, b' ');
+    assert_eq!(read_claim(exact.as_slice()).unwrap().bytes, 3);
+    exact.push(b' ');
+    assert_eq!(
+        read_claim(exact.as_slice()).err().unwrap().to_string(),
+        "claim exceeds example input bound"
+    );
+    for invalid in [
+        &b""[..],
+        &b"{"[..],
+        &br#"{"root":"example","bytes":3,"headers":[],"extra":0}"#[..],
+    ] {
+        assert!(read_claim(invalid).err().unwrap().is::<serde_json::Error>());
+    }
+    assert_eq!(
+        read_claim(InterruptedBody {
+            body: JSON,
+            interrupt: true,
+            fail_at_end: false,
+        })
+        .unwrap()
+        .bytes,
+        3
+    );
+    let error = read_claim(InterruptedBody {
+        body: JSON,
+        interrupt: false,
+        fail_at_end: true,
+    })
+    .err()
+    .unwrap();
+    assert_eq!(
+        error.downcast_ref::<io::Error>().unwrap().kind(),
+        io::ErrorKind::ConnectionReset
+    );
+}
+
 pub(super) fn verifier() -> CaffeineRootVerifier {
     CaffeineRootVerifier::new(
         "sha256:b5b435d47a4cce7dfec493b1e020c5308d9c7fe90add1aff510f9c2a9c4ea8e7"

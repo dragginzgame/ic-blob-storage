@@ -11,9 +11,18 @@ finish() {
 }
 trap finish EXIT
 selected=crates/ic-blob-storage/src/lib.rs
-(cd "$ROOT"; rg --files -g Cargo.toml) > "$TEMPORARY/manifests"
 overlays=(ci/tool-versions.env scripts/ci/check-format-tools.sh Cargo.lock)
-while IFS= read -r path; do overlays+=("$path"); done < "$TEMPORARY/manifests"
+# Copy formatter inputs from every actual member, including newly moved packages
+# absent from HEAD. Cargo owns the roster for both crates/ and apps/ layouts.
+cargo metadata --offline --locked --no-deps --format-version 1 \
+    --manifest-path "$ROOT/Cargo.toml" > "$TEMPORARY/metadata.json"
+jq -r '. as $m | .packages[] | select(.id as $id | $m.workspace_members | index($id)) | .manifest_path' \
+    "$TEMPORARY/metadata.json" > "$TEMPORARY/manifests"
+while IFS= read -r manifest; do
+    overlays+=("${manifest#"$ROOT/"}")
+    rg --files "$(dirname "$manifest")" -g '*.rs' > "$TEMPORARY/member-rust"
+    while IFS= read -r path; do overlays+=("${path#"$ROOT/"}"); done < "$TEMPORARY/member-rust"
+done < "$TEMPORARY/manifests"
 # Swap two adjacent dependency declarations without changing their values.
 perl -0777 -pe 's/^(ic-cdk = [^\n]*\n)(ic-host-artifacts = [^\n]*\n)/$2$1/m or die "cannot prepare ordering-only manifest\n"' \
     "$ROOT/Cargo.toml" > "$TEMPORARY/unsorted-Cargo.toml"
@@ -33,13 +42,23 @@ printf '%s\n' "$source_objects" > .git/objects/info/alternates
 git update-ref HEAD "$source_commit"
 git read-tree HEAD
 git checkout-index --all
-for path in "$selected" Makefile .githooks/pre-commit scripts/dev/install-git-hooks.sh "${overlays[@]}"; do
+for path in "$selected" Makefile .githooks/pre-commit scripts/dev/install-git-hooks.sh scripts/ci/check-make-execution.sh "${overlays[@]}"; do
+    mkdir -p "$(dirname "$path")"
     cp -p "$ROOT/$path" "$path"
     git --literal-pathspecs add -- "$path"
 done
 printf '\npub fn hook_fixture( ) { }\n' >> "$selected"
 git --literal-pathspecs add -- "$selected"
-printf '.PHONY: fmt\nfmt:\n\t@echo changed >> crates/ic-blob-storage/src/lib.rs\n\t@false\n' > Makefile
+# The hook formats an isolated index snapshot. Bind this fixture-only observation
+# to the outer fixture so it survives that snapshot's cleanup after refusal.
+export BLOB_HOOK_FIXTURE_ATTEMPT="$PWD/formatter-attempted"
+cat > Makefile <<'MAKE'
+.PHONY: fmt
+fmt:
+	@touch "$$BLOB_HOOK_FIXTURE_ATTEMPT"
+	@echo changed >> crates/ic-blob-storage/src/lib.rs
+	@false
+MAKE
 git add Makefile
 tree="$(git write-tree)"
 cp "$selected" before-selected
@@ -50,5 +69,15 @@ fi
 [[ "$(git write-tree)" == "$tree" ]] || exit 1
 cmp "$selected" before-selected
 cmp Cargo.lock before-lock
+[[ -f formatter-attempted ]] || exit 1
+rm formatter-attempted
+for flags in i n q t v; do
+    if MAKEFLAGS="$flags" bash .githooks/pre-commit > "mode-$flags.log" 2>&1; then
+        echo "Hook accepted a Make mode without reliable formatting: $flags" >&2; exit 1
+    fi
+    [[ ! -e formatter-attempted && "$(git write-tree)" == "$tree" ]] || exit 1
+    cmp "$selected" before-selected
+    cmp Cargo.lock before-lock
+done
 [[ ! -d target ]] || exit 1
-printf 'Consumer mutating-formatter rollback and lock preservation checks passed.\n'
+printf 'Consumer formatter rollback, Make-mode refusal and lock preservation checks passed.\n'

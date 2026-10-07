@@ -1,0 +1,370 @@
+# Standalone host
+
+`ic-blob-storage-canister` explicitly owns the canister endpoints, lifecycle and
+ic-memory grants. The shared library still exports no endpoints or lifecycle hooks.
+This is an initial host, not yet a qualified Caffeine-backed storage service.
+
+Build with `make build-standalone`; run its local lifecycle cases with
+`make test-standalone`. The Wasm is
+`target/wasm32-unknown-unknown/release/ic_blob_storage_canister.wasm`.
+These commands do not deploy or contact Caffeine.
+
+The [Candid contract](service.did) is generated from the endpoint declarations:
+
+```sh
+cargo run --offline --locked -p ic-blob-storage-canister --example export_candid > crates/ic-blob-storage-canister/service.did
+```
+
+Installation takes one explicit
+`ServiceInstallationInput { configuration, project, completion_verifier, trusted_uploader }`
+from `ic_blob_storage::dto::configuration`. The offline
+[`installation-check`](../../docs/operator-guide.md#check-installation-inputs-offline)
+command produces its complete binary Candid and hash; no manual wrapper is needed.
+`configuration` is the shared `ServiceConfigurationInput`, including the actual
+service principal, operator, payer, namespace and all resource/billing bounds.
+`project` is the explicit Caffeine project mapped to that namespace. It is immutable
+and retained in the current v1 configuration record. It must contain 1–256 UTF-8
+bytes, with no controls or surrounding whitespace; these are local representation
+limits, not proof of provider assignment. Owner is the actual service, never the
+payer or tenant. Validation precedes allocation and runs again on restoration.
+This replaces the previous host init/schema and requires a minor release;
+cross-release transitions are reinstall-only, without migration or fallback.
+Host observation types come directly from
+`ic_blob_storage::dto::configuration::{HostConfigurationView, HostFailure}`;
+the standalone crate exports only its Candid interface helper.
+Management-canister installation authorization remains the platform's responsibility.
+There are no deployment defaults, provider namespace provisioning or account changes.
+Operator-only `blob_configuration` returns the installed values, package release
+and restore fence, including the retained project; an unfenced owner does not imply
+provider readiness. Future upload dispatch must use this same provisioned mapping.
+
+`blob_upload_certificate_assessment(root)` is an uploader-only query over the
+original retained permission. The canonical root locates that permission; it grants
+no authority. Prepared, locally eligible uploads return the exact permission,
+assessment time and all missing prerequisites. Unknown roots, wrong callers,
+unprepared, expired, revoked or restored work refuse. Inspection changes no state
+and never reserves a later issuance attempt.
+
+The native [`blob-storage certificate-assessment`](../../docs/operator-guide.md#certificate-assessment) command signs
+this query as the original uploader and binds the reply to a saved binary Candid
+permission. It reports all missing prerequisites and distinct refusal codes without
+calling the certificate update or a provider. An empty blocker list remains only
+an observation; issuance always rechecks current authority.
+
+`_immutableObjectStorageCreateCertificate(root)` is the matching synchronous update.
+It delegates to the shared certificate/exposure handler and traps on refusal;
+errors are never encoded as successful provider replies. The maintainer accepted
+the [configured contract](../../docs/standalone-trial.md): issuance requires the
+explicit installed trusted uploader, exact local namespace, an admitted/prepared
+reservation within the validated installation quotas and a durable current owner.
+Larger and multi-file installations use their configured limits. Tenant permission, manifest,
+activation, expiry, phase and restore fences are still checked. One committed
+issuance leaves possible exposure and can never be reissued after a lost reply.
+The required `trusted_uploader` is immutable, explicitly validated before allocation
+and retained in the current v1 installation record. Anonymous and management
+principals refuse; controller/operator status grants no implicit uploader trust.
+No ingress-supplied qualification flags or operator override exist. These are local
+checks: provider provisioning, spending caps and escaped-certificate replay charges
+remain unproven. No paid trial or account/deployment action follows from installation.
+This init/API/schema hard cut requires a minor release and cross-release reinstall.
+
+`completion_verifier` is an explicitly trusted principal, never an operator,
+controller or gateway default. Anonymous and management principals reject before
+allocation. `blob_verification_manifest` lets only that verifier inspect the exact
+original declaration. `blob_attest_upload` accepts its signed statement binding the
+full permission, raw content digest and observation time. The verifier must fetch
+the complete content from the installed owner/project mapping and check original
+metadata, root and length off-canister before attesting. Local file matching alone
+is insufficient to establish provider availability.
+
+`blob_verification_plan` separately supplies the installed owner/project and original
+declaration to the configured verifier for an exposed, unfinished upload. It refuses
+unexposed/confirmed content and restored owners; revoked or suspended exposed uploads
+remain eligible for reconciliation. Historical `blob_verification_manifest` retains
+its inspection-only contract through fences. The plan contains no gateway origin or
+credential and is a snapshot, not a lease or retry permission.
+
+Only prepared, already-exposed uploads can be confirmed. The first statement,
+authenticated verifier and acceptance time commit with accounting and the first
+reference. Exact replay preserves that receipt; conflicting statements reject.
+`blob_upload_attestation` returns historical evidence to the verifier, tenant or
+original uploader, including through restore fencing. Updates reject restored
+owners. Revocation or suspension cannot erase a late exposed obligation; receipt
+replay after reference release cannot resurrect it. Physical/economic liabilities
+remain until their separate deletion/settlement evidence arrives.
+
+The attestation contract establishes trusted observed content availability, not
+future retention or billing cessation. Native `observe-upload` retrieves and checks
+provider bytes from an explicitly approved origin and saves a durable statement;
+`submit-attestation` can submit that exact statement once with durable intent and
+historical receipt recovery. A complete journey still needs selected provider/account
+bindings, a persistent client intent store and separately authorized effects.
+
+Operator-only `blob_local_status` takes the explicit service, namespace, Cashier
+and payer scope. It returns one synchronous snapshot of maintained upload byte
+totals, funding allocation/outcomes, bounded gateway membership and read occupancy,
+with each owner's restore fence. Inspection reads no lifetime history and makes no
+provider calls. Available allocation is not platform liquidity, transport acceptance
+is not provider credit, and the snapshot does not authorize retry or reconciliation.
+
+Operator-only `blob_inspect_account` takes `{ scope, kind }`, where `kind` is
+`Balance` or `PaymentRelationship`. It queries the installed payer's balance or
+the relationship between the service owner and that payer, respectively. Each
+invocation makes one replicated Cashier query with a 30-second bounded wait,
+4 KiB reply limit and bounded decoding. It attaches no cycles; ordinary IC call
+fees apply. Scope and all owner fences are rechecked after the await. Returned
+balances and signed relationship figures are observations only; a missing
+relationship never selects self-payment. No result changes funding, membership,
+configuration or readiness, and no automatic retry occurs. Results are not
+persisted or combined into an atomic account snapshot. Actual Cashier replicated
+account-query behavior and economics still need deployed qualification.
+
+Operator-only `blob_revoke_gateway` takes this same scope and a concrete gateway
+principal. It removes local membership and invalidates older sync/read observations,
+including when the member was already absent. Read reservations and object/funding
+obligations remain accounted for. Each call is a fresh revocation decision, so do
+not automatically retry a lost acknowledgment; inspect local status first. Future
+explicit additions or syncs can re-add a member. This is not provider credential
+revocation or deletion, and restored registries reject the update.
+
+Operator-only `blob_sync_gateways` refreshes membership from the installed Cashier
+using the same scope. It records a pending sequence before one replicated
+`storage_gateway_list_v1` query, with a 30-second bounded wait, 64 KiB reply limit
+and bounded decoding. No cycles attach; ordinary IC execution fees apply. Failed
+queries or unusable replies retain pending work and block another refresh. Inspect
+`blob_local_status`, then use `blob_cancel_gateway_sync` with that exact sequence
+to cancel it. Cancellation preserves membership and allocated sequence history;
+revocation or cancellation prevents a delayed response from applying. Restoration
+fences both updates. This establishes local transport behavior, not deployed
+provider qualification, certificate readiness or payment authority.
+
+`blob_upload_history` lists this tenant's operations or, for the operator, all
+service operations. Each call scans at most 64 retained rows and returns at most
+32 matching identities with current local lifecycle state and the restore fence.
+Filters select all history, active uploads, pending deletion or outstanding
+obligations. Empty filtered pages may still have a continuation cursor. Cursors
+bind the service, namespace, observer scope and filter; start a fresh sweep for
+changes behind the cursor. Inspection remains available during suspension and
+restore, without granting provider retry, publication or deletion authority.
+
+Tenant-only `blob_upload_capacity` takes `TenantScope` and returns the tighter
+global/tenant headroom for lifetime objects and manifest leaves, concurrent uploads
+and bytes. Maintained counters include reserved bytes, physical storage and
+continuing billing. The response echoes the scope, per-object metadata/byte limits,
+current enrollment and the independent restore fence. Missing enrollment rejects;
+suspended or restored tenants can still inspect. Counts are independent dimensions,
+not reservations or proof that an upload is safe. Cancellation restores only the
+applicable byte/concurrent capacity; lifetime history stays consumed.
+
+Tenant-only `blob_reference_capacity` takes the same tenant scope plus a provider
+root. It reports remaining lifetime references, unreserved receipt slots, receipts
+reserved for releasing live references and the corresponding fresh-retain headroom.
+The response echoes the exact request and includes the restore fence even when no
+headroom is visible. Unknown, foreign and unconfirmed roots all return absence;
+retired confirmed objects report zero fresh retains. Reads remain passive through
+suspension and restoration. Positive counts do not bypass enrollment, identity or
+restore checks, reserve a reference or prove that a reference is currently live.
+
+Operator-only native [gateway controls](../../docs/operator-guide.md#gateway-controls)
+sync the installed membership, cancel an exact observed pending sync or revoke one
+local gateway through existing handlers. Each retains signed intent before one
+submission; uncertain replies require current-state inspection without automatic
+repetition. Restored owners refuse all three controls.
+
+Operator-only native [`blob-storage inspect-account`](../../docs/operator-guide.md#account-inspection)
+submits one existing service read update for an explicitly selected balance or
+relationship. Provider fields remain observations; no credit, spendability or
+retry authority is inferred. Same-release restore refuses further provider reads.
+
+Operator-only native [`blob-storage funding-outcome`](../../docs/operator-guide.md#exact-funding-outcomes) inspects
+one exact original funding intent through `blob_funding_outcome`. Scope, operation,
+offer and optional target are required exactly as originally retained. Found
+records expose independent refund, response, reconciliation and restore fence;
+absence carries no fence information. The signed read grants no payment, credit,
+retry or recovery authority and calls no provider. Same-release fenced owners
+retain passive inspection.
+
+Operator-only native [`blob-storage upload-history`](../../docs/operator-guide.md#upload-history) queries the
+shared `blob_upload_history` service-wide scope with an explicit lifecycle filter.
+One call returns at most 64 inspected rows and 32 matching entries. Saved JSON
+continuations bind the complete scan; empty filtered pages can still continue.
+The command preserves cancelled/settled history and restore fences without
+provider calls, automatic pagination or mutation/retry authority. Tenant-scoped
+service queries retain their existing caller rules; the native command grants no
+operator access through tenant scope.
+
+Tenant-only `blob_lookup_content` takes `TenantScope` and a provider root. Indexed
+discovery returns the complete original upload identity and current local lifecycle,
+without reading manifests or scanning history. Unknown and foreign roots share
+absence; cancelled and settled roots retain their identities. The response echoes
+the request and reports the restore fence even for absence. Suspension and restore
+preserve inspection. Discovery supplies no admission, retry or serving authority;
+live content still requires the consumer's exact live reference.
+
+Native [`reference-status` and `reference-receipt`](../../docs/operator-guide.md#reference-receipts-and-current-status) sign existing
+tenant queries from saved binary boundary requests. Receipt success/failure stays
+historical and carries no liveness/fence observation; status reads current local
+liveness and fence separately. Native identities must actually be the tenant;
+canister tenants use the shared canister client. No delegated operator authority,
+combined snapshot, provider request, mutation or retry is implied.
+
+Native [`submit-reference`](../../docs/operator-guide.md#submit-a-reference) saves
+the exact command and signed intent before one update. Actual standalone tests
+preserve unknown/unconfirmed refusals and all-owner restore fencing. Lost/pending
+acknowledgments stay unresolved when receipt inspection refuses; the saved claim
+never grants resend authority. Successful reference creation requires confirmed
+content through the installed verifier after eligible exposure. Reference commands
+cannot establish that completion themselves.
+
+Tenant-only `blob_reference_status` takes the complete original `ReferenceUpload`
+and a positive reference ID, with no mutation operation or action. It returns an
+exact request echo, current local `live` flag and the same owner's restore fence.
+Unknown or changed uploads and unconfirmed content return typed failures; for a
+confirmed upload, never-retained and released references both report non-live.
+Suspension, settlement and restore preserve inspection without allocating a
+reference or receipt. Historical retain success and current liveness are separate;
+neither supplies a publication lease, reusable identity or retry permission.
+`ReplicatedReferenceClient::status` authenticates delivery through one bounded
+replicated query call with no attached cycles or automatic retry.
+
+Tenant-only `blob_download_descriptor` is an update using the shared operational
+descriptor handler. It checks the complete service/tenant/namespace/root/object/
+incarnation/reference binding, active enrollment, confirmed content, the exact live
+reference and the restore fence. Unlike passive inspection, suspension and restore
+refuse delivery. Its response contains the echoed request, installed owner/project,
+declared byte count and original hash headers. It supplies no origin, credentials,
+file body or public serving lease. No provider call or read-session allocation occurs;
+ordinary IC execution fees still apply. Canister tenants can use the shared
+`ReplicatedDownloadClient` with their expected project and bounded reply settings.
+Confirmed success is exercised through the configured verifier with a labelled
+local gateway substitute. Previously delivered metadata or bytes
+are not revoked by refusing a subsequent descriptor request.
+
+Native tenant [`download`](../../docs/operator-guide.md#download-a-verified-file)
+uses that replicated descriptor and the installed expected project before one
+bounded provider GET, publishing `body.bin` only after complete root verification.
+Signed standalone tests prove unconfirmed and restored refusal without a GET.
+The complete browser/native rehearsal verifies actual uploaded bytes through a
+local gateway substitute, signed verifier attestation and tenant download.
+No completion injection or issuance override is provided.
+
+Native [upload setup](../../docs/operator-guide.md#admit-and-prepare-an-upload)
+calls the existing admission, manifest preparation and revocation handlers with
+exact saved requests. Signed tenant/uploader recovery, dropped/pending replies,
+unexposed cancellation and fenced history run through this actual host. No
+certificate or provider call is added by these commands.
+
+Tenant-only `blob_upload_status` looks up the exact original `ReferenceUpload`,
+including its separate upload, object, incarnation and first-reference identities,
+root and declared byte count. It reports retained local state and revocation;
+changed original arguments conflict, and an unknown operation stays unknown.
+Both query and replicated calls remain passive during suspension and restoration.
+Unlike `blob_upload_admission`, this lookup does not require the uploader and expiry.
+It does not report the restore fence: consult configuration or history for that
+independent observation. Historical confirmation never proves a live reference,
+safe provider retry or publication eligibility. Canister tenants can use the shared
+`ReplicatedUploadStatusClient` from an update with an explicit reply bound.
+
+Operator-only `blob_funding_history` uses the same explicit service, namespace,
+Cashier and payer scope as local status. It returns at most 32 retained intents
+per call, newest operation first, including exact offered amounts, optional target
+balances, transport phases and callback refunds. Replies echo the request and
+report the restore fence. A cursor is an exclusive operation-ID bound; start a
+fresh sweep for new intents or changed phases. This is local history, not evidence
+of complete provider-account activity, credit or safe payment retry.
+
+Operator-only `blob_funding_preparation_assessment` takes exact operator scope,
+positive proposed operation/offer and optional positive target. The shared workflow
+reads current local accounting, lifetime capacity, retained identity and restore
+fence through the existing preparation policy. Its synchronous report retains
+missing provider qualification, recovery, complete external activity and spendability
+as separate blockers; ingress cannot assert those facts. No intent is allocated,
+funds reserved or provider called. Inspection remains available while fenced.
+Native [funding assessment](../../docs/operator-guide.md#passive-funding-assessment)
+checks bounded exact signed replies without payment or retry authority.
+
+Operator-only `blob_funding_outcome` inspects one exact original intent using its
+scope, operation, offered amount and optional target balance. Changed original
+arguments reject; an unknown identity returns absence without retry authority.
+Retained results include transport phase, any structured response, the restore
+fence and shared reconciliation diagnosis. Reported balances, provider errors and
+decoder failures stay separate from exact refunds and accepted-cycle obligations.
+The query reads local storage and never refreshes provider balances or sends funds.
+
+Canister operators can use `ops::service::funding::client::ReplicatedFundingClient`
+with their actual canister identity, complete `OperatorScope` and a bounded timeout.
+`history` accepts explicit byte/entry reply limits; `outcome` checks one original
+intent. Calls require replicated execution and attach no cycles. The client checks
+reply correlation, pagination and refund consistency, preserves restore fences and
+owns no journal. Hosts still authenticate their own operator-facing endpoints.
+
+Tenant enrollment, upload admission/revocation, manifest preparation/inspection and
+reference operations use the existing shared workflows and actual caller/service/time.
+Preparation carries metadata and hashes; file bodies stay outside the canister.
+Reference operations require confirmed content, which this initial endpoint set
+can establish only through the configured verifier after eligible exposure.
+The exported certificate update checks the restricted local prerequisites described
+above. No trusted-fact fixture, funding mutation, deletion or billing-settlement
+endpoint is exported.
+
+The host allocates seventeen exclusive grants in range 120–136 with sixteen-page
+memory-manager buckets: one bounded v1 installation record and sixteen shared-store
+memories. Shared `ops::service::installation::ServiceInstallation` owns the immutable
+configuration record and the four service owners. Its validated candidate checks
+the complete configuration, project, verifier and compiled library release
+before allocation. The shared model owns the persisted schema and shared ops own
+DTO conversion. All state writes are synchronous and traps propagate for IC rollback.
+The sixteen service keys and their store mapping come from shared
+`ops::service::stores::grants`; `ops::service::installation::requests` supplies
+the complete configuration/store inventory under the explicit host authority.
+The host uses `ic_blob_storage::LIBRARY_VERSION` for its dependency's compiled
+release; host package and Wasm/module identities remain separate. Runtime,
+allocation policy, ingress authentication and lifecycle calls stay local to this
+host. The host explicitly composes the requests before bootstrap.
+The shared library chooses no physical IDs and registers nothing on linkage.
+Ingress bounds are 16 KiB for installation, 4 KiB for fixed commands and 128 KiB
+for manifests, with bounded Candid decoding and shared semantic limits afterward.
+The CDK first copies the separately platform-bounded ingress buffer.
+
+Same-release upgrade takes Candid empty arguments `()`. It loads the saved
+configuration, checks service and package-release identity, validates every owner
+and leaves mutations fenced. It never repairs missing state or accepts replacement
+configuration. The ic-memory runtime commits allocation-ledger metadata during
+bootstrap; this is not service reconciliation or freshness authority.
+
+The host captures `ic_cdk::api::canister_version()` during installation in the
+required immutable current v1 record. `blob_resume_current_instance()` lets only
+the installed operator obtain and consume fresh bounded IC management history.
+The window must reach installation and contain no later snapshot load, state
+replacement or unknown change. No evidence or anchor is accepted from ingress.
+Ordinary same-release upgrade activation clears all owner fences together and
+retains every journal, permission, reservation and physical/billing obligation;
+it dispatches no provider work or retry. History is limited to twenty changes,
+a thirty-second call and a 64 KiB application reply bound. Missing coverage
+leaves recovery refused; there is no anchor rotation or override.
+
+Before each owner access the host fences platform-version reversals or gaps
+greater than one. Queries conservatively report this fence. An update captures
+its actual caller before awaiting; a previously active owner gets one bounded
+IC continuity preflight before delegation. This handles replicated queries that
+discard their heap checkpoint and failed callbacks without treating local counters
+as freshness. Already-fenced upgrade restoration still requires explicit operator
+recovery. Intervening execution/management invalidates the history reply; certificate
+exposure and reply still commit together without an await after exposure.
+Stop/start retains the state and uses these continuity checks.
+Actual PocketIC tests show that snapshot loading restores
+an old heap without lifecycle hooks, but the version guard blocks operational
+return and IC history refuses `SnapshotRestored`. Old snapshots/backups remain
+inspection-only: their missing later objects, effects and liabilities require a
+separately surviving complete inventory and freshness authority. Package release
+is not a module hash. This API/schema/lifecycle hard cut ships in 0.8.0 and
+does not change the frozen live 0.7.0 host.
+Cross-release transitions require reinstall after the separately
+defined installation-retirement requirements; controllers can erase state through
+the management canister, so these hooks cannot enforce retirement on their behalf.
+
+The maintainer's current scope keeps this single authoritative owner and its local
+durable journals. Extra journal/controller canisters and metadata calls are deferred
+until a clear use case justifies them. Current-state durability, receipt recovery
+and proven current-instance lifecycle work take priority. Old-snapshot activation
+and provider economic guarantees remain outside the accepted prototype.

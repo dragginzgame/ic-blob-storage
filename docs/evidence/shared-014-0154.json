@@ -1,0 +1,709 @@
+{
+   "artifacts" : [
+      {
+         "bytes" : 1455369,
+         "path" : "target/wasm32-unknown-unknown/release/blob_admission_probe.wasm",
+         "sha256" : "48f0e92463e1a905f19da4be4d6efa0b5844c121ed27dc7bcdedccceea86bec8"
+      },
+      {
+         "bytes" : 2824030,
+         "path" : "target/wasm32-unknown-unknown/release/blob_authority_probe.wasm",
+         "sha256" : "33cc03b6d19fccb424da255385c4e4f57af2896277b99ac6cfb238b4b35fa58e"
+      },
+      {
+         "bytes" : 2792854,
+         "path" : "target/wasm32-unknown-unknown/release/blob_consumer_probe.wasm",
+         "sha256" : "236b8c6b4db864ca450e911cecf6f184b335c46e85bb5465ca880804b3bb4a14"
+      },
+      {
+         "bytes" : 1892072,
+         "path" : "target/wasm32-unknown-unknown/release/blob_funding_probe.wasm",
+         "sha256" : "b8a0e2835ceaeec440e14e6730f9992e1878660cd52152d92ac11636e6b4be34"
+      },
+      {
+         "bytes" : 1517283,
+         "path" : "target/wasm32-unknown-unknown/release/blob_gateway_source.wasm",
+         "sha256" : "0ffe3a3c98712c14d38f9ba31e2f48fa7fea6cdcb9ff6455528ef424589e4861"
+      },
+      {
+         "bytes" : 5006731,
+         "path" : "target/wasm32-unknown-unknown/release/blob_storage_probe.wasm",
+         "sha256" : "d16b671710f0f8c863b11fa1f1136c7281e665ff1527ef7e7861d713de7915c5"
+      },
+      {
+         "bytes" : 4230928,
+         "path" : "target/wasm32-unknown-unknown/release/ic_blob_storage_canister.wasm",
+         "sha256" : "ed34803b7ad4ba982079dad71d8916c5aaed85f5cb125306574a70adad1f71bb"
+      },
+      {
+         "bytes" : 164657664,
+         "path" : "target/debug/blob-storage",
+         "sha256" : "3b3f2d1e6e5a899e5a82107a0648536ba4e16169331f8c36514991141ac63d15"
+      },
+      {
+         "bytes" : 452239,
+         "path" : "target/package/ic-blob-storage-0.15.3.crate",
+         "sha256" : "65b2bb729e1850071a4938dca3d2ca3b2dd54c1830e79c7842e63b2952063eba"
+      }
+   ],
+   "compiled_package_version" : "0.15.3",
+   "date" : "2026-10-07",
+   "development_target" : "0.15.4",
+   "failures" : [
+      "Initial offline metadata could not fetch the entry-selected ic-metrics 0.2.4. Locked approved cache fetch succeeds; the lock remains unchanged.",
+      "Initial declaration inventory includes tracked old paths until the maintainer stages the moves. Planned relocation inventory passes in a private index/object store. The first private-index attempt could not write to the read-only real object store; corrected to a private object store.",
+      "Initial metadata evidence comparison did not account for Cargo shortening package-ID fragments when directories match names. Corrected evidence normalization; metadata itself is unchanged beyond paths.",
+      "A private cloc copy initially lacked Regexp::Common in the system Perl search path. Selecting the existing prepared read-only module directory succeeds.",
+      "Both initial consumer hook fixtures lacked moved Rust source inputs absent from HEAD. Logs and failed fixtures retained. Consumer adapter now supplies the metadata member roster and actual Rust sources; both corrected runs pass.",
+      "The next consumer fixture observer expected its marker in the real fixture, while the hook correctly formatted and removed an isolated snapshot. Bound the fixture-only observer to an explicit outer path; both qualified runs pass. ShellCheck rejected a literal printf recipe during preparation; an equivalent quoted heredoc passes without a suppression.",
+      "The first evidence candidate bound its own output log before that stream was completed. That candidate is retained separately; the final collector excludes only its current output stream and binds the completed prior log.",
+      "GitHub CLI issue view failed because its classic Projects GraphQL field was removed. REST issue/comment readbacks succeeded; no finding is hidden by that inspection failure."
+   ],
+   "head" : "9d9cdf82b832c88278df54686d06aec274f905e9",
+   "historical_links" : "Only navigation targets changed: 18 old source paths now link to the existing committed pre-move 9d9cdf source. These are not new source/execution bindings for the historical records. Evidence prose and immutable JSON manifests remain unchanged.",
+   "inputs" : [
+      {
+         "bytes" : 1671,
+         "path" : "Cargo.toml",
+         "sha256" : "93305b92b434f09a4747c2365bda7e8d815a6b8613c2e5a2eaf730e8b3800b2e"
+      },
+      {
+         "bytes" : 107457,
+         "path" : "Cargo.lock",
+         "sha256" : "cc39a486e7674b8be49c86a8fb07b7181baef944ef7350ab9d939a42aaf1bdbf"
+      },
+      {
+         "bytes" : 6647,
+         "path" : ".shared-tooling.snapshot",
+         "sha256" : "296302620d2d793f5d1fcfd3ab408133f94fc2fba5c634d9c8fe760971d5c2e4"
+      },
+      {
+         "bytes" : 6187,
+         "path" : "AGENTS.md",
+         "sha256" : "33543fb195cc8e0fd84879196880c9afefdf84f3a967bbe2e9f4cb21f8e75b16"
+      },
+      {
+         "bytes" : 20264,
+         "path" : "README.md",
+         "sha256" : "4a21258946ae507ffbb7099ea67c6b60ab5eab6826b1e166391fe2c3b23e4eb9"
+      },
+      {
+         "bytes" : 189334,
+         "path" : "CHANGELOG.md",
+         "sha256" : "c243eab0961d9b8dfa596725e8ad56426424b9be6c43a42b768d00d5e76de998"
+      },
+      {
+         "bytes" : 9838,
+         "path" : "docs/releasing.md",
+         "sha256" : "58aa4182098aefb6af1cec2c2bb7d0a5547e0c530922e23fc28e03210d390ea9"
+      },
+      {
+         "bytes" : 41312,
+         "path" : "docs/dependencies.md",
+         "sha256" : "cd1bb49bc53faa0c31766f9ce6c9af957e2185c999d6611c463c935f13f649e9"
+      },
+      {
+         "bytes" : 8907,
+         "path" : "docs/governance/development.md",
+         "sha256" : "ac8171ed8bfbfb5caa26a8b4613ef0abeb91c3a73d507009fb6707b9e3bb0438"
+      },
+      {
+         "bytes" : 107720,
+         "path" : "docs/status/current.md",
+         "sha256" : "ce00e52cf90db34c4eabf5e64ea35daeee3c793821dfe1b34c1feb5867c53403"
+      },
+      {
+         "bytes" : 448,
+         "path" : "docs/release.json",
+         "sha256" : "3243e9019d270347a3e1fb6dbba820faeb3ed2f0989a02b6a81d127081ec8be9"
+      },
+      {
+         "bytes" : 19230,
+         "path" : "Makefile",
+         "sha256" : "6c0d40212e1b07000605b5abedbe472081fec8216dca948b3d46c1450bfe5fd2"
+      },
+      {
+         "bytes" : 3583,
+         "path" : ".github/workflows/tooling.yml",
+         "sha256" : "fc6b551a1e2911e59be1317d104b404943908d32269e2df9e6e7b363e545dd6c"
+      },
+      {
+         "bytes" : 34232,
+         "path" : "scripts/release/test-release.sh",
+         "sha256" : "0179f70198664fde0522519a320853d7e23fb19341f618319322425ed84f7499"
+      },
+      {
+         "bytes" : 3968,
+         "path" : "scripts/ci/check-format-hooks.sh",
+         "sha256" : "8d0927fa10254ae0d7d3ab2ff12c692c8c938f48a9d7eeb0b8fbaa47242a71bb"
+      },
+      {
+         "bytes" : 71623,
+         "path" : ".tmp/shared-014-0154-01/entry/diff",
+         "sha256" : "456d851925e9cf2f5c8afafe049c77f312591ef8a26064ced1830badad35c5ea"
+      },
+      {
+         "bytes" : 1106,
+         "path" : ".tmp/shared-014-0154-01/entry/status",
+         "sha256" : "896129e7115b1eceda2f3545e6d2b45a2e1eafee2943b3fe0672d001726c294f"
+      },
+      {
+         "bytes" : 1622,
+         "path" : ".tmp/shared-014-0154-01/entry/Cargo.toml",
+         "sha256" : "8bf3f99672d834cec4a806205fb8bcef309faa0bf34233c66485333252f804bc"
+      },
+      {
+         "bytes" : 107457,
+         "path" : ".tmp/shared-014-0154-01/entry/Cargo.lock",
+         "sha256" : "cc39a486e7674b8be49c86a8fb07b7181baef944ef7350ab9d939a42aaf1bdbf"
+      },
+      {
+         "bytes" : 6121,
+         "path" : ".tmp/shared-014-0154-01/entry/.shared-tooling.snapshot",
+         "sha256" : "3bbec3e4fbb07bc866b6ef04d56b0793653b8f47afa400eec5f8aa4575b52438"
+      },
+      {
+         "bytes" : 2023463,
+         "path" : ".tmp/shared-014-0154-01/entry/metadata.json",
+         "sha256" : "dd45ff90d53d61c2052a0c575364e256f31df779d1f784c9f95084e3c699d59a"
+      },
+      {
+         "bytes" : 2023195,
+         "path" : ".tmp/shared-014-0154-01/metadata.json",
+         "sha256" : "a886ed8abebfe1d441cee3b1546d4a9dfb9b6fc997c071fb57bdd880949aae38"
+      },
+      {
+         "bytes" : 3894157,
+         "path" : ".tmp/shared-014-0154-01/metadata-expected.json",
+         "sha256" : "1237796d1bec20f49249a428473a4faa39a12030015106daafc969f82da45300"
+      },
+      {
+         "bytes" : 3894157,
+         "path" : ".tmp/shared-014-0154-01/metadata-actual.json",
+         "sha256" : "1237796d1bec20f49249a428473a4faa39a12030015106daafc969f82da45300"
+      },
+      {
+         "bytes" : 101048,
+         "path" : ".tmp/shared-014-0154-01/package-moves.json",
+         "sha256" : "21fb9d29a11c773e139c5126b46d496f9ed85a622ae0ab731d317ffd68bebcc4"
+      },
+      {
+         "bytes" : 2789,
+         "path" : ".tmp/shared-014-0154-01/relocated-content-changes.json",
+         "sha256" : "b5116747c1b0e8b017158a0fd33b8e943575f0a618b8ce5931f847be457f9a90"
+      },
+      {
+         "bytes" : 4399,
+         "path" : ".tmp/shared-014-0154-01/historical-link-changes.json",
+         "sha256" : "711ed1632878c981df224a5dd18de262094f0c2bb00806a4d75365e4e4eca6c9"
+      },
+      {
+         "bytes" : 173727,
+         "path" : ".tmp/shared-014-0154-01/workspace-source-inventory.json",
+         "sha256" : "422a016023ca1c94ca91d5ad411f41b9f9ba5c89d76cb222075232c899c59c2d"
+      },
+      {
+         "bytes" : 17810,
+         "path" : ".tmp/shared-014-0154-01/package-list.txt",
+         "sha256" : "5b1882b7bb76e64a95a530a6d0187ebb35ad0f479fc6f3839e9a16426c58ecc6"
+      },
+      {
+         "bytes" : 932,
+         "path" : ".tmp/shared-014-0154-01/export.pl",
+         "sha256" : "95795ff696847dd34210650c6f0ef9498301d53cf7c78634cbe3e0b642fd69b8"
+      },
+      {
+         "bytes" : 1225,
+         "path" : ".tmp/shared-014-0154-01/apply-export.pl",
+         "sha256" : "80fb38723191f0d322cece10381b0b5726104333eeb69eb593a58ac84d03b809"
+      },
+      {
+         "bytes" : 3023,
+         "path" : ".tmp/shared-014-0154-01/move-packages.pl",
+         "sha256" : "50790e64a5663936da1ff760b35a49046159216c760aa8cfec0e198b10c51c6c"
+      },
+      {
+         "bytes" : 2529,
+         "path" : ".tmp/shared-014-0154-01/verify-layout.pl",
+         "sha256" : "00be383396e2de56b324bf3bd5887bc18f79e4f19928ce67458c1bb93c50d4e6"
+      },
+      {
+         "bytes" : 1243,
+         "path" : ".tmp/shared-014-0154-01/preserve-historical-links.pl",
+         "sha256" : "f333a4e02edbfc95d336a629c0f43f5cdb004cdc0fb503c3fa3c11a16a876931"
+      },
+      {
+         "bytes" : 1220,
+         "path" : ".tmp/shared-014-0154-01/check-pins-private-index.pl",
+         "sha256" : "024bdb44a5cb088af207e8d4dc1002167daec4353bb2ec5981727b150b3fa2cd"
+      },
+      {
+         "bytes" : 1155,
+         "path" : ".tmp/shared-014-0154-01/pocketic.sh",
+         "sha256" : "7979da6e468886dddbbdce717a3038c75a59316855113c6ead5fb17a7c3d6987"
+      },
+      {
+         "bytes" : 5272,
+         "path" : ".tmp/shared-014-0154-01/update-handoff.pl",
+         "sha256" : "949fe86e211be23d380d93db0ecdd4a7145fe458de68b3edcd58aea4420b5e6d"
+      },
+      {
+         "bytes" : 10025,
+         "path" : ".tmp/shared-014-0154-01/collect.pl",
+         "sha256" : "4aaef0993711f7021a1a7c19d9ccbb2578c70654edc41e62eb32fcfa23e372e1"
+      },
+      {
+         "bytes" : 1612,
+         "path" : ".tmp/shared-014-0154-01/tool-transcript-failures.txt",
+         "sha256" : "a93208c0326c482e6dcf86e9e538f8b0646877e21e47c0a3276681a3ea8dfbee"
+      },
+      {
+         "bytes" : 5473,
+         "path" : ".tmp/shared-014-0154-01/upstream-ci.json",
+         "sha256" : "d8ce4b81631e936fefe09f5d655cd7838723a32ff6922502a4e0cc1d91f34738"
+      },
+      {
+         "bytes" : 5595,
+         "path" : ".tmp/shared-014-0154-01/upstream-ci-recheck.json",
+         "sha256" : "b9ed8183e481dddb0dcd985b98a679a430cf1c89c906f766ef31d83d69dd4cd4"
+      },
+      {
+         "bytes" : 5685,
+         "path" : ".tmp/shared-014-0154-01/issue-17.json",
+         "sha256" : "aeb9ead52536c520cf4b068ee551642259797057411c534957060666324c4a13"
+      },
+      {
+         "bytes" : 4500,
+         "path" : ".tmp/shared-014-0154-01/issue-18.json",
+         "sha256" : "4f4a8fba3f5a555ebaf2890dad656e74592cee1d92f8d07f05790dbd8cf773e0"
+      },
+      {
+         "bytes" : 3,
+         "path" : ".tmp/shared-014-0154-01/owning-prs.json",
+         "sha256" : "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      {
+         "bytes" : 28875,
+         "path" : ".tmp/shared-014-0154-01/evidence-initial-collector.json",
+         "sha256" : "4108bf9bb95152efc6df9e6c55222d74db57075f59682c787ccacaf22ffcd542"
+      }
+   ],
+   "issues" : [
+      "https://github.com/dragginzgame/ic-blob-storage/issues/17",
+      "https://github.com/dragginzgame/ic-blob-storage/issues/18"
+   ],
+   "limitations" : [
+      "No full CI/release gate, native macOS execution of pending consumer source, production performance/telemetry qualification, provider requests, paid effects or sibling edits.",
+      "No commit, tag, push, release, deployment or registry publication. Package metadata and receipt remain 0.15.3.",
+      "Owning issues retain committed consumer/native qualification separately from successful upstream CI and local preparation."
+   ],
+   "lock_disposition" : "Byte-identical to entry; ic-metrics 0.2.4 was already selected. Locked cache preparation only; no upgrades. Prior 0.2.3 evidence remains unchanged.",
+   "metrics" : {
+      "archive" : {
+         "bytes" : 9320,
+         "path" : "/home/adam/.cargo/registry/cache/index.crates.io-1949cf8c6b5b557f/ic-metrics-0.2.4.crate",
+         "sha256" : "7bec2da218f678f1e91693bb890a30e185daf0ac1b97475bf42e280dade2d9b6"
+      },
+      "publisher" : "21e980b3ed4f1a8d9b6203079ef1e457a3fea588",
+      "source" : [
+         {
+            "bytes" : 111,
+            "path" : "/home/adam/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ic-metrics-0.2.4/.cargo_vcs_info.json",
+            "sha256" : "a989643a45aeb4ecb87ddbcff28f395a7451c3baa4a70242c730094ad73d29ae"
+         },
+         {
+            "bytes" : 1181,
+            "path" : "/home/adam/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ic-metrics-0.2.4/Cargo.toml",
+            "sha256" : "44bdb12bb4e1ff9f34a345aa27d1df15f2083d2a34b394b56045d40ced24c683"
+         },
+         {
+            "bytes" : 527,
+            "path" : "/home/adam/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ic-metrics-0.2.4/src/lib.rs",
+            "sha256" : "d8367a91724a8fc42b2dddcddd7bce68579bed2d55b82fa576d5b4f78ae07fae"
+         },
+         {
+            "bytes" : 2700,
+            "path" : "/home/adam/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ic-metrics-0.2.4/src/summary/mod.rs",
+            "sha256" : "4d7edef98039c02d03658170a4dfaf489e8dcb1b86d841ce9520d9a325f81362"
+         },
+         {
+            "bytes" : 2668,
+            "path" : "/home/adam/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ic-metrics-0.2.4/src/summary/tests.rs",
+            "sha256" : "a22b25f01477e35080634602823e00b467e94fe00661a1470cb9739e1f93ef30"
+         }
+      ],
+      "version" : "0.2.4"
+   },
+   "moved_files" : 347,
+   "moves" : [
+      [
+         "canisters/standalone",
+         "crates/ic-blob-storage-canister"
+      ],
+      [
+         "canisters/test/admission_probe",
+         "crates/blob-admission-probe"
+      ],
+      [
+         "canisters/test/authority_probe",
+         "crates/blob-authority-probe"
+      ],
+      [
+         "canisters/test/consumer_probe",
+         "crates/blob-consumer-probe"
+      ],
+      [
+         "canisters/test/funding_probe",
+         "crates/blob-funding-probe"
+      ],
+      [
+         "canisters/test/gateway_source",
+         "crates/blob-gateway-source"
+      ],
+      [
+         "canisters/test/storage_probe",
+         "crates/blob-storage-probe"
+      ],
+      [
+         "tests/pocketic",
+         "crates/ic-blob-storage-pocketic-tests"
+      ],
+      [
+         "tests/protocol",
+         "crates/blob-test-protocol"
+      ]
+   ],
+   "raw_attempts" : [
+      {
+         "bytes" : 0,
+         "path" : ".tmp/shared-014-0154-01/actionlint.log",
+         "sha256" : "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+         "bytes" : 178,
+         "path" : ".tmp/shared-014-0154-01/cli-build.log",
+         "sha256" : "9d46070fa0c9cf66f03762320a722332f3bc86c3170692a157f4604ac0bd24aa"
+      },
+      {
+         "bytes" : 18,
+         "path" : ".tmp/shared-014-0154-01/cloc-bash32.log",
+         "sha256" : "9685164dbd7fae9ba47d34b1601b58432b4a2bf63b162d09cc0e9320e52aef89"
+      },
+      {
+         "bytes" : 18,
+         "path" : ".tmp/shared-014-0154-01/cloc.log",
+         "sha256" : "9685164dbd7fae9ba47d34b1601b58432b4a2bf63b162d09cc0e9320e52aef89"
+      },
+      {
+         "bytes" : 44,
+         "path" : ".tmp/shared-014-0154-01/collect.log",
+         "sha256" : "4868c14eae6634780b89fa06cabccad23ac57946658eda1551352d70d42aaedc"
+      },
+      {
+         "bytes" : 55,
+         "path" : ".tmp/shared-014-0154-01/deps.log",
+         "sha256" : "d0e6cb125bbde361468429462390bf41d1e6142aad10afe2c095ed4d7deec5a5"
+      },
+      {
+         "bytes" : 251,
+         "path" : ".tmp/shared-014-0154-01/export-retry.log",
+         "sha256" : "8aded5eff585cb9b68f3fb7cec03580158006415cc42520a4510600966571645"
+      },
+      {
+         "bytes" : 731,
+         "path" : ".tmp/shared-014-0154-01/export.log",
+         "sha256" : "5e2241cf33b793175906a8ee32b12353223f7ba045a7ae4dadfef122df5acffe"
+      },
+      {
+         "bytes" : 73,
+         "path" : ".tmp/shared-014-0154-01/historical-links.log",
+         "sha256" : "4be59b132a2db5ff4918b8b8ea337bed75b6fc06683515399fdd2bd9886a44f3"
+      },
+      {
+         "bytes" : 1704,
+         "path" : ".tmp/shared-014-0154-01/hook-baseline-failure-bash32.log",
+         "sha256" : "595ce7060999f53080d0f7bf71ae43416174a368d2e9f3588c5ad717f691a644"
+      },
+      {
+         "bytes" : 1704,
+         "path" : ".tmp/shared-014-0154-01/hook-baseline-failure.log",
+         "sha256" : "68600b13cad462f97cae588430e895b78d6a68cb6f7dae78f2ba2154107217ea"
+      },
+      {
+         "bytes" : 39,
+         "path" : ".tmp/shared-014-0154-01/hook-marker-refusal-bash32.log",
+         "sha256" : "872bfb917ad8d3348612b1245cc0248282c6c1178fa6f82c2d708f37cabea5ce"
+      },
+      {
+         "bytes" : 39,
+         "path" : ".tmp/shared-014-0154-01/hook-marker-refusal-bash5.log",
+         "sha256" : "872bfb917ad8d3348612b1245cc0248282c6c1178fa6f82c2d708f37cabea5ce"
+      },
+      {
+         "bytes" : 231,
+         "path" : ".tmp/shared-014-0154-01/hooks-bash32-final.log",
+         "sha256" : "8bd6f852fcb8d9ef0111bc6a77581b70ee87262dd01fe855dadfb07085a89e23"
+      },
+      {
+         "bytes" : 231,
+         "path" : ".tmp/shared-014-0154-01/hooks-bash32-qualified.log",
+         "sha256" : "8bd6f852fcb8d9ef0111bc6a77581b70ee87262dd01fe855dadfb07085a89e23"
+      },
+      {
+         "bytes" : 255,
+         "path" : ".tmp/shared-014-0154-01/hooks-bash32-retry.log",
+         "sha256" : "b88453611e351f2604f0e700aef6f70ef3c1eec0de0aacdaf883a0e6cf753e5b"
+      },
+      {
+         "bytes" : 231,
+         "path" : ".tmp/shared-014-0154-01/hooks-bash5-qualified.log",
+         "sha256" : "8bd6f852fcb8d9ef0111bc6a77581b70ee87262dd01fe855dadfb07085a89e23"
+      },
+      {
+         "bytes" : 255,
+         "path" : ".tmp/shared-014-0154-01/hooks-bash5-retry.log",
+         "sha256" : "e536f4065122c3ec7b50ab4ee939e9e028254a4919888b35e9f9d1df3eb01932"
+      },
+      {
+         "bytes" : 101,
+         "path" : ".tmp/shared-014-0154-01/layout-retry.log",
+         "sha256" : "e1f4ca3f89dc344480d62fb0ff05b0d072352344d59f98069cc45acf06a2a536"
+      },
+      {
+         "bytes" : 250,
+         "path" : ".tmp/shared-014-0154-01/layout.log",
+         "sha256" : "04b504d18e3f6658b7e185f44898de7067801f0bd1ad14a77719f60320f667f1"
+      },
+      {
+         "bytes" : 48,
+         "path" : ".tmp/shared-014-0154-01/links-final.log",
+         "sha256" : "b46748cd837760317288f71a058fdf11cd5edd35542f428e49178d7f338a0878"
+      },
+      {
+         "bytes" : 48,
+         "path" : ".tmp/shared-014-0154-01/links-retry.log",
+         "sha256" : "20f17d9c408925e63747067f0d9e8b09ae6813b916385b51ff535baa9cd63974"
+      },
+      {
+         "bytes" : 1902,
+         "path" : ".tmp/shared-014-0154-01/links.log",
+         "sha256" : "aa2474e53e16da613a013c7c3a9c79996eff3f4e73c4aad8eadde13080e06a3d"
+      },
+      {
+         "bytes" : 959,
+         "path" : ".tmp/shared-014-0154-01/msrv-wasm.log",
+         "sha256" : "10680fe34daec195db86bea845f0c2cf50ec4dd0aa4a9266487dd92921332798"
+      },
+      {
+         "bytes" : 0,
+         "path" : ".tmp/shared-014-0154-01/package-list.log",
+         "sha256" : "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+         "bytes" : 151,
+         "path" : ".tmp/shared-014-0154-01/package.log",
+         "sha256" : "5c8824fcc2cec64cde16c0bcc274fcb650580f5a3a88d27f6ba17690b63e9d2c"
+      },
+      {
+         "bytes" : 272,
+         "path" : ".tmp/shared-014-0154-01/pins-private-index-retry.log",
+         "sha256" : "6b4ee5be73ccf8de5cc9f758cce58bb7e270cc3983ee5cfd68351cf2e0cbc8e3"
+      },
+      {
+         "bytes" : 325,
+         "path" : ".tmp/shared-014-0154-01/pins-private-index.log",
+         "sha256" : "b64365a881e889b331086fa47ba8729a1e7c9df76e99365d244c6baad59eeee2"
+      },
+      {
+         "bytes" : 1960,
+         "path" : ".tmp/shared-014-0154-01/pocketic.log",
+         "sha256" : "f273d26fb3e4d0cfc5ec5c94c19bfaccc6668499f2e6af204836b081802eaf04"
+      },
+      {
+         "bytes" : 304,
+         "path" : ".tmp/shared-014-0154-01/relocated-check.log",
+         "sha256" : "dd2a01f3b687caed15836aa1d3528434fde777db14c5c7695e1f5578cbaf0e98"
+      },
+      {
+         "bytes" : 1154,
+         "path" : ".tmp/shared-014-0154-01/relocated-clippy.log",
+         "sha256" : "d124d48c32a349214963a4bc9edc5045060d0f2522d40e6933b04d70707ead40"
+      },
+      {
+         "bytes" : 950,
+         "path" : ".tmp/shared-014-0154-01/relocated-wasm.log",
+         "sha256" : "65cb51da6ae789b6e87fda43a5ba8bba9c4ccb14493e263303de8a8d669f5c65"
+      },
+      {
+         "bytes" : 268,
+         "path" : ".tmp/shared-014-0154-01/shell.log",
+         "sha256" : "553cf92f9a75fa6adb5272470a710aa0c4f5f555c5f3374136393ff3669203f0"
+      },
+      {
+         "bytes" : 812,
+         "path" : ".tmp/shared-014-0154-01/static-final.log",
+         "sha256" : "bbb83bbb21e1297c4d111cdea70867313a130a7be8ac9fccf638a23ce5a06096"
+      },
+      {
+         "bytes" : 779,
+         "path" : ".tmp/shared-014-0154-01/static.log",
+         "sha256" : "f24109b3354f23af3404e119c812e08fa9768d55b4bc743e583a27ec64ab6738"
+      },
+      {
+         "bytes" : 2010,
+         "path" : ".tmp/shared-014-0154-01/tooling-bash32.log",
+         "sha256" : "e9f07dba01e2438766bf454e5d66f171235d9ac914a14df976d7d5eafe189675"
+      },
+      {
+         "bytes" : 2010,
+         "path" : ".tmp/shared-014-0154-01/tooling-bash5.log",
+         "sha256" : "c71ee8699b5e765f7321c14b828535ec21f30f96989a7c4426f5c4cb6e44af15"
+      },
+      {
+         "bytes" : 336,
+         "path" : ".tmp/shared-014-0154-01/upstream-hooks-bash5.log",
+         "sha256" : "f1911b0b557ab5e96d4b0653d26879320db512df4036ad945a6025bbf86c34b7"
+      },
+      {
+         "bytes" : 37,
+         "path" : ".tmp/shared-014-0154-01/upstream-logger-bash32.log",
+         "sha256" : "ceebc3d0815f8bf5a70fc330e9d76cbe0e4c1f7e87cccbae6d060addee3c5ff8"
+      },
+      {
+         "bytes" : 37,
+         "path" : ".tmp/shared-014-0154-01/upstream-logger-bash5.log",
+         "sha256" : "ceebc3d0815f8bf5a70fc330e9d76cbe0e4c1f7e87cccbae6d060addee3c5ff8"
+      }
+   ],
+   "removed_symbols" : [],
+   "retained_failed_fixtures" : [
+      "/tmp/formatting-adoption.zHMGDn",
+      "/tmp/blob-format-hooks.5kxuIs",
+      "/tmp/formatting-adoption.jH2Mmv",
+      "/tmp/blob-format-hooks.hSOg3x",
+      "/tmp/blob-format-hooks.ZEvtyU",
+      "/tmp/blob-format-hooks.hPCkke"
+   ],
+   "schema" : "ic-blob-storage-shared-adoption-evidence-v1",
+   "snapshot" : {
+      "export" : "Canonical refresh from a clean private committed-source checkout. Prior selected destinations checked against entry hashes/modes; added paths explicit. No sibling edits or vendored patches.",
+      "files" : 63,
+      "revision" : "25e7ce83149e081e4dcc52c55c33724e44153f2a",
+      "version" : "0.1.14"
+   },
+   "source_state" : "dirty local adoption; maintainer-owned commit pending",
+   "upstream_ci" : {
+      "conclusion" : "success",
+      "jobs" : [
+         {
+            "conclusion" : "success",
+            "name" : "portable-regression (ubuntu-24.04)"
+         },
+         {
+            "conclusion" : "success",
+            "name" : "lint-and-security"
+         },
+         {
+            "conclusion" : "success",
+            "name" : "portable-regression (macos-15)"
+         },
+         {
+            "conclusion" : "success",
+            "name" : "portable-regression (macos-15-intel)"
+         }
+      ],
+      "sha" : "25e7ce83149e081e4dcc52c55c33724e44153f2a",
+      "url" : "https://github.com/dragginzgame/shared-tooling/actions/runs/37586649650"
+   },
+   "verification" : [
+      "Exact metadata equivalence after planned path and Cargo package-ID normalization; all 11 members under crates/<package-name>. Selected features, dependencies, targets, package identities and release receipt unchanged.",
+      "Nine relocated packages: offline locked all-target compilation and strict Clippy. Seven canisters: release Wasm builds and Rust 1.88 Wasm checks. Native CLI rebuilt at the selected lock.",
+      "Four actual local PocketIC cases: Candid parity, CLI installation with wrong-service refusal, restoration-read attribution/operator window, and corrupt funding-journal release-binding refusal.",
+      "Focused shared tools, canonical distribution, release routing/runner/consumer adapter and consumer hook checks on Linux Bash 5 and Linux-built Bash 3.2. Real Make guarded refusal; Git/Cargo release effects are substitutes.",
+      "Canonical logger suite under both Bash versions: compact/long modes and nested parallel controls. Canonical owner hook suite under Bash 5; actual consumer hook checks under both versions.",
+      "Canonical cloc fixtures pass under both Bash versions using a private copied Debian cloc 1.98 and prepared read-only Perl modules; no host installation or CI prerequisite change.",
+      "Independent snapshot/declaration/inheritance/formatting/links/syntax/ShellCheck/workflow checks. Declaration planned relocations use only a private index/object store; actual index unchanged.",
+      "Core archive preparation and package contents listing succeed; no package verification compilation or publication is attributed to those commands."
+   ],
+   "workspace" : [
+      {
+         "features" : {},
+         "manifest" : "/home/adam/projects/ic-blob-storage/crates/blob-admission-probe/Cargo.toml",
+         "name" : "blob-admission-probe",
+         "publish" : [],
+         "version" : "0.15.3"
+      },
+      {
+         "features" : {},
+         "manifest" : "/home/adam/projects/ic-blob-storage/crates/blob-authority-probe/Cargo.toml",
+         "name" : "blob-authority-probe",
+         "publish" : [],
+         "version" : "0.15.3"
+      },
+      {
+         "features" : {},
+         "manifest" : "/home/adam/projects/ic-blob-storage/crates/blob-consumer-probe/Cargo.toml",
+         "name" : "blob-consumer-probe",
+         "publish" : [],
+         "version" : "0.15.3"
+      },
+      {
+         "features" : {},
+         "manifest" : "/home/adam/projects/ic-blob-storage/crates/blob-funding-probe/Cargo.toml",
+         "name" : "blob-funding-probe",
+         "publish" : [],
+         "version" : "0.15.3"
+      },
+      {
+         "features" : {},
+         "manifest" : "/home/adam/projects/ic-blob-storage/crates/blob-gateway-source/Cargo.toml",
+         "name" : "blob-gateway-source",
+         "publish" : [],
+         "version" : "0.15.3"
+      },
+      {
+         "features" : {},
+         "manifest" : "/home/adam/projects/ic-blob-storage/crates/blob-storage-probe/Cargo.toml",
+         "name" : "blob-storage-probe",
+         "publish" : [],
+         "version" : "0.15.3"
+      },
+      {
+         "features" : {},
+         "manifest" : "/home/adam/projects/ic-blob-storage/crates/blob-test-protocol/Cargo.toml",
+         "name" : "blob-test-protocol",
+         "publish" : [],
+         "version" : "0.15.3"
+      },
+      {
+         "features" : {},
+         "manifest" : "/home/adam/projects/ic-blob-storage/crates/ic-blob-storage/Cargo.toml",
+         "name" : "ic-blob-storage",
+         "publish" : [
+            "crates-io"
+         ],
+         "version" : "0.15.3"
+      },
+      {
+         "features" : {},
+         "manifest" : "/home/adam/projects/ic-blob-storage/crates/ic-blob-storage-canister/Cargo.toml",
+         "name" : "ic-blob-storage-canister",
+         "publish" : [],
+         "version" : "0.15.3"
+      },
+      {
+         "features" : {},
+         "manifest" : "/home/adam/projects/ic-blob-storage/crates/ic-blob-storage-cli/Cargo.toml",
+         "name" : "ic-blob-storage-cli",
+         "publish" : [],
+         "version" : "0.15.3"
+      },
+      {
+         "features" : {},
+         "manifest" : "/home/adam/projects/ic-blob-storage/crates/ic-blob-storage-pocketic-tests/Cargo.toml",
+         "name" : "ic-blob-storage-pocketic-tests",
+         "publish" : [],
+         "version" : "0.15.3"
+      }
+   ]
+}

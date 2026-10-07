@@ -92,17 +92,73 @@ availability does not establish provider qualification or service readiness.
 | `thiserror` | 2.0.18 (locked) | Typed error derives; PocketIC constrains its own requirement exactly |
 | `ic-cdk` | 0.20.3 | IC platform operations for the ops layer |
 | `ic-management-canister-types` | 0.11.0 (direct, locked) | Bounded current-instance IC-history request/reply types |
-| `ic-memory` | 0.28.4 (locked) | Sole allocation runtime; current ownership ledger and public typed growth API |
+| `ic-memory` | 0.30.0 (locked) | Sole allocation runtime; current ownership ledger and public typed growth API |
+| `ic-metrics` | 0.2.5 (locked) | Private storage resource probe only; allocation-free measurement arithmetic, no platform reader |
 | `ic-stable-structures` | 0.7.2 | Exact transitive substrate owned/re-exported by `ic-memory` |
 | `ic-testkit` | 0.19.2 (locked) | Native dependency of the unpublished PocketIC harness; shared helpers and full re-export |
 | `pocket-ic` | 16.0.0 | Transitive through `ic-testkit`; no direct dependency |
 | `ic-agent` | 0.49.2 | Native CLI and harness signing and verification of ingress certificates |
-| `ic-host-artifacts` | 0.3.0 (direct, locked) | Native CLI raw SHA-256 identities; optional archive/gzip/Wasm features disabled |
-| `ic-host-fs` | 0.3.0 (direct, locked) | Native CLI bounded descriptor/no-follow reads and private durable create-new records |
+| `ic-host-artifacts` | 0.3.1 (direct, locked) | Native CLI raw SHA-256 identities and example-only bounded JSON streams; optional archive/gzip/Wasm features disabled |
+| `ic-host-fs` | 0.3.1 (direct, locked) | Native CLI bounded descriptor/no-follow reads and private durable create-new records |
 | `ic-host-tools` | 0.1.14 (harness transitive) | Owned by ic-testkit; no direct CLI facade dependency |
 | `candid_parser` | 0.4.1 | Native harness only; official Candid parser for native request fixtures |
 
-### Pending 0.15.3 host crate split
+### Memory 0.30 and example stream collection — pending 0.16.0
+
+The task-entry lock selects published Memory 0.30.0 and private-probe metrics
+0.2.5. Memory's registry source matches publisher `2fdeec4`; every runtime source
+file and runtime dependency declaration matches 0.28.4. The public re-export,
+grant requests and runtime handles nevertheless change Rust crate identity.
+Hosts must use Memory 0.30 in one composed graph. A private compile probe accepts
+that identity and rejects assigning these requests to 0.28-owned types. This
+requires a minor library release, without introducing a new durable schema,
+endpoint owner or lifecycle adapter. Cross-release reinstall and retirement
+rules still apply. [#20](https://github.com/dragginzgame/ic-blob-storage/issues/20)
+retains publication and downstream managed qualification with their owners.
+
+Native examples inherit ic-host-artifacts only as a target-specific development
+dependency. Its `read_reader` owns bounded collection and interrupted-read retry;
+each caller keeps `File::open`, JSON schema and limit diagnostics. Inventory
+paths still resolve from the supplied file's directory, including file symlinks.
+I/O errors keep their original type; allocation failures are reported without
+infallible vector growth. Production/native-library and Wasm runtime graphs do
+not acquire this edge. [#21](https://github.com/dragginzgame/ic-blob-storage/issues/21)
+tracks this adoption. Metrics 0.2.5 runtime source matches 0.2.4; earlier immutable
+records keep their original locks and artifact identities.
+
+### Initial ic-metrics adoption for the earlier 0.15.4 candidate
+
+The initial private storage resource probe adoption used published ic-metrics 0.2.4 through an
+inherited `0.2` registry requirement. `record_sample` owns completed-read count
+and instruction-total arithmetic; requested bytes remain a separate unit. The
+host still reads IC call-context counter 1, selects each logical memory and
+starts/stops the synchronous reopen window. The counter retains three u64 fields
+and the existing Candid/report shape. Counts and totals saturate independently;
+saturated diagnostic values are unavailable for exact interval arithmetic.
+
+The dependency has no features, runtime reads, allocations or Cargo dependencies.
+It is absent from the published core and production standalone graphs. Service
+balances, quota/capacity accounting and durable journals retain their exact
+arithmetic; their obligations are not measurement summaries. No metrics endpoint
+or registry is added. The [initial source-bound record](evidence/metrics-0154.json)
+retains its 0.2.3 graph and checks. The later
+[workspace adoption record](evidence/shared-014-0154.json) binds the already-selected
+0.2.4 lock and fresh local PocketIC window/installation/recovery checks; it does
+not relabel the earlier evidence.
+[#19](https://github.com/dragginzgame/ic-blob-storage/issues/19) owns committed
+consumer/native qualification. No instruction or cycle savings are claimed.
+
+### Released 0.15.3 host crate split
+
+The earlier 0.15.4 candidate lock refresh selected published artifacts/fs 0.3.1. Their
+published sources match committed host release `38a2a51`; the existing CLI
+callers retain bounded reads, native-only placement and private create-new
+publication. The refactored writer and shorter staging names stay under that
+shared owner. New gzip, path, lock-wait and streaming replacement APIs are not
+introduced into unmatched provider/probe flows. The
+[refresh record](evidence/refresh-0154-02.json) binds the selected graph and
+focused Linux qualification; pending-source native macOS checks remain required.
+The following original adoption evidence keeps its 0.3.0 bindings.
 
 The maintainer-selected direct ic-host-tools 0.3.0 removed the old artifact
 facade. Its four published host crates were reviewed against cached registry
@@ -137,8 +193,9 @@ selected graph, including the pre-existing ic-memory 0.28.4, h2 0.4.20 and
 hyper 1.12.0 selections. CLI/probe, FIFO, Clippy and Rust 1.88 checks pass on
 Linux; retained probes and checksums verify read-only. These checks qualify
 native callers, not new service deployment or full core/PocketIC behavior.
-Earlier qualification retains its original graphs. Matching native macOS CI
-remains outstanding for this pending source.
+Earlier qualification retains its original graphs. The released 0.15.3 native
+Linux and both macOS jobs now pass. That result does not qualify the pending
+0.15.4 graph.
 
 The maintainer-selected ic-memory 0.27 upgrade removes history/timestamp APIs
 and changes the durable ledger layout exposed through the public re-export.
@@ -189,7 +246,7 @@ earlier funding/restore and Wasm records retain their original source and graph.
 
 Headless ingress tests add pinned `ic-agent` 0.49.2 (default features disabled),
 plus the locked `reqwest` 0.13.5, `tokio` 1.53.2 and `serde_cbor` 0.11.2
-as native dev dependencies in `tests/pocketic`. The public crates.io index confirmed
+as native dev dependencies in `crates/ic-blob-storage-pocketic-tests`. The public crates.io index confirmed
 0.49.2 as the latest non-yanked agent release on 2026-09-28. Its cryptographic graph
 adds host-only lockfile entries without changing existing package versions, the
 published library dependency graph, Wasm allocation or memory grants. Tests trust
@@ -293,8 +350,8 @@ The original [0.10.0 export](https://docs.rs/ic-testkit/0.10.0/ic_testkit/index.
 exposes the complete PocketIC crate. Keep the dependency under native dev
 dependencies; neither the production library nor its Wasm build needs testkit.
 With the dedicated harness in place, the core package's native dev graph also
-excludes it; testkit is owned by `tests/pocketic/Cargo.toml`.
-The unpublished `tests/pocketic` harness uses these exports. This shares version
+excludes it; testkit is owned by `crates/ic-blob-storage-pocketic-tests/Cargo.toml`.
+The unpublished `crates/ic-blob-storage-pocketic-tests` harness uses these exports. This shares version
 selection and harness helpers, rather than reducing the total transitive package
 count: testkit also brings host-side artifact/locking utilities.
 

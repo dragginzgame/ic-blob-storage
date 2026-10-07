@@ -197,7 +197,7 @@ old/new gate generations, compatibility path or manually supplied true flags.
 
 ## Inputs to finalize
 
-The [configuration envelope](../canisters/standalone/trial/README.md) and
+The [configuration envelope](../crates/ic-blob-storage-canister/trial/README.md) and
 [provisioning sequence](operator-guide.md#prepare-isolated-trial-provisioning)
 have an original private proposal in `.tmp/trial-provisioning-01/proposal.json`:
 canic-mainnet is the deployment/operator candidate, with fresh repository-local

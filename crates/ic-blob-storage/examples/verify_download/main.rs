@@ -8,6 +8,7 @@ use ic_blob_storage::model::identity::caffeine::{
     CaffeineContentHashes, CaffeineHashError, CaffeineHashLimits, CaffeineHeader,
     verification::CaffeineRootVerifier,
 };
+use ic_host_artifacts::artifact::{ArtifactError, read_reader};
 use serde::Deserialize;
 use std::{
     error::Error,
@@ -18,7 +19,7 @@ use std::{
 use thiserror::Error;
 
 const FRAME: usize = 65_536;
-const CLAIM_BYTES: u64 = 16_384;
+const CLAIM_BYTES: usize = 16_384;
 
 #[derive(Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -26,6 +27,18 @@ struct DownloadClaim {
     root: String,
     bytes: u64,
     headers: Vec<Header>,
+}
+
+fn read_claim(reader: impl Read) -> Result<DownloadClaim, Box<dyn Error>> {
+    let encoded = read_reader(reader, CLAIM_BYTES).map_err(|error| -> Box<dyn Error> {
+        match error {
+            ArtifactError::LimitExceeded { .. } => "claim exceeds example input bound".into(),
+            ArtifactError::Io(error) => error.into(),
+            ArtifactError::Allocation(error) => error.into(),
+            error => error.into(),
+        }
+    })?;
+    Ok(serde_json::from_slice(&encoded)?)
 }
 
 #[derive(Deserialize)]
@@ -86,14 +99,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     if args.next().is_some() {
         return Err("unexpected argument".into());
     }
-    let mut encoded = Vec::new();
-    File::open(claim_path)?
-        .take(CLAIM_BYTES + 1)
-        .read_to_end(&mut encoded)?;
-    if encoded.len() as u64 > CLAIM_BYTES {
-        return Err("claim exceeds example input bound".into());
-    }
-    let claim: DownloadClaim = serde_json::from_slice(&encoded)?;
+    let claim = read_claim(File::open(claim_path)?)?;
     let headers: Vec<_> = claim
         .headers
         .iter()

@@ -29,7 +29,8 @@ Agent requests such as `check CI`, `check issues` and `check for work` follow th
 repository's `Release and formatting tooling` workflow at the selected source; dirty changes have no
 remote result. Session instructions can enable inspections after each completed
 batch. Explicit repair requests authorize scoped fixes and focused checks;
-full gates and GitHub writes retain their separate authority.
+full gates and release effects retain their separate authority. Relevant issue
+work follows the shared maintenance rules.
 
 Use targeted checks while implementing. Full CI or release validation requires
 an explicit request or an explicitly authorized version/release target.
@@ -59,7 +60,9 @@ URLs. `make shared-tooling-tests` exercises formatter prerequisite, portable dig
 lockfile and Cargo metadata refusals with offline substitutes. The declaration
 gate opts in to shared Cargo package/dependency inheritance checks.
 `make hooks-check` supplies the consumer's real formatter inputs to the shared
-adoption checker and retains the additional mutating-formatter rollback case.
+adoption checker using Cargo's complete member roster and each member's Rust
+sources, including packages not yet present in HEAD. It retains the additional
+mutating-formatter rollback and Make-mode refusal cases.
 `make release-commands-check` copies the
 reviewed Makefile and its explicit parse-time inputs into a private fixture,
 then uses a substitute runner. `make release-check` includes that shared routing

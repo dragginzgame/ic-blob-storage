@@ -104,7 +104,7 @@ explicitly distinguishable from a verifier receipt; no receipt is invented for i
 Standalone certificate/exposure integration uses the restricted local contract
 above; live end-to-end acceptance remains open.
 See the [probe ledger](evidence/caffeine-probes/README.md)
-for local transaction evidence and the [host contract](../canisters/standalone/README.md)
+for local transaction evidence and the [host contract](../crates/ic-blob-storage-canister/README.md)
 for endpoint usage.
 
 Native recovery now uses `blob-storage upload-attestation` with an independently
@@ -202,7 +202,7 @@ immutable; getters grant no endpoint, tenant or operational recovery authority.
 Standalone uses this owner; current DTOs/Candid and the v1 record now include
 required immutable uploader trust without cross-release compatibility.
 
-The [standalone host](../canisters/standalone/README.md) now explicitly owns these
+The [standalone host](../crates/ic-blob-storage-canister/README.md) now explicitly owns these
 hooks and grants and delegates configuration persistence to the shared owner. Its actual IC
 installation validates all inputs before allocation; same-release upgrade restoration
 loads the saved service/release-bound configuration without replacement arguments
@@ -978,8 +978,16 @@ integrating host owns bootstrap, policy, grants and bucket profile. Cross-releas
 schema transitions are reinstall-only, subject to retirement of existing obligations;
 the dependency choice does not close provider and recovery qualification gates.
 
-The pending 0.15.0 contract selects ic-memory 0.27.1 through the library's public
-re-export. Its allocation ledger retains current ownership and latest schema
+Pending 0.16.0 selects ic-memory 0.30 through the library's public re-export.
+Hosts must align their direct dependency and composed graph with that line;
+the public Memory-owned grant and runtime types change Rust identity from 0.28.
+Published 0.30.0 runtime source matches 0.28.4, so this selection introduces no
+new durable layout. Host bootstrap, policy, grants and lifecycle ownership stay
+with the integrating host. Cross-release transitions remain reinstall-only,
+with the obligation disposition below; source equivalence does not authorize
+upgrading a retained installation across releases.
+
+The allocation-ledger hard cut introduced in 0.15.0 retains current ownership and latest schema
 metadata, without per-upgrade/schema audit trails or observation timestamps.
 Hosts using those removed APIs or diagnostic DTOs must update their callers and
 fixtures. The dependency's earlier logical layouts cannot be reopened, despite
@@ -989,7 +997,7 @@ or automatic reset. Do not clear allocation ID 0 to bypass failed recovery.
 Funding intents additionally require the current credit record and accounting
 requires `credit_confirmed`; absent fields refuse, with no legacy reader. The
 installation format above changes alongside these owners, even while development
-artifacts still compile as 0.14.12. Update hosts, passive DTOs/codecs, tools and
+artifacts then compiled as 0.14.12. Update hosts, passive DTOs/codecs, tools and
 fixtures together. Frozen prior Wasms and records retain their original identities.
 
 Before a cross-release reinstall, apply the installation retirement contract and

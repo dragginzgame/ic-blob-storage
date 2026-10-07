@@ -2,6 +2,52 @@ use super::*;
 use crate::{Header, UploadMetadataError};
 use std::fs;
 
+const INPUT: &[u8] = br#"{"limits":{"files":1,"file_bytes":3,"file_chunks":1,"total_bytes":3,"total_chunks":1},"files":[]}"#;
+
+#[test]
+fn inventory_collection_preserves_json_bounds_and_stream_failures() {
+    let mut exact = INPUT.to_vec();
+    exact.resize(INVENTORY_BYTES, b' ');
+    assert!(load_reader(exact.as_slice()).unwrap().files.is_empty());
+    exact.push(b' ');
+    assert!(matches!(
+        load_reader(exact.as_slice()),
+        Err(InventoryError::EncodedLimit)
+    ));
+    for invalid in [&b""[..], &b"{"[..]] {
+        assert!(matches!(load_reader(invalid), Err(InventoryError::Json(_))));
+    }
+    let reader = crate::tests::Body {
+        bytes: INPUT,
+        interrupted: true,
+        fail_at_end: false,
+    };
+    assert!(load_reader(reader).unwrap().files.is_empty());
+    let reader = crate::tests::Body {
+        bytes: INPUT,
+        interrupted: false,
+        fail_at_end: true,
+    };
+    assert!(
+        matches!(load_reader(reader), Err(InventoryError::Io(error)) if error.kind() == io::ErrorKind::ConnectionReset)
+    );
+}
+
+#[cfg(unix)]
+#[test]
+fn inventory_file_symlink_keeps_the_callers_directory_as_source_base() {
+    let dir = tempfile::tempdir().unwrap();
+    let alias = tempfile::tempdir().unwrap();
+    fs::write(dir.path().join("inventory.json"), INPUT).unwrap();
+    let path = alias.path().join("inventory.json");
+    std::os::unix::fs::symlink(dir.path().join("inventory.json"), &path).unwrap();
+    let (_, base) = load(&path).unwrap();
+    assert_eq!(base, alias.path().canonicalize().unwrap());
+    assert!(
+        matches!(load(&alias.path().join("missing.json")), Err(InventoryError::Io(error)) if error.kind() == io::ErrorKind::NotFound)
+    );
+}
+
 fn limits() -> InventoryLimits {
     InventoryLimits {
         files: NonZeroUsize::new(4).unwrap(),
@@ -194,11 +240,7 @@ fn symlinks_in_leaf_or_parent_components_are_rejected() {
 fn file_boundary_bounds_json_and_rejects_ambiguous_input() {
     let dir = tempfile::tempdir().unwrap();
     let input = dir.path().join("inventory.json");
-    fs::write(
-        &input,
-        vec![b' '; usize::try_from(INVENTORY_BYTES).unwrap() + 1],
-    )
-    .unwrap();
+    fs::write(&input, vec![b' '; INVENTORY_BYTES + 1]).unwrap();
     assert!(matches!(run(&input), Err(InventoryError::EncodedLimit)));
     let limits = serde_json::json!({ "files": 1, "file_bytes": 3, "file_chunks": 1, "total_bytes": 3, "total_chunks": 1 });
     fs::write(

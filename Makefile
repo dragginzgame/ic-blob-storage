@@ -117,10 +117,12 @@ shared-tooling-check:
 
 shared-tooling-tests:
 	bash scripts/ci/test-format-tools.sh
+	bash scripts/ci/check-validation-logging.sh
 	bash scripts/ci/test-file-digests.sh
 	bash scripts/ci/test-ic-tools.sh
 	perl scripts/ci/test-local-lock-versions.pl
 	bash scripts/ci/test-cargo-metadata.sh
+	bash scripts/ci/test-snapshot-distribution.sh
 
 documentation-links-check:
 	@set -o pipefail; find docs audits rules -type f -name '*.md' -print0 | \

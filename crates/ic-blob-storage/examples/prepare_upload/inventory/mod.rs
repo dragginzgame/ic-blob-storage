@@ -15,6 +15,7 @@ use ic_blob_storage::model::identity::{
     verification::ContentVerifier,
 };
 use ic_blob_storage::model::service::upload::manifest::validate_upload_metadata;
+use ic_host_artifacts::artifact::{ArtifactError, read_reader};
 use serde::{Deserialize, Serialize};
 use std::{
     collections::{BTreeMap, BTreeSet},
@@ -25,7 +26,7 @@ use std::{
 };
 use thiserror::Error;
 
-const INVENTORY_BYTES: u64 = 1024 * 1024;
+const INVENTORY_BYTES: usize = 1024 * 1024;
 
 #[derive(Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -93,6 +94,8 @@ pub(super) enum InventoryError {
     Json(#[from] serde_json::Error),
     #[error("inventory I/O failed: {0}")]
     Io(#[from] io::Error),
+    #[error("inventory allocation failed: {0}")]
+    Allocation(std::collections::TryReserveError),
     #[error("inventory budget exceeded: {0:?}")]
     Limit(InventoryLimit),
     #[error("inventory requires at least one asset")]
@@ -292,20 +295,24 @@ pub(super) fn run(path: &Path) -> Result<InventoryReport, InventoryError> {
 }
 
 pub(super) fn load(path: &Path) -> Result<(Inventory, PathBuf), InventoryError> {
-    let mut encoded = Vec::new();
-    File::open(path)?
-        .take(INVENTORY_BYTES + 1)
-        .read_to_end(&mut encoded)?;
-    if encoded.len() as u64 > INVENTORY_BYTES {
-        return Err(InventoryError::EncodedLimit);
-    }
-    let inventory = serde_json::from_slice(&encoded)?;
+    let inventory = load_reader(File::open(path)?)?;
     let base = path
         .parent()
         .filter(|p| !p.as_os_str().is_empty())
         .unwrap_or_else(|| Path::new("."))
         .canonicalize()?;
     Ok((inventory, base))
+}
+
+fn load_reader(reader: impl Read) -> Result<Inventory, InventoryError> {
+    let encoded = read_reader(reader, INVENTORY_BYTES).map_err(|error| match error {
+        ArtifactError::LimitExceeded { .. } => InventoryError::EncodedLimit,
+        ArtifactError::Io(error) => InventoryError::Io(error),
+        ArtifactError::Allocation(error) => InventoryError::Allocation(error),
+        // File identity and digest errors are not produced by stream collection.
+        error => InventoryError::Io(io::Error::other(error)),
+    })?;
+    Ok(serde_json::from_slice(&encoded)?)
 }
 
 #[cfg(test)]

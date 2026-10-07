@@ -621,8 +621,8 @@ support and all released APIs remain unchanged.
 
 ## PocketIC authority probe after 0.1.8
 
-On 2026-09-26, the unpublished [test canister](../../canisters/test/authority_probe/src/lib.rs)
-and [host harness](../../tests/pocketic/tests/authority.rs) passed `make test-pocketic`.
+On 2026-09-26, the unpublished [test canister](https://github.com/dragginzgame/ic-blob-storage/blob/9d9cdf82b832c88278df54686d06aec274f905e9/canisters/test/authority_probe/src/lib.rs)
+and [host harness](https://github.com/dragginzgame/ic-blob-storage/blob/9d9cdf82b832c88278df54686d06aec274f905e9/tests/pocketic/tests/authority.rs) passed `make test-pocketic`.
 The harness creates and installs actual Wasm with an explicit controller. Endpoints
 capture `msg_caller` and `canister_self`, then use shared library policies/catalog
 through test-only workflow and ops modules. No production endpoints are exported
@@ -643,8 +643,8 @@ bytes per tenant, one reference and two receipt slots per object. Tests observe:
   access intact; the explicit operator revokes membership and the next read fails.
   Operator authority comes from installation configuration, not controller status.
 
-The [sync integration cases](../../tests/pocketic/tests/gateway_sync.rs) install a
-second [controlled source](../../canisters/test/gateway_source/src/lib.rs). For
+The [sync integration cases](https://github.com/dragginzgame/ic-blob-storage/blob/9d9cdf82b832c88278df54686d06aec274f905e9/tests/pocketic/tests/gateway_sync.rs) install a
+second [controlled source](https://github.com/dragginzgame/ic-blob-storage/blob/9d9cdf82b832c88278df54686d06aec274f905e9/canisters/test/gateway_source/src/lib.rs). For
 deterministic scheduling only, that source is also the explicit fixture operator:
 it calls back into the probe before returning its captured list. This is not a
 Cashier implementation or a product decision to trust providers as operators.
@@ -657,7 +657,7 @@ preserve membership; observed request counts prove no automatic retry. A later
 explicit valid sync succeeds after each failure. Probe decoding bounds are 4096
 bytes, 100,000 decoding work, 1000 skipping work and 32 type entries; membership
 is bounded to one raw/unique principal. These bounds do not limit IC transport buffering.
-The private [fixture protocol](../../tests/protocol/src/lib.rs) owns controls and
+The private [fixture protocol](https://github.com/dragginzgame/ic-blob-storage/blob/9d9cdf82b832c88278df54686d06aec274f905e9/tests/protocol/src/lib.rs) owns controls and
 typed test results. The source uses the CDK's documented
 [manual reply mechanism](https://docs.rs/ic-cdk/0.20.3/ic_cdk/attr.update.html)
 to return deliberately malformed bytes, without changing production codec code.
@@ -733,7 +733,7 @@ exact end positions return empty pages, and oversized indices reject before
 offset multiplication. The same targeted validation passes. These are local
 locations, not HTTP semantics, read reservations or persistent resume cursors.
 
-On 2026-09-26, [PocketIC content cases](../../tests/pocketic/tests/content.rs)
+On 2026-09-26, [PocketIC content cases](https://github.com/dragginzgame/ic-blob-storage/blob/9d9cdf82b832c88278df54686d06aec274f905e9/tests/pocketic/tests/content.rs)
 executed the library's release Wasm through the unpublished probe. Fixed enum
 requests select compiled independent vectors, with a maximum 1,048,577-byte
 object, two leaves, eight headers and 1024 metadata bytes. The fixture generates
@@ -812,7 +812,7 @@ and phase/accounting consistency. Duplicate-heavy mixed batches match individual
 root observations, visit history at most once, stop early and observe later
 confirmation without stale results. Confirmed/unknown/malformed-only and empty
 batches inspect no history rows. These views do not mutate operations or usage.
-The [PocketIC upload case](../../tests/pocketic/tests/uploads.rs) executes four
+The [PocketIC upload case](https://github.com/dragginzgame/ic-blob-storage/blob/9d9cdf82b832c88278df54686d06aec274f905e9/tests/pocketic/tests/uploads.rs) executes four
 fixed local upload facts: reserved/exposed roots for tenant A, confirmed/cancelled
 roots for tenant B. Actual callers observe only their own uploads/usage; a real
 controller has no tenant override. Foreign cancellation and owner cancellation
@@ -930,7 +930,7 @@ cancelled operations, including boundary request IDs, multiple namespaces and
 neighboring tenants. Targeted admission and read regressions pass after the
 tenant-range optimization; workspace Clippy/Wasm, rustdoc and PocketIC were rerun.
 
-The [PocketIC case](../../tests/pocketic/tests/obligations.rs) runs actual caller
+The [PocketIC case](https://github.com/dragginzgame/ic-blob-storage/blob/9d9cdf82b832c88278df54686d06aec274f905e9/tests/pocketic/tests/obligations.rs) runs actual caller
 isolation and a release/deletion/billing sequence. A real controller receives no
 foreign tenant view; an explicitly configured fixture operator can supply local
 confirmation facts. Physical deletion empties the deletion queue while the tenant
@@ -948,8 +948,8 @@ version mutation or full CI/release gate ran.
 
 ## Funding callback experiment
 
-After 0.1.12, the unpublished [funding probe](../../canisters/test/funding_probe/src/lib.rs)
-and [PocketIC cases](../../tests/pocketic/tests/funding.rs) exercise real
+After 0.1.12, the unpublished [funding probe](https://github.com/dragginzgame/ic-blob-storage/blob/9d9cdf82b832c88278df54686d06aec274f905e9/canisters/test/funding_probe/src/lib.rs)
+and [PocketIC cases](https://github.com/dragginzgame/ic-blob-storage/blob/9d9cdf82b832c88278df54686d06aec274f905e9/tests/pocketic/tests/funding.rs) exercise real
 unbounded inter-canister cycle transfers. The sender captures the system refund
 immediately in the call continuation, before decoding or another await. The
 receiver independently records available and accepted cycles. Existing Cashier
@@ -1066,7 +1066,7 @@ and deployed credit reconciliation remain unqualified.
 
 ## Connected upload and deletion journey after 0.1.14
 
-The [journey test](../../tests/pocketic/tests/journey.rs) drives an initially empty
+The [journey test](https://github.com/dragginzgame/ic-blob-storage/blob/9d9cdf82b832c88278df54686d06aec274f905e9/tests/pocketic/tests/journey.rs) drives an initially empty
 shared UploadCatalog inside the authority fixture. Current source selection and
 explicit local semantic differences are recorded in the
 [protocol snapshot](upload-deletion-protocol.json). The four source method names,
@@ -1109,7 +1109,7 @@ Two tenants can interleave work without resetting or observing each other's
 prefixes. Lifetime session/object bounds remain eight global/four per tenant;
 global physical/liability capacity is 12 MiB and tenant logical capacity 6 MiB.
 
-The [readback cases](../../tests/pocketic/tests/readback/mod.rs) fetch individual
+The [readback cases](https://github.com/dragginzgame/ic-blob-storage/blob/9d9cdf82b832c88278df54686d06aec274f905e9/tests/pocketic/tests/readback/mod.rs) fetch individual
 leaves through real calls to the controlled source canister. Before and after
 the await, shared tenant/reference liveness and gateway policy check the complete
 admitted binding. Exact manifest length/hash checks precede returning any bytes.
@@ -1134,7 +1134,7 @@ wrong-file, oversized, malformed and rejected responses return no bytes; a later
 explicit valid read still works. Source controls remain driver-only and the source
 read endpoint accepts only the installed service. No live HTTP read was performed.
 
-The [lifecycle cases](../../tests/pocketic/tests/recovery/mod.rs) define the narrow
+The [lifecycle cases](https://github.com/dragginzgame/ic-blob-storage/blob/9d9cdf82b832c88278df54686d06aec274f905e9/tests/pocketic/tests/recovery/mod.rs) define the narrow
 supported boundary of these transient fixtures. Ordinary IC stop/start retains
 chunk progress, exposed reservations and accounting; verified prefixes continue
 without rehashing duplicate chunks. The authority rejects upgrades in pre_upgrade
@@ -1179,7 +1179,7 @@ injection experiment is not a whole-canister snapshot
 load: restoring an old heap can bypass post_upgrade entirely. Upload journals and
 independent recovery authority remain unimplemented.
 
-The authority's [inspection archive](../../canisters/test/authority_probe/src/ops/archive/mod.rs)
+The authority's [inspection archive](https://github.com/dragginzgame/ic-blob-storage/blob/9d9cdf82b832c88278df54686d06aec274f905e9/canisters/test/authority_probe/src/ops/archive/mod.rs)
 now records all three fixture owners in a separate host-owned ic-memory cell
 (`fixture.authority.archive.v1`, memory ID 120). The encoded archive is capped at
 65,536 bytes; Candid work/skip/type budgets are 2,000,000/10,000/64. It retains

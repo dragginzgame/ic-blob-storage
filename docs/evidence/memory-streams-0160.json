@@ -1,0 +1,378 @@
+{
+   "bindings" : [
+      {
+         "path" : ".tmp/memory-streams-0154-01/artifacts.sha256",
+         "sha256" : "38cb4e081046d2b194742501f9890bb20cd29899830c2e8b650bada9eb3478fc"
+      },
+      {
+         "path" : ".tmp/memory-streams-0154-01/clippy-01.log",
+         "sha256" : "dbcb1d314d60162a0a84d13a3558a889d08c280bd1ea2183b21d3b285e1fd2a4"
+      },
+      {
+         "path" : ".tmp/memory-streams-0154-01/clippy-02.log",
+         "sha256" : "adf51f2de48e50f17dd067ddeb379d5e00ffa10066e33eba05fcf65025648d8a"
+      },
+      {
+         "path" : ".tmp/memory-streams-0154-01/clippy-wasm.log",
+         "sha256" : "eda6118539b0342b7b6dbab0f872dd495df0fd2866a8a5b711673838b5e9c72e"
+      },
+      {
+         "path" : ".tmp/memory-streams-0154-01/declarations.log",
+         "sha256" : "6b4ee5be73ccf8de5cc9f758cce58bb7e270cc3983ee5cfd68351cf2e0cbc8e3"
+      },
+      {
+         "path" : ".tmp/memory-streams-0154-01/diff-check.log",
+         "sha256" : "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+         "path" : ".tmp/memory-streams-0154-01/doc.log",
+         "sha256" : "1ad5fc7ed70fefaa6ac0d90be82c83fd2a223dd18faddb05f4c77d4b86d6783b"
+      },
+      {
+         "path" : ".tmp/memory-streams-0154-01/entry/Cargo.lock",
+         "sha256" : "b1b1075d3b488ef5600d644b7889a66620bb0822d1c13273ecd6b93471ae363b"
+      },
+      {
+         "path" : ".tmp/memory-streams-0154-01/entry/Cargo.toml",
+         "sha256" : "122df74d9090978a0b46e1a0bad32014daa41dcba0c93348f3e2efbe38bec69a"
+      },
+      {
+         "path" : ".tmp/memory-streams-0154-01/entry/release.json",
+         "sha256" : "3243e9019d270347a3e1fb6dbba820faeb3ed2f0989a02b6a81d127081ec8be9"
+      },
+      {
+         "path" : ".tmp/memory-streams-0154-01/examples-native-tree.log",
+         "sha256" : "39732650fb6c95b49b6867f64958b9006323aea9f640ae56536b1b4b23985205"
+      },
+      {
+         "path" : ".tmp/memory-streams-0154-01/examples-test-01.log",
+         "sha256" : "844333019b79f1c7acab2101c5bfc5080f671b8b7aa876bd9da58c98b8c668aa"
+      },
+      {
+         "path" : ".tmp/memory-streams-0154-01/examples-test-02.log",
+         "sha256" : "52011b7b6dfb176b15f8aff760de30717324385bc9a9363e8ddae9305b876015"
+      },
+      {
+         "path" : ".tmp/memory-streams-0154-01/final-rust.log",
+         "sha256" : "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+         "path" : ".tmp/memory-streams-0154-01/final-rust.sh",
+         "sha256" : "553f71d9c62daf8b58c62325c6cbfcf23e1953c265f55ed8ae2f7d478ff1607c"
+      },
+      {
+         "path" : ".tmp/memory-streams-0154-01/fmt-02.log",
+         "sha256" : "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+         "path" : ".tmp/memory-streams-0154-01/fmt.log",
+         "sha256" : "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+         "path" : ".tmp/memory-streams-0154-01/grants-tests-02.log",
+         "sha256" : "692e8e0519da4e4544d4309213f966e01a19fab229a7cac98d41c348eae9af97"
+      },
+      {
+         "path" : ".tmp/memory-streams-0154-01/grants-tests.log",
+         "sha256" : "0313812e8147153e97c32c3d3e4bf36d72840230631de2dffcbc35e6560ac8be"
+      },
+      {
+         "path" : ".tmp/memory-streams-0154-01/graph-check-01.sh",
+         "sha256" : "cabd6c5ef08aee15aced597b6ef5580f329520d8baa403bd4e278efeeff406df"
+      },
+      {
+         "path" : ".tmp/memory-streams-0154-01/graph-check-02.log",
+         "sha256" : "fc5e51f0ea289a65aa9b88dcc0191d784aa82b5bd7cb559dc7d6ea547e062990"
+      },
+      {
+         "path" : ".tmp/memory-streams-0154-01/graph-check.log",
+         "sha256" : "db074e0d29f3d22ee011c566fa9ec98de6ace75e792bbb1d7253172bffb725f7"
+      },
+      {
+         "path" : ".tmp/memory-streams-0154-01/graph-check.sh",
+         "sha256" : "cb5a96ac227e9db1969694deeedc8b01b020917945f9fa5d29dfe639d008cb88"
+      },
+      {
+         "path" : ".tmp/memory-streams-0154-01/memory-ci.json",
+         "sha256" : "5aa1aa00937ca15edac53663b90ad396f41fa2d7cb1ebc013fe2a79faa75e3aa"
+      },
+      {
+         "path" : ".tmp/memory-streams-0154-01/memory-manifest-diff.log",
+         "sha256" : "c16764efa403244a285c577d56649ec4176034ebf1787c97a0d36577db169d1f"
+      },
+      {
+         "path" : ".tmp/memory-streams-0154-01/memory-publisher-diff.log",
+         "sha256" : "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+         "path" : ".tmp/memory-streams-0154-01/memory-publisher.tar",
+         "sha256" : "38118abbe6cf507a24f771e99df12e4ce3bc802efd75acc52867cb6d2769774b"
+      },
+      {
+         "path" : ".tmp/memory-streams-0154-01/memory-source-diff.log",
+         "sha256" : "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+         "path" : ".tmp/memory-streams-0154-01/metadata-wasm.json",
+         "sha256" : "fe41e63ed587b4ef0c00ec5528e30e4319a14b1a3304f99be86485350f37a6a1"
+      },
+      {
+         "path" : ".tmp/memory-streams-0154-01/metadata-wasm.log",
+         "sha256" : "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+         "path" : ".tmp/memory-streams-0154-01/metadata.json",
+         "sha256" : "68643337381544d2c623af771c9d500245d759ca8f4c355da7b26f38f893613e"
+      },
+      {
+         "path" : ".tmp/memory-streams-0154-01/metadata.log",
+         "sha256" : "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+         "path" : ".tmp/memory-streams-0154-01/metrics-ci-02.json",
+         "sha256" : "30a38291274297d32175f95cb9ff0ce60235c35f0653b6d0c6366b1c749ffa2f"
+      },
+      {
+         "path" : ".tmp/memory-streams-0154-01/metrics-ci-02.log",
+         "sha256" : "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+         "path" : ".tmp/memory-streams-0154-01/metrics-ci.json",
+         "sha256" : "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+         "path" : ".tmp/memory-streams-0154-01/metrics-ci.log",
+         "sha256" : "eed65211f0fcee1b82c2661764250c1adaebcb36f0cb78a702d59632f056c439"
+      },
+      {
+         "path" : ".tmp/memory-streams-0154-01/msrv-native.log",
+         "sha256" : "f43cfab2994b22be805da15542ad23dc66bbc895a0d44dc8df19aad0370ff888"
+      },
+      {
+         "path" : ".tmp/memory-streams-0154-01/msrv-wasm.log",
+         "sha256" : "a05b61d074a654c5977ad68ffb66ae792990b427b1db5c1999ee2142bb379294"
+      },
+      {
+         "path" : ".tmp/memory-streams-0154-01/package-manifest.toml",
+         "sha256" : "2ce4f0f77bdbfa3179823b49b611b671549358a359d37989db8517472cb87595"
+      },
+      {
+         "path" : ".tmp/memory-streams-0154-01/package.log",
+         "sha256" : "dfa6ef7ae1a93f6c9e5122cd0f06596f6f237e1a42b65452ca49dc5fd74fbf39"
+      },
+      {
+         "path" : ".tmp/memory-streams-0154-01/pocketic.log",
+         "sha256" : "db0cac0edbd9455b7fcde1365e36543f437cbe0ee9b0a509d1f7d5b206ac1dab"
+      },
+      {
+         "path" : ".tmp/memory-streams-0154-01/pocketic.sh",
+         "sha256" : "fca0757b4dd87b1918986f41765699244487c511cdc99cf7cee1d663cba4cac4"
+      },
+      {
+         "path" : ".tmp/memory-streams-0154-01/registry-checksums.log",
+         "sha256" : "3933ae8455d9247cfaa4d7cec470aa60585dcab798531429c274906d1c54033a"
+      },
+      {
+         "path" : ".tmp/memory-streams-0154-01/runtime-native-tree.log",
+         "sha256" : "1009b32145a108ec04b6ec75b096d13ccb9f590b9c211a56de525e40588022f3"
+      },
+      {
+         "path" : ".tmp/memory-streams-0154-01/runtime-wasm-tree.log",
+         "sha256" : "55fe4519ed9b430a4a2e4a412b6692b88219639ee9ab6c9b7b35dc1343ee9b03"
+      },
+      {
+         "path" : ".tmp/memory-streams-0154-01/sort-02.log",
+         "sha256" : "6d8a304b9c9d93e425dd48717aa12e981a15ef35931a82a425ac8b133831eafa"
+      },
+      {
+         "path" : ".tmp/memory-streams-0154-01/sort.log",
+         "sha256" : "1bd0cd3fd6ed480664e27b86ef6782c37990065940d12f9f0f6e94f43c7899c2"
+      },
+      {
+         "path" : ".tmp/memory-streams-0154-01/source.diff",
+         "sha256" : "0350de713e9ca2784461e467f0364e922065ddfcfe8c901ba749f34bebd940a6"
+      },
+      {
+         "path" : ".tmp/memory-streams-0154-01/source.sha256",
+         "sha256" : "ce3c1b73deb947287ca3b38010f02a483c6a6009acf5556db2460d266cfe6877"
+      },
+      {
+         "path" : ".tmp/memory-streams-0154-01/type-identity/Cargo.lock",
+         "sha256" : "443a4b4ca19f0e47e075753492707c876a580cc04abdc93881b3317524eecac7"
+      },
+      {
+         "path" : ".tmp/memory-streams-0154-01/type-identity/Cargo.toml",
+         "sha256" : "9f71558b109f4f6c33d0f2da199b396016082cf5346c3eff2d912bcf9297f408"
+      },
+      {
+         "path" : ".tmp/memory-streams-0154-01/type-identity/crates/blob-memory-boundary-check/Cargo.toml",
+         "sha256" : "f23d9d6a593f7e9b9dd54e96cb1419c6f693e33bcfae46b5078333cef965ffe3"
+      },
+      {
+         "path" : ".tmp/memory-streams-0154-01/type-identity/crates/blob-memory-boundary-check/src/main.rs",
+         "sha256" : "8a2f0209de2b107d7b3557163adb4b3306f8e3cda11a7e37d373bb904c831e99"
+      },
+      {
+         "path" : ".tmp/memory-streams-0154-01/type-negative.log",
+         "sha256" : "69b6ab0ce73b6dddaf56af4caa2460516ac7a35222fabb1719afbf80a162c7a1"
+      },
+      {
+         "path" : ".tmp/memory-streams-0154-01/type-positive.log",
+         "sha256" : "dac1750f4ad395a1209c667fdf4fed1233c6ecc4de82dd90e8f1f57e4821eb0f"
+      },
+      {
+         "path" : ".tmp/memory-streams-0154-01/wasm-build.log",
+         "sha256" : "af570b55e70b8e4f76f4e0d00b545fd14fd0a19d650e6ec4e46790b3078a0769"
+      },
+      {
+         "path" : ".tmp/memory-streams-0154-01/artifacts-verify.log",
+         "sha256" : "6207041f6b21926517687ce5a26d7e20d32b05f8a900393563518f45c11dd24e"
+      },
+      {
+         "path" : ".tmp/memory-streams-0154-01/fmt-check.log",
+         "sha256" : "6a6bd2bc0a7883e23a7d6ec596cca941406d91aa97e7719d679ea3a1f4c88dd9"
+      },
+      {
+         "path" : ".tmp/memory-streams-0154-01/links-check.log",
+         "sha256" : "884886bac19472df763d8261eff1e0d9325eabaa1497b718a89ed1a29e2caff1"
+      },
+      {
+         "path" : ".tmp/memory-streams-0154-01/selection-verify.log",
+         "sha256" : "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+         "path" : ".tmp/memory-streams-0154-01/snapshot-check.log",
+         "sha256" : "5c0922c51e855e62eb77de66b226449c4cf120a1f81aa97972f9e6fb43414769"
+      },
+      {
+         "path" : ".tmp/memory-streams-0154-01/source-verify.log",
+         "sha256" : "50542269a2cf0c4a81e5ad8abaf73d0a6708d1a8dc739c0f2161714db98b8d58"
+      },
+      {
+         "path" : ".tmp/memory-streams-0154-01/entry/diff",
+         "sha256" : "4e88c38d3059080b2b6e190987cb7dc88383c53abe978a7a864859cdc68b65f1"
+      },
+      {
+         "path" : ".tmp/memory-streams-0154-01/entry/ic-blob-storage-0.15.3-before.crate",
+         "sha256" : "65b2bb729e1850071a4938dca3d2ca3b2dd54c1830e79c7842e63b2952063eba"
+      },
+      {
+         "path" : ".tmp/memory-streams-0154-01/entry/metadata.json",
+         "sha256" : "662148f1f607bfe7e97c216aa5b39ca33696655c6c1241239faae49bbd583a1a"
+      },
+      {
+         "path" : ".tmp/memory-streams-0154-01/entry/metadata.log",
+         "sha256" : "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+         "path" : ".tmp/memory-streams-0154-01/entry/.shared-tooling.snapshot",
+         "sha256" : "296302620d2d793f5d1fcfd3ab408133f94fc2fba5c634d9c8fe760971d5c2e4"
+      },
+      {
+         "path" : ".tmp/memory-streams-0154-01/entry-registry.json",
+         "sha256" : "2fe9386b6b26485f7621865199425f672647a5e9bb9edf86afece0a0a0705b24"
+      },
+      {
+         "path" : ".tmp/memory-streams-0154-01/current-registry.json",
+         "sha256" : "2fe9386b6b26485f7621865199425f672647a5e9bb9edf86afece0a0a0705b24"
+      },
+      {
+         "path" : ".tmp/memory-streams-0154-01/issue-20-comment.md",
+         "sha256" : "cc6f0fb24817b2d81237fb32a4834a87ec2256e7ea0f0bab6d538e121adf5083"
+      },
+      {
+         "path" : ".tmp/memory-streams-0154-01/issue-20-comment-result.log",
+         "sha256" : "c4643c2e9696b364ab85169d83a50090f226c41f4457897cbd509452a96a580a"
+      },
+      {
+         "path" : ".tmp/memory-streams-0154-01/issue-20-readback.json",
+         "sha256" : "98559aaff9bf697fe2a2b533c76698bd4d155cb6ae0916a7d3031bfb508e46cb"
+      },
+      {
+         "path" : ".tmp/memory-streams-0154-01/issue-20-readback.log",
+         "sha256" : "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+         "path" : ".tmp/memory-streams-0154-01/issue-21-comment.md",
+         "sha256" : "646a773678f2f895f300c80f4344e031056340064bfa8114d27fc5751d22da87"
+      },
+      {
+         "path" : ".tmp/memory-streams-0154-01/issue-21-comment-result.log",
+         "sha256" : "348f5b8deb31c07bfa682a1d82dd00c1c5c9773b574996f0ee42f7d917b6102a"
+      },
+      {
+         "path" : ".tmp/memory-streams-0154-01/issue-21-readback.json",
+         "sha256" : "dc1a1d304a3c292be07ea39154d826bee74ec8749b9a80134feac0d2bfb6c5bc"
+      },
+      {
+         "path" : ".tmp/memory-streams-0154-01/issue-21-readback.log",
+         "sha256" : "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+   ],
+   "compatibility" : "Memory runtime bytes and normal dependency declarations match 0.28.4, but the public re-export/grant/runtime types change Rust crate identity. A private compile probe accepts direct Memory 0.30 and rejects 0.28-owned MemoryRequest with E0308. The complete pending batch therefore requires a minor release. No new durable schema or cross-release upgrade qualification is introduced; reinstall and obligation retirement remain required.",
+   "compiled_package_version" : "0.15.3",
+   "date" : "2026-10-07",
+   "evidence_class" : "source review, local native execution and actual local PocketIC with provider substitutes",
+   "issue_updates" : [
+      "https://github.com/dragginzgame/ic-blob-storage/issues/20#issuecomment-6033814130",
+      "https://github.com/dragginzgame/ic-blob-storage/issues/21#issuecomment-6033815235"
+   ],
+   "issues" : [
+      "https://github.com/dragginzgame/ic-blob-storage/issues/20",
+      "https://github.com/dragginzgame/ic-blob-storage/issues/21"
+   ],
+   "limitations" : [
+      "No full CI/release gate or pending-source native macOS execution",
+      "No Canic graph, framework wrapper, endpoint or lifecycle ownership added here",
+      "No publication, commit, version bump, tag, push, deployment, provider probe, paid effect or sibling edit",
+      "Published consumer alignment and Canic-owned three-lock/managed qualification remain open under issue 20; matching committed native qualification remains separate under issue 21",
+      "No instruction-count or performance improvement claimed; earlier immutable evidence keeps its original graph"
+   ],
+   "pending_release" : "0.16.0",
+   "removed_named_symbols" : [],
+   "retained_attempts" : [
+      "First formatter command referenced a nonexistent .tools/host/bin/cargo-sort; cargo fmt succeeded, corrected cargo sort invocation succeeds",
+      "Initial documentation patch failed atomically on a partial table context; corrected patch applies",
+      "Sandbox GitHub read failed; explicitly approved read-only retry succeeds",
+      "First private graph-check referenced a nonexistent receipt path; original script/log retained and corrected path check succeeds",
+      "Negative type-identity check deliberately fails with E0308; it is rejection evidence, not a green compile"
+   ],
+   "selected_graph" : {
+      "ic-host-artifacts" : "0.3.1",
+      "ic-host-fs" : "0.3.1",
+      "ic-memory" : "0.30.0",
+      "ic-metrics" : "0.2.5",
+      "ic-testkit" : "0.19.2"
+   },
+   "source_base" : "9d9cdf82b832c88278df54686d06aec274f905e9",
+   "task_directory" : ".tmp/memory-streams-0154-01",
+   "upstream" : [
+      {
+         "ci" : "https://github.com/dragginzgame/ic-memory/actions/runs/37587252306",
+         "comparison" : "all published runtime source bytes equal 0.28.4 and exact publisher archive",
+         "conclusion" : "success",
+         "package" : "ic-memory",
+         "publisher" : "2fdeec4582bbcffcaa09aac625f48a47b29e3194"
+      },
+      {
+         "ci" : "https://github.com/dragginzgame/ic-metrics/actions/runs/37589261498",
+         "comparison" : "published runtime source equal 0.2.4 and publisher lib.rs",
+         "conclusion" : "success",
+         "package" : "ic-metrics",
+         "publisher" : "d8b3a46f24518a033cd36e40bf1f1895099b809f"
+      }
+   ],
+   "validation" : [
+      "21 native example cases: zero/exact/over-limit JSON, malformed/unknown-field rejection, interrupted/failing streams, caller-owned file symlink/base paths and all existing body/publication contracts",
+      "4 core host-composition cases: bootstrap-required lookup, missing-grant refusal, two host placements, populated neighbor preservation and synchronous fenced reopen",
+      "6 focused Candid/PocketIC checks: Candid parity, stop/start/repeated same-release restoration, foreign/missing-memory refusal, operator restoration-read metrics, corrupt-journal refusal and captured in-flight funding intent restored as unknown without replay",
+      "Strict native core/standalone all-target Clippy and storage/funding Wasm Clippy",
+      "Rust 1.88 core/standalone native all-target checks and core/standalone/storage/funding Wasm library checks",
+      "Core rustdoc with warnings denied",
+      "Prepared core archive without verification compilation or publication; normalized manifest selects Memory 0.30 and native-only artifacts development edge",
+      "One Memory identity; normal-edge native core and production Wasm graphs exclude host-artifacts and metrics",
+      "Dependency declarations qualified using planned relocations in a private index/object store; actual index unchanged",
+      "Formatting, 1005 local documentation references, 63-file shared snapshot and source/artifact bindings pass; entry registry selection and release receipt preserved"
+   ],
+   "working_tree" : "uncommitted; earlier workspace/tooling adoption preserved"
+}

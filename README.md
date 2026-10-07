@@ -115,13 +115,14 @@ open integration work and retained trial obligations are recorded in the
 [current status](docs/status/current.md). Earlier live trials remain frozen and
 do not establish production readiness for the current release.
 
-The pending 0.15.0 batch selects ic-memory 0.27 through the public memory
-re-export and changes its durable ledger contract. Update host callers and
-fixtures; earlier ledgers cannot be reopened by this contract. Existing
-installations require safe obligation disposition before reinstall, as described
+Pending 0.16.0 aligns the public memory re-export with ic-memory 0.30. Hosts
+must rebuild their composition with the same Memory line; 0.28-owned Rust types
+are not interchangeable. This update preserves the dependency's runtime source
+and durable layouts. Cross-release installations require safe obligation
+disposition before reinstall, as described
 in the [service contract](docs/service-contract.md#current-persisted-boundaries).
 
-It also adds [host-internal funding credit confirmation](docs/funding-credit.md).
+The library supports [host-internal funding credit confirmation](docs/funding-credit.md).
 Hosts can reconcile exact accepted top-ups using independently verified receipts
 and then admit subsequent guarded funding. Accepted cycles remain spent;
 provider verification and consumer integration remain host-owned.
@@ -179,14 +180,17 @@ The test targets use local canisters and do not deploy a live service.
 ## Repository layout
 
 The standalone host and external consumers use the same service workflows and tenant rules.
+The root is a virtual Cargo workspace. All 11 maintained Rust packages use
+`crates/<package-name>/`; non-package browser tests and frozen inputs stay under
+`tests/`. Package and Wasm names retain their existing identities.
 
 | Location | Responsibility |
 | --- | --- |
 | [Rust core](crates/ic-blob-storage) | Content, policy, durable state and shared workflows; no downstream framework dependency |
-| [Standalone host](canisters/standalone/README.md) | Explicit endpoints, installation, memory and lifecycle |
+| [Standalone host](crates/ic-blob-storage-canister/README.md) | Explicit endpoints, installation, memory and lifecycle |
 | [Native CLI](crates/ic-blob-storage-cli) | Offline snapshots and batch inputs, signed setup/inspection, tenant references, verified downloads and verifier tooling |
 | [Browser client](clients/browser/README.md) | Certificate transport and durable intent boundary; reuses Caffeine's upload SDK |
-| [PocketIC harness](tests/pocketic) | Actual local canister, lifecycle and inter-canister tests |
+| [PocketIC harness](crates/ic-blob-storage-pocketic-tests) | Actual local canister, lifecycle and inter-canister tests |
 
 The host owns one `ic-memory` runtime and its allocation policy. Linking a library registers no endpoints or lifecycle hooks.
 See [memory composition](docs/dependencies.md#memory-composition)
@@ -220,7 +224,7 @@ for the integration details.
 | Observe provider bytes and submit a verifier statement | [Observation](docs/operator-guide.md#observe-provider-content) and [submission](docs/operator-guide.md#submit-an-attestation) |
 | Prepare file manifests, inventories or saved bodies | [Local preparation guide](docs/local-tools.md#prepare-one-file) |
 | Inspect or exercise a running PocketIC fixture | [Fixture tools](docs/local-tools.md#inspect-a-running-pocketic-fixture) |
-| Integrate the standalone canister | [Host configuration and endpoint contract](canisters/standalone/README.md) |
+| Integrate the standalone canister | [Host configuration and endpoint contract](crates/ic-blob-storage-canister/README.md) |
 | Resume a fenced current instance | [Operator recovery and finite IC history](docs/operator-guide.md#current-instance-recovery) |
 
 These guides retain the exact command examples, input formats, limits and recovery

@@ -86,8 +86,10 @@ jobs:
             ${{ runner.temp }}/ic-tools-test.*/
             ${{ runner.temp }}/release-commands.*/
             ${{ runner.temp }}/cargo-metadata-test.*/
+            ${{ runner.temp }}/shared-tooling-snapshot-test.*/
             ${{ runner.temp }}/local-lock-test.*/
             ${{ runner.temp }}/format-tools-test.*/
+            ${{ runner.temp }}/blob-validation-logging.*/
           include-hidden-files: true
           if-no-files-found: ignore
           retention-days: 30

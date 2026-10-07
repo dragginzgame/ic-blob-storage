@@ -1,0 +1,2991 @@
+{
+   "attempts" : {
+      "dependency_fetch" : "Initial sandbox DNS refusal retained; approved locked cache retry passes. No versions selected by fetch.",
+      "local_loopback" : "Authorized test fixture sockets only; no external provider requests."
+   },
+   "date" : "2026-10-07",
+   "entry_head" : "9d9cdf82b832c88278df54686d06aec274f905e9\n",
+   "inputs" : [
+      {
+         "bytes" : 26545,
+         "path" : ".tmp/refresh-0154-02/entry/diff",
+         "sha256" : "25108d49feff883ea4a97686fcee967a73ca51403dcb1d196f0ff83e5da8a372"
+      },
+      {
+         "bytes" : 107248,
+         "path" : ".tmp/refresh-0154-02/entry/Cargo.lock",
+         "sha256" : "682aa748836e6325857a2d94772d4c314d933377ca97cbb5a0f12fdad70e1f7f"
+      },
+      {
+         "bytes" : 1603,
+         "path" : ".tmp/refresh-0154-02/entry/Cargo.toml",
+         "sha256" : "ae1f00f76db088ea1ad96d8f434160dfb240d5c25a25c18affddf6f058af1d06"
+      },
+      {
+         "bytes" : 6121,
+         "path" : ".shared-tooling.snapshot",
+         "sha256" : "3bbec3e4fbb07bc866b6ef04d56b0793653b8f47afa400eec5f8aa4575b52438"
+      },
+      {
+         "bytes" : 107248,
+         "path" : "Cargo.lock",
+         "sha256" : "682aa748836e6325857a2d94772d4c314d933377ca97cbb5a0f12fdad70e1f7f"
+      },
+      {
+         "bytes" : 1603,
+         "path" : "Cargo.toml",
+         "sha256" : "ae1f00f76db088ea1ad96d8f434160dfb240d5c25a25c18affddf6f058af1d06"
+      },
+      {
+         "bytes" : 448,
+         "path" : "docs/release.json",
+         "sha256" : "3243e9019d270347a3e1fb6dbba820faeb3ed2f0989a02b6a81d127081ec8be9"
+      },
+      {
+         "bytes" : 658,
+         "path" : ".tmp/refresh-0154-02/export.pl",
+         "sha256" : "206ba74303d2d40bc9d62a6d85b7d5a4096732b396ebe69e3f2fa870597ef558"
+      },
+      {
+         "bytes" : 895,
+         "path" : ".tmp/refresh-0154-02/apply-export.pl",
+         "sha256" : "036f7cf44e4fe3b0ffd0f6db251510016f362fe16199f167c2881aef5a7ff168"
+      },
+      {
+         "bytes" : 1107,
+         "path" : ".tmp/refresh-0154-02/review-published.pl",
+         "sha256" : "c5fdc916a4dda1a7ce99aedc82da289f240e99345f7dbf0dda9470dfe3ca8f65"
+      },
+      {
+         "bytes" : 4401,
+         "path" : ".tmp/refresh-0154-02/collect.pl",
+         "sha256" : "1e4e02d583a96a1815473dea68904d496aedbf37b182d97420e6d2cfb9b0ecaf"
+      },
+      {
+         "bytes" : 5391,
+         "path" : ".tmp/refresh-0154-02/update-handoff.pl",
+         "sha256" : "85a1f0ecbf234e4d099034118e6e2fb25e444883800062ef250dcd46bb588aac"
+      },
+      {
+         "bytes" : 6656,
+         "path" : ".tmp/refresh-0154-02/published-durable.diff",
+         "sha256" : "b1df41ad396ba7210d067c7d072ab0a01b7e702713b9495f8c8e092d75fba1d3"
+      },
+      {
+         "bytes" : 17288,
+         "path" : ".tmp/refresh-0154-02/source/scripts/ci/test-snapshot-distribution.sh",
+         "sha256" : "9ca7ceb120129f52b9061c3921a5e44ba2a148af0a0330718e819f12ab64efd3"
+      },
+      {
+         "bytes" : 3805,
+         "path" : ".tmp/refresh-0154-02/source/scripts/ci/test-gh-ci.sh",
+         "sha256" : "26ccfbd0038588baa84f12adc362a29c439ea6d6546e3ed51e21a3885e507375"
+      }
+   ],
+   "limitations" : [
+      "No full local CI/release gate, new core/PocketIC execution, native macOS execution for pending source, commit, version metadata change, release, push, publication, issue mutation or provider effect.",
+      "Released 0.15.3 Linux/macOS ARM/macOS Intel native jobs pass. Those and upstream CI do not qualify pending consumer edits on macOS.",
+      "Streaming body parts, provider verification, run claims, probe stage errors and core journals retain their original owners; new host gzip, path, lock-wait and streaming-replacement APIs are not introduced into unmatched callers."
+   ],
+   "lock_disposition" : "Already selected at task entry: artifacts/fs 0.3.1, arbitrary 1.5.0, either 1.19.0, zerocopy/derive 0.8.61 and zeroize 1.9.1. Preserve those and ic-memory 0.28.4/ic-testkit 0.19.2. No broad update; lock and Cargo.toml unchanged throughout refresh.",
+   "package_version" : "0.15.3",
+   "pending_changelog" : "0.15.4",
+   "published_host_sources" : [
+      {
+         "name" : "ic-host-artifacts",
+         "source_files" : [
+            {
+               "path" : "src/archive/mod.rs",
+               "sha256" : "0aa25f26c92962cb8d7c937a45520d70ab08cbeffcb19346b43e0c76560bd1d1"
+            },
+            {
+               "path" : "src/archive/tests.rs",
+               "sha256" : "f421faa806b90ad5ae9190b31cd8be4254b0e762b5f7dfd4b673251747d5f87c"
+            },
+            {
+               "path" : "src/artifact/copy/mod.rs",
+               "sha256" : "f19f7cd091b07071243aba912e39b540efc6b255dd6ab95eeec5009dacc79891"
+            },
+            {
+               "path" : "src/artifact/copy/tests.rs",
+               "sha256" : "937b40f6b9a5d1095158006565409091156f2e2f247a8596b33b23255180fe3c"
+            },
+            {
+               "path" : "src/artifact/gzip/mod.rs",
+               "sha256" : "d82756b91c7ff5572258203ab9169b2ab05a67e57ba1ef55b3a1332e09c87e36"
+            },
+            {
+               "path" : "src/artifact/gzip/tests.rs",
+               "sha256" : "582c71450f63642e28ef49582ff795143ca7e23f8689e11058de0179bd4c56c7"
+            },
+            {
+               "path" : "src/artifact/matching/mod.rs",
+               "sha256" : "41caec22e1ca9ed06a585f81e3cfb722d5dae913588d718f644bacb3ba7c8d5a"
+            },
+            {
+               "path" : "src/artifact/matching/tests.rs",
+               "sha256" : "a279485feaa927afab1784420ddd175906aebe09ec8f34d632af9ae21723f3bb"
+            },
+            {
+               "path" : "src/artifact/mod.rs",
+               "sha256" : "98d69a42387e338b18d3167149c04821ebe393a42eaabbc93d32679afc6e50da"
+            },
+            {
+               "path" : "src/artifact/tests.rs",
+               "sha256" : "63d48e04f56ef6208a3eab2c1fb4b2221ec3a3aea6a866aaf68631af7fd707e4"
+            },
+            {
+               "path" : "src/artifact/writer/mod.rs",
+               "sha256" : "e68f3cd9081699ec327e6ce39c6d6477846815321eca3730ccfc5367de7392bf"
+            },
+            {
+               "path" : "src/artifact/writer/tests.rs",
+               "sha256" : "1deed1e755d459b275cfdb0b2553d930f56980e2381b7b14325c405a54b649af"
+            },
+            {
+               "path" : "src/lib.rs",
+               "sha256" : "eb2fbc7e97d2c03a714c08ce8abcb54ab302370a9bab34828ac05f7c70579af2"
+            },
+            {
+               "path" : "src/wasm/mod.rs",
+               "sha256" : "a87a8b5a8d6dd1e4920cce4389822b16ee64148d871ca18835fe05794208f295"
+            },
+            {
+               "path" : "src/wasm/tests.rs",
+               "sha256" : "2c6c24dab2e53e5a6f797c638c95725e9af8ab808d7490c86c655c39457c0039"
+            }
+         ],
+         "vcs" : {
+            "git" : {
+               "sha1" : "38a2a5127be064014e6d39d72d0300ffb2cf20be"
+            },
+            "path_in_vcs" : "crates/ic-host-artifacts"
+         },
+         "version" : "0.3.1"
+      },
+      {
+         "name" : "ic-host-fs",
+         "source_files" : [
+            {
+               "path" : "src/durable/lock_wait/mod.rs",
+               "sha256" : "b2f7abd572a2721949e6bfe4225802719fa8dc39f0846000e2ff834d26c6f6a3"
+            },
+            {
+               "path" : "src/durable/lock_wait/tests.rs",
+               "sha256" : "465a873327fc5f3bd5872eaa9f98d9fdc36db7dd005c5836aa37ea55dd88d73b"
+            },
+            {
+               "path" : "src/durable/mod.rs",
+               "sha256" : "0cbcb6bec734c18f102c2c21031bf6f55504ae4857a3e3e766bf1ea85dd83c76"
+            },
+            {
+               "path" : "src/durable/tests.rs",
+               "sha256" : "cbf0bd2416c982211d3f69d398ea5b97438e52df8da481e66b8f07c569f47b90"
+            },
+            {
+               "path" : "src/lib.rs",
+               "sha256" : "7fafcfc1bd549b83c75f89601aa26a65ee1f628becff128c65faf965391b890d"
+            },
+            {
+               "path" : "src/path/mod.rs",
+               "sha256" : "2682f99fd1b5786a6278c376ed65dc774f8cbfee5e08ee7bd927ead0b99d6c40"
+            },
+            {
+               "path" : "src/path/tests.rs",
+               "sha256" : "7b06b6c1a7e3dc2adb37284e28b73a0a4ddcb9c58f0286bcfeed990cf58c0739"
+            },
+            {
+               "path" : "src/read/mod.rs",
+               "sha256" : "f82a03e12524e88059fae4e3b893a374f4eb890eaa7d8e7192bb5c729383386b"
+            },
+            {
+               "path" : "src/read/no_follow/mod.rs",
+               "sha256" : "a694e905f2b1bf14554bda2d29884d35eb48fdb0a919b5aaf3eb132df9d21813"
+            },
+            {
+               "path" : "src/read/no_follow/tests.rs",
+               "sha256" : "90381736d1d6e65d64066b1aaec08d5f02b07b6c42662ae1b5841605a90cd7a5"
+            },
+            {
+               "path" : "src/read/tests.rs",
+               "sha256" : "b759c8db2c123d4eccbde43847866d8dd867990684f5e0cc9fac65064895a74d"
+            },
+            {
+               "path" : "src/test_support/mod.rs",
+               "sha256" : "9f6fe53974cacc49439f776abd6148a21fce7812a36d3b0fac800b585ab8e0c5"
+            }
+         ],
+         "vcs" : {
+            "git" : {
+               "sha1" : "38a2a5127be064014e6d39d72d0300ffb2cf20be"
+            },
+            "path_in_vcs" : "crates/ic-host-fs"
+         },
+         "version" : "0.3.1"
+      }
+   ],
+   "raw_logs" : [
+      {
+         "bytes" : 75,
+         "path" : ".tmp/refresh-0154-02/deps-network-retry.log",
+         "sha256" : "ca6f4183da7ccf07bffa139693805568af0d2ff09f3100666d6433ae1cff2348"
+      },
+      {
+         "bytes" : 643,
+         "path" : ".tmp/refresh-0154-02/deps.log",
+         "sha256" : "c93f1f7148ab5b9d99a344fb6e9c2ed3e45570a756105401b2fc451845124998"
+      },
+      {
+         "bytes" : 222,
+         "path" : ".tmp/refresh-0154-02/export.log",
+         "sha256" : "c80f0348ac1631a815cc948495de87f8d4902b6c42be3fcaa05d3455a539f05b"
+      },
+      {
+         "bytes" : 0,
+         "path" : ".tmp/refresh-0154-02/logs/actionlint.log",
+         "sha256" : "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+         "bytes" : 98,
+         "path" : ".tmp/refresh-0154-02/logs/adapter-bash32.log",
+         "sha256" : "f9d4ce54e4aa58986c1f8d4aafb9a8e033d6b5a2b5c7438c7372a2107587d9cd"
+      },
+      {
+         "bytes" : 113,
+         "path" : ".tmp/refresh-0154-02/logs/bash32-version.log",
+         "sha256" : "02be2dfecda6f9f4db6a24d5c4f33177186b58c5278cf81375b495c784fe46f9"
+      },
+      {
+         "bytes" : 7187,
+         "path" : ".tmp/refresh-0154-02/logs/cli-clippy.log",
+         "sha256" : "0ec9b24155675c6ca8f36558230da37b3b1c38805e3b9e84cbb4d1adf42281f4"
+      },
+      {
+         "bytes" : 8543,
+         "path" : ".tmp/refresh-0154-02/logs/cli-msrv.log",
+         "sha256" : "c14517e31e7fdf90ea4ac3ea7d100496fa58fbefcf1740c497d62b83d462d9a0"
+      },
+      {
+         "bytes" : 21260,
+         "path" : ".tmp/refresh-0154-02/logs/cli-tests.log",
+         "sha256" : "cb6bc9a73c85bfb4d7a13c82cd820009c567910d619e51acdf0f8fd456890150"
+      },
+      {
+         "bytes" : 501,
+         "path" : ".tmp/refresh-0154-02/logs/fifo-tests.log",
+         "sha256" : "0078a0ae339bd88b56558437b078b2aeed2af168307037de59121f8974d9a444"
+      },
+      {
+         "bytes" : 2496,
+         "path" : ".tmp/refresh-0154-02/logs/final-scoped-checks.log",
+         "sha256" : "a29d3ce654a4c8fd2c2ae67d1d8951d8d4ce8043418b8d5b31ffc733c8786897"
+      },
+      {
+         "bytes" : 822,
+         "path" : ".tmp/refresh-0154-02/logs/gh-ci-bash32.log",
+         "sha256" : "50b3808302d17e0f0e3b2db0cb43ad203b18a81f331ea3ada867da44400fca2c"
+      },
+      {
+         "bytes" : 822,
+         "path" : ".tmp/refresh-0154-02/logs/gh-ci-bash5.log",
+         "sha256" : "50b3808302d17e0f0e3b2db0cb43ad203b18a81f331ea3ada867da44400fca2c"
+      },
+      {
+         "bytes" : 139,
+         "path" : ".tmp/refresh-0154-02/logs/machete.log",
+         "sha256" : "17df39991aecc87a6a60263e0759e8e8d09559c2e7e27fa29219b7bbb7f15a64"
+      },
+      {
+         "bytes" : 41,
+         "path" : ".tmp/refresh-0154-02/logs/runner-bash32.log",
+         "sha256" : "ae44a54a9ec3879324d6d50381533a91c0888c202b4ece961d0961864652f922"
+      },
+      {
+         "bytes" : 34,
+         "path" : ".tmp/refresh-0154-02/logs/snapshot-owner-bash32.log",
+         "sha256" : "6096b5b3b9106854d47e5526f86872d32d377d2b8f167340e54d5d5c0ae5529f"
+      },
+      {
+         "bytes" : 34,
+         "path" : ".tmp/refresh-0154-02/logs/snapshot-owner-bash5.log",
+         "sha256" : "6096b5b3b9106854d47e5526f86872d32d377d2b8f167340e54d5d5c0ae5529f"
+      },
+      {
+         "bytes" : 2291,
+         "path" : ".tmp/refresh-0154-02/logs/tooling-bash5.log",
+         "sha256" : "b1317f0b21c67a8344e6343dd7752212eb777306638bed6237dbd9fcc0dbecd9"
+      },
+      {
+         "bytes" : 270,
+         "path" : ".tmp/refresh-0154-02/patch-refusal.log",
+         "sha256" : "ebb4962f917662f971430dc294bc1f7d78ca54aa5ebab88b862b2a3e201f7bb6"
+      }
+   ],
+   "remote_observations" : {
+      "host_ci" : [
+         {
+            "conclusion" : "success",
+            "databaseId" : 37580017649,
+            "headSha" : "38a2a5127be064014e6d39d72d0300ffb2cf20be",
+            "status" : "completed",
+            "url" : "https://github.com/dragginzgame/ic-host-tooling/actions/runs/37580017649"
+         },
+         {
+            "conclusion" : "success",
+            "databaseId" : 37497150858,
+            "headSha" : "0456b40e116c7d070428b070d1c3befc36a9345d",
+            "status" : "completed",
+            "url" : "https://github.com/dragginzgame/ic-host-tooling/actions/runs/37497150858"
+         },
+         {
+            "conclusion" : "success",
+            "databaseId" : 37492955796,
+            "headSha" : "67c10830922f9249bfa30ec4f37010bf746519ce",
+            "status" : "completed",
+            "url" : "https://github.com/dragginzgame/ic-host-tooling/actions/runs/37492955796"
+         }
+      ],
+      "released_consumer_ci" : {
+         "conclusion" : "success",
+         "headSha" : "9d9cdf82b832c88278df54686d06aec274f905e9",
+         "jobs" : [
+            {
+               "completedAt" : "2026-10-06T18:20:43Z",
+               "conclusion" : "success",
+               "databaseId" : 112427602799,
+               "name" : "tooling (ubuntu-24.04)",
+               "startedAt" : "2026-10-06T18:14:35Z",
+               "status" : "completed",
+               "steps" : [
+                  {
+                     "conclusion" : "success",
+                     "name" : "Set up job",
+                     "number" : 1,
+                     "status" : "completed"
+                  },
+                  {
+                     "conclusion" : "success",
+                     "name" : "Run actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10",
+                     "number" : 2,
+                     "status" : "completed"
+                  },
+                  {
+                     "conclusion" : "success",
+                     "name" : "Prepare fixture utilities on Linux",
+                     "number" : 3,
+                     "status" : "completed"
+                  },
+                  {
+                     "conclusion" : "skipped",
+                     "name" : "Prepare fixture utilities on macOS",
+                     "number" : 4,
+                     "status" : "completed"
+                  },
+                  {
+                     "conclusion" : "success",
+                     "name" : "Prepare the selected Rust and formatter tools",
+                     "number" : 5,
+                     "status" : "completed"
+                  },
+                  {
+                     "conclusion" : "success",
+                     "name" : "Prepare and verify reviewed repository-local executables",
+                     "number" : 6,
+                     "status" : "completed"
+                  },
+                  {
+                     "conclusion" : "success",
+                     "name" : "Check the snapshot, formatter and release/hook fixtures",
+                     "number" : 7,
+                     "status" : "completed"
+                  },
+                  {
+                     "conclusion" : "success",
+                     "name" : "Prepare the locked native dependency cache",
+                     "number" : 8,
+                     "status" : "completed"
+                  },
+                  {
+                     "conclusion" : "success",
+                     "name" : "Qualify native CLI boundaries and local PocketIC installation",
+                     "number" : 9,
+                     "status" : "completed"
+                  },
+                  {
+                     "conclusion" : "skipped",
+                     "name" : "Retain failed tooling fixtures",
+                     "number" : 10,
+                     "status" : "completed"
+                  },
+                  {
+                     "conclusion" : "success",
+                     "name" : "Post Run actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10",
+                     "number" : 20,
+                     "status" : "completed"
+                  },
+                  {
+                     "conclusion" : "success",
+                     "name" : "Complete job",
+                     "number" : 21,
+                     "status" : "completed"
+                  }
+               ],
+               "url" : "https://github.com/dragginzgame/ic-blob-storage/actions/runs/37509773491/job/112427602799"
+            },
+            {
+               "completedAt" : "2026-10-06T18:34:00Z",
+               "conclusion" : "success",
+               "databaseId" : 112427603156,
+               "name" : "tooling (macos-15-intel)",
+               "startedAt" : "2026-10-06T18:14:38Z",
+               "status" : "completed",
+               "steps" : [
+                  {
+                     "conclusion" : "success",
+                     "name" : "Set up job",
+                     "number" : 1,
+                     "status" : "completed"
+                  },
+                  {
+                     "conclusion" : "success",
+                     "name" : "Run actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10",
+                     "number" : 2,
+                     "status" : "completed"
+                  },
+                  {
+                     "conclusion" : "skipped",
+                     "name" : "Prepare fixture utilities on Linux",
+                     "number" : 3,
+                     "status" : "completed"
+                  },
+                  {
+                     "conclusion" : "success",
+                     "name" : "Prepare fixture utilities on macOS",
+                     "number" : 4,
+                     "status" : "completed"
+                  },
+                  {
+                     "conclusion" : "success",
+                     "name" : "Prepare the selected Rust and formatter tools",
+                     "number" : 5,
+                     "status" : "completed"
+                  },
+                  {
+                     "conclusion" : "success",
+                     "name" : "Prepare and verify reviewed repository-local executables",
+                     "number" : 6,
+                     "status" : "completed"
+                  },
+                  {
+                     "conclusion" : "success",
+                     "name" : "Check the snapshot, formatter and release/hook fixtures",
+                     "number" : 7,
+                     "status" : "completed"
+                  },
+                  {
+                     "conclusion" : "success",
+                     "name" : "Prepare the locked native dependency cache",
+                     "number" : 8,
+                     "status" : "completed"
+                  },
+                  {
+                     "conclusion" : "success",
+                     "name" : "Qualify native CLI boundaries and local PocketIC installation",
+                     "number" : 9,
+                     "status" : "completed"
+                  },
+                  {
+                     "conclusion" : "skipped",
+                     "name" : "Retain failed tooling fixtures",
+                     "number" : 10,
+                     "status" : "completed"
+                  },
+                  {
+                     "conclusion" : "success",
+                     "name" : "Post Run actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10",
+                     "number" : 20,
+                     "status" : "completed"
+                  },
+                  {
+                     "conclusion" : "success",
+                     "name" : "Complete job",
+                     "number" : 21,
+                     "status" : "completed"
+                  }
+               ],
+               "url" : "https://github.com/dragginzgame/ic-blob-storage/actions/runs/37509773491/job/112427603156"
+            },
+            {
+               "completedAt" : "2026-10-06T18:27:09Z",
+               "conclusion" : "success",
+               "databaseId" : 112427603287,
+               "name" : "tooling (macos-15)",
+               "startedAt" : "2026-10-06T18:14:41Z",
+               "status" : "completed",
+               "steps" : [
+                  {
+                     "conclusion" : "success",
+                     "name" : "Set up job",
+                     "number" : 1,
+                     "status" : "completed"
+                  },
+                  {
+                     "conclusion" : "success",
+                     "name" : "Run actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10",
+                     "number" : 2,
+                     "status" : "completed"
+                  },
+                  {
+                     "conclusion" : "skipped",
+                     "name" : "Prepare fixture utilities on Linux",
+                     "number" : 3,
+                     "status" : "completed"
+                  },
+                  {
+                     "conclusion" : "success",
+                     "name" : "Prepare fixture utilities on macOS",
+                     "number" : 4,
+                     "status" : "completed"
+                  },
+                  {
+                     "conclusion" : "success",
+                     "name" : "Prepare the selected Rust and formatter tools",
+                     "number" : 5,
+                     "status" : "completed"
+                  },
+                  {
+                     "conclusion" : "success",
+                     "name" : "Prepare and verify reviewed repository-local executables",
+                     "number" : 6,
+                     "status" : "completed"
+                  },
+                  {
+                     "conclusion" : "success",
+                     "name" : "Check the snapshot, formatter and release/hook fixtures",
+                     "number" : 7,
+                     "status" : "completed"
+                  },
+                  {
+                     "conclusion" : "success",
+                     "name" : "Prepare the locked native dependency cache",
+                     "number" : 8,
+                     "status" : "completed"
+                  },
+                  {
+                     "conclusion" : "success",
+                     "name" : "Qualify native CLI boundaries and local PocketIC installation",
+                     "number" : 9,
+                     "status" : "completed"
+                  },
+                  {
+                     "conclusion" : "skipped",
+                     "name" : "Retain failed tooling fixtures",
+                     "number" : 10,
+                     "status" : "completed"
+                  },
+                  {
+                     "conclusion" : "success",
+                     "name" : "Post Run actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10",
+                     "number" : 20,
+                     "status" : "completed"
+                  },
+                  {
+                     "conclusion" : "success",
+                     "name" : "Complete job",
+                     "number" : 21,
+                     "status" : "completed"
+                  }
+               ],
+               "url" : "https://github.com/dragginzgame/ic-blob-storage/actions/runs/37509773491/job/112427603287"
+            }
+         ],
+         "status" : "completed",
+         "url" : "https://github.com/dragginzgame/ic-blob-storage/actions/runs/37509773491"
+      },
+      "shared_ci" : [
+         {
+            "conclusion" : "success",
+            "databaseId" : 37511845192,
+            "headSha" : "33c2a6f0018a94915f819ff219e270500ed5b73b",
+            "status" : "completed",
+            "url" : "https://github.com/dragginzgame/shared-tooling/actions/runs/37511845192"
+         },
+         {
+            "conclusion" : "success",
+            "databaseId" : 37500153922,
+            "headSha" : "46c02774a8335cb3949d6f04284c4f53375353c1",
+            "status" : "completed",
+            "url" : "https://github.com/dragginzgame/shared-tooling/actions/runs/37500153922"
+         },
+         {
+            "conclusion" : "failure",
+            "databaseId" : 37491682760,
+            "headSha" : "21f3ec3dd97f2968c9f0b08924451bb2f71770d1",
+            "status" : "completed",
+            "url" : "https://github.com/dragginzgame/shared-tooling/actions/runs/37491682760"
+         },
+         {
+            "conclusion" : "success",
+            "databaseId" : 37489483879,
+            "headSha" : "b32d3038c850a7c53470c326b0f7f11263b31669",
+            "status" : "completed",
+            "url" : "https://github.com/dragginzgame/shared-tooling/actions/runs/37489483879"
+         }
+      ],
+      "shared_head" : {
+         "message" : "0.1.12",
+         "sha" : "33c2a6f0018a94915f819ff219e270500ed5b73b"
+      }
+   },
+   "removed_functions_methods_types" : [],
+   "selected_packages" : [
+      {
+         "name" : "adler2",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "2.0.1"
+      },
+      {
+         "name" : "ahash",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.8.12"
+      },
+      {
+         "name" : "aho-corasick",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "1.1.5"
+      },
+      {
+         "name" : "allocator-api2",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.2.21"
+      },
+      {
+         "name" : "anyhow",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "1.0.104"
+      },
+      {
+         "name" : "ar_archive_writer",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.5.3"
+      },
+      {
+         "name" : "arbitrary",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "1.5.0"
+      },
+      {
+         "name" : "arc-swap",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "1.9.2"
+      },
+      {
+         "name" : "array-init",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "2.1.0"
+      },
+      {
+         "name" : "arrayvec",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.5.2"
+      },
+      {
+         "name" : "ascii-canvas",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "3.0.0"
+      },
+      {
+         "name" : "async-channel",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "1.9.0"
+      },
+      {
+         "name" : "async-channel",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "2.5.0"
+      },
+      {
+         "name" : "async-lock",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "3.4.2"
+      },
+      {
+         "name" : "async-trait",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.1.92"
+      },
+      {
+         "name" : "async-watch",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.3.1"
+      },
+      {
+         "name" : "atomic-waker",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "1.1.2"
+      },
+      {
+         "name" : "autocfg",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "1.5.1"
+      },
+      {
+         "name" : "aws-lc-rs",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "1.18.1"
+      },
+      {
+         "name" : "aws-lc-sys",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.45.0"
+      },
+      {
+         "name" : "backon",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "1.6.0"
+      },
+      {
+         "name" : "base16ct",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.2.0"
+      },
+      {
+         "name" : "base64",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.13.1"
+      },
+      {
+         "name" : "base64",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.22.1"
+      },
+      {
+         "name" : "base64",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.23.1"
+      },
+      {
+         "name" : "base64ct",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "1.8.3"
+      },
+      {
+         "name" : "beef",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.5.2"
+      },
+      {
+         "name" : "binrw",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.15.2"
+      },
+      {
+         "name" : "binrw_derive",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.15.2"
+      },
+      {
+         "name" : "bit-set",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.5.3"
+      },
+      {
+         "name" : "bit-vec",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.6.3"
+      },
+      {
+         "name" : "bitflags",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "2.13.2"
+      },
+      {
+         "name" : "blob-admission-probe",
+         "source" : null,
+         "version" : "0.15.3"
+      },
+      {
+         "name" : "blob-authority-probe",
+         "source" : null,
+         "version" : "0.15.3"
+      },
+      {
+         "name" : "blob-consumer-probe",
+         "source" : null,
+         "version" : "0.15.3"
+      },
+      {
+         "name" : "blob-funding-probe",
+         "source" : null,
+         "version" : "0.15.3"
+      },
+      {
+         "name" : "blob-gateway-source",
+         "source" : null,
+         "version" : "0.15.3"
+      },
+      {
+         "name" : "blob-storage-probe",
+         "source" : null,
+         "version" : "0.15.3"
+      },
+      {
+         "name" : "blob-test-protocol",
+         "source" : null,
+         "version" : "0.15.3"
+      },
+      {
+         "name" : "block-buffer",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.10.4"
+      },
+      {
+         "name" : "block-buffer",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.12.1"
+      },
+      {
+         "name" : "block-buffer",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.9.0"
+      },
+      {
+         "name" : "bumpalo",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "3.20.3"
+      },
+      {
+         "name" : "bytemuck",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "1.25.2"
+      },
+      {
+         "name" : "byteorder",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "1.5.0"
+      },
+      {
+         "name" : "bytes",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "1.12.1"
+      },
+      {
+         "name" : "cached",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.56.0"
+      },
+      {
+         "name" : "candid",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.10.37"
+      },
+      {
+         "name" : "candid_derive",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.10.37"
+      },
+      {
+         "name" : "candid_parser",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.4.1"
+      },
+      {
+         "name" : "cc",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "1.6.0"
+      },
+      {
+         "name" : "cfg-if",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "1.0.5"
+      },
+      {
+         "name" : "cfg_aliases",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.2.2"
+      },
+      {
+         "name" : "chacha20",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.10.2"
+      },
+      {
+         "name" : "ciborium",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.2.2"
+      },
+      {
+         "name" : "ciborium-io",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.2.2"
+      },
+      {
+         "name" : "ciborium-ll",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.2.2"
+      },
+      {
+         "name" : "cmake",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.1.58"
+      },
+      {
+         "name" : "codespan-reporting",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.11.1"
+      },
+      {
+         "name" : "combine",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "4.6.8"
+      },
+      {
+         "name" : "concurrent-queue",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "2.5.0"
+      },
+      {
+         "name" : "const-oid",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.9.6"
+      },
+      {
+         "name" : "convert_case",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.6.0"
+      },
+      {
+         "name" : "core-foundation",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.10.1"
+      },
+      {
+         "name" : "core-foundation-sys",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.8.7"
+      },
+      {
+         "name" : "cpufeatures",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.2.17"
+      },
+      {
+         "name" : "cpufeatures",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.3.1"
+      },
+      {
+         "name" : "crc32fast",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "1.5.2"
+      },
+      {
+         "name" : "crossbeam-channel",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.5.17"
+      },
+      {
+         "name" : "crossbeam-utils",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.8.23"
+      },
+      {
+         "name" : "crunchy",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.2.4"
+      },
+      {
+         "name" : "crypto-bigint",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.5.5"
+      },
+      {
+         "name" : "crypto-common",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.1.6"
+      },
+      {
+         "name" : "crypto-common",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.2.2"
+      },
+      {
+         "name" : "ctor",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "1.0.13"
+      },
+      {
+         "name" : "curve25519-dalek",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "4.1.3"
+      },
+      {
+         "name" : "curve25519-dalek-derive",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.1.1"
+      },
+      {
+         "name" : "curve25519-dalek-ng",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "4.1.1"
+      },
+      {
+         "name" : "darling",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.20.11"
+      },
+      {
+         "name" : "darling",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.23.0"
+      },
+      {
+         "name" : "darling_core",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.20.11"
+      },
+      {
+         "name" : "darling_core",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.23.0"
+      },
+      {
+         "name" : "darling_macro",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.20.11"
+      },
+      {
+         "name" : "darling_macro",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.23.0"
+      },
+      {
+         "name" : "data-encoding",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "2.11.1"
+      },
+      {
+         "name" : "der",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.7.10"
+      },
+      {
+         "name" : "deranged",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.5.8"
+      },
+      {
+         "name" : "derive_builder",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.20.2"
+      },
+      {
+         "name" : "derive_builder_core",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.20.2"
+      },
+      {
+         "name" : "derive_builder_macro",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.20.2"
+      },
+      {
+         "name" : "digest",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.10.7"
+      },
+      {
+         "name" : "digest",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.11.3"
+      },
+      {
+         "name" : "digest",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.9.0"
+      },
+      {
+         "name" : "dirs-next",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "2.0.0"
+      },
+      {
+         "name" : "dirs-sys-next",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.1.2"
+      },
+      {
+         "name" : "displaydoc",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.2.7"
+      },
+      {
+         "name" : "dunce",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "1.0.5"
+      },
+      {
+         "name" : "dyn-clone",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "1.0.20"
+      },
+      {
+         "name" : "ecdsa",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.16.9"
+      },
+      {
+         "name" : "ed25519",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "2.2.3"
+      },
+      {
+         "name" : "ed25519-consensus",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "2.1.0"
+      },
+      {
+         "name" : "ed25519-dalek",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "2.2.0"
+      },
+      {
+         "name" : "either",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "1.19.0"
+      },
+      {
+         "name" : "elliptic-curve",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.13.8"
+      },
+      {
+         "name" : "ena",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.14.4"
+      },
+      {
+         "name" : "equivalent",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "1.0.2"
+      },
+      {
+         "name" : "erased-serde",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.3.31"
+      },
+      {
+         "name" : "errno",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.3.14"
+      },
+      {
+         "name" : "event-listener",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "2.5.3"
+      },
+      {
+         "name" : "event-listener",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "5.4.2"
+      },
+      {
+         "name" : "event-listener-strategy",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.5.4"
+      },
+      {
+         "name" : "fastrand",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "2.5.0"
+      },
+      {
+         "name" : "ff",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.13.1"
+      },
+      {
+         "name" : "fiat-crypto",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.2.9"
+      },
+      {
+         "name" : "filetime",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.2.29"
+      },
+      {
+         "name" : "find-msvc-tools",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.1.14"
+      },
+      {
+         "name" : "fixedbitset",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.4.2"
+      },
+      {
+         "name" : "flate2",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "1.1.10"
+      },
+      {
+         "name" : "fnv",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "1.0.7"
+      },
+      {
+         "name" : "foldhash",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.1.5"
+      },
+      {
+         "name" : "form_urlencoded",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "1.2.2"
+      },
+      {
+         "name" : "fs2",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.4.3"
+      },
+      {
+         "name" : "fs_extra",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "1.3.0"
+      },
+      {
+         "name" : "futures-channel",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.3.34"
+      },
+      {
+         "name" : "futures-core",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.3.34"
+      },
+      {
+         "name" : "futures-io",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.3.34"
+      },
+      {
+         "name" : "futures-macro",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.3.34"
+      },
+      {
+         "name" : "futures-sink",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.3.34"
+      },
+      {
+         "name" : "futures-task",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.3.34"
+      },
+      {
+         "name" : "futures-util",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.3.34"
+      },
+      {
+         "name" : "generic-array",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.14.9"
+      },
+      {
+         "name" : "getrandom",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.2.17"
+      },
+      {
+         "name" : "getrandom",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.4.3"
+      },
+      {
+         "name" : "group",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.13.0"
+      },
+      {
+         "name" : "h2",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.4.20"
+      },
+      {
+         "name" : "half",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "1.8.3"
+      },
+      {
+         "name" : "half",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "2.7.1"
+      },
+      {
+         "name" : "handlebars",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "6.4.4"
+      },
+      {
+         "name" : "hashbrown",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.15.5"
+      },
+      {
+         "name" : "hashbrown",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.17.1"
+      },
+      {
+         "name" : "heck",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.5.0"
+      },
+      {
+         "name" : "hex",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.4.3"
+      },
+      {
+         "name" : "hex-literal",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.4.1"
+      },
+      {
+         "name" : "hkdf",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.12.4"
+      },
+      {
+         "name" : "hmac",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.12.1"
+      },
+      {
+         "name" : "http",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "1.5.0"
+      },
+      {
+         "name" : "http-body",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "1.1.0"
+      },
+      {
+         "name" : "http-body-util",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.1.5"
+      },
+      {
+         "name" : "httparse",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "1.10.1"
+      },
+      {
+         "name" : "hybrid-array",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.4.15"
+      },
+      {
+         "name" : "hyper",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "1.12.0"
+      },
+      {
+         "name" : "hyper-rustls",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.27.10"
+      },
+      {
+         "name" : "hyper-util",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.1.21"
+      },
+      {
+         "name" : "ic-agent",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.49.2"
+      },
+      {
+         "name" : "ic-blob-storage",
+         "source" : null,
+         "version" : "0.15.3"
+      },
+      {
+         "name" : "ic-blob-storage-canister",
+         "source" : null,
+         "version" : "0.15.3"
+      },
+      {
+         "name" : "ic-blob-storage-cli",
+         "source" : null,
+         "version" : "0.15.3"
+      },
+      {
+         "name" : "ic-blob-storage-pocketic-tests",
+         "source" : null,
+         "version" : "0.15.3"
+      },
+      {
+         "name" : "ic-cdk",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.20.3"
+      },
+      {
+         "name" : "ic-cdk-executor",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "2.0.0"
+      },
+      {
+         "name" : "ic-cdk-macros",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.20.3"
+      },
+      {
+         "name" : "ic-certification",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "3.2.0"
+      },
+      {
+         "name" : "ic-ed25519",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.6.0"
+      },
+      {
+         "name" : "ic-error-types",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.2.0"
+      },
+      {
+         "name" : "ic-host-artifacts",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.3.1"
+      },
+      {
+         "name" : "ic-host-fs",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.3.1"
+      },
+      {
+         "name" : "ic-host-tools",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.1.14"
+      },
+      {
+         "name" : "ic-management-canister-types",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.11.0"
+      },
+      {
+         "name" : "ic-management-canister-types",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.8.0"
+      },
+      {
+         "name" : "ic-memory",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.28.4"
+      },
+      {
+         "name" : "ic-stable-structures",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.7.2"
+      },
+      {
+         "name" : "ic-testkit",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.19.2"
+      },
+      {
+         "name" : "ic-transport-types",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.49.2"
+      },
+      {
+         "name" : "ic-verify-bls-signature",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.6.0"
+      },
+      {
+         "name" : "ic0",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "1.2.0"
+      },
+      {
+         "name" : "ic_bls12_381",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.10.1"
+      },
+      {
+         "name" : "ic_principal",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.1.5"
+      },
+      {
+         "name" : "icu_collections",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "2.3.0"
+      },
+      {
+         "name" : "icu_locale_core",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "2.3.0"
+      },
+      {
+         "name" : "icu_normalizer",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "2.3.0"
+      },
+      {
+         "name" : "icu_normalizer_data",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "2.3.0"
+      },
+      {
+         "name" : "icu_properties",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "2.3.0"
+      },
+      {
+         "name" : "icu_properties_data",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "2.3.0"
+      },
+      {
+         "name" : "icu_provider",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "2.3.1"
+      },
+      {
+         "name" : "ident_case",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "1.0.1"
+      },
+      {
+         "name" : "idna",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "1.1.0"
+      },
+      {
+         "name" : "idna_adapter",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "1.2.2"
+      },
+      {
+         "name" : "indexmap",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "2.14.2"
+      },
+      {
+         "name" : "ipnet",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "2.12.2"
+      },
+      {
+         "name" : "itertools",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.11.0"
+      },
+      {
+         "name" : "itoa",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "1.0.18"
+      },
+      {
+         "name" : "jni",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.22.4"
+      },
+      {
+         "name" : "jni-macros",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.22.4"
+      },
+      {
+         "name" : "jni-sys",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.4.1"
+      },
+      {
+         "name" : "jni-sys-macros",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.4.1"
+      },
+      {
+         "name" : "jobserver",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.1.35"
+      },
+      {
+         "name" : "js-sys",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.3.106"
+      },
+      {
+         "name" : "k256",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.13.4"
+      },
+      {
+         "name" : "keccak",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.1.6"
+      },
+      {
+         "name" : "lalrpop",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.20.2"
+      },
+      {
+         "name" : "lalrpop-util",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.20.2"
+      },
+      {
+         "name" : "lazy_static",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "1.5.1"
+      },
+      {
+         "name" : "leb128",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.2.7"
+      },
+      {
+         "name" : "libc",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.2.190"
+      },
+      {
+         "name" : "libredox",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.1.25"
+      },
+      {
+         "name" : "linktime-proc-macro",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.2.3"
+      },
+      {
+         "name" : "linux-raw-sys",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.12.1"
+      },
+      {
+         "name" : "litemap",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.8.3"
+      },
+      {
+         "name" : "lock_api",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.4.14"
+      },
+      {
+         "name" : "log",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.4.34"
+      },
+      {
+         "name" : "logos",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.14.4"
+      },
+      {
+         "name" : "logos-codegen",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.14.4"
+      },
+      {
+         "name" : "logos-derive",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.14.4"
+      },
+      {
+         "name" : "lru-slab",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.1.3"
+      },
+      {
+         "name" : "matchers",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.2.0"
+      },
+      {
+         "name" : "memchr",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "2.8.3"
+      },
+      {
+         "name" : "merlin",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "3.0.0"
+      },
+      {
+         "name" : "mime",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.3.17"
+      },
+      {
+         "name" : "mime_guess",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "2.0.5"
+      },
+      {
+         "name" : "miniz_oxide",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.9.1"
+      },
+      {
+         "name" : "mio",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "1.2.4"
+      },
+      {
+         "name" : "new_debug_unreachable",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "1.0.6"
+      },
+      {
+         "name" : "nu-ansi-term",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.50.3"
+      },
+      {
+         "name" : "num-bigint",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.4.8"
+      },
+      {
+         "name" : "num-conv",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.2.2"
+      },
+      {
+         "name" : "num-integer",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.1.47"
+      },
+      {
+         "name" : "num-modular",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.6.6"
+      },
+      {
+         "name" : "num-order",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "1.2.0"
+      },
+      {
+         "name" : "num-traits",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.2.19"
+      },
+      {
+         "name" : "object",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.39.1"
+      },
+      {
+         "name" : "once_cell",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "1.21.4"
+      },
+      {
+         "name" : "opaque-debug",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.3.1"
+      },
+      {
+         "name" : "openssl-probe",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.2.1"
+      },
+      {
+         "name" : "p256",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.13.2"
+      },
+      {
+         "name" : "pairing",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.23.0"
+      },
+      {
+         "name" : "parking",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "2.2.1"
+      },
+      {
+         "name" : "parking_lot",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.12.5"
+      },
+      {
+         "name" : "parking_lot_core",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.9.12"
+      },
+      {
+         "name" : "paste",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "1.0.15"
+      },
+      {
+         "name" : "pem",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "3.0.6"
+      },
+      {
+         "name" : "pem-rfc7468",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.7.0"
+      },
+      {
+         "name" : "percent-encoding",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "2.3.2"
+      },
+      {
+         "name" : "pest",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "2.9.2"
+      },
+      {
+         "name" : "pest_derive",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "2.9.2"
+      },
+      {
+         "name" : "pest_generator",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "2.9.2"
+      },
+      {
+         "name" : "pest_meta",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "2.9.2"
+      },
+      {
+         "name" : "petgraph",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.6.5"
+      },
+      {
+         "name" : "phf_shared",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.11.3"
+      },
+      {
+         "name" : "pico-args",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.5.0"
+      },
+      {
+         "name" : "pin-project-lite",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.2.17"
+      },
+      {
+         "name" : "pkcs8",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.10.2"
+      },
+      {
+         "name" : "pkg-config",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.3.34"
+      },
+      {
+         "name" : "pocket-ic",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "16.0.0"
+      },
+      {
+         "name" : "potential_utf",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.1.6"
+      },
+      {
+         "name" : "powerfmt",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.2.1"
+      },
+      {
+         "name" : "ppv-lite86",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.2.21"
+      },
+      {
+         "name" : "precomputed-hash",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.1.1"
+      },
+      {
+         "name" : "pretty",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.12.5"
+      },
+      {
+         "name" : "primeorder",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.13.6"
+      },
+      {
+         "name" : "proc-macro2",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "1.0.107"
+      },
+      {
+         "name" : "psm",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.1.32"
+      },
+      {
+         "name" : "quinn",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.11.12"
+      },
+      {
+         "name" : "quinn-proto",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.11.19"
+      },
+      {
+         "name" : "quinn-udp",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.5.16"
+      },
+      {
+         "name" : "quote",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "1.0.47"
+      },
+      {
+         "name" : "r-efi",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "6.0.0"
+      },
+      {
+         "name" : "rand",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.10.3"
+      },
+      {
+         "name" : "rand",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.8.8"
+      },
+      {
+         "name" : "rand_chacha",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.3.1"
+      },
+      {
+         "name" : "rand_core",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.10.1"
+      },
+      {
+         "name" : "rand_core",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.6.4"
+      },
+      {
+         "name" : "rand_pcg",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.10.2"
+      },
+      {
+         "name" : "rangemap",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "1.8.0"
+      },
+      {
+         "name" : "redox_syscall",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.5.18"
+      },
+      {
+         "name" : "redox_users",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.4.6"
+      },
+      {
+         "name" : "regex",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "1.13.1"
+      },
+      {
+         "name" : "regex-automata",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.4.18"
+      },
+      {
+         "name" : "regex-syntax",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.8.11"
+      },
+      {
+         "name" : "reqwest",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.13.5"
+      },
+      {
+         "name" : "rfc6979",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.4.0"
+      },
+      {
+         "name" : "ring",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.17.14"
+      },
+      {
+         "name" : "rustc-hash",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "2.1.3"
+      },
+      {
+         "name" : "rustc_version",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.4.1"
+      },
+      {
+         "name" : "rustix",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "1.1.5"
+      },
+      {
+         "name" : "rustls",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.23.45"
+      },
+      {
+         "name" : "rustls-native-certs",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.8.4"
+      },
+      {
+         "name" : "rustls-pki-types",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "1.15.1"
+      },
+      {
+         "name" : "rustls-platform-verifier",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.7.1"
+      },
+      {
+         "name" : "rustls-platform-verifier-android",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.2.0"
+      },
+      {
+         "name" : "rustls-webpki",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.103.15"
+      },
+      {
+         "name" : "rustversion",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "1.0.23"
+      },
+      {
+         "name" : "same-file",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "1.0.6"
+      },
+      {
+         "name" : "schannel",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.1.29"
+      },
+      {
+         "name" : "schemars",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.8.22"
+      },
+      {
+         "name" : "schemars_derive",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.8.22"
+      },
+      {
+         "name" : "scopeguard",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "1.2.0"
+      },
+      {
+         "name" : "sec1",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.7.3"
+      },
+      {
+         "name" : "security-framework",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "3.7.0"
+      },
+      {
+         "name" : "security-framework-sys",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "2.17.0"
+      },
+      {
+         "name" : "semver",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "1.0.28"
+      },
+      {
+         "name" : "serde",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "1.0.229"
+      },
+      {
+         "name" : "serde_bytes",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.11.19"
+      },
+      {
+         "name" : "serde_cbor",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.11.2"
+      },
+      {
+         "name" : "serde_core",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "1.0.229"
+      },
+      {
+         "name" : "serde_derive",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "1.0.229"
+      },
+      {
+         "name" : "serde_derive_internals",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.29.1"
+      },
+      {
+         "name" : "serde_json",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "1.0.151"
+      },
+      {
+         "name" : "serde_repr",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.1.21"
+      },
+      {
+         "name" : "serde_spanned",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.6.9"
+      },
+      {
+         "name" : "serde_spanned",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "1.1.1"
+      },
+      {
+         "name" : "sha2",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.10.9"
+      },
+      {
+         "name" : "sha2",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.11.0"
+      },
+      {
+         "name" : "sha2",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.9.9"
+      },
+      {
+         "name" : "sharded-slab",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.1.7"
+      },
+      {
+         "name" : "shlex",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "2.0.1"
+      },
+      {
+         "name" : "signal-hook-registry",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "1.4.8"
+      },
+      {
+         "name" : "signature",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "2.2.0"
+      },
+      {
+         "name" : "simd-adler32",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.3.10"
+      },
+      {
+         "name" : "simd_cesu8",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "1.2.0"
+      },
+      {
+         "name" : "simdutf8",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.1.5"
+      },
+      {
+         "name" : "siphasher",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "1.0.4"
+      },
+      {
+         "name" : "slab",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.4.12"
+      },
+      {
+         "name" : "slog",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "2.8.2"
+      },
+      {
+         "name" : "slotmap",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "1.1.1"
+      },
+      {
+         "name" : "smallvec",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "1.16.2"
+      },
+      {
+         "name" : "socket2",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.6.5"
+      },
+      {
+         "name" : "spki",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.7.3"
+      },
+      {
+         "name" : "stable_deref_trait",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "1.2.1"
+      },
+      {
+         "name" : "stacker",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.1.25"
+      },
+      {
+         "name" : "stop-token",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.7.0"
+      },
+      {
+         "name" : "string_cache",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.8.9"
+      },
+      {
+         "name" : "strsim",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.11.1"
+      },
+      {
+         "name" : "strum",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.26.3"
+      },
+      {
+         "name" : "strum_macros",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.26.4"
+      },
+      {
+         "name" : "subtle",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "2.6.1"
+      },
+      {
+         "name" : "subtle-ng",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "2.5.0"
+      },
+      {
+         "name" : "symlink",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.1.0"
+      },
+      {
+         "name" : "syn",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "2.0.119"
+      },
+      {
+         "name" : "syn",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "3.0.6"
+      },
+      {
+         "name" : "sync_wrapper",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "1.0.2"
+      },
+      {
+         "name" : "synstructure",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.14.0"
+      },
+      {
+         "name" : "tar",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.4.46"
+      },
+      {
+         "name" : "tempfile",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "3.27.0"
+      },
+      {
+         "name" : "term",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.7.0"
+      },
+      {
+         "name" : "termcolor",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "1.4.1"
+      },
+      {
+         "name" : "thiserror",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "1.0.69"
+      },
+      {
+         "name" : "thiserror",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "2.0.18"
+      },
+      {
+         "name" : "thiserror-impl",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "1.0.69"
+      },
+      {
+         "name" : "thiserror-impl",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "2.0.18"
+      },
+      {
+         "name" : "thread_local",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "1.1.10"
+      },
+      {
+         "name" : "time",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.3.55"
+      },
+      {
+         "name" : "time-core",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.1.9"
+      },
+      {
+         "name" : "time-macros",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.2.32"
+      },
+      {
+         "name" : "tiny-keccak",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "2.0.2"
+      },
+      {
+         "name" : "tinystr",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.8.4"
+      },
+      {
+         "name" : "tinyvec",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "1.13.3"
+      },
+      {
+         "name" : "tokio",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "1.53.2"
+      },
+      {
+         "name" : "tokio-macros",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "2.7.2"
+      },
+      {
+         "name" : "tokio-rustls",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.26.6"
+      },
+      {
+         "name" : "tokio-util",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.7.19"
+      },
+      {
+         "name" : "toml",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.8.23"
+      },
+      {
+         "name" : "toml",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "1.1.6+spec-1.1.0"
+      },
+      {
+         "name" : "toml_datetime",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.6.11"
+      },
+      {
+         "name" : "toml_datetime",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "1.1.1+spec-1.1.0"
+      },
+      {
+         "name" : "toml_edit",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.22.27"
+      },
+      {
+         "name" : "toml_parser",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "1.1.3+spec-1.1.0"
+      },
+      {
+         "name" : "toml_writer",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "1.1.2+spec-1.1.0"
+      },
+      {
+         "name" : "tower",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.5.3"
+      },
+      {
+         "name" : "tower-http",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.6.11"
+      },
+      {
+         "name" : "tower-layer",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.3.3"
+      },
+      {
+         "name" : "tower-service",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.3.3"
+      },
+      {
+         "name" : "tracing",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.1.44"
+      },
+      {
+         "name" : "tracing-appender",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.2.5"
+      },
+      {
+         "name" : "tracing-attributes",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.1.31"
+      },
+      {
+         "name" : "tracing-core",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.1.36"
+      },
+      {
+         "name" : "tracing-log",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.2.0"
+      },
+      {
+         "name" : "tracing-serde",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.2.0"
+      },
+      {
+         "name" : "tracing-subscriber",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.3.23"
+      },
+      {
+         "name" : "try-lock",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.2.5"
+      },
+      {
+         "name" : "typed-arena",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "2.0.2"
+      },
+      {
+         "name" : "typenum",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "1.20.1"
+      },
+      {
+         "name" : "ucd-trie",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.1.7"
+      },
+      {
+         "name" : "unicase",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "2.10.0"
+      },
+      {
+         "name" : "unicode-ident",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "1.0.26"
+      },
+      {
+         "name" : "unicode-segmentation",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "1.13.3"
+      },
+      {
+         "name" : "unicode-width",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.1.14"
+      },
+      {
+         "name" : "unicode-width",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.2.2"
+      },
+      {
+         "name" : "unicode-xid",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.2.6"
+      },
+      {
+         "name" : "untrusted",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.9.0"
+      },
+      {
+         "name" : "url",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "2.5.8"
+      },
+      {
+         "name" : "utf8_iter",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "1.0.4"
+      },
+      {
+         "name" : "valuable",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.1.1"
+      },
+      {
+         "name" : "version_check",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.9.5"
+      },
+      {
+         "name" : "walkdir",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "2.5.0"
+      },
+      {
+         "name" : "want",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.3.2"
+      },
+      {
+         "name" : "wasi",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.11.1+wasi-snapshot-preview1"
+      },
+      {
+         "name" : "wasm-bindgen",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.2.129"
+      },
+      {
+         "name" : "wasm-bindgen-futures",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.4.79"
+      },
+      {
+         "name" : "wasm-bindgen-macro",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.2.129"
+      },
+      {
+         "name" : "wasm-bindgen-macro-support",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.2.129"
+      },
+      {
+         "name" : "wasm-bindgen-shared",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.2.129"
+      },
+      {
+         "name" : "wasm-streams",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.5.0"
+      },
+      {
+         "name" : "wasmparser",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.253.0"
+      },
+      {
+         "name" : "web-sys",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.3.106"
+      },
+      {
+         "name" : "web-time",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "1.1.0"
+      },
+      {
+         "name" : "webpki-root-certs",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "1.0.9"
+      },
+      {
+         "name" : "winapi",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.3.9"
+      },
+      {
+         "name" : "winapi-i686-pc-windows-gnu",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.4.0"
+      },
+      {
+         "name" : "winapi-util",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.1.11"
+      },
+      {
+         "name" : "winapi-x86_64-pc-windows-gnu",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.4.0"
+      },
+      {
+         "name" : "windows-link",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.2.1"
+      },
+      {
+         "name" : "windows-sys",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.52.0"
+      },
+      {
+         "name" : "windows-sys",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.61.2"
+      },
+      {
+         "name" : "windows-targets",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.52.6"
+      },
+      {
+         "name" : "windows_aarch64_gnullvm",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.52.6"
+      },
+      {
+         "name" : "windows_aarch64_msvc",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.52.6"
+      },
+      {
+         "name" : "windows_i686_gnu",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.52.6"
+      },
+      {
+         "name" : "windows_i686_gnullvm",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.52.6"
+      },
+      {
+         "name" : "windows_i686_msvc",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.52.6"
+      },
+      {
+         "name" : "windows_x86_64_gnu",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.52.6"
+      },
+      {
+         "name" : "windows_x86_64_gnullvm",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.52.6"
+      },
+      {
+         "name" : "windows_x86_64_msvc",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.52.6"
+      },
+      {
+         "name" : "winnow",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.7.15"
+      },
+      {
+         "name" : "winnow",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "1.0.4"
+      },
+      {
+         "name" : "writeable",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.6.4"
+      },
+      {
+         "name" : "wslpath",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.0.2"
+      },
+      {
+         "name" : "yoke",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.8.3"
+      },
+      {
+         "name" : "yoke-derive",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.8.4"
+      },
+      {
+         "name" : "zerocopy",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.8.61"
+      },
+      {
+         "name" : "zerocopy-derive",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.8.61"
+      },
+      {
+         "name" : "zerofrom",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.1.8"
+      },
+      {
+         "name" : "zerofrom-derive",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.1.8"
+      },
+      {
+         "name" : "zeroize",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "1.9.1"
+      },
+      {
+         "name" : "zeroize_derive",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "1.5.0"
+      },
+      {
+         "name" : "zerotrie",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.2.5"
+      },
+      {
+         "name" : "zerovec",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.11.8"
+      },
+      {
+         "name" : "zerovec-derive",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.11.6"
+      },
+      {
+         "name" : "zlib-rs",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "0.6.8"
+      },
+      {
+         "name" : "zmij",
+         "source" : "registry+https://github.com/rust-lang/crates.io-index",
+         "version" : "1.0.23"
+      }
+   ],
+   "snapshot" : {
+      "added_paths" : [
+         "scripts/distribution/governance-files.txt",
+         "scripts/dev/gh-ci.sh"
+      ],
+      "files" : 58,
+      "provenance" : "Clean private committed-source export. Every prior declared destination checked against the task-entry snapshot before copying the canonical export. Later dirty sibling policy/workspace edits excluded.",
+      "revision" : "33c2a6f0018a94915f819ff219e270500ed5b73b",
+      "version" : "0.1.12"
+   },
+   "sources" : [
+      {
+         "bytes" : 3520,
+         "path" : ".github/workflows/tooling.yml",
+         "sha256" : "a6dd6515ee5fee4442d8230ef4f1f5bf548749a46304fbec33f7c74e549d4f66"
+      },
+      {
+         "bytes" : 6121,
+         "path" : ".shared-tooling.snapshot",
+         "sha256" : "3bbec3e4fbb07bc866b6ef04d56b0793653b8f47afa400eec5f8aa4575b52438"
+      },
+      {
+         "bytes" : 5959,
+         "path" : "AGENTS.md",
+         "sha256" : "d751d473a5fe22ebcee2d4207b48a16d5d03f8edca914c9c0bd5c2f50c365946"
+      },
+      {
+         "bytes" : 188254,
+         "path" : "CHANGELOG.md",
+         "sha256" : "e87ba0b46d283080232639a0e184b684d3004a3e0e42d3773f06fd4d26c3a7f5"
+      },
+      {
+         "bytes" : 107248,
+         "path" : "Cargo.lock",
+         "sha256" : "682aa748836e6325857a2d94772d4c314d933377ca97cbb5a0f12fdad70e1f7f"
+      },
+      {
+         "bytes" : 20483,
+         "path" : "DRAGGINZGAME.md",
+         "sha256" : "9c4a8524b15ec9beaf3b0ae64323d97b58194e6f9d5b065c14b773a67de2e3e9"
+      },
+      {
+         "bytes" : 19183,
+         "path" : "Makefile",
+         "sha256" : "eba9ef2a35826492e15859e08f06b4d2a4489c700431028ecf878c585be656b2"
+      },
+      {
+         "bytes" : 7136,
+         "path" : "audits/README.md",
+         "sha256" : "b4c691ed78e3122b548566c148f8b8bb74b06ad6ca55092516f8ce271d8b1460"
+      },
+      {
+         "bytes" : 2185,
+         "path" : "audits/module-cleanup.md",
+         "sha256" : "ad0c56d074fb54455932bab7fcff0908dac34f000d2961caeca12616b79b778b"
+      },
+      {
+         "bytes" : 15214,
+         "path" : "docs/consuming-snapshots.md",
+         "sha256" : "dbc331c437c41f1f12a29488aecf4efa933c5b3102ebf5fc99586d7095af3008"
+      },
+      {
+         "bytes" : 39712,
+         "path" : "docs/dependencies.md",
+         "sha256" : "bc8f137f0cb421851857bb3089c98f991d23c3c147eda70c1453a472f65c419c"
+      },
+      {
+         "bytes" : 35452,
+         "path" : "docs/evidence/shared-011-0154.json",
+         "sha256" : "ba2efc8bdb4bbe2f811cbd69e2ac2367fb9c30e1605e94e1ff315a2263fc90a4"
+      },
+      {
+         "bytes" : 5206,
+         "path" : "docs/local-setup.md",
+         "sha256" : "a3f15423ea56de2e414b355533712f74bbe664ee29fcf8b8c7b1e2d91d58b79a"
+      },
+      {
+         "bytes" : 19724,
+         "path" : "docs/releases.md",
+         "sha256" : "cf7aa8f7bcb7c50963e280580710468b3e9de6e8406e91c8dafb3796d8da8163"
+      },
+      {
+         "bytes" : 9447,
+         "path" : "docs/releasing.md",
+         "sha256" : "4d1dc5cae9123afeb0169cda4b5564ac59206d18424fa2b55338bf404704dc04"
+      },
+      {
+         "bytes" : 100563,
+         "path" : "docs/status/current.md",
+         "sha256" : "dbcf1054e97fea1c492843340f44b8ae80ab8c9df559dae9f966a6ab1ca1f823"
+      },
+      {
+         "bytes" : 7622,
+         "path" : "docs/supported-hosts.md",
+         "sha256" : "d68c94daa9ea537dcd51cfff81ca888900a14098c09bc287f179b0f9d905a399"
+      },
+      {
+         "bytes" : 7304,
+         "path" : "rules/agent-maintenance.md",
+         "sha256" : "89d2e3bb88e102e0b78eff6c82523079c60186b637a5f7104116bc28739769ec"
+      },
+      {
+         "bytes" : 2101,
+         "path" : "scripts/ci/check-validation-logging.sh",
+         "sha256" : "991fab10338c5598b00608c0b9b2ffd24c2e8bce1ec675c05d55a782fad5f824"
+      },
+      {
+         "bytes" : 1790,
+         "path" : "scripts/ci/finalize-release-changelog.awk",
+         "sha256" : "b45faa708bcaf4ad081fe1b7e16417c66dd46fab9868838d9beca5479ec92e62"
+      },
+      {
+         "bytes" : 17235,
+         "path" : "scripts/ci/run-release.sh",
+         "sha256" : "d7a54afb921ba7fee4a6ac1e1a4e19b94bc12b8341efdc0eb1af6e2cd3d9dbeb"
+      },
+      {
+         "bytes" : 10085,
+         "path" : "scripts/ci/run-validation-targets.sh",
+         "sha256" : "9dd5fdb59c6e79254445cdaf061c1fbe5ddb25c0a9864e44587ecbd64f95fe8b"
+      },
+      {
+         "bytes" : 33993,
+         "path" : "scripts/ci/test-release-runner.sh",
+         "sha256" : "deac9dded8a22238e96840de7320b4d3dc0dda01302ade014d2449ce11819dad"
+      },
+      {
+         "bytes" : 5499,
+         "path" : "scripts/ci/verify-shared-tooling-snapshot.sh",
+         "sha256" : "b6764190803118331d7441233bcd6a3031c99c0c5219cc4a5c29dfb1a1040e41"
+      },
+      {
+         "bytes" : 5337,
+         "path" : "scripts/dev/gh-ci.sh",
+         "sha256" : "0d2931071ee28be1025d44caf72c19e4855cb4a934e6491e5457491f837be547"
+      },
+      {
+         "bytes" : 1026,
+         "path" : "scripts/distribution/governance-files.txt",
+         "sha256" : "18ed473724f924353b13f212c0fcf049aba67957218e63b25de0c833410096c7"
+      },
+      {
+         "bytes" : 34179,
+         "path" : "scripts/release/test-release.sh",
+         "sha256" : "f6d3a245e618778bdf051380dfd3ab57d0a7a33a1dde720fa0f82125c62ad28c"
+      }
+   ],
+   "verification" : [
+      "Focused shared-tooling, release routing, runner and consumer adapter checks; Bash 5 and Linux-built Bash 3.2.",
+      "Canonical snapshot distribution and CI helper suites executed from the exact clean upstream source under both Bash versions. Includes helper-only/helper+payload tampering, independent GNU/Perl digest backends and governance export links.",
+      "Native CLI/probe bins, FIFO subprocess, strict CLI all-target Clippy and Rust 1.88 CLI all-target compilation on the selected graph.",
+      "Offline metadata and normal Wasm CLI graph; snapshot, declarations, links, shell syntax/ShellCheck, actionlint and unused-direct-dependency scan."
+   ]
+}

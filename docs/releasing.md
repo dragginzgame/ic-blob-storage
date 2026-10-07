@@ -37,14 +37,14 @@ Missing or incorrect tools report explicit installation commands; the check
 does not install, compile, mutate release files or replace the full gate.
 `SHELLCHECK=/absolute/path/to/shellcheck` selects an existing executable.
 
-The released baseline is 0.15.2, following the ic-memory 0.27 and funding hard
-cut in 0.15.0. Released 0.15.2 adds compatible Shared Tooling verification,
-native fixture fixes, dependency qualification and release admission checks,
-with no repository-owned service DTO or durable layout change. Keep package
-metadata at the released version during ordinary development. Pending 0.15.3
-converges formatter prerequisites and release-note finalization on their shared
-owners;
-package metadata and the release receipt remain at 0.15.2 until preparation.
+The released baseline is 0.15.3, following the ic-memory 0.27 and funding hard
+cut in 0.15.0. Pending 0.16.0 carries the Shared Tooling and native host refresh
+plus the public ic-memory 0.30 type-identity hard cut. Host compositions must
+select that Memory line; service DTOs and durable layouts are unchanged by this
+dependency update. Keep package metadata
+and the release receipt at 0.15.3 during ordinary development; the single
+0.16.0 changelog draft records the complete pending batch. This is a minor release,
+not a compatible 0.15.4 patch; use the minor target when the maintainer releases.
 
 Changelog preflight captures a candidate without writing, using the exact saved
 `RELEASE_PREVIOUS`, `RELEASE_VERSION` and `RELEASE_DATE`. Finalization uses those
@@ -80,7 +80,14 @@ It preflights, validates, prepares Cargo/version/notes/receipt, stages only
 Cargo.toml, Cargo.lock, CHANGELOG.md and docs/release.json, creates the release
 commit and annotated tag, then atomically pushes exactly that branch and tag.
 `--no-follow-tags` prevents configuration from adding other annotated tags.
+The runner rechecks the saved destination after validation and before push,
+and dispatches to the captured URL with an explicit option terminator.
 Publication, deployment and cleanup are separate.
+The shared runner, validation logger and formatting hook qualify actual GNU
+Make recipe execution and failure propagation before their guarded effects.
+Inherited ignore-errors, dry-run, question, touch or version-only modes refuse;
+remove those modes before retrying. The isolated admission recipe loads no
+consumer Makefile and preserves legitimate release variables and parallel settings.
 
 The complete gate is `make release-verify` (also `make ci` / `make validate`). It
 verifies the shared snapshot, local executables and dependency declarations,

@@ -12,6 +12,7 @@ use ic_blob_storage::model::{
     },
     service::upload::manifest::{UploadMetadataError, validate_upload_metadata},
 };
+use ic_host_artifacts::artifact::{ArtifactError, read_reader};
 use serde::{Deserialize, Serialize};
 use std::{
     error::Error,
@@ -21,7 +22,7 @@ use std::{
 };
 use thiserror::Error;
 
-const DECLARATION_BYTES: u64 = 16_384;
+const DECLARATION_BYTES: usize = 16_384;
 const FRAME: usize = 65_536;
 const MAX_HEADERS: usize = 16;
 const MAX_HEADER_BYTES: usize = 4096;
@@ -31,6 +32,18 @@ const MAX_HEADER_BYTES: usize = 4096;
 struct Declaration {
     bytes: u64,
     headers: Vec<Header>,
+}
+
+fn read_declaration(reader: impl Read) -> Result<Declaration, Box<dyn Error>> {
+    let encoded = read_reader(reader, DECLARATION_BYTES).map_err(|error| -> Box<dyn Error> {
+        match error {
+            ArtifactError::LimitExceeded { .. } => "declaration exceeds example input bound".into(),
+            ArtifactError::Io(error) => error.into(),
+            ArtifactError::Allocation(error) => error.into(),
+            error => error.into(),
+        }
+    })?;
+    Ok(serde_json::from_slice(&encoded)?)
 }
 
 #[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
@@ -173,14 +186,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         bytes: maximum.to_str().ok_or("MAX_BYTES must be UTF-8")?.parse()?,
         chunks: chunks.to_str().ok_or("MAX_CHUNKS must be UTF-8")?.parse()?,
     };
-    let mut encoded = Vec::new();
-    File::open(input)?
-        .take(DECLARATION_BYTES + 1)
-        .read_to_end(&mut encoded)?;
-    if encoded.len() as u64 > DECLARATION_BYTES {
-        return Err("declaration exceeds example input bound".into());
-    }
-    let declaration = serde_json::from_slice(&encoded)?;
+    let declaration = read_declaration(File::open(input)?)?;
     let prepared = prepare(io::stdin().lock(), declaration, limits)?;
     let mut output = io::stdout().lock();
     serde_json::to_writer(&mut output, &prepared)?;

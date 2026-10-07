@@ -1,6 +1,55 @@
 use super::*;
 use ic_blob_storage::model::identity::caffeine::CaffeineHashLimit;
 
+#[test]
+fn declaration_collection_preserves_json_bounds_and_stream_failures() {
+    const JSON: &[u8] = br#"{"bytes":3,"headers":[]}"#;
+    let mut exact = JSON.to_vec();
+    exact.resize(DECLARATION_BYTES, b' ');
+    assert_eq!(read_declaration(exact.as_slice()).unwrap().bytes, 3);
+    exact.push(b' ');
+    assert_eq!(
+        read_declaration(exact.as_slice())
+            .err()
+            .unwrap()
+            .to_string(),
+        "declaration exceeds example input bound"
+    );
+    for invalid in [
+        &b""[..],
+        &b"{"[..],
+        &br#"{"bytes":3,"headers":[],"extra":0}"#[..],
+    ] {
+        assert!(
+            read_declaration(invalid)
+                .err()
+                .unwrap()
+                .is::<serde_json::Error>()
+        );
+    }
+    assert_eq!(
+        read_declaration(Body {
+            bytes: JSON,
+            interrupted: true,
+            fail_at_end: false,
+        })
+        .unwrap()
+        .bytes,
+        3
+    );
+    let error = read_declaration(Body {
+        bytes: JSON,
+        interrupted: false,
+        fail_at_end: true,
+    })
+    .err()
+    .unwrap();
+    assert_eq!(
+        error.downcast_ref::<io::Error>().unwrap().kind(),
+        io::ErrorKind::ConnectionReset
+    );
+}
+
 fn declaration() -> Declaration {
     Declaration {
         bytes: 3,
@@ -23,10 +72,10 @@ fn limits() -> PreparationLimits {
     }
 }
 
-struct Body {
-    bytes: &'static [u8],
-    interrupted: bool,
-    fail_at_end: bool,
+pub(super) struct Body {
+    pub(super) bytes: &'static [u8],
+    pub(super) interrupted: bool,
+    pub(super) fail_at_end: bool,
 }
 impl Read for Body {
     fn read(&mut self, output: &mut [u8]) -> io::Result<usize> {

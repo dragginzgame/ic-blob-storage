@@ -45,6 +45,7 @@ create_fixture() {
     cp "$ROOT/scripts/ci/run-release.sh" "$ROOT/scripts/ci/next-release-version.sh" \
         "$ROOT/scripts/ci/run-validation-targets.sh" "$ROOT/scripts/ci/check-release-tag.sh" \
         "$ROOT/scripts/ci/rewrite-local-lock-versions.pl" \
+        "$ROOT/scripts/ci/check-make-execution.sh" \
         "$ROOT/scripts/ci/finalize-release-changelog.awk" \
         "$ROOT/scripts/ci/check-format-tools.sh" "$FIXTURE/scripts/ci/"
     cp "$ROOT/ci/tool-versions.env" "$FIXTURE/ci/"
@@ -202,11 +203,11 @@ case "$1" in
             esac
         done ;;
     push)
-        [[ "$#" == 6 && "$2" == --no-follow-tags && "$3" == --atomic && "$4" == origin && "$5" == *:refs/heads/main && "$6" == refs/tags/v*:refs/tags/v* ]] || exit 97
-        tag="${6%%:*}"; tag="${tag#refs/tags/}"
-        [[ "$6" == "refs/tags/$tag:refs/tags/$tag" ]] || exit 97
+        [[ "$#" == 7 && "$2" == --no-follow-tags && "$3" == --atomic && "$4" == -- && "$5" == https://invalid.example/fixture && "$6" == *:refs/heads/main && "$7" == refs/tags/v*:refs/tags/v* ]] || exit 97
+        tag="${7%%:*}"; tag="${tag#refs/tags/}"
+        [[ "$7" == "refs/tags/$tag:refs/tags/$tag" ]] || exit 97
         mkdir -p target/remote-tags
-        resolve "${5%:refs/heads/main}" > target/remote-head
+        resolve "${6%:refs/heads/main}" > target/remote-head
         cp "target/tags/$tag.sha" "target/remote-tags/$tag"
         echo push >> "$TEST_EFFECTS"
         [[ "${TEST_PUSH_FAIL:-0}" != 1 ]] || exit 1 ;;
@@ -629,7 +630,7 @@ test_followup_release() {
             [[ "$(tail -n 1 target/release-state/0.2.0.plan)" == complete && "$(perl scripts/release/release-data.pl version)" == 0.2.0 ]] || exit 1
             [[ "$(cat target/remote-head)" == 3333333333333333333333333333333333333333 ]] || exit 1
             if [[ "$1" == missing-tag ]]; then
-                rg -q '^git push --no-follow-tags --atomic origin 3333333333333333333333333333333333333333:refs/heads/main refs/tags/v0.2.0:refs/tags/v0.2.0$' "$TEST_LOG"
+                rg -q '^git push --no-follow-tags --atomic -- https://invalid.example/fixture 3333333333333333333333333333333333333333:refs/heads/main refs/tags/v0.2.0:refs/tags/v0.2.0$' "$TEST_LOG"
             fi
             # The real Make adapter retains the failed gate before a retry.
             local retained

@@ -15,7 +15,9 @@ it does not override shared rules or depend on a mutable sibling checkout.
   Inspect/review/audit requests never authorize sibling edits.
 - GitHub issues in the owning repository track integration and shared-tooling
   feedback. Handoffs link to them; evidence remains with its existing owner.
-  Recording a finding does not authorize issue writes or upstream messages.
+  Relevant issue work follows the shared maintenance rules. Sibling file edits,
+  unrelated messages and release effects retain their separate authorization
+  requirements.
 
 ## Delivery and release
 
@@ -87,6 +89,9 @@ it does not override shared rules or depend on a mutable sibling checkout.
 
 - Use Rust edition 2024, directory modules with mod.rs and named boundary types.
   Do not use path attributes to work around module layout.
+- The virtual root owns all maintained packages under `crates/<package-name>/`,
+  following [the shared workspace rule](rules/rust-workspaces.md). Browser tests
+  and frozen inputs under `tests/` are not separate Rust packages.
 - Document public types and meaningful invariants. Prefer expect over allow
   for lint suppressions. Keep authority predicates readable and independently
   testable rather than long mixed boolean expressions.

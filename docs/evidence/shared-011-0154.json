@@ -1,0 +1,875 @@
+{
+   "adopted_snapshot" : {
+      "file_set_unchanged" : true,
+      "files" : 56,
+      "revision" : "46c02774a8335cb3949d6f04284c4f53375353c1",
+      "source" : "clean private committed-source clone; dirty sibling work excluded",
+      "version" : "0.1.11"
+   },
+   "attempts_logs" : [
+      {
+         "bytes" : 0,
+         "path" : ".tmp/post-release-0153-01/committed-receipt.log",
+         "sha256" : "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+         "bytes" : 0,
+         "path" : ".tmp/post-release-0153-01/exact-tag.log",
+         "sha256" : "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+         "bytes" : 136,
+         "path" : ".tmp/post-release-0153-01/release-identity-retry.log",
+         "sha256" : "abd1377477b8fb9e8f41e86f565b9bbdecbe3b521c30411c31d51e73269770e1"
+      },
+      {
+         "bytes" : 138,
+         "path" : ".tmp/post-release-0153-01/release-identity.log",
+         "sha256" : "e05dddde82f20ce7ee583412ac94e8c87b70037e3a9b40bb2ce030278eb66449"
+      },
+      {
+         "bytes" : 0,
+         "path" : ".tmp/shared-011-0154-01/actionlint.log",
+         "sha256" : "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+         "bytes" : 85,
+         "path" : ".tmp/shared-011-0154-01/clone.log",
+         "sha256" : "6eb3c7492d6bcb7e91cbe360be16a6ab8fc8e8f287542c32aadf1894e0260698"
+      },
+      {
+         "bytes" : 516,
+         "path" : ".tmp/shared-011-0154-01/final-admission.log",
+         "sha256" : "d3ab1e248c6b9b71efabb975408e32dc5997d84068a544806040ac3ecab83316"
+      },
+      {
+         "bytes" : 1808,
+         "path" : ".tmp/shared-011-0154-01/focused-bash5-retry.log",
+         "sha256" : "9211d3fa74f119f2a7015d9e1bebb7dd226aaeda0a6cb2285a9257a13df16087"
+      },
+      {
+         "bytes" : 2042,
+         "path" : ".tmp/shared-011-0154-01/focused-bash5.log",
+         "sha256" : "489596185e888f86ab2a87c8582f79331c0476d4a8b60a454362cb4988ff08a7"
+      },
+      {
+         "bytes" : 62,
+         "path" : ".tmp/shared-011-0154-01/logger-bash32.log",
+         "sha256" : "1fa98b142066e8596706aaf6b0e7939c3c61d9da87f1ee227b94e844b0149493"
+      },
+      {
+         "bytes" : 85,
+         "path" : ".tmp/shared-011-0154-01/logger-before.log",
+         "sha256" : "8ef6eb77c0a8198683af3770277c7f7c78e09c4998d952787b1530a1bc59b631"
+      },
+      {
+         "bytes" : 938,
+         "path" : ".tmp/shared-011-0154-01/preparation-failures.log",
+         "sha256" : "4a45f776d1d341c2ea425ff82b44042fc589dda490c026bfd0ad32289e355b26"
+      },
+      {
+         "bytes" : 143,
+         "path" : ".tmp/shared-011-0154-01/record-final-check.log",
+         "sha256" : "6e1a6b300784e321db9de8993909cc93f29bf7aac0ddd5098efe77a8045f38b6"
+      },
+      {
+         "bytes" : 137,
+         "path" : ".tmp/shared-011-0154-01/refresh.log",
+         "sha256" : "c60548a419d4ad4035d31e78a006ffa9c2786188680db457918f318d6b156941"
+      },
+      {
+         "bytes" : 98,
+         "path" : ".tmp/shared-011-0154-01/release-bash32.log",
+         "sha256" : "f9d4ce54e4aa58986c1f8d4aafb9a8e033d6b5a2b5c7438c7372a2107587d9cd"
+      },
+      {
+         "bytes" : 567,
+         "path" : ".tmp/shared-011-0154-01/remote-review.log",
+         "sha256" : "c1f6d9bebcf5716f3fe7418bb0d62d195ece1c3f7b2ad64a2e7ae9c8bb53d610"
+      },
+      {
+         "bytes" : 41,
+         "path" : ".tmp/shared-011-0154-01/runner-bash32.log",
+         "sha256" : "ae44a54a9ec3879324d6d50381533a91c0888c202b4ece961d0961864652f922"
+      },
+      {
+         "bytes" : 0,
+         "path" : ".tmp/shared-011-0154-01/shellcheck.log",
+         "sha256" : "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+         "bytes" : 225,
+         "path" : ".tmp/shared-011-0154-01/upload-refusal.log",
+         "sha256" : "cc5ac9b4bd0493d07295d4f0ea0f91b06d9731e3d399e212072c7be1aa7e1ee6"
+      },
+      {
+         "bytes" : 0,
+         "path" : ".tmp/shared-011-0154-01/whitespace.log",
+         "sha256" : "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+   ],
+   "checks" : {
+      "bash5" : "shared-tooling-check, shared-tooling-tests and release-check passed",
+      "failure_upload_selection" : "controlled old-owner failure retains blob-validation-logging directory matching added CI upload glob; no actual dirty-source GitHub upload",
+      "formatting" : "cargo-sort and rustfmt passed without compiling",
+      "linux_built_bash32" : "consumer logger, shared release runner and local release adapter passed",
+      "local_documentation_links" : "passed",
+      "logger_after" : "passing names neutral; real diagnostics, context and raw retention passed",
+      "logger_before" : "old owner decorates passing error:: paths; retained expected refusal",
+      "precision_after" : "adopted owner rejects competing draft (exit 1); shared major/minor/patch and length fixtures pass",
+      "precision_before" : "old owner accepts competing 9007199254740993.0.0 at 9007199254740992.0.0 cutoff (exit 0)",
+      "release_metadata_preservation" : "Cargo.toml, Cargo.lock and docs/release.json byte-identical to entry; finalized changelog history preserved",
+      "released_identity" : "committed receipt, exact annotated tag and remote branch/tag readbacks passed",
+      "snapshot_provenance_modes" : "passed, all 56 files match committed owner bytes and executable states",
+      "syntax_shellcheck_actionlint" : "passed"
+   },
+   "classification" : "Committed-source adoption, focused Linux Bash execution and read-only release/CI identity evidence",
+   "collector" : {
+      "bytes" : 6222,
+      "path" : ".tmp/shared-011-0154-01/collect.pl",
+      "sha256" : "c795f07bf393ca76faca6fa8ad50ac65c856eaecab706ccbb34b46e5b932f6c4"
+   },
+   "date" : "2026-10-06",
+   "development_target" : "0.15.4",
+   "entry_clean" : true,
+   "entry_head" : "9d9cdf82b832c88278df54686d06aec274f905e9",
+   "entry_inputs" : [
+      {
+         "bytes" : 5862,
+         "path" : ".tmp/shared-011-0154-01/entry/AGENTS.md",
+         "sha256" : "6c49f651f8f5f1409cfa1fb155bfff450eba992ad09a66e2fc4919ea3bced399"
+      },
+      {
+         "bytes" : 187020,
+         "path" : ".tmp/shared-011-0154-01/entry/CHANGELOG.md",
+         "sha256" : "b153893a02b3e76bbc24ddff54d9f3ba8665f2110f82ea0ea20d38557be29b51"
+      },
+      {
+         "bytes" : 107248,
+         "path" : ".tmp/shared-011-0154-01/entry/Cargo.lock",
+         "sha256" : "eed07ceb53b18a15be5fdb69c8425672eee63e0f51205cea8f3400620b554332"
+      },
+      {
+         "bytes" : 1603,
+         "path" : ".tmp/shared-011-0154-01/entry/Cargo.toml",
+         "sha256" : "ae1f00f76db088ea1ad96d8f434160dfb240d5c25a25c18affddf6f058af1d06"
+      },
+      {
+         "bytes" : 41,
+         "path" : ".tmp/shared-011-0154-01/entry/head",
+         "sha256" : "bea4e826311d5e6946694e025c12d304afc0387d479e7d5d99741567856a2274"
+      },
+      {
+         "bytes" : 448,
+         "path" : ".tmp/shared-011-0154-01/entry/release.json",
+         "sha256" : "3243e9019d270347a3e1fb6dbba820faeb3ed2f0989a02b6a81d127081ec8be9"
+      }
+   ],
+   "excluded_effects" : [
+      "Rust builds",
+      "full local CI gate",
+      "commits/tags/pushes",
+      "release/version changes",
+      "registry publication",
+      "paid/live provider requests",
+      "sibling writes",
+      "GitHub writes"
+   ],
+   "limitations" : [
+      "Latest released tooling step passes Linux, macOS ARM and Intel; full released Linux/ARM jobs pass, Intel CLI/PocketIC step remains in progress at retained readback.",
+      "Pending 0.15.4 has no remote/native macOS qualification or full local gate.",
+      "Shared 0.1.12 destination/snapshot fixes remain uncommitted and are not adopted (owning issue #16).",
+      "Policy issue #15 needs approved evidence reporting and a committed consumer revision before closure.",
+      "Git release identity and a maintainer live report do not establish registry publication or deployed service qualification."
+   ],
+   "prepared_remote_actions" : {
+      "bodies" : [
+         {
+            "bytes" : 1321,
+            "path" : ".tmp/shared-011-0154-01/upstream-23-comment.md",
+            "sha256" : "2025d3bdf6ba4d8859aa4c3845af6c5f0f2fb72debb70708fbd370893cc0b0b5"
+         },
+         {
+            "bytes" : 1815,
+            "path" : ".tmp/shared-011-0154-01/consumer-15-comment.md",
+            "sha256" : "10b734c2b0178419fc780a5b8c705c864e7b467e2f030f583e9789072c0e4b20"
+         },
+         {
+            "bytes" : 886,
+            "path" : ".tmp/post-release-0153-01/tooling-acceptance.md",
+            "sha256" : "71abdc325f2834a108e60551d82bdab0e4fdc3c5b5ad5995c0eaee6933a8f26b"
+         }
+      ],
+      "closures" : [
+         "dragginzgame/ic-blob-storage#12",
+         "dragginzgame/ic-blob-storage#13"
+      ],
+      "comments" : [
+         "dragginzgame/shared-tooling#23",
+         "dragginzgame/ic-blob-storage#15",
+         "dragginzgame/ic-blob-storage#12",
+         "dragginzgame/ic-blob-storage#13"
+      ],
+      "review" : {
+         "bytes" : 567,
+         "path" : ".tmp/shared-011-0154-01/remote-review.log",
+         "sha256" : "c1f6d9bebcf5716f3fe7418bb0d62d195ece1c3f7b2ad64a2e7ae9c8bb53d610"
+      },
+      "state" : "Automatic approval review rejected the bundle before execution; user approval required; no issue writes or closures occurred."
+   },
+   "release_tag_object" : "08a16aac5736d62ceba61a937846b98e5f72e289",
+   "released_version" : "0.15.3",
+   "remote_readbacks" : [
+      {
+         "bytes" : 1729,
+         "path" : ".tmp/post-release-0153-01/issue-12.json",
+         "sha256" : "d2a0a2dd1d2bf685f107452fca2abb89421bce119eecfece5fbdbd63014f7b11"
+      },
+      {
+         "bytes" : 2662,
+         "path" : ".tmp/post-release-0153-01/issue-13.json",
+         "sha256" : "3f97a0cd80d1525129f4a2d55a93f58624e301c848ee65e8684d3a48b28a8eec"
+      },
+      {
+         "bytes" : 1782,
+         "path" : ".tmp/post-release-0153-01/issue-14.json",
+         "sha256" : "ede0505304d48a7536fdd07ae6b5a8c4f475f267e5110ff1adb7f81413182305"
+      },
+      {
+         "bytes" : 2045,
+         "path" : ".tmp/post-release-0153-01/issue-15.json",
+         "sha256" : "f37ec720b8a00274c8c12215ae9d453d28ee94f0f9c847d4faa4461b9b1c4347"
+      },
+      {
+         "bytes" : 2846,
+         "path" : ".tmp/post-release-0153-01/issue-16.json",
+         "sha256" : "a9337f7fbdfbdefd4de1edc4dd19691a000df41237349a027cc1d1ba4c6b062c"
+      },
+      {
+         "bytes" : 1502,
+         "path" : ".tmp/post-release-0153-01/issues.json",
+         "sha256" : "7282a5125f9fb315be096c86a6296c2838686e94fb3a96f7bc5c6ee224b965db"
+      },
+      {
+         "bytes" : 1437,
+         "path" : ".tmp/post-release-0153-01/owning-runs.json",
+         "sha256" : "d75346be5d91b5607757661976c60d06e8a07f4d448c2c7f4ca33174beec896e"
+      },
+      {
+         "bytes" : 3,
+         "path" : ".tmp/post-release-0153-01/prs.json",
+         "sha256" : "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      {
+         "bytes" : 4865,
+         "path" : ".tmp/post-release-0153-01/release-jobs-after-batch.json",
+         "sha256" : "1d17f3a04f72fa84fdfd0ca99016a8fe2b0f18f6d824d1bc61cbbfc4a3dc5b59"
+      },
+      {
+         "bytes" : 4865,
+         "path" : ".tmp/post-release-0153-01/release-jobs-current.json",
+         "sha256" : "1d17f3a04f72fa84fdfd0ca99016a8fe2b0f18f6d824d1bc61cbbfc4a3dc5b59"
+      },
+      {
+         "bytes" : 4739,
+         "path" : ".tmp/post-release-0153-01/release-jobs-final.json",
+         "sha256" : "ed6d320a91a1039be067c964a1217622196f37efaad1037f8fa3dd3d2a310571"
+      },
+      {
+         "bytes" : 4739,
+         "path" : ".tmp/post-release-0153-01/release-jobs-later.json",
+         "sha256" : "ed6d320a91a1039be067c964a1217622196f37efaad1037f8fa3dd3d2a310571"
+      },
+      {
+         "bytes" : 4739,
+         "path" : ".tmp/post-release-0153-01/release-jobs.json",
+         "sha256" : "ed6d320a91a1039be067c964a1217622196f37efaad1037f8fa3dd3d2a310571"
+      },
+      {
+         "bytes" : 116,
+         "path" : ".tmp/post-release-0153-01/remote-release.txt",
+         "sha256" : "fc60c212b6b4c7a739cc431fcd36634cd28430d7e5d1f4ee4b96fbdecdb00e8d"
+      },
+      {
+         "bytes" : 70,
+         "path" : ".tmp/post-release-0153-01/shared-head.json",
+         "sha256" : "da50c69f530d91ced1878df431a6a3eff3f72691b2f2131d84c2b7ba5285afb2"
+      },
+      {
+         "bytes" : 226,
+         "path" : ".tmp/post-release-0153-01/shared-runs.json",
+         "sha256" : "8f123b65f1ce6993a604ee88488d7c1995f822aeb27cb6738993b90b1b0afce9"
+      },
+      {
+         "bytes" : 9817,
+         "path" : ".tmp/shared-011-0154-01/shared-issue-23.json",
+         "sha256" : "bcfb4da9a2b2110b14d35fd32192520587c4746e6bc530b05c278aa909f319ab"
+      },
+      {
+         "bytes" : 8425,
+         "path" : ".tmp/shared-011-0154-01/shared-issue-24.json",
+         "sha256" : "be6c3d94f7979a29e2df0472130513f0e547fe8e0ff04385fe07c654493822c2"
+      },
+      {
+         "bytes" : 5081,
+         "path" : ".tmp/shared-011-0154-01/shared-issues.json",
+         "sha256" : "9243b8b22512fb644e79f5acccead0e136b2396636e26475a15f5735ccf5670a"
+      }
+   ],
+   "retained_failed_and_precision_artifacts" : [
+      {
+         "bytes" : 1118,
+         "path" : ".tmp/shared-011-0154-01/old-logger-refusal/Makefile",
+         "sha256" : "d25fc78feb1d04b0e2bffcbb160fd85f649b48dc6e18577b9e53b8442c3c7a46"
+      },
+      {
+         "bytes" : 281,
+         "path" : ".tmp/shared-011-0154-01/old-logger-refusal/passing-tests.log",
+         "sha256" : "2c788a4f8eec2a4f56571c0047a23ae79647d05f3e076a56cee479af094e26fb"
+      },
+      {
+         "bytes" : 9798,
+         "path" : ".tmp/shared-011-0154-01/old-logger-refusal/scripts/ci/run-validation-targets.sh",
+         "sha256" : "43b649ed7a196e46e6acf60e6307c474c34aa4dfeeb9729e2f37b4ecedca3aba"
+      },
+      {
+         "bytes" : 49,
+         "path" : ".tmp/shared-011-0154-01/precision/after.err",
+         "sha256" : "17048ba02d49a4913e3a6986355688b2bdeb0aaa45e1db61e356f0ebbb921492"
+      },
+      {
+         "bytes" : 0,
+         "path" : ".tmp/shared-011-0154-01/precision/after.md",
+         "sha256" : "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+         "bytes" : 0,
+         "path" : ".tmp/shared-011-0154-01/precision/before.err",
+         "sha256" : "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+         "bytes" : 144,
+         "path" : ".tmp/shared-011-0154-01/precision/before.md",
+         "sha256" : "31d97f308d154e224d3c4da97a25696f759068b89aa49f8433512e715970b32a"
+      },
+      {
+         "bytes" : 104,
+         "path" : ".tmp/shared-011-0154-01/precision/notes.md",
+         "sha256" : "43e065921286bc9fe0bd78d4b66018dd0fd967d76ae2afbc93ffc6ff1748a636"
+      },
+      {
+         "bytes" : 1778,
+         "path" : ".tmp/shared-011-0154-01/precision/old.awk",
+         "sha256" : "edda63b29cbdd88c7f1f0b5ab21dbae0635087a4ab6345392d99138c26b28206"
+      },
+      {
+         "bytes" : 48,
+         "path" : ".tmp/shared-011-0154-01/precision/status.log",
+         "sha256" : "c4d5c9f965c036eba6e763e20ba450f4a1232c03cffbf0f5aafa5ed927dd8011"
+      },
+      {
+         "bytes" : 257,
+         "path" : ".tmp/shared-011-0154-01/upload-refusal/blob-validation-logging.L0mkRa/Makefile",
+         "sha256" : "68e5b0b190d48a6e2a1f9f3251be85e9fbb399408f01baa548af52f25481a34d"
+      },
+      {
+         "bytes" : 184,
+         "path" : ".tmp/shared-011-0154-01/upload-refusal/blob-validation-logging.L0mkRa/pass.log",
+         "sha256" : "157cf3062c7154b2a04f9539d1868d1b144fe00ef4494fce37bcce47a651d8b9"
+      },
+      {
+         "bytes" : 1118,
+         "path" : ".tmp/shared-011-0154-01/upstream-fixture-dependency-refusal/Makefile",
+         "sha256" : "d25fc78feb1d04b0e2bffcbb160fd85f649b48dc6e18577b9e53b8442c3c7a46"
+      },
+      {
+         "bytes" : 125,
+         "path" : ".tmp/shared-011-0154-01/upstream-fixture-dependency-refusal/bin/cp",
+         "sha256" : "f508a42915dbc034cdf1de5c5d757f728a9852752a956cbb9cf71ce93ffb2959"
+      },
+      {
+         "bytes" : 167,
+         "path" : ".tmp/shared-011-0154-01/upstream-fixture-dependency-refusal/blocked-copy/20261006T182537Z-652-errors.log",
+         "sha256" : "edaf049f3171a8c746aab88a6d8f1c091edbdd6250cd82ea6b53c9f347361d71"
+      },
+      {
+         "bytes" : 16,
+         "path" : ".tmp/shared-011-0154-01/upstream-fixture-dependency-refusal/blocked-mkdir",
+         "sha256" : "2fa094a71c4db3487671e0e47c06e35146c20603ae81fd2a7b37b60066d4585d"
+      },
+      {
+         "bytes" : 1109,
+         "path" : ".tmp/shared-011-0154-01/upstream-fixture-dependency-refusal/fail-fast.log",
+         "sha256" : "07b003838ceb1dbc61a1866807d9e2de10666e07b450badafe7b04788a3b2843"
+      },
+      {
+         "bytes" : 97,
+         "path" : ".tmp/shared-011-0154-01/upstream-fixture-dependency-refusal/failure-logs/20261006T182536Z-358-0-fail-one.log",
+         "sha256" : "2afa677c25c981e29ba0913a0bcfbcc38c19f265348b9d5dbbeee9b6e3252849"
+      },
+      {
+         "bytes" : 167,
+         "path" : ".tmp/shared-011-0154-01/upstream-fixture-dependency-refusal/failure-logs/20261006T182536Z-358-errors.log",
+         "sha256" : "edaf049f3171a8c746aab88a6d8f1c091edbdd6250cd82ea6b53c9f347361d71"
+      },
+      {
+         "bytes" : 97,
+         "path" : ".tmp/shared-011-0154-01/upstream-fixture-dependency-refusal/failure-logs/20261006T182536Z-406-2-fail-one.log",
+         "sha256" : "2afa677c25c981e29ba0913a0bcfbcc38c19f265348b9d5dbbeee9b6e3252849"
+      },
+      {
+         "bytes" : 99,
+         "path" : ".tmp/shared-011-0154-01/upstream-fixture-dependency-refusal/failure-logs/20261006T182536Z-406-3-fail-two.log",
+         "sha256" : "bab56c0a6f6290137f06a66f8aeada9212bf013da9d92c6d2d3b059eafc6a33a"
+      },
+      {
+         "bytes" : 288,
+         "path" : ".tmp/shared-011-0154-01/upstream-fixture-dependency-refusal/failure-logs/20261006T182536Z-406-4-fail-after-caught-panic.log",
+         "sha256" : "3d57ab3c9aed2732211bf11116d5b086aec26d208f7ac566f01b1a3a7d585809"
+      },
+      {
+         "bytes" : 193,
+         "path" : ".tmp/shared-011-0154-01/upstream-fixture-dependency-refusal/failure-logs/20261006T182536Z-406-5-fail-with-test-context.log",
+         "sha256" : "2b648620493ab483844e5056a7be346c398caf3ccee82cc0dc9e50a30165edd9"
+      },
+      {
+         "bytes" : 1127,
+         "path" : ".tmp/shared-011-0154-01/upstream-fixture-dependency-refusal/failure-logs/20261006T182536Z-406-errors.log",
+         "sha256" : "1f83d25d7803d91b9c1a9cbe8add68e648892f10d4e2f28a41ee140cf0cebd11"
+      },
+      {
+         "bytes" : 1127,
+         "path" : ".tmp/shared-011-0154-01/upstream-fixture-dependency-refusal/failure-logs/latest-errors.log",
+         "sha256" : "1f83d25d7803d91b9c1a9cbe8add68e648892f10d4e2f28a41ee140cf0cebd11"
+      },
+      {
+         "bytes" : 193,
+         "path" : ".tmp/shared-011-0154-01/upstream-fixture-dependency-refusal/failure-logs/latest.log",
+         "sha256" : "2b648620493ab483844e5056a7be346c398caf3ccee82cc0dc9e50a30165edd9"
+      },
+      {
+         "bytes" : 1192,
+         "path" : ".tmp/shared-011-0154-01/upstream-fixture-dependency-refusal/fallback-copy.log",
+         "sha256" : "6844dd6376e6568f4378569262cd1fd12c823adf6586404fbe325196ded9175d"
+      },
+      {
+         "bytes" : 97,
+         "path" : ".tmp/shared-011-0154-01/upstream-fixture-dependency-refusal/fallback-copy/validation.l8q7KD/0.log",
+         "sha256" : "2afa677c25c981e29ba0913a0bcfbcc38c19f265348b9d5dbbeee9b6e3252849"
+      },
+      {
+         "bytes" : 97,
+         "path" : ".tmp/shared-011-0154-01/upstream-fixture-dependency-refusal/fallback-copy/validation.l8q7KD/0.log.clean",
+         "sha256" : "2afa677c25c981e29ba0913a0bcfbcc38c19f265348b9d5dbbeee9b6e3252849"
+      },
+      {
+         "bytes" : 1287,
+         "path" : ".tmp/shared-011-0154-01/upstream-fixture-dependency-refusal/fallback-mkdir.log",
+         "sha256" : "4060d2573111ed1d520d5d6cc6b14f3e910f390e2797085cc70ac9db9f471a63"
+      },
+      {
+         "bytes" : 97,
+         "path" : ".tmp/shared-011-0154-01/upstream-fixture-dependency-refusal/fallback-mkdir/validation.j5JQet/0.log",
+         "sha256" : "2afa677c25c981e29ba0913a0bcfbcc38c19f265348b9d5dbbeee9b6e3252849"
+      },
+      {
+         "bytes" : 97,
+         "path" : ".tmp/shared-011-0154-01/upstream-fixture-dependency-refusal/fallback-mkdir/validation.j5JQet/0.log.clean",
+         "sha256" : "2afa677c25c981e29ba0913a0bcfbcc38c19f265348b9d5dbbeee9b6e3252849"
+      },
+      {
+         "bytes" : 1623,
+         "path" : ".tmp/shared-011-0154-01/upstream-fixture-dependency-refusal/nested-context.log",
+         "sha256" : "99d0dc040684138a922efe1cd945b6c4a59dbe5c8ddf72632e895af1a8d1821a"
+      },
+      {
+         "bytes" : 5187,
+         "path" : ".tmp/shared-011-0154-01/upstream-fixture-dependency-refusal/output.log",
+         "sha256" : "8e83623ae8a8bda3b55f5135635bb21286e4af8f9bc885ff2b91475260b1e0f1"
+      },
+      {
+         "bytes" : 551,
+         "path" : ".tmp/shared-011-0154-01/upstream-fixture-dependency-refusal/parent/Makefile",
+         "sha256" : "c4eb23535a1c68ed58d29bf8a0fb304ba3e9e67ad1e3238a62785164b32b7c40"
+      },
+      {
+         "bytes" : 37,
+         "path" : ".tmp/shared-011-0154-01/upstream-fixture-dependency-refusal/parent/child/Makefile",
+         "sha256" : "4d0f98b6a56eb9a954e0c3cd6089528d73974cce4caedb31bd2273234339f2e1"
+      },
+      {
+         "bytes" : 10085,
+         "path" : ".tmp/shared-011-0154-01/upstream-fixture-dependency-refusal/parent/child/scripts/ci/run-validation-targets.sh",
+         "sha256" : "9dd5fdb59c6e79254445cdaf061c1fbe5ddb25c0a9864e44587ecbd64f95fe8b"
+      },
+      {
+         "bytes" : 151,
+         "path" : ".tmp/shared-011-0154-01/upstream-fixture-dependency-refusal/parent/failure-logs/20261006T182537Z-706-0-adoption.log",
+         "sha256" : "b99e62fc2a50129d820ab43be583bee5d5278d95f7a7c4ac1b4efdbd9a5ff29a"
+      },
+      {
+         "bytes" : 210,
+         "path" : ".tmp/shared-011-0154-01/upstream-fixture-dependency-refusal/parent/failure-logs/20261006T182537Z-706-errors.log",
+         "sha256" : "4cc482d9f65a54564107aac8bdbcfdf0c4edd0577285462a9ef39c30896d861b"
+      },
+      {
+         "bytes" : 210,
+         "path" : ".tmp/shared-011-0154-01/upstream-fixture-dependency-refusal/parent/failure-logs/latest-errors.log",
+         "sha256" : "4cc482d9f65a54564107aac8bdbcfdf0c4edd0577285462a9ef39c30896d861b"
+      },
+      {
+         "bytes" : 151,
+         "path" : ".tmp/shared-011-0154-01/upstream-fixture-dependency-refusal/parent/failure-logs/latest.log",
+         "sha256" : "b99e62fc2a50129d820ab43be583bee5d5278d95f7a7c4ac1b4efdbd9a5ff29a"
+      },
+      {
+         "bytes" : 10085,
+         "path" : ".tmp/shared-011-0154-01/upstream-fixture-dependency-refusal/parent/scripts/ci/run-validation-targets.sh",
+         "sha256" : "9dd5fdb59c6e79254445cdaf061c1fbe5ddb25c0a9864e44587ecbd64f95fe8b"
+      },
+      {
+         "bytes" : 241,
+         "path" : ".tmp/shared-011-0154-01/upstream-fixture-dependency-refusal/passing-tests.log",
+         "sha256" : "eeeff213dcc375032171abdba4625509abc4aa457b037e63b7a518d8a630e0d5"
+      },
+      {
+         "bytes" : 10085,
+         "path" : ".tmp/shared-011-0154-01/upstream-fixture-dependency-refusal/scripts/ci/run-validation-targets.sh",
+         "sha256" : "9dd5fdb59c6e79254445cdaf061c1fbe5ddb25c0a9864e44587ecbd64f95fe8b"
+      }
+   ],
+   "source_inputs" : [
+      {
+         "bytes" : 2774,
+         "path" : ".githooks/pre-commit",
+         "sha256" : "6d5bb9cc5ea9a8fdc4b1e075b691f6293d0654483ea3f9e019f2b2f86913ca7c"
+      },
+      {
+         "bytes" : 3520,
+         "path" : ".github/workflows/tooling.yml",
+         "sha256" : "a6dd6515ee5fee4442d8230ef4f1f5bf548749a46304fbec33f7c74e549d4f66"
+      },
+      {
+         "bytes" : 5914,
+         "path" : ".shared-tooling.snapshot",
+         "sha256" : "ef651d44b8952e4fe3c598d4aab679ae67255ff0721459e1e6059abf838e5af0"
+      },
+      {
+         "bytes" : 5980,
+         "path" : "AGENTS.md",
+         "sha256" : "667b28926301c3ec215f1ad287c896a327b57aa910f2629ba1526277c6497694"
+      },
+      {
+         "bytes" : 187721,
+         "path" : "CHANGELOG.md",
+         "sha256" : "8c5e3321a952f1b47c8e9c0cbfab36687ab665cbd25783970205a9eadc0d0031"
+      },
+      {
+         "bytes" : 107248,
+         "path" : "Cargo.lock",
+         "sha256" : "eed07ceb53b18a15be5fdb69c8425672eee63e0f51205cea8f3400620b554332"
+      },
+      {
+         "bytes" : 1603,
+         "path" : "Cargo.toml",
+         "sha256" : "ae1f00f76db088ea1ad96d8f434160dfb240d5c25a25c18affddf6f058af1d06"
+      },
+      {
+         "bytes" : 19867,
+         "path" : "DRAGGINZGAME.md",
+         "sha256" : "8bdc1b56702aecafe1d761e46ba68b7b695dc9ce435711288f4455a096c1e0a2"
+      },
+      {
+         "bytes" : 19183,
+         "path" : "Makefile",
+         "sha256" : "eba9ef2a35826492e15859e08f06b4d2a4489c700431028ecf878c585be656b2"
+      },
+      {
+         "bytes" : 7055,
+         "path" : "audits/README.md",
+         "sha256" : "926d5a39ea62a3becd19ff0326c63987b2929d3a1a728e2a0ef8a7180824d231"
+      },
+      {
+         "bytes" : 2666,
+         "path" : "audits/code-hygiene.md",
+         "sha256" : "518d890bf485bef06c316b4cf26ac6bf357ed52bcce995e8d9b1232a103d0ea3"
+      },
+      {
+         "bytes" : 2426,
+         "path" : "audits/complexity-and-technical-debt.md",
+         "sha256" : "ffdca09602c44c8aff8fc2a17588b20eb6a56e2e71fb6d42ad75087fdd65819b"
+      },
+      {
+         "bytes" : 2399,
+         "path" : "audits/flow-convergence-and-duplication.md",
+         "sha256" : "35fd87d36a09ed0971841abf28535d43470c713a82581c2251b924da1ab8f484"
+      },
+      {
+         "bytes" : 2176,
+         "path" : "audits/module-cleanup.md",
+         "sha256" : "d229519014823ad804070e55f7bb5316d7612e1d77a9dc8bf962d564e7b2a5e7"
+      },
+      {
+         "bytes" : 3619,
+         "path" : "audits/module-surface-hardening.md",
+         "sha256" : "1b64cf2ba0393ab329ec29eb05a696d47ef5933f5ab9bff6e1fe4a7e7b294075"
+      },
+      {
+         "bytes" : 1763,
+         "path" : "ci/ic-tools.tsv",
+         "sha256" : "5b1ef6bc9e344139f5e171cc1a3783bcee3650275de2f44fe0f8fa10f2bfef87"
+      },
+      {
+         "bytes" : 2337,
+         "path" : "ci/tool-versions.env",
+         "sha256" : "4923b939b682de2311217c232d56fa0cf1c8f37e19e16c16d41be7626cff1285"
+      },
+      {
+         "bytes" : 14922,
+         "path" : "docs/consuming-snapshots.md",
+         "sha256" : "f9cc36fe8a4915d64af97f60bc0c2c7b0f7bf2e05c6862b43b543012b5830254"
+      },
+      {
+         "bytes" : 5381,
+         "path" : "docs/ic-tools.md",
+         "sha256" : "89243ae92927e7c036fa8938e42acdd4a8f3dc4060600d2fff495fcd844486a9"
+      },
+      {
+         "bytes" : 4544,
+         "path" : "docs/local-setup.md",
+         "sha256" : "e1bf529c4610d7a26b86506a831c4c2e09d75c1e6076f527bdd2ad09027501d1"
+      },
+      {
+         "bytes" : 1074,
+         "path" : "docs/principles/README.md",
+         "sha256" : "59f6cb0b47fcfa698396776bbb391737292ebf34457ad7c65803fe7b36961499"
+      },
+      {
+         "bytes" : 1987,
+         "path" : "docs/principles/decision-artifact-discipline.md",
+         "sha256" : "9315c9faffa4f36cfab496342535bf49d728ddd2111e8e127cbc44b3fac89ce7"
+      },
+      {
+         "bytes" : 3739,
+         "path" : "docs/principles/reviewable-changes.md",
+         "sha256" : "56701aba8ce851ac4cce32fb55ce721698a94218b1e46636818f6b43debcb719"
+      },
+      {
+         "bytes" : 2688,
+         "path" : "docs/principles/rust-code-hygiene.md",
+         "sha256" : "7e5fd8a3c3b1dc5a829a19ad1a4933fdc17792c8e923871da1e9f36586baff41"
+      },
+      {
+         "bytes" : 4455,
+         "path" : "docs/principles/simplicity-and-maintainability.md",
+         "sha256" : "457fd38e0073c91ba470b918d4facd9faac3c5200ebd38c97e9d6b76acdaea55"
+      },
+      {
+         "bytes" : 11590,
+         "path" : "docs/provenance.md",
+         "sha256" : "fa7e67815383cefc6952c70197d66a454b976c6f102d3e47026200ee2da619a3"
+      },
+      {
+         "bytes" : 448,
+         "path" : "docs/release.json",
+         "sha256" : "3243e9019d270347a3e1fb6dbba820faeb3ed2f0989a02b6a81d127081ec8be9"
+      },
+      {
+         "bytes" : 19421,
+         "path" : "docs/releases.md",
+         "sha256" : "681b830cf44aa1842ab68aeafc6e4ae8d2867fe189bbf405cbd74a6f4720d91a"
+      },
+      {
+         "bytes" : 99736,
+         "path" : "docs/status/current.md",
+         "sha256" : "c21cda8d2283b6082949ed8b81fc34e2858c0a58ae871a4cff6698f459aedfc9"
+      },
+      {
+         "bytes" : 7461,
+         "path" : "docs/supported-hosts.md",
+         "sha256" : "9573ed9ed4383b72a2b568118433454917697e346dac714452ed2074c23e731a"
+      },
+      {
+         "bytes" : 5396,
+         "path" : "docs/tag-maintenance.md",
+         "sha256" : "1063002468575e2f821cfec71524bde06a64634bf30455d64d2d9fed872969d6"
+      },
+      {
+         "bytes" : 22104,
+         "path" : "docs/verification-helpers.md",
+         "sha256" : "c5ffc7c8304da38d3d55289183a5a80a0d61f6218d9157d73d54bc2cdb2fdd91"
+      },
+      {
+         "bytes" : 6913,
+         "path" : "rules/agent-maintenance.md",
+         "sha256" : "2f87b43f236ef589bfb4b4b9115b2e6fa7d0d04d3e23af87a645735befe9094e"
+      },
+      {
+         "bytes" : 5052,
+         "path" : "rules/cargo-dependencies.md",
+         "sha256" : "b0dfb6f6a1caf0f47f166523a3703bdd88a7667f8b0901e549620eb31adb7a7a"
+      },
+      {
+         "bytes" : 10465,
+         "path" : "rules/changelogs.md",
+         "sha256" : "9c95f254c59a1ef312d37981dcd8af2dadf4eda34cf9026cfeda4092a2716858"
+      },
+      {
+         "bytes" : 7671,
+         "path" : "rules/dependency-pinning.md",
+         "sha256" : "403c595f0e60bbf81c265c1b1a5732d20534361bd3203d8a84083d0816f5f0e4"
+      },
+      {
+         "bytes" : 7697,
+         "path" : "rules/git-hooks.md",
+         "sha256" : "fcaa0fef984f57853c2672a787fc2ac3c690dcb912ed475c1c4e95453cfdf00f"
+      },
+      {
+         "bytes" : 7591,
+         "path" : "scripts/ci/check-dependency-pins.sh",
+         "sha256" : "4d875dd6b8822f68ae86a357cde9af67b33302331a11333e31941eb1c41a6929"
+      },
+      {
+         "bytes" : 2282,
+         "path" : "scripts/ci/check-documentation-links.pl",
+         "sha256" : "a04ef3105e7851b83bb682120873e29a6c3c604183c275bc53051dd9e4b300a7"
+      },
+      {
+         "bytes" : 862,
+         "path" : "scripts/ci/check-format-tools.sh",
+         "sha256" : "a52db278800a9f02d85a6b8a780a9b1eed860c49d5442cef9db1f7f9d7ddee0a"
+      },
+      {
+         "bytes" : 5714,
+         "path" : "scripts/ci/check-formatting-hooks.sh",
+         "sha256" : "a74951308598b86742672409c261e7adc62f8243c0fa8a60363124eae7ae67f8"
+      },
+      {
+         "bytes" : 3122,
+         "path" : "scripts/ci/check-release-commands.sh",
+         "sha256" : "5dd38585740657f98f655c15c4f617ca05dc4b6304e0925675a44376ec33309b"
+      },
+      {
+         "bytes" : 732,
+         "path" : "scripts/ci/check-release-tag.sh",
+         "sha256" : "d7b179f9ceaec6e11c690c975b61f91bedc80526415f71571615064db14f0c9c"
+      },
+      {
+         "bytes" : 2101,
+         "path" : "scripts/ci/check-validation-logging.sh",
+         "sha256" : "991fab10338c5598b00608c0b9b2ffd24c2e8bce1ec675c05d55a782fad5f824"
+      },
+      {
+         "bytes" : 5427,
+         "path" : "scripts/ci/dependency-pins.jq",
+         "sha256" : "43b22d137421962ab6b34634e60d94b8cc6cf5483f9bc55afa8a0d1cd0964a28"
+      },
+      {
+         "bytes" : 1790,
+         "path" : "scripts/ci/finalize-release-changelog.awk",
+         "sha256" : "b45faa708bcaf4ad081fe1b7e16417c66dd46fab9868838d9beca5479ec92e62"
+      },
+      {
+         "bytes" : 1016,
+         "path" : "scripts/ci/next-release-version.sh",
+         "sha256" : "37e028e2d9fee271ffdc06d06fc15d7a148ec524def3d9ed2afcd9910c0ec642"
+      },
+      {
+         "bytes" : 1650,
+         "path" : "scripts/ci/read-cargo-workspace-version.sh",
+         "sha256" : "40f31a19d6115411ebffe7c26e3ed30b8af7eead10dd4830de8d5a9312291222"
+      },
+      {
+         "bytes" : 2307,
+         "path" : "scripts/ci/rewrite-local-lock-versions.pl",
+         "sha256" : "236f9b2d7fe391a73d03cfe355c0d26fa73de8db1553c7e670f7b19aeb65d086"
+      },
+      {
+         "bytes" : 907,
+         "path" : "scripts/ci/run-nonempty-cargo-test.sh",
+         "sha256" : "4e7e0a3a93bf4f922a292619dad7deee9c78c24a4bd2812040dd564271862039"
+      },
+      {
+         "bytes" : 16698,
+         "path" : "scripts/ci/run-release.sh",
+         "sha256" : "cffa84575afcd74836f59f9d8db4be083010048de03c338ec2448857d85dab5e"
+      },
+      {
+         "bytes" : 10085,
+         "path" : "scripts/ci/run-validation-targets.sh",
+         "sha256" : "9dd5fdb59c6e79254445cdaf061c1fbe5ddb25c0a9864e44587ecbd64f95fe8b"
+      },
+      {
+         "bytes" : 4713,
+         "path" : "scripts/ci/test-cargo-metadata.sh",
+         "sha256" : "1719211830ee32ef422e12e226179ccf37c1b6a9e2c9a41bb2b71766cad52c3e"
+      },
+      {
+         "bytes" : 2502,
+         "path" : "scripts/ci/test-evidence-checksums.sh",
+         "sha256" : "43e2b571a909c2d63b2e3b11d208744995997575b34f0c1fbe5ea3104d40bcca"
+      },
+      {
+         "bytes" : 3309,
+         "path" : "scripts/ci/test-file-digests.sh",
+         "sha256" : "fe64efb6af09c7b3182ed709700472ff803f6b5d54df0473a675b07597dcbb31"
+      },
+      {
+         "bytes" : 1971,
+         "path" : "scripts/ci/test-format-tools.sh",
+         "sha256" : "bf3ac5d22e63798ffe67539b138d277cc3364a4665babff5b494b210b1e140ce"
+      },
+      {
+         "bytes" : 7933,
+         "path" : "scripts/ci/test-ic-tools.sh",
+         "sha256" : "0d4a45581e26987baaaa91cd49748e3b7b3ffa76b01f32d1db84560bd5baa68a"
+      },
+      {
+         "bytes" : 4031,
+         "path" : "scripts/ci/test-local-lock-versions.pl",
+         "sha256" : "d4b498337bfd681466e7b541cb2783779aad2a8b326e927450d98f3b570fb5c6"
+      },
+      {
+         "bytes" : 32176,
+         "path" : "scripts/ci/test-release-runner.sh",
+         "sha256" : "9dc85529910cc48c1a7d72ff7721b3bd772398bc34977a7511955d05b9fba786"
+      },
+      {
+         "bytes" : 1102,
+         "path" : "scripts/ci/verify-evidence-checksums.sh",
+         "sha256" : "22bf8001f496799c0e26795479b9e313fe3ceddec2e47b8444f8af8e7bc32bae"
+      },
+      {
+         "bytes" : 1884,
+         "path" : "scripts/ci/verify-file-checksum.sh",
+         "sha256" : "4c981184847462ab3c01cac087e28309f8e054253fd95c7bbe56f643877aa708"
+      },
+      {
+         "bytes" : 5187,
+         "path" : "scripts/ci/verify-shared-tooling-snapshot.sh",
+         "sha256" : "4024efa6850788102bbfa97c471ea3b45d760e547a31b11e7c6a91a79e3eaca8"
+      },
+      {
+         "bytes" : 6297,
+         "path" : "scripts/dev/cloc.sh",
+         "sha256" : "955db0c3b1ba072ddf5334ed584da74c645119a3af354b7223b28921ecb924a2"
+      },
+      {
+         "bytes" : 1506,
+         "path" : "scripts/dev/install-git-hooks.sh",
+         "sha256" : "c48e767cb16fce756bea55492e33c62fd1e57560310d63bfb8a1adc118be2212"
+      },
+      {
+         "bytes" : 6650,
+         "path" : "scripts/dev/install-host-tools.sh",
+         "sha256" : "591a5d5fc0b8bf0d48179a9d265245ea727ee318894bd10ed962137761465eea"
+      },
+      {
+         "bytes" : 8332,
+         "path" : "scripts/dev/install-ic-tools.sh",
+         "sha256" : "7a78004b2fa56448ffa8a4fc9aac8e7e9343a0243bf857a3db908fb2f59cfb4f"
+      }
+   ],
+   "symbol_removals" : [],
+   "validated_release_source" : "11979501aa6c11d32eaed9de268aa03d87dc0bb1"
+}

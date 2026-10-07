@@ -1,5 +1,61 @@
 # Changelog
 
+## [0.16.0]
+
+### Breaking
+
+- Align the public memory re-export and host grant types with ic-memory 0.30.
+  Hosts must select the same Memory line and rebuild their composed graphs;
+  0.28-owned Rust types are no longer interchangeable with the service API.
+  Runtime source and durable layouts are unchanged by this dependency update.
+  Cross-release installations still require safe retirement before reinstall.
+  See [#20](https://github.com/dragginzgame/ic-blob-storage/issues/20).
+
+### Added
+
+- Use published ic-metrics arithmetic for bounded restoration-read instruction
+  diagnostics in the local storage probe. Preserve existing report fields,
+  operator access and reset windows; diagnostic totals saturate independently.
+  See [#19](https://github.com/dragginzgame/ic-blob-storage/issues/19).
+
+### Changed
+
+- Use the shared bounded stream reader for example declaration, claim and
+  inventory JSON. Preserve input limits, diagnostics and caller-owned file
+  opening; the dependency remains native-only and outside production graphs.
+  See [#21](https://github.com/dragginzgame/ic-blob-storage/issues/21).
+- Refresh the reviewed Shared Tooling snapshot to 0.1.14, aligning local repair
+  and relevant issue work with its shared authority while preserving commit,
+  release and sibling file-edit boundaries. Declare the governance file list and
+  exact-commit CI inspection helper. See
+  [#15](https://github.com/dragginzgame/ic-blob-storage/issues/15).
+- Move the canister and packaged test helpers into the standard `crates/`
+  workspace layout, preserving package names, artifact names and service
+  contracts. Update source and documented command paths. See
+  [#17](https://github.com/dragginzgame/ic-blob-storage/issues/17).
+- Refresh the selected native ic-host-artifacts/ic-host-fs packages to 0.3.1;
+  preserve native-only placement and the existing bounded-read/private-record
+  contracts.
+
+### Fixed
+
+- Refuse inherited Make modes that skip execution or ignore failures before
+  release, validation and pre-commit formatting. Preserve formatter rollback
+  and exercise the consumer's refusal boundaries. See
+  [#18](https://github.com/dragginzgame/ic-blob-storage/issues/18).
+- Exclude Cargo's configured build directory from code and test-function reports,
+  including build output nested inside a package. Exercise canonical snapshot
+  distribution fixtures in consumer tooling checks.
+- Stop highlighting successful Rust test names containing `error::` as validation
+  failures; preserve real diagnostics, contextual output and raw failed logs.
+  Exercise the shared runner's refusal/retention tests in tooling checks and CI.
+- Preserve exact changelog version comparisons beyond floating-point precision
+  through the shared finalizer and its existing release fixtures.
+- Verify snapshot hashes independently of inspected checksum code. Recheck the
+  release destination after validation and before push, and dispatch to the
+  captured URL rather than resolving a mutable remote name again. See
+  [#16](https://github.com/dragginzgame/ic-blob-storage/issues/16).
+
 ## [0.15.3] - 2026-10-06
 
 ### Changed
