@@ -1,5 +1,26 @@
 # Changelog
 
+## [0.17.1]
+
+### Changed
+
+- Upgrade the native PocketIC harness to ic-testkit 0.21.1 and unify its Host
+  packages on 0.4.2, removing the older duplicate dependency graph. Preserve
+  explicit server ownership and the public service and durable contracts. See
+  [#26](https://github.com/dragginzgame/ic-blob-storage/issues/26).
+- Check the locked PocketIC client against reviewed server pins before the
+  main canister test targets, using the shared offline alignment helper.
+- Refresh Shared Tooling to committed 0.1.19. Retain complete combined failure
+  logs alongside per-target logs and verify the extended consumer logging path.
+
+### Fixed
+
+- Adopt shared Rust installer path protection, portable temporary-directory
+  handling and byte-preserving release changelog finalization. See
+  [#25](https://github.com/dragginzgame/ic-blob-storage/issues/25),
+  [Shared Tooling #55](https://github.com/dragginzgame/shared-tooling/issues/55)
+  and [Shared Tooling #56](https://github.com/dragginzgame/shared-tooling/issues/56).
+
 ## [0.17.0] - 2026-10-07
 
 ### Breaking

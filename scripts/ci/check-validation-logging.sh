@@ -13,12 +13,15 @@ trap finish EXIT
 unset MAKEFLAGS MFLAGS MAKEOVERRIDES
 mkdir "$FIXTURE/logs"
 cat > "$FIXTURE/Makefile" <<'MAKE'
-.PHONY: pass fail
+.PHONY: pass fail second
 pass:
 	@printf '%s\n' 'test error::passing ... ok' 'test error::skipped ... ignored'
 fail:
 	@printf '%s\n' 'test error::context ... ok' 'error[E0308]: actual-diagnostic' 'error:no-space-diagnostic' 'test error::broken ... FAILED'
 	@exit 9
+second:
+	@printf '%s\n' 'error:second-target-diagnostic'
+	@exit 13
 MAKE
 export VALIDATION_REPOSITORY_ROOT="$FIXTURE" VALIDATION_RUNNER_DEPTH=0
 export VALIDATION_RUNNER_SNAPSHOT_PATH='' VALIDATION_FAILURE_LOG_DIR="$FIXTURE/logs"
@@ -48,4 +51,20 @@ done
 rg -F 'test error::context ... ok' "$FIXTURE/logs/latest.log" >/dev/null
 rg -F 'error[E0308]: actual-diagnostic' "$FIXTURE/logs/latest.log" >/dev/null
 if rg -F '[ERR:' "$FIXTURE/logs/latest.log" >/dev/null; then exit 1; fi
+status=0
+(
+    cd "$FIXTURE"
+    VALIDATION_FAILURE_LOG_DIR="$FIXTURE/combined-logs" \
+        bash "$ROOT/scripts/ci/run-validation-targets.sh" fail pass second
+) > "$FIXTURE/combined.log" 2>&1 || status=$?
+[[ "$status" == 2 ]] || exit 1
+# Consumer-selected batches retain every failed target in order; the existing
+# latest.log still owns only the last failure. Passing-target output is excluded.
+first_logs=("$FIXTURE/combined-logs/"*-fail.log)
+second_logs=("$FIXTURE/combined-logs/"*-second.log)
+[[ ${#first_logs[@]} == 1 && ${#second_logs[@]} == 1 ]] || exit 1
+cat "${first_logs[0]}" "${second_logs[0]}" > "$FIXTURE/expected-combined.log"
+cmp "$FIXTURE/expected-combined.log" "$FIXTURE/combined-logs/latest-combined.log"
+rg -F 'error:second-target-diagnostic' "$FIXTURE/combined-logs/latest.log" >/dev/null
+if rg -F 'actual-diagnostic' "$FIXTURE/combined-logs/latest.log" >/dev/null; then exit 1; fi
 printf 'Consumer validation logging and raw failure retention passed.\n'

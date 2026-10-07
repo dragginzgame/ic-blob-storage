@@ -34,7 +34,7 @@ CI_TARGETS := shared-tooling-check tools-check dependency-pins-check documentati
 	release-version release-preflight release-prepare-version release-prepared-check release-files \
 	release-commit-check release-committed-check release-tagged-check release-push-check \
 	release-tag-check publish publish-dry-run install-hooks format-tools-check release-tools-check hooks-check evidence-check
-.PHONY: test-hard-cut test-native-host install-tools tools-check install-host-tools host-tools-check install-ic-tools ic-tools-check
+.PHONY: test-hard-cut test-native-host pocketic-alignment-check install-tools tools-check install-host-tools host-tools-check install-ic-tools ic-tools-check
 .PHONY: documentation-links-check release-commands-check shared-tooling-tests
 
 ifneq ($(word 2,$(filter release-patch release-minor release-major release-resume,$(MAKECMDGOALS))),)
@@ -44,6 +44,7 @@ endif
 help:
 	@echo "release-tools-check          Check ShellCheck, pinned cargo-sort and rustfmt without building"
 	@echo "test-native-host             CLI/examples and local installation/restoration probe checks"
+	@echo "pocketic-alignment-check      Compare the locked PocketIC client with reviewed server pins offline"
 	@echo "browser-tools-check          Offline exact browser Node/npm and manifest/lock checks"
 	@echo "install-tools / tools-check   Explicit local tool installation / offline verification"
 	@echo "install-host-tools / host-tools-check   Pinned repo-local jq/yq/rg/cloc setup / verification"
@@ -104,6 +105,7 @@ shared-tooling-tests:
 	bash scripts/ci/check-validation-logging.sh
 	bash scripts/ci/test-file-digests.sh
 	bash scripts/ci/test-ic-tools.sh
+	bash scripts/ci/test-pocketic-checks.sh
 	perl scripts/ci/test-local-lock-versions.pl
 	bash scripts/ci/test-cargo-metadata.sh
 	bash scripts/ci/test-snapshot-distribution.sh
@@ -171,7 +173,10 @@ test:
 test-native:
 	bash scripts/ci/run-nonempty-cargo-test.sh --offline --locked -p ic-blob-storage -p blob-consumer-probe -p ic-blob-storage-canister -p ic-blob-storage-cli --all-features
 
-test-native-host:
+pocketic-alignment-check:
+	bash scripts/ci/check-pocketic-alignment.sh --manifest Cargo.toml --pins "$(IC_TOOL_PINS)"
+
+test-native-host: pocketic-alignment-check
 	+$(MAKE) --no-print-directory build-standalone
 	cargo build --offline --locked --release --target wasm32-unknown-unknown -p blob-storage-probe --lib
 	cargo build --offline --locked -p ic-blob-storage-cli
@@ -183,7 +188,7 @@ test-native-host:
 test-fixture:
 	cargo build --offline --locked --release --target wasm32-unknown-unknown -p blob-authority-probe -p blob-admission-probe -p blob-storage-probe -p blob-consumer-probe -p blob-gateway-source -p blob-funding-probe --lib
 
-test-pocketic:
+test-pocketic: pocketic-alignment-check
 	+$(MAKE) --no-print-directory test-fixture
 	+$(MAKE) --no-print-directory build-standalone
 	cargo build --offline --locked -p ic-blob-storage-cli
@@ -198,7 +203,7 @@ test-hard-cut:
 	BLOB_PRE_CUT_STANDALONE_WASM="$(BLOB_PRE_CUT_STANDALONE_WASM)" BLOB_HARD_CUT_REPORT="$(BLOB_HARD_CUT_REPORT)" \
 		bash scripts/ci/run-nonempty-cargo-test.sh --offline --locked -p ic-blob-storage-pocketic-tests --test standalone standalone_hard_cut::older_allocation_ledger_upgrade_preserves_bytes_and_obligations_on_refusal -- --ignored --exact --test-threads=1
 
-test-standalone:
+test-standalone: pocketic-alignment-check
 	cargo build --offline --locked --release --target wasm32-unknown-unknown -p ic-blob-storage-canister -p blob-gateway-source -p blob-storage-probe -p blob-consumer-probe --lib
 	cargo build --offline --locked -p ic-blob-storage-cli
 	bash scripts/ci/run-nonempty-cargo-test.sh --offline --locked -p ic-blob-storage-pocketic-tests --test standalone -- --test-threads=1

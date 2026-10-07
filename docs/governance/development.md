@@ -56,6 +56,11 @@ network; it stays explicit and separate from ordinary validation.
 `make test-native-host` is the focused CLI/example/PocketIC installation and
 Metrics restoration-read check used by
 the native host CI matrix, separate from the complete gate.
+`make pocketic-alignment-check` compares the locked client with reviewed server
+pins through offline Cargo metadata. It runs before the main native-host,
+PocketIC and standalone test targets, after explicit dependency preparation.
+Equal versions do not establish runtime compatibility or authenticate an override
+binary; managed bundle verification remains with `make ic-tools-check`.
 Opt-in browser/SDK targets check the exact prepared Node/npm selections and
 manifest/lock declarations with `make browser-tools-check`; setup and version
 ownership stay in the private browser build root under

@@ -83,6 +83,8 @@ jobs:
             ${{ runner.temp }}/nonempty-cargo-test.*
             ${{ runner.temp }}/file-digests.*/
             ${{ runner.temp }}/ic-tools-test.*/
+            ${{ runner.temp }}/pocketic-checks.*/
+            ${{ runner.temp }}/pocketic-alignment.*/
             ${{ runner.temp }}/release-commands.*/
             ${{ runner.temp }}/cargo-metadata-test.*/
             ${{ runner.temp }}/shared-tooling-snapshot-test.*/

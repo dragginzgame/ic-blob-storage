@@ -37,16 +37,15 @@ Missing or incorrect tools report explicit installation commands; the check
 does not install, compile, mutate release files or replace the full gate.
 `SHELLCHECK=/absolute/path/to/shellcheck` selects an existing executable.
 
-The released baseline is 0.16.0, including the public ic-memory 0.30
-type-identity hard cut. Keep package metadata and the release receipt at 0.16.0
-during ordinary development. The single undated entry in
-[the changelog](../CHANGELOG.md) records the complete pending batch;
-[the current handoff](status/current.md) records its compatibility and selected
-dependency graph. Choose the patch or minor target for that complete batch under
-the pre-1.0 compatibility rule, rather than repeating the previous minor release.
-The current pending batch targets 0.17.0 because the public Memory re-export now
-selects 0.31. Host compositions must align that type identity. Use the minor
-target when the maintainer releases the complete batch.
+The released identity and validated source are recorded in
+[the release receipt](release.json); root Cargo.toml owns the workspace version.
+Ordinary development preserves those released identities. The latest finalized
+entry in [the changelog](../CHANGELOG.md) describes the released batch; a single
+undated entry records subsequent meaningful work when it starts.
+[The current handoff](status/current.md) records acceptance status, compatibility
+and the selected dependency graph. Choose patch or minor for the complete batch
+under the pre-1.0 rule. Changing the public Memory crate line requires a minor
+release, and host compositions must align its type identity and rebuild.
 
 Changelog preflight captures a candidate without writing, using the exact saved
 `RELEASE_PREVIOUS`, `RELEASE_VERSION` and `RELEASE_DATE`. Finalization uses those

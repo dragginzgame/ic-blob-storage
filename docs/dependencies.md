@@ -81,7 +81,7 @@ its package version and dependencies from the workspace. Members select features
 and target conditions; `Cargo.lock` locks the resolved graph. Versions were checked against
 crates.io on 2026-09-25. On 2026-09-26, `serde_json` became a direct dependency
 at its existing locked version for bounded provider reply parsing. The table reflects
-the maintainer-selected pending 0.17.0 graph on 2026-10-07;
+the maintainer-selected working graph for pending 0.17.1 on 2026-10-07;
 availability does not establish provider qualification or service readiness.
 
 | Dependency | Version | Purpose |
@@ -96,20 +96,54 @@ availability does not establish provider qualification or service readiness.
 | `ic-memory` | 0.31.1 (locked) | Sole allocation runtime; current ownership ledger and public typed growth API |
 | `ic-metrics` | 0.2.7 (locked) | Private storage resource probe only; allocation-free measurement arithmetic, no platform reader |
 | `ic-stable-structures` | 0.7.2 | Exact transitive substrate owned/re-exported by `ic-memory` |
-| `ic-testkit` | 0.20.0 (locked) | Native dependency of the unpublished PocketIC harness; shared helpers and full re-export |
+| `ic-testkit` | 0.21.1 (locked) | Native dependency of the unpublished PocketIC harness; shared helpers and full re-export |
 | `pocket-ic` | 16.0.0 | Transitive through `ic-testkit`; no direct dependency |
 | `ic-agent` | 0.49.2 | Native CLI and harness signing and verification of ingress certificates |
-| `ic-host-artifacts` | 0.4.1 (direct, locked), 0.3.3 (harness transitive) | Native CLI raw SHA-256 identities and example-only bounded JSON streams; optional archive/gzip/Wasm features disabled |
-| `ic-host-fs` | 0.4.1 (direct, locked), 0.3.3 (harness transitive) | Native CLI bounded descriptor/no-follow reads and private durable create-new records |
-| `ic-host-tools` | 0.3.3 (harness transitive) | Owned by ic-testkit; no direct CLI facade dependency |
+| `ic-host-artifacts` | 0.4.2 (direct and harness transitive, locked) | Native CLI raw SHA-256 identities and example-only bounded JSON streams; optional archive/gzip/Wasm features disabled |
+| `ic-host-fs` | 0.4.2 (direct and harness transitive, locked) | Native CLI bounded descriptor/no-follow reads and private durable create-new records |
+| `ic-host-process` | 0.4.2 (harness transitive, locked) | Owned by ic-testkit; no direct CLI dependency |
+| `ic-host-tools` | 0.4.2 (harness transitive, locked) | Owned by ic-testkit; no direct CLI facade dependency |
 | `candid_parser` | 0.4.1 | Native harness only; official Candid parser for native request fixtures |
 
-### Memory 0.31 selection — pending 0.17.0
+### Testkit 0.21 selection — pending 0.17.1
 
-Committed source already selects Memory `^0.31`; the maintainer's working lock
-selects 0.31.1 and direct native Host artifacts/fs 0.4.1. The maintainer chose to
-keep this graph and carry the complete pending batch under 0.17.0. Package
-versions and the release receipt remain 0.16.0. The public Memory re-export and
+The selected native-only testkit 0.21.1 unifies all four harness Host packages
+on 0.4.2 and removes their duplicate 0.3.3 selections. Published package source
+and archive identities were checked against their committed owners. Blob has no
+caller of the changed workspace-discovery API or removed Host APIs. Its harness
+continues to spawn the explicitly prepared PocketIC 16 binary, own the server
+handle and connect with a bounded timeout; the existing field order drops the
+instance before its server. No extra startup wrapper or dependency is needed.
+
+This is a compatible Blob tooling patch: package versions and the receipt remain
+0.17.0, while the pending changelog selects 0.17.1. Core native/Wasm runtime
+graphs, public Memory 0.31 types, Metrics probe scope and durable/lifecycle
+contracts are unchanged. Local native tests, strict CLI/harness Clippy and Rust 1.88
+compilation pass. Matching committed consumer native qualification remains with
+[#26](https://github.com/dragginzgame/ic-blob-storage/issues/26). The earlier
+[testkit 0.21.0 record](evidence/testkit-021-0171.md) retains its Host 0.4.1 graph.
+Current results and owner CI limits belong to
+[the 0.1.19/Host 0.4.2 record](evidence/tooling019-host042-0171.md).
+
+`make pocketic-alignment-check` uses the canonical shared helper with offline
+locked Cargo metadata and the reviewed IC matrix. It runs before the main
+native-host, PocketIC and standalone test targets, after cache preparation.
+The client and server pin both select 16.0.0. This guards dependency/pin drift;
+managed binary admission remains with `make ic-tools-check`, and an externally
+selected executable retains its caller-owned trust and byte identity.
+
+Host 0.4.2's new chunk-digest, installed-tool and copy-error APIs need no new
+Blob caller. Provider-root/chunk verification stays in the platform-neutral
+core, and native opening keeps its descriptor/nonblocking policy. Named durable
+replacement does not replace the CLI's create-new body publication contract.
+No process/tools edge is added directly to the CLI or core.
+
+### Memory 0.31 selection — released 0.17.0
+
+Released source selects Memory `^0.31`; the released lock selects 0.31.1 and
+direct native Host artifacts/fs 0.4.1. The maintainer kept this graph and carried
+the complete batch under 0.17.0. Package versions and the release receipt now
+identify 0.17.0. The public Memory re-export and
 host grant types require consumers to align Memory 0.31 and rebuild their
 composed graph. This is a Rust type-identity hard cut from released Memory 0.30,
 even though the cached published 0.31.1 runtime source matches 0.30.0 byte for
