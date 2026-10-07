@@ -11,7 +11,7 @@ finish() {
 }
 trap finish EXIT
 selected=crates/ic-blob-storage/src/lib.rs
-overlays=(ci/tool-versions.env scripts/ci/check-format-tools.sh Cargo.lock)
+overlays=(ci/tool-versions.env scripts/ci/check-format-tools.sh make/tools.mk Cargo.lock)
 # Copy formatter inputs from every actual member, including working-tree packages
 # absent from HEAD. Cargo owns the roster across standard and approved layouts.
 cargo metadata --offline --locked --no-deps --format-version 1 \

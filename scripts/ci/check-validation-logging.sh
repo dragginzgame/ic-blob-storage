@@ -34,7 +34,7 @@ status=0
     cd "$FIXTURE"
     bash "$ROOT/scripts/ci/run-validation-targets.sh" pass fail
 ) > "$FIXTURE/fail.log" 2>&1 || status=$?
-[[ "$status" == 1 ]] || exit 1
+[[ "$status" == 2 ]] || exit 1
 for log in "$FIXTURE/fail.log" "$FIXTURE/logs/latest-errors.log"; do
     for diagnostic in \
         '[ERR:fail] error[E0308]: actual-diagnostic' \

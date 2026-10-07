@@ -1,3 +1,4 @@
+import '../../scripts/ci/check-browser-tools.mjs';
 import { build } from 'esbuild';
 import { fileURLToPath } from 'node:url';
 import { readFile, cp, mkdir } from 'node:fs/promises';

@@ -7,7 +7,7 @@ export CARGO_TARGET_DIR := $(CURDIR)/target
 export POCKET_IC_BIN ?= $(CURDIR)/.tools/ic/bin/pocket-ic
 IC_TOOL_PINS ?= ci/ic-tools.tsv
 HOST_TOOL_VERSIONS ?= ci/tool-versions.env
-export PATH := $(CURDIR)/.tools/host/bin:$(CURDIR)/.tools/ic/bin:$(PATH)
+include make/tools.mk
 export BLOB_AUTHORITY_PROBE_WASM := $(CARGO_TARGET_DIR)/wasm32-unknown-unknown/release/blob_authority_probe.wasm
 export BLOB_ADMISSION_PROBE_WASM := $(CARGO_TARGET_DIR)/wasm32-unknown-unknown/release/blob_admission_probe.wasm
 export BLOB_STORAGE_PROBE_WASM := $(CARGO_TARGET_DIR)/wasm32-unknown-unknown/release/blob_storage_probe.wasm
@@ -18,6 +18,7 @@ export BLOB_STANDALONE_WASM := $(CARGO_TARGET_DIR)/wasm32-unknown-unknown/releas
 export BLOB_CLI_BIN := $(CARGO_TARGET_DIR)/debug/blob-storage
 export BLOB_EXPECTED_HOST_RELEASE := $(shell perl scripts/release/release-data.pl version)
 export BLOB_BROWSER_NODE ?= node
+export BLOB_BROWSER_NPM ?= npm
 BLOB_SDK_INPUTS_BYTES ?= 10485760
 VERSION ?=
 RELEASE := bash scripts/release/release.sh
@@ -42,12 +43,15 @@ endif
 
 help:
 	@echo "release-tools-check          Check ShellCheck, pinned cargo-sort and rustfmt without building"
-	@echo "test-native-host             CLI boundaries and actual local installation qualification"
+	@echo "test-native-host             CLI/examples and local installation/restoration probe checks"
+	@echo "browser-tools-check          Offline exact browser Node/npm and manifest/lock checks"
 	@echo "install-tools / tools-check   Explicit local tool installation / offline verification"
-	@echo "install-host-tools / host-tools-check   Pinned repo-local jq/yq setup / verification"
+	@echo "install-host-tools / host-tools-check   Pinned repo-local jq/yq/rg/cloc setup / verification"
 	@echo "install-ic-tools / ic-tools-check       Pinned repo-local IC setup / verification"
+	@echo "install-rust-tools / rust-tools-check   Pinned repo-local Cargo tools setup / verification"
 	@echo "deps                         Fetch locked Rust dependencies (network)"
 	@echo "cloc                         Offline Rust runtime/test counts for every workspace member"
+	@echo "cloc-tooling                 Inventory local/shared tooling across sibling repositories"
 	@echo "test-funding-receipt-resources  Measure populated receipt confirmation and restore (opt-in)"
 	@echo "shared-tooling-check          Verify the reviewed shared snapshot offline"
 	@echo "shared-tooling-tests          Exercise shared digest, IC installer, lockfile and metadata refusals offline"
@@ -86,34 +90,14 @@ help:
 version:
 	@$(RELEASE) version
 
-install-tools:
-	+$(MAKE) --no-print-directory install-host-tools
-	+$(MAKE) --no-print-directory install-ic-tools
-
-tools-check:
-	+$(MAKE) --no-print-directory host-tools-check
-	+$(MAKE) --no-print-directory ic-tools-check
-
-install-host-tools:
-	bash scripts/dev/install-host-tools.sh --versions "$(HOST_TOOL_VERSIONS)"
-
-host-tools-check:
-	bash scripts/dev/install-host-tools.sh --versions "$(HOST_TOOL_VERSIONS)" --check
-
-install-ic-tools:
-	bash scripts/dev/install-ic-tools.sh --pins "$(IC_TOOL_PINS)"
-
-ic-tools-check:
-	bash scripts/dev/install-ic-tools.sh --pins "$(IC_TOOL_PINS)" --check
-
 deps:
 	cargo fetch --locked
 
-cloc:
-	CARGO_NET_OFFLINE=true bash scripts/dev/cloc.sh "$(CURDIR)"
-
 shared-tooling-check:
 	bash scripts/ci/verify-shared-tooling-snapshot.sh
+
+install-tools: install-rust-tools
+tools-check: rust-tools-check
 
 shared-tooling-tests:
 	bash scripts/ci/test-format-tools.sh
@@ -123,13 +107,19 @@ shared-tooling-tests:
 	perl scripts/ci/test-local-lock-versions.pl
 	bash scripts/ci/test-cargo-metadata.sh
 	bash scripts/ci/test-snapshot-distribution.sh
+	bash scripts/ci/test-host-tools.sh
+	bash scripts/ci/test-rust-tools.sh
+	bash scripts/ci/test-tool-commands.sh
+	bash scripts/ci/test-cloc-tooling.sh
+	bash scripts/ci/test-cloc-siblings.sh
+	bash scripts/ci/test-cloc.sh
 
 documentation-links-check:
 	@set -o pipefail; find docs audits rules -type f -name '*.md' -print0 | \
 		xargs -0 perl scripts/ci/check-documentation-links.pl --root . *.md
 
 release-commands-check:
-	bash scripts/ci/check-release-commands.sh "$(CURDIR)" Cargo.toml scripts/release/release-data.pl
+	bash scripts/ci/check-release-commands.sh "$(CURDIR)" Cargo.toml scripts/release/release-data.pl make/tools.mk
 
 dependency-pins-check:
 	bash scripts/ci/check-dependency-pins.sh --cargo-inheritance
@@ -183,9 +173,12 @@ test-native:
 
 test-native-host:
 	+$(MAKE) --no-print-directory build-standalone
+	cargo build --offline --locked --release --target wasm32-unknown-unknown -p blob-storage-probe --lib
 	cargo build --offline --locked -p ic-blob-storage-cli
 	bash scripts/ci/run-nonempty-cargo-test.sh --offline --locked -p ic-blob-storage-cli --bins
+	bash scripts/ci/run-nonempty-cargo-test.sh --offline --locked -p ic-blob-storage --examples
 	bash scripts/ci/run-nonempty-cargo-test.sh --offline --locked -p ic-blob-storage-pocketic-tests --test standalone standalone_installation_cli:: -- --test-threads=1
+	bash scripts/ci/run-nonempty-cargo-test.sh --offline --locked -p ic-blob-storage-pocketic-tests --test storage storage_resources::reads::restoration_reads_are_attributed_only_to_the_operator_reopen_window -- --exact --test-threads=1
 
 test-fixture:
 	cargo build --offline --locked --release --target wasm32-unknown-unknown -p blob-authority-probe -p blob-admission-probe -p blob-storage-probe -p blob-consumer-probe -p blob-gateway-source -p blob-funding-probe --lib
@@ -211,6 +204,14 @@ test-standalone:
 	bash scripts/ci/run-nonempty-cargo-test.sh --offline --locked -p ic-blob-storage-pocketic-tests --test standalone -- --test-threads=1
 
 # Browser tooling is explicitly provisioned; this target performs no downloads.
+.PHONY: browser-tools-check
+browser-tools-check:
+	bash scripts/ci/check-browser-tools.sh
+
+test-sdk-probe test-sdk-inputs test-browser-transport test-browser-publication \
+test-browser-store test-browser-bootstrap test-browser-launcher test-browser-native \
+test-browser-standalone test-browser: browser-tools-check
+
 test-sdk-probe:
 	@test -n "$(BLOB_SDK_PROBE_REPORT)" || { echo 'Set BLOB_SDK_PROBE_REPORT to a new directory beneath an existing parent'; exit 1; }
 	$(BLOB_BROWSER_NODE) tests/browser/build.mjs

@@ -35,19 +35,16 @@ jobs:
       - name: Prepare fixture utilities on macOS
         if: runner.os == 'macOS'
         run: brew install ripgrep xz shellcheck
-      - name: Prepare the selected Rust and formatter tools
+      - name: Select the declared Rust toolchain
         run: |
           rustup show active-toolchain
-          source ci/tool-versions.env
-          cargo install cargo-sort --version "$SHARED_TOOLING_CARGO_SORT_VERSION" \
-            --locked --root "$RUNNER_TEMP/blob-format-tools"
-          echo "$RUNNER_TEMP/blob-format-tools/bin" >> "$GITHUB_PATH"
       - name: Prepare and verify reviewed repository-local executables
         run: |
           make install-tools
           make tools-check
           echo "$GITHUB_WORKSPACE/.tools/host/bin" >> "$GITHUB_PATH"
           echo "$GITHUB_WORKSPACE/.tools/ic/bin" >> "$GITHUB_PATH"
+          echo "$GITHUB_WORKSPACE/.tools/rust/bin" >> "$GITHUB_PATH"
       - name: Check the snapshot, formatter and release/hook fixtures
         env:
           CARGO_NET_OFFLINE: 'true'
@@ -63,7 +60,7 @@ jobs:
           exit "$failed"
       - name: Prepare the locked native dependency cache
         run: make deps
-      - name: Qualify native CLI boundaries and local PocketIC installation
+      - name: Qualify native CLI, installation and Metrics restoration probe
         env:
           CARGO_NET_OFFLINE: 'true'
           RUSTUP_AUTO_INSTALL: '0'
@@ -77,6 +74,7 @@ jobs:
           path: |
             .tools/host-set.*/
             .tools/ic-set.*/
+            .tools/rust/build/
             target/release-tests.*/
             ${{ runner.temp }}/blob-format-hooks.*/
             ${{ runner.temp }}/formatting-adoption.*/
@@ -89,6 +87,12 @@ jobs:
             ${{ runner.temp }}/shared-tooling-snapshot-test.*/
             ${{ runner.temp }}/local-lock-test.*/
             ${{ runner.temp }}/format-tools-test.*/
+            ${{ runner.temp }}/host-tools-test.*/
+            ${{ runner.temp }}/rust-tools-test.*/
+            ${{ runner.temp }}/shared-tool-commands.*/
+            ${{ runner.temp }}/cloc-tooling-test.*/
+            ${{ runner.temp }}/shared-tooling-cloc-siblings-test.*/
+            ${{ runner.temp }}/shared-tooling-cloc-test.*/
             ${{ runner.temp }}/blob-validation-logging.*/
           include-hidden-files: true
           if-no-files-found: ignore

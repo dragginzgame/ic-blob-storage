@@ -40,7 +40,7 @@ run_case() {
     ) > "$CASE_LOG" 2>&1
 }
 create_fixture() {
-    mkdir -p "$FIXTURE/scripts/release" "$FIXTURE/scripts/ci" "$FIXTURE/ci" "$FIXTURE/docs" "$FIXTURE/target/debug"
+    mkdir -p "$FIXTURE/scripts/release" "$FIXTURE/scripts/ci" "$FIXTURE/ci" "$FIXTURE/docs" "$FIXTURE/make" "$FIXTURE/target/debug"
     cp "$ROOT/scripts/release/release.sh" "$ROOT/scripts/release/release-data.pl" "$FIXTURE/scripts/release/"
     cp "$ROOT/scripts/ci/run-release.sh" "$ROOT/scripts/ci/next-release-version.sh" \
         "$ROOT/scripts/ci/run-validation-targets.sh" "$ROOT/scripts/ci/check-release-tag.sh" \
@@ -50,6 +50,7 @@ create_fixture() {
         "$ROOT/scripts/ci/check-format-tools.sh" "$FIXTURE/scripts/ci/"
     cp "$ROOT/ci/tool-versions.env" "$FIXTURE/ci/"
     cp "$ROOT/Makefile" "$FIXTURE/Makefile"
+    cp "$ROOT/make/tools.mk" "$FIXTURE/make/"
     cd "$FIXTURE"
     cat >> Makefile <<'MAKE'
 CI_TARGETS := fixture-verify
@@ -329,13 +330,6 @@ test_preflight_tools() {
     [[ "$(cat "$TEST_EFFECTS")" == $'validate\nstage\ncommit\ntag\npush' ]] || exit 1
     assert_cache_retained
 }
-test_versions() {
-    local kind expected
-    for kind in patch minor major; do
-        case "$kind" in patch) expected=0.1.1 ;; minor) expected=0.2.0 ;; major) expected=1.0.0 ;; esac
-        [[ "$(bash scripts/ci/next-release-version.sh 0.1.0 "$kind")" == "$expected" ]] || exit 1
-    done
-}
 test_invalid_changelog() {
     case "$1" in
         duplicate) printf '\n## [0.1.1]\n- Duplicate.\n' >> CHANGELOG.md ;;
@@ -407,11 +401,8 @@ test_finalizer_failure() {
     [[ "$(awk '$0 == "commit" { n++ } END { print n }' "$TEST_EFFECTS")" == 1 ]] || exit 1
 }
 test_release() {
-    local kind="$1" expected
-    case "$kind" in patch) expected=0.1.1 ;; minor) expected=0.2.0 ;; major) expected=1.0.0 ;; esac
-    sed "s/\[0.1.1\]/[$expected]/" CHANGELOG.md > target/notes
-    cp target/notes CHANGELOG.md
-    "$TEST_REAL_MAKE" --no-print-directory "release-$kind"
+    local expected=0.1.1
+    "$TEST_REAL_MAKE" --no-print-directory release-patch
     [[ "$(perl scripts/release/release-data.pl version)" == "$expected" ]] || exit 1
     perl scripts/release/release-data.pl verify
     [[ "$(cat "$TEST_EFFECTS")" == $'validate\nstage\ncommit\ntag\npush' ]] || exit 1
@@ -423,7 +414,7 @@ test_release() {
     rg -q '^## \[0.1.0\]$' CHANGELOG.md
     assert_cache_retained
 }
-prepare_tagged_release() { test_release patch; : > "$TEST_EFFECTS"; }
+prepare_tagged_release() { test_release; : > "$TEST_EFFECTS"; }
 test_failed_guard_read() {
     local operation="$1" read="$2"
     case "$operation" in
@@ -527,17 +518,6 @@ test_publication_lock() {
     [[ ! -s "$TEST_EFFECTS" && "$(cat target/release-state/lock/owner)" == another-owner ]] || exit 1
     assert_cache_retained
 }
-test_push_retry() {
-    export TEST_PUSH_FAIL=1
-    expect_failure "$TEST_REAL_MAKE" --no-print-directory release-patch
-    [[ "$(tail -n 1 target/release-state/0.1.1.plan)" == push ]] || exit 1
-    unset TEST_PUSH_FAIL
-    before="$(cat "$TEST_EFFECTS")"
-    "$TEST_REAL_MAKE" --no-print-directory release-patch
-    [[ "$(cat "$TEST_EFFECTS")" == "$before" ]] || exit 1
-    [[ "$(tail -n 1 target/release-state/0.1.1.plan)" == complete ]] || exit 1
-    assert_cache_retained
-}
 commit_fixture_fix() {
     local fix=6666666666666666666666666666666666666666
     mkdir -p target/history
@@ -605,7 +585,8 @@ test_actual_index() {
     "$TEST_REAL_GIT" diff --cached --name-only -z -- > target-index-paths
     expect_failure perl "$ROOT/scripts/release/release-data.pl" index-check target-index-paths
 }
-test_followup_release() {
+# One actual Make-to-adapter recovery proof; the shared suite owns the matrix.
+test_recovery_integration() {
     sed 's/\[0.1.1\]/[0.2.0]/' CHANGELOG.md > target/notes
     cp target/notes CHANGELOG.md
     export TEST_PUSH_FAIL=1
@@ -616,39 +597,23 @@ test_followup_release() {
     cp target/tags/v0.2.0.sha target/older-tag
     commit_fixture_fix
     printf '\n## [0.2.1]\n\n- Committed fix.\n' >> CHANGELOG.md
-    if [[ "$1" == resume ]]; then
-        before="$(cat "$TEST_EFFECTS")"
-        "$TEST_REAL_MAKE" --no-print-directory release-resume VERSION=0.2.0
-        [[ "$(cat "$TEST_EFFECTS")" == "$before" && "$(perl scripts/release/release-data.pl version)" == 0.2.0 ]] || exit 1
-    else
-        case "$1" in
-            gate-fail|missing-tag) export TEST_GATE_FAIL=1 ;;
-        esac
-        if [[ "$1" == missing-tag ]]; then rm target/remote-tags/v0.2.0; fi
-        if [[ "${TEST_GATE_FAIL:-0}" == 1 ]]; then
-            expect_failure "$TEST_REAL_MAKE" --no-print-directory release-patch
-            [[ "$(tail -n 1 target/release-state/0.2.0.plan)" == complete && "$(perl scripts/release/release-data.pl version)" == 0.2.0 ]] || exit 1
-            [[ "$(cat target/remote-head)" == 3333333333333333333333333333333333333333 ]] || exit 1
-            if [[ "$1" == missing-tag ]]; then
-                rg -q '^git push --no-follow-tags --atomic -- https://invalid.example/fixture 3333333333333333333333333333333333333333:refs/heads/main refs/tags/v0.2.0:refs/tags/v0.2.0$' "$TEST_LOG"
-            fi
-            # The real Make adapter retains the failed gate before a retry.
-            local retained
-            retained="$(rg --files target/release-state/validation-failures -g '*-ci.log')"
-            [[ -n "$retained" ]] || exit 1
-            cp "$retained" target/first-failed-validation.log
-            unset TEST_GATE_FAIL
-        fi
-        "$TEST_REAL_MAKE" --no-print-directory release-patch
-        [[ "$(perl scripts/release/release-data.pl version)" == 0.2.1 && "$(tail -n 1 target/release-state/0.2.1.plan)" == complete ]] || exit 1
-        [[ "$(cat target/remote-head)" == 7777777777777777777777777777777777777777 ]] || exit 1
-        [[ "$(cat target/validation.1.log)" == "validation source: $TEST_SOURCE" ]] || exit 1
-        [[ "$(cat target/validation.2.log)" == 'validation source: 6666666666666666666666666666666666666666' ]] || exit 1
-        perl scripts/release/release-data.pl verify 6666666666666666666666666666666666666666 0.2.1 "$(date -u +%F)"
-        if [[ -f target/first-failed-validation.log ]]; then
-            cmp "$retained" target/first-failed-validation.log
-        fi
-    fi
+    export TEST_GATE_FAIL=1
+    expect_failure "$TEST_REAL_MAKE" --no-print-directory release-patch
+    [[ "$(tail -n 1 target/release-state/0.2.0.plan)" == complete && "$(perl scripts/release/release-data.pl version)" == 0.2.0 ]] || exit 1
+    [[ "$(cat target/remote-head)" == 3333333333333333333333333333333333333333 ]] || exit 1
+    # The real validation adapter retains its failed log across the retry.
+    local retained
+    retained="$(rg --files target/release-state/validation-failures -g '*-ci.log')"
+    [[ -n "$retained" ]] || exit 1
+    cp "$retained" target/first-failed-validation.log
+    unset TEST_GATE_FAIL
+    "$TEST_REAL_MAKE" --no-print-directory release-patch
+    [[ "$(perl scripts/release/release-data.pl version)" == 0.2.1 && "$(tail -n 1 target/release-state/0.2.1.plan)" == complete ]] || exit 1
+    [[ "$(cat target/remote-head)" == 7777777777777777777777777777777777777777 ]] || exit 1
+    [[ "$(cat target/validation.1.log)" == "validation source: $TEST_SOURCE" ]] || exit 1
+    [[ "$(cat target/validation.2.log)" == 'validation source: 6666666666666666666666666666666666666666' ]] || exit 1
+    perl scripts/release/release-data.pl verify 6666666666666666666666666666666666666666 0.2.1 "$(date -u +%F)"
+    cmp "$retained" target/first-failed-validation.log
     [[ "$(tail -n 1 target/release-state/0.2.0.plan)" == complete ]] || exit 1
     cmp target/older-receipt target/history/3333333333333333333333333333333333333333.files/docs/release.json
     cmp target/older-tag target/tags/v0.2.0.sha
@@ -663,12 +628,11 @@ run_case bootstrap-fetch-cached test_dependency_bootstrap fetch-cached
 for tool in shellcheck-missing shellcheck-broken sort-missing sort-wrong rustfmt-broken; do
     run_case "preflight-$tool" test_preflight_tools "$tool"
 done
-run_case versions test_versions
 for shape in duplicate historical-duplicate competing; do run_case "notes-$shape" test_invalid_changelog "$shape"; done
 for shape in empty missing; do run_case "notes-$shape" test_changelog_content "$shape"; done
 run_case notes-saved-intent test_changelog_intent
 for phase in preflight after-bump; do run_case "finalizer-$phase" test_finalizer_failure "$phase"; done
-for kind in patch minor major; do run_case "$kind" test_release "$kind"; done
+run_case adapter-release test_release
 for failure in TEST_GATE_FAIL TEST_METADATA_FAIL TEST_PREPARE_FAIL; do run_case "$failure" test_rejected_preparation "$failure"; done
 run_case exact-index test_preparation
 run_case receipt-identity test_receipt_identity
@@ -676,12 +640,11 @@ run_case publish test_publish normal
 run_case publish-dry-run test_publish dry-run
 for invalid in tag receipt parent merge; do run_case "bad-$invalid" test_invalid_publish "$invalid"; done
 run_case publication-lock test_publication_lock
-run_case lost-push-reply test_push_retry
 run_case real-index test_actual_index
 for shape in valid missing invalid source parent merge receipt absent tag tag-type dirty publication; do
     run_case "selected-$shape" test_selected_commit "$shape"
 done
-for shape in success gate-fail missing-tag resume; do run_case "followup-$shape" test_followup_release "$shape"; done
+run_case recovery-integration test_recovery_integration
 for operation in preflight prepare prepared-check committed-check publish plan; do
     case "$operation" in
         preflight) reads='version head verified-head status' ;;

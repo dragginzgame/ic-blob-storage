@@ -164,7 +164,9 @@ Clippy and the Wasm target. The library's minimum supported Rust version is
 `make deps` fetches locked Rust dependencies; validation then uses offline Cargo
 and this repository's `target/` directory.
 `make install-tools` explicitly provisions checksum-pinned host and IC executables
-under `.tools/`; `make tools-check` verifies them without downloading.
+under `.tools/`, including jq, yq, ripgrep with PCRE2 and cloc;
+`make tools-check` verifies them without downloading. The reviewed shared
+Make include owns these setup and reporting recipes.
 
 Choose the local canister path you want to exercise:
 
@@ -252,8 +254,11 @@ scope; controller status does not grant tenant access.
 | `make release-commands-check` | Make release routing with a substitute runner; no release effects |
 | `make release-tools-check` | ShellCheck availability and reviewed cargo-sort version before release validation |
 | `make install-tools` / `make tools-check` | Explicit local executable setup / offline verification |
-| `make test-native-host` | Native CLI boundaries and actual PocketIC installation |
+| `make install-rust-tools` / `make rust-tools-check` | Shared pinned Cargo-tool setup / offline verification |
+| `make test-native-host` | Native CLI/examples, actual installation and Metrics restoration probe |
+| `make browser-tools-check` | Offline exact Node/npm selection and browser manifest/lock declarations |
 | `make cloc` | Rust LOC and test-attribute counts for every Cargo workspace member; requires cloc and jq |
+| `make cloc-tooling` | Read-only sibling tooling inventory, separating matching shared snapshots from local code |
 
 Run focused checks during development. Full validation and release commands follow
 [development governance](docs/governance/development.md).

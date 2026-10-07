@@ -1,0 +1,463 @@
+{
+   "adoption" : "Canonical export from a clean pinned private checkout; verify old snapshot-owned hashes/modes, preserve those bytes, reconcile exact committed export and rerun canonical destination/manifest verification. Add IC canister audit guidance; retain consumer-owned adapters.",
+   "artifacts" : [
+      {
+         "bytes" : 563065,
+         "path" : ".tmp/browser/client.js",
+         "sha256" : "746f17f4cad96cdf77fd6a2cdbd5d0a839bbe4a78ec4c2da5e29e681a2933189"
+      },
+      {
+         "bytes" : 35575,
+         "path" : ".tmp/browser/store.js",
+         "sha256" : "48d2e87fc35ad8ec0597c42dbe74689db4c51eca8403d76feacf0dc467271928"
+      },
+      {
+         "bytes" : 729275,
+         "path" : ".tmp/browser/publication-worker.js",
+         "sha256" : "e237ddb297dc18b87af59abf2ce2518a094054c83d687e667daa11d43ec9abd2"
+      },
+      {
+         "bytes" : 291742,
+         "path" : ".tmp/browser/sdk-probe.mjs",
+         "sha256" : "33dda41d71b6a3ed701b72e6ca8f7f6525752844ff94d945a19278c9d9bc3498"
+      }
+   ],
+   "browser" : {
+      "checks" : "Make checks both tools and manifest/lock declarations before dispatch. Direct builds check Node and manifest/lock against prepared dependencies. No npm preparation or browser runtime executed in this batch.",
+      "dependencies_reselected" : false,
+      "node" : "24.21.0",
+      "npm" : "12.2.0",
+      "registry" : "https://registry.npmjs.org/",
+      "scope" : "Private browser build root and opt-in Make targets; source client has no independent install/build/publication workflow.",
+      "tool_upgrade" : false
+   },
+   "checks" : [
+      {
+         "command" : "canonical export (intermediate 72-file set)",
+         "exit_code" : 0,
+         "log" : {
+            "bytes" : 137,
+            "path" : ".tmp/shared-tooling-017-01/export.log",
+            "sha256" : "7b01a30064b10ff903ba7bc1653c47c38a4669502e183ba09e86d69904e6a34f"
+         }
+      },
+      {
+         "command" : "canonical retry (intermediate 72-file set)",
+         "exit_code" : 0,
+         "log" : {
+            "bytes" : 137,
+            "path" : ".tmp/shared-tooling-017-01/refresh.log",
+            "sha256" : "7b01a30064b10ff903ba7bc1653c47c38a4669502e183ba09e86d69904e6a34f"
+         }
+      },
+      {
+         "command" : "snapshot/browser prechecks: npm stdout capture failure",
+         "exit_code" : 2,
+         "log" : {
+            "bytes" : 736,
+            "path" : ".tmp/shared-tooling-017-01/prechecks.log",
+            "sha256" : "e9395044f73fd3b795f6892fc48927900054799aba63a5d475cee025ee9af8ec"
+         }
+      },
+      {
+         "command" : "consumer suite trial: upstream metadata fixture unavailable",
+         "exit_code" : 2,
+         "log" : {
+            "bytes" : 1936,
+            "path" : ".tmp/shared-tooling-017-01/shared-bash5.log",
+            "sha256" : "ff8facfa6850a5ef45c0f38b3256719cae5c399b3f1dfb732f3e58f0be12313e"
+         }
+      },
+      {
+         "command" : "canonical retry (final 71-file set)",
+         "exit_code" : 0,
+         "log" : {
+            "bytes" : 137,
+            "path" : ".tmp/shared-tooling-017-01/refresh-final.log",
+            "sha256" : "fd70594caa437354e21892d9961b851c47120332bfde2cc446d2e2b7be0ad7b6"
+         }
+      },
+      {
+         "command" : "snapshot/browser prechecks after shell-boundary correction",
+         "exit_code" : 0,
+         "log" : {
+            "bytes" : 244,
+            "path" : ".tmp/shared-tooling-017-01/prechecks-retry.log",
+            "sha256" : "a2e81df7bc5d2c803b7209afef6a12373b0c5bba372d5440c4c699c10c0b3373"
+         }
+      },
+      {
+         "command" : "actual Make shared-tooling-tests, Bash 5",
+         "exit_code" : 0,
+         "log" : {
+            "bytes" : 1880,
+            "path" : ".tmp/shared-tooling-017-01/shared-bash5-retry.log",
+            "sha256" : "6091f56d483ca78c6b63214fe129f0dba99afabce3010bd86fc470ea9ac1381f"
+         }
+      },
+      {
+         "command" : "actual Make shared-tooling-tests/browser-tools-check, Bash 3.2",
+         "exit_code" : 0,
+         "log" : {
+            "bytes" : 2029,
+            "path" : ".tmp/shared-tooling-017-01/shared-bash32.log",
+            "sha256" : "8618146f9ac04ae65c6077893aae651d8374c8a1a536d3a988c09dfa14731e0d"
+         }
+      },
+      {
+         "command" : "Make release-check/hooks-check, Bash 5 before browser-boundary refinement",
+         "exit_code" : 0,
+         "log" : {
+            "bytes" : 661,
+            "path" : ".tmp/shared-tooling-017-01/adapters-bash5.log",
+            "sha256" : "454b036ffa94d324421b8101a2b7df72e67bf8f8888a9ce8f20bc8f5748db889"
+         }
+      },
+      {
+         "command" : "Make release-check/hooks-check, final source with Bash 3.2",
+         "exit_code" : 0,
+         "log" : {
+            "bytes" : 661,
+            "path" : ".tmp/shared-tooling-017-01/adapters-bash32.log",
+            "sha256" : "454b036ffa94d324421b8101a2b7df72e67bf8f8888a9ce8f20bc8f5748db889"
+         }
+      },
+      {
+         "command" : "full upstream logger suite in private source, Bash 5",
+         "exit_code" : 0,
+         "log" : {
+            "bytes" : 37,
+            "path" : ".tmp/shared-tooling-017-01/owner-logger-bash5.log",
+            "sha256" : "ceebc3d0815f8bf5a70fc330e9d76cbe0e4c1f7e87cccbae6d060addee3c5ff8"
+         }
+      },
+      {
+         "command" : "full upstream logger suite in private source, Bash 3.2",
+         "exit_code" : 0,
+         "log" : {
+            "bytes" : 37,
+            "path" : ".tmp/shared-tooling-017-01/owner-logger-bash32.log",
+            "sha256" : "ceebc3d0815f8bf5a70fc330e9d76cbe0e4c1f7e87cccbae6d060addee3c5ff8"
+         }
+      },
+      {
+         "command" : "actual browser esbuild bundle using prepared dependencies",
+         "exit_code" : 0,
+         "log" : {
+            "bytes" : 76,
+            "path" : ".tmp/shared-tooling-017-01/browser-build.log",
+            "sha256" : "45b439c0f41c5e93b52b6530fba7c05662711bc8e9edd440ac70ca11022934ab"
+         }
+      },
+      {
+         "command" : "private wrong Node input: expected refusal",
+         "exit_code" : 1,
+         "log" : {
+            "bytes" : 501,
+            "path" : ".tmp/shared-tooling-017-01/browser-node-refusal.log",
+            "sha256" : "fd1cebf6d16fe0ead45f30f2a23bf3e7513cf76326ae9f3c576b5ef9b98fff93"
+         }
+      },
+      {
+         "command" : "private manifest/lock mismatch: expected refusal",
+         "exit_code" : 1,
+         "log" : {
+            "bytes" : 867,
+            "path" : ".tmp/shared-tooling-017-01/browser-lock-refusal.log",
+            "sha256" : "d25f76bc70fde05c97a22dfbb18dae4eeb2fb9cd52967b286f95c86bc0080245"
+         }
+      },
+      {
+         "command" : "Make wrong npm input through spaced path: expected refusal, Bash 5",
+         "exit_code" : 2,
+         "log" : {
+            "bytes" : 238,
+            "path" : ".tmp/shared-tooling-017-01/browser-npm-refusal-bash5.log",
+            "sha256" : "80271d9ce0896fed643d58c1983ffa7aaa44f1d1289a760a3194d756ed67e529"
+         }
+      },
+      {
+         "command" : "Make wrong npm input through spaced path: expected refusal, Bash 3.2",
+         "exit_code" : 2,
+         "log" : {
+            "bytes" : 238,
+            "path" : ".tmp/shared-tooling-017-01/browser-npm-refusal-bash32.log",
+            "sha256" : "80271d9ce0896fed643d58c1983ffa7aaa44f1d1289a760a3194d756ed67e529"
+         }
+      },
+      {
+         "command" : "private refusal assertions / no Cargo dispatch",
+         "exit_code" : 0,
+         "log" : {
+            "bytes" : 88,
+            "path" : ".tmp/shared-tooling-017-01/browser-refusals.log",
+            "sha256" : "edb7b93b3d0eebfc20adc46050cd6638bd72bae4f2728defd37ce9a29bd66b3f"
+         }
+      },
+      {
+         "command" : "declarations, final Make routing and all-member LOC report",
+         "exit_code" : 0,
+         "log" : {
+            "bytes" : 1717,
+            "path" : ".tmp/shared-tooling-017-01/targeted-checks.log",
+            "sha256" : "99613d460b75c20b8ef6fe319cb67754c969ab5d95503304902d53b95cd33172"
+         }
+      },
+      {
+         "command" : "strict ShellCheck for affected shell helpers",
+         "exit_code" : 0,
+         "log" : {
+            "bytes" : 0,
+            "path" : ".tmp/shared-tooling-017-01/shellcheck.log",
+            "sha256" : "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+         }
+      },
+      {
+         "command" : "offline tool check, snapshot and documentation links",
+         "exit_code" : 0,
+         "log" : {
+            "bytes" : 777,
+            "path" : ".tmp/shared-tooling-017-01/final-docs-snapshot.log",
+            "sha256" : "0c1ac5d9bc5d8f30a213800ae82315b02b46f723695eaca80b084b77b87933cf"
+         }
+      },
+      {
+         "command" : "Cargo/npm lock, package metadata/receipt and source preservation",
+         "exit_code" : 0,
+         "log" : {
+            "bytes" : 83,
+            "path" : ".tmp/shared-tooling-017-01/preservation.log",
+            "sha256" : "9a61ab14937a75267471adb685dae0dfba4df110fa7eeca057b640a1080170b5"
+         }
+      },
+      {
+         "command" : "final whitespace check",
+         "exit_code" : 0,
+         "log" : {
+            "bytes" : 0,
+            "path" : ".tmp/shared-tooling-017-01/diff-check.log",
+            "sha256" : "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+         }
+      }
+   ],
+   "date" : "2026-10-07",
+   "description_review" : {
+      "bytes" : 220,
+      "path" : ".tmp/shared-tooling-017-01/repository-description.json",
+      "sha256" : "25d0c6902c37a371901272e58152e30e77e4633dc723f20ab59eccabc0b17f78"
+   },
+   "entry_head" : "49d6ba76964668a6835c63784a892af905ce10b1",
+   "entry_snapshot_revision" : "bfb50bd0884b5e6c5ee9592056531c6108f96d73",
+   "inputs" : [
+      {
+         "bytes" : 7457,
+         "path" : ".shared-tooling.snapshot",
+         "sha256" : "76eacd926931f8995598792980e5d7e7e9b67afc0048714323124a3b54138a26"
+      },
+      {
+         "bytes" : 19380,
+         "path" : "Makefile",
+         "sha256" : "c44e671ecaea6e86401840dc9423e8809bafbb3594f837bbe353f89d36c051eb"
+      },
+      {
+         "bytes" : 1622,
+         "path" : "Cargo.toml",
+         "sha256" : "9149d9090d5681e974329d3019de9162f3b1afa29f8ec3374135962ea09cde0b"
+      },
+      {
+         "bytes" : 107831,
+         "path" : "Cargo.lock",
+         "sha256" : "b6b4430e046b153327760752962e75c437f49120f941a2bda612e1f553cea562"
+      },
+      {
+         "bytes" : 448,
+         "path" : "docs/release.json",
+         "sha256" : "2c93d8b9dc25b7c96a383e241edc934e65aab95c1a339ad0fbcc984c7abaa4ab"
+      },
+      {
+         "bytes" : 192019,
+         "path" : "CHANGELOG.md",
+         "sha256" : "46b13be9798d6a96ddd4674bb0ec0b5718eb5bd5e371b1c3f847537337f3024b"
+      },
+      {
+         "bytes" : 126444,
+         "path" : "docs/status/current.md",
+         "sha256" : "6c438f9e835b0c7016e823440d89ebfaa262d0d6407df358797b61eb71c4f4be"
+      },
+      {
+         "bytes" : 9498,
+         "path" : "docs/governance/development.md",
+         "sha256" : "e432709f72bd533c7c3e725022b2a33e74dc897c191221f5b4d7ec5d780678a5"
+      },
+      {
+         "bytes" : 44109,
+         "path" : "docs/dependencies.md",
+         "sha256" : "0068c67026fb74a899e16c4ac5985604fa532ed3045393bd8ae56bc63dc5ecf1"
+      },
+      {
+         "bytes" : 20618,
+         "path" : "README.md",
+         "sha256" : "d385bddf6384b0578c4a7b1303e236d05d6bd39c30b17c1dac16a39c7c2ea162"
+      },
+      {
+         "bytes" : 2101,
+         "path" : "scripts/ci/check-validation-logging.sh",
+         "sha256" : "24b5bfa4d77fcad5e218112ed2bb3aeb54b4a6f5a4d712908bf70ce2eba5ee32"
+      },
+      {
+         "bytes" : 536,
+         "path" : "scripts/ci/check-browser-tools.sh",
+         "sha256" : "923eb43ae437f7aae02d3e14cb8c512a22231858d4143e0381f14bbb4f675097"
+      },
+      {
+         "bytes" : 1034,
+         "path" : "scripts/ci/check-browser-tools.mjs",
+         "sha256" : "d63d4ba2b70007c81ab7e9478ccacee85e6e6feeecc8465ca74779f9e6b4228f"
+      },
+      {
+         "bytes" : 12310,
+         "path" : "scripts/ci/run-validation-targets.sh",
+         "sha256" : "fa774e550c20f5ed1039683479f30f2be4c6ce8bfd6a60f840453d93c48887bf"
+      },
+      {
+         "bytes" : 7163,
+         "path" : "scripts/ci/test-cloc.sh",
+         "sha256" : "29a40629e13169da099c89568bac557078e73117ce071ae3ec7b0329b7ffd325"
+      },
+      {
+         "bytes" : 5820,
+         "path" : "scripts/ci/test-cloc-siblings.sh",
+         "sha256" : "b8fa47f8755149c3d244e3625b07990eed16055b868d9bffe2125c4bfd26d638"
+      },
+      {
+         "bytes" : 3985,
+         "path" : "scripts/ci/check-format-hooks.sh",
+         "sha256" : "dcd605bfc79aaf64078bb7233a1ba606eb13bcd59f42ce55d6b7eb2cd7717da5"
+      },
+      {
+         "bytes" : 32297,
+         "path" : "scripts/release/test-release.sh",
+         "sha256" : "6f8894fed14ad1e35a4715b8aac9d2df2c56c97661f24c3950b3f8aeea2551bc"
+      },
+      {
+         "bytes" : 3038,
+         "path" : ".githooks/pre-commit",
+         "sha256" : "222ccd4193f017ebef6396affa9a55dcae98a28ffbd8c6864570b397d2a3bb02"
+      },
+      {
+         "bytes" : 4345,
+         "path" : "tests/browser/build.mjs",
+         "sha256" : "c6a1aa9a7f986a7326a4cef4de6ce952f0ed207b2405f9595aab90d717fc9fb9"
+      },
+      {
+         "bytes" : 369,
+         "path" : "tests/browser/package.json",
+         "sha256" : "5df50422d834ff08eda92f07abaa23ccf66f890c100278393eae82519f54a812"
+      },
+      {
+         "bytes" : 24852,
+         "path" : "tests/browser/package-lock.json",
+         "sha256" : "79bd78166f2c95aa341742d833d42eefb510adba1078d5136cda1211740d9a2d"
+      },
+      {
+         "bytes" : 8,
+         "path" : "tests/browser/.nvmrc",
+         "sha256" : "73fb1b615e2043a933be1c0895cde4358036acc28d785692509b822aa53c761f"
+      },
+      {
+         "bytes" : 37,
+         "path" : "tests/browser/.npmrc",
+         "sha256" : "3a951f66e7e0f3e2dd1832473a871357c4a507b51100636b73bcf6ff0dd78b6c"
+      }
+   ],
+   "limitations" : [
+      "Native consumer macOS/current committed CI qualification remains pending. Linux Bash 3.2 is not native macOS evidence.",
+      "Initial Node checker failure is retained as diagnostic evidence; its source was not frozen before correction.",
+      "Bash 5 adapter run preceded the final browser-only boundary refinement; final Make routing and complete Bash 3.2 adapters pass.",
+      "No full CI/release gate, Rust compilation, dependency resolution, commit/tag/push/publication, provider effect or sibling file edit. Earlier evidence retains its own source and graph."
+   ],
+   "loc" : "Remove redundant workspace env wrapper; retain sibling-only CARGO_TARGET_DIR isolation. Production target export unchanged. Ancestor Cargo configuration gap remains upstream #47; native CI scratch is outside checkout.",
+   "logger" : "Consumer checker expects Make status 2. Full owner suite executed from private source because it depends on Shared Tooling metadata fixtures; failed consumer trial retained and trial-only import removed.",
+   "metrics_selection" : {
+      "qualified_by_this_record" : false,
+      "version" : "0.2.6"
+   },
+   "pending_changelog" : "0.16.1",
+   "preservation" : {
+      "approved_layout_preserved" : true,
+      "entry_cargo_lock_identical" : true,
+      "entry_cargo_manifest_identical" : true,
+      "entry_release_receipt_identical" : true,
+      "npm_lock_matches_HEAD" : true,
+      "removed_named_functions_methods_types" : []
+   },
+   "retained_failures" : [
+      ".tmp/shared-tooling-017-01/prechecks.log",
+      ".tmp/shared-tooling-017-01/shared-bash5.log",
+      "/tmp/validation-runner-test.KbijeD",
+      ".tmp/shared-tooling-017-01/attempt-72.snapshot",
+      ".tmp/shared-tooling-017-01/consumer-logger-suite-attempt.sh",
+      ".tmp/shared-tooling-017-01/record-verification-failure.log"
+   ],
+   "schema" : 1,
+   "shared_revision" : "88f1d70cdf671aefb9507d7a81411ed5daa358b3",
+   "shared_version" : "0.1.17",
+   "snapshot_files" : 71,
+   "tools" : [
+      {
+         "bytes" : 1446024,
+         "path" : "/bin/bash",
+         "sha256" : "bc5945feb8bd26203ebfafea5ce1878bb2e32cb8fb50ab7ae395cfb1e1aaaef1"
+      },
+      {
+         "bytes" : 2088112,
+         "path" : ".tmp/bash32-v01413-01/bash-3.2.57/bash",
+         "sha256" : "48bdaa3a26c4c14ec1c2ab2d3a9cca84ddaba64f4c1bd0c26a09891d2f474e41"
+      },
+      {
+         "bytes" : 126595440,
+         "path" : "/home/adam/.nvm/versions/node/v24.21.0/bin/node",
+         "sha256" : "7fde7b8afa198da66257f42ee2001d874c7355631e6d1579a5fb5ef1f246df4c"
+      },
+      {
+         "bytes" : 54,
+         "path" : "/home/adam/.nvm/versions/node/v24.21.0/lib/node_modules/npm/bin/npm-cli.js",
+         "sha256" : "8e5f6f3429f8cdbe693cdc29904e9d5a7b127a494bd15c804bd54c7403bfcbe7"
+      },
+      {
+         "bytes" : 6860,
+         "path" : "/home/adam/.nvm/versions/node/v24.21.0/lib/node_modules/npm/package.json",
+         "sha256" : "e802b643a547826bcc250cf5c19b0ae448b4dbca8bec53938916a2f803ba521f"
+      }
+   ],
+   "upstream_ci" : {
+      "conclusion" : "success",
+      "head_sha" : "88f1d70cdf671aefb9507d7a81411ed5daa358b3",
+      "jobs" : [
+         {
+            "conclusion" : "success",
+            "name" : "lint-and-security"
+         },
+         {
+            "conclusion" : "success",
+            "name" : "portable-regression (macos-15-intel)"
+         },
+         {
+            "conclusion" : "success",
+            "name" : "portable-regression (macos-15)"
+         },
+         {
+            "conclusion" : "success",
+            "name" : "portable-regression (ubuntu-24.04)"
+         }
+      ],
+      "raw" : {
+         "bytes" : 5550,
+         "path" : ".tmp/shared-tooling-017-01/upstream-ci.json",
+         "sha256" : "4fd217d344bfafee108a6052ddb6113efd45bbf16c1fc05055233e55d54cd6ec"
+      },
+      "status" : "completed",
+      "url" : "https://github.com/dragginzgame/shared-tooling/actions/runs/37601115116"
+   },
+   "working_tree_uncommitted" : true
+}

@@ -1,5 +1,52 @@
 # Changelog
 
+## [0.16.1]
+
+### Changed
+
+- Refresh the reviewed Shared Tooling snapshot to 0.1.18 and use its common
+  Make include for setup, offline tool verification and LOC reports. Prepare
+  checksum-pinned ripgrep with PCRE2 and cloc alongside jq/yq; expose the
+  read-only sibling tooling inventory through `make cloc-tooling`. Retain the
+  approved role-based workspace layout and complete member coverage.
+- Use the shared pinned Cargo-tool setup for cargo-sort, cargo-sort-derives and
+  candid-extractor. Local setup and CI install and verify the same repository-local
+  set, preserving failed installation build output.
+  See [Shared Tooling #51](https://github.com/dragginzgame/shared-tooling/issues/51).
+- Preserve Make's validation failure status and support retained validation logs,
+  timing records and interruption. Support independent LOC
+  workspace selection with `make cloc CLOC_MANIFEST=path/to/Cargo.toml`.
+- Pin the opt-in browser fixture's Node/npm preparation tools and refuse
+  mismatched tools or manifest/lock declarations before browser build effects.
+- Refresh direct native Host artifacts/filesystem packages to 0.4.0. The
+  testkit-owned harness retains its 0.3.3 Host graph; public service contracts,
+  bounded reads and durable schemas are unchanged. Preserve the selected
+  Metrics 0.2.7 dependency in the private storage probe.
+- Qualify the private Metrics restoration-read window in the existing native
+  host matrix using a fresh probe Wasm, preserving operator-only observation
+  and fenced restoration. See
+  [#19](https://github.com/dragginzgame/ic-blob-storage/issues/19).
+- Run bounded JSON example tests in the existing native host CI matrix, so
+  the shared stream-reader adoption receives consumer coverage on Linux and
+  both macOS architectures. See
+  [#21](https://github.com/dragginzgame/ic-blob-storage/issues/21).
+- Remove duplicated release version/lost-push scenarios and narrow descendant
+  recovery to one Blob adapter integration. Retain exact receipts, publication
+  admission, failed-preparation restoration and real-index proof; the coverage
+  map identifies the canonical owner of each retired assertion. See
+  [#22](https://github.com/dragginzgame/ic-blob-storage/issues/22).
+
+### Fixed
+
+- Adopt canonical LOC fixture isolation for inherited Cargo targets and
+  enclosing workspaces, removing the consumer workaround. Exclude aliased
+  build output from runtime/test totals. Keep production target ownership and
+  explicit custom-target checks intact. See
+  [#23](https://github.com/dragginzgame/ic-blob-storage/issues/23).
+- Reject Make options and assignments as validation targets before any gate
+  runs, through the canonical validation runner. See
+  [Shared Tooling #30](https://github.com/dragginzgame/shared-tooling/issues/30).
+
 ## [0.16.0] - 2026-10-07
 
 ### Breaking

@@ -45,11 +45,21 @@ for the selected lockfile; this step may use the network and does not select new
 versions. Fetch failure stops before validation or release-file mutation. Rust
 compilation/tests then use `--offline --locked`. Scoped targets remain offline;
 run `make deps` before them after dependency changes or cache removal.
-Provision the reviewed jq/yq and common IC executables explicitly with
-`make install-tools` before validation. Make selects `.tools/host/bin` and
-`.tools/ic/bin`; the offline checkers never download missing tools.
-`make test-native-host` is the focused CLI/PocketIC installation check used by
+Provision the reviewed jq/yq, ripgrep with PCRE2, cloc and common IC executables
+explicitly with `make install-tools` before validation. The reviewed
+`make/tools.mk` snapshot owns setup, offline verification and LOC recipes.
+Make selects `.tools/host/bin`, `.tools/ic/bin` and `.tools/rust/bin`;
+the offline checkers never download missing tools. The aggregate targets attach
+the shared Cargo-tool installer/checker; CI uses the same owner rather than a
+separate cargo-sort install recipe. Tool installation may compile and use the
+network; it stays explicit and separate from ordinary validation.
+`make test-native-host` is the focused CLI/example/PocketIC installation and
+Metrics restoration-read check used by
 the native host CI matrix, separate from the complete gate.
+Opt-in browser/SDK targets check the exact prepared Node/npm selections and
+manifest/lock declarations with `make browser-tools-check`; setup and version
+ownership stay in the private browser build root under
+[the dependency guide](../dependencies.md#browser-certificate-evidence).
 Its offline `probe-check` verifies retained Caffeine run artifacts; it never runs
 new network probes. The [probe ledger](../evidence/caffeine-probes/README.md) governs
 continuous evidence recording and separates source/local/live observations.
@@ -57,7 +67,8 @@ continuous evidence recording and separates source/local/live observations.
 `make documentation-links-check` selects root Markdown and all Markdown under
 docs, audits and rules; it verifies supported local targets, not anchors or remote
 URLs. `make shared-tooling-tests` exercises formatter prerequisite, portable digest, IC installer, local
-lockfile and Cargo metadata refusals with offline substitutes. The declaration
+lockfile, Cargo metadata, host/Cargo-tool installation and common Make/LOC refusals
+with offline substitutes. The declaration
 gate opts in to shared Cargo package/dependency inheritance checks.
 `make hooks-check` supplies the consumer's real formatter inputs to the shared
 adoption checker using Cargo's complete member roster and each member's Rust
@@ -67,6 +78,8 @@ mutating-formatter rollback and Make-mode refusal cases.
 reviewed Makefile and its explicit parse-time inputs into a private fixture,
 then uses a substitute runner. `make release-check` includes that shared routing
 check and retains the repository's metadata, publication and recovery fixtures.
+The [fixture ownership map](../evidence/release-fixture-ownership.md) records
+the shared runner matrix and the retained Blob adapter obligations.
 
 Keep implementation, relevant success/rejection/recovery evidence and cleanup
 in one coherent batch. Tests assert typed failures or observable behavior;

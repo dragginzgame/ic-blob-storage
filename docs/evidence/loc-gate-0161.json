@@ -1,0 +1,944 @@
+{
+  "schema": 1,
+  "date": "2026-10-07",
+  "entry_head": "49d6ba76964668a6835c63784a892af905ce10b1",
+  "pending_changelog": "0.16.1",
+  "working_tree_uncommitted": true,
+  "shared_revision": "bfb50bd0884b5e6c5ee9592056531c6108f96d73",
+  "repair": "Clear CARGO_TARGET_DIR only for independent workspace/sibling LOC fixtures at the local Make boundary.",
+  "metrics_selection": {
+    "name": "ic-metrics",
+    "version": "0.2.6",
+    "checksum": "9ac61152c3645ba0cad34331301db14ca096ced6ace6fc7d2cbbd4f4fe511f63"
+  },
+  "preservation": {
+    "entry_lock_identical": true,
+    "entry_snapshot_identical": true,
+    "package_metadata_and_receipt_unchanged": true,
+    "production_target_export_retained": true
+  },
+  "inputs": [
+    {
+      "path": "Makefile",
+      "bytes": 18963,
+      "sha256": "5ae36f4175174ae4ef090c78da0cde3f2874760ca9ce40ea5fbe0888b6507816"
+    },
+    {
+      "path": "CHANGELOG.md",
+      "bytes": 191653,
+      "sha256": "14c4f598672c8375c9f60ba14eff39bdfe2013b4906e0eacf6e818f7ba03e97c"
+    },
+    {
+      "path": "docs/status/current.md",
+      "bytes": 122030,
+      "sha256": "b2097999f641b0aeec4c2baf4c6a96d15f136f2dc247c6447a3bfb5dbf3814d2"
+    },
+    {
+      "path": "Cargo.toml",
+      "bytes": 1622,
+      "sha256": "9149d9090d5681e974329d3019de9162f3b1afa29f8ec3374135962ea09cde0b"
+    },
+    {
+      "path": "Cargo.lock",
+      "bytes": 107831,
+      "sha256": "b6b4430e046b153327760752962e75c437f49120f941a2bda612e1f553cea562"
+    },
+    {
+      "path": ".shared-tooling.snapshot",
+      "bytes": 7350,
+      "sha256": "f19445bc4534a14c3afa82ad725ab516536e2a69a63b4cba79ea8e2c29708aaf"
+    },
+    {
+      "path": "docs/release.json",
+      "bytes": 448,
+      "sha256": "2c93d8b9dc25b7c96a383e241edc934e65aab95c1a339ad0fbcc984c7abaa4ab"
+    },
+    {
+      "path": "scripts/ci/test-cloc.sh",
+      "bytes": 5526,
+      "sha256": "8ec11a93167dba2fe17478f0eb7bd5612ef41d1d749eed338ee9bdbd425c75eb"
+    },
+    {
+      "path": "scripts/ci/test-cloc-siblings.sh",
+      "bytes": 5820,
+      "sha256": "b8fa47f8755149c3d244e3625b07990eed16055b868d9bffe2125c4bfd26d638"
+    }
+  ],
+  "checks": [
+    {
+      "name": "actual Make shared-tooling suite Bash 5",
+      "exit_code": 0,
+      "log": {
+        "path": ".tmp/loc-gate-0161-01/logs/make-shared-bash5-retry.log",
+        "bytes": 1860,
+        "sha256": "bdbbeabf906cf3c6a639fc7e5fe13dd99fef00267b8130f74b1eb154aba81c60"
+      }
+    },
+    {
+      "name": "actual Make shared-tooling suite Bash 3.2",
+      "exit_code": 0,
+      "log": {
+        "path": ".tmp/loc-gate-0161-01/logs/make-shared-bash32.log",
+        "bytes": 1860,
+        "sha256": "bdbbeabf906cf3c6a639fc7e5fe13dd99fef00267b8130f74b1eb154aba81c60"
+      }
+    },
+    {
+      "name": "production target export",
+      "exit_code": 0,
+      "log": {
+        "path": ".tmp/loc-gate-0161-01/logs/production-target.log",
+        "bytes": 43,
+        "sha256": "85b6434d357e463fe4de5a084455adb19cee73483ab7ebc902da16bfd95ac931"
+      }
+    },
+    {
+      "name": "actual production workspace LOC",
+      "exit_code": 0,
+      "log": {
+        "path": ".tmp/loc-gate-0161-01/logs/workspace-loc.log",
+        "bytes": 1335,
+        "sha256": "41523e975fe33520b83b7da1e4f4488de5c8d83fa0d20d59a579487f0f7e52b2"
+      }
+    },
+    {
+      "name": "snapshot and documentation links",
+      "exit_code": 0,
+      "log": {
+        "path": ".tmp/loc-gate-0161-01/logs/docs-snapshot.log",
+        "bytes": 143,
+        "sha256": "cbd687771994092a35f5138506823dee507d57d9ff0b8c620cf082df8b5d1f92"
+      }
+    },
+    {
+      "name": "final documentation links and snapshot",
+      "exit_code": 0,
+      "log": {
+        "path": ".tmp/loc-gate-0161-01/logs/final-doc-snapshot.log",
+        "bytes": 143,
+        "sha256": "4c8364da4e98fb37030187ff7e2eecb5f2f168db00ceb1236383522e7f1f81b7"
+      }
+    }
+  ],
+  "removed_symbols": [],
+  "failed_attempts": [
+    {
+      "name": "initial actual Make suite: sibling fixture inherits target",
+      "exit_code": 2,
+      "log": {
+        "path": ".tmp/loc-gate-0161-01/logs/make-shared-bash5.log",
+        "bytes": 1877,
+        "sha256": "d20d443d0c2ea3085e29d44a3131d3e8ef5847b20d77e000c9983654d128649c"
+      }
+    },
+    {
+      "name": "separate inherited-target sibling trace",
+      "exit_code": 1,
+      "log": {
+        "path": ".tmp/loc-gate-0161-01/logs/siblings-inherited.log",
+        "bytes": 6021,
+        "sha256": "0913e5c96847ff51f6947bb7960bef232af45d5bad856bb5274d8b864adb878a"
+      }
+    },
+    {
+      "name": "earlier inherited-target workspace trace",
+      "exit_code": 1,
+      "log": {
+        "path": ".tmp/loc-gate-0161-01/logs/cloc-inherited.log",
+        "bytes": 11952,
+        "sha256": "a4c01f3a05844ccbc8a9867675e56140101d7da0744a62b23293dfcec7ccd7d5"
+      }
+    }
+  ],
+  "retained_inputs_and_failures": [
+    {
+      "path": ".tmp/loc-gate-0161-01/.shared-tooling.snapshot",
+      "bytes": 7350,
+      "sha256": "f19445bc4534a14c3afa82ad725ab516536e2a69a63b4cba79ea8e2c29708aaf"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/Cargo.lock",
+      "bytes": 107831,
+      "sha256": "b6b4430e046b153327760752962e75c437f49120f941a2bda612e1f553cea562"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/Makefile",
+      "bytes": 18915,
+      "sha256": "9e02a8c12672d056c83f579769e590b856cb5e46fc5d69db0858b00d072d44b6"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/entry.diff",
+      "bytes": 71505,
+      "sha256": "31b1be34422aebb38cbc0ad0807fb5c394c12ef084f6ab1552b88d131a90d6ea"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-loc-review-fixture/Cargo.toml",
+      "bytes": 137,
+      "sha256": "7b1e32d94a434e54c6cb5f6146edca388e9307121d718ab57ca14837cde97460"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-loc-review-fixture/crates/alpha/Cargo.toml",
+      "bytes": 60,
+      "sha256": "7952cf92cf174a94fe88092697617552f6f8c3d522e6b6ca13ca846e489d2219"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-loc-review-fixture/crates/alpha/src/lib.rs",
+      "bytes": 158,
+      "sha256": "9d94e0a08cf802764a0622c59d9cb975ce45f4d0cfd605cf8d83c1debc666cb4"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-loc-review-fixture/crates/alpha/tests/public.rs",
+      "bytes": 33,
+      "sha256": "d36cbfaaaa81ea0e4dac13117ef24e0a0f1d76eabdaf3dc0d76df7acf857dbd8"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-loc-review-fixture/crates/beta/Cargo.toml",
+      "bytes": 59,
+      "sha256": "80554bd1a3fdd1f39ea7ec2a8cfccd0f6322044899308cfe2dc9e8f264151e17"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-loc-review-fixture/crates/beta/src/lib.rs",
+      "bytes": 67,
+      "sha256": "394eb2a7aa50f670c3bd7673eaabd9d93665ef8cdb357cecd9e580e4a576abc1"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-loc-review-fixture/src/lib.rs",
+      "bytes": 65,
+      "sha256": "8b24df976c1b6f5a6aea12a1622697410c83725c0de5f43086a87570435c19ab"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-loc-review-fixture/target/debug/build/example/out/generated.rs",
+      "bytes": 53,
+      "sha256": "9f60d2d830d230b4a5a5c1affdfd2585995552808355a0e19bf5f18cd1dcc773"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-loc-review-fixture/target/tests/generated.rs",
+      "bytes": 43,
+      "sha256": "982dfdfac105b091010385f04e7d17714f5776884af3ace7022cc70cdb396807"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-loc-review-fixture/tests/root.rs",
+      "bytes": 38,
+      "sha256": "57b69b22b791631d54c54837a59f326c08f5c7011b41c25744b89cff4915feb7"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-make-fixture/alpha.lock",
+      "bytes": 199,
+      "sha256": "56ba892f2856b33e4b137f10db4089bc879524f111ec725eae5213f8ebe9895b"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-make-fixture/gitdirs/zeta/HEAD",
+      "bytes": 23,
+      "sha256": "f6f2b945f6c411b02ba3da9c7ace88dcf71b6af65ba2e0d89aa82900042b5a10"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-make-fixture/gitdirs/zeta/config",
+      "bytes": 92,
+      "sha256": "cfe7ba1238c9a78be7535d7c63bcaf5a4d5011d46b07c9b45d3bbf7d6c312dfe"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-make-fixture/gitdirs/zeta/description",
+      "bytes": 73,
+      "sha256": "85ab6c163d43a17ea9cf7788308bca1466f1b0a8d1cc92e26e9bf63da4062aee"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-make-fixture/gitdirs/zeta/hooks/applypatch-msg.sample",
+      "bytes": 478,
+      "sha256": "0223497a0b8b033aa58a3a521b8629869386cf7ab0e2f101963d328aa62193f7"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-make-fixture/gitdirs/zeta/hooks/commit-msg.sample",
+      "bytes": 896,
+      "sha256": "1f74d5e9292979b573ebd59741d46cb93ff391acdd083d340b94370753d92437"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-make-fixture/gitdirs/zeta/hooks/fsmonitor-watchman.sample",
+      "bytes": 4726,
+      "sha256": "e0549964e93897b519bd8e333c037e51fff0f88ba13e086a331592bf801fa1d0"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-make-fixture/gitdirs/zeta/hooks/post-update.sample",
+      "bytes": 189,
+      "sha256": "81765af2daef323061dcbc5e61fc16481cb74b3bac9ad8a174b186523586f6c5"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-make-fixture/gitdirs/zeta/hooks/pre-applypatch.sample",
+      "bytes": 424,
+      "sha256": "e15c5b469ea3e0a695bea6f2c82bcf8e62821074939ddd85b77e0007ff165475"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-make-fixture/gitdirs/zeta/hooks/pre-commit.sample",
+      "bytes": 1643,
+      "sha256": "f9af7d95eb1231ecf2eba9770fedfa8d4797a12b02d7240e98d568201251244a"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-make-fixture/gitdirs/zeta/hooks/pre-merge-commit.sample",
+      "bytes": 416,
+      "sha256": "d3825a70337940ebbd0a5c072984e13245920cdf8898bd225c8d27a6dfc9cb53"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-make-fixture/gitdirs/zeta/hooks/pre-push.sample",
+      "bytes": 1374,
+      "sha256": "ecce9c7e04d3f5dd9d8ada81753dd1d549a9634b26770042b58dda00217d086a"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-make-fixture/gitdirs/zeta/hooks/pre-rebase.sample",
+      "bytes": 4898,
+      "sha256": "4febce867790052338076f4e66cc47efb14879d18097d1d61c8261859eaaa7b3"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-make-fixture/gitdirs/zeta/hooks/pre-receive.sample",
+      "bytes": 544,
+      "sha256": "a4c3d2b9c7bb3fd8d1441c31bd4ee71a595d66b44fcf49ddb310252320169989"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-make-fixture/gitdirs/zeta/hooks/prepare-commit-msg.sample",
+      "bytes": 1492,
+      "sha256": "e9ddcaa4189fddd25ed97fc8c789eca7b6ca16390b2392ae3276f0c8e1aa4619"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-make-fixture/gitdirs/zeta/hooks/push-to-checkout.sample",
+      "bytes": 2783,
+      "sha256": "a53d0741798b287c6dd7afa64aee473f305e65d3f49463bb9d7408ec3b12bf5f"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-make-fixture/gitdirs/zeta/hooks/sendemail-validate.sample",
+      "bytes": 2308,
+      "sha256": "44ebfc923dc5466bc009602f0ecf067b9c65459abfe8868ddc49b78e6ced7a92"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-make-fixture/gitdirs/zeta/hooks/update.sample",
+      "bytes": 3650,
+      "sha256": "8d5f2fa83e103cf08b57eaa67521df9194f45cbdbcb37da52ad586097a14d106"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-make-fixture/gitdirs/zeta/info/exclude",
+      "bytes": 240,
+      "sha256": "6671fe83b7a07c8932ee89164d1f2793b2318058eb8b98dc5c06ee0a5a3b0ec1"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-make-fixture/parent [projects]/.notes/.git/HEAD",
+      "bytes": 23,
+      "sha256": "f6f2b945f6c411b02ba3da9c7ace88dcf71b6af65ba2e0d89aa82900042b5a10"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-make-fixture/parent [projects]/.notes/.git/config",
+      "bytes": 92,
+      "sha256": "cfe7ba1238c9a78be7535d7c63bcaf5a4d5011d46b07c9b45d3bbf7d6c312dfe"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-make-fixture/parent [projects]/.notes/.git/description",
+      "bytes": 73,
+      "sha256": "85ab6c163d43a17ea9cf7788308bca1466f1b0a8d1cc92e26e9bf63da4062aee"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-make-fixture/parent [projects]/.notes/.git/hooks/applypatch-msg.sample",
+      "bytes": 478,
+      "sha256": "0223497a0b8b033aa58a3a521b8629869386cf7ab0e2f101963d328aa62193f7"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-make-fixture/parent [projects]/.notes/.git/hooks/commit-msg.sample",
+      "bytes": 896,
+      "sha256": "1f74d5e9292979b573ebd59741d46cb93ff391acdd083d340b94370753d92437"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-make-fixture/parent [projects]/.notes/.git/hooks/fsmonitor-watchman.sample",
+      "bytes": 4726,
+      "sha256": "e0549964e93897b519bd8e333c037e51fff0f88ba13e086a331592bf801fa1d0"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-make-fixture/parent [projects]/.notes/.git/hooks/post-update.sample",
+      "bytes": 189,
+      "sha256": "81765af2daef323061dcbc5e61fc16481cb74b3bac9ad8a174b186523586f6c5"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-make-fixture/parent [projects]/.notes/.git/hooks/pre-applypatch.sample",
+      "bytes": 424,
+      "sha256": "e15c5b469ea3e0a695bea6f2c82bcf8e62821074939ddd85b77e0007ff165475"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-make-fixture/parent [projects]/.notes/.git/hooks/pre-commit.sample",
+      "bytes": 1643,
+      "sha256": "f9af7d95eb1231ecf2eba9770fedfa8d4797a12b02d7240e98d568201251244a"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-make-fixture/parent [projects]/.notes/.git/hooks/pre-merge-commit.sample",
+      "bytes": 416,
+      "sha256": "d3825a70337940ebbd0a5c072984e13245920cdf8898bd225c8d27a6dfc9cb53"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-make-fixture/parent [projects]/.notes/.git/hooks/pre-push.sample",
+      "bytes": 1374,
+      "sha256": "ecce9c7e04d3f5dd9d8ada81753dd1d549a9634b26770042b58dda00217d086a"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-make-fixture/parent [projects]/.notes/.git/hooks/pre-rebase.sample",
+      "bytes": 4898,
+      "sha256": "4febce867790052338076f4e66cc47efb14879d18097d1d61c8261859eaaa7b3"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-make-fixture/parent [projects]/.notes/.git/hooks/pre-receive.sample",
+      "bytes": 544,
+      "sha256": "a4c3d2b9c7bb3fd8d1441c31bd4ee71a595d66b44fcf49ddb310252320169989"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-make-fixture/parent [projects]/.notes/.git/hooks/prepare-commit-msg.sample",
+      "bytes": 1492,
+      "sha256": "e9ddcaa4189fddd25ed97fc8c789eca7b6ca16390b2392ae3276f0c8e1aa4619"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-make-fixture/parent [projects]/.notes/.git/hooks/push-to-checkout.sample",
+      "bytes": 2783,
+      "sha256": "a53d0741798b287c6dd7afa64aee473f305e65d3f49463bb9d7408ec3b12bf5f"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-make-fixture/parent [projects]/.notes/.git/hooks/sendemail-validate.sample",
+      "bytes": 2308,
+      "sha256": "44ebfc923dc5466bc009602f0ecf067b9c65459abfe8868ddc49b78e6ced7a92"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-make-fixture/parent [projects]/.notes/.git/hooks/update.sample",
+      "bytes": 3650,
+      "sha256": "8d5f2fa83e103cf08b57eaa67521df9194f45cbdbcb37da52ad586097a14d106"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-make-fixture/parent [projects]/.notes/.git/info/exclude",
+      "bytes": 240,
+      "sha256": "6671fe83b7a07c8932ee89164d1f2793b2318058eb8b98dc5c06ee0a5a3b0ec1"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-make-fixture/parent [projects]/alpha repo [copy]/.cargo/config.toml",
+      "bytes": 56,
+      "sha256": "87a05b228595d5c03cba1ec297a236ac55d2388941c912b240926a91ddf842e9"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-make-fixture/parent [projects]/alpha repo [copy]/.git/HEAD",
+      "bytes": 23,
+      "sha256": "f6f2b945f6c411b02ba3da9c7ace88dcf71b6af65ba2e0d89aa82900042b5a10"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-make-fixture/parent [projects]/alpha repo [copy]/.git/config",
+      "bytes": 92,
+      "sha256": "cfe7ba1238c9a78be7535d7c63bcaf5a4d5011d46b07c9b45d3bbf7d6c312dfe"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-make-fixture/parent [projects]/alpha repo [copy]/.git/description",
+      "bytes": 73,
+      "sha256": "85ab6c163d43a17ea9cf7788308bca1466f1b0a8d1cc92e26e9bf63da4062aee"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-make-fixture/parent [projects]/alpha repo [copy]/.git/hooks/applypatch-msg.sample",
+      "bytes": 478,
+      "sha256": "0223497a0b8b033aa58a3a521b8629869386cf7ab0e2f101963d328aa62193f7"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-make-fixture/parent [projects]/alpha repo [copy]/.git/hooks/commit-msg.sample",
+      "bytes": 896,
+      "sha256": "1f74d5e9292979b573ebd59741d46cb93ff391acdd083d340b94370753d92437"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-make-fixture/parent [projects]/alpha repo [copy]/.git/hooks/fsmonitor-watchman.sample",
+      "bytes": 4726,
+      "sha256": "e0549964e93897b519bd8e333c037e51fff0f88ba13e086a331592bf801fa1d0"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-make-fixture/parent [projects]/alpha repo [copy]/.git/hooks/post-update.sample",
+      "bytes": 189,
+      "sha256": "81765af2daef323061dcbc5e61fc16481cb74b3bac9ad8a174b186523586f6c5"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-make-fixture/parent [projects]/alpha repo [copy]/.git/hooks/pre-applypatch.sample",
+      "bytes": 424,
+      "sha256": "e15c5b469ea3e0a695bea6f2c82bcf8e62821074939ddd85b77e0007ff165475"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-make-fixture/parent [projects]/alpha repo [copy]/.git/hooks/pre-commit.sample",
+      "bytes": 1643,
+      "sha256": "f9af7d95eb1231ecf2eba9770fedfa8d4797a12b02d7240e98d568201251244a"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-make-fixture/parent [projects]/alpha repo [copy]/.git/hooks/pre-merge-commit.sample",
+      "bytes": 416,
+      "sha256": "d3825a70337940ebbd0a5c072984e13245920cdf8898bd225c8d27a6dfc9cb53"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-make-fixture/parent [projects]/alpha repo [copy]/.git/hooks/pre-push.sample",
+      "bytes": 1374,
+      "sha256": "ecce9c7e04d3f5dd9d8ada81753dd1d549a9634b26770042b58dda00217d086a"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-make-fixture/parent [projects]/alpha repo [copy]/.git/hooks/pre-rebase.sample",
+      "bytes": 4898,
+      "sha256": "4febce867790052338076f4e66cc47efb14879d18097d1d61c8261859eaaa7b3"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-make-fixture/parent [projects]/alpha repo [copy]/.git/hooks/pre-receive.sample",
+      "bytes": 544,
+      "sha256": "a4c3d2b9c7bb3fd8d1441c31bd4ee71a595d66b44fcf49ddb310252320169989"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-make-fixture/parent [projects]/alpha repo [copy]/.git/hooks/prepare-commit-msg.sample",
+      "bytes": 1492,
+      "sha256": "e9ddcaa4189fddd25ed97fc8c789eca7b6ca16390b2392ae3276f0c8e1aa4619"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-make-fixture/parent [projects]/alpha repo [copy]/.git/hooks/push-to-checkout.sample",
+      "bytes": 2783,
+      "sha256": "a53d0741798b287c6dd7afa64aee473f305e65d3f49463bb9d7408ec3b12bf5f"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-make-fixture/parent [projects]/alpha repo [copy]/.git/hooks/sendemail-validate.sample",
+      "bytes": 2308,
+      "sha256": "44ebfc923dc5466bc009602f0ecf067b9c65459abfe8868ddc49b78e6ced7a92"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-make-fixture/parent [projects]/alpha repo [copy]/.git/hooks/update.sample",
+      "bytes": 3650,
+      "sha256": "8d5f2fa83e103cf08b57eaa67521df9194f45cbdbcb37da52ad586097a14d106"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-make-fixture/parent [projects]/alpha repo [copy]/.git/info/exclude",
+      "bytes": 240,
+      "sha256": "6671fe83b7a07c8932ee89164d1f2793b2318058eb8b98dc5c06ee0a5a3b0ec1"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-make-fixture/parent [projects]/alpha repo [copy]/Cargo.lock",
+      "bytes": 199,
+      "sha256": "56ba892f2856b33e4b137f10db4089bc879524f111ec725eae5213f8ebe9895b"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-make-fixture/parent [projects]/alpha repo [copy]/Cargo.toml",
+      "bytes": 77,
+      "sha256": "e9b919c4598599ba9b464c020437d54c5e0e7d29e4253c3ff5db25b324bbf160"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-make-fixture/parent [projects]/alpha repo [copy]/Makefile",
+      "bytes": 63,
+      "sha256": "29d24d2d2761e5367230eb66d474b2ef61bdb16d146deb52a8f78a9aa86f9a36"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-make-fixture/parent [projects]/alpha repo [copy]/apps/demo/service/Cargo.toml",
+      "bytes": 62,
+      "sha256": "e5cc9545b33d154e46b56206b2fb94870f94ad839580f8bc272521630c737a4d"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-make-fixture/parent [projects]/alpha repo [copy]/apps/demo/service/src/lib.rs",
+      "bytes": 24,
+      "sha256": "44b4f39b95938309fab73e7a7ca1a5c4a5f438c401ac4e84cb215c1a69021dbd"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-make-fixture/parent [projects]/alpha repo [copy]/apps/demo/service/tests/smoke.rs",
+      "bytes": 22,
+      "sha256": "4d5d8ed3ec9bc96fbd17431adeb6437179b1213e7827281830b71dd13bcfd13c"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-make-fixture/parent [projects]/alpha repo [copy]/crates/library/Cargo.toml",
+      "bytes": 62,
+      "sha256": "594187cd439e6610085aba1c0726cbeea376e70e658ef96e373d0b06a6350188"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-make-fixture/parent [projects]/alpha repo [copy]/crates/library/build [generated]/tests/generated.rs",
+      "bytes": 26,
+      "sha256": "739298f6af83e3b32fb3c8c0d978124679cfbc67c65104cdd8394f221092b3f9"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-make-fixture/parent [projects]/alpha repo [copy]/crates/library/src/lib.rs",
+      "bytes": 57,
+      "sha256": "75ce16f536828cf1c74ae7674f51de885f95546d2c7ac59ff16cb491a8ba9d7b"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-make-fixture/parent [projects]/zeta/.git",
+      "bytes": 67,
+      "sha256": "9208ce49ebd25e1a709d6976fb8324c4ca173b497fb499d02264c11b6cec8960"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-make-fixture/parent [projects]/zeta/Cargo.toml",
+      "bytes": 59,
+      "sha256": "6d6ed3ebec0d563583013de4a14acc9c240f4886702a4e7710f9599915b331b4"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-make-fixture/parent [projects]/zeta/scripts/dev/cloc-siblings.sh",
+      "bytes": 4619,
+      "sha256": "496af9d869f2dbeac20e75e340be83b1df61561b7c34f74f309abc32a46c77da"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-make-fixture/parent [projects]/zeta/scripts/dev/cloc.sh",
+      "bytes": 7342,
+      "sha256": "0059dd240f45117180b02597307137d874e543282099a324474b1a977d7b3f7c"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-make-fixture/parent [projects]/zeta/src/lib.rs",
+      "bytes": 29,
+      "sha256": "03690fc2e0e51493ed1a5de71b30475e4d9dc049ed5e4a9abf6f9ce1bb1c2265"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-trace-fixture/alpha.lock",
+      "bytes": 199,
+      "sha256": "56ba892f2856b33e4b137f10db4089bc879524f111ec725eae5213f8ebe9895b"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-trace-fixture/gitdirs/zeta/HEAD",
+      "bytes": 23,
+      "sha256": "f6f2b945f6c411b02ba3da9c7ace88dcf71b6af65ba2e0d89aa82900042b5a10"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-trace-fixture/gitdirs/zeta/config",
+      "bytes": 92,
+      "sha256": "cfe7ba1238c9a78be7535d7c63bcaf5a4d5011d46b07c9b45d3bbf7d6c312dfe"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-trace-fixture/gitdirs/zeta/description",
+      "bytes": 73,
+      "sha256": "85ab6c163d43a17ea9cf7788308bca1466f1b0a8d1cc92e26e9bf63da4062aee"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-trace-fixture/gitdirs/zeta/hooks/applypatch-msg.sample",
+      "bytes": 478,
+      "sha256": "0223497a0b8b033aa58a3a521b8629869386cf7ab0e2f101963d328aa62193f7"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-trace-fixture/gitdirs/zeta/hooks/commit-msg.sample",
+      "bytes": 896,
+      "sha256": "1f74d5e9292979b573ebd59741d46cb93ff391acdd083d340b94370753d92437"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-trace-fixture/gitdirs/zeta/hooks/fsmonitor-watchman.sample",
+      "bytes": 4726,
+      "sha256": "e0549964e93897b519bd8e333c037e51fff0f88ba13e086a331592bf801fa1d0"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-trace-fixture/gitdirs/zeta/hooks/post-update.sample",
+      "bytes": 189,
+      "sha256": "81765af2daef323061dcbc5e61fc16481cb74b3bac9ad8a174b186523586f6c5"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-trace-fixture/gitdirs/zeta/hooks/pre-applypatch.sample",
+      "bytes": 424,
+      "sha256": "e15c5b469ea3e0a695bea6f2c82bcf8e62821074939ddd85b77e0007ff165475"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-trace-fixture/gitdirs/zeta/hooks/pre-commit.sample",
+      "bytes": 1643,
+      "sha256": "f9af7d95eb1231ecf2eba9770fedfa8d4797a12b02d7240e98d568201251244a"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-trace-fixture/gitdirs/zeta/hooks/pre-merge-commit.sample",
+      "bytes": 416,
+      "sha256": "d3825a70337940ebbd0a5c072984e13245920cdf8898bd225c8d27a6dfc9cb53"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-trace-fixture/gitdirs/zeta/hooks/pre-push.sample",
+      "bytes": 1374,
+      "sha256": "ecce9c7e04d3f5dd9d8ada81753dd1d549a9634b26770042b58dda00217d086a"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-trace-fixture/gitdirs/zeta/hooks/pre-rebase.sample",
+      "bytes": 4898,
+      "sha256": "4febce867790052338076f4e66cc47efb14879d18097d1d61c8261859eaaa7b3"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-trace-fixture/gitdirs/zeta/hooks/pre-receive.sample",
+      "bytes": 544,
+      "sha256": "a4c3d2b9c7bb3fd8d1441c31bd4ee71a595d66b44fcf49ddb310252320169989"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-trace-fixture/gitdirs/zeta/hooks/prepare-commit-msg.sample",
+      "bytes": 1492,
+      "sha256": "e9ddcaa4189fddd25ed97fc8c789eca7b6ca16390b2392ae3276f0c8e1aa4619"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-trace-fixture/gitdirs/zeta/hooks/push-to-checkout.sample",
+      "bytes": 2783,
+      "sha256": "a53d0741798b287c6dd7afa64aee473f305e65d3f49463bb9d7408ec3b12bf5f"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-trace-fixture/gitdirs/zeta/hooks/sendemail-validate.sample",
+      "bytes": 2308,
+      "sha256": "44ebfc923dc5466bc009602f0ecf067b9c65459abfe8868ddc49b78e6ced7a92"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-trace-fixture/gitdirs/zeta/hooks/update.sample",
+      "bytes": 3650,
+      "sha256": "8d5f2fa83e103cf08b57eaa67521df9194f45cbdbcb37da52ad586097a14d106"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-trace-fixture/gitdirs/zeta/info/exclude",
+      "bytes": 240,
+      "sha256": "6671fe83b7a07c8932ee89164d1f2793b2318058eb8b98dc5c06ee0a5a3b0ec1"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-trace-fixture/parent [projects]/.notes/.git/HEAD",
+      "bytes": 23,
+      "sha256": "f6f2b945f6c411b02ba3da9c7ace88dcf71b6af65ba2e0d89aa82900042b5a10"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-trace-fixture/parent [projects]/.notes/.git/config",
+      "bytes": 92,
+      "sha256": "cfe7ba1238c9a78be7535d7c63bcaf5a4d5011d46b07c9b45d3bbf7d6c312dfe"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-trace-fixture/parent [projects]/.notes/.git/description",
+      "bytes": 73,
+      "sha256": "85ab6c163d43a17ea9cf7788308bca1466f1b0a8d1cc92e26e9bf63da4062aee"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-trace-fixture/parent [projects]/.notes/.git/hooks/applypatch-msg.sample",
+      "bytes": 478,
+      "sha256": "0223497a0b8b033aa58a3a521b8629869386cf7ab0e2f101963d328aa62193f7"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-trace-fixture/parent [projects]/.notes/.git/hooks/commit-msg.sample",
+      "bytes": 896,
+      "sha256": "1f74d5e9292979b573ebd59741d46cb93ff391acdd083d340b94370753d92437"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-trace-fixture/parent [projects]/.notes/.git/hooks/fsmonitor-watchman.sample",
+      "bytes": 4726,
+      "sha256": "e0549964e93897b519bd8e333c037e51fff0f88ba13e086a331592bf801fa1d0"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-trace-fixture/parent [projects]/.notes/.git/hooks/post-update.sample",
+      "bytes": 189,
+      "sha256": "81765af2daef323061dcbc5e61fc16481cb74b3bac9ad8a174b186523586f6c5"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-trace-fixture/parent [projects]/.notes/.git/hooks/pre-applypatch.sample",
+      "bytes": 424,
+      "sha256": "e15c5b469ea3e0a695bea6f2c82bcf8e62821074939ddd85b77e0007ff165475"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-trace-fixture/parent [projects]/.notes/.git/hooks/pre-commit.sample",
+      "bytes": 1643,
+      "sha256": "f9af7d95eb1231ecf2eba9770fedfa8d4797a12b02d7240e98d568201251244a"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-trace-fixture/parent [projects]/.notes/.git/hooks/pre-merge-commit.sample",
+      "bytes": 416,
+      "sha256": "d3825a70337940ebbd0a5c072984e13245920cdf8898bd225c8d27a6dfc9cb53"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-trace-fixture/parent [projects]/.notes/.git/hooks/pre-push.sample",
+      "bytes": 1374,
+      "sha256": "ecce9c7e04d3f5dd9d8ada81753dd1d549a9634b26770042b58dda00217d086a"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-trace-fixture/parent [projects]/.notes/.git/hooks/pre-rebase.sample",
+      "bytes": 4898,
+      "sha256": "4febce867790052338076f4e66cc47efb14879d18097d1d61c8261859eaaa7b3"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-trace-fixture/parent [projects]/.notes/.git/hooks/pre-receive.sample",
+      "bytes": 544,
+      "sha256": "a4c3d2b9c7bb3fd8d1441c31bd4ee71a595d66b44fcf49ddb310252320169989"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-trace-fixture/parent [projects]/.notes/.git/hooks/prepare-commit-msg.sample",
+      "bytes": 1492,
+      "sha256": "e9ddcaa4189fddd25ed97fc8c789eca7b6ca16390b2392ae3276f0c8e1aa4619"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-trace-fixture/parent [projects]/.notes/.git/hooks/push-to-checkout.sample",
+      "bytes": 2783,
+      "sha256": "a53d0741798b287c6dd7afa64aee473f305e65d3f49463bb9d7408ec3b12bf5f"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-trace-fixture/parent [projects]/.notes/.git/hooks/sendemail-validate.sample",
+      "bytes": 2308,
+      "sha256": "44ebfc923dc5466bc009602f0ecf067b9c65459abfe8868ddc49b78e6ced7a92"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-trace-fixture/parent [projects]/.notes/.git/hooks/update.sample",
+      "bytes": 3650,
+      "sha256": "8d5f2fa83e103cf08b57eaa67521df9194f45cbdbcb37da52ad586097a14d106"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-trace-fixture/parent [projects]/.notes/.git/info/exclude",
+      "bytes": 240,
+      "sha256": "6671fe83b7a07c8932ee89164d1f2793b2318058eb8b98dc5c06ee0a5a3b0ec1"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-trace-fixture/parent [projects]/alpha repo [copy]/.cargo/config.toml",
+      "bytes": 56,
+      "sha256": "87a05b228595d5c03cba1ec297a236ac55d2388941c912b240926a91ddf842e9"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-trace-fixture/parent [projects]/alpha repo [copy]/.git/HEAD",
+      "bytes": 23,
+      "sha256": "f6f2b945f6c411b02ba3da9c7ace88dcf71b6af65ba2e0d89aa82900042b5a10"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-trace-fixture/parent [projects]/alpha repo [copy]/.git/config",
+      "bytes": 92,
+      "sha256": "cfe7ba1238c9a78be7535d7c63bcaf5a4d5011d46b07c9b45d3bbf7d6c312dfe"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-trace-fixture/parent [projects]/alpha repo [copy]/.git/description",
+      "bytes": 73,
+      "sha256": "85ab6c163d43a17ea9cf7788308bca1466f1b0a8d1cc92e26e9bf63da4062aee"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-trace-fixture/parent [projects]/alpha repo [copy]/.git/hooks/applypatch-msg.sample",
+      "bytes": 478,
+      "sha256": "0223497a0b8b033aa58a3a521b8629869386cf7ab0e2f101963d328aa62193f7"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-trace-fixture/parent [projects]/alpha repo [copy]/.git/hooks/commit-msg.sample",
+      "bytes": 896,
+      "sha256": "1f74d5e9292979b573ebd59741d46cb93ff391acdd083d340b94370753d92437"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-trace-fixture/parent [projects]/alpha repo [copy]/.git/hooks/fsmonitor-watchman.sample",
+      "bytes": 4726,
+      "sha256": "e0549964e93897b519bd8e333c037e51fff0f88ba13e086a331592bf801fa1d0"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-trace-fixture/parent [projects]/alpha repo [copy]/.git/hooks/post-update.sample",
+      "bytes": 189,
+      "sha256": "81765af2daef323061dcbc5e61fc16481cb74b3bac9ad8a174b186523586f6c5"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-trace-fixture/parent [projects]/alpha repo [copy]/.git/hooks/pre-applypatch.sample",
+      "bytes": 424,
+      "sha256": "e15c5b469ea3e0a695bea6f2c82bcf8e62821074939ddd85b77e0007ff165475"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-trace-fixture/parent [projects]/alpha repo [copy]/.git/hooks/pre-commit.sample",
+      "bytes": 1643,
+      "sha256": "f9af7d95eb1231ecf2eba9770fedfa8d4797a12b02d7240e98d568201251244a"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-trace-fixture/parent [projects]/alpha repo [copy]/.git/hooks/pre-merge-commit.sample",
+      "bytes": 416,
+      "sha256": "d3825a70337940ebbd0a5c072984e13245920cdf8898bd225c8d27a6dfc9cb53"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-trace-fixture/parent [projects]/alpha repo [copy]/.git/hooks/pre-push.sample",
+      "bytes": 1374,
+      "sha256": "ecce9c7e04d3f5dd9d8ada81753dd1d549a9634b26770042b58dda00217d086a"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-trace-fixture/parent [projects]/alpha repo [copy]/.git/hooks/pre-rebase.sample",
+      "bytes": 4898,
+      "sha256": "4febce867790052338076f4e66cc47efb14879d18097d1d61c8261859eaaa7b3"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-trace-fixture/parent [projects]/alpha repo [copy]/.git/hooks/pre-receive.sample",
+      "bytes": 544,
+      "sha256": "a4c3d2b9c7bb3fd8d1441c31bd4ee71a595d66b44fcf49ddb310252320169989"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-trace-fixture/parent [projects]/alpha repo [copy]/.git/hooks/prepare-commit-msg.sample",
+      "bytes": 1492,
+      "sha256": "e9ddcaa4189fddd25ed97fc8c789eca7b6ca16390b2392ae3276f0c8e1aa4619"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-trace-fixture/parent [projects]/alpha repo [copy]/.git/hooks/push-to-checkout.sample",
+      "bytes": 2783,
+      "sha256": "a53d0741798b287c6dd7afa64aee473f305e65d3f49463bb9d7408ec3b12bf5f"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-trace-fixture/parent [projects]/alpha repo [copy]/.git/hooks/sendemail-validate.sample",
+      "bytes": 2308,
+      "sha256": "44ebfc923dc5466bc009602f0ecf067b9c65459abfe8868ddc49b78e6ced7a92"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-trace-fixture/parent [projects]/alpha repo [copy]/.git/hooks/update.sample",
+      "bytes": 3650,
+      "sha256": "8d5f2fa83e103cf08b57eaa67521df9194f45cbdbcb37da52ad586097a14d106"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-trace-fixture/parent [projects]/alpha repo [copy]/.git/info/exclude",
+      "bytes": 240,
+      "sha256": "6671fe83b7a07c8932ee89164d1f2793b2318058eb8b98dc5c06ee0a5a3b0ec1"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-trace-fixture/parent [projects]/alpha repo [copy]/Cargo.lock",
+      "bytes": 199,
+      "sha256": "56ba892f2856b33e4b137f10db4089bc879524f111ec725eae5213f8ebe9895b"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-trace-fixture/parent [projects]/alpha repo [copy]/Cargo.toml",
+      "bytes": 77,
+      "sha256": "e9b919c4598599ba9b464c020437d54c5e0e7d29e4253c3ff5db25b324bbf160"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-trace-fixture/parent [projects]/alpha repo [copy]/Makefile",
+      "bytes": 63,
+      "sha256": "29d24d2d2761e5367230eb66d474b2ef61bdb16d146deb52a8f78a9aa86f9a36"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-trace-fixture/parent [projects]/alpha repo [copy]/apps/demo/service/Cargo.toml",
+      "bytes": 62,
+      "sha256": "e5cc9545b33d154e46b56206b2fb94870f94ad839580f8bc272521630c737a4d"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-trace-fixture/parent [projects]/alpha repo [copy]/apps/demo/service/src/lib.rs",
+      "bytes": 24,
+      "sha256": "44b4f39b95938309fab73e7a7ca1a5c4a5f438c401ac4e84cb215c1a69021dbd"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-trace-fixture/parent [projects]/alpha repo [copy]/apps/demo/service/tests/smoke.rs",
+      "bytes": 22,
+      "sha256": "4d5d8ed3ec9bc96fbd17431adeb6437179b1213e7827281830b71dd13bcfd13c"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-trace-fixture/parent [projects]/alpha repo [copy]/crates/library/Cargo.toml",
+      "bytes": 62,
+      "sha256": "594187cd439e6610085aba1c0726cbeea376e70e658ef96e373d0b06a6350188"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-trace-fixture/parent [projects]/alpha repo [copy]/crates/library/build [generated]/tests/generated.rs",
+      "bytes": 26,
+      "sha256": "739298f6af83e3b32fb3c8c0d978124679cfbc67c65104cdd8394f221092b3f9"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-trace-fixture/parent [projects]/alpha repo [copy]/crates/library/src/lib.rs",
+      "bytes": 57,
+      "sha256": "75ce16f536828cf1c74ae7674f51de885f95546d2c7ac59ff16cb491a8ba9d7b"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-trace-fixture/parent [projects]/zeta/.git",
+      "bytes": 67,
+      "sha256": "e723af0f5a06b1a3b98efcfa3fcc105fae957fb49224af41d736d6eee79f5382"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-trace-fixture/parent [projects]/zeta/Cargo.toml",
+      "bytes": 59,
+      "sha256": "6d6ed3ebec0d563583013de4a14acc9c240f4886702a4e7710f9599915b331b4"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-trace-fixture/parent [projects]/zeta/scripts/dev/cloc-siblings.sh",
+      "bytes": 4619,
+      "sha256": "496af9d869f2dbeac20e75e340be83b1df61561b7c34f74f309abc32a46c77da"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-trace-fixture/parent [projects]/zeta/scripts/dev/cloc.sh",
+      "bytes": 7342,
+      "sha256": "0059dd240f45117180b02597307137d874e543282099a324474b1a977d7b3f7c"
+    },
+    {
+      "path": ".tmp/loc-gate-0161-01/failed-sibling-trace-fixture/parent [projects]/zeta/src/lib.rs",
+      "bytes": 29,
+      "sha256": "03690fc2e0e51493ed1a5de71b30475e4d9dc049ed5e4a9abf6f9ce1bb1c2265"
+    }
+  ],
+  "limitations": [
+    "Only focused Make/shared-helper checks; no full CI/release gate or Rust compilation.",
+    "Linux Bash 3.2 is not native macOS qualification; current source is uncommitted.",
+    "The selected Metrics 0.2.6 graph is preserved, not compiled or qualified by these helper checks.",
+    "Separate in-checkout scratch discovery and canonical fixture repair remain upstream under Shared Tooling #47/#48.",
+    "Shared Tooling 0.1.16 and its logger status change are not adopted by this repair."
+  ],
+  "shell_artifacts": [
+    {
+      "path": "/bin/bash",
+      "bytes": 1446024,
+      "sha256": "bc5945feb8bd26203ebfafea5ce1878bb2e32cb8fb50ab7ae395cfb1e1aaaef1"
+    },
+    {
+      "path": ".tmp/bash32-v01413-01/bash-3.2.57/bash",
+      "bytes": 2088112,
+      "sha256": "48bdaa3a26c4c14ec1c2ab2d3a9cca84ddaba64f4c1bd0c26a09891d2f474e41"
+    }
+  ]
+}

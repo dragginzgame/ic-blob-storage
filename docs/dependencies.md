@@ -12,27 +12,28 @@ For ordinary development from the repository root:
    development compiler and required components.
 2. Install the bootstrap packages described in [local setup](local-setup.md),
    including Perl's Digest::SHA, curl, archive utilities and xz. Run
-   `make install-tools` to provision checksum-pinned jq/yq and the common IC
-   executables under `.tools/`, then `make tools-check` to verify them offline.
+   `make install-tools` to provision the pinned host, IC and Cargo executable
+   sets under `.tools/`, then `make tools-check` to verify them offline.
 3. Run `make deps` to fetch the exact locked Rust dependencies.
-4. Prepare the manifest formatter with `cargo install cargo-sort --version 2.1.4
-   --locked`, then run `make install-hooks` once per clone (also after updating
+4. Run `make install-hooks` once per clone (also after updating
    developer setup). The reviewed hook uses `make fmt`; CI and release validation
    independently use `make fmt-check`. Both sort all twelve manifests and format
    Rust, without fetching dependencies, compiling or cleaning artifacts.
 5. Run `make test-native` for native development checks, or
-   `make test-native-host` for CLI boundaries and an actual PocketIC installation.
+   `make test-native-host` for CLI/examples, actual PocketIC installation and
+   the operator-owned Metrics restoration-read window.
 
 Keep `$HOME/.cargo/bin` and `$HOME/.local/bin` on PATH when using user-local tools.
 Release shell checks require ShellCheck; `SHELLCHECK=/absolute/path` may select
 an already prepared binary. Install it with `sudo apt-get install shellcheck` on
 Debian/Ubuntu or `brew install shellcheck` on macOS. The common local executable
-setup covers jq/yq and the IC tools; ShellCheck and the Rust formatter are separate
-prerequisites. Missing prerequisites fail rather than being installed
+setup covers jq/yq/rg/cloc, IC tools and cargo-sort/cargo-sort-derives/candid-extractor.
+ShellCheck and the Rust toolchain remain separate prerequisites.
+Missing prerequisites fail rather than being installed
 during a hook or validation. Cargo-sort's exact reviewed version is recorded in
 [tool versions](../ci/tool-versions.env). That file also owns jq/yq selections;
 [the IC matrix](../ci/ic-tools.tsv) owns executable versions and archive digests.
-Make prepends `.tools/host/bin` and `.tools/ic/bin` to PATH. Missing local tools
+Make prepends `.tools/host/bin`, `.tools/ic/bin` and `.tools/rust/bin` to PATH. Missing local tools
 fail validation; provisioning is explicit and separate from locked Cargo fetching.
 This consumer uses the shared host-tool bundle for jq/yq; the optional upstream
 standalone yq installer is not included in its snapshot.
@@ -370,20 +371,30 @@ count: testkit also brings host-side artifact/locking utilities.
 is within Caffeine's declared `^5.3.0` range; it replaces the earlier fixture's
 6.1.0 pin so the composition uses one supported SDK. The Caffeine package is the
 latest verified provider package; SDK 6 is not forced into its dependency graph.
-Use Node >=20.19.0; this run used Node 24.21.0 and
+The supported runtime range remains Node >=20.19.0. Reproducible fixture setup
+selects Node 24.21.0 from `tests/browser/.nvmrc` and npm 12.2.0 from that build
+root's `packageManager` declaration. Earlier browser evidence used Node 24.21.0 and
 Playwright's Chromium 153.0.8010.12 (revision 1243). Upload fixtures also need
 `openssl` on PATH to create temporary loopback TLS keys. Chromium trusts only the
 generated certificate's public-key pin; unrelated TLS validation is unchanged.
 Setup is explicit:
 
 ```sh
-npm ci --prefix tests/browser --ignore-scripts --no-audit --no-fund
+make browser-tools-check
+(cd tests/browser && npm ci --ignore-scripts --no-audit --no-fund)
 node tests/browser/node_modules/playwright/cli.js install chromium
 make test-browser
 ```
 
-Use a supported Node on PATH for setup. `BLOB_BROWSER_NODE=/absolute/path/to/node`
-can select the runtime for `make test-browser`. The target bundles existing local
+Select those exact tools on PATH for setup; the build root's `.npmrc` explicitly
+selects the public npm registry. `BLOB_BROWSER_NODE=/absolute/path/to/node` and
+`BLOB_BROWSER_NPM=/absolute/path/to/npm` select prepared tools for Make checks.
+All opt-in browser/SDK Make targets check both tools and manifest/lock declarations
+before their effects. Direct bundle builds check Node and manifest/lock inputs;
+they use prepared dependencies and do not invoke npm.
+The private source client in `clients/browser` is consumed by this build root;
+it has no independent install/build or registry publication workflow.
+The target bundles existing local
 packages, builds the storage and consumer probes and runs the ignored browser case explicitly.
 It downloads nothing. Missing packages/browser/runtime fail rather than skip.
 The ordinary Rust/CI/release suite does not run this opt-in browser test.
@@ -604,7 +615,7 @@ harness.
 ## Release and formatting host checks
 
 [The tooling workflow](../.github/workflows/tooling.yml) prepares the selected Rust
-and cargo-sort/ShellCheck tools explicitly, installs and verifies local host/IC executables,
+and ShellCheck tools explicitly, installs and verifies local host/IC/Cargo executables,
 then independently checks the snapshot, declarations, evidence, formatting,
 local documentation links, shared digest/installer fixtures, release adapters
 and real consumer hook behavior on
@@ -613,7 +624,10 @@ use cargo-sort 2.1.4. The declared matrix does not establish a passing native ru
 its matching GitHub execution is required for qualification. This focused job
 neither publishes a release nor replaces the complete `make ci` gate.
 It then fetches the selected Cargo lock and runs `make test-native-host` offline
-to exercise both CLI binaries and an actual standalone installation. The
+to exercise both CLI binaries, bounded JSON examples, actual standalone
+installation and the private probe's operator-owned restoration-read window
+using fresh matching Wasms. This binds the selected Metrics graph to the same
+native host matrix; the observation is local PocketIC evidence. The
 native step sets `TMPDIR` to the runner's artifact directory so retained
 `nonempty-cargo-test.*` logs match the failure uploader's selection. The
 [0.15.1 adoption record](evidence/tooling-host-0151.json) records Linux execution;

@@ -1,0 +1,743 @@
+{
+   "adoption" : "Pinned clean private canonical export; match/preserve previous snapshot hashes and modes, reconcile exact snapshot-owned bytes, rerun canonical destination/manifest guard. Add only Rust installer and its fixture; owner-only context/exporter/logger suites stay private.",
+   "artifacts" : [
+      {
+         "bytes" : 164871360,
+         "path" : "target/debug/blob-storage",
+         "sha256" : "2716db5af0e9a2fdc36c4359c5d7266ae4b4aa9de31aa292fbe5ecc3ed61f902"
+      },
+      {
+         "bytes" : 69093960,
+         "path" : "target/debug/caffeine-probe",
+         "sha256" : "17e9e7963d0397d44df691c8723300d3a8bb70ccef87fe33e144f19308758740"
+      },
+      {
+         "bytes" : 4230583,
+         "path" : "target/wasm32-unknown-unknown/release/ic_blob_storage_canister.wasm",
+         "sha256" : "cddebf92749b0b83d4468199b78bd7e7cb333b64160a45146f38f8223c6666d8"
+      },
+      {
+         "bytes" : 5006956,
+         "path" : "target/wasm32-unknown-unknown/release/blob_storage_probe.wasm",
+         "sha256" : "df6174e67cb198ca148edab24fd9ffc4987ee1b8739779ce6949fb27dbaf185b"
+      }
+   ],
+   "cargo_tools" : {
+      "builds_retained" : true,
+      "candid_extractor" : "0.1.6",
+      "cargo_sort" : "2.1.4",
+      "cargo_sort_derives" : "0.13.0",
+      "installation_explicit" : true,
+      "prefix" : ".tools/rust"
+   },
+   "checks" : [
+      {
+         "command" : "entry snapshot integrity",
+         "exit_code" : 0,
+         "log" : {
+            "bytes" : 45,
+            "path" : ".tmp/tooling-host-018-0161-01/entry-snapshot.log",
+            "sha256" : "f596f50e29c37635e717167be95a583b4e6cf11131f8e79fc54bde099fff3399"
+         }
+      },
+      {
+         "command" : "canonical export",
+         "exit_code" : 0,
+         "log" : {
+            "bytes" : 137,
+            "path" : ".tmp/tooling-host-018-0161-01/export.log",
+            "sha256" : "587d50a3c377e0b7296a0ab27b3267dabe137f8748b827c7fd59848c2e605ed2"
+         }
+      },
+      {
+         "command" : "reconciled canonical refresh and snapshot verification",
+         "exit_code" : 0,
+         "log" : {
+            "bytes" : 137,
+            "path" : ".tmp/tooling-host-018-0161-01/refresh.log",
+            "sha256" : "587d50a3c377e0b7296a0ab27b3267dabe137f8748b827c7fd59848c2e605ed2"
+         }
+      },
+      {
+         "command" : "selected cache preparation: cargo fetch --offline --locked",
+         "exit_code" : 0,
+         "log" : {
+            "bytes" : 0,
+            "path" : ".tmp/tooling-host-018-0161-01/cache-preparation.log",
+            "sha256" : "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+         }
+      },
+      {
+         "command" : "explicit shared Cargo-tool installation",
+         "exit_code" : 0,
+         "log" : {
+            "bytes" : 9550,
+            "path" : ".tmp/tooling-host-018-0161-01/install-rust-tools.log",
+            "sha256" : "9f81a7ba110d7ec6f2e9177ddb39d85559deaeee7bc942d44fc2df8e3859944a"
+         }
+      },
+      {
+         "command" : "offline local Cargo-tool verification",
+         "exit_code" : 0,
+         "log" : {
+            "bytes" : 220,
+            "path" : ".tmp/tooling-host-018-0161-01/rust-tools-check.log",
+            "sha256" : "b8278b3499b16448f0f91b524a5013e49c15dc680f6056133ef05a439d078634"
+         }
+      },
+      {
+         "command" : "actual Make shared-tooling-tests on Bash 5",
+         "exit_code" : 0,
+         "log" : {
+            "bytes" : 1978,
+            "path" : ".tmp/tooling-host-018-0161-01/shared-bash5.log",
+            "sha256" : "c2cdb70238af3124b7668a0c8af7abfda817139127437986bfee3cf119c8501b"
+         }
+      },
+      {
+         "command" : "actual Make shared-tooling-tests/tools-check on Bash 3.2",
+         "exit_code" : 0,
+         "log" : {
+            "bytes" : 2832,
+            "path" : ".tmp/tooling-host-018-0161-01/shared-bash32.log",
+            "sha256" : "ea26141640f7e7d5c9d5021c398c006e0950865339dfc0ea274d06239028ea95"
+         }
+      },
+      {
+         "command" : "owner LOC enclosing context on Bash 5",
+         "exit_code" : 0,
+         "log" : {
+            "bytes" : 92,
+            "path" : ".tmp/tooling-host-018-0161-01/owner-loc-contexts-bash5.log",
+            "sha256" : "945abbe535928528e3cf7d3c60764c11b3435eff3ec768b664906ce40a52ab67"
+         }
+      },
+      {
+         "command" : "owner LOC enclosing context on Bash 3.2",
+         "exit_code" : 0,
+         "log" : {
+            "bytes" : 92,
+            "path" : ".tmp/tooling-host-018-0161-01/owner-loc-contexts-bash32.log",
+            "sha256" : "945abbe535928528e3cf7d3c60764c11b3435eff3ec768b664906ce40a52ab67"
+         }
+      },
+      {
+         "command" : "owner full validation logger suite on Bash 5",
+         "exit_code" : 0,
+         "log" : {
+            "bytes" : 37,
+            "path" : ".tmp/tooling-host-018-0161-01/owner-logger-bash5.log",
+            "sha256" : "ceebc3d0815f8bf5a70fc330e9d76cbe0e4c1f7e87cccbae6d060addee3c5ff8"
+         }
+      },
+      {
+         "command" : "owner full validation logger suite on Bash 3.2",
+         "exit_code" : 0,
+         "log" : {
+            "bytes" : 37,
+            "path" : ".tmp/tooling-host-018-0161-01/owner-logger-bash32.log",
+            "sha256" : "ceebc3d0815f8bf5a70fc330e9d76cbe0e4c1f7e87cccbae6d060addee3c5ff8"
+         }
+      },
+      {
+         "command" : "owner committed exporter and uncommitted consumer integration",
+         "exit_code" : 0,
+         "log" : {
+            "bytes" : 73,
+            "path" : ".tmp/tooling-host-018-0161-01/owner-distribution.log",
+            "sha256" : "e04f6fdbe7717ca401063c85466302f0965320030ce530acf9651a9280729fdf"
+         }
+      },
+      {
+         "command" : "locked native CLI binary cases",
+         "exit_code" : 0,
+         "log" : {
+            "bytes" : 12914,
+            "path" : ".tmp/tooling-host-018-0161-01/cli-tests.log",
+            "sha256" : "31ae638456390491da9f195b599ad52215d2ac888b183075c7e89e2301337c38"
+         }
+      },
+      {
+         "command" : "locked bounded JSON example cases",
+         "exit_code" : 0,
+         "log" : {
+            "bytes" : 2542,
+            "path" : ".tmp/tooling-host-018-0161-01/examples-tests.log",
+            "sha256" : "d70905e689a761286f9771be34071227d7c05f7fc47e8329ae3305820ff814c8"
+         }
+      },
+      {
+         "command" : "strict focused native CLI/harness/probe Clippy",
+         "exit_code" : 0,
+         "log" : {
+            "bytes" : 686,
+            "path" : ".tmp/tooling-host-018-0161-01/native-clippy.log",
+            "sha256" : "7fa9b7c7275986f59db1e90b9e9d8431778411070effc77bfa4413ebfda5f9c6"
+         }
+      },
+      {
+         "command" : "fresh standalone and storage probe Wasm builds",
+         "exit_code" : 0,
+         "log" : {
+            "bytes" : 294,
+            "path" : ".tmp/tooling-host-018-0161-01/wasm-build.log",
+            "sha256" : "77651c910918993f664f805a04dbd8b5fbc8848fbd97e3c4deceee45db05755e"
+         }
+      },
+      {
+         "command" : "actual Make test-native-host: CLI/examples, installation and metrics restoration",
+         "exit_code" : 0,
+         "log" : {
+            "bytes" : 17561,
+            "path" : ".tmp/tooling-host-018-0161-01/native-host.log",
+            "sha256" : "7e4cc945fc18a6604ebecb268937cdf286c00a0de0d687c0c126e2961a7a87bb"
+         }
+      },
+      {
+         "command" : "Rust 1.88 native CLI/harness all-target checks",
+         "exit_code" : 0,
+         "log" : {
+            "bytes" : 560,
+            "path" : ".tmp/tooling-host-018-0161-01/msrv-native.log",
+            "sha256" : "b86a38c5f56a74c8e1204a2c19e9479c0c32deb1456f80f1329bec87c4694ab0"
+         }
+      },
+      {
+         "command" : "Rust 1.88 standalone/storage Wasm checks",
+         "exit_code" : 0,
+         "log" : {
+            "bytes" : 3330,
+            "path" : ".tmp/tooling-host-018-0161-01/msrv-wasm.log",
+            "sha256" : "2412c5bd2a63b08ce536fdfb9c396327337a3fe60e72032e22ddada3cbdf3bc3"
+         }
+      },
+      {
+         "command" : "Make release routing, hooks and offline tools on Bash 5",
+         "exit_code" : 0,
+         "log" : {
+            "bytes" : 1300,
+            "path" : ".tmp/tooling-host-018-0161-01/adapters-bash5.log",
+            "sha256" : "b71e3250822816f9cb60d47696c2f28ae0407c26c3a292a69a8073dadef00180"
+         }
+      },
+      {
+         "command" : "Make release routing, hooks and browser tools on Bash 3.2",
+         "exit_code" : 0,
+         "log" : {
+            "bytes" : 595,
+            "path" : ".tmp/tooling-host-018-0161-01/adapters-bash32.log",
+            "sha256" : "d6f5d5aba252a7e1de0aac0369cc02db2944673c7d6a34b87ba6bb7bf83dc19d"
+         }
+      },
+      {
+         "command" : "strict all-maintained shell lint",
+         "exit_code" : 0,
+         "log" : {
+            "bytes" : 0,
+            "path" : ".tmp/tooling-host-018-0161-01/shellcheck.log",
+            "sha256" : "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+         }
+      },
+      {
+         "command" : "workflow actionlint",
+         "exit_code" : 0,
+         "log" : {
+            "bytes" : 0,
+            "path" : ".tmp/tooling-host-018-0161-01/actionlint.log",
+            "sha256" : "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+         }
+      },
+      {
+         "command" : "declarations and complete member LOC",
+         "exit_code" : 0,
+         "log" : {
+            "bytes" : 1502,
+            "path" : ".tmp/tooling-host-018-0161-01/declarations-loc.log",
+            "sha256" : "de90e678136cd8634350606c8ed0b822470b5d3df929c8322af673b86d1de25c"
+         }
+      },
+      {
+         "command" : "final snapshot/tools and documentation links",
+         "exit_code" : 0,
+         "log" : {
+            "bytes" : 997,
+            "path" : ".tmp/tooling-host-018-0161-01/final-docs-snapshot.log",
+            "sha256" : "19b051db65297170279435598e802e68d08cfea8f8471b430060e5d3982f2d14"
+         }
+      },
+      {
+         "command" : "metadata/lock/receipt and graph preservation",
+         "exit_code" : 0,
+         "log" : {
+            "bytes" : 120,
+            "path" : ".tmp/tooling-host-018-0161-01/preservation.log",
+            "sha256" : "71a3c3658defc9d29d9a8b096f8dddc41ee1b67cadb7b29b04b04efadd0fe36b"
+         }
+      },
+      {
+         "command" : "npm lock preservation",
+         "exit_code" : 0,
+         "log" : {
+            "bytes" : 0,
+            "path" : ".tmp/tooling-host-018-0161-01/npm-lock-preservation.log",
+            "sha256" : "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+         }
+      },
+      {
+         "command" : "whitespace check",
+         "exit_code" : 0,
+         "log" : {
+            "bytes" : 0,
+            "path" : ".tmp/tooling-host-018-0161-01/diff-check.log",
+            "sha256" : "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+         }
+      },
+      {
+         "command" : "Final documentation links after issue propagation",
+         "exit_code" : 0,
+         "log" : {
+            "bytes" : 48,
+            "path" : ".tmp/tooling-host-018-0161-01/final-documentation-links.log",
+            "sha256" : "be4f8c6d23b3589870291cadfd43def165d368542aed859dac75d2940e3f7bd7"
+         }
+      },
+      {
+         "command" : "Owning issue content/status readback",
+         "exit_code" : 0,
+         "log" : {
+            "bytes" : 50,
+            "path" : ".tmp/tooling-host-018-0161-01/issue-readback-verification.log",
+            "sha256" : "f4bf84d882dbd9bc0064ca0fbd3d93361b80be5ad072e135727d3fbe53f66e30"
+         }
+      }
+   ],
+   "ci_change" : "Existing native-host matrix now builds the selected Metrics storage probe and executes the exact operator/repeated-restoration window case after actual CLI installation; pending matching committed Linux/macOS execution.",
+   "compatibility" : "Host retired durable readers/lock aliases have no Blob callers. Used bounded/following/no-follow/opened-file/private-create contracts unchanged; Host types stay at private native boundaries. Core excludes Host/Metrics. Metrics runtime bytes identical to 0.2.6; existing diagnostic counters/window/authority remain. Compatible Blob patch, no provider performance claim.",
+   "date" : "2026-10-07",
+   "description_review" : {
+      "bytes" : 220,
+      "path" : ".tmp/tooling-host-018-0161-01/repository-description.json",
+      "sha256" : "25d0c6902c37a371901272e58152e30e77e4633dc723f20ab59eccabc0b17f78"
+   },
+   "entry_head" : "49d6ba76964668a6835c63784a892af905ce10b1",
+   "entry_snapshot_revision" : "88f1d70cdf671aefb9507d7a81411ed5daa358b3",
+   "graphs" : [
+      {
+         "bytes" : 31709,
+         "path" : ".tmp/tooling-host-018-0161-01/cli-tree.txt",
+         "sha256" : "9207bc954461a878ba4211323d74ebed6b707aaf6330dda6859a8d7c1f084965"
+      },
+      {
+         "bytes" : 31113,
+         "path" : ".tmp/tooling-host-018-0161-01/harness-tree.txt",
+         "sha256" : "cce8b864258b843d0c7fb9019d7abb8f73044f7763faeaebe97eb7a8b8ef6012"
+      },
+      {
+         "bytes" : 6597,
+         "path" : ".tmp/tooling-host-018-0161-01/core-tree.txt",
+         "sha256" : "d30d0644bd84b3e3877fb5fda360ba5f87cb694951759cfee3b567abe452accb"
+      },
+      {
+         "bytes" : 8934,
+         "path" : ".tmp/tooling-host-018-0161-01/core-wasm-tree.txt",
+         "sha256" : "4835a15b9b3ac42007882f51d5a4e0513d237e149eb2e815a2d6507cab069352"
+      },
+      {
+         "bytes" : 11322,
+         "path" : ".tmp/tooling-host-018-0161-01/probe-tree.txt",
+         "sha256" : "5880f069bff2dd377f9eb313c83e4190b78d5a6eb0539d24ab9d048f7e2a0c5b"
+      }
+   ],
+   "identities" : [
+      {
+         "bytes" : 472,
+         "path" : ".tmp/tooling-host-018-0161-01/registry-archives.sha256",
+         "sha256" : "f64034c77cc2c520f604cc258b9974d3430b7abf1a4724e6a6c57cd680827054"
+      },
+      {
+         "bytes" : 3191,
+         "path" : ".tmp/tooling-host-018-0161-01/host-published-source.sha256",
+         "sha256" : "e57f48d9910dfae01076092674b3837a479f8ad62fbff29955590e46c7ef256a"
+      },
+      {
+         "bytes" : 570,
+         "path" : ".tmp/tooling-host-018-0161-01/metrics-published-source.sha256",
+         "sha256" : "f22c424ef6938cdf2558d54e1c559ea33e7bd00765cbd62ad007ad865bf7eb67"
+      },
+      {
+         "bytes" : 0,
+         "path" : ".tmp/tooling-host-018-0161-01/metrics-runtime-diff.txt",
+         "sha256" : "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+         "bytes" : 5360,
+         "path" : ".tmp/tooling-host-018-0161-01/ic-host-artifacts-index.jsonl",
+         "sha256" : "994f7f5c243939b8fd39f55d2ce82e4aeedc2fbf6eb744f2677d107749850315"
+      },
+      {
+         "bytes" : 2365,
+         "path" : ".tmp/tooling-host-018-0161-01/ic-host-fs-index.jsonl",
+         "sha256" : "f034beb70881efe4adbbc6270edff9c428bf81ffc2afd7a378469706885351e0"
+      },
+      {
+         "bytes" : 7280,
+         "path" : ".tmp/tooling-host-018-0161-01/metrics-index.jsonl",
+         "sha256" : "93fbb6bd572fee2946d92597a745788fa3c2057180f0c85aa67a76c0d62df837"
+      }
+   ],
+   "inputs" : [
+      {
+         "bytes" : 7665,
+         "path" : ".shared-tooling.snapshot",
+         "sha256" : "0f5294c78380830207938e02d22305ca725b8c96c018dffac38a2a023c7ecdef"
+      },
+      {
+         "bytes" : 19895,
+         "path" : "Makefile",
+         "sha256" : "3ae9d6140006b8ba38d257b2a20c43055b33cd7a168e454683d307822a4e95d4"
+      },
+      {
+         "bytes" : 1622,
+         "path" : "Cargo.toml",
+         "sha256" : "406d64b803860a5cad4ef9e3ed15348c546eb292a89795f6bbe946f099998362"
+      },
+      {
+         "bytes" : 108379,
+         "path" : "Cargo.lock",
+         "sha256" : "b634f8fabc93fa85bd8efebda842fb8bad65354ff6d3d51a896704199095c643"
+      },
+      {
+         "bytes" : 192923,
+         "path" : "CHANGELOG.md",
+         "sha256" : "315b71fa5060833b2a145bf87f4464776f5b396744bf196f6e4e7a71f696db27"
+      },
+      {
+         "bytes" : 448,
+         "path" : "docs/release.json",
+         "sha256" : "2c93d8b9dc25b7c96a383e241edc934e65aab95c1a339ad0fbcc984c7abaa4ab"
+      },
+      {
+         "bytes" : 132667,
+         "path" : "docs/status/current.md",
+         "sha256" : "c0d5857bcbaaaf09ce9c64969fc7eb2ae0f22888682dc2977e8e1ca87f77b488"
+      },
+      {
+         "bytes" : 44346,
+         "path" : "docs/dependencies.md",
+         "sha256" : "7de49f5ec341ed444e752b2caad5f425fdd16b09269612981491c1b50ca385a8"
+      },
+      {
+         "bytes" : 9803,
+         "path" : "docs/governance/development.md",
+         "sha256" : "b6db96a3d050b9fb66c9e042bd99e2a9c02a7f5de0da9aa23f4e186eae1020da"
+      },
+      {
+         "bytes" : 20746,
+         "path" : "README.md",
+         "sha256" : "fbaaf313738334e3351dc1a3d88f6643c563a05cb3115029fcda122cddcf4b93"
+      },
+      {
+         "bytes" : 3754,
+         "path" : ".github/workflows/tooling.yml",
+         "sha256" : "b58a31ef56ca385fb6f45b820b8034bbfae1cb88d03144ab0d86c954a70f540f"
+      },
+      {
+         "bytes" : 2720,
+         "path" : "ci/tool-versions.env",
+         "sha256" : "82892e25292fe47c26035a0031aa4ad1996fcf181732163e75039bd657f2f84b"
+      },
+      {
+         "bytes" : 2313,
+         "path" : "make/tools.mk",
+         "sha256" : "04794f1906f95c938cb2653036ae9c06b38aaa964e79072c6bb0e5a8f4019fa6"
+      },
+      {
+         "bytes" : 2369,
+         "path" : "scripts/dev/install-rust-tools.sh",
+         "sha256" : "b088cdf6f6a2d881d8d248a6bd788c091d515727c217453b22dad28af43d0edd"
+      },
+      {
+         "bytes" : 3252,
+         "path" : "scripts/ci/test-rust-tools.sh",
+         "sha256" : "c78a9725117189b8dd30d5b5b05dbfe17fd9998948bdcc43df3ec5f949d2bdf8"
+      },
+      {
+         "bytes" : 12610,
+         "path" : "scripts/ci/run-validation-targets.sh",
+         "sha256" : "d295778f2edccf6a65af4553d96b0a2b4d4926ea41cdb9018757cf6206d30b2f"
+      },
+      {
+         "bytes" : 2101,
+         "path" : "scripts/ci/check-validation-logging.sh",
+         "sha256" : "24b5bfa4d77fcad5e218112ed2bb3aeb54b4a6f5a4d712908bf70ce2eba5ee32"
+      },
+      {
+         "bytes" : 7962,
+         "path" : "scripts/ci/test-cloc.sh",
+         "sha256" : "bc824902b230a603f7e2a1496fd2e759bedec3749fff478de03e43aac4f7c076"
+      },
+      {
+         "bytes" : 6067,
+         "path" : "scripts/ci/test-cloc-siblings.sh",
+         "sha256" : "d153718f81ddc063a621e765a80a8c08d06e3a3c032b3b7552466c2bf43596f1"
+      },
+      {
+         "bytes" : 6794,
+         "path" : "scripts/ci/test-cloc-tooling.sh",
+         "sha256" : "1d84dee6c5695151f4e35e800459e1f14f49a274a050e966998368176abb0f6a"
+      },
+      {
+         "bytes" : 3985,
+         "path" : "scripts/ci/check-format-hooks.sh",
+         "sha256" : "dcd605bfc79aaf64078bb7233a1ba606eb13bcd59f42ce55d6b7eb2cd7717da5"
+      },
+      {
+         "bytes" : 3038,
+         "path" : ".githooks/pre-commit",
+         "sha256" : "222ccd4193f017ebef6396affa9a55dcae98a28ffbd8c6864570b397d2a3bb02"
+      },
+      {
+         "bytes" : 32297,
+         "path" : "scripts/release/test-release.sh",
+         "sha256" : "6f8894fed14ad1e35a4715b8aac9d2df2c56c97661f24c3950b3f8aeea2551bc"
+      },
+      {
+         "bytes" : 381,
+         "path" : "canisters/test/storage_probe/Cargo.toml",
+         "sha256" : "c9e1a0ef0458bc291d39aab4b589f0d52e3621561af0ae6f20afbb8a1a8487ce"
+      },
+      {
+         "bytes" : 7437,
+         "path" : "canisters/test/storage_probe/src/ops/resources/mod.rs",
+         "sha256" : "0996fd4a071f77b8890a196d829ea33a1baff9e42cfe48c5de86374917a52ca3"
+      },
+      {
+         "bytes" : 2588,
+         "path" : "tests/pocketic/tests/storage_resources/reads/mod.rs",
+         "sha256" : "d99e02bd8620cac328a9e63b34150738d470f4d116c45ccfe4800b2ce217c95a"
+      },
+      {
+         "bytes" : 1359,
+         "path" : "tests/pocketic/Cargo.toml",
+         "sha256" : "b90c415484e55f755bf44d186eb6fa8b1cce8575c7448154943fb8a5c2a8b297"
+      },
+      {
+         "bytes" : 847,
+         "path" : "crates/ic-blob-storage-cli/Cargo.toml",
+         "sha256" : "a35d06c305f993954599982fe92deb523d81b7cb83cb865a690821bbf8201daf"
+      },
+      {
+         "bytes" : 897,
+         "path" : "crates/ic-blob-storage/Cargo.toml",
+         "sha256" : "6f1a06a49d3a36ee710de8f5b19595b69af8ff82c3242035d103063547ebad4d"
+      },
+      {
+         "bytes" : 123,
+         "path" : "rust-toolchain.toml",
+         "sha256" : "534534eae843b71d7179bb84da66da314b53bded9c218bb1bb3f526008b27c87"
+      },
+      {
+         "bytes" : 24852,
+         "path" : "tests/browser/package-lock.json",
+         "sha256" : "79bd78166f2c95aa341742d833d42eefb510adba1078d5136cda1211740d9a2d"
+      }
+   ],
+   "issue_updates" : [
+      {
+         "body" : {
+            "bytes" : 1888,
+            "path" : ".tmp/tooling-host-018-0161-01/issue-19-update.md",
+            "sha256" : "b0be1aaaff93f118195626046435ceab9fb5b83742b3dcbee400507c92d87674"
+         },
+         "number" : 19,
+         "readback" : {
+            "bytes" : 2266,
+            "path" : ".tmp/tooling-host-018-0161-01/issue-19-readback.json",
+            "sha256" : "6cab578493dbd8ca37904d502396c936dc56623341cb14bc248e9747d5e2e457"
+         }
+      },
+      {
+         "body" : {
+            "bytes" : 1807,
+            "path" : ".tmp/tooling-host-018-0161-01/issue-23-update.md",
+            "sha256" : "3dbdfb46aa4f9d07356340b867b47572afb1e4e707df587e2b422956abf5fd7c"
+         },
+         "number" : 23,
+         "readback" : {
+            "bytes" : 2185,
+            "path" : ".tmp/tooling-host-018-0161-01/issue-23-readback.json",
+            "sha256" : "d20d0417d95f62e3783d590ece809e3e0b26f30941005f3e268276c322047b18"
+         }
+      }
+   ],
+   "limitations" : [
+      "All targeted attempts in this batch pass; earlier failed/inconclusive attempts retain their original evidence and are not overwritten.",
+      "Linux Bash 3.2 is not native macOS evidence. Shared Tooling Linux/lint passed; macOS was in progress at readback. Host/Metrics owner CI success does not qualify current uncommitted Blob source.",
+      "Issues #19/#23 retain matching committed/native acceptance requirements.",
+      "No full CI/release gate, version bump, commit/tag/push/publication, deployed provider request or sibling edit. Tool setup may fetch/build only its separately pinned executable dependencies."
+   ],
+   "native_cases" : {
+      "actual_installation" : 2,
+      "actual_metrics_operator_restoration" : 1,
+      "cli" : 108,
+      "evidence_class" : "Local PocketIC and CLI execution; not deployed provider/downstream qualification.",
+      "examples" : 21,
+      "fresh_matching_wasms" : true,
+      "metrics_case" : "storage_resources::reads::restoration_reads_are_attributed_only_to_the_operator_reopen_window"
+   },
+   "outcome" : "Remove sibling LOC environment wrapper. Shared fixtures isolate enclosing Cargo inputs; report excludes aliased output. Reject options/assignments as validation goals before dispatch. Common setup and CI use one pinned local Cargo-tool owner, preserving failed install builds.",
+   "pending_changelog" : "0.16.1",
+   "preservation" : {
+      "entry_lock_identical" : true,
+      "entry_manifest_identical" : true,
+      "entry_receipt_identical" : true,
+      "npm_lock_matches_HEAD" : true,
+      "physical_layout_unchanged" : true,
+      "removed_named_functions_methods_types" : [],
+      "rust_sources_unchanged" : true
+   },
+   "retained_failures" : [],
+   "schema" : 1,
+   "selected_graph" : {
+      "direct_host" : "0.4.0",
+      "harness_host" : "0.3.3",
+      "harness_owner" : "ic-testkit 0.20.0",
+      "host_publisher" : "6b171744def811882ba6c71d50135efa898302a9",
+      "memory" : "0.30.0",
+      "metrics" : "0.2.7",
+      "metrics_publisher" : "09c6786c3b68759ea0ead4d1b987b5a9b472bdbb",
+      "root_version" : "0.16.0"
+   },
+   "shared_revision" : "a3430b34b32a60f3b245a2b4f7e2f5321556fe56",
+   "shared_version" : "0.1.18",
+   "snapshot_files" : 73,
+   "tools" : [
+      {
+         "bytes" : 1417464,
+         "path" : ".tools/rust/bin/cargo-sort",
+         "sha256" : "9c9977f134a12556cbd2f9a4c6f4fa976ac5ae0e03f5bc9a9b2539f9f2ded5a2"
+      },
+      {
+         "bytes" : 5273808,
+         "path" : ".tools/rust/bin/cargo-sort-derives",
+         "sha256" : "9a25cde360e93c5f66e1d6ae59439a30615e62ff9108fea77aa0ca51b242be0e"
+      },
+      {
+         "bytes" : 15532072,
+         "path" : ".tools/rust/bin/candid-extractor",
+         "sha256" : "bb9d9b3f3d6cd380b9010d7ace41704430b35cbc26e5acfbb231be074d98f378"
+      },
+      {
+         "bytes" : 2088112,
+         "path" : ".tmp/bash32-v01413-01/bash-3.2.57/bash",
+         "sha256" : "48bdaa3a26c4c14ec1c2ab2d3a9cca84ddaba64f4c1bd0c26a09891d2f474e41"
+      },
+      {
+         "bytes" : 1446024,
+         "path" : "/bin/bash",
+         "sha256" : "bc5945feb8bd26203ebfafea5ce1878bb2e32cb8fb50ab7ae395cfb1e1aaaef1"
+      }
+   ],
+   "upstream_ci" : {
+      "host" : {
+         "conclusion" : "success",
+         "head_sha" : "6b171744def811882ba6c71d50135efa898302a9",
+         "jobs" : [
+            {
+               "conclusion" : "success",
+               "name" : "msrv",
+               "status" : "completed"
+            },
+            {
+               "conclusion" : "success",
+               "name" : "native (ubuntu-24.04, Linux, x86_64)",
+               "status" : "completed"
+            },
+            {
+               "conclusion" : "success",
+               "name" : "native (macos-15, Darwin, arm64)",
+               "status" : "completed"
+            },
+            {
+               "conclusion" : "success",
+               "name" : "native (macos-15-intel, Darwin, x86_64)",
+               "status" : "completed"
+            }
+         ],
+         "raw" : {
+            "bytes" : 5421,
+            "path" : ".tmp/tooling-host-018-0161-01/host-ci.json",
+            "sha256" : "81414d29067da9e25124f8649627494ed85b3af469365711103c53ae72b3be94"
+         },
+         "status" : "completed",
+         "url" : "https://github.com/dragginzgame/ic-host-tooling/actions/runs/37602699181"
+      },
+      "metrics" : {
+         "conclusion" : "success",
+         "head_sha" : "09c6786c3b68759ea0ead4d1b987b5a9b472bdbb",
+         "jobs" : [
+            {
+               "conclusion" : "success",
+               "name" : "msrv",
+               "status" : "completed"
+            },
+            {
+               "conclusion" : "success",
+               "name" : "native (macos-15, Darwin, arm64)",
+               "status" : "completed"
+            },
+            {
+               "conclusion" : "success",
+               "name" : "native (ubuntu-24.04, Linux, x86_64)",
+               "status" : "completed"
+            },
+            {
+               "conclusion" : "success",
+               "name" : "native (macos-15-intel, Darwin, x86_64)",
+               "status" : "completed"
+            }
+         ],
+         "raw" : {
+            "bytes" : 6613,
+            "path" : ".tmp/tooling-host-018-0161-01/metrics-ci.json",
+            "sha256" : "4919022bde04eb8a32fd454f91d4ea93d3456b23840d8961d9db56a1cd6b006c"
+         },
+         "status" : "completed",
+         "url" : "https://github.com/dragginzgame/ic-metrics/actions/runs/37602306391"
+      },
+      "shared" : {
+         "conclusion" : "",
+         "head_sha" : "a3430b34b32a60f3b245a2b4f7e2f5321556fe56",
+         "jobs" : [
+            {
+               "conclusion" : "",
+               "name" : "portable-regression (macos-15-intel)",
+               "status" : "in_progress"
+            },
+            {
+               "conclusion" : "success",
+               "name" : "lint-and-security",
+               "status" : "completed"
+            },
+            {
+               "conclusion" : "success",
+               "name" : "portable-regression (ubuntu-24.04)",
+               "status" : "completed"
+            },
+            {
+               "conclusion" : "",
+               "name" : "portable-regression (macos-15)",
+               "status" : "in_progress"
+            }
+         ],
+         "raw" : {
+            "bytes" : 5311,
+            "path" : ".tmp/tooling-host-018-0161-01/shared-ci.json",
+            "sha256" : "4ead821496c44ab0876a36fbf714485a9c4c7e7ec5cb44cfa1fc59ae4fe40085"
+         },
+         "status" : "in_progress",
+         "url" : "https://github.com/dragginzgame/shared-tooling/actions/runs/37604299590"
+      }
+   },
+   "working_tree_uncommitted" : true
+}

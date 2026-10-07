@@ -8,50 +8,314 @@ Date: 2026-10-07
 
 ## At a glance
 
-- Released baseline: `0.15.3`; the changelog and release receipt own exact
-  release metadata.
-- Current development target: `0.16.0`; the public ic-memory 0.30 type-identity
-  hard cut carries the earlier compatible Shared Tooling 0.1.14
-  and published native host 0.3.1 refresh plus initial private ic-metrics adoption under
-  [#15](https://github.com/dragginzgame/ic-blob-storage/issues/15).
-  Cargo's package version and the release receipt remain at 0.15.3.
-  The selected graph uses ic-memory
-  0.30.0, direct native ic-host-artifacts/ic-host-fs 0.3.2 and native harness ic-testkit 0.20.0
-  (which selects transitive ic-host-tools 0.3.2).
-  The private storage resource probe now selects ic-metrics 0.2.5; the production
-  core and standalone graphs do not add it.
-  Native examples reuse the shared bounded JSON stream collector through a
-  native-only development dependency. Hosts must rebuild on one Memory 0.30
-  identity; durable formats remain unchanged by this dependency selection.
-  The maintainer-approved physical layout retains libraries/tools in `crates/`,
-  canisters in `canisters/`, and the packaged test harness/protocol in `tests/`.
-  The earlier accidental Cargo rollback was restored;
-  its diff and original files remain under `.tmp/post-release-0151-01`.
+- Released baseline: **0.16.0**, Git/tag commit
+  `49d6ba76964668a6835c63784a892af905ce10b1`, validated source
+  `e13793b3e79fc37f4471aaa27b4b6472849141a5`. Remote main and the annotated
+  `v0.16.0` tag match; crates.io's sparse index contains a non-yanked 0.16.0
+  selecting Memory `^0.30`. The release receipt remains the exact metadata owner.
+- Current development target: **0.16.1**, a compatible native/tooling batch.
+  Cargo package versions and the receipt remain 0.16.0. The entry dirty lock
+  already selects direct Host artifacts/fs 0.4.0, while native testkit 0.20.0
+  owns its transitive four-package Host 0.3.3 graph. Preserve those selections.
+  Memory remains 0.30.0. The lock selects private-probe Metrics 0.2.7; earlier
+  records retain their own Metrics 0.2.5/0.2.6 inputs and qualification.
+- The reviewed 73-file snapshot now selects Shared Tooling 0.1.18 at
+  `a3430b34b32a60f3b245a2b4f7e2f5321556fe56`. A clean private checkout exports
+  committed bytes; dirty sibling work is excluded. The common Make include owns
+  setup, offline verification and LOC recipes, including pinned jq/yq, ripgrep
+  with PCRE2 and cloc. The aggregate setup/check commands now include shared
+  cargo-sort/cargo-sort-derives/candid-extractor setup under `.tools/rust/`.
+  `make cloc-tooling` inventories siblings read-only.
+- The approved physical layout stays unchanged: libraries/tools in `crates/`,
+  canisters in `canisters/`, packaged test support in `tests/pocketic/` and
+  `tests/protocol/`. All 11 members inherit from one virtual workspace/lock.
 - Product state: working library and standalone prototype with retained live
-  upload/download evidence, not a fully accepted production service.
-- Current composition: framework-independent core, explicit standalone host,
-  native operator tools and browser publication components.
-- Recovery: same-release restoration opens fenced; current-instance activation
-  requires independent IC history, and older-snapshot activation is unsupported.
-- Earlier 0.15.2 tooling qualification: canonical Shared Tooling adoption records 54 files at
-  `d957d1f`, including shared lockfile rewriting, formatting-hook adoption and
-  Cargo inheritance checks. Focused Linux Bash 5/Bash 3.2 checks pass; the consumer's
-  complete native Linux and both macOS jobs pass on the pushed 0.15.2 source,
-  including CLI/PocketIC. That does not qualify pending 0.15.3. Fresh local checks
-  pass 106 native CLI cases,
-  the FIFO subprocess, eight core installation cases, two PocketIC decoder cases
-  and 35 offline browser cases. CLI Clippy and Rust 1.88 compilation pass with the
-  then-selected direct host-tools 0.2.0 graph. Earlier installation/funding/restore/Wasm
-  records retain their original graphs. Tool pins, public core/service contracts
-  and durable records are unchanged. GitHub owns the reconciled issue disposition.
-- Its finishing checks also qualify the actual CLI-generated installation carrier
-  against fresh matching standalone Wasm on the direct ic-host-tools 0.2.0 graph.
-  Both selected PocketIC cases pass, including wrong-service/state preservation
-  and exact configuration readback. Native CI now uploads failed shared metadata
-  and lockfile fixtures; controlled refusals retain both complete directories.
-- Main remaining work: provider credit evidence and consumer funding integration,
-  consumer adoption, complete publication transactions, provider deletion and
-  billing evidence, production sizing and retirement.
+  upload/download evidence, not a fully accepted production service. Same-release
+  restoration remains fenced until independent IC history authorizes activation;
+  cross-release transitions require retirement and reinstall.
+- Open product work remains complete publication transactions, provider credit
+  evidence/funding integration, serving integrity, deletion/billing evidence,
+  production sizing and retirement. Canic's independently owned Blob adapter
+  still selects Blob 0.15.2 / Memory 0.28; publication does not qualify that graph.
+
+## Shared Tooling 0.1.18 and selected Host/Metrics graph — pending 0.16.1
+
+The maintainer authorized the reviewed follow-up batch. The previous snapshot's
+declared bytes/modes were checked and retained before explicit reconciliation
+with the canonical export from a pinned clean private checkout. The final
+73-file snapshot adds only the shared Rust-tool installer and its portable
+fixture. Upstream-only exporter/context and logger suites remain in their private
+owner checkout. Dirty sibling tooling edits are excluded.
+
+Both reusable LOC fixtures now own their manifests and default target settings,
+including enclosing Cargo configuration; the remaining consumer environment
+wrapper is removed. Production Cargo target ownership remains unchanged. The
+canonical report excludes physical output reached through target aliases. The
+tooling-inventory fixture now works on uncommitted consumer adoption without
+embedding the upstream exporter integration. Validation rejects option-like and
+assignment-like goals before logs or Make dispatch. These fixes remain linked to
+[#23](https://github.com/dragginzgame/ic-blob-storage/issues/23) and the shared
+[LOC owner #47](https://github.com/dragginzgame/shared-tooling/issues/47).
+
+The common aggregate setup/check targets attach the canonical Cargo-tool owner,
+with the reviewed cargo-sort 2.1.4, cargo-sort-derives 0.13.0 and candid-extractor
+0.1.6 pins. CI drops its duplicate Cargo install recipe and selects the same
+`.tools/rust/bin` as Make. Failed install builds remain in `.tools/rust/build`;
+CI retains that directory and failed installer fixtures. Formatting still uses
+the existing manifest sort and rustfmt contracts. Tool installation is explicit;
+offline checks never install or update the compiler. IC identity-store guidance
+does not move or reset any local identity.
+
+The task-entry manifest/lock already select direct artifacts/fs 0.4.0 and Metrics
+0.2.7. Host's removed durable readers and lock aliases have no Blob callers;
+the bounded reader, following/no-follow/opened-descriptor distinctions and
+private-file creation used here retain their contracts. Artifact errors stay
+inside native CLI/example boundaries. The production core has no Host dependency
+or public Host type re-export, so the upstream 0.4 hard cut does not change the
+public Blob contract. The pending patch remains 0.16.1. Testkit 0.20.0's independent
+Host 0.3.3 graph is retained; no downstream testkit upgrade or direct process/tools
+edge is introduced here.
+
+Metrics 0.2.7 has identical runtime source to 0.2.6; the private storage probe
+keeps its existing bounded counters, operator authority and synchronous reopening
+window. Earlier evidence is not relabelled as qualification of the selected
+graph. Package version, Cargo/npm lock selections, release receipt, physical
+layout, service DTOs and durable schemas stay unchanged. No named function,
+method or type is removed by this batch.
+
+The existing native host target now builds a fresh storage-probe Wasm and runs
+the exact operator/repeated-restoration read-window case after actual standalone
+installation. This gives the selected Metrics graph a matching committed native
+CI acceptance path under [#19](https://github.com/dragginzgame/ic-blob-storage/issues/19),
+without adding metrics to the core/CLI or measuring a downstream application's
+instruction count. Actual `make test-native-host` passes all 108 CLI cases,
+21 example cases, two real standalone installation/Candid cases and the operator
+read-window case across repeated fenced restoration. Fresh matching storage and
+standalone Wasms are used. This is local PocketIC qualification; the future
+committed consumer Linux/macOS run remains separate from upstream CI.
+
+Focused strict native CLI/harness/probe Clippy and Rust 1.88 native CLI/harness
+and standalone/storage Wasm checks pass. Native/Wasm normal-edge core trees
+exclude Host and Metrics; the CLI retains only artifacts/fs, and the private
+probe selects Metrics 0.2.7. Published archive checksums and source bytes match
+Host `6b171744def811882ba6c71d50135efa898302a9` and Metrics
+`09c6786c3b68759ea0ead4d1b987b5a9b472bdbb`. Both exact-source owner CI matrices
+pass Linux, both macOS hosts and MSRV. These results do not qualify the dirty
+consumer on those remote hosts or the independently owned Canic integration.
+
+Actual shared-helper/tool checks, Make release routing and formatter preservation/
+rollback pass under Linux Bash 5 and built Bash 3.2. Owner-only LOC context,
+exporter integration and logger admission suites run in the pinned private
+checkout. The explicit Cargo-tool installer prepares all three local binaries;
+offline checks pass without repeating installation. Strict shell/workflow lint,
+snapshot, declarations and all-member LOC reporting pass. No source changes or
+lock reselection are required for the Host/Metrics cases; all targeted attempts
+pass. Earlier source-bound failures remain in their original records.
+
+[#19](https://github.com/dragginzgame/ic-blob-storage/issues/19) and
+[#23](https://github.com/dragginzgame/ic-blob-storage/issues/23) remain open for
+matching committed consumer/native qualification. The source-bound record owns
+current inputs and artifact identities; old records are not overwritten or
+rebound. Shared Tooling 0.1.18's Linux/lint jobs pass; its macOS jobs were still
+running at inspection. Adopting corrected source is separate from claiming its
+entire owner matrix or this consumer's native matrix has completed.
+The qualification updates were posted and read back on
+[#19](https://github.com/dragginzgame/ic-blob-storage/issues/19#issuecomment-6035794627)
+and [#23](https://github.com/dragginzgame/ic-blob-storage/issues/23#issuecomment-6035795699).
+
+Focused results, source/artifact hashes, attempts and qualification limits belong
+to [the adoption record](../evidence/tooling-host-018-0161.json). Consumer native
+macOS and matching committed CI remain separate. This batch performs no full
+CI/release gate, commit, version bump, tag, push, publication, provider request
+or sibling file edit.
+
+## Earlier Shared Tooling 0.1.17 adoption — pending 0.16.1
+
+This record retains the previous source and graph; current selections are above.
+
+The maintainer authorized refreshing to the reviewed committed source. Before
+replacement, every existing snapshot file matched its prior declared digest and
+executable state. Those exact snapshot-owned bytes were preserved, then explicitly
+reconciled with a canonical private export; the canonical refresh's retry guard
+and verifier accepted the final 71-file snapshot. No dirty sibling bytes or local
+patches enter shared files. The added canister audit guidance is a method, not a
+new automatic gate or product audit.
+
+The local validation integration checker now expects Make's failure status 2.
+The shared logger supports selected success/failure logs, timing records,
+literal failure-event prefixes and interrupted output. Its full canonical suite
+is run from the pinned private Shared Tooling checkout: a consumer trial exposed
+its dependency on Shared Tooling's own release-metadata fixture and is retained,
+rather than importing that upstream-only fixture into Blob. Blob keeps its
+actual logger, release and formatting integration checks.
+
+The canonical workspace LOC fixture now owns manifest selection and clears the
+inherited target variable, so its redundant consumer wrapper is removed. The
+sibling fixture is unchanged and keeps its local `env -u CARGO_TARGET_DIR`
+boundary. The production target export stays unchanged. Ancestor Cargo target
+configuration remains an upstream fixture gap under
+[#47](https://github.com/dragginzgame/shared-tooling/issues/47); native CI continues
+to select scratch outside the checkout. Explicit independent reports use
+`make cloc CLOC_MANIFEST=path/to/Cargo.toml`.
+
+The new npm rules apply to the opt-in browser build root. Its existing supported
+Node range remains; `.nvmrc` selects Node 24.21.0, `packageManager` selects npm
+12.2.0 and `.npmrc` selects the public registry. These are the already installed
+tools, not an upgrade or npm dependency re-resolution. Browser/SDK Make targets
+check both tools and manifest/lock declarations before their effects; direct
+bundle builds check Node/lock inputs against prepared dependencies. Setup uses
+explicit `npm ci` inside that root. The source client has no independent npm
+build/publication workflow. Prettier remains an optional shared reference;
+adoption does not introduce a formatter or an implicit installation.
+
+The initial browser tool check attempted npm version capture through Node and
+received empty output despite successful shell output. That failed attempt stays
+retained; npm version checking now belongs to the thin Bash boundary. No named
+function, method or type is removed. Package metadata, Cargo/npm lock selection,
+the release receipt, Rust service code and the approved physical layout remain
+unchanged. Earlier qualification records below retain their original source and
+graphs. Current Metrics 0.2.6 probe/native qualification remains under #19.
+
+Actual consumer shared-helper, release-adapter and formatting checks pass under
+system Bash 5 and built Linux Bash 3.2. The upstream logger suite also passes
+under both shells in the private pinned checkout. Offline tool/declaration
+checks, strict ShellCheck, Node syntax checks and an actual browser bundle build
+pass. Private wrong-Node and manifest/lock cases refuse; both Make shells refuse
+a wrong npm selected through a path containing spaces before Cargo dispatch.
+The LOC report still covers all 11 approved-layout members. Local documentation
+links and the final snapshot verifier pass.
+
+The exact upstream 0.1.17
+[CI run](https://github.com/dragginzgame/shared-tooling/actions/runs/37601115116)
+passes Linux, macOS ARM/Intel and lint/security. That owner qualification does
+not qualify this dirty consumer batch or its Metrics 0.2.6 graph. The repository
+description accurately identifies the prototype and needs no change.
+
+Focused qualification and limitations are recorded in the
+[snapshot refresh record](../evidence/shared-tooling-017-0161.json). Consumer native macOS
+and matching committed consumer CI remain pending; Linux Bash 3.2 does not
+establish native macOS behavior. This batch executes no full CI/release gate,
+Rust compilation, commit, version bump, tag, push, publication, provider effect
+or sibling edit.
+
+## Earlier LOC fixture environment repair — pending 0.16.1
+
+This record retains the previous 0.1.15 snapshot and its source-bound checks.
+Current snapshot identity and fixture boundaries are stated above.
+
+The maintainer authorized the local repair under
+[#23](https://github.com/dragginzgame/ic-blob-storage/issues/23). The consumer
+Make boundary clears inherited `CARGO_TARGET_DIR` only for the independent
+workspace and sibling LOC fixtures. Both fixtures own separate Cargo inputs and
+test selected target paths; the parent's production target directory would mask
+their configuration. The shared scripts, 70-file snapshot and production target
+export stay unchanged. No function, method or type is removed.
+
+The first actual `make shared-tooling-tests` attempt, after isolating the
+workspace fixture, exposed the same leak in the sibling fixture: generated test
+source in its configured target was counted under the parent's inherited target.
+That failure and a separate traced reproduction are retained. Both recipe calls
+now clear only that variable. Earlier direct fixture results remain historical,
+not evidence that the old Make environment was correct.
+
+Shared Tooling 0.1.16 `b69507367d45e3db9543359e689e1fcba0467ff4` remains a reviewed
+candidate, not this snapshot. Its canonical LOC fixture corrections remain with
+[inherited-target #47](https://github.com/dragginzgame/shared-tooling/issues/47)
+and [in-checkout scratch #48](https://github.com/dragginzgame/shared-tooling/issues/48).
+Our native CI selects scratch outside the checkout. The separate 0.1.16 logger
+status-2 fixture update belongs with that source's adoption; the currently
+adopted logger still returns status 1. Metrics 0.2.6's native Linux workflow has
+the distinct #48 failure; MSRV passes and macOS was queued at inspection.
+No dependency selection, broader refresh or sibling repair accompanies this fix.
+
+Actual `make shared-tooling-tests` passes under system Bash 5 and built Linux
+Bash 3.2, with Bash 3.2 selected for Make recipes and script dispatch in the
+second run. All shared fixture checks run through the consumer Makefile rather
+than reproducing only a direct script call. A separate Make-dispatched check
+confirms the production export still selects this repository's `target/`.
+`make cloc` reports all 11 members; snapshot and documentation-link checks pass.
+The entry lock and snapshot are byte-identical after this repair; package
+metadata and the release receipt are unchanged.
+
+The [LOC gate repair record](../evidence/loc-gate-0161.json) binds this Makefile,
+the currently selected Metrics 0.2.6 lock, logs and retained failures under
+`.tmp/loc-gate-0161-01`. It does not compile or qualify Metrics 0.2.6 or supersede
+earlier source-bound records. #23 remains open for matching committed native
+qualification; Bash 3.2 on Linux is not native macOS evidence. No full CI/release
+gate, Rust compilation, commit, version bump, tag, push, publication, provider
+request or sibling edit occurs.
+
+## Earlier tooling qualification — pending 0.16.1
+
+These earlier results retain their original Metrics 0.2.5 graph and source
+hashes; they do not qualify the subsequently selected Metrics 0.2.6 probe.
+
+The maintainer authorized the inspected follow-up batch. The
+[release fixture ownership map](../evidence/release-fixture-ownership.md) addresses
+[#22](https://github.com/dragginzgame/ic-blob-storage/issues/22). The shared runner
+owns the lost-effect/next-version matrix. Blob retains receipt and selected
+historical commit checks, publication policy/lock checks, failed preparation
+restoration, real-index admission, bootstrap refusal and one actual Make-to-adapter
+recovery integration with retained failed validation logs. The remaining local
+Git substitute supports those adapter obligations; no common simulation framework
+or duplicate production runner is added.
+
+Host 0.3.3's owner CI passes Linux, both macOS architectures and MSRV. Its new
+bounded caller-configured command capture and borrowed error evidence do not
+replace the interactive JSON-lines session fixture; no direct process/tools
+edge is added here. Artifacts/filesystem production bytes are unchanged from
+0.3.2. Dirty upstream typed-reader/error changes belong to a future hard cut and
+are not consumed.
+
+The released source's
+[CI run](https://github.com/dragginzgame/ic-blob-storage/actions/runs/37595861942)
+has passed Linux and macOS ARM; macOS Intel was still running at the latest
+inspection. Those results select the committed Host 0.3.2 lock, not this batch's
+0.3.3 graph. This continuation performs no full gate or release effect.
+
+Focused Linux qualification passes: 108 CLI binary cases, 21 native example
+cases, strict CLI/harness all-target Clippy, Rust 1.88 all-target checks, a fresh
+standalone Wasm build and two actual PocketIC installation/Candid cases using
+the CLI-generated carrier. Native/Wasm production core trees exclude Host and
+metrics; the CLI uses artifacts/fs without adding process/tools. The harness
+retains the transitive process/tools graph. Package versions, release receipt
+and task-entry Host 0.3.3 lock remain unchanged.
+
+Snapshot and common tool/LOC fixtures, the canonical runner matrix and the
+narrowed Blob adapter suite pass under Linux Bash 5 and built Bash 3.2.
+Formatter preservation/rollback and Make-mode refusal pass under both shells.
+The actual LOC report includes all 11 approved-layout members. Offline prepared
+host-tool checks, release routing, strict ShellCheck/workflow lint, formatting
+and local documentation links pass. Adapter code LOC drops from 672 to 634;
+the retained Git substitute still serves Blob's historical-receipt and real
+recovery obligations, so this is not retirement of the whole 672-line fixture.
+
+The existing native CI target now executes the 21 example cases before actual
+installation, closing the prior gap in #21's consumer matrix coverage. Current
+uncommitted source has no remote CI result. #21/#22 stay open for matching
+committed/native qualification; #16/#18 retain their released-source CI
+obligations. Policy-only #15 is closed with released consumer identity and
+read-back evidence in
+[its closure comment](https://github.com/dragginzgame/ic-blob-storage/issues/15#issuecomment-6034647844).
+Publication unblocks Memory 0.30 library availability under #20, but Canic-owned
+adapter/three-lock/managed execution qualification remains separate.
+
+The [source-bound tooling record](../evidence/tooling-0161.json) binds inputs,
+checks, graph selection and artifacts to `.tmp/tooling-0161-01`. Initial CLI
+HTTP tests were denied local bind by the sandbox (101 passed, two refused);
+the authorized local-loopback retry passes all 108 binary cases. The first LOC
+fixture ran before prepared cloc was selected on PATH and refused; the explicit
+prepared-tool retry passes. Both failed logs and the retained LOC fixture remain
+distinct from successful retries. Bash 3.2 on Linux is not native macOS evidence.
+No provider request, paid effect, sibling file edit, commit, package version bump,
+tag, push or publication occurs in this batch.
+
+## Retained preparation records
+
+The following records describe source, selected graphs, paths and release status
+at their original task entry. Their pending labels and remote observations are
+historical; current identity and scope are stated above. Immutable evidence is
+not relabelled as qualification of the released or pending source.
 
 ## Role-based layout restored — pending 0.16.0
 
