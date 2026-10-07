@@ -121,7 +121,7 @@ fn run_case(
     headers: &str,
     bytes: &[u8],
     expected: Result<ContentDigest, Failure>,
-) {
+) -> serde_json::Value {
     let listener = TcpListener::bind("127.0.0.1:0").unwrap();
     let url = Url::parse(&format!(
         "http://{}/v1/blob/",
@@ -180,19 +180,44 @@ fn run_case(
         }
     );
     assert!(!path.join("statement.candid").exists());
+    serde_json::from_slice(&std::fs::read(path.join("http-response-headers.json")).unwrap())
+        .unwrap()
 }
 #[test]
 fn download_stream_requires_eof_and_original_metadata_with_no_redirect_or_decoding() {
     let bytes = vec![42; 2 * 1024 * 1024 + 7];
     let plan = plan(&bytes);
     // Response Content-Type is never substituted for the original hash metadata.
-    run_case(
+    let observed = run_case(
         &plan,
-        "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nConnection: close\r\n\r\n",
+        "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nCache-Control: public, max-age=60\r\nAccess-Control-Allow-Origin: https://consumer.example\r\nVary: Origin\r\nVary: Accept-Encoding\r\nConnection: close\r\n\r\n",
         &bytes,
         Ok(ContentDigest::compute(&bytes)),
     );
+    assert_eq!(observed["complete"], true);
+    let headers = observed["headers"].as_array().unwrap();
+    for (name, value) in [
+        ("content-type", "text/plain"),
+        ("cache-control", "public, max-age=60"),
+        ("access-control-allow-origin", "https://consumer.example"),
+    ] {
+        let header = headers.iter().find(|h| h["name"] == name).unwrap();
+        assert_eq!(header["value_bytes"], serde_json::json!(value.as_bytes()));
+    }
+    assert_eq!(headers.iter().filter(|h| h["name"] == "vary").count(), 2);
+    let large_header = format!(
+        "HTTP/1.1 200 OK\r\nCache-Control: {}\r\nConnection: close\r\n\r\n",
+        "x".repeat(8193)
+    );
     let small = plan_for_failures();
+    let observed = run_case(
+        &small,
+        &large_header,
+        b"abc",
+        Ok(ContentDigest::compute(b"abc")),
+    );
+    assert_eq!(observed["complete"], false);
+    assert_eq!(observed["headers"], serde_json::json!([]));
     for (headers, body, failure) in [
         (
             "HTTP/1.1 200 OK\r\nConnection: close\r\n\r\n",

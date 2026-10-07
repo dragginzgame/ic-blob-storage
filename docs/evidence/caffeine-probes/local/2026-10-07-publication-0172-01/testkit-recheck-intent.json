@@ -1,0 +1,29 @@
+{
+  "schema": 1,
+  "evidence_classes": [
+    "source_review",
+    "local_http_substitute",
+    "local_pocketic"
+  ],
+  "extends": "intent.json",
+  "reason": "External lock change after initial qualification to Testkit 0.21.2; preserve first graph/results and qualify new locked graph separately.",
+  "graph": {
+    "Host": "0.4.6",
+    "Testkit": "0.21.2",
+    "Memory": "0.31.1",
+    "Metrics": "0.2.9"
+  },
+  "entry_lock_sha256": "0ca40c1015fa4ae5e35b2fb548d43a6571a4abe678723f8814866299683fa765",
+  "targets": "same owned loopback HTTP and isolated PocketIC fixture paths; no real namespace/identity",
+  "additional_budgets": {
+    "live_provider_requests": 0,
+    "paid_cycles": 0,
+    "pocketic_cases_maximum": 55,
+    "canisters_per_case_maximum": 3,
+    "mock_provider_http_requests_maximum": 48,
+    "mock_provider_http_body_bytes_maximum": 41943040,
+    "per_mock_request_seconds": 30
+  },
+  "stop_conditions": "unexpected paid/live effect or failed check; retain separate attempt before any retry",
+  "cleanup": "drop owned mock threads, processes, temp fixtures and PocketIC; raw evidence under .tmp/product-issues-0172-02; no external cleanup"
+}

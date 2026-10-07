@@ -84,6 +84,13 @@ impl Run {
         })
     }
     pub fn bytes(&self, name: &str, bytes: &[u8]) -> Result<(), Failure> {
+        let path = self.record_path(name)?;
+        // Trusted ancestors and exclusion of concurrent directory writers remain
+        // caller-owned, as for body.part. Complete records publish without replacement.
+        ic_host_fs::durable::create_private_bytes_with_parents(&path, bytes)
+            .map_err(|_| Failure::File)
+    }
+    fn record_path(&self, name: &str) -> Result<PathBuf, Failure> {
         // The shared writer can create parents. A run must already be claimed;
         // never recreate a removed run or follow a substituted directory link.
         if !std::fs::symlink_metadata(&self.path)
@@ -92,16 +99,20 @@ impl Run {
         {
             return Err(Failure::File);
         }
-        // Trusted ancestors and exclusion of concurrent directory writers remain
-        // caller-owned, as for body.part. Complete records publish without replacement.
-        ic_host_fs::durable::create_private_bytes_with_parents(&self.path.join(name), bytes)
-            .map_err(|_| Failure::File)
+        Ok(self.path.join(name))
     }
     pub fn json(&self, name: &str, value: &impl Serialize) -> Result<(), Failure> {
-        self.bytes(
-            name,
-            &serde_json::to_vec_pretty(value).map_err(|_| Failure::File)?,
+        use ic_host_fs::durable::{PublicationMode, WriteOptions, write_typed_with};
+
+        write_typed_with(
+            &self.record_path(name)?,
+            WriteOptions {
+                mode: PublicationMode::CreateNew,
+                permissions: 0o600,
+            },
+            |file| serde_json::to_writer_pretty(file, value),
         )
+        .map_err(|_| Failure::File)
     }
 }
 

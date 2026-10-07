@@ -19,6 +19,7 @@ pub(super) struct Capacity {
     uploads: BTreeSet<u128>,
     objects: BTreeSet<u128>,
     references: BTreeSet<u128>,
+    roots: BTreeSet<[u8; 32]>,
     chunks: u64,
     bytes: u128,
     maximum: NonZeroU64,
@@ -30,6 +31,7 @@ impl Capacity {
             uploads: BTreeSet::new(),
             objects: BTreeSet::new(),
             references: BTreeSet::new(),
+            roots: BTreeSet::new(),
             chunks: 0,
             bytes: 0,
             maximum,
@@ -56,6 +58,9 @@ impl Capacity {
         if !self.uploads.insert(p.upload.upload)
             || !self.objects.insert(p.upload.object)
             || !self.references.insert(p.upload.first_reference)
+            // Each entry proposes a fresh operation. The service keeps one
+            // permanent claim per provider root; reuse needs an exact retain.
+            || !self.roots.insert(p.upload.root)
         {
             return Err(Failure::Binding);
         }

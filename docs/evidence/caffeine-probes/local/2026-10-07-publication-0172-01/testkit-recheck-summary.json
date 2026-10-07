@@ -1,0 +1,108 @@
+{
+  "schema": 1,
+  "extends": "summary.json",
+  "intent": "testkit-recheck-intent.json",
+  "evidence_classes": [
+    "source_review",
+    "local_http_substitute",
+    "local_pocketic"
+  ],
+  "raw_directory": ".tmp/product-issues-0172-02",
+  "compiled_version": "0.17.1",
+  "pending": "0.17.2",
+  "graph": {
+    "Host": "0.4.6",
+    "Testkit": "0.21.2",
+    "Memory": "0.31.1",
+    "Metrics": "0.2.9"
+  },
+  "entry_lock_sha256": "0ca40c1015fa4ae5e35b2fb548d43a6571a4abe678723f8814866299683fa765",
+  "receipt_unchanged": true,
+  "lock_and_manifest_unchanged_from_second_entry": true,
+  "published_testkit_source": "2db7b4f6b616b484408695656e26207628d74c5f",
+  "official_archive_sha256": "0b018e246813e368355100c80db130f2fa941fdd3735fedbcf2a77f5720ee050",
+  "checks": [
+    {
+      "log": ".tmp/product-issues-0172-02/native-host.log",
+      "sha256": "d1f63babe738febd0f7bbb8601fdfeae1222a32ce32ad1a56b696c1066c92641",
+      "outcome": {
+        "cli": 114,
+        "examples": 21,
+        "installation_carrier": 2,
+        "metrics": 1
+      }
+    },
+    {
+      "log": ".tmp/product-issues-0172-02/publication-pocketic-retry.log",
+      "sha256": "a63d69c33ff6e5026d2da23e3d5a14a8f58a85c67b9e4f4c29c5e28b51090e47",
+      "outcome": {
+        "publication": 18
+      }
+    },
+    {
+      "log": ".tmp/product-issues-0172-02/lifecycle-pocketic.log",
+      "sha256": "80f97c8cb47495178d793b3870fdc0cdfe6ffe871a8f16c5cfed4bd76d2492fe",
+      "outcome": {
+        "lifecycle": 10
+      }
+    },
+    {
+      "log": ".tmp/product-issues-0172-02/planning-pocketic.log",
+      "sha256": "99c77c8af70a5691660fdcfc28125bfefccd02940fbb4d1868224f5d5cea90d4",
+      "outcome": {
+        "planning": 2
+      }
+    },
+    {
+      "log": ".tmp/product-issues-0172-02/reads-pocketic.log",
+      "sha256": "0ec73b69e420cd4c2d91f3e2d8a9e5cb643a96897bed82cb883afba7a88861ec",
+      "outcome": {
+        "reads": 6
+      }
+    },
+    {
+      "log": ".tmp/product-issues-0172-02/native-clippy.log",
+      "sha256": "9b24306f38b44ffc4c5bf56766ecda176550f2fc1f13a677553abbc29add083a",
+      "outcome": {
+        "strict_clippy": "pass"
+      }
+    },
+    {
+      "log": ".tmp/product-issues-0172-02/msrv-native.log",
+      "sha256": "bf42af32c460755bd86d36b5924c33e046bcaecdb1e64f835e622d4df832df3f",
+      "outcome": {
+        "rust_1_88": "pass"
+      }
+    },
+    {
+      "log": ".tmp/product-issues-0172-02/final-maintenance.log",
+      "sha256": "298d1d9cb75f871542bea74960d0d1876933b6853cde972fa7ea96a9ed7c0882",
+      "outcome": {
+        "dependency_pins": "pass",
+        "documentation_links": "pass",
+        "references": 1089
+      }
+    }
+  ],
+  "bindings": {
+    "source_files": ".tmp/product-issues-0172-02/source-files.sha256",
+    "tested_artifacts": ".tmp/product-issues-0172-02/tested-artifacts.sha256",
+    "raw_files": ".tmp/product-issues-0172-02/SHA256SUMS"
+  },
+  "live_provider_requests": 0,
+  "paid_cycles": 0,
+  "failures": [],
+  "cleanup": "owned test/mock resources dropped; no external cleanup; raw inputs/outputs retained",
+  "limitations": [
+    "dirty Blob graph lacks matching committed native macOS acceptance",
+    "Testkit owner Intel jobs still running at retained inspection",
+    "deployed provider/browser/deletion/billing and downstream adoption remain unqualified",
+    "Shared Tooling 0.1.21 PR release-flow adoption is separate; selected snapshot remains 0.1.20"
+  ],
+  "issue_comment_patch_readbacks": {
+    "4": "9b270515e21a7e3a0769493df76dd602d2d45f67c505326589161d1b71f1aae5",
+    "5": "f6c7ba61183ee3f6bdd55a244f39261bcf4b417927352a44a127a5ce6b22e869",
+    "6": "153ef6d1f1d88ef890f575b44124865631d0047d3e3e17dca34f0554af60883d",
+    "20": "1001d99aa95388d1dbe8cfcfb7f4e7f481917315c9040ffcbe26f4b7afb66d8d"
+  }
+}

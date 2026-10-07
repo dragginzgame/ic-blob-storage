@@ -6,43 +6,192 @@
 
 Date: 2026-10-07
 
-## At a glance
+## Current batch — publication fixes and Host 0.4.6
 
-- Released baseline: **0.17.0**, Git/tag commit
-  `790649b36ce1da95cb2d41f99facb3afe8280b4d`, validated source
-  `5371a9f2820c7f18b025d780b35e8ff82642839f`. Remote main and the annotated
-  `v0.17.0` tag resolve to that release. The receipt's Cargo/changelog hashes and
-  sole-parent source match. The official sparse index contains non-yanked 0.17.0,
-  checksum `e0ae474198d170367dbaefb89120c4e64e0d5a49c371f177147c51ebb0355900`,
-  published 2026-10-07T12:11:15Z and selecting Memory `^0.31`.
-- Current work: pending compatible **0.17.1**, adopting the maintainer-selected
-  native testkit 0.21.1 graph. All four harness Host packages now select 0.4.2;
-  the duplicate 0.3.3 graph is removed. The public Memory 0.31 identity, core
-  runtime graphs, durable schemas and lifecycle contracts are unchanged.
-  Package versions and receipt remain 0.17.0. The lock retains Memory 0.31.1
-  and private-probe Metrics 0.2.7; earlier
-  records retain their own Metrics 0.2.5/0.2.6 inputs and qualification.
-- The reviewed 77-file snapshot now selects committed Shared Tooling 0.1.19 at
-  `a06e4719e3839b8eefcfb88ec8923aa88eb63ccc`. A clean private checkout exports
-  committed bytes; dirty sibling work is excluded. The common Make include owns
-  setup, offline verification and LOC recipes, including pinned jq/yq, ripgrep
-  with PCRE2 and cloc. The aggregate setup/check commands now include shared
-  cargo-sort/cargo-sort-derives/candid-extractor setup under `.tools/rust/`.
-  `make cloc-tooling` inventories siblings read-only.
-- The approved physical layout stays unchanged: libraries/tools in `crates/`,
-  canisters in `canisters/`, packaged test support in `tests/pocketic/` and
-  `tests/protocol/`. All 11 members inherit from one virtual workspace/lock.
-- Product state: working library and standalone prototype with retained live
-  upload/download evidence, not a fully accepted production service. Same-release
-  restoration remains fenced until independent IC history authorizes activation;
-  cross-release transitions require retirement and reinstall.
-- Open product work remains complete publication transactions, provider credit
-  evidence/funding integration, serving integrity, deletion/billing evidence,
-  production sizing and retirement. The last reviewed Canic adapter selected
-  Blob 0.15.2 / Memory 0.28; its current composition has not been requalified
-  by this release inspection. Publication does not qualify that graph.
+- Pending compatible **0.17.2** preserves compiled/package identity and receipt
+  **0.17.1**. The final lock selects all four Host **0.4.6**, Testkit **0.21.2**,
+  Memory **0.31.1** and private-probe Metrics **0.2.9**. Testkit changed externally
+  after initial 0.21.1 qualification; its separate 0.21.2 recheck passes the same
+  native/publication/lifecycle cases and Clippy/MSRV, with both graphs retained.
+  The final lock matches the second entry and receipt remains unchanged.
+  The filesystem requirement advances to **0.4.5** to exclude the
+  known macOS compilation defect. Shared Tooling remains the reviewed 78-file
+  **0.1.20** snapshot at `3ecc48e579f6cf6e6ab01a6645d8a250fc8c6934`.
+  Newly committed upstream **0.1.21**, `45e34e92b43edb9543d5b7212774f87f8334079f`,
+  adds an explicitly selected PR release flow; it awaits a separate snapshot/flow
+  adoption review. No new release helper or mutable sibling rule is adopted here.
+- Fresh publication preflight now rejects duplicate provider roots even with
+  distinct operation/object/reference IDs, before output or effects. Same raw
+  bytes with distinct original-metadata roots remain valid. Existing content
+  still needs exact retain/recovery; no automatic deduplication is introduced.
+- Native verified downloads retain bounded parsed response headers separately
+  from original hash metadata and existing status/attestation artifacts. Duplicate
+  values survive; capture beyond 32 occurrences/8 KiB is explicitly incomplete.
+  This supplies local serving evidence, not deployed browser qualification.
+- The [current record](../evidence/publication-0172.md) retains the failing
+  pre-fix root regression, the missing-fixture-environment attempt and the original
+  intent's corrected Metrics label. Actual Make native-host qualification passes
+  **114 CLI**, **21 examples**, **two installation/carrier** and **one Metrics**
+  case; focused PocketIC passes **18 publication**, **10 lifecycle**, **two planning**
+  and **six read** cases. Strict CLI/harness Clippy and Rust **1.88** checks pass.
+- Host's [exact 0.4.6 run](https://github.com/dragginzgame/ic-host-tooling/actions/runs/37648086908)
+  now passes Linux, Intel macOS, ARM macOS and MSRV. Published source and official
+  archives match `0fb05f9e18f032425188d68e1d69317a0f0127d5`.
+  Upstream #18/#19 are closed; this dirty Blob graph still needs matching committed
+  native macOS acceptance. Earlier failed upstream runs retain their own evidence.
+  Testkit 0.21.2 published source matches
+  `2db7b4f6b616b484408695656e26207628d74c5f`; its owner CI still has Intel
+  jobs running at inspection, distinct from green Host owner CI and local Blob checks.
+- Product issues [#4](https://github.com/dragginzgame/ic-blob-storage/issues/4),
+  [#5](https://github.com/dragginzgame/ic-blob-storage/issues/5),
+  [#6](https://github.com/dragginzgame/ic-blob-storage/issues/6) and
+  [#20](https://github.com/dragginzgame/ic-blob-storage/issues/20) remain open.
+  Repo gaps above are fixed and the retired-content/overlap and Memory 0.31
+  adoption guidance is current. Consumer mapping/certified-asset transactions,
+  production serving, actual deletion/billing cessation and managed Canic
+  execution retain their downstream/provider owners.
+- Newly accepted [#27](https://github.com/dragginzgame/ic-blob-storage/issues/27)
+  plans a complete runtime-free contracts extraction. Keep it as the next
+  independent design batch: API removals need a coordinated minor boundary,
+  rather than expanding this compatible patch or creating dual contracts.
+  No sibling edits, named Rust symbol removal, full gate, commit, push, release,
+  paid effect or live provider probe occurs in this batch.
 
-## Released 0.17.0 acceptance and pending 0.17.1 tooling
+## Previous inspection — Host 0.4.5
+
+The following inspection is historical; the current batch above supersedes its
+selected graph and upstream qualification status. Its evidence is unchanged.
+
+- Shared Tooling's committed local/remote revision remains **0.1.20**,
+  `3ecc48e579f6cf6e6ab01a6645d8a250fc8c6934`, already selected by this
+  snapshot. Its [latest run/attempt](https://github.com/dragginzgame/shared-tooling/actions/runs/37641211708)
+  now passes Linux, ARM macOS, Intel macOS and lint/security. The previous
+  runner-acquisition failures remain historical evidence. New PR-release helpers
+  are dirty sibling work; they are neither committed nor adopted here.
+- Host **0.4.5** is released at
+  `93a905b048bcaa2a0aed4214ac2f13f065dc2905`. All four official registry rows
+  are non-yanked and match the maintainer-selected **incoming working lock**.
+  The original permission-width compilation failure is fixed by a checked
+  Apple u16 conversion after permission admission. Version 0.4.4 added bounded
+  gzip hash/comparison helpers; Blob needs no new gzip caller.
+- Host's [exact 0.4.5 run](https://github.com/dragginzgame/ic-host-tooling/actions/runs/37645681743)
+  passes Linux/MSRV and compiles on both macOS hosts, then fails one filesystem
+  fixture on each: an unconditional success unwrap for filename bytes `ff 78`
+  receives EILSEQ (`Illegal byte sequence`). Each host passes 57 fs cases.
+  [Host #19](https://github.com/dragginzgame/ic-host-tooling/issues/19) owns this
+  distinct native-filename fixture repair; [#18](https://github.com/dragginzgame/ic-host-tooling/issues/18)
+  is updated to distinguish the fixed compile defect from remaining qualification.
+  The owner matrix is not green; no new consumer/native acceptance is inferred.
+- Released **Blob 0.17.1** remains
+  `7c41e3a90996157312aa40985a9861f4c03ca35e`. Its
+  [matching native run](https://github.com/dragginzgame/ic-blob-storage/actions/runs/37640042157)
+  now passes all three hosts, including tooling, 110 CLI, 21 examples, both
+  installation/carrier cases and one Metrics restoration case per host.
+  [#25](https://github.com/dragginzgame/ic-blob-storage/issues/25) and
+  [#26](https://github.com/dragginzgame/ic-blob-storage/issues/26) are closed on
+  that released Host 0.4.2/Testkit 0.21.1 evidence, independently of pending work.
+- Pending version remains **0.17.2**. Its incoming lock now selects Host 0.4.5;
+  earlier 0.4.3 results below and their immutable evidence do not qualify it.
+  Offline cache preparation refuses uncached `ic-host-tools 0.4.5`, so no
+  new native Rust check runs. Next authorized adoption should prepare the exact
+  locked cache, require the fixed filesystem patch (the declaration still starts
+  at 0.4.3), refresh pending notes/inventory and run focused native qualification.
+  Package version/receipt remain 0.17.1. This check changes no source, dependency
+  selection, changelog, publication or sibling file.
+
+Raw inspection, official index rows, exact run/job logs, issue feedback and
+closure readbacks are retained under `.tmp/tooling-host-review-0172-02/`.
+Product acceptance #4/#5/#6/#20 remains open with its existing owners.
+
+## Previous 0.4.3 adoption inspection
+
+The following statuses describe the preceding source-bound inspection; latest
+owner/consumer observations above supersede them. Original evidence is unchanged.
+
+- Released baseline: **0.17.1**, Git/tag commit
+  `7c41e3a90996157312aa40985a9861f4c03ca35e`, validated sole-parent source
+  `cdc5b412f1063a68352d4bdf7814acfb465a0527`. Remote main, annotated `v0.17.1`
+  and committed receipt hashes agree. Official crates.io metadata contains
+  non-yanked 0.17.1, checksum
+  `35113b1fb312a67d79255e48ef64fc58611a79845bd7344e2dffef122fd1693a`,
+  published 2026-10-07T14:50:15Z, with public Memory `^0.31`.
+- Current work: pending compatible **0.17.2**, preserving the maintainer-selected
+  four Host 0.4.3 packages and testkit 0.21.1. CLI JSON publication now streams
+  through Host's typed durable writer while retaining private 0600 permissions,
+  create-only publication, removed/substituted-run refusal and existing bytes,
+  schemas and error codes. The compatible filesystem requirement starts at
+  0.4.3, which introduced the API. Package versions and receipt remain 0.17.1;
+  the entry lock, Memory 0.31.1 and private-probe Metrics 0.2.8 are unchanged.
+- The canonical **78-file Shared Tooling 0.1.20** snapshot selects committed
+  `3ecc48e579f6cf6e6ab01a6645d8a250fc8c6934` from a clean private export.
+  Shared contribution rules now replace blanket agent-commit prohibitions:
+  an explicit PR request includes scoped commits and its topic-branch push.
+  Ordinary fixes remain local, and this repository's user-specified
+  maintainer-operated one-shot release boundary remains in force.
+- **Portable release blocker:** published Host 0.4.3 fails both macOS compiler
+  jobs at its raw permission conversion. [Host #18](https://github.com/dragginzgame/ic-host-tooling/issues/18)
+  owns the repair; Linux success does not qualify this graph on macOS.
+- Approved layout remains libraries/tools in `crates/`, canisters in
+  `canisters/`, packaged support in `tests/pocketic/` and `tests/protocol/`.
+  All 11 members share the virtual workspace and lock. Core native/Wasm normal
+  graphs exclude Host, Testkit and Metrics; consumer wrappers stay downstream.
+- Product acceptance remains open for the complete publication transaction
+  [#4](https://github.com/dragginzgame/ic-blob-storage/issues/4), deployed serving
+  [#5](https://github.com/dragginzgame/ic-blob-storage/issues/5), retired-content,
+  capacity and deletion/billing evidence
+  [#6](https://github.com/dragginzgame/ic-blob-storage/issues/6), and managed
+  composition [#20](https://github.com/dragginzgame/ic-blob-storage/issues/20).
+  Existing implementation/evidence owners remain authoritative. No downstream
+  graph, provider effect or production instruction saving is qualified here.
+
+## Previous released 0.17.1 and pending 0.17.2 qualification
+
+The [exact released-source native run](https://github.com/dragginzgame/ic-blob-storage/actions/runs/37640042157)
+passes Linux and ARM macOS; Intel macOS is still running at final inspection.
+[#25](https://github.com/dragginzgame/ic-blob-storage/issues/25) and
+[#26](https://github.com/dragginzgame/ic-blob-storage/issues/26) stay open until
+matching committed consumer native acceptance completes. That released graph
+selects Host 0.4.2, not the pending Host 0.4.3 graph. Earlier release acceptance
+and failed attempts remain bound to their original inputs.
+
+Pending 0.17.2 passes actual `make test-native-host`: 111 CLI, 21 example,
+two standalone installation/carrier and one operator-only Metrics restoration
+case, with fresh matching standalone/probe Wasms. Strict CLI/harness Clippy,
+Rust 1.88 compilation, real consumer hook/rollback checks, Make command routing,
+prepared tools, snapshot, dependency pins, format and local links pass.
+Serialization failure publishes no JSON prefix and preserves prior evidence.
+Trusted ancestor/concurrent-writer admission remains caller-owned; the verified
+body publication and durable service/lifecycle contracts are unchanged.
+
+Host's [0.4.3 owner run](https://github.com/dragginzgame/ic-host-tooling/actions/runs/37639415895)
+passes Linux/MSRV and fails both macOS builds: Darwin rustix RawMode is `u16`,
+but the shared durable writer passes its `u32` options directly. The expression
+is also in the verified published source and compiles even without calling the
+descriptor API. Await a compatible owner publication and matching native proof;
+do not patch registry cache, vendor a local engine or weaken CI.
+
+Shared Tooling's [0.1.20 owner run](https://github.com/dragginzgame/shared-tooling/actions/runs/37641211708)
+passes Linux and lint/security. Both macOS jobs fail **before any steps run**;
+GitHub annotations report repeated runner-acquisition failure. Empty logs and
+an HTTP 500 inspection response are retained separately. This is an infrastructure
+qualification gap, not evidence of a failed portable assertion. Owner acceptance
+of native frontend/installer artifact retention remains with
+[Shared Tooling #29](https://github.com/dragginzgame/shared-tooling/issues/29).
+Its owner-specific frontend fixtures are not copied into Blob's snapshot.
+
+The [current adoption record](../evidence/tooling020-host043-0172.md) binds
+source, archive identities, actual artifacts, command results and remaining
+portable limits under `.tmp/latest-tooling-host-0172-01/`. The entry lock and
+receipt remain byte-identical; only the filesystem dependency's required API
+floor changes in Cargo.toml. The pending heading is compatible because public
+service types, CLI bytes/error contracts and durable/lifecycle schemas do not
+change. This is a focused batch, not full gate or release validation. No Rust
+function/method/type is removed; no commit, release or sibling file edit occurs.
+
+## Earlier 0.17.0 acceptance and tooling prepared for 0.17.1
+
+Historical inspection: the following statuses and graphs describe the earlier
+0.17.1 preparation, not the current batch. Its original evidence is unchanged.
 
 The maintainer released the complete batch. Git, annotation/peeled tag, receipt
 and official registry identities agree. Raw inspection inputs are retained under

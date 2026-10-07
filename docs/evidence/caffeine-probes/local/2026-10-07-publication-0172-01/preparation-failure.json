@@ -1,0 +1,7 @@
+{
+  "attempt": "publication-pocketic.log",
+  "outcome": "18 cases refused before service creation because direct Cargo lacked Make-exported fixture paths",
+  "cause": "harness invocation, not an implementation assertion",
+  "native_host": "passed separately with correct Make environment",
+  "next_attempt": "focused Make include with the existing authoritative exports; original attempt retained"
+}

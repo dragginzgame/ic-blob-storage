@@ -61,8 +61,11 @@ receipt-source reads before comparing their output. Matching output from a faile
 command is refused before proceeding. These checks preserve existing metadata
 and build inputs; they do not replace full validation or exact tag verification.
 
-Commit the implementation and notes before releasing. Agents never create those
-commits or invoke the one-shot commands below. The explicit metadata/check
+Deliver ordinary changes through the [shared PR workflow](../rules/contributions.md)
+when requested, including its scoped commits and topic-branch push. Release
+requires committed clean implementation and notes. Under this repository's
+maintainer-operated boundary in [AGENTS.md](../AGENTS.md#delivery-and-release),
+agents do not invoke the one-shot commands below. The explicit metadata/check
 adapters are available for inspection or separately authorized preparation;
 do not bypass the runner's saved intent or reuse validation from another source.
 

@@ -1,0 +1,29 @@
+{
+  "schema": 1,
+  "evidence_class": [
+    "source_review",
+    "local_http_substitute",
+    "local_pocketic"
+  ],
+  "question": "Reject duplicate proposed provider roots before publisher effects; retain bounded actual HTTP headers without changing hash metadata or attestation inputs; requalify exact publication/reference recovery on selected graph.",
+  "base": "7c41e3a90996157312aa40985a9861f4c03ca35e",
+  "graph": {
+    "Host": "0.4.6",
+    "Testkit": "0.21.1",
+    "Memory": "0.31.1",
+    "Metrics": "0.2.8"
+  },
+  "actors": "existing test-owned tenant/operator/verifier principals; no real identity or provider namespace",
+  "targets": "loopback mock HTTP and isolated PocketIC fixtures; exact service calls selected by existing publication/lifecycle test modules",
+  "budgets": {
+    "live_provider_requests": 0,
+    "paid_cycles": 0,
+    "per_mock_request_seconds": 30,
+    "pocketic_cases_maximum": 55,
+    "canisters_per_case_maximum": 3,
+    "mock_provider_http_requests_maximum": 48,
+    "mock_provider_http_body_bytes_maximum": 41943040
+  },
+  "stop_conditions": "any unexpected request, paid effect or failed test; retain failed attempt before repair/retry",
+  "cleanup": "test-owned temporary directories, mock threads, child processes and PocketIC instances dropped; retained raw logs under .tmp/product-issues-0172-01/; no external cleanup"
+}

@@ -14,8 +14,11 @@ Ordinary implementation and continuation authorize scoped local work, not
 version changes, Git publication, deployment or paid provider effects.
 An explicit maintainer instruction authorizes the exact named action; no
 second confirmation or magic phrase is required when the target is clear.
-Agents must never create or amend commits, directly or through helpers.
-Consequently commit-producing one-shot release targets are human-operated.
+Commit and PR requests follow the [shared contribution rules](../../rules/contributions.md):
+an explicit PR request includes scoped commits and its topic-branch push;
+ordinary fixes do not authorize either. Merge and direct integration pushes
+retain separate authority. The maintainer-operated one-shot release boundary in
+[AGENTS.md](../../AGENTS.md#delivery-and-release) remains in force here.
 
 Sibling repositories remain read-only unless explicitly named and authorized.
 Preserve unrelated dirty work. Never alter source beneath an active validation

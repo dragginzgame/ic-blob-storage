@@ -1,0 +1,14 @@
+{
+  "corrects": "docs/evidence/caffeine-probes/local/2026-10-07-publication-0172-01/intent.json",
+  "reason": "The entry lock already selects the newer Metrics patch; the initial intent copied the preceding handoff value. Preserve the initial intent and bind execution to the separately copied entry lock and actual graph.",
+  "actual_entry_graph": {
+    "ic-host-artifacts": "0.4.6",
+    "ic-host-fs": "0.4.6",
+    "ic-host-process": "0.4.6",
+    "ic-host-tools": "0.4.6",
+    "ic-memory": "0.31.1",
+    "ic-metrics": "0.2.9",
+    "ic-testkit": "0.21.1"
+  },
+  "dependency_selection_changed_by_agent": false
+}

@@ -17,8 +17,41 @@ impl Trial {
             binding["upload"] = json!((index + 1).to_string());
             binding["object"] = json!((index + 3).to_string());
             binding["first_reference"] = json!((index + 5).to_string());
+            let mut manifest = fixture::manifest();
+            if index == 1 {
+                use ic_blob_storage::model::identity::caffeine::{
+                    CaffeineContentHasher, CaffeineHashLimits, CaffeineHeader,
+                };
+                let headers = [
+                    CaffeineHeader {
+                        name: "Content-Length",
+                        value: "3",
+                    },
+                    CaffeineHeader {
+                        name: "Content-Type",
+                        value: "application/octet-stream",
+                    },
+                ];
+                let mut hasher = CaffeineContentHasher::new(
+                    3,
+                    &headers,
+                    CaffeineHashLimits {
+                        max_content_bytes: 10.try_into().unwrap(),
+                        max_append_bytes: 10.try_into().unwrap(),
+                        max_headers: 2.try_into().unwrap(),
+                        max_header_bytes: 256.try_into().unwrap(),
+                    },
+                )
+                .unwrap();
+                hasher.append(0, b"abc").unwrap();
+                let root = hasher.finish().unwrap().provider_root.to_string();
+                binding["root"] = json!(root);
+                binding["preparation"]["content_type"] = json!("application/octet-stream");
+                manifest["tree"]["hash"] = binding["root"].clone();
+                manifest["headers"][1] = json!("Content-Type: application/octet-stream");
+            }
             let binding_bytes = serde_json::to_vec(&binding).unwrap();
-            let manifest_bytes = serde_json::to_vec(&fixture::manifest()).unwrap();
+            let manifest_bytes = serde_json::to_vec(&manifest).unwrap();
             let binding_path = format!("binding-{index}.json");
             let manifest_path = format!("manifest-{index}.json");
             let body_path = format!("body-{index}.bin");
@@ -83,6 +116,21 @@ impl Trial {
         fs::write(path, &bytes).unwrap();
         self.inventory["files"][1]["binding_sha256"] = json!(digest(&bytes));
     }
+}
+
+#[test]
+fn duplicate_provider_root_with_distinct_operation_ids_refuses_before_output() {
+    let mut trial = Trial::new();
+    let first: Value =
+        serde_json::from_slice(&fs::read(trial.base.path().join("binding-0.json")).unwrap())
+            .unwrap();
+    trial.change_binding("root", first["root"].clone());
+    trial.change_binding("preparation", first["preparation"].clone());
+    let manifest = fs::read(trial.base.path().join("manifest-0.json")).unwrap();
+    fs::write(trial.base.path().join("manifest-1.json"), &manifest).unwrap();
+    trial.inventory["files"][1]["manifest_sha256"] = json!(digest(&manifest));
+    assert_eq!(execute(&trial.args()), Err(Failure::Binding));
+    assert!(!trial.output().exists());
 }
 
 #[test]

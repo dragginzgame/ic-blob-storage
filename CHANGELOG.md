@@ -1,5 +1,31 @@
 # Changelog
 
+## [0.17.2]
+
+### Changed
+
+- Select native Host 0.4.6 and stream CLI JSON records through its typed durable
+  writer, avoiding a complete encoded JSON buffer. Preserve private permissions,
+  create-only publication and existing output/error contracts. Require the
+  compatible filesystem patch 0.4.5 or later, including its macOS compile fix.
+- Qualify the selected native harness on Testkit 0.21.2, retaining exact
+  publication recovery, lifecycle/reference checks and the existing service graph.
+
+### Added
+
+- Retain bounded MIME, cache and CORS response-header observations beside native
+  verified downloads, preserving duplicate values and marking incomplete capture.
+  Keep these observations separate from original hash metadata and browser
+  qualification. See [#5](https://github.com/dragginzgame/ic-blob-storage/issues/5).
+
+### Fixed
+
+- Reject duplicate provider roots in fresh publication batches before creating
+  output or sending requests, even when operation, object and reference IDs
+  differ. Existing content requires its exact retain/recovery path. See
+  [#4](https://github.com/dragginzgame/ic-blob-storage/issues/4) and
+  [#6](https://github.com/dragginzgame/ic-blob-storage/issues/6).
+
 ## [0.17.1] - 2026-10-07
 
 ### Changed

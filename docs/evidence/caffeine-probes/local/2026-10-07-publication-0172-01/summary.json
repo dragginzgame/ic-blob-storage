@@ -1,0 +1,170 @@
+{
+  "schema": 1,
+  "base": "7c41e3a90996157312aa40985a9861f4c03ca35e",
+  "pending": "0.17.2",
+  "compiled_version": "0.17.1",
+  "evidence_classes": [
+    "source_review",
+    "local_http_substitute",
+    "local_pocketic"
+  ],
+  "actual_entry_graph": {
+    "ic-host-artifacts": "0.4.6",
+    "ic-host-fs": "0.4.6",
+    "ic-host-process": "0.4.6",
+    "ic-host-tools": "0.4.6",
+    "ic-memory": "0.31.1",
+    "ic-metrics": "0.2.9",
+    "ic-testkit": "0.21.1"
+  },
+  "source_record": "docs/evidence/publication-0172.md",
+  "raw_directory": ".tmp/product-issues-0172-01",
+  "intent": {
+    "path": "docs/evidence/caffeine-probes/local/2026-10-07-publication-0172-01/intent.json",
+    "sha256": "cfd819f675f88143065fc35ea1eaedda5d3da284ffaa2670ca4436c7efbba6fd",
+    "correction": "docs/evidence/caffeine-probes/local/2026-10-07-publication-0172-01/intent-correction.json"
+  },
+  "preserved_inputs": {
+    ".tmp/product-issues-0172-01/entry-Cargo.lock": "37a4181dbbf813d3bf5173c87cc47217ad64239d00d28fb900e05e27b44fb57a",
+    ".tmp/product-issues-0172-01/entry-Cargo.toml": "2b626e04cf8f7d8e978e412d31553b05b988c486e8f5dd79497cc828c5e5d0cc",
+    ".tmp/product-issues-0172-01/entry-release.json": "c3c4d1f737b9acaa67262f4b31fc74c9bb9a3e832cbbb7a0dffad255360b3158",
+    ".tmp/product-issues-0172-01/entry.patch": "1dd4b360083e7a8512550629020eaba696872e38704b7b347e90fbecfed1c571"
+  },
+  "checks": [
+    {
+      "log": ".tmp/product-issues-0172-01/native-host.log",
+      "sha256": "7273ae2b6fa940c73147a23d6ffec63f1c7f15ae07ff30147910cc504854a198",
+      "outcome": {
+        "cli": 114,
+        "examples": 21,
+        "installation_carrier": 2,
+        "metrics": 1
+      }
+    },
+    {
+      "log": ".tmp/product-issues-0172-01/publication-pocketic-retry.log",
+      "sha256": "24763ade46e2f9ad583292dc48988c9a88e76d5b130264ea40460956a7698f40",
+      "outcome": {
+        "publication": 18
+      }
+    },
+    {
+      "log": ".tmp/product-issues-0172-01/lifecycle-pocketic.log",
+      "sha256": "8b6031f07967d3f1143a63e43cdc6746b9fee5aafbc4be1c232383e39a4a3ae3",
+      "outcome": {
+        "lifecycle": 10
+      }
+    },
+    {
+      "log": ".tmp/product-issues-0172-01/planning-pocketic.log",
+      "sha256": "61b327ab7e504a30ebe9857af70ac61dd13c55e5bed5af0aa496d2edea32fa1a",
+      "outcome": {
+        "planning": 2
+      }
+    },
+    {
+      "log": ".tmp/product-issues-0172-01/reads-pocketic.log",
+      "sha256": "5ea6a18bcefd7d27f404b8fe0ef84f03ee207aebe3faa09a0ca5eeb52fb6ac13",
+      "outcome": {
+        "reads": 6
+      }
+    },
+    {
+      "log": ".tmp/product-issues-0172-01/native-clippy.log",
+      "sha256": "a05ca77db29a22c62272e6d02018b00843b6ea9dec8187887b6b3b1eab0038ea",
+      "outcome": {
+        "strict_clippy": "pass"
+      }
+    },
+    {
+      "log": ".tmp/product-issues-0172-01/msrv-native.log",
+      "sha256": "d4c9c28c2d34d3463bf261d3b44aeb418af23890aaaa3e2b2f8e375f70839ca4",
+      "outcome": {
+        "rust_1_88": "pass"
+      }
+    },
+    {
+      "log": ".tmp/product-issues-0172-01/batch-preflight.log",
+      "sha256": "0e383d409cc5306ddd0c81ec443f4f088675a7b48092a6ef5343a0770503e8e6",
+      "outcome": {
+        "batch": 8
+      }
+    },
+    {
+      "log": ".tmp/product-issues-0172-01/header-records.log",
+      "sha256": "efbc903704d7bd2ab4418cce61f26d6b2ff0d93733116a23a7e0d178fe9a832f",
+      "outcome": {
+        "header_records": 2
+      }
+    },
+    {
+      "log": ".tmp/product-issues-0172-01/final-maintenance.log",
+      "outcome": {
+        "format": "pass",
+        "shared_snapshot": "pass",
+        "dependency_pins": "pass",
+        "initial_links": "missing-summary preparation failure retained"
+      },
+      "sha256": "6df1a89b58a1c59dc371dc438368a20657766f23a127a8b3cbe1e2fb02adbe41"
+    },
+    {
+      "log": ".tmp/product-issues-0172-01/final-links-retry.log",
+      "outcome": {
+        "local_documentation_links": "pass",
+        "references": 1085
+      },
+      "sha256": "efd6e00e6aabd7430df60f05f149872cdd39bc7f60a1bbd1a4b0c7ab3c8c5b46"
+    }
+  ],
+  "retained_failures": [
+    {
+      "log": ".tmp/product-issues-0172-01/duplicate-root-before.log",
+      "sha256": "10036033b22fc44b742b460c5b54f620e18736927cb2c6a4bf3e3b4d4b644ba6",
+      "result": "expected pre-fix regression failure"
+    },
+    {
+      "log": ".tmp/product-issues-0172-01/publication-pocketic.log",
+      "sha256": "3098207163dbd0ee3afc0c29acd51e3cf603ad66306669cc8433d2f2a72bd76c",
+      "result": "18 missing Make-exported fixture paths; no service created; separate retry passes"
+    },
+    {
+      "log": ".tmp/product-issues-0172-01/evidence-preparation-failures.json",
+      "sha256": "166c65f781d675e2ec3c4fd8bbc2cf94e4ed0295260d5035a0d5aa4eafaae63e",
+      "result": "metadata collection failures and missing-summary link check retained separately"
+    }
+  ],
+  "bindings": {
+    "tested_artifacts": ".tmp/product-issues-0172-01/preserved-artifacts.sha256",
+    "source_files": ".tmp/product-issues-0172-01/source-files.sha256",
+    "raw_files": ".tmp/product-issues-0172-01/SHA256SUMS"
+  },
+  "receipt_unchanged": true,
+  "manifest_change": "ic-host-fs compatible minimum 0.4.3 -> 0.4.5 only",
+  "published_host_source": "0fb05f9e18f032425188d68e1d69317a0f0127d5",
+  "published_testkit_source": "a98d751fb6991c12a5d0cd8faaddabe1e879199d",
+  "owner_native_ci": "https://github.com/dragginzgame/ic-host-tooling/actions/runs/37648086908",
+  "live_provider_requests": 0,
+  "paid_cycles": 0,
+  "cleanup": "owned temporary fixtures, mock threads, processes and PocketIC instances dropped; retained raw evidence; no external cleanup pending",
+  "limitations": [
+    "parsed headers are not deployed browser or certified HTTP evidence",
+    "synthetic provider lifecycle is not actual deletion or billing cessation",
+    "dirty Blob graph has no matching committed native macOS result",
+    "Canic managed composition and consumer mapping/asset transaction remain downstream-owned",
+    "no full gate, commit, push, release, publication, sibling edit or named Rust symbol removal"
+  ],
+  "issue_feedback": {
+    "4": "https://github.com/dragginzgame/ic-blob-storage/issues/4#issuecomment-6042211998",
+    "5": "https://github.com/dragginzgame/ic-blob-storage/issues/5#issuecomment-6042212407",
+    "6": "https://github.com/dragginzgame/ic-blob-storage/issues/6#issuecomment-6042212732",
+    "20": "https://github.com/dragginzgame/ic-blob-storage/issues/20#issuecomment-6042213134"
+  },
+  "issue_readbacks": {
+    "4": "a17713544c67360fb78b03d6d098dd24f0faff8f9ee06f72d0ac91b20611231b",
+    "5": "7fa0d161ac3c8902c518f7eca23fc8d4c67cede5abca71d3393411ba02ce60c5",
+    "6": "8c60f1830327bbf7fa7043042d62304936d379be425830808c282520738c8b16",
+    "20": "e6e017fe6d8b186ab8568c2e7635e0024d2dee4493e79b5ab5bbd61dfdaae165"
+  },
+  "entry_lock_unchanged_during_initial_checks": true,
+  "later_external_lock_change": "Testkit 0.21.2; separately qualified under testkit-recheck-intent.json"
+}

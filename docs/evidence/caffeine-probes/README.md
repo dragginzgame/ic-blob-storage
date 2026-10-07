@@ -14,6 +14,41 @@ maintained release and open work.
 [acceptance plan](../../acceptance-plan.md) ·
 [service gaps](../../service-gaps.md)
 
+## Publication roots and native header observations — 2026-10-07
+
+The [intent](local/2026-10-07-publication-0172-01/intent.json), separate
+[Metrics-label correction](local/2026-10-07-publication-0172-01/intent-correction.json)
+and [summary](local/2026-10-07-publication-0172-01/summary.json) bind source review,
+loopback HTTP and isolated PocketIC execution. The original intent is preserved;
+the entry lock and compiled logs select Metrics 0.2.9, not its copied 0.2.8 label.
+All four Host packages select 0.4.6, Memory 0.31.1 and Testkit 0.21.1. Compiled
+identity remains 0.17.1 for pending compatible 0.17.2. Live provider requests and
+paid cycles are zero; no production namespace or credential is used.
+
+The duplicate-root regression first fails, then passes with bounded fresh-batch
+admission fixed before output/effects. Native HTTP observations retain duplicate
+MIME/cache/CORS-relevant header values with explicit partial-capture limits;
+original root metadata and attestation records are unchanged. Actual body
+corruption/truncation/refusal checks remain. These parsed observations do not
+qualify deployed CORS, MIME, caching, certified HTTP or browser acceptance.
+
+Actual Make native-host checks pass 114 CLI, 21 examples, two installation/carrier
+and one Metrics case. The first direct publication attempt lacks Make-exported
+fixture paths and fails before creating services; its raw log and failure remain.
+The Make-environment retry passes 18 publication cases, followed by ten lifecycle,
+two planning and six read/cleanup cases. Strict Clippy and Rust 1.88 checks pass.
+Owned mock/test resources are dropped; no external cleanup is pending.
+The [full record](../publication-0172.md) keeps source/artifact/raw bindings and
+the four product issues' downstream/deployed acceptance limits.
+
+An external lock change after those checks selects Testkit 0.21.2. The separate
+[additional intent](local/2026-10-07-publication-0172-01/testkit-recheck-intent.json)
+and [recheck summary](local/2026-10-07-publication-0172-01/testkit-recheck-summary.json)
+retain that second graph's source/registry proof and another passing native-host,
+18 publication, ten lifecycle, two planning, six read, Clippy and MSRV run. Initial
+tested binaries are copied before recompilation; earlier results are not rebound.
+Zero paid/live effects apply independently to the second intent's additional budget.
+
 ## Native download fixture and selected graph — 2026-10-06
 
 The [intent](local/2026-10-06-native-download-0152-01/intent.json) and
@@ -3861,6 +3896,12 @@ That checksum check establishes artifact integrity, not scenario correctness or
 provider authenticity; rerunning the opt-in test establishes current local behavior.
 
 ## Run index
+
+`publication-0172-01` / 2026-10-07: source review and local HTTP/PocketIC evidence
+for duplicate fresh provider-root refusal, bounded parsed headers and exact
+publication/reference recovery. Zero paid/live effects; original intent and
+failed attempts retained. See
+[summary](local/2026-10-07-publication-0172-01/summary.json).
 
 `native-download-0152-01` / 2026-10-06: source review and local Linux socket/PocketIC
 substitutes, selected dependency graph and exact artifact qualification;

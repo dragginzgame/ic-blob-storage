@@ -1,4 +1,5 @@
 //! Provider body verification; original service metadata always owns the root.
+mod headers;
 use super::{
     Failure,
     artifacts::{DownloadOutcomeRecord, HttpResponseRecord, Run},
@@ -90,6 +91,12 @@ async fn body(
         &HttpResponseRecord {
             status: response.status().as_u16(),
         },
+    )?;
+    // Native HTTP observations are evidence, never replacement hash metadata or
+    // browser-serving acceptance. Keep the existing attestation input unchanged.
+    run.json(
+        "http-response-headers.json",
+        &headers::record(response.headers()),
     )?;
     if response.status() != reqwest::StatusCode::OK
         || response
