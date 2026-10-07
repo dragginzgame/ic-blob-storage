@@ -12,7 +12,7 @@ These commands do not deploy or contact Caffeine.
 The [Candid contract](service.did) is generated from the endpoint declarations:
 
 ```sh
-cargo run --offline --locked -p ic-blob-storage-canister --example export_candid > crates/ic-blob-storage-canister/service.did
+cargo run --offline --locked -p ic-blob-storage-canister --example export_candid > canisters/standalone/service.did
 ```
 
 Installation takes one explicit

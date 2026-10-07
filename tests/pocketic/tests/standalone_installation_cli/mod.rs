@@ -8,7 +8,7 @@ use std::path::Path;
 fn deployment_candid_matches_the_exported_contract() {
     candid_parser::utils::service_equal(
         candid_parser::utils::CandidSource::Text(include_str!(
-            "../../../ic-blob-storage-canister/service.did"
+            "../../../../canisters/standalone/service.did"
         )),
         candid_parser::utils::CandidSource::Text(&ic_blob_storage_canister::candid_interface()),
     )
@@ -17,7 +17,7 @@ fn deployment_candid_matches_the_exported_contract() {
 
 fn trial_configuration(f: &Fixture) -> ServiceConfigurationInput {
     let mut template =
-        include_str!("../../../ic-blob-storage-canister/trial/configuration.args.template")
+        include_str!("../../../../canisters/standalone/trial/configuration.args.template")
             .to_owned();
     for (placeholder, principal) in [
         ("ACTUAL_SERVICE_PRINCIPAL", f.service),
@@ -27,7 +27,7 @@ fn trial_configuration(f: &Fixture) -> ServiceConfigurationInput {
     ] {
         template = template.replace(placeholder, &principal.to_text());
     }
-    let declared = include_str!("../../../ic-blob-storage-canister/service.did");
+    let declared = include_str!("../../../../canisters/standalone/service.did");
     let (env, _) = candid_parser::utils::CandidSource::Text(declared)
         .load()
         .unwrap();

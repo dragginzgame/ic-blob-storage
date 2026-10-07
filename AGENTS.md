@@ -89,9 +89,15 @@ it does not override shared rules or depend on a mutable sibling checkout.
 
 - Use Rust edition 2024, directory modules with mod.rs and named boundary types.
   Do not use path attributes to work around module layout.
-- The virtual root owns all maintained packages under `crates/<package-name>/`,
-  following [the shared workspace rule](rules/rust-workspaces.md). Browser tests
-  and frozen inputs under `tests/` are not separate Rust packages.
+- Maintainer-approved physical-layout exception (2026-10-07), under
+  [the shared workspace rule](rules/rust-workspaces.md): keep the library and CLI
+  in `crates/`, standalone and probe canisters in `canisters/`, and packaged test
+  support in `tests/pocketic/` and `tests/protocol/`. The maintainer explicitly
+  reversed the crates-only moves. Do not relocate these packages during routine
+  adoption; a future redesign requires separate explicit approval. All 11 members
+  still share one virtual root, lockfile and inherited versions/dependencies.
+  Formatters and source/release inventories cover Cargo's complete member roster.
+  Ordinary browser tests and frozen inputs remain under `tests/`.
 - Document public types and meaningful invariants. Prefer expect over allow
   for lint suppressions. Keep authority predicates readable and independently
   testable rather than long mixed boolean expressions.

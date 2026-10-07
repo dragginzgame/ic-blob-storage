@@ -8,7 +8,7 @@ use serde::Deserialize;
 // selection. The unpublished fixture package itself always has version 0.0.0.
 pub(crate) fn release_binding() -> [u8; 32] {
     *ic_blob_storage::model::identity::ContentDigest::compute(include_bytes!(
-        "../../../../../Cargo.lock"
+        "../../../../../../Cargo.lock"
     ))
     .as_bytes()
 }

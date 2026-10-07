@@ -119,7 +119,7 @@ illustrates syntax only: its principals, namespace and financial values are not
 trial defaults. From the repository root:
 
 ```sh
-didc encode --defs crates/ic-blob-storage-canister/service.did \
+didc encode --defs canisters/standalone/service.did \
   --types '(ServiceConfigurationInput)' < trial-configuration.args > trial-configuration.hex
 perl -ne 'chomp; print pack("H*", $_)' trial-configuration.hex > trial-configuration.candid
 cargo build --offline --locked -p ic-blob-storage-cli --bin blob-storage
@@ -148,7 +148,7 @@ insufficient. Independently decode the generated carrier before installation:
 
 ```sh
 perl -0777 -ne 'print unpack("H*", $_)' .tmp/trial-installation-check/installation.candid |
-  didc decode --defs crates/ic-blob-storage-canister/service.did --types '(ServiceInstallationInput)'
+  didc decode --defs canisters/standalone/service.did --types '(ServiceInstallationInput)'
 ```
 
 Compare the decoded values and both file hashes with the finalized plan. No
@@ -200,7 +200,7 @@ authority. Keep [trial facts](evidence/caffeine-upload-gates.json) and the
 
 ## Prepare isolated trial provisioning
 
-Use the [maintained configuration envelope](../crates/ic-blob-storage-canister/trial/README.md)
+Use the [maintained configuration envelope](../canisters/standalone/trial/README.md)
 and private `.tmp/trial-provisioning-01/proposal.json`. The preparation proposes
 `canic-mainnet` solely as deployer/controller/operator, with a fresh repository-local
 principal explicitly sharing payer/tenant/trusted-uploader roles and a distinct
@@ -1711,7 +1711,7 @@ reports provider completion/availability as unestablished/unobserved. It does no
 fetch provider content, attest completion, write a destination or grant retry
 authority. Inspection works after restoration without clearing fences. This is
 separate from the configured verifier's trusted availability attestation described
-in the [standalone contract](../crates/ic-blob-storage-canister/README.md).
+in the [standalone contract](../canisters/standalone/README.md).
 
 ## Recover an attestation receipt
 
@@ -1768,7 +1768,7 @@ the signed reply and uses the maintained Caffeine request-target encoder. The ho
 must have already recorded exposure. Standalone exposes an uploader-only
 `blob_upload_certificate_assessment(root)` and the canonical certificate update,
 with the accepted restricted trusted-uploader/current-owner contract; see
-the [host contract](../crates/ic-blob-storage-canister/README.md).
+the [host contract](../canisters/standalone/README.md).
 Unexposed, confirmed or restored work rejects before any provider GET. Revoked or
 suspended exposed uploads remain eligible for reconciliation.
 

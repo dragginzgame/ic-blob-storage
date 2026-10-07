@@ -187,10 +187,10 @@ The root is a virtual Cargo workspace. All 11 maintained Rust packages use
 | Location | Responsibility |
 | --- | --- |
 | [Rust core](crates/ic-blob-storage) | Content, policy, durable state and shared workflows; no downstream framework dependency |
-| [Standalone host](crates/ic-blob-storage-canister/README.md) | Explicit endpoints, installation, memory and lifecycle |
+| [Standalone host](canisters/standalone/README.md) | Explicit endpoints, installation, memory and lifecycle |
 | [Native CLI](crates/ic-blob-storage-cli) | Offline snapshots and batch inputs, signed setup/inspection, tenant references, verified downloads and verifier tooling |
 | [Browser client](clients/browser/README.md) | Certificate transport and durable intent boundary; reuses Caffeine's upload SDK |
-| [PocketIC harness](crates/ic-blob-storage-pocketic-tests) | Actual local canister, lifecycle and inter-canister tests |
+| [PocketIC harness](tests/pocketic) | Actual local canister, lifecycle and inter-canister tests |
 
 The host owns one `ic-memory` runtime and its allocation policy. Linking a library registers no endpoints or lifecycle hooks.
 See [memory composition](docs/dependencies.md#memory-composition)
@@ -224,7 +224,7 @@ for the integration details.
 | Observe provider bytes and submit a verifier statement | [Observation](docs/operator-guide.md#observe-provider-content) and [submission](docs/operator-guide.md#submit-an-attestation) |
 | Prepare file manifests, inventories or saved bodies | [Local preparation guide](docs/local-tools.md#prepare-one-file) |
 | Inspect or exercise a running PocketIC fixture | [Fixture tools](docs/local-tools.md#inspect-a-running-pocketic-fixture) |
-| Integrate the standalone canister | [Host configuration and endpoint contract](crates/ic-blob-storage-canister/README.md) |
+| Integrate the standalone canister | [Host configuration and endpoint contract](canisters/standalone/README.md) |
 | Resume a fenced current instance | [Operator recovery and finite IC history](docs/operator-guide.md#current-instance-recovery) |
 
 These guides retain the exact command examples, input formats, limits and recovery

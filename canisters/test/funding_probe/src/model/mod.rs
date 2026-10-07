@@ -273,7 +273,7 @@ fn valid_receipt(receipt: FundingReceiptRecord) -> bool {
 }
 
 fn release_binding() -> [u8; 32] {
-    *ContentDigest::compute(include_bytes!("../../../../Cargo.lock")).as_bytes()
+    *ContentDigest::compute(include_bytes!("../../../../../Cargo.lock")).as_bytes()
 }
 
 /// Storage arithmetic only; shared policy separately verifies derived reconciliation.

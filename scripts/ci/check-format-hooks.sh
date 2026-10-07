@@ -12,8 +12,8 @@ finish() {
 trap finish EXIT
 selected=crates/ic-blob-storage/src/lib.rs
 overlays=(ci/tool-versions.env scripts/ci/check-format-tools.sh Cargo.lock)
-# Copy formatter inputs from every actual member, including newly moved packages
-# absent from HEAD. Cargo owns the roster for both crates/ and apps/ layouts.
+# Copy formatter inputs from every actual member, including working-tree packages
+# absent from HEAD. Cargo owns the roster across standard and approved layouts.
 cargo metadata --offline --locked --no-deps --format-version 1 \
     --manifest-path "$ROOT/Cargo.toml" > "$TEMPORARY/metadata.json"
 jq -r '. as $m | .packages[] | select(.id as $id | $m.workspace_members | index($id)) | .manifest_path' \

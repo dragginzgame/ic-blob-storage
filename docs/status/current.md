@@ -16,13 +16,15 @@ Date: 2026-10-07
   [#15](https://github.com/dragginzgame/ic-blob-storage/issues/15).
   Cargo's package version and the release receipt remain at 0.15.3.
   The selected graph uses ic-memory
-  0.30.0, direct native ic-host-artifacts/ic-host-fs 0.3.1 and native harness ic-testkit 0.19.2
-  (which retains transitive ic-host-tools 0.1.14).
+  0.30.0, direct native ic-host-artifacts/ic-host-fs 0.3.2 and native harness ic-testkit 0.20.0
+  (which selects transitive ic-host-tools 0.3.2).
   The private storage resource probe now selects ic-metrics 0.2.5; the production
   core and standalone graphs do not add it.
   Native examples reuse the shared bounded JSON stream collector through a
   native-only development dependency. Hosts must rebuild on one Memory 0.30
   identity; durable formats remain unchanged by this dependency selection.
+  The maintainer-approved physical layout retains libraries/tools in `crates/`,
+  canisters in `canisters/`, and the packaged test harness/protocol in `tests/`.
   The earlier accidental Cargo rollback was restored;
   its diff and original files remain under `.tmp/post-release-0151-01`.
 - Product state: working library and standalone prototype with retained live
@@ -50,6 +52,66 @@ Date: 2026-10-07
 - Main remaining work: provider credit evidence and consumer funding integration,
   consumer adoption, complete publication transactions, provider deletion and
   billing evidence, production sizing and retirement.
+
+## Role-based layout restored — pending 0.16.0
+
+The maintainer explicitly reversed the crates-only relocation on 2026-10-07.
+At task entry, local HEAD is ordinary commit
+`c727dbc87c07c92738a4cb0d75d2fb0825e32878` (`0.16.0`), while package metadata and
+the release receipt still identify 0.15.3. No tag points at that local commit;
+its message is not release/publication evidence. The entry lock already selects
+ic-testkit 0.20.0 and native artifacts/fs 0.3.2; these selections are preserved.
+
+Shared Tooling remote main still resolves to reviewed 0.1.14 `25e7ce8`. The
+later dirty guidance records IcyDB's approved physical-layout exception under
+[shared-tooling #34](https://github.com/dragginzgame/shared-tooling/issues/34);
+those uncommitted bytes are reviewed source, not an adopted snapshot. The
+maintainer's direct rollback instruction approves this repository's own scoped
+exception, recorded in AGENTS.md. The 63-file snapshot remains unchanged.
+
+Nine live package trees and all 347 files are moved back: standalone and six
+probe canisters under `canisters/`, harness/protocol under `tests/pocketic/` and
+`tests/protocol/`. The library and CLI stay in `crates/`. Root members/catalog,
+source-relative fixture/lock/Candid/template inputs and current documented paths
+follow the restored layout. Eighteen navigation-only edits introduced for the
+earlier relocation return to their original local targets. Earlier evidence
+prose and immutable JSON records are preserved, including the original move
+and Memory graph records. No named function, method or type is removed; this is
+a physical rollback carrying current source, not a reset to old Git contents.
+
+All 11 members remain in one virtual root with inherited metadata/dependencies
+and one selected lock. Metadata equivalence checks preserve exact package/target
+identities, effective features and dependencies after path, order and Cargo-ID
+notation normalization. Entry lock, snapshot and release receipt are byte-identical.
+The formatter still derives its complete source roster from Cargo metadata, so
+approved role-based trees receive the same selected-file and rollback coverage.
+Pending notes retain 0.16.0 for the unrelated public Memory hard cut and now
+describe retaining the approved layout rather than shipping a forced move.
+
+Nine restored packages pass native all-target checks and strict Clippy; all
+seven canister Wasms build. Rust 1.88 native/Wasm checks and Linux Bash 5/Bash 3.2
+formatter preservation, failed-format rollback and unsafe Make-mode refusals
+pass. Candid parity and three actual PocketIC cases pass with fresh matching
+Wasms: repeated lifecycle fencing, operator restoration-read diagnostics and
+corrupt funding-journal refusal. Core archive preparation succeeds without
+verification compilation or publication. Documentation links, formatting and
+snapshot checks pass. Declaration/inheritance coverage uses a private index
+for the unstaged reversal, preserving the real index; staging these moves remains
+the maintainer's action.
+
+The [rollback record](../evidence/layout-rollback-0160.json) owns focused checks,
+source/artifact identities, raw attempts and limitations under
+`.tmp/layout-rollback-0160-01`. Prior focused records keep their original paths
+and graphs; they are not relabelled as qualification of this restored source.
+No full CI/release gate, native macOS execution, release effect, provider request,
+paid effect or sibling file edit occurs. Matching committed consumer/native
+qualification remains separate from this physical-layout decision.
+
+The owning [forced-move issue #17](https://github.com/dragginzgame/ic-blob-storage/issues/17)
+is closed as not planned for the cancelled relocation, with rollback evidence
+read back from GitHub. Automatic approval review rejected an optional comment
+to Shared Tooling #34 as lacking explicit cross-repository messaging permission;
+that comment is not sent. The finding remains recorded on this repository's #17.
 
 ## Memory 0.30 and example streams — pending 0.16.0
 
@@ -105,6 +167,9 @@ occurs. Publication and Canic-owned adapter/three-lock/managed qualification sta
 open under #20; matching committed native qualification stays separate under #21.
 
 ## Shared Tooling 0.1.14 and workspace adoption — earlier 0.15.4 candidate
+
+The physical relocations in this earlier record are reversed by the approved
+rollback above. Its source/artifact evidence remains bound to the earlier layout.
 
 The maintainer authorized adoption of the new rules. The reviewed snapshot now
 records 63 canonical files at `25e7ce83149e081e4dcc52c55c33724e44153f2a`.

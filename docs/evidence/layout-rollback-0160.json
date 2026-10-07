@@ -1,0 +1,299 @@
+{
+   "authorization" : "Maintainer explicitly requested reversing the strict crates-only changes. AGENTS.md records the scoped physical-layout exception for canisters/ and packaged tests/ support. No further approval is required to retain these paths.",
+   "bindings" : [
+      {
+         "path" : ".tmp/layout-rollback-0160-01/artifacts-verify.log",
+         "sha256" : "94e9ae2821e2e4e2a4443b682b8674135f4cc101705267626aafc796c645504d"
+      },
+      {
+         "path" : ".tmp/layout-rollback-0160-01/artifacts.sha256",
+         "sha256" : "a2088ed75bbefe5ab0cee7423adb8a7ee747246613e9a88556c8b849e3f496ff"
+      },
+      {
+         "path" : ".tmp/layout-rollback-0160-01/blob-shared-layout-issues.json",
+         "sha256" : "62351cf89207b60faddbbd11ed590721f468f51f252b860120f200bd424e6176"
+      },
+      {
+         "path" : ".tmp/layout-rollback-0160-01/blob-shared-layout-remote.json",
+         "sha256" : "7db1afb725ce3a15acc2ca2cde82a98d3fca82e56f0d703498dd43d39db4e0bc"
+      },
+      {
+         "path" : ".tmp/layout-rollback-0160-01/check-pins-private-index.pl",
+         "sha256" : "cec0a80a0cb70ebc7b145f5ed458da33e826f9ca953dd42bd5cf94977a8656e1"
+      },
+      {
+         "path" : ".tmp/layout-rollback-0160-01/check.log",
+         "sha256" : "d056f9ffe640d0158553dec5cd8eb6262d2f597530603dac92f214f5a671df43"
+      },
+      {
+         "path" : ".tmp/layout-rollback-0160-01/clippy.log",
+         "sha256" : "94b26d7fcfc2a570ebb391d132d7f7f40948e81a4dced6d6d33f4079727b1829"
+      },
+      {
+         "path" : ".tmp/layout-rollback-0160-01/compare-metadata.pl",
+         "sha256" : "2a65c16cf51baa4506851bad80af629bc2d8564498eac860ec3734a92f5b4cde"
+      },
+      {
+         "path" : ".tmp/layout-rollback-0160-01/declarations.log",
+         "sha256" : "6b4ee5be73ccf8de5cc9f758cce58bb7e270cc3983ee5cfd68351cf2e0cbc8e3"
+      },
+      {
+         "path" : ".tmp/layout-rollback-0160-01/entry/.shared-tooling.snapshot",
+         "sha256" : "296302620d2d793f5d1fcfd3ab408133f94fc2fba5c634d9c8fe760971d5c2e4"
+      },
+      {
+         "path" : ".tmp/layout-rollback-0160-01/entry/Cargo.lock",
+         "sha256" : "04e57c73adb6e25e72f19019d2d79f3bd9b2d005e680449ee61f28ea16e93ce6"
+      },
+      {
+         "path" : ".tmp/layout-rollback-0160-01/entry/Cargo.toml",
+         "sha256" : "d5794dcb69358958dddba40eb6bcf00a1b0ea3eaf61edc5f6140c4f74df0e9bc"
+      },
+      {
+         "path" : ".tmp/layout-rollback-0160-01/entry/diff",
+         "sha256" : "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+         "path" : ".tmp/layout-rollback-0160-01/entry/funding-ops.rs",
+         "sha256" : "9280f32482f09a48a33a565d12e0761c5925a087baa1aad916e3eebf9601bb32"
+      },
+      {
+         "path" : ".tmp/layout-rollback-0160-01/entry/ic-blob-storage-before.crate",
+         "sha256" : "3a3b65e288bc8a16a9ab2a856b1aa590b0a3abf427c6bb3e647eb054569c905c"
+      },
+      {
+         "path" : ".tmp/layout-rollback-0160-01/entry/metadata.json",
+         "sha256" : "fc441e197fb1df98b38098ceacf365761a42b4b300c4b61eae06e2aa921958c7"
+      },
+      {
+         "path" : ".tmp/layout-rollback-0160-01/entry/metadata.log",
+         "sha256" : "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+         "path" : ".tmp/layout-rollback-0160-01/entry/release.json",
+         "sha256" : "3243e9019d270347a3e1fb6dbba820faeb3ed2f0989a02b6a81d127081ec8be9"
+      },
+      {
+         "path" : ".tmp/layout-rollback-0160-01/file-preservation-01.log",
+         "sha256" : "abfbc7e9dbb4d5978577d065e427b00c9d2d471da7991c91abe276b0d1802880"
+      },
+      {
+         "path" : ".tmp/layout-rollback-0160-01/file-preservation.log",
+         "sha256" : "1c7e9be16613c8b9d67e5fa1e84359fb477a0a7226018d8ad96b0fe4a02e42e0"
+      },
+      {
+         "path" : ".tmp/layout-rollback-0160-01/final-files.json",
+         "sha256" : "1119fd63d9676ca993b54ec4d5b1007f05cf06c4e9e98b9a4c7e6ab8ec2d7e5d"
+      },
+      {
+         "path" : ".tmp/layout-rollback-0160-01/final-record-01.log",
+         "sha256" : "bfc0537cccb0f50687d4111336c9f0466a8dd7a811aba1178f7696f83b630354"
+      },
+      {
+         "path" : ".tmp/layout-rollback-0160-01/fmt-check.log",
+         "sha256" : "4b7fcabe077c9b2a1fac323b101fa83323fbde4db72cf6dab7fad24d6b910d3f"
+      },
+      {
+         "path" : ".tmp/layout-rollback-0160-01/fmt.log",
+         "sha256" : "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+         "path" : ".tmp/layout-rollback-0160-01/funding-ops-path-diff.log",
+         "sha256" : "c1666d48dabe25c4191e0afecaa3be671be9310280dac1df8cea892bd5a5700a"
+      },
+      {
+         "path" : ".tmp/layout-rollback-0160-01/hooks-bash32.log",
+         "sha256" : "d8a9c6c8e5bb2ee327229d2c08f665eefce6ba029a98a4b46e64c3774a21154b"
+      },
+      {
+         "path" : ".tmp/layout-rollback-0160-01/hooks-bash5.log",
+         "sha256" : "d8a9c6c8e5bb2ee327229d2c08f665eefce6ba029a98a4b46e64c3774a21154b"
+      },
+      {
+         "path" : ".tmp/layout-rollback-0160-01/issue-17-close.log",
+         "sha256" : "92c93623e239b3cf988c11471bab17276e3056c7d4eea7f62481e8dc826936f0"
+      },
+      {
+         "path" : ".tmp/layout-rollback-0160-01/issue-17-comment-result.log",
+         "sha256" : "d077a37a6910c56d21459167cc645adef6e8c4306c5347426e6b6aac9b57cd5a"
+      },
+      {
+         "path" : ".tmp/layout-rollback-0160-01/issue-17-comment.md",
+         "sha256" : "e5108fcbc8cc1c999ef6d406194f4ccdc60037a89d929b496da55b19636232cc"
+      },
+      {
+         "path" : ".tmp/layout-rollback-0160-01/issue-17-readback.json",
+         "sha256" : "f8c6a7040ce8d84b8f3648cae48ef4c9aa2209989164e31a4075e16f935fa8f6"
+      },
+      {
+         "path" : ".tmp/layout-rollback-0160-01/issue-17-readback.log",
+         "sha256" : "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+         "path" : ".tmp/layout-rollback-0160-01/links-check.log",
+         "sha256" : "ce797388f5decb64c9e7809fc52cd535eef995f6fbf80fe08b09dc7dea1740d8"
+      },
+      {
+         "path" : ".tmp/layout-rollback-0160-01/metadata-comparison.log",
+         "sha256" : "f46a1e26f82092e72c2f412a009d623bd0b59a9e0982b3cb52f0844828bf2809"
+      },
+      {
+         "path" : ".tmp/layout-rollback-0160-01/metadata.json",
+         "sha256" : "15e55e7c2398ce4c04a5d8018c70ab5c9a232b97a20ff6b05a863cc8000d6ef2"
+      },
+      {
+         "path" : ".tmp/layout-rollback-0160-01/metadata.log",
+         "sha256" : "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+         "path" : ".tmp/layout-rollback-0160-01/msrv-native.log",
+         "sha256" : "a17bc1d979d205ceb5414563cdf4c10a6edb0664867d5129e27c851a3899d1b7"
+      },
+      {
+         "path" : ".tmp/layout-rollback-0160-01/msrv-wasm.log",
+         "sha256" : "785900090bd23918c7d33ae9d8cdfa4daa14a3cac5286fc895c684190d081a04"
+      },
+      {
+         "path" : ".tmp/layout-rollback-0160-01/msrv.log",
+         "sha256" : "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+         "path" : ".tmp/layout-rollback-0160-01/msrv.sh",
+         "sha256" : "43c0f40ede914e81d3068f506a0bc016740115c71960b321e61d167773e24a21"
+      },
+      {
+         "path" : ".tmp/layout-rollback-0160-01/original-moves.json",
+         "sha256" : "21fb9d29a11c773e139c5126b46d496f9ed85a622ae0ab731d317ffd68bebcc4"
+      },
+      {
+         "path" : ".tmp/layout-rollback-0160-01/package-manifest.toml",
+         "sha256" : "2ce4f0f77bdbfa3179823b49b611b671549358a359d37989db8517472cb87595"
+      },
+      {
+         "path" : ".tmp/layout-rollback-0160-01/package-moves.json",
+         "sha256" : "8483d375d5d7e0d918e9b3723955467d8a980e66cdc7d3efece6b603f436bcb2"
+      },
+      {
+         "path" : ".tmp/layout-rollback-0160-01/package.log",
+         "sha256" : "dfa6ef7ae1a93f6c9e5122cd0f06596f6f237e1a42b65452ca49dc5fd74fbf39"
+      },
+      {
+         "path" : ".tmp/layout-rollback-0160-01/pocketic.log",
+         "sha256" : "8d9c43dfab02f3e5b48010293a5e94dd26dc4962a77367e0922146fa208a08ef"
+      },
+      {
+         "path" : ".tmp/layout-rollback-0160-01/pocketic.sh",
+         "sha256" : "59030ef1391d742f16c14647fc08b88a04cdd2111541eedf88f111126e2a4ac8"
+      },
+      {
+         "path" : ".tmp/layout-rollback-0160-01/reverse-packages.log",
+         "sha256" : "3cd156c9cb44f57bd29ed19493736f51bc3d6188515cbc8eac94478d468951f7"
+      },
+      {
+         "path" : ".tmp/layout-rollback-0160-01/reverse-packages.pl",
+         "sha256" : "b9f08f262c6ba06bc76ca3f005cbde04453be018f001f934fd758cfc3eb0337d"
+      },
+      {
+         "path" : ".tmp/layout-rollback-0160-01/reversed-moves.json",
+         "sha256" : "8483d375d5d7e0d918e9b3723955467d8a980e66cdc7d3efece6b603f436bcb2"
+      },
+      {
+         "path" : ".tmp/layout-rollback-0160-01/shared-34-approval-rejection.txt",
+         "sha256" : "dfcacb4ecda9cca8fda2eefbbbdb0b4f7431c305436f0378fc88dcb961d1ca10"
+      },
+      {
+         "path" : ".tmp/layout-rollback-0160-01/shared-34-comment.md",
+         "sha256" : "cc25c2a056a90ccfdcc83b41a1263d0248b124d2b2cee00632bdd85405f6937a"
+      },
+      {
+         "path" : ".tmp/layout-rollback-0160-01/snapshot-check.log",
+         "sha256" : "5c0922c51e855e62eb77de66b226449c4cf120a1f81aa97972f9e6fb43414769"
+      },
+      {
+         "path" : ".tmp/layout-rollback-0160-01/sort.log",
+         "sha256" : "cd5a7dc718c6de5e9e6f85c276815a134856821fb6212f3eb80b96553ec1952b"
+      },
+      {
+         "path" : ".tmp/layout-rollback-0160-01/source-verify.log",
+         "sha256" : "7ba7e70d91533c8e2c714d5d03e9aba0537741630ea4f69500cbee455af006d7"
+      },
+      {
+         "path" : ".tmp/layout-rollback-0160-01/source.diff",
+         "sha256" : "3b60bbf0814ba80e4982b2cae6b1a4884182fbbd34610fefea3c3f98d154083f"
+      },
+      {
+         "path" : ".tmp/layout-rollback-0160-01/source.sha256",
+         "sha256" : "eeacabc2e978a3992180aac808912f16789a1b75da2d9542364ee4a121a27110"
+      },
+      {
+         "path" : ".tmp/layout-rollback-0160-01/wasm-build.log",
+         "sha256" : "68ccf748e76ef71e32db832864ec8f7d1f8a2aea3cfd727d4afef8e3dbb91948"
+      }
+   ],
+   "compiled_package_version" : "0.15.3",
+   "date" : "2026-10-07",
+   "evidence_class" : "source review, local native execution and actual local PocketIC with provider substitutes",
+   "issue_disposition" : {
+      "comment_url" : "https://github.com/dragginzgame/ic-blob-storage/issues/17#issuecomment-6034087985",
+      "issue" : 17,
+      "reason" : "Maintainer cancelled forced relocation; closure does not claim complete native/release qualification",
+      "state" : "closed as not planned"
+   },
+   "limitations" : [
+      "No full CI/release gate or native macOS execution; dirty source has no matching remote run",
+      "Prior evidence remains bound to its original paths/graphs and is not relabelled",
+      "No Git commit/amend, package version bump, tag, push, publication, deployment, provider probe, paid effect or sibling file edit",
+      "Unsupported cross-release upgrade, stale-backup activation and retained obligations are unchanged",
+      "No performance or instruction-count improvement claimed"
+   ],
+   "outcome" : [
+      "Nine live package trees and all 347 files restored to canisters/standalone, six canisters/test/* trees, tests/pocketic and tests/protocol",
+      "Source-relative fixture/lock/Candid/template inputs, root member/catalog paths and current documentation follow the restored layout",
+      "Eighteen navigation-only changes introduced for relocation return to their original local links; earlier evidence prose and immutable JSON records remain unchanged",
+      "Library and CLI remain in crates/; all 11 packages still inherit one virtual root, catalog, version and selected lockfile",
+      "Cargo member-roster formatter remains authoritative across approved trees; no path-specific replacement or duplicate package copy",
+      "Memory 0.30, metrics and shared example-stream adoption retained; no dependency selection, durable or public API change caused by rollback"
+   ],
+   "owning_issue" : "https://github.com/dragginzgame/ic-blob-storage/issues/17",
+   "pending_release" : "0.16.0",
+   "removed_named_symbols" : [],
+   "retained_attempts" : [
+      "Initial handoff patch failed atomically on a context line; corrected patch applies",
+      "Metadata collector emits Unicode encoding warnings while producing matching normalization; raw log retained",
+      "First inventory report labels three extra adjustments as formatter-only; corrected report distinguishes README path replacement from Rust formatting and retains the original report",
+      "First final-record update failed before writing due to map list scope; corrected supplemental path handling succeeds"
+   ],
+   "selected_graph" : {
+      "ic-host-artifacts" : "0.3.2",
+      "ic-host-fs" : "0.3.2",
+      "ic-host-tools" : "0.3.2",
+      "ic-memory" : "0.30.0",
+      "ic-metrics" : "0.2.5",
+      "ic-testkit" : "0.20.0"
+   },
+   "shared_source" : {
+      "inspection" : "Later dirty upstream guidance and issue 34 record IcyDB's approved exception; those uncommitted bytes are not adopted. This repository's own approval is recorded locally under the reviewed exception mechanism.",
+      "remote_main" : "25e7ce83149e081e4dcc52c55c33724e44153f2a",
+      "snapshot_files" : 63,
+      "snapshot_version" : "0.1.14"
+   },
+   "source_base" : "c727dbc87c07c92738a4cb0d75d2fb0825e32878",
+   "source_base_message" : "0.16.0; ordinary source commit, package metadata and receipt remain 0.15.3",
+   "task_directory" : ".tmp/layout-rollback-0160-01",
+   "upstream_feedback" : {
+      "reason" : "Automatic approval review requires explicit cross-repository messaging permission",
+      "safer_alternative" : "Rollback finding recorded on owning issue 17",
+      "status" : "not sent"
+   },
+   "upstream_issue" : "https://github.com/dragginzgame/shared-tooling/issues/34",
+   "validation" : [
+      "Exact metadata graph/features/package/target equivalence after path/order and Cargo package-ID normalization",
+      "Entry Cargo.lock, snapshot and release receipt byte-identical; source file inventory retains before/after/final hashes and modes",
+      "Nine restored packages pass offline locked native all-target compilation and strict Clippy",
+      "Seven canisters build fresh release Wasms; Rust 1.88 native all-target and Wasm library checks pass",
+      "Consumer formatting, dependency sorting, rollback, selected-file/index/lock preservation and unsafe Make-mode refusals pass under Linux Bash 5 and Linux-built Bash 3.2",
+      "Declaration/inheritance check passes with restored moves in a private index/object store; actual index unchanged",
+      "Candid parity and three actual PocketIC cases pass with fresh matching artifacts: lifecycle fencing, restoration diagnostics, corrupt funding-journal refusal",
+      "Core archive preparation without verification compilation/publication; formatting, 1025 local documentation references and 63-file snapshot checks pass"
+   ]
+}

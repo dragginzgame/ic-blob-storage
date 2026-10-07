@@ -1148,8 +1148,8 @@ fn chromium_standalone_trial_distinct_png_media_corruption_stops_before_attestat
 
 fn run_media(label: &str, scenario: Scenario) {
     let bodies = [
-        include_bytes!("../../../../../tests/fixtures/media/warm.png").to_vec(),
-        include_bytes!("../../../../../tests/fixtures/media/cool.png").to_vec(),
+        include_bytes!("../../../../fixtures/media/warm.png").to_vec(),
+        include_bytes!("../../../../fixtures/media/cool.png").to_vec(),
     ];
     run_serial(
         Serial::with_bodies(label, &bodies, &["image/png"; 2], &[None; 2]),
@@ -1188,8 +1188,8 @@ fn run_multichunk(label: &str, scenario: Scenario) {
         return;
     }
     let bodies = [
-        include_bytes!("../../../../../tests/fixtures/media/wide.png").to_vec(),
-        include_bytes!("../../../../../tests/fixtures/media/cool.png").to_vec(),
+        include_bytes!("../../../../fixtures/media/wide.png").to_vec(),
+        include_bytes!("../../../../fixtures/media/cool.png").to_vec(),
     ];
     run_serial(
         Serial::with_bodies(label, &bodies, &["image/png"; 2], &[None; 2]),

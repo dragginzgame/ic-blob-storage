@@ -209,25 +209,35 @@ pub(crate) fn reply(mode: FundingReplyMode) {
     // Reuse source-backed wire bytes, rather than defining another Cashier schema.
     let hex = match mode {
         FundingReplyMode::Success | FundingReplyMode::DelayedSuccess => {
-            include_str!("../../../ic-blob-storage/tests/fixtures/caffeine-top-up/success.hex")
+            include_str!(
+                "../../../../../crates/ic-blob-storage/tests/fixtures/caffeine-top-up/success.hex"
+            )
         }
         FundingReplyMode::InternalError => {
-            include_str!("../../../ic-blob-storage/tests/fixtures/caffeine-top-up/internal.hex")
+            include_str!(
+                "../../../../../crates/ic-blob-storage/tests/fixtures/caffeine-top-up/internal.hex"
+            )
         }
         FundingReplyMode::NotAuthorized => {
-            include_str!("../../../ic-blob-storage/tests/fixtures/caffeine-top-up/unauthorized.hex")
+            include_str!(
+                "../../../../../crates/ic-blob-storage/tests/fixtures/caffeine-top-up/unauthorized.hex"
+            )
         }
         FundingReplyMode::AccountBalanceOverflow => {
-            include_str!("../../../ic-blob-storage/tests/fixtures/caffeine-top-up/overflow.hex")
+            include_str!(
+                "../../../../../crates/ic-blob-storage/tests/fixtures/caffeine-top-up/overflow.hex"
+            )
         }
         FundingReplyMode::TopUpWithoutCycles => include_str!(
-            "../../../ic-blob-storage/tests/fixtures/caffeine-top-up/without-cycles.hex"
+            "../../../../../crates/ic-blob-storage/tests/fixtures/caffeine-top-up/without-cycles.hex"
         ),
         FundingReplyMode::LedgerReport => {
-            include_str!("../../../ic-blob-storage/tests/fixtures/caffeine-ledger/credit.hex")
+            include_str!(
+                "../../../../../crates/ic-blob-storage/tests/fixtures/caffeine-ledger/credit.hex"
+            )
         }
         FundingReplyMode::UnknownError => include_str!(
-            "../../../ic-blob-storage/tests/fixtures/caffeine-top-up/unknown-error.hex"
+            "../../../../../crates/ic-blob-storage/tests/fixtures/caffeine-top-up/unknown-error.hex"
         ),
         FundingReplyMode::Malformed => {
             ic_cdk::api::msg_reply(b"not candid");

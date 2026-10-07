@@ -95,15 +95,23 @@ availability does not establish provider qualification or service readiness.
 | `ic-memory` | 0.30.0 (locked) | Sole allocation runtime; current ownership ledger and public typed growth API |
 | `ic-metrics` | 0.2.5 (locked) | Private storage resource probe only; allocation-free measurement arithmetic, no platform reader |
 | `ic-stable-structures` | 0.7.2 | Exact transitive substrate owned/re-exported by `ic-memory` |
-| `ic-testkit` | 0.19.2 (locked) | Native dependency of the unpublished PocketIC harness; shared helpers and full re-export |
+| `ic-testkit` | 0.20.0 (locked) | Native dependency of the unpublished PocketIC harness; shared helpers and full re-export |
 | `pocket-ic` | 16.0.0 | Transitive through `ic-testkit`; no direct dependency |
 | `ic-agent` | 0.49.2 | Native CLI and harness signing and verification of ingress certificates |
-| `ic-host-artifacts` | 0.3.1 (direct, locked) | Native CLI raw SHA-256 identities and example-only bounded JSON streams; optional archive/gzip/Wasm features disabled |
-| `ic-host-fs` | 0.3.1 (direct, locked) | Native CLI bounded descriptor/no-follow reads and private durable create-new records |
-| `ic-host-tools` | 0.1.14 (harness transitive) | Owned by ic-testkit; no direct CLI facade dependency |
+| `ic-host-artifacts` | 0.3.2 (direct, locked) | Native CLI raw SHA-256 identities and example-only bounded JSON streams; optional archive/gzip/Wasm features disabled |
+| `ic-host-fs` | 0.3.2 (direct, locked) | Native CLI bounded descriptor/no-follow reads and private durable create-new records |
+| `ic-host-tools` | 0.3.2 (harness transitive) | Owned by ic-testkit; no direct CLI facade dependency |
 | `candid_parser` | 0.4.1 | Native harness only; official Candid parser for native request fixtures |
 
 ### Memory 0.30 and example stream collection — pending 0.16.0
+
+The later physical-layout rollback preserves its maintainer-selected entry graph:
+native artifacts/fs 0.3.2 and harness testkit 0.20.0 (with transitive host-tools
+0.3.2). These differ from the earlier Memory/example record below. The
+[rollback record](evidence/layout-rollback-0160.json) qualifies the restored
+paths on that exact selection without changing the lock; earlier records retain
+their own graphs. All 11 packages still inherit one virtual root/catalog, with
+the approved role-based layout recorded in AGENTS.md.
 
 The task-entry lock selects published Memory 0.30.0 and private-probe metrics
 0.2.5. Memory's registry source matches publisher `2fdeec4`; every runtime source
@@ -246,7 +254,7 @@ earlier funding/restore and Wasm records retain their original source and graph.
 
 Headless ingress tests add pinned `ic-agent` 0.49.2 (default features disabled),
 plus the locked `reqwest` 0.13.5, `tokio` 1.53.2 and `serde_cbor` 0.11.2
-as native dev dependencies in `crates/ic-blob-storage-pocketic-tests`. The public crates.io index confirmed
+as native dev dependencies in `tests/pocketic`. The public crates.io index confirmed
 0.49.2 as the latest non-yanked agent release on 2026-09-28. Its cryptographic graph
 adds host-only lockfile entries without changing existing package versions, the
 published library dependency graph, Wasm allocation or memory grants. Tests trust
@@ -350,8 +358,8 @@ The original [0.10.0 export](https://docs.rs/ic-testkit/0.10.0/ic_testkit/index.
 exposes the complete PocketIC crate. Keep the dependency under native dev
 dependencies; neither the production library nor its Wasm build needs testkit.
 With the dedicated harness in place, the core package's native dev graph also
-excludes it; testkit is owned by `crates/ic-blob-storage-pocketic-tests/Cargo.toml`.
-The unpublished `crates/ic-blob-storage-pocketic-tests` harness uses these exports. This shares version
+excludes it; testkit is owned by `tests/pocketic/Cargo.toml`.
+The unpublished `tests/pocketic` harness uses these exports. This shares version
 selection and harness helpers, rather than reducing the total transitive package
 count: testkit also brings host-side artifact/locking utilities.
 

@@ -33,7 +33,7 @@ account creation, credit, authorization or enforcement semantics.
 Encode and validate the **completed** configuration offline:
 
 ```sh
-didc encode --defs crates/ic-blob-storage-canister/service.did \
+didc encode --defs canisters/standalone/service.did \
   --types '(ServiceConfigurationInput)' < "$RUN/configuration.args" \
   > "$RUN/configuration.hex"
 xxd -r -p "$RUN/configuration.hex" > "$RUN/configuration.candid"
@@ -46,7 +46,7 @@ blob-storage installation-check \
 Use the validated `installation-check/installation.candid` as the complete init
 argument. Bind it to the reviewed source, Wasm and DID hashes before installation.
 Decode independently using `xxd -p` and `didc decode --types
-'(ServiceInstallationInput)' --defs crates/ic-blob-storage-canister/service.did` through stdin.
+'(ServiceInstallationInput)' --defs canisters/standalone/service.did` through stdin.
 Do not pass a filename as didc's hex argument. A package label alone does not bind
 an unpublished working-tree artifact to the published release receipt.
 

@@ -40,7 +40,7 @@ fn raw_status(f: &Fixture) -> Vec<u8> {
 
 fn pinned_image() -> (serde_json::Value, Vec<u8>, String) {
     let pinned: serde_json::Value = serde_json::from_str(include_str!(
-        "../../../../tests/fixtures/standalone-pre-cut/manifest.json"
+        "../../../fixtures/standalone-pre-cut/manifest.json"
     ))
     .unwrap();
     let old = std::fs::read(fixture_path("BLOB_PRE_CUT_STANDALONE_WASM")).unwrap();

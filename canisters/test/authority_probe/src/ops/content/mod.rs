@@ -55,7 +55,7 @@ fn vector(case: ContentProbeCase) -> Vector {
     };
     let vectors: Vectors = serde_json::from_str(include_str!(concat!(
         env!("CARGO_MANIFEST_DIR"),
-        "/../../crates/ic-blob-storage/tests/fixtures/caffeine-hashing/vectors.json"
+        "/../../../crates/ic-blob-storage/tests/fixtures/caffeine-hashing/vectors.json"
     )))
     .expect("pinned independent client vectors");
     vectors

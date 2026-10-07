@@ -1469,7 +1469,7 @@ its earlier 0.5.0 labels do not identify the current release packet.
 
 The original packet is authorized for configuration/account-provisioning preparation;
 the separately authorized owner creation is completed above.
-The [maintained standalone envelope](https://github.com/dragginzgame/ic-blob-storage/blob/9d9cdf82b832c88278df54686d06aec274f905e9/canisters/standalone/trial/README.md)
+The [maintained standalone envelope](../../canisters/standalone/trial/README.md)
 sets one lifetime tenant/object/reference and one 1 KiB chunk, two retained
 receipts, one upload/read slot and 1 KiB buffers. Local cycle attachment allocation
 is entirely reserved (one cycle allocated/reserved); it permits no service offer.

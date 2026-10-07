@@ -104,7 +104,7 @@ explicitly distinguishable from a verifier receipt; no receipt is invented for i
 Standalone certificate/exposure integration uses the restricted local contract
 above; live end-to-end acceptance remains open.
 See the [probe ledger](evidence/caffeine-probes/README.md)
-for local transaction evidence and the [host contract](../crates/ic-blob-storage-canister/README.md)
+for local transaction evidence and the [host contract](../canisters/standalone/README.md)
 for endpoint usage.
 
 Native recovery now uses `blob-storage upload-attestation` with an independently
@@ -202,7 +202,7 @@ immutable; getters grant no endpoint, tenant or operational recovery authority.
 Standalone uses this owner; current DTOs/Candid and the v1 record now include
 required immutable uploader trust without cross-release compatibility.
 
-The [standalone host](../crates/ic-blob-storage-canister/README.md) now explicitly owns these
+The [standalone host](../canisters/standalone/README.md) now explicitly owns these
 hooks and grants and delegates configuration persistence to the shared owner. Its actual IC
 installation validates all inputs before allocation; same-release upgrade restoration
 loads the saved service/release-bound configuration without replacement arguments

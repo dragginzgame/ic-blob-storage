@@ -29,11 +29,11 @@
   release and sibling file-edit boundaries. Declare the governance file list and
   exact-commit CI inspection helper. See
   [#15](https://github.com/dragginzgame/ic-blob-storage/issues/15).
-- Move the canister and packaged test helpers into the standard `crates/`
-  workspace layout, preserving package names, artifact names and service
-  contracts. Update source and documented command paths. See
+- Retain canister and packaged test helpers in their role-based `canisters/`
+  and `tests/` layout under the maintainer-approved exception. Formatting and
+  release/source inventories cover every declared workspace member. See
   [#17](https://github.com/dragginzgame/ic-blob-storage/issues/17).
-- Refresh the selected native ic-host-artifacts/ic-host-fs packages to 0.3.1;
+- Refresh the selected native ic-host-artifacts/ic-host-fs packages to 0.3.2;
   preserve native-only placement and the existing bounded-read/private-record
   contracts.
 

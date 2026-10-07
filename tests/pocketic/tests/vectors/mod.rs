@@ -17,7 +17,7 @@ fn hash(value: &serde_json::Value) -> [u8; 32] {
 
 pub(crate) fn source(name: &str) -> serde_json::Value {
     let vectors: serde_json::Value = serde_json::from_str(include_str!(
-        "../../../ic-blob-storage/tests/fixtures/caffeine-hashing/vectors.json"
+        "../../../../crates/ic-blob-storage/tests/fixtures/caffeine-hashing/vectors.json"
     ))
     .expect("independent JS vectors");
     vectors["vectors"]
