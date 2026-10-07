@@ -37,14 +37,16 @@ Missing or incorrect tools report explicit installation commands; the check
 does not install, compile, mutate release files or replace the full gate.
 `SHELLCHECK=/absolute/path/to/shellcheck` selects an existing executable.
 
-The released baseline is 0.15.3, following the ic-memory 0.27 and funding hard
-cut in 0.15.0. Pending 0.16.0 carries the Shared Tooling and native host refresh
-plus the public ic-memory 0.30 type-identity hard cut. Host compositions must
-select that Memory line; service DTOs and durable layouts are unchanged by this
-dependency update. Keep package metadata
-and the release receipt at 0.15.3 during ordinary development; the single
-0.16.0 changelog draft records the complete pending batch. This is a minor release,
-not a compatible 0.15.4 patch; use the minor target when the maintainer releases.
+The released baseline is 0.16.0, including the public ic-memory 0.30
+type-identity hard cut. Keep package metadata and the release receipt at 0.16.0
+during ordinary development. The single undated entry in
+[the changelog](../CHANGELOG.md) records the complete pending batch;
+[the current handoff](status/current.md) records its compatibility and selected
+dependency graph. Choose the patch or minor target for that complete batch under
+the pre-1.0 compatibility rule, rather than repeating the previous minor release.
+The current pending batch targets 0.17.0 because the public Memory re-export now
+selects 0.31. Host compositions must align that type identity. Use the minor
+target when the maintainer releases the complete batch.
 
 Changelog preflight captures a candidate without writing, using the exact saved
 `RELEASE_PREVIOUS`, `RELEASE_VERSION` and `RELEASE_DATE`. Finalization uses those

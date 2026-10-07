@@ -1,6 +1,15 @@
 # Changelog
 
-## [0.16.1]
+## [0.17.0]
+
+### Breaking
+
+- Align the public memory re-export and host grant types with ic-memory 0.31.
+  Hosts must select that Memory line and rebuild composed graphs; Memory 0.30
+  types are no longer interchangeable with the service API. Runtime source and
+  durable layouts are unchanged; cross-release installations still require safe
+  retirement and reinstall. Carry the complete pending tooling batch into this
+  minor release. See [#20](https://github.com/dragginzgame/ic-blob-storage/issues/20).
 
 ### Changed
 
@@ -18,7 +27,7 @@
   workspace selection with `make cloc CLOC_MANIFEST=path/to/Cargo.toml`.
 - Pin the opt-in browser fixture's Node/npm preparation tools and refuse
   mismatched tools or manifest/lock declarations before browser build effects.
-- Refresh direct native Host artifacts/filesystem packages to 0.4.0. The
+- Refresh direct native Host artifacts/filesystem packages to 0.4.1. The
   testkit-owned harness retains its 0.3.3 Host graph; public service contracts,
   bounded reads and durable schemas are unchanged. Preserve the selected
   Metrics 0.2.7 dependency in the private storage probe.
@@ -38,6 +47,10 @@
 
 ### Fixed
 
+- Make the native HTTP backpressure fixture consume bounded complete service
+  requests and isolate cancelled subnet lookups. Give the cold native CI matrix
+  a 60-minute budget so Intel macOS can complete the expanded checks. See
+  [#24](https://github.com/dragginzgame/ic-blob-storage/issues/24).
 - Adopt canonical LOC fixture isolation for inherited Cargo targets and
   enclosing workspaces, removing the consumer workaround. Exclude aliased
   build output from runtime/test totals. Keep production target ownership and

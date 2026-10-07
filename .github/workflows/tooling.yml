@@ -19,7 +19,8 @@ jobs:
       matrix:
         os: [ubuntu-24.04, macos-15, macos-15-intel]
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 30
+    # Intel cold setup and tooling fixtures used 22 minutes before native builds.
+    timeout-minutes: 60
     defaults:
       run:
         shell: /bin/bash --noprofile --norc -e -o pipefail {0}

@@ -10,14 +10,17 @@ Date: 2026-10-07
 
 - Released baseline: **0.16.0**, Git/tag commit
   `49d6ba76964668a6835c63784a892af905ce10b1`, validated source
-  `e13793b3e79fc37f4471aaa27b4b6472849141a5`. Remote main and the annotated
-  `v0.16.0` tag match; crates.io's sparse index contains a non-yanked 0.16.0
+  `e13793b3e79fc37f4471aaa27b4b6472849141a5`. The annotated
+  `v0.16.0` tag identifies that release; crates.io's sparse index contains a non-yanked 0.16.0
   selecting Memory `^0.30`. The release receipt remains the exact metadata owner.
-- Current development target: **0.16.1**, a compatible native/tooling batch.
-  Cargo package versions and the receipt remain 0.16.0. The entry dirty lock
-  already selects direct Host artifacts/fs 0.4.0, while native testkit 0.20.0
+- Current development target: **0.17.0**, carrying the complete pending batch
+  and the public Memory 0.31 type-identity hard cut. The maintainer explicitly
+  chose this minor target; hosts must align Memory 0.31 and rebuild their graph.
+  Cargo package versions and the receipt remain 0.16.0. HEAD `aadfe162` already
+  selects Memory `^0.31`; the entry dirty lock
+  selects Memory 0.31.1 and direct Host artifacts/fs 0.4.1, while native testkit 0.20.0
   owns its transitive four-package Host 0.3.3 graph. Preserve those selections.
-  Memory remains 0.30.0. The lock selects private-probe Metrics 0.2.7; earlier
+  The lock selects private-probe Metrics 0.2.7; earlier
   records retain their own Metrics 0.2.5/0.2.6 inputs and qualification.
 - The reviewed 73-file snapshot now selects Shared Tooling 0.1.18 at
   `a3430b34b32a60f3b245a2b4f7e2f5321556fe56`. A clean private checkout exports
@@ -38,7 +41,44 @@ Date: 2026-10-07
   production sizing and retirement. Canic's independently owned Blob adapter
   still selects Blob 0.15.2 / Memory 0.28; publication does not qualify that graph.
 
-## Shared Tooling 0.1.18 and selected Host/Metrics graph — pending 0.16.1
+## Native CI repair and release guidance — pending 0.17.0
+
+The maintainer authorized the three findings in
+[#24](https://github.com/dragginzgame/ic-blob-storage/issues/24): repair the HTTP
+fixture, give Intel macOS sufficient bounded CI time, and correct release
+guidance. Source `aadfe16216ddfc20f8dd68de048b0846c54dcfb3` is now committed;
+its [CI run](https://github.com/dragginzgame/ic-blob-storage/actions/runs/37606775023)
+passes Linux, fails ARM macOS on a mock-server `BrokenPipe`, and times out on
+Intel macOS at the 30-minute limit. Tooling checks pass on all three hosts, but
+the two macOS native acceptance paths are incomplete.
+
+The fixture now consumes bounded complete service requests, writes each complete
+backpressure response, and holds auxiliary subnet lookups until shutdown so SDK
+cancellation cannot race their response writes. The one-service-operation
+assertion remains for query/update and HTTP 429/503. Added coverage exercises an
+8 KiB fragmented body with a cancelled lookup and typed oversized/truncated
+request refusals. The cold matrix budget is 60 minutes; no checks are removed.
+The release guide now identifies 0.16.0 as released and the complete pending
+minor as 0.17.0.
+
+The maintainer-selected working lock is preserved; this batch does not update
+dependencies. Cached published Memory 0.31.1 runtime source matches 0.30.0, but
+its public Rust crate identity requires the minor hard cut. Earlier records
+retain their own Memory 0.30 and Host 0.4.0 graphs. No existing evidence is
+rebound to this new source or dependency selection. Focused results and remaining
+native qualification belong to [the repair record](../evidence/native-ci-0170.md).
+
+All 110 CLI binary regression cases pass locally. Strict CLI binary/test Clippy,
+Rust 1.88 compilation, workflow lint and local links pass. The initial sandbox
+socket-binding refusal and its compiler warning remain in the raw record; the
+permitted retry passes all three HTTP fixture cases. No package/lock/receipt
+mutation, named symbol deletion, full gate or release effect occurs. #24 remains
+open until the corrected committed source completes native CI on all hosts.
+
+## Earlier Shared Tooling 0.1.18 and selected Host/Metrics graph — prepared for 0.16.1
+
+This prior qualification used Memory 0.30 and Host 0.4.0. Its notes and evidence
+remain bound to that graph; the pending release is now 0.17.0 as described above.
 
 The maintainer authorized the reviewed follow-up batch. The previous snapshot's
 declared bytes/modes were checked and retained before explicit reconciliation
