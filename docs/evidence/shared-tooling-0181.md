@@ -81,3 +81,32 @@ HEAD; these dirty changes have no hosted result.
 
 No real release command, commit, tag, push, registry publication, dependency
 upgrade, sibling edit, workflow dispatch or paid provider effect was performed.
+
+## Nested Make correction — 2026-10-08
+
+At Blob source `a505a4cb242facc1c0c2fb37435bea6bae6383cf`, maintainer-run
+release validation failed in `delivery-release-patch-inherited`. The original
+complete failure log remains
+`.git/release-state/validation-failures/20261008T104751Z-3865040-0-ci.log`, with
+the failed fixture at `target/release-tests.NXz3mT`.
+
+The parent release runner supplies `RELEASE_DELIVERY=direct` as a Make command-line
+selection. Recursive Make inherits that selection through MAKEFLAGS; it overrides
+the fixture's `env RELEASE_DELIVERY=pr` refusal input. The substitute release
+therefore succeeded when the case required refusal. The earlier standalone
+adapter pass did not qualify this nested-Make context.
+
+The consumer fixture now clears MAKEFLAGS, MFLAGS, MAKEOVERRIDES, GNUMAKEFLAGS and
+MAKEFILES at entry, matching the existing canonical fixture ownership boundary.
+Production Make/runner admission is unchanged. No function, method or type is
+removed or renamed.
+
+Raw evidence is `.tmp/release-fixture-env-0181-04/`. `before.log` and
+`before.status` reproduce the failure with `MAKEFLAGS=' -- RELEASE_DELIVERY=direct'`
+(exit 1); its failed fixture remains at `target/release-tests.Da7nZj`. After the
+repair, the complete Blob adapter suite passes under an actual parent Make
+invocation selecting `RELEASE_DELIVERY=direct` on its command line (`after.log`,
+`after.status`, exit 0). All Git release and registry effects remain substitutes.
+Bash syntax and ShellCheck pass. Cargo manifests, lockfile and release receipt
+hashes remain unchanged. No full CI or real release was rerun; the maintainer's
+complete gate must still validate the repaired committed source.

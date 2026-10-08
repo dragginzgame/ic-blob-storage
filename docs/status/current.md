@@ -52,6 +52,16 @@ Date: 2026-10-08
   refusal and missing-cloc attempt remain in the
   [adoption record](../evidence/shared-tooling-0181.md). No vendored copy is patched.
   The archive helper is available but not wired into Blob's existing CI collector.
+- Maintainer validation at `a505a4cb242facc1c0c2fb37435bea6bae6383cf` exposed a
+  nested-Make fixture failure: the parent direct-delivery command-line override
+  defeated the inherited-PR refusal input. The local harness now clears its
+  inherited Make controls, matching canonical fixtures. The complete Blob adapter
+  suite passes under an actual parent Make with the same direct selection;
+  production release checks remain unchanged. The original failed full-gate log,
+  failed reproduction and narrower prior qualification are retained in the
+  [adoption record](../evidence/shared-tooling-0181.md#nested-make-correction--2026-10-08).
+  Manifests/lock/receipt are unchanged; full CI/release validation still needs
+  the repaired committed source.
 - Owner 0.1.24 Linux/Intel macOS/lint pass; ARM macOS's exact-ID artifact download
   failure remains with [Shared Tooling #63](https://github.com/dragginzgame/shared-tooling/issues/63).
   The selected follow-up CI was queued at inspection. Entry Blob HEAD has no

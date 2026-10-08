@@ -4,6 +4,9 @@
 
 ### Fixed
 
+- Isolate release fixtures from parent Make overrides so delivery-policy refusal
+  tests also pass when invoked through the complete release validation gate.
+
 - Share native/browser fixture process cleanup through Host's owned child via
   Testkit 0.22, and retain prefetched final browser responses when draining output.
   Preserve protocol framing, idle deadlines and caller-selected IO. The incoming
