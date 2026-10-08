@@ -14,6 +14,27 @@ maintained release and open work.
 [acceptance plan](../../acceptance-plan.md) ·
 [service gaps](../../service-gaps.md)
 
+## Host 0.5.1 child cleanup and current graph — 2026-10-08
+
+The [intent](local/2026-10-08-host051-cleanup-0181-02/intent.json),
+[attempt correction](local/2026-10-08-host051-cleanup-0181-02/attempt-correction.json)
+and [summary](local/2026-10-08-host051-cleanup-0181-02/summary.json) bind current
+compiled 0.18.0 / pending 0.18.1 to Host 0.5.1, Testkit 0.22.0, Memory 0.31.3 and
+private Metrics 0.2.11. Synthetic roles, local HTTP/IC services and zero live
+provider requests or deployed paid cycles. No Chromium run.
+
+Native/browser child lifecycle moves to Host through Testkit; local framing,
+readiness and deadlines remain. A real pipe regression retains prefetched final
+response bytes previously lost when restoring the underlying pipe. Logged native
+qualification passes 114 CLI/probe, 103 contracts, 21 examples, two installation /
+carrier and one Metrics case; seven native publication-session cases also pass.
+Final Clippy/MSRV checks pass. Failed old-pattern, Clippy and unlogged native
+attempts remain explicit, with the latter's unavailable diagnostics a proof gap.
+Tested artifacts and source are frozen before further work. Owned local scopes
+are dropped; no external cleanup remains. The
+[sibling review](../../reports/audits/2026/10/08/sibling-reuse/01/report.md) records
+retained protective file/recovery code and separate Shared Tooling adoption.
+
 ## Cold package verification and Host 0.5.0 — 2026-10-08
 
 The [intent](local/2026-10-08-host050-0180-03/intent.json) and
@@ -3931,6 +3952,12 @@ That checksum check establishes artifact integrity, not scenario correctness or
 provider authenticity; rerunning the opt-in test establishes current local behavior.
 
 ## Run index
+
+`host051-cleanup-0181-02` / 2026-10-08: shared child-group ownership, buffered
+final output and current locked graph qualification. [Intent](local/2026-10-08-host051-cleanup-0181-02/intent.json),
+[correction](local/2026-10-08-host051-cleanup-0181-02/attempt-correction.json) and
+[summary](local/2026-10-08-host051-cleanup-0181-02/summary.json) retain exact source,
+artifact bytes, successful checks and failed/unlogged attempts.
 
 `host050-0180-03` / 2026-10-08: cold paired package verification, Host 0.5.0
 source/registry review and Testkit 0.21.3 Linux native/installation/Metrics checks.

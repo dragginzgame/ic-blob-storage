@@ -9,6 +9,10 @@ DATA="$ROOT/scripts/release/release-data.pl"
 RELEASE_FILES=(Cargo.toml Cargo.lock CHANGELOG.md docs/release.json)
 
 fail() { echo "release metadata refused: $*" >&2; exit 1; }
+direct_delivery() {
+    [[ "${RELEASE_DELIVERY:-direct}" == direct ]] ||
+        fail 'this repository supports RELEASE_DELIVERY=direct; PR delivery requires separately adopted merged-source receipt adapters'
+}
 version() { perl "$DATA" version; }
 ensure_clean() {
     local status
@@ -32,6 +36,7 @@ allowed_changes() {
 }
 preflight() {
     local head previous
+    direct_delivery
     ensure_clean
     head="$(git rev-parse HEAD)" || fail 'cannot resolve release source'
     previous="$(version)" || fail 'cannot read previous version'
@@ -192,6 +197,7 @@ case "$command" in
         echo 'Committed unfinished releases reconcile first; newer fixes or a different increment receive fresh validation. Publication and cleanup are separate.'
         ;;
     ensure-clean) ensure_clean ;;
+    delivery-check) direct_delivery ;;
     preflight) preflight ;;
     prepare) prepare ;;
     prepared-check) verify_prepared ;;

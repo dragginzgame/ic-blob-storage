@@ -1,0 +1,32 @@
+{
+  "schema": 1,
+  "id": "2026-10-08-host051-cleanup-0181-02",
+  "original_intent": "docs/evidence/caffeine-probes/local/2026-10-08-host051-cleanup-0181-02/intent.json",
+  "current_source": "114f1b885394941b31388f07bafe6153422efdd9",
+  "unchanged_compiled_version": "0.18.0",
+  "recorded_failure": {
+    "command": "make --no-print-directory test-native-host CI_TARGETS=",
+    "exit_code": 2,
+    "output": "stdout/stderr were incorrectly redirected to /dev/null; no raw diagnostic available. Cause is unknown. This attempt is failed/inconclusive, not qualified, and is not silently omitted.",
+    "preceding_successes": [
+      ".tmp/sibling-cleanup-0181-02/wasm-build.log",
+      ".tmp/sibling-cleanup-0181-02/cli-build.log"
+    ]
+  },
+  "logged_retry_intent": {
+    "command": "Maintained native-host target with full raw logging; then the seven directly affected standalone publication-session cases",
+    "classes": [
+      "Linux_loopback_substitute",
+      "isolated_PocketIC"
+    ],
+    "bindings": "Maintained synthetic tenants/PEMs, local HTTP servers and local IC canisters only",
+    "additional_budget": {
+      "native_cli_probe_cases": 160,
+      "canister_cases": 10,
+      "per_case_seconds": 300,
+      "live_provider_requests": 0,
+      "deployed_paid_cycles": 0
+    },
+    "cleanup": "Keep logs, inputs and artifact hashes; drop owned local server/group/PocketIC scopes. No source edits beneath these validations."
+  }
+}

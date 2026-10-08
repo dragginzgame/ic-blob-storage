@@ -74,7 +74,8 @@ continuous evidence recording and separates source/local/live observations.
 
 `make documentation-links-check` selects root Markdown and all Markdown under
 docs, audits and rules; it verifies supported local targets, not anchors or remote
-URLs. `make shared-tooling-tests` exercises formatter prerequisite, portable digest, IC installer, local
+URLs. `make shared-tooling-tests` exercises formatter prerequisite, portable digest,
+evidence archive, IC installer, local
 lockfile, Cargo metadata, host/Cargo-tool installation and common Make/LOC refusals
 with offline substitutes. The declaration
 gate opts in to shared Cargo package/dependency inheritance checks.
@@ -83,10 +84,13 @@ adoption checker using Cargo's complete member roster and each member's Rust
 sources, including packages not yet present in HEAD. It retains the additional
 mutating-formatter rollback and Make-mode refusal cases.
 `make release-commands-check` copies the
-reviewed Makefile and its explicit parse-time inputs into a private fixture,
+reviewed Makefile, explicit parse-time inputs and the direct-delivery admission
+adapter into a private fixture,
 then uses a substitute runner. `make release-check` includes that shared routing
 check and retains the repository's metadata, publication and recovery fixtures.
-The [fixture ownership map](../evidence/release-fixture-ownership.md) records
+The [snapshot adoption record](../evidence/shared-tooling-0181.md) qualifies the
+current direct-delivery adapter and changed shared helpers. The
+[fixture ownership map](../evidence/release-fixture-ownership.md) records
 the shared runner matrix and the retained Blob adapter obligations.
 
 Keep implementation, relevant success/rejection/recovery evidence and cleanup

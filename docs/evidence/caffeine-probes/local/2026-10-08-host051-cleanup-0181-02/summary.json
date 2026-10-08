@@ -1,0 +1,110 @@
+{
+  "schema": 1,
+  "id": "2026-10-08-host051-cleanup-0181-02",
+  "base": "704b8ebf6bea85a715e465e32e34758b601852ec",
+  "committed_during_turn": "114f1b885394941b31388f07bafe6153422efdd9",
+  "compiled_version": "0.18.0",
+  "pending": "0.18.1",
+  "evidence_classes": [
+    "source_review",
+    "Linux_control_pipe_substitute",
+    "Linux_loopback_substitute",
+    "isolated_PocketIC"
+  ],
+  "intent": {
+    "path": "docs/evidence/caffeine-probes/local/2026-10-08-host051-cleanup-0181-02/intent.json",
+    "sha256": "6c18fa7d69f615f15a3c4b624f6e8e5a29e8121ab81e7d861976f485d18c163a"
+  },
+  "attempt_correction": {
+    "path": "docs/evidence/caffeine-probes/local/2026-10-08-host051-cleanup-0181-02/attempt-correction.json",
+    "sha256": "bb956e09b470416a6a1c89a118a0821016c0c46a5855d040165d94380b8f0f47"
+  },
+  "qualified_inputs": {
+    "path": ".tmp/sibling-cleanup-0181-02/qualified-inputs.json",
+    "sha256": "447cd8eee06e8c6539340da6bb274487bf906ca8e60dc580ec9de6bc093864f3"
+  },
+  "checks": [
+    {
+      "path": ".tmp/sibling-cleanup-0181-02/deps.log",
+      "sha256": "5ad0973c00177e4c907709b4b5b447030106944a0034ff9d8b6e0eef0b70e169",
+      "outcome": "passed"
+    },
+    {
+      "path": ".tmp/sibling-cleanup-0181-02/control-pipes-01.log",
+      "sha256": "70f963d651fc97af0d2ac68368ccfe95895b4a351eda4a09734abb4914215b8d",
+      "outcome": "passed"
+    },
+    {
+      "path": ".tmp/sibling-cleanup-0181-02/buffer-before.log",
+      "sha256": "678a0a8e3c95419e69543fc9cfed5f9f561d11a60f9e724bb7921a535a455849",
+      "outcome": "failed as expected: released buffer restoration drops final bytes"
+    },
+    {
+      "path": ".tmp/sibling-cleanup-0181-02/native-host-logged.log",
+      "sha256": "7b44619c9bea32294c9891c2e2fd186fa86015ed69ff56375dffcccf9e41aac8",
+      "outcome": "passed"
+    },
+    {
+      "path": ".tmp/sibling-cleanup-0181-02/native-sessions.log",
+      "sha256": "384ae4ff4560a98d87bed03f1798919d3f9ad2dcea53d452ae2ec00cd2227c10",
+      "outcome": "passed"
+    },
+    {
+      "path": ".tmp/sibling-cleanup-0181-02/clippy-01.log",
+      "sha256": "d7107b58582cbf7b463f3ecf71b52412229c552ee4026b7bb15c9b50309cfefb",
+      "outcome": "failed: collapsible_if"
+    },
+    {
+      "path": ".tmp/sibling-cleanup-0181-02/control-pipes-final.log",
+      "sha256": "ba9b293a6e0d79e48861daa11d3334c0ec88d5db262bb5700eea9ba3cbad3e58",
+      "outcome": "passed"
+    },
+    {
+      "path": ".tmp/sibling-cleanup-0181-02/clippy-final.log",
+      "sha256": "7329fcae9ff2ac3cfb50e95326a96adcc4c200f0dc316f5b277cb5dc62675370",
+      "outcome": "passed"
+    },
+    {
+      "path": ".tmp/sibling-cleanup-0181-02/msrv-native.log",
+      "sha256": "63f42bd12700253a1926768386caf876ae0ca26d9cb3228c0221216656b8dabb",
+      "outcome": "passed"
+    },
+    {
+      "path": ".tmp/sibling-cleanup-0181-02/msrv-wasm.log",
+      "sha256": "75e91f7a5e5d5e9cf243af0a2a366a2ef1084d27962d36f27640d8da8306222e",
+      "outcome": "passed"
+    },
+    {
+      "path": ".tmp/sibling-cleanup-0181-02/alignment-boundary.log",
+      "sha256": "c247c903d1b70db4c3c74b6f463c325477475439e63cd31b51da7844c62a3ece",
+      "outcome": "passed"
+    }
+  ],
+  "native_results": {
+    "CLI_probe": 114,
+    "contracts": 103,
+    "examples": 21,
+    "installation_carrier": 2,
+    "Metrics_restoration": 1,
+    "publication_sessions": 7,
+    "buffered_output": 1
+  },
+  "graph": {
+    "all_four_Host": "0.5.1",
+    "testkit": "0.22.0",
+    "private_Metrics": "0.2.11",
+    "Memory": "0.31.3",
+    "shared_tooling_selected": "0.1.20",
+    "shared_tooling_reviewed_not_adopted": "0ba0ad00ed94848e54ecc82629b6b7873b7284c0"
+  },
+  "review_limits": [
+    "Sibling working changes read-only, not adopted. Shared Tooling 0.1.23 is committed and its source CI passes; selected snapshot remains 0.1.20.",
+    "Testkit exact-source inspection includes a completed successful CI run and a separate queued CI run; no blanket native-macOS acceptance is inferred.",
+    "No Chromium or deployed-provider execution, instruction/size measurement, full gate, sibling edit or agent commit/push/release/publication.",
+    "Failed unlogged initial native attempt and duplicate registry-cache inspection ambiguity remain separately recorded."
+  ],
+  "live_provider_requests": 0,
+  "deployed_paid_cycles": 0,
+  "cleanup": "Maintained owned groups, HTTP servers and PocketIC scopes dropped. No external resources created. Raw logs, original failures, artifact bytes and identities retained.",
+  "report": "docs/reports/audits/2026/10/08/sibling-reuse/01/report.md"
+}

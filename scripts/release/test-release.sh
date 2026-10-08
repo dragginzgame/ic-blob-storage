@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
+export RELEASE_DELIVERY=direct
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd -P)"
 TEST_REAL_MAKE="$(command -v make)"
@@ -166,11 +167,19 @@ case "$1" in
         case "$2" in
             --binary) cat Cargo.toml Cargo.lock CHANGELOG.md ;;
             --name-only) printf 'Cargo.toml\0Cargo.lock\0CHANGELOG.md\0docs/release.json\0'; [[ "${TEST_DIRTY:-0}" != 1 ]] || printf 'src/lib.rs\0' ;;
-            --cached) [[ "$3" == --name-only ]] || exit 97; printf 'Cargo.toml\0Cargo.lock\0CHANGELOG.md\0docs/release.json\0'; [[ "${TEST_INDEX_EXTRA:-0}" != 1 ]] || printf 'src/lib.rs\0' ;;
+            --cached)
+                case "$3" in
+                    --name-only) printf 'Cargo.toml\0Cargo.lock\0CHANGELOG.md\0docs/release.json\0'; [[ "${TEST_INDEX_EXTRA:-0}" != 1 ]] || printf 'src/lib.rs\0' ;;
+                    --quiet) [[ "${TEST_INDEX_EXTRA:-0}" != 1 ]] ;;
+                    *) exit 97 ;;
+                esac ;;
             --quiet) [[ "${TEST_DIRTY:-0}" != 1 ]] ;;
             *) exit 97 ;;
         esac ;;
     ls-files) ;;
+    # Tracking-ref mutation is qualified by the canonical real-Git fixture.
+    # This metadata/publication fixture has no configured upstream mapping.
+    for-each-ref) ;;
     write-tree) echo "$tree" ;;
     log)
         commit="$(resolve "$4")"
@@ -784,6 +793,25 @@ test_package_lock_selection() {
     [[ ! -s "$TEST_EFFECTS" ]] || exit 1
 }
 
+test_delivery_refusal() {
+    local target="$1" selection="$2" before
+    before="$(fingerprint)"
+    # Exercise both command-line and inherited selection at the actual Make
+    # boundary, before the shared runner or any metadata/effect adapter runs.
+    if [[ "$selection" == inherited ]]; then
+        expect_failure env RELEASE_DELIVERY=pr "$TEST_REAL_MAKE" --no-print-directory "$target" VERSION=0.1.1
+    else
+        expect_failure "$TEST_REAL_MAKE" --no-print-directory "$target" VERSION=0.1.1 "RELEASE_DELIVERY=$selection"
+    fi
+    assert_unchanged
+    [[ ! -s "$TEST_LOG" && ! -s "$TEST_EFFECTS" && ! -e target/release-state ]] || exit 1
+}
+
+for target in release-patch release-minor release-major release-resume; do
+    for selection in pr inherited invalid; do
+        run_case "delivery-$target-$selection" test_delivery_refusal "$target" "$selection"
+    done
+done
 run_case bootstrap-success test_dependency_bootstrap success
 run_case bootstrap-snapshot test_dependency_bootstrap snapshot
 run_case bootstrap-tools test_dependency_bootstrap tools

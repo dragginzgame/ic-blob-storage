@@ -13,31 +13,39 @@ hash/account-link fixtures move to that package. Normal contracts/CLI graphs acr
 all targets exclude CDK, Memory and the service package. The native effectful
 PocketIC harness and canister adapters retain their service edge intentionally.
 
-All 12 members inherit workspace **0.18.0**. The released lock has direct native
-Host artifacts/fs **0.5.0**, Testkit **0.21.3** and its transitive Host **0.4.6**,
-Memory **0.31.3** and private probe Metrics **0.2.9**. The separate Host lines stay
-with their declared owners; no cross-minor type unification or extra direct facade
-is introduced. Hashing is contract-owned. Published Host 0.5.0 archives match its
-released source and its Linux/Intel/ARM macOS/MSRV matrix passes. Blob's unchanged
-bounded read/hash/fs calls pass Linux native-host, affected Clippy and Rust 1.88
-native/Wasm checks on the actual pre-release compiled 0.17.2 graph; see the
-[additional record](evidence/host050-package0180.md). This is separate from the
-release receipt and matching committed Blob/macOS acceptance.
+All 12 members inherit workspace **0.18.0**. The incoming committed 0.18.1
+batch at `114f1b885394941b31388f07bafe6153422efdd9` selects all four Host **0.5.1**,
+Testkit **0.22.0**, Memory **0.31.3** and private Metrics **0.2.11**. Testkit's public
+reexports now select Host 0.5, removing the separate 0.4 line without force patches
+or extra direct process/tools dependencies. Published archive/source identities
+match their owner commits. Native fixture children use Host's group owner through
+Testkit, retaining local control framing, readiness and deadlines. Metrics Rust
+source is unchanged from 0.2.9; qualification is still bound to the exact graph.
+
+The [additional sibling record](reports/audits/2026/10/08/sibling-reuse/01/report.md)
+retains passing recorded-graph native-host, seven publication-session and buffered
+output cases, plus Clippy and Rust 1.88 native/Wasm checks. Compiled readback is
+0.18.0. Actual CLI/Wasm bytes are frozen; no Chromium/deployed provider or measured
+instruction/size gain is inferred. Earlier Host 0.5.0 / Testkit 0.21.3 / Metrics
+0.2.9 evidence and the original released lock remain separately identified in the
+[previous package/Host record](evidence/host050-package0180.md).
 
 Paired packages share one root catalog/version transaction and Cargo packaging.
-Each extracted verification has its own target directory to exclude stale
-same-version artifacts. Publication is contracts first, then core; ordinary
-`make publish` in the pending helper repair selects both and authenticates exact
-registry readback before skipping completed uploads. See the
-[release guide](releasing.md#publication-and-deployment) and original
+Each extracted verification has its own target to exclude stale same-version
+artifacts. Ordinary `make publish` in the pending helper repair selects contracts
+then core and authenticates registry readback before skipping completed uploads.
+See the [release guide](releasing.md#publication-and-deployment) and original
 [migration record](evidence/contracts-0180.md). Cross-release service retirement /
-reinstallation remain required; no build-time, instruction-count or size gain is
-measured.
+reinstallation remain required. The selected Shared Tooling baseline is now the
+81-file committed **0.1.24** baseline plus pending **0.1.25** archive corrections at
+`eeb72e741199bd8574280eacb3542d8379b912f6`, qualified through isolated tooling
+fixtures in the [adoption record](evidence/shared-tooling-0181.md).
 
-During the subsequent publication-helper repair, an external working-lock edit
-selects private Metrics **0.2.11**. It is preserved but not qualified by the above
-Metrics 0.2.9 checks. The table below describes the released graph; review and
-recheck the incoming selection before claiming native/runtime acceptance.
+The lockfile changed externally during that tooling follow-up: Testkit first
+selected **0.22.1**, then **0.22.2**, alongside Host **0.5.2**, Memory **0.31.4**
+and zerocopy **0.8.62**. Those incoming changes are preserved. The native/Wasm
+evidence above remains bound to Testkit 0.22.0 / Host 0.5.1 / Memory 0.31.3;
+the tooling fixtures do not qualify the newer runtime graph.
 
 ## Quick setup
 
@@ -116,7 +124,7 @@ its package version and dependencies from the workspace. Members select features
 and target conditions; `Cargo.lock` locks the resolved graph. Versions were checked against
 crates.io on 2026-09-25. On 2026-09-26, `serde_json` became a direct dependency
 at its existing locked version for bounded provider reply parsing. The table reflects
-the selected 0.18.0 graph on 2026-10-08;
+the incoming committed 0.18.1 graph on 2026-10-08, with compiled identity 0.18.0;
 availability does not establish provider qualification or service readiness.
 
 | Dependency | Version | Purpose |
@@ -129,15 +137,15 @@ availability does not establish provider qualification or service readiness.
 | `ic-cdk` | 0.20.3 | IC platform operations for the ops layer |
 | `ic-management-canister-types` | 0.11.0 (direct, locked) | Bounded current-instance IC-history request/reply types |
 | `ic-memory` | 0.31.3 (locked) | Sole allocation runtime; current ownership ledger and public typed growth API |
-| `ic-metrics` | 0.2.9 (locked) | Private storage resource probe only; allocation-free measurement arithmetic, no platform reader |
+| `ic-metrics` | 0.2.11 (locked) | Private storage resource probe only; allocation-free measurement arithmetic, no platform reader |
 | `ic-stable-structures` | 0.7.2 | Exact transitive substrate owned/re-exported by `ic-memory` |
-| `ic-testkit` | 0.21.3 (locked) | Native dependency of the unpublished PocketIC harness; shared helpers and full re-export |
+| `ic-testkit` | 0.22.0 (locked) | Native dependency of the unpublished PocketIC harness; shared helpers and full re-export |
 | `pocket-ic` | 16.0.0 | Transitive through `ic-testkit`; no direct dependency |
 | `ic-agent` | 0.49.2 | Native CLI and harness signing and verification of ingress certificates |
-| `ic-host-artifacts` | 0.5.0 direct; 0.4.6 harness transitive (locked) | Native CLI raw SHA-256 identities and example-only bounded JSON streams; optional archive/gzip/Wasm features disabled |
-| `ic-host-fs` | 0.5.0 direct; 0.4.6 harness transitive (locked) | Native CLI bounded descriptor/no-follow reads and private durable create-new records |
-| `ic-host-process` | 0.4.6 (harness transitive, locked) | Owned by ic-testkit; no direct CLI dependency |
-| `ic-host-tools` | 0.4.6 (harness transitive, locked) | Owned by ic-testkit; no direct CLI facade dependency |
+| `ic-host-artifacts` | 0.5.1 (direct and harness transitive, locked) | Native CLI raw SHA-256 identities and example-only bounded JSON streams; optional archive/gzip/Wasm features disabled |
+| `ic-host-fs` | 0.5.1 (direct and harness transitive, locked) | Native CLI bounded descriptor/no-follow reads and private durable create-new records |
+| `ic-host-process` | 0.5.1 (harness transitive, locked) | Owned by ic-testkit; no direct CLI dependency |
+| `ic-host-tools` | 0.5.1 (harness transitive, locked) | Owned by ic-testkit; no direct CLI facade dependency |
 | `candid_parser` | 0.4.1 | Native harness only; official Candid parser for native request fixtures |
 
 ### Native Host 0.4.6 selection — pending 0.17.2

@@ -4,6 +4,21 @@
 
 ### Fixed
 
+- Share native/browser fixture process cleanup through Host's owned child via
+  Testkit 0.22, and retain prefetched final browser responses when draining output.
+  Preserve protocol framing, idle deadlines and caller-selected IO. The incoming
+  lock now has one Host 0.5 line and private-probe Metrics 0.2.11.
+
+- Adopt reviewed Shared Tooling 0.1.24 and committed archive path corrections.
+  Recheck final release payloads and tags,
+  authenticate completed recovery, and refresh matching tracking refs after
+  confirmed delivery. Keep Blob's direct release policy explicit and refuse PR
+  delivery before effects. [Shared Tooling #58](https://github.com/dragginzgame/shared-tooling/issues/58),
+  [#62](https://github.com/dragginzgame/shared-tooling/issues/62).
+- Correct sibling LOC reporting for temporary path aliases, `bin/` tools and
+  checkouts awaiting their first commit. [Shared Tooling #57](https://github.com/dragginzgame/shared-tooling/issues/57),
+  [#61](https://github.com/dragginzgame/shared-tooling/issues/61).
+
 - Make `make publish` publish contracts before core without a mandatory package
   selector. Retrying checks exact registry archives against the release source
   before skipping completed uploads; inconclusive readback stops publication.

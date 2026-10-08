@@ -6,52 +6,68 @@
 
 Date: 2026-10-08
 
-## Current batch — publication repair, pending 0.18.1
+## Current batch — publication repair, sibling cleanup and tooling, pending 0.18.1
 
-- The maintainer completed **0.18.0** at
-  `704b8ebf6bea85a715e465e32e34758b601852ec`, with validated source
-  `a43aee3b2593574a326b9b54651ad4946e3dec24`. Cargo and the receipt now select
-  **0.18.0**; the retained plan is complete. The reported publication refusal was
-  the required package selector, before any upload. Pending compatible **0.18.1**
-  fixes that command surface; no package version, lock or receipt is changed here.
-- Ordinary `make publish` now calls Cargo for contracts then core. Exact registry
-  archive checksum/source readback permits skipping completed uploads on retry;
-  failures, foreign sources and yanked versions refuse. Optional individual
-  selection remains. Dry-run never uploads and cannot supply an unpublished
-  contracts dependency. The [release guide](../releasing.md#publication-and-deployment)
-  records both the new flow and clean-tag steps to finish existing 0.18.0.
-  [Isolated publication success/failure/lost-reply/registry/guard fixtures](../evidence/publication-helper0181.md) pass.
-- The package compile failure was stale Cargo artifacts shared between extracted
-  same-version archives with fixed source timestamps. Released source now gives
-  each retained verification workspace its own target. The real Cargo regression
-  demonstrates stale executable value **1** before repair and updated value **2**
-  after repair. Fresh paired payload qualification passes **517** cases and **two**
-  doctests. Earlier warm verification evidence is retained with this limitation,
-  not relabelled as proof of the exact updated payload.
-- Released / qualified graph: direct native Host artifacts/fs **0.5.0**, Testkit **0.21.3** with
-  its own transitive Host **0.4.6**, Memory **0.31.3**, private Metrics **0.2.9**.
-  Host 0.5.0 published sources/checksums match its released owner; its Linux,
-  Intel/ARM macOS and MSRV CI pass. Blob uses unchanged bounded read/hash/fs APIs,
-  so no extra Host dependency or API wrapper is added. Shared Tooling remains
-  reviewed **0.1.20**, 78 files; 0.1.21 adoption is still separate.
-- The [additional package/Host record](../evidence/host050-package0180.md) binds
-  actual pre-release compiled **0.17.2** inputs: Linux native-host passes **114**
-  CLI/probe, **21** examples, **two** installation/carrier and **one** Metrics
-  cases, plus contracts; affected Clippy and Rust **1.88** native/Wasm checks pass.
-  Candid is byte-exact against the prior baseline. These checks do not qualify
-  newly rebuilt 0.18.0 deployment bytes or native macOS. The release's committed
-  [Blob CI](https://github.com/dragginzgame/ic-blob-storage/actions/runs/37748250846)
-  was still running when inspected. [#27](https://github.com/dragginzgame/ic-blob-storage/issues/27)
-  remains open for matching committed acceptance; provider/downstream product
-  issues retain their owners. No agent release, publication, deployment, paid
-  effect, sibling edit or Rust symbol removal occurs in this follow-up.
-
-- During the publication repair an external working-lock edit selected private
-  Metrics **0.2.11**. It is preserved in place and separately captured under
-  `.tmp/publication-0181-01/incoming-Metrics0211-Cargo.lock`. The native/package
-  checks above precede it and do not qualify that new selection. Publication
-  substitutes compile no production packages; review/recheck the incoming graph
-  before its next release, without rebinding the frozen Metrics 0.2.9 evidence.
+- Released **0.18.0** remains `704b8ebf6bea85a715e465e32e34758b601852ec`,
+  validated source `a43aee3b2593574a326b9b54651ad4946e3dec24`; Cargo and receipt
+  still select **0.18.0**. During this follow-up the maintainer committed work as
+  `114f1b885394941b31388f07bafe6153422efdd9` (message 0.18.1). Pending compatible
+  **0.18.1** combines the publication helper repair, native fixture cleanup and
+  reviewed Shared Tooling adoption;
+  no public service/library/durable contract changes or version mutation here.
+- Ordinary `make publish` now selects contracts then core and authenticates exact
+  registry archive/source readback before skipping completed uploads on retry.
+  Optional individual selection remains; dry-run cannot supply unpublished
+  contracts. See the [repair record](../evidence/publication-helper0181.md) and
+  [release guide](../releasing.md#publication-and-deployment) for the fixed flow
+  and clean-tag steps to finish already-tagged 0.18.0. Isolated fixtures pass;
+  the agent has executed no registry publication.
+- The [sibling review and cleanup](../reports/audits/2026/10/08/sibling-reuse/01/report.md)
+  confirms its recorded graph: all four Host **0.5.1**, Testkit **0.22.0**,
+  Memory **0.31.3**, private Metrics **0.2.11**. Published archive/source identities
+  match the owner commits. The Testkit upgrade removes old Host 0.4 lock edges.
+  NativeSession and BrowserDriver delegate both former Drop implementations to
+  Host's child owner through Testkit. One fixture pipe drain preserves buffered
+  final responses, stderr and status; callers retain framing/readiness/deadlines.
+- Logged recorded-graph qualification with actual compiled **0.18.0** passes **114**
+  CLI/probe, **103** contracts, **21** examples, **two** installation/carrier,
+  **one** Metrics restoration and **seven** publication-session cases. The buffer
+  regression fails against the released pattern and passes after repair. Final
+  affected Clippy and Rust **1.88** native/Wasm checks pass. The initial unlogged
+  native failure, duplicate-cache inspection ambiguity and initial Clippy refusal
+  remain explicitly recorded. Tested CLI/Wasm bytes and source inputs are frozen;
+  prior 0.17.2 / Metrics 0.2.9 evidence remains unchanged.
+- Keep the nonblocking input descriptor admission and partial-download artifacts:
+  shared generic helpers do not preserve their exact symlink/race and recovery
+  contracts. No generic Backup/Query/Timers dependency or downstream framework
+  integration is justified by this cleanup. Canic/Toko/Miner migrations remain
+  with their owners. No Chromium/deployed provider run, paid effect, full gate,
+  sibling edit, agent commit/push/release or measured instruction/size gain.
+- Shared Tooling now selects **81 files** at committed
+  `eeb72e741199bd8574280eacb3542d8379b912f6`: the **0.1.24** baseline plus
+  committed pending **0.1.25** archive corrections. Blob explicitly retains
+  direct delivery and refuses PR selection before runner/effects; merged-source
+  receipt adapters are not adopted. Shared runner/routing, Blob adapters, snapshot
+  distribution, LOC, archive and shell checks pass. The original fixture command
+  refusal and missing-cloc attempt remain in the
+  [adoption record](../evidence/shared-tooling-0181.md). No vendored copy is patched.
+  The archive helper is available but not wired into Blob's existing CI collector.
+- Owner 0.1.24 Linux/Intel macOS/lint pass; ARM macOS's exact-ID artifact download
+  failure remains with [Shared Tooling #63](https://github.com/dragginzgame/shared-tooling/issues/63).
+  The selected follow-up CI was queued at inspection. Entry Blob HEAD has no
+  matching hosted result, and dirty work has no CI result. [#27](https://github.com/dragginzgame/ic-blob-storage/issues/27)
+  and provider/downstream product acceptance retain their existing owners.
+- The lock changed externally during tooling work: first Testkit **0.22.1** and
+  zerocopy **0.8.62**, then all four Host **0.5.2**, Testkit **0.22.2** and Memory
+  **0.31.4**; private Metrics remains **0.2.11**. Incoming changes are preserved.
+  Next runtime qualification must use that exact prepared graph. Earlier frozen
+  native/Wasm results above are not relabelled; no runtime compilation was run in
+  this tooling follow-up. Full CI/release gates remain separately authorized.
+- The earlier package compilation failure was stale same-version artifacts from
+  a shared extracted target. Released verification uses a unique target; fresh
+  payload checks pass **517** cases and **two** doctests. See the
+  [additional record](../evidence/host050-package0180.md); its actual compiled
+  **0.17.2** inputs and earlier warm-package limitation are preserved independently.
 
 ## Previous extraction — released 0.18.0
 

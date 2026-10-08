@@ -378,6 +378,63 @@ cmp "$FIXTURE/existing-consumer-manifest" "$tracked_consumer/.shared-tooling.sna
 bash "$ROOT/scripts/ci/verify-shared-tooling-snapshot.sh" \
     --consumer "$tracked_consumer" --manifest "$tracked_manifest" >/dev/null
 
+# Selection expansion reads dependency declarations from committed payloads.
+selection_consumer="$FIXTURE/selection"
+mkdir "$selection_consumer"
+git init -q "$selection_consumer"
+for path in scripts/ci/run-validation-targets.sh scripts/ci/check-make-execution.sh \
+    scripts/ci/run-release.sh scripts/ci/next-release-version.sh; do
+    cp -p "$ROOT/$path" "$source_root/$path"
+    cp -p "$ROOT/$path" "$revision_root/$path"
+done
+if PATH="$FIXTURE/bin:$PATH" bash "$source_root/scripts/distribution/refresh-consumer.sh" \
+    --source "$source_root" --consumer "$selection_consumer" \
+    --file "$checksum_path" --file "$verifier_path" --file scripts/ci/run-validation-targets.sh \
+    > "$FIXTURE/missing-companion.log" 2>&1; then exit 1; fi
+[[ ! -e "$selection_consumer/scripts" && ! -e "$selection_consumer/.shared-tooling.snapshot" ]]
+PATH="$FIXTURE/bin:$PATH" bash "$source_root/scripts/distribution/refresh-consumer.sh" \
+    --source "$source_root" --consumer "$selection_consumer" --manifest config/selection \
+    --file "$checksum_path" --file "$verifier_path" > "$FIXTURE/selection-initial.log"
+cp "$selection_consumer/config/selection" "$FIXTURE/selection-before"
+if PATH="$FIXTURE/bin:$PATH" bash "$source_root/scripts/distribution/refresh-consumer.sh" \
+    --source "$source_root" --consumer "$selection_consumer" --manifest config/selection \
+    --add-file scripts/ci/run-validation-targets.sh > "$FIXTURE/missing-addition.log" 2>&1; then exit 1; fi
+cmp "$FIXTURE/selection-before" "$selection_consumer/config/selection"
+[[ ! -e "$selection_consumer/scripts/ci/run-validation-targets.sh" ]]
+printf 'unrelated input\n' > "$selection_consumer/local.txt"
+for attempt in first retry; do
+    PATH="$FIXTURE/bin:$PATH" bash "$source_root/scripts/distribution/refresh-consumer.sh" \
+        --source "$source_root" --consumer "$selection_consumer" --manifest config/selection \
+        --add-file scripts/ci/run-validation-targets.sh --add-file scripts/ci/check-make-execution.sh \
+        > "$FIXTURE/selection-$attempt.log"
+    if [[ "$attempt" == first ]]; then cp "$selection_consumer/config/selection" "$FIXTURE/selection-after"; fi
+done
+cmp "$FIXTURE/selection-after" "$selection_consumer/config/selection"
+[[ "$(awk '$1 == "file" { n++ } END { print n }' "$selection_consumer/config/selection")" == 4 ]]
+[[ "$(cat "$selection_consumer/local.txt")" == 'unrelated input' ]]
+bash "$selection_consumer/scripts/ci/verify-shared-tooling-snapshot.sh" \
+    --consumer "$selection_consumer" --manifest config/selection >/dev/null
+printf 'check:\n\t@echo consumer-check-reached\n' > "$selection_consumer/Makefile"
+(cd "$selection_consumer" && bash scripts/ci/run-validation-targets.sh check) > "$FIXTURE/selection-run.log"
+grep -F 'consumer-check-reached' "$FIXTURE/selection-run.log" >/dev/null
+PATH="$FIXTURE/bin:$PATH" bash "$source_root/scripts/distribution/refresh-consumer.sh" \
+    --source "$source_root" --consumer "$selection_consumer" --manifest config/selection \
+    > "$FIXTURE/selection-refresh.log"
+cmp "$FIXTURE/selection-after" "$selection_consumer/config/selection"
+# Direct-only runner selection remains complete without the optional PR helper.
+PATH="$FIXTURE/bin:$PATH" bash "$source_root/scripts/distribution/refresh-consumer.sh" \
+    --source "$source_root" --consumer "$selection_consumer" --manifest config/selection \
+    --add-file scripts/ci/run-release.sh --add-file scripts/ci/next-release-version.sh \
+    > "$FIXTURE/selection-direct.log"
+[[ ! -e "$selection_consumer/scripts/ci/release-pr.sh" ]]
+cp "$selection_consumer/config/selection" "$FIXTURE/selection-before-conflict"
+printf 'consumer-owned file\n' > "$selection_consumer/scripts/ci/sample.sh"
+if PATH="$FIXTURE/bin:$PATH" bash "$source_root/scripts/distribution/refresh-consumer.sh" \
+    --source "$source_root" --consumer "$selection_consumer" --manifest config/selection \
+    --add-file scripts/ci/sample.sh > "$FIXTURE/addition-conflict.log" 2>&1; then exit 1; fi
+cmp "$FIXTURE/selection-before-conflict" "$selection_consumer/config/selection"
+[[ "$(cat "$selection_consumer/scripts/ci/sample.sh")" == 'consumer-owned file' ]]
+
 # Export the documented governance selection, then check links in that export.
 # This proves closure of the consumer file set, not merely the source checkout.
 governance_consumer="$FIXTURE/governance"

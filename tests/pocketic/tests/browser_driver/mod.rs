@@ -81,10 +81,8 @@ impl BrowserDriver {
     }
     fn output(&mut self, stop: bool) -> Output {
         self.stdin.take();
-        if stop {
-            if let Err(error) = self.child.terminate() {
-                eprintln!("browser cleanup: {error}");
-            }
+        if stop && let Err(error) = self.child.terminate() {
+            eprintln!("browser cleanup: {error}");
         }
         super::support::wait_with_output(&mut self.child, self.reader.take().unwrap())
     }

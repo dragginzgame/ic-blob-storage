@@ -3,6 +3,7 @@ set -euo pipefail
 
 # This fixture owns its Make controls; production admission is tested below.
 unset MAKEFLAGS MFLAGS MAKEOVERRIDES GNUMAKEFLAGS MAKEFILES
+export RELEASE_DELIVERY=direct
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 FIXTURE_ROOT="$(mktemp -d "${TMPDIR:-/tmp}/release-runner-test.XXXXXX")"
@@ -47,6 +48,14 @@ case "$target" in
     release-committed-check|release-tagged-check|release-push-check)
         [[ -n "$RELEASE_COMMIT" ]]
         [[ "$(cat "commits/$RELEASE_COMMIT.subject")" == "Release $RELEASE_VERSION" ]]
+        if [[ "$target" == release-push-check ]]; then
+            case "${FIXTURE_PUSH_MUTATION:-}" in
+                tag) printf 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n' > "tags/v$RELEASE_VERSION" ;;
+                tag-object) printf 'ffffffffffffffffffffffffffffffffffffffff\n' > tag-object ;;
+                index) touch dirty-index ;;
+                worktree) touch dirty-worktree ;;
+            esac
+        fi
         ;;
     *) exit 2 ;;
 esac
@@ -69,6 +78,7 @@ ancestor() {
     done
 }
 case "$1" in
+    for-each-ref) printf '\n' ;;
     check-ref-format) [[ "$2" == refs/heads/main ]] ;;
     symbolic-ref) echo main ;;
     remote)
@@ -90,12 +100,14 @@ case "$1" in
                 name="${*: -1}"; name="${name#refs/tags/}"; name="${name%\^\{commit\}}"
                 if [[ -n "${FIXTURE_TAG_COMMIT:-}" ]]; then echo "$FIXTURE_TAG_COMMIT"; elif [[ -f "tags/$name" ]]; then cat "tags/$name"; else [[ -f tag ]]; echo "$release_sha"; fi
                 ;;
-            refs/tags/*) [[ -f tag ]]; echo "$tag_sha" ;;
+            refs/tags/*) [[ -f tag ]] || exit 1; if [[ -f tag-object ]]; then cat tag-object; else echo "$tag_sha"; fi ;;
             *) exit 2 ;;
         esac
         ;;
     diff)
-        if [[ "$2" == --quiet ]]; then [[ "${FIXTURE_DIRTY:-}" != yes ]]; else cat version; fi
+        if [[ "$2" == --cached ]]; then [[ ! -e dirty-index ]];
+        elif [[ "$2" == --quiet ]]; then [[ "${FIXTURE_DIRTY:-}" != yes && ! -e dirty-worktree ]];
+        else cat version; fi
         ;;
     ls-files)
         [[ "${FIXTURE_INVENTORY_FAIL:-}" != yes ]] || exit 9
@@ -135,7 +147,7 @@ case "$1" in
             *) exit 2 ;;
         esac
         ;;
-    cat-file) [[ -f tag ]]; echo "${FIXTURE_TAG_TYPE:-tag}" ;;
+    cat-file) [[ -f tag ]] || exit 1; echo "${FIXTURE_TAG_TYPE:-tag}" ;;
     ls-remote)
         [[ "${FIXTURE_REMOTE_FAIL:-}" != yes ]] || exit 9
         if [[ "${FIXTURE_DRIFT_TARGET:-}" == remote-observation && -f tag ]]; then
@@ -173,7 +185,7 @@ case "$1" in
         echo push >> events
         [[ "${FIXTURE_FAIL_EFFECT:-}" != before-push ]] || exit 9
         echo "$push_head" > remote-head
-        echo "$tag_sha" > remote-tag
+        if [[ -f tag-object ]]; then cat tag-object > remote-tag; else echo "$tag_sha" > remote-tag; fi
         cat tag > remote-tag-name
         if [[ "${FIXTURE_FAIL_EFFECT:-}" == push && ! -f lost-push ]]; then touch lost-push; exit 9; fi
         ;;
@@ -206,6 +218,42 @@ expect_failure() {
         exit 1
     fi
 }
+
+for mutation in tag tag-object index worktree; do
+    new_fixture "push-check-mutation-$mutation"
+    FIXTURE_PUSH_MUTATION="$mutation" expect_failure patch origin main
+    [[ "$(tail -n 1 .release-state/0.1.1.plan)" == push ]]
+    [[ "$(count_event push)" == 0 && "$(count_event commit)" == 1 && "$(count_event tag)" == 1 ]]
+    # Explicitly repair the fixture's changed state and retry its saved release.
+    cat head > tags/v0.1.1
+    rm -f dirty-index dirty-worktree tag-object
+    bash "$ROOT/scripts/ci/run-release.sh" patch origin main > recovered-output
+    [[ "$(count_event push)" == 1 && "$(count_event commit)" == 1 && "$(count_event tag)" == 1 && "$(count_event release-verify)" == 1 ]]
+done
+
+for conflict in local-tag-missing local-tag-commit local-tag-type remote-tag-missing remote-tag-changed remote-branch-missing remote-branch-diverged remote-unavailable; do
+    new_fixture "completed-conflict-$conflict"
+    bash "$ROOT/scripts/ci/run-release.sh" patch origin main > output
+    cp events completed-events
+    cp .release-state/0.1.1.plan completed-plan
+    bash "$ROOT/scripts/ci/run-release.sh" resume 0.1.1 origin main > resumed-output
+    cmp events completed-events
+    case "$conflict" in
+        local-tag-missing) rm tag ;;
+        local-tag-commit) printf 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n' > tags/v0.1.1 ;;
+        local-tag-type) export FIXTURE_TAG_TYPE=commit ;;
+        remote-tag-missing) rm remote-tag ;;
+        remote-tag-changed) printf 'eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee\n' > remote-tag ;;
+        remote-branch-missing) rm remote-head ;;
+        remote-branch-diverged) printf 'ffffffffffffffffffffffffffffffffffffffff\n' > remote-head ;;
+        remote-unavailable) export FIXTURE_REMOTE_FAIL=yes ;;
+    esac
+    expect_failure resume 0.1.1 origin main
+    cmp events completed-events
+    cmp .release-state/0.1.1.plan completed-plan
+    [[ ! -e .release-state/lock ]]
+    unset FIXTURE_TAG_TYPE FIXTURE_REMOTE_FAIL
+done
 
 for kind in patch minor major; do
     for flags in '' i n q t v; do
@@ -440,6 +488,17 @@ commit_fix() {
     printf '%s\n' "$fix" > "commits/$fix.tree"
     printf '%s\n' "$fix" > 'head'
 }
+new_fixture completed-remote-descendant
+bash "$ROOT/scripts/ci/run-release.sh" patch origin main > output
+commit_fix
+cp head remote-head
+cp events completed-events
+cp .release-state/0.1.1.plan completed-plan
+bash "$ROOT/scripts/ci/run-release.sh" resume 0.1.1 origin main > resumed-output
+cmp events completed-events
+cmp .release-state/0.1.1.plan completed-plan
+[[ "$(cat remote-head)" == eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee ]]
+
 for next_kind in patch minor major resume; do
     for outcome in before-push push; do
         new_fixture "descendant-$next_kind-$outcome"
@@ -822,4 +881,168 @@ cat history-bytes >> byte-expected
 awk -v version=0.1.1 -v previous=0.1.0 -v date=2026-10-06 \
     -f "$ROOT/scripts/ci/finalize-release-changelog.awk" byte-notes > byte-result
 cmp byte-expected byte-result
+# Use native Git histories and bare destinations for tracking observation. Metadata
+# and validation targets are deliberately inert: this qualifies Git, not a product.
+TRACKING_ROOT="$FIXTURE_ROOT/real-tracking"
+mkdir -p "$TRACKING_ROOT/bin"
+cat > "$TRACKING_ROOT/bin/git" <<'GIT'
+#!/usr/bin/env bash
+set -euo pipefail
+case "$1" in
+    push)
+        echo push >> "$TRACKING_EVENTS"
+        [[ "${TRACKING_PUSH_FAIL:-}" != yes ]] || exit 9
+        "$REAL_GIT" "$@"
+        if [[ "${TRACKING_PUSH_LOST:-}" == yes && ! -e "$TRACKING_EVENTS.lost" ]]; then
+            touch "$TRACKING_EVENTS.lost"
+            exit 9
+        fi
+        exit 0
+        ;;
+    update-ref)
+        echo tracking >> "$TRACKING_EVENTS"
+        [[ "${TRACKING_UPDATE_FAIL:-}" != yes ]] || exit 9
+        if [[ -n "${TRACKING_RACE_OID:-}" && ! -e "$TRACKING_EVENTS.raced" ]]; then
+            [[ "$2" == --no-deref && "$3" == -m ]]
+            "$REAL_GIT" update-ref "$5" "$TRACKING_RACE_OID"
+            touch "$TRACKING_EVENTS.raced"
+        fi
+        ;;
+esac
+exec "$REAL_GIT" "$@"
+GIT
+chmod +x "$TRACKING_ROOT/bin/git"
+for tracking_case in normal completed-resume custom-map missing-ref no-upstream other-remote other-branch fetch-destination symbolic newer divergent rejected-push lost-push update-failure update-race; do
+    (
+        unset FIXTURE_DESTINATION FIXTURE_REMOTE_FAIL FIXTURE_PUSH_MUTATION
+        unset TRACKING_PUSH_FAIL TRACKING_PUSH_LOST TRACKING_UPDATE_FAIL TRACKING_RACE_OID
+        selected="$TRACKING_ROOT/$tracking_case"
+        mkdir -p "$selected"
+        "$REAL_GIT" init --quiet --bare "$selected/destination.git"
+        "$REAL_GIT" init --quiet -b main "$selected/work"
+        cd "$selected/work"
+        "$REAL_GIT" config user.name 'Release fixture'
+        "$REAL_GIT" config user.email 'fixture@example.invalid'
+        printf '0.1.0\n' > version
+        cat > Makefile <<'MAKE'
+.PHONY: release-version release-preflight release-verify release-prepare-version release-prepared-check release-files release-commit-check release-committed-check release-tagged-check release-push-check
+release-version:
+	@cat version
+release-prepare-version:
+	@printf '%s\n' '$(RELEASE_VERSION)' > version
+release-files:
+	@printf 'version\0'
+release-preflight release-verify release-prepared-check release-commit-check release-committed-check release-tagged-check release-push-check:
+	@:
+MAKE
+        "$REAL_GIT" add Makefile version
+        "$REAL_GIT" commit --quiet -m source
+        source_head="$("$REAL_GIT" rev-parse HEAD)"
+        "$REAL_GIT" remote add origin "$selected/destination.git"
+        "$REAL_GIT" push --quiet --set-upstream origin main
+        tracking_ref=refs/remotes/origin/main
+        case "$tracking_case" in
+            custom-map)
+                "$REAL_GIT" config remote.origin.fetch '+refs/heads/main:refs/remotes/custom/main'
+                tracking_ref=refs/remotes/custom/main
+                "$REAL_GIT" update-ref "$tracking_ref" "$source_head"
+                ;;
+            missing-ref) "$REAL_GIT" update-ref -d "$tracking_ref" ;;
+            no-upstream) "$REAL_GIT" config --unset branch.main.remote; "$REAL_GIT" config --unset branch.main.merge ;;
+            other-remote)
+                "$REAL_GIT" remote add other "$selected/destination.git"
+                "$REAL_GIT" config branch.main.remote other
+                "$REAL_GIT" update-ref refs/remotes/other/main "$source_head"
+                ;;
+            other-branch)
+                "$REAL_GIT" config branch.main.merge refs/heads/other
+                "$REAL_GIT" update-ref refs/remotes/origin/other "$source_head"
+                ;;
+            fetch-destination)
+                "$REAL_GIT" clone --quiet --bare "$selected/destination.git" "$selected/fetch.git"
+                "$REAL_GIT" remote set-url origin "$selected/fetch.git"
+                "$REAL_GIT" remote set-url --push origin "$selected/destination.git"
+                ;;
+            symbolic)
+                "$REAL_GIT" branch preserved "$source_head"
+                "$REAL_GIT" symbolic-ref "$tracking_ref" refs/heads/preserved
+                ;;
+        esac
+        export TRACKING_EVENTS="$selected/events"
+        : > "$TRACKING_EVENTS"
+        export PATH="$TRACKING_ROOT/bin:${PATH#"$FIXTURE_ROOT/bin:"}"
+        export RELEASE_MAKE="$REAL_MAKE"
+        if [[ "$tracking_case" == rejected-push ]]; then export TRACKING_PUSH_FAIL=yes; fi
+        if [[ "$tracking_case" == lost-push ]]; then export TRACKING_PUSH_LOST=yes; fi
+        if [[ "$tracking_case" == update-failure ]]; then export TRACKING_UPDATE_FAIL=yes; fi
+        if [[ "$tracking_case" == update-race ]]; then
+            TRACKING_RACE_OID="$(printf 'concurrent observation\n' | "$REAL_GIT" commit-tree "$("$REAL_GIT" rev-parse "HEAD^{tree}")" -p "$source_head")"
+            export TRACKING_RACE_OID
+        fi
+        if [[ "$tracking_case" == rejected-push || "$tracking_case" == lost-push ]]; then
+            if bash "$ROOT/scripts/ci/run-release.sh" patch origin main > "$selected/first.log" 2>&1; then
+                echo "tracking fixture accepted failed/lost push: $tracking_case" >&2; exit 1
+            fi
+            [[ "$("$REAL_GIT" rev-parse "$tracking_ref")" == "$source_head" ]]
+            if [[ "$tracking_case" == rejected-push ]]; then
+                [[ "$("$REAL_GIT" --git-dir="$selected/destination.git" rev-parse refs/heads/main)" == "$source_head" ]]
+            fi
+            unset TRACKING_PUSH_FAIL TRACKING_PUSH_LOST
+            bash "$ROOT/scripts/ci/run-release.sh" resume 0.1.1 origin main > "$selected/resume.log" 2>&1
+        else
+            bash "$ROOT/scripts/ci/run-release.sh" patch origin main > "$selected/first.log" 2>&1
+        fi
+        release_head="$("$REAL_GIT" rev-parse HEAD)"
+        [[ "$("$REAL_GIT" --git-dir="$selected/destination.git" rev-parse refs/heads/main)" == "$release_head" ]]
+        [[ "$(tail -n 1 .git/release-state/0.1.1.plan)" == complete ]]
+        case "$tracking_case" in
+            no-upstream|other-remote|other-branch|fetch-destination|symbolic)
+                [[ "$("$REAL_GIT" rev-parse "$tracking_ref")" == "$source_head" ]]
+                [[ "$(awk '$0 == "tracking" { count++ } END { print count+0 }' "$TRACKING_EVENTS")" == 0 ]]
+                if [[ "$tracking_case" == symbolic ]]; then
+                    [[ "$("$REAL_GIT" symbolic-ref "$tracking_ref")" == refs/heads/preserved ]]
+                    [[ "$("$REAL_GIT" rev-parse preserved)" == "$source_head" ]]
+                fi
+                ;;
+            update-race)
+                [[ "$("$REAL_GIT" rev-parse "$tracking_ref")" == "$TRACKING_RACE_OID" ]]
+                [[ "$(awk '$0 == "push" { count++ } END { print count+0 }' "$TRACKING_EVENTS")" == 1 ]]
+                ;;
+            update-failure)
+                [[ "$("$REAL_GIT" rev-parse "$tracking_ref")" == "$source_head" ]]
+                unset TRACKING_UPDATE_FAIL
+                bash "$ROOT/scripts/ci/run-release.sh" resume 0.1.1 origin main > "$selected/resume.log" 2>&1
+                [[ "$("$REAL_GIT" rev-parse "$tracking_ref")" == "$release_head" ]]
+                [[ "$(awk '$0 == "push" { count++ } END { print count+0 }' "$TRACKING_EVENTS")" == 1 ]]
+                ;;
+            completed-resume)
+                "$REAL_GIT" update-ref "$tracking_ref" "$source_head"
+                bash "$ROOT/scripts/ci/run-release.sh" resume 0.1.1 origin main > "$selected/resume.log" 2>&1
+                [[ "$("$REAL_GIT" rev-parse "$tracking_ref")" == "$release_head" ]]
+                [[ "$(awk '$0 == "push" { count++ } END { print count+0 }' "$TRACKING_EVENTS")" == 1 ]]
+                ;;
+            newer|divergent)
+                tracking_parent="$release_head"
+                [[ "$tracking_case" != divergent ]] || tracking_parent="$source_head"
+                retained_head="$(printf 'retained observation\n' | "$REAL_GIT" commit-tree "$("$REAL_GIT" rev-parse "HEAD^{tree}")" -p "$tracking_parent")"
+                "$REAL_GIT" update-ref "$tracking_ref" "$retained_head"
+                bash "$ROOT/scripts/ci/run-release.sh" resume 0.1.1 origin main > "$selected/resume.log" 2>&1
+                [[ "$("$REAL_GIT" rev-parse "$tracking_ref")" == "$retained_head" ]]
+                [[ "$(awk '$0 == "push" { count++ } END { print count+0 }' "$TRACKING_EVENTS")" == 1 ]]
+                ;;
+            *)
+                [[ "$("$REAL_GIT" rev-parse "$tracking_ref")" == "$release_head" ]]
+                [[ "$("$REAL_GIT" rev-list --count "@{upstream}..HEAD")" == 0 ]]
+                if [[ "$tracking_case" == custom-map ]]; then
+                    [[ "$("$REAL_GIT" rev-parse refs/remotes/origin/main)" == "$source_head" ]]
+                fi
+                if [[ "$tracking_case" == lost-push ]]; then
+                    [[ "$(awk '$0 == "push" { count++ } END { print count+0 }' "$TRACKING_EVENTS")" == 1 ]]
+                fi
+                ;;
+        esac
+        echo "real Git tracking fixture passed: $tracking_case"
+    )
+done
+
 echo 'release runner command-stub tests passed'

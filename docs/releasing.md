@@ -78,7 +78,11 @@ make release-patch
 # Or select release-minor / release-major for the complete batch's compatibility.
 ```
 
-All three invoke the same pinned runner. Default inputs are `RELEASE_REMOTE=origin`
+All three invoke the same pinned runner. This repository explicitly selects
+`RELEASE_DELIVERY=direct`; a different command-line or inherited selection refuses
+before entering the runner, validation or metadata preparation. The shared PR
+helper is included with the baseline, but Blob has not adopted merged-source
+receipt adapters. Default destination inputs are `RELEASE_REMOTE=origin`
 and `RELEASE_BRANCH=main`; an explicit override is saved with the exact push URL.
 It preflights, validates, prepares Cargo/version/notes/receipt, stages only
 Cargo.toml, Cargo.lock, CHANGELOG.md and docs/release.json, creates the release
@@ -87,6 +91,10 @@ commit and annotated tag, then atomically pushes exactly that branch and tag.
 The runner rechecks the saved destination after validation and before push,
 and dispatches to the captured URL with an explicit option terminator.
 Publication, deployment and cleanup are separate.
+After confirmed delivery or completed resume, the runner refreshes the matching
+configured upstream tracking ref from exact remote observation. It preserves
+unrelated, newer, divergent, symbolic or concurrently changed refs; a local
+tracking failure reports a fetch remedy without repeating delivery.
 The shared runner, validation logger and formatting hook qualify actual GNU
 Make recipe execution and failure propagation before their guarded effects.
 Inherited ignore-errors, dry-run, question, touch or version-only modes refuse;

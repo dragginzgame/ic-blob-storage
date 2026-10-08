@@ -7,13 +7,16 @@ CONSUMER_ROOT=""
 MANIFEST_PATH=".shared-tooling.snapshot"
 STAGING_DIR=""
 requested_files=()
+added_files=()
 
 usage() {
     cat >&2 <<'USAGE'
-usage: refresh-consumer.sh [--source <shared-tooling-checkout>] --consumer <repository> [--manifest <relative-path>] [--file <relative-path>]...
+usage: refresh-consumer.sh [--source <shared-tooling-checkout>] --consumer <repository> [--manifest <relative-path>] [--file <relative-path>]... [--add-file <relative-path>]...
 
 Use --file only when creating the initial snapshot. Later refreshes read the
 declared file set from the existing consumer manifest.
+Use --add-file to explicitly extend an existing selection; repeated additions
+are idempotent. Required companions are checked, never added implicitly.
 USAGE
 }
 
@@ -81,6 +84,11 @@ while [[ $# -gt 0 ]]; do
     --file)
         [[ $# -ge 2 ]] || { usage; exit 2; }
         requested_files[${#requested_files[@]}]="$2"
+        shift 2
+        ;;
+    --add-file)
+        [[ $# -ge 2 ]] || { usage; exit 2; }
+        added_files[${#added_files[@]}]="$2"
         shift 2
         ;;
     -h | --help)
@@ -173,9 +181,19 @@ if [[ -e "$manifest" ]]; then
     [[ "$manifest_source" == "$source_remote" ]] ||
         fail "source remote differs from the existing manifest"
 else
+    [[ ${#added_files[@]} -eq 0 ]] || fail "--add-file requires an existing snapshot"
     [[ ${#requested_files[@]} -gt 0 ]] || fail "the initial snapshot requires at least one --file"
     files=("${requested_files[@]}")
 fi
+
+for path in ${added_files[@]+"${added_files[@]}"}; do
+    validate_relative_path "$path"
+    selected=false
+    for existing in "${files[@]}"; do
+        [[ "$existing" != "$path" ]] || selected=true
+    done
+    if [[ "$selected" == false ]]; then files[${#files[@]}]="$path"; fi
+done
 
 [[ ${#files[@]} -gt 0 ]] || fail "snapshot file set is empty"
 
@@ -231,6 +249,23 @@ for index in "${!files[@]}"; do
     git -C "$SOURCE_ROOT" cat-file blob "$source_revision:$path" >"$staged_files/$path" ||
         fail "cannot export committed source file: $path"
     chmod "${source_modes[$index]#100}" "$staged_files/$path"
+done
+
+# Companions are declared by the selected committed source, not guessed from
+# shell syntax or this exporter's revision. Only the exact second-line marker
+# is metadata; declarations inside a test's heredoc are ordinary source bytes.
+for path in "${files[@]}"; do
+    declaration="$(sed -n '2s/^# Shared companions: //p' "$staged_files/$path")"
+    companions=()
+    read -r -a companions <<< "$declaration"
+    for companion in ${companions[@]+"${companions[@]}"}; do
+        validate_relative_path "$companion"
+        selected=false
+        for existing in "${files[@]}"; do
+            [[ "$existing" != "$companion" ]] || selected=true
+        done
+        [[ "$selected" == true ]] || fail "$path requires selected companion: $companion (add it explicitly)"
+    done
 done
 
 staged_manifest="$STAGING_DIR/manifest"

@@ -24,6 +24,7 @@ VERSION ?=
 RELEASE := bash scripts/release/release.sh
 RELEASE_REMOTE ?= origin
 RELEASE_BRANCH ?= main
+export RELEASE_DELIVERY ?= direct
 export PUBLISH_PACKAGE
 export RELEASE_KIND RELEASE_PREVIOUS RELEASE_VERSION RELEASE_DATE RELEASE_SOURCE RELEASE_COMMIT RELEASE_REMOTE RELEASE_BRANCH
 SHELLCHECK ?= shellcheck
@@ -31,7 +32,7 @@ CI_TARGETS := shared-tooling-check tools-check dependency-pins-check documentati
 
 .PHONY: help version deps cloc shared-tooling-check dependency-pins-check fmt fmt-check check clippy docs-check test test-native test-pocketic test-browser test-browser-store test-browser-transport test-browser-standalone test-sdk-probe test-sdk-inputs test-fixture test-standalone build-standalone test-admission-resources test-read-resources test-funding-receipt-resources wasm-check \
 	build package clean shell-check release-check probe-check ci validate release-verify test-browser-publication test-browser-bootstrap test-browser-launcher test-browser-native \
-	release-plan ensure-clean release-patch release-minor release-major release-resume \
+	release-plan ensure-clean release-delivery-check release-patch release-minor release-major release-resume \
 	release-version release-preflight release-prepare-version release-prepared-check release-files \
 	release-commit-check release-committed-check release-tagged-check release-push-check \
 	release-tag-check publish publish-dry-run install-hooks format-tools-check release-tools-check hooks-check evidence-check
@@ -105,6 +106,7 @@ shared-tooling-tests:
 	bash scripts/ci/test-format-tools.sh
 	bash scripts/ci/check-validation-logging.sh
 	bash scripts/ci/test-file-digests.sh
+	bash scripts/ci/test-evidence-archive.sh
 	bash scripts/ci/test-ic-tools.sh
 	bash scripts/ci/test-pocketic-checks.sh
 	perl scripts/ci/test-local-lock-versions.pl
@@ -122,7 +124,7 @@ documentation-links-check:
 		xargs -0 perl scripts/ci/check-documentation-links.pl --root . *.md
 
 release-commands-check:
-	bash scripts/ci/check-release-commands.sh "$(CURDIR)" Cargo.toml scripts/release/release-data.pl make/tools.mk
+	bash scripts/ci/check-release-commands.sh "$(CURDIR)" Cargo.toml scripts/release/release.sh scripts/release/release-data.pl make/tools.mk
 
 dependency-pins-check:
 	bash scripts/ci/check-dependency-pins.sh --cargo-inheritance
@@ -337,10 +339,13 @@ release-plan:
 ensure-clean:
 	@$(RELEASE) ensure-clean
 
-release-patch release-minor release-major:
+release-delivery-check:
+	@$(RELEASE) delivery-check
+
+release-patch release-minor release-major: release-delivery-check
 	+@bash scripts/ci/run-release.sh "$(@:release-%=%)" "$(RELEASE_REMOTE)" "$(RELEASE_BRANCH)"
 
-release-resume:
+release-resume: release-delivery-check
 	+@bash scripts/ci/run-release.sh resume "$(VERSION)" "$(RELEASE_REMOTE)" "$(RELEASE_BRANCH)"
 
 release-version:
