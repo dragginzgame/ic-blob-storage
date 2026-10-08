@@ -103,7 +103,6 @@ fn substitute(
             now
         },
         namespace_binding: established,
-        trusted_uploader: established,
         current_owner: established,
         durable_commit: established,
     })

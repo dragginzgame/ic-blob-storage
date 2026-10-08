@@ -113,6 +113,7 @@ shared-tooling-tests:
 	bash scripts/ci/test-ic-tools.sh
 	perl scripts/ci/test-local-lock-versions.pl
 	bash scripts/ci/test-cargo-metadata.sh
+	bash scripts/ci/test-npm-pins.sh
 	bash scripts/ci/test-snapshot-distribution.sh
 	bash scripts/ci/test-host-tools.sh
 	bash scripts/ci/test-rust-tools.sh
@@ -132,7 +133,10 @@ release-commands-check:
 	bash scripts/ci/check-release-commands.sh "$(CURDIR)" Cargo.toml scripts/release/release.sh scripts/release/release-data.pl make/tools.mk
 
 dependency-pins-check:
-	bash scripts/ci/check-dependency-pins.sh --cargo-inheritance
+	@set -e; node_version="$$(cat tests/browser/.nvmrc)"; \
+		npm_version="$$(jq -er '.packageManager | capture("^npm@(?<version>[0-9]+\\.[0-9]+\\.[0-9]+)$$").version' tests/browser/package.json)"; \
+		bash scripts/ci/check-dependency-pins.sh --cargo-inheritance \
+			--npm-root tests/browser --node-version "$$node_version" --npm-version "$$npm_version"
 
 format-tools-check:
 	@source ci/tool-versions.env; bash scripts/ci/check-format-tools.sh "$$SHARED_TOOLING_CARGO_SORT_VERSION"

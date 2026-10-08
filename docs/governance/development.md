@@ -61,7 +61,7 @@ Metrics restoration-read check used by
 the native host CI matrix, separate from the complete gate.
 Testkit/PocketIC own client/server compatibility and managed server lifetime.
 Blob has no independent crate-version/server-version equality gate. The
-Blob-owned `ci/ic-tools.tsv` selects reviewed PocketIC 16.1.0 assets through the
+snapshot-owned `ci/ic-tools.tsv` selects reviewed PocketIC 16.1.0 assets through the
 canonical shared installer; `make ic-tools-check` authenticates the managed bundle.
 An externally selected executable retains its caller-owned byte admission.
 `make msrv-check` explicitly selects Rust 1.88, checks the public libraries

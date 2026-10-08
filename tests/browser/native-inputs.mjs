@@ -62,7 +62,7 @@ function invoke(name, command, expected) {
   return JSON.parse(result.stdout);
 }
 const installation = invoke('installation', ['installation-check', '--configuration', configurationPath,
-  '--service', binding.service, '--project', binding.project, '--trusted-uploader', binding.uploader,
+  '--service', binding.service, '--project', binding.project,
   '--verifier', 'rdmx6-jaaaa-aaaaa-aaadq-cai', '--release', 'offline-fixture', '--run-dir', installationDirectory], 0);
 const result = invoke('prepared', args, 0);
 assert.equal(result.body_verified, true);

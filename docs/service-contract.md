@@ -54,7 +54,7 @@ manifest leaves and concurrent reservations now use the validated installation's
 resource configuration. There is no additional one-object or 1 KiB issuance cap.
 Admission reserves those resources; preparation validates the exact manifest;
 issuance rechecks the retained reservation and permission. Exhaustion still refuses.
-The policy requires explicit installed uploader trust, an exact local
+The policy requires the exact retained project-approved uploader permission, an exact local
 service/namespace mapping, a current owner and atomic exposure commit.
 The uploader must also hold the exact original tenant permission and
 prepared manifest. Controller/operator status grants none of that authority.
@@ -189,7 +189,7 @@ Canic integration remains deferred; [GitHub issues](https://github.com/dragginzg
 track consumer adoption. This contract owns the required service behavior.
 
 `ops::service::installation::ValidatedServiceInstallation` also validates the
-explicit project, verifier, trusted uploader and bounded library release before allocation.
+explicit project, verifier and bounded library release before allocation.
 Use `ic_blob_storage::LIBRARY_VERSION` for that compiled dependency identity;
 an embedding host's package version and Wasm/module identity are separate facts.
 `ServiceInstallation` owns the immutable current configuration record and the
@@ -199,8 +199,10 @@ the retained schema, actual service and compiled release before opening owners,
 revalidates all installed inputs and returns only after every owner is fenced.
 Missing or invalid state is never initialized or repaired. Configuration remains
 immutable; getters grant no endpoint, tenant or operational recovery authority.
-Standalone uses this owner; current DTOs/Candid and the v1 record now include
-required immutable uploader trust without cross-release compatibility.
+Standalone uses this owner. Current DTOs/Candid and the installation record have
+no single installed uploader; exact per-upload grants remain with the upload owner. The changed
+installation format refuses the former contract; cross-release retirement/reinstall
+is required.
 
 The [standalone host](../canisters/standalone/README.md) now explicitly owns these
 hooks and grants and delegates configuration persistence to the shared owner. Its actual IC
@@ -211,7 +213,9 @@ endpoints delegate to shared workflows, with bounded typed Candid and operator-o
 configuration readback. Standalone installation takes the core's passive
 `ServiceInstallationInput`:
 shared `ServiceConfigurationInput` plus required explicit Caffeine project,
-completion verifier and trusted certificate uploader. The
+completion verifier. Each enrolled project grants original upload permissions
+naming its users separately. Initialization accepts exactly the current typed
+record; skipped fields and extra init arguments refuse. The
 host binds owner to its actual service and project to the installed local namespace,
 validates before allocation and retains/revalidates the mapping in its current v1
 record. Configuration readback includes the project. This host init/schema hard cut
@@ -642,7 +646,7 @@ identity allocation and implements no provider upload or browser delivery policy
 `workflow::uploads::exposure` supplies read-only preparation inspection, guarded
 synchronous commit and exact tenant/uploader history. Its host evidence binds the
 full original permission and separately reports
-explicit local namespace mapping, installed uploader trust, current-owner eligibility
+explicit local namespace mapping, the retained project-approved uploader permission, current-owner eligibility
 and atomic durable commit. These facts must be established from the installed owner in the
 current execution, never accepted from production ingress. Timestamp mismatch blocks
 exposure; equal time is not proof of freshness or provenance. All missing host
@@ -693,8 +697,8 @@ limits, namespace provisioning/enforcement, replay charging and independent reco
 readiness remain unqualified and outside the accepted restricted issuance contract.
 The host now derives local prerequisites through the shared installation owner,
 issues only for an admitted/prepared reservation within installed quotas and
-explicitly installed uploader trust, and commits possible exposure before replying. An empty query does not
-reserve issuance. Its current v1 record/readback includes that uploader identity.
+the exact retained project-approved uploader permission, and commits possible exposure before replying. An empty query does not
+reserve issuance. Its current installation record/readback contains no global uploader identity.
 
 Headless Rust tests obtain the actual v4 HTTP ingress certificate using a signing
 identity, then verify the IC signature/delegation/time and exact request ID under
@@ -712,7 +716,7 @@ and root key, and retains explicit project/bucket before issuance. Transfer deri
 the SDK namespace from that binding; changed values conflict across setup/reopening.
 Native `upload-inputs` requires these original values, the frozen
 `ic-blob-storage/upload-inputs:original-preparation` format identity and a complete installation
-carrier. Shared validation checks proposed service/namespace/project/trusted uploader
+carrier. Shared validation checks proposed service/namespace/project
 and resource bounds, preserves exact init bytes and checks UTF-8/header bounds.
 This does not observe actual installed state or remaining capacity; neither offline
 validation nor local storage proves provider provisioning.

@@ -31,7 +31,6 @@ pub(crate) fn install(input: &ServiceInstallationInput) {
             configuration: input.configuration,
             project: &input.project,
             completion_verifier: input.completion_verifier,
-            trusted_uploader: input.trusted_uploader,
             release: ic_blob_storage::LIBRARY_VERSION,
             platform_installation_version: ic_cdk::api::canister_version(),
         },
@@ -210,12 +209,16 @@ pub(crate) fn with_certificate<R>(f: impl FnOnce(&mut ServiceInstallation<Memory
     observe_version();
     HOST.with_borrow_mut(|host| f(&mut host.as_mut().expect("initialized host").installation))
 }
-fn bounded<T: CandidType + for<'de> Deserialize<'de>>(bytes: &[u8], max: usize) -> T {
+fn bounded<T: CandidType + for<'de> Deserialize<'de>>(
+    bytes: &[u8],
+    max: usize,
+    skipping: usize,
+) -> T {
     assert!(bytes.len() <= max, "ingress byte bound");
     let mut config = DecoderConfig::new();
     config
         .set_decoding_quota(2_000_000)
-        .set_skipping_quota(1024)
+        .set_skipping_quota(skipping)
         .set_max_type_len(64)
         .set_max_header_len(max)
         .set_full_error_message(false);
@@ -233,15 +236,17 @@ impl ic_blob_storage::ops::service::recovery::RecoveryInstallationAccess for Rec
 }
 #[expect(clippy::needless_pass_by_value, reason = "CDK owns ingress buffers")]
 pub(crate) fn decode<T: CandidType + for<'de> Deserialize<'de>>(bytes: Vec<u8>) -> T {
-    bounded(&bytes, 4096)
+    bounded(&bytes, 4096, 1024)
 }
 #[expect(clippy::needless_pass_by_value, reason = "CDK owns ingress buffers")]
 pub(crate) fn decode_configuration(bytes: Vec<u8>) -> ServiceInstallationInput {
-    bounded(&bytes, 16_384)
+    // Initialization must not silently discard a retired authority field or an
+    // extra argument. Ordinary endpoint decoding keeps its bounded allowance.
+    bounded(&bytes, 16_384, 0)
 }
 #[expect(clippy::needless_pass_by_value, reason = "CDK owns ingress buffers")]
 pub(crate) fn decode_manifest(
     bytes: Vec<u8>,
 ) -> ic_blob_storage_contracts::dto::upload::manifest::UploadManifestRequest {
-    bounded(&bytes, 131_072)
+    bounded(&bytes, 131_072, 1024)
 }

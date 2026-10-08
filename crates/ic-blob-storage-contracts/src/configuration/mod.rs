@@ -22,8 +22,6 @@ use crate::dto::configuration::ServiceFundingInput;
 use crate::dto::configuration::ServiceReadInput;
 use crate::upload::completion::CompletionAuthority;
 use crate::upload::completion::InvalidCompletionAuthority;
-use crate::upload::issuer::InvalidUploadIssuerAuthority;
-use crate::upload::issuer::UploadIssuerAuthority;
 use candid::Principal;
 use candid::de::DecoderConfig;
 use candid::decode_one_with_config;
@@ -242,8 +240,6 @@ pub struct ServiceInstallationCandidate<'a> {
     pub project: &'a str,
     /// Trusted whole-content verifier, independent of operator/controller roles.
     pub completion_verifier: Principal,
-    /// Explicit trusted certificate uploader; no role is inferred from operator/controller.
-    pub trusted_uploader: Principal,
     /// Frozen library release, normally the service’s compiled `LIBRARY_VERSION`; never an
     /// ingress override on restore. Host artifact identity is separate.
     pub release: &'a str,
@@ -260,8 +256,6 @@ pub struct ValidatedInstallationInput {
     download_scope: CaffeineDownloadScope,
     /// Explicit verifier binding; no content evidence is supplied.
     completion: CompletionAuthority,
-    /// Explicit uploader binding; no issuance or replay authority is supplied.
-    issuer: UploadIssuerAuthority,
 }
 /// Invalid passive installation candidate; storage/opening failures stay in the service.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Error)]
@@ -275,9 +269,6 @@ pub enum InstallationInputError {
     /// Malformed explicit verifier identity.
     #[error(transparent)]
     Completion(#[from] InvalidCompletionAuthority),
-    /// Malformed explicit uploader identity.
-    #[error(transparent)]
-    Issuer(#[from] InvalidUploadIssuerAuthority),
     /// Release text must be bounded, nonempty and canonical.
     #[error("invalid release identity")]
     ReleaseIdentity,
@@ -292,11 +283,6 @@ impl ValidatedInstallationInput {
     #[must_use]
     pub const fn completion(&self) -> CompletionAuthority {
         self.completion
-    }
-    /// Exact uploader binding checked against this candidate's service/namespace.
-    #[must_use]
-    pub const fn issuer(&self) -> UploadIssuerAuthority {
-        self.issuer
     }
     /// Consume the checked candidate to obtain its provider scope without cloning it.
     #[must_use]
@@ -332,11 +318,6 @@ impl ValidatedInstallationInput {
                 actual_service,
                 namespace,
                 candidate.completion_verifier,
-            )?,
-            issuer: UploadIssuerAuthority::new(
-                actual_service,
-                namespace,
-                candidate.trusted_uploader,
             )?,
         })
     }

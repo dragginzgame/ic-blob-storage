@@ -41,7 +41,6 @@ fn standalone_signed_upload_setup_recovers_lost_and_pending_replies_then_cancels
             configuration: host.configuration,
             project: host.project,
             completion_verifier: host.completion_verifier,
-            trusted_uploader: host.trusted_uploader,
         },
     );
     client.before_restore();

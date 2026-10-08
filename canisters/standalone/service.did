@@ -453,8 +453,6 @@ type HostConfigurationView = record {
   fenced : bool;
   // Host-validated release identity, not a module hash or freshness authority.
   release : text;
-  // Explicit trusted certificate uploader; does not grant tenant authority.
-  trusted_uploader : principal;
   // Exact installed configuration; observation performs no provider calls.
   configuration : ServiceConfigurationInput;
   // Explicit installed verifier, independent of gateway membership.
@@ -858,8 +856,6 @@ type ServiceFundingInput = record {
 // Passive data only: hosts authenticate installation, validate their actual
 // identity and compiled release, and explicitly own allocation and lifecycle.
 type ServiceInstallationInput = record {
-  // Explicit trusted uploader for restricted certificate issuance.
-  trusted_uploader : principal;
   // Shared service identity, tenant/resource bounds and provider economics.
   configuration : ServiceConfigurationInput;
   // Trusted external whole-content verifier; no controller or operator default.
@@ -1161,8 +1157,6 @@ type UploadDiscoveryResponse = record {
 // A missing independent prerequisite for exposure or certificate issuance.
 // A successful inspection with blockers is not upload authorization.
 type UploadExposureBlocker = variant {
-  // Original uploader lacks explicit installed trust.
-  TrustedUploader;
   // Owner is inspection-only after restoration; no backup freshness claim.
   CurrentOwner;
   // Atomic intent-before-effect durability is not established.

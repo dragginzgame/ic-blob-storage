@@ -121,7 +121,7 @@ pub(super) async fn run(options: &Options, input: &Input) -> Result<Value, Failu
     agent_for(
         options,
         &input.prepare.uploader_identity,
-        installation.trusted_uploader,
+        batch.files[0].input.permission.uploader,
     )?;
     let intent = SessionIntentRecord {
         format: "ic-blob-storage/publication-session:retained-browser-handoffs".into(),
@@ -137,7 +137,7 @@ pub(super) async fn run(options: &Options, input: &Input) -> Result<Value, Failu
         service: scope.service.to_text(),
         namespace: scope.namespace.to_string(),
         tenant: scope.tenant.to_text(),
-        uploader: installation.trusted_uploader.to_text(),
+        uploader: batch.files[0].input.permission.uploader.to_text(),
         operator: installation.configuration.operator.to_text(),
         verifier: actors
             .verifier

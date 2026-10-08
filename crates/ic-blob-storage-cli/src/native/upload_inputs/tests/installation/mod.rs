@@ -2,12 +2,36 @@
 use super::*;
 
 #[test]
+fn one_installation_prepares_exact_permissions_for_two_distinct_uploaders() {
+    let mut retained_installation = None;
+    for uploader in [
+        Principal::self_authenticating([3]),
+        Principal::self_authenticating([9]),
+    ] {
+        let base = tempfile::tempdir().unwrap();
+        let mut input = binding();
+        input["uploader"] = json!(uploader.to_text());
+        let args = arguments(base.path(), &input, &manifest());
+        crate::native::execute(&args).unwrap();
+        let output = base.path().join("output");
+        let permission: UploadAdmissionRequest =
+            candid::decode_one(&std::fs::read(output.join("permission.candid")).unwrap()).unwrap();
+        assert_eq!(permission.uploader, uploader);
+        let installation = std::fs::read(output.join("installation.candid")).unwrap();
+        if let Some(original) = &retained_installation {
+            assert_eq!(&installation, original);
+        } else {
+            retained_installation = Some(installation);
+        }
+    }
+}
+
+#[test]
 fn different_installation_bindings_and_invalid_models_refuse_before_output() {
-    let setters: [fn(&mut ServiceInstallationInput); 8] = [
+    let setters: [fn(&mut ServiceInstallationInput); 7] = [
         |input| input.configuration.service = Principal::self_authenticating([9]),
         |input| input.configuration.namespace = 1,
         |input| input.project = "another-project".into(),
-        |input| input.trusted_uploader = Principal::self_authenticating([9]),
         |input| input.completion_verifier = Principal::anonymous(),
         |input| input.configuration.operator = Principal::anonymous(),
         |input| input.configuration.reads.tenant_sessions = 2,

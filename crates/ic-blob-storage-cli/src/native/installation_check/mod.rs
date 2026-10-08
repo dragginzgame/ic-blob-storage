@@ -18,7 +18,6 @@ pub(super) fn run(args: &[String]) -> Result<Value, Failure> {
     let service = principal(take("--service")?)?;
     let project = take("--project")?;
     let verifier = principal(take("--verifier")?)?;
-    let trusted_uploader = principal(take("--trusted-uploader")?)?;
     let release = take("--release")?;
     let directory = Path::new(take("--run-dir")?);
     if !flags.is_empty() {
@@ -30,7 +29,6 @@ pub(super) fn run(args: &[String]) -> Result<Value, Failure> {
         configuration,
         project,
         completion_verifier: verifier,
-        trusted_uploader,
         release,
         platform_installation_version: 0,
     };
@@ -40,7 +38,6 @@ pub(super) fn run(args: &[String]) -> Result<Value, Failure> {
         configuration,
         project: project.into(),
         completion_verifier: verifier,
-        trusted_uploader,
     };
     let installation = candid::encode_one(input).map_err(|_| Failure::File)?;
     let report = json!({"schema":1,"observation":"local_installation_check",
@@ -52,7 +49,7 @@ pub(super) fn run(args: &[String]) -> Result<Value, Failure> {
         "payment_account":configuration.payment_account.to_text(),
         "cashier":configuration.billing.cashier.to_text(),
         "namespace":configuration.namespace.to_string(),"project":project,
-        "completion_verifier":verifier.to_text(),"trusted_uploader":trusted_uploader.to_text(),"expected_host_release":release,
+        "completion_verifier":verifier.to_text(),"expected_host_release":release,
         "authenticated":false,"platform_identity_checked":false,
         "compiled_release_checked":false,"stable_memory_allocated":false,"host_init_encoded":true,
         "installation_dispatched":false,"provider_dispatched":false,"funding_dispatched":false,

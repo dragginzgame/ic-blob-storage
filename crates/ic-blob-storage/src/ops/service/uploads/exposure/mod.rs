@@ -25,7 +25,6 @@ pub fn blockers(
         .map(|blocker| match blocker {
             P::StaleObservation => D::StaleObservation,
             P::NamespaceBinding => D::NamespaceBinding,
-            P::TrustedUploader => D::TrustedUploader,
             P::CurrentOwner => D::CurrentOwner,
             P::Durability => D::Durability,
         })

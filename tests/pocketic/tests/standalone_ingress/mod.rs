@@ -95,7 +95,10 @@ fn standalone_valid_candid_budgets_refuse_before_mutation_and_failed_reinstall_p
     }
     let installation: ServiceInstallationInput =
         candid::decode_one(&installation(&f.config)).unwrap();
-    for input in refusal_arguments(&installation, 16_384) {
+    for input in refusal_arguments(&installation, 16_384)
+        .into_iter()
+        .chain([super::standalone_hard_cut::frozen_installation(&f)])
+    {
         let failure = f
             .harness
             .pic
@@ -136,8 +139,10 @@ fn standalone_valid_candid_budgets_refuse_before_mutation_and_failed_reinstall_p
         .unwrap();
     assert!(!updated.enrollment.unwrap().active);
     assert_eq!(f.tenant(), updated);
-    // A bounded extra argument also reaches valid initialization, on this local owner.
-    f.harness
+    // Installation is exact: an extra argument cannot be silently discarded.
+    let before = f.harness.pic.get_stable_memory(f.service);
+    let failure = f
+        .harness
         .pic
         .reinstall_canister(
             f.service,
@@ -145,9 +150,11 @@ fn standalone_valid_candid_budgets_refuse_before_mutation_and_failed_reinstall_p
             candid::encode_args((installation, "small")).unwrap(),
             Some(f.controller),
         )
-        .unwrap();
+        .unwrap_err();
+    assert_eq!(failure.reject_code, RejectCode::CanisterError);
+    unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
     assert_eq!(f.configuration(f.operator).unwrap(), configuration);
-    assert_eq!(f.tenant().enrollment, None);
+    assert_eq!(f.tenant(), updated);
 }
 
 #[test]

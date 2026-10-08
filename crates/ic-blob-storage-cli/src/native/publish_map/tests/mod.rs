@@ -40,7 +40,6 @@ fn observe(replies: &Replies) -> Result<Value, Failure> {
         configuration: input.configuration,
         project: input.project,
         completion_verifier: input.completion_verifier,
-        trusted_uploader: input.trusted_uploader,
         release: ic_blob_storage_contracts::CONTRACT_VERSION.into(),
         fenced: matches!(replies, Replies::Fenced),
     };

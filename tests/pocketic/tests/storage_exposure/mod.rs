@@ -52,12 +52,7 @@ fn exposure_missing_host_facts_and_stale_previews_cannot_mutate_or_bypass_author
         scenario: ExposureScenario::Unknown,
         ..yes
     };
-    let expected = vec![
-        B::NamespaceBinding,
-        B::TrustedUploader,
-        B::CurrentOwner,
-        B::Durability,
-    ];
+    let expected = vec![B::NamespaceBinding, B::CurrentOwner, B::Durability];
     assert_eq!(preview(&f, missing), Ok(expected.clone()));
     assert_eq!(
         expose(&f, f.uploader, missing),

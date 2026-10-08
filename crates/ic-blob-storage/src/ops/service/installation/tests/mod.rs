@@ -75,7 +75,6 @@ fn input() -> ServiceInstallationCandidate<'static> {
         configuration: candidate(),
         project: "project/β?&=",
         completion_verifier: Principal::from_slice(&[5, 1]),
-        trusted_uploader: Principal::from_slice(&[6, 1]),
         release: RELEASE,
     }
 }
@@ -117,7 +116,6 @@ fn configuration_inspection_binds_operator_service_and_preserves_restore_fences(
     assert_eq!(view.configuration, candidate());
     assert_eq!(view.project, input().project);
     assert_eq!(view.completion_verifier, input().completion_verifier);
-    assert_eq!(view.trusted_uploader, input().trusted_uploader);
     assert_eq!(view.release, RELEASE);
     assert!(!view.fenced);
     let before = bytes(&memory);
@@ -207,20 +205,6 @@ fn whole_candidate_rejects_invalid_bindings_project_verifier_and_release() {
             Err(ServiceInstallationError::ReleaseIdentity)
         ));
     }
-    for trusted_uploader in [Principal::anonymous(), Principal::management_canister()] {
-        assert!(matches!(
-            ValidatedServiceInstallation::new(
-                candidate().service,
-                ServiceInstallationCandidate {
-                    trusted_uploader,
-                    ..original
-                }
-            ),
-            Err(ServiceInstallationError::Issuer(
-                InvalidUploadIssuerAuthority
-            ))
-        ));
-    }
 }
 
 #[test]
@@ -303,7 +287,9 @@ fn wrong_host_release_format_project_and_missing_owner_never_repair() {
     assert_eq!(bytes(&missing), missing_before);
     let mut records: BTreeMap<u8, ConfigurationRecord, _> = BTreeMap::load(memory[0].clone());
     let mut record = records.get(&0).unwrap();
-    record.format = "unrecognized-layout".to_owned();
+    // Prior single-uploader layout must refuse even if the release is unchanged.
+    record.format =
+        "ic-blob-storage/installation:platform-anchor-funding-credit-index-renewal".to_owned();
     records.insert(0, record.clone());
     let before = bytes(&memory);
     assert!(matches!(
@@ -386,10 +372,6 @@ fn populated_installation_preserves_full_configuration_scope_verifier_and_owner_
         original.completion_verifier
     );
     assert_eq!(restored.release(), RELEASE);
-    assert_eq!(
-        restored.issuer_authority().uploader(),
-        original.trusted_uploader
-    );
     assert_eq!(
         restored
             .stores()

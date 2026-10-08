@@ -41,7 +41,6 @@ pub(in crate::native) fn installation(binding: &Value) -> ServiceInstallationInp
     ServiceInstallationInput {
         configuration,
         project: binding["project"].as_str().unwrap().into(),
-        trusted_uploader: Principal::self_authenticating([3]),
         completion_verifier: Principal::self_authenticating([4]),
     }
 }

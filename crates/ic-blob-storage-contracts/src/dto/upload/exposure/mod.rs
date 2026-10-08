@@ -11,8 +11,6 @@ pub enum UploadExposureBlocker {
     StaleObservation,
     /// Explicit installed local namespace does not match the permission.
     NamespaceBinding,
-    /// Original uploader lacks explicit installed trust.
-    TrustedUploader,
     /// Owner is inspection-only after restoration; no backup freshness claim.
     CurrentOwner,
     /// Atomic intent-before-effect durability is not established.

@@ -137,7 +137,6 @@ fn certificate_assessment_reports_exact_permission_and_all_missing_facts_without
     let before = m.permissions.borrow().clone();
     host.observed_at_ns = 1;
     host.namespace_binding = false;
-    host.trusted_uploader = false;
     host.current_owner = false;
     host.durable_commit = false;
     let result = certificate::inspect(&store, context(5), &root, host, 2).unwrap();
@@ -148,7 +147,6 @@ fn certificate_assessment_reports_exact_permission_and_all_missing_facts_without
         vec![
             C::StaleObservation,
             C::NamespaceBinding,
-            C::TrustedUploader,
             C::CurrentOwner,
             C::Durability
         ]

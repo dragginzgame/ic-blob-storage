@@ -91,8 +91,6 @@ fn carrier(f: &Fixture, directory: &Path, project: &str, verifier: Principal) ->
         project,
         "--verifier",
         &verifier.to_text(),
-        "--trusted-uploader",
-        &f.uploader.to_text(),
         "--release",
         &f.configuration(f.operator).unwrap().release,
         "--run-dir",
@@ -152,7 +150,6 @@ fn standalone_installs_cli_carrier_and_independently_rejects_wrong_actual_servic
     assert_eq!(installed.configuration, f.config);
     assert_eq!(installed.project, "standalone-trial");
     assert_eq!(installed.completion_verifier, verifier);
-    assert_eq!(installed.trusted_uploader, f.uploader);
     assert_eq!(installed.release, before.release);
     assert!(!installed.fenced);
     assert_eq!(f.configuration(f.controller), Err(HostFailure::Denied));

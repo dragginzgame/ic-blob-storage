@@ -62,7 +62,6 @@ fn output(
         .map(|blocker| match blocker {
             B::StaleObservation => "stale_observation",
             B::NamespaceBinding => "namespace_binding",
-            B::TrustedUploader => "trusted_uploader",
             B::CurrentOwner => "current_owner",
             B::Durability => "durability",
         })

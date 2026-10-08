@@ -1,5 +1,36 @@
 # Changelog
 
+## [0.19.0]
+
+### Breaking
+
+- Let enrolled projects authorize individual uploaders through exact per-upload
+  permissions. Remove `trusted_uploader` from installation/configuration,
+  `UploadIssuerAuthority`, its accessors and the `TrustedUploader` blocker.
+  Native installation preparation no longer accepts `--trusted-uploader`, and
+  standalone initialization rejects skipped fields and extra arguments.
+  Regenerate consumers against the changed DTO/Candid contract; retire old
+  installations before reinstalling.
+  [#31](https://github.com/dragginzgame/ic-blob-storage/issues/31).
+
+### Changed
+
+- Refresh Shared Tooling to reviewed 0.1.30 and return the unchanged PocketIC
+  16.1 pin selection to its canonical snapshot owner.
+  [Shared Tooling #76](https://github.com/dragginzgame/shared-tooling/issues/76).
+- Apply shared npm declaration and lock agreement checks to the private browser
+  build root, using its existing Node/npm selections.
+  [Shared Tooling #77](https://github.com/dragginzgame/shared-tooling/issues/77).
+- Qualify incoming Memory 0.31.8, private Metrics 0.2.15, Testkit 0.25.3 and Host 0.8.3
+  patches, preserving the existing dependency lines.
+
+### Fixed
+
+- Use the canonical read-only release-source checker to identify staged,
+  unstaged and untracked paths before validation or metadata preparation.
+  Preserve the exact local metadata allowance and failed Git-read refusals.
+  [Shared Tooling #74](https://github.com/dragginzgame/shared-tooling/issues/74).
+
 ## [0.18.5] - 2026-10-08
 
 ### Changed

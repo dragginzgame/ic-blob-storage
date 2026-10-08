@@ -81,7 +81,6 @@ fn json_preserves_full_width_identity_and_never_turns_a_snapshot_into_authority(
         vec![
             B::StaleObservation,
             B::NamespaceBinding,
-            B::TrustedUploader,
             B::CurrentOwner,
             B::Durability,
         ],
@@ -106,7 +105,6 @@ fn json_preserves_full_width_identity_and_never_turns_a_snapshot_into_authority(
                 json!([
                     "stale_observation",
                     "namespace_binding",
-                    "trusted_uploader",
                     "current_owner",
                     "durability"
                 ])

@@ -41,6 +41,8 @@ as authority. The signed Blob verification plan supplies the installed
 owner/project and original declaration; a conflicting job must stop.
 The application-owned multi-user delegation boundary remains
 [#31](https://github.com/dragginzgame/ic-blob-storage/issues/31).
+Its [proposed project grant boundary](multi-user-upload-authority.md) is separate
+from verifier trust and remains unimplemented.
 
 For each admitted permission, select a new observation directory and run the
 [existing observation command](operator-guide.md#observe-provider-content).

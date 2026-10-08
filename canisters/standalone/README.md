@@ -16,10 +16,12 @@ cargo run --offline --locked -p ic-blob-storage-canister --example export_candid
 ```
 
 Installation takes one explicit
-`ServiceInstallationInput { configuration, project, completion_verifier, trusted_uploader }`
+`ServiceInstallationInput { configuration, project, completion_verifier }`
 from `ic_blob_storage_contracts::dto::configuration`. The offline
 [`installation-check`](../../docs/operator-guide.md#check-installation-inputs-offline)
 command produces its complete binary Candid and hash; no manual wrapper is needed.
+Initialization accepts only the exact current record; removed authority fields
+and extra init arguments refuse without allocating or replacing an owner.
 `configuration` is the shared `ServiceConfigurationInput`, including the actual
 service principal, operator, payer, namespace and all resource/billing bounds.
 `project` is the explicit Caffeine project mapped to that namespace. It is immutable
@@ -55,14 +57,15 @@ an observation; issuance always rechecks current authority.
 It delegates to the shared certificate/exposure handler and traps on refusal;
 errors are never encoded as successful provider replies. The maintainer accepted
 the [configured contract](../../docs/standalone-trial.md): issuance requires the
-explicit installed trusted uploader, exact local namespace, an admitted/prepared
+exact project-approved uploader permission, local namespace, an admitted/prepared
 reservation within the validated installation quotas and a durable current owner.
 Larger and multi-file installations use their configured limits. Tenant permission, manifest,
 activation, expiry, phase and restore fences are still checked. One committed
 issuance leaves possible exposure and can never be reissued after a lost reply.
-The required `trusted_uploader` is immutable, explicitly validated before allocation
-and retained in the current v1 installation record. Anonymous and management
-principals refuse; controller/operator status grants no implicit uploader trust.
+Each enrolled project admits exact permissions naming individual uploader
+principals. The actual certificate caller must match the retained uploader.
+Anonymous and management uploaders refuse at admission; controller/operator
+status grants no implicit uploader authority. No global uploader list is installed.
 No ingress-supplied qualification flags or operator override exist. These are local
 checks: provider provisioning, spending caps and escaped-certificate replay charges
 remain unproven. No paid trial or account/deployment action follows from installation.

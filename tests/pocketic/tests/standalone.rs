@@ -242,7 +242,6 @@ impl Fixture {
         }
         let mut input: ServiceInstallationInput =
             candid::decode_one(&installation(&config)).unwrap();
-        input.trusted_uploader = uploader;
         input.completion_verifier = verifier;
         input.project = project.into();
         harness.pic.install_canister(
@@ -673,7 +672,6 @@ fn installation(configuration: &ServiceConfigurationInput) -> Vec<u8> {
         configuration: *configuration,
         project: PROJECT.into(),
         completion_verifier: Fake::principal(90),
-        trusted_uploader: Fake::principal(4),
     })
     .unwrap()
 }

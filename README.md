@@ -102,7 +102,7 @@ test or maintain the project.
 | Area | Current state |
 | --- | --- |
 | Shared Rust core | Implemented, with native and local IC evidence |
-| Standalone canister | Shared handlers; trusted-uploader certificate issuance within configured object sizes, quotas and multi-file capacity |
+| Standalone canister | Shared handlers; project-authorized multi-user certificate issuance within configured object sizes, quotas and multi-file capacity |
 | Lifecycle | Synchronous fenced restoration; IC-history-proven current-instance recovery and snapshot refusal |
 | Native tooling | Installation/account inputs, verified snapshots and signed setup/recovery; tenant downloads and verifier completion pass live |
 | Batch publication | Frozen inventories, native session, SDK worker and original source/profile/handoff bindings; callable phase driver and bounded native subprocess helper. Consumer key/history selection and acceptance remain open |

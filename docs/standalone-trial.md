@@ -29,11 +29,11 @@ and [probe ledger](evidence/caffeine-probes/README.md) own command/evidence hand
 | Blocker | What we have | What is still needed |
 | --- | --- | --- |
 | Resource admission | Installed object size, tenant/global byte quotas, lifetime history, leaves and concurrency limits bound each admitted/prepared reservation | Size the installation from the consumer inventory and retention horizon; larger and multi-file configurations may issue certificates |
-| Uploader trust | Required immutable `trusted_uploader`, scoped to service and local namespace | Select a trusted participant and exact tenant-approved permission; tenant approval alone cannot grant this trust |
+| Uploader authority | Each enrolled project grants an exact retained permission naming its uploader; issuance requires that actual caller | The application must authenticate its user and approve the upload before the project admits it |
 | Local namespace | Original service owner/root and explicit installed project/local namespace | Select and provision the actual payer/project/bucket relationship; local matching does not prove provider provisioning |
 | Current owner/durability | One synchronous exposure commit/reply; stop/start and inspection-only upgrade restoration | Keep the original owner active without snapshot loading; old-backup activation is unsupported and can restore lost authority |
 
-The current local blockers are `NamespaceBinding`, `TrustedUploader`,
+The current local blockers are `NamespaceBinding`,
 `CurrentOwner`, `Durability` and `StaleObservation`. Provider pre-charge, duplicate
 charging, provisioning and backup-freshness guarantees are outside this contract;
 they are not facts set true from local success. No ingress qualification flags or
@@ -182,7 +182,7 @@ that frozen installation and its retained history, not current library size limi
   download and preserve provider/uncertainty/billing obligations until separately
   evidenced disposition. No deletion deadline or automatic account reset.
 
-The trusted-uploader and restricted-lifecycle assumptions could make a first
+The project-approved uploader and restricted-lifecycle assumptions can make a first
 prototype useful without solving general production recovery or adversarial
 certificate reuse. They do **not** establish provider economics. A daily limit,
 expiry, zero overdraft or small balance remains an intended control until its
@@ -321,7 +321,8 @@ and budgets. None is performed by this preparation.
 The 0.5.0 CLI and maintained patched Caffeine 1.1.2 SDK passed a 1 KiB preparation
 rehearsal with networking refused. Current native `upload-inputs` additionally
 requires the complete reviewed installation carrier, validates its original
-service/namespace/project/trusted uploader and applies its resource bounds. It
+service/namespace/project and applies its resource bounds. The per-upload
+permission names the uploader independently of installation. It
 preserves exact init bytes/hash without claiming actual installed-state observation.
 It verifies the body and
 saves a snapshot, original permission, manifest, browser binding and first-reference
@@ -341,8 +342,7 @@ It is not a selected live upload. Use a fresh output directory every time.
 
 A one-object candidate passes the shared installation validator. The maintained
 offline `installation-check` now produces complete `ServiceInstallationInput`
-bytes in `installation.candid`, with project, verifier and required trusted uploader
-alongside the configuration. Actual local PocketIC installation accepts the exact
+bytes in `installation.candid`, with project and verifier alongside the configuration. Actual local PocketIC installation accepts the exact
 generated carrier and rejects a proposed service that differs from the host;
 independent DID decoding also passes. `configuration.candid` alone is not init.
 The earlier review's carriers and financial values remain historical syntax
@@ -357,7 +357,8 @@ The accepted contract's current 48-case standalone suite passes, including actua
 local issuance/refusal, signed tooling and supported lifecycle. The unsupported
 snapshot case demonstrates loss of later exposure/revocation and renewed local
 eligibility; it establishes no safe operational rollback path. Current complete
-host-init encoding includes the required trusted uploader.
+host-init encoding has no global uploader field; each project-approved permission
+names its original uploader. The preceding retained suites describe their old contracts.
 
 After review and qualification, reuse `account-link-inputs`, `upload-inputs`,
 `admit-upload`, `prepare-upload`, `certificate-assessment`, `createUploadTransfer`,

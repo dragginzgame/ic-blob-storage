@@ -6,7 +6,80 @@
 
 Date: 2026-10-08
 
-## Current issue work — released 0.18.4, pending 0.18.5
+## Current implementation — released 0.18.5, pending 0.19.0
+
+- The maintainer selected project-approved per-upload user authority for
+  [#31](https://github.com/dragginzgame/ic-blob-storage/issues/31). The existing
+  authenticated tenant admission is the grant; actual uploader and exact retained
+  permission checks remain mandatory. No global user registry or journal is added.
+- Remove the installed uploader field/type/accessors and trust blocker across
+  core, contracts, standalone, native tools, generated Candid and browser input
+  preparation. The installation format is distinct; old-shaped initialization
+  and retained single-uploader records refuse. The [authority contract](../multi-user-upload-authority.md)
+  owns grant scope, revocation/uncertainty and consumer responsibilities.
+- The complete pending changelog moves to 0.19.0 because certificate trust,
+  DTO/Candid, CLI and immutable installation layout change. Retire old owners
+  before reinstall; no package version/receipt or release effect is changed.
+  Released base remains `ab37a018e2050b3b06963938ceb78ebb385bb41c` (0.18.5).
+- Preserve the current incoming lock: Host 0.8.3, Testkit 0.25.3, Memory 0.31.8,
+  private Metrics 0.2.15 and PocketIC 16.1.0. Earlier source/graph records remain
+  separate. Shared Tooling remains the 97-file committed 0.1.30 snapshot.
+- [The implementation record](../evidence/multi-user0190.md) owns 563 final native
+  and 17 focused PocketIC passes, strict affected Clippy, actual Rust 1.88
+  native/Wasm and offline SDK preparation. Both frozen old-image cuts preserve
+  every stable byte and the retained owners/obligations. All 936 final input
+  hashes remain unchanged; compiled package identity is 0.18.5. Intermediate
+  73-case standalone acceptance and failed localhost/Clippy attempts remain
+  separate. Full CI/release validation and Canic/Toko/browser/provider acceptance
+  remain outstanding; #31 stays open. No sibling file, agent commit/push/release
+  or paid/provider effect occurs.
+- Released 0.18.5's exact CI now passes MSRV, Linux and Apple Silicon; Intel
+  macOS is still running at the final read. That run does not qualify the current
+  dirty 0.19.0 batch, and #29/#36 retain their complete native acceptance.
+
+The following Shared Tooling record precedes the selected project-grant contract
+and retains its earlier candidate, graph and CI observations.
+
+## Earlier Shared Tooling continuation — candidate 0.18.6
+
+- Released 0.18.5 is `ab37a018e2050b3b06963938ceb78ebb385bb41c`; validated
+  source is `5c8f08b515e270da4bc587a890a44e6afa3efcec`. Workspace/receipt
+  remain 0.18.5. Preserve incoming Memory 0.31.8, private Metrics 0.2.15 and
+  Testkit 0.25.2 lock edits; Host remains 0.8.2 and PocketIC 16.1.0.
+- Shared Tooling selects 97 files at reviewed committed 0.1.30 source
+  `4e274a2219c0b0cc3af68ec65658b373253518fb`. The identical IC pin rows return
+  to canonical snapshot ownership; dirty upstream work is excluded. Explicit
+  catalog-bound tool preparation retains previous bundles. No schedule/dashboard
+  or Cargo-install assessment is activated.
+- Release source enumeration delegates to the canonical read-only checker,
+  retaining strict identity reads and the exact metadata path allowance. New
+  simulation coverage checks path diagnostics, pre-validation refusal and failed
+  prefix/status observations. The declaration gate opts into shared npm/lock
+  checks for the existing browser root and Node/npm selections.
+- [The continuation record](../evidence/shared-tooling0186.md) owns new graph
+  qualification and failed/incomplete attempts. Rust 1.88 native/Wasm checks,
+  shared declarations, browser tools and canonical npm/source fixtures pass.
+  Linux native-host qualification passes 241 cases; complete substituted release
+  adapter and shared runner fixtures pass. All 901 final build/tooling input
+  hashes remain unchanged, with compiled package identity 0.18.5.
+- Released 0.18.5's exact CI passes its MSRV and Linux native jobs; native macOS
+  remains queued on both macOS hosts at the final observation. #35 is closed
+  for the explicit committed minimum gate. #29/#36 remain open for all native
+  acceptance; dirty inputs have no
+  hosted result. #20 is closed using Canic's coherent Memory/Candid/managed
+  recovery acceptance for published Blob 0.18.4, with Canic #444 retaining its
+  adapter publication and Toko/application obligations.
+- [#31](https://github.com/dragginzgame/ic-blob-storage/issues/31) has a
+  [reviewable per-upload project-grant proposal](../multi-user-upload-authority.md).
+  Grant-owner selection is pending. It would require a minor hard cut; this
+  patch changes no certificate authority, public DTO or durable schema.
+  Provider callback/funding and deployed verifier/browser evidence remain open.
+- No full local gate, agent commit/push/release, sibling edit or paid/provider
+  effect occurs. Earlier source/graph evidence retains its exact identity.
+
+## Earlier issue work — released 0.18.4, pending 0.18.5
+
+The following record predates released 0.18.5 and retains its original inputs.
 
 - Review began at `afa8844cb0afb615e187982a13d1e9d7a64d3755`. The maintainer
   subsequently committed `9ab187a1ab784da14e1caf4aa0df9eea232d1635`, selecting

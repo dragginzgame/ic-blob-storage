@@ -163,7 +163,6 @@ impl Trial {
             configuration: host.configuration,
             project: host.project,
             completion_verifier: host.completion_verifier,
-            trusted_uploader: host.trusted_uploader,
         };
         std::fs::write(
             self.report.join("installation.candid"),

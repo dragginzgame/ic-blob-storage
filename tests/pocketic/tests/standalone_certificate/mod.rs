@@ -1,9 +1,9 @@
-//! Actual configured host: bounded multi-file issuance, explicit trust and restore fences.
+//! Actual configured host: project-bound multi-user issuance, quotas and restore fences.
+mod signed;
 use super::*;
 use ic_blob_storage_contracts::dto::upload::UploadState;
 use ic_blob_storage_contracts::dto::upload::certificate::CaffeineUploadCertificateResponse;
 use ic_blob_storage_contracts::dto::upload::certificate::UploadCertificateAssessmentResponse;
-use ic_blob_storage_contracts::dto::upload::exposure::UploadExposureBlocker as B;
 use ic_blob_storage_contracts::dto::upload::exposure::UploadExposureFailure as E;
 use ic_blob_storage_contracts::protocol::CAFFEINE_UPLOAD_CERTIFICATE_METHOD as ISSUE;
 use ic_blob_storage_contracts::protocol::UPLOAD_CERTIFICATE_ASSESSMENT_METHOD as INSPECT;
@@ -119,7 +119,7 @@ fn standalone_certificate_issues_configured_multifile_uploads_and_preserves_quot
     );
     let restored = f.harness.pic.get_stable_memory(f.service);
     refuses(&f, f.uploader, &root);
-    refuses(&f, f.uploader, &second_root);
+    refuses(&f, second.permission.uploader, &second_root);
     assert_eq!(
         f.admission(second.permission).state,
         UploadState::ExposurePossible
@@ -156,25 +156,36 @@ fn check_authority(f: &Fixture, root: &str) {
 }
 
 fn second_upload_at_capacity(f: &Fixture, first: &UploadManifestRequest) -> UploadManifestRequest {
-    // A second object crosses a chunk boundary and shares the same trusted owner.
+    // A second project-approved uploader crosses a chunk boundary under shared quotas.
     let mut second = f.manifest_bytes(1024 * 1024 + 1);
+    second.permission.uploader = Fake::principal(91);
     second.permission.upload.upload = 2;
     second.permission.upload.object = 3;
     let second_root = self::root(&second);
     admit(f, second.permission).unwrap();
-    f.prepare(f.uploader, &second).unwrap();
-    assert_eq!(inspect(f, f.uploader, &second_root).unwrap().blockers, []);
+    f.prepare(second.permission.uploader, &second).unwrap();
+    assert_eq!(
+        inspect(f, second.permission.uploader, &second_root)
+            .unwrap()
+            .blockers,
+        []
+    );
     let reply: CaffeineUploadCertificateResponse = f
         .harness
         .pic
-        .update_candid_as(f.service, f.uploader, ISSUE, (second_root.clone(),))
+        .update_candid_as(
+            f.service,
+            second.permission.uploader,
+            ISSUE,
+            (second_root.clone(),),
+        )
         .unwrap();
     assert_eq!(reply.blob_hash, second_root);
     assert_eq!(
         f.admission(second.permission).state,
         UploadState::ExposurePossible
     );
-    refuses(f, f.uploader, &second_root);
+    refuses(f, second.permission.uploader, &second_root);
     let usage = f.local_status(f.operator, f.operator_scope()).unwrap();
     let total = u128::from(first.permission.upload.bytes + second.permission.upload.bytes);
     assert_eq!(usage.uploads.active_reservations, 2);
@@ -292,33 +303,6 @@ fn standalone_small_configuration_issues_once_and_retains_uncertainty_across_sto
     );
     refuses(&f, f.uploader, &root);
     assert_eq!(inspect(&f, f.uploader, &root), Err(E::Revoked));
-}
-
-#[test]
-fn standalone_tenant_permission_cannot_grant_installed_uploader_trust() {
-    let mut f = Fixture::small(Harness::new(), Fake::principal(4));
-    f.uploader = Fake::principal(91);
-    f.enroll(f.operator).unwrap();
-    let manifest = f.small_manifest();
-    let root = root(&manifest);
-    f.harness
-        .pic
-        .update_candid_as::<Result<UploadAdmissionMutation, UploadAdmissionFailure>, _>(
-            f.service,
-            f.tenant,
-            "blob_admit_upload",
-            (manifest.permission,),
-        )
-        .unwrap()
-        .unwrap();
-    f.prepare(f.uploader, &manifest).unwrap();
-    let before = f.harness.pic.get_stable_memory(f.service);
-    assert_eq!(
-        inspect(&f, f.uploader, &root).unwrap().blockers,
-        vec![B::TrustedUploader]
-    );
-    refuses(&f, f.uploader, &root);
-    unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
 }
 
 fn malformed(f: &Fixture, root: &str) {

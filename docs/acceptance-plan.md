@@ -35,7 +35,7 @@ retains its original 0.15-era dependency identity.
 
 The maintainer accepted the [restricted standalone contract](standalone-trial.md)
 on 2026-10-02, then requested configurable sizing for Toko Miner. Current issuance
-requires explicit uploader trust, matching local namespace, an admitted/prepared
+requires the exact project-approved uploader permission, matching local namespace, an admitted/prepared
 reservation within installed resource quotas, a current owner and
 atomic durability. Provider spending caps, replay-charge guarantees and operational
 old-backup recovery are outside that contract; their evidence remains unqualified.

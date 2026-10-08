@@ -9,7 +9,8 @@ Copy [configuration.args.template](configuration.args.template) into a fresh pri
 directory and replace every named principal with its reviewed value. Obtain the
 actual service principal after separately authorized canister creation. The
 operator and isolated payer are explicit; their controller status is insufficient.
-Choose the project, trusted uploader and independent verifier separately.
+Choose the project and independent verifier separately. Each tenant-approved
+upload permission names its original uploader; uploader identity is not installed.
 
 | Proposed setting | Value and purpose |
 | --- | --- |
@@ -39,7 +40,7 @@ didc encode --defs canisters/standalone/service.did \
 xxd -r -p "$RUN/configuration.hex" > "$RUN/configuration.candid"
 blob-storage installation-check \
   --configuration "$RUN/configuration.candid" --service "$SERVICE" \
-  --project "$PROJECT" --verifier "$VERIFIER" --trusted-uploader "$UPLOADER" \
+  --project "$PROJECT" --verifier "$VERIFIER" \
   --release "$REVIEWED_HOST_RELEASE" --run-dir "$RUN/installation-check"
 ```
 
@@ -74,7 +75,7 @@ paths or reusing the earlier 0.5.0 preparation copies.
 | Standalone Wasm | Frozen file and SHA-256; observed compiled release must match the selected release |
 | Native CLI and DID | Frozen CLI/DID hashes; declared and host-exported Candid contracts must agree |
 | Configuration and init | Exact validated carrier and hash for the actual created service principal; all local stand-in inputs remain local-only |
-| Installed readback | Explicit operator inspects service, payer, namespace, project, trusted uploader, verifier, resource envelope, release and fence before tenant admission |
+| Installed readback | Explicit operator inspects service, payer, namespace, project, verifier, resource envelope, release and fence before tenant admission |
 
 The maintained PocketIC installation test encodes this template with local roles,
 passes it through `installation-check`, and checks the actual host readback and

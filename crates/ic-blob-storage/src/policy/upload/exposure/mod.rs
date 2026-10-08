@@ -1,14 +1,10 @@
-//! Trusted-uploader issuance within admitted resource quotas; no provider replay guarantee.
+//! Project-authorized uploader issuance within admitted resource quotas; no provider replay guarantee.
 use ic_blob_storage_contracts::upload::binding::UploadPermission;
 /// Host-established facts scoped to the exact original permission. Never accept
 /// these values from production ingress or infer them from manifest consistency.
 /// The host must establish each fact in the same synchronous execution; this is
 /// a report, not a cryptographic proof or reusable authorization token.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
-#[expect(
-    clippy::struct_excessive_bools,
-    reason = "Independent local contract prerequisites must remain separately observable"
-)]
 pub struct UploadExposureHostEvidence {
     /// Entire original permission, including service/tenant/namespace/uploader/deadline.
     pub permission: UploadPermission,
@@ -16,8 +12,6 @@ pub struct UploadExposureHostEvidence {
     pub observed_at_ns: u64,
     /// Explicit installed service/project/local namespace matches the permission.
     pub namespace_binding: bool,
-    /// Original uploader is the explicitly installed trusted uploader.
-    pub trusted_uploader: bool,
     /// Current owner has not entered inspection-only restoration; no backup claim.
     pub current_owner: bool,
     /// The host guarantees atomic durable exposure commit before any effect can escape.
@@ -30,8 +24,6 @@ pub enum UploadExposureBlocker {
     StaleObservation,
     /// Explicit installed local namespace mapping differs from the permission.
     NamespaceBinding,
-    /// Original uploader lacks explicit installed trust.
-    TrustedUploader,
     /// Owner is inspection-only after restoration.
     CurrentOwner,
     /// Atomic intent-before-effect durability is not established.
@@ -56,7 +48,6 @@ pub fn assess_exposure(
     for (established, blocker) in [
         (evidence.observed_at_ns == now_ns, B::StaleObservation),
         (evidence.namespace_binding, B::NamespaceBinding),
-        (evidence.trusted_uploader, B::TrustedUploader),
         (evidence.current_owner, B::CurrentOwner),
         (evidence.durable_commit, B::Durability),
     ] {

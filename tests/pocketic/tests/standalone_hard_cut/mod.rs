@@ -3,6 +3,21 @@ use super::*;
 use ic_blob_storage_contracts::identity::ContentDigest;
 use std::path::PathBuf;
 
+// Frozen producer for retired installation contracts, used only to install their
+// pinned test images. Production accepts the current DTO exclusively.
+pub(super) fn frozen_installation(f: &Fixture) -> Vec<u8> {
+    let mut args = candid::IDLArgs::from_bytes(&installation(&f.config)).unwrap();
+    let candid::IDLValue::Record(fields) = &mut args.args[0] else {
+        panic!("installation record")
+    };
+    fields.push(candid::types::value::IDLField {
+        id: candid::types::Label::Named("trusted_uploader".into()),
+        val: candid::IDLValue::Principal(f.uploader),
+    });
+    fields.sort_by_key(|field| field.id.get_id());
+    args.to_bytes().unwrap()
+}
+
 // Project only unchanged upload counters from the pinned image's raw reply.
 // Production decoders accept exclusively the current mandatory funding schema.
 #[derive(candid::CandidType, serde::Deserialize)]
@@ -83,7 +98,7 @@ fn older_allocation_ledger_upgrade_preserves_bytes_and_obligations_on_refusal() 
     let f = Fixture::new();
     f.harness
         .pic
-        .reinstall_canister(f.service, old, installation(&f.config), Some(f.controller))
+        .reinstall_canister(f.service, old, frozen_installation(&f), Some(f.controller))
         .unwrap();
     let configuration = raw_configuration(&f);
     let installed = candid::decode_one::<Result<ConfigurationView, HostFailure>>(&configuration)
@@ -169,6 +184,67 @@ fn older_allocation_ledger_upgrade_preserves_bytes_and_obligations_on_refusal() 
             "reserved_bytes":status.uploads.reserved_bytes.to_string(),
             "upgrade_refused":true,"old_owner_and_exact_admissions_preserved":true,
             "cross_release_upgrade_supported":false
+        }))
+        .unwrap(),
+    )
+    .unwrap();
+}
+
+#[test]
+#[ignore = "Requires the pinned single-uploader Wasm and a fresh report directory"]
+fn single_uploader_installation_upgrade_refuses_without_losing_owner_or_obligations() {
+    let report = PathBuf::from(std::env::var_os("BLOB_UPLOAD_AUTHORITY_CUT_REPORT").unwrap());
+    std::fs::create_dir(&report).expect("fresh owned hard-cut report directory");
+    let old = std::fs::read(fixture_path("BLOB_SINGLE_UPLOADER_WASM")).unwrap();
+    let hash = ContentDigest::compute(&old).to_string();
+    // Frozen 0.18.4 artifact qualified under its original graph/source record.
+    assert_eq!(
+        hash,
+        "sha256:50429e44ecbd974213ad844b51a36aeb61b6a7a9a441f33f2406de9cd6897a4e"
+    );
+    let f = Fixture::new();
+    let init = frozen_installation(&f);
+    f.harness
+        .pic
+        .reinstall_canister(f.service, old, init.clone(), Some(f.controller))
+        .unwrap();
+    let configuration = raw_configuration(&f);
+    let installed = candid::decode_one::<Result<ConfigurationView, HostFailure>>(&configuration)
+        .unwrap()
+        .unwrap();
+    assert_eq!(installed.release, "0.18.4");
+    let (released, pending) = obligations(&f);
+    let admissions = [f.admission(released), f.admission(pending)];
+    let status = raw_status(&f);
+    let before = f.harness.pic.get_stable_memory(f.service);
+    let failure = f.upgrade(candid::encode_args(()).unwrap()).unwrap_err();
+    assert_eq!(failure.reject_code, RejectCode::CanisterError);
+    let after = f.harness.pic.get_stable_memory(f.service);
+    unchanged(&after, &before);
+    assert_eq!(raw_configuration(&f), configuration);
+    assert_eq!(raw_status(&f), status);
+    assert_eq!([f.admission(released), f.admission(pending)], admissions);
+    for (name, bytes) in [
+        ("installation.candid", init),
+        ("configuration.candid", configuration),
+        ("status.candid", status),
+        ("before.bin", before.clone()),
+        ("after.bin", after.clone()),
+    ] {
+        std::fs::write(report.join(name), bytes).unwrap();
+    }
+    std::fs::write(report.join("upgrade-refusal.txt"), failure.reject_message).unwrap();
+    std::fs::write(
+        report.join("summary.json"),
+        serde_json::to_vec_pretty(&serde_json::json!({
+            "evidence_class":"local PocketIC; synthetic verifier; no provider effects",
+            "old_compiled_release":installed.release,"old_wasm":hash,
+            "old_evidence":"docs/evidence/host071-tooling0185.md",
+            "target_compiled_release":ic_blob_storage::LIBRARY_VERSION,
+            "target_wasm":ContentDigest::compute(&wasm()).to_string(),
+            "stable_before":ContentDigest::compute(&before).to_string(),
+            "stable_after":ContentDigest::compute(&after).to_string(),
+            "upgrade_refused":true,"old_owner_configuration_and_admissions_preserved":true
         }))
         .unwrap(),
     )

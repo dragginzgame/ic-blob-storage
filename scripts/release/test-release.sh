@@ -50,6 +50,7 @@ create_fixture() {
         "$ROOT/scripts/ci/run-validation-targets.sh" "$ROOT/scripts/ci/check-release-tag.sh" \
         "$ROOT/scripts/ci/rewrite-local-lock-versions.pl" \
         "$ROOT/scripts/ci/check-make-execution.sh" \
+        "$ROOT/scripts/ci/check-release-source.sh" \
         "$ROOT/scripts/ci/finalize-release-changelog.awk" \
         "$ROOT/scripts/ci/check-format-tools.sh" "$FIXTURE/scripts/ci/"
     cp "$ROOT/ci/tool-versions.env" "$FIXTURE/ci/"
@@ -154,6 +155,7 @@ case "$1" in
     rev-parse)
         case "${*: -1}" in
             --show-toplevel) pwd ;;
+            --show-prefix) ;;
             release-state) echo target/release-state ;;
             HEAD) resolve HEAD ;;
             HEAD^) cat "target/history/$(resolve HEAD).parent" ;;
@@ -164,8 +166,15 @@ case "$1" in
             *) exit 97 ;;
         esac ;;
     status)
-        if [[ "${TEST_DIRTY:-0}" == 1 ]]; then echo ' M src/lib.rs';
-        elif [[ ! -f target/mock-head && "$(perl scripts/release/release-data.pl version)" != 0.1.0 ]]; then echo ' M Cargo.toml'; fi ;;
+        observed=''
+        if [[ "${TEST_DIRTY:-0}" == 1 ]]; then observed=' M src/lib.rs';
+        elif [[ ! -f target/mock-head && "$(perl scripts/release/release-data.pl version)" != 0.1.0 ]]; then observed=' M Cargo.toml'; fi
+        if [[ -n "$observed" ]]; then
+            case "$*" in
+                *' -z '*) printf '%s\0' "$observed" ;;
+                *) printf '%s\n' "$observed" ;;
+            esac
+        fi ;;
     diff)
         case "$2" in
             --binary) cat Cargo.toml Cargo.lock CHANGELOG.md ;;
@@ -407,6 +416,15 @@ test_preflight_tools() {
     [[ "$(cat "$TEST_EFFECTS")" == $'validate\nstage\ncommit\ntag\npush' ]] || exit 1
     assert_cache_retained
 }
+test_source_diagnostics() {
+    before="$(fingerprint)"
+    export TEST_DIRTY=1
+    expect_failure "$TEST_REAL_MAKE" --no-print-directory release-patch
+    rg -F 'unstaged: src/lib.rs' target/rejection.log >/dev/null
+    rg -F 'preflight refused; this attempt has not started validation or version preparation' target/rejection.log >/dev/null
+    [[ ! -s "$TEST_EFFECTS" && ! -e target/gate-ran && ! -e docs/release.json ]] || exit 1
+    assert_unchanged; assert_cache_retained
+}
 test_invalid_changelog() {
     case "$1" in
         duplicate) printf '\n## [0.1.1]\n- Duplicate.\n' >> CHANGELOG.md ;;
@@ -512,7 +530,8 @@ test_failed_guard_read() {
         version|source) export TEST_DATA_FAIL_COMMAND="$read" ;;
         head) export TEST_GIT_FAIL_CALL='rev-parse HEAD' ;;
         verified-head) export TEST_GIT_FAIL_CALL='rev-parse --verify HEAD' ;;
-        status) export TEST_GIT_FAIL_CALL='status --porcelain --untracked-files=all' ;;
+        prefix) export TEST_GIT_FAIL_CALL='rev-parse --show-prefix' ;;
+        status) export TEST_GIT_FAIL_CALL='status --porcelain=v1 -z --untracked-files=all' ;;
         parent)
             if [[ "$operation" == committed-check ]]; then
                 export TEST_GIT_FAIL_CALL='log -1 --format=%P 3333333333333333333333333333333333333333'
@@ -832,6 +851,7 @@ run_case bootstrap-fetch-cached test_dependency_bootstrap fetch-cached
 for tool in shellcheck-missing shellcheck-broken sort-missing sort-wrong rustfmt-broken; do
     run_case "preflight-$tool" test_preflight_tools "$tool"
 done
+run_case source-diagnostics test_source_diagnostics
 for shape in duplicate historical-duplicate competing; do run_case "notes-$shape" test_invalid_changelog "$shape"; done
 for shape in empty missing; do run_case "notes-$shape" test_changelog_content "$shape"; done
 run_case notes-saved-intent test_changelog_intent
@@ -865,11 +885,11 @@ done
 run_case recovery-integration test_recovery_integration
 for operation in preflight prepare prepared-check committed-check publish plan; do
     case "$operation" in
-        preflight) reads='version head verified-head status' ;;
-        prepare) reads='version head status' ;;
-        prepared-check) reads='version source head' ;;
+        preflight) reads='version head verified-head prefix status' ;;
+        prepare) reads='version head prefix status' ;;
+        prepared-check) reads='version source head prefix status' ;;
         committed-check) reads='parent' ;;
-        publish) reads='version source head parent status' ;;
+        publish) reads='version source head parent prefix status' ;;
         plan) reads='version' ;;
     esac
     for read in $reads; do

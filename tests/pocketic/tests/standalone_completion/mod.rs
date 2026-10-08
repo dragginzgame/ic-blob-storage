@@ -95,7 +95,6 @@ fn standalone_completion_requires_installed_verifier_exposure_and_active_owner()
             configuration: f.config,
             project: PROJECT.into(),
             completion_verifier: invalid,
-            trusted_uploader: Fake::principal(4),
         })
         .unwrap();
         assert!(

@@ -28,8 +28,6 @@ fn args(base: &Path, bytes: &[u8]) -> Vec<String> {
         "isolated local fixture/β",
         "--verifier",
         "rdmx6-jaaaa-aaaaa-aaadq-cai",
-        "--trusted-uploader",
-        "renrk-eyaaa-aaaaa-aaada-cai",
         "--release",
         env!("CARGO_PKG_VERSION"),
         "--run-dir",
@@ -79,10 +77,6 @@ fn complete_offline_check_preserves_proposal_without_allocating_or_replacing() {
     assert_eq!(
         encoded.completion_verifier.to_text(),
         "rdmx6-jaaaa-aaaaa-aaadq-cai"
-    );
-    assert_eq!(
-        encoded.trusted_uploader.to_text(),
-        "renrk-eyaaa-aaaaa-aaada-cai"
     );
     for field in [
         "authenticated",
@@ -170,8 +164,6 @@ fn complete_validator_refuses_inconsistent_limits_bindings_and_authorities_befor
         ("--service", "invalid"),
         ("--verifier", "2vxsx-fae"),
         ("--verifier", "aaaaa-aa"),
-        ("--trusted-uploader", "2vxsx-fae"),
-        ("--trusted-uploader", "aaaaa-aa"),
         ("--project", ""),
         ("--project", " surrounding space "),
         ("--project", "line\nbreak"),
@@ -208,7 +200,13 @@ fn bounded_exact_input_refuses_malformed_extra_or_ambiguous_arguments() {
         assert_eq!(crate::native::execute(&arguments), Err(expected));
         assert!(!base.path().join("output").exists());
     }
-    for mode in ["missing", "duplicate", "unknown", "unpaired"] {
+    for mode in [
+        "missing",
+        "duplicate",
+        "unknown",
+        "unpaired",
+        "removed_uploader",
+    ] {
         let base = tempfile::tempdir().unwrap();
         let mut arguments = args(base.path(), &fixture());
         match mode {
@@ -218,6 +216,10 @@ fn bounded_exact_input_refuses_malformed_extra_or_ambiguous_arguments() {
             "duplicate" => arguments.extend(["--release".into(), "duplicate".into()]),
             "unknown" => arguments.extend(["--network".into(), "ic".into()]),
             "unpaired" => arguments.push("--network".into()),
+            "removed_uploader" => arguments.extend([
+                "--trusted-uploader".into(),
+                "renrk-eyaaa-aaaaa-aaada-cai".into(),
+            ]),
             _ => unreachable!(),
         }
         assert_eq!(crate::native::execute(&arguments), Err(Failure::Arguments));

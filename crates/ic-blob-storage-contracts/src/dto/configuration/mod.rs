@@ -14,8 +14,6 @@ pub struct ServiceInstallationInput {
     pub project: String,
     /// Trusted external whole-content verifier; no controller or operator default.
     pub completion_verifier: Principal,
-    /// Explicit trusted uploader for restricted certificate issuance.
-    pub trusted_uploader: Principal,
 }
 
 /// Operator-only installed configuration and local restore state.
@@ -27,8 +25,6 @@ pub struct HostConfigurationView {
     pub project: String,
     /// Explicit installed verifier, independent of gateway membership.
     pub completion_verifier: Principal,
-    /// Explicit trusted certificate uploader; does not grant tenant authority.
-    pub trusted_uploader: Principal,
     /// Host-validated release identity, not a module hash or freshness authority.
     pub release: String,
     /// Restored stores allow inspection only; false is not provider readiness.

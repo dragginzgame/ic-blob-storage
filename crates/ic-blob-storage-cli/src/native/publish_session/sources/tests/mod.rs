@@ -19,7 +19,7 @@ fn intent(batch: &PreparedBatch) -> SessionIntentRecord {
         "source_session":null,"browser":null,"operation":"publish_session",
         "network":"ic","service_url":"https://icp-api.io/",
         "service":upload.service.to_text(),"namespace":upload.namespace.to_string(),
-        "tenant":upload.tenant.to_text(),"uploader":installation.trusted_uploader.to_text(),
+        "tenant":upload.tenant.to_text(),"uploader":batch.files[0].input.permission.uploader.to_text(),
         "operator":installation.configuration.operator.to_text(),
         "verifier":installation.completion_verifier.to_text(),"gateway":"https://gateway.example/",
         "inventory_sha256":digest(&batch.inventory),"installation_sha256":digest(&batch.installation),
@@ -46,7 +46,6 @@ fn history(path: &Path, batch: &PreparedBatch, expected: &SessionIntentRecord) -
         configuration: installation.configuration,
         project: installation.project,
         completion_verifier: installation.completion_verifier,
-        trusted_uploader: installation.trusted_uploader,
         release: ic_blob_storage_contracts::CONTRACT_VERSION.into(),
         fenced: false,
     };

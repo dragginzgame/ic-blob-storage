@@ -73,7 +73,6 @@ pub(super) fn freeze_bodies(
             configuration: host.configuration,
             project: host.project.clone(),
             completion_verifier: host.completion_verifier,
-            trusted_uploader: host.trusted_uploader,
         })
         .unwrap(),
     )

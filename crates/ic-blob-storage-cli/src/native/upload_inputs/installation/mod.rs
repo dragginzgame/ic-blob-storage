@@ -26,7 +26,6 @@ impl Installation {
                 configuration: input.configuration,
                 project: &input.project,
                 completion_verifier: input.completion_verifier,
-                trusted_uploader: input.trusted_uploader,
                 // Offline syntax/model validation only; the actual host supplies
                 // its own compiled release and independently authenticates init.
                 release: env!("CARGO_PKG_VERSION"),
@@ -36,7 +35,6 @@ impl Installation {
         .map_err(|_| Failure::Arguments)?;
         if input.configuration.namespace != permission.upload.namespace
             || input.project != binding.project
-            || input.trusted_uploader != permission.uploader
         {
             return Err(Failure::Arguments);
         }

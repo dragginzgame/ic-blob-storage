@@ -271,7 +271,6 @@ pub(in crate::native) fn decode_configuration(
     if host.configuration != installation.configuration
         || host.project != installation.project
         || host.completion_verifier != installation.completion_verifier
-        || host.trusted_uploader != installation.trusted_uploader
         || host.release != ic_blob_storage_contracts::CONTRACT_VERSION
     {
         return Err(Failure::Binding);

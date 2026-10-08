@@ -153,7 +153,6 @@ fn standalone_project_validation_rolls_back_installation_and_rejects_corrupt_res
             configuration: f.config,
             project,
             completion_verifier: Fake::principal(90),
-            trusted_uploader: Fake::principal(4),
         })
         .unwrap();
         let error = f
@@ -248,7 +247,6 @@ fn standalone_project_at_utf8_byte_limit_survives_current_schema_restore() {
         configuration: f.config,
         project: project.clone(),
         completion_verifier: Fake::principal(90),
-        trusted_uploader: Fake::principal(4),
     };
     f.harness
         .pic

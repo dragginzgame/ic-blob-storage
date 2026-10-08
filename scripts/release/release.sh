@@ -15,24 +15,13 @@ direct_delivery() {
 }
 version() { perl "$DATA" version; }
 ensure_clean() {
-    local status
     git rev-parse --verify HEAD >/dev/null || fail 'cannot resolve release HEAD'
-    status="$(git status --porcelain --untracked-files=all)" || fail 'cannot read release working tree'
-    [[ -z "$status" ]] || fail 'commit the implementation and notes before releasing'
+    bash scripts/ci/check-release-source.sh || fail 'commit the implementation and notes before releasing'
 }
 allowed_changes() {
-    local base="$1" path paths invalid=""
-    paths="$(mktemp "${TMPDIR:-/tmp}/blob-release-paths.XXXXXX")"
-    git diff --name-only -z "$base" -- > "$paths" || fail 'cannot read release changes'
-    git ls-files --others --exclude-standard -z >> "$paths" || fail 'cannot read untracked release paths'
-    while IFS= read -r -d '' path; do
-        case "$path" in
-            Cargo.toml|Cargo.lock|CHANGELOG.md|docs/release.json) ;;
-            *) invalid="$path"; break ;;
-        esac
-    done < "$paths"
-    rm -f "$paths"
-    [[ -z "$invalid" ]] || fail "non-release path changed: $invalid"
+    local path allowed=()
+    for path in "${RELEASE_FILES[@]}"; do allowed+=(--allow "$path"); done
+    bash scripts/ci/check-release-source.sh "${allowed[@]}" || fail 'non-release paths changed'
 }
 preflight() {
     local head previous
@@ -93,7 +82,7 @@ verify_prepared() {
     [[ "$current" == "${RELEASE_VERSION:?}" ]] || fail 'prepared version does not match release intent'
     [[ "$source" == "${RELEASE_SOURCE:?}" ]] || fail 'receipt source does not match release intent'
     [[ "$head" == "$RELEASE_SOURCE" ]] || fail 'source commit does not match release intent'
-    allowed_changes "$RELEASE_SOURCE"
+    allowed_changes
     cargo metadata --offline --locked --no-deps --format-version 1 >/dev/null
     make --no-print-directory fmt-check
 }
