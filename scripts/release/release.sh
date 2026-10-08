@@ -148,8 +148,9 @@ publish() {
         ic-blob-storage-contracts|ic-blob-storage) packages=("$PUBLISH_PACKAGE") ;;
         *) fail 'unknown publication package' ;;
     esac
-    local current head package status checksum run
+    local current head package status checksum run registry_user_agent
     current="$(version)" || fail 'cannot read publication version'
+    registry_user_agent="ic-blob-storage-release/$current (+https://github.com/dragginzgame/ic-blob-storage)"
     head="$(git rev-parse HEAD)" || fail 'cannot resolve publication source'
     mkdir -p "$CARGO_TARGET_DIR"
     run="$(mktemp -d "$CARGO_TARGET_DIR/publication.XXXXXX")"
@@ -159,12 +160,14 @@ publish() {
     for package in "${packages[@]}"; do
         # Only a successful exact registry read can authorize skipping an upload.
         # Cargo owns upload and index polling; no local progress journal is needed.
-        status="$(curl --silent --show-error --connect-timeout 10 --max-time 30 \
+        status="$(curl --disable --silent --show-error --connect-timeout 10 --max-time 30 \
+            --user-agent "$registry_user_agent" \
             --max-filesize 1048576 --output "$run/$package.json" --write-out '%{http_code}' \
             "https://crates.io/api/v1/crates/$package/$current")" || fail 'registry readback failed; no upload attempted for this package'
         checksum="$(perl "$DATA" publication-state "$status" "$run/$package.json" "$package" "$current")" || fail 'registry state is inconclusive'
         if [[ "$checksum" != missing ]]; then
-            curl --fail --silent --show-error --connect-timeout 10 --max-time 30 \
+            curl --disable --fail --silent --show-error --connect-timeout 10 --max-time 30 \
+                --user-agent "$registry_user_agent" \
                 --max-filesize 8388608 --output "$run/$package.crate" \
                 "https://static.crates.io/crates/$package/$package-$current.crate" || fail 'cannot authenticate published archive'
             tar -xOf "$run/$package.crate" "$package-$current/.cargo_vcs_info.json" > "$run/$package-vcs.json" || fail 'cannot read published source identity'
@@ -176,7 +179,8 @@ publish() {
         fi
         if [[ "${1:-}" == --dry-run && "$package" == ic-blob-storage ]]; then
             # A contracts dry-run does not put that dependency into crates.io.
-            status="$(curl --silent --show-error --connect-timeout 10 --max-time 30 \
+            status="$(curl --disable --silent --show-error --connect-timeout 10 --max-time 30 \
+                --user-agent "$registry_user_agent" \
                 --max-filesize 1048576 --output "$run/contracts-dependency.json" --write-out '%{http_code}' \
                 "https://crates.io/api/v1/crates/ic-blob-storage-contracts/$current")" || fail 'cannot read contracts dependency'
             checksum="$(perl "$DATA" publication-state "$status" "$run/contracts-dependency.json" ic-blob-storage-contracts "$current")" || fail 'contracts dependency state is inconclusive'

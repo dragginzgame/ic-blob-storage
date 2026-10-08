@@ -271,17 +271,23 @@ cat > "$TEMPORARY/bin/curl" <<'MOCK'
 #!/usr/bin/env bash
 set -euo pipefail
 echo "curl $*" >> "$TEST_LOG"
-output= url=
+output= url= user_agent=
+[[ "${1:-}" == --disable ]] || exit 97
 while [[ $# -gt 0 ]]; do
     case "$1" in
         --output) output="$2"; shift 2 ;;
+        --user-agent) user_agent="$2"; shift 2 ;;
         --connect-timeout|--max-time|--max-filesize|--write-out) shift 2 ;;
-        --silent|--show-error|--fail) shift ;;
+        --disable|--silent|--show-error|--fail) shift ;;
         https://*) url="$1"; shift ;;
         *) exit 97 ;;
     esac
 done
 [[ -n "$output" && -n "$url" ]] || exit 97
+# Model registry admission: unidentified application reads fail before lookup.
+if [[ "$user_agent" != "ic-blob-storage-release/$(perl scripts/release/release-data.pl version) (+https://github.com/dragginzgame/ic-blob-storage)" ]]; then
+    : > "$output"; printf 403; exit 0
+fi
 [[ "${TEST_REGISTRY_FAILURE:-}" != transport ]] || exit 1
 case "$url" in
     https://crates.io/api/v1/crates/*)
@@ -289,6 +295,8 @@ case "$url" in
         package="${suffix%/*}"; current="${suffix##*/}"
         if [[ "${TEST_REGISTRY_FAILURE:-}" == http ]]; then
             echo '{}' > "$output"; printf 503
+        elif [[ "${TEST_REGISTRY_FAILURE:-}" == forbidden ]]; then
+            : > "$output"; printf 403
         elif [[ "${TEST_REGISTRY_FAILURE:-}" == malformed ]]; then
             echo '{' > "$output"; printf 200
         elif [[ -f "target/registry/$package.crate" ]]; then
@@ -845,7 +853,7 @@ run_case publish-unindexed-dry-run test_unpublished_dry_run
 for shape in contracts-failure core-failure contracts-lost-reply core-lost-reply; do
     run_case "publication-retry-$shape" test_publication_retry "$shape"
 done
-for shape in transport http malformed checksum foreign source dirty path yanked; do
+for shape in transport http forbidden malformed checksum foreign source dirty path yanked; do
     run_case "registry-refusal-$shape" test_registry_refusal "$shape"
 done
 for invalid in tag receipt parent merge; do run_case "bad-$invalid" test_invalid_publish "$invalid"; done

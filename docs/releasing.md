@@ -179,6 +179,9 @@ malformed responses or a different source refuse instead of authorizing an uploa
 Readback inputs and a fresh Cargo target remain under the printed
 `target/publication.*` path, preventing stale same-version verification artifacts. No local
 publication progress journal or additional polling loop is introduced.
+API, archive and dry-run dependency reads identify this application's version
+and repository through User-Agent, with implicit curl configuration disabled.
+A 403 remains an inconclusive fatal response; it never authorizes uploading.
 
 `PUBLISH_PACKAGE=ic-blob-storage-contracts` or `PUBLISH_PACKAGE=ic-blob-storage`
 selects one package when needed; it is optional. `make publish-dry-run` never
@@ -188,6 +191,17 @@ with dependency guidance: a dry-run cannot make that registry dependency exist.
 Use `make package` for paired local payload verification, or select contracts for
 its individual dry-run. Publishing neither deploys nor qualifies the service.
 Older completed releases need no runner plan for this separate publication check.
+
+### Finish the already-tagged 0.18.3 publication
+
+The released helper's default curl identity can receive a 403 before Cargo runs.
+The [User-Agent repair record](evidence/publication-user-agent0184.md) retains
+the same-endpoint 403/404 comparison and a prepared clean 0.18.3 checkout with
+an external curl identity wrapper. The wrapper changes only read transport;
+the released helper still checks its exact source, receipt, tag and registry
+archives, and Cargo owns uploads. Use a clean tagged payload for this operation;
+do not alter its receipt/tag or publish the dirty repair checkout as 0.18.3.
+No upload was performed during preparation.
 
 ### Finish the already-tagged 0.18.0 publication
 

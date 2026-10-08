@@ -110,3 +110,50 @@ invocation selecting `RELEASE_DELIVERY=direct` on its command line (`after.log`,
 Bash syntax and ShellCheck pass. Cargo manifests, lockfile and release receipt
 hashes remain unchanged. No full CI or real release was rerun; the maintainer's
 complete gate must still validate the repaired committed source.
+
+## Shared Tooling correction and released 0.18.3 — 2026-10-08
+
+Blob subsequently completed releases 0.18.1, 0.18.2 and 0.18.3. Remote main and
+the 0.18.3 tag identify `c5e204b04a0e9293ee4af0ab83c1c3b3013f5af3`; its receipt
+binds validated source `6eceadf3998fd5cca1519ef852fad4cf97a642df`. Tagged
+changelogs and earlier qualification inputs remain unchanged. The prior Blob
+fixture repair is already part of released 0.18.1; this addendum does not
+reclassify it as pending work or infer registry/service deployment.
+
+The maintainer explicitly authorized a Shared Tooling repair if the fixture
+problem also occurs there. At reviewed owner
+`75a8a60f49cec11d3f6aecab5c977029c42cc549` (0.1.26), common release, PR, hook,
+Make routing and validation-runner fixtures already clear all five Make controls.
+`test-release-metadata.sh` clears only three. Focused existing-fixture runs with
+GNUMAKEFLAGS=--dry-run and with MAKEFILES selecting an unrelated release version
+both fail (exit 1). The normal guard correctly refuses dry-run; the independent
+fixture fails because it expected its own actual gate/retained marker.
+
+The authorized upstream correction clears the remaining two controls, expands
+the existing nested Make/logger case into baseline, GNU-flag and include contexts,
+and updates common fixture guidance and pending 0.1.26 notes. The actual nested
+cases verify the fixture's own retained failures, intended checkout, same-checkout
+release selections and preserved jobserver behavior. No production runner is
+changed and no function, method or type is removed or renamed.
+
+Raw inputs, logs, statuses and qualified diff/hashes remain at
+`.tmp/shared-make-fixture-0184-01/`. Original failure fixtures remain at
+`/tmp/release-metadata-test.0gbumK` and `/tmp/release-metadata-test.VKy9sf`.
+The required complete `test-portable-tools.sh` passes with prepared Shared
+Tooling host/Cargo tools and offline Cargo. Required script ShellCheck passes
+from the owner checkout. The initial escalated ShellCheck request timed out in
+automatic approval review; the safe read-only retry using absolute inputs then
+failed SC1091 because relative source declarations did not match those input
+spellings. The final read-only owner-CWD invocation passes; both failed attempts
+remain distinct from the final result. No tools were installed or downloaded.
+
+[Shared Tooling #7](https://github.com/dragginzgame/shared-tooling/issues/7)
+retains upstream feedback and qualification. The source fix remains uncommitted
+and Linux-local; there is no new native macOS or hosted result. Blob's immutable
+snapshot is not patched or refreshed from dirty owner bytes. Blob's pending
+0.18.4 contains this requested documentation follow-up. Its incoming native Host
+0.6 / Testkit 0.23 Cargo changes appeared externally during the review; they are
+preserved separately in `incoming-dependency.diff`, and these tooling fixtures
+do not establish their compatibility or runtime qualification. No manifests,
+lockfiles, versions, commits, tags, pushes, publication or paid provider effects
+were changed by the agent in either repository.

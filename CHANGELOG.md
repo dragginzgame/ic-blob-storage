@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.18.4]
+
+### Fixed
+
+- Identify registry readback requests so crates.io accepts publication checks.
+  Preserve exact archive/source verification and refusal on inconclusive responses.
+  [#30](https://github.com/dragginzgame/ic-blob-storage/issues/30).
+
+### Changed
+
+- Refresh the release handoff for 0.18.3 and record the upstream correction for
+  inherited Make context in independently configured fixtures.
+  [Shared Tooling #7](https://github.com/dragginzgame/shared-tooling/issues/7).
+
 ## [0.18.3] - 2026-10-08
 
 ## [0.18.2] - 2026-10-08

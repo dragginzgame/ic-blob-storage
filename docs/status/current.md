@@ -6,7 +6,53 @@
 
 Date: 2026-10-08
 
-## Current batch — publication repair, sibling cleanup and tooling, pending 0.18.1
+## Current follow-up — released 0.18.3, pending 0.18.4
+
+- **0.18.3** is the actual workspace/receipt version and remote main at
+  `c5e204b04a0e9293ee4af0ab83c1c3b3013f5af3`; its validated source is
+  `6eceadf3998fd5cca1519ef852fad4cf97a642df`. Release plans for 0.18.1, 0.18.2
+  and 0.18.3 are complete. Preserve all tagged notes and source-bound evidence;
+  the repair below does not move the already-released Blob fixture correction
+  out of 0.18.1. Publication/deployment are not inferred from Git delivery.
+- The maintainer explicitly authorized repair in Shared Tooling. Review at
+  `75a8a60f49cec11d3f6aecab5c977029c42cc549` confirms common release/adoption
+  fixtures already isolate Make context. Its metadata fixture missed
+  GNUMAKEFLAGS and MAKEFILES; each reproduced a failure. The authorized upstream
+  working tree now completes isolation and extends the existing real nested
+  Make/logger regression with separate GNU-flag and parent-include contexts.
+  The required portable suite and complete script ShellCheck pass locally on
+  Linux. Normal runner selections and jobserver behavior remain intact. See
+  [Shared Tooling #7](https://github.com/dragginzgame/shared-tooling/issues/7) and
+  the [follow-up evidence](../evidence/shared-tooling-0181.md#shared-tooling-correction-and-released-0183--2026-10-08).
+- Shared Tooling's pending **0.1.26** notes include that correction. The fix is
+  uncommitted at its owner and has no hosted result; Blob's reviewed 81-file
+  snapshot remains unchanged. Adopt only a reviewed committed revision later.
+  No sibling other than the expressly authorized Shared Tooling was edited;
+  no agent commit, push, release, publication or paid provider effect occurred.
+- Registry publication's 403 is reproduced and repaired: default curl identity
+  receives 403 while an identifying application/version/repository User-Agent
+  receives the exact missing-crate 404. API/archive/dry-run reads now identify
+  this application and disable implicit curl configuration. Genuine 403 remains
+  fatal with zero upload effects. The full substituted adapter suite and shell
+  checks pass. [#30](https://github.com/dragginzgame/ic-blob-storage/issues/30)
+  and the [repair record](../evidence/publication-user-agent0184.md) retain live
+  read-only observations, fixtures and the original failed readback. A clean
+  unchanged 0.18.3 checkout with an external curl identity wrapper is prepared
+  for maintainer publication; no upload was run. Full CI is not rerun.
+- Blob's pending **0.18.4** records the compatible publication transport and
+  handoff/documentation
+  follow-up; released 0.18.1–0.18.3 notes remain unchanged. During this review,
+  incoming Cargo edits advanced native Host requirements/lock to **0.6.0** and
+  Testkit to **0.23.0**. Those externally selected files are preserved and are
+  not runtime-qualified by Shared Tooling's substitute fixtures. Review their
+  consumer impact and complete the appropriate qualification before a new
+  release; the recorded native/Wasm graphs below retain their original identity.
+
+## Previous batch — publication repair, sibling cleanup and tooling, released 0.18.1
+
+The following preparation handoff predates the completed 0.18.1–0.18.3 releases.
+Its pending identity and queued-CI language are retained as historical context;
+the current release state above supersedes them.
 
 - Released **0.18.0** remains `704b8ebf6bea85a715e465e32e34758b601852ec`,
   validated source `a43aee3b2593574a326b9b54651ad4946e3dec24`; Cargo and receipt
