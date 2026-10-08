@@ -6,7 +6,63 @@
 
 Date: 2026-10-08
 
-## Current follow-up — released 0.18.3, pending 0.18.4
+## Current follow-up — released 0.18.4, pending 0.18.5
+
+- Released **0.18.4** is `ab15c39d208608d2b43a555fc417dd85a6759942`,
+  validated source `685548842e36b6fd660dc0911f50b99c220abbe8`. Cargo and the
+  receipt remain 0.18.4. The publication request-identity repair is released;
+  [#30](https://github.com/dragginzgame/ic-blob-storage/issues/30) is closed.
+  Git delivery does not establish registry publication or deployment.
+- Preserve and qualify the incoming Cargo selections: all four Host **0.7.1**,
+  Testkit **0.24.0**, Memory **0.31.5**, private Metrics **0.2.13**. The earlier
+  direct Host 0.7 / Testkit 0.23 Host 0.6 duplication is gone. Public Memory
+  identity stays 0.31; no public service, wire or durable contract changes.
+- The [follow-up record](../evidence/host071-tooling0185.md) binds passing Linux
+  native-host, seven publication-session, buffered-output, strict affected Clippy
+  and Rust 1.88 native/Wasm checks to compiled **0.18.4** and frozen artifacts.
+  Keep the local final-output reader: the protocol already owns/prefetches stdout,
+  whereas Host communication requires untouched pipes. No named runtime symbol
+  is removed and no instruction/size gain is claimed.
+- Shared Tooling selects **84 files** at committed 0.1.27 source
+  `b866d41041a1986eeec95bde9af4c6ba0853d2e3`. Review first selected 0.1.26;
+  the later owner commit includes the authorized upstream Make fixture repair.
+  Three canonical companions complete the new installer-evidence fixture chain.
+  An original 81-file export reproduces the missing-helper failure; explicit
+  additions pass all selected tooling checks. Exporter declarations remain with
+  reopened [Shared Tooling #60](https://github.com/dragginzgame/shared-tooling/issues/60).
+  Direct delivery and local receipts remain unchanged. Ordinary failure upload
+  now archives the scoped roots through the shared helper, retaining its uploader
+  pin, artifact name and 30-day policy. The
+  [archive integration record](../evidence/tooling-archive0185.md) retains passing
+  Bash 5/3.2 selection, mode/link/filename round trips, early/late failure and
+  actual workflow-command checks. [#29](https://github.com/dragginzgame/ic-blob-storage/issues/29)
+  remains open for committed native upload/download acceptance. Native CI now
+  qualifies a synthetic archive using the exact returned upload ID and checksum;
+  no hosted run or artifact upload was invoked by the agent.
+- Final runner/routing/consumer adapters, snapshot/installer/archive/LOC fixtures,
+  shell, dependency declarations, alignment and formatting pass. Native Cargo/Rust
+  inputs are unchanged across the later tooling refresh; earlier source/archive
+  records keep their exact identities. Failed inventory attempts and the missing
+  companion reproduction are retained. No full CI/release gate, agent commit,
+  push, release, publication, sibling edit or paid/live provider effect occurred.
+- Released Blob Linux and Apple Silicon CI pass; Intel macOS is in progress.
+  Host Linux CI passes, with native macOS still pending at its inspection. Testkit's
+  Linux checks/MSRV/concurrency pass, but its portable job fails after successful
+  artifact upload at download discovery: [Testkit #33](https://github.com/dragginzgame/ic-testkit/issues/33).
+  The selected new Shared source had queued CI; previous 0.1.26 passed Linux,
+  ARM macOS and lint but hit Intel's step timeout, tracked in
+  [Shared Tooling #71](https://github.com/dragginzgame/shared-tooling/issues/71).
+  Dirty Blob work has no matching hosted result. Keep
+  [#28](https://github.com/dragginzgame/ic-blob-storage/issues/28) and
+  [#27](https://github.com/dragginzgame/ic-blob-storage/issues/27) open for their
+  committed native acceptance; external consumer/provider evidence stays with
+  its owner. The archive implementation completes the currently accepted local
+  batch; matching committed CI and full release validation remain outstanding.
+
+## Previous follow-up — released 0.18.3, pending 0.18.4
+
+This preparation record predates released 0.18.4 and the current follow-up above.
+Its pending and uncommitted-owner statements retain their original context.
 
 - **0.18.3** is the actual workspace/receipt version and remote main at
   `c5e204b04a0e9293ee4af0ab83c1c3b3013f5af3`; its validated source is

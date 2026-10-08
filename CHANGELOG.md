@@ -1,5 +1,27 @@
 # Changelog
 
+## [0.18.5]
+
+### Changed
+
+- Align native tooling and the private test harness on Host 0.7.1 through
+  Testkit 0.24, removing the duplicate Host dependency line.
+  [Testkit #32](https://github.com/dragginzgame/ic-testkit/issues/32).
+- Refresh the reviewed Shared Tooling snapshot, preserving direct release
+  delivery, protecting tracking refs against symbolic-ref races, and supporting
+  safe repeated snapshot refreshes. Include the new installer-evidence companions
+  so the selected fixtures remain runnable.
+  [Shared Tooling #62](https://github.com/dragginzgame/shared-tooling/issues/62),
+  [#64](https://github.com/dragginzgame/shared-tooling/issues/64),
+  [#60](https://github.com/dragginzgame/shared-tooling/issues/60).
+
+### Fixed
+
+- Archive retained tooling failures before uploading so legal Unix filenames,
+  permissions and symlinks survive diagnostic collection. Keep 30-day failure
+  retention and qualify exact uploaded archive bytes on the native CI matrix.
+  [#29](https://github.com/dragginzgame/ic-blob-storage/issues/29).
+
 ## [0.18.4] - 2026-10-08
 
 ### Fixed

@@ -1,0 +1,104 @@
+{
+  "schema": 1,
+  "id": "2026-10-08-host071-0185-01",
+  "head": "ab15c39d208608d2b43a555fc417dd85a6759942",
+  "compiled_version": "0.18.4",
+  "pending": "0.18.5",
+  "working_changes": "Reviewed committed Shared Tooling 0.1.26 snapshot; preserved incoming native Host 0.7.1 / Testkit 0.24.0 / private Metrics 0.2.13 Cargo selections. No runtime source changes.",
+  "graph": [
+    {
+      "name": "ic-host-artifacts",
+      "version": "0.7.1",
+      "checksum": "583dce23ad5266462397a777b927050a7884c9e87a23cad29a1fa8b80af0c0ca",
+      "vcs": {
+        "git": {
+          "sha1": "410fee7c309e781edf6a361f0e480d71b7c11e5a"
+        },
+        "path_in_vcs": "crates/ic-host-artifacts"
+      }
+    },
+    {
+      "name": "ic-host-fs",
+      "version": "0.7.1",
+      "checksum": "16e31ff78c4411397e95ea9c35978f42084e4fb7d949b78a8ea52c6139482b28",
+      "vcs": {
+        "git": {
+          "sha1": "410fee7c309e781edf6a361f0e480d71b7c11e5a"
+        },
+        "path_in_vcs": "crates/ic-host-fs"
+      }
+    },
+    {
+      "name": "ic-host-process",
+      "version": "0.7.1",
+      "checksum": "846115ba4fac722c99b2754f827e055f044e33c8994dfec8a554d5100b12d919",
+      "vcs": {
+        "git": {
+          "sha1": "410fee7c309e781edf6a361f0e480d71b7c11e5a"
+        },
+        "path_in_vcs": "crates/ic-host-process"
+      }
+    },
+    {
+      "name": "ic-host-tools",
+      "version": "0.7.1",
+      "checksum": "c48e369c48589f5e92e98782667f8c3c2dcfb33b856f4850094bb0f9db3144b9",
+      "vcs": {
+        "git": {
+          "sha1": "410fee7c309e781edf6a361f0e480d71b7c11e5a"
+        },
+        "path_in_vcs": "crates/ic-host-tools"
+      }
+    },
+    {
+      "name": "ic-memory",
+      "version": "0.31.5",
+      "checksum": "0d59d356ed955ca30a9851192ee8eb540c0a83f374621898f6c200c7f6ddf8c5",
+      "vcs": {
+        "git": {
+          "sha1": "5cc8c6dc817843bd453b01a34b76159eb8d6797d"
+        },
+        "path_in_vcs": "crates/ic-memory"
+      }
+    },
+    {
+      "name": "ic-metrics",
+      "version": "0.2.13",
+      "checksum": "cf9bf6109539e8b956857f444a1d365b0205250405980c10bfdd905831f66fe3",
+      "vcs": {
+        "git": {
+          "sha1": "4091366bcd97ddf4f31d5993c954f6f4a269bc63"
+        },
+        "path_in_vcs": "crates/ic-metrics"
+      }
+    },
+    {
+      "name": "ic-testkit",
+      "version": "0.24.0",
+      "checksum": "3feafefac3a8eace550c518fef1687f313bacfe6ff48e4f4dc09fba39c850c0f",
+      "vcs": {
+        "git": {
+          "sha1": "e7a9c6cbad29c4cfb8f5c9a5a0e64f82e9d9c7c1"
+        },
+        "path_in_vcs": "crates/ic-testkit"
+      }
+    }
+  ],
+  "classes": [
+    "source_review",
+    "Linux_loopback_HTTP_substitute",
+    "Linux_control_pipe_substitute",
+    "isolated_PocketIC"
+  ],
+  "request": "Maintained native-host qualification, seven standalone publication-session cases and buffered-output regression against exact incoming graph.",
+  "bindings": "Synthetic roles/projects and local HTTP/PocketIC only. No deployed namespace or provider credentials.",
+  "budget": {
+    "standalone_session_cases": 10,
+    "installation_and_restoration_cases": 5,
+    "per_case_seconds": 300,
+    "live_provider_requests": 0,
+    "deployed_paid_cycles": 0
+  },
+  "stop_conditions": "Retain failures. No live provider, paid effect, Chromium, full gate, version mutation, release or publication. Do not edit source under validation.",
+  "cleanup": "Owned child groups/local PocketIC scopes drop. Freeze tested artifacts, selected graph and raw logs; no external cleanup."
+}

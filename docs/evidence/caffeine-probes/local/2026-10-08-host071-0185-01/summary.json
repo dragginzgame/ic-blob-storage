@@ -1,0 +1,168 @@
+{
+  "schema": 1,
+  "id": "2026-10-08-host071-0185-01",
+  "base": "ab15c39d208608d2b43a555fc417dd85a6759942",
+  "compiled_version": "0.18.4",
+  "pending": "0.18.5",
+  "classes": [
+    "source_review",
+    "Linux_loopback_HTTP_substitute",
+    "Linux_control_pipe_substitute",
+    "isolated_PocketIC"
+  ],
+  "intent": {
+    "path": "docs/evidence/caffeine-probes/local/2026-10-08-host071-0185-01/intent.json",
+    "sha256": "b3b502e2365535c8aa407afbc66646c6b3617cf7ba09cdf9f0f65d1160751e07"
+  },
+  "registry_identities": {
+    "path": ".tmp/continuation-0185-01/registry-identities.json",
+    "sha256": "a54b7f01aba8b52f818b440dd63cb4b806eeb9a4821ec5d7e4acee9ee731e499"
+  },
+  "qualified_runtime_inputs_and_artifacts": {
+    "path": ".tmp/continuation-0185-01/qualified-inputs.json",
+    "sha256": "8852d68416a5a7ee123a603594bf82e51edbe0827e57f18f9e037cdaf9002def"
+  },
+  "final_tooling_inputs": {
+    "path": ".tmp/continuation-0185-01/final-tooling-inputs.json",
+    "sha256": "377edc0eed3de33e77bd06fdcf7ae62332151497383c2acc81752e3e343b9a63"
+  },
+  "phases": "Native qualification/source archive used the reviewed 0.1.26 shared snapshot. The later 0.1.27 source refresh changes no Cargo/Rust runtime input; final tooling qualification has its own exact 84-file hash record and logs. Do not relabel the earlier archived source bytes.",
+  "checks": [
+    {
+      "path": ".tmp/continuation-0185-01/deps.log",
+      "sha256": "ac525de4e84eb8d73cbd291e90e90c6915a23caa88c4880178eaa270e4f04422",
+      "exit_status": 0
+    },
+    {
+      "path": ".tmp/continuation-0185-01/native-host.log",
+      "sha256": "aff6b8ba41199b012b4f3b24dfdf265894515d660407e796954345a64f8939dc",
+      "exit_status": 0
+    },
+    {
+      "path": ".tmp/continuation-0185-01/native-sessions.log",
+      "sha256": "d613d53dbfbdbca2a9c4f509aaf5925ffc825753d5c3d98384ce3af2f73b0502",
+      "exit_status": 0
+    },
+    {
+      "path": ".tmp/continuation-0185-01/clippy.log",
+      "sha256": "2a043ddf122a3d827446086c8be2b5fef9b8f1574ade6bee192d5c377880c811",
+      "exit_status": 0
+    },
+    {
+      "path": ".tmp/continuation-0185-01/msrv-native.log",
+      "sha256": "8f80b62862de4f8396c80fe8c86f5305dd8125bb81f16043283bcace36c70e86",
+      "exit_status": 0
+    },
+    {
+      "path": ".tmp/continuation-0185-01/msrv-wasm.log",
+      "sha256": "ac86bd6ee0aa842abab16ce0c5522318434e4870e29dc3052356eef95071e81b",
+      "exit_status": 0
+    },
+    {
+      "path": ".tmp/continuation-0185-01/release-check.log",
+      "sha256": "9aafa02d6dd89773f81a1178dedff6639aab6f48bf3256f37e41ab872630e30d",
+      "exit_status": 0
+    },
+    {
+      "path": ".tmp/continuation-0185-01/distribution.log",
+      "sha256": "6096b5b3b9106854d47e5526f86872d32d377d2b8f167340e54d5d5c0ae5529f",
+      "exit_status": 0
+    },
+    {
+      "path": ".tmp/continuation-0185-01/shell.log",
+      "sha256": "2701ed4eb41b98bd0e6d5c5b75d093ce676ef7946988cbaaecdac66d36a35b16",
+      "exit_status": 0
+    },
+    {
+      "path": ".tmp/continuation-0185-01/tooling-027.log",
+      "sha256": "16b6452c159e72aef3246cd7cacb4b1e6e0829d1a3601ec4afad3712a4ae629d",
+      "exit_status": 0
+    },
+    {
+      "path": ".tmp/continuation-0185-01/release-check-027.log",
+      "sha256": "9aafa02d6dd89773f81a1178dedff6639aab6f48bf3256f37e41ab872630e30d",
+      "exit_status": 0
+    },
+    {
+      "path": ".tmp/continuation-0185-01/source-paths-027.log",
+      "sha256": "4dcf2413a4b59185ceabe600ac4ff840166d8ac4e622feaaa32e6af59c15a272",
+      "exit_status": 0
+    },
+    {
+      "path": ".tmp/continuation-0185-01/format.log",
+      "sha256": "bbb3282094feb83a2f31e6e09eda4f1a7f5c3c28880026d0c1e1c175f3104570",
+      "exit_status": 0
+    },
+    {
+      "path": ".tmp/continuation-0185-01/docs-evidence.log",
+      "sha256": "a249fcbbacdcb563634e55cc79b99a3efcea5f997c75f765aea84dfb692d2604",
+      "exit_status": 0
+    }
+  ],
+  "measured_cases": {
+    "cli_and_probe": 114,
+    "contracts": 103,
+    "examples": 21,
+    "installation_and_carrier": 2,
+    "metrics_restoration": 1,
+    "native_publication_sessions": 7,
+    "buffered_final_output": 1
+  },
+  "retained_failures": [
+    {
+      "class": "inventory_preparation",
+      "record": {
+        "path": ".tmp/continuation-0185-01/identity-preparation-correction.txt",
+        "sha256": "ffb7292b913b6424b426b920b211d736251c1ce44cddeac44d02d68440cf7d31"
+      },
+      "limitations": "First wrong cache-root lookup stopped before identities; second treated workspace-packaged README as a package-local source. Corrected inventory explicitly excludes normalized/non-source packaging files."
+    },
+    {
+      "class": "intentional_incomplete_snapshot_reproduction",
+      "path": ".tmp/continuation-0185-01/missing-companion.log",
+      "sha256": "ac9c2fb2467992bef38df0ec36d7fde2aa1f00e58faf7e44006aad406b0df536",
+      "exit_status": 127,
+      "fixture": "/tmp/host-tools-test.VX1pot",
+      "owner_issue": "https://github.com/dragginzgame/shared-tooling/issues/60"
+    },
+    {
+      "class": "upstream_hosted_artifact_failure",
+      "path": ".tmp/continuation-0185-01/testkit-linux-portable-api.log",
+      "sha256": "75f0b8409346bb7ef6631aab9d18a0491314fac99534b1e5b6b18457191ba402",
+      "owner_issue": "https://github.com/dragginzgame/ic-testkit/issues/33",
+      "limitations": "Downloaded completed job log through API after gh run view refused while overall run remained active; no native runtime failure is inferred."
+    }
+  ],
+  "limitations": [
+    "No Chromium, native macOS or deployed provider run",
+    "Dirty consumer work has no hosted result",
+    "No full CI/release gate, release, publication, agent commit/push, sibling mutation or measured instruction/size improvement"
+  ],
+  "effects": {
+    "live_provider_requests": 0,
+    "deployed_paid_cycles": 0
+  },
+  "cleanup": "Owned child groups and local PocketIC scopes dropped. Failed fixture and raw/frozen evidence retained; no external cleanup remains.",
+  "ci_observations": [
+    {
+      "path": ".tmp/continuation-0185-01/blob-ci-final.json",
+      "sha256": "31dd2a9408151be046f93def885fb811b96b71ccc682ad30022d52679d12ee29"
+    },
+    {
+      "path": ".tmp/continuation-0185-01/host-ci-final.json",
+      "sha256": "45d1f75761fdba5aca8ad785638c577d704a353a3b8014240baed276b4f60b9e"
+    },
+    {
+      "path": ".tmp/continuation-0185-01/testkit-ci-final.json",
+      "sha256": "af69370e5a14d0be8a31ce6e524843b9bf8d6d287e39cc2da8be8b6c657febd0"
+    },
+    {
+      "path": ".tmp/continuation-0185-01/shared-ci.json",
+      "sha256": "700bef6b93e8a35bb6c375b34c5b6ff41a758df4726446f1c655fe5670463668"
+    },
+    {
+      "path": ".tmp/continuation-0185-01/shared-ci-027.json",
+      "sha256": "b0ee56ecfbcad59df0a239761b8dbaa2d31c65ab3bc7d252ed281bfdba76624b"
+    }
+  ]
+}

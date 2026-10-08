@@ -14,6 +14,22 @@ maintained release and open work.
 [acceptance plan](../../acceptance-plan.md) ·
 [service gaps](../../service-gaps.md)
 
+## Host 0.7.1 and current graph — 2026-10-08
+
+The [intent](local/2026-10-08-host071-0185-01/intent.json) and
+[summary](local/2026-10-08-host071-0185-01/summary.json) bind compiled 0.18.4 /
+pending 0.18.5 to Host 0.7.1, Testkit 0.24.0, Memory 0.31.5 and private Metrics
+0.2.13. Synthetic local HTTP/control pipes and isolated PocketIC only: zero
+live provider requests or deployed paid cycles, no Chromium/native macOS run.
+
+Native-host, seven publication-session and one buffered-output cases pass,
+as do strict affected Clippy and Rust 1.88 native/Wasm checks. The
+[follow-up record](../../evidence/host071-tooling0185.md) retains registry/source
+identity proof, frozen CLI/Wasm/harness bytes, separate shared-helper source
+phases, preparation failures and an intentional missing-companion reproduction.
+Owned local scopes dropped; no external cleanup remains. Hosted artifact transport,
+native macOS and deployed provider acceptance remain separate.
+
 ## Host 0.5.1 child cleanup and current graph — 2026-10-08
 
 The [intent](local/2026-10-08-host051-cleanup-0181-02/intent.json),

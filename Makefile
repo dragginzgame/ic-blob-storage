@@ -37,7 +37,7 @@ CI_TARGETS := shared-tooling-check tools-check dependency-pins-check documentati
 	release-commit-check release-committed-check release-tagged-check release-push-check \
 	release-tag-check publish publish-dry-run install-hooks format-tools-check release-tools-check hooks-check evidence-check
 .PHONY: test-hard-cut test-native-host pocketic-alignment-check install-tools tools-check install-host-tools host-tools-check install-ic-tools ic-tools-check
-.PHONY: contracts-boundary-check documentation-links-check release-commands-check shared-tooling-tests
+.PHONY: contracts-boundary-check documentation-links-check release-commands-check shared-tooling-tests tooling-evidence-check
 
 ifneq ($(word 2,$(filter release-patch release-minor release-major release-resume,$(MAKECMDGOALS))),)
 $(error Select exactly one release target)
@@ -59,6 +59,7 @@ help:
 	@echo "shared-tooling-check          Verify the reviewed shared snapshot offline"
 	@echo "shared-tooling-tests          Exercise shared digest, IC installer, lockfile and metadata refusals offline"
 	@echo "documentation-links-check     Check local Markdown targets without a build or network"
+	@echo "tooling-evidence-check        Check retained tooling archive selection and failure behavior"
 	@echo "release-commands-check        Check Make routing with a substitute release runner"
 	@echo "dependency-pins-check         Check dependency selectors and workspace lockfiles offline"
 	@echo "fmt / fmt-check              Format Rust or check formatting"
@@ -107,6 +108,7 @@ shared-tooling-tests:
 	bash scripts/ci/check-validation-logging.sh
 	bash scripts/ci/test-file-digests.sh
 	bash scripts/ci/test-evidence-archive.sh
+	+$(MAKE) --no-print-directory tooling-evidence-check
 	bash scripts/ci/test-ic-tools.sh
 	bash scripts/ci/test-pocketic-checks.sh
 	perl scripts/ci/test-local-lock-versions.pl
@@ -118,6 +120,9 @@ shared-tooling-tests:
 	bash scripts/ci/test-cloc-tooling.sh
 	bash scripts/ci/test-cloc-siblings.sh
 	bash scripts/ci/test-cloc.sh
+
+tooling-evidence-check:
+	bash scripts/ci/test-tooling-evidence.sh
 
 documentation-links-check:
 	@set -o pipefail; find docs audits rules -type f -name '*.md' -print0 | \

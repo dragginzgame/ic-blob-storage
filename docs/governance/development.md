@@ -79,6 +79,13 @@ evidence archive, IC installer, local
 lockfile, Cargo metadata, host/Cargo-tool installation and common Make/LOC refusals
 with offline substitutes. The declaration
 gate opts in to shared Cargo package/dependency inheritance checks.
+Its focused `make tooling-evidence-check` checks retained-root selection and
+shared archive behavior without builds or network effects. The native tooling
+workflow separately uploads/downloads a synthetic checksum-bound archive by its
+exact returned ID; passing local checks do not qualify that transport. Ordinary
+failure collection preserves scoped tool candidates and fixtures in one archive
+with 30-day retention. Original inputs and failed partial archives remain if
+collection fails; collection does not clear the original job failure.
 `make hooks-check` supplies the consumer's real formatter inputs to the shared
 adoption checker using Cargo's complete member roster and each member's Rust
 sources, including packages not yet present in HEAD. It retains the additional

@@ -36,6 +36,36 @@ jobs:
       - name: Prepare fixture utilities on macOS
         if: runner.os == 'macOS'
         run: brew install ripgrep xz shellcheck
+      - name: Qualify tooling evidence collection on this host
+        env:
+          BLOB_TOOLING_ARCHIVE_PROOF: ${{ runner.temp }}/blob-tooling-evidence-proof.current
+        run: bash scripts/ci/test-tooling-evidence.sh "$BLOB_TOOLING_ARCHIVE_PROOF"
+      - name: Upload the tooling archive qualification
+        id: tooling-archive-proof
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: tooling-evidence-qualification-${{ matrix.os }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/blob-tooling-evidence-proof.current/evidence.tar.gz
+          if-no-files-found: error
+          retention-days: 1
+      - name: Require the uploaded tooling archive identity
+        env:
+          BLOB_TOOLING_ARCHIVE_ID: ${{ steps.tooling-archive-proof.outputs.artifact-id }}
+        run: |
+          [[ "$BLOB_TOOLING_ARCHIVE_ID" =~ ^[1-9][0-9]*$ ]] || { echo 'Missing or invalid archive identity' >&2; exit 1; }
+      - name: Download that exact tooling archive
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
+        with:
+          artifact-ids: ${{ steps.tooling-archive-proof.outputs.artifact-id }}
+          path: ${{ runner.temp }}/blob-tooling-evidence-downloaded.current
+          digest-mismatch: error
+      - name: Verify downloaded tooling archive bytes
+        env:
+          BLOB_TOOLING_ARCHIVE_PROOF: ${{ runner.temp }}/blob-tooling-evidence-proof.current
+          BLOB_TOOLING_ARCHIVE_DOWNLOAD: ${{ runner.temp }}/blob-tooling-evidence-downloaded.current
+        run: |
+          expected="$(cat "$BLOB_TOOLING_ARCHIVE_PROOF/archive.sha256")"
+          bash scripts/ci/verify-file-checksum.sh sha256 "$expected" "$BLOB_TOOLING_ARCHIVE_DOWNLOAD/evidence.tar.gz"
       - name: Select the declared Rust toolchain
         run: |
           rustup show active-toolchain
@@ -67,36 +97,19 @@ jobs:
           RUSTUP_AUTO_INSTALL: '0'
           TMPDIR: ${{ runner.temp }}
         run: make test-native-host
-      - name: Retain failed tooling fixtures
+      - name: Archive failed tooling fixtures
+        id: tooling-failure
         if: failure()
+        run: |
+          output="$(mktemp -d "$RUNNER_TEMP/blob-tooling-evidence.XXXXXX")/evidence.tar.gz"
+          archive="$(bash scripts/ci/collect-tooling-evidence.sh "$GITHUB_WORKSPACE" "$RUNNER_TEMP" "$output")"
+          if [[ -n "$archive" ]]; then printf 'archive=%s\n' "$archive" >> "$GITHUB_OUTPUT"; fi
+      - name: Retain failed tooling fixtures
+        if: ${{ failure() && steps.tooling-failure.outputs.archive != '' }}
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: tooling-failure-${{ matrix.os }}-${{ github.run_attempt }}
-          path: |
-            .tools/host-set.*/
-            .tools/ic-set.*/
-            .tools/rust/build/
-            target/release-tests.*/
-            ${{ runner.temp }}/blob-format-hooks.*/
-            ${{ runner.temp }}/formatting-adoption.*/
-            ${{ runner.temp }}/blob-evidence-checksums.*/
-            ${{ runner.temp }}/nonempty-cargo-test.*
-            ${{ runner.temp }}/file-digests.*/
-            ${{ runner.temp }}/ic-tools-test.*/
-            ${{ runner.temp }}/pocketic-checks.*/
-            ${{ runner.temp }}/pocketic-alignment.*/
-            ${{ runner.temp }}/release-commands.*/
-            ${{ runner.temp }}/cargo-metadata-test.*/
-            ${{ runner.temp }}/shared-tooling-snapshot-test.*/
-            ${{ runner.temp }}/local-lock-test.*/
-            ${{ runner.temp }}/format-tools-test.*/
-            ${{ runner.temp }}/host-tools-test.*/
-            ${{ runner.temp }}/rust-tools-test.*/
-            ${{ runner.temp }}/shared-tool-commands.*/
-            ${{ runner.temp }}/cloc-tooling-test.*/
-            ${{ runner.temp }}/shared-tooling-cloc-siblings-test.*/
-            ${{ runner.temp }}/shared-tooling-cloc-test.*/
-            ${{ runner.temp }}/blob-validation-logging.*/
+          path: ${{ steps.tooling-failure.outputs.archive }}
           include-hidden-files: true
-          if-no-files-found: ignore
+          if-no-files-found: error
           retention-days: 30

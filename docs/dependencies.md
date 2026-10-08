@@ -4,7 +4,29 @@
 
 # Dependency setup
 
+## Current graph — released 0.18.4, pending 0.18.5
+
+All 12 members inherit workspace **0.18.4**. The incoming native graph selects
+Host **0.7.1** throughout and Testkit **0.24.0**, removing the previous Host 0.6
+transitive line. Memory remains on public **0.31** (locked **0.31.5**); private
+Metrics selects **0.2.13**. Registry checksums and packaged source identities
+match their owner commits. The [follow-up record](evidence/host071-tooling0185.md)
+retains focused Linux native/PocketIC, Clippy and Rust 1.88 qualification;
+native macOS and hosted artifact transport remain separate acceptance.
+
+The 84-file Shared Tooling snapshot selects committed 0.1.27 source
+`b866d41041a1986eeec95bde9af4c6ba0853d2e3`, including the three companions now
+required by installer evidence fixtures. The production failure uploader remains
+under [#29](https://github.com/dragginzgame/ic-blob-storage/issues/29): local routing
+now archives scoped evidence through the shared helper, preserving 30-day
+retention. Its [local qualification](evidence/tooling-archive0185.md) is separate
+from pending hosted upload/download acceptance.
+No public contract, workspace version or release receipt is changed here.
+
 ## Runtime-free contracts — released 0.18.0
+
+The following extraction and qualification history retains its original graph;
+the current graph above supersedes its then-current dependency selections.
 
 Issue [#27](https://github.com/dragginzgame/ic-blob-storage/issues/27) adds the
 canonical `ic-blob-storage-contracts` owner under `crates/`. The service and native
@@ -136,16 +158,16 @@ availability does not establish provider qualification or service readiness.
 | `thiserror` | 2.0.18 (locked) | Typed error derives; PocketIC constrains its own requirement exactly |
 | `ic-cdk` | 0.20.3 | IC platform operations for the ops layer |
 | `ic-management-canister-types` | 0.11.0 (direct, locked) | Bounded current-instance IC-history request/reply types |
-| `ic-memory` | 0.31.3 (locked) | Sole allocation runtime; current ownership ledger and public typed growth API |
-| `ic-metrics` | 0.2.11 (locked) | Private storage resource probe only; allocation-free measurement arithmetic, no platform reader |
+| `ic-memory` | 0.31.5 (locked) | Sole allocation runtime; current ownership ledger and public typed growth API |
+| `ic-metrics` | 0.2.13 (locked) | Private storage resource probe only; allocation-free measurement arithmetic, no platform reader |
 | `ic-stable-structures` | 0.7.2 | Exact transitive substrate owned/re-exported by `ic-memory` |
-| `ic-testkit` | 0.22.0 (locked) | Native dependency of the unpublished PocketIC harness; shared helpers and full re-export |
+| `ic-testkit` | 0.24.0 (locked) | Native dependency of the unpublished PocketIC harness; shared helpers and full re-export |
 | `pocket-ic` | 16.0.0 | Transitive through `ic-testkit`; no direct dependency |
 | `ic-agent` | 0.49.2 | Native CLI and harness signing and verification of ingress certificates |
-| `ic-host-artifacts` | 0.5.1 (direct and harness transitive, locked) | Native CLI raw SHA-256 identities and example-only bounded JSON streams; optional archive/gzip/Wasm features disabled |
-| `ic-host-fs` | 0.5.1 (direct and harness transitive, locked) | Native CLI bounded descriptor/no-follow reads and private durable create-new records |
-| `ic-host-process` | 0.5.1 (harness transitive, locked) | Owned by ic-testkit; no direct CLI dependency |
-| `ic-host-tools` | 0.5.1 (harness transitive, locked) | Owned by ic-testkit; no direct CLI facade dependency |
+| `ic-host-artifacts` | 0.7.1 (direct and harness transitive, locked) | Native CLI raw SHA-256 identities and example-only bounded JSON streams; optional archive/gzip/Wasm features disabled for those clients |
+| `ic-host-fs` | 0.7.1 (direct and harness transitive, locked) | Native CLI bounded descriptor/no-follow reads and private durable create-new records |
+| `ic-host-process` | 0.7.1 (harness transitive, locked) | Owned by ic-testkit; no direct CLI dependency |
+| `ic-host-tools` | 0.7.1 (harness transitive, locked) | Owned by ic-testkit; no direct CLI facade dependency |
 | `candid_parser` | 0.4.1 | Native harness only; official Candid parser for native request fixtures |
 
 ### Native Host 0.4.6 selection — pending 0.17.2
