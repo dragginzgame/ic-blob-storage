@@ -1,5 +1,5 @@
 //! Trusted-uploader issuance within admitted resource quotas; no provider replay guarantee.
-use crate::model::service::upload::UploadPermission;
+use ic_blob_storage_contracts::upload::binding::UploadPermission;
 /// Host-established facts scoped to the exact original permission. Never accept
 /// these values from production ingress or infer them from manifest consistency.
 /// The host must establish each fact in the same synchronous execution; this is

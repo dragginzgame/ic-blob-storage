@@ -5,19 +5,20 @@ mod download;
 mod manifest;
 mod planning;
 mod receipts;
-use crate::model::{
-    billing::{FundingLimits, configuration::BillingConfiguration},
-    catalog::{
-        CatalogCapacity, CatalogLimits,
-        admission::{UploadLimits, UploadObject},
-    },
-    lifecycle::{
-        ReferenceId,
-        binding::{ObjectIdentity, ReferenceKey},
-        requests::{ReferenceOperation, ReferenceRequestId},
-    },
-    service::configuration::{ServiceBindings, ServiceLimits, ServiceManifestLimits},
-};
+use crate::model::catalog::CatalogCapacity;
+use ic_blob_storage_contracts::binding::ObjectIdentity;
+use ic_blob_storage_contracts::binding::ReferenceId;
+use ic_blob_storage_contracts::binding::ReferenceKey;
+use ic_blob_storage_contracts::configuration::billing::BillingConfiguration;
+use ic_blob_storage_contracts::configuration::funding::FundingLimits;
+use ic_blob_storage_contracts::configuration::limits::CatalogLimits;
+use ic_blob_storage_contracts::configuration::limits::UploadLimits;
+use ic_blob_storage_contracts::configuration::service::ServiceBindings;
+use ic_blob_storage_contracts::configuration::service::ServiceLimits;
+use ic_blob_storage_contracts::configuration::service::ServiceManifestLimits;
+use ic_blob_storage_contracts::reference::binding::ReferenceOperation;
+use ic_blob_storage_contracts::reference::binding::ReferenceRequestId;
+use ic_blob_storage_contracts::upload::binding::UploadObject;
 use std::num::{NonZeroU64, NonZeroU128, NonZeroUsize};
 
 fn p(n: u8) -> Principal {
@@ -113,19 +114,22 @@ fn permission(n: u8) -> UploadPermission {
     }
 }
 
-fn hashes(n: u8) -> crate::model::identity::caffeine::CaffeineContentHashes {
-    let headers = [crate::model::identity::caffeine::CaffeineHeader {
-        name: "Content-Length",
-        value: "10",
-    }];
+fn hashes(n: u8) -> ic_blob_storage_contracts::identity::caffeine::CaffeineContentHashes {
+    let headers = [
+        ic_blob_storage_contracts::identity::caffeine::CaffeineHeader {
+            name: "Content-Length",
+            value: "10",
+        },
+    ];
     hashes_with_headers(n, &headers)
 }
 
 fn hashes_with_headers(
     n: u8,
-    headers: &[crate::model::identity::caffeine::CaffeineHeader<'_>],
-) -> crate::model::identity::caffeine::CaffeineContentHashes {
-    use crate::model::identity::caffeine::{CaffeineContentHasher, CaffeineHashLimits};
+    headers: &[ic_blob_storage_contracts::identity::caffeine::CaffeineHeader<'_>],
+) -> ic_blob_storage_contracts::identity::caffeine::CaffeineContentHashes {
+    use ic_blob_storage_contracts::identity::caffeine::CaffeineContentHasher;
+    use ic_blob_storage_contracts::identity::caffeine::CaffeineHashLimits;
     let mut hasher = CaffeineContentHasher::new(
         10,
         headers,
@@ -143,7 +147,7 @@ fn hashes_with_headers(
 
 fn prepare(owner: &mut UploadAdmissions, input: &UploadPermission) {
     use super::manifest::UploadManifest;
-    use crate::model::identity::caffeine::manifest::CaffeineChunkHash;
+    use ic_blob_storage_contracts::identity::caffeine::manifest::CaffeineChunkHash;
     let now = owner
         .lookup(context(5), input.request)
         .unwrap()
@@ -156,10 +160,12 @@ fn prepare(owner: &mut UploadAdmissions, input: &UploadPermission) {
             .as_slice(),
     )
     .unwrap()];
-    let headers = [crate::model::identity::caffeine::CaffeineHeader {
-        name: "Content-Length",
-        value: "10",
-    }];
+    let headers = [
+        ic_blob_storage_contracts::identity::caffeine::CaffeineHeader {
+            name: "Content-Length",
+            value: "10",
+        },
+    ];
     owner
         .prepare_manifest(
             context(5),
@@ -487,7 +493,7 @@ fn reference_boundary_checks_actual_project_service_namespace_and_catalog_bindin
         ),
         Err(UploadAdmissionError::Reference(CatalogError::Request(
             crate::model::lifecycle::requests::ReferenceRequestError::BindingMismatch(
-                crate::model::lifecycle::binding::ObjectBindingMismatch::Tenant
+                ic_blob_storage_contracts::binding::ObjectBindingMismatch::Tenant
             )
         )))
     );

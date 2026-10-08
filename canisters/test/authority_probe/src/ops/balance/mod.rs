@@ -200,7 +200,7 @@ fn scope_view(scope: ScopeRecord) -> BalanceScope {
 pub(crate) fn configure_limits(
     input: blob_test_protocol::billing::BillingLimitsInput,
 ) -> Result<(), Failure> {
-    let limits = ic_blob_storage::model::billing::FundingLimits::new(
+    let limits = ic_blob_storage_contracts::configuration::funding::FundingLimits::new(
         input.reserve,
         input.minimum,
         input.target,

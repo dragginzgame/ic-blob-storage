@@ -5,23 +5,29 @@ pub(crate) mod tenants;
 use crate::model::ConsumerRecord;
 use blob_test_protocol::consumer::{AssetView, Failure, Fault};
 use candid::{CandidType, Principal, de::DecoderConfig};
-use ic_blob_storage::{
-    dto::{
-        download::DownloadRequest,
-        reference::{ReferenceCommand, ReferenceReceiptLookup, ReferenceReceiptResponse},
-    },
-    ic_memory::{
-        GenericRangePolicy, MemoryManagerAuthorityRecord, MemoryManagerConfig,
-        MemoryManagerIdRange, MemoryManagerRangeMode, MemoryRequest, MemoryRuntime, RuntimeMemory,
-        SchemaMetadata, SealedDeclarationSnapshot, StaticMemoryRangeDeclaration,
-        ic_stable_structures::{DefaultMemoryImpl, Memory},
-    },
-    model::service::read::download::CaffeineDownloadScope,
-    ops::service::{
-        reads::download::{client::ReplicatedDownloadClient, reply::DownloadReplyLimits},
-        references::client::ReplicatedReferenceClient,
-    },
-};
+use ic_blob_storage::ic_memory::GenericRangePolicy;
+use ic_blob_storage::ic_memory::MemoryManagerAuthorityRecord;
+use ic_blob_storage::ic_memory::MemoryManagerConfig;
+use ic_blob_storage::ic_memory::MemoryManagerIdRange;
+use ic_blob_storage::ic_memory::MemoryManagerRangeMode;
+use ic_blob_storage::ic_memory::MemoryRequest;
+use ic_blob_storage::ic_memory::MemoryRuntime;
+use ic_blob_storage::ic_memory::RuntimeMemory;
+use ic_blob_storage::ic_memory::SchemaMetadata;
+use ic_blob_storage::ic_memory::SealedDeclarationSnapshot;
+use ic_blob_storage::ic_memory::StaticMemoryRangeDeclaration;
+use ic_blob_storage::ic_memory::ic_stable_structures::DefaultMemoryImpl;
+use ic_blob_storage::ic_memory::ic_stable_structures::Memory;
+use ic_blob_storage::ops::service::reads::download::client::ReplicatedDownloadClient;
+use ic_blob_storage::ops::service::references::client::ReplicatedReferenceClient;
+use ic_blob_storage::ops::service::uploads::admission::client::UploadAdmissionClientError;
+use ic_blob_storage_contracts::download::reply::DownloadReplyLimits;
+use ic_blob_storage_contracts::download::scope::CaffeineDownloadScope;
+use ic_blob_storage_contracts::dto::download::DownloadRequest;
+use ic_blob_storage_contracts::dto::reference::ReferenceCommand;
+use ic_blob_storage_contracts::dto::reference::ReferenceReceiptLookup;
+use ic_blob_storage_contracts::dto::reference::ReferenceReceiptResponse;
+use ic_blob_storage_contracts::upload::admission::reply::UploadAdmissionReplyError;
 use serde::Deserialize;
 use std::cell::{Cell, RefCell};
 const KEY: &str = "fixture.consumer.v1";
@@ -240,7 +246,7 @@ pub(crate) async fn hold() -> Result<(), Failure> {
 }
 
 fn admission_client(
-    permission: ic_blob_storage::dto::upload::admission::UploadAdmissionRequest,
+    permission: ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionRequest,
 ) -> ic_blob_storage::ops::service::uploads::admission::client::ReplicatedUploadAdmissionClient {
     ic_blob_storage::ops::service::uploads::admission::client::ReplicatedUploadAdmissionClient::new(
         ic_cdk::api::canister_self(),
@@ -250,26 +256,23 @@ fn admission_client(
     .expect("validated consumer configuration")
 }
 pub(crate) async fn admission_status(
-    permission: ic_blob_storage::dto::upload::admission::UploadAdmissionRequest,
-) -> Result<ic_blob_storage::dto::upload::admission::UploadAdmissionResponse, Failure> {
+    permission: ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionRequest,
+) -> Result<ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionResponse, Failure> {
     admission_client(permission)
         .inspect(permission, 4096.try_into().unwrap())
         .await
         .map_err(|_| Failure::Transport)
 }
 pub(crate) async fn admit(
-    permission: ic_blob_storage::dto::upload::admission::UploadAdmissionRequest,
+    permission: ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionRequest,
     max: u32,
 ) -> Result<
     Result<
-        ic_blob_storage::dto::upload::admission::UploadAdmissionResponse,
-        ic_blob_storage::dto::upload::admission::UploadAdmissionFailure,
+        ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionResponse,
+        ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionFailure,
     >,
     Failure,
 > {
-    use ic_blob_storage::ops::service::uploads::admission::{
-        client::UploadAdmissionClientError, reply::UploadAdmissionReplyError,
-    };
     let max = (max as usize).try_into().map_err(|_| Failure::Invalid)?;
     match admission_client(permission).admit(permission, max).await {
         Ok(response) => Ok(Ok(response.admission)),
@@ -281,18 +284,15 @@ pub(crate) async fn admit(
 }
 
 pub(crate) async fn revoke(
-    permission: ic_blob_storage::dto::upload::admission::UploadAdmissionRequest,
+    permission: ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionRequest,
     max: u32,
 ) -> Result<
     Result<
-        ic_blob_storage::dto::upload::admission::UploadAdmissionResponse,
-        ic_blob_storage::dto::upload::admission::UploadAdmissionFailure,
+        ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionResponse,
+        ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionFailure,
     >,
     Failure,
 > {
-    use ic_blob_storage::ops::service::uploads::admission::{
-        client::UploadAdmissionClientError, reply::UploadAdmissionReplyError,
-    };
     let max = (max as usize).try_into().map_err(|_| Failure::Invalid)?;
     match admission_client(permission).revoke(permission, max).await {
         Ok(response) => Ok(Ok(response.admission)),

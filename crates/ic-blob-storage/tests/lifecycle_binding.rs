@@ -1,21 +1,29 @@
 //! Native composition of trusted-context policy and scoped lifecycle mutations.
 //! This does not simulate IC caller authentication, storage or provider evidence.
 
+use ic_blob_storage_contracts::identity::ProviderRootHash;
 use std::num::{NonZeroU128, NonZeroUsize};
 
 use candid::Principal;
-use ic_blob_storage::{
-    model::lifecycle::{
-        BlobLifecycle, LifecycleChange, LifecycleError, ReferenceId,
-        binding::{ObjectBinding, ObjectBindingMismatch, ObjectIdentity, ReferenceKey},
-        requests::{
-            ReferenceOperation, ReferenceRequest, ReferenceRequestId, ReferenceRequestOutcome,
-            ReferenceRequests,
-        },
-        roots::{RootClaimError, RootClaimOutcome, RootClaims},
-    },
-    policy::tenant::{TenantAccessContext, TenantAccessError, assess_tenant_access},
-};
+use ic_blob_storage::model::lifecycle::BlobLifecycle;
+use ic_blob_storage::model::lifecycle::LifecycleChange;
+use ic_blob_storage::model::lifecycle::LifecycleError;
+use ic_blob_storage::model::lifecycle::requests::ReferenceRequestOutcome;
+use ic_blob_storage::model::lifecycle::requests::ReferenceRequests;
+use ic_blob_storage::model::lifecycle::roots::RootClaimError;
+use ic_blob_storage::model::lifecycle::roots::RootClaimOutcome;
+use ic_blob_storage::model::lifecycle::roots::RootClaims;
+use ic_blob_storage::policy::tenant::TenantAccessContext;
+use ic_blob_storage::policy::tenant::TenantAccessError;
+use ic_blob_storage::policy::tenant::assess_tenant_access;
+use ic_blob_storage_contracts::binding::ObjectBinding;
+use ic_blob_storage_contracts::binding::ObjectBindingMismatch;
+use ic_blob_storage_contracts::binding::ObjectIdentity;
+use ic_blob_storage_contracts::binding::ReferenceId;
+use ic_blob_storage_contracts::binding::ReferenceKey;
+use ic_blob_storage_contracts::reference::binding::ReferenceOperation;
+use ic_blob_storage_contracts::reference::binding::ReferenceRequest;
+use ic_blob_storage_contracts::reference::binding::ReferenceRequestId;
 
 fn p(id: u8) -> Principal {
     Principal::from_slice(&[id, 1])
@@ -46,12 +54,10 @@ fn blob() -> BlobLifecycle {
 
 #[test]
 fn reference_liveness_tracks_release_without_erasing_provider_obligations() {
-    use ic_blob_storage::{
-        model::{identity::ProviderRootHash, lifecycle::LifecyclePhase},
-        policy::liveness::{
-            ReferenceLivenessError, assess_reference_liveness, assess_reference_liveness_batch,
-        },
-    };
+    use ic_blob_storage::policy::liveness::ReferenceLivenessError;
+    use ic_blob_storage::policy::liveness::assess_reference_liveness;
+    use ic_blob_storage::policy::liveness::assess_reference_liveness_batch;
+    use ic_blob_storage_contracts::upload::history::LifecyclePhase;
 
     let first = key(binding());
     let second = ReferenceKey::new(binding(), ReferenceId::new(number(2)));
@@ -135,8 +141,6 @@ fn reference_liveness_tracks_release_without_erasing_provider_obligations() {
 
 #[test]
 fn delayed_root_callback_cannot_be_rebound_to_a_newer_pending_deletion() {
-    use ic_blob_storage::model::identity::ProviderRootHash;
-
     let root = ProviderRootHash::try_from([7; 32].as_slice()).expect("root");
     let mut claims = RootClaims::new(p(1), NonZeroUsize::new(1).expect("limit")).expect("service");
     claims

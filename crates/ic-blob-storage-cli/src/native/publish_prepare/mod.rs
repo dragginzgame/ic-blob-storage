@@ -2,8 +2,6 @@
 pub(super) mod batch;
 mod journal;
 mod progress;
-#[cfg(test)]
-mod tests;
 use super::{
     Failure,
     arguments::{Command, Options},
@@ -13,6 +11,9 @@ use super::{
 use candid::Principal;
 use serde_json::{Value, json};
 use std::{num::NonZeroU64, path::PathBuf, time::Duration};
+
+#[cfg(test)]
+mod tests;
 
 #[derive(Clone, Copy, Eq, PartialEq, serde::Serialize)]
 #[serde(rename_all = "snake_case")]

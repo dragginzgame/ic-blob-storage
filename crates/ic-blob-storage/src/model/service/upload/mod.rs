@@ -2,16 +2,17 @@
 //!
 //! No certificate, provider call, persistence or restoration
 //! occurs here. Hosts must durably commit exposure before returning a certificate.
+use ic_blob_storage_contracts::upload::binding::UploadContext;
+use ic_blob_storage_contracts::upload::binding::UploadPermission;
+
 use std::{collections::BTreeMap, num::NonZeroU64};
 
 use candid::Principal;
 use thiserror::Error;
 
 pub(crate) mod capacity;
-pub mod completion;
 pub mod content;
 pub mod download;
-pub mod issuer;
 pub(crate) mod record;
 pub(crate) mod validation;
 pub use capacity::UploadManifestLimit;
@@ -19,50 +20,26 @@ pub mod manifest;
 pub mod planning;
 pub use manifest::UploadManifestState;
 
-use super::{
-    configuration::ServiceConfiguration,
-    tenant::{TenantEnrollmentView, TenantEnrollments, TenantError, TenantUpdate},
-};
-use crate::model::{
-    catalog::{
-        CatalogError,
-        admission::{
-            UploadAdmission, UploadCatalog, UploadError, UploadPhase, UploadRequest,
-            UploadRequestId,
-        },
-    },
-    identity::{ProviderRootHash, caffeine::manifest::CaffeineManifestError},
-    lifecycle::{
-        LifecycleChange,
-        binding::ObjectBinding,
-        requests::{
-            ReferenceOperation, ReferenceReceiptView, ReferenceRequest, ReferenceRequestOutcome,
-        },
-    },
-};
-
-/// Authenticated execution context, supplied by the host rather than request data.
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub struct UploadContext {
-    /// Actual running service.
-    pub service: Principal,
-    /// Actual caller: operator for enrollment, project for admission/references,
-    /// uploader for exposure. No role is inferred from controller status.
-    pub actor: Principal,
-}
-
-/// Exact project-approved operation. No wildcard root, account or uploader exists.
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub struct UploadPermission {
-    /// Full tenant/service/namespace/object/reference identity, root and declared size.
-    /// A bounded manifest must be bound before local exposure.
-    pub request: UploadRequest,
-    /// Browser/session principal approved by the tenant project.
-    pub uploader: Principal,
-    /// Exclusive local certificate-issuance deadline in host nanoseconds.
-    /// Expiry cannot revoke an escaped certificate or release uncertain capacity.
-    pub expires_at_ns: u64,
-}
+use super::tenant::TenantEnrollments;
+use crate::model::catalog::CatalogError;
+use crate::model::catalog::admission::UploadAdmission;
+use crate::model::catalog::admission::UploadCatalog;
+use crate::model::catalog::admission::UploadError;
+use crate::model::catalog::admission::UploadPhase;
+use crate::model::lifecycle::LifecycleChange;
+use crate::model::lifecycle::requests::ReferenceReceiptView;
+use crate::model::lifecycle::requests::ReferenceRequestOutcome;
+use ic_blob_storage_contracts::binding::ObjectBinding;
+use ic_blob_storage_contracts::configuration::service::ServiceConfiguration;
+use ic_blob_storage_contracts::identity::ProviderRootHash;
+use ic_blob_storage_contracts::identity::caffeine::manifest::CaffeineManifestError;
+use ic_blob_storage_contracts::reference::binding::ReferenceOperation;
+use ic_blob_storage_contracts::reference::binding::ReferenceRequest;
+use ic_blob_storage_contracts::tenant::TenantEnrollmentView;
+use ic_blob_storage_contracts::tenant::TenantError;
+use ic_blob_storage_contracts::tenant::TenantUpdate;
+use ic_blob_storage_contracts::upload::binding::UploadRequest;
+use ic_blob_storage_contracts::upload::binding::UploadRequestId;
 
 /// Passive exact-operation observation; no result grants fresh certificate authority.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -526,7 +503,7 @@ pub enum UploadAdmissionError {
     Manifest(#[from] CaffeineManifestError),
     /// Service header syntax or declared-length binding failed.
     #[error(transparent)]
-    Metadata(#[from] manifest::UploadMetadataError),
+    Metadata(#[from] ic_blob_storage_contracts::upload::metadata::UploadMetadataError),
     /// Empty provider objects are outside the maintained content contract.
     #[error("empty provider objects are unsupported")]
     EmptyObject,

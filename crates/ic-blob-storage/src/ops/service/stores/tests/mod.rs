@@ -119,7 +119,7 @@ fn changed_funding_or_read_limits_reject_without_repairing_other_stores() {
     let restored = ServiceStores::open(memories(&m), config).unwrap();
     assert!(restored.uploads.is_fenced());
     assert!(restored.funding.is_fenced());
-    let context = crate::model::service::upload::UploadContext {
+    let context = ic_blob_storage_contracts::upload::binding::UploadContext {
         service: input.service,
         actor: input.operator,
     };

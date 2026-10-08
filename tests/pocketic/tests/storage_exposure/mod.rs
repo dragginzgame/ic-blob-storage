@@ -2,11 +2,11 @@ use super::*;
 mod certificate;
 mod snapshot;
 use blob_test_protocol::storage::exposure::{ExposureInput, ExposureOutcome, ExposureScenario};
-use ic_blob_storage::dto::upload::{
-    UploadState,
-    admission::{UploadAdmissionFailure as A, UploadAdmissionResponse},
-    exposure::{UploadExposureBlocker as B, UploadExposureFailure as E},
-};
+use ic_blob_storage_contracts::dto::upload::UploadState;
+use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionFailure as A;
+use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionResponse;
+use ic_blob_storage_contracts::dto::upload::exposure::UploadExposureBlocker as B;
+use ic_blob_storage_contracts::dto::upload::exposure::UploadExposureFailure as E;
 fn input(f: &Fixture, permission: Permission) -> ExposureInput {
     assert_eq!(permission.uploader, f.uploader);
     ExposureInput {

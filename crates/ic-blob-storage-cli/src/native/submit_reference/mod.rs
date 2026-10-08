@@ -6,11 +6,11 @@ use super::{
     signed_update::{DEADLINE_SECONDS, PreparedUpdate, SMALL_REPLY_BYTES, UpdateInput},
 };
 use candid::Principal;
-use ic_blob_storage::{
-    dto::reference::{ReferenceAction, ReferenceMutationResponse},
-    model::identity::ContentDigest,
-    ops::service::references::{REFERENCE_APPLY_METHOD, reply},
-};
+use ic_blob_storage_contracts::dto::reference::ReferenceAction;
+use ic_blob_storage_contracts::dto::reference::ReferenceMutationResponse;
+use ic_blob_storage_contracts::identity::ContentDigest;
+use ic_blob_storage_contracts::protocol::REFERENCE_APPLY_METHOD;
+use ic_blob_storage_contracts::reference::reply;
 use serde::Serialize;
 use serde_json::{Value, json};
 use std::path::PathBuf;

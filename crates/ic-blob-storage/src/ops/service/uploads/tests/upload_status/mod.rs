@@ -1,11 +1,11 @@
 use super::*;
-use crate::{
-    dto::{
-        reference::{ReferenceAction, ReferenceCommand, ReferenceUpload},
-        upload::{UploadState, UploadStatusFailure},
-    },
-    workflow::{references::apply, uploads::inspect},
-};
+use crate::workflow::references::apply;
+use crate::workflow::uploads::inspect;
+use ic_blob_storage_contracts::dto::reference::ReferenceAction;
+use ic_blob_storage_contracts::dto::reference::ReferenceCommand;
+use ic_blob_storage_contracts::dto::reference::ReferenceUpload;
+use ic_blob_storage_contracts::dto::upload::UploadState;
+use ic_blob_storage_contracts::dto::upload::UploadStatusFailure;
 fn wire(request: UploadRequest) -> ReferenceUpload {
     let object = request.object.first.object();
     let id = object.identity();

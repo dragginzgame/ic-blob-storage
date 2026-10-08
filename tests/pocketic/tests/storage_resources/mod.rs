@@ -9,12 +9,10 @@ use blob_test_protocol::{
         PopulationBatch, RestorationResources, STORAGE_PROBE_INPUT_BYTES, StorageProbeInstallation,
     },
 };
-use ic_blob_storage::{
-    dto::upload::manifest::{
-        UploadManifestFailure, UploadManifestInspection, UploadManifestResponse,
-    },
-    model::identity::caffeine::CAFFEINE_CHUNK_BYTES,
-};
+use ic_blob_storage_contracts::dto::upload::manifest::UploadManifestFailure;
+use ic_blob_storage_contracts::dto::upload::manifest::UploadManifestInspection;
+use ic_blob_storage_contracts::dto::upload::manifest::UploadManifestResponse;
+use ic_blob_storage_contracts::identity::caffeine::CAFFEINE_CHUNK_BYTES;
 use std::{fs::OpenOptions, io::Write, path::Path, time::Instant};
 
 pub(super) fn retain(directory: &Path, name: &str, value: &serde_json::Value) {

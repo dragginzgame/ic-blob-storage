@@ -4,18 +4,20 @@ pub(crate) mod callbacks;
 pub mod reply;
 pub mod revocation;
 pub mod sync;
-use crate::model::{
-    gateway::{
-        GatewayListError,
-        membership::{GatewayAddOutcome, GatewayMembership},
-        registry::{
-            GatewayRegistry, GatewayScope, GatewaySyncError, GatewaySyncToken, GatewaySyncView,
-            record::{GatewayRegistryRecord, MAX_MEMBERS},
-        },
-    },
-    service::{configuration::ServiceConfiguration, upload::UploadContext},
-};
+use crate::model::gateway::GatewayListError;
+use crate::model::gateway::membership::GatewayAddOutcome;
+use crate::model::gateway::membership::GatewayMembership;
+use crate::model::gateway::registry::GatewayRegistry;
+use crate::model::gateway::registry::GatewayScope;
+use crate::model::gateway::registry::GatewaySyncError;
+use crate::model::gateway::registry::GatewaySyncToken;
+use crate::model::gateway::registry::GatewaySyncView;
+use crate::model::gateway::registry::record::GatewayRegistryRecord;
+#[cfg(test)]
+use crate::model::gateway::registry::record::MAX_MEMBERS;
 use candid::Principal;
+use ic_blob_storage_contracts::configuration::service::ServiceConfiguration;
+use ic_blob_storage_contracts::upload::binding::UploadContext;
 use ic_memory::ic_stable_structures::{BTreeMap, Memory};
 use thiserror::Error;
 
@@ -216,10 +218,8 @@ impl<M: Memory> StableGatewayRegistry<M> {
 }
 
 pub(crate) fn validate_envelope(config: &ServiceConfiguration) -> Result<(), GatewayStoreError> {
-    if config.billing().gateway_limits().max_unique.get() > MAX_MEMBERS {
-        return Err(GatewayStoreError::UnsupportedEnvelope);
-    }
-    Ok(())
+    ic_blob_storage_contracts::configuration::envelope::validate_gateway_envelope(config)
+        .map_err(|_| GatewayStoreError::UnsupportedEnvelope)
 }
 /// Typed rejection; binary or stable-write failures trap separately.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Error)]

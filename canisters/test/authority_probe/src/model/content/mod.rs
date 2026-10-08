@@ -1,14 +1,11 @@
 //! Bounded local verification and checkpoints, without retaining complete files.
 use super::archive::ContentRecord;
 use blob_test_protocol::journey::JourneyVerification;
-use ic_blob_storage::model::identity::caffeine::manifest::verification::ordered::checkpoint::CaffeineVerificationCheckpointRecord;
-use ic_blob_storage::model::identity::{
-    ContentDigest,
-    caffeine::manifest::{
-        CaffeineChunkManifest, CaffeineManifestLimits,
-        verification::ordered::CaffeineOrderedChunkVerifier,
-    },
-};
+use ic_blob_storage_contracts::identity::ContentDigest;
+use ic_blob_storage_contracts::identity::caffeine::manifest::CaffeineChunkManifest;
+use ic_blob_storage_contracts::identity::caffeine::manifest::CaffeineManifestLimits;
+use ic_blob_storage_contracts::identity::caffeine::manifest::verification::ordered::CaffeineOrderedChunkVerifier;
+use ic_blob_storage_contracts::identity::caffeine::manifest::verification::ordered::checkpoint::CaffeineVerificationCheckpointRecord;
 use std::num::{NonZeroU64, NonZeroUsize};
 
 /// One fixture envelope for admission, journal bounds and reconstruction.
@@ -164,6 +161,6 @@ impl ContentSession {
 /// Explicit input to this integrity experiment, separate from catalog admission.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub(crate) struct ContentRequest {
-    pub upload: ic_blob_storage::model::catalog::admission::UploadRequest,
-    pub content: ic_blob_storage::model::identity::ContentDigest,
+    pub upload: ic_blob_storage_contracts::upload::binding::UploadRequest,
+    pub content: ic_blob_storage_contracts::identity::ContentDigest,
 }

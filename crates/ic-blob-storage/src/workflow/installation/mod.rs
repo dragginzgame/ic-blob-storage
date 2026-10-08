@@ -1,11 +1,10 @@
 //! Shared passive installation readback; hosts authenticate actual caller and service.
 pub mod recovery;
-use crate::{
-    dto::configuration::{HostConfigurationView, HostFailure},
-    model::service::upload::UploadContext,
-    ops::service::installation::ServiceInstallation,
-    policy::installation::may_inspect,
-};
+use crate::ops::service::installation::ServiceInstallation;
+use crate::policy::installation::may_inspect;
+use ic_blob_storage_contracts::dto::configuration::HostConfigurationView;
+use ic_blob_storage_contracts::dto::configuration::HostFailure;
+use ic_blob_storage_contracts::upload::binding::UploadContext;
 use ic_memory::ic_stable_structures::Memory;
 
 /// Inspect exact retained configuration as the installed operator, including after restore.

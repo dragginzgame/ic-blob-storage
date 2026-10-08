@@ -4,22 +4,14 @@
 //! the source's authority, service/provider namespace and freshness before using
 //! the list, and separately enforce revocation and recovery fences.
 
-use std::{collections::BTreeSet, num::NonZeroUsize};
+use ic_blob_storage_contracts::configuration::limits::GatewayListLimits;
+use std::collections::BTreeSet;
 
 use candid::Principal;
 use thiserror::Error;
 
 pub mod membership;
 pub mod registry;
-
-/// Explicit processing and membership limits; no deployment defaults are chosen.
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub struct GatewayListLimits {
-    /// Maximum input length, including duplicate principals.
-    pub max_entries: NonZeroUsize,
-    /// Maximum number of distinct principals retained after normalization.
-    pub max_unique: NonZeroUsize,
-}
 
 /// A nonempty validated gateway list in first-occurrence order.
 ///
@@ -147,6 +139,7 @@ pub enum GatewayListError {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::num::NonZeroUsize;
 
     fn p(id: u8) -> Principal {
         Principal::from_slice(&[id, 1])

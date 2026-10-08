@@ -1,23 +1,20 @@
 //! Conversion of proposed ingress and passive host facts, with no effect authority.
-use crate::{
-    dto::funding::assessment::{
-        FundingPreparationBlocker as D, FundingPreparationFailure as E, FundingPreparationRequest,
-        FundingPreparationResponse,
-    },
-    model::billing::journal::{FundingIntent, FundingIntentError, FundingJournalScope},
-    ops::service::{
-        funding::{FundingJournalError, summary::FundingJournalSummary},
-        operator::funding_status,
-    },
-    policy::billing::admission::{
-        evidence::{FundingAdmissionEvidence, FundingEvidenceBlocker},
-        journal::{FundingHostEvidence, FundingPreparationBlocker as B},
-    },
-};
+use crate::model::billing::journal::FundingIntent;
+use crate::model::billing::journal::FundingIntentError;
+use crate::model::billing::journal::FundingJournalScope;
+use crate::ops::service::funding::FundingJournalError;
+use crate::ops::service::funding::summary::FundingJournalSummary;
+use crate::ops::service::operator::funding_status;
+use crate::policy::billing::admission::evidence::FundingAdmissionEvidence;
+use crate::policy::billing::admission::evidence::FundingEvidenceBlocker;
+use crate::policy::billing::admission::journal::FundingHostEvidence;
+use crate::policy::billing::admission::journal::FundingPreparationBlocker as B;
+use ic_blob_storage_contracts::dto::funding::assessment::FundingPreparationBlocker as D;
+use ic_blob_storage_contracts::dto::funding::assessment::FundingPreparationFailure as E;
+use ic_blob_storage_contracts::dto::funding::assessment::FundingPreparationRequest;
+use ic_blob_storage_contracts::dto::funding::assessment::FundingPreparationResponse;
 use std::num::NonZeroU128;
 
-/// Canonical passive service query; linking exports no endpoint.
-pub const FUNDING_PREPARATION_METHOD: &str = "blob_funding_preparation_assessment";
 pub(crate) fn input(
     request: FundingPreparationRequest,
 ) -> Result<(FundingIntent, FundingHostEvidence), E> {

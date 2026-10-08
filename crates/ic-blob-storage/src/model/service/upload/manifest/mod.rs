@@ -1,14 +1,14 @@
 //! Bounded declarations for direct uploads; no file bytes or streaming hash state.
-mod metadata;
-pub use metadata::{UploadMetadataError, validate_upload_metadata};
 
-use super::{
-    LifecycleChange, UploadAdmissionError, UploadAdmissions, UploadContext, UploadRequest, key,
-};
-use crate::model::identity::caffeine::{
-    CaffeineHeader,
-    manifest::{CaffeineChunkHash, CaffeineChunkManifest},
-};
+use super::LifecycleChange;
+use super::UploadAdmissionError;
+use super::UploadAdmissions;
+use super::UploadRequest;
+use super::key;
+use ic_blob_storage_contracts::identity::caffeine::CaffeineHeader;
+use ic_blob_storage_contracts::identity::caffeine::manifest::CaffeineChunkHash;
+use ic_blob_storage_contracts::identity::caffeine::manifest::CaffeineChunkManifest;
+use ic_blob_storage_contracts::upload::binding::UploadContext;
 
 /// One retained declaration per lifetime permission, never a byte buffer.
 #[derive(Debug)]
@@ -95,7 +95,7 @@ pub(crate) fn validate(
     input: UploadManifest<'_>,
 ) -> Result<CaffeineChunkManifest, UploadAdmissionError> {
     let limits = config.manifest_limits();
-    validate_upload_metadata(
+    ic_blob_storage_contracts::upload::metadata::validate_upload_metadata(
         input.headers,
         request.object.bytes,
         limits.max_headers.get(),

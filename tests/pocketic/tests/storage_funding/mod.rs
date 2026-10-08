@@ -6,8 +6,8 @@ mod summary;
 mod transport;
 use blob_test_protocol::storage::funding::{Action, Allocation, Command, Intent, Phase};
 impl Fixture {
-    fn funding_scope(&self) -> ic_blob_storage::dto::operator::OperatorScope {
-        ic_blob_storage::dto::operator::OperatorScope {
+    fn funding_scope(&self) -> ic_blob_storage_contracts::dto::operator::OperatorScope {
+        ic_blob_storage_contracts::dto::operator::OperatorScope {
             service: self.service,
             cashier: self.operator,
             payment_account: self.service,
@@ -17,7 +17,7 @@ impl Fixture {
     fn funding_summary(
         &self,
         actor: Principal,
-        scope: ic_blob_storage::dto::operator::OperatorScope,
+        scope: ic_blob_storage_contracts::dto::operator::OperatorScope,
     ) -> Result<blob_test_protocol::storage::funding::summary::Summary, Failure> {
         self.harness
             .pic

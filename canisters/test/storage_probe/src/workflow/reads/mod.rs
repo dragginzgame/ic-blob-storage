@@ -8,15 +8,13 @@ use blob_test_protocol::{
     journey::readback::JourneyReadChunk,
     storage::{Failure, gateways::ReadSessionInput},
 };
-use ic_blob_storage::{
-    model::service::{read::session::ReadChunkTarget, upload::UploadContext},
-    ops::service::uploads::read::verification::ReadVerificationError,
-    workflow::reads::{
-        ReadAuthorityError,
-        chunk::{ReadChunkError, read_chunk},
-        sessions::ReadSessionWorkflowError,
-    },
-};
+use ic_blob_storage::model::service::read::session::ReadChunkTarget;
+use ic_blob_storage::ops::service::uploads::read::verification::ReadVerificationError;
+use ic_blob_storage::workflow::reads::ReadAuthorityError;
+use ic_blob_storage::workflow::reads::chunk::ReadChunkError;
+use ic_blob_storage::workflow::reads::chunk::read_chunk;
+use ic_blob_storage::workflow::reads::sessions::ReadSessionWorkflowError;
+use ic_blob_storage_contracts::upload::binding::UploadContext;
 fn authority_failure(error: ReadAuthorityError) -> Failure {
     match error {
         ReadAuthorityError::Registry(e) => callbacks::registry_failure(e),

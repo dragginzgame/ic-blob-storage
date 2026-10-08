@@ -1,14 +1,13 @@
 use super::{Failure, read};
 use candid::Principal;
-use ic_blob_storage::{
-    dto::{
-        funding::{
-            FundingHistoryCursor, FundingHistoryFailure, FundingHistoryRequest, FundingPhase,
-        },
-        operator::OperatorScope,
-    },
-    ops::service::funding::reply::{self, FundingHistoryReplyLimits, FundingReplyError},
-};
+use ic_blob_storage_contracts::dto::funding::FundingHistoryCursor;
+use ic_blob_storage_contracts::dto::funding::FundingHistoryFailure;
+use ic_blob_storage_contracts::dto::funding::FundingHistoryRequest;
+use ic_blob_storage_contracts::dto::funding::FundingPhase;
+use ic_blob_storage_contracts::dto::operator::OperatorScope;
+use ic_blob_storage_contracts::funding::reply;
+use ic_blob_storage_contracts::funding::reply::FundingHistoryReplyLimits;
+use ic_blob_storage_contracts::funding::reply::FundingReplyError;
 use serde::Deserialize;
 use serde_json::{Value, json};
 use std::path::Path;

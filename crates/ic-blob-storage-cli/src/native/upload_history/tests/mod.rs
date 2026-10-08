@@ -1,8 +1,8 @@
 use super::*;
-use ic_blob_storage::dto::{
-    reference::ReferenceUpload,
-    upload::history::{UploadHistoryCursor, UploadHistoryEntry, UploadHistoryPage},
-};
+use ic_blob_storage_contracts::dto::reference::ReferenceUpload;
+use ic_blob_storage_contracts::dto::upload::history::UploadHistoryCursor;
+use ic_blob_storage_contracts::dto::upload::history::UploadHistoryEntry;
+use ic_blob_storage_contracts::dto::upload::history::UploadHistoryPage;
 
 fn input() -> Input {
     Input {

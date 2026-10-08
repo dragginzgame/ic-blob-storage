@@ -7,14 +7,12 @@ pub mod discovery;
 pub mod exposure;
 pub mod history;
 pub mod manifests;
-use crate::{
-    dto::{
-        reference::ReferenceUpload,
-        upload::{UploadStatusFailure, UploadStatusResponse},
-    },
-    model::service::upload::UploadContext,
-    ops::service::uploads::{StableUploads, status},
-};
+use crate::ops::service::uploads::StableUploads;
+use crate::ops::service::uploads::status;
+use ic_blob_storage_contracts::dto::reference::ReferenceUpload;
+use ic_blob_storage_contracts::dto::upload::UploadStatusFailure;
+use ic_blob_storage_contracts::dto::upload::UploadStatusResponse;
+use ic_blob_storage_contracts::upload::binding::UploadContext;
 use ic_memory::ic_stable_structures::Memory;
 /// Inspect the actual tenant's original upload, including during suspension and
 /// restore fencing. Confirmed means the first reference was created historically;
@@ -27,7 +25,7 @@ pub fn inspect<M: Memory>(
     context: UploadContext,
     upload: ReferenceUpload,
 ) -> Result<UploadStatusResponse, UploadStatusFailure> {
-    let request = status::parse(context, upload)?;
+    let request = ic_blob_storage_contracts::upload::status::parse(context, upload)?;
     let view = uploads.lookup(context, request).map_err(status::failure)?;
     Ok(status::present(upload, view.phase, view.revoked))
 }

@@ -1,24 +1,25 @@
 //! One immutable installation and its four durable owners, within host-granted memory.
-mod configuration;
-use super::{
-    configuration::{ConfigurationInputError, validate_candidate},
-    stores::{ServiceMemories, ServiceStoreConfiguration, ServiceStoreError, ServiceStores},
-};
-use crate::{
-    dto::configuration::ServiceConfigurationInput,
-    model::service::{
-        installation::{InstallationBindingError, record::ConfigurationRecord},
-        read::download::{CaffeineDownloadScope, DownloadScopeError},
-        upload::{
-            completion::{CompletionAuthority, InvalidCompletionAuthority},
-            issuer::{InvalidUploadIssuerAuthority, UploadIssuerAuthority},
-        },
-    },
-};
+use super::configuration::ServiceConfigurationAdapterError;
+use super::stores::ServiceMemories;
+use super::stores::ServiceStoreConfiguration;
+use super::stores::ServiceStoreError;
+use super::stores::ServiceStores;
+use crate::model::service::installation::InstallationBindingError;
+use crate::model::service::installation::record::ConfigurationRecord;
 use candid::Principal;
+use ic_blob_storage_contracts::configuration::ServiceInstallationCandidate;
+use ic_blob_storage_contracts::download::scope::CaffeineDownloadScope;
+use ic_blob_storage_contracts::download::scope::DownloadScopeError;
+use ic_blob_storage_contracts::dto::configuration::ServiceConfigurationInput;
+use ic_blob_storage_contracts::upload::completion::CompletionAuthority;
+use ic_blob_storage_contracts::upload::completion::InvalidCompletionAuthority;
+use ic_blob_storage_contracts::upload::issuer::InvalidUploadIssuerAuthority;
+use ic_blob_storage_contracts::upload::issuer::UploadIssuerAuthority;
 use ic_memory::ic_stable_structures::{BTreeMap, Memory, Storable};
 use ic_memory::{MemoryRequest, SchemaMetadata, StaticMemoryDeclarationError};
 use thiserror::Error;
+
+mod configuration;
 
 /// Stable allocation key for the host-granted immutable installation record.
 /// It identifies the slot, not the frozen record layout or release. Preserve the
@@ -40,26 +41,6 @@ pub fn requests(authority: &str) -> Result<Vec<MemoryRequest>, StaticMemoryDecla
     Ok(requests)
 }
 
-/// Explicit installation data plus the compiled library release identity.
-/// No defaults, deployment, allocation or provider qualification are implied.
-#[derive(Clone, Copy, Debug)]
-pub struct ServiceInstallationCandidate<'a> {
-    /// Shared identity, resource and provider-economic configuration.
-    pub configuration: ServiceConfigurationInput,
-    /// Explicit provisioned project mapping; not inferred from payer/namespace.
-    pub project: &'a str,
-    /// Trusted whole-content verifier, independent of operator/controller roles.
-    pub completion_verifier: Principal,
-    /// Explicit trusted certificate uploader; no role is inferred from operator/controller.
-    pub trusted_uploader: Principal,
-    /// Frozen library release, normally `crate::LIBRARY_VERSION`; never an
-    /// ingress override on restore. Host artifact identity is separate.
-    pub release: &'a str,
-    /// Actual IC version observed in init; zero means an offline/native candidate
-    /// has no qualified platform anchor. Never accept this value from ingress.
-    pub platform_installation_version: u64,
-}
-
 /// Completely validated installation, produced before a host grants or opens memory.
 /// It contains no storage handle or activation authority.
 pub struct ValidatedServiceInstallation {
@@ -78,21 +59,14 @@ impl ValidatedServiceInstallation {
         actual_service: Principal,
         candidate: ServiceInstallationCandidate<'_>,
     ) -> Result<Self, ServiceInstallationError> {
-        let limits = validate_candidate(actual_service, candidate.configuration)?;
-        if candidate.release.is_empty()
-            || candidate.release.len() > 128
-            || candidate.release.trim() != candidate.release
-            || candidate.release.chars().any(char::is_control)
-        {
-            return Err(ServiceInstallationError::ReleaseIdentity);
-        }
-        let namespace = limits.service().bindings().namespace;
-        let download_scope =
-            CaffeineDownloadScope::new(actual_service, namespace, candidate.project)?;
-        let completion =
-            CompletionAuthority::new(actual_service, namespace, candidate.completion_verifier)?;
-        let issuer =
-            UploadIssuerAuthority::new(actual_service, namespace, candidate.trusted_uploader)?;
+        let input = ic_blob_storage_contracts::configuration::ValidatedInstallationInput::new(
+            actual_service,
+            candidate,
+        )?;
+        let limits = super::configuration::from_validated(input.configuration())?;
+        let completion = input.completion();
+        let issuer = input.issuer();
+        let download_scope = input.into_download_scope();
         let configuration = configuration::record(&candidate);
         if configuration.to_bytes().len() > 16_384 {
             return Err(ServiceInstallationError::RecordBound);
@@ -208,8 +182,10 @@ impl<M: Memory> ServiceInstallation<M> {
     /// Convert retained installation state for an already-authorized observer.
     /// Endpoint consumers should use the shared installation inspection workflow.
     #[must_use]
-    pub fn configuration_view(&self) -> crate::dto::configuration::HostConfigurationView {
-        crate::dto::configuration::HostConfigurationView {
+    pub fn configuration_view(
+        &self,
+    ) -> ic_blob_storage_contracts::dto::configuration::HostConfigurationView {
+        ic_blob_storage_contracts::dto::configuration::HostConfigurationView {
             configuration: self.configuration(),
             project: self.download_scope.project().to_owned(),
             completion_verifier: self.completion.verifier(),
@@ -239,7 +215,7 @@ impl<M: Memory> ServiceInstallation<M> {
     #[must_use]
     pub fn certificate_evidence(
         &self,
-        permission: crate::model::service::upload::UploadPermission,
+        permission: ic_blob_storage_contracts::upload::binding::UploadPermission,
         now: u64,
         durable_commit: bool,
     ) -> crate::policy::upload::exposure::UploadExposureHostEvidence {
@@ -323,7 +299,7 @@ pub enum ServiceInstallationError {
     Binding(#[from] InstallationBindingError),
     /// Shared candidate identity/resource validation failed.
     #[error(transparent)]
-    Configuration(#[from] ConfigurationInputError),
+    Configuration(#[from] ServiceConfigurationAdapterError),
     /// Explicit provider serving identity is invalid.
     #[error(transparent)]
     Project(#[from] DownloadScopeError),
@@ -336,6 +312,21 @@ pub enum ServiceInstallationError {
     /// A shared store could not be installed or restored under the immutable limits.
     #[error(transparent)]
     Stores(#[from] ServiceStoreError),
+}
+
+impl From<ic_blob_storage_contracts::configuration::InstallationInputError>
+    for ServiceInstallationError
+{
+    fn from(error: ic_blob_storage_contracts::configuration::InstallationInputError) -> Self {
+        use ic_blob_storage_contracts::configuration::InstallationInputError;
+        match error {
+            InstallationInputError::Configuration(error) => Self::Configuration(error.into()),
+            InstallationInputError::Download(error) => Self::Project(error),
+            InstallationInputError::Completion(error) => Self::Verifier(error),
+            InstallationInputError::Issuer(error) => Self::Issuer(error),
+            InstallationInputError::ReleaseIdentity => Self::ReleaseIdentity,
+        }
+    }
 }
 
 #[cfg(test)]

@@ -1,9 +1,10 @@
 use super::*;
 mod client;
-use ic_blob_storage::dto::download::{DownloadFailure, DownloadRequest, DownloadResponse};
-use ic_blob_storage::model::identity::{
-    ProviderRootHash, caffeine::verification::CaffeineRootVerifier,
-};
+use ic_blob_storage_contracts::dto::download::DownloadFailure;
+use ic_blob_storage_contracts::dto::download::DownloadRequest;
+use ic_blob_storage_contracts::dto::download::DownloadResponse;
+use ic_blob_storage_contracts::identity::ProviderRootHash;
+use ic_blob_storage_contracts::identity::caffeine::verification::CaffeineRootVerifier;
 impl Fixture {
     fn download(
         &self,

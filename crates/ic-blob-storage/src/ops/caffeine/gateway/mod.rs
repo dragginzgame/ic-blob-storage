@@ -82,9 +82,9 @@ mod tests {
     use std::num::NonZeroU128;
 
     use super::*;
-    use crate::model::gateway::{
-        GatewayListError, GatewayListLimits, membership::GatewayMembership,
-    };
+    use crate::model::gateway::GatewayListError;
+    use crate::model::gateway::membership::GatewayMembership;
+    use ic_blob_storage_contracts::configuration::limits::GatewayListLimits;
 
     fn n(value: usize) -> NonZeroUsize {
         NonZeroUsize::new(value).expect("positive bound")

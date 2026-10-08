@@ -1,16 +1,13 @@
 //! Authenticated fixture observer using the shared passive client; no extra journal.
 use blob_test_protocol::consumer::Failure;
 use candid::Principal;
-use ic_blob_storage::{
-    dto::{
-        funding::{
-            FundingHistoryPage, FundingHistoryRequest,
-            outcome::{FundingOutcomeRequest, FundingOutcomeResponse},
-        },
-        operator::OperatorScope,
-    },
-    ops::service::funding::{client::ReplicatedFundingClient, reply::FundingHistoryReplyLimits},
-};
+use ic_blob_storage::ops::service::funding::client::ReplicatedFundingClient;
+use ic_blob_storage_contracts::dto::funding::FundingHistoryPage;
+use ic_blob_storage_contracts::dto::funding::FundingHistoryRequest;
+use ic_blob_storage_contracts::dto::funding::outcome::FundingOutcomeRequest;
+use ic_blob_storage_contracts::dto::funding::outcome::FundingOutcomeResponse;
+use ic_blob_storage_contracts::dto::operator::OperatorScope;
+use ic_blob_storage_contracts::funding::reply::FundingHistoryReplyLimits;
 fn client(actor: Principal, scope: OperatorScope) -> Result<ReplicatedFundingClient, Failure> {
     super::read(actor, |r| {
         if r.service != scope.service {

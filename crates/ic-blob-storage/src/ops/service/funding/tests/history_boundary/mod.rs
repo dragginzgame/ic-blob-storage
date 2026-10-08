@@ -1,11 +1,9 @@
 use super::*;
-use crate::{
-    dto::{
-        funding::{FundingHistoryEntry, FundingHistoryRequest, FundingPhase},
-        operator::OperatorScope,
-    },
-    workflow::funding::history::inspect,
-};
+use crate::workflow::funding::history::inspect;
+use ic_blob_storage_contracts::dto::funding::FundingHistoryEntry;
+use ic_blob_storage_contracts::dto::funding::FundingHistoryRequest;
+use ic_blob_storage_contracts::dto::funding::FundingPhase;
+use ic_blob_storage_contracts::dto::operator::OperatorScope;
 
 #[test]
 fn shared_history_preserves_full_width_attachment_target_and_refund_without_writes() {

@@ -4,11 +4,10 @@ use blob_test_protocol::{
     status::FundingActivityView,
     storage::funding::{Allocation, summary::Summary},
 };
-use ic_blob_storage::{
-    dto::operator::OperatorScope, model::billing::journal::FundingJournalScope,
-    ops::service::funding::summary::FundingJournalSummary,
-    policy::billing::admission::FundingActivity,
-};
+use ic_blob_storage::model::billing::journal::FundingJournalScope;
+use ic_blob_storage::ops::service::funding::summary::FundingJournalSummary;
+use ic_blob_storage::policy::billing::admission::FundingActivity;
+use ic_blob_storage_contracts::dto::operator::OperatorScope;
 
 pub(crate) fn read(
     execution: UploadContext,

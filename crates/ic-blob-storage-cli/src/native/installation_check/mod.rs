@@ -1,16 +1,15 @@
 //! Offline complete candidate validation and init encoding; no platform or provider effect.
+
+use super::parsing::principal;
 use super::{Failure, artifacts::Run, exact_candid, read};
-use ic_blob_storage::{
-    dto::configuration::ServiceInstallationInput,
-    model::identity::ContentDigest,
-    ops::service::installation::{ServiceInstallationCandidate, ValidatedServiceInstallation},
-};
+use ic_blob_storage_contracts::configuration::ServiceInstallationCandidate;
+use ic_blob_storage_contracts::configuration::ValidatedInstallationInput;
+use ic_blob_storage_contracts::dto::configuration::ServiceInstallationInput;
+use ic_blob_storage_contracts::identity::ContentDigest;
 use serde_json::{Value, json};
 use std::path::Path;
 
 const CONFIGURATION_BYTES: usize = exact_candid::INSTALLATION_BYTES;
-
-use super::parsing::principal;
 
 pub(super) fn run(args: &[String]) -> Result<Value, Failure> {
     let mut flags = super::parsing::flags(&args[1..])?;
@@ -36,7 +35,7 @@ pub(super) fn run(args: &[String]) -> Result<Value, Failure> {
         platform_installation_version: 0,
     };
     // This is a proposed platform identity, not an authenticated actual host.
-    ValidatedServiceInstallation::new(service, candidate).map_err(|_| Failure::Arguments)?;
+    ValidatedInstallationInput::new(service, candidate).map_err(|_| Failure::Arguments)?;
     let input = ServiceInstallationInput {
         configuration,
         project: project.into(),

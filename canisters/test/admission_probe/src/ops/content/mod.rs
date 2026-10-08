@@ -5,27 +5,25 @@ use blob_test_protocol::admission::{
     ContentDescriptor, ContentLookup, ContentObservation, ContentState, Failure, Request,
     input::{RetainedDescriptor, RetainedDescriptorInput},
 };
-use ic_blob_storage::model::{
-    catalog::admission::read::UploadRootState,
-    identity::ProviderRootHash,
-    lifecycle::{
-        LifecyclePhase, ReferenceId,
-        binding::{ObjectBinding, ObjectIdentity, ReferenceKey},
-    },
-    service::upload::{
-        UploadContext,
-        content::{ContentLookup as ModelLookup, TenantContentView},
-        download::ContentDescriptorView,
-    },
-};
+use ic_blob_storage::model::service::upload::content::ContentLookup as ModelLookup;
+use ic_blob_storage::model::service::upload::content::TenantContentView;
+use ic_blob_storage::model::service::upload::download::ContentDescriptorView;
+use ic_blob_storage_contracts::binding::ObjectBinding;
+use ic_blob_storage_contracts::binding::ObjectIdentity;
+use ic_blob_storage_contracts::binding::ReferenceId;
+use ic_blob_storage_contracts::binding::ReferenceKey;
+use ic_blob_storage_contracts::identity::ProviderRootHash;
+use ic_blob_storage_contracts::upload::binding::UploadContext;
+use ic_blob_storage_contracts::upload::history::LifecyclePhase;
+use ic_blob_storage_contracts::upload::history::UploadRootState;
 use std::num::NonZeroU128;
 
 pub(crate) fn discover(
     context: UploadContext,
-    input: ic_blob_storage::dto::upload::discovery::UploadDiscoveryRequest,
+    input: ic_blob_storage_contracts::dto::upload::discovery::UploadDiscoveryRequest,
 ) -> Result<
-    ic_blob_storage::dto::upload::discovery::UploadDiscoveryResponse,
-    ic_blob_storage::dto::upload::discovery::UploadDiscoveryFailure,
+    ic_blob_storage_contracts::dto::upload::discovery::UploadDiscoveryResponse,
+    ic_blob_storage_contracts::dto::upload::discovery::UploadDiscoveryFailure,
 > {
     STATE.with_borrow(|state| {
         ic_blob_storage::workflow::uploads::discovery::inspect(

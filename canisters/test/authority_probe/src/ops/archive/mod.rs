@@ -13,17 +13,17 @@ use blob_test_protocol::{
     journey::{JourneyManifest, JourneyProgress, JourneyVerification},
 };
 use candid::Principal;
-use ic_blob_storage::model::{
-    catalog::{
-        BlobCatalog,
-        admission::{UploadCatalog, UploadPhase, UploadRequest},
-    },
-    lifecycle::{
-        LifecycleChange, LifecyclePhase, ReferenceId,
-        binding::ReferenceKey,
-        requests::{ReferenceOperation, ReferenceRequest, ReferenceRequestId},
-    },
-};
+use ic_blob_storage::model::catalog::BlobCatalog;
+use ic_blob_storage::model::catalog::admission::UploadCatalog;
+use ic_blob_storage::model::catalog::admission::UploadPhase;
+use ic_blob_storage::model::lifecycle::LifecycleChange;
+use ic_blob_storage_contracts::binding::ReferenceId;
+use ic_blob_storage_contracts::binding::ReferenceKey;
+use ic_blob_storage_contracts::reference::binding::ReferenceOperation;
+use ic_blob_storage_contracts::reference::binding::ReferenceRequest;
+use ic_blob_storage_contracts::reference::binding::ReferenceRequestId;
+use ic_blob_storage_contracts::upload::binding::UploadRequest;
+use ic_blob_storage_contracts::upload::history::LifecyclePhase;
 
 pub(super) fn open() {
     storage::open();
@@ -186,7 +186,7 @@ fn upload(catalog: ArchiveCatalog, owner: &UploadCatalog, request: UploadRequest
     let id = u8::try_from(identity.object.get()).expect("fixture object ID");
     assert_eq!(
         request.id,
-        ic_blob_storage::model::catalog::admission::UploadRequestId::new(number(u128::from(id)))
+        ic_blob_storage_contracts::upload::binding::UploadRequestId::new(number(u128::from(id)))
     );
     let phase = owner
         .phase(binding.tenant(), request)
@@ -218,8 +218,9 @@ fn upload(catalog: ArchiveCatalog, owner: &UploadCatalog, request: UploadRequest
 }
 
 fn confirmed(record: &mut ObjectRecord, owner: &BlobCatalog) {
-    let root = ic_blob_storage::model::identity::ProviderRootHash::try_from(record.root.as_slice())
-        .expect("root");
+    let root =
+        ic_blob_storage_contracts::identity::ProviderRootHash::try_from(record.root.as_slice())
+            .expect("root");
     let journal = owner.get(root).expect("confirmed object");
     let lifecycle = journal.lifecycle();
     let binding = lifecycle.binding();

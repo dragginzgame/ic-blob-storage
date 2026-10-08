@@ -5,7 +5,7 @@ use candid::{CandidType, Deserialize, Principal};
 #[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize)]
 pub struct DownloadClientInput {
     /// The maintained service request, shared rather than recreated in the fixture.
-    pub request: ic_blob_storage::dto::download::DownloadRequest,
+    pub request: ic_blob_storage_contracts::dto::download::DownloadRequest,
     /// Client's expected actual execution identity.
     pub tenant: Principal,
     /// Independently expected fixture project.
@@ -31,7 +31,7 @@ pub enum DownloadProbeFailure {
     /// Reply exceeds the application budget.
     Limit,
     /// Typed refusal from the service boundary.
-    Remote(ic_blob_storage::dto::download::DownloadFailure),
+    Remote(ic_blob_storage_contracts::dto::download::DownloadFailure),
 }
 /// Bounded operator input; root knowledge never supplies tenant/provider authority.
 #[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize)]

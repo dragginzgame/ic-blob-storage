@@ -1,6 +1,7 @@
 //! Real offline CLI output feeds the signed service commands; Rust only supplies local inputs.
 use super::*;
-use ic_blob_storage::model::identity::{ProviderRootHash, caffeine::manifest::CaffeineChunkHash};
+use ic_blob_storage_contracts::identity::ProviderRootHash;
+use ic_blob_storage_contracts::identity::caffeine::manifest::CaffeineChunkHash;
 
 pub(super) fn prepare(c: &Client, body: &[u8]) {
     let p = c.permission.permission;

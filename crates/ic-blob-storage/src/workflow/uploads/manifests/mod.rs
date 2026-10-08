@@ -1,15 +1,12 @@
 //! Shared declaration preparation/recovery; tenant and uploader roles stay distinct.
-use crate::{
-    dto::upload::{
-        admission::UploadAdmissionRequest,
-        manifest::{
-            UploadManifestFailure, UploadManifestMutation, UploadManifestRequest,
-            UploadManifestResponse,
-        },
-    },
-    model::service::upload::UploadContext,
-    ops::service::uploads::{StableUploads, manifests},
-};
+use crate::ops::service::uploads::StableUploads;
+use crate::ops::service::uploads::manifests;
+use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionRequest;
+use ic_blob_storage_contracts::dto::upload::manifest::UploadManifestFailure;
+use ic_blob_storage_contracts::dto::upload::manifest::UploadManifestMutation;
+use ic_blob_storage_contracts::dto::upload::manifest::UploadManifestRequest;
+use ic_blob_storage_contracts::dto::upload::manifest::UploadManifestResponse;
+use ic_blob_storage_contracts::upload::binding::UploadContext;
 use ic_memory::ic_stable_structures::Memory;
 /// Prepare as the actual admitted uploader after bounding ingress decoding. Raw
 /// declaration budgets precede conversion; the shared owner checks activation,

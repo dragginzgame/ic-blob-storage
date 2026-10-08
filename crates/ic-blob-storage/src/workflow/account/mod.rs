@@ -1,12 +1,13 @@
 //! One explicit passive provider observation, without local account state mutation.
-use crate::{
-    dto::account::{AccountInspectionFailure, AccountInspectionRequest, AccountInspectionResponse},
-    model::service::upload::UploadContext,
-    ops::{
-        caffeine::query::transport::{CashierQueryTransport, replicated::ReplicatedQueryError},
-        service::account::{self, AccountInspectionAccess, AccountInspectionLimits},
-    },
-};
+use crate::ops::caffeine::query::transport::CashierQueryTransport;
+use crate::ops::caffeine::query::transport::replicated::ReplicatedQueryError;
+use crate::ops::service::account;
+use crate::ops::service::account::AccountInspectionAccess;
+use crate::ops::service::account::AccountInspectionLimits;
+use ic_blob_storage_contracts::dto::account::AccountInspectionFailure;
+use ic_blob_storage_contracts::dto::account::AccountInspectionRequest;
+use ic_blob_storage_contracts::dto::account::AccountInspectionResponse;
+use ic_blob_storage_contracts::upload::binding::UploadContext;
 
 /// Authenticate the installed scope, send one canonical bounded read, then recheck
 /// the same owners before returning. Hosts keep configuration immutable across await.

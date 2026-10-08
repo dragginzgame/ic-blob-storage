@@ -193,8 +193,8 @@ fn headless_ingress_recovers_saved_request_without_reissuing_and_certifies_refus
     // A certified historical reply survives local withdrawal. It is not renewed
     // permission or authority to dispatch/retry a gateway upload.
     let revoked: Result<
-        ic_blob_storage::dto::upload::admission::UploadRevocationResponse,
-        ic_blob_storage::dto::upload::admission::UploadAdmissionFailure,
+        ic_blob_storage_contracts::dto::upload::admission::UploadRevocationResponse,
+        ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionFailure,
     > = h
         .fixture
         .harness

@@ -150,7 +150,8 @@ fn validate(value: Principal, field: CashierQueryPrincipal) -> Result<(), Cashie
 }
 
 mod wire {
-    use candid::{CandidType, Principal};
+    use candid::CandidType;
+    use candid::Principal;
 
     #[derive(CandidType)]
     pub(super) struct AccountGetRequest {

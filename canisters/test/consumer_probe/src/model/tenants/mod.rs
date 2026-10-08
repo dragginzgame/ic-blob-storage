@@ -2,7 +2,9 @@
 use super::ConsumerRecord;
 use blob_test_protocol::consumer::Failure;
 use candid::{CandidType, Principal};
-use ic_blob_storage::dto::tenant::{TenantEnrollment, TenantScope, TenantUpdateRequest};
+use ic_blob_storage_contracts::dto::tenant::TenantEnrollment;
+use ic_blob_storage_contracts::dto::tenant::TenantScope;
+use ic_blob_storage_contracts::dto::tenant::TenantUpdateRequest;
 use serde::Deserialize;
 
 #[derive(Clone, CandidType, Deserialize)]

@@ -9,10 +9,10 @@ pub mod journal;
 
 use std::num::NonZeroU128;
 
-use crate::{
-    model::billing::FundingLimits,
-    policy::billing::{FundingDecision, RecoveryState, assess_funding},
-};
+use crate::policy::billing::FundingDecision;
+use crate::policy::billing::RecoveryState;
+use crate::policy::billing::assess_funding;
+use ic_blob_storage_contracts::configuration::funding::FundingLimits;
 
 /// Outstanding funding activity for the bound service/provider account.
 ///

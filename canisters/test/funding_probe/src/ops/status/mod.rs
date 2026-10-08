@@ -13,19 +13,17 @@ use blob_test_protocol::{
     },
 };
 use candid::Principal;
-use ic_blob_storage::{
-    model::billing::transfer::FundingTransfer,
-    policy::{
-        billing::{
-            BillingBlocker, BillingWarning, RecoveryState, admission::FundingActivity,
-            reconciliation::FundingReconciliation,
-        },
-        diagnostics::{
-            BillingAssessment, OperatorBlocker, OperatorDiagnosis, OperatorObservation,
-            OperatorWarning,
-        },
-    },
-};
+use ic_blob_storage::policy::billing::BillingBlocker;
+use ic_blob_storage::policy::billing::BillingWarning;
+use ic_blob_storage::policy::billing::RecoveryState;
+use ic_blob_storage::policy::billing::admission::FundingActivity;
+use ic_blob_storage::policy::billing::reconciliation::FundingReconciliation;
+use ic_blob_storage::policy::diagnostics::BillingAssessment;
+use ic_blob_storage::policy::diagnostics::OperatorBlocker;
+use ic_blob_storage::policy::diagnostics::OperatorDiagnosis;
+use ic_blob_storage::policy::diagnostics::OperatorObservation;
+use ic_blob_storage::policy::diagnostics::OperatorWarning;
+use ic_blob_storage_contracts::funding::transfer::FundingTransfer;
 
 pub(crate) struct FundingSnapshot {
     budget: crate::model::budget::FundingBudgetSnapshot,

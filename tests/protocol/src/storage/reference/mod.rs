@@ -4,7 +4,7 @@ use candid::{CandidType, Deserialize, Principal};
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
 pub struct ReferenceClientInput {
     /// Exact shared service request.
-    pub request: ic_blob_storage::dto::reference::ReferenceCommand,
+    pub request: ic_blob_storage_contracts::dto::reference::ReferenceCommand,
     /// Expected executing tenant.
     pub tenant: Principal,
     /// Encoded response budget.
@@ -28,14 +28,14 @@ pub enum ReferenceProbeFailure {
     /// Reply budget exceeded.
     Limit,
     /// Authenticated lookup refusal.
-    Remote(ic_blob_storage::dto::reference::ReferenceFailure),
+    Remote(ic_blob_storage_contracts::dto::reference::ReferenceFailure),
 }
 
 /// Private trap injection on the same shared mutation handler as the canonical update.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
 pub struct ReferenceFaultInput {
     /// Exact maintained operation.
-    pub request: ic_blob_storage::dto::reference::ReferenceCommand,
+    pub request: ic_blob_storage_contracts::dto::reference::ReferenceCommand,
     /// Stable write at which the fixture traps.
     pub fault: super::WriteFault,
 }
@@ -44,7 +44,7 @@ pub struct ReferenceFaultInput {
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
 pub struct ReferenceStatusClientInput {
     /// Exact maintained lookup, with no mutation operation or action.
-    pub request: ic_blob_storage::dto::reference::status::ReferenceStatusRequest,
+    pub request: ic_blob_storage_contracts::dto::reference::status::ReferenceStatusRequest,
     /// Expected executing tenant canister.
     pub tenant: Principal,
     /// Maximum encoded reply bytes.

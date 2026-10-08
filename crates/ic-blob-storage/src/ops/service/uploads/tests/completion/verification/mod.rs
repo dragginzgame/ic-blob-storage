@@ -1,11 +1,8 @@
 use super::*;
-use crate::{
-    model::service::read::download::CaffeineDownloadScope,
-    ops::service::uploads::{
-        completion::verification::reply, manifests::reply::UploadManifestReplyLimits,
-    },
-    workflow::uploads::completion::verification_plan,
-};
+use crate::workflow::uploads::completion::verification_plan;
+use ic_blob_storage_contracts::download::scope::CaffeineDownloadScope;
+use ic_blob_storage_contracts::upload::completion::verification::reply;
+use ic_blob_storage_contracts::upload::manifests::reply::UploadManifestReplyLimits;
 #[test]
 fn verification_plan_binds_installed_provider_and_only_exposed_unfenced_work() {
     let m = memory();
@@ -20,7 +17,8 @@ fn verification_plan_binds_installed_provider_and_only_exposed_unfenced_work() {
         verification_plan(&store, authority(), &scope, context(9), permission),
         Err(UploadAttestationFailure::Phase)
     );
-    let model = admission::parse_binding(p(1), permission).unwrap();
+    let model =
+        ic_blob_storage_contracts::upload::admission::parse_binding(p(1), permission).unwrap();
     store.expose(context(5), model.request, 3).unwrap();
     for caller in [2, 4, 5] {
         assert_eq!(
@@ -69,7 +67,7 @@ fn verification_plan_binds_installed_provider_and_only_exposed_unfenced_work() {
 }
 #[test]
 fn verification_plan_decoder_checks_scope_declaration_and_budgets() {
-    use crate::ops::service::uploads::completion::reply::UploadAttestationReplyError as E;
+    use ic_blob_storage_contracts::upload::completion::reply::UploadAttestationReplyError as E;
     let manifest = manifest_boundary::input();
     let plan = UploadVerificationPlan {
         permission: manifest.permission,
@@ -81,12 +79,13 @@ fn verification_plan_decoder_checks_scope_declaration_and_budgets() {
     };
     let limits = UploadManifestReplyLimits {
         max_reply_bytes: 65536.try_into().unwrap(),
-        declaration: crate::model::identity::caffeine::manifest::CaffeineManifestLimits {
-            max_content_bytes: 10.try_into().unwrap(),
-            max_chunks: 1.try_into().unwrap(),
-            max_headers: 8.try_into().unwrap(),
-            max_header_bytes: 1024.try_into().unwrap(),
-        },
+        declaration:
+            ic_blob_storage_contracts::identity::caffeine::manifest::CaffeineManifestLimits {
+                max_content_bytes: 10.try_into().unwrap(),
+                max_chunks: 1.try_into().unwrap(),
+                max_headers: 8.try_into().unwrap(),
+                max_header_bytes: 1024.try_into().unwrap(),
+            },
     };
     let encoded = |p: &UploadVerificationPlan| {
         candid::encode_one(Ok::<_, UploadAttestationFailure>(p)).unwrap()

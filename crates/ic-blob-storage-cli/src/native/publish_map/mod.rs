@@ -3,25 +3,20 @@ use super::{
     Failure, arguments::Options, artifacts::Run, exact_candid, publish_check, publish_inputs,
 };
 use candid::Principal;
-use ic_blob_storage::{
-    dto::{
-        configuration::{HostConfigurationView, HostFailure, ServiceInstallationInput},
-        reference::status::ReferenceStatusRequest,
-        upload::completion::UploadAttestationLookup,
-    },
-    model::service::upload::completion::CompletionAuthority,
-    model::{identity::ProviderRootHash, service::read::download::CaffeineDownloadScope},
-    ops::{
-        caffeine::download::request_target,
-        service::{
-            references::{reply, status::REFERENCE_STATUS_METHOD},
-            uploads::{
-                capacity::UPLOAD_CAPACITY_METHOD,
-                completion::{UPLOAD_ATTESTATION_METHOD, reply as completion_reply},
-            },
-        },
-    },
-};
+use ic_blob_storage_contracts::download::scope::CaffeineDownloadScope;
+use ic_blob_storage_contracts::dto::configuration::HostConfigurationView;
+use ic_blob_storage_contracts::dto::configuration::HostFailure;
+use ic_blob_storage_contracts::dto::configuration::ServiceInstallationInput;
+use ic_blob_storage_contracts::dto::reference::status::ReferenceStatusRequest;
+use ic_blob_storage_contracts::dto::upload::completion::UploadAttestationLookup;
+use ic_blob_storage_contracts::identity::ProviderRootHash;
+use ic_blob_storage_contracts::protocol::REFERENCE_STATUS_METHOD;
+use ic_blob_storage_contracts::protocol::UPLOAD_ATTESTATION_METHOD;
+use ic_blob_storage_contracts::protocol::UPLOAD_CAPACITY_METHOD;
+use ic_blob_storage_contracts::provider::download::request_target;
+use ic_blob_storage_contracts::reference::reply;
+use ic_blob_storage_contracts::upload::completion::CompletionAuthority;
+use ic_blob_storage_contracts::upload::completion::reply as completion_reply;
 use serde_json::{Value, json};
 use std::{future::Future, path::PathBuf, time::Duration};
 use url::Url;
@@ -277,7 +272,7 @@ pub(in crate::native) fn decode_configuration(
         || host.project != installation.project
         || host.completion_verifier != installation.completion_verifier
         || host.trusted_uploader != installation.trusted_uploader
-        || host.release != ic_blob_storage::LIBRARY_VERSION
+        || host.release != ic_blob_storage_contracts::CONTRACT_VERSION
     {
         return Err(Failure::Binding);
     }
@@ -314,8 +309,8 @@ where
     ) {
         Ok(confirmation) => confirmation,
         Err(completion_reply::UploadAttestationReplyError::Remote(
-            ic_blob_storage::dto::upload::completion::UploadAttestationFailure::Permission(
-                ic_blob_storage::dto::upload::admission::UploadAdmissionFailure::Unknown,
+            ic_blob_storage_contracts::dto::upload::completion::UploadAttestationFailure::Permission(
+                ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionFailure::Unknown,
             ),
         )) => return Ok(Some("completion_unmatched")),
         Err(error) => return Err(super::attestation::failure(error)),
@@ -323,7 +318,7 @@ where
     if confirmation.fenced {
         return Ok(Some("fenced"));
     }
-    let digest: ic_blob_storage::model::identity::ContentDigest = format!("sha256:{digest}")
+    let digest: ic_blob_storage_contracts::identity::ContentDigest = format!("sha256:{digest}")
         .parse()
         .map_err(|_| Failure::Binding)?;
     match confirmation.attestation {

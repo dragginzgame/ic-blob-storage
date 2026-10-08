@@ -1,21 +1,15 @@
 //! Pure host composition: an independently restored owner cannot publish a late report.
 use super::*;
-use crate::{
-    dto::{account::*, operator::OperatorScope},
-    model::service::upload::UploadContext,
-    ops::{
-        caffeine::query::{
-            CashierQueryRequest,
-            transport::{
-                CashierQueryResponse, CashierQueryTransport, replicated::ReplicatedQueryError,
-            },
-        },
-        service::{
-            account::{AccountInspectionAccess, AccountInspectionLimits},
-            operator::OperatorStores,
-        },
-    },
-};
+use crate::ops::caffeine::query::CashierQueryRequest;
+use crate::ops::caffeine::query::transport::CashierQueryResponse;
+use crate::ops::caffeine::query::transport::CashierQueryTransport;
+use crate::ops::caffeine::query::transport::replicated::ReplicatedQueryError;
+use crate::ops::service::account::AccountInspectionAccess;
+use crate::ops::service::account::AccountInspectionLimits;
+use crate::ops::service::operator::OperatorStores;
+use ic_blob_storage_contracts::dto::account::*;
+use ic_blob_storage_contracts::dto::operator::OperatorScope;
+use ic_blob_storage_contracts::upload::binding::UploadContext;
 use std::{
     cell::{Cell, RefCell},
     future::Future,

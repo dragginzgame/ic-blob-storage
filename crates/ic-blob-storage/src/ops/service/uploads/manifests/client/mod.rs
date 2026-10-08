@@ -1,16 +1,14 @@
 //! Explicit canister uploader/observer transport; never an automatic retry or provider upload.
-use super::{
-    UPLOAD_MANIFEST_INSPECT_METHOD, UPLOAD_MANIFEST_PREPARE_METHOD,
-    reply::{self, UploadManifestReplyError, UploadManifestReplyLimits},
-};
-use crate::{
-    dto::upload::{
-        admission::UploadAdmissionRequest,
-        manifest::{UploadManifestMutation, UploadManifestRequest, UploadManifestResponse},
-    },
-    ops::service::uploads::admission,
-};
 use candid::Principal;
+use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionRequest;
+use ic_blob_storage_contracts::dto::upload::manifest::UploadManifestMutation;
+use ic_blob_storage_contracts::dto::upload::manifest::UploadManifestRequest;
+use ic_blob_storage_contracts::dto::upload::manifest::UploadManifestResponse;
+use ic_blob_storage_contracts::protocol::UPLOAD_MANIFEST_INSPECT_METHOD;
+use ic_blob_storage_contracts::protocol::UPLOAD_MANIFEST_PREPARE_METHOD;
+use ic_blob_storage_contracts::upload::manifests::reply;
+use ic_blob_storage_contracts::upload::manifests::reply::UploadManifestReplyError;
+use ic_blob_storage_contracts::upload::manifests::reply::UploadManifestReplyLimits;
 use ic_cdk::call::{Call, CallFailed};
 use std::num::NonZeroU32;
 use thiserror::Error;
@@ -78,7 +76,7 @@ impl ReplicatedUploadManifestClient {
         preparing: bool,
     ) -> Result<(), UploadManifestClientError> {
         self.binding(ic_cdk::api::canister_self(), input, preparing)?;
-        admission::parse_binding(self.service, input)
+        ic_blob_storage_contracts::upload::admission::parse_binding(self.service, input)
             .map_err(|_| UploadManifestReplyError::Invalid)?;
         if !ic_cdk::api::in_replicated_execution() {
             return Err(UploadManifestClientError::Execution);

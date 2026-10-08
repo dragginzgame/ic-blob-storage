@@ -4,7 +4,7 @@ pub(crate) mod resources;
 use crate::model::content::ContentRequest;
 use blob_test_protocol::journey::{JourneyFailure, readback::JourneyReadChunk};
 use candid::{Principal, de::DecoderConfig, decode_one_with_config};
-use ic_blob_storage::model::identity::caffeine::CAFFEINE_CHUNK_BYTES;
+use ic_blob_storage_contracts::identity::caffeine::CAFFEINE_CHUNK_BYTES;
 use ic_cdk::call::Call;
 
 pub(crate) fn begin(
@@ -59,7 +59,9 @@ pub(crate) fn finish(token: u64) -> Result<(), JourneyFailure> {
     })
 }
 
-pub(crate) fn arm_callback_trap(root: ic_blob_storage::model::identity::ProviderRootHash) -> bool {
+pub(crate) fn arm_callback_trap(
+    root: ic_blob_storage_contracts::identity::ProviderRootHash,
+) -> bool {
     super::mutate(|state| {
         if state.reads.busy()
             || state.armed_read_trap.is_some()

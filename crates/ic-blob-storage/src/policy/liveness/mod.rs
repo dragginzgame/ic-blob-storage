@@ -8,10 +8,9 @@ use std::num::NonZeroUsize;
 
 use thiserror::Error;
 
-use crate::model::lifecycle::{
-    BlobLifecycle,
-    binding::{ObjectBindingMismatch, ReferenceKey},
-};
+use crate::model::lifecycle::BlobLifecycle;
+use ic_blob_storage_contracts::binding::ObjectBindingMismatch;
+use ic_blob_storage_contracts::binding::ReferenceKey;
 
 use super::tenant::{TenantAccessContext, TenantAccessError, assess_tenant_access};
 
@@ -90,10 +89,9 @@ mod tests {
     use candid::Principal;
 
     use super::*;
-    use crate::model::lifecycle::{
-        ReferenceId,
-        binding::{ObjectBinding, ObjectIdentity},
-    };
+    use ic_blob_storage_contracts::binding::ObjectBinding;
+    use ic_blob_storage_contracts::binding::ObjectIdentity;
+    use ic_blob_storage_contracts::binding::ReferenceId;
 
     fn p(id: u8) -> Principal {
         Principal::from_slice(&[id, 1])

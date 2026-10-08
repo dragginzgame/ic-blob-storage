@@ -1,10 +1,11 @@
 use super::*;
-use crate::model::{
-    catalog::admission::read::UploadRootState,
-    lifecycle::roots::RootClaimError,
-    lifecycle::{LifecycleError, LifecyclePhase, requests::ReferenceRequestError},
-    service::upload::content::{ContentLookup, TenantContentView},
-};
+use crate::model::lifecycle::LifecycleError;
+use crate::model::lifecycle::requests::ReferenceRequestError;
+use crate::model::lifecycle::roots::RootClaimError;
+use crate::model::service::upload::content::ContentLookup;
+use crate::model::service::upload::content::TenantContentView;
+use ic_blob_storage_contracts::upload::history::LifecyclePhase;
+use ic_blob_storage_contracts::upload::history::UploadRootState;
 
 fn query(input: UploadPermission) -> ContentLookup {
     ContentLookup {

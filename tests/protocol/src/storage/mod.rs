@@ -51,7 +51,7 @@ pub enum WriteFault {
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
 pub struct FaultAdmission {
     /// Exact permission, without caller or clock override.
-    pub permission: ic_blob_storage::dto::upload::admission::UploadAdmissionRequest,
+    pub permission: ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionRequest,
     /// Write that traps within this IC update.
     pub fault: WriteFault,
 }
@@ -59,7 +59,7 @@ pub struct FaultAdmission {
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
 pub struct GrowthAdmission {
     /// Exact permission used for the storage-only retry.
-    pub permission: ic_blob_storage::dto::upload::admission::UploadAdmissionRequest,
+    pub permission: ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionRequest,
     /// Refuse the physical backing reservation after admission writes.
     pub refuse: bool,
 }
@@ -67,7 +67,7 @@ pub struct GrowthAdmission {
 #[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize)]
 pub struct FaultPreparation {
     /// Exact declaration to prepare.
-    pub preparation: ic_blob_storage::dto::upload::manifest::UploadManifestRequest,
+    pub preparation: ic_blob_storage_contracts::dto::upload::manifest::UploadManifestRequest,
     /// Write that traps within this IC update.
     pub fault: WriteFault,
 }

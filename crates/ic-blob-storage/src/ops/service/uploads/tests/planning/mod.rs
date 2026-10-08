@@ -1,19 +1,15 @@
 use super::*;
-use crate::{
-    model::{
-        catalog::admission::read::UploadRootState,
-        identity::{
-            HashParseError,
-            batch::{ProviderRootBatch, RootBatchLimits},
-        },
-        lifecycle::{
-            LifecyclePhase,
-            requests::{ReferenceOperation, ReferenceRequest, ReferenceRequestId},
-        },
-        service::upload::{content::ContentLookup, planning::AdmissionCapacityLookup},
-    },
-    ops::service::uploads::read::UploadRootObservation,
-};
+use crate::model::service::upload::content::ContentLookup;
+use crate::model::service::upload::planning::AdmissionCapacityLookup;
+use crate::ops::service::uploads::read::UploadRootObservation;
+use ic_blob_storage_contracts::identity::HashParseError;
+use ic_blob_storage_contracts::identity::batch::ProviderRootBatch;
+use ic_blob_storage_contracts::identity::batch::RootBatchLimits;
+use ic_blob_storage_contracts::reference::binding::ReferenceOperation;
+use ic_blob_storage_contracts::reference::binding::ReferenceRequest;
+use ic_blob_storage_contracts::reference::binding::ReferenceRequestId;
+use ic_blob_storage_contracts::upload::history::LifecyclePhase;
+use ic_blob_storage_contracts::upload::history::UploadRootState;
 use std::num::NonZeroUsize;
 
 fn scope() -> AdmissionCapacityLookup {

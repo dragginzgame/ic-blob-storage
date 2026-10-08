@@ -1,6 +1,6 @@
 use super::*;
 use crate::native::{execute, upload_inputs::tests as fixture};
-use ic_blob_storage::dto::configuration::ServiceInstallationInput;
+use ic_blob_storage_contracts::dto::configuration::ServiceInstallationInput;
 use std::fs;
 
 struct Trial {
@@ -19,9 +19,9 @@ impl Trial {
             binding["first_reference"] = json!((index + 5).to_string());
             let mut manifest = fixture::manifest();
             if index == 1 {
-                use ic_blob_storage::model::identity::caffeine::{
-                    CaffeineContentHasher, CaffeineHashLimits, CaffeineHeader,
-                };
+                use ic_blob_storage_contracts::identity::caffeine::CaffeineContentHasher;
+                use ic_blob_storage_contracts::identity::caffeine::CaffeineHashLimits;
+                use ic_blob_storage_contracts::identity::caffeine::CaffeineHeader;
                 let headers = [
                     CaffeineHeader {
                         name: "Content-Length",
@@ -145,7 +145,7 @@ fn serial_snapshots_bind_the_inventory_and_survive_source_change_without_overwri
     for name in ["file-0000", "file-0001"] {
         let directory = trial.output().join(name);
         assert_eq!(fs::read(directory.join("body.bin")).unwrap(), b"abc");
-        let permission: ic_blob_storage::dto::upload::admission::UploadAdmissionRequest =
+        let permission: ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionRequest =
             candid::decode_one(&fs::read(directory.join("permission.candid")).unwrap()).unwrap();
         assert_eq!(permission.upload.bytes, 3);
     }

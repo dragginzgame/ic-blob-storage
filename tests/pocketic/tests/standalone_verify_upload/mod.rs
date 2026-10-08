@@ -127,6 +127,6 @@ fn standalone_verify_upload_uses_signed_original_manifest_and_preserves_restore_
     assert!(f.configuration(f.operator).unwrap().fenced);
     assert_eq!(
         f.admission(permission).state,
-        ic_blob_storage::dto::upload::UploadState::Reserved
+        ic_blob_storage_contracts::dto::upload::UploadState::Reserved
     );
 }

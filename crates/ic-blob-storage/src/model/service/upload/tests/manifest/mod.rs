@@ -1,13 +1,16 @@
 use super::*;
-use crate::model::identity::caffeine::CaffeineHeader;
-use crate::model::identity::caffeine::manifest::{CaffeineChunkHash, CaffeineManifestError};
-use crate::model::service::upload::manifest::{UploadManifest, UploadMetadataError};
+use crate::model::service::upload::manifest::UploadManifest;
+use ic_blob_storage_contracts::identity::caffeine::CaffeineHeader;
+use ic_blob_storage_contracts::identity::caffeine::manifest::CaffeineChunkHash;
+use ic_blob_storage_contracts::identity::caffeine::manifest::CaffeineManifestError;
+use ic_blob_storage_contracts::upload::metadata::UploadMetadataError;
 
-const HEADERS: [crate::model::identity::caffeine::CaffeineHeader<'static>; 1] =
-    [crate::model::identity::caffeine::CaffeineHeader {
+const HEADERS: [ic_blob_storage_contracts::identity::caffeine::CaffeineHeader<'static>; 1] = [
+    ic_blob_storage_contracts::identity::caffeine::CaffeineHeader {
         name: "Content-Length",
         value: "10",
-    }];
+    },
+];
 
 fn leaf(input: UploadPermission) -> [CaffeineChunkHash; 1] {
     let n = u8::try_from(input.request.object.first.object().identity().object.get()).unwrap();
@@ -175,10 +178,14 @@ fn declared_length_is_not_a_verified_content_claim() {
 }
 
 fn invalid_metadata(huge: &str) -> Vec<(Vec<CaffeineHeader<'_>>, UploadMetadataError)> {
-    use UploadMetadataError::{
-        DuplicateHeader, HeaderBytes, HeaderCount, HeaderName, HeaderValue, LengthMismatch,
-        LengthRequired, NonCanonicalLength,
-    };
+    use UploadMetadataError::DuplicateHeader;
+    use UploadMetadataError::HeaderBytes;
+    use UploadMetadataError::HeaderCount;
+    use UploadMetadataError::HeaderName;
+    use UploadMetadataError::HeaderValue;
+    use UploadMetadataError::LengthMismatch;
+    use UploadMetadataError::LengthRequired;
+    use UploadMetadataError::NonCanonicalLength;
     let mut cases = vec![(vec![], LengthRequired)];
     for value in [
         "",

@@ -11,16 +11,12 @@ use crate::native::{
     read,
     upload_setup::manifest_reply_limits,
 };
-use ic_blob_storage::{
-    model::{
-        identity::{ContentDigest, ProviderRootHash},
-        service::read::download::CaffeineDownloadScope,
-    },
-    ops::{
-        caffeine::download::request_target,
-        service::uploads::completion::{reply::inspection_request, verification},
-    },
-};
+use ic_blob_storage_contracts::download::scope::CaffeineDownloadScope;
+use ic_blob_storage_contracts::identity::ContentDigest;
+use ic_blob_storage_contracts::identity::ProviderRootHash;
+use ic_blob_storage_contracts::provider::download::request_target;
+use ic_blob_storage_contracts::upload::completion::reply::inspection_request;
+use ic_blob_storage_contracts::upload::completion::verification;
 use serde::de::DeserializeOwned;
 use std::{collections::BTreeMap, path::Path};
 
@@ -145,7 +141,7 @@ impl Records {
         options: &Options,
         input: &Input,
         recovery: &Recovery,
-        verified: &ic_blob_storage::dto::upload::completion::UploadVerificationPlan,
+        verified: &ic_blob_storage_contracts::dto::upload::completion::UploadVerificationPlan,
     ) -> Result<url::Url, Failure> {
         let Self {
             plan,

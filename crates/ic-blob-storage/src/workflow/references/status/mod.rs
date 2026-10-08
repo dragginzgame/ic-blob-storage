@@ -1,12 +1,10 @@
 //! Passive exact-reference recovery inspection, including suspended and restored owners.
-use crate::{
-    dto::reference::{
-        ReferenceFailure,
-        status::{ReferenceStatusRequest, ReferenceStatusResponse},
-    },
-    model::service::upload::UploadContext,
-    ops::service::{references::status, uploads::StableUploads},
-};
+use crate::ops::service::references::status;
+use crate::ops::service::uploads::StableUploads;
+use ic_blob_storage_contracts::dto::reference::ReferenceFailure;
+use ic_blob_storage_contracts::dto::reference::status::ReferenceStatusRequest;
+use ic_blob_storage_contracts::dto::reference::status::ReferenceStatusResponse;
+use ic_blob_storage_contracts::upload::binding::UploadContext;
 use ic_memory::ic_stable_structures::Memory;
 
 /// Inspect current local liveness under one synchronous owner borrow.

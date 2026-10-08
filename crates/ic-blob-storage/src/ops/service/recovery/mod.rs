@@ -25,9 +25,9 @@ pub trait RecoveryInstallationAccess {
 #[must_use]
 pub fn failure(
     error: CurrentInstanceRecoveryError,
-) -> crate::dto::recovery::CurrentInstanceRecoveryFailure {
-    use crate::dto::recovery::CurrentInstanceRecoveryFailure as Output;
+) -> ic_blob_storage_contracts::dto::recovery::CurrentInstanceRecoveryFailure {
     use CurrentInstanceRecoveryError as Input;
+    use ic_blob_storage_contracts::dto::recovery::CurrentInstanceRecoveryFailure as Output;
     match error {
         Input::Denied => Output::Denied,
         Input::Binding => Output::Binding,

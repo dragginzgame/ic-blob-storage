@@ -68,7 +68,9 @@ pub(super) fn encode(input: AuditLogQuery) -> Result<Vec<u8>, CashierQueryError>
 }
 
 mod wire {
-    use super::{AuditLogEvent, CandidType, Principal};
+    use super::AuditLogEvent;
+    use super::CandidType;
+    use super::Principal;
 
     #[derive(CandidType)]
     pub(super) struct AuditLogDownloadRequest {

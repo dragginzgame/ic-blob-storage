@@ -1,8 +1,9 @@
 use super::Failure;
 use candid::{Principal, de::DecoderConfig, decode_one_with_config};
-use ic_blob_storage::dto::operator::{
-    LocalFundingStatus, LocalServiceStatus, LocalStatusFailure, OperatorScope,
-};
+use ic_blob_storage_contracts::dto::operator::LocalFundingStatus;
+use ic_blob_storage_contracts::dto::operator::LocalServiceStatus;
+use ic_blob_storage_contracts::dto::operator::LocalStatusFailure;
+use ic_blob_storage_contracts::dto::operator::OperatorScope;
 use serde_json::{Value, json};
 
 pub(super) fn decode(bytes: &[u8], scope: OperatorScope) -> Result<LocalServiceStatus, Failure> {

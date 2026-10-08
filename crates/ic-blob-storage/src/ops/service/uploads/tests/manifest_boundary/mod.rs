@@ -1,20 +1,14 @@
 use super::*;
-use crate::{
-    dto::{
-        reference::ReferenceUpload,
-        upload::{
-            admission::{UploadAdmissionFailure as A, UploadAdmissionRequest},
-            manifest::*,
-        },
-    },
-    ops::service::uploads::manifests::reply::{
-        self, UploadManifestReplyError as E, UploadManifestReplyLimits,
-    },
-    workflow::uploads::{
-        admission::admit,
-        manifests::{inspect, prepare},
-    },
-};
+use crate::workflow::uploads::admission::admit;
+use crate::workflow::uploads::manifests::inspect;
+use crate::workflow::uploads::manifests::prepare;
+use ic_blob_storage_contracts::dto::reference::ReferenceUpload;
+use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionFailure as A;
+use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionRequest;
+use ic_blob_storage_contracts::dto::upload::manifest::*;
+use ic_blob_storage_contracts::upload::manifests::reply;
+use ic_blob_storage_contracts::upload::manifests::reply::UploadManifestReplyError as E;
+use ic_blob_storage_contracts::upload::manifests::reply::UploadManifestReplyLimits;
 use std::num::NonZeroUsize;
 
 pub(super) fn input() -> UploadManifestRequest {
@@ -123,7 +117,7 @@ fn manifest_boundary_preserves_original_declaration_and_exact_permission_through
         prepare(&mut store, context(5), &input, 100),
         Err(UploadManifestFailure::Permission(A::Expired))
     );
-    let request = super::super::admission::parse(context(4), input.permission)
+    let request = ic_blob_storage_contracts::upload::admission::parse(context(4), input.permission)
         .unwrap()
         .request;
     store.revoke(context(4), request).unwrap();

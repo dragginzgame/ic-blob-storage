@@ -1,5 +1,6 @@
 use super::*;
-use ic_blob_storage::dto::funding::{FundingHistoryEntry, FundingHistoryPage};
+use ic_blob_storage_contracts::dto::funding::FundingHistoryEntry;
+use ic_blob_storage_contracts::dto::funding::FundingHistoryPage;
 
 fn scope() -> OperatorScope {
     OperatorScope {

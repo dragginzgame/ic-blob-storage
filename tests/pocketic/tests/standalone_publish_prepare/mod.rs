@@ -195,7 +195,7 @@ fn standalone_batch_prepare_keeps_distinct_file_journals_and_observes_both_manif
         );
         assert_eq!(
             fixture.admission(permission).state,
-            ic_blob_storage::dto::upload::UploadState::Reserved
+            ic_blob_storage_contracts::dto::upload::UploadState::Reserved
         );
         assert!(
             directory
@@ -299,7 +299,7 @@ fn standalone_indexed_prepare_persists_two_distinct_signed_claims_and_recovery_n
     assert_eq!(proxy.calls(), 2);
     assert_eq!(
         fixture.admission(permission).state,
-        ic_blob_storage::dto::upload::UploadState::Reserved
+        ic_blob_storage_contracts::dto::upload::UploadState::Reserved
     );
     assert_eq!(
         std::fs::read(

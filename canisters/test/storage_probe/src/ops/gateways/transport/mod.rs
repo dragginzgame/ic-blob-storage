@@ -2,18 +2,14 @@
 use super::{failure, scope};
 use crate::ops::{ProbeMemory, STATE, TRAP_WRITE};
 use blob_test_protocol::storage::{Failure, WriteFault, gateways::TransportInput};
-use ic_blob_storage::{
-    model::service::upload::UploadContext,
-    ops::{
-        caffeine::query::{
-            CashierQuery, CashierQueryRequest,
-            transport::{CashierQueryResponse, CashierQueryTransport},
-        },
-        service::gateways::{
-            StableGatewayRegistry, access::GatewayRegistryAccess, reply::GatewaySyncRequest,
-        },
-    },
-};
+use ic_blob_storage::ops::caffeine::query::CashierQuery;
+use ic_blob_storage::ops::caffeine::query::CashierQueryRequest;
+use ic_blob_storage::ops::caffeine::query::transport::CashierQueryResponse;
+use ic_blob_storage::ops::caffeine::query::transport::CashierQueryTransport;
+use ic_blob_storage::ops::service::gateways::StableGatewayRegistry;
+use ic_blob_storage::ops::service::gateways::access::GatewayRegistryAccess;
+use ic_blob_storage::ops::service::gateways::reply::GatewaySyncRequest;
+use ic_blob_storage_contracts::upload::binding::UploadContext;
 use std::num::NonZeroUsize;
 
 pub(crate) struct FixtureRegistry {

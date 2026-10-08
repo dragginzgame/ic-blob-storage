@@ -15,7 +15,7 @@ use candid::Principal;
 #[ic_cdk::update(decode_with = "ops::decode")]
 async fn fixture_funding_history(
     input: Box<blob_test_protocol::consumer::funding::FundingHistoryInspection>,
-) -> Result<ic_blob_storage::dto::funding::FundingHistoryPage, Failure> {
+) -> Result<ic_blob_storage_contracts::dto::funding::FundingHistoryPage, Failure> {
     workflow::funding::history(
         ic_cdk::api::msg_caller(),
         input.request,
@@ -26,7 +26,7 @@ async fn fixture_funding_history(
 #[ic_cdk::query(composite = true, decode_with = "ops::decode")]
 async fn fixture_query_funding(
     input: Box<blob_test_protocol::consumer::funding::FundingHistoryInspection>,
-) -> Result<ic_blob_storage::dto::funding::FundingHistoryPage, Failure> {
+) -> Result<ic_blob_storage_contracts::dto::funding::FundingHistoryPage, Failure> {
     workflow::funding::history(
         ic_cdk::api::msg_caller(),
         input.request,
@@ -36,32 +36,33 @@ async fn fixture_query_funding(
 }
 #[ic_cdk::update(decode_with = "ops::decode")]
 async fn fixture_funding_outcome(
-    input: ic_blob_storage::dto::funding::outcome::FundingOutcomeRequest,
-) -> Result<Option<ic_blob_storage::dto::funding::outcome::FundingOutcomeResponse>, Failure> {
+    input: ic_blob_storage_contracts::dto::funding::outcome::FundingOutcomeRequest,
+) -> Result<Option<ic_blob_storage_contracts::dto::funding::outcome::FundingOutcomeResponse>, Failure>
+{
     workflow::funding::outcome(ic_cdk::api::msg_caller(), input).await
 }
 
 #[ic_cdk::update(decode_with = "ops::decode")]
 async fn fixture_update_tenant(
     input: blob_test_protocol::consumer::TenantDispatch,
-) -> Result<ic_blob_storage::dto::tenant::TenantEnrollmentResponse, Failure> {
+) -> Result<ic_blob_storage_contracts::dto::tenant::TenantEnrollmentResponse, Failure> {
     workflow::tenants::update(ic_cdk::api::msg_caller(), input).await
 }
 #[ic_cdk::update(decode_with = "ops::decode")]
 async fn fixture_inspect_tenant(
-    scope: ic_blob_storage::dto::tenant::TenantScope,
-) -> Result<ic_blob_storage::dto::tenant::TenantEnrollmentResponse, Failure> {
+    scope: ic_blob_storage_contracts::dto::tenant::TenantScope,
+) -> Result<ic_blob_storage_contracts::dto::tenant::TenantEnrollmentResponse, Failure> {
     workflow::tenants::inspect(ic_cdk::api::msg_caller(), scope).await
 }
 #[ic_cdk::query(composite = true, decode_with = "ops::decode")]
 async fn fixture_query_tenant(
-    scope: ic_blob_storage::dto::tenant::TenantScope,
-) -> Result<ic_blob_storage::dto::tenant::TenantEnrollmentResponse, Failure> {
+    scope: ic_blob_storage_contracts::dto::tenant::TenantScope,
+) -> Result<ic_blob_storage_contracts::dto::tenant::TenantEnrollmentResponse, Failure> {
     workflow::tenants::inspect(ic_cdk::api::msg_caller(), scope).await
 }
 #[ic_cdk::query]
 fn fixture_tenant_command()
--> Result<Option<ic_blob_storage::dto::tenant::TenantUpdateRequest>, Failure> {
+-> Result<Option<ic_blob_storage_contracts::dto::tenant::TenantUpdateRequest>, Failure> {
     workflow::tenants::saved(ic_cdk::api::msg_caller())
 }
 #[ic_cdk::update(decode_with = "ops::decode")]
@@ -87,7 +88,7 @@ fn manifest_intent(id: u128) -> Result<ManifestIntentView, Failure> {
 #[ic_cdk::query(composite = true, decode_with = "ops::decode")]
 async fn query_manifest(
     id: u128,
-) -> Result<ic_blob_storage::dto::upload::manifest::UploadManifestResponse, Failure> {
+) -> Result<ic_blob_storage_contracts::dto::upload::manifest::UploadManifestResponse, Failure> {
     workflow::manifests::inspect(ic_cdk::api::msg_caller(), id).await
 }
 #[ic_cdk::init]

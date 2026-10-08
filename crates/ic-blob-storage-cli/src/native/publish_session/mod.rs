@@ -10,7 +10,7 @@ use crate::native::{
     publish_inputs::PreparedBatch, publish_map, publish_prepare, upload_inputs::digest,
 };
 use ic_agent::Agent;
-use ic_blob_storage::dto::configuration::ServiceInstallationInput;
+use ic_blob_storage_contracts::dto::configuration::ServiceInstallationInput;
 use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
 use std::{path::PathBuf, time::Duration};

@@ -1,8 +1,10 @@
 use super::*;
-use ic_blob_storage::dto::reference::{
-    ReferenceChange, ReferenceCommand, ReferenceFailure, ReferenceReceiptResponse,
-    ReferenceTransitionFailure, ReferenceUpload,
-};
+use ic_blob_storage_contracts::dto::reference::ReferenceChange;
+use ic_blob_storage_contracts::dto::reference::ReferenceCommand;
+use ic_blob_storage_contracts::dto::reference::ReferenceFailure;
+use ic_blob_storage_contracts::dto::reference::ReferenceReceiptResponse;
+use ic_blob_storage_contracts::dto::reference::ReferenceTransitionFailure;
+use ic_blob_storage_contracts::dto::reference::ReferenceUpload;
 
 fn request() -> ReferenceCommand {
     ReferenceCommand {

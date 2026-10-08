@@ -15,22 +15,23 @@ use std::{
 };
 
 use candid::Principal;
-use ic_blob_storage::model::{
-    catalog::{BlobCatalog, CatalogLimits, CatalogReferenceKey, ConfirmedObject},
-    gateway::{
-        GatewayListLimits,
-        membership::GatewayMembership,
-        registry::{GatewayRegistry, GatewayScope},
-    },
-    identity::ProviderRootHash,
-    lifecycle::{
-        ReferenceId,
-        binding::{ObjectBinding, ObjectIdentity, ReferenceKey},
-        requests::{
-            ReferenceOperation, ReferenceRequest, ReferenceRequestId, ReferenceRequestOutcome,
-        },
-    },
-};
+use ic_blob_storage::model::catalog::BlobCatalog;
+use ic_blob_storage::model::catalog::CatalogReferenceKey;
+use ic_blob_storage::model::catalog::ConfirmedObject;
+use ic_blob_storage::model::gateway::membership::GatewayMembership;
+use ic_blob_storage::model::gateway::registry::GatewayRegistry;
+use ic_blob_storage::model::gateway::registry::GatewayScope;
+use ic_blob_storage::model::lifecycle::requests::ReferenceRequestOutcome;
+use ic_blob_storage_contracts::binding::ObjectBinding;
+use ic_blob_storage_contracts::binding::ObjectIdentity;
+use ic_blob_storage_contracts::binding::ReferenceId;
+use ic_blob_storage_contracts::binding::ReferenceKey;
+use ic_blob_storage_contracts::configuration::limits::CatalogLimits;
+use ic_blob_storage_contracts::configuration::limits::GatewayListLimits;
+use ic_blob_storage_contracts::identity::ProviderRootHash;
+use ic_blob_storage_contracts::reference::binding::ReferenceOperation;
+use ic_blob_storage_contracts::reference::binding::ReferenceRequest;
+use ic_blob_storage_contracts::reference::binding::ReferenceRequestId;
 
 thread_local! {
     static STATE: RefCell<Option<State>> = const { RefCell::new(None) };

@@ -9,10 +9,9 @@ use candid::Principal;
 use thiserror::Error;
 
 use super::BlobCatalog;
-use crate::model::{
-    identity::ProviderRootHash,
-    lifecycle::{LifecyclePhase, binding::ObjectBinding},
-};
+use ic_blob_storage_contracts::binding::ObjectBinding;
+use ic_blob_storage_contracts::identity::ProviderRootHash;
+use ic_blob_storage_contracts::upload::history::LifecyclePhase;
 
 /// Independent budgets for inspected tenant history and returned obligations.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]

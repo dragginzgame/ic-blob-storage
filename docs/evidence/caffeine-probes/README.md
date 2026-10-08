@@ -14,6 +14,20 @@ maintained release and open work.
 [acceptance plan](../../acceptance-plan.md) ·
 [service gaps](../../service-gaps.md)
 
+## Runtime-free contract extraction — 2026-10-07
+
+The [intent](local/2026-10-07-contracts-0180-01/intent.json) bounds source review,
+Linux loopback HTTP and isolated PocketIC qualification of issue #27. All roles,
+projects and canisters are maintained synthetic fixtures. Live provider requests
+and paid cycles are zero. The extraction preserves wire/hash identities; these
+substitutes cannot establish deployed provider or native macOS behavior.
+Results and retained failed attempts are recorded in the
+[qualification record](../contracts-0180.md) and hash-bound
+[summary](local/2026-10-07-contracts-0180-01/summary.json). The maintained native
+qualification and successive isolated PocketIC runs execute **79** canister cases
+within the recorded budget. The final standalone interface is byte-exact against
+released 0.17.2; all external registry selections/checksums remain unchanged.
+
 ## Publication roots and native header observations — 2026-10-07
 
 The [intent](local/2026-10-07-publication-0172-01/intent.json), separate
@@ -3896,6 +3910,13 @@ That checksum check establishes artifact integrity, not scenario correctness or
 provider authenticity; rerunning the opt-in test establishes current local behavior.
 
 ## Run index
+
+`contracts-0180-01` / 2026-10-07: complete passive client/service contract
+extraction, Linux native HTTP substitutes and isolated PocketIC recovery.
+Final wire/hash identities are unchanged; 79 canister cases across retained
+stages, no paid/live effects. See the
+[summary](local/2026-10-07-contracts-0180-01/summary.json) and
+[migration inventory](../contracts-0180-inventory.json).
 
 `publication-0172-01` / 2026-10-07: source review and local HTTP/PocketIC evidence
 for duplicate fresh provider-root refusal, bounded parsed headers and exact

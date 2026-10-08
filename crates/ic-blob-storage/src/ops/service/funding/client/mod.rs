@@ -1,17 +1,15 @@
 //! Explicit replicated funding inspection; no attached cycles or mutation methods.
-use super::{
-    history::boundary::FUNDING_HISTORY_METHOD,
-    outcome::boundary::FUNDING_OUTCOME_METHOD,
-    reply::{self, FundingHistoryReplyLimits, FundingReplyError},
-};
-use crate::dto::{
-    funding::{
-        FundingHistoryPage, FundingHistoryRequest,
-        outcome::{FundingOutcomeRequest, FundingOutcomeResponse},
-    },
-    operator::OperatorScope,
-};
 use candid::Principal;
+use ic_blob_storage_contracts::dto::funding::FundingHistoryPage;
+use ic_blob_storage_contracts::dto::funding::FundingHistoryRequest;
+use ic_blob_storage_contracts::dto::funding::outcome::FundingOutcomeRequest;
+use ic_blob_storage_contracts::dto::funding::outcome::FundingOutcomeResponse;
+use ic_blob_storage_contracts::dto::operator::OperatorScope;
+use ic_blob_storage_contracts::funding::reply;
+use ic_blob_storage_contracts::funding::reply::FundingHistoryReplyLimits;
+use ic_blob_storage_contracts::funding::reply::FundingReplyError;
+use ic_blob_storage_contracts::protocol::FUNDING_HISTORY_METHOD;
+use ic_blob_storage_contracts::protocol::FUNDING_OUTCOME_METHOD;
 use ic_cdk::call::{Call, CallFailed};
 use std::num::{NonZeroU32, NonZeroUsize};
 use thiserror::Error;

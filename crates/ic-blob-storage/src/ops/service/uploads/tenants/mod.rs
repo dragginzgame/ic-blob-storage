@@ -1,25 +1,16 @@
 //! Enrollment authority, conversion and named endpoint contract over the shared owner.
 pub mod client;
-pub mod reply;
 use super::{StableUploads, UploadStoreError};
-use crate::{
-    dto::tenant::{
-        TenantEnrollment, TenantEnrollmentResponse, TenantFailure, TenantScope, TenantUpdateRequest,
-    },
-    model::service::{
-        tenant::{TenantEnrollmentView, TenantError, TenantUpdate},
-        upload::UploadContext,
-    },
-    ops::service::tenant::TenantStoreError,
-};
+use crate::ops::service::tenant::TenantStoreError;
 use candid::Principal;
+use ic_blob_storage_contracts::dto::tenant::TenantEnrollment;
+use ic_blob_storage_contracts::dto::tenant::TenantEnrollmentResponse;
+use ic_blob_storage_contracts::dto::tenant::TenantFailure;
+use ic_blob_storage_contracts::dto::tenant::TenantScope;
+use ic_blob_storage_contracts::tenant::TenantEnrollmentView;
+use ic_blob_storage_contracts::tenant::TenantError;
+use ic_blob_storage_contracts::upload::binding::UploadContext;
 use ic_memory::ic_stable_structures::Memory;
-use std::num::NonZeroU64;
-
-/// Explicit operator compare-and-set update; linking exports no endpoint.
-pub const TENANT_UPDATE_METHOD: &str = "blob_update_tenant";
-/// Scoped enrollment inspection for the operator or original tenant.
-pub const TENANT_INSPECTION_METHOD: &str = "blob_tenant";
 
 pub(crate) fn authorize<M: Memory>(
     store: &StableUploads<M>,
@@ -43,22 +34,6 @@ pub(crate) fn authorize<M: Memory>(
         return Err(TenantFailure::Invalid);
     }
     Ok(())
-}
-
-pub(crate) fn parse(input: TenantUpdateRequest) -> Result<TenantUpdate, TenantFailure> {
-    Ok(TenantUpdate {
-        tenant: input.scope.tenant,
-        expected: input
-            .expected
-            .map(|v| {
-                Ok(TenantEnrollmentView {
-                    generation: NonZeroU64::new(v.generation).ok_or(TenantFailure::Invalid)?,
-                    active: v.active,
-                })
-            })
-            .transpose()?,
-        active: input.active,
-    })
 }
 
 pub(crate) fn present(

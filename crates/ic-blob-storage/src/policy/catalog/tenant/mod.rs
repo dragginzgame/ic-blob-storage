@@ -9,25 +9,20 @@ use std::num::NonZeroUsize;
 
 use thiserror::Error;
 
-use crate::{
-    model::{
-        catalog::{
-            BlobCatalog, CatalogReferenceKey,
-            tenant::{
-                TenantObjectCursor, TenantObjectCursorError, TenantObjectPageLimits,
-                UnsettledObjectPage,
-            },
-        },
-        identity::ProviderRootHash,
-        lifecycle::{
-            binding::ObjectBindingMismatch,
-            requests::{
-                ReferenceReceiptView, ReferenceRequest, ReferenceRequestError, ReferenceRequests,
-            },
-        },
-    },
-    policy::tenant::{TenantAccessContext, TenantAccessError},
-};
+use crate::model::catalog::BlobCatalog;
+use crate::model::catalog::CatalogReferenceKey;
+use crate::model::catalog::tenant::TenantObjectCursor;
+use crate::model::catalog::tenant::TenantObjectCursorError;
+use crate::model::catalog::tenant::TenantObjectPageLimits;
+use crate::model::catalog::tenant::UnsettledObjectPage;
+use crate::model::lifecycle::requests::ReferenceReceiptView;
+use crate::model::lifecycle::requests::ReferenceRequestError;
+use crate::model::lifecycle::requests::ReferenceRequests;
+use crate::policy::tenant::TenantAccessContext;
+use crate::policy::tenant::TenantAccessError;
+use ic_blob_storage_contracts::binding::ObjectBindingMismatch;
+use ic_blob_storage_contracts::identity::ProviderRootHash;
+use ic_blob_storage_contracts::reference::binding::ReferenceRequest;
 
 /// Read references across the caller's objects and namespaces in input order.
 ///

@@ -19,29 +19,35 @@ use super::{
     roots::{RootStoreError, StableRootClaims},
     tenant::{StableTenantEnrollments, TenantStoreError},
 };
-use crate::model::{
-    catalog::admission::{
-        UploadAdmission, UploadError, UploadPhase, UploadRequest, UploadUsage,
-        capacity as admission_capacity,
-    },
-    lifecycle::{LifecycleChange, roots::RootClaimError},
-    service::{
-        configuration::ServiceConfiguration,
-        tenant::{TenantEnrollmentView, TenantError, TenantUpdate},
-        upload::{
-            UploadAdmissionError, UploadContext, UploadManifestState, UploadPermission,
-            UploadPermissionView,
-            manifest::{self, UploadManifest},
-            record::{
-                MANIFEST_BYTES, UploadConfigurationRecord, UploadManifestRecord,
-                UploadPermissionRecord, UploadStoreRecord, UploadUsageRecord,
-                lifecycle::{ConfirmedLifecycleRecord, ReferenceReceiptRecord, ReferenceRecord},
-            },
-            validation,
-        },
-    },
-};
+use crate::model::catalog::admission::UploadAdmission;
+use crate::model::catalog::admission::UploadError;
+use crate::model::catalog::admission::UploadPhase;
+use crate::model::catalog::admission::UploadUsage;
+use crate::model::catalog::admission::capacity as admission_capacity;
+use crate::model::lifecycle::LifecycleChange;
+use crate::model::lifecycle::roots::RootClaimError;
+use crate::model::service::upload::UploadAdmissionError;
+use crate::model::service::upload::UploadManifestState;
+use crate::model::service::upload::UploadPermissionView;
+use crate::model::service::upload::manifest;
+use crate::model::service::upload::manifest::UploadManifest;
+use crate::model::service::upload::record::UploadConfigurationRecord;
+use crate::model::service::upload::record::UploadManifestRecord;
+use crate::model::service::upload::record::UploadPermissionRecord;
+use crate::model::service::upload::record::UploadStoreRecord;
+use crate::model::service::upload::record::UploadUsageRecord;
+use crate::model::service::upload::record::lifecycle::ConfirmedLifecycleRecord;
+use crate::model::service::upload::record::lifecycle::ReferenceReceiptRecord;
+use crate::model::service::upload::record::lifecycle::ReferenceRecord;
+use crate::model::service::upload::validation;
 use candid::Principal;
+use ic_blob_storage_contracts::configuration::service::ServiceConfiguration;
+use ic_blob_storage_contracts::tenant::TenantEnrollmentView;
+use ic_blob_storage_contracts::tenant::TenantError;
+use ic_blob_storage_contracts::tenant::TenantUpdate;
+use ic_blob_storage_contracts::upload::binding::UploadContext;
+use ic_blob_storage_contracts::upload::binding::UploadPermission;
+use ic_blob_storage_contracts::upload::binding::UploadRequest;
 use ic_memory::ic_stable_structures::{BTreeMap, Memory};
 pub use lifecycle::ConfirmedUploadView;
 use std::num::NonZeroU64;

@@ -1,5 +1,39 @@
 //! Thin host composition; all tenant and blob transitions use shared workflows.
 use crate::ops;
+use ic_blob_storage::ops::service::operator::OperatorStores;
+use ic_blob_storage_contracts::dto::configuration::HostConfigurationView;
+use ic_blob_storage_contracts::dto::configuration::HostFailure;
+use ic_blob_storage_contracts::dto::funding::FundingHistoryFailure;
+use ic_blob_storage_contracts::dto::funding::FundingHistoryPage;
+use ic_blob_storage_contracts::dto::funding::FundingHistoryRequest;
+use ic_blob_storage_contracts::dto::funding::outcome::FundingOutcomeFailure;
+use ic_blob_storage_contracts::dto::funding::outcome::FundingOutcomeRequest;
+use ic_blob_storage_contracts::dto::funding::outcome::FundingOutcomeResponse;
+use ic_blob_storage_contracts::dto::operator::LocalServiceStatus;
+use ic_blob_storage_contracts::dto::operator::LocalStatusFailure;
+use ic_blob_storage_contracts::dto::operator::OperatorScope;
+use ic_blob_storage_contracts::dto::reference::ReferenceCommand;
+use ic_blob_storage_contracts::dto::reference::ReferenceFailure;
+use ic_blob_storage_contracts::dto::reference::ReferenceMutationResponse;
+use ic_blob_storage_contracts::dto::reference::ReferenceReceiptLookup;
+use ic_blob_storage_contracts::dto::tenant::TenantEnrollmentResponse;
+use ic_blob_storage_contracts::dto::tenant::TenantFailure;
+use ic_blob_storage_contracts::dto::tenant::TenantScope;
+use ic_blob_storage_contracts::dto::tenant::TenantUpdateRequest;
+use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionFailure;
+use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionMutation;
+use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionRequest;
+use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionResponse;
+use ic_blob_storage_contracts::dto::upload::admission::UploadRevocationResponse;
+use ic_blob_storage_contracts::dto::upload::history::UploadHistoryFailure;
+use ic_blob_storage_contracts::dto::upload::history::UploadHistoryPage;
+use ic_blob_storage_contracts::dto::upload::history::UploadHistoryRequest;
+use ic_blob_storage_contracts::dto::upload::manifest::UploadManifestFailure;
+use ic_blob_storage_contracts::dto::upload::manifest::UploadManifestMutation;
+use ic_blob_storage_contracts::dto::upload::manifest::UploadManifestRequest;
+use ic_blob_storage_contracts::dto::upload::manifest::UploadManifestResponse;
+use ic_blob_storage_contracts::upload::binding::UploadContext;
+
 pub(crate) async fn before_update() {
     if let Some(request) = ops::begin_update() {
         if let Ok(proof) = ic_blob_storage::ops::service::recovery::prove_current_instance(
@@ -16,7 +50,7 @@ pub(crate) async fn before_update() {
 }
 pub(crate) async fn resume_current_instance(
     context: UploadContext,
-) -> Result<(), ic_blob_storage::dto::recovery::CurrentInstanceRecoveryFailure> {
+) -> Result<(), ic_blob_storage_contracts::dto::recovery::CurrentInstanceRecoveryFailure> {
     ic_blob_storage::workflow::installation::recovery::resume_current_instance(
         &ops::RecoveryHost,
         context,
@@ -29,8 +63,8 @@ pub(crate) fn certificate_assessment(
     root: &str,
     now: u64,
 ) -> Result<
-    ic_blob_storage::dto::upload::certificate::UploadCertificateAssessmentResponse,
-    ic_blob_storage::dto::upload::exposure::UploadExposureFailure,
+    ic_blob_storage_contracts::dto::upload::certificate::UploadCertificateAssessmentResponse,
+    ic_blob_storage_contracts::dto::upload::exposure::UploadExposureFailure,
 > {
     ops::with_installation(|installation| {
         let stores = installation.stores();
@@ -55,10 +89,11 @@ pub(crate) fn certificate(
     root: &str,
     now: u64,
 ) -> Result<
-    ic_blob_storage::dto::upload::certificate::CaffeineUploadCertificateResponse,
+    ic_blob_storage_contracts::dto::upload::certificate::CaffeineUploadCertificateResponse,
     ic_blob_storage::workflow::uploads::certificate::UploadCertificateFailure,
 > {
-    use ic_blob_storage::workflow::uploads::certificate::{self, UploadCertificateFailure};
+    use ic_blob_storage::workflow::uploads::certificate;
+    use ic_blob_storage::workflow::uploads::certificate::UploadCertificateFailure;
     ops::with_certificate(|installation| {
         let permission = certificate::resolve(&installation.stores().uploads, context, root, now)
             .map_err(UploadCertificateFailure::Exposure)?;
@@ -75,10 +110,10 @@ pub(crate) fn certificate(
 }
 pub(crate) fn reference_capacity(
     context: UploadContext,
-    input: ic_blob_storage::dto::reference::capacity::ReferenceCapacityRequest,
+    input: ic_blob_storage_contracts::dto::reference::capacity::ReferenceCapacityRequest,
 ) -> Result<
-    ic_blob_storage::dto::reference::capacity::ReferenceCapacityResponse,
-    ic_blob_storage::dto::reference::capacity::ReferenceCapacityFailure,
+    ic_blob_storage_contracts::dto::reference::capacity::ReferenceCapacityResponse,
+    ic_blob_storage_contracts::dto::reference::capacity::ReferenceCapacityFailure,
 > {
     ops::read(|stores| {
         ic_blob_storage::workflow::references::capacity::inspect(&stores.uploads, context, input)
@@ -86,10 +121,10 @@ pub(crate) fn reference_capacity(
 }
 pub(crate) fn upload_capacity(
     context: UploadContext,
-    input: ic_blob_storage::dto::tenant::TenantScope,
+    input: ic_blob_storage_contracts::dto::tenant::TenantScope,
 ) -> Result<
-    ic_blob_storage::dto::upload::capacity::UploadCapacityResponse,
-    ic_blob_storage::dto::upload::capacity::UploadCapacityFailure,
+    ic_blob_storage_contracts::dto::upload::capacity::UploadCapacityResponse,
+    ic_blob_storage_contracts::dto::upload::capacity::UploadCapacityFailure,
 > {
     ops::read(|stores| {
         ic_blob_storage::workflow::uploads::capacity::inspect(&stores.uploads, context, input)
@@ -97,10 +132,10 @@ pub(crate) fn upload_capacity(
 }
 pub(crate) fn revoke_gateway(
     context: UploadContext,
-    input: ic_blob_storage::dto::gateway::GatewayRevocationRequest,
+    input: ic_blob_storage_contracts::dto::gateway::GatewayRevocationRequest,
 ) -> Result<
-    ic_blob_storage::dto::gateway::GatewayRevocationResponse,
-    ic_blob_storage::dto::gateway::GatewayRevocationFailure,
+    ic_blob_storage_contracts::dto::gateway::GatewayRevocationResponse,
+    ic_blob_storage_contracts::dto::gateway::GatewayRevocationFailure,
 > {
     ops::mutate(|stores| {
         ic_blob_storage::workflow::gateways::revocation::revoke(
@@ -110,39 +145,6 @@ pub(crate) fn revoke_gateway(
         )
     })
 }
-use ic_blob_storage::dto::funding::outcome::{
-    FundingOutcomeFailure, FundingOutcomeRequest, FundingOutcomeResponse,
-};
-use ic_blob_storage::dto::funding::{
-    FundingHistoryFailure, FundingHistoryPage, FundingHistoryRequest,
-};
-use ic_blob_storage::dto::upload::history::{
-    UploadHistoryFailure, UploadHistoryPage, UploadHistoryRequest,
-};
-use ic_blob_storage::{
-    dto::operator::{LocalServiceStatus, LocalStatusFailure, OperatorScope},
-    ops::service::operator::OperatorStores,
-};
-use ic_blob_storage::{
-    dto::{
-        configuration::{HostConfigurationView, HostFailure},
-        reference::{
-            ReferenceCommand, ReferenceFailure, ReferenceMutationResponse, ReferenceReceiptLookup,
-        },
-        tenant::{TenantEnrollmentResponse, TenantFailure, TenantScope, TenantUpdateRequest},
-        upload::{
-            admission::{
-                UploadAdmissionFailure, UploadAdmissionMutation, UploadAdmissionRequest,
-                UploadAdmissionResponse, UploadRevocationResponse,
-            },
-            manifest::{
-                UploadManifestFailure, UploadManifestMutation, UploadManifestRequest,
-                UploadManifestResponse,
-            },
-        },
-    },
-    model::service::upload::UploadContext,
-};
 pub(crate) fn history(
     context: UploadContext,
     input: UploadHistoryRequest,
@@ -161,7 +163,9 @@ pub(crate) fn history(
         )
     })
 }
-pub(crate) fn install(input: &ic_blob_storage::dto::configuration::ServiceInstallationInput) {
+pub(crate) fn install(
+    input: &ic_blob_storage_contracts::dto::configuration::ServiceInstallationInput,
+) {
     ops::install(input);
 }
 pub(crate) fn funding_history(
@@ -190,10 +194,10 @@ pub(crate) fn funding_outcome(
 }
 pub(crate) fn funding_assessment(
     context: UploadContext,
-    input: ic_blob_storage::dto::funding::assessment::FundingPreparationRequest,
+    input: ic_blob_storage_contracts::dto::funding::assessment::FundingPreparationRequest,
 ) -> Result<
-    ic_blob_storage::dto::funding::assessment::FundingPreparationResponse,
-    ic_blob_storage::dto::funding::assessment::FundingPreparationFailure,
+    ic_blob_storage_contracts::dto::funding::assessment::FundingPreparationResponse,
+    ic_blob_storage_contracts::dto::funding::assessment::FundingPreparationFailure,
 > {
     ops::read(|stores| {
         ic_blob_storage::workflow::funding::assessment::inspect(&stores.funding, context, input)
@@ -258,10 +262,10 @@ pub(crate) fn admission(
 }
 pub(crate) fn upload_status(
     context: UploadContext,
-    input: ic_blob_storage::dto::reference::ReferenceUpload,
+    input: ic_blob_storage_contracts::dto::reference::ReferenceUpload,
 ) -> Result<
-    ic_blob_storage::dto::upload::UploadStatusResponse,
-    ic_blob_storage::dto::upload::UploadStatusFailure,
+    ic_blob_storage_contracts::dto::upload::UploadStatusResponse,
+    ic_blob_storage_contracts::dto::upload::UploadStatusFailure,
 > {
     ops::read(|stores| ic_blob_storage::workflow::uploads::inspect(&stores.uploads, context, input))
 }
@@ -316,8 +320,8 @@ pub(crate) async fn sync_gateways(
     context: UploadContext,
     input: OperatorScope,
 ) -> Result<
-    ic_blob_storage::dto::gateway::sync::GatewaySyncResponse,
-    ic_blob_storage::dto::gateway::sync::GatewaySyncFailure,
+    ic_blob_storage_contracts::dto::gateway::sync::GatewaySyncResponse,
+    ic_blob_storage_contracts::dto::gateway::sync::GatewaySyncFailure,
 > {
     ic_blob_storage::workflow::gateways::sync::refresh(
         &ops::gateways::GatewayHost,
@@ -330,8 +334,8 @@ pub(crate) async fn sync_gateways(
 }
 pub(crate) fn cancel_gateway_sync(
     context: UploadContext,
-    input: ic_blob_storage::dto::gateway::sync::GatewaySyncCancellation,
-) -> Result<(), ic_blob_storage::dto::gateway::sync::GatewaySyncFailure> {
+    input: ic_blob_storage_contracts::dto::gateway::sync::GatewaySyncCancellation,
+) -> Result<(), ic_blob_storage_contracts::dto::gateway::sync::GatewaySyncFailure> {
     ops::mutate(|stores| {
         ic_blob_storage::workflow::gateways::sync::cancel(&mut stores.gateways, context, input)
     })
@@ -339,10 +343,10 @@ pub(crate) fn cancel_gateway_sync(
 
 pub(crate) fn discover(
     context: UploadContext,
-    input: ic_blob_storage::dto::upload::discovery::UploadDiscoveryRequest,
+    input: ic_blob_storage_contracts::dto::upload::discovery::UploadDiscoveryRequest,
 ) -> Result<
-    ic_blob_storage::dto::upload::discovery::UploadDiscoveryResponse,
-    ic_blob_storage::dto::upload::discovery::UploadDiscoveryFailure,
+    ic_blob_storage_contracts::dto::upload::discovery::UploadDiscoveryResponse,
+    ic_blob_storage_contracts::dto::upload::discovery::UploadDiscoveryFailure,
 > {
     ops::read(|stores| {
         ic_blob_storage::workflow::uploads::discovery::inspect(&stores.uploads, context, input)
@@ -351,10 +355,10 @@ pub(crate) fn discover(
 
 pub(crate) fn download(
     context: UploadContext,
-    input: ic_blob_storage::dto::download::DownloadRequest,
+    input: ic_blob_storage_contracts::dto::download::DownloadRequest,
 ) -> Result<
-    ic_blob_storage::dto::download::DownloadResponse,
-    ic_blob_storage::dto::download::DownloadFailure,
+    ic_blob_storage_contracts::dto::download::DownloadResponse,
+    ic_blob_storage_contracts::dto::download::DownloadFailure,
 > {
     ops::with_download(|uploads, scope| {
         ic_blob_storage::workflow::reads::download::handle(uploads, context, scope, input)
@@ -363,8 +367,11 @@ pub(crate) fn download(
 
 pub(crate) fn reference_status(
     context: UploadContext,
-    input: ic_blob_storage::dto::reference::status::ReferenceStatusRequest,
-) -> Result<ic_blob_storage::dto::reference::status::ReferenceStatusResponse, ReferenceFailure> {
+    input: ic_blob_storage_contracts::dto::reference::status::ReferenceStatusRequest,
+) -> Result<
+    ic_blob_storage_contracts::dto::reference::status::ReferenceStatusResponse,
+    ReferenceFailure,
+> {
     ops::read(|stores| {
         ic_blob_storage::workflow::references::status::inspect(&stores.uploads, context, input)
     })
@@ -372,15 +379,13 @@ pub(crate) fn reference_status(
 
 pub(crate) async fn inspect_account(
     context: UploadContext,
-    input: ic_blob_storage::dto::account::AccountInspectionRequest,
+    input: ic_blob_storage_contracts::dto::account::AccountInspectionRequest,
 ) -> Result<
-    ic_blob_storage::dto::account::AccountInspectionResponse,
-    ic_blob_storage::dto::account::AccountInspectionFailure,
+    ic_blob_storage_contracts::dto::account::AccountInspectionResponse,
+    ic_blob_storage_contracts::dto::account::AccountInspectionFailure,
 > {
-    use ic_blob_storage::{
-        dto::account::AccountInspectionFailure,
-        ops::caffeine::query::transport::replicated::account::ReplicatedAccountQuery,
-    };
+    use ic_blob_storage::ops::caffeine::query::transport::replicated::account::ReplicatedAccountQuery;
+    use ic_blob_storage_contracts::dto::account::AccountInspectionFailure;
     let transport = ReplicatedAccountQuery::new(
         input.scope.service,
         input.scope.cashier,
@@ -400,10 +405,10 @@ pub(crate) async fn inspect_account(
 
 pub(crate) fn attest(
     context: UploadContext,
-    input: &ic_blob_storage::dto::upload::completion::UploadAttestationRequest,
+    input: &ic_blob_storage_contracts::dto::upload::completion::UploadAttestationRequest,
 ) -> Result<
-    ic_blob_storage::dto::upload::completion::UploadAttestationMutation,
-    ic_blob_storage::dto::upload::completion::UploadAttestationFailure,
+    ic_blob_storage_contracts::dto::upload::completion::UploadAttestationMutation,
+    ic_blob_storage_contracts::dto::upload::completion::UploadAttestationFailure,
 > {
     ops::with_completion(|stores, authority| {
         ic_blob_storage::workflow::uploads::completion::attest(
@@ -419,8 +424,8 @@ pub(crate) fn attestation(
     context: UploadContext,
     input: UploadAdmissionRequest,
 ) -> Result<
-    ic_blob_storage::dto::upload::completion::UploadAttestationResponse,
-    ic_blob_storage::dto::upload::completion::UploadAttestationFailure,
+    ic_blob_storage_contracts::dto::upload::completion::UploadAttestationResponse,
+    ic_blob_storage_contracts::dto::upload::completion::UploadAttestationFailure,
 > {
     ops::with_completion(|stores, authority| {
         ic_blob_storage::workflow::uploads::completion::inspect(
@@ -450,8 +455,8 @@ pub(crate) fn verification_plan(
     context: UploadContext,
     input: UploadAdmissionRequest,
 ) -> Result<
-    ic_blob_storage::dto::upload::completion::UploadVerificationPlan,
-    ic_blob_storage::dto::upload::completion::UploadAttestationFailure,
+    ic_blob_storage_contracts::dto::upload::completion::UploadVerificationPlan,
+    ic_blob_storage_contracts::dto::upload::completion::UploadAttestationFailure,
 > {
     ops::with_verification(|uploads, authority, scope| {
         ic_blob_storage::workflow::uploads::completion::verification_plan(

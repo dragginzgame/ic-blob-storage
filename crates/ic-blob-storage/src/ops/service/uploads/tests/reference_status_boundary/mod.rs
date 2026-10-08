@@ -1,12 +1,12 @@
 use super::*;
-use crate::{
-    dto::reference::{
-        ReferenceFailure as F, ReferenceUpload,
-        status::{ReferenceStatusRequest, ReferenceStatusResponse},
-    },
-    model::lifecycle::requests::{ReferenceOperation, ReferenceRequest, ReferenceRequestId},
-    workflow::references::status::inspect,
-};
+use crate::workflow::references::status::inspect;
+use ic_blob_storage_contracts::dto::reference::ReferenceFailure as F;
+use ic_blob_storage_contracts::dto::reference::ReferenceUpload;
+use ic_blob_storage_contracts::dto::reference::status::ReferenceStatusRequest;
+use ic_blob_storage_contracts::dto::reference::status::ReferenceStatusResponse;
+use ic_blob_storage_contracts::reference::binding::ReferenceOperation;
+use ic_blob_storage_contracts::reference::binding::ReferenceRequest;
+use ic_blob_storage_contracts::reference::binding::ReferenceRequestId;
 
 fn request() -> ReferenceStatusRequest {
     ReferenceStatusRequest {
@@ -35,7 +35,7 @@ fn reserved() -> (
     let input = request();
     let mut permission = permission(1);
     permission.request =
-        crate::ops::service::references::parse_upload(context(4), input.upload).unwrap();
+        ic_blob_storage_contracts::reference::parse_upload(context(4), input.upload).unwrap();
     store.admit(context(4), permission, 1).unwrap();
     (store, m, permission)
 }

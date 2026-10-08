@@ -3,17 +3,14 @@ use super::*;
 use blob_test_protocol::consumer::{
     AssetView, Failure as ConsumerFailure, Fault, Registration, RegistrationSource, Revocation, Run,
 };
-use ic_blob_storage::{
-    dto::upload::{
-        admission::UploadAdmissionMutation,
-        manifest::{UploadManifestFailure, UploadManifestRequest},
-    },
-    model::identity::caffeine::manifest::CaffeineManifestLimits,
-    ops::{
-        caffeine::preparation::{PreparedManifestLimits, decode_prepared_manifest},
-        service::uploads::manifests::reply::{self, UploadManifestReplyLimits},
-    },
-};
+use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionMutation;
+use ic_blob_storage_contracts::dto::upload::manifest::UploadManifestFailure;
+use ic_blob_storage_contracts::dto::upload::manifest::UploadManifestRequest;
+use ic_blob_storage_contracts::identity::caffeine::manifest::CaffeineManifestLimits;
+use ic_blob_storage_contracts::provider::preparation::PreparedManifestLimits;
+use ic_blob_storage_contracts::provider::preparation::decode_prepared_manifest;
+use ic_blob_storage_contracts::upload::manifests::reply;
+use ic_blob_storage_contracts::upload::manifests::reply::UploadManifestReplyLimits;
 
 pub(super) fn install(f: &mut Fixture) {
     let consumer = f.harness.pic.create_canister_with_settings(

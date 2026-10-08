@@ -3,7 +3,7 @@ use super::{
     Memory, ProviderRootHash, ReferenceKey, RetainedUploadDescriptorView, StableUploads,
     UploadContext, UploadStoreError,
 };
-use crate::model::service::read::download::CaffeineDownloadScope;
+use ic_blob_storage_contracts::download::scope::CaffeineDownloadScope;
 use thiserror::Error;
 
 /// No operational descriptor can be disclosed for this request.

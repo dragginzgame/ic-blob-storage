@@ -9,15 +9,12 @@ use blob_test_protocol::storage::{
     Failure,
     funding::{Action, Allocation, Command, Intent, Phase},
 };
-use ic_blob_storage::{
-    model::{
-        billing::journal::{
-            FundingIntent, FundingIntentAdmission, FundingIntentState, FundingTransportOutcome,
-        },
-        service::upload::UploadContext,
-    },
-    ops::service::funding::FundingJournalError,
-};
+use ic_blob_storage::model::billing::journal::FundingIntent;
+use ic_blob_storage::model::billing::journal::FundingIntentAdmission;
+use ic_blob_storage::model::billing::journal::FundingIntentState;
+use ic_blob_storage::model::billing::journal::FundingTransportOutcome;
+use ic_blob_storage::ops::service::funding::FundingJournalError;
+use ic_blob_storage_contracts::upload::binding::UploadContext;
 use std::num::NonZeroU128;
 pub(crate) fn intent(input: Intent) -> Result<FundingIntent, Failure> {
     Ok(FundingIntent {

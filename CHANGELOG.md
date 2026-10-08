@@ -1,5 +1,30 @@
 # Changelog
 
+## [0.18.0]
+
+### Breaking
+
+- Extract `ic-blob-storage-contracts` as the single runtime-free owner of DTOs,
+  validated identities, method names, bounded request/reply codecs, content
+  verification and immutable installation inputs. Remove the former service Rust
+  paths without compatibility reexports. Service, CLI, examples and adapters now
+  depend downward; Candid and hash identities stay unchanged. Hosts must rebuild
+  with the new imports; service transitions remain retirement/reinstall only.
+  See [#27](https://github.com/dragginzgame/ic-blob-storage/issues/27) and the
+  [migration record](docs/evidence/contracts-0180.md).
+
+### Changed
+
+- Move offline preparation/verification examples and independent hash/account-link
+  fixtures with their contract owner. Check normal contracts/CLI dependency graphs
+  for service, CDK or Memory edges. Keep storage, mutation authority, accounting,
+  durable journals, recovery and provider dispatch in the service. Remove its
+  unused direct hashing dependency now owned by contracts.
+- Assemble and verify both extracted library packages with frozen external
+  selections. Explicit maintainer publication selects contracts before service
+  through standard Cargo. Advance local catalog requirements with the workspace
+  release transaction, preserving locked external selections and rollback.
+
 ## [0.17.2] - 2026-10-07
 
 ### Changed

@@ -1,13 +1,11 @@
 //! One authenticated passive service assessment, with no payment or balance inference.
 use super::{Failure, arguments::Options, query, reply};
 use candid::{de::DecoderConfig, decode_one_with_config};
-use ic_blob_storage::{
-    dto::funding::assessment::{
-        FundingPreparationBlocker as B, FundingPreparationFailure as E,
-        FundingPreparationRequest as Request, FundingPreparationResponse as Response,
-    },
-    ops::service::funding::assessment::FUNDING_PREPARATION_METHOD,
-};
+use ic_blob_storage_contracts::dto::funding::assessment::FundingPreparationBlocker as B;
+use ic_blob_storage_contracts::dto::funding::assessment::FundingPreparationFailure as E;
+use ic_blob_storage_contracts::dto::funding::assessment::FundingPreparationRequest as Request;
+use ic_blob_storage_contracts::dto::funding::assessment::FundingPreparationResponse as Response;
+use ic_blob_storage_contracts::protocol::FUNDING_PREPARATION_METHOD;
 use serde_json::{Value, json};
 
 fn decode(request: Request, bytes: &[u8]) -> Result<Response, Failure> {

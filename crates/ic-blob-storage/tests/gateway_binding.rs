@@ -3,18 +3,19 @@
 use std::num::{NonZeroU128, NonZeroUsize};
 
 use candid::Principal;
-use ic_blob_storage::{
-    model::{
-        gateway::{
-            GatewayListLimits,
-            membership::GatewayMembership,
-            registry::{GatewayRegistry, GatewayScope, GatewaySyncError},
-        },
-        lifecycle::binding::{ObjectBinding, ObjectIdentity},
-    },
-    ops::caffeine::gateway::{GatewayReplyError, GatewayReplyLimits, apply_gateway_sync_reply},
-    policy::gateway::{GatewayAccessError, GatewayCallbackContext, assess_gateway_callback},
-};
+use ic_blob_storage::model::gateway::membership::GatewayMembership;
+use ic_blob_storage::model::gateway::registry::GatewayRegistry;
+use ic_blob_storage::model::gateway::registry::GatewayScope;
+use ic_blob_storage::model::gateway::registry::GatewaySyncError;
+use ic_blob_storage::ops::caffeine::gateway::GatewayReplyError;
+use ic_blob_storage::ops::caffeine::gateway::GatewayReplyLimits;
+use ic_blob_storage::ops::caffeine::gateway::apply_gateway_sync_reply;
+use ic_blob_storage::policy::gateway::GatewayAccessError;
+use ic_blob_storage::policy::gateway::GatewayCallbackContext;
+use ic_blob_storage::policy::gateway::assess_gateway_callback;
+use ic_blob_storage_contracts::binding::ObjectBinding;
+use ic_blob_storage_contracts::binding::ObjectIdentity;
+use ic_blob_storage_contracts::configuration::limits::GatewayListLimits;
 
 fn p(value: u8) -> Principal {
     Principal::from_slice(&[value, 1])

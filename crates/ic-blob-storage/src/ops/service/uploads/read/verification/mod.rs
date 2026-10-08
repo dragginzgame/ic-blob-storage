@@ -1,9 +1,8 @@
 //! Verify one leaf from its already admitted immutable manifest; no tree rebuild.
 use super::{Memory, StableUploads, UploadContext, UploadStoreError, key};
-use crate::model::{
-    identity::caffeine::manifest::{CaffeineChunkRange, CaffeineManifestError},
-    service::read::ReadTarget,
-};
+use crate::model::service::read::ReadTarget;
+use ic_blob_storage_contracts::identity::caffeine::manifest::CaffeineChunkRange;
+use ic_blob_storage_contracts::identity::caffeine::manifest::CaffeineManifestError;
 use thiserror::Error;
 /// Trusted manifest state or exact returned bytes were rejected.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Error)]
@@ -33,7 +32,11 @@ impl<M: Memory> StableUploads<M> {
         let (range, leaf) = record
             .read_leaf(content.request.object.bytes, index)
             .ok_or(UploadStoreError::InvalidRecord)?;
-        crate::model::identity::caffeine::manifest::verify_leaf(leaf, range.bytes, bytes)?;
+        ic_blob_storage_contracts::identity::caffeine::manifest::verify_leaf(
+            leaf,
+            range.bytes,
+            bytes,
+        )?;
         Ok(range)
     }
 }

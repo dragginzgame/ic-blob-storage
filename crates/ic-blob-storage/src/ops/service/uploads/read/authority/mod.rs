@@ -15,7 +15,7 @@ impl<M: Memory> StableUploads<M> {
             return Ok(None);
         };
         let bytes = view.request.object.bytes;
-        let chunk = crate::model::identity::caffeine::CAFFEINE_CHUNK_BYTES as u64;
+        let chunk = ic_blob_storage_contracts::identity::caffeine::CAFFEINE_CHUNK_BYTES as u64;
         let Some(offset) = index.checked_mul(chunk).filter(|offset| *offset < bytes) else {
             return Ok(None);
         };

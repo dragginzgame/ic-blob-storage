@@ -2,7 +2,7 @@
 use super::Allocation;
 use crate::status::FundingActivityView;
 use candid::{CandidType, Deserialize};
-use ic_blob_storage::dto::operator::OperatorScope;
+use ic_blob_storage_contracts::dto::operator::OperatorScope;
 
 /// Fixed-size operator observation without scanning or paging intent history.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]

@@ -1,14 +1,14 @@
 //! Current-instance restoration retains obligations and requires independent IC history.
 use super::*;
-use ic_blob_storage::dto::{
-    account::{
-        AccountInspectionFailure, AccountInspectionKind, AccountInspectionRequest,
-        AccountInspectionResponse,
-    },
-    gateway::{GatewayRevocationFailure, GatewayRevocationRequest, GatewayRevocationResponse},
-    operator::LocalServiceStatus,
-};
-use ic_blob_storage::ops::service::gateways::revocation::GATEWAY_REVOCATION_METHOD;
+use ic_blob_storage_contracts::dto::account::AccountInspectionFailure;
+use ic_blob_storage_contracts::dto::account::AccountInspectionKind;
+use ic_blob_storage_contracts::dto::account::AccountInspectionRequest;
+use ic_blob_storage_contracts::dto::account::AccountInspectionResponse;
+use ic_blob_storage_contracts::dto::gateway::GatewayRevocationFailure;
+use ic_blob_storage_contracts::dto::gateway::GatewayRevocationRequest;
+use ic_blob_storage_contracts::dto::gateway::GatewayRevocationResponse;
+use ic_blob_storage_contracts::dto::operator::LocalServiceStatus;
+use ic_blob_storage_contracts::protocol::GATEWAY_REVOCATION_METHOD;
 
 fn fences(status: &LocalServiceStatus, expected: bool) {
     assert_eq!(status.uploads.fenced, expected);
@@ -99,7 +99,7 @@ fn stop_start_and_repeated_upgrade_preserve_installation_and_all_owner_fences() 
     );
     assert_eq!(
         f.resume(f.controller),
-        Err(ic_blob_storage::dto::recovery::CurrentInstanceRecoveryFailure::Denied)
+        Err(ic_blob_storage_contracts::dto::recovery::CurrentInstanceRecoveryFailure::Denied)
     );
     f.resume(f.operator).unwrap();
     assert_eq!(f.configuration(f.operator).unwrap(), installation);
@@ -179,7 +179,7 @@ fn current_instance_recovery_refuses_expired_platform_history_without_rotating_a
     let before = f.harness.pic.get_stable_memory(f.service);
     assert_eq!(
         f.resume(f.operator),
-        Err(ic_blob_storage::dto::recovery::CurrentInstanceRecoveryFailure::IncompleteHistory)
+        Err(ic_blob_storage_contracts::dto::recovery::CurrentInstanceRecoveryFailure::IncompleteHistory)
     );
     let mut expected = installation;
     expected.fenced = true;
@@ -193,7 +193,7 @@ fn current_instance_recovery_refuses_expired_platform_history_without_rotating_a
 
 #[test]
 fn current_instance_recovery_rejects_management_change_during_history_await() {
-    use ic_blob_storage::dto::recovery::CurrentInstanceRecoveryFailure;
+    use ic_blob_storage_contracts::dto::recovery::CurrentInstanceRecoveryFailure;
     let f = Fixture::new();
     f.upgrade(candid::encode_args(()).unwrap()).unwrap();
     let message = f
@@ -222,12 +222,10 @@ fn current_instance_recovery_rejects_management_change_during_history_await() {
 }
 
 pub(super) fn confirm_and_release_locally(f: &Fixture) {
-    use ic_blob_storage::dto::upload::{
-        certificate::CaffeineUploadCertificateResponse,
-        completion::{
-            UploadAttestationFailure, UploadAttestationMutation, UploadAttestationRequest,
-        },
-    };
+    use ic_blob_storage_contracts::dto::upload::certificate::CaffeineUploadCertificateResponse;
+    use ic_blob_storage_contracts::dto::upload::completion::UploadAttestationFailure;
+    use ic_blob_storage_contracts::dto::upload::completion::UploadAttestationMutation;
+    use ic_blob_storage_contracts::dto::upload::completion::UploadAttestationRequest;
     f.enroll(f.operator).unwrap();
     let manifest = f.small_manifest();
     f.harness
@@ -247,7 +245,7 @@ pub(super) fn confirm_and_release_locally(f: &Fixture) {
         .update_candid_as(
             f.service,
             f.uploader,
-            ic_blob_storage::workflow::uploads::certificate::CAFFEINE_UPLOAD_CERTIFICATE_METHOD,
+            ic_blob_storage_contracts::protocol::CAFFEINE_UPLOAD_CERTIFICATE_METHOD,
             (super::standalone_certificate::root(&manifest),),
         )
         .unwrap();

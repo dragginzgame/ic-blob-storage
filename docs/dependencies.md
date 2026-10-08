@@ -4,6 +4,28 @@
 
 # Dependency setup
 
+## Runtime-free contracts — pending 0.18.0
+
+Issue [#27](https://github.com/dragginzgame/ic-blob-storage/issues/27) adds the
+canonical `ic-blob-storage-contracts` owner under `crates/`. The service and native
+CLI depend downward; preparation/verification example targets and their independent
+hash/account-link fixtures move to that package. Normal contracts/CLI graphs across
+all targets exclude CDK, Memory and the service package. The native effectful
+PocketIC harness and canister adapters retain their service edge intentionally.
+
+All 12 members inherit workspace 0.17.2 while pending notes target the public Rust
+path hard cut at 0.18.0. The extraction preserved its original registry graph;
+the 2026-10-08 incoming lock separately selects Memory 0.31.2, Testkit 0.21.3 and
+TOML patches. The sanity cleanup preserves those selections while removing only
+the obsolete direct service-to-`sha2` edge; hashing remains contract-owned.
+Current library/adapter lint and Rust 1.88 checks pass. The existing Testkit 0.21.2
+PocketIC/native-host evidence does not qualify 0.21.3; prepare the exact locked
+cache before that next check. The paired library packages share one root catalog
+requirement/version transaction, Cargo packaging and explicit ordered publication
+selection. See the [migration and qualification record](evidence/contracts-0180.md)
+for old/new paths and limits. Cross-release service retirement/reinstallation and
+native macOS qualification remain separate; no build-time or size gain is measured.
+
 ## Quick setup
 
 For ordinary development from the repository root:

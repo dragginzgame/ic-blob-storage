@@ -1,16 +1,12 @@
 use super::*;
-use crate::{
-    dto::operator::OperatorScope,
-    model::{
-        billing::journal::FundingIntent,
-        service::{tenant::TenantUpdate, upload::UploadContext},
-    },
-    ops::service::{
-        configuration::{tests::candidate, validate_candidate},
-        stores::ServiceStores,
-    },
-    workflow::operator::inspect,
-};
+use crate::model::billing::journal::FundingIntent;
+use crate::ops::service::configuration::tests::candidate;
+use crate::ops::service::configuration::validate_candidate;
+use crate::ops::service::stores::ServiceStores;
+use crate::workflow::operator::inspect;
+use ic_blob_storage_contracts::dto::operator::OperatorScope;
+use ic_blob_storage_contracts::tenant::TenantUpdate;
+use ic_blob_storage_contracts::upload::binding::UploadContext;
 use ic_memory::{
     GenericRangePolicy, MemoryManagerAuthorityRecord, MemoryManagerConfig, MemoryManagerIdRange,
     MemoryManagerRangeMode, MemoryRuntime, SealedDeclarationSnapshot, StaticMemoryRangeDeclaration,

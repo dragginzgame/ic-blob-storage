@@ -1,8 +1,7 @@
 //! Direct-to-client serving metadata, with no canister bulk read or provider call.
-use crate::{
-    model::service::{read::download::CaffeineDownloadScope, upload::UploadContext},
-    ops::service::uploads::StableUploads,
-};
+use crate::ops::service::uploads::StableUploads;
+use ic_blob_storage_contracts::download::scope::CaffeineDownloadScope;
+use ic_blob_storage_contracts::upload::binding::UploadContext;
 use ic_memory::ic_stable_structures::Memory;
 
 /// Shared canonical endpoint handler. The adapter must authenticate the actual
@@ -19,10 +18,13 @@ pub fn handle<M: Memory>(
     uploads: &StableUploads<M>,
     context: UploadContext,
     scope: &CaffeineDownloadScope,
-    request: crate::dto::download::DownloadRequest,
-) -> Result<crate::dto::download::DownloadResponse, crate::dto::download::DownloadFailure> {
+    request: ic_blob_storage_contracts::dto::download::DownloadRequest,
+) -> Result<
+    ic_blob_storage_contracts::dto::download::DownloadResponse,
+    ic_blob_storage_contracts::dto::download::DownloadFailure,
+> {
     use crate::ops::service::reads::download;
-    let (root, reference) = download::parse(context, request)?;
+    let (root, reference) = ic_blob_storage_contracts::download::parse(context, request)?;
     let view = uploads
         .download_descriptor(context, scope, root, reference)
         .map_err(download::failure)?;

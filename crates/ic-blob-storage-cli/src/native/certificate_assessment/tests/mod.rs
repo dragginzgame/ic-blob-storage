@@ -1,8 +1,7 @@
 use super::super::arguments::Command;
 use super::*;
-use ic_blob_storage::dto::{
-    reference::ReferenceUpload, upload::certificate::UploadCertificateAssessmentResponse,
-};
+use ic_blob_storage_contracts::dto::reference::ReferenceUpload;
+use ic_blob_storage_contracts::dto::upload::certificate::UploadCertificateAssessmentResponse;
 
 fn permission() -> UploadAdmissionRequest {
     UploadAdmissionRequest {

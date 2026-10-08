@@ -1,17 +1,13 @@
 //! Actual caller isolation and passive discovery through the shared owner.
 use super::*;
 use blob_test_protocol::admission::{ContentLookup, ContentState};
-use ic_blob_storage::dto::{
-    reference::ReferenceUpload,
-    tenant::TenantScope,
-    upload::{
-        discovery::{
-            UploadDiscoveryFailure as DiscoveryFailure, UploadDiscoveryRequest,
-            UploadDiscoveryResponse,
-        },
-        history::{UploadContentState, UploadHistoryEntry},
-    },
-};
+use ic_blob_storage_contracts::dto::reference::ReferenceUpload;
+use ic_blob_storage_contracts::dto::tenant::TenantScope;
+use ic_blob_storage_contracts::dto::upload::discovery::UploadDiscoveryFailure as DiscoveryFailure;
+use ic_blob_storage_contracts::dto::upload::discovery::UploadDiscoveryRequest;
+use ic_blob_storage_contracts::dto::upload::discovery::UploadDiscoveryResponse;
+use ic_blob_storage_contracts::dto::upload::history::UploadContentState;
+use ic_blob_storage_contracts::dto::upload::history::UploadHistoryEntry;
 
 mod descriptor;
 mod planning;

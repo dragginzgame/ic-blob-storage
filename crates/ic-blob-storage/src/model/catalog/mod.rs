@@ -13,54 +13,36 @@
 
 mod accounting;
 use accounting::{CatalogAccounting, contribution};
+use ic_blob_storage_contracts::configuration::limits::CatalogLimits;
 
 pub mod admission;
 pub mod pending;
 pub mod tenant;
 
+use crate::model::lifecycle::BlobLifecycle;
+use crate::model::lifecycle::LifecycleChange;
+use crate::model::lifecycle::LifecycleError;
+use crate::model::lifecycle::requests::ReferenceRequestError;
+use crate::model::lifecycle::requests::ReferenceRequestOutcome;
+use crate::model::lifecycle::requests::ReferenceRequests;
+use crate::model::lifecycle::roots::RootClaimError;
+use crate::model::lifecycle::roots::RootClaims;
+use candid::Principal;
+use ic_blob_storage_contracts::binding::ObjectBinding;
+use ic_blob_storage_contracts::binding::ObjectBindingError;
+use ic_blob_storage_contracts::binding::ReferenceKey;
+use ic_blob_storage_contracts::identity::ProviderRootHash;
+use ic_blob_storage_contracts::reference::binding::ReferenceRequest;
+use ic_blob_storage_contracts::upload::history::LifecyclePhase;
+use std::collections::BTreeMap;
+use std::collections::BTreeSet;
+use std::num::NonZeroU128;
+use thiserror::Error;
+
 #[cfg(test)]
 mod tests;
 
-use std::{
-    collections::{BTreeMap, BTreeSet},
-    num::{NonZeroU128, NonZeroUsize},
-};
-
-use candid::Principal;
-use thiserror::Error;
-
-use crate::model::{
-    identity::ProviderRootHash,
-    lifecycle::{
-        BlobLifecycle, LifecycleChange, LifecycleError, LifecyclePhase,
-        binding::{ObjectBinding, ObjectBindingError, ReferenceKey},
-        requests::{
-            ReferenceRequest, ReferenceRequestError, ReferenceRequestOutcome, ReferenceRequests,
-        },
-        roots::{RootClaimError, RootClaims},
-    },
-};
-
-/// Explicit lifetime and outstanding-obligation bounds. No defaults are inferred.
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub struct CatalogLimits {
-    /// Lifetime object/root slots, including settled objects and their history.
-    pub max_objects: NonZeroUsize,
-    /// Lifetime object/root slots per tenant across namespaces, including zero bytes.
-    pub max_tenant_objects: NonZeroUsize,
-    /// Physical bytes across every tenant, including logically released objects.
-    pub max_physical_bytes: NonZeroU128,
-    /// Bytes with outstanding billing obligations, including physically deleted objects.
-    pub max_liability_bytes: NonZeroU128,
-    /// Logical bytes per tenant, counted once per live object across namespaces.
-    pub max_tenant_logical_bytes: NonZeroU128,
-    /// Lifetime reference slots per object, including released identities.
-    pub max_references_per_object: NonZeroUsize,
-    /// Lifetime request receipts per object; active-reference release slots are reserved.
-    pub max_receipts_per_object: NonZeroUsize,
-}
-
-/// Local bookkeeping input for an independently confirmed object, not upload proof.
+/// Independently confirmed object input; this does not grant upload authority.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub struct ConfirmedObject {
     /// Root already bound exclusively to this object before provider effects.

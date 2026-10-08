@@ -5,9 +5,8 @@ use crate::native::{
     arguments::Command, identity, observe_upload, publish_inputs::FrozenFile,
     references::upload_json, submit_attestation,
 };
-use ic_blob_storage::{
-    dto::configuration::ServiceInstallationInput, model::identity::ContentDigest,
-};
+use ic_blob_storage_contracts::dto::configuration::ServiceInstallationInput;
+use ic_blob_storage_contracts::identity::ContentDigest;
 use serde_json::{Value, json};
 use std::path::PathBuf;
 

@@ -1,20 +1,20 @@
 use super::*;
-use crate::{
-    dto::upload::{
-        UploadState, admission::UploadAdmissionFailure as A, exposure::UploadExposureFailure as F,
-    },
-    policy::upload::exposure::{
-        UploadExposureBlocker as B, UploadExposureHostEvidence, assess_exposure,
-    },
-    workflow::uploads::{
-        admission,
-        exposure::{self, UploadExposureResult},
-        manifests,
-    },
-};
+use crate::policy::upload::exposure::UploadExposureBlocker as B;
+use crate::policy::upload::exposure::UploadExposureHostEvidence;
+use crate::policy::upload::exposure::assess_exposure;
+use crate::workflow::uploads::admission;
+use crate::workflow::uploads::exposure;
+use crate::workflow::uploads::exposure::UploadExposureResult;
+use crate::workflow::uploads::manifests;
+use ic_blob_storage_contracts::dto::upload::UploadState;
+use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionFailure as A;
+use ic_blob_storage_contracts::dto::upload::exposure::UploadExposureFailure as F;
 pub(super) fn evidence() -> UploadExposureHostEvidence {
-    let permission =
-        super::super::admission::parse(context(4), manifest_boundary::input().permission).unwrap();
+    let permission = ic_blob_storage_contracts::upload::admission::parse(
+        context(4),
+        manifest_boundary::input().permission,
+    )
+    .unwrap();
     UploadExposureHostEvidence {
         permission,
         observed_at_ns: 2,

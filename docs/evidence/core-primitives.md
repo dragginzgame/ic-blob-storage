@@ -97,8 +97,8 @@ bytes, and verify invariance across chunk splits near SHA-256 block boundaries.
 
 | Capability | Source and unit test references | Remaining boundary |
 | --- | --- | --- |
-| BLOB-01 / A02 | [identity module](../../crates/ic-blob-storage/src/model/identity/mod.rs): `raw_content_matches_sha256_vectors`, `provider_root_roundtrips_every_byte_and_normalizes_hex`, `rejects_malformed_text_and_binary_with_typed_errors`, `pinned_caffeine_root_is_distinct_from_raw_content_digest`; compile-fail doctest rejects digest-to-root conversion | Provider tree computation, chunk/checkpoint verification, endpoint conversion and actual upload/read evidence |
-| A02 raw-content verification | [verification module](../../crates/ic-blob-storage/src/model/identity/verification/mod.rs): `chunk_boundaries_do_not_change_verified_digest`, `incremental_hash_matches_independent_million_byte_vector`, `rejected_chunks_leave_hash_and_offset_unchanged`, `truncated_and_same_length_corrupt_content_cannot_finish`, `empty_content_still_requires_the_expected_digest`, `declared_lengths_respect_the_algorithm_bound_without_allocating_content`; executable usage doctest | Provider tree/chunk proofs, trusted manifest/digest provenance, persisted checkpoint/resume and service upload/read workflows |
+| BLOB-01 / A02 | [identity module](../../crates/ic-blob-storage-contracts/src/identity/mod.rs): `raw_content_matches_sha256_vectors`, `provider_root_roundtrips_every_byte_and_normalizes_hex`, `rejects_malformed_text_and_binary_with_typed_errors`, `pinned_caffeine_root_is_distinct_from_raw_content_digest`; compile-fail doctest rejects digest-to-root conversion | Provider tree computation, chunk/checkpoint verification, endpoint conversion and actual upload/read evidence |
+| A02 raw-content verification | [verification module](../../crates/ic-blob-storage-contracts/src/identity/verification/mod.rs): `chunk_boundaries_do_not_change_verified_digest`, `incremental_hash_matches_independent_million_byte_vector`, `rejected_chunks_leave_hash_and_offset_unchanged`, `truncated_and_same_length_corrupt_content_cannot_finish`, `empty_content_still_requires_the_expected_digest`, `declared_lengths_respect_the_algorithm_bound_without_allocating_content`; executable usage doctest | Provider tree/chunk proofs, trusted manifest/digest provenance, persisted checkpoint/resume and service upload/read workflows |
 | BLOB-08 / A04 | [billing model](../../crates/ic-blob-storage/src/model/billing/mod.rs): `limits_reject_each_invalid_boundary`, `limits_accept_equal_thresholds_and_maximum_cycle_values` | Provider/namespace identity, gateway limits, configuration workflow and persistence |
 | BLOB-11 / A08 | [billing policy](../../crates/ic-blob-storage/src/policy/billing/mod.rs): `funding_requires_full_amount_and_preserves_exact_reserve`, `funding_conserves_cycles_at_small_and_extreme_boundaries` | Durable intent, reserved liabilities, exact operation identity, uncertain-result handling and provider effects |
 | BLOB-12 / A08/A11 | Same policy module: `readiness_uses_minimum_threshold_then_full_target_top_up`, `readiness_preserves_all_simultaneous_blockers`, `observation_failures_never_become_zero_balance_top_ups`, `missing_configuration_and_recovery_fences_fail_closed`, `maximum_target_and_equal_thresholds_do_not_overflow` | Trusted observations, recovery reconciliation, shared service status workflow and real operator transport |
@@ -165,7 +165,7 @@ Canic's complete numeric validation; its source conversion hash still matches
 the captured inventory.
 
 [Configuration conversion](../../crates/ic-blob-storage/src/ops/billing/configuration/mod.rs)
-builds a [validated candidate](../../crates/ic-blob-storage/src/model/billing/configuration/mod.rs)
+builds a [validated candidate](../../crates/ic-blob-storage-contracts/src/configuration/billing/mod.rs)
 combining Cashier principal, funding limits and gateway bounds. Anonymous and
 management Cashier principals reject. Both gateway limits must be positive and
 fit 32-bit Wasm indexes even on the host; this ceiling is not a recommended
@@ -247,7 +247,7 @@ release, dependency update or sibling mutation ran.
 
 ## Binary-root batch parsing after 0.1.4
 
-The [batch parser](../../crates/ic-blob-storage/src/model/identity/batch/mod.rs)
+The [batch parser](../../crates/ic-blob-storage-contracts/src/identity/batch/mod.rs)
 preserves the input ordering, duplicates and individually malformed entries used
 by Canic's `BlobStorageApi::blobs_are_live`. The inspected lifecycle API still
 matches the source inventory. Parsing returns
@@ -291,7 +291,7 @@ Native tests, Clippy, Wasm, docs and formatting pass on this batch based on
 No PocketIC, provider effect, dependency change or version transaction ran.
 
 The same uncommitted lifecycle batch now includes immutable
-[object bindings](../../crates/ic-blob-storage/src/model/lifecycle/binding/mod.rs)
+[object bindings](../../crates/ic-blob-storage-contracts/src/binding/mod.rs)
 and [direct-tenant policy](../../crates/ic-blob-storage/src/policy/tenant/mod.rs).
 The lifecycle's unbound signatures were replaced; every reference mutation and
 confirmation checks service, tenant, namespace, object and incarnation before
@@ -558,7 +558,7 @@ deletion/billing reports or prove safe recovery after a restart.
 
 ## Streaming Caffeine identities after 0.1.7
 
-The [streaming model](../../crates/ic-blob-storage/src/model/identity/caffeine/mod.rs)
+The [streaming model](../../crates/ic-blob-storage-contracts/src/identity/caffeine/mod.rs)
 computes raw SHA-256 and the nonempty provider root in one pass. Appends are
 rechunked at 1 MiB; a fixed frontier folds domain-separated leaf/node hashes,
 padding an uneven right subtree with the client's `UNBALANCED` marker at each
@@ -569,7 +569,7 @@ upstream object entries cannot represent them. This is not HTTP validation or
 header inference. Metadata setup allocates within explicit count/byte budgets;
 stream state is fixed-size, independent of content length.
 
-[Independent vectors](../../crates/ic-blob-storage/tests/fixtures/caffeine-hashing/vectors.json)
+[Independent vectors](../../crates/ic-blob-storage-contracts/tests/fixtures/caffeine-hashing/vectors.json)
 record source SHA-256, runtime and content recipes. Official `main` and npm
 latest/integrity were refreshed on 2026-09-26 and remain at the pinned client
 1.1.2 baseline. Generate vectors using the unmodified `YHash`/`BlobHashTree`
@@ -582,7 +582,7 @@ compatibility only. The normalization follows ECMAScript
 [whitespace](https://tc39.es/ecma262/multipage/ecmascript-language-lexical-grammar.html#sec-white-space)
 and [string sorting](https://tc39.es/ecma262/multipage/indexed-collections.html#sec-comparearrayelements).
 
-[Native tests](../../crates/ic-blob-storage/tests/caffeine_hashing.rs) stream those
+[Native tests](../../crates/ic-blob-storage-contracts/tests/caffeine_hashing.rs) stream those
 vectors with prime-sized and multi-chunk appends, reversing metadata input order.
 They cover exact chunk boundaries and uneven trees through 18 leaves, including
 rejected replay after complete leaves followed by correct continuation. Unit tests
@@ -592,7 +592,7 @@ Clippy, Wasm, rustdoc and formatting pass. The source inventory
 `docs/evidence/caffeine-hashing.sha256` is now historical: it matches `20ec33d`,
 the validated source parent of release 0.1.8, rather than subsequent workspace edits.
 
-The [chunk manifest](../../crates/ic-blob-storage/src/model/identity/caffeine/manifest/mod.rs)
+The [chunk manifest](../../crates/ic-blob-storage-contracts/src/identity/caffeine/manifest/mod.rs)
 checks an explicitly bounded list of chunk-hash values against one
 expected root, using the same length, metadata and tree implementation. It
 retains only the ordered hashes and declared length. Construction validates
@@ -684,7 +684,7 @@ in the fixture, and no upgrade/restart recovery is claimed.
 
 ## Transient chunk coverage after 0.1.9
 
-The [chunk verifier](../../crates/ic-blob-storage/src/model/identity/caffeine/manifest/verification/mod.rs)
+The [chunk verifier](../../crates/ic-blob-storage-contracts/src/identity/caffeine/manifest/verification/mod.rs)
 consumes a validated immutable manifest and allocates one bit per chunk, rounded
 to bytes. Its manifest budgets bound lifetime memory; retries allocate no receipts
 or retained content. Every call verifies exact index/length/hash before crediting
@@ -692,7 +692,7 @@ an unseen position, with at most 1 MiB hashed and constant-time bookkeeping.
 Queries expose per-position status and exact unique chunk/byte totals. No bitmap
 can be imported, and a fresh instance starts at zero.
 
-[Independent client vectors](../../crates/ic-blob-storage/tests/caffeine_hashing.rs)
+[Independent client vectors](../../crates/ic-blob-storage-contracts/tests/caffeine_hashing.rs)
 cover reverse-order reads leaving a middle gap, bitmap-byte boundaries, identical
 hashes at different positions and partial final chunks. Repeated good chunks leave
 progress unchanged; corrupt gap bytes reject before valid retry finishes coverage.
@@ -710,7 +710,7 @@ A rejected duplicate does not erase a prior successful observation, but the new
 bytes still return an error. Expected root/length and tenant provenance remain
 external; current provider algorithms and serving semantics are not requalified.
 
-The [ordered verifier](../../crates/ic-blob-storage/src/model/identity/caffeine/manifest/verification/ordered/mod.rs)
+The [ordered verifier](../../crates/ic-blob-storage-contracts/src/identity/caffeine/manifest/verification/ordered/mod.rs)
 composes the same immutable manifest with the raw-content verifier. It admits only
 the next exact leaf and checks bytes before advancing raw hash state. Each call
 hashes at most 1 MiB twice and retains no file bytes or bitmap. Finalization consumes
@@ -722,7 +722,7 @@ valid manifest bytes, plus invalid-length/index and post-completion appends.
 The same targeted tests, Clippy, Wasm, rustdoc and package checks pass for the
 combined addition; this source inventory includes both verification variants.
 
-The [missing-chunk view](../../crates/ic-blob-storage/src/model/identity/caffeine/manifest/verification/missing/mod.rs)
+The [missing-chunk view](../../crates/ic-blob-storage-contracts/src/identity/caffeine/manifest/verification/missing/mod.rs)
 adds independently bounded scans and result lists. Exact ranges come from the
 manifest after index validation, including partial final chunks. Empty filtered
 pages retain forward progress; a later call skips positions verified in between.
@@ -1003,7 +1003,7 @@ cargo test --offline --locked -p ic-blob-storage-pocketic-tests --test funding
 
 ## Shared funding reconciliation after 0.1.13
 
-The shared [transfer model](../../crates/ic-blob-storage/src/model/billing/transfer/mod.rs)
+The shared [transfer model](../../crates/ic-blob-storage-contracts/src/funding/transfer/mod.rs)
 and [reconciliation policy](../../crates/ic-blob-storage/src/policy/billing/reconciliation/mod.rs)
 now supply the fixture's transport arithmetic and diagnosis. A proven enqueue
 failure has no callback refund and zero transfer; missing evidence keeps transfer
@@ -1240,7 +1240,7 @@ upload recovery, external deletion atomicity and old-backup safety remain open.
 
 ## Verification checkpoints after 0.1.15
 
-The [ordered verifier checkpoint](../../crates/ic-blob-storage/src/model/identity/caffeine/manifest/verification/ordered/checkpoint/mod.rs)
+The [ordered verifier checkpoint](../../crates/ic-blob-storage-contracts/src/identity/caffeine/manifest/verification/ordered/checkpoint/mod.rs)
 adds a 256-byte, exact-library-release record for trusted host storage. It binds
 format v1, release, manifest root, expected raw digest/length, accepted byte count
 and the pinned SHA-256 state. A SHA-256 checksum detects accidental damage; it

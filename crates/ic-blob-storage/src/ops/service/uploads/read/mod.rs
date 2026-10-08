@@ -1,32 +1,33 @@
 //! Indexed tenant reads and bounded current-state traversal; no effect authority.
-mod authority;
-pub(crate) mod download;
-pub mod verification;
 use super::{
     Memory, StableUploads, UploadContext, UploadPhase, UploadRequest, UploadStoreError,
     UploadStoreRecord, key, metadata, validation,
 };
-use crate::model::{
-    catalog::admission::{
-        UploadRequestId,
-        read::{UploadPageLimits, UploadRootState},
-    },
-    identity::{HashParseError, ProviderRootHash, batch::ProviderRootBatch},
-    lifecycle::{
-        LifecyclePhase, ReferenceState,
-        binding::{ObjectBinding, ReferenceKey},
-    },
-    service::upload::{
-        UploadAdmissionError, UploadManifestState,
-        content::{ContentLookup, TenantContentView},
-        download::ContentHeader,
-    },
-};
+use crate::model::catalog::admission::read::UploadPageLimits;
+use crate::model::lifecycle::ReferenceState;
+use crate::model::service::upload::UploadAdmissionError;
+use crate::model::service::upload::UploadManifestState;
+use crate::model::service::upload::content::ContentLookup;
+use crate::model::service::upload::content::TenantContentView;
+use crate::model::service::upload::download::ContentHeader;
 use candid::Principal;
+use ic_blob_storage_contracts::binding::ObjectBinding;
+use ic_blob_storage_contracts::binding::ReferenceKey;
+use ic_blob_storage_contracts::identity::HashParseError;
+use ic_blob_storage_contracts::identity::ProviderRootHash;
+use ic_blob_storage_contracts::identity::batch::ProviderRootBatch;
+use ic_blob_storage_contracts::upload::binding::UploadRequestId;
+use ic_blob_storage_contracts::upload::history::LifecyclePhase;
+use ic_blob_storage_contracts::upload::history::UploadRootState;
+use ic_blob_storage_contracts::upload::history::UploadScanFilter;
 use std::{
     num::NonZeroU128,
     ops::Bound::{Excluded, Included, Unbounded},
 };
+
+mod authority;
+pub(crate) mod download;
+pub mod verification;
 
 /// Owned copy of one bounded declaration, not a provider/publication capability.
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -60,36 +61,6 @@ pub enum UploadScanScope {
         /// Installed namespace; the operator is taken from configuration.
         namespace: NonZeroU128,
     },
-}
-/// Current local states to return; none grants permission to repeat an effect.
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub enum UploadScanFilter {
-    /// Every retained operation, including cancellation and settlement history.
-    All,
-    /// Reserved or possibly exposed uploads.
-    Active,
-    /// Last reference released, physical deletion still unresolved.
-    DeletionPending,
-    /// Active uploads or confirmed objects with any unresolved obligation.
-    Outstanding,
-}
-impl UploadScanFilter {
-    pub(super) fn includes(self, state: UploadRootState) -> bool {
-        match self {
-            Self::All => true,
-            Self::Active => matches!(
-                state,
-                UploadRootState::Reserved | UploadRootState::ExposurePossible
-            ),
-            Self::DeletionPending => {
-                state == UploadRootState::Confirmed(LifecyclePhase::DeletionPending)
-            }
-            Self::Outstanding => !matches!(
-                state,
-                UploadRootState::Cancelled | UploadRootState::Confirmed(LifecyclePhase::Settled)
-            ),
-        }
-    }
 }
 /// Untrusted forward position, not a snapshot, receipt, freshness or retry authority.
 /// Insertions and phase changes behind this position require a fresh sweep.

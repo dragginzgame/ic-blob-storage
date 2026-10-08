@@ -1,12 +1,11 @@
 //! Explicit memory grants, local fault selection and passive session observations.
 use crate::ops::{ProbeMemory, STATE, TRAP_WRITE};
 use blob_test_protocol::storage::{Failure, WriteFault, gateways::ReadSessionsView};
-use ic_blob_storage::{
-    model::service::{read::session::ReadSessionError, upload::UploadContext},
-    ops::service::{
-        gateways::StableGatewayRegistry, reads::StableReadSessions, uploads::StableUploads,
-    },
-};
+use ic_blob_storage::model::service::read::session::ReadSessionError;
+use ic_blob_storage::ops::service::gateways::StableGatewayRegistry;
+use ic_blob_storage::ops::service::reads::StableReadSessions;
+use ic_blob_storage::ops::service::uploads::StableUploads;
+use ic_blob_storage_contracts::upload::binding::UploadContext;
 pub(crate) fn with_owners<R>(
     fault: Option<WriteFault>,
     operation: impl FnOnce(

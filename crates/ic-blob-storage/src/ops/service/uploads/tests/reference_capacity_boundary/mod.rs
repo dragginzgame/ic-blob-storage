@@ -1,15 +1,13 @@
 use super::*;
-use crate::{
-    dto::{
-        reference::capacity::{
-            ReferenceCapacityFailure as F, ReferenceCapacityRequest, ReferenceCapacityResponse,
-            ReferenceHeadroom,
-        },
-        tenant::TenantScope,
-    },
-    model::lifecycle::requests::{ReferenceOperation, ReferenceRequest, ReferenceRequestId},
-    workflow::references::capacity::inspect,
-};
+use crate::workflow::references::capacity::inspect;
+use ic_blob_storage_contracts::dto::reference::capacity::ReferenceCapacityFailure as F;
+use ic_blob_storage_contracts::dto::reference::capacity::ReferenceCapacityRequest;
+use ic_blob_storage_contracts::dto::reference::capacity::ReferenceCapacityResponse;
+use ic_blob_storage_contracts::dto::reference::capacity::ReferenceHeadroom;
+use ic_blob_storage_contracts::dto::tenant::TenantScope;
+use ic_blob_storage_contracts::reference::binding::ReferenceOperation;
+use ic_blob_storage_contracts::reference::binding::ReferenceRequest;
+use ic_blob_storage_contracts::reference::binding::ReferenceRequestId;
 fn request(root: [u8; 32]) -> ReferenceCapacityRequest {
     ReferenceCapacityRequest {
         scope: TenantScope {

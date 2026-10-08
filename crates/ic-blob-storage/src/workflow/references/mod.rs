@@ -1,11 +1,12 @@
 //! Shared exact reference mutation and receipt inspection; no provider dispatch.
 pub mod capacity;
 pub mod status;
-use crate::{
-    dto::reference::{ReferenceCommand, ReferenceFailure, ReferenceReceiptLookup},
-    model::service::upload::UploadContext,
-    ops::service::{references, uploads::StableUploads},
-};
+use crate::ops::service::references;
+use crate::ops::service::uploads::StableUploads;
+use ic_blob_storage_contracts::dto::reference::ReferenceCommand;
+use ic_blob_storage_contracts::dto::reference::ReferenceFailure;
+use ic_blob_storage_contracts::dto::reference::ReferenceReceiptLookup;
+use ic_blob_storage_contracts::upload::binding::UploadContext;
 use ic_memory::ic_stable_structures::Memory;
 /// Inspect an exact original result for the authenticated tenant. The adapter
 /// supplies actual caller/service and bounds ingress decoding. Inspection remains
@@ -19,7 +20,7 @@ pub fn receipt<M: Memory>(
     context: UploadContext,
     request: ReferenceCommand,
 ) -> Result<ReferenceReceiptLookup, ReferenceFailure> {
-    let (upload, operation) = references::parse(context, request)?;
+    let (upload, operation) = ic_blob_storage_contracts::reference::parse(context, request)?;
     let view = uploads
         .reference_receipt(context, upload, operation)
         .map_err(references::failure)?;
@@ -45,8 +46,9 @@ pub fn apply<M: Memory>(
     uploads: &mut StableUploads<M>,
     context: UploadContext,
     request: ReferenceCommand,
-) -> Result<crate::dto::reference::ReferenceMutationResponse, ReferenceFailure> {
-    let (upload, operation) = references::parse(context, request)?;
+) -> Result<ic_blob_storage_contracts::dto::reference::ReferenceMutationResponse, ReferenceFailure>
+{
+    let (upload, operation) = ic_blob_storage_contracts::reference::parse(context, request)?;
     let outcome = uploads
         .apply_reference(context, upload, operation)
         .map_err(references::failure)?;

@@ -3,9 +3,10 @@ pub(crate) mod manifests;
 pub(crate) mod tenants;
 use blob_test_protocol::consumer::{AssetView, Failure, Registration, RegistrationSource};
 use candid::{CandidType, Principal};
-use ic_blob_storage::dto::reference::{
-    ReferenceAction, ReferenceCommand, ReferenceReceiptResponse, ReferenceUpload,
-};
+use ic_blob_storage_contracts::dto::reference::ReferenceAction;
+use ic_blob_storage_contracts::dto::reference::ReferenceCommand;
+use ic_blob_storage_contracts::dto::reference::ReferenceReceiptResponse;
+use ic_blob_storage_contracts::dto::reference::ReferenceUpload;
 use serde::Deserialize;
 
 #[derive(Clone, CandidType, Deserialize)]
@@ -29,24 +30,26 @@ struct AssetRecord {
     published: bool,
     published_once: bool,
     admission_started: bool,
-    admission_result:
-        Option<Result<(), ic_blob_storage::dto::upload::admission::UploadAdmissionFailure>>,
+    admission_result: Option<
+        Result<(), ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionFailure>,
+    >,
     revocation_started: bool,
-    revocation_result:
-        Option<Result<(), ic_blob_storage::dto::upload::admission::UploadAdmissionFailure>>,
+    revocation_result: Option<
+        Result<(), ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionFailure>,
+    >,
     retain_started: bool,
     retain_result: Option<
         Result<
-            ic_blob_storage::dto::reference::ReferenceChange,
-            ic_blob_storage::dto::reference::ReferenceTransitionFailure,
+            ic_blob_storage_contracts::dto::reference::ReferenceChange,
+            ic_blob_storage_contracts::dto::reference::ReferenceTransitionFailure,
         >,
     >,
-    upload_state: Option<ic_blob_storage::dto::upload::UploadState>,
+    upload_state: Option<ic_blob_storage_contracts::dto::upload::UploadState>,
     release_started: bool,
     release_result: Option<
         Result<
-            ic_blob_storage::dto::reference::ReferenceChange,
-            ic_blob_storage::dto::reference::ReferenceTransitionFailure,
+            ic_blob_storage_contracts::dto::reference::ReferenceChange,
+            ic_blob_storage_contracts::dto::reference::ReferenceTransitionFailure,
         >,
     >,
     uses: u32,
@@ -370,7 +373,8 @@ impl AssetRecord {
         match self.intent.source {
             RegistrationSource::Existing(_) => matches!(self.retain_result, Some(Ok(_))),
             RegistrationSource::Fresh(_) => {
-                self.upload_state == Some(ic_blob_storage::dto::upload::UploadState::Confirmed)
+                self.upload_state
+                    == Some(ic_blob_storage_contracts::dto::upload::UploadState::Confirmed)
             }
         }
     }
@@ -379,9 +383,9 @@ impl ConsumerRecord {
     pub(crate) fn observe_upload(
         &mut self,
         id: u128,
-        response: ic_blob_storage::dto::upload::UploadStatusResponse,
+        response: ic_blob_storage_contracts::dto::upload::UploadStatusResponse,
     ) -> Result<(), Failure> {
-        use ic_blob_storage::dto::upload::UploadState;
+        use ic_blob_storage_contracts::dto::upload::UploadState;
         let a = self.asset(id)?;
         if !matches!(a.intent.source, RegistrationSource::Fresh(p) if p.upload == response.upload)
             || a.admission_result != Some(Ok(()))
@@ -432,8 +436,8 @@ impl ConsumerRecord {
         &mut self,
         id: u128,
         response: Result<
-            ic_blob_storage::dto::upload::admission::UploadAdmissionResponse,
-            ic_blob_storage::dto::upload::admission::UploadAdmissionFailure,
+            ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionResponse,
+            ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionFailure,
         >,
     ) -> Result<(), Failure> {
         let a = self.asset(id)?;
@@ -451,7 +455,7 @@ impl ConsumerRecord {
             a.admission_result = Some(Ok(()));
             self.observe_upload(
                 id,
-                ic_blob_storage::dto::upload::UploadStatusResponse {
+                ic_blob_storage_contracts::dto::upload::UploadStatusResponse {
                     upload: response.permission.upload,
                     state: response.state,
                     revoked: response.revoked,
@@ -468,7 +472,8 @@ impl ConsumerRecord {
     pub(crate) fn revocation_permission(
         &self,
         id: u128,
-    ) -> Result<ic_blob_storage::dto::upload::admission::UploadAdmissionRequest, Failure> {
+    ) -> Result<ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionRequest, Failure>
+    {
         let a = self.view(id)?;
         if !a.cancelled || a.admission_result != Some(Ok(())) {
             return Err(Failure::State);
@@ -494,8 +499,8 @@ impl ConsumerRecord {
         &mut self,
         id: u128,
         response: Result<
-            ic_blob_storage::dto::upload::admission::UploadAdmissionResponse,
-            ic_blob_storage::dto::upload::admission::UploadAdmissionFailure,
+            ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionResponse,
+            ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionFailure,
         >,
     ) -> Result<(), Failure> {
         let permission = self.revocation_permission(id)?;

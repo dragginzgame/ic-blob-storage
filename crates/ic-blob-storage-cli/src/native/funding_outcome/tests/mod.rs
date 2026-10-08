@@ -1,13 +1,10 @@
 use super::super::arguments::Command;
 use super::*;
 use candid::Principal;
-use ic_blob_storage::dto::{
-    funding::{
-        FundingPhase,
-        outcome::{FundingOutcomeResponse, FundingReportedBalance},
-    },
-    operator::OperatorScope,
-};
+use ic_blob_storage_contracts::dto::funding::FundingPhase;
+use ic_blob_storage_contracts::dto::funding::outcome::FundingOutcomeResponse;
+use ic_blob_storage_contracts::dto::funding::outcome::FundingReportedBalance;
+use ic_blob_storage_contracts::dto::operator::OperatorScope;
 
 fn input() -> FundingOutcomeRequest {
     FundingOutcomeRequest {

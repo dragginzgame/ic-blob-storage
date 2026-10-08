@@ -1,11 +1,8 @@
 use super::*;
-use crate::{
-    dto::{
-        gateway::sync::{GatewaySyncCancellation, GatewaySyncFailure as Error},
-        operator::OperatorScope,
-    },
-    workflow::gateways::sync::cancel,
-};
+use crate::workflow::gateways::sync::cancel;
+use ic_blob_storage_contracts::dto::gateway::sync::GatewaySyncCancellation;
+use ic_blob_storage_contracts::dto::gateway::sync::GatewaySyncFailure as Error;
+use ic_blob_storage_contracts::dto::operator::OperatorScope;
 fn input(sequence: u64) -> GatewaySyncCancellation {
     GatewaySyncCancellation {
         scope: OperatorScope {

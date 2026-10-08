@@ -1,6 +1,7 @@
 use super::super::arguments::Command;
 use super::*;
-use ic_blob_storage::dto::reference::{ReferenceReceiptResponse, status::ReferenceStatusResponse};
+use ic_blob_storage_contracts::dto::reference::ReferenceReceiptResponse;
+use ic_blob_storage_contracts::dto::reference::status::ReferenceStatusResponse;
 
 fn command() -> ReferenceCommand {
     ReferenceCommand {

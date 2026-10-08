@@ -1,26 +1,32 @@
 //! Bounded upload, manifest and aggregate accounting records.
 pub(crate) mod lifecycle;
-use super::{
-    LifecycleChange, ObjectBinding, Principal, ProviderRootHash, ServiceConfiguration,
-    UploadManifestState, UploadPermission, UploadPermissionView, UploadPhase, UploadRequest,
-    UploadRequestId, manifest,
-};
-use crate::model::{
-    catalog::admission::{UploadObject, UploadUsage},
-    identity::caffeine::{CaffeineHeader, manifest::CaffeineChunkHash},
-    lifecycle::{
-        ReferenceId,
-        binding::{ObjectIdentity, ReferenceKey},
-    },
-};
+use super::LifecycleChange;
+use super::ObjectBinding;
+use super::Principal;
+use super::ProviderRootHash;
+use super::ServiceConfiguration;
+use super::UploadManifestState;
+use super::UploadPermissionView;
+use super::UploadPhase;
+use super::UploadRequest;
+use super::UploadRequestId;
+use super::manifest;
+use crate::model::catalog::admission::UploadUsage;
 use candid::{CandidType, DecoderConfig, Deserialize, decode_one_with_config};
+use ic_blob_storage_contracts::binding::ObjectIdentity;
+use ic_blob_storage_contracts::binding::ReferenceId;
+use ic_blob_storage_contracts::binding::ReferenceKey;
+use ic_blob_storage_contracts::identity::caffeine::CaffeineHeader;
+use ic_blob_storage_contracts::identity::caffeine::manifest::CaffeineChunkHash;
+use ic_blob_storage_contracts::upload::binding::UploadObject;
+use ic_blob_storage_contracts::upload::binding::UploadPermission;
 use ic_memory::ic_stable_structures::{Storable, storable::Bound};
 use std::{
     borrow::Cow,
     num::{NonZeroU64, NonZeroU128},
 };
 
-pub(crate) const MANIFEST_BYTES: usize = 65_536;
+use ic_blob_storage_contracts::configuration::envelope::MAX_MANIFEST_RECORD_BYTES as MANIFEST_BYTES;
 
 #[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize)]
 pub(crate) struct UploadConfigurationRecord {
@@ -301,8 +307,8 @@ impl UploadUsageRecord {
     pub(crate) fn replace_lifecycle(
         &mut self,
         bytes: u64,
-        before: crate::model::lifecycle::LifecyclePhase,
-        after: crate::model::lifecycle::LifecyclePhase,
+        before: ic_blob_storage_contracts::upload::history::LifecyclePhase,
+        after: ic_blob_storage_contracts::upload::history::LifecyclePhase,
     ) {
         let old = lifecycle::contribution(bytes, before);
         let new = lifecycle::contribution(bytes, after);
@@ -312,7 +318,7 @@ impl UploadUsageRecord {
     }
 }
 pub(crate) fn chunks(bytes: u64) -> u64 {
-    bytes.div_ceil(crate::model::identity::caffeine::CAFFEINE_CHUNK_BYTES as u64)
+    bytes.div_ceil(ic_blob_storage_contracts::identity::caffeine::CAFFEINE_CHUNK_BYTES as u64)
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize)]
@@ -348,10 +354,11 @@ impl UploadManifestRecord {
         content_bytes: u64,
         index: u64,
     ) -> Option<(
-        crate::model::identity::caffeine::manifest::CaffeineChunkRange,
+        ic_blob_storage_contracts::identity::caffeine::manifest::CaffeineChunkRange,
         CaffeineChunkHash,
     )> {
-        let chunk_bytes = crate::model::identity::caffeine::CAFFEINE_CHUNK_BYTES as u64;
+        let chunk_bytes =
+            ic_blob_storage_contracts::identity::caffeine::CAFFEINE_CHUNK_BYTES as u64;
         if self.version != 1 || self.chunks.len() as u64 != content_bytes.div_ceil(chunk_bytes) {
             return None;
         }
@@ -359,7 +366,7 @@ impl UploadManifestRecord {
         let offset = index.checked_mul(chunk_bytes)?;
         let bytes = usize::try_from(content_bytes.checked_sub(offset)?.min(chunk_bytes)).ok()?;
         Some((
-            crate::model::identity::caffeine::manifest::CaffeineChunkRange {
+            ic_blob_storage_contracts::identity::caffeine::manifest::CaffeineChunkRange {
                 index,
                 offset,
                 bytes,

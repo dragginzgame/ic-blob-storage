@@ -37,7 +37,7 @@ pub(crate) fn content(bytes: Vec<u8>) -> ContentLookup {
 }
 pub(crate) fn reference_capacity(
     bytes: Vec<u8>,
-) -> ic_blob_storage::dto::reference::capacity::ReferenceCapacityRequest {
+) -> ic_blob_storage_contracts::dto::reference::capacity::ReferenceCapacityRequest {
     decode(&bytes, SMALL_BYTES, 32 * 1024)
 }
 
@@ -51,7 +51,9 @@ pub(crate) fn installation(bytes: Vec<u8>) -> Installation {
     decode(&bytes, SMALL_BYTES, 32 * 1024)
 }
 
-pub(crate) fn admission_capacity(bytes: Vec<u8>) -> ic_blob_storage::dto::tenant::TenantScope {
+pub(crate) fn admission_capacity(
+    bytes: Vec<u8>,
+) -> ic_blob_storage_contracts::dto::tenant::TenantScope {
     decode(&bytes, SMALL_BYTES, 32 * 1024)
 }
 
@@ -83,6 +85,6 @@ fn config(bytes: &[u8], maximum: usize, work: usize) -> DecoderConfig {
 
 pub(crate) fn discovery(
     bytes: Vec<u8>,
-) -> ic_blob_storage::dto::upload::discovery::UploadDiscoveryRequest {
+) -> ic_blob_storage_contracts::dto::upload::discovery::UploadDiscoveryRequest {
     decode(&bytes, SMALL_BYTES, 32 * 1024)
 }

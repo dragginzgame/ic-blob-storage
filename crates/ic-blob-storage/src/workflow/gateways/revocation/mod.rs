@@ -1,9 +1,10 @@
 //! One synchronous operator revocation through the shared durable owner.
-use crate::{
-    dto::gateway::{GatewayRevocationFailure, GatewayRevocationRequest, GatewayRevocationResponse},
-    model::service::upload::UploadContext,
-    ops::service::gateways::{StableGatewayRegistry, revocation},
-};
+use crate::ops::service::gateways::StableGatewayRegistry;
+use crate::ops::service::gateways::revocation;
+use ic_blob_storage_contracts::dto::gateway::GatewayRevocationFailure;
+use ic_blob_storage_contracts::dto::gateway::GatewayRevocationRequest;
+use ic_blob_storage_contracts::dto::gateway::GatewayRevocationResponse;
+use ic_blob_storage_contracts::upload::binding::UploadContext;
 use ic_memory::ic_stable_structures::Memory;
 
 /// Revoke local membership and invalidate pending sync/read observations together.

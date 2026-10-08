@@ -1,12 +1,11 @@
 //! Explicit small fixture envelope through the shared host boundary, not deployment defaults.
-use ic_blob_storage::{
-    dto::configuration::{
-        ServiceBillingInput, ServiceConfigurationInput, ServiceFundingInput, ServiceReadInput,
-        ServiceResourceInput,
-    },
-    ops::service::configuration::validate_candidate,
-    ops::service::stores::ServiceStoreConfiguration,
-};
+use ic_blob_storage::ops::service::configuration::validate_candidate;
+use ic_blob_storage::ops::service::stores::ServiceStoreConfiguration;
+use ic_blob_storage_contracts::dto::configuration::ServiceBillingInput;
+use ic_blob_storage_contracts::dto::configuration::ServiceConfigurationInput;
+use ic_blob_storage_contracts::dto::configuration::ServiceFundingInput;
+use ic_blob_storage_contracts::dto::configuration::ServiceReadInput;
+use ic_blob_storage_contracts::dto::configuration::ServiceResourceInput;
 
 pub(super) fn configuration(
     input: blob_test_protocol::storage::resources::StorageProbeInstallation,
@@ -24,7 +23,7 @@ pub(super) fn configuration(
     let operator = input.operator;
     let bytes = input.max_object_bytes;
     let chunks = u32::try_from(
-        bytes.div_ceil(ic_blob_storage::model::identity::caffeine::CAFFEINE_CHUNK_BYTES as u64),
+        bytes.div_ceil(ic_blob_storage_contracts::identity::caffeine::CAFFEINE_CHUNK_BYTES as u64),
     )
     .unwrap()
         * objects;

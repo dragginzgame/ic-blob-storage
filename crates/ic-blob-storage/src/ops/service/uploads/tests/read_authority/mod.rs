@@ -1,19 +1,16 @@
 use super::*;
+use crate::model::gateway::registry::GatewayScope;
 use crate::model::service::read::ReadTarget;
-use crate::{
-    model::{
-        gateway::registry::GatewayScope,
-        lifecycle::requests::{ReferenceOperation, ReferenceRequest, ReferenceRequestId},
-    },
-    ops::{
-        caffeine::gateway::GatewayReplyLimits,
-        service::gateways::{GatewayStoreError, StableGatewayRegistry},
-    },
-    workflow::{
-        gateways,
-        reads::{ReadAuthorityError, capture, recheck},
-    },
-};
+use crate::ops::caffeine::gateway::GatewayReplyLimits;
+use crate::ops::service::gateways::GatewayStoreError;
+use crate::ops::service::gateways::StableGatewayRegistry;
+use crate::workflow::gateways;
+use crate::workflow::reads::ReadAuthorityError;
+use crate::workflow::reads::capture;
+use crate::workflow::reads::recheck;
+use ic_blob_storage_contracts::reference::binding::ReferenceOperation;
+use ic_blob_storage_contracts::reference::binding::ReferenceRequest;
+use ic_blob_storage_contracts::reference::binding::ReferenceRequestId;
 fn scope() -> GatewayScope {
     GatewayScope::new(p(1), NonZeroU128::MIN, p(3)).unwrap()
 }
@@ -113,7 +110,7 @@ fn read_authority_binds_tenant_generation_caller_and_exact_reference() {
     assert_eq!(
         recheck(&registry, &uploads, context(4), &stamp),
         Err(ReadAuthorityError::Uploads(UploadStoreError::Admission(
-            UploadAdmissionError::Tenant(crate::model::service::tenant::TenantError::Suspended)
+            UploadAdmissionError::Tenant(ic_blob_storage_contracts::tenant::TenantError::Suspended)
         )))
     );
     uploads

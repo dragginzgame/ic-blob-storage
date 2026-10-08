@@ -8,77 +8,30 @@ mod accounting;
 pub(crate) mod capacity;
 pub mod read;
 use accounting::ReservationAccounting;
+use ic_blob_storage_contracts::configuration::limits::UploadLimits;
+use ic_blob_storage_contracts::upload::binding::UploadRequest;
+use ic_blob_storage_contracts::upload::binding::UploadRequestId;
+
+use super::BlobCatalog;
+use super::CatalogCapacity;
+use super::CatalogError;
+use super::CatalogUsage;
+use super::ConfirmedObject;
+use super::check_bytes;
+use crate::model::lifecycle::LifecycleChange;
+use crate::model::lifecycle::requests::ReferenceRequestOutcome;
+use crate::model::lifecycle::roots::RootClaimError;
+use candid::Principal;
+use ic_blob_storage_contracts::binding::ObjectBinding;
+use ic_blob_storage_contracts::binding::ObjectBindingError;
+use ic_blob_storage_contracts::configuration::limits::CatalogLimits;
+use ic_blob_storage_contracts::identity::ProviderRootHash;
+use ic_blob_storage_contracts::reference::binding::ReferenceRequest;
+use std::collections::BTreeMap;
+use thiserror::Error;
 
 #[cfg(test)]
 mod tests;
-
-use super::{
-    BlobCatalog, CatalogCapacity, CatalogError, CatalogLimits, CatalogUsage, ConfirmedObject,
-    check_bytes,
-};
-use crate::model::{
-    identity::ProviderRootHash,
-    lifecycle::{
-        LifecycleChange,
-        binding::{ObjectBinding, ObjectBindingError, ReferenceKey},
-        requests::{ReferenceRequest, ReferenceRequestOutcome},
-        roots::RootClaimError,
-    },
-};
-use candid::Principal;
-use std::{
-    collections::BTreeMap,
-    num::{NonZeroU128, NonZeroUsize},
-};
-use thiserror::Error;
-
-/// Upload operation ID scoped to a tenant in this service, across namespaces.
-/// Allocation freshness and restore fencing are external requirements.
-#[derive(Clone, Copy, Debug, Eq, Ord, PartialEq, PartialOrd)]
-pub struct UploadRequestId(NonZeroU128);
-
-impl UploadRequestId {
-    /// Wrap a nonzero identity without granting authority or freshness.
-    #[must_use]
-    pub const fn new(value: NonZeroU128) -> Self {
-        Self(value)
-    }
-
-    /// Original operation number for exact boundary encoding, not a fresh allocator.
-    #[must_use]
-    pub const fn get(self) -> NonZeroU128 {
-        self.0
-    }
-}
-
-/// Exact immutable local upload arguments; a root does not prove stored bytes.
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub struct UploadRequest {
-    /// Tenant-scoped operation identity; retries must preserve every argument.
-    pub id: UploadRequestId,
-    /// Expected root, length and first reference with the full object binding.
-    pub object: UploadObject,
-}
-
-/// Expected object properties to reserve, without claiming upload completion.
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub struct UploadObject {
-    /// Expected provider root, reserved exclusively for this object lifetime.
-    pub root: ProviderRootHash,
-    /// Exact declared length to reserve before any upload authority escapes.
-    pub bytes: u64,
-    /// Initial reference and full service/tenant/namespace/object binding.
-    pub first: ReferenceKey,
-}
-
-/// Additional concurrent upload bounds, independent of lifetime catalog bounds.
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub struct UploadLimits {
-    /// Maximum reserved or possibly exposed operations across tenants.
-    pub max_active: NonZeroUsize,
-    /// Maximum reserved or possibly exposed operations per tenant.
-    pub max_tenant_active: NonZeroUsize,
-}
 
 /// Local operation state, not a provider observation or permission to send work.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]

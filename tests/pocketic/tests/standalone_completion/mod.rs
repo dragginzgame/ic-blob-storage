@@ -1,5 +1,5 @@
 use super::*;
-use ic_blob_storage::dto::upload::completion::*;
+use ic_blob_storage_contracts::dto::upload::completion::*;
 fn verification_manifest(f: &Fixture, manifest: &UploadManifestRequest) {
     for actor in [Fake::principal(90), f.operator, f.tenant, f.uploader] {
         let response: Result<UploadManifestResponse, UploadManifestFailure> = f
@@ -15,7 +15,7 @@ fn verification_manifest(f: &Fixture, manifest: &UploadManifestRequest) {
         if actor == Fake::principal(90) {
             assert_eq!(
                 response.unwrap().manifest,
-                ic_blob_storage::dto::upload::manifest::UploadManifestInspection::Prepared(
+                ic_blob_storage_contracts::dto::upload::manifest::UploadManifestInspection::Prepared(
                     manifest.declaration.clone()
                 )
             );

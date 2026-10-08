@@ -2,12 +2,13 @@
 use super::*;
 use crate::authenticated_cli::{PEM, run};
 use ic_agent::{Identity, identity::BasicIdentity};
-use ic_blob_storage::dto::{
-    reference::{ReferenceAction, ReferenceCommand, ReferenceFailure, ReferenceMutationResponse},
-    upload::completion::{
-        UploadAttestationFailure, UploadAttestationMutation, UploadAttestationRequest,
-    },
-};
+use ic_blob_storage_contracts::dto::reference::ReferenceAction;
+use ic_blob_storage_contracts::dto::reference::ReferenceCommand;
+use ic_blob_storage_contracts::dto::reference::ReferenceFailure;
+use ic_blob_storage_contracts::dto::reference::ReferenceMutationResponse;
+use ic_blob_storage_contracts::dto::upload::completion::UploadAttestationFailure;
+use ic_blob_storage_contracts::dto::upload::completion::UploadAttestationMutation;
+use ic_blob_storage_contracts::dto::upload::completion::UploadAttestationRequest;
 use ic_testkit::pocket_ic::PocketIcBuilder;
 
 fn live(f: &mut Fixture) -> String {
@@ -88,7 +89,7 @@ fn rejects_conflicts(
     assert_eq!(run(args, 3)["error"], "transport");
     std::fs::write(root, trusted).unwrap();
 }
-fn release(f: &Fixture, upload: ic_blob_storage::dto::reference::ReferenceUpload) {
+fn release(f: &Fixture, upload: ic_blob_storage_contracts::dto::reference::ReferenceUpload) {
     f.harness
         .pic
         .update_candid_as::<Result<ReferenceMutationResponse, ReferenceFailure>, _>(

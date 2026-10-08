@@ -137,7 +137,11 @@ publish() {
     printf '%s\n' "$$" > "$PUBLICATION_STATE_ROOT/lock/owner"
     trap 'rm -f "$PUBLICATION_STATE_ROOT/lock/owner"; rmdir "$PUBLICATION_STATE_ROOT/lock"' EXIT
     tag_check
-    cargo publish --locked --registry crates-io -p ic-blob-storage ${1:+"$1"}
+    case "${PUBLISH_PACKAGE:-}" in
+        ic-blob-storage-contracts|ic-blob-storage) ;;
+        *) fail 'select PUBLISH_PACKAGE=ic-blob-storage-contracts first, then ic-blob-storage' ;;
+    esac
+    cargo publish --locked --registry crates-io -p "$PUBLISH_PACKAGE" ${1:+"$1"}
 }
 command="${1:-}"
 shift || true

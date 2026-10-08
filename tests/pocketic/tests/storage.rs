@@ -23,15 +23,16 @@ use blob_test_protocol::{
     storage::{Failure, FaultAdmission, FaultPreparation, Observation, Status, WriteFault},
 };
 use candid::Principal;
-use ic_blob_storage::dto::tenant::{
-    TenantEnrollment, TenantEnrollmentResponse, TenantFailure, TenantScope, TenantUpdateRequest,
-};
-use ic_blob_storage::model::identity::caffeine::{
-    CaffeineHashLimits, CaffeineHeader, manifest::builder::CaffeineManifestBuilder,
-};
-use ic_blob_storage::ops::service::uploads::tenants::{
-    TENANT_INSPECTION_METHOD, TENANT_UPDATE_METHOD,
-};
+use ic_blob_storage_contracts::dto::tenant::TenantEnrollment;
+use ic_blob_storage_contracts::dto::tenant::TenantEnrollmentResponse;
+use ic_blob_storage_contracts::dto::tenant::TenantFailure;
+use ic_blob_storage_contracts::dto::tenant::TenantScope;
+use ic_blob_storage_contracts::dto::tenant::TenantUpdateRequest;
+use ic_blob_storage_contracts::identity::caffeine::CaffeineHashLimits;
+use ic_blob_storage_contracts::identity::caffeine::CaffeineHeader;
+use ic_blob_storage_contracts::identity::caffeine::manifest::builder::CaffeineManifestBuilder;
+use ic_blob_storage_contracts::protocol::TENANT_INSPECTION_METHOD;
+use ic_blob_storage_contracts::protocol::TENANT_UPDATE_METHOD;
 use ic_testkit::{
     Fake,
     pic::CandidCallExt,
@@ -63,14 +64,14 @@ impl Fixture {
         )
         .unwrap()
     }
-    fn local_status(&self) -> ic_blob_storage::dto::operator::LocalServiceStatus {
+    fn local_status(&self) -> ic_blob_storage_contracts::dto::operator::LocalServiceStatus {
         self.harness
             .pic
-            .query_candid_as::<Result<_, ic_blob_storage::dto::operator::LocalStatusFailure>, _>(
+            .query_candid_as::<Result<_, ic_blob_storage_contracts::dto::operator::LocalStatusFailure>, _>(
                 self.service,
                 self.operator,
-                ic_blob_storage::ops::service::operator::LOCAL_STATUS_METHOD,
-                (ic_blob_storage::dto::operator::OperatorScope {
+                ic_blob_storage_contracts::protocol::LOCAL_STATUS_METHOD,
+                (ic_blob_storage_contracts::dto::operator::OperatorScope {
                     service: self.service,
                     namespace: 1,
                     cashier: self.operator,
@@ -169,8 +170,8 @@ impl Fixture {
     }
     fn admit(&self, actor: Principal, input: Permission) -> Result<bool, Failure> {
         let result: Result<
-            ic_blob_storage::dto::upload::admission::UploadAdmissionMutation,
-            ic_blob_storage::dto::upload::admission::UploadAdmissionFailure,
+            ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionMutation,
+            ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionFailure,
         > = self
             .harness
             .pic
@@ -184,9 +185,10 @@ impl Fixture {
         result.map(|r| !r.replayed).map_err(admission_failure)
     }
     fn prepare(&self, input: &PreparationInput) -> Result<bool, Failure> {
+        use ic_blob_storage_contracts::dto::upload::manifest::UploadManifestFailure as E;
         let result: Result<
-            ic_blob_storage::dto::upload::manifest::UploadManifestMutation,
-            ic_blob_storage::dto::upload::manifest::UploadManifestFailure,
+            ic_blob_storage_contracts::dto::upload::manifest::UploadManifestMutation,
+            ic_blob_storage_contracts::dto::upload::manifest::UploadManifestFailure,
         > = self
             .harness
             .pic
@@ -197,24 +199,21 @@ impl Fixture {
                 (self.preparation_input(input),),
             )
             .unwrap();
-        result.map(|r| r.changed).map_err(|e| {
-            use ic_blob_storage::dto::upload::manifest::UploadManifestFailure as E;
-            match e {
-                E::Permission(e) => admission_failure(e),
-                E::Revoked => Failure::Revoked,
-                E::Phase => Failure::Phase,
-                E::Declaration => Failure::Invalid,
-                E::Limit => Failure::Capacity,
-            }
+        result.map(|r| r.changed).map_err(|e| match e {
+            E::Permission(e) => admission_failure(e),
+            E::Revoked => Failure::Revoked,
+            E::Phase => Failure::Phase,
+            E::Declaration => Failure::Invalid,
+            E::Limit => Failure::Capacity,
         })
     }
     fn preparation_input(
         &self,
         input: &PreparationInput,
-    ) -> ic_blob_storage::dto::upload::manifest::UploadManifestRequest {
-        use ic_blob_storage::dto::upload::manifest::{
-            UploadManifestDeclaration, UploadManifestHeader, UploadManifestRequest,
-        };
+    ) -> ic_blob_storage_contracts::dto::upload::manifest::UploadManifestRequest {
+        use ic_blob_storage_contracts::dto::upload::manifest::UploadManifestDeclaration;
+        use ic_blob_storage_contracts::dto::upload::manifest::UploadManifestHeader;
+        use ic_blob_storage_contracts::dto::upload::manifest::UploadManifestRequest;
         UploadManifestRequest {
             permission: admission_input(Permission {
                 request: input.request,
@@ -239,7 +238,7 @@ impl Fixture {
         use blob_test_protocol::storage::exposure::{
             ExposureInput, ExposureOutcome, ExposureScenario,
         };
-        use ic_blob_storage::dto::upload::exposure::UploadExposureFailure as E;
+        use ic_blob_storage_contracts::dto::upload::exposure::UploadExposureFailure as E;
         let result: Result<ExposureOutcome, E> = self
             .harness
             .pic
@@ -273,8 +272,8 @@ impl Fixture {
     }
     fn revoke(&self, input: Permission) -> Result<bool, Failure> {
         let result: Result<
-            ic_blob_storage::dto::upload::admission::UploadRevocationResponse,
-            ic_blob_storage::dto::upload::admission::UploadAdmissionFailure,
+            ic_blob_storage_contracts::dto::upload::admission::UploadRevocationResponse,
+            ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionFailure,
         > = self
             .harness
             .pic
@@ -590,9 +589,9 @@ mod storage_funding;
 
 fn admission_input(
     input: Permission,
-) -> ic_blob_storage::dto::upload::admission::UploadAdmissionRequest {
-    ic_blob_storage::dto::upload::admission::UploadAdmissionRequest {
-        upload: ic_blob_storage::dto::reference::ReferenceUpload {
+) -> ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionRequest {
+    ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionRequest {
+        upload: ic_blob_storage_contracts::dto::reference::ReferenceUpload {
             service: input.request.service,
             tenant: input.request.tenant,
             namespace: input.request.namespace,
@@ -609,9 +608,9 @@ fn admission_input(
 }
 
 fn admission_failure(
-    error: ic_blob_storage::dto::upload::admission::UploadAdmissionFailure,
+    error: ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionFailure,
 ) -> Failure {
-    use ic_blob_storage::dto::upload::admission::UploadAdmissionFailure as A;
+    use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionFailure as A;
     match error {
         A::Denied => Failure::Denied,
         A::Binding => Failure::Binding,

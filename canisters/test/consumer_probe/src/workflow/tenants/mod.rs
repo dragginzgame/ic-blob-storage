@@ -2,7 +2,9 @@
 use crate::ops;
 use blob_test_protocol::consumer::{Failure, TenantDispatch};
 use candid::Principal;
-use ic_blob_storage::dto::tenant::{TenantEnrollmentResponse, TenantScope, TenantUpdateRequest};
+use ic_blob_storage_contracts::dto::tenant::TenantEnrollmentResponse;
+use ic_blob_storage_contracts::dto::tenant::TenantScope;
+use ic_blob_storage_contracts::dto::tenant::TenantUpdateRequest;
 
 pub(crate) async fn update(
     actor: Principal,

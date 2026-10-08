@@ -1,19 +1,20 @@
 //! Local IC experiment with synthetic host facts; not a production payment API.
-use crate::ops::funding::{self, admission, dispatch::FixtureDispatchJournal, transport};
+use crate::ops::funding;
+use crate::ops::funding::admission;
+use crate::ops::funding::dispatch::FixtureDispatchJournal;
+use crate::ops::funding::transport;
 use blob_test_protocol::storage::{
     Failure,
     funding::transport::{DispatchInput, DispatchResult, EvidenceScenario},
 };
-use ic_blob_storage::{
-    model::service::upload::UploadContext,
-    policy::billing::{
-        RecoveryState,
-        admission::{FundingActivity, attempt::FundingAttemptEvidence},
-    },
-    workflow::funding::dispatch::{
-        FundingDispatchEvidence, FundingDispatchHolds, FundingDispatchResult, dispatch,
-    },
-};
+use ic_blob_storage::policy::billing::RecoveryState;
+use ic_blob_storage::policy::billing::admission::FundingActivity;
+use ic_blob_storage::policy::billing::admission::attempt::FundingAttemptEvidence;
+use ic_blob_storage::workflow::funding::dispatch::FundingDispatchEvidence;
+use ic_blob_storage::workflow::funding::dispatch::FundingDispatchHolds;
+use ic_blob_storage::workflow::funding::dispatch::FundingDispatchResult;
+use ic_blob_storage::workflow::funding::dispatch::dispatch;
+use ic_blob_storage_contracts::upload::binding::UploadContext;
 use std::num::NonZeroU128;
 
 pub(crate) async fn run(

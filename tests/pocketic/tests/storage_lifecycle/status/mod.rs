@@ -1,7 +1,8 @@
 //! The shared query distinguishes current reference state from retained mutation receipts.
 use super::*;
 use blob_test_protocol::storage::reference::{ReferenceProbeFailure, ReferenceStatusClientInput};
-use ic_blob_storage::dto::reference::status::{ReferenceStatusRequest, ReferenceStatusResponse};
+use ic_blob_storage_contracts::dto::reference::status::ReferenceStatusRequest;
+use ic_blob_storage_contracts::dto::reference::status::ReferenceStatusResponse;
 
 fn request(input: ReferenceInput) -> ReferenceStatusRequest {
     let command = receipt_request(input);

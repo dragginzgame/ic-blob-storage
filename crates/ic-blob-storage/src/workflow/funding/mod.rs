@@ -6,19 +6,16 @@ pub mod dispatch;
 pub mod history;
 pub mod outcome;
 pub mod renewal;
-use crate::{
-    model::{
-        billing::journal::{FundingIntent, FundingIntentAdmission},
-        service::upload::UploadContext,
-    },
-    ops::service::funding::{
-        FundingJournalError, StableFundingJournal, summary::FundingJournalSummary,
-    },
-    policy::billing::admission::journal::{
-        FundingHostEvidence, FundingJournalAdmissionObservation, FundingPreparationAssessment,
-        assess_journal_preparation,
-    },
-};
+use crate::model::billing::journal::FundingIntent;
+use crate::model::billing::journal::FundingIntentAdmission;
+use crate::ops::service::funding::FundingJournalError;
+use crate::ops::service::funding::StableFundingJournal;
+use crate::ops::service::funding::summary::FundingJournalSummary;
+use crate::policy::billing::admission::journal::FundingHostEvidence;
+use crate::policy::billing::admission::journal::FundingJournalAdmissionObservation;
+use crate::policy::billing::admission::journal::FundingPreparationAssessment;
+use crate::policy::billing::admission::journal::assess_journal_preparation;
+use ic_blob_storage_contracts::upload::binding::UploadContext;
 use ic_memory::ic_stable_structures::Memory;
 
 /// Exact passive report. It cannot be passed back to the preparation handler.

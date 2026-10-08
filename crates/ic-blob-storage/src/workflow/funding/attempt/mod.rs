@@ -1,15 +1,13 @@
 //! Exact first-attempt admission; transport and post-write liquidity stay explicit.
-use crate::{
-    model::{billing::journal::FundingIntent, service::upload::UploadContext},
-    ops::{
-        caffeine::funding::request::CashierTopUpRequest,
-        service::funding::{FundingJournalError, StableFundingJournal},
-    },
-    policy::billing::admission::attempt::{
-        FundingAttemptAssessment, FundingAttemptEvidence, FundingAttemptObservation,
-        assess_first_attempt,
-    },
-};
+use crate::model::billing::journal::FundingIntent;
+use crate::ops::caffeine::funding::request::CashierTopUpRequest;
+use crate::ops::service::funding::FundingJournalError;
+use crate::ops::service::funding::StableFundingJournal;
+use crate::policy::billing::admission::attempt::FundingAttemptAssessment;
+use crate::policy::billing::admission::attempt::FundingAttemptEvidence;
+use crate::policy::billing::admission::attempt::FundingAttemptObservation;
+use crate::policy::billing::admission::attempt::assess_first_attempt;
+use ic_blob_storage_contracts::upload::binding::UploadContext;
 use ic_memory::ic_stable_structures::Memory;
 
 /// Synchronous result. No call is sent and no retry authority is created.

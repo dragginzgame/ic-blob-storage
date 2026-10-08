@@ -6,21 +6,17 @@ use super::{
 };
 use candid::{Principal, de::DecoderConfig, decode_one_with_config};
 use ic_agent::Agent;
-use ic_blob_storage::{
-    dto::{
-        gateway::{
-            GatewayRevocationFailure as RevokeError, GatewayRevocationRequest,
-            GatewayRevocationResponse,
-            sync::{GatewaySyncCancellation, GatewaySyncFailure as SyncError, GatewaySyncResponse},
-        },
-        operator::OperatorScope,
-    },
-    model::identity::ContentDigest,
-    ops::service::gateways::{
-        revocation::GATEWAY_REVOCATION_METHOD,
-        sync::{GATEWAY_SYNC_CANCEL_METHOD, GATEWAY_SYNC_METHOD},
-    },
-};
+use ic_blob_storage_contracts::dto::gateway::GatewayRevocationFailure as RevokeError;
+use ic_blob_storage_contracts::dto::gateway::GatewayRevocationRequest;
+use ic_blob_storage_contracts::dto::gateway::GatewayRevocationResponse;
+use ic_blob_storage_contracts::dto::gateway::sync::GatewaySyncCancellation;
+use ic_blob_storage_contracts::dto::gateway::sync::GatewaySyncFailure as SyncError;
+use ic_blob_storage_contracts::dto::gateway::sync::GatewaySyncResponse;
+use ic_blob_storage_contracts::dto::operator::OperatorScope;
+use ic_blob_storage_contracts::identity::ContentDigest;
+use ic_blob_storage_contracts::protocol::GATEWAY_REVOCATION_METHOD;
+use ic_blob_storage_contracts::protocol::GATEWAY_SYNC_CANCEL_METHOD;
+use ic_blob_storage_contracts::protocol::GATEWAY_SYNC_METHOD;
 use serde::Serialize;
 use serde_json::{Value, json};
 use std::path::PathBuf;

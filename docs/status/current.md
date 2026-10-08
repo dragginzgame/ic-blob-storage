@@ -4,9 +4,53 @@
 
 # Current status
 
-Date: 2026-10-07
+Date: 2026-10-08
 
-## Current batch — publication fixes and Host 0.4.6
+## Current batch — runtime-free contracts, pending 0.18.0
+
+- Released HEAD is **0.17.2**, `e2526159413c79322b9ec89215a01266c9a7f418`.
+  Work on [#27](https://github.com/dragginzgame/ic-blob-storage/issues/27) extracts
+  the complete client/service pure contract boundary into `ic-blob-storage-contracts`.
+  Removing public Rust paths requires **0.18.0**; package identities, receipt and
+  compiled artifacts remain **0.17.2** until the maintainer release.
+- Contracts own DTOs, identities, immutable bindings, method names, bounded
+  correlation/decoding and content verification. CLI and both examples shed the
+  service edge. Service records, accounting, authorization, effects and recovery
+  remain with their existing owner. No compatibility reexports or duplicate codecs.
+- Root roster/catalog/lock, example owners, fixtures, package/publication selection,
+  metadata transaction and consumers move together. The extraction preserved its
+  original registry graph; Shared Tooling remains reviewed **0.1.20**, adoption of **0.1.21**
+  remains a separate batch. Host 0.4.6 and private-probe Metrics 0.2.9 remain selected.
+  Before the 2026-10-08 cleanup, the incoming lock changed to Memory **0.31.2**,
+  Testkit **0.21.3** and their selected TOML patches. Those incoming selections are
+  preserved; the prior full extraction evidence remains bound to Memory 0.31.1 /
+  Testkit 0.21.2, rather than relabelled as qualification of this graph.
+- The retained 2026-10-07 focused checks pass: exact extracted library payloads **517** tests and
+  **two** doctests, strict affected-package Clippy/rustdoc, native/Wasm Rust
+  **1.88**, and **79** isolated PocketIC cases across the retained qualification
+  stages. Final standalone Candid matches entry Wasm and maintained service.did
+  byte for byte. Normal contracts/CLI graphs exclude service, CDK and Memory.
+  All **108** passive DTO declarations and **430** external package identities/
+  checksums remain exact. Cargo's unpublished-member checksum failure is retained;
+  the reviewed package workaround verifies exact extracted payloads without
+  changing external selections. #27 stays open for matching committed native macOS.
+- The [2026-10-08 sanity pass](../evidence/contracts-0180-sanity.md) consolidates
+  scattered imports in 18 affected files, corrects passive-helper documentation
+  and removes the now-unused service-to-`sha2` dependency. No function, method or
+  type is removed, and bodies/declarations are unchanged. Current-graph core /
+  contracts unit tests (**448**), strict affected-package Clippy/rustdoc and native /
+  Wasm Rust **1.88** checks pass. All incoming external selections/checksums remain
+  exact. PocketIC/native-host is not rerun; Testkit 0.21.3 is not cached locally.
+  Prepare the locked cache with `make deps` before its next focused qualification.
+- See the [migration/qualification record](../evidence/contracts-0180.md) for exact
+  moved/deleted paths, local checks, failed attempts and external follow-ups.
+  Native macOS needs the committed source’s matrix; Linux substitutes do not
+  qualify provider behavior. No full gate, commit, push, publication or paid effect.
+
+## Previous batch — released 0.17.2 publication fixes and Host 0.4.6
+
+The following handoff is retained as historical entry context. Its pending
+identity language predates released HEAD; the contracts batch above supersedes it.
 
 - Pending compatible **0.17.2** preserves compiled/package identity and receipt
   **0.17.1**. The final lock selects all four Host **0.4.6**, Testkit **0.21.2**,

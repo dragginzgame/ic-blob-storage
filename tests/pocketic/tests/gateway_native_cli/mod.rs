@@ -7,7 +7,7 @@ use crate::{
 use blob_test_protocol::SourceMode;
 use candid::Principal;
 use ic_agent::{Identity, identity::BasicIdentity};
-use ic_blob_storage::dto::operator::OperatorScope;
+use ic_blob_storage_contracts::dto::operator::OperatorScope;
 use serde_json::{Value, json};
 use std::{cell::Cell, path::PathBuf};
 

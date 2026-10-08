@@ -1,18 +1,22 @@
 //! Synchronous assembly of durable owners with host-granted exclusive memory.
 pub mod grants;
-use super::{
-    funding::{self, FundingJournalError, FundingMemories, StableFundingJournal},
-    gateways::{self, GatewayStoreError, StableGatewayRegistry},
-    reads::{ReadSessionMemories, StableReadSessions},
-    uploads::{self, StableUploads, UploadMemories, UploadStoreError},
-};
-use crate::model::{
-    billing::allocation::FundingAllocation,
-    service::{
-        configuration::ServiceConfiguration,
-        read::session::{ReadSessionError, ReadSessionLimits},
-    },
-};
+use super::funding;
+use super::funding::FundingJournalError;
+use super::funding::FundingMemories;
+use super::funding::StableFundingJournal;
+use super::gateways;
+use super::gateways::GatewayStoreError;
+use super::gateways::StableGatewayRegistry;
+use super::reads::ReadSessionMemories;
+use super::reads::StableReadSessions;
+use super::uploads;
+use super::uploads::StableUploads;
+use super::uploads::UploadMemories;
+use super::uploads::UploadStoreError;
+use crate::model::billing::allocation::FundingAllocation;
+use crate::model::service::read::session::ReadSessionError;
+use crate::model::service::read::session::ReadSessionLimits;
+use ic_blob_storage_contracts::configuration::service::ServiceConfiguration;
 use ic_memory::ic_stable_structures::Memory;
 use thiserror::Error;
 

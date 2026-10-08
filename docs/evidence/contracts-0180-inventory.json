@@ -1,0 +1,5587 @@
+{
+  "source_head": "e2526159413c79322b9ec89215a01266c9a7f418",
+  "disposition": "Single-owner moves, not behavioral deletion; no compatibility reexports. The old bounded configuration decoder moves to contracts, while service validate_candidate remains a storage-profile projection. ValidatedServiceInstallation remains record-aware in the service; pure clients use ValidatedInstallationInput.",
+  "client_imports": [
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/account/mod.rs",
+      "line": 4,
+      "old": "ic_blob_storage::dto::account::AccountInspectionFailure",
+      "new": "ic_blob_storage_contracts::dto::account::AccountInspectionFailure",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/account/mod.rs",
+      "line": 4,
+      "old": "ic_blob_storage::dto::account::AccountInspectionKind",
+      "new": "ic_blob_storage_contracts::dto::account::AccountInspectionKind",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/account/mod.rs",
+      "line": 4,
+      "old": "ic_blob_storage::dto::account::AccountInspectionRequest",
+      "new": "ic_blob_storage_contracts::dto::account::AccountInspectionRequest",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/account/mod.rs",
+      "line": 4,
+      "old": "ic_blob_storage::dto::account::AccountInspectionResponse",
+      "new": "ic_blob_storage_contracts::dto::account::AccountInspectionResponse",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/account/mod.rs",
+      "line": 4,
+      "old": "ic_blob_storage::dto::account::AccountObservation",
+      "new": "ic_blob_storage_contracts::dto::account::AccountObservation",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/account/tests/mod.rs",
+      "line": 3,
+      "old": "ic_blob_storage::dto::account::AccountRelationshipView",
+      "new": "ic_blob_storage_contracts::dto::account::AccountRelationshipView",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/account/tests/mod.rs",
+      "line": 3,
+      "old": "ic_blob_storage::dto::funding::outcome::FundingReportedBalance",
+      "new": "ic_blob_storage_contracts::dto::funding::outcome::FundingReportedBalance",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/account/tests/mod.rs",
+      "line": 3,
+      "old": "ic_blob_storage::dto::operator::OperatorScope",
+      "new": "ic_blob_storage_contracts::dto::operator::OperatorScope",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/account_link_inputs/mod.rs",
+      "line": 3,
+      "old": "ic_blob_storage::model::identity::ContentDigest",
+      "new": "ic_blob_storage_contracts::identity::ContentDigest",
+      "class": "content verification/identity"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/account_link_inputs/mod.rs",
+      "line": 3,
+      "old": "ic_blob_storage::ops::caffeine::onboarding::AccountLinkBinding",
+      "new": "ic_blob_storage_contracts::provider::onboarding::AccountLinkBinding",
+      "class": "pure binding/preparation validation"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/account_link_inputs/mod.rs",
+      "line": 3,
+      "old": "ic_blob_storage::ops::caffeine::onboarding::AccountLinkRequest",
+      "new": "ic_blob_storage_contracts::provider::onboarding::AccountLinkRequest",
+      "class": "pure binding/preparation validation"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/account_link_inputs/mod.rs",
+      "line": 3,
+      "old": "ic_blob_storage::ops::caffeine::onboarding::AccountLinkTerms",
+      "new": "ic_blob_storage_contracts::provider::onboarding::AccountLinkTerms",
+      "class": "pure binding/preparation validation"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/arguments/mod.rs",
+      "line": 3,
+      "old": "ic_blob_storage::dto::operator::OperatorScope",
+      "new": "ic_blob_storage_contracts::dto::operator::OperatorScope",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/attestation/mod.rs",
+      "line": 4,
+      "old": "ic_blob_storage::dto::upload::completion::UploadAttestationLookup",
+      "new": "ic_blob_storage_contracts::dto::upload::completion::UploadAttestationLookup",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/attestation/mod.rs",
+      "line": 4,
+      "old": "ic_blob_storage::dto::upload::completion::UploadAttestationRequest",
+      "new": "ic_blob_storage_contracts::dto::upload::completion::UploadAttestationRequest",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/attestation/mod.rs",
+      "line": 4,
+      "old": "ic_blob_storage::model::identity::ContentDigest",
+      "new": "ic_blob_storage_contracts::identity::ContentDigest",
+      "class": "content verification/identity"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/attestation/mod.rs",
+      "line": 4,
+      "old": "ic_blob_storage::model::service::upload::completion::CompletionAuthority",
+      "new": "ic_blob_storage_contracts::upload::completion::CompletionAuthority",
+      "class": "pure binding/preparation validation"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/attestation/mod.rs",
+      "line": 4,
+      "old": "ic_blob_storage::ops::service::uploads::completion::reply::self",
+      "new": "ic_blob_storage_contracts::upload::completion::reply::self",
+      "class": "bounded reply decoding/correlation"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/attestation/mod.rs",
+      "line": 4,
+      "old": "ic_blob_storage::ops::service::uploads::completion::reply::UploadAttestationReplyError",
+      "new": "ic_blob_storage_contracts::upload::completion::reply::UploadAttestationReplyError",
+      "class": "bounded reply decoding/correlation"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/attestation/tests/mod.rs",
+      "line": 2,
+      "old": "ic_blob_storage::dto::reference::ReferenceUpload",
+      "new": "ic_blob_storage_contracts::dto::reference::ReferenceUpload",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/attestation/tests/mod.rs",
+      "line": 2,
+      "old": "ic_blob_storage::dto::upload::admission::UploadAdmissionRequest",
+      "new": "ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionRequest",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/attestation/tests/mod.rs",
+      "line": 2,
+      "old": "ic_blob_storage::dto::upload::completion::*",
+      "new": "ic_blob_storage_contracts::dto::upload::completion::*",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/certificate_assessment/mod.rs",
+      "line": 4,
+      "old": "ic_blob_storage::dto::upload::admission::UploadAdmissionFailure",
+      "new": "ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionFailure",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/certificate_assessment/mod.rs",
+      "line": 4,
+      "old": "ic_blob_storage::dto::upload::admission::UploadAdmissionRequest",
+      "new": "ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionRequest",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/certificate_assessment/mod.rs",
+      "line": 4,
+      "old": "ic_blob_storage::dto::upload::exposure::UploadExposureBlocker",
+      "new": "ic_blob_storage_contracts::dto::upload::exposure::UploadExposureBlocker",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/certificate_assessment/mod.rs",
+      "line": 4,
+      "old": "ic_blob_storage::dto::upload::exposure::UploadExposureFailure",
+      "new": "ic_blob_storage_contracts::dto::upload::exposure::UploadExposureFailure",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/certificate_assessment/mod.rs",
+      "line": 4,
+      "old": "ic_blob_storage::ops::service::uploads::certificate::reply::self",
+      "new": "ic_blob_storage_contracts::upload::certificate::reply::self",
+      "class": "bounded reply decoding/correlation"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/certificate_assessment/mod.rs",
+      "line": 4,
+      "old": "ic_blob_storage::ops::service::uploads::certificate::reply::UploadCertificateAssessmentReplyError",
+      "new": "ic_blob_storage_contracts::upload::certificate::reply::UploadCertificateAssessmentReplyError",
+      "class": "bounded reply decoding/correlation"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/certificate_assessment/mod.rs",
+      "line": 4,
+      "old": "ic_blob_storage::workflow::uploads::certificate::UPLOAD_CERTIFICATE_ASSESSMENT_METHOD",
+      "new": "ic_blob_storage_contracts::protocol::UPLOAD_CERTIFICATE_ASSESSMENT_METHOD",
+      "class": "method name"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/certificate_assessment/tests/mod.rs",
+      "line": 3,
+      "old": "ic_blob_storage::dto::reference::ReferenceUpload",
+      "new": "ic_blob_storage_contracts::dto::reference::ReferenceUpload",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/certificate_assessment/tests/mod.rs",
+      "line": 3,
+      "old": "ic_blob_storage::dto::upload::certificate::UploadCertificateAssessmentResponse",
+      "new": "ic_blob_storage_contracts::dto::upload::certificate::UploadCertificateAssessmentResponse",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/download/mod.rs",
+      "line": 11,
+      "old": "ic_blob_storage::dto::download::DownloadFailure",
+      "new": "ic_blob_storage_contracts::dto::download::DownloadFailure",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/download/mod.rs",
+      "line": 11,
+      "old": "ic_blob_storage::dto::download::DownloadRequest",
+      "new": "ic_blob_storage_contracts::dto::download::DownloadRequest",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/download/mod.rs",
+      "line": 11,
+      "old": "ic_blob_storage::dto::download::DownloadResponse",
+      "new": "ic_blob_storage_contracts::dto::download::DownloadResponse",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/download/mod.rs",
+      "line": 11,
+      "old": "ic_blob_storage::model::identity::ContentDigest",
+      "new": "ic_blob_storage_contracts::identity::ContentDigest",
+      "class": "content verification/identity"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/download/mod.rs",
+      "line": 11,
+      "old": "ic_blob_storage::model::identity::ProviderRootHash",
+      "new": "ic_blob_storage_contracts::identity::ProviderRootHash",
+      "class": "content verification/identity"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/download/mod.rs",
+      "line": 11,
+      "old": "ic_blob_storage::model::identity::caffeine::CaffeineHeader",
+      "new": "ic_blob_storage_contracts::identity::caffeine::CaffeineHeader",
+      "class": "content verification/identity"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/download/mod.rs",
+      "line": 11,
+      "old": "ic_blob_storage::model::service::read::download::CaffeineDownloadScope",
+      "new": "ic_blob_storage_contracts::download::scope::CaffeineDownloadScope",
+      "class": "pure binding/preparation validation"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/download/mod.rs",
+      "line": 11,
+      "old": "ic_blob_storage::ops::caffeine::download::request_target",
+      "new": "ic_blob_storage_contracts::provider::download::request_target",
+      "class": "pure binding/preparation validation"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/download/mod.rs",
+      "line": 11,
+      "old": "ic_blob_storage::ops::service::reads::download::DOWNLOAD_METHOD",
+      "new": "ic_blob_storage_contracts::protocol::DOWNLOAD_METHOD",
+      "class": "method name"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/download/mod.rs",
+      "line": 11,
+      "old": "ic_blob_storage::ops::service::reads::download::reply::self",
+      "new": "ic_blob_storage_contracts::download::reply::self",
+      "class": "bounded reply decoding/correlation"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/download/mod.rs",
+      "line": 11,
+      "old": "ic_blob_storage::ops::service::reads::download::reply::DownloadReplyError",
+      "new": "ic_blob_storage_contracts::download::reply::DownloadReplyError",
+      "class": "bounded reply decoding/correlation"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/download/mod.rs",
+      "line": 11,
+      "old": "ic_blob_storage::ops::service::reads::download::reply::DownloadReplyLimits",
+      "new": "ic_blob_storage_contracts::download::reply::DownloadReplyLimits",
+      "class": "bounded reply decoding/correlation"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/funding_assessment/mod.rs",
+      "line": 4,
+      "old": "ic_blob_storage::dto::funding::assessment::FundingPreparationBlocker",
+      "new": "ic_blob_storage_contracts::dto::funding::assessment::FundingPreparationBlocker",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/funding_assessment/mod.rs",
+      "line": 4,
+      "old": "ic_blob_storage::dto::funding::assessment::FundingPreparationFailure",
+      "new": "ic_blob_storage_contracts::dto::funding::assessment::FundingPreparationFailure",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/funding_assessment/mod.rs",
+      "line": 4,
+      "old": "ic_blob_storage::dto::funding::assessment::FundingPreparationRequest",
+      "new": "ic_blob_storage_contracts::dto::funding::assessment::FundingPreparationRequest",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/funding_assessment/mod.rs",
+      "line": 4,
+      "old": "ic_blob_storage::dto::funding::assessment::FundingPreparationResponse",
+      "new": "ic_blob_storage_contracts::dto::funding::assessment::FundingPreparationResponse",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/funding_assessment/mod.rs",
+      "line": 4,
+      "old": "ic_blob_storage::ops::service::funding::assessment::FUNDING_PREPARATION_METHOD",
+      "new": "ic_blob_storage_contracts::protocol::FUNDING_PREPARATION_METHOD",
+      "class": "method name"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/funding_assessment/tests/mod.rs",
+      "line": 3,
+      "old": "ic_blob_storage::dto::operator::LocalFundingStatus",
+      "new": "ic_blob_storage_contracts::dto::operator::LocalFundingStatus",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/funding_assessment/tests/mod.rs",
+      "line": 3,
+      "old": "ic_blob_storage::dto::operator::OperatorScope",
+      "new": "ic_blob_storage_contracts::dto::operator::OperatorScope",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/funding_outcome/mod.rs",
+      "line": 3,
+      "old": "ic_blob_storage::dto::funding::outcome::FundingBalanceField",
+      "new": "ic_blob_storage_contracts::dto::funding::outcome::FundingBalanceField",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/funding_outcome/mod.rs",
+      "line": 3,
+      "old": "ic_blob_storage::dto::funding::outcome::FundingOutcomeFailure",
+      "new": "ic_blob_storage_contracts::dto::funding::outcome::FundingOutcomeFailure",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/funding_outcome/mod.rs",
+      "line": 3,
+      "old": "ic_blob_storage::dto::funding::outcome::FundingOutcomeRequest",
+      "new": "ic_blob_storage_contracts::dto::funding::outcome::FundingOutcomeRequest",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/funding_outcome/mod.rs",
+      "line": 3,
+      "old": "ic_blob_storage::dto::funding::outcome::FundingReconciliation",
+      "new": "ic_blob_storage_contracts::dto::funding::outcome::FundingReconciliation",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/funding_outcome/mod.rs",
+      "line": 3,
+      "old": "ic_blob_storage::dto::funding::outcome::FundingResponse",
+      "new": "ic_blob_storage_contracts::dto::funding::outcome::FundingResponse",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/funding_outcome/mod.rs",
+      "line": 3,
+      "old": "ic_blob_storage::ops::service::funding::outcome::boundary::FUNDING_OUTCOME_METHOD",
+      "new": "ic_blob_storage_contracts::protocol::FUNDING_OUTCOME_METHOD",
+      "class": "method name"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/funding_outcome/mod.rs",
+      "line": 3,
+      "old": "ic_blob_storage::ops::service::funding::reply::FundingReplyError",
+      "new": "ic_blob_storage_contracts::funding::reply::FundingReplyError",
+      "class": "bounded reply decoding/correlation"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/funding_outcome/mod.rs",
+      "line": 3,
+      "old": "ic_blob_storage::ops::service::funding::reply::outcome",
+      "new": "ic_blob_storage_contracts::funding::reply::outcome",
+      "class": "bounded reply decoding/correlation"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/funding_outcome/tests/mod.rs",
+      "line": 4,
+      "old": "ic_blob_storage::dto::funding::FundingPhase",
+      "new": "ic_blob_storage_contracts::dto::funding::FundingPhase",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/funding_outcome/tests/mod.rs",
+      "line": 4,
+      "old": "ic_blob_storage::dto::funding::outcome::FundingOutcomeResponse",
+      "new": "ic_blob_storage_contracts::dto::funding::outcome::FundingOutcomeResponse",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/funding_outcome/tests/mod.rs",
+      "line": 4,
+      "old": "ic_blob_storage::dto::funding::outcome::FundingReportedBalance",
+      "new": "ic_blob_storage_contracts::dto::funding::outcome::FundingReportedBalance",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/funding_outcome/tests/mod.rs",
+      "line": 4,
+      "old": "ic_blob_storage::dto::operator::OperatorScope",
+      "new": "ic_blob_storage_contracts::dto::operator::OperatorScope",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/gateway_controls/mod.rs",
+      "line": 9,
+      "old": "ic_blob_storage::dto::gateway::GatewayRevocationFailure",
+      "new": "ic_blob_storage_contracts::dto::gateway::GatewayRevocationFailure",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/gateway_controls/mod.rs",
+      "line": 9,
+      "old": "ic_blob_storage::dto::gateway::GatewayRevocationRequest",
+      "new": "ic_blob_storage_contracts::dto::gateway::GatewayRevocationRequest",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/gateway_controls/mod.rs",
+      "line": 9,
+      "old": "ic_blob_storage::dto::gateway::GatewayRevocationResponse",
+      "new": "ic_blob_storage_contracts::dto::gateway::GatewayRevocationResponse",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/gateway_controls/mod.rs",
+      "line": 9,
+      "old": "ic_blob_storage::dto::gateway::sync::GatewaySyncCancellation",
+      "new": "ic_blob_storage_contracts::dto::gateway::sync::GatewaySyncCancellation",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/gateway_controls/mod.rs",
+      "line": 9,
+      "old": "ic_blob_storage::dto::gateway::sync::GatewaySyncFailure",
+      "new": "ic_blob_storage_contracts::dto::gateway::sync::GatewaySyncFailure",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/gateway_controls/mod.rs",
+      "line": 9,
+      "old": "ic_blob_storage::dto::gateway::sync::GatewaySyncResponse",
+      "new": "ic_blob_storage_contracts::dto::gateway::sync::GatewaySyncResponse",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/gateway_controls/mod.rs",
+      "line": 9,
+      "old": "ic_blob_storage::dto::operator::OperatorScope",
+      "new": "ic_blob_storage_contracts::dto::operator::OperatorScope",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/gateway_controls/mod.rs",
+      "line": 9,
+      "old": "ic_blob_storage::model::identity::ContentDigest",
+      "new": "ic_blob_storage_contracts::identity::ContentDigest",
+      "class": "content verification/identity"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/gateway_controls/mod.rs",
+      "line": 9,
+      "old": "ic_blob_storage::ops::service::gateways::revocation::GATEWAY_REVOCATION_METHOD",
+      "new": "ic_blob_storage_contracts::protocol::GATEWAY_REVOCATION_METHOD",
+      "class": "method name"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/gateway_controls/mod.rs",
+      "line": 9,
+      "old": "ic_blob_storage::ops::service::gateways::sync::GATEWAY_SYNC_CANCEL_METHOD",
+      "new": "ic_blob_storage_contracts::protocol::GATEWAY_SYNC_CANCEL_METHOD",
+      "class": "method name"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/gateway_controls/mod.rs",
+      "line": 9,
+      "old": "ic_blob_storage::ops::service::gateways::sync::GATEWAY_SYNC_METHOD",
+      "new": "ic_blob_storage_contracts::protocol::GATEWAY_SYNC_METHOD",
+      "class": "method name"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/history/mod.rs",
+      "line": 3,
+      "old": "ic_blob_storage::dto::funding::FundingHistoryCursor",
+      "new": "ic_blob_storage_contracts::dto::funding::FundingHistoryCursor",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/history/mod.rs",
+      "line": 3,
+      "old": "ic_blob_storage::dto::funding::FundingHistoryFailure",
+      "new": "ic_blob_storage_contracts::dto::funding::FundingHistoryFailure",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/history/mod.rs",
+      "line": 3,
+      "old": "ic_blob_storage::dto::funding::FundingHistoryRequest",
+      "new": "ic_blob_storage_contracts::dto::funding::FundingHistoryRequest",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/history/mod.rs",
+      "line": 3,
+      "old": "ic_blob_storage::dto::funding::FundingPhase",
+      "new": "ic_blob_storage_contracts::dto::funding::FundingPhase",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/history/mod.rs",
+      "line": 3,
+      "old": "ic_blob_storage::dto::operator::OperatorScope",
+      "new": "ic_blob_storage_contracts::dto::operator::OperatorScope",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/history/mod.rs",
+      "line": 3,
+      "old": "ic_blob_storage::ops::service::funding::reply::self",
+      "new": "ic_blob_storage_contracts::funding::reply::self",
+      "class": "bounded reply decoding/correlation"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/history/mod.rs",
+      "line": 3,
+      "old": "ic_blob_storage::ops::service::funding::reply::FundingHistoryReplyLimits",
+      "new": "ic_blob_storage_contracts::funding::reply::FundingHistoryReplyLimits",
+      "class": "bounded reply decoding/correlation"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/history/mod.rs",
+      "line": 3,
+      "old": "ic_blob_storage::ops::service::funding::reply::FundingReplyError",
+      "new": "ic_blob_storage_contracts::funding::reply::FundingReplyError",
+      "class": "bounded reply decoding/correlation"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/history/tests/mod.rs",
+      "line": 2,
+      "old": "ic_blob_storage::dto::funding::FundingHistoryEntry",
+      "new": "ic_blob_storage_contracts::dto::funding::FundingHistoryEntry",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/history/tests/mod.rs",
+      "line": 2,
+      "old": "ic_blob_storage::dto::funding::FundingHistoryPage",
+      "new": "ic_blob_storage_contracts::dto::funding::FundingHistoryPage",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/installation_check/mod.rs",
+      "line": 3,
+      "old": "ic_blob_storage::dto::configuration::ServiceInstallationInput",
+      "new": "ic_blob_storage_contracts::dto::configuration::ServiceInstallationInput",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/installation_check/mod.rs",
+      "line": 3,
+      "old": "ic_blob_storage::model::identity::ContentDigest",
+      "new": "ic_blob_storage_contracts::identity::ContentDigest",
+      "class": "content verification/identity"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/installation_check/mod.rs",
+      "line": 3,
+      "old": "ic_blob_storage::ops::service::installation::ServiceInstallationCandidate",
+      "new": "ic_blob_storage_contracts::configuration::ServiceInstallationCandidate",
+      "class": "immutable installation validation"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/installation_check/mod.rs",
+      "line": 3,
+      "old": "ic_blob_storage::ops::service::installation::ValidatedServiceInstallation",
+      "new": "ic_blob_storage_contracts::configuration::ValidatedInstallationInput (client preflight only); service record-aware type remains",
+      "class": "immutable installation validation"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/installation_check/tests/mod.rs",
+      "line": 3,
+      "old": "ic_blob_storage::dto::configuration::ServiceConfigurationInput",
+      "new": "ic_blob_storage_contracts::dto::configuration::ServiceConfigurationInput",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/local_body/mod.rs",
+      "line": 3,
+      "old": "ic_blob_storage::dto::upload::manifest::UploadManifestDeclaration",
+      "new": "ic_blob_storage_contracts::dto::upload::manifest::UploadManifestDeclaration",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/local_body/mod.rs",
+      "line": 3,
+      "old": "ic_blob_storage::model::identity::ProviderRootHash",
+      "new": "ic_blob_storage_contracts::identity::ProviderRootHash",
+      "class": "content verification/identity"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/local_body/mod.rs",
+      "line": 3,
+      "old": "ic_blob_storage::model::identity::caffeine::CaffeineContentHashes",
+      "new": "ic_blob_storage_contracts::identity::caffeine::CaffeineContentHashes",
+      "class": "content verification/identity"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/local_body/mod.rs",
+      "line": 3,
+      "old": "ic_blob_storage::model::identity::caffeine::CaffeineHashLimits",
+      "new": "ic_blob_storage_contracts::identity::caffeine::CaffeineHashLimits",
+      "class": "content verification/identity"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/local_body/mod.rs",
+      "line": 3,
+      "old": "ic_blob_storage::model::identity::caffeine::CaffeineHeader",
+      "new": "ic_blob_storage_contracts::identity::caffeine::CaffeineHeader",
+      "class": "content verification/identity"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/local_body/mod.rs",
+      "line": 3,
+      "old": "ic_blob_storage::model::identity::caffeine::verification::CaffeineRootVerifier",
+      "new": "ic_blob_storage_contracts::identity::caffeine::verification::CaffeineRootVerifier",
+      "class": "content verification/identity"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/local_body/tests/mod.rs",
+      "line": 2,
+      "old": "ic_blob_storage::ops::caffeine::preparation::PreparedManifestLimits",
+      "new": "ic_blob_storage_contracts::provider::preparation::PreparedManifestLimits",
+      "class": "pure binding/preparation validation"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/local_body/tests/mod.rs",
+      "line": 2,
+      "old": "ic_blob_storage::ops::caffeine::preparation::decode_prepared_manifest",
+      "new": "ic_blob_storage_contracts::provider::preparation::decode_prepared_manifest",
+      "class": "pure binding/preparation validation"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/mod.rs",
+      "line": 41,
+      "old": "ic_blob_storage::ops::service::operator::LOCAL_STATUS_METHOD",
+      "new": "ic_blob_storage_contracts::protocol::LOCAL_STATUS_METHOD",
+      "class": "method name"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/observe_upload/mod.rs",
+      "line": 15,
+      "old": "ic_blob_storage::dto::upload::admission::UploadAdmissionRequest",
+      "new": "ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionRequest",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/observe_upload/mod.rs",
+      "line": 15,
+      "old": "ic_blob_storage::dto::upload::completion::UploadAttestationRequest",
+      "new": "ic_blob_storage_contracts::dto::upload::completion::UploadAttestationRequest",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/observe_upload/mod.rs",
+      "line": 15,
+      "old": "ic_blob_storage::model::identity::ContentDigest",
+      "new": "ic_blob_storage_contracts::identity::ContentDigest",
+      "class": "content verification/identity"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/observe_upload/mod.rs",
+      "line": 15,
+      "old": "ic_blob_storage::model::identity::ProviderRootHash",
+      "new": "ic_blob_storage_contracts::identity::ProviderRootHash",
+      "class": "content verification/identity"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/observe_upload/mod.rs",
+      "line": 15,
+      "old": "ic_blob_storage::model::service::read::download::CaffeineDownloadScope",
+      "new": "ic_blob_storage_contracts::download::scope::CaffeineDownloadScope",
+      "class": "pure binding/preparation validation"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/observe_upload/mod.rs",
+      "line": 15,
+      "old": "ic_blob_storage::model::service::upload::completion::CompletionAuthority",
+      "new": "ic_blob_storage_contracts::upload::completion::CompletionAuthority",
+      "class": "pure binding/preparation validation"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/observe_upload/mod.rs",
+      "line": 15,
+      "old": "ic_blob_storage::ops::caffeine::download::request_target",
+      "new": "ic_blob_storage_contracts::provider::download::request_target",
+      "class": "pure binding/preparation validation"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/observe_upload/mod.rs",
+      "line": 15,
+      "old": "ic_blob_storage::ops::service::uploads::completion::reply::UploadAttestationReplyError",
+      "new": "ic_blob_storage_contracts::upload::completion::reply::UploadAttestationReplyError",
+      "class": "bounded reply decoding/correlation"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/observe_upload/mod.rs",
+      "line": 15,
+      "old": "ic_blob_storage::ops::service::uploads::completion::reply::inspection_request",
+      "new": "ic_blob_storage_contracts::upload::completion::reply::inspection_request",
+      "class": "bounded reply decoding/correlation"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/observe_upload/mod.rs",
+      "line": 15,
+      "old": "ic_blob_storage::ops::service::uploads::completion::verification::self",
+      "new": "ic_blob_storage_contracts::upload::completion::verification::self",
+      "class": "pure binding/preparation validation"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/observe_upload/mod.rs",
+      "line": 15,
+      "old": "ic_blob_storage::ops::service::uploads::completion::verification::UPLOAD_VERIFICATION_PLAN_METHOD",
+      "new": "ic_blob_storage_contracts::protocol::UPLOAD_VERIFICATION_PLAN_METHOD",
+      "class": "method name"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/provider_download/mod.rs",
+      "line": 7,
+      "old": "ic_blob_storage::model::identity::ContentDigest",
+      "new": "ic_blob_storage_contracts::identity::ContentDigest",
+      "class": "content verification/identity"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/provider_download/mod.rs",
+      "line": 7,
+      "old": "ic_blob_storage::model::identity::ProviderRootHash",
+      "new": "ic_blob_storage_contracts::identity::ProviderRootHash",
+      "class": "content verification/identity"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/provider_download/mod.rs",
+      "line": 7,
+      "old": "ic_blob_storage::model::identity::caffeine::CaffeineHashLimits",
+      "new": "ic_blob_storage_contracts::identity::caffeine::CaffeineHashLimits",
+      "class": "content verification/identity"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/provider_download/mod.rs",
+      "line": 7,
+      "old": "ic_blob_storage::model::identity::caffeine::CaffeineHeader",
+      "new": "ic_blob_storage_contracts::identity::caffeine::CaffeineHeader",
+      "class": "content verification/identity"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/provider_download/mod.rs",
+      "line": 7,
+      "old": "ic_blob_storage::model::identity::caffeine::verification::CaffeineRootVerifier",
+      "new": "ic_blob_storage_contracts::identity::caffeine::verification::CaffeineRootVerifier",
+      "class": "content verification/identity"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/provider_download/tests/mod.rs",
+      "line": 3,
+      "old": "ic_blob_storage::dto::reference::ReferenceUpload",
+      "new": "ic_blob_storage_contracts::dto::reference::ReferenceUpload",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/provider_download/tests/mod.rs",
+      "line": 3,
+      "old": "ic_blob_storage::dto::upload::admission::UploadAdmissionRequest",
+      "new": "ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionRequest",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/provider_download/tests/mod.rs",
+      "line": 3,
+      "old": "ic_blob_storage::dto::upload::completion::UploadVerificationPlan",
+      "new": "ic_blob_storage_contracts::dto::upload::completion::UploadVerificationPlan",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/provider_download/tests/mod.rs",
+      "line": 3,
+      "old": "ic_blob_storage::dto::upload::manifest::UploadManifestDeclaration",
+      "new": "ic_blob_storage_contracts::dto::upload::manifest::UploadManifestDeclaration",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/provider_download/tests/mod.rs",
+      "line": 3,
+      "old": "ic_blob_storage::dto::upload::manifest::UploadManifestHeader",
+      "new": "ic_blob_storage_contracts::dto::upload::manifest::UploadManifestHeader",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/provider_download/tests/mod.rs",
+      "line": 3,
+      "old": "ic_blob_storage::model::identity::caffeine::manifest::builder::CaffeineManifestBuilder",
+      "new": "ic_blob_storage_contracts::identity::caffeine::manifest::builder::CaffeineManifestBuilder",
+      "class": "content verification/identity"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/publish_check/observation/mod.rs",
+      "line": 5,
+      "old": "ic_blob_storage::dto::reference::ReferenceUpload",
+      "new": "ic_blob_storage_contracts::dto::reference::ReferenceUpload",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/publish_check/observation/mod.rs",
+      "line": 5,
+      "old": "ic_blob_storage::dto::tenant::TenantScope",
+      "new": "ic_blob_storage_contracts::dto::tenant::TenantScope",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/publish_check/observation/mod.rs",
+      "line": 5,
+      "old": "ic_blob_storage::dto::upload::capacity::UploadCapacityFailure",
+      "new": "ic_blob_storage_contracts::dto::upload::capacity::UploadCapacityFailure",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/publish_check/observation/mod.rs",
+      "line": 5,
+      "old": "ic_blob_storage::dto::upload::capacity::UploadCapacityResponse",
+      "new": "ic_blob_storage_contracts::dto::upload::capacity::UploadCapacityResponse",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/publish_check/observation/mod.rs",
+      "line": 5,
+      "old": "ic_blob_storage::dto::upload::discovery::UploadDiscoveryFailure",
+      "new": "ic_blob_storage_contracts::dto::upload::discovery::UploadDiscoveryFailure",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/publish_check/observation/mod.rs",
+      "line": 5,
+      "old": "ic_blob_storage::dto::upload::discovery::UploadDiscoveryRequest",
+      "new": "ic_blob_storage_contracts::dto::upload::discovery::UploadDiscoveryRequest",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/publish_check/observation/mod.rs",
+      "line": 5,
+      "old": "ic_blob_storage::dto::upload::discovery::UploadDiscoveryResponse",
+      "new": "ic_blob_storage_contracts::dto::upload::discovery::UploadDiscoveryResponse",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/publish_check/observation/mod.rs",
+      "line": 5,
+      "old": "ic_blob_storage::dto::upload::history::UploadContentState",
+      "new": "ic_blob_storage_contracts::dto::upload::history::UploadContentState",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/publish_check/observation/mod.rs",
+      "line": 5,
+      "old": "ic_blob_storage::dto::upload::history::UploadHistoryEntry",
+      "new": "ic_blob_storage_contracts::dto::upload::history::UploadHistoryEntry",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/publish_check/observation/mod.rs",
+      "line": 14,
+      "old": "ic_blob_storage::ops::service::uploads::capacity::UPLOAD_CAPACITY_METHOD",
+      "new": "ic_blob_storage_contracts::protocol::UPLOAD_CAPACITY_METHOD",
+      "class": "method name"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/publish_check/observation/mod.rs",
+      "line": 14,
+      "old": "ic_blob_storage::ops::service::uploads::discovery::UPLOAD_DISCOVERY_METHOD",
+      "new": "ic_blob_storage_contracts::protocol::UPLOAD_DISCOVERY_METHOD",
+      "class": "method name"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/publish_check/tests/mod.rs",
+      "line": 4,
+      "old": "ic_blob_storage::dto::tenant::TenantEnrollment",
+      "new": "ic_blob_storage_contracts::dto::tenant::TenantEnrollment",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/publish_check/tests/mod.rs",
+      "line": 4,
+      "old": "ic_blob_storage::dto::tenant::TenantScope",
+      "new": "ic_blob_storage_contracts::dto::tenant::TenantScope",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/publish_check/tests/mod.rs",
+      "line": 4,
+      "old": "ic_blob_storage::dto::upload::capacity::UploadCapacityFailure",
+      "new": "ic_blob_storage_contracts::dto::upload::capacity::UploadCapacityFailure",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/publish_check/tests/mod.rs",
+      "line": 4,
+      "old": "ic_blob_storage::dto::upload::capacity::UploadCapacityResponse",
+      "new": "ic_blob_storage_contracts::dto::upload::capacity::UploadCapacityResponse",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/publish_check/tests/mod.rs",
+      "line": 4,
+      "old": "ic_blob_storage::dto::upload::discovery::UploadDiscoveryFailure",
+      "new": "ic_blob_storage_contracts::dto::upload::discovery::UploadDiscoveryFailure",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/publish_check/tests/mod.rs",
+      "line": 4,
+      "old": "ic_blob_storage::dto::upload::discovery::UploadDiscoveryResponse",
+      "new": "ic_blob_storage_contracts::dto::upload::discovery::UploadDiscoveryResponse",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/publish_check/tests/mod.rs",
+      "line": 4,
+      "old": "ic_blob_storage::dto::upload::history::UploadContentState",
+      "new": "ic_blob_storage_contracts::dto::upload::history::UploadContentState",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/publish_check/tests/mod.rs",
+      "line": 4,
+      "old": "ic_blob_storage::dto::upload::history::UploadHistoryEntry",
+      "new": "ic_blob_storage_contracts::dto::upload::history::UploadHistoryEntry",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/publish_inputs/tests/mod.rs",
+      "line": 3,
+      "old": "ic_blob_storage::dto::configuration::ServiceInstallationInput",
+      "new": "ic_blob_storage_contracts::dto::configuration::ServiceInstallationInput",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/publish_inputs/tests/mod.rs",
+      "line": 22,
+      "old": "ic_blob_storage::model::identity::caffeine::CaffeineContentHasher",
+      "new": "ic_blob_storage_contracts::identity::caffeine::CaffeineContentHasher",
+      "class": "content verification/identity"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/publish_inputs/tests/mod.rs",
+      "line": 22,
+      "old": "ic_blob_storage::model::identity::caffeine::CaffeineHashLimits",
+      "new": "ic_blob_storage_contracts::identity::caffeine::CaffeineHashLimits",
+      "class": "content verification/identity"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/publish_inputs/tests/mod.rs",
+      "line": 22,
+      "old": "ic_blob_storage::model::identity::caffeine::CaffeineHeader",
+      "new": "ic_blob_storage_contracts::identity::caffeine::CaffeineHeader",
+      "class": "content verification/identity"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/publish_map/mod.rs",
+      "line": 6,
+      "old": "ic_blob_storage::dto::configuration::HostConfigurationView",
+      "new": "ic_blob_storage_contracts::dto::configuration::HostConfigurationView",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/publish_map/mod.rs",
+      "line": 6,
+      "old": "ic_blob_storage::dto::configuration::HostFailure",
+      "new": "ic_blob_storage_contracts::dto::configuration::HostFailure",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/publish_map/mod.rs",
+      "line": 6,
+      "old": "ic_blob_storage::dto::configuration::ServiceInstallationInput",
+      "new": "ic_blob_storage_contracts::dto::configuration::ServiceInstallationInput",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/publish_map/mod.rs",
+      "line": 6,
+      "old": "ic_blob_storage::dto::reference::status::ReferenceStatusRequest",
+      "new": "ic_blob_storage_contracts::dto::reference::status::ReferenceStatusRequest",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/publish_map/mod.rs",
+      "line": 6,
+      "old": "ic_blob_storage::dto::upload::completion::UploadAttestationLookup",
+      "new": "ic_blob_storage_contracts::dto::upload::completion::UploadAttestationLookup",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/publish_map/mod.rs",
+      "line": 6,
+      "old": "ic_blob_storage::model::service::upload::completion::CompletionAuthority",
+      "new": "ic_blob_storage_contracts::upload::completion::CompletionAuthority",
+      "class": "pure binding/preparation validation"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/publish_map/mod.rs",
+      "line": 6,
+      "old": "ic_blob_storage::model::identity::ProviderRootHash",
+      "new": "ic_blob_storage_contracts::identity::ProviderRootHash",
+      "class": "content verification/identity"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/publish_map/mod.rs",
+      "line": 6,
+      "old": "ic_blob_storage::model::service::read::download::CaffeineDownloadScope",
+      "new": "ic_blob_storage_contracts::download::scope::CaffeineDownloadScope",
+      "class": "pure binding/preparation validation"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/publish_map/mod.rs",
+      "line": 6,
+      "old": "ic_blob_storage::ops::caffeine::download::request_target",
+      "new": "ic_blob_storage_contracts::provider::download::request_target",
+      "class": "pure binding/preparation validation"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/publish_map/mod.rs",
+      "line": 6,
+      "old": "ic_blob_storage::ops::service::references::reply",
+      "new": "ic_blob_storage_contracts::reference::reply",
+      "class": "bounded reply decoding/correlation"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/publish_map/mod.rs",
+      "line": 6,
+      "old": "ic_blob_storage::ops::service::references::status::REFERENCE_STATUS_METHOD",
+      "new": "ic_blob_storage_contracts::protocol::REFERENCE_STATUS_METHOD",
+      "class": "method name"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/publish_map/mod.rs",
+      "line": 6,
+      "old": "ic_blob_storage::ops::service::uploads::capacity::UPLOAD_CAPACITY_METHOD",
+      "new": "ic_blob_storage_contracts::protocol::UPLOAD_CAPACITY_METHOD",
+      "class": "method name"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/publish_map/mod.rs",
+      "line": 6,
+      "old": "ic_blob_storage::ops::service::uploads::completion::UPLOAD_ATTESTATION_METHOD",
+      "new": "ic_blob_storage_contracts::protocol::UPLOAD_ATTESTATION_METHOD",
+      "class": "method name"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/publish_map/mod.rs",
+      "line": 6,
+      "old": "ic_blob_storage::ops::service::uploads::completion::reply",
+      "new": "ic_blob_storage_contracts::upload::completion::reply",
+      "class": "bounded reply decoding/correlation"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/publish_map/tests/mod.rs",
+      "line": 4,
+      "old": "ic_blob_storage::dto::reference::ReferenceFailure",
+      "new": "ic_blob_storage_contracts::dto::reference::ReferenceFailure",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/publish_map/tests/mod.rs",
+      "line": 4,
+      "old": "ic_blob_storage::dto::reference::status::ReferenceStatusResponse",
+      "new": "ic_blob_storage_contracts::dto::reference::status::ReferenceStatusResponse",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/publish_map/tests/mod.rs",
+      "line": 4,
+      "old": "ic_blob_storage::dto::upload::capacity::UploadCapacityFailure",
+      "new": "ic_blob_storage_contracts::dto::upload::capacity::UploadCapacityFailure",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/publish_map/tests/mod.rs",
+      "line": 4,
+      "old": "ic_blob_storage::dto::upload::completion::UploadAttestationFailure",
+      "new": "ic_blob_storage_contracts::dto::upload::completion::UploadAttestationFailure",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/publish_map/tests/mod.rs",
+      "line": 4,
+      "old": "ic_blob_storage::dto::upload::completion::UploadAttestationReceipt",
+      "new": "ic_blob_storage_contracts::dto::upload::completion::UploadAttestationReceipt",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/publish_map/tests/mod.rs",
+      "line": 4,
+      "old": "ic_blob_storage::dto::upload::completion::UploadAttestationRequest",
+      "new": "ic_blob_storage_contracts::dto::upload::completion::UploadAttestationRequest",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/publish_map/tests/mod.rs",
+      "line": 4,
+      "old": "ic_blob_storage::dto::upload::completion::UploadAttestationResponse",
+      "new": "ic_blob_storage_contracts::dto::upload::completion::UploadAttestationResponse",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/publish_prepare/batch/mod.rs",
+      "line": 4,
+      "old": "ic_blob_storage::model::identity::ContentDigest",
+      "new": "ic_blob_storage_contracts::identity::ContentDigest",
+      "class": "content verification/identity"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/publish_prepare/journal/mod.rs",
+      "line": 7,
+      "old": "ic_blob_storage::model::identity::ContentDigest",
+      "new": "ic_blob_storage_contracts::identity::ContentDigest",
+      "class": "content verification/identity"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/publish_prepare/progress/mod.rs",
+      "line": 9,
+      "old": "ic_blob_storage::dto::reference::ReferenceUpload",
+      "new": "ic_blob_storage_contracts::dto::reference::ReferenceUpload",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/publish_prepare/progress/mod.rs",
+      "line": 10,
+      "old": "ic_blob_storage::dto::upload::UploadState",
+      "new": "ic_blob_storage_contracts::dto::upload::UploadState",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/publish_prepare/progress/mod.rs",
+      "line": 10,
+      "old": "ic_blob_storage::dto::upload::manifest::UploadManifestInspection",
+      "new": "ic_blob_storage_contracts::dto::upload::manifest::UploadManifestInspection",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/publish_session/mod.rs",
+      "line": 13,
+      "old": "ic_blob_storage::dto::configuration::ServiceInstallationInput",
+      "new": "ic_blob_storage_contracts::dto::configuration::ServiceInstallationInput",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/publish_session/sources/tests/mod.rs",
+      "line": 4,
+      "old": "ic_blob_storage::dto::configuration::HostConfigurationView",
+      "new": "ic_blob_storage_contracts::dto::configuration::HostConfigurationView",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/publish_session/sources/tests/mod.rs",
+      "line": 4,
+      "old": "ic_blob_storage::dto::configuration::HostFailure",
+      "new": "ic_blob_storage_contracts::dto::configuration::HostFailure",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/publish_session/sources/tests/mod.rs",
+      "line": 4,
+      "old": "ic_blob_storage::dto::configuration::ServiceInstallationInput",
+      "new": "ic_blob_storage_contracts::dto::configuration::ServiceInstallationInput",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/publish_session/verification/mod.rs",
+      "line": 8,
+      "old": "ic_blob_storage::dto::configuration::ServiceInstallationInput",
+      "new": "ic_blob_storage_contracts::dto::configuration::ServiceInstallationInput",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/publish_session/verification/mod.rs",
+      "line": 8,
+      "old": "ic_blob_storage::model::identity::ContentDigest",
+      "new": "ic_blob_storage_contracts::identity::ContentDigest",
+      "class": "content verification/identity"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/reference_inputs/mod.rs",
+      "line": 3,
+      "old": "ic_blob_storage::dto::download::DownloadRequest",
+      "new": "ic_blob_storage_contracts::dto::download::DownloadRequest",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/reference_inputs/mod.rs",
+      "line": 3,
+      "old": "ic_blob_storage::dto::reference::ReferenceAction",
+      "new": "ic_blob_storage_contracts::dto::reference::ReferenceAction",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/reference_inputs/mod.rs",
+      "line": 3,
+      "old": "ic_blob_storage::dto::reference::ReferenceCommand",
+      "new": "ic_blob_storage_contracts::dto::reference::ReferenceCommand",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/reference_inputs/mod.rs",
+      "line": 3,
+      "old": "ic_blob_storage::dto::reference::ReferenceUpload",
+      "new": "ic_blob_storage_contracts::dto::reference::ReferenceUpload",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/reference_inputs/mod.rs",
+      "line": 3,
+      "old": "ic_blob_storage::dto::reference::status::ReferenceStatusRequest",
+      "new": "ic_blob_storage_contracts::dto::reference::status::ReferenceStatusRequest",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/reference_inputs/mod.rs",
+      "line": 3,
+      "old": "ic_blob_storage::dto::upload::admission::UploadAdmissionRequest",
+      "new": "ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionRequest",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/reference_inputs/mod.rs",
+      "line": 3,
+      "old": "ic_blob_storage::model::identity::ContentDigest",
+      "new": "ic_blob_storage_contracts::identity::ContentDigest",
+      "class": "content verification/identity"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/reference_inputs/mod.rs",
+      "line": 3,
+      "old": "ic_blob_storage::ops::service::references::reply",
+      "new": "ic_blob_storage_contracts::reference::reply",
+      "class": "bounded reply decoding/correlation"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/reference_inputs/mod.rs",
+      "line": 3,
+      "old": "ic_blob_storage::ops::service::uploads::admission::reply::validate_request",
+      "new": "ic_blob_storage_contracts::upload::admission::reply::validate_request",
+      "class": "bounded reply decoding/correlation"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/references/mod.rs",
+      "line": 4,
+      "old": "ic_blob_storage::dto::reference::ReferenceAction",
+      "new": "ic_blob_storage_contracts::dto::reference::ReferenceAction",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/references/mod.rs",
+      "line": 4,
+      "old": "ic_blob_storage::dto::reference::ReferenceChange",
+      "new": "ic_blob_storage_contracts::dto::reference::ReferenceChange",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/references/mod.rs",
+      "line": 4,
+      "old": "ic_blob_storage::dto::reference::ReferenceCommand",
+      "new": "ic_blob_storage_contracts::dto::reference::ReferenceCommand",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/references/mod.rs",
+      "line": 4,
+      "old": "ic_blob_storage::dto::reference::ReferenceFailure",
+      "new": "ic_blob_storage_contracts::dto::reference::ReferenceFailure",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/references/mod.rs",
+      "line": 4,
+      "old": "ic_blob_storage::dto::reference::ReferenceReceiptLookup",
+      "new": "ic_blob_storage_contracts::dto::reference::ReferenceReceiptLookup",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/references/mod.rs",
+      "line": 4,
+      "old": "ic_blob_storage::dto::reference::ReferenceTransitionFailure",
+      "new": "ic_blob_storage_contracts::dto::reference::ReferenceTransitionFailure",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/references/mod.rs",
+      "line": 4,
+      "old": "ic_blob_storage::dto::reference::ReferenceUpload",
+      "new": "ic_blob_storage_contracts::dto::reference::ReferenceUpload",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/references/mod.rs",
+      "line": 4,
+      "old": "ic_blob_storage::dto::reference::status::ReferenceStatusRequest",
+      "new": "ic_blob_storage_contracts::dto::reference::status::ReferenceStatusRequest",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/references/mod.rs",
+      "line": 4,
+      "old": "ic_blob_storage::model::identity::ProviderRootHash",
+      "new": "ic_blob_storage_contracts::identity::ProviderRootHash",
+      "class": "content verification/identity"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/references/mod.rs",
+      "line": 4,
+      "old": "ic_blob_storage::ops::service::references::REFERENCE_RECEIPT_METHOD",
+      "new": "ic_blob_storage_contracts::protocol::REFERENCE_RECEIPT_METHOD",
+      "class": "method name"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/references/mod.rs",
+      "line": 4,
+      "old": "ic_blob_storage::ops::service::references::reply",
+      "new": "ic_blob_storage_contracts::reference::reply",
+      "class": "bounded reply decoding/correlation"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/references/mod.rs",
+      "line": 4,
+      "old": "ic_blob_storage::ops::service::references::status::REFERENCE_STATUS_METHOD",
+      "new": "ic_blob_storage_contracts::protocol::REFERENCE_STATUS_METHOD",
+      "class": "method name"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/references/tests/mod.rs",
+      "line": 3,
+      "old": "ic_blob_storage::dto::reference::ReferenceReceiptResponse",
+      "new": "ic_blob_storage_contracts::dto::reference::ReferenceReceiptResponse",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/references/tests/mod.rs",
+      "line": 3,
+      "old": "ic_blob_storage::dto::reference::status::ReferenceStatusResponse",
+      "new": "ic_blob_storage_contracts::dto::reference::status::ReferenceStatusResponse",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/reply/mod.rs",
+      "line": 3,
+      "old": "ic_blob_storage::dto::operator::LocalFundingStatus",
+      "new": "ic_blob_storage_contracts::dto::operator::LocalFundingStatus",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/reply/mod.rs",
+      "line": 3,
+      "old": "ic_blob_storage::dto::operator::LocalServiceStatus",
+      "new": "ic_blob_storage_contracts::dto::operator::LocalServiceStatus",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/reply/mod.rs",
+      "line": 3,
+      "old": "ic_blob_storage::dto::operator::LocalStatusFailure",
+      "new": "ic_blob_storage_contracts::dto::operator::LocalStatusFailure",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/reply/mod.rs",
+      "line": 3,
+      "old": "ic_blob_storage::dto::operator::OperatorScope",
+      "new": "ic_blob_storage_contracts::dto::operator::OperatorScope",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/submit_attestation/mod.rs",
+      "line": 12,
+      "old": "ic_blob_storage::dto::upload::admission::UploadAdmissionRequest",
+      "new": "ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionRequest",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/submit_attestation/mod.rs",
+      "line": 12,
+      "old": "ic_blob_storage::dto::upload::completion::UploadAttestationMutation",
+      "new": "ic_blob_storage_contracts::dto::upload::completion::UploadAttestationMutation",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/submit_attestation/mod.rs",
+      "line": 12,
+      "old": "ic_blob_storage::model::identity::ContentDigest",
+      "new": "ic_blob_storage_contracts::identity::ContentDigest",
+      "class": "content verification/identity"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/submit_attestation/mod.rs",
+      "line": 12,
+      "old": "ic_blob_storage::ops::service::uploads::completion::UPLOAD_ATTEST_METHOD",
+      "new": "ic_blob_storage_contracts::protocol::UPLOAD_ATTEST_METHOD",
+      "class": "method name"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/submit_attestation/mod.rs",
+      "line": 12,
+      "old": "ic_blob_storage::ops::service::uploads::completion::reply",
+      "new": "ic_blob_storage_contracts::upload::completion::reply",
+      "class": "bounded reply decoding/correlation"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/submit_attestation/observation/mod.rs",
+      "line": 14,
+      "old": "ic_blob_storage::model::identity::ContentDigest",
+      "new": "ic_blob_storage_contracts::identity::ContentDigest",
+      "class": "content verification/identity"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/submit_attestation/observation/mod.rs",
+      "line": 14,
+      "old": "ic_blob_storage::model::identity::ProviderRootHash",
+      "new": "ic_blob_storage_contracts::identity::ProviderRootHash",
+      "class": "content verification/identity"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/submit_attestation/observation/mod.rs",
+      "line": 14,
+      "old": "ic_blob_storage::model::service::read::download::CaffeineDownloadScope",
+      "new": "ic_blob_storage_contracts::download::scope::CaffeineDownloadScope",
+      "class": "pure binding/preparation validation"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/submit_attestation/observation/mod.rs",
+      "line": 14,
+      "old": "ic_blob_storage::ops::caffeine::download::request_target",
+      "new": "ic_blob_storage_contracts::provider::download::request_target",
+      "class": "pure binding/preparation validation"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/submit_attestation/observation/mod.rs",
+      "line": 14,
+      "old": "ic_blob_storage::ops::service::uploads::completion::reply::inspection_request",
+      "new": "ic_blob_storage_contracts::upload::completion::reply::inspection_request",
+      "class": "bounded reply decoding/correlation"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/submit_attestation/observation/mod.rs",
+      "line": 14,
+      "old": "ic_blob_storage::ops::service::uploads::completion::verification",
+      "new": "ic_blob_storage_contracts::upload::completion::verification",
+      "class": "pure binding/preparation validation"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/submit_reference/mod.rs",
+      "line": 9,
+      "old": "ic_blob_storage::dto::reference::ReferenceAction",
+      "new": "ic_blob_storage_contracts::dto::reference::ReferenceAction",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/submit_reference/mod.rs",
+      "line": 9,
+      "old": "ic_blob_storage::dto::reference::ReferenceMutationResponse",
+      "new": "ic_blob_storage_contracts::dto::reference::ReferenceMutationResponse",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/submit_reference/mod.rs",
+      "line": 9,
+      "old": "ic_blob_storage::model::identity::ContentDigest",
+      "new": "ic_blob_storage_contracts::identity::ContentDigest",
+      "class": "content verification/identity"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/submit_reference/mod.rs",
+      "line": 9,
+      "old": "ic_blob_storage::ops::service::references::REFERENCE_APPLY_METHOD",
+      "new": "ic_blob_storage_contracts::protocol::REFERENCE_APPLY_METHOD",
+      "class": "method name"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/submit_reference/mod.rs",
+      "line": 9,
+      "old": "ic_blob_storage::ops::service::references::reply",
+      "new": "ic_blob_storage_contracts::reference::reply",
+      "class": "bounded reply decoding/correlation"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/submit_reference/tests/mod.rs",
+      "line": 2,
+      "old": "ic_blob_storage::dto::reference::ReferenceChange",
+      "new": "ic_blob_storage_contracts::dto::reference::ReferenceChange",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/submit_reference/tests/mod.rs",
+      "line": 2,
+      "old": "ic_blob_storage::dto::reference::ReferenceCommand",
+      "new": "ic_blob_storage_contracts::dto::reference::ReferenceCommand",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/submit_reference/tests/mod.rs",
+      "line": 2,
+      "old": "ic_blob_storage::dto::reference::ReferenceFailure",
+      "new": "ic_blob_storage_contracts::dto::reference::ReferenceFailure",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/submit_reference/tests/mod.rs",
+      "line": 2,
+      "old": "ic_blob_storage::dto::reference::ReferenceReceiptResponse",
+      "new": "ic_blob_storage_contracts::dto::reference::ReferenceReceiptResponse",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/submit_reference/tests/mod.rs",
+      "line": 2,
+      "old": "ic_blob_storage::dto::reference::ReferenceTransitionFailure",
+      "new": "ic_blob_storage_contracts::dto::reference::ReferenceTransitionFailure",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/submit_reference/tests/mod.rs",
+      "line": 2,
+      "old": "ic_blob_storage::dto::reference::ReferenceUpload",
+      "new": "ic_blob_storage_contracts::dto::reference::ReferenceUpload",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/tests/mod.rs",
+      "line": 3,
+      "old": "ic_blob_storage::dto::operator::*",
+      "new": "ic_blob_storage_contracts::dto::operator::*",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/upload_history/cursor/mod.rs",
+      "line": 4,
+      "old": "ic_blob_storage::dto::upload::history::UploadHistoryCursor",
+      "new": "ic_blob_storage_contracts::dto::upload::history::UploadHistoryCursor",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/upload_history/cursor/mod.rs",
+      "line": 4,
+      "old": "ic_blob_storage::dto::upload::history::UploadHistoryRequest",
+      "new": "ic_blob_storage_contracts::dto::upload::history::UploadHistoryRequest",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/upload_history/mod.rs",
+      "line": 5,
+      "old": "ic_blob_storage::dto::upload::history::UploadContentState",
+      "new": "ic_blob_storage_contracts::dto::upload::history::UploadContentState",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/upload_history/mod.rs",
+      "line": 5,
+      "old": "ic_blob_storage::dto::upload::history::UploadHistoryFailure",
+      "new": "ic_blob_storage_contracts::dto::upload::history::UploadHistoryFailure",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/upload_history/mod.rs",
+      "line": 5,
+      "old": "ic_blob_storage::dto::upload::history::UploadHistoryFilter",
+      "new": "ic_blob_storage_contracts::dto::upload::history::UploadHistoryFilter",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/upload_history/mod.rs",
+      "line": 5,
+      "old": "ic_blob_storage::dto::upload::history::UploadHistoryRequest",
+      "new": "ic_blob_storage_contracts::dto::upload::history::UploadHistoryRequest",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/upload_history/mod.rs",
+      "line": 5,
+      "old": "ic_blob_storage::dto::upload::history::UploadHistoryScope",
+      "new": "ic_blob_storage_contracts::dto::upload::history::UploadHistoryScope",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/upload_history/mod.rs",
+      "line": 5,
+      "old": "ic_blob_storage::ops::service::uploads::history::UPLOAD_HISTORY_METHOD",
+      "new": "ic_blob_storage_contracts::protocol::UPLOAD_HISTORY_METHOD",
+      "class": "method name"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/upload_history/mod.rs",
+      "line": 5,
+      "old": "ic_blob_storage::ops::service::uploads::history::reply::self",
+      "new": "ic_blob_storage_contracts::upload::history::reply::self",
+      "class": "bounded reply decoding/correlation"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/upload_history/mod.rs",
+      "line": 5,
+      "old": "ic_blob_storage::ops::service::uploads::history::reply::UploadHistoryReplyError",
+      "new": "ic_blob_storage_contracts::upload::history::reply::UploadHistoryReplyError",
+      "class": "bounded reply decoding/correlation"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/upload_history/mod.rs",
+      "line": 5,
+      "old": "ic_blob_storage::ops::service::uploads::history::reply::UploadHistoryReplyLimits",
+      "new": "ic_blob_storage_contracts::upload::history::reply::UploadHistoryReplyLimits",
+      "class": "bounded reply decoding/correlation"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/upload_history/tests/mod.rs",
+      "line": 2,
+      "old": "ic_blob_storage::dto::reference::ReferenceUpload",
+      "new": "ic_blob_storage_contracts::dto::reference::ReferenceUpload",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/upload_history/tests/mod.rs",
+      "line": 2,
+      "old": "ic_blob_storage::dto::upload::history::UploadHistoryCursor",
+      "new": "ic_blob_storage_contracts::dto::upload::history::UploadHistoryCursor",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/upload_history/tests/mod.rs",
+      "line": 2,
+      "old": "ic_blob_storage::dto::upload::history::UploadHistoryEntry",
+      "new": "ic_blob_storage_contracts::dto::upload::history::UploadHistoryEntry",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/upload_history/tests/mod.rs",
+      "line": 2,
+      "old": "ic_blob_storage::dto::upload::history::UploadHistoryPage",
+      "new": "ic_blob_storage_contracts::dto::upload::history::UploadHistoryPage",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/upload_inputs/installation/mod.rs",
+      "line": 4,
+      "old": "ic_blob_storage::dto::configuration::ServiceInstallationInput",
+      "new": "ic_blob_storage_contracts::dto::configuration::ServiceInstallationInput",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/upload_inputs/installation/mod.rs",
+      "line": 4,
+      "old": "ic_blob_storage::dto::configuration::ServiceResourceInput",
+      "new": "ic_blob_storage_contracts::dto::configuration::ServiceResourceInput",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/upload_inputs/installation/mod.rs",
+      "line": 4,
+      "old": "ic_blob_storage::model::identity::caffeine::manifest::CaffeineManifestLimits",
+      "new": "ic_blob_storage_contracts::identity::caffeine::manifest::CaffeineManifestLimits",
+      "class": "content verification/identity"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/upload_inputs/installation/mod.rs",
+      "line": 4,
+      "old": "ic_blob_storage::ops::service::installation::ServiceInstallationCandidate",
+      "new": "ic_blob_storage_contracts::configuration::ServiceInstallationCandidate",
+      "class": "immutable installation validation"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/upload_inputs/installation/mod.rs",
+      "line": 4,
+      "old": "ic_blob_storage::ops::service::installation::ValidatedServiceInstallation",
+      "new": "ic_blob_storage_contracts::configuration::ValidatedInstallationInput (client preflight only); service record-aware type remains",
+      "class": "immutable installation validation"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/upload_inputs/mod.rs",
+      "line": 12,
+      "old": "ic_blob_storage::dto::reference::ReferenceUpload",
+      "new": "ic_blob_storage_contracts::dto::reference::ReferenceUpload",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/upload_inputs/mod.rs",
+      "line": 12,
+      "old": "ic_blob_storage::dto::upload::admission::UploadAdmissionRequest",
+      "new": "ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionRequest",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/upload_inputs/mod.rs",
+      "line": 12,
+      "old": "ic_blob_storage::dto::upload::manifest::UploadManifestRequest",
+      "new": "ic_blob_storage_contracts::dto::upload::manifest::UploadManifestRequest",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/upload_inputs/mod.rs",
+      "line": 12,
+      "old": "ic_blob_storage::model::identity::ProviderRootHash",
+      "new": "ic_blob_storage_contracts::identity::ProviderRootHash",
+      "class": "content verification/identity"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/upload_inputs/mod.rs",
+      "line": 12,
+      "old": "ic_blob_storage::model::identity::caffeine::CaffeineContentHashes",
+      "new": "ic_blob_storage_contracts::identity::caffeine::CaffeineContentHashes",
+      "class": "content verification/identity"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/upload_inputs/mod.rs",
+      "line": 12,
+      "old": "ic_blob_storage::model::service::read::download::CaffeineDownloadScope",
+      "new": "ic_blob_storage_contracts::download::scope::CaffeineDownloadScope",
+      "class": "pure binding/preparation validation"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/upload_inputs/mod.rs",
+      "line": 12,
+      "old": "ic_blob_storage::ops::caffeine::preparation::PreparedManifestLimits",
+      "new": "ic_blob_storage_contracts::provider::preparation::PreparedManifestLimits",
+      "class": "pure binding/preparation validation"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/upload_inputs/mod.rs",
+      "line": 12,
+      "old": "ic_blob_storage::ops::caffeine::preparation::decode_prepared_manifest",
+      "new": "ic_blob_storage_contracts::provider::preparation::decode_prepared_manifest",
+      "class": "pure binding/preparation validation"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/upload_inputs/mod.rs",
+      "line": 12,
+      "old": "ic_blob_storage::ops::service::uploads::admission::reply::validate_request",
+      "new": "ic_blob_storage_contracts::upload::admission::reply::validate_request",
+      "class": "bounded reply decoding/correlation"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/upload_inputs/mod.rs",
+      "line": 12,
+      "old": "ic_blob_storage::ops::service::uploads::manifests::reply::validate_declaration",
+      "new": "ic_blob_storage_contracts::upload::manifests::reply::validate_declaration",
+      "class": "bounded reply decoding/correlation"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/upload_inputs/tests/mod.rs",
+      "line": 3,
+      "old": "ic_blob_storage::dto::configuration::ServiceConfigurationInput",
+      "new": "ic_blob_storage_contracts::dto::configuration::ServiceConfigurationInput",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/upload_inputs/tests/mod.rs",
+      "line": 3,
+      "old": "ic_blob_storage::dto::configuration::ServiceInstallationInput",
+      "new": "ic_blob_storage_contracts::dto::configuration::ServiceInstallationInput",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/upload_inputs/tests/mod.rs",
+      "line": 4,
+      "old": "ic_blob_storage::dto::upload::manifest::UploadManifestRequest",
+      "new": "ic_blob_storage_contracts::dto::upload::manifest::UploadManifestRequest",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/upload_setup/dispatch/mod.rs",
+      "line": 8,
+      "old": "ic_blob_storage::model::identity::ContentDigest",
+      "new": "ic_blob_storage_contracts::identity::ContentDigest",
+      "class": "content verification/identity"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/upload_setup/mod.rs",
+      "line": 8,
+      "old": "ic_blob_storage::dto::upload::UploadState",
+      "new": "ic_blob_storage_contracts::dto::upload::UploadState",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/upload_setup/mod.rs",
+      "line": 8,
+      "old": "ic_blob_storage::dto::upload::admission::UploadAdmissionFailure",
+      "new": "ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionFailure",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/upload_setup/mod.rs",
+      "line": 8,
+      "old": "ic_blob_storage::dto::upload::admission::UploadAdmissionMutation",
+      "new": "ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionMutation",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/upload_setup/mod.rs",
+      "line": 8,
+      "old": "ic_blob_storage::dto::upload::admission::UploadAdmissionRequest",
+      "new": "ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionRequest",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/upload_setup/mod.rs",
+      "line": 8,
+      "old": "ic_blob_storage::dto::upload::admission::UploadAdmissionResponse",
+      "new": "ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionResponse",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/upload_setup/mod.rs",
+      "line": 8,
+      "old": "ic_blob_storage::dto::upload::admission::UploadRevocationResponse",
+      "new": "ic_blob_storage_contracts::dto::upload::admission::UploadRevocationResponse",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/upload_setup/mod.rs",
+      "line": 8,
+      "old": "ic_blob_storage::dto::upload::manifest::UploadManifestDeclaration",
+      "new": "ic_blob_storage_contracts::dto::upload::manifest::UploadManifestDeclaration",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/upload_setup/mod.rs",
+      "line": 8,
+      "old": "ic_blob_storage::dto::upload::manifest::UploadManifestFailure",
+      "new": "ic_blob_storage_contracts::dto::upload::manifest::UploadManifestFailure",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/upload_setup/mod.rs",
+      "line": 8,
+      "old": "ic_blob_storage::dto::upload::manifest::UploadManifestInspection",
+      "new": "ic_blob_storage_contracts::dto::upload::manifest::UploadManifestInspection",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/upload_setup/mod.rs",
+      "line": 8,
+      "old": "ic_blob_storage::dto::upload::manifest::UploadManifestRequest",
+      "new": "ic_blob_storage_contracts::dto::upload::manifest::UploadManifestRequest",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/upload_setup/mod.rs",
+      "line": 8,
+      "old": "ic_blob_storage::dto::upload::manifest::UploadManifestResponse",
+      "new": "ic_blob_storage_contracts::dto::upload::manifest::UploadManifestResponse",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/upload_setup/mod.rs",
+      "line": 8,
+      "old": "ic_blob_storage::model::identity::caffeine::manifest::CaffeineManifestLimits",
+      "new": "ic_blob_storage_contracts::identity::caffeine::manifest::CaffeineManifestLimits",
+      "class": "content verification/identity"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/upload_setup/mod.rs",
+      "line": 8,
+      "old": "ic_blob_storage::ops::service::uploads::admission::self",
+      "new": "ic_blob_storage_contracts::upload::admission::self",
+      "class": "pure binding/preparation validation"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/upload_setup/mod.rs",
+      "line": 8,
+      "old": "ic_blob_storage::ops::service::uploads::admission::reply",
+      "new": "ic_blob_storage_contracts::upload::admission::reply",
+      "class": "bounded reply decoding/correlation"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/upload_setup/mod.rs",
+      "line": 8,
+      "old": "ic_blob_storage::ops::service::uploads::manifests::self",
+      "new": "ic_blob_storage_contracts::upload::manifests::self",
+      "class": "pure binding/preparation validation"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/upload_setup/mod.rs",
+      "line": 8,
+      "old": "ic_blob_storage::ops::service::uploads::manifests::reply",
+      "new": "ic_blob_storage_contracts::upload::manifests::reply",
+      "class": "bounded reply decoding/correlation"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/upload_setup/request/mod.rs",
+      "line": 6,
+      "old": "ic_blob_storage::dto::upload::admission::UploadAdmissionRequest",
+      "new": "ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionRequest",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/upload_setup/request/mod.rs",
+      "line": 6,
+      "old": "ic_blob_storage::dto::upload::manifest::UploadManifestRequest",
+      "new": "ic_blob_storage_contracts::dto::upload::manifest::UploadManifestRequest",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/upload_setup/request/mod.rs",
+      "line": 6,
+      "old": "ic_blob_storage::ops::service::uploads::admission::reply",
+      "new": "ic_blob_storage_contracts::upload::admission::reply",
+      "class": "bounded reply decoding/correlation"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/upload_setup/request/mod.rs",
+      "line": 6,
+      "old": "ic_blob_storage::ops::service::uploads::manifests::reply",
+      "new": "ic_blob_storage_contracts::upload::manifests::reply",
+      "class": "bounded reply decoding/correlation"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/upload_setup/tests/mod.rs",
+      "line": 2,
+      "old": "ic_blob_storage::dto::reference::ReferenceUpload",
+      "new": "ic_blob_storage_contracts::dto::reference::ReferenceUpload",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/upload_setup/tests/mod.rs",
+      "line": 2,
+      "old": "ic_blob_storage::dto::upload::admission::UploadAdmissionMutation",
+      "new": "ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionMutation",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/verify_upload/mod.rs",
+      "line": 7,
+      "old": "ic_blob_storage::dto::upload::admission::UploadAdmissionRequest",
+      "new": "ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionRequest",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/verify_upload/mod.rs",
+      "line": 7,
+      "old": "ic_blob_storage::dto::upload::manifest::UploadManifestInspection",
+      "new": "ic_blob_storage_contracts::dto::upload::manifest::UploadManifestInspection",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/verify_upload/mod.rs",
+      "line": 7,
+      "old": "ic_blob_storage::ops::service::uploads::admission::reply::validate_request",
+      "new": "ic_blob_storage_contracts::upload::admission::reply::validate_request",
+      "class": "bounded reply decoding/correlation"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/verify_upload/mod.rs",
+      "line": 7,
+      "old": "ic_blob_storage::ops::service::uploads::manifests::reply::self",
+      "new": "ic_blob_storage_contracts::upload::manifests::reply::self",
+      "class": "bounded reply decoding/correlation"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/verify_upload/mod.rs",
+      "line": 7,
+      "old": "ic_blob_storage::ops::service::uploads::manifests::reply::UploadManifestReplyError",
+      "new": "ic_blob_storage_contracts::upload::manifests::reply::UploadManifestReplyError",
+      "class": "bounded reply decoding/correlation"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/verify_upload/tests/mod.rs",
+      "line": 2,
+      "old": "ic_blob_storage::model::identity::caffeine::CaffeineHashLimits",
+      "new": "ic_blob_storage_contracts::identity::caffeine::CaffeineHashLimits",
+      "class": "content verification/identity"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/verify_upload/tests/mod.rs",
+      "line": 2,
+      "old": "ic_blob_storage::model::identity::caffeine::CaffeineHeader",
+      "new": "ic_blob_storage_contracts::identity::caffeine::CaffeineHeader",
+      "class": "content verification/identity"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/verify_upload/tests/mod.rs",
+      "line": 3,
+      "old": "ic_blob_storage::dto::reference::ReferenceUpload",
+      "new": "ic_blob_storage_contracts::dto::reference::ReferenceUpload",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/verify_upload/tests/mod.rs",
+      "line": 3,
+      "old": "ic_blob_storage::dto::upload::manifest::UploadManifestDeclaration",
+      "new": "ic_blob_storage_contracts::dto::upload::manifest::UploadManifestDeclaration",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/verify_upload/tests/mod.rs",
+      "line": 3,
+      "old": "ic_blob_storage::dto::upload::manifest::UploadManifestFailure",
+      "new": "ic_blob_storage_contracts::dto::upload::manifest::UploadManifestFailure",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/verify_upload/tests/mod.rs",
+      "line": 3,
+      "old": "ic_blob_storage::dto::upload::manifest::UploadManifestHeader",
+      "new": "ic_blob_storage_contracts::dto::upload::manifest::UploadManifestHeader",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/verify_upload/tests/mod.rs",
+      "line": 3,
+      "old": "ic_blob_storage::dto::upload::manifest::UploadManifestResponse",
+      "new": "ic_blob_storage_contracts::dto::upload::manifest::UploadManifestResponse",
+      "class": "passive DTO"
+    },
+    {
+      "consumer": "crates/ic-blob-storage-cli/src/native/verify_upload/tests/mod.rs",
+      "line": 3,
+      "old": "ic_blob_storage::model::identity::caffeine::manifest::builder::CaffeineManifestBuilder",
+      "new": "ic_blob_storage_contracts::identity::caffeine::manifest::builder::CaffeineManifestBuilder",
+      "class": "content verification/identity"
+    },
+    {
+      "consumer": "crates/ic-blob-storage/examples/prepare_upload/inventory/mod.rs",
+      "line": 13,
+      "old": "ic_blob_storage::model::identity::caffeine::CAFFEINE_CHUNK_BYTES",
+      "new": "ic_blob_storage_contracts::identity::caffeine::CAFFEINE_CHUNK_BYTES",
+      "class": "content verification/identity"
+    },
+    {
+      "consumer": "crates/ic-blob-storage/examples/prepare_upload/inventory/mod.rs",
+      "line": 13,
+      "old": "ic_blob_storage::model::identity::caffeine::CaffeineHeader",
+      "new": "ic_blob_storage_contracts::identity::caffeine::CaffeineHeader",
+      "class": "content verification/identity"
+    },
+    {
+      "consumer": "crates/ic-blob-storage/examples/prepare_upload/inventory/mod.rs",
+      "line": 13,
+      "old": "ic_blob_storage::model::identity::verification::ContentVerifier",
+      "new": "ic_blob_storage_contracts::identity::verification::ContentVerifier",
+      "class": "content verification/identity"
+    },
+    {
+      "consumer": "crates/ic-blob-storage/examples/prepare_upload/inventory/mod.rs",
+      "line": 17,
+      "old": "ic_blob_storage::model::service::upload::manifest::validate_upload_metadata",
+      "new": "ic_blob_storage_contracts::upload::metadata::validate_upload_metadata",
+      "class": "pure binding/preparation validation"
+    },
+    {
+      "consumer": "crates/ic-blob-storage/examples/prepare_upload/main.rs",
+      "line": 8,
+      "old": "ic_blob_storage::model::identity::caffeine::CaffeineHashError",
+      "new": "ic_blob_storage_contracts::identity::caffeine::CaffeineHashError",
+      "class": "content verification/identity"
+    },
+    {
+      "consumer": "crates/ic-blob-storage/examples/prepare_upload/main.rs",
+      "line": 8,
+      "old": "ic_blob_storage::model::identity::caffeine::CaffeineHashLimits",
+      "new": "ic_blob_storage_contracts::identity::caffeine::CaffeineHashLimits",
+      "class": "content verification/identity"
+    },
+    {
+      "consumer": "crates/ic-blob-storage/examples/prepare_upload/main.rs",
+      "line": 8,
+      "old": "ic_blob_storage::model::identity::caffeine::CaffeineHeader",
+      "new": "ic_blob_storage_contracts::identity::caffeine::CaffeineHeader",
+      "class": "content verification/identity"
+    },
+    {
+      "consumer": "crates/ic-blob-storage/examples/prepare_upload/main.rs",
+      "line": 8,
+      "old": "ic_blob_storage::model::identity::caffeine::manifest::builder::CaffeineManifestBuilder",
+      "new": "ic_blob_storage_contracts::identity::caffeine::manifest::builder::CaffeineManifestBuilder",
+      "class": "content verification/identity"
+    },
+    {
+      "consumer": "crates/ic-blob-storage/examples/prepare_upload/main.rs",
+      "line": 8,
+      "old": "ic_blob_storage::model::identity::caffeine::manifest::builder::CaffeineManifestBuilderError",
+      "new": "ic_blob_storage_contracts::identity::caffeine::manifest::builder::CaffeineManifestBuilderError",
+      "class": "content verification/identity"
+    },
+    {
+      "consumer": "crates/ic-blob-storage/examples/prepare_upload/main.rs",
+      "line": 8,
+      "old": "ic_blob_storage::model::service::upload::manifest::UploadMetadataError",
+      "new": "ic_blob_storage_contracts::upload::metadata::UploadMetadataError",
+      "class": "pure binding/preparation validation"
+    },
+    {
+      "consumer": "crates/ic-blob-storage/examples/prepare_upload/main.rs",
+      "line": 8,
+      "old": "ic_blob_storage::model::service::upload::manifest::validate_upload_metadata",
+      "new": "ic_blob_storage_contracts::upload::metadata::validate_upload_metadata",
+      "class": "pure binding/preparation validation"
+    },
+    {
+      "consumer": "crates/ic-blob-storage/examples/prepare_upload/tests/mod.rs",
+      "line": 2,
+      "old": "ic_blob_storage::model::identity::caffeine::CaffeineHashLimit",
+      "new": "ic_blob_storage_contracts::identity::caffeine::CaffeineHashLimit",
+      "class": "content verification/identity"
+    },
+    {
+      "consumer": "crates/ic-blob-storage/examples/verify_download/main.rs",
+      "line": 7,
+      "old": "ic_blob_storage::model::identity::caffeine::CaffeineContentHashes",
+      "new": "ic_blob_storage_contracts::identity::caffeine::CaffeineContentHashes",
+      "class": "content verification/identity"
+    },
+    {
+      "consumer": "crates/ic-blob-storage/examples/verify_download/main.rs",
+      "line": 7,
+      "old": "ic_blob_storage::model::identity::caffeine::CaffeineHashError",
+      "new": "ic_blob_storage_contracts::identity::caffeine::CaffeineHashError",
+      "class": "content verification/identity"
+    },
+    {
+      "consumer": "crates/ic-blob-storage/examples/verify_download/main.rs",
+      "line": 7,
+      "old": "ic_blob_storage::model::identity::caffeine::CaffeineHashLimits",
+      "new": "ic_blob_storage_contracts::identity::caffeine::CaffeineHashLimits",
+      "class": "content verification/identity"
+    },
+    {
+      "consumer": "crates/ic-blob-storage/examples/verify_download/main.rs",
+      "line": 7,
+      "old": "ic_blob_storage::model::identity::caffeine::CaffeineHeader",
+      "new": "ic_blob_storage_contracts::identity::caffeine::CaffeineHeader",
+      "class": "content verification/identity"
+    },
+    {
+      "consumer": "crates/ic-blob-storage/examples/verify_download/main.rs",
+      "line": 7,
+      "old": "ic_blob_storage::model::identity::caffeine::verification::CaffeineRootVerifier",
+      "new": "ic_blob_storage_contracts::identity::caffeine::verification::CaffeineRootVerifier",
+      "class": "content verification/identity"
+    }
+  ],
+  "module_and_split_symbol_paths": {
+    "dto": "dto",
+    "model::identity": "identity",
+    "model::lifecycle::binding": "binding",
+    "model::lifecycle::ReferenceId": "binding::ReferenceId",
+    "model::catalog::admission::UploadRequestId": "upload::binding::UploadRequestId",
+    "model::catalog::admission::UploadRequest": "upload::binding::UploadRequest",
+    "model::catalog::admission::UploadObject": "upload::binding::UploadObject",
+    "model::service::upload::UploadContext": "upload::binding::UploadContext",
+    "model::service::upload::UploadPermission": "upload::binding::UploadPermission",
+    "model::lifecycle::requests::ReferenceRequestId": "reference::binding::ReferenceRequestId",
+    "model::lifecycle::requests::ReferenceOperation": "reference::binding::ReferenceOperation",
+    "model::lifecycle::requests::ReferenceRequest": "reference::binding::ReferenceRequest",
+    "model::service::upload::completion": "upload::completion",
+    "model::service::read::download": "download::scope",
+    "model::service::upload::manifest::metadata": "upload::metadata",
+    "model::service::configuration": "configuration::service",
+    "model::billing::configuration": "configuration::billing",
+    "model::billing::FundingLimits": "configuration::funding::FundingLimits",
+    "model::billing::FundingLimitsError": "configuration::funding::FundingLimitsError",
+    "model::catalog::CatalogLimits": "configuration::limits::CatalogLimits",
+    "model::catalog::admission::UploadLimits": "configuration::limits::UploadLimits",
+    "model::gateway::GatewayListLimits": "configuration::limits::GatewayListLimits",
+    "model::billing::transfer": "funding::transfer",
+    "ops::caffeine::preparation": "provider::preparation",
+    "ops::caffeine::download": "provider::download",
+    "ops::caffeine::onboarding": "provider::onboarding",
+    "ops::service::uploads::admission::reply": "upload::admission::reply",
+    "ops::service::uploads::manifests::reply": "upload::manifests::reply",
+    "ops::service::uploads::completion::reply": "upload::completion::reply",
+    "ops::service::uploads::completion::verification::reply": "upload::completion::verification::reply",
+    "ops::service::uploads::certificate::reply": "upload::certificate::reply",
+    "ops::service::uploads::history::reply": "upload::history::reply",
+    "ops::service::uploads::status::reply": "upload::status::reply",
+    "ops::service::uploads::tenants::reply": "tenant::reply",
+    "ops::service::references::reply": "reference::reply",
+    "ops::service::reads::download::reply": "download::reply",
+    "ops::service::funding::reply": "funding::reply",
+    "ops::service::references::parse": "reference::parse",
+    "ops::service::references::parse_upload": "reference::parse_upload",
+    "ops::service::references::parse_upload_binding": "reference::parse_upload_binding",
+    "ops::service::references::status::parse": "reference::status::parse",
+    "ops::service::uploads::admission::parse": "upload::admission::parse",
+    "ops::service::uploads::admission::parse_binding": "upload::admission::parse_binding",
+    "ops::service::reads::download::parse": "download::parse",
+    "ops::service::uploads::manifests::bounds": "upload::manifests::bounds",
+    "ops::service::uploads::manifests::headers": "upload::manifests::headers",
+    "workflow::uploads::certificate::CAFFEINE_UPLOAD_CERTIFICATE_METHOD": "protocol::CAFFEINE_UPLOAD_CERTIFICATE_METHOD",
+    "workflow::uploads::certificate::UPLOAD_CERTIFICATE_ASSESSMENT_METHOD": "protocol::UPLOAD_CERTIFICATE_ASSESSMENT_METHOD",
+    "ops::service::references::REFERENCE_RECEIPT_METHOD": "protocol::REFERENCE_RECEIPT_METHOD",
+    "ops::service::references::REFERENCE_APPLY_METHOD": "protocol::REFERENCE_APPLY_METHOD",
+    "ops::service::operator::LOCAL_STATUS_METHOD": "protocol::LOCAL_STATUS_METHOD",
+    "ops::service::gateways::revocation::GATEWAY_REVOCATION_METHOD": "protocol::GATEWAY_REVOCATION_METHOD",
+    "ops::service::gateways::sync::GATEWAY_SYNC_METHOD": "protocol::GATEWAY_SYNC_METHOD",
+    "ops::service::gateways::sync::GATEWAY_SYNC_CANCEL_METHOD": "protocol::GATEWAY_SYNC_CANCEL_METHOD",
+    "ops::service::references::status::REFERENCE_STATUS_METHOD": "protocol::REFERENCE_STATUS_METHOD",
+    "ops::service::references::capacity::REFERENCE_CAPACITY_METHOD": "protocol::REFERENCE_CAPACITY_METHOD",
+    "ops::service::reads::download::DOWNLOAD_METHOD": "protocol::DOWNLOAD_METHOD",
+    "ops::service::funding::assessment::FUNDING_PREPARATION_METHOD": "protocol::FUNDING_PREPARATION_METHOD",
+    "ops::service::funding::history::boundary::FUNDING_HISTORY_METHOD": "protocol::FUNDING_HISTORY_METHOD",
+    "ops::service::funding::outcome::boundary::FUNDING_OUTCOME_METHOD": "protocol::FUNDING_OUTCOME_METHOD",
+    "ops::service::uploads::admission::UPLOAD_ADMISSION_METHOD": "protocol::UPLOAD_ADMISSION_METHOD",
+    "ops::service::uploads::admission::UPLOAD_ADMISSION_STATUS_METHOD": "protocol::UPLOAD_ADMISSION_STATUS_METHOD",
+    "ops::service::uploads::admission::UPLOAD_REVOCATION_METHOD": "protocol::UPLOAD_REVOCATION_METHOD",
+    "ops::service::uploads::status::UPLOAD_STATUS_METHOD": "protocol::UPLOAD_STATUS_METHOD",
+    "ops::service::uploads::capacity::UPLOAD_CAPACITY_METHOD": "protocol::UPLOAD_CAPACITY_METHOD",
+    "ops::service::uploads::history::UPLOAD_HISTORY_METHOD": "protocol::UPLOAD_HISTORY_METHOD",
+    "ops::service::uploads::discovery::UPLOAD_DISCOVERY_METHOD": "protocol::UPLOAD_DISCOVERY_METHOD",
+    "ops::service::uploads::tenants::TENANT_UPDATE_METHOD": "protocol::TENANT_UPDATE_METHOD",
+    "ops::service::uploads::tenants::TENANT_INSPECTION_METHOD": "protocol::TENANT_INSPECTION_METHOD",
+    "ops::service::uploads::completion::UPLOAD_ATTEST_METHOD": "protocol::UPLOAD_ATTEST_METHOD",
+    "ops::service::uploads::completion::UPLOAD_ATTESTATION_METHOD": "protocol::UPLOAD_ATTESTATION_METHOD",
+    "ops::service::uploads::completion::UPLOAD_VERIFICATION_MANIFEST_METHOD": "protocol::UPLOAD_VERIFICATION_MANIFEST_METHOD",
+    "ops::service::uploads::manifests::UPLOAD_MANIFEST_PREPARE_METHOD": "protocol::UPLOAD_MANIFEST_PREPARE_METHOD",
+    "ops::service::uploads::manifests::UPLOAD_MANIFEST_INSPECT_METHOD": "protocol::UPLOAD_MANIFEST_INSPECT_METHOD",
+    "ops::service::uploads::completion::verification::UPLOAD_VERIFICATION_PLAN_METHOD": "protocol::UPLOAD_VERIFICATION_PLAN_METHOD",
+    "model::service::upload::manifest::validate_upload_metadata": "upload::metadata::validate_upload_metadata",
+    "model::service::upload::manifest::UploadMetadataError": "upload::metadata::UploadMetadataError",
+    "model::service::tenant::TenantUpdate": "tenant::TenantUpdate",
+    "model::service::tenant::TenantEnrollmentView": "tenant::TenantEnrollmentView",
+    "model::service::tenant::TenantError": "tenant::TenantError",
+    "model::service::tenant::next_enrollment": "tenant::next_enrollment",
+    "ops::service::uploads::tenants::parse": "tenant::parse",
+    "ops::service::uploads::status::parse": "upload::status::parse",
+    "ops::service::uploads::status::boundary_failure": "upload::status::boundary_failure",
+    "model::lifecycle::LifecyclePhase": "upload::history::LifecyclePhase",
+    "model::catalog::admission::read::UploadRootState": "upload::history::UploadRootState",
+    "ops::service::uploads::read::UploadScanFilter": "upload::history::UploadScanFilter",
+    "ops::service::uploads::history::filter": "upload::history::filter",
+    "model::service::upload::issuer": "upload::issuer",
+    "ops::service::installation::ServiceInstallationCandidate": "configuration::ServiceInstallationCandidate",
+    "ops::service::configuration::decode_candidate": "configuration::decode_candidate",
+    "ops::service::configuration::validate_candidate": "configuration::validate_candidate (pure input); service projection retains its name",
+    "ops::service::configuration::ConfigurationInputError": "configuration::ConfigurationInputError",
+    "ops::service::configuration::ConfigurationScalar": "configuration::ConfigurationScalar",
+    "ops::service::installation::ValidatedServiceInstallation": "configuration::ValidatedInstallationInput (client preflight only); service record-aware type remains",
+    "LIBRARY_VERSION": "CONTRACT_VERSION (client compiled identity); service constant remains",
+    "ops::service::uploads::admission": "upload::admission",
+    "ops::service::uploads::manifests": "upload::manifests",
+    "ops::service::uploads::completion::verification": "upload::completion::verification"
+  },
+  "whole_file_moves": [
+    {
+      "old_file": "crates/ic-blob-storage/src/model/lifecycle/binding/mod.rs",
+      "new_file": "crates/ic-blob-storage-contracts/src/binding/mod.rs",
+      "named_declarations_including_private_and_test_helpers": [
+        {
+          "kind": "struct",
+          "name": "ObjectIdentity",
+          "line": 18
+        },
+        {
+          "kind": "struct",
+          "name": "ObjectBinding",
+          "line": 29
+        },
+        {
+          "kind": "fn",
+          "name": "new",
+          "line": 43
+        },
+        {
+          "kind": "fn",
+          "name": "service",
+          "line": 63
+        },
+        {
+          "kind": "fn",
+          "name": "tenant",
+          "line": 69
+        },
+        {
+          "kind": "fn",
+          "name": "identity",
+          "line": 75
+        },
+        {
+          "kind": "fn",
+          "name": "check",
+          "line": 84
+        },
+        {
+          "kind": "fn",
+          "name": "is_concrete",
+          "line": 103
+        },
+        {
+          "kind": "enum",
+          "name": "ObjectBindingError",
+          "line": 110
+        },
+        {
+          "kind": "enum",
+          "name": "ObjectBindingMismatch",
+          "line": 121
+        },
+        {
+          "kind": "struct",
+          "name": "ReferenceKey",
+          "line": 144
+        },
+        {
+          "kind": "fn",
+          "name": "new",
+          "line": 152
+        },
+        {
+          "kind": "fn",
+          "name": "object",
+          "line": 158
+        },
+        {
+          "kind": "fn",
+          "name": "reference",
+          "line": 164
+        },
+        {
+          "kind": "fn",
+          "name": "special_principals_are_rejected_in_each_role",
+          "line": 174
+        }
+      ]
+    },
+    {
+      "old_file": "crates/ic-blob-storage/src/model/billing/configuration/mod.rs",
+      "new_file": "crates/ic-blob-storage-contracts/src/configuration/billing/mod.rs",
+      "named_declarations_including_private_and_test_helpers": [
+        {
+          "kind": "enum",
+          "name": "GatewayLimitField",
+          "line": 12
+        },
+        {
+          "kind": "struct",
+          "name": "BillingConfiguration",
+          "line": 26
+        },
+        {
+          "kind": "fn",
+          "name": "new",
+          "line": 42
+        },
+        {
+          "kind": "fn",
+          "name": "cashier",
+          "line": 65
+        },
+        {
+          "kind": "fn",
+          "name": "funding_limits",
+          "line": 71
+        },
+        {
+          "kind": "fn",
+          "name": "gateway_limits",
+          "line": 77
+        },
+        {
+          "kind": "fn",
+          "name": "gateway_limit",
+          "line": 81
+        },
+        {
+          "kind": "enum",
+          "name": "BillingConfigurationError",
+          "line": 95
+        },
+        {
+          "kind": "fn",
+          "name": "funding",
+          "line": 119
+        },
+        {
+          "kind": "fn",
+          "name": "special_cashier_principals_reject_without_claiming_other_principals_are_deployed",
+          "line": 125
+        },
+        {
+          "kind": "fn",
+          "name": "both_gateway_bounds_reject_zero_and_host_only_sizes",
+          "line": 142
+        },
+        {
+          "kind": "fn",
+          "name": "maximum_representable_configuration_needs_no_collection_allocation",
+          "line": 167
+        }
+      ]
+    },
+    {
+      "old_file": "crates/ic-blob-storage/src/model/service/configuration/mod.rs",
+      "new_file": "crates/ic-blob-storage-contracts/src/configuration/service/mod.rs",
+      "named_declarations_including_private_and_test_helpers": [
+        {
+          "kind": "struct",
+          "name": "ServiceBindings",
+          "line": 18
+        },
+        {
+          "kind": "struct",
+          "name": "ServiceLimits",
+          "line": 32
+        },
+        {
+          "kind": "struct",
+          "name": "ServiceManifestLimits",
+          "line": 57
+        },
+        {
+          "kind": "struct",
+          "name": "ServiceConfiguration",
+          "line": 72
+        },
+        {
+          "kind": "fn",
+          "name": "new",
+          "line": 87
+        },
+        {
+          "kind": "fn",
+          "name": "bindings",
+          "line": 115
+        },
+        {
+          "kind": "fn",
+          "name": "limits",
+          "line": 121
+        },
+        {
+          "kind": "fn",
+          "name": "billing",
+          "line": 127
+        },
+        {
+          "kind": "fn",
+          "name": "manifest_limits",
+          "line": 139
+        },
+        {
+          "kind": "fn",
+          "name": "chunk_count",
+          "line": 151
+        },
+        {
+          "kind": "fn",
+          "name": "validate_limits",
+          "line": 158
+        },
+        {
+          "kind": "enum",
+          "name": "ServicePrincipal",
+          "line": 258
+        },
+        {
+          "kind": "enum",
+          "name": "ServiceCount",
+          "line": 269
+        },
+        {
+          "kind": "enum",
+          "name": "ServiceLimitError",
+          "line": 298
+        },
+        {
+          "kind": "enum",
+          "name": "ServiceConfigurationError",
+          "line": 345
+        }
+      ]
+    },
+    {
+      "old_file": "crates/ic-blob-storage/src/model/service/configuration/tests/mod.rs",
+      "new_file": "crates/ic-blob-storage-contracts/src/configuration/service/tests/mod.rs",
+      "named_declarations_including_private_and_test_helpers": [
+        {
+          "kind": "type",
+          "name": "LimitChange",
+          "line": 4
+        },
+        {
+          "kind": "type",
+          "name": "CountChange",
+          "line": 6
+        },
+        {
+          "kind": "fn",
+          "name": "p",
+          "line": 7
+        },
+        {
+          "kind": "fn",
+          "name": "n",
+          "line": 11
+        },
+        {
+          "kind": "fn",
+          "name": "bytes",
+          "line": 14
+        },
+        {
+          "kind": "fn",
+          "name": "bindings",
+          "line": 17
+        },
+        {
+          "kind": "fn",
+          "name": "limits",
+          "line": 25
+        },
+        {
+          "kind": "fn",
+          "name": "billing",
+          "line": 52
+        },
+        {
+          "kind": "fn",
+          "name": "metadata_budget_can_represent_the_largest_admitted_length",
+          "line": 57
+        },
+        {
+          "kind": "fn",
+          "name": "roles_and_independent_budgets_remain_explicit",
+          "line": 70
+        },
+        {
+          "kind": "fn",
+          "name": "contradictory_object_upload_and_release_capacities_reject_without_replacing_valid_config",
+          "line": 114
+        },
+        {
+          "kind": "fn",
+          "name": "counts_are_portable_without_allocating_the_advertised_collections",
+          "line": 175
+        },
+        {
+          "kind": "fn",
+          "name": "largest_portable_reference_budget_uses_wide_arithmetic",
+          "line": 221
+        },
+        {
+          "kind": "fn",
+          "name": "retained_leaf_arrays_must_fit_the_portable_address_space",
+          "line": 236
+        },
+        {
+          "kind": "fn",
+          "name": "manifest_envelope_uses_the_admitted_length_and_rejects_unrepresentable_hash_work",
+          "line": 250
+        },
+        {
+          "kind": "fn",
+          "name": "accepted_reference_budget_can_retain_and_release_every_advertised_reference",
+          "line": 279
+        }
+      ]
+    },
+    {
+      "old_file": "crates/ic-blob-storage/src/ops/service/reads/download/reply/mod.rs",
+      "new_file": "crates/ic-blob-storage-contracts/src/download/reply/mod.rs",
+      "named_declarations_including_private_and_test_helpers": [
+        {
+          "kind": "struct",
+          "name": "DownloadReplyLimits",
+          "line": 19
+        },
+        {
+          "kind": "enum",
+          "name": "DownloadReplyError",
+          "line": 31
+        },
+        {
+          "kind": "fn",
+          "name": "check_request",
+          "line": 45
+        },
+        {
+          "kind": "fn",
+          "name": "decode",
+          "line": 68
+        }
+      ]
+    },
+    {
+      "old_file": "crates/ic-blob-storage/src/ops/service/reads/download/reply/tests/mod.rs",
+      "new_file": "crates/ic-blob-storage-contracts/src/download/reply/tests/mod.rs",
+      "named_declarations_including_private_and_test_helpers": [
+        {
+          "kind": "fn",
+          "name": "setup",
+          "line": 4
+        },
+        {
+          "kind": "fn",
+          "name": "encode",
+          "line": 49
+        },
+        {
+          "kind": "fn",
+          "name": "descriptor_reply_requires_every_original_identity_and_preserves_metadata",
+          "line": 53
+        },
+        {
+          "kind": "fn",
+          "name": "descriptor_reply_bounds_decoding_and_rejects_inconsistent_hash_metadata",
+          "line": 85
+        }
+      ]
+    },
+    {
+      "old_file": "crates/ic-blob-storage/src/model/service/read/download/mod.rs",
+      "new_file": "crates/ic-blob-storage-contracts/src/download/scope/mod.rs",
+      "named_declarations_including_private_and_test_helpers": [
+        {
+          "kind": "struct",
+          "name": "CaffeineDownloadScope",
+          "line": 12
+        },
+        {
+          "kind": "enum",
+          "name": "DownloadScopeError",
+          "line": 19
+        },
+        {
+          "kind": "fn",
+          "name": "new",
+          "line": 32
+        },
+        {
+          "kind": "fn",
+          "name": "owner",
+          "line": 55
+        },
+        {
+          "kind": "fn",
+          "name": "namespace",
+          "line": 60
+        },
+        {
+          "kind": "fn",
+          "name": "project",
+          "line": 65
+        }
+      ]
+    },
+    {
+      "old_file": "crates/ic-blob-storage/src/model/service/read/download/tests/mod.rs",
+      "new_file": "crates/ic-blob-storage-contracts/src/download/scope/tests/mod.rs",
+      "named_declarations_including_private_and_test_helpers": [
+        {
+          "kind": "fn",
+          "name": "download_scope_requires_explicit_bounded_project_and_owner",
+          "line": 3
+        }
+      ]
+    },
+    {
+      "old_file": "crates/ic-blob-storage/src/dto/account/mod.rs",
+      "new_file": "crates/ic-blob-storage-contracts/src/dto/account/mod.rs",
+      "named_declarations_including_private_and_test_helpers": [
+        {
+          "kind": "enum",
+          "name": "AccountInspectionKind",
+          "line": 7
+        },
+        {
+          "kind": "struct",
+          "name": "AccountInspectionRequest",
+          "line": 15
+        },
+        {
+          "kind": "struct",
+          "name": "AccountRelationshipView",
+          "line": 23
+        },
+        {
+          "kind": "enum",
+          "name": "AccountObservation",
+          "line": 47
+        },
+        {
+          "kind": "struct",
+          "name": "AccountInspectionResponse",
+          "line": 67
+        },
+        {
+          "kind": "enum",
+          "name": "AccountInspectionFailure",
+          "line": 75
+        }
+      ]
+    },
+    {
+      "old_file": "crates/ic-blob-storage/src/dto/configuration/mod.rs",
+      "new_file": "crates/ic-blob-storage-contracts/src/dto/configuration/mod.rs",
+      "named_declarations_including_private_and_test_helpers": [
+        {
+          "kind": "struct",
+          "name": "ServiceInstallationInput",
+          "line": 8
+        },
+        {
+          "kind": "struct",
+          "name": "HostConfigurationView",
+          "line": 21
+        },
+        {
+          "kind": "enum",
+          "name": "HostFailure",
+          "line": 38
+        },
+        {
+          "kind": "struct",
+          "name": "ServiceConfigurationInput",
+          "line": 46
+        },
+        {
+          "kind": "struct",
+          "name": "ServiceFundingInput",
+          "line": 67
+        },
+        {
+          "kind": "struct",
+          "name": "ServiceReadInput",
+          "line": 81
+        },
+        {
+          "kind": "struct",
+          "name": "ServiceResourceInput",
+          "line": 96
+        },
+        {
+          "kind": "struct",
+          "name": "ServiceBillingInput",
+          "line": 131
+        }
+      ]
+    },
+    {
+      "old_file": "crates/ic-blob-storage/src/dto/download/mod.rs",
+      "new_file": "crates/ic-blob-storage-contracts/src/dto/download/mod.rs",
+      "named_declarations_including_private_and_test_helpers": [
+        {
+          "kind": "struct",
+          "name": "DownloadRequest",
+          "line": 7
+        },
+        {
+          "kind": "struct",
+          "name": "DownloadHeader",
+          "line": 25
+        },
+        {
+          "kind": "struct",
+          "name": "DownloadResponse",
+          "line": 34
+        },
+        {
+          "kind": "enum",
+          "name": "DownloadFailure",
+          "line": 49
+        }
+      ]
+    },
+    {
+      "old_file": "crates/ic-blob-storage/src/dto/funding/assessment/mod.rs",
+      "new_file": "crates/ic-blob-storage-contracts/src/dto/funding/assessment/mod.rs",
+      "named_declarations_including_private_and_test_helpers": [
+        {
+          "kind": "struct",
+          "name": "FundingPreparationRequest",
+          "line": 7
+        },
+        {
+          "kind": "enum",
+          "name": "FundingPreparationBlocker",
+          "line": 19
+        },
+        {
+          "kind": "struct",
+          "name": "FundingPreparationResponse",
+          "line": 46
+        },
+        {
+          "kind": "enum",
+          "name": "FundingPreparationFailure",
+          "line": 56
+        }
+      ]
+    },
+    {
+      "old_file": "crates/ic-blob-storage/src/dto/funding/mod.rs",
+      "new_file": "crates/ic-blob-storage-contracts/src/dto/funding/mod.rs",
+      "named_declarations_including_private_and_test_helpers": [
+        {
+          "kind": "struct",
+          "name": "FundingHistoryCursor",
+          "line": 9
+        },
+        {
+          "kind": "struct",
+          "name": "FundingHistoryRequest",
+          "line": 17
+        },
+        {
+          "kind": "enum",
+          "name": "FundingPhase",
+          "line": 25
+        },
+        {
+          "kind": "struct",
+          "name": "FundingHistoryEntry",
+          "line": 40
+        },
+        {
+          "kind": "struct",
+          "name": "FundingHistoryPage",
+          "line": 54
+        },
+        {
+          "kind": "enum",
+          "name": "FundingHistoryFailure",
+          "line": 66
+        }
+      ]
+    },
+    {
+      "old_file": "crates/ic-blob-storage/src/dto/funding/outcome/mod.rs",
+      "new_file": "crates/ic-blob-storage-contracts/src/dto/funding/outcome/mod.rs",
+      "named_declarations_including_private_and_test_helpers": [
+        {
+          "kind": "struct",
+          "name": "FundingOutcomeRequest",
+          "line": 7
+        },
+        {
+          "kind": "struct",
+          "name": "FundingReportedBalance",
+          "line": 19
+        },
+        {
+          "kind": "enum",
+          "name": "FundingBalanceField",
+          "line": 31
+        },
+        {
+          "kind": "enum",
+          "name": "FundingResponse",
+          "line": 43
+        },
+        {
+          "kind": "enum",
+          "name": "FundingReconciliation",
+          "line": 69
+        },
+        {
+          "kind": "struct",
+          "name": "FundingOutcomeResponse",
+          "line": 86
+        },
+        {
+          "kind": "enum",
+          "name": "FundingOutcomeFailure",
+          "line": 103
+        }
+      ]
+    },
+    {
+      "old_file": "crates/ic-blob-storage/src/dto/gateway/mod.rs",
+      "new_file": "crates/ic-blob-storage-contracts/src/dto/gateway/mod.rs",
+      "named_declarations_including_private_and_test_helpers": [
+        {
+          "kind": "struct",
+          "name": "GatewayRevocationRequest",
+          "line": 10
+        },
+        {
+          "kind": "struct",
+          "name": "GatewayRevocationResponse",
+          "line": 18
+        },
+        {
+          "kind": "enum",
+          "name": "GatewayRevocationFailure",
+          "line": 27
+        }
+      ]
+    },
+    {
+      "old_file": "crates/ic-blob-storage/src/dto/gateway/sync/mod.rs",
+      "new_file": "crates/ic-blob-storage-contracts/src/dto/gateway/sync/mod.rs",
+      "named_declarations_including_private_and_test_helpers": [
+        {
+          "kind": "struct",
+          "name": "GatewaySyncResponse",
+          "line": 8
+        },
+        {
+          "kind": "struct",
+          "name": "GatewaySyncCancellation",
+          "line": 16
+        },
+        {
+          "kind": "enum",
+          "name": "GatewaySyncFailure",
+          "line": 24
+        }
+      ]
+    },
+    {
+      "old_file": "crates/ic-blob-storage/src/dto/mod.rs",
+      "new_file": "crates/ic-blob-storage-contracts/src/dto/mod.rs",
+      "named_declarations_including_private_and_test_helpers": []
+    },
+    {
+      "old_file": "crates/ic-blob-storage/src/dto/operator/mod.rs",
+      "new_file": "crates/ic-blob-storage-contracts/src/dto/operator/mod.rs",
+      "named_declarations_including_private_and_test_helpers": [
+        {
+          "kind": "struct",
+          "name": "OperatorScope",
+          "line": 6
+        },
+        {
+          "kind": "struct",
+          "name": "LocalServiceStatus",
+          "line": 19
+        },
+        {
+          "kind": "struct",
+          "name": "LocalUploadStatus",
+          "line": 33
+        },
+        {
+          "kind": "struct",
+          "name": "LocalFundingStatus",
+          "line": 51
+        },
+        {
+          "kind": "struct",
+          "name": "LocalGatewayStatus",
+          "line": 81
+        },
+        {
+          "kind": "struct",
+          "name": "LocalReadStatus",
+          "line": 93
+        },
+        {
+          "kind": "enum",
+          "name": "LocalStatusFailure",
+          "line": 105
+        }
+      ]
+    },
+    {
+      "old_file": "crates/ic-blob-storage/src/dto/recovery/mod.rs",
+      "new_file": "crates/ic-blob-storage-contracts/src/dto/recovery/mod.rs",
+      "named_declarations_including_private_and_test_helpers": [
+        {
+          "kind": "enum",
+          "name": "CurrentInstanceRecoveryFailure",
+          "line": 6
+        }
+      ]
+    },
+    {
+      "old_file": "crates/ic-blob-storage/src/dto/reference/capacity/mod.rs",
+      "new_file": "crates/ic-blob-storage-contracts/src/dto/reference/capacity/mod.rs",
+      "named_declarations_including_private_and_test_helpers": [
+        {
+          "kind": "struct",
+          "name": "ReferenceCapacityRequest",
+          "line": 7
+        },
+        {
+          "kind": "struct",
+          "name": "ReferenceHeadroom",
+          "line": 15
+        },
+        {
+          "kind": "struct",
+          "name": "ReferenceCapacityResponse",
+          "line": 28
+        },
+        {
+          "kind": "enum",
+          "name": "ReferenceCapacityFailure",
+          "line": 38
+        }
+      ]
+    },
+    {
+      "old_file": "crates/ic-blob-storage/src/dto/reference/mod.rs",
+      "new_file": "crates/ic-blob-storage-contracts/src/dto/reference/mod.rs",
+      "named_declarations_including_private_and_test_helpers": [
+        {
+          "kind": "struct",
+          "name": "ReferenceUpload",
+          "line": 8
+        },
+        {
+          "kind": "enum",
+          "name": "ReferenceAction",
+          "line": 30
+        },
+        {
+          "kind": "struct",
+          "name": "ReferenceCommand",
+          "line": 38
+        },
+        {
+          "kind": "enum",
+          "name": "ReferenceChange",
+          "line": 50
+        },
+        {
+          "kind": "enum",
+          "name": "ReferenceTransitionFailure",
+          "line": 58
+        },
+        {
+          "kind": "struct",
+          "name": "ReferenceReceiptResponse",
+          "line": 70
+        },
+        {
+          "kind": "enum",
+          "name": "ReferenceReceiptLookup",
+          "line": 82
+        },
+        {
+          "kind": "enum",
+          "name": "ReferenceFailure",
+          "line": 90
+        },
+        {
+          "kind": "struct",
+          "name": "ReferenceMutationResponse",
+          "line": 115
+        }
+      ]
+    },
+    {
+      "old_file": "crates/ic-blob-storage/src/dto/reference/status/mod.rs",
+      "new_file": "crates/ic-blob-storage-contracts/src/dto/reference/status/mod.rs",
+      "named_declarations_including_private_and_test_helpers": [
+        {
+          "kind": "struct",
+          "name": "ReferenceStatusRequest",
+          "line": 7
+        },
+        {
+          "kind": "struct",
+          "name": "ReferenceStatusResponse",
+          "line": 15
+        }
+      ]
+    },
+    {
+      "old_file": "crates/ic-blob-storage/src/dto/tenant/mod.rs",
+      "new_file": "crates/ic-blob-storage-contracts/src/dto/tenant/mod.rs",
+      "named_declarations_including_private_and_test_helpers": [
+        {
+          "kind": "struct",
+          "name": "TenantScope",
+          "line": 6
+        },
+        {
+          "kind": "struct",
+          "name": "TenantEnrollment",
+          "line": 17
+        },
+        {
+          "kind": "struct",
+          "name": "TenantUpdateRequest",
+          "line": 26
+        },
+        {
+          "kind": "struct",
+          "name": "TenantEnrollmentResponse",
+          "line": 37
+        },
+        {
+          "kind": "enum",
+          "name": "TenantFailure",
+          "line": 48
+        }
+      ]
+    },
+    {
+      "old_file": "crates/ic-blob-storage/src/dto/upload/admission/mod.rs",
+      "new_file": "crates/ic-blob-storage-contracts/src/dto/upload/admission/mod.rs",
+      "named_declarations_including_private_and_test_helpers": [
+        {
+          "kind": "struct",
+          "name": "UploadAdmissionRequest",
+          "line": 6
+        },
+        {
+          "kind": "struct",
+          "name": "UploadAdmissionResponse",
+          "line": 16
+        },
+        {
+          "kind": "struct",
+          "name": "UploadAdmissionMutation",
+          "line": 26
+        },
+        {
+          "kind": "struct",
+          "name": "UploadRevocationResponse",
+          "line": 34
+        },
+        {
+          "kind": "enum",
+          "name": "UploadAdmissionFailure",
+          "line": 42
+        }
+      ]
+    },
+    {
+      "old_file": "crates/ic-blob-storage/src/dto/upload/capacity/mod.rs",
+      "new_file": "crates/ic-blob-storage-contracts/src/dto/upload/capacity/mod.rs",
+      "named_declarations_including_private_and_test_helpers": [
+        {
+          "kind": "struct",
+          "name": "UploadCapacityResponse",
+          "line": 7
+        },
+        {
+          "kind": "enum",
+          "name": "UploadCapacityFailure",
+          "line": 32
+        }
+      ]
+    },
+    {
+      "old_file": "crates/ic-blob-storage/src/dto/upload/certificate/mod.rs",
+      "new_file": "crates/ic-blob-storage-contracts/src/dto/upload/certificate/mod.rs",
+      "named_declarations_including_private_and_test_helpers": [
+        {
+          "kind": "struct",
+          "name": "UploadCertificateAssessmentResponse",
+          "line": 8
+        },
+        {
+          "kind": "struct",
+          "name": "CaffeineUploadCertificateResponse",
+          "line": 21
+        }
+      ]
+    },
+    {
+      "old_file": "crates/ic-blob-storage/src/dto/upload/completion/mod.rs",
+      "new_file": "crates/ic-blob-storage-contracts/src/dto/upload/completion/mod.rs",
+      "named_declarations_including_private_and_test_helpers": [
+        {
+          "kind": "struct",
+          "name": "UploadVerificationPlan",
+          "line": 7
+        },
+        {
+          "kind": "struct",
+          "name": "UploadAttestationRequest",
+          "line": 23
+        },
+        {
+          "kind": "struct",
+          "name": "UploadAttestationReceipt",
+          "line": 33
+        },
+        {
+          "kind": "enum",
+          "name": "UploadAttestationLookup",
+          "line": 47
+        },
+        {
+          "kind": "struct",
+          "name": "UploadAttestationResponse",
+          "line": 55
+        },
+        {
+          "kind": "struct",
+          "name": "UploadAttestationMutation",
+          "line": 65
+        },
+        {
+          "kind": "enum",
+          "name": "UploadAttestationFailure",
+          "line": 73
+        }
+      ]
+    },
+    {
+      "old_file": "crates/ic-blob-storage/src/dto/upload/discovery/mod.rs",
+      "new_file": "crates/ic-blob-storage-contracts/src/dto/upload/discovery/mod.rs",
+      "named_declarations_including_private_and_test_helpers": [
+        {
+          "kind": "struct",
+          "name": "UploadDiscoveryRequest",
+          "line": 7
+        },
+        {
+          "kind": "struct",
+          "name": "UploadDiscoveryResponse",
+          "line": 15
+        },
+        {
+          "kind": "enum",
+          "name": "UploadDiscoveryFailure",
+          "line": 25
+        }
+      ]
+    },
+    {
+      "old_file": "crates/ic-blob-storage/src/dto/upload/exposure/mod.rs",
+      "new_file": "crates/ic-blob-storage-contracts/src/dto/upload/exposure/mod.rs",
+      "named_declarations_including_private_and_test_helpers": [
+        {
+          "kind": "enum",
+          "name": "UploadExposureBlocker",
+          "line": 8
+        },
+        {
+          "kind": "enum",
+          "name": "UploadExposureFailure",
+          "line": 22
+        }
+      ]
+    },
+    {
+      "old_file": "crates/ic-blob-storage/src/dto/upload/history/mod.rs",
+      "new_file": "crates/ic-blob-storage-contracts/src/dto/upload/history/mod.rs",
+      "named_declarations_including_private_and_test_helpers": [
+        {
+          "kind": "enum",
+          "name": "UploadHistoryScope",
+          "line": 7
+        },
+        {
+          "kind": "enum",
+          "name": "UploadHistoryFilter",
+          "line": 15
+        },
+        {
+          "kind": "struct",
+          "name": "UploadHistoryCursor",
+          "line": 27
+        },
+        {
+          "kind": "struct",
+          "name": "UploadHistoryRequest",
+          "line": 43
+        },
+        {
+          "kind": "enum",
+          "name": "UploadContentState",
+          "line": 57
+        },
+        {
+          "kind": "struct",
+          "name": "UploadHistoryEntry",
+          "line": 75
+        },
+        {
+          "kind": "struct",
+          "name": "UploadHistoryPage",
+          "line": 83
+        },
+        {
+          "kind": "enum",
+          "name": "UploadHistoryFailure",
+          "line": 97
+        }
+      ]
+    },
+    {
+      "old_file": "crates/ic-blob-storage/src/dto/upload/manifest/mod.rs",
+      "new_file": "crates/ic-blob-storage-contracts/src/dto/upload/manifest/mod.rs",
+      "named_declarations_including_private_and_test_helpers": [
+        {
+          "kind": "struct",
+          "name": "UploadManifestHeader",
+          "line": 6
+        },
+        {
+          "kind": "struct",
+          "name": "UploadManifestDeclaration",
+          "line": 14
+        },
+        {
+          "kind": "struct",
+          "name": "UploadManifestRequest",
+          "line": 22
+        },
+        {
+          "kind": "enum",
+          "name": "UploadManifestInspection",
+          "line": 30
+        },
+        {
+          "kind": "struct",
+          "name": "UploadManifestResponse",
+          "line": 38
+        },
+        {
+          "kind": "struct",
+          "name": "UploadManifestMutation",
+          "line": 46
+        },
+        {
+          "kind": "enum",
+          "name": "UploadManifestFailure",
+          "line": 54
+        }
+      ]
+    },
+    {
+      "old_file": "crates/ic-blob-storage/src/dto/upload/mod.rs",
+      "new_file": "crates/ic-blob-storage-contracts/src/dto/upload/mod.rs",
+      "named_declarations_including_private_and_test_helpers": [
+        {
+          "kind": "enum",
+          "name": "UploadState",
+          "line": 14
+        },
+        {
+          "kind": "struct",
+          "name": "UploadStatusResponse",
+          "line": 27
+        },
+        {
+          "kind": "enum",
+          "name": "UploadStatusFailure",
+          "line": 37
+        }
+      ]
+    },
+    {
+      "old_file": "crates/ic-blob-storage/src/ops/service/funding/reply/mod.rs",
+      "new_file": "crates/ic-blob-storage-contracts/src/funding/reply/mod.rs",
+      "named_declarations_including_private_and_test_helpers": [
+        {
+          "kind": "enum",
+          "name": "FundingReplyError",
+          "line": 17
+        },
+        {
+          "kind": "struct",
+          "name": "FundingHistoryReplyLimits",
+          "line": 36
+        },
+        {
+          "kind": "fn",
+          "name": "check_scope",
+          "line": 42
+        },
+        {
+          "kind": "fn",
+          "name": "check_history",
+          "line": 52
+        },
+        {
+          "kind": "fn",
+          "name": "check_outcome",
+          "line": 64
+        },
+        {
+          "kind": "fn",
+          "name": "decode",
+          "line": 71
+        },
+        {
+          "kind": "fn",
+          "name": "transfer",
+          "line": 87
+        },
+        {
+          "kind": "fn",
+          "name": "history",
+          "line": 104
+        }
+      ]
+    },
+    {
+      "old_file": "crates/ic-blob-storage/src/ops/service/funding/reply/outcome/mod.rs",
+      "new_file": "crates/ic-blob-storage-contracts/src/funding/reply/outcome/mod.rs",
+      "named_declarations_including_private_and_test_helpers": [
+        {
+          "kind": "fn",
+          "name": "inspection_request",
+          "line": 16
+        },
+        {
+          "kind": "fn",
+          "name": "inspect",
+          "line": 27
+        }
+      ]
+    },
+    {
+      "old_file": "crates/ic-blob-storage/src/ops/service/funding/reply/tests/mod.rs",
+      "new_file": "crates/ic-blob-storage-contracts/src/funding/reply/tests/mod.rs",
+      "named_declarations_including_private_and_test_helpers": [
+        {
+          "kind": "fn",
+          "name": "scope",
+          "line": 8
+        },
+        {
+          "kind": "fn",
+          "name": "limits",
+          "line": 16
+        },
+        {
+          "kind": "fn",
+          "name": "request",
+          "line": 22
+        },
+        {
+          "kind": "fn",
+          "name": "outcome_request_validates_original_intent_without_defaulting_target",
+          "line": 31
+        },
+        {
+          "kind": "fn",
+          "name": "page",
+          "line": 70
+        },
+        {
+          "kind": "fn",
+          "name": "bytes",
+          "line": 102
+        },
+        {
+          "kind": "fn",
+          "name": "history_bytes",
+          "line": 105
+        },
+        {
+          "kind": "fn",
+          "name": "history_checks_bounds_order_and_continuation_without_narrowing_amounts",
+          "line": 109
+        },
+        {
+          "kind": "fn",
+          "name": "history_bounds_and_terminal_cursor",
+          "line": 209
+        },
+        {
+          "kind": "fn",
+          "name": "page_entry",
+          "line": 246
+        },
+        {
+          "kind": "fn",
+          "name": "standalone_sized_page_fits_decoder_budget_with_full_width_amounts",
+          "line": 250
+        },
+        {
+          "kind": "fn",
+          "name": "decoder_keeps_refusal_absence_and_invalid_inputs_distinct",
+          "line": 265
+        },
+        {
+          "kind": "fn",
+          "name": "decode_outcome",
+          "line": 344
+        },
+        {
+          "kind": "fn",
+          "name": "outcome_preserves_uncertainty_and_rejects_inconsistent_transport_claims",
+          "line": 354
+        },
+        {
+          "kind": "fn",
+          "name": "check_callback",
+          "line": 383
+        },
+        {
+          "kind": "fn",
+          "name": "confirmed_credit_decoder_requires_exact_known_acceptance_and_nonempty_receipt",
+          "line": 465
+        },
+        {
+          "kind": "fn",
+          "name": "renewed_allocation_requires_exact_confirmed_credit_and_cannot_exceed_acceptance",
+          "line": 503
+        }
+      ]
+    },
+    {
+      "old_file": "crates/ic-blob-storage/src/model/billing/transfer/mod.rs",
+      "new_file": "crates/ic-blob-storage-contracts/src/funding/transfer/mod.rs",
+      "named_declarations_including_private_and_test_helpers": [
+        {
+          "kind": "struct",
+          "name": "FundingTransfer",
+          "line": 14
+        },
+        {
+          "kind": "enum",
+          "name": "TransferEvidence",
+          "line": 20
+        },
+        {
+          "kind": "fn",
+          "name": "not_enqueued",
+          "line": 32
+        },
+        {
+          "kind": "fn",
+          "name": "unbounded_callback",
+          "line": 45
+        },
+        {
+          "kind": "fn",
+          "name": "unknown",
+          "line": 63
+        },
+        {
+          "kind": "fn",
+          "name": "offered",
+          "line": 72
+        },
+        {
+          "kind": "fn",
+          "name": "refunded",
+          "line": 78
+        },
+        {
+          "kind": "fn",
+          "name": "accepted",
+          "line": 87
+        },
+        {
+          "kind": "enum",
+          "name": "FundingTransferError",
+          "line": 98
+        },
+        {
+          "kind": "fn",
+          "name": "callback_arithmetic_conserves_the_attachment_across_the_full_cycle_range",
+          "line": 109
+        },
+        {
+          "kind": "fn",
+          "name": "impossible_refunds_are_rejected_instead_of_becoming_zero_acceptance",
+          "line": 125
+        },
+        {
+          "kind": "fn",
+          "name": "absent_refund_distinguishes_unsent_from_unknown",
+          "line": 138
+        }
+      ]
+    },
+    {
+      "old_file": "crates/ic-blob-storage/src/model/identity/batch/mod.rs",
+      "new_file": "crates/ic-blob-storage-contracts/src/identity/batch/mod.rs",
+      "named_declarations_including_private_and_test_helpers": [
+        {
+          "kind": "struct",
+          "name": "RootBatchLimits",
+          "line": 17
+        },
+        {
+          "kind": "struct",
+          "name": "ProviderRootBatch",
+          "line": 32
+        },
+        {
+          "kind": "fn",
+          "name": "from_bytes",
+          "line": 47
+        },
+        {
+          "kind": "fn",
+          "name": "entries",
+          "line": 73
+        },
+        {
+          "kind": "enum",
+          "name": "RootBatchError",
+          "line": 80
+        },
+        {
+          "kind": "fn",
+          "name": "limits",
+          "line": 102
+        },
+        {
+          "kind": "fn",
+          "name": "mixed_roots_preserve_order_duplicates_and_each_malformed_position",
+          "line": 111
+        },
+        {
+          "kind": "fn",
+          "name": "raw_count_rejects_duplicate_and_empty_entry_floods_before_byte_inspection",
+          "line": 144
+        },
+        {
+          "kind": "fn",
+          "name": "byte_budget_counts_malformed_roots_and_rejection_does_not_consume_input",
+          "line": 157
+        }
+      ]
+    },
+    {
+      "old_file": "crates/ic-blob-storage/src/model/identity/caffeine/manifest/builder/mod.rs",
+      "new_file": "crates/ic-blob-storage-contracts/src/identity/caffeine/manifest/builder/mod.rs",
+      "named_declarations_including_private_and_test_helpers": [
+        {
+          "kind": "struct",
+          "name": "CaffeineManifestBuilder",
+          "line": 19
+        },
+        {
+          "kind": "struct",
+          "name": "CaffeineBuiltManifest",
+          "line": 30
+        },
+        {
+          "kind": "fn",
+          "name": "hashes",
+          "line": 38
+        },
+        {
+          "kind": "fn",
+          "name": "manifest",
+          "line": 44
+        },
+        {
+          "kind": "fn",
+          "name": "new",
+          "line": 57
+        },
+        {
+          "kind": "fn",
+          "name": "received_bytes",
+          "line": 83
+        },
+        {
+          "kind": "fn",
+          "name": "remaining_bytes",
+          "line": 89
+        },
+        {
+          "kind": "fn",
+          "name": "append",
+          "line": 96
+        },
+        {
+          "kind": "fn",
+          "name": "finish",
+          "line": 108
+        },
+        {
+          "kind": "enum",
+          "name": "CaffeineManifestBuilderError",
+          "line": 125
+        }
+      ]
+    },
+    {
+      "old_file": "crates/ic-blob-storage/src/model/identity/caffeine/manifest/builder/tests/mod.rs",
+      "new_file": "crates/ic-blob-storage-contracts/src/identity/caffeine/manifest/builder/tests/mod.rs",
+      "named_declarations_including_private_and_test_helpers": [
+        {
+          "kind": "fn",
+          "name": "limits",
+          "line": 4
+        },
+        {
+          "kind": "fn",
+          "name": "content_and_leaf_limits_reject_before_preparation",
+          "line": 15
+        },
+        {
+          "kind": "fn",
+          "name": "one_frame_can_finish_multiple_leaves_and_rejections_preserve_collected_leaves",
+          "line": 52
+        },
+        {
+          "kind": "fn",
+          "name": "incomplete_finish_returns_no_partial_manifest",
+          "line": 96
+        }
+      ]
+    },
+    {
+      "old_file": "crates/ic-blob-storage/src/model/identity/caffeine/manifest/mod.rs",
+      "new_file": "crates/ic-blob-storage-contracts/src/identity/caffeine/manifest/mod.rs",
+      "named_declarations_including_private_and_test_helpers": [
+        {
+          "kind": "struct",
+          "name": "CaffeineChunkHash",
+          "line": 33
+        },
+        {
+          "kind": "fn",
+          "name": "as_bytes",
+          "line": 38
+        },
+        {
+          "kind": "type",
+          "name": "Err",
+          "line": 44
+        },
+        {
+          "kind": "fn",
+          "name": "from_str",
+          "line": 45
+        },
+        {
+          "kind": "type",
+          "name": "Error",
+          "line": 52
+        },
+        {
+          "kind": "fn",
+          "name": "try_from",
+          "line": 53
+        },
+        {
+          "kind": "fn",
+          "name": "fmt",
+          "line": 65
+        },
+        {
+          "kind": "struct",
+          "name": "CaffeineManifestLimits",
+          "line": 72
+        },
+        {
+          "kind": "struct",
+          "name": "CaffeineChunkRange",
+          "line": 88
+        },
+        {
+          "kind": "struct",
+          "name": "CaffeineChunkManifest",
+          "line": 109
+        },
+        {
+          "kind": "fn",
+          "name": "new",
+          "line": 124
+        },
+        {
+          "kind": "fn",
+          "name": "root",
+          "line": 159
+        },
+        {
+          "kind": "fn",
+          "name": "content_bytes",
+          "line": 165
+        },
+        {
+          "kind": "fn",
+          "name": "chunk_count",
+          "line": 171
+        },
+        {
+          "kind": "fn",
+          "name": "chunks",
+          "line": 178
+        },
+        {
+          "kind": "fn",
+          "name": "chunk_bytes",
+          "line": 185
+        },
+        {
+          "kind": "fn",
+          "name": "chunk_range",
+          "line": 193
+        },
+        {
+          "kind": "fn",
+          "name": "verify_chunk",
+          "line": 210
+        },
+        {
+          "kind": "fn",
+          "name": "chunk",
+          "line": 215
+        },
+        {
+          "kind": "fn",
+          "name": "verify_leaf",
+          "line": 226
+        },
+        {
+          "kind": "fn",
+          "name": "chunk_length",
+          "line": 245
+        },
+        {
+          "kind": "enum",
+          "name": "CaffeineManifestError",
+          "line": 256
+        }
+      ]
+    },
+    {
+      "old_file": "crates/ic-blob-storage/src/model/identity/caffeine/manifest/tests/mod.rs",
+      "new_file": "crates/ic-blob-storage-contracts/src/identity/caffeine/manifest/tests/mod.rs",
+      "named_declarations_including_private_and_test_helpers": [
+        {
+          "kind": "fn",
+          "name": "bound",
+          "line": 3
+        },
+        {
+          "kind": "fn",
+          "name": "limits",
+          "line": 7
+        },
+        {
+          "kind": "fn",
+          "name": "abc",
+          "line": 16
+        },
+        {
+          "kind": "fn",
+          "name": "representation_and_chunk_identity_are_explicit",
+          "line": 26
+        },
+        {
+          "kind": "fn",
+          "name": "admission_checks_counts_and_budgets_before_tree_processing",
+          "line": 46
+        },
+        {
+          "kind": "fn",
+          "name": "metadata_limits_and_root_binding_cannot_be_skipped",
+          "line": 117
+        },
+        {
+          "kind": "fn",
+          "name": "leaf_checks_reject_corruption_and_length_lies_without_remembering_success",
+          "line": 151
+        }
+      ]
+    },
+    {
+      "old_file": "crates/ic-blob-storage/src/model/identity/caffeine/manifest/verification/missing/mod.rs",
+      "new_file": "crates/ic-blob-storage-contracts/src/identity/caffeine/manifest/verification/missing/mod.rs",
+      "named_declarations_including_private_and_test_helpers": [
+        {
+          "kind": "struct",
+          "name": "MissingChunkPageLimits",
+          "line": 13
+        },
+        {
+          "kind": "struct",
+          "name": "MissingChunkPage",
+          "line": 27
+        },
+        {
+          "kind": "fn",
+          "name": "missing_chunks",
+          "line": 51
+        }
+      ]
+    },
+    {
+      "old_file": "crates/ic-blob-storage/src/model/identity/caffeine/manifest/verification/missing/tests/mod.rs",
+      "new_file": "crates/ic-blob-storage-contracts/src/identity/caffeine/manifest/verification/missing/tests/mod.rs",
+      "named_declarations_including_private_and_test_helpers": [
+        {
+          "kind": "fn",
+          "name": "limits",
+          "line": 3
+        },
+        {
+          "kind": "fn",
+          "name": "ranges_and_end_positions_do_not_grant_verification_or_change_coverage",
+          "line": 12
+        }
+      ]
+    },
+    {
+      "old_file": "crates/ic-blob-storage/src/model/identity/caffeine/manifest/verification/mod.rs",
+      "new_file": "crates/ic-blob-storage-contracts/src/identity/caffeine/manifest/verification/mod.rs",
+      "named_declarations_including_private_and_test_helpers": [
+        {
+          "kind": "struct",
+          "name": "CaffeineChunkProgress",
+          "line": 22
+        },
+        {
+          "kind": "fn",
+          "name": "all_chunks_verified",
+          "line": 38
+        },
+        {
+          "kind": "struct",
+          "name": "CaffeineChunkVerifier",
+          "line": 56
+        },
+        {
+          "kind": "fn",
+          "name": "new",
+          "line": 69
+        },
+        {
+          "kind": "fn",
+          "name": "manifest",
+          "line": 81
+        },
+        {
+          "kind": "fn",
+          "name": "progress",
+          "line": 87
+        },
+        {
+          "kind": "fn",
+          "name": "is_verified",
+          "line": 99
+        },
+        {
+          "kind": "fn",
+          "name": "verify_chunk",
+          "line": 113
+        },
+        {
+          "kind": "fn",
+          "name": "credit_verified",
+          "line": 124
+        },
+        {
+          "kind": "fn",
+          "name": "bitmap_position",
+          "line": 138
+        }
+      ]
+    },
+    {
+      "old_file": "crates/ic-blob-storage/src/model/identity/caffeine/manifest/verification/ordered/checkpoint/mod.rs",
+      "new_file": "crates/ic-blob-storage-contracts/src/identity/caffeine/manifest/verification/ordered/checkpoint/mod.rs",
+      "named_declarations_including_private_and_test_helpers": [
+        {
+          "kind": "const",
+          "name": "MAGIC",
+          "line": 15
+        },
+        {
+          "kind": "const",
+          "name": "RELEASE",
+          "line": 17
+        },
+        {
+          "kind": "const",
+          "name": "HASH_OFFSET",
+          "line": 22
+        },
+        {
+          "kind": "const",
+          "name": "CHECKSUM_OFFSET",
+          "line": 23
+        },
+        {
+          "kind": "const",
+          "name": "ENCODED_BYTES",
+          "line": 24
+        },
+        {
+          "kind": "struct",
+          "name": "CaffeineVerificationCheckpointRecord",
+          "line": 34
+        },
+        {
+          "kind": "fn",
+          "name": "fmt",
+          "line": 39
+        },
+        {
+          "kind": "const",
+          "name": "ENCODED_BYTES",
+          "line": 47
+        },
+        {
+          "kind": "fn",
+          "name": "as_bytes",
+          "line": 51
+        },
+        {
+          "kind": "fn",
+          "name": "state",
+          "line": 54
+        },
+        {
+          "kind": "type",
+          "name": "Error",
+          "line": 72
+        },
+        {
+          "kind": "fn",
+          "name": "try_from",
+          "line": 78
+        },
+        {
+          "kind": "fn",
+          "name": "checkpoint",
+          "line": 114
+        },
+        {
+          "kind": "fn",
+          "name": "from_checkpoint",
+          "line": 136
+        },
+        {
+          "kind": "enum",
+          "name": "CaffeineCheckpointError",
+          "line": 157
+        }
+      ]
+    },
+    {
+      "old_file": "crates/ic-blob-storage/src/model/identity/caffeine/manifest/verification/ordered/checkpoint/tests/mod.rs",
+      "new_file": "crates/ic-blob-storage-contracts/src/identity/caffeine/manifest/verification/ordered/checkpoint/tests/mod.rs",
+      "named_declarations_including_private_and_test_helpers": [
+        {
+          "kind": "fn",
+          "name": "vector",
+          "line": 7
+        },
+        {
+          "kind": "fn",
+          "name": "reload",
+          "line": 62
+        },
+        {
+          "kind": "fn",
+          "name": "independent_vectors_resume_at_every_leaf_and_final_buffer_boundary",
+          "line": 75
+        },
+        {
+          "kind": "fn",
+          "name": "raw_digest_and_manifest_bindings_cannot_be_replaced_during_restore",
+          "line": 114
+        },
+        {
+          "kind": "fn",
+          "name": "reseal",
+          "line": 137
+        },
+        {
+          "kind": "fn",
+          "name": "bounded_decoding_rejects_damage_and_inconsistent_counts_even_with_a_new_checksum",
+          "line": 144
+        },
+        {
+          "kind": "fn",
+          "name": "same_root_does_not_allow_a_different_declared_length",
+          "line": 201
+        }
+      ]
+    },
+    {
+      "old_file": "crates/ic-blob-storage/src/model/identity/caffeine/manifest/verification/ordered/mod.rs",
+      "new_file": "crates/ic-blob-storage-contracts/src/identity/caffeine/manifest/verification/ordered/mod.rs",
+      "named_declarations_including_private_and_test_helpers": [
+        {
+          "kind": "struct",
+          "name": "CaffeineOrderedChunkVerifier",
+          "line": 36
+        },
+        {
+          "kind": "fn",
+          "name": "new",
+          "line": 46
+        },
+        {
+          "kind": "fn",
+          "name": "manifest",
+          "line": 53
+        },
+        {
+          "kind": "fn",
+          "name": "next_chunk",
+          "line": 59
+        },
+        {
+          "kind": "fn",
+          "name": "verified_bytes",
+          "line": 67
+        },
+        {
+          "kind": "fn",
+          "name": "remaining_bytes",
+          "line": 73
+        },
+        {
+          "kind": "fn",
+          "name": "append_chunk",
+          "line": 84
+        },
+        {
+          "kind": "fn",
+          "name": "finish",
+          "line": 108
+        },
+        {
+          "kind": "fn",
+          "name": "raw_verifier",
+          "line": 115
+        },
+        {
+          "kind": "enum",
+          "name": "CaffeineOrderedVerificationError",
+          "line": 127
+        }
+      ]
+    },
+    {
+      "old_file": "crates/ic-blob-storage/src/model/identity/caffeine/manifest/verification/ordered/tests/mod.rs",
+      "new_file": "crates/ic-blob-storage-contracts/src/identity/caffeine/manifest/verification/ordered/tests/mod.rs",
+      "named_declarations_including_private_and_test_helpers": [
+        {
+          "kind": "fn",
+          "name": "abc",
+          "line": 3
+        },
+        {
+          "kind": "fn",
+          "name": "exact_length_is_required_and_a_consistent_manifest_cannot_override_raw_digest",
+          "line": 9
+        },
+        {
+          "kind": "fn",
+          "name": "rejected_chunks_never_poison_the_raw_hash_or_advance_the_prefix",
+          "line": 39
+        }
+      ]
+    },
+    {
+      "old_file": "crates/ic-blob-storage/src/model/identity/caffeine/manifest/verification/tests/mod.rs",
+      "new_file": "crates/ic-blob-storage-contracts/src/identity/caffeine/manifest/verification/tests/mod.rs",
+      "named_declarations_including_private_and_test_helpers": [
+        {
+          "kind": "fn",
+          "name": "abc",
+          "line": 5
+        },
+        {
+          "kind": "fn",
+          "name": "failures_preserve_coverage_before_and_after_success",
+          "line": 25
+        }
+      ]
+    },
+    {
+      "old_file": "crates/ic-blob-storage/src/model/identity/caffeine/metadata/mod.rs",
+      "new_file": "crates/ic-blob-storage-contracts/src/identity/caffeine/metadata/mod.rs",
+      "named_declarations_including_private_and_test_helpers": [
+        {
+          "kind": "fn",
+          "name": "hash",
+          "line": 8
+        },
+        {
+          "kind": "fn",
+          "name": "js_whitespace",
+          "line": 47
+        }
+      ]
+    },
+    {
+      "old_file": "crates/ic-blob-storage/src/model/identity/caffeine/mod.rs",
+      "new_file": "crates/ic-blob-storage-contracts/src/identity/caffeine/mod.rs",
+      "named_declarations_including_private_and_test_helpers": [
+        {
+          "kind": "const",
+          "name": "CAFFEINE_CHUNK_BYTES",
+          "line": 24
+        },
+        {
+          "kind": "type",
+          "name": "Hash",
+          "line": 25
+        },
+        {
+          "kind": "const",
+          "name": "TREE_LEVELS",
+          "line": 29
+        },
+        {
+          "kind": "struct",
+          "name": "CaffeineHashLimits",
+          "line": 33
+        },
+        {
+          "kind": "struct",
+          "name": "CaffeineHeader",
+          "line": 49
+        },
+        {
+          "kind": "struct",
+          "name": "CaffeineContentHashes",
+          "line": 58
+        },
+        {
+          "kind": "struct",
+          "name": "CaffeineContentHasher",
+          "line": 71
+        },
+        {
+          "kind": "fn",
+          "name": "new",
+          "line": 92
+        },
+        {
+          "kind": "fn",
+          "name": "received_bytes",
+          "line": 112
+        },
+        {
+          "kind": "fn",
+          "name": "remaining_bytes",
+          "line": 118
+        },
+        {
+          "kind": "fn",
+          "name": "append",
+          "line": 129
+        },
+        {
+          "kind": "fn",
+          "name": "append_observing",
+          "line": 135
+        },
+        {
+          "kind": "fn",
+          "name": "finish",
+          "line": 172
+        },
+        {
+          "kind": "fn",
+          "name": "finish_observing",
+          "line": 175
+        },
+        {
+          "kind": "fn",
+          "name": "verify",
+          "line": 200
+        },
+        {
+          "kind": "fn",
+          "name": "complete_chunk",
+          "line": 213
+        },
+        {
+          "kind": "fn",
+          "name": "validate_length",
+          "line": 223
+        },
+        {
+          "kind": "fn",
+          "name": "push_chunk",
+          "line": 233
+        },
+        {
+          "kind": "fn",
+          "name": "root_with_metadata",
+          "line": 245
+        },
+        {
+          "kind": "fn",
+          "name": "tree_root",
+          "line": 253
+        },
+        {
+          "kind": "fn",
+          "name": "chunk_hasher",
+          "line": 274
+        },
+        {
+          "kind": "fn",
+          "name": "node_hash",
+          "line": 280
+        },
+        {
+          "kind": "enum",
+          "name": "CaffeineHashLimit",
+          "line": 295
+        },
+        {
+          "kind": "enum",
+          "name": "CaffeineHashError",
+          "line": 308
+        }
+      ]
+    },
+    {
+      "old_file": "crates/ic-blob-storage/src/model/identity/caffeine/tests/mod.rs",
+      "new_file": "crates/ic-blob-storage-contracts/src/identity/caffeine/tests/mod.rs",
+      "named_declarations_including_private_and_test_helpers": [
+        {
+          "kind": "fn",
+          "name": "bound",
+          "line": 2
+        },
+        {
+          "kind": "fn",
+          "name": "limits",
+          "line": 6
+        },
+        {
+          "kind": "fn",
+          "name": "abc",
+          "line": 15
+        },
+        {
+          "kind": "fn",
+          "name": "rejects_input_before_allocation_and_keeps_empty_provider_behavior_unqualified",
+          "line": 26
+        },
+        {
+          "kind": "fn",
+          "name": "rejected_appends_preserve_digest_and_offset_and_allow_correct_continuation",
+          "line": 113
+        },
+        {
+          "kind": "fn",
+          "name": "completion_rejects_truncation_corruption_and_metadata_changes_separately",
+          "line": 163
+        }
+      ]
+    },
+    {
+      "old_file": "crates/ic-blob-storage/src/model/identity/caffeine/verification/mod.rs",
+      "new_file": "crates/ic-blob-storage-contracts/src/identity/caffeine/verification/mod.rs",
+      "named_declarations_including_private_and_test_helpers": [
+        {
+          "kind": "struct",
+          "name": "CaffeineRootVerifier",
+          "line": 34
+        },
+        {
+          "kind": "fn",
+          "name": "new",
+          "line": 47
+        },
+        {
+          "kind": "fn",
+          "name": "expected_root",
+          "line": 61
+        },
+        {
+          "kind": "fn",
+          "name": "received_bytes",
+          "line": 67
+        },
+        {
+          "kind": "fn",
+          "name": "remaining_bytes",
+          "line": 73
+        },
+        {
+          "kind": "fn",
+          "name": "append",
+          "line": 83
+        },
+        {
+          "kind": "fn",
+          "name": "finish",
+          "line": 96
+        }
+      ]
+    },
+    {
+      "old_file": "crates/ic-blob-storage/src/model/identity/caffeine/verification/tests/mod.rs",
+      "new_file": "crates/ic-blob-storage-contracts/src/identity/caffeine/verification/tests/mod.rs",
+      "named_declarations_including_private_and_test_helpers": [
+        {
+          "kind": "const",
+          "name": "ROOT",
+          "line": 5
+        },
+        {
+          "kind": "const",
+          "name": "RAW",
+          "line": 6
+        },
+        {
+          "kind": "fn",
+          "name": "limits",
+          "line": 7
+        },
+        {
+          "kind": "fn",
+          "name": "verifier",
+          "line": 16
+        },
+        {
+          "kind": "fn",
+          "name": "root_only_verification_computes_the_raw_digest_without_trusting_one",
+          "line": 22
+        },
+        {
+          "kind": "fn",
+          "name": "accepted_length_is_not_integrity_and_corrupt_streams_need_a_fresh_instance",
+          "line": 38
+        },
+        {
+          "kind": "fn",
+          "name": "bound_metadata_cannot_be_replaced_by_body_consistency",
+          "line": 52
+        },
+        {
+          "kind": "fn",
+          "name": "truncation_and_trailing_bytes_cannot_be_counted_as_verified",
+          "line": 69
+        },
+        {
+          "kind": "fn",
+          "name": "a_raw_digest_in_the_root_field_does_not_establish_provider_integrity",
+          "line": 88
+        }
+      ]
+    },
+    {
+      "old_file": "crates/ic-blob-storage/src/model/identity/mod.rs",
+      "new_file": "crates/ic-blob-storage-contracts/src/identity/mod.rs",
+      "named_declarations_including_private_and_test_helpers": [
+        {
+          "kind": "const",
+          "name": "PREFIX",
+          "line": 11
+        },
+        {
+          "kind": "const",
+          "name": "DIGEST_BYTES",
+          "line": 13
+        },
+        {
+          "kind": "struct",
+          "name": "ContentDigest",
+          "line": 20
+        },
+        {
+          "kind": "fn",
+          "name": "compute",
+          "line": 25
+        },
+        {
+          "kind": "fn",
+          "name": "as_bytes",
+          "line": 31
+        },
+        {
+          "kind": "type",
+          "name": "Err",
+          "line": 37
+        },
+        {
+          "kind": "fn",
+          "name": "from_str",
+          "line": 38
+        },
+        {
+          "kind": "type",
+          "name": "Error",
+          "line": 47
+        },
+        {
+          "kind": "fn",
+          "name": "try_from",
+          "line": 48
+        },
+        {
+          "kind": "fn",
+          "name": "fmt",
+          "line": 60
+        },
+        {
+          "kind": "struct",
+          "name": "ProviderRootHash",
+          "line": 77
+        },
+        {
+          "kind": "fn",
+          "name": "as_bytes",
+          "line": 82
+        },
+        {
+          "kind": "type",
+          "name": "Err",
+          "line": 88
+        },
+        {
+          "kind": "fn",
+          "name": "from_str",
+          "line": 89
+        },
+        {
+          "kind": "type",
+          "name": "Error",
+          "line": 96
+        },
+        {
+          "kind": "fn",
+          "name": "try_from",
+          "line": 97
+        },
+        {
+          "kind": "fn",
+          "name": "fmt",
+          "line": 109
+        },
+        {
+          "kind": "enum",
+          "name": "HashParseError",
+          "line": 116
+        },
+        {
+          "kind": "fn",
+          "name": "parse_hash",
+          "line": 142
+        },
+        {
+          "kind": "fn",
+          "name": "hex_digit",
+          "line": 162
+        },
+        {
+          "kind": "fn",
+          "name": "format_hash",
+          "line": 171
+        },
+        {
+          "kind": "fn",
+          "name": "raw_content_matches_sha256_vectors",
+          "line": 185
+        },
+        {
+          "kind": "fn",
+          "name": "provider_root_roundtrips_every_byte_and_normalizes_hex",
+          "line": 215
+        },
+        {
+          "kind": "fn",
+          "name": "rejects_malformed_text_and_binary_with_typed_errors",
+          "line": 231
+        },
+        {
+          "kind": "fn",
+          "name": "pinned_caffeine_root_is_distinct_from_raw_content_digest",
+          "line": 281
+        }
+      ]
+    },
+    {
+      "old_file": "crates/ic-blob-storage/src/model/identity/verification/checkpoint/mod.rs",
+      "new_file": "crates/ic-blob-storage-contracts/src/identity/verification/checkpoint/mod.rs",
+      "named_declarations_including_private_and_test_helpers": [
+        {
+          "kind": "const",
+          "name": "HASH_STATE_BYTES",
+          "line": 10
+        },
+        {
+          "kind": "struct",
+          "name": "ContentVerifierStateRecord",
+          "line": 11
+        },
+        {
+          "kind": "fn",
+          "name": "checkpoint_state",
+          "line": 20
+        },
+        {
+          "kind": "fn",
+          "name": "restore",
+          "line": 31
+        },
+        {
+          "kind": "fn",
+          "name": "restore_preserves_buffered_bytes_at_sha_padding_and_block_boundaries",
+          "line": 58
+        }
+      ]
+    },
+    {
+      "old_file": "crates/ic-blob-storage/src/model/identity/verification/mod.rs",
+      "new_file": "crates/ic-blob-storage-contracts/src/identity/verification/mod.rs",
+      "named_declarations_including_private_and_test_helpers": [
+        {
+          "kind": "struct",
+          "name": "ContentVerifier",
+          "line": 35
+        },
+        {
+          "kind": "const",
+          "name": "MAX_BYTES",
+          "line": 47
+        },
+        {
+          "kind": "fn",
+          "name": "new",
+          "line": 54
+        },
+        {
+          "kind": "fn",
+          "name": "received_bytes",
+          "line": 73
+        },
+        {
+          "kind": "fn",
+          "name": "remaining_bytes",
+          "line": 79
+        },
+        {
+          "kind": "fn",
+          "name": "append",
+          "line": 91
+        },
+        {
+          "kind": "fn",
+          "name": "finish",
+          "line": 121
+        },
+        {
+          "kind": "enum",
+          "name": "ContentVerificationError",
+          "line": 141
+        },
+        {
+          "kind": "fn",
+          "name": "chunk_boundaries_do_not_change_verified_digest",
+          "line": 187
+        },
+        {
+          "kind": "fn",
+          "name": "incremental_hash_matches_independent_million_byte_vector",
+          "line": 206
+        },
+        {
+          "kind": "fn",
+          "name": "rejected_chunks_leave_hash_and_offset_unchanged",
+          "line": 223
+        },
+        {
+          "kind": "fn",
+          "name": "truncated_and_same_length_corrupt_content_cannot_finish",
+          "line": 277
+        },
+        {
+          "kind": "fn",
+          "name": "empty_content_still_requires_the_expected_digest",
+          "line": 303
+        },
+        {
+          "kind": "fn",
+          "name": "declared_lengths_respect_the_algorithm_bound_without_allocating_content",
+          "line": 328
+        }
+      ]
+    },
+    {
+      "old_file": "crates/ic-blob-storage/src/ops/caffeine/download/mod.rs",
+      "new_file": "crates/ic-blob-storage-contracts/src/provider/download/mod.rs",
+      "named_declarations_including_private_and_test_helpers": [
+        {
+          "kind": "fn",
+          "name": "request_target",
+          "line": 12
+        },
+        {
+          "kind": "fn",
+          "name": "component",
+          "line": 20
+        },
+        {
+          "kind": "const",
+          "name": "HEX",
+          "line": 21
+        }
+      ]
+    },
+    {
+      "old_file": "crates/ic-blob-storage/src/ops/caffeine/download/tests/mod.rs",
+      "new_file": "crates/ic-blob-storage-contracts/src/provider/download/tests/mod.rs",
+      "named_declarations_including_private_and_test_helpers": [
+        {
+          "kind": "fn",
+          "name": "direct_download_target_encodes_each_identity_without_query_injection",
+          "line": 3
+        }
+      ]
+    },
+    {
+      "old_file": "crates/ic-blob-storage/src/ops/caffeine/onboarding/mod.rs",
+      "new_file": "crates/ic-blob-storage-contracts/src/provider/onboarding/mod.rs",
+      "named_declarations_including_private_and_test_helpers": [
+        {
+          "kind": "struct",
+          "name": "AccountLinkBinding",
+          "line": 11
+        },
+        {
+          "kind": "struct",
+          "name": "AccountLinkTerms",
+          "line": 24
+        },
+        {
+          "kind": "struct",
+          "name": "AccountLinkRequest",
+          "line": 34
+        },
+        {
+          "kind": "fn",
+          "name": "new",
+          "line": 43
+        },
+        {
+          "kind": "fn",
+          "name": "method_name",
+          "line": 72
+        },
+        {
+          "kind": "fn",
+          "name": "binding",
+          "line": 77
+        },
+        {
+          "kind": "fn",
+          "name": "terms",
+          "line": 82
+        },
+        {
+          "kind": "fn",
+          "name": "arguments",
+          "line": 87
+        },
+        {
+          "kind": "enum",
+          "name": "AccountLinkRole",
+          "line": 94
+        },
+        {
+          "kind": "enum",
+          "name": "AccountLinkError",
+          "line": 106
+        }
+      ]
+    },
+    {
+      "old_file": "crates/ic-blob-storage/src/ops/caffeine/onboarding/tests/mod.rs",
+      "new_file": "crates/ic-blob-storage-contracts/src/provider/onboarding/tests/mod.rs",
+      "named_declarations_including_private_and_test_helpers": [
+        {
+          "kind": "fn",
+          "name": "binding",
+          "line": 2
+        },
+        {
+          "kind": "fn",
+          "name": "terms",
+          "line": 11
+        },
+        {
+          "kind": "fn",
+          "name": "explicit_full_width_terms_match_independent_current_cashier_candid",
+          "line": 18
+        },
+        {
+          "kind": "fn",
+          "name": "unusable_principals_refuse_each_planned_role",
+          "line": 50
+        }
+      ]
+    },
+    {
+      "old_file": "crates/ic-blob-storage/src/ops/caffeine/preparation/mod.rs",
+      "new_file": "crates/ic-blob-storage-contracts/src/provider/preparation/mod.rs",
+      "named_declarations_including_private_and_test_helpers": [
+        {
+          "kind": "struct",
+          "name": "PreparedManifestLimits",
+          "line": 29
+        },
+        {
+          "kind": "enum",
+          "name": "TreeType",
+          "line": 37
+        },
+        {
+          "kind": "struct",
+          "name": "PreparedTree",
+          "line": 43
+        },
+        {
+          "kind": "struct",
+          "name": "PreparedManifest",
+          "line": 48
+        },
+        {
+          "kind": "fn",
+          "name": "decode_prepared_manifest",
+          "line": 65
+        },
+        {
+          "kind": "enum",
+          "name": "PreparedManifestError",
+          "line": 124
+        }
+      ]
+    },
+    {
+      "old_file": "crates/ic-blob-storage/src/ops/caffeine/preparation/tests/mod.rs",
+      "new_file": "crates/ic-blob-storage-contracts/src/provider/preparation/tests/mod.rs",
+      "named_declarations_including_private_and_test_helpers": [
+        {
+          "kind": "const",
+          "name": "ROOT",
+          "line": 5
+        },
+        {
+          "kind": "const",
+          "name": "LEAF",
+          "line": 6
+        },
+        {
+          "kind": "fn",
+          "name": "limits",
+          "line": 7
+        },
+        {
+          "kind": "fn",
+          "name": "manifest",
+          "line": 18
+        },
+        {
+          "kind": "fn",
+          "name": "decode",
+          "line": 22
+        },
+        {
+          "kind": "fn",
+          "name": "upstream_metadata_and_leaves_become_the_existing_service_declaration",
+          "line": 32
+        },
+        {
+          "kind": "fn",
+          "name": "json_and_declaration_budgets_precede_conversion",
+          "line": 59
+        },
+        {
+          "kind": "fn",
+          "name": "wrong_roots_leaves_lengths_and_metadata_do_not_become_permissions",
+          "line": 83
+        },
+        {
+          "kind": "fn",
+          "name": "malformed_ambiguous_or_unsupported_json_is_refused",
+          "line": 126
+        }
+      ]
+    },
+    {
+      "old_file": "crates/ic-blob-storage/src/ops/service/references/reply/mod.rs",
+      "new_file": "crates/ic-blob-storage-contracts/src/reference/reply/mod.rs",
+      "named_declarations_including_private_and_test_helpers": [
+        {
+          "kind": "enum",
+          "name": "ReferenceReplyError",
+          "line": 14
+        },
+        {
+          "kind": "fn",
+          "name": "check_request",
+          "line": 28
+        },
+        {
+          "kind": "fn",
+          "name": "receipt_request",
+          "line": 43
+        },
+        {
+          "kind": "fn",
+          "name": "decode",
+          "line": 52
+        },
+        {
+          "kind": "fn",
+          "name": "decode_mutation",
+          "line": 70
+        },
+        {
+          "kind": "fn",
+          "name": "check_status_request",
+          "line": 82
+        },
+        {
+          "kind": "fn",
+          "name": "status_request",
+          "line": 100
+        },
+        {
+          "kind": "fn",
+          "name": "decode_status",
+          "line": 109
+        },
+        {
+          "kind": "fn",
+          "name": "bounded",
+          "line": 121
+        }
+      ]
+    },
+    {
+      "old_file": "crates/ic-blob-storage/src/ops/service/references/reply/tests/mod.rs",
+      "new_file": "crates/ic-blob-storage-contracts/src/reference/reply/tests/mod.rs",
+      "named_declarations_including_private_and_test_helpers": [
+        {
+          "kind": "fn",
+          "name": "request",
+          "line": 7
+        },
+        {
+          "kind": "fn",
+          "name": "encoded",
+          "line": 25
+        },
+        {
+          "kind": "fn",
+          "name": "passive_request_encoders_preserve_independent_identities_and_validate_inputs",
+          "line": 29
+        },
+        {
+          "kind": "fn",
+          "name": "decode_reply",
+          "line": 66
+        },
+        {
+          "kind": "fn",
+          "name": "receipt_reply_distinguishes_absence_success_recorded_failure_and_lookup_refusal",
+          "line": 70
+        },
+        {
+          "kind": "fn",
+          "name": "receipt_reply_binds_every_original_argument",
+          "line": 98
+        },
+        {
+          "kind": "fn",
+          "name": "receipt_reply_bounds_and_rejects_malformed_inputs",
+          "line": 161
+        },
+        {
+          "kind": "fn",
+          "name": "receipt_reply_rejects_wrong_found_payload_instead_of_reporting_absence",
+          "line": 198
+        },
+        {
+          "kind": "enum",
+          "name": "WrongLookup",
+          "line": 200
+        },
+        {
+          "kind": "fn",
+          "name": "mutation_reply_keeps_inner_failure_distinct_and_rejects_foreign_or_incomplete_results",
+          "line": 211
+        },
+        {
+          "kind": "fn",
+          "name": "reference_status_reply_preserves_fences_and_rejects_binding_size_and_wire_failures",
+          "line": 263
+        }
+      ]
+    },
+    {
+      "old_file": "crates/ic-blob-storage/src/ops/service/uploads/tenants/reply/mod.rs",
+      "new_file": "crates/ic-blob-storage-contracts/src/tenant/reply/mod.rs",
+      "named_declarations_including_private_and_test_helpers": [
+        {
+          "kind": "enum",
+          "name": "TenantReplyError",
+          "line": 14
+        },
+        {
+          "kind": "fn",
+          "name": "check_scope",
+          "line": 28
+        },
+        {
+          "kind": "fn",
+          "name": "expected",
+          "line": 39
+        },
+        {
+          "kind": "fn",
+          "name": "validate_update",
+          "line": 54
+        },
+        {
+          "kind": "fn",
+          "name": "inspection",
+          "line": 63
+        },
+        {
+          "kind": "fn",
+          "name": "mutation",
+          "line": 95
+        }
+      ]
+    },
+    {
+      "old_file": "crates/ic-blob-storage/src/ops/service/uploads/tenants/reply/tests/mod.rs",
+      "new_file": "crates/ic-blob-storage-contracts/src/tenant/reply/tests/mod.rs",
+      "named_declarations_including_private_and_test_helpers": [
+        {
+          "kind": "fn",
+          "name": "scope",
+          "line": 2
+        },
+        {
+          "kind": "fn",
+          "name": "bytes",
+          "line": 9
+        },
+        {
+          "kind": "fn",
+          "name": "max",
+          "line": 17
+        },
+        {
+          "kind": "fn",
+          "name": "acknowledgments_reuse_the_exact_model_transition_including_generation_exhaustion",
+          "line": 22
+        },
+        {
+          "kind": "fn",
+          "name": "observation_preserves_fence_and_absence_but_rejects_foreign_scope_and_zero_generation",
+          "line": 125
+        },
+        {
+          "kind": "fn",
+          "name": "byte_bounds_malformed_encoding_and_remote_refusals_remain_distinct",
+          "line": 181
+        }
+      ]
+    },
+    {
+      "old_file": "crates/ic-blob-storage/src/ops/service/uploads/admission/reply/mod.rs",
+      "new_file": "crates/ic-blob-storage-contracts/src/upload/admission/reply/mod.rs",
+      "named_declarations_including_private_and_test_helpers": [
+        {
+          "kind": "enum",
+          "name": "UploadAdmissionReplyError",
+          "line": 14
+        },
+        {
+          "kind": "fn",
+          "name": "validate_request",
+          "line": 32
+        },
+        {
+          "kind": "fn",
+          "name": "decode",
+          "line": 43
+        },
+        {
+          "kind": "fn",
+          "name": "bound",
+          "line": 63
+        },
+        {
+          "kind": "fn",
+          "name": "inspection",
+          "line": 75
+        },
+        {
+          "kind": "fn",
+          "name": "mutation",
+          "line": 85
+        },
+        {
+          "kind": "fn",
+          "name": "revocation",
+          "line": 100
+        }
+      ]
+    },
+    {
+      "old_file": "crates/ic-blob-storage/src/ops/service/uploads/admission/reply/tests/mod.rs",
+      "new_file": "crates/ic-blob-storage-contracts/src/upload/admission/reply/tests/mod.rs",
+      "named_declarations_including_private_and_test_helpers": [
+        {
+          "kind": "fn",
+          "name": "admission_replies_bind_uploader_deadline_and_every_upload_field",
+          "line": 6
+        }
+      ]
+    },
+    {
+      "old_file": "crates/ic-blob-storage/src/ops/service/uploads/admission/reply/tests/revocation/mod.rs",
+      "new_file": "crates/ic-blob-storage-contracts/src/upload/admission/reply/tests/revocation/mod.rs",
+      "named_declarations_including_private_and_test_helpers": [
+        {
+          "kind": "fn",
+          "name": "revocation_reply_requires_withdrawal_and_the_complete_original_permission",
+          "line": 3
+        }
+      ]
+    },
+    {
+      "old_file": "crates/ic-blob-storage/src/ops/service/uploads/certificate/reply/mod.rs",
+      "new_file": "crates/ic-blob-storage-contracts/src/upload/certificate/reply/mod.rs",
+      "named_declarations_including_private_and_test_helpers": [
+        {
+          "kind": "enum",
+          "name": "UploadCertificateAssessmentReplyError",
+          "line": 15
+        },
+        {
+          "kind": "fn",
+          "name": "assessment_request",
+          "line": 34
+        },
+        {
+          "kind": "fn",
+          "name": "assessment",
+          "line": 48
+        }
+      ]
+    },
+    {
+      "old_file": "crates/ic-blob-storage/src/ops/service/uploads/certificate/reply/tests/mod.rs",
+      "new_file": "crates/ic-blob-storage-contracts/src/upload/certificate/reply/tests/mod.rs",
+      "named_declarations_including_private_and_test_helpers": [
+        {
+          "kind": "fn",
+          "name": "permission",
+          "line": 7
+        },
+        {
+          "kind": "fn",
+          "name": "assessment_validates_the_full_permission_before_root_lookup_and_after_reply",
+          "line": 27
+        },
+        {
+          "kind": "fn",
+          "name": "assessments_preserve_empty_snapshots_refusals_and_decoder_limits",
+          "line": 95
+        }
+      ]
+    },
+    {
+      "old_file": "crates/ic-blob-storage/src/model/service/upload/completion/mod.rs",
+      "new_file": "crates/ic-blob-storage-contracts/src/upload/completion/mod.rs",
+      "named_declarations_including_private_and_test_helpers": [
+        {
+          "kind": "struct",
+          "name": "CompletionAuthority",
+          "line": 7
+        },
+        {
+          "kind": "fn",
+          "name": "new",
+          "line": 16
+        },
+        {
+          "kind": "fn",
+          "name": "service",
+          "line": 35
+        },
+        {
+          "kind": "fn",
+          "name": "namespace",
+          "line": 40
+        },
+        {
+          "kind": "fn",
+          "name": "verifier",
+          "line": 45
+        },
+        {
+          "kind": "struct",
+          "name": "InvalidCompletionAuthority",
+          "line": 52
+        }
+      ]
+    },
+    {
+      "old_file": "crates/ic-blob-storage/src/ops/service/uploads/completion/reply/mod.rs",
+      "new_file": "crates/ic-blob-storage-contracts/src/upload/completion/reply/mod.rs",
+      "named_declarations_including_private_and_test_helpers": [
+        {
+          "kind": "enum",
+          "name": "UploadAttestationReplyError",
+          "line": 18
+        },
+        {
+          "kind": "fn",
+          "name": "validate",
+          "line": 32
+        },
+        {
+          "kind": "fn",
+          "name": "inspection_request",
+          "line": 51
+        },
+        {
+          "kind": "fn",
+          "name": "decode",
+          "line": 58
+        },
+        {
+          "kind": "fn",
+          "name": "receipt",
+          "line": 77
+        },
+        {
+          "kind": "fn",
+          "name": "inspection",
+          "line": 99
+        },
+        {
+          "kind": "fn",
+          "name": "mutation",
+          "line": 120
+        }
+      ]
+    },
+    {
+      "old_file": "crates/ic-blob-storage/src/ops/service/uploads/completion/reply/tests/mod.rs",
+      "new_file": "crates/ic-blob-storage-contracts/src/upload/completion/reply/tests/mod.rs",
+      "named_declarations_including_private_and_test_helpers": [
+        {
+          "kind": "fn",
+          "name": "fixture",
+          "line": 4
+        },
+        {
+          "kind": "fn",
+          "name": "encoded",
+          "line": 37
+        },
+        {
+          "kind": "fn",
+          "name": "inspect",
+          "line": 40
+        },
+        {
+          "kind": "fn",
+          "name": "historical_receipts_and_absence_preserve_exact_scope_times_and_fences",
+          "line": 54
+        },
+        {
+          "kind": "fn",
+          "name": "receipt_binding_and_chronology_are_checked_even_for_restored_history",
+          "line": 92
+        },
+        {
+          "kind": "fn",
+          "name": "malformed_oversized_and_remote_refusals_never_become_absence",
+          "line": 179
+        }
+      ]
+    },
+    {
+      "old_file": "crates/ic-blob-storage/src/ops/service/uploads/completion/verification/reply/mod.rs",
+      "new_file": "crates/ic-blob-storage-contracts/src/upload/completion/verification/reply/mod.rs",
+      "named_declarations_including_private_and_test_helpers": [
+        {
+          "kind": "fn",
+          "name": "decode",
+          "line": 23
+        }
+      ]
+    },
+    {
+      "old_file": "crates/ic-blob-storage/src/ops/service/uploads/history/reply/mod.rs",
+      "new_file": "crates/ic-blob-storage-contracts/src/upload/history/reply/mod.rs",
+      "named_declarations_including_private_and_test_helpers": [
+        {
+          "kind": "enum",
+          "name": "UploadHistoryReplyError",
+          "line": 18
+        },
+        {
+          "kind": "struct",
+          "name": "UploadHistoryReplyLimits",
+          "line": 34
+        },
+        {
+          "kind": "fn",
+          "name": "principal",
+          "line": 42
+        },
+        {
+          "kind": "fn",
+          "name": "cursor",
+          "line": 49
+        },
+        {
+          "kind": "fn",
+          "name": "check",
+          "line": 71
+        },
+        {
+          "kind": "fn",
+          "name": "request",
+          "line": 87
+        },
+        {
+          "kind": "fn",
+          "name": "position",
+          "line": 91
+        },
+        {
+          "kind": "fn",
+          "name": "state",
+          "line": 94
+        },
+        {
+          "kind": "fn",
+          "name": "page",
+          "line": 116
+        }
+      ]
+    },
+    {
+      "old_file": "crates/ic-blob-storage/src/ops/service/uploads/history/reply/tests/mod.rs",
+      "new_file": "crates/ic-blob-storage-contracts/src/upload/history/reply/tests/mod.rs",
+      "named_declarations_including_private_and_test_helpers": [
+        {
+          "kind": "fn",
+          "name": "tenant",
+          "line": 3
+        },
+        {
+          "kind": "fn",
+          "name": "input",
+          "line": 7
+        },
+        {
+          "kind": "fn",
+          "name": "entry",
+          "line": 16
+        },
+        {
+          "kind": "fn",
+          "name": "limits",
+          "line": 38
+        },
+        {
+          "kind": "fn",
+          "name": "position_for",
+          "line": 45
+        },
+        {
+          "kind": "fn",
+          "name": "encoded",
+          "line": 55
+        },
+        {
+          "kind": "fn",
+          "name": "observation",
+          "line": 58
+        },
+        {
+          "kind": "fn",
+          "name": "current_pages_keep_full_width_independent_ids_fences_and_scoped_request_echo",
+          "line": 69
+        },
+        {
+          "kind": "fn",
+          "name": "empty_filtered_pages_and_progress_after_unreturned_rows_remain_valid",
+          "line": 114
+        },
+        {
+          "kind": "fn",
+          "name": "service_pages_order_tenants_before_request_ids_and_continue_across_the_boundary",
+          "line": 141
+        },
+        {
+          "kind": "fn",
+          "name": "malformed_entry_identities_filters_order_and_counts_reject",
+          "line": 180
+        },
+        {
+          "kind": "fn",
+          "name": "continuation_cannot_reset_regress_or_change_original_scope",
+          "line": 258
+        },
+        {
+          "kind": "fn",
+          "name": "independent_limits_malformed_replies_and_typed_refusals_do_not_become_empty_history",
+          "line": 339
+        }
+      ]
+    },
+    {
+      "old_file": "crates/ic-blob-storage/src/model/service/upload/issuer/mod.rs",
+      "new_file": "crates/ic-blob-storage-contracts/src/upload/issuer/mod.rs",
+      "named_declarations_including_private_and_test_helpers": [
+        {
+          "kind": "struct",
+          "name": "UploadIssuerAuthority",
+          "line": 7
+        },
+        {
+          "kind": "fn",
+          "name": "new",
+          "line": 16
+        },
+        {
+          "kind": "fn",
+          "name": "uploader",
+          "line": 35
+        },
+        {
+          "kind": "fn",
+          "name": "permits",
+          "line": 40
+        },
+        {
+          "kind": "struct",
+          "name": "InvalidUploadIssuerAuthority",
+          "line": 50
+        }
+      ]
+    },
+    {
+      "old_file": "crates/ic-blob-storage/src/ops/service/uploads/manifests/reply/mod.rs",
+      "new_file": "crates/ic-blob-storage-contracts/src/upload/manifests/reply/mod.rs",
+      "named_declarations_including_private_and_test_helpers": [
+        {
+          "kind": "struct",
+          "name": "UploadManifestReplyLimits",
+          "line": 21
+        },
+        {
+          "kind": "enum",
+          "name": "UploadManifestReplyError",
+          "line": 29
+        },
+        {
+          "kind": "fn",
+          "name": "decode",
+          "line": 43
+        },
+        {
+          "kind": "fn",
+          "name": "validate_declaration",
+          "line": 68
+        },
+        {
+          "kind": "fn",
+          "name": "bound",
+          "line": 102
+        },
+        {
+          "kind": "fn",
+          "name": "inspection",
+          "line": 119
+        },
+        {
+          "kind": "fn",
+          "name": "mutation",
+          "line": 132
+        }
+      ]
+    },
+    {
+      "old_file": "crates/ic-blob-storage/src/model/service/upload/manifest/metadata/mod.rs",
+      "new_file": "crates/ic-blob-storage-contracts/src/upload/metadata/mod.rs",
+      "named_declarations_including_private_and_test_helpers": [
+        {
+          "kind": "enum",
+          "name": "UploadMetadataError",
+          "line": 8
+        },
+        {
+          "kind": "fn",
+          "name": "validate_upload_metadata",
+          "line": 43
+        },
+        {
+          "kind": "fn",
+          "name": "token",
+          "line": 103
+        }
+      ]
+    },
+    {
+      "old_file": "crates/ic-blob-storage/src/ops/service/uploads/status/reply/mod.rs",
+      "new_file": "crates/ic-blob-storage-contracts/src/upload/status/reply/mod.rs",
+      "named_declarations_including_private_and_test_helpers": [
+        {
+          "kind": "enum",
+          "name": "UploadStatusReplyError",
+          "line": 14
+        },
+        {
+          "kind": "fn",
+          "name": "check",
+          "line": 28
+        },
+        {
+          "kind": "fn",
+          "name": "decode",
+          "line": 43
+        }
+      ]
+    },
+    {
+      "old_file": "crates/ic-blob-storage/src/ops/service/uploads/status/reply/tests/mod.rs",
+      "new_file": "crates/ic-blob-storage-contracts/src/upload/status/reply/tests/mod.rs",
+      "named_declarations_including_private_and_test_helpers": [
+        {
+          "kind": "fn",
+          "name": "upload",
+          "line": 4
+        },
+        {
+          "kind": "fn",
+          "name": "exact_upload_status_preserves_phases_refusals_and_full_original_binding",
+          "line": 18
+        }
+      ]
+    }
+  ],
+  "fixture_moves": [
+    {
+      "old": "crates/ic-blob-storage/tests/fixtures/caffeine-hashing",
+      "new": "crates/ic-blob-storage-contracts/tests/fixtures/caffeine-hashing"
+    },
+    {
+      "old": "crates/ic-blob-storage/tests/fixtures/caffeine-account-link",
+      "new": "crates/ic-blob-storage-contracts/tests/fixtures/caffeine-account-link"
+    }
+  ],
+  "example_move": {
+    "old": "crates/ic-blob-storage/examples",
+    "new": "crates/ic-blob-storage-contracts/examples"
+  },
+  "structural_predicate_moves": {
+    "ops::service::funding::validate_envelope": "configuration::envelope::validate_funding_envelope; service record projection remains",
+    "ops::service::gateways::validate_envelope": "configuration::envelope::validate_gateway_envelope; service error conversion remains",
+    "ops::service::uploads::recovery::envelope": "configuration::envelope::validate_manifest_envelope; service error conversion remains",
+    "model::service::read::session::ReadSessionLimits::validate": "configuration::envelope::validate_read_limits; service record/occupancy owner remains",
+    "model::billing::allocation::FundingAllocation::{new,with_renewal_ceiling}": "configuration::envelope::validate_allocation; service accounting and constructors remain"
+  }
+}

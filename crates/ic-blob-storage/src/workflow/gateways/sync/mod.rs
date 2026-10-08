@@ -1,18 +1,16 @@
 //! Explicit bounded refresh with durable pending identity and exact cancellation.
-use crate::{
-    dto::{
-        gateway::sync::{GatewaySyncCancellation, GatewaySyncFailure, GatewaySyncResponse},
-        operator::OperatorScope,
-    },
-    model::service::upload::UploadContext,
-    ops::{
-        caffeine::{
-            gateway::GatewayReplyLimits, query::transport::replicated::ReplicatedGatewayQuery,
-        },
-        service::gateways::{StableGatewayRegistry, access::GatewayRegistryAccess, sync},
-    },
-    workflow::gateways::transport::{GatewayQueryError, query_sync},
-};
+use crate::ops::caffeine::gateway::GatewayReplyLimits;
+use crate::ops::caffeine::query::transport::replicated::ReplicatedGatewayQuery;
+use crate::ops::service::gateways::StableGatewayRegistry;
+use crate::ops::service::gateways::access::GatewayRegistryAccess;
+use crate::ops::service::gateways::sync;
+use crate::workflow::gateways::transport::GatewayQueryError;
+use crate::workflow::gateways::transport::query_sync;
+use ic_blob_storage_contracts::dto::gateway::sync::GatewaySyncCancellation;
+use ic_blob_storage_contracts::dto::gateway::sync::GatewaySyncFailure;
+use ic_blob_storage_contracts::dto::gateway::sync::GatewaySyncResponse;
+use ic_blob_storage_contracts::dto::operator::OperatorScope;
+use ic_blob_storage_contracts::upload::binding::UploadContext;
 use ic_memory::ic_stable_structures::Memory;
 use std::num::NonZeroU32;
 

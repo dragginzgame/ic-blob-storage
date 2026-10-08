@@ -1,13 +1,9 @@
 use super::*;
-use crate::{
-    dto::{
-        tenant::TenantScope,
-        upload::discovery::{
-            UploadDiscoveryFailure as F, UploadDiscoveryRequest, UploadDiscoveryResponse,
-        },
-    },
-    workflow::uploads::discovery::inspect,
-};
+use crate::workflow::uploads::discovery::inspect;
+use ic_blob_storage_contracts::dto::tenant::TenantScope;
+use ic_blob_storage_contracts::dto::upload::discovery::UploadDiscoveryFailure as F;
+use ic_blob_storage_contracts::dto::upload::discovery::UploadDiscoveryRequest;
+use ic_blob_storage_contracts::dto::upload::discovery::UploadDiscoveryResponse;
 fn request(root: [u8; 32]) -> UploadDiscoveryRequest {
     UploadDiscoveryRequest {
         scope: TenantScope {
@@ -99,10 +95,9 @@ fn discovery_boundary_checks_authority_before_absence_and_reports_restored_absen
 
 #[test]
 fn discovery_boundary_preserves_independent_full_width_identities_and_cancelled_history() {
-    use crate::dto::{
-        reference::ReferenceUpload,
-        upload::history::{UploadContentState, UploadHistoryEntry},
-    };
+    use ic_blob_storage_contracts::dto::reference::ReferenceUpload;
+    use ic_blob_storage_contracts::dto::upload::history::UploadContentState;
+    use ic_blob_storage_contracts::dto::upload::history::UploadHistoryEntry;
     let memory = memory();
     let mut store = StableUploads::install(clone_memory(&memory), config()).unwrap();
     let mut heap = UploadAdmissions::new(config());

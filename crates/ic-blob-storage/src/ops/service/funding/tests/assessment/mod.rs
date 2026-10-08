@@ -1,14 +1,9 @@
 use super::*;
-use crate::{
-    dto::{
-        funding::assessment::{
-            FundingPreparationBlocker as B, FundingPreparationFailure as E,
-            FundingPreparationRequest,
-        },
-        operator::OperatorScope,
-    },
-    workflow::funding::assessment::inspect,
-};
+use crate::workflow::funding::assessment::inspect;
+use ic_blob_storage_contracts::dto::funding::assessment::FundingPreparationBlocker as B;
+use ic_blob_storage_contracts::dto::funding::assessment::FundingPreparationFailure as E;
+use ic_blob_storage_contracts::dto::funding::assessment::FundingPreparationRequest;
+use ic_blob_storage_contracts::dto::operator::OperatorScope;
 fn request(operation: u128, offered: u128) -> FundingPreparationRequest {
     let i = input(operation, offered);
     FundingPreparationRequest {

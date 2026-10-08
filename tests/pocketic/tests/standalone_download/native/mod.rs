@@ -4,7 +4,7 @@ use crate::{
     account_native_cli::signer,
     authenticated_cli::{PEM, run},
 };
-use ic_blob_storage::dto::download::DownloadRequest;
+use ic_blob_storage_contracts::dto::download::DownloadRequest;
 use ic_testkit::pocket_ic::PocketIcBuilder;
 use std::{
     net::TcpListener,

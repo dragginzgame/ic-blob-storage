@@ -1,9 +1,11 @@
 //! Bounded local operation recovery, without provider calls or retry authority.
-use crate::{
-    dto::upload::history::{UploadHistoryFailure, UploadHistoryPage, UploadHistoryRequest},
-    model::{catalog::admission::read::UploadPageLimits, service::upload::UploadContext},
-    ops::service::uploads::{StableUploads, history},
-};
+use crate::model::catalog::admission::read::UploadPageLimits;
+use crate::ops::service::uploads::StableUploads;
+use crate::ops::service::uploads::history;
+use ic_blob_storage_contracts::dto::upload::history::UploadHistoryFailure;
+use ic_blob_storage_contracts::dto::upload::history::UploadHistoryPage;
+use ic_blob_storage_contracts::dto::upload::history::UploadHistoryRequest;
+use ic_blob_storage_contracts::upload::binding::UploadContext;
 use ic_memory::ic_stable_structures::Memory;
 
 /// Inspect retained identities as their tenant or the configured service operator.

@@ -1,9 +1,11 @@
 //! Actual IC rollback/replay/restore for trusted verifier statements (content source substituted).
 use super::*;
-use ic_blob_storage::dto::reference::{
-    ReferenceAction, ReferenceCommand, ReferenceFailure, ReferenceMutationResponse,
-};
-use ic_blob_storage::dto::upload::{admission::UploadAdmissionFailure as A, completion::*};
+use ic_blob_storage_contracts::dto::reference::ReferenceAction;
+use ic_blob_storage_contracts::dto::reference::ReferenceCommand;
+use ic_blob_storage_contracts::dto::reference::ReferenceFailure;
+use ic_blob_storage_contracts::dto::reference::ReferenceMutationResponse;
+use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionFailure as A;
+use ic_blob_storage_contracts::dto::upload::completion::*;
 
 fn inspect(f: &Fixture, statement: &UploadAttestationRequest) -> UploadAttestationResponse {
     f.harness

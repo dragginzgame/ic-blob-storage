@@ -1,33 +1,28 @@
 //! Passive exact lookup and DTO projection. Reconciliation policy lives in workflow.
-use crate::{
-    dto::funding::{
-        FundingPhase,
-        outcome::{
-            FundingBalanceField, FundingOutcomeFailure, FundingOutcomeRequest,
-            FundingOutcomeResponse, FundingReconciliation as Reconciliation,
-            FundingReportedBalance, FundingResponse,
-        },
-    },
-    model::{
-        billing::journal::{FundingIntent, FundingIntentError, FundingIntentState},
-        service::upload::UploadContext,
-    },
-    ops::{
-        billing::balance::BalanceField,
-        caffeine::funding::{
-            TopUpProviderError, TopUpReply, TopUpReplyError, transport::CashierTopUpStatus,
-        },
-        service::funding::{
-            FundingJournalError, StableFundingJournal, outcome::FundingOutcomeView,
-        },
-    },
-    policy::billing::reconciliation::FundingReconciliation,
-};
+use crate::model::billing::journal::FundingIntent;
+use crate::model::billing::journal::FundingIntentError;
+use crate::model::billing::journal::FundingIntentState;
+use crate::ops::billing::balance::BalanceField;
+use crate::ops::caffeine::funding::TopUpProviderError;
+use crate::ops::caffeine::funding::TopUpReply;
+use crate::ops::caffeine::funding::TopUpReplyError;
+use crate::ops::caffeine::funding::transport::CashierTopUpStatus;
+use crate::ops::service::funding::FundingJournalError;
+use crate::ops::service::funding::StableFundingJournal;
+use crate::ops::service::funding::outcome::FundingOutcomeView;
+use crate::policy::billing::reconciliation::FundingReconciliation;
+use ic_blob_storage_contracts::dto::funding::FundingPhase;
+use ic_blob_storage_contracts::dto::funding::outcome::FundingBalanceField;
+use ic_blob_storage_contracts::dto::funding::outcome::FundingOutcomeFailure;
+use ic_blob_storage_contracts::dto::funding::outcome::FundingOutcomeRequest;
+use ic_blob_storage_contracts::dto::funding::outcome::FundingOutcomeResponse;
+use ic_blob_storage_contracts::dto::funding::outcome::FundingReconciliation as Reconciliation;
+use ic_blob_storage_contracts::dto::funding::outcome::FundingReportedBalance;
+use ic_blob_storage_contracts::dto::funding::outcome::FundingResponse;
+use ic_blob_storage_contracts::upload::binding::UploadContext;
 use ic_memory::ic_stable_structures::Memory;
 use std::num::NonZeroU128;
 
-/// Canonical passive exact-outcome query. Linking exports no endpoint.
-pub const FUNDING_OUTCOME_METHOD: &str = "blob_funding_outcome";
 fn number(value: u128) -> Result<NonZeroU128, FundingOutcomeFailure> {
     NonZeroU128::new(value).ok_or(FundingOutcomeFailure::Invalid)
 }

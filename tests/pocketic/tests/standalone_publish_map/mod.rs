@@ -6,12 +6,10 @@ use crate::{
     standalone_publish_check::freeze_files,
     upload_setup_cli::uploader,
 };
-use ic_blob_storage::{
-    dto::upload::completion::{
-        UploadAttestationFailure, UploadAttestationMutation, UploadAttestationRequest,
-    },
-    model::identity::ContentDigest,
-};
+use ic_blob_storage_contracts::dto::upload::completion::UploadAttestationFailure;
+use ic_blob_storage_contracts::dto::upload::completion::UploadAttestationMutation;
+use ic_blob_storage_contracts::dto::upload::completion::UploadAttestationRequest;
+use ic_blob_storage_contracts::identity::ContentDigest;
 use ic_testkit::pocket_ic::PocketIcBuilder;
 use serde_json::{Value, json};
 use std::path::Path;
@@ -65,7 +63,7 @@ pub(super) fn confirm(f: &Fixture, manifest: &UploadManifestRequest) {
         .update_call(
             f.service,
             f.uploader,
-            ic_blob_storage::workflow::uploads::certificate::CAFFEINE_UPLOAD_CERTIFICATE_METHOD,
+            ic_blob_storage_contracts::protocol::CAFFEINE_UPLOAD_CERTIFICATE_METHOD,
             candid::encode_one(root).unwrap(),
         )
         .unwrap();

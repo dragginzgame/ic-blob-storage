@@ -1,6 +1,7 @@
 use super::Failure;
+use super::parsing::positive;
 use candid::Principal;
-use ic_blob_storage::dto::operator::OperatorScope;
+use ic_blob_storage_contracts::dto::operator::OperatorScope;
 use std::{collections::BTreeMap, path::PathBuf};
 use url::{Host, Url};
 
@@ -22,10 +23,12 @@ pub(super) enum Command {
     UploadSetup(super::upload_setup::Input),
     Download(super::download::Input),
     GatewayControl(super::gateway_controls::Input),
-    FundingAssessment(ic_blob_storage::dto::funding::assessment::FundingPreparationRequest),
-    InspectAccount(ic_blob_storage::dto::account::AccountInspectionRequest),
+    FundingAssessment(
+        ic_blob_storage_contracts::dto::funding::assessment::FundingPreparationRequest,
+    ),
+    InspectAccount(ic_blob_storage_contracts::dto::account::AccountInspectionRequest),
     Reference(super::references::Input),
-    FundingOutcome(ic_blob_storage::dto::funding::outcome::FundingOutcomeRequest),
+    FundingOutcome(ic_blob_storage_contracts::dto::funding::outcome::FundingOutcomeRequest),
     UploadHistory(super::upload_history::Input),
     CertificateAssessment(super::certificate_assessment::Input),
     SubmitAttestation(super::submit_attestation::Input),
@@ -156,8 +159,6 @@ impl Options {
         })
     }
 }
-
-use super::parsing::positive;
 
 fn maximum(value: &str) -> Result<std::num::NonZeroU64, Failure> {
     let maximum: std::num::NonZeroU64 = positive(value)?;
@@ -507,10 +508,12 @@ fn parse_operator_command(
                 directory: PathBuf::from(take("--run-dir")?),
             })
         } else if command == "inspect-account" {
-            Command::InspectAccount(ic_blob_storage::dto::account::AccountInspectionRequest {
-                scope,
-                kind: super::account::kind(take("--kind")?)?,
-            })
+            Command::InspectAccount(
+                ic_blob_storage_contracts::dto::account::AccountInspectionRequest {
+                    scope,
+                    kind: super::account::kind(take("--kind")?)?,
+                },
+            )
         } else if matches!(command, "funding-outcome" | "funding-assessment") {
             let operation = positive::<u128>(take("--operation")?)?;
             let offered = positive::<u128>(take("--offered")?)?;
@@ -520,7 +523,7 @@ fn parse_operator_command(
                 .transpose()?;
             if command == "funding-assessment" {
                 return Ok(Command::FundingAssessment(
-                    ic_blob_storage::dto::funding::assessment::FundingPreparationRequest {
+                    ic_blob_storage_contracts::dto::funding::assessment::FundingPreparationRequest {
                         scope,
                         operation,
                         offered,
@@ -529,7 +532,7 @@ fn parse_operator_command(
                 ));
             }
             Command::FundingOutcome(
-                ic_blob_storage::dto::funding::outcome::FundingOutcomeRequest {
+                ic_blob_storage_contracts::dto::funding::outcome::FundingOutcomeRequest {
                     scope,
                     operation,
                     offered,

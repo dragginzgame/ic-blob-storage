@@ -1,23 +1,20 @@
 //! Authorized current views including pending upload capacity and root history.
 //! No provider wire mapping, effect scheduling, persistence or recovery occurs here.
 
-use crate::{
-    model::{
-        catalog::admission::{
-            UploadCatalog, UploadUsage,
-            read::{
-                ActiveUploadCursor, ActiveUploadPage, UploadCursorError, UploadPageLimits,
-                UploadRootState,
-            },
-        },
-        gateway::registry::GatewayRegistry,
-        identity::{HashParseError, batch::ProviderRootBatch},
-    },
-    policy::{
-        gateway::{GatewayAccessError, GatewayCallbackContext},
-        tenant::{TenantAccessContext, TenantAccessError},
-    },
-};
+use crate::model::catalog::admission::UploadCatalog;
+use crate::model::catalog::admission::UploadUsage;
+use crate::model::catalog::admission::read::ActiveUploadCursor;
+use crate::model::catalog::admission::read::ActiveUploadPage;
+use crate::model::catalog::admission::read::UploadCursorError;
+use crate::model::catalog::admission::read::UploadPageLimits;
+use crate::model::gateway::registry::GatewayRegistry;
+use crate::policy::gateway::GatewayAccessError;
+use crate::policy::gateway::GatewayCallbackContext;
+use crate::policy::tenant::TenantAccessContext;
+use crate::policy::tenant::TenantAccessError;
+use ic_blob_storage_contracts::identity::HashParseError;
+use ic_blob_storage_contracts::identity::batch::ProviderRootBatch;
+use ic_blob_storage_contracts::upload::history::UploadRootState;
 use thiserror::Error;
 
 /// Read charged capacity for the authenticated direct tenant, including reservations.

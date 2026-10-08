@@ -1,12 +1,12 @@
 use super::*;
-use crate::model::{
-    billing::{FundingLimits, configuration::BillingConfiguration},
-    catalog::{CatalogLimits, admission::UploadLimits},
-    service::{
-        configuration::{ServiceBindings, ServiceLimits, ServiceManifestLimits},
-        upload::UploadAdmissions,
-    },
-};
+use crate::model::service::upload::UploadAdmissions;
+use ic_blob_storage_contracts::configuration::billing::BillingConfiguration;
+use ic_blob_storage_contracts::configuration::funding::FundingLimits;
+use ic_blob_storage_contracts::configuration::limits::CatalogLimits;
+use ic_blob_storage_contracts::configuration::limits::UploadLimits;
+use ic_blob_storage_contracts::configuration::service::ServiceBindings;
+use ic_blob_storage_contracts::configuration::service::ServiceLimits;
+use ic_blob_storage_contracts::configuration::service::ServiceManifestLimits;
 use ic_memory::{
     GenericRangePolicy, MemoryManagerAuthorityRecord, MemoryManagerConfig, MemoryManagerIdRange,
     MemoryManagerRangeMode, MemoryRequest, MemoryRuntime, SchemaMetadata,

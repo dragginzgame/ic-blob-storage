@@ -1,31 +1,27 @@
 //! One bounded provider observation, retained before any future attestation dispatch.
 pub(super) mod record;
-#[cfg(test)]
-mod tests;
-use super::{
-    Failure,
-    arguments::Options,
-    artifacts::{FailureRecord, Run},
-    identity,
-    provider_download::{self, ExpectedBody},
-    query, read,
-    upload_setup::manifest_reply_limits,
-};
+use super::Failure;
+use super::arguments::Options;
+use super::artifacts::FailureRecord;
+use super::artifacts::Run;
+use super::identity;
+use super::provider_download;
+use super::provider_download::ExpectedBody;
+use super::query;
+use super::read;
+use super::upload_setup::manifest_reply_limits;
 use candid::Principal;
-use ic_blob_storage::{
-    dto::upload::{admission::UploadAdmissionRequest, completion::UploadAttestationRequest},
-    model::{
-        identity::{ContentDigest, ProviderRootHash},
-        service::{read::download::CaffeineDownloadScope, upload::completion::CompletionAuthority},
-    },
-    ops::{
-        caffeine::download::request_target,
-        service::uploads::completion::{
-            reply::{UploadAttestationReplyError, inspection_request},
-            verification::{self, UPLOAD_VERIFICATION_PLAN_METHOD},
-        },
-    },
-};
+use ic_blob_storage_contracts::download::scope::CaffeineDownloadScope;
+use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionRequest;
+use ic_blob_storage_contracts::dto::upload::completion::UploadAttestationRequest;
+use ic_blob_storage_contracts::identity::ContentDigest;
+use ic_blob_storage_contracts::identity::ProviderRootHash;
+use ic_blob_storage_contracts::protocol::UPLOAD_VERIFICATION_PLAN_METHOD;
+use ic_blob_storage_contracts::provider::download::request_target;
+use ic_blob_storage_contracts::upload::completion::CompletionAuthority;
+use ic_blob_storage_contracts::upload::completion::reply::UploadAttestationReplyError;
+use ic_blob_storage_contracts::upload::completion::reply::inspection_request;
+use ic_blob_storage_contracts::upload::completion::verification;
 use serde_json::Value;
 use std::{
     num::NonZeroU64,
@@ -33,6 +29,9 @@ use std::{
     time::{SystemTime, UNIX_EPOCH},
 };
 use url::Url;
+
+#[cfg(test)]
+mod tests;
 
 pub(super) struct Input {
     pub service: Principal,
@@ -212,7 +211,7 @@ async fn capture(
 async fn download_plan(
     target: &Url,
     network: &str,
-    plan: &ic_blob_storage::dto::upload::completion::UploadVerificationPlan,
+    plan: &ic_blob_storage_contracts::dto::upload::completion::UploadVerificationPlan,
     maximum: NonZeroU64,
     run: &Run,
 ) -> Result<ContentDigest, Failure> {
@@ -221,7 +220,7 @@ async fn download_plan(
         .headers
         .iter()
         .map(
-            |h| ic_blob_storage::model::identity::caffeine::CaffeineHeader {
+            |h| ic_blob_storage_contracts::identity::caffeine::CaffeineHeader {
                 name: &h.name,
                 value: &h.value,
             },

@@ -1,15 +1,15 @@
 //! Local HTTP fault transport around real `PocketIC`; no provider protocol substitute here.
 use candid::Principal;
-use ic_blob_storage::model::identity::ContentDigest;
+use ic_blob_storage_contracts::identity::ContentDigest;
+use std::io::Read;
+use std::io::Write;
+use std::net::TcpListener;
 use std::sync::{
     Arc,
     atomic::{AtomicBool, AtomicUsize, Ordering},
 };
-use std::{
-    io::{Read, Write},
-    net::TcpListener,
-    time::{Duration, Instant},
-};
+use std::time::Duration;
+use std::time::Instant;
 
 pub(crate) struct Proxy {
     pub url: String,

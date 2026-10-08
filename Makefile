@@ -24,9 +24,10 @@ VERSION ?=
 RELEASE := bash scripts/release/release.sh
 RELEASE_REMOTE ?= origin
 RELEASE_BRANCH ?= main
+export PUBLISH_PACKAGE
 export RELEASE_KIND RELEASE_PREVIOUS RELEASE_VERSION RELEASE_DATE RELEASE_SOURCE RELEASE_COMMIT RELEASE_REMOTE RELEASE_BRANCH
 SHELLCHECK ?= shellcheck
-CI_TARGETS := shared-tooling-check tools-check dependency-pins-check documentation-links-check shared-tooling-tests deps shell-check release-check hooks-check fmt-check check clippy probe-check docs-check test wasm-check package
+CI_TARGETS := shared-tooling-check tools-check dependency-pins-check documentation-links-check shared-tooling-tests deps contracts-boundary-check shell-check release-check hooks-check fmt-check check clippy probe-check docs-check test wasm-check package
 
 .PHONY: help version deps cloc shared-tooling-check dependency-pins-check fmt fmt-check check clippy docs-check test test-native test-pocketic test-browser test-browser-store test-browser-transport test-browser-standalone test-sdk-probe test-sdk-inputs test-fixture test-standalone build-standalone test-admission-resources test-read-resources test-funding-receipt-resources wasm-check \
 	build package clean shell-check release-check probe-check ci validate release-verify test-browser-publication test-browser-bootstrap test-browser-launcher test-browser-native \
@@ -35,7 +36,7 @@ CI_TARGETS := shared-tooling-check tools-check dependency-pins-check documentati
 	release-commit-check release-committed-check release-tagged-check release-push-check \
 	release-tag-check publish publish-dry-run install-hooks format-tools-check release-tools-check hooks-check evidence-check
 .PHONY: test-hard-cut test-native-host pocketic-alignment-check install-tools tools-check install-host-tools host-tools-check install-ic-tools ic-tools-check
-.PHONY: documentation-links-check release-commands-check shared-tooling-tests
+.PHONY: contracts-boundary-check documentation-links-check release-commands-check shared-tooling-tests
 
 ifneq ($(word 2,$(filter release-patch release-minor release-major release-resume,$(MAKECMDGOALS))),)
 $(error Select exactly one release target)
@@ -146,6 +147,9 @@ fmt-check: format-tools-check
 	cargo sort --workspace --check
 	cargo fmt --all -- --check
 
+contracts-boundary-check:
+	bash scripts/ci/check-runtime-free-contracts.sh
+
 check:
 	cargo check --offline --locked --workspace --all-targets --all-features
 
@@ -164,24 +168,25 @@ evidence-check:
 	bash scripts/ci/verify-evidence-checksums.sh docs/evidence/caffeine-probes/local/SHA256SUMS docs/evidence/caffeine-probes/deployed/SHA256SUMS
 
 docs-check:
-	RUSTDOCFLAGS="-D warnings" cargo doc --offline --locked -p ic-blob-storage -p ic-blob-storage-canister --all-features --no-deps
+	RUSTDOCFLAGS="-D warnings" cargo doc --offline --locked -p ic-blob-storage -p ic-blob-storage-contracts -p ic-blob-storage-canister --all-features --no-deps
 
 test:
 	+$(MAKE) --no-print-directory test-native
 	+$(MAKE) --no-print-directory test-pocketic
 
 test-native:
-	bash scripts/ci/run-nonempty-cargo-test.sh --offline --locked -p ic-blob-storage -p blob-consumer-probe -p ic-blob-storage-canister -p ic-blob-storage-cli --all-features
+	bash scripts/ci/run-nonempty-cargo-test.sh --offline --locked -p ic-blob-storage -p ic-blob-storage-contracts -p blob-consumer-probe -p ic-blob-storage-canister -p ic-blob-storage-cli --all-features
 
 pocketic-alignment-check:
 	bash scripts/ci/check-pocketic-alignment.sh --manifest Cargo.toml --pins "$(IC_TOOL_PINS)"
 
-test-native-host: pocketic-alignment-check
+test-native-host: pocketic-alignment-check contracts-boundary-check
 	+$(MAKE) --no-print-directory build-standalone
 	cargo build --offline --locked --release --target wasm32-unknown-unknown -p blob-storage-probe --lib
 	cargo build --offline --locked -p ic-blob-storage-cli
 	bash scripts/ci/run-nonempty-cargo-test.sh --offline --locked -p ic-blob-storage-cli --bins
-	bash scripts/ci/run-nonempty-cargo-test.sh --offline --locked -p ic-blob-storage --examples
+	bash scripts/ci/run-nonempty-cargo-test.sh --offline --locked -p ic-blob-storage-contracts --lib
+	bash scripts/ci/run-nonempty-cargo-test.sh --offline --locked -p ic-blob-storage-contracts --examples
 	bash scripts/ci/run-nonempty-cargo-test.sh --offline --locked -p ic-blob-storage-pocketic-tests --test standalone standalone_installation_cli:: -- --test-threads=1
 	bash scripts/ci/run-nonempty-cargo-test.sh --offline --locked -p ic-blob-storage-pocketic-tests --test storage storage_resources::reads::restoration_reads_are_attributed_only_to_the_operator_reopen_window -- --exact --test-threads=1
 
@@ -220,7 +225,7 @@ test-browser-standalone test-browser: browser-tools-check
 test-sdk-probe:
 	@test -n "$(BLOB_SDK_PROBE_REPORT)" || { echo 'Set BLOB_SDK_PROBE_REPORT to a new directory beneath an existing parent'; exit 1; }
 	$(BLOB_BROWSER_NODE) tests/browser/build.mjs
-	cargo build --offline --locked -p ic-blob-storage --example verify_download
+	cargo build --offline --locked -p ic-blob-storage-contracts --example verify_download
 	$(BLOB_BROWSER_NODE) .tmp/browser/sdk-probe.mjs "$(BLOB_SDK_PROBE_REPORT)" "$(CARGO_TARGET_DIR)/debug/examples/verify_download"
 
 test-sdk-inputs:
@@ -299,7 +304,7 @@ build:
 	cargo build --offline --locked -p ic-blob-storage --all-features
 
 package:
-	cargo package --offline --locked --allow-dirty -p ic-blob-storage
+	bash scripts/ci/verify-library-packages.sh
 
 clean:
 	cargo clean

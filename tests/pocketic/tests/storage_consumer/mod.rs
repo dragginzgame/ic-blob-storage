@@ -5,10 +5,12 @@ use blob_test_protocol::consumer::{
     Release, Run, Use,
 };
 use blob_test_protocol::storage::ProviderFact;
-use ic_blob_storage::dto::reference::{
-    ReferenceAction, ReferenceChange, ReferenceCommand, ReferenceFailure, ReferenceReceiptLookup,
-    ReferenceUpload,
-};
+use ic_blob_storage_contracts::dto::reference::ReferenceAction;
+use ic_blob_storage_contracts::dto::reference::ReferenceChange;
+use ic_blob_storage_contracts::dto::reference::ReferenceCommand;
+use ic_blob_storage_contracts::dto::reference::ReferenceFailure;
+use ic_blob_storage_contracts::dto::reference::ReferenceReceiptLookup;
+use ic_blob_storage_contracts::dto::reference::ReferenceUpload;
 fn consumer_wasm() -> Vec<u8> {
     std::fs::read(fixture_path("BLOB_CONSUMER_PROBE_WASM")).unwrap()
 }

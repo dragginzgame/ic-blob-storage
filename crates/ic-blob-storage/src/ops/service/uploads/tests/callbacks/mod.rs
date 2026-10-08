@@ -1,18 +1,16 @@
 //! Independent durable-owner fences and binding checks without platform substitutes.
 use super::*;
-use crate::{
-    model::{
-        catalog::admission::read::UploadRootState,
-        gateway::registry::GatewayScope,
-        identity::batch::{ProviderRootBatch, RootBatchLimits},
-    },
-    ops::service::gateways::{GatewayStoreError, StableGatewayRegistry},
-    policy::{
-        catalog::upload::UploadRootStatus,
-        gateway::{GatewayAccessError, GatewayCallbackContext},
-    },
-    workflow::gateways::callbacks::{GatewayCallbackError, observe_roots},
-};
+use crate::model::gateway::registry::GatewayScope;
+use crate::ops::service::gateways::GatewayStoreError;
+use crate::ops::service::gateways::StableGatewayRegistry;
+use crate::policy::catalog::upload::UploadRootStatus;
+use crate::policy::gateway::GatewayAccessError;
+use crate::policy::gateway::GatewayCallbackContext;
+use crate::workflow::gateways::callbacks::GatewayCallbackError;
+use crate::workflow::gateways::callbacks::observe_roots;
+use ic_blob_storage_contracts::identity::batch::ProviderRootBatch;
+use ic_blob_storage_contracts::identity::batch::RootBatchLimits;
+use ic_blob_storage_contracts::upload::history::UploadRootState;
 use std::num::NonZeroUsize;
 
 fn scope() -> GatewayScope {

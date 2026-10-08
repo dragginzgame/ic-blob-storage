@@ -1,9 +1,9 @@
 //! Actual standalone operator scope, maintained accounting and passive restore inspection.
 use super::*;
-use ic_blob_storage::{
-    dto::operator::{LocalServiceStatus, LocalStatusFailure, OperatorScope},
-    ops::service::operator::LOCAL_STATUS_METHOD,
-};
+use ic_blob_storage_contracts::dto::operator::LocalServiceStatus;
+use ic_blob_storage_contracts::dto::operator::LocalStatusFailure;
+use ic_blob_storage_contracts::dto::operator::OperatorScope;
+use ic_blob_storage_contracts::protocol::LOCAL_STATUS_METHOD;
 impl Fixture {
     pub(super) fn operator_scope(&self) -> OperatorScope {
         OperatorScope {

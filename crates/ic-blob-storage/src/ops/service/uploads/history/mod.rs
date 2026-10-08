@@ -1,31 +1,27 @@
 //! Passive boundary conversion around the existing bounded stable scan.
-pub mod reply;
-use crate::{
-    dto::{
-        reference::ReferenceUpload,
-        upload::history::{
-            UploadContentState, UploadHistoryCursor, UploadHistoryEntry, UploadHistoryFailure,
-            UploadHistoryFilter, UploadHistoryPage, UploadHistoryRequest, UploadHistoryScope,
-        },
-    },
-    model::{
-        catalog::admission::{
-            UploadRequestId,
-            read::{UploadPageLimits, UploadRootState},
-        },
-        lifecycle::LifecyclePhase,
-        service::upload::{UploadAdmissionError, UploadContext, content::TenantContentView},
-    },
-    ops::service::uploads::{
-        StableUploads, UploadStoreError,
-        read::{UploadScanCursor, UploadScanFilter, UploadScanScope},
-    },
-};
+
+use crate::model::catalog::admission::read::UploadPageLimits;
+use crate::model::service::upload::UploadAdmissionError;
+use crate::model::service::upload::content::TenantContentView;
+use crate::ops::service::uploads::StableUploads;
+use crate::ops::service::uploads::UploadStoreError;
+use crate::ops::service::uploads::read::UploadScanCursor;
+use crate::ops::service::uploads::read::UploadScanScope;
+use ic_blob_storage_contracts::dto::reference::ReferenceUpload;
+use ic_blob_storage_contracts::dto::upload::history::UploadContentState;
+use ic_blob_storage_contracts::dto::upload::history::UploadHistoryCursor;
+use ic_blob_storage_contracts::dto::upload::history::UploadHistoryEntry;
+use ic_blob_storage_contracts::dto::upload::history::UploadHistoryFailure;
+use ic_blob_storage_contracts::dto::upload::history::UploadHistoryPage;
+use ic_blob_storage_contracts::dto::upload::history::UploadHistoryRequest;
+use ic_blob_storage_contracts::dto::upload::history::UploadHistoryScope;
+use ic_blob_storage_contracts::upload::binding::UploadContext;
+use ic_blob_storage_contracts::upload::binding::UploadRequestId;
+use ic_blob_storage_contracts::upload::history::LifecyclePhase;
+use ic_blob_storage_contracts::upload::history::UploadRootState;
+use ic_blob_storage_contracts::upload::history::filter;
 use ic_memory::ic_stable_structures::Memory;
 use std::num::NonZeroU128;
-
-/// Canonical bounded history query. Linking exports no endpoint.
-pub const UPLOAD_HISTORY_METHOD: &str = "blob_upload_history";
 
 fn number(value: u128) -> Result<NonZeroU128, UploadHistoryFailure> {
     NonZeroU128::new(value).ok_or(UploadHistoryFailure::Invalid)
@@ -40,14 +36,7 @@ fn scope(
         UploadHistoryScope::Service => UploadScanScope::Service { namespace },
     })
 }
-fn filter(input: UploadHistoryFilter) -> UploadScanFilter {
-    match input {
-        UploadHistoryFilter::All => UploadScanFilter::All,
-        UploadHistoryFilter::Active => UploadScanFilter::Active,
-        UploadHistoryFilter::DeletionPending => UploadScanFilter::DeletionPending,
-        UploadHistoryFilter::Outstanding => UploadScanFilter::Outstanding,
-    }
-}
+
 fn cursor(input: UploadHistoryCursor) -> Result<UploadScanCursor, UploadHistoryFailure> {
     Ok(UploadScanCursor {
         service: input.service,

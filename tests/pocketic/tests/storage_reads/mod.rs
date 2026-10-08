@@ -7,21 +7,18 @@ use blob_test_protocol::{
     },
     storage::ProviderFact,
 };
-use ic_blob_storage::dto::upload::history::{
-    UploadContentState, UploadHistoryCursor as Cursor, UploadHistoryFailure as HistoryFailure,
-    UploadHistoryFilter as Filter, UploadHistoryPage as Page, UploadHistoryRequest as ScanInput,
-    UploadHistoryScope as Scope,
-};
-use ic_blob_storage::dto::{
-    tenant::TenantScope,
-    upload::{
-        discovery::{
-            UploadDiscoveryFailure as DiscoveryFailure, UploadDiscoveryRequest,
-            UploadDiscoveryResponse,
-        },
-        history::UploadHistoryEntry,
-    },
-};
+use ic_blob_storage_contracts::dto::tenant::TenantScope;
+use ic_blob_storage_contracts::dto::upload::discovery::UploadDiscoveryFailure as DiscoveryFailure;
+use ic_blob_storage_contracts::dto::upload::discovery::UploadDiscoveryRequest;
+use ic_blob_storage_contracts::dto::upload::discovery::UploadDiscoveryResponse;
+use ic_blob_storage_contracts::dto::upload::history::UploadContentState;
+use ic_blob_storage_contracts::dto::upload::history::UploadHistoryCursor as Cursor;
+use ic_blob_storage_contracts::dto::upload::history::UploadHistoryEntry;
+use ic_blob_storage_contracts::dto::upload::history::UploadHistoryFailure as HistoryFailure;
+use ic_blob_storage_contracts::dto::upload::history::UploadHistoryFilter as Filter;
+use ic_blob_storage_contracts::dto::upload::history::UploadHistoryPage as Page;
+use ic_blob_storage_contracts::dto::upload::history::UploadHistoryRequest as ScanInput;
+use ic_blob_storage_contracts::dto::upload::history::UploadHistoryScope as Scope;
 impl Fixture {
     fn content_input(&self, request: Request) -> ContentLookup {
         ContentLookup {
@@ -339,10 +336,12 @@ fn shared_history_distinguishes_exposure_deletion_and_billing_cessation() {
         assert_eq!(page.request, query);
         assert_eq!(
             page.entries,
-            vec![ic_blob_storage::dto::upload::history::UploadHistoryEntry {
-                request: admission_input(permission).upload,
-                state,
-            }]
+            vec![
+                ic_blob_storage_contracts::dto::upload::history::UploadHistoryEntry {
+                    request: admission_input(permission).upload,
+                    state,
+                }
+            ]
         );
         assert_eq!(page.scanned, 1);
         assert_eq!(

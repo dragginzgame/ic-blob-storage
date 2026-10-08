@@ -1,8 +1,8 @@
 use super::*;
 use blob_test_protocol::consumer::Revocation;
-use ic_blob_storage::dto::upload::admission::{
-    UploadAdmissionFailure as A, UploadAdmissionRequest, UploadRevocationResponse,
-};
+use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionFailure as A;
+use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionRequest;
+use ic_blob_storage_contracts::dto::upload::admission::UploadRevocationResponse;
 pub(super) fn withdraw(
     f: &Fixture,
     fault: Fault,

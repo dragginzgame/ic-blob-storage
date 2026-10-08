@@ -1,6 +1,7 @@
 //! Normalized host read transport, deliberately independent of provider wire formats.
-use crate::model::{identity::ProviderRootHash, service::read::session::ReadChunkTarget};
+use crate::model::service::read::session::ReadChunkTarget;
 use candid::Principal;
+use ic_blob_storage_contracts::identity::ProviderRootHash;
 use std::num::NonZeroU32;
 /// Original exact target and trusted reply budget, supplied by the shared handler.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]

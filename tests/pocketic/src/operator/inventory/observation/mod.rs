@@ -9,14 +9,16 @@ use crate::operator::{
     ops::{Report, query_target},
 };
 use candid::{CandidType, DecoderConfig, Deserialize, decode_one_with_config};
-use ic_blob_storage::dto::reference::capacity::{
-    ReferenceCapacityFailure, ReferenceCapacityRequest, ReferenceCapacityResponse,
-};
-use ic_blob_storage::dto::upload::capacity::{UploadCapacityFailure, UploadCapacityResponse};
-use ic_blob_storage::dto::upload::{
-    discovery::{UploadDiscoveryFailure, UploadDiscoveryRequest, UploadDiscoveryResponse},
-    history::{UploadContentState, UploadHistoryEntry},
-};
+use ic_blob_storage_contracts::dto::reference::capacity::ReferenceCapacityFailure;
+use ic_blob_storage_contracts::dto::reference::capacity::ReferenceCapacityRequest;
+use ic_blob_storage_contracts::dto::reference::capacity::ReferenceCapacityResponse;
+use ic_blob_storage_contracts::dto::upload::capacity::UploadCapacityFailure;
+use ic_blob_storage_contracts::dto::upload::capacity::UploadCapacityResponse;
+use ic_blob_storage_contracts::dto::upload::discovery::UploadDiscoveryFailure;
+use ic_blob_storage_contracts::dto::upload::discovery::UploadDiscoveryRequest;
+use ic_blob_storage_contracts::dto::upload::discovery::UploadDiscoveryResponse;
+use ic_blob_storage_contracts::dto::upload::history::UploadContentState;
+use ic_blob_storage_contracts::dto::upload::history::UploadHistoryEntry;
 use serde_json::{Value, json};
 
 fn decode_result<

@@ -135,7 +135,7 @@ pub struct View {
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
 pub struct FaultRevocation {
     /// Exact shared operator request.
-    pub request: ic_blob_storage::dto::gateway::GatewayRevocationRequest,
+    pub request: ic_blob_storage_contracts::dto::gateway::GatewayRevocationRequest,
     /// Trap on the registry write; never part of production ingress.
     pub fault: bool,
 }
@@ -144,7 +144,7 @@ pub struct FaultRevocation {
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
 pub struct FaultCancellation {
     /// Exact maintained request.
-    pub request: ic_blob_storage::dto::gateway::sync::GatewaySyncCancellation,
+    pub request: ic_blob_storage_contracts::dto::gateway::sync::GatewaySyncCancellation,
     /// Trap the cancellation write.
     pub fault: bool,
 }

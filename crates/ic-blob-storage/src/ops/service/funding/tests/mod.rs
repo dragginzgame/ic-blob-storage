@@ -8,14 +8,11 @@ mod history_boundary;
 mod outcome;
 mod renewal;
 mod summary;
-use crate::{
-    model::billing::{
-        journal::FundingIntentState,
-        transfer::{FundingTransfer, FundingTransferError},
-    },
-    ops::service::tenant::tests::config,
-};
+use crate::model::billing::journal::FundingIntentState;
+use crate::ops::service::tenant::tests::config;
 use candid::Principal;
+use ic_blob_storage_contracts::funding::transfer::FundingTransfer;
+use ic_blob_storage_contracts::funding::transfer::FundingTransferError;
 use ic_memory::ic_stable_structures::{Storable, VectorMemory};
 use std::num::{NonZeroU128, NonZeroUsize};
 fn n(value: u128) -> NonZeroU128 {
@@ -377,13 +374,13 @@ fn orphaned_changed_and_omitted_history_rejects_without_repair() {
 #[test]
 fn wide_principals_and_amounts_fit_bounded_v1_codecs() {
     let base = config();
-    let bindings = crate::model::service::configuration::ServiceBindings {
+    let bindings = ic_blob_storage_contracts::configuration::service::ServiceBindings {
         service: Principal::self_authenticating(b"service"),
         operator: Principal::self_authenticating(b"operator"),
         payment_account: Principal::self_authenticating(b"payer"),
         namespace: NonZeroU128::MAX,
     };
-    let billing = crate::model::billing::configuration::BillingConfiguration::new(
+    let billing = ic_blob_storage_contracts::configuration::billing::BillingConfiguration::new(
         Principal::self_authenticating(b"cashier"),
         base.billing().funding_limits(),
         8,

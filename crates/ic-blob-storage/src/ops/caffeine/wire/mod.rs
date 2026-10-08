@@ -1,6 +1,7 @@
 //! Shared private Cashier DTOs, owned by the provider boundary.
 
-use candid::{CandidType, Int, Principal};
+use candid::CandidType;
+use candid::Int;
 use serde::Deserialize;
 
 #[derive(CandidType, Deserialize)]
@@ -16,12 +17,4 @@ pub(super) struct AccountCycleBalances {
 pub(super) enum DebtTarget {
     Prepaid,
     Ledger,
-}
-
-#[derive(CandidType)]
-pub(super) struct PaymentAccountCanisterAddRequest {
-    pub spending_limit_per_day: Int,
-    pub paid_canister: Principal,
-    pub expiration_timestamp: Option<u64>,
-    pub payment_account: Option<Principal>,
 }

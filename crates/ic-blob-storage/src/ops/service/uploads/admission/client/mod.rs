@@ -1,13 +1,14 @@
 //! One explicit replicated admission or inspection; no retry or provider effects.
-use super::{
-    UPLOAD_ADMISSION_METHOD, UPLOAD_ADMISSION_STATUS_METHOD, UPLOAD_REVOCATION_METHOD,
-    reply::{self, UploadAdmissionReplyError},
-};
-use crate::dto::upload::admission::{
-    UploadAdmissionMutation, UploadAdmissionRequest, UploadAdmissionResponse,
-    UploadRevocationResponse,
-};
 use candid::Principal;
+use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionMutation;
+use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionRequest;
+use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionResponse;
+use ic_blob_storage_contracts::dto::upload::admission::UploadRevocationResponse;
+use ic_blob_storage_contracts::protocol::UPLOAD_ADMISSION_METHOD;
+use ic_blob_storage_contracts::protocol::UPLOAD_ADMISSION_STATUS_METHOD;
+use ic_blob_storage_contracts::protocol::UPLOAD_REVOCATION_METHOD;
+use ic_blob_storage_contracts::upload::admission::reply;
+use ic_blob_storage_contracts::upload::admission::reply::UploadAdmissionReplyError;
 use ic_cdk::call::{Call, CallFailed, Response};
 use std::num::{NonZeroU32, NonZeroUsize};
 use thiserror::Error;

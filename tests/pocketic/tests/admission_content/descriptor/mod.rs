@@ -1,9 +1,9 @@
 //! Actual caller authorization and descriptor-to-client verification.
 use super::*;
 use blob_test_protocol::admission::{ContentDescriptor, release::LifecycleCommand};
-use ic_blob_storage::model::identity::caffeine::{
-    CaffeineHashLimits, CaffeineHeader, verification::CaffeineRootVerifier,
-};
+use ic_blob_storage_contracts::identity::caffeine::CaffeineHashLimits;
+use ic_blob_storage_contracts::identity::caffeine::CaffeineHeader;
+use ic_blob_storage_contracts::identity::caffeine::verification::CaffeineRootVerifier;
 use std::num::{NonZeroU64, NonZeroUsize};
 
 mod preparation;

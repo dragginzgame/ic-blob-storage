@@ -1,18 +1,13 @@
 //! First-attempt checks for an exact existing reservation, never automatic retry.
-use crate::{
-    model::billing::{
-        FundingLimits,
-        allocation::FundingAllocationView,
-        journal::{FundingIntent, FundingIntentState},
-    },
-    policy::billing::{
-        RecoveryState,
-        admission::{
-            FundingActivity,
-            evidence::{FundingAdmissionEvidence, FundingEvidenceBlocker, assess_funding_evidence},
-        },
-    },
-};
+use crate::model::billing::allocation::FundingAllocationView;
+use crate::model::billing::journal::FundingIntent;
+use crate::model::billing::journal::FundingIntentState;
+use crate::policy::billing::RecoveryState;
+use crate::policy::billing::admission::FundingActivity;
+use crate::policy::billing::admission::evidence::FundingAdmissionEvidence;
+use crate::policy::billing::admission::evidence::FundingEvidenceBlocker;
+use crate::policy::billing::admission::evidence::assess_funding_evidence;
+use ic_blob_storage_contracts::configuration::funding::FundingLimits;
 use std::num::NonZeroU128;
 
 /// Current trusted host observations for this exact first attempt. These plain

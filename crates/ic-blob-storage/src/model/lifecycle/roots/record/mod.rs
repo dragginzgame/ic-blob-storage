@@ -1,9 +1,8 @@
 //! Bounded stable root claims and reverse keys, independent of host memory IDs.
 use super::ObjectBinding;
-use crate::model::{
-    lifecycle::binding::ObjectIdentity, service::configuration::ServiceConfiguration,
-};
 use candid::{CandidType, Deserialize, Principal, de::DecoderConfig, decode_one_with_config};
+use ic_blob_storage_contracts::binding::ObjectIdentity;
+use ic_blob_storage_contracts::configuration::service::ServiceConfiguration;
 use ic_memory::ic_stable_structures::{Storable, storable::Bound};
 use std::{borrow::Cow, num::NonZeroU128};
 

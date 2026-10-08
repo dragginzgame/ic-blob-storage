@@ -1,24 +1,19 @@
 use super::*;
-use crate::{
-    model::{
-        gateway::registry::GatewayScope, identity::caffeine::manifest::CaffeineManifestError,
-        service::read::session::ReadChunkTarget,
-    },
-    ops::service::{
-        gateways::StableGatewayRegistry,
-        reads::{
-            StableReadSessions,
-            access::ReadSessionAccess,
-            transport::{ReadChunkRequest, ReadChunkResponse, ReadChunkTransport},
-        },
-        uploads::read::verification::ReadVerificationError,
-    },
-    workflow::reads::{
-        ReadAuthorityError,
-        chunk::{ReadChunkError, VerifiedReadChunk, read_chunk},
-        sessions::ReadSessionWorkflowError,
-    },
-};
+use crate::model::gateway::registry::GatewayScope;
+use crate::model::service::read::session::ReadChunkTarget;
+use crate::ops::service::gateways::StableGatewayRegistry;
+use crate::ops::service::reads::StableReadSessions;
+use crate::ops::service::reads::access::ReadSessionAccess;
+use crate::ops::service::reads::transport::ReadChunkRequest;
+use crate::ops::service::reads::transport::ReadChunkResponse;
+use crate::ops::service::reads::transport::ReadChunkTransport;
+use crate::ops::service::uploads::read::verification::ReadVerificationError;
+use crate::workflow::reads::ReadAuthorityError;
+use crate::workflow::reads::chunk::ReadChunkError;
+use crate::workflow::reads::chunk::VerifiedReadChunk;
+use crate::workflow::reads::chunk::read_chunk;
+use crate::workflow::reads::sessions::ReadSessionWorkflowError;
+use ic_blob_storage_contracts::identity::caffeine::manifest::CaffeineManifestError;
 use std::{
     cell::{Cell, RefCell},
     future::{Future, poll_fn},

@@ -2,9 +2,8 @@
 use super::{ObservedFundingCall, read};
 use blob_test_protocol::funding::{FundingOutcome, FundingRequest};
 use candid::Principal;
-use ic_blob_storage::{
-    model::billing::transfer::FundingTransfer, policy::billing::liquidity::FundingLiquidity,
-};
+use ic_blob_storage::policy::billing::liquidity::FundingLiquidity;
+use ic_blob_storage_contracts::funding::transfer::FundingTransfer;
 use ic_cdk::call::Call;
 use std::num::NonZeroU128;
 

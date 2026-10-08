@@ -188,7 +188,9 @@ pub enum AuditLogReplyError {
 
 // Single private owner of the advertised response schema.
 mod wire {
-    use super::{CandidType, Deserialize, Principal};
+    use super::CandidType;
+    use super::Deserialize;
+    use super::Principal;
 
     pub(super) type AuditLogDownloadResult = Result<AuditLogDownloadResponse, AuditLogError>;
 

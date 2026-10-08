@@ -4,11 +4,10 @@ use crate::ops::gateways::{
     transport::{FixtureRegistry, attempt},
 };
 use blob_test_protocol::storage::{Failure, gateways::ReplicatedInput};
-use ic_blob_storage::{
-    model::service::upload::UploadContext,
-    ops::caffeine::query::transport::replicated::ReplicatedGatewayQuery,
-    workflow::gateways::transport::{GatewayQueryError, query_sync},
-};
+use ic_blob_storage::ops::caffeine::query::transport::replicated::ReplicatedGatewayQuery;
+use ic_blob_storage::workflow::gateways::transport::GatewayQueryError;
+use ic_blob_storage::workflow::gateways::transport::query_sync;
+use ic_blob_storage_contracts::upload::binding::UploadContext;
 use std::num::{NonZeroU32, NonZeroUsize};
 pub(crate) async fn run(context: UploadContext, input: ReplicatedInput) -> Result<(), Failure> {
     let retained = attempt(context, input.attempt)?;

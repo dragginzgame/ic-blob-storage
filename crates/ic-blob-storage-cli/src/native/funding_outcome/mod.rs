@@ -1,15 +1,13 @@
 //! Inspect retained exact funding intent without dispatch, retry or credit authority.
 use super::{Failure, arguments::Options, history, query};
-use ic_blob_storage::{
-    dto::funding::outcome::{
-        FundingBalanceField, FundingOutcomeFailure, FundingOutcomeRequest, FundingReconciliation,
-        FundingResponse,
-    },
-    ops::service::funding::{
-        outcome::boundary::FUNDING_OUTCOME_METHOD,
-        reply::{FundingReplyError, outcome},
-    },
-};
+use ic_blob_storage_contracts::dto::funding::outcome::FundingBalanceField;
+use ic_blob_storage_contracts::dto::funding::outcome::FundingOutcomeFailure;
+use ic_blob_storage_contracts::dto::funding::outcome::FundingOutcomeRequest;
+use ic_blob_storage_contracts::dto::funding::outcome::FundingReconciliation;
+use ic_blob_storage_contracts::dto::funding::outcome::FundingResponse;
+use ic_blob_storage_contracts::funding::reply::FundingReplyError;
+use ic_blob_storage_contracts::funding::reply::outcome;
+use ic_blob_storage_contracts::protocol::FUNDING_OUTCOME_METHOD;
 use serde_json::{Value, json};
 
 pub(super) async fn run(options: &Options, input: FundingOutcomeRequest) -> Result<Value, Failure> {
@@ -79,7 +77,7 @@ fn output(input: FundingOutcomeRequest, bytes: &[u8], options: &Options) -> Resu
         let reconciliation = match view.reconciliation {
             FundingReconciliation::CreditConfirmed { accepted_cycles, receipt_digest } => {
                 json!({"state":"credit_confirmed","accepted":accepted_cycles.to_string(),
-                    "receipt_sha256":ic_blob_storage::model::identity::ContentDigest::try_from(receipt_digest.as_slice()).expect("fixed receipt digest").to_string()})
+                    "receipt_sha256":ic_blob_storage_contracts::identity::ContentDigest::try_from(receipt_digest.as_slice()).expect("fixed receipt digest").to_string()})
             }
             FundingReconciliation::NoTransfer => json!({"state":"no_transfer"}),
             FundingReconciliation::CreditRequired(amount) => {

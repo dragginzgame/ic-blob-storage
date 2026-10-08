@@ -1,21 +1,15 @@
 //! Bounded root resolution with actual uploader authority and retained index checks.
-pub mod reply;
 use super::{StableUploads, admission, exposure};
-use crate::{
-    dto::{
-        reference::ReferenceUpload,
-        upload::{
-            admission::{UploadAdmissionFailure as A, UploadAdmissionRequest},
-            certificate::{CaffeineUploadCertificateResponse, UploadCertificateAssessmentResponse},
-            exposure::UploadExposureFailure as E,
-        },
-    },
-    model::{
-        identity::ProviderRootHash,
-        service::upload::{UploadContext, UploadPermission},
-    },
-    policy::upload::exposure::UploadExposureAssessment,
-};
+use crate::policy::upload::exposure::UploadExposureAssessment;
+use ic_blob_storage_contracts::dto::reference::ReferenceUpload;
+use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionFailure as A;
+use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionRequest;
+use ic_blob_storage_contracts::dto::upload::certificate::CaffeineUploadCertificateResponse;
+use ic_blob_storage_contracts::dto::upload::certificate::UploadCertificateAssessmentResponse;
+use ic_blob_storage_contracts::dto::upload::exposure::UploadExposureFailure as E;
+use ic_blob_storage_contracts::identity::ProviderRootHash;
+use ic_blob_storage_contracts::upload::binding::UploadContext;
+use ic_blob_storage_contracts::upload::binding::UploadPermission;
 use ic_memory::ic_stable_structures::Memory;
 
 pub(crate) fn resolve<M: Memory>(

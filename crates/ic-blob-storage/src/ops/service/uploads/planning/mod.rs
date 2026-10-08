@@ -2,19 +2,16 @@
 use super::{
     Memory, StableUploads, UploadAdmissionError, UploadContext, UploadStoreError, validation,
 };
-use crate::model::{
-    catalog::admission::read::UploadRootState,
-    lifecycle::requests::{ReferenceCapacityView, reference_headroom},
-    service::{
-        tenant::TenantError,
-        upload::{
-            capacity,
-            content::ContentLookup,
-            planning::{AdmissionCapacityLookup, AdmissionCapacityView, headroom},
-        },
-    },
-};
+use crate::model::lifecycle::requests::ReferenceCapacityView;
+use crate::model::lifecycle::requests::reference_headroom;
+use crate::model::service::upload::capacity;
+use crate::model::service::upload::content::ContentLookup;
+use crate::model::service::upload::planning::AdmissionCapacityLookup;
+use crate::model::service::upload::planning::AdmissionCapacityView;
+use crate::model::service::upload::planning::headroom;
 use candid::Principal;
+use ic_blob_storage_contracts::tenant::TenantError;
+use ic_blob_storage_contracts::upload::history::UploadRootState;
 
 impl<M: Memory> StableUploads<M> {
     /// Observe independent admission dimensions using fixed enrollment/counter reads.

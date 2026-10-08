@@ -1,0 +1,400 @@
+{
+  "schema": 1,
+  "id": "2026-10-07-contracts-0180-01",
+  "base": "e2526159413c79322b9ec89215a01266c9a7f418",
+  "pending": "0.18.0",
+  "compiled_version": "0.17.2",
+  "dirty_implementation": true,
+  "evidence_classes": [
+    "source_review",
+    "Linux_loopback_HTTP_substitute",
+    "isolated_PocketIC"
+  ],
+  "intent": {
+    "path": "docs/evidence/caffeine-probes/local/2026-10-07-contracts-0180-01/intent.json",
+    "sha256": "601d545d1ddc32933a2d4f45a6a6ddcd969104ef920422b9fc55e5341fdd9e67"
+  },
+  "source_inputs": {
+    "path": ".tmp/contracts-0180-01/source-inputs.json",
+    "sha256": "38b3d67ff9baabf3ce5eb23219563c5cbbf2e79185dc63846ad9fa7289c94b0a"
+  },
+  "tracked_patch": {
+    "path": ".tmp/contracts-0180-01/final-tracked.patch",
+    "sha256": "faa562a7669548a827b227f0b832d5e827054bfbf32a972d0fd7369f163d8b70"
+  },
+  "named_owner_inventory": {
+    "path": "docs/evidence/contracts-0180-inventory.json",
+    "sha256": "26d91700b2e37cfdff143e777efb0b8e85293ee75429db1cb18aaa7da5755a74"
+  },
+  "source_record": "docs/evidence/contracts-0180.md",
+  "selected_graph": {
+    "ic-host-artifacts": "0.4.6",
+    "ic-host-fs": "0.4.6",
+    "ic-host-process": "0.4.6",
+    "ic-host-tools": "0.4.6",
+    "ic-memory": "0.31.1",
+    "ic-metrics_private_probe": "0.2.9",
+    "ic-testkit": "0.21.2",
+    "shared_tooling": "0.1.20"
+  },
+  "identity_checks": {
+    "path": ".tmp/contracts-0180-01/final-identity-checks.json",
+    "sha256": "53351fdfc14fef6df0b6fa9bcc17afdbb5edadd5468df69e15769bc20154cd48"
+  },
+  "checks": [
+    {
+      "path": ".tmp/contracts-0180-01/libraries-test-01.log",
+      "sha256": "2e4a38526e2eb99bfd74d8ac833e57ae5d74e692c7e483fd9c857c46d3374058",
+      "outcome": {
+        "core_unit": 345,
+        "core_integration": 38,
+        "contracts_unit": 103,
+        "contracts_hash_vectors": 10,
+        "examples": 21
+      }
+    },
+    {
+      "path": ".tmp/contracts-0180-01/native-host-01.log",
+      "sha256": "eb628fb3b5678e42d39a192bc5cbc10033c364754acbfd1baf1f74a82feeba74",
+      "outcome": {
+        "cli_probe": 114,
+        "contracts_unit": 103,
+        "examples": 21,
+        "installation_carrier": 2,
+        "metrics_restoration": 1
+      }
+    },
+    {
+      "path": ".tmp/contracts-0180-01/recovery-01.log",
+      "sha256": "698bc167b04f6b1e41a34289f359f1433c42b6c574c595f4a19c8860914f5068",
+      "outcome": {
+        "pocketic_cases": 71,
+        "stage": "before final scalar predicate closure and checked-input privacy"
+      }
+    },
+    {
+      "path": ".tmp/contracts-0180-01/recovery-checked-input-final.log",
+      "sha256": "da405ad2e97cc1c9139e8f88c699135b2336f817e065ad8385f4373c5f008b74",
+      "outcome": {
+        "funding_client": 2,
+        "gateway_restore": 1,
+        "installation_carrier": 2,
+        "stage": "final rebuilt standalone/storage/consumer and CLI"
+      }
+    },
+    {
+      "path": ".tmp/contracts-0180-01/package-checked-input-final.log",
+      "sha256": "d5dc7a0f17640641a63615754288c6e4f74731cf6de2d58f2dee5aa95925cda8",
+      "outcome": {
+        "exact_archive_unit_integration_examples": 517,
+        "doctests": 2,
+        "extracted_workspace": "target/package/blob-verification.EVBS8s",
+        "external_selection_guard": "pass"
+      }
+    },
+    {
+      "path": ".tmp/contracts-0180-01/checked-input-clippy-final.log",
+      "sha256": "2e7543d5342bb5258bdd94375f6717191b9f4ef5bc4ec360e765a15e854dcfb2",
+      "outcome": {
+        "affected_all_targets_features_strict_clippy": "pass"
+      }
+    },
+    {
+      "path": ".tmp/contracts-0180-01/rustdoc-checked-input-final.log",
+      "sha256": "5701c3e682c971d3050192b63f8e6c83ba23541928e0fd08db38c90dadf74385",
+      "outcome": {
+        "warnings_denied": "pass"
+      }
+    },
+    {
+      "path": ".tmp/contracts-0180-01/msrv-checked-input-native-final.log",
+      "sha256": "c50b2c083641f3733b6badbb53d1975bc2453b1b7f8b13f84b5056aeda1b3f52",
+      "outcome": {
+        "rust_1_88_native_all_targets_features": "pass"
+      }
+    },
+    {
+      "path": ".tmp/contracts-0180-01/msrv-checked-input-wasm-final.log",
+      "sha256": "f6e9f2eb92a3ca851521df491ecd5c6dd8f0f003c600cadffc082e192cc18359",
+      "outcome": {
+        "rust_1_88_wasm_adapters": "pass"
+      }
+    },
+    {
+      "path": ".tmp/contracts-0180-01/release-fixtures-05.log",
+      "sha256": "f9d4ce54e4aa58986c1f8d4aafb9a8e033d6b5a2b5c7438c7372a2107587d9cd",
+      "outcome": {
+        "bounded_catalog_transaction_and_payload_identity_refusals": "pass",
+        "explicit_package_publication_substitute": "pass"
+      }
+    },
+    {
+      "path": ".tmp/contracts-0180-01/declaration-final-01.log",
+      "sha256": "7a6fb7f66c12c1d4907220e1c16a3354c9119b564469e72dc5d21c5a5ef2bf3a",
+      "outcome": {
+        "shared_snapshot_pins_links_normal_graph_format_release_routing": "pass"
+      }
+    }
+  ],
+  "preserved_failures": [
+    {
+      "path": ".tmp/contracts-0180-01/contracts-check-01.log",
+      "sha256": "191ef730a875067abc1b6b411385a31800bb6638d7e3cfe48c8d8591cb7de85b"
+    },
+    {
+      "path": ".tmp/contracts-0180-01/contracts-check-02.log",
+      "sha256": "9092a9c6d44536aafef8263d95041aa0f73d673ddd639ecab6d817108b89e4c1"
+    },
+    {
+      "path": ".tmp/contracts-0180-01/contracts-check-03.log",
+      "sha256": "8db70eb5e923d05cd328408ce7f60d66fd118eded501f4a557aa9db55272307f"
+    },
+    {
+      "path": ".tmp/contracts-0180-01/contracts-check-04.log",
+      "sha256": "458770851aefb3e03cf8d31e712254bb809848e50cff2f6747cd403c23244174"
+    },
+    {
+      "path": ".tmp/contracts-0180-01/consumer-check-01.log",
+      "sha256": "2a6030ec055e629e7c9a358b5cd94ff7392eb3fd5131e9db4f777e8399a5fe02"
+    },
+    {
+      "path": ".tmp/contracts-0180-01/consumer-check-02.log",
+      "sha256": "6ce2132adfb58cd773ff3db080cbbf2de10f1a1eb499207b957025406958c059"
+    },
+    {
+      "path": ".tmp/contracts-0180-01/consumer-check-03.log",
+      "sha256": "1881253cf4c05f651224096dbcde485f07d0bde63e84233a4157ef45cfe98449"
+    },
+    {
+      "path": ".tmp/contracts-0180-01/consumer-check-04.log",
+      "sha256": "1d111d3199142eeb3d7676e08d50be7d03cbb107c0defb4570d9a0bf10db8dac"
+    },
+    {
+      "path": ".tmp/contracts-0180-01/consumer-fix-01.log",
+      "sha256": "3f1a5f58aa8ebb464213c9959cf428529100945db5865c8318399a0d62038191"
+    },
+    {
+      "path": ".tmp/contracts-0180-01/consumer-fix-02.log",
+      "sha256": "aaadc107fd4e5fdf40a0f5c3ae0a9ea67b61a1427d55cb7ecb5d6f3499679dcb"
+    },
+    {
+      "path": ".tmp/contracts-0180-01/adapters-clippy-01.log",
+      "sha256": "cf1d6e7b1ef3c60c267d1e51a39aa06bf695d0d4405f0fe35997582a37048212"
+    },
+    {
+      "path": ".tmp/contracts-0180-01/adapters-clippy-02.log",
+      "sha256": "8d83b1ee3648271a1047bf7bb935e8587720eebf998f43ca0f38bfe16aea8e2d"
+    },
+    {
+      "path": ".tmp/contracts-0180-01/adapters-clippy-03.log",
+      "sha256": "a7a302e95e8eaf81c7e064de2da59f8f1157e7f06f331f044aee1e847575a224"
+    },
+    {
+      "path": ".tmp/contracts-0180-01/adapters-clippy-04.log",
+      "sha256": "9640845c21fddbe088509dca8cd5449f63a2e24133d9a3f28590f803af68bf90"
+    },
+    {
+      "path": ".tmp/contracts-0180-01/adapters-clippy-05.log",
+      "sha256": "3c8a19e6e866d94c8883fc0d03abfe6c1bcd06bf048f948c818a60ed659932bf"
+    },
+    {
+      "path": ".tmp/contracts-0180-01/adapters-clippy-06.log",
+      "sha256": "3996500de0e3ff640c29b89f677aa7115a74f3e73b4fbe8899779b0fdd411b86"
+    },
+    {
+      "path": ".tmp/contracts-0180-01/adapters-clippy-07.log",
+      "sha256": "e1c90cc9c0c5a9ba22a25789ef53f082c8a8990957dad0a0df352bbe240a1f9f"
+    },
+    {
+      "path": ".tmp/contracts-0180-01/adapters-clippy-08.log",
+      "sha256": "08709ed72faed92df61b0e6a0030f715920fdb7fab68696a16556fd17d4daaaf"
+    },
+    {
+      "path": ".tmp/contracts-0180-01/declaration-checks-01.log",
+      "sha256": "70c12c1e4cc3b441e0218060520a6f232314cca70dee22fc0e7d11afabdc3bee"
+    },
+    {
+      "path": ".tmp/contracts-0180-01/release-fixtures-01.log",
+      "sha256": "0d8f5d683565e77af695ce2d5080eada48f209d975de611b751da2367b883725"
+    },
+    {
+      "path": ".tmp/contracts-0180-01/doctests-01.log",
+      "sha256": "5b1f79fdd04d19c2f9ce16890ca69f993b33becc674a09f761126e95fe482591"
+    },
+    {
+      "path": ".tmp/contracts-0180-01/package-01.log",
+      "sha256": "30920453a41ce6336c43fe026567442c66b8cd4e50a1f07f60c8bbe90d78fc9e"
+    },
+    {
+      "path": ".tmp/contracts-0180-01/package-02.log",
+      "sha256": "5d98f42899c5341a01060ebe023edcb2434a5264d084ecd5200c4a8ebf102762"
+    },
+    {
+      "path": ".tmp/contracts-0180-01/package-191-01.log",
+      "sha256": "e812177a120aca0e8bc80d9bb014202544b7bc9268c1af27a9f944b6e3c897c6"
+    },
+    {
+      "path": ".tmp/contracts-0180-01/package-noincludedlock-01.log",
+      "sha256": "70be2280f01202fb6f30959d1de1f546575f4403decdada53f26567c2f3c56b1"
+    },
+    {
+      "path": ".tmp/contracts-0180-01/package-msrv-noverify-01.log",
+      "sha256": "31d391d99344dc6152f5749794ed2cf5cc30ebad9029e4f650ba91c26ae792d1"
+    },
+    {
+      "path": ".tmp/contracts-0180-01/package-patch-locked-01.log",
+      "sha256": "cd567ab992155f91b85706ed64217f5996b6b3934dd34dd25dd0c0adafc403cc"
+    },
+    {
+      "path": ".tmp/contracts-0180-01/package-payload-patch-01.log",
+      "sha256": "d6a9dabf9ee252d394f57658c2f607898af35d79eefbf4ebd049be2a78bba7e5"
+    },
+    {
+      "path": ".tmp/contracts-0180-01/package-service-payload-01.log",
+      "sha256": "d6a9dabf9ee252d394f57658c2f607898af35d79eefbf4ebd049be2a78bba7e5"
+    },
+    {
+      "path": ".tmp/contracts-0180-01/evidence-finalization-01.log",
+      "sha256": "006c8e6c52ba0cd286fe7b350eccd49600d74a420daa9958127c78fb3ac2f31e"
+    }
+  ],
+  "failure_disposition": "Extraction compile/import/lint and documentation errors repaired. Cargo fix socket refusal retained. Initial release fixture Perl delimiter repaired; isolated tree target/release-tests.B6WWpp retained. First verifier doctest import repaired. Cargo 1.99/1.91 local-registry checksum failure and optional/MSRV/locked-patch diagnostics retained; ad-hoc evidence metadata spelling assertion repaired before summary creation; make package verifies exact Cargo archives in extracted workspace rather than claiming standard verifier passed.",
+  "all_raw_log_hashes": {
+    ".tmp/contracts-0180-01/adapters-clippy-01.log": "cf1d6e7b1ef3c60c267d1e51a39aa06bf695d0d4405f0fe35997582a37048212",
+    ".tmp/contracts-0180-01/adapters-clippy-02.log": "8d83b1ee3648271a1047bf7bb935e8587720eebf998f43ca0f38bfe16aea8e2d",
+    ".tmp/contracts-0180-01/adapters-clippy-03.log": "a7a302e95e8eaf81c7e064de2da59f8f1157e7f06f331f044aee1e847575a224",
+    ".tmp/contracts-0180-01/adapters-clippy-04.log": "9640845c21fddbe088509dca8cd5449f63a2e24133d9a3f28590f803af68bf90",
+    ".tmp/contracts-0180-01/adapters-clippy-05.log": "3c8a19e6e866d94c8883fc0d03abfe6c1bcd06bf048f948c818a60ed659932bf",
+    ".tmp/contracts-0180-01/adapters-clippy-06.log": "3996500de0e3ff640c29b89f677aa7115a74f3e73b4fbe8899779b0fdd411b86",
+    ".tmp/contracts-0180-01/adapters-clippy-07.log": "e1c90cc9c0c5a9ba22a25789ef53f082c8a8990957dad0a0df352bbe240a1f9f",
+    ".tmp/contracts-0180-01/adapters-clippy-08.log": "08709ed72faed92df61b0e6a0030f715920fdb7fab68696a16556fd17d4daaaf",
+    ".tmp/contracts-0180-01/adapters-clippy-09.log": "60297a71cb785d6b935fd16f03613d6d97f07fa1d20f8bebdd8653df9ffd9a76",
+    ".tmp/contracts-0180-01/adapters-clippy-final.log": "a46354339a930e8ab74880eae8efe81754f0e5a8a3dad81e0d2cdd5b73f54ed7",
+    ".tmp/contracts-0180-01/baseline-wasm.log": "34783ecc72130e1302faab504b34d80d898c17e700a2016c79268ec20a9f741f",
+    ".tmp/contracts-0180-01/checked-input-clippy-final.log": "2e7543d5342bb5258bdd94375f6717191b9f4ef5bc4ec360e765a15e854dcfb2",
+    ".tmp/contracts-0180-01/cli-checked-input-final.log": "27ad88c756a1447ce140960ef279c2f01788ab8a76f4cc684da231ef88e2b29e",
+    ".tmp/contracts-0180-01/consumer-check-01.log": "2a6030ec055e629e7c9a358b5cd94ff7392eb3fd5131e9db4f777e8399a5fe02",
+    ".tmp/contracts-0180-01/consumer-check-02.log": "6ce2132adfb58cd773ff3db080cbbf2de10f1a1eb499207b957025406958c059",
+    ".tmp/contracts-0180-01/consumer-check-03.log": "1881253cf4c05f651224096dbcde485f07d0bde63e84233a4157ef45cfe98449",
+    ".tmp/contracts-0180-01/consumer-check-04.log": "1d111d3199142eeb3d7676e08d50be7d03cbb107c0defb4570d9a0bf10db8dac",
+    ".tmp/contracts-0180-01/consumer-fix-01.log": "3f1a5f58aa8ebb464213c9959cf428529100945db5865c8318399a0d62038191",
+    ".tmp/contracts-0180-01/consumer-fix-02.log": "aaadc107fd4e5fdf40a0f5c3ae0a9ea67b61a1427d55cb7ecb5d6f3499679dcb",
+    ".tmp/contracts-0180-01/contracts-check-01.log": "191ef730a875067abc1b6b411385a31800bb6638d7e3cfe48c8d8591cb7de85b",
+    ".tmp/contracts-0180-01/contracts-check-02.log": "9092a9c6d44536aafef8263d95041aa0f73d673ddd639ecab6d817108b89e4c1",
+    ".tmp/contracts-0180-01/contracts-check-03.log": "8db70eb5e923d05cd328408ce7f60d66fd118eded501f4a557aa9db55272307f",
+    ".tmp/contracts-0180-01/contracts-check-04.log": "458770851aefb3e03cf8d31e712254bb809848e50cff2f6747cd403c23244174",
+    ".tmp/contracts-0180-01/declaration-checks-01.log": "70c12c1e4cc3b441e0218060520a6f232314cca70dee22fc0e7d11afabdc3bee",
+    ".tmp/contracts-0180-01/declaration-checks-02.log": "0c495b80dddbd444f5ea316ee4569752cbd69a476c515d43d5ad8101cc2c2ad2",
+    ".tmp/contracts-0180-01/declaration-checks-03.log": "7d2ec70ac293e80090c7d1b31b45c2c59dc595d57597024fc275057b6b9d069d",
+    ".tmp/contracts-0180-01/declaration-final-01.log": "7a6fb7f66c12c1d4907220e1c16a3354c9119b564469e72dc5d21c5a5ef2bf3a",
+    ".tmp/contracts-0180-01/doctests-01.log": "5b1f79fdd04d19c2f9ce16890ca69f993b33becc674a09f761126e95fe482591",
+    ".tmp/contracts-0180-01/evidence-finalization-01.log": "006c8e6c52ba0cd286fe7b350eccd49600d74a420daa9958127c78fb3ac2f31e",
+    ".tmp/contracts-0180-01/evidence-finalization-02.log": "2e188bd81c7892846c0d33c011c77c7306ee05e176fb8f857bdf20aca3647eec",
+    ".tmp/contracts-0180-01/libraries-test-01.log": "2e4a38526e2eb99bfd74d8ac833e57ae5d74e692c7e483fd9c857c46d3374058",
+    ".tmp/contracts-0180-01/msrv-checked-input-native-final.log": "c50b2c083641f3733b6badbb53d1975bc2453b1b7f8b13f84b5056aeda1b3f52",
+    ".tmp/contracts-0180-01/msrv-checked-input-wasm-final.log": "f6e9f2eb92a3ca851521df491ecd5c6dd8f0f003c600cadffc082e192cc18359",
+    ".tmp/contracts-0180-01/msrv-native-01.log": "67b5e4cdfeee16c766f70ad381b5e1577e81e8aaf17f587fc6f8883b84bb971a",
+    ".tmp/contracts-0180-01/msrv-wasm-01.log": "1c2bea268b9099fe7dceda3e6c76415366ddcf9a802fb44e6761f65308b59efa",
+    ".tmp/contracts-0180-01/native-host-01.log": "eb628fb3b5678e42d39a192bc5cbc10033c364754acbfd1baf1f74a82feeba74",
+    ".tmp/contracts-0180-01/package-01.log": "30920453a41ce6336c43fe026567442c66b8cd4e50a1f07f60c8bbe90d78fc9e",
+    ".tmp/contracts-0180-01/package-02.log": "5d98f42899c5341a01060ebe023edcb2434a5264d084ecd5200c4a8ebf102762",
+    ".tmp/contracts-0180-01/package-191-01.log": "e812177a120aca0e8bc80d9bb014202544b7bc9268c1af27a9f944b6e3c897c6",
+    ".tmp/contracts-0180-01/package-checked-input-final.log": "d5dc7a0f17640641a63615754288c6e4f74731cf6de2d58f2dee5aa95925cda8",
+    ".tmp/contracts-0180-01/package-msrv-noverify-01.log": "31d391d99344dc6152f5749794ed2cf5cc30ebad9029e4f650ba91c26ae792d1",
+    ".tmp/contracts-0180-01/package-noincludedlock-01.log": "70be2280f01202fb6f30959d1de1f546575f4403decdada53f26567c2f3c56b1",
+    ".tmp/contracts-0180-01/package-noverify-01.log": "e47082d1ffdf29a988c6e87fd06c367531f0e255cd5db2268de7216b9e70d278",
+    ".tmp/contracts-0180-01/package-patch-locked-01.log": "cd567ab992155f91b85706ed64217f5996b6b3934dd34dd25dd0c0adafc403cc",
+    ".tmp/contracts-0180-01/package-payload-01.log": "faeb7a6697a0013314f64c2d8a943747ee8d01a71f58ae66d24c657839a1a582",
+    ".tmp/contracts-0180-01/package-payload-docs-final.log": "ebf701a334f5a9ca4e091e495b6c67d1ab3bfb87bf9959206a2026c37180c6ff",
+    ".tmp/contracts-0180-01/package-payload-final.log": "d4b4c1da6da7ce30d3f2d83f3f4834f1adc300993bebd9b93c854d123ff4f8e0",
+    ".tmp/contracts-0180-01/package-payload-patch-01.log": "d6a9dabf9ee252d394f57658c2f607898af35d79eefbf4ebd049be2a78bba7e5",
+    ".tmp/contracts-0180-01/package-service-payload-01.log": "d6a9dabf9ee252d394f57658c2f607898af35d79eefbf4ebd049be2a78bba7e5",
+    ".tmp/contracts-0180-01/probe-wasm-01.log": "0f737a5626ea21544db3eee684234e9570582fe24d1f654f5a9f3513d141000c",
+    ".tmp/contracts-0180-01/probes-checked-input-wasm-final.log": "9588bfe7ecbfaaecf513aec5aecb76b63e2c0412b7ebd24f8820086774f504cc",
+    ".tmp/contracts-0180-01/recovery-01.log": "698bc167b04f6b1e41a34289f359f1433c42b6c574c595f4a19c8860914f5068",
+    ".tmp/contracts-0180-01/recovery-checked-input-final.log": "da405ad2e97cc1c9139e8f88c699135b2336f817e065ad8385f4373c5f008b74",
+    ".tmp/contracts-0180-01/release-fixtures-01.log": "0d8f5d683565e77af695ce2d5080eada48f209d975de611b751da2367b883725",
+    ".tmp/contracts-0180-01/release-fixtures-02.log": "f9d4ce54e4aa58986c1f8d4aafb9a8e033d6b5a2b5c7438c7372a2107587d9cd",
+    ".tmp/contracts-0180-01/release-fixtures-03.log": "f9d4ce54e4aa58986c1f8d4aafb9a8e033d6b5a2b5c7438c7372a2107587d9cd",
+    ".tmp/contracts-0180-01/release-fixtures-04.log": "f9d4ce54e4aa58986c1f8d4aafb9a8e033d6b5a2b5c7438c7372a2107587d9cd",
+    ".tmp/contracts-0180-01/release-fixtures-05.log": "f9d4ce54e4aa58986c1f8d4aafb9a8e033d6b5a2b5c7438c7372a2107587d9cd",
+    ".tmp/contracts-0180-01/rustdoc-01.log": "cfd0c72994ee6bbca16692af78739262694d5375c396c9384e93add623c8dff7",
+    ".tmp/contracts-0180-01/rustdoc-checked-input-final.log": "5701c3e682c971d3050192b63f8e6c83ba23541928e0fd08db38c90dadf74385",
+    ".tmp/contracts-0180-01/standalone-checked-input-wasm-final.log": "cfff210b7501fcb88a7e2da8f2ce85af9721589cfe785ad3994e5eae880f9bfd"
+  },
+  "artifacts": [
+    {
+      "path": ".tmp/contracts-0180-01/final-artifacts/blob-storage",
+      "sha256": "2665c090d01586899f3af8670e247334b319cbd1325479673ebed8db19f9cab1"
+    },
+    {
+      "path": ".tmp/contracts-0180-01/final-artifacts/blob_consumer_probe.wasm",
+      "sha256": "c4ddfbd065ebb6df8ce2df40aa93602e9fd64fc9361ef9cbdf1771d321d6dd0c"
+    },
+    {
+      "path": ".tmp/contracts-0180-01/final-artifacts/blob_storage_probe.wasm",
+      "sha256": "c80647d9ff0b285d799b400c9217caae6c885a405887caaeab98efeb8a32fd34"
+    },
+    {
+      "path": ".tmp/contracts-0180-01/final-artifacts/ic-blob-storage-0.17.2.crate",
+      "sha256": "221ed882db7f23c2e2f04110a206cd180fe7925a7ef0d8208efb2a7db91559ee"
+    },
+    {
+      "path": ".tmp/contracts-0180-01/final-artifacts/ic-blob-storage-contracts-0.17.2.crate",
+      "sha256": "cdf41400b9a0fbb5ecb2b25c8724c0c792b4cf9ad6196d628d5f22b52bd5c586"
+    },
+    {
+      "path": ".tmp/contracts-0180-01/final-artifacts/ic_blob_storage_canister.wasm",
+      "sha256": "c79205d52ba651bbae3f2dfca9b734039dce2413da7bcf524f6eda014fac8e69"
+    },
+    {
+      "path": ".tmp/contracts-0180-01/baseline.wasm",
+      "sha256": "122302f7264baca8eb83e3c1d38011e8e2f7c3d4b41f8e8c20efe8bc4e832339"
+    },
+    {
+      "path": ".tmp/contracts-0180-01/baseline.did",
+      "sha256": "1770ce8dac80bec5f167572990866e5312dffd36f773310b98cb08b891c3c2cd"
+    },
+    {
+      "path": ".tmp/contracts-0180-01/extracted-final.did",
+      "sha256": "1770ce8dac80bec5f167572990866e5312dffd36f773310b98cb08b891c3c2cd"
+    },
+    {
+      "path": ".tmp/contracts-0180-01/entry-Cargo.toml",
+      "sha256": "8f0db28de43f3c0400f1a3ae7fd3f006b3a67bb4831da373ec2b702d0bbc27cd"
+    },
+    {
+      "path": ".tmp/contracts-0180-01/entry-Cargo.lock",
+      "sha256": "9aa28cdd5dda7ce46e3003b0a4c197d87a9687934016c943d0e062d7dc6d0369"
+    },
+    {
+      "path": ".tmp/contracts-0180-01/entry-release.json",
+      "sha256": "06751506c9e693c03ec5c51d867c3570dc6a8ee1c267e7dca681f26caffcb587"
+    },
+    {
+      "path": ".tmp/contracts-0180-01/final-Cargo.toml",
+      "sha256": "1190734abc10abd98b4b930d4d8ff287fedf69f19b4338d4995568cc6d678e31"
+    },
+    {
+      "path": ".tmp/contracts-0180-01/final-Cargo.lock",
+      "sha256": "3094551c94e9072131772db6f697daa14ad6821fba12eca6f107f92fe95ccf1f"
+    },
+    {
+      "path": ".tmp/contracts-0180-01/final-release.json",
+      "sha256": "06751506c9e693c03ec5c51d867c3570dc6a8ee1c267e7dca681f26caffcb587"
+    }
+  ],
+  "raw_directory": ".tmp/contracts-0180-01",
+  "pocketic_executed_cases": 79,
+  "native_cli_executed_cases": 114,
+  "live_provider_requests": 0,
+  "paid_cycles": 0,
+  "cleanup": "Passing maintained HTTP/PocketIC scopes drop their fixture-owned servers and isolated canisters. No deployed objects/accounts or external obligations were created. Raw logs, failed fixture trees, package payloads, frozen final CLI/Wasm/archives and baseline remain; no cargo clean or evidence overwrite.",
+  "limits": [
+    "Linux qualification is separate from committed native macOS matrix; #27 remains open.",
+    "No full CI gate, commit, push, registry publication, deployment or paid effects.",
+    "No measured instruction-count, build-time or Wasm-size gain.",
+    "Local provider substitutes do not qualify deployed Caffeine behavior.",
+    "The 71-case broad recovery run predates final envelope factoring and checked-input privacy; final affected cases and exact packaged library tests requalify those changes."
+  ]
+}

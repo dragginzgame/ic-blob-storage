@@ -1,5 +1,7 @@
 //! Offline upstream-manifest conversion; no authority, allocation or dispatch.
 mod installation;
+use super::parsing::positive;
+use super::parsing::principal;
 use super::{
     Failure,
     artifacts::{FailureRecord, Run},
@@ -9,20 +11,16 @@ use super::{
 };
 #[cfg(test)]
 use candid::Principal;
-use ic_blob_storage::{
-    dto::{
-        reference::ReferenceUpload,
-        upload::{admission::UploadAdmissionRequest, manifest::UploadManifestRequest},
-    },
-    model::identity::{ProviderRootHash, caffeine::CaffeineContentHashes},
-    model::service::read::download::CaffeineDownloadScope,
-    ops::{
-        caffeine::preparation::{PreparedManifestLimits, decode_prepared_manifest},
-        service::uploads::{
-            admission::reply::validate_request, manifests::reply::validate_declaration,
-        },
-    },
-};
+use ic_blob_storage_contracts::download::scope::CaffeineDownloadScope;
+use ic_blob_storage_contracts::dto::reference::ReferenceUpload;
+use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionRequest;
+use ic_blob_storage_contracts::dto::upload::manifest::UploadManifestRequest;
+use ic_blob_storage_contracts::identity::ProviderRootHash;
+use ic_blob_storage_contracts::identity::caffeine::CaffeineContentHashes;
+use ic_blob_storage_contracts::provider::preparation::PreparedManifestLimits;
+use ic_blob_storage_contracts::provider::preparation::decode_prepared_manifest;
+use ic_blob_storage_contracts::upload::admission::reply::validate_request;
+use ic_blob_storage_contracts::upload::manifests::reply::validate_declaration;
 use ic_host_artifacts::artifact::Sha256Digest;
 use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
@@ -48,7 +46,7 @@ pub(super) struct PreparedInput {
     binding: Binding,
     pub permission: UploadAdmissionRequest,
     request: UploadManifestRequest,
-    pub resources: ic_blob_storage::dto::configuration::ServiceResourceInput,
+    pub resources: ic_blob_storage_contracts::dto::configuration::ServiceResourceInput,
     maximum: NonZeroU64,
     admission: Vec<u8>,
     preparation: Vec<u8>,
@@ -150,8 +148,6 @@ fn hint<'de, D: serde::Deserializer<'de>>(decoder: D) -> Result<Option<String>, 
     Ok(Some(value))
 }
 
-use super::parsing::positive;
-use super::parsing::principal;
 impl Binding {
     /// Frozen layout identity; a different layout must not reuse this marker.
     const FORMAT: &str = "ic-blob-storage/upload-inputs:original-preparation";
@@ -258,7 +254,7 @@ impl PreparedInput {
     }
     pub fn declaration(
         &self,
-    ) -> &ic_blob_storage::dto::upload::manifest::UploadManifestDeclaration {
+    ) -> &ic_blob_storage_contracts::dto::upload::manifest::UploadManifestDeclaration {
         &self.request.declaration
     }
     pub fn check_requests(

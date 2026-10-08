@@ -1,6 +1,4 @@
 //! One durable signed update claim, consumed by one dispatch without polling or retry.
-#[cfg(test)]
-mod tests;
 use super::{Failure, artifacts::Run};
 use candid::Principal;
 use ic_agent::{
@@ -9,6 +7,9 @@ use ic_agent::{
 };
 use serde::Serialize;
 use std::{path::Path, time::Duration};
+
+#[cfg(test)]
+mod tests;
 
 pub(super) const INGRESS_SECONDS: u64 = 120;
 pub(super) const DEADLINE_SECONDS: u8 = 30;

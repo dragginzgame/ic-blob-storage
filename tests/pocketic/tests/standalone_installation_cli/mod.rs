@@ -1,7 +1,7 @@
 //! Offline CLI init bytes installed by the actual host, with independent platform binding.
 use super::*;
 use crate::authenticated_cli::run;
-use ic_blob_storage::model::identity::ContentDigest;
+use ic_blob_storage_contracts::identity::ContentDigest;
 use std::path::Path;
 
 #[test]

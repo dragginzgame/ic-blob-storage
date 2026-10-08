@@ -1,9 +1,9 @@
 //! Real standalone refresh against a labelled query-only Cashier substitute.
 use super::*;
 use blob_test_protocol::SourceMode;
-use ic_blob_storage::dto::gateway::sync::{
-    GatewaySyncCancellation, GatewaySyncFailure as SyncError, GatewaySyncResponse,
-};
+use ic_blob_storage_contracts::dto::gateway::sync::GatewaySyncCancellation;
+use ic_blob_storage_contracts::dto::gateway::sync::GatewaySyncFailure as SyncError;
+use ic_blob_storage_contracts::dto::gateway::sync::GatewaySyncResponse;
 fn fixture() -> Fixture {
     fixture_with_operator(Harness::new(), Fake::principal(2))
 }

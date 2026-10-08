@@ -1,8 +1,8 @@
 use super::*;
-use crate::{
-    model::billing::FundingLimits,
-    policy::billing::{BalanceObservation, BillingObservation, assess_readiness},
-};
+use crate::policy::billing::BalanceObservation;
+use crate::policy::billing::BillingObservation;
+use crate::policy::billing::assess_readiness;
+use ic_blob_storage_contracts::configuration::funding::FundingLimits;
 
 fn input() -> OperatorObservation<'static> {
     OperatorObservation {
@@ -207,7 +207,8 @@ fn healthy_billing_cannot_hide_recovery_or_uncertain_funding() {
 
 #[test]
 fn observed_balance_never_substitutes_for_unknown_spendability_or_recovery() {
-    use crate::policy::billing::balance::{BalanceContext, assess_balance};
+    use crate::policy::billing::balance::BalanceContext;
+    use crate::policy::billing::balance::assess_balance;
     let limits = FundingLimits::new(u128::MAX, 100, 200).unwrap();
     for balance in [
         BalanceObservation::Available(0),

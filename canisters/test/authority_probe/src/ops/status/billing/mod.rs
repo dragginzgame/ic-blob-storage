@@ -4,13 +4,12 @@ use blob_test_protocol::{
     balance::{BalanceFailure, BalanceScope, BalanceUsability},
     billing::{BillingLimitsView, BillingStatusView, FundingNeedView},
 };
-use ic_blob_storage::{
-    model::billing::FundingLimits,
-    policy::billing::{
-        BalanceObservation, RecoveryState,
-        balance::{BalanceContext, BalanceDiagnosis, FundingNeed},
-    },
-};
+use ic_blob_storage::policy::billing::BalanceObservation;
+use ic_blob_storage::policy::billing::RecoveryState;
+use ic_blob_storage::policy::billing::balance::BalanceContext;
+use ic_blob_storage::policy::billing::balance::BalanceDiagnosis;
+use ic_blob_storage::policy::billing::balance::FundingNeed;
+use ic_blob_storage_contracts::configuration::funding::FundingLimits;
 
 pub(crate) struct BillingSnapshot {
     pub limits: Option<FundingLimits>,

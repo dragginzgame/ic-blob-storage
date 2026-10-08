@@ -8,21 +8,22 @@ use blob_test_protocol::{
     journey::{JourneyManifest, JourneyUpload, JourneyVerification},
 };
 use candid::Principal;
-use ic_blob_storage::model::{
-    catalog::admission::{UploadAdmission, UploadCatalog, UploadRequest},
-    gateway::{GatewayListLimits, membership::GatewayMembership},
-    lifecycle::{
-        LifecycleChange,
-        requests::{
-            ReferenceOperation, ReferenceRequest, ReferenceRequestId, ReferenceRequestOutcome,
-        },
-    },
-};
+use ic_blob_storage::model::catalog::admission::UploadAdmission;
+use ic_blob_storage::model::catalog::admission::UploadCatalog;
+use ic_blob_storage::model::gateway::membership::GatewayMembership;
+use ic_blob_storage::model::lifecycle::LifecycleChange;
+use ic_blob_storage::model::lifecycle::requests::ReferenceRequestOutcome;
+use ic_blob_storage_contracts::configuration::limits::GatewayListLimits;
+use ic_blob_storage_contracts::reference::binding::ReferenceOperation;
+use ic_blob_storage_contracts::reference::binding::ReferenceRequest;
+use ic_blob_storage_contracts::reference::binding::ReferenceRequestId;
+use ic_blob_storage_contracts::upload::binding::UploadRequest;
 
-use crate::{
-    model::{archive::AuthorityArchiveRecord, content::ContentSession},
-    ops::{self, journey::VerifiedUpload, number},
-};
+use crate::model::archive::AuthorityArchiveRecord;
+use crate::model::content::ContentSession;
+use crate::ops;
+use crate::ops::journey::VerifiedUpload;
+use crate::ops::number;
 
 thread_local! {
     static RESTORED: RefCell<Option<AuthorityArchiveRecord>> = const { RefCell::new(None) };
@@ -218,9 +219,7 @@ fn journey(record: &AuthorityArchiveRecord, copy: &mut ops::State) -> Option<()>
     Some(())
 }
 
-fn release(
-    reference: ic_blob_storage::model::lifecycle::binding::ReferenceKey,
-) -> ReferenceRequest {
+fn release(reference: ic_blob_storage_contracts::binding::ReferenceKey) -> ReferenceRequest {
     ReferenceRequest {
         id: ReferenceRequestId::new(number(1)),
         operation: ReferenceOperation::Release(reference),

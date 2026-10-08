@@ -4,15 +4,15 @@ use super::{
     ReferenceRecord, StableUploads, UploadContext, UploadError, UploadPhase, UploadRequest,
     UploadStoreError, UploadStoreRecord, key, validation,
 };
-use crate::model::lifecycle::{
-    LifecyclePhase, ReferenceState,
-    binding::ReferenceKey,
-    requests::{
-        ReferenceOperation, ReferenceReceiptView, ReferenceRequest, ReferenceRequestError,
-        ReferenceRequestOutcome,
-    },
-};
+use crate::model::lifecycle::ReferenceState;
+use crate::model::lifecycle::requests::ReferenceReceiptView;
+use crate::model::lifecycle::requests::ReferenceRequestError;
+use crate::model::lifecycle::requests::ReferenceRequestOutcome;
 use candid::Principal;
+use ic_blob_storage_contracts::binding::ReferenceKey;
+use ic_blob_storage_contracts::reference::binding::ReferenceOperation;
+use ic_blob_storage_contracts::reference::binding::ReferenceRequest;
+use ic_blob_storage_contracts::upload::history::LifecyclePhase;
 
 /// Authenticated local confirmed-state observation, not provider evidence.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]

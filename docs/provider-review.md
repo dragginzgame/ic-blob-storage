@@ -381,7 +381,7 @@ After 0.1.7, local Rust streaming hashing now matches independent vectors from
 these unmodified client classes. Official `main` and npm latest/integrity were
 rechecked on 2026-09-26 and remain at the pinned baseline. No archive redownload
 or deployed-provider qualification is implied by that metadata refresh.
-The [vectors](../crates/ic-blob-storage/tests/fixtures/caffeine-hashing/vectors.json)
+The [vectors](../crates/ic-blob-storage-contracts/tests/fixtures/caffeine-hashing/vectors.json)
 cover 1 MiB chunk boundaries and uneven trees through 18 leaves, metadata order,
 ECMAScript trim and UTF-16 sorting. Unicode header cases establish hash behavior,
 not header validity. See [implementation evidence](evidence/core-primitives.md#streaming-caffeine-identities-after-017).

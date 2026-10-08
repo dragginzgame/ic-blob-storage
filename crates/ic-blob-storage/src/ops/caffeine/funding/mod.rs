@@ -125,7 +125,9 @@ pub enum TopUpReplyError {
 // exposing these types would allow another owner to silently discard outcomes.
 mod wire {
     use super::super::wire::AccountCycleBalances;
-    use super::{CandidType, Deserialize, Principal};
+    use super::CandidType;
+    use super::Deserialize;
+    use super::Principal;
 
     pub(super) type AccountTopUpResult = Result<AccountTopUpResponse, AccountTopUpError>;
 

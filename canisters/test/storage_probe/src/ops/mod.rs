@@ -14,20 +14,29 @@ use blob_test_protocol::{
     storage::{Failure, Observation, Status, WriteFault},
 };
 use candid::{CandidType, DecoderConfig, Deserialize, Principal, decode_one_with_config};
-use ic_blob_storage::{
-    dto::tenant::{TenantEnrollmentResponse, TenantFailure, TenantScope, TenantUpdateRequest},
-    ic_memory::{
-        GenericRangePolicy, MemoryManagerAuthorityRecord, MemoryManagerConfig,
-        MemoryManagerIdRange, MemoryManagerRangeMode, MemoryRequest, MemoryRuntime, RuntimeMemory,
-        SchemaMetadata, SealedDeclarationSnapshot, StaticMemoryRangeDeclaration,
-        ic_stable_structures::{DefaultMemoryImpl, Memory},
-    },
-    model::service::upload::{UploadContext, UploadManifestState},
-    ops::service::{
-        stores::{ServiceMemories, ServiceStores},
-        uploads::{StableUploads, UploadMemories},
-    },
-};
+use ic_blob_storage::ic_memory::GenericRangePolicy;
+use ic_blob_storage::ic_memory::MemoryManagerAuthorityRecord;
+use ic_blob_storage::ic_memory::MemoryManagerConfig;
+use ic_blob_storage::ic_memory::MemoryManagerIdRange;
+use ic_blob_storage::ic_memory::MemoryManagerRangeMode;
+use ic_blob_storage::ic_memory::MemoryRequest;
+use ic_blob_storage::ic_memory::MemoryRuntime;
+use ic_blob_storage::ic_memory::RuntimeMemory;
+use ic_blob_storage::ic_memory::SchemaMetadata;
+use ic_blob_storage::ic_memory::SealedDeclarationSnapshot;
+use ic_blob_storage::ic_memory::StaticMemoryRangeDeclaration;
+use ic_blob_storage::ic_memory::ic_stable_structures::DefaultMemoryImpl;
+use ic_blob_storage::ic_memory::ic_stable_structures::Memory;
+use ic_blob_storage::model::service::upload::UploadManifestState;
+use ic_blob_storage::ops::service::stores::ServiceMemories;
+use ic_blob_storage::ops::service::stores::ServiceStores;
+use ic_blob_storage::ops::service::uploads::StableUploads;
+use ic_blob_storage::ops::service::uploads::UploadMemories;
+use ic_blob_storage_contracts::dto::tenant::TenantEnrollmentResponse;
+use ic_blob_storage_contracts::dto::tenant::TenantFailure;
+use ic_blob_storage_contracts::dto::tenant::TenantScope;
+use ic_blob_storage_contracts::dto::tenant::TenantUpdateRequest;
+use ic_blob_storage_contracts::upload::binding::UploadContext;
 use std::cell::{Cell, RefCell};
 
 #[derive(Clone, Default)]
@@ -312,11 +321,11 @@ pub(crate) fn decode<T: CandidType + for<'de> Deserialize<'de>>(bytes: Vec<u8>) 
 }
 pub(crate) fn admit(
     context: UploadContext,
-    input: ic_blob_storage::dto::upload::admission::UploadAdmissionRequest,
+    input: ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionRequest,
     fault: Option<WriteFault>,
 ) -> Result<
-    ic_blob_storage::dto::upload::admission::UploadAdmissionMutation,
-    ic_blob_storage::dto::upload::admission::UploadAdmissionFailure,
+    ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionMutation,
+    ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionFailure,
 > {
     TRAP_WRITE.set(fault);
     let result = STATE.with_borrow_mut(|state| {
@@ -334,8 +343,8 @@ pub(crate) fn admit_with_growth(
     context: UploadContext,
     input: blob_test_protocol::storage::GrowthAdmission,
 ) -> Result<
-    ic_blob_storage::dto::upload::admission::UploadAdmissionMutation,
-    ic_blob_storage::dto::upload::admission::UploadAdmissionFailure,
+    ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionMutation,
+    ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionFailure,
 > {
     // Exercise IC rollback after real application writes, then an explicit
     // physical backing reservation through the maintained runtime growth API.
@@ -357,13 +366,13 @@ pub(crate) fn admit_with_growth(
             ) {
                 REFUSE_GROWTH.set(false);
                 return Err(
-                    ic_blob_storage::dto::upload::admission::UploadAdmissionFailure::Internal,
+                    ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionFailure::Internal,
                 );
             }
             if memory.size() != before {
                 REFUSE_GROWTH.set(false);
                 return Err(
-                    ic_blob_storage::dto::upload::admission::UploadAdmissionFailure::Internal,
+                    ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionFailure::Internal,
                 );
             }
             // Only the expected typed backing refusal and unchanged extent take the trap
@@ -379,11 +388,11 @@ pub(crate) fn admit_with_growth(
 }
 pub(crate) fn prepare(
     context: UploadContext,
-    input: &ic_blob_storage::dto::upload::manifest::UploadManifestRequest,
+    input: &ic_blob_storage_contracts::dto::upload::manifest::UploadManifestRequest,
     fault: Option<WriteFault>,
 ) -> Result<
-    ic_blob_storage::dto::upload::manifest::UploadManifestMutation,
-    ic_blob_storage::dto::upload::manifest::UploadManifestFailure,
+    ic_blob_storage_contracts::dto::upload::manifest::UploadManifestMutation,
+    ic_blob_storage_contracts::dto::upload::manifest::UploadManifestFailure,
 > {
     TRAP_WRITE.set(fault);
     let result = STATE.with_borrow_mut(|state| {
@@ -399,11 +408,11 @@ pub(crate) fn prepare(
 }
 pub(crate) fn revoke(
     context: UploadContext,
-    input: ic_blob_storage::dto::upload::admission::UploadAdmissionRequest,
+    input: ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionRequest,
     fault: Option<WriteFault>,
 ) -> Result<
-    ic_blob_storage::dto::upload::admission::UploadRevocationResponse,
-    ic_blob_storage::dto::upload::admission::UploadAdmissionFailure,
+    ic_blob_storage_contracts::dto::upload::admission::UploadRevocationResponse,
+    ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionFailure,
 > {
     TRAP_WRITE.set(fault);
     let result = STATE.with_borrow_mut(|state| {

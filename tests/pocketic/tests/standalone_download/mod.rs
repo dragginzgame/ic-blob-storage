@@ -2,10 +2,10 @@
 //! Verified serving and withheld delivery are exercised by standalone browser journeys.
 mod native;
 use super::*;
-use ic_blob_storage::{
-    dto::download::{DownloadFailure as F, DownloadRequest, DownloadResponse},
-    ops::service::reads::download::DOWNLOAD_METHOD,
-};
+use ic_blob_storage_contracts::dto::download::DownloadFailure as F;
+use ic_blob_storage_contracts::dto::download::DownloadRequest;
+use ic_blob_storage_contracts::dto::download::DownloadResponse;
+use ic_blob_storage_contracts::protocol::DOWNLOAD_METHOD;
 
 impl Fixture {
     fn download(&self, actor: Principal, request: DownloadRequest) -> Result<DownloadResponse, F> {

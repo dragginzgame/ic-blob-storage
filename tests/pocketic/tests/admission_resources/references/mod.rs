@@ -1,13 +1,11 @@
 //! Many simultaneously live references; cleanup capacity remains reserved.
 use super::*;
 use blob_test_protocol::admission::release::LifecycleCommand;
-use ic_blob_storage::dto::{
-    reference::capacity::{
-        ReferenceCapacityFailure, ReferenceCapacityRequest, ReferenceCapacityResponse,
-        ReferenceHeadroom,
-    },
-    tenant::TenantScope,
-};
+use ic_blob_storage_contracts::dto::reference::capacity::ReferenceCapacityFailure;
+use ic_blob_storage_contracts::dto::reference::capacity::ReferenceCapacityRequest;
+use ic_blob_storage_contracts::dto::reference::capacity::ReferenceCapacityResponse;
+use ic_blob_storage_contracts::dto::reference::capacity::ReferenceHeadroom;
+use ic_blob_storage_contracts::dto::tenant::TenantScope;
 
 const REFERENCES: u64 = 256;
 

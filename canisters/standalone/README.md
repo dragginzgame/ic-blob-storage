@@ -17,7 +17,7 @@ cargo run --offline --locked -p ic-blob-storage-canister --example export_candid
 
 Installation takes one explicit
 `ServiceInstallationInput { configuration, project, completion_verifier, trusted_uploader }`
-from `ic_blob_storage::dto::configuration`. The offline
+from `ic_blob_storage_contracts::dto::configuration`. The offline
 [`installation-check`](../../docs/operator-guide.md#check-installation-inputs-offline)
 command produces its complete binary Candid and hash; no manual wrapper is needed.
 `configuration` is the shared `ServiceConfigurationInput`, including the actual
@@ -30,7 +30,7 @@ payer or tenant. Validation precedes allocation and runs again on restoration.
 This replaces the previous host init/schema and requires a minor release;
 cross-release transitions are reinstall-only, without migration or fallback.
 Host observation types come directly from
-`ic_blob_storage::dto::configuration::{HostConfigurationView, HostFailure}`;
+`ic_blob_storage_contracts::dto::configuration::{HostConfigurationView, HostFailure}`;
 the standalone crate exports only its Candid interface helper.
 Management-canister installation authorization remains the platform's responsibility.
 There are no deployment defaults, provider namespace provisioning or account changes.

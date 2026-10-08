@@ -1,29 +1,24 @@
 //! Two lifetime uploader intents inside the existing bounded fixture record.
-#[cfg(test)]
-mod tests;
 use super::ConsumerRecord;
 use blob_test_protocol::consumer::{
     Failure,
     manifests::{ManifestIntent, ManifestIntentView},
 };
 use candid::{CandidType, Principal};
-use ic_blob_storage::{
-    dto::upload::manifest::{
-        UploadManifestDeclaration, UploadManifestFailure, UploadManifestInspection,
-        UploadManifestResponse,
-    },
-    model::{
-        identity::{
-            ProviderRootHash,
-            caffeine::{
-                CaffeineHeader,
-                manifest::{CaffeineChunkHash, CaffeineChunkManifest, CaffeineManifestLimits},
-            },
-        },
-        service::upload::manifest::validate_upload_metadata,
-    },
-};
+use ic_blob_storage_contracts::dto::upload::manifest::UploadManifestDeclaration;
+use ic_blob_storage_contracts::dto::upload::manifest::UploadManifestFailure;
+use ic_blob_storage_contracts::dto::upload::manifest::UploadManifestInspection;
+use ic_blob_storage_contracts::dto::upload::manifest::UploadManifestResponse;
+use ic_blob_storage_contracts::identity::ProviderRootHash;
+use ic_blob_storage_contracts::identity::caffeine::CaffeineHeader;
+use ic_blob_storage_contracts::identity::caffeine::manifest::CaffeineChunkHash;
+use ic_blob_storage_contracts::identity::caffeine::manifest::CaffeineChunkManifest;
+use ic_blob_storage_contracts::identity::caffeine::manifest::CaffeineManifestLimits;
+use ic_blob_storage_contracts::upload::metadata::validate_upload_metadata;
 use serde::Deserialize;
+
+#[cfg(test)]
+mod tests;
 
 #[derive(Clone, CandidType, Deserialize)]
 pub(crate) struct ManifestIntentRecord {

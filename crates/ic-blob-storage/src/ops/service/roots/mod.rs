@@ -1,16 +1,15 @@
 //! Incremental durable root claims. Upload intent and accounting must join their
 //! transaction before this component can support any certificate/provider effect.
-use crate::model::{
-    identity::ProviderRootHash,
-    lifecycle::{
-        binding::ObjectBinding,
-        roots::{
-            RootClaimError, RootClaimOutcome, plan_claim,
-            record::{RootClaimRecord, RootObjectKeyRecord, RootStoreMetadataRecord},
-        },
-    },
-    service::{configuration::ServiceConfiguration, upload::UploadContext},
-};
+use crate::model::lifecycle::roots::RootClaimError;
+use crate::model::lifecycle::roots::RootClaimOutcome;
+use crate::model::lifecycle::roots::plan_claim;
+use crate::model::lifecycle::roots::record::RootClaimRecord;
+use crate::model::lifecycle::roots::record::RootObjectKeyRecord;
+use crate::model::lifecycle::roots::record::RootStoreMetadataRecord;
+use ic_blob_storage_contracts::binding::ObjectBinding;
+use ic_blob_storage_contracts::configuration::service::ServiceConfiguration;
+use ic_blob_storage_contracts::identity::ProviderRootHash;
+use ic_blob_storage_contracts::upload::binding::UploadContext;
 use ic_memory::ic_stable_structures::{BTreeMap, Memory};
 use thiserror::Error;
 

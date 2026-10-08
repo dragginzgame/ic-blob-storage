@@ -1,17 +1,14 @@
 //! Validate prepared declarations without trusting supplied totals or opening bodies.
 
 use crate::operator::Failure;
-use ic_blob_storage::model::{
-    identity::{
-        ContentDigest, ProviderRootHash,
-        caffeine::{
-            CaffeineHeader,
-            manifest::{CaffeineChunkHash, CaffeineChunkManifest, CaffeineManifestLimits},
-        },
-        verification::ContentVerifier,
-    },
-    service::upload::manifest::validate_upload_metadata,
-};
+use ic_blob_storage_contracts::identity::ContentDigest;
+use ic_blob_storage_contracts::identity::ProviderRootHash;
+use ic_blob_storage_contracts::identity::caffeine::CaffeineHeader;
+use ic_blob_storage_contracts::identity::caffeine::manifest::CaffeineChunkHash;
+use ic_blob_storage_contracts::identity::caffeine::manifest::CaffeineChunkManifest;
+use ic_blob_storage_contracts::identity::caffeine::manifest::CaffeineManifestLimits;
+use ic_blob_storage_contracts::identity::verification::ContentVerifier;
+use ic_blob_storage_contracts::upload::metadata::validate_upload_metadata;
 use serde::Deserialize;
 use std::{
     collections::{BTreeMap, BTreeSet},

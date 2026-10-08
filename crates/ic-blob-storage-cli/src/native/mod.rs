@@ -26,21 +26,21 @@ mod reply;
 mod signed_update;
 mod submit_attestation;
 mod submit_reference;
+use candid::Principal;
+use ic_agent::{
+    Agent, Identity,
+    identity::{BasicIdentity, Secp256k1Identity},
+};
+use ic_blob_storage_contracts::protocol::LOCAL_STATUS_METHOD;
+use serde_json::json;
+use std::{fs::File, path::Path, process::ExitCode, time::Duration};
+
 #[cfg(test)]
 mod tests;
 mod upload_history;
 mod upload_inputs;
 mod upload_setup;
 mod verify_upload;
-
-use candid::Principal;
-use ic_agent::{
-    Agent, Identity,
-    identity::{BasicIdentity, Secp256k1Identity},
-};
-use ic_blob_storage::ops::service::operator::LOCAL_STATUS_METHOD;
-use serde_json::json;
-use std::{fs::File, path::Path, process::ExitCode, time::Duration};
 
 const USAGE: &str = concat!(
     "blob-storage --version\n",
@@ -103,8 +103,10 @@ const USAGE: &str = concat!(
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 enum Failure {
     PreparedManifest,
-    UploadAdmissionRefused(ic_blob_storage::dto::upload::admission::UploadAdmissionFailure),
-    UploadManifestRefused(ic_blob_storage::dto::upload::manifest::UploadManifestFailure),
+    UploadAdmissionRefused(
+        ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionFailure,
+    ),
+    UploadManifestRefused(ic_blob_storage_contracts::dto::upload::manifest::UploadManifestFailure),
     Arguments,
     File,
     Identity,
@@ -131,13 +133,15 @@ enum Failure {
     Clock,
     Observation,
     SubmissionClaimed,
-    AssessmentRefused(ic_blob_storage::dto::upload::exposure::UploadExposureFailure),
-    ReferenceRefused(ic_blob_storage::dto::reference::ReferenceFailure),
-    AccountRefused(ic_blob_storage::dto::account::AccountInspectionFailure),
-    FundingAssessmentRefused(ic_blob_storage::dto::funding::assessment::FundingPreparationFailure),
-    GatewaySyncRefused(ic_blob_storage::dto::gateway::sync::GatewaySyncFailure),
-    GatewayRevocationRefused(ic_blob_storage::dto::gateway::GatewayRevocationFailure),
-    DownloadRefused(ic_blob_storage::dto::download::DownloadFailure),
+    AssessmentRefused(ic_blob_storage_contracts::dto::upload::exposure::UploadExposureFailure),
+    ReferenceRefused(ic_blob_storage_contracts::dto::reference::ReferenceFailure),
+    AccountRefused(ic_blob_storage_contracts::dto::account::AccountInspectionFailure),
+    FundingAssessmentRefused(
+        ic_blob_storage_contracts::dto::funding::assessment::FundingPreparationFailure,
+    ),
+    GatewaySyncRefused(ic_blob_storage_contracts::dto::gateway::sync::GatewaySyncFailure),
+    GatewayRevocationRefused(ic_blob_storage_contracts::dto::gateway::GatewayRevocationFailure),
+    DownloadRefused(ic_blob_storage_contracts::dto::download::DownloadFailure),
 }
 impl Failure {
     const fn code(self) -> &'static str {
@@ -243,7 +247,9 @@ fn identity(path: &Path, expected: Principal) -> Result<Box<dyn Identity>, Failu
 
 fn execute(args: &[String]) -> Result<serde_json::Value, Failure> {
     if args == ["--version"] {
-        return Ok(json!({"tool":"blob-storage","version":ic_blob_storage::LIBRARY_VERSION}));
+        return Ok(
+            json!({"tool":"blob-storage","version":ic_blob_storage_contracts::CONTRACT_VERSION}),
+        );
     }
     if args
         .first()
@@ -360,13 +366,13 @@ async fn inspect(options: &arguments::Options) -> Result<serde_json::Value, Fail
     } else if let Some(verification) = &verification {
         (
             verification.permission.upload.service,
-            ic_blob_storage::ops::service::uploads::manifests::UPLOAD_MANIFEST_INSPECT_METHOD,
+            ic_blob_storage_contracts::protocol::UPLOAD_MANIFEST_INSPECT_METHOD,
             candid::encode_one(verification.permission).map_err(|_| Failure::Arguments)?,
         )
     } else if let Some(request) = history {
         (
             request.scope.service,
-            ic_blob_storage::ops::service::funding::history::boundary::FUNDING_HISTORY_METHOD,
+            ic_blob_storage_contracts::protocol::FUNDING_HISTORY_METHOD,
             candid::encode_one(request).map_err(|_| Failure::Arguments)?,
         )
     } else if let arguments::Command::Status { scope } = options.command {

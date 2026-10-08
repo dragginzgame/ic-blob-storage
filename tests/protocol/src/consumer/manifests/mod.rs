@@ -1,8 +1,8 @@
 //! Private bounded uploader intent controls; distinct from tenant registration.
 use candid::{CandidType, Deserialize};
-use ic_blob_storage::dto::upload::manifest::{
-    UploadManifestDeclaration, UploadManifestFailure, UploadManifestRequest,
-};
+use ic_blob_storage_contracts::dto::upload::manifest::UploadManifestDeclaration;
+use ic_blob_storage_contracts::dto::upload::manifest::UploadManifestFailure;
+use ic_blob_storage_contracts::dto::upload::manifest::UploadManifestRequest;
 /// Exact locally assigned identity and immutable declaration intent.
 #[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize)]
 pub struct ManifestIntent {

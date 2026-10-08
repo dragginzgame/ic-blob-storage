@@ -48,10 +48,10 @@ fn standalone_signed_upload_setup_recovers_lost_and_pending_replies_then_cancels
     let original = f.admission(input.permission);
     assert_eq!(
         original.state,
-        ic_blob_storage::dto::upload::UploadState::Cancelled
+        ic_blob_storage_contracts::dto::upload::UploadState::Cancelled
     );
     assert!(original.revoked);
-    let scope = ic_blob_storage::dto::operator::OperatorScope {
+    let scope = ic_blob_storage_contracts::dto::operator::OperatorScope {
         service: f.service,
         namespace: f.config.namespace,
         cashier: f.config.billing.cashier,

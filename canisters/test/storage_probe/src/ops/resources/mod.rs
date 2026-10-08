@@ -5,18 +5,17 @@ use blob_test_protocol::storage::{
     Failure,
     resources::{PopulationBatch, RestorationMemoryReads, RestorationResources},
 };
-use ic_blob_storage::model::{
-    identity::caffeine::{CaffeineHeader, manifest::CaffeineChunkHash},
-    lifecycle::{
-        ReferenceId,
-        binding::ReferenceKey,
-        requests::{ReferenceOperation, ReferenceRequest, ReferenceRequestId},
-    },
-    service::{
-        tenant::TenantUpdate,
-        upload::{UploadContext, UploadPermission, manifest::UploadManifest},
-    },
-};
+use ic_blob_storage::model::service::upload::manifest::UploadManifest;
+use ic_blob_storage_contracts::binding::ReferenceId;
+use ic_blob_storage_contracts::binding::ReferenceKey;
+use ic_blob_storage_contracts::identity::caffeine::CaffeineHeader;
+use ic_blob_storage_contracts::identity::caffeine::manifest::CaffeineChunkHash;
+use ic_blob_storage_contracts::reference::binding::ReferenceOperation;
+use ic_blob_storage_contracts::reference::binding::ReferenceRequest;
+use ic_blob_storage_contracts::reference::binding::ReferenceRequestId;
+use ic_blob_storage_contracts::tenant::TenantUpdate;
+use ic_blob_storage_contracts::upload::binding::UploadContext;
+use ic_blob_storage_contracts::upload::binding::UploadPermission;
 use std::cell::{Cell, RefCell};
 use std::num::NonZeroU128;
 

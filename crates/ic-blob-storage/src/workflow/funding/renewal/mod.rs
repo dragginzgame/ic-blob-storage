@@ -1,8 +1,8 @@
 //! Host-internal local budget authority, independent of provider effects.
-use crate::{
-    model::{billing::journal::renewal::FundingBudgetRenewal, service::upload::UploadContext},
-    ops::service::funding::{FundingJournalError, StableFundingJournal},
-};
+use crate::model::billing::journal::renewal::FundingBudgetRenewal;
+use crate::ops::service::funding::FundingJournalError;
+use crate::ops::service::funding::StableFundingJournal;
+use ic_blob_storage_contracts::upload::binding::UploadContext;
 use ic_memory::ic_stable_structures::Memory;
 
 /// Commit one host-authorized budget increase after exact credit reconciliation.

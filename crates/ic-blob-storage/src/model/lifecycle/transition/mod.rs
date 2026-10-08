@@ -1,8 +1,11 @@
 //! Shared constant-size lifecycle decisions for heap and stable owners.
-use super::{
-    LifecycleChange, LifecycleError, LifecyclePhase, ReferenceMutation, ReferenceState,
-    binding::{ObjectBinding, ReferenceKey},
-};
+use super::LifecycleChange;
+use super::LifecycleError;
+use super::ReferenceMutation;
+use super::ReferenceState;
+use ic_blob_storage_contracts::binding::ObjectBinding;
+use ic_blob_storage_contracts::binding::ReferenceKey;
+use ic_blob_storage_contracts::upload::history::LifecyclePhase;
 
 pub(crate) struct ReferenceStateView {
     pub binding: ObjectBinding,

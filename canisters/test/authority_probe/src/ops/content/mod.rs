@@ -4,21 +4,17 @@
 use std::num::NonZeroU64;
 
 use blob_test_protocol::content::{ContentProbeCase, ContentProbeFailure, ContentProbeReport};
-use ic_blob_storage::model::identity::{
-    ContentDigest,
-    caffeine::{
-        CAFFEINE_CHUNK_BYTES, CaffeineHeader,
-        manifest::{
-            CaffeineChunkManifest, CaffeineManifestError, CaffeineManifestLimits,
-            verification::{
-                CaffeineChunkVerifier,
-                missing::MissingChunkPageLimits,
-                ordered::{CaffeineOrderedChunkVerifier, CaffeineOrderedVerificationError},
-            },
-        },
-    },
-    verification::ContentVerificationError,
-};
+use ic_blob_storage_contracts::identity::ContentDigest;
+use ic_blob_storage_contracts::identity::caffeine::CAFFEINE_CHUNK_BYTES;
+use ic_blob_storage_contracts::identity::caffeine::CaffeineHeader;
+use ic_blob_storage_contracts::identity::caffeine::manifest::CaffeineChunkManifest;
+use ic_blob_storage_contracts::identity::caffeine::manifest::CaffeineManifestError;
+use ic_blob_storage_contracts::identity::caffeine::manifest::CaffeineManifestLimits;
+use ic_blob_storage_contracts::identity::caffeine::manifest::verification::CaffeineChunkVerifier;
+use ic_blob_storage_contracts::identity::caffeine::manifest::verification::missing::MissingChunkPageLimits;
+use ic_blob_storage_contracts::identity::caffeine::manifest::verification::ordered::CaffeineOrderedChunkVerifier;
+use ic_blob_storage_contracts::identity::caffeine::manifest::verification::ordered::CaffeineOrderedVerificationError;
+use ic_blob_storage_contracts::identity::verification::ContentVerificationError;
 use serde::Deserialize;
 
 use super::bound;
@@ -55,7 +51,7 @@ fn vector(case: ContentProbeCase) -> Vector {
     };
     let vectors: Vectors = serde_json::from_str(include_str!(concat!(
         env!("CARGO_MANIFEST_DIR"),
-        "/../../../crates/ic-blob-storage/tests/fixtures/caffeine-hashing/vectors.json"
+        "/../../../crates/ic-blob-storage-contracts/tests/fixtures/caffeine-hashing/vectors.json"
     )))
     .expect("pinned independent client vectors");
     vectors

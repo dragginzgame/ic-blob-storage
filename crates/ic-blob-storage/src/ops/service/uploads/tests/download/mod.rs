@@ -1,19 +1,17 @@
 use super::*;
-use crate::{
-    model::{
-        lifecycle::requests::{ReferenceOperation, ReferenceRequest, ReferenceRequestId},
-        service::read::download::CaffeineDownloadScope,
-    },
-    ops::service::uploads::read::download::DownloadDescriptorError,
-};
+use crate::ops::service::uploads::read::download::DownloadDescriptorError;
+use ic_blob_storage_contracts::download::scope::CaffeineDownloadScope;
+use ic_blob_storage_contracts::reference::binding::ReferenceOperation;
+use ic_blob_storage_contracts::reference::binding::ReferenceRequest;
+use ic_blob_storage_contracts::reference::binding::ReferenceRequestId;
 fn scope(owner: Principal, namespace: NonZeroU128) -> CaffeineDownloadScope {
     CaffeineDownloadScope::new(owner, namespace, "project/&β").unwrap()
 }
 #[test]
 fn download_descriptor_binds_service_not_payer_or_tenant_and_preserves_original_metadata() {
     let base = config();
-    let config = crate::model::service::configuration::ServiceConfiguration::new(
-        crate::model::service::configuration::ServiceBindings {
+    let config = ic_blob_storage_contracts::configuration::service::ServiceConfiguration::new(
+        ic_blob_storage_contracts::configuration::service::ServiceBindings {
             payment_account: p(8),
             ..base.bindings()
         },
@@ -95,7 +93,7 @@ fn operational_download_refuses_suspension_release_and_restore_while_inspection_
     assert_eq!(
         store.download_descriptor(context(4), &scope, root, reference),
         Err(DownloadDescriptorError::Store(UploadStoreError::Admission(
-            UploadAdmissionError::Tenant(crate::model::service::tenant::TenantError::Suspended)
+            UploadAdmissionError::Tenant(ic_blob_storage_contracts::tenant::TenantError::Suspended)
         )))
     );
     assert_eq!(

@@ -9,14 +9,11 @@ use super::{
     TopUpReply, TopUpReplyError, TopUpReplyLimits, decode_top_up_reply,
     request::CashierTopUpRequest,
 };
-use crate::{
-    model::billing::{
-        journal::{FundingTransportContext, FundingTransportOutcome},
-        transfer::FundingTransfer,
-    },
-    policy::billing::liquidity::FundingLiquidity,
-};
+use crate::model::billing::journal::FundingTransportContext;
+use crate::model::billing::journal::FundingTransportOutcome;
+use crate::policy::billing::liquidity::FundingLiquidity;
 use candid::Principal;
+use ic_blob_storage_contracts::funding::transfer::FundingTransfer;
 use ic_cdk::call::{Call, CallFailed};
 use std::num::NonZeroU128;
 

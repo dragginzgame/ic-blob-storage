@@ -4,10 +4,11 @@ use super::{
     Failure,
     artifacts::{DownloadOutcomeRecord, HttpResponseRecord, Run},
 };
-use ic_blob_storage::model::identity::{
-    ContentDigest, ProviderRootHash,
-    caffeine::{CaffeineHashLimits, CaffeineHeader, verification::CaffeineRootVerifier},
-};
+use ic_blob_storage_contracts::identity::ContentDigest;
+use ic_blob_storage_contracts::identity::ProviderRootHash;
+use ic_blob_storage_contracts::identity::caffeine::CaffeineHashLimits;
+use ic_blob_storage_contracts::identity::caffeine::CaffeineHeader;
+use ic_blob_storage_contracts::identity::caffeine::verification::CaffeineRootVerifier;
 use std::{io::Write, num::NonZeroU64, time::Duration};
 use url::Url;
 #[cfg(test)]

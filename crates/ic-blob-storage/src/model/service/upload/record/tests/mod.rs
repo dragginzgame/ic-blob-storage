@@ -76,7 +76,8 @@ fn variable_page_layout_keeps_a_hard_record_decode_bound() {
 
 #[test]
 fn admitted_leaf_selection_preserves_position_and_exact_final_length() {
-    use crate::model::identity::caffeine::{CAFFEINE_CHUNK_BYTES, manifest::CaffeineChunkRange};
+    use ic_blob_storage_contracts::identity::caffeine::CAFFEINE_CHUNK_BYTES;
+    use ic_blob_storage_contracts::identity::caffeine::manifest::CaffeineChunkRange;
     let record = UploadManifestRecord {
         version: 1,
         chunks: vec![[1; 32], [2; 32]],

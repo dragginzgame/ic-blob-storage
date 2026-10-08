@@ -1,23 +1,16 @@
 //! Installed provider mapping and original declaration for an exposed unfinished upload.
 use super::{StableUploads, exact, failure};
-use crate::{
-    dto::upload::{
-        admission::{UploadAdmissionFailure, UploadAdmissionRequest},
-        completion::{UploadAttestationFailure, UploadVerificationPlan},
-        manifest::UploadManifestInspection,
-    },
-    model::{
-        catalog::admission::UploadPhase,
-        service::{
-            read::download::CaffeineDownloadScope,
-            upload::{UploadContext, completion::CompletionAuthority},
-        },
-    },
-    policy::upload::completion::may_attest,
-};
+use crate::model::catalog::admission::UploadPhase;
+use crate::policy::upload::completion::may_attest;
+use ic_blob_storage_contracts::download::scope::CaffeineDownloadScope;
+use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionFailure;
+use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionRequest;
+use ic_blob_storage_contracts::dto::upload::completion::UploadAttestationFailure;
+use ic_blob_storage_contracts::dto::upload::completion::UploadVerificationPlan;
+use ic_blob_storage_contracts::dto::upload::manifest::UploadManifestInspection;
+use ic_blob_storage_contracts::upload::binding::UploadContext;
+use ic_blob_storage_contracts::upload::completion::CompletionAuthority;
 use ic_memory::ic_stable_structures::Memory;
-/// Canonical verifier-only query. Linking the library exports no endpoint.
-pub const UPLOAD_VERIFICATION_PLAN_METHOD: &str = "blob_verification_plan";
 
 pub(crate) fn plan<M: Memory>(
     store: &StableUploads<M>,
@@ -54,5 +47,3 @@ pub(crate) fn plan<M: Memory>(
         declaration,
     })
 }
-
-pub mod reply;

@@ -1,5 +1,14 @@
 //! One shared client call using separately saved uploader intent.
 use blob_test_protocol::consumer::Failure;
+use ic_blob_storage::ops::service::uploads::manifests::client::ReplicatedUploadManifestClient;
+use ic_blob_storage::ops::service::uploads::manifests::client::UploadManifestClientError;
+use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionRequest;
+use ic_blob_storage_contracts::dto::upload::manifest::UploadManifestFailure;
+use ic_blob_storage_contracts::dto::upload::manifest::UploadManifestRequest;
+use ic_blob_storage_contracts::dto::upload::manifest::UploadManifestResponse;
+use ic_blob_storage_contracts::upload::manifests::reply::UploadManifestReplyError;
+use ic_blob_storage_contracts::upload::manifests::reply::UploadManifestReplyLimits;
+
 pub(crate) fn fault(
     selected: blob_test_protocol::consumer::manifests::ManifestFault,
     at: blob_test_protocol::consumer::manifests::ManifestFault,
@@ -8,16 +17,6 @@ pub(crate) fn fault(
         ic_cdk::trap("fixture manifest interruption");
     }
 }
-use ic_blob_storage::{
-    dto::upload::{
-        admission::UploadAdmissionRequest,
-        manifest::{UploadManifestFailure, UploadManifestRequest, UploadManifestResponse},
-    },
-    ops::service::uploads::manifests::{
-        client::{ReplicatedUploadManifestClient, UploadManifestClientError},
-        reply::{UploadManifestReplyError, UploadManifestReplyLimits},
-    },
-};
 fn client(permission: UploadAdmissionRequest) -> Result<ReplicatedUploadManifestClient, Failure> {
     ReplicatedUploadManifestClient::new(
         ic_cdk::api::canister_self(),

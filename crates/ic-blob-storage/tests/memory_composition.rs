@@ -1,6 +1,7 @@
 //! Native substrate composition only: no blob schema, canister lifecycle or recovery.
 
-use ic_blob_storage::{ic_memory as blob_memory, model::identity::ContentDigest};
+use ic_blob_storage::ic_memory as blob_memory;
+use ic_blob_storage_contracts::identity::ContentDigest;
 use ic_memory::{
     GenericRangePolicy, MemoryManagerAuthorityRecord, MemoryManagerConfig, MemoryManagerIdRange,
     MemoryManagerRangeMode, MemoryRequest, MemoryRuntime, RuntimeMemory, RuntimeOpenError,

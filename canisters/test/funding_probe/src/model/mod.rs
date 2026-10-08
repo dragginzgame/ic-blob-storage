@@ -7,7 +7,8 @@ use blob_test_protocol::funding::{
     FundingRequest,
 };
 use candid::{CandidType, Principal};
-use ic_blob_storage::model::{billing::transfer::FundingTransfer, identity::ContentDigest};
+use ic_blob_storage_contracts::funding::transfer::FundingTransfer;
+use ic_blob_storage_contracts::identity::ContentDigest;
 use serde::Deserialize;
 use std::{collections::BTreeSet, num::NonZeroU128};
 

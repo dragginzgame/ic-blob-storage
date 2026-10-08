@@ -2,16 +2,15 @@
 mod cursor;
 use super::{Failure, arguments::Options, query, references::upload_json};
 use candid::Principal;
-use ic_blob_storage::{
-    dto::upload::history::{
-        UploadContentState as S, UploadHistoryFailure as F, UploadHistoryFilter,
-        UploadHistoryRequest, UploadHistoryScope,
-    },
-    ops::service::uploads::history::{
-        UPLOAD_HISTORY_METHOD,
-        reply::{self, UploadHistoryReplyError as R, UploadHistoryReplyLimits},
-    },
-};
+use ic_blob_storage_contracts::dto::upload::history::UploadContentState as S;
+use ic_blob_storage_contracts::dto::upload::history::UploadHistoryFailure as F;
+use ic_blob_storage_contracts::dto::upload::history::UploadHistoryFilter;
+use ic_blob_storage_contracts::dto::upload::history::UploadHistoryRequest;
+use ic_blob_storage_contracts::dto::upload::history::UploadHistoryScope;
+use ic_blob_storage_contracts::protocol::UPLOAD_HISTORY_METHOD;
+use ic_blob_storage_contracts::upload::history::reply;
+use ic_blob_storage_contracts::upload::history::reply::UploadHistoryReplyError as R;
+use ic_blob_storage_contracts::upload::history::reply::UploadHistoryReplyLimits;
 use serde_json::{Value, json};
 use std::path::PathBuf;
 

@@ -3,30 +3,34 @@
 use std::num::{NonZeroU128, NonZeroUsize};
 
 use candid::Principal;
-use ic_blob_storage::{
-    model::{
-        catalog::{
-            BlobCatalog, CatalogError, CatalogInsertOutcome, CatalogLimits, ConfirmedObject,
-            admission::{
-                UploadCatalog, UploadLimits, UploadObject, UploadRequest, UploadRequestId,
-            },
-            tenant::{TenantObjectCursorError, TenantObjectPageLimits},
-        },
-        identity::ProviderRootHash,
-        lifecycle::{
-            LifecycleChange, LifecyclePhase, ReferenceId,
-            binding::{ObjectBinding, ObjectIdentity, ReferenceKey},
-            requests::{
-                ReferenceOperation, ReferenceRequest, ReferenceRequestId, ReferenceRequestOutcome,
-            },
-            roots::RootClaimError,
-        },
-    },
-    policy::{
-        catalog::tenant::{TenantObjectReadError, assess_tenant_unsettled_objects},
-        tenant::{TenantAccessContext, TenantAccessError},
-    },
-};
+use ic_blob_storage::model::catalog::BlobCatalog;
+use ic_blob_storage::model::catalog::CatalogError;
+use ic_blob_storage::model::catalog::CatalogInsertOutcome;
+use ic_blob_storage::model::catalog::ConfirmedObject;
+use ic_blob_storage::model::catalog::admission::UploadCatalog;
+use ic_blob_storage::model::catalog::tenant::TenantObjectCursorError;
+use ic_blob_storage::model::catalog::tenant::TenantObjectPageLimits;
+use ic_blob_storage::model::lifecycle::LifecycleChange;
+use ic_blob_storage::model::lifecycle::requests::ReferenceRequestOutcome;
+use ic_blob_storage::model::lifecycle::roots::RootClaimError;
+use ic_blob_storage::policy::catalog::tenant::TenantObjectReadError;
+use ic_blob_storage::policy::catalog::tenant::assess_tenant_unsettled_objects;
+use ic_blob_storage::policy::tenant::TenantAccessContext;
+use ic_blob_storage::policy::tenant::TenantAccessError;
+use ic_blob_storage_contracts::binding::ObjectBinding;
+use ic_blob_storage_contracts::binding::ObjectIdentity;
+use ic_blob_storage_contracts::binding::ReferenceId;
+use ic_blob_storage_contracts::binding::ReferenceKey;
+use ic_blob_storage_contracts::configuration::limits::CatalogLimits;
+use ic_blob_storage_contracts::configuration::limits::UploadLimits;
+use ic_blob_storage_contracts::identity::ProviderRootHash;
+use ic_blob_storage_contracts::reference::binding::ReferenceOperation;
+use ic_blob_storage_contracts::reference::binding::ReferenceRequest;
+use ic_blob_storage_contracts::reference::binding::ReferenceRequestId;
+use ic_blob_storage_contracts::upload::binding::UploadObject;
+use ic_blob_storage_contracts::upload::binding::UploadRequest;
+use ic_blob_storage_contracts::upload::binding::UploadRequestId;
+use ic_blob_storage_contracts::upload::history::LifecyclePhase;
 
 fn p(value: u8) -> Principal {
     Principal::from_slice(&[value, 1])

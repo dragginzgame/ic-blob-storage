@@ -1,10 +1,11 @@
 //! Actual replicated transport using the shared tenant client.
 use blob_test_protocol::consumer::Failure;
 use candid::Principal;
-use ic_blob_storage::{
-    dto::tenant::{TenantEnrollmentResponse, TenantScope, TenantUpdateRequest},
-    ops::service::uploads::tenants::{client::ReplicatedTenantClient, reply},
-};
+use ic_blob_storage::ops::service::uploads::tenants::client::ReplicatedTenantClient;
+use ic_blob_storage_contracts::dto::tenant::TenantEnrollmentResponse;
+use ic_blob_storage_contracts::dto::tenant::TenantScope;
+use ic_blob_storage_contracts::dto::tenant::TenantUpdateRequest;
+use ic_blob_storage_contracts::tenant::reply;
 use std::num::NonZeroUsize;
 
 pub(crate) fn start(

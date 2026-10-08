@@ -1,11 +1,8 @@
 use super::*;
-use crate::{
-    dto::{
-        tenant::TenantScope,
-        upload::capacity::{UploadCapacityFailure as F, UploadCapacityResponse},
-    },
-    workflow::uploads::capacity::inspect,
-};
+use crate::workflow::uploads::capacity::inspect;
+use ic_blob_storage_contracts::dto::tenant::TenantScope;
+use ic_blob_storage_contracts::dto::upload::capacity::UploadCapacityFailure as F;
+use ic_blob_storage_contracts::dto::upload::capacity::UploadCapacityResponse;
 fn scope() -> TenantScope {
     TenantScope {
         service: p(1),

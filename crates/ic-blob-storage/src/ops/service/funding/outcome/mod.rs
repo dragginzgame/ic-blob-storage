@@ -5,13 +5,11 @@ use super::{
     FundingIntent, FundingIntentError, FundingJournalError, FundingTransportContext,
     FundingTransportOutcome, Memory, StableFundingJournal, UploadContext,
 };
-use crate::{
-    model::billing::{
-        journal::{FundingIntentState, record::response::FundingResponseRecord},
-        transfer::FundingTransfer,
-    },
-    ops::caffeine::funding::transport::{CashierTopUpObservation, CashierTopUpStatus},
-};
+use crate::model::billing::journal::FundingIntentState;
+use crate::model::billing::journal::record::response::FundingResponseRecord;
+use crate::ops::caffeine::funding::transport::CashierTopUpObservation;
+use crate::ops::caffeine::funding::transport::CashierTopUpStatus;
+use ic_blob_storage_contracts::funding::transfer::FundingTransfer;
 
 /// Retained local evidence, independently readable after lost output or restore.
 /// A balance report is not credit evidence, and no result permits a retry.

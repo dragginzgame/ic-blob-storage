@@ -7,9 +7,8 @@ use crate::{
     submission_proxy::{Dispatch, Proxy, Reply},
 };
 use candid::Principal;
-use ic_blob_storage::dto::{
-    configuration::ServiceInstallationInput, upload::manifest::UploadManifestRequest,
-};
+use ic_blob_storage_contracts::dto::configuration::ServiceInstallationInput;
+use ic_blob_storage_contracts::dto::upload::manifest::UploadManifestRequest;
 use serde_json::{Value, json};
 use std::{
     cell::Cell,
@@ -31,10 +30,11 @@ pub(crate) fn uploader() -> Principal {
 }
 pub(crate) fn cancelled_totals(
     pic: &ic_testkit::pocket_ic::PocketIc,
-    scope: ic_blob_storage::dto::operator::OperatorScope,
+    scope: ic_blob_storage_contracts::dto::operator::OperatorScope,
     operator: Principal,
 ) {
-    use ic_blob_storage::dto::operator::{LocalServiceStatus, LocalStatusFailure};
+    use ic_blob_storage_contracts::dto::operator::LocalServiceStatus;
+    use ic_blob_storage_contracts::dto::operator::LocalStatusFailure;
     use ic_testkit::pic::CandidCallExt;
     let status = pic
         .query_candid_as::<Result<LocalServiceStatus, LocalStatusFailure>, _>(

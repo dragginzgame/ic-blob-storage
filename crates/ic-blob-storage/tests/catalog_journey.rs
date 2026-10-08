@@ -3,42 +3,52 @@
 use std::num::{NonZeroU128, NonZeroUsize};
 
 use candid::Principal;
-use ic_blob_storage::{
-    model::{
-        catalog::{
-            BlobCatalog, CatalogError, CatalogInsertOutcome, CatalogLimits, CatalogReferenceKey,
-            CatalogUsage, ConfirmedObject,
-            pending::{PendingCursorError, PendingPageLimits},
-        },
-        gateway::{
-            GatewayListLimits,
-            membership::GatewayMembership,
-            registry::{GatewayRegistry, GatewayScope, GatewaySyncError},
-        },
-        identity::{
-            HashParseError, ProviderRootHash,
-            batch::{ProviderRootBatch, RootBatchLimits},
-        },
-        lifecycle::{
-            LifecycleChange, LifecycleError, LifecyclePhase, ReferenceId,
-            binding::{ObjectBinding, ObjectBindingMismatch, ObjectIdentity, ReferenceKey},
-            requests::{
-                ReferenceOperation, ReferenceReceiptView, ReferenceRequest, ReferenceRequestError,
-                ReferenceRequestId, ReferenceRequestOutcome,
-            },
-        },
-    },
-    policy::{
-        catalog::{
-            CatalogGatewayReadError, CatalogRootStatus, assess_gateway_pending,
-            assess_gateway_roots, assess_tenant_usage,
-            tenant::{CatalogTenantReadError, assess_tenant_receipt, assess_tenant_references},
-        },
-        gateway::{GatewayAccessError, GatewayCallbackContext},
-        liveness::assess_reference_liveness,
-        tenant::{TenantAccessContext, TenantAccessError, assess_tenant_access},
-    },
-};
+use ic_blob_storage::model::catalog::BlobCatalog;
+use ic_blob_storage::model::catalog::CatalogError;
+use ic_blob_storage::model::catalog::CatalogInsertOutcome;
+use ic_blob_storage::model::catalog::CatalogReferenceKey;
+use ic_blob_storage::model::catalog::CatalogUsage;
+use ic_blob_storage::model::catalog::ConfirmedObject;
+use ic_blob_storage::model::catalog::pending::PendingCursorError;
+use ic_blob_storage::model::catalog::pending::PendingPageLimits;
+use ic_blob_storage::model::gateway::membership::GatewayMembership;
+use ic_blob_storage::model::gateway::registry::GatewayRegistry;
+use ic_blob_storage::model::gateway::registry::GatewayScope;
+use ic_blob_storage::model::gateway::registry::GatewaySyncError;
+use ic_blob_storage::model::lifecycle::LifecycleChange;
+use ic_blob_storage::model::lifecycle::LifecycleError;
+use ic_blob_storage::model::lifecycle::requests::ReferenceReceiptView;
+use ic_blob_storage::model::lifecycle::requests::ReferenceRequestError;
+use ic_blob_storage::model::lifecycle::requests::ReferenceRequestOutcome;
+use ic_blob_storage::policy::catalog::CatalogGatewayReadError;
+use ic_blob_storage::policy::catalog::CatalogRootStatus;
+use ic_blob_storage::policy::catalog::assess_gateway_pending;
+use ic_blob_storage::policy::catalog::assess_gateway_roots;
+use ic_blob_storage::policy::catalog::assess_tenant_usage;
+use ic_blob_storage::policy::catalog::tenant::CatalogTenantReadError;
+use ic_blob_storage::policy::catalog::tenant::assess_tenant_receipt;
+use ic_blob_storage::policy::catalog::tenant::assess_tenant_references;
+use ic_blob_storage::policy::gateway::GatewayAccessError;
+use ic_blob_storage::policy::gateway::GatewayCallbackContext;
+use ic_blob_storage::policy::liveness::assess_reference_liveness;
+use ic_blob_storage::policy::tenant::TenantAccessContext;
+use ic_blob_storage::policy::tenant::TenantAccessError;
+use ic_blob_storage::policy::tenant::assess_tenant_access;
+use ic_blob_storage_contracts::binding::ObjectBinding;
+use ic_blob_storage_contracts::binding::ObjectBindingMismatch;
+use ic_blob_storage_contracts::binding::ObjectIdentity;
+use ic_blob_storage_contracts::binding::ReferenceId;
+use ic_blob_storage_contracts::binding::ReferenceKey;
+use ic_blob_storage_contracts::configuration::limits::CatalogLimits;
+use ic_blob_storage_contracts::configuration::limits::GatewayListLimits;
+use ic_blob_storage_contracts::identity::HashParseError;
+use ic_blob_storage_contracts::identity::ProviderRootHash;
+use ic_blob_storage_contracts::identity::batch::ProviderRootBatch;
+use ic_blob_storage_contracts::identity::batch::RootBatchLimits;
+use ic_blob_storage_contracts::reference::binding::ReferenceOperation;
+use ic_blob_storage_contracts::reference::binding::ReferenceRequest;
+use ic_blob_storage_contracts::reference::binding::ReferenceRequestId;
+use ic_blob_storage_contracts::upload::history::LifecyclePhase;
 
 fn p(id: u8) -> Principal {
     Principal::from_slice(&[id, 1])

@@ -1,27 +1,26 @@
 //! Tenant-owned verified output: one replicated descriptor, then one bounded GET.
-use super::{
-    Failure, agent,
-    arguments::Options,
-    artifacts::{FailureRecord, Run},
-    identity,
-    provider_download::{self, ExpectedBody},
-    read,
-};
+use super::Failure;
+use super::agent;
+use super::arguments::Options;
+use super::artifacts::FailureRecord;
+use super::artifacts::Run;
+use super::identity;
+use super::provider_download;
+use super::provider_download::ExpectedBody;
+use super::read;
 use candid::Principal;
-use ic_blob_storage::{
-    dto::download::{DownloadFailure as E, DownloadRequest, DownloadResponse},
-    model::{
-        identity::{ContentDigest, ProviderRootHash, caffeine::CaffeineHeader},
-        service::read::download::CaffeineDownloadScope,
-    },
-    ops::{
-        caffeine::download::request_target,
-        service::reads::download::{
-            DOWNLOAD_METHOD,
-            reply::{self, DownloadReplyError, DownloadReplyLimits},
-        },
-    },
-};
+use ic_blob_storage_contracts::download::reply;
+use ic_blob_storage_contracts::download::reply::DownloadReplyError;
+use ic_blob_storage_contracts::download::reply::DownloadReplyLimits;
+use ic_blob_storage_contracts::download::scope::CaffeineDownloadScope;
+use ic_blob_storage_contracts::dto::download::DownloadFailure as E;
+use ic_blob_storage_contracts::dto::download::DownloadRequest;
+use ic_blob_storage_contracts::dto::download::DownloadResponse;
+use ic_blob_storage_contracts::identity::ContentDigest;
+use ic_blob_storage_contracts::identity::ProviderRootHash;
+use ic_blob_storage_contracts::identity::caffeine::CaffeineHeader;
+use ic_blob_storage_contracts::protocol::DOWNLOAD_METHOD;
+use ic_blob_storage_contracts::provider::download::request_target;
 use serde_json::{Value, json};
 use std::{num::NonZeroU64, path::PathBuf, time::Duration};
 use url::Url;

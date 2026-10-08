@@ -1,6 +1,7 @@
 //! Standalone exact reference inspection: shared validation, bounded ingress and no synthetic completion.
 use super::*;
-use ic_blob_storage::dto::reference::status::{ReferenceStatusRequest, ReferenceStatusResponse};
+use ic_blob_storage_contracts::dto::reference::status::ReferenceStatusRequest;
+use ic_blob_storage_contracts::dto::reference::status::ReferenceStatusResponse;
 impl Fixture {
     fn reference_status(
         &self,

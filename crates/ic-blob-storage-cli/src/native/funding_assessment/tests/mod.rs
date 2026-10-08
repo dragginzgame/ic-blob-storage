@@ -1,6 +1,7 @@
 use super::*;
 use candid::Principal;
-use ic_blob_storage::dto::operator::{LocalFundingStatus, OperatorScope};
+use ic_blob_storage_contracts::dto::operator::LocalFundingStatus;
+use ic_blob_storage_contracts::dto::operator::OperatorScope;
 fn request() -> Request {
     Request {
         scope: OperatorScope {

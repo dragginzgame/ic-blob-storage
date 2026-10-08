@@ -1,17 +1,16 @@
 use super::*;
-use crate::dto::{
-    funding::outcome::{
-        FundingBalanceField, FundingOutcomeFailure, FundingOutcomeRequest, FundingReportedBalance,
-        FundingResponse,
-    },
-    operator::OperatorScope,
-};
 use crate::workflow::funding::outcome::inspect;
 use crate::{
     model::billing::journal::record::response::{BalanceFieldRecord, FundingResponseRecord as R},
     ops::caffeine::funding::{TopUpReply, transport::CashierTopUpStatus},
     policy::billing::reconciliation::{FundingReconciliation, assess_funding_reconciliation},
 };
+use ic_blob_storage_contracts::dto::funding::outcome::FundingBalanceField;
+use ic_blob_storage_contracts::dto::funding::outcome::FundingOutcomeFailure;
+use ic_blob_storage_contracts::dto::funding::outcome::FundingOutcomeRequest;
+use ic_blob_storage_contracts::dto::funding::outcome::FundingReportedBalance;
+use ic_blob_storage_contracts::dto::funding::outcome::FundingResponse;
+use ic_blob_storage_contracts::dto::operator::OperatorScope;
 
 fn request(intent: FundingIntent) -> FundingOutcomeRequest {
     FundingOutcomeRequest {
@@ -56,10 +55,15 @@ fn exact_outcome_boundary_rejects_changed_intent_and_preserves_absence_without_w
     );
     let view = inspect(&store, execution(), query).unwrap().unwrap();
     assert_eq!(view.response, None);
-    assert_eq!(view.phase, crate::dto::funding::FundingPhase::Prepared);
+    assert_eq!(
+        view.phase,
+        ic_blob_storage_contracts::dto::funding::FundingPhase::Prepared
+    );
     assert_eq!(
         view.reconciliation,
-        crate::dto::funding::outcome::FundingReconciliation::TransferUnknown(900)
+        ic_blob_storage_contracts::dto::funding::outcome::FundingReconciliation::TransferUnknown(
+            900
+        )
     );
     for changed in [
         FundingOutcomeRequest {

@@ -1,14 +1,12 @@
 use super::*;
 mod verification;
-use crate::{
-    dto::upload::{admission::UploadAdmissionFailure as A, completion::*},
-    model::service::upload::completion::CompletionAuthority,
-    workflow::uploads::{
-        admission::admit,
-        completion::{attest, inspect},
-        manifests::prepare,
-    },
-};
+use crate::workflow::uploads::admission::admit;
+use crate::workflow::uploads::completion::attest;
+use crate::workflow::uploads::completion::inspect;
+use crate::workflow::uploads::manifests::prepare;
+use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionFailure as A;
+use ic_blob_storage_contracts::dto::upload::completion::*;
+use ic_blob_storage_contracts::upload::completion::CompletionAuthority;
 fn authority() -> CompletionAuthority {
     CompletionAuthority::new(p(1), NonZeroU128::MIN, p(9)).unwrap()
 }
@@ -36,7 +34,8 @@ fn attestation_binds_role_permission_and_observation_without_bypassing_exposure(
         attest(&mut store, authority(), context(9), &statement, 6),
         Err(UploadAttestationFailure::Phase)
     );
-    let model = admission::parse_binding(p(1), permission).unwrap();
+    let model =
+        ic_blob_storage_contracts::upload::admission::parse_binding(p(1), permission).unwrap();
     store.expose(context(5), model.request, 3).unwrap();
     let changed = UploadAttestationRequest {
         observed_at_ns: 7,
@@ -84,7 +83,8 @@ fn late_attestation_survives_revocation_and_fenced_restore_as_immutable_evidence
     let enrolled = enroll(&mut store);
     let manifest = manifest_boundary::input();
     let permission = manifest.permission;
-    let model = admission::parse_binding(p(1), permission).unwrap();
+    let model =
+        ic_blob_storage_contracts::upload::admission::parse_binding(p(1), permission).unwrap();
     admit(&mut store, context(4), permission, 1).unwrap();
     prepare(&mut store, context(5), &manifest, 2).unwrap();
     store.expose(context(5), model.request, 3).unwrap();
@@ -122,13 +122,15 @@ fn late_attestation_survives_revocation_and_fenced_restore_as_immutable_evidence
 
 #[test]
 fn restoration_rejects_attestation_observed_before_its_original_admission() {
-    use crate::model::service::upload::record::lifecycle::{AttestationRecord, CompletionRecord};
+    use crate::model::service::upload::record::lifecycle::AttestationRecord;
+    use crate::model::service::upload::record::lifecycle::CompletionRecord;
     let m = memory();
     let mut store = StableUploads::install(clone_memory(&m), config()).unwrap();
     enroll(&mut store);
     let manifest = manifest_boundary::input();
     let permission = manifest.permission;
-    let model = admission::parse_binding(p(1), permission).unwrap();
+    let model =
+        ic_blob_storage_contracts::upload::admission::parse_binding(p(1), permission).unwrap();
     admit(&mut store, context(4), permission, 1).unwrap();
     prepare(&mut store, context(5), &manifest, 2).unwrap();
     store.expose(context(5), model.request, 3).unwrap();

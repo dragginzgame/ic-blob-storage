@@ -1,15 +1,17 @@
 //! Fixed-size confirmed lifecycle, individual reference and exact receipt records.
 use super::codec;
-use crate::model::{
-    catalog::CatalogLimits,
-    lifecycle::{
-        LifecycleChange, LifecycleError, LifecyclePhase, ReferenceMutation, ReferenceState,
-        binding::ObjectBinding,
-        requests::{ReferenceRequest, ReferenceRequestError, admit_receipt},
-        transition::ReferenceStateView,
-    },
-};
+use crate::model::lifecycle::LifecycleChange;
+use crate::model::lifecycle::LifecycleError;
+use crate::model::lifecycle::ReferenceMutation;
+use crate::model::lifecycle::ReferenceState;
+use crate::model::lifecycle::requests::ReferenceRequestError;
+use crate::model::lifecycle::requests::admit_receipt;
+use crate::model::lifecycle::transition::ReferenceStateView;
 use candid::{CandidType, DecoderConfig, Deserialize, Principal, decode_one_with_config};
+use ic_blob_storage_contracts::binding::ObjectBinding;
+use ic_blob_storage_contracts::configuration::limits::CatalogLimits;
+use ic_blob_storage_contracts::reference::binding::ReferenceRequest;
+use ic_blob_storage_contracts::upload::history::LifecyclePhase;
 use ic_memory::ic_stable_structures::{Storable, storable::Bound};
 use std::borrow::Cow;
 
@@ -117,7 +119,7 @@ impl ConfirmedLifecycleRecord {
         .plan(
             matches!(
                 request.operation,
-                crate::model::lifecycle::requests::ReferenceOperation::Retain(_)
+                ic_blob_storage_contracts::reference::binding::ReferenceOperation::Retain(_)
             ),
             known,
             request.operation.key(),
@@ -224,7 +226,7 @@ impl ReferenceReceiptRecord {
             reference: request.operation.key().reference().get().get(),
             retain: matches!(
                 request.operation,
-                crate::model::lifecycle::requests::ReferenceOperation::Retain(_)
+                ic_blob_storage_contracts::reference::binding::ReferenceOperation::Retain(_)
             ),
             result,
         }
@@ -238,7 +240,7 @@ impl ReferenceReceiptRecord {
             && self.retain
                 == matches!(
                     request.operation,
-                    crate::model::lifecycle::requests::ReferenceOperation::Retain(_)
+                    ic_blob_storage_contracts::reference::binding::ReferenceOperation::Retain(_)
                 )
     }
     pub(crate) fn valid(self, actor: Principal, state: Option<ReferenceState>) -> bool {

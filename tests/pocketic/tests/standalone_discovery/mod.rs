@@ -1,11 +1,9 @@
 //! Production-host indexed discovery, exact independent identities and restore fencing.
 use super::*;
-use ic_blob_storage::{
-    dto::upload::discovery::{
-        UploadDiscoveryFailure as F, UploadDiscoveryRequest, UploadDiscoveryResponse,
-    },
-    ops::service::uploads::discovery::UPLOAD_DISCOVERY_METHOD,
-};
+use ic_blob_storage_contracts::dto::upload::discovery::UploadDiscoveryFailure as F;
+use ic_blob_storage_contracts::dto::upload::discovery::UploadDiscoveryRequest;
+use ic_blob_storage_contracts::dto::upload::discovery::UploadDiscoveryResponse;
+use ic_blob_storage_contracts::protocol::UPLOAD_DISCOVERY_METHOD;
 impl Fixture {
     fn discovery(
         &self,
@@ -101,10 +99,13 @@ fn standalone_discovery_keeps_original_identity_and_exposes_restore_fence() {
     };
     let expected = UploadDiscoveryResponse {
         request,
-        content: Some(ic_blob_storage::dto::upload::history::UploadHistoryEntry {
-            request: permission.upload,
-            state: ic_blob_storage::dto::upload::history::UploadContentState::Reserved,
-        }),
+        content: Some(
+            ic_blob_storage_contracts::dto::upload::history::UploadHistoryEntry {
+                request: permission.upload,
+                state:
+                    ic_blob_storage_contracts::dto::upload::history::UploadContentState::Reserved,
+            },
+        ),
         fenced: false,
     };
     let before = f.harness.pic.get_stable_memory(f.service);

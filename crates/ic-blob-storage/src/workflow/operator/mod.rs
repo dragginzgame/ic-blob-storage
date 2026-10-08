@@ -1,9 +1,10 @@
 //! Synchronous local operator inspection, without transport or readiness inference.
-use crate::{
-    dto::operator::{LocalServiceStatus, LocalStatusFailure, OperatorScope},
-    model::service::upload::UploadContext,
-    ops::service::operator::{self, OperatorStores},
-};
+use crate::ops::service::operator;
+use crate::ops::service::operator::OperatorStores;
+use ic_blob_storage_contracts::dto::operator::LocalServiceStatus;
+use ic_blob_storage_contracts::dto::operator::LocalStatusFailure;
+use ic_blob_storage_contracts::dto::operator::OperatorScope;
+use ic_blob_storage_contracts::upload::binding::UploadContext;
 use ic_memory::ic_stable_structures::Memory;
 
 /// Inspect one explicit service/provider/account scope as its configured operator.

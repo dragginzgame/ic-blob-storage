@@ -1,14 +1,12 @@
 //! Boundary conversion around the authoritative durable revocation transition.
 use super::{GatewayStoreError, StableGatewayRegistry};
-use crate::{
-    dto::gateway::{GatewayRevocationFailure, GatewayRevocationRequest, GatewayRevocationResponse},
-    model::service::upload::UploadContext,
-};
 use candid::Principal;
+use ic_blob_storage_contracts::dto::gateway::GatewayRevocationFailure;
+use ic_blob_storage_contracts::dto::gateway::GatewayRevocationRequest;
+use ic_blob_storage_contracts::dto::gateway::GatewayRevocationResponse;
+use ic_blob_storage_contracts::upload::binding::UploadContext;
 use ic_memory::ic_stable_structures::Memory;
 
-/// Canonical explicit operator update. Linking exports no endpoint.
-pub const GATEWAY_REVOCATION_METHOD: &str = "blob_revoke_gateway";
 pub(crate) fn revoke<M: Memory>(
     store: &mut StableGatewayRegistry<M>,
     context: UploadContext,

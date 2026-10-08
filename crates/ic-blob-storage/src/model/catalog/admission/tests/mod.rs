@@ -1,10 +1,13 @@
 use super::*;
+use ic_blob_storage_contracts::upload::binding::UploadObject;
+use std::num::{NonZeroU128, NonZeroUsize};
 mod accounting;
-use crate::model::lifecycle::{
-    LifecyclePhase, ReferenceId,
-    binding::{ObjectIdentity, ReferenceKey},
-    requests::{ReferenceOperation, ReferenceRequestId},
-};
+use ic_blob_storage_contracts::binding::ObjectIdentity;
+use ic_blob_storage_contracts::binding::ReferenceId;
+use ic_blob_storage_contracts::binding::ReferenceKey;
+use ic_blob_storage_contracts::reference::binding::ReferenceOperation;
+use ic_blob_storage_contracts::reference::binding::ReferenceRequestId;
+use ic_blob_storage_contracts::upload::history::LifecyclePhase;
 
 fn n(value: u128) -> NonZeroU128 {
     NonZeroU128::new(value).expect("positive")

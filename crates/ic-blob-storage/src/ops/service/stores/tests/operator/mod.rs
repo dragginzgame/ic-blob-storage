@@ -1,10 +1,9 @@
 use super::*;
-use crate::{
-    dto::operator::{LocalStatusFailure, OperatorScope},
-    model::service::upload::UploadContext,
-    ops::service::operator::OperatorStores,
-    workflow::operator::inspect,
-};
+use crate::ops::service::operator::OperatorStores;
+use crate::workflow::operator::inspect;
+use ic_blob_storage_contracts::dto::operator::LocalStatusFailure;
+use ic_blob_storage_contracts::dto::operator::OperatorScope;
+use ic_blob_storage_contracts::upload::binding::UploadContext;
 fn context() -> UploadContext {
     let input = candidate();
     UploadContext {

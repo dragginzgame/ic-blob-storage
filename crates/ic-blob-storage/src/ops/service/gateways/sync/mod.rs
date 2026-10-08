@@ -1,25 +1,15 @@
 //! Operator scope conversion, exact cancellation and typed transport failures.
 use super::{GatewayScope, GatewayStoreError, GatewaySyncError, StableGatewayRegistry};
-use crate::{
-    dto::{
-        gateway::sync::{GatewaySyncCancellation, GatewaySyncFailure as Failure},
-        operator::OperatorScope,
-    },
-    model::service::upload::UploadContext,
-    ops::caffeine::{
-        gateway::GatewayReplyError,
-        query::{
-            reply::{BoundGatewayReplyError, QueryReplyBindingError},
-            transport::replicated::ReplicatedQueryError,
-        },
-    },
-};
+use crate::ops::caffeine::gateway::GatewayReplyError;
+use crate::ops::caffeine::query::reply::BoundGatewayReplyError;
+use crate::ops::caffeine::query::reply::QueryReplyBindingError;
+use crate::ops::caffeine::query::transport::replicated::ReplicatedQueryError;
+use ic_blob_storage_contracts::dto::gateway::sync::GatewaySyncCancellation;
+use ic_blob_storage_contracts::dto::gateway::sync::GatewaySyncFailure as Failure;
+use ic_blob_storage_contracts::dto::operator::OperatorScope;
+use ic_blob_storage_contracts::upload::binding::UploadContext;
 use ic_memory::ic_stable_structures::Memory;
 
-/// Explicit operator refresh update; linking exports no endpoint.
-pub const GATEWAY_SYNC_METHOD: &str = "blob_sync_gateways";
-/// Exact local read-only cancellation update; linking exports no endpoint.
-pub const GATEWAY_SYNC_CANCEL_METHOD: &str = "blob_cancel_gateway_sync";
 pub(crate) fn scope<M: Memory>(
     store: &StableGatewayRegistry<M>,
     input: OperatorScope,

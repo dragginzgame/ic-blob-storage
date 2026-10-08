@@ -1,14 +1,10 @@
 use super::*;
-use crate::{
-    dto::{
-        reference::ReferenceUpload,
-        upload::{
-            UploadState,
-            admission::{UploadAdmissionFailure as F, UploadAdmissionRequest},
-        },
-    },
-    workflow::uploads::admission::{inspect, revoke},
-};
+use crate::workflow::uploads::admission::inspect;
+use crate::workflow::uploads::admission::revoke;
+use ic_blob_storage_contracts::dto::reference::ReferenceUpload;
+use ic_blob_storage_contracts::dto::upload::UploadState;
+use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionFailure as F;
+use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionRequest;
 fn wire(p: UploadPermission) -> UploadAdmissionRequest {
     let object = p.request.object.first.object();
     let identity = object.identity();

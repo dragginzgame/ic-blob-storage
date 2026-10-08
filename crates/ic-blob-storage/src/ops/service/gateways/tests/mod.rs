@@ -1,9 +1,8 @@
 use super::*;
 mod revocation;
 mod sync;
-use crate::{
-    model::billing::configuration::BillingConfiguration, ops::service::tenant::tests::config,
-};
+use crate::ops::service::tenant::tests::config;
+use ic_blob_storage_contracts::configuration::billing::BillingConfiguration;
 use ic_memory::ic_stable_structures::{Storable, VectorMemory};
 use std::num::NonZeroU128;
 fn p(n: u8) -> Principal {
@@ -142,7 +141,7 @@ fn changed_gateway_bindings_and_extra_rows_reject_restore_without_repair() {
     let base = config();
     for changed in [
         ServiceConfiguration::new(
-            crate::model::service::configuration::ServiceBindings {
+            ic_blob_storage_contracts::configuration::service::ServiceBindings {
                 operator: p(9),
                 ..base.bindings()
             },

@@ -2,18 +2,17 @@
 use super::{Failure, Run};
 use crate::native::publish_inputs::FrozenFile;
 use candid::{CandidType, DecoderConfig, Deserialize, Principal, decode_one_with_config};
-use ic_blob_storage::dto::{
-    reference::ReferenceUpload,
-    tenant::TenantScope,
-    upload::{
-        capacity::{UploadCapacityFailure, UploadCapacityResponse},
-        discovery::{UploadDiscoveryFailure, UploadDiscoveryRequest, UploadDiscoveryResponse},
-        history::{UploadContentState, UploadHistoryEntry},
-    },
-};
-use ic_blob_storage::ops::service::uploads::{
-    capacity::UPLOAD_CAPACITY_METHOD, discovery::UPLOAD_DISCOVERY_METHOD,
-};
+use ic_blob_storage_contracts::dto::reference::ReferenceUpload;
+use ic_blob_storage_contracts::dto::tenant::TenantScope;
+use ic_blob_storage_contracts::dto::upload::capacity::UploadCapacityFailure;
+use ic_blob_storage_contracts::dto::upload::capacity::UploadCapacityResponse;
+use ic_blob_storage_contracts::dto::upload::discovery::UploadDiscoveryFailure;
+use ic_blob_storage_contracts::dto::upload::discovery::UploadDiscoveryRequest;
+use ic_blob_storage_contracts::dto::upload::discovery::UploadDiscoveryResponse;
+use ic_blob_storage_contracts::dto::upload::history::UploadContentState;
+use ic_blob_storage_contracts::dto::upload::history::UploadHistoryEntry;
+use ic_blob_storage_contracts::protocol::UPLOAD_CAPACITY_METHOD;
+use ic_blob_storage_contracts::protocol::UPLOAD_DISCOVERY_METHOD;
 use serde_json::{Value, json};
 use std::{collections::BTreeSet, future::Future};
 

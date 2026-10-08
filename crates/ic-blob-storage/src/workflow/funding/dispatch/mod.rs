@@ -1,19 +1,17 @@
 //! One guarded IC dispatch and durable settlement, with no exposed pending permit.
 use super::attempt::{FundingAttemptResult, inspect_attempt, mark_first_attempt};
-use crate::{
-    model::{billing::journal::FundingIntent, service::upload::UploadContext},
-    ops::{
-        caffeine::funding::{
-            TopUpReplyLimits,
-            transport::{CashierTopUpObservation, PreparedCashierTopUp, running_service},
-        },
-        service::funding::{FundingJournalError, access::FundingJournalAccess},
-    },
-    policy::billing::{
-        admission::attempt::{FundingAttemptAssessment, FundingAttemptEvidence},
-        liquidity::{FundingLiquidityDecision, assess_funding_liquidity},
-    },
-};
+use crate::model::billing::journal::FundingIntent;
+use crate::ops::caffeine::funding::TopUpReplyLimits;
+use crate::ops::caffeine::funding::transport::CashierTopUpObservation;
+use crate::ops::caffeine::funding::transport::PreparedCashierTopUp;
+use crate::ops::caffeine::funding::transport::running_service;
+use crate::ops::service::funding::FundingJournalError;
+use crate::ops::service::funding::access::FundingJournalAccess;
+use crate::policy::billing::admission::attempt::FundingAttemptAssessment;
+use crate::policy::billing::admission::attempt::FundingAttemptEvidence;
+use crate::policy::billing::liquidity::FundingLiquidityDecision;
+use crate::policy::billing::liquidity::assess_funding_liquidity;
+use ic_blob_storage_contracts::upload::binding::UploadContext;
 use std::num::NonZeroU128;
 
 /// Complete host holds, applied to actual platform liquidity after journal writes.

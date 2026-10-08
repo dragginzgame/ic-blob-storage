@@ -477,7 +477,7 @@ fn content_verification_binds_authority_to_exact_bytes_and_tenant() {
     let a = upload(1, b"abc");
     // Cross-check the test declaration against the retained independent JS vector.
     let vectors: serde_json::Value = serde_json::from_str(include_str!(
-        "../../../crates/ic-blob-storage/tests/fixtures/caffeine-hashing/vectors.json"
+        "../../../crates/ic-blob-storage-contracts/tests/fixtures/caffeine-hashing/vectors.json"
     ))
     .expect("independent vectors");
     let vector = vectors["vectors"]

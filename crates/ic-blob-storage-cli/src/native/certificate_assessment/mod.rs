@@ -1,14 +1,13 @@
 //! One authenticated read-only assessment; no certificate update or provider effect.
 use super::{Failure, arguments::Options, query, read, references::upload_json};
 use candid::Principal;
-use ic_blob_storage::{
-    dto::upload::{
-        admission::{UploadAdmissionFailure as A, UploadAdmissionRequest},
-        exposure::{UploadExposureBlocker as B, UploadExposureFailure as E},
-    },
-    ops::service::uploads::certificate::reply::{self, UploadCertificateAssessmentReplyError as R},
-    workflow::uploads::certificate::UPLOAD_CERTIFICATE_ASSESSMENT_METHOD,
-};
+use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionFailure as A;
+use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionRequest;
+use ic_blob_storage_contracts::dto::upload::exposure::UploadExposureBlocker as B;
+use ic_blob_storage_contracts::dto::upload::exposure::UploadExposureFailure as E;
+use ic_blob_storage_contracts::protocol::UPLOAD_CERTIFICATE_ASSESSMENT_METHOD;
+use ic_blob_storage_contracts::upload::certificate::reply;
+use ic_blob_storage_contracts::upload::certificate::reply::UploadCertificateAssessmentReplyError as R;
 use serde_json::{Value, json};
 use std::path::PathBuf;
 

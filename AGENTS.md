@@ -94,7 +94,7 @@ it does not override shared rules or depend on a mutable sibling checkout.
   in `crates/`, standalone and probe canisters in `canisters/`, and packaged test
   support in `tests/pocketic/` and `tests/protocol/`. The maintainer explicitly
   reversed the crates-only moves. Do not relocate these packages during routine
-  adoption; a future redesign requires separate explicit approval. All 11 members
+  adoption; a future redesign requires separate explicit approval. All 12 members
   still share one virtual root, lockfile and inherited versions/dependencies.
   Formatters and source/release inventories cover Cargo's complete member roster.
   Ordinary browser tests and frozen inputs remain under `tests/`.

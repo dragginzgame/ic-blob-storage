@@ -6,12 +6,9 @@
 
 pub mod audit;
 pub mod balance;
-pub mod download;
 pub mod funding;
 pub mod gateway;
 pub mod ledger;
-pub mod onboarding;
-pub mod preparation;
 pub mod query;
 pub mod relationship;
 pub mod upload;

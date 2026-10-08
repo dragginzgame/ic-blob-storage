@@ -1,12 +1,11 @@
 //! Late verified completion retains obligations; release and attestation replay stay separate.
 use super::*;
-use ic_blob_storage::dto::upload::{
-    admission::{UploadAdmissionFailure, UploadRevocationResponse},
-    completion::{
-        UploadAttestationFailure, UploadAttestationLookup, UploadAttestationMutation,
-        UploadAttestationResponse,
-    },
-};
+use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionFailure;
+use ic_blob_storage_contracts::dto::upload::admission::UploadRevocationResponse;
+use ic_blob_storage_contracts::dto::upload::completion::UploadAttestationFailure;
+use ic_blob_storage_contracts::dto::upload::completion::UploadAttestationLookup;
+use ic_blob_storage_contracts::dto::upload::completion::UploadAttestationMutation;
+use ic_blob_storage_contracts::dto::upload::completion::UploadAttestationResponse;
 use ic_testkit::pic::CandidCallExt;
 
 fn retained_bytes(trial: &Trial, logical: u128) {

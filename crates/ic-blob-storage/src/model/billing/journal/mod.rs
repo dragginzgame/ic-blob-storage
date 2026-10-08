@@ -108,5 +108,5 @@ pub enum FundingIntentError {
     OutcomeConflict,
     /// Exact refund arithmetic is invalid.
     #[error(transparent)]
-    Transfer(#[from] super::transfer::FundingTransferError),
+    Transfer(#[from] ic_blob_storage_contracts::funding::transfer::FundingTransferError),
 }

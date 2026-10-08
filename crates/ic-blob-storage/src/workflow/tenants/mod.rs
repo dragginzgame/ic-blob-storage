@@ -1,9 +1,11 @@
 //! Shared scoped enrollment handlers; hosts supply actual service and caller identities.
-use crate::{
-    dto::tenant::{TenantEnrollmentResponse, TenantFailure, TenantScope, TenantUpdateRequest},
-    model::service::upload::UploadContext,
-    ops::service::uploads::{StableUploads, tenants},
-};
+use crate::ops::service::uploads::StableUploads;
+use crate::ops::service::uploads::tenants;
+use ic_blob_storage_contracts::dto::tenant::TenantEnrollmentResponse;
+use ic_blob_storage_contracts::dto::tenant::TenantFailure;
+use ic_blob_storage_contracts::dto::tenant::TenantScope;
+use ic_blob_storage_contracts::dto::tenant::TenantUpdateRequest;
+use ic_blob_storage_contracts::upload::binding::UploadContext;
 use ic_memory::ic_stable_structures::Memory;
 
 /// Apply one exact operator precondition synchronously; suspension retains obligations.
@@ -17,7 +19,7 @@ pub fn update<M: Memory>(
     input: TenantUpdateRequest,
 ) -> Result<TenantEnrollmentResponse, TenantFailure> {
     tenants::authorize(store, context, input.scope, true)?;
-    let command = tenants::parse(input)?;
+    let command = ic_blob_storage_contracts::tenant::parse(input)?;
     let view = store
         .update_tenant(context, command)
         .map_err(tenants::failure)?;

@@ -125,7 +125,8 @@ pub enum BalanceReplyError {
 }
 
 mod wire {
-    use candid::{CandidType, Principal};
+    use candid::CandidType;
+    use candid::Principal;
     use serde::Deserialize;
 
     use super::super::wire::AccountCycleBalances;
@@ -151,10 +152,9 @@ mod tests {
     use candid::Int;
 
     use super::*;
-    use crate::ops::{
-        billing::balance::BalanceField,
-        caffeine::wire::{AccountCycleBalances, DebtTarget},
-    };
+    use crate::ops::billing::balance::BalanceField;
+    use crate::ops::caffeine::wire::AccountCycleBalances;
+    use crate::ops::caffeine::wire::DebtTarget;
 
     fn n(value: usize) -> NonZeroUsize {
         NonZeroUsize::new(value).expect("positive bound")

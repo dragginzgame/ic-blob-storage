@@ -1,17 +1,16 @@
 //! Maintained query shape over a controlled local source, not a deployed Cashier.
 use super::*;
 use blob_test_protocol::SourceMode;
-use ic_blob_storage::{
-    model::gateway::{
-        GatewayListError, GatewayListLimits,
-        membership::GatewayMembership,
-        registry::{GatewayRegistry, GatewayScope, GatewaySyncError},
-    },
-    ops::caffeine::{
-        gateway::{GatewayReplyError, GatewayReplyLimits},
-        query::{CashierQuery, CashierQueryRequest},
-    },
-};
+use ic_blob_storage::model::gateway::GatewayListError;
+use ic_blob_storage::model::gateway::membership::GatewayMembership;
+use ic_blob_storage::model::gateway::registry::GatewayRegistry;
+use ic_blob_storage::model::gateway::registry::GatewayScope;
+use ic_blob_storage::model::gateway::registry::GatewaySyncError;
+use ic_blob_storage::ops::caffeine::gateway::GatewayReplyError;
+use ic_blob_storage::ops::caffeine::gateway::GatewayReplyLimits;
+use ic_blob_storage::ops::caffeine::query::CashierQuery;
+use ic_blob_storage::ops::caffeine::query::CashierQueryRequest;
+use ic_blob_storage_contracts::configuration::limits::GatewayListLimits;
 use std::num::{NonZeroU128, NonZeroUsize};
 
 fn n(value: usize) -> NonZeroUsize {

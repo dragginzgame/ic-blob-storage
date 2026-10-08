@@ -4,13 +4,10 @@ use blob_test_protocol::funding::preview::{
     FundingPreviewView,
 };
 use candid::Principal;
-use ic_blob_storage::{
-    model::billing::transfer::FundingTransfer,
-    policy::billing::admission::{
-        FundingAdmissionBlocker,
-        evidence::{FundingAdmissionAssessment, FundingEvidenceBlocker},
-    },
-};
+use ic_blob_storage::policy::billing::admission::FundingAdmissionBlocker;
+use ic_blob_storage::policy::billing::admission::evidence::FundingAdmissionAssessment;
+use ic_blob_storage::policy::billing::admission::evidence::FundingEvidenceBlocker;
+use ic_blob_storage_contracts::funding::transfer::FundingTransfer;
 use std::num::NonZeroU128;
 
 pub(crate) struct FundingPreviewSnapshot {

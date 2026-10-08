@@ -3,7 +3,8 @@
 use candid::Principal;
 use thiserror::Error;
 
-use crate::model::{gateway::registry::GatewayRegistry, lifecycle::binding::ObjectBinding};
+use crate::model::gateway::registry::GatewayRegistry;
+use ic_blob_storage_contracts::binding::ObjectBinding;
 
 /// Actual execution context supplied by the authenticated endpoint adapter.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]

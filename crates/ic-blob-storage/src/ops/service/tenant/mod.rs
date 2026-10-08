@@ -4,15 +4,16 @@
 //! Hosts own memory grants and lifecycle. Reopening is always inspection-only;
 //! it cannot establish freshness after an older backup or qualify service recovery.
 
-use crate::model::service::{
-    configuration::ServiceConfiguration,
-    tenant::{
-        TenantEnrollmentView, TenantError, TenantUpdate, next_enrollment,
-        record::{TenantEnrollmentRecord, TenantStoreMetadataRecord, TenantStoreRecord},
-    },
-    upload::UploadContext,
-};
+use crate::model::service::tenant::record::TenantEnrollmentRecord;
+use crate::model::service::tenant::record::TenantStoreMetadataRecord;
+use crate::model::service::tenant::record::TenantStoreRecord;
 use candid::Principal;
+use ic_blob_storage_contracts::configuration::service::ServiceConfiguration;
+use ic_blob_storage_contracts::tenant::TenantEnrollmentView;
+use ic_blob_storage_contracts::tenant::TenantError;
+use ic_blob_storage_contracts::tenant::TenantUpdate;
+use ic_blob_storage_contracts::tenant::next_enrollment;
+use ic_blob_storage_contracts::upload::binding::UploadContext;
 use ic_memory::ic_stable_structures::{BTreeMap, Memory};
 use thiserror::Error;
 

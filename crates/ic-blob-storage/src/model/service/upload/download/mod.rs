@@ -1,8 +1,12 @@
 //! Passive descriptor recovery from the single tenant-owned admission journal.
 
+use super::UploadAdmissionError;
+use super::UploadAdmissions;
 use super::content::{ContentLookup, TenantContentView};
-use super::{UploadAdmissionError, UploadAdmissions, UploadContext, key};
-use crate::model::{identity::ProviderRootHash, lifecycle::binding::ReferenceKey};
+use super::key;
+use ic_blob_storage_contracts::binding::ReferenceKey;
+use ic_blob_storage_contracts::identity::ProviderRootHash;
+use ic_blob_storage_contracts::upload::binding::UploadContext;
 
 /// Original validated hash metadata; owning a copy grants no authority.
 ///

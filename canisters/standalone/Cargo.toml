@@ -11,6 +11,7 @@ crate-type = ["cdylib", "rlib"]
 [dependencies]
 candid.workspace = true
 ic-blob-storage.workspace = true
+ic-blob-storage-contracts.workspace = true
 ic-cdk.workspace = true
 
 [lints]

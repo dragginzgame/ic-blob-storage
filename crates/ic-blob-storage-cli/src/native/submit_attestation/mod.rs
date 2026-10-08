@@ -1,7 +1,5 @@
 //! Explicit one-shot submission of a complete, retained verifier observation.
 mod observation;
-#[cfg(test)]
-mod tests;
 use super::{
     Failure, agent,
     arguments::Options,
@@ -9,14 +7,17 @@ use super::{
     signed_update::{DEADLINE_SECONDS, PreparedUpdate, SMALL_REPLY_BYTES, UpdateInput},
 };
 use candid::Principal;
-use ic_blob_storage::{
-    dto::upload::{admission::UploadAdmissionRequest, completion::UploadAttestationMutation},
-    model::identity::ContentDigest,
-    ops::service::uploads::completion::{UPLOAD_ATTEST_METHOD, reply},
-};
+use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionRequest;
+use ic_blob_storage_contracts::dto::upload::completion::UploadAttestationMutation;
+use ic_blob_storage_contracts::identity::ContentDigest;
+use ic_blob_storage_contracts::protocol::UPLOAD_ATTEST_METHOD;
+use ic_blob_storage_contracts::upload::completion::reply;
 use serde::Serialize;
 use serde_json::Value;
 use std::{collections::BTreeMap, path::PathBuf};
+
+#[cfg(test)]
+mod tests;
 
 pub(super) struct Input {
     pub service: Principal,

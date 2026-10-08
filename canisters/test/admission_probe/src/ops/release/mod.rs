@@ -9,18 +9,19 @@ use blob_test_protocol::admission::{
     input::ReferenceInput,
     release::{LifecycleCommand, ReferenceFailure},
 };
-use ic_blob_storage::model::{
-    catalog::{CatalogError, admission::UploadRequest},
-    lifecycle::{
-        LifecycleChange, LifecycleError, ReferenceId,
-        binding::ReferenceKey,
-        requests::{
-            ReferenceOperation, ReferenceRequest, ReferenceRequestError, ReferenceRequestId,
-            ReferenceRequestOutcome,
-        },
-    },
-    service::upload::{UploadAdmissionError, UploadContext},
-};
+use ic_blob_storage::model::catalog::CatalogError;
+use ic_blob_storage::model::lifecycle::LifecycleChange;
+use ic_blob_storage::model::lifecycle::LifecycleError;
+use ic_blob_storage::model::lifecycle::requests::ReferenceRequestError;
+use ic_blob_storage::model::lifecycle::requests::ReferenceRequestOutcome;
+use ic_blob_storage::model::service::upload::UploadAdmissionError;
+use ic_blob_storage_contracts::binding::ReferenceId;
+use ic_blob_storage_contracts::binding::ReferenceKey;
+use ic_blob_storage_contracts::reference::binding::ReferenceOperation;
+use ic_blob_storage_contracts::reference::binding::ReferenceRequest;
+use ic_blob_storage_contracts::reference::binding::ReferenceRequestId;
+use ic_blob_storage_contracts::upload::binding::UploadContext;
+use ic_blob_storage_contracts::upload::binding::UploadRequest;
 use std::num::NonZeroU128;
 
 pub(crate) fn execute(
@@ -148,10 +149,10 @@ const fn lifecycle_error(error: LifecycleError) -> ReferenceFailure {
 
 pub(crate) fn capacity(
     context: UploadContext,
-    input: ic_blob_storage::dto::reference::capacity::ReferenceCapacityRequest,
+    input: ic_blob_storage_contracts::dto::reference::capacity::ReferenceCapacityRequest,
 ) -> Result<
-    ic_blob_storage::dto::reference::capacity::ReferenceCapacityResponse,
-    ic_blob_storage::dto::reference::capacity::ReferenceCapacityFailure,
+    ic_blob_storage_contracts::dto::reference::capacity::ReferenceCapacityResponse,
+    ic_blob_storage_contracts::dto::reference::capacity::ReferenceCapacityFailure,
 > {
     STATE.with_borrow(|state| {
         ic_blob_storage::workflow::references::capacity::inspect(

@@ -1,8 +1,7 @@
 use super::*;
-use ic_blob_storage::dto::{
-    reference::ReferenceUpload,
-    upload::{admission::UploadAdmissionRequest, completion::*},
-};
+use ic_blob_storage_contracts::dto::reference::ReferenceUpload;
+use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionRequest;
+use ic_blob_storage_contracts::dto::upload::completion::*;
 
 fn statement() -> UploadAttestationRequest {
     UploadAttestationRequest {

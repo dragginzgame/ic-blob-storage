@@ -2,7 +2,7 @@
 use super::{BalanceJournalRecord, ScopeRecord};
 use blob_test_protocol::balance::BalanceFailure;
 use candid::CandidType;
-use ic_blob_storage::model::billing::FundingLimits;
+use ic_blob_storage_contracts::configuration::funding::FundingLimits;
 use serde::Deserialize;
 
 // Required wrapper: a missing record cannot default an older schema to no limits.

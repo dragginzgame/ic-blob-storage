@@ -134,7 +134,7 @@ fn retained_history_is_bounded_and_invalid_records_reject() {
 
 #[test]
 fn limits_remain_bound_to_their_original_revision_and_reject_invalid_restore() {
-    use ic_blob_storage::model::billing::FundingLimits;
+    use ic_blob_storage_contracts::configuration::funding::FundingLimits;
     let scope = scope();
     let mut journal = BalanceJournalRecord::new();
     journal.configure(scope).unwrap();

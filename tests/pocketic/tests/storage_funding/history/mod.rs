@@ -1,13 +1,12 @@
 use super::*;
 mod cli;
-use ic_blob_storage::dto::{
-    funding::{
-        FundingHistoryCursor as Cursor, FundingHistoryEntry as Entry,
-        FundingHistoryFailure as HistoryFailure, FundingHistoryPage as Page,
-        FundingHistoryRequest as Input, FundingPhase,
-    },
-    operator::OperatorScope as Scope,
-};
+use ic_blob_storage_contracts::dto::funding::FundingHistoryCursor as Cursor;
+use ic_blob_storage_contracts::dto::funding::FundingHistoryEntry as Entry;
+use ic_blob_storage_contracts::dto::funding::FundingHistoryFailure as HistoryFailure;
+use ic_blob_storage_contracts::dto::funding::FundingHistoryPage as Page;
+use ic_blob_storage_contracts::dto::funding::FundingHistoryRequest as Input;
+use ic_blob_storage_contracts::dto::funding::FundingPhase;
+use ic_blob_storage_contracts::dto::operator::OperatorScope as Scope;
 
 impl Fixture {
     fn funding_history(&self, actor: Principal, input: Input) -> Result<Page, HistoryFailure> {

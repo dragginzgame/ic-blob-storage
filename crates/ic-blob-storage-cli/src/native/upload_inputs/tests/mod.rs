@@ -1,7 +1,8 @@
 use super::*;
 mod installation;
-use ic_blob_storage::dto::configuration::{ServiceConfigurationInput, ServiceInstallationInput};
-use ic_blob_storage::dto::upload::manifest::UploadManifestRequest;
+use ic_blob_storage_contracts::dto::configuration::ServiceConfigurationInput;
+use ic_blob_storage_contracts::dto::configuration::ServiceInstallationInput;
+use ic_blob_storage_contracts::dto::upload::manifest::UploadManifestRequest;
 
 // Independent Caffeine 1.1.2 abc/text vector, also used by the core preparation tests.
 const ROOT: &str = "sha256:0e9afaf413b048e40834d5b0e737d80fbf304af2045c7564d96ad8aebaf74dfd";
@@ -94,12 +95,12 @@ fn offline_command_emits_exact_full_width_service_requests_without_network_confi
     assert_eq!(permission.upload.upload, u128::MAX);
     assert_eq!(permission.expires_at_ns, u64::MAX);
     assert_ne!(permission.upload.tenant, permission.uploader);
-    let status: ic_blob_storage::dto::reference::status::ReferenceStatusRequest =
+    let status: ic_blob_storage_contracts::dto::reference::status::ReferenceStatusRequest =
         candid::decode_one(&std::fs::read(output.join("reference-status.candid")).unwrap())
             .unwrap();
     assert_eq!(status.upload, permission.upload);
     assert_eq!(status.reference, permission.upload.first_reference);
-    let download: ic_blob_storage::dto::download::DownloadRequest =
+    let download: ic_blob_storage_contracts::dto::download::DownloadRequest =
         candid::decode_one(&std::fs::read(output.join("download.candid")).unwrap()).unwrap();
     assert_eq!(download.reference, permission.upload.first_reference);
     assert_eq!(download.object, permission.upload.object);

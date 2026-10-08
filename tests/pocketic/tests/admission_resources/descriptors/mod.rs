@@ -1,9 +1,9 @@
 //! Maximal retained metadata under the existing lifetime object envelope.
 use super::*;
 use blob_test_protocol::admission::{ContentDescriptor, ContentLookup, ContentState};
-use ic_blob_storage::model::identity::caffeine::{
-    CaffeineContentHasher, CaffeineHashLimits, CaffeineHeader,
-};
+use ic_blob_storage_contracts::identity::caffeine::CaffeineContentHasher;
+use ic_blob_storage_contracts::identity::caffeine::CaffeineHashLimits;
+use ic_blob_storage_contracts::identity::caffeine::CaffeineHeader;
 use std::num::{NonZeroU64, NonZeroUsize};
 
 fn wide(f: &Fixture, id: u8, tenant: Principal) -> (Permission, JourneyManifest) {

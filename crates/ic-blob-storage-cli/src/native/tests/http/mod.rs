@@ -1,13 +1,15 @@
 //! Transport backpressure never causes automatic native query or update resubmission.
 use super::{Failure, change, execute, options};
 use ic_agent::{Identity, identity::BasicIdentity};
-use std::{
-    io::{self, BufRead, BufReader, Read, Write},
-    net::TcpListener,
-    sync::mpsc,
-    thread,
-    time::Duration,
-};
+use std::io;
+use std::io::BufRead;
+use std::io::BufReader;
+use std::io::Read;
+use std::io::Write;
+use std::net::TcpListener;
+use std::sync::mpsc;
+use std::thread;
+use std::time::Duration;
 
 const MAX_HEADERS: u64 = 16 * 1024;
 const MAX_BODY: u64 = 256 * 1024;

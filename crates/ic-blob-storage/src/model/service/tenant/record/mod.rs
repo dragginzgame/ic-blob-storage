@@ -1,7 +1,7 @@
 //! Bounded v1 enrollment records; independent of host memory IDs.
-use super::TenantEnrollmentView;
-use crate::model::service::configuration::ServiceConfiguration;
 use candid::{CandidType, Deserialize, Principal, de::DecoderConfig, decode_one_with_config};
+use ic_blob_storage_contracts::configuration::service::ServiceConfiguration;
+use ic_blob_storage_contracts::tenant::TenantEnrollmentView;
 use ic_memory::ic_stable_structures::{Storable, storable::Bound};
 use std::{borrow::Cow, num::NonZeroU64};
 

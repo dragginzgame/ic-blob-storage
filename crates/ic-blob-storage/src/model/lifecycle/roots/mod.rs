@@ -14,9 +14,10 @@ use std::{
 use candid::Principal;
 use thiserror::Error;
 
-use crate::model::identity::ProviderRootHash;
+use ic_blob_storage_contracts::identity::ProviderRootHash;
 
-use super::binding::{ObjectBinding, ObjectBindingError};
+use ic_blob_storage_contracts::binding::ObjectBinding;
+use ic_blob_storage_contracts::binding::ObjectBindingError;
 
 pub(crate) mod record;
 
@@ -185,7 +186,7 @@ mod tests {
     use std::num::NonZeroU128;
 
     use super::*;
-    use crate::model::lifecycle::binding::ObjectIdentity;
+    use ic_blob_storage_contracts::binding::ObjectIdentity;
 
     fn principal(id: u8) -> Principal {
         Principal::from_slice(&[id, 1])

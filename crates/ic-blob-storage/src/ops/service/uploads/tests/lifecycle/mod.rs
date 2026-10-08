@@ -1,11 +1,12 @@
 use super::*;
-use crate::model::lifecycle::{
-    LifecycleError, LifecyclePhase, ReferenceState,
-    requests::{
-        ReferenceOperation, ReferenceRequest, ReferenceRequestError, ReferenceRequestId,
-        ReferenceRequestOutcome,
-    },
-};
+use crate::model::lifecycle::LifecycleError;
+use crate::model::lifecycle::ReferenceState;
+use crate::model::lifecycle::requests::ReferenceRequestError;
+use crate::model::lifecycle::requests::ReferenceRequestOutcome;
+use ic_blob_storage_contracts::reference::binding::ReferenceOperation;
+use ic_blob_storage_contracts::reference::binding::ReferenceRequest;
+use ic_blob_storage_contracts::reference::binding::ReferenceRequestId;
+use ic_blob_storage_contracts::upload::history::LifecyclePhase;
 fn command(upload: UploadRequest, id: u128, reference: u128, retain: bool) -> ReferenceRequest {
     let key = ReferenceKey::new(
         upload.object.first.object(),

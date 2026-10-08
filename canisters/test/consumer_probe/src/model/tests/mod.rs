@@ -1,7 +1,7 @@
 use super::*;
-use ic_blob_storage::dto::reference::{
-    ReferenceChange, ReferenceTransitionFailure, ReferenceUpload,
-};
+use ic_blob_storage_contracts::dto::reference::ReferenceChange;
+use ic_blob_storage_contracts::dto::reference::ReferenceTransitionFailure;
+use ic_blob_storage_contracts::dto::reference::ReferenceUpload;
 fn fixture() -> (ConsumerRecord, Registration) {
     let service = Principal::from_slice(&[1, 1]);
     let tenant = Principal::from_slice(&[2, 1]);
@@ -110,10 +110,11 @@ fn retained(intent: &Registration) -> ReferenceCommand {
 
 #[test]
 fn first_reference_reservation_and_newer_completion_survive_conflicting_observations() {
-    use ic_blob_storage::dto::upload::{UploadState, UploadStatusResponse};
+    use ic_blob_storage_contracts::dto::upload::UploadState;
+    use ic_blob_storage_contracts::dto::upload::UploadStatusResponse;
     let (mut record, mut intent) = fixture();
     let upload = retained(&intent).upload;
-    let permission = ic_blob_storage::dto::upload::admission::UploadAdmissionRequest {
+    let permission = ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionRequest {
         upload,
         uploader: Principal::from_slice(&[4, 1]),
         expires_at_ns: 100,
@@ -134,7 +135,7 @@ fn first_reference_reservation_and_newer_completion_survive_conflicting_observat
         .acknowledge_admission(
             1,
             Ok(
-                ic_blob_storage::dto::upload::admission::UploadAdmissionResponse {
+                ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionResponse {
                     permission,
                     state: UploadState::Confirmed,
                     revoked: false,

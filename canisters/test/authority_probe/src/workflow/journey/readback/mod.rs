@@ -17,7 +17,7 @@ pub(crate) fn arm_callback_trap(context: TenantAccessContext, root: &[u8]) -> bo
     if !super::super::is_operator(context) {
         return false;
     }
-    let Ok(root) = ic_blob_storage::model::identity::ProviderRootHash::try_from(root) else {
+    let Ok(root) = ic_blob_storage_contracts::identity::ProviderRootHash::try_from(root) else {
         return false;
     };
     ops::journey::readback::arm_callback_trap(root)

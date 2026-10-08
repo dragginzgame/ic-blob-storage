@@ -1,30 +1,22 @@
 //! Authenticate exact verifier statements and commit them with upload accounting.
-pub mod reply;
 pub mod verification;
 use super::{StableUploads, admission};
-use crate::{
-    dto::upload::{
-        admission::{UploadAdmissionFailure, UploadAdmissionRequest},
-        completion::{
-            UploadAttestationFailure, UploadAttestationLookup, UploadAttestationMutation,
-            UploadAttestationReceipt, UploadAttestationRequest, UploadAttestationResponse,
-        },
-    },
-    model::{
-        catalog::admission::UploadPhase,
-        service::upload::{
-            UploadContext, UploadPermissionView,
-            completion::CompletionAuthority,
-            record::lifecycle::{AttestationRecord, CompletionRecord},
-        },
-    },
-    policy::upload::completion::may_attest,
-};
+use crate::model::catalog::admission::UploadPhase;
+use crate::model::service::upload::UploadPermissionView;
+use crate::model::service::upload::record::lifecycle::AttestationRecord;
+use crate::model::service::upload::record::lifecycle::CompletionRecord;
+use crate::policy::upload::completion::may_attest;
+use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionFailure;
+use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionRequest;
+use ic_blob_storage_contracts::dto::upload::completion::UploadAttestationFailure;
+use ic_blob_storage_contracts::dto::upload::completion::UploadAttestationLookup;
+use ic_blob_storage_contracts::dto::upload::completion::UploadAttestationMutation;
+use ic_blob_storage_contracts::dto::upload::completion::UploadAttestationReceipt;
+use ic_blob_storage_contracts::dto::upload::completion::UploadAttestationRequest;
+use ic_blob_storage_contracts::dto::upload::completion::UploadAttestationResponse;
+use ic_blob_storage_contracts::upload::binding::UploadContext;
+use ic_blob_storage_contracts::upload::completion::CompletionAuthority;
 use ic_memory::ic_stable_structures::Memory;
-/// Canonical verifier update; linking the library exports no endpoint.
-pub const UPLOAD_ATTEST_METHOD: &str = "blob_attest_upload";
-/// Canonical historical receipt query; absence never authorizes a new upload.
-pub const UPLOAD_ATTESTATION_METHOD: &str = "blob_upload_attestation";
 
 fn exact<M: Memory>(
     store: &StableUploads<M>,
@@ -41,8 +33,9 @@ fn exact<M: Memory>(
             UploadAdmissionFailure::Binding,
         ));
     }
-    let permission = admission::parse_binding(context.service, input)
-        .map_err(UploadAttestationFailure::Permission)?;
+    let permission =
+        ic_blob_storage_contracts::upload::admission::parse_binding(context.service, input)
+            .map_err(UploadAttestationFailure::Permission)?;
     super::validation::object(
         &store.config,
         context,
@@ -161,18 +154,16 @@ pub(crate) fn attest<M: Memory>(
     })
 }
 
-/// Canonical verifier-only historical manifest query; no fetch or attestation is implied.
-pub const UPLOAD_VERIFICATION_MANIFEST_METHOD: &str = "blob_verification_manifest";
 pub(crate) fn manifest<M: Memory>(
     store: &StableUploads<M>,
     authority: CompletionAuthority,
     context: UploadContext,
     input: UploadAdmissionRequest,
 ) -> Result<
-    crate::dto::upload::manifest::UploadManifestResponse,
-    crate::dto::upload::manifest::UploadManifestFailure,
+    ic_blob_storage_contracts::dto::upload::manifest::UploadManifestResponse,
+    ic_blob_storage_contracts::dto::upload::manifest::UploadManifestFailure,
 > {
-    use crate::dto::upload::manifest::UploadManifestFailure;
+    use ic_blob_storage_contracts::dto::upload::manifest::UploadManifestFailure;
     if !may_attest(authority, context) {
         return Err(UploadManifestFailure::Permission(
             UploadAdmissionFailure::Denied,

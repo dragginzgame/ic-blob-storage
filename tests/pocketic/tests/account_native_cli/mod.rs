@@ -2,10 +2,9 @@
 use crate::authenticated_cli::{PEM, arguments, run};
 use candid::Principal;
 use ic_agent::{Identity, identity::BasicIdentity};
-use ic_blob_storage::dto::{
-    account::{AccountInspectionKind as Kind, AccountInspectionRequest},
-    operator::OperatorScope,
-};
+use ic_blob_storage_contracts::dto::account::AccountInspectionKind as Kind;
+use ic_blob_storage_contracts::dto::account::AccountInspectionRequest;
+use ic_blob_storage_contracts::dto::operator::OperatorScope;
 use serde_json::{Value, json};
 use std::{cell::Cell, path::PathBuf};
 

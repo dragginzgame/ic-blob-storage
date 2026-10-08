@@ -1,10 +1,10 @@
 //! Fixed synthetic credit acquisition for a local qualification fixture only.
 use super::{Failure, TRAP_WRITE, admission::with_journal_mut, intent};
 use blob_test_protocol::storage::funding::CreditCommand;
-use ic_blob_storage::{
-    model::{billing::journal::credit::FundingCreditConfirmation, service::upload::UploadContext},
-    workflow::funding::credit::{FundingCreditResult, confirm},
-};
+use ic_blob_storage::model::billing::journal::credit::FundingCreditConfirmation;
+use ic_blob_storage::workflow::funding::credit::FundingCreditResult;
+use ic_blob_storage::workflow::funding::credit::confirm;
+use ic_blob_storage_contracts::upload::binding::UploadContext;
 use std::num::NonZeroU128;
 
 pub(crate) fn run(execution: UploadContext, input: CreditCommand) -> Result<Option<bool>, Failure> {

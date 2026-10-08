@@ -321,7 +321,6 @@ fn interrupted_read_admission_rolls_back_all_counters_and_sends_nothing() {
     reason = "One restore preserves four owners and checks their shared operator snapshot"
 )]
 fn upgrade_preserves_upload_funding_gateway_and_interrupted_read_obligations() {
-    use blob_test_protocol::storage::WriteFault;
     use blob_test_protocol::storage::funding::{Action as FundingAction, Allocation};
     let f = Fixture::with_gateway_source();
     let input = f.read_input();

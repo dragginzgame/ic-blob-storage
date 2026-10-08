@@ -1,6 +1,7 @@
 //! Actual snapshot loads bypass lifecycle hooks but cannot regain operational authority.
 use super::*;
-use ic_blob_storage::dto::upload::{UploadState, UploadStatusFailure};
+use ic_blob_storage_contracts::dto::upload::UploadState;
+use ic_blob_storage_contracts::dto::upload::UploadStatusFailure;
 
 fn admit(f: &Fixture, permission: UploadAdmissionRequest) {
     f.harness
@@ -29,11 +30,11 @@ fn standalone_snapshot_rollback_stays_fenced_and_refuses_current_instance_recove
     let prepared = snapshots::take(pic, f.service, f.controller);
     f.resume(f.operator).unwrap();
     let root = super::standalone_certificate::root(&manifest);
-    let _: ic_blob_storage::dto::upload::certificate::CaffeineUploadCertificateResponse = pic
-        .update_candid_as(
+    let _: ic_blob_storage_contracts::dto::upload::certificate::CaffeineUploadCertificateResponse =
+        pic.update_candid_as(
             f.service,
             f.uploader,
-            ic_blob_storage::workflow::uploads::certificate::CAFFEINE_UPLOAD_CERTIFICATE_METHOD,
+            ic_blob_storage_contracts::protocol::CAFFEINE_UPLOAD_CERTIFICATE_METHOD,
             (root.clone(),),
         )
         .unwrap();
@@ -59,7 +60,7 @@ fn standalone_snapshot_rollback_stays_fenced_and_refuses_current_instance_recove
     assert_eq!(
         super::standalone_certificate::inspect(&f, f.uploader, &root),
         Err(
-            ic_blob_storage::dto::upload::exposure::UploadExposureFailure::Permission(
+            ic_blob_storage_contracts::dto::upload::exposure::UploadExposureFailure::Permission(
                 UploadAdmissionFailure::Fenced
             )
         )
@@ -67,7 +68,7 @@ fn standalone_snapshot_rollback_stays_fenced_and_refuses_current_instance_recove
     let before = pic.get_stable_memory(f.service);
     assert_eq!(
         f.resume(f.operator),
-        Err(ic_blob_storage::dto::recovery::CurrentInstanceRecoveryFailure::SnapshotRestored)
+        Err(ic_blob_storage_contracts::dto::recovery::CurrentInstanceRecoveryFailure::SnapshotRestored)
     );
     unchanged(&pic.get_stable_memory(f.service), &before);
 
@@ -95,7 +96,7 @@ fn standalone_snapshot_rollback_stays_fenced_and_refuses_current_instance_recove
     );
     assert_eq!(
         f.resume(f.operator),
-        Err(ic_blob_storage::dto::recovery::CurrentInstanceRecoveryFailure::SnapshotRestored)
+        Err(ic_blob_storage_contracts::dto::recovery::CurrentInstanceRecoveryFailure::SnapshotRestored)
     );
     snapshots::delete(pic, f.service, f.controller, prepared);
     snapshots::delete(pic, f.service, f.controller, empty);

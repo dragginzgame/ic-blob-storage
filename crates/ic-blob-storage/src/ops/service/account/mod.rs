@@ -1,30 +1,28 @@
 //! Account observation composition reuses maintained requests and decoders.
-use crate::{
-    dto::{
-        account::{
-            AccountInspectionFailure, AccountInspectionKind, AccountInspectionRequest,
-            AccountObservation, AccountRelationshipView,
-        },
-        funding::outcome::FundingReportedBalance,
-    },
-    model::service::upload::UploadContext,
-    ops::{
-        caffeine::{
-            balance::{BalanceProviderError, BalanceReply, BalanceReplyError, BalanceReplyLimits},
-            query::{
-                CashierQuery, CashierQueryRequest,
-                reply::{BoundBalanceReplyError, BoundRelationshipReplyError},
-                transport::{CashierQueryResponse, replicated::ReplicatedQueryError},
-            },
-            relationship::{
-                PaymentRelationshipBinding, PaymentRelationshipProviderError,
-                PaymentRelationshipReply, PaymentRelationshipReplyError,
-                PaymentRelationshipReplyLimits,
-            },
-        },
-        service::operator::{self, OperatorStores},
-    },
-};
+use crate::ops::caffeine::balance::BalanceProviderError;
+use crate::ops::caffeine::balance::BalanceReply;
+use crate::ops::caffeine::balance::BalanceReplyError;
+use crate::ops::caffeine::balance::BalanceReplyLimits;
+use crate::ops::caffeine::query::CashierQuery;
+use crate::ops::caffeine::query::CashierQueryRequest;
+use crate::ops::caffeine::query::reply::BoundBalanceReplyError;
+use crate::ops::caffeine::query::reply::BoundRelationshipReplyError;
+use crate::ops::caffeine::query::transport::CashierQueryResponse;
+use crate::ops::caffeine::query::transport::replicated::ReplicatedQueryError;
+use crate::ops::caffeine::relationship::PaymentRelationshipBinding;
+use crate::ops::caffeine::relationship::PaymentRelationshipProviderError;
+use crate::ops::caffeine::relationship::PaymentRelationshipReply;
+use crate::ops::caffeine::relationship::PaymentRelationshipReplyError;
+use crate::ops::caffeine::relationship::PaymentRelationshipReplyLimits;
+use crate::ops::service::operator;
+use crate::ops::service::operator::OperatorStores;
+use ic_blob_storage_contracts::dto::account::AccountInspectionFailure;
+use ic_blob_storage_contracts::dto::account::AccountInspectionKind;
+use ic_blob_storage_contracts::dto::account::AccountInspectionRequest;
+use ic_blob_storage_contracts::dto::account::AccountObservation;
+use ic_blob_storage_contracts::dto::account::AccountRelationshipView;
+use ic_blob_storage_contracts::dto::funding::outcome::FundingReportedBalance;
+use ic_blob_storage_contracts::upload::binding::UploadContext;
 use ic_memory::ic_stable_structures::Memory;
 use std::num::NonZeroUsize;
 
@@ -54,7 +52,7 @@ pub(crate) fn check<M: Memory>(
     context: UploadContext,
     input: AccountInspectionRequest,
 ) -> Result<(), AccountInspectionFailure> {
-    use crate::dto::operator::LocalStatusFailure;
+    use ic_blob_storage_contracts::dto::operator::LocalStatusFailure;
     let status = operator::inspect(stores, context, input.scope).map_err(|e| match e {
         LocalStatusFailure::Denied => AccountInspectionFailure::Denied,
         LocalStatusFailure::Binding => AccountInspectionFailure::Binding,

@@ -72,6 +72,9 @@ members = []
 version = "0.1.0"
 edition = "2024"
 publish = ["crates-io"]
+
+[workspace.dependencies]
+ic-blob-storage-contracts = { path = "crates/ic-blob-storage-contracts", version = "0.1.0" }
 TOML
     cat > Cargo.lock <<'LOCK'
 version = 4
@@ -80,8 +83,13 @@ version = 4
 name = "ic-blob-storage"
 version = "0.1.0"
 dependencies = [
+ "ic-blob-storage-contracts 0.1.0",
  "external 0.1.0",
 ]
+
+[[package]]
+name = "ic-blob-storage-contracts"
+version = "0.1.0"
 
 [[package]]
 name = "external"
@@ -92,6 +100,7 @@ LOCK
     printf '# Changelog\n\n## [0.1.1]\n\n- Test notes.\n\n## [0.1.0]\n\n- Imported undated history.\n' > CHANGELOG.md
     : > "$TEST_LOG"; : > "$TEST_EFFECTS"
     echo retained > target/debug/cache-sentinel
+    export PUBLISH_PACKAGE=ic-blob-storage
     unset TEST_DIRTY TEST_GATE_FAIL TEST_GATE_DIRTY TEST_METADATA_FAIL TEST_PREPARE_FAIL TEST_INDEX_EXTRA TEST_PUSH_FAIL TEST_FETCH_FAIL TEST_SNAPSHOT_FAIL TEST_TAG_TYPE
     unset TEST_GIT_FAIL_CALL TEST_DATA_FAIL_COMMAND
     unset TEST_FINALIZER_FAIL
@@ -223,14 +232,14 @@ case "$*" in
     'metadata --offline --locked --no-deps --format-version 1')
         [[ "${TEST_METADATA_FAIL:-0}" != 1 ]] || exit 1
         current="$(perl scripts/release/release-data.pl version)"
-        printf '{"workspace_members":["local"],"packages":[{"id":"local","name":"ic-blob-storage","version":"%s","source":null}]}\n' "$current" ;;
+        printf '{"workspace_members":["local","contracts"],"packages":[{"id":"local","name":"ic-blob-storage","version":"%s","source":null},{"id":"contracts","name":"ic-blob-storage-contracts","version":"%s","source":null}]}\n' "$current" "$current" ;;
     'sort --version') [[ "${TEST_SORT_FAIL:-0}" != 1 ]] || exit 1; echo "cargo-sort ${TEST_SORT_VERSION:-2.1.4}" ;;
     'fmt --version') echo rustfmt; [[ "${TEST_FMT_FAIL:-0}" != 1 ]] ;;
     'sort --workspace --check') [[ "${TEST_PREPARE_FAIL:-0}" != 1 ]] ;;
     'fmt --all -- --check') ;;
     'fetch --locked') echo fetch >> "$TEST_EFFECTS"; [[ "${TEST_FETCH_FAIL:-0}" != 1 ]] || exit 1; touch target/mock-cargo-cache ;;
     'check --offline --locked --workspace --all-targets --all-features') [[ -f target/mock-cargo-cache ]] || exit 1; echo check >> "$TEST_EFFECTS" ;;
-    'publish --locked --registry crates-io -p ic-blob-storage'|'publish --locked --registry crates-io -p ic-blob-storage --dry-run') echo publish >> "$TEST_EFFECTS" ;;
+    'publish --locked --registry crates-io -p ic-blob-storage'|'publish --locked --registry crates-io -p ic-blob-storage --dry-run'|'publish --locked --registry crates-io -p ic-blob-storage-contracts'|'publish --locked --registry crates-io -p ic-blob-storage-contracts --dry-run') echo publish >> "$TEST_EFFECTS" ;;
     *) echo "unsupported Cargo substitute: $*" >&2; exit 97 ;;
 esac
 MOCK
@@ -407,6 +416,8 @@ test_release() {
     perl scripts/release/release-data.pl verify
     [[ "$(cat "$TEST_EFFECTS")" == $'validate\nstage\ncommit\ntag\npush' ]] || exit 1
     [[ "$(tail -n 1 "target/release-state/$expected.plan")" == complete ]] || exit 1
+    rg -q '^ic-blob-storage-contracts = \{ path = "crates/ic-blob-storage-contracts", version = "0.1.1" \}$' Cargo.toml
+    rg -q '^ "ic-blob-storage-contracts 0.1.1",$' Cargo.lock
     # External package selection and initial imported history are unchanged.
     sed -n '/^name = "external"/,$p' Cargo.lock > target/external
     printf 'name = "external"\nversion = "0.1.0"\nsource = "registry+https://github.com/rust-lang/crates.io-index"\nchecksum = "unchanged-external-checksum"\n' > target/expected
@@ -475,6 +486,7 @@ test_preparation() {
     assert_cache_retained
 }
 test_publish() {
+    export PUBLISH_PACKAGE="${2:-ic-blob-storage}"
     prepare_tagged_release
     if [[ "$1" == dry-run ]]; then "$TEST_REAL_MAKE" --no-print-directory publish-dry-run;
     else "$TEST_REAL_MAKE" --no-print-directory publish; fi
@@ -619,6 +631,47 @@ test_recovery_integration() {
     cmp target/older-tag target/tags/v0.2.0.sha
     assert_cache_retained
 }
+test_local_catalog_refusal() {
+    local shape="$1"
+    cargo metadata --offline --locked --no-deps --format-version 1 > target/catalog-metadata.json
+    if [[ "$shape" == stale ]]; then
+        perl -pi -e 's/version = "0.1.0" \}/version = "0.9.0" }/' Cargo.toml
+    else
+        printf '\nforeign-package = { path = "foreign", version = "0.1.0" }\n' >> Cargo.toml
+    fi
+    cp Cargo.toml target/catalog-before.toml
+    cp Cargo.lock target/catalog-before.lock
+    expect_failure perl scripts/release/release-data.pl set-version 0.1.1 target/catalog-metadata.json
+    cmp target/catalog-before.toml Cargo.toml
+    cmp target/catalog-before.lock Cargo.lock
+    [[ ! -s "$TEST_EFFECTS" ]] || exit 1
+}
+
+test_missing_publish_selection() {
+    prepare_tagged_release
+    unset PUBLISH_PACKAGE
+    expect_failure "$TEST_REAL_MAKE" --no-print-directory publish
+    [[ ! -s "$TEST_EFFECTS" ]] || exit 1
+}
+
+test_package_lock_selection() {
+    local shape="$1"
+    perl -pi -e 's/unchanged-external-checksum/"a" x 64/e' Cargo.lock
+    cp Cargo.lock target/package-candidate.lock
+    case "$shape" in
+        valid) ;;
+        checksum) perl -pi -e 's/a{64}/"b" x 64/e' target/package-candidate.lock ;;
+        version) perl -0777 -pi -e 's/(name = "external"\nversion = ")0\.1\.0/${1}0.1.1/' target/package-candidate.lock ;;
+        source) perl -pi -e 's!registry\+https://github.com/rust-lang/crates.io-index!git+https://example.invalid/source#abc!' target/package-candidate.lock ;;
+    esac
+    if [[ "$shape" == valid ]]; then
+        perl scripts/release/release-data.pl package-lock-check Cargo.lock target/package-candidate.lock
+    else
+        expect_failure perl scripts/release/release-data.pl package-lock-check Cargo.lock target/package-candidate.lock
+    fi
+    [[ ! -s "$TEST_EFFECTS" ]] || exit 1
+}
+
 run_case bootstrap-success test_dependency_bootstrap success
 run_case bootstrap-snapshot test_dependency_bootstrap snapshot
 run_case bootstrap-tools test_dependency_bootstrap tools
@@ -632,12 +685,17 @@ for shape in duplicate historical-duplicate competing; do run_case "notes-$shape
 for shape in empty missing; do run_case "notes-$shape" test_changelog_content "$shape"; done
 run_case notes-saved-intent test_changelog_intent
 for phase in preflight after-bump; do run_case "finalizer-$phase" test_finalizer_failure "$phase"; done
+for shape in valid checksum version source; do run_case "package-lock-$shape" test_package_lock_selection "$shape"; done
 run_case adapter-release test_release
+for shape in stale foreign; do run_case "catalog-$shape" test_local_catalog_refusal "$shape"; done
 for failure in TEST_GATE_FAIL TEST_METADATA_FAIL TEST_PREPARE_FAIL; do run_case "$failure" test_rejected_preparation "$failure"; done
 run_case exact-index test_preparation
 run_case receipt-identity test_receipt_identity
 run_case publish test_publish normal
 run_case publish-dry-run test_publish dry-run
+run_case publish-contracts test_publish normal ic-blob-storage-contracts
+run_case publish-contracts-dry-run test_publish dry-run ic-blob-storage-contracts
+run_case publish-missing-selection test_missing_publish_selection
 for invalid in tag receipt parent merge; do run_case "bad-$invalid" test_invalid_publish "$invalid"; done
 run_case publication-lock test_publication_lock
 run_case real-index test_actual_index

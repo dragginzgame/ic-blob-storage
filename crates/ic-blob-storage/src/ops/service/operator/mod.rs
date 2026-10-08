@@ -1,22 +1,20 @@
 //! Scope/authentication and passive conversion of four synchronous local owners.
-use crate::{
-    dto::operator::{
-        LocalFundingStatus, LocalGatewayStatus, LocalReadStatus, LocalServiceStatus,
-        LocalStatusFailure, LocalUploadStatus, OperatorScope,
-    },
-    model::{
-        billing::journal::FundingJournalScope, gateway::registry::GatewayScope,
-        service::upload::UploadContext,
-    },
-    ops::service::{
-        funding::StableFundingJournal, gateways::StableGatewayRegistry, reads::StableReadSessions,
-        stores::ServiceStores, uploads::StableUploads,
-    },
-};
+use crate::model::billing::journal::FundingJournalScope;
+use crate::model::gateway::registry::GatewayScope;
+use crate::ops::service::funding::StableFundingJournal;
+use crate::ops::service::gateways::StableGatewayRegistry;
+use crate::ops::service::reads::StableReadSessions;
+use crate::ops::service::stores::ServiceStores;
+use crate::ops::service::uploads::StableUploads;
+use ic_blob_storage_contracts::dto::operator::LocalFundingStatus;
+use ic_blob_storage_contracts::dto::operator::LocalGatewayStatus;
+use ic_blob_storage_contracts::dto::operator::LocalReadStatus;
+use ic_blob_storage_contracts::dto::operator::LocalServiceStatus;
+use ic_blob_storage_contracts::dto::operator::LocalStatusFailure;
+use ic_blob_storage_contracts::dto::operator::LocalUploadStatus;
+use ic_blob_storage_contracts::dto::operator::OperatorScope;
+use ic_blob_storage_contracts::upload::binding::UploadContext;
 use ic_memory::ic_stable_structures::Memory;
-
-/// Canonical passive local query; linking exports no endpoint.
-pub const LOCAL_STATUS_METHOD: &str = "blob_local_status";
 
 /// Borrowed owners from one installed service, held only for synchronous inspection.
 /// Full configurations are checked before any accounting is returned.

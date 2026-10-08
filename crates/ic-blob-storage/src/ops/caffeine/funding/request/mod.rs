@@ -89,7 +89,9 @@ pub enum TopUpRequestError {
     Encoding,
 }
 mod wire {
-    use super::{CandidType, Nat, Principal};
+    use super::CandidType;
+    use super::Nat;
+    use super::Principal;
     #[derive(CandidType)]
     pub(super) struct AccountTopUpRequest {
         pub account: Option<Principal>,

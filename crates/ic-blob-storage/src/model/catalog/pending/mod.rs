@@ -8,10 +8,9 @@ use std::{
 use candid::Principal;
 use thiserror::Error;
 
-use crate::model::{
-    identity::ProviderRootHash,
-    lifecycle::{LifecyclePhase, binding::ObjectBinding},
-};
+use ic_blob_storage_contracts::binding::ObjectBinding;
+use ic_blob_storage_contracts::identity::ProviderRootHash;
+use ic_blob_storage_contracts::upload::history::LifecyclePhase;
 
 use super::BlobCatalog;
 

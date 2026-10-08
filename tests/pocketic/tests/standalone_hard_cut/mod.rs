@@ -1,13 +1,13 @@
 //! Actual old allocation bytes must refuse upgrade without losing the old owner.
 use super::*;
-use ic_blob_storage::model::identity::ContentDigest;
+use ic_blob_storage_contracts::identity::ContentDigest;
 use std::path::PathBuf;
 
 // Project only unchanged upload counters from the pinned image's raw reply.
 // Production decoders accept exclusively the current mandatory funding schema.
 #[derive(candid::CandidType, serde::Deserialize)]
 struct UploadAccountingView {
-    uploads: ic_blob_storage::dto::operator::LocalUploadStatus,
+    uploads: ic_blob_storage_contracts::dto::operator::LocalUploadStatus,
 }
 // Project only the unchanged release field; preserve and compare the entire raw
 // configuration reply rather than decode a historical schema as the current DTO.
@@ -96,7 +96,7 @@ fn older_allocation_ledger_upgrade_preserves_bytes_and_obligations_on_refusal() 
     let (released, pending) = obligations(&f);
     let raw = raw_status(&f);
     let status = candid::decode_one::<
-        Result<UploadAccountingView, ic_blob_storage::dto::operator::LocalStatusFailure>,
+        Result<UploadAccountingView, ic_blob_storage_contracts::dto::operator::LocalStatusFailure>,
     >(&raw)
     .unwrap()
     .unwrap();

@@ -1,11 +1,8 @@
 //! The transient probe uses the same capacity boundary as the durable service.
-use ic_blob_storage::{
-    dto::{
-        tenant::TenantScope,
-        upload::capacity::{UploadCapacityFailure, UploadCapacityResponse},
-    },
-    model::service::upload::UploadContext,
-};
+use ic_blob_storage_contracts::dto::tenant::TenantScope;
+use ic_blob_storage_contracts::dto::upload::capacity::UploadCapacityFailure;
+use ic_blob_storage_contracts::dto::upload::capacity::UploadCapacityResponse;
+use ic_blob_storage_contracts::upload::binding::UploadContext;
 pub(crate) fn capacity(
     context: UploadContext,
     input: TenantScope,

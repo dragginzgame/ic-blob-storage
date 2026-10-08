@@ -1,9 +1,8 @@
 //! Actual caller/scope enforcement and unchanged accounting through passive reads.
 use super::*;
-use ic_blob_storage::dto::{
-    tenant::TenantScope,
-    upload::capacity::{UploadCapacityFailure, UploadCapacityResponse},
-};
+use ic_blob_storage_contracts::dto::tenant::TenantScope;
+use ic_blob_storage_contracts::dto::upload::capacity::UploadCapacityFailure;
+use ic_blob_storage_contracts::dto::upload::capacity::UploadCapacityResponse;
 mod inventory;
 use blob_test_protocol::admission::release::LifecycleCommand;
 
@@ -143,7 +142,7 @@ fn capacity_preserves_cancelled_history_and_suspended_inspection_across_stop_sta
     assert_eq!(
         capacity(&f, f.project, input).unwrap(),
         UploadCapacityResponse {
-            enrollment: ic_blob_storage::dto::tenant::TenantEnrollment {
+            enrollment: ic_blob_storage_contracts::dto::tenant::TenantEnrollment {
                 active: false,
                 generation: enrollment.generation
             },

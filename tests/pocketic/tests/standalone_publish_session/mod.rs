@@ -1,4 +1,5 @@
 //! Actual signed session phases, bounded control and one-pass frozen-body reuse.
+use super::reference_cli::change_native;
 use super::*;
 use crate::{
     authenticated_cli::PEM, native_session::NativeSession, standalone_publish_check::freeze_files,
@@ -217,7 +218,6 @@ fn recover_preparation(
 
 #[test]
 fn standalone_publication_session_requires_selected_installed_verifier_before_effects() {
-    use crate::reference_cli::change_native;
     let directory = Directory::new("session-verifier-authority-");
     let (mut f, _, url) = fixture(directory.path());
     let mut args = arguments(
@@ -317,7 +317,7 @@ fn standalone_publication_session_reuses_cached_batch_and_checks_selected_bytes_
     assert_eq!(map["all_references_live"], true);
     assert_eq!(
         map["files"][0]["body_sha256"],
-        ic_blob_storage::model::identity::ContentDigest::compute(&[42; 1024])
+        ic_blob_storage_contracts::identity::ContentDigest::compute(&[42; 1024])
             .to_string()
             .trim_start_matches("sha256:")
     );
@@ -361,7 +361,6 @@ fn standalone_publication_session_rejects_changed_selected_body_before_admission
 
 #[test]
 fn standalone_publication_session_bounds_steps_and_exits_idle_with_stdin_still_open() {
-    use crate::reference_cli::change_native;
     let directory = Directory::new("session-bounded-");
     let (mut f, _, url) = fixture(directory.path());
     let mut args = arguments(
@@ -396,7 +395,6 @@ fn standalone_publication_session_bounds_steps_and_exits_idle_with_stdin_still_o
 #[test]
 fn standalone_publication_session_recovers_original_setup_after_control_loss_and_refuses_tampering()
 {
-    use crate::reference_cli::change_native;
     let directory = Directory::new("session-recovery-");
     let (mut f, _, url) = fixture(directory.path());
     let mut args = arguments(
@@ -488,7 +486,6 @@ fn standalone_publication_session_recovers_original_setup_after_control_loss_and
 
 #[test]
 fn standalone_publication_session_refuses_changed_or_partial_source_before_new_run() {
-    use crate::reference_cli::change_native;
     let directory = Directory::new("session-source-binding-");
     let (mut f, _, url) = fixture(directory.path());
     let mut args = arguments(

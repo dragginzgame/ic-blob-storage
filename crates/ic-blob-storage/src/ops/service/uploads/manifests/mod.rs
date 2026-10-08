@@ -1,36 +1,27 @@
 //! Actual uploader authority, bounded declaration conversion and immutable recovery.
 pub mod client;
-pub mod reply;
 use super::{StableUploads, UploadStoreError, admission, key};
-use crate::{
-    dto::upload::{
-        admission::{UploadAdmissionFailure, UploadAdmissionRequest},
-        manifest::{
-            UploadManifestDeclaration, UploadManifestFailure, UploadManifestHeader,
-            UploadManifestInspection, UploadManifestMutation, UploadManifestRequest,
-            UploadManifestResponse,
-        },
-    },
-    model::{
-        identity::caffeine::{
-            CaffeineHeader,
-            manifest::{CaffeineChunkHash, CaffeineManifestLimits},
-        },
-        lifecycle::LifecycleChange,
-        service::{
-            tenant::TenantError,
-            upload::{
-                UploadAdmissionError, UploadContext, UploadManifestState, UploadPermission,
-                manifest::UploadManifest,
-            },
-        },
-    },
-};
+use crate::model::lifecycle::LifecycleChange;
+use crate::model::service::upload::UploadAdmissionError;
+use crate::model::service::upload::UploadManifestState;
+use crate::model::service::upload::manifest::UploadManifest;
+use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionFailure;
+use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionRequest;
+use ic_blob_storage_contracts::dto::upload::manifest::UploadManifestDeclaration;
+use ic_blob_storage_contracts::dto::upload::manifest::UploadManifestFailure;
+use ic_blob_storage_contracts::dto::upload::manifest::UploadManifestHeader;
+use ic_blob_storage_contracts::dto::upload::manifest::UploadManifestInspection;
+use ic_blob_storage_contracts::dto::upload::manifest::UploadManifestMutation;
+use ic_blob_storage_contracts::dto::upload::manifest::UploadManifestRequest;
+use ic_blob_storage_contracts::dto::upload::manifest::UploadManifestResponse;
+use ic_blob_storage_contracts::identity::caffeine::manifest::CaffeineChunkHash;
+use ic_blob_storage_contracts::tenant::TenantError;
+use ic_blob_storage_contracts::upload::binding::UploadContext;
+use ic_blob_storage_contracts::upload::binding::UploadPermission;
+use ic_blob_storage_contracts::upload::manifests::bounds;
+use ic_blob_storage_contracts::upload::manifests::headers;
+
 use ic_memory::ic_stable_structures::Memory;
-/// Canonical preparation update. Linking exports no endpoint.
-pub const UPLOAD_MANIFEST_PREPARE_METHOD: &str = "blob_prepare_upload";
-/// Canonical exact permission manifest query, including after fencing/revocation.
-pub const UPLOAD_MANIFEST_INSPECT_METHOD: &str = "blob_upload_manifest";
 fn parse(
     context: UploadContext,
     input: UploadAdmissionRequest,
@@ -43,7 +34,8 @@ fn parse(
             UploadAdmissionFailure::Denied,
         ));
     }
-    admission::parse_binding(context.service, input).map_err(UploadManifestFailure::Permission)
+    ic_blob_storage_contracts::upload::admission::parse_binding(context.service, input)
+        .map_err(UploadManifestFailure::Permission)
 }
 fn exact<M: Memory>(
     store: &StableUploads<M>,
@@ -58,25 +50,7 @@ fn exact<M: Memory>(
     }
     Ok(view)
 }
-pub(crate) fn bounds(
-    declaration: &UploadManifestDeclaration,
-    limits: CaffeineManifestLimits,
-) -> Result<(), UploadManifestFailure> {
-    if declaration.chunks.len() > limits.max_chunks.get()
-        || declaration.headers.len() > limits.max_headers.get()
-    {
-        return Err(UploadManifestFailure::Limit);
-    }
-    let mut remaining = limits.max_header_bytes.get();
-    for h in &declaration.headers {
-        for len in [h.name.len(), h.value.len(), 3] {
-            remaining = remaining
-                .checked_sub(len)
-                .ok_or(UploadManifestFailure::Limit)?;
-        }
-    }
-    Ok(())
-}
+
 pub(crate) fn prepare<M: Memory>(
     store: &mut StableUploads<M>,
     context: UploadContext,
@@ -109,16 +83,7 @@ pub(crate) fn prepare<M: Memory>(
         changed: change == LifecycleChange::Changed,
     })
 }
-pub(crate) fn headers(declaration: &UploadManifestDeclaration) -> Vec<CaffeineHeader<'_>> {
-    declaration
-        .headers
-        .iter()
-        .map(|h| CaffeineHeader {
-            name: &h.name,
-            value: &h.value,
-        })
-        .collect()
-}
+
 pub(crate) fn inspect<M: Memory>(
     store: &StableUploads<M>,
     context: UploadContext,

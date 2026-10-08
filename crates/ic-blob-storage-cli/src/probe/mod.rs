@@ -1,8 +1,9 @@
 mod record;
-#[cfg(test)]
-mod tests;
 use record::{MAX_BODY, MAX_REQUESTS, PlanRecord, RequestRecord, ResponseRecord, SummaryRecord};
 use std::{path::Path, process::ExitCode, time::Duration};
+
+#[cfg(test)]
+mod tests;
 
 const COMMIT_URL: &str = "https://api.github.com/repos/caffeinelabs/skills/commits/main";
 const PACKAGE_URL: &str = "https://registry.npmjs.org/@caffeineai%2fobject-storage/latest";

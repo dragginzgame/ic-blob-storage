@@ -3,20 +3,16 @@ pub(crate) mod account;
 pub(crate) mod gateways;
 mod memory;
 use candid::{CandidType, DecoderConfig, Deserialize};
-use ic_blob_storage::{
-    dto::configuration::ServiceInstallationInput,
-    ic_memory::{MemoryRuntime, ic_stable_structures::DefaultMemoryImpl},
-    model::service::{
-        read::download::CaffeineDownloadScope, upload::completion::CompletionAuthority,
-    },
-    ops::service::{
-        installation::{
-            ServiceInstallation, ServiceInstallationCandidate, ServiceInstallationMemories,
-            ValidatedServiceInstallation,
-        },
-        stores::ServiceStores,
-    },
-};
+use ic_blob_storage::ic_memory::MemoryRuntime;
+use ic_blob_storage::ic_memory::ic_stable_structures::DefaultMemoryImpl;
+use ic_blob_storage::ops::service::installation::ServiceInstallation;
+use ic_blob_storage::ops::service::installation::ServiceInstallationMemories;
+use ic_blob_storage::ops::service::installation::ValidatedServiceInstallation;
+use ic_blob_storage::ops::service::stores::ServiceStores;
+use ic_blob_storage_contracts::configuration::ServiceInstallationCandidate;
+use ic_blob_storage_contracts::download::scope::CaffeineDownloadScope;
+use ic_blob_storage_contracts::dto::configuration::ServiceInstallationInput;
+use ic_blob_storage_contracts::upload::completion::CompletionAuthority;
 use memory::{Grants, Memory};
 use std::cell::RefCell;
 struct Host {
@@ -246,6 +242,6 @@ pub(crate) fn decode_configuration(bytes: Vec<u8>) -> ServiceInstallationInput {
 #[expect(clippy::needless_pass_by_value, reason = "CDK owns ingress buffers")]
 pub(crate) fn decode_manifest(
     bytes: Vec<u8>,
-) -> ic_blob_storage::dto::upload::manifest::UploadManifestRequest {
+) -> ic_blob_storage_contracts::dto::upload::manifest::UploadManifestRequest {
     bounded(&bytes, 131_072)
 }

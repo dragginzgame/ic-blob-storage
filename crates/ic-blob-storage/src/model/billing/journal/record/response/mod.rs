@@ -47,9 +47,9 @@ impl FundingResponseRecord {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::model::billing::journal::{
-        FundingIntent, FundingIntentError, record::FundingIntentRecord,
-    };
+    use crate::model::billing::journal::FundingIntent;
+    use crate::model::billing::journal::FundingIntentError;
+    use crate::model::billing::journal::record::FundingIntentRecord;
     use std::num::NonZeroU128;
 
     #[test]

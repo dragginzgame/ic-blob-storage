@@ -4,7 +4,8 @@ use std::num::NonZeroU128;
 
 use super::admission::FundingActivity;
 use crate::model::billing::allocation::FundingAllocationView;
-use crate::model::billing::{journal::credit::FundingCreditReceipt, transfer::FundingTransfer};
+use crate::model::billing::journal::credit::FundingCreditReceipt;
+use ic_blob_storage_contracts::funding::transfer::FundingTransfer;
 
 /// Diagnose the complete maintained totals of one uncredited local journal.
 /// Equivalent to inspecting all retained transfers and credit confirmations.
@@ -109,7 +110,7 @@ pub fn assess_reconciled_funding(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::model::billing::transfer::FundingTransferError;
+    use ic_blob_storage_contracts::funding::transfer::FundingTransferError;
 
     #[test]
     fn maintained_allocation_activity_agrees_with_complete_history_at_amount_boundaries() {

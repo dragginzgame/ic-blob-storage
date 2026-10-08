@@ -1,15 +1,13 @@
 use super::*;
-use crate::{
-    model::{
-        catalog::admission::read::{UploadPageLimits, UploadRootState},
-        lifecycle::{
-            LifecyclePhase,
-            requests::{ReferenceOperation, ReferenceRequest, ReferenceRequestId},
-        },
-        service::upload::content::ContentLookup,
-    },
-    ops::service::uploads::read::{UploadScanFilter, UploadScanScope},
-};
+use crate::model::catalog::admission::read::UploadPageLimits;
+use crate::model::service::upload::content::ContentLookup;
+use crate::ops::service::uploads::read::UploadScanScope;
+use ic_blob_storage_contracts::reference::binding::ReferenceOperation;
+use ic_blob_storage_contracts::reference::binding::ReferenceRequest;
+use ic_blob_storage_contracts::reference::binding::ReferenceRequestId;
+use ic_blob_storage_contracts::upload::history::LifecyclePhase;
+use ic_blob_storage_contracts::upload::history::UploadRootState;
+use ic_blob_storage_contracts::upload::history::UploadScanFilter;
 use std::num::NonZeroUsize;
 fn scope() -> UploadScanScope {
     UploadScanScope::Tenant {

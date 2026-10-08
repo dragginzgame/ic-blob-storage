@@ -1,10 +1,12 @@
 //! Real replicated observers, bounded replies and passive inspection after restore.
 use super::*;
 use blob_test_protocol::consumer::{Failure as ConsumerFailure, funding::FundingHistoryInspection};
-use ic_blob_storage::dto::funding::{
-    FundingHistoryPage, FundingHistoryRequest, FundingPhase,
-    outcome::{FundingOutcomeRequest, FundingOutcomeResponse, FundingReconciliation},
-};
+use ic_blob_storage_contracts::dto::funding::FundingHistoryPage;
+use ic_blob_storage_contracts::dto::funding::FundingHistoryRequest;
+use ic_blob_storage_contracts::dto::funding::FundingPhase;
+use ic_blob_storage_contracts::dto::funding::outcome::FundingOutcomeRequest;
+use ic_blob_storage_contracts::dto::funding::outcome::FundingOutcomeResponse;
+use ic_blob_storage_contracts::dto::funding::outcome::FundingReconciliation;
 fn consumer_wasm() -> Vec<u8> {
     std::fs::read(fixture_path("BLOB_CONSUMER_PROBE_WASM")).unwrap()
 }
@@ -222,7 +224,7 @@ fn funding_client_requires_host_authentication_service_operator_and_replicated_e
             );
         }
         let changed = FundingHistoryRequest {
-            scope: ic_blob_storage::dto::operator::OperatorScope {
+            scope: ic_blob_storage_contracts::dto::operator::OperatorScope {
                 namespace: 2,
                 ..request.scope
             },

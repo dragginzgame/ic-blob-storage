@@ -1,10 +1,10 @@
 use super::*;
+use std::num::NonZeroUsize;
 mod accounting;
-use crate::model::lifecycle::{
-    ReferenceId,
-    binding::ObjectIdentity,
-    requests::{ReferenceOperation, ReferenceRequestId},
-};
+use ic_blob_storage_contracts::binding::ObjectIdentity;
+use ic_blob_storage_contracts::binding::ReferenceId;
+use ic_blob_storage_contracts::reference::binding::ReferenceOperation;
+use ic_blob_storage_contracts::reference::binding::ReferenceRequestId;
 use pending::{PendingCursorError, PendingPageLimits};
 
 fn p(id: u8) -> Principal {

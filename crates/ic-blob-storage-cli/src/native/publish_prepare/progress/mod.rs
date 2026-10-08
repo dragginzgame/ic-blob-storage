@@ -6,8 +6,9 @@ use super::{
 use crate::native::{
     publish_check::observation::PreflightObservation, upload_inputs::PreparedInput,
 };
-use ic_blob_storage::dto::reference::ReferenceUpload;
-use ic_blob_storage::dto::upload::{UploadState, manifest::UploadManifestInspection};
+use ic_blob_storage_contracts::dto::reference::ReferenceUpload;
+use ic_blob_storage_contracts::dto::upload::UploadState;
+use ic_blob_storage_contracts::dto::upload::manifest::UploadManifestInspection;
 use std::path::Path;
 use upload_setup::SetupObservation;
 

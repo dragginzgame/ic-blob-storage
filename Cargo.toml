@@ -9,6 +9,7 @@ members = [
     "canisters/test/storage_probe",
     "crates/ic-blob-storage",
     "crates/ic-blob-storage-cli",
+    "crates/ic-blob-storage-contracts",
     "tests/pocketic",
     "tests/protocol",
 ]
@@ -29,6 +30,7 @@ candid_parser = "0.4.1"
 ic-agent = { version = "0.49.2", default-features = false }
 ic-blob-storage = { path = "crates/ic-blob-storage" }
 ic-blob-storage-canister = { path = "canisters/standalone" }
+ic-blob-storage-contracts = { path = "crates/ic-blob-storage-contracts", version = "0.17.2" }
 ic-cdk = "0.20.3"
 ic-host-artifacts = "0.4"
 ic-host-fs = "0.4.5"

@@ -1,21 +1,13 @@
 //! One host query for an existing durable attempt, with callback revalidation.
 use super::complete_sync;
-use crate::{
-    model::service::upload::UploadContext,
-    ops::{
-        caffeine::{
-            gateway::GatewayReplyLimits,
-            query::{
-                reply::{BoundGatewayReplyError, QueryReplyBindingError},
-                transport::CashierQueryTransport,
-            },
-        },
-        service::gateways::{
-            access::GatewayRegistryAccess,
-            reply::{GatewaySyncReplyError, GatewaySyncRequest},
-        },
-    },
-};
+use crate::ops::caffeine::gateway::GatewayReplyLimits;
+use crate::ops::caffeine::query::reply::BoundGatewayReplyError;
+use crate::ops::caffeine::query::reply::QueryReplyBindingError;
+use crate::ops::caffeine::query::transport::CashierQueryTransport;
+use crate::ops::service::gateways::access::GatewayRegistryAccess;
+use crate::ops::service::gateways::reply::GatewaySyncReplyError;
+use crate::ops::service::gateways::reply::GatewaySyncRequest;
+use ic_blob_storage_contracts::upload::binding::UploadContext;
 use thiserror::Error;
 
 /// Failed query or application; pending state remains unless another operation

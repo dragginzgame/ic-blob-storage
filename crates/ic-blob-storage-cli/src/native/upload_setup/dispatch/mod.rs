@@ -5,7 +5,7 @@ use crate::native::{
     arguments::Options,
     signed_update::{DEADLINE_SECONDS, MANIFEST_REPLY_BYTES, PreparedUpdate, UpdateInput},
 };
-use ic_blob_storage::model::identity::ContentDigest;
+use ic_blob_storage_contracts::identity::ContentDigest;
 use serde_json::json;
 
 pub(super) async fn run(

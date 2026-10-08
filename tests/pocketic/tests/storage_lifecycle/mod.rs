@@ -1,7 +1,8 @@
 use super::*;
 use blob_test_protocol::storage::reference::ReferenceFaultInput;
-use ic_blob_storage::dto::reference::*;
-use ic_blob_storage::ops::service::references::{REFERENCE_APPLY_METHOD, REFERENCE_RECEIPT_METHOD};
+use ic_blob_storage_contracts::dto::reference::*;
+use ic_blob_storage_contracts::protocol::REFERENCE_APPLY_METHOD;
+use ic_blob_storage_contracts::protocol::REFERENCE_RECEIPT_METHOD;
 mod receipts;
 mod status;
 use blob_test_protocol::{
@@ -61,9 +62,8 @@ impl Fixture {
             .unwrap()
     }
     pub(super) fn live(&self, input: ReferenceInput) -> Result<bool, ReferenceFailure> {
-        use ic_blob_storage::dto::reference::status::{
-            ReferenceStatusRequest, ReferenceStatusResponse,
-        };
+        use ic_blob_storage_contracts::dto::reference::status::ReferenceStatusRequest;
+        use ic_blob_storage_contracts::dto::reference::status::ReferenceStatusResponse;
         let command = receipt_request(input);
         let request = ReferenceStatusRequest {
             upload: command.upload,

@@ -1,5 +1,5 @@
 //! Shared subprocess harness for the maintained receipt endpoint on both local hosts.
-use ic_blob_storage::dto::reference::ReferenceCommand;
+use ic_blob_storage_contracts::dto::reference::ReferenceCommand;
 use ic_testkit::pocket_ic::PocketIc;
 use std::{fs, path::Path};
 
@@ -20,7 +20,7 @@ pub(crate) fn native_requests(
     fs::write(
         &status,
         candid::encode_one(
-            ic_blob_storage::dto::reference::status::ReferenceStatusRequest {
+            ic_blob_storage_contracts::dto::reference::status::ReferenceStatusRequest {
                 upload: input.upload,
                 reference: input.reference,
             },

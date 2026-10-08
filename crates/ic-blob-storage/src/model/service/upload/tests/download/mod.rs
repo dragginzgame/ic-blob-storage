@@ -1,10 +1,10 @@
 use super::*;
-use crate::model::{
-    catalog::admission::read::UploadRootState,
-    identity::caffeine::{CaffeineHeader, manifest::CaffeineChunkHash},
-    lifecycle::LifecyclePhase,
-    service::upload::{content::ContentLookup, manifest::UploadManifest},
-};
+use crate::model::service::upload::content::ContentLookup;
+use crate::model::service::upload::manifest::UploadManifest;
+use ic_blob_storage_contracts::identity::caffeine::CaffeineHeader;
+use ic_blob_storage_contracts::identity::caffeine::manifest::CaffeineChunkHash;
+use ic_blob_storage_contracts::upload::history::LifecyclePhase;
+use ic_blob_storage_contracts::upload::history::UploadRootState;
 
 mod retained;
 

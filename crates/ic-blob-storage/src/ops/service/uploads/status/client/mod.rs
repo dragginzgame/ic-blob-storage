@@ -1,10 +1,10 @@
 //! Single replicated authenticated upload observation, with no automatic retry.
-use super::{
-    UPLOAD_STATUS_METHOD,
-    reply::{self, UploadStatusReplyError},
-};
-use crate::dto::{reference::ReferenceUpload, upload::UploadStatusResponse};
 use candid::Principal;
+use ic_blob_storage_contracts::dto::reference::ReferenceUpload;
+use ic_blob_storage_contracts::dto::upload::UploadStatusResponse;
+use ic_blob_storage_contracts::protocol::UPLOAD_STATUS_METHOD;
+use ic_blob_storage_contracts::upload::status::reply;
+use ic_blob_storage_contracts::upload::status::reply::UploadStatusReplyError;
 use ic_cdk::call::{Call, CallFailed};
 use std::num::{NonZeroU32, NonZeroUsize};
 use thiserror::Error;

@@ -1,5 +1,5 @@
 use super::*;
-use crate::dto::reference::ReferenceUpload;
+use ic_blob_storage_contracts::dto::reference::ReferenceUpload;
 fn p(n: u8) -> Principal {
     Principal::from_slice(&[n, 1])
 }

@@ -1,5 +1,7 @@
 use super::*;
-use ic_blob_storage::dto::upload::{UploadState, UploadStatusFailure, UploadStatusResponse};
+use ic_blob_storage_contracts::dto::upload::UploadState;
+use ic_blob_storage_contracts::dto::upload::UploadStatusFailure;
+use ic_blob_storage_contracts::dto::upload::UploadStatusResponse;
 mod admission;
 mod manifests;
 mod revocation;
@@ -21,7 +23,7 @@ fn fresh_input(f: &Fixture) -> (Run, Permission, PreparationInput) {
             asset: 1,
             payload: vec![3; 8],
             source: RegistrationSource::Fresh(
-                ic_blob_storage::dto::upload::admission::UploadAdmissionRequest {
+                ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionRequest {
                     upload,
                     uploader: permission.uploader,
                     expires_at_ns: permission.expires_at_ns,

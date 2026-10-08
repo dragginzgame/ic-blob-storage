@@ -1,7 +1,7 @@
 //! Validate one frozen batch once, retaining independent, non-repeatable file claims.
 use super::{Failure, Input, Options, Run, Value, json, publish_inputs, run_selected};
 use crate::native::{agent, publish_check, upload_inputs::digest};
-use ic_blob_storage::model::identity::ContentDigest;
+use ic_blob_storage_contracts::identity::ContentDigest;
 use std::time::Duration;
 
 pub(in crate::native) async fn run(options: &Options, input: &Input) -> Result<Value, Failure> {

@@ -1,15 +1,13 @@
 //! Explicit verifier trust, with exact immutable receipts and no on-canister file hashing.
-use crate::{
-    dto::upload::{
-        admission::UploadAdmissionRequest,
-        completion::{
-            UploadAttestationFailure, UploadAttestationMutation, UploadAttestationRequest,
-            UploadAttestationResponse,
-        },
-    },
-    model::service::upload::{UploadContext, completion::CompletionAuthority},
-    ops::service::uploads::{StableUploads, completion},
-};
+use crate::ops::service::uploads::StableUploads;
+use crate::ops::service::uploads::completion;
+use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionRequest;
+use ic_blob_storage_contracts::dto::upload::completion::UploadAttestationFailure;
+use ic_blob_storage_contracts::dto::upload::completion::UploadAttestationMutation;
+use ic_blob_storage_contracts::dto::upload::completion::UploadAttestationRequest;
+use ic_blob_storage_contracts::dto::upload::completion::UploadAttestationResponse;
+use ic_blob_storage_contracts::upload::binding::UploadContext;
+use ic_blob_storage_contracts::upload::completion::CompletionAuthority;
 use ic_memory::ic_stable_structures::Memory;
 /// Obtain installed provider mapping and original metadata for exposed unfinished content.
 /// This is a snapshot, not a lease, upload/retry authority or provider availability evidence.
@@ -18,10 +16,13 @@ use ic_memory::ic_stable_structures::Memory;
 pub fn verification_plan<M: Memory>(
     store: &StableUploads<M>,
     authority: CompletionAuthority,
-    scope: &crate::model::service::read::download::CaffeineDownloadScope,
+    scope: &ic_blob_storage_contracts::download::scope::CaffeineDownloadScope,
     context: UploadContext,
     input: UploadAdmissionRequest,
-) -> Result<crate::dto::upload::completion::UploadVerificationPlan, UploadAttestationFailure> {
+) -> Result<
+    ic_blob_storage_contracts::dto::upload::completion::UploadVerificationPlan,
+    UploadAttestationFailure,
+> {
     completion::verification::plan(store, authority, scope, context, input)
 }
 /// Accept the installed verifier's statement for an already-exposed, prepared upload.
@@ -63,8 +64,8 @@ pub fn manifest<M: Memory>(
     context: UploadContext,
     input: UploadAdmissionRequest,
 ) -> Result<
-    crate::dto::upload::manifest::UploadManifestResponse,
-    crate::dto::upload::manifest::UploadManifestFailure,
+    ic_blob_storage_contracts::dto::upload::manifest::UploadManifestResponse,
+    ic_blob_storage_contracts::dto::upload::manifest::UploadManifestFailure,
 > {
     completion::manifest(store, authority, context, input)
 }

@@ -1,14 +1,10 @@
 use super::*;
-use crate::{
-    dto::{
-        reference::ReferenceUpload,
-        upload::{
-            UploadState,
-            admission::{UploadAdmissionFailure as F, UploadAdmissionRequest},
-        },
-    },
-    workflow::uploads::admission::{admit, inspect},
-};
+use crate::workflow::uploads::admission::admit;
+use crate::workflow::uploads::admission::inspect;
+use ic_blob_storage_contracts::dto::reference::ReferenceUpload;
+use ic_blob_storage_contracts::dto::upload::UploadState;
+use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionFailure as F;
+use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionRequest;
 #[test]
 fn exact_admission_recovers_permission_without_renewal_through_expiry_suspension_and_restore() {
     let m = memory();
@@ -68,7 +64,8 @@ fn exact_admission_recovers_permission_without_renewal_through_expiry_suspension
     assert!(replay.replayed);
     assert_eq!(replay.admission, admitted.admission);
     assert_eq!(store.usage().unwrap(), usage);
-    let permission = super::super::admission::parse(context(4), input).unwrap();
+    let permission =
+        ic_blob_storage_contracts::upload::admission::parse(context(4), input).unwrap();
     store.revoke(context(4), permission.request).unwrap();
     let cancelled = inspect(&store, context(4), input).unwrap();
     assert_eq!(cancelled.state, UploadState::Cancelled);

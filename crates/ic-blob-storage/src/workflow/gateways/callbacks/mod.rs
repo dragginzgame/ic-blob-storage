@@ -1,18 +1,16 @@
 //! Scoped live gateway observations, not provider effect or deletion authority.
-use crate::{
-    model::{gateway::registry::GatewayScope, identity::batch::ProviderRootBatch},
-    ops::service::{
-        gateways::{GatewayStoreError, StableGatewayRegistry},
-        uploads::{StableUploads, UploadStoreError, read::UploadRootObservation},
-    },
-    policy::{
-        catalog::upload::UploadRootStatus,
-        gateway::{
-            GatewayAccessError, GatewayCallbackContext, assess_gateway_callback,
-            assess_gateway_membership,
-        },
-    },
-};
+use crate::model::gateway::registry::GatewayScope;
+use crate::ops::service::gateways::GatewayStoreError;
+use crate::ops::service::gateways::StableGatewayRegistry;
+use crate::ops::service::uploads::StableUploads;
+use crate::ops::service::uploads::UploadStoreError;
+use crate::ops::service::uploads::read::UploadRootObservation;
+use crate::policy::catalog::upload::UploadRootStatus;
+use crate::policy::gateway::GatewayAccessError;
+use crate::policy::gateway::GatewayCallbackContext;
+use crate::policy::gateway::assess_gateway_callback;
+use crate::policy::gateway::assess_gateway_membership;
+use ic_blob_storage_contracts::identity::batch::ProviderRootBatch;
 use ic_memory::ic_stable_structures::Memory;
 use thiserror::Error;
 

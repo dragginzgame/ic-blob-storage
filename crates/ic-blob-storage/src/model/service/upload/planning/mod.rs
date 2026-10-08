@@ -1,14 +1,13 @@
 //! Passive tenant admission headroom from the same accounting used by mutations.
 
-use super::{UploadAdmissionError, UploadAdmissions, UploadContext};
-use crate::model::{
-    catalog::admission::UploadUsage,
-    service::{
-        configuration::ServiceLimits,
-        tenant::{TenantEnrollmentView, TenantError},
-    },
-};
+use super::UploadAdmissionError;
+use super::UploadAdmissions;
+use crate::model::catalog::admission::UploadUsage;
 use candid::Principal;
+use ic_blob_storage_contracts::configuration::service::ServiceLimits;
+use ic_blob_storage_contracts::tenant::TenantEnrollmentView;
+use ic_blob_storage_contracts::tenant::TenantError;
+use ic_blob_storage_contracts::upload::binding::UploadContext;
 use std::num::NonZeroU128;
 
 /// Explicit tenant and provider namespace for a capacity observation.

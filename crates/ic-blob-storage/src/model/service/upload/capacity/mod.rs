@@ -1,8 +1,8 @@
 //! Reserve future leaf-array capacity from the exact admitted content length.
 
 use super::{UploadAdmissionError, UploadAdmissions};
-use crate::model::identity::caffeine::CAFFEINE_CHUNK_BYTES;
 use candid::Principal;
+use ic_blob_storage_contracts::identity::caffeine::CAFFEINE_CHUNK_BYTES;
 use std::collections::BTreeMap;
 
 #[derive(Debug, Default)]
@@ -63,7 +63,7 @@ fn chunks(bytes: u64) -> u64 {
 }
 
 pub(crate) fn remaining(
-    limits: crate::model::service::configuration::ServiceManifestLimits,
+    limits: ic_blob_storage_contracts::configuration::service::ServiceManifestLimits,
     global: u64,
     tenant: u64,
 ) -> u64 {
@@ -71,7 +71,7 @@ pub(crate) fn remaining(
 }
 
 pub(crate) fn check(
-    limits: crate::model::service::configuration::ServiceManifestLimits,
+    limits: ic_blob_storage_contracts::configuration::service::ServiceManifestLimits,
     global: u64,
     tenant: u64,
     bytes: u64,

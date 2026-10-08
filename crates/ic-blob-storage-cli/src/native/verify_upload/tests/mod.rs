@@ -1,15 +1,12 @@
 use super::*;
-use ic_blob_storage::model::identity::caffeine::{CaffeineHashLimits, CaffeineHeader};
-use ic_blob_storage::{
-    dto::{
-        reference::ReferenceUpload,
-        upload::manifest::{
-            UploadManifestDeclaration, UploadManifestFailure, UploadManifestHeader,
-            UploadManifestResponse,
-        },
-    },
-    model::identity::caffeine::manifest::builder::CaffeineManifestBuilder,
-};
+use ic_blob_storage_contracts::dto::reference::ReferenceUpload;
+use ic_blob_storage_contracts::dto::upload::manifest::UploadManifestDeclaration;
+use ic_blob_storage_contracts::dto::upload::manifest::UploadManifestFailure;
+use ic_blob_storage_contracts::dto::upload::manifest::UploadManifestHeader;
+use ic_blob_storage_contracts::dto::upload::manifest::UploadManifestResponse;
+use ic_blob_storage_contracts::identity::caffeine::CaffeineHashLimits;
+use ic_blob_storage_contracts::identity::caffeine::CaffeineHeader;
+use ic_blob_storage_contracts::identity::caffeine::manifest::builder::CaffeineManifestBuilder;
 
 fn fixture() -> (
     tempfile::TempDir,

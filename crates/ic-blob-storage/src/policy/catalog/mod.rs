@@ -9,17 +9,16 @@ pub mod upload;
 use candid::Principal;
 use thiserror::Error;
 
-use crate::model::{
-    catalog::{
-        BlobCatalog, CatalogUsage,
-        pending::{
-            PendingCursorError, PendingDeletionCursor, PendingDeletionPage, PendingPageLimits,
-        },
-    },
-    gateway::registry::GatewayRegistry,
-    identity::{HashParseError, batch::ProviderRootBatch},
-    lifecycle::LifecyclePhase,
-};
+use crate::model::catalog::BlobCatalog;
+use crate::model::catalog::CatalogUsage;
+use crate::model::catalog::pending::PendingCursorError;
+use crate::model::catalog::pending::PendingDeletionCursor;
+use crate::model::catalog::pending::PendingDeletionPage;
+use crate::model::catalog::pending::PendingPageLimits;
+use crate::model::gateway::registry::GatewayRegistry;
+use ic_blob_storage_contracts::identity::HashParseError;
+use ic_blob_storage_contracts::identity::batch::ProviderRootBatch;
+use ic_blob_storage_contracts::upload::history::LifecyclePhase;
 
 use super::{
     gateway::{GatewayAccessError, GatewayCallbackContext},

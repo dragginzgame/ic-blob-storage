@@ -47,7 +47,7 @@ fn download_binds_exact_reference_and_project_before_any_output_or_provider_requ
         owner: input.service,
         project: input.project.clone(),
         bytes: 3,
-        headers: vec![ic_blob_storage::dto::download::DownloadHeader {
+        headers: vec![ic_blob_storage_contracts::dto::download::DownloadHeader {
             name: "Content-Length".into(),
             value: "3".into(),
         }],

@@ -9,7 +9,8 @@ use std::num::NonZeroU128;
 use candid::{Int, Nat};
 use thiserror::Error;
 
-use crate::model::billing::{FundingLimits, FundingLimitsError};
+use ic_blob_storage_contracts::configuration::funding::FundingLimits;
+use ic_blob_storage_contracts::configuration::funding::FundingLimitsError;
 
 pub mod balance;
 pub mod configuration;

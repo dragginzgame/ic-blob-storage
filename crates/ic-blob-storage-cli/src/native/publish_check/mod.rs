@@ -1,11 +1,12 @@
 //! Bounded authenticated batch observations, never allocation or dispatch authority.
 pub(super) mod observation;
-#[cfg(test)]
-pub(super) mod tests;
 use super::{Failure, arguments::Options, artifacts::Run, publish_inputs};
 use candid::Principal;
 use serde_json::{Value, json};
 use std::{num::NonZeroU64, path::PathBuf, time::Duration};
+
+#[cfg(test)]
+pub(super) mod tests;
 
 pub(super) struct Input {
     pub service: Principal,

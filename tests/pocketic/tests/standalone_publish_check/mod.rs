@@ -5,7 +5,8 @@ use crate::{
     authenticated_cli::{PEM, run},
     upload_setup_cli::uploader,
 };
-use ic_blob_storage::model::identity::{ProviderRootHash, caffeine::manifest::CaffeineChunkHash};
+use ic_blob_storage_contracts::identity::ProviderRootHash;
+use ic_blob_storage_contracts::identity::caffeine::manifest::CaffeineChunkHash;
 use ic_testkit::pocket_ic::PocketIcBuilder;
 use serde_json::json;
 use sha2::{Digest, Sha256};

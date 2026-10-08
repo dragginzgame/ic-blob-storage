@@ -99,10 +99,55 @@ if ($command eq 'version') {
     close $rewriter or die "lockfile transformation failed\n";
     defined($lock) && length($lock) or die "empty transformed lockfile\n";
     my $text = read_file('Cargo.toml');
+    # Bounded root catalog entries only; reject unsupported or stale local requirements.
+    # Cargo owns dependency ordering and packaging, not another release state machine.
+    $text =~ s!^([A-Za-z0-9_-]+ = \{[^\n]*\bpath = "[^"\n]+"[^\n]*\})$!
+        my ($entry, $name) = ($1, $1);
+        $name =~ s/ = .*//;
+        die "local catalog entry is not a workspace member: $name\n" unless $names{$name};
+        if ($entry =~ /\bversion = "([^"\n]+)"/) {
+            die "local catalog version mismatch: $name\n" unless $1 eq $old;
+            $entry =~ s/(\bversion = ")[^"\n]+("[ ,}])/$1$target$2/;
+        }
+        $entry;
+    !gme;
     $text =~ s/(^\[workspace\.package\]\n(?:(?!^\[).)*?^version = ")[^"]+(")$/$1$target$2/ms
         or die "cannot update workspace version\n";
     write_file('Cargo.toml', $text);
     write_file('Cargo.lock', $lock);
+} elsif ($command eq 'package-lock-check') {
+    # Cargo resolves the extracted standalone payload; every external selection must
+    # already be in the frozen workspace lock, with exactly its original checksum.
+    my ($entry_path, $payload_path) = @args;
+    sub registry_rows {
+        my ($path) = @_;
+        my %rows;
+        for my $section (split /(?=^\[\[package\]\]$)/m, read_file($path)) {
+            next unless $section =~ /^source = "([^"\n]+)"$/m;
+            my $source = $1;
+            $section =~ /^name = "([^"\n]+)"$/m or die "missing package name\n";
+            my $name = $1;
+            $section =~ /^version = "([^"\n]+)"$/m or die "missing package version\n";
+            my $version = $1;
+            my $checksum = '';
+            if ($source =~ /^registry\+/) {
+                $section =~ /^checksum = "([0-9a-f]{64})"$/m or die "missing package checksum\n";
+                $checksum = $1;
+            }
+            my $key = join(' ', $name, $version, $source);
+            die "duplicate package selection\n" if exists $rows{$key};
+            $rows{$key} = $checksum;
+        }
+        return \%rows;
+    }
+    my $entry = registry_rows($entry_path);
+    my $payload = registry_rows($payload_path);
+    die "empty package external graph\n" unless keys %$payload;
+    for my $key (sort keys %$payload) {
+        die "packaging changed external selection: $key\n"
+            unless exists $entry->{$key} && $entry->{$key} eq $payload->{$key};
+    }
+    print "packaged external selections match frozen workspace lock\n";
 } elsif ($command eq 'index-check') {
     my @paths = split /\0/, read_file($args[0]);
     die "unexpected release index\n" unless join(',', sort @paths)

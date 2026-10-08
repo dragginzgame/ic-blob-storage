@@ -1,15 +1,17 @@
 //! Serial native/browser composition; provider and public-serving facts remain local.
 use super::{BrowserDriver, Trial, UploadState};
-use crate::{
-    Envelope, UploadAdmissionFailure, UploadAdmissionResponse, UploadManifestRequest,
-    standalone_publish_check::freeze_bodies,
-};
+use crate::Envelope;
+use crate::UploadAdmissionFailure;
+use crate::UploadAdmissionResponse;
+use crate::UploadManifestRequest;
+use crate::standalone_publish_check::freeze_bodies;
 use crate::{browser_driver::BrowserPreparation, native_session::NativeSession};
-use ic_blob_storage::dto::reference::{
-    ReferenceAction, ReferenceChange, ReferenceCommand, ReferenceMutationResponse,
-    ReferenceReceiptLookup,
-};
-use ic_blob_storage::model::identity::ContentDigest;
+use ic_blob_storage_contracts::dto::reference::ReferenceAction;
+use ic_blob_storage_contracts::dto::reference::ReferenceChange;
+use ic_blob_storage_contracts::dto::reference::ReferenceCommand;
+use ic_blob_storage_contracts::dto::reference::ReferenceMutationResponse;
+use ic_blob_storage_contracts::dto::reference::ReferenceReceiptLookup;
+use ic_blob_storage_contracts::identity::ContentDigest;
 use ic_testkit::pic::CandidCallExt;
 use serde_json::{Value, json};
 
@@ -611,7 +613,7 @@ impl Serial {
         }
         // Same upload, verified digest and current live reference, but a distinct
         // observation time: content equality cannot reconcile another statement.
-        let mut statement: ic_blob_storage::dto::upload::completion::UploadAttestationRequest =
+        let mut statement: ic_blob_storage_contracts::dto::upload::completion::UploadAttestationRequest =
             candid::decode_one(&std::fs::read(copy.join("statement.candid")).unwrap()).unwrap();
         statement.observed_at_ns += 1;
         let encoded = candid::encode_one(statement).unwrap();

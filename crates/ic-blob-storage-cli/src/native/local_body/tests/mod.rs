@@ -1,7 +1,6 @@
 use super::*;
-use ic_blob_storage::ops::caffeine::preparation::{
-    PreparedManifestLimits, decode_prepared_manifest,
-};
+use ic_blob_storage_contracts::provider::preparation::PreparedManifestLimits;
+use ic_blob_storage_contracts::provider::preparation::decode_prepared_manifest;
 const ROOT: &str = "sha256:0e9afaf413b048e40834d5b0e737d80fbf304af2045c7564d96ad8aebaf74dfd";
 fn declaration() -> UploadManifestDeclaration {
     let bytes = br#"{"tree_type":"DSBMTWH","chunk_hashes":["sha256:b5b435d47a4cce7dfec493b1e020c5308d9c7fe90add1aff510f9c2a9c4ea8e7"],"tree":{"hash":"sha256:0e9afaf413b048e40834d5b0e737d80fbf304af2045c7564d96ad8aebaf74dfd"},"headers":["Content-Length: 3","Content-Type: text/plain"]}"#;
@@ -12,7 +11,7 @@ fn declaration() -> UploadManifestDeclaration {
         PreparedManifestLimits {
             max_json_bytes: 4096.try_into().unwrap(),
             manifest:
-                ic_blob_storage::model::identity::caffeine::manifest::CaffeineManifestLimits {
+                ic_blob_storage_contracts::identity::caffeine::manifest::CaffeineManifestLimits {
                     max_content_bytes: 3.try_into().unwrap(),
                     max_chunks: 1.try_into().unwrap(),
                     max_headers: 2.try_into().unwrap(),

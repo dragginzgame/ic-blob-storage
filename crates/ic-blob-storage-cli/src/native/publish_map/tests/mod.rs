@@ -1,16 +1,13 @@
 //! Decoder and map correlation checks; platform state is qualified in `PocketIC`.
 use super::*;
 use crate::native::publish_check::tests as fixture;
-use ic_blob_storage::dto::{
-    reference::{ReferenceFailure, status::ReferenceStatusResponse},
-    upload::{
-        capacity::UploadCapacityFailure,
-        completion::{
-            UploadAttestationFailure, UploadAttestationReceipt, UploadAttestationRequest,
-            UploadAttestationResponse,
-        },
-    },
-};
+use ic_blob_storage_contracts::dto::reference::ReferenceFailure;
+use ic_blob_storage_contracts::dto::reference::status::ReferenceStatusResponse;
+use ic_blob_storage_contracts::dto::upload::capacity::UploadCapacityFailure;
+use ic_blob_storage_contracts::dto::upload::completion::UploadAttestationFailure;
+use ic_blob_storage_contracts::dto::upload::completion::UploadAttestationReceipt;
+use ic_blob_storage_contracts::dto::upload::completion::UploadAttestationRequest;
+use ic_blob_storage_contracts::dto::upload::completion::UploadAttestationResponse;
 
 enum Replies {
     Valid,
@@ -44,13 +41,14 @@ fn observe(replies: &Replies) -> Result<Value, Failure> {
         project: input.project,
         completion_verifier: input.completion_verifier,
         trusted_uploader: input.trusted_uploader,
-        release: ic_blob_storage::LIBRARY_VERSION.into(),
+        release: ic_blob_storage_contracts::CONTRACT_VERSION.into(),
         fenced: matches!(replies, Replies::Fenced),
     };
     if matches!(replies, Replies::WrongProject) {
         host.project.push_str("-wrong");
     }
-    let mut digest = *ic_blob_storage::model::identity::ContentDigest::compute(b"abc").as_bytes();
+    let mut digest =
+        *ic_blob_storage_contracts::identity::ContentDigest::compute(b"abc").as_bytes();
     if matches!(replies, Replies::WrongDigest) {
         digest[0] ^= 1;
     }

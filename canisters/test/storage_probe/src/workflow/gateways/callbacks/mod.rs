@@ -4,11 +4,10 @@ use blob_test_protocol::storage::{
     Failure,
     gateways::{RootView, RootsInput},
 };
-use ic_blob_storage::{
-    model::service::upload::UploadContext,
-    policy::gateway::GatewayCallbackContext,
-    workflow::gateways::callbacks::{GatewayCallbackError, observe_roots},
-};
+use ic_blob_storage::policy::gateway::GatewayCallbackContext;
+use ic_blob_storage::workflow::gateways::callbacks::GatewayCallbackError;
+use ic_blob_storage::workflow::gateways::callbacks::observe_roots;
+use ic_blob_storage_contracts::upload::binding::UploadContext;
 pub(crate) fn roots(context: UploadContext, input: &RootsInput) -> Result<Vec<RootView>, Failure> {
     let (scope, batch) = callbacks::parse(input)?;
     let entries = callbacks::with_owners(|registry, uploads| {

@@ -1,11 +1,10 @@
 //! Shared passive reference capacity, including reserved cleanup receipts.
-use crate::{
-    dto::reference::capacity::{
-        ReferenceCapacityFailure, ReferenceCapacityRequest, ReferenceCapacityResponse,
-    },
-    model::service::upload::UploadContext,
-    ops::service::references::capacity::{self, ReferenceCapacitySource},
-};
+use crate::ops::service::references::capacity;
+use crate::ops::service::references::capacity::ReferenceCapacitySource;
+use ic_blob_storage_contracts::dto::reference::capacity::ReferenceCapacityFailure;
+use ic_blob_storage_contracts::dto::reference::capacity::ReferenceCapacityRequest;
+use ic_blob_storage_contracts::dto::reference::capacity::ReferenceCapacityResponse;
+use ic_blob_storage_contracts::upload::binding::UploadContext;
 /// Inspect tenant-scoped reference headroom using authenticated service/caller context.
 /// Hosts bound ingress and retain one synchronous owner borrow. Suspension and restore
 /// preserve inspection; positive counts do not authorize retain, retry or publication.

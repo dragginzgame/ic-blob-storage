@@ -3,6 +3,5 @@
 pub mod billing;
 pub mod catalog;
 pub mod gateway;
-pub mod identity;
 pub mod lifecycle;
 pub mod service;

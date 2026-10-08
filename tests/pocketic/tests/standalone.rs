@@ -42,32 +42,37 @@ mod submission_proxy;
 mod support;
 mod upload_setup_cli;
 use candid::Principal;
-use ic_blob_storage::{
-    dto::{
-        configuration::{
-            HostConfigurationView, HostFailure, ServiceBillingInput, ServiceConfigurationInput,
-            ServiceFundingInput, ServiceInstallationInput, ServiceReadInput, ServiceResourceInput,
-        },
-        reference::{
-            ReferenceAction, ReferenceCommand, ReferenceFailure, ReferenceMutationResponse,
-            ReferenceUpload,
-        },
-        tenant::{TenantEnrollmentResponse, TenantFailure, TenantScope, TenantUpdateRequest},
-        upload::{
-            admission::{
-                UploadAdmissionFailure, UploadAdmissionMutation, UploadAdmissionRequest,
-                UploadAdmissionResponse, UploadRevocationResponse,
-            },
-            manifest::{
-                UploadManifestDeclaration, UploadManifestFailure, UploadManifestHeader,
-                UploadManifestMutation, UploadManifestRequest, UploadManifestResponse,
-            },
-        },
-    },
-    model::identity::caffeine::{
-        CaffeineHashLimits, CaffeineHeader, manifest::builder::CaffeineManifestBuilder,
-    },
-};
+use ic_blob_storage_contracts::dto::configuration::HostConfigurationView;
+use ic_blob_storage_contracts::dto::configuration::HostFailure;
+use ic_blob_storage_contracts::dto::configuration::ServiceBillingInput;
+use ic_blob_storage_contracts::dto::configuration::ServiceConfigurationInput;
+use ic_blob_storage_contracts::dto::configuration::ServiceFundingInput;
+use ic_blob_storage_contracts::dto::configuration::ServiceInstallationInput;
+use ic_blob_storage_contracts::dto::configuration::ServiceReadInput;
+use ic_blob_storage_contracts::dto::configuration::ServiceResourceInput;
+use ic_blob_storage_contracts::dto::reference::ReferenceAction;
+use ic_blob_storage_contracts::dto::reference::ReferenceCommand;
+use ic_blob_storage_contracts::dto::reference::ReferenceFailure;
+use ic_blob_storage_contracts::dto::reference::ReferenceMutationResponse;
+use ic_blob_storage_contracts::dto::reference::ReferenceUpload;
+use ic_blob_storage_contracts::dto::tenant::TenantEnrollmentResponse;
+use ic_blob_storage_contracts::dto::tenant::TenantFailure;
+use ic_blob_storage_contracts::dto::tenant::TenantScope;
+use ic_blob_storage_contracts::dto::tenant::TenantUpdateRequest;
+use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionFailure;
+use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionMutation;
+use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionRequest;
+use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionResponse;
+use ic_blob_storage_contracts::dto::upload::admission::UploadRevocationResponse;
+use ic_blob_storage_contracts::dto::upload::manifest::UploadManifestDeclaration;
+use ic_blob_storage_contracts::dto::upload::manifest::UploadManifestFailure;
+use ic_blob_storage_contracts::dto::upload::manifest::UploadManifestHeader;
+use ic_blob_storage_contracts::dto::upload::manifest::UploadManifestMutation;
+use ic_blob_storage_contracts::dto::upload::manifest::UploadManifestRequest;
+use ic_blob_storage_contracts::dto::upload::manifest::UploadManifestResponse;
+use ic_blob_storage_contracts::identity::caffeine::CaffeineHashLimits;
+use ic_blob_storage_contracts::identity::caffeine::CaffeineHeader;
+use ic_blob_storage_contracts::identity::caffeine::manifest::builder::CaffeineManifestBuilder;
 use ic_testkit::{
     Fake,
     pic::CandidCallExt,
@@ -326,7 +331,7 @@ impl Fixture {
     fn resume(
         &self,
         actor: Principal,
-    ) -> Result<(), ic_blob_storage::dto::recovery::CurrentInstanceRecoveryFailure> {
+    ) -> Result<(), ic_blob_storage_contracts::dto::recovery::CurrentInstanceRecoveryFailure> {
         self.harness
             .pic
             .update_candid_as(self.service, actor, "blob_resume_current_instance", ())

@@ -1,16 +1,15 @@
 //! Standalone passive funding scope and restored empty history.
 use super::*;
-use ic_blob_storage::dto::funding::outcome::{
-    FundingOutcomeFailure, FundingOutcomeRequest, FundingOutcomeResponse,
-};
-use ic_blob_storage::dto::{
-    funding::{
-        FundingHistoryCursor, FundingHistoryFailure, FundingHistoryPage, FundingHistoryRequest,
-    },
-    operator::OperatorScope,
-};
-use ic_blob_storage::ops::service::funding::history::boundary::FUNDING_HISTORY_METHOD;
-use ic_blob_storage::ops::service::funding::outcome::boundary::FUNDING_OUTCOME_METHOD;
+use ic_blob_storage_contracts::dto::funding::FundingHistoryCursor;
+use ic_blob_storage_contracts::dto::funding::FundingHistoryFailure;
+use ic_blob_storage_contracts::dto::funding::FundingHistoryPage;
+use ic_blob_storage_contracts::dto::funding::FundingHistoryRequest;
+use ic_blob_storage_contracts::dto::funding::outcome::FundingOutcomeFailure;
+use ic_blob_storage_contracts::dto::funding::outcome::FundingOutcomeRequest;
+use ic_blob_storage_contracts::dto::funding::outcome::FundingOutcomeResponse;
+use ic_blob_storage_contracts::dto::operator::OperatorScope;
+use ic_blob_storage_contracts::protocol::FUNDING_HISTORY_METHOD;
+use ic_blob_storage_contracts::protocol::FUNDING_OUTCOME_METHOD;
 
 #[test]
 fn standalone_exact_funding_outcome_checks_authority_even_for_absent_history() {

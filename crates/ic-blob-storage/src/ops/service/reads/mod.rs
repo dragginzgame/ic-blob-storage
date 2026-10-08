@@ -2,19 +2,19 @@
 pub mod access;
 pub mod download;
 pub mod transport;
-use crate::model::{
-    gateway::registry::GatewayScope,
-    service::{
-        configuration::ServiceConfiguration,
-        read::session::{
-            ReadChunkTarget, ReadSessionError, ReadSessionIntent, ReadSessionLimits,
-            ReadSessionTicket, ReadSessionUsage,
-            record::{ReadJournalRecord, ReadSessionRecord, ReadUsageRecord},
-        },
-        upload::UploadContext,
-    },
-};
+use crate::model::gateway::registry::GatewayScope;
+use crate::model::service::read::session::ReadChunkTarget;
+use crate::model::service::read::session::ReadSessionError;
+use crate::model::service::read::session::ReadSessionIntent;
+use crate::model::service::read::session::ReadSessionLimits;
+use crate::model::service::read::session::ReadSessionTicket;
+use crate::model::service::read::session::ReadSessionUsage;
+use crate::model::service::read::session::record::ReadJournalRecord;
+use crate::model::service::read::session::record::ReadSessionRecord;
+use crate::model::service::read::session::record::ReadUsageRecord;
 use candid::Principal;
+use ic_blob_storage_contracts::configuration::service::ServiceConfiguration;
+use ic_blob_storage_contracts::upload::binding::UploadContext;
 use ic_memory::ic_stable_structures::{BTreeMap, Memory};
 use std::{collections::BTreeMap as HeapMap, num::NonZeroU32, ops::Bound};
 

@@ -1,13 +1,12 @@
 //! Bounded v1 registry snapshot, preserving sync identity without granting freshness.
 use super::{GatewayRegistry, GatewayScope, GatewaySyncToken};
-use crate::model::{
-    gateway::membership::GatewayMembership, service::configuration::ServiceConfiguration,
-};
+use crate::model::gateway::membership::GatewayMembership;
 use candid::{CandidType, DecoderConfig, Deserialize, Principal, decode_one_with_config};
+use ic_blob_storage_contracts::configuration::service::ServiceConfiguration;
 use ic_memory::ic_stable_structures::{Storable, storable::Bound};
 use std::borrow::Cow;
 
-pub(crate) const MAX_MEMBERS: usize = 1024;
+pub(crate) use ic_blob_storage_contracts::configuration::envelope::MAX_GATEWAY_MEMBERS as MAX_MEMBERS;
 const MAX_BYTES: u32 = 65_536;
 #[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize)]
 pub(crate) struct GatewayRegistryRecord {

@@ -6,7 +6,7 @@
 use std::num::{NonZeroU128, NonZeroUsize};
 use thiserror::Error;
 
-use super::transfer::FundingTransfer;
+use ic_blob_storage_contracts::funding::transfer::FundingTransfer;
 pub(crate) mod record;
 
 /// Installed attachment allocation and lifetime journal bound, without defaults.
@@ -27,7 +27,13 @@ impl FundingAllocation {
         reserve: NonZeroU128,
         max_attempts: NonZeroUsize,
     ) -> Result<Self, FundingAllocationError> {
-        if reserve.get() > allocated {
+        if ic_blob_storage_contracts::configuration::envelope::validate_allocation(
+            allocated,
+            reserve.get(),
+            allocated,
+        )
+        .is_err()
+        {
             return Err(FundingAllocationError::ReserveExceedsAllocation);
         }
         Ok(Self {
@@ -46,7 +52,13 @@ impl FundingAllocation {
         mut self,
         ceiling: u128,
     ) -> Result<Self, FundingAllocationError> {
-        if ceiling < self.allocated {
+        if ic_blob_storage_contracts::configuration::envelope::validate_allocation(
+            self.allocated,
+            self.reserve.get(),
+            ceiling,
+        )
+        .is_err()
+        {
             return Err(FundingAllocationError::RenewalCeiling);
         }
         self.renewal_ceiling = ceiling;

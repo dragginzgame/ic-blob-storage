@@ -1,30 +1,27 @@
 //! Exact local upload reservation/preparation; no certificate or provider dispatch.
 mod dispatch;
 mod request;
-#[cfg(test)]
-mod tests;
 use super::{Failure, arguments::Options, query, references};
 use candid::Principal;
-use ic_blob_storage::{
-    dto::upload::{
-        UploadState,
-        admission::{
-            UploadAdmissionFailure as A, UploadAdmissionMutation, UploadAdmissionRequest,
-            UploadAdmissionResponse, UploadRevocationResponse,
-        },
-        manifest::{
-            UploadManifestDeclaration, UploadManifestFailure as M, UploadManifestInspection,
-            UploadManifestRequest, UploadManifestResponse,
-        },
-    },
-    model::identity::caffeine::manifest::CaffeineManifestLimits,
-    ops::service::uploads::{
-        admission::{self, reply as admission_reply},
-        manifests::{self, reply as manifest_reply},
-    },
-};
+use ic_blob_storage_contracts::dto::upload::UploadState;
+use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionFailure as A;
+use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionMutation;
+use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionRequest;
+use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionResponse;
+use ic_blob_storage_contracts::dto::upload::admission::UploadRevocationResponse;
+use ic_blob_storage_contracts::dto::upload::manifest::UploadManifestDeclaration;
+use ic_blob_storage_contracts::dto::upload::manifest::UploadManifestFailure as M;
+use ic_blob_storage_contracts::dto::upload::manifest::UploadManifestInspection;
+use ic_blob_storage_contracts::dto::upload::manifest::UploadManifestRequest;
+use ic_blob_storage_contracts::dto::upload::manifest::UploadManifestResponse;
+use ic_blob_storage_contracts::identity::caffeine::manifest::CaffeineManifestLimits;
+use ic_blob_storage_contracts::upload::admission::reply as admission_reply;
+use ic_blob_storage_contracts::upload::manifests::reply as manifest_reply;
 use serde_json::{Value, json};
 use std::{num::NonZeroU64, path::PathBuf};
+
+#[cfg(test)]
+mod tests;
 
 /// Shared native upload-metadata envelope; each caller supplies its own body bound.
 pub(super) fn manifest_reply_limits(
@@ -65,11 +62,11 @@ impl Kind {
     }
     pub const fn method(self) -> &'static str {
         match self {
-            Self::Admit => admission::UPLOAD_ADMISSION_METHOD,
-            Self::Revoke => admission::UPLOAD_REVOCATION_METHOD,
-            Self::Permission => admission::UPLOAD_ADMISSION_STATUS_METHOD,
-            Self::Prepare => manifests::UPLOAD_MANIFEST_PREPARE_METHOD,
-            Self::Manifest => manifests::UPLOAD_MANIFEST_INSPECT_METHOD,
+            Self::Admit => ic_blob_storage_contracts::protocol::UPLOAD_ADMISSION_METHOD,
+            Self::Revoke => ic_blob_storage_contracts::protocol::UPLOAD_REVOCATION_METHOD,
+            Self::Permission => ic_blob_storage_contracts::protocol::UPLOAD_ADMISSION_STATUS_METHOD,
+            Self::Prepare => ic_blob_storage_contracts::protocol::UPLOAD_MANIFEST_PREPARE_METHOD,
+            Self::Manifest => ic_blob_storage_contracts::protocol::UPLOAD_MANIFEST_INSPECT_METHOD,
         }
     }
 }
@@ -99,7 +96,7 @@ fn admission_json(response: UploadAdmissionResponse) -> Value {
     json!({"permission":permission_json(response.permission),"state":state,"revoked":response.revoked})
 }
 pub(super) fn declaration_json(d: &UploadManifestDeclaration) -> Value {
-    json!({"chunks":d.chunks.iter().map(|h| ic_blob_storage::model::identity::caffeine::manifest::CaffeineChunkHash::try_from(h.as_slice()).expect("fixed hash").to_string()).collect::<Vec<_>>(),"headers":d.headers.iter().map(|h|json!({"name":h.name,"value":h.value})).collect::<Vec<_>>()})
+    json!({"chunks":d.chunks.iter().map(|h| ic_blob_storage_contracts::identity::caffeine::manifest::CaffeineChunkHash::try_from(h.as_slice()).expect("fixed hash").to_string()).collect::<Vec<_>>(),"headers":d.headers.iter().map(|h|json!({"name":h.name,"value":h.value})).collect::<Vec<_>>()})
 }
 #[derive(Debug, PartialEq)]
 pub(super) enum SetupObservation {

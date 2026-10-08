@@ -1,11 +1,15 @@
 //! Bounded current views of upload reservations and immutable root ownership.
 
-use super::{UploadCatalog, UploadPhase, UploadRequest, UploadRequestId};
-use crate::model::{
-    identity::{HashParseError, ProviderRootHash, batch::ProviderRootBatch},
-    lifecycle::{LifecyclePhase, binding::ObjectBinding},
-};
+use super::UploadCatalog;
+use super::UploadPhase;
 use candid::Principal;
+use ic_blob_storage_contracts::binding::ObjectBinding;
+use ic_blob_storage_contracts::identity::HashParseError;
+use ic_blob_storage_contracts::identity::ProviderRootHash;
+use ic_blob_storage_contracts::identity::batch::ProviderRootBatch;
+use ic_blob_storage_contracts::upload::binding::UploadRequest;
+use ic_blob_storage_contracts::upload::binding::UploadRequestId;
+use ic_blob_storage_contracts::upload::history::UploadRootState;
 use std::{
     collections::BTreeMap,
     num::{NonZeroU128, NonZeroUsize},
@@ -55,20 +59,6 @@ pub struct ActiveUploadPage {
 #[derive(Clone, Copy, Debug, Eq, Error, PartialEq)]
 #[error("upload cursor belongs to another scope")]
 pub struct UploadCursorError;
-
-/// Local root state spanning reservations and confirmed lifecycle history.
-/// None of these observations grants deletion permission or proves provider state.
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub enum UploadRootState {
-    /// Unexposed reservation; must not be mistaken for an unknown/dead root.
-    Reserved,
-    /// Authority may have escaped; preserve the unresolved object's reservation.
-    ExposurePossible,
-    /// Cancelled before exposure; root history remains claimed, not reusable.
-    Cancelled,
-    /// Current confirmed-object phase, including retained settlement history.
-    Confirmed(LifecyclePhase),
-}
 
 /// Trusted local root correlation for policy, without content or operation details.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]

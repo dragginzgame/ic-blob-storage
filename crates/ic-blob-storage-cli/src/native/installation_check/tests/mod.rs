@@ -1,6 +1,6 @@
 use super::*;
 use candid::Principal;
-use ic_blob_storage::dto::configuration::ServiceConfigurationInput;
+use ic_blob_storage_contracts::dto::configuration::ServiceConfigurationInput;
 
 fn fixture() -> Vec<u8> {
     // Independent didc encoding against the maintained standalone declaration.

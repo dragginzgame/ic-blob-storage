@@ -1,10 +1,8 @@
 //! Current-instance recovery orchestration; arbitrary backup activation stays fenced.
-use crate::{
-    model::service::upload::UploadContext,
-    ops::service::recovery::{
-        CurrentInstanceRecoveryError, RecoveryInstallationAccess, prove_current_instance,
-    },
-};
+use crate::ops::service::recovery::CurrentInstanceRecoveryError;
+use crate::ops::service::recovery::RecoveryInstallationAccess;
+use crate::ops::service::recovery::prove_current_instance;
+use ic_blob_storage_contracts::upload::binding::UploadContext;
 
 /// Authenticate the installed operator, obtain current IC history once, recheck
 /// the exact installation after the await and consume the sealed proof locally.

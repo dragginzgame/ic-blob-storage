@@ -1,99 +1,22 @@
 //! Canonical receipt conversion, bounded reply decoding and explicit IC transport.
 pub mod capacity;
 pub mod client;
-pub mod reply;
 pub mod status;
-use crate::{
-    dto::reference::{
-        ReferenceAction, ReferenceChange, ReferenceCommand, ReferenceFailure,
-        ReferenceReceiptResponse, ReferenceTransitionFailure, ReferenceUpload,
-    },
-    model::{
-        catalog::admission::{UploadError, UploadObject, UploadRequest, UploadRequestId},
-        identity::ProviderRootHash,
-        lifecycle::{
-            LifecycleChange, LifecycleError, ReferenceId,
-            binding::{ObjectBinding, ObjectIdentity, ReferenceKey},
-            requests::{
-                ReferenceOperation, ReferenceReceiptView, ReferenceRequest, ReferenceRequestError,
-                ReferenceRequestId,
-            },
-        },
-        service::upload::{UploadAdmissionError, UploadContext},
-    },
-    ops::service::uploads::UploadStoreError,
-};
-use std::num::NonZeroU128;
-/// Canonical query method, also callable through replicated IC execution.
-/// Linking the library does not export it.
-pub const REFERENCE_RECEIPT_METHOD: &str = "blob_reference_receipt";
-/// Canonical update method. The caller must durably retain the exact intent first.
-pub const REFERENCE_APPLY_METHOD: &str = "blob_apply_reference";
+use crate::model::catalog::admission::UploadError;
+use crate::model::lifecycle::LifecycleChange;
+use crate::model::lifecycle::LifecycleError;
+use crate::model::lifecycle::requests::ReferenceReceiptView;
+use crate::model::lifecycle::requests::ReferenceRequestError;
+use crate::model::service::upload::UploadAdmissionError;
+use crate::ops::service::uploads::UploadStoreError;
+use ic_blob_storage_contracts::dto::reference::ReferenceChange;
+use ic_blob_storage_contracts::dto::reference::ReferenceCommand;
+use ic_blob_storage_contracts::dto::reference::ReferenceFailure;
+use ic_blob_storage_contracts::dto::reference::ReferenceReceiptResponse;
+use ic_blob_storage_contracts::dto::reference::ReferenceTransitionFailure;
 
-pub(crate) fn parse(
-    context: UploadContext,
-    request: ReferenceCommand,
-) -> Result<(UploadRequest, ReferenceRequest), ReferenceFailure> {
-    let upload = parse_upload(context, request.upload)?;
-    let positive = |n| NonZeroU128::new(n).ok_or(ReferenceFailure::Invalid);
-    let key = ReferenceKey::new(
-        upload.object.first.object(),
-        ReferenceId::new(positive(request.reference)?),
-    );
-    Ok((
-        upload,
-        ReferenceRequest {
-            id: ReferenceRequestId::new(positive(request.operation)?),
-            operation: match request.action {
-                ReferenceAction::Retain => ReferenceOperation::Retain(key),
-                ReferenceAction::Release => ReferenceOperation::Release(key),
-            },
-        },
-    ))
-}
-pub(crate) fn parse_upload(
-    context: UploadContext,
-    upload: ReferenceUpload,
-) -> Result<UploadRequest, ReferenceFailure> {
-    if upload.service != context.service {
-        return Err(ReferenceFailure::Binding);
-    }
-    if upload.tenant != context.actor {
-        return Err(ReferenceFailure::Denied);
-    }
-    parse_upload_binding(context.service, upload)
-}
 // Conversion only. Each boundary authenticates its own tenant/uploader role first.
-pub(crate) fn parse_upload_binding(
-    service: candid::Principal,
-    upload: ReferenceUpload,
-) -> Result<UploadRequest, ReferenceFailure> {
-    if upload.service != service {
-        return Err(ReferenceFailure::Binding);
-    }
-    if upload.bytes == 0 {
-        return Err(ReferenceFailure::Invalid);
-    }
-    let positive = |n| NonZeroU128::new(n).ok_or(ReferenceFailure::Invalid);
-    let object = ObjectBinding::new(
-        upload.service,
-        upload.tenant,
-        ObjectIdentity {
-            namespace: positive(upload.namespace)?,
-            object: positive(upload.object)?,
-            incarnation: positive(upload.incarnation)?,
-        },
-    )
-    .map_err(|_| ReferenceFailure::Invalid)?;
-    Ok(UploadRequest {
-        id: UploadRequestId::new(positive(upload.upload)?),
-        object: UploadObject {
-            root: ProviderRootHash::try_from(upload.root.as_slice()).expect("fixed root"),
-            bytes: upload.bytes,
-            first: ReferenceKey::new(object, ReferenceId::new(positive(upload.first_reference)?)),
-        },
-    })
-}
+
 pub(crate) fn present(
     request: ReferenceCommand,
     view: ReferenceReceiptView,
@@ -118,8 +41,8 @@ pub(crate) fn failure(error: UploadStoreError) -> ReferenceFailure {
             ReferenceFailure::Capacity
         }
         UploadStoreError::Admission(UploadAdmissionError::Tenant(
-            crate::model::service::tenant::TenantError::NotEnrolled
-            | crate::model::service::tenant::TenantError::Suspended,
+            ic_blob_storage_contracts::tenant::TenantError::NotEnrolled
+            | ic_blob_storage_contracts::tenant::TenantError::Suspended,
         )) => ReferenceFailure::Inactive,
         UploadStoreError::Admission(UploadAdmissionError::NotProject) => ReferenceFailure::Denied,
         UploadStoreError::Binding
@@ -146,14 +69,17 @@ pub(crate) fn failure(error: UploadStoreError) -> ReferenceFailure {
 pub(crate) fn mutation(
     request: ReferenceCommand,
     outcome: &crate::model::lifecycle::requests::ReferenceRequestOutcome,
-) -> Result<crate::dto::reference::ReferenceMutationResponse, ReferenceFailure> {
+) -> Result<ic_blob_storage_contracts::dto::reference::ReferenceMutationResponse, ReferenceFailure>
+{
     use crate::model::lifecycle::requests::ReferenceRequestOutcome;
     let (replayed, result) = match outcome {
         ReferenceRequestOutcome::Recorded { result } => (false, *result),
         ReferenceRequestOutcome::Replayed { result } => (true, *result),
     };
-    Ok(crate::dto::reference::ReferenceMutationResponse {
-        receipt: present(request, ReferenceReceiptView { result })?,
-        replayed,
-    })
+    Ok(
+        ic_blob_storage_contracts::dto::reference::ReferenceMutationResponse {
+            receipt: present(request, ReferenceReceiptView { result })?,
+            replayed,
+        },
+    )
 }

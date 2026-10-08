@@ -7,7 +7,7 @@ pub mod reconciliation;
 
 use std::num::NonZeroU128;
 
-use crate::model::billing::FundingLimits;
+use ic_blob_storage_contracts::configuration::funding::FundingLimits;
 
 /// Whether the entire positive request fits above the reserve.
 ///

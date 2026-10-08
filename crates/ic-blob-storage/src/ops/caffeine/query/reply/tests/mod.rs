@@ -1,8 +1,9 @@
 use super::*;
-use crate::model::gateway::{
-    GatewayListError, GatewayListLimits, membership::GatewayMembership, registry::GatewaySyncError,
-};
+use crate::model::gateway::GatewayListError;
+use crate::model::gateway::membership::GatewayMembership;
+use crate::model::gateway::registry::GatewaySyncError;
 use crate::ops::caffeine::relationship::PaymentRelationshipBinding;
+use ic_blob_storage_contracts::configuration::limits::GatewayListLimits;
 use std::num::{NonZeroU128, NonZeroUsize};
 
 fn p(value: u8) -> Principal {

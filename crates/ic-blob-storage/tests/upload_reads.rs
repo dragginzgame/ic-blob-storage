@@ -1,40 +1,42 @@
 //! Native admission/read composition. Context and provider facts are substitutes.
 
 use candid::Principal;
-use ic_blob_storage::{
-    model::{
-        catalog::{
-            CatalogLimits,
-            admission::{
-                UploadCatalog, UploadLimits, UploadObject, UploadPhase, UploadRequest,
-                UploadRequestId, UploadUsage,
-                read::{UploadCursorError, UploadPageLimits, UploadRootState},
-            },
-        },
-        gateway::{
-            GatewayListLimits,
-            membership::GatewayMembership,
-            registry::{GatewayRegistry, GatewayScope},
-        },
-        identity::{
-            HashParseError, ProviderRootHash,
-            batch::{ProviderRootBatch, RootBatchLimits},
-        },
-        lifecycle::{
-            LifecyclePhase, ReferenceId,
-            binding::{ObjectBinding, ObjectIdentity, ReferenceKey},
-            requests::{ReferenceOperation, ReferenceRequest, ReferenceRequestId},
-        },
-    },
-    policy::{
-        catalog::upload::{
-            UploadReadError, UploadRootStatus, assess_gateway_upload_roots,
-            assess_tenant_active_uploads, assess_tenant_upload_usage,
-        },
-        gateway::{GatewayAccessError, GatewayCallbackContext},
-        tenant::{TenantAccessContext, TenantAccessError},
-    },
-};
+use ic_blob_storage::model::catalog::admission::UploadCatalog;
+use ic_blob_storage::model::catalog::admission::UploadPhase;
+use ic_blob_storage::model::catalog::admission::UploadUsage;
+use ic_blob_storage::model::catalog::admission::read::UploadCursorError;
+use ic_blob_storage::model::catalog::admission::read::UploadPageLimits;
+use ic_blob_storage::model::gateway::membership::GatewayMembership;
+use ic_blob_storage::model::gateway::registry::GatewayRegistry;
+use ic_blob_storage::model::gateway::registry::GatewayScope;
+use ic_blob_storage::policy::catalog::upload::UploadReadError;
+use ic_blob_storage::policy::catalog::upload::UploadRootStatus;
+use ic_blob_storage::policy::catalog::upload::assess_gateway_upload_roots;
+use ic_blob_storage::policy::catalog::upload::assess_tenant_active_uploads;
+use ic_blob_storage::policy::catalog::upload::assess_tenant_upload_usage;
+use ic_blob_storage::policy::gateway::GatewayAccessError;
+use ic_blob_storage::policy::gateway::GatewayCallbackContext;
+use ic_blob_storage::policy::tenant::TenantAccessContext;
+use ic_blob_storage::policy::tenant::TenantAccessError;
+use ic_blob_storage_contracts::binding::ObjectBinding;
+use ic_blob_storage_contracts::binding::ObjectIdentity;
+use ic_blob_storage_contracts::binding::ReferenceId;
+use ic_blob_storage_contracts::binding::ReferenceKey;
+use ic_blob_storage_contracts::configuration::limits::CatalogLimits;
+use ic_blob_storage_contracts::configuration::limits::GatewayListLimits;
+use ic_blob_storage_contracts::configuration::limits::UploadLimits;
+use ic_blob_storage_contracts::identity::HashParseError;
+use ic_blob_storage_contracts::identity::ProviderRootHash;
+use ic_blob_storage_contracts::identity::batch::ProviderRootBatch;
+use ic_blob_storage_contracts::identity::batch::RootBatchLimits;
+use ic_blob_storage_contracts::reference::binding::ReferenceOperation;
+use ic_blob_storage_contracts::reference::binding::ReferenceRequest;
+use ic_blob_storage_contracts::reference::binding::ReferenceRequestId;
+use ic_blob_storage_contracts::upload::binding::UploadObject;
+use ic_blob_storage_contracts::upload::binding::UploadRequest;
+use ic_blob_storage_contracts::upload::binding::UploadRequestId;
+use ic_blob_storage_contracts::upload::history::LifecyclePhase;
+use ic_blob_storage_contracts::upload::history::UploadRootState;
 use std::num::{NonZeroU128, NonZeroUsize};
 
 fn n(value: u128) -> NonZeroU128 {

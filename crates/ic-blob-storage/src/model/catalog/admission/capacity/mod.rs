@@ -1,8 +1,11 @@
 //! Shared reservation admission against already observed owner totals.
-use super::{
-    CatalogCapacity, CatalogError, CatalogLimits, UploadError, UploadLimits, UploadUsage,
-    check_bytes,
-};
+use super::CatalogCapacity;
+use super::CatalogError;
+use super::CatalogLimits;
+use super::UploadError;
+use super::UploadUsage;
+use super::check_bytes;
+use ic_blob_storage_contracts::configuration::limits::UploadLimits;
 
 pub(crate) fn check(
     usage: UploadUsage,

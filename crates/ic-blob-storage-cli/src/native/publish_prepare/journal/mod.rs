@@ -4,7 +4,7 @@ use crate::native::{
     read,
     upload_inputs::{PreparedInput, digest},
 };
-use ic_blob_storage::model::identity::ContentDigest;
+use ic_blob_storage_contracts::identity::ContentDigest;
 use std::path::Path;
 
 pub(super) fn binding(

@@ -101,7 +101,8 @@ runs shell/helper checks, hook regressions, manifest/Rust formatting, compilatio
 Clippy, retained-probe checks, docs, native/PocketIC tests, Wasm and packaging.
 Prerequisite or fetch failure stops before compilation or version mutation. Offline
 checks never select newer dependencies. The metadata transaction updates only
-workspace versions and local version-qualified references in Cargo.lock, then
+the inherited workspace version, version-qualified local catalog requirements
+and local version-qualified references in Cargo.lock, then
 checks Cargo metadata with `--offline --locked`; external selections stay fixed.
 Prepared metadata must pass formatting before its receipt is written or staged.
 
@@ -154,11 +155,33 @@ Failed local fixtures and preparation inputs remain at the printed paths.
 
 ## Publication and deployment
 
-Use `make publish-dry-run` or `make publish` explicitly for crates.io. They verify
-the clean completed release, receipt, exact parent and annotated tag before
-calling Cargo. Publication holds the same lock as release preparation and
-recovery. Publishing neither deploys nor qualifies the service. Older
-completed releases need no runner plan for this separate publication check.
+Publication remains an explicit maintainer action after the clean release,
+receipt, exact parent and annotated tag checks. Select the contracts package first:
+
+```sh
+make publish-dry-run PUBLISH_PACKAGE=ic-blob-storage-contracts
+make publish PUBLISH_PACKAGE=ic-blob-storage-contracts
+# Once that exact version is available from crates.io:
+make publish-dry-run PUBLISH_PACKAGE=ic-blob-storage
+make publish PUBLISH_PACKAGE=ic-blob-storage
+```
+
+Each invocation calls standard Cargo for the selected package under the same
+release lock. There is no second publisher or retry engine. An already-published
+contracts version is not resubmitted just to retry service publication. Publishing
+neither deploys nor qualifies the service. Older completed releases need no runner
+plan for this separate publication check.
+
+`make package` assembles both `.crate` archives with Cargo, then runs the full
+library tests/examples against their exact extracted, normalized payloads in a
+fresh retained workspace. Its local contracts patch points only at that extracted
+payload. Cargo resolves its lock before compilation; the bounded metadata adapter
+rejects any external version/source/checksum absent from the frozen root lock.
+The root lock is unchanged. This avoids Cargo’s
+[local-registry checksum failure](https://github.com/rust-lang/cargo/issues/14396)
+without dropping package-content verification. Package assembly needs Cargo 1.90
+or newer ([stabilization record](https://blog.rust-lang.org/inside-rust/2025/10/01/this-development-cycle-in-cargo-1.90/));
+the supported library/compiler floor remains Rust 1.88.
 
 Validation builds use the source version before release preparation. Preserved
 binaries may report that earlier version after a successful release. Before

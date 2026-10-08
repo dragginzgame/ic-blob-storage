@@ -1,8 +1,7 @@
 use super::*;
-use crate::{
-    model::billing::{allocation::FundingAllocation, transfer::FundingTransfer},
-    policy::billing::RecoveryState,
-};
+use crate::model::billing::allocation::FundingAllocation;
+use crate::policy::billing::RecoveryState;
+use ic_blob_storage_contracts::funding::transfer::FundingTransfer;
 use std::num::NonZeroUsize;
 fn n(v: u128) -> NonZeroU128 {
     NonZeroU128::new(v).unwrap()

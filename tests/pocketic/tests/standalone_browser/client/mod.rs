@@ -6,11 +6,11 @@ use crate::{
     authenticated_cli::{PEM, run_with_tls_roots},
 };
 use ic_agent::{Identity, identity::BasicIdentity};
-use ic_blob_storage::{
-    dto::download::DownloadRequest,
-    model::identity::{ContentDigest, caffeine::manifest::CaffeineManifestLimits},
-    ops::caffeine::preparation::{PreparedManifestLimits, decode_prepared_manifest},
-};
+use ic_blob_storage_contracts::dto::download::DownloadRequest;
+use ic_blob_storage_contracts::identity::ContentDigest;
+use ic_blob_storage_contracts::identity::caffeine::manifest::CaffeineManifestLimits;
+use ic_blob_storage_contracts::provider::preparation::PreparedManifestLimits;
+use ic_blob_storage_contracts::provider::preparation::decode_prepared_manifest;
 use std::{
     num::{NonZeroU64, NonZeroUsize},
     path::PathBuf,
@@ -235,7 +235,7 @@ impl Trial {
         assert_eq!(self.invoke("setup", &args, 0)["state"], "prepared");
         assert_eq!(
             self.f.admission(input.permission).state,
-            ic_blob_storage::dto::upload::UploadState::Reserved
+            ic_blob_storage_contracts::dto::upload::UploadState::Reserved
         );
         assert_eq!(
             crate::standalone_certificate::inspect(

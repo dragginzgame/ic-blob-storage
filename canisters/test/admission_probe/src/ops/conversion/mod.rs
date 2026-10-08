@@ -1,18 +1,18 @@
 //! Exact fixture identity construction and typed error conversion.
 
 use blob_test_protocol::admission::{Failure, Phase, Request};
-use ic_blob_storage::model::{
-    catalog::admission::{UploadObject, UploadPhase, UploadRequest, UploadRequestId},
-    identity::ProviderRootHash,
-    lifecycle::{
-        ReferenceId,
-        binding::{ObjectBinding, ObjectIdentity, ReferenceKey},
-    },
-    service::{
-        tenant::TenantError,
-        upload::{UploadAdmissionError, UploadManifestLimit},
-    },
-};
+use ic_blob_storage::model::catalog::admission::UploadPhase;
+use ic_blob_storage::model::service::upload::UploadAdmissionError;
+use ic_blob_storage::model::service::upload::UploadManifestLimit;
+use ic_blob_storage_contracts::binding::ObjectBinding;
+use ic_blob_storage_contracts::binding::ObjectIdentity;
+use ic_blob_storage_contracts::binding::ReferenceId;
+use ic_blob_storage_contracts::binding::ReferenceKey;
+use ic_blob_storage_contracts::identity::ProviderRootHash;
+use ic_blob_storage_contracts::tenant::TenantError;
+use ic_blob_storage_contracts::upload::binding::UploadObject;
+use ic_blob_storage_contracts::upload::binding::UploadRequest;
+use ic_blob_storage_contracts::upload::binding::UploadRequestId;
 use std::num::NonZeroU128;
 
 pub(super) fn request(input: Request) -> Result<UploadRequest, Failure> {

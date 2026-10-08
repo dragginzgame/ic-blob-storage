@@ -7,17 +7,16 @@
 pub mod chunk;
 pub mod download;
 pub mod sessions;
-use crate::{
-    model::{
-        gateway::registry::GatewayScope,
-        service::{read::ReadTarget, upload::UploadContext},
-    },
-    ops::service::{
-        gateways::{GatewayStoreError, StableGatewayRegistry},
-        uploads::{StableUploads, UploadStoreError},
-    },
-    policy::gateway::{GatewayAccessError, GatewayCallbackContext, assess_gateway_callback},
-};
+use crate::model::gateway::registry::GatewayScope;
+use crate::model::service::read::ReadTarget;
+use crate::ops::service::gateways::GatewayStoreError;
+use crate::ops::service::gateways::StableGatewayRegistry;
+use crate::ops::service::uploads::StableUploads;
+use crate::ops::service::uploads::UploadStoreError;
+use crate::policy::gateway::GatewayAccessError;
+use crate::policy::gateway::GatewayCallbackContext;
+use crate::policy::gateway::assess_gateway_callback;
+use ic_blob_storage_contracts::upload::binding::UploadContext;
 use ic_memory::ic_stable_structures::Memory;
 use std::num::NonZeroU64;
 use thiserror::Error;

@@ -2,7 +2,7 @@
 
 use super::STATE;
 use blob_test_protocol::admission::{ExecutionProfile, Failure, RESOURCE_SAMPLE_CAPACITY};
-use ic_blob_storage::model::service::upload::UploadContext;
+use ic_blob_storage_contracts::upload::binding::UploadContext;
 use std::cell::Cell;
 
 thread_local! {

@@ -4,23 +4,24 @@ use blob_test_protocol::storage::{
     WriteFault,
     exposure::{ExposureInput, ExposureOutcome, ExposureScenario},
 };
-use ic_blob_storage::{
-    dto::upload::{
-        admission::{UploadAdmissionFailure, UploadAdmissionRequest, UploadAdmissionResponse},
-        exposure::{UploadExposureBlocker, UploadExposureFailure},
-    },
-    model::{
-        catalog::admission::{UploadObject, UploadRequest, UploadRequestId},
-        identity::ProviderRootHash,
-        lifecycle::{
-            ReferenceId,
-            binding::{ObjectBinding, ObjectIdentity, ReferenceKey},
-        },
-        service::upload::{UploadContext, UploadPermission},
-    },
-    policy::upload::exposure::UploadExposureHostEvidence,
-    workflow::uploads::exposure::{self, UploadExposureResult},
-};
+use ic_blob_storage::policy::upload::exposure::UploadExposureHostEvidence;
+use ic_blob_storage::workflow::uploads::exposure;
+use ic_blob_storage::workflow::uploads::exposure::UploadExposureResult;
+use ic_blob_storage_contracts::binding::ObjectBinding;
+use ic_blob_storage_contracts::binding::ObjectIdentity;
+use ic_blob_storage_contracts::binding::ReferenceId;
+use ic_blob_storage_contracts::binding::ReferenceKey;
+use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionFailure;
+use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionRequest;
+use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionResponse;
+use ic_blob_storage_contracts::dto::upload::exposure::UploadExposureBlocker;
+use ic_blob_storage_contracts::dto::upload::exposure::UploadExposureFailure;
+use ic_blob_storage_contracts::identity::ProviderRootHash;
+use ic_blob_storage_contracts::upload::binding::UploadContext;
+use ic_blob_storage_contracts::upload::binding::UploadObject;
+use ic_blob_storage_contracts::upload::binding::UploadPermission;
+use ic_blob_storage_contracts::upload::binding::UploadRequest;
+use ic_blob_storage_contracts::upload::binding::UploadRequestId;
 use std::num::NonZeroU128;
 thread_local! {
     // Private test setup only. Upgrade clears it; production ingress never supplies facts.
@@ -37,7 +38,7 @@ pub(crate) fn configure_certificate(context: UploadContext, input: ExposureInput
 pub(crate) fn certificate(
     context: UploadContext,
     root: &str,
-) -> ic_blob_storage::dto::upload::certificate::CaffeineUploadCertificateResponse {
+) -> ic_blob_storage_contracts::dto::upload::certificate::CaffeineUploadCertificateResponse {
     let input = CERTIFICATE_FIXTURE
         .get()
         .unwrap_or_else(|| ic_cdk::trap("fixture host evidence absent"));

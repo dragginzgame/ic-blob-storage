@@ -1,11 +1,12 @@
 //! Compare saved intent to immutable service history without resending it.
 use super::{Failure, read, references::upload_json};
 use candid::Principal;
-use ic_blob_storage::{
-    dto::upload::completion::{UploadAttestationLookup, UploadAttestationRequest},
-    model::{identity::ContentDigest, service::upload::completion::CompletionAuthority},
-    ops::service::uploads::completion::reply::{self, UploadAttestationReplyError},
-};
+use ic_blob_storage_contracts::dto::upload::completion::UploadAttestationLookup;
+use ic_blob_storage_contracts::dto::upload::completion::UploadAttestationRequest;
+use ic_blob_storage_contracts::identity::ContentDigest;
+use ic_blob_storage_contracts::upload::completion::CompletionAuthority;
+use ic_blob_storage_contracts::upload::completion::reply;
+use ic_blob_storage_contracts::upload::completion::reply::UploadAttestationReplyError;
 use serde_json::{Value, json};
 use std::path::Path;
 
@@ -34,7 +35,7 @@ impl Recovery {
     pub fn query(&self) -> (Principal, &'static str, Vec<u8>) {
         (
             self.authority.service(),
-            ic_blob_storage::ops::service::uploads::completion::UPLOAD_ATTESTATION_METHOD,
+            ic_blob_storage_contracts::protocol::UPLOAD_ATTESTATION_METHOD,
             self.argument.clone(),
         )
     }

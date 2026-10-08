@@ -1,11 +1,10 @@
 //! Current unqualified-host preparation diagnosis; no reservation or provider query.
-use crate::{
-    dto::funding::assessment::{
-        FundingPreparationFailure, FundingPreparationRequest, FundingPreparationResponse,
-    },
-    model::service::upload::UploadContext,
-    ops::service::funding::{StableFundingJournal, assessment},
-};
+use crate::ops::service::funding::StableFundingJournal;
+use crate::ops::service::funding::assessment;
+use ic_blob_storage_contracts::dto::funding::assessment::FundingPreparationFailure;
+use ic_blob_storage_contracts::dto::funding::assessment::FundingPreparationRequest;
+use ic_blob_storage_contracts::dto::funding::assessment::FundingPreparationResponse;
+use ic_blob_storage_contracts::upload::binding::UploadContext;
 use ic_memory::ic_stable_structures::Memory;
 
 /// Inspect one proposed new intent synchronously with authenticated local facts.

@@ -1,19 +1,18 @@
 use super::*;
 mod client;
-use ic_blob_storage::{
-    dto::upload::{
-        admission::{UploadAdmissionFailure as A, UploadAdmissionRequest},
-        manifest::{
-            UploadManifestFailure as F, UploadManifestInspection, UploadManifestMutation,
-            UploadManifestRequest, UploadManifestResponse,
-        },
-    },
-    model::identity::caffeine::manifest::CaffeineManifestLimits,
-    ops::service::uploads::manifests::{
-        UPLOAD_MANIFEST_INSPECT_METHOD, UPLOAD_MANIFEST_PREPARE_METHOD,
-        reply::{self, UploadManifestReplyError, UploadManifestReplyLimits},
-    },
-};
+use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionFailure as A;
+use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionRequest;
+use ic_blob_storage_contracts::dto::upload::manifest::UploadManifestFailure as F;
+use ic_blob_storage_contracts::dto::upload::manifest::UploadManifestInspection;
+use ic_blob_storage_contracts::dto::upload::manifest::UploadManifestMutation;
+use ic_blob_storage_contracts::dto::upload::manifest::UploadManifestRequest;
+use ic_blob_storage_contracts::dto::upload::manifest::UploadManifestResponse;
+use ic_blob_storage_contracts::identity::caffeine::manifest::CaffeineManifestLimits;
+use ic_blob_storage_contracts::protocol::UPLOAD_MANIFEST_INSPECT_METHOD;
+use ic_blob_storage_contracts::protocol::UPLOAD_MANIFEST_PREPARE_METHOD;
+use ic_blob_storage_contracts::upload::manifests::reply;
+use ic_blob_storage_contracts::upload::manifests::reply::UploadManifestReplyError;
+use ic_blob_storage_contracts::upload::manifests::reply::UploadManifestReplyLimits;
 fn inspect(
     f: &Fixture,
     actor: Principal,

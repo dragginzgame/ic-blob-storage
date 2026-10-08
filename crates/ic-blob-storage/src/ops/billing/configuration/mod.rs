@@ -3,7 +3,8 @@
 use candid::Principal;
 use thiserror::Error;
 
-use crate::model::billing::configuration::{BillingConfiguration, BillingConfigurationError};
+use ic_blob_storage_contracts::configuration::billing::BillingConfiguration;
+use ic_blob_storage_contracts::configuration::billing::BillingConfigurationError;
 
 use super::{BillingInputError, FundingLimitsInput, funding_limits_from_candid};
 
@@ -55,7 +56,8 @@ mod tests {
     use candid::Nat;
 
     use super::*;
-    use crate::{model::billing::configuration::GatewayLimitField, ops::billing::BillingField};
+    use crate::ops::billing::BillingField;
+    use ic_blob_storage_contracts::configuration::billing::GatewayLimitField;
 
     #[test]
     fn conversion_preserves_typed_errors_from_both_validation_layers() {

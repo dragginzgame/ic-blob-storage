@@ -16,10 +16,10 @@ use blob_test_protocol::funding::{
     FundingRequest,
 };
 use candid::Principal;
-use ic_blob_storage::model::billing::transfer::FundingTransfer;
 use ic_blob_storage::ops::caffeine::funding::{
     TopUpProviderError, TopUpReply, TopUpReplyLimits, decode_top_up_reply,
 };
+use ic_blob_storage_contracts::funding::transfer::FundingTransfer;
 use ic_cdk::call::{Call, CallFailed};
 
 thread_local! {

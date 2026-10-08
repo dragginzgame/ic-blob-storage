@@ -4,16 +4,11 @@ use blob_test_protocol::storage::{
     Failure,
     read::{RootBatchInput, RootObservation},
 };
-use ic_blob_storage::{
-    model::{
-        identity::{
-            HashParseError,
-            batch::{ProviderRootBatch, RootBatchLimits},
-        },
-        service::upload::UploadContext,
-    },
-    ops::service::uploads::read::UploadRootObservation,
-};
+use ic_blob_storage::ops::service::uploads::read::UploadRootObservation;
+use ic_blob_storage_contracts::identity::HashParseError;
+use ic_blob_storage_contracts::identity::batch::ProviderRootBatch;
+use ic_blob_storage_contracts::identity::batch::RootBatchLimits;
+use ic_blob_storage_contracts::upload::binding::UploadContext;
 use std::num::{NonZeroU128, NonZeroUsize};
 
 pub(crate) fn roots(

@@ -1,13 +1,12 @@
 //! Authenticated replicated descriptor call; no automatic retries or body transport.
-use super::{
-    DOWNLOAD_METHOD,
-    reply::{self, DownloadReplyError, DownloadReplyLimits},
-};
-use crate::{
-    dto::download::{DownloadRequest, DownloadResponse},
-    model::service::read::download::CaffeineDownloadScope,
-};
 use candid::Principal;
+use ic_blob_storage_contracts::download::reply;
+use ic_blob_storage_contracts::download::reply::DownloadReplyError;
+use ic_blob_storage_contracts::download::reply::DownloadReplyLimits;
+use ic_blob_storage_contracts::download::scope::CaffeineDownloadScope;
+use ic_blob_storage_contracts::dto::download::DownloadRequest;
+use ic_blob_storage_contracts::dto::download::DownloadResponse;
+use ic_blob_storage_contracts::protocol::DOWNLOAD_METHOD;
 use ic_cdk::call::{Call, CallFailed};
 use std::num::NonZeroU32;
 use thiserror::Error;

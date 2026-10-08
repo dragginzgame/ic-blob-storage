@@ -1,8 +1,14 @@
 //! Shared checks for the heap owner and durable pending-upload owner.
-use super::{
-    NonZeroU64, ObjectBinding, Principal, ServiceConfiguration, TenantError, UploadAdmissionError,
-    UploadContext, UploadPermission, UploadPermissionView, UploadPhase,
-};
+use super::NonZeroU64;
+use super::ObjectBinding;
+use super::Principal;
+use super::ServiceConfiguration;
+use super::TenantError;
+use super::UploadAdmissionError;
+use super::UploadPermissionView;
+use super::UploadPhase;
+use ic_blob_storage_contracts::upload::binding::UploadContext;
+use ic_blob_storage_contracts::upload::binding::UploadPermission;
 
 pub(crate) fn tenant(
     config: &ServiceConfiguration,

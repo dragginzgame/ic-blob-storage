@@ -1,9 +1,9 @@
 //! Offline explicit Cashier account-link inputs; no credentials or dispatch.
 use super::{Failure, artifacts::Run};
-use ic_blob_storage::{
-    model::identity::ContentDigest,
-    ops::caffeine::onboarding::{AccountLinkBinding, AccountLinkRequest, AccountLinkTerms},
-};
+use ic_blob_storage_contracts::identity::ContentDigest;
+use ic_blob_storage_contracts::provider::onboarding::AccountLinkBinding;
+use ic_blob_storage_contracts::provider::onboarding::AccountLinkRequest;
+use ic_blob_storage_contracts::provider::onboarding::AccountLinkTerms;
 use serde_json::{Value, json};
 use std::{
     num::{NonZeroU64, NonZeroU128},

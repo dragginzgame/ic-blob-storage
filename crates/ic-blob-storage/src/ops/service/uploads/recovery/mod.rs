@@ -1,11 +1,23 @@
 //! Validate complete upload state without repairing missing evidence or counters.
-use super::{ConfirmedLifecycleRecord, UploadRequest};
-use super::{
-    MANIFEST_BYTES, Memory, Principal, ServiceConfiguration, StableUploads, UploadAdmissionError,
-    UploadConfigurationRecord, UploadContext, UploadManifestState, UploadPhase, UploadStoreError,
-    UploadStoreRecord, UploadUsageRecord, key, metadata, validation,
-};
-use crate::model::lifecycle::{LifecyclePhase, ReferenceState};
+use super::ConfirmedLifecycleRecord;
+use super::Memory;
+use super::Principal;
+use super::ServiceConfiguration;
+use super::StableUploads;
+use super::UploadAdmissionError;
+use super::UploadConfigurationRecord;
+use super::UploadContext;
+use super::UploadManifestState;
+use super::UploadPhase;
+use super::UploadRequest;
+use super::UploadStoreError;
+use super::UploadStoreRecord;
+use super::UploadUsageRecord;
+use super::key;
+use super::metadata;
+use super::validation;
+use crate::model::lifecycle::ReferenceState;
+use ic_blob_storage_contracts::upload::history::LifecyclePhase;
 use std::{
     collections::{BTreeMap as HeapMap, btree_map::Entry},
     num::NonZeroU64,
@@ -19,17 +31,8 @@ struct TenantRestoreTotal {
 }
 
 pub(crate) fn envelope(config: &ServiceConfiguration) -> Result<(), UploadStoreError> {
-    let limits = config.manifest_limits();
-    // Fixed Candid type/framing allowance, 33 bytes per encoded leaf, and a
-    // conservative per-header string-length overhead beyond the raw byte budget.
-    let worst = 1024u128
-        + 33 * limits.max_chunks.get() as u128
-        + limits.max_header_bytes.get() as u128
-        + 8 * limits.max_headers.get() as u128;
-    if worst > MANIFEST_BYTES as u128 {
-        return Err(UploadStoreError::UnsupportedEnvelope);
-    }
-    Ok(())
+    ic_blob_storage_contracts::configuration::envelope::validate_manifest_envelope(config)
+        .map_err(|_| UploadStoreError::UnsupportedEnvelope)
 }
 pub(super) fn manifest_capacity(
     config: &ServiceConfiguration,

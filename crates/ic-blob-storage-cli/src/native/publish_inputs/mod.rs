@@ -1,9 +1,7 @@
 //! Freeze a bounded, caller-allocated inventory without service/provider effects.
 mod capacity;
 mod paths;
-#[cfg(test)]
-mod tests;
-
+use super::parsing::positive;
 use super::{
     Failure,
     artifacts::{FailureRecord, Run},
@@ -13,6 +11,9 @@ use super::{
 use serde::Deserialize;
 use serde_json::{Value, json};
 use std::{num::NonZeroU64, path::Path};
+
+#[cfg(test)]
+mod tests;
 
 const INVENTORY_BYTES: u64 = 2 * 1024 * 1024;
 const METADATA_BYTES: usize = 16 * 1024 * 1024;
@@ -121,7 +122,6 @@ struct Entry {
     body_sha256: String,
 }
 
-use super::parsing::positive;
 fn checked_hash(value: &str) -> Result<(), Failure> {
     if value.len() != 64
         || !value

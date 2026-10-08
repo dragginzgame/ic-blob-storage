@@ -4,7 +4,8 @@ use crate::authenticated_cli::{PEM, run};
 use crate::observation_provider::{incoming, serve};
 use crate::submission_proxy as proxy;
 use ic_agent::{Identity, identity::BasicIdentity};
-use ic_blob_storage::{dto::upload::completion::*, model::identity::ContentDigest};
+use ic_blob_storage_contracts::dto::upload::completion::*;
+use ic_blob_storage_contracts::identity::ContentDigest;
 use ic_testkit::pocket_ic::PocketIcBuilder;
 use std::{
     io::Write,
@@ -356,17 +357,17 @@ fn journey(reply: proxy::Reply) {
     );
     change(&mut args, "--url", &proxy.url);
     change(&mut args, "--run-dir", observed.to_str().unwrap());
-    let scope = ic_blob_storage::model::service::read::download::CaffeineDownloadScope::new(
+    let scope = ic_blob_storage_contracts::download::scope::CaffeineDownloadScope::new(
         f.service,
         1.try_into().unwrap(),
         "fixture project/β?&=",
     )
     .unwrap();
-    let root = ic_blob_storage::model::identity::ProviderRootHash::try_from(
+    let root = ic_blob_storage_contracts::identity::ProviderRootHash::try_from(
         permission.request.root.as_slice(),
     )
     .unwrap();
-    let target = ic_blob_storage::ops::caffeine::download::request_target(&scope, root);
+    let target = ic_blob_storage_contracts::provider::download::request_target(&scope, root);
     std::thread::scope(|threads| {
         let server = threads.spawn(|| serve(&listener, &observed, &target, &[5; 10]));
         let report = run(&args, 0);

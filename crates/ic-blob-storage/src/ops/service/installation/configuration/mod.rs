@@ -1,9 +1,10 @@
 //! Boundary conversion delegates resource and billing invariants to the shared model.
-use crate::dto::configuration::{
-    ServiceBillingInput, ServiceConfigurationInput, ServiceFundingInput, ServiceReadInput,
-    ServiceResourceInput,
-};
 use crate::model::service::installation::record::ConfigurationRecord;
+use ic_blob_storage_contracts::dto::configuration::ServiceBillingInput;
+use ic_blob_storage_contracts::dto::configuration::ServiceConfigurationInput;
+use ic_blob_storage_contracts::dto::configuration::ServiceFundingInput;
+use ic_blob_storage_contracts::dto::configuration::ServiceReadInput;
+use ic_blob_storage_contracts::dto::configuration::ServiceResourceInput;
 pub(super) fn record(candidate: &super::ServiceInstallationCandidate<'_>) -> ConfigurationRecord {
     let input = &candidate.configuration;
     ConfigurationRecord {

@@ -15,28 +15,26 @@ use blob_test_protocol::{
 };
 use candid::Principal;
 use conversion::{failure, phase, request};
-use ic_blob_storage::model::{
-    billing::{FundingLimits, configuration::BillingConfiguration},
-    catalog::{
-        CatalogLimits,
-        admission::{UploadAdmission, UploadLimits},
-    },
-    identity::{
-        ProviderRootHash,
-        caffeine::{CaffeineHeader, manifest::CaffeineChunkHash},
-    },
-    lifecycle::LifecycleChange,
-    service::{
-        configuration::{
-            ServiceBindings, ServiceConfiguration, ServiceLimits, ServiceManifestLimits,
-        },
-        tenant::{TenantEnrollmentView, TenantUpdate},
-        upload::{
-            UploadAdmissions, UploadContext, UploadManifestState, UploadPermission,
-            manifest::UploadManifest,
-        },
-    },
-};
+use ic_blob_storage::model::catalog::admission::UploadAdmission;
+use ic_blob_storage::model::lifecycle::LifecycleChange;
+use ic_blob_storage::model::service::upload::UploadAdmissions;
+use ic_blob_storage::model::service::upload::UploadManifestState;
+use ic_blob_storage::model::service::upload::manifest::UploadManifest;
+use ic_blob_storage_contracts::configuration::billing::BillingConfiguration;
+use ic_blob_storage_contracts::configuration::funding::FundingLimits;
+use ic_blob_storage_contracts::configuration::limits::CatalogLimits;
+use ic_blob_storage_contracts::configuration::limits::UploadLimits;
+use ic_blob_storage_contracts::configuration::service::ServiceBindings;
+use ic_blob_storage_contracts::configuration::service::ServiceConfiguration;
+use ic_blob_storage_contracts::configuration::service::ServiceLimits;
+use ic_blob_storage_contracts::configuration::service::ServiceManifestLimits;
+use ic_blob_storage_contracts::identity::ProviderRootHash;
+use ic_blob_storage_contracts::identity::caffeine::CaffeineHeader;
+use ic_blob_storage_contracts::identity::caffeine::manifest::CaffeineChunkHash;
+use ic_blob_storage_contracts::tenant::TenantEnrollmentView;
+use ic_blob_storage_contracts::tenant::TenantUpdate;
+use ic_blob_storage_contracts::upload::binding::UploadContext;
+use ic_blob_storage_contracts::upload::binding::UploadPermission;
 use std::{
     cell::RefCell,
     collections::VecDeque,

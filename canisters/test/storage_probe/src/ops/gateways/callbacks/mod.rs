@@ -5,17 +5,14 @@ use blob_test_protocol::storage::{
     Failure,
     gateways::{RootView, RootsInput},
 };
-use ic_blob_storage::{
-    model::{
-        gateway::registry::GatewayScope,
-        identity::{
-            HashParseError,
-            batch::{ProviderRootBatch, RootBatchLimits},
-        },
-    },
-    ops::service::{gateways::StableGatewayRegistry, uploads::StableUploads},
-    policy::{catalog::upload::UploadRootStatus, gateway::GatewayAccessError},
-};
+use ic_blob_storage::model::gateway::registry::GatewayScope;
+use ic_blob_storage::ops::service::gateways::StableGatewayRegistry;
+use ic_blob_storage::ops::service::uploads::StableUploads;
+use ic_blob_storage::policy::catalog::upload::UploadRootStatus;
+use ic_blob_storage::policy::gateway::GatewayAccessError;
+use ic_blob_storage_contracts::identity::HashParseError;
+use ic_blob_storage_contracts::identity::batch::ProviderRootBatch;
+use ic_blob_storage_contracts::identity::batch::RootBatchLimits;
 use std::num::NonZeroUsize;
 pub(crate) fn parse(input: &RootsInput) -> Result<(GatewayScope, ProviderRootBatch), Failure> {
     let installed = scope(input.scope)?;

@@ -1,10 +1,11 @@
 //! One scoped service read update; reports never become credit or dispatch authority.
 use super::{Failure, agent, arguments::Options};
 use candid::{de::DecoderConfig, decode_one_with_config};
-use ic_blob_storage::dto::account::{
-    AccountInspectionFailure as E, AccountInspectionKind as Kind, AccountInspectionRequest,
-    AccountInspectionResponse, AccountObservation as Observation,
-};
+use ic_blob_storage_contracts::dto::account::AccountInspectionFailure as E;
+use ic_blob_storage_contracts::dto::account::AccountInspectionKind as Kind;
+use ic_blob_storage_contracts::dto::account::AccountInspectionRequest;
+use ic_blob_storage_contracts::dto::account::AccountInspectionResponse;
+use ic_blob_storage_contracts::dto::account::AccountObservation as Observation;
 use serde_json::{Value, json};
 use std::time::Duration;
 

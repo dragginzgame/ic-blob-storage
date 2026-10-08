@@ -1,15 +1,12 @@
 //! Actual configured host: bounded multi-file issuance, explicit trust and restore fences.
 use super::*;
-use ic_blob_storage::{
-    dto::upload::{
-        certificate::UploadCertificateAssessmentResponse,
-        exposure::{UploadExposureBlocker as B, UploadExposureFailure as E},
-    },
-    workflow::uploads::certificate::{
-        CAFFEINE_UPLOAD_CERTIFICATE_METHOD as ISSUE,
-        UPLOAD_CERTIFICATE_ASSESSMENT_METHOD as INSPECT,
-    },
-};
+use ic_blob_storage_contracts::dto::upload::UploadState;
+use ic_blob_storage_contracts::dto::upload::certificate::CaffeineUploadCertificateResponse;
+use ic_blob_storage_contracts::dto::upload::certificate::UploadCertificateAssessmentResponse;
+use ic_blob_storage_contracts::dto::upload::exposure::UploadExposureBlocker as B;
+use ic_blob_storage_contracts::dto::upload::exposure::UploadExposureFailure as E;
+use ic_blob_storage_contracts::protocol::CAFFEINE_UPLOAD_CERTIFICATE_METHOD as ISSUE;
+use ic_blob_storage_contracts::protocol::UPLOAD_CERTIFICATE_ASSESSMENT_METHOD as INSPECT;
 pub(super) fn inspect(
     f: &Fixture,
     actor: Principal,
@@ -29,7 +26,7 @@ pub(super) fn refuses(f: &Fixture, actor: Principal, root: &str) {
     assert_eq!(error.reject_code, RejectCode::CanisterError);
 }
 pub(super) fn root(input: &UploadManifestRequest) -> String {
-    ic_blob_storage::model::identity::ProviderRootHash::try_from(
+    ic_blob_storage_contracts::identity::ProviderRootHash::try_from(
         input.permission.upload.root.as_slice(),
     )
     .unwrap()
@@ -37,9 +34,7 @@ pub(super) fn root(input: &UploadManifestRequest) -> String {
 }
 #[test]
 fn standalone_certificate_issues_configured_multifile_uploads_and_preserves_quotas_and_authority() {
-    use ic_blob_storage::dto::upload::{
-        UploadState, certificate::CaffeineUploadCertificateResponse,
-    };
+    use ic_blob_storage_contracts::dto::upload::UploadState;
     let f = Fixture::new();
     f.enroll(f.operator).unwrap();
     let manifest = f.manifest();
@@ -70,7 +65,7 @@ fn standalone_certificate_issues_configured_multifile_uploads_and_preserves_quot
     unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
     assert_eq!(
         f.admission(manifest.permission).state,
-        ic_blob_storage::dto::upload::UploadState::Reserved
+        ic_blob_storage_contracts::dto::upload::UploadState::Reserved
     );
     f.harness
         .pic
@@ -161,9 +156,6 @@ fn check_authority(f: &Fixture, root: &str) {
 }
 
 fn second_upload_at_capacity(f: &Fixture, first: &UploadManifestRequest) -> UploadManifestRequest {
-    use ic_blob_storage::dto::upload::{
-        UploadState, certificate::CaffeineUploadCertificateResponse,
-    };
     // A second object crosses a chunk boundary and shares the same trusted owner.
     let mut second = f.manifest_bytes(1024 * 1024 + 1);
     second.permission.upload.upload = 2;
@@ -213,9 +205,6 @@ fn admit(
 
 #[test]
 fn standalone_small_configuration_issues_once_and_retains_uncertainty_across_stop_and_restore() {
-    use ic_blob_storage::dto::upload::{
-        UploadState, certificate::CaffeineUploadCertificateResponse,
-    };
     let f = Fixture::small(Harness::new(), Fake::principal(4));
     f.enroll(f.operator).unwrap();
     let manifest = f.small_manifest();

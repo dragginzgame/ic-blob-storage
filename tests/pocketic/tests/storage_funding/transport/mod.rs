@@ -8,18 +8,15 @@ use blob_test_protocol::{
     },
     storage::funding::transport::{CallbackIdentityFault, Input, Observation, Substitute},
 };
-use ic_blob_storage::dto::{
-    funding::{
-        FundingPhase,
-        outcome::{
-            FundingOutcomeFailure, FundingOutcomeRequest, FundingOutcomeResponse,
-            FundingReconciliation as FundingReconciliationView, FundingReportedBalance,
-            FundingResponse,
-        },
-    },
-    operator::OperatorScope,
-};
 use ic_blob_storage::ops::caffeine::funding::request::CashierTopUpRequest;
+use ic_blob_storage_contracts::dto::funding::FundingPhase;
+use ic_blob_storage_contracts::dto::funding::outcome::FundingOutcomeFailure;
+use ic_blob_storage_contracts::dto::funding::outcome::FundingOutcomeRequest;
+use ic_blob_storage_contracts::dto::funding::outcome::FundingOutcomeResponse;
+use ic_blob_storage_contracts::dto::funding::outcome::FundingReconciliation as FundingReconciliationView;
+use ic_blob_storage_contracts::dto::funding::outcome::FundingReportedBalance;
+use ic_blob_storage_contracts::dto::funding::outcome::FundingResponse;
+use ic_blob_storage_contracts::dto::operator::OperatorScope;
 use std::num::NonZeroU128;
 
 fn outcome_request(intent: Intent) -> FundingOutcomeRequest {

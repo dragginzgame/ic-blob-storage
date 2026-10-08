@@ -4,12 +4,15 @@ use std::num::NonZeroU128;
 
 use candid::Principal;
 
-use super::{UploadAdmissionError, UploadAdmissions, UploadContext};
-use crate::model::{
-    catalog::admission::{UploadPhase, UploadRequest, read::UploadRootState},
-    identity::ProviderRootHash,
-    lifecycle::requests::{ReferenceCapacityView, ReferenceRequests},
-};
+use super::UploadAdmissionError;
+use super::UploadAdmissions;
+use crate::model::catalog::admission::UploadPhase;
+use crate::model::lifecycle::requests::ReferenceCapacityView;
+use crate::model::lifecycle::requests::ReferenceRequests;
+use ic_blob_storage_contracts::identity::ProviderRootHash;
+use ic_blob_storage_contracts::upload::binding::UploadContext;
+use ic_blob_storage_contracts::upload::binding::UploadRequest;
+use ic_blob_storage_contracts::upload::history::UploadRootState;
 
 /// Explicit lookup scope; knowing a content root supplies no tenant authority.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]

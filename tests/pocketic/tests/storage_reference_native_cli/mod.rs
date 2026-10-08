@@ -6,9 +6,10 @@ use crate::{
 };
 use blob_test_protocol::storage::ProviderFact;
 use ic_agent::{Identity, identity::BasicIdentity};
-use ic_blob_storage::dto::reference::{
-    ReferenceAction, ReferenceCommand, ReferenceFailure, ReferenceMutationResponse,
-};
+use ic_blob_storage_contracts::dto::reference::ReferenceAction;
+use ic_blob_storage_contracts::dto::reference::ReferenceCommand;
+use ic_blob_storage_contracts::dto::reference::ReferenceFailure;
+use ic_blob_storage_contracts::dto::reference::ReferenceMutationResponse;
 use ic_testkit::pocket_ic::PocketIcBuilder;
 use serde_json::{Value, json};
 

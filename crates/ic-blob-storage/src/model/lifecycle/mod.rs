@@ -5,50 +5,18 @@
 //! namespace; knowing an ID or hash never grants authority. Confirmations consume
 //! facts already authenticated and correlated to the exact operation elsewhere.
 
-pub mod binding;
+use ic_blob_storage_contracts::binding::ObjectBinding;
+use ic_blob_storage_contracts::binding::ObjectBindingMismatch;
+use ic_blob_storage_contracts::binding::ReferenceId;
+use ic_blob_storage_contracts::binding::ReferenceKey;
+use ic_blob_storage_contracts::upload::history::LifecyclePhase;
+use std::collections::BTreeMap;
+use std::num::NonZeroUsize;
+use thiserror::Error;
+
 pub mod requests;
 pub mod roots;
 pub(crate) mod transition;
-
-use std::{
-    collections::BTreeMap,
-    num::{NonZeroU128, NonZeroUsize},
-};
-
-use thiserror::Error;
-
-use self::binding::{ObjectBinding, ObjectBindingMismatch, ReferenceKey};
-
-/// Reference identity within one bound object incarnation, not an authorization token.
-#[derive(Clone, Copy, Debug, Eq, Ord, PartialEq, PartialOrd)]
-pub struct ReferenceId(NonZeroU128);
-
-impl ReferenceId {
-    /// Wrap an independently allocated identity; allocation/reuse safety is external.
-    #[must_use]
-    pub const fn new(value: NonZeroU128) -> Self {
-        Self(value)
-    }
-
-    /// Exact original identity for storage/boundary encoding, not fresh allocation.
-    #[must_use]
-    pub const fn get(self) -> NonZeroU128 {
-        self.0
-    }
-}
-
-/// Distinct logical, physical and economic stages of a confirmed object's release.
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub enum LifecyclePhase {
-    /// At least one live reference remains.
-    Live,
-    /// No live references remain; physical storage and billing are unresolved.
-    DeletionPending,
-    /// Physical deletion is confirmed; financial obligations remain unresolved.
-    ProviderDeleted,
-    /// Deletion and final billing cessation are both confirmed.
-    Settled,
-}
 
 /// Whether an idempotent operation changed the local value.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -311,10 +279,11 @@ pub enum LifecycleError {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::num::NonZeroU128;
 
     fn key(value: u128) -> ReferenceKey {
-        use binding::ObjectIdentity;
         use candid::Principal;
+        use ic_blob_storage_contracts::binding::ObjectIdentity;
         let one = NonZeroU128::new(1).expect("positive identity");
         let object = ObjectBinding::new(
             Principal::from_slice(&[1, 1]),

@@ -1,4 +1,9 @@
 //! Bounded application substitute for local publication/outbox evidence, not Toko's API.
+use candid::{CandidType, Deserialize};
+use ic_blob_storage_contracts::dto::reference::ReferenceChange;
+use ic_blob_storage_contracts::dto::reference::ReferenceCommand;
+use ic_blob_storage_contracts::dto::reference::ReferenceTransitionFailure;
+
 pub mod funding;
 pub mod manifests;
 
@@ -6,16 +11,12 @@ pub mod manifests;
 #[derive(Clone, Copy, Debug, Eq, PartialEq, candid::CandidType, candid::Deserialize)]
 pub struct TenantDispatch {
     /// Exact scoped compare-and-set retained before the inter-canister call.
-    pub command: ic_blob_storage::dto::tenant::TenantUpdateRequest,
+    pub command: ic_blob_storage_contracts::dto::tenant::TenantUpdateRequest,
     /// Bound applied to the encoded reply before decoding.
     pub max_reply_bytes: u32,
     /// Interrupt the callback after service success, preserving the saved command.
     pub trap_after_reply: bool,
 }
-use candid::{CandidType, Deserialize};
-use ic_blob_storage::dto::reference::{
-    ReferenceChange, ReferenceCommand, ReferenceTransitionFailure,
-};
 /// Exact application intent, retained before permission or reference dispatch.
 #[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize)]
 pub struct Registration {
@@ -34,7 +35,7 @@ pub enum RegistrationSource {
     /// Add a distinct reference to existing content.
     Existing(ReferenceCommand),
     /// Observe completion of the exact upload that creates its first reference.
-    Fresh(ic_blob_storage::dto::upload::admission::UploadAdmissionRequest),
+    Fresh(ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionRequest),
 }
 /// Deliberate IC transaction interruption.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
@@ -86,19 +87,21 @@ pub struct AssetView {
     /// Fresh permission dispatch intent has committed.
     pub admission_started: bool,
     /// Exact admission acknowledgment or typed refusal; absent after dispatch is uncertain.
-    pub admission_result:
-        Option<Result<(), ic_blob_storage::dto::upload::admission::UploadAdmissionFailure>>,
+    pub admission_result: Option<
+        Result<(), ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionFailure>,
+    >,
     /// Withdrawal dispatch intent committed after local cancellation.
     pub revocation_started: bool,
     /// Exact withdrawal acknowledgment or refusal; uncertainty retains the permission.
-    pub revocation_result:
-        Option<Result<(), ic_blob_storage::dto::upload::admission::UploadAdmissionFailure>>,
+    pub revocation_result: Option<
+        Result<(), ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionFailure>,
+    >,
     /// Existing-content retain dispatch intent has committed; always false for fresh uploads.
     pub retain_started: bool,
     /// Existing-content retain result; absence after its dispatch is uncertainty.
     pub retain_result: Option<Result<ReferenceChange, ReferenceTransitionFailure>>,
     /// Last exact upload observation for a fresh registration; never a browser assertion.
-    pub upload_state: Option<ic_blob_storage::dto::upload::UploadState>,
+    pub upload_state: Option<ic_blob_storage_contracts::dto::upload::UploadState>,
     /// Release dispatch intent has committed.
     pub release_started: bool,
     /// Original release result; an inner failure is not completed cleanup.

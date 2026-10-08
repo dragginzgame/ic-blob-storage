@@ -3,7 +3,7 @@ use crate::operator::{
     model::{canister, decimal},
     ops::QueryTarget,
 };
-use ic_blob_storage::dto::tenant::TenantScope;
+use ic_blob_storage_contracts::dto::tenant::TenantScope;
 use std::{collections::BTreeMap, net::SocketAddr, path::PathBuf};
 
 pub(super) struct Selection {

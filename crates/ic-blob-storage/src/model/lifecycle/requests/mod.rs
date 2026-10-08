@@ -5,64 +5,21 @@
 //! upload/funding retry protocol or proof of recovery after a restart. The
 //! workflow must authenticate the actor before admission or receipt replay.
 
-use std::{
-    collections::BTreeMap,
-    num::{NonZeroU128, NonZeroUsize},
-};
+use ic_blob_storage_contracts::reference::binding::ReferenceOperation;
+use ic_blob_storage_contracts::reference::binding::ReferenceRequest;
+use ic_blob_storage_contracts::reference::binding::ReferenceRequestId;
+
+use std::collections::BTreeMap;
+use std::num::NonZeroUsize;
 
 use candid::Principal;
 use thiserror::Error;
 
-use super::{
-    BlobLifecycle, LifecycleChange, LifecycleError,
-    binding::{ObjectBinding, ObjectBindingMismatch, ReferenceKey},
-};
-
-/// Request identity within one bound object incarnation.
-///
-/// Freshness and non-reuse across restart/restore require an external allocator.
-#[derive(Clone, Copy, Debug, Eq, Ord, PartialEq, PartialOrd)]
-pub struct ReferenceRequestId(NonZeroU128);
-
-impl ReferenceRequestId {
-    /// Wrap a caller-supplied nonzero request ID without authorizing its use.
-    #[must_use]
-    pub const fn new(value: NonZeroU128) -> Self {
-        Self(value)
-    }
-
-    /// Exact retained identity for encoding; this allocates no fresh operation.
-    #[must_use]
-    pub const fn get(self) -> NonZeroU128 {
-        self.0
-    }
-}
-
-/// Exact operation and reference arguments bound to a request ID.
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub enum ReferenceOperation {
-    /// Retain one reference to the bound object.
-    Retain(ReferenceKey),
-    /// Release one reference to the bound object.
-    Release(ReferenceKey),
-}
-
-impl ReferenceOperation {
-    pub(crate) const fn key(self) -> ReferenceKey {
-        match self {
-            Self::Retain(key) | Self::Release(key) => key,
-        }
-    }
-}
-
-/// Passive local request data; no wire schema or default request is implied.
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub struct ReferenceRequest {
-    /// ID reused only for an exact retry of this operation.
-    pub id: ReferenceRequestId,
-    /// Full operation payload; compared directly rather than via a hash.
-    pub operation: ReferenceOperation,
-}
+use super::BlobLifecycle;
+use super::LifecycleChange;
+use super::LifecycleError;
+use ic_blob_storage_contracts::binding::ObjectBinding;
+use ic_blob_storage_contracts::binding::ObjectBindingMismatch;
 
 /// Original local transition result, distinguished from a receipt replay.
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -330,7 +287,11 @@ pub enum ReferenceRequestError {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::model::lifecycle::{LifecyclePhase, ReferenceId, binding::ObjectIdentity};
+    use ic_blob_storage_contracts::binding::ObjectIdentity;
+    use ic_blob_storage_contracts::binding::ReferenceId;
+    use ic_blob_storage_contracts::binding::ReferenceKey;
+    use ic_blob_storage_contracts::upload::history::LifecyclePhase;
+    use std::num::NonZeroU128;
 
     fn number(value: u128) -> NonZeroU128 {
         NonZeroU128::new(value).expect("positive ID")

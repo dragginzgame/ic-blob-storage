@@ -1,10 +1,12 @@
 //! Explicit single-call tenant management from a canister operator or observer.
-use super::{
-    TENANT_INSPECTION_METHOD, TENANT_UPDATE_METHOD,
-    reply::{self, TenantReplyError},
-};
-use crate::dto::tenant::{TenantEnrollmentResponse, TenantScope, TenantUpdateRequest};
 use candid::Principal;
+use ic_blob_storage_contracts::dto::tenant::TenantEnrollmentResponse;
+use ic_blob_storage_contracts::dto::tenant::TenantScope;
+use ic_blob_storage_contracts::dto::tenant::TenantUpdateRequest;
+use ic_blob_storage_contracts::protocol::TENANT_INSPECTION_METHOD;
+use ic_blob_storage_contracts::protocol::TENANT_UPDATE_METHOD;
+use ic_blob_storage_contracts::tenant::reply;
+use ic_blob_storage_contracts::tenant::reply::TenantReplyError;
 use ic_cdk::call::{Call, CallFailed};
 use std::num::{NonZeroU32, NonZeroUsize};
 use thiserror::Error;

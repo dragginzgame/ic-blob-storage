@@ -29,7 +29,7 @@ recovery remain separately qualified in the [acceptance plan](acceptance-plan.md
 The supported source path uses one explicitly selected checkout for the native
 CLI, browser modules and patched SDK build. Select a clean release tag, retain
 its commit identity and keep that checkout with the installed tools. The CLI and
-private browser package are not registry distributions; the separate library's
+private browser package are not registry distributions; the contracts library’s
 packaged `prepare_upload` example is not the publication driver.
 
 From that checkout, select a fresh absolute installation prefix. This recipe
@@ -49,7 +49,7 @@ rustc --version > "$BLOB_TOOLS_ROOT/rust-version.txt"
 printf '%s\n' debug > "$BLOB_TOOLS_ROOT/build-profile.txt"
 ```
 
-`--version` returns JSON with `tool: "blob-storage"` and the compiled library
+`--version` returns JSON with `tool: "blob-storage"` and the compiled contract
 `version`, without reading identities or making requests. Compare that value
 with the selected checkout's workspace release. It does not authenticate an
 installed canister. An optimized build may omit `--debug`; retain that binary's
@@ -107,7 +107,7 @@ application registration still require consumer acceptance.
 Local headless preparation computes the declaration needed for upload admission:
 
 ```sh
-cargo run --offline --locked -p ic-blob-storage --example prepare_upload -- \
+cargo run --offline --locked -p ic-blob-storage-contracts --example prepare_upload -- \
   declaration.json 10485760 10 < body.bin > prepared.json
 ```
 
@@ -222,7 +222,7 @@ To save the exact hashed bytes for later use, add an existing, caller-controlled
 destination directory:
 
 ```sh
-cargo run --offline --locked -p ic-blob-storage --example prepare_upload -- \
+cargo run --offline --locked -p ic-blob-storage-contracts --example prepare_upload -- \
   --inventory inventory.json --snapshot ./snapshots > snapshot.json
 ```
 
@@ -247,7 +247,7 @@ this local copy is mutable and does not persist service operation identities.
 The local streaming verification example can save the exact checked bytes:
 
 ```sh
-cargo run --offline --locked -p ic-blob-storage --example verify_download -- \
+cargo run --offline --locked -p ic-blob-storage-contracts --example verify_download -- \
   claim.json 10485760 verified.bin < body.bin
 ```
 

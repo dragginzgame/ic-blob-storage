@@ -1,10 +1,9 @@
 //! Authenticated current local facts; no policy decision or mutation.
 use super::summary::FundingJournalSummary;
 use super::{FundingIntent, FundingJournalError, Memory, StableFundingJournal, UploadContext};
-use crate::model::billing::{
-    FundingLimits,
-    journal::{FundingIntentView, FundingJournalScope},
-};
+use crate::model::billing::journal::FundingIntentView;
+use crate::model::billing::journal::FundingJournalScope;
+use ic_blob_storage_contracts::configuration::funding::FundingLimits;
 
 pub(crate) struct FundingAdmissionContext {
     pub summary: FundingJournalSummary,

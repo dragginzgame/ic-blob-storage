@@ -1,5 +1,5 @@
 use super::*;
-use crate::model::identity::caffeine::CAFFEINE_CHUNK_BYTES;
+use ic_blob_storage_contracts::identity::caffeine::CAFFEINE_CHUNK_BYTES;
 
 fn owner(global: usize, tenant: usize) -> UploadAdmissions {
     let sample = empty_admissions();

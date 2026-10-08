@@ -7,29 +7,28 @@ use blob_test_protocol::journey::{
     JourneyFailure, JourneyManifest, JourneyProgress, JourneyUpload, JourneyVerification,
 };
 use candid::Principal;
-use ic_blob_storage::model::{
-    catalog::{
-        CatalogLimits,
-        admission::{
-            UploadAdmission, UploadCatalog, UploadError, UploadLimits, UploadObject, UploadRequest,
-            UploadRequestId,
-        },
-    },
-    identity::{
-        ContentDigest, ProviderRootHash,
-        caffeine::{
-            CaffeineHeader,
-            manifest::{CaffeineChunkHash, CaffeineChunkManifest},
-        },
-    },
-    lifecycle::{
-        LifecycleChange, ReferenceId,
-        binding::{ObjectBinding, ObjectIdentity, ReferenceKey},
-        requests::{
-            ReferenceOperation, ReferenceRequest, ReferenceRequestId, ReferenceRequestOutcome,
-        },
-    },
-};
+use ic_blob_storage::model::catalog::admission::UploadAdmission;
+use ic_blob_storage::model::catalog::admission::UploadCatalog;
+use ic_blob_storage::model::catalog::admission::UploadError;
+use ic_blob_storage::model::lifecycle::LifecycleChange;
+use ic_blob_storage::model::lifecycle::requests::ReferenceRequestOutcome;
+use ic_blob_storage_contracts::binding::ObjectBinding;
+use ic_blob_storage_contracts::binding::ObjectIdentity;
+use ic_blob_storage_contracts::binding::ReferenceId;
+use ic_blob_storage_contracts::binding::ReferenceKey;
+use ic_blob_storage_contracts::configuration::limits::CatalogLimits;
+use ic_blob_storage_contracts::configuration::limits::UploadLimits;
+use ic_blob_storage_contracts::identity::ContentDigest;
+use ic_blob_storage_contracts::identity::ProviderRootHash;
+use ic_blob_storage_contracts::identity::caffeine::CaffeineHeader;
+use ic_blob_storage_contracts::identity::caffeine::manifest::CaffeineChunkHash;
+use ic_blob_storage_contracts::identity::caffeine::manifest::CaffeineChunkManifest;
+use ic_blob_storage_contracts::reference::binding::ReferenceOperation;
+use ic_blob_storage_contracts::reference::binding::ReferenceRequest;
+use ic_blob_storage_contracts::reference::binding::ReferenceRequestId;
+use ic_blob_storage_contracts::upload::binding::UploadObject;
+use ic_blob_storage_contracts::upload::binding::UploadRequest;
+use ic_blob_storage_contracts::upload::binding::UploadRequestId;
 
 pub(crate) struct Journey {
     pub catalog: UploadCatalog,

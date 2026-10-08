@@ -3,9 +3,9 @@ mod native_cli;
 use super::*;
 use blob_test_protocol::balance::BalanceSourceConfig;
 use candid::{CandidType, Int, Nat};
-use ic_blob_storage::dto::{
-    account::*, funding::outcome::FundingReportedBalance, operator::OperatorScope,
-};
+use ic_blob_storage_contracts::dto::account::*;
+use ic_blob_storage_contracts::dto::funding::outcome::FundingReportedBalance;
+use ic_blob_storage_contracts::dto::operator::OperatorScope;
 
 #[derive(CandidType)]
 struct Balance {

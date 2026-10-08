@@ -1,8 +1,9 @@
 //! Bounded read occupancy and exact local callback identity; no paid effect permit.
 pub(crate) mod record;
 use super::ReadTarget;
-use crate::model::{gateway::registry::GatewayScope, service::upload::UploadContext};
+use crate::model::gateway::registry::GatewayScope;
 use candid::{CandidType, Deserialize};
+use ic_blob_storage_contracts::upload::binding::UploadContext;
 use std::num::{NonZeroU32, NonZeroU64};
 use thiserror::Error;
 
@@ -38,16 +39,16 @@ impl ReadSessionLimits {
         Ok(value)
     }
     pub(crate) fn validate(self) -> Result<(), ReadSessionError> {
-        if self.sessions == 0
-            || self.sessions > 1024
-            || self.tenant_sessions == 0
-            || self.tenant_sessions > self.sessions
-            || self.reply_bytes == 0
-            || self.tenant_bytes < u64::from(self.reply_bytes)
-            || self.tenant_bytes > self.bytes
-        {
-            return Err(ReadSessionError::Limits);
-        }
+        ic_blob_storage_contracts::configuration::envelope::validate_read_limits(
+            ic_blob_storage_contracts::dto::configuration::ServiceReadInput {
+                sessions: self.sessions,
+                tenant_sessions: self.tenant_sessions,
+                reply_bytes: self.reply_bytes,
+                bytes: self.bytes,
+                tenant_bytes: self.tenant_bytes,
+            },
+        )
+        .map_err(|_| ReadSessionError::Limits)?;
         Ok(())
     }
     /// Conservative reservation for each admitted reply buffer.

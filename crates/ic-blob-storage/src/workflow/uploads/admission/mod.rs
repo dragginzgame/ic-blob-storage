@@ -1,12 +1,11 @@
 //! Shared tenant admission and exact permission recovery over the durable owner.
-use crate::{
-    dto::upload::admission::{
-        UploadAdmissionFailure, UploadAdmissionMutation, UploadAdmissionRequest,
-        UploadAdmissionResponse,
-    },
-    model::service::upload::UploadContext,
-    ops::service::uploads::{StableUploads, admission},
-};
+use crate::ops::service::uploads::StableUploads;
+use crate::ops::service::uploads::admission;
+use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionFailure;
+use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionMutation;
+use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionRequest;
+use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionResponse;
+use ic_blob_storage_contracts::upload::binding::UploadContext;
 use ic_memory::ic_stable_structures::Memory;
 /// Reserve one exact permission synchronously using actual host caller/service/time.
 /// Persist consumer intent before dispatch. This issues no certificate or provider effect.
@@ -20,7 +19,7 @@ pub fn admit<M: Memory>(
     input: UploadAdmissionRequest,
     now: u64,
 ) -> Result<UploadAdmissionMutation, UploadAdmissionFailure> {
-    let permission = admission::parse(context, input)?;
+    let permission = ic_blob_storage_contracts::upload::admission::parse(context, input)?;
     let outcome = store
         .admit(context, permission, now)
         .map_err(admission::failure)?;
@@ -36,7 +35,7 @@ pub fn inspect<M: Memory>(
     context: UploadContext,
     input: UploadAdmissionRequest,
 ) -> Result<UploadAdmissionResponse, UploadAdmissionFailure> {
-    let permission = admission::parse(context, input)?;
+    let permission = ic_blob_storage_contracts::upload::admission::parse(context, input)?;
     let view = store
         .lookup(context, permission.request)
         .map_err(admission::failure)?;
@@ -54,8 +53,11 @@ pub fn revoke<M: Memory>(
     store: &mut StableUploads<M>,
     context: UploadContext,
     input: UploadAdmissionRequest,
-) -> Result<crate::dto::upload::admission::UploadRevocationResponse, UploadAdmissionFailure> {
-    let permission = admission::parse(context, input)?;
+) -> Result<
+    ic_blob_storage_contracts::dto::upload::admission::UploadRevocationResponse,
+    UploadAdmissionFailure,
+> {
+    let permission = ic_blob_storage_contracts::upload::admission::parse(context, input)?;
     // Check the full original permission before withdrawing any authority.
     inspect(store, context, input)?;
     let change = store

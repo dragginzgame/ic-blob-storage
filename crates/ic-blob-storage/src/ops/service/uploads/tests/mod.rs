@@ -10,23 +10,18 @@ mod recovery;
 mod reference_capacity_boundary;
 mod reference_status_boundary;
 mod revocation;
-use crate::{
-    model::{
-        catalog::admission::{UploadObject, UploadRequestId},
-        identity::{
-            ProviderRootHash,
-            caffeine::{
-                CaffeineHashLimits, CaffeineHeader, manifest::builder::CaffeineManifestBuilder,
-            },
-        },
-        lifecycle::{
-            ReferenceId,
-            binding::{ObjectBinding, ObjectIdentity, ReferenceKey},
-        },
-        service::upload::UploadAdmissions,
-    },
-    ops::service::tenant::tests::config,
-};
+use crate::model::service::upload::UploadAdmissions;
+use crate::ops::service::tenant::tests::config;
+use ic_blob_storage_contracts::binding::ObjectBinding;
+use ic_blob_storage_contracts::binding::ObjectIdentity;
+use ic_blob_storage_contracts::binding::ReferenceId;
+use ic_blob_storage_contracts::binding::ReferenceKey;
+use ic_blob_storage_contracts::identity::ProviderRootHash;
+use ic_blob_storage_contracts::identity::caffeine::CaffeineHashLimits;
+use ic_blob_storage_contracts::identity::caffeine::CaffeineHeader;
+use ic_blob_storage_contracts::identity::caffeine::manifest::builder::CaffeineManifestBuilder;
+use ic_blob_storage_contracts::upload::binding::UploadObject;
+use ic_blob_storage_contracts::upload::binding::UploadRequestId;
 use ic_memory::ic_stable_structures::VectorMemory;
 use std::num::NonZeroU128;
 fn p(n: u8) -> Principal {
@@ -238,7 +233,8 @@ const HEADERS: [CaffeineHeader<'static>; 2] = [
         value: "image/png",
     },
 ];
-fn built() -> crate::model::identity::caffeine::manifest::builder::CaffeineBuiltManifest {
+fn built() -> ic_blob_storage_contracts::identity::caffeine::manifest::builder::CaffeineBuiltManifest
+{
     use std::num::NonZeroUsize;
     let mut builder = CaffeineManifestBuilder::new(
         10,

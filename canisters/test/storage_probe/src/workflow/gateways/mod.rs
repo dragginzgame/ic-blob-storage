@@ -7,11 +7,11 @@ use blob_test_protocol::storage::{
     Failure,
     gateways::{Action, Command, Outcome},
 };
-use ic_blob_storage::{
-    model::{gateway::membership::GatewayAddOutcome, service::upload::UploadContext},
-    ops::caffeine::gateway::GatewayReplyLimits,
-    workflow::gateways::{begin_sync, complete_sync},
-};
+use ic_blob_storage::model::gateway::membership::GatewayAddOutcome;
+use ic_blob_storage::ops::caffeine::gateway::GatewayReplyLimits;
+use ic_blob_storage::workflow::gateways::begin_sync;
+use ic_blob_storage::workflow::gateways::complete_sync;
+use ic_blob_storage_contracts::upload::binding::UploadContext;
 
 pub(crate) fn apply(context: UploadContext, input: Command) -> Result<Outcome, Failure> {
     let installed = scope(input.scope)?;
@@ -52,11 +52,11 @@ pub(crate) fn apply(context: UploadContext, input: Command) -> Result<Outcome, F
 
 pub(crate) fn revoke(
     context: UploadContext,
-    input: ic_blob_storage::dto::gateway::GatewayRevocationRequest,
+    input: ic_blob_storage_contracts::dto::gateway::GatewayRevocationRequest,
     fault: bool,
 ) -> Result<
-    ic_blob_storage::dto::gateway::GatewayRevocationResponse,
-    ic_blob_storage::dto::gateway::GatewayRevocationFailure,
+    ic_blob_storage_contracts::dto::gateway::GatewayRevocationResponse,
+    ic_blob_storage_contracts::dto::gateway::GatewayRevocationFailure,
 > {
     with_registry(fault, |store, _| {
         ic_blob_storage::workflow::gateways::revocation::revoke(store, context, input)
@@ -75,10 +75,10 @@ pub(super) fn limits() -> GatewayReplyLimits {
 
 pub(crate) async fn refresh(
     context: UploadContext,
-    input: ic_blob_storage::dto::operator::OperatorScope,
+    input: ic_blob_storage_contracts::dto::operator::OperatorScope,
 ) -> Result<
-    ic_blob_storage::dto::gateway::sync::GatewaySyncResponse,
-    ic_blob_storage::dto::gateway::sync::GatewaySyncFailure,
+    ic_blob_storage_contracts::dto::gateway::sync::GatewaySyncResponse,
+    ic_blob_storage_contracts::dto::gateway::sync::GatewaySyncFailure,
 > {
     ic_blob_storage::workflow::gateways::sync::refresh(
         &crate::ops::gateways::transport::FixtureRegistry {
@@ -93,9 +93,9 @@ pub(crate) async fn refresh(
 }
 pub(crate) fn cancel_observed(
     context: UploadContext,
-    input: ic_blob_storage::dto::gateway::sync::GatewaySyncCancellation,
+    input: ic_blob_storage_contracts::dto::gateway::sync::GatewaySyncCancellation,
     fault: bool,
-) -> Result<(), ic_blob_storage::dto::gateway::sync::GatewaySyncFailure> {
+) -> Result<(), ic_blob_storage_contracts::dto::gateway::sync::GatewaySyncFailure> {
     with_registry(fault, |store, _| {
         ic_blob_storage::workflow::gateways::sync::cancel(store, context, input)
     })

@@ -1,23 +1,18 @@
 //! Tenant-bound indexed discovery over the maintained upload owner.
-use crate::{
-    dto::upload::discovery::{
-        UploadDiscoveryFailure as F, UploadDiscoveryRequest, UploadDiscoveryResponse,
-    },
-    model::{
-        identity::ProviderRootHash,
-        service::upload::{
-            UploadAdmissionError, UploadAdmissions, UploadContext,
-            content::{ContentLookup, TenantContentView},
-        },
-    },
-    ops::service::uploads::{StableUploads, UploadStoreError},
-};
+use crate::model::service::upload::UploadAdmissionError;
+use crate::model::service::upload::UploadAdmissions;
+use crate::model::service::upload::content::ContentLookup;
+use crate::model::service::upload::content::TenantContentView;
+use crate::ops::service::uploads::StableUploads;
+use crate::ops::service::uploads::UploadStoreError;
 use candid::Principal;
+use ic_blob_storage_contracts::dto::upload::discovery::UploadDiscoveryFailure as F;
+use ic_blob_storage_contracts::dto::upload::discovery::UploadDiscoveryRequest;
+use ic_blob_storage_contracts::dto::upload::discovery::UploadDiscoveryResponse;
+use ic_blob_storage_contracts::identity::ProviderRootHash;
+use ic_blob_storage_contracts::upload::binding::UploadContext;
 use ic_memory::ic_stable_structures::Memory;
 use std::num::NonZeroU128;
-
-/// Canonical tenant query; linking the library exports no endpoint.
-pub const UPLOAD_DISCOVERY_METHOD: &str = "blob_lookup_content";
 
 /// One synchronous owner observation, without an allocation or lifetime-history scan.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]

@@ -1,12 +1,14 @@
 //! Scoped operation recovery through the actual standalone endpoint.
 use super::*;
-use ic_blob_storage::{
-    dto::upload::history::{
-        UploadContentState, UploadHistoryCursor, UploadHistoryEntry, UploadHistoryFailure,
-        UploadHistoryFilter, UploadHistoryPage, UploadHistoryRequest, UploadHistoryScope,
-    },
-    ops::service::uploads::history::UPLOAD_HISTORY_METHOD,
-};
+use ic_blob_storage_contracts::dto::upload::history::UploadContentState;
+use ic_blob_storage_contracts::dto::upload::history::UploadHistoryCursor;
+use ic_blob_storage_contracts::dto::upload::history::UploadHistoryEntry;
+use ic_blob_storage_contracts::dto::upload::history::UploadHistoryFailure;
+use ic_blob_storage_contracts::dto::upload::history::UploadHistoryFilter;
+use ic_blob_storage_contracts::dto::upload::history::UploadHistoryPage;
+use ic_blob_storage_contracts::dto::upload::history::UploadHistoryRequest;
+use ic_blob_storage_contracts::dto::upload::history::UploadHistoryScope;
+use ic_blob_storage_contracts::protocol::UPLOAD_HISTORY_METHOD;
 
 impl Fixture {
     fn history(

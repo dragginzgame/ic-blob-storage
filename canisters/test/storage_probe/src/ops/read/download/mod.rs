@@ -1,9 +1,8 @@
 //! Explicit fixture project and owner access; no provider effects.
 use crate::ops::{ProbeMemory, STATE};
-use ic_blob_storage::{
-    model::service::{read::download::CaffeineDownloadScope, upload::UploadContext},
-    ops::service::uploads::StableUploads,
-};
+use ic_blob_storage::ops::service::uploads::StableUploads;
+use ic_blob_storage_contracts::download::scope::CaffeineDownloadScope;
+use ic_blob_storage_contracts::upload::binding::UploadContext;
 pub(crate) fn scope(context: UploadContext) -> CaffeineDownloadScope {
     CaffeineDownloadScope::new(
         context.service,

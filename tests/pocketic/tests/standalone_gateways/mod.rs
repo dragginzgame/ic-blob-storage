@@ -3,15 +3,11 @@ mod funding_assessment;
 mod native_cli;
 mod sync;
 use super::*;
-use ic_blob_storage::{
-    dto::{
-        gateway::{
-            GatewayRevocationFailure as Error, GatewayRevocationRequest, GatewayRevocationResponse,
-        },
-        operator::OperatorScope,
-    },
-    ops::service::gateways::revocation::GATEWAY_REVOCATION_METHOD,
-};
+use ic_blob_storage_contracts::dto::gateway::GatewayRevocationFailure as Error;
+use ic_blob_storage_contracts::dto::gateway::GatewayRevocationRequest;
+use ic_blob_storage_contracts::dto::gateway::GatewayRevocationResponse;
+use ic_blob_storage_contracts::dto::operator::OperatorScope;
+use ic_blob_storage_contracts::protocol::GATEWAY_REVOCATION_METHOD;
 #[test]
 fn standalone_gateway_revocation_checks_scope_caller_and_restore_fence() {
     let f = Fixture::new();

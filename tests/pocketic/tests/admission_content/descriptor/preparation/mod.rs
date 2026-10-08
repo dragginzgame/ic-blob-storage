@@ -1,7 +1,7 @@
 //! Native client preparation, bounded IC admission and consumer verification.
 use super::*;
 use blob_test_protocol::admission::input::{RetainedDescriptor, RetainedDescriptorInput};
-use ic_blob_storage::model::identity::caffeine::manifest::builder::CaffeineManifestBuilder;
+use ic_blob_storage_contracts::identity::caffeine::manifest::builder::CaffeineManifestBuilder;
 
 const BYTES: usize = 10 * 1024 * 1024;
 

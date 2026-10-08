@@ -1,9 +1,9 @@
 //! Admission diagnosis with incomplete evidence; unknown accounting is never zero.
 use super::{FundingActivity, FundingAdmissionBlocker};
-use crate::{
-    model::billing::FundingLimits,
-    policy::billing::{FundingDecision, RecoveryState, assess_funding},
-};
+use crate::policy::billing::FundingDecision;
+use crate::policy::billing::RecoveryState;
+use crate::policy::billing::assess_funding;
+use ic_blob_storage_contracts::configuration::funding::FundingLimits;
 use std::num::NonZeroU128;
 
 /// Independently established observations for one current service/provider account.
@@ -70,7 +70,10 @@ pub fn assess_funding_evidence(
     requested_cycles: NonZeroU128,
     evidence: FundingAdmissionEvidence,
 ) -> FundingAdmissionAssessment {
-    use FundingEvidenceBlocker::{Admission, FundingUnknown, RecoveryUnknown, SpendabilityUnknown};
+    use FundingEvidenceBlocker::Admission;
+    use FundingEvidenceBlocker::FundingUnknown;
+    use FundingEvidenceBlocker::RecoveryUnknown;
+    use FundingEvidenceBlocker::SpendabilityUnknown;
     let mut blockers = Vec::new();
     match evidence.recovery {
         None => blockers.push(RecoveryUnknown),

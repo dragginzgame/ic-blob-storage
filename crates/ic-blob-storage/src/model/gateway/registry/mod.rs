@@ -295,7 +295,7 @@ mod tests {
     use std::num::NonZeroUsize;
 
     use super::*;
-    use crate::model::gateway::GatewayListLimits;
+    use ic_blob_storage_contracts::configuration::limits::GatewayListLimits;
 
     fn p(value: u8) -> Principal {
         Principal::from_slice(&[value, 1])

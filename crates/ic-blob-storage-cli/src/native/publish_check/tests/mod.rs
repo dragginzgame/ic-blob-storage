@@ -1,14 +1,14 @@
 use super::*;
 use crate::native::{execute, upload_inputs::tests as fixture};
 use candid::Principal;
-use ic_blob_storage::dto::{
-    tenant::{TenantEnrollment, TenantScope},
-    upload::{
-        capacity::{UploadCapacityFailure, UploadCapacityResponse},
-        discovery::{UploadDiscoveryFailure, UploadDiscoveryResponse},
-        history::{UploadContentState, UploadHistoryEntry},
-    },
-};
+use ic_blob_storage_contracts::dto::tenant::TenantEnrollment;
+use ic_blob_storage_contracts::dto::tenant::TenantScope;
+use ic_blob_storage_contracts::dto::upload::capacity::UploadCapacityFailure;
+use ic_blob_storage_contracts::dto::upload::capacity::UploadCapacityResponse;
+use ic_blob_storage_contracts::dto::upload::discovery::UploadDiscoveryFailure;
+use ic_blob_storage_contracts::dto::upload::discovery::UploadDiscoveryResponse;
+use ic_blob_storage_contracts::dto::upload::history::UploadContentState;
+use ic_blob_storage_contracts::dto::upload::history::UploadHistoryEntry;
 use std::fs;
 
 pub(in crate::native) fn frozen() -> tempfile::TempDir {
@@ -87,8 +87,7 @@ fn inspect(
             &b.files,
             &run,
             |method, arg| {
-                let bytes = if method
-                    == ic_blob_storage::ops::service::uploads::capacity::UPLOAD_CAPACITY_METHOD
+                let bytes = if method == ic_blob_storage_contracts::protocol::UPLOAD_CAPACITY_METHOD
                 {
                     assert_eq!(candid::decode_one::<TenantScope>(&arg).unwrap(), scope);
                     candid::encode_one(Ok::<_, UploadCapacityFailure>(c)).unwrap()
@@ -311,8 +310,7 @@ fn duplicate_roots_are_blocked_and_query_failures_retain_partial_evidence() {
             &b.files,
             &run,
             |method, argument| {
-                let reply = if method
-                    == ic_blob_storage::ops::service::uploads::capacity::UPLOAD_CAPACITY_METHOD
+                let reply = if method == ic_blob_storage_contracts::protocol::UPLOAD_CAPACITY_METHOD
                 {
                     candid::encode_one(Ok::<_, UploadCapacityFailure>(capacity(scope))).unwrap()
                 } else {
@@ -357,7 +355,7 @@ fn query_budget_refuses_before_loading_identity_or_claiming_output() {
     let p = b.files[0].input.permission;
     let options = crate::native::arguments::Options {
         command: crate::native::arguments::Command::Status {
-            scope: ic_blob_storage::dto::operator::OperatorScope {
+            scope: ic_blob_storage_contracts::dto::operator::OperatorScope {
                 service: p.upload.service,
                 namespace: p.upload.namespace,
                 cashier: Principal::self_authenticating([8]),

@@ -7,20 +7,22 @@ pub mod credit;
 pub mod history;
 pub mod outcome;
 pub mod renewal;
-pub mod reply;
 pub mod summary;
-use crate::model::{
-    billing::{
-        allocation::{FundingAllocation, FundingAllocationError, FundingAllocationView},
-        journal::{
-            FundingIntent, FundingIntentAdmission, FundingIntentError, FundingIntentView,
-            FundingTransportContext, FundingTransportOutcome,
-            record::{FundingAccountingRecord, FundingIntentRecord, FundingJournalRecord},
-        },
-    },
-    service::{configuration::ServiceConfiguration, upload::UploadContext},
-};
+use crate::model::billing::allocation::FundingAllocation;
+use crate::model::billing::allocation::FundingAllocationError;
+use crate::model::billing::allocation::FundingAllocationView;
+use crate::model::billing::journal::FundingIntent;
+use crate::model::billing::journal::FundingIntentAdmission;
+use crate::model::billing::journal::FundingIntentError;
+use crate::model::billing::journal::FundingIntentView;
+use crate::model::billing::journal::FundingTransportContext;
+use crate::model::billing::journal::FundingTransportOutcome;
+use crate::model::billing::journal::record::FundingAccountingRecord;
+use crate::model::billing::journal::record::FundingIntentRecord;
+use crate::model::billing::journal::record::FundingJournalRecord;
 use crate::ops::caffeine::funding::request::{CashierTopUpRequest, TopUpRequestError};
+use ic_blob_storage_contracts::configuration::service::ServiceConfiguration;
+use ic_blob_storage_contracts::upload::binding::UploadContext;
 use ic_memory::ic_stable_structures::{BTreeMap, Memory};
 use thiserror::Error;
 
@@ -391,9 +393,8 @@ pub(crate) fn validate_envelope(
     config: &ServiceConfiguration,
     allocation: FundingAllocation,
 ) -> Result<(), FundingJournalError> {
-    if FundingJournalRecord::new(config, allocation).limit() > u64::from(u32::MAX) {
-        Err(FundingJournalError::UnsupportedEnvelope)
-    } else {
-        Ok(())
-    }
+    ic_blob_storage_contracts::configuration::envelope::validate_funding_envelope(u128::from(
+        FundingJournalRecord::new(config, allocation).limit(),
+    ))
+    .map_err(|_| FundingJournalError::UnsupportedEnvelope)
 }

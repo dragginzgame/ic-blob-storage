@@ -4,10 +4,9 @@ mod interruption;
 mod serial;
 use crate::browser_driver::{BrowserDriver, BrowserPreparation};
 use client::Trial;
-use ic_blob_storage::{
-    dto::upload::{UploadState, manifest::UploadManifestRequest},
-    model::identity::ContentDigest,
-};
+use ic_blob_storage_contracts::dto::upload::UploadState;
+use ic_blob_storage_contracts::dto::upload::manifest::UploadManifestRequest;
+use ic_blob_storage_contracts::identity::ContentDigest;
 
 #[derive(Clone, Copy)]
 enum Scenario {

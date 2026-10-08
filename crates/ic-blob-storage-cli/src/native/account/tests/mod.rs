@@ -1,9 +1,8 @@
 use super::*;
 use candid::{Int, Nat, Principal};
-use ic_blob_storage::dto::{
-    account::AccountRelationshipView, funding::outcome::FundingReportedBalance,
-    operator::OperatorScope,
-};
+use ic_blob_storage_contracts::dto::account::AccountRelationshipView;
+use ic_blob_storage_contracts::dto::funding::outcome::FundingReportedBalance;
+use ic_blob_storage_contracts::dto::operator::OperatorScope;
 
 fn request(kind: Kind) -> AccountInspectionRequest {
     AccountInspectionRequest {

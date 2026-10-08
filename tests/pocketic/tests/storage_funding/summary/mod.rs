@@ -1,6 +1,6 @@
 use super::*;
 use blob_test_protocol::status::FundingActivityView;
-use ic_blob_storage::dto::operator::OperatorScope as Scope;
+use ic_blob_storage_contracts::dto::operator::OperatorScope as Scope;
 
 #[test]
 fn local_funding_summary_preserves_old_uncredited_amounts_through_returns_traps_and_upgrade() {
@@ -64,7 +64,7 @@ fn local_funding_summary_preserves_old_uncredited_amounts_through_returns_traps_
     );
     assert_eq!(
         f.local_status().funding,
-        ic_blob_storage::dto::operator::LocalFundingStatus {
+        ic_blob_storage_contracts::dto::operator::LocalFundingStatus {
             cumulative_allocation: 1000,
             renewal_ceiling: 2000,
             fenced: true,

@@ -1,21 +1,15 @@
 //! Persist bounded occupancy before a read and settle only its original callback.
 use super::{ReadAuthority, ReadAuthorityError, capture, recheck};
-use crate::{
-    model::{
-        gateway::registry::GatewayScope,
-        service::{
-            read::session::{
-                ReadChunkTarget, ReadSessionError, ReadSessionIntent, ReadSessionTicket,
-            },
-            upload::UploadContext,
-        },
-    },
-    ops::service::{
-        gateways::{GatewayStoreError, StableGatewayRegistry},
-        reads::StableReadSessions,
-        uploads::StableUploads,
-    },
-};
+use crate::model::gateway::registry::GatewayScope;
+use crate::model::service::read::session::ReadChunkTarget;
+use crate::model::service::read::session::ReadSessionError;
+use crate::model::service::read::session::ReadSessionIntent;
+use crate::model::service::read::session::ReadSessionTicket;
+use crate::ops::service::gateways::GatewayStoreError;
+use crate::ops::service::gateways::StableGatewayRegistry;
+use crate::ops::service::reads::StableReadSessions;
+use crate::ops::service::uploads::StableUploads;
+use ic_blob_storage_contracts::upload::binding::UploadContext;
 use ic_memory::ic_stable_structures::Memory;
 use thiserror::Error;
 /// Session admission/completion failure; an invalidated callback can release its

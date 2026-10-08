@@ -1,9 +1,10 @@
 //! Passive bounded operator discovery, without a provider call or mutation.
-use crate::{
-    dto::funding::{FundingHistoryFailure, FundingHistoryPage, FundingHistoryRequest},
-    model::service::upload::UploadContext,
-    ops::service::funding::{StableFundingJournal, history::boundary},
-};
+use crate::ops::service::funding::StableFundingJournal;
+use crate::ops::service::funding::history::boundary;
+use ic_blob_storage_contracts::dto::funding::FundingHistoryFailure;
+use ic_blob_storage_contracts::dto::funding::FundingHistoryPage;
+use ic_blob_storage_contracts::dto::funding::FundingHistoryRequest;
+use ic_blob_storage_contracts::upload::binding::UploadContext;
 use ic_memory::ic_stable_structures::Memory;
 use std::num::NonZeroUsize;
 

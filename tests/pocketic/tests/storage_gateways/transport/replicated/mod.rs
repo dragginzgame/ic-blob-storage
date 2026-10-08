@@ -28,7 +28,7 @@ fn canonical_query_endpoint_accepts_replicated_execution_without_attached_cycles
     // The maintained endpoint allocates a sequence without a private fixture
     // handle. Later fixture attempts must correlate by durable sequence.
     let refreshed: Result<
-        ic_blob_storage::dto::gateway::sync::GatewaySyncResponse,
+        ic_blob_storage_contracts::dto::gateway::sync::GatewaySyncResponse,
         GatewaySyncFailure,
     > = f
         .harness

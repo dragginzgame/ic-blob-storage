@@ -1,7 +1,6 @@
 use super::*;
-use ic_blob_storage::dto::{
-    reference::ReferenceUpload, upload::admission::UploadAdmissionMutation,
-};
+use ic_blob_storage_contracts::dto::reference::ReferenceUpload;
+use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionMutation;
 
 fn saved(kind: Kind) -> (tempfile::TempDir, Input, UploadAdmissionRequest) {
     let temp = tempfile::tempdir().unwrap();

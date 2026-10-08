@@ -1,14 +1,11 @@
 use super::*;
-use ic_blob_storage::{
-    dto::{
-        reference::ReferenceUpload,
-        upload::{
-            admission::{UploadAdmissionFailure, UploadAdmissionRequest},
-            manifest::{UploadManifestHeader, UploadManifestRequest},
-        },
-    },
-    model::identity::caffeine::{CaffeineHashLimits, manifest::builder::CaffeineManifestBuilder},
-};
+use ic_blob_storage_contracts::dto::reference::ReferenceUpload;
+use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionFailure;
+use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionRequest;
+use ic_blob_storage_contracts::dto::upload::manifest::UploadManifestHeader;
+use ic_blob_storage_contracts::dto::upload::manifest::UploadManifestRequest;
+use ic_blob_storage_contracts::identity::caffeine::CaffeineHashLimits;
+use ic_blob_storage_contracts::identity::caffeine::manifest::builder::CaffeineManifestBuilder;
 fn p(n: u8) -> Principal {
     Principal::from_slice(&[n, 1])
 }

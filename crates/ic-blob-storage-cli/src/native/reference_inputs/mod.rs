@@ -1,16 +1,16 @@
 //! Offline exact-reference inputs; supplied identities never allocate authority.
+
+use super::parsing::positive;
 use super::{Failure, artifacts::Run, read, references};
-use ic_blob_storage::{
-    dto::{
-        download::DownloadRequest,
-        reference::{
-            ReferenceAction, ReferenceCommand, ReferenceUpload, status::ReferenceStatusRequest,
-        },
-        upload::admission::UploadAdmissionRequest,
-    },
-    model::identity::ContentDigest,
-    ops::service::{references::reply, uploads::admission::reply::validate_request},
-};
+use ic_blob_storage_contracts::dto::download::DownloadRequest;
+use ic_blob_storage_contracts::dto::reference::ReferenceAction;
+use ic_blob_storage_contracts::dto::reference::ReferenceCommand;
+use ic_blob_storage_contracts::dto::reference::ReferenceUpload;
+use ic_blob_storage_contracts::dto::reference::status::ReferenceStatusRequest;
+use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionRequest;
+use ic_blob_storage_contracts::identity::ContentDigest;
+use ic_blob_storage_contracts::reference::reply;
+use ic_blob_storage_contracts::upload::admission::reply::validate_request;
 use serde_json::{Value, json};
 use std::path::Path;
 
@@ -45,7 +45,6 @@ impl ReferenceFiles {
             "download_sha256":ContentDigest::compute(&self.download).to_string()})
     }
 }
-use super::parsing::positive;
 pub(super) fn run(args: &[String]) -> Result<Value, Failure> {
     let mut flags = super::parsing::flags(&args[1..])?;
     let mut take = |name| flags.remove(name).ok_or(Failure::Arguments);

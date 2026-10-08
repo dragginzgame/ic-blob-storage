@@ -61,7 +61,7 @@ pub(crate) fn view(actor: Principal, id: u128) -> Result<ManifestIntentView, Fai
 pub(crate) async fn inspect(
     actor: Principal,
     id: u128,
-) -> Result<ic_blob_storage::dto::upload::manifest::UploadManifestResponse, Failure> {
+) -> Result<ic_blob_storage_contracts::dto::upload::manifest::UploadManifestResponse, Failure> {
     let saved = view(actor, id)?;
     ops::manifests::inspect(saved.intent.request.permission).await
 }

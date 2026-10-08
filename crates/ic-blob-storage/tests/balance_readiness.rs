@@ -3,14 +3,17 @@
 use std::num::NonZeroUsize;
 
 use candid::Principal;
-use ic_blob_storage::{
-    model::billing::FundingLimits,
-    ops::caffeine::balance::{BalanceReply, BalanceReplyLimits, decode_balance_reply},
-    policy::billing::{
-        BalanceObservation, BillingBlocker, BillingObservation, FundingDecision, FundingStatus,
-        RecoveryState, assess_readiness,
-    },
-};
+use ic_blob_storage::ops::caffeine::balance::BalanceReply;
+use ic_blob_storage::ops::caffeine::balance::BalanceReplyLimits;
+use ic_blob_storage::ops::caffeine::balance::decode_balance_reply;
+use ic_blob_storage::policy::billing::BalanceObservation;
+use ic_blob_storage::policy::billing::BillingBlocker;
+use ic_blob_storage::policy::billing::BillingObservation;
+use ic_blob_storage::policy::billing::FundingDecision;
+use ic_blob_storage::policy::billing::FundingStatus;
+use ic_blob_storage::policy::billing::RecoveryState;
+use ic_blob_storage::policy::billing::assess_readiness;
+use ic_blob_storage_contracts::configuration::funding::FundingLimits;
 
 fn fixture(hex: &str) -> Vec<u8> {
     let (pairs, remainder) = hex.trim().as_bytes().as_chunks::<2>();

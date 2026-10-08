@@ -8,7 +8,7 @@
 use candid::Principal;
 use thiserror::Error;
 
-use crate::model::lifecycle::binding::ObjectBinding;
+use ic_blob_storage_contracts::binding::ObjectBinding;
 
 /// Independently supplied execution context, not a wire request or authority token.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]

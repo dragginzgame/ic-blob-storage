@@ -1,11 +1,9 @@
 //! Production-host absence and authority; confirmed lifecycle coverage uses labelled fixtures.
 use super::*;
-use ic_blob_storage::{
-    dto::reference::capacity::{
-        ReferenceCapacityFailure as F, ReferenceCapacityRequest, ReferenceCapacityResponse,
-    },
-    ops::service::references::capacity::REFERENCE_CAPACITY_METHOD,
-};
+use ic_blob_storage_contracts::dto::reference::capacity::ReferenceCapacityFailure as F;
+use ic_blob_storage_contracts::dto::reference::capacity::ReferenceCapacityRequest;
+use ic_blob_storage_contracts::dto::reference::capacity::ReferenceCapacityResponse;
+use ic_blob_storage_contracts::protocol::REFERENCE_CAPACITY_METHOD;
 impl Fixture {
     fn reference_capacity(
         &self,

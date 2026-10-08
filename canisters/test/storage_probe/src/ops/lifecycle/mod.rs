@@ -1,7 +1,8 @@
 //! Labelled provider substitutes and reference boundary conversion for IC evidence.
 use super::{STATE, TRAP_WRITE, conversion};
 use blob_test_protocol::storage::{FactInput, Failure, ProviderFact};
-use ic_blob_storage::model::{lifecycle::LifecycleChange, service::upload::UploadContext};
+use ic_blob_storage::model::lifecycle::LifecycleChange;
+use ic_blob_storage_contracts::upload::binding::UploadContext;
 pub(crate) fn fact(context: UploadContext, input: FactInput) -> Result<bool, Failure> {
     let request = conversion::request(input.request)?;
     STATE.with_borrow_mut(|state| {
@@ -25,8 +26,8 @@ pub(crate) fn fact(context: UploadContext, input: FactInput) -> Result<bool, Fai
 // Explicit test substitute: installation operator is the configured verifier in this fixture.
 fn completion_authority(
     operator: candid::Principal,
-) -> ic_blob_storage::model::service::upload::completion::CompletionAuthority {
-    ic_blob_storage::model::service::upload::completion::CompletionAuthority::new(
+) -> ic_blob_storage_contracts::upload::completion::CompletionAuthority {
+    ic_blob_storage_contracts::upload::completion::CompletionAuthority::new(
         ic_cdk::api::canister_self(),
         std::num::NonZeroU128::MIN,
         operator,
@@ -35,10 +36,10 @@ fn completion_authority(
 }
 pub(crate) fn verification_plan(
     context: UploadContext,
-    input: ic_blob_storage::dto::upload::admission::UploadAdmissionRequest,
+    input: ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionRequest,
 ) -> Result<
-    ic_blob_storage::dto::upload::completion::UploadVerificationPlan,
-    ic_blob_storage::dto::upload::completion::UploadAttestationFailure,
+    ic_blob_storage_contracts::dto::upload::completion::UploadVerificationPlan,
+    ic_blob_storage_contracts::dto::upload::completion::UploadAttestationFailure,
 > {
     STATE.with_borrow(|state| {
         let state = state.as_ref().unwrap();
@@ -53,11 +54,11 @@ pub(crate) fn verification_plan(
 }
 pub(crate) fn attest(
     context: UploadContext,
-    input: &ic_blob_storage::dto::upload::completion::UploadAttestationRequest,
+    input: &ic_blob_storage_contracts::dto::upload::completion::UploadAttestationRequest,
     fault: Option<blob_test_protocol::storage::WriteFault>,
 ) -> Result<
-    ic_blob_storage::dto::upload::completion::UploadAttestationMutation,
-    ic_blob_storage::dto::upload::completion::UploadAttestationFailure,
+    ic_blob_storage_contracts::dto::upload::completion::UploadAttestationMutation,
+    ic_blob_storage_contracts::dto::upload::completion::UploadAttestationFailure,
 > {
     STATE.with_borrow_mut(|state| {
         let state = state.as_mut().unwrap();
@@ -76,10 +77,10 @@ pub(crate) fn attest(
 }
 pub(crate) fn attestation(
     context: UploadContext,
-    input: ic_blob_storage::dto::upload::admission::UploadAdmissionRequest,
+    input: ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionRequest,
 ) -> Result<
-    ic_blob_storage::dto::upload::completion::UploadAttestationResponse,
-    ic_blob_storage::dto::upload::completion::UploadAttestationFailure,
+    ic_blob_storage_contracts::dto::upload::completion::UploadAttestationResponse,
+    ic_blob_storage_contracts::dto::upload::completion::UploadAttestationFailure,
 > {
     STATE.with_borrow(|state| {
         let state = state.as_ref().unwrap();

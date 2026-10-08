@@ -7,7 +7,7 @@ use serde::Deserialize;
 // Bind even terminal-only archives to the workspace release and dependency
 // selection. The unpublished fixture package itself always has version 0.0.0.
 pub(crate) fn release_binding() -> [u8; 32] {
-    *ic_blob_storage::model::identity::ContentDigest::compute(include_bytes!(
+    *ic_blob_storage_contracts::identity::ContentDigest::compute(include_bytes!(
         "../../../../../../Cargo.lock"
     ))
     .as_bytes()
@@ -131,7 +131,7 @@ impl AuthorityArchiveRecord {
             && self.gateways.len() <= 1
             && self.objects.iter().all(|object| {
                 object.content.as_ref().is_none_or(|content| {
-                    content.checkpoint.len() <= ic_blob_storage::model::identity::caffeine::manifest::verification::ordered::checkpoint::CaffeineVerificationCheckpointRecord::ENCODED_BYTES
+                    content.checkpoint.len() <= ic_blob_storage_contracts::identity::caffeine::manifest::verification::ordered::checkpoint::CaffeineVerificationCheckpointRecord::ENCODED_BYTES
                         && content.chunks.len() <= content_limits.max_chunks.get()
                         && content.headers.len() <= content_limits.max_headers.get()
                         && content

@@ -1,15 +1,18 @@
 //! Explicit tenant queries keep historical results separate from current liveness.
 use super::{Failure, arguments::Options, query, read};
 use candid::Principal;
-use ic_blob_storage::{
-    dto::reference::{
-        ReferenceAction, ReferenceChange, ReferenceCommand, ReferenceFailure,
-        ReferenceReceiptLookup, ReferenceTransitionFailure, ReferenceUpload,
-        status::ReferenceStatusRequest,
-    },
-    model::identity::ProviderRootHash,
-    ops::service::references::{REFERENCE_RECEIPT_METHOD, reply, status::REFERENCE_STATUS_METHOD},
-};
+use ic_blob_storage_contracts::dto::reference::ReferenceAction;
+use ic_blob_storage_contracts::dto::reference::ReferenceChange;
+use ic_blob_storage_contracts::dto::reference::ReferenceCommand;
+use ic_blob_storage_contracts::dto::reference::ReferenceFailure;
+use ic_blob_storage_contracts::dto::reference::ReferenceReceiptLookup;
+use ic_blob_storage_contracts::dto::reference::ReferenceTransitionFailure;
+use ic_blob_storage_contracts::dto::reference::ReferenceUpload;
+use ic_blob_storage_contracts::dto::reference::status::ReferenceStatusRequest;
+use ic_blob_storage_contracts::identity::ProviderRootHash;
+use ic_blob_storage_contracts::protocol::REFERENCE_RECEIPT_METHOD;
+use ic_blob_storage_contracts::protocol::REFERENCE_STATUS_METHOD;
+use ic_blob_storage_contracts::reference::reply;
 use serde_json::{Value, json};
 use std::path::{Path, PathBuf};
 

@@ -182,13 +182,15 @@ The test targets use local canisters and do not deploy a live service.
 ## Repository layout
 
 The standalone host and external consumers use the same service workflows and tenant rules.
-The root is a virtual Cargo workspace. All 11 maintained Rust packages use
-`crates/<package-name>/`; non-package browser tests and frozen inputs stay under
-`tests/`. Package and Wasm names retain their existing identities.
+The root is a virtual Cargo workspace. All 12 maintained Rust packages share
+one virtual root, lockfile and catalog. Libraries and CLI stay in `crates/`,
+canisters in `canisters/`, and packaged test support in `tests/pocketic/` and
+`tests/protocol/`; browser tests and frozen inputs stay under `tests/`. Package and Wasm names retain their existing identities.
 
 | Location | Responsibility |
 | --- | --- |
-| [Rust core](crates/ic-blob-storage) | Content, policy, durable state and shared workflows; no downstream framework dependency |
+| [Contracts](crates/ic-blob-storage-contracts/README.md) | Runtime-free DTOs, identities, method names, bounded codecs and content verification |
+| [Rust core](crates/ic-blob-storage) | Service policy, durable state, accounting and workflows; depends downward on contracts |
 | [Standalone host](canisters/standalone/README.md) | Explicit endpoints, installation, memory and lifecycle |
 | [Native CLI](crates/ic-blob-storage-cli) | Offline snapshots and batch inputs, signed setup/inspection, tenant references, verified downloads and verifier tooling |
 | [Browser client](clients/browser/README.md) | Certificate transport and durable intent boundary; reuses Caffeine's upload SDK |

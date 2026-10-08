@@ -4,13 +4,11 @@ use super::{
     upload_setup::manifest_reply_limits,
 };
 use candid::Principal;
-use ic_blob_storage::{
-    dto::upload::{admission::UploadAdmissionRequest, manifest::UploadManifestInspection},
-    ops::service::uploads::{
-        admission::reply::validate_request,
-        manifests::reply::{self, UploadManifestReplyError},
-    },
-};
+use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionRequest;
+use ic_blob_storage_contracts::dto::upload::manifest::UploadManifestInspection;
+use ic_blob_storage_contracts::upload::admission::reply::validate_request;
+use ic_blob_storage_contracts::upload::manifests::reply;
+use ic_blob_storage_contracts::upload::manifests::reply::UploadManifestReplyError;
 use serde_json::{Value, json};
 use std::{num::NonZeroU64, path::Path};
 

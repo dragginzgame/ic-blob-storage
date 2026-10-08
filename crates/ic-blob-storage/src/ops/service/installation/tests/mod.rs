@@ -1,13 +1,11 @@
 use super::*;
-use crate::{
-    dto::operator::OperatorScope,
-    model::{
-        billing::journal::FundingIntent,
-        service::{tenant::TenantUpdate, upload::UploadContext},
-    },
-    ops::service::{configuration::tests::candidate, stores::grants},
-    workflow::operator::inspect,
-};
+use crate::model::billing::journal::FundingIntent;
+use crate::ops::service::configuration::tests::candidate;
+use crate::ops::service::stores::grants;
+use crate::workflow::operator::inspect;
+use ic_blob_storage_contracts::dto::operator::OperatorScope;
+use ic_blob_storage_contracts::tenant::TenantUpdate;
+use ic_blob_storage_contracts::upload::binding::UploadContext;
 use ic_memory::ic_stable_structures::VectorMemory;
 
 const RELEASE: &str = "test-release";
@@ -107,7 +105,8 @@ fn bytes(memory: &[VectorMemory; 17]) -> [Vec<u8>; 17] {
 
 #[test]
 fn configuration_inspection_binds_operator_service_and_preserves_restore_fences() {
-    use crate::{dto::configuration::HostFailure, workflow::installation::inspect};
+    use crate::workflow::installation::inspect;
+    use ic_blob_storage_contracts::dto::configuration::HostFailure;
     let memory = memory();
     let installed = ServiceInstallation::install(memories(&memory), validated()).unwrap();
     let context = UploadContext {
@@ -147,10 +146,12 @@ fn configuration_inspection_binds_operator_service_and_preserves_restore_fences(
         ServiceInstallation::open(memories(&memory), candidate().service, RELEASE).unwrap();
     assert_eq!(
         inspect(&restored, context),
-        Ok(crate::dto::configuration::HostConfigurationView {
-            fenced: true,
-            ..view
-        })
+        Ok(
+            ic_blob_storage_contracts::dto::configuration::HostConfigurationView {
+                fenced: true,
+                ..view
+            }
+        )
     );
     assert_eq!(bytes(&memory), before);
 }
@@ -161,7 +162,9 @@ fn whole_candidate_rejects_invalid_bindings_project_verifier_and_release() {
     assert!(matches!(
         ValidatedServiceInstallation::new(original.completion_verifier, original),
         Err(ServiceInstallationError::Configuration(
-            ConfigurationInputError::ServiceBinding
+            ServiceConfigurationAdapterError::Input(
+                ic_blob_storage_contracts::configuration::ConfigurationInputError::ServiceBinding
+            )
         ))
     ));
     for project in ["", " padded", "control\n"] {

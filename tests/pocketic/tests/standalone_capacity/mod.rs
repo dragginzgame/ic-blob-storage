@@ -1,9 +1,8 @@
 //! Actual standalone quota observations, independent of admission and restore authority.
 use super::*;
-use ic_blob_storage::{
-    dto::upload::capacity::{UploadCapacityFailure as F, UploadCapacityResponse},
-    ops::service::uploads::capacity::UPLOAD_CAPACITY_METHOD,
-};
+use ic_blob_storage_contracts::dto::upload::capacity::UploadCapacityFailure as F;
+use ic_blob_storage_contracts::dto::upload::capacity::UploadCapacityResponse;
+use ic_blob_storage_contracts::protocol::UPLOAD_CAPACITY_METHOD;
 impl Fixture {
     pub(super) fn capacity(
         &self,

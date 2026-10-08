@@ -1,13 +1,9 @@
 use super::*;
-use crate::{
-    dto::{
-        gateway::{
-            GatewayRevocationFailure as Error, GatewayRevocationRequest, GatewayRevocationResponse,
-        },
-        operator::OperatorScope,
-    },
-    workflow::gateways::revocation::revoke,
-};
+use crate::workflow::gateways::revocation::revoke;
+use ic_blob_storage_contracts::dto::gateway::GatewayRevocationFailure as Error;
+use ic_blob_storage_contracts::dto::gateway::GatewayRevocationRequest;
+use ic_blob_storage_contracts::dto::gateway::GatewayRevocationResponse;
+use ic_blob_storage_contracts::dto::operator::OperatorScope;
 fn request() -> GatewayRevocationRequest {
     GatewayRevocationRequest {
         scope: OperatorScope {

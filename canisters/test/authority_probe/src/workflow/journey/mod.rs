@@ -7,24 +7,19 @@ use blob_test_protocol::journey::{
     JourneyUsage,
 };
 use candid::Principal;
-use ic_blob_storage::{
-    model::{
-        catalog::{admission::read::UploadRootState, pending::PendingPageLimits},
-        identity::{
-            ProviderRootHash,
-            batch::{ProviderRootBatch, RootBatchLimits},
-        },
-        lifecycle::LifecyclePhase,
-    },
-    policy::{
-        catalog::{
-            assess_gateway_pending,
-            upload::{UploadRootStatus, assess_gateway_upload_roots},
-        },
-        gateway::{GatewayCallbackContext, assess_gateway_callback},
-        tenant::{TenantAccessContext, assess_tenant_access},
-    },
-};
+use ic_blob_storage::model::catalog::pending::PendingPageLimits;
+use ic_blob_storage::policy::catalog::assess_gateway_pending;
+use ic_blob_storage::policy::catalog::upload::UploadRootStatus;
+use ic_blob_storage::policy::catalog::upload::assess_gateway_upload_roots;
+use ic_blob_storage::policy::gateway::GatewayCallbackContext;
+use ic_blob_storage::policy::gateway::assess_gateway_callback;
+use ic_blob_storage::policy::tenant::TenantAccessContext;
+use ic_blob_storage::policy::tenant::assess_tenant_access;
+use ic_blob_storage_contracts::identity::ProviderRootHash;
+use ic_blob_storage_contracts::identity::batch::ProviderRootBatch;
+use ic_blob_storage_contracts::identity::batch::RootBatchLimits;
+use ic_blob_storage_contracts::upload::history::LifecyclePhase;
+use ic_blob_storage_contracts::upload::history::UploadRootState;
 
 fn tenant(context: TenantAccessContext) -> Result<(), JourneyFailure> {
     ops::read(|s| {

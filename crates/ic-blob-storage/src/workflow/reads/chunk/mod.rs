@@ -1,18 +1,12 @@
 //! One durable session, one host read and one authority-checked verified chunk.
 use super::sessions::{ReadSessionWorkflowError, begin, complete};
-use crate::{
-    model::{
-        gateway::registry::GatewayScope,
-        service::{read::session::ReadChunkTarget, upload::UploadContext},
-    },
-    ops::service::{
-        reads::{
-            access::ReadSessionAccess,
-            transport::{ReadChunkRequest, ReadChunkTransport},
-        },
-        uploads::read::verification::ReadVerificationError,
-    },
-};
+use crate::model::gateway::registry::GatewayScope;
+use crate::model::service::read::session::ReadChunkTarget;
+use crate::ops::service::reads::access::ReadSessionAccess;
+use crate::ops::service::reads::transport::ReadChunkRequest;
+use crate::ops::service::reads::transport::ReadChunkTransport;
+use crate::ops::service::uploads::read::verification::ReadVerificationError;
+use ic_blob_storage_contracts::upload::binding::UploadContext;
 /// Verified bytes for exactly one admitted chunk; not whole-file completion or
 /// provider durability/billing proof. The root/reference remain in the caller's request.
 #[derive(Debug, Eq, PartialEq)]

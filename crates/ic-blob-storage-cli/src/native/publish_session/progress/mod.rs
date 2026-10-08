@@ -1,11 +1,18 @@
 //! Sequential receipt gating; in-process cursor/history never grants replay authority.
-use super::{
-    Actors, Failure, Input, Options, PreparedBatch, Run, Value,
-    control::{self, Frame},
-    json, publish_map, publish_prepare,
-    sources::Sources,
-    verification,
-};
+use super::Actors;
+use super::Failure;
+use super::Input;
+use super::Options;
+use super::PreparedBatch;
+use super::Run;
+use super::Value;
+use super::control;
+use super::control::Frame;
+use super::json;
+use super::publish_map;
+use super::publish_prepare;
+use super::sources::Sources;
+use super::verification;
 use std::path::PathBuf;
 use tokio::sync::mpsc;
 

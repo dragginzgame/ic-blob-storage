@@ -1,15 +1,11 @@
 //! Verify the same open file buffers that a snapshot saves; no source reopen.
 use super::Failure;
-use ic_blob_storage::{
-    dto::upload::manifest::UploadManifestDeclaration,
-    model::identity::{
-        ProviderRootHash,
-        caffeine::{
-            CaffeineContentHashes, CaffeineHashLimits, CaffeineHeader,
-            verification::CaffeineRootVerifier,
-        },
-    },
-};
+use ic_blob_storage_contracts::dto::upload::manifest::UploadManifestDeclaration;
+use ic_blob_storage_contracts::identity::ProviderRootHash;
+use ic_blob_storage_contracts::identity::caffeine::CaffeineContentHashes;
+use ic_blob_storage_contracts::identity::caffeine::CaffeineHashLimits;
+use ic_blob_storage_contracts::identity::caffeine::CaffeineHeader;
+use ic_blob_storage_contracts::identity::caffeine::verification::CaffeineRootVerifier;
 use std::{
     fs::File,
     io::{Read, Write},

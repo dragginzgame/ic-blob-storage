@@ -1,9 +1,9 @@
 use super::*;
 use crate::operator::inventory::input::tests::prepared;
 use candid::Principal;
-use ic_blob_storage::dto::reference::ReferenceUpload;
-use ic_blob_storage::dto::reference::capacity::ReferenceHeadroom;
-use ic_blob_storage::dto::tenant::TenantEnrollment;
+use ic_blob_storage_contracts::dto::reference::ReferenceUpload;
+use ic_blob_storage_contracts::dto::reference::capacity::ReferenceHeadroom;
+use ic_blob_storage_contracts::dto::tenant::TenantEnrollment;
 
 fn selection() -> Selection {
     let service = Principal::from_slice(&[1, 1]);

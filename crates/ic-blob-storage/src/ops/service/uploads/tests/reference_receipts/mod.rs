@@ -1,6 +1,7 @@
 use super::*;
-use crate::ops::service::references::parse;
-use crate::{dto::reference::*, workflow::references::receipt};
+use crate::workflow::references::receipt;
+use ic_blob_storage_contracts::dto::reference::*;
+use ic_blob_storage_contracts::reference::parse;
 
 #[test]
 #[expect(

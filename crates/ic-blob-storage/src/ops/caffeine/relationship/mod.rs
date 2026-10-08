@@ -223,7 +223,10 @@ fn valid_principal(value: Principal) -> bool {
 }
 
 mod wire {
-    use candid::{CandidType, Int, Nat, Principal};
+    use candid::CandidType;
+    use candid::Int;
+    use candid::Nat;
+    use candid::Principal;
     use serde::Deserialize;
 
     pub(super) type GetResult = Result<GetResponse, GetError>;

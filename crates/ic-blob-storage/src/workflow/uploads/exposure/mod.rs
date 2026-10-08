@@ -1,15 +1,13 @@
 //! Guarded intent-before-effect bookkeeping. No certificate or provider call is made.
-use crate::{
-    dto::upload::{
-        admission::{UploadAdmissionRequest, UploadAdmissionResponse},
-        exposure::UploadExposureFailure,
-    },
-    model::service::upload::UploadContext,
-    ops::service::uploads::{StableUploads, exposure},
-    policy::upload::exposure::{
-        UploadExposureAssessment, UploadExposureHostEvidence, assess_exposure,
-    },
-};
+use crate::ops::service::uploads::StableUploads;
+use crate::ops::service::uploads::exposure;
+use crate::policy::upload::exposure::UploadExposureAssessment;
+use crate::policy::upload::exposure::UploadExposureHostEvidence;
+use crate::policy::upload::exposure::assess_exposure;
+use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionRequest;
+use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionResponse;
+use ic_blob_storage_contracts::dto::upload::exposure::UploadExposureFailure;
+use ic_blob_storage_contracts::upload::binding::UploadContext;
 use ic_memory::ic_stable_structures::Memory;
 /// Result of this synchronous operation; never a reusable certificate-issuance permit.
 #[derive(Clone, Debug, Eq, PartialEq)]

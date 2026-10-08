@@ -1,7 +1,8 @@
 //! Labelled host-evidence substitutes for exposure tests. Never accept these controls in production.
 use candid::{CandidType, Deserialize};
-use ic_blob_storage::dto::upload::admission::{UploadAdmissionRequest, UploadAdmissionResponse};
-use ic_blob_storage::dto::upload::exposure::UploadExposureBlocker;
+use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionRequest;
+use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionResponse;
+use ic_blob_storage_contracts::dto::upload::exposure::UploadExposureBlocker;
 /// Scenario selected by the local test host, not evidence from Caffeine.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
 pub enum ExposureScenario {

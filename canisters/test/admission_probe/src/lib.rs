@@ -9,7 +9,7 @@ use blob_test_protocol::admission::{
     input::{EnrollmentInput, PreparationInput, ReferenceInput},
     release::LifecycleCommand,
 };
-use ic_blob_storage::model::service::upload::UploadContext;
+use ic_blob_storage_contracts::upload::binding::UploadContext;
 
 fn context() -> UploadContext {
     UploadContext {
@@ -94,10 +94,10 @@ fn inspect(request: Request) -> Result<Observation, Failure> {
 
 #[ic_cdk::query(decode_with = "ops::decode::discovery")]
 fn blob_lookup_content(
-    input: ic_blob_storage::dto::upload::discovery::UploadDiscoveryRequest,
+    input: ic_blob_storage_contracts::dto::upload::discovery::UploadDiscoveryRequest,
 ) -> Result<
-    ic_blob_storage::dto::upload::discovery::UploadDiscoveryResponse,
-    ic_blob_storage::dto::upload::discovery::UploadDiscoveryFailure,
+    ic_blob_storage_contracts::dto::upload::discovery::UploadDiscoveryResponse,
+    ic_blob_storage_contracts::dto::upload::discovery::UploadDiscoveryFailure,
 > {
     workflow::discover(context(), input)
 }
@@ -116,10 +116,10 @@ fn resources(limit: u8) -> Result<Vec<ExecutionProfile>, Failure> {
 
 #[ic_cdk::query(decode_with = "ops::decode::admission_capacity")]
 fn blob_upload_capacity(
-    input: ic_blob_storage::dto::tenant::TenantScope,
+    input: ic_blob_storage_contracts::dto::tenant::TenantScope,
 ) -> Result<
-    ic_blob_storage::dto::upload::capacity::UploadCapacityResponse,
-    ic_blob_storage::dto::upload::capacity::UploadCapacityFailure,
+    ic_blob_storage_contracts::dto::upload::capacity::UploadCapacityResponse,
+    ic_blob_storage_contracts::dto::upload::capacity::UploadCapacityFailure,
 > {
     workflow::admission_capacity(context(), input)
 }
@@ -133,10 +133,10 @@ fn retained_content_descriptor(
 
 #[ic_cdk::query(decode_with = "ops::decode::reference_capacity")]
 fn blob_reference_capacity(
-    input: ic_blob_storage::dto::reference::capacity::ReferenceCapacityRequest,
+    input: ic_blob_storage_contracts::dto::reference::capacity::ReferenceCapacityRequest,
 ) -> Result<
-    ic_blob_storage::dto::reference::capacity::ReferenceCapacityResponse,
-    ic_blob_storage::dto::reference::capacity::ReferenceCapacityFailure,
+    ic_blob_storage_contracts::dto::reference::capacity::ReferenceCapacityResponse,
+    ic_blob_storage_contracts::dto::reference::capacity::ReferenceCapacityFailure,
 > {
     workflow::reference_capacity(context(), input)
 }

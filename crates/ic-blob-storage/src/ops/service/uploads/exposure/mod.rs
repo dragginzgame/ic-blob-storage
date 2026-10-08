@@ -1,16 +1,14 @@
 //! Exact uploader exposure context and historical tenant/uploader inspection.
 use super::{StableUploads, UploadStoreError, admission};
-use crate::{
-    dto::upload::{
-        admission::{UploadAdmissionFailure, UploadAdmissionRequest, UploadAdmissionResponse},
-        exposure::UploadExposureFailure,
-    },
-    model::service::{
-        tenant::TenantError,
-        upload::{UploadAdmissionError, UploadContext, UploadPermission},
-    },
-    policy::upload::exposure::UploadExposureHostEvidence,
-};
+use crate::model::service::upload::UploadAdmissionError;
+use crate::policy::upload::exposure::UploadExposureHostEvidence;
+use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionFailure;
+use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionRequest;
+use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionResponse;
+use ic_blob_storage_contracts::dto::upload::exposure::UploadExposureFailure;
+use ic_blob_storage_contracts::tenant::TenantError;
+use ic_blob_storage_contracts::upload::binding::UploadContext;
+use ic_blob_storage_contracts::upload::binding::UploadPermission;
 use ic_memory::ic_stable_structures::Memory;
 
 /// Present every independent policy blocker at the Candid boundary. Conversion
@@ -18,11 +16,9 @@ use ic_memory::ic_stable_structures::Memory;
 #[must_use]
 pub fn blockers(
     assessment: crate::policy::upload::exposure::UploadExposureAssessment,
-) -> Vec<crate::dto::upload::exposure::UploadExposureBlocker> {
-    use crate::{
-        dto::upload::exposure::UploadExposureBlocker as D,
-        policy::upload::exposure::UploadExposureBlocker as P,
-    };
+) -> Vec<ic_blob_storage_contracts::dto::upload::exposure::UploadExposureBlocker> {
+    use crate::policy::upload::exposure::UploadExposureBlocker as P;
+    use ic_blob_storage_contracts::dto::upload::exposure::UploadExposureBlocker as D;
     assessment
         .blockers
         .into_iter()
@@ -48,8 +44,9 @@ fn permission<M: Memory>(
             UploadAdmissionFailure::Denied,
         ));
     }
-    let permission = admission::parse_binding(context.service, input)
-        .map_err(UploadExposureFailure::Permission)?;
+    let permission =
+        ic_blob_storage_contracts::upload::admission::parse_binding(context.service, input)
+            .map_err(UploadExposureFailure::Permission)?;
     let retained = store.lookup(context, permission.request).map_err(failure)?;
     if retained.permission != permission {
         return Err(UploadExposureFailure::Permission(

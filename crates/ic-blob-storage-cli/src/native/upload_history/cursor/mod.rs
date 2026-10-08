@@ -1,7 +1,8 @@
 //! Bounded saved continuation bound to the complete original operator scan.
 use super::{Failure, filter, filter_text};
 use candid::Principal;
-use ic_blob_storage::dto::upload::history::{UploadHistoryCursor, UploadHistoryRequest};
+use ic_blob_storage_contracts::dto::upload::history::UploadHistoryCursor;
+use ic_blob_storage_contracts::dto::upload::history::UploadHistoryRequest;
 use serde::Deserialize;
 use serde_json::{Value, json};
 use std::path::Path;

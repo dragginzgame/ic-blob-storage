@@ -6,7 +6,9 @@
 
 use candid::Principal;
 
-use super::{GatewayList, GatewayListError, GatewayListLimits};
+use super::GatewayList;
+use super::GatewayListError;
+use ic_blob_storage_contracts::configuration::limits::GatewayListLimits;
 
 /// Whether an individual add changed membership.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]

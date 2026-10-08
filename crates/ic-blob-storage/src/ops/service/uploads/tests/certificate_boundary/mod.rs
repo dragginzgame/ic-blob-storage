@@ -1,14 +1,11 @@
 use super::*;
-use crate::{
-    dto::upload::{
-        UploadState, admission::UploadAdmissionFailure as A, exposure::UploadExposureFailure as E,
-    },
-    workflow::uploads::{
-        certificate::{self, UploadCertificateFailure as F},
-        exposure,
-    },
-};
+use crate::workflow::uploads::certificate;
+use crate::workflow::uploads::certificate::UploadCertificateFailure as F;
+use crate::workflow::uploads::exposure;
 use exposure_boundary::{evidence, prepared};
+use ic_blob_storage_contracts::dto::upload::UploadState;
+use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionFailure as A;
+use ic_blob_storage_contracts::dto::upload::exposure::UploadExposureFailure as E;
 #[derive(candid::CandidType, candid::Deserialize)]
 struct ProviderReply {
     method: String,
@@ -131,9 +128,8 @@ fn certificate_resolution_rejects_corrupt_root_request_indexes_without_writes() 
 
 #[test]
 fn certificate_assessment_reports_exact_permission_and_all_missing_facts_without_mutation() {
-    use crate::dto::upload::{
-        certificate::UploadCertificateAssessmentResponse, exposure::UploadExposureBlocker as C,
-    };
+    use ic_blob_storage_contracts::dto::upload::certificate::UploadCertificateAssessmentResponse;
+    use ic_blob_storage_contracts::dto::upload::exposure::UploadExposureBlocker as C;
     let m = memory();
     let store = prepared(clone_memory(&m));
     let mut host = evidence();

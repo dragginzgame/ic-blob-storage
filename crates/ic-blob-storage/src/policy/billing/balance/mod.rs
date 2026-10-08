@@ -1,6 +1,6 @@
 //! Diagnose provider balance thresholds independently of local spendable funds.
 use super::{BalanceObservation, BillingBlocker, BillingWarning, RecoveryState};
-use crate::model::billing::FundingLimits;
+use ic_blob_storage_contracts::configuration::funding::FundingLimits;
 use std::num::NonZeroU128;
 
 /// Bound balance inputs; no local balance or reserve assumption is required.

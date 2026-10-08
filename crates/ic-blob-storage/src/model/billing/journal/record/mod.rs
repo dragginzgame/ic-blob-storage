@@ -6,17 +6,13 @@ use super::{
     FundingIntent, FundingIntentError, FundingIntentState, FundingIntentView,
     FundingTransportOutcome,
 };
-use crate::model::{
-    billing::{
-        allocation::{
-            FundingAllocation, FundingAllocationError, FundingAllocationView,
-            record::FundingAllocationRecord,
-        },
-        transfer::FundingTransfer,
-    },
-    service::configuration::ServiceConfiguration,
-};
+use crate::model::billing::allocation::FundingAllocation;
+use crate::model::billing::allocation::FundingAllocationError;
+use crate::model::billing::allocation::FundingAllocationView;
+use crate::model::billing::allocation::record::FundingAllocationRecord;
 use candid::{CandidType, DecoderConfig, Deserialize, Principal, decode_one_with_config};
+use ic_blob_storage_contracts::configuration::service::ServiceConfiguration;
+use ic_blob_storage_contracts::funding::transfer::FundingTransfer;
 use ic_memory::ic_stable_structures::{Storable, storable::Bound};
 use response::FundingResponseRecord;
 use std::{borrow::Cow, num::NonZeroU128};

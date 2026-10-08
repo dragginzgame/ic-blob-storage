@@ -1,6 +1,6 @@
 use super::*;
 mod http;
-use ic_blob_storage::dto::operator::*;
+use ic_blob_storage_contracts::dto::operator::*;
 
 fn actor() -> Principal {
     Principal::self_authenticating([42])

@@ -1,5 +1,6 @@
 //! Actual caller authorization; no controller, tenant or gateway membership override.
-use crate::model::service::upload::{UploadContext, completion::CompletionAuthority};
+use ic_blob_storage_contracts::upload::binding::UploadContext;
+use ic_blob_storage_contracts::upload::completion::CompletionAuthority;
 /// Assess a host-installed role against actual execution context.
 #[must_use]
 pub fn may_attest(authority: CompletionAuthority, context: UploadContext) -> bool {

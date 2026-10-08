@@ -175,7 +175,9 @@ fn amount(value: &Nat, field: LedgerDepositAmountField) -> Result<u128, LedgerDe
 // alternate owners of this notification contract.
 mod wire {
     use super::super::wire::AccountCycleBalances;
-    use super::{CandidType, Deserialize, Nat};
+    use super::CandidType;
+    use super::Deserialize;
+    use super::Nat;
 
     pub(super) type NotifyResult = Result<NotifyResponse, NotifyError>;
     #[derive(CandidType, Deserialize)]

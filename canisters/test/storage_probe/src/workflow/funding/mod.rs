@@ -1,12 +1,6 @@
 //! Delegate current-state admission to the shared handler, not a saved preview.
-pub(crate) mod dispatch;
-pub(crate) fn confirm_credit(
-    execution: UploadContext,
-    input: blob_test_protocol::storage::funding::CreditCommand,
-) -> Result<Option<bool>, Failure> {
-    funding::credit::run(execution, input)
-}
-use crate::ops::funding::{self, admission};
+use crate::ops::funding;
+use crate::ops::funding::admission;
 use blob_test_protocol::storage::{
     Failure,
     funding::{
@@ -14,13 +8,20 @@ use blob_test_protocol::storage::{
         admission::{Preparation, View},
     },
 };
-use ic_blob_storage::{
-    model::{
-        billing::journal::{FundingIntent, FundingJournalScope},
-        service::upload::UploadContext,
-    },
-    workflow::funding::{FundingPreparationResult, inspect_preparation, prepare_new},
-};
+use ic_blob_storage::model::billing::journal::FundingIntent;
+use ic_blob_storage::model::billing::journal::FundingJournalScope;
+use ic_blob_storage::workflow::funding::FundingPreparationResult;
+use ic_blob_storage::workflow::funding::inspect_preparation;
+use ic_blob_storage::workflow::funding::prepare_new;
+use ic_blob_storage_contracts::upload::binding::UploadContext;
+
+pub(crate) mod dispatch;
+pub(crate) fn confirm_credit(
+    execution: UploadContext,
+    input: blob_test_protocol::storage::funding::CreditCommand,
+) -> Result<Option<bool>, Failure> {
+    funding::credit::run(execution, input)
+}
 const fn scope(intent: FundingIntent) -> FundingJournalScope {
     FundingJournalScope {
         service: intent.service,

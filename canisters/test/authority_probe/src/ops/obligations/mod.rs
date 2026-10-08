@@ -3,7 +3,8 @@
 use blob_test_protocol::obligations::{
     ObligationProbeFact, ObligationProbePhase, ObligationProbeView,
 };
-use ic_blob_storage::model::{catalog::tenant::UnsettledObjectView, lifecycle::LifecyclePhase};
+use ic_blob_storage::model::catalog::tenant::UnsettledObjectView;
+use ic_blob_storage_contracts::upload::history::LifecyclePhase;
 
 pub(crate) fn view(value: UnsettledObjectView) -> ObligationProbeView {
     ObligationProbeView {

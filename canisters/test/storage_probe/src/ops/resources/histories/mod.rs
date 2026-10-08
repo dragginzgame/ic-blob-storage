@@ -5,13 +5,12 @@ use blob_test_protocol::storage::{
     funding::Phase,
     resources::{HistoryPopulationBatch, RestorationRead, RestorationReadPage},
 };
-use ic_blob_storage::{
-    model::{
-        billing::journal::{FundingJournalScope, FundingTransportContext, FundingTransportOutcome},
-        service::{read::session::ReadChunkTarget, upload::UploadContext},
-    },
-    workflow::reads::sessions::begin,
-};
+use ic_blob_storage::model::billing::journal::FundingJournalScope;
+use ic_blob_storage::model::billing::journal::FundingTransportContext;
+use ic_blob_storage::model::billing::journal::FundingTransportOutcome;
+use ic_blob_storage::model::service::read::session::ReadChunkTarget;
+use ic_blob_storage::workflow::reads::sessions::begin;
+use ic_blob_storage_contracts::upload::binding::UploadContext;
 use std::num::{NonZeroU32, NonZeroU128};
 
 pub(crate) fn populate(

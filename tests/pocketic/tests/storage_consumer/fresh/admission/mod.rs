@@ -1,7 +1,7 @@
 use super::*;
-use ic_blob_storage::dto::upload::admission::{
-    UploadAdmissionFailure as A, UploadAdmissionRequest, UploadAdmissionResponse,
-};
+use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionFailure as A;
+use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionRequest;
+use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionResponse;
 fn permission(input: &Run) -> UploadAdmissionRequest {
     match input.registration.source {
         RegistrationSource::Fresh(p) => p,

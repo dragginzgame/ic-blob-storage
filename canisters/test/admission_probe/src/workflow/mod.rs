@@ -5,7 +5,7 @@ use blob_test_protocol::admission::{
     Command, ContentLookup, ExecutionProfile, Failure, Installation, Observation, Outcome, Request,
 };
 use candid::Principal;
-use ic_blob_storage::model::service::upload::UploadContext;
+use ic_blob_storage_contracts::upload::binding::UploadContext;
 
 pub(crate) fn initialize(service: Principal, installation: Installation) {
     ops::initialize(service, installation);
@@ -39,10 +39,10 @@ pub(crate) fn inspect(context: UploadContext, request: Request) -> Result<Observ
 
 pub(crate) fn discover(
     context: UploadContext,
-    input: ic_blob_storage::dto::upload::discovery::UploadDiscoveryRequest,
+    input: ic_blob_storage_contracts::dto::upload::discovery::UploadDiscoveryRequest,
 ) -> Result<
-    ic_blob_storage::dto::upload::discovery::UploadDiscoveryResponse,
-    ic_blob_storage::dto::upload::discovery::UploadDiscoveryFailure,
+    ic_blob_storage_contracts::dto::upload::discovery::UploadDiscoveryResponse,
+    ic_blob_storage_contracts::dto::upload::discovery::UploadDiscoveryFailure,
 > {
     ops::content::discover(context, input)
 }
@@ -56,10 +56,10 @@ pub(crate) fn resources(
 
 pub(crate) fn admission_capacity(
     context: UploadContext,
-    input: ic_blob_storage::dto::tenant::TenantScope,
+    input: ic_blob_storage_contracts::dto::tenant::TenantScope,
 ) -> Result<
-    ic_blob_storage::dto::upload::capacity::UploadCapacityResponse,
-    ic_blob_storage::dto::upload::capacity::UploadCapacityFailure,
+    ic_blob_storage_contracts::dto::upload::capacity::UploadCapacityResponse,
+    ic_blob_storage_contracts::dto::upload::capacity::UploadCapacityFailure,
 > {
     ops::planning::capacity(context, input)
 }
@@ -73,10 +73,10 @@ pub(crate) fn content_descriptor(
 
 pub(crate) fn reference_capacity(
     context: UploadContext,
-    input: ic_blob_storage::dto::reference::capacity::ReferenceCapacityRequest,
+    input: ic_blob_storage_contracts::dto::reference::capacity::ReferenceCapacityRequest,
 ) -> Result<
-    ic_blob_storage::dto::reference::capacity::ReferenceCapacityResponse,
-    ic_blob_storage::dto::reference::capacity::ReferenceCapacityFailure,
+    ic_blob_storage_contracts::dto::reference::capacity::ReferenceCapacityResponse,
+    ic_blob_storage_contracts::dto::reference::capacity::ReferenceCapacityFailure,
 > {
     ops::release::capacity(context, input)
 }

@@ -1,9 +1,8 @@
 use super::*;
-use crate::{
-    model::lifecycle::{binding::ObjectIdentity, roots::RootClaims},
-    ops::service::tenant::tests::config,
-};
+use crate::model::lifecycle::roots::RootClaims;
+use crate::ops::service::tenant::tests::config;
 use candid::Principal;
+use ic_blob_storage_contracts::binding::ObjectIdentity;
 use ic_memory::ic_stable_structures::VectorMemory;
 use std::num::NonZeroU128;
 

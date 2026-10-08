@@ -1,26 +1,21 @@
 //! Conversion around the existing bounded journal traversal.
-use crate::{
-    dto::{
-        funding::{
-            FundingHistoryCursor, FundingHistoryEntry, FundingHistoryFailure, FundingHistoryPage,
-            FundingHistoryRequest, FundingPhase,
-        },
-        operator::OperatorScope,
-    },
-    model::{
-        billing::journal::{FundingIntentState, FundingJournalScope},
-        service::upload::UploadContext,
-    },
-    ops::service::funding::{
-        FundingJournalError, StableFundingJournal,
-        history::{FundingHistoryCursor as Cursor, FundingHistoryError},
-    },
-};
+use crate::model::billing::journal::FundingIntentState;
+use crate::model::billing::journal::FundingJournalScope;
+use crate::ops::service::funding::FundingJournalError;
+use crate::ops::service::funding::StableFundingJournal;
+use crate::ops::service::funding::history::FundingHistoryCursor as Cursor;
+use crate::ops::service::funding::history::FundingHistoryError;
+use ic_blob_storage_contracts::dto::funding::FundingHistoryCursor;
+use ic_blob_storage_contracts::dto::funding::FundingHistoryEntry;
+use ic_blob_storage_contracts::dto::funding::FundingHistoryFailure;
+use ic_blob_storage_contracts::dto::funding::FundingHistoryPage;
+use ic_blob_storage_contracts::dto::funding::FundingHistoryRequest;
+use ic_blob_storage_contracts::dto::funding::FundingPhase;
+use ic_blob_storage_contracts::dto::operator::OperatorScope;
+use ic_blob_storage_contracts::upload::binding::UploadContext;
 use ic_memory::ic_stable_structures::Memory;
 use std::num::{NonZeroU128, NonZeroUsize};
 
-/// Canonical passive funding history query. Linking exports no endpoint.
-pub const FUNDING_HISTORY_METHOD: &str = "blob_funding_history";
 fn scope(input: OperatorScope) -> Result<FundingJournalScope, FundingHistoryFailure> {
     Ok(FundingJournalScope {
         service: input.service,

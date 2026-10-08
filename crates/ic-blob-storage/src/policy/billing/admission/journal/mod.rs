@@ -3,10 +3,9 @@ use super::{
     FundingActivity,
     evidence::{FundingAdmissionEvidence, FundingEvidenceBlocker, assess_funding_evidence},
 };
-use crate::{
-    model::billing::{FundingLimits, allocation::FundingAllocationView},
-    policy::billing::reconciliation::assess_uncredited_allocation,
-};
+use crate::model::billing::allocation::FundingAllocationView;
+use crate::policy::billing::reconciliation::assess_uncredited_allocation;
+use ic_blob_storage_contracts::configuration::funding::FundingLimits;
 use std::num::NonZeroU128;
 
 /// Current facts established by the integrating host, never accepted from ingress

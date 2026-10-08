@@ -4,15 +4,13 @@ use super::{
     ReadSessionIntent, ReadSessionLimits, ReadSessionTicket, ReadSessionUsage, ReadTarget,
     UploadContext,
 };
-use crate::model::{
-    identity::ProviderRootHash,
-    lifecycle::{
-        ReferenceId,
-        binding::{ObjectBinding, ObjectIdentity, ReferenceKey},
-    },
-    service::configuration::ServiceConfiguration,
-};
 use candid::{DecoderConfig, Principal, decode_one_with_config};
+use ic_blob_storage_contracts::binding::ObjectBinding;
+use ic_blob_storage_contracts::binding::ObjectIdentity;
+use ic_blob_storage_contracts::binding::ReferenceId;
+use ic_blob_storage_contracts::binding::ReferenceKey;
+use ic_blob_storage_contracts::configuration::service::ServiceConfiguration;
+use ic_blob_storage_contracts::identity::ProviderRootHash;
 use ic_memory::ic_stable_structures::{Storable, storable::Bound};
 use std::{borrow::Cow, num::NonZeroU128};
 

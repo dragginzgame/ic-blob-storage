@@ -1,10 +1,11 @@
 //! Exact retained outcome inspection without payment, retry or balance refresh.
-use crate::{
-    dto::funding::outcome::{FundingOutcomeFailure, FundingOutcomeRequest, FundingOutcomeResponse},
-    model::service::upload::UploadContext,
-    ops::service::funding::{StableFundingJournal, outcome::boundary},
-    policy::billing::reconciliation::assess_reconciled_funding,
-};
+use crate::ops::service::funding::StableFundingJournal;
+use crate::ops::service::funding::outcome::boundary;
+use crate::policy::billing::reconciliation::assess_reconciled_funding;
+use ic_blob_storage_contracts::dto::funding::outcome::FundingOutcomeFailure;
+use ic_blob_storage_contracts::dto::funding::outcome::FundingOutcomeRequest;
+use ic_blob_storage_contracts::dto::funding::outcome::FundingOutcomeResponse;
+use ic_blob_storage_contracts::upload::binding::UploadContext;
 use ic_memory::ic_stable_structures::Memory;
 /// Inspect as the configured operator with actual caller/service supplied by the host.
 /// A missing intent never authorizes a new payment. Transport-only observations

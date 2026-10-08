@@ -1,20 +1,16 @@
 //! Shared Caffeine root-only issuance boundary. Linking exports no IC endpoint.
-use crate::{
-    dto::upload::{
-        certificate::{CaffeineUploadCertificateResponse, UploadCertificateAssessmentResponse},
-        exposure::UploadExposureFailure,
-    },
-    model::service::upload::{UploadContext, UploadPermission},
-    ops::service::uploads::{StableUploads, certificate},
-    policy::upload::exposure::{UploadExposureAssessment, UploadExposureHostEvidence},
-    workflow::uploads::exposure::{self, UploadExposureResult},
-};
+use crate::ops::service::uploads::StableUploads;
+use crate::ops::service::uploads::certificate;
+use crate::policy::upload::exposure::UploadExposureAssessment;
+use crate::policy::upload::exposure::UploadExposureHostEvidence;
+use crate::workflow::uploads::exposure;
+use crate::workflow::uploads::exposure::UploadExposureResult;
+use ic_blob_storage_contracts::dto::upload::certificate::CaffeineUploadCertificateResponse;
+use ic_blob_storage_contracts::dto::upload::certificate::UploadCertificateAssessmentResponse;
+use ic_blob_storage_contracts::dto::upload::exposure::UploadExposureFailure;
+use ic_blob_storage_contracts::upload::binding::UploadContext;
+use ic_blob_storage_contracts::upload::binding::UploadPermission;
 use ic_memory::ic_stable_structures::Memory;
-
-/// Reviewed Caffeine ingress update name. Its wire reply is a plain record, not Result.
-pub const CAFFEINE_UPLOAD_CERTIFICATE_METHOD: &str = "_immutableObjectStorageCreateCertificate";
-/// Uploader-only read-only assessment; its reply is never a certificate or permit.
-pub const UPLOAD_CERTIFICATE_ASSESSMENT_METHOD: &str = "blob_upload_certificate_assessment";
 
 /// Local refusal. Adapters must reject/trap the ingress update, never encode this
 /// error as a successful provider reply or replace it with a certificate response.

@@ -1,9 +1,9 @@
 //! Exact historical observation through the production host, including fenced restoration.
 use super::*;
-use ic_blob_storage::{
-    dto::upload::{UploadState, UploadStatusFailure, UploadStatusResponse},
-    ops::service::uploads::status::UPLOAD_STATUS_METHOD,
-};
+use ic_blob_storage_contracts::dto::upload::UploadState;
+use ic_blob_storage_contracts::dto::upload::UploadStatusFailure;
+use ic_blob_storage_contracts::dto::upload::UploadStatusResponse;
+use ic_blob_storage_contracts::protocol::UPLOAD_STATUS_METHOD;
 
 impl Fixture {
     pub(super) fn upload_status(

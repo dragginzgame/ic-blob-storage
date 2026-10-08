@@ -1,9 +1,9 @@
 //! Retained control history selects sources; only phase owners authorize effects.
 use super::*;
 use crate::native::{artifacts::Run, publish_check::tests as fixture, upload_inputs::digest};
-use ic_blob_storage::dto::configuration::{
-    HostConfigurationView, HostFailure, ServiceInstallationInput,
-};
+use ic_blob_storage_contracts::dto::configuration::HostConfigurationView;
+use ic_blob_storage_contracts::dto::configuration::HostFailure;
+use ic_blob_storage_contracts::dto::configuration::ServiceInstallationInput;
 use serde_json::json;
 
 fn intent(batch: &PreparedBatch) -> SessionIntentRecord {
@@ -47,7 +47,7 @@ fn history(path: &Path, batch: &PreparedBatch, expected: &SessionIntentRecord) -
         project: installation.project,
         completion_verifier: installation.completion_verifier,
         trusted_uploader: installation.trusted_uploader,
-        release: ic_blob_storage::LIBRARY_VERSION.into(),
+        release: ic_blob_storage_contracts::CONTRACT_VERSION.into(),
         fenced: false,
     };
     let configuration = Run::create(&path.join("configuration")).unwrap();
