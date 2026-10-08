@@ -21,6 +21,10 @@ members = ["ic-blob-storage-contracts-$package_version", "ic-blob-storage-$packa
 ic-blob-storage-contracts = { path = "ic-blob-storage-contracts-$package_version" }
 EOF
 cp "$package_verification/entry-Cargo.lock" "$package_verification/Cargo.lock"
+# Cargo archives carry fixed source mtimes. Reusing a target from another extracted
+# payload can admit stale path-dependency artifacts with the same package identity.
+# Keep compilation and metadata inside this retained, unique verification run.
+export CARGO_TARGET_DIR="$package_verification/target"
 cargo metadata --offline --format-version 1 --manifest-path "$package_verification/Cargo.toml" \
     > "$package_verification/metadata.json"
 perl scripts/release/release-data.pl package-lock-check \

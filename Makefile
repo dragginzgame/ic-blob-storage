@@ -304,6 +304,7 @@ build:
 	cargo build --offline --locked -p ic-blob-storage --all-features
 
 package:
+	bash scripts/ci/test-library-packages.sh
 	bash scripts/ci/verify-library-packages.sh
 
 clean:
