@@ -100,7 +100,8 @@ LOCK
     printf '# Changelog\n\n## [0.1.1]\n\n- Test notes.\n\n## [0.1.0]\n\n- Imported undated history.\n' > CHANGELOG.md
     : > "$TEST_LOG"; : > "$TEST_EFFECTS"
     echo retained > target/debug/cache-sentinel
-    export PUBLISH_PACKAGE=ic-blob-storage
+    unset PUBLISH_PACKAGE TEST_PUBLISH_FAIL TEST_PUBLISH_LOST_REPLY TEST_REGISTRY_FAILURE TEST_REGISTRY_FOREIGN TEST_REGISTRY_YANKED
+    mkdir -p target/registry
     unset TEST_DIRTY TEST_GATE_FAIL TEST_GATE_DIRTY TEST_METADATA_FAIL TEST_PREPARE_FAIL TEST_INDEX_EXTRA TEST_PUSH_FAIL TEST_FETCH_FAIL TEST_SNAPSHOT_FAIL TEST_TAG_TYPE
     unset TEST_GIT_FAIL_CALL TEST_DATA_FAIL_COMMAND
     unset TEST_FINALIZER_FAIL
@@ -239,8 +240,55 @@ case "$*" in
     'fmt --all -- --check') ;;
     'fetch --locked') echo fetch >> "$TEST_EFFECTS"; [[ "${TEST_FETCH_FAIL:-0}" != 1 ]] || exit 1; touch target/mock-cargo-cache ;;
     'check --offline --locked --workspace --all-targets --all-features') [[ -f target/mock-cargo-cache ]] || exit 1; echo check >> "$TEST_EFFECTS" ;;
-    'publish --locked --registry crates-io -p ic-blob-storage'|'publish --locked --registry crates-io -p ic-blob-storage --dry-run'|'publish --locked --registry crates-io -p ic-blob-storage-contracts'|'publish --locked --registry crates-io -p ic-blob-storage-contracts --dry-run') echo publish >> "$TEST_EFFECTS" ;;
+     'publish --locked --registry crates-io -p ic-blob-storage'|'publish --locked --registry crates-io -p ic-blob-storage --dry-run'|'publish --locked --registry crates-io -p ic-blob-storage-contracts'|'publish --locked --registry crates-io -p ic-blob-storage-contracts --dry-run')
+        package="$6"
+        echo "publish:$package" >> "$TEST_EFFECTS"
+        [[ "${TEST_PUBLISH_FAIL:-}" != "$package" ]] || exit 1
+        if [[ "${7:-}" != --dry-run ]]; then
+            current="$(perl scripts/release/release-data.pl version)"
+            mkdir -p "target/registry/$package-$current"
+            printf '{"git":{"sha1":"%s"},"path_in_vcs":"crates/%s"}\n' "$(git rev-parse HEAD)" "$package" > "target/registry/$package-$current/.cargo_vcs_info.json"
+            tar -czf "target/registry/$package.crate" -C target/registry "$package-$current"
+        fi
+        [[ "${TEST_PUBLISH_LOST_REPLY:-}" != "$package" ]] || exit 1 ;;
+
     *) echo "unsupported Cargo substitute: $*" >&2; exit 97 ;;
+esac
+MOCK
+cat > "$TEMPORARY/bin/curl" <<'MOCK'
+#!/usr/bin/env bash
+set -euo pipefail
+echo "curl $*" >> "$TEST_LOG"
+output= url=
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --output) output="$2"; shift 2 ;;
+        --connect-timeout|--max-time|--max-filesize|--write-out) shift 2 ;;
+        --silent|--show-error|--fail) shift ;;
+        https://*) url="$1"; shift ;;
+        *) exit 97 ;;
+    esac
+done
+[[ -n "$output" && -n "$url" ]] || exit 97
+[[ "${TEST_REGISTRY_FAILURE:-}" != transport ]] || exit 1
+case "$url" in
+    https://crates.io/api/v1/crates/*)
+        suffix="${url#https://crates.io/api/v1/crates/}"
+        package="${suffix%/*}"; current="${suffix##*/}"
+        if [[ "${TEST_REGISTRY_FAILURE:-}" == http ]]; then
+            echo '{}' > "$output"; printf 503
+        elif [[ "${TEST_REGISTRY_FAILURE:-}" == malformed ]]; then
+            echo '{' > "$output"; printf 200
+        elif [[ -f "target/registry/$package.crate" ]]; then
+            checksum="$(shasum -a 256 "target/registry/$package.crate")"; checksum="${checksum%% *}"
+            [[ "${TEST_REGISTRY_FAILURE:-}" != checksum ]] || checksum="$(printf '%064d' 0)"
+            echo "{\"version\":{\"crate\":\"${TEST_REGISTRY_FOREIGN:-$package}\",\"num\":\"$current\",\"yanked\":${TEST_REGISTRY_YANKED:-false},\"checksum\":\"$checksum\"}}" > "$output"
+            printf 200
+        else echo '{}' > "$output"; printf 404; fi ;;
+    https://static.crates.io/crates/*)
+        suffix="${url#https://static.crates.io/crates/}"; package="${suffix%%/*}"
+        cp "target/registry/$package.crate" "$output" ;;
+    *) exit 97 ;;
 esac
 MOCK
 cat > "$TEMPORARY/bin/perl" <<'MOCK'
@@ -486,12 +534,76 @@ test_preparation() {
     assert_cache_retained
 }
 test_publish() {
-    export PUBLISH_PACKAGE="${2:-ic-blob-storage}"
     prepare_tagged_release
+    if [[ "${2:-}" != '' ]]; then export PUBLISH_PACKAGE="$2"; fi
+    # Dry-run core needs a real indexed contracts dependency, unlike local paired verification.
+    if [[ "$1" == dry-run && "${2:-}" != ic-blob-storage-contracts ]]; then
+        "$TEST_REAL_MAKE" --no-print-directory publish PUBLISH_PACKAGE=ic-blob-storage-contracts
+        : > "$TEST_EFFECTS"
+    fi
     if [[ "$1" == dry-run ]]; then "$TEST_REAL_MAKE" --no-print-directory publish-dry-run;
     else "$TEST_REAL_MAKE" --no-print-directory publish; fi
-    [[ "$(cat "$TEST_EFFECTS")" == publish ]] || exit 1
+    if [[ "${2:-}" == '' ]]; then
+        [[ "$(cat "$TEST_EFFECTS")" == $'publish:ic-blob-storage-contracts\npublish:ic-blob-storage' ]] || exit 1
+    else [[ "$(cat "$TEST_EFFECTS")" == "publish:$2" ]] || exit 1; fi
     assert_cache_retained
+}
+test_publication_retry() {
+    prepare_tagged_release
+    case "$1" in
+        contracts-failure) export TEST_PUBLISH_FAIL=ic-blob-storage-contracts ;;
+        core-failure) export TEST_PUBLISH_FAIL=ic-blob-storage ;;
+        contracts-lost-reply) export TEST_PUBLISH_LOST_REPLY=ic-blob-storage-contracts ;;
+        core-lost-reply) export TEST_PUBLISH_LOST_REPLY=ic-blob-storage ;;
+    esac
+    expect_failure "$TEST_REAL_MAKE" --no-print-directory publish
+    if [[ "$1" == contracts-* ]]; then
+        [[ "$(cat "$TEST_EFFECTS")" == publish:ic-blob-storage-contracts ]] || exit 1
+    else
+        [[ "$(cat "$TEST_EFFECTS")" == $'publish:ic-blob-storage-contracts\npublish:ic-blob-storage' ]] || exit 1
+    fi
+    unset TEST_PUBLISH_FAIL TEST_PUBLISH_LOST_REPLY
+    : > "$TEST_EFFECTS"
+    "$TEST_REAL_MAKE" --no-print-directory publish
+    case "$1" in
+        contracts-failure) [[ "$(cat "$TEST_EFFECTS")" == $'publish:ic-blob-storage-contracts\npublish:ic-blob-storage' ]] || exit 1 ;;
+        core-lost-reply) [[ ! -s "$TEST_EFFECTS" ]] || exit 1 ;;
+        *) [[ "$(cat "$TEST_EFFECTS")" == publish:ic-blob-storage ]] || exit 1 ;;
+    esac
+    : > "$TEST_EFFECTS"
+    "$TEST_REAL_MAKE" --no-print-directory publish
+    [[ ! -s "$TEST_EFFECTS" ]] || exit 1
+    assert_cache_retained
+}
+test_registry_refusal() {
+    prepare_tagged_release
+    if [[ "$1" == checksum || "$1" == foreign || "$1" == source || "$1" == yanked || "$1" == dirty || "$1" == path ]]; then
+        "$TEST_REAL_MAKE" --no-print-directory publish
+        : > "$TEST_EFFECTS"
+    fi
+    case "$1" in
+        foreign) export TEST_REGISTRY_FOREIGN=foreign-package ;;
+        yanked) export TEST_REGISTRY_YANKED=true ;;
+        source|dirty|path)
+            package=ic-blob-storage-contracts
+            case "$1" in
+                source) vcs="{\"git\":{\"sha1\":\"$TEST_SOURCE\"},\"path_in_vcs\":\"crates/$package\"}" ;;
+                dirty) vcs="{\"git\":{\"sha1\":\"$(git rev-parse HEAD)\",\"dirty\":true},\"path_in_vcs\":\"crates/$package\"}" ;;
+                path) vcs="{\"git\":{\"sha1\":\"$(git rev-parse HEAD)\"},\"path_in_vcs\":\"crates/foreign\"}" ;;
+            esac
+            printf '%s\n' "$vcs" > "target/registry/$package-0.1.1/.cargo_vcs_info.json"
+            tar -czf "target/registry/$package.crate" -C target/registry "$package-0.1.1" ;;
+        *) export TEST_REGISTRY_FAILURE="$1" ;;
+    esac
+    expect_failure "$TEST_REAL_MAKE" --no-print-directory publish
+    [[ ! -s "$TEST_EFFECTS" ]] || exit 1
+    assert_cache_retained
+}
+test_unpublished_dry_run() {
+    prepare_tagged_release
+    expect_failure "$TEST_REAL_MAKE" --no-print-directory publish-dry-run
+    [[ "$(cat "$TEST_EFFECTS")" == publish:ic-blob-storage-contracts ]] || exit 1
+    [[ ! -f target/registry/ic-blob-storage-contracts.crate ]] || exit 1
 }
 test_receipt_identity() {
     export TEST_INDEX_EXTRA=1
@@ -647,9 +759,9 @@ test_local_catalog_refusal() {
     [[ ! -s "$TEST_EFFECTS" ]] || exit 1
 }
 
-test_missing_publish_selection() {
+test_invalid_publish_selection() {
     prepare_tagged_release
-    unset PUBLISH_PACKAGE
+    export PUBLISH_PACKAGE=foreign-package
     expect_failure "$TEST_REAL_MAKE" --no-print-directory publish
     [[ ! -s "$TEST_EFFECTS" ]] || exit 1
 }
@@ -695,7 +807,16 @@ run_case publish test_publish normal
 run_case publish-dry-run test_publish dry-run
 run_case publish-contracts test_publish normal ic-blob-storage-contracts
 run_case publish-contracts-dry-run test_publish dry-run ic-blob-storage-contracts
-run_case publish-missing-selection test_missing_publish_selection
+run_case publish-core test_publish normal ic-blob-storage
+run_case publish-core-dry-run test_publish dry-run ic-blob-storage
+run_case publish-invalid-selection test_invalid_publish_selection
+run_case publish-unindexed-dry-run test_unpublished_dry_run
+for shape in contracts-failure core-failure contracts-lost-reply core-lost-reply; do
+    run_case "publication-retry-$shape" test_publication_retry "$shape"
+done
+for shape in transport http malformed checksum foreign source dirty path yanked; do
+    run_case "registry-refusal-$shape" test_registry_refusal "$shape"
+done
 for invalid in tag receipt parent merge; do run_case "bad-$invalid" test_invalid_publish "$invalid"; done
 run_case publication-lock test_publication_lock
 run_case real-index test_actual_index

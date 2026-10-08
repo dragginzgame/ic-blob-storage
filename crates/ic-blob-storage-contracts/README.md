@@ -11,7 +11,7 @@ provider behavior or authorize an effect. Hosts and the service retain those own
 
 Use `ic_blob_storage_contracts::{dto, identity, protocol}` for wire/client data.
 Use `ic_blob_storage` for service workflows, policy and durable owners. Both library
-packages inherit one workspace version. The pending 0.18.0 extraction removes the
+packages inherit one workspace version. The 0.18.0 extraction removes the
 former service Rust paths without compatibility reexports; Candid and hash identities
 remain unchanged. Cross-release service transitions remain reinstall-only.
 

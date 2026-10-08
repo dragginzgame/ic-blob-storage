@@ -6,46 +6,63 @@
 
 Date: 2026-10-08
 
-## Current batch — runtime-free contracts, pending 0.18.0
+## Current batch — publication repair, pending 0.18.1
 
-- Released HEAD is **0.17.2**, `e2526159413c79322b9ec89215a01266c9a7f418`.
-  Work on [#27](https://github.com/dragginzgame/ic-blob-storage/issues/27) extracts
-  the complete client/service pure contract boundary into `ic-blob-storage-contracts`.
-  Removing public Rust paths requires **0.18.0**; package identities, receipt and
-  compiled artifacts remain **0.17.2** until the maintainer release.
-- Contracts own DTOs, identities, immutable bindings, method names, bounded
-  correlation/decoding and content verification. CLI and both examples shed the
-  service edge. Service records, accounting, authorization, effects and recovery
-  remain with their existing owner. No compatibility reexports or duplicate codecs.
-- Root roster/catalog/lock, example owners, fixtures, package/publication selection,
-  metadata transaction and consumers move together. The extraction preserved its
-  original registry graph; Shared Tooling remains reviewed **0.1.20**, adoption of **0.1.21**
-  remains a separate batch. Host 0.4.6 and private-probe Metrics 0.2.9 remain selected.
-  Before the 2026-10-08 cleanup, the incoming lock changed to Memory **0.31.2**,
-  Testkit **0.21.3** and their selected TOML patches. Those incoming selections are
-  preserved; the prior full extraction evidence remains bound to Memory 0.31.1 /
-  Testkit 0.21.2, rather than relabelled as qualification of this graph.
-- The retained 2026-10-07 focused checks pass: exact extracted library payloads **517** tests and
-  **two** doctests, strict affected-package Clippy/rustdoc, native/Wasm Rust
-  **1.88**, and **79** isolated PocketIC cases across the retained qualification
-  stages. Final standalone Candid matches entry Wasm and maintained service.did
-  byte for byte. Normal contracts/CLI graphs exclude service, CDK and Memory.
-  All **108** passive DTO declarations and **430** external package identities/
-  checksums remain exact. Cargo's unpublished-member checksum failure is retained;
-  the reviewed package workaround verifies exact extracted payloads without
-  changing external selections. #27 stays open for matching committed native macOS.
-- The [2026-10-08 sanity pass](../evidence/contracts-0180-sanity.md) consolidates
-  scattered imports in 18 affected files, corrects passive-helper documentation
-  and removes the now-unused service-to-`sha2` dependency. No function, method or
-  type is removed, and bodies/declarations are unchanged. Current-graph core /
-  contracts unit tests (**448**), strict affected-package Clippy/rustdoc and native /
-  Wasm Rust **1.88** checks pass. All incoming external selections/checksums remain
-  exact. PocketIC/native-host is not rerun; Testkit 0.21.3 is not cached locally.
-  Prepare the locked cache with `make deps` before its next focused qualification.
-- See the [migration/qualification record](../evidence/contracts-0180.md) for exact
-  moved/deleted paths, local checks, failed attempts and external follow-ups.
-  Native macOS needs the committed source’s matrix; Linux substitutes do not
-  qualify provider behavior. No full gate, commit, push, publication or paid effect.
+- The maintainer completed **0.18.0** at
+  `704b8ebf6bea85a715e465e32e34758b601852ec`, with validated source
+  `a43aee3b2593574a326b9b54651ad4946e3dec24`. Cargo and the receipt now select
+  **0.18.0**; the retained plan is complete. The reported publication refusal was
+  the required package selector, before any upload. Pending compatible **0.18.1**
+  fixes that command surface; no package version, lock or receipt is changed here.
+- Ordinary `make publish` now calls Cargo for contracts then core. Exact registry
+  archive checksum/source readback permits skipping completed uploads on retry;
+  failures, foreign sources and yanked versions refuse. Optional individual
+  selection remains. Dry-run never uploads and cannot supply an unpublished
+  contracts dependency. The [release guide](../releasing.md#publication-and-deployment)
+  records both the new flow and clean-tag steps to finish existing 0.18.0.
+  [Isolated publication success/failure/lost-reply/registry/guard fixtures](../evidence/publication-helper0181.md) pass.
+- The package compile failure was stale Cargo artifacts shared between extracted
+  same-version archives with fixed source timestamps. Released source now gives
+  each retained verification workspace its own target. The real Cargo regression
+  demonstrates stale executable value **1** before repair and updated value **2**
+  after repair. Fresh paired payload qualification passes **517** cases and **two**
+  doctests. Earlier warm verification evidence is retained with this limitation,
+  not relabelled as proof of the exact updated payload.
+- Released / qualified graph: direct native Host artifacts/fs **0.5.0**, Testkit **0.21.3** with
+  its own transitive Host **0.4.6**, Memory **0.31.3**, private Metrics **0.2.9**.
+  Host 0.5.0 published sources/checksums match its released owner; its Linux,
+  Intel/ARM macOS and MSRV CI pass. Blob uses unchanged bounded read/hash/fs APIs,
+  so no extra Host dependency or API wrapper is added. Shared Tooling remains
+  reviewed **0.1.20**, 78 files; 0.1.21 adoption is still separate.
+- The [additional package/Host record](../evidence/host050-package0180.md) binds
+  actual pre-release compiled **0.17.2** inputs: Linux native-host passes **114**
+  CLI/probe, **21** examples, **two** installation/carrier and **one** Metrics
+  cases, plus contracts; affected Clippy and Rust **1.88** native/Wasm checks pass.
+  Candid is byte-exact against the prior baseline. These checks do not qualify
+  newly rebuilt 0.18.0 deployment bytes or native macOS. The release's committed
+  [Blob CI](https://github.com/dragginzgame/ic-blob-storage/actions/runs/37748250846)
+  was still running when inspected. [#27](https://github.com/dragginzgame/ic-blob-storage/issues/27)
+  remains open for matching committed acceptance; provider/downstream product
+  issues retain their owners. No agent release, publication, deployment, paid
+  effect, sibling edit or Rust symbol removal occurs in this follow-up.
+
+- During the publication repair an external working-lock edit selected private
+  Metrics **0.2.11**. It is preserved in place and separately captured under
+  `.tmp/publication-0181-01/incoming-Metrics0211-Cargo.lock`. The native/package
+  checks above precede it and do not qualify that new selection. Publication
+  substitutes compile no production packages; review/recheck the incoming graph
+  before its next release, without rebinding the frozen Metrics 0.2.9 evidence.
+
+## Previous extraction — released 0.18.0
+
+The [migration/qualification record](../evidence/contracts-0180.md) and
+[sanity pass](../evidence/contracts-0180-sanity.md) retain the complete #27
+runtime-free boundary extraction, moved/deleted path inventory and each original
+graph's checks. Contracts own passive DTOs, identities, immutable bindings,
+method names, bounded correlation/decoding and content verification. Service
+records, accounting, authorization, effects and recovery retain their owner.
+CLI and both examples depend downward, without compatibility reexports or
+framework ownership. Cross-release transitions remain retirement/reinstall only.
 
 ## Previous batch — released 0.17.2 publication fixes and Host 0.4.6
 

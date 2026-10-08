@@ -148,6 +148,32 @@ if ($command eq 'version') {
             unless exists $entry->{$key} && $entry->{$key} eq $payload->{$key};
     }
     print "packaged external selections match frozen workspace lock\n";
+} elsif ($command eq 'publication-state') {
+    die "expected HTTP status, response, package and version\n" unless @args == 4;
+    my ($status, $path, $package, $version) = @args;
+    if ($status eq '404') {
+        print "missing\n";
+    } else {
+        die "registry HTTP failure: $status\n" unless $status eq '200';
+        my $response = decode_json(read_file($path));
+        my $row = $response->{version};
+        die "registry returned another package/version\n"
+            unless ref($row) eq 'HASH' && $row->{crate} eq $package && $row->{num} eq $version;
+        die "published version is yanked or has no usable checksum\n"
+            unless exists $row->{yanked} && JSON::PP::is_bool($row->{yanked}) && !$row->{yanked}
+                && defined $row->{checksum} && $row->{checksum} =~ /\A[0-9a-f]{64}\z/;
+        print "$row->{checksum}\n";
+    }
+} elsif ($command eq 'publication-archive') {
+    die "expected archive, checksum, VCS record, source and package\n" unless @args == 5;
+    my ($archive, $checksum, $vcs_path, $head, $package) = @args;
+    die "registry archive checksum mismatch\n" unless sha256_hex(read_file($archive)) eq $checksum;
+    my $vcs = decode_json(read_file($vcs_path));
+    die "registry archive has another source identity\n"
+        unless ref($vcs->{git}) eq 'HASH' && defined $vcs->{git}->{sha1}
+            && $vcs->{git}->{sha1} eq $head
+            && (!exists $vcs->{git}->{dirty} || (JSON::PP::is_bool($vcs->{git}->{dirty}) && !$vcs->{git}->{dirty}))
+            && defined $vcs->{path_in_vcs} && $vcs->{path_in_vcs} eq "crates/$package";
 } elsif ($command eq 'index-check') {
     my @paths = split /\0/, read_file($args[0]);
     die "unexpected release index\n" unless join(',', sort @paths)

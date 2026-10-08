@@ -137,11 +137,48 @@ publish() {
     printf '%s\n' "$$" > "$PUBLICATION_STATE_ROOT/lock/owner"
     trap 'rm -f "$PUBLICATION_STATE_ROOT/lock/owner"; rmdir "$PUBLICATION_STATE_ROOT/lock"' EXIT
     tag_check
+    local packages=(ic-blob-storage-contracts ic-blob-storage)
     case "${PUBLISH_PACKAGE:-}" in
-        ic-blob-storage-contracts|ic-blob-storage) ;;
-        *) fail 'select PUBLISH_PACKAGE=ic-blob-storage-contracts first, then ic-blob-storage' ;;
+        '') ;;
+        ic-blob-storage-contracts|ic-blob-storage) packages=("$PUBLISH_PACKAGE") ;;
+        *) fail 'unknown publication package' ;;
     esac
-    cargo publish --locked --registry crates-io -p "$PUBLISH_PACKAGE" ${1:+"$1"}
+    local current head package status checksum run
+    current="$(version)" || fail 'cannot read publication version'
+    head="$(git rev-parse HEAD)" || fail 'cannot resolve publication source'
+    mkdir -p "$CARGO_TARGET_DIR"
+    run="$(mktemp -d "$CARGO_TARGET_DIR/publication.XXXXXX")"
+    printf 'Publication readback retained: %s\n' "$run"
+    # Fixed archive mtimes must not admit artifacts from a prior payload verification.
+    export CARGO_TARGET_DIR="$run/target"
+    for package in "${packages[@]}"; do
+        # Only a successful exact registry read can authorize skipping an upload.
+        # Cargo owns upload and index polling; no local progress journal is needed.
+        status="$(curl --silent --show-error --connect-timeout 10 --max-time 30 \
+            --max-filesize 1048576 --output "$run/$package.json" --write-out '%{http_code}' \
+            "https://crates.io/api/v1/crates/$package/$current")" || fail 'registry readback failed; no upload attempted for this package'
+        checksum="$(perl "$DATA" publication-state "$status" "$run/$package.json" "$package" "$current")" || fail 'registry state is inconclusive'
+        if [[ "$checksum" != missing ]]; then
+            curl --fail --silent --show-error --connect-timeout 10 --max-time 30 \
+                --max-filesize 8388608 --output "$run/$package.crate" \
+                "https://static.crates.io/crates/$package/$package-$current.crate" || fail 'cannot authenticate published archive'
+            tar -xOf "$run/$package.crate" "$package-$current/.cargo_vcs_info.json" > "$run/$package-vcs.json" || fail 'cannot read published source identity'
+            perl "$DATA" publication-archive "$run/$package.crate" "$checksum" "$run/$package-vcs.json" "$head" "$package" || fail 'published package differs from selected release'
+            if [[ "${1:-}" != --dry-run ]]; then
+                printf '%s %s already published from this release; skipping upload.\n' "$package" "$current"
+                continue
+            fi
+        fi
+        if [[ "${1:-}" == --dry-run && "$package" == ic-blob-storage ]]; then
+            # A contracts dry-run does not put that dependency into crates.io.
+            status="$(curl --silent --show-error --connect-timeout 10 --max-time 30 \
+                --max-filesize 1048576 --output "$run/contracts-dependency.json" --write-out '%{http_code}' \
+                "https://crates.io/api/v1/crates/ic-blob-storage-contracts/$current")" || fail 'cannot read contracts dependency'
+            checksum="$(perl "$DATA" publication-state "$status" "$run/contracts-dependency.json" ic-blob-storage-contracts "$current")" || fail 'contracts dependency state is inconclusive'
+            [[ "$checksum" != missing ]] || fail 'core dry-run requires this contracts version on crates.io; run make package for paired local payload verification'
+        fi
+        cargo publish --locked --registry crates-io -p "$package" ${1:+"$1"}
+    done
 }
 command="${1:-}"
 shift || true

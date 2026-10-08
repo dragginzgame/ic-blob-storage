@@ -14,6 +14,27 @@ maintained release and open work.
 [acceptance plan](../../acceptance-plan.md) ·
 [service gaps](../../service-gaps.md)
 
+## Cold package verification and Host 0.5.0 — 2026-10-08
+
+The [intent](local/2026-10-08-host050-0180-03/intent.json) and
+[summary](local/2026-10-08-host050-0180-03/summary.json) bind source review,
+Linux loopback substitutes and isolated PocketIC to pre-release compiled 0.17.2
+with Host 0.5.0 direct, Testkit 0.21.3 / transitive Host 0.4.6, Memory 0.31.3
+and private Metrics 0.2.9. Zero live provider requests or deployed paid cycles.
+
+The [additional record](../host050-package0180.md) preserves the missing-method
+package failure and a real executable stale-artifact regression: old verification
+executes value 1 from an earlier same-version contract; isolated verification
+executes updated value 2. Fresh paired payloads pass 517 cases plus two doctests.
+Native-host passes 114 CLI/probe, 103 contracts, 21 examples, two installation /
+carrier and one Metrics case. Candid is unchanged; Clippy/MSRV pass. Earlier warm
+verification records remain frozen with the new limitation stated separately.
+The maintainer released 0.18.0 during investigation; these logs and retained
+payloads still bind 0.17.2. Original root native artifact bytes were not frozen
+before that release's validation, so later root binaries are not attributed here.
+Owned fixture scopes dropped; no external cleanup remains. Host owner macOS CI
+is separate from Blob macOS and provider acceptance.
+
 ## Runtime-free contract extraction — 2026-10-07
 
 The [intent](local/2026-10-07-contracts-0180-01/intent.json) bounds source review,
@@ -3910,6 +3931,13 @@ That checksum check establishes artifact integrity, not scenario correctness or
 provider authenticity; rerunning the opt-in test establishes current local behavior.
 
 ## Run index
+
+`host050-0180-03` / 2026-10-08: cold paired package verification, Host 0.5.0
+source/registry review and Testkit 0.21.3 Linux native/installation/Metrics checks.
+[Intent](local/2026-10-08-host050-0180-03/intent.json),
+[summary](local/2026-10-08-host050-0180-03/summary.json) and
+[additional record](../host050-package0180.md) retain failures and release/artifact
+identity limitations separately from prior warm package evidence.
 
 `contracts-0180-01` / 2026-10-07: complete passive client/service contract
 extraction, Linux native HTTP substitutes and isolated PocketIC recovery.

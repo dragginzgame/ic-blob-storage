@@ -1,8 +1,9 @@
 //! Shared bounded control channel and process ownership for opt-in Chromium cases.
+use ic_testkit::ic_host_process::child::OwnedChild;
 use std::{
     io::{BufRead, BufReader, Read, Write},
     path::PathBuf,
-    process::{Child, ChildStdout, Command, Output, Stdio},
+    process::{ChildStdin, ChildStdout, Command, Output, Stdio},
 };
 
 #[derive(serde::Deserialize)]
@@ -15,7 +16,8 @@ pub(crate) struct BrowserPreparation {
 }
 
 pub(crate) struct BrowserDriver {
-    child: Option<Child>,
+    child: OwnedChild,
+    stdin: Option<ChildStdin>,
     reader: Option<BufReader<ChildStdout>>,
     _config: tempfile::NamedTempFile,
 }
@@ -25,24 +27,26 @@ impl BrowserDriver {
         std::fs::write(saved.path(), serde_json::to_vec(config).unwrap()).unwrap();
         let repo = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../..");
         let node = std::env::var_os("BLOB_BROWSER_NODE").unwrap_or_else(|| "node".into());
-        let mut child = Command::new(node)
+        let mut command = Command::new(node);
+        command
             .arg(repo.join("tests/browser").join(script))
             .arg(saved.path())
             .current_dir(&repo)
             .stdin(Stdio::piped())
             .stdout(Stdio::piped())
-            .stderr(Stdio::piped())
-            .spawn()
-            .expect("run configured browser driver");
-        let reader = BufReader::new(child.stdout.take().unwrap());
+            .stderr(Stdio::piped());
+        let mut child = OwnedChild::spawn(&mut command).expect("run configured browser driver");
+        let reader = BufReader::new(child.take_stdout().unwrap());
+        let stdin = child.take_stdin();
         Self {
-            child: Some(child),
+            child,
+            stdin,
             reader: Some(reader),
             _config: saved,
         }
     }
     pub(crate) fn send(&mut self, value: &impl serde::Serialize) {
-        let writer = self.child.as_mut().unwrap().stdin.as_mut().unwrap();
+        let writer = self.stdin.as_mut().unwrap();
         serde_json::to_writer(&mut *writer, value).unwrap();
         writer.write_all(b"\n").unwrap();
         writer.flush().unwrap();
@@ -76,19 +80,12 @@ impl BrowserDriver {
         serde_json::from_slice(&output.stdout).unwrap()
     }
     fn output(&mut self, stop: bool) -> Output {
-        let mut child = self.child.take().unwrap();
-        child.stdout = Some(self.reader.take().unwrap().into_inner());
+        self.stdin.take();
         if stop {
-            let _ = child.kill();
+            if let Err(error) = self.child.terminate() {
+                eprintln!("browser cleanup: {error}");
+            }
         }
-        child.wait_with_output().unwrap()
-    }
-}
-impl Drop for BrowserDriver {
-    fn drop(&mut self) {
-        if let Some(child) = &mut self.child {
-            let _ = child.kill();
-            let _ = child.wait();
-        }
+        super::support::wait_with_output(&mut self.child, self.reader.take().unwrap())
     }
 }

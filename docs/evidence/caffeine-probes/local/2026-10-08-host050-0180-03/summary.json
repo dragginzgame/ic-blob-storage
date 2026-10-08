@@ -1,0 +1,185 @@
+{
+  "schema": 1,
+  "id": "2026-10-08-host050-0180-03",
+  "source_head": "8dd87013068c0560b6baae01d0a332050d20ab56",
+  "dirty_implementation": true,
+  "compiled_version": "0.17.2",
+  "then_pending_version": "0.18.0",
+  "intent": {
+    "path": "docs/evidence/caffeine-probes/local/2026-10-08-host050-0180-03/intent.json",
+    "sha256": "893137043c012edc023fffaea0b62cae6e4966daaa5a66b5a8d2fbce09643be4"
+  },
+  "evidence_classes": [
+    "source_review",
+    "Linux_loopback_HTTP_substitute",
+    "isolated_PocketIC"
+  ],
+  "entry_inputs": [
+    {
+      "path": ".tmp/package-host-0180-03/entry-Cargo.toml",
+      "sha256": "fffa7dae1d1d0839001ea64779a179cc2b6efcefc3f0d93cf09c9b41872c48ce"
+    },
+    {
+      "path": ".tmp/package-host-0180-03/entry-Cargo.lock",
+      "sha256": "55de3a3e621041605a09b46fd4c19cf9a2ed5466627ac27fa22bd607d029a4f1"
+    },
+    {
+      "path": ".tmp/package-host-0180-03/entry-release.json",
+      "sha256": "06751506c9e693c03ec5c51d867c3570dc6a8ee1c267e7dca681f26caffcb587"
+    },
+    {
+      "path": ".tmp/package-host-0180-03/entry-contracts.crate",
+      "sha256": "5933d1330aa2b9232b8e85e052b9aa7fec72cbd925705dd044e42eb3c5af62a1"
+    },
+    {
+      "path": ".tmp/package-host-0180-03/entry-service.crate",
+      "sha256": "f05101dc78517f05cc6c40874170e9b8caa9acfe109d15fab435f9fc0c7e11c5"
+    }
+  ],
+  "verified_payload_inputs": {
+    "path": ".tmp/package-host-0180-03/verified-payload-inputs.json",
+    "sha256": "cd6afd7c63d47e6cef0e34edd9d1a98963dbd92f61a01d5e75e0aaad9bf2dd99"
+  },
+  "selected_graph": {
+    "direct_host_artifacts_fs": "0.5.0",
+    "testkit": "0.21.3",
+    "testkit_transitive_host": "0.4.6",
+    "memory": "0.31.3",
+    "private_probe_metrics": "0.2.9",
+    "shared_tooling": "0.1.20"
+  },
+  "checks": [
+    {
+      "path": ".tmp/package-host-0180-03/package-before-fix.log",
+      "sha256": "629a5630dc784375791e1cb8b233fbd1a9448be8d72af7f6b710fa1c5dbeef1c",
+      "result": "failed"
+    },
+    {
+      "path": ".tmp/package-host-0180-03/package-after-fix.log",
+      "sha256": "3c153d6c038db8b721f8e002a1679d2b2386036aa85369e0dc96cf6ec735bdc8",
+      "result": "passed"
+    },
+    {
+      "path": ".tmp/package-host-0180-03/package-regression-before-fix.log",
+      "sha256": "c1681e618a61c838d0d80f55d6410c3ed86a97153ae423cb50b33d699f8ef628",
+      "result": "failed"
+    },
+    {
+      "path": ".tmp/package-host-0180-03/package-regression-before-fix-final.log",
+      "sha256": "4248b71573f68d9da93ed0bf2bc894d885792ff30134ca1c637c46d483966a90",
+      "result": "failed"
+    },
+    {
+      "path": ".tmp/package-host-0180-03/package-regression-fixed.log",
+      "sha256": "7c942c1ddfab233e1e9b41a99daa01128e5a580359764f5d9ec3727b2006eb35",
+      "result": "passed"
+    },
+    {
+      "path": ".tmp/package-host-0180-03/package-regression-fixed-final.log",
+      "sha256": "aa51876fac58c7cf411e84d3e5da9a062d866b4c1b63e22c6c73d9371a710eb9",
+      "result": "passed"
+    },
+    {
+      "path": ".tmp/package-host-0180-03/native-host-01.log",
+      "sha256": "8db84cb03dcd72ccfcd4ea47308c27c6cb516ac4b95d54f4a5c201670ec5cdee",
+      "result": "passed"
+    },
+    {
+      "path": ".tmp/package-host-0180-03/clippy-01.log",
+      "sha256": "176477812c917823b3fefb7d2fc8893fc2b2b71c18bd3b78782ed1082602698d",
+      "result": "passed"
+    },
+    {
+      "path": ".tmp/package-host-0180-03/msrv-native-01.log",
+      "sha256": "186eb66f849d7ed39eeea194ac22c8708981e2cc4231bbe4de5e3bd59b99b117",
+      "result": "passed"
+    },
+    {
+      "path": ".tmp/package-host-0180-03/msrv-wasm-01.log",
+      "sha256": "f844e1d66c08ff0d65ec066e1ecf413ad56be5848b3ecf8690ebe2d21b2ae8b4",
+      "result": "passed"
+    }
+  ],
+  "results": {
+    "fresh_library_cases": 517,
+    "fresh_library_doctests": 2,
+    "native_cli_probe_cases": 114,
+    "contracts_unit_cases": 103,
+    "examples": 21,
+    "installation_carrier": 2,
+    "metrics_restore": 1,
+    "clippy": "passed",
+    "Rust_1_88_native_Wasm": "passed",
+    "old_verifier_executed_value": 1,
+    "isolated_verifier_executed_value": 2
+  },
+  "candid": {
+    "path": ".tmp/package-host-0180-03/current.did",
+    "sha256": "1770ce8dac80bec5f167572990866e5312dffd36f773310b98cb08b891c3c2cd"
+  },
+  "candid_comparison": "byte-exact vs retained 0.17.2 baseline and maintained service.did",
+  "host_owner": {
+    "source": "db637fac8b7a9ef62301e1d9009ffeb5ffcd0be7",
+    "ci_url": "https://github.com/dragginzgame/ic-host-tooling/actions/runs/37744999108",
+    "inputs": [
+      {
+        "path": ".tmp/package-host-0180-03/host-ci-exact.json",
+        "sha256": "0022a66cece2afa520d3c247c9991ab9e16e8dd3571088c734a996881f669789"
+      },
+      {
+        "path": ".tmp/package-host-0180-03/host-ci-jobs.json",
+        "sha256": "ef74bcd2ffc870ccbb15c292b2853c3132c6634825a29f7813a5f90a9f94bfe9"
+      },
+      {
+        "path": ".tmp/package-host-0180-03/host-tag.json",
+        "sha256": "d960d3816db4a101756c67bf85bfa6e14e1e57cf7b06db1466c9d1690d4a8b68"
+      },
+      {
+        "path": ".tmp/package-host-0180-03/host-issues.json",
+        "sha256": "e44dc32eb84fbf29c0db91a2553299f3f2131137bbf3274927ddf5bb8fb8135d"
+      },
+      {
+        "path": ".tmp/package-host-0180-03/ic-host-artifacts-registry.json",
+        "sha256": "805366de35a551293ab83a008b7996d8d2359ce7afdba10a76698b4a46f48711"
+      },
+      {
+        "path": ".tmp/package-host-0180-03/ic-host-artifacts-latest.json",
+        "sha256": "f63e376a20cf6848bea9969b40b3869a9699ea807c722ecab58177706d51cfaa"
+      },
+      {
+        "path": ".tmp/package-host-0180-03/ic-host-fs-registry.json",
+        "sha256": "6f538dbfaa6a82f9e8b917b6ebae9e00bdf7f1c1e0fc718cd2c5a8f7a464249c"
+      },
+      {
+        "path": ".tmp/package-host-0180-03/ic-host-fs-latest.json",
+        "sha256": "2b7beb1ef9bae5decd692d1090df554241ecc34836fe5c4e3f96c79c1210a05e"
+      },
+      {
+        "path": ".tmp/package-host-0180-03/ic-host-process-registry.json",
+        "sha256": "c4428fdbcb14343200e0973ce62f1ebd60fffbb91e02ac94f376ebd4e288f9d8"
+      },
+      {
+        "path": ".tmp/package-host-0180-03/ic-host-process-latest.json",
+        "sha256": "a0c38fb2899f9036e7a055ad55f71df40c8df007a3263df429fa989212eb1dc1"
+      },
+      {
+        "path": ".tmp/package-host-0180-03/ic-host-tools-registry.json",
+        "sha256": "6c675232e55defced4498b269067cb6e9936ded8227054c1311e30982d938af6"
+      },
+      {
+        "path": ".tmp/package-host-0180-03/ic-host-tools-latest.json",
+        "sha256": "c74efa656fe52cd32818ef7d09673bb2ac9d5913e8e3c1da90f751342c6d369a"
+      }
+    ]
+  },
+  "limitations": [
+    "Original warm package verification cannot establish that the updated exact extracted payload compiled; original records remain frozen.",
+    "The maintainer released 0.18.0 while this investigation was active. These logs bind pre-release compiled 0.17.2, not post-release deployment artifacts.",
+    "Root native/Wasm bytes were not hash-frozen before maintainer release validation; do not attribute subsequently observed root binaries to this run. Exact package payloads and Candid readback remain retained.",
+    "Linux substitutes and upstream Host macOS CI do not establish Blob native macOS or deployed-provider behavior."
+  ],
+  "live_provider_requests": 0,
+  "deployed_paid_cycles": 0,
+  "cleanup": "Maintained owned local servers/PocketIC scopes dropped. No external resources created. Inputs, failed attempts, logs and verification workspaces retained.",
+  "source_record": "docs/evidence/host050-package0180.md"
+}

@@ -4,7 +4,7 @@
 
 # Dependency setup
 
-## Runtime-free contracts — pending 0.18.0
+## Runtime-free contracts — released 0.18.0
 
 Issue [#27](https://github.com/dragginzgame/ic-blob-storage/issues/27) adds the
 canonical `ic-blob-storage-contracts` owner under `crates/`. The service and native
@@ -13,18 +13,31 @@ hash/account-link fixtures move to that package. Normal contracts/CLI graphs acr
 all targets exclude CDK, Memory and the service package. The native effectful
 PocketIC harness and canister adapters retain their service edge intentionally.
 
-All 12 members inherit workspace 0.17.2 while pending notes target the public Rust
-path hard cut at 0.18.0. The extraction preserved its original registry graph;
-the 2026-10-08 incoming lock separately selects Memory 0.31.2, Testkit 0.21.3 and
-TOML patches. The sanity cleanup preserves those selections while removing only
-the obsolete direct service-to-`sha2` edge; hashing remains contract-owned.
-Current library/adapter lint and Rust 1.88 checks pass. The existing Testkit 0.21.2
-PocketIC/native-host evidence does not qualify 0.21.3; prepare the exact locked
-cache before that next check. The paired library packages share one root catalog
-requirement/version transaction, Cargo packaging and explicit ordered publication
-selection. See the [migration and qualification record](evidence/contracts-0180.md)
-for old/new paths and limits. Cross-release service retirement/reinstallation and
-native macOS qualification remain separate; no build-time or size gain is measured.
+All 12 members inherit workspace **0.18.0**. The released lock has direct native
+Host artifacts/fs **0.5.0**, Testkit **0.21.3** and its transitive Host **0.4.6**,
+Memory **0.31.3** and private probe Metrics **0.2.9**. The separate Host lines stay
+with their declared owners; no cross-minor type unification or extra direct facade
+is introduced. Hashing is contract-owned. Published Host 0.5.0 archives match its
+released source and its Linux/Intel/ARM macOS/MSRV matrix passes. Blob's unchanged
+bounded read/hash/fs calls pass Linux native-host, affected Clippy and Rust 1.88
+native/Wasm checks on the actual pre-release compiled 0.17.2 graph; see the
+[additional record](evidence/host050-package0180.md). This is separate from the
+release receipt and matching committed Blob/macOS acceptance.
+
+Paired packages share one root catalog/version transaction and Cargo packaging.
+Each extracted verification has its own target directory to exclude stale
+same-version artifacts. Publication is contracts first, then core; ordinary
+`make publish` in the pending helper repair selects both and authenticates exact
+registry readback before skipping completed uploads. See the
+[release guide](releasing.md#publication-and-deployment) and original
+[migration record](evidence/contracts-0180.md). Cross-release service retirement /
+reinstallation remain required; no build-time, instruction-count or size gain is
+measured.
+
+During the subsequent publication-helper repair, an external working-lock edit
+selects private Metrics **0.2.11**. It is preserved but not qualified by the above
+Metrics 0.2.9 checks. The table below describes the released graph; review and
+recheck the incoming selection before claiming native/runtime acceptance.
 
 ## Quick setup
 
@@ -103,7 +116,7 @@ its package version and dependencies from the workspace. Members select features
 and target conditions; `Cargo.lock` locks the resolved graph. Versions were checked against
 crates.io on 2026-09-25. On 2026-09-26, `serde_json` became a direct dependency
 at its existing locked version for bounded provider reply parsing. The table reflects
-the maintainer-selected working graph for pending 0.17.2 on 2026-10-07;
+the selected 0.18.0 graph on 2026-10-08;
 availability does not establish provider qualification or service readiness.
 
 | Dependency | Version | Purpose |
@@ -115,14 +128,14 @@ availability does not establish provider qualification or service readiness.
 | `thiserror` | 2.0.18 (locked) | Typed error derives; PocketIC constrains its own requirement exactly |
 | `ic-cdk` | 0.20.3 | IC platform operations for the ops layer |
 | `ic-management-canister-types` | 0.11.0 (direct, locked) | Bounded current-instance IC-history request/reply types |
-| `ic-memory` | 0.31.1 (locked) | Sole allocation runtime; current ownership ledger and public typed growth API |
+| `ic-memory` | 0.31.3 (locked) | Sole allocation runtime; current ownership ledger and public typed growth API |
 | `ic-metrics` | 0.2.9 (locked) | Private storage resource probe only; allocation-free measurement arithmetic, no platform reader |
 | `ic-stable-structures` | 0.7.2 | Exact transitive substrate owned/re-exported by `ic-memory` |
-| `ic-testkit` | 0.21.2 (locked) | Native dependency of the unpublished PocketIC harness; shared helpers and full re-export |
+| `ic-testkit` | 0.21.3 (locked) | Native dependency of the unpublished PocketIC harness; shared helpers and full re-export |
 | `pocket-ic` | 16.0.0 | Transitive through `ic-testkit`; no direct dependency |
 | `ic-agent` | 0.49.2 | Native CLI and harness signing and verification of ingress certificates |
-| `ic-host-artifacts` | 0.4.6 (direct and harness transitive, locked) | Native CLI raw SHA-256 identities and example-only bounded JSON streams; optional archive/gzip/Wasm features disabled |
-| `ic-host-fs` | 0.4.6 (direct and harness transitive, locked) | Native CLI bounded descriptor/no-follow reads and private durable create-new records |
+| `ic-host-artifacts` | 0.5.0 direct; 0.4.6 harness transitive (locked) | Native CLI raw SHA-256 identities and example-only bounded JSON streams; optional archive/gzip/Wasm features disabled |
+| `ic-host-fs` | 0.5.0 direct; 0.4.6 harness transitive (locked) | Native CLI bounded descriptor/no-follow reads and private durable create-new records |
 | `ic-host-process` | 0.4.6 (harness transitive, locked) | Owned by ic-testkit; no direct CLI dependency |
 | `ic-host-tools` | 0.4.6 (harness transitive, locked) | Owned by ic-testkit; no direct CLI facade dependency |
 | `candid_parser` | 0.4.1 | Native harness only; official Candid parser for native request fixtures |

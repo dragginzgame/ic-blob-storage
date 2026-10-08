@@ -12,7 +12,7 @@ maintainer action; a library release does not qualify the storage service.
 ## Setup and preview
 
 Follow [dependency setup](dependencies.md), including pinned cargo-sort 2.1.4,
-rustfmt, ShellCheck, Perl with JSON::PP/Digest::SHA, Git, GNU Make and Bash 3.2 or
+rustfmt, ShellCheck, Perl with JSON::PP/Digest::SHA, Git, curl, GNU Make and Bash 3.2 or
 newer. Provision the reviewed repository-local executables explicitly; for
 user-local formatter and shell tools:
 
@@ -156,25 +156,55 @@ Failed local fixtures and preparation inputs remain at the printed paths.
 ## Publication and deployment
 
 Publication remains an explicit maintainer action after the clean release,
-receipt, exact parent and annotated tag checks. Select the contracts package first:
+receipt, exact parent and annotated tag checks:
 
 ```sh
-make publish-dry-run PUBLISH_PACKAGE=ic-blob-storage-contracts
-make publish PUBLISH_PACKAGE=ic-blob-storage-contracts
-# Once that exact version is available from crates.io:
-make publish-dry-run PUBLISH_PACKAGE=ic-blob-storage
-make publish PUBLISH_PACKAGE=ic-blob-storage
+make publish
 ```
 
-Each invocation calls standard Cargo for the selected package under the same
-release lock. There is no second publisher or retry engine. An already-published
-contracts version is not resubmitted just to retry service publication. Publishing
-neither deploys nor qualifies the service. Older completed releases need no runner
-plan for this separate publication check.
+The default calls standard Cargo for contracts first, then core, under one release
+lock. Cargo owns uploading and waiting for index visibility. A failed contracts
+publication stops before core. Retry the same command after investigating any
+failure: an exact version already on crates.io is skipped only after its archive
+checksum and Git source match the selected release. Failed readback, yanked rows,
+malformed responses or a different source refuse instead of authorizing an upload.
+Readback inputs and a fresh Cargo target remain under the printed
+`target/publication.*` path, preventing stale same-version verification artifacts. No local
+publication progress journal or additional polling loop is introduced.
+
+`PUBLISH_PACKAGE=ic-blob-storage-contracts` or `PUBLISH_PACKAGE=ic-blob-storage`
+selects one package when needed; it is optional. `make publish-dry-run` never
+uploads and still runs Cargo verification for already-published packages. Before
+contracts is published, the default dry-run verifies contracts then refuses core
+with dependency guidance: a dry-run cannot make that registry dependency exist.
+Use `make package` for paired local payload verification, or select contracts for
+its individual dry-run. Publishing neither deploys nor qualifies the service.
+Older completed releases need no runner plan for this separate publication check.
+
+### Finish the already-tagged 0.18.0 publication
+
+The helper repair belongs to the subsequent compatible batch. Keep the exact
+0.18.0 receipt/tag and publish its payload from a clean checkout using its released
+helper, which still requires individual selections:
+
+```sh
+git worktree add --detach /tmp/ic-blob-storage-publish-0.18.0 v0.18.0
+make -C /tmp/ic-blob-storage-publish-0.18.0 publish PUBLISH_PACKAGE=ic-blob-storage-contracts
+# Once that exact version is available from crates.io:
+make -C /tmp/ic-blob-storage-publish-0.18.0 publish PUBLISH_PACKAGE=ic-blob-storage
+```
+
+The reported missing-selector refusal made no registry upload. If a later attempt
+has an uncertain reply, inspect the exact crates.io version before resubmitting;
+the 0.18.0 helper has no automatic readback. A dirty repair checkout or a new fix
+commit is not the tagged payload. Do not bypass the clean-source checks or alter
+the old receipt/tag just to publish it.
 
 `make package` assembles both `.crate` archives with Cargo, then runs the full
 library tests/examples against their exact extracted, normalized payloads in a
-fresh retained workspace. Its local contracts patch points only at that extracted
+fresh retained workspace with its own Cargo target directory. A real Cargo fixture
+checks that a second archive with the same package version executes the updated
+contract, rather than reusing stale artifacts with fixed archive timestamps. Its local contracts patch points only at that extracted
 payload. Cargo resolves its lock before compilation; the bounded metadata adapter
 rejects any external version/source/checksum absent from the frozen root lock.
 The root lock is unchanged. This avoids Cargo’s

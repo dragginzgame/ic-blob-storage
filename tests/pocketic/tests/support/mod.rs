@@ -1,11 +1,40 @@
 //! Explicit local server ownership shared by integration cases.
 
-use std::{path::PathBuf, time::Duration};
+use std::{io::Read, path::PathBuf, process::Output, time::Duration};
 
 use ic_testkit::{
+    ic_host_process::child::OwnedChild,
     pic::{PocketIcBuilderExt, PocketIcManagedServer, PocketIcStartupConfig},
     pocket_ic::{PocketIc, PocketIcBuilder},
 };
+
+/// Drain caller-owned pipes while Host waits and cleans the child group.
+/// Keep buffered protocol bytes: converting a reader back to its pipe loses them.
+pub(super) fn wait_with_output(child: &mut OwnedChild, mut stdout: impl Read + Send) -> Output {
+    child.take_stdin();
+    let mut stderr = child.take_stderr().expect("configured stderr pipe");
+    let mut out = Vec::new();
+    let mut err = Vec::new();
+    let status = std::thread::scope(|scope| {
+        scope.spawn(|| stdout.read_to_end(&mut out).expect("read child stdout"));
+        scope.spawn(|| stderr.read_to_end(&mut err).expect("read child stderr"));
+        child.wait().unwrap_or_else(|error| {
+            // Scoped readers must be released before unwinding joins them.
+            if let Err(cleanup) = child.terminate() {
+                eprintln!("child cleanup after wait failure: {cleanup}");
+            }
+            panic!("wait and clean child group: {error}");
+        })
+    });
+    Output {
+        status,
+        stdout: out,
+        stderr: err,
+    }
+}
+
+#[cfg(test)]
+mod tests;
 
 pub(super) fn fixture_path(variable: &str) -> PathBuf {
     let path = PathBuf::from(

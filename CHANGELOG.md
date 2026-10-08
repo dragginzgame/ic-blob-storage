@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.18.1]
+
+### Fixed
+
+- Make `make publish` publish contracts before core without a mandatory package
+  selector. Retrying checks exact registry archives against the release source
+  before skipping completed uploads; inconclusive readback stops publication.
+  Keep optional individual selection and make unpublished-contract dry-run limits
+  explicit without weakening clean-source, receipt or tag checks.
+
 ## [0.18.0] - 2026-10-08
 
 ### Breaking

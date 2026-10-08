@@ -1,13 +1,15 @@
 //! Owned native subprocess for the maintained publication session control protocol.
+use ic_testkit::ic_host_process::child::OwnedChild;
 use serde_json::Value;
 use std::{
     io::{BufRead, BufReader, Read, Write},
-    process::{Child, ChildStdout, Command, Stdio},
+    process::{ChildStdin, ChildStdout, Command, Stdio},
     time::{Duration, Instant},
 };
 
 pub(crate) struct NativeSession {
-    child: Option<Child>,
+    child: OwnedChild,
+    stdin: Option<ChildStdin>,
     reader: BufReader<ChildStdout>,
 }
 impl NativeSession {
@@ -23,7 +25,7 @@ impl NativeSession {
                 .env("SSL_CERT_FILE", roots)
                 .env_remove("SSL_CERT_DIR");
         }
-        let mut child = command
+        command
             .args(args)
             .stdin(Stdio::piped())
             .stdout(Stdio::piped())
@@ -31,17 +33,18 @@ impl NativeSession {
             .env("HTTP_PROXY", "http://127.0.0.1:9")
             .env("HTTPS_PROXY", "http://127.0.0.1:9")
             .env("ALL_PROXY", "http://127.0.0.1:9")
-            .env("NO_PROXY", "")
-            .spawn()
-            .unwrap();
-        let reader = BufReader::new(child.stdout.take().unwrap());
+            .env("NO_PROXY", "");
+        let mut child = OwnedChild::spawn(&mut command).unwrap();
+        let reader = BufReader::new(child.take_stdout().unwrap());
+        let stdin = child.take_stdin();
         Self {
-            child: Some(child),
+            child,
+            stdin,
             reader,
         }
     }
     pub(crate) fn send(&mut self, frame: &Value) {
-        let writer = self.child.as_mut().unwrap().stdin.as_mut().unwrap();
+        let writer = self.stdin.as_mut().unwrap();
         serde_json::to_writer(&mut *writer, frame).unwrap();
         writer.write_all(b"\n").unwrap();
         writer.flush().unwrap();
@@ -62,7 +65,7 @@ impl NativeSession {
     pub(crate) fn wait_for_deadline(&mut self) {
         let deadline = Instant::now() + Duration::from_secs(5);
         loop {
-            if self.child.as_mut().unwrap().try_wait().unwrap().is_some() {
+            if self.child.try_wait().unwrap().is_some() {
                 return;
             }
             assert!(
@@ -73,9 +76,9 @@ impl NativeSession {
         }
     }
     pub(crate) fn finish(mut self, expected: i32) -> Value {
-        self.child.as_mut().unwrap().stdin.take();
+        self.stdin.take();
         let result = self.read();
-        let output = self.child.take().unwrap().wait_with_output().unwrap();
+        let output = super::support::wait_with_output(&mut self.child, std::io::empty());
         assert_eq!(
             output.status.code(),
             Some(expected),
@@ -86,13 +89,5 @@ impl NativeSession {
             "native errors stay redacted on stdout"
         );
         result
-    }
-}
-impl Drop for NativeSession {
-    fn drop(&mut self) {
-        if let Some(child) = &mut self.child {
-            let _ = child.kill();
-            let _ = child.wait();
-        }
     }
 }
