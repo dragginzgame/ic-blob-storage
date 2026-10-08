@@ -386,7 +386,9 @@ selection_consumer="$FIXTURE/selection"
 mkdir "$selection_consumer"
 git init -q "$selection_consumer"
 for path in scripts/ci/run-validation-targets.sh scripts/ci/check-make-execution.sh \
-    scripts/ci/run-release.sh scripts/ci/next-release-version.sh; do
+    scripts/ci/run-release.sh scripts/ci/next-release-version.sh \
+    scripts/ci/test-release-runner.sh scripts/ci/finalize-release-changelog.awk \
+    scripts/ci/test-host-tools.sh scripts/ci/test-ic-tools.sh scripts/ci/test-tool-evidence.sh; do
     cp -p "$ROOT/$path" "$source_root/$path"
     cp -p "$ROOT/$path" "$revision_root/$path"
 done
@@ -430,6 +432,48 @@ PATH="$FIXTURE/bin:$PATH" bash "$source_root/scripts/distribution/refresh-consum
     --add-file scripts/ci/run-release.sh --add-file scripts/ci/next-release-version.sh \
     > "$FIXTURE/selection-direct.log"
 [[ ! -e "$selection_consumer/scripts/ci/release-pr.sh" ]]
+# The consumer simulation has a complete explicit selection without owner-only
+# native tracking fixtures. Missing changelog support still refuses atomically.
+cp "$selection_consumer/config/selection" "$FIXTURE/selection-before-simulation"
+if PATH="$FIXTURE/bin:$PATH" bash "$source_root/scripts/distribution/refresh-consumer.sh" \
+    --source "$source_root" --consumer "$selection_consumer" --manifest config/selection \
+    --add-file scripts/ci/test-release-runner.sh > "$FIXTURE/missing-simulation-companion.log" 2>&1; then exit 1; fi
+grep -F 'requires selected companion: scripts/ci/finalize-release-changelog.awk' "$FIXTURE/missing-simulation-companion.log" >/dev/null
+cmp "$FIXTURE/selection-before-simulation" "$selection_consumer/config/selection"
+[[ ! -e "$selection_consumer/scripts/ci/test-release-runner.sh" ]]
+PATH="$FIXTURE/bin:$PATH" bash "$source_root/scripts/distribution/refresh-consumer.sh" \
+    --source "$source_root" --consumer "$selection_consumer" --manifest config/selection \
+    --add-file scripts/ci/test-release-runner.sh --add-file scripts/ci/finalize-release-changelog.awk \
+    > "$FIXTURE/selection-simulation.log"
+[[ ! -e "$selection_consumer/scripts/ci/test-release-tracking.sh" ]]
+bash "$selection_consumer/scripts/ci/verify-shared-tooling-snapshot.sh" \
+    --consumer "$selection_consumer" --manifest config/selection >/dev/null
+# Real installer fixture declarations must prevent the previously successful
+# incomplete export. Check both initial export and addition to an existing set.
+cp "$selection_consumer/config/selection" "$FIXTURE/selection-before-evidence"
+for entry in test-host-tools test-ic-tools test-tool-evidence; do
+    missing=scripts/ci/test-tool-evidence.sh
+    [[ "$entry" != test-tool-evidence ]] || missing=scripts/ci/select-tool-evidence.sh
+    for mode in initial addition; do
+        selected_consumer="$selection_consumer"
+        selection_args=(--manifest config/selection --add-file "scripts/ci/$entry.sh")
+        if [[ "$mode" == initial ]]; then
+            selected_consumer="$FIXTURE/incomplete-$entry"
+            git init -q "$selected_consumer"
+            selection_args=(--file "$checksum_path" --file "$verifier_path" --file "scripts/ci/$entry.sh")
+        fi
+        if PATH="$FIXTURE/bin:$PATH" bash "$source_root/scripts/distribution/refresh-consumer.sh" \
+            --source "$source_root" --consumer "$selected_consumer" "${selection_args[@]}" \
+            > "$FIXTURE/missing-$entry-$mode.log" 2>&1; then exit 1; fi
+        grep -F "requires selected companion: $missing" "$FIXTURE/missing-$entry-$mode.log" >/dev/null
+        if [[ "$mode" == initial ]]; then
+            [[ ! -e "$selected_consumer/scripts" && ! -e "$selected_consumer/.shared-tooling.snapshot" ]]
+        else
+            cmp "$FIXTURE/selection-before-evidence" "$selected_consumer/config/selection"
+            [[ ! -e "$selected_consumer/scripts/ci/$entry.sh" ]]
+        fi
+    done
+done
 cp "$selection_consumer/config/selection" "$FIXTURE/selection-before-conflict"
 printf 'consumer-owned file\n' > "$selection_consumer/scripts/ci/sample.sh"
 if PATH="$FIXTURE/bin:$PATH" bash "$source_root/scripts/distribution/refresh-consumer.sh" \

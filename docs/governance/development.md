@@ -59,11 +59,15 @@ network; it stays explicit and separate from ordinary validation.
 `make test-native-host` is the focused CLI/example/PocketIC installation and
 Metrics restoration-read check used by
 the native host CI matrix, separate from the complete gate.
-`make pocketic-alignment-check` compares the locked client with reviewed server
-pins through offline Cargo metadata. It runs before the main native-host,
-PocketIC and standalone test targets, after explicit dependency preparation.
-Equal versions do not establish runtime compatibility or authenticate an override
-binary; managed bundle verification remains with `make ic-tools-check`.
+Testkit/PocketIC own client/server compatibility and managed server lifetime.
+Blob has no independent crate-version/server-version equality gate. The
+Blob-owned `ci/ic-tools.tsv` selects reviewed PocketIC 16.1.0 assets through the
+canonical shared installer; `make ic-tools-check` authenticates the managed bundle.
+An externally selected executable retains its caller-owned byte admission.
+`make msrv-check` explicitly selects Rust 1.88, checks the public libraries
+separately, all native workspace targets/features and the supported Wasm libraries.
+CI prepares that compiler and locked cache in its own minimum-version lane;
+the development compiler still owns formatting and Clippy.
 Opt-in browser/SDK targets check the exact prepared Node/npm selections and
 manifest/lock declarations with `make browser-tools-check`; setup and version
 ownership stay in the private browser build root under

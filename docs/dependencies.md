@@ -7,16 +7,18 @@
 ## Current graph — released 0.18.4, pending 0.18.5
 
 All 12 members inherit workspace **0.18.4**. The incoming native graph selects
-Host **0.7.1** throughout and Testkit **0.24.0**, removing the previous Host 0.6
-transitive line. Memory remains on public **0.31** (locked **0.31.5**); private
-Metrics selects **0.2.13**. Registry checksums and packaged source identities
-match their owner commits. The [follow-up record](evidence/host071-tooling0185.md)
-retains focused Linux native/PocketIC, Clippy and Rust 1.88 qualification;
-native macOS and hosted artifact transport remain separate acceptance.
+Host **0.8.2** throughout and Testkit **0.25.1**, with one Host dependency line.
+Memory remains on public **0.31** (locked **0.31.6**); private Metrics selects
+**0.2.14**. The [current repair record](evidence/pocketic-msrv0185.md) binds the
+new graph and reviewed PocketIC 16.1.0 selection. The earlier
+[0.7.1/0.24 qualification](evidence/host071-tooling0185.md) retains its original
+inputs and cannot qualify this graph. Native macOS and hosted artifact transport
+remain separate acceptance.
 
-The 84-file Shared Tooling snapshot selects committed 0.1.27 source
-`b866d41041a1986eeec95bde9af4c6ba0853d2e3`, including the three companions now
-required by installer evidence fixtures. The production failure uploader remains
+The 94-file Shared Tooling snapshot selects committed 0.1.28 source
+`1872ed2c20f6c70689bb2249050b1d673c60bfa0`, including the task catalog, literal
+installer-path admission and simulation-only consumer release fixtures.
+The production failure uploader remains
 under [#29](https://github.com/dragginzgame/ic-blob-storage/issues/29): local routing
 now archives scoped evidence through the shared helper, preserving 30-day
 retention. Its [local qualification](evidence/tooling-archive0185.md) is separate
@@ -158,16 +160,16 @@ availability does not establish provider qualification or service readiness.
 | `thiserror` | 2.0.18 (locked) | Typed error derives; PocketIC constrains its own requirement exactly |
 | `ic-cdk` | 0.20.3 | IC platform operations for the ops layer |
 | `ic-management-canister-types` | 0.11.0 (direct, locked) | Bounded current-instance IC-history request/reply types |
-| `ic-memory` | 0.31.5 (locked) | Sole allocation runtime; current ownership ledger and public typed growth API |
-| `ic-metrics` | 0.2.13 (locked) | Private storage resource probe only; allocation-free measurement arithmetic, no platform reader |
+| `ic-memory` | 0.31.6 (locked) | Sole allocation runtime; current ownership ledger and public typed growth API |
+| `ic-metrics` | 0.2.14 (locked) | Private storage resource probe only; allocation-free measurement arithmetic, no platform reader |
 | `ic-stable-structures` | 0.7.2 | Exact transitive substrate owned/re-exported by `ic-memory` |
-| `ic-testkit` | 0.24.0 (locked) | Native dependency of the unpublished PocketIC harness; shared helpers and full re-export |
-| `pocket-ic` | 16.0.0 | Transitive through `ic-testkit`; no direct dependency |
+| `ic-testkit` | 0.25.1 (locked) | Native dependency of the unpublished PocketIC harness; shared helpers and full re-export |
+| `pocket-ic` | 16.1.0 (locked) | Transitive through `ic-testkit`; no direct dependency |
 | `ic-agent` | 0.49.2 | Native CLI and harness signing and verification of ingress certificates |
-| `ic-host-artifacts` | 0.7.1 (direct and harness transitive, locked) | Native CLI raw SHA-256 identities and example-only bounded JSON streams; optional archive/gzip/Wasm features disabled for those clients |
-| `ic-host-fs` | 0.7.1 (direct and harness transitive, locked) | Native CLI bounded descriptor/no-follow reads and private durable create-new records |
-| `ic-host-process` | 0.7.1 (harness transitive, locked) | Owned by ic-testkit; no direct CLI dependency |
-| `ic-host-tools` | 0.7.1 (harness transitive, locked) | Owned by ic-testkit; no direct CLI facade dependency |
+| `ic-host-artifacts` | 0.8.2 (direct and harness transitive, locked) | Native CLI raw SHA-256 identities and example-only bounded JSON streams; optional archive/gzip/Wasm features disabled for those clients |
+| `ic-host-fs` | 0.8.2 (direct and harness transitive, locked) | Native CLI bounded descriptor/no-follow reads and private durable create-new records |
+| `ic-host-process` | 0.8.2 (harness transitive, locked) | Owned by ic-testkit; no direct CLI dependency |
+| `ic-host-tools` | 0.8.2 (harness transitive, locked) | Owned by ic-testkit; no direct CLI facade dependency |
 | `candid_parser` | 0.4.1 | Native harness only; official Candid parser for native request fixtures |
 
 ### Native Host 0.4.6 selection — pending 0.17.2
@@ -207,12 +209,36 @@ Released 0.17.1's Host 0.4.2/Testkit 0.21.1 qualification remains bound to
 [#26](https://github.com/dragginzgame/ic-blob-storage/issues/26) tracks matching
 committed native consumer acceptance for that released batch.
 
-`make pocketic-alignment-check` uses the canonical shared helper with offline
-locked Cargo metadata and the reviewed IC matrix. It runs before the main
-native-host, PocketIC and standalone test targets, after cache preparation.
-The client and server pin both select 16.0.0. This guards dependency/pin drift;
-managed binary admission remains with `make ic-tools-check`, and an externally
-selected executable retains its caller-owned trust and byte identity.
+### Current PocketIC ownership — pending 0.18.5
+
+Testkit/PocketIC own protocol compatibility, startup and managed server lifetime;
+Blob no longer compares the Rust crate version with the provisioned server version.
+Shared Tooling owns explicit provisioning, archive digests, executable version
+identity and offline bundle verification. These are separate trust boundaries.
+The existing harness continues to use Testkit's explicit `spawn`/`connect` path
+with a prepared binary and ordered drops. No fallback download or startup owner
+is added. Testkit's environment path still has the stricter released check tracked
+in [Testkit #34](https://github.com/dragginzgame/ic-testkit/issues/34); this consumer
+does not copy its parser or claim that upstream follow-up is complete.
+
+`ci/ic-tools.tsv` is now Blob-owned, removed from snapshot ownership under the
+[documented matrix exception](ic-tools.md#consumer-adoption). Only its three
+PocketIC rows change to official 16.1.0 release asset digests reviewed on
+2026-10-08. One matrix remains authoritative for Make, CI and shared setup/check
+helpers. The committed shared defaults still select 16.0.0, tracked in
+[Shared Tooling #76](https://github.com/dragginzgame/shared-tooling/issues/76).
+Do not restore the matrix to the snapshot until those committed defaults match
+the qualified selection. Explicit `make install-ic-tools` prepares the bundle;
+`make ic-tools-check` verifies it offline. Preserve previous bundles and failed
+attempts. Caller-selected override binaries retain caller-owned byte admission.
+
+`make msrv-check` checks Rust 1.88 explicitly, separately checking the runtime-free
+contracts and public service libraries before the full native member roster and
+supported Wasm libraries. This prevents native test dependencies from defining
+the public floor. CI prepares the minimum compiler/cache in a separate lane;
+ordinary validation never installs a missing compiler implicitly. Development
+formatting/Clippy continue on the pinned 1.99 compiler. Lower floors require new
+qualified evidence rather than a manifest-only change.
 
 ### Memory 0.31 selection — released 0.17.0
 
@@ -733,10 +759,10 @@ make ic-tools-check
 
 The [common setup](ic-tools.md) and [single pin matrix](../ci/ic-tools.tsv)
 select platform assets for Linux and macOS on x86_64 and ARM64. The current
-matrix selects PocketIC 16.0.0, Quill 0.5.4, ICP CLI 1.6.0, didc 0.6.2,
+matrix selects PocketIC 16.1.0, Quill 0.5.4, ICP CLI 1.6.0, didc 0.6.2,
 ic-wasm 0.11.1 and wasm-opt 132. Installation verifies archives before extraction,
 checks versions and activates a complete set; `ic-tools-check` is offline.
-The new Linux PocketIC executable matches the earlier retained binary hash.
+The previous 16.0 bundle and its retained hashes remain historical inputs.
 Only PocketIC is exercised by the service installation tests; setup and version
 checks alone do not qualify deployment or other tools' product workflows.
 `make deps` fetches Cargo packages only; it does not provision executables.

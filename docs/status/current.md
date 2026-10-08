@@ -6,7 +6,48 @@
 
 Date: 2026-10-08
 
-## Current follow-up — released 0.18.4, pending 0.18.5
+## Current issue work — released 0.18.4, pending 0.18.5
+
+- Review began at `afa8844cb0afb615e187982a13d1e9d7a64d3755`. The maintainer
+  subsequently committed `9ab187a1ab784da14e1caf4aa0df9eea232d1635`, selecting
+  Host 0.8.2/Testkit 0.25.1; Memory is 0.31.6 and private Metrics 0.2.14.
+  That lock is preserved. Workspace and receipt remain released 0.18.4;
+  all earlier qualification retains its exact graph and source.
+- [#36](https://github.com/dragginzgame/ic-blob-storage/issues/36): original
+  locked-client/server equality failure is reproduced and retained. Blob now
+  selects reviewed PocketIC 16.1.0 assets in its sole consumer-owned IC matrix.
+  Testkit/PocketIC own compatibility and server lifetime; the shared installer
+  authenticates binary bytes/identity. The independent equality gate and its
+  unused helper/fixture are removed. Native acceptance remains distinct from
+  editing pins and from owner Testkit compatibility follow-up #34.
+- [#35](https://github.com/dragginzgame/ic-blob-storage/issues/35): explicit
+  `make msrv-check` and a dedicated CI lane select Rust 1.88 for public/native
+  and Wasm paths. The development compiler remains 1.99.
+- Shared Tooling adopts 94 files at committed 0.1.28 source
+  `1872ed2c20f6c70689bb2249050b1d673c60bfa0`, with installer path fixes,
+  simulation-only consumer release fixtures and task catalog companions.
+  Sibling dirty work is excluded; no maintenance schedule is enabled.
+- The [repair record](../evidence/pocketic-msrv0185.md) owns new local
+  qualification and removed-symbol inventory. Final Linux native-host checks
+  pass 241 cases on the actual 16.1 server; Rust 1.88 passes public/native/Wasm
+  paths. Installer/snapshot/simulation fixtures, declarations, shell/workflow
+  lint and documentation links pass. All 842 final build inputs remain unchanged.
+  New dirty inputs have no hosted result: #35/#36 remain open for committed
+  native/MSRV acceptance. Released 0.18.4's exact CI now passes Linux, Intel
+  macOS and Apple Silicon, and both crates are published with matching VCS.
+  #27/#28 are closed; this does not qualify incoming changes or close #29.
+- [#33](https://github.com/dragginzgame/ic-blob-storage/issues/33) now has a
+  [private native-worker recipe](../completion-verifier.md) defining signer,
+  service/tenant/job binding, original observation/submission and restart
+  reconciliation. Two-user/deployed-provider acceptance remains unqualified.
+- Provider callback/funding evidence, multi-user consumer integration and
+  operational verifier deployment remain separate issue owners. No paid/live
+  probes, sibling edits, full gate, agent commit or release effect is authorized.
+
+## Earlier follow-up — released 0.18.4, pending 0.18.5
+
+The following record retains the preceding Host 0.7.1/Testkit 0.24 graph and
+the CI observations at that time; the current issue work above supersedes it.
 
 - Released **0.18.4** is `ab15c39d208608d2b43a555fc417dd85a6759942`,
   validated source `685548842e36b6fd660dc0911f50b99c220abbe8`. Cargo and the

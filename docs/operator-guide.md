@@ -1784,6 +1784,9 @@ The command sends no update or provider request and writes no journal.
 
 ## Observe provider content
 
+For a browser application's signer ownership, private worker, job correlation
+and restart procedure, see the [completion verifier recipe](completion-verifier.md).
+
 `observe-upload` performs the verifier's independent provider read and saves the
 statement for explicit submission. Run it only against an explicitly approved gateway
 and installation with a read budget; provider charges remain unknown, including

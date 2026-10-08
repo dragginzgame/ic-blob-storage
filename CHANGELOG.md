@@ -4,8 +4,8 @@
 
 ### Changed
 
-- Align native tooling and the private test harness on Host 0.7.1 through
-  Testkit 0.24, removing the duplicate Host dependency line.
+- Align native tooling and the private test harness on Host 0.8.2 through
+  Testkit 0.25.1, preserving one Host dependency line.
   [Testkit #32](https://github.com/dragginzgame/ic-testkit/issues/32).
 - Refresh the reviewed Shared Tooling snapshot, preserving direct release
   delivery, protecting tracking refs against symbolic-ref races, and supporting
@@ -14,9 +14,23 @@
   [Shared Tooling #62](https://github.com/dragginzgame/shared-tooling/issues/62),
   [#64](https://github.com/dragginzgame/shared-tooling/issues/64),
   [#60](https://github.com/dragginzgame/shared-tooling/issues/60).
+- Adopt Shared Tooling 0.1.28's installer path admission, simulation-only release
+  fixtures and maintenance task catalog.
+  [Shared Tooling #75](https://github.com/dragginzgame/shared-tooling/issues/75),
+  [#70](https://github.com/dragginzgame/shared-tooling/issues/70).
+- Document a private application-operated completion verifier using existing
+  observation, one-shot submission and receipt recovery tools.
+  [#33](https://github.com/dragginzgame/ic-blob-storage/issues/33).
 
 ### Fixed
 
+- Select reviewed PocketIC 16.1.0 server assets and remove the independent
+  client/server version-equality gate; Testkit/PocketIC retain compatibility
+  ownership and the shared installer retains binary authentication.
+  [#36](https://github.com/dragginzgame/ic-blob-storage/issues/36).
+- Check the advertised Rust 1.88 minimum explicitly for native and Wasm paths
+  in a dedicated CI lane.
+  [#35](https://github.com/dragginzgame/ic-blob-storage/issues/35).
 - Archive retained tooling failures before uploading so legal Unix filenames,
   permissions and symlinks survive diagnostic collection. Keep 30-day failure
   retention and qualify exact uploaded archive bytes on the native CI matrix.
