@@ -16,7 +16,7 @@ members = [
 resolver = "3"
 
 [workspace.package]
-version = "0.21.0"
+version = "0.21.1"
 edition = "2024"
 rust-version = "1.88.0"
 license = "MIT"
@@ -30,7 +30,7 @@ candid_parser = "0.4.1"
 ic-agent = { version = "0.49.2", default-features = false }
 ic-blob-storage = { path = "crates/ic-blob-storage" }
 ic-blob-storage-canister = { path = "canisters/standalone" }
-ic-blob-storage-contracts = { path = "crates/ic-blob-storage-contracts", version = "0.21.0" }
+ic-blob-storage-contracts = { path = "crates/ic-blob-storage-contracts", version = "0.21.1" }
 ic-cdk = "0.20.3"
 ic-host-artifacts = "0.9"
 ic-host-fs = "0.9"
