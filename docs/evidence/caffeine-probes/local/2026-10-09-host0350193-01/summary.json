@@ -1,0 +1,168 @@
+{
+  "evidence_class": "local_native_host_and_pocketic_substitutes",
+  "base_head": "59230ee017dcbf9ff38c19f389b0bb03e750852a",
+  "compiled_package_version": "0.19.2",
+  "pending_version": "0.19.3",
+  "shared_source": "be550afa57fe9e16872e5110b5cd69c24b4fa9e8",
+  "graph": [
+    {
+      "name": "ic-host-artifacts",
+      "version": "0.8.8",
+      "checksum": "606926664bacc3d1da87749ded9f96643ab585ea02f97e503be3453a22ca55f3"
+    },
+    {
+      "name": "ic-host-fs",
+      "version": "0.8.8",
+      "checksum": "8113bd0abe5a81e0770c5fe7b4cc0e21d31b710d36bbc006181555d626359cc0"
+    },
+    {
+      "name": "ic-host-process",
+      "version": "0.8.8",
+      "checksum": "76288489748e27fa6e64a723827416fde21daac47c9f730099af737b7bc40186"
+    },
+    {
+      "name": "ic-host-tools",
+      "version": "0.8.8",
+      "checksum": "de60f742bd17f2e29a306237b38220a5c95240772ac2ecf3116583d2d5029637"
+    },
+    {
+      "name": "ic-memory",
+      "version": "0.31.10",
+      "checksum": "edeff089b9741bfc8f145bb38a09e0a56dcc6c552342774e9188bd0b5598de39"
+    },
+    {
+      "name": "ic-metrics",
+      "version": "0.2.18",
+      "checksum": "2ff2e0e09dd7a1ee832582062825f03b46e9fb1f3c7272f0a86ffecfd54fa513"
+    },
+    {
+      "name": "ic-testkit",
+      "version": "0.25.4",
+      "checksum": "78283d252a61e39298f4cd78eed6cb9d65fd6e55d2ec51572e4360c3bfd12f35"
+    },
+    {
+      "name": "pocket-ic",
+      "version": "16.1.0",
+      "checksum": "85135917c845e8fc132f5eca3a0a8cbab696477a5fee3c2dda168a0797f81e1c"
+    }
+  ],
+  "final_native_host_cases": {
+    "cli_and_probe": 115,
+    "contracts": 103,
+    "examples": 21,
+    "standalone_installation_carriers": 2,
+    "metrics_restoration": 1
+  },
+  "buffered_response_case": {
+    "passed": 1,
+    "graph_memory": "0.31.9",
+    "limitation": "Unchanged Host 0.8.8 buffer/lifecycle helper; this prior case is not relabelled as a 0.31.10 runtime run."
+  },
+  "final_native_host_case_total": 242,
+  "actual_probe_local_gets": 8,
+  "live_provider_requests": 0,
+  "paid_effects": 0,
+  "final_lock_sha256": "de6a66cf41ce453c224960a2c752d50a28913f4e692249145f5db11916c4dab1",
+  "final_artifacts": [
+    {
+      "original": "target/debug/blob-storage",
+      "retained": ".tmp/host0350193-01/final-artifacts/blob-storage",
+      "sha256": "031562691ff4eaf85e72715fbd66d680c2613349331c29d5d6eedb0c4e1d38ea",
+      "bytes": 148757768
+    },
+    {
+      "original": "target/debug/caffeine-probe",
+      "retained": ".tmp/host0350193-01/final-artifacts/caffeine-probe",
+      "sha256": "2ffe988aa181c210744dba1405b4a32e0c23b421d612bbe88471dd78d6db4f1d",
+      "bytes": 69204736
+    },
+    {
+      "original": "target/wasm32-unknown-unknown/release/ic_blob_storage_canister.wasm",
+      "retained": ".tmp/host0350193-01/final-artifacts/ic_blob_storage_canister.wasm",
+      "sha256": "8113c348f1e69d833525189304e0ce795c14cd383edc1f81ca3af5aa9d56ec33",
+      "bytes": 4261015
+    },
+    {
+      "original": "target/wasm32-unknown-unknown/release/blob_storage_probe.wasm",
+      "retained": ".tmp/host0350193-01/final-artifacts/blob_storage_probe.wasm",
+      "sha256": "3ade1e61f71c8c1e49c136fe79a9126f235e543c5fba26595c3b3052ee1ec844",
+      "bytes": 5198708
+    },
+    {
+      "original": "target/debug/deps/blob_storage-83d79086f2bc1a27",
+      "retained": ".tmp/host0350193-01/final-artifacts/blob_storage-83d79086f2bc1a27",
+      "sha256": "507069715b8f5e17bdbb51f0e2f2432bbb19da47368e1a0b9253d6b96477d900",
+      "bytes": 161864840
+    },
+    {
+      "original": "target/debug/deps/caffeine_probe-2a2c26b0bcfd8dc4",
+      "retained": ".tmp/host0350193-01/final-artifacts/caffeine_probe-2a2c26b0bcfd8dc4",
+      "sha256": "47cc38e56dd43e201ea52dfa90f442017fef5d44b1a73699af162e00ae4531f9",
+      "bytes": 73124872
+    },
+    {
+      "original": "target/debug/deps/ic_blob_storage_contracts-04eca1e2935408e8",
+      "retained": ".tmp/host0350193-01/final-artifacts/ic_blob_storage_contracts-04eca1e2935408e8",
+      "sha256": "13f0a3ebf7c94cff898f8ef4ead5fb12659f7a4441c5a72d71d5bbaa18a7f577",
+      "bytes": 40966896
+    },
+    {
+      "original": "target/debug/examples/prepare_upload-a091f156194f4b48",
+      "retained": ".tmp/host0350193-01/final-artifacts/prepare_upload-a091f156194f4b48",
+      "sha256": "01f96768486123f77b17e6698992b99c1d17dd15a6068b2be17468665d305ec7",
+      "bytes": 35604184
+    },
+    {
+      "original": "target/debug/examples/verify_download-f037db4dac017372",
+      "retained": ".tmp/host0350193-01/final-artifacts/verify_download-f037db4dac017372",
+      "sha256": "52884ab2064641dee808f2dd0bedd17138dcbec83ec62c0d7162711e82d6b19b",
+      "bytes": 32957112
+    },
+    {
+      "original": "target/debug/deps/standalone-724731947455359d",
+      "retained": ".tmp/host0350193-01/final-artifacts/standalone-724731947455359d",
+      "sha256": "a48820739535a9ad012f781d03e2f8cafe53e9ccc2ef39cfc86ee0ada163004c",
+      "bytes": 301741936
+    },
+    {
+      "original": "target/debug/deps/storage-efc6bbb718601a16",
+      "retained": ".tmp/host0350193-01/final-artifacts/storage-efc6bbb718601a16",
+      "sha256": "db603575a2e8bd8a950c738baa1665a5e7788bbbefca1e51d4dabc2b6005e028",
+      "bytes": 270431224
+    }
+  ],
+  "failures": [
+    {
+      "log": ".tmp/host0350193-01/clippy.log",
+      "result": "Strict lint rejected a by-value non-consuming error mapper; corrected to a borrowed parameter."
+    },
+    {
+      "log": ".tmp/host0350193-01/clippy-corrected.log",
+      "result": "Before compilation, new incoming Memory 0.31.10 was absent offline. Preserve selection and prepare it explicitly."
+    },
+    {
+      "log": ".tmp/host0350193-01/registry-inventory-failed.log",
+      "result": "Two cache roots made a glob ambiguous; correction selects Cargo metadata manifest paths."
+    }
+  ],
+  "source_phases": {
+    "initial_native_host": "Memory 0.31.9 and by-value mapper; original outputs/source/artifacts retained separately.",
+    "borrow_correction_intent": "Not dispatched: lock changed before planned isolated probe rerun.",
+    "final_native_host": "Memory 0.31.10 and borrowed mapper; fresh full focused execution and artifacts."
+  },
+  "passing_final_checks": [
+    "strict affected CLI/harness Clippy",
+    "actual Rust 1.88 CLI/harness native and standalone/storage Wasm",
+    "formatting",
+    "Shared Rust installer Bash 5 and Linux-built Bash 3.2 substitutes",
+    "actual tool checks",
+    "offline retained-probe verification"
+  ],
+  "cleanup": "Owned local listeners, pipes, processes and PocketIC scopes close/drop; no external cleanup. Existing bundles, failed logs and compiled artifacts remain.",
+  "limitations": "Controlled test assertions/logs and frozen artifacts are retained; individual successful temporary test requests/bodies are not separately archived. This is not a deployed provider capture or service qualification. Native macOS, full gates and registry provisioning handoff remain separate.",
+  "full_gate_run": false,
+  "native_macos_new_source_qualified": false,
+  "named_runtime_symbols_removed": [],
+  "sibling_edits": false,
+  "agent_git_release_publication_effects": false
+}

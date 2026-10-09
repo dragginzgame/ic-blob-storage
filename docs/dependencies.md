@@ -4,7 +4,25 @@
 
 # Dependency setup
 
-## Current graph — released 0.18.5, pending 0.19.0
+## Current graph — released 0.19.2, pending 0.19.3
+
+All twelve members inherit workspace 0.19.2. The selected lock uses Host 0.8.8,
+Testkit 0.25.4, private Metrics 0.2.18, public Memory 0.31.10 and PocketIC 16.1.0.
+[The current adoption record](evidence/host0350193.md) owns focused Linux/runtime,
+MSRV and installer proof, source phases and outstanding native/full gates.
+Shared Tooling selects 93 canonical files at committed 0.1.35,
+`be550afa57fe9e16872e5110b5cd69c24b4fa9e8`. Existing IC bundles and source-bound
+receipts remain; Testkit provisioning awaits the coordinated owner handoff.
+
+Authorized dependency updates use their scoped registry/Git access under
+[the Cargo network policy](../rules/cargo-dependencies.md#cargo-network-policy).
+Do not impose offline mode on resolution; preserve explicit caller-selected
+offline settings. Locked cache preparation and offline validation remain separate.
+Published Cargo binary/example setup is available through the canonical
+[Rust installer](local-setup.md#consumer-selected-cargo-tools); current formatter
+tool commands continue using the fixed reviewed bundle.
+
+## Earlier graph — released 0.18.5, pending 0.19.0
 
 All 12 members inherit workspace **0.18.5**. Released source is
 `ab37a018e2050b3b06963938ceb78ebb385bb41c`; its receipt retains validated source

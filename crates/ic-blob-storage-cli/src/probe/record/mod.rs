@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 use std::{
     fs::{File, OpenOptions},
     io::Write,
-    path::Path,
+    path::{Path, PathBuf},
     time::{SystemTime, UNIX_EPOCH},
 };
 
@@ -83,22 +83,30 @@ pub(super) fn json<T: Serialize>(directory: &Path, name: &str, record: &T) -> Re
         &serde_json::to_vec_pretty(record).map_err(|_| "encode_record")?,
     )
 }
-pub(super) fn read(directory: &Path, name: &str, limit: usize) -> Result<Vec<u8>, String> {
-    if !std::fs::symlink_metadata(directory.join(name))
+fn record_path(directory: &Path, name: &str) -> Result<PathBuf, String> {
+    let path = directory.join(name);
+    if !std::fs::symlink_metadata(&path)
         .map_err(|_| "read_record")?
         .is_file()
     {
         return Err("record_not_file".into());
     }
-    #[cfg(unix)]
-    let result = ic_host_fs::read::read_file_no_follow(&directory.join(name), limit);
-    #[cfg(not(unix))]
-    let result = ic_host_fs::read::read_file(&directory.join(name), limit);
-    result.map_err(|error| match error {
+    Ok(path)
+}
+fn file_error(error: &ArtifactError) -> String {
+    match error {
         ArtifactError::LimitExceeded { .. } => "record_limit".into(),
         ArtifactError::NotRegularFile => "record_not_file".into(),
         _ => "read_record".into(),
-    })
+    }
+}
+pub(super) fn read(directory: &Path, name: &str, limit: usize) -> Result<Vec<u8>, String> {
+    let path = record_path(directory, name)?;
+    #[cfg(unix)]
+    let result = ic_host_fs::read::read_file_no_follow(&path, limit);
+    #[cfg(not(unix))]
+    let result = ic_host_fs::read::read_file(&path, limit);
+    result.map_err(|error| file_error(&error))
 }
 pub(super) fn decode<T: for<'de> Deserialize<'de>>(
     directory: &Path,
@@ -168,8 +176,17 @@ pub(super) fn verify(directory: &Path) -> Result<serde_json::Value, String> {
             return Err("invalid_response".into());
         }
         all_captured &= response.outcome == "captured";
-        let body = read(directory, &body_name, MAX_BODY)?;
-        if response.index != index || response.bytes != body.len() || response.sha256 != hash(&body)
+        let path = record_path(directory, &body_name)?;
+        // Body bytes are only counted and hashed. Host owns the bounded stream;
+        // retain the same file admission and error policy as decoded records.
+        #[cfg(unix)]
+        let body = ic_host_fs::read::hash_file_no_follow(&path, MAX_BODY as u64);
+        #[cfg(not(unix))]
+        let body = ic_host_fs::read::hash_file(&path, MAX_BODY as u64);
+        let body = body.map_err(|error| file_error(&error))?;
+        if response.index != index
+            || response.bytes as u64 != body.bytes
+            || response.sha256 != body.sha256.to_string()
         {
             return Err("artifact_mismatch".into());
         }

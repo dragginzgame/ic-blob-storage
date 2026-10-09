@@ -14,6 +14,23 @@ maintained release and open work.
 [acceptance plan](../../acceptance-plan.md) ·
 [service gaps](../../service-gaps.md)
 
+## Streaming probe verification and Host graph — 2026-10-09
+
+The [intent](local/2026-10-09-host0350193-01/intent.json),
+[final graph intent](local/2026-10-09-host0350193-01/final-graph-intent.json) and
+[summary](local/2026-10-09-host0350193-01/summary.json) bind final compiled 0.19.2 /
+pending 0.19.3 to Host 0.8.8, Testkit 0.25.4, private Metrics 0.2.18 and Memory
+0.31.10. Retained body verification streams through Host, preserving bounds,
+length/digest, redirected-file and incomplete/failed-run outcomes.
+
+Final native-host, strict affected lint and Rust 1.88 native/Wasm checks pass.
+The earlier 0.31.9 run, lint refusal, later missing-cache failure and original
+artifacts remain distinct; an intermediate probe-only intent was not dispatched.
+Eight explicit localhost probe GETs across two native runs, zero deployed provider
+requests or paid effects. [The adoption record](../host0350193.md) owns the full
+source/graph/artifact limits, including successful temporary body retention and
+outstanding native macOS/full gates. Owned local scopes close; no external cleanup.
+
 ## Two-user Chromium journey — 2026-10-09
 
 The [intent](local/2026-10-09-multi-user-browser0192-01/intent.json),

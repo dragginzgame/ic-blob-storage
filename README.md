@@ -260,7 +260,6 @@ scope; controller status does not grant tenant access.
 | `make test-native-host` | Native CLI/examples, actual installation and Metrics restoration probe |
 | `make browser-tools-check` | Offline exact Node/npm selection and browser manifest/lock declarations |
 | `make cloc` | Rust LOC and test-attribute counts for every Cargo workspace member; requires cloc and jq |
-| `make cloc-tooling` | Read-only sibling tooling inventory, separating matching shared snapshots from local code |
 
 Run focused checks during development. Full validation and release commands follow
 [development governance](docs/governance/development.md).

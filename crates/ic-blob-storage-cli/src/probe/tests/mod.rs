@@ -96,6 +96,32 @@ fn immutable_records_detect_tampering_and_incomplete_runs() {
     .unwrap();
     assert_eq!(record::verify(p).unwrap()["outcome"], "failed");
     assert!(record::save(p, "response-0.body", b"replacement").is_err());
+    // Retained-body verification admits empty/exact-limit bodies and preserves
+    // the existing typed size refusal independently of recorded length/digest.
+    for bytes in [Vec::new(), vec![b'x'; MAX_BODY], vec![b'x'; MAX_BODY + 1]] {
+        std::fs::write(p.join("response-0.body"), &bytes).unwrap();
+        let mut response: ResponseRecord = record::decode(p, "response-0.json").unwrap();
+        response.bytes = bytes.len();
+        response.sha256 = record::hash(&bytes);
+        std::fs::write(
+            p.join("response-0.json"),
+            serde_json::to_vec(&response).unwrap(),
+        )
+        .unwrap();
+        if bytes.len() > MAX_BODY {
+            assert_eq!(record::verify(p), Err("record_limit".into()));
+        } else {
+            assert_eq!(record::verify(p).unwrap()["outcome"], "failed");
+        }
+    }
+    #[cfg(unix)]
+    {
+        std::fs::remove_file(p.join("response-0.body")).unwrap();
+        std::os::unix::fs::symlink(p.join("response-0.json"), p.join("response-0.body")).unwrap();
+        assert_eq!(record::verify(p), Err("record_not_file".into()));
+        std::fs::remove_file(p.join("response-0.body")).unwrap();
+    }
+    assert!(record::save(p, "response-0.json", b"replacement").is_err());
     std::fs::write(p.join("response-0.body"), b"changed").unwrap();
     assert!(record::verify(p).is_err());
     assert!(capture(p).is_err());

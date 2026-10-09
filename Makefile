@@ -55,7 +55,6 @@ help:
 	@echo "install-rust-tools / rust-tools-check   Pinned repo-local Cargo tools setup / verification"
 	@echo "deps                         Fetch locked Rust dependencies (network)"
 	@echo "cloc                         Offline Rust runtime/test counts for every workspace member"
-	@echo "cloc-tooling                 Inventory local/shared tooling across sibling repositories"
 	@echo "test-funding-receipt-resources  Measure populated receipt confirmation and restore (opt-in)"
 	@echo "shared-tooling-check          Verify the reviewed shared snapshot offline"
 	@echo "shared-tooling-tests          Exercise shared digest, IC installer, lockfile and metadata refusals offline"
@@ -118,8 +117,6 @@ shared-tooling-tests:
 	bash scripts/ci/test-host-tools.sh
 	bash scripts/ci/test-rust-tools.sh
 	bash scripts/ci/test-tool-commands.sh
-	bash scripts/ci/test-cloc-tooling.sh
-	bash scripts/ci/test-cloc-siblings.sh
 	bash scripts/ci/test-cloc.sh
 
 tooling-evidence-check:

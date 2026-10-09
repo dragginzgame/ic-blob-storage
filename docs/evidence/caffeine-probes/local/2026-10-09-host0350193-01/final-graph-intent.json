@@ -1,0 +1,18 @@
+{
+  "evidence_class": "local_native_host_on_final_graph",
+  "reason": "Incoming lock changed to Memory 0.31.10 during checks; preserve it and qualify final source separately. Earlier native-host execution remains on 0.31.9; borrow-correction-only probe intent was not dispatched.",
+  "compiled_package_version": "0.19.2",
+  "lock_sha256": "de6a66cf41ce453c224960a2c752d50a28913f4e692249145f5db11916c4dab1",
+  "commands": [
+    "make test-native-host",
+    "strict affected lint",
+    "Rust 1.88 native/Wasm checks"
+  ],
+  "budget": {
+    "native_host_executions": 1,
+    "local_probe_gets": 4,
+    "live_provider_requests": 0,
+    "paid_effects": 0
+  },
+  "source_review": "Memory owner diff shows no packaged runtime source or crate-manifest change from 0.31.9 to 0.31.10; this is source evidence, not relabelling earlier runtime tests."
+}

@@ -1,5 +1,30 @@
 # Changelog
 
+## [0.19.3]
+
+### Removed
+
+- Remove the unused service-core dependency from private test protocol DTOs,
+  retaining their contracts dependency and the core dependencies of actual
+  consumers. [#38](https://github.com/dragginzgame/ic-blob-storage/issues/38).
+- Retire unused fleet reporters and their dedicated consumer tests. Local
+  workspace `make cloc` and tool setup/check remain available; fleet inventories
+  run from Shared Tooling.
+  [#37](https://github.com/dragginzgame/ic-blob-storage/issues/37).
+
+### Changed
+
+- Refresh Shared Tooling to reviewed 0.1.35, including optional fleet reports,
+  selected Cargo tool installation and explicit dependency-preparation guidance.
+  [Shared Tooling #83](https://github.com/dragginzgame/shared-tooling/issues/83),
+  [#65](https://github.com/dragginzgame/shared-tooling/issues/65),
+  [#84](https://github.com/dragginzgame/shared-tooling/issues/84).
+- Use Host 0.8.8's bounded streaming hash for retained probe bodies, avoiding a
+  complete body buffer while preserving exact length/digest and refusal checks.
+  [Host #33](https://github.com/dragginzgame/ic-host-tooling/issues/33).
+- Align private Host/Testkit/Metrics selections at 0.8.8/0.25.4/0.2.18 and public
+  Memory at patch 0.31.10, retaining the public 0.31 contract.
+
 ## [0.19.2] - 2026-10-09
 
 ### Fixed

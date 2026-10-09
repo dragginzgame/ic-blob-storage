@@ -6,7 +6,59 @@
 
 Date: 2026-10-09
 
-## Current continuation — released 0.19.1, pending 0.19.2
+## Current continuation — released 0.19.2, pending 0.19.3
+
+- Remove the four unused fleet reporters/tests, their snapshot records and local
+  callers under [#37](https://github.com/dragginzgame/ic-blob-storage/issues/37).
+  The initial 0.1.34 adoption resolves the earlier dirty-upstream blocker;
+  the current snapshot advances to committed 0.1.35,
+  `be550afa57fe9e16872e5110b5cd69c24b4fa9e8`. The snapshot now selects 93 files,
+  with 640 measured
+  code lines removed. Local workspace LOC and tool setup/check remain available.
+- [Cleanup evidence](../evidence/fleet-cleanup0193.md) owns removed symbols,
+  provenance and focused checks. Common command/local LOC fixtures pass under
+  Bash 5 and Linux-built Bash 3.2; actual local LOC/tool checks, snapshot,
+  declarations, shell lint, links and whitespace pass. #37 awaits committed
+  consumer native qualification; no full gate or new native macOS claim.
+- Released base `59230ee017dcbf9ff38c19f389b0bb03e750852a`, validated source
+  `4a7639b9186515d332220ff02b423866ba02cc38`, remains 0.19.2 in Cargo/receipt.
+  Its [CI run](https://github.com/dragginzgame/ic-blob-storage/actions/runs/37901765903)
+  passes MSRV, Linux, Intel macOS and Apple Silicon at the follow-up read.
+  This run does not qualify the dirty continuation. Pending
+  0.19.3 is compatible internal tooling/dependency cleanup; product contracts
+  are unchanged.
+- [#38](https://github.com/dragginzgame/ic-blob-storage/issues/38): remove the
+  unused protocol-to-core dependency and lock edge. [Its separate evidence](../evidence/protocol-dependency0193.md)
+  owns successful native/Wasm protocol and consumer compilation, actual Rust 1.88,
+  strict protocol lint and exact incoming-lock preservation. No Rust symbol is
+  removed. The initial missing-cache failure is retained before explicit locked
+  preparation; no lifecycle/provider probe or build-speed gain is claimed.
+- [Current Host/shared adoption](../evidence/host0350193.md) uses Host 0.8.8's
+  streaming hash for retained probe bodies, preserving exact length/digest,
+  file limits and refusal codes. Shared 0.1.35 adds selected Cargo installation
+  and explicit network/cache guidance; ordinary validation remains offline.
+  Retain the buffered child reader and current six-tool PocketIC provisioning
+  until the owner handoff is qualified. No additional named symbol is removed.
+- The qualified lock selects Host 0.8.8, private Metrics 0.2.18, Testkit 0.25.4
+  and Memory 0.31.10. Final Linux native-host passes 242 cases, strict affected
+  lint, actual Rust 1.88 native/Wasm and formatting. Shared installer fixtures
+  pass Bash 5/Linux-built Bash 3.2; actual tools and retained-probe checks pass.
+  Earlier Memory 0.31.9 runtime and lint/cache failures retain separate captures;
+  the Memory runtime source is unchanged but evidence is not relabelled.
+  New native macOS/full gate remain outstanding. #31/#33 retain application/provider
+  acceptance and #32 GC evidence; no sibling edit, live/paid provider effect,
+  agent commit, push, release or publication occurs.
+- Follow-up inspection observes incoming lock edits selecting all four Host
+  crates at 0.8.9; no other package differs from the retained qualified lock.
+  Host's owner diff changes release preflight, not Rust runtime sources; the
+  earlier 242-case result remains bound to 0.8.8. Fresh focused checks of the
+  incoming selection remain outstanding. Shared Tooling is still 0.1.35.
+  Testkit has tagged 0.25.5; its opt-in idle lifetime is unnecessary for the
+  current immediate server-to-client startup, so this inspection leaves 0.25.4
+  selected. #37/#38 still await committed native consumer acceptance; provider
+  and application qualification issues retain their existing evidence owners.
+
+## Earlier continuation — released 0.19.1, pending 0.19.2
 
 - Released base is `5f2d171b1b01e0dc3b0047f00c194a9afe874642`, validated
   source `f0192506d0a71a3f4116220db1f6d901947ba74a`. Its exact

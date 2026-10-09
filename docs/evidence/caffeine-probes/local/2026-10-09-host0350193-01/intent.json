@@ -1,0 +1,24 @@
+{
+  "evidence_class": "local_native_host_and_pocketic_substitutes",
+  "released_base": "59230ee017dcbf9ff38c19f389b0bb03e750852a",
+  "compiled_package_version": "0.19.2",
+  "pending_version": "0.19.3",
+  "selected_lock_sha256": "3d565a0298e9d61ea3ec0aa128ea655f0375e037a2367f93d1b03856bca25529",
+  "shared_source": "be550afa57fe9e16872e5110b5cd69c24b4fa9e8",
+  "targets": [
+    "maintained CLI/contracts/examples tests on Linux",
+    "two standalone installation carrier cases",
+    "one storage Metrics restoration-read case",
+    "buffered child-response regression"
+  ],
+  "budget": {
+    "native_host_command_executions": 1,
+    "buffered_regression_command_executions": 1,
+    "public_http_probe_case_executions": 1,
+    "public_http_probe_local_gets": 4,
+    "live_provider_requests": 0,
+    "deployed_paid_cycles": 0
+  },
+  "scope": "Existing maintained local fixtures with their fixed source bounds; no Chromium or deployed provider probe. Explicitly selected local PocketIC server; retain failures and outputs before any rerun.",
+  "cleanup": "Harness owns local listeners, children and PocketIC scopes; preserve prior bundles, build outputs and evidence."
+}
