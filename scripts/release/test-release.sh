@@ -55,7 +55,7 @@ create_fixture() {
         "$ROOT/scripts/ci/check-format-tools.sh" "$FIXTURE/scripts/ci/"
     cp "$ROOT/ci/tool-versions.env" "$FIXTURE/ci/"
     cp "$ROOT/Makefile" "$FIXTURE/Makefile"
-    cp "$ROOT/make/tools.mk" "$FIXTURE/make/"
+    cp "$ROOT/make/tools.mk" "$ROOT/make/release.mk" "$ROOT/make/rust-format.mk" "$FIXTURE/make/"
     cd "$FIXTURE"
     cat >> Makefile <<'MAKE'
 CI_TARGETS := fixture-verify

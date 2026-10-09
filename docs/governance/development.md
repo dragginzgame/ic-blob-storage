@@ -113,6 +113,11 @@ reviewed Makefile, explicit parse-time inputs and the direct-delivery admission
 adapter into a private fixture,
 then uses a substitute runner. `make release-check` includes that shared routing
 check and retains the repository's metadata, publication and recovery fixtures.
+The reviewed `make/release.mk` owns standard entrypoint recipes and conflicting
+goals; Blob attaches direct-delivery admission to all four entrypoints. The
+reviewed `make/rust-format.mk` owns root-workspace formatting and its prerequisite
+check. All isolated Make/hook/release fixtures include these inputs; product
+validation, metadata exports, tool setup and publication remain local.
 The [snapshot adoption record](../evidence/shared-tooling-0181.md) qualifies the
 current direct-delivery adapter and changed shared helpers. The
 [fixture ownership map](../evidence/release-fixture-ownership.md) records

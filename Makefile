@@ -6,6 +6,8 @@ export CARGO_TARGET_DIR := $(CURDIR)/target
 IC_TOOL_PINS ?= ci/ic-tools.tsv
 HOST_TOOL_VERSIONS ?= ci/tool-versions.env
 include make/tools.mk
+include make/release.mk
+include make/rust-format.mk
 export BLOB_AUTHORITY_PROBE_WASM := $(CARGO_TARGET_DIR)/wasm32-unknown-unknown/release/blob_authority_probe.wasm
 export BLOB_ADMISSION_PROBE_WASM := $(CARGO_TARGET_DIR)/wasm32-unknown-unknown/release/blob_admission_probe.wasm
 export BLOB_STORAGE_PROBE_WASM := $(CARGO_TARGET_DIR)/wasm32-unknown-unknown/release/blob_storage_probe.wasm
@@ -20,27 +22,21 @@ export BLOB_BROWSER_NPM ?= npm
 BLOB_SDK_INPUTS_BYTES ?= 10485760
 VERSION ?=
 RELEASE := bash scripts/release/release.sh
-RELEASE_REMOTE ?= origin
-RELEASE_BRANCH ?= main
 export RELEASE_DELIVERY ?= direct
 export PUBLISH_PACKAGE
 export RELEASE_KIND RELEASE_PREVIOUS RELEASE_VERSION RELEASE_DATE RELEASE_SOURCE RELEASE_COMMIT RELEASE_REMOTE RELEASE_BRANCH
 SHELLCHECK ?= shellcheck
 CI_TARGETS := shared-tooling-check tools-check dependency-pins-check documentation-links-check shared-tooling-tests deps contracts-boundary-check shell-check release-check hooks-check fmt-check check clippy probe-check docs-check test wasm-check package
 
-.PHONY: help version deps cloc shared-tooling-check dependency-pins-check fmt fmt-check check clippy docs-check test test-native test-pocketic test-browser test-browser-store test-browser-transport test-browser-standalone test-sdk-probe test-sdk-inputs test-fixture test-standalone build-standalone test-admission-resources test-read-resources test-funding-receipt-resources wasm-check \
+.PHONY: help version deps cloc shared-tooling-check dependency-pins-check check clippy docs-check test test-native test-pocketic test-browser test-browser-store test-browser-transport test-browser-standalone test-sdk-probe test-sdk-inputs test-fixture test-standalone build-standalone test-admission-resources test-read-resources test-funding-receipt-resources wasm-check \
 	build package clean shell-check release-check probe-check ci validate release-verify test-browser-publication test-browser-bootstrap test-browser-launcher test-browser-native \
-	release-plan ensure-clean release-delivery-check release-patch release-minor release-major release-resume \
+	release-plan ensure-clean release-delivery-check \
 	release-version release-preflight release-prepare-version release-prepared-check release-files \
 	release-commit-check release-committed-check release-tagged-check release-push-check \
-	release-tag-check publish publish-dry-run install-hooks format-tools-check release-tools-check hooks-check evidence-check
+	release-tag-check publish publish-dry-run install-hooks release-tools-check hooks-check evidence-check
 .PHONY: test-hard-cut test-native-host msrv-check tasks install-tools tools-check install-host-tools host-tools-check install-ic-tools ic-tools-check
 .PHONY: contracts-boundary-check documentation-links-check release-commands-check shared-tooling-tests tooling-evidence-check
 .PHONY: install-testkit testkit-check
-
-ifneq ($(word 2,$(filter release-patch release-minor release-major release-resume,$(MAKECMDGOALS))),)
-$(error Select exactly one release target)
-endif
 
 help:
 	@echo "release-tools-check          Check ShellCheck, pinned cargo-sort and rustfmt without building"
@@ -133,16 +129,13 @@ documentation-links-check:
 		xargs -0 perl scripts/ci/check-documentation-links.pl --root . *.md
 
 release-commands-check:
-	bash scripts/ci/check-release-commands.sh "$(CURDIR)" Cargo.toml scripts/release/release.sh scripts/release/release-data.pl make/tools.mk
+	bash scripts/ci/check-release-commands.sh "$(CURDIR)" Cargo.toml scripts/release/release.sh scripts/release/release-data.pl make/tools.mk make/release.mk make/rust-format.mk
 
 dependency-pins-check:
 	@set -e; node_version="$$(cat tests/browser/.nvmrc)"; \
 		npm_version="$$(jq -er '.packageManager | capture("^npm@(?<version>[0-9]+\\.[0-9]+\\.[0-9]+)$$").version' tests/browser/package.json)"; \
 		bash scripts/ci/check-dependency-pins.sh --cargo-inheritance \
 			--npm-root tests/browser --node-version "$$node_version" --npm-version "$$npm_version"
-
-format-tools-check:
-	@source ci/tool-versions.env; bash scripts/ci/check-format-tools.sh "$$SHARED_TOOLING_CARGO_SORT_VERSION"
 
 release-tools-check: format-tools-check
 	@command -v "$(SHELLCHECK)" >/dev/null 2>&1 && "$(SHELLCHECK)" --version >/dev/null 2>&1 || { echo "Prepare ShellCheck: sudo apt-get install shellcheck (Debian/Ubuntu) or brew install shellcheck (macOS)." >&2; echo "Select an existing executable with SHELLCHECK=/absolute/path/to/shellcheck." >&2; exit 1; }
@@ -152,14 +145,6 @@ install-hooks:
 
 hooks-check:
 	bash scripts/ci/check-format-hooks.sh
-
-fmt: format-tools-check
-	cargo sort --workspace
-	cargo fmt --all
-
-fmt-check: format-tools-check
-	cargo sort --workspace --check
-	cargo fmt --all -- --check
 
 contracts-boundary-check:
 	bash scripts/ci/check-runtime-free-contracts.sh
@@ -363,11 +348,7 @@ ensure-clean:
 release-delivery-check:
 	@$(RELEASE) delivery-check
 
-release-patch release-minor release-major: release-delivery-check
-	+@bash scripts/ci/run-release.sh "$(@:release-%=%)" "$(RELEASE_REMOTE)" "$(RELEASE_BRANCH)"
-
-release-resume: release-delivery-check
-	+@bash scripts/ci/run-release.sh resume "$(VERSION)" "$(RELEASE_REMOTE)" "$(RELEASE_BRANCH)"
+release-patch release-minor release-major release-resume: release-delivery-check
 
 release-version:
 	@$(RELEASE) version

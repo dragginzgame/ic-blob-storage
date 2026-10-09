@@ -1,5 +1,29 @@
 # Changelog
 
+## [0.21.2]
+
+### Fixed
+
+- Read back CI evidence through the pinned action's authenticated REST path,
+  scoped to the current repository/run and exact uploaded artifact ID. Preserve
+  digest rejection and the separate archive checksum check after internal lookup
+  returned no matches for a successfully uploaded artifact.
+  [#43](https://github.com/dragginzgame/ic-blob-storage/issues/43),
+  [Shared #93](https://github.com/dragginzgame/shared-tooling/issues/93).
+
+### Changed
+
+- Adopt Shared Tooling 0.2.6's release and Rust formatting Make includes,
+  replacing repeated recipes while preserving direct-delivery admission,
+  metadata exports and all twelve members' formatter coverage. Formatting
+  resolves prepared Cargo through the exported recipe PATH.
+  [#42](https://github.com/dragginzgame/ic-blob-storage/issues/42),
+  [Shared #91](https://github.com/dragginzgame/shared-tooling/issues/91),
+  [#92](https://github.com/dragginzgame/shared-tooling/issues/92).
+- Select ic-memory 0.33.2 with unchanged runtime sources and dependency edges.
+- Select Host artifacts/fs/process/tools 0.9.4 with unchanged runtime sources
+  and dependency edges, preserving the existing file/process delegation.
+
 ## [0.21.1] - 2026-10-09
 
 ### Fixed

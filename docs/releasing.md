@@ -44,10 +44,10 @@ usable minimum and stored schemas remain unchanged. Shared Tooling's upstream
 exporter fixture is omitted from the 92-file snapshot and consumer gate; actual
 snapshot verification and native adoption acceptance remain required.
 
-Pending 0.21.1 selects Memory 0.33.1 and private Metrics 0.3.2 with unchanged
+Released 0.21.1 selects Memory 0.33.1 and private Metrics 0.3.2 with unchanged
 runtime sources and dependency edges; focused qualification is recorded in
 [the patch record](evidence/libraries0211.md).
-The same pending batch adopts Shared Tooling 0.2.5's hook path/read fixes;
+The same release adopts Shared Tooling 0.2.5's hook path/read fixes;
 formatter and installation qualification is separate in
 [the Shared record](evidence/shared0250211.md).
 The later incoming Testkit 0.27.1 patch also has unchanged runtime sources.
@@ -55,6 +55,16 @@ Run `make install-testkit` explicitly for its lock-selected CLI, then
 `make testkit-check`; the authenticated server and old CLI slots remain.
 [Its separate record](evidence/testkit0271-0211.md) owns final-graph qualification.
 These patches introduce no public contract change.
+
+Pending 0.21.2 selects Memory 0.33.2, Host 0.9.4 and Shared Tooling 0.2.6.
+[The Host record](evidence/host0940212.md) qualifies the subsequent unchanged
+runtime patch graph separately from the initial Shared/Memory checks. The reviewed
+`make/release.mk` owns standard entrypoints/conflicting-goal refusal, with Blob's
+direct-delivery admission attached to all four targets. `make/rust-format.mk`
+owns the simple twelve-member workspace formatter and existing pin check.
+Metadata, validation, cache preparation and publication remain consumer-owned.
+See [the continuation record](evidence/shared0260212.md), including the separate
+CI artifact transport repair and outstanding hosted acceptance.
 
 Hook installation is local to this clone and refuses to replace existing hook
 obligations. `release-plan` previews arithmetic and selected branch/remote without
@@ -105,7 +115,7 @@ do not bypass the runner's saved intent or reuse validation from another source.
 From committed clean source on the selected branch:
 
 ```bash
-make release-patch # Pending compatible 0.21.1 maintenance.
+make release-patch # Pending compatible 0.21.2 maintenance.
 # Or select release-minor / release-major for the complete batch's compatibility.
 ```
 

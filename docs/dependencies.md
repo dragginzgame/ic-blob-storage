@@ -4,7 +4,25 @@
 
 # Dependency setup
 
-## Current graph — released 0.21.0, pending 0.21.1
+## Current graph — released 0.21.1, pending 0.21.2
+
+All twelve members retain workspace 0.21.1 and its finalized release receipt.
+Preserve incoming Memory 0.33.2 with unchanged runtime sources/original manifest
+and dependency edges. The later incoming Host artifacts/fs/process/tools 0.9.4
+selection has separately qualified unchanged runtime sources and dependency
+edges in [the Host record](evidence/host0940212.md). Testkit 0.27.1, private
+Metrics 0.3.2 and PocketIC client 16.1.0 remain unchanged. No additional CLI/server
+installation is required; existing Testkit-owned checks remain.
+
+Shared Tooling selects 94 files from committed 0.2.6,
+`ce13a5314916891fd239d9b199b4a91b04775054`, adding the optional release and
+root-workspace formatting Make owners. Existing consumer admission, pin/toolchain
+selection and all twelve Cargo members remain covered. The
+[continuation record](evidence/shared0260212.md) separates tooling qualification,
+Memory patch proof and the released CI artifact-readback defect. Previous evidence
+retains its original graph and source.
+
+## Earlier graph — released 0.21.0, pending 0.21.1
 
 All twelve members retain workspace 0.21.0 and its finalized release receipt.
 The preserved incoming lock selects public Memory 0.33.1 and private Metrics

@@ -6,7 +6,44 @@
 
 Date: 2026-10-09
 
-## Current continuation — released 0.21.0, pending 0.21.1
+## Current continuation — released 0.21.1, pending 0.21.2
+
+- Released HEAD is `122fe02f465c003b2b40c4c803579d85599c5d4e`, validated source
+  `9ac5cc7527fe2a7da5f9a1d63eb5b3af53fa3e60`. All twelve package versions
+  and the finalized receipt remain 0.21.1. Preserve incoming Memory 0.33.2;
+  runtime sources/dependency edges are unchanged. The subsequent incoming Host
+  artifacts/fs/process/tools 0.9.4 selection is qualified separately in
+  [the Host record](../evidence/host0940212.md): nine focused file/process cases
+  and Rust 1.88 CLI/harness targets/features pass. Published sources and edges
+  are unchanged; no new helper justifies additional Blob code removal. Private
+  Metrics stays 0.3.2 and Testkit 0.27.1. Earlier records keep their original graphs.
+- [The continuation record](../evidence/shared0260212.md) adopts committed Shared
+  0.2.6 `ce13a5314916891fd239d9b199b4a91b04775054`, selecting 94 files.
+  Common release/format Make includes replace equivalent local wiring under
+  [#42](https://github.com/dragginzgame/ic-blob-storage/issues/42); retain all four
+  direct-delivery admission prerequisites, metadata exports, product validation
+  and complete member coverage. Isolated fixture inventories include the new
+  Make inputs. Owner suites and consumer routing/hooks/formatting pass Bash 5
+  and Linux-built Bash 3.2; local release adapters pass Bash 5. Eleven focused
+  storage cases and Rust 1.88 core/standalone native/Wasm checks pass for Memory.
+- Released 0.21.1 [CI](https://github.com/dragginzgame/ic-blob-storage/actions/runs/37943494759)
+  passes MSRV, but Linux failed artifact lookup before tools/native qualification;
+  both macOS jobs remain queued. REST inspection downloaded the exact uploaded
+  ID with its matching ZIP digest. The local workflow repair selects the pinned
+  action's authenticated REST path with read-only Actions permission and exact
+  repository/run/ID; keep both digest and archive-byte checks.
+  [#43](https://github.com/dragginzgame/ic-blob-storage/issues/43) owns subsequent
+  hosted transport/native acceptance; [Shared #93](https://github.com/dragginzgame/shared-tooling/issues/93)
+  owns fleet feedback. The internal lookup discrepancy's cause remains unproven.
+- Pending 0.21.2 is compatible tooling/dependency work. No public API/schema,
+  endpoint/lifecycle ownership or provider policy change. Dirty source has no
+  hosted/full-gate result; #39/#40 retain their committed native requirements.
+  Application/provider, GC and funding requirements remain with #31/#33, #32
+  and #34. Canic's #41 feedback resolves the published Memory 0.33 prerequisite,
+  not actual application/provider acceptance. No sibling edit, live/paid effect,
+  agent commit, push, release or publication.
+
+## Earlier continuation — released 0.21.0, pending 0.21.1
 
 - Released HEAD is `cea2d0f2740e0874a107a6a5e1c75a533b49e94b`, validated source
   `68822abb28d306c975fef90acbacecd07cd9b2cc`. All twelve package versions and
