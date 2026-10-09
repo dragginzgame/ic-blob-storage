@@ -66,12 +66,17 @@ Metadata, validation, cache preparation and publication remain consumer-owned.
 See [the continuation record](evidence/shared0260212.md), including the separate
 CI artifact transport repair and outstanding hosted acceptance.
 
-Pending 0.21.3 adopts Shared Tooling 0.2.7's adjacent Make execution companion
+Released 0.21.3 adopts Shared Tooling 0.2.7's adjacent Make execution companion
 and isolated release/hook qualification fixes. Unsafe Make modes are rejected
 before recipes; consumer fixture inventories include the companion and probe.
-See [the adoption record](evidence/shared0270213.md). Preserve the incoming
-Memory 0.33.3 and private Metrics 0.3.3 edits separately; this tooling evidence
-does not qualify their runtime.
+See [the adoption record](evidence/shared0270213.md), which remains bound to
+its original tooling-only qualification.
+
+Pending compatible 0.21.4 adopts Shared Tooling 0.2.8's selected-snapshot Make
+admission and recursive-command fixes. Preserve the incoming Host 0.9.7 and
+private Metrics 0.3.4 lock updates; focused graph qualification is recorded in
+[the continuation record](evidence/upstream0214.md). Package versions and the
+finalized receipt remain 0.21.3. No additional setup or public hard cut is required.
 
 Hook installation is local to this clone and refuses to replace existing hook
 obligations. `release-plan` previews arithmetic and selected branch/remote without

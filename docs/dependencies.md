@@ -4,7 +4,23 @@
 
 # Dependency setup
 
-## Current graph — released 0.21.2, pending 0.21.3
+## Current graph — released 0.21.3, pending 0.21.4
+
+All twelve members and the finalized receipt remain 0.21.3. The preserved
+incoming lock selects all four Host crates at 0.9.7 and private Metrics 0.3.4;
+Memory 0.33.3, Testkit 0.27.2 and PocketIC 16.1.0 remain selected. Published
+archives match the lock and committed owner sources. Dependency edges are
+unchanged. Host consolidates its text hex decoder without changing response
+formats or public APIs; the other reviewed patches leave runtime sources unchanged.
+
+Shared Tooling selects 95 files from committed 0.2.8
+`b2646cde9abbc8861857a4379c683a0c19eba43e`. The
+[continuation record](evidence/upstream0214.md) binds Make/hook qualification,
+focused native cases and Rust 1.88 native/Wasm checks to this graph. Locked cache
+preparation downloads only the missing selected archive; no resolver update or
+CLI/server replacement occurs. The existing Testkit-owned offline check passes.
+
+## Earlier graph — released 0.21.2, pending 0.21.3
 
 All twelve members and the finalized receipt remain 0.21.2. The incoming lock
 selects Memory 0.33.3 and subsequently private Metrics 0.3.3; preserve them, but

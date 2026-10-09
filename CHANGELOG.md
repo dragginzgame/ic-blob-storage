@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.21.4]
+
+### Fixed
+
+- Adopt Shared Tooling 0.2.8 so Make admission uses the selected snapshot even
+  with an inherited tooling root or recursive `MAKE` arguments. Preserve
+  rejection of modes that skip recipes or hide failures.
+  [#44](https://github.com/dragginzgame/ic-blob-storage/issues/44),
+  [Shared #30](https://github.com/dragginzgame/shared-tooling/issues/30).
+
+### Changed
+
+- Select Host artifacts/fs/process/tools 0.9.7, retaining existing bounded
+  file/process delegation and response formats.
+- Select private ic-metrics 0.3.4 with unchanged arithmetic and dependency edges.
+
 ## [0.21.3] - 2026-10-09
 
 ### Fixed

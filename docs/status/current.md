@@ -6,7 +6,34 @@
 
 Date: 2026-10-09
 
-## Current continuation — released 0.21.2, pending 0.21.3
+## Current continuation — released 0.21.3, pending 0.21.4
+
+- Released HEAD is `6045ad3ada915b771e0ba6d40ac880da43ea675e`, validated source
+  `f29448c08b4df1215491e6b6d0a00a94e57bfdfb`. All twelve package versions and
+  the finalized receipt remain 0.21.3. Preserve the incoming Host 0.9.7 and
+  private Metrics 0.3.4 lock selections. Memory 0.33.3, Testkit 0.27.2 and
+  PocketIC 16.1.0 are unchanged from the released graph.
+- [The continuation record](../evidence/upstream0214.md) adopts all 95 files
+  canonically from committed Shared 0.2.8
+  `b2646cde9abbc8861857a4379c683a0c19eba43e`. Make admission selects the helper
+  beside its reviewed include and admits recursive `MAKE` arguments while
+  preserving unsafe-mode refusal. Dirty sibling work is excluded.
+- Owner Make/routing/hooks pass Bash 5 and Linux-built Bash 3.2; actual consumer
+  routing/hooks/format checks pass both, with full local release adapters on
+  Bash 5. Twenty focused file/process/storage cases and Rust 1.88 native/Wasm
+  checks pass on the selected graph; captured compiler inputs remain unchanged.
+  No additional Blob code removal is justified by the upstream APIs.
+- Released 0.21.3 [CI](https://github.com/dragginzgame/ic-blob-storage/actions/runs/37956676496)
+  passes Linux/MSRV, including artifact readback and native qualification;
+  both macOS jobs remain queued. Dirty 0.21.4 has no hosted/full-gate result.
+  [#44](https://github.com/dragginzgame/ic-blob-storage/issues/44) retains native
+  acceptance. [#45](https://github.com/dragginzgame/ic-blob-storage/issues/45)
+  awaits the proposed Shared registry contract. Existing provider/application
+  acceptance remains with its owning issues. Pending 0.21.4 is compatible:
+  no public API/schema/provider change, sibling edit, agent commit, push,
+  release, publication or paid/live provider effect.
+
+## Earlier continuation — released 0.21.2, pending 0.21.3
 
 - Released HEAD is `91d34896b70d3d746127cb043a726b1177fbae7d`, validated source
   `7119fd6881347ef19ddd58c26cb6a092918fd58a`. All twelve package versions and
