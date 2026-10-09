@@ -6,38 +6,53 @@
 
 Date: 2026-10-09
 
-## Current continuation — released 0.19.3, pending 0.19.4
+## Current continuation — released 0.19.3, pending 0.20.0
 
-- Released HEAD is `a2081319dee7e23e20e6ce587437edba73549258`, with validated
-  source `2ed6ef5a369ee4951f3a188c279ef2133e1a5342`. Cargo and the receipt remain
-  0.19.3. The actual released lock selects Host 0.8.9, Testkit 0.25.5, private
-  Metrics 0.2.18, public Memory 0.31.10 and PocketIC 16.1.0; earlier evidence and
-  finalized notes retain their original selections.
-- Adopt 93 canonical files from committed Shared Tooling's 0.1.38 fix,
-  `926a20606591214ab29faa236b0b584e4857439e`. Hooks find prepared checkout tools
-  without an interactive PATH export. Cargo tool installation rejects conflicting
-  JSON receipts and redirected ancestors, retaining failed build status/evidence.
-  [The initial record](../evidence/shared0370194.md) owns hook/installer checks.
-  [The exception follow-up](../evidence/shared0380194.md) owns the current revision:
-  pinning exceptions must contain exactly one validated JSON array. Dependency
-  fixtures pass Bash 5/Linux-built Bash 3.2; npm exception checks pass. The
-  canonical exporter uses an isolated clean checkout, excluding the sibling's
-  uncommitted VERSION change; committed identity remains the snapshot authority.
-- Hook/installer fixtures pass Bash 5 and Linux-built Bash 3.2; actual consumer
-  formatting, rollback, Make-mode refusal and lock preservation pass. Pending
-  0.19.4 is compatible developer tooling only. Dependencies, service contracts,
-  package versions and release receipt are unchanged by this continuation.
-- Released [CI](https://github.com/dragginzgame/ic-blob-storage/actions/runs/37910255607)
-  passes MSRV and Linux; Apple Silicon is running and Intel macOS is queued at
-  this read. Adopted Shared CI passes Linux/lint; both macOS lanes are queued.
-  [#37](https://github.com/dragginzgame/ic-blob-storage/issues/37) and
-  [#38](https://github.com/dragginzgame/ic-blob-storage/issues/38) remain open for
-  committed native acceptance. This released run does not qualify dirty 0.19.4.
-- Keep the functioning six-tool IC bundle until Shared #76's coordinated
-  retirement and native Testkit provisioning acceptance. Separate dirty sibling
-  work is excluded. Application/provider acceptance still belongs to #31/#33,
-  GC behavior to #32, and funding evidence to #34. No full gate, sibling edit,
-  live/paid provider effect, commit, push, release or publication occurs here.
+- Current implementation base is `9a5173d365d2c11889ea2e813c9645ab366fbffe`;
+  finalized release/receipt remain 0.19.3 at
+  `a2081319dee7e23e20e6ce587437edba73549258`. The entire former 0.19.4 draft
+  moves to 0.20.0 because developer setup loses the shared PocketIC path and
+  requires explicit Testkit setup and five-tool bundle replacement. Service APIs,
+  DTOs and durable data are unchanged; Cargo package versions stay 0.19.3.
+- Adopt the same 93 canonical files from committed Shared 0.2.2
+  `ee48bb37c98c771e77b92fd891f0757d8c1c8b99`. `make install-tools` prepares
+  the five-tool IC bundle and lock-selected Testkit CLI/server; `tools-check`
+  checks both offline. PocketIC Make callers default to the authenticated path
+  before dispatch; explicit binary overrides retain caller-owned admission.
+  Per-instance server ownership and drop order are preserved.
+  No retired checker is restored or second server catalog introduced.
+- The approved final graph selects all four Host crates at 0.9.1, Testkit 0.26.0,
+  public Memory 0.32.0 and private Metrics 0.3.0. Align Memory type identity and
+  rebuild; its runtime schemas and Metrics arithmetic remain unchanged. Registry
+  archives and Rust/original manifests match owner revisions. Unrelated Windows
+  bindings remain at incoming selections.
+- [The initial hard-cut record](../evidence/pocketic-handoff0200.md) owns setup intent,
+  old six-tool refusal, explicit official replacement, all old receipt-covered
+  bytes preserved, real pathless offline Testkit check and earlier graph evidence.
+  [The coordinated record](../evidence/coordinated-hardcut0200.md) owns final graph
+  qualification: all 242 native-host cases, strict affected lint and Rust 1.88
+  native/Wasm pass with 13,919 frozen inputs unchanged. The intermediate graph
+  drift and pre-test interruption remain separately retained.
+  Shared IC and consumer routing fixtures pass Bash 5/Linux-built Bash 3.2;
+  failure collection retains Testkit CLI/server candidates and historical roots.
+- [Released CI](https://github.com/dragginzgame/ic-blob-storage/actions/runs/37910255607)
+  passes MSRV/Linux/both native macOS hosts; #37/#38 are closed for their prior
+  committed fixes. It does not qualify dirty 0.20.0. [#39](https://github.com/dragginzgame/ic-blob-storage/issues/39)
+  owns the new handoff's committed native acceptance. Adopted Shared/Host CI is
+  queued; selected Testkit CI is also queued. Full release validation remains
+  outstanding. Earlier proof records
+  retain their original source, package graph and limits.
+- Application/provider acceptance remains with #31/#33, GC behavior with #32,
+  and real funding evidence with #34. Sixteen explicit local probe GETs across
+  four completed local qualifications, zero
+  deployed/paid effects. Owned local scopes close, old bundles/failures remain;
+  no sibling edit, agent commit, push, release or publication occurs.
+- [Host reuse follow-up](../evidence/host091-reuse0200.md): Host 0.9.1 remains the
+  latest reviewed published source. Replace private fixture inventory read and
+  resource artifact write/sync implementations with its existing owners. Five
+  focused local-file cases, strict harness lint and Rust 1.88 native compilation
+  pass; Cargo files and graph are unchanged. No named symbol is removed and no
+  HTTP/IC lifecycle/provider effect occurs. Earlier runtime proof remains separate.
 
 ## Earlier continuation — released 0.19.2, pending 0.19.3
 

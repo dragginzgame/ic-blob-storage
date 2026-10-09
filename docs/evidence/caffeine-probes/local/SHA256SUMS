@@ -304,3 +304,11 @@ eed7b43e09583881dd3ad157bd87fa58e65b1308f6b36b7ac207d2eef75a45b8  docs/evidence/
 c0e81ced7fc3b54df179799c2baad8598bf2d0cf261d341e57ce414758c89a44  docs/evidence/caffeine-probes/local/2026-10-09-host0350193-01/final-graph-intent.json
 e5eed83d04b8e5991fa2e546d007af3321046e273272ec6d2dfc79e2788c9184  docs/evidence/caffeine-probes/local/2026-10-09-host0350193-01/intent.json
 3e47d6885f6e2886c4ab0fe130789a65982c169c3dca4aca869dcb15adadd860  docs/evidence/caffeine-probes/local/2026-10-09-host0350193-01/summary.json
+d59bf6451d328142f14fb4ad215a3729b8bbd3f6dac059fcfaaec10d51a5ef49  docs/evidence/caffeine-probes/local/2026-10-09-tooling-hardcut0200-01/intent.json
+e6aebdf50c6b5810f8ee4a9339654e81b5cf2bd1dc557f2fbafb5d9fdd05f651  docs/evidence/caffeine-probes/local/2026-10-09-tooling-hardcut0200-01/summary.json
+6915d766a4aa32b616bdf23e9782a5a28f9749cd2e6731ae8bab94a4fdc2dff2  docs/evidence/caffeine-probes/local/2026-10-09-tooling-hardcut0200-01/final-adapter-intent.json
+48f911a45056929828c1b0a7e894e5e6e83e1f9e9111194068955eb0ee980807  docs/evidence/caffeine-probes/local/2026-10-09-tooling-hardcut0200-01/final-adapter-summary.json
+b34de21ea1d79ae1ec8e94f45481fef17d0349f7f4af264ab4749069d183d7a0  docs/evidence/caffeine-probes/local/2026-10-09-tooling-hardcut0200-01/latest-owner-intent.json
+d50d2fefb0e84a48e9f584a25eeb5d2f8bb0ec83cfa1aed2c88940bb2e757f5f  docs/evidence/caffeine-probes/local/2026-10-09-tooling-hardcut0200-01/coordinated-intent.json
+2f18b15fe5f3dea8281d366712c72ae44a6070880dda11615db1b7dc72e6f62e  docs/evidence/caffeine-probes/local/2026-10-09-tooling-hardcut0200-01/coordinated-summary.json
+27a641ae13389b8e39929f61b7a137e252c4f8df4cb905895e8b78e50ccee72a  docs/evidence/caffeine-probes/local/2026-10-09-tooling-hardcut0200-01/interruption.json

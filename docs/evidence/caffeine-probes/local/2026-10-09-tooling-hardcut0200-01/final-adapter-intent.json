@@ -1,0 +1,27 @@
+{
+  "evidence_class": "local_consumer_tooling_hardcut",
+  "head": "9a5173d365d2c11889ea2e813c9645ab366fbffe",
+  "compiled_package_version": "0.19.3",
+  "pending_release": "0.20.0",
+  "shared_revision": "8140e3dd1b44409d682c721889ab702f438c6a17",
+  "graph": "Direct Host artifacts/fs 0.9.0; Testkit 0.25.5 with private Host 0.8.10; Memory 0.31.11; private Metrics 0.2.20; PocketIC 16.1.0",
+  "lock_sha256": "638038646157fb249331261b829036884d0778f405ba5225daa6124722c12f8e",
+  "compiler_inputs_sha256": "5c6db0cd5753d8f7b45516336f3d2b431bf14fba186dc27fb041d61e6d2c3570",
+  "commands": [
+    "make test-native-host"
+  ],
+  "budget": {
+    "native_host_executions": 1,
+    "explicit_local_probe_gets": 4,
+    "live_provider_requests": 0,
+    "paid_effects": 0
+  },
+  "targets": "Existing CLI local HTTP/provider substitutes and isolated owned PocketIC application-subnet installation/restoration fixtures; no deployed provider or browser",
+  "retention": "Separate native-host-final.log and final executed artifact captures; first run and override-fixture Make export refusal retained separately",
+  "cleanup": "Owned local server/child scopes must drop; no external paid obligations or provider cleanup",
+  "phase": "Final adapter preserves explicit POCKET_IC_BIN overrides; default still delegates checked Testkit path",
+  "prior_phase_inputs": ".tmp/pocketic-handoff-01/compiler-inputs.json",
+  "changed_inputs": [
+    "/home/adam/projects/ic-blob-storage/scripts/ci/run-pocketic-test.sh"
+  ]
+}

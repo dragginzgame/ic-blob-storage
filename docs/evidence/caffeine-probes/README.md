@@ -14,6 +14,43 @@ maintained release and open work.
 [acceptance plan](../../acceptance-plan.md) ·
 [service gaps](../../service-gaps.md)
 
+## Final coordinated 0.20.0 graph — 2026-10-09
+
+The [final intent](local/2026-10-09-tooling-hardcut0200-01/coordinated-intent.json)
+and [summary](local/2026-10-09-tooling-hardcut0200-01/coordinated-summary.json)
+bind compiled 0.19.3 / pending 0.20.0 to Shared 0.2.2, Host 0.9.1, Testkit 0.26,
+public Memory 0.32 and private Metrics 0.3. All 242 final native cases, strict
+affected lint and Rust 1.88 native/Wasm checks pass with unchanged frozen inputs.
+
+[The coordinated record](../coordinated-hardcut0200.md) separates earlier graphs,
+concurrent-manifest interruption and final qualification. Four completed native
+runs used 16 explicit local probe GETs; the aborted Wasm-build attempt dispatched
+no tests. Zero deployed provider requests/paid effects, owned local scopes close.
+Successful temporary HTTP bodies/requests were not separately archived; exact
+executed artifacts, logs and source hashes survive. Old bundles remain intact.
+Native macOS and full release gates remain outstanding under #39.
+
+## Earlier Testkit provisioning and Host 0.9 graph — 2026-10-09
+
+The [intent](local/2026-10-09-tooling-hardcut0200-01/intent.json),
+[summary](local/2026-10-09-tooling-hardcut0200-01/summary.json),
+[final adapter intent](local/2026-10-09-tooling-hardcut0200-01/final-adapter-intent.json)
+and [final summary](local/2026-10-09-tooling-hardcut0200-01/final-adapter-summary.json) bind compiled
+0.19.3 / pending 0.20.0 to Shared 0.2.0, direct Host 0.9.0 and Testkit 0.25.5.
+All 242 native-host cases pass through the Testkit-owned server handoff; strict
+affected lint and actual Rust 1.88 native/Wasm compilation pass. The initial and
+final-adapter native runs use eight explicit local probe GETs in total, zero
+deployed provider requests or paid effects. Explicit binary overrides remain
+caller-owned; the default uses Testkit's checked bundle.
+
+[The adoption record](../pocketic-handoff0200.md) separates package source review,
+local runtime substitutes and owner native CI. Explicit tool setup preserves all
+old bundle receipts and covered bytes; its expected six-tool refusal survives.
+Successful temporary HTTP bodies/requests were not separately archived; source
+assertions, logs and executed binary hashes survive. Owned local scopes close;
+no external cleanup. Committed consumer native acceptance and full release gates
+remain outstanding under #39; earlier evidence is not relabelled.
+
 ## Streaming probe verification and Host graph — 2026-10-09
 
 The [intent](local/2026-10-09-host0350193-01/intent.json),

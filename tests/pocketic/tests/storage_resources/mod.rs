@@ -13,7 +13,7 @@ use ic_blob_storage_contracts::dto::upload::manifest::UploadManifestFailure;
 use ic_blob_storage_contracts::dto::upload::manifest::UploadManifestInspection;
 use ic_blob_storage_contracts::dto::upload::manifest::UploadManifestResponse;
 use ic_blob_storage_contracts::identity::caffeine::CAFFEINE_CHUNK_BYTES;
-use std::{fs::OpenOptions, io::Write, path::Path, time::Instant};
+use std::{path::Path, time::Instant};
 
 pub(super) fn retain(directory: &Path, name: &str, value: &serde_json::Value) {
     let mut bytes = serde_json::to_vec_pretty(value).unwrap();
@@ -22,13 +22,33 @@ pub(super) fn retain(directory: &Path, name: &str, value: &serde_json::Value) {
 }
 
 pub(super) fn retain_bytes(directory: &Path, name: &str, bytes: &[u8]) {
-    let mut output = OpenOptions::new()
-        .write(true)
-        .create_new(true)
-        .open(directory.join(name))
+    ic_testkit::ic_host_fs::durable::create_new_bytes_with_parents(&directory.join(name), bytes)
         .unwrap();
-    output.write_all(bytes).unwrap();
-    output.sync_all().unwrap();
+}
+
+#[test]
+fn retained_resource_artifacts_preserve_exact_bytes_and_refuse_replacement() {
+    let directory = tempfile::tempdir().unwrap();
+    retain_bytes(directory.path(), "request.candid", b"original request");
+    retain(
+        directory.path(),
+        "report.json",
+        &serde_json::json!({"complete": true}),
+    );
+    assert_eq!(
+        std::fs::read(directory.path().join("report.json")).unwrap(),
+        b"{\n  \"complete\": true\n}\n"
+    );
+    assert!(
+        std::panic::catch_unwind(|| {
+            retain_bytes(directory.path(), "request.candid", b"replacement");
+        })
+        .is_err()
+    );
+    assert_eq!(
+        std::fs::read(directory.path().join("request.candid")).unwrap(),
+        b"original request"
+    );
 }
 
 pub(super) fn resources(f: &Fixture) -> serde_json::Value {

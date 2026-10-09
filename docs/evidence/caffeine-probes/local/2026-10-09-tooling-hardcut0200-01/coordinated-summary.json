@@ -1,0 +1,52 @@
+{
+  "evidence_class": "local_consumer_tooling_hardcut",
+  "phase": "Coordinated approved final Memory/Metrics/Testkit hard cut",
+  "head": "9a5173d365d2c11889ea2e813c9645ab366fbffe",
+  "compiled_package_version": "0.19.3",
+  "pending_release": "0.20.0",
+  "shared_revision": "ee48bb37c98c771e77b92fd891f0757d8c1c8b99",
+  "graph": "Host artifacts/fs/process/tools 0.9.1; Testkit 0.26.0; public Memory 0.32.0; private Metrics 0.3.0; PocketIC 16.1.0",
+  "lock_sha256": "290ebb58b2b1e2cd9f37935c944e4153197f54e3157a770207f772dff7d50adb",
+  "compiler_inputs_sha256": "8facea9966ca71223214922c1b44953d79e2ea390dadac68c58ec9522e610d14",
+  "raw_root": ".tmp/pocketic-handoff-01",
+  "source_manifest": "compiler-inputs-coordinated.json",
+  "source_entries": 13919,
+  "frozen_inputs_unchanged_after_checks": true,
+  "runtime": {
+    "executions": 1,
+    "passed": 242,
+    "failed": 0,
+    "explicit_local_probe_gets": 4,
+    "completed_runtime_phases": 4,
+    "total_all_phases_explicit_local_probe_gets": 16,
+    "aborted_pre_test_dispatch_local_probe_gets": 0,
+    "live_provider_requests": 0,
+    "paid_effects": 0,
+    "log": "native-host-coordinated.log",
+    "artifact_manifest": "coordinated-artifacts.json",
+    "artifact_manifest_sha256": "a5c31e500af9f372a8a89efd7755f913de3ec232b0a022646b941d7b1f162a47"
+  },
+  "checks": {
+    "strict_affected_clippy": "passed",
+    "actual_rust_1_88_native_and_wasm": "passed",
+    "latest_shared_ic_fixtures_bash5_and_actual_linux_built_bash32": "passed",
+    "testkit026_real_pathless_offline_admission": "passed",
+    "reviewed_package_archives_and_sources": 7
+  },
+  "retention": {
+    "old_bundle": "/home/adam/projects/ic-blob-storage/.tools/ic-set.B2UcSh",
+    "old_covered_files_unchanged": 10,
+    "earlier_cli_0255_and_failed_candidates": "retained",
+    "tool_readback": "tool-readback026.json",
+    "package_sources": "package-sources-coordinated.json",
+    "concurrent_manifest_interruption": "interruption.json",
+    "windows_edges": "windows-edge-preservation.json"
+  },
+  "limitations": [
+    "Local provider/HTTP substitutes and isolated owned PocketIC do not qualify deployed Caffeine or consumer framework adoption.",
+    "Successful temporary HTTP request/body files were not separately archived; source assertions, logs and executed binaries/hashes survive.",
+    "Intermediate 091 logs report success but source/graph drift prevents their attribution to the final graph; preserve them with that limitation.",
+    "Exact selected owner CI remains queued; dirty consumer native macOS/full release qualification remains outstanding under #39."
+  ],
+  "cleanup": "Owned scopes dropped; no external paid effects or new provider obligations; historical bundles and original failures retained."
+}

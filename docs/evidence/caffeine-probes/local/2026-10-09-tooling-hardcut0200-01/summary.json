@@ -1,0 +1,51 @@
+{
+  "evidence_class": "local_consumer_tooling_hardcut",
+  "head": "9a5173d365d2c11889ea2e813c9645ab366fbffe",
+  "compiled_package_version": "0.19.3",
+  "pending_release": "0.20.0",
+  "shared_revision": "8140e3dd1b44409d682c721889ab702f438c6a17",
+  "graph": "Direct Host artifacts/fs 0.9.0; Testkit 0.25.5 with private Host 0.8.10; Memory 0.31.11; private Metrics 0.2.20; PocketIC 16.1.0",
+  "raw_root": ".tmp/pocketic-handoff-01",
+  "source_inputs": {
+    "manifest": ".tmp/pocketic-handoff-01/compiler-inputs.json",
+    "sha256": "518647e930da721863a9386eaf5a94388a0761e3bfe6c40c01dce455bbfaee87",
+    "entries": 13960,
+    "unchanged_after_checks": true
+  },
+  "runtime": {
+    "command": "make test-native-host",
+    "executions": 1,
+    "passed": 242,
+    "failed": 0,
+    "explicit_local_probe_gets": 4,
+    "live_provider_requests": 0,
+    "paid_effects": 0,
+    "log": ".tmp/pocketic-handoff-01/native-host.log",
+    "artifact_manifest": ".tmp/pocketic-handoff-01/final-artifacts.json",
+    "artifact_manifest_sha256": "46b4db7a0886709b169359df2e2b7000c5d0036d3f6a61d464c1e0dbcb283fab"
+  },
+  "checks": {
+    "strict_affected_clippy": "passed",
+    "rust_1_88_native_and_wasm": "passed",
+    "shared_ic_fixtures_bash5_and_linux_built_bash32": "passed",
+    "consumer_dispatch_fixtures_bash5_and_linux_built_bash32": "passed",
+    "shellcheck": "passed",
+    "failure_archive_roundtrip": "passed",
+    "real_offline_testkit_check_without_PATH_tools": "passed"
+  },
+  "retention": {
+    "old_bundle": "/home/adam/projects/ic-blob-storage/.tools/ic-set.B2UcSh",
+    "old_receipt_covered_files_unchanged": 10,
+    "old_six_tool_refusal": "old-six-tool-refusal.log",
+    "source_inventory_filename_error": "source-check-first.log",
+    "corrected_package_source_verification": "package-sources.json",
+    "tool_readback": "tool-readback.json"
+  },
+  "limitations": [
+    "Local HTTP/provider substitutes and owned PocketIC instances do not qualify deployed Caffeine or consumer frameworks.",
+    "Successful temporary HTTP request/body files were not separately archived; source assertions, logs and executed artifacts survive.",
+    "Committed 0.20.0 native Linux/Intel macOS/Apple Silicon acceptance and full release gates remain outstanding under #39.",
+    "Earlier evidence remains bound to its original graph; released 0.19.3 CI qualifies prior #37/#38 fixes only."
+  ],
+  "cleanup": "Owned local scopes dropped; no paid external effects or obligations were created."
+}

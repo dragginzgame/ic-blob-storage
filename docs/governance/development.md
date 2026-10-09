@@ -54,16 +54,26 @@ explicitly with `make install-tools` before validation. The reviewed
 Make selects `.tools/host/bin`, `.tools/ic/bin` and `.tools/rust/bin`;
 the offline checkers never download missing tools. The aggregate targets attach
 the shared Cargo-tool installer/checker; CI uses the same owner rather than a
-separate cargo-sort install recipe. Tool installation may compile and use the
+separate cargo-sort install recipe. The aggregate also explicitly provisions the
+lock-selected Testkit CLI/server with `make install-testkit`; `make testkit-check`
+authenticates it offline. Tool installation may compile and use the
 network; it stays explicit and separate from ordinary validation.
 `make test-native-host` is the focused CLI/example/PocketIC installation and
 Metrics restoration-read check used by
 the native host CI matrix, separate from the complete gate.
 Testkit/PocketIC own client/server compatibility and managed server lifetime.
 Blob has no independent crate-version/server-version equality gate. The
-snapshot-owned `ci/ic-tools.tsv` selects reviewed PocketIC 16.1.0 assets through the
-canonical shared installer; `make ic-tools-check` authenticates the managed bundle.
-An externally selected executable retains its caller-owned byte admission.
+snapshot-owned `ci/ic-tools.tsv` selects five non-PocketIC executables through the
+canonical shared installer; `make ic-tools-check` authenticates that bundle.
+Testkit owns its PocketIC selection, authenticated setup and offline check under
+`.tools/testkit-server`. The thin consumer adapter selects the CLI version from
+Cargo.lock and delegates installation to the shared Cargo installer. PocketIC
+Make callers obtain the admitted absolute server path before test dispatch and
+pass it as `POCKET_IC_BIN` when no explicit binary was selected. Environment and
+Make `POCKET_IC_BIN` overrides remain caller-owned byte admission; the harness
+receives them unchanged, including empty values that it refuses. Tests never
+silently replace a caller selection or download a missing server.
+The test harness retains its separate owned server per instance and drop order.
 `make msrv-check` explicitly selects Rust 1.88, checks the public libraries
 separately, all native workspace targets/features and the supported Wasm libraries.
 CI prepares that compiler and locked cache in its own minimum-version lane;

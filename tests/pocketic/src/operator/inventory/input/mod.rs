@@ -12,8 +12,6 @@ use ic_blob_storage_contracts::upload::metadata::validate_upload_metadata;
 use serde::Deserialize;
 use std::{
     collections::{BTreeMap, BTreeSet},
-    fs::File,
-    io::Read,
     num::{NonZeroU64, NonZeroUsize},
     path::Path,
 };
@@ -85,12 +83,11 @@ pub(super) struct Inventory {
 }
 
 pub(super) fn load(path: &Path) -> Result<Inventory, Failure> {
-    let mut encoded = Vec::new();
-    File::open(path)
-        .map_err(|_| Failure::InvalidRequest)?
-        .take(MAX_BYTES + 1)
-        .read_to_end(&mut encoded)
-        .map_err(|_| Failure::InvalidRequest)?;
+    let encoded = ic_testkit::ic_host_fs::read::read_file(
+        path,
+        usize::try_from(MAX_BYTES).expect("inventory bound fits supported hosts"),
+    )
+    .map_err(|_| Failure::InvalidRequest)?;
     parse(&encoded)
 }
 

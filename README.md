@@ -166,7 +166,11 @@ and this repository's `target/` directory.
 `make install-tools` explicitly provisions checksum-pinned host and IC executables
 under `.tools/`, including jq, yq, ripgrep with PCRE2 and cloc;
 `make tools-check` verifies them without downloading. The reviewed shared
-Make include owns these setup and reporting recipes.
+Make include owns these setup and reporting recipes. PocketIC comes from the
+lock-selected Testkit CLI; the shared IC bundle contains five other tools.
+`make install-tools` explicitly prepares both, and `make tools-check` verifies
+them offline. Existing six-tool bundles stay retained but require explicit
+replacement. See the [ownership handoff](docs/ic-tools.md#pocketic-ownership-handoff).
 
 Choose the local canister path you want to exercise:
 

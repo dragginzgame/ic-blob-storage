@@ -1,0 +1,16 @@
+{
+  "cause": "Concurrent Cargo edits changed Memory to 0.32.0, Metrics to 0.3.0 and Testkit to 0.26.0 after 091 input freezing; final consistency assertion refused.",
+  "completed_intermediate_runtime": "native-host091.log reports 242 passes but frozen-source consistency no longer holds; do not attribute it to final incoming graph.",
+  "followup_aborted": "A command script continued after the failed pre-dispatch graph assertion and began native-host091-preserved.log. Interrupted during Wasm builds before CLI/test dispatch; zero local probe GETs or PocketIC instance launches. No success or new qualification is claimed.",
+  "further_preservation_refusal": "The first Windows restoration assertion expected Cargo rebindings, but the concurrent incoming lock had already preserved some original edges. It failed before writing; the corrected check accepts already-preserved edges.",
+  "source_retention": [
+    "compiler-inputs091.json",
+    "Cargo091.lock",
+    "metadata091.json",
+    "concurrent-Cargo.toml",
+    "concurrent-Cargo.lock",
+    "native-host091.log",
+    "native-host091-preserved.log"
+  ],
+  "external_effects": "No live or paid effects; no external cleanup."
+}

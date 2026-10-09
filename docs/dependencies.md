@@ -4,16 +4,20 @@
 
 # Dependency setup
 
-## Current graph — released 0.19.3, pending 0.19.4
+## Current graph — released 0.19.3, pending 0.20.0
 
-All twelve members inherit workspace 0.19.3. The released lock selects Host
-0.8.9, Testkit 0.25.5, private Metrics 0.2.18, public Memory 0.31.10 and PocketIC
-16.1.0. This continuation changes no dependency or package selection. Shared
-Tooling selects 93 canonical files at the committed 0.1.38 fix,
-`926a20606591214ab29faa236b0b584e4857439e`. The [initial record](evidence/shared0370194.md)
+All twelve members inherit workspace 0.19.3. The approved graph selects Host
+artifacts/fs/process/tools 0.9.1, Testkit 0.26.0, private Metrics 0.3.0, public
+Memory 0.32.0 and PocketIC client 16.1.0. Shared Tooling selects 93 canonical
+files at committed 0.2.2, `ee48bb37c98c771e77b92fd891f0757d8c1c8b99`.
+Consumers must align the public Memory type identity and rebuild; runtime source
+and schemas are unchanged. The [initial record](evidence/shared0370194.md)
 owns hook/installer acceptance; the [follow-up](evidence/shared0380194.md) owns
-single-document pinning exception validation and current qualification limits. Existing IC
-bundles remain until the coordinated Testkit provisioning handoff.
+single-document pinning exception validation. The [hard-cut record](evidence/pocketic-handoff0200.md)
+owns the initial five-tool bundle and Testkit setup/check adoption; the
+[coordinated record](evidence/coordinated-hardcut0200.md) owns the final graph.
+Prior bundles,
+receipts and failed candidates remain; no automatic conversion or cleanup occurs.
 
 ## Earlier graph — released 0.19.2, pending 0.19.3
 
@@ -247,7 +251,7 @@ Released 0.17.1's Host 0.4.2/Testkit 0.21.1 qualification remains bound to
 [#26](https://github.com/dragginzgame/ic-blob-storage/issues/26) tracks matching
 committed native consumer acceptance for that released batch.
 
-### Current PocketIC ownership — released 0.18.5, pending 0.19.0
+### Earlier PocketIC ownership — released 0.18.5, pending 0.19.0
 
 Testkit/PocketIC own protocol compatibility, startup and managed server lifetime;
 Blob no longer compares the Rust crate version with the provisioned server version.
@@ -774,7 +778,7 @@ select new versions. Full validation remains separately authorized.
 Testkit and PocketIC are excluded from the production/Wasm graph. Their Rust
 libraries are fetched by `make deps` and compiled by the native check. The local
 canister test additionally needs a compatible PocketIC server: this library
-accepts >=16.0.0,<17 and defaults to 16.0.0.
+delegates compatibility and reviewed default selection to Testkit.
 The original Linux x86_64 installation at
 `.tmp/tools/pocket-ic-16.0.0/pocket-ic` and its
 [provenance record](evidence/pocketic-toolchain.json) remain historical evidence.
@@ -782,24 +786,26 @@ The original record covers tool installation only; the later
 [authority fixture evidence](evidence/core-primitives.md#pocketic-authority-probe-after-018)
 records actual local canister execution.
 
-Make exports `.tools/ic/bin/pocket-ic` as the default `POCKET_IC_BIN`, preventing automatic
-server downloads during tests. A caller-supplied `POCKET_IC_BIN` overrides it.
-The binary is ignored local tooling, so fresh checkouts need provisioning.
-Provision the complete reviewed IC tool set from the repository root:
+PocketIC Make callers use the admitted server path returned by the lock-selected
+Testkit CLI's offline check. They do not fall back to `.tools/ic/bin/pocket-ic`,
+an inherited server path or automatic downloads. Fresh checkouts explicitly
+prepare the shared five-tool bundle and Testkit:
 
 ```sh
 make install-ic-tools
+make install-testkit
 make ic-tools-check
+make testkit-check
 ```
 
 The [common setup](ic-tools.md) and [single pin matrix](../ci/ic-tools.tsv)
-select platform assets for Linux and macOS on x86_64 and ARM64. The current
-matrix selects PocketIC 16.1.0, Quill 0.5.4, ICP CLI 1.6.0, didc 0.6.2,
-ic-wasm 0.11.1 and wasm-opt 132. Installation verifies archives before extraction,
-checks versions and activates a complete set; `ic-tools-check` is offline.
-The previous 16.0 bundle and its retained hashes remain historical inputs.
-Only PocketIC is exercised by the service installation tests; setup and version
-checks alone do not qualify deployment or other tools' product workflows.
+select Quill 0.5.4, ICP CLI 1.6.0, didc 0.6.2, ic-wasm 0.11.1 and wasm-opt 132.
+Installation verifies archives before extraction, checks versions and activates a
+complete set; `ic-tools-check` is offline. Testkit owns PocketIC assets and
+compatibility under `.tools/testkit-server`; Blob has no second server pin catalog.
+Previous six-tool bundles and their hashes remain historical inputs and fail the
+new shared offline check. Only PocketIC is exercised by service installation tests;
+setup/version checks alone do not qualify other tools' product workflows.
 `make deps` fetches Cargo packages only; it does not provision executables.
 
 The library and its tests have no downstream framework dependency. The

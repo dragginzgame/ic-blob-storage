@@ -121,59 +121,13 @@ to a consumer-owned caller and express summary-only checks by omitting diagnosti
 paths. Retire the duplicated body after qualifying those callers. Any disposable
 runner-image cleanup remains a separate, explicitly scoped consumer operation.
 
-## PocketIC alignment and external binaries
+## PocketIC provisioning and admission
 
-These helpers implement existing explicitly selected pairings; they do not own
-IC Testkit's compatibility policy. Coordinate their retirement with the
-[PocketIC ownership handoff](ic-tools.md#pocketic-ownership-handoff), after the
-published Testkit setup/check replacement is qualified.
-
-```bash
-bash scripts/ci/check-pocketic-alignment.sh \
-  --manifest testing/Cargo.toml --pins ci/ic-tools.tsv
-bash scripts/ci/check-pocketic-binary.sh "$server_version" "$binary_sha256" "$POCKET_IC_BIN"
-```
-
-The alignment helper implements the exact client/server version equality policy
-already selected by Canic and IcyDB. Adopt it only for an explicitly qualified
-consumer pairing; equal version strings do not prove runtime compatibility.
-Select the owning Cargo manifest, including an independent testing workspace
-when applicable. With a prepared toolchain and dependency cache, it runs Cargo
-metadata from that manifest's directory using `--locked --offline`, disables
-implicit Rustup installation, and admits exactly one `pocket-ic` package with a
-stable version. Cargo owns manifest parsing, lock validity and graph selection;
-there is no second Cargo.lock parser. Missing or multiple client packages,
-prereleases, mismatched pins and failed metadata producers are refused. Failed
-metadata output remains in an announced temporary directory. The checker does
-not build, update the lockfile, fetch dependencies or install tools.
-
-The complete existing IC pin matrix is validated by `scripts/ci/ic-tool-pins.awk`,
-also used by the installer; no second version catalog is introduced. The helper
-requires Cargo, jq and awk, and prints only the agreed version on success.
-
-The independent binary checker takes an exact stable server version, an explicit
-reviewed host-specific SHA-256 digest and an executable path. It reuses
-`verify-file-checksum.sh` to authenticate bytes before calling `--version`, and
-requires a successful probe reporting exactly `pocket-ic-server VERSION`.
-Read-only executable symlinks are allowed. It neither installs nor searches
-caches, and emits no stdout on success. Callers retain ownership of the external
-binary's reviewed identity and host selection; generating a digest from an
-untrusted candidate does not authenticate it. For a combined check, pass both
-`--bin PATH --sha256 DIGEST` to the alignment helper.
-
-Managed bundle users can instead obtain the verified absolute directory through
-`install-ic-tools.sh --check` and project its `pocket-ic` path, as described in
-[IC tool setup](ic-tools.md#snapshot-and-pin-selection). Its archive pins and
-installed-file receipt already own managed-bundle admission. An external binary
-digest is a separate identity for an override outside that bundle.
-
-Vendor both checkers, `ic-tool-pins.awk`, `verify-file-checksum.sh` and this guide
-for alignment with optional binary admission. The binary checker alone needs
-only the checksum helper. Consumers keep runtime environment variables, endpoint
-selection and lifecycle policy in their adapters. Qualify callers on their native
-hosts before removing local checks; the upstream fixture exercises real offline
-Cargo selection and controlled metadata/binary rejection cases, without claiming
-consumer runtime compatibility.
+IC Testkit owns server selection, provisioning, offline admission and
+compatibility. Shared 0.2.0 removes its former alignment and binary checkers;
+consumer callers and snapshot selections move together under the
+[PocketIC ownership handoff](ic-tools.md#pocketic-ownership-handoff).
+Generic checksum and evidence helpers remain available for their other callers.
 
 ## Cargo inheritance and workspace version
 
@@ -212,14 +166,18 @@ of working versus committed sources and their release/preparation transactions.
 
 ## CI binary installers
 
-The actionlint, ShellCheck, gitleaks and sccache entry points delegate to
+The actionlint, ShellCheck, gitleaks, sccache and yq entry points delegate to
 `scripts/ci/install-ci-tool.sh`. Their existing version, SHA-256 and installation
 directory arguments are unchanged. The implementation shares host selection,
 HTTPS download, checksum admission, extraction, exact version admission and
 publication. Asset names and version-output formats remain explicit per tool.
 Staging lives on the destination filesystem; failures retain the candidate and
 leave the installed executable intact. Successful installation removes its own
-staging files. This does not merge repository-local host/IC bundle activation
+staging files. Publication uses Perl core's exact-path atomic rename: a directory
+introduced at the executable destination during setup is refused, and a late
+symlink is replaced without following its target. Perl must be available before
+setup starts; no tool is downloaded when this prerequisite is missing.
+This does not merge repository-local host/IC bundle activation
 or change any consumer's pins. Include the internal helper and checksum verifier
 in snapshots with any of these entry points.
 

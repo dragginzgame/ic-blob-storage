@@ -1,0 +1,44 @@
+{
+  "evidence_class": "local_consumer_tooling_hardcut",
+  "phase": "Final adapter with preserved explicit binary overrides",
+  "head": "9a5173d365d2c11889ea2e813c9645ab366fbffe",
+  "compiled_package_version": "0.19.3",
+  "pending_release": "0.20.0",
+  "shared_revision": "8140e3dd1b44409d682c721889ab702f438c6a17",
+  "graph_unchanged_from_initial_intent": true,
+  "source_inputs": {
+    "manifest": ".tmp/pocketic-handoff-01/compiler-inputs-final.json",
+    "sha256": "5c6db0cd5753d8f7b45516336f3d2b431bf14fba186dc27fb041d61e6d2c3570",
+    "entries": 13960,
+    "changed_from_initial_manifest": [
+      "scripts/ci/run-pocketic-test.sh"
+    ],
+    "unchanged_during_final_run": true
+  },
+  "runtime": {
+    "command": "make test-native-host",
+    "executions": 1,
+    "passed": 242,
+    "failed": 0,
+    "explicit_local_probe_gets": 4,
+    "total_both_phases_local_probe_gets": 8,
+    "live_provider_requests": 0,
+    "paid_effects": 0,
+    "log": ".tmp/pocketic-handoff-01/native-host-final.log",
+    "artifact_manifest": ".tmp/pocketic-handoff-01/final-adapter-artifacts.json",
+    "artifact_manifest_sha256": "abf1888e05e7b26afea120a89f1cf1c7a57847e8731089b17722f28b419013c4",
+    "executed_artifact_bytes_equal_initial_run": true
+  },
+  "adapter_contract": "Unset POCKET_IC_BIN uses Testkit offline-admitted default; explicit environment/Make selections reach the harness unchanged with caller-owned executable-byte admission. Empty selections remain selected and the real harness refuses them.",
+  "retained_fixture_failure": {
+    "log": ".tmp/pocketic-handoff-01/commands-final.log",
+    "fixture": "/tmp/blob-testkit-commands.AY7u1C",
+    "cause": "Unconditional Make export of an undefined variable supplied an empty value and refused default dispatch; corrected by retaining existing Make export behavior."
+  },
+  "limitations": [
+    "Substitute command fixtures verify override forwarding; real local runtime qualifies the checked default.",
+    "Successful temporary HTTP request/body files were not separately archived; source assertions, logs and executed artifacts survive.",
+    "Committed consumer native acceptance and full release gates remain outstanding under #39."
+  ],
+  "cleanup": "Owned local scopes closed; no new paid external obligations; original bundle receipt-covered bytes unchanged."
+}

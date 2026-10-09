@@ -32,6 +32,31 @@ fn accepts_prepared_inventory_and_preserves_duplicate_asset_demand() {
 }
 
 #[test]
+fn loads_bounded_regular_inventory_files_with_existing_refusals() {
+    let directory = tempfile::tempdir().unwrap();
+    let path = directory.path().join("inventory.json");
+    let mut bytes = serde_json::to_vec(&encoded()).unwrap();
+    bytes.resize(usize::try_from(MAX_BYTES).unwrap(), b' ');
+    std::fs::write(&path, &bytes).unwrap();
+    assert_eq!(load(&path).unwrap().blobs[0].bytes, 3);
+    #[cfg(unix)]
+    {
+        let link = directory.path().join("selected.json");
+        std::os::unix::fs::symlink(&path, &link).unwrap();
+        assert_eq!(load(&link).unwrap().blobs[0].bytes, 3);
+    }
+    bytes.push(b' ');
+    std::fs::write(&path, &bytes).unwrap();
+    assert!(matches!(load(&path), Err(Failure::InvalidRequest)));
+    assert!(matches!(
+        load(directory.path()),
+        Err(Failure::InvalidRequest)
+    ));
+    std::fs::remove_file(&path).unwrap();
+    assert!(matches!(load(&path), Err(Failure::InvalidRequest)));
+}
+
+#[test]
 fn rejects_tampered_metadata_leaves_totals_and_asset_bindings() {
     for pointer in [
         "/totals/distinct_bytes",

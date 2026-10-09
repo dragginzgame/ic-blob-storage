@@ -25,6 +25,12 @@ make install-hooks
 make release-plan VERSION=patch
 ```
 
+The pending 0.20.0 developer-tool hard cut requires explicit `make install-tools`
+even in an existing checkout: the shared bundle now has five tools and Testkit
+owns PocketIC. Old bundles are retained, and validation never converts them or
+downloads a server. `make tools-check` includes the lock-selected Testkit CLI and
+its authenticated offline server check. See the [adoption record](evidence/pocketic-handoff0200.md).
+
 Hook installation is local to this clone and refuses to replace existing hook
 obligations. `release-plan` previews arithmetic and selected branch/remote without
 Git effects. Execution checks saved unfinished intent before choosing another
@@ -74,7 +80,7 @@ do not bypass the runner's saved intent or reuse validation from another source.
 From committed clean source on the selected branch:
 
 ```bash
-make release-patch
+make release-minor # Pending 0.20.0 developer-tool hard cut.
 # Or select release-minor / release-major for the complete batch's compatibility.
 ```
 

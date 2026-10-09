@@ -1,10 +1,24 @@
 # Changelog
 
-## [0.19.4]
+## [0.20.0]
+
+### Breaking
+
+- Transfer PocketIC setup and offline admission to the lock-selected Testkit CLI.
+  The shared IC bundle contains five tools and no longer provides
+  `.tools/ic/bin/pocket-ic`. Run `make install-tools` to prepare Testkit and the new
+  bundle; `make tools-check` admits its server and PocketIC tests default to it.
+  Explicit binary overrides retain caller-owned admission.
+  Previous bundles, receipts and failures remain retained. Service APIs and stored
+  data are unchanged; this hard cut changes developer tool setup.
+  [Shared #76](https://github.com/dragginzgame/shared-tooling/issues/76).
+- Move the public Memory re-export to ic-memory 0.32. Consumers must rebuild
+  with the same Memory type identity. Runtime schemas are unchanged; the existing
+  cross-release retirement/reinstall contract still applies.
 
 ### Fixed
 
-- Refresh Shared Tooling to reviewed 0.1.38. Pre-commit formatting finds the
+- Refresh Shared Tooling to reviewed 0.2.2. Pre-commit formatting finds the
   checkout's prepared tools without a shell PATH export; Cargo tool setup rejects
   conflicting receipts and redirected installation paths while retaining failed
   builds and their original status.
@@ -13,6 +27,20 @@
 - Reject multi-document dependency-pinning exception catalogs that could bypass
   validation; valid single-array catalogs remain accepted.
   [Shared #86](https://github.com/dragginzgame/shared-tooling/issues/86).
+- Install and verify the final selected IC tool even when its pin matrix has
+  no final newline. [Shared #87](https://github.com/dragginzgame/shared-tooling/issues/87).
+
+### Changed
+
+- Delegate fixture inventory file reads and resource-profile artifact publication
+  to Host. Preserve the 8 MiB input limit, invalid-request projection, exact report
+  bytes and refusal to overwrite prior evidence; Host owns bounded allocation,
+  regular-file admission and atomic durable publication.
+- Adopt Host 0.9.1 and Testkit 0.26.0 on one Host type identity, including the
+  owner's durable-publication simplification and prompt output-pipe release.
+  Private Metrics moves to 0.3.0 with unchanged arithmetic APIs. No local
+  compatibility aliases or server version policy are introduced.
+  [Host #38](https://github.com/dragginzgame/ic-host-tooling/issues/38).
 
 ## [0.19.3] - 2026-10-09
 

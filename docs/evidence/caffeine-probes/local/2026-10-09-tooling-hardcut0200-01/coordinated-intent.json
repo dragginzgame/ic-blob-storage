@@ -1,0 +1,25 @@
+{
+  "evidence_class": "local_consumer_tooling_hardcut",
+  "phase": "Coordinated approved final Memory/Metrics/Testkit hard cut",
+  "head": "9a5173d365d2c11889ea2e813c9645ab366fbffe",
+  "compiled_package_version": "0.19.3",
+  "pending_release": "0.20.0",
+  "shared_revision": "ee48bb37c98c771e77b92fd891f0757d8c1c8b99",
+  "graph": "Host artifacts/fs/process/tools 0.9.1; Testkit 0.26.0; public Memory 0.32.0; private Metrics 0.3.0; PocketIC 16.1.0",
+  "lock_sha256": "290ebb58b2b1e2cd9f37935c944e4153197f54e3157a770207f772dff7d50adb",
+  "compiler_inputs_sha256": "8facea9966ca71223214922c1b44953d79e2ea390dadac68c58ec9522e610d14",
+  "commands": [
+    "make test-native-host",
+    "strict affected CLI/harness lint",
+    "actual Rust 1.88 native/Wasm compilation"
+  ],
+  "budget": {
+    "native_host_executions": 1,
+    "explicit_local_probe_gets": 4,
+    "live_provider_requests": 0,
+    "paid_effects": 0
+  },
+  "targets": "Existing local CLI HTTP/provider substitutes and isolated owned PocketIC installation/restoration fixtures; no deployed provider/browser",
+  "retention": "Separate coordinated logs/input manifest/lock/artifacts; earlier source graphs, actual interruptions/refusals and old bundles retained",
+  "cleanup": "Owned local scopes must close; no external paid obligations created"
+}

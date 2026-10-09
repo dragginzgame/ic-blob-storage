@@ -32,7 +32,8 @@ mkdir "$fixture/early-unpacked"
 tar -xzf "$early" -C "$fixture/early-unpacked"
 cmp "$repository/.tools/host-set.failed/.hidden" "$fixture/early-unpacked/.tools/host-set.failed/.hidden"
 mkdir -p "$repository/.tools/host-set.failed/.git" "$repository/.tools/ic-set.failed" \
-    "$repository/.tools/rust/build" "$repository/target/release-tests.failed" \
+    "$repository/.tools/rust/build" "$repository/.tools/rust/ic-testkit-fixture" \
+    "$repository/.tools/testkit-server/failed-candidate" "$repository/target/release-tests.failed" \
     "$temporary/file-digests.failed/.git" "$temporary/host-tools-test.failed/Linux:x86_64" \
     "$temporary/blob-validation-logging.failed" "$temporary/evidence-archive.failed" \
     "$temporary/tool-evidence-test.failed" "$temporary/unrelated"
@@ -40,6 +41,8 @@ printf 'candidate_status=23\n' > "$repository/.tools/host-set.failed/.hidden"
 printf 'not uploaded\n' > "$repository/.tools/host-set.failed/.git/config"
 printf 'ic candidate\n' > "$repository/.tools/ic-set.failed/payload"
 printf 'compiler diagnostics\n' > "$repository/.tools/rust/build/build.log"
+printf 'Testkit CLI install receipt\n' > "$repository/.tools/rust/ic-testkit-fixture/receipt"
+printf 'original server download failure\n' > "$repository/.tools/testkit-server/failed-candidate/download.stderr"
 printf 'original_status=9\n' > "$repository/target/release-tests.failed/outcome"
 printf 'portable bytes\n' > "$temporary/file-digests.failed/"$'line\nbreak:payload'
 chmod 640 "$temporary/file-digests.failed/"$'line\nbreak:payload'
@@ -57,7 +60,8 @@ archive="$(bash "$collector" "$repository" "$temporary" "$fixture/evidence.tar.g
 [[ "$archive" == "$fixture/evidence.tar.gz" ]]
 tar -xzf "$archive" -C "$fixture/unpacked"
 for path in .tools/host-set.failed/.hidden .tools/ic-set.failed/payload \
-    .tools/rust/build/build.log target/release-tests.failed/outcome; do
+    .tools/rust/build/build.log .tools/rust/ic-testkit-fixture/receipt \
+    .tools/testkit-server/failed-candidate/download.stderr target/release-tests.failed/outcome; do
     cmp "$repository/$path" "$fixture/unpacked/$path"
 done
 for path in $'file-digests.failed/line\nbreak:payload' \

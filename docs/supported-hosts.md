@@ -88,11 +88,10 @@ required to run setup. Make targets and CI select this same local tool set.
 | Local maintenance coordinator | Bash 3.2+, Git, prepared/authenticated Codex CLI with `exec --approve-for-me`, and a serial scheduler; the supplied user units require Linux systemd. Task tools remain optional consumer-qualified inputs; see [local scheduling](../tasks/local-schedule.md). The offline fixture substitutes Codex and starts no agent. |
 | `scripts/ci/run-validation-targets.sh` | GNU Make plus `awk`, `grep` or `rg`, `sed`, `tail`, and `tee` |
 | Archive installer scripts | `curl`, `tar`, a SHA-256 implementation, and the archive codec used by the selected tool |
+| CI binary installer entry points | The archive prerequisites above and Perl core for exact-path atomic publication |
 | Evidence archiver | Bash 3.2+, tar and gzip; explicit existing roots and relative selections |
 | `scripts/dev/install-rust-tools.sh` | Prepared Rust/Cargo toolchain and native compilation prerequisites for explicit registry installation; offline `--check` only runs the selected local executables |
 | Local IC tool setup | Bash 3.2+, `curl`, `tar`, xz/gzip, Perl, and a SHA-256 implementation; see [IC tools](ic-tools.md) |
-| PocketIC exact alignment | Prepared Cargo toolchain and locked offline dependency cache, jq and awk; explicit owning manifest and reviewed IC pin matrix |
-| PocketIC external binary admission | A SHA-256 implementation and the caller's reviewed host-specific executable digest and version |
 | Nonempty Cargo test helper | Cargo with normal libtest summaries, `awk`, and `tee` |
 | Exact release-tag checker | Git and the caller's selected exact commit/version |
 | `scripts/ci/run-sccache.sh` | An executable `sccache` binary |

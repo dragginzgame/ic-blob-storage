@@ -19,7 +19,8 @@ temporary="${temporary%/.}"
 inputs=()
 shopt -s nullglob
 for path in "$repository"/.tools/host-set.* "$repository"/.tools/ic-set.* \
-    "$repository/.tools/rust/build" "$repository"/target/release-tests.*; do
+    "$repository/.tools/rust/build" "$repository"/.tools/rust/ic-testkit-* \
+    "$repository/.tools/testkit-server" "$repository"/target/release-tests.*; do
     [[ -e "$path" || -L "$path" ]] || continue
     inputs+=("$repository" "${path#"$repository/"}")
 done
@@ -31,7 +32,7 @@ for prefix in blob-format-hooks. formatting-adoption. blob-evidence-checksums. \
     shared-tooling-cloc-siblings-test. shared-tooling-cloc-test. \
     blob-validation-logging. evidence-archive. tool-evidence-test. \
     blob-tooling-evidence-test. blob-tooling-evidence-proof. \
-    blob-tooling-evidence-downloaded.; do
+    blob-tooling-evidence-downloaded. blob-testkit-commands.; do
     for path in "$temporary/$prefix"*; do
         [[ -e "$path" || -L "$path" ]] || continue
         inputs+=("$temporary" "${path#"$temporary/"}")
