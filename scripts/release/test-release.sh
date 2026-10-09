@@ -55,7 +55,7 @@ create_fixture() {
         "$ROOT/scripts/ci/check-format-tools.sh" "$FIXTURE/scripts/ci/"
     cp "$ROOT/ci/tool-versions.env" "$FIXTURE/ci/"
     cp "$ROOT/Makefile" "$FIXTURE/Makefile"
-    cp "$ROOT/make/tools.mk" "$ROOT/make/release.mk" "$ROOT/make/rust-format.mk" "$FIXTURE/make/"
+    cp "$ROOT/make/tools.mk" "$ROOT/make/release.mk" "$ROOT/make/rust-format.mk" "$ROOT/make/execution.mk" "$FIXTURE/make/"
     cd "$FIXTURE"
     cat >> Makefile <<'MAKE'
 CI_TARGETS := fixture-verify
@@ -358,6 +358,7 @@ test_dependency_bootstrap() {
 #!/usr/bin/env bash
 set -euo pipefail
 case "$*" in
+    '--no-print-directory -f - MAKEFILES=') exec "$TEST_REAL_MAKE" "$@" ;;
     '--no-print-directory shared-tooling-check') echo snapshot >> "$TEST_EFFECTS"; [[ "${TEST_SNAPSHOT_FAIL:-0}" != 1 ]] ;;
     '--no-print-directory tools-check') echo tools >> "$TEST_EFFECTS"; [[ "${TEST_TOOLS_FAIL:-0}" != 1 ]] ;;
     '--no-print-directory dependency-pins-check') echo pins >> "$TEST_EFFECTS"; [[ "${TEST_PINS_FAIL:-0}" != 1 ]] ;;
@@ -823,6 +824,26 @@ test_package_lock_selection() {
     [[ ! -s "$TEST_EFFECTS" ]] || exit 1
 }
 
+test_make_execution_refusal() {
+    before="$(fingerprint)"
+    for target in release-patch release-minor release-major release-resume fmt fmt-check; do
+        for mode in -i --ignore-errors -n -t -q; do
+            for selection in direct inherited; do
+                status=0
+                if [[ "$selection" == direct ]]; then
+                    "$TEST_REAL_MAKE" "$mode" "$target" > target/rejection.log 2>&1 || status=$?
+                else
+                    MAKEFLAGS="$mode" _shared_make_execution_checked=yes \
+                        "$TEST_REAL_MAKE" "$target" > target/rejection.log 2>&1 || status=$?
+                fi
+                [[ "$status" == 2 ]] || exit 1
+                assert_unchanged
+                [[ ! -s "$TEST_LOG" && ! -s "$TEST_EFFECTS" && ! -e target/release-state ]] || exit 1
+            done
+        done
+    done
+}
+
 test_delivery_refusal() {
     local target="$1" selection="$2" before
     before="$(fingerprint)"
@@ -837,6 +858,7 @@ test_delivery_refusal() {
     [[ ! -s "$TEST_LOG" && ! -s "$TEST_EFFECTS" && ! -e target/release-state ]] || exit 1
 }
 
+run_case make-execution-refusal test_make_execution_refusal
 for target in release-patch release-minor release-major release-resume; do
     for selection in pr inherited invalid; do
         run_case "delivery-$target-$selection" test_delivery_refusal "$target" "$selection"

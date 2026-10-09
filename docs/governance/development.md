@@ -118,6 +118,10 @@ goals; Blob attaches direct-delivery admission to all four entrypoints. The
 reviewed `make/rust-format.mk` owns root-workspace formatting and its prerequisite
 check. All isolated Make/hook/release fixtures include these inputs; product
 validation, metadata exports, tool setup and publication remain local.
+Both Make includes carry `make/execution.mk` and its existing behavioral probe.
+The probe rejects unsupported Make modes before recipes, including ignored
+failures and non-executing modes. Every isolated fixture includes those inputs;
+the release-command checker binds its tooling root to the disposable checkout.
 The [snapshot adoption record](../evidence/shared-tooling-0181.md) qualifies the
 current direct-delivery adapter and changed shared helpers. The
 [fixture ownership map](../evidence/release-fixture-ownership.md) records

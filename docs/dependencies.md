@@ -4,7 +4,22 @@
 
 # Dependency setup
 
-## Current graph — released 0.21.1, pending 0.21.2
+## Current graph — released 0.21.2, pending 0.21.3
+
+All twelve members and the finalized receipt remain 0.21.2. The incoming lock
+selects Memory 0.33.3 and subsequently private Metrics 0.3.3; preserve them, but
+the Shared adoption checks do not compile or qualify those patches. Earlier
+runtime evidence keeps Memory 0.33.2 and Metrics 0.3.2. Host 0.9.4, Testkit 0.27.1
+and PocketIC 16.1.0 remain unchanged.
+
+Shared Tooling selects 95 files from committed 0.2.7
+`47d6ae6488b8007323fa7c2e22a6efa11d77ae63`, adding `make/execution.mk` with its
+existing execution-probe companion. Release, hook and formatter fixtures carry
+these inputs explicitly. The [adoption record](evidence/shared0270213.md) owns
+actual Make/hook qualification and native-host limitations. No tool/CLI/server
+installation, dependency resolution or runtime build is performed by this batch.
+
+## Earlier graph — released 0.21.1, pending 0.21.2
 
 All twelve members retain workspace 0.21.1 and its finalized release receipt.
 Preserve incoming Memory 0.33.2 with unchanged runtime sources/original manifest

@@ -2,7 +2,10 @@
 set -Eeuo pipefail
 
 # Select this consumer's formatter inputs; shared mechanics have one owner.
-ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd -P)"
+ROOT="${BASH_SOURCE[0]}"
+[[ "$ROOT" == /* ]] || ROOT="$PWD/$ROOT"
+ROOT="$(cd -P "${ROOT%/*}/../.." && printf '%s/.' "$PWD")"
+ROOT="${ROOT%/.}"
 TEMPORARY="$(mktemp -d "${TMPDIR:-/tmp}/blob-format-hooks.XXXXXX")"
 finish() {
     local status=$?
@@ -11,17 +14,17 @@ finish() {
 }
 trap finish EXIT
 selected=crates/ic-blob-storage/src/lib.rs
-overlays=(ci/tool-versions.env scripts/ci/check-format-tools.sh make/tools.mk make/release.mk make/rust-format.mk Cargo.lock)
+overlays=(ci/tool-versions.env scripts/ci/check-format-tools.sh make/tools.mk make/release.mk make/rust-format.mk make/execution.mk Cargo.lock)
 # Copy formatter inputs from every actual member, including working-tree packages
 # absent from HEAD. Cargo owns the roster across standard and approved layouts.
 cargo metadata --offline --locked --no-deps --format-version 1 \
     --manifest-path "$ROOT/Cargo.toml" > "$TEMPORARY/metadata.json"
-jq -r '. as $m | .packages[] | select(.id as $id | $m.workspace_members | index($id)) | .manifest_path' \
+jq -r --arg root "$ROOT/" '. as $m | .packages[] | select(.id as $id | $m.workspace_members | index($id)) | .manifest_path | if startswith($root) then ltrimstr($root) else error("workspace manifest outside checkout") end' \
     "$TEMPORARY/metadata.json" > "$TEMPORARY/manifests"
 while IFS= read -r manifest; do
-    overlays+=("${manifest#"$ROOT/"}")
-    rg --files "$(dirname "$manifest")" -g '*.rs' > "$TEMPORARY/member-rust"
-    while IFS= read -r path; do overlays+=("${path#"$ROOT/"}"); done < "$TEMPORARY/member-rust"
+    overlays+=("$manifest")
+    (cd "$ROOT" && rg --files "${manifest%/*}" -g '*.rs') > "$TEMPORARY/member-rust"
+    while IFS= read -r path; do overlays+=("$path"); done < "$TEMPORARY/member-rust"
 done < "$TEMPORARY/manifests"
 # Swap two adjacent dependency declarations without changing their values.
 perl -0777 -pe 's/^(ic-cdk = [^\n]*\n)(ic-host-artifacts = [^\n]*\n)/$2$1/m or die "cannot prepare ordering-only manifest\n"' \
@@ -32,13 +35,16 @@ bash "$ROOT/scripts/ci/check-formatting-hooks.sh" "$ROOT" "$selected" Cargo.toml
 # Keep the additional consumer regression: a formatter changes selected bytes
 # before failing. The hook must restore those bytes and leave the index intact.
 source_commit="$(git -C "$ROOT" rev-parse HEAD)"
-source_objects="$(git -C "$ROOT" rev-parse --git-path objects)"
+source_objects="$(git -C "$ROOT" rev-parse --git-path objects && printf '.')"
+source_objects="${source_objects%$'\n.'}"
 case "$source_objects" in /*) ;; *) source_objects="$ROOT/$source_objects" ;; esac
 mkdir "$TEMPORARY/templates" "$TEMPORARY/failed-formatter"
 export GIT_CONFIG_NOSYSTEM=1 GIT_CONFIG_GLOBAL=/dev/null GIT_TEMPLATE_DIR="$TEMPORARY/templates"
 cd "$TEMPORARY/failed-formatter"
 git init --quiet
-printf '%s\n' "$source_objects" > .git/objects/info/alternates
+perl -e '$p = $ARGV[0]; $p =~ s/([\\"])/\\$1/g; $p =~ s/\n/\\n/g;
+    $p =~ s/\r/\\r/g; $p =~ s/\t/\\t/g; print "\"$p\"\n"' \
+    "$source_objects" > .git/objects/info/alternates
 git update-ref HEAD "$source_commit"
 git read-tree HEAD
 git checkout-index --all

@@ -6,7 +6,35 @@
 
 Date: 2026-10-09
 
-## Current continuation — released 0.21.1, pending 0.21.2
+## Current continuation — released 0.21.2, pending 0.21.3
+
+- Released HEAD is `91d34896b70d3d746127cb043a726b1177fbae7d`, validated source
+  `7119fd6881347ef19ddd58c26cb6a092918fd58a`. All twelve package versions and
+  the finalized receipt remain 0.21.2. Preserve the incoming Memory 0.33.3 lock
+  edit and the subsequent private Metrics 0.3.3 update; this tooling batch does
+  not compile or qualify those dependency changes. Host remains 0.9.4 and
+  Testkit 0.27.1. Earlier runtime
+  qualification retains Memory 0.33.2 and its original source/artifacts.
+- [The adoption record](../evidence/shared0270213.md) selects 95 files from
+  committed Shared 0.2.7 `47d6ae6488b8007323fa7c2e22a6efa11d77ae63`, including
+  the new Make execution companion. Guard unsafe Make modes before recipes;
+  bind release fixtures to their own tooling root. Update all consumer fixture
+  inventories and preserve newline-ending paths through Blob's hook wrapper,
+  member discovery and Git object alternates. All twelve members remain covered.
+- Owner Make/routing/hook suites and actual consumer routing/hooks/format checks
+  pass Bash 5 and Linux-built Bash 3.2. Full local release adapters pass Bash 5,
+  including 60 direct/inherited mode refusals before effects. Actual consumer
+  hook checks pass in a newline-ending checkout on both Bash versions; the old
+  wrapper failure is retained. No hook activation, tool setup or real release.
+- Released 0.21.2 [CI](https://github.com/dragginzgame/ic-blob-storage/actions/runs/37950359642)
+  passes Linux/MSRV, including the authenticated artifact readback repair;
+  both macOS jobs remain queued. Dirty 0.21.3 has no hosted/full-gate result.
+  [#44](https://github.com/dragginzgame/ic-blob-storage/issues/44) tracks adoption;
+  #39/#40/#43 retain native acceptance. Provider/application requirements remain
+  with #31/#33, #32, #34 and #6. No runtime/schema/provider policy change, sibling
+  edit, agent commit, push, release, publication or live/paid provider effect.
+
+## Earlier continuation — released 0.21.1, pending 0.21.2
 
 - Released HEAD is `122fe02f465c003b2b40c4c803579d85599c5d4e`, validated source
   `9ac5cc7527fe2a7da5f9a1d63eb5b3af53fa3e60`. All twelve package versions

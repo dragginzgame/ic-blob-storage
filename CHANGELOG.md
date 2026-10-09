@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.21.3]
+
+### Fixed
+
+- Adopt Shared Tooling 0.2.7 to reject Make modes that hide failures, bind
+  release qualification to its disposable tooling snapshot, and preserve
+  newline-ending checkout paths during hook qualification. Keep all twelve
+  members covered and retain local delivery and formatter rollback checks.
+  [#44](https://github.com/dragginzgame/ic-blob-storage/issues/44),
+  [Shared #30](https://github.com/dragginzgame/shared-tooling/issues/30),
+  [#7](https://github.com/dragginzgame/shared-tooling/issues/7),
+  [#90](https://github.com/dragginzgame/shared-tooling/issues/90).
+
 ## [0.21.2] - 2026-10-09
 
 ### Fixed

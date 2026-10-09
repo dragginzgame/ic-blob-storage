@@ -56,7 +56,7 @@ Run `make install-testkit` explicitly for its lock-selected CLI, then
 [Its separate record](evidence/testkit0271-0211.md) owns final-graph qualification.
 These patches introduce no public contract change.
 
-Pending 0.21.2 selects Memory 0.33.2, Host 0.9.4 and Shared Tooling 0.2.6.
+Released 0.21.2 selects Memory 0.33.2, Host 0.9.4 and Shared Tooling 0.2.6.
 [The Host record](evidence/host0940212.md) qualifies the subsequent unchanged
 runtime patch graph separately from the initial Shared/Memory checks. The reviewed
 `make/release.mk` owns standard entrypoints/conflicting-goal refusal, with Blob's
@@ -65,6 +65,13 @@ owns the simple twelve-member workspace formatter and existing pin check.
 Metadata, validation, cache preparation and publication remain consumer-owned.
 See [the continuation record](evidence/shared0260212.md), including the separate
 CI artifact transport repair and outstanding hosted acceptance.
+
+Pending 0.21.3 adopts Shared Tooling 0.2.7's adjacent Make execution companion
+and isolated release/hook qualification fixes. Unsafe Make modes are rejected
+before recipes; consumer fixture inventories include the companion and probe.
+See [the adoption record](evidence/shared0270213.md). Preserve the incoming
+Memory 0.33.3 and private Metrics 0.3.3 edits separately; this tooling evidence
+does not qualify their runtime.
 
 Hook installation is local to this clone and refuses to replace existing hook
 obligations. `release-plan` previews arithmetic and selected branch/remote without
@@ -115,7 +122,7 @@ do not bypass the runner's saved intent or reuse validation from another source.
 From committed clean source on the selected branch:
 
 ```bash
-make release-patch # Pending compatible 0.21.2 maintenance.
+make release-patch # Pending compatible 0.21.3 maintenance.
 # Or select release-minor / release-major for the complete batch's compatibility.
 ```
 
