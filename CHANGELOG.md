@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.19.4]
+
+### Fixed
+
+- Refresh Shared Tooling to reviewed 0.1.38. Pre-commit formatting finds the
+  checkout's prepared tools without a shell PATH export; Cargo tool setup rejects
+  conflicting receipts and redirected installation paths while retaining failed
+  builds and their original status.
+  [Shared #85](https://github.com/dragginzgame/shared-tooling/issues/85),
+  [#65](https://github.com/dragginzgame/shared-tooling/issues/65).
+- Reject multi-document dependency-pinning exception catalogs that could bypass
+  validation; valid single-array catalogs remain accepted.
+  [Shared #86](https://github.com/dragginzgame/shared-tooling/issues/86).
+
 ## [0.19.3] - 2026-10-09
 
 ### Removed

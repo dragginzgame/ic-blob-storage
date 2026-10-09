@@ -4,7 +4,18 @@
 
 # Dependency setup
 
-## Current graph — released 0.19.2, pending 0.19.3
+## Current graph — released 0.19.3, pending 0.19.4
+
+All twelve members inherit workspace 0.19.3. The released lock selects Host
+0.8.9, Testkit 0.25.5, private Metrics 0.2.18, public Memory 0.31.10 and PocketIC
+16.1.0. This continuation changes no dependency or package selection. Shared
+Tooling selects 93 canonical files at the committed 0.1.38 fix,
+`926a20606591214ab29faa236b0b584e4857439e`. The [initial record](evidence/shared0370194.md)
+owns hook/installer acceptance; the [follow-up](evidence/shared0380194.md) owns
+single-document pinning exception validation and current qualification limits. Existing IC
+bundles remain until the coordinated Testkit provisioning handoff.
+
+## Earlier graph — released 0.19.2, pending 0.19.3
 
 All twelve members inherit workspace 0.19.2. The selected lock uses Host 0.8.8,
 Testkit 0.25.4, private Metrics 0.2.18, public Memory 0.31.10 and PocketIC 16.1.0.

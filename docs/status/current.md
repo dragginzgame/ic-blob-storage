@@ -6,7 +6,40 @@
 
 Date: 2026-10-09
 
-## Current continuation — released 0.19.2, pending 0.19.3
+## Current continuation — released 0.19.3, pending 0.19.4
+
+- Released HEAD is `a2081319dee7e23e20e6ce587437edba73549258`, with validated
+  source `2ed6ef5a369ee4951f3a188c279ef2133e1a5342`. Cargo and the receipt remain
+  0.19.3. The actual released lock selects Host 0.8.9, Testkit 0.25.5, private
+  Metrics 0.2.18, public Memory 0.31.10 and PocketIC 16.1.0; earlier evidence and
+  finalized notes retain their original selections.
+- Adopt 93 canonical files from committed Shared Tooling's 0.1.38 fix,
+  `926a20606591214ab29faa236b0b584e4857439e`. Hooks find prepared checkout tools
+  without an interactive PATH export. Cargo tool installation rejects conflicting
+  JSON receipts and redirected ancestors, retaining failed build status/evidence.
+  [The initial record](../evidence/shared0370194.md) owns hook/installer checks.
+  [The exception follow-up](../evidence/shared0380194.md) owns the current revision:
+  pinning exceptions must contain exactly one validated JSON array. Dependency
+  fixtures pass Bash 5/Linux-built Bash 3.2; npm exception checks pass. The
+  canonical exporter uses an isolated clean checkout, excluding the sibling's
+  uncommitted VERSION change; committed identity remains the snapshot authority.
+- Hook/installer fixtures pass Bash 5 and Linux-built Bash 3.2; actual consumer
+  formatting, rollback, Make-mode refusal and lock preservation pass. Pending
+  0.19.4 is compatible developer tooling only. Dependencies, service contracts,
+  package versions and release receipt are unchanged by this continuation.
+- Released [CI](https://github.com/dragginzgame/ic-blob-storage/actions/runs/37910255607)
+  passes MSRV and Linux; Apple Silicon is running and Intel macOS is queued at
+  this read. Adopted Shared CI passes Linux/lint; both macOS lanes are queued.
+  [#37](https://github.com/dragginzgame/ic-blob-storage/issues/37) and
+  [#38](https://github.com/dragginzgame/ic-blob-storage/issues/38) remain open for
+  committed native acceptance. This released run does not qualify dirty 0.19.4.
+- Keep the functioning six-tool IC bundle until Shared #76's coordinated
+  retirement and native Testkit provisioning acceptance. Separate dirty sibling
+  work is excluded. Application/provider acceptance still belongs to #31/#33,
+  GC behavior to #32, and funding evidence to #34. No full gate, sibling edit,
+  live/paid provider effect, commit, push, release or publication occurs here.
+
+## Earlier continuation — released 0.19.2, pending 0.19.3
 
 - Remove the four unused fleet reporters/tests, their snapshot records and local
   callers under [#37](https://github.com/dragginzgame/ic-blob-storage/issues/37).
