@@ -93,6 +93,10 @@ evidence archive, IC installer, local
 lockfile, Cargo metadata, host/Cargo-tool installation and common Make/LOC refusals
 with offline substitutes. The declaration
 gate opts in to shared Cargo package/dependency inheritance checks.
+The upstream exporter/governance integration fixture runs in Shared Tooling;
+it is omitted from Blob's selected files and gate. Actual snapshot verification,
+consumer adapter checks and native adoption qualification remain here. Reusable
+fixture dependencies are explicit companions checked by the canonical exporter.
 Its focused `make tooling-evidence-check` checks retained-root selection and
 shared archive behavior without builds or network effects. The native tooling
 workflow separately uploads/downloads a synthetic checksum-bound archive by its

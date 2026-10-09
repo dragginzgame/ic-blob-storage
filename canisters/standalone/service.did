@@ -1089,8 +1089,16 @@ type UploadCapacityResponse = record {
   fenced : bool;
   // Remaining concurrent reservations, including possibly exposed uploads.
   remaining_active_uploads : nat64;
+  // Remaining global provider-storage bytes, including all reservations.
+  // Logical release alone does not restore this capacity.
+  remaining_physical_bytes : nat;
   // Exact authenticated service, namespace and tenant.
   scope : TenantScope;
+  // Remaining global continuing-billing bytes, including all reservations.
+  // Provider deletion alone does not restore this capacity.
+  remaining_liability_bytes : nat;
+  // Remaining tenant logical bytes, including this tenant's reservations.
+  remaining_logical_bytes : nat;
   // Remaining lifetime retained leaf slots.
   remaining_manifest_chunks : nat64;
   // Suspension preserves inspection while preventing fresh admission.
@@ -1098,6 +1106,7 @@ type UploadCapacityResponse = record {
   // Configured per-object byte ceiling, independent of remaining bytes.
   max_object_bytes : nat64;
   // Minimum logical, physical and continuing-billing byte headroom.
+  // Must equal the minimum of the three independent byte observations.
   remaining_bytes : nat;
 };
 // Exact uploader-only preparation assessment. This snapshot cannot authorize a

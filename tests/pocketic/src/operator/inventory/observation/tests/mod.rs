@@ -44,6 +44,9 @@ fn capacity(s: &Selection) -> UploadCapacityResponse {
         remaining_objects: 10,
         remaining_active_uploads: 1,
         remaining_manifest_chunks: 10,
+        remaining_logical_bytes: u128::from(u64::MAX) + 100,
+        remaining_physical_bytes: u128::from(u64::MAX) + 100,
+        remaining_liability_bytes: u128::from(u64::MAX) + 100,
         remaining_bytes: u128::from(u64::MAX) + 100,
         fenced: false,
     }
@@ -192,6 +195,16 @@ fn absent_content_is_unproven_and_wide_capacity_is_rendered_exactly() {
         capacity(&s).remaining_bytes.to_string()
     );
     assert_eq!(report.value["not_visible_demand"]["bytes"], "3");
+    for field in [
+        "remaining_logical_bytes",
+        "remaining_physical_bytes",
+        "remaining_liability_bytes",
+    ] {
+        assert_eq!(
+            report.value["capacity"][field],
+            (u128::from(u64::MAX) + 100).to_string()
+        );
+    }
 }
 
 #[test]
@@ -298,18 +311,73 @@ fn rejects_wrong_scope_wrong_content_and_malformed_or_denied_replies() {
         Err(Failure::Binding)
     );
     assert!(matches!(
-        decode_capacity(&vec![0; 4097]),
+        decode_capacity(s.scope, &vec![0; 4097]),
         Err(Failure::ReplyTooLarge)
     ));
     assert!(matches!(
-        decode_capacity(&[0; 10]),
+        decode_capacity(s.scope, &[0; 10]),
         Err(Failure::InvalidReply)
     ));
     let denied = candid::encode_one(Err::<UploadCapacityResponse, _>(
         UploadCapacityFailure::Denied,
     ))
     .unwrap();
-    assert_eq!(decode_capacity(&denied), Err(Failure::Denied));
+    assert_eq!(decode_capacity(s.scope, &denied), Err(Failure::Denied));
+}
+
+#[test]
+fn byte_dimensions_are_exact_and_inconsistent_minima_stop_before_discovery() {
+    let s = selection();
+    let inventory = prepared();
+    for reason in [
+        "logical_byte_capacity",
+        "physical_byte_capacity",
+        "liability_byte_capacity",
+    ] {
+        let mut c = capacity(&s);
+        match reason {
+            "logical_byte_capacity" => c.remaining_logical_bytes = 0,
+            "physical_byte_capacity" => c.remaining_physical_bytes = 0,
+            "liability_byte_capacity" => c.remaining_liability_bytes = 0,
+            _ => unreachable!(),
+        }
+        c.remaining_bytes = 0;
+        let report = inspect(&s, &inventory, |method, _| {
+            if method == "blob_upload_capacity" {
+                Ok(capacity_reply(c))
+            } else {
+                discovery_reply(&s, &inventory, None)
+            }
+        })
+        .unwrap();
+        assert_eq!(report.value["blockers"], json!([reason]));
+        for (field, available) in [
+            ("remaining_logical_bytes", c.remaining_logical_bytes),
+            ("remaining_physical_bytes", c.remaining_physical_bytes),
+            ("remaining_liability_bytes", c.remaining_liability_bytes),
+        ] {
+            assert_eq!(report.value["capacity"][field], available.to_string());
+        }
+        for bad_minimum in [1, u128::MAX] {
+            c.remaining_bytes = bad_minimum;
+            assert!(matches!(
+                inspect(&s, &inventory, |method, _| {
+                    assert_eq!(method, "blob_upload_capacity");
+                    Ok(capacity_reply(c))
+                }),
+                Err(Failure::InvalidReply)
+            ));
+        }
+        let mut understated = capacity(&s);
+        understated.remaining_bytes = 0;
+        assert!(matches!(
+            inspect(&s, &inventory, |method, _| {
+                assert_eq!(method, "blob_upload_capacity");
+                Ok(capacity_reply(understated))
+            }),
+            Err(Failure::InvalidReply)
+        ));
+    }
 }
 
 #[test]
@@ -318,6 +386,7 @@ fn reports_known_byte_history_metadata_and_suspension_blockers() {
     let inventory = prepared();
     let mut c = capacity(&s);
     c.enrollment.active = false;
+    c.remaining_physical_bytes = 2;
     c.remaining_bytes = 2;
     c.remaining_objects = 0;
     c.remaining_manifest_chunks = 0;
@@ -335,11 +404,11 @@ fn reports_known_byte_history_metadata_and_suspension_blockers() {
     assert_eq!(
         report.value["blockers"],
         json!([
-            "byte_capacity",
             "manifest_capacity",
             "new_object_limits",
             "no_active_upload_slot",
             "object_history_capacity",
+            "physical_byte_capacity",
             "tenant_suspended"
         ])
     );

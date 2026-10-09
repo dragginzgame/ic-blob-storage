@@ -4,7 +4,28 @@
 
 # Dependency setup
 
-## Current graph — released 0.19.3, pending 0.20.0
+## Current graph — released 0.20.0, pending 0.21.0
+
+All twelve members retain workspace 0.20.0 and its finalized release receipt.
+The incoming graph selects Host artifacts/fs/process/tools 0.9.2, Testkit 0.27.0,
+private Metrics 0.3.1, public Memory 0.33.0 and PocketIC client 16.1.0.
+The incoming tokio-util 0.7.20 lock update is preserved. Shared Tooling remains
+at the reviewed 92-file snapshot from committed 0.2.4 source,
+`ffbf665b8481c36b2d9f4d988abec557c3485fa6`; dirty sibling work is not adopted.
+Reusable fixture companions are checked during export. The upstream exporter
+integration fixture runs at Shared Tooling; Blob retains actual snapshot admission
+and local adoption checks under [#40](https://github.com/dragginzgame/ic-blob-storage/issues/40).
+Memory's public type identity requires a minor release and consumer rebuilds;
+runtime schemas, Host implementations and Metrics arithmetic are unchanged.
+Testkit owns structured startup failure/output/cleanup diagnostics and its
+lock-selected CLI/server setup. Run `make install-testkit` before ordinary offline
+validation of the new lock. Previous bundles, CLI slots and evidence remain.
+The [adoption record](evidence/libraries0210.md) owns focused qualification of
+the earlier library-only graph; the [capacity/cleanup record](evidence/capacity0210.md)
+owns the subsequent public-capacity and reduced-snapshot changes. Prior results
+retain their original source bindings.
+
+## Earlier graph — released 0.19.3, pending 0.20.0
 
 All twelve members inherit workspace 0.19.3. The approved graph selects Host
 artifacts/fs/process/tools 0.9.1, Testkit 0.26.0, private Metrics 0.3.0, public

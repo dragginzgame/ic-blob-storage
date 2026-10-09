@@ -1,5 +1,35 @@
 # Changelog
 
+## [0.21.0]
+
+### Breaking
+
+- Expose separate tenant logical, global physical and global billing-liability
+  byte headroom in public capacity replies and native preflight reports.
+  The existing usable minimum and admission rules remain. Preflight refuses
+  inconsistent minima and identifies each exhausted byte dimension, replacing
+  the generic `byte_capacity` blocker. Rebuild clients against the new Candid
+  and Rust contract. [#6](https://github.com/dragginzgame/ic-blob-storage/issues/6).
+- Move the public Memory re-export to ic-memory 0.33. Consumers must align the
+  Memory type identity and rebuild. Runtime schemas are unchanged; the existing
+  cross-release retirement/reinstall contract still applies.
+
+### Changed
+
+- Refresh to committed Shared Tooling 0.2.4 source with explicit companion checks
+  for reusable fixtures and guidance on diagnosing native CI queues.
+- Remove the upstream exporter integration fixture from the consumer snapshot
+  and tooling gate. Shared Tooling owns exporter/governance qualification;
+  Blob retains snapshot verification and local adoption checks.
+  [#40](https://github.com/dragginzgame/ic-blob-storage/issues/40).
+- Adopt Testkit 0.27.0. Its structured startup errors retain the original cause,
+  bounded server output and separate command/server cleanup failures. The
+  existing harness preserves these diagnostics without adding a second owner.
+  Run `make install-testkit` to prepare the lock-selected CLI before offline checks.
+- Select Host artifacts/fs/process/tools 0.9.2 and private Metrics 0.3.1.
+  Their runtime Rust sources are unchanged from the previous selections; retain
+  the existing Host file/process delegation and Metrics arithmetic.
+
 ## [0.20.0] - 2026-10-09
 
 ### Breaking

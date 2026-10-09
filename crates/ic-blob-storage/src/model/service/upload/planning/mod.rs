@@ -45,6 +45,14 @@ pub struct AdmissionCapacityView {
     /// Remaining lifetime manifest leaves; sum ceil(bytes / chunk size) per object.
     /// Cancellation, physical deletion and settlement never refund these leaves.
     pub remaining_manifest_chunks: u64,
+    /// Remaining tenant logical bytes, including this tenant's reservations.
+    pub remaining_logical_bytes: u128,
+    /// Remaining global physical bytes, including every tenant's reservations.
+    /// Logical release does not restore this capacity.
+    pub remaining_physical_bytes: u128,
+    /// Remaining global billing-liability bytes, including every reservation.
+    /// Physical deletion does not establish billing cessation.
+    pub remaining_liability_bytes: u128,
     /// Minimum remaining tenant logical, global physical and global liability bytes.
     /// Includes pending reservations. Logical release cannot clear physical/billing
     /// obligations; deletion alone cannot clear continuing billing.
@@ -87,6 +95,11 @@ pub(crate) fn headroom(
     tenant: UploadUsage,
     remaining_manifest_chunks: u64,
 ) -> AdmissionCapacityView {
+    let remaining_logical_bytes =
+        limits.catalog.max_tenant_logical_bytes.get() - tenant.logical_bytes;
+    let remaining_physical_bytes = limits.catalog.max_physical_bytes.get() - global.physical_bytes;
+    let remaining_liability_bytes =
+        limits.catalog.max_liability_bytes.get() - global.liability_bytes;
     AdmissionCapacityView {
         enrollment,
         max_object_bytes: limits.max_object_bytes.get(),
@@ -97,8 +110,11 @@ pub(crate) fn headroom(
         remaining_active_uploads: (limits.uploads.max_active.get() - global.active_reservations)
             .min(limits.uploads.max_tenant_active.get() - tenant.active_reservations),
         remaining_manifest_chunks,
-        remaining_bytes: (limits.catalog.max_tenant_logical_bytes.get() - tenant.logical_bytes)
-            .min(limits.catalog.max_physical_bytes.get() - global.physical_bytes)
-            .min(limits.catalog.max_liability_bytes.get() - global.liability_bytes),
+        remaining_logical_bytes,
+        remaining_physical_bytes,
+        remaining_liability_bytes,
+        remaining_bytes: remaining_logical_bytes
+            .min(remaining_physical_bytes)
+            .min(remaining_liability_bytes),
     }
 }

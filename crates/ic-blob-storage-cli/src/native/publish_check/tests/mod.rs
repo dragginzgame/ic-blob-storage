@@ -65,6 +65,9 @@ pub(in crate::native) fn capacity(scope: TenantScope) -> UploadCapacityResponse 
         remaining_objects: 2,
         remaining_active_uploads: 1,
         remaining_manifest_chunks: 2,
+        remaining_logical_bytes: 20,
+        remaining_physical_bytes: 20,
+        remaining_liability_bytes: 20,
         remaining_bytes: 20,
         fenced: false,
     }
@@ -193,6 +196,55 @@ fn absent_existing_and_retired_roots_never_infer_upload_or_retry_authority() {
     }
 }
 #[test]
+fn byte_dimensions_report_exact_blockers_and_reject_inconsistent_minima() {
+    for reason in [
+        "logical_byte_capacity",
+        "physical_byte_capacity",
+        "liability_byte_capacity",
+    ] {
+        let d = frozen();
+        let u = batch(&d).files[0].input.permission.upload;
+        let scope = TenantScope {
+            service: u.service,
+            namespace: u.namespace,
+            tenant: u.tenant,
+        };
+        let mut c = capacity(scope);
+        match reason {
+            "logical_byte_capacity" => c.remaining_logical_bytes = 0,
+            "physical_byte_capacity" => c.remaining_physical_bytes = 0,
+            "liability_byte_capacity" => c.remaining_liability_bytes = 0,
+            _ => unreachable!(),
+        }
+        c.remaining_bytes = 0;
+        let report = inspect(&d, None, c);
+        assert_eq!(report["blockers"], json!([reason]));
+        for (field, available) in [
+            ("remaining_logical_bytes", c.remaining_logical_bytes),
+            ("remaining_physical_bytes", c.remaining_physical_bytes),
+            ("remaining_liability_bytes", c.remaining_liability_bytes),
+        ] {
+            assert_eq!(report["capacity"][field], available.to_string());
+        }
+        for bad_minimum in [1, 21] {
+            c.remaining_bytes = bad_minimum;
+            let reply = candid::encode_one(Ok::<_, UploadCapacityFailure>(c)).unwrap();
+            assert_eq!(
+                observation::capacity(scope, &reply),
+                Err(Failure::InvalidReply)
+            );
+        }
+        let mut understated = capacity(scope);
+        understated.remaining_bytes = 0;
+        let reply = candid::encode_one(Ok::<_, UploadCapacityFailure>(understated)).unwrap();
+        assert_eq!(
+            observation::capacity(scope, &reply),
+            Err(Failure::InvalidReply)
+        );
+    }
+}
+
+#[test]
 fn independent_headroom_fences_and_suspension_are_visible() {
     let d = frozen();
     let b = batch(&d);
@@ -206,6 +258,7 @@ fn independent_headroom_fences_and_suspension_are_visible() {
     c.remaining_objects = 0;
     c.remaining_active_uploads = 0;
     c.remaining_manifest_chunks = 0;
+    c.remaining_logical_bytes = 0;
     c.remaining_bytes = 0;
     c.fenced = true;
     c.enrollment.active = false;
@@ -214,7 +267,7 @@ fn independent_headroom_fences_and_suspension_are_visible() {
         "object_history_capacity",
         "no_active_upload_slot",
         "manifest_capacity",
-        "byte_capacity",
+        "logical_byte_capacity",
         "service_fenced",
         "tenant_suspended",
     ] {

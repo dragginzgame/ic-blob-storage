@@ -83,6 +83,13 @@ pub(in crate::native) fn capacity(
     {
         return Err(Failure::InvalidReply);
     }
+    if r.remaining_bytes
+        != r.remaining_logical_bytes
+            .min(r.remaining_physical_bytes)
+            .min(r.remaining_liability_bytes)
+    {
+        return Err(Failure::InvalidReply);
+    }
     Ok(r)
 }
 fn discovery(
@@ -136,6 +143,10 @@ where
     run.bytes(&format!("query-{index:04}-reply.candid"), &bytes)?;
     Ok(bytes)
 }
+#[expect(
+    clippy::too_many_lines,
+    reason = "One bounded sequential observation retains original replies before projecting preflight diagnostics"
+)]
 pub(in crate::native) async fn inspect<Q, F>(
     scope: TenantScope,
     inputs: &[FrozenFile],
@@ -219,8 +230,14 @@ where
     if demand_chunks > c.remaining_manifest_chunks {
         blockers.insert("manifest_capacity");
     }
-    if demand_bytes > c.remaining_bytes {
-        blockers.insert("byte_capacity");
+    for (reason, available) in [
+        ("logical_byte_capacity", c.remaining_logical_bytes),
+        ("physical_byte_capacity", c.remaining_physical_bytes),
+        ("liability_byte_capacity", c.remaining_liability_bytes),
+    ] {
+        if demand_bytes > available {
+            blockers.insert(reason);
+        }
     }
     if demand_objects > 0 && c.remaining_active_uploads == 0 {
         blockers.insert("no_active_upload_slot");
@@ -235,7 +252,9 @@ where
         report: json!({"schema":1,"observation":"publish_check","complete":true,
         "authentication":"query_signatures","consistency":"sequential_observations",
         "scope":{"service":scope.service.to_text(),"namespace":scope.namespace.to_string(),"tenant":scope.tenant.to_text()},
-        "capacity":{"remaining_objects":c.remaining_objects,"remaining_active_uploads":c.remaining_active_uploads,"remaining_manifest_chunks":c.remaining_manifest_chunks,"remaining_bytes":c.remaining_bytes.to_string(),"max_object_bytes":c.max_object_bytes.to_string(),"tenant_active":c.enrollment.active,"tenant_generation":c.enrollment.generation.to_string(),"fenced":c.fenced},
+        "capacity":{"remaining_objects":c.remaining_objects,"remaining_active_uploads":c.remaining_active_uploads,"remaining_manifest_chunks":c.remaining_manifest_chunks,"remaining_bytes":c.remaining_bytes.to_string(),
+            "remaining_logical_bytes":c.remaining_logical_bytes.to_string(),"remaining_physical_bytes":c.remaining_physical_bytes.to_string(),"remaining_liability_bytes":c.remaining_liability_bytes.to_string(),
+            "max_object_bytes":c.max_object_bytes.to_string(),"tenant_active":c.enrollment.active,"tenant_generation":c.enrollment.generation.to_string(),"fenced":c.fenced},
         "not_visible_demand":{"objects":demand_objects,"manifest_chunks":demand_chunks,"bytes":demand_bytes.to_string()},
         "blockers":blockers,"blocked":!blockers.is_empty(),"files":entries,
         "queries":inputs.len()+1,"snapshot_bodies_verified":true,"identities_allocated":false,

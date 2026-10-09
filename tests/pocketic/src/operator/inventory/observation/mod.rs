@@ -12,6 +12,7 @@ use candid::{CandidType, DecoderConfig, Deserialize, decode_one_with_config};
 use ic_blob_storage_contracts::dto::reference::capacity::ReferenceCapacityFailure;
 use ic_blob_storage_contracts::dto::reference::capacity::ReferenceCapacityRequest;
 use ic_blob_storage_contracts::dto::reference::capacity::ReferenceCapacityResponse;
+use ic_blob_storage_contracts::dto::tenant::TenantScope;
 use ic_blob_storage_contracts::dto::upload::capacity::UploadCapacityFailure;
 use ic_blob_storage_contracts::dto::upload::capacity::UploadCapacityResponse;
 use ic_blob_storage_contracts::dto::upload::discovery::UploadDiscoveryFailure;
@@ -39,12 +40,35 @@ fn decode_result<
         .set_full_error_message(false);
     decode_one_with_config(bytes, &config).map_err(|_| Failure::InvalidReply)
 }
-fn decode_capacity(bytes: &[u8]) -> Result<UploadCapacityResponse, Failure> {
-    decode_result::<_, UploadCapacityFailure>(bytes)?.map_err(|error| match error {
-        UploadCapacityFailure::Binding => Failure::Binding,
-        UploadCapacityFailure::Denied | UploadCapacityFailure::NotEnrolled => Failure::Denied,
-        UploadCapacityFailure::Invalid | UploadCapacityFailure::Internal => Failure::InvalidReply,
-    })
+fn decode_capacity(scope: TenantScope, bytes: &[u8]) -> Result<UploadCapacityResponse, Failure> {
+    let capacity = decode_result::<UploadCapacityResponse, UploadCapacityFailure>(bytes)?.map_err(
+        |error| match error {
+            UploadCapacityFailure::Binding => Failure::Binding,
+            UploadCapacityFailure::Denied | UploadCapacityFailure::NotEnrolled => Failure::Denied,
+            UploadCapacityFailure::Invalid | UploadCapacityFailure::Internal => {
+                Failure::InvalidReply
+            }
+        },
+    )?;
+    if capacity.scope != scope {
+        return Err(Failure::Binding);
+    }
+    if capacity.enrollment.generation == 0
+        || capacity.max_object_bytes == 0
+        || capacity.max_headers == 0
+        || capacity.max_header_bytes == 0
+    {
+        return Err(Failure::InvalidReply);
+    }
+    if capacity.remaining_bytes
+        != capacity
+            .remaining_logical_bytes
+            .min(capacity.remaining_physical_bytes)
+            .min(capacity.remaining_liability_bytes)
+    {
+        return Err(Failure::InvalidReply);
+    }
+    Ok(capacity)
 }
 
 pub(super) fn query(selection: &Selection, inventory: &Inventory) -> Result<Report, Failure> {
@@ -58,20 +82,13 @@ fn inspect(
     inventory: &Inventory,
     mut query: impl FnMut(&str, Vec<u8>) -> Result<Vec<u8>, Failure>,
 ) -> Result<Report, Failure> {
-    let capacity = decode_capacity(&query(
-        "blob_upload_capacity",
-        candid::encode_one(selection.scope).expect("capacity scope"),
-    )?)?;
-    if capacity.scope != selection.scope {
-        return Err(Failure::Binding);
-    }
-    if capacity.enrollment.generation == 0
-        || capacity.max_object_bytes == 0
-        || capacity.max_headers == 0
-        || capacity.max_header_bytes == 0
-    {
-        return Err(Failure::InvalidReply);
-    }
+    let capacity = decode_capacity(
+        selection.scope,
+        &query(
+            "blob_upload_capacity",
+            candid::encode_one(selection.scope).expect("capacity scope"),
+        )?,
+    )?;
     let mut blockers = Vec::new();
     if capacity.fenced {
         blockers.push("service_fenced");
@@ -127,8 +144,17 @@ fn inspect(
     if unseen_objects > capacity.remaining_objects {
         blockers.push("object_history_capacity");
     }
-    if unseen_bytes > capacity.remaining_bytes {
-        blockers.push("byte_capacity");
+    for (reason, available) in [
+        ("logical_byte_capacity", capacity.remaining_logical_bytes),
+        ("physical_byte_capacity", capacity.remaining_physical_bytes),
+        (
+            "liability_byte_capacity",
+            capacity.remaining_liability_bytes,
+        ),
+    ] {
+        if unseen_bytes > available {
+            blockers.push(reason);
+        }
     }
     if unseen_chunks > capacity.remaining_manifest_chunks {
         blockers.push("manifest_capacity");
@@ -149,6 +175,7 @@ fn inspect(
                 "namespace":selection.scope.namespace.to_string(),"server":selection.target.server.to_string(),"instance":selection.target.instance},
             "capacity":{"remaining_objects":capacity.remaining_objects,"remaining_active_uploads":capacity.remaining_active_uploads,
                 "remaining_manifest_chunks":capacity.remaining_manifest_chunks,"remaining_bytes":capacity.remaining_bytes.to_string(),
+                "remaining_logical_bytes":capacity.remaining_logical_bytes.to_string(),"remaining_physical_bytes":capacity.remaining_physical_bytes.to_string(),"remaining_liability_bytes":capacity.remaining_liability_bytes.to_string(),
                 "tenant_active":capacity.enrollment.active,"tenant_generation":capacity.enrollment.generation.to_string(),"fenced":capacity.fenced},
             "not_visible_demand":{"objects":unseen_objects,"bytes":unseen_bytes.to_string(),"manifest_chunks":unseen_chunks},
             "blockers":blockers,"contents":contents,

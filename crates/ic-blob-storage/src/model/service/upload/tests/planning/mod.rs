@@ -156,6 +156,10 @@ fn cancellation_and_failed_or_exact_retries_preserve_lifetime_headroom() {
 }
 
 #[test]
+#[expect(
+    clippy::too_many_lines,
+    reason = "One ordered multi-tenant journey distinguishes logical release, physical deletion and billing settlement"
+)]
 fn other_tenant_obligations_limit_headroom_until_billing_really_stops() {
     let mut owner = two_tenants();
     let first = permission(1);
@@ -172,6 +176,14 @@ fn other_tenant_obligations_limit_headroom_until_billing_really_stops() {
     assert_eq!(full.remaining_manifest_chunks, 2);
     assert_eq!(full.remaining_active_uploads, 0);
     assert_eq!(full.remaining_bytes, 0);
+    assert_eq!(
+        (
+            full.remaining_logical_bytes,
+            full.remaining_physical_bytes,
+            full.remaining_liability_bytes
+        ),
+        (10, 0, 0)
+    );
     prepare(&mut owner, &first);
     owner.expose(context(5), first.request, 11).unwrap();
     assert_eq!(view(&owner, 4), full);
@@ -189,6 +201,15 @@ fn other_tenant_obligations_limit_headroom_until_billing_really_stops() {
         )
         .unwrap();
     assert_eq!(owner.catalog().tenant_usage(p(4)).logical_bytes, 0);
+    let released = view(&owner, 4);
+    assert_eq!(
+        (
+            released.remaining_logical_bytes,
+            released.remaining_physical_bytes,
+            released.remaining_liability_bytes
+        ),
+        (20, 0, 0)
+    );
     assert_eq!(view(&owner, 4).remaining_bytes, 0);
     assert!(matches!(
         owner.admit(context(4), permission(3), 12),
@@ -203,6 +224,15 @@ fn other_tenant_obligations_limit_headroom_until_billing_really_stops() {
         )
         .unwrap();
     assert_eq!(owner.catalog().usage().physical_bytes, 10);
+    let deleted = view(&owner, 4);
+    assert_eq!(
+        (
+            deleted.remaining_logical_bytes,
+            deleted.remaining_physical_bytes,
+            deleted.remaining_liability_bytes
+        ),
+        (20, 10, 0)
+    );
     assert_eq!(view(&owner, 4).remaining_bytes, 0);
     assert!(matches!(
         owner.admit(context(4), permission(3), 12),
@@ -218,6 +248,14 @@ fn other_tenant_obligations_limit_headroom_until_billing_really_stops() {
         .unwrap();
     let settled = view(&owner, 4);
     assert_eq!(settled.remaining_bytes, 10);
+    assert_eq!(
+        (
+            settled.remaining_logical_bytes,
+            settled.remaining_physical_bytes,
+            settled.remaining_liability_bytes
+        ),
+        (20, 10, 10)
+    );
     assert_eq!(settled.remaining_objects, full.remaining_objects);
     assert_eq!(
         settled.remaining_manifest_chunks,
@@ -250,6 +288,15 @@ fn byte_headroom_retains_u128_width() {
         )
         .unwrap();
     assert_eq!(view(&owner, 4).remaining_bytes, maximum);
+    let initial = view(&owner, 4);
+    assert_eq!(
+        (
+            initial.remaining_logical_bytes,
+            initial.remaining_physical_bytes,
+            initial.remaining_liability_bytes
+        ),
+        (maximum + 20, maximum, maximum + 10)
+    );
     owner.admit(context(4), permission(1), 10).unwrap();
     assert_eq!(view(&owner, 4).remaining_bytes, maximum - 10);
 }

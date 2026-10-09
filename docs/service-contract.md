@@ -913,7 +913,14 @@ For fresh uploads, `blob_upload_capacity` observes the tighter tenant/global
 headroom in each independent dimension: lifetime operation/root slots, concurrent
 reservations, lifetime manifest leaves and bytes. Byte headroom is the minimum of
 tenant logical, global physical and global continuing-liability headroom, including
-unconfirmed reservations. Enrollment and per-object size/metadata limits accompany
+unconfirmed reservations. The response also exposes those three headrooms as
+mandatory full-width `remaining_logical_bytes`, `remaining_physical_bytes` and
+`remaining_liability_bytes`; `remaining_bytes` must equal their minimum. These
+are observations from the existing accounting owner, not extra stored counters.
+Native preflight reports distinguish each exhausted byte dimension and reject
+inconsistent minima. All clients must rebuild against the pending 0.21.0 Rust/
+Candid contract; no optional fields, old decoder or compatibility reply is supplied.
+Enrollment and per-object size/metadata limits accompany
 the observation, along with the independent restore fence. Only the exact enrolled
 tenant can inspect this scope; suspended
 tenants retain visibility without regaining admission authority. Shared contention

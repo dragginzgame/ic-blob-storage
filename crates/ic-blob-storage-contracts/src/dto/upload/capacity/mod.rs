@@ -23,7 +23,16 @@ pub struct UploadCapacityResponse {
     pub remaining_active_uploads: u64,
     /// Remaining lifetime retained leaf slots.
     pub remaining_manifest_chunks: u64,
+    /// Remaining tenant logical bytes, including this tenant's reservations.
+    pub remaining_logical_bytes: u128,
+    /// Remaining global provider-storage bytes, including all reservations.
+    /// Logical release alone does not restore this capacity.
+    pub remaining_physical_bytes: u128,
+    /// Remaining global continuing-billing bytes, including all reservations.
+    /// Provider deletion alone does not restore this capacity.
+    pub remaining_liability_bytes: u128,
     /// Minimum logical, physical and continuing-billing byte headroom.
+    /// Must equal the minimum of the three independent byte observations.
     pub remaining_bytes: u128,
     /// Restored owner permits inspection only, regardless of positive headroom.
     pub fenced: bool,

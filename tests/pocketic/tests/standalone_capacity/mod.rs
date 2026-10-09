@@ -67,6 +67,18 @@ fn standalone_capacity_is_tenant_scoped_and_bounded_without_reserving_quota() {
         f.config.resources.max_physical_bytes
     );
     assert_eq!(observed.remaining_objects, 2);
+    assert_eq!(
+        observed.remaining_logical_bytes,
+        f.config.resources.max_tenant_logical_bytes
+    );
+    assert_eq!(
+        observed.remaining_physical_bytes,
+        f.config.resources.max_physical_bytes
+    );
+    assert_eq!(
+        observed.remaining_liability_bytes,
+        f.config.resources.max_liability_bytes
+    );
     assert_eq!(observed.remaining_active_uploads, 2);
     assert_eq!(observed.remaining_manifest_chunks, 20);
     assert!(!observed.fenced);

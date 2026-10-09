@@ -119,7 +119,6 @@ shared-tooling-tests:
 	perl scripts/ci/test-local-lock-versions.pl
 	bash scripts/ci/test-cargo-metadata.sh
 	bash scripts/ci/test-npm-pins.sh
-	bash scripts/ci/test-snapshot-distribution.sh
 	bash scripts/ci/test-host-tools.sh
 	bash scripts/ci/test-rust-tools.sh
 	bash scripts/ci/test-tool-commands.sh

@@ -1,0 +1,31 @@
+{
+  "evidence_class": "local_capacity_contract_and_tooling",
+  "head": "71ddea9c0f4f007eba1b9f13500ff8b0f4ec1de6",
+  "compiled_package_version": "0.20.0",
+  "pending_release": "0.21.0",
+  "shared_revision": "ffbf665b8481c36b2d9f4d988abec557c3485fa6",
+  "graph": "Host 0.9.2; Testkit 0.27.0; Memory 0.33.0; Metrics 0.3.1; PocketIC 16.1.0; incoming Cargo files preserved",
+  "lock_sha256": "bc12a3545eb14c5099d9ef84dfab98f65bd99faa04df9905a714db71c277dcf5",
+  "compiler_inputs_sha256": "9b4b78f90084dfb9f381a431b0836bb9e404dff65972189261be8e8ea19a6387",
+  "commands": [
+    "core planning/capacity boundary cases",
+    "native publish-check and private inventory observation cases",
+    "standalone capacity and Candid interface cases",
+    "storage planning deletion/settlement/restore case",
+    "strict affected lint; Rust 1.88 native/Wasm; scoped tooling checks"
+  ],
+  "budget": {
+    "explicit_local_probe_gets": 0,
+    "live_provider_requests": 0,
+    "paid_effects": 0
+  },
+  "targets": "Isolated PocketIC local capacity observations and synthetic provider-deletion/billing facts. No deployed provider, browser or funding transport.",
+  "retention": "Separate source/lock/input manifests, logs and exact executed artifacts; earlier adoption proof remains separate. Temporary successful fixture bodies are not separately archived.",
+  "cleanup": "Owned local scopes must close; no external obligations created",
+  "phase": "Complete qualification after moving private reply validation into its existing scoped decoder",
+  "earlier_attempt": "Both earlier phases pass 31 native/four IC-Candid cases. Original lint length refusals and both source/artifact sets remain. Phase2 lint reached private inspection (113/100); move validation into its existing decoder, preserving scope/refusal order and behavior, rather than adding another owner.",
+  "changed_inputs": [
+    "/home/adam/projects/ic-blob-storage/tests/pocketic/src/operator/inventory/observation/mod.rs",
+    "/home/adam/projects/ic-blob-storage/tests/pocketic/src/operator/inventory/observation/tests/mod.rs"
+  ]
+}

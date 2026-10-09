@@ -143,6 +143,19 @@ fn durable_headroom_preserves_cleanup_slots_and_billing_until_settlement() {
     assert_eq!(f.reference_headroom(f.tenant, lookup), Ok(Some(retired)));
     assert_eq!(f.capacity(f.tenant, scope).unwrap().remaining_bytes, 10);
     f.fact(permission.request, ProviderFact::Deleted).unwrap();
+    let deleted = f.capacity(f.tenant, scope).unwrap();
+    assert_eq!(
+        deleted.remaining_logical_bytes,
+        initial.remaining_logical_bytes
+    );
+    assert_eq!(
+        deleted.remaining_physical_bytes,
+        initial.remaining_physical_bytes
+    );
+    assert_eq!(
+        deleted.remaining_liability_bytes,
+        initial.remaining_liability_bytes - 10
+    );
     assert_eq!(f.capacity(f.tenant, scope).unwrap().remaining_bytes, 10);
     f.fact(permission.request, ProviderFact::Settled).unwrap();
     let settled = f.capacity(f.tenant, scope).unwrap();

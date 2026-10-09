@@ -682,6 +682,15 @@ directory and an explicitly bounded observation window.
 
 Fences, suspension, duplicate planned roots, object/metadata ceilings, lifetime
 history/leaves/bytes and lack of an active slot appear as separate blockers.
+Capacity JSON renders `remaining_logical_bytes`, `remaining_physical_bytes` and
+`remaining_liability_bytes` as exact decimal strings. `remaining_bytes` remains
+their minimum. The three byte blockers are `logical_byte_capacity`,
+`physical_byte_capacity` and `liability_byte_capacity`; every exceeded dimension
+is reported. Logical release can restore tenant headroom while physical or
+billing headroom stays exhausted. Provider deletion can restore physical
+headroom while billing remains exhausted. Only separately evidenced settlement
+restores billing headroom. Inconsistent capacity minima refuse as invalid replies;
+clients do not repair, clamp or default missing fields.
 Concurrency is a serial-upload ceiling, not the number of files in the batch.
 `blocked: true` is a successful **observation**, so exit zero does not permit a
 publisher to proceed. Queries are sequential, not a transactional snapshot; even

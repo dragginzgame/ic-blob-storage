@@ -113,6 +113,9 @@ pub(crate) fn inspect<S: UploadCapacitySource>(
         remaining_objects: count(view.remaining_objects)?,
         remaining_active_uploads: count(view.remaining_active_uploads)?,
         remaining_manifest_chunks: view.remaining_manifest_chunks,
+        remaining_logical_bytes: view.remaining_logical_bytes,
+        remaining_physical_bytes: view.remaining_physical_bytes,
+        remaining_liability_bytes: view.remaining_liability_bytes,
         remaining_bytes: view.remaining_bytes,
         fenced,
     })

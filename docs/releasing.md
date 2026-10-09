@@ -25,11 +25,24 @@ make install-hooks
 make release-plan VERSION=patch
 ```
 
-The pending 0.20.0 developer-tool hard cut requires explicit `make install-tools`
+The released 0.20.0 developer-tool hard cut requires explicit `make install-tools`
 even in an existing checkout: the shared bundle now has five tools and Testkit
 owns PocketIC. Old bundles are retained, and validation never converts them or
 downloads a server. `make tools-check` includes the lock-selected Testkit CLI and
 its authenticated offline server check. See the [adoption record](evidence/pocketic-handoff0200.md).
+
+For pending 0.21.0, run `make install-testkit` explicitly after the lock changes
+to Testkit 0.27, then `make testkit-check`. The existing authenticated PocketIC
+16.1.0 server remains selected; prior CLI installations and receipts are retained.
+Memory 0.33 changes the public re-export's type identity, requiring aligned
+consumer dependencies and rebuilds. Runtime schemas are unchanged; cross-release
+installation retirement/reinstall requirements still apply.
+
+The same batch changes capacity reply/preflight shapes: rebuild consumers for
+the three mandatory byte headrooms and dimension-specific blocker names. The
+usable minimum and stored schemas remain unchanged. Shared Tooling's upstream
+exporter fixture is omitted from the 92-file snapshot and consumer gate; actual
+snapshot verification and native adoption acceptance remain required.
 
 Hook installation is local to this clone and refuses to replace existing hook
 obligations. `release-plan` previews arithmetic and selected branch/remote without
@@ -80,7 +93,7 @@ do not bypass the runner's saved intent or reuse validation from another source.
 From committed clean source on the selected branch:
 
 ```bash
-make release-minor # Pending 0.20.0 developer-tool hard cut.
+make release-minor # Pending 0.21.0 public Memory hard cut.
 # Or select release-minor / release-major for the complete batch's compatibility.
 ```
 

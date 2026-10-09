@@ -30,6 +30,9 @@ fn capacity_boundary_keeps_full_width_namespace_and_byte_headroom() {
     let observed = inspect(&store, context(4), scope).unwrap();
     assert_eq!(observed.scope, scope);
     assert_eq!(observed.remaining_bytes, u128::MAX);
+    assert_eq!(observed.remaining_logical_bytes, u128::MAX);
+    assert_eq!(observed.remaining_physical_bytes, u128::MAX);
+    assert_eq!(observed.remaining_liability_bytes, u128::MAX);
     let bytes = candid::encode_one(observed).unwrap();
     assert_eq!(
         candid::decode_one::<UploadCapacityResponse>(&bytes).unwrap(),

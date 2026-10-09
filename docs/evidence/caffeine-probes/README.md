@@ -14,6 +14,38 @@ maintained release and open work.
 [acceptance plan](../../acceptance-plan.md) ·
 [service gaps](../../service-gaps.md)
 
+## Capacity diagnostics and reduced consumer tooling — 2026-10-09
+
+The [intent](local/2026-10-09-capacity0210-01/intent.json),
+[qualified source intent](local/2026-10-09-capacity0210-01/qualified-intent.json)
+and [summary](local/2026-10-09-capacity0210-01/summary.json) bind compiled 0.20.0 /
+pending 0.21.0 to explicit logical/physical/liability headroom and the 92-file
+Shared 0.2.4 source snapshot. All 35 focused cases, strict affected lint and actual
+Rust 1.88 native/Wasm checks pass with 14,407 captured inputs unchanged.
+
+[The follow-up record](../capacity0210.md) owns exact Candid/Rust/JSON behavior,
+fixture removal, source phases, original lint/compiler/PATH failures and native
+acceptance limits. Synthetic provider facts only: zero explicit local probe GETs,
+deployed requests or paid effects. Temporary successful fixtures follow existing
+cleanup; logs and executed bytes survive. Owned local scopes close. Earlier
+library-only qualification is not relabelled as this follow-up.
+
+## Library adoption for pending 0.21.0 — 2026-10-09
+
+The [intent](local/2026-10-09-libraries0210-01/intent.json) and
+[summary](local/2026-10-09-libraries0210-01/summary.json) bind compiled 0.20.0 /
+pending 0.21.0 to Host 0.9.2, Testkit 0.27, public Memory 0.33 and private
+Metrics 0.3.1. Shared remains the reviewed 0.2.2 snapshot. All 242 native-host
+cases, six focused file/process cases, strict affected lint and actual Rust 1.88
+native/Wasm checks pass with 17,750 captured inputs unchanged.
+
+[The adoption record](../libraries0210.md) owns package source identity, explicit
+CLI setup/pathless offline admission, preserved tool bytes and acceptance limits.
+Four explicit local probe GETs, zero deployed provider/paid effects. Temporary
+successful probe bodies/requests follow existing cleanup; logs and executed bytes
+survive. Owned local scopes close. Earlier evidence remains separate; new native
+macOS and full release qualification remain outstanding.
+
 ## Final coordinated 0.20.0 graph — 2026-10-09
 
 The [final intent](local/2026-10-09-tooling-hardcut0200-01/coordinated-intent.json)

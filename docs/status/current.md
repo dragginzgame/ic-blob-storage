@@ -6,7 +6,54 @@
 
 Date: 2026-10-09
 
-## Current continuation — released 0.19.3, pending 0.20.0
+## Current continuation — released 0.20.0, pending 0.21.0
+
+- Released HEAD is `71ddea9c0f4f007eba1b9f13500ff8b0f4ec1de6`, validated source
+  `a58c62f7a0c0e589f3054098aaff1651e93b664e`. Package versions and the release
+  receipt remain 0.20.0. Pending 0.21.0 adopts public Memory 0.33: consumers
+  must align its type identity and rebuild. Runtime schemas remain unchanged;
+  the existing cross-release retirement/reinstall contract still applies.
+- Preserve the incoming Cargo changes selecting all four Host crates at 0.9.2,
+  Testkit 0.27.0, Memory 0.33.0, private Metrics 0.3.1 and tokio-util 0.7.20.
+  Shared now selects 92 files from reviewed committed 0.2.4 source
+  `ffbf665b8481c36b2d9f4d988abec557c3485fa6`. Host/Memory/Metrics runtime
+  Rust sources are unchanged; Testkit now retains original startup failure,
+  bounded output and separate cleanup diagnostics through our existing harness.
+  No new wrapper or server policy is introduced.
+- [The capacity/cleanup follow-up](../evidence/capacity0210.md) exposes tenant
+  logical, global physical and global billing-liability headroom alongside their
+  unchanged minimum. Native preflights report each exhausted dimension and refuse
+  inconsistent minima. Rust/Candid/JSON consumers must rebuild; stored schemas,
+  limits, identity allocation and admission rules remain unchanged. Fix the
+  core's stale Memory 0.31 guidance to match its selected 0.33 identity.
+  All 35 focused core/client/Candid/PocketIC cases, strict affected lint and
+  Rust 1.88 native workspace/Wasm pass. The consumer tooling suite passes Bash 5;
+  eight refreshed fixtures pass Linux-built Bash 3.2 with prepared tools. Original
+  lint/compiler/PATH failures and source phases remain retained. No provider probe
+  or paid effect; owned local scopes close. Captured qualified inputs stay unchanged.
+- Remove the 606-line upstream exporter integration fixture and its Make/snapshot
+  callers under [#40](https://github.com/dragginzgame/ic-blob-storage/issues/40).
+  Canonical exporter/governance coverage stays upstream; actual snapshot and
+  consumer adapter checks stay here. No named definition is removed. Earlier
+  library-only evidence retains its original Shared revision and source.
+- Explicit `make install-testkit` prepares the lock-selected 0.27 CLI; ordinary
+  checks stay offline. Preserve prior CLI slots, server archives, bundles,
+  receipts and failed evidence. Per-instance server ownership/drop order and
+  followed-symlink/buffered-output/probe-retention contracts remain in place.
+- [The adoption record](../evidence/libraries0210.md) owns this graph's focused
+  qualification, source identity and limitations: 242 native-host and six focused
+  file/process cases, strict affected lint and actual Rust 1.88 native/Wasm pass
+  with 17,750 captured inputs unchanged. Four explicit local probe GETs, zero
+  deployed/paid effects; owned local scopes close. Released 0.20.0
+  [CI](https://github.com/dragginzgame/ic-blob-storage/actions/runs/37924115927)
+  passes Linux/MSRV; both macOS jobs are queued at the latest observation.
+  Dirty 0.21.0 has no remote result.
+  [#39](https://github.com/dragginzgame/ic-blob-storage/issues/39) remains open for
+  committed Linux/Intel macOS/Apple Silicon setup/check and product startup.
+  Full release validation and new native macOS acceptance remain outstanding.
+  #31/#33, #32 and #34 retain application/provider, GC and real funding evidence.
+
+## Earlier continuation — released 0.19.3, pending 0.20.0
 
 - Current implementation base is `9a5173d365d2c11889ea2e813c9645ab366fbffe`;
   finalized release/receipt remain 0.19.3 at
