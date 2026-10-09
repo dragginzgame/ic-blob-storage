@@ -6,7 +6,55 @@
 
 Date: 2026-10-09
 
-## Current continuation — released 0.20.0, pending 0.21.0
+## Current continuation — released 0.21.0, pending 0.21.1
+
+- Released HEAD is `cea2d0f2740e0874a107a6a5e1c75a533b49e94b`, validated source
+  `68822abb28d306c975fef90acbacecd07cd9b2cc`. All twelve package versions and
+  the finalized receipt remain 0.21.0. The public capacity and Memory 0.33
+  hard cut is released; its original evidence below remains bound to its source.
+- Preserve the incoming lock-only updates to Memory 0.33.1 and private Metrics
+  0.3.2. Memory's published Rust sources and original manifest match owner release
+  `17372c0d1d71fc3516f415ff8c30057c4441bc31` and are unchanged from 0.33.0.
+  Metrics' arithmetic also matches its released owner with no runtime change.
+  Later incoming lock edits select published Testkit 0.27.1 and all four Host
+  crates at 0.9.3; every patch leaves dependency edges and runtime Rust unchanged.
+  Earlier source reviews retain their original publication readbacks.
+- [The patch record](../evidence/libraries0211.md) owns focused storage
+  installation/restore and Rust 1.88 native/Wasm qualification of the initial
+  Memory/Metrics patch graph with Testkit 0.27.0.
+  Pending 0.21.1 is compatible: no public API, runtime schema or admission change.
+  Earlier tests are not relabelled as qualification of the new selection;
+  the initial graph and externally changed lock retain separate captures.
+- [The Shared follow-up](../evidence/shared0250211.md) adopts committed 0.2.5
+  `04e07b4bf54e7aeb03eb7804a845cee27b7305df` through the canonical exporter,
+  retaining all 92 selected files. Hooks preserve literal trailing-newline paths
+  and refuse failed Git reads without changing configuration. Consumer formatter
+  checks and owner hook regressions pass Bash 5/Linux-built Bash 3.2; snapshot,
+  focused shell lint and documentation checks pass. No runtime code changes or
+  removed Rust/shell definitions. No additional locally actionable service fix
+  emerges from the issue review; external acceptance requirements remain below.
+- [The Testkit follow-up](../evidence/testkit0271-0211.md) qualifies its incoming
+  graph separately. Explicit `make install-testkit` prepares the 0.27.1
+  CLI; actual offline/pathless server checks pass while old CLI/server bytes stay
+  unchanged. Eleven storage and four bounded inventory cases pass, as does
+  Rust 1.88 private-harness compilation across targets/features. No new canister
+  lifecycle or provider qualification is inferred from unchanged owner sources.
+- [The Host follow-up](../evidence/host0930211.md) qualifies the subsequent
+  0.9.3 selection against published owner source. Nine native file/process cases
+  and Rust 1.88 CLI/harness targets/features pass. The owner release adopts
+  Shared 0.2.5 hook fixes but adds no runtime helper or API; no additional Blob
+  code removal is justified. Its Linux/MSRV CI passes, both macOS jobs are queued.
+  Earlier runtime records retain their original Host graph; no new lifecycle,
+  deployed-provider or performance claim is made.
+- Released 0.21.0 [CI](https://github.com/dragginzgame/ic-blob-storage/actions/runs/37932124645)
+  passes Linux/MSRV; Intel and Apple Silicon macOS jobs remain queued at readback.
+  Keep [#39](https://github.com/dragginzgame/ic-blob-storage/issues/39) and
+  [#40](https://github.com/dragginzgame/ic-blob-storage/issues/40) open for their
+  committed native acceptance. The dirty patch has no remote CI result or full
+  release validation. Application/provider, GC and funding acceptance remains
+  with #31/#33, #32 and #34 respectively. No provider probe or paid effect.
+
+## Earlier continuation — released 0.20.0, pending 0.21.0
 
 - Released HEAD is `71ddea9c0f4f007eba1b9f13500ff8b0f4ec1de6`, validated source
   `a58c62f7a0c0e589f3054098aaff1651e93b664e`. Package versions and the release

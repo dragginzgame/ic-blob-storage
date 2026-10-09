@@ -1,7 +1,7 @@
 # Shared Tooling snapshot v1
 format	1
 source	https://github.com/dragginzgame/shared-tooling
-revision	ffbf665b8481c36b2d9f4d988abec557c3485fa6
+revision	04e07b4bf54e7aeb03eb7804a845cee27b7305df
 file	0d472a74369e6aa772d585305e19b398fb86f0ef9698f1564356ddc11c60e0b6	-	DRAGGINZGAME.md
 file	59f6cb0b47fcfa698396776bbb391737292ebf34457ad7c65803fe7b36961499	-	docs/principles/README.md
 file	9315c9faffa4f36cfab496342535bf49d728ddd2111e8e127cbc44b3fac89ce7	-	docs/principles/decision-artifact-discipline.md
@@ -15,13 +15,13 @@ file	ba5c6b76d15bec4ac226f1ab0732d5087446152d64107993c52642a68d2ff464	x	scripts/
 file	8a14c80cec16a2cb07454c4e0f741150bc8385cd51ebc720a84ee3af1cc63043	x	scripts/dev/cloc.sh
 file	b5a6e8fb723a861b722834675e27b4b16f3d296112622c1b40cdc8714f575404	-	rules/changelogs.md
 file	a7d6612e6c9cfea5f8e920f82109094851876d0dfc117ecc454f966cb50d7c66	-	rules/cargo-dependencies.md
-file	a6c686b7e789b8bdd4680e65c1031cf86f6b73a9feb1008fb553d033126ae978	-	rules/git-hooks.md
+file	6c763c1a8b7ccb20d37476627341a6da73fdf4cf8a6081f19d87da115dcda958	-	rules/git-hooks.md
 file	2a81dbef0bbf2045bf83a921cd5d4af49d400ffc4cafd35fad222750ac6b2d9f	-	docs/releases.md
 file	fc689ff5d636be1049a527f6cafa74a768005211dcbecb074b8b327d8e6bab04	x	scripts/ci/run-release.sh
 file	37e028e2d9fee271ffdc06d06fc15d7a148ec524def3d9ed2afcd9910c0ec642	x	scripts/ci/next-release-version.sh
 file	e7f4c82566858b89b50c5c2f929097bdde85345a2c0c1bf553bb1170cc4f5960	-	scripts/ci/finalize-release-changelog.awk
-file	643dbf5ebb54bc9c8768b77c8b88b288b4dd19a8719c67d8e89617e953271c7a	x	.githooks/pre-commit
-file	04314208858a3b8c6833aee30b8574741518b4ca36ed509c095424762a7be79e	x	scripts/dev/install-git-hooks.sh
+file	fbee8c292a242ec71babca5eebc30613c82005b6e9e80c850a1ebca1112eaea6	x	.githooks/pre-commit
+file	c1fcf72754976d3d2e5203226e97ef5f50eff4b5c0dabeb2a9b00cfcf0326645	x	scripts/dev/install-git-hooks.sh
 file	027575ae9be221c3ef9e903239fbfdb40aa5192c2f5e08c157a5d15dc3cd52ae	x	scripts/ci/test-release-runner.sh
 file	82892e25292fe47c26035a0031aa4ad1996fcf181732163e75039bd657f2f84b	-	ci/tool-versions.env
 file	d0e3e07844d06f46ffe01d406ffb29624b31079c1402b899262aabb718cbb436	-	rules/agent-maintenance.md

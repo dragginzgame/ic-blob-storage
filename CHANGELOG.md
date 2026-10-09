@@ -1,5 +1,24 @@
 # Changelog
 
+## [0.21.1]
+
+### Fixed
+
+- Refresh Shared Tooling to committed 0.2.5. Formatting hooks preserve
+  trailing-newline checkout and hook paths; installation refuses failed Git
+  reads without replacing existing configuration.
+  [Shared #89](https://github.com/dragginzgame/shared-tooling/issues/89).
+
+### Changed
+
+- Select ic-memory 0.33.1 and private ic-metrics 0.3.2. Their runtime sources
+  and dependency edges are unchanged; service APIs and stored schemas are unchanged.
+- Select Host artifacts/fs/process/tools 0.9.3 with unchanged runtime sources
+  and dependency edges, retaining existing file/process delegation.
+- Select Testkit 0.27.1 with unchanged runtime sources. Run
+  `make install-testkit` to prepare the matching CLI; existing PocketIC server
+  bytes and prior CLI installations remain retained.
+
 ## [0.21.0] - 2026-10-09
 
 ### Breaking

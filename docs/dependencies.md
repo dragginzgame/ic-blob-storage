@@ -4,7 +4,31 @@
 
 # Dependency setup
 
-## Current graph — released 0.20.0, pending 0.21.0
+## Current graph — released 0.21.0, pending 0.21.1
+
+All twelve members retain workspace 0.21.0 and its finalized release receipt.
+The preserved incoming lock selects public Memory 0.33.1 and private Metrics
+0.3.2, Testkit 0.27.1 and Host artifacts/fs/process/tools 0.9.3; PocketIC client
+16.1.0 and tokio-util 0.7.20 remain unchanged. Memory's patch has identical
+runtime Rust sources, original manifest and dependency edges to 0.33.0;
+it introduces no public type-identity hard cut or stored schema change.
+Metrics' patch also leaves arithmetic sources and dependency edges unchanged.
+The [patch record](evidence/libraries0211.md) owns focused qualification.
+The later incoming Testkit patch also has unchanged runtime sources and
+dependency edges, with separate [source/setup qualification](evidence/testkit0271-0211.md).
+The subsequent Host 0.9.3 selection also leaves runtime sources and dependency
+edges unchanged. Its [focused file/process qualification](evidence/host0930211.md)
+retains existing delegation; no new helper or local compatibility layer is needed.
+
+Shared Tooling now selects the same 92 files from reviewed committed 0.2.5,
+`04e07b4bf54e7aeb03eb7804a845cee27b7305df`. Its literal hook-path/Git-read
+fixes are qualified in [the Shared record](evidence/shared0250211.md).
+Existing Testkit-owned CLI/server setup and offline checks remain in place.
+Run `make install-testkit` explicitly for the new lock-selected 0.27.1 CLI;
+the existing authenticated PocketIC 16.1.0 server and prior CLI slots remain.
+Previous evidence retains its original package graph.
+
+## Earlier graph — released 0.20.0, pending 0.21.0
 
 All twelve members retain workspace 0.20.0 and its finalized release receipt.
 The incoming graph selects Host artifacts/fs/process/tools 0.9.2, Testkit 0.27.0,

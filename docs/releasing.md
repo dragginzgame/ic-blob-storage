@@ -31,18 +31,30 @@ owns PocketIC. Old bundles are retained, and validation never converts them or
 downloads a server. `make tools-check` includes the lock-selected Testkit CLI and
 its authenticated offline server check. See the [adoption record](evidence/pocketic-handoff0200.md).
 
-For pending 0.21.0, run `make install-testkit` explicitly after the lock changes
-to Testkit 0.27, then `make testkit-check`. The existing authenticated PocketIC
+For the released 0.21.0 hard cut, run `make install-testkit` explicitly after the
+lock changes to Testkit 0.27, then `make testkit-check`. The existing authenticated PocketIC
 16.1.0 server remains selected; prior CLI installations and receipts are retained.
 Memory 0.33 changes the public re-export's type identity, requiring aligned
 consumer dependencies and rebuilds. Runtime schemas are unchanged; cross-release
 installation retirement/reinstall requirements still apply.
 
-The same batch changes capacity reply/preflight shapes: rebuild consumers for
+That release changes capacity reply/preflight shapes: rebuild consumers for
 the three mandatory byte headrooms and dimension-specific blocker names. The
 usable minimum and stored schemas remain unchanged. Shared Tooling's upstream
 exporter fixture is omitted from the 92-file snapshot and consumer gate; actual
 snapshot verification and native adoption acceptance remain required.
+
+Pending 0.21.1 selects Memory 0.33.1 and private Metrics 0.3.2 with unchanged
+runtime sources and dependency edges; focused qualification is recorded in
+[the patch record](evidence/libraries0211.md).
+The same pending batch adopts Shared Tooling 0.2.5's hook path/read fixes;
+formatter and installation qualification is separate in
+[the Shared record](evidence/shared0250211.md).
+The later incoming Testkit 0.27.1 patch also has unchanged runtime sources.
+Run `make install-testkit` explicitly for its lock-selected CLI, then
+`make testkit-check`; the authenticated server and old CLI slots remain.
+[Its separate record](evidence/testkit0271-0211.md) owns final-graph qualification.
+These patches introduce no public contract change.
 
 Hook installation is local to this clone and refuses to replace existing hook
 obligations. `release-plan` previews arithmetic and selected branch/remote without
@@ -93,7 +105,7 @@ do not bypass the runner's saved intent or reuse validation from another source.
 From committed clean source on the selected branch:
 
 ```bash
-make release-minor # Pending 0.21.0 public Memory hard cut.
+make release-patch # Pending compatible 0.21.1 maintenance.
 # Or select release-minor / release-major for the complete batch's compatibility.
 ```
 
