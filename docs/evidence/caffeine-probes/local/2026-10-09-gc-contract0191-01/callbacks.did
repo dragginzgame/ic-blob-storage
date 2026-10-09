@@ -1,0 +1,7 @@
+// Source-review projection of the three GC methods in captured Mixin.mo.
+// This is not Blob's supported service interface or a deployed gateway receipt.
+service : {
+  _immutableObjectStorageBlobsAreLive : (vec blob) -> (vec bool) query;
+  _immutableObjectStorageBlobsToDelete : () -> (vec blob) query;
+  _immutableObjectStorageConfirmBlobDeletion : (vec blob) -> ();
+}

@@ -1,0 +1,69 @@
+{
+  "schema": 1,
+  "evidence_class": "source_review_and_local_candid_codec",
+  "reviewed_on": "2026-10-09",
+  "blob_base_head": "29bc6e078bb455750d4a3435178885fc4808a562",
+  "provider_revision": "1b72e52699b9092d8ba16c4cb2f2d99920662afc",
+  "public_source_requests": 4,
+  "request_results": [
+    {
+      "target": "https://api.github.com/repos/caffeinelabs/skills/commits/main",
+      "transport": "gh api",
+      "exit_status": 0,
+      "retained_response": "head.json"
+    },
+    {
+      "target": "https://raw.githubusercontent.com/caffeinelabs/skills/1b72e52699b9092d8ba16c4cb2f2d99920662afc/packages/object-storage/backend/src/Mixin.mo",
+      "transport": "bounded curl --fail",
+      "exit_status": 0,
+      "retained_response": "Mixin.mo"
+    },
+    {
+      "target": "https://raw.githubusercontent.com/caffeinelabs/skills/1b72e52699b9092d8ba16c4cb2f2d99920662afc/packages/object-storage/backend/src/Storage.mo",
+      "transport": "bounded curl --fail",
+      "exit_status": 0,
+      "retained_response": "Storage.mo"
+    },
+    {
+      "target": "exact Mixin.mo raw URL",
+      "transport": "web open",
+      "outcome": "Internal Error / Cache miss; retained in tool transcript; not a successful source observation"
+    }
+  ],
+  "source_hashes_match_review_2026_10_02": true,
+  "local_codec": {
+    "tool": "didc 0.6.2",
+    "source_projection": "callbacks.did",
+    "result": "Type check and three method argument/reply shapes pass; text roots refuse the vec blob argument type. Duplicate arbitrary abc blobs and true/false values are synthetic wire controls, not valid upload roots, permissions or provider outcomes."
+  },
+  "findings": [
+    "Liveness query has no membership check in reviewed Mixin; deletion list and confirmation authenticate current membership.",
+    "Deletion list is no-argument and capped at 10000; no cursor or namespace is supplied.",
+    "Confirmation receives roots only, prunes Motoko retained dead blobs and awaits local GC; no incarnation, deletion operation or billing receipt is supplied.",
+    "These two application-side files do not supply the deployed gateway callback/retry/error policy."
+  ],
+  "live_provider_requests": 0,
+  "paid_or_mutating_effects": 0,
+  "missing_method_provider_behavior_qualified": false,
+  "deployed_deletion_or_billing_qualified": false,
+  "implementation_disposition": "Maintain Blob authenticated observations and obligations. Do not mount deletion handlers or map prune acknowledgements to physical/billing settlement without provider evidence. Required implementation and acceptance decisions are in docs/gateway-gc-contract.md.",
+  "cleanup": "No provider object/account was created; none outstanding from this review. Earlier deployed obligations are untouched.",
+  "files_sha256": {
+    "Mixin.mo": "175c6b98672a83054fc08855062d1a7b7f2bd3713bf11a60d5319ac5afefe2b3",
+    "Storage.mo": "0c757f4cb30ebe8e30b42a59b130a1662b47e403b9664f44e98d14b08b20af42",
+    "callbacks.did": "6c62fb8f8eac3a6803a5baac9d120bd3cc7094d37a2de02fc42bb8b320fc43ce",
+    "codec-version.txt": "9316364e47e4dcf7a9f12aebdf2fc51e1bad61463d563ce16499a929801568fd",
+    "confirmation-args.hex": "a58e2f8952181ca8ea018cdda3678160672326ddc54570255b561183a63ac1fb",
+    "confirmation-reply.hex": "8675a405c54a12f0b2251e1b359108143603767f86ab70501fcb901f21814eb2",
+    "confirmation-reply.txt": "71d200d8ffab1b98ab940769da680c27d48873242f3f141a4910e6e10766e84b",
+    "deletion-list-args.hex": "8675a405c54a12f0b2251e1b359108143603767f86ab70501fcb901f21814eb2",
+    "deletion-list-reply.txt": "b185299ad8e18c374509c54889f059c55cb7f3a25c592506da337b96cd431161",
+    "head.json": "3c00342459ca427d4a624241bb99d9acc900c6d540b59b370ad6c41f3bba5133",
+    "intent.json": "f6e13d4e7b0b6eca0239017ff932276f010125a4d4c1e9c00fef1ac2dceddbb3",
+    "liveness-args.hex": "b712a58df0221b7b0ed1752d3f010e1e1690c49d81bdc9c0176494f7d82a171e",
+    "liveness-args.txt": "b185299ad8e18c374509c54889f059c55cb7f3a25c592506da337b96cd431161",
+    "liveness-reply.hex": "840bb18b23627e6b55b56242e4bac65da82e695bbfd110f6e9cb80cb977ade95",
+    "liveness-reply.txt": "3c7f77bbc904e787ed7aa0210d2b1983a891a80b8316c980b23b709d5038f947",
+    "text-roots-refusal.log": "f05e10b78b0a0691422747191745c5e5bc3ad84be97eea924eb038f1d8eab484"
+  }
+}

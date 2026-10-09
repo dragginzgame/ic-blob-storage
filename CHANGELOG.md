@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.19.1]
+
+### Changed
+
+- Refresh Shared Tooling to reviewed 0.1.31. Reuse verified IC tools when pin
+  comments or row order change, preserving exact installation provenance and
+  refusing changes to any host's selection.
+  [Shared Tooling #79](https://github.com/dragginzgame/shared-tooling/issues/79).
+- Qualify incoming private Metrics 0.2.16 and TOML parser patches on the existing
+  Host 0.8.4/Testkit 0.25.3 graph, retaining the public Memory 0.31 contract.
+- Document the current Caffeine GC callback wire contract and the provider
+  evidence required before mounting deletion handlers. GC and missing-method
+  retention/billing behavior remain unqualified.
+  [#32](https://github.com/dragginzgame/ic-blob-storage/issues/32).
+
 ## [0.19.0] - 2026-10-08
 
 ### Breaking

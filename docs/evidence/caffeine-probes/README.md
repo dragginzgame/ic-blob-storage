@@ -14,6 +14,24 @@ maintained release and open work.
 [acceptance plan](../../acceptance-plan.md) ·
 [service gaps](../../service-gaps.md)
 
+## GC callback source contract — 2026-10-09
+
+The [intent](local/2026-10-09-gc-contract0191-01/intent.json) and
+[summary](local/2026-10-09-gc-contract0191-01/summary.json) retain four bounded
+public-source read attempts, including a separate failed web cache lookup.
+Current skills revision `1b72e52699b9092d8ba16c4cb2f2d99920662afc` has the same
+Mixin/Storage bytes as the 2026-10-02 review. Exact sources, hashes and local
+didc 0.6.2 wire controls survive in the capture. Synthetic `abc` blobs and
+booleans establish Candid shapes only, not usable roots or deletion authority.
+
+The [GC contract review](../../gateway-gc-contract.md) records the three method
+signatures, upstream unauthenticated liveness query, authenticated 10,000-root
+deletion list and root-only prune/GC acknowledgement. These application-side
+sources supply no deployed gateway missing/rejected/malformed-method policy.
+Physical deletion and billing remain separate evidence requirements; no provider
+handlers or automatic accounting transitions are introduced. Zero live provider
+requests, paid effects or external cleanup; prior obligations remain untouched.
+
 ## Host 0.7.1 and current graph — 2026-10-08
 
 The [intent](local/2026-10-08-host071-0185-01/intent.json) and

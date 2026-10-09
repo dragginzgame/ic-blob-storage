@@ -4,9 +4,46 @@
 
 # Current status
 
-Date: 2026-10-08
+Date: 2026-10-09
 
-## Current implementation — released 0.18.5, pending 0.19.0
+## Current continuation — released 0.19.0, pending 0.19.1
+
+- Released base is `29bc6e078bb455750d4a3435178885fc4808a562`, validated
+  source `16d99b8b8ddbfd8fd9e27e90baeed454e0c2ead8`. Its exact
+  [CI run](https://github.com/dragginzgame/ic-blob-storage/actions/runs/37820648403)
+  passes MSRV, Linux, Intel macOS and Apple Silicon, including actual archive
+  upload/readback and native PocketIC qualification. Tooling/PocketIC adoption
+  [#29](https://github.com/dragginzgame/ic-blob-storage/issues/29) and
+  [#36](https://github.com/dragginzgame/ic-blob-storage/issues/36) are closed.
+- Adopt 97 canonical files from committed Shared Tooling 0.1.31,
+  `9af82393c620e486578febed74a648523725c234`, excluding owner dirty work.
+  IC tools reuse equivalent validated selections without changing receipts,
+  downloads or the current pins. Fleet reports remain at Shared Tooling; no
+  sibling scan, dashboard gate or schedule is added here.
+- Preserve incoming Metrics 0.2.16/TOML 1.1.8/parser 1.1.5 lock edits. Host
+  0.8.4 is already selected in released HEAD; Testkit remains 0.25.3, public
+  Memory 0.31.8 and PocketIC 16.1.0. Package versions/receipt remain 0.19.0.
+  Pending 0.19.1 is compatible: no endpoint, public DTO or durable schema changes.
+- [The continuation evidence](../evidence/maintenance0191.md) binds current
+  compiled 0.19.0 artifacts, focused native/PocketIC checks, strict affected lint
+  and actual Rust 1.88 native/Wasm to this graph. Shared fixtures pass Bash 5
+  and Linux-built Bash 3.2.57; new native macOS and dirty-source hosted results
+  remain unqualified. The first localhost sandbox failure is retained separately.
+- [The GC source review](../gateway-gc-contract.md) establishes current provider
+  callback signatures and specific implementation prerequisites for
+  [#32](https://github.com/dragginzgame/ic-blob-storage/issues/32). Application-side
+  source and codec controls do not establish deployed gateway error/retention
+  policy, physical deletion or billing cessation. Those missing facts block
+  mounting deletion handlers; no false/empty placeholders are introduced.
+- Requalify the two-key direct-ingress certificate and installed-verifier
+  boundaries; correct the verifier recipe's stale unimplemented-grant statement.
+  [#31](https://github.com/dragginzgame/ic-blob-storage/issues/31) and
+  [#33](https://github.com/dragginzgame/ic-blob-storage/issues/33) retain actual
+  Canic/Toko application/browser/provider acceptance with their owners.
+  No sibling edits, paid/live provider effect, full local gate, agent commit,
+  release, push or publication occurs.
+
+## Earlier project-grant implementation — released 0.18.5, pending 0.19.0
 
 - The maintainer selected project-approved per-upload user authority for
   [#31](https://github.com/dragginzgame/ic-blob-storage/issues/31). The existing

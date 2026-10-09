@@ -1,0 +1,16 @@
+{
+  "schema": 1,
+  "evidence_class": "source_review",
+  "purpose": "Review authoritative current Caffeine GC callback signatures, root association and missing-method semantics for Blob issue 32; no deployed gateway inference from a local substitute.",
+  "targets": [
+    "caffeinelabs/skills commits/main",
+    "exact committed packages/object-storage/backend/src/Mixin.mo",
+    "exact committed packages/object-storage/backend/src/Storage.mo"
+  ],
+  "max_public_source_requests": 6,
+  "max_bytes_per_request": 1048576,
+  "max_seconds_per_request": 30,
+  "live_provider_requests": 0,
+  "paid_or_mutating_effects": 0,
+  "cleanup": "No provider objects or accounts are created; preserve source replies, failure diagnostics and existing obligations."
+}
