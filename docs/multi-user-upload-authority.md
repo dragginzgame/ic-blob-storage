@@ -69,6 +69,11 @@ two-signer ingress/certificate, cross-user refusal, permission binding,
 expiry/revocation, shared quota, uncertainty and restored-owner checks. Frozen
 old-image refusal preserves every stable byte and existing obligations.
 Existing verifier trust stays separate.
+The [later Chromium record](evidence/multi-user-browser0192.md) qualifies two
+browser signing keys uploading distinct bodies to one actual standalone service,
+independent native verification/download and separate reference release, using
+an owned provider substitute. It does not qualify application login/capabilities
+or deployed provider behavior.
 Canic owns thin mounting/DTO propagation and its neutral managed fixture; Toko
 owns real session verification and application capability decisions. Browser and
 deployed-provider acceptance must follow separately from local substitutes.

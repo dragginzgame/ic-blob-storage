@@ -1,0 +1,35 @@
+{
+  "schema": 1,
+  "evidence_class": "actual_local_standalone_chromium_native_provider_substitute",
+  "base_head": "5f2d171b1b01e0dc3b0047f00c194a9afe874642",
+  "compiled_package_version": "0.19.1",
+  "pending_changelog_version": "0.19.2",
+  "purpose": "Qualify two distinct Chromium signing keys under one signed project grant owner, exact independent native verification/download and separate reference release; preserve existing default-key corruption/interruption behavior.",
+  "targets": [
+    "local PocketIC standalone service",
+    "owned loopback HTTP/2 gateway substitute",
+    "pinned Chromium and browser packages",
+    "local native CLI/verifier"
+  ],
+  "selected_cases": [
+    "two-user journey",
+    "single-user success",
+    "single-user corrupt read",
+    "single-user lost final reply",
+    "single-user withdrawal after observation"
+  ],
+  "per_attempt_budget": {
+    "local_upload_owners": 6,
+    "content_bytes_per_owner": 1024,
+    "local_gateway_puts": 12,
+    "local_gateway_gets": 11,
+    "browser_deadline_seconds_per_user": 90,
+    "live_provider_requests": 0,
+    "paid_effects": 0
+  },
+  "identity_scope": "public fixed test-only seeds 42/45 for uploaders, 43 for project, 44 for verifier; not application logins or deployed signers",
+  "cleanup": "Close owned Chromium/loopback/PocketIC scopes. Preserve source snapshots, journals, requests, refusals and logical/physical/liability records. Do not erase older evidence or retry a paid provider effect.",
+  "attempt": "2 after SDK plan projection repair",
+  "preserved_failed_attempt": ".tmp/continuation0192-01/two-users-attempt1.log",
+  "actual_failed_attempt_effects": "Failed at initial browser preparation control decode before upload setup or certificate exposure; no provider PUT/GET. Original complete JSON frame was not retained by the reader; diagnostic retains rejected maxChunkBytes field, source/bundle and input hashes."
+}

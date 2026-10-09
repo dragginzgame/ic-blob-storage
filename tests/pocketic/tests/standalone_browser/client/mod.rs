@@ -135,6 +135,7 @@ impl Trial {
         &self,
         expected: &UploadManifestRequest,
         browser: &BrowserPreparation,
+        body: &[u8],
     ) -> UploadManifestRequest {
         assert_eq!(browser.byte_length, 1024);
         assert_eq!(browser.hash, crate::standalone_certificate::root(expected));
@@ -150,7 +151,7 @@ impl Trial {
         .unwrap();
         assert_eq!(declaration, expected.declaration);
         std::fs::write(self.report.join("manifest.json"), &browser.manifest_json).unwrap();
-        std::fs::write(self.report.join("source.bin"), [42; 1024]).unwrap();
+        std::fs::write(self.report.join("source.bin"), body).unwrap();
         let p = expected.permission;
         let u = p.upload;
         self.record("binding.json", &serde_json::json!({"format":"ic-blob-storage/upload-inputs:original-preparation","preparation":{"content_type":"image/png"},"project":PROJECT,"bucket":"local-standalone-trial","service":u.service.to_text(),

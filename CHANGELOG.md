@@ -1,5 +1,32 @@
 # Changelog
 
+## [0.19.2]
+
+### Fixed
+
+- Preserve native CI qualification for each pushed commit while allowing newer
+  PR revisions to supersede earlier review runs.
+  [Shared Tooling #80](https://github.com/dragginzgame/shared-tooling/issues/80).
+- Project SDK preparation results into the browser harness's declared control
+  fields, avoiding rejection of the SDK's internal `maxChunkBytes` field before
+  upload setup. [#31](https://github.com/dragginzgame/ic-blob-storage/issues/31).
+
+### Testing
+
+- Exercise two independent Chromium signing identities against one standalone
+  service, with distinct uploads, native verification/download and separate
+  reference release. Keep real application login and deployed-provider acceptance
+  separate from the local provider substitute.
+  [#31](https://github.com/dragginzgame/ic-blob-storage/issues/31),
+  [#33](https://github.com/dragginzgame/ic-blob-storage/issues/33).
+
+### Changed
+
+- Refresh Shared Tooling to reviewed 0.1.32, documenting the pending PocketIC
+  provisioning handoff while retaining the functioning published setup/check
+  path and current binaries.
+  [Shared Tooling #76](https://github.com/dragginzgame/shared-tooling/issues/76).
+
 ## [0.19.1] - 2026-10-09
 
 ### Changed

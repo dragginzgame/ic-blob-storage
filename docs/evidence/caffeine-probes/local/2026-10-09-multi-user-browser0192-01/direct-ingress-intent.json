@@ -1,0 +1,11 @@
+{
+  "schema": 1,
+  "evidence_class": "actual_local_signed_ic_ingress",
+  "purpose": "Requalify the existing service-side cross-user certificate and self-grant refusals separately from browser-local identity mismatch.",
+  "case": "standalone_certificate::signed::standalone_project_grants_two_signed_uploaders_without_cross_user_certificate_authority",
+  "target": "owned fresh PocketIC standalone instance; explicit emulator root",
+  "max_local_signed_ingress_updates": 16,
+  "provider_requests": 0,
+  "paid_effects": 0,
+  "cleanup": "Drop owned PocketIC server/instance; preserve raw result and exact tested artifact hashes."
+}

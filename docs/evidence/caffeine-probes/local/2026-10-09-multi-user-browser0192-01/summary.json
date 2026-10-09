@@ -1,0 +1,139 @@
+{
+  "schema": 1,
+  "evidence_class": "actual_local_standalone_chromium_native_provider_substitute",
+  "base_head": "5f2d171b1b01e0dc3b0047f00c194a9afe874642",
+  "compiled_package_version": "0.19.1",
+  "pending_changelog_version": "0.19.2",
+  "shared_source": "635a39a9dd5f8d021fa9c9196b591e00521a7e02",
+  "graph": [
+    {
+      "name": "ic-host-artifacts",
+      "version": "0.8.5",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "checksum": "6bae9bbf01e0666e67e983d051f0485b2eb554cb9e33b5805fa9dc9e6bd42322"
+    },
+    {
+      "name": "ic-host-fs",
+      "version": "0.8.5",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "checksum": "dcba13af085a73c04d4e8ea2d01d947c80f3c20517370ae8ec986bd342efbd7b"
+    },
+    {
+      "name": "ic-host-process",
+      "version": "0.8.5",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "checksum": "0b4b022d7d7fc2e557c13e5b6838530196abf3d9a3b0adc3fdd2d13631c33a58"
+    },
+    {
+      "name": "ic-host-tools",
+      "version": "0.8.5",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "checksum": "2d04686a0e1f33c47412a78db39ac4795e7d7c10aaaced156985fc2763be6562"
+    },
+    {
+      "name": "ic-memory",
+      "version": "0.31.9",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "checksum": "235ea2f5168a1310683ab86ce9a5f1411ddfe755f93eb99258425d55b3664bc3"
+    },
+    {
+      "name": "ic-metrics",
+      "version": "0.2.16",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "checksum": "44b447757f583aa5e5145e34bbd6d8b75004614d90ef33544252c9e496178155"
+    },
+    {
+      "name": "ic-testkit",
+      "version": "0.25.3",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "checksum": "9a98c8de9778c3e9a6ee11f3f0dbdb203826e1f19311656b15b5c5b3c33d111a"
+    },
+    {
+      "name": "pocket-ic",
+      "version": "16.1.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "checksum": "85135917c845e8fc132f5eca3a0a8cbab696477a5fee3c2dda168a0797f81e1c"
+    }
+  ],
+  "passing_cases": {
+    "two-user-browser": {
+      "passed": 1,
+      "seconds": 8.35
+    },
+    "default-key-success-and-corruption": {
+      "passed": 2,
+      "seconds": 10.43
+    },
+    "default-key-interruption": {
+      "passed": 2,
+      "seconds": 10.04
+    },
+    "existing-service-side-signed-refusals": {
+      "passed": 1,
+      "provider_requests": 0
+    }
+  },
+  "actual_local_puts": 12,
+  "actual_local_gets": 11,
+  "new_two_user_subset": {
+    "application_login_or_deployed_provider_qualified": false,
+    "distinct_roots": 2,
+    "distinct_signed_browser_uploaders": 2,
+    "evidence_class": "actual_standalone_chromium_native_local_provider_substitute",
+    "final_logical_bytes": 0,
+    "provider_gets": 4,
+    "provider_puts": 4,
+    "releasing_first_preserves_second_logical_bytes": 1024,
+    "retained_liability_bytes": 2048,
+    "retained_physical_bytes": 2048,
+    "service": "dllsh-pd777-77776-qaaaa-cai",
+    "tenant": "occqj-uvj3n-tlnwk-tu6ds-2dgrx-dpgdx-6yxnt-viais-2pkv3-ewqhx-2ae"
+  },
+  "failed_attempts": [
+    {
+      "log": ".tmp/continuation0192-01/two-users-attempt1.log",
+      "outcome": "Initial preparation-control DTO rejects maxChunkBytes before permission/certificate/provider effects. Producer projects declared fields in corrected attempt.",
+      "raw_frame_limitation": "Original full control JSON frame not retained; rejected-field diagnostic, source/bundle and input hashes retained."
+    }
+  ],
+  "artifacts": {
+    "target/debug/blob-storage": {
+      "retained": ".tmp/continuation0192-01/artifacts/blob-storage",
+      "sha256": "7f2b27c4d60377be46fb4d017f9a4cf55dcdc39d6ca8d67f59c608d4ceb46ec2",
+      "bytes": 148789704
+    },
+    "target/wasm32-unknown-unknown/release/ic_blob_storage_canister.wasm": {
+      "retained": ".tmp/continuation0192-01/artifacts/ic_blob_storage_canister.wasm",
+      "sha256": "6bbeccc7e326ce6bbbd072479f5a51ac859232f400d4d613cdaa7ca01d924117",
+      "bytes": 4259862
+    },
+    "target/debug/deps/standalone-4430daee439a1ddf": {
+      "retained": ".tmp/continuation0192-01/artifacts/standalone-4430daee439a1ddf",
+      "sha256": "591abd9e2faab531b5bc29ddb718fcd50cb6404d5b2c7aff4c275b2225ba3698",
+      "bytes": 301836752
+    },
+    ".tmp/browser/standalone.js": {
+      "retained": ".tmp/continuation0192-01/artifacts/standalone.bundle.js",
+      "sha256": "0929859ad63cfd886e2ff24871b665abca7ad13340cc59b044a3ae551f30de56",
+      "bytes": 729084
+    }
+  },
+  "final_unchanged_input_count": 888,
+  "qualification_record": ".tmp/continuation0192-01/qualification.json",
+  "live_provider_requests": 0,
+  "paid_effects": 0,
+  "real_application_login_or_deployed_provider_qualified": false,
+  "cleanup": "Owned Chromium processes/contexts, TLS and gateway sockets, and PocketIC scopes dropped. No external cleanup; original service accounting retains physical/liability obligations. Prior deployed objects/accounts are untouched.",
+  "files_sha256": {
+    "browser-withdrawn.json": "e5fe72c2aff0fcab041a045c25e87c55c12d0f6eb597eb2e9216d25ec75f18c0",
+    "browser-lost-final.json": "4d128bf21850865dcf3afc85e0308eb593ed5bce32c359740e3cfe310ce6b2f5",
+    "browser-two-users-user-42.json": "0d59adb469c5af97b16203d9a7898f45580b17bafcdc7d4081c39193de13d888",
+    "browser-two-users-user-45.json": "77f43e955d79d7597668b5ed462c255eb705b9e7bb85a0862a73b7b91bfe7268",
+    "browser-success.json": "f3242db569a3b016829d135af986f7c7a0e5856a09711c966d60e0a288eb6101",
+    "intent.json": "83f40b7de041cc811bb4373b9f18939c4020c87fbdcea014535fda8e8d04670a",
+    "browser-corrupt.json": "63cf10bb67e9153b535548a897177487c94029469f822b01a1dbd1583e33415b",
+    "two-users-result.json": "4fa0109ae21d03e28bcd90dd08f474b424e9754c2dede231d5d5e694e93a990e",
+    "attempt2-intent.json": "3daa28d3f21993a79320f49b32b4fe75e6d64c04f6382b8715725796d88a8abc",
+    "direct-ingress-intent.json": "eed7b43e09583881dd3ad157bd87fa58e65b1308f6b36b7ac207d2eef75a45b8"
+  }
+}

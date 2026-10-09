@@ -1,0 +1,14 @@
+{
+  "application_login_or_deployed_provider_qualified": false,
+  "distinct_roots": 2,
+  "distinct_signed_browser_uploaders": 2,
+  "evidence_class": "actual_standalone_chromium_native_local_provider_substitute",
+  "final_logical_bytes": 0,
+  "provider_gets": 4,
+  "provider_puts": 4,
+  "releasing_first_preserves_second_logical_bytes": 1024,
+  "retained_liability_bytes": 2048,
+  "retained_physical_bytes": 2048,
+  "service": "dllsh-pd777-77776-qaaaa-cai",
+  "tenant": "occqj-uvj3n-tlnwk-tu6ds-2dgrx-dpgdx-6yxnt-viais-2pkv3-ewqhx-2ae"
+}

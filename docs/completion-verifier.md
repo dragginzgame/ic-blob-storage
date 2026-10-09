@@ -92,3 +92,8 @@ recovery keeps the original upload and cannot create a duplicate reference.
 Record signer provisioning, worker restart/availability and retained evidence.
 Local substitute tests, deployed-provider observations and application acceptance
 remain distinct; this recipe performs none of those live effects.
+
+The [two-user standalone browser record](evidence/multi-user-browser0192.md)
+exercises this CLI observation/submission boundary with two Chromium uploaders
+and a separate configured verifier. It uses fixed test keys and a local provider;
+production signer/worker availability and real application acceptance remain open.

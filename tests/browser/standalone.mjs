@@ -12,7 +12,8 @@ const bundle = await readFile(new URL('../../.tmp/browser/standalone.js', import
 const control = createInterface({ input: process.stdin, crlfDelay: Infinity });
 const next = async () => JSON.parse((await once(control, 'line'))[0]);
 const send = value => process.stdout.write(`${JSON.stringify(value)}\n`);
-const { handle, state } = standaloneGateway(config, bundle);
+const { handle, state } = standaloneGateway(config, bundle, [1024], undefined,
+  [Buffer.alloc(1024, config.bodyByte ?? 42)]);
 const { puts, gets, arrivals } = state;
 const deadline = setTimeout(() => { console.error('Standalone browser trial exceeded 90 seconds'); process.exit(1); }, 90_000);
 const tls = await loopbackTLS();
@@ -34,12 +35,22 @@ try {
   const page = await context.newPage();
   const load = async () => { await page.goto(origin); await page.waitForFunction(() => !!window.trial); };
   await load();
-  send(await page.evaluate(() => trial.plan()));
+  send(await page.evaluate(byte => trial.plan(1024, byte), config.bodyByte ?? 42));
   const grant = await next();
   const options = { ...config, binding: grant.binding, snapshot: grant.snapshot, gateway: uploads.origin };
   await page.evaluate(config => trial.setup(config, 'create'), options);
   assert.equal((await page.evaluate(() => trial.inspect())).phase, 'saved');
   const saved = await page.evaluate(() => trial.inspect());
+  if (config.otherUploaderSeed !== undefined) {
+    const changed = { ...options, identitySeed: config.otherUploaderSeed };
+    assert.equal(await page.evaluate(async config => {
+      try { await trial.setup(config, 'open'); return 'accepted'; }
+      catch (error) { return error.code; }
+    }, changed), 'identity');
+    assert.deepEqual(await page.evaluate(() => trial.inspect()), saved);
+    assert.equal(await page.evaluate(() => trial.calls()), 0);
+    await page.evaluate(config => trial.setup(config, 'open'), options);
+  }
   for (const field of ['project', 'bucket']) {
     const changed = { ...options, binding: { ...options.binding, [field]: 'different' } };
     assert.equal(await page.evaluate(async config => {

@@ -289,3 +289,14 @@ b185299ad8e18c374509c54889f059c55cb7f3a25c592506da337b96cd431161  docs/evidence/
 3c7f77bbc904e787ed7aa0210d2b1983a891a80b8316c980b23b709d5038f947  docs/evidence/caffeine-probes/local/2026-10-09-gc-contract0191-01/liveness-reply.txt
 92ac0b436b45d73c89705b1fb3406dbfb1c2d160728f032be1ed7e15511ee850  docs/evidence/caffeine-probes/local/2026-10-09-gc-contract0191-01/summary.json
 f05e10b78b0a0691422747191745c5e5bc3ad84be97eea924eb038f1d8eab484  docs/evidence/caffeine-probes/local/2026-10-09-gc-contract0191-01/text-roots-refusal.log
+3daa28d3f21993a79320f49b32b4fe75e6d64c04f6382b8715725796d88a8abc  docs/evidence/caffeine-probes/local/2026-10-09-multi-user-browser0192-01/attempt2-intent.json
+63cf10bb67e9153b535548a897177487c94029469f822b01a1dbd1583e33415b  docs/evidence/caffeine-probes/local/2026-10-09-multi-user-browser0192-01/browser-corrupt.json
+4d128bf21850865dcf3afc85e0308eb593ed5bce32c359740e3cfe310ce6b2f5  docs/evidence/caffeine-probes/local/2026-10-09-multi-user-browser0192-01/browser-lost-final.json
+f3242db569a3b016829d135af986f7c7a0e5856a09711c966d60e0a288eb6101  docs/evidence/caffeine-probes/local/2026-10-09-multi-user-browser0192-01/browser-success.json
+0d59adb469c5af97b16203d9a7898f45580b17bafcdc7d4081c39193de13d888  docs/evidence/caffeine-probes/local/2026-10-09-multi-user-browser0192-01/browser-two-users-user-42.json
+77f43e955d79d7597668b5ed462c255eb705b9e7bb85a0862a73b7b91bfe7268  docs/evidence/caffeine-probes/local/2026-10-09-multi-user-browser0192-01/browser-two-users-user-45.json
+e5fe72c2aff0fcab041a045c25e87c55c12d0f6eb597eb2e9216d25ec75f18c0  docs/evidence/caffeine-probes/local/2026-10-09-multi-user-browser0192-01/browser-withdrawn.json
+eed7b43e09583881dd3ad157bd87fa58e65b1308f6b36b7ac207d2eef75a45b8  docs/evidence/caffeine-probes/local/2026-10-09-multi-user-browser0192-01/direct-ingress-intent.json
+83f40b7de041cc811bb4373b9f18939c4020c87fbdcea014535fda8e8d04670a  docs/evidence/caffeine-probes/local/2026-10-09-multi-user-browser0192-01/intent.json
+69e1e3a6ef49b3006ba1a4ba68f6d24a71eaa6a48c9ded160959dc3aa06f73bd  docs/evidence/caffeine-probes/local/2026-10-09-multi-user-browser0192-01/summary.json
+4fa0109ae21d03e28bcd90dd08f474b424e9754c2dede231d5d5e694e93a990e  docs/evidence/caffeine-probes/local/2026-10-09-multi-user-browser0192-01/two-users-result.json

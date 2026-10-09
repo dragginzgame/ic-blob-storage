@@ -6,7 +6,44 @@
 
 Date: 2026-10-09
 
-## Current continuation — released 0.19.0, pending 0.19.1
+## Current continuation — released 0.19.1, pending 0.19.2
+
+- Released base is `5f2d171b1b01e0dc3b0047f00c194a9afe874642`, validated
+  source `f0192506d0a71a3f4116220db1f6d901947ba74a`. Its exact
+  [CI run](https://github.com/dragginzgame/ic-blob-storage/actions/runs/37895648895)
+  passes MSRV, Linux and Apple Silicon at the final observation; Intel macOS
+  remains in progress. This run does not qualify the dirty continuation.
+  Package versions/receipt remain 0.19.1.
+- Preserve the actual released graph: Host 0.8.5, Memory 0.31.9, private Metrics
+  0.2.16, Testkit 0.25.3 and PocketIC 16.1.0. Earlier implementation captures
+  retain their earlier graph and compiled identity.
+- Adopt 97 canonical files at committed Shared Tooling 0.1.32,
+  `635a39a9dd5f8d021fa9c9196b591e00521a7e02`, excluding owner dirty optional-fleet
+  work. Existing setup/check and PocketIC provisioning remain in place until the
+  published Testkit replacement is qualified. Source-bound push CI preserves
+  each pushed commit's native jobs; newer PR revisions still supersede old ones.
+- [The browser record](../evidence/multi-user-browser0192.md) owns five passing
+  Chromium cases: two distinct signed browser users with native verification/
+  download and independent release, plus default-key success, corruption and
+  interruption controls. Twelve local PUTs/eleven GETs match the budget. After
+  both logical releases, 2,048 physical/liability bytes remain accounted for.
+  The initial SDK/control-frame rejection survives separately; the producer now
+  projects the three declared fields rather than weakening the strict decoder.
+- Actual Rust 1.88 private-harness compilation, strict affected Clippy and
+  focused snapshot/declaration/tool-command/browser/workflow checks pass.
+  Pending 0.19.2 is compatible: only tooling/test support changes, with no public
+  service, CLI DTO, certificate policy or durable schema change.
+- [#31](https://github.com/dragginzgame/ic-blob-storage/issues/31) and
+  [#33](https://github.com/dragginzgame/ic-blob-storage/issues/33) retain Canic/Toko
+  application/login/capability, operational signer and real provider acceptance.
+  [#32](https://github.com/dragginzgame/ic-blob-storage/issues/32) still needs
+  provider failure/retention and physical-deletion evidence. Four unused fleet
+  copies under [#37](https://github.com/dragginzgame/ic-blob-storage/issues/37)
+  await committed shared optional-reporter guidance/guard; do not patch snapshots.
+  No sibling edits, live/paid provider effect, full local gate, agent commit,
+  push, release or publication occurs.
+
+## Earlier continuation — released 0.19.0, pending 0.19.1
 
 - Released base is `29bc6e078bb455750d4a3435178885fc4808a562`, validated
   source `16d99b8b8ddbfd8fd9e27e90baeed454e0c2ead8`. Its exact

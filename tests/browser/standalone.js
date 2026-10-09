@@ -7,8 +7,8 @@ import { workerPublication } from './worker-client.js';
 let publication;
 const workerReports = [];
 let calls = 0;
-const identity = Ed25519KeyIdentity.generate(new Uint8Array(32).fill(42));
 function inputs(config) {
+  const identity = Ed25519KeyIdentity.generate(new Uint8Array(32).fill(config.identitySeed ?? 42));
   return { host: config.url, identity, rootKey: new Uint8Array(config.rootKey),
     binding: config.binding, body: new Uint8Array(config.snapshot.body),
     bodySha256: config.snapshot.bodySha256, manifestJSON: config.snapshot.manifestJSON,
@@ -20,7 +20,11 @@ function inputs(config) {
     } };
 }
 window.trial = {
-  plan: (size = 1024) => StorageClient.prepareFile(new Uint8Array(size).fill(42), 'image/png'),
+  async plan(size = 1024, byte = 42) {
+    const { hash, byteLength, manifestJSON } = await StorageClient.prepareFile(
+      new Uint8Array(size).fill(byte), 'image/png');
+    return { hash, byteLength, manifestJSON };
+  },
   async setup(config, mode) {
     publication?.close?.();
     if (config.worker) {

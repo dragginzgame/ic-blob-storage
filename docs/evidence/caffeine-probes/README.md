@@ -14,6 +14,26 @@ maintained release and open work.
 [acceptance plan](../../acceptance-plan.md) ·
 [service gaps](../../service-gaps.md)
 
+## Two-user Chromium journey — 2026-10-09
+
+The [intent](local/2026-10-09-multi-user-browser0192-01/intent.json),
+[corrected-attempt intent](local/2026-10-09-multi-user-browser0192-01/attempt2-intent.json)
+and [summary](local/2026-10-09-multi-user-browser0192-01/summary.json) bind compiled
+0.19.1/pending 0.19.2 to two distinct Chromium signing keys under one signed
+project tenant and a separate native verifier. Both 1 KiB bodies upload, recover
+without redispatch, verify and download. Independent release leaves the other
+reference live; after both releases, 2,048 physical/liability bytes remain charged.
+
+Five browser cases, including the existing corruption/interruption controls,
+pass with exactly 12 local PUTs/11 GETs. The separate signed-IC case qualifies
+service-side cross-user and self-grant refusals. The first preparation-frame
+failure, original source/bundle and missing raw-frame limitation remain separate;
+the producer now projects the declared fields rather than weakening decoding.
+[The maintained record](../multi-user-browser0192.md) retains the graph,
+commands and limitations. Fixed test identities and the HTTP/2 provider substitute
+do not qualify Toko login/capabilities, Canic integration or deployed provider
+behavior. Owned local scopes close; zero live/paid effects or external cleanup.
+
 ## GC callback source contract — 2026-10-09
 
 The [intent](local/2026-10-09-gc-contract0191-01/intent.json) and

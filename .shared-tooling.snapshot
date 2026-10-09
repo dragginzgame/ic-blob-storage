@@ -1,7 +1,7 @@
 # Shared Tooling snapshot v1
 format	1
 source	https://github.com/dragginzgame/shared-tooling
-revision	9af82393c620e486578febed74a648523725c234
+revision	635a39a9dd5f8d021fa9c9196b591e00521a7e02
 file	bcf2d1378eba6009edb996d9c7ac4a096044e30086d4ada1a8727c6ca2e7584c	-	DRAGGINZGAME.md
 file	59f6cb0b47fcfa698396776bbb391737292ebf34457ad7c65803fe7b36961499	-	docs/principles/README.md
 file	9315c9faffa4f36cfab496342535bf49d728ddd2111e8e127cbc44b3fac89ce7	-	docs/principles/decision-artifact-discipline.md
@@ -9,7 +9,7 @@ file	ee68649246bad21f0f28df4ea3809d8e2c7bcf1cd2a3d68e44684b855badc1c2	-	docs/pri
 file	27a04aeee753252b310fef363856edf83577337bfaea1e63a50017460eddde59	-	docs/principles/rust-code-hygiene.md
 file	457fd38e0073c91ba470b918d4facd9faac3c5200ebd38c97e9d6b76acdaea55	-	docs/principles/simplicity-and-maintainability.md
 file	5cdc1f2e8c2743d659f1374c03c40b2c379ecbf7bd34f6c0a3794c6d7e160c64	-	docs/consuming-snapshots.md
-file	007ef8ffda0f6d399a3a8ab1514705bcfe308b6e04f5f9ccc7323be6d97d6468	-	docs/supported-hosts.md
+file	26cfacb73e08668b8aa2a99464396e23182e6f5c7d9f0f12e29aa68b5dec4460	-	docs/supported-hosts.md
 file	4c981184847462ab3c01cac087e28309f8e054253fd95c7bbe56f643877aa708	x	scripts/ci/verify-file-checksum.sh
 file	ba5c6b76d15bec4ac226f1ab0732d5087446152d64107993c52642a68d2ff464	x	scripts/ci/verify-shared-tooling-snapshot.sh
 file	8a14c80cec16a2cb07454c4e0f741150bc8385cd51ebc720a84ee3af1cc63043	x	scripts/dev/cloc.sh
@@ -36,14 +36,14 @@ file	ffdca09602c44c8aff8fc2a17588b20eb6a56e2e71fb6d42ad75087fdd65819b	-	audits/c
 file	1b64cf2ba0393ab329ec29eb05a696d47ef5933f5ab9bff6e1fe4a7e7b294075	-	audits/module-surface-hardening.md
 file	8f415bcb0e97fcc0e27519e727e7aefae94686e6e5e3619d24e3df3ace5d7708	-	audits/module-cleanup.md
 file	1a0d1d6f2a87a0d77378fdda605f5700cc7e2ca8c8dfac79418248da30b7e657	-	docs/provenance.md
-file	9eb693d59ec982d5852234f05d659a1f3d1e72396b411e32eaa9c30aca6cec99	-	docs/ic-tools.md
-file	98a199fcc8890d743076dc03a46cf1130554f2488d01d79e9b869edf91cb786c	-	docs/local-setup.md
+file	6d4c393d99d70a18c1eff4b2d9910bbc0f1eb64db301ce43983f3a1c916c912c	-	docs/ic-tools.md
+file	fadac2b8ce904663bbdb2ca7bcbd27f3e74fa89461b74c922c9782dfd805afa0	-	docs/local-setup.md
 file	74134f6567746b2071ecfca28829b0ea4da69ed207b958b38fd181e722a3aea9	x	scripts/dev/install-host-tools.sh
 file	40c619af109b98b48b9668d90fb6d468f70834c4adad7ad0bddfa9e14b1668b8	x	scripts/dev/install-ic-tools.sh
 file	ab2202f89a077373fffac29f57527b88ccc65998f5c85c60a32081edd8338150	x	scripts/ci/verify-evidence-checksums.sh
 file	4e7e0a3a93bf4f922a292619dad7deee9c78c24a4bd2812040dd564271862039	x	scripts/ci/run-nonempty-cargo-test.sh
 file	d7b179f9ceaec6e11c690c975b61f91bedc80526415f71571615064db14f0c9c	x	scripts/ci/check-release-tag.sh
-file	79304d8ba54f65e39a3ed5de05d8e737e315741a0f3fae93e845469d905bb8c5	-	docs/verification-helpers.md
+file	a96e1019aa8bcc66c25f8c6e2959e616ff38d23f54bf16a64e441cb8752c684c	-	docs/verification-helpers.md
 file	a04ef3105e7851b83bb682120873e29a6c3c604183c275bc53051dd9e4b300a7	x	scripts/ci/check-documentation-links.pl
 file	5dd38585740657f98f655c15c4f617ca05dc4b6304e0925675a44376ec33309b	x	scripts/ci/check-release-commands.sh
 file	e3f72da1cb87bd8cbe37eff7ab7f23eca374e11f59b94669984dc9baf6c831ee	x	scripts/ci/test-file-digests.sh

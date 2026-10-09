@@ -1,6 +1,7 @@
 //! Full restricted standalone/browser/native journey with a local provider substitute.
 mod client;
 mod interruption;
+mod multi_user;
 mod serial;
 use crate::browser_driver::{BrowserDriver, BrowserPreparation};
 use client::Trial;
@@ -34,7 +35,7 @@ fn upload(
     });
     let mut driver = BrowserDriver::start(&config, "standalone.mjs");
     let plan: BrowserPreparation = driver.read(8192);
-    let generated = trial.inputs(&input, &plan);
+    let generated = trial.inputs(&input, &plan, &[42; 1024]);
     trial.setup(&generated);
     driver.send(&trial.transfer_inputs());
     let uploaded: client::UploadReport = driver.read(8192);
