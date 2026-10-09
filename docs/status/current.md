@@ -6,7 +6,36 @@
 
 Date: 2026-10-09
 
-## Current continuation — released 0.21.3, pending 0.21.4
+## Current continuation — released 0.21.4, pending 0.21.5
+
+- Released HEAD is `1f6ecc171e13df7e7d123557304f7f7b1097af8c`, validated source
+  `c0f46f0a5c75c4473eddba3e09db0920d5690627`. All twelve package versions and
+  the finalized receipt remain 0.21.4. Shared remains the reviewed 95-file
+  0.2.8 snapshot. Preserve the incoming direct Host 0.10 edits and subsequent
+  private Metrics 0.3.5 selection; Memory remains 0.33.3.
+- [The Host adoption record](../evidence/host0100215.md) replaces the removed
+  writer call with `write_with`, preserving private create-only publication and
+  terminal redaction. Testkit 0.28 was published during qualification; adopt it
+  to unify all four Host crates, now at incoming 0.10.1 with the parent-directory
+  creation-race synchronization fix. No compatibility writer, override or
+  extra direct harness dependency is added. No Blob named definition is removed.
+- Explicit `make install-testkit` prepares the 0.28 CLI. Normal/pathless offline
+  checks pass; PocketIC 16.1.0 server/archive bytes and old CLI/receipt remain
+  unchanged. The final graph passes 243 native-host cases, six focused harness
+  cases, affected Rust 1.88 checks and strict Clippy. Captured compiler inputs
+  remain unchanged. Earlier mixed-graph evidence remains separate.
+- Released 0.21.4 [CI](https://github.com/dragginzgame/ic-blob-storage/actions/runs/37961760758)
+  passes Linux/MSRV; macOS jobs remain queued. Dirty 0.21.5 has no hosted/full-gate
+  result. [#46](https://github.com/dragginzgame/ic-blob-storage/issues/46) retains
+  committed native acceptance; [Testkit #44](https://github.com/dragginzgame/ic-testkit/issues/44)
+  owns upstream acceptance. Existing provider/application requirements and
+  [#45](https://github.com/dragginzgame/ic-blob-storage/issues/45)'s Shared registry
+  prerequisite remain separate. Pending 0.21.5 is compatible: Host/Testkit are
+  private tooling dependencies; Blob's public API, wire and stored schemas are
+  unchanged. No full CI, sibling edit, agent commit, push, release, publication
+  or deployed/paid provider effect.
+
+## Earlier continuation — released 0.21.3, pending 0.21.4
 
 - Released HEAD is `6045ad3ada915b771e0ba6d40ac880da43ea675e`, validated source
   `f29448c08b4df1215491e6b6d0a00a94e57bfdfb`. All twelve package versions and

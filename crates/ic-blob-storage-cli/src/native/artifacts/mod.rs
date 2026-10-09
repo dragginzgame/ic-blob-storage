@@ -102,9 +102,9 @@ impl Run {
         Ok(self.path.join(name))
     }
     pub fn json(&self, name: &str, value: &impl Serialize) -> Result<(), Failure> {
-        use ic_host_fs::durable::{PublicationMode, WriteOptions, write_typed_with};
+        use ic_host_fs::durable::{PublicationMode, WriteOptions, write_with};
 
-        write_typed_with(
+        write_with(
             &self.record_path(name)?,
             WriteOptions {
                 mode: PublicationMode::CreateNew,

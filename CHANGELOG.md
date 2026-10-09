@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.21.5]
+
+### Changed
+
+- Adopt Host 0.10.1's consolidated native record writer, preserving private
+  create-only output, permanent run claims and terminal redacted file errors.
+  [#46](https://github.com/dragginzgame/ic-blob-storage/issues/46).
+  Parent-directory publication also finishes synchronization when another
+  writer wins creation. [Host #43](https://github.com/dragginzgame/ic-host-tooling/issues/43).
+- Select Testkit 0.28, removing the older transitive Host graph. Run
+  `make install-testkit` to prepare the matching CLI; PocketIC 16.1.0 and
+  prior installations remain retained.
+  [Testkit #44](https://github.com/dragginzgame/ic-testkit/issues/44).
+- Select private Metrics 0.3.5 with unchanged arithmetic and dependency edges.
+
 ## [0.21.4] - 2026-10-09
 
 ### Fixed

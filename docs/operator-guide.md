@@ -94,6 +94,13 @@ installation scope and original saved requests.
 | Check provider bytes and retain a statement | `observe-upload` | Signed service query, provider GET and local evidence writes |
 | Submit the saved statement once | `submit-attestation` | Signed service update and local intent writes |
 
+Native commands redact local filesystem failures as `{"error":"file"}`.
+That result can include a failure after a complete record became visible; it
+does not prove the record is absent or authorize retry. Keep the claimed run
+and its original packets, inspect the retained evidence through the operation's
+existing recovery command, and never delete the claim to start again. Record
+publication errors stop the command before further dispatch.
+
 The standalone host exposes the maintained blob method types; consumer frameworks
 own their wrappers elsewhere. See [current status](status/current.md) before
 selecting a target. Signed local standalone/browser journeys cover setup,

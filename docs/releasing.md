@@ -72,11 +72,20 @@ before recipes; consumer fixture inventories include the companion and probe.
 See [the adoption record](evidence/shared0270213.md), which remains bound to
 its original tooling-only qualification.
 
-Pending compatible 0.21.4 adopts Shared Tooling 0.2.8's selected-snapshot Make
-admission and recursive-command fixes. Preserve the incoming Host 0.9.7 and
-private Metrics 0.3.4 lock updates; focused graph qualification is recorded in
-[the continuation record](evidence/upstream0214.md). Package versions and the
-finalized receipt remain 0.21.3. No additional setup or public hard cut is required.
+Released compatible 0.21.4 adopts Shared Tooling 0.2.8's selected-snapshot Make
+admission and recursive-command fixes. That release selects Host 0.9.7 and
+private Metrics 0.3.4; focused graph qualification is recorded in
+[the continuation record](evidence/upstream0214.md), which retains its original
+0.21.3 package identity and source qualification.
+
+Pending compatible 0.21.5 adopts private Host 0.10.1 and Testkit 0.28. Run
+`make install-testkit`, then `make testkit-check`; the existing authenticated
+PocketIC 16.1.0 server and previous CLI installations remain retained. Native
+record publication uses the consolidated Host writer with unchanged modes,
+permissions and redacted terminal failures. The public Blob API and stored
+schemas are unchanged. [The adoption record](evidence/host0100215.md) separates
+initial mixed-graph checks from final unified-graph qualification. Package
+versions and the finalized receipt remain 0.21.4.
 
 Hook installation is local to this clone and refuses to replace existing hook
 obligations. `release-plan` previews arithmetic and selected branch/remote without

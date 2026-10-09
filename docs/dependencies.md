@@ -4,7 +4,23 @@
 
 # Dependency setup
 
-## Current graph — released 0.21.3, pending 0.21.4
+## Current graph — released 0.21.4, pending 0.21.5
+
+All twelve members and the finalized receipt remain 0.21.4. Native direct Host
+artifacts/fs select 0.10; Testkit 0.28 unifies their transitive counterparts and
+process/tools at 0.10.1, removing the older Host 0.9 graph. The library/core do
+not expose those types. No publication override or local compatibility writer
+is needed. Preserve the incoming private Metrics 0.3.5 patch, whose arithmetic
+and dependency edges are unchanged. Memory stays 0.33.3; Shared stays the reviewed
+95-file 0.2.8 snapshot. The [adoption record](evidence/host0100215.md) binds source,
+archive, setup and focused native qualification to this final graph.
+
+Run `make install-testkit` explicitly for the new lock-selected 0.28 CLI, then
+`make testkit-check`. PocketIC 16.1.0 remains selected. Existing server/archive
+bytes, prior CLI slots and receipts are retained; ordinary checks remain offline.
+The initial Host 0.10/Testkit 0.27 mixed-graph checks are preserved separately.
+
+## Earlier graph — released 0.21.3, pending 0.21.4
 
 All twelve members and the finalized receipt remain 0.21.3. The preserved
 incoming lock selects all four Host crates at 0.9.7 and private Metrics 0.3.4;
