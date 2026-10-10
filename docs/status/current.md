@@ -4,9 +4,94 @@
 
 # Current status
 
-Date: 2026-10-09
+Date: 2026-10-10
 
-## Current continuation — released 0.21.4, pending 0.21.5
+## Current continuation — released 0.21.5, pending 0.22.0
+
+- Preserve the incoming manifest/lock selecting published Memory 0.34.1, all
+  four private Host crates 0.11.0, Metrics 0.4.0 and Testkit 0.29.0. Package
+  versions and release receipt remain 0.21.5; the entire compatible 0.21.6 draft
+  moves to the 0.22.0
+  hard-cut notes because Memory is a public re-export.
+- [Memory adoption](../evidence/memory0340220.md) replaces numeric owner ranges
+  in the standalone, all affected probes and native fixtures with explicit host
+  namespace grants and one allocation pool. Keep all seventeen production keys,
+  record layouts, uncertainty and restore fences. No compatibility open helper,
+  second manager, reset or sibling edit is introduced. The fixture neighbor uses
+  its own disjoint namespace. [#48](https://github.com/dragginzgame/ic-blob-storage/issues/48)
+  owns consumer acceptance; Canic #510 owns its separate pool adoption.
+- Core native tests, affected Rust 1.88 native/Wasm checks, strict Clippy and six
+  affected canister Wasm builds pass. Three actual local PocketIC cases qualify
+  same-source restore, foreign/missing installation refusal and retained pending
+  storage obligations. Earlier Canic 0.21.5/Memory 0.33.4 evidence remains separate.
+  Native macOS and final rebuilt 0.22 release acceptance remain separate. Full
+  `make ci` passes on the captured Memory 0.34.0/Metrics 0.3.7 graph, including
+  actual local PocketIC
+  and extracted package tests. Earlier successful runs with intervening Cargo
+  edits remain separate. The later incoming Memory 0.34.1/Metrics 0.4.0 graph
+  has identical consumed runtime sources. The maintainer authorizes Metrics 0.4.
+  Affected workspace compiler/lint/floor checks, 643 native cases, 123 actual
+  storage cases and 73 rebuilt standalone cases pass; reuse unchanged gate
+  evidence without relabelling the earlier full run. Explicit opt-in cases
+  remain ignored. The follow-up's captured inputs and Cargo choices stay fixed.
+- [Host qualification](../evidence/host0110220.md) authenticates the published
+  sources and unifies private Host 0.11 through Testkit 0.29 without wrappers.
+  Explicit setup prepares the incoming lock-selected Testkit 0.29.0 executable;
+  its offline admission passes and prior selections remain retained. Failed
+  initial compiler/test/server/fixture attempts stay with their corrected runs.
+- Reviewed Shared main is 0.2.13 at
+  `5864f468d39f8f9d1bd26fca1afe0e20f25f1b5e`; the maintainer authorized adoption
+  into this batch. Canonical export selects 96 files, including the formatter
+  companion. [The record](../evidence/memory0340220.md#shared-tooling-review)
+  describes complete fixture inputs, retained failures and preflight setup.
+  The consumer release wrapper refuses LF/CR directories and rechecks admitted
+  source/cleanliness after setup. Final shell/release/hook/evidence/formatting,
+  snapshot/link checks and complete Rust 1.88 native/Wasm workspace checks pass.
+  The first graph's 14,647 compiler inputs were unchanged immediately after
+  validation. Later incoming Cargo updates are captured separately; the eight
+  retained old CLI/server files remain unchanged. Local governance requires
+  full validation before delivery;
+  no generic inspection-to-release authority is introduced.
+  No commit/push/release/publication, deployed provider or paid effect occurs.
+
+## Earlier continuation — released 0.21.5, Canic integration review
+
+- Released HEAD is `9a808cdf3cee2dd7153e50dd6fa10592f72f6137`, validated source
+  `7e74799bdc1e8ff31f97cba6e1758e61b1e9a339`. Runtime/contracts 0.21.5 are
+  observed published and un-yanked. Package versions/receipt remain 0.21.5.
+  Preserve incoming Memory 0.33.4, private Metrics 0.3.6 and other lock changes;
+  this documentation review does not compile or qualify that new graph.
+- [The Canic source review](../evidence/canic0216.md) checks memory, lifecycle,
+  caller and passive funding boundaries. Refresh the
+  [adoption recipe](../dependencies.md#canic-integration), stale Memory 0.31/open
+  #20 guidance and multi-user release wording. Local managed 0.21 acceptance is
+  recorded by Canic; pushed Canic still pins Blob 0.17.2 and the adapter has no
+  observed registry entry. [Canic #444](https://github.com/dragginzgame/canic/issues/444)
+  owns delivery/application acceptance; its coherent framework family is #33.
+  [Scoped issue feedback](https://github.com/dragginzgame/canic/issues/444#issuecomment-6095255962)
+  records the resolved Blob publication prerequisite and remaining Canic steps.
+- [The funding recipe](../funding-consumer-qualification.md) distinguishes existing
+  host-internal credit/renewal APIs from provider evidence acquisition. Canic #494
+  owns dispatch composition; Blob #34 retains the provider receipt/activity
+  prerequisite. Do not add a public mark-credited bypass or fabricate receipts.
+- The maintainer subsequently authorized Canic adapter/lock updates and focused
+  managed qualification. That separate working tree now selects Blob 0.21.5;
+  complete dedicated/embedded Rust 1.91 builds, eight normal-Wasm runtime graphs,
+  strict 32-method Blob Candid parity and both actual PocketIC cases pass.
+  Adapter MSRV/native/Wasm Clippy and Testkit setup/admission also pass. Canic's
+  own handoff/evidence retains the graph and artifacts; delivery remains local.
+  [The adoption feedback](https://github.com/dragginzgame/canic/issues/444#issuecomment-6095739550)
+  records the authorized follow-up.
+  Correct the embedded recipe to build the complete App, not only its backend
+  role, which supplies no managed release identity.
+- Compatible 0.21.6 Blob documentation draft; no public API/schema/runtime change
+  or code removal. Correct the active Memory 0.31 paragraph and pending funding
+  wording. Focused local links/contracts-boundary checks pass. No full CI, agent
+  commit/push/release, publication or deployed/paid provider effect. Earlier native
+  evidence stays bound to its own source and graph. Incoming Blob lock patches
+  remain distinct from the Canic-qualified graph.
+
+## Earlier continuation — released 0.21.4, pending 0.21.5
 
 - Released HEAD is `1f6ecc171e13df7e7d123557304f7f7b1097af8c`, validated source
   `c0f46f0a5c75c4473eddba3e09db0920d5690627`. All twelve package versions and

@@ -1,7 +1,7 @@
 //! Named service grants within the host's existing `ic-memory` runtime.
 //!
 //! Hosts explicitly include these requests in their composed declaration snapshot,
-//! grant an authority range and bootstrap once before opening. Linking this module
+//! grant a namespace in the allocation pool and bootstrap once before opening. Linking this module
 //! registers nothing. Configuration memory and lifecycle remain host-owned.
 use super::ServiceMemories;
 use crate::ops::service::{
@@ -34,7 +34,7 @@ const KEYS: [&str; 16] = [
 ];
 
 /// Build the sixteen current service requests under an explicit host authority.
-/// No registration, range grant, runtime bootstrap or stable write occurs.
+/// No registration, namespace grant, runtime bootstrap or stable write occurs.
 /// Hosts compose these with their configuration and other application requests
 /// before sealing; the host's policy owns placement and authority validation.
 /// # Errors
@@ -46,7 +46,7 @@ pub fn requests(authority: &str) -> Result<Vec<MemoryRequest>, StaticMemoryDecla
 }
 
 /// Open all service grants using the host's committed-memory lookup by durable key.
-/// Supply an existing runtime's `open_memory_by_key` or `ic-memory`'s default
+/// Supply an existing runtime's `open_memory` or `ic-memory`'s default
 /// committed lookup after checking bootstrap when a framework owns that runtime.
 /// No second runtime, ID selection, initialization, repair or store write occurs.
 /// A missing member returns no assembled set. Hosts must retain the runtime and
@@ -118,7 +118,7 @@ pub fn open<M: Memory, E>(
 pub fn open_default() -> Result<ServiceMemories<RuntimeMemory<DefaultMemoryImpl>>, RuntimeOpenError>
 {
     ic_memory::committed_allocations()?;
-    open(ic_memory::open_default_memory_manager_memory_by_key)
+    open(ic_memory::open_default_memory_manager_memory)
 }
 
 #[cfg(test)]

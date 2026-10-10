@@ -4,7 +4,33 @@
 
 # Dependency setup
 
-## Current graph — released 0.21.4, pending 0.21.5
+## Current graph — released 0.21.5, pending 0.22.0
+
+The incoming public Memory 0.34 selection requires a minor hard cut. Its host-wide
+`MemoryAllocationPool` replaces per-owner numeric ranges: hosts grant disjoint
+`MemoryAuthority` namespaces, explicitly exclude unmanaged physical allocations,
+compose `SealedDeclarationSnapshot::new(&requests)`, bootstrap once with the pool
+and policy, then open permanent keys with `open_memory`. The standalone grants
+`blob.` and requests the existing seventeen keys. Embedding libraries select no
+IDs and never bootstrap a second runtime. Existing ledger/key bindings and Blob
+record layouts remain unchanged; cross-release activation still requires the
+[retirement/reinstall runbook](retiring-installations.md), while same-release
+restore and uncertainty fences remain required.
+
+The selected lock unifies all four private Host crates at 0.11.0 through
+Testkit 0.29.0, with incoming Memory 0.34.1 and private Metrics 0.4.0. The
+[Host adoption record](evidence/host0110220.md) separates earlier graph phases
+from qualification of the subsequent unchanged-source Memory/Metrics updates.
+Run `make install-testkit` after this lock selection,
+then `make testkit-check`; prior CLI slots and authenticated PocketIC 16.1.0
+remain retained. Shared's reviewed 96-file snapshot selects committed 0.2.13
+`5864f468d39f8f9d1bd26fca1afe0e20f25f1b5e`, including the formatter companion
+and existing consumer-owned release adapters.
+Earlier Canic qualification uses published Blob 0.21.5/Memory 0.33.4; it does not
+qualify this hard cut. Canic must adopt the current pool API and align its whole
+runtime graph before consuming a published Blob 0.22 package.
+
+## Earlier graph — released 0.21.4, pending 0.21.5
 
 All twelve members and the finalized receipt remain 0.21.4. Native direct Host
 artifacts/fs select 0.10; Testkit 0.28 unifies their transitive counterparts and
@@ -814,9 +840,11 @@ neither emits a certificate or sends service/gateway traffic. See the
 
 ## Memory composition
 
-Released Blob 0.17.1 publicly re-exports `ic-memory ^0.31`; the current lock
-selects one registry Memory 0.31.1 and its `ic-stable-structures` 0.7.2 substrate.
-Memory 0.30 types are not interchangeable with this API. A source-identical
+Released Blob 0.21.5 publicly re-exports `ic-memory ^0.33`; its released lock
+selects Memory 0.33.3. Pending Blob 0.22 adopts `^0.34`; the earlier 0.33.4
+selection is distinct from that released graph and its existing qualification.
+Earlier Memory minor lines are not
+interchangeable with this API. A source-identical
 package from a different Cargo identity also does not share its Rust types.
 Direct `RuntimeMemory::grow` returns a typed result;
 generic `Memory` wrappers preserve the upstream -1 sentinel contract.
@@ -852,15 +880,71 @@ fixture, and its validation requires no framework CLI. Host integration must
 use one memory package identity; this library does not qualify a consumer's
 composition or permit a second manager over the same backing memory.
 
-For Canic adoption, align the adapter declaration with the published Blob/Memory
-0.31 contract, then refresh the adapter, dedicated consumer and embedded consumer's
-three independent locks. Check complete dedicated/embedded Wasm graphs and Candid
-parity before rerunning owned installation, refusal, metrics, exact target-bound
-initializer and interruption/lost-response recovery cases. Canic owns lifecycle
-dispatch and these executions in [Canic #444](https://github.com/dragginzgame/canic/issues/444);
-[Blob #20](https://github.com/dragginzgame/ic-blob-storage/issues/20) remains open
-until that acceptance is recorded. A native preparer check or dependency
-compilation alone does not qualify managed composition.
+### Canic integration
+
+Pending Blob 0.22 requires Memory 0.34's pool API. The following recipe and
+qualification describe published Blob 0.21.5; they remain separate from the new
+hard cut. [Canic #510](https://github.com/dragginzgame/canic/issues/510) owns
+framework pool adoption; [Blob #48](https://github.com/dragginzgame/ic-blob-storage/issues/48)
+owns this repository's caller and recovery qualification. A future 0.22 consumer
+must grant `blob.` in the host pool, include the existing seventeen requests in
+its single snapshot and use key-only committed opens. Align the host, database,
+jobs and Blob to one Memory identity before qualified managed installation.
+
+Blob runtime/contracts 0.21.5 are published and require the Memory 0.33 identity.
+Canic owns `canic-blob-service`, its dedicated consumer shell and its embedded
+application fixture. Keep that adapter outside this repository; do not mount the
+standalone canister inside Canic or bootstrap a second memory manager.
+
+The [2026-10-10 source review](evidence/canic0216.md) distinguishes delivery from
+local acceptance. Canic's pushed source still selects Blob 0.17.2/Memory 0.31.
+The separately authorized working adapter now selects published Blob 0.21.5,
+with three aligned locks, complete dedicated/embedded Rust 1.91 builds, strict
+Blob Candid parity and passing managed PocketIC recovery cases. These results
+remain local; its prior commit selected 0.21.0. The adapter is not yet on crates.io.
+Neither a version-only adapter dependency nor the older pushed source supplies
+the current composition. [Blob #41](https://github.com/dragginzgame/ic-blob-storage/issues/41)
+closed the Memory 0.33 publication prerequisite; the earlier
+[#20](https://github.com/dragginzgame/ic-blob-storage/issues/20) acceptance is
+historical, not an open delivery gate for the current graph.
+
+For the Canic-owned adoption batch:
+
+1. Select matching published Blob runtime/contracts and one Memory 0.33 package
+   identity. Refresh the adapter, dedicated consumer and embedded consumer's three
+   independent locks. Align the framework libraries and CLI with that runtime
+   before registry-only delivery; [Canic #33](https://github.com/dragginzgame/canic/issues/33)
+   owns the coherent release family. Do not patch in sibling paths as a substitute.
+2. Register `ops::service::installation::requests(authority)` before the host's
+   sole bootstrap. Give its seventeen keys an exclusive range disjoint from
+   application state. Validate the complete installation for the allocated
+   Principal before opening grants. Use Blob's `LIBRARY_VERSION`, not the
+   enclosing application version, for installation and same-release reopening.
+3. For a dedicated Component, select the consumer shell as the App role package
+   and set `application_init_required = true`. After allocation, encode the exact
+   `ServiceInstallationInput` for that target and bind its bytes through Canic's
+   Root initializer. Retain the original member operation, target and complete
+   command for lost-reply reconciliation. For embedding, keep the application's
+   sole lifecycle and compose synchronous Blob installation/restoration plus its
+   metrics sampler; mounting endpoints alone initializes nothing.
+4. Build complete managed Apps using the matching Canic CLI. Check each normal
+   Wasm graph for one memory runtime and compare all canonical Blob Candid methods
+   and reply types. Run owned dedicated/embedded PocketIC installation, caller
+   and target refusal, metrics, exact initializer, lost-result and same-image
+   restoration/recovery cases. Include two tenant-approved uploaders and the
+   three independent capacity headrooms. Compilation alone is insufficient.
+5. Deliver the qualified framework family and adapter under
+   [Canic #444](https://github.com/dragginzgame/canic/issues/444), then repeat
+   application-owned acceptance from clean published inputs. Apply
+   [retirement](retiring-installations.md) before a cross-release reinstall;
+   same-release recovery does not authorize upgrading existing installations.
+
+The [Canic composition guide](https://github.com/dragginzgame/canic/blob/main/docs/features/blob-storage/README.md)
+owns its mounting APIs. Application login/tenant grants, completion-verifier
+operation and deployed provider acceptance remain separate from the neutral
+managed fixtures. The adapter currently supplies passive funding inspection;
+[the funding recipe](funding-consumer-qualification.md) explains the provider
+evidence prerequisite for safe repeated storage top-ups.
 
 ## Setup and checks
 

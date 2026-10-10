@@ -49,6 +49,7 @@ chmod 640 "$temporary/file-digests.failed/"$'line\nbreak:payload'
 printf '#!/bin/sh\nexit 23\n' > "$temporary/host-tools-test.failed/Linux:x86_64/executable"
 chmod 755 "$temporary/host-tools-test.failed/Linux:x86_64/executable"
 printf 'raw stdout\n' > "$temporary/nonempty-cargo-test.failed.log"
+printf 'formatter stdout\nformatter stderr\n' > "$temporary/formatting.failed"
 printf 'original_status=23\n' > "$temporary/blob-validation-logging.failed/status"
 printf 'not uploaded\n' > "$temporary/file-digests.failed/.git/config"
 printf 'shared archive failure\n' > "$temporary/evidence-archive.failed/outcome"
@@ -65,7 +66,7 @@ for path in .tools/host-set.failed/.hidden .tools/ic-set.failed/payload \
     cmp "$repository/$path" "$fixture/unpacked/$path"
 done
 for path in $'file-digests.failed/line\nbreak:payload' \
-    host-tools-test.failed/Linux:x86_64/executable nonempty-cargo-test.failed.log \
+    host-tools-test.failed/Linux:x86_64/executable nonempty-cargo-test.failed.log formatting.failed \
     blob-validation-logging.failed/status evidence-archive.failed/outcome \
     tool-evidence-test.failed/outcome; do
     cmp "$temporary/$path" "$fixture/unpacked/$path"

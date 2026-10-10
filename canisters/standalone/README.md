@@ -310,8 +310,9 @@ The exported certificate update checks the restricted local prerequisites descri
 above. No trusted-fact fixture, funding mutation, deletion or billing-settlement
 endpoint is exported.
 
-The host allocates seventeen exclusive grants in range 120–136 with sixteen-page
-memory-manager buckets: one bounded v1 installation record and sixteen shared-store
+The host requests seventeen permanent keys in its `blob.` namespace from one
+host-owned allocation pool, with sixteen-page memory-manager buckets and no
+additional unmanaged exclusions: one bounded v1 installation record and sixteen shared-store
 memories. Shared `ops::service::installation::ServiceInstallation` owns the immutable
 configuration record and the four service owners. Its validated candidate checks
 the complete configuration, project, verifier and compiled library release

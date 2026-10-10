@@ -1,6 +1,6 @@
 # Host-internal funding credit confirmation
 
-The pending 0.15.0 library lets a trusted host record independent credit evidence
+The library lets a trusted host record independent credit evidence
 for an exact original top-up. Transport settlement alone still leaves a positive
 accepted attachment `CreditRequired`. Confirmation clears that local obligation;
 a subsequent distinct guarded preparation/dispatch can then pass this gate.

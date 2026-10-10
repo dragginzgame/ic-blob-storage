@@ -32,11 +32,15 @@ Agent requests such as `check CI`, `check issues` and `check for work` follow th
 repository's `Release and formatting tooling` workflow at the selected source; dirty changes have no
 remote result. Session instructions can enable inspections after each completed
 batch. Explicit repair requests authorize scoped fixes and focused checks;
-full gates and release effects retain their separate authority. Relevant issue
+full delivery validation follows the adopted baseline; release effects retain
+their separate authority. Relevant issue
 work follows the shared maintenance rules.
 
-Use targeted checks while implementing. Full CI or release validation requires
-an explicit request or an explicitly authorized version/release target.
+Use targeted checks while implementing. Before delivering completed code as ready,
+run the documented full suite under the adopted baseline's standing validation
+authority. Inspection-only tasks do not authorize this suite. Documentation-only
+work needs links, consistency and diff checks; release commands retain separate
+explicit authority.
 Primitive Make targets do only their named operation. The complete current
 gate is make ci (also make validate and make release-verify).
 That gate first runs the offline `make shared-tooling-check`, verifying the
@@ -97,7 +101,8 @@ The upstream exporter/governance integration fixture runs in Shared Tooling;
 it is omitted from Blob's selected files and gate. Actual snapshot verification,
 consumer adapter checks and native adoption qualification remain here. Reusable
 fixture dependencies are explicit companions checked by the canonical exporter.
-Its focused `make tooling-evidence-check` checks retained-root selection and
+Its focused `make tooling-evidence-check` checks retained-root selection,
+including `formatting.*` failure logs, and
 shared archive behavior without builds or network effects. The native tooling
 workflow separately uploads/downloads a synthetic checksum-bound archive by its
 exact returned ID; passing local checks do not qualify that transport. Ordinary
@@ -116,7 +121,9 @@ check and retains the repository's metadata, publication and recovery fixtures.
 The reviewed `make/release.mk` owns standard entrypoint recipes and conflicting
 goals; Blob attaches direct-delivery admission to all four entrypoints. The
 reviewed `make/rust-format.mk` owns root-workspace formatting and its prerequisite
-check. All isolated Make/hook/release fixtures include these inputs; product
+check. Its `scripts/ci/run-formatting.sh` companion reports one success line or
+a failing status and complete retained log. All isolated Make/hook/release fixtures
+include these inputs; product
 validation, metadata exports, tool setup and publication remain local.
 Both Make includes carry `make/execution.mk` and its existing behavioral probe.
 The probe rejects unsupported Make modes before recipes, including ignored
@@ -179,12 +186,19 @@ requires remote readback. The local
 adapter owns workspace metadata and the receipt, not another release state
 machine. Formatter prerequisites are prepared before validation; `fmt-check`
 and `hooks-check` run independently in the complete gate.
-Release preflight invokes `make release-tools-check` for the selected ShellCheck
+After clean source/candidate admission, release preflight runs locked `make deps`,
+the consumer's existing `make install-tools` and offline `make tools-check`,
+then rechecks source identity/cleanliness and runs `make release-tools-check`
+for the selected ShellCheck
 executable, reviewed cargo-sort version and rustfmt availability before entering
 full validation. Both formatting targets delegate formatter prerequisites to
 the shared offline checker; setup and CI retain the same consumer pin.
 Missing or unusable tools refuse with setup guidance before release-file mutation;
-the prerequisite check never installs or compiles.
+the prerequisite check never installs or compiles. Setup is confined to preflight;
+post-validation preparation and saved-release reconciliation do not replay it.
+Focused PocketIC/standalone qualifications run offline Testkit admission before
+their first build; native-host qualification checks the complete prepared toolset.
+These ordered recipes preserve that sequencing with parallel Make.
 
 `release-verify` runs that same complete `ci` gate through the reviewed validation
 logger. Actual failed commands retain unique raw logs under Git's

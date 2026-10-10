@@ -1,5 +1,42 @@
 # Changelog
 
+## [0.22.0]
+
+### Breaking
+
+- Adopt public Memory 0.34's host-wide allocation pool and explicit namespace
+  grants. Hosts compose permanent key requests, bootstrap once with the pool and
+  open committed keys through the current API. Consumers must align Memory and
+  rebuild; cross-release installations remain retirement/reinstall only. Blob's
+  record layouts and same-release restore fences are unchanged.
+  [#48](https://github.com/dragginzgame/ic-blob-storage/issues/48),
+  [Memory #44](https://github.com/dragginzgame/ic-memory/issues/44).
+
+### Fixed
+
+- Adopt private Host 0.11 and Testkit 0.29 together, keeping one Host graph and
+  the existing authenticated PocketIC server. Native publication, buffered
+  subprocess output and restore qualification use the maintained owners.
+  [#39](https://github.com/dragginzgame/ic-blob-storage/issues/39),
+  [Host #46](https://github.com/dragginzgame/ic-host-tooling/issues/46).
+- Adopt incoming Memory 0.34.1 and private Metrics 0.4.0 tooling updates;
+  their packaged runtime sources and consumed APIs are unchanged.
+- Adopt Shared Tooling 0.2.13: concise formatting with retained failures,
+  independent unsafe-Make-mode admission, recorded snapshot identity and invalid
+  directory-path refusal. Include the new formatter companion in isolated
+  fixtures and CI failure evidence; prepare selected executable tools before
+  release validation and check them before focused native/IC builds.
+  Refuse LF/CR release directories without selecting a trimmed neighbor, and
+  recheck source identity and cleanliness after selected-tool preparation.
+  [#47](https://github.com/dragginzgame/ic-blob-storage/issues/47),
+  [Shared #96](https://github.com/dragginzgame/shared-tooling/issues/96).
+- Refresh Canic adoption guidance for published Blob 0.21/Memory 0.33, exact
+  target-bound installation and synchronous restoration. Distinguish local
+  managed acceptance from adapter delivery and the separate repeated-funding
+  evidence requirement; correct stale Memory and funding release wording.
+  [Canic #444](https://github.com/dragginzgame/canic/issues/444),
+  [#34](https://github.com/dragginzgame/ic-blob-storage/issues/34).
+
 ## [0.21.5] - 2026-10-09
 
 ### Changed

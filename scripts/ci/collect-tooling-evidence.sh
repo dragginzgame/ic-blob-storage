@@ -24,7 +24,7 @@ for path in "$repository"/.tools/host-set.* "$repository"/.tools/ic-set.* \
     [[ -e "$path" || -L "$path" ]] || continue
     inputs+=("$repository" "${path#"$repository/"}")
 done
-for prefix in blob-format-hooks. formatting-adoption. blob-evidence-checksums. \
+for prefix in blob-format-hooks. formatting-adoption. formatting. blob-evidence-checksums. \
     nonempty-cargo-test. file-digests. ic-tools-test. pocketic-checks. \
     pocketic-alignment. release-commands. cargo-metadata-test. \
     shared-tooling-snapshot-test. local-lock-test. format-tools-test. \

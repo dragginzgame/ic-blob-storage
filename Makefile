@@ -129,7 +129,7 @@ documentation-links-check:
 		xargs -0 perl scripts/ci/check-documentation-links.pl --root . *.md
 
 release-commands-check:
-	bash scripts/ci/check-release-commands.sh "$(CURDIR)" Cargo.toml scripts/release/release.sh scripts/release/release-data.pl make/tools.mk make/release.mk make/rust-format.mk make/execution.mk scripts/ci/check-make-execution.sh
+	bash scripts/ci/check-release-commands.sh "$(CURDIR)" Cargo.toml scripts/release/release.sh scripts/release/release-data.pl make/tools.mk make/release.mk make/rust-format.mk make/execution.mk scripts/ci/check-make-execution.sh scripts/ci/run-formatting.sh
 
 dependency-pins-check:
 	@set -e; node_version="$$(cat tests/browser/.nvmrc)"; \
@@ -189,6 +189,7 @@ tasks:
 	@cat tasks/README.md
 
 test-native-host: contracts-boundary-check
+	+$(MAKE) --no-print-directory tools-check
 	+$(MAKE) --no-print-directory build-standalone
 	cargo build --offline --locked --release --target wasm32-unknown-unknown -p blob-storage-probe --lib
 	cargo build --offline --locked -p ic-blob-storage-cli
@@ -202,6 +203,7 @@ test-fixture:
 	cargo build --offline --locked --release --target wasm32-unknown-unknown -p blob-authority-probe -p blob-admission-probe -p blob-storage-probe -p blob-consumer-probe -p blob-gateway-source -p blob-funding-probe --lib
 
 test-pocketic:
+	+$(MAKE) --no-print-directory testkit-check
 	+$(MAKE) --no-print-directory test-fixture
 	+$(MAKE) --no-print-directory build-standalone
 	cargo build --offline --locked -p ic-blob-storage-cli
@@ -212,11 +214,13 @@ build-standalone:
 
 test-hard-cut:
 	@test -n "$(BLOB_PRE_CUT_STANDALONE_WASM)" -a -n "$(BLOB_HARD_CUT_REPORT)" || { echo 'Set BLOB_PRE_CUT_STANDALONE_WASM and a fresh BLOB_HARD_CUT_REPORT'; exit 1; }
+	+$(MAKE) --no-print-directory testkit-check
 	+$(MAKE) --no-print-directory build-standalone
 	BLOB_PRE_CUT_STANDALONE_WASM="$(BLOB_PRE_CUT_STANDALONE_WASM)" BLOB_HARD_CUT_REPORT="$(BLOB_HARD_CUT_REPORT)" \
 		bash scripts/ci/run-pocketic-test.sh --offline --locked -p ic-blob-storage-pocketic-tests --test standalone standalone_hard_cut::older_allocation_ledger_upgrade_preserves_bytes_and_obligations_on_refusal -- --ignored --exact --test-threads=1
 
 test-standalone:
+	+$(MAKE) --no-print-directory testkit-check
 	cargo build --offline --locked --release --target wasm32-unknown-unknown -p ic-blob-storage-canister -p blob-gateway-source -p blob-storage-probe -p blob-consumer-probe --lib
 	cargo build --offline --locked -p ic-blob-storage-cli
 	bash scripts/ci/run-pocketic-test.sh --offline --locked -p ic-blob-storage-pocketic-tests --test standalone -- --test-threads=1

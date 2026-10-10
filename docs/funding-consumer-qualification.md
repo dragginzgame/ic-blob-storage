@@ -1,11 +1,33 @@
-# Consumer funding qualification for 0.15.0
+# Consumer funding qualification
 
 This is a source review and acceptance recipe, not consumer execution or deployed
 provider evidence. The [local handoff](status/current.md) owns implementation;
 [funding credit](funding-credit.md) owns the current host API. Framework adapters
 and integration tests remain with their consumer repositories.
 
-## Observed boundary — 2026-10-06
+## Current Canic boundary — 2026-10-10
+
+Published Blob 0.21.5 retains the host-internal credit and bounded renewal APIs
+introduced in 0.15.0. They do not acquire or authenticate provider evidence.
+The [current Canic review](evidence/canic0216.md) finds only funding history,
+exact outcome and preparation assessment mounted in its newer local adapter.
+There is no adapter dispatch, credit-confirmation or budget-renewal endpoint.
+This is an integration gap, not a missing public "mark credited" API in Blob.
+
+[Canic #494](https://github.com/dragginzgame/canic/issues/494) owns guarded host
+composition and its two-payment/recovery qualification.
+[Blob #34](https://github.com/dragginzgame/ic-blob-storage/issues/34) owns the
+provider receipt/account-activity prerequisite. A scheduler or pre-upload path
+must reconcile the same durable original operation; it cannot bypass an
+uncredited/uncertain journal or repeat a payment from a missing reply. Keep
+confirmation and financial renewal host-authorized, with all current bindings
+and fences rechecked after evidence-acquisition awaits.
+
+The [Canic adoption steps](dependencies.md#canic-integration) cover package,
+memory and lifecycle delivery separately. This review authorizes no provider
+request, payment or application scheduling change.
+
+## Historical observed boundary — 2026-10-06
 
 Toko Miner HEAD `061cfb6e3702a7075ab3c118bfaf315d7d2b0053` delegates its blob
 component to `canic_blob_service::canister!()`. Its lock selects registry blob
@@ -57,7 +79,6 @@ caller assertion or locally renamed operation.
 
 The library's local PocketIC receipts/Cashier tests do not close item 2 or prove
 these consumer-owned executions. No sibling changes, consumer builds, deployment
-or paid provider effects were performed. Owning-repository
-[#1](https://github.com/dragginzgame/ic-blob-storage/issues/1) and
-[#6](https://github.com/dragginzgame/ic-blob-storage/issues/6) retain integration and
-lifetime acceptance tracking; this review makes no GitHub writes.
+or paid provider effects were performed in that review. Current provider and
+host-integration work remains with Blob #34 and Canic #494 above; lifetime
+acceptance remains with [#6](https://github.com/dragginzgame/ic-blob-storage/issues/6).

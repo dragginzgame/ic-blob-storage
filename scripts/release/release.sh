@@ -2,7 +2,17 @@
 set -euo pipefail
 
 # Consumer metadata and qualification only. Shared Tooling owns every Git effect.
-ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd -P)"
+script_file="${BASH_SOURCE[0]}"
+[[ "$script_file" == /* ]] || script_file="$PWD/$script_file"
+script_directory="${script_file%/*}"
+case "$script_directory" in
+    *$'\n'*|*$'\r'*) echo 'release directory must not contain LF or CR' >&2; exit 2 ;;
+esac
+ROOT="$(cd -P "$script_directory/../.." && printf '%s/.' "$PWD")"
+ROOT="${ROOT%/.}"
+case "$ROOT" in
+    *$'\n'*|*$'\r'*) echo 'release directory must not contain LF or CR' >&2; exit 2 ;;
+esac
 cd "$ROOT"
 export CARGO_TARGET_DIR="$ROOT/target"
 DATA="$ROOT/scripts/release/release-data.pl"
@@ -32,9 +42,18 @@ preflight() {
     [[ "$head" == "${RELEASE_SOURCE:?}" ]] || fail 'source commit does not match release intent'
     [[ "$previous" == "${RELEASE_PREVIOUS:?}" ]] || fail 'previous version does not match release intent'
     perl "$DATA" changelog-check "${RELEASE_VERSION:?}" "${RELEASE_PREVIOUS:?}" "${RELEASE_DATE:?}"
+    # Only the admitted source/candidate reaches explicit selected-tool setup.
+    # Keep this out of Make entrypoint prerequisites and saved-release recovery.
+    make --no-print-directory deps
+    make --no-print-directory install-tools
+    make --no-print-directory tools-check
+    # Setup may take time; never validate a source or selection changed meanwhile.
+    head="$(git rev-parse HEAD)" || fail 'cannot resolve release source after tool preparation'
+    [[ "$head" == "$RELEASE_SOURCE" ]] || fail 'source commit changed during tool preparation'
+    ensure_clean
     make --no-print-directory release-tools-check
-    # The complete gate verifies the snapshot and fetches the selected lock before
-    # any offline validation. Do not fetch again on post-validation preparation.
+    # The standalone gate retains its own admission/cache preparation. Do not
+    # repeat setup during post-validation metadata preparation or recovery.
 }
 prepare() {
     local head previous

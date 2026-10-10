@@ -14,17 +14,15 @@ use blob_test_protocol::{
     storage::{Failure, Observation, Status, WriteFault},
 };
 use candid::{CandidType, DecoderConfig, Deserialize, Principal, decode_one_with_config};
-use ic_blob_storage::ic_memory::GenericRangePolicy;
-use ic_blob_storage::ic_memory::MemoryManagerAuthorityRecord;
+use ic_blob_storage::ic_memory::GenericAllocationPolicy;
+use ic_blob_storage::ic_memory::MemoryAllocationPool;
+use ic_blob_storage::ic_memory::MemoryAuthority;
 use ic_blob_storage::ic_memory::MemoryManagerConfig;
-use ic_blob_storage::ic_memory::MemoryManagerIdRange;
-use ic_blob_storage::ic_memory::MemoryManagerRangeMode;
 use ic_blob_storage::ic_memory::MemoryRequest;
 use ic_blob_storage::ic_memory::MemoryRuntime;
 use ic_blob_storage::ic_memory::RuntimeMemory;
 use ic_blob_storage::ic_memory::SchemaMetadata;
 use ic_blob_storage::ic_memory::SealedDeclarationSnapshot;
-use ic_blob_storage::ic_memory::StaticMemoryRangeDeclaration;
 use ic_blob_storage::ic_memory::ic_stable_structures::DefaultMemoryImpl;
 use ic_blob_storage::ic_memory::ic_stable_structures::Memory;
 use ic_blob_storage::model::service::upload::UploadManifestState;
@@ -122,7 +120,7 @@ pub(crate) fn initialize(
     let config = configuration::configuration(input);
     STATE.with_borrow(|state| assert!(state.is_none(), "initialization is not reset"));
     let (runtime, memory) = granted_memories();
-    let neighbor = runtime.open_memory_by_key("fixture.neighbor.v1").unwrap();
+    let neighbor = runtime.open_memory("neighbor.data.v1").unwrap();
     if !restored {
         assert_eq!(neighbor.grow(1), Ok(0));
         neighbor.write(0, b"neighbor");
@@ -197,36 +195,24 @@ fn granted_memories() -> (
         .map(|key| MemoryRequest::new("fixture", key, SchemaMetadata::default()).unwrap())
         .to_vec();
     requests.push(
-        MemoryRequest::new("neighbor", "fixture.neighbor.v1", SchemaMetadata::default()).unwrap(),
+        MemoryRequest::new("neighbor", "neighbor.data.v1", SchemaMetadata::default()).unwrap(),
     );
-    let grant = StaticMemoryRangeDeclaration::new(
-        MemoryManagerAuthorityRecord::new(
-            MemoryManagerIdRange::new(120, 135).unwrap(),
-            "fixture",
-            MemoryManagerRangeMode::Allowed,
-            None,
-        )
-        .unwrap(),
+    let pool = MemoryAllocationPool::new(
+        vec![
+            MemoryAuthority::new("fixture", "fixture.").unwrap(),
+            MemoryAuthority::new("neighbor", "neighbor.").unwrap(),
+        ],
+        vec![],
     )
     .unwrap();
-    let neighbor = StaticMemoryRangeDeclaration::new(
-        MemoryManagerAuthorityRecord::new(
-            MemoryManagerIdRange::new(136, 136).unwrap(),
-            "neighbor",
-            MemoryManagerRangeMode::Allowed,
-            None,
-        )
-        .unwrap(),
-    )
-    .unwrap();
-    let declarations = SealedDeclarationSnapshot::new(&[], &[grant, neighbor], &requests).unwrap();
+    let declarations = SealedDeclarationSnapshot::new(&requests).unwrap();
     let mut runtime = MemoryRuntime::new_with_config(
         ProbeBackingMemory::default(),
         MemoryManagerConfig::new(16).unwrap(),
     )
     .unwrap();
     runtime
-        .bootstrap(&declarations, &GenericRangePolicy)
+        .bootstrap(&declarations, &pool, &GenericAllocationPolicy)
         .unwrap();
     let [
         tenants,
@@ -279,7 +265,7 @@ fn probe_memory(
     index: usize,
 ) -> ProbeMemory {
     ProbeMemory {
-        memory: runtime.open_memory_by_key(key).unwrap(),
+        memory: runtime.open_memory(key).unwrap(),
         index,
         fault: match key {
             "fixture.tenants.v1" => Some(WriteFault::Tenants),
@@ -354,7 +340,7 @@ pub(crate) fn admit_with_growth(
             .as_ref()
             .unwrap()
             .runtime
-            .open_memory_by_key("fixture.permissions.v1")
+            .open_memory("fixture.permissions.v1")
             .unwrap();
         let before = memory.size();
         REFUSE_GROWTH.set(input.refuse);

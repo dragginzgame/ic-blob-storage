@@ -52,7 +52,7 @@ create_fixture() {
         "$ROOT/scripts/ci/check-make-execution.sh" \
         "$ROOT/scripts/ci/check-release-source.sh" \
         "$ROOT/scripts/ci/finalize-release-changelog.awk" \
-        "$ROOT/scripts/ci/check-format-tools.sh" "$FIXTURE/scripts/ci/"
+        "$ROOT/scripts/ci/check-format-tools.sh" "$ROOT/scripts/ci/run-formatting.sh" "$FIXTURE/scripts/ci/"
     cp "$ROOT/ci/tool-versions.env" "$FIXTURE/ci/"
     cp "$ROOT/Makefile" "$FIXTURE/Makefile"
     cp "$ROOT/make/tools.mk" "$ROOT/make/release.mk" "$ROOT/make/rust-format.mk" "$ROOT/make/execution.mk" "$FIXTURE/make/"
@@ -111,6 +111,7 @@ LOCK
     unset TEST_GIT_FAIL_CALL TEST_DATA_FAIL_COMMAND
     unset TEST_FINALIZER_FAIL
     unset TEST_FMT_FAIL
+    unset TEST_RELEASE_SETUP_FAIL TEST_RELEASE_SETUP_CHANGE
 }
 expect_failure() {
     local status
@@ -124,6 +125,26 @@ fingerprint() { shasum -a 256 Cargo.toml Cargo.lock CHANGELOG.md; }
 # Failed conditional builtins need explicit exits on Bash 3.2, including tests.
 assert_unchanged() { [[ "$(fingerprint)" == "$before" && ! -e docs/release.json ]] || exit 1; }
 assert_cache_retained() { [[ "$(cat target/debug/cache-sentinel)" == retained ]] || exit 1; }
+
+# Preparation is a substitute too: fixtures never provision real tools or fetch.
+cat > "$TEMPORARY/bin/make" <<'MOCK'
+#!/usr/bin/env bash
+set -euo pipefail
+case "$*" in
+    '--no-print-directory deps'|'--no-print-directory install-tools'|'--no-print-directory tools-check')
+        selection="${*: -1}"
+        echo "$selection" >> target/preparation.log
+        [[ "${TEST_RELEASE_SETUP_FAIL:-}" != "$selection" ]] || exit 1
+        if [[ "$selection" == install-tools ]]; then
+            case "${TEST_RELEASE_SETUP_CHANGE:-}" in
+                selection) perl -pi -e 's/version = "0\.1\.0"/version = "0.1.9"/' Cargo.toml ;;
+                head) echo 3333333333333333333333333333333333333333 > target/mock-head ;;
+            esac
+        fi
+        ;;
+    *) exec "$TEST_REAL_MAKE" "$@" ;;
+esac
+MOCK
 
 # Git effects are substitutes: no commits, tags, real push or publication.
 cat > "$TEMPORARY/bin/git" <<'MOCK'
@@ -415,6 +436,64 @@ test_preflight_tools() {
     export SHELLCHECK="$PWD/target/selected shellcheck"
     "$TEST_REAL_MAKE" --no-print-directory release-patch
     [[ "$(cat "$TEST_EFFECTS")" == $'validate\nstage\ncommit\ntag\npush' ]] || exit 1
+    assert_cache_retained
+}
+test_selected_tool_preparation() {
+    before="$(fingerprint)"
+    export TEST_RELEASE_SETUP_FAIL="$1"
+    expect_failure "$TEST_REAL_MAKE" --no-print-directory release-patch
+    assert_unchanged; assert_cache_retained
+    [[ ! -s "$TEST_EFFECTS" && ! -e target/gate-ran && ! -e docs/release.json ]] || exit 1
+    case "$1" in
+        deps) expected=deps ;;
+        install-tools) expected=$'deps\ninstall-tools' ;;
+        tools-check) expected=$'deps\ninstall-tools\ntools-check' ;;
+    esac
+    [[ "$(cat target/preparation.log)" == "$expected" ]] || exit 1
+    unset TEST_RELEASE_SETUP_FAIL
+    "$TEST_REAL_MAKE" --no-print-directory release-patch
+    [[ "$(cat "$TEST_EFFECTS")" == $'validate\nstage\ncommit\ntag\npush' ]] || exit 1
+}
+test_tool_preparation_source_change() {
+    local shape="$1"
+    export TEST_RELEASE_SETUP_CHANGE="$shape"
+    cp Cargo.lock target/before-lock
+    cp CHANGELOG.md target/before-notes
+    expect_failure "$TEST_REAL_MAKE" --no-print-directory release-patch
+    [[ "$(cat target/preparation.log)" == $'deps\ninstall-tools\ntools-check' ]] || exit 1
+    [[ ! -s "$TEST_EFFECTS" && ! -e target/gate-ran && ! -e docs/release.json ]] || exit 1
+    if [[ "$shape" == selection ]]; then
+        [[ "$(perl scripts/release/release-data.pl version)" == 0.1.9 ]] || exit 1
+        rg -F 'unstaged: Cargo.toml' target/rejection.log >/dev/null
+    else
+        rg -F 'source commit changed during tool preparation' target/rejection.log >/dev/null
+    fi
+    cmp Cargo.lock target/before-lock
+    cmp CHANGELOG.md target/before-notes
+    assert_cache_retained
+}
+test_directory_admission() {
+    local shape="$1" regular invalid selected path
+    regular="$PWD/target/directory-source"
+    case "$shape" in
+        lf|alias) invalid="$regular"$'\n' ;;
+        cr) invalid="$regular"$'\r' ;;
+    esac
+    for path in "$regular" "$invalid"; do
+        mkdir -p "$path/scripts/release"
+        cp scripts/release/release.sh scripts/release/release-data.pl "$path/scripts/release/"
+    done
+    printf '[workspace]\n[workspace.package]\nversion = "1.2.3"\n' > "$regular/Cargo.toml"
+    printf '[workspace]\n[workspace.package]\nversion = "9.9.9"\n' > "$invalid/Cargo.toml"
+    selected="$invalid"
+    if [[ "$shape" == alias ]]; then
+        selected="$PWD/target/directory-alias"
+        ln -s "$invalid" "$selected"
+    fi
+    expect_failure bash "$selected/scripts/release/release.sh" version
+    rg -F 'release directory must not contain LF or CR' target/rejection.log >/dev/null
+    [[ "$(bash "$regular/scripts/release/release.sh" version)" == 1.2.3 ]] || exit 1
+    [[ ! -s "$TEST_EFFECTS" ]] || exit 1
     assert_cache_retained
 }
 test_source_diagnostics() {
@@ -872,6 +951,15 @@ run_case bootstrap-fetch test_dependency_bootstrap fetch
 run_case bootstrap-fetch-cached test_dependency_bootstrap fetch-cached
 for tool in shellcheck-missing shellcheck-broken sort-missing sort-wrong rustfmt-broken; do
     run_case "preflight-$tool" test_preflight_tools "$tool"
+done
+for phase in deps install-tools tools-check; do
+    run_case "selected-tools-$phase" test_selected_tool_preparation "$phase"
+done
+for shape in selection head; do
+    run_case "selected-tools-change-$shape" test_tool_preparation_source_change "$shape"
+done
+for shape in lf cr alias; do
+    run_case "directory-$shape" test_directory_admission "$shape"
 done
 run_case source-diagnostics test_source_diagnostics
 for shape in duplicate historical-duplicate competing; do run_case "notes-$shape" test_invalid_changelog "$shape"; done

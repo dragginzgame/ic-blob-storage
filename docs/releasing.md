@@ -38,6 +38,20 @@ Memory 0.33 changes the public re-export's type identity, requiring aligned
 consumer dependencies and rebuilds. Runtime schemas are unchanged; cross-release
 installation retirement/reinstall requirements still apply.
 
+Pending 0.22.0 adopts public Memory 0.34's host-owned allocation pool. Rebuild
+consumers with aligned Memory identities and explicit namespace grants; complete
+the retirement runbook before cross-release reinstall. Same-release restore and
+uncertain provider obligations remain required. The reviewed Shared 0.2.13
+snapshot adds concise formatter output and retained logs. Admitted release
+directories containing LF/CR refuse before source selection, including physical
+aliases. Private Host 0.11/Testkit 0.29 use the same server selection; prepare the
+new lock-selected CLI explicitly. Release
+preflight prepares the locked cache and existing selected toolsets through
+`make deps`, `make install-tools`, `make tools-check` and `make release-tools-check`
+before full validation, then rechecks source identity and cleanliness. Ordinary
+checks remain offline; saved-release recovery
+and post-validation metadata preparation do not repeat setup.
+
 That release changes capacity reply/preflight shapes: rebuild consumers for
 the three mandatory byte headrooms and dimension-specific blocker names. The
 usable minimum and stored schemas remain unchanged. Shared Tooling's upstream
@@ -136,8 +150,8 @@ do not bypass the runner's saved intent or reuse validation from another source.
 From committed clean source on the selected branch:
 
 ```bash
-make release-patch # Pending compatible 0.21.3 maintenance.
-# Or select release-minor / release-major for the complete batch's compatibility.
+make release-minor # Pending 0.22.0 public Memory hard cut.
+# For another batch, select patch/minor/major from its complete compatibility.
 ```
 
 All three invoke the same pinned runner. This repository explicitly selects

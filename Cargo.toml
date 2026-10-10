@@ -32,12 +32,12 @@ ic-blob-storage = { path = "crates/ic-blob-storage" }
 ic-blob-storage-canister = { path = "canisters/standalone" }
 ic-blob-storage-contracts = { path = "crates/ic-blob-storage-contracts", version = "0.21.5" }
 ic-cdk = "0.20.3"
-ic-host-artifacts = "0.10"
-ic-host-fs = "0.10"
+ic-host-artifacts = "0.11"
+ic-host-fs = "0.11"
 ic-management-canister-types = "0.11.0"
-ic-memory = "0.33"
-ic-metrics = "0.3"
-ic-testkit = "0.28"
+ic-memory = "0.34"
+ic-metrics = "0.4"
+ic-testkit = "0.29"
 libc = "0.2.190"
 reqwest = { version = "0.13.5", default-features = false }
 serde = { version = "1.0.229", features = ["derive"] }

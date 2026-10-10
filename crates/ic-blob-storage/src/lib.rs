@@ -24,5 +24,5 @@ pub const LIBRARY_VERSION: &str = env!("CARGO_PKG_VERSION");
 /// allocation grants. Linking this crate does not register stores, initialize a
 /// memory manager or export lifecycle hooks. Access stable collections through
 /// `ic_memory::ic_stable_structures` to preserve the runtime's type identity.
-/// Hosts with a direct Memory dependency must select the same 0.33 release line.
+/// Hosts with a direct Memory dependency must select the same 0.34 release line.
 pub use ic_memory;

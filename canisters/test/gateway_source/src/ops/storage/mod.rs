@@ -4,9 +4,8 @@ use std::cell::RefCell;
 
 use candid::{de::DecoderConfig, decode_one_with_config};
 use ic_blob_storage::ic_memory::{
-    GenericRangePolicy, MemoryManagerAuthorityRecord, MemoryManagerConfig, MemoryManagerIdRange,
-    MemoryManagerRangeMode, MemoryRequest, MemoryRuntime, RuntimeMemory, SchemaMetadata,
-    SealedDeclarationSnapshot, StaticMemoryRangeDeclaration,
+    GenericAllocationPolicy, MemoryAllocationPool, MemoryAuthority, MemoryManagerConfig,
+    MemoryRequest, MemoryRuntime, RuntimeMemory, SchemaMetadata, SealedDeclarationSnapshot,
     ic_stable_structures::{Cell, DefaultMemoryImpl},
 };
 
@@ -27,27 +26,21 @@ thread_local! {
 pub(super) fn open() {
     let request = MemoryRequest::new("fixture", JOURNAL_KEY, SchemaMetadata::default())
         .expect("fixture memory request");
-    let grant = StaticMemoryRangeDeclaration::new(
-        MemoryManagerAuthorityRecord::new(
-            MemoryManagerIdRange::new(120, 120).expect("fixture range"),
-            "fixture",
-            MemoryManagerRangeMode::Allowed,
-            None,
-        )
-        .expect("fixture authority"),
+    let pool = MemoryAllocationPool::new(
+        vec![MemoryAuthority::new("fixture", "fixture.").expect("host namespace grant")],
+        vec![],
     )
-    .expect("fixture grant");
-    let declarations =
-        SealedDeclarationSnapshot::new(&[], &[grant], &[request]).expect("fixture declarations");
+    .expect("host allocation pool");
+    let declarations = SealedDeclarationSnapshot::new(&[request]).expect("fixture declarations");
     let mut runtime = MemoryRuntime::new_with_config(
         DefaultMemoryImpl::default(),
         MemoryManagerConfig::new(16).expect("host bucket profile"),
     )
     .expect("host runtime");
     runtime
-        .bootstrap(&declarations, &GenericRangePolicy)
+        .bootstrap(&declarations, &pool, &GenericAllocationPolicy)
         .expect("host bootstrap");
-    let memory = runtime.open_memory_by_key(JOURNAL_KEY).expect("host grant");
+    let memory = runtime.open_memory(JOURNAL_KEY).expect("host grant");
     let journal = Cell::init(memory, Vec::new());
     STORE.with_borrow_mut(|store| {
         *store = Some(HostStore {

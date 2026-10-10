@@ -8,9 +8,9 @@ use ic_blob_storage_contracts::configuration::service::ServiceBindings;
 use ic_blob_storage_contracts::configuration::service::ServiceLimits;
 use ic_blob_storage_contracts::configuration::service::ServiceManifestLimits;
 use ic_memory::{
-    GenericRangePolicy, MemoryManagerAuthorityRecord, MemoryManagerConfig, MemoryManagerIdRange,
-    MemoryManagerRangeMode, MemoryRequest, MemoryRuntime, SchemaMetadata,
-    SealedDeclarationSnapshot, StaticMemoryRangeDeclaration, ic_stable_structures::VectorMemory,
+    GenericAllocationPolicy, MemoryAllocationPool, MemoryAuthority, MemoryManagerConfig,
+    MemoryRequest, MemoryRuntime, SchemaMetadata, SealedDeclarationSnapshot,
+    ic_stable_structures::VectorMemory,
 };
 use std::num::{NonZeroU64, NonZeroU128, NonZeroUsize};
 
@@ -70,24 +70,19 @@ fn update(tenant: u8, expected: Option<TenantEnrollmentView>, active: bool) -> T
 fn host_granted_memory_reopens_with_retained_state_and_an_enforced_fence() {
     let request =
         MemoryRequest::new("fixture", "fixture.tenants.v1", SchemaMetadata::default()).unwrap();
-    let grant = StaticMemoryRangeDeclaration::new(
-        MemoryManagerAuthorityRecord::new(
-            MemoryManagerIdRange::new(120, 120).unwrap(),
-            "fixture",
-            MemoryManagerRangeMode::Allowed,
-            None,
-        )
-        .unwrap(),
+    let pool = MemoryAllocationPool::new(
+        vec![MemoryAuthority::new("fixture", "fixture.").expect("host namespace grant")],
+        vec![],
     )
-    .unwrap();
-    let declarations = SealedDeclarationSnapshot::new(&[], &[grant], &[request]).unwrap();
+    .expect("host allocation pool");
+    let declarations = SealedDeclarationSnapshot::new(&[request]).unwrap();
     let raw = VectorMemory::default();
     let mut runtime =
         MemoryRuntime::new_with_config(raw.clone(), MemoryManagerConfig::new(16).unwrap()).unwrap();
     runtime
-        .bootstrap(&declarations, &GenericRangePolicy)
+        .bootstrap(&declarations, &pool, &GenericAllocationPolicy)
         .unwrap();
-    let memory = runtime.open_memory_by_key("fixture.tenants.v1").unwrap();
+    let memory = runtime.open_memory("fixture.tenants.v1").unwrap();
     let mut store = StableTenantEnrollments::install(memory, config()).unwrap();
     let active = store.update(context(2), update(4, None, true)).unwrap();
     let suspended = store
@@ -98,9 +93,9 @@ fn host_granted_memory_reopens_with_retained_state_and_an_enforced_fence() {
     let mut runtime =
         MemoryRuntime::new_with_config(raw, MemoryManagerConfig::new(16).unwrap()).unwrap();
     runtime
-        .bootstrap(&declarations, &GenericRangePolicy)
+        .bootstrap(&declarations, &pool, &GenericAllocationPolicy)
         .unwrap();
-    let memory = runtime.open_memory_by_key("fixture.tenants.v1").unwrap();
+    let memory = runtime.open_memory("fixture.tenants.v1").unwrap();
     let mut store = StableTenantEnrollments::open(memory, config()).unwrap();
     assert!(store.is_fenced());
     assert_eq!(store.inspect(context(4), p(4)), Ok(Some(suspended)));

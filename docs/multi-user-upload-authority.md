@@ -1,10 +1,10 @@
 # Multi-user upload authority
 
 The maintainer selected project-approved per-upload authority for
-[#31](https://github.com/dragginzgame/ic-blob-storage/issues/31). Pending 0.19.0
-removes the installed single-uploader restriction. This is a public API, CLI,
-Candid and installation-format hard cut; released 0.18.5 retains its former
-contract. Package versions remain unchanged until maintainer release preparation.
+[#31](https://github.com/dragginzgame/ic-blob-storage/issues/31). Released 0.19.0
+removed the installed single-uploader restriction. This was a public API, CLI,
+Candid and installation-format hard cut; historical 0.18 releases retain their
+former contract. The current 0.21 line retains per-upload authority.
 
 ## Reuse the existing authenticated project permission
 
@@ -52,7 +52,7 @@ authentication owner or maintain a separate service-wide user registry.
 ## Hard-cut surface and acceptance
 
 This changes certificate trust and removes the single installed uploader contract.
-Pending 0.19.0 requires cross-release retirement and reinstall.
+The 0.19.0 hard cut requires cross-release retirement and reinstall.
 `ServiceInstallationInput`, `ServiceInstallationCandidate` and `HostConfigurationView`
 no longer have `trusted_uploader`; standalone initialization refuses skipped
 fields and extra arguments. `UploadIssuerAuthority` and its accessors are
@@ -74,6 +74,9 @@ browser signing keys uploading distinct bodies to one actual standalone service,
 independent native verification/download and separate reference release, using
 an owned provider substitute. It does not qualify application login/capabilities
 or deployed provider behavior.
+The [Canic review](evidence/canic0216.md) links its recorded managed two-uploader
+permission/restoration acceptance and distinguishes that from pushed adapter
+delivery. It does not establish successful managed certificate issuance.
 Canic owns thin mounting/DTO propagation and its neutral managed fixture; Toko
 owns real session verification and application capability decisions. Browser and
 deployed-provider acceptance must follow separately from local substitutes.

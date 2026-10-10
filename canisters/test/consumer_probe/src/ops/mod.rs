@@ -5,17 +5,15 @@ pub(crate) mod tenants;
 use crate::model::ConsumerRecord;
 use blob_test_protocol::consumer::{AssetView, Failure, Fault};
 use candid::{CandidType, Principal, de::DecoderConfig};
-use ic_blob_storage::ic_memory::GenericRangePolicy;
-use ic_blob_storage::ic_memory::MemoryManagerAuthorityRecord;
+use ic_blob_storage::ic_memory::GenericAllocationPolicy;
+use ic_blob_storage::ic_memory::MemoryAllocationPool;
+use ic_blob_storage::ic_memory::MemoryAuthority;
 use ic_blob_storage::ic_memory::MemoryManagerConfig;
-use ic_blob_storage::ic_memory::MemoryManagerIdRange;
-use ic_blob_storage::ic_memory::MemoryManagerRangeMode;
 use ic_blob_storage::ic_memory::MemoryRequest;
 use ic_blob_storage::ic_memory::MemoryRuntime;
 use ic_blob_storage::ic_memory::RuntimeMemory;
 use ic_blob_storage::ic_memory::SchemaMetadata;
 use ic_blob_storage::ic_memory::SealedDeclarationSnapshot;
-use ic_blob_storage::ic_memory::StaticMemoryRangeDeclaration;
 use ic_blob_storage::ic_memory::ic_stable_structures::DefaultMemoryImpl;
 use ic_blob_storage::ic_memory::ic_stable_structures::Memory;
 use ic_blob_storage::ops::service::reads::download::client::ReplicatedDownloadClient;
@@ -61,27 +59,22 @@ pub(crate) fn decode<T: CandidType + for<'de> Deserialize<'de>>(bytes: Vec<u8>) 
     candid::decode_one_with_config(&bytes, &config()).expect("consumer ingress")
 }
 pub(crate) fn initialize(initial: Option<(Principal, Principal)>) {
-    let grant = StaticMemoryRangeDeclaration::new(
-        MemoryManagerAuthorityRecord::new(
-            MemoryManagerIdRange::new(120, 120).unwrap(),
-            "fixture",
-            MemoryManagerRangeMode::Allowed,
-            None,
-        )
-        .unwrap(),
-    )
-    .unwrap();
     let request = MemoryRequest::new("fixture", KEY, SchemaMetadata::default()).unwrap();
-    let declarations = SealedDeclarationSnapshot::new(&[], &[grant], &[request]).unwrap();
+    let pool = MemoryAllocationPool::new(
+        vec![MemoryAuthority::new("fixture", "fixture.").expect("host namespace grant")],
+        vec![],
+    )
+    .expect("host allocation pool");
+    let declarations = SealedDeclarationSnapshot::new(&[request]).unwrap();
     let mut runtime = MemoryRuntime::new_with_config(
         DefaultMemoryImpl::default(),
         MemoryManagerConfig::new(16).unwrap(),
     )
     .unwrap();
     runtime
-        .bootstrap(&declarations, &GenericRangePolicy)
+        .bootstrap(&declarations, &pool, &GenericAllocationPolicy)
         .unwrap();
-    let memory = runtime.open_memory_by_key(KEY).unwrap();
+    let memory = runtime.open_memory(KEY).unwrap();
     let record = if let Some((operator, service)) = initial {
         assert_eq!(memory.size(), 0, "initialization cannot reset history");
         assert_eq!(memory.grow(1), Ok(0), "fixture memory allocation");
