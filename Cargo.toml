@@ -37,7 +37,7 @@ ic-host-fs = "0.12"
 ic-management-canister-types = "0.11.0"
 ic-memory = "0.35"
 ic-metrics = "0.5"
-ic-testkit = "0.32"
+ic-testkit = "0.33"
 libc = "0.2.190"
 reqwest = { version = "0.13.5", default-features = false }
 serde = { version = "1.0.229", features = ["derive"] }

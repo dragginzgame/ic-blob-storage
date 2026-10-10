@@ -4,22 +4,27 @@
 
 # Dependency setup
 
-## Current graph — released 0.22.2, pending 0.22.3
+## Current graph — released 0.22.3, pending 0.22.4
 
-All twelve package versions and the finalized receipt remain 0.22.2. Its lock
-selects Memory 0.35.2, Metrics 0.5.3, Testkit 0.32.1 and all four Host 0.12.3.
-Preserve the incoming lock selecting Memory 0.35.3, Testkit 0.32.2 and all four
-Host 0.12.4; it remains distinct from that released graph. PocketIC stays 16.1.0.
+All twelve package versions and the finalized receipt remain 0.22.3. Its lock
+selects Memory 0.35.3, Metrics 0.5.3, Testkit 0.32.2 and all four Host 0.12.4.
+Preserve the incoming Testkit 0.33.0, Metrics 0.5.4 and all four Host 0.12.7
+selections; Memory and PocketIC 16.1.0 remain unchanged. Testkit's scoped
+connection-reset recovery classification is private test infrastructure, not a
+Blob provider retry policy.
 Hosts linking Blob must align on one Memory 0.35 package identity and grant the
 Blob namespace in their sole allocation pool.
 
-The reviewed Shared Tooling 0.3.5 snapshot selects 99 canonical files at
-`a744d7f1990b9e1451ef45cd6d495de00a141cd3`, including Binaryen 133's pins.
+The reviewed Shared Tooling 0.3.7 snapshot selects 99 canonical files at
+`34e5ad7aac3599306c9572bb547f2239d09df1a3`, retaining Binaryen 133's pins.
 Run explicit `make install-tools`, then offline `make tools-check`. Existing
 bundles and server artifacts remain retained. The unselected upstream runner
 fixtures do not enter Blob's gate; Blob isolates its own synthetic logging
 outputs under [#52](https://github.com/dragginzgame/ic-blob-storage/issues/52).
-See [the adoption record](evidence/shared0350223.md).
+Shared's installer reads the explicit consumer Cargo.lock for Testkit CLI
+selection, admitting one published crates.io identity without resolving a graph.
+Blob passes the returned CLI to Testkit's setup/check command; offline checks
+never install a missing selection. See [the adoption records](evidence/shared0370224.md).
 
 ## Earlier graph — released 0.22.1, pending 0.22.2
 

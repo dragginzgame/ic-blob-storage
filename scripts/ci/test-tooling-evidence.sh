@@ -33,7 +33,7 @@ temporary="$fixture/temp"
 mkdir -p "$repository" "$temporary" "$fixture/unpacked"
 # A failure before any candidate/fixture exists still has no upload payload.
 empty="$(bash "$collector" "$repository" "$temporary" "$fixture/empty.tar.gz")"
-[[ -z "$empty" && ! -e "$fixture/empty.tar.gz" ]]
+[[ -z "$empty" && ! -e "$fixture/empty.tar.gz" ]] || exit 1
 
 # Early installer failure and late fixtures retain the producer's original facts.
 mkdir -p "$repository/.tools/host-set.failed"
@@ -69,7 +69,7 @@ printf 'unrelated bytes\n' > "$temporary/unrelated/payload"
 printf 'outside selection\n' > "$temporary/outside"
 ln -s ../outside "$temporary/file-digests.failed/link"
 archive="$(bash "$collector" "$repository" "$temporary" "$fixture/evidence.tar.gz")"
-[[ "$archive" == "$fixture/evidence.tar.gz" ]]
+[[ "$archive" == "$fixture/evidence.tar.gz" ]] || exit 1
 tar -xzf "$archive" -C "$fixture/unpacked"
 for path in .tools/host-set.failed/.hidden .tools/ic-set.failed/payload \
     .tools/rust/build/build.log .tools/rust/ic-testkit-fixture/receipt \
@@ -83,14 +83,14 @@ for path in $'file-digests.failed/line\nbreak:payload' \
     cmp "$temporary/$path" "$fixture/unpacked/$path"
 done
 [[ "$(perl -e 'printf "%o", (stat($ARGV[0]))[2] & 0777' \
-    "$fixture/unpacked/file-digests.failed/"$'line\nbreak:payload')" == 640 ]]
-[[ -x "$fixture/unpacked/host-tools-test.failed/Linux:x86_64/executable" ]]
-[[ -L "$fixture/unpacked/file-digests.failed/link" ]]
-[[ "$(readlink "$fixture/unpacked/file-digests.failed/link")" == ../outside ]]
-[[ ! -e "$fixture/unpacked/file-digests.failed/link" ]]
+    "$fixture/unpacked/file-digests.failed/"$'line\nbreak:payload')" == 640 ]] || exit 1
+[[ -x "$fixture/unpacked/host-tools-test.failed/Linux:x86_64/executable" ]] || exit 1
+[[ -L "$fixture/unpacked/file-digests.failed/link" ]] || exit 1
+[[ "$(readlink "$fixture/unpacked/file-digests.failed/link")" == ../outside ]] || exit 1
+[[ ! -e "$fixture/unpacked/file-digests.failed/link" ]] || exit 1
 [[ ! -e "$fixture/unpacked/file-digests.failed/.git" && \
     ! -e "$fixture/unpacked/.tools/host-set.failed/.git" && \
-    ! -e "$fixture/unpacked/unrelated" && ! -e "$fixture/unpacked/outside" ]]
+    ! -e "$fixture/unpacked/unrelated" && ! -e "$fixture/unpacked/outside" ]] || exit 1
 
 # A new output is mandatory; a failed write retains inputs and partial output.
 before="$(bash "$root/scripts/ci/verify-file-checksum.sh" --print sha256 "$archive")"
@@ -101,7 +101,7 @@ printf '#!%s\nprintf "partial evidence"\nexit 19\n' "$BASH" > "$fixture/failing-
 chmod +x "$fixture/failing-bin/tar"
 if PATH="$fixture/failing-bin:$PATH" bash "$collector" "$repository" "$temporary" \
     "$fixture/partial.tar.gz" > "$fixture/write-failure.log" 2>&1; then exit 1; fi
-[[ -s "$fixture/partial.tar.gz" && -s "$fixture/write-failure.log" ]]
+[[ -s "$fixture/partial.tar.gz" && -s "$fixture/write-failure.log" ]] || exit 1
 cmp "$temporary/blob-validation-logging.failed/status" "$fixture/unpacked/blob-validation-logging.failed/status"
 
 # Redirected parents refuse, while a final selected symlink remains unfollowed.
@@ -110,13 +110,13 @@ ln -s "$fixture/build" "$repository/.tools/rust/build"
 archive_link="$(bash "$collector" "$repository" "$temporary" "$fixture/link.tar.gz")"
 mkdir "$fixture/link-unpacked"
 tar -xzf "$archive_link" -C "$fixture/link-unpacked"
-[[ -L "$fixture/link-unpacked/.tools/rust/build" ]]
-[[ "$(readlink "$fixture/link-unpacked/.tools/rust/build")" == "$fixture/build" ]]
+[[ -L "$fixture/link-unpacked/.tools/rust/build" ]] || exit 1
+[[ "$(readlink "$fixture/link-unpacked/.tools/rust/build")" == "$fixture/build" ]] || exit 1
 mv "$repository/.tools" "$fixture/toolsets"
 ln -s "$fixture/toolsets" "$repository/.tools"
 if bash "$collector" "$repository" "$temporary" "$fixture/redirected.tar.gz" \
     > "$fixture/redirected.log" 2>&1; then exit 1; fi
-[[ ! -e "$fixture/redirected.tar.gz" ]]
+[[ ! -e "$fixture/redirected.tar.gz" ]] || exit 1
 
 if [[ -n "$proof" ]]; then
     cp -p "$archive" "$proof/evidence.tar.gz"

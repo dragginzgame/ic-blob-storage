@@ -18,21 +18,35 @@ trap finish EXIT
 
 # Inject disposable copies of actual entrypoints before their first assertion.
 # No production test hook, Git mutation, build or publication is involved.
-for script in scripts/release/test-release.sh scripts/ci/test-tooling-evidence.sh scripts/ci/test-testkit-commands.sh scripts/ci/test-library-packages.sh scripts/ci/check-validation-logging.sh; do
+for script in scripts/release/test-release.sh scripts/ci/test-tooling-evidence.sh scripts/ci/test-testkit-commands.sh scripts/ci/test-library-packages.sh scripts/ci/check-validation-logging.sh scripts/ci/check-format-hooks.sh; do
     owner=fixture
     boundary='trap finish_fixture EXIT'
-    if [[ "$script" == scripts/release/test-release.sh || "$script" == scripts/ci/check-validation-logging.sh ]]; then
+    if [[ "$script" == scripts/release/test-release.sh || "$script" == scripts/ci/check-validation-logging.sh || "$script" == scripts/ci/check-format-hooks.sh ]]; then
         owner=FIXTURE
-        [[ "$script" != scripts/release/test-release.sh ]] || owner=TEMPORARY
+        if [[ "$script" == scripts/release/test-release.sh || "$script" == scripts/ci/check-format-hooks.sh ]]; then owner=TEMPORARY; fi
         boundary='trap finish EXIT'
     fi
-    for failure in nounset zero nonzero command; do
+    for failure in nounset zero nonzero command comparison; do
         # shellcheck disable=SC2016 # Expanded only by the injected child script.
         case "$failure" in
             nounset) injection='unset BLOB_FIXTURE_UNBOUND; : "$BLOB_FIXTURE_UNBOUND"'; expected=1 ;;
             zero) injection='exit 0'; expected=1 ;;
             nonzero) injection='exit 23'; expected=23 ;;
             command) injection='false'; expected=1 ;;
+            comparison)
+                # Force an actual mandatory assertion false, preserving its
+                # failure handler. Bash 3.2 ignores bare [[ ... ]] under set -e.
+                injection="$(awk '
+                    /^trap finish(_fixture)? EXIT$/ { armed=1; next }
+                    armed && /^[[:space:]]*\[\[ .* \]\]([[:space:]]*\|\| exit 1)?$/ {
+                        sub(/\[\[.*\]\]/, "[[ 1 == 2 ]]")
+                        print
+                        found=1
+                        exit
+                    }
+                    END { if (!found) exit 1 }
+                ' "$root/$script")"
+                expected=1 ;;
         esac
         case_root="$fixture/${script##*/}-$failure"
         mkdir -p "$case_root/${script%/*}" "$case_root/tmp"
@@ -48,9 +62,9 @@ for script in scripts/release/test-release.sh scripts/ci/test-tooling-evidence.s
         ' "$root/$script" > "$case_root/$script"
         status=0
         CARGO_TARGET_DIR="$case_root/target" TMPDIR="$case_root/tmp" bash "$case_root/$script" > "$case_root/result.log" 2>&1 || status=$?
-        [[ "$status" == "$expected" ]]
-        retained="$(sed -n 's/^.*fixture retained: //p; s/^Full logs and isolated fixture retained: //p' "$case_root/result.log")"
-        [[ -f "$retained/probe.txt" && "$(cat "$retained/probe.txt")" == evidence ]]
+        [[ "$status" == "$expected" ]] || exit 1
+        retained="$(sed -n 's/^.*fixture retained: //p; s/^Full logs and isolated fixture retained: //p; s/^Hook fixture\/evidence retained: //p' "$case_root/result.log")"
+        [[ -f "$retained/probe.txt" && "$(cat "$retained/probe.txt")" == evidence ]] || exit 1
         if grep -F 'passed' "$case_root/result.log" >/dev/null || grep -F 'tests: PASS' "$case_root/result.log" >/dev/null; then exit 1; fi
     done
 done
@@ -68,7 +82,7 @@ for destination in logs/sentinel failures/sentinel summary.md; do
     cmp "$fixture/parent/expected" "$fixture/parent/$destination"
 done
 for directory in logs failures; do
-    [[ "$(ls -A "$fixture/parent/$directory")" == sentinel ]]
+    [[ "$(ls -A "$fixture/parent/$directory")" == sentinel ]] || exit 1
 done
 echo 'Consumer logger fixture preserves inherited parent logs and summary'
 echo 'Consumer fixtures reject premature exits and retain evidence (isolated injected entrypoints)'

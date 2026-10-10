@@ -7,10 +7,13 @@ ROOT="${BASH_SOURCE[0]}"
 ROOT="$(cd -P "${ROOT%/*}/../.." && printf '%s/.' "$PWD")"
 ROOT="${ROOT%/.}"
 TEMPORARY="$(mktemp -d "${TMPDIR:-/tmp}/blob-format-hooks.XXXXXX")"
+fixture_complete=false
 finish() {
     local status=$?
-    if [[ "$status" == 0 ]]; then rm -rf "$TEMPORARY";
+    [[ "$fixture_complete" == true || "$status" != 0 ]] || status=1
+    if [[ "$fixture_complete" == true && "$status" == 0 ]]; then rm -rf "$TEMPORARY";
     else echo "Hook fixture/evidence retained: $TEMPORARY" >&2; fi
+    exit "$status"
 }
 trap finish EXIT
 selected=crates/ic-blob-storage/src/lib.rs
@@ -86,4 +89,56 @@ for flags in i n q t v; do
     cmp Cargo.lock before-lock
 done
 [[ ! -d target ]] || exit 1
-printf 'Consumer formatter rollback, Make-mode refusal and lock preservation checks passed.\n'
+
+# Matching tree output must not hide a failed Git observation. Exercise the
+# selected canonical hook against this consumer's real index and staged inputs.
+cat > Makefile <<'MAKE'
+.PHONY: fmt
+fmt:
+	@touch "$$BLOB_HOOK_FIXTURE_ATTEMPT"
+	@echo changed >> crates/ic-blob-storage/src/lib.rs
+MAKE
+git add Makefile
+tree="$(git write-tree)"
+cp .git/index before-index
+printf '\nUnrelated working edit.\n' >> README.md
+cp README.md before-readme
+real_git="$(command -v git)"
+mkdir mock-bin
+cat > mock-bin/git <<'GIT'
+#!/usr/bin/env bash
+set -euo pipefail
+printf '%s\n' "$*" >> "$BLOB_HOOK_STATE/commands"
+if [[ "$*" == write-tree ]]; then
+    count=0
+    [[ ! -f "$BLOB_HOOK_STATE/count" ]] || read -r count < "$BLOB_HOOK_STATE/count"
+    count=$((count + 1))
+    printf '%s\n' "$count" > "$BLOB_HOOK_STATE/count"
+    "$BLOB_HOOK_REAL_GIT" "$@"
+    if [[ "$count" == "$BLOB_HOOK_OBSERVATION" ]]; then
+        echo 'injected tree observation failure' >&2
+        exit 23
+    fi
+    exit 0
+fi
+exec "$BLOB_HOOK_REAL_GIT" "$@"
+GIT
+chmod +x mock-bin/git
+for observation in 1 2 3; do
+    rm -f mock-bin/count mock-bin/commands formatter-attempted
+    status=0
+    PATH="$PWD/mock-bin:$PATH" BLOB_HOOK_REAL_GIT="$real_git" \
+        BLOB_HOOK_STATE="$PWD/mock-bin" BLOB_HOOK_OBSERVATION="$observation" \
+        bash .githooks/pre-commit > "tree-$observation.log" 2>&1 || status=$?
+    [[ "$status" == 23 && "$(tail -1 mock-bin/commands)" == write-tree ]] || exit 1
+    grep -F 'injected tree observation failure' "tree-$observation.log" >/dev/null
+    [[ "$(git write-tree)" == "$tree" ]] || exit 1
+    cmp .git/index before-index
+    cmp "$selected" before-selected
+    cmp Cargo.lock before-lock
+    cmp README.md before-readme
+    if [[ "$observation" == 3 ]]; then [[ -f formatter-attempted ]] || exit 1;
+    else [[ ! -e formatter-attempted ]] || exit 1; fi
+done
+printf 'Consumer formatter rollback, Make-mode/tree-observation refusal and lock preservation checks passed.\n'
+fixture_complete=true

@@ -78,7 +78,7 @@ for depth in SHARED_DEPTH_UNDEFINED 01 -1 '1+1' '1/0' 18446744073709551616; do
     status=0
     VALIDATION_RUNNER_DEPTH="$depth" bash "$ROOT/scripts/ci/run-validation-targets.sh" pass \
         > "$FIXTURE/depth-refusal.log" 2>&1 || status=$?
-    [[ "$status" == 2 ]]
+    [[ "$status" == 2 ]] || exit 1
     rg -F 'VALIDATION_RUNNER_DEPTH must be' "$FIXTURE/depth-refusal.log" >/dev/null
     if rg -F '==> pass' "$FIXTURE/depth-refusal.log" >/dev/null; then exit 1; fi
 done

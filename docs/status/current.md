@@ -6,7 +6,83 @@
 
 Date: 2026-10-10
 
-## Current continuation — released 0.22.2, pending 0.22.3
+## Current continuation — released 0.22.3, pending 0.22.4
+
+- Explicitly adopt Shared Tooling 0.3.7 from committed canonical
+  `34e5ad7aac3599306c9572bb547f2239d09df1a3`, preserving the same 99-file
+  roster and the already adopted workflow/ref concurrency policy. Advance only
+  the four existing private Host dependencies to published 0.12.7; their packaged
+  Rust sources match qualified 0.12.6. Testkit 0.33.0, Metrics 0.5.4, Memory
+  0.35.3 and PocketIC 16.1.0 remain selected. Released package versions/receipt
+  remain 0.22.3; no commit, push, release or publication.
+- Local fixture assertions now fail explicitly on Bash 3.2, including substitute
+  tools, hook observations, package execution, logging and evidence round trips.
+  Extend actual-entrypoint fault injection to force a mandatory comparison false
+  and require failure with retained evidence. The corrected Host-only graph passes
+  all affected delivery targets and complete Rust 1.88 checks with fixed inputs.
+  Genuine Bash 3.2 portable fixtures pass. Also reject premature nounset exits in
+  the outer consumer hook checker; include it as the sixth fault-injected owner.
+  Final focused checks pass on current Bash and genuine Bash 3.2 with fixed
+  inputs; unchanged compiler/product results remain bound separately. Track
+  delivery/native acceptance in [#55](https://github.com/dragginzgame/ic-blob-storage/issues/55)
+  and selector adoption in #54. Released 0.22.3 hosted CI is in progress; #52/#53
+  stay open. Current qualification and hosted limitations belong to [the follow-up evidence](../evidence/shared0370224.md);
+  retain earlier [0.3.6 qualification](../evidence/shared0360224.md) separately.
+
+## Earlier continuation — released 0.22.3, pending 0.22.4
+
+- Released HEAD is `a36c091abdda3ca850451f12be0c98939b799e1b`, validated
+  source `f08328285cd6c01bc4804de405cfeb25178a0f59`; the working tree starts
+  clean. [Matching hosted CI](https://github.com/dragginzgame/ic-blob-storage/actions/runs/38060598267)
+  remains queued at final inspection. Earlier 0.22.2 passes Linux, Apple Silicon
+  and MSRV; Intel completes all tooling/release/hook fixtures before cancellation
+  in the later native CLI/PocketIC step. Close #45/#50/#51 against those completed
+  matching-source tooling checks, without calling the overall run green.
+  #52/#53 retain their separate 0.22.3 native acceptance boundaries.
+- [Shared 0.3.6 adoption](../evidence/shared0360224.md) selects the same 99-file
+  roster from canonical `0604bfd730ec7ec288cd2cfdad217a0d42bf256b` under
+  [#54](https://github.com/dragginzgame/ic-blob-storage/issues/54). Blob delegates
+  Testkit Cargo.lock selection to the canonical installer and adopts the failed
+  Git tree-observation hook fix. Incoming Testkit 0.33.0 / Metrics 0.5.4 edits
+  are preserved, followed by all four Host 0.12.5 patches during validation.
+  The first complete command gate passes, but its input capture changes only
+  Cargo.lock. Retain that mixed-input attempt; reuse unchanged completed release
+  fixtures and rerun all remaining gate targets on the final graph. That complete
+  delivery evidence passes, including all 643 native/376 enabled PocketIC cases,
+  twelve original/O3/Os/Oz installation/restore executions, Wasm and extracted
+  packages. Rust 1.88 native/Wasm checks pass. All 1,715 captured project inputs
+  stay unchanged through final validation. Genuine Bash 3.2 selector/wrapper/hook
+  fixtures and actual Testkit setup/check pass with unchanged CLI/server bytes.
+  Matching native delivery remains open under #54. A subsequent incoming fleet
+  edit changes only workflow/ref concurrency and its changelog; parsed YAML
+  comparison preserves all other workflow fields, and actionlint/dependency
+  checks pass. The compiled inputs remain unchanged. The first attestation records
+  those two incoming paths and the two documentation updates. No agent commit,
+  push, release or publication.
+- Canic's latest owning evidence still records Blob 0.22.2 adapter compilation,
+  separately from earlier 0.22.1 managed runtime evidence. Updated managed
+  composition and coherent framework publication remain Canic-owned under
+  [#444](https://github.com/dragginzgame/canic/issues/444); guarded funding
+  dispatch/evidence remains #494 / Blob #34. Record 0.22.3 metadata availability
+  in [Canic's owning issue](https://github.com/dragginzgame/canic/issues/444#issuecomment-6099106055),
+  distinct from archive authentication or managed acceptance. No sibling file
+  edits or paid effects.
+- A late incoming lock advances all four Host crates to 0.12.6 after the
+  completed 0.12.5 qualification. Their packaged Rust source trees compare
+  identical; the patch changes upstream CI scheduling only. All affected
+  compiler/native/PocketIC/optimizer/package/floor checks pass under separate
+  `host0126-*` evidence, reusing only unchanged completed tooling/release checks.
+  All 1,715 captured project inputs stay fixed through that gate and Rust 1.88
+  validation. The final attestation changes only this handoff and its evidence
+  record. Earlier graph results remain retained; final dependencies are Testkit
+  0.33.0, Metrics 0.5.4, Memory 0.35.3 and all four Host 0.12.6.
+- [Shared #108](https://github.com/dragginzgame/shared-tooling/issues/108)
+  records the maintainer-approved fleet supersession policy and earlier one-off
+  cancellation. Its retained ledger includes the cancelled 0.22.2 run; this
+  resolves the cause without treating the unfinished PocketIC step as accepted.
+  The newly selected workflow policy needs hosted observation after delivery.
+
+## Earlier continuation — released 0.22.2, pending 0.22.3
 
 - Released HEAD is `35bd0aed37bdea67dfbb9f96706b8c273e685023`, validated source
   `abfc4ed03fd6cc6794ac927165b9792fc6c17221`; all twelve package versions and

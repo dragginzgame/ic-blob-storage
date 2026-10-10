@@ -1,5 +1,32 @@
 # Changelog
 
+## [0.22.4]
+
+### Changed
+
+- Adopt Shared Tooling 0.3.7 and delegate Testkit CLI selection directly to its
+  consumer-lockfile installer, removing Blob's separate version projection.
+  Keep explicit setup, offline admission and Testkit-owned server lifecycle.
+  [#54](https://github.com/dragginzgame/ic-blob-storage/issues/54).
+- Adopt private Testkit 0.33.0's scoped connection-reset classification and
+  Metrics 0.5.4, plus all four Host 0.12.7 patches. The maintained Host writer
+  rejects NUL publication paths before parent creation. Public Blob contracts
+  and stored schemas remain unchanged.
+- Keep only the newest CI run per workflow and branch or PR, cancelling older
+  queued and running checks while retaining the existing host matrix and gates
+  ([Shared #108](https://github.com/dragginzgame/shared-tooling/issues/108)).
+
+### Fixed
+
+- Reject failed mandatory assertions explicitly on Bash 3.2 in shared installers
+  and Blob fixtures; reject incomplete consumer hook checks and retain failed
+  evidence instead of reporting success.
+  [#55](https://github.com/dragginzgame/ic-blob-storage/issues/55),
+  [Shared #107](https://github.com/dragginzgame/shared-tooling/issues/107).
+- Stop pre-commit formatting when a Git tree observation fails, preserving its
+  status and the original working files and index through the canonical hook.
+  [Shared #106](https://github.com/dragginzgame/shared-tooling/issues/106).
+
 ## [0.22.3] - 2026-10-10
 
 ### Changed

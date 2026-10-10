@@ -68,12 +68,19 @@ fixtures retain evidence unless every assertion completed successfully.
 See [the adoption record](evidence/shared0330222.md). Publication and actual
 release commands remain maintainer actions.
 
-Pending compatible 0.22.3 adopts Shared Tooling 0.3.5 and Binaryen 133.
+Released compatible 0.22.3 adopts Shared Tooling 0.3.5 and Binaryen 133.
 Run explicit `make install-tools` before offline checks; previous toolsets remain
 retained. Blob's consumer logging fixture selects its own evidence rather than
 writing synthetic failures into the parent gate. See
 [the adoption record](evidence/shared0350223.md). Native product qualification
 remains separate from common installer and source fixture checks.
+
+Pending compatible 0.22.4 adopts Shared Tooling 0.3.7. Testkit setup/check now
+delegates Cargo.lock selection to the canonical installer. Prepare the incoming
+Testkit 0.33 CLI explicitly with `make install-testkit`, then require offline
+`make testkit-check`. Earlier admitted CLI/server artifacts remain retained.
+The canonical hook rejects failed Git tree observations before staging.
+See [the adoption records](evidence/shared0370224.md).
 
 Released 0.21.0 changes capacity reply/preflight shapes: rebuild consumers for
 the three mandatory byte headrooms and dimension-specific blocker names. The

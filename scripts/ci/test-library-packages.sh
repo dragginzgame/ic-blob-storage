@@ -58,7 +58,7 @@ for candidate in "$CARGO_TARGET_DIR"/package/blob-verification.*/metadata.json; 
 # Deliberately seed the shared target with the first extracted contract and caller.
 first_manifest="$(dirname "$first_metadata")/Cargo.toml"
 value="$(cargo run --offline --locked --manifest-path "$first_manifest" -p ic-blob-storage --bin package-value 2> warm.log)"
-[[ "$value" == 1 ]]
+[[ "$value" == 1 ]] || exit 1
 printf 'pub fn current() -> u32 { 2 }\n' > contracts/src/lib.rs
 printf 'pub fn value() -> u32 { ic_blob_storage_contracts::current() }\n' > service/src/lib.rs
 bash "$verifier" > second.log 2>&1

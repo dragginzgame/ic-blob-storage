@@ -58,7 +58,7 @@ explicitly with `make install-tools` before validation. The reviewed
 Make selects `.tools/host/bin`, `.tools/ic/bin` and `.tools/rust/bin`;
 the offline checkers never download missing tools. The shared aggregate runs
 host, IC and Cargo setup/check stages in order, stopping on the first failure,
-including under parallel Make. Shared 0.3.5 retains read-only IC/platform and
+including under parallel Make. Shared 0.3.7 retains read-only IC/platform and
 Rust/Cargo preflight before common installation; offline checks never run setup.
 Cargo-bearing local recipes preserve Make's jobserver descriptors through their
 shell adapters. Blob extends `LOCAL_TOOL_INSTALL_TARGETS` and
@@ -85,8 +85,8 @@ Blob has no independent crate-version/server-version equality gate. The
 snapshot-owned `ci/ic-tools.tsv` selects five non-PocketIC executables through the
 canonical shared installer; `make ic-tools-check` authenticates that bundle.
 Testkit owns its PocketIC selection, authenticated setup and offline check under
-`.tools/testkit-server`. The thin consumer adapter selects the CLI version from
-Cargo.lock and delegates installation to the shared Cargo installer. PocketIC
+`.tools/testkit-server`. The thin consumer adapter delegates the explicit
+Cargo.lock selection and installation to the shared Cargo installer. PocketIC
 Make callers obtain the admitted absolute server path before test dispatch and
 pass it as `POCKET_IC_BIN` when no explicit binary was selected. Environment and
 Make `POCKET_IC_BIN` overrides remain caller-owned byte admission; the harness

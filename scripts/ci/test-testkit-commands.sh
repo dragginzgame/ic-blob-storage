@@ -27,6 +27,7 @@ version = 4
 [[package]]
 name = "ic-testkit"
 version = "0.25.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
 LOCK
 cp "$consumer/Cargo.lock" "$fixture/selected-lock"
 export TESTKIT_COMMAND_LOG="$fixture/commands" TESTKIT_FIXTURE_ROOT="$consumer"
@@ -38,16 +39,16 @@ printf 'install' >> "$TESTKIT_COMMAND_LOG"
 printf ' <%s>' "$@" >> "$TESTKIT_COMMAND_LOG"
 printf '\n' >> "$TESTKIT_COMMAND_LOG"
 if [[ $# == 4 || ( $# == 5 && ( "$5" == --check || "$5" == --preflight ) ) ]]; then
-    [[ "$1" == --consumer && "$2" == "$TESTKIT_FIXTURE_ROOT" && "$3" == --versions ]]
+    [[ "$1" == --consumer && "$2" == "$TESTKIT_FIXTURE_ROOT" && "$3" == --versions ]] || exit 1
     failure=common-rust
     [[ "${5:-}" != --preflight ]] || failure=preflight-rust
     [[ "${TESTKIT_FAIL:-}" != "$failure" ]] || exit 23
     exit 0
 fi
-[[ $# == 10 || ( $# == 11 && "${11}" == --check ) ]]
+[[ $# == 10 || ( $# == 11 && "${11}" == --check ) ]] || exit 1
 [[ "$1" == --consumer && "$2" == "$TESTKIT_FIXTURE_ROOT" && "$3" == --package &&
-   "$4" == ic-testkit && "$5" == --version && "$6" == 0.25.5 &&
-   "$7" == --bin && "$8" == ic-testkit-server && "$9" == --profile && "${10}" == release ]]
+   "$4" == ic-testkit && "$5" == --lockfile && "$6" == Cargo.lock &&
+   "$7" == --bin && "$8" == ic-testkit-server && "$9" == --profile && "${10}" == release ]] || exit 1
 [[ "${TESTKIT_FAIL:-}" != install ]] || exit 23
 printf '%s\n' "$TESTKIT_FIXTURE_ROOT/testkit-cli"
 INSTALL
@@ -55,7 +56,7 @@ cat > "$consumer/testkit-cli" <<'CLI'
 #!/usr/bin/env bash
 set -euo pipefail
 printf 'cli <%s> <%s> <%s>\n' "$@" >> "$TESTKIT_COMMAND_LOG"
-[[ $# == 3 && "$2" == --directory && "$3" == "$TESTKIT_FIXTURE_ROOT/.tools/testkit-server" ]]
+[[ $# == 3 && "$2" == --directory && "$3" == "$TESTKIT_FIXTURE_ROOT/.tools/testkit-server" ]] || exit 1
 [[ "${TESTKIT_FAIL:-}" != "$1" ]] || exit 31
 printf '%s\n' "$TESTKIT_FIXTURE_ROOT/.tools/testkit-server/admitted-server"
 CLI
@@ -63,8 +64,8 @@ chmod +x "$consumer/testkit-cli"
 cat > "$consumer/scripts/ci/run-nonempty-cargo-test.sh" <<'RUN'
 #!/usr/bin/env bash
 set -euo pipefail
-[[ "$POCKET_IC_BIN" == "${TESTKIT_EXPECTED_SERVER-$TESTKIT_FIXTURE_ROOT/.tools/testkit-server/admitted-server}" ]]
-[[ $# == 3 && "$1" == --offline && "$2" == --locked && "$3" == 'selected case' ]]
+[[ "$POCKET_IC_BIN" == "${TESTKIT_EXPECTED_SERVER-$TESTKIT_FIXTURE_ROOT/.tools/testkit-server/admitted-server}" ]] || exit 1
+[[ $# == 3 && "$1" == --offline && "$2" == --locked && "$3" == 'selected case' ]] || exit 1
 printf 'test\n' >> "$TESTKIT_COMMAND_LOG"
 exit "${TESTKIT_TEST_STATUS:-0}"
 RUN
@@ -73,8 +74,8 @@ runner="$consumer/scripts/ci/run-pocketic-test.sh"
 for action in setup check; do
     : > "$TESTKIT_COMMAND_LOG"
     path="$(bash "$wrapper" "$action")"
-    [[ "$path" == "$consumer/.tools/testkit-server/admitted-server" ]]
-    [[ "$(wc -l < "$TESTKIT_COMMAND_LOG" | tr -d ' ')" == 2 ]]
+    [[ "$path" == "$consumer/.tools/testkit-server/admitted-server" ]] || exit 1
+    [[ "$(wc -l < "$TESTKIT_COMMAND_LOG" | tr -d ' ')" == 2 ]] || exit 1
     if [[ "$action" == check ]]; then grep -F '<--check>' "$TESTKIT_COMMAND_LOG" >/dev/null;
     elif grep -F '<--check>' "$TESTKIT_COMMAND_LOG" >/dev/null; then exit 1; fi
     cmp "$fixture/selected-lock" "$consumer/Cargo.lock"
@@ -83,13 +84,13 @@ done
 : > "$TESTKIT_COMMAND_LOG"
 bash "$runner" --offline --locked 'selected case'
 grep -Fx 'cli <check> <--directory> <'"$consumer/.tools/testkit-server"'>' "$TESTKIT_COMMAND_LOG" >/dev/null
-[[ "$(tail -1 "$TESTKIT_COMMAND_LOG")" == test ]]
+[[ "$(tail -1 "$TESTKIT_COMMAND_LOG")" == test ]] || exit 1
 # Explicit environment and Make selections retain caller-owned byte admission.
 for selected in '/caller selected/server' ''; do
     : > "$TESTKIT_COMMAND_LOG"
     TESTKIT_EXPECTED_SERVER="$selected" POCKET_IC_BIN="$selected" \
         bash "$runner" --offline --locked 'selected case'
-    [[ "$(cat "$TESTKIT_COMMAND_LOG")" == test ]]
+    [[ "$(cat "$TESTKIT_COMMAND_LOG")" == test ]] || exit 1
 done
 cat > "$consumer/Makefile" <<'MAKE'
 test:
@@ -98,33 +99,23 @@ MAKE
 : > "$TESTKIT_COMMAND_LOG"
 TESTKIT_EXPECTED_SERVER='/make selected/server' make --no-print-directory -C "$consumer" \
     test 'POCKET_IC_BIN=/make selected/server' > "$fixture/make-override.log" 2>&1
-[[ "$(cat "$TESTKIT_COMMAND_LOG")" == test ]]
+[[ "$(cat "$TESTKIT_COMMAND_LOG")" == test ]] || exit 1
 # An undefined Make selection uses the owner's checked default.
 : > "$TESTKIT_COMMAND_LOG"
 make --no-print-directory -C "$consumer" test > "$fixture/make-default.log" 2>&1
-[[ "$(tail -1 "$TESTKIT_COMMAND_LOG")" == test ]]
-[[ "$(wc -l < "$TESTKIT_COMMAND_LOG" | tr -d ' ')" == 3 ]]
+[[ "$(tail -1 "$TESTKIT_COMMAND_LOG")" == test ]] || exit 1
+[[ "$(wc -l < "$TESTKIT_COMMAND_LOG" | tr -d ' ')" == 3 ]] || exit 1
 for failure in install check; do
     : > "$TESTKIT_COMMAND_LOG"
     status=0
     TESTKIT_FAIL="$failure" bash "$runner" --offline --locked 'selected case' > "$fixture/refusal.log" 2>&1 || status=$?
     expected=23; [[ "$failure" != check ]] || expected=31
-    [[ "$status" == "$expected" ]]
+    [[ "$status" == "$expected" ]] || exit 1
     if grep -Fx test "$TESTKIT_COMMAND_LOG" >/dev/null; then exit 1; fi
 done
 status=0
 TESTKIT_TEST_STATUS=37 bash "$runner" --offline --locked 'selected case' || status=$?
-[[ "$status" == 37 ]]
-# Missing or multiple locked selections stop before CLI installation/execution.
-for shape in missing duplicate; do
-    cp "$fixture/selected-lock" "$consumer/Cargo.lock"
-    if [[ "$shape" == missing ]]; then printf 'version = 4\n' > "$consumer/Cargo.lock";
-    else cat "$fixture/selected-lock" >> "$consumer/Cargo.lock"; fi
-    : > "$TESTKIT_COMMAND_LOG"
-    if bash "$wrapper" check > "$fixture/refusal.log" 2>&1; then exit 1; fi
-    [[ ! -s "$TESTKIT_COMMAND_LOG" ]]
-done
-cp "$fixture/selected-lock" "$consumer/Cargo.lock"
+[[ "$status" == 37 ]] || exit 1
 # Exercise this consumer's real aggregate and extension under parallel Make.
 mkdir -p "$consumer/make" "$consumer/scripts/release" "$consumer/ci" "$fixture/bin"
 cp "$root/Makefile" "$consumer/Makefile"
@@ -158,18 +149,18 @@ for target in install-tools tools-check; do
     offset=0
     if [[ "$target" == install-tools ]]; then
         offset=2
-        [[ "$(sed -n '1p' "$TESTKIT_COMMAND_LOG")" == preflight-ic ]]
-        [[ "$(sed -n '2p' "$TESTKIT_COMMAND_LOG")" == 'install <--consumer>'*'<--preflight>' ]]
+        [[ "$(sed -n '1p' "$TESTKIT_COMMAND_LOG")" == preflight-ic ]] || exit 1
+        [[ "$(sed -n '2p' "$TESTKIT_COMMAND_LOG")" == 'install <--consumer>'*'<--preflight>' ]] || exit 1
     fi
-    [[ "$(wc -l < "$TESTKIT_COMMAND_LOG" | tr -d ' ')" == $((5 + offset)) ]]
+    [[ "$(wc -l < "$TESTKIT_COMMAND_LOG" | tr -d ' ')" == $((5 + offset)) ]] || exit 1
     printf 'common-host\ncommon-ic\n' > "$fixture/common-expected"
     sed -n "$((offset + 1)),$((offset + 2))p" "$TESTKIT_COMMAND_LOG" > "$fixture/common-actual"
     cmp "$fixture/common-expected" "$fixture/common-actual"
-    [[ "$(sed -n "$((offset + 3))p" "$TESTKIT_COMMAND_LOG")" == 'install <--consumer>'*'<--versions>'* ]]
-    [[ "$(sed -n "$((offset + 4))p" "$TESTKIT_COMMAND_LOG")" == 'install <--consumer>'*'<--package> <ic-testkit>'* ]]
-    [[ "$(tail -1 "$TESTKIT_COMMAND_LOG")" == "cli <$action> <--directory> <$consumer/.tools/testkit-server>" ]]
+    [[ "$(sed -n "$((offset + 3))p" "$TESTKIT_COMMAND_LOG")" == 'install <--consumer>'*'<--versions>'* ]] || exit 1
+    [[ "$(sed -n "$((offset + 4))p" "$TESTKIT_COMMAND_LOG")" == 'install <--consumer>'*'<--package> <ic-testkit>'* ]] || exit 1
+    [[ "$(tail -1 "$TESTKIT_COMMAND_LOG")" == "cli <$action> <--directory> <$consumer/.tools/testkit-server>" ]] || exit 1
     if [[ "$action" == check ]]; then
-        [[ "$(grep -c '<--check>' "$TESTKIT_COMMAND_LOG")" == 2 ]]
+        [[ "$(grep -c '<--check>' "$TESTKIT_COMMAND_LOG")" == 2 ]] || exit 1
     elif grep -F '<--check>' "$TESTKIT_COMMAND_LOG" >/dev/null; then exit 1; fi
     cp "$TESTKIT_COMMAND_LOG" "$fixture/ordered-expected"
     admitted_targets=("$target")
@@ -190,5 +181,92 @@ for target in install-tools tools-check; do
     done
     cmp "$fixture/selected-lock" "$consumer/Cargo.lock"
 done
+# Exercise the actual selection owner through Blob's wrapper, using real parsers
+# and substitute Cargo/CLI effects. Server lifecycle stays Testkit-owned.
+cp "$root/scripts/dev/install-rust-tools.sh" "$consumer/scripts/dev/"
+cp "$root/scripts/ci/verify-file-checksum.sh" "$consumer/scripts/ci/"
+cat > "$fixture/bin/cargo" <<'CARGO'
+#!/usr/bin/env bash
+set -euo pipefail
+[[ $# == 13 && "$1" == install && "$2" == ic-testkit && "$3" == --version &&
+   "$5" == --locked && "$6" == --root && "$8" == --target-dir &&
+   "$9" == "$7/build" && "${10}" == --bin && "${11}" == ic-testkit-server &&
+   "${12}" == --registry && "${13}" == crates-io ]] || exit 1
+printf 'cargo <%s>\n' "$4" >> "$TESTKIT_COMMAND_LOG"
+mkdir -p "$7/bin" "$9"
+cp "$TESTKIT_FIXTURE_ROOT/testkit-cli" "$7/bin/ic-testkit-server"
+jq -n --arg identity "ic-testkit ${4#=} (registry+https://github.com/rust-lang/crates.io-index)" \
+    --arg version "$4" --arg host "$(rustc -vV | sed -n 's/^host: //p')" '
+    {installs:{($identity):{version_req:$version,bins:["ic-testkit-server"],
+      profile:"release",target:$host,rustc:"substitute Cargo receipt"}}}' > "$7/.crates2.json"
+printf 'retained substitute build\n' > "$9/evidence"
+if [[ "${TESTKIT_CHANGE_LOCK:-}" == yes ]]; then
+    sed 's/0.25.7/0.25.8/' "$TESTKIT_FIXTURE_ROOT/Cargo.lock" > "$7/changed.lock"
+    cp "$7/changed.lock" "$TESTKIT_FIXTURE_ROOT/Cargo.lock"
+fi
+CARGO
+chmod +x "$fixture/bin/cargo"
+export PATH="$fixture/bin:$PATH"
+: > "$TESTKIT_COMMAND_LOG"
+for action in check setup check setup; do
+    status=0
+    bash "$wrapper" "$action" > "$fixture/real-$action.out" 2> "$fixture/real-$action.log" || status=$?
+    if [[ "$action" == check && ! -s "$TESTKIT_COMMAND_LOG" ]]; then
+        [[ "$status" != 0 && ! -s "$fixture/real-$action.out" ]] || exit 1
+    else
+        [[ "$status" == 0 && "$(cat "$fixture/real-$action.out")" == "$consumer/.tools/testkit-server/admitted-server" ]] || exit 1
+    fi
+done
+[[ "$(grep -c '^cargo ' "$TESTKIT_COMMAND_LOG")" == 1 ]] || exit 1
+slot="$consumer/.tools/rust/ic-testkit-0.25.5-bin-ic-testkit-server-release/installed"
+cp "$slot/selection.json" "$fixture/old-selection"
+cp "$slot/bin/ic-testkit-server" "$fixture/old-cli"
+cmp "$fixture/selected-lock" "$consumer/Cargo.lock"
+
+# Invalid consumer selections cannot reach Cargo or the server command.
+cp "$TESTKIT_COMMAND_LOG" "$fixture/before-refusal"
+for shape in missing symlink malformed absent duplicate git path; do
+    cp "$fixture/selected-lock" "$consumer/Cargo.lock"
+    case "$shape" in
+        missing) rm "$consumer/Cargo.lock" ;;
+        symlink) rm "$consumer/Cargo.lock"; ln -s "$fixture/selected-lock" "$consumer/Cargo.lock" ;;
+        malformed) printf '[[package\n' > "$consumer/Cargo.lock" ;;
+        absent) printf 'version = 4\n' > "$consumer/Cargo.lock" ;;
+        duplicate) sed -n '/^\[\[package\]\]/,$p' "$fixture/selected-lock" >> "$consumer/Cargo.lock" ;;
+        git) sed 's,registry+https://github.com/rust-lang/crates.io-index,git+https://example.invalid/testkit#123,' "$fixture/selected-lock" > "$consumer/Cargo.lock" ;;
+        path) sed '/^source =/d' "$fixture/selected-lock" > "$consumer/Cargo.lock" ;;
+    esac
+    for action in setup check; do
+        if bash "$wrapper" "$action" > "$fixture/$shape-$action.out" 2> "$fixture/$shape-$action.log"; then exit 1; fi
+        [[ ! -s "$fixture/$shape-$action.out" ]] || exit 1
+        cmp "$fixture/before-refusal" "$TESTKIT_COMMAND_LOG"
+    done
+    rm -f "$consumer/Cargo.lock"
+done
+
+# A new selection requires explicit setup; the old executable stays intact.
+sed 's/0.25.5/0.25.6/' "$fixture/selected-lock" > "$consumer/Cargo.lock"
+if bash "$wrapper" check > "$fixture/new-check.out" 2> "$fixture/new-check.log"; then exit 1; fi
+cmp "$fixture/before-refusal" "$TESTKIT_COMMAND_LOG"
+for action in setup check; do
+    bash "$wrapper" "$action" > "$fixture/new-$action.out"
+    [[ "$(cat "$fixture/new-$action.out")" == "$consumer/.tools/testkit-server/admitted-server" ]] || exit 1
+done
+[[ "$(grep -c '^cargo ' "$TESTKIT_COMMAND_LOG")" == 2 ]] || exit 1
+
+# A lock changed during installation cannot activate its candidate or dispatch
+# Testkit. Preserve the failed build and both earlier admitted installations.
+sed 's/0.25.5/0.25.7/' "$fixture/selected-lock" > "$consumer/Cargo.lock"
+cp "$TESTKIT_COMMAND_LOG" "$fixture/before-change"
+if TESTKIT_CHANGE_LOCK=yes bash "$wrapper" setup > "$fixture/change.out" 2> "$fixture/change.log"; then exit 1; fi
+[[ ! -s "$fixture/change.out" && "$(tail -1 "$TESTKIT_COMMAND_LOG")" == 'cargo <=0.25.7>' ]] || exit 1
+head -n "$(wc -l < "$fixture/before-change" | tr -d ' ')" "$TESTKIT_COMMAND_LOG" > "$fixture/unchanged-commands"
+cmp "$fixture/before-change" "$fixture/unchanged-commands"
+[[ ! -e "$consumer/.tools/rust/ic-testkit-0.25.7-bin-ic-testkit-server-release/installed" ]] || exit 1
+[[ "$(find "$consumer/.tools/rust/build" -name evidence | wc -l | tr -d ' ')" == 1 ]] || exit 1
+cmp "$fixture/old-selection" "$slot/selection.json"
+cmp "$fixture/old-cli" "$slot/bin/ic-testkit-server"
+cp "$fixture/selected-lock" "$consumer/Cargo.lock"
+bash "$wrapper" check > "$fixture/restored-check.out"
 echo 'Locked Testkit setup/check, admitted server handoff and failure propagation passed (substitute tools)'
 fixture_complete=true
