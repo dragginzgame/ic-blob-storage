@@ -126,6 +126,20 @@ jobs:
           RUSTUP_AUTO_INSTALL: '0'
           TMPDIR: ${{ runner.temp }}
         run: make test-native-host
+      - name: Qualify original and optimized Blob Wasm installation and restoration
+        env:
+          CARGO_NET_OFFLINE: 'true'
+          RUSTUP_AUTO_INSTALL: '0'
+          TMPDIR: ${{ runner.temp }}
+        run: make test-wasm-opt
+      - name: Retain Blob Wasm optimizer qualification
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: blob-wasm-opt-${{ matrix.os }}-${{ github.run_attempt }}
+          path: target/blob-wasm-opt.*
+          if-no-files-found: ignore
+          retention-days: 30
       - name: Archive failed tooling fixtures
         id: tooling-failure
         if: failure()

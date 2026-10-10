@@ -14,6 +14,8 @@ finish() {
 }
 trap finish EXIT
 unset MAKEFLAGS MFLAGS MAKEOVERRIDES
+# Synthetic targets own their evidence, never the parent gate's logs/summary.
+unset VALIDATION_LOG_DIR VALIDATION_FAILURE_LOG_DIR GITHUB_STEP_SUMMARY
 mkdir "$FIXTURE/logs"
 cat > "$FIXTURE/Makefile" <<'MAKE'
 .PHONY: pass fail second

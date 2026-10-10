@@ -58,7 +58,7 @@ explicitly with `make install-tools` before validation. The reviewed
 Make selects `.tools/host/bin`, `.tools/ic/bin` and `.tools/rust/bin`;
 the offline checkers never download missing tools. The shared aggregate runs
 host, IC and Cargo setup/check stages in order, stopping on the first failure,
-including under parallel Make. Shared 0.3.3 runs read-only IC/platform and
+including under parallel Make. Shared 0.3.5 retains read-only IC/platform and
 Rust/Cargo preflight before common installation; offline checks never run setup.
 Cargo-bearing local recipes preserve Make's jobserver descriptors through their
 shell adapters. Blob extends `LOCAL_TOOL_INSTALL_TARGETS` and
@@ -71,6 +71,15 @@ network; it stays explicit and separate from ordinary validation.
 `make test-native-host` is the focused CLI/example/PocketIC installation and
 Metrics restoration-read check used by
 the native host CI matrix, separate from the complete gate.
+`make test-wasm-opt` reuses the maintained PocketIC installation, admission and
+restoration cases for original and Binaryen O3/Os/Oz standalone/storage Wasm,
+with explicit `--enable-bulk-memory-opt`. Fixtures drain installation debt with
+bounded real PocketIC rounds, keeping platform rate limits enabled.
+It runs in the complete gate and all three native host lanes. Inputs, output
+hashes, source diff, lock, optimizer identity and logs stay in fresh
+`target/blob-wasm-opt.*` directories on success or failure; hosted lanes upload
+them separately. Ordinary Cargo Wasm output remains unoptimized. These local
+canister cases do not establish deployed provider or Canic application behavior.
 Testkit/PocketIC own client/server compatibility and managed server lifetime.
 Blob has no independent crate-version/server-version equality gate. The
 snapshot-owned `ci/ic-tools.tsv` selects five non-PocketIC executables through the

@@ -54,5 +54,22 @@ for script in scripts/release/test-release.sh scripts/ci/test-tooling-evidence.s
         if grep -F 'passed' "$case_root/result.log" >/dev/null || grep -F 'tests: PASS' "$case_root/result.log" >/dev/null; then exit 1; fi
     done
 done
+# Exercise the actual logger integration under a parent gate's destinations.
+mkdir -p "$fixture/parent/logs" "$fixture/parent/failures"
+printf 'parent-owned evidence\n' > "$fixture/parent/expected"
+for destination in logs/sentinel failures/sentinel summary.md; do
+    cp "$fixture/parent/expected" "$fixture/parent/$destination"
+done
+VALIDATION_LOG_DIR="$fixture/parent/logs" \
+    VALIDATION_FAILURE_LOG_DIR="$fixture/parent/failures" \
+    GITHUB_STEP_SUMMARY="$fixture/parent/summary.md" \
+    bash "$root/scripts/ci/check-validation-logging.sh" > "$fixture/logging.log" 2>&1
+for destination in logs/sentinel failures/sentinel summary.md; do
+    cmp "$fixture/parent/expected" "$fixture/parent/$destination"
+done
+for directory in logs failures; do
+    [[ "$(ls -A "$fixture/parent/$directory")" == sentinel ]]
+done
+echo 'Consumer logger fixture preserves inherited parent logs and summary'
 echo 'Consumer fixtures reject premature exits and retain evidence (isolated injected entrypoints)'
 fixture_complete=true

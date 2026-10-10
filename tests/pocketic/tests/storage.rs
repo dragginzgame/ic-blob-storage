@@ -2,6 +2,7 @@
 #![cfg(not(target_family = "wasm"))]
 mod authenticated_cli;
 mod browser_driver;
+mod install_code;
 mod observation_provider;
 mod reference_cli;
 mod snapshots;

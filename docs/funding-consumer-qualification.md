@@ -7,9 +7,9 @@ and integration tests remain with their consumer repositories.
 
 ## Current Canic boundary — 2026-10-10
 
-Published Blob 0.21.5 retains the host-internal credit and bounded renewal APIs
+Released Blob 0.22.2 retains the host-internal credit and bounded renewal APIs
 introduced in 0.15.0. They do not acquire or authenticate provider evidence.
-The [current Canic review](evidence/canic0216.md) finds only funding history,
+The [current Canic review](evidence/canic0223.md) finds only funding history,
 exact outcome and preparation assessment mounted in its newer local adapter.
 There is no adapter dispatch, credit-confirmation or budget-renewal endpoint.
 This is an integration gap, not a missing public "mark credited" API in Blob.

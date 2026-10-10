@@ -5,6 +5,7 @@ mod authenticated_cli;
 mod browser_driver;
 mod funding_assessment_cli;
 mod gateway_native_cli;
+mod install_code;
 mod native_session;
 mod reference_cli;
 mod snapshots;
@@ -507,12 +508,15 @@ fn standalone_admission_manifest_and_restore_use_shared_authority() {
     assert!(!f.prepare(f.uploader, &request).unwrap().changed);
     unchanged(&f.harness.pic.get_stable_memory(f.service), &bytes);
     // No upgrade-supplied input can replace the retained operator or limits.
+    // Respect the platform's install-code cooldown for optimized modules too.
+    install_code::settle_install_code_debt(&f.harness.pic);
     assert_eq!(
         f.upgrade(installation(&f.config)).unwrap_err().reject_code,
         RejectCode::CanisterError
     );
     assert_eq!(f.configuration(f.operator).unwrap(), installed);
     unchanged(&f.harness.pic.get_stable_memory(f.service), &bytes);
+    install_code::settle_install_code_debt(&f.harness.pic);
     f.upgrade(candid::encode_args(()).unwrap()).unwrap();
     // The memory runtime commits its allocation ledger during bootstrap.
     // Service observations must survive; fenced calls must not write afterward.

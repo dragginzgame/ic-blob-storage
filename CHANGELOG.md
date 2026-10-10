@@ -1,5 +1,25 @@
 # Changelog
 
+## [0.22.3]
+
+### Changed
+
+- Adopt Shared Tooling 0.3.5 and its reviewed Binaryen 133 pins. Prepare the
+  updated toolset explicitly; previous bundles remain retained. Qualify original
+  and O3/Os/Oz Blob installation, authority and restoration in the delivery gate
+  and all three native CI lanes, retaining exact artifacts and failed attempts.
+  [#53](https://github.com/dragginzgame/ic-blob-storage/issues/53).
+- Preserve incoming Memory 0.35.3, private Testkit 0.32.2 and all four Host
+  0.12.4 patches; ordinary Blob builds remain unoptimized.
+- Refresh Canic integration guidance for the current Blob 0.22 / Memory 0.35
+  host pool, seventeen permanent requests and dedicated/embedded lifecycle.
+
+### Fixed
+
+- Keep synthetic consumer logging tests out of the parent gate's log directories
+  and GitHub summary, preserving its original evidence.
+  [#52](https://github.com/dragginzgame/ic-blob-storage/issues/52).
+
 ## [0.22.2] - 2026-10-10
 
 ### Changed

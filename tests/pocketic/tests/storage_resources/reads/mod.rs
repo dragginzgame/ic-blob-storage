@@ -26,6 +26,8 @@ fn restoration_reads_are_attributed_only_to_the_operator_reopen_window() {
         candid::encode_one(&fresh).unwrap()
     );
 
+    // Installation instruction debt must cool before testing restore semantics.
+    install_code::settle_install_code_debt(&f.harness.pic);
     f.harness
         .pic
         .upgrade_canister(
@@ -67,6 +69,7 @@ fn restoration_reads_are_attributed_only_to_the_operator_reopen_window() {
         frozen
     );
 
+    install_code::settle_install_code_debt(&f.harness.pic);
     f.harness
         .pic
         .upgrade_canister(

@@ -4,7 +4,24 @@
 
 # Dependency setup
 
-## Current graph — released 0.22.1, pending 0.22.2
+## Current graph — released 0.22.2, pending 0.22.3
+
+All twelve package versions and the finalized receipt remain 0.22.2. Its lock
+selects Memory 0.35.2, Metrics 0.5.3, Testkit 0.32.1 and all four Host 0.12.3.
+Preserve the incoming lock selecting Memory 0.35.3, Testkit 0.32.2 and all four
+Host 0.12.4; it remains distinct from that released graph. PocketIC stays 16.1.0.
+Hosts linking Blob must align on one Memory 0.35 package identity and grant the
+Blob namespace in their sole allocation pool.
+
+The reviewed Shared Tooling 0.3.5 snapshot selects 99 canonical files at
+`a744d7f1990b9e1451ef45cd6d495de00a141cd3`, including Binaryen 133's pins.
+Run explicit `make install-tools`, then offline `make tools-check`. Existing
+bundles and server artifacts remain retained. The unselected upstream runner
+fixtures do not enter Blob's gate; Blob isolates its own synthetic logging
+outputs under [#52](https://github.com/dragginzgame/ic-blob-storage/issues/52).
+See [the adoption record](evidence/shared0350223.md).
+
+## Earlier graph — released 0.22.1, pending 0.22.2
 
 All twelve package versions and the finalized receipt remain 0.22.1. The
 released catalog and lock already select public Memory 0.35.0 and private
@@ -881,9 +898,10 @@ neither emits a certificate or sends service/gateway traffic. See the
 
 ## Memory composition
 
-Released Blob 0.21.5 publicly re-exports `ic-memory ^0.33`; its released lock
-selects Memory 0.33.3. Pending Blob 0.22 adopts `^0.34`; the earlier 0.33.4
-selection is distinct from that released graph and its existing qualification.
+Released Blob 0.22.2 publicly re-exports `ic-memory ^0.35`; its released lock
+selects Memory 0.35.2. The incoming 0.35.3 selection remains separate from that
+released graph. Hosts compose namespace grants in one host-wide allocation pool
+and open permanent keys through the committed runtime.
 Earlier Memory minor lines are not
 interchangeable with this API. A source-identical
 package from a different Cargo identity also does not share its Rust types.
@@ -923,42 +941,41 @@ composition or permit a second manager over the same backing memory.
 
 ### Canic integration
 
-Pending Blob 0.22 requires Memory 0.34's pool API. The following recipe and
-qualification describe published Blob 0.21.5; they remain separate from the new
-hard cut. [Canic #510](https://github.com/dragginzgame/canic/issues/510) owns
-framework pool adoption; [Blob #48](https://github.com/dragginzgame/ic-blob-storage/issues/48)
-owns this repository's caller and recovery qualification. A future 0.22 consumer
-must grant `blob.` in the host pool, include the existing seventeen requests in
-its single snapshot and use key-only committed opens. Align the host, database,
-jobs and Blob to one Memory identity before qualified managed installation.
+Blob 0.22 requires the Memory 0.35 package identity and host-wide pool API.
+[Canic #510](https://github.com/dragginzgame/canic/issues/510) owns framework pool
+adoption; [Blob #48](https://github.com/dragginzgame/ic-blob-storage/issues/48) owns
+this repository's caller and recovery qualification. Grant `blob.` in the host
+pool, include the existing seventeen requests in its single snapshot and use
+key-only committed opens. Align the host, database, jobs and Blob to one Memory
+identity before qualified managed installation.
 
-Blob runtime/contracts 0.21.5 are published and require the Memory 0.33 identity.
+Blob runtime/contracts 0.22.2 are released with the Memory 0.35 identity.
 Canic owns `canic-blob-service`, its dedicated consumer shell and its embedded
 application fixture. Keep that adapter outside this repository; do not mount the
 standalone canister inside Canic or bootstrap a second memory manager.
 
-The [2026-10-10 source review](evidence/canic0216.md) distinguishes delivery from
-local acceptance. Canic's pushed source still selects Blob 0.17.2/Memory 0.31.
-The separately authorized working adapter now selects published Blob 0.21.5,
-with three aligned locks, complete dedicated/embedded Rust 1.91 builds, strict
-Blob Candid parity and passing managed PocketIC recovery cases. These results
-remain local; its prior commit selected 0.21.0. The adapter is not yet on crates.io.
-Neither a version-only adapter dependency nor the older pushed source supplies
-the current composition. [Blob #41](https://github.com/dragginzgame/ic-blob-storage/issues/41)
-closed the Memory 0.33 publication prerequisite; the earlier
-[#20](https://github.com/dragginzgame/ic-blob-storage/issues/20) acceptance is
-historical, not an open delivery gate for the current graph.
+The [current source review](evidence/canic0223.md) distinguishes delivery from
+local acceptance. Canic's dirty main-workspace adapter and two independent
+consumer locks now select Blob 0.22.2. Canic retains separately captured passing
+Blob 0.22.1 / Memory 0.35 managed builds, 32-method Candid parity and both
+dedicated/embedded PocketIC recovery cases. Those results do not qualify its
+newer 0.22.2 graph. Framework/adapter delivery and registry-only application
+acceptance remain with [Canic #444](https://github.com/dragginzgame/canic/issues/444).
+The [earlier review](evidence/canic0216.md) retains its original 0.21.5 evidence.
 
 For the Canic-owned adoption batch:
 
-1. Select matching published Blob runtime/contracts and one Memory 0.33 package
-   identity. Refresh the adapter, dedicated consumer and embedded consumer's three
-   independent locks. Align the framework libraries and CLI with that runtime
+1. Select matching published Blob runtime/contracts and one Memory 0.35 package
+   identity. The adapter now inherits the main Canic workspace catalog/lock;
+   refresh it and the two independent dedicated/embedded consumer locks. Align
+   the framework libraries and CLI with that runtime
    before registry-only delivery; [Canic #33](https://github.com/dragginzgame/canic/issues/33)
    owns the coherent release family. Do not patch in sibling paths as a substitute.
 2. Register `ops::service::installation::requests(authority)` before the host's
-   sole bootstrap. Give its seventeen keys an exclusive range disjoint from
-   application state. Validate the complete installation for the allocated
+   sole bootstrap. Canic's `mount!()` contributes these permanent declarations;
+   the application grants `MEMORY_AUTHORITY` / `MEMORY_KEY_PREFIX` in its
+   `canic::memory::memory_allocation_pool!`, separately from its own namespaces.
+   The dedicated `canister!()` supplies that pool. Validate the complete installation for the allocated
    Principal before opening grants. Use Blob's `LIBRARY_VERSION`, not the
    enclosing application version, for installation and same-release reopening.
 3. For a dedicated Component, select the consumer shell as the App role package

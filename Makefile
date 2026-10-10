@@ -28,7 +28,7 @@ export RELEASE_DELIVERY ?= direct
 export PUBLISH_PACKAGE
 export RELEASE_KIND RELEASE_PREVIOUS RELEASE_VERSION RELEASE_DATE RELEASE_SOURCE RELEASE_COMMIT RELEASE_REMOTE RELEASE_BRANCH
 SHELLCHECK ?= shellcheck
-CI_TARGETS := shared-tooling-check tools-check dependency-pins-check documentation-links-check shared-tooling-tests deps contracts-boundary-check shell-check release-check hooks-check fmt-check check clippy probe-check docs-check test wasm-check package
+CI_TARGETS := shared-tooling-check tools-check dependency-pins-check documentation-links-check shared-tooling-tests deps contracts-boundary-check shell-check release-check hooks-check fmt-check check clippy probe-check docs-check test test-wasm-opt wasm-check package
 
 .PHONY: help version deps cloc shared-tooling-check dependency-pins-check check clippy docs-check test test-native test-pocketic test-browser test-browser-store test-browser-transport test-browser-standalone test-sdk-probe test-sdk-inputs test-fixture test-standalone build-standalone test-admission-resources test-read-resources test-funding-receipt-resources wasm-check \
 	build package clean shell-check release-check probe-check ci validate release-verify test-browser-publication test-browser-bootstrap test-browser-launcher test-browser-native \
@@ -36,7 +36,7 @@ CI_TARGETS := shared-tooling-check tools-check dependency-pins-check documentati
 	release-version release-preflight release-prepare-version release-prepared-check release-files \
 	release-commit-check release-committed-check release-tagged-check release-push-check \
 	release-tag-check publish publish-dry-run install-hooks release-tools-check hooks-check evidence-check
-.PHONY: test-hard-cut test-native-host msrv-check tasks
+.PHONY: test-hard-cut test-native-host test-wasm-opt msrv-check tasks
 .PHONY: contracts-boundary-check documentation-links-check release-commands-check shared-tooling-tests tooling-evidence-check
 .PHONY: install-testkit testkit-check
 
@@ -79,6 +79,7 @@ help:
 	@echo "test-read-resources          Local read-slot and Wasm resource report"
 	@echo "clean                        Explicitly remove build artifacts"
 	@echo "docs-check / wasm-check       Check docs or the Wasm library build"
+	@echo "test-wasm-opt                Qualify retained original/O3/Os/Oz installation and restore"
 	@echo "probe-check                  Verify retained Caffeine probe artifacts offline"
 	@echo "evidence-check               Check retained evidence hashes without Rust builds"
 	@echo "ci / validate                Fetch locked dependencies, then validate"
@@ -212,6 +213,12 @@ test-pocketic:
 
 build-standalone:
 	+cargo build --offline --locked --release --target wasm32-unknown-unknown -p ic-blob-storage-canister --lib
+
+test-wasm-opt:
+	+$(MAKE) --no-print-directory tools-check
+	+cargo build --offline --locked --release --target wasm32-unknown-unknown -p ic-blob-storage-canister -p blob-storage-probe --lib
+	+cargo build --offline --locked -p ic-blob-storage-cli
+	+bash scripts/ci/qualify-blob-wasm-opt.sh
 
 test-hard-cut:
 	@test -n "$(BLOB_PRE_CUT_STANDALONE_WASM)" -a -n "$(BLOB_HARD_CUT_REPORT)" || { echo 'Set BLOB_PRE_CUT_STANDALONE_WASM and a fresh BLOB_HARD_CUT_REPORT'; exit 1; }

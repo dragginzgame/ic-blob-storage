@@ -6,7 +6,42 @@
 
 Date: 2026-10-10
 
-## Current continuation — released 0.22.1, pending 0.22.2
+## Current continuation — released 0.22.2, pending 0.22.3
+
+- Released HEAD is `35bd0aed37bdea67dfbb9f96706b8c273e685023`, validated source
+  `abfc4ed03fd6cc6794ac927165b9792fc6c17221`; all twelve package versions and
+  the finalized receipt remain 0.22.2. Read-only registry metadata observes both
+  libraries present/un-yanked. [Hosted 0.22.2 acceptance](https://github.com/dragginzgame/ic-blob-storage/actions/runs/38056512376)
+  remains queued at final review; #45/#50/#51 retain matching native acceptance.
+- [Shared 0.3.5 adoption](../evidence/shared0350223.md) canonically selects the
+  same 99-file roster at `a744d7f1990b9e1451ef45cd6d495de00a141cd3`, excluding
+  dirty upstream 0.3.6 work. Common setup explicitly prepares Binaryen 133 and
+  Testkit 0.32.2. Preserve incoming Memory 0.35.3/all four Host 0.12.4, Metrics
+  0.5.3 and PocketIC 16.1.0. The consumer logging fixture no longer contaminates
+  parent evidence under [#52](https://github.com/dragginzgame/ic-blob-storage/issues/52).
+  Original/O3/Os/Oz installation and restore qualification enters the complete
+  gate and all three native lanes under [#53](https://github.com/dragginzgame/ic-blob-storage/issues/53).
+  The complete delivery gate and Rust 1.88 native/Wasm checks pass: reuse
+  unchanged completed release results, rerunning every other configured target
+  after narrowing the test helper. This includes 643 native and all 376 enabled
+  PocketIC cases, Wasm and extracted packages. All twelve original/O3/Os/Oz
+  executions pass on Bash 5 and genuine Linux-built Bash 3.2 after real rounds
+  drain install-code debt without disabling rate limits. All 1,714 captured
+  project inputs stay unchanged during final checks. Retain sandbox-denied,
+  rate-limited and initial strict-Clippy attempts separately. Matching native
+  #52/#53 acceptance remains open; Shared 0.3.5 CI is still queued.
+- [Canic source review](../evidence/canic0223.md) corrects stale 0.21.5/numeric
+  range guidance to the current Memory 0.35 host pool. Its dirty adapter/root
+  and two consumer locks select Blob 0.22.2; separately captured passing 0.22.1
+  managed builds/Candid/PocketIC evidence is not relabelled. Funding still mounts
+  passive inspection; Canic #494 / Blob #34 own acquisition/composition evidence.
+  Siblings remain read-only. No agent commit/push/release/publication or paid effect.
+- Close [#48](https://github.com/dragginzgame/ic-blob-storage/issues/48)'s Blob
+  pool adoption against completed matching 0.22.1 Linux/MSRV/Apple Silicon/Intel
+  acceptance and recorded 0.22.1 managed composition. Later graph/framework
+  delivery and application/provider evidence remain separate.
+
+## Earlier continuation — released 0.22.1, pending 0.22.2
 
 - [Shared 0.3.3 adoption](../evidence/shared0330222.md) selects 99 canonical
   files at `d63f0cfaba8ab2961d6012064adbf051c1898bc1`, preserving the pending

@@ -61,12 +61,19 @@ failure. Previous tool/server artifacts remain retained; offline validation
 never prepares missing tools. Public Blob contracts and stored schemas are
 unchanged. See [the adoption record](evidence/testkit030shared0300221.md).
 
-Pending compatible 0.22.2 adopts Shared Tooling 0.3.3. Common setup preflights
+Released compatible 0.22.2 adopts Shared Tooling 0.3.3. Common setup preflights
 platform/pin admission and the selected Rust/Cargo toolchain before installation.
 The validation runner rejects malformed nesting metadata and incomplete exits;
 fixtures retain evidence unless every assertion completed successfully.
 See [the adoption record](evidence/shared0330222.md). Publication and actual
 release commands remain maintainer actions.
+
+Pending compatible 0.22.3 adopts Shared Tooling 0.3.5 and Binaryen 133.
+Run explicit `make install-tools` before offline checks; previous toolsets remain
+retained. Blob's consumer logging fixture selects its own evidence rather than
+writing synthetic failures into the parent gate. See
+[the adoption record](evidence/shared0350223.md). Native product qualification
+remains separate from common installer and source fixture checks.
 
 Released 0.21.0 changes capacity reply/preflight shapes: rebuild consumers for
 the three mandatory byte headrooms and dimension-specific blocker names. The
