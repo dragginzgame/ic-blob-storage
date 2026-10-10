@@ -10,7 +10,18 @@ root="${root%/.}"
 fixture="$(mktemp -d "${TMPDIR:-/tmp}/blob-tooling-evidence-test.XXXXXX")"
 fixture="$(cd -P "$fixture" && printf '%s/.' "$PWD")"
 fixture="${fixture%/.}"
-trap 'if [[ $? == 0 ]]; then rm -rf "$fixture"; else printf "Tooling evidence fixture retained: %s\n" "$fixture" >&2; fi' EXIT
+fixture_complete=false
+finish_fixture() {
+    local status=$?
+    [[ "$fixture_complete" == true || "$status" != 0 ]] || status=1
+    if [[ "$fixture_complete" == true && "$status" == 0 ]]; then
+        rm -rf "$fixture"
+    else
+        printf 'Tooling evidence fixture retained: %s\n' "$fixture" >&2
+    fi
+    exit "$status"
+}
+trap finish_fixture EXIT
 proof="${1:-}"
 if [[ -n "$proof" ]]; then
     [[ "$proof" == /* ]] || proof="$PWD/$proof"
@@ -112,3 +123,4 @@ if [[ -n "$proof" ]]; then
     printf '%s\n' "$before" > "$proof/archive.sha256"
 fi
 echo 'Tooling evidence selections, filename/mode/link round trips and failure retention passed'
+fixture_complete=true

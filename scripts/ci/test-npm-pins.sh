@@ -6,7 +6,16 @@ ROOT="$0"
 ROOT="$(cd -P "${ROOT%/*}/../.." && printf '%s/.' "$PWD")"
 ROOT="${ROOT%/.}"
 fixture="$(mktemp -d "${TMPDIR:-/tmp}/npm-pins-test.XXXXXX")"
-trap 'if [[ $? == 0 ]]; then rm -rf "$fixture"; else echo "npm pin fixtures retained: $fixture" >&2; fi' EXIT
+# Bash 3.2 can enter EXIT with status zero after nounset; require completion too.
+fixture_complete=false
+finish() {
+    local status=$?
+    [[ "$fixture_complete" == true || "$status" != 0 ]] || status=1
+    if [[ "$status" == 0 ]]; then rm -rf "$fixture"
+    else echo "npm pin fixtures retained: $fixture" >&2; fi
+    exit "$status"
+}
+trap finish EXIT
 consumer="$fixture/consumer"
 mkdir -p "$consumer/web/local" "$consumer/ci" "$fixture/sibling" "$fixture/bin"
 git init -q "$consumer"
@@ -138,3 +147,4 @@ bash "$ROOT/scripts/ci/check-dependency-pins.sh" --consumer "$consumer" --npm-ro
 printf '{bad JSON\n' > "$manifest"
 bash "$ROOT/scripts/ci/check-dependency-pins.sh" --consumer "$consumer" > "$fixture/output" 2>&1
 echo 'npm declaration, selection, exception, preservation and offline tests passed'
+fixture_complete=true

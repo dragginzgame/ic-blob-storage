@@ -18,10 +18,12 @@ CASE_NAME=setup
 CASE_LOG=/dev/null
 export TEST_LOG=/dev/null TEST_EFFECTS=/dev/null
 export TEST_SOURCE=1111111111111111111111111111111111111111
+fixture_complete=false
 finish() {
     local status=$?
     [[ "$BASH_SUBSHELL" == 0 ]] || return "$status"
-    if [[ "$status" == 0 ]]; then
+    [[ "$fixture_complete" == true || "$status" != 0 ]] || status=1
+    if [[ "$fixture_complete" == true && "$status" == 0 ]]; then
         rm -rf "$TEMPORARY"
     else
         printf 'Release-adapter tests: FAIL [%s]\n' "$CASE_NAME" >&2
@@ -29,6 +31,7 @@ finish() {
         tail -n 40 "$TEST_LOG" >&2
         printf 'Full logs and isolated fixture retained: %s\n' "$TEMPORARY" >&2
     fi
+    exit "$status"
 }
 trap finish EXIT
 run_case() {
@@ -51,6 +54,7 @@ create_fixture() {
         "$ROOT/scripts/ci/rewrite-local-lock-versions.pl" \
         "$ROOT/scripts/ci/check-make-execution.sh" \
         "$ROOT/scripts/ci/check-release-source.sh" \
+        "$ROOT/scripts/ci/check-crates-io-version.sh" \
         "$ROOT/scripts/ci/finalize-release-changelog.awk" \
         "$ROOT/scripts/ci/check-format-tools.sh" "$ROOT/scripts/ci/run-formatting.sh" "$FIXTURE/scripts/ci/"
     cp "$ROOT/ci/tool-versions.env" "$FIXTURE/ci/"
@@ -301,38 +305,60 @@ cat > "$TEMPORARY/bin/curl" <<'MOCK'
 #!/usr/bin/env bash
 set -euo pipefail
 echo "curl $*" >> "$TEST_LOG"
-output= url= user_agent=
+if [[ "$*" == '--disable --version' ]]; then
+    printf '%s\n' "${TEST_CURL_VERSION:-curl 8.4.0 fixture}"
+    exit 0
+fi
+output= url= user_agent= diagnostics=
 [[ "${1:-}" == --disable ]] || exit 97
 while [[ $# -gt 0 ]]; do
     case "$1" in
         --output) output="$2"; shift 2 ;;
         --user-agent) user_agent="$2"; shift 2 ;;
+        --stderr) diagnostics="$2"; shift 2 ;;
+        --proto|--proto-redir) shift 2 ;;
         --connect-timeout|--max-time|--max-filesize|--write-out) shift 2 ;;
-        --disable|--silent|--show-error|--fail) shift ;;
+        --disable|--silent|--show-error|--fail|--location|--tlsv1.2) shift ;;
         https://*) url="$1"; shift ;;
         *) exit 97 ;;
     esac
 done
 [[ -n "$output" && -n "$url" ]] || exit 97
-# Model registry admission: unidentified application reads fail before lookup.
-if [[ "$user_agent" != "ic-blob-storage-release/$(perl scripts/release/release-data.pl version) (+https://github.com/dragginzgame/ic-blob-storage)" ]]; then
+# Model registry admission: each transport owner supplies its identifying agent.
+expected_agent='dragginzgame-shared-tooling (https://github.com/dragginzgame/shared-tooling)'
+if [[ "$url" == https://static.crates.io/* ]]; then
+    expected_agent="ic-blob-storage-release/$(perl scripts/release/release-data.pl version) (+https://github.com/dragginzgame/ic-blob-storage)"
+fi
+if [[ "$user_agent" != "$expected_agent" ]]; then
     : > "$output"; printf 403; exit 0
 fi
-[[ "${TEST_REGISTRY_FAILURE:-}" != transport ]] || exit 1
+if [[ -n "$diagnostics" ]]; then printf 'fixture transport diagnostics\n' > "$diagnostics"; fi
+case "${TEST_REGISTRY_FAILURE:-}" in
+    transport) printf '{partial' > "$output"; exit 1 ;;
+    transport-404) printf '{}' > "$output"; printf 404; exit 28 ;;
+esac
 case "$url" in
     https://crates.io/api/v1/crates/*)
         suffix="${url#https://crates.io/api/v1/crates/}"
         package="${suffix%/*}"; current="${suffix##*/}"
-        if [[ "${TEST_REGISTRY_FAILURE:-}" == http ]]; then
+        if [[ "${TEST_DEPENDENCY_FAILURE:-0}" == 1 && "$output" == */contracts-dependency-observation/response.json ]]; then
+            echo '{' > "$output"; printf 200
+        elif [[ "${TEST_REGISTRY_FAILURE:-}" == http ]]; then
             echo '{}' > "$output"; printf 503
         elif [[ "${TEST_REGISTRY_FAILURE:-}" == forbidden ]]; then
             : > "$output"; printf 403
         elif [[ "${TEST_REGISTRY_FAILURE:-}" == malformed ]]; then
             echo '{' > "$output"; printf 200
+        elif [[ "${TEST_REGISTRY_FAILURE:-}" == oversized ]]; then
+            head -c 1048577 /dev/zero > "$output"; printf 200
+        elif [[ "${TEST_REGISTRY_FAILURE:-}" == multiple ]]; then
+            echo '{} {}' > "$output"; printf 200
+        elif [[ "${TEST_REGISTRY_FAILURE:-}" == missing-fields ]]; then
+            echo '{"version":{}}' > "$output"; printf 200
         elif [[ -f "target/registry/$package.crate" ]]; then
             checksum="$(shasum -a 256 "target/registry/$package.crate")"; checksum="${checksum%% *}"
             [[ "${TEST_REGISTRY_FAILURE:-}" != checksum ]] || checksum="$(printf '%064d' 0)"
-            echo "{\"version\":{\"crate\":\"${TEST_REGISTRY_FOREIGN:-$package}\",\"num\":\"$current\",\"yanked\":${TEST_REGISTRY_YANKED:-false},\"checksum\":\"$checksum\"}}" > "$output"
+            echo "{\"version\":{\"crate\":\"${TEST_REGISTRY_FOREIGN:-$package}\",\"num\":\"${TEST_REGISTRY_VERSION:-$current}\",\"yanked\":${TEST_REGISTRY_YANKED:-false},\"checksum\":\"$checksum\"}}" > "$output"
             printf 200
         else echo '{}' > "$output"; printf 404; fi ;;
     https://static.crates.io/crates/*)
@@ -696,13 +722,17 @@ test_publication_retry() {
 }
 test_registry_refusal() {
     prepare_tagged_release
-    if [[ "$1" == checksum || "$1" == foreign || "$1" == source || "$1" == yanked || "$1" == dirty || "$1" == path ]]; then
-        "$TEST_REAL_MAKE" --no-print-directory publish
-        : > "$TEST_EFFECTS"
-    fi
+    case "$1" in
+        checksum|foreign|version|source|yanked|nonboolean|dirty|path)
+            "$TEST_REAL_MAKE" --no-print-directory publish
+            : > "$TEST_EFFECTS" ;;
+    esac
     case "$1" in
         foreign) export TEST_REGISTRY_FOREIGN=foreign-package ;;
+        version) export TEST_REGISTRY_VERSION=0.1.2 ;;
         yanked) export TEST_REGISTRY_YANKED=true ;;
+        nonboolean) export TEST_REGISTRY_YANKED=0 ;;
+        old-curl) export TEST_CURL_VERSION='curl 8.3.0 fixture' ;;
         source|dirty|path)
             package=ic-blob-storage-contracts
             case "$1" in
@@ -716,6 +746,18 @@ test_registry_refusal() {
     esac
     expect_failure "$TEST_REAL_MAKE" --no-print-directory publish
     [[ ! -s "$TEST_EFFECTS" ]] || exit 1
+    # All attempted observations retain response, status and transport evidence.
+    if [[ "$1" != old-curl ]]; then
+        local observation
+        observation="$(awk '/^Publication readback retained: / { print substr($0, 32) }' target/rejection.log)/ic-blob-storage-contracts-observation"
+        [[ -f "$observation/request.url" && -f "$observation/response.json" &&
+            -f "$observation/http-status" && -f "$observation/curl-exit" &&
+            -f "$observation/curl.stderr" ]] || exit 1
+        case "$1" in
+            transport) [[ "$(cat "$observation/response.json")" == '{partial' && "$(cat "$observation/curl-exit")" == 1 ]] || exit 1 ;;
+            transport-404) [[ "$(cat "$observation/http-status")" == 404 && "$(cat "$observation/curl-exit")" == 28 ]] || exit 1 ;;
+        esac
+    fi
     assert_cache_retained
 }
 test_unpublished_dry_run() {
@@ -723,6 +765,18 @@ test_unpublished_dry_run() {
     expect_failure "$TEST_REAL_MAKE" --no-print-directory publish-dry-run
     [[ "$(cat "$TEST_EFFECTS")" == publish:ic-blob-storage-contracts ]] || exit 1
     [[ ! -f target/registry/ic-blob-storage-contracts.crate ]] || exit 1
+}
+test_dependency_readback_refusal() {
+    prepare_tagged_release
+    PUBLISH_PACKAGE=ic-blob-storage-contracts "$TEST_REAL_MAKE" --no-print-directory publish
+    : > "$TEST_EFFECTS"
+    export TEST_DEPENDENCY_FAILURE=1
+    expect_failure "$TEST_REAL_MAKE" --no-print-directory publish-dry-run
+    [[ "$(cat "$TEST_EFFECTS")" == publish:ic-blob-storage-contracts ]] || exit 1
+    local observation
+    observation="$(awk '/^Publication readback retained: / { print substr($0, 32) }' target/rejection.log)/contracts-dependency-observation"
+    [[ "$(cat "$observation/http-status")" == 200 && "$(cat "$observation/response.json")" == '{' ]] || exit 1
+    assert_cache_retained
 }
 test_receipt_identity() {
     export TEST_INDEX_EXTRA=1
@@ -980,10 +1034,11 @@ run_case publish-core test_publish normal ic-blob-storage
 run_case publish-core-dry-run test_publish dry-run ic-blob-storage
 run_case publish-invalid-selection test_invalid_publish_selection
 run_case publish-unindexed-dry-run test_unpublished_dry_run
+run_case publish-dependency-readback-refusal test_dependency_readback_refusal
 for shape in contracts-failure core-failure contracts-lost-reply core-lost-reply; do
     run_case "publication-retry-$shape" test_publication_retry "$shape"
 done
-for shape in transport http forbidden malformed checksum foreign source dirty path yanked; do
+for shape in transport transport-404 http forbidden malformed oversized multiple missing-fields checksum foreign version source dirty path yanked nonboolean old-curl; do
     run_case "registry-refusal-$shape" test_registry_refusal "$shape"
 done
 for invalid in tag receipt parent merge; do run_case "bad-$invalid" test_invalid_publish "$invalid"; done
@@ -1007,3 +1062,4 @@ for operation in preflight prepare prepared-check committed-check publish plan; 
     done
 done
 printf 'Release-adapter tests: PASS (isolated Git/Cargo effects; no real commits, pushes or publication).\n'
+fixture_complete=true

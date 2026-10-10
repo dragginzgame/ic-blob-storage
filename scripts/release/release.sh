@@ -139,6 +139,16 @@ tag_check() {
     [[ "$parent" == "$source" ]] || fail 'release parent does not match validated source'
     verify_tag "$head" "$current"
 }
+# Shared owns bounded registry facts; Blob owns whether those facts permit upload.
+publication_checksum() {
+    local metadata status=0
+    metadata="$(bash scripts/ci/check-crates-io-version.sh --metadata "$1" "$2" "$3")" || status=$?
+    case "$status" in
+        0) jq -er 'select(.yanked == false) | .checksum' <<< "$metadata" || fail 'published version is yanked' ;;
+        1) printf 'missing\n' ;;
+        *) fail 'registry state is inconclusive; no upload authorized' ;;
+    esac
+}
 publish() {
     case "${1:-}" in ''|--dry-run) ;; *) fail 'expected publish [--dry-run]' ;; esac
     # Separate registry authority still shares the release lock: never publish
@@ -156,7 +166,7 @@ publish() {
         ic-blob-storage-contracts|ic-blob-storage) packages=("$PUBLISH_PACKAGE") ;;
         *) fail 'unknown publication package' ;;
     esac
-    local current head package status checksum run registry_user_agent
+    local current head package checksum run registry_user_agent
     current="$(version)" || fail 'cannot read publication version'
     registry_user_agent="ic-blob-storage-release/$current (+https://github.com/dragginzgame/ic-blob-storage)"
     head="$(git rev-parse HEAD)" || fail 'cannot resolve publication source'
@@ -168,11 +178,7 @@ publish() {
     for package in "${packages[@]}"; do
         # Only a successful exact registry read can authorize skipping an upload.
         # Cargo owns upload and index polling; no local progress journal is needed.
-        status="$(curl --disable --silent --show-error --connect-timeout 10 --max-time 30 \
-            --user-agent "$registry_user_agent" \
-            --max-filesize 1048576 --output "$run/$package.json" --write-out '%{http_code}' \
-            "https://crates.io/api/v1/crates/$package/$current")" || fail 'registry readback failed; no upload attempted for this package'
-        checksum="$(perl "$DATA" publication-state "$status" "$run/$package.json" "$package" "$current")" || fail 'registry state is inconclusive'
+        checksum="$(publication_checksum "$run/$package-observation" "$package" "$current")" || fail 'registry readback refused'
         if [[ "$checksum" != missing ]]; then
             curl --disable --fail --silent --show-error --connect-timeout 10 --max-time 30 \
                 --user-agent "$registry_user_agent" \
@@ -187,11 +193,7 @@ publish() {
         fi
         if [[ "${1:-}" == --dry-run && "$package" == ic-blob-storage ]]; then
             # A contracts dry-run does not put that dependency into crates.io.
-            status="$(curl --disable --silent --show-error --connect-timeout 10 --max-time 30 \
-                --user-agent "$registry_user_agent" \
-                --max-filesize 1048576 --output "$run/contracts-dependency.json" --write-out '%{http_code}' \
-                "https://crates.io/api/v1/crates/ic-blob-storage-contracts/$current")" || fail 'cannot read contracts dependency'
-            checksum="$(perl "$DATA" publication-state "$status" "$run/contracts-dependency.json" ic-blob-storage-contracts "$current")" || fail 'contracts dependency state is inconclusive'
+            checksum="$(publication_checksum "$run/contracts-dependency-observation" ic-blob-storage-contracts "$current")" || fail 'contracts dependency readback refused'
             [[ "$checksum" != missing ]] || fail 'core dry-run requires this contracts version on crates.io; run make package for paired local payload verification'
         fi
         cargo publish --locked --registry crates-io -p "$package" ${1:+"$1"}

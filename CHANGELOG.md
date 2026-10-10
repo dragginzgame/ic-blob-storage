@@ -1,5 +1,28 @@
 # Changelog
 
+## [0.22.2]
+
+### Changed
+
+- Adopt Shared Tooling 0.3.3: preflight common setup before installation,
+  preserve Cargo jobserver descriptors and include advisory README reviews.
+  [#51](https://github.com/dragginzgame/ic-blob-storage/issues/51).
+- Use Shared Tooling's bounded crates.io metadata owner for publication and
+  dry-run dependency readback. Require jq and curl 8.4 or newer, retain each
+  observation's transport and parser evidence, and preserve yanked-version,
+  archive/source and contracts-before-core refusal boundaries.
+  [#45](https://github.com/dragginzgame/ic-blob-storage/issues/45).
+- Preserve the incoming private Testkit 0.32/Host 0.12 graph; qualify the
+  selected Testkit 0.32.1, Host 0.12.3, Memory 0.35.2 and Metrics 0.5.3 patches
+  through the current consumer gate.
+
+### Fixed
+
+- Reject malformed validation nesting metadata and premature successful exits;
+  retain incomplete runner and fixture evidence, including Blob-owned helpers.
+  [#50](https://github.com/dragginzgame/ic-blob-storage/issues/50),
+  [#51](https://github.com/dragginzgame/ic-blob-storage/issues/51).
+
 ## [0.22.1] - 2026-10-10
 
 ### Changed

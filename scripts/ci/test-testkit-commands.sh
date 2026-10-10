@@ -6,7 +6,18 @@ root="${BASH_SOURCE[0]}"
 root="$(cd -P "${root%/*}/../.." && printf '%s/.' "$PWD")"
 root="${root%/.}"
 fixture="$(mktemp -d "${TMPDIR:-/tmp}/blob-testkit-commands.XXXXXX")"
-trap 'if [[ $? == 0 ]]; then rm -rf "$fixture"; else echo "Testkit command fixture retained: $fixture" >&2; fi' EXIT
+fixture_complete=false
+finish_fixture() {
+    local status=$?
+    [[ "$fixture_complete" == true || "$status" != 0 ]] || status=1
+    if [[ "$fixture_complete" == true && "$status" == 0 ]]; then
+        rm -rf "$fixture"
+    else
+        printf 'Testkit command fixture retained: %s\n' "$fixture" >&2
+    fi
+    exit "$status"
+}
+trap finish_fixture EXIT
 consumer="$fixture/consumer with spaces"
 mkdir -p "$consumer/scripts/dev" "$consumer/scripts/ci" "$consumer/.tools/testkit-server"
 cp "$root/scripts/dev/testkit-server.sh" "$consumer/scripts/dev/"
@@ -26,9 +37,11 @@ set -euo pipefail
 printf 'install' >> "$TESTKIT_COMMAND_LOG"
 printf ' <%s>' "$@" >> "$TESTKIT_COMMAND_LOG"
 printf '\n' >> "$TESTKIT_COMMAND_LOG"
-if [[ $# == 4 || ( $# == 5 && "$5" == --check ) ]]; then
+if [[ $# == 4 || ( $# == 5 && ( "$5" == --check || "$5" == --preflight ) ) ]]; then
     [[ "$1" == --consumer && "$2" == "$TESTKIT_FIXTURE_ROOT" && "$3" == --versions ]]
-    [[ "${TESTKIT_FAIL:-}" != common-rust ]] || exit 23
+    failure=common-rust
+    [[ "${5:-}" != --preflight ]] || failure=preflight-rust
+    [[ "${TESTKIT_FAIL:-}" != "$failure" ]] || exit 23
     exit 0
 fi
 [[ $# == 10 || ( $# == 11 && "${11}" == --check ) ]]
@@ -124,8 +137,10 @@ for kind in host ic; do
 set -euo pipefail
 kind="${0##*/install-}"
 kind="${kind%-tools.sh}"
-printf 'common-%s\n' "$kind" >> "$TESTKIT_COMMAND_LOG"
-[[ "${TESTKIT_FAIL:-}" != "common-$kind" ]] || exit 23
+stage=common
+[[ "${5:-}" != --preflight ]] || stage=preflight
+printf '%s-%s\n' "$stage" "$kind" >> "$TESTKIT_COMMAND_LOG"
+[[ "${TESTKIT_FAIL:-}" != "$stage-$kind" ]] || exit 23
 COMMON
 done
 # No compiler or build may run after failed admission.
@@ -140,12 +155,18 @@ for target in install-tools tools-check; do
     action=setup; [[ "$target" != tools-check ]] || action=check
     : > "$TESTKIT_COMMAND_LOG"
     make --no-print-directory -j4 -C "$consumer" "$target" > "$fixture/$target.log" 2>&1
-    [[ "$(wc -l < "$TESTKIT_COMMAND_LOG" | tr -d ' ')" == 5 ]]
+    offset=0
+    if [[ "$target" == install-tools ]]; then
+        offset=2
+        [[ "$(sed -n '1p' "$TESTKIT_COMMAND_LOG")" == preflight-ic ]]
+        [[ "$(sed -n '2p' "$TESTKIT_COMMAND_LOG")" == 'install <--consumer>'*'<--preflight>' ]]
+    fi
+    [[ "$(wc -l < "$TESTKIT_COMMAND_LOG" | tr -d ' ')" == $((5 + offset)) ]]
     printf 'common-host\ncommon-ic\n' > "$fixture/common-expected"
-    head -2 "$TESTKIT_COMMAND_LOG" > "$fixture/common-actual"
+    sed -n "$((offset + 1)),$((offset + 2))p" "$TESTKIT_COMMAND_LOG" > "$fixture/common-actual"
     cmp "$fixture/common-expected" "$fixture/common-actual"
-    [[ "$(sed -n '3p' "$TESTKIT_COMMAND_LOG")" == 'install <--consumer>'*'<--versions>'* ]]
-    [[ "$(sed -n '4p' "$TESTKIT_COMMAND_LOG")" == 'install <--consumer>'*'<--package> <ic-testkit>'* ]]
+    [[ "$(sed -n "$((offset + 3))p" "$TESTKIT_COMMAND_LOG")" == 'install <--consumer>'*'<--versions>'* ]]
+    [[ "$(sed -n "$((offset + 4))p" "$TESTKIT_COMMAND_LOG")" == 'install <--consumer>'*'<--package> <ic-testkit>'* ]]
     [[ "$(tail -1 "$TESTKIT_COMMAND_LOG")" == "cli <$action> <--directory> <$consumer/.tools/testkit-server>" ]]
     if [[ "$action" == check ]]; then
         [[ "$(grep -c '<--check>' "$TESTKIT_COMMAND_LOG")" == 2 ]]
@@ -154,7 +175,9 @@ for target in install-tools tools-check; do
     admitted_targets=("$target")
     [[ "$target" != tools-check ]] || admitted_targets[1]=test-native-host
     count=0
-    for failure in common-host common-ic common-rust install "$action"; do
+    failures=(common-host common-ic common-rust install "$action")
+    [[ "$target" != install-tools ]] || failures=(preflight-ic preflight-rust "${failures[@]}")
+    for failure in "${failures[@]}"; do
         count=$((count + 1))
         for admitted_target in "${admitted_targets[@]}"; do
             : > "$TESTKIT_COMMAND_LOG"
@@ -168,3 +191,4 @@ for target in install-tools tools-check; do
     cmp "$fixture/selected-lock" "$consumer/Cargo.lock"
 done
 echo 'Locked Testkit setup/check, admitted server handoff and failure propagation passed (substitute tools)'
+fixture_complete=true

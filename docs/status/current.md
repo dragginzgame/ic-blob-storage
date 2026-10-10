@@ -6,7 +6,67 @@
 
 Date: 2026-10-10
 
-## Current continuation — released 0.22.0, pending 0.22.1
+## Current continuation — released 0.22.1, pending 0.22.2
+
+- [Shared 0.3.3 adoption](../evidence/shared0330222.md) selects 99 canonical
+  files at `d63f0cfaba8ab2961d6012064adbf051c1898bc1`, preserving the pending
+  registry work without agent staging/reset. Common setup preflights before installation; local
+  Cargo recipes forward jobserver descriptors. The runner and Blob-owned
+  fixtures reject premature success and retain incomplete evidence.
+  [#51](https://github.com/dragginzgame/ic-blob-storage/issues/51) and
+  [#50](https://github.com/dragginzgame/ic-blob-storage/issues/50) own acceptance.
+  Incoming Testkit 0.32.1/all four Host 0.12.3 and Memory 0.35.2/Metrics 0.5.3
+  replace the earlier graph below; preserve those selections. The complete
+  delivery gate and Rust 1.88 native/Wasm
+  checks pass, with unchanged release results reused and every remaining target
+  rerun on Metrics 0.5.3. All 376 enabled PocketIC cases pass, including 73
+  standalone/123 storage. Both changed-lock attempts remain retained; final
+  captured inputs stay fixed. Matching committed native acceptance remains open.
+- Released HEAD is `b6f4d7e83a1b301afe3619ccf3fadfc3503931c6`, with validated
+  source `52661e437ee0968eca4dbd83640588b3d3c62d93`. All twelve package versions
+  and the finalized receipt remain 0.22.1. The released catalog/lock already
+  select Memory 0.35.0 and Metrics 0.5.0, beyond the graph in the older handoff.
+  The current graph above supersedes the earlier incoming Host 0.12.1/Testkit
+  0.31 qualification. Do not attribute those earlier results to the new graph.
+- [#45](https://github.com/dragginzgame/ic-blob-storage/issues/45) adopts the
+  bounded registry metadata owner initially from reviewed Shared 0.3.0
+  `88a73139a0f083344c41a6f6f4b5c3a8aca7dc1d`, extending the canonical selection
+  to 98 files; the current 99-file Shared 0.3.3 export preserves it. Blob retains yanked refusal, archive checksum/source authority,
+  paired-package ordering and Cargo publication ownership. Each metadata
+  observation retains separate transport/parser evidence. jq and curl 8.4+
+  are explicit prerequisites; no registry upload is performed.
+- [The adoption record](../evidence/registry0222.md) separates substituted
+  publication tests from two bounded live metadata reads of released 0.22.1.
+  Both registry rows are present and un-yanked. Shared's registry fixtures,
+  prepared-tool admission, shell checks and the complete isolated consumer
+  release-adapter suite pass. The complete delivery gate passes using unchanged
+  release fixture results plus all remaining configured CI targets: 643 native
+  cases, the full PocketIC target (73 standalone/123 storage cases), Wasm and
+  extracted packages. Complete Rust 1.88 native/Wasm checks pass; all 14,696
+  compiler inputs and 1,707 captured project files remain unchanged during
+  validation. Dirty source has no hosted/native macOS result.
+- Closed completed original adoptions
+  [#39](https://github.com/dragginzgame/ic-blob-storage/issues/39),
+  [#40](https://github.com/dragginzgame/ic-blob-storage/issues/40),
+  [#43](https://github.com/dragginzgame/ic-blob-storage/issues/43),
+  [#44](https://github.com/dragginzgame/ic-blob-storage/issues/44),
+  [#46](https://github.com/dragginzgame/ic-blob-storage/issues/46) and
+  [#47](https://github.com/dragginzgame/ic-blob-storage/issues/47) against their
+  completed committed Linux/Apple Silicon/Intel macOS acceptance. Newer complete
+  common-toolset adoption remains independently owned by
+  [#49](https://github.com/dragginzgame/ic-blob-storage/issues/49).
+- [Released 0.22.1 CI](https://github.com/dragginzgame/ic-blob-storage/actions/runs/38048932598)
+  passes Linux/MSRV/Apple Silicon; Intel macOS remains running. Keep #48/#49
+  native acceptance open. #45 requires delivery and matching-source native
+  consumer checks independently of this released run.
+- The released catalog already resolves the requested Memory 0.35 selection in
+  [#48](https://github.com/dragginzgame/ic-blob-storage/issues/48); native and final
+  consumer composition acceptance remain separate. Provider and
+  application evidence retains its existing owners. Pending 0.22.2 is
+  compatible tooling maintenance; no agent commit, push, release, publication,
+  sibling edit or paid/deployed provider effect occurs.
+
+## Earlier continuation — released 0.22.0, pending 0.22.1
 
 - Released HEAD is `9063e3e`, with validated source
   `bebd55aa01bcc711b44f36f4765133540ec5b89a`. All twelve package versions and

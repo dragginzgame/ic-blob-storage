@@ -4,10 +4,13 @@ set -Eeuo pipefail
 # Consumer integration only; Shared Tooling owns logger mechanics and its suite.
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd -P)"
 FIXTURE="$(mktemp -d "${TMPDIR:-/tmp}/blob-validation-logging.XXXXXX")"
+fixture_complete=false
 finish() {
     local status=$?
-    if [[ "$status" == 0 ]]; then rm -rf "$FIXTURE";
+    [[ "$fixture_complete" == true || "$status" != 0 ]] || status=1
+    if [[ "$fixture_complete" == true && "$status" == 0 ]]; then rm -rf "$FIXTURE";
     else printf 'Validation logging fixture retained: %s\n' "$FIXTURE" >&2; fi
+    exit "$status"
 }
 trap finish EXIT
 unset MAKEFLAGS MFLAGS MAKEOVERRIDES
@@ -68,3 +71,13 @@ cmp "$FIXTURE/expected-combined.log" "$FIXTURE/combined-logs/latest-combined.log
 rg -F 'error:second-target-diagnostic' "$FIXTURE/combined-logs/latest.log" >/dev/null
 if rg -F 'actual-diagnostic' "$FIXTURE/combined-logs/latest.log" >/dev/null; then exit 1; fi
 printf 'Consumer validation logging and raw failure retention passed.\n'
+# Verify the consumer's actual runner rejects malformed inherited metadata.
+for depth in SHARED_DEPTH_UNDEFINED 01 -1 '1+1' '1/0' 18446744073709551616; do
+    status=0
+    VALIDATION_RUNNER_DEPTH="$depth" bash "$ROOT/scripts/ci/run-validation-targets.sh" pass \
+        > "$FIXTURE/depth-refusal.log" 2>&1 || status=$?
+    [[ "$status" == 2 ]]
+    rg -F 'VALIDATION_RUNNER_DEPTH must be' "$FIXTURE/depth-refusal.log" >/dev/null
+    if rg -F '==> pass' "$FIXTURE/depth-refusal.log" >/dev/null; then exit 1; fi
+done
+fixture_complete=true

@@ -52,7 +52,7 @@ before full validation, then rechecks source identity and cleanliness. Ordinary
 checks remain offline; saved-release recovery
 and post-validation metadata preparation do not repeat setup.
 
-Pending compatible 0.22.1 adopts Shared Tooling 0.3.0, private Testkit 0.31
+Released compatible 0.22.1 adopts Shared Tooling 0.3.0, private Testkit 0.31
 and direct Host 0.12.
 Prepare the declared Rust toolchain, run `make install-tools` explicitly, then
 `make tools-check` and `make release-tools-check`. Complete host, IC and Cargo
@@ -60,6 +60,13 @@ stages run in order before the existing Testkit owner target, stopping on
 failure. Previous tool/server artifacts remain retained; offline validation
 never prepares missing tools. Public Blob contracts and stored schemas are
 unchanged. See [the adoption record](evidence/testkit030shared0300221.md).
+
+Pending compatible 0.22.2 adopts Shared Tooling 0.3.3. Common setup preflights
+platform/pin admission and the selected Rust/Cargo toolchain before installation.
+The validation runner rejects malformed nesting metadata and incomplete exits;
+fixtures retain evidence unless every assertion completed successfully.
+See [the adoption record](evidence/shared0330222.md). Publication and actual
+release commands remain maintainer actions.
 
 Released 0.21.0 changes capacity reply/preflight shapes: rebuild consumers for
 the three mandatory byte headrooms and dimension-specific blocker names. The
@@ -264,8 +271,15 @@ malformed responses or a different source refuse instead of authorizing an uploa
 Readback inputs and a fresh Cargo target remain under the printed
 `target/publication.*` path, preventing stale same-version verification artifacts. No local
 publication progress journal or additional polling loop is introduced.
-API, archive and dry-run dependency reads identify this application's version
-and repository through User-Agent, with implicit curl configuration disabled.
+API and dry-run dependency reads use the reviewed
+[Shared metadata helper](verification-helpers.md#exact-cratesio-version-observation),
+requiring jq and curl 8.4.0 or newer for bounded responses. Each observation has
+its own new directory retaining request, response, HTTP/transport status and
+diagnostics, including failed reads. Shared owns exact metadata validation and
+the identifying API User-Agent; Blob refuses yanked versions and authenticates
+archive checksum, release source and package path before skipping an upload.
+Archive reads identify Blob's version and repository. Both transport owners
+disable implicit curl configuration.
 A 403 remains an inconclusive fatal response; it never authorizes uploading.
 
 `PUBLISH_PACKAGE=ic-blob-storage-contracts` or `PUBLISH_PACKAGE=ic-blob-storage`

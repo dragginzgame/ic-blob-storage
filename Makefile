@@ -93,32 +93,34 @@ version:
 	@$(RELEASE) version
 
 deps:
-	cargo fetch --locked
+	+cargo fetch --locked
 
 shared-tooling-check:
 	bash scripts/ci/verify-shared-tooling-snapshot.sh
 
 install-testkit:
-	bash scripts/dev/testkit-server.sh setup
+	+bash scripts/dev/testkit-server.sh setup
 
 testkit-check:
-	bash scripts/dev/testkit-server.sh check
+	+bash scripts/dev/testkit-server.sh check
 
 shared-tooling-tests:
-	bash scripts/ci/test-format-tools.sh
-	bash scripts/ci/check-validation-logging.sh
-	bash scripts/ci/test-file-digests.sh
-	bash scripts/ci/test-evidence-archive.sh
+	+bash scripts/ci/test-consumer-fixture-completion.sh
+	+bash scripts/ci/test-format-tools.sh
+	+bash scripts/ci/check-validation-logging.sh
+	+bash scripts/ci/test-file-digests.sh
+	+bash scripts/ci/test-evidence-archive.sh
 	+$(MAKE) --no-print-directory tooling-evidence-check
-	bash scripts/ci/test-ic-tools.sh
-	perl scripts/ci/test-local-lock-versions.pl
-	bash scripts/ci/test-cargo-metadata.sh
-	bash scripts/ci/test-npm-pins.sh
-	bash scripts/ci/test-host-tools.sh
-	bash scripts/ci/test-rust-tools.sh
-	bash scripts/ci/test-tool-commands.sh
-	bash scripts/ci/test-testkit-commands.sh
-	bash scripts/ci/test-cloc.sh
+	+bash scripts/ci/test-ic-tools.sh
+	+perl scripts/ci/test-local-lock-versions.pl
+	+bash scripts/ci/test-cargo-metadata.sh
+	+bash scripts/ci/test-crates-io-version.sh
+	+bash scripts/ci/test-npm-pins.sh
+	+bash scripts/ci/test-host-tools.sh
+	+bash scripts/ci/test-rust-tools.sh
+	+bash scripts/ci/test-tool-commands.sh
+	+bash scripts/ci/test-testkit-commands.sh
+	+bash scripts/ci/test-cloc.sh
 
 tooling-evidence-check:
 	bash scripts/ci/test-tooling-evidence.sh
@@ -131,7 +133,7 @@ release-commands-check:
 	bash scripts/ci/check-release-commands.sh "$(CURDIR)" Cargo.toml scripts/release/release.sh scripts/release/release-data.pl make/tools.mk make/release.mk make/rust-format.mk make/execution.mk scripts/ci/check-make-execution.sh scripts/ci/run-formatting.sh
 
 dependency-pins-check:
-	@set -e; node_version="$$(cat tests/browser/.nvmrc)"; \
+	+@set -e; node_version="$$(cat tests/browser/.nvmrc)"; \
 		npm_version="$$(jq -er '.packageManager | capture("^npm@(?<version>[0-9]+\\.[0-9]+\\.[0-9]+)$$").version' tests/browser/package.json)"; \
 		bash scripts/ci/check-dependency-pins.sh --cargo-inheritance \
 			--npm-root tests/browser --node-version "$$node_version" --npm-version "$$npm_version"
@@ -143,19 +145,19 @@ install-hooks:
 	bash scripts/dev/install-git-hooks.sh
 
 hooks-check:
-	bash scripts/ci/check-format-hooks.sh
+	+bash scripts/ci/check-format-hooks.sh
 
 contracts-boundary-check:
-	bash scripts/ci/check-runtime-free-contracts.sh
+	+bash scripts/ci/check-runtime-free-contracts.sh
 
 check:
-	cargo check --offline --locked --workspace --all-targets --all-features
+	+cargo check --offline --locked --workspace --all-targets --all-features
 
 clippy:
-	cargo clippy --offline --locked --workspace --all-targets --all-features -- -D warnings
+	+cargo clippy --offline --locked --workspace --all-targets --all-features -- -D warnings
 
 probe-check:
-	cargo build --offline --locked -p ic-blob-storage-cli --bin caffeine-probe
+	+cargo build --offline --locked -p ic-blob-storage-cli --bin caffeine-probe
 	@for run in docs/evidence/caffeine-probes/runs/*; do \
 		"$(CARGO_TARGET_DIR)/debug/caffeine-probe" verify "$$run" || exit $$?; \
 	done
@@ -166,23 +168,23 @@ evidence-check:
 	bash scripts/ci/verify-evidence-checksums.sh docs/evidence/caffeine-probes/local/SHA256SUMS docs/evidence/caffeine-probes/deployed/SHA256SUMS
 
 docs-check:
-	RUSTDOCFLAGS="-D warnings" cargo doc --offline --locked -p ic-blob-storage -p ic-blob-storage-contracts -p ic-blob-storage-canister --all-features --no-deps
+	+RUSTDOCFLAGS="-D warnings" cargo doc --offline --locked -p ic-blob-storage -p ic-blob-storage-contracts -p ic-blob-storage-canister --all-features --no-deps
 
 test:
 	+$(MAKE) --no-print-directory test-native
 	+$(MAKE) --no-print-directory test-pocketic
 
 test-native:
-	bash scripts/ci/run-nonempty-cargo-test.sh --offline --locked -p ic-blob-storage -p ic-blob-storage-contracts -p blob-consumer-probe -p ic-blob-storage-canister -p ic-blob-storage-cli --all-features
+	+bash scripts/ci/run-nonempty-cargo-test.sh --offline --locked -p ic-blob-storage -p ic-blob-storage-contracts -p blob-consumer-probe -p ic-blob-storage-canister -p ic-blob-storage-cli --all-features
 
 msrv-check:
-	RUSTUP_AUTO_INSTALL=0 cargo +1.88.0 --version
+	+RUSTUP_AUTO_INSTALL=0 cargo +1.88.0 --version
 	RUSTUP_AUTO_INSTALL=0 rustc +1.88.0 --version
-	RUSTUP_AUTO_INSTALL=0 cargo +1.88.0 check --offline --locked -p ic-blob-storage-contracts --lib
-	RUSTUP_AUTO_INSTALL=0 cargo +1.88.0 check --offline --locked -p ic-blob-storage --lib
-	RUSTUP_AUTO_INSTALL=0 cargo +1.88.0 check --offline --locked --workspace --all-targets --all-features
-	RUSTUP_AUTO_INSTALL=0 cargo +1.88.0 check --offline --locked --target wasm32-unknown-unknown -p ic-blob-storage-contracts --lib
-	RUSTUP_AUTO_INSTALL=0 cargo +1.88.0 check --offline --locked --target wasm32-unknown-unknown --workspace --exclude ic-blob-storage-cli --exclude ic-blob-storage-pocketic-tests --exclude blob-test-protocol --lib --all-features
+	+RUSTUP_AUTO_INSTALL=0 cargo +1.88.0 check --offline --locked -p ic-blob-storage-contracts --lib
+	+RUSTUP_AUTO_INSTALL=0 cargo +1.88.0 check --offline --locked -p ic-blob-storage --lib
+	+RUSTUP_AUTO_INSTALL=0 cargo +1.88.0 check --offline --locked --workspace --all-targets --all-features
+	+RUSTUP_AUTO_INSTALL=0 cargo +1.88.0 check --offline --locked --target wasm32-unknown-unknown -p ic-blob-storage-contracts --lib
+	+RUSTUP_AUTO_INSTALL=0 cargo +1.88.0 check --offline --locked --target wasm32-unknown-unknown --workspace --exclude ic-blob-storage-cli --exclude ic-blob-storage-pocketic-tests --exclude blob-test-protocol --lib --all-features
 
 tasks:
 	@cat tasks/README.md
@@ -190,39 +192,39 @@ tasks:
 test-native-host: contracts-boundary-check
 	+$(MAKE) --no-print-directory tools-check
 	+$(MAKE) --no-print-directory build-standalone
-	cargo build --offline --locked --release --target wasm32-unknown-unknown -p blob-storage-probe --lib
-	cargo build --offline --locked -p ic-blob-storage-cli
-	bash scripts/ci/run-nonempty-cargo-test.sh --offline --locked -p ic-blob-storage-cli --bins
-	bash scripts/ci/run-nonempty-cargo-test.sh --offline --locked -p ic-blob-storage-contracts --lib
-	bash scripts/ci/run-nonempty-cargo-test.sh --offline --locked -p ic-blob-storage-contracts --examples
-	bash scripts/ci/run-pocketic-test.sh --offline --locked -p ic-blob-storage-pocketic-tests --test standalone standalone_installation_cli:: -- --test-threads=1
-	bash scripts/ci/run-pocketic-test.sh --offline --locked -p ic-blob-storage-pocketic-tests --test storage storage_resources::reads::restoration_reads_are_attributed_only_to_the_operator_reopen_window -- --exact --test-threads=1
+	+cargo build --offline --locked --release --target wasm32-unknown-unknown -p blob-storage-probe --lib
+	+cargo build --offline --locked -p ic-blob-storage-cli
+	+bash scripts/ci/run-nonempty-cargo-test.sh --offline --locked -p ic-blob-storage-cli --bins
+	+bash scripts/ci/run-nonempty-cargo-test.sh --offline --locked -p ic-blob-storage-contracts --lib
+	+bash scripts/ci/run-nonempty-cargo-test.sh --offline --locked -p ic-blob-storage-contracts --examples
+	+bash scripts/ci/run-pocketic-test.sh --offline --locked -p ic-blob-storage-pocketic-tests --test standalone standalone_installation_cli:: -- --test-threads=1
+	+bash scripts/ci/run-pocketic-test.sh --offline --locked -p ic-blob-storage-pocketic-tests --test storage storage_resources::reads::restoration_reads_are_attributed_only_to_the_operator_reopen_window -- --exact --test-threads=1
 
 test-fixture:
-	cargo build --offline --locked --release --target wasm32-unknown-unknown -p blob-authority-probe -p blob-admission-probe -p blob-storage-probe -p blob-consumer-probe -p blob-gateway-source -p blob-funding-probe --lib
+	+cargo build --offline --locked --release --target wasm32-unknown-unknown -p blob-authority-probe -p blob-admission-probe -p blob-storage-probe -p blob-consumer-probe -p blob-gateway-source -p blob-funding-probe --lib
 
 test-pocketic:
 	+$(MAKE) --no-print-directory testkit-check
 	+$(MAKE) --no-print-directory test-fixture
 	+$(MAKE) --no-print-directory build-standalone
-	cargo build --offline --locked -p ic-blob-storage-cli
-	bash scripts/ci/run-pocketic-test.sh --offline --locked -p ic-blob-storage-pocketic-tests
+	+cargo build --offline --locked -p ic-blob-storage-cli
+	+bash scripts/ci/run-pocketic-test.sh --offline --locked -p ic-blob-storage-pocketic-tests
 
 build-standalone:
-	cargo build --offline --locked --release --target wasm32-unknown-unknown -p ic-blob-storage-canister --lib
+	+cargo build --offline --locked --release --target wasm32-unknown-unknown -p ic-blob-storage-canister --lib
 
 test-hard-cut:
 	@test -n "$(BLOB_PRE_CUT_STANDALONE_WASM)" -a -n "$(BLOB_HARD_CUT_REPORT)" || { echo 'Set BLOB_PRE_CUT_STANDALONE_WASM and a fresh BLOB_HARD_CUT_REPORT'; exit 1; }
 	+$(MAKE) --no-print-directory testkit-check
 	+$(MAKE) --no-print-directory build-standalone
-	BLOB_PRE_CUT_STANDALONE_WASM="$(BLOB_PRE_CUT_STANDALONE_WASM)" BLOB_HARD_CUT_REPORT="$(BLOB_HARD_CUT_REPORT)" \
+	+BLOB_PRE_CUT_STANDALONE_WASM="$(BLOB_PRE_CUT_STANDALONE_WASM)" BLOB_HARD_CUT_REPORT="$(BLOB_HARD_CUT_REPORT)" \
 		bash scripts/ci/run-pocketic-test.sh --offline --locked -p ic-blob-storage-pocketic-tests --test standalone standalone_hard_cut::older_allocation_ledger_upgrade_preserves_bytes_and_obligations_on_refusal -- --ignored --exact --test-threads=1
 
 test-standalone:
 	+$(MAKE) --no-print-directory testkit-check
-	cargo build --offline --locked --release --target wasm32-unknown-unknown -p ic-blob-storage-canister -p blob-gateway-source -p blob-storage-probe -p blob-consumer-probe --lib
-	cargo build --offline --locked -p ic-blob-storage-cli
-	bash scripts/ci/run-pocketic-test.sh --offline --locked -p ic-blob-storage-pocketic-tests --test standalone -- --test-threads=1
+	+cargo build --offline --locked --release --target wasm32-unknown-unknown -p ic-blob-storage-canister -p blob-gateway-source -p blob-storage-probe -p blob-consumer-probe --lib
+	+cargo build --offline --locked -p ic-blob-storage-cli
+	+bash scripts/ci/run-pocketic-test.sh --offline --locked -p ic-blob-storage-pocketic-tests --test standalone -- --test-threads=1
 
 # Browser tooling is explicitly provisioned; this target performs no downloads.
 .PHONY: browser-tools-check
@@ -236,13 +238,13 @@ test-browser-standalone test-browser: browser-tools-check
 test-sdk-probe:
 	@test -n "$(BLOB_SDK_PROBE_REPORT)" || { echo 'Set BLOB_SDK_PROBE_REPORT to a new directory beneath an existing parent'; exit 1; }
 	$(BLOB_BROWSER_NODE) tests/browser/build.mjs
-	cargo build --offline --locked -p ic-blob-storage-contracts --example verify_download
+	+cargo build --offline --locked -p ic-blob-storage-contracts --example verify_download
 	$(BLOB_BROWSER_NODE) .tmp/browser/sdk-probe.mjs "$(BLOB_SDK_PROBE_REPORT)" "$(CARGO_TARGET_DIR)/debug/examples/verify_download"
 
 test-sdk-inputs:
 	@test -n "$(BLOB_SDK_INPUTS_REPORT)" || { echo 'Set BLOB_SDK_INPUTS_REPORT to a new directory beneath an existing parent'; exit 1; }
 	$(BLOB_BROWSER_NODE) tests/browser/build.mjs
-	cargo build --offline --locked -p ic-blob-storage-cli --bin blob-storage
+	+cargo build --offline --locked -p ic-blob-storage-cli --bin blob-storage
 	$(BLOB_BROWSER_NODE) .tmp/browser/native-inputs.mjs "$(BLOB_SDK_INPUTS_REPORT)" "$(CARGO_TARGET_DIR)/debug/blob-storage" "$(BLOB_SDK_INPUTS_BYTES)"
 
 test-browser-transport:
@@ -275,20 +277,20 @@ test-browser-native:
 
 test-browser-standalone:
 	$(BLOB_BROWSER_NODE) tests/browser/build.mjs
-	cargo build --offline --locked --release --target wasm32-unknown-unknown -p ic-blob-storage-canister --lib
-	cargo build --offline --locked -p ic-blob-storage-cli --bin blob-storage
-	bash scripts/ci/run-pocketic-test.sh --offline --locked -p ic-blob-storage-pocketic-tests --test standalone chromium_standalone_trial -- --ignored --test-threads=1
+	+cargo build --offline --locked --release --target wasm32-unknown-unknown -p ic-blob-storage-canister --lib
+	+cargo build --offline --locked -p ic-blob-storage-cli --bin blob-storage
+	+bash scripts/ci/run-pocketic-test.sh --offline --locked -p ic-blob-storage-pocketic-tests --test standalone chromium_standalone_trial -- --ignored --test-threads=1
 
 test-browser:
 	$(BLOB_BROWSER_NODE) tests/browser/build.mjs
 	$(BLOB_BROWSER_NODE) tests/browser/store.mjs
-	cargo build --offline --locked --release --target wasm32-unknown-unknown -p blob-storage-probe -p blob-consumer-probe --lib
-	bash scripts/ci/run-pocketic-test.sh --offline --locked -p ic-blob-storage-pocketic-tests --test storage chromium_certificate_intent -- --ignored --test-threads=1
+	+cargo build --offline --locked --release --target wasm32-unknown-unknown -p blob-storage-probe -p blob-consumer-probe --lib
+	+bash scripts/ci/run-pocketic-test.sh --offline --locked -p ic-blob-storage-pocketic-tests --test storage chromium_certificate_intent -- --ignored --test-threads=1
 
 test-admission-resources:
-	cargo build --offline --locked --release --target wasm32-unknown-unknown -p blob-admission-probe --lib
+	+cargo build --offline --locked --release --target wasm32-unknown-unknown -p blob-admission-probe --lib
 	@mkdir -p .tmp
-	BLOB_ADMISSION_RESOURCE_REPORT="$(CURDIR)/.tmp/admission-resources.json" \
+	+BLOB_ADMISSION_RESOURCE_REPORT="$(CURDIR)/.tmp/admission-resources.json" \
 	BLOB_ADMISSION_HISTORY_REPORT="$(CURDIR)/.tmp/admission-history.json" \
 	BLOB_RELEASE_HISTORY_REPORT="$(CURDIR)/.tmp/release-history.json" \
 	BLOB_REFERENCE_HISTORY_REPORT="$(CURDIR)/.tmp/reference-history.json" \
@@ -298,28 +300,28 @@ test-admission-resources:
 
 test-funding-receipt-resources:
 	@test -n "$(BLOB_FUNDING_RECEIPT_PROFILE)" || { echo "Set BLOB_FUNDING_RECEIPT_PROFILE to a fresh report directory." >&2; exit 1; }
-	cargo build --offline --locked --release --target wasm32-unknown-unknown -p blob-storage-probe --lib
-	bash scripts/ci/run-pocketic-test.sh --offline --locked -p ic-blob-storage-pocketic-tests --test storage storage_resources::credits::receipt_populated_confirmation_and_restoration_profile -- --ignored --exact --test-threads=1
+	+cargo build --offline --locked --release --target wasm32-unknown-unknown -p blob-storage-probe --lib
+	+bash scripts/ci/run-pocketic-test.sh --offline --locked -p ic-blob-storage-pocketic-tests --test storage storage_resources::credits::receipt_populated_confirmation_and_restoration_profile -- --ignored --exact --test-threads=1
 
 test-read-resources:
-	cargo build --offline --locked --release --target wasm32-unknown-unknown -p blob-authority-probe -p blob-gateway-source --lib
+	+cargo build --offline --locked --release --target wasm32-unknown-unknown -p blob-authority-probe -p blob-gateway-source --lib
 	@mkdir -p .tmp
-	BLOB_READ_RESOURCE_REPORT="$(CURDIR)/.tmp/read-resources.json" \
+	+BLOB_READ_RESOURCE_REPORT="$(CURDIR)/.tmp/read-resources.json" \
 	bash scripts/ci/run-pocketic-test.sh --offline --locked -p ic-blob-storage-pocketic-tests --test journey readback -- --test-threads=2
 	@echo "Local read report: .tmp/read-resources.json (not a production read protocol or provider pricing)"
 
 wasm-check:
-	cargo check --offline --locked --workspace --all-features --target wasm32-unknown-unknown
+	+cargo check --offline --locked --workspace --all-features --target wasm32-unknown-unknown
 
 build:
-	cargo build --offline --locked -p ic-blob-storage --all-features
+	+cargo build --offline --locked -p ic-blob-storage --all-features
 
 package:
-	bash scripts/ci/test-library-packages.sh
-	bash scripts/ci/verify-library-packages.sh
+	+bash scripts/ci/test-library-packages.sh
+	+bash scripts/ci/verify-library-packages.sh
 
 clean:
-	cargo clean
+	+cargo clean
 
 shell-check:
 	@for script in scripts/release/*.sh scripts/dev/*.sh scripts/ci/*.sh .githooks/pre-commit; do bash -n "$$script" || exit $$?; done

@@ -7,7 +7,16 @@ fixture_parent="${CARGO_TARGET_DIR:-$PWD/target}"
 mkdir -p "$fixture_parent"
 fixture="$(mktemp -d "$fixture_parent/package-fixture.XXXXXX")"
 echo "Package regression retained: $fixture"
-trap 'if [[ "$?" -ne 0 ]]; then echo "Package regression failed; retained: $fixture" >&2; fi' EXIT
+fixture_complete=false
+finish_fixture() {
+    local status=$?
+    [[ "$fixture_complete" == true || "$status" != 0 ]] || status=1
+    if [[ "$status" != 0 ]]; then
+        printf 'Package regression failed; fixture retained: %s\n' "$fixture" >&2
+    fi
+    exit "$status"
+}
+trap finish_fixture EXIT
 mkdir -p "$fixture/contracts/src" "$fixture/service/src" "$fixture/scripts/release"
 cp "$data" "$fixture/scripts/release/release-data.pl"
 cd "$fixture"
@@ -66,3 +75,4 @@ if [[ "$value" != 2 ]]; then
     exit 1
 fi
 echo 'Same-version archive regression passed (warm shared target; current contract executed).'
+fixture_complete=true

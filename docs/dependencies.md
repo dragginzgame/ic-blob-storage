@@ -4,7 +4,30 @@
 
 # Dependency setup
 
-## Current graph — released 0.22.0, pending 0.22.1
+## Current graph — released 0.22.1, pending 0.22.2
+
+All twelve package versions and the finalized receipt remain 0.22.1. The
+released catalog and lock already select public Memory 0.35.0 and private
+Metrics 0.5.0; hosts linking Blob must align on Memory 0.35's package identity.
+Its pool/key-only API and retained ledger remain unchanged from 0.34.1.
+Cross-release activation still follows the
+[retirement/reinstall runbook](retiring-installations.md).
+
+Preserve incoming direct Host artifacts/fs 0.12.1, with unchanged consumed
+Rust source, and Testkit 0.31.0's separate private Host 0.11 graph. PocketIC
+16.1.0 remains selected; no version override is introduced. The reviewed Shared
+0.3.0 snapshot now selects 98 files, including bounded registry metadata
+observation and its focused fixture. Publication metadata needs jq and curl
+8.4 or newer. Run explicit `make install-tools`, then offline `make tools-check`;
+ordinary checks never install or replace retained tools.
+
+[The current qualification](evidence/registry0222.md) authenticates selected
+archives/source and binds the complete delivery gate and Rust 1.88 native/Wasm
+checks to these actual inputs. Earlier graph evidence remains separately
+identified. Committed native acceptance and application/provider qualification
+retain their owning issues.
+
+## Earlier graph — released 0.22.0, pending 0.22.1
 
 All twelve package versions and the finalized receipt remain 0.22.0. Preserve
 incoming Testkit 0.31.0 and direct Host artifacts/fs 0.12.0; Memory remains
