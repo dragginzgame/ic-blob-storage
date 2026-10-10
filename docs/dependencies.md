@@ -4,7 +4,25 @@
 
 # Dependency setup
 
-## Current graph — released 0.21.5, pending 0.22.0
+## Current graph — released 0.22.0, pending 0.22.1
+
+All twelve package versions and the finalized receipt remain 0.22.0. Preserve
+incoming Testkit 0.31.0 and direct Host artifacts/fs 0.12.0; Memory remains
+0.34.1, Metrics 0.4.0 and PocketIC 16.1.0. Testkit still selects Host 0.11;
+keep those private owner graphs separate without a version override. Their
+consumed Rust sources are unchanged from Testkit 0.30 and Host 0.11. These private tooling updates change no
+public Blob API, persisted schema or public Memory identity.
+
+Shared's 96-file snapshot selects committed 0.3.0
+`88a73139a0f083344c41a6f6f4b5c3a8aca7dc1d`. Prepare the declared Rust toolchain,
+then run `make install-tools` explicitly, followed by `make tools-check`.
+The aggregate runs the complete host, IC and Cargo sets in order, then the
+existing lock-selected Testkit CLI/server target. Old bundles, CLI slots,
+receipts and the authenticated server remain retained; ordinary checks never
+install or download. See [the adoption record](evidence/testkit030shared0300221.md)
+for source bindings and qualification limits.
+
+## Earlier graph — released 0.21.5, pending 0.22.0
 
 The incoming public Memory 0.34 selection requires a minor hard cut. Its host-wide
 `MemoryAllocationPool` replaces per-owner numeric ranges: hosts grant disjoint

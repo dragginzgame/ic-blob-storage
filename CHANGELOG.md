@@ -1,5 +1,28 @@
 # Changelog
 
+## [0.22.1]
+
+### Changed
+
+- Adopt Shared Tooling 0.3.0's complete ordered setup: host, IC and Cargo tools,
+  followed by the lock-selected Testkit. Run `make install-tools` explicitly;
+  offline checks stop before builds when any selected tool is unavailable.
+  Existing bundles, receipts and server artifacts remain retained.
+  [Shared #98](https://github.com/dragginzgame/shared-tooling/issues/98).
+- Select private Testkit 0.31.0, retaining 0.30's bounded Cargo diagnostics and
+  complete tool/workspace probe admission. Adopt incoming direct Host 0.12
+  with unchanged runtime sources. Keep existing PocketIC ownership and server
+  selection.
+  [#39](https://github.com/dragginzgame/ic-blob-storage/issues/39),
+  [Testkit #49](https://github.com/dragginzgame/ic-testkit/issues/49),
+  [Testkit #50](https://github.com/dragginzgame/ic-testkit/issues/50).
+
+### Fixed
+
+- Adopt Shared's CI-log inspection fix so missing failed-step logs remain an
+  explicit evidence gap with retained readbacks.
+  [Shared #97](https://github.com/dragginzgame/shared-tooling/issues/97).
+
 ## [0.22.0] - 2026-10-10
 
 ### Breaking

@@ -5,6 +5,8 @@ SHELL := /bin/bash
 export CARGO_TARGET_DIR := $(CURDIR)/target
 IC_TOOL_PINS ?= ci/ic-tools.tsv
 HOST_TOOL_VERSIONS ?= ci/tool-versions.env
+LOCAL_TOOL_INSTALL_TARGETS := install-testkit
+LOCAL_TOOL_CHECK_TARGETS := testkit-check
 include make/tools.mk
 include make/release.mk
 include make/rust-format.mk
@@ -34,7 +36,7 @@ CI_TARGETS := shared-tooling-check tools-check dependency-pins-check documentati
 	release-version release-preflight release-prepare-version release-prepared-check release-files \
 	release-commit-check release-committed-check release-tagged-check release-push-check \
 	release-tag-check publish publish-dry-run install-hooks release-tools-check hooks-check evidence-check
-.PHONY: test-hard-cut test-native-host msrv-check tasks install-tools tools-check install-host-tools host-tools-check install-ic-tools ic-tools-check
+.PHONY: test-hard-cut test-native-host msrv-check tasks
 .PHONY: contracts-boundary-check documentation-links-check release-commands-check shared-tooling-tests tooling-evidence-check
 .PHONY: install-testkit testkit-check
 
@@ -96,13 +98,10 @@ deps:
 shared-tooling-check:
 	bash scripts/ci/verify-shared-tooling-snapshot.sh
 
-install-tools: install-rust-tools install-testkit
-tools-check: rust-tools-check testkit-check
-
-install-testkit: install-host-tools
+install-testkit:
 	bash scripts/dev/testkit-server.sh setup
 
-testkit-check: host-tools-check
+testkit-check:
 	bash scripts/dev/testkit-server.sh check
 
 shared-tooling-tests:

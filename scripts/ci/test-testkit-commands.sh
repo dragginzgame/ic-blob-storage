@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
+unset MAKEFLAGS MFLAGS MAKEOVERRIDES GNUMAKEFLAGS MAKEFILES
 root="${BASH_SOURCE[0]}"
 [[ "$root" == /* ]] || root="$PWD/$root"
 root="$(cd -P "${root%/*}/../.." && printf '%s/.' "$PWD")"
@@ -25,6 +26,11 @@ set -euo pipefail
 printf 'install' >> "$TESTKIT_COMMAND_LOG"
 printf ' <%s>' "$@" >> "$TESTKIT_COMMAND_LOG"
 printf '\n' >> "$TESTKIT_COMMAND_LOG"
+if [[ $# == 4 || ( $# == 5 && "$5" == --check ) ]]; then
+    [[ "$1" == --consumer && "$2" == "$TESTKIT_FIXTURE_ROOT" && "$3" == --versions ]]
+    [[ "${TESTKIT_FAIL:-}" != common-rust ]] || exit 23
+    exit 0
+fi
 [[ $# == 10 || ( $# == 11 && "${11}" == --check ) ]]
 [[ "$1" == --consumer && "$2" == "$TESTKIT_FIXTURE_ROOT" && "$3" == --package &&
    "$4" == ic-testkit && "$5" == --version && "$6" == 0.25.5 &&
@@ -106,4 +112,59 @@ for shape in missing duplicate; do
     [[ ! -s "$TESTKIT_COMMAND_LOG" ]]
 done
 cp "$fixture/selected-lock" "$consumer/Cargo.lock"
+# Exercise this consumer's real aggregate and extension under parallel Make.
+mkdir -p "$consumer/make" "$consumer/scripts/release" "$consumer/ci" "$fixture/bin"
+cp "$root/Makefile" "$consumer/Makefile"
+cp "$root"/make/{tools,release,rust-format,execution}.mk "$consumer/make/"
+cp "$root/scripts/ci/check-make-execution.sh" "$consumer/scripts/ci/"
+printf 'print "0.22.0\\n";\n' > "$consumer/scripts/release/release-data.pl"
+for kind in host ic; do
+    cat > "$consumer/scripts/dev/install-$kind-tools.sh" <<'COMMON'
+#!/usr/bin/env bash
+set -euo pipefail
+kind="${0##*/install-}"
+kind="${kind%-tools.sh}"
+printf 'common-%s\n' "$kind" >> "$TESTKIT_COMMAND_LOG"
+[[ "${TESTKIT_FAIL:-}" != "common-$kind" ]] || exit 23
+COMMON
+done
+# No compiler or build may run after failed admission.
+cat > "$fixture/bin/cargo" <<'CARGO'
+#!/usr/bin/env bash
+printf 'unexpected-build\n' >> "$TESTKIT_COMMAND_LOG"
+exit 98
+CARGO
+chmod +x "$fixture/bin/cargo"
+printf '# Substitute boundary check; no build.\n' > "$consumer/scripts/ci/check-runtime-free-contracts.sh"
+for target in install-tools tools-check; do
+    action=setup; [[ "$target" != tools-check ]] || action=check
+    : > "$TESTKIT_COMMAND_LOG"
+    make --no-print-directory -j4 -C "$consumer" "$target" > "$fixture/$target.log" 2>&1
+    [[ "$(wc -l < "$TESTKIT_COMMAND_LOG" | tr -d ' ')" == 5 ]]
+    printf 'common-host\ncommon-ic\n' > "$fixture/common-expected"
+    head -2 "$TESTKIT_COMMAND_LOG" > "$fixture/common-actual"
+    cmp "$fixture/common-expected" "$fixture/common-actual"
+    [[ "$(sed -n '3p' "$TESTKIT_COMMAND_LOG")" == 'install <--consumer>'*'<--versions>'* ]]
+    [[ "$(sed -n '4p' "$TESTKIT_COMMAND_LOG")" == 'install <--consumer>'*'<--package> <ic-testkit>'* ]]
+    [[ "$(tail -1 "$TESTKIT_COMMAND_LOG")" == "cli <$action> <--directory> <$consumer/.tools/testkit-server>" ]]
+    if [[ "$action" == check ]]; then
+        [[ "$(grep -c '<--check>' "$TESTKIT_COMMAND_LOG")" == 2 ]]
+    elif grep -F '<--check>' "$TESTKIT_COMMAND_LOG" >/dev/null; then exit 1; fi
+    cp "$TESTKIT_COMMAND_LOG" "$fixture/ordered-expected"
+    admitted_targets=("$target")
+    [[ "$target" != tools-check ]] || admitted_targets[1]=test-native-host
+    count=0
+    for failure in common-host common-ic common-rust install "$action"; do
+        count=$((count + 1))
+        for admitted_target in "${admitted_targets[@]}"; do
+            : > "$TESTKIT_COMMAND_LOG"
+            if TESTKIT_FAIL="$failure" PATH="$fixture/bin:$PATH" \
+                make --no-print-directory -j4 -C "$consumer" "$admitted_target" \
+                > "$fixture/$admitted_target-$failure.log" 2>&1; then exit 1; fi
+            head -"$count" "$fixture/ordered-expected" > "$fixture/refused-expected"
+            cmp "$fixture/refused-expected" "$TESTKIT_COMMAND_LOG"
+        done
+    done
+    cmp "$fixture/selected-lock" "$consumer/Cargo.lock"
+done
 echo 'Locked Testkit setup/check, admitted server handoff and failure propagation passed (substitute tools)'

@@ -6,7 +6,39 @@
 
 Date: 2026-10-10
 
-## Current continuation — released 0.21.5, pending 0.22.0
+## Current continuation — released 0.22.0, pending 0.22.1
+
+- Released HEAD is `9063e3e`, with validated source
+  `bebd55aa01bcc711b44f36f4765133540ec5b89a`. All twelve package versions and
+  the finalized receipt remain 0.22.0. Preserve incoming Testkit 0.31.0 and
+  direct Host artifacts/fs 0.12.0. Memory 0.34.1, Metrics 0.4.0 and PocketIC
+  16.1.0 stay selected. Testkit retains its private Host 0.11 graph; no override
+  or sibling edits are introduced. Consumed Rust sources are unchanged from
+  Testkit 0.30 and Host 0.11.
+- Adopt reviewed committed Shared Tooling 0.3.0
+  `88a73139a0f083344c41a6f6f4b5c3a8aca7dc1d` through the canonical exporter,
+  preserving the 96-file selection and excluding dirty sibling edits.
+  Common setup/check runs host → IC → Cargo → Testkit, stopping on failure.
+  Existing Testkit-owned server selection and caller overrides remain unchanged.
+- [The adoption record](../evidence/testkit030shared0300221.md) binds source,
+  complete setup, parallel consumer ordering and validation to this new graph.
+  Complete setup/offline admission/reuse, parallel Bash 5/3.2 fixtures, Rust
+  1.88 native/Wasm checks and the remaining delivery gate pass. Reuse unchanged
+  tooling/release/hook results from the first run; its changed-input failure
+  remains retained. Final tests include 643 native cases and the complete
+  PocketIC target, including 73 standalone and 123 storage cases; extracted
+  packages pass. All 14,696 compiler inputs and 22,983 retained tool files stay
+  unchanged. Earlier 0.22.0 results are not relabelled.
+- [Blob #39 feedback](https://github.com/dragginzgame/ic-blob-storage/issues/39#issuecomment-6096739994) and
+  [Shared #98 feedback](https://github.com/dragginzgame/shared-tooling/issues/98#issuecomment-6096744453) record delivery evidence; committed native
+  acceptance remains open. Released 0.22.0 CI passes Linux/MSRV/Apple Silicon,
+  with Intel macOS queued; Testkit 0.31 native macOS remains queued.
+- Pending 0.22.1 is compatible private tooling maintenance: no public Blob API,
+  stored schema or public Memory identity change. No sibling edit, agent commit,
+  push, release, publication or paid/deployed provider effect. Native macOS
+  acceptance and provider/application evidence retain their existing owners.
+
+## Earlier continuation — released 0.21.5, pending 0.22.0
 
 - Preserve the incoming manifest/lock selecting published Memory 0.34.1, all
   four private Host crates 0.11.0, Metrics 0.4.0 and Testkit 0.29.0. Package

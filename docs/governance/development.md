@@ -56,11 +56,14 @@ Provision the reviewed jq/yq, ripgrep with PCRE2, cloc and common IC executables
 explicitly with `make install-tools` before validation. The reviewed
 `make/tools.mk` snapshot owns setup, offline verification and LOC recipes.
 Make selects `.tools/host/bin`, `.tools/ic/bin` and `.tools/rust/bin`;
-the offline checkers never download missing tools. The aggregate targets attach
-the shared Cargo-tool installer/checker; CI uses the same owner rather than a
-separate cargo-sort install recipe. The aggregate also explicitly provisions the
-lock-selected Testkit CLI/server with `make install-testkit`; `make testkit-check`
-authenticates it offline. Tool installation may compile and use the
+the offline checkers never download missing tools. The shared aggregate runs
+host, IC and Cargo setup/check stages in order, stopping on the first failure,
+including under parallel Make. Blob extends `LOCAL_TOOL_INSTALL_TARGETS` and
+`LOCAL_TOOL_CHECK_TARGETS` with the existing `install-testkit` and `testkit-check`
+owner targets after the common set. Primitive Testkit targets do only their
+named operation; CI uses the same complete aggregate. `make install-testkit`
+provisions the lock-selected CLI/server; `make testkit-check` authenticates it
+offline. Tool installation may compile and use the
 network; it stays explicit and separate from ordinary validation.
 `make test-native-host` is the focused CLI/example/PocketIC installation and
 Metrics restoration-read check used by

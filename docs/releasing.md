@@ -38,7 +38,7 @@ Memory 0.33 changes the public re-export's type identity, requiring aligned
 consumer dependencies and rebuilds. Runtime schemas are unchanged; cross-release
 installation retirement/reinstall requirements still apply.
 
-Pending 0.22.0 adopts public Memory 0.34's host-owned allocation pool. Rebuild
+Released 0.22.0 adopts public Memory 0.34's host-owned allocation pool. Rebuild
 consumers with aligned Memory identities and explicit namespace grants; complete
 the retirement runbook before cross-release reinstall. Same-release restore and
 uncertain provider obligations remain required. The reviewed Shared 0.2.13
@@ -52,7 +52,16 @@ before full validation, then rechecks source identity and cleanliness. Ordinary
 checks remain offline; saved-release recovery
 and post-validation metadata preparation do not repeat setup.
 
-That release changes capacity reply/preflight shapes: rebuild consumers for
+Pending compatible 0.22.1 adopts Shared Tooling 0.3.0, private Testkit 0.31
+and direct Host 0.12.
+Prepare the declared Rust toolchain, run `make install-tools` explicitly, then
+`make tools-check` and `make release-tools-check`. Complete host, IC and Cargo
+stages run in order before the existing Testkit owner target, stopping on
+failure. Previous tool/server artifacts remain retained; offline validation
+never prepares missing tools. Public Blob contracts and stored schemas are
+unchanged. See [the adoption record](evidence/testkit030shared0300221.md).
+
+Released 0.21.0 changes capacity reply/preflight shapes: rebuild consumers for
 the three mandatory byte headrooms and dimension-specific blocker names. The
 usable minimum and stored schemas remain unchanged. Shared Tooling's upstream
 exporter fixture is omitted from the 92-file snapshot and consumer gate; actual
@@ -150,7 +159,7 @@ do not bypass the runner's saved intent or reuse validation from another source.
 From committed clean source on the selected branch:
 
 ```bash
-make release-minor # Pending 0.22.0 public Memory hard cut.
+make release-patch # Pending 0.22.1 private tooling maintenance.
 # For another batch, select patch/minor/major from its complete compatibility.
 ```
 
