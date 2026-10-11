@@ -18,10 +18,15 @@ trap finish EXIT
 
 # Inject disposable copies of actual entrypoints before their first assertion.
 # No production test hook, Git mutation, build or publication is involved.
-for script in scripts/release/test-release.sh scripts/ci/test-tooling-evidence.sh scripts/ci/test-testkit-commands.sh scripts/ci/test-library-packages.sh scripts/ci/check-validation-logging.sh scripts/ci/check-format-hooks.sh scripts/ci/verify-library-packages.sh; do
+for script in scripts/release/test-release.sh scripts/ci/test-tooling-evidence.sh scripts/ci/test-testkit-commands.sh scripts/ci/test-library-packages.sh scripts/ci/check-validation-logging.sh scripts/ci/check-format-hooks.sh scripts/ci/verify-library-packages.sh scripts/ci/collect-tooling-evidence.sh; do
     owner=fixture
     boundary='trap finish_fixture EXIT'
     failures=(nounset zero nonzero command comparison)
+    if [[ "$script" == scripts/ci/collect-tooling-evidence.sh ]]; then
+        owner=selection
+        boundary="      exit \"\$status\"' EXIT"
+        failures=(nounset zero nonzero command)
+    fi
     if [[ "$script" == scripts/ci/verify-library-packages.sh ]]; then
         owner=package_verification
         boundary='trap finish_verification EXIT'
@@ -56,6 +61,10 @@ for script in scripts/release/test-release.sh scripts/ci/test-tooling-evidence.s
         esac
         case_root="$fixture/${script##*/}-$failure"
         mkdir -p "$case_root/${script%/*}" "$case_root/tmp"
+        case_args=()
+        if [[ "$script" == scripts/ci/collect-tooling-evidence.sh ]]; then
+            case_args=("$case_root" "$case_root/tmp" "$case_root/evidence.tar.gz")
+        fi
         if [[ "$script" == scripts/ci/verify-library-packages.sh ]]; then
             mkdir -p "$case_root/scripts/release"
             cp "$root/scripts/release/release-data.pl" "$case_root/scripts/release/"
@@ -71,9 +80,9 @@ for script in scripts/release/test-release.sh scripts/ci/test-tooling-evidence.s
             END { if (injected != 1) exit 1 }
         ' "$root/$script" > "$case_root/$script"
         status=0
-        CARGO_TARGET_DIR="$case_root/target" TMPDIR="$case_root/tmp" bash "$case_root/$script" > "$case_root/result.log" 2>&1 || status=$?
+        CARGO_TARGET_DIR="$case_root/target" TMPDIR="$case_root/tmp" bash "$case_root/$script" ${case_args[@]+"${case_args[@]}"} > "$case_root/result.log" 2>&1 || status=$?
         [[ "$status" == "$expected" ]] || exit 1
-        retained="$(sed -n 's/^.*fixture retained: //p; s/^Full logs and isolated fixture retained: //p; s/^Hook fixture\/evidence retained: //p; s/^Package verification failed; evidence retained: //p' "$case_root/result.log")"
+        retained="$(sed -n 's/^.*fixture retained: //p; s/^Full logs and isolated fixture retained: //p; s/^Hook fixture\/evidence retained: //p; s/^Package verification failed; evidence retained: //p; s/^Tooling evidence selection retained: //p' "$case_root/result.log")"
         [[ -f "$retained/probe.txt" && "$(cat "$retained/probe.txt")" == evidence ]] || exit 1
         if grep -F 'passed' "$case_root/result.log" >/dev/null || grep -F 'tests: PASS' "$case_root/result.log" >/dev/null; then exit 1; fi
     done

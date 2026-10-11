@@ -184,8 +184,12 @@ framework-owned default runtime, so absence cannot silently select a bucket poli
 or create a second manager. These helpers do not grant exclusive access themselves:
 the host must assign the handles to one storage owner. Standalone uses the shared
 mapping with its unchanged configuration grant, range and bucket policy.
-Framework consumers own their generic lifecycle wrapper and endpoint adapter;
-Canic integration remains deferred; [GitHub issues](https://github.com/dragginzgame/ic-blob-storage/issues)
+Framework consumers own their generic lifecycle wrapper and endpoint adapter.
+The [recorded Canic composition review](evidence/canic0216.md) covers its selected
+adapter and managed consumers; it does not qualify another release graph or
+deployed application. Canic owns ongoing mounting, package alignment and
+composition acceptance under [Canic #444](https://github.com/dragginzgame/canic/issues/444).
+[GitHub issues](https://github.com/dragginzgame/ic-blob-storage/issues)
 track consumer adoption. This contract owns the required service behavior.
 
 `ops::service::installation::ValidatedServiceInstallation` also validates the

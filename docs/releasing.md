@@ -84,15 +84,33 @@ See [the adoption records](evidence/shared0370224.md).
 
 Released 0.22.5 strengthens coordinated archive admission and final integrity;
 fixture-only registry overrides remain separate from normal publication checks.
-Pending compatible 0.22.6 adopts Shared 0.3.11 and private Host 0.13/Metrics 0.6,
-without changing Blob's public contracts or service schemas. Prepare its selected
-Testkit 0.33.2 CLI explicitly with `make install-testkit`; retain previous CLI
-slots and authenticated PocketIC 16.1.0. See
-[the continuation record](evidence/shared03110226.md) for the exact qualified graph
-and delivery/native acceptance. Package versions and the release receipt remain
-0.22.5 until the maintainer's release transaction.
+Released 0.22.6 adopts Shared 0.3.11 and private Host 0.13/Metrics 0.6,
+without changing Blob's public contracts or service schemas. Its final lock
+selects Host 0.13.0, Metrics 0.6.1, Memory 0.35.7 and Testkit 0.33.3. Retain
+previous CLI slots and authenticated PocketIC 16.1.0. The
+[earlier continuation record](evidence/shared03110226.md) remains bound to its
+older agent-qualified graph; [current status](status/current.md) identifies the
+actual released receipt and matching hosted acceptance.
 The native CI lanes run coordinated archive qualification explicitly and retain
 its inputs and attempts independently of normal registry publication admission.
+
+Pending compatible 0.22.7 adopts Shared 0.5.0, including its 0.4 Rust installation
+changes without changing Blob's published contracts. Existing checkouts must run
+explicit `make install-tools`, then offline `make tools-check`; standalone common
+setup is `make install-rust-tools` after preparing shared host prerequisites.
+Select `.tools/rust/common/bin` for interactive commands. Keep old in-place tools,
+slots and failed attempts; there is no legacy fallback or automatic cleanup.
+Shared host/IC bundles now use a per-user store. Existing checkouts must rerun
+host/IC setup; old physical local bundles are retained but no longer admitted
+as active installations. Keep `.tools/host/bin` and `.tools/ic/bin` on PATH and
+use the same store setting for setup, offline checks and collection. Cargo slots
+and PocketIC storage stay local. Contributor
+setup changes alone do not require a Blob minor bump or separate publication.
+The incoming lock selects Host 0.13.1, Metrics 0.6.2 and Testkit 0.33.4; existing product/compiler
+evidence does not qualify it. See [the adoption record](evidence/shared0500227.md),
+including setup, evidence retention and remaining hosted
+acceptance. Package versions and the finalized receipt stay 0.22.6 until the
+maintainer's release transaction.
 
 Released 0.21.0 changes capacity reply/preflight shapes: rebuild consumers for
 the three mandatory byte headrooms and dimension-specific blocker names. The

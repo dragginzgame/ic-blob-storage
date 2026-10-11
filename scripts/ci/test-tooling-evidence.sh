@@ -31,6 +31,8 @@ collector="$root/scripts/ci/collect-tooling-evidence.sh"
 repository="$fixture/repository"
 temporary="$fixture/temp"
 mkdir -p "$repository" "$temporary" "$fixture/unpacked"
+# Store tests never select the developer's real per-user storage.
+export SHARED_TOOLING_STORE="$fixture/store"
 # A failure before any candidate/fixture exists still has no upload payload.
 empty="$(bash "$collector" "$repository" "$temporary" "$fixture/empty.tar.gz")"
 [[ -z "$empty" && ! -e "$fixture/empty.tar.gz" ]] || exit 1
@@ -53,6 +55,8 @@ printf 'not uploaded\n' > "$repository/.tools/host-set.failed/.git/config"
 printf 'ic candidate\n' > "$repository/.tools/ic-set.failed/payload"
 printf 'compiler diagnostics\n' > "$repository/.tools/rust/build/build.log"
 printf 'Testkit CLI install receipt\n' > "$repository/.tools/rust/ic-testkit-fixture/receipt"
+mkdir -p "$repository/.tools/rust/common-tool-slot/installed"
+printf 'common Cargo selection\n' > "$repository/.tools/rust/common-tool-slot/installed/selection.json"
 printf 'original server download failure\n' > "$repository/.tools/testkit-server/failed-candidate/download.stderr"
 printf 'original_status=9\n' > "$repository/target/release-tests.failed/outcome"
 printf 'portable bytes\n' > "$temporary/file-digests.failed/"$'line\nbreak:payload'
@@ -68,14 +72,41 @@ printf 'tool evidence failure\n' > "$temporary/tool-evidence-test.failed/outcome
 printf 'unrelated bytes\n' > "$temporary/unrelated/payload"
 printf 'outside selection\n' > "$temporary/outside"
 ln -s ../outside "$temporary/file-digests.failed/link"
+
+# Use the shared owner to create pre-effect references for failed generations.
+# A different checkout's candidate in the same store must not be collected.
+prepare_candidate() (
+    local candidate_consumer="$1" candidate_identity="$2"
+    consumer="$candidate_consumer"
+    tool_root="$consumer/.tools"
+    mkdir -p "$tool_root"
+    # shellcheck source=scripts/dev/tool-store.sh
+    source "$root/scripts/dev/tool-store.sh"
+    tool_store_init host "$candidate_identity"
+    tool_store_acquire
+    trap tool_store_release EXIT
+    tool_store_new
+    printf 'failed shared download\n' > "$stage/download.stderr"
+    printf '%s\n' "$stage"
+)
+shared_candidate="$(prepare_candidate "$repository" this-checkout)"
+unrelated_candidate="$(prepare_candidate "$fixture/unrelated-checkout" other-checkout)"
+shared_relative="${shared_candidate#"$SHARED_TOOLING_STORE/"}"
+unrelated_relative="${unrelated_candidate#"$SHARED_TOOLING_STORE/"}"
+ln -s "$fixture/unrelated-checkout" "$repository/.tools/host-set.unknown"
 archive="$(bash "$collector" "$repository" "$temporary" "$fixture/evidence.tar.gz")"
 [[ "$archive" == "$fixture/evidence.tar.gz" ]] || exit 1
 tar -xzf "$archive" -C "$fixture/unpacked"
 for path in .tools/host-set.failed/.hidden .tools/ic-set.failed/payload \
     .tools/rust/build/build.log .tools/rust/ic-testkit-fixture/receipt \
+    .tools/rust/common-tool-slot/installed/selection.json \
     .tools/testkit-server/failed-candidate/download.stderr target/release-tests.failed/outcome; do
     cmp "$repository/$path" "$fixture/unpacked/$path"
 done
+cmp "$shared_candidate/download.stderr" "$fixture/unpacked/$shared_relative/download.stderr"
+[[ ! -e "$fixture/unpacked/$unrelated_relative" && \
+   -L "$fixture/unpacked/.tools/host-set.unknown" ]] || exit 1
+[[ "$(readlink "$fixture/unpacked/.tools/host-set.unknown")" == "$fixture/unrelated-checkout" ]] || exit 1
 for path in $'file-digests.failed/line\nbreak:payload' \
     host-tools-test.failed/Linux:x86_64/executable nonempty-cargo-test.failed.log formatting.failed \
     blob-validation-logging.failed/status evidence-archive.failed/outcome \

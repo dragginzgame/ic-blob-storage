@@ -32,13 +32,13 @@ Agent requests such as `check CI`, `check issues` and `check for work` follow th
 repository's `Release and formatting tooling` workflow at the selected source; dirty changes have no
 remote result. Session instructions can enable inspections after each completed
 batch. Explicit repair requests authorize scoped fixes and focused checks;
-full delivery validation follows the adopted baseline; release effects retain
-their separate authority. Relevant issue
+full CI/release validation requires its own instruction under the maintainer's
+local command boundary; release effects retain their separate authority. Relevant issue
 work follows the shared maintenance rules.
 
-Use targeted checks while implementing. Before delivering completed code as ready,
-run the documented full suite under the adopted baseline's standing validation
-authority. Inspection-only tasks do not authorize this suite. Documentation-only
+Use targeted checks while implementing. Do not infer full CI/release validation
+authority from generic continuation or readiness wording, as instructed in
+[AGENTS.md](../../AGENTS.md#style-and-checks). Documentation-only
 work needs links, consistency and diff checks; release commands retain separate
 explicit authority.
 Primitive Make targets do only their named operation. The complete current
@@ -55,11 +55,22 @@ run `make deps` before them after dependency changes or cache removal.
 Provision the reviewed jq/yq, ripgrep with PCRE2, cloc and common IC executables
 explicitly with `make install-tools` before validation. The reviewed
 `make/tools.mk` snapshot owns setup, offline verification and LOC recipes.
-Make selects `.tools/host/bin`, `.tools/ic/bin` and `.tools/rust/bin`;
+Make selects `.tools/host/bin`, `.tools/ic/bin` and `.tools/rust/common/bin`;
 the offline checkers never download missing tools. The shared aggregate runs
 host, IC and Cargo setup/check stages in order, stopping on the first failure,
-including under parallel Make. Shared 0.3.11 retains read-only IC/platform and
-Rust/Cargo preflight before common installation; offline checks never run setup.
+including under parallel Make. Shared's reviewed 0.4.0 changes retain read-only
+IC/platform and Rust/Cargo preflight before common installation. Common Rust
+tools now use the selected Cargo installer's versioned slots, receipt and byte
+admission; the complete set is activated atomically through `common`. Explicit
+`make install-rust-tools` prepares this new layout without converting or deleting
+old installations. Offline checks never run setup.
+Shared 0.5.0 stores verified host/IC bundles per user; `.tools/host/bin` and
+`.tools/ic/bin` remain this checkout's exact selections. Refresh both installers,
+their store companion and evidence selection together, then explicitly rerun
+host/IC setup and offline checks. Use one store setting for all three operations.
+Cargo slots stay local. Blob must not add an independent store or bespoke
+installer, relocate retained artifacts or select mutable sibling tools. See
+[shared executable storage](../local-setup.md#shared-executable-storage).
 Cargo-bearing local recipes preserve Make's jobserver descriptors through their
 shell adapters. Blob extends `LOCAL_TOOL_INSTALL_TARGETS` and
 `LOCAL_TOOL_CHECK_TARGETS` with the existing `install-testkit` and `testkit-check`
@@ -129,6 +140,10 @@ exact returned ID; passing local checks do not qualify that transport. Ordinary
 failure collection preserves scoped tool candidates and fixtures in one archive
 with 30-day retention. Original inputs and failed partial archives remain if
 collection fails; collection does not clear the original job failure.
+Blob's collector delegates full shared host/IC selection to
+`select-tool-evidence.sh`, retaining only this checkout's admitted referenced
+payloads, prior local bundles and local Rust/Testkit evidence. Unknown links
+remain unfollowed; unrelated entries in the per-user store are excluded.
 `make hooks-check` supplies the consumer's real formatter inputs to the shared
 adoption checker using Cargo's complete member roster and each member's Rust
 sources, including packages not yet present in HEAD. It retains the additional
@@ -169,6 +184,10 @@ transaction generates the release record after validation succeeds.
 
 Pre-1.0 breaking public API or semantic changes use a minor version even
 though removed contracts are hard-cut. Compatible fixes may use patch.
+Assess this repository's published consumer boundary: contributor-only Shared
+Tooling adoption does not inherit the upstream minor bump or require a separate
+crate publication. Public/exposed dependency types, runtime behavior, product
+CLI/output, supported consumer builds and stored contracts still need review.
 Do not version each implementation slice or bump Cargo during routine coding.
 
 Maintain CHANGELOG.md for meaningful behavior and maintained tooling changes.

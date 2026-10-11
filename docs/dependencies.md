@@ -4,7 +4,39 @@
 
 # Dependency setup
 
-## Current graph — released 0.22.5, pending 0.22.6
+## Current graph — released 0.22.6, pending 0.22.7
+
+All twelve package versions and the finalized receipt remain 0.22.6. The released
+lock selects one Memory 0.35.7 identity, private Metrics 0.6.1, Testkit 0.33.3 and
+all four Host 0.13.0. PocketIC remains 16.1.0 and the Rust floor remains 1.88.
+Incoming lock edits select all four Host 0.13.1, private Metrics 0.6.2 and
+Testkit 0.33.4. Preserve them;
+the earlier release and tooling results do not qualify this new graph. No
+dependency requirement or repository package version is changed by adoption.
+
+Adopt committed Shared 0.5.0 `a306180ce534227fcb98b882fba9a526d5d747e0`
+through the canonical exporter. Retain the existing selection and pins, adding
+the required store runtime and fixture companions for 101 files. Common Rust
+tools use receipt- and byte-admitted versioned
+slots and the complete `.tools/rust/common/bin` selection. Run explicit
+`make install-rust-tools`, then `make rust-tools-check`; old binaries, slots and
+failed attempts remain retained. The full `make install-tools` also prepares the
+lock-selected Testkit CLI before offline `make tools-check`.
+Shared Tooling now stores host/IC bundles per user, with exact checkout-local
+references at `.tools/host/bin` and `.tools/ic/bin`. Existing physical local
+bundles are retained but no longer admitted as active installations: explicitly
+run `make install-host-tools install-ic-tools`, then their offline checks.
+Use the same `SHARED_TOOLING_STORE` setting for setup, checks and collection;
+the default is `${XDG_DATA_HOME:-$HOME/.local/share}/shared-tooling/tools`.
+Cargo slots and PocketIC remain with their current local owners. Do not add a
+Blob store, copy payloads, select sibling tools or delete retained evidence.
+See [the storage boundary](local-setup.md#shared-executable-storage),
+[the new adoption evidence](evidence/shared0500227.md),
+[the preceding Rust installation evidence](evidence/shared0400227.md) and
+[the preceding temporary-path evidence](evidence/shared03120227.md); earlier graph
+qualification below remains historical.
+
+## Earlier graph — released 0.22.5, pending 0.22.6
 
 All twelve package versions and the finalized receipt remain 0.22.5. Its committed
 lock selects Memory 0.35.6, Metrics 0.5.6, Testkit 0.33.1 and all four Host 0.12.10.
@@ -373,7 +405,7 @@ Missing prerequisites fail rather than being installed
 during a hook or validation. Cargo-sort's exact reviewed version is recorded in
 [tool versions](../ci/tool-versions.env). That file also owns jq/yq selections;
 [the IC matrix](../ci/ic-tools.tsv) owns executable versions and archive digests.
-Make prepends `.tools/host/bin`, `.tools/ic/bin` and `.tools/rust/bin` to PATH. Missing local tools
+Make prepends `.tools/host/bin`, `.tools/ic/bin` and `.tools/rust/common/bin` to PATH. Missing local tools
 fail validation; provisioning is explicit and separate from locked Cargo fetching.
 This consumer uses the shared host-tool bundle for jq/yq; the optional upstream
 standalone yq installer is not included in its snapshot.

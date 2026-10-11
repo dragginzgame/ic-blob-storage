@@ -7,6 +7,9 @@ ROOT="${BASH_SOURCE[0]}"
 ROOT="$(cd -P "${ROOT%/*}/../.." && printf '%s/.' "$PWD")"
 ROOT="${ROOT%/.}"
 TEMPORARY="$(mktemp -d "${TMPDIR:-/tmp}/blob-format-hooks.XXXXXX")"
+TEMPORARY="$(cd -P "$TEMPORARY" && printf '%s/.' "$PWD")"
+TEMPORARY="${TEMPORARY%/.}"
+export TMPDIR="${TEMPORARY%/*}"
 fixture_complete=false
 finish() {
     local status=$?

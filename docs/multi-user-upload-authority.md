@@ -4,7 +4,7 @@ The maintainer selected project-approved per-upload authority for
 [#31](https://github.com/dragginzgame/ic-blob-storage/issues/31). Released 0.19.0
 removed the installed single-uploader restriction. This was a public API, CLI,
 Candid and installation-format hard cut; historical 0.18 releases retain their
-former contract. The current 0.21 line retains per-upload authority.
+former contract. The current contract retains per-upload authority.
 
 ## Reuse the existing authenticated project permission
 

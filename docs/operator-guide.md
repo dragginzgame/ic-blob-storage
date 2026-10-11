@@ -395,10 +395,15 @@ The first live trial and its template deliberately retain their small envelope.
 | Active upload and read limits | Explicit publisher concurrency and read-session/byte/reply budgets; these are independent of the object maximum |
 
 Client upload and whole-download budgets must also cover each selected object.
-Keep one configured trusted publisher and exact tenant permissions; controller
-status grants no upload authority. This sizing change requires a minor release
-and an appropriately configured consumer installation, not an in-place reset of
-the old trial owner. It does not qualify provider economics or public delivery.
+The enrolled tenant approves each exact uploader permission through
+[per-upload authority](multi-user-upload-authority.md); it may authorize multiple
+browser principals. The application owns user authentication and capability
+checks before admission. Controller status grants no upload authority, and the
+installed completion verifier remains a separate role. Choose resource limits
+for the new installation; changing an existing installation's immutable limits
+requires [retirement and reinstall](retiring-installations.md), preserving its
+provider and billing obligations. Sizing does not qualify provider economics or
+public delivery.
 
 ### Larger inventories and a dedicated storage owner
 

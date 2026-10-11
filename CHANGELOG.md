@@ -1,5 +1,38 @@
 # Changelog
 
+## [0.22.7]
+
+### Changed
+
+- Adopt Shared Tooling 0.5.0: share verified host and IC bundles per user while
+  keeping each checkout's pinned command selection. Refresh setup and evidence
+  collection together; retain previous local bundles and failed attempts.
+  Keep Cargo tools local and install common Rust tools in
+  verified versioned slots and select the complete set at
+  `.tools/rust/common/bin`. Update CI and setup guidance; retain old installations
+  and failed attempts. Existing host/IC command paths remain under `.tools`.
+  Contributor-only adoption remains a compatible Blob patch.
+  [#59](https://github.com/dragginzgame/ic-blob-storage/issues/59),
+  [Shared #118](https://github.com/dragginzgame/shared-tooling/issues/118),
+  [#120](https://github.com/dragginzgame/shared-tooling/issues/120).
+
+### Fixed
+
+- Retain the admitted shared host/IC payloads behind this checkout's references
+  in tooling failure archives, and include the complete local Rust evidence
+  tree. Delegate shared selection to its canonical owner; exclude unrelated
+  store entries and preserve unknown links without following them.
+  [#59](https://github.com/dragginzgame/ic-blob-storage/issues/59).
+- Keep formatting and hook qualification under the selected temporary parent
+  when `TMPDIR` is relative or symlinked; preserve failure diagnostics and clean
+  successful fixtures. Adopt Shared Tooling 0.3.12 and repair the consumer wrapper.
+  [#58](https://github.com/dragginzgame/ic-blob-storage/issues/58),
+  [Shared #116](https://github.com/dragginzgame/shared-tooling/issues/116).
+- Correct operator guidance for project-approved uploaders, the separate verifier
+  and immutable installation limits; describe Canic's existing consumer-owned
+  composition without claiming qualification for another release or application.
+  [#31](https://github.com/dragginzgame/ic-blob-storage/issues/31).
+
 ## [0.22.6] - 2026-10-11
 
 ### Changed

@@ -104,7 +104,7 @@ jobs:
           make tools-check
           echo "$GITHUB_WORKSPACE/.tools/host/bin" >> "$GITHUB_PATH"
           echo "$GITHUB_WORKSPACE/.tools/ic/bin" >> "$GITHUB_PATH"
-          echo "$GITHUB_WORKSPACE/.tools/rust/bin" >> "$GITHUB_PATH"
+          echo "$GITHUB_WORKSPACE/.tools/rust/common/bin" >> "$GITHUB_PATH"
       - name: Check the snapshot, formatter and release/hook fixtures
         env:
           CARGO_NET_OFFLINE: 'true'
