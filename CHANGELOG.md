@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.22.9]
+
+### Fixed
+
+- Replace stale deferred/unpublished Canic guidance with the authenticated
+  0.111.0 adapter, current Memory pool and target-bound installation recipe.
+  Record delivered consumer qualification separately from production/provider
+  acceptance and independently locked managed examples.
+  [#31](https://github.com/dragginzgame/ic-blob-storage/issues/31),
+  [Canic #444](https://github.com/dragginzgame/canic/issues/444).
+
 ## [0.22.8] - 2026-10-11
 
 ### Changed

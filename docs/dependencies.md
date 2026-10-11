@@ -4,11 +4,11 @@
 
 # Dependency setup
 
-## Current graph — released 0.22.7, pending 0.22.8
+## Current graph — released 0.22.8, pending 0.22.9
 
-All twelve package versions and the finalized receipt remain 0.22.7. The released
-lock selects Memory 0.35.8, private Metrics 0.6.2, Testkit 0.33.5 and Host 0.13.2.
-Incoming lock edits select private Metrics 0.6.3 and Testkit 0.33.6; preserve them.
+All twelve package versions and the finalized receipt remain 0.22.8. The released
+lock selects Memory 0.35.8, private Metrics 0.6.3, Testkit 0.33.6 and Host 0.13.2.
+Incoming lock edits select Memory 0.35.9 and Host 0.13.3; preserve them.
 PocketIC remains 16.1.0 and the Rust floor remains 1.88. Earlier compiler results
 remain bound to their original graph; tool setup does not qualify these product
 inputs. Adoption changes no dependency requirement or repository package version.
@@ -968,8 +968,8 @@ neither emits a certificate or sends service/gateway traffic. See the
 
 ## Memory composition
 
-Released Blob 0.22.2 publicly re-exports `ic-memory ^0.35`; its released lock
-selects Memory 0.35.2. The incoming 0.35.3 selection remains separate from that
+Released Blob 0.22.8 publicly re-exports `ic-memory ^0.35`; its released lock
+selects Memory 0.35.8. The incoming 0.35.9 selection remains separate from that
 released graph. Hosts compose namespace grants in one host-wide allocation pool
 and open permanent keys through the committed runtime.
 Earlier Memory minor lines are not
@@ -1019,19 +1019,30 @@ pool, include the existing seventeen requests in its single snapshot and use
 key-only committed opens. Align the host, database, jobs and Blob to one Memory
 identity before qualified managed installation.
 
-Blob runtime/contracts 0.22.2 are released with the Memory 0.35 identity.
-Canic owns `canic-blob-service`, its dedicated consumer shell and its embedded
-application fixture. Keep that adapter outside this repository; do not mount the
-standalone canister inside Canic or bootstrap a second memory manager.
+The published `canic-blob-service` 0.111.0 adapter belongs to Canic's coherent
+0.111.0 family. Its authenticated registry package requires Canic `^0.111.0`,
+Blob runtime/contracts `^0.22.2` and Memory `^0.35`; its released lock selected
+Blob 0.22.4. Freeze the consumer's actual lock rather than treating those ranges
+as exact installed identities. The adapter/managed host minimum is Rust 1.91;
+Blob's standalone/library minimum remains 1.88.
 
-The [current source review](evidence/canic0223.md) distinguishes delivery from
-local acceptance. Canic's dirty main-workspace adapter and two independent
-consumer locks now select Blob 0.22.2. Canic retains separately captured passing
-Blob 0.22.1 / Memory 0.35 managed builds, 32-method Candid parity and both
-dedicated/embedded PocketIC recovery cases. Those results do not qualify its
-newer 0.22.2 graph. Framework/adapter delivery and registry-only application
-acceptance remain with [Canic #444](https://github.com/dragginzgame/canic/issues/444).
-The [earlier review](evidence/canic0216.md) retains its original 0.21.5 evidence.
+Canic owns the adapter, dedicated shell and embedded application fixture. Keep
+these outside Blob; do not mount the standalone canister inside Canic or bootstrap
+a second manager. [The current package/source review](evidence/canic0229.md)
+authenticates the published adapter and distinguishes Canic's released graph,
+dirty root and two independently locked examples. The root now selects Blob
+0.22.7 while the examples retain 0.22.4; qualifying one does not qualify the other.
+[Earlier 0.22.2 review](evidence/canic0223.md) and
+[0.21.5 review](evidence/canic0216.md) remain historical.
+
+[Toko Miner's delivered 0.4.0 acceptance](https://github.com/dragginzgame/toko-miner/issues/6#issuecomment-6107209584)
+records registry-only Canic/adapter 0.111.0 with Blob 0.22.5, disposable managed
+installation/admission and same-release restoration. This is owner-reported
+execution on its captured artifacts; it does not establish another selected
+graph, production Root installation, frozen Release-profile or provider behavior.
+[Canic #444](https://github.com/dragginzgame/canic/issues/444) and the application
+owner retain those acceptance boundaries. A dedicated shell may use
+`canic_blob_service::dto` for installation data without recreating contracts.
 
 For the Canic-owned adoption batch:
 
@@ -1061,9 +1072,10 @@ For the Canic-owned adoption batch:
    and target refusal, metrics, exact initializer, lost-result and same-image
    restoration/recovery cases. Include two tenant-approved uploaders and the
    three independent capacity headrooms. Compilation alone is insufficient.
-5. Deliver the qualified framework family and adapter under
-   [Canic #444](https://github.com/dragginzgame/canic/issues/444), then repeat
-   application-owned acceptance from clean published inputs. Apply
+5. Use the published coherent family and adapter, then qualify the selected
+   application from clean registry inputs under
+   [Canic #444](https://github.com/dragginzgame/canic/issues/444). New framework
+   or adapter changes retain their own delivery and application acceptance. Apply
    [retirement](retiring-installations.md) before a cross-release reinstall;
    same-release recovery does not authorize upgrading existing installations.
 

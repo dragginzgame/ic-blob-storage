@@ -185,9 +185,10 @@ or create a second manager. These helpers do not grant exclusive access themselv
 the host must assign the handles to one storage owner. Standalone uses the shared
 mapping with its unchanged configuration grant, range and bucket policy.
 Framework consumers own their generic lifecycle wrapper and endpoint adapter.
-The [recorded Canic composition review](evidence/canic0216.md) covers its selected
-adapter and managed consumers; it does not qualify another release graph or
-deployed application. Canic owns ongoing mounting, package alignment and
+The [published Canic adapter review](evidence/canic0229.md) authenticates 0.111.0
+and records consumer-owned disposable acceptance separately; it does not qualify
+another release graph, deployed application or provider. Canic owns ongoing
+mounting, package alignment and
 composition acceptance under [Canic #444](https://github.com/dragginzgame/canic/issues/444).
 [GitHub issues](https://github.com/dragginzgame/ic-blob-storage/issues)
 track consumer adoption. This contract owns the required service behavior.

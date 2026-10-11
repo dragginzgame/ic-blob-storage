@@ -115,12 +115,11 @@ open integration work and retained trial obligations are recorded in the
 [current status](docs/status/current.md). Earlier live trials remain frozen and
 do not establish production readiness for the current release.
 
-Pending 0.16.0 aligns the public memory re-export with ic-memory 0.30. Hosts
-must rebuild their composition with the same Memory line; 0.28-owned Rust types
-are not interchangeable. This update preserves the dependency's runtime source
-and durable layouts. Cross-release installations require safe obligation
-disposition before reinstall, as described
-in the [service contract](docs/service-contract.md#current-persisted-boundaries).
+The current 0.22 release line publicly re-exports ic-memory 0.35. Hosts compose
+one memory package identity and one allocation pool; rebuild their composition
+against that line. Cross-release installations require safe obligation
+disposition before reinstall, as described in the
+[service contract](docs/service-contract.md#current-persisted-boundaries).
 
 The library supports [host-internal funding credit confirmation](docs/funding-credit.md).
 Hosts can reconcile exact accepted top-ups using independently verified receipts
@@ -129,8 +128,13 @@ provider verification and consumer integration remain host-owned.
 
 The public library has no downstream framework dependency. Consumer frameworks
 wrap its shared workflows and own integration testing in their repositories.
-Canic adoption is deferred. The [service contract](docs/service-contract.md)
-defines wrapper and lifecycle obligations; [GitHub issues](https://github.com/dragginzgame/ic-blob-storage/issues)
+The published `canic-blob-service` 0.111.0 adapter supports dedicated and embedded
+Canic applications. Follow [the integration recipe](docs/dependencies.md#canic-integration)
+for its Rust 1.91 minimum, shared memory pool and target-bound initialization.
+[The delivery review](docs/evidence/canic0229.md) distinguishes published composition
+and reported disposable application acceptance from production/provider qualification.
+The [service contract](docs/service-contract.md) defines wrapper and lifecycle
+obligations; [GitHub issues](https://github.com/dragginzgame/ic-blob-storage/issues)
 track publication, serving and consumer integration work.
 The [issuance contract and retained trial](docs/standalone-trial.md) distinguish
 configurable upload limits from the first live owner's 1 KiB configuration.

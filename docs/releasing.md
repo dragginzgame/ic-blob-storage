@@ -94,7 +94,7 @@ actual released receipt and matching hosted acceptance.
 The native CI lanes run coordinated archive qualification explicitly and retain
 its inputs and attempts independently of normal registry publication admission.
 
-Released 0.22.7 adopts Shared 0.5.0. Pending compatible 0.22.8 adopts Shared
+Released 0.22.7 adopts Shared 0.5.0. Released 0.22.8 adopts Shared
 0.6.0's Cargo store and safe partial-evidence contract without changing Blob's
 published contracts. Prepare the declared compiler, then explicitly run
 `make install-tools` and offline `make tools-check`. Common-only setup is
@@ -106,11 +106,11 @@ offline checks and collection. Cargo tool identities include the prepared
 compiler, native environment, package source and packaged lockfile; tool builds
 use the standard shared environment. Testkit retains local PocketIC storage.
 Contributor setup changes alone do not require a Blob minor bump or separate
-publication. Incoming lock edits select Metrics 0.6.3 and Testkit 0.33.6, with Host
-0.13.2 and Memory 0.35.8 unchanged; prior product/compiler evidence does not qualify
-those edits. See [the current adoption record](evidence/shared0600228.md).
-Package versions and the finalized receipt stay 0.22.7 until the maintainer's
-release transaction.
+publication. The released lock selects Metrics 0.6.3 and Testkit 0.33.6, Host
+0.13.2 and Memory 0.35.8. Incoming Host 0.13.3/Memory 0.35.9 edits remain separate
+from that release and its compiler results. See [the current adoption record](evidence/shared0600228.md).
+Pending compatible 0.22.9 corrects Canic adoption guidance; package versions and
+the finalized receipt stay 0.22.8 until the maintainer's release transaction.
 
 Released 0.21.0 changes capacity reply/preflight shapes: rebuild consumers for
 the three mandatory byte headrooms and dimension-specific blocker names. The
