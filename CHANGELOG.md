@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.22.5]
+
+### Changed
+
+- Adopt Shared Tooling 0.3.8 and its coordinated archive qualification guidance.
+- Preserve incoming Memory 0.35.5, private Metrics 0.5.6 and all four Host 0.12.9
+  patches; their packaged Rust sources match the released selections. Keep Testkit
+  0.33.1 and unchanged public Blob contracts and stored schemas.
+
+### Fixed
+
+- Admit the exact extracted contracts/core package identities before archive
+  compilation, then require unchanged archive/source/manifest/lock bytes and
+  complete verification before reporting success. Retain rejected observations
+  and incomplete attempts; keep local registry overrides out of publication.
+  [#56](https://github.com/dragginzgame/ic-blob-storage/issues/56).
+
 ## [0.22.4] - 2026-10-10
 
 ### Changed

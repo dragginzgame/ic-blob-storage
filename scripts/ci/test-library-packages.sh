@@ -2,7 +2,6 @@
 set -euo pipefail
 # Exercise changed same-version archives against a warm target with real Cargo.
 verifier="$PWD/scripts/ci/verify-library-packages.sh"
-data="$PWD/scripts/release/release-data.pl"
 fixture_parent="${CARGO_TARGET_DIR:-$PWD/target}"
 mkdir -p "$fixture_parent"
 fixture="$(mktemp -d "$fixture_parent/package-fixture.XXXXXX")"
@@ -17,8 +16,7 @@ finish_fixture() {
     exit "$status"
 }
 trap finish_fixture EXIT
-mkdir -p "$fixture/contracts/src" "$fixture/service/src" "$fixture/scripts/release"
-cp "$data" "$fixture/scripts/release/release-data.pl"
+mkdir -p "$fixture/contracts/src" "$fixture/service/src"
 cd "$fixture"
 git init -q
 export CARGO_TARGET_DIR="$fixture/target"
@@ -75,4 +73,71 @@ if [[ "$value" != 2 ]]; then
     exit 1
 fi
 echo 'Same-version archive regression passed (warm shared target; current contract executed).'
+real_cargo="$(command -v cargo)"
+# Alter actual Cargo observations or post-build bytes in independent consumers.
+# Admission must stop before tests; final drift must retain a failed attempt.
+for failure in path source version member metadata-exit archive unpacked manifest lock; do
+    case_root="$fixture/refusal-$failure with spaces π"
+    mkdir -p "$case_root/bin"
+    cp Cargo.toml Cargo.lock "$case_root/"
+    cp -R contracts service "$case_root/"
+    cat > "$case_root/bin/cargo" <<'CARGO'
+#!/usr/bin/env bash
+set -euo pipefail
+if [[ "$1" == metadata && " $* " != *' --no-deps '* ]]; then
+    "$PACKAGE_REAL_CARGO" "$@" > "$PACKAGE_CASE_ROOT/observed.json"
+    PACKAGE_CASE_ROOT="$PACKAGE_CASE_ROOT" perl -MJSON::PP -0777 -e '
+        my $metadata = decode_json(<>);
+        for my $package (@{$metadata->{packages}}) {
+            next unless $package->{name} eq "ic-blob-storage-contracts";
+            $package->{manifest_path} = "$ENV{PACKAGE_CASE_ROOT}/contracts/Cargo.toml"
+                if $ENV{PACKAGE_FAILURE} eq "path";
+            $package->{source} = "registry+https://github.com/rust-lang/crates.io-index"
+                if $ENV{PACKAGE_FAILURE} eq "source";
+            $package->{version} = "0.17.1" if $ENV{PACKAGE_FAILURE} eq "version";
+        }
+        push @{$metadata->{workspace_members}}, $metadata->{workspace_members}[0]
+            if $ENV{PACKAGE_FAILURE} eq "member";
+        print encode_json($metadata);
+    ' "$PACKAGE_CASE_ROOT/observed.json"
+    [[ "$PACKAGE_FAILURE" != metadata-exit ]] || exit 23
+    exit 0
+fi
+if [[ "$1" == test ]]; then printf 'test\n' >> "$PACKAGE_CASE_ROOT/effects"; fi
+"$PACKAGE_REAL_CARGO" "$@"
+if [[ "$1" == test && ! -e "$PACKAGE_CASE_ROOT/injected" ]]; then
+    touch "$PACKAGE_CASE_ROOT/injected"
+    case "$PACKAGE_FAILURE" in
+        archive) printf '\n' >> "$PACKAGE_CASE_ROOT/target/package/ic-blob-storage-contracts-0.17.2.crate" ;;
+        unpacked)
+            for source in "$PACKAGE_CASE_ROOT"/target/package/blob-verification.*/ic-blob-storage-contracts-0.17.2/src/lib.rs; do
+                printf '\n// injected source drift\n' >> "$source"
+            done ;;
+        manifest) printf '\n' >> "$PACKAGE_CASE_ROOT/Cargo.toml" ;;
+        lock) printf '\n' >> "$PACKAGE_CASE_ROOT/Cargo.lock" ;;
+    esac
+fi
+CARGO
+    chmod +x "$case_root/bin/cargo"
+    status=0
+    (cd "$case_root"; PATH="$case_root/bin:$PATH" CARGO_TARGET_DIR="$case_root/target" \
+        PACKAGE_REAL_CARGO="$real_cargo" PACKAGE_CASE_ROOT="$case_root" PACKAGE_FAILURE="$failure" \
+        bash "$verifier") > "$case_root/result.log" 2>&1 || status=$?
+    [[ "$status" != 0 ]] || exit 1
+    [[ "$failure" != metadata-exit || "$status" == 23 ]] || exit 1
+    retained="$(sed -n 's/^Package verification failed; evidence retained: //p' "$case_root/result.log")"
+    [[ -f "$retained/metadata.json" && -f "$retained/entry-Cargo.lock" ]] || exit 1
+    if grep -F 'Coordinated archive graph, tests and final integrity checks passed.' "$case_root/result.log" >/dev/null; then exit 1; fi
+    case "$failure" in
+        path|source|version)
+            [[ ! -e "$case_root/effects" ]] || exit 1
+            grep -F 'resolved package is not the exact extracted payload: ic-blob-storage-contracts' "$case_root/result.log" >/dev/null ;;
+        metadata-exit) [[ ! -e "$case_root/effects" ]] || exit 1 ;;
+        member)
+            [[ ! -e "$case_root/effects" ]] || exit 1
+            grep -F 'unexpected extracted workspace member' "$case_root/result.log" >/dev/null ;;
+        *) [[ "$(wc -l < "$case_root/effects" | tr -d ' ')" == 2 ]] || exit 1 ;;
+    esac
+done
+echo 'Archive graph admission and final byte/source/manifest/lock drift refusals passed.'
 fixture_complete=true

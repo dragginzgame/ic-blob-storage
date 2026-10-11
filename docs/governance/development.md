@@ -58,7 +58,7 @@ explicitly with `make install-tools` before validation. The reviewed
 Make selects `.tools/host/bin`, `.tools/ic/bin` and `.tools/rust/bin`;
 the offline checkers never download missing tools. The shared aggregate runs
 host, IC and Cargo setup/check stages in order, stopping on the first failure,
-including under parallel Make. Shared 0.3.7 retains read-only IC/platform and
+including under parallel Make. Shared 0.3.8 retains read-only IC/platform and
 Rust/Cargo preflight before common installation; offline checks never run setup.
 Cargo-bearing local recipes preserve Make's jobserver descriptors through their
 shell adapters. Blob extends `LOCAL_TOOL_INSTALL_TARGETS` and

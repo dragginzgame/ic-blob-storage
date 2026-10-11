@@ -75,7 +75,7 @@ writing synthetic failures into the parent gate. See
 [the adoption record](evidence/shared0350223.md). Native product qualification
 remains separate from common installer and source fixture checks.
 
-Pending compatible 0.22.4 adopts Shared Tooling 0.3.7. Testkit setup/check now
+Released compatible 0.22.4 adopts Shared Tooling 0.3.7. Testkit setup/check now
 delegates Cargo.lock selection to the canonical installer. Prepare the incoming
 Testkit 0.33 CLI explicitly with `make install-testkit`, then require offline
 `make testkit-check`. Earlier admitted CLI/server artifacts remain retained.
@@ -339,10 +339,15 @@ the old receipt/tag just to publish it.
 library tests/examples against their exact extracted, normalized payloads in a
 fresh retained workspace with its own Cargo target directory. A real Cargo fixture
 checks that a second archive with the same package version executes the updated
-contract, rather than reusing stale artifacts with fixed archive timestamps. Its local contracts patch points only at that extracted
-payload. Cargo resolves its lock before compilation; the bounded metadata adapter
+contract, rather than reusing stale artifacts with fixed archive timestamps. Its
+local contracts patch points only at that extracted payload. Before compilation,
+the bounded metadata adapter requires both expected names/versions to resolve to
+those exact extracted manifests as the only verification-workspace members, and
 rejects any external version/source/checksum absent from the frozen root lock.
-The root lock is unchanged. This avoids Cargo’s
+After tests, require identical archive hashes, unpacked source hashes/modes,
+original manifests/lock and the admitted fixture manifests/lock. Premature exits
+cannot report success; keep all failed evidence. No packaged manifest is rewritten,
+and the local override never enters publication. The final root lock is unchanged. This avoids Cargo’s
 [local-registry checksum failure](https://github.com/rust-lang/cargo/issues/14396)
 without dropping package-content verification. Package assembly needs Cargo 1.90
 or newer ([stabilization record](https://blog.rust-lang.org/inside-rust/2025/10/01/this-development-cycle-in-cargo-1.90/));

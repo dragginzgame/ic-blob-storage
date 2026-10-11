@@ -4,7 +4,24 @@
 
 # Dependency setup
 
-## Current graph — released 0.22.3, pending 0.22.4
+## Current graph — released 0.22.4, pending 0.22.5
+
+All twelve released package versions and the finalized receipt remain 0.22.4.
+Its committed lock selects Memory 0.35.4, Metrics 0.5.5, Testkit 0.33.1 and all
+four Host 0.12.8. Preserve incoming Memory 0.35.5 / Metrics 0.5.6 and all four
+Host 0.12.9 with unchanged packaged Rust sources and external edges; PocketIC
+remains 16.1.0. Hosts must
+resolve one Memory 0.35 identity and grant Blob its namespace in their sole pool.
+
+The reviewed Shared 0.3.8 snapshot selects the same 99 files at
+`67285b28a98b7c4211ad32de726709d4e87edea4`. No common tool pins change. Prepare
+missing selected tools explicitly; checks never install. Coordinated package
+qualification validates exact extracted identities and final integrity without
+changing product manifests or publication admission. See
+[the current record](evidence/libraries0225.md); older results stay bound to their
+actual graph. Matching native delivery remains separate from local qualification.
+
+## Earlier graph — released 0.22.3, pending 0.22.4
 
 All twelve package versions and the finalized receipt remain 0.22.3. Its lock
 selects Memory 0.35.3, Metrics 0.5.3, Testkit 0.32.2 and all four Host 0.12.4.
