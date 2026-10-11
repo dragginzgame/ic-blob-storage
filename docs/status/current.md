@@ -10,8 +10,9 @@ versions and the finalized receipt remain 0.22.8. Committed release-file hashes
 match that receipt. Registry metadata observes un-yanked runtime/contracts
 0.22.8 with Rust 1.88. The release lock selects Memory 0.35.8, private Metrics
 0.6.3, Testkit 0.33.6 and all four Host 0.13.2; PocketIC remains 16.1.0.
-Preserve incoming Host 0.13.3 and Memory 0.35.9 lock edits. This review does not
-qualify those product compiler inputs.
+The pending source commit `9c88d524d730e398ae9413a9aec2675b4a6ff60e` includes
+Host 0.13.3/Memory 0.35.9. Preserve the later Testkit 0.33.7 lock edit; earlier
+review results do not qualify these changed product compiler inputs.
 
 Shared 0.6.0 remains the reviewed 102-file snapshot at
 `75180980a0c4e4252d8a915aaecfaefd92bf9a4e`. The previously missing evidence file
@@ -46,6 +47,21 @@ Documentation links, runtime-free contract/CLI graph, snapshot/dependency
 checks and diff checks pass. No full CI/release, consumer compilation, sibling
 file mutation, staging/commit/push, deployment, paid provider effect or cleanup
 is performed in this batch. Public APIs and durable schemas are unchanged.
+
+## Subsequent Testkit prerequisite repair
+
+The maintainer's retained CI attempt
+`.git/release-state/validation-failures/20261011T130201Z-8625-0-ci.log`
+compiled Testkit 0.33.6, then refused 0.33.7 at the optimizer's offline tool check:
+the lock selection changed during validation. Explicit `make install-testkit`
+now prepares the canonical shared 0.33.7 CLI and admits the managed PocketIC
+16.1.0 server. Complete `CARGO_NET_OFFLINE=true RUSTUP_AUTO_INSTALL=0 make tools-check`
+passes and the selected lock stays unchanged during setup/checks. Original failure,
+selected lock and setup/check logs remain in
+`target/review-validation/testkit03370229/`. No tool fallback, implicit validation
+setup, lock reselection or cleanup was introduced. Commit the settled source and
+restart full validation; preceding passing stages are bound to their earlier graph.
+The agent did not rerun full CI or execute a release command.
 
 ## Issues and next work
 
