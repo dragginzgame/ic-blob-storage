@@ -26,17 +26,20 @@ trap 'status=$?; [[ "$selection_complete" == true || "$status" != 0 ]] || status
       exit "$status"' EXIT
 # The canonical owner admits shared references and emits their physical payloads.
 # Never traverse arbitrary links or scan unrelated entries in the per-user store.
-if bash "$script_dir/select-tool-evidence.sh" full "$repository" "$selection" \
-    > "$selection/inputs.nul" 2> "$selection/selection.log"; then
-    while IFS= read -r -d '' selected_root && IFS= read -r -d '' selected_path; do
-        inputs+=("$selected_root" "$selected_path")
-    done < "$selection/inputs.nul"
-else
-    status=$?
+selection_status=0
+bash "$script_dir/select-tool-evidence.sh" full "$repository" "$selection" \
+    > "$selection/inputs.nul" 2> "$selection/selection.log" || selection_status=$?
+# Nonzero admission can still emit safe local inputs. Keep its diagnostics and
+# archive those inputs before returning the incomplete status to the caller.
+while IFS= read -r -d '' selected_root && IFS= read -r -d '' selected_path; do
+    inputs+=("$selected_root" "$selected_path")
+done < "$selection/inputs.nul"
+if [[ "$selection_status" != 0 ]]; then
     cat "$selection/selection.log" >&2
-    exit "$status"
+    printf '%s\n' "$selection_status" > "$selection/selection-status"
+    inputs+=("$temporary" "${selection#"$temporary/"}")
 fi
-for path in "$repository/.tools/rust" \
+for path in \
     "$repository/.tools/testkit-server" "$repository"/target/release-tests.*; do
     [[ -e "$path" || -L "$path" ]] || continue
     inputs+=("$repository" "${path#"$repository/"}")
@@ -60,3 +63,4 @@ done
 if [[ ${#inputs[@]} == 0 ]]; then selection_complete=true; exit 0; fi
 bash "$script_dir/archive-evidence.sh" "$output" "${inputs[@]}"
 selection_complete=true
+exit "$selection_status"

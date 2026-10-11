@@ -170,7 +170,11 @@ jobs:
         if: failure()
         run: |
           output="$(mktemp -d "$RUNNER_TEMP/blob-tooling-evidence.XXXXXX")/evidence.tar.gz"
-          archive="$(bash scripts/ci/collect-tooling-evidence.sh "$GITHUB_WORKSPACE" "$RUNNER_TEMP" "$output")"
+          status=0
+          archive="$(bash scripts/ci/collect-tooling-evidence.sh "$GITHUB_WORKSPACE" "$RUNNER_TEMP" "$output")" || status=$?
+          complete=true
+          [[ "$status" == 0 ]] || complete=false
+          printf 'collection-complete=%s\n' "$complete" >> "$GITHUB_OUTPUT"
           if [[ -n "$archive" ]]; then printf 'archive=%s\n' "$archive" >> "$GITHUB_OUTPUT"; fi
       - name: Retain failed tooling fixtures
         if: ${{ failure() && steps.tooling-failure.outputs.archive != '' }}
@@ -181,3 +185,8 @@ jobs:
           include-hidden-files: true
           if-no-files-found: error
           retention-days: 30
+      - name: Check tooling evidence completeness
+        if: ${{ failure() && steps.tooling-failure.outputs.collection-complete == 'false' }}
+        run: |
+          echo 'Tooling evidence collection was incomplete; safe admitted evidence was retained when available.' >&2
+          exit 1

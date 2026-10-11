@@ -1,5 +1,23 @@
 # Changelog
 
+## [0.22.8]
+
+### Changed
+
+- Adopt Shared Tooling 0.6.0 and its shared Cargo build owner. Reuse tools by
+  exact compiler, native environment, package source and packaged lockfile;
+  preserve checkout command paths, previous installations and failed attempts.
+  Explicit tool setup is required. Testkit continues to own the PocketIC server.
+  Contributor-only adoption remains a compatible Blob patch.
+  [#59](https://github.com/dragginzgame/ic-blob-storage/issues/59).
+
+### Fixed
+
+- Upload safe local tooling evidence even when shared-store admission fails,
+  retain collection diagnostics, and report incomplete collection after upload.
+  Delegate local Rust and referenced Cargo payload selection to Shared Tooling.
+  [#59](https://github.com/dragginzgame/ic-blob-storage/issues/59).
+
 ## [0.22.7] - 2026-10-11
 
 ### Changed

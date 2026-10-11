@@ -76,13 +76,14 @@ ln -s ../outside "$temporary/file-digests.failed/link"
 # Use the shared owner to create pre-effect references for failed generations.
 # A different checkout's candidate in the same store must not be collected.
 prepare_candidate() (
-    local candidate_consumer="$1" candidate_identity="$2"
+    local candidate_consumer="$1" candidate_identity="$2" candidate_kind="${3:-host}"
     consumer="$candidate_consumer"
     tool_root="$consumer/.tools"
+    [[ "$candidate_kind" != rust ]] || tool_root="$tool_root/rust"
     mkdir -p "$tool_root"
     # shellcheck source=scripts/dev/tool-store.sh
     source "$root/scripts/dev/tool-store.sh"
-    tool_store_init host "$candidate_identity"
+    tool_store_init "$candidate_kind" "$candidate_identity"
     tool_store_acquire
     trap tool_store_release EXIT
     tool_store_new
@@ -90,6 +91,8 @@ prepare_candidate() (
     printf '%s\n' "$stage"
 )
 shared_candidate="$(prepare_candidate "$repository" this-checkout)"
+rust_candidate="$(prepare_candidate "$repository" cargo-build rust)"
+rust_relative="${rust_candidate#"$SHARED_TOOLING_STORE/"}"
 unrelated_candidate="$(prepare_candidate "$fixture/unrelated-checkout" other-checkout)"
 shared_relative="${shared_candidate#"$SHARED_TOOLING_STORE/"}"
 unrelated_relative="${unrelated_candidate#"$SHARED_TOOLING_STORE/"}"
@@ -103,6 +106,7 @@ for path in .tools/host-set.failed/.hidden .tools/ic-set.failed/payload \
     .tools/testkit-server/failed-candidate/download.stderr target/release-tests.failed/outcome; do
     cmp "$repository/$path" "$fixture/unpacked/$path"
 done
+cmp "$rust_candidate/download.stderr" "$fixture/unpacked/$rust_relative/download.stderr"
 cmp "$shared_candidate/download.stderr" "$fixture/unpacked/$shared_relative/download.stderr"
 [[ ! -e "$fixture/unpacked/$unrelated_relative" && \
    -L "$fixture/unpacked/.tools/host-set.unknown" ]] || exit 1
@@ -134,6 +138,55 @@ if PATH="$fixture/failing-bin:$PATH" bash "$collector" "$repository" "$temporary
     "$fixture/partial.tar.gz" > "$fixture/write-failure.log" 2>&1; then exit 1; fi
 [[ -s "$fixture/partial.tar.gz" && -s "$fixture/write-failure.log" ]] || exit 1
 cmp "$temporary/blob-validation-logging.failed/status" "$fixture/unpacked/blob-validation-logging.failed/status"
+
+# Unsafe shared-store configuration cannot discard safe local evidence or report
+# completeness. Shared references remain links; their payloads are not followed.
+ln -s "$SHARED_TOOLING_STORE" "$fixture/redirected-store"
+for refused_store in "$fixture/redirected-store" relative-store; do
+    attempt="$(mktemp -d "$fixture/incomplete.XXXXXX")"
+    status=0
+    partial="$(SHARED_TOOLING_STORE="$refused_store" bash "$collector" "$repository" "$temporary" \
+        "$attempt/evidence.tar.gz" 2> "$attempt/collection.log")" || status=$?
+    [[ "$status" != 0 && "$partial" == "$attempt/evidence.tar.gz" ]] || exit 1
+    mkdir "$attempt/unpacked"
+    tar -xzf "$partial" -C "$attempt/unpacked"
+    cmp "$repository/.tools/rust/build/build.log" "$attempt/unpacked/.tools/rust/build/build.log"
+    cmp "$repository/.tools/testkit-server/failed-candidate/download.stderr" \
+        "$attempt/unpacked/.tools/testkit-server/failed-candidate/download.stderr"
+    [[ ! -e "$attempt/unpacked/$shared_relative" && ! -e "$attempt/unpacked/$rust_relative" && \
+        -L "$attempt/unpacked/.tools/rust/$(basename "$(find "$repository/.tools/rust" -name 'rust-set.*')")" ]] || exit 1
+    diagnostics=("$attempt/unpacked"/blob-tooling-selection.*/selection-status)
+    [[ ${#diagnostics[@]} == 1 && "$(cat "${diagnostics[0]}")" != 0 ]] || exit 1
+    [[ -s "${diagnostics[0]%/*}/selection.log" ]] || exit 1
+done
+
+# Exercise the actual hosted collection block: incomplete admission must expose
+# the archive output before upload; the later completeness step still refuses.
+mkdir -p "$repository/scripts/ci"
+for helper in collect-tooling-evidence.sh select-tool-evidence.sh archive-evidence.sh verify-file-checksum.sh; do
+    cp "$root/scripts/ci/$helper" "$repository/scripts/ci/"
+done
+mkdir -p "$repository/scripts/dev"
+cp "$root/scripts/dev/tool-store.sh" "$repository/scripts/dev/"
+perl -ne '
+    if (/^      - name: Archive failed tooling fixtures$/) { $selected=1; next; }
+    if ($selected && /^        run: \|$/) { $run=1; next; }
+    last if $run && /^      - name:/;
+    print substr($_,10) if $run;
+' "$root/.github/workflows/tooling.yml" > "$fixture/workflow-collection.sh"
+[[ -s "$fixture/workflow-collection.sh" ]] || exit 1
+(cd "$repository" && SHARED_TOOLING_STORE="$fixture/redirected-store" GITHUB_WORKSPACE="$repository" \
+    RUNNER_TEMP="$temporary" GITHUB_OUTPUT="$fixture/workflow-output" bash -e "$fixture/workflow-collection.sh")
+grep -Fx 'collection-complete=false' "$fixture/workflow-output" >/dev/null
+hosted_archive="$(sed -n 's/^archive=//p' "$fixture/workflow-output")"
+[[ -s "$hosted_archive" ]] || exit 1
+perl -ne '
+    if (/^      - name: Check tooling evidence completeness$/) { $selected=1; next; }
+    if ($selected && /^        run: \|$/) { $run=1; next; }
+    print substr($_,10) if $run;
+' "$root/.github/workflows/tooling.yml" > "$fixture/workflow-completeness.sh"
+[[ -s "$fixture/workflow-completeness.sh" ]] || exit 1
+if bash "$fixture/workflow-completeness.sh" > "$fixture/completeness.log" 2>&1; then exit 1; fi
 
 # Redirected parents refuse, while a final selected symlink remains unfollowed.
 mv "$repository/.tools/rust/build" "$fixture/build"

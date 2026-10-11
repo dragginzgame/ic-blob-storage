@@ -94,23 +94,23 @@ actual released receipt and matching hosted acceptance.
 The native CI lanes run coordinated archive qualification explicitly and retain
 its inputs and attempts independently of normal registry publication admission.
 
-Pending compatible 0.22.7 adopts Shared 0.5.0, including its 0.4 Rust installation
-changes without changing Blob's published contracts. Existing checkouts must run
-explicit `make install-tools`, then offline `make tools-check`; standalone common
-setup is `make install-rust-tools` after preparing shared host prerequisites.
-Select `.tools/rust/common/bin` for interactive commands. Keep old in-place tools,
-slots and failed attempts; there is no legacy fallback or automatic cleanup.
-Shared host/IC bundles now use a per-user store. Existing checkouts must rerun
-host/IC setup; old physical local bundles are retained but no longer admitted
-as active installations. Keep `.tools/host/bin` and `.tools/ic/bin` on PATH and
-use the same store setting for setup, offline checks and collection. Cargo slots
-and PocketIC storage stay local. Contributor
-setup changes alone do not require a Blob minor bump or separate publication.
-The incoming lock selects Host 0.13.1, Metrics 0.6.2 and Testkit 0.33.4; existing product/compiler
-evidence does not qualify it. See [the adoption record](evidence/shared0500227.md),
-including setup, evidence retention and remaining hosted
-acceptance. Package versions and the finalized receipt stay 0.22.6 until the
-maintainer's release transaction.
+Released 0.22.7 adopts Shared 0.5.0. Pending compatible 0.22.8 adopts Shared
+0.6.0's Cargo store and safe partial-evidence contract without changing Blob's
+published contracts. Prepare the declared compiler, then explicitly run
+`make install-tools` and offline `make tools-check`. Common-only setup is
+`make install-rust-tools` after shared host prerequisites. The command paths
+`.tools/host/bin`, `.tools/ic/bin` and `.tools/rust/common/bin` remain unchanged.
+Keep old bundles, local Cargo slots, common sets and failed attempts; no automatic
+cleanup or legacy fallback is introduced. Use the same store setting for setup,
+offline checks and collection. Cargo tool identities include the prepared
+compiler, native environment, package source and packaged lockfile; tool builds
+use the standard shared environment. Testkit retains local PocketIC storage.
+Contributor setup changes alone do not require a Blob minor bump or separate
+publication. Incoming lock edits select Metrics 0.6.3 and Testkit 0.33.6, with Host
+0.13.2 and Memory 0.35.8 unchanged; prior product/compiler evidence does not qualify
+those edits. See [the current adoption record](evidence/shared0600228.md).
+Package versions and the finalized receipt stay 0.22.7 until the maintainer's
+release transaction.
 
 Released 0.21.0 changes capacity reply/preflight shapes: rebuild consumers for
 the three mandatory byte headrooms and dimension-specific blocker names. The

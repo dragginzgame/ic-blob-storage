@@ -49,7 +49,7 @@ help:
 	@echo "install-tools / tools-check   Explicit local tool installation / offline verification"
 	@echo "install-host-tools / host-tools-check   Pinned repo-local jq/yq/rg/cloc setup / verification"
 	@echo "install-ic-tools / ic-tools-check       Pinned repo-local IC setup / verification"
-	@echo "install-rust-tools / rust-tools-check   Pinned repo-local Cargo tools setup / verification"
+	@echo "install-rust-tools / rust-tools-check   Pinned shared Cargo tools setup / verification"
 	@echo "install-testkit / testkit-check         Locked Testkit CLI and owned PocketIC setup / offline check"
 	@echo "deps                         Fetch locked Rust dependencies (network)"
 	@echo "cloc                         Offline Rust runtime/test counts for every workspace member"

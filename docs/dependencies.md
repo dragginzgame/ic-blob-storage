@@ -4,37 +4,38 @@
 
 # Dependency setup
 
-## Current graph — released 0.22.6, pending 0.22.7
+## Current graph — released 0.22.7, pending 0.22.8
 
-All twelve package versions and the finalized receipt remain 0.22.6. The released
-lock selects one Memory 0.35.7 identity, private Metrics 0.6.1, Testkit 0.33.3 and
-all four Host 0.13.0. PocketIC remains 16.1.0 and the Rust floor remains 1.88.
-Incoming lock edits select all four Host 0.13.1, private Metrics 0.6.2 and
-Testkit 0.33.4. Preserve them;
-the earlier release and tooling results do not qualify this new graph. No
-dependency requirement or repository package version is changed by adoption.
+All twelve package versions and the finalized receipt remain 0.22.7. The released
+lock selects Memory 0.35.8, private Metrics 0.6.2, Testkit 0.33.5 and Host 0.13.2.
+Incoming lock edits select private Metrics 0.6.3 and Testkit 0.33.6; preserve them.
+PocketIC remains 16.1.0 and the Rust floor remains 1.88. Earlier compiler results
+remain bound to their original graph; tool setup does not qualify these product
+inputs. Adoption changes no dependency requirement or repository package version.
 
-Adopt committed Shared 0.5.0 `a306180ce534227fcb98b882fba9a526d5d747e0`
-through the canonical exporter. Retain the existing selection and pins, adding
-the required store runtime and fixture companions for 101 files. Common Rust
-tools use receipt- and byte-admitted versioned
-slots and the complete `.tools/rust/common/bin` selection. Run explicit
-`make install-rust-tools`, then `make rust-tools-check`; old binaries, slots and
-failed attempts remain retained. The full `make install-tools` also prepares the
-lock-selected Testkit CLI before offline `make tools-check`.
-Shared Tooling now stores host/IC bundles per user, with exact checkout-local
-references at `.tools/host/bin` and `.tools/ic/bin`. Existing physical local
-bundles are retained but no longer admitted as active installations: explicitly
-run `make install-host-tools install-ic-tools`, then their offline checks.
-Use the same `SHARED_TOOLING_STORE` setting for setup, checks and collection;
+Adopt committed Shared 0.6.0 `75180980a0c4e4252d8a915aaecfaefd92bf9a4e`
+through the canonical exporter, retaining the existing pins and selection and
+adding the required Cargo build companion for 102 files. Host, IC and Cargo
+payloads use the canonical per-user store; `.tools/host/bin`, `.tools/ic/bin` and
+`.tools/rust/common/bin` remain exact checkout selections. Cargo tool identities
+include the prepared compiler, native environment, package source and packaged
+lockfile. Builds use Shared's standard environment independently of application
+compiler flags, wrappers and arbitrary Cargo configuration. Offline admission
+requires the managed source cache as well as the receipt and binary bytes.
+
+Prepare the declared compiler, run explicit `make install-tools`, then offline
+`make tools-check`. Common-only setup/check use `make install-rust-tools` and
+`make rust-tools-check` after host prerequisites. `make install-testkit` uses
+Shared's returned CLI path and keeps server setup/check with Testkit under
+`.tools/testkit-server`. Old physical bundles, Cargo slots, common sets and failed
+attempts remain retained; they are not a fallback for missing active selections.
+Use the same `SHARED_TOOLING_STORE` for setup, checks and failure collection;
 the default is `${XDG_DATA_HOME:-$HOME/.local/share}/shared-tooling/tools`.
-Cargo slots and PocketIC remain with their current local owners. Do not add a
-Blob store, copy payloads, select sibling tools or delete retained evidence.
+Do not add a Blob store, copy payloads, select sibling tools or delete evidence.
 See [the storage boundary](local-setup.md#shared-executable-storage),
-[the new adoption evidence](evidence/shared0500227.md),
-[the preceding Rust installation evidence](evidence/shared0400227.md) and
-[the preceding temporary-path evidence](evidence/shared03120227.md); earlier graph
-qualification below remains historical.
+[the current adoption evidence](evidence/shared0600228.md),
+[the preceding 0.5 evidence](evidence/shared0500227.md) and
+[the preceding temporary-path evidence](evidence/shared03120227.md).
 
 ## Earlier graph — released 0.22.5, pending 0.22.6
 

@@ -181,92 +181,9 @@ for target in install-tools tools-check; do
     done
     cmp "$fixture/selected-lock" "$consumer/Cargo.lock"
 done
-# Exercise the actual selection owner through Blob's wrapper, using real parsers
-# and substitute Cargo/CLI effects. Server lifecycle stays Testkit-owned.
-cp "$root/scripts/dev/install-rust-tools.sh" "$consumer/scripts/dev/"
-cp "$root/scripts/ci/verify-file-checksum.sh" "$consumer/scripts/ci/"
-cat > "$fixture/bin/cargo" <<'CARGO'
-#!/usr/bin/env bash
-set -euo pipefail
-[[ $# == 13 && "$1" == install && "$2" == ic-testkit && "$3" == --version &&
-   "$5" == --locked && "$6" == --root && "$8" == --target-dir &&
-   "$9" == "$7/build" && "${10}" == --bin && "${11}" == ic-testkit-server &&
-   "${12}" == --registry && "${13}" == crates-io ]] || exit 1
-printf 'cargo <%s>\n' "$4" >> "$TESTKIT_COMMAND_LOG"
-mkdir -p "$7/bin" "$9"
-cp "$TESTKIT_FIXTURE_ROOT/testkit-cli" "$7/bin/ic-testkit-server"
-jq -n --arg identity "ic-testkit ${4#=} (registry+https://github.com/rust-lang/crates.io-index)" \
-    --arg version "$4" --arg host "$(rustc -vV | sed -n 's/^host: //p')" '
-    {installs:{($identity):{version_req:$version,bins:["ic-testkit-server"],
-      profile:"release",target:$host,rustc:"substitute Cargo receipt"}}}' > "$7/.crates2.json"
-printf 'retained substitute build\n' > "$9/evidence"
-if [[ "${TESTKIT_CHANGE_LOCK:-}" == yes ]]; then
-    sed 's/0.25.7/0.25.8/' "$TESTKIT_FIXTURE_ROOT/Cargo.lock" > "$7/changed.lock"
-    cp "$7/changed.lock" "$TESTKIT_FIXTURE_ROOT/Cargo.lock"
-fi
-CARGO
-chmod +x "$fixture/bin/cargo"
-export PATH="$fixture/bin:$PATH"
-: > "$TESTKIT_COMMAND_LOG"
-for action in check setup check setup; do
-    status=0
-    bash "$wrapper" "$action" > "$fixture/real-$action.out" 2> "$fixture/real-$action.log" || status=$?
-    if [[ "$action" == check && ! -s "$TESTKIT_COMMAND_LOG" ]]; then
-        [[ "$status" != 0 && ! -s "$fixture/real-$action.out" ]] || exit 1
-    else
-        [[ "$status" == 0 && "$(cat "$fixture/real-$action.out")" == "$consumer/.tools/testkit-server/admitted-server" ]] || exit 1
-    fi
-done
-[[ "$(grep -c '^cargo ' "$TESTKIT_COMMAND_LOG")" == 1 ]] || exit 1
-slot="$consumer/.tools/rust/ic-testkit-0.25.5-bin-ic-testkit-server-release/installed"
-cp "$slot/selection.json" "$fixture/old-selection"
-cp "$slot/bin/ic-testkit-server" "$fixture/old-cli"
-cmp "$fixture/selected-lock" "$consumer/Cargo.lock"
-
-# Invalid consumer selections cannot reach Cargo or the server command.
-cp "$TESTKIT_COMMAND_LOG" "$fixture/before-refusal"
-for shape in missing symlink malformed absent duplicate git path; do
-    cp "$fixture/selected-lock" "$consumer/Cargo.lock"
-    case "$shape" in
-        missing) rm "$consumer/Cargo.lock" ;;
-        symlink) rm "$consumer/Cargo.lock"; ln -s "$fixture/selected-lock" "$consumer/Cargo.lock" ;;
-        malformed) printf '[[package\n' > "$consumer/Cargo.lock" ;;
-        absent) printf 'version = 4\n' > "$consumer/Cargo.lock" ;;
-        duplicate) sed -n '/^\[\[package\]\]/,$p' "$fixture/selected-lock" >> "$consumer/Cargo.lock" ;;
-        git) sed 's,registry+https://github.com/rust-lang/crates.io-index,git+https://example.invalid/testkit#123,' "$fixture/selected-lock" > "$consumer/Cargo.lock" ;;
-        path) sed '/^source =/d' "$fixture/selected-lock" > "$consumer/Cargo.lock" ;;
-    esac
-    for action in setup check; do
-        if bash "$wrapper" "$action" > "$fixture/$shape-$action.out" 2> "$fixture/$shape-$action.log"; then exit 1; fi
-        [[ ! -s "$fixture/$shape-$action.out" ]] || exit 1
-        cmp "$fixture/before-refusal" "$TESTKIT_COMMAND_LOG"
-    done
-    rm -f "$consumer/Cargo.lock"
-done
-
-# A new selection requires explicit setup; the old executable stays intact.
-sed 's/0.25.5/0.25.6/' "$fixture/selected-lock" > "$consumer/Cargo.lock"
-if bash "$wrapper" check > "$fixture/new-check.out" 2> "$fixture/new-check.log"; then exit 1; fi
-cmp "$fixture/before-refusal" "$TESTKIT_COMMAND_LOG"
-for action in setup check; do
-    bash "$wrapper" "$action" > "$fixture/new-$action.out"
-    [[ "$(cat "$fixture/new-$action.out")" == "$consumer/.tools/testkit-server/admitted-server" ]] || exit 1
-done
-[[ "$(grep -c '^cargo ' "$TESTKIT_COMMAND_LOG")" == 2 ]] || exit 1
-
-# A lock changed during installation cannot activate its candidate or dispatch
-# Testkit. Preserve the failed build and both earlier admitted installations.
-sed 's/0.25.5/0.25.7/' "$fixture/selected-lock" > "$consumer/Cargo.lock"
-cp "$TESTKIT_COMMAND_LOG" "$fixture/before-change"
-if TESTKIT_CHANGE_LOCK=yes bash "$wrapper" setup > "$fixture/change.out" 2> "$fixture/change.log"; then exit 1; fi
-[[ ! -s "$fixture/change.out" && "$(tail -1 "$TESTKIT_COMMAND_LOG")" == 'cargo <=0.25.7>' ]] || exit 1
-head -n "$(wc -l < "$fixture/before-change" | tr -d ' ')" "$TESTKIT_COMMAND_LOG" > "$fixture/unchanged-commands"
-cmp "$fixture/before-change" "$fixture/unchanged-commands"
-[[ ! -e "$consumer/.tools/rust/ic-testkit-0.25.7-bin-ic-testkit-server-release/installed" ]] || exit 1
-[[ "$(find "$consumer/.tools/rust/build" -name evidence | wc -l | tr -d ' ')" == 1 ]] || exit 1
-cmp "$fixture/old-selection" "$slot/selection.json"
-cmp "$fixture/old-cli" "$slot/bin/ic-testkit-server"
-cp "$fixture/selected-lock" "$consumer/Cargo.lock"
-bash "$wrapper" check > "$fixture/restored-check.out"
-echo 'Locked Testkit setup/check, admitted server handoff and failure propagation passed (substitute tools)'
+# Shared's Cargo installer fixture owns registry selection, source identity,
+# interrupted builds and retained generations. This fixture owns Blob's adapter
+# forwarding, server handoff and ordered refusal; explicit real setup qualifies
+# their composition without maintaining another Cargo installation substitute.
+echo 'Locked Testkit forwarding, admitted server handoff and failure propagation passed (substitute tools)'
 fixture_complete=true

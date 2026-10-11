@@ -60,16 +60,19 @@ the offline checkers never download missing tools. The shared aggregate runs
 host, IC and Cargo setup/check stages in order, stopping on the first failure,
 including under parallel Make. Shared's reviewed 0.4.0 changes retain read-only
 IC/platform and Rust/Cargo preflight before common installation. Common Rust
-tools now use the selected Cargo installer's versioned slots, receipt and byte
-admission; the complete set is activated atomically through `common`. Explicit
-`make install-rust-tools` prepares this new layout without converting or deleting
-old installations. Offline checks never run setup.
-Shared 0.5.0 stores verified host/IC bundles per user; `.tools/host/bin` and
-`.tools/ic/bin` remain this checkout's exact selections. Refresh both installers,
-their store companion and evidence selection together, then explicitly rerun
-host/IC setup and offline checks. Use one store setting for all three operations.
-Cargo slots stay local. Blob must not add an independent store or bespoke
-installer, relocate retained artifacts or select mutable sibling tools. See
+tools use the canonical Cargo build/store owner, receipt and byte admission;
+the complete set is activated atomically through `common`. Explicit
+`make install-rust-tools` prepares the current layout without converting or
+removing old installations. Offline checks never run setup. Shared 0.6.0 stores
+verified host, IC and Cargo payloads per user while preserving checkout command
+paths. Cargo identities include the prepared compiler, native environment,
+package source and packaged lockfile; managed source cache admission is required
+for both setup and offline checks. Tool builds use the standard environment,
+independent of application compiler flags and wrappers. Refresh the installers,
+build/store companions and evidence selection together, then explicitly rerun
+setup and offline checks. Use one store setting for all three operations. Blob
+must not add an independent store or bespoke installer, relocate retained
+artifacts or select mutable sibling tools. See
 [shared executable storage](../local-setup.md#shared-executable-storage).
 Cargo-bearing local recipes preserve Make's jobserver descriptors through their
 shell adapters. Blob extends `LOCAL_TOOL_INSTALL_TARGETS` and
@@ -140,10 +143,13 @@ exact returned ID; passing local checks do not qualify that transport. Ordinary
 failure collection preserves scoped tool candidates and fixtures in one archive
 with 30-day retention. Original inputs and failed partial archives remain if
 collection fails; collection does not clear the original job failure.
-Blob's collector delegates full shared host/IC selection to
-`select-tool-evidence.sh`, retaining only this checkout's admitted referenced
-payloads, prior local bundles and local Rust/Testkit evidence. Unknown links
-remain unfollowed; unrelated entries in the per-user store are excluded.
+Blob's collector delegates local Rust and full shared host/IC/Cargo selection to
+`select-tool-evidence.sh`, retaining this checkout's admitted referenced payloads,
+prior local bundles and local Testkit evidence. Unknown links remain unfollowed;
+unrelated entries in the per-user store are excluded. If store admission fails,
+archive safe local selections and the collection diagnostics, upload that archive
+when available, then report incomplete collection. Preserve the original failure;
+an available partial archive does not establish complete collection.
 `make hooks-check` supplies the consumer's real formatter inputs to the shared
 adoption checker using Cargo's complete member roster and each member's Rust
 sources, including packages not yet present in HEAD. It retains the additional
