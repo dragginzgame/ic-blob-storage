@@ -4,43 +4,50 @@ Date: 2026-10-11
 
 ## Released source and current batch
 
-Released HEAD is `37cb8b9724de9bc65778d2b41e0c9db5a8d95de6` (0.22.6),
-validated source `f998762cde261e1253058f2c99d36d72d67af43b`. All twelve package
-versions and the finalized receipt remain 0.22.6. The actual released lock selects
-Memory 0.35.7, private Metrics 0.6.1, Testkit 0.33.3 and all four Host 0.13.0;
-PocketIC remains 16.1.0 and the Rust floor remains 1.88. The previous agent packet
-used an earlier graph; do not relabel [its evidence](../evidence/shared03110226.md).
+Released Blob is `e8a19df6f172b04af53d23de9727b7b6b1664c91` (0.22.7),
+validated source `9d054c42f8ae255324f7993773715853cf5402df`. All twelve package
+versions and the finalized receipt remain 0.22.7. Its released lock selects
+Memory 0.35.8, private Metrics 0.6.2, Testkit 0.33.5 and Host 0.13.2; PocketIC
+remains 16.1.0 and the Rust floor 1.88. Incoming Metrics 0.6.3/Testkit 0.33.6
+lock edits were preserved. Earlier compiler results do not qualify this graph.
 
-Pending compatible 0.22.7 now adopts committed Shared 0.5.0 at
-`a306180ce534227fcb98b882fba9a526d5d747e0`, adding the two required store
-companions for 101 files with unchanged pins. Host/IC bundles use the canonical
-per-user store while `.tools/host/bin` and `.tools/ic/bin` remain local exact
-selections. Explicit setup is required; old physical local bundles are retained
-but no longer admitted as active selections. Cargo slots remain local under
-`.tools/rust`; Testkit retains PocketIC ownership. No independent Blob store,
-manual payload relocation or mutable sibling PATH is introduced.
+Pending compatible 0.22.8 adopts committed Shared 0.6.0 at
+`75180980a0c4e4252d8a915aaecfaefd92bf9a4e`, including the explicitly selected
+Cargo build companion for 102 files with unchanged pins. Host, IC and Cargo tools
+use the canonical per-user store with stable checkout command paths. Cargo
+identities include the prepared compiler/native environment, source and packaged
+lockfile; setup/checks require managed source-cache admission. Testkit keeps
+PocketIC ownership. Preserve old bundles, Cargo slots, common sets and failures.
 
-Blob's collector now delegates shared-reference admission to the canonical
-evidence selector, retaining this checkout's physical bundles and full local
-Rust evidence while excluding unrelated store entries and preserving unknown
-links unfollowed. The fixture uses an isolated store. The `.tools` tree was
-absent before this turn's setup; prior local preservation cannot be measured.
-The first setup reused host tools but correctly refused a held IC store lock;
-its log remains, and no lock was reclaimed. Once it cleared, ordered complete
-setup and offline tool admission passed. Store/collector and premature-exit
-fixtures pass on Bash 5.2 and genuine Bash 3.2; actual hooks and formatting pass,
-including the Bash 3.2 hook. A disposable second checkout reuses the same real
-host/IC payloads with zero download calls and no local copies. See
-[the current record](../evidence/shared0500227.md).
+Blob now archives safe local evidence and diagnostics when shared-store admission
+fails, exposes the archive for upload and subsequently reports incomplete
+collection. Shared owns local Rust and referenced Cargo payload selection.
+The local Testkit fixture retains adapter/ordering/server refusal coverage while
+canonical Cargo installation cases stay with Shared's fixture.
 
-[Preceding 0.4 installation/guidance evidence](../evidence/shared0400227.md)
-remains bound to its original sources and attempts. Contributor-only adoption
-remains a compatible Blob patch. Incoming lock edits select all four Host
-0.13.1, Metrics 0.6.2 and Testkit 0.33.4; preserve them without attributing old
-compiler results to the new graph. No full CI/release or product compiler suite
-was run for these scoped adoptions. The maintainer staged the batch during
-qualification; preserve that index. Final collector and evidence updates may
-remain unstaged.
+Actual complete Linux setup/offline checks and a second checkout's offline reuse
+of the same four Cargo executables pass. All 8,108 old local Rust regular files
+retain identical bytes/modes. Initial setup refused Canic's live Testkit lock;
+after it cleared, retry passed without reclamation. Initial ShellCheck's collector
+trap warning was fixed, retaining that attempt. Shared fixtures pass on Bash 5.2;
+affected fixtures pass on genuine Bash 3.2, including safe partial archives and
+premature exits. Shell, actual formatting/hook, snapshot, declarations, links,
+workflow and diff checks pass. See [the current record](../evidence/shared0600228.md).
+These are focused tooling checks, not full CI/release or new product compilation.
+
+The maintainer's 11:54:02 UTC release validation failed because committed adoption
+linked the evidence record before its creation. The retained failure log remains
+in Git's validation-failures directory. Current-tree documentation links and
+ShellCheck pass; the record is still untracked and must join the final collector
+correction and this handoff in the next maintainer source commit before retrying.
+
+The maintainer committed adoption as
+`858c68845c4ee571c709f326e200f7770cfe7f37` during qualification. The final collector
+correction and current evidence/handoff follow that commit. Preserve the real
+index and refs. No agent staging, commit, release/publication, sibling edit or
+paid effect occurred. [The preceding 0.5 record](../evidence/shared0500227.md) and
+[preceding 0.4 evidence](../evidence/shared0400227.md) keep their original sources
+and limitations; their absent-tool-tree observation does not apply to this turn.
 
 The preceding Shared 0.3.12 adoption repaired Blob's local hook fixture too:
 resolve its temporary checkout
@@ -83,12 +90,15 @@ snapshot/declarations and diff checks passed before the incoming lock edits.
   owns retained archive acceptance; [#57](https://github.com/dragginzgame/ic-blob-storage/issues/57)
   still lacks complete Intel graph/optimizer acceptance. Artifact presence alone
   and this older run do not qualify new dirty inputs.
-- [#58](https://github.com/dragginzgame/ic-blob-storage/issues/58) owns the current
-  consumer temporary-path fix; dirty 0.22.7 has no hosted acceptance.
+- Released [0.22.7 CI](https://github.com/dragginzgame/ic-blob-storage/actions/runs/38135713423)
+  was queued at inspection; this is not a passed gate or qualification of dirty
+  0.22.8 inputs. The committed adoption source `858c688` had no applicable
+  hosted run at final inspection; the collector correction remains dirty. [#58](https://github.com/dragginzgame/ic-blob-storage/issues/58)
+  retains ownership of matching temporary-path acceptance.
 - [#59](https://github.com/dragginzgame/ic-blob-storage/issues/59) owns Shared
-  installation/PATH/storage adoption. The snapshot now records 0.5.0 and the
-  implemented shared host/IC store. Local focused qualification passes; matching
-  hosted Linux and both macOS acceptance remain.
+  0.6 Cargo/store/partial-evidence adoption. Focused Linux checks pass; matching
+  hosted Linux, Intel macOS and Apple Silicon acceptance and artifact readback
+  remain. Historical 0.5 local proof remains with its original record.
 - Canic owns managed wrapper/composition under
   [#444](https://github.com/dragginzgame/canic/issues/444); guarded funding evidence
   acquisition remains Canic #494 / Blob #34. Remaining Blob #4/#5/#6/#31/#32/#33/#34
