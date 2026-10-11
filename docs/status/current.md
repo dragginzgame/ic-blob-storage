@@ -8,8 +8,24 @@ Released Blob is `bc2b9e7e78bdc5116fdb8f838dd37a1f5c957185` (0.22.9),
 validated parent `e10b65982848af332d4ee3f0bd2934166f64fa33`. All twelve package
 versions and the finalized receipt remain 0.22.9. Its lock selects Memory
 0.35.10, private Metrics 0.6.4, Testkit 0.33.7 and all four Host 0.13.5.
-Preserve the incoming direct Host Artifacts/FS 0.14, Testkit 0.33.8 and
-cc 1.8.0/serde_json 1.0.153 edits. No dependency reselection is performed.
+The committed continuation is `cdb2e9dd8bd6db5f8e1957dfcba36664dfff2150`:
+direct Host Artifacts/FS 0.14.1, Memory 0.35.11, Testkit 0.33.8,
+cc 1.8.0 and serde_json 1.0.153. Preserve the subsequent working-lock edits
+selecting Metrics 0.6.5 and serde_json 1.0.154. No dependency reselection is
+performed.
+
+The maintainer's retained `20261011T150509Z-1337626` CI attempt fails at the
+offline Wasm fixture build because Metrics 0.6.5 is missing from its cache.
+Its earlier stages compile serde_json 1.0.153, so their results do not qualify
+the current 1.0.154 graph. Explicit `make deps` now passes, both updated archives
+match their lock checksums, and `CARGO_BUILD_JOBS=2 make test-fixture` builds all
+six release Wasm fixtures offline with Rust 1.99.0. The lock stays unchanged at
+SHA-256 `32cf16cfe5deae89d2a386ba9d127f9262b499e8262141da2c1769f8837c48a0`.
+Inputs, original failure, cache checks and successful commands remain in
+`target/review-validation/metrics06502210/`; original release-failure logs are
+untouched. Settle and commit the lock before fresh complete maintainer validation;
+this focused retry is not a complete gate. Tests remain offline and never fetch
+implicitly.
 
 Pending compatible 0.22.10 now adopts committed Shared 0.6.3
 `4fd979d13c32adb3cb2f51f213ebfc4f98339b3d`. Eight selected files change from
@@ -21,8 +37,9 @@ conditional Cargo failure and padded-count fixes remain adopted. No real release
 or recovery is run. Public Blob contracts, durable schemas, tool pins and Rust
 1.88 consumer support remain unchanged.
 
-Direct Host Artifacts/FS 0.14.0 archives match the lock checksums and released
-source `4723befe8d65c760c00e05c42652759d691fbd5e`. Their source APIs are unchanged
+Earlier reviewed direct Host Artifacts/FS 0.14.0 archives match their recorded
+lock checksums and released source `4723befe8d65c760c00e05c42652759d691fbd5e`.
+Their source APIs are unchanged
 from 0.13.5; no public Blob Host type or CLI behavior changes. All-target native
 CLI/contracts/example tests pass, as does actual Rust 1.88 all-target compilation
 for those packages. Their normal graph stays runtime-free. Published Testkit
