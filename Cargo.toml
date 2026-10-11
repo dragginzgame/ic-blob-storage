@@ -32,8 +32,8 @@ ic-blob-storage = { path = "crates/ic-blob-storage" }
 ic-blob-storage-canister = { path = "canisters/standalone" }
 ic-blob-storage-contracts = { path = "crates/ic-blob-storage-contracts", version = "0.22.9" }
 ic-cdk = "0.20.3"
-ic-host-artifacts = "0.13"
-ic-host-fs = "0.13"
+ic-host-artifacts = "0.14"
+ic-host-fs = "0.14"
 ic-management-canister-types = "0.11.0"
 ic-memory = "0.35"
 ic-metrics = "0.6"

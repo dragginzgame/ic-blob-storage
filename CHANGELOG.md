@@ -1,5 +1,35 @@
 # Changelog
 
+## [0.22.10]
+
+### Fixed
+
+- Use the workspace's locked dependency in offline archive regressions so a
+  fresh CI cache contains every fixture input. Keep real archive verification
+  and stale-payload/refusal checks.
+  [#56](https://github.com/dragginzgame/ic-blob-storage/issues/56).
+- Adopt Shared Tooling 0.6.3: Cargo-tool setup now stops on lock, receipt and
+  activation failures, preserves prior selections and accepts padded native
+  fixture counts. Interrupted-release refusals identify the saved and current
+  source without reusing stale validation. Normal direct releases restart
+  preparation from a clean descendant commit, retaining intent and running
+  fresh validation against the current metadata.
+  [Shared #120](https://github.com/dragginzgame/shared-tooling/issues/120),
+  [#124](https://github.com/dragginzgame/shared-tooling/issues/124),
+  [#126](https://github.com/dragginzgame/shared-tooling/issues/126).
+- Correct the remaining service-gap guidance for published Canic composition
+  and its independently qualified managed examples. Production/provider
+  acceptance remains separate.
+  [#31](https://github.com/dragginzgame/ic-blob-storage/issues/31),
+  [Canic #444](https://github.com/dragginzgame/canic/issues/444).
+
+### Changed
+
+- Adopt Host Artifacts/FS 0.14 for native tooling and contract examples, preserving
+  the current file-publication, output and Rust 1.88 contracts. Published
+  Testkit 0.33.8 retains its Host 0.13 dependencies until the owner's 0.34 release.
+  [Testkit #61](https://github.com/dragginzgame/ic-testkit/issues/61).
+
 ## [0.22.9] - 2026-10-11
 
 ### Fixed

@@ -2,6 +2,16 @@
 set -euo pipefail
 # Exercise changed same-version archives against a warm target with real Cargo.
 verifier="$PWD/scripts/ci/verify-library-packages.sh"
+# The ordinary locked cache preparation must cover this fixture too. Preserve
+# an external registry edge without introducing a separately pinned old crate.
+fixture_dependency_version="$(yq -p toml -o json -I 0 '.' Cargo.lock | jq -er '
+    [.package[] | select(.name == "cfg-if" and
+        .source == "registry+https://github.com/rust-lang/crates.io-index")]
+    | if length != 1 then error("expected one locked cfg-if selection")
+      else .[0].version end
+    | if test("^[0-9]+\\.[0-9]+\\.[0-9]+$") then .
+      else error("invalid locked cfg-if version") end
+')"
 fixture_parent="${CARGO_TARGET_DIR:-$PWD/target}"
 mkdir -p "$fixture_parent"
 fixture="$(mktemp -d "$fixture_parent/package-fixture.XXXXXX")"
@@ -27,13 +37,13 @@ members = ["contracts", "service"]
 [workspace.package]
 version = "0.17.2"
 TOML
-cat > contracts/Cargo.toml <<'TOML'
+cat > contracts/Cargo.toml <<TOML
 [package]
 name = "ic-blob-storage-contracts"
 version.workspace = true
 edition = "2024"
 [dependencies]
-cfg-if = "=1.0.4"
+cfg-if = "=$fixture_dependency_version"
 TOML
 cat > service/Cargo.toml <<'TOML'
 [package]

@@ -4,92 +4,93 @@ Date: 2026-10-11
 
 ## Released source and current batch
 
-Released Blob is `2f1ee44776fc6c59fc44b0b2c3a1d5c28c9c4835` (0.22.8),
-validated parent `e6b268f8e38698277f438014d96dbe41cef54d63`. All twelve package
-versions and the finalized receipt remain 0.22.8. Committed release-file hashes
-match that receipt. Registry metadata observes un-yanked runtime/contracts
-0.22.8 with Rust 1.88. The release lock selects Memory 0.35.8, private Metrics
-0.6.3, Testkit 0.33.6 and all four Host 0.13.2; PocketIC remains 16.1.0.
-The pending source commit `9c88d524d730e398ae9413a9aec2675b4a6ff60e` includes
-Host 0.13.3/Memory 0.35.9. Preserve the later Testkit 0.33.7 lock edit; earlier
-review results do not qualify these changed product compiler inputs.
+Released Blob is `bc2b9e7e78bdc5116fdb8f838dd37a1f5c957185` (0.22.9),
+validated parent `e10b65982848af332d4ee3f0bd2934166f64fa33`. All twelve package
+versions and the finalized receipt remain 0.22.9. Its lock selects Memory
+0.35.10, private Metrics 0.6.4, Testkit 0.33.7 and all four Host 0.13.5.
+Preserve the incoming direct Host Artifacts/FS 0.14, Testkit 0.33.8 and
+cc 1.8.0/serde_json 1.0.153 edits. No dependency reselection is performed.
 
-Shared 0.6.0 remains the reviewed 102-file snapshot at
-`75180980a0c4e4252d8a915aaecfaefd92bf9a4e`. The previously missing evidence file
-and collector correction are committed in this release. Original failures,
-setup/reuse and both Bash qualifications remain in
-[their source-bound record](../evidence/shared0600228.md); its earlier untracked
-observation is historical. No new tool setup or Shared refresh is performed here.
+Pending compatible 0.22.10 now adopts committed Shared 0.6.3
+`4fd979d13c32adb3cb2f51f213ebfc4f98339b3d`. Eight selected files change from
+0.6.2 within the same 102-file roster. Normal direct releases can supersede
+preparation after a clean descendant commit records local metadata disposition;
+the old plan is retained and current metadata receives fresh preflight/full
+validation. Explicit resume and later stages keep exact recovery. The existing
+conditional Cargo failure and padded-count fixes remain adopted. No real release
+or recovery is run. Public Blob contracts, durable schemas, tool pins and Rust
+1.88 consumer support remain unchanged.
 
-Pending compatible 0.22.9 corrects stale Canic/Memory guidance and records current
-published composition and remaining application/provider acceptance. The
-published Canic adapter 0.111.0 archive matches live registry SHA-256 and all ten
-Rust source files match its released source and inspected checkout. Its normalized
-manifest uses registry dependencies and Rust 1.91, while Blob's own floor stays
-1.88. Canic owns the dedicated/embedded adapter, single host memory/lifecycle and
-managed integration tests; Blob acquires no downstream dependency or fixtures.
+Direct Host Artifacts/FS 0.14.0 archives match the lock checksums and released
+source `4723befe8d65c760c00e05c42652759d691fbd5e`. Their source APIs are unchanged
+from 0.13.5; no public Blob Host type or CLI behavior changes. All-target native
+CLI/contracts/example tests pass, as does actual Rust 1.88 all-target compilation
+for those packages. Their normal graph stays runtime-free. Published Testkit
+0.33.8 retains its Host 0.13.5 family; [Testkit #61](https://github.com/dragginzgame/ic-testkit/issues/61)
+owns the unpublished 0.34 migration needed for full Host alignment. Preserve
+that owner boundary rather than adding dependency overrides or sibling paths.
 
-Canic's released graph uses Blob 0.22.4. Its dirty root now selects 0.22.7 while
-both independent examples retain 0.22.4; their private Metrics selections also
-differ. Preserve and qualify those graphs with their owner rather than attributing
-root checks to the examples. Blob core/contracts/standalone Rust source is
-unchanged from 0.22.4 through 0.22.8; that is source review, not graph execution.
+Released Linux archive CI fails because the real Cargo fixture pins cfg-if 1.0.4
+while locked cache preparation fetches 1.0.5. The exact retained artifact/logs
+prove the missing-cache refusal. The fixture now selects the workspace-locked
+version; original failure and corrected success are exercised with a fresh
+private cache containing only 1.0.5. Corrected warm-target/current-value and all
+archive/metadata/drift refusals pass on Bash 5.2 and genuine Bash 3.2.57.
 
-Toko Miner reports delivered registry-only Canic/adapter 0.111.0 with Blob
-0.22.5, disposable managed installation/admission, generated-Candid parity and
-same-release database restoration. Production Root installation, frozen
-Release-profile and provider/deployment acceptance remain open. See
-[the current review](../evidence/canic0229.md) for exact source, package, graph and
-owner evidence. Earlier [Canic reviews](../evidence/canic0223.md) retain their
-original inputs and limitations.
+Explicit Testkit 0.33.8 preparation and Shared 0.6.2 common setup remain
+recorded against their original inputs. Current complete offline tool admission
+passes; 0.6.3 changes no installer/pin and needs no reinstall. PocketIC stays
+Testkit-owned 16.1.0 and previous installations remain retained. Current focused
+release-adapter checks pass on Bash 5.2; the matching shared runner and Blob
+premature-completion fixtures pass on genuine Bash 3.2.57. Snapshot/declaration,
+link and shell checks pass. See [the current adoption record](../evidence/shared063-host01402210.md)
+and raw `target/review-validation/shared063-host01402210/`. The
+[preceding record](../evidence/shared06202210.md) and
+`target/review-validation/continuation02210/` retain 0.6.2 setup, collector and
+cold-cache archive results. No old compiler/evidence result is relabelled.
 
-Documentation links, runtime-free contract/CLI graph, snapshot/dependency
-checks and diff checks pass. No full CI/release, consumer compilation, sibling
-file mutation, staging/commit/push, deployment, paid provider effect or cleanup
-is performed in this batch. Public APIs and durable schemas are unchanged.
+Canic's published adapter 0.111.0 remains authenticated in
+[the release review](../evidence/canic0229.md). Its owner now reports both
+independent managed fixture locks qualified with Blob/contracts 0.22.8,
+Memory 0.35.9, Metrics 0.6.4 and Timers 0.17.10 in the pending uncommitted
+0.111.1 batch. Complete Fast artifacts, canonical Candid parity, tenant/uploader
+authority, discarded-result recovery, fences and same-release embedded
+application-state restoration pass in that report. Fresh fixture installs do
+not qualify production Root binding, cross-release upgrades or actual provider
+behavior. The service-gap table no longer describes the adapter as undelivered.
 
-## Subsequent Testkit prerequisite repair
-
-The maintainer's retained CI attempt
-`.git/release-state/validation-failures/20261011T130201Z-8625-0-ci.log`
-compiled Testkit 0.33.6, then refused 0.33.7 at the optimizer's offline tool check:
-the lock selection changed during validation. Explicit `make install-testkit`
-now prepares the canonical shared 0.33.7 CLI and admits the managed PocketIC
-16.1.0 server. Complete `CARGO_NET_OFFLINE=true RUSTUP_AUTO_INSTALL=0 make tools-check`
-passes and the selected lock stays unchanged during setup/checks. Original failure,
-selected lock and setup/check logs remain in
-`target/review-validation/testkit03370229/`. No tool fallback, implicit validation
-setup, lock reselection or cleanup was introduced. Commit the settled source and
-restart full validation; preceding passing stages are bound to their earlier graph.
-The agent did not rerun full CI or execute a release command.
+No full CI/release gate, sibling edit, staging/commit/push, version transaction,
+publication, deployment, paid provider effect or cleanup is performed here.
+The maintainer owns complete validation and release execution.
 
 ## Issues and next work
 
-- Matching [0.22.8 CI](https://github.com/dragginzgame/ic-blob-storage/actions/runs/38139356846)
-  has a successful Rust 1.88 lane, Linux in progress and both macOS lanes queued
-  at inspection. This is not a complete green gate and cannot qualify dirty
-  0.22.9 inputs. [#59](https://github.com/dragginzgame/ic-blob-storage/issues/59)
-  retains native Shared 0.6 setup/admission/evidence readback acceptance;
+- Matching [0.22.9 CI](https://github.com/dragginzgame/ic-blob-storage/actions/runs/38144539773)
+  has a successful Rust 1.88 lane, Linux archive failure and both macOS lanes queued
+  at inspection. The Linux cache defect is repaired locally above. This is not a
+  complete green gate and cannot qualify dirty 0.22.10 inputs. [#59](https://github.com/dragginzgame/ic-blob-storage/issues/59)
+  retains matching native Shared setup/admission and artifact upload/readback;
   [#58](https://github.com/dragginzgame/ic-blob-storage/issues/58) retains matching
-  hook temporary-path acceptance. #56/#57 retain their exact older archive/graph
-  requirements; cancelled or artifact-only lanes are not complete acceptance.
-- [Canic #444](https://github.com/dragginzgame/canic/issues/444) owns published
-  adapter/application composition and independently locked managed examples.
-  [Toko Miner #6](https://github.com/dragginzgame/toko-miner/issues/6) owns remaining
-  production application acceptance. Adapter publication itself is delivered.
+  hook temporary-path acceptance. #56/#57 retain their older exact archive/graph
+  requirements. Cancelled or artifact-only lanes are not complete acceptance.
+- [Canic #444](https://github.com/dragginzgame/canic/issues/444#issuecomment-6109464895)
+  owns pending fixture delivery and remaining application/provider acceptance.
+  [Toko Miner #6](https://github.com/dragginzgame/toko-miner/issues/6) owns production
+  installation and frozen Release-profile acceptance. Adapter publication and
+  disposable application acceptance are delivered; the Toko per-project journey
+  is separate from Toko Miner.
 - [#31](https://github.com/dragginzgame/ic-blob-storage/issues/31) retains actual
   two-user application/provider upload; [#33](https://github.com/dragginzgame/ic-blob-storage/issues/33)
-  retains real verifier operation. Disposable application installation does not
-  establish successful provider completion.
+  retains real verifier operation. Framework fixtures do not establish successful
+  provider completion.
 - [#32](https://github.com/dragginzgame/ic-blob-storage/issues/32) needs authoritative
   provider GC/missing-method/deletion/billing meaning before safe callbacks.
   [#34](https://github.com/dragginzgame/ic-blob-storage/issues/34) needs authenticated
   payer/credit/complete account activity before [Canic #494](https://github.com/dragginzgame/canic/issues/494)
-  can qualify guarded repeated funding. Do not manufacture receipts, placeholder
-  deletion responses, signer/deployment identities or paid probes.
+  can qualify guarded repeated funding. Preserve journals and fences; do not
+  manufacture receipts, placeholder deletion responses or paid probes.
 - #4/#5/#6 retain consumer media-map, browser serving and physical/economic
   lifetime acceptance. Core primitives and operator recipes already exist.
 
-[Earlier review handoff](review-before-0226.md) and
-[history through 0.22.4](history-through-0224.md) retain prior source-bound results.
-Historical handoffs are evidence, not current command authority.
+[Prior handoff](review-before-02210.md) retains the 0.22.9 preparation and Testkit
+0.33.7 prerequisite repair. Historical handoffs are evidence, not current authority.

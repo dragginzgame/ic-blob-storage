@@ -257,7 +257,17 @@ destination is unavailable, the logger preserves and reports its temporary logs.
 
 If preflight or validation fails, fix and commit the source, then rerun the normal
 target for fresh gates. Uncommitted preparation remains bound to its saved source
-and increment. After the release commit exists, a normal command reconciles that
+and increment. Shared 0.6.3 additionally lets a normal direct target supersede
+preparation when a newer clean descendant commit records the local metadata's
+disposition, with no staging evidence and the same destination. It archives the
+old intent unchanged, reads the current version, applies the requested increment
+and repeats preflight/full validation. Explicit resume remains exact-source.
+Blob preparation changes only local metadata; failed transactions restore their
+inputs and retain their backup. Committed receipts remain in Git, and validation
+logs use unique retained attempts. Do not rewrite an old receipt or remove a
+backup to trigger restart. See the [shared restart contract](releases.md#source-changes-after-saved-preparation-intent).
+
+After the release commit exists, a normal command reconciles that
 exact release even when newer fixes are committed on its descendant history:
 
 ```bash
