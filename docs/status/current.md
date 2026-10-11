@@ -26,6 +26,10 @@ Inputs, original failure, cache checks and successful commands remain in
 untouched. Settle and commit the lock before fresh complete maintainer validation;
 this focused retry is not a complete gate. Tests remain offline and never fetch
 implicitly.
+Read-only review of current Shared 0.6.3 and a substitute dispatch fixture are
+reported under [Shared #129](https://github.com/dragginzgame/shared-tooling/issues/129).
+The existing release runner rejects changed source after successful validation;
+the proposal concerns earlier refusal at consumer-owned stage boundaries.
 
 Pending compatible 0.22.10 now adopts committed Shared 0.6.3
 `4fd979d13c32adb3cb2f51f213ebfc4f98339b3d`. Eight selected files change from
