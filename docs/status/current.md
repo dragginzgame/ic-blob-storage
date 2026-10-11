@@ -4,106 +4,66 @@ Date: 2026-10-11
 
 ## Released source and current batch
 
-Released HEAD is `037f91c8ab9ba70675ea76a90a1c7591b2bc554d` (0.22.4),
-with validated source `9cd56de4668f4c4b7d950dd1fc6764540088ce4d`. All twelve
-package versions and the finalized receipt remain 0.22.4. Its committed graph
-selects Memory 0.35.4, Metrics 0.5.5, Testkit 0.33.1, all four Host 0.12.8,
-serde_json 1.0.152 and PocketIC 16.1.0. Earlier 0.22.4 adoption evidence selected
-older dependencies; retain that distinction. The previous ignored local packets
-are no longer present after maintainer cleanup; their durable summaries remain.
+Released HEAD is `25d2a66319dd8678bd66355a86d8b068c2b46d32` (0.22.5), with
+validated source `4dfabc18fcbad3b97d85db390108b8410eefc425`. All twelve package
+versions and the finalized receipt remain 0.22.5. Its committed lock selects
+Memory 0.35.6, Metrics 0.5.6, Testkit 0.33.1 and all four Host 0.12.10. Earlier
+0.22.5 local qualification used Memory 0.35.5/Host 0.12.9; keep it bound to those
+inputs rather than relabelling the historical evidence.
 
-The qualified pending 0.22.5 graph preserves incoming Memory 0.35.5, Metrics 0.5.6 and
-all four Host 0.12.9 lock edits. Their packaged Rust sources match the released selections;
-all other lock selections/edges stay unchanged. Public Blob API and stored schemas
-are unchanged. Adopt reviewed Shared 0.3.8 at
-`67285b28a98b7c4211ad32de726709d4e87edea4` through the canonical exporter, with
-its same 99-file roster and existing native matrix/concurrency policy. Ignore
-uncommitted sibling changelog bytes. Sibling repositories remain read-only.
+Pending compatible 0.22.6 adopts canonical Shared 0.3.11
+`db143ae9ae140eb66826c413360723d23c078f66` with the same 99-file roster and tool
+pins. Rust tool probes/installations use the selected consumer context; fatal,
+LLVM and missing-file diagnostics remain in retained summaries. Temporary-path
+fixes cover symlinked roots and relative TMPDIR. Dirty sibling hook changes are
+excluded. No affected dollar-prefixed derive macros were found in Blob.
 
-Strengthen coordinated archive qualification: admit both exact unpacked manifests,
-names, versions and workspace membership before compilation, retain external
-lock selections, and check final archive/source/mode/manifest/lock integrity.
-The verifier rejects incomplete exits with retained evidence. Actual Cargo
-regressions cover same-version warm-cache execution, false metadata, failed reads
-and post-build drift, including paths with spaces and Unicode. Current qualification
-is [recorded separately](../evidence/libraries0225.md): full `make ci`, genuine
-Bash 3.2 regressions and Rust 1.88 native/Wasm checks pass on fixed inputs.
-No agent commit, push, version transaction, release, publication or paid effect.
+Preserve incoming direct Host artifacts/fs 0.13.0, private Metrics 0.6.0 and
+Testkit 0.33.2. The removed Host lock-progress helper is unused; the changed Metrics
+tracked aggregates are unused by the read profiler's existing record_sample
+primitive. Host artifacts and Testkit Rust sources match the released selections.
+Host fs removes the unused helper. Testkit retains its private Host 0.12.10 graph;
+no Host identity crosses a public Blob boundary. Memory remains one 0.35.6 identity.
+Public Blob contracts, CLI results and stored schemas stay unchanged, so no Blob
+minor hard cut or new migration is needed for this batch.
 
-## Shared 0.3.9 / Host review — 2026-10-11
-
-Reviewed canonical Shared 0.3.9 `1ed2ca523186641e0e0cdf77e3cb10814c22a430`
-and Host 0.12.10 `5074de1792f920112c6539629605a6624f573863`; remote main/tag
-readbacks match the clean committed sources. Shared adoption remains 0.3.8.
-The next refresh changes four selected files: Rust installation/check context,
-its fixture, validation diagnostic classification and local setup documentation.
-It keeps tool pins and the existing roster. Rust setup now enters the selected
-consumer before all probes/installations; fatal/LLVM/missing-file diagnostics
-survive retained summaries. The canonical runner fixture remains producer-owned.
-
-Incoming Cargo.lock now selects all four Host 0.12.10 crates. Their 19/18/21/8-file
-Rust trees match 0.12.9; the upstream patch adopts Shared tooling and changes no
-library API. Preserve these incoming edits. The earlier full gate qualified
-0.12.9, so it does not establish this newer graph's readiness. No additional code
-removal or Host migration is required by this source review.
-
-Focused canonical Rust installer (substitute Cargo) and validation runner fixtures
-pass on current Bash and genuine Bash 3.2.57. The initial Bash 3.2 runner attempt
-from a Git-less export fails at its nested clone prerequisite; retain that attempt
-and pass the rerun from a clean isolated checkout. Evidence:
-`target/review-validation/shared039-host01210-review/`. Inspection only: no snapshot
-refresh, dependency resolution, full consumer gate, commit or release effects.
-Uncommitted sibling edits appearing during review are excluded.
-
-## Latest Shared review — 0.3.10
-
-Canonical remote main and the clean sibling checkout now agree on Shared 0.3.10
-`37af29b2f8fb4532744b600c5f85ce716a8b57cf`. Relative to reviewed 0.3.9, four
-selected files change: `docs/local-setup.md`, `rules/git-hooks.md`,
-`scripts/ci/check-release-commands.sh` and `scripts/ci/test-host-tools.sh`.
-The fixture/checker fixes normalize physical temporary roots and preserve nested
-Make probes under relative TMPDIR. Producer-only portable/release/frontend tests
-also expand coverage; no tool pins change and no new fixture needs vendoring.
-
-The documented cargo-sort-derives 0.13.0 workaround protects complete macros with
-dollar-prefixed derive paths using its existing disable-range markers. Source
-inspection of all Rust package directories finds no `$crate` or dollar-prefixed
-derive attributes in Blob, so no protective markers or local macro edits are
-required. The producer's real hook/downstream compilation fixture qualifies the
-scoped workaround, not unprotected rewriting or a replacement tool pin.
-
-Focused canonical host-tool and release-command fixtures pass on current Bash
-and genuine Bash 3.2.57 from a clean isolated committed checkout, using a
-symlinked temporary parent. The release fixture also exercises relative temporary
-directories, nested Make probes and retained refusals with a substitute release
-runner; no real release occurs. Evidence remains in
-`target/review-validation/shared0310-review/`. Shared adoption here still reads
-0.3.8; this inspection performs no refresh, product compilation or full CI.
+Explicit locked-cache preparation and Testkit installation/checks pass, retaining
+old CLI slots and the authenticated PocketIC 16.1.0 server. Complete delivery
+coverage and Rust 1.88 qualification pass on fixed inputs, including 643 native /
+376 enabled PocketIC cases, all four Wasm optimizer variants and exact archives;
+see [the current evidence](../evidence/shared03110226.md).
+Fix #56's missing native archive gate: all three hosted lanes now invoke
+`make package` and retain archive/admission/integrity and regression evidence,
+excluding compiler caches. The first complete local gate reaches native tests
+but socket-based cases refuse with sandbox `Operation not permitted`; retain that
+attempt and pass affected tests with local networking permitted. Initial input
+capture referenced a helper removed by maintainer cleanup; replace it before
+Rust compilation, retain the empty failed capture and pass repeated early tooling
+checks. All 1,720 input hashes/modes stay fixed across the corrected retry/floor
+checks. Final edits only attest this evidence; compiler/product inputs stay fixed.
+No agent commit, push, version transaction, release/publication, sibling edit or
+paid provider effect.
 
 ## Current checks and next work
 
-- Matching [0.22.3 hosted CI](https://github.com/dragginzgame/ic-blob-storage/actions/runs/38060598267)
-  passes Linux, Apple Silicon, Intel and Rust 1.88, including actual original/O3/Os/Oz
-  installation/restoration qualification. Closed #52 and #53 against that completed
-  source; earlier cancelled 0.22.2 evidence is not relabelled.
-- [0.22.4 hosted CI](https://github.com/dragginzgame/ic-blob-storage/actions/runs/38071662625)
-  has successful Linux and MSRV jobs; Apple Silicon is running and Intel is queued
-  at final review. #54/#55 retain their matching native acceptance boundaries.
-  [#56](https://github.com/dragginzgame/ic-blob-storage/issues/56) tracks the archive
-  guards' delivery and native acceptance. Dirty 0.22.5 changes have no hosted result.
-- Blob #54/#55/#56 have qualification/readback comments. After explicit maintainer
-  approval on 2026-10-11, the retained consumer feedback was
-  [posted to Shared #109](https://github.com/dragginzgame/shared-tooling/issues/109#issuecomment-6106452167).
-  The earlier automatic approval rejection remains recorded in the evidence.
-- Canic owns current managed wrapper/composition and coherent framework publication
-  under [#444](https://github.com/dragginzgame/canic/issues/444); guarded funding
-  acquisition/dispatch remains Canic #494 / Blob #34. No framework dependency,
-  fixture or sibling implementation belongs here. New library availability is
-  distinct from managed runtime and application acceptance.
-- Remaining #4/#5/#6/#31/#32/#33/#34 require their concrete consumer/provider,
-  operational or browser acceptance. Continue with the current library/package
-  batch; do not invent a deployment, signer or paid provider probe.
+- Matching [0.22.5 CI](https://github.com/dragginzgame/ic-blob-storage/actions/runs/38121988249)
+  passes Linux, Apple Silicon and Rust 1.88 at final review; Intel is still running.
+  Keep #54/#55/#56 open for their matching native acceptance. The prior 0.22.4
+  run was cancelled, and dirty 0.22.6 has no hosted result.
+- Completed 0.22.3 hosted evidence owns closure of #52/#53. Earlier cancelled
+  revisions and older dependency graphs are not relabelled.
+- Canic owns managed wrapper/composition and coherent framework publication under
+  [#444](https://github.com/dragginzgame/canic/issues/444); guarded funding evidence
+  acquisition remains Canic #494 / Blob #34. Do not add framework dependencies,
+  fixtures or implementation here. Remaining #4/#5/#6/#31/#32/#33/#34 require
+  concrete application/provider, operational or browser acceptance, not another
+  local substitute or an invented deployment/signer/paid probe.
+- [#57](https://github.com/dragginzgame/ic-blob-storage/issues/57) tracks the current
+  tooling/dependency batch. After fixed
+  local qualification, inspect matching hosted acceptance once more and close
+  only issues whose stated scope is actually complete.
 
-[Historical handoff through 0.22.4](history-through-0224.md) preserves earlier
-implementation, source-bound validation, failures and acceptance limits. It is
-historical evidence, not the current command authority.
+[Previous review handoff](review-before-0226.md) and
+[history through 0.22.4](history-through-0224.md) retain earlier source-bound results,
+failed attempts, pending limits and the approved Shared #109 feedback. Historical
+handoffs are evidence, not current command authority.

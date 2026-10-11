@@ -1,5 +1,29 @@
 # Changelog
 
+## [0.22.6]
+
+### Changed
+
+- Adopt Shared Tooling 0.3.11: use the selected consumer's Rust/Cargo context for
+  setup and checks, retain fatal/LLVM/missing-file diagnostics, and normalize
+  temporary paths in host-tool and release-command qualification.
+  [Shared #101](https://github.com/dragginzgame/shared-tooling/issues/101),
+  [#110](https://github.com/dragginzgame/shared-tooling/issues/110),
+  [#111](https://github.com/dragginzgame/shared-tooling/issues/111),
+  [#112](https://github.com/dragginzgame/shared-tooling/issues/112),
+  [#114](https://github.com/dragginzgame/shared-tooling/issues/114).
+- Adopt direct private Host artifacts/fs 0.13, private Metrics 0.6 and Testkit
+  0.33.2. The removed Host lock helper and changed Metrics tracked aggregates are
+  unused here; public Blob contracts, CLI results and stored schemas stay unchanged.
+  [#57](https://github.com/dragginzgame/ic-blob-storage/issues/57).
+
+### Testing
+
+- Qualify coordinated library archives on Linux and both macOS architectures in
+  hosted CI; retain exact archive/admission/integrity and regression evidence on
+  success or failure, excluding compiler caches.
+  [#56](https://github.com/dragginzgame/ic-blob-storage/issues/56).
+
 ## [0.22.5] - 2026-10-11
 
 ### Changed

@@ -4,7 +4,22 @@
 
 # Dependency setup
 
-## Current graph — released 0.22.4, pending 0.22.5
+## Current graph — released 0.22.5, pending 0.22.6
+
+All twelve package versions and the finalized receipt remain 0.22.5. Its committed
+lock selects Memory 0.35.6, Metrics 0.5.6, Testkit 0.33.1 and all four Host 0.12.10.
+Preserve incoming direct Host artifacts/fs 0.13.0, private Metrics 0.6.0 and Testkit
+0.33.2. Testkit retains its private Host 0.12.10 graph; the two Host minor identities
+do not cross a Blob boundary. Memory stays a single 0.35.6 identity. Public Blob
+contracts, CLI results, persisted schemas and the Rust 1.88 floor are unchanged.
+
+Adopt reviewed Shared 0.3.11 `db143ae9ae140eb66826c413360723d23c078f66` through
+the canonical exporter, retaining the same 99 files and tool pins. Explicit
+`make install-testkit` prepares the new lock-selected CLI and authenticates the
+existing PocketIC 16.1.0 server; old slots remain. Offline checks never install.
+See [the continuation record](evidence/shared03110226.md) for qualification.
+
+## Earlier graph — released 0.22.4, pending 0.22.5
 
 All twelve released package versions and the finalized receipt remain 0.22.4.
 Its committed lock selects Memory 0.35.4, Metrics 0.5.5, Testkit 0.33.1 and all

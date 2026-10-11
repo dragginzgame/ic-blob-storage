@@ -82,6 +82,18 @@ Testkit 0.33 CLI explicitly with `make install-testkit`, then require offline
 The canonical hook rejects failed Git tree observations before staging.
 See [the adoption records](evidence/shared0370224.md).
 
+Released 0.22.5 strengthens coordinated archive admission and final integrity;
+fixture-only registry overrides remain separate from normal publication checks.
+Pending compatible 0.22.6 adopts Shared 0.3.11 and private Host 0.13/Metrics 0.6,
+without changing Blob's public contracts or service schemas. Prepare its selected
+Testkit 0.33.2 CLI explicitly with `make install-testkit`; retain previous CLI
+slots and authenticated PocketIC 16.1.0. See
+[the continuation record](evidence/shared03110226.md) for the exact qualified graph
+and delivery/native acceptance. Package versions and the release receipt remain
+0.22.5 until the maintainer's release transaction.
+The native CI lanes run coordinated archive qualification explicitly and retain
+its inputs and attempts independently of normal registry publication admission.
+
 Released 0.21.0 changes capacity reply/preflight shapes: rebuild consumers for
 the three mandatory byte headrooms and dimension-specific blocker names. The
 usable minimum and stored schemas remain unchanged. Shared Tooling's upstream

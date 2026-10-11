@@ -120,6 +120,31 @@ jobs:
           exit "$failed"
       - name: Prepare the locked native dependency cache
         run: make deps
+      - name: Qualify coordinated library archives on this host
+        env:
+          CARGO_NET_OFFLINE: 'true'
+          RUSTUP_AUTO_INSTALL: '0'
+          TMPDIR: ${{ runner.temp }}
+        run: make package
+      - name: Retain coordinated archive qualification
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: blob-packages-${{ matrix.os }}-${{ github.run_attempt }}
+          path: |
+            target/package/*.crate
+            target/package/blob-verification.*/**
+            target/package-fixture.*/**
+            !target/package/blob-verification.*/target/**
+            !target/package-fixture.*/target/debug/**
+            !target/package-fixture.*/target/release/**
+            !target/package-fixture.*/target/package/blob-verification.*/target/**
+            !target/package-fixture.*/refusal-*/target/debug/**
+            !target/package-fixture.*/refusal-*/target/release/**
+            !target/package-fixture.*/refusal-*/target/package/blob-verification.*/target/**
+          include-hidden-files: true
+          if-no-files-found: ignore
+          retention-days: 30
       - name: Qualify native CLI, installation and Metrics restoration probe
         env:
           CARGO_NET_OFFLINE: 'true'

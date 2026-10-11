@@ -58,7 +58,7 @@ explicitly with `make install-tools` before validation. The reviewed
 Make selects `.tools/host/bin`, `.tools/ic/bin` and `.tools/rust/bin`;
 the offline checkers never download missing tools. The shared aggregate runs
 host, IC and Cargo setup/check stages in order, stopping on the first failure,
-including under parallel Make. Shared 0.3.8 retains read-only IC/platform and
+including under parallel Make. Shared 0.3.11 retains read-only IC/platform and
 Rust/Cargo preflight before common installation; offline checks never run setup.
 Cargo-bearing local recipes preserve Make's jobserver descriptors through their
 shell adapters. Blob extends `LOCAL_TOOL_INSTALL_TARGETS` and
@@ -71,6 +71,11 @@ network; it stays explicit and separate from ordinary validation.
 `make test-native-host` is the focused CLI/example/PocketIC installation and
 Metrics restoration-read check used by
 the native host CI matrix, separate from the complete gate.
+Each native lane also runs `make package`, including real same-version/refusal
+regressions and exact coordinated archive tests. Hosted archive qualification
+retains archives, unpacked sources, admitted metadata/hashes and regression
+attempts on success or failure, excluding compiler caches. Artifact presence
+alone does not turn a failed or cancelled host into a qualified result.
 `make test-wasm-opt` reuses the maintained PocketIC installation, admission and
 restoration cases for original and Binaryen O3/Os/Oz standalone/storage Wasm,
 with explicit `--enable-bulk-memory-opt`. Fixtures drain installation debt with
