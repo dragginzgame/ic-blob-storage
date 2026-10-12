@@ -101,8 +101,9 @@ pub struct RestorationMemoryReads {
     /// Requested bytes, including repeated reads, saturating at `u64::MAX`.
     pub bytes: u64,
     /// Instructions inside the wrapped read; excludes B-tree decoding/traversal outside it.
-    /// Saturates at `u64::MAX`; saturated observations are not exact interval counters.
-    pub instructions: u64,
+    /// Accumulated `u64` observations, saturating at `u128::MAX`.
+    /// Saturated observations are not exact interval counters.
+    pub instructions: u128,
 }
 
 /// Private local measurements around the maintained host confirmation workflow.

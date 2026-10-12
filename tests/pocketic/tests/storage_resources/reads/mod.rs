@@ -47,7 +47,7 @@ fn restoration_reads_are_attributed_only_to_the_operator_reopen_window() {
     );
     for row in &restored.reads {
         assert_ne!(row.memory, "");
-        assert!(row.instructions <= restored.stores_instructions);
+        assert!(row.instructions <= u128::from(restored.stores_instructions));
         if row.calls == 0 {
             assert_eq!((row.bytes, row.instructions), (0, 0));
         }

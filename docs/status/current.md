@@ -18,8 +18,13 @@ Testkit 0.34.1; the requested update now selects all four Host crates 0.14.4.
 Later incoming lock edits select Memory 0.35.14, Metrics 0.7.1, Testkit 0.34.2
 and all four Host crates 0.14.5, preserved without reselection. Native/boundary
 tests and Rust 1.88 checks pass on the earlier held graph, not these newer patches.
-Full product qualification remains pending: the Metrics 0.7 storage probe
-still requires the coordinated wide-total adaptation under #60.
+The current lock additionally selects Testkit 0.34.3. The Metrics 0.7 storage
+probe mismatch is now repaired in the working tree: totals and private Candid
+observations use `u128`, and retained JSON projects them as decimal strings.
+Workspace checking, the wide codec/report regression and actual PocketIC
+restoration/authority/reset case pass on this graph. See
+[the repair record](../evidence/metrics07102211.md). Full product qualification
+remains separate from those targeted checks.
 
 Pending adoption now records Shared 0.8.0
 `045a6f22a9de497bfb3af90cb2571957384806f2`, 105 files, through clean isolated
@@ -41,10 +46,11 @@ and `--retire-file` is removed. All 105 existing roots are retained, so this
 refresh removes no files. Repeat preview, actual snapshot/Make/tool checks and
 automatic retirement/refusal/interruption fixtures pass; the latter also pass
 with genuine Bash 3.2 on Linux. Compiler/executable pins and incoming product
-source are preserved; no new runtime qualification is claimed. Git delivery of the
-earlier batch has advanced HEAD to `ca482fae6bff8efa14a8c309d00cf9fb32ee6feb`,
-but workspace versions and receipt still identify 0.22.10. New adoption remains
-uncommitted; no new release is inferred from commit subjects.
+source are preserved; that tooling record claims no new runtime qualification.
+The earlier adoption is now committed at HEAD
+`e5f78381e7f57edf2668b872a9a10ebb6b63c4ec`, while workspace versions and receipt
+still identify 0.22.10. The new Metrics repair remains uncommitted; no new release
+is inferred from commit subjects.
 
 Pending compatible 0.22.11 corrects Canic integration guidance and acceptance
 boundaries. It records the actual Root-driven installation proof and the separate
@@ -52,7 +58,8 @@ adapter memory-owner cleanup, replacing stale current-graph claims. Dependency,
 Memory and funding recipes now identify the actual released graph. The batch
 also adopts the common Make/input guard and retains the earlier Host/Candid
 qualification below. Shared adoption changes no library API or stored schema.
-Incoming Metrics requirements and caller/report qualification remain separate.
+The batch also fixes the private Metrics probe/report integration; production
+service schemas and public library interfaces are unchanged.
 See [the continuation review](../evidence/canic02211.md) and raw
 `target/review-validation/canic02211/`. The core/contracts/standalone Rust source
 diff from released Blob 0.22.8 to 0.22.10 is empty; new dependency graphs still
@@ -114,13 +121,35 @@ placeholder callback or paid probe is authorized by this continuation.
 [Toko Miner #6](https://github.com/dragginzgame/toko-miner/issues/6) retains its
 production/frozen Release-profile acceptance; Toko's per-project journey is separate.
 
+## Shared endpoint declaration owner
+
+The maintainer explicitly authorized implementation of #61 in this repository
+from the Canic session. The uncommitted contracts API now provides
+`mount_service_endpoints!` as an explicit opt-in. It shares the 32 service method
+names, DTO signatures and immediate delegation through a host-owned callback.
+Caller/service context, trusted clock, endpoint attributes and decoding categories
+remain explicit host inputs. No Canic dependency, automatic export, memory owner,
+lifecycle participant or provider substitute is added.
+
+Standalone uses that declaration owner; its endpoint module contracts to 61 lines.
+Its retained canonical Candid is structurally equal. Scoped native/Wasm library
+checks, warning-denied Clippy and Rust 1.88 Wasm checks pass. Logs are
+`target/endpoint-owner-*.log`. Async version observation remains in the host
+workflow, including gateway/account completions and recovery. Source/package
+versions remain 0.22.10; this API is not in the published archive. The existing
+0.22.11 draft describes the additive owner. No Git or publication action ran.
+Canic's independently locked dedicated/embedded compositions and production Root
+binding/recovery pass. An ignored candidate catalog checks Canic's smaller adapter
+against this unpublished API; its normal catalog stays on delivered packages.
+[#61](https://github.com/dragginzgame/ic-blob-storage/issues/61) and
+[Canic #444](https://github.com/dragginzgame/canic/issues/444) own acceptance.
+
 ## Validation and retained work
 
 The earlier Shared 0.6.6 refresh changes three selected files and retains the
 105-file companion closure. Explicit setup admits cargo-sort-derives 0.14.1;
 complete tools, declarations, root formatting and actual hook checks pass.
-Blob has no exported macros, dollar-prefixed macro paths or corruption-workaround
-markers to remove. A separate-crate fixture exercises direct and conditional
+That earlier tooling-only checkpoint preceded the new opt-in endpoint macro. A separate-crate fixture exercises direct and conditional
 macro derives through the actual formatter, comparing exact sorted bytes and
 compiling the consuming crate. Installer fixtures also pass.
 
@@ -177,13 +206,18 @@ cache failure and explicit successful six-Wasm retry remain in
 [Shared #129](https://github.com/dragginzgame/shared-tooling/issues/129) owns the
 early input-drift owner, now adopted at Blob's actual stage boundaries; existing
 release guards remain.
-[Blob #60](https://github.com/dragginzgame/ic-blob-storage/issues/60) tracks Metrics
-0.7 wide-total adoption separately; no new dependency hard cut starts here.
-The earlier Metrics 0.7.0 registry refusal is historical. Its incoming API now
-requires `record_sample` totals as `u128`; the storage test probe still supplies
-`u64`. Its counter, protocol/report and assertions need coordinated adaptation
-before a current product gate can pass. That work remains #60, not completed by
-tool admission or earlier Metrics 0.6 runtime results. No issue closes here.
+[Blob #60](https://github.com/dragginzgame/ic-blob-storage/issues/60) now has its
+coordinated working-tree repair: the heap counter and private observation carry
+`u128` totals, both report paths share exact decimal projection, and the store
+instruction comparison widens the individual measurement without truncation.
+The earlier Metrics 0.7.0 registry refusal is historical. Locked fetch and
+Testkit 0.34.3/PocketIC 16.1.0 admission pass; actual workspace checking, the
+wide Candid/retained-JSON regression and rebuilt probe restoration case pass.
+Changed-package Clippy and Rust 1.88 checks also pass.
+Source/lock/Wasm hashes and logs remain in
+`target/review-validation/metrics07102211/`. Earlier runtime results keep their
+original graphs. #60 remains open for delivery; no full gate or new hard cut is
+inferred from this private test-support change.
 Read-only findings remain in `target/review-validation/canic02211/more-issues-review.json`.
 
 Documentation links and diff/source consistency checks also pass. No full

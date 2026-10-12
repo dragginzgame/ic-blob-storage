@@ -21,3 +21,14 @@ cargo run -p ic-blob-storage-contracts --example verify_download -- --help
 ```
 
 See the repository's [migration and qualification record](../../docs/evidence/contracts-0180.md).
+
+## Opt-in host endpoint declarations
+
+The pending `mount_service_endpoints!` API shares service method declarations
+with a host-owned callback. Invoke it inside an endpoint module and supply its
+visible contract-crate alias, workflow adapter, actual caller/service context,
+trusted clock/caller/trap paths and bounded query/update attributes. The callback
+receives the request/manifest decoding category and the provider certificate's
+exact wire name. Keep lifecycle, installation, memory allocation and post-await
+continuity in the host. See the standalone API module for a complete expansion.
+Linking this runtime-free crate alone exports no endpoint or lifecycle hook.

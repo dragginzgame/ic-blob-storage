@@ -49,8 +49,7 @@ fn measured(
         &serde_json::json!({
             "instructions":observation.instructions,"heap_bytes":observation.heap_bytes,
             "stable_bytes":observation.stable_bytes,
-            "reads":observation.reads.iter().map(|r| serde_json::json!({"memory":r.memory,
-                "calls":r.calls,"bytes":r.bytes,"instructions":r.instructions})).collect::<Vec<_>>()
+            "reads":memory_reads(&observation.reads)
         }),
     );
     observation

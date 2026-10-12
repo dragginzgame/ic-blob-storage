@@ -6,7 +6,8 @@ use super::*;
 use blob_test_protocol::{
     admission::input::ReferenceInput,
     storage::resources::{
-        PopulationBatch, RestorationResources, STORAGE_PROBE_INPUT_BYTES, StorageProbeInstallation,
+        PopulationBatch, RestorationMemoryReads, RestorationResources, STORAGE_PROBE_INPUT_BYTES,
+        StorageProbeInstallation,
     },
 };
 use ic_blob_storage_contracts::dto::upload::manifest::UploadManifestFailure;
@@ -51,6 +52,46 @@ fn retained_resource_artifacts_preserve_exact_bytes_and_refuse_replacement() {
     );
 }
 
+/// Preserve wide accumulated instruction totals in both retained report paths.
+fn memory_reads(reads: &[RestorationMemoryReads]) -> Vec<serde_json::Value> {
+    reads
+        .iter()
+        .map(|row| {
+            serde_json::json!({"memory":row.memory,"calls":row.calls,"bytes":row.bytes,
+                "instructions":row.instructions.to_string()})
+        })
+        .collect()
+}
+
+#[test]
+fn wide_instruction_totals_survive_candid_and_retained_json() {
+    let rows =
+        [0, u128::from(u64::MAX) + 1, u128::MAX].map(|instructions| RestorationMemoryReads {
+            memory: "uploads".to_owned(),
+            calls: 2,
+            bytes: 16,
+            instructions,
+        });
+    let encoded = candid::encode_one(rows.as_slice()).unwrap();
+    let decoded: Vec<RestorationMemoryReads> = candid::decode_one(&encoded).unwrap();
+    let directory = tempfile::tempdir().unwrap();
+    retain(
+        directory.path(),
+        "wide-reads.json",
+        &serde_json::json!({"reads":memory_reads(&decoded)}),
+    );
+    let report: serde_json::Value =
+        serde_json::from_slice(&std::fs::read(directory.path().join("wide-reads.json")).unwrap())
+            .unwrap();
+    let observations = report["reads"].as_array().unwrap();
+    assert_eq!(observations.len(), rows.len());
+    for (expected, actual) in rows.iter().zip(observations) {
+        assert_eq!(actual["instructions"], expected.instructions.to_string());
+        assert_eq!(actual["calls"], expected.calls);
+        assert_eq!(actual["bytes"], expected.bytes);
+    }
+}
+
 pub(super) fn resources(f: &Fixture) -> serde_json::Value {
     let result: Result<RestorationResources, Failure> = f
         .harness
@@ -66,7 +107,7 @@ pub(super) fn resources(f: &Fixture) -> serde_json::Value {
     serde_json::json!({"restored":r.restored, "initialization_instructions":r.initialization_instructions,
         "stores_instructions":r.stores_instructions, "initialization_heap_bytes":r.heap_bytes,
         "initialization_stable_bytes":r.stable_bytes,
-        "reads":r.reads.iter().map(|row| serde_json::json!({"memory":row.memory,"calls":row.calls,"bytes":row.bytes,"instructions":row.instructions})).collect::<Vec<_>>(),
+        "reads":memory_reads(&r.reads),
         "current_heap_bytes":status.memory_metrics.wasm_memory_size.0.to_string(),
         "current_stable_bytes":status.memory_metrics.stable_memory_size.0.to_string()})
 }

@@ -4,6 +4,12 @@
 
 ### Fixed
 
+- Fix the private storage probe's Metrics 0.7 integration: accumulate read
+  instruction totals as `u128` across the probe and Candid reports. Retained
+  JSON reports use decimal strings for these totals, preserving wide values.
+  Rebuild the test probe and harness together; production service schemas are
+  unchanged. [#60](https://github.com/dragginzgame/ic-blob-storage/issues/60).
+
 - Refresh Canic integration guidance with the Root-driven installation and
   recovery proof. Distinguish its independently locked artifacts from current
   releases, and make application authentication, verifier completion and
@@ -13,6 +19,15 @@
   [Canic #444](https://github.com/dragginzgame/canic/issues/444).
 
 ### Changed
+
+- Add the opt-in, runtime-free contracts endpoint declaration macro for standalone
+  and embedded hosts. Share method names, DTO signatures and immediate workflow
+  delegation; hosts retain bounded decoding, endpoint attributes, actual caller
+  context, continuity, memory and lifecycle ownership. The standalone host uses
+  this owner with unchanged structural Candid, moves post-await observation into
+  its workflow adapter, and bounds the two previously unbounded zero-argument
+  service entries. Linking the libraries exports no endpoints.
+  [#61](https://github.com/dragginzgame/ic-blob-storage/issues/61).
 
 - Adopt Shared Tooling 0.8.0's single Make entrypoint, preserving product gates,
   ordered Testkit setup and release admission. Remove duplicate hook-installation

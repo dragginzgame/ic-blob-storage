@@ -25,18 +25,25 @@ consumer floor remains 1.88.0. The pending changes correct Canic integration
 guidance and select all four Host crates 0.14.4 with Candid 0.10.38.
 Separate incoming Cargo edits now select Memory 0.35.13, Metrics 0.7.0 and
 Testkit 0.34.1. Later incoming lock edits select Memory 0.35.14, Metrics 0.7.1,
-Testkit 0.34.2 and all four Host crates 0.14.5. These are preserved; the Metrics caller/report adoption remains
-[#60](https://github.com/dragginzgame/ic-blob-storage/issues/60), and earlier
+Testkit 0.34.2 and all four Host crates 0.14.5. The current lock advances Testkit
+to 0.34.3 without dependency reselection by the Metrics repair. Earlier
 runtime results keep their original graph identities. New focused native and
 Rust 1.88 checks pass on the earlier 0.35.13/0.7.0/0.34.1/Host 0.14.4 selection;
-they do not qualify the newer graph. The Metrics storage probe remains
-unqualified. See [the latest adoption record](evidence/shared066-host014402211.md).
+they do not qualify the newer graph. The new Metrics repair qualifies the
+private probe and its report boundaries separately; see
+[its record](evidence/metrics07102211.md) and the
+[earlier Host qualification](evidence/shared066-host014402211.md).
 Explicit Testkit 0.34.1 setup
 and complete offline tool admission pass, retaining PocketIC 16.1.0 and the
 previous installed selections. Tool admission does not qualify product code.
-The source-reviewed Metrics 0.7 API requires a `u128` accumulated instruction
-total; the test probe still supplies `u64` and its report/callers need coordinated
-work under #60. The
+The Metrics 0.7 accumulated instruction total now uses `u128` throughout the
+private probe and Candid observation. Retained per-memory `reads[].instructions`
+JSON fields use decimal strings; individual instruction measurements, call
+counts and byte counts retain `u64`. Rebuild the test probe and harness together.
+These observations are heap-only, so no production durable schema or service
+endpoint changes. Prior artifacts keep their original source/format identities.
+[#60](https://github.com/dragginzgame/ic-blob-storage/issues/60) retains delivery
+of this coordinated repair. The
 [current handoff](status/current.md) records native/boundary tests and actual
 Rust 1.88 native/Wasm checks against their earlier captured lock, separately
 from the released and newly incoming graphs.

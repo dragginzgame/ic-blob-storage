@@ -23,7 +23,7 @@ use std::num::NonZeroU128;
 struct ReadCounter {
     calls: u64,
     bytes: u64,
-    instructions: u64,
+    instructions: u128,
 }
 thread_local! {
     static MEASURE_READS: Cell<bool> = const { Cell::new(false) };
