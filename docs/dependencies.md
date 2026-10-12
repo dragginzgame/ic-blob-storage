@@ -4,7 +4,51 @@
 
 # Dependency setup
 
-## Current graph — released 0.22.8, pending 0.22.9
+## Current graph — released 0.22.10, pending 0.22.11
+
+All twelve package versions and the finalized receipt remain 0.22.10. The released
+lock selects Memory 0.35.12, private Metrics 0.6.6, Testkit 0.34.0 and all four
+Host crates 0.14.1. That release records Shared Tooling 0.6.3
+`4fd979d13c32adb3cb2f51f213ebfc4f98339b3d`, with 102 reviewed files.
+Pending adoption records Shared 0.6.6
+`a15eb9d406d287697df9bc8fa96db8cda6721a71`, with 105 files and one
+`make/consumer.mk` entrypoint. Its root-workspace formatter covers all twelve
+members in the existing layout; ordered Testkit extensions and product gates
+remain local. See the [Make interface](make-interface.md).
+PocketIC remains 16.1.0, the development compiler is Rust 1.99.0 and Blob's
+consumer floor remains 1.88.0. The pending changes correct Canic integration
+guidance and select all four Host crates 0.14.4 with Candid 0.10.38.
+Separate incoming Cargo edits now select Memory 0.35.13, Metrics 0.7.0 and
+Testkit 0.34.1. Those are preserved; the Metrics caller/report adoption remains
+[#60](https://github.com/dragginzgame/ic-blob-storage/issues/60), and earlier
+runtime results keep their original graph identities. New focused native and
+Rust 1.88 checks pass on this selection; the Metrics storage probe remains
+unqualified. See [the latest adoption record](evidence/shared066-host014402211.md).
+Explicit Testkit 0.34.1 setup
+and complete offline tool admission pass, retaining PocketIC 16.1.0 and the
+previous installed selections. Tool admission does not qualify product code.
+The source-reviewed Metrics 0.7 API requires a `u128` accumulated instruction
+total; the test probe still supplies `u64` and its report/callers need coordinated
+work under #60. The
+[current handoff](status/current.md) records native/boundary tests and actual
+Rust 1.88 native/Wasm checks against their earlier captured lock, separately
+from the released and newly incoming graphs.
+
+After changing dependencies, prepare the settled lock with explicit `make deps`.
+Shared 0.6.6 selects cargo-sort-derives 0.14.1; explicitly run
+`make install-rust-tools`, then `make tools-check` for its admitted tool selection.
+When its selected Testkit CLI changes, use explicit `make install-testkit`, then
+offline `make testkit-check`; source fetching alone does not install executables.
+Complete setup/admission remains `make install-tools` followed by `make tools-check`.
+Preserve old installations and failed evidence. Ordinary builds/tests stay
+offline and locked; a dependency edit during validation requires restarting
+against the settled inputs rather than reusing earlier results.
+
+The [current handoff](status/current.md) identifies release and validation
+evidence. [Canic adoption](#canic-integration) separately qualifies its root and
+independent managed consumer graphs; a newer Blob release does not update them.
+
+## Earlier graph — released 0.22.8, pending 0.22.9
 
 All twelve package versions and the finalized receipt remain 0.22.8. The released
 lock selects Memory 0.35.8, private Metrics 0.6.3, Testkit 0.33.6 and Host 0.13.2.
@@ -968,9 +1012,9 @@ neither emits a certificate or sends service/gateway traffic. See the
 
 ## Memory composition
 
-Released Blob 0.22.8 publicly re-exports `ic-memory ^0.35`; its released lock
-selects Memory 0.35.8. The incoming 0.35.9 selection remains separate from that
-released graph. Hosts compose namespace grants in one host-wide allocation pool
+Released Blob 0.22.10 publicly re-exports `ic-memory ^0.35`; its released lock
+selects Memory 0.35.12. Earlier graph qualification retains its recorded patch
+identity. Hosts compose namespace grants in one host-wide allocation pool
 and open permanent keys through the committed runtime.
 Earlier Memory minor lines are not
 interchangeable with this API. A source-identical
@@ -1028,10 +1072,17 @@ Blob's standalone/library minimum remains 1.88.
 
 Canic owns the adapter, dedicated shell and embedded application fixture. Keep
 these outside Blob; do not mount the standalone canister inside Canic or bootstrap
-a second manager. [The current package/source review](evidence/canic0229.md)
-authenticates the published adapter and distinguishes Canic's released graph,
-dirty root and two independently locked examples. The root now selects Blob
-0.22.7 while the examples retain 0.22.4; qualifying one does not qualify the other.
+a second manager. [The package/source review](evidence/canic0229.md)
+authenticates the published adapter. The [0.22.10 continuation review](evidence/canic02211.md)
+records Canic's newer Root-driven installation proof and distinguishes its
+independent graphs: the dirty root selects Blob 0.22.9, while both qualified
+managed examples retain Blob 0.22.8. Neither result qualifies Blob 0.22.10 merely
+because its core source is unchanged. Freeze and qualify the intended graph
+before installation; refresh the root and both independent locks together.
+Canic's pending Auth/Backup dependency identities also change its public Rust
+type boundary under [Canic #517](https://github.com/dragginzgame/canic/issues/517).
+Its maintainer must resolve the minor-release boundary before publishing that
+batch; Blob's compatible patch does not make the entire Canic batch compatible.
 [Earlier 0.22.2 review](evidence/canic0223.md) and
 [0.21.5 review](evidence/canic0216.md) remain historical.
 
@@ -1043,6 +1094,15 @@ graph, production Root installation, frozen Release-profile or provider behavior
 [Canic #444](https://github.com/dragginzgame/canic/issues/444) and the application
 owner retain those acceptance boundaries. A dedicated shell may use
 `canic_blob_service::dto` for installation data without recreating contracts.
+
+Canic's retained local Root-driven proof now installs the dedicated service
+through the real controller-authorized initializer, checks exact installed
+configuration and reconciles a discarded binding reply after Root restart.
+It also refuses changed bindings and replays the installed operation without
+reinstallation. This is stronger than fixture-injected initialization, but its
+managed artifact still selects Blob 0.22.8 and its implementation is uncommitted.
+It does not establish a live application, per-project parent authorization,
+provider completion or acceptance of another release graph.
 
 For the Canic-owned adoption batch:
 
@@ -1070,7 +1130,8 @@ For the Canic-owned adoption batch:
    Wasm graph for one memory runtime and compare all canonical Blob Candid methods
    and reply types. Run owned dedicated/embedded PocketIC installation, caller
    and target refusal, metrics, exact initializer, lost-result and same-image
-   restoration/recovery cases. Include two tenant-approved uploaders and the
+   restoration/recovery cases. Exercise actual Root-driven initialization without
+   fixture injection for the dedicated service. Include two tenant-approved uploaders and the
    three independent capacity headrooms. Compilation alone is insufficient.
 5. Use the published coherent family and adapter, then qualify the selected
    application from clean registry inputs under
@@ -1078,6 +1139,18 @@ For the Canic-owned adoption batch:
    or adapter changes retain their own delivery and application acceptance. Apply
    [retirement](retiring-installations.md) before a cross-release reinstall;
    same-release recovery does not authorize upgrading existing installations.
+
+After managed qualification, the application owner must exercise its real
+authentication and publication path. Use two separately authenticated browser
+users with exact tenant-granted upload permissions; reject revoked, expired,
+cross-tenant and wrong-service requests before certificate exposure. Retain each
+original operation through lost replies and recover its outcome without another
+provider effect. Operate the separately installed verifier and qualify actual
+provider completion before publishing the application's media map. These steps
+belong to [multi-user acceptance](multi-user-upload-authority.md),
+[verifier operation](completion-verifier.md) and the
+[confirmed-reference publication steps](operator-guide.md#produce-a-complete-confirmed-reference-map); a managed installation
+or a typed unprepared refusal does not complete them.
 
 The [Canic composition guide](https://github.com/dragginzgame/canic/blob/main/docs/features/blob-storage/README.md)
 owns its mounting APIs. Application login/tenant grants, completion-verifier

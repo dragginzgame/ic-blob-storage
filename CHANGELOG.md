@@ -1,5 +1,34 @@
 # Changelog
 
+## [0.22.11]
+
+### Fixed
+
+- Refresh Canic integration guidance with the Root-driven installation and
+  recovery proof. Distinguish its independently locked artifacts from current
+  releases, and make application authentication, verifier completion and
+  publication acceptance explicit. Correct the current dependency and funding
+  recipes to the released graph and distinguish Canic's own minor-release boundary.
+  [#31](https://github.com/dragginzgame/ic-blob-storage/issues/31),
+  [Canic #444](https://github.com/dragginzgame/canic/issues/444).
+
+### Changed
+
+- Adopt Shared Tooling 0.6.6's single Make entrypoint, preserving product gates,
+  ordered Testkit setup and release admission. Remove duplicate hook-installation
+  and snapshot-check recipes; retain all existing commands and workspace coverage.
+  Check declared preparation inputs between CI stages, retaining original failures
+  and stopping later work when a manifest, lock or tool selection changes.
+  [#59](https://github.com/dragginzgame/ic-blob-storage/issues/59),
+  [Shared #130](https://github.com/dragginzgame/shared-tooling/issues/130),
+  [#129](https://github.com/dragginzgame/shared-tooling/issues/129).
+- Select cargo-sort-derives 0.14.1, preserving literal `$crate` paths in direct
+  and conditional macro derives. Explicitly refresh tools with
+  `make install-rust-tools`, then `make tools-check`.
+  [Shared #113](https://github.com/dragginzgame/shared-tooling/issues/113).
+- Refresh all four private Host crates to 0.14.4 and Candid to 0.10.38, retaining
+  the current exported service contract and Rust 1.88 support.
+
 ## [0.22.10] - 2026-10-11
 
 ### Fixed

@@ -53,16 +53,18 @@ create_fixture() {
         "$ROOT/scripts/ci/run-validation-targets.sh" "$ROOT/scripts/ci/check-release-tag.sh" \
         "$ROOT/scripts/ci/rewrite-local-lock-versions.pl" \
         "$ROOT/scripts/ci/check-make-execution.sh" \
+        "$ROOT/scripts/ci/verify-file-checksum.sh" \
         "$ROOT/scripts/ci/check-release-source.sh" \
         "$ROOT/scripts/ci/check-crates-io-version.sh" \
         "$ROOT/scripts/ci/finalize-release-changelog.awk" \
         "$ROOT/scripts/ci/check-format-tools.sh" "$ROOT/scripts/ci/run-formatting.sh" "$FIXTURE/scripts/ci/"
     cp "$ROOT/ci/tool-versions.env" "$FIXTURE/ci/"
     cp "$ROOT/Makefile" "$FIXTURE/Makefile"
-    cp "$ROOT/make/tools.mk" "$ROOT/make/release.mk" "$ROOT/make/rust-format.mk" "$ROOT/make/execution.mk" "$FIXTURE/make/"
+    cp "$ROOT/make/consumer.mk" "$ROOT/make/tools.mk" "$ROOT/make/release.mk" "$ROOT/make/rust-format.mk" "$ROOT/make/execution.mk" "$FIXTURE/make/"
     cd "$FIXTURE"
     cat >> Makefile <<'MAKE'
 CI_TARGETS := fixture-verify
+CI_INPUTS := Cargo.toml Cargo.lock
 fixture-verify:
 	@bash target/verify-fixture
 MAKE
@@ -401,19 +403,29 @@ export PATH="$TEMPORARY/bin:$PATH"
 
 test_dependency_bootstrap() {
     # Use the owning gate with a finite fixture target set, without compiling.
-    cat > target/gate-make <<'MOCK'
+    mkdir -p scripts/dev tests/browser
+    cp "$ROOT/tests/browser/.nvmrc" "$ROOT/tests/browser/package.json" tests/browser/
+    cat > scripts/ci/verify-shared-tooling-snapshot.sh <<'MOCK'
 #!/usr/bin/env bash
 set -euo pipefail
-case "$*" in
-    '--no-print-directory -f - MAKEFILES=') exec "$TEST_REAL_MAKE" "$@" ;;
-    '--no-print-directory shared-tooling-check') echo snapshot >> "$TEST_EFFECTS"; [[ "${TEST_SNAPSHOT_FAIL:-0}" != 1 ]] ;;
-    '--no-print-directory tools-check') echo tools >> "$TEST_EFFECTS"; [[ "${TEST_TOOLS_FAIL:-0}" != 1 ]] ;;
-    '--no-print-directory dependency-pins-check') echo pins >> "$TEST_EFFECTS"; [[ "${TEST_PINS_FAIL:-0}" != 1 ]] ;;
-    '--no-print-directory deps'|'--no-print-directory check') exec "$TEST_REAL_MAKE" "$@" ;;
-    *) exit 97 ;;
-esac
+echo snapshot >> "$TEST_EFFECTS"
+[[ "${TEST_SNAPSHOT_FAIL:-0}" != 1 ]]
 MOCK
-    chmod +x target/gate-make
+    cat > scripts/dev/install-host-tools.sh <<'MOCK'
+#!/usr/bin/env bash
+set -euo pipefail
+echo tools >> "$TEST_EFFECTS"
+[[ "${TEST_TOOLS_FAIL:-0}" != 1 ]]
+MOCK
+    for script in install-ic-tools.sh install-rust-tools.sh testkit-server.sh; do
+        printf '#!/usr/bin/env bash\nexit 0\n' > "scripts/dev/$script"
+    done
+    cat > scripts/ci/check-dependency-pins.sh <<'MOCK'
+#!/usr/bin/env bash
+set -euo pipefail
+echo pins >> "$TEST_EFFECTS"
+[[ "${TEST_PINS_FAIL:-0}" != 1 ]]
+MOCK
     before="$(fingerprint)"
     case "$1" in
         snapshot) export TEST_SNAPSHOT_FAIL=1; expected=snapshot ;;
@@ -427,9 +439,9 @@ MOCK
         success) expected=$'snapshot\ntools\npins\nfetch\ncheck' ;;
     esac
     if [[ "$1" == success ]]; then
-        "$TEST_REAL_MAKE" --no-print-directory ci 'CI_TARGETS=shared-tooling-check tools-check dependency-pins-check deps check' "MAKE=$PWD/target/gate-make"
+        "$TEST_REAL_MAKE" --no-print-directory ci 'CI_TARGETS=shared-tooling-check tools-check dependency-pins-check deps check'
     else
-        expect_failure "$TEST_REAL_MAKE" --no-print-directory ci 'CI_TARGETS=shared-tooling-check tools-check dependency-pins-check deps check' "MAKE=$PWD/target/gate-make"
+        expect_failure "$TEST_REAL_MAKE" --no-print-directory ci 'CI_TARGETS=shared-tooling-check tools-check dependency-pins-check deps check'
         if [[ "$1" == fetch-cached ]]; then
             [[ "$(cat target/mock-cargo-cache)" == retained-cache ]] || exit 1
         else [[ ! -f target/mock-cargo-cache ]] || exit 1; fi

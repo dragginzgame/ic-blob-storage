@@ -119,7 +119,7 @@ TESTKIT_TEST_STATUS=37 bash "$runner" --offline --locked 'selected case' || stat
 # Exercise this consumer's real aggregate and extension under parallel Make.
 mkdir -p "$consumer/make" "$consumer/scripts/release" "$consumer/ci" "$fixture/bin"
 cp "$root/Makefile" "$consumer/Makefile"
-cp "$root"/make/{tools,release,rust-format,execution}.mk "$consumer/make/"
+cp "$root"/make/{consumer,tools,release,rust-format,execution}.mk "$consumer/make/"
 cp "$root/scripts/ci/check-make-execution.sh" "$consumer/scripts/ci/"
 printf 'print "0.22.0\\n";\n' > "$consumer/scripts/release/release-data.pl"
 for kind in host ic; do

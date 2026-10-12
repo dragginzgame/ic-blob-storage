@@ -52,9 +52,19 @@ for the selected lockfile; this step may use the network and does not select new
 versions. Fetch failure stops before validation or release-file mutation. Rust
 compilation/tests then use `--offline --locked`. Scoped targets remain offline;
 run `make deps` before them after dependency changes or cache removal.
+The shared logger owns stage dispatch and prepared-input checkpoints. Blob's
+`CI_INPUTS` declares the root and all twelve member manifests, Cargo.lock,
+compiler/tool pins, snapshot/Make inputs and browser selectors. Both `ci` and
+`release-verify` pass them through `--input`; nested gates in this checkout keep
+the same baseline. Changed, deleted or unreadable inputs stop subsequent stages
+with restart guidance and retained hashes/logs. Checks do not refetch or restart
+automatically and do not claim isolation from edits inside a running command.
 Provision the reviewed jq/yq, ripgrep with PCRE2, cloc and common IC executables
 explicitly with `make install-tools` before validation. The reviewed
-`make/tools.mk` snapshot owns setup, offline verification and LOC recipes.
+`make/consumer.mk` snapshot is Blob's single entrypoint for common setup,
+offline checks, formatting, hooks and releases. Its `make/tools.mk` companion
+owns setup, offline verification and LOC recipes; product tool extensions and
+validation policy remain local.
 Make selects `.tools/host/bin`, `.tools/ic/bin` and `.tools/rust/common/bin`;
 the offline checkers never download missing tools. The shared aggregate runs
 host, IC and Cargo setup/check stages in order, stopping on the first failure,
@@ -159,17 +169,21 @@ reviewed Makefile, explicit parse-time inputs and the direct-delivery admission
 adapter into a private fixture,
 then uses a substitute runner. `make release-check` includes that shared routing
 check and retains the repository's metadata, publication and recovery fixtures.
-The reviewed `make/release.mk` owns standard entrypoint recipes and conflicting
+The reviewed `make/consumer.mk` includes the existing component owners once.
+Its `make/release.mk` owns standard entrypoint recipes and conflicting
 goals; Blob attaches direct-delivery admission to all four entrypoints. The
 reviewed `make/rust-format.mk` owns root-workspace formatting and its prerequisite
 check. Its `scripts/ci/run-formatting.sh` companion reports one success line or
 a failing status and complete retained log. All isolated Make/hook/release fixtures
 include these inputs; product
 validation, metadata exports, tool setup and publication remain local.
-Both Make includes carry `make/execution.mk` and its existing behavioral probe.
+The component includes carry `make/execution.mk` and its existing behavioral probe.
 The probe rejects unsupported Make modes before recipes, including ignored
 failures and non-executing modes. Every isolated fixture includes those inputs;
 the release-command checker binds its tooling root to the disposable checkout.
+The common entrypoint's routing fixture runs in `make shared-tooling-tests`.
+Actual hook, release and parallel Testkit fixtures export `make/consumer.mk`
+with all parsed companions; none may fall back to the real checkout's adapters.
 The [snapshot adoption record](../evidence/shared-tooling-0181.md) qualifies the
 current direct-delivery adapter and changed shared helpers. The
 [fixture ownership map](../evidence/release-fixture-ownership.md) records

@@ -11,6 +11,24 @@ maintainer action; a library release does not qualify the storage service.
 
 ## Setup and preview
 
+Pending 0.22.11 adopts Shared Tooling 0.6.6's `make/consumer.mk` entrypoint.
+Existing setup, offline checks, formatting, hook and release commands keep their
+names. Product gates, Testkit extensions and direct-delivery admission remain
+local. Parsing Make never installs tools or hooks or runs a release. The common
+resume-verification extension retains its default no-op here; Blob's existing
+release adapter still owns receipt verification. See the
+[consumer Make interface](make-interface.md). This snapshot selects
+cargo-sort-derives 0.14.1: explicitly run `make install-rust-tools`, then
+`make tools-check`. It preserves literal macro paths and requires Rust 1.88
+or newer for tool compilation; Blob's library MSRV remains 1.88.
+A newly selected CLI still needs its existing explicit setup before offline
+admission. See [the latest qualification](evidence/shared066-host014402211.md).
+CI and release validation share the declared prepared-input checkpoint. Changes
+to the root/member manifests, lock, compiler/tool pins, Make inputs or browser
+selectors stop the next stage and retain the original and observed identities.
+Restart preparation and the full gate against settled inputs; this is boundary
+detection, not isolation from arbitrary edits within a running command.
+
 Follow [dependency setup](dependencies.md), including pinned cargo-sort 2.1.4,
 rustfmt, ShellCheck, Perl with JSON::PP/Digest::SHA, Git, curl, GNU Make and Bash 3.2 or
 newer. Provision the reviewed repository-local executables explicitly; for
@@ -109,8 +127,9 @@ Contributor setup changes alone do not require a Blob minor bump or separate
 publication. The released lock selects Metrics 0.6.3 and Testkit 0.33.6, Host
 0.13.2 and Memory 0.35.8. Incoming Host 0.13.3/Memory 0.35.9 edits remain separate
 from that release and its compiler results. See [the current adoption record](evidence/shared0600228.md).
-Pending compatible 0.22.9 corrects Canic adoption guidance; package versions and
-the finalized receipt stay 0.22.8 until the maintainer's release transaction.
+Released compatible 0.22.9 corrects Canic adoption guidance. The
+[current handoff](status/current.md) identifies subsequent releases and pending
+work; these earlier adoption records keep their original graphs.
 
 Released 0.21.0 changes capacity reply/preflight shapes: rebuild consumers for
 the three mandatory byte headrooms and dimension-specific blocker names. The

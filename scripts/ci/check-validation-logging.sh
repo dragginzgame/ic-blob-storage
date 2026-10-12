@@ -82,4 +82,46 @@ for depth in SHARED_DEPTH_UNDEFINED 01 -1 '1+1' '1/0' 18446744073709551616; do
     rg -F 'VALIDATION_RUNNER_DEPTH must be' "$FIXTURE/depth-refusal.log" >/dev/null
     if rg -F '==> pass' "$FIXTURE/depth-refusal.log" >/dev/null; then exit 1; fi
 done
+# Exercise the actual consumer stage loop, including a nested gate's inherited
+# checkpoint. Only disposable inputs change; no product build or release runs.
+for input_case in stable drift deleted; do
+    gate="$FIXTURE/gate-$input_case"
+    mkdir -p "$gate/make" "$gate/scripts/ci" "$gate/scripts/release"
+    cp "$ROOT/Makefile" "$ROOT/Cargo.toml" "$ROOT/Cargo.lock" "$gate/"
+    cp "$ROOT"/make/{consumer,tools,release,rust-format,execution}.mk "$gate/make/"
+    cp "$ROOT/scripts/ci/run-validation-targets.sh" \
+        "$ROOT/scripts/ci/check-make-execution.sh" \
+        "$ROOT/scripts/ci/verify-file-checksum.sh" "$gate/scripts/ci/"
+    cp "$ROOT/scripts/release/release-data.pl" "$gate/scripts/release/"
+    cat >> "$gate/Makefile" <<'MAKE'
+CI_INPUTS := Cargo.toml Cargo.lock
+CI_TARGETS := fixture-pass fixture-change fixture-late
+.PHONY: fixture-pass fixture-change fixture-late
+fixture-pass:
+	@echo first-stage
+fixture-change:
+	@case "$$BLOB_INPUT_CASE" in drift) printf '\nchanged\n' >> Cargo.lock ;; deleted) rm Cargo.lock ;; stable) : ;; esac
+fixture-late:
+	@touch late-dispatched
+MAKE
+    status=0
+    BLOB_INPUT_CASE="$input_case" VALIDATION_REPOSITORY_ROOT="$gate" \
+        VALIDATION_LOG_DIR="$gate/logs" VALIDATION_FAILURE_LOG_DIR="$gate/failures" \
+        bash "$gate/scripts/ci/run-validation-targets.sh" --fail-fast \
+            --input Cargo.toml --input Cargo.lock ci > "$gate/result.log" 2>&1 || status=$?
+    if [[ "$input_case" == stable ]]; then
+        [[ "$status" == 0 && -f "$gate/late-dispatched" ]] || exit 1
+    else
+        [[ "$status" != 0 && ! -e "$gate/late-dispatched" ]] || exit 1
+        if [[ "$input_case" == drift ]]; then
+            rg -F 'validation input changed: Cargo.lock' "$gate/result.log" >/dev/null
+        else
+            rg -F 'cannot observe validation input Cargo.lock' "$gate/result.log" >/dev/null
+        fi
+        rg -F 'Restart preparation and the full gate' "$gate/result.log" >/dev/null
+        [[ -s "$gate/failures/latest-combined.log" ]] || exit 1
+        rg --files "$gate/logs" | rg '/inputs.json$' >/dev/null
+    fi
+done
+echo 'Consumer CI stages reject changed/deleted inputs and retain nested checkpoints'
 fixture_complete=true

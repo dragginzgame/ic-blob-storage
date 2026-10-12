@@ -7,9 +7,8 @@ IC_TOOL_PINS ?= ci/ic-tools.tsv
 HOST_TOOL_VERSIONS ?= ci/tool-versions.env
 LOCAL_TOOL_INSTALL_TARGETS := install-testkit
 LOCAL_TOOL_CHECK_TARGETS := testkit-check
-include make/tools.mk
-include make/release.mk
-include make/rust-format.mk
+override SHARED_TOOLING_ROOT := $(CURDIR)
+include make/consumer.mk
 export BLOB_AUTHORITY_PROBE_WASM := $(CARGO_TARGET_DIR)/wasm32-unknown-unknown/release/blob_authority_probe.wasm
 export BLOB_ADMISSION_PROBE_WASM := $(CARGO_TARGET_DIR)/wasm32-unknown-unknown/release/blob_admission_probe.wasm
 export BLOB_STORAGE_PROBE_WASM := $(CARGO_TARGET_DIR)/wasm32-unknown-unknown/release/blob_storage_probe.wasm
@@ -29,6 +28,10 @@ export PUBLISH_PACKAGE
 export RELEASE_KIND RELEASE_PREVIOUS RELEASE_VERSION RELEASE_DATE RELEASE_SOURCE RELEASE_COMMIT RELEASE_REMOTE RELEASE_BRANCH
 SHELLCHECK ?= shellcheck
 CI_TARGETS := shared-tooling-check tools-check dependency-pins-check documentation-links-check shared-tooling-tests deps contracts-boundary-check shell-check release-check hooks-check fmt-check check clippy probe-check docs-check test test-wasm-opt wasm-check package
+CI_INPUTS := Cargo.toml Cargo.lock rust-toolchain.toml .shared-tooling.snapshot Makefile ci/tool-versions.env ci/ic-tools.tsv \
+	make/consumer.mk make/tools.mk make/release.mk make/rust-format.mk make/execution.mk \
+	tests/browser/.nvmrc tests/browser/package.json tests/browser/package-lock.json \
+	$(wildcard crates/*/Cargo.toml canisters/*/Cargo.toml canisters/test/*/Cargo.toml tests/pocketic/Cargo.toml tests/protocol/Cargo.toml)
 
 .PHONY: help version deps cloc shared-tooling-check dependency-pins-check check clippy docs-check test test-native test-pocketic test-browser test-browser-store test-browser-transport test-browser-standalone test-sdk-probe test-sdk-inputs test-fixture test-standalone build-standalone test-admission-resources test-read-resources test-funding-receipt-resources wasm-check \
 	build package clean shell-check release-check probe-check ci validate release-verify test-browser-publication test-browser-bootstrap test-browser-launcher test-browser-native \
@@ -96,9 +99,6 @@ version:
 deps:
 	+cargo fetch --locked
 
-shared-tooling-check:
-	bash scripts/ci/verify-shared-tooling-snapshot.sh
-
 install-testkit:
 	+bash scripts/dev/testkit-server.sh setup
 
@@ -106,6 +106,7 @@ testkit-check:
 	+bash scripts/dev/testkit-server.sh check
 
 shared-tooling-tests:
+	+bash scripts/ci/test-make-consumer.sh
 	+bash scripts/ci/test-consumer-fixture-completion.sh
 	+bash scripts/ci/test-format-tools.sh
 	+bash scripts/ci/check-validation-logging.sh
@@ -131,7 +132,7 @@ documentation-links-check:
 		xargs -0 perl scripts/ci/check-documentation-links.pl --root . *.md
 
 release-commands-check:
-	bash scripts/ci/check-release-commands.sh "$(CURDIR)" Cargo.toml scripts/release/release.sh scripts/release/release-data.pl make/tools.mk make/release.mk make/rust-format.mk make/execution.mk scripts/ci/check-make-execution.sh scripts/ci/run-formatting.sh
+	bash scripts/ci/check-release-commands.sh "$(CURDIR)" Cargo.toml scripts/release/release.sh scripts/release/release-data.pl make/consumer.mk make/tools.mk make/release.mk make/rust-format.mk make/execution.mk scripts/ci/check-make-execution.sh scripts/ci/verify-file-checksum.sh scripts/ci/run-formatting.sh
 
 dependency-pins-check:
 	+@set -e; node_version="$$(cat tests/browser/.nvmrc)"; \
@@ -141,9 +142,6 @@ dependency-pins-check:
 
 release-tools-check: format-tools-check
 	@command -v "$(SHELLCHECK)" >/dev/null 2>&1 && "$(SHELLCHECK)" --version >/dev/null 2>&1 || { echo "Prepare ShellCheck: sudo apt-get install shellcheck (Debian/Ubuntu) or brew install shellcheck (macOS)." >&2; echo "Select an existing executable with SHELLCHECK=/absolute/path/to/shellcheck." >&2; exit 1; }
-
-install-hooks:
-	bash scripts/dev/install-git-hooks.sh
 
 hooks-check:
 	+bash scripts/ci/check-format-hooks.sh
@@ -341,15 +339,15 @@ release-check: release-commands-check
 	bash scripts/release/test-release.sh
 
 ci:
-	+@set -e; for target in $(CI_TARGETS); do \
-		$(MAKE) --no-print-directory "$$target" || exit $$?; \
-	done
+	+@bash scripts/ci/run-validation-targets.sh --fail-fast \
+		$(foreach input,$(CI_INPUTS),--input "$(input)") $(CI_TARGETS)
 
 validate: ci
 
 release-verify:
 	+VALIDATION_FAILURE_LOG_DIR="$$(git rev-parse --git-path release-state)/validation-failures" \
-		bash scripts/ci/run-validation-targets.sh ci
+		bash scripts/ci/run-validation-targets.sh --fail-fast \
+			$(foreach input,$(CI_INPUTS),--input "$(input)") ci
 
 release-plan:
 	@$(RELEASE) plan "$(if $(VERSION),$(VERSION),patch)"
