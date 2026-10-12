@@ -1,5 +1,28 @@
 # Changelog
 
+## [0.22.12]
+
+### Changed
+
+- Adopt Shared Tooling 0.9.0's shared manifest reader, atomic payload replacement and
+  Cargo-tool observation safeguards. Add its read-only tool freshness diagnostic;
+  checks preserve selections and incomplete registry observations remain failures.
+  [#59](https://github.com/dragginzgame/ic-blob-storage/issues/59),
+  [Shared #131](https://github.com/dragginzgame/shared-tooling/issues/131),
+  [#133](https://github.com/dragginzgame/shared-tooling/issues/133),
+  [#134](https://github.com/dragginzgame/shared-tooling/issues/134),
+  [#135](https://github.com/dragginzgame/shared-tooling/issues/135),
+  [#136](https://github.com/dragginzgame/shared-tooling/issues/136).
+- Unify snapshot syntax checks for refresh and verification. Reject NUL bytes
+  before parsing; explicit metadata reads emit records only after full syntax
+  validation and remain separate from payload integrity checks.
+  [Shared #133](https://github.com/dragginzgame/shared-tooling/issues/133).
+- Add JSON workspace LOC reports alongside the existing human report, with
+  numeric per-package counts and totals. Failed counts emit no partial JSON.
+- Document lexical endpoint emitters and Candid-to-Wasm export validation for
+  embedded hosts, reflecting Canic's qualified adoption of the shared declaration
+  owner. [#61](https://github.com/dragginzgame/ic-blob-storage/issues/61).
+
 ## [0.22.11] - 2026-10-12
 
 ### Fixed

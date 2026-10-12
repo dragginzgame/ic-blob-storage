@@ -15,6 +15,13 @@
 /// Invoke inside the host endpoint module and pass its visible contract-crate
 /// alias. Passive type imports are also available to the enclosing Candid scope.
 /// This invocation does not install storage, allocate memory or export lifecycle.
+///
+/// Define the item callback lexically before this invocation when the host collects
+/// Candid registrations during macro expansion. An imported emitter alias can
+/// defer registrations past the host's export pass. Validate generated Candid
+/// against every callable Wasm endpoint and compare its Blob method projection
+/// with the canonical service contract;
+/// native compilation alone does not establish a complete mounted interface.
 #[macro_export]
 macro_rules! mount_service_endpoints {
     (emit = $emit:ident, workflow = $workflow:ident, context = $context:ident, contracts = $contracts:ident,

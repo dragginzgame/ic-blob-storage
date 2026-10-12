@@ -4,49 +4,43 @@
 
 # Dependency setup
 
-## Current graph — released 0.22.10, pending 0.22.11
+## Current graph — released 0.22.11, pending 0.22.12
 
-All twelve package versions and the finalized receipt remain 0.22.10. The released
-lock selects Memory 0.35.12, private Metrics 0.6.6, Testkit 0.34.0 and all four
-Host crates 0.14.1. That release records Shared Tooling 0.6.3
-`4fd979d13c32adb3cb2f51f213ebfc4f98339b3d`, with 102 reviewed files.
-Pending adoption records Shared 0.8.0
-`045a6f22a9de497bfb3af90cb2571957384806f2`, with 105 files and one
-`make/consumer.mk` entrypoint. Its root-workspace formatter covers all twelve
-members in the existing layout; ordered Testkit extensions and product gates
-remain local. See the [Make interface](make-interface.md).
-The manifest retains all 105 existing payloads as explicit initial entrypoints.
-Refresh derives companions and automatically retires verified unchanged prior
-payloads outside that closure. `--retire-file` is removed; review a preview and
-keep directly used helpers as entrypoints before narrowing selection. This
-adoption removes no files. See [the adoption record](evidence/shared08002211.md).
-PocketIC remains 16.1.0, the development compiler is Rust 1.99.0 and Blob's
-consumer floor remains 1.88.0. The pending changes correct Canic integration
-guidance and select all four Host crates 0.14.4 with Candid 0.10.38.
-Separate incoming Cargo edits now select Memory 0.35.13, Metrics 0.7.0 and
-Testkit 0.34.1. Later incoming lock edits select Memory 0.35.14, Metrics 0.7.1,
-Testkit 0.34.2 and all four Host crates 0.14.5. The current lock advances Testkit
-to 0.34.3 without dependency reselection by the Metrics repair. Earlier
-runtime results keep their original graph identities. New focused native and
-Rust 1.88 checks pass on the earlier 0.35.13/0.7.0/0.34.1/Host 0.14.4 selection;
-they do not qualify the newer graph. The new Metrics repair qualifies the
-private probe and its report boundaries separately; see
-[its record](evidence/metrics07102211.md) and the
-[earlier Host qualification](evidence/shared066-host014402211.md).
-Explicit Testkit 0.34.1 setup
-and complete offline tool admission pass, retaining PocketIC 16.1.0 and the
-previous installed selections. Tool admission does not qualify product code.
-The Metrics 0.7 accumulated instruction total now uses `u128` throughout the
-private probe and Candid observation. Retained per-memory `reads[].instructions`
-JSON fields use decimal strings; individual instruction measurements, call
-counts and byte counts retain `u64`. Rebuild the test probe and harness together.
-These observations are heap-only, so no production durable schema or service
-endpoint changes. Prior artifacts keep their original source/format identities.
-[#60](https://github.com/dragginzgame/ic-blob-storage/issues/60) retains delivery
-of this coordinated repair. The
-[current handoff](status/current.md) records native/boundary tests and actual
-Rust 1.88 native/Wasm checks against their earlier captured lock, separately
-from the released and newly incoming graphs.
+All twelve package versions and the finalized receipt remain 0.22.11, release
+`ebb560f492b6b53925faae8890316fc66bfd6def`, validated parent
+`cca756f521fb0775a411d390f5191b1b88b9e1fb`. Its lock selects Memory 0.35.14,
+private Metrics 0.7.1, Testkit 0.34.3 and all four Host crates 0.14.5.
+The released snapshot is Shared 0.8.0 with 105 files.
+
+Pending adoption selects Shared 0.9.0
+`aec7a149f581a42b9531fc747b46024fc0314fcf`, with 108 files. The existing roots
+are preserved; the new Cargo-tool freshness task, checker and substitute fixture
+are included. Companion discovery and verified automatic retirement remain
+canonical. The current refresh removes no files. Root formatting still covers
+all twelve members; product gates and ordered Testkit extensions stay local.
+Workspace LOC now also supports `bash scripts/dev/cloc.sh --json`; numeric rows
+and totals are emitted only after all counts succeed. `make cloc` keeps its human
+report. Refresh and verification share one manifest reader; the new
+`--read-manifest` operation validates syntax only, not payload integrity or
+ownership. Existing v1 snapshots need no conversion. See
+[the latest adoption](evidence/shared09002212.md),
+[the LOC adoption](evidence/shared08402212.md) and
+[the preceding adoption/Canic review](evidence/shared083-canic02212.md).
+
+The incoming dirty lock selects Memory 0.35.15, Metrics 0.7.2, Testkit 0.34.4 and
+Host 0.14.7. These selections are preserved without reselection. Tool admission
+passes after explicit selected Testkit setup; PocketIC stays 16.1.0. Product
+qualification of these newer patches is separate from the released graph and
+[its Metrics repair](evidence/metrics07102211.md). Rust development is 1.99.0;
+the advertised library floor remains 1.88.0.
+
+Metrics totals in the private storage probe and Candid observations are `u128`;
+retained `reads[].instructions` JSON fields are decimal strings. Individual
+measurements, calls and bytes retain `u64`. Rebuild the private probe and harness
+together. Historical artifacts keep their original source/format identity;
+public service schemas are unchanged. [#60](https://github.com/dragginzgame/ic-blob-storage/issues/60)
+is closed against delivered 0.22.11; the recorded old raw target paths are no
+longer present in this checkout. Tracked historical records remain.
 
 After changing dependencies, prepare the settled lock with explicit `make deps`.
 Shared 0.8.0 retains cargo-sort-derives 0.14.1; explicitly run
@@ -1087,18 +1081,31 @@ Blob's standalone/library minimum remains 1.88.
 Canic owns the adapter, dedicated shell and embedded application fixture. Keep
 these outside Blob; do not mount the standalone canister inside Canic or bootstrap
 a second manager. [The package/source review](evidence/canic0229.md)
-authenticates the published adapter. The [0.22.10 continuation review](evidence/canic02211.md)
-records Canic's newer Root-driven installation proof and distinguishes its
-independent graphs: the dirty root selects Blob 0.22.9, while both qualified
-managed examples retain Blob 0.22.8. Neither result qualifies Blob 0.22.10 merely
-because its core source is unchanged. Freeze and qualify the intended graph
-before installation; refresh the root and both independent locks together.
-Canic's pending Auth/Backup dependency identities also change its public Rust
-type boundary under [Canic #517](https://github.com/dragginzgame/canic/issues/517).
-Its maintainer must resolve the minor-release boundary before publishing that
-batch; Blob's compatible patch does not make the entire Canic batch compatible.
-[Earlier 0.22.2 review](evidence/canic0223.md) and
-[0.21.5 review](evidence/canic0216.md) remain historical.
+authenticates its published 0.111.0 family. The newer local 0.112.0 batch now
+requires published Blob/runtime contracts 0.22.11 in the normal catalog and both
+independent fixture locks, without a Blob source override. Its shared endpoint
+owner leaves a 113-line adapter instead of 376. The callback is lexical so
+Candid registrations precede export; actual composition cases also check callable
+Wasm exports against generated Candid.
+
+The dedicated, embedded and production Root journeys pass on their captured
+fixture graphs, including permission/accounting, lost replies, restoration,
+application-state retention and exact installation replay. Both 32-method Blob
+projections pass strict structural Candid comparison. The fixture locks retain
+Memory 0.35.14/Metrics 0.7.1/Timers 0.19.0; later root patches do not become those
+artifacts. Canic's root lock has advanced since its final native proof and needs
+its own updated qualification. See [the current read-only review](evidence/shared083-canic02212.md).
+
+The Canic endpoint/composition slice is complete locally; its 0.112.0 integration
+batch remains uncommitted and unpublished. The Auth/Backup public-family cut
+remains [Canic #517](https://github.com/dragginzgame/canic/issues/517), while
+[Canic #444](https://github.com/dragginzgame/canic/issues/444) retains family
+delivery and actual application/provider acceptance. Per-project parent binding
+and guarded funding are [#493](https://github.com/dragginzgame/canic/issues/493)
+and [#494](https://github.com/dragginzgame/canic/issues/494); the passing
+controller-bound Root case does not implement those routes. Earlier
+[0.22.10](evidence/canic02211.md), [0.22.2](evidence/canic0223.md) and
+[0.21.5](evidence/canic0216.md) reviews preserve their original identities.
 
 [Toko Miner's delivered 0.4.0 acceptance](https://github.com/dragginzgame/toko-miner/issues/6#issuecomment-6107209584)
 records registry-only Canic/adapter 0.111.0 with Blob 0.22.5, disposable managed

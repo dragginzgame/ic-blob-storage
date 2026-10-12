@@ -53,6 +53,11 @@ if [[ "$1" == -e && "$2" == *'rename('* ]]; then
 fi
 exec "$real_tool" "$@"
 STUB
+printf '#!%s\nfixture=%q\nreal_tool=%q\n' "$BASH" "$fixture" "$(command -v uname)" > "$fixture/commands/uname"
+cat >> "$fixture/commands/uname" <<'STUB'
+"$real_tool" "$@" || exit $?
+if [[ "$*" == -srm && -f "$fixture/changed-native" ]]; then cat "$fixture/changed-native"; fi
+STUB
 chmod +x "$fixture/commands/"*
 export PATH="$fixture/commands:$PATH"
 printf 'fixture rustc\n' > "$fixture/compiler-version"
@@ -119,7 +124,17 @@ compiler="$("$RUSTC" -vV)"
     --arg version "=$version" --arg target "$target" --arg profile "$profile" --arg compiler "$compiler" \
     '{installs:{($identity):{version_req:$version,bins:[$target],profile:$profile,target:"fixture-host",rustc:$compiler}}}' > "$destination/.crates2.json"
 printf 'Cargo receipt\n' > "$destination/.crates.toml"
+if [[ -f "$fixture/redirect-observation" ]]; then
+    ln -s "$fixture/outside-observation" "$destination/$(cat "$fixture/redirect-observation")"
+fi
 if [[ -f "$fixture/fail-receipt" ]]; then printf '{"installs":{}}\n' > "$destination/.crates2.json"; fi
+if [[ -f "$fixture/change-build" ]]; then
+    case "$(cat "$fixture/change-build")" in
+        compiler) printf 'changed fixture compiler\n' > "$fixture/compiler-version" ;;
+        native) printf 'changed fixture native inventory\n' > "$fixture/changed-native" ;;
+        policy) printf '\n# Changed fixture build policy\n' >> "$fixture/tool-source/scripts/dev/cargo-tool-build.sh" ;;
+    esac
+fi
 STUB
 chmod +x "$fixture/compiler/bin/"*
 export PATH="$fixture/compiler/bin:$PATH"
@@ -378,5 +393,75 @@ refuse bash "$installer" --consumer "$fixture/redirected" --versions "$fixture/v
 [[ -z "$(ls -A "$fixture/outside")" ]] || exit 1
 ln -s "$SHARED_TOOLING_STORE" "$fixture/store-link"
 SHARED_TOOLING_STORE="$fixture/store-link" refuse common --check
+# Change each build identity input after the substitute Cargo writes its receipt.
+# Mutate only disposable sources; the real admission, retention and activation run.
+mkdir -p "$fixture/tool-source/scripts/dev" "$fixture/tool-source/scripts/ci"
+cp "$ROOT/scripts/dev/"{install-rust-tools,cargo-tool-build,tool-store}.sh "$fixture/tool-source/scripts/dev/"
+cp "$ROOT/scripts/ci/verify-file-checksum.sh" "$fixture/tool-source/scripts/ci/"
+cp "$fixture/compiler-version" "$fixture/original-compiler"
+before="$(readlink "$consumer/.tools/rust/common")"
+source_package cargo-sort 99.1.2
+printf 'SHARED_TOOLING_CARGO_SORT_VERSION=99.1.2\n' >> "$fixture/versions"
+for change in compiler native policy; do
+    printf '%s\n' "$change" > "$fixture/change-build"
+    status=0
+    UNMODELLED_SECRET=must-not-retain bash "$fixture/tool-source/scripts/dev/install-rust-tools.sh" \
+        --consumer "$consumer" --versions "$fixture/versions" > "$fixture/$change.out" 2> "$fixture/$change.err" || status=$?
+    [[ "$status" -eq 1 && ! -s "$fixture/$change.out" ]] || exit 1
+    field="$change"; [[ "$change" != policy ]] || field=policy_sha256
+    grep -Fx "Cargo tool build environment changed: $field" "$fixture/$change.err"
+    attempt="$(sed -n 's/^Cargo tool attempt retained: //p' "$fixture/$change.err")"
+    [[ -f "$attempt/build/evidence" && -f "$attempt/install.log" && ! -e "$attempt/selection.json" && ! -e "${attempt%/*}/current" ]] || exit 1
+    jq -e --arg field "$field" --slurpfile observed "$attempt/build-identity.observed.json" \
+        '.build[$field] != $observed[0][$field] and (.build | del(.[$field])) == ($observed[0] | del(.[$field]))' "$attempt/inputs.json" > /dev/null
+    bash "$ROOT/scripts/ci/verify-file-checksum.sh" sha256 "$(jq -r .build.native "$attempt/inputs.json")" "$attempt/native-environment.txt"
+    bash "$ROOT/scripts/ci/verify-file-checksum.sh" sha256 "$(jq -r .native "$attempt/build-identity.observed.json")" "$attempt/native-environment.observed.txt"
+    if grep -F must-not-retain "$attempt/"*.json "$attempt/"*.txt "$fixture/$change.err"; then exit 1; fi
+    [[ "$(readlink "$consumer/.tools/rust/common")" == "$before" ]] || exit 1
+    [[ ! -e "$consumer/.tools/rust/common.lock" && -z "$(find "$SHARED_TOOLING_STORE" -name install.lock)" ]] || exit 1
+    # The standard evidence selector must retain both observations, even though
+    # this generation was never activated.
+    mkdir "$fixture/$change-diagnostics"
+    bash "$ROOT/scripts/ci/select-tool-evidence.sh" full "$consumer" "$fixture/$change-diagnostics" > "$fixture/$change-selections"
+    inputs=()
+    while IFS= read -r -d '' root && IFS= read -r -d '' relative; do inputs+=("$root" "$relative"); done < "$fixture/$change-selections"
+    bash "$ROOT/scripts/ci/archive-evidence.sh" "$fixture/$change-evidence.tar.gz" "${inputs[@]}" > /dev/null
+    mkdir "$fixture/$change-unpacked"
+    tar -xzf "$fixture/$change-evidence.tar.gz" -C "$fixture/$change-unpacked"
+    for evidence in inputs.json native-environment.txt build-identity.observed.json native-environment.observed.txt; do
+        cmp "$attempt/$evidence" "$fixture/$change-unpacked/${attempt#"$SHARED_TOOLING_STORE/"}/$evidence"
+    done
+    rm "$fixture/change-build"
+    cp "$fixture/original-compiler" "$fixture/compiler-version"
+    rm -f "$fixture/changed-native"
+    cp "$ROOT/scripts/dev/cargo-tool-build.sh" "$fixture/tool-source/scripts/dev/"
+done
+for leaf in build-identity.observed.json native-environment.observed.txt; do
+    printf '%s\n' "$leaf" > "$fixture/redirect-observation"
+    printf 'outside evidence must remain intact\n' > "$fixture/outside-observation"
+    cp "$fixture/outside-observation" "$fixture/expected-observation"
+    printf 'compiler\n' > "$fixture/change-build"
+    refuse bash "$installer" --consumer "$consumer" --versions "$fixture/versions"
+    attempt="$(sed -n 's/^Cargo tool attempt retained: //p' "$fixture/refused.log")"
+    [[ -L "$attempt/$leaf" && -f "$attempt/build/evidence" && -f "$attempt/install.log" ]]
+    [[ ! -e "$attempt/selection.json" && ! -e "${attempt%/*}/current" ]]
+    cmp "$fixture/expected-observation" "$fixture/outside-observation"
+    [[ "$(readlink "$consumer/.tools/rust/common")" == "$before" ]]
+    [[ ! -e "$consumer/.tools/rust/common.lock" && -z "$(find "$SHARED_TOOLING_STORE" -name install.lock)" ]]
+    [[ -z "$(find "$consumer/.tools/rust" -name '.selected-*.lock')" ]]
+    mkdir "$fixture/$leaf-diagnostics"
+    bash "$ROOT/scripts/ci/select-tool-evidence.sh" full "$consumer" "$fixture/$leaf-diagnostics" > "$fixture/$leaf-selections"
+    inputs=()
+    while IFS= read -r -d '' root && IFS= read -r -d '' relative; do inputs+=("$root" "$relative"); done < "$fixture/$leaf-selections"
+    bash "$ROOT/scripts/ci/archive-evidence.sh" "$fixture/$leaf.tar.gz" "${inputs[@]}" > /dev/null
+    # Extract only this retained leaf: it must still be a link, not target bytes.
+    mkdir "$fixture/$leaf-unpacked"
+    relative="${attempt#"$SHARED_TOOLING_STORE/"}/$leaf"
+    tar -xzf "$fixture/$leaf.tar.gz" -C "$fixture/$leaf-unpacked" "./$relative"
+    [[ -L "$fixture/$leaf-unpacked/$relative" ]]
+    cmp "$fixture/expected-observation" "$fixture/outside-observation"
+    rm "$fixture/redirect-observation" "$fixture/change-build"
+    cp "$fixture/original-compiler" "$fixture/compiler-version"
+done
 echo 'Shared Cargo installation, standard environment, identities, retention and offline checks passed'
 fixture_complete=true

@@ -24,7 +24,7 @@ See the repository's [migration and qualification record](../../docs/evidence/co
 
 ## Opt-in host endpoint declarations
 
-The pending `mount_service_endpoints!` API shares service method declarations
+The `mount_service_endpoints!` API, available since 0.22.11, shares service declarations
 with a host-owned callback. Invoke it inside an endpoint module and supply its
 visible contract-crate alias, workflow adapter, actual caller/service context,
 trusted clock/caller/trap paths and bounded query/update attributes. The callback
@@ -32,3 +32,9 @@ receives the request/manifest decoding category and the provider certificate's
 exact wire name. Keep lifecycle, installation, memory allocation and post-await
 continuity in the host. See the standalone API module for a complete expansion.
 Linking this runtime-free crate alone exports no endpoint or lifecycle hook.
+
+Define the callback lexically before invoking the shared owner when the host
+collects Candid registrations during expansion. Imported emitter aliases can
+defer registrations past the host's export pass. Verify both structural equality
+of its Blob method projection with the canonical service and agreement between generated Candid and every
+callable Wasm endpoint; successful native compilation alone is insufficient.
