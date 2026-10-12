@@ -14,7 +14,7 @@
 
 ### Changed
 
-- Adopt Shared Tooling 0.6.6's single Make entrypoint, preserving product gates,
+- Adopt Shared Tooling 0.8.0's single Make entrypoint, preserving product gates,
   ordered Testkit setup and release admission. Remove duplicate hook-installation
   and snapshot-check recipes; retain all existing commands and workspace coverage.
   Check declared preparation inputs between CI stages, retaining original failures
@@ -22,6 +22,11 @@
   [#59](https://github.com/dragginzgame/ic-blob-storage/issues/59),
   [Shared #130](https://github.com/dragginzgame/shared-tooling/issues/130),
   [#129](https://github.com/dragginzgame/shared-tooling/issues/129).
+- Adopt entrypoint-based snapshot refresh with automatic retirement of unchanged,
+  previously owned files outside the selected dependency closure. Required
+  companions are derived automatically; omit the removed `--retire-file` option.
+  The current entrypoints retain every existing payload.
+  [Shared #131](https://github.com/dragginzgame/shared-tooling/issues/131).
 - Select cargo-sort-derives 0.14.1, preserving literal `$crate` paths in direct
   and conditional macro derives. Explicitly refresh tools with
   `make install-rust-tools`, then `make tools-check`.

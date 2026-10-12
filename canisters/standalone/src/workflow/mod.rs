@@ -51,12 +51,14 @@ pub(crate) async fn before_update() {
 pub(crate) async fn resume_current_instance(
     context: UploadContext,
 ) -> Result<(), ic_blob_storage_contracts::dto::recovery::CurrentInstanceRecoveryFailure> {
-    ic_blob_storage::workflow::installation::recovery::resume_current_instance(
+    let outcome = ic_blob_storage::workflow::installation::recovery::resume_current_instance(
         &ops::RecoveryHost,
         context,
     )
     .await
-    .map_err(ic_blob_storage::ops::service::recovery::failure)
+    .map_err(ic_blob_storage::ops::service::recovery::failure);
+    ops::observe_version();
+    outcome
 }
 pub(crate) fn certificate_assessment(
     context: UploadContext,
@@ -323,14 +325,16 @@ pub(crate) async fn sync_gateways(
     ic_blob_storage_contracts::dto::gateway::sync::GatewaySyncResponse,
     ic_blob_storage_contracts::dto::gateway::sync::GatewaySyncFailure,
 > {
-    ic_blob_storage::workflow::gateways::sync::refresh(
+    let outcome = ic_blob_storage::workflow::gateways::sync::refresh(
         &ops::gateways::GatewayHost,
         context,
         input,
         30.try_into().unwrap(),
         ops::gateways::limits(),
     )
-    .await
+    .await;
+    ops::observe_version();
+    outcome
 }
 pub(crate) fn cancel_gateway_sync(
     context: UploadContext,
@@ -393,14 +397,16 @@ pub(crate) async fn inspect_account(
         30.try_into().unwrap(),
     )
     .map_err(|_| AccountInspectionFailure::Invalid)?;
-    ic_blob_storage::workflow::account::inspect(
+    let outcome = ic_blob_storage::workflow::account::inspect(
         &ops::account::AccountHost,
         &transport,
         context,
         input,
         ops::account::limits(),
     )
-    .await
+    .await;
+    ops::observe_version();
+    outcome
 }
 
 pub(crate) fn attest(

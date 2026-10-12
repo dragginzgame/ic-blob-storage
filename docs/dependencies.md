@@ -10,19 +10,26 @@ All twelve package versions and the finalized receipt remain 0.22.10. The releas
 lock selects Memory 0.35.12, private Metrics 0.6.6, Testkit 0.34.0 and all four
 Host crates 0.14.1. That release records Shared Tooling 0.6.3
 `4fd979d13c32adb3cb2f51f213ebfc4f98339b3d`, with 102 reviewed files.
-Pending adoption records Shared 0.6.6
-`a15eb9d406d287697df9bc8fa96db8cda6721a71`, with 105 files and one
+Pending adoption records Shared 0.8.0
+`045a6f22a9de497bfb3af90cb2571957384806f2`, with 105 files and one
 `make/consumer.mk` entrypoint. Its root-workspace formatter covers all twelve
 members in the existing layout; ordered Testkit extensions and product gates
 remain local. See the [Make interface](make-interface.md).
+The manifest retains all 105 existing payloads as explicit initial entrypoints.
+Refresh derives companions and automatically retires verified unchanged prior
+payloads outside that closure. `--retire-file` is removed; review a preview and
+keep directly used helpers as entrypoints before narrowing selection. This
+adoption removes no files. See [the adoption record](evidence/shared08002211.md).
 PocketIC remains 16.1.0, the development compiler is Rust 1.99.0 and Blob's
 consumer floor remains 1.88.0. The pending changes correct Canic integration
 guidance and select all four Host crates 0.14.4 with Candid 0.10.38.
 Separate incoming Cargo edits now select Memory 0.35.13, Metrics 0.7.0 and
-Testkit 0.34.1. Those are preserved; the Metrics caller/report adoption remains
+Testkit 0.34.1. Later incoming lock edits select Memory 0.35.14, Metrics 0.7.1,
+Testkit 0.34.2 and all four Host crates 0.14.5. These are preserved; the Metrics caller/report adoption remains
 [#60](https://github.com/dragginzgame/ic-blob-storage/issues/60), and earlier
 runtime results keep their original graph identities. New focused native and
-Rust 1.88 checks pass on this selection; the Metrics storage probe remains
+Rust 1.88 checks pass on the earlier 0.35.13/0.7.0/0.34.1/Host 0.14.4 selection;
+they do not qualify the newer graph. The Metrics storage probe remains
 unqualified. See [the latest adoption record](evidence/shared066-host014402211.md).
 Explicit Testkit 0.34.1 setup
 and complete offline tool admission pass, retaining PocketIC 16.1.0 and the
@@ -35,7 +42,7 @@ Rust 1.88 native/Wasm checks against their earlier captured lock, separately
 from the released and newly incoming graphs.
 
 After changing dependencies, prepare the settled lock with explicit `make deps`.
-Shared 0.6.6 selects cargo-sort-derives 0.14.1; explicitly run
+Shared 0.8.0 retains cargo-sort-derives 0.14.1; explicitly run
 `make install-rust-tools`, then `make tools-check` for its admitted tool selection.
 When its selected Testkit CLI changes, use explicit `make install-testkit`, then
 offline `make testkit-check`; source fetching alone does not install executables.

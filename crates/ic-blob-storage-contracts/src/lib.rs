@@ -4,6 +4,7 @@ pub mod binding;
 pub mod configuration;
 pub mod download;
 pub mod dto;
+pub mod endpoints;
 pub mod funding;
 pub mod identity;
 pub mod protocol;

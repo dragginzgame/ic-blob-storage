@@ -15,12 +15,14 @@ Subsequent incoming lock edits select all four Host crates 0.14.2, Candid/derive
 0.10.38 and unicode-ident 1.0.27. They are preserved without reselection.
 Further incoming Cargo edits now select Memory 0.35.13, Metrics 0.7.0 and
 Testkit 0.34.1; the requested update now selects all four Host crates 0.14.4.
-New focused native/boundary tests and Rust 1.88 checks pass on this held graph.
+Later incoming lock edits select Memory 0.35.14, Metrics 0.7.1, Testkit 0.34.2
+and all four Host crates 0.14.5, preserved without reselection. Native/boundary
+tests and Rust 1.88 checks pass on the earlier held graph, not these newer patches.
 Full product qualification remains pending: the Metrics 0.7 storage probe
 still requires the coordinated wide-total adaptation under #60.
 
-Pending adoption now records Shared 0.6.6
-`a15eb9d406d287697df9bc8fa96db8cda6721a71`, 105 files, through clean isolated
+Pending adoption now records Shared 0.8.0
+`045a6f22a9de497bfb3af90cb2571957384806f2`, 105 files, through clean isolated
 canonical preview/refresh. Blob uses `make/consumer.mk` once; common hook and
 snapshot recipes are delegated, while product gates, ordered Testkit extensions
 and direct release admission remain local. CI/release validation now use the
@@ -29,8 +31,20 @@ manifests plus lock, compiler/tool pins, snapshot/Make and browser selectors.
 Nested gates retain their original baseline; drift stops later work without an
 automatic fetch/retry. The prior [common Make/input-guard record](../evidence/shared06502211.md)
 retains its original inputs. The [latest adoption record](../evidence/shared066-host014402211.md)
-qualifies the new derive formatter and Host patch selection, with raw
+qualifies the derive formatter and earlier Host patch selection, with raw
 `target/review-validation/shared066-host0144-02211/`.
+The prior [entrypoint adoption](../evidence/shared-entrypoints02211.md) retains
+its exact pending 0.7.0 source and manual-retirement evidence. The latest
+[0.8.0 adoption](../evidence/shared08002211.md) replaces that refresh contract:
+unchanged owned payloads outside the selected closure are retired automatically,
+and `--retire-file` is removed. All 105 existing roots are retained, so this
+refresh removes no files. Repeat preview, actual snapshot/Make/tool checks and
+automatic retirement/refusal/interruption fixtures pass; the latter also pass
+with genuine Bash 3.2 on Linux. Compiler/executable pins and incoming product
+source are preserved; no new runtime qualification is claimed. Git delivery of the
+earlier batch has advanced HEAD to `ca482fae6bff8efa14a8c309d00cf9fb32ee6feb`,
+but workspace versions and receipt still identify 0.22.10. New adoption remains
+uncommitted; no new release is inferred from commit subjects.
 
 Pending compatible 0.22.11 corrects Canic integration guidance and acceptance
 boundaries. It records the actual Root-driven installation proof and the separate
@@ -102,7 +116,7 @@ production/frozen Release-profile acceptance; Toko's per-project journey is sepa
 
 ## Validation and retained work
 
-The latest Shared 0.6.6 refresh changes three selected files and retains the
+The earlier Shared 0.6.6 refresh changes three selected files and retains the
 105-file companion closure. Explicit setup admits cargo-sort-derives 0.14.1;
 complete tools, declarations, root formatting and actual hook checks pass.
 Blob has no exported macros, dollar-prefixed macro paths or corruption-workaround

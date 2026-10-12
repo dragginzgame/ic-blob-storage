@@ -11,7 +11,7 @@ maintainer action; a library release does not qualify the storage service.
 
 ## Setup and preview
 
-Pending 0.22.11 adopts Shared Tooling 0.6.6's `make/consumer.mk` entrypoint.
+Pending 0.22.11 adopts Shared Tooling 0.8.0's `make/consumer.mk` entrypoint.
 Existing setup, offline checks, formatting, hook and release commands keep their
 names. Product gates, Testkit extensions and direct-delivery admission remain
 local. Parsing Make never installs tools or hooks or runs a release. The common
@@ -23,6 +23,15 @@ cargo-sort-derives 0.14.1: explicitly run `make install-rust-tools`, then
 or newer for tool compilation; Blob's library MSRV remains 1.88.
 A newly selected CLI still needs its existing explicit setup before offline
 admission. See [the latest qualification](evidence/shared066-host014402211.md).
+The 0.8.0 entrypoint refresh retains the complete existing selection without
+retiring files. Subsequent canonical refresh reuses those roots and
+derives their required shared companions; use `--add-entrypoint` to extend the
+selection, replacing the old `--file` / `--add-file` options. Review a preview
+before applying a reviewed source revision. Refresh automatically retires
+unchanged, previously owned files outside the resulting closure; omit the
+removed `--retire-file` option and keep directly used helpers as roots.
+Ownership, local edits, staging and concurrency still constrain retirement.
+See [the 0.8.0 adoption record](evidence/shared08002211.md).
 CI and release validation share the declared prepared-input checkpoint. Changes
 to the root/member manifests, lock, compiler/tool pins, Make inputs or browser
 selectors stop the next stage and retain the original and observed identities.
