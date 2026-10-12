@@ -6,6 +6,12 @@ use candid::Principal;
 /// Complete installation input shared by host adapters and offline preparation.
 /// Passive data only: hosts authenticate installation, validate their actual
 /// identity and compiled release, and explicitly own allocation and lifecycle.
+/// At the host's raw Candid boundary, decode installation with zero skipping
+/// quota, including when nested in an application input. Unknown record fields
+/// and extra arguments must refuse before any installation writes. Ordinary
+/// Candid subtyping can otherwise discard retired authority fields before this
+/// passive DTO or candidate validation sees them. Keep byte/work/type bounds;
+/// ordinary service request decoding has its separate bounded skipping policy.
 #[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize)]
 pub struct ServiceInstallationInput {
     /// Shared service identity, tenant/resource bounds and provider economics.

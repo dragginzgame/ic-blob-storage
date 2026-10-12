@@ -98,12 +98,18 @@ pub struct RestorationMemoryReads {
     pub memory: String,
     /// Calls to the logical memory's read method, saturating at `u64::MAX`.
     pub calls: u64,
+    /// True only after count overflow; an exactly reached cap remains exact.
+    pub calls_saturated: bool,
     /// Requested bytes, including repeated reads, saturating at `u64::MAX`.
     pub bytes: u64,
+    /// True only after byte overflow; bytes remain separate from instruction units.
+    pub bytes_saturated: bool,
     /// Instructions inside the wrapped read; excludes B-tree decoding/traversal outside it.
     /// Accumulated `u64` observations, saturating at `u128::MAX`.
-    /// Saturated observations are not exact interval counters.
+    /// Consult the explicit overflow flag before using this as an exact total.
     pub instructions: u128,
+    /// True only after total overflow, sticky until the next host measurement window.
+    pub instructions_saturated: bool,
 }
 
 /// Private local measurements around the maintained host confirmation workflow.

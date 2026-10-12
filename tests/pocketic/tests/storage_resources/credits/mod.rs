@@ -56,6 +56,58 @@ fn measured(
 }
 
 #[test]
+fn credit_measurements_have_independent_exact_read_windows() {
+    let f = Fixture::new();
+    let directory = tempfile::tempdir().unwrap();
+    let batch = HistoryPopulationBatch {
+        funding_start: 0,
+        read_start: 0,
+        reads: Vec::new(),
+        funding: vec![FundingPopulationIntent {
+            intent: intent(&f, 1),
+            phase: FundingPhase::Callback(0),
+            credit_digest: None,
+        }],
+    };
+    f.harness
+        .pic
+        .update_candid_as::<Result<(), Failure>, _>(
+            f.service,
+            f.operator,
+            "populate_histories",
+            (batch,),
+        )
+        .unwrap()
+        .unwrap();
+    let command = CreditCommand {
+        intent: intent(&f, 1),
+        accepted: 1,
+        receipt_digest: digest(1),
+        established: true,
+        fault: None,
+    };
+    let denied = measured(&f, directory.path(), "denied", f.other, command);
+    assert_eq!(denied.result, Err(Failure::Denied));
+    assert!(denied.reads.iter().all(|r| r.calls == 0));
+    let confirmed = measured(&f, directory.path(), "confirmed", f.operator, command);
+    assert_eq!(confirmed.result, Ok(Some(true)));
+    assert!(confirmed.reads.iter().any(|r| r.calls > 0));
+    let replay = measured(&f, directory.path(), "replay", f.operator, command);
+    assert_eq!(replay.result, Ok(Some(false)));
+    let denied_again = measured(&f, directory.path(), "denied-again", f.other, command);
+    assert_eq!(denied_again.result, Err(Failure::Denied));
+    assert!(denied_again.reads.iter().all(|r| r.calls == 0));
+    for observation in [denied, confirmed, replay, denied_again] {
+        for row in observation.reads {
+            assert!(!row.calls_saturated);
+            assert!(!row.bytes_saturated);
+            assert!(!row.instructions_saturated);
+            assert!(row.instructions <= u128::from(observation.instructions));
+        }
+    }
+}
+
+#[test]
 #[ignore = "opt-in receipt profile; needs a fresh BLOB_FUNDING_RECEIPT_PROFILE directory"]
 fn receipt_populated_confirmation_and_restoration_profile() {
     let directory =

@@ -47,6 +47,9 @@ fn restoration_reads_are_attributed_only_to_the_operator_reopen_window() {
     );
     for row in &restored.reads {
         assert_ne!(row.memory, "");
+        assert!(!row.calls_saturated);
+        assert!(!row.bytes_saturated);
+        assert!(!row.instructions_saturated);
         assert!(row.instructions <= u128::from(restored.stores_instructions));
         if row.calls == 0 {
             assert_eq!((row.bytes, row.instructions), (0, 0));
@@ -83,7 +86,16 @@ fn restoration_reads_are_attributed_only_to_the_operator_reopen_window() {
     let attribution = |r: RestorationResources| {
         r.reads
             .into_iter()
-            .map(|r| (r.memory, r.calls, r.bytes))
+            .map(|r| {
+                (
+                    r.memory,
+                    r.calls,
+                    r.bytes,
+                    r.calls_saturated,
+                    r.bytes_saturated,
+                    r.instructions_saturated,
+                )
+            })
             .collect::<Vec<_>>()
     };
     assert_eq!(attribution(again), attribution(restored));

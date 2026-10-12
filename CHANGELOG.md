@@ -1,5 +1,31 @@
 # Changelog
 
+## [0.22.14]
+
+### Changed
+
+- Clarify exact host installation decoding: reject retired fields and extra init
+  arguments before producing the Blob DTO, including embedded application inputs.
+  Typed candidate validation cannot detect fields already discarded by Candid.
+  [Canic #524](https://github.com/dragginzgame/canic/issues/524).
+
+### Fixed
+
+- Adopt Metrics 0.8 tracked aggregates in the private restoration probe. Preserve
+  actual overflow flags for calls, instruction totals and bytes in Candid and JSON
+  reports, distinguishing exact caps from clipped totals. Rebuild the private probe
+  and harness together; each measurement window starts empty and production schemas
+  remain unchanged. [#62](https://github.com/dragginzgame/ic-blob-storage/issues/62).
+
+### Testing
+
+- Use Host 0.15's bounded Candid method inventory and callable Wasm projections in
+  the standalone endpoint check, preserving native type equality and the host's
+  explicit internal-method exclusion.
+- Qualify the selected Metrics 0.8.0, Memory 0.35.18 and Testkit 0.34.7 graph with
+  focused native, Wasm and PocketIC checks. Direct Host artifacts/fs/tools select
+  0.15.0; Testkit retains its separate Host 0.14.10 graph.
+
 ## [0.22.13] - 2026-10-12
 
 ### Testing

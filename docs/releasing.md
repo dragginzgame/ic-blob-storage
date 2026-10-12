@@ -11,7 +11,7 @@ maintainer action; a library release does not qualify the storage service.
 
 ## Setup and preview
 
-Released 0.22.12 adopts the common Make entrypoint from Shared Tooling 0.9.0.
+Released 0.22.13 retains the common Make entrypoint from Shared Tooling 0.9.0.
 Existing setup, offline checks, formatting, hook and release commands keep their
 names. Product gates, Testkit extensions and direct-delivery admission remain
 local. Parsing Make never installs tools or hooks or runs a release. The common

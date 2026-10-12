@@ -162,7 +162,12 @@ checks the actual host identity and reuses the existing model's invariants witho
 defaults, clamping or allocation. It also checks every maintained stable owner's
 codec/resource envelope. Hosts may validate an already typed candidate.
 The host must authenticate installation, bound ingress buffering and obtain its
-identity from the platform. `ops::service::stores::ServiceStores` assembles the four
+identity from the platform. Raw installation Candid uses zero skipping quota,
+including a Blob input nested inside an application record: retired fields and
+extra init arguments refuse before installation writes. Typed candidate validation
+cannot recover fields already discarded by Candid subtyping. Ordinary service
+requests retain their separate bounded skipping policy.
+`ops::service::stores::ServiceStores` assembles the four
 owners synchronously under these validated limits and sixteen distinct host-granted
 memories. Fresh installation preflights the entire set before writing; aliased
 grants or later write failures must trap for IC rollback. Native memory supplies no

@@ -4,12 +4,12 @@
 
 # Dependency setup
 
-## Current graph — released 0.22.12, pending 0.22.13
+## Current graph — released 0.22.13
 
-All twelve package versions and the finalized receipt remain 0.22.12, release
-`601b09b1add57b9fb9a11293c03e704ffce9fec2`, validated parent
-`8bae5f91f2d22a3480991829bf7cd33db2dd5c8b`. Its lock selects Memory 0.35.17,
-private Metrics 0.7.2, Testkit 0.34.4 and all four Host crates 0.14.9.
+All twelve package versions and the finalized receipt remain 0.22.13, release
+`2657177a6e089d66aa7371c5f212e9849a15a8a2`, validated parent
+`df97ca3af3b3dbd7595defeef1e8f089c3025d00`. Its lock selects Memory 0.35.17,
+private Metrics 0.7.3, Testkit 0.34.5 and all four Host crates 0.14.9.
 
 The released snapshot selects Shared 0.9.0
 `aec7a149f581a42b9531fc747b46024fc0314fcf`, with 108 files. The existing roots
@@ -26,12 +26,31 @@ ownership. Existing v1 snapshots need no conversion. See
 [the LOC adoption](evidence/shared08402212.md) and
 [the preceding adoption/Canic review](evidence/shared083-canic02212.md).
 
-The incoming dirty lock selects Metrics 0.7.3 and Testkit 0.34.5, retaining Memory
-0.35.17 and Host 0.14.9. These selections are preserved without reselection.
-Pending 0.22.13 adds Host artifact inspection only to the private native harness
+Released 0.22.13 adds Host artifact inspection only to the private native harness
 to compare standalone Wasm methods/modes with canonical Candid. The lock adds
 only that direct test edge; production library dependencies are unchanged.
-Fresh focused compile/export checks do not qualify a full native/installed graph.
+Its matching Linux native/archive/optimizer and Rust 1.88 CI lanes pass; both
+macOS lanes remain incomplete at inspection. The full supported host matrix is
+not yet qualified. Shared 0.9.3 is reviewed but not adopted; current selection
+remains the recorded 0.9.0 snapshot.
+Incoming selections now choose direct Host artifacts/fs 0.15.0, private Metrics
+0.8.0, Memory 0.35.18 and Testkit 0.34.7, whose own Host graph remains 0.14.10.
+Pending 0.22.14 replaces the removed Metrics record_sample call with tracked
+MeasurementAggregate state in the private storage probe. Candid and both JSON
+report paths expose actual overflow quality for calls, bytes and instructions;
+exactly reached caps keep false flags. Each host-owned measurement window starts
+empty. Rebuild the private probe and harness together; old heap counters/reports
+are not reinterpreted and production schemas remain unchanged.
+The private endpoint check now selects Host tools 0.15.0 with defaults disabled
+and only its ic-interface profile. Host owns Candid method and Wasm export mode
+projection; native type equality and local internal-export exclusion remain.
+Focused native/report, Rust 1.88, Wasm and actual PocketIC restoration/credit-window
+checks pass; original/O3/Os/Oz static endpoint checks pass. The missing-export
+substitute is refused. Full CI and native macOS remain unrun for these inputs.
+[The adoption evidence](evidence/metrics080-host01502214.md) retains identities,
+initial failures and limitations; [#62](https://github.com/dragginzgame/ic-blob-storage/issues/62)
+remains open pending delivery. No existing incoming lock selection was changed;
+the only addition is private Host tools 0.15.0 and its test edge.
 See [the endpoint surface qualification](evidence/endpoint-surface02213.md).
 PocketIC stays 16.1.0. Rust development is 1.99.0; the advertised library floor
 remains 1.88.0. [The earlier Metrics repair](evidence/metrics07102211.md) retains
@@ -1090,6 +1109,17 @@ independent fixture locks, without a Blob source override. Its shared endpoint
 owner leaves a 113-line adapter instead of 376. The callback is lexical so
 Candid registrations precede export; actual composition cases also check callable
 Wasm exports against generated Candid.
+
+Host installation must also use zero Candid skipping quota before the passive
+Blob DTO is produced, including when nested in an application record. This
+refuses retired authority fields and extra application-init arguments; it does
+not change ordinary query/update request skipping. The reviewed Canic
+`CONFIGURATION_LIMITS` inherits a quota of 1,024, which accepts both old shapes.
+Its owning decoder needs correction and installed rejection/rollback qualification;
+the existing composition successes do not establish this boundary.
+[Canic #524](https://github.com/dragginzgame/canic/issues/524) owns that correction;
+[the decoder review](evidence/canic-service02214.md) retains the source and native
+codec observations separately from installed consumer evidence.
 
 The dedicated, embedded and production Root journeys pass on their captured
 fixture graphs, including permission/accounting, lost replies, restoration,

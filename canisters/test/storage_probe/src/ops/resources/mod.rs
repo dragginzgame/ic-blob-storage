@@ -1,5 +1,7 @@
 //! Bounded synthetic population through the maintained durable operations; no provider effects.
 pub(crate) mod histories;
+#[cfg(test)]
+mod tests;
 use super::{STATE, conversion};
 use blob_test_protocol::storage::{
     Failure,
@@ -21,23 +23,36 @@ use std::num::NonZeroU128;
 
 #[derive(Clone, Copy)]
 struct ReadCounter {
-    calls: u64,
+    instructions: ic_metrics::MeasurementAggregate,
     bytes: u64,
-    instructions: u128,
+    bytes_saturated: bool,
+}
+impl ReadCounter {
+    const EMPTY: Self = Self {
+        instructions: ic_metrics::MeasurementAggregate::EMPTY,
+        bytes: 0,
+        bytes_saturated: false,
+    };
+
+    fn record(&mut self, instructions: u64, bytes: u64) {
+        // One completed wrapped read, including a measured zero.
+        self.instructions.record(instructions);
+        if let Some(total) = self.bytes.checked_add(bytes) {
+            self.bytes = total;
+        } else {
+            self.bytes = u64::MAX;
+            self.bytes_saturated = true;
+        }
+    }
 }
 thread_local! {
     static MEASURE_READS: Cell<bool> = const { Cell::new(false) };
-    static READS: RefCell<[ReadCounter; 16]> = const { RefCell::new([ReadCounter { calls: 0, bytes: 0, instructions: 0 }; 16]) };
+    static READS: RefCell<[ReadCounter; 16]> = const { RefCell::new([ReadCounter::EMPTY; 16]) };
 }
 
 pub(crate) fn begin_read_profile(restored: bool) {
-    READS.with_borrow_mut(|reads| {
-        reads.fill(ReadCounter {
-            calls: 0,
-            bytes: 0,
-            instructions: 0,
-        });
-    });
+    // Each host window starts empty; no quality is inferred from old clipped totals.
+    READS.with_borrow_mut(|reads| reads.fill(ReadCounter::EMPTY));
     MEASURE_READS.set(restored);
 }
 pub(super) fn start_read() -> Option<u64> {
@@ -52,8 +67,7 @@ pub(super) fn finish_read(index: usize, bytes: usize, started: Option<u64>) {
             let row = &mut reads[index];
             // One completed wrapped read, in IC call-context instructions.
             // Bytes have a separate unit and share this read's attribution.
-            ic_metrics::record_sample(&mut row.calls, &mut row.instructions, instructions);
-            row.bytes = row.bytes.saturating_add(bytes as u64);
+            row.record(instructions, bytes as u64);
         });
     }
 }
@@ -67,9 +81,12 @@ pub(crate) fn finish_read_profile() -> Vec<RestorationMemoryReads> {
             .zip(super::MEMORY_KEYS)
             .map(|(r, memory)| RestorationMemoryReads {
                 memory: memory.to_owned(),
-                calls: r.calls,
+                calls: r.instructions.samples(),
+                calls_saturated: r.instructions.samples_saturated(),
                 bytes: r.bytes,
-                instructions: r.instructions,
+                bytes_saturated: r.bytes_saturated,
+                instructions: r.instructions.total(),
+                instructions_saturated: r.instructions.total_saturated(),
             })
             .collect()
     })

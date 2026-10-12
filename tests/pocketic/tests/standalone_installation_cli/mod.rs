@@ -6,8 +6,11 @@ use std::path::Path;
 
 #[test]
 fn deployment_candid_matches_the_exported_contract() {
-    use candid::types::FuncMode;
-    use ic_host_artifacts::wasm::{ExportKind, InspectionLimits, inspect};
+    use ic_host_artifacts::wasm::{InspectionLimits, inspect};
+    use ic_host_tools::{
+        candid::service::{ServiceLimits, ServiceMethod},
+        interface,
+    };
     use std::collections::BTreeSet;
 
     let declared = include_str!("../../../../canisters/standalone/service.did");
@@ -19,24 +22,17 @@ fn deployment_candid_matches_the_exported_contract() {
 
     // Native registration equality cannot prove the compiled IC dispatch surface.
     // Derive names and call kinds from Candid, not a second endpoint inventory.
-    let (env, service) = candid_parser::utils::CandidSource::Text(declared)
-        .load()
-        .unwrap();
-    let expected = env
-        .as_service(&service.expect("standalone Candid service"))
-        .unwrap()
+    let methods = ic_host_tools::candid::service::inspect(
+        declared,
+        ServiceLimits {
+            source_bytes: 1024 * 1024,
+            methods: 1024,
+        },
+    )
+    .expect("inspect standalone Candid methods");
+    let expected = methods
         .iter()
-        .map(|(name, ty)| {
-            let function = env.as_func(ty).unwrap();
-            let prefix = if function.modes.contains(&FuncMode::CompositeQuery) {
-                "canister_composite_query "
-            } else if function.is_query() {
-                "canister_query "
-            } else {
-                "canister_update "
-            };
-            format!("{prefix}{name}")
-        })
+        .map(ServiceMethod::as_export)
         .collect::<BTreeSet<_>>();
     let bytes = wasm();
     let facts = inspect(
@@ -49,24 +45,9 @@ fn deployment_candid_matches_the_exported_contract() {
         },
     )
     .expect("inspect compiled standalone Wasm");
-    let exported = facts
-        .exports
-        .iter()
-        .filter_map(|(export, identity)| {
-            if identity.kind != ExportKind::Function {
-                return None;
-            }
-            [
-                "canister_composite_query ",
-                "canister_query ",
-                "canister_update ",
-            ]
-            .iter()
-            .find_map(|prefix| export.strip_prefix(prefix))
-            // This namespace is reserved by IC CDK and is not an application API.
-            .filter(|name| !name.starts_with("<ic-cdk internal> "))
-            .map(|_| (*export).to_owned())
-        })
+    let exported = interface::exported_methods(&facts)
+        // This namespace is reserved by IC CDK and is not an application API.
+        .filter(|method| !method.name.starts_with("<ic-cdk internal> "))
         .collect::<BTreeSet<_>>();
     assert_eq!(
         exported, expected,

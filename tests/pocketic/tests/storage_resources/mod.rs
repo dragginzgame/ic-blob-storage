@@ -58,20 +58,34 @@ fn memory_reads(reads: &[RestorationMemoryReads]) -> Vec<serde_json::Value> {
         .iter()
         .map(|row| {
             serde_json::json!({"memory":row.memory,"calls":row.calls,"bytes":row.bytes,
-                "instructions":row.instructions.to_string()})
+                "instructions":row.instructions.to_string(),
+                "calls_saturated":row.calls_saturated,"bytes_saturated":row.bytes_saturated,
+                "instructions_saturated":row.instructions_saturated})
         })
         .collect()
 }
 
 #[test]
 fn wide_instruction_totals_survive_candid_and_retained_json() {
-    let rows =
-        [0, u128::from(u64::MAX) + 1, u128::MAX].map(|instructions| RestorationMemoryReads {
-            memory: "uploads".to_owned(),
-            calls: 2,
-            bytes: 16,
-            instructions,
-        });
+    let rows = [
+        0,
+        u128::from(u64::MAX) + 1,
+        u128::from(u64::MAX).pow(2),
+        u128::MAX,
+        u128::MAX,
+    ]
+    .into_iter()
+    .enumerate()
+    .map(|(index, instructions)| RestorationMemoryReads {
+        memory: "uploads".to_owned(),
+        calls: if index >= 2 { u64::MAX } else { 2 },
+        bytes: if index >= 2 { u64::MAX } else { 16 },
+        instructions,
+        calls_saturated: index >= 3,
+        bytes_saturated: index == 4,
+        instructions_saturated: index == 4,
+    });
+    let rows = rows.collect::<Vec<_>>();
     let encoded = candid::encode_one(rows.as_slice()).unwrap();
     let decoded: Vec<RestorationMemoryReads> = candid::decode_one(&encoded).unwrap();
     let directory = tempfile::tempdir().unwrap();
@@ -89,6 +103,12 @@ fn wide_instruction_totals_survive_candid_and_retained_json() {
         assert_eq!(actual["instructions"], expected.instructions.to_string());
         assert_eq!(actual["calls"], expected.calls);
         assert_eq!(actual["bytes"], expected.bytes);
+        assert_eq!(actual["calls_saturated"], expected.calls_saturated);
+        assert_eq!(actual["bytes_saturated"], expected.bytes_saturated);
+        assert_eq!(
+            actual["instructions_saturated"],
+            expected.instructions_saturated
+        );
     }
 }
 
