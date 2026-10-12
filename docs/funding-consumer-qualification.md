@@ -7,7 +7,7 @@ and integration tests remain with their consumer repositories.
 
 ## Current Canic boundary — 2026-10-12
 
-Released Blob 0.22.11 retains the host-internal credit and bounded renewal APIs
+Released Blob 0.22.12 retains the host-internal credit and bounded renewal APIs
 introduced in 0.15.0. They do not acquire or authenticate provider evidence.
 The [authenticated published Canic adapter review](evidence/canic0229.md) finds
 only funding history, exact outcome and preparation assessment mounted in 0.111.0.

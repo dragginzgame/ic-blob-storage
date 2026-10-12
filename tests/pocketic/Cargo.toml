@@ -22,6 +22,7 @@ candid_parser.workspace = true
 # Headless certificate evidence only; never part of the published library/Wasm graph.
 ic-agent.workspace = true
 ic-blob-storage-canister.workspace = true
+ic-host-artifacts = { workspace = true, features = ["wasm"] }
 reqwest.workspace = true
 serde_cbor.workspace = true
 tokio = { workspace = true, features = ["rt", "time"] }

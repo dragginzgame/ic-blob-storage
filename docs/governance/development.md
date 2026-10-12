@@ -104,6 +104,8 @@ alone does not turn a failed or cancelled host into a qualified result.
 restoration cases for original and Binaryen O3/Os/Oz standalone/storage Wasm,
 with explicit `--enable-bulk-memory-opt`. Fixtures drain installation debt with
 bounded real PocketIC rounds, keeping platform rate limits enabled.
+Each selected standalone artifact also passes canonical Candid type equality
+and exact callable function-export names/modes through Host artifact inspection.
 It runs in the complete gate and all three native host lanes. Inputs, output
 hashes, source diff, lock, optimizer identity and logs stay in fresh
 `target/blob-wasm-opt.*` directories on success or failure; hosted lanes upload

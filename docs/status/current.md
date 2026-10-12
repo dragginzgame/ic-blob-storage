@@ -4,13 +4,13 @@ Date: 2026-10-12
 
 ## Released source and pending batch
 
-Blob 0.22.11 is released at `ebb560f492b6b53925faae8890316fc66bfd6def`,
-validated parent `cca756f521fb0775a411d390f5191b1b88b9e1fb`. All twelve package
-versions and the finalized receipt remain 0.22.11. Its released lock selects
-Memory 0.35.14, Metrics 0.7.1, Testkit 0.34.3 and all four Host 0.14.5;
-its Shared snapshot is 0.8.0. Both Blob libraries are available to Canic.
+Blob 0.22.12 is released at `601b09b1add57b9fb9a11293c03e704ffce9fec2`,
+validated parent `8bae5f91f2d22a3480991829bf7cd33db2dd5c8b`. All twelve package
+versions and the finalized receipt remain 0.22.12. Its released lock selects
+Memory 0.35.17, Metrics 0.7.2, Testkit 0.34.4 and all four Host 0.14.9;
+its Shared snapshot is 0.9.0. Publication is separate from this Git identity.
 
-Pending compatible 0.22.12 adopts committed Shared 0.9.0
+The released snapshot adopts committed Shared 0.9.0
 `aec7a149f581a42b9531fc747b46024fc0314fcf`, 108 files. Existing entrypoints
 remain; the new Cargo-tool freshness task/checker/fixture is included, with no
 payload retirement. Atomic payload replacement, strict manifest parsing,
@@ -26,12 +26,18 @@ admission; it does not establish payload integrity, ownership or source trust.
 Existing v1 manifests and Make commands remain supported. An initially observed
 0.9.0 commit still recorded VERSION 0.8.4; the final adopted commit corrects it.
 
-Incoming Cargo.lock edits select Host 0.14.7, Memory 0.35.15, Metrics 0.7.2 and
-Testkit 0.34.4. Preserve these edits. This batch does not select new dependencies
-or claim new product qualification for that graph. Testkit setup/admission uses
-its selected CLI and PocketIC 16.1.0; Rust development remains 1.99.0 and the
-library MSRV remains 1.88.0. Package versions, receipt, index and refs are unchanged
-by this work. Full product/native-host qualification remains separate.
+Pending compatible 0.22.13 extends the standalone Candid check to compare actual
+callable Wasm function exports with declared names and query/update modes. The
+private harness uses Host artifact inspection; no copied Wasm parser or endpoint
+list is introduced. Native generated Candid type equality remains. Existing
+native-host, PocketIC and optimizer callers exercise the extended check.
+
+Incoming Cargo.lock edits select Metrics 0.7.3 and Testkit 0.34.5, retaining Host
+0.14.9 and Memory 0.35.17. These edits are preserved; the sole additional lock
+change is a direct private-test dependency on the already selected Host artifacts.
+Rust development remains 1.99.0, library MSRV 1.88.0 and PocketIC 16.1.0. Package
+versions, finalized receipt, index and refs remain unchanged by this work.
+Product/native-host qualification remains separate from this focused boundary check.
 
 The batch also documents lexical endpoint callbacks and validation of Candid
 against callable Wasm exports. Native compilation alone can miss a deferred
@@ -40,7 +46,7 @@ workflow authority, persisted schema or runtime behavior changes.
 
 ## Canic completion assessment
 
-The normal Canic adapter now requires published Blob/contracts 0.22.11 and uses
+The normal Canic adapter now selects Blob/contracts 0.22.12 and uses
 `mount_service_endpoints!`, leaving 113 endpoint lines instead of 376. It owns
 endpoint attributes, bounded decoding, actual caller context, one memory runtime
 and one lifecycle; Blob owns the service. No local Blob source override is used.
@@ -91,6 +97,13 @@ provider callbacks here. Those owners need their actual external evidence.
 
 ## Validation and evidence
 
+Pending 0.22.13's original and O3/Os/Oz static endpoint checks pass, along with
+the expected missing-endpoint substitute refusal, affected Clippy and Rust 1.88
+checking. [The current boundary review](../evidence/endpoint-surface02213.md)
+records exact inputs and limitations; raw evidence remains at
+`.tmp/review-validation/canic-issue-pass-20261012/`. This is not fresh PocketIC
+installation or Canic/provider execution. No full CI or release gate ran.
+
 The 0.9.0 distribution fixture passes on Bash 5.2 and genuine Bash 3.2.57 on
 Linux, covering shared syntax admission, payload corruption, ownership and
 interrupted refresh. Adopted-reader ordered records agree on both shells;
@@ -112,15 +125,16 @@ records the Canic assessment and 0.8.3 qualification. Raw evidence is kept outsi
 Cargo's build tree at `.tmp/review-validation/shared09002212/`,
 `.tmp/review-validation/shared08402212/` and
 `.tmp/review-validation/shared08302212/`; provider/Canic evidence
-stays with its existing owner. New product execution, full CI/release validation,
+stays with its existing owner. New product runtime execution, full CI/release validation,
 native macOS, sibling edits, Git delivery, publication and paid effects are not
 performed by this batch.
 
-The matching 0.22.11 hosted run is
-[38235906453](https://github.com/dragginzgame/ic-blob-storage/actions/runs/38235906453),
-in progress at review. [#56–#59](https://github.com/dragginzgame/ic-blob-storage/issues/59)
-retain exact native/archive/tooling acceptance; an in-progress lane does not
-qualify its source. [#60](https://github.com/dragginzgame/ic-blob-storage/issues/60)
+The matching 0.22.12 hosted run is
+[38249204646](https://github.com/dragginzgame/ic-blob-storage/actions/runs/38249204646),
+queued at review; the earlier 0.22.11 and 0.22.6 runs are cancelled.
+[#56–#59](https://github.com/dragginzgame/ic-blob-storage/issues/59)
+retain exact native/archive/tooling acceptance; queued or cancelled lanes do not
+qualify their sources. [#60](https://github.com/dragginzgame/ic-blob-storage/issues/60)
 is closed against delivered 0.22.11 and its matching validated-parent lock/source.
 Earlier raw target paths are absent in this checkout; tracked historical records
 remain and are not relabelled as current execution.

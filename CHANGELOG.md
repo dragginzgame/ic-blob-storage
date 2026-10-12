@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.22.13]
+
+### Testing
+
+- Check standalone callable Wasm exports against the canonical Candid method
+  names and query/update modes, including optimized artifacts, in addition to
+  generated type equality. Reuse
+  Host artifact inspection so endpoint drift fails at the library's own boundary.
+  [#61](https://github.com/dragginzgame/ic-blob-storage/issues/61).
+
 ## [0.22.12] - 2026-10-12
 
 ### Changed

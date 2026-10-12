@@ -4,15 +4,14 @@
 
 # Dependency setup
 
-## Current graph — released 0.22.11, pending 0.22.12
+## Current graph — released 0.22.12, pending 0.22.13
 
-All twelve package versions and the finalized receipt remain 0.22.11, release
-`ebb560f492b6b53925faae8890316fc66bfd6def`, validated parent
-`cca756f521fb0775a411d390f5191b1b88b9e1fb`. Its lock selects Memory 0.35.14,
-private Metrics 0.7.1, Testkit 0.34.3 and all four Host crates 0.14.5.
-The released snapshot is Shared 0.8.0 with 105 files.
+All twelve package versions and the finalized receipt remain 0.22.12, release
+`601b09b1add57b9fb9a11293c03e704ffce9fec2`, validated parent
+`8bae5f91f2d22a3480991829bf7cd33db2dd5c8b`. Its lock selects Memory 0.35.17,
+private Metrics 0.7.2, Testkit 0.34.4 and all four Host crates 0.14.9.
 
-Pending adoption selects Shared 0.9.0
+The released snapshot selects Shared 0.9.0
 `aec7a149f581a42b9531fc747b46024fc0314fcf`, with 108 files. The existing roots
 are preserved; the new Cargo-tool freshness task, checker and substitute fixture
 are included. Companion discovery and verified automatic retirement remain
@@ -27,12 +26,16 @@ ownership. Existing v1 snapshots need no conversion. See
 [the LOC adoption](evidence/shared08402212.md) and
 [the preceding adoption/Canic review](evidence/shared083-canic02212.md).
 
-The incoming dirty lock selects Memory 0.35.15, Metrics 0.7.2, Testkit 0.34.4 and
-Host 0.14.7. These selections are preserved without reselection. Tool admission
-passes after explicit selected Testkit setup; PocketIC stays 16.1.0. Product
-qualification of these newer patches is separate from the released graph and
-[its Metrics repair](evidence/metrics07102211.md). Rust development is 1.99.0;
-the advertised library floor remains 1.88.0.
+The incoming dirty lock selects Metrics 0.7.3 and Testkit 0.34.5, retaining Memory
+0.35.17 and Host 0.14.9. These selections are preserved without reselection.
+Pending 0.22.13 adds Host artifact inspection only to the private native harness
+to compare standalone Wasm methods/modes with canonical Candid. The lock adds
+only that direct test edge; production library dependencies are unchanged.
+Fresh focused compile/export checks do not qualify a full native/installed graph.
+See [the endpoint surface qualification](evidence/endpoint-surface02213.md).
+PocketIC stays 16.1.0. Rust development is 1.99.0; the advertised library floor
+remains 1.88.0. [The earlier Metrics repair](evidence/metrics07102211.md) retains
+its original qualification graph.
 
 Metrics totals in the private storage probe and Candid observations are `u128`;
 retained `reads[].instructions` JSON fields are decimal strings. Individual

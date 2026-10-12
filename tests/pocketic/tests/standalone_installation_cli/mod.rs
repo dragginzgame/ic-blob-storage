@@ -6,13 +6,72 @@ use std::path::Path;
 
 #[test]
 fn deployment_candid_matches_the_exported_contract() {
+    use candid::types::FuncMode;
+    use ic_host_artifacts::wasm::{ExportKind, InspectionLimits, inspect};
+    use std::collections::BTreeSet;
+
+    let declared = include_str!("../../../../canisters/standalone/service.did");
     candid_parser::utils::service_equal(
-        candid_parser::utils::CandidSource::Text(include_str!(
-            "../../../../canisters/standalone/service.did"
-        )),
+        candid_parser::utils::CandidSource::Text(declared),
         candid_parser::utils::CandidSource::Text(&ic_blob_storage_canister::candid_interface()),
     )
     .unwrap();
+
+    // Native registration equality cannot prove the compiled IC dispatch surface.
+    // Derive names and call kinds from Candid, not a second endpoint inventory.
+    let (env, service) = candid_parser::utils::CandidSource::Text(declared)
+        .load()
+        .unwrap();
+    let expected = env
+        .as_service(&service.expect("standalone Candid service"))
+        .unwrap()
+        .iter()
+        .map(|(name, ty)| {
+            let function = env.as_func(ty).unwrap();
+            let prefix = if function.modes.contains(&FuncMode::CompositeQuery) {
+                "canister_composite_query "
+            } else if function.is_query() {
+                "canister_query "
+            } else {
+                "canister_update "
+            };
+            format!("{prefix}{name}")
+        })
+        .collect::<BTreeSet<_>>();
+    let bytes = wasm();
+    let facts = inspect(
+        &bytes,
+        InspectionLimits {
+            module_bytes: 64 * 1024 * 1024,
+            sections: 1024,
+            exports: 1024,
+            custom_sections: 1024,
+        },
+    )
+    .expect("inspect compiled standalone Wasm");
+    let exported = facts
+        .exports
+        .iter()
+        .filter_map(|(export, identity)| {
+            if identity.kind != ExportKind::Function {
+                return None;
+            }
+            [
+                "canister_composite_query ",
+                "canister_query ",
+                "canister_update ",
+            ]
+            .iter()
+            .find_map(|prefix| export.strip_prefix(prefix))
+            // This namespace is reserved by IC CDK and is not an application API.
+            .filter(|name| !name.starts_with("<ic-cdk internal> "))
+            .map(|_| (*export).to_owned())
+        })
+        .collect::<BTreeSet<_>>();
+    assert_eq!(
+        exported, expected,
+        "callable standalone Wasm/Candid surface"
+    );
 }
 
 fn trial_configuration(f: &Fixture) -> ServiceConfigurationInput {
