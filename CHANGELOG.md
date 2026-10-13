@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.23.0]
+## [0.23.0] - 2026-10-13
 
 - **Breaking:** adopt public IC Memory 0.36: request factories return
   `MemoryDeclarationError`, and hosts transfer complete owned request lists to
