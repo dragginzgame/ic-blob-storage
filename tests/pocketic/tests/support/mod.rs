@@ -4,7 +4,7 @@ use std::{io::Read, path::PathBuf, process::Output, time::Duration};
 
 use ic_testkit::{
     ic_host_process::child::OwnedChild,
-    pic::{PocketIcBuilderExt, PocketIcManagedServer, PocketIcStartupConfig},
+    pic::{PocketIcInstance, PocketIcManagedServer, PocketIcStartupConfig},
     pocket_ic::{PocketIc, PocketIcBuilder},
 };
 
@@ -51,7 +51,7 @@ pub(super) fn fixture_path(variable: &str) -> PathBuf {
 pub(super) struct Harness {
     // Rust drops fields in declaration order: instance before its owned server.
     pub pic: PocketIc,
-    _server: PocketIcManagedServer,
+    _server: Option<PocketIcManagedServer>,
 }
 
 impl Harness {
@@ -60,18 +60,12 @@ impl Harness {
     }
 
     pub fn with_builder(builder: PocketIcBuilder) -> Self {
-        let server =
+        let PocketIcInstance { instance, server } =
             PocketIcStartupConfig::spawn(fixture_path("POCKET_IC_BIN"), Duration::from_secs(30))
-                .start_managed_server()
-                .expect("start explicitly selected local server");
-        let pic = builder
-            .try_build(PocketIcStartupConfig::connect(
-                server.url(),
-                Duration::from_secs(30),
-            ))
-            .expect("PocketIC instance");
+                .build_instance(builder)
+                .expect("start explicitly selected local server and instance");
         Self {
-            pic,
+            pic: instance,
             _server: server,
         }
     }

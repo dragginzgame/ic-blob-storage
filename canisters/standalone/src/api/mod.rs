@@ -54,8 +54,13 @@ ic_blob_storage_contracts::mount_service_endpoints!(
     trap = ic_cdk::trap,
 );
 
+#[cfg(all(target_arch = "wasm32", feature = "candid-export"))]
 ic_cdk::export_candid!();
 
+#[cfg(not(target_arch = "wasm32"))]
+candid::export_service!();
+
+#[cfg(any(not(target_arch = "wasm32"), feature = "candid-export"))]
 pub(crate) fn interface() -> String {
     __export_service()
 }

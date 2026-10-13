@@ -15,6 +15,14 @@ The [Candid contract](service.did) is generated from the endpoint declarations:
 cargo run --offline --locked -p ic-blob-storage-canister --example export_candid > canisters/standalone/service.did
 ```
 
+Default Wasm builds omit the native Candid extraction pointer and type-export
+machinery. The native example above remains available without features. For a
+Wasm intended only for extraction, explicitly build with
+`--features candid-export`; do not deploy that artifact. Rebuild with
+`make build-standalone` afterward to select the normal production artifact.
+The interface-parity test compares the native declaration with `service.did` and
+the actual production Wasm method names/modes, and rejects the extraction export.
+
 Installation takes one explicit
 `ServiceInstallationInput { configuration, project, completion_verifier }`
 from `ic_blob_storage_contracts::dto::configuration`. The offline

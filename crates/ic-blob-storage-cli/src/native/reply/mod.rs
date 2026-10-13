@@ -6,6 +6,24 @@ use ic_blob_storage_contracts::dto::operator::LocalStatusFailure;
 use ic_blob_storage_contracts::dto::operator::OperatorScope;
 use serde_json::{Value, json};
 
+/// Shared bounded small replies; command owners retain error and binding policy.
+pub(super) fn decode_small<T: candid::CandidType + for<'de> serde::Deserialize<'de>>(
+    bytes: &[u8],
+    too_large: Failure,
+) -> Result<T, Failure> {
+    if bytes.len() > 4096 {
+        return Err(too_large);
+    }
+    let mut config = DecoderConfig::new();
+    config
+        .set_decoding_quota(100_000)
+        .set_skipping_quota(0)
+        .set_max_type_len(128)
+        .set_max_header_len(4096)
+        .set_full_error_message(false);
+    decode_one_with_config(bytes, &config).map_err(|_| Failure::InvalidReply)
+}
+
 pub(super) fn decode(bytes: &[u8], scope: OperatorScope) -> Result<LocalServiceStatus, Failure> {
     if bytes.len() > 64 * 1024 {
         return Err(Failure::ReplyTooLarge);

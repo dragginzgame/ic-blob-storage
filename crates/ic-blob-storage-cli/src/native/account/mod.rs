@@ -1,6 +1,5 @@
 //! One scoped service read update; reports never become credit or dispatch authority.
 use super::{Failure, agent, arguments::Options};
-use candid::{de::DecoderConfig, decode_one_with_config};
 use ic_blob_storage_contracts::dto::account::AccountInspectionFailure as E;
 use ic_blob_storage_contracts::dto::account::AccountInspectionKind as Kind;
 use ic_blob_storage_contracts::dto::account::AccountInspectionRequest;
@@ -20,18 +19,8 @@ fn decode(
     request: AccountInspectionRequest,
     bytes: &[u8],
 ) -> Result<AccountInspectionResponse, Failure> {
-    if bytes.len() > 4096 {
-        return Err(Failure::ReplyTooLarge);
-    }
-    let mut config = DecoderConfig::new();
-    config
-        .set_decoding_quota(100_000)
-        .set_skipping_quota(0)
-        .set_max_type_len(128)
-        .set_max_header_len(4096)
-        .set_full_error_message(false);
     let reply: Result<AccountInspectionResponse, E> =
-        decode_one_with_config(bytes, &config).map_err(|_| Failure::InvalidReply)?;
+        super::reply::decode_small(bytes, Failure::ReplyTooLarge)?;
     let response = reply.map_err(Failure::AccountRefused)?;
     if response.request != request {
         return Err(Failure::Binding);

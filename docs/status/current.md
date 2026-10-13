@@ -4,36 +4,48 @@ Date: 2026-10-13
 
 ## Released source and pending batch
 
-Blob 0.22.16 is released at `de19bbc019fd18dac3206841a404db6b390719e7`.
-The preceding audit cleanup is delivered. Its hosted run
-[38366758067](https://github.com/dragginzgame/ic-blob-storage/actions/runs/38366758067)
-was queued during this inspection; it does not qualify the new working tree.
+Blob **0.23.0** is released at `4277ed1ec059c1eb36e4bc5e32e7b6b7eb74ecc2`,
+validated parent `c0e87982a40eefc4825c2563fbf5176ad2199a91`. Remote main and
+peeled release tag match. The Memory 0.36 explicit-request adoption is delivered;
+[#64](https://github.com/dragginzgame/ic-blob-storage/issues/64) is closed against
+that evidence. [Its source-bound qualification](../evidence/memory036-host016-shared0913.md)
+remains historical. Hosted [38375231253](https://github.com/dragginzgame/ic-blob-storage/actions/runs/38375231253)
+was queued at inspection; #56–#59 retain their separate native acceptance scopes.
 
-Pending **0.23.0** adopts public Memory 0.36.0 and direct Host artifacts/fs/tools
-0.16.0, preserving the incoming Cargo selections. Metrics remains privately
-selected at 0.8.2; Testkit 0.35.1 retains Host artifacts/fs/process 0.15.2.
-Memory request factories now return `MemoryDeclarationError`; standalone/probe
-hosts transfer their complete owned request vectors into the sealed snapshot.
-Stable keys, allocation inventory and persisted schemas remain unchanged.
-The removed global-registry observations leave the actual no-bootstrap and
-committed-capability rejection assertions intact. No compatibility alias is added.
+Pending compatible **0.23.1** makes standalone Wasm
+Candid extraction opt-in through `candid-export`, while native generation stays
+available. Production endpoints, Candid, keys, schemas and lifecycle are unchanged.
+[Cleanup evidence](../evidence/candid-export0231.md) records raw/optimized size
+comparisons and qualification. Package versions and release effects remain
+maintainer-owned. Shared remains the reviewed 112-file 0.9.13 snapshot at
+`35cad65677ff989b5fb24a88d947fda37d2366e8`.
 
-The reviewed Shared snapshot is **0.9.13**,
-`35cad65677ff989b5fb24a88d947fda37d2366e8`, with all 112 payloads retained.
-Shared's local 0.9.14 edits were uncommitted and excluded. Snapshot refresh uses
-an isolated clean committed source; sibling work remains untouched.
-The changes preserve lock/source-acquisition errors, authorize separate locked
-source fetching and require an explicit CI target when no branch is observable.
+The next local simplification delegates PocketIC startup to Testkit's owned
+constructor, preserving caller topology and instance-first teardown. Incoming
+direct Host 0.17 / Metrics 0.8.4 edits are retained; the interface test explicitly
+selects Host's `candid-service` feature. Testkit 0.36 still uses Host 0.16 internally.
+[Focused evidence](../evidence/harness0231.md) separates this newer graph from the
+preceding Candid size measurement and its original Host 0.16 proof.
 
-[Adoption evidence](../evidence/memory036-host016-shared0913.md) records focused
-qualification and retained attempts. Package versions and release effects remain
-maintainer-owned. Cross-release retirement/reinstall policy remains unchanged;
-Memory's source cut does not itself change the ledger encoding. Canic must align
-its own Memory identity under [#527](https://github.com/dragginzgame/canic/issues/527).
-Blob [#64](https://github.com/dragginzgame/ic-blob-storage/issues/64) tracks delivery;
-#56–#59 still require their exact native/archive/tooling acceptance.
+CLI account, funding-assessment and gateway commands now share their identical
+small-reply decoder. Each retains its original oversize error, request binding
+and service-failure handling; installation and large-status decoders stay separate.
+Focused CLI results are retained at `.tmp/review-validation/replies0231/`.
 
 ## Canic boundary
+
+Read-only review confirms fresh Canic-owned dedicated and embedded managed
+Blob tests pass with Blob/contracts 0.23.0 and Memory 0.36.1. The recorded root
+manifest and three lock hashes still match. The tests cover permissions, exact
+installation decoding, endpoint parity and restoration fences; the embedded
+case also retains application state. Dedicated build:
+`39021f01483ac31d8be5ca364ca32605ce38d382c13ad0ee0ae7315d6a5069e8`;
+embedded: `b6bbcd1b93783b92f3f4325e00f416976495ce228c29f4e783e4551ea52bf6d0`.
+Original evidence remains in Canic `.tmp/memory-036/blob023-{dedicated,embedded}.log`.
+This clears the local composition blocker. Family delivery and actual application/
+provider acceptance remain under [#527](https://github.com/dragginzgame/canic/issues/527)
+and [#444](https://github.com/dragginzgame/canic/issues/444). No sibling edit or
+new Canic execution occurred here; older proof below retains its original graph.
 
 Canic's wider Auth/Backup/Blob batch remains with its own owner under
 [#517](https://github.com/dragginzgame/canic/issues/517) and

@@ -14,10 +14,10 @@ lockfiles; this repository's qualification does not cover every future resolutio
 
 | Owner | Current locked selection | Scope |
 | --- | --- | --- |
-| IC Memory | 0.36.0 | Public memory types, host allocation pool and committed grants |
-| IC Metrics | 0.8.2 | Private storage probe; tracked overflow quality |
-| IC Testkit | 0.35.1 | Native PocketIC client, server setup and managed lifetime |
-| IC Host artifacts/fs/tools (direct) | 0.16.0 | Native artifacts, filesystem and test/tool boundaries |
+| IC Memory | 0.36.1 | Public memory types, host allocation pool and committed grants |
+| IC Metrics | 0.8.4 | Private storage probe; tracked overflow quality |
+| IC Testkit | 0.36.0 | Native PocketIC client, server setup and managed lifetime |
+| IC Host artifacts/fs/tools (direct) | 0.17.0 | Native artifacts, filesystem and test/tool boundaries |
 | PocketIC | 16.1.0 | Selected and admitted by Testkit; no separate Blob server pin |
 
 The reviewed [Shared snapshot](../.shared-tooling.snapshot) is 0.9.13 at
@@ -31,7 +31,8 @@ Earlier dependency reviews remain in their existing evidence records and the
 [frozen former guide](https://github.com/dragginzgame/ic-blob-storage/blob/0d720d1745c1c9e87fe2a9cb922ba21c1dec5293/docs/dependencies.md);
 those graphs are not current setup instructions.
 
-Testkit 0.35 keeps its internal Host artifacts/fs/process 0.15.2 graph.
+Testkit 0.36 retains Host artifacts/fs/process 0.16.0 internally; direct Blob
+callers select Host 0.17.0. Interface tests explicitly enable `candid-service`.
 Direct Host tools already disables default features; no Candid extraction
 feature is needed by Blob. Memory request factories return
 `MemoryDeclarationError`; hosts supply their complete owned `Vec<MemoryRequest>`

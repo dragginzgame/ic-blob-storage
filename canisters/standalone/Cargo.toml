@@ -8,6 +8,9 @@ publish = false
 [lib]
 crate-type = ["cdylib", "rlib"]
 
+[features]
+candid-export = []
+
 [dependencies]
 candid.workspace = true
 ic-blob-storage.workspace = true

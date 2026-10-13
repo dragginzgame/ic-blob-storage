@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.23.1]
+
+- Share bounded small-reply decoding across account, funding assessment and
+  gateway commands, preserving command-specific errors and binding validation.
+
+- Delegate PocketIC instance/server startup to Testkit's owned constructor,
+  keeping one startup deadline and instance-before-server teardown.
+- Enable Host 0.17's explicit Candid service feature only for interface tests.
+
+- Keep standalone Candid generation native by default; make Wasm extraction
+  opt-in with `candid-export`, removing its machinery from production builds
+  while retaining the exact service interface.
+  ([#63](https://github.com/dragginzgame/ic-blob-storage/issues/63))
+- Adopt Testkit 0.36 with one Host 0.16 graph; qualify incoming Memory 0.36.1
+  and private Metrics 0.8.3 selections.
+
 ## [0.23.0] - 2026-10-13
 
 - **Breaking:** adopt public IC Memory 0.36: request factories return

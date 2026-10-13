@@ -4,7 +4,7 @@ use super::{
     arguments::Options,
     signed_update::{DEADLINE_SECONDS, PreparedUpdate, SMALL_REPLY_BYTES, UpdateInput},
 };
-use candid::{Principal, de::DecoderConfig, decode_one_with_config};
+use candid::Principal;
 use ic_agent::Agent;
 use ic_blob_storage_contracts::dto::gateway::GatewayRevocationFailure as RevokeError;
 use ic_blob_storage_contracts::dto::gateway::GatewayRevocationRequest;
@@ -132,25 +132,11 @@ fn prepare(options: &Options, input: &Input, agent: &Agent) -> Result<PreparedUp
         },
     )
 }
-fn decode<T: candid::CandidType + for<'de> serde::Deserialize<'de>>(
-    bytes: &[u8],
-) -> Result<T, Failure> {
-    if bytes.len() > 4096 {
-        return Err(Failure::ReplyLimit);
-    }
-    let mut config = DecoderConfig::new();
-    config
-        .set_decoding_quota(100_000)
-        .set_skipping_quota(0)
-        .set_max_type_len(128)
-        .set_max_header_len(4096)
-        .set_full_error_message(false);
-    decode_one_with_config(bytes, &config).map_err(|_| Failure::InvalidReply)
-}
 fn acknowledgment(input: &Input, bytes: &[u8]) -> Result<Value, Failure> {
     match input.action {
         Action::Sync => {
-            let reply: Result<GatewaySyncResponse, SyncError> = decode(bytes)?;
+            let reply: Result<GatewaySyncResponse, SyncError> =
+                super::reply::decode_small(bytes, Failure::ReplyLimit)?;
             let reply = reply.map_err(Failure::GatewaySyncRefused)?;
             if reply.scope != input.scope {
                 return Err(Failure::Binding);
@@ -161,12 +147,14 @@ fn acknowledgment(input: &Input, bytes: &[u8]) -> Result<Value, Failure> {
             Ok(json!({"sequence":reply.sequence.to_string()}))
         }
         Action::Cancel(sequence) => {
-            let reply: Result<(), SyncError> = decode(bytes)?;
+            let reply: Result<(), SyncError> =
+                super::reply::decode_small(bytes, Failure::ReplyLimit)?;
             reply.map_err(Failure::GatewaySyncRefused)?;
             Ok(json!({"sequence":sequence.to_string()}))
         }
         Action::Revoke(gateway) => {
-            let reply: Result<GatewayRevocationResponse, RevokeError> = decode(bytes)?;
+            let reply: Result<GatewayRevocationResponse, RevokeError> =
+                super::reply::decode_small(bytes, Failure::ReplyLimit)?;
             let reply = reply.map_err(Failure::GatewayRevocationRefused)?;
             if reply.request
                 != (GatewayRevocationRequest {

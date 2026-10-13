@@ -23,7 +23,7 @@ candid_parser.workspace = true
 ic-agent.workspace = true
 ic-blob-storage-canister.workspace = true
 ic-host-artifacts = { workspace = true, features = ["wasm"] }
-ic-host-tools = { workspace = true, features = ["ic-interface"] }
+ic-host-tools = { workspace = true, features = ["candid-service", "ic-interface"] }
 reqwest.workspace = true
 serde_cbor.workspace = true
 tokio = { workspace = true, features = ["rt", "time"] }

@@ -115,7 +115,7 @@ open integration work and retained trial obligations are recorded in the
 [current status](docs/status/current.md). Earlier live trials remain frozen and
 do not establish production readiness for the current release.
 
-The pending 0.23 release line publicly re-exports ic-memory 0.36. Hosts compose
+The current 0.23 release line publicly re-exports ic-memory 0.36. Hosts compose
 one memory package identity and one allocation pool; rebuild their composition
 against that line. Cross-release installations require safe obligation
 disposition before reinstall, as described in the

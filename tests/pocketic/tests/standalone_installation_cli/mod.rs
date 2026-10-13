@@ -45,6 +45,10 @@ fn deployment_candid_matches_the_exported_contract() {
         },
     )
     .expect("inspect compiled standalone Wasm");
+    assert!(
+        !facts.exports.contains_key("get_candid_pointer"),
+        "deployment Wasm must omit optional Candid extraction machinery"
+    );
     let exported = interface::exported_methods(&facts)
         // This namespace is reserved by IC CDK and is not an application API.
         .filter(|method| !method.name.starts_with("<ic-cdk internal> "))

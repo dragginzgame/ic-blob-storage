@@ -1,6 +1,5 @@
 //! One authenticated passive service assessment, with no payment or balance inference.
 use super::{Failure, arguments::Options, query, reply};
-use candid::{de::DecoderConfig, decode_one_with_config};
 use ic_blob_storage_contracts::dto::funding::assessment::FundingPreparationBlocker as B;
 use ic_blob_storage_contracts::dto::funding::assessment::FundingPreparationFailure as E;
 use ic_blob_storage_contracts::dto::funding::assessment::FundingPreparationRequest as Request;
@@ -9,18 +8,7 @@ use ic_blob_storage_contracts::protocol::FUNDING_PREPARATION_METHOD;
 use serde_json::{Value, json};
 
 fn decode(request: Request, bytes: &[u8]) -> Result<Response, Failure> {
-    if bytes.len() > 4096 {
-        return Err(Failure::ReplyTooLarge);
-    }
-    let mut config = DecoderConfig::new();
-    config
-        .set_decoding_quota(100_000)
-        .set_skipping_quota(0)
-        .set_max_type_len(128)
-        .set_max_header_len(4096)
-        .set_full_error_message(false);
-    let response: Result<Response, E> =
-        decode_one_with_config(bytes, &config).map_err(|_| Failure::InvalidReply)?;
+    let response: Result<Response, E> = super::reply::decode_small(bytes, Failure::ReplyTooLarge)?;
     let response = response.map_err(Failure::FundingAssessmentRefused)?;
     if response.request != request {
         return Err(Failure::Binding);
