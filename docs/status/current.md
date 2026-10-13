@@ -4,35 +4,62 @@ Date: 2026-10-13
 
 ## Released source and pending batch
 
-Blob **0.23.0** is released at `4277ed1ec059c1eb36e4bc5e32e7b6b7eb74ecc2`,
-validated parent `c0e87982a40eefc4825c2563fbf5176ad2199a91`. Remote main and
-peeled release tag match. The Memory 0.36 explicit-request adoption is delivered;
-[#64](https://github.com/dragginzgame/ic-blob-storage/issues/64) is closed against
-that evidence. [Its source-bound qualification](../evidence/memory036-host016-shared0913.md)
-remains historical. Hosted [38375231253](https://github.com/dragginzgame/ic-blob-storage/actions/runs/38375231253)
-was queued at inspection; #56–#59 retain their separate native acceptance scopes.
+Blob **0.23.1** is released at `dc169f9bfe6c1e736c189e1ce5ee478cfe81b745`,
+validated parent `12b13f868d2483d5ce1035c26d5197299f0f8052`. Remote main and
+peeled tag match; the finalized receipt records `release-verify`. The Candid
+export split, Testkit-owned startup and small-reply decoder cleanup are delivered.
+[Original size evidence](../evidence/candid-export0231.md) and
+[harness evidence](../evidence/harness0231.md) retain their own graphs.
+The released lock selects Testkit 0.37.0, Host 0.17.0, Memory 0.36.1 and
+private Metrics 0.8.4. Hosted [38381638982](https://github.com/dragginzgame/ic-blob-storage/actions/runs/38381638982)
+has passed Linux and MSRV. Intel macOS exhausted the 60-minute job limit during
+`test-release.sh`, before package/native qualification; Apple Silicon subsequently passed.
+The overall run is cancelled because Intel did not complete. Failure-only tooling retention skipped the cancelled lane.
+Pending 0.23.2 gives the native job 120 minutes, bounds its tooling fixture step
+at 45 minutes to leave collection time, and retains evidence on failure or
+cancellation. Release-adapter cases now announce their names before execution.
+The hosted outcome remains unqualified until the corrected workflow runs.
+Local release-adapter fixtures, tooling-evidence tests, ShellCheck, YAML selection
+checks and documentation links pass; logs and the original Intel job log remain
+in `.tmp/review-validation/continue0232/`. No hosted rerun or full CI was executed.
+#63 and #56–#59 still require their native acceptance;
+release delivery alone does not qualify those checks.
 
-Pending compatible **0.23.1** makes standalone Wasm
-Candid extraction opt-in through `candid-export`, while native generation stays
-available. Production endpoints, Candid, keys, schemas and lifecycle are unchanged.
-[Cleanup evidence](../evidence/candid-export0231.md) records raw/optimized size
-comparisons and qualification. Package versions and release effects remain
-maintainer-owned. Shared remains the reviewed 112-file 0.9.13 snapshot at
-`35cad65677ff989b5fb24a88d947fda37d2366e8`.
+Pending compatible **0.23.2** adopts Shared Tooling **0.10.2** at
+`626fc2bd3125195520fb870b92abfec11b01454d`, retaining 112 snapshot files.
+Both catalogs were already vendored, and every existing tool version/digest
+matches. No exception file is needed. Redundant local Make defaults are removed;
+all common selectors now inherit from the reviewed snapshot. Compiler, Testkit and
+release metadata remain unchanged by the Shared adoption. Explicit setup and
+focused tooling qualification are recorded in the [adoption evidence](../evidence/shared0100232.md).
+[#66](https://github.com/dragginzgame/ic-blob-storage/issues/66) retains delivery
+and native qualification. The [subsequent refresh](../evidence/upstream0232.md)
+qualifies Shared 0.10.2 and the incoming Host 0.17.2 graph separately from the
+original 0.10.0 and Metrics/Host 0.17.1 evidence.
 
-The next local simplification delegates PocketIC startup to Testkit's owned
-constructor, preserving caller topology and instance-first teardown. Incoming
-direct Host 0.17 / Metrics 0.8.4 edits are retained; the interface test explicitly
-selects Host's `candid-service` feature. Testkit 0.36 still uses Host 0.16 internally.
-[Focused evidence](../evidence/harness0231.md) separates this newer graph from the
-preceding Candid size measurement and its original Host 0.16 proof.
-
-CLI account, funding-assessment and gateway commands now share their identical
-small-reply decoder. Each retains its original oversize error, request binding
-and service-failure handling; installation and large-status decoders stay separate.
-Focused CLI results are retained at `.tmp/review-validation/replies0231/`.
+The same pending batch selects published Metrics 0.9.0 privately in the storage
+probe, plus incoming Memory 0.36.2 and Host 0.17.2, retaining Testkit 0.37.0.
+Metrics overflow getter calls are updated; public Blob types and probe wire names
+stay unchanged. [Focused qualification](../evidence/metrics0900232.md) addresses
+[#65](https://github.com/dragginzgame/ic-blob-storage/issues/65); release delivery
+remains pending. The operator guide now includes the
+[prior-admitted canister-tenant recipe](../operator-guide.md#continue-an-upload-already-admitted-by-a-canister-tenant)
+requested by [#4](https://github.com/dragginzgame/ic-blob-storage/issues/4), including
+explicit original MIME hints. The consumer still owns real application transaction,
+provider/verifier and lost-success acceptance; that issue is not complete.
 
 ## Canic boundary
+
+The 2026-10-13 read-only refresh identifies Canic HEAD
+`23d27f96f4e518f0313b6d730f53724ba836ffbe` with incoming Cargo/status edits.
+The remote 0.111.0 tag still selects Blob/contracts 0.22.2 and Memory 0.35;
+no remote 0.112.0 tag was observed. Current source selects Blob 0.23/Memory 0.36,
+while package metadata remains 0.111.0. README and dependency instructions now
+separate those families explicitly. The sibling composition guide's older version
+prose remains with Canic; this review changes no sibling and runs no consumer build.
+Issues #31/#33/#4 still need actual application/provider acceptance. No new Blob
+runtime gap was found in the reviewed upload preparation and recovery owners.
+
 
 Read-only review confirms fresh Canic-owned dedicated and embedded managed
 Blob tests pass with Blob/contracts 0.23.0 and Memory 0.36.1. The recorded root

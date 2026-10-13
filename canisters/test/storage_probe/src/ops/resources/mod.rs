@@ -82,11 +82,11 @@ pub(crate) fn finish_read_profile() -> Vec<RestorationMemoryReads> {
             .map(|(r, memory)| RestorationMemoryReads {
                 memory: memory.to_owned(),
                 calls: r.instructions.samples(),
-                calls_saturated: r.instructions.samples_saturated(),
+                calls_saturated: r.instructions.samples_overflowed(),
                 bytes: r.bytes,
                 bytes_saturated: r.bytes_saturated,
                 instructions: r.instructions.total(),
-                instructions_saturated: r.instructions.total_saturated(),
+                instructions_saturated: r.instructions.total_overflowed(),
             })
             .collect()
     })

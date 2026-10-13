@@ -36,6 +36,7 @@ finish() {
 trap finish EXIT
 run_case() {
     CASE_NAME="$1"; shift
+    printf 'Release-adapter case: %s\n' "$CASE_NAME"
     CASE_LOG="$TEMPORARY/$CASE_NAME.log"
     FIXTURE="$TEMPORARY/$CASE_NAME"
     TEST_LOG="$FIXTURE/commands.log"

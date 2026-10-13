@@ -1,5 +1,28 @@
 # Changelog
 
+## [0.23.2]
+
+- Correct Canic adoption guidance: released 0.111 uses Blob 0.22/Memory 0.35;
+  current Blob 0.23 requires the newer coherent host family and its own delivery
+  qualification, rather than mixing the two dependency graphs.
+
+- Give native CI time for cold Intel tooling and subsequent runtime checks;
+  bound the fixture step separately, retain tooling evidence on cancellation,
+  and report release-fixture progress before each isolated case.
+
+- Adopt Shared Tooling 0.10.2 snapshot-owned common tool catalogs and remove
+  redundant local Make defaults. Common tool versions/digests are unchanged;
+  host, Rust and IC exceptions remain independent. Cargo tool cache keys now
+  ignore unrelated literal catalog changes while retaining build/selection identity.
+  ([#66](https://github.com/dragginzgame/ic-blob-storage/issues/66))
+
+- Adopt private Metrics 0.9 overflow getters while preserving storage probe wire
+  fields and exact-cap/overflow semantics; qualify Memory 0.36.2 and Host 0.17.2.
+  ([#65](https://github.com/dragginzgame/ic-blob-storage/issues/65))
+- Document the canister-tenant prior-admission upload recipe and original MIME
+  preparation hints, including gzip metadata and recovery without re-admission.
+  ([#4](https://github.com/dragginzgame/ic-blob-storage/issues/4))
+
 ## [0.23.1] - 2026-10-13
 
 - Share bounded small-reply decoding across account, funding assessment and

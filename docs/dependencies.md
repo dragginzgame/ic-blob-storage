@@ -14,30 +14,41 @@ lockfiles; this repository's qualification does not cover every future resolutio
 
 | Owner | Current locked selection | Scope |
 | --- | --- | --- |
-| IC Memory | 0.36.1 | Public memory types, host allocation pool and committed grants |
-| IC Metrics | 0.8.4 | Private storage probe; tracked overflow quality |
-| IC Testkit | 0.36.0 | Native PocketIC client, server setup and managed lifetime |
-| IC Host artifacts/fs/tools (direct) | 0.17.0 | Native artifacts, filesystem and test/tool boundaries |
+| IC Memory | 0.36.2 | Public memory types, host allocation pool and committed grants |
+| IC Metrics | 0.9.0 | Private storage probe; tracked overflow quality |
+| IC Testkit | 0.37.0 | Native PocketIC client, server setup and managed lifetime |
+| IC Host artifacts/fs/tools (direct) | 0.17.2 | Native artifacts, filesystem and test/tool boundaries |
 | PocketIC | 16.1.0 | Selected and admitted by Testkit; no separate Blob server pin |
 
-The reviewed [Shared snapshot](../.shared-tooling.snapshot) is 0.9.13 at
-`35cad65677ff989b5fb24a88d947fda37d2366e8`, with 112 payloads. Common installation,
+The reviewed [Shared snapshot](../.shared-tooling.snapshot) is 0.10.2 at
+`626fc2bd3125195520fb870b92abfec11b01454d`, with 112 payloads. Common installation,
 checks, hooks and formatting use `make/consumer.mk`; product targets and Testkit
 extensions stay local. The canonical Rust-tool fixture runs directly from this
 consumer. Snapshot adoption does not automatically adopt Shared's CI cache policy.
 See [current status](status/current.md) for released versus prepared identities and
 [the adoption evidence](evidence/memory036-host016-shared0913.md) for source-bound results.
+The private Metrics 0.9 overflow getter adoption and current graph checks are
+recorded in [the probe qualification](evidence/metrics0900232.md). Metrics types
+do not cross the public Blob package boundary; probe wire fields are retained.
+The [Shared 0.10.2 / Host 0.17.2 refresh](evidence/upstream0232.md) records
+the subsequent focused checks; earlier graph evidence is retained separately.
 Earlier dependency reviews remain in their existing evidence records and the
 [frozen former guide](https://github.com/dragginzgame/ic-blob-storage/blob/0d720d1745c1c9e87fe2a9cb922ba21c1dec5293/docs/dependencies.md);
 those graphs are not current setup instructions.
 
-Testkit 0.36 retains Host artifacts/fs/process 0.16.0 internally; direct Blob
-callers select Host 0.17.0. Interface tests explicitly enable `candid-service`.
+Testkit 0.37 and direct Blob callers select one Host 0.17.2 graph. Interface tests explicitly enable `candid-service`.
 Direct Host tools already disables default features; no Candid extraction
 feature is needed by Blob. Memory request factories return
 `MemoryDeclarationError`; hosts supply their complete owned `Vec<MemoryRequest>`
 to `SealedDeclarationSnapshot::new` before the single runtime bootstrap.
 No global registry or constructor is involved.
+
+Common tool versions and digests belong to the reviewed snapshot catalogs in
+`ci/tool-versions.env` and `ci/ic-tools.tsv`. Blob has no common-tool exception.
+Make, standalone installers, formatting, freshness inspection and evidence
+collection use those same defaults. Any future host, Rust or IC exception must
+be explicitly selected independently; a host override does not select Rust pins.
+Compiler, application dependencies and Testkit/PocketIC remain locally owned.
 
 ## Quick setup
 
@@ -283,7 +294,23 @@ Do not add Canic dependencies, wrappers or fixtures here. The
 owns current framework mounting APIs; [current status](status/current.md#canic-boundary)
 links source-bound composition results and remaining owner work.
 
-For consumer adoption:
+At the 2026-10-13 review, Canic's released `v0.111.0` points to
+`25b73cd403b20b4e148c6e340f8c760a26d97f6e`. Its catalog requires Blob/contracts
+`0.22.2` and Memory `0.35`; Cargo cannot resolve those requirements to this
+Blob 0.23 / Memory 0.36 family. Adding this Blob version directly to an application
+does not upgrade the adapter's types or its memory runtime. Do not combine the
+two graphs or substitute a path override as published integration evidence.
+
+The inspected Canic source at `23d27f96f4e518f0313b6d730f53724ba836ffbe`, plus
+incoming Cargo edits, selects Blob/contracts `0.23` and Memory `0.36`. Its pending
+family is 0.112; package metadata still says 0.111.0 and no remote `v0.112.0` tag
+was observed. Commit subjects and local successful proofs do not establish family
+publication. The Canic composition guide still contains older 0.22/0.35 prose;
+use the selected release's actual manifests and source-bound evidence to resolve
+version requirements. Follow [Canic #527](https://github.com/dragginzgame/canic/issues/527)
+for the explicit memory composition and family qualification.
+
+For consumer adoption of the current Blob line:
 
 1. Select one coherent published Canic family, matching Blob runtime/contracts and
    one Memory 0.36 identity. Freeze the application's actual lock and all independent

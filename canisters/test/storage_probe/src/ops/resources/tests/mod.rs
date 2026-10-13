@@ -20,11 +20,11 @@ fn zero_read_and_exact_caps_remain_exact_until_overflow() {
     .unwrap();
     row.record(1, u64::MAX);
     assert_eq!(row.instructions.samples(), u64::MAX);
-    assert!(!row.instructions.samples_saturated());
+    assert!(!row.instructions.samples_overflowed());
     assert_eq!(row.bytes, u64::MAX);
     assert!(!row.bytes_saturated);
     row.record(0, 0);
-    assert!(row.instructions.samples_saturated());
+    assert!(row.instructions.samples_overflowed());
     assert!(!row.bytes_saturated);
     row.record(1, 1);
     assert!(row.bytes_saturated);
@@ -48,12 +48,12 @@ fn instruction_total_quality_survives_exact_cap_and_overflow() {
     };
     row.record(1, 0);
     assert_eq!(row.instructions.total(), u128::MAX);
-    assert!(!row.instructions.total_saturated());
+    assert!(!row.instructions.total_overflowed());
     row.record(1, 0);
     assert_eq!(row.instructions.total(), u128::MAX);
-    assert!(row.instructions.total_saturated());
+    assert!(row.instructions.total_overflowed());
     row.record(0, 0);
-    assert!(row.instructions.total_saturated());
+    assert!(row.instructions.total_overflowed());
 }
 
 #[test]

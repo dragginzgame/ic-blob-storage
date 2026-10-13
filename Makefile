@@ -3,8 +3,6 @@ SHELL := /bin/bash
 
 # Keep all builds in this repository, including calls from another workspace.
 export CARGO_TARGET_DIR := $(CURDIR)/target
-IC_TOOL_PINS ?= ci/ic-tools.tsv
-HOST_TOOL_VERSIONS ?= ci/tool-versions.env
 LOCAL_TOOL_INSTALL_TARGETS := install-testkit
 LOCAL_TOOL_CHECK_TARGETS := testkit-check
 override SHARED_TOOLING_ROOT := $(CURDIR)

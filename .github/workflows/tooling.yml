@@ -45,8 +45,9 @@ jobs:
       matrix:
         os: [ubuntu-24.04, macos-15, macos-15-intel]
     runs-on: ${{ matrix.os }}
-    # Intel cold setup and tooling fixtures used 22 minutes before native builds.
-    timeout-minutes: 60
+    # Intel 0.23.1 exhausted 60 minutes in tooling, before native qualification.
+    # Keep time for native checks and evidence after a bounded fixture failure.
+    timeout-minutes: 120
     defaults:
       run:
         shell: /bin/bash --noprofile --norc -e -o pipefail {0}
@@ -114,6 +115,7 @@ jobs:
           echo "$GITHUB_WORKSPACE/.tools/ic/bin" >> "$GITHUB_PATH"
           echo "$GITHUB_WORKSPACE/.tools/rust/common/bin" >> "$GITHUB_PATH"
       - name: Check the snapshot, formatter and release/hook fixtures
+        timeout-minutes: 45
         env:
           CARGO_NET_OFFLINE: 'true'
           RUSTUP_AUTO_INSTALL: '0'
@@ -175,7 +177,7 @@ jobs:
           retention-days: 30
       - name: Archive failed tooling fixtures
         id: tooling-failure
-        if: failure()
+        if: ${{ failure() || cancelled() }}
         run: |
           output="$(mktemp -d "$RUNNER_TEMP/blob-tooling-evidence.XXXXXX")/evidence.tar.gz"
           status=0
@@ -185,7 +187,7 @@ jobs:
           printf 'collection-complete=%s\n' "$complete" >> "$GITHUB_OUTPUT"
           if [[ -n "$archive" ]]; then printf 'archive=%s\n' "$archive" >> "$GITHUB_OUTPUT"; fi
       - name: Retain failed tooling fixtures
-        if: ${{ failure() && steps.tooling-failure.outputs.archive != '' }}
+        if: ${{ (failure() || cancelled()) && steps.tooling-failure.outputs.archive != '' }}
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: tooling-failure-${{ matrix.os }}-${{ github.run_attempt }}
@@ -194,7 +196,7 @@ jobs:
           if-no-files-found: error
           retention-days: 30
       - name: Check tooling evidence completeness
-        if: ${{ failure() && steps.tooling-failure.outputs.collection-complete == 'false' }}
+        if: ${{ (failure() || cancelled()) && steps.tooling-failure.outputs.collection-complete == 'false' }}
         run: |
           echo 'Tooling evidence collection was incomplete; safe admitted evidence was retained when available.' >&2
           exit 1

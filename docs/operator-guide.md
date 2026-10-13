@@ -1133,6 +1133,52 @@ Restored owners permit exact inspection and refuse every mutation. Successful
 setup never issues a certificate or completes an upload; installed restricted
 certificate facts and current-owner checks still apply.
 
+### Continue an upload already admitted by a canister tenant
+
+A worker holding an existing canister-tenant grant starts at `prepare-upload`
+above, signed by the exact admitted uploader. The tenant application owns admission
+through `ReplicatedUploadAdmissionClient` and its own authorization. Do not run
+`admit-upload` with the uploader's PEM or introduce a second admission to make a
+worker fit the tenant-signed publication session.
+
+1. Retain the original permission, manifest, body snapshot, preparation hints and
+   service/namespace/project/bucket bindings from the tenant's admitted intent.
+   The manifest must contain that exact permission and original ordered leaves
+   and headers. Independently retain the application's raw content digest;
+   the Caffeine root also binds metadata and is not a raw file SHA-256.
+2. Run `prepare-upload` with the uploader identity and original `manifest.candid`
+   into a fresh preparation run. Require an authenticated acknowledgment; inspect
+   uncertain or pending work using `upload-manifest` with the original permission.
+   An absent manifest is not authority to redispatch.
+3. Transfer through the maintained [selected-signer browser launcher](../clients/browser/README.md#launch-chromium-from-a-native-parent)
+   and its original durable journal, using the same uploader, binding and body.
+   Preserve the launch profile and selected binary/bundles across recovery.
+   SDK success alone does not confirm the service's object.
+4. Have the configured verifier run [observe-upload](#observe-provider-content)
+   with the original permission, approved gateway and explicit read budget, then
+   [submit-attestation](#submit-an-attestation) from that observation directory.
+   Keep their existing one-shot intent and recovery owners; do not add an upload
+   retry or an independent provider request encoder around them.
+5. The tenant application authenticates completion for its exact operation and
+   content digest, checks the current live reference, then performs its own
+   media-map or registry transaction. A worker's local report is not application
+   authorization or an atomic publication receipt.
+
+For new intents, choose explicit MIME preparation hints and save them before
+admission. The maintained Caffeine 1.1.2 SDK treats `application/octet-stream`
+as a fallback, allowing byte sniffing: gzip bytes resolve to `application/gzip`.
+For a new gzip archive use `content_type: "application/gzip"`, preserve the exact
+filename/cache-control arguments, and obtain the manifest from that preparation.
+Require the reconstructed SDK root, length, headers and ordered leaves to match
+the original manifest before certificate intent. Do not infer a preparation hint
+from a later HTTP response or rewrite an admitted manifest's content type to
+make a different SDK root match. Existing jobs retain their original inputs,
+binaries and journals; a mismatch stops the job rather than authorizing re-upload.
+
+This recipe composes existing Blob commands; the consumer owns application
+transaction and deployed-provider acceptance under
+[#4](https://github.com/dragginzgame/ic-blob-storage/issues/4).
+
 ## Download a verified file
 
 Use the tenant's own PEM and the exact current `DownloadRequest`, Candid-encoded

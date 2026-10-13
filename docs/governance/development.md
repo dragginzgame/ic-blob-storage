@@ -66,7 +66,10 @@ offline checks, formatting, hooks and releases. Its `make/tools.mk` companion
 owns setup, offline verification and LOC recipes; product tool extensions and
 validation policy remain local.
 Make selects `.tools/host/bin`, `.tools/ic/bin` and `.tools/rust/common/bin`;
-the offline checkers never download missing tools. The shared aggregate runs
+the offline checkers never download missing tools. The reviewed snapshot owns the default common versions and digests; Blob has
+no independent common-tool catalog. Explicit host, Rust and IC exceptions are
+independent selections, and host overrides do not implicitly select Rust pins.
+The shared aggregate runs
 host, IC and Cargo setup/check stages in order, stopping on the first failure,
 including under parallel Make. Shared's reviewed 0.4.0 changes retain read-only
 IC/platform and Rust/Cargo preflight before common installation. Common Rust
