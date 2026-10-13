@@ -8,6 +8,7 @@ use super::{
     exact_candid, read,
     upload_inputs::{BINDING_BYTES, InputFiles, MANIFEST_BYTES, PreparedInput, digest},
 };
+use ic_blob_storage_contracts::dto::configuration::ServiceInstallationInput;
 use serde::Deserialize;
 use serde_json::{Value, json};
 use std::{num::NonZeroU64, path::Path};
@@ -34,6 +35,17 @@ pub(super) struct FrozenFile {
     pub body_sha256: String,
 }
 impl PreparedBatch {
+    /// Decode the exact retained installation packet with the preparation envelope.
+    /// This passive candidate does not authenticate installed service state.
+    pub fn installation(&self) -> Result<ServiceInstallationInput, Failure> {
+        exact_candid::decode(
+            &self.installation,
+            exact_candid::INSTALLATION_BYTES,
+            64,
+            100_000,
+        )
+    }
+
     pub fn open_frozen(
         directory: &Path,
         maximum: NonZeroU64,

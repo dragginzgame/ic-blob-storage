@@ -904,18 +904,17 @@ authenticates the installed completion verifier before `ready` and enables a
 `verify` phase that composes the existing whole-download observer and one-shot
 attestation owner. Certificate/SDK transfer stays with the browser. This command is the native
 phase controller. The browser [publication worker](../clients/browser/README.md#run-jobs-in-a-browser-worker)
-supplies a fixed-authority job boundary. Released 0.11.0 adds a
+supplies a fixed-authority job boundary. Use the
 [selected-signer browser host/bootstrap](../clients/browser/README.md#launch-the-maintained-worker-with-a-selected-signer).
-That release also provides the [native Chromium bridge](../clients/browser/README.md#launch-chromium-from-a-native-parent)
-with selected SDK identity JSON, bounded file loading and fixed profile/origin.
-Released 0.13.0 persists the original immutable launch binding inside the profile
+The [native Chromium bridge](../clients/browser/README.md#launch-chromium-from-a-native-parent)
+uses selected SDK identity JSON, bounded file loading and a fixed profile/origin.
+The launcher persists the original immutable launch binding inside the profile
 before Chromium opens, rejecting changed signer/scope/trust/journal/assets or
 missing history. Keep older profiles with their original launcher and bundles;
 the new reader does not create a binding for pre-existing history.
-Complete durable parent phase/restart coordination remains unfinished.
-Released 0.14.0 native `next_frame` guidance and the bridge's
+Native `next_frame` guidance and the bridge's
 [`driveSession`](../clients/browser/README.md#follow-native-phase-guidance)
-now select and run phases around the existing owners. Native process/key selection
+select and run phases around the existing owners. Native process/key selection
 and explicit restart remain caller responsibilities.
 
 ```sh
@@ -960,7 +959,7 @@ Idle stdin does not keep the process alive beyond the tested control deadline.
 The session starts at index zero and advances only on authenticated exact
 completion/reference evidence. It rejects out-of-order setup/status and premature
 maps. A restarted session must inspect already-confirmed original indices again;
-Released 0.13.0 `--source-session /absolute/retained-session` recovers original setup
+`--source-session /absolute/retained-session` recovers original setup
 and observation/transfer paths for omitted `source_run`/`source_observation`/
 `source_transfer` frame fields.
 Use a new `--run-dir`, the same frozen batch, principals, service/namespace,
@@ -1001,7 +1000,7 @@ browser profiles and all setup/observation/attestation journals.
 
 ### Bind browser selection to the native session
 
-Released 0.13.0 `publish-session --browser-selection FILE` accepts one passive JSON
+`publish-session --browser-selection FILE` accepts one passive JSON
 selection, at most 16 KiB. The complete native intent has the same bound and is
 checked before output allocation. The selection is copied into that intent before
 configuration checks or phase execution; it never contains signer keys or effect

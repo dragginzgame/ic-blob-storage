@@ -5,48 +5,15 @@ use crate::ops::service::configuration::{tests::candidate, validate_candidate};
 use ic_memory::ic_stable_structures::VectorMemory;
 
 fn memories(m: &[VectorMemory; 16]) -> ServiceMemories<VectorMemory> {
-    let [
-        tenants,
-        roots,
-        objects,
-        permissions,
-        usage,
-        manifests,
-        confirmed,
-        references,
-        receipts,
-        root_requests,
-        accounting,
-        intents,
-        gateways,
-        journal,
-        sessions,
-        read_tenants,
-    ] = m.clone();
-    ServiceMemories {
-        uploads: UploadMemories {
-            tenants,
-            roots,
-            objects,
-            permissions,
-            usage,
-            manifests,
-            confirmed,
-            references,
-            receipts,
-            root_requests,
-        },
-        funding: FundingMemories {
-            accounting,
-            intents,
-        },
-        gateways,
-        reads: ReadSessionMemories {
-            journal,
-            sessions,
-            tenants: read_tenants,
-        },
-    }
+    let requests = grants::requests("store-test").unwrap();
+    grants::open::<_, std::convert::Infallible>(|key| {
+        let index = requests
+            .iter()
+            .position(|request| request.stable_key().as_str() == key)
+            .unwrap();
+        Ok(m[index].clone())
+    })
+    .unwrap()
 }
 
 #[test]

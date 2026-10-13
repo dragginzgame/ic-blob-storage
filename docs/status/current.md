@@ -4,9 +4,9 @@ Date: 2026-10-13
 
 ## Released source and pending batch
 
-Blob 0.22.14 is released at `54d8186d8db47fbb00ec7531163f34f45ad2f2f9`, validated
-parent `5dc6fa2d2d666482bc9b5f81d980630c0d158958`. Remote main/tag and finalized
-receipt file hashes verify. All twelve versions and the receipt remain 0.22.14.
+Blob 0.22.15 is released at `e11780eb0ca13a4cfebe927d26a12b07c7772d3d`, validated
+parent `0d720d1745c1c9e87fe2a9cb922ba21c1dec5293`. Remote main/tag match;
+all twelve versions and the finalized receipt are 0.22.15.
 Its Metrics 0.8 repair and Host 0.15 interface helper adoption are delivered;
 [#62](https://github.com/dragginzgame/ic-blob-storage/issues/62) is closed against
 matching delivered source, original focused proof and successful released Linux /
@@ -17,10 +17,22 @@ Intel passes tooling/archive steps but is cancelled during native qualification.
 #56–#59 remain open for their exact native/archive/tooling scopes.
 The preceding 0.22.13 run is now cancelled; its successful lanes remain historical.
 
-Pending compatible 0.22.15 preserves incoming Testkit 0.35.0, unified Host 0.15.1,
-Memory 0.35.19 and Metrics 0.8.0. It changes no public Blob API, endpoint,
-production storage format or package version. Blob has no callers of Testkit's
+Released 0.22.15 selects Testkit 0.35.0, unified Host 0.15.1,
+Memory 0.35.19 and Metrics 0.8.0. Blob has no callers of Testkit's
 removed generic build APIs/Host tools re-export and adds no IC Build dependency.
+
+Pending compatible 0.22.16 applies the requested repository audit: current guides
+replace accumulated obsolete setup/release instructions; the service contract
+uses the current Memory 0.35 identity. Frozen publication batches own their exact
+installation decoder, and store tests use the maintained grant assembler.
+No public API, output/schema, effect policy or package metadata changes.
+[The audit](../reports/audits/2026/10/13/repository-cleanup/01/report.md) records
+scope, traces, intentional retention and qualification limits. The maintainer's
+0.22.15 release ran before cleanup; its proof does not qualify these new edits.
+All 113 CLI tests, 12 focused store/grant cases and scoped denied-warning Clippy
+pass for the cleanup. The initial sandbox loopback refusal is retained separately
+from the successful permitted local-HTTP run. Full new CI/native macOS and
+downstream/provider qualification remain outside these focused results.
 
 CLI Run retains the claimed directory descriptor; byte/JSON records converge on
 Host's descriptor-relative create-new writer. Named ownership, no replacement,

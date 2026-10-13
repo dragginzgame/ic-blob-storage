@@ -6,7 +6,6 @@ use candid::Principal;
 use ic_blob_storage_contracts::download::scope::CaffeineDownloadScope;
 use ic_blob_storage_contracts::dto::configuration::HostConfigurationView;
 use ic_blob_storage_contracts::dto::configuration::HostFailure;
-use ic_blob_storage_contracts::dto::configuration::ServiceInstallationInput;
 use ic_blob_storage_contracts::dto::reference::status::ReferenceStatusRequest;
 use ic_blob_storage_contracts::dto::upload::completion::UploadAttestationLookup;
 use ic_blob_storage_contracts::identity::ProviderRootHash;
@@ -75,12 +74,7 @@ pub(super) async fn run(options: &Options, input: &Input) -> Result<Value, Failu
     if limits.max_queries < required_queries {
         return Err(Failure::ReplyLimit);
     }
-    let installation: ServiceInstallationInput = exact_candid::decode(
-        &batch.installation,
-        exact_candid::INSTALLATION_BYTES,
-        64,
-        100_000,
-    )?;
+    let installation = batch.installation()?;
     let agent = super::agent(options)?;
     let operator = super::agent_for(
         options,
@@ -255,12 +249,7 @@ pub(in crate::native) fn decode_configuration(
     batch: &publish_inputs::PreparedBatch,
     bytes: &[u8],
 ) -> Result<HostConfigurationView, Failure> {
-    let installation: ServiceInstallationInput = exact_candid::decode(
-        &batch.installation,
-        exact_candid::INSTALLATION_BYTES,
-        64,
-        100_000,
-    )?;
+    let installation = batch.installation()?;
     if bytes.len() > exact_candid::INSTALLATION_BYTES {
         return Err(Failure::ReplyLimit);
     }

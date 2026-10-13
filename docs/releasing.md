@@ -11,246 +11,36 @@ maintainer action; a library release does not qualify the storage service.
 
 ## Setup and preview
 
-Pending compatible 0.22.15 adopts Shared Tooling 0.9.10 and private Testkit 0.35.
-Prepare its changed Cargo-tool policy with `make install-rust-tools`, then
-`make install-testkit` and `make tools-check`. Existing generations remain retained.
-The common runner still owns release effects; this adoption does not execute a
-release or change package versions. See [the cleanup evidence](evidence/cleanup02215.md)
-and [the subsequent Shared adoption](evidence/shared091002215.md).
+Prepare the pinned compiler/components and bootstrap tools from
+[dependency setup](dependencies.md), then run `make install-tools` and
+`make tools-check`. This includes the lock-selected Testkit CLI/server. Run
+`make deps` after dependency edits or cache removal. Offline checks never install
+missing executables or change dependency selections; older tool/evidence
+generations remain retained.
 
-Released 0.22.14 retains the common Make entrypoint from Shared Tooling 0.9.0.
-Existing setup, offline checks, formatting, hook and release commands keep their
-names. Product gates, Testkit extensions and direct-delivery admission remain
-local. Parsing Make never installs tools or hooks or runs a release. The common
-resume-verification extension retains its default no-op here; Blob's existing
-release adapter still owns receipt verification. See the
-[consumer Make interface](make-interface.md). This snapshot selects
-cargo-sort-derives 0.14.1: explicitly run `make install-rust-tools`, then
-`make tools-check`. It preserves literal macro paths and requires Rust 1.88
-or newer for tool compilation; Blob's library MSRV remains 1.88.
-A newly selected CLI still needs its existing explicit setup before offline
-admission. See [the latest qualification](evidence/shared066-host014402211.md).
-The 0.9.0 entrypoint refresh retains the existing selection without
-retiring files. Subsequent canonical refresh reuses those roots and
-derives their required shared companions; use `--add-entrypoint` to extend the
-selection, replacing the old `--file` / `--add-file` options. Review a preview
-before applying a reviewed source revision. Refresh automatically retires
-unchanged, previously owned files outside the resulting closure; omit the
-removed `--retire-file` option and keep directly used helpers as roots.
-Ownership, local edits, staging and concurrency still constrain retirement.
-Individual payloads are replaced atomically; interrupted refresh keeps the prior
-ownership proof and exact-source retry. See
-[the latest adoption review](evidence/shared09002212.md).
-Refresh and integrity verification now share the verifier's manifest reader.
-Its `--read-manifest FILE` mode inspects syntax without checking payload bytes;
-continue using ordinary `make shared-tooling-check` for integrity admission.
-CI and release validation share the declared prepared-input checkpoint. Changes
-to the root/member manifests, lock, compiler/tool pins, Make inputs or browser
-selectors stop the next stage and retain the original and observed identities.
-Restart preparation and the full gate against settled inputs; this is boundary
-detection, not isolation from arbitrary edits within a running command.
+`make/consumer.mk` owns common setup, checks, formatting/hooks and release routing.
+Blob supplies product validation, ordered Testkit extensions and direct-delivery
+admission. Inspect the [snapshot](../.shared-tooling.snapshot) and review canonical
+`--preview` before refresh. Required companions are derived from the selected
+committed source; include every directly used helper as an entrypoint. Never patch
+vendored bytes or use mutable sibling tools. See
+[Shared snapshot adoption](consuming-snapshots.md) and
+[the latest qualified adoption](evidence/shared091002215.md).
 
-Follow [dependency setup](dependencies.md), including pinned cargo-sort 2.1.4,
-rustfmt, ShellCheck, Perl with JSON::PP/Digest::SHA, Git, curl, GNU Make and Bash 3.2 or
-newer. Provision the reviewed repository-local executables explicitly; for
-user-local formatter and shell tools:
-
-```bash
-export PATH="$HOME/.cargo/bin:$HOME/.local/bin:$PATH"
-make install-tools
-make tools-check
-make release-tools-check
-make install-hooks
-make release-plan VERSION=patch
-```
-
-The released 0.20.0 developer-tool hard cut requires explicit `make install-tools`
-even in an existing checkout: the shared bundle now has five tools and Testkit
-owns PocketIC. Old bundles are retained, and validation never converts them or
-downloads a server. `make tools-check` includes the lock-selected Testkit CLI and
-its authenticated offline server check. See the [adoption record](evidence/pocketic-handoff0200.md).
-
-For the released 0.21.0 hard cut, run `make install-testkit` explicitly after the
-lock changes to Testkit 0.27, then `make testkit-check`. The existing authenticated PocketIC
-16.1.0 server remains selected; prior CLI installations and receipts are retained.
-Memory 0.33 changes the public re-export's type identity, requiring aligned
-consumer dependencies and rebuilds. Runtime schemas are unchanged; cross-release
-installation retirement/reinstall requirements still apply.
-
-Released 0.22.0 adopts public Memory 0.34's host-owned allocation pool. Rebuild
-consumers with aligned Memory identities and explicit namespace grants; complete
-the retirement runbook before cross-release reinstall. Same-release restore and
-uncertain provider obligations remain required. The reviewed Shared 0.2.13
-snapshot adds concise formatter output and retained logs. Admitted release
-directories containing LF/CR refuse before source selection, including physical
-aliases. Private Host 0.11/Testkit 0.29 use the same server selection; prepare the
-new lock-selected CLI explicitly. Release
-preflight prepares the locked cache and existing selected toolsets through
-`make deps`, `make install-tools`, `make tools-check` and `make release-tools-check`
-before full validation, then rechecks source identity and cleanliness. Ordinary
-checks remain offline; saved-release recovery
-and post-validation metadata preparation do not repeat setup.
-
-Released compatible 0.22.1 adopts Shared Tooling 0.3.0, private Testkit 0.31
-and direct Host 0.12.
-Prepare the declared Rust toolchain, run `make install-tools` explicitly, then
-`make tools-check` and `make release-tools-check`. Complete host, IC and Cargo
-stages run in order before the existing Testkit owner target, stopping on
-failure. Previous tool/server artifacts remain retained; offline validation
-never prepares missing tools. Public Blob contracts and stored schemas are
-unchanged. See [the adoption record](evidence/testkit030shared0300221.md).
-
-Released compatible 0.22.2 adopts Shared Tooling 0.3.3. Common setup preflights
-platform/pin admission and the selected Rust/Cargo toolchain before installation.
-The validation runner rejects malformed nesting metadata and incomplete exits;
-fixtures retain evidence unless every assertion completed successfully.
-See [the adoption record](evidence/shared0330222.md). Publication and actual
-release commands remain maintainer actions.
-
-Released compatible 0.22.3 adopts Shared Tooling 0.3.5 and Binaryen 133.
-Run explicit `make install-tools` before offline checks; previous toolsets remain
-retained. Blob's consumer logging fixture selects its own evidence rather than
-writing synthetic failures into the parent gate. See
-[the adoption record](evidence/shared0350223.md). Native product qualification
-remains separate from common installer and source fixture checks.
-
-Released compatible 0.22.4 adopts Shared Tooling 0.3.7. Testkit setup/check now
-delegates Cargo.lock selection to the canonical installer. Prepare the incoming
-Testkit 0.33 CLI explicitly with `make install-testkit`, then require offline
-`make testkit-check`. Earlier admitted CLI/server artifacts remain retained.
-The canonical hook rejects failed Git tree observations before staging.
-See [the adoption records](evidence/shared0370224.md).
-
-Released 0.22.5 strengthens coordinated archive admission and final integrity;
-fixture-only registry overrides remain separate from normal publication checks.
-Released 0.22.6 adopts Shared 0.3.11 and private Host 0.13/Metrics 0.6,
-without changing Blob's public contracts or service schemas. Its final lock
-selects Host 0.13.0, Metrics 0.6.1, Memory 0.35.7 and Testkit 0.33.3. Retain
-previous CLI slots and authenticated PocketIC 16.1.0. The
-[earlier continuation record](evidence/shared03110226.md) remains bound to its
-older agent-qualified graph; [current status](status/current.md) identifies the
-actual released receipt and matching hosted acceptance.
-The native CI lanes run coordinated archive qualification explicitly and retain
-its inputs and attempts independently of normal registry publication admission.
-
-Released 0.22.7 adopts Shared 0.5.0. Released 0.22.8 adopts Shared
-0.6.0's Cargo store and safe partial-evidence contract without changing Blob's
-published contracts. Prepare the declared compiler, then explicitly run
-`make install-tools` and offline `make tools-check`. Common-only setup is
-`make install-rust-tools` after shared host prerequisites. The command paths
-`.tools/host/bin`, `.tools/ic/bin` and `.tools/rust/common/bin` remain unchanged.
-Keep old bundles, local Cargo slots, common sets and failed attempts; no automatic
-cleanup or legacy fallback is introduced. Use the same store setting for setup,
-offline checks and collection. Cargo tool identities include the prepared
-compiler, native environment, package source and packaged lockfile; tool builds
-use the standard shared environment. Testkit retains local PocketIC storage.
-Contributor setup changes alone do not require a Blob minor bump or separate
-publication. The released lock selects Metrics 0.6.3 and Testkit 0.33.6, Host
-0.13.2 and Memory 0.35.8. Incoming Host 0.13.3/Memory 0.35.9 edits remain separate
-from that release and its compiler results. See [the current adoption record](evidence/shared0600228.md).
-Released compatible 0.22.9 corrects Canic adoption guidance. The
-[current handoff](status/current.md) identifies subsequent releases and pending
-work; these earlier adoption records keep their original graphs.
-
-Released 0.21.0 changes capacity reply/preflight shapes: rebuild consumers for
-the three mandatory byte headrooms and dimension-specific blocker names. The
-usable minimum and stored schemas remain unchanged. Shared Tooling's upstream
-exporter fixture is omitted from the 92-file snapshot and consumer gate; actual
-snapshot verification and native adoption acceptance remain required.
-
-Released 0.21.1 selects Memory 0.33.1 and private Metrics 0.3.2 with unchanged
-runtime sources and dependency edges; focused qualification is recorded in
-[the patch record](evidence/libraries0211.md).
-The same release adopts Shared Tooling 0.2.5's hook path/read fixes;
-formatter and installation qualification is separate in
-[the Shared record](evidence/shared0250211.md).
-The later incoming Testkit 0.27.1 patch also has unchanged runtime sources.
-Run `make install-testkit` explicitly for its lock-selected CLI, then
-`make testkit-check`; the authenticated server and old CLI slots remain.
-[Its separate record](evidence/testkit0271-0211.md) owns final-graph qualification.
-These patches introduce no public contract change.
-
-Released 0.21.2 selects Memory 0.33.2, Host 0.9.4 and Shared Tooling 0.2.6.
-[The Host record](evidence/host0940212.md) qualifies the subsequent unchanged
-runtime patch graph separately from the initial Shared/Memory checks. The reviewed
-`make/release.mk` owns standard entrypoints/conflicting-goal refusal, with Blob's
-direct-delivery admission attached to all four targets. `make/rust-format.mk`
-owns the simple twelve-member workspace formatter and existing pin check.
-Metadata, validation, cache preparation and publication remain consumer-owned.
-See [the continuation record](evidence/shared0260212.md), including the separate
-CI artifact transport repair and outstanding hosted acceptance.
-
-Released 0.21.3 adopts Shared Tooling 0.2.7's adjacent Make execution companion
-and isolated release/hook qualification fixes. Unsafe Make modes are rejected
-before recipes; consumer fixture inventories include the companion and probe.
-See [the adoption record](evidence/shared0270213.md), which remains bound to
-its original tooling-only qualification.
-
-Released compatible 0.21.4 adopts Shared Tooling 0.2.8's selected-snapshot Make
-admission and recursive-command fixes. That release selects Host 0.9.7 and
-private Metrics 0.3.4; focused graph qualification is recorded in
-[the continuation record](evidence/upstream0214.md), which retains its original
-0.21.3 package identity and source qualification.
-
-Pending compatible 0.21.5 adopts private Host 0.10.1 and Testkit 0.28. Run
-`make install-testkit`, then `make testkit-check`; the existing authenticated
-PocketIC 16.1.0 server and previous CLI installations remain retained. Native
-record publication uses the consolidated Host writer with unchanged modes,
-permissions and redacted terminal failures. The public Blob API and stored
-schemas are unchanged. [The adoption record](evidence/host0100215.md) separates
-initial mixed-graph checks from final unified-graph qualification. Package
-versions and the finalized receipt remain 0.21.4.
-
-Hook installation is local to this clone and refuses to replace existing hook
-obligations. `release-plan` previews arithmetic and selected branch/remote without
-Git effects. Execution checks saved unfinished intent before choosing another
-version. Maintain one numbered undated changelog entry under
-[the shared rules](../rules/changelogs.md); preserve released history.
-Release preflight runs `release-tools-check` before full validation: the selected
-ShellCheck executable must run, cargo-sort must match the reviewed version and
-rustfmt must report availability through the shared offline prerequisite helper.
-Missing or incorrect tools report explicit installation commands; the check
-does not install, compile, mutate release files or replace the full gate.
-`SHELLCHECK=/absolute/path/to/shellcheck` selects an existing executable.
-
-The released identity and validated source are recorded in
-[the release receipt](release.json); root Cargo.toml owns the workspace version.
-Ordinary development preserves those released identities. The latest finalized
-entry in [the changelog](../CHANGELOG.md) describes the released batch; a single
-undated entry records subsequent meaningful work when it starts.
-[The current handoff](status/current.md) records acceptance status, compatibility
-and the selected dependency graph. Choose patch or minor for the complete batch
-under the pre-1.0 rule. Changing the public Memory crate line requires a minor
-release, and host compositions must align its type identity and rebuild.
-
-Changelog preflight captures a candidate without writing, using the exact saved
-`RELEASE_PREVIOUS`, `RELEASE_VERSION` and `RELEASE_DATE`. Finalization uses those
-same inputs even after package metadata changes; failed process output is never
-written. Historical duplicate release identities still refuse independently.
-The shared owner can create a missing heading or finalize empty notes; maintain
-meaningful notes under the changelog rules, rather than making presentation a
-release gate. This adapter selects `allow_finalized=0`: prepared-state recovery
-verifies the frozen receipt/payload instead of re-finalizing or changing dates.
-
-Consumer admission requires successful working-tree, HEAD, parent, version and
-receipt-source reads before comparing their output. Matching output from a failed
-command is refused before proceeding. These checks preserve existing metadata
-and build inputs; they do not replace full validation or exact tag verification.
-
-Deliver ordinary changes through the [shared PR workflow](../rules/contributions.md)
-when requested, including its scoped commits and topic-branch push. Release
-requires committed clean implementation and notes. Under this repository's
-maintainer-operated boundary in [AGENTS.md](../AGENTS.md#delivery-and-release),
-agents do not invoke the one-shot commands below. The explicit metadata/check
-adapters are available for inspection or separately authorized preparation;
-do not bypass the runner's saved intent or reuse validation from another source.
+Prepare ShellCheck separately; `SHELLCHECK=/absolute/path` selects an existing
+binary. `make release-tools-check` verifies it and the reviewed Cargo sort/rustfmt
+without compilation. Both `fmt` and `fmt-check` use that same offline owner.
+`make install-hooks` activates the reviewed hook; hook and formatting qualification
+remain independent checks. Commands and package/version effects follow
+[development governance](governance/development.md); release targets are
+maintainer-operated here.
 
 ## Maintainer release and recovery
 
 From committed clean source on the selected branch:
 
 ```bash
-make release-patch # Pending 0.22.1 private tooling maintenance.
+make release-patch # Select the increment from the complete pending batch.
 # For another batch, select patch/minor/major from its complete compatibility.
 ```
 
@@ -297,7 +87,7 @@ destination is unavailable, the logger preserves and reports its temporary logs.
 
 If preflight or validation fails, fix and commit the source, then rerun the normal
 target for fresh gates. Uncommitted preparation remains bound to its saved source
-and increment. Shared 0.6.3 additionally lets a normal direct target supersede
+and increment. A normal direct target can supersede
 preparation when a newer clean descendant commit records the local metadata's
 disposition, with no staging evidence and the same destination. It archives the
 old intent unchanged, reads the current version, applies the requested increment
@@ -313,7 +103,7 @@ exact release even when newer fixes are committed on its descendant history:
 ```bash
 make release-patch
 # Explicit selection of retained intent, if needed:
-make release-resume VERSION=0.14.12
+make release-resume VERSION=VERSION_FROM_SAVED_PLAN
 ```
 
 An unchanged same-kind retry finishes only the saved release. With newer
@@ -384,36 +174,6 @@ with dependency guidance: a dry-run cannot make that registry dependency exist.
 Use `make package` for paired local payload verification, or select contracts for
 its individual dry-run. Publishing neither deploys nor qualifies the service.
 Older completed releases need no runner plan for this separate publication check.
-
-### Finish the already-tagged 0.18.3 publication
-
-The released helper's default curl identity can receive a 403 before Cargo runs.
-The [User-Agent repair record](evidence/publication-user-agent0184.md) retains
-the same-endpoint 403/404 comparison and a prepared clean 0.18.3 checkout with
-an external curl identity wrapper. The wrapper changes only read transport;
-the released helper still checks its exact source, receipt, tag and registry
-archives, and Cargo owns uploads. Use a clean tagged payload for this operation;
-do not alter its receipt/tag or publish the dirty repair checkout as 0.18.3.
-No upload was performed during preparation.
-
-### Finish the already-tagged 0.18.0 publication
-
-The helper repair belongs to the subsequent compatible batch. Keep the exact
-0.18.0 receipt/tag and publish its payload from a clean checkout using its released
-helper, which still requires individual selections:
-
-```sh
-git worktree add --detach /tmp/ic-blob-storage-publish-0.18.0 v0.18.0
-make -C /tmp/ic-blob-storage-publish-0.18.0 publish PUBLISH_PACKAGE=ic-blob-storage-contracts
-# Once that exact version is available from crates.io:
-make -C /tmp/ic-blob-storage-publish-0.18.0 publish PUBLISH_PACKAGE=ic-blob-storage
-```
-
-The reported missing-selector refusal made no registry upload. If a later attempt
-has an uncertain reply, inspect the exact crates.io version before resubmitting;
-the 0.18.0 helper has no automatic readback. A dirty repair checkout or a new fix
-commit is not the tagged payload. Do not bypass the clean-source checks or alter
-the old receipt/tag just to publish it.
 
 `make package` assembles both `.crate` archives with Cargo, then runs the full
 library tests/examples against their exact extracted, normalized payloads in a

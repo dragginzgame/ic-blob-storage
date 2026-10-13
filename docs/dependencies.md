@@ -4,421 +4,32 @@
 
 # Dependency setup
 
-## Current graph — released 0.22.14, pending 0.22.15
+## Current dependency owners
 
-Released Blob 0.22.14 is `54d8186d8db47fbb00ec7531163f34f45ad2f2f9`, validated
-parent `5dc6fa2d2d666482bc9b5f81d980630c0d158958`. All twelve package versions
-and the finalized receipt remain 0.22.14. Its graph uses Memory 0.35.18,
-private Metrics 0.8.0, Testkit 0.34.7, direct Host 0.15.0 and Testkit's Host
-0.14.10. [Its Metrics/Host evidence](evidence/metrics080-host01502214.md) retains
-its own source/graph; its Candid read observations and decimal-string instruction
-reports now carry explicit actual-overflow quality. Rebuild probe and harness
-together; old reports are historical inputs, not inferred tracked state.
+The root [Cargo catalog](../Cargo.toml) owns all direct dependency requirements;
+all twelve members inherit package versions and dependencies. The root
+[lockfile](../Cargo.lock) owns this checkout's selected graph. Member manifests
+select features and targets. Registry consumers resolve their own compatible
+lockfiles; this repository's qualification does not cover every future resolution.
 
-Pending compatible 0.22.15 preserves incoming Testkit 0.35.0, Memory 0.35.19,
-Metrics 0.8.0 and unified Host 0.15.1. Testkit removed generic build APIs and its
-Host tools re-export. Blob has no callers of those removed APIs; its private
-interface checker already depends directly on Host tools with defaults disabled
-and only ic-interface. No IC Build dependency is added to Blob.
+| Owner | Current locked selection | Scope |
+| --- | --- | --- |
+| IC Memory | 0.35.19 | Public memory types, host allocation pool and committed grants |
+| IC Metrics | 0.8.0 | Private storage probe; tracked overflow quality |
+| IC Testkit | 0.35.0 | Native PocketIC client, server setup and managed lifetime |
+| IC Host artifacts/fs/process/tools | 0.15.1 | Native artifacts, filesystem and test/tool boundaries |
+| PocketIC | 16.1.0 | Selected and admitted by Testkit; no separate Blob server pin |
 
-The reviewed snapshot now adopts committed Shared 0.9.10
-`7e55adecf6f0b196c050f104b37f8c69b6bf434e`, matching remote main at selection.
-Its 112 files retain all previous payloads, including bounded exact CI artifact
-discovery and the local-transport retry fixture. The new cache-key fixture companion
-and change-reporting rule are selected together. Product gates, twelve-member
-layout, compiler/tool pins and release ownership remain local. The producer's
-own workflow-discovery fixture is qualified at its frozen source, not vendored as
-Blob's workflow policy. Blob retains its pinned download, exact repository/run/ID
-selection and independent checksum checks.
-
-Shared's changed Cargo-tool build policy requires explicit
-`make install-rust-tools`; changing Testkit requires `make install-testkit`.
-Both complete, followed by offline `make tools-check`, with older generations
-and initial refusal logs retained. PocketIC stays 16.1.0, Rust development 1.99.0
-and library MSRV 1.88.0. After dependency edits, run explicit `make deps` before
-locked/offline development checks; source fetching does not install executables.
-
-The canonical Cargo-tool fixture now runs directly from Blob's root with its own
-prepared compiler context and commit-free hook history. The temporary invocation
-adapter is removed after qualification on modern Bash and genuine Bash 3.2.
-[The latest adoption evidence](evidence/shared091002215.md) records these checks.
-Shared's own CI cache workflow is not automatically adopted by this snapshot.
-[The current cleanup evidence](evidence/cleanup02215.md) distinguishes native,
-local PocketIC, portable-shell substitutes and static workflow checks from full
-CI/native macOS and downstream/provider acceptance.
-
-## Earlier graph — released 0.22.8, pending 0.22.9
-
-All twelve package versions and the finalized receipt remain 0.22.8. The released
-lock selects Memory 0.35.8, private Metrics 0.6.3, Testkit 0.33.6 and Host 0.13.2.
-Incoming lock edits select Memory 0.35.9 and Host 0.13.3; preserve them.
-PocketIC remains 16.1.0 and the Rust floor remains 1.88. Earlier compiler results
-remain bound to their original graph; tool setup does not qualify these product
-inputs. Adoption changes no dependency requirement or repository package version.
-
-Adopt committed Shared 0.6.0 `75180980a0c4e4252d8a915aaecfaefd92bf9a4e`
-through the canonical exporter, retaining the existing pins and selection and
-adding the required Cargo build companion for 102 files. Host, IC and Cargo
-payloads use the canonical per-user store; `.tools/host/bin`, `.tools/ic/bin` and
-`.tools/rust/common/bin` remain exact checkout selections. Cargo tool identities
-include the prepared compiler, native environment, package source and packaged
-lockfile. Builds use Shared's standard environment independently of application
-compiler flags, wrappers and arbitrary Cargo configuration. Offline admission
-requires the managed source cache as well as the receipt and binary bytes.
-
-Prepare the declared compiler, run explicit `make install-tools`, then offline
-`make tools-check`. Common-only setup/check use `make install-rust-tools` and
-`make rust-tools-check` after host prerequisites. `make install-testkit` uses
-Shared's returned CLI path and keeps server setup/check with Testkit under
-`.tools/testkit-server`. Old physical bundles, Cargo slots, common sets and failed
-attempts remain retained; they are not a fallback for missing active selections.
-Use the same `SHARED_TOOLING_STORE` for setup, checks and failure collection;
-the default is `${XDG_DATA_HOME:-$HOME/.local/share}/shared-tooling/tools`.
-Do not add a Blob store, copy payloads, select sibling tools or delete evidence.
-See [the storage boundary](local-setup.md#shared-executable-storage),
-[the current adoption evidence](evidence/shared0600228.md),
-[the preceding 0.5 evidence](evidence/shared0500227.md) and
-[the preceding temporary-path evidence](evidence/shared03120227.md).
-
-## Earlier graph — released 0.22.5, pending 0.22.6
-
-All twelve package versions and the finalized receipt remain 0.22.5. Its committed
-lock selects Memory 0.35.6, Metrics 0.5.6, Testkit 0.33.1 and all four Host 0.12.10.
-Preserve incoming direct Host artifacts/fs 0.13.0, private Metrics 0.6.0 and Testkit
-0.33.2. Testkit retains its private Host 0.12.10 graph; the two Host minor identities
-do not cross a Blob boundary. Memory stays a single 0.35.6 identity. Public Blob
-contracts, CLI results, persisted schemas and the Rust 1.88 floor are unchanged.
-
-Adopt reviewed Shared 0.3.11 `db143ae9ae140eb66826c413360723d23c078f66` through
-the canonical exporter, retaining the same 99 files and tool pins. Explicit
-`make install-testkit` prepares the new lock-selected CLI and authenticates the
-existing PocketIC 16.1.0 server; old slots remain. Offline checks never install.
-See [the continuation record](evidence/shared03110226.md) for qualification.
-
-## Earlier graph — released 0.22.4, pending 0.22.5
-
-All twelve released package versions and the finalized receipt remain 0.22.4.
-Its committed lock selects Memory 0.35.4, Metrics 0.5.5, Testkit 0.33.1 and all
-four Host 0.12.8. Preserve incoming Memory 0.35.5 / Metrics 0.5.6 and all four
-Host 0.12.9 with unchanged packaged Rust sources and external edges; PocketIC
-remains 16.1.0. Hosts must
-resolve one Memory 0.35 identity and grant Blob its namespace in their sole pool.
-
-The reviewed Shared 0.3.8 snapshot selects the same 99 files at
-`67285b28a98b7c4211ad32de726709d4e87edea4`. No common tool pins change. Prepare
-missing selected tools explicitly; checks never install. Coordinated package
-qualification validates exact extracted identities and final integrity without
-changing product manifests or publication admission. See
-[the current record](evidence/libraries0225.md); older results stay bound to their
-actual graph. Matching native delivery remains separate from local qualification.
-
-## Earlier graph — released 0.22.3, pending 0.22.4
-
-All twelve package versions and the finalized receipt remain 0.22.3. Its lock
-selects Memory 0.35.3, Metrics 0.5.3, Testkit 0.32.2 and all four Host 0.12.4.
-Preserve the incoming Testkit 0.33.0, Metrics 0.5.4 and all four Host 0.12.7
-selections; Memory and PocketIC 16.1.0 remain unchanged. Testkit's scoped
-connection-reset recovery classification is private test infrastructure, not a
-Blob provider retry policy.
-Hosts linking Blob must align on one Memory 0.35 package identity and grant the
-Blob namespace in their sole allocation pool.
-
-The reviewed Shared Tooling 0.3.7 snapshot selects 99 canonical files at
-`34e5ad7aac3599306c9572bb547f2239d09df1a3`, retaining Binaryen 133's pins.
-Run explicit `make install-tools`, then offline `make tools-check`. Existing
-bundles and server artifacts remain retained. The unselected upstream runner
-fixtures do not enter Blob's gate; Blob isolates its own synthetic logging
-outputs under [#52](https://github.com/dragginzgame/ic-blob-storage/issues/52).
-Shared's installer reads the explicit consumer Cargo.lock for Testkit CLI
-selection, admitting one published crates.io identity without resolving a graph.
-Blob passes the returned CLI to Testkit's setup/check command; offline checks
-never install a missing selection. See [the adoption records](evidence/shared0370224.md).
-
-## Earlier graph — released 0.22.1, pending 0.22.2
-
-All twelve package versions and the finalized receipt remain 0.22.1. The
-released catalog and lock already select public Memory 0.35.0 and private
-Metrics 0.5.0; hosts linking Blob must align on Memory 0.35's package identity.
-Its pool/key-only API and retained ledger remain unchanged from 0.34.1.
-Cross-release activation still follows the
-[retirement/reinstall runbook](retiring-installations.md).
-
-Preserve incoming direct Host artifacts/fs 0.12.1, with unchanged consumed
-Rust source, and Testkit 0.31.0's separate private Host 0.11 graph. PocketIC
-16.1.0 remains selected; no version override is introduced. The reviewed Shared
-0.3.0 snapshot now selects 98 files, including bounded registry metadata
-observation and its focused fixture. Publication metadata needs jq and curl
-8.4 or newer. Run explicit `make install-tools`, then offline `make tools-check`;
-ordinary checks never install or replace retained tools.
-
-[The current qualification](evidence/registry0222.md) authenticates selected
-archives/source and binds the complete delivery gate and Rust 1.88 native/Wasm
-checks to these actual inputs. Earlier graph evidence remains separately
-identified. Committed native acceptance and application/provider qualification
-retain their owning issues.
-
-## Earlier graph — released 0.22.0, pending 0.22.1
-
-All twelve package versions and the finalized receipt remain 0.22.0. Preserve
-incoming Testkit 0.31.0 and direct Host artifacts/fs 0.12.0; Memory remains
-0.34.1, Metrics 0.4.0 and PocketIC 16.1.0. Testkit still selects Host 0.11;
-keep those private owner graphs separate without a version override. Their
-consumed Rust sources are unchanged from Testkit 0.30 and Host 0.11. These private tooling updates change no
-public Blob API, persisted schema or public Memory identity.
-
-Shared's 96-file snapshot selects committed 0.3.0
-`88a73139a0f083344c41a6f6f4b5c3a8aca7dc1d`. Prepare the declared Rust toolchain,
-then run `make install-tools` explicitly, followed by `make tools-check`.
-The aggregate runs the complete host, IC and Cargo sets in order, then the
-existing lock-selected Testkit CLI/server target. Old bundles, CLI slots,
-receipts and the authenticated server remain retained; ordinary checks never
-install or download. See [the adoption record](evidence/testkit030shared0300221.md)
-for source bindings and qualification limits.
-
-## Earlier graph — released 0.21.5, pending 0.22.0
-
-The incoming public Memory 0.34 selection requires a minor hard cut. Its host-wide
-`MemoryAllocationPool` replaces per-owner numeric ranges: hosts grant disjoint
-`MemoryAuthority` namespaces, explicitly exclude unmanaged physical allocations,
-compose `SealedDeclarationSnapshot::new(&requests)`, bootstrap once with the pool
-and policy, then open permanent keys with `open_memory`. The standalone grants
-`blob.` and requests the existing seventeen keys. Embedding libraries select no
-IDs and never bootstrap a second runtime. Existing ledger/key bindings and Blob
-record layouts remain unchanged; cross-release activation still requires the
-[retirement/reinstall runbook](retiring-installations.md), while same-release
-restore and uncertainty fences remain required.
-
-The selected lock unifies all four private Host crates at 0.11.0 through
-Testkit 0.29.0, with incoming Memory 0.34.1 and private Metrics 0.4.0. The
-[Host adoption record](evidence/host0110220.md) separates earlier graph phases
-from qualification of the subsequent unchanged-source Memory/Metrics updates.
-Run `make install-testkit` after this lock selection,
-then `make testkit-check`; prior CLI slots and authenticated PocketIC 16.1.0
-remain retained. Shared's reviewed 96-file snapshot selects committed 0.2.13
-`5864f468d39f8f9d1bd26fca1afe0e20f25f1b5e`, including the formatter companion
-and existing consumer-owned release adapters.
-Earlier Canic qualification uses published Blob 0.21.5/Memory 0.33.4; it does not
-qualify this hard cut. Canic must adopt the current pool API and align its whole
-runtime graph before consuming a published Blob 0.22 package.
-
-## Earlier graph — released 0.21.4, pending 0.21.5
-
-All twelve members and the finalized receipt remain 0.21.4. Native direct Host
-artifacts/fs select 0.10; Testkit 0.28 unifies their transitive counterparts and
-process/tools at 0.10.1, removing the older Host 0.9 graph. The library/core do
-not expose those types. No publication override or local compatibility writer
-is needed. Preserve the incoming private Metrics 0.3.5 patch, whose arithmetic
-and dependency edges are unchanged. Memory stays 0.33.3; Shared stays the reviewed
-95-file 0.2.8 snapshot. The [adoption record](evidence/host0100215.md) binds source,
-archive, setup and focused native qualification to this final graph.
-
-Run `make install-testkit` explicitly for the new lock-selected 0.28 CLI, then
-`make testkit-check`. PocketIC 16.1.0 remains selected. Existing server/archive
-bytes, prior CLI slots and receipts are retained; ordinary checks remain offline.
-The initial Host 0.10/Testkit 0.27 mixed-graph checks are preserved separately.
-
-## Earlier graph — released 0.21.3, pending 0.21.4
-
-All twelve members and the finalized receipt remain 0.21.3. The preserved
-incoming lock selects all four Host crates at 0.9.7 and private Metrics 0.3.4;
-Memory 0.33.3, Testkit 0.27.2 and PocketIC 16.1.0 remain selected. Published
-archives match the lock and committed owner sources. Dependency edges are
-unchanged. Host consolidates its text hex decoder without changing response
-formats or public APIs; the other reviewed patches leave runtime sources unchanged.
-
-Shared Tooling selects 95 files from committed 0.2.8
-`b2646cde9abbc8861857a4379c683a0c19eba43e`. The
-[continuation record](evidence/upstream0214.md) binds Make/hook qualification,
-focused native cases and Rust 1.88 native/Wasm checks to this graph. Locked cache
-preparation downloads only the missing selected archive; no resolver update or
-CLI/server replacement occurs. The existing Testkit-owned offline check passes.
-
-## Earlier graph — released 0.21.2, pending 0.21.3
-
-All twelve members and the finalized receipt remain 0.21.2. The incoming lock
-selects Memory 0.33.3 and subsequently private Metrics 0.3.3; preserve them, but
-the Shared adoption checks do not compile or qualify those patches. Earlier
-runtime evidence keeps Memory 0.33.2 and Metrics 0.3.2. Host 0.9.4, Testkit 0.27.1
-and PocketIC 16.1.0 remain unchanged.
-
-Shared Tooling selects 95 files from committed 0.2.7
-`47d6ae6488b8007323fa7c2e22a6efa11d77ae63`, adding `make/execution.mk` with its
-existing execution-probe companion. Release, hook and formatter fixtures carry
-these inputs explicitly. The [adoption record](evidence/shared0270213.md) owns
-actual Make/hook qualification and native-host limitations. No tool/CLI/server
-installation, dependency resolution or runtime build is performed by this batch.
-
-## Earlier graph — released 0.21.1, pending 0.21.2
-
-All twelve members retain workspace 0.21.1 and its finalized release receipt.
-Preserve incoming Memory 0.33.2 with unchanged runtime sources/original manifest
-and dependency edges. The later incoming Host artifacts/fs/process/tools 0.9.4
-selection has separately qualified unchanged runtime sources and dependency
-edges in [the Host record](evidence/host0940212.md). Testkit 0.27.1, private
-Metrics 0.3.2 and PocketIC client 16.1.0 remain unchanged. No additional CLI/server
-installation is required; existing Testkit-owned checks remain.
-
-Shared Tooling selects 94 files from committed 0.2.6,
-`ce13a5314916891fd239d9b199b4a91b04775054`, adding the optional release and
-root-workspace formatting Make owners. Existing consumer admission, pin/toolchain
-selection and all twelve Cargo members remain covered. The
-[continuation record](evidence/shared0260212.md) separates tooling qualification,
-Memory patch proof and the released CI artifact-readback defect. Previous evidence
-retains its original graph and source.
-
-## Earlier graph — released 0.21.0, pending 0.21.1
-
-All twelve members retain workspace 0.21.0 and its finalized release receipt.
-The preserved incoming lock selects public Memory 0.33.1 and private Metrics
-0.3.2, Testkit 0.27.1 and Host artifacts/fs/process/tools 0.9.3; PocketIC client
-16.1.0 and tokio-util 0.7.20 remain unchanged. Memory's patch has identical
-runtime Rust sources, original manifest and dependency edges to 0.33.0;
-it introduces no public type-identity hard cut or stored schema change.
-Metrics' patch also leaves arithmetic sources and dependency edges unchanged.
-The [patch record](evidence/libraries0211.md) owns focused qualification.
-The later incoming Testkit patch also has unchanged runtime sources and
-dependency edges, with separate [source/setup qualification](evidence/testkit0271-0211.md).
-The subsequent Host 0.9.3 selection also leaves runtime sources and dependency
-edges unchanged. Its [focused file/process qualification](evidence/host0930211.md)
-retains existing delegation; no new helper or local compatibility layer is needed.
-
-Shared Tooling now selects the same 92 files from reviewed committed 0.2.5,
-`04e07b4bf54e7aeb03eb7804a845cee27b7305df`. Its literal hook-path/Git-read
-fixes are qualified in [the Shared record](evidence/shared0250211.md).
-Existing Testkit-owned CLI/server setup and offline checks remain in place.
-Run `make install-testkit` explicitly for the new lock-selected 0.27.1 CLI;
-the existing authenticated PocketIC 16.1.0 server and prior CLI slots remain.
-Previous evidence retains its original package graph.
-
-## Earlier graph — released 0.20.0, pending 0.21.0
-
-All twelve members retain workspace 0.20.0 and its finalized release receipt.
-The incoming graph selects Host artifacts/fs/process/tools 0.9.2, Testkit 0.27.0,
-private Metrics 0.3.1, public Memory 0.33.0 and PocketIC client 16.1.0.
-The incoming tokio-util 0.7.20 lock update is preserved. Shared Tooling remains
-at the reviewed 92-file snapshot from committed 0.2.4 source,
-`ffbf665b8481c36b2d9f4d988abec557c3485fa6`; dirty sibling work is not adopted.
-Reusable fixture companions are checked during export. The upstream exporter
-integration fixture runs at Shared Tooling; Blob retains actual snapshot admission
-and local adoption checks under [#40](https://github.com/dragginzgame/ic-blob-storage/issues/40).
-Memory's public type identity requires a minor release and consumer rebuilds;
-runtime schemas, Host implementations and Metrics arithmetic are unchanged.
-Testkit owns structured startup failure/output/cleanup diagnostics and its
-lock-selected CLI/server setup. Run `make install-testkit` before ordinary offline
-validation of the new lock. Previous bundles, CLI slots and evidence remain.
-The [adoption record](evidence/libraries0210.md) owns focused qualification of
-the earlier library-only graph; the [capacity/cleanup record](evidence/capacity0210.md)
-owns the subsequent public-capacity and reduced-snapshot changes. Prior results
-retain their original source bindings.
-
-## Earlier graph — released 0.19.3, pending 0.20.0
-
-All twelve members inherit workspace 0.19.3. The approved graph selects Host
-artifacts/fs/process/tools 0.9.1, Testkit 0.26.0, private Metrics 0.3.0, public
-Memory 0.32.0 and PocketIC client 16.1.0. Shared Tooling selects 93 canonical
-files at committed 0.2.2, `ee48bb37c98c771e77b92fd891f0757d8c1c8b99`.
-Consumers must align the public Memory type identity and rebuild; runtime source
-and schemas are unchanged. The [initial record](evidence/shared0370194.md)
-owns hook/installer acceptance; the [follow-up](evidence/shared0380194.md) owns
-single-document pinning exception validation. The [hard-cut record](evidence/pocketic-handoff0200.md)
-owns the initial five-tool bundle and Testkit setup/check adoption; the
-[coordinated record](evidence/coordinated-hardcut0200.md) owns the final graph.
-Prior bundles,
-receipts and failed candidates remain; no automatic conversion or cleanup occurs.
-
-## Earlier graph — released 0.19.2, pending 0.19.3
-
-All twelve members inherit workspace 0.19.2. The selected lock uses Host 0.8.8,
-Testkit 0.25.4, private Metrics 0.2.18, public Memory 0.31.10 and PocketIC 16.1.0.
-[The current adoption record](evidence/host0350193.md) owns focused Linux/runtime,
-MSRV and installer proof, source phases and outstanding native/full gates.
-Shared Tooling selects 93 canonical files at committed 0.1.35,
-`be550afa57fe9e16872e5110b5cd69c24b4fa9e8`. Existing IC bundles and source-bound
-receipts remain; Testkit provisioning awaits the coordinated owner handoff.
-
-Authorized dependency updates use their scoped registry/Git access under
-[the Cargo network policy](../rules/cargo-dependencies.md#cargo-network-policy).
-Do not impose offline mode on resolution; preserve explicit caller-selected
-offline settings. Locked cache preparation and offline validation remain separate.
-Published Cargo binary/example setup is available through the canonical
-[Rust installer](local-setup.md#consumer-selected-cargo-tools); current formatter
-tool commands continue using the fixed reviewed bundle.
-
-## Earlier graph — released 0.18.5, pending 0.19.0
-
-All 12 members inherit workspace **0.18.5**. Released source is
-`ab37a018e2050b3b06963938ceb78ebb385bb41c`; its receipt retains validated source
-`5c8f08b515e270da4bc587a890a44e6afa3efcec`. The preserved incoming lock selects
-Host **0.8.3**, Testkit **0.25.3**, public Memory **0.31.8**, private Metrics
-**0.2.15** and PocketIC client **16.1.0**. Public Memory stays on the 0.31 line.
-The [continuation record](evidence/shared-tooling0186.md) owns new qualification;
-all earlier records retain their exact source and graph.
-
-The 97-file Shared Tooling snapshot selects committed 0.1.30 source
-`4e274a2219c0b0cc3af68ec65658b373253518fb`. Its canonical IC matrix now matches
-all previously qualified tool rows, including PocketIC 16.1.0. The matrix returns
-to snapshot ownership; the temporary consumer override is removed. Changing only
-its comments changes the installer's catalog fingerprint, so explicit preparation
-is separate from offline validation and previous bundles remain retained.
-No product version-equality guard or implicit installation is restored.
-
-The release adapter delegates read-only source status to the canonical helper,
-retaining the exact metadata path allowance and strict HEAD/receipt checks.
-The dependency declaration gate opts into shared npm checks for `tests/browser`,
-reading Node from `.nvmrc` and npm from `packageManager`; it performs no npm
-resolution, installation or runtime admission. `browser-tools-check` still checks
-the actual prepared executables and browser-only input/engine agreement without
-adding a Cargo prerequisite. The selected project-approved upload authority changes public DTO/Candid, CLI
-and immutable installation format in 0.19.0. Retire the old installation before
-reinstall; see the [authority contract](multi-user-upload-authority.md).
-The earlier Shared Tooling qualification retains its original Host/Testkit graph;
-new qualification is recorded in the current handoff.
-
-## Runtime-free contracts — released 0.18.0
-
-The following extraction and qualification history retains its original graph;
-the current graph above supersedes its then-current dependency selections.
-
-Issue [#27](https://github.com/dragginzgame/ic-blob-storage/issues/27) adds the
-canonical `ic-blob-storage-contracts` owner under `crates/`. The service and native
-CLI depend downward; preparation/verification example targets and their independent
-hash/account-link fixtures move to that package. Normal contracts/CLI graphs across
-all targets exclude CDK, Memory and the service package. The native effectful
-PocketIC harness and canister adapters retain their service edge intentionally.
-
-All 12 members inherit workspace **0.18.0**. The incoming committed 0.18.1
-batch at `114f1b885394941b31388f07bafe6153422efdd9` selects all four Host **0.5.1**,
-Testkit **0.22.0**, Memory **0.31.3** and private Metrics **0.2.11**. Testkit's public
-reexports now select Host 0.5, removing the separate 0.4 line without force patches
-or extra direct process/tools dependencies. Published archive/source identities
-match their owner commits. Native fixture children use Host's group owner through
-Testkit, retaining local control framing, readiness and deadlines. Metrics Rust
-source is unchanged from 0.2.9; qualification is still bound to the exact graph.
-
-The [additional sibling record](reports/audits/2026/10/08/sibling-reuse/01/report.md)
-retains passing recorded-graph native-host, seven publication-session and buffered
-output cases, plus Clippy and Rust 1.88 native/Wasm checks. Compiled readback is
-0.18.0. Actual CLI/Wasm bytes are frozen; no Chromium/deployed provider or measured
-instruction/size gain is inferred. Earlier Host 0.5.0 / Testkit 0.21.3 / Metrics
-0.2.9 evidence and the original released lock remain separately identified in the
-[previous package/Host record](evidence/host050-package0180.md).
-
-Paired packages share one root catalog/version transaction and Cargo packaging.
-Each extracted verification has its own target to exclude stale same-version
-artifacts. Ordinary `make publish` in the pending helper repair selects contracts
-then core and authenticates registry readback before skipping completed uploads.
-See the [release guide](releasing.md#publication-and-deployment) and original
-[migration record](evidence/contracts-0180.md). Cross-release service retirement /
-reinstallation remain required. The selected Shared Tooling baseline is now the
-81-file committed **0.1.24** baseline plus pending **0.1.25** archive corrections at
-`eeb72e741199bd8574280eacb3542d8379b912f6`, qualified through isolated tooling
-fixtures in the [adoption record](evidence/shared-tooling-0181.md).
-
-The lockfile changed externally during that tooling follow-up: Testkit first
-selected **0.22.1**, then **0.22.2**, alongside Host **0.5.2**, Memory **0.31.4**
-and zerocopy **0.8.62**. Those incoming changes are preserved. The native/Wasm
-evidence above remains bound to Testkit 0.22.0 / Host 0.5.1 / Memory 0.31.3;
-the tooling fixtures do not qualify the newer runtime graph.
+The reviewed [Shared snapshot](../.shared-tooling.snapshot) is 0.9.10 at
+`7e55adecf6f0b196c050f104b37f8c69b6bf434e`, with 112 payloads. Common installation,
+checks, hooks and formatting use `make/consumer.mk`; product targets and Testkit
+extensions stay local. The canonical Rust-tool fixture runs directly from this
+consumer. Snapshot adoption does not automatically adopt Shared's CI cache policy.
+See [current status](status/current.md) for released versus prepared identities and
+[the adoption evidence](evidence/shared091002215.md) for source-bound results.
+Earlier dependency reviews remain in their existing evidence records and the
+[frozen former guide](https://github.com/dragginzgame/ic-blob-storage/blob/0d720d1745c1c9e87fe2a9cb922ba21c1dec5293/docs/dependencies.md);
+those graphs are not current setup instructions.
 
 ## Quick setup
 
@@ -489,328 +100,6 @@ adoption itself does not reselect dependencies. Published library consumers
 resolve their own compatible graphs, so the repository's tests do not qualify
 every future release.
 
-## Locked dependency inventory
-
-The root `Cargo.toml` owns all package and direct dependency version requirements
-and local dependency paths. Every member, including unpublished fixtures, inherits
-its package version and dependencies from the workspace. Members select features
-and target conditions; `Cargo.lock` locks the resolved graph. Versions were checked against
-crates.io on 2026-09-25. On 2026-09-26, `serde_json` became a direct dependency
-at its existing locked version for bounded provider reply parsing. The table reflects
-the incoming committed 0.18.1 graph on 2026-10-08, with compiled identity 0.18.0;
-availability does not establish provider qualification or service readiness.
-
-| Dependency | Version | Purpose |
-| --- | --- | --- |
-| `candid` | 0.10.37 (locked) | IC boundary encoding and principal types |
-| `serde` | 1.0.229 | Serialization derives for explicit boundary/record schemas |
-| `serde_json` | 1.0.151 | Bounded Caffeine chunk-status JSON decoding; reused the existing lockfile version |
-| `sha2` | 0.11.0 | SHA-256; optional allocation/OID features disabled |
-| `thiserror` | 2.0.18 (locked) | Typed error derives; PocketIC constrains its own requirement exactly |
-| `ic-cdk` | 0.20.3 | IC platform operations for the ops layer |
-| `ic-management-canister-types` | 0.11.0 (direct, locked) | Bounded current-instance IC-history request/reply types |
-| `ic-memory` | 0.31.8 (locked) | Sole allocation runtime; current ownership ledger and public typed growth API |
-| `ic-metrics` | 0.2.15 (locked) | Private storage resource probe only; allocation-free measurement arithmetic, no platform reader |
-| `ic-stable-structures` | 0.7.2 | Exact transitive substrate owned/re-exported by `ic-memory` |
-| `ic-testkit` | 0.25.3 (locked) | Native dependency of the unpublished PocketIC harness; shared helpers and full re-export |
-| `pocket-ic` | 16.1.0 (locked) | Transitive through `ic-testkit`; no direct dependency |
-| `ic-agent` | 0.49.2 | Native CLI and harness signing and verification of ingress certificates |
-| `ic-host-artifacts` | 0.8.3 (direct and harness transitive, locked) | Native CLI raw SHA-256 identities and example-only bounded JSON streams; optional archive/gzip/Wasm features disabled for those clients |
-| `ic-host-fs` | 0.8.3 (direct and harness transitive, locked) | Native CLI bounded descriptor/no-follow reads and private durable create-new records |
-| `ic-host-process` | 0.8.3 (harness transitive, locked) | Owned by ic-testkit; no direct CLI dependency |
-| `ic-host-tools` | 0.8.3 (harness transitive, locked) | Owned by ic-testkit; no direct CLI facade dependency |
-| `candid_parser` | 0.4.1 | Native harness only; official Candid parser for native request fixtures |
-
-### Native Host 0.4.6 selection — pending 0.17.2
-
-The incoming lock unifies all four native Host packages on 0.4.6;
-testkit now selects 0.21.2. Published Host/Testkit source matches its committed
-publishers and official archive checksums. The existing native harness still owns
-its explicitly prepared PocketIC 16 server, bounded connection and ordered drops.
-No process/tools edge is added directly to the CLI or core.
-
-CLI JSON records now serialize directly through Host's typed durable writer.
-Private 0600 permissions, complete create-new publication, refusal to recreate a
-removed/substituted run, exact pretty-JSON bytes and the existing `file` error
-remain unchanged. Failed serialization cleans this attempt's staging without
-publishing a prefix or replacing existing evidence. The compatible `ic-host-fs`
-requirement now starts at 0.4.5 to exclude the earlier macOS compilation defect;
-the typed writer first appeared in 0.4.3. Descriptor
-publication does not replace the separate verified body.part/body.bin contract.
-
-This is a compatible tooling patch from released 0.17.1. Workspace package
-versions and receipt remain 0.17.1. Memory 0.31.1 and private-probe Metrics 0.2.9
-are preserved. Testkit changed externally from 0.21.1 to 0.21.2 after the first
-checks; both graphs have separate retained provenance and passing focused runs.
-The final selection is unchanged from that second entry. Core native/Wasm normal graphs exclude Host, Testkit
-and Metrics. Focused native tests, strict CLI/harness Clippy and Rust 1.88 checks
-pass locally. Host's [exact 0.4.6 owner run](https://github.com/dragginzgame/ic-host-tooling/actions/runs/37648086908)
-passes Linux, both native macOS architectures and MSRV, including the repaired
-platform-dependent filename fixture. The [current record](evidence/publication-0172.md)
-binds this selected graph and the publication/download regressions. Blob's dirty
-consumer batch still needs its own committed native macOS acceptance; upstream
-success does not replace it. The [0.4.3 record](evidence/tooling020-host043-0172.md)
-retains the original blocker and its distinct graph unchanged.
-
-Released 0.17.1's Host 0.4.2/Testkit 0.21.1 qualification remains bound to
-[its original record](evidence/tooling019-host042-0171.md); earlier Testkit
-0.21.0 retains [its Host 0.4.1 record](evidence/testkit-021-0171.md).
-[#26](https://github.com/dragginzgame/ic-blob-storage/issues/26) tracks matching
-committed native consumer acceptance for that released batch.
-
-### Earlier PocketIC ownership — released 0.18.5, pending 0.19.0
-
-Testkit/PocketIC own protocol compatibility, startup and managed server lifetime;
-Blob no longer compares the Rust crate version with the provisioned server version.
-Shared Tooling owns explicit provisioning, archive digests, executable version
-identity and offline bundle verification. These are separate trust boundaries.
-The existing harness continues to use Testkit's explicit `spawn`/`connect` path
-with a prepared binary and ordered drops. No fallback download or startup owner
-is added. Testkit's environment path still has the stricter released check tracked
-in [Testkit #34](https://github.com/dragginzgame/ic-testkit/issues/34); this consumer
-does not copy its parser or claim that upstream follow-up is complete.
-
-The sole `ci/ic-tools.tsv` is again Shared Tooling-owned at the committed 0.1.30
-snapshot revision, with the same reviewed PocketIC 16.1.0 rows qualified during
-0.18.5. This supersedes that batch's temporary consumer-owned matrix exception;
-its [original evidence](evidence/pocketic-msrv0185.md) retains the old ownership
-and hashes. Explicit `make install-ic-tools` prepares the catalog-bound bundle;
-`make ic-tools-check` verifies it offline. Previous bundles and failed attempts
-remain retained. Caller-selected overrides keep caller-owned byte admission.
-
-`make msrv-check` checks Rust 1.88 explicitly, separately checking the runtime-free
-contracts and public service libraries before the full native member roster and
-supported Wasm libraries. This prevents native test dependencies from defining
-the public floor. CI prepares the minimum compiler/cache in a separate lane;
-ordinary validation never installs a missing compiler implicitly. Development
-formatting/Clippy continue on the pinned 1.99 compiler. Lower floors require new
-qualified evidence rather than a manifest-only change.
-
-### Memory 0.31 selection — released 0.17.0
-
-Released source selects Memory `^0.31`; the released lock selects 0.31.1 and
-direct native Host artifacts/fs 0.4.1. The maintainer kept this graph and carried
-the complete batch under 0.17.0. Package versions and the release receipt now
-identify 0.17.0. The public Memory re-export and
-host grant types require consumers to align Memory 0.31 and rebuild their
-composed graph. This is a Rust type-identity hard cut from released Memory 0.30,
-even though the cached published 0.31.1 runtime source matches 0.30.0 byte for
-byte. No durable layout or lifecycle owner changes. Cross-release retirement
-and reinstall remain required. The focused native CI repair does not qualify
-downstream managed compositions or the complete new dependency graph.
-
-### Earlier Memory 0.30 and example stream collection — released 0.16.0
-
-The later physical-layout rollback preserves its maintainer-selected entry graph:
-native artifacts/fs 0.3.2 and harness testkit 0.20.0 (with transitive host-tools
-0.3.2). These differ from the earlier Memory/example record below. The
-[rollback record](evidence/layout-rollback-0160.json) qualifies the restored
-paths on that exact selection without changing the lock; earlier records retain
-their own graphs. All 11 packages still inherit one virtual root/catalog, with
-the approved role-based layout recorded in AGENTS.md.
-
-The task-entry lock selects published Memory 0.30.0 and private-probe metrics
-0.2.5. Memory's registry source matches publisher `2fdeec4`; every runtime source
-file and runtime dependency declaration matches 0.28.4. The public re-export,
-grant requests and runtime handles nevertheless change Rust crate identity.
-Hosts must use Memory 0.30 in one composed graph. A private compile probe accepts
-that identity and rejects assigning these requests to 0.28-owned types. This
-requires a minor library release, without introducing a new durable schema,
-endpoint owner or lifecycle adapter. Cross-release reinstall and retirement
-rules still apply. [#20](https://github.com/dragginzgame/ic-blob-storage/issues/20)
-retains publication and downstream managed qualification with their owners.
-
-Native examples inherit ic-host-artifacts only as a target-specific development
-dependency. Its `read_reader` owns bounded collection and interrupted-read retry;
-each caller keeps `File::open`, JSON schema and limit diagnostics. Inventory
-paths still resolve from the supplied file's directory, including file symlinks.
-I/O errors keep their original type; allocation failures are reported without
-infallible vector growth. Production/native-library and Wasm runtime graphs do
-not acquire this edge. [#21](https://github.com/dragginzgame/ic-blob-storage/issues/21)
-tracks this adoption. Metrics 0.2.5 runtime source matches 0.2.4; earlier immutable
-records keep their original locks and artifact identities.
-
-### Initial ic-metrics adoption for the earlier 0.15.4 candidate
-
-The initial private storage resource probe adoption used published ic-metrics 0.2.4 through an
-inherited `0.2` registry requirement. `record_sample` owns completed-read count
-and instruction-total arithmetic; requested bytes remain a separate unit. The
-host still reads IC call-context counter 1, selects each logical memory and
-starts/stops the synchronous reopen window. The counter retains three u64 fields
-and the existing Candid/report shape. Counts and totals saturate independently;
-saturated diagnostic values are unavailable for exact interval arithmetic.
-
-The dependency has no features, runtime reads, allocations or Cargo dependencies.
-It is absent from the published core and production standalone graphs. Service
-balances, quota/capacity accounting and durable journals retain their exact
-arithmetic; their obligations are not measurement summaries. No metrics endpoint
-or registry is added. The [initial source-bound record](evidence/metrics-0154.json)
-retains its 0.2.3 graph and checks. The later
-[workspace adoption record](evidence/shared-014-0154.json) binds the already-selected
-0.2.4 lock and fresh local PocketIC window/installation/recovery checks; it does
-not relabel the earlier evidence.
-[#19](https://github.com/dragginzgame/ic-blob-storage/issues/19) owns committed
-consumer/native qualification. No instruction or cycle savings are claimed.
-
-### Released 0.15.3 host crate split
-
-The earlier 0.15.4 candidate lock refresh selected published artifacts/fs 0.3.1. Their
-published sources match committed host release `38a2a51`; the existing CLI
-callers retain bounded reads, native-only placement and private create-new
-publication. The refactored writer and shorter staging names stay under that
-shared owner. New gzip, path, lock-wait and streaming replacement APIs are not
-introduced into unmatched provider/probe flows. The
-[refresh record](evidence/refresh-0154-02.json) binds the selected graph and
-focused Linux qualification; pending-source native macOS checks remain required.
-The following original adoption evidence keeps its 0.3.0 bindings.
-
-The maintainer-selected direct ic-host-tools 0.3.0 removed the old artifact
-facade. Its four published host crates were reviewed against cached registry
-0.3.0 source and the sibling's committed extraction provenance. Native callers
-now depend directly on ic-host-artifacts and ic-host-fs. This removes the unused
-direct ic-host-tools 0.3.0 and ic-host-process 0.3.0 packages from the lock;
-ic-testkit's older transitive owner remains unchanged. Native-only dependency
-placement keeps these crates out of production Wasm.
-
-Run records use the shared private atomic create-new writer after checking the
-already-claimed directory. Existing destinations and directory substitutions
-refuse; records publish complete bytes with file/directory synchronization.
-A sync failure after publication remains a failure, without automatic retry.
-Private body.part output, EOF/provider-root verification, create-new body
-publication and interruption evidence remain local. The shared writer owns
-its staging cleanup; a process interruption can retain staging inside the
-claimed run, which cannot be reopened as a fresh run. Trusted ancestors and
-exclusion of concurrent directory writers remain caller responsibilities.
-Probe record writes remain local because their exact failure stages and
-interruption inventory are part of the retained probe contract.
-
-The two remaining 0.3 crates do not replace a current matching abstraction:
-ic-host-process admits bounded one-shot tools with null stdin; the browser
-driver exchanges continuing messages. ic-host-tools owns explicit ICP CLI
-response decoding and Candid extraction; this CLI uses ic-agent and the service's
-bounded Candid decoder. Neither crate owns provider authority, durable service
-journals or the provider-root verifier. No unused direct dependency or new
-execution wrapper is introduced. Dirty sibling 0.3.1 APIs are excluded.
-
-The [focused adoption record](evidence/host-owners-0153.json) binds the actual
-selected graph, including the pre-existing ic-memory 0.28.4, h2 0.4.20 and
-hyper 1.12.0 selections. CLI/probe, FIFO, Clippy and Rust 1.88 checks pass on
-Linux; retained probes and checksums verify read-only. These checks qualify
-native callers, not new service deployment or full core/PocketIC behavior.
-Earlier qualification retains its original graphs. The released 0.15.3 native
-Linux and both macOS jobs now pass. That result does not qualify the pending
-0.15.4 graph.
-
-The maintainer-selected ic-memory 0.27 upgrade removes history/timestamp APIs
-and changes the durable ledger layout exposed through the public re-export.
-Released 0.15.0 contains that hard cut, carrying forward the
-tooling work originally drafted for 0.14.13. Hosts must update affected callers
-and fixtures; retained installations require obligation disposition and
-reinstall, never a ledger reset or compatibility reader. See the
-[persisted contract](service-contract.md#current-persisted-boundaries) and
-[new validation record](evidence/release-preflight-0150.json). Earlier evidence
-continues to qualify only its original selected graph.
-
-The original 0.15.1 adoption batch added published ic-host-tools 0.1.11 to the
-native CLI only; the maintainer's released lock selects 0.1.12. It delegates
-bounded reads from the locally selected descriptor
-and raw lowercase SHA-256 formatting. Native inputs retain link following,
-nonblocking special-file refusal and empty-input refusal. Probe records retain
-their error codes and reject final-component links on Unix, including at open.
-This is not path confinement or a content snapshot; ancestors may follow links
-and concurrent writers remain possible. Caffeine content trees, credentials,
-recovery journals and service ownership remain local.
-
-The [adoption record](evidence/tooling-host-0151.json) binds its original registry
-source, locked graph and local checks. Four package identities were added: ic-host-tools
-0.1.11, tar 0.4.46, filetime 0.2.29 and wasmparser 0.253.0. No existing locked
-package version was reselected in that recorded batch. It does not qualify later
-dependency updates or the released graph by itself. The production core and
-Wasm graph do not acquire
-this host dependency; the workspace's minimum Rust version remains 1.88.0.
-
-The [0.15.2 native qualification record](evidence/caffeine-probes/local/2026-10-06-native-download-0152-01/summary.json)
-binds ic-memory 0.28.2, ic-host-tools 0.1.14 and ic-testkit 0.19.1 to their actual
-cached sources, selected lock, matching artifacts and focused Linux checks.
-ic-memory's published runtime source is unchanged from 0.28.0. ic-host-tools
-adds typed rejection of impossible reader/writer byte counts. ic-testkit 0.19's
-removed executable resolver and changed bounded Wasm reader have no callers
-here; the used harness APIs compile and execute. Its breaking APIs are confined
-to the unpublished harness, so the pending library patch remains compatible.
-Native CLI, actual installation/funding/restore, strict relevant Clippy and
-Rust 1.88 native/Wasm checks pass without lock reselection. The new native macOS
-run remains required; Linux substitutes do not qualify the supported Apple hosts.
-
-The later [release-guard and host record](evidence/release-guards-0152.json)
-separately qualifies the task-entry ic-testkit 0.19.2 selection. Its published
-runtime source matches 0.19.1; the patch changes developer/release tooling.
-All 106 CLI and two actual installation cases, harness Clippy and Rust 1.88
-native harness compilation pass. The lock stays unchanged during this batch;
-earlier funding/restore and Wasm records retain their original source and graph.
-
-Headless ingress tests add pinned `ic-agent` 0.49.2 (default features disabled),
-plus the locked `reqwest` 0.13.5, `tokio` 1.53.2 and `serde_cbor` 0.11.2
-as native dev dependencies in `tests/pocketic`. The public crates.io index confirmed
-0.49.2 as the latest non-yanked agent release on 2026-09-28. Its cryptographic graph
-adds host-only lockfile entries without changing existing package versions, the
-published library dependency graph, Wasm allocation or memory grants. Tests trust
-the explicitly owned PocketIC NNS key, never a root key fetched from mainnet, and
-send no request to a Caffeine gateway. This is headless Rust evidence, not browser
-or production uploader qualification.
-
-The retained 2026-10-04 management-types checks used the then-direct 0.10.0.
-The [2026-10-05 upgrade record](evidence/caffeine-probes/README.md#management-canister-types-0110--2026-10-05)
-separately qualifies the direct 0.11.0 graph with ic-memory 0.25.5 and ic-testkit
-0.15.4. Three continuity unit tests, strict scoped Clippy, matching Wasm/harness
-builds and five actual PocketIC recovery cases pass on that frozen graph.
-PocketIC 16 still brings its own native management-types 0.8.0 transitively;
-it is separate from the core's direct 0.11.0 and is not a second memory runtime.
-These records retain their actual dependency and artifact identities; they do
-not qualify a later lockfile change or replace full release or MSRV validation.
-
-The selected lock also retains the maintainer's powerfmt 0.2.0-to-0.2.1 update.
-Its declared Rust floor rises from 1.67.0 to 1.79.0, below this workspace's 1.88.0
-MSRV. Source review finds formatting-buffer implementation and inlining changes
-without changing the selected public API; optional macros are not selected by
-this graph. Current graph checks are recorded in the release handoff rather
-than attributed to the earlier recovery artifacts.
-
-The [0.14.10 batch preflight](evidence/release-preflight-01410.json) passes the
-complete configured `make ci` gate and actual native/Wasm checks with Rust
-1.88.0 on its captured 0.25.5/0.15.4 graph, still compiled as 0.14.9. These Linux results
-preserve the source patch, artifacts and logs; release preparation from clean
-committed source remains a separate transaction. Native macOS and opt-in browser
-or scale profiles are not rerun by this gate.
-
-The [0.14.11 occupied-history record](evidence/caffeine-probes/README.md#larger-occupied-fundingread-histories--2026-10-05)
-separately qualifies scoped local restoration and recovery on selected ic-memory
-0.25.9/ic-testkit 0.15.8, still compiled as 0.14.10. Memory's checked metadata
-construction/decoding owns validity formerly rescanned later; this service uses
-none of the removed APIs. Testkit tightens artifact acquisition and simplifies
-install retry bookkeeping; our explicit Make builds use `--release --lib` and
-the maintained harness uses an explicitly selected server. Neither dependency
-change introduces a consumer adapter or another state owner here.
-
-Thirty core funding/read tests, seven standalone recovery/history/snapshot cases,
-the combined-owner regression and ordinary/scale profiles pass. Scoped actual
-Rust 1.88 native checks cover core, standalone and harness tests; scoped Wasm
-checks cover core, standalone and storage fixture. These Linux checks preserve
-the selected lock and do not replace full CI, full-workspace MSRV, native macOS
-or deployed-provider qualification. Prior evidence retains its original graph.
-
-The native CLI explicitly enables reqwest 0.13.5's `rustls` and `http2` features;
-CLI-only builds must support HTTPS/HTTP/2 independently of the harness or agent's
-transitive feature choices. Platform certificate validation and no-retry settings
-remain enabled. The newly reached h2 0.4.19 and hyper 1.11.1 already exist in the
-lockfile and declare Rust 1.63, below the maintained CLI minimum; no version or
-MSRV is changed. Current development-toolchain checks do not rerun the minimum
-compiler evidence.
-
-At the initial registry check, the selected releases were current except `thiserror`, where PocketIC 16 pins
-2.0.18 and prevents selecting 2.0.21 in this graph. Development builds use the
-repository's Rust 1.99.0 toolchain. SHA-256 byte hashing does not by
-itself implement or qualify Caffeine's provider-specific hash tree.
-
 ## Rust versions
 
 The development toolchain and minimum supported Rust version (MSRV) serve
@@ -841,23 +130,11 @@ Keep supported source and dependencies within their declared floor when updating
 the development toolchain. These checks cover this lockfile; a consumer's own
 dependency resolution must also satisfy its Rust version.
 
-The test dependency was consolidated through the published `ic-testkit` 0.10.0
-package on 2026-09-26. Tests should import upstream types through
-`ic_testkit::pocket_ic`, and opt into helpers through `ic_testkit::pic`:
-
-```rust
-use ic_testkit::pocket_ic::{PocketIc, PocketIcBuilder};
-use ic_testkit::pic::{CandidCallExt, CanisterInstallExt};
-```
-
-The original [0.10.0 export](https://docs.rs/ic-testkit/0.10.0/ic_testkit/index.html)
-exposes the complete PocketIC crate. Keep the dependency under native dev
-dependencies; neither the production library nor its Wasm build needs testkit.
-With the dedicated harness in place, the core package's native dev graph also
-excludes it; testkit is owned by `tests/pocketic/Cargo.toml`.
-The unpublished `tests/pocketic` harness uses these exports. This shares version
-selection and harness helpers, rather than reducing the total transitive package
-count: testkit also brings host-side artifact/locking utilities.
+The unpublished PocketIC harness owns `ic-testkit`; production library/Wasm
+code has no Testkit dependency. Import its maintained helpers and PocketIC types
+through `ic_testkit::pic` and `ic_testkit::pocket_ic`. Use `make msrv-check` for
+the repository's public, native and Wasm minimum-compiler checks after explicit
+compiler/target and locked-cache preparation.
 
 ## Browser certificate evidence
 
@@ -865,7 +142,7 @@ count: testkit also brings host-side artifact/locking utilities.
 1.1.2, `@icp-sdk/core` 5.4.0, Playwright 1.63.0 and esbuild 0.28.2. SDK 5.4.0
 is within Caffeine's declared `^5.3.0` range; it replaces the earlier fixture's
 6.1.0 pin so the composition uses one supported SDK. The Caffeine package is the
-latest verified provider package; SDK 6 is not forced into its dependency graph.
+latest verified provider package.
 The supported runtime range remains Node >=20.19.0. Reproducible fixture setup
 selects Node 24.21.0 from `tests/browser/.nvmrc` and npm 12.2.0 from that build
 root's `packageManager` declaration. Earlier browser evidence used Node 24.21.0 and
@@ -942,44 +219,13 @@ or qualification of a consumer's CSP/authentication/storage environment.
 
 ### Complete local standalone rehearsal
 
-`make test-browser-standalone` uses the same provisioned browser tools and PocketIC.
-For the serial media driver, `BLOB_BROWSER_EXECUTABLE=/absolute/path/to/browser`
-can explicitly select an installed Chromium-family executable. Record its actual
-version and binary hash separately from the pinned Playwright package; this does
-not qualify it as Playwright's bundled Chromium. The default selection is
-unchanged, and each run still owns a fresh profile. Image delivery assertions
-permit HTTP-cache reuse while checking exact object bytes, origins and credentials.
-
-The target builds the standalone Wasm/CLI and explicitly runs ignored cases against a
-local gateway substitute. Actual installed host facts issue the certificate; no
-operator-supplied provider flags or consumer framework are involved. One-slot
-IndexedDB survives reload, while native tools verify uploaded bytes, submit the
-distinct verifier's statement and download as the tenant. HTTP upload success
-alone cannot serve an asset. Release retains physical bytes and liabilities.
-A separate fresh owner receives a corrupt GET, records failure without attestation,
-and retains exposure after withdrawal/cancellation. The interruption cases lose
-reply headers, verify without a new upload and preserve release through late
-completion/replay. One TLS HTTP/2 origin receives uploads and serves those same
-bytes to both native readers. The fixture generates a CA and leaf certificate;
-on Linux, each native child uses only that public CA through SSL_CERT_FILE with
-normal validation. Unrelated roots refuse before an HTTP GET; a REFUSED_STREAM
-read fails without redispatch, before a separately budgeted complete observation.
-No process-global trust or certificate-validation bypass is introduced.
-
-To retain exact commands and artifacts, set `BLOB_STANDALONE_BROWSER_REPORT` to a
-fresh **existing parent directory**; the tests create `success/`, `corrupt/`,
-`lost-final/` and `withdrawn/`
-and refuse existing child directories. Otherwise they use temporary directories.
-The capture contains fixed test keys and signed local requests; these identities
-are never deployment identities. The ordinary Rust/CI suite does not require this
-opt-in browser target, and no deployed provider/account request occurs.
-
-For a separate old-ledger refusal check, `make test-hard-cut` requires an explicit
-`BLOB_PRE_CUT_STANDALONE_WASM` and fresh `BLOB_HARD_CUT_REPORT` beneath an existing
-parent. See the [pinned fixture](../tests/fixtures/standalone-pre-cut/README.md).
-It runs one ignored local PocketIC test; the historical Wasm is retained externally
-and default CI cannot establish this check without it. It compares full stable
-bytes and old obligations after actual upgrade rejection, with no provider calls.
+`make test-browser-standalone` exercises the installed standalone service,
+maintained native publisher, browser worker and IndexedDB journal with two local
+users and a labelled local provider. It requires the prepared CLI, Testkit server,
+Node/packages/Chromium and owned loopback TLS prerequisites. The
+[operator guide](operator-guide.md) and [browser client contract](../clients/browser/README.md)
+own the command and retained phase/recovery requirements. This is local IC/browser
+proof, not application login, deployed provider behavior or billing acceptance.
 
 ### Offline native/browser handoff
 
@@ -1002,324 +248,97 @@ This check needs neither Chromium nor PocketIC and remains outside ordinary CI.
 It establishes no production storage durability, service authorization or provider
 guarantee. Existing evidence directories refuse reuse; build artifacts are kept.
 
-For the proposed first standalone trial, set `BLOB_SDK_INPUTS_BYTES=1024` on this
-same offline target. The optional size accepts canonical positive byte counts up
-to 10 MiB and rejects invalid input before creating output. The default remains
-10 MiB. Both envelopes exercise the same SDK/native/snapshot/refusal checks;
-neither emits a certificate or sends service/gateway traffic. See the
-[trial review](standalone-trial.md) for the accepted operating contract and open inputs.
-
 ## Memory composition
 
-Released Blob 0.22.10 publicly re-exports `ic-memory ^0.35`; its released lock
-selects Memory 0.35.12. Earlier graph qualification retains its recorded patch
-identity. Hosts compose namespace grants in one host-wide allocation pool
-and open permanent keys through the committed runtime.
-Earlier Memory minor lines are not
-interchangeable with this API. A source-identical
-package from a different Cargo identity also does not share its Rust types.
-Direct `RuntimeMemory::grow` returns a typed result;
-generic `Memory` wrappers preserve the upstream -1 sentinel contract.
+Use `ic_blob_storage::ic_memory` for the library's public storage types. Hosts
+compose all namespaces in one Memory 0.35 host-wide allocation pool and open
+permanent keys through its committed runtime. A source-identical package with a
+different Cargo identity does not share Rust types. Never place a second manager
+on the same backing memory.
 
-The historical Memory 0.15.2 review below concerns an earlier graph, not current
-Blob qualification. That published changelog reports addressing IcyDB feedback in
-[#8](https://github.com/dragginzgame/ic-memory/issues/8): narrow raw-read and
-registration-hook lint exceptions become justified expectations, unsupported-format
-tests compare typed diagnostics, and Wasm declaration-count tests avoid overflow.
-The clean local upstream release `e2fe658` and cached registry package agree on
-the changelog. Source comparison with 0.15.1 preserves raw-read forwarding and its
-tests; it introduces no new consumer read API, memory format or allocator choice.
-This repository defines no unsafe read override to change. Upstream retains its
-declared Rust 1.88 minimum. The GitHub issue-body fetch fails, so this review does
-not independently summarize that body or claim its current resolution status.
-Targeted core/CLI/host lint, native installation and actual local IC
-installation/growth-refusal/retry/restoration checks passed on that 0.15.2 graph. Retained
-evidence is in `.tmp/installation-carrier-01`; older MSRV captures remain historical.
-
-Use `ic_blob_storage::ic_memory` for storage types. The host owns one runtime,
-its allocation policy and explicit grants. Use
-`ops::service::installation::requests(authority)` for the complete seventeen-key
-inventory and `LIBRARY_VERSION` for the compiled library contract. Neither helper
-registers declarations, selects physical IDs or bootstraps memory. The installation needs its configuration
-key and sixteen shared service requests; linking the library registers nothing.
-`grants::open` adopts the host's committed lookup; `open_default` requires an
-already committed default runtime. Standalone owns its own explicit bootstrap.
-Restoration is synchronous and leaves every service owner fenced.
-
-Consumer frameworks own their wrappers and integration tests externally. This
-repository has no downstream framework dependency, managed adapter or managed
-fixture, and its validation requires no framework CLI. Host integration must
-use one memory package identity; this library does not qualify a consumer's
-composition or permit a second manager over the same backing memory.
+The host owns the runtime, allocation policy and explicit grants. Include
+`ops::service::installation::requests(authority)` before bootstrap: one
+configuration key and sixteen service keys. Neither this helper nor linking the
+library registers declarations, chooses physical IDs, initializes stores or
+exports endpoints. `grants::open` uses the committed lookup; `open_default`
+requires an already bootstrapped default runtime. Standalone owns its bootstrap.
+Lifecycle restoration is synchronous and leaves the service fenced until the
+maintained recovery workflow proves safe activation. Use `LIBRARY_VERSION` for
+installation and exact same-release reopening.
 
 ### Canic integration
 
-Blob 0.22 requires the Memory 0.35 package identity and host-wide pool API.
-[Canic #510](https://github.com/dragginzgame/canic/issues/510) owns framework pool
-adoption; [Blob #48](https://github.com/dragginzgame/ic-blob-storage/issues/48) owns
-this repository's caller and recovery qualification. Grant `blob.` in the host
-pool, include the existing seventeen requests in its single snapshot and use
-key-only committed opens. Align the host, database, jobs and Blob to one Memory
-identity before qualified managed installation.
+Canic owns its adapter, dedicated shell, embedded wrapper and composition tests
+in its repository. Blob owns the framework-independent core and standalone host.
+Do not add Canic dependencies, wrappers or fixtures here. The
+[Canic composition guide](https://github.com/dragginzgame/canic/blob/main/docs/features/blob-storage/README.md)
+owns current framework mounting APIs; [current status](status/current.md#canic-boundary)
+links source-bound composition results and remaining owner work.
 
-The published `canic-blob-service` 0.111.0 adapter belongs to Canic's coherent
-0.111.0 family. Its authenticated registry package requires Canic `^0.111.0`,
-Blob runtime/contracts `^0.22.2` and Memory `^0.35`; its released lock selected
-Blob 0.22.4. Freeze the consumer's actual lock rather than treating those ranges
-as exact installed identities. The adapter/managed host minimum is Rust 1.91;
-Blob's standalone/library minimum remains 1.88.
+For consumer adoption:
 
-Canic owns the adapter, dedicated shell and embedded application fixture. Keep
-these outside Blob; do not mount the standalone canister inside Canic or bootstrap
-a second manager. [The package/source review](evidence/canic0229.md)
-authenticates its published 0.111.0 family. The newer local 0.112.0 batch now
-requires published Blob/runtime contracts 0.22.11 in the normal catalog and both
-independent fixture locks, without a Blob source override. Its shared endpoint
-owner leaves a 113-line adapter instead of 376. The callback is lexical so
-Candid registrations precede export; actual composition cases also check callable
-Wasm exports against generated Candid.
+1. Select one coherent published Canic family, matching Blob runtime/contracts and
+   one Memory 0.35 identity. Freeze the application's actual lock and all independent
+   fixture locks; sibling paths are not registry-delivery evidence.
+2. Include Blob's seventeen requests in the host's single declaration snapshot
+   and grant the `blob.` namespace in its allocation pool before bootstrap.
+   Validate the complete installation for the allocated Principal before opening.
+3. For a dedicated Component, require application initialization, encode the exact
+   `ServiceInstallationInput` and bind it through Root's authenticated initializer.
+   Retain the original operation, target and bytes for lost-reply reconciliation.
+   For embedding, keep one application lifecycle and compose synchronous Blob
+   installation/restoration plus its metrics sampler. Mounting initializes nothing.
+4. Before producing Blob's passive DTO, enforce zero Candid skipping quota and
+   exact argument count, including nested application initialization. Ordinary
+   query/update decoding retains its own independent limits. Build normal Wasms
+   with one memory runtime and check canonical Candid types and callable exports.
+5. Run dedicated/embedded PocketIC initialization, target/caller refusal, rollback,
+   lost-result, metrics and same-image recovery cases. Apply the
+   [retirement contract](retiring-installations.md) before a cross-release reinstall.
+   Same-release recovery never authorizes upgrading a retained installation.
 
-Host installation must also use zero Candid skipping quota before the passive
-Blob DTO is produced, including when nested in an application record. This
-refuses retired authority fields and extra application-init arguments; it does
-not change ordinary query/update request skipping. The reviewed Canic
-`CONFIGURATION_LIMITS` inherits a quota of 1,024, which accepts both old shapes.
-Its owning decoder needs correction and installed rejection/rollback qualification;
-the existing composition successes do not establish this boundary.
-[Canic #524](https://github.com/dragginzgame/canic/issues/524) owns that correction;
-[the decoder review](evidence/canic-service02214.md) retains the source and native
-codec observations separately from installed consumer evidence.
-
-The dedicated, embedded and production Root journeys pass on their captured
-fixture graphs, including permission/accounting, lost replies, restoration,
-application-state retention and exact installation replay. Both 32-method Blob
-projections pass strict structural Candid comparison. The fixture locks retain
-Memory 0.35.14/Metrics 0.7.1/Timers 0.19.0; later root patches do not become those
-artifacts. Canic's root lock has advanced since its final native proof and needs
-its own updated qualification. See [the current read-only review](evidence/shared083-canic02212.md).
-
-The Canic endpoint/composition slice is complete locally; its 0.112.0 integration
-batch remains uncommitted and unpublished. The Auth/Backup public-family cut
-remains [Canic #517](https://github.com/dragginzgame/canic/issues/517), while
-[Canic #444](https://github.com/dragginzgame/canic/issues/444) retains family
-delivery and actual application/provider acceptance. Per-project parent binding
-and guarded funding are [#493](https://github.com/dragginzgame/canic/issues/493)
-and [#494](https://github.com/dragginzgame/canic/issues/494); the passing
-controller-bound Root case does not implement those routes. Earlier
-[0.22.10](evidence/canic02211.md), [0.22.2](evidence/canic0223.md) and
-[0.21.5](evidence/canic0216.md) reviews preserve their original identities.
-
-[Toko Miner's delivered 0.4.0 acceptance](https://github.com/dragginzgame/toko-miner/issues/6#issuecomment-6107209584)
-records registry-only Canic/adapter 0.111.0 with Blob 0.22.5, disposable managed
-installation/admission and same-release restoration. This is owner-reported
-execution on its captured artifacts; it does not establish another selected
-graph, production Root installation, frozen Release-profile or provider behavior.
-[Canic #444](https://github.com/dragginzgame/canic/issues/444) and the application
-owner retain those acceptance boundaries. A dedicated shell may use
-`canic_blob_service::dto` for installation data without recreating contracts.
-
-Canic's retained local Root-driven proof now installs the dedicated service
-through the real controller-authorized initializer, checks exact installed
-configuration and reconciles a discarded binding reply after Root restart.
-It also refuses changed bindings and replays the installed operation without
-reinstallation. This is stronger than fixture-injected initialization, but its
-managed artifact still selects Blob 0.22.8 and its implementation is uncommitted.
-It does not establish a live application, per-project parent authorization,
-provider completion or acceptance of another release graph.
-
-For the Canic-owned adoption batch:
-
-1. Select matching published Blob runtime/contracts and one Memory 0.35 package
-   identity. The adapter now inherits the main Canic workspace catalog/lock;
-   refresh it and the two independent dedicated/embedded consumer locks. Align
-   the framework libraries and CLI with that runtime
-   before registry-only delivery; [Canic #33](https://github.com/dragginzgame/canic/issues/33)
-   owns the coherent release family. Do not patch in sibling paths as a substitute.
-2. Register `ops::service::installation::requests(authority)` before the host's
-   sole bootstrap. Canic's `mount!()` contributes these permanent declarations;
-   the application grants `MEMORY_AUTHORITY` / `MEMORY_KEY_PREFIX` in its
-   `canic::memory::memory_allocation_pool!`, separately from its own namespaces.
-   The dedicated `canister!()` supplies that pool. Validate the complete installation for the allocated
-   Principal before opening grants. Use Blob's `LIBRARY_VERSION`, not the
-   enclosing application version, for installation and same-release reopening.
-3. For a dedicated Component, select the consumer shell as the App role package
-   and set `application_init_required = true`. After allocation, encode the exact
-   `ServiceInstallationInput` for that target and bind its bytes through Canic's
-   Root initializer. Retain the original member operation, target and complete
-   command for lost-reply reconciliation. For embedding, keep the application's
-   sole lifecycle and compose synchronous Blob installation/restoration plus its
-   metrics sampler; mounting endpoints alone initializes nothing.
-4. Build complete managed Apps using the matching Canic CLI. Check each normal
-   Wasm graph for one memory runtime and compare all canonical Blob Candid methods
-   and reply types. Run owned dedicated/embedded PocketIC installation, caller
-   and target refusal, metrics, exact initializer, lost-result and same-image
-   restoration/recovery cases. Exercise actual Root-driven initialization without
-   fixture injection for the dedicated service. Include two tenant-approved uploaders and the
-   three independent capacity headrooms. Compilation alone is insufficient.
-5. Use the published coherent family and adapter, then qualify the selected
-   application from clean registry inputs under
-   [Canic #444](https://github.com/dragginzgame/canic/issues/444). New framework
-   or adapter changes retain their own delivery and application acceptance. Apply
-   [retirement](retiring-installations.md) before a cross-release reinstall;
-   same-release recovery does not authorize upgrading existing installations.
-
-After managed qualification, the application owner must exercise its real
-authentication and publication path. Use two separately authenticated browser
-users with exact tenant-granted upload permissions; reject revoked, expired,
-cross-tenant and wrong-service requests before certificate exposure. Retain each
-original operation through lost replies and recover its outcome without another
-provider effect. Operate the separately installed verifier and qualify actual
-provider completion before publishing the application's media map. These steps
-belong to [multi-user acceptance](multi-user-upload-authority.md),
-[verifier operation](completion-verifier.md) and the
-[confirmed-reference publication steps](operator-guide.md#produce-a-complete-confirmed-reference-map); a managed installation
-or a typed unprepared refusal does not complete them.
-
-The [Canic composition guide](https://github.com/dragginzgame/canic/blob/main/docs/features/blob-storage/README.md)
-owns its mounting APIs. Application login/tenant grants, completion-verifier
-operation and deployed provider acceptance remain separate from the neutral
-managed fixtures. The adapter currently supplies passive funding inspection;
-[the funding recipe](funding-consumer-qualification.md) explains the provider
-evidence prerequisite for safe repeated storage top-ups.
+Managed installation does not complete application acceptance. The application
+must authenticate two users, issue exact tenant-approved permissions, operate the
+[completion verifier](completion-verifier.md), qualify deployed provider reads and
+commit its own media map only after exact completion/live references. See
+[multi-user authority](multi-user-upload-authority.md),
+[confirmed-reference publication](operator-guide.md#produce-a-complete-confirmed-reference-map)
+and [funding qualification](funding-consumer-qualification.md). Provider payer,
+credit, GC, deletion and billing facts cannot be replaced with local substitutes.
 
 ## Setup and checks
 
-With rustup and Cargo installed:
+`make install-tools` provisions the complete shared host/IC/Cargo set followed by
+Blob's lock-selected Testkit CLI/server. `make tools-check` admits those selections
+offline. For a changed Cargo-tool policy run `make install-rust-tools`; for a
+changed Testkit selection run `make install-testkit`. Setup retains old generations
+and failed evidence. Use the same shared-store setting for setup, checks and
+failure collection; see [local setup](local-setup.md#shared-executable-storage).
 
-```sh
-make deps
-make check
-make wasm-check
-```
+Scoped builds/tests use `--offline --locked`. After dependency changes or cache
+removal, run `make deps` explicitly before them; it fetches only the selected
+Rust source and does not install executable tools. An explicit offline setting
+remains authoritative. Missing dependencies or binaries fail rather than being
+installed, replaced or skipped by tests.
 
-The toolchain file declares rustfmt, Clippy and `wasm32-unknown-unknown`.
-`make deps` fetches the locked graph and may use the network. The complete
-`make ci`/`make validate`/`make release-verify` gate first verifies the reviewed
-shared snapshot, verifies local executables and dependency declarations, then
-checks local documentation links and shared digest/installer fixtures before
-running this fetch step. Prerequisite or fetch failure
-stops the gate. Rust checks
-use `--offline --locked` and this repository's `target/`. Scoped targets such as
-`make check` and direct `cargo --offline` commands still require a populated cache;
-run `make deps` before them after dependency changes or cache removal. Updating
-a dependency requires an intentional manifest/lockfile change; setup does not
-select new versions. Full validation remains separately authorized.
-
-Testkit and PocketIC are excluded from the production/Wasm graph. Their Rust
-libraries are fetched by `make deps` and compiled by the native check. The local
-canister test additionally needs a compatible PocketIC server: this library
-delegates compatibility and reviewed default selection to Testkit.
-The original Linux x86_64 installation at
-`.tmp/tools/pocket-ic-16.0.0/pocket-ic` and its
-[provenance record](evidence/pocketic-toolchain.json) remain historical evidence.
-The original record covers tool installation only; the later
-[authority fixture evidence](evidence/core-primitives.md#pocketic-authority-probe-after-018)
-records actual local canister execution.
-
-PocketIC Make callers use the admitted server path returned by the lock-selected
-Testkit CLI's offline check. They do not fall back to `.tools/ic/bin/pocket-ic`,
-an inherited server path or automatic downloads. Fresh checkouts explicitly
-prepare the shared five-tool bundle and Testkit:
-
-```sh
-make install-ic-tools
-make install-testkit
-make ic-tools-check
-make testkit-check
-```
-
-The [common setup](ic-tools.md) and [single pin matrix](../ci/ic-tools.tsv)
-select Quill 0.5.4, ICP CLI 1.6.0, didc 0.6.2, ic-wasm 0.11.1 and wasm-opt 132.
-Installation verifies archives before extraction, checks versions and activates a
-complete set; `ic-tools-check` is offline. Testkit owns PocketIC assets and
-compatibility under `.tools/testkit-server`; Blob has no second server pin catalog.
-Previous six-tool bundles and their hashes remain historical inputs and fail the
-new shared offline check. Only PocketIC is exercised by service installation tests;
-setup/version checks alone do not qualify other tools' product workflows.
-`make deps` fetches Cargo packages only; it does not provision executables.
-
-The library and its tests have no downstream framework dependency. The
-[Caffeine baseline](provider-baseline.json) remains the upstream integration
-reference. No npm/Motoko package enters the Rust/Wasm dependency graph;
-browser peers belong to the maintained private client and its concrete evidence
-harness.
+PocketIC callers obtain the admitted absolute server path through `make testkit-check`.
+Explicit `POCKET_IC_BIN` overrides remain caller-owned byte admission; no fallback,
+implicit download or independent server-version equality gate exists here. Testkit
+owns client/server compatibility and lifetime. The common five-tool IC bundle is
+pinned separately by [ci/ic-tools.tsv](../ci/ic-tools.tsv).
 
 ## Release and formatting host checks
 
-[The tooling workflow](../.github/workflows/tooling.yml) prepares the selected Rust
-and ShellCheck tools explicitly, installs and verifies local host/IC/Cargo executables,
-then independently checks the snapshot, declarations, evidence, formatting,
-local documentation links, shared digest/installer fixtures, release adapters
-and real consumer hook behavior on
-Ubuntu 24.04 and macOS 15 (Apple Silicon and Intel). Both local formatting targets
-use cargo-sort 2.1.4. The declared matrix does not establish a passing native run;
-its matching GitHub execution is required for qualification. This focused job
-neither publishes a release nor replaces the complete `make ci` gate.
-It then fetches the selected Cargo lock and runs `make test-native-host` offline
-to exercise both CLI binaries, bounded JSON examples, actual standalone
-installation and the private probe's operator-owned restoration-read window
-using fresh matching Wasms. This binds the selected Metrics graph to the same
-native host matrix; the observation is local PocketIC evidence. The
-native step sets `TMPDIR` to the runner's artifact directory so retained
-`nonempty-cargo-test.*` logs match the failure uploader's selection. The
-[0.15.1 adoption record](evidence/tooling-host-0151.json) records Linux execution;
-the [0.15.2 run](https://github.com/dragginzgame/ic-blob-storage/actions/runs/37488854847)
-now passes on Linux and both native macOS hosts, including native CLI/PocketIC.
-The pending 0.15.3 snapshot/caller changes still require their own matching
-consumer run; upstream CI and an earlier consumer run do not qualify new source.
+The [tooling workflow](../.github/workflows/tooling.yml) qualifies setup/admission,
+formatting/hooks, exact-ID tooling archive upload/readback, coordinated package
+archives, native CLI/PocketIC and original/optimized Wasms on Linux, Apple Silicon
+and Intel macOS. Rust 1.88 has its separate minimum-version lane. Declaring those
+jobs is not a passing result; require matching native execution on the actual source.
+Cancelled or earlier-source results do not qualify new inputs.
 
-The [0.14.12 adoption record](evidence/shared-tooling-adoption.md#01412-release-and-formatting-adoption)
-records scoped Linux execution separately from native macOS qualification.
-The local consumer hook fixture keeps the existing Cargo.lock and uses the actual
-Make formatter; upstream's synthetic suite assumes its shell-only source tree.
-
-`make evidence-check` independently verifies the retained local/deployed SHA-256
-manifests, without building Rust or making provider requests. It uses the reviewed
-checksum helper, choosing GNU `sha256sum` when available and Perl `shasum` on
-macOS. Manifests contain lowercase digests, a space and text/binary marker, then
-the exact filename; escaped filenames and malformed or empty manifests refuse.
-The regression fixture also requires `shasum` to exercise that fallback explicitly.
-The focused host matrix runs this check; `make probe-check` includes it after
-checking recorded probe directories. Existing evidence stays unchanged.
-
-Failed host tooling fixtures are uploaded for 30 days under an artifact name
-containing the host and run attempt. This preserves command logs, inputs and
-fixture state beyond the ephemeral runner. Local failures remain at the path
-printed by their helper; successful checks clean only their own temporary files.
-The failure uploader also retains `file-digests.*`, `ic-tools-test.*` and
-`release-commands.*` fixtures under the native step's selected `TMPDIR`.
-The [0.14.13 record](evidence/checksum-portability-v01413.json) distinguishes local
-checksum/failure checks from the original native failures and pending corrected
-macOS execution.
-
-The [0.15.2 snapshot record](evidence/shared-tooling-adoption-0152.json) adopts
-48 exact files from Shared Tooling `47cd2cc`. `make documentation-links-check`
-checks root Markdown and Markdown under docs, audits and rules without fetching
-links or building Rust; anchors and full Markdown grammar are outside its
-contract. `make release-commands-check` supplies only the copied Cargo manifest
-and release-data script needed by Make's read-only version expression, with a
-substitute runner and no Git effects. `make shared-tooling-tests` exercises both
-GNU/Perl digest backends when available and finite IC installer substitutes.
-The IC pin matrix, active local tools and Cargo dependency selections are unchanged.
-
-The [Bash 3.2 follow-up](evidence/bash32-v01413.json) checks explicit release
-identity/publication refusals with the actual older shell on Linux. It also
-records the pinned hook's formatter-failure defect and a passing isolated
-one-line proposal. The subsequent [committed adoption](evidence/shared-tooling-recovery-v01413.json)
-first adopts Shared Tooling `9437bab`, then refreshes to `cb86188` with 24 files,
-including the fixed hook, user-triggered agent maintenance rules and validation
-logger. Late release callbacks export
-`RELEASE_COMMIT` and verify its original files, source parent and tag even when
-HEAD contains newer fixes. The release gate retains actual failed command logs
-across retries. Upstream native CI for `9437bab` passes on all three hosts; the
-newer revision has a macOS temporary-path alias regression in its snapshot test
-fixture; consumer native qualification remains pending. The refresh and focused
-local consumer checks pass. Host CI
-stops at snapshot failure, then collects all remaining focused check outcomes
-before reporting failure and retaining available fixtures.
-
-The later shared-owner/issue acceptance batch preserves the concurrently selected
-direct ic-host-tools 0.2.0 and harness-transitive 0.1.14. Fresh offline native CLI
-checks, the FIFO subprocess, strict CLI Clippy and Rust 1.88 compilation pass;
-[the bound record](evidence/shared-tooling-owners-0152.json) retains that graph.
-The earlier 0.1.14 records are historical, not qualification of 0.2.0.
+`make evidence-check` and `make probe-check` verify retained records offline;
+they make no new provider requests. Failed tooling and package/Wasm evidence stays
+at the printed paths and is uploaded by the hosted collectors. Successful fixture
+cleanup removes only its own disposable inputs. See
+[development governance](governance/development.md) for command authority and the
+[release guide](releasing.md) for maintainer validation, delivery and publication.

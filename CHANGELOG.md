@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.22.16]
+
+### Changed
+
+- Keep dependency, release and development guides focused on current procedures;
+  remove superseded setup graphs and publication instructions. Preserve original
+  reviews at their source-bound evidence owners and correct the service contract
+  to the current Memory 0.35 host composition.
+- Give frozen publication batches one exact installation-decoding owner across
+  map, session and retained-history inspection. Preserve each reply boundary's
+  independent limits, binding checks and recovery behavior.
+
+### Testing
+
+- Assemble store-test memories through the maintained grant owner, removing the
+  duplicate field mapping while retaining occupancy, corruption and restore tests.
+
 ## [0.22.15] - 2026-10-13
 
 ### Changed

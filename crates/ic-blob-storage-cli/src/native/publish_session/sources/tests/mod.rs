@@ -3,17 +3,10 @@ use super::*;
 use crate::native::{artifacts::Run, publish_check::tests as fixture, upload_inputs::digest};
 use ic_blob_storage_contracts::dto::configuration::HostConfigurationView;
 use ic_blob_storage_contracts::dto::configuration::HostFailure;
-use ic_blob_storage_contracts::dto::configuration::ServiceInstallationInput;
 use serde_json::json;
 
 fn intent(batch: &PreparedBatch) -> SessionIntentRecord {
-    let installation: ServiceInstallationInput = exact_candid::decode(
-        &batch.installation,
-        exact_candid::INSTALLATION_BYTES,
-        64,
-        100_000,
-    )
-    .unwrap();
+    let installation = batch.installation().unwrap();
     let upload = batch.files[0].input.permission.upload;
     serde_json::from_value(json!({"format":"ic-blob-storage/publication-session:retained-browser-handoffs",
         "source_session":null,"browser":null,"operation":"publish_session",
@@ -35,13 +28,7 @@ fn history(path: &Path, batch: &PreparedBatch, expected: &SessionIntentRecord) -
     run.bytes("inventory.json", &batch.inventory).unwrap();
     run.bytes("installation.candid", &batch.installation)
         .unwrap();
-    let installation: ServiceInstallationInput = exact_candid::decode(
-        &batch.installation,
-        exact_candid::INSTALLATION_BYTES,
-        64,
-        100_000,
-    )
-    .unwrap();
+    let installation = batch.installation().unwrap();
     let host = HostConfigurationView {
         configuration: installation.configuration,
         project: installation.project,

@@ -999,27 +999,18 @@ integrating host owns bootstrap, policy, grants and bucket profile. Cross-releas
 schema transitions are reinstall-only, subject to retirement of existing obligations;
 the dependency choice does not close provider and recovery qualification gates.
 
-Pending 0.16.0 selects ic-memory 0.30 through the library's public re-export.
-Hosts must align their direct dependency and composed graph with that line;
-the public Memory-owned grant and runtime types change Rust identity from 0.28.
-Published 0.30.0 runtime source matches 0.28.4, so this selection introduces no
-new durable layout. Host bootstrap, policy, grants and lifecycle ownership stay
-with the integrating host. Cross-release transitions remain reinstall-only,
-with the obligation disposition below; source equivalence does not authorize
-upgrading a retained installation across releases.
+The current library publicly re-exports Memory 0.35. Hosts must align their
+composed graph to one package identity and include all permanent Blob requests
+in one host-wide allocation pool. Key-only committed opens preserve host-owned
+placement and authority; linking the library registers nothing. See
+[the current memory composition](dependencies.md#memory-composition).
 
-The allocation-ledger hard cut introduced in 0.15.0 retains current ownership and latest schema
-metadata, without per-upgrade/schema audit trails or observation timestamps.
-Hosts using those removed APIs or diagnostic DTOs must update their callers and
-fixtures. The dependency's earlier logical layouts cannot be reopened, despite
-its current envelope still using version 1. There is no dual reader, migration
-or automatic reset. Do not clear allocation ID 0 to bypass failed recovery.
-
-Funding intents additionally require the current credit record and accounting
-requires `credit_confirmed`; absent fields refuse, with no legacy reader. The
-installation format above changes alongside these owners, even while development
-artifacts then compiled as 0.14.12. Update hosts, passive DTOs/codecs, tools and
-fixtures together. Frozen prior Wasms and records retain their original identities.
+Only the current allocation ledger and stored schemas are supported. The envelope's
+version-1 marker does not make earlier logical layouts compatible. There is no
+dual reader, migration or automatic reset; never clear allocation ID 0 to bypass
+failed recovery. Funding records retain credit attribution and confirmed-cycle
+accounting; absent current fields refuse. Frozen prior Wasms and records keep
+their original tools and identities until their obligations are dispositioned.
 
 Before a cross-release reinstall, apply the installation retirement contract and
 [operator runbook](retiring-installations.md):
